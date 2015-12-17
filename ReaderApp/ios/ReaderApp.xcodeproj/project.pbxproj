@@ -732,6 +732,7 @@
 				INFOPLIST_FILE = ReaderApp/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_BUNDLE_IDENTIFIER = org.reactjs.native.example.ReaderApp;
 				PRODUCT_NAME = ReaderApp;
 				PROVISIONING_PROFILE = "";
 			};
@@ -753,6 +754,7 @@
 				INFOPLIST_FILE = ReaderApp/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_BUNDLE_IDENTIFIER = org.reactjs.native.example.ReaderApp;
 				PRODUCT_NAME = ReaderApp;
 				PROVISIONING_PROFILE = "";
 			};

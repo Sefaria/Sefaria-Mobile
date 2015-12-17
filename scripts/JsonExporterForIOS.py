@@ -147,6 +147,7 @@ for text in texts:
 				text.pop("heSources", None)
 				text.pop("sources", None)
 		
+			console.log(text)
 
 			except Exception, e:
 				logging.warning(e) 
