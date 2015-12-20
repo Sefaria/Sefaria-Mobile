@@ -12,6 +12,7 @@ var ReaderApp = React.createClass({
     getInitialState: function () {
         return {dataSource: new ListView.DataSource({rowHasChanged: (row1, row2) => row1 !== row2}), 
 		        linksSource: new ListView.DataSource({rowHasChanged: (row1, row2) => row1 !== row2}), 
+	            isLoadingTail: false,
         		textTitle: "Sefaria", 
         		loaded: false, 
         		textReference: "Exodus 1", 
@@ -42,59 +43,11 @@ var ReaderApp = React.createClass({
         
         
     },
-
-
-//return an array of objects according to key, value, or key and value matching
-getObjects: function (obj, key, val) {
-    var objects = [];
-    for (var i in obj) {
-        if (!obj.hasOwnProperty(i)) continue;
-        if (typeof obj[i] == 'object') {
-            objects = objects.concat(this.getObjects(obj[i], key, val));    
-        } else 
-        //if key matches and value matches or if key matches and value is not passed (eliminating the case where key matches but passed value does not)
-        if (i == key && obj[i] == val || i == key && val == '') { //
-            objects.push(obj);
-        } else if (obj[i] == val && key == ''){
-            //only add if the object is not already in the array
-            if (objects.lastIndexOf(obj) == -1){
-                objects.push(obj);
-            }
-        }
-    }
-    return objects;
-},
-
-//return an array of values that match on a certain key
-getValues: function (obj, key) {
-    var objects = [];
-    for (var i in obj) {
-        if (!obj.hasOwnProperty(i)) continue;
-        if (typeof obj[i] == 'object') {
-            objects = objects.concat(this.getValues(obj[i], key));
-        } else if (i == key) {
-            objects.push(obj[i]);
-        }
-    }
-    return objects;
-},
-
-//return an array of keys that match on a certain value
-getKeys: function (obj, val) {
-    var objects = [];
-    for (var i in obj) {
-        if (!obj.hasOwnProperty(i)) continue;
-        if (typeof obj[i] == 'object') {
-            objects = objects.concat(this.getKeys(obj[i], val));
-        } else if (obj[i] == val) {
-            objects.push(i);
-        }
-    }
-    return objects;
-},
-
     
-    JSONSourcePath: function (fileName) {
+    
+    
+
+JSONSourcePath: function (fileName) {
         return (RNFS.DocumentDirectoryPath + "/" + fileName + ".json");
     },
     zipSourcePath: function (fileName) {
@@ -103,38 +56,16 @@ getKeys: function (obj, val) {
     unZipAndLoadJSON: function (zipSourcePath, JSONSourcePath) {
         ZipArchive.unzip(zipSourcePath, RNFS.DocumentDirectoryPath).then(() => {
             var REQUEST_URL = JSONSourcePath;
+        this._data = [];
             fetch(REQUEST_URL).then((response) => response.json()).then((responseData) => {
                 this.setState({
                 	responseData: responseData,
-                    dataSource: this.state.dataSource.cloneWithRows(responseData.content),
+                    dataSource: this.getDataSource(responseData.content),
                     linksSource: this.state.dataSource.cloneWithRows(responseData.content[0].links),
                     textTitle: responseData.sectionRef,
-                    loaded: false,
+                    loaded: true,
                 });
                 
-            }).then(() => {
-                /*  
-		
-		//This is code that unzips the various zip files related to the commentaries from above. Works fine for a couple at a time, but not for many many many of them
-		
-			ZipArchive.unzip(this.zipSourcePath(this.state.commentaryCitation), RNFS.DocumentDirectoryPath).then(() => {
-
-				var REQUEST_URL = this.JSONSourcePath(this.state.commentaryCitation);
-
-				fetch(REQUEST_URL).then((response) => response.json()).then((responseData) => {
-
-					this.setState({
-						commentarySource: responseData[0],
-						loaded: true
-					});
-				});
-			}).done();
-     
-      */
-                //this is a hack right now to reset the maintext when searching for a new one.
-                //This works in conjunction with the loaded: false in the previous promise and
-                //ought to be fixed going forward
-                this.setState({loaded: true});
             }).done();
         })
     },
@@ -184,7 +115,7 @@ getKeys: function (obj, val) {
                         </TouchableOpacity>
                     </View>
                     <View style={styles.mainTextPanel}>
-                        <ListView dataSource={this.state.dataSource} renderRow={this.renderText} style={styles.listView} onChangeVisibleRows={this.getTopRow}/>
+                        <ListView dataSource={this.state.dataSource} renderRow={this.renderText} style={styles.listView} onChangeVisibleRows={this.getTopRow} onEndReached={this.onEndReached}/>
                     </View>
                     <View style={styles.commentaryTextPanel}>
                         <ListView dataSource={this.state.linksSource} renderRow={this.renderCommentary} style={styles.listView}/>
@@ -227,10 +158,43 @@ getKeys: function (obj, val) {
 //    			console.log(Object.keys(visibleRows.s1)[0])
                 this.setState({
                    topRow: Object.keys(visibleRows.s1)[0],
-                   linksSource: this.state.dataSource.cloneWithRows(this.state.responseData.content[Object.keys(visibleRows.s1)[0]].links),
+                   linksSource: this.state.dataSource.cloneWithRows(this._data[Object.keys(visibleRows.s1)[0]].links),
 				});
 				this.renderCommentary;
     },
+    
+     
+        onEndReached: function () {
+        if (this.state.isLoadingTail) {
+            // We're already fetching
+            return;
+        }
+
+        this.setState({
+            isLoadingTail: true
+        });
+		console.log(this.state.responseData)
+            fetch(this.JSONSourcePath(this.state.responseData.next)).then((response) => response.json()).then((responseData) => {
+                this.setState({
+                   	responseData: responseData,
+                    textTitle: responseData.sectionRef,
+		            isLoadingTail: false,
+		            dataSource: this.getDataSource(responseData.content),
+                });
+              
+            }).done();
+
+
+
+    },
+
+     getDataSource: function (data):ListView.DataSource {
+        this._data = this._data.concat(data);
+        return this.state.dataSource.cloneWithRows(this._data);
+    },
+
+  
+    
     renderLoadingView: function () {
         return (
             <View style={styles.container}>
@@ -286,6 +250,7 @@ getKeys: function (obj, val) {
         
     },
     renderCommentary: function (line) {
+    
        /*  var referenceID=line.segmentNumber;
             return (
                   <View style={styles.verseContainer}>

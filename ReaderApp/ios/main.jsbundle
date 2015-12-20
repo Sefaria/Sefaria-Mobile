@@ -873,6 +873,7 @@ var ReaderApp=React.createClass({displayName:'ReaderApp',
 getInitialState:function(){
 return {dataSource:new ListView.DataSource({rowHasChanged:function(row1,row2){return row1 !== row2;}}),
 linksSource:new ListView.DataSource({rowHasChanged:function(row1,row2){return row1 !== row2;}}),
+isLoadingTail:false,
 textTitle:"Sefaria",
 loaded:false,
 textReference:"Exodus 1",
@@ -906,54 +907,6 @@ _this.unZipAndLoadJSON(_this.zipSourcePath(_this.state.bookReference),_this.JSON
 
 
 
-getObjects:function(obj,key,val){
-var objects=[];
-for(var i in obj) {
-if(!obj.hasOwnProperty(i))continue;
-if(typeof obj[i] == 'object'){
-objects = objects.concat(this.getObjects(obj[i],key,val));}else 
-
-
-if(i == key && obj[i] == val || i == key && val == ''){
-objects.push(obj);}else 
-if(obj[i] == val && key == ''){
-
-if(objects.lastIndexOf(obj) == -1){
-objects.push(obj);}}}
-
-
-
-return objects;},
-
-
-
-getValues:function(obj,key){
-var objects=[];
-for(var i in obj) {
-if(!obj.hasOwnProperty(i))continue;
-if(typeof obj[i] == 'object'){
-objects = objects.concat(this.getValues(obj[i],key));}else 
-if(i == key){
-objects.push(obj[i]);}}
-
-
-return objects;},
-
-
-
-getKeys:function(obj,val){
-var objects=[];
-for(var i in obj) {
-if(!obj.hasOwnProperty(i))continue;
-if(typeof obj[i] == 'object'){
-objects = objects.concat(this.getKeys(obj[i],val));}else 
-if(obj[i] == val){
-objects.push(i);}}
-
-
-return objects;},
-
-
 
 JSONSourcePath:function(fileName){
 return RNFS.DocumentDirectoryPath + "/" + fileName + ".json";},
@@ -964,38 +917,16 @@ return RNFS.MainBundlePath + "/sources/" + fileName + ".zip";},
 unZipAndLoadJSON:function(zipSourcePath,JSONSourcePath){var _this2=this;
 ZipArchive.unzip(zipSourcePath,RNFS.DocumentDirectoryPath).then(function(){
 var REQUEST_URL=JSONSourcePath;
+_this2._data = [];
 fetch(REQUEST_URL).then(function(response){return response.json();}).then(function(responseData){
 _this2.setState({
 responseData:responseData,
-dataSource:_this2.state.dataSource.cloneWithRows(responseData.content),
+dataSource:_this2.getDataSource(responseData.content),
 linksSource:_this2.state.dataSource.cloneWithRows(responseData.content[0].links),
 textTitle:responseData.sectionRef,
-loaded:false});}).
+loaded:true});}).
 
 
-then(function(){
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-_this2.setState({loaded:true});}).
 done();});},
 
 
@@ -1045,7 +976,7 @@ this.state.textTitle))),
 
 
 React.createElement(View,{style:styles.mainTextPanel},
-React.createElement(ListView,{dataSource:this.state.dataSource,renderRow:this.renderText,style:styles.listView,onChangeVisibleRows:this.getTopRow})),
+React.createElement(ListView,{dataSource:this.state.dataSource,renderRow:this.renderText,style:styles.listView,onChangeVisibleRows:this.getTopRow,onEndReached:this.onEndReached})),
 
 React.createElement(View,{style:styles.commentaryTextPanel},
 React.createElement(ListView,{dataSource:this.state.linksSource,renderRow:this.renderCommentary,style:styles.listView})),
@@ -1088,9 +1019,42 @@ getTopRow:function(visibleRows,changedRows){
 
 this.setState({
 topRow:Object.keys(visibleRows.s1)[0],
-linksSource:this.state.dataSource.cloneWithRows(this.state.responseData.content[Object.keys(visibleRows.s1)[0]].links)});
+linksSource:this.state.dataSource.cloneWithRows(this._data[Object.keys(visibleRows.s1)[0]].links)});
 
 this.renderCommentary;},
+
+
+
+onEndReached:function(){var _this4=this;
+if(this.state.isLoadingTail){
+
+return;}
+
+
+this.setState({
+isLoadingTail:true});
+
+console.log(this.state.responseData);
+fetch(this.JSONSourcePath(this.state.responseData.next)).then(function(response){return response.json();}).then(function(responseData){
+_this4.setState({
+responseData:responseData,
+textTitle:responseData.sectionRef,
+isLoadingTail:false,
+dataSource:_this4.getDataSource(responseData.content)});}).
+
+
+done();},
+
+
+
+
+
+getDataSource:function(data){
+this._data = this._data.concat(data);
+return this.state.dataSource.cloneWithRows(this._data);},
+
+
+
 
 renderLoadingView:function(){
 return (
@@ -1147,6 +1111,7 @@ React.createElement(HTMLView,{value:line.text,stylesheet:styles}))))));},
 
 
 renderCommentary:function(line){
+
 
 
 
@@ -67668,4 +67633,4 @@ exports.escape = encode.escape;},
 {"./lib/decode.js":1,"./lib/encode.js":3}]},{},[])("entities");});
 });
 ;require("ReaderApp/index.ios.js");
-__SSTOKENSTRING = "@generated SignedSource<<108e716b8e241d7f6936dc055365d4b5>>";
+__SSTOKENSTRING = "@generated SignedSource<<537133238541172e1324ba5883732b51>>";
