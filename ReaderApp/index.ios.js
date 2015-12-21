@@ -170,10 +170,15 @@ JSONSourcePath: function (fileName) {
             return;
         }
 
+		if (this.state.responseData.next == null) {
+			//End of text
+			return;
+		}
+
         this.setState({
             isLoadingTail: true
         });
-		console.log(this.state.responseData)
+//		console.log(this.state.responseData)
             fetch(this.JSONSourcePath(this.state.responseData.next)).then((response) => response.json()).then((responseData) => {
                 this.setState({
                    	responseData: responseData,
