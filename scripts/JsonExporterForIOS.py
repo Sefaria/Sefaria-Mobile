@@ -12,17 +12,19 @@ from pprint import pprint
 from datetime import datetime
 
 import sefaria.model as model
+from sefaria.client.wrapper import get_links
 from sefaria.model.text import Version
 from sefaria.utils.talmud import section_to_daf
 from sefaria.system.exceptions import InputError
 #from summaries import ORDER, get_toc
 from sefaria.system.database import db
 
+import time
+start_time = time.time()
 
 
-SEFARIA_EXPORT_PATH = "/users/rneiss/desktop/test/"
-logging.basicConfig(filename="/users/rneiss/desktop/example.log",level=logging.DEBUG)
 
+SEFARIA_EXPORT_PATH = "LOCAL_PATH_HERE"
 
 texts = db.texts.find()
 
@@ -56,9 +58,6 @@ export_formats = (
 
 
 def export_text_doc(doc):
-	"""
-	Writes document to disk according to all formats in export_formats
-	"""
 	global lastTitleZipped
 	
 	if lastTitleZipped != doc["book"]:
@@ -76,18 +75,9 @@ def export_text_doc(doc):
 		if not os.path.exists(os.path.dirname(path)):
 			os.makedirs(os.path.dirname(path))
 		with open(path, "w") as f:
-			f.write("["+out.encode('utf-8')+"]")
+			f.write(out.encode('utf-8'))
 
 	lastTitleZipped = str(doc["book"])
-
-"""	
-	print lastTitleZipped
-	
-	if doc["title"] != lastTitleZipped:
-		zip_last_book(lastTitleZipped)
-		lastTitleZipped = doc["title"]
-"""
-
 
 def zip_last_book(titleToZip):
 
@@ -112,23 +102,43 @@ def zip_last_book(titleToZip):
 for text in texts:
 	try:
 		for oref in model.Ref(text["title"]).all_subrefs():
-			try:
-				text = model.TextFamily(oref, version=version, lang=None, commentary=0, context=0, pad=0, alts=False).contents()
-			except AttributeError as e:
-				oref = oref.default_child_ref()
-				text = TextFamily(oref, version=version, lang=lang, commentary=commentary, context=context, pad=pad, alts=alts).contents()
-
-			# Use a padded ref for calculating next and prev
-			# TODO: what if pad is false and the ref is of an entire book?
-			# Should next_section_ref return None in that case?
-
+			text = model.TextFamily(oref, version=version, lang=None, commentary=0, context=0, pad=0, alts=False).contents()
 			text["next"]	   = oref.next_section_ref().normal() if oref.next_section_ref() else None
 			text["prev"]	   = oref.prev_section_ref().normal() if oref.prev_section_ref() else None
-			text["links"] = []
-			text["sortingCat"]= format_link_object_for_client(oref)
-			print text["sortingCat"]
+			text["content"] = []
+			
+			if str(oref) == "Sha'ar Ha'Gemul of the Ramban 1":
+				print "Sha'ar Ha'Gemul of the Ramban 1 is the worst"
+			else:
+		
+				for x in range (0,max([len(text["text"]),len(text["he"])])):
+					curContent = {}
+					curContent["segmentNumber"] = str(x+1)
 
-			try:			
+				 
+					links = get_links(text["ref"]+":"+curContent["segmentNumber"], False)
+					for link in links:
+						del link['commentator']
+						del link['heCommentator']
+						del link['type']
+						del link['anchorText']
+						del link['commentaryNum']
+						if 'heTitle' in link: del link['heTitle']
+						del link['_id']
+						del link['anchorRef']
+						del link['ref']
+						del link['anchorVerse']
+					
+					curContent["links"] = links
+				
+					if x < len(text["text"]): curContent["text"]=text["text"][x]
+					else: curContent["text"]=""
+					if x < len(text["he"]): curContent["he"]=text["he"][x]
+					else: curContent["he"]=""
+
+					text["content"].append(curContent)
+
+
 				text.pop("maps", None)
 				text.pop("versionSource", None)
 				text.pop("heDigitizedBySefaria", None)
@@ -146,32 +156,15 @@ for text in texts:
 				text.pop("versionStatus", None)
 				text.pop("heSources", None)
 				text.pop("sources", None)
-		
-			console.log(text)
-
-			except Exception, e:
-				logging.warning(e) 
-			
-			mongoSearchTerm = "^\Q"+str(oref)+":\E.*"
-			sectionLinks = db.links.find({ "$or": [ { "refs.1": { "$regex": mongoSearchTerm } }, { "refs.0": { "$regex": mongoSearchTerm } } ] })
-			
-			
-			for link in sectionLinks:
-				try:
-					if (oref.top_section_ref() == model.Ref(link["refs"][0]).top_section_ref()):
-						text["links"].append([link["refs"][0].replace(text["book"]+" ",""),link["refs"][1]])
-
-					else:
-						text["links"].append([link["refs"][1].replace(text["book"]+" ",""),link["refs"][0]])
-					
-				except Exception, e:
-					logging.warning(e) 	
-					pass
-			
-			export_text_doc(text)
-			
+				text.pop("he",None)
+				text.pop("text",None)
+				
+				export_text_doc(text)
 	except Exception, e:
+		print oref
 		logging.warning(e) 	
 		pass
+			
 
+print("--- %s seconds ---" % round(time.time() - start_time, 2))
 
