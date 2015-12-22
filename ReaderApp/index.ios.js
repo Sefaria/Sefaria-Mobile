@@ -7,7 +7,7 @@ var React = require('react-native');
 const ZipArchive = require('react-native-zip-archive'); //for unzipping -- (https://github.com/plrthink/react-native-zip-archive)
 var RNFS = require('react-native-fs'); //for access to file system -- (https://github.com/johanneslumpe/react-native-fs)
 var HTMLView = require('react-native-htmlview'); //to convert html'afied JSON to something react can render (https://github.com/jsdf/react-native-htmlview)
-var {AppRegistry, StyleSheet, Text, View, ListView, Modal, TextInput, TouchableOpacity} = React;
+var {AppRegistry, StyleSheet, Text, View, ListView, Modal, TextInput, TouchableOpacity, ActivityIndicatorIOS} = React;
 var ReaderApp = React.createClass({
     getInitialState: function () {
         return {dataSource: new ListView.DataSource({rowHasChanged: (row1, row2) => row1 !== row2}), 
@@ -80,7 +80,6 @@ JSONSourcePath: function (fileName) {
         console.log(data);
 
                 this.setState({
-                   topRow: data,
                    linksSource: this.state.dataSource.cloneWithRows(this.state.responseData.content[data].links),
 				});
 				this.renderCommentary;
@@ -159,7 +158,7 @@ JSONSourcePath: function (fileName) {
     
      handleScroll(e) {
     if (e.nativeEvent.contentOffset.y < -20) {
-console.log(e.nativeEvent)
+
        
         if (this.state.isLoadingHead) {
             // We're already fetching
@@ -170,10 +169,11 @@ console.log(e.nativeEvent)
 			//No earlier text
 			return;
 		}
-
+            console.log(this.state.responseData.content.length)
         this.setState({
             isLoadingHead: true,
             loaded: false,
+
 
         });
             fetch(this.JSONSourcePath(this.state.responseData.prev)).then((response) => response.json()).then((responseData) => {
@@ -211,7 +211,7 @@ console.log(e.nativeEvent)
 
     
     getTopRow: function(visibleRows, changedRows){
-//    			console.log(Object.keys(visibleRows.s1)[0])
+    			console.log(Object.keys(visibleRows.s1)[0])
                 this.setState({
                    topRow: Object.keys(visibleRows.s1)[0],
                    linksSource: this.state.dataSource.cloneWithRows(this._data[Object.keys(visibleRows.s1)[0]].links),
@@ -236,7 +236,7 @@ console.log(e.nativeEvent)
         this.setState({
             isLoadingTail: true
         });
-//		console.log(this.state.responseData)
+		console.log('next')
             fetch(this.JSONSourcePath(this.state.responseData.next)).then((response) => response.json()).then((responseData) => {
                 this.setState({
                    	responseData: responseData,
@@ -264,6 +264,10 @@ console.log(e.nativeEvent)
                 <Text>
                     Loading...
                 </Text>
+        <ActivityIndicatorIOS
+          animating={true}
+          size={'large'} />
+
             </View>
         );
     },
@@ -288,7 +292,7 @@ console.log(e.nativeEvent)
         );
     },
     renderText: function (line) {
-    console.log(line);
+
      var referenceID=line.segmentNumber;
             return (
         		<TouchableOpacity onPress={this.TextSegmentTouched.bind(this, (referenceID-1))}>
