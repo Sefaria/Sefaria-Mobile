@@ -6,6 +6,10 @@
     "start": "react-native start"
   },
   "dependencies": {
-    "react-native": "^0.14.2"
+    "react-native": "^0.14.2",
+    "react-native-fs": "^1.2.0",
+    "react-native-html": "^0.1.0",
+    "react-native-htmlview": "^0.2.0",
+    "react-native-zip-archive": "0.0.6"
   }
 }
