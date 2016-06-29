@@ -15,6 +15,14 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
+  NSDictionary *appDefaults = @{
+                                @"host_preference": @"localhost",
+                                @"port_preference": @"8081",
+                                };
+  [[NSUserDefaults standardUserDefaults] registerDefaults:appDefaults];
+
+  
+  
   NSURL *jsCodeLocation;
 
   /**
@@ -30,8 +38,8 @@
    * `inet` value under `en0:`) and make sure your computer and iOS device are
    * on the same Wi-Fi network.
    */
-  
-  jsCodeLocation = [NSURL URLWithString:@"http://localhost:8081/index.ios.bundle?platform=ios&dev=true"];
+
+  //  jsCodeLocation = [NSURL URLWithString:@"http://localhost:8081/index.ios.bundle?platform=ios&dev=true"];
 
   /**
    * OPTION 2
@@ -41,6 +49,22 @@
 
 //   jsCodeLocation = [[NSBundle mainBundle] URLForResource:@"main" withExtension:@"jsbundle"];
 
+  
+  /**
+   * OPTION 3
+   * Load from remote location using values in setting portion of app
+   *
+   */
+
+ NSString *host = [[NSUserDefaults standardUserDefaults] stringForKey: @"host_preference"];
+ NSString *port = [[NSUserDefaults standardUserDefaults] stringForKey: @"port_preference"];
+ 
+ NSString * urlString = [NSString stringWithFormat: @"http://%@:%@/index.ios.bundle?platform=ios&dev=true", host, port];
+ jsCodeLocation = [NSURL URLWithString: urlString];
+
+// --- //
+  
+ 
   RCTRootView *rootView = [[RCTRootView alloc] initWithBundleURL:jsCodeLocation
                                                       moduleName:@"ReaderApp"
                                                initialProperties:nil

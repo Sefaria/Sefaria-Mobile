@@ -76,17 +76,20 @@ else {	panelType = <TextColumn textRef={this.props.textRef} segmentRef={this.pro
     return (
 		<View style={styles.container}>
 		<View style={styles.header}>
-			<TouchableOpacity onPress={this.toggleTextFlow}>
+			<TouchableOpacity onPress={this.toggleTextFlow} style={[{width:100}]}>
 				<Text style={styles.title}>
 					{this.props.textList == 0 ? this.state.textFlow : ""}
 				</Text>
 			</TouchableOpacity>
 
-			<TouchableOpacity onPress={this.togglecolumnLanguage}>
+			<TouchableOpacity onPress={this.togglecolumnLanguage} style={[{width:100}]}>
 				<Text style={styles.title}>
 					{this.props.textList == 0 ? this.state.columnLanguage : ""}
 				</Text>
 			</TouchableOpacity>
+			<Text style={[{width:100}]}>
+			{this.props.textReference}
+			</Text>
 		</View>
 	   	<View style={styles.mainTextPanel}>
 			{panelType}
@@ -105,9 +108,9 @@ var styles = StyleSheet.create({
     header: {
         height: 45,
         backgroundColor: '#F9F9F7',
-        alignSelf: "stretch",
         alignItems: 'center',
-        justifyContent: 'flex-end'
+        justifyContent: 'flex-end',
+        flexDirection: 'row',
     },
     
     mainTextPanel: {

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>StringsTable</key>
+	<string>Root</string>
+	<key>PreferenceSpecifiers</key>
+	<array>
+		<dict>
+			<key>Type</key>
+			<string>PSGroupSpecifier</string>
+			<key>Title</key>
+			<string>Developer Settings</string>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSTextFieldSpecifier</string>
+			<key>Title</key>
+			<string>Host</string>
+			<key>Key</key>
+			<string>host_preference</string>
+			<key>DefaultValue</key>
+			<string>localhost</string>
+			<key>IsSecure</key>
+			<false/>
+			<key>KeyboardType</key>
+			<string>Alphabet</string>
+			<key>AutocapitalizationType</key>
+			<string>None</string>
+			<key>AutocorrectionType</key>
+			<string>No</string>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSTextFieldSpecifier</string>
+			<key>Title</key>
+			<string>Port</string>
+			<key>Key</key>
+			<string>port_preference</string>
+			<key>DefaultValue</key>
+			<string>8081</string>
+			<key>IsSecure</key>
+			<false/>
+			<key>KeyboardType</key>
+			<string>Alphabet</string>
+			<key>AutocapitalizationType</key>
+			<string>None</string>
+			<key>AutocorrectionType</key>
+			<string>No</string>
+		</dict>
+	</array>
+</dict>
+</plist>

@@ -24,6 +24,7 @@
 		832341BD1AAA6AB300B99B32 /* libRCTText.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 832341B51AAA6A8300B99B32 /* libRCTText.a */; };
 		A14D45C11C0C09DF00D57AA4 /* sources in Resources */ = {isa = PBXBuildFile; fileRef = A14D45C01C0C09DF00D57AA4 /* sources */; };
 		A15653711BF28AF90023AF30 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = A15653701BF28AF90023AF30 /* libz.tbd */; };
+		A182D71D1D1C7E6300CBFEDC /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = A182D71C1D1C7E6300CBFEDC /* Settings.bundle */; };
 		A1C47BB51C03AFE900F2F134 /* EBGaramond-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A1C47BB41C03AFE900F2F134 /* EBGaramond-Regular.ttf */; };
 		A1C47BB71C03B04000F2F134 /* TaameyFrankCLM-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A1C47BB61C03B04000F2F134 /* TaameyFrankCLM-Medium.ttf */; };
 		A1C47BB91C03B7E100F2F134 /* Montserrat-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A1C47BB81C03B7E100F2F134 /* Montserrat-Regular.ttf */; };
@@ -154,6 +155,7 @@
 		832341B01AAA6A8300B99B32 /* RCTText.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTText.xcodeproj; path = "../node_modules/react-native/Libraries/Text/RCTText.xcodeproj"; sourceTree = "<group>"; };
 		A14D45C01C0C09DF00D57AA4 /* sources */ = {isa = PBXFileReference; lastKnownFileType = folder; path = sources; sourceTree = "<group>"; };
 		A15653701BF28AF90023AF30 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
+		A182D71C1D1C7E6300CBFEDC /* Settings.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; name = Settings.bundle; path = ReaderApp/Settings.bundle; sourceTree = "<group>"; };
 		A1C47BB41C03AFE900F2F134 /* EBGaramond-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "EBGaramond-Regular.ttf"; sourceTree = "<group>"; };
 		A1C47BB61C03B04000F2F134 /* TaameyFrankCLM-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "TaameyFrankCLM-Medium.ttf"; sourceTree = "<group>"; };
 		A1C47BB81C03B7E100F2F134 /* Montserrat-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Montserrat-Regular.ttf"; sourceTree = "<group>"; };
@@ -330,6 +332,7 @@
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
+				A182D71C1D1C7E6300CBFEDC /* Settings.bundle */,
 				A14D45C01C0C09DF00D57AA4 /* sources */,
 				A1C47BB31C03AFCD00F2F134 /* Fonts */,
 				A15653701BF28AF90023AF30 /* libz.tbd */,
@@ -433,6 +436,9 @@
 					00E356ED1AD99517003FC87E = {
 						CreatedOnToolsVersion = 6.2;
 						TestTargetID = 13B07F861A680F5B00A75B9A;
+					};
+					13B07F861A680F5B00A75B9A = {
+						DevelopmentTeam = 5N3PC7C3E2;
 					};
 				};
 			};
@@ -608,6 +614,7 @@
 				A1C47BB91C03B7E100F2F134 /* Montserrat-Regular.ttf in Resources */,
 				A1C47BC01C03C8C000F2F134 /* Montserrat-Black.ttf in Resources */,
 				A1C47BBB1C03C83D00F2F134 /* OpenSansHebrew-Regular.ttf in Resources */,
+				A182D71D1D1C7E6300CBFEDC /* Settings.bundle in Resources */,
 				A14D45C11C0C09DF00D57AA4 /* sources in Resources */,
 				A1C47BB51C03AFE900F2F134 /* EBGaramond-Regular.ttf in Resources */,
 				A1C47BC11C03C8C000F2F134 /* Montserrat-Bold.ttf in Resources */,
@@ -721,7 +728,7 @@
 				ALWAYS_SEARCH_USER_PATHS = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = "Brand Assets";
-				CODE_SIGN_IDENTITY = "iPhone Distribution: Russel Neiss (5N3PC7C3E2)";
+				CODE_SIGN_IDENTITY = "iPhone Distribution";
 				DEAD_CODE_STRIPPING = NO;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
@@ -745,7 +752,7 @@
 				ALWAYS_SEARCH_USER_PATHS = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = "Brand Assets";
-				CODE_SIGN_IDENTITY = "iPhone Distribution: Russel Neiss (5N3PC7C3E2)";
+				CODE_SIGN_IDENTITY = "iPhone Distribution";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
@@ -779,7 +786,8 @@
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_IDENTITY = "iPhone Distribution: Russel Neiss (5N3PC7C3E2)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution: Russel Neiss (5N3PC7C3E2)";
 				COPY_PHASE_STRIP = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
@@ -825,7 +833,8 @@
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_IDENTITY = "iPhone Distribution: Russel Neiss (5N3PC7C3E2)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution: Russel Neiss (5N3PC7C3E2)";
 				COPY_PHASE_STRIP = YES;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
