@@ -3,7 +3,8 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "start": "react-native start"
+    "start": "react-native start",
+    "setup": "sudo npm install -g react-native-cli"
   },
   "dependencies": {
     "react-native": "^0.14.2",
