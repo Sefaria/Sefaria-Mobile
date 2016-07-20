@@ -6,6 +6,8 @@ We're using React-Native, so much of the app is written in JavaScript. This is u
 ### Getting Started
 
 ```
+brew install node
+brew install watchman
 git clone https://github.com/Sefaria/Sefaria-iOS/
 cd Sefaria-iOS/ReaderApp                            
 npm install
