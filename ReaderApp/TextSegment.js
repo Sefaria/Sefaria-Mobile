@@ -15,7 +15,7 @@ var TextSegment = React.createClass({
 
 onPressTextSegment: function(q){
 //	console.log(this.props);
-    this.props._TextSegmentPressed(q-1);
+    this.props.TextSegmentPressed(q-1);
 
 
 },

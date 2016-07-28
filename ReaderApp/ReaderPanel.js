@@ -67,10 +67,10 @@ switch(this.state.columnLanguage) {
   var panelType;
   if (this.props.textList == 1) {
 
-  	 	panelType = <TextList textRef={this.props.textRef} segmentRef={this.props.segmentRef} textFlow={this.state.textFlow} columnLanguage={this.state.columnLanguage} _RefPressed={ this.props._RefPressed } />
+  	 	panelType = <TextList textRef={this.props.textRef} segmentRef={this.props.segmentRef} textFlow={this.state.textFlow} columnLanguage={this.state.columnLanguage} RefPressed={ this.props.RefPressed } />
 
 }
-else {	panelType = <TextColumn textRef={this.props.textRef} segmentRef={this.props.segmentRef} textFlow={this.state.textFlow} columnLanguage={this.state.columnLanguage} _TextSegmentPressed={ this.props._TextSegmentPressed } /> }
+else {	panelType = <TextColumn textRef={this.props.textRef} segmentRef={this.props.segmentRef} textFlow={this.state.textFlow} columnLanguage={this.state.columnLanguage} TextSegmentPressed={ this.props.TextSegmentPressed } /> }
 
   
     return (
