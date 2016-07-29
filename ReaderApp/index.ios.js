@@ -31,7 +31,6 @@ var ReaderApp = React.createClass({
       		textReference: "Exodus 1", 
       		bookReference: "Exodus", 
       		loaded: false,
-
         };
     },
     componentDidMount: function () {
@@ -60,7 +59,6 @@ var ReaderApp = React.createClass({
         });
         this.loadNewText();
     },
-
     renderLoadingView: function () {
         return (
             <View style={styles.container}>
@@ -72,10 +70,7 @@ var ReaderApp = React.createClass({
             </View>
         );
     },
-
-    
     render: function () {
-
         if (!this.state.loaded) {return this.renderLoadingView();}
         else {
             return (
@@ -87,14 +82,7 @@ var ReaderApp = React.createClass({
                         textList={0}
                         style={styles.mainTextPanel}
                         TextSegmentPressed={ this.TextSegmentPressed }
-                    />
-                    <ReaderPanel
-                        textReference={this.state.textReference}
-                        textRef={this.state.textRef.content}
-                        segmentRef={this.state.segmentRef}
-                        textList={1} style={styles.commentaryTextPanel}
-                        RefPressed={ this.RefPressed }
-                    />
+                        RefPressed={ this.RefPressed } />
                 </View>
             );
         }

@@ -20,14 +20,23 @@ module.exports = StyleSheet.create({
         color: '#333333',
         marginBottom: 5
     },
-
-       container: {
+    container: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: '#F5FCFF'
     },
-
+    header: {
+        height: 45,
+        backgroundColor: '#F9F9F7',
+        alignItems: 'center',
+        justifyContent: 'flex-end',
+        flexDirection: 'row',
+    },
+    menu: {
+        backgroundColor: '#f9f9f7',
+        alignSelf: 'stretch',
+    },
     mainTextPanel: {
         flex: .5,
         flexWrap: "nowrap",
@@ -98,7 +107,7 @@ module.exports = StyleSheet.create({
         fontFamily: "Open Sans Hebrew"
     },
 	blank: {
-	height:0,
-	width:0
-		}
+	   height:0,
+	   width:0
+	}
 });
