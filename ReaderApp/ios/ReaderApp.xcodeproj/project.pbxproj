@@ -35,6 +35,8 @@
 		A1C47BC31C03C8C000F2F134 /* Montserrat-Thin.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A1C47BBF1C03C8C000F2F134 /* Montserrat-Thin.ttf */; };
 		A1E10A991C692251002C057B /* libRNFS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A1E10A921C692149002C057B /* libRNFS.a */; };
 		A1E10A9A1C692251002C057B /* libRNZipArchive.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A1E10A981C692160002C057B /* libRNZipArchive.a */; };
+		DD1798101D4BB6E000762517 /* LocalSettings.plist in Resources */ = {isa = PBXBuildFile; fileRef = DD17980F1D4BB6E000762517 /* LocalSettings.plist */; };
+		DD1798121D4BB97500762517 /* LocalSettingsExample.plist in Resources */ = {isa = PBXBuildFile; fileRef = DD1798111D4BB97500762517 /* LocalSettingsExample.plist */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -166,6 +168,8 @@
 		A1C47BBF1C03C8C000F2F134 /* Montserrat-Thin.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Montserrat-Thin.ttf"; sourceTree = "<group>"; };
 		A1E10A831C692149002C057B /* RNFS.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RNFS.xcodeproj; path = "../node_modules/react-native-fs/RNFS.xcodeproj"; sourceTree = "<group>"; };
 		A1E10A931C692160002C057B /* RNZipArchive.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RNZipArchive.xcodeproj; path = "../node_modules/react-native-zip-archive/RNZipArchive.xcodeproj"; sourceTree = "<group>"; };
+		DD17980F1D4BB6E000762517 /* LocalSettings.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = LocalSettings.plist; path = ReaderApp/LocalSettings.plist; sourceTree = "<group>"; };
+		DD1798111D4BB97500762517 /* LocalSettingsExample.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = LocalSettingsExample.plist; path = ReaderApp/LocalSettingsExample.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -275,6 +279,8 @@
 		13B07FAE1A68108700A75B9A /* ReaderApp */ = {
 			isa = PBXGroup;
 			children = (
+				DD17980F1D4BB6E000762517 /* LocalSettings.plist */,
+				DD1798111D4BB97500762517 /* LocalSettingsExample.plist */,
 				008F07F21AC5B25A0029DE68 /* main.jsbundle */,
 				13B07FAF1A68108700A75B9A /* AppDelegate.h */,
 				13B07FB01A68108700A75B9A /* AppDelegate.m */,
@@ -610,6 +616,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DD1798101D4BB6E000762517 /* LocalSettings.plist in Resources */,
 				A1C47BC21C03C8C000F2F134 /* Montserrat-Light.ttf in Resources */,
 				A1C47BB91C03B7E100F2F134 /* Montserrat-Regular.ttf in Resources */,
 				A1C47BC01C03C8C000F2F134 /* Montserrat-Black.ttf in Resources */,
@@ -621,6 +628,7 @@
 				A1C47BC31C03C8C000F2F134 /* Montserrat-Thin.ttf in Resources */,
 				A1C47BB71C03B04000F2F134 /* TaameyFrankCLM-Medium.ttf in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
+				DD1798121D4BB97500762517 /* LocalSettingsExample.plist in Resources */,
 				13B07FBD1A68108700A75B9A /* LaunchScreen.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

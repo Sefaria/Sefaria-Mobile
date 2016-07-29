@@ -37,4 +37,5 @@ npm-debug.log
 *.pyc
 
 # local settings
+LocalSettings.plist
 local_settings.py
