@@ -27,7 +27,7 @@ componentWillReceiveProps: function(nextProps) {
 onPressRef: function(q){
 
 //	 console.log(this.props);
-    this.props._RefPressed(q);
+    this.props.RefPressed(q);
 
 
 },

@@ -24,11 +24,11 @@ var TextRange = React.createClass({
 			 rows.push(<Text style={styles.verseNumber}>{textRef[i].segmentNumber}.</Text>)
 	
 			 if (columnLanguage == "english" || columnLanguage == "bilingual" ) {
-			 rows.push(<TextSegment segmentRef={this.props.segmentRef} segmentKey={textRef[i].segmentNumber} textRef={textRef[i].text} textType="english" _TextSegmentPressed={ this.props._TextSegmentPressed } generateSegmentRefPositionArray={this.props.generateSegmentRefPositionArray} />);
+			 rows.push(<TextSegment segmentRef={this.props.segmentRef} segmentKey={textRef[i].segmentNumber} textRef={textRef[i].text} textType="english" TextSegmentPressed={ this.props.TextSegmentPressed } generateSegmentRefPositionArray={this.props.generateSegmentRefPositionArray} />);
 			 }
 
 			 if (columnLanguage == "hebrew" || columnLanguage == "bilingual" ) {
-			 rows.push(<TextSegment segmentRef={this.props.segmentRef} segmentKey={textRef[i].segmentNumber} textRef={textRef[i].he} textType="hebrew" _TextSegmentPressed={ this.props._TextSegmentPressed } generateSegmentRefPositionArray={this.props.generateSegmentRefPositionArray} />);
+			 rows.push(<TextSegment segmentRef={this.props.segmentRef} segmentKey={textRef[i].segmentNumber} textRef={textRef[i].he} textType="hebrew" TextSegmentPressed={ this.props.TextSegmentPressed } generateSegmentRefPositionArray={this.props.generateSegmentRefPositionArray} />);
 			 }
 //		}
 
