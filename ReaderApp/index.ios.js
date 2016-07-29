@@ -104,7 +104,7 @@ _RefPressed: function(q) {
 			loaded: false
 				})
 
-            this.unZipAndLoadJSON(this.zipSourcePath(this.state.bookReference), this.JSONSourcePath(this.state.textReference))
+    this.unZipAndLoadJSON(this.zipSourcePath(this.state.bookReference), this.JSONSourcePath(this.state.textReference))
 
 
 },

@@ -6,89 +6,66 @@ import json
 import zipfile
 import logging
 import glob
+import time
 from shutil import rmtree
 from random import random
 from pprint import pprint
 from datetime import datetime
+
+from local_settings import *
+
+sys.path.insert(0, SEFARIA_PROJECT_PATH)
+os.environ['DJANGO_SETTINGS_MODULE'] = "settings"
 
 import sefaria.model as model
 from sefaria.client.wrapper import get_links
 from sefaria.model.text import Version
 from sefaria.utils.talmud import section_to_daf
 from sefaria.system.exceptions import InputError
-#from summaries import ORDER, get_toc
 from sefaria.system.database import db
 
-import time
-start_time = time.time()
 
-
-
-SEFARIA_EXPORT_PATH = "LOCAL_PATH_HERE"
-
-texts = db.texts.find()
-
-lang=None
-version=None
-lastTitleZipped = ""
+PROJECT_PATH = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+SEFARIA_EXPORT_PATH = PROJECT_PATH + "/ReaderApp/ios/sources"
 
 
 def make_path(doc, format):
 	"""
 	Returns the full path and file name for exporting 'doc' in 'format'.
 	"""
-	path = "%s/%s.%s" % (SEFARIA_EXPORT_PATH,
-											doc["ref"],
-											format)
+	path = "%s/%s.%s" % (SEFARIA_EXPORT_PATH, doc["ref"], format)
 	return path
 
 
 def make_json(doc):
 	"""
-	Returns JSON of 'doc' with export settings.
+	Returns JSON of `doc` with export settings.
 	"""
 	return json.dumps(doc, indent=4, encoding='utf-8', ensure_ascii=False) #prettified
-#	return json.dumps(doc, separators=(',',':'), encoding='utf-8', ensure_ascii=False) #minified
- 
-
-export_formats = (
-	('json', make_json),
-)
+	#return json.dumps(doc, separators=(',',':'), encoding='utf-8', ensure_ascii=False) #minified
 
 
+def write_doc(doc, path):
+	"""
+	Takes a dictionary `doc` ready to export and actually writes the file to the filesystem.
+	"""
+	out  = make_json(doc)
+	if not os.path.exists(os.path.dirname(path)):
+		os.makedirs(os.path.dirname(path))
+	with open(path, "w") as f:
+		f.write(out.encode('utf-8'))
 
-def export_text_doc(doc):
-	global lastTitleZipped
-	
-	if lastTitleZipped != doc["book"]:
-		zip_last_book(lastTitleZipped)
 
-	
-	try: 
-		lastTitleZipped
-	except: 
-		lastTitleZipped = ""
-
-	for format in export_formats:
-		out = format[1](doc)
-		path = make_path(doc, format[0])
-		if not os.path.exists(os.path.dirname(path)):
-			os.makedirs(os.path.dirname(path))
-		with open(path, "w") as f:
-			f.write(out.encode('utf-8'))
-
-	lastTitleZipped = str(doc["book"])
-
-def zip_last_book(titleToZip):
-
+def zip_last_text(title):
+	"""
+	Zip up the JSON files of the last text exported into and delete the original JSON files.
+	Assumes that all previous JSON files have been deleted and the remaining ones should go in the new zip.
+	"""
 	os.chdir(SEFARIA_EXPORT_PATH)
 
-	zipPath = "%s/%s.%s" % (SEFARIA_EXPORT_PATH,
-											titleToZip,
-											"zip")
+	zipPath = "%s/%s.%s" % (SEFARIA_EXPORT_PATH, title, "zip")
 
-
-	z = zipfile.ZipFile(zipPath, "w",zipfile.ZIP_DEFLATED)
+	z = zipfile.ZipFile(zipPath, "w", zipfile.ZIP_DEFLATED)
 
 	for file in glob.glob("*.json"):
 		z.write(file)
@@ -98,24 +75,41 @@ def zip_last_book(titleToZip):
 	return
 
 
+def export_texts(skip_existing=False):
+	"""
+	Exports all texts in the database. 
+	"""
+	titles = [i.title for i in model.library.all_index_records(with_commentary=True)]
 
-for text in texts:
+	for title in titles:
+		if skip_existing:
+			if os.path.isfile("%s/%s.zip" % (SEFARIA_EXPORT_PATH, title)):
+				continue 
+		export_text(title)
+		export_index(title)
+		zip_last_text(title)
+
+
+def export_text(title):
+	"""
+	Takes a single document from the `texts` collection exports it, by chopping it up 
+	Add helpful data like 
+	"""
+	print title
 	try:
-		for oref in model.Ref(text["title"]).all_subrefs():
-			text = model.TextFamily(oref, version=version, lang=None, commentary=0, context=0, pad=0, alts=False).contents()
-			text["next"]	   = oref.next_section_ref().normal() if oref.next_section_ref() else None
-			text["prev"]	   = oref.prev_section_ref().normal() if oref.prev_section_ref() else None
+		for oref in model.Ref(title).all_subrefs():
+			text = model.TextFamily(oref, version=None, lang=None, commentary=0, context=0, pad=0, alts=False).contents()
+			text["next"]	= oref.next_section_ref().normal() if oref.next_section_ref() else None
+			text["prev"]	= oref.prev_section_ref().normal() if oref.prev_section_ref() else None
 			text["content"] = []
 			
 			if str(oref) == "Sha'ar Ha'Gemul of the Ramban 1":
 				print "Sha'ar Ha'Gemul of the Ramban 1 is the worst"
 			else:
-		
 				for x in range (0,max([len(text["text"]),len(text["he"])])):
 					curContent = {}
 					curContent["segmentNumber"] = str(x+1)
 
-				 
 					links = get_links(text["ref"]+":"+curContent["segmentNumber"], False)
 					for link in links:
 						del link['commentator']
@@ -138,7 +132,6 @@ for text in texts:
 
 					text["content"].append(curContent)
 
-
 				text.pop("maps", None)
 				text.pop("versionSource", None)
 				text.pop("heDigitizedBySefaria", None)
@@ -159,12 +152,49 @@ for text in texts:
 				text.pop("he",None)
 				text.pop("text",None)
 				
-				export_text_doc(text)
+				path = make_path(text, "json")
+				write_doc(text, path)
 	except Exception, e:
-		print oref
 		logging.warning(e) 	
 		pass
 			
 
-print("--- %s seconds ---" % round(time.time() - start_time, 2))
+def export_index(title):
+	"""
+	Writes the JSON of the index record of the text called `title`. 
+	"""
+	index = model.get_index(title)
+	index = index.contents(v2=True)
+	path  = "%s/%s_index.json" % (SEFARIA_EXPORT_PATH, title)
+	write_doc(index, path)
 
+
+def export_toc():
+	"""
+	Writes the Table of Contents JSON to a single file.
+	"""
+	print "Export Table of Contents"
+	toc  = model.library.get_toc()
+	path = "%s/toc.json" % (SEFARIA_EXPORT_PATH)
+	write_doc(toc, path)
+
+
+def clear_exports():
+	"""
+	Deletes all files from any export directory listed in export_formats.
+	"""
+	if os.path.exists(SEFARIA_EXPORT_PATH):
+		rmtree(SEFARIA_EXPORT_PATH)
+
+
+def export_all(skip_existing=False):
+	"""
+	Export everything we need.
+	If `skip_existing`, skip any text that already has a zip file, otherwise delete everything and start fresh.
+	"""
+	start_time = time.time()
+	if not skip_existing:
+		clear_exports()
+	export_texts(skip_existing)
+	export_toc()
+	print("--- %s seconds ---" % round(time.time() - start_time, 2))

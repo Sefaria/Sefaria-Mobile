@@ -14,3 +14,5 @@ npm install
 npm run setup
 npm start
 ```
+
+With these dependencies installed, you can open `/ReaderApp/ReadApp.xcodeprog` and hit run to start the simulator.
