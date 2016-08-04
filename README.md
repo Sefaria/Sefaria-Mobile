@@ -12,7 +12,6 @@ git clone https://github.com/Sefaria/Sefaria-iOS/
 cd Sefaria-iOS/ReaderApp                            
 npm install
 npm run setup
-npm start
 cp LocalSettingsExample.plist LocalSettings.plist
 ```
 
