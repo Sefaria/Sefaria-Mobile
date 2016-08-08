@@ -25,6 +25,7 @@ var ReaderPanel = React.createClass({
       menuOpen: null,
     	textFlow: this.props.textFlow || 'segmented', 	// alternative is 'continuous'
     	columnLanguage: this.props.columnLanguage || 'english', 	// alternative is 'hebrew' &  'bilingual'
+      searchQuery: ''
     };
   },
   openMenu: function(menu) {
@@ -38,6 +39,9 @@ var ReaderPanel = React.createClass({
   },
   openSearch: function() {
     this.openMenu("search");
+  },
+  onQueryChange: function(query) {
+    this.setState({searchQuery:query})
   },
   toggleTextFlow:function() {
     if (this.state.textFlow == "continuous") {
@@ -79,7 +83,9 @@ var ReaderPanel = React.createClass({
       case ("search"):
         return(
           <SearchPage
-          closeNav={this.closeMenu}/>);
+          closeNav={this.closeMenu}
+          onQueryChange={this.onQueryChange}
+          searchQuery={this.state.searchQuery}/>);
         break;
     }
 
