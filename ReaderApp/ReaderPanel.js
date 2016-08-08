@@ -10,6 +10,7 @@ var {
 } = React;
 
 var ReaderNavigationMenu = require('./ReaderNavigationMenu');
+var SearchPage           = require('./SearchPage');
 var TextColumn           = require('./TextColumn');
 var TextList             = require('./TextList');
 var styles               = require('./Styles.js');
@@ -34,6 +35,9 @@ var ReaderPanel = React.createClass({
   },
   openNav: function() {
     this.openMenu("navigation");
+  },
+  openSearch: function() {
+    this.openMenu("search");
   },
   toggleTextFlow:function() {
     if (this.state.textFlow == "continuous") {
@@ -72,6 +76,11 @@ var ReaderPanel = React.createClass({
             openNav={this.openNav}
             closeNav={this.closeMenu} />);
         break;
+      case ("search"):
+        return(
+          <SearchPage
+          closeNav={this.closeMenu}/>);
+        break;
     }
 
     return (
@@ -94,7 +103,11 @@ var ReaderPanel = React.createClass({
     				</Text>
     			</TouchableOpacity>
 
-    			<Text style={[{width:100}]}>
+          <TouchableOpacity onPress={this.openSearch} style={[{width:30}]}>
+            <Text>Search</Text>
+          </TouchableOpacity>
+    			
+          <Text style={[{width:100}]}>
     			   {this.props.textReference}
     			</Text>
     		</View>
