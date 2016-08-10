@@ -32,9 +32,9 @@ var curTextRange;
 var sourceArray = [];
 
 if (this.props.textFlow == 'continuous' ) {
-  curTextRange = <TextRangeContinuous textRef={this.props.textRef} segmentRef={this.props.segmentRef} columnLanguage={this.props.columnLanguage} TextSegmentPressed={ this.props.TextSegmentPressed } generateSegmentRefPositionArray={this.generateSegmentRefPositionArray}  />;
+  curTextRange = <TextRangeContinuous data={this.props.data} segmentRef={this.props.segmentRef} columnLanguage={this.props.columnLanguage} TextSegmentPressed={ this.props.TextSegmentPressed } generateSegmentRefPositionArray={this.generateSegmentRefPositionArray}  />;
 } else {
-  curTextRange = <TextRange textRef={this.props.textRef} segmentRef={this.props.segmentRef} columnLanguage={this.props.columnLanguage} TextSegmentPressed={ this.props.TextSegmentPressed } generateSegmentRefPositionArray={this.generateSegmentRefPositionArray}  />;
+  curTextRange = <TextRange data={this.props.data} segmentRef={this.props.segmentRef} columnLanguage={this.props.columnLanguage} TextSegmentPressed={ this.props.TextSegmentPressed } generateSegmentRefPositionArray={this.generateSegmentRefPositionArray}  />;
 }
 
 sourceArray.push(curTextRange);
@@ -79,9 +79,9 @@ var curTextRange;
 
   
 if (this.props.textFlow == 'continuous' ) {
-  curTextRange = <TextRangeContinuous textRef={this.props.textRef} segmentRef={this.props.segmentRef} columnLanguage={this.props.columnLanguage} TextSegmentPressed={ this.props.TextSegmentPressed } generateSegmentRefPositionArray={this.generateSegmentRefPositionArray} />;
+  curTextRange = <TextRangeContinuous data={this.props.data} segmentRef={this.props.segmentRef} columnLanguage={this.props.columnLanguage} TextSegmentPressed={ this.props.TextSegmentPressed } generateSegmentRefPositionArray={this.generateSegmentRefPositionArray} />;
 } else {
-  curTextRange = <TextRange textRef={this.props.textRef} segmentRef={this.props.segmentRef} columnLanguage={this.props.columnLanguage} TextSegmentPressed={ this.props.TextSegmentPressed } generateSegmentRefPositionArray={this.generateSegmentRefPositionArray} />;
+  curTextRange = <TextRange data={this.props.data} segmentRef={this.props.segmentRef} columnLanguage={this.props.columnLanguage} TextSegmentPressed={ this.props.TextSegmentPressed } generateSegmentRefPositionArray={this.generateSegmentRefPositionArray} />;
 }
 
   
