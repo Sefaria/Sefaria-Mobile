@@ -34,30 +34,37 @@ var ReaderApp = React.createClass({
         };
     },
     componentDidMount: function () {
- //     Sefaria.deleteAllFiles(); //need to convert to promise/enact a callback. sometimes deletes the file that's being unzipped below.
-        this.loadNewText();
+      Sefaria._deleteAllFiles().then(function() {
+          this.loadNewText(this.state.ref);
+         }.bind(this)).catch(function(error) {
+          console.log('oh no', error);
+        });
+
+
     },
 
     TextSegmentPressed: function(q) {
         this.setState({segmentRef: q})
     },
 
-    loadNewText: function() {
-        Sefaria.unZipAndLoadJSON(Sefaria.zipSourcePath(this.state.bookReference), Sefaria.JSONSourcePath(this.state.textReference), function (textRef) {
+    loadNewText: function(ref) {
+
+      Sefaria.text(ref).then(function(data) {
             this.setState({
-                textRef: textRef,
+                textRef: data,
                 loaded: true
             });
-        }.bind(this));
+         }.bind(this)).catch(function(error) {
+          console.log('oh no', error);
+        });
+
     },
 
-    RefPressed: function(q) {
+    RefPressed: function(ref) {
         this.setState({
-			textReference: q=q.split(":")[0], 
-      		bookReference: q = q.substring(0, q.lastIndexOf(" ")),
             loaded: false
         });
-        this.loadNewText();
+        this.loadNewText(ref);
     },
     renderLoadingView: function () {
         return (

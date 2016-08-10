@@ -110,7 +110,7 @@
    </AnalyzeAction>
    <ArchiveAction
       buildConfiguration = "Debug"
-      customArchiveName = "Test&#10;What&#10;&#10;"
+      customArchiveName = "Sefaria"
       revealArchiveInOrganizer = "YES">
    </ArchiveAction>
 </Scheme>

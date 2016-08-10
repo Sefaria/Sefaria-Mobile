@@ -4,32 +4,52 @@ var RNFS = require('react-native-fs'); //for access to file system -- (https://g
 
 Sefaria = {
 
-    deleteAllFiles: function () {
-        RNFS.readDir(RNFS.DocumentDirectoryPath).then((result) => {
-            for(var i = 0; i < result.length; i++) {
-                RNFS.unlink(result[i].path)
-                // spread is a method offered by bluebird to allow for more than a
-                // single return value of a promise. If you use `then`, you will receive
-                // the values inside of an array
-                    .spread((success, path) => {
-           //         console.log('FILE DELETED', success, path);
-                })
-                // `unlink` will throw an error, if the item to unlink does not exist
-                    .catch((err) => {
-          //          console.log(err.message);
+    
+    text: function(ref, settings, cb) {
+        return new Promise(function(resolve, reject) {
+
+            var fileNameStem = ref.split(":")[0];
+            var bookRefStem = fileNameStem.substring(0, fileNameStem.lastIndexOf(" "));
+
+            fetch(Sefaria._JSONSourcePath(fileNameStem))
+                .then(
+                    (response) => response.json())
+                .then(
+                    (data) => {
+                        resolve(data);
+                    }
+                )
+                .catch(function() {
+                    Sefaria._unZipAndLoadJSON(Sefaria._zipSourcePath(bookRefStem), Sefaria._JSONSourcePath(fileNameStem), function (data) {
+
+                        resolve(data);
+
+                    })
                 });
-            }
+
         });
 
-            /*.then(() => {
-            this.unZipAndLoadJSON(this.zipSourcePath(zip), this.JSONSourcePath(json),callback)
-        })
-            */
+
+
+
 
 
     },
 
-    unZipAndLoadJSON: function (zipSourcePath, JSONSourcePath,callback) {
+    _deleteAllFiles: function () {
+        return new Promise(function(resolve, reject) {
+            RNFS.readDir(RNFS.DocumentDirectoryPath).then((result) => {
+                for (var i = 0; i < result.length; i++) {
+                    RNFS.unlink(result[i].path)
+                }
+                resolve();
+            });
+        });
+
+
+    },
+
+    _unZipAndLoadJSON: function (zipSourcePath, JSONSourcePath,callback) {
         ZipArchive.unzip(zipSourcePath, RNFS.DocumentDirectoryPath).then(() => {
             var REQUEST_URL = JSONSourcePath;
             fetch(REQUEST_URL).then((response) => response.json()).then((responseData) => {
@@ -38,10 +58,10 @@ Sefaria = {
         })
     },
     
-    JSONSourcePath: function (fileName) {
+    _JSONSourcePath: function (fileName) {
         return (RNFS.DocumentDirectoryPath + "/" + fileName + ".json");
     },
-    zipSourcePath: function (fileName) {
+    _zipSourcePath: function (fileName) {
         return (RNFS.MainBundlePath + "/sources/" + fileName + ".zip");
     },
 
