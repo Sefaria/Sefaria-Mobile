@@ -5,7 +5,8 @@
 'use strict';
 var React   = require('react-native');
 var styles  = require('./Styles.js');
-require('./sefaria.js');
+var Sefaria = require('./sefaria');
+
 // var HTMLView = require('react-native-htmlview'); //to convert html'afied JSON to something react can render (https://github.com/jsdf/react-native-htmlview)
 
 var {
@@ -49,9 +50,10 @@ var ReaderApp = React.createClass({
 
     loadNewText: function(ref) {
 
-      Sefaria.text(ref).then(function(data) {
+      Sefaria.data(ref).then(function(data) {
+
             this.setState({
-                textRef: data,
+                data: data,
                 loaded: true
             });
          }.bind(this)).catch(function(error) {
@@ -84,7 +86,7 @@ var ReaderApp = React.createClass({
                 <View style={styles.container}>
                     <ReaderPanel
                         textReference={this.state.textReference}
-                        textRef={this.state.textRef.content}
+                        data={this.state.data.content}
                         segmentRef={this.state.segmentRef}
                         textList={0}
                         style={styles.mainTextPanel}

@@ -3,7 +3,8 @@ var RNFS = require('react-native-fs'); //for access to file system -- (https://g
 // var HTMLView = require('react-native-htmlview'); //to convert html'afied JSON to something react can render (https://github.com/jsdf/react-native-htmlview)
 
 Sefaria = {
-    text: function(ref, settings, cb) {
+    data: function(ref, settings) {
+        //also technically includes links due to structure of JSON.
         return new Promise(function(resolve, reject) {
 
             var fileNameStem = ref.split(":")[0];

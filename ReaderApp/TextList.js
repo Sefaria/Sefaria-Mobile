@@ -39,7 +39,7 @@ var ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
  
     return (
         <ListView style={styles.listview} 
-      dataSource={ds.cloneWithRows(this.props.textRef[this.props.segmentRef].links)}
+      dataSource={ds.cloneWithRows(this.props.data[this.props.segmentRef].links)}
       renderRow={(rowData) =>  
       <View style={styles.verseContainer}>
       		<Text onPress={ () => this.onPressRef(rowData.sourceRef) } style={styles.englishText}>{rowData.sourceRef}</Text>
