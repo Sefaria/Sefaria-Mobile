@@ -1,6 +1,7 @@
 'use strict';
 
 var React = require('react-native');
+var Sefaria = require('./sefaria');
 
 var {
   StyleSheet,
@@ -34,6 +35,11 @@ var ReaderNavigationMenu = React.createClass({
     return {
       showMore: false,
     };
+  },
+  componentDidMount: function() {
+    Sefaria.toc().then(function(data) {
+      console.log(data);
+    })
   },
   render: function() {
     return (<View style={[styles.container, styles.menu]}>
