@@ -13,7 +13,7 @@ var SearchBar = React.createClass({
     return {text: "Search"};
   },
   propTypes:{
-    closeNav:      React.PropTypes.func.isRequired,
+    closeNav:        React.PropTypes.func.isRequired,
     onQueryChange:   React.PropTypes.func.isRequired
   },
   render: function() {
@@ -28,8 +28,6 @@ var SearchBar = React.createClass({
           onChangeText={(text) => this.setState({text})}
           onSubmitEditing={(event) => this.props.onQueryChange(event.nativeEvent.text)}
           value={this.state.text}/>
-
-
       </View>
     );
   }

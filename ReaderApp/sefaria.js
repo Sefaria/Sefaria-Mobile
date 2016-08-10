@@ -69,5 +69,114 @@ Sefaria = {
 
 };
 
+Sefaria.hebrewCategory = function(cat) {
+    // Returns a string translating `cat` into Hebrew.
+    var categories = {
+      "Torah":                "תורה",
+      "Tanakh":               'תנ"ך',
+      "Tanakh":               'תנ"ך',
+      "Prophets":             "נביאים",
+      "Writings":             "כתובים",
+      "Commentary":           "מפרשים",
+      "Quoting Commentary":   "פרשנות מצטטת",
+      "Targum":               "תרגומים",
+      "Mishnah":              "משנה",
+      "Tosefta":              "תוספתא",
+      "Talmud":               "תלמוד",
+      "Bavli":                "בבלי",
+      "Yerushalmi":           "ירושלמי",
+      "Rif":                  'רי"ף',
+      "Kabbalah":             "קבלה",
+      "Halakha":              "הלכה",
+      "Halakhah":             "הלכה",
+      "Midrash":              "מדרש",
+      "Aggadic Midrash":      "מדרש אגדה",
+      "Halachic Midrash":     "מדרש הלכה",
+      "Midrash Rabbah":       "מדרש רבה",
+      "Responsa":             'שו"ת',
+      "Rashba":               'רשב"א',
+      "Rambam":               'רמב"ם',
+      "Other":                "אחר",
+      "Siddur":               "סידור",
+      "Liturgy":              "תפילה",
+      "Piyutim":              "פיוטים",
+      "Musar":                "ספרי מוסר",
+      "Chasidut":             "חסידות",
+      "Parshanut":            "פרשנות",
+      "Philosophy":           "מחשבת ישראל",
+      "Apocrypha":            "ספרים חיצונים",
+      "Modern Works":         "עבודות מודרניות",
+      "Seder Zeraim":         "סדר זרעים",
+      "Seder Moed":           "סדר מועד",
+      "Seder Nashim":         "סדר נשים",
+      "Seder Nezikin":        "סדר נזיקין",
+      "Seder Kodashim":       "סדר קדשים",
+      "Seder Toharot":        "סדר טהרות",
+      "Seder Tahorot":        "סדר טהרות",
+      "Dictionary":           "מילון",
+      "Early Jewish Thought": "מחשבת ישראל קדומה",
+      "Minor Tractates":      "מסכתות קטנות",
+      "Rosh":                 'ר"אש',
+      "Maharsha":             'מהרשא',
+      "Mishneh Torah":        "משנה תורה",
+      "Shulchan Arukh":       "שולחן ערוך",
+      "Sheets":               "דפי מקורות",
+      "Notes":                "הערות",
+      "Community":            "קהילה"
+    };
+    return cat in categories ? categories[cat] : cat;
+};
+
+Sefaria.palette = {
+  colors: {
+    darkteal:  "#004e5f",
+    raspberry: "#7c406f",
+    green:     "#5d956f",
+    paleblue:  "#9ab8cb",
+    blue:      "#4871bf",
+    orange:    "#cb6158",
+    lightpink: "#c7a7b4",
+    darkblue:  "#073570",
+    darkpink:  "#ab4e66",
+    lavender:  "#7f85a9",
+    yellow:    "#ccb479",
+    purple:    "#594176",
+    lightblue: "#5a99b7",
+    lightgreen:"#97b386",
+    red:       "#802f3e",
+    teal:      "#00827f"  
+  }
+};
+Sefaria.palette.categoryColors = {
+  "Commentary":         Sefaria.palette.colors.blue,
+  "Tanakh" :            Sefaria.palette.colors.darkteal,
+  "Midrash":            Sefaria.palette.colors.green,
+  "Mishnah":            Sefaria.palette.colors.lightblue,
+  "Talmud":             Sefaria.palette.colors.yellow,
+  "Halakhah":           Sefaria.palette.colors.red,
+  "Kabbalah":           Sefaria.palette.colors.purple,
+  "Philosophy":         Sefaria.palette.colors.lavender,
+  "Liturgy":            Sefaria.palette.colors.darkpink,
+  "Tosefta":            Sefaria.palette.colors.teal,
+  "Parshanut":          Sefaria.palette.colors.paleblue,
+  "Chasidut":           Sefaria.palette.colors.lightgreen,
+  "Musar":              Sefaria.palette.colors.raspberry,
+  "Responsa":           Sefaria.palette.colors.orange,
+  "Apocrypha":          Sefaria.palette.colors.lightpink,
+  "Other":              Sefaria.palette.colors.darkblue,
+  "Quoting Commentary": Sefaria.palette.colors.orange,
+  "Commentary2":        Sefaria.palette.colors.blue,
+  "Sheets":             Sefaria.palette.colors.raspberry,
+  "Community":          Sefaria.palette.colors.raspberry,
+  "Targum":             Sefaria.palette.colors.lavender,
+  "Modern Works":       Sefaria.palette.colors.raspberry
+};
+Sefaria.palette.categoryColor = function(cat) {
+  if (cat in Sefaria.palette.categoryColors) {
+    return Sefaria.palette.categoryColors[cat];
+  }
+  return "transparent";
+};
+
 module.exports = Sefaria;
         

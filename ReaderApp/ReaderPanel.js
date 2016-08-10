@@ -18,30 +18,52 @@ var styles               = require('./Styles.js');
 
 var ReaderPanel = React.createClass({
   propTypes: {
-
+    interfaceLang: React.PropTypes.string.isRequired
   },
   getInitialState: function () {
     return {
       menuOpen: null,
+      navigationCategories: [],
     	textFlow: this.props.textFlow || 'segmented', 	// alternative is 'continuous'
     	columnLanguage: this.props.columnLanguage || 'english', 	// alternative is 'hebrew' &  'bilingual'
-      searchQuery: ''
+      searchQuery: '',
+      settings: {
+        language:      "bilingual",
+        layoutDefault: "segmented",
+        layoutTalmud:  "continuous",
+        layoutTanakh:  "segmented",
+        color:         "light",
+        fontSize:      62.5
+      }
     };
   },
   openMenu: function(menu) {
     this.setState({menuOpen: menu});
   },
   closeMenu: function() {
+    this.clearMenuState();
     this.openMenu(null);
   },
   openNav: function() {
     this.openMenu("navigation");
   },
-  openSearch: function() {
+  setNavigationCategories: function(categories) {
+    this.setState({navigationCategories: categories});
+  },
+  openSearch: function(query) {
     this.openMenu("search");
   },
   onQueryChange: function(query) {
-    this.setState({searchQuery:query})
+    this.setState({searchQuery: query})
+  },
+  search: function(query) {
+    this.setState({searchQuery: query || ''});    
+    this.openSearch();
+  },
+  clearMenuState: function() {
+    this.setState({
+      navigationCategories: []
+    });
   },
   toggleTextFlow:function() {
     if (this.state.textFlow == "continuous") {
@@ -76,9 +98,14 @@ var ReaderPanel = React.createClass({
         break;
       case ("navigation"):
         return (
-          <ReaderNavigationMenu 
+          <ReaderNavigationMenu
+            categories={this.state.navigationCategories}
+            setCategories={this.setNavigationCategories} 
             openNav={this.openNav}
-            closeNav={this.closeMenu} />);
+            closeNav={this.closeMenu}
+            openSearch={this.search} 
+            settings={this.state.settings}
+            interfaceLang={this.props.interfaceLang} />);
         break;
       case ("search"):
         return(

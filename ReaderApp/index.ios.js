@@ -31,6 +31,7 @@ var ReaderApp = React.createClass({
       		textReference: "Exodus 1", 
       		bookReference: "Exodus", 
       		loaded: false,
+            interfaceLang: "english" // TODO check device settings for Hebrew
         };
     },
     componentDidMount: function () {
@@ -89,7 +90,8 @@ var ReaderApp = React.createClass({
                         textList={0}
                         style={styles.mainTextPanel}
                         TextSegmentPressed={ this.TextSegmentPressed }
-                        RefPressed={ this.RefPressed } />
+                        RefPressed={ this.RefPressed }
+                        interfaceLang={this.state.interfaceLang} />
                 </View>
             );
         }
