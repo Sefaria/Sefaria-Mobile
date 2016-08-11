@@ -55,9 +55,7 @@ var ReaderPanel = React.createClass({
     this.openMenu("search");
   },
   onQueryChange: function(query) {
-    console.log("yo");
     var req = JSON.stringify(Sefaria.search.get_query_object(query,false,[],10,1,"text"));
-    console.log(req);
     this.setState({searchQueryResult:"loading"});
     fetch(Sefaria.search.baseUrl,{
       method: 'POST',
@@ -68,12 +66,15 @@ var ReaderPanel = React.createClass({
       body: req
     })
     .then((response) => response.json())
-    .then((responseJson) => {this.setState({searchQueryResult:JSON.stringify(responseJson["hits"]["hits"])});})
+    .then((responseJson) => {
+      var resultArray = responseJson["hits"]["hits"];
+      this.setState({isQueryRunning: false, searchQueryResult:resultArray});
+    })
     .catch((error) => {
-      this.setState({searchQueryResult:"error"});
+      this.setState({isQueryRunning: false, searchQueryResult:["error"]});
     });
     
-    this.setState({searchQuery: query});
+    this.setState({isQueryRunning: true});
   },
   search: function(query) {
     this.onQueryChange(query);    
@@ -141,7 +142,8 @@ var ReaderPanel = React.createClass({
           closeNav={this.closeMenu}
           onQueryChange={this.onQueryChange}
           searchQuery={this.state.searchQuery}
-          searchQueryResult={this.state.searchQueryResult}/>);
+          loading={this.state.isQueryRunning}
+          queryResult={this.state.searchQueryResult}/>);
         break;
     }
 

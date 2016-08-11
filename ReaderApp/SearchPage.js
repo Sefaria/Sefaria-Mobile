@@ -5,7 +5,8 @@ var SearchBar        = require('./SearchBar');
 var SearchResultList = require('./SearchResultList');
 var styles           = require('./Styles.js');
 var {
-	View
+	View,
+	Text
 } = React;
 
 
@@ -15,16 +16,20 @@ var SearchPage = React.createClass({
 		closeNav: React.PropTypes.func.isRequired,
 		onQueryChange: React.PropTypes.func.isRequired,
 		searchQuery: React.PropTypes.string,
-		searchQueryResult: React.PropTypes.string
+		loading: React.PropTypes.bool,
 	},
 	render: function() {
 		return (
-			<View style={{marginTop:20,flex:1,flexDirection:'column',alignItems:'flex-start',borderWidth:4}}>
+			<View style={styles.searchPage}>
 				<SearchBar 
 					closeNav={this.props.closeNav}
 					onQueryChange={this.props.onQueryChange}/>
-				<SearchResultList
-					queryResult={this.props.searchQueryResult}/>
+				{this.props.loading ?
+					<Text>Loading!!!</Text>
+					: <SearchResultList
+					queryResult={this.props.queryResult}/>
+				}
+				
 			</View>
 		);
 	}

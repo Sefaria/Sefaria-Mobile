@@ -168,5 +168,15 @@ module.exports = StyleSheet.create({
 	blank: {
 	   height:0,
 	   width:0
-	}
+	},
+    searchPage: {
+        marginTop:20,
+        flex:1,
+        flexDirection:'column',
+        alignItems:'flex-start',
+        borderWidth:4
+    },
+    searchTextResult: {
+        margin: 20
+    }
 });
