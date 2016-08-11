@@ -8,10 +8,10 @@ var {
 
 var SearchResultList = React.createClass({
 	propTypes:{
-		searchQuery: React.PropTypes.string
+		queryResult: React.PropTypes.string
 	},
 	render: function() {
-		return (<Text>{this.props.searchQuery}</Text>);
+		return (<Text>{this.props.queryResult}</Text>);
 	}
 
 });

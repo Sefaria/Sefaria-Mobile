@@ -25,7 +25,8 @@ var ReaderPanel = React.createClass({
       menuOpen: null,
     	textFlow: this.props.textFlow || 'segmented', 	// alternative is 'continuous'
     	columnLanguage: this.props.columnLanguage || 'english', 	// alternative is 'hebrew' &  'bilingual'
-      searchQuery: ''
+      searchQuery: '',
+      searchQueryResult: 'yoyoy'
     };
   },
   openMenu: function(menu) {
@@ -41,7 +42,24 @@ var ReaderPanel = React.createClass({
     this.openMenu("search");
   },
   onQueryChange: function(query) {
-    this.setState({searchQuery:query})
+    console.log("yo");
+    var req = JSON.stringify(Sefaria.search.get_query_object(query,false,[],10,1,"text"));
+    console.log(req);
+    this.setState({searchQueryResult:"loading"});
+    fetch(Sefaria.search.baseUrl,{
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: req
+    })
+    .then((response) => response.json())
+    .then((responseJson) => {this.setState({searchQueryResult:JSON.stringify(responseJson["hits"]["hits"])});})
+    .catch((error) => {
+      this.setState({searchQueryResult:"error"});
+    });
+    
   },
   toggleTextFlow:function() {
     if (this.state.textFlow == "continuous") {
@@ -85,7 +103,8 @@ var ReaderPanel = React.createClass({
           <SearchPage
           closeNav={this.closeMenu}
           onQueryChange={this.onQueryChange}
-          searchQuery={this.state.searchQuery}/>);
+          searchQuery={this.state.searchQuery}
+          searchQueryResult={this.state.searchQueryResult}/>);
         break;
     }
 

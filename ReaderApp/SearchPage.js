@@ -14,7 +14,8 @@ var SearchPage = React.createClass({
 	propTypes: {
 		closeNav: React.PropTypes.func.isRequired,
 		onQueryChange: React.PropTypes.func.isRequired,
-		searchQuery: React.PropTypes.string
+		searchQuery: React.PropTypes.string,
+		searchQueryResult: React.PropTypes.string
 	},
 	render: function() {
 		return (
@@ -23,7 +24,7 @@ var SearchPage = React.createClass({
 					closeNav={this.props.closeNav}
 					onQueryChange={this.props.onQueryChange}/>
 				<SearchResultList
-					searchQuery={this.props.searchQuery}/>
+					queryResult={this.props.searchQueryResult}/>
 			</View>
 		);
 	}
