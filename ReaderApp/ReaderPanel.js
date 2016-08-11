@@ -22,7 +22,7 @@ var ReaderPanel = React.createClass({
   },
   getInitialState: function () {
     return {
-      menuOpen: null,
+      menuOpen: "navigation",
       navigationCategories: [],
     	textFlow: this.props.textFlow || 'segmented', 	// alternative is 'continuous'
     	columnLanguage: this.props.columnLanguage || 'english', 	// alternative is 'hebrew' &  'bilingual'
@@ -64,6 +64,15 @@ var ReaderPanel = React.createClass({
     this.setState({
       navigationCategories: []
     });
+  },
+  toggleLanguage: function() {
+    // Toggle current display language between english/hebrew only
+    if (this.state.settings.language == "english") {
+      this.state.settings.language = "hebrew";
+    } else {
+      this.state.settings.language = "english";
+    }
+    this.setState({settings: this.state.settings});
   },
   toggleTextFlow:function() {
     if (this.state.textFlow == "continuous") {
@@ -120,8 +129,8 @@ var ReaderPanel = React.createClass({
   		<View style={styles.container}>
     		<View style={styles.header}>
     			
-          <TouchableOpacity onPress={this.openNav} style={[{width:30}]}>
-            <Text>☰</Text>
+          <TouchableOpacity onPress={this.openNav}>
+            <Text style={styles.headerButton}>☰</Text>
           </TouchableOpacity>
 
           <TouchableOpacity onPress={this.toggleTextFlow} style={[{width:100}]}>

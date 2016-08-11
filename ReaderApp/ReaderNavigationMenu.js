@@ -24,13 +24,14 @@ var styles = require('./Styles.js');
 var ReaderNavigationMenu = React.createClass({
   // The Navigation menu for browsing and searching texts
   propTypes: {
-    categories:    React.PropTypes.array.isRequired,
-    settings:      React.PropTypes.object.isRequired,
-    interfaceLang: React.PropTypes.string.isRequired,
-    setCategories: React.PropTypes.func.isRequired,
-    closeNav:      React.PropTypes.func.isRequired,
-    openNav:       React.PropTypes.func.isRequired,
-    openSearch:    React.PropTypes.func.isRequired,
+    categories:     React.PropTypes.array.isRequired,
+    settings:       React.PropTypes.object.isRequired,
+    interfaceLang:  React.PropTypes.string.isRequired,
+    setCategories:  React.PropTypes.func.isRequired,
+    closeNav:       React.PropTypes.func.isRequired,
+    openNav:        React.PropTypes.func.isRequired,
+    openSearch:     React.PropTypes.func.isRequired,
+    toggleLanguage: React.PropTypes.func.isRequired,
     //onTextClick:   React.PropTypes.func.isRequired,
     //onRecentClick: React.PropTypes.func.isRequired,
     //closePanel:    React.PropTypes.func,
@@ -97,21 +98,21 @@ var ReaderNavigationMenu = React.createClass({
       categories = this.state.showMore ? categories : categories.slice(0,9).concat(more);
       categories = (<View style={styles.readerNavCategories}><TwoBox content={categories} /></View>);
 
-      var title = (<View style={styles.navigationMenuTitle}>
-                    <LanguageToggleButton toggleLanguage={this.props.toggleLanguage} language={language} />
+      var title = (<View style={styles.navigationMenuTitleBox}>
                     { this.props.interfaceLang == "english" ?
-                      <Text styles={styles.intEn}>The Sefaria Library</Text> :
-                      <Text styles={styles.intHe}>האוסף של ספאריה</Text>}
+                      <Text style={[styles.navigationMenuTitle, styles.intEn]}>The Sefaria Library</Text> :
+                      <Text style={[styles.navigationMenuTitle, styles.intHe]}>האוסף של ספאריה</Text>}
+                    <LanguageToggleButton toggleLanguage={this.props.toggleLanguage} language={language} />
                   </View>);
 
-      return(<View style={[styles.container, styles.menu]}>
+      return(<View style={[styles.menu]}>
               <SearchBar 
                 closeNav={this.props.closeNav}
                 onQueryChange={this.props.openSearch} />
-              <View>
+              <View style={styles.menuContent}>
                 {title}
                 <ReaderNavigationMenuSection 
-                  title="Browse" 
+                  title="BROWSE" 
                   heTitle="טקסטים"
                   content={categories} 
                   interfaceLang={this.props.interfaceLang} />
@@ -151,15 +152,11 @@ var ReaderNavigationMenuSection = React.createClass({
   },
   render: function() {
     if (!this.props.content) { return null; }
+    var title = this.props.interfaceLang !== "hebrew" ? this.props.title : this.props.heTitle;
+    var langStyle = this.props.interfaceLang !== "hebrew" ? styles.intEn : styles.intHe;
     return (
       <View style={styles.readerNavSection}>
-        {this.props.title ? 
-          (<View style={styles.readerNavSectionTitle} >
-            { this.props.interfaceLang !== "hebrew" ?
-            <Text styles={styles.intEn}>{this.props.title}</Text> :
-            <Text styles={styles.intHe}>{this.props.heTitle}</Text>}
-          </View>) 
-        : null }
+        <Text style={[styles.readerNavSectionTitle, langStyle]}>{title}</Text>
         {this.props.content}
       </View>
       );
@@ -178,11 +175,17 @@ var ReaderNavigationCategoryMenu = React.createClass({
     toggleLanguage: React.PropTypes.func.isRequired,
   },
   render: function() {
-    return (<View style={[styles.container, styles.menu]}>
-              <Text>Navigation: {this.props.category}</Text>
-              <TouchableOpacity onPress={this.props.closeNav}>
-                <Text>close</Text>
-              </TouchableOpacity>
+    return (<View style={[styles.menu]}>
+              <View style={styles.header}>
+                <TouchableOpacity onPress={this.props.navHome}>
+                  <Text style={styles.headerButton}>☰</Text>
+                </TouchableOpacity>
+              </View>
+
+              <View style={styles.menuContent}>
+                <Text>Navigation: {this.props.category}</Text>
+              </View>
+
             </View>);  
   }
 });

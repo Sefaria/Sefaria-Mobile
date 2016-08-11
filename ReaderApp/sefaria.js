@@ -170,7 +170,8 @@ Sefaria.palette.categoryColors = {
   "Sheets":             Sefaria.palette.colors.raspberry,
   "Community":          Sefaria.palette.colors.raspberry,
   "Targum":             Sefaria.palette.colors.lavender,
-  "Modern Works":       Sefaria.palette.colors.raspberry
+  "Modern Works":       Sefaria.palette.colors.raspberry,
+  "More":               Sefaria.palette.colors.darkblue,
 };
 Sefaria.palette.categoryColor = function(cat) {
   if (cat in Sefaria.palette.categoryColors) {
