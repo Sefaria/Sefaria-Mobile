@@ -27,15 +27,74 @@ module.exports = StyleSheet.create({
         backgroundColor: '#F5FCFF'
     },
     header: {
-        height: 45,
+        height: 50,
+        paddingTop: 18,
         backgroundColor: '#F9F9F7',
         alignItems: 'center',
-        justifyContent: 'flex-end',
         flexDirection: 'row',
+        borderBottomWidth: 1,
+        borderColor: "#DDD"
+    },
+    headerButton: {
+        textAlign: "center",
+        fontSize: 18,
+        width: 30,
+        alignSelf: "stretch",
+        backgroundColor: "transparent"
     },
     menu: {
         backgroundColor: '#f9f9f7',
         alignSelf: 'stretch',
+        flex: 1
+    },
+    menuContent: {
+        paddingHorizontal: 20,
+        paddingVertical: 20
+    },
+    closeNav: {
+
+    },
+    languageToggle: {
+        width: 30,
+        height: 30,
+        borderColor: "#ddd",
+        borderWidth: 1,
+        borderRadius: 4,
+        flexDirection: "row",
+        justifyContent: "center",
+        alignItems: "center"  
+    },
+    navigationMenuTitleBox: {
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "center",
+        marginBottom: 20
+    },
+    navigationMenuTitle: {
+        fontSize: 18,
+        alignSelf: "stretch",
+        textAlign: "center"
+    },
+    readerNavCategory: {
+        height: 40,
+        backgroundColor: "white",
+        borderTopWidth: 4,
+        margin: 5,
+        flexDirection: "row",
+        justifyContent: "center",
+        alignItems: "center"
+    },
+    readerNavSectionTitle: {
+        alignSelf: "center",
+        marginBottom: 10,
+        fontSize: 12,
+        color: "#999"
+    },
+    searchInput: {
+        alignSelf: 'stretch',
+        width: 300,
+        fontSize: 14,
+        backgroundColor: "transparent"
     },
     mainTextPanel: {
         flex: .5,

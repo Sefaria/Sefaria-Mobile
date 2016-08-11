@@ -3,9 +3,8 @@ var RNFS = require('react-native-fs'); //for access to file system -- (https://g
 // var HTMLView = require('react-native-htmlview'); //to convert html'afied JSON to something react can render (https://github.com/jsdf/react-native-htmlview)
 
 Sefaria = {
-
-
-    text: function(ref, settings, cb) {
+    data: function(ref, settings) {
+        //also technically includes links due to structure of JSON.
         return new Promise(function(resolve, reject) {
 
             var fileNameStem = ref.split(":")[0];
@@ -23,19 +22,25 @@ Sefaria = {
                 Sefaria._unZipAndLoadJSON(Sefaria._zipSourcePath(bookRefStem), Sefaria._JSONSourcePath(fileNameStem), function (data) {
 
                     resolve(data);
-
                 })
             });
 
         });
-
-
-
-
-
-
     },
-
+    toc: function() {
+        var JSONSourcePath = (RNFS.MainBundlePath + "/sources/toc.json");
+        return new Promise(function(resolve, reject) {
+            if (Sefaria._toc) {
+                resolve(Sefaria._toc);
+            } else {
+                Sefaria._loadJSON(JSONSourcePath, function(data) {
+                    Sefaria._toc = data;
+                    resolve(data);
+                });
+            }
+        });
+    },
+    _toc: null,
     _deleteAllFiles: function () {
         return new Promise(function(resolve, reject) {
             RNFS.readDir(RNFS.DocumentDirectoryPath).then((result) => {
@@ -45,19 +50,17 @@ Sefaria = {
                 resolve();
             });
         });
-
-
     },
-
-    _unZipAndLoadJSON: function (zipSourcePath, JSONSourcePath,callback) {
+    _unZipAndLoadJSON: function (zipSourcePath, JSONSourcePath, callback) {
         ZipArchive.unzip(zipSourcePath, RNFS.DocumentDirectoryPath).then(() => {
-            var REQUEST_URL = JSONSourcePath;
-            fetch(REQUEST_URL).then((response) => response.json()).then((responseData) => {
-             callback(responseData);
-         }).done();
-        })
+            this._loadJSON(JSONSourcePath, callback);
+        });
     },
-    
+    _loadJSON: function(JSONSourcePath, callback) {
+        fetch(JSONSourcePath).then((response) => response.json()).then((responseData) => {
+             callback(responseData);
+        }).done();        
+    },
     _JSONSourcePath: function (fileName) {
         return (RNFS.DocumentDirectoryPath + "/" + fileName + ".json");
     },
@@ -367,6 +370,3 @@ Sefaria.palette.categoryColor = function(cat) {
 };
 
 module.exports = Sefaria;
-
-
-

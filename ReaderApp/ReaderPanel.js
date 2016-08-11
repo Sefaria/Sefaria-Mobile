@@ -18,27 +18,40 @@ var styles               = require('./Styles.js');
 
 var ReaderPanel = React.createClass({
   propTypes: {
-
+    interfaceLang: React.PropTypes.string.isRequired
   },
   getInitialState: function () {
     return {
-      menuOpen: null,
+      menuOpen: "navigation",
+      navigationCategories: [],
     	textFlow: this.props.textFlow || 'segmented', 	// alternative is 'continuous'
     	columnLanguage: this.props.columnLanguage || 'english', 	// alternative is 'hebrew' &  'bilingual'
       searchQuery: '',
-      searchQueryResult: 'yoyoy'
+      searchQueryResult: 'yoyoy',
+      settings: {
+        language:      "bilingual",
+        layoutDefault: "segmented",
+        layoutTalmud:  "continuous",
+        layoutTanakh:  "segmented",
+        color:         "light",
+        fontSize:      62.5
+      }
     };
   },
   openMenu: function(menu) {
     this.setState({menuOpen: menu});
   },
   closeMenu: function() {
+    this.clearMenuState();
     this.openMenu(null);
   },
   openNav: function() {
     this.openMenu("navigation");
   },
-  openSearch: function() {
+  setNavigationCategories: function(categories) {
+    this.setState({navigationCategories: categories});
+  },
+  openSearch: function(query) {
     this.openMenu("search");
   },
   onQueryChange: function(query) {
@@ -60,6 +73,25 @@ var ReaderPanel = React.createClass({
       this.setState({searchQueryResult:"error"});
     });
     
+    this.setState({searchQuery: query});
+  },
+  search: function(query) {
+    this.onQueryChange(query);    
+    this.openSearch();
+  },
+  clearMenuState: function() {
+    this.setState({
+      navigationCategories: []
+    });
+  },
+  toggleLanguage: function() {
+    // Toggle current display language between english/hebrew only
+    if (this.state.settings.language == "english") {
+      this.state.settings.language = "hebrew";
+    } else {
+      this.state.settings.language = "english";
+    }
+    this.setState({settings: this.state.settings});
   },
   toggleTextFlow:function() {
     if (this.state.textFlow == "continuous") {
@@ -94,9 +126,14 @@ var ReaderPanel = React.createClass({
         break;
       case ("navigation"):
         return (
-          <ReaderNavigationMenu 
+          <ReaderNavigationMenu
+            categories={this.state.navigationCategories}
+            setCategories={this.setNavigationCategories} 
             openNav={this.openNav}
-            closeNav={this.closeMenu} />);
+            closeNav={this.closeMenu}
+            openSearch={this.search} 
+            settings={this.state.settings}
+            interfaceLang={this.props.interfaceLang} />);
         break;
       case ("search"):
         return(
@@ -112,8 +149,8 @@ var ReaderPanel = React.createClass({
   		<View style={styles.container}>
     		<View style={styles.header}>
     			
-          <TouchableOpacity onPress={this.openNav} style={[{width:30}]}>
-            <Text>☰</Text>
+          <TouchableOpacity onPress={this.openNav}>
+            <Text style={styles.headerButton}>☰</Text>
           </TouchableOpacity>
 
           <TouchableOpacity onPress={this.toggleTextFlow} style={[{width:100}]}>
@@ -138,10 +175,10 @@ var ReaderPanel = React.createClass({
     		</View>
   	   	
         <View style={styles.mainTextPanel}>
-          <TextColumn textRef={this.props.textRef} segmentRef={this.props.segmentRef} textFlow={this.state.textFlow} columnLanguage={this.state.columnLanguage} TextSegmentPressed={ this.props.TextSegmentPressed } />
+          <TextColumn data={this.props.data} segmentRef={this.props.segmentRef} textFlow={this.state.textFlow} columnLanguage={this.state.columnLanguage} TextSegmentPressed={ this.props.TextSegmentPressed } />
         </View>
         <View style={styles.commentaryTextPanel}>
-          <TextList textRef={this.props.textRef} segmentRef={this.props.segmentRef} textFlow={this.state.textFlow} columnLanguage={this.state.columnLanguage} RefPressed={ this.props.RefPressed } />
+          <TextList data={this.props.data} segmentRef={this.props.segmentRef} textFlow={this.state.textFlow} columnLanguage={this.state.columnLanguage} RefPressed={ this.props.RefPressed } />
         </View>
       </View>);
   }

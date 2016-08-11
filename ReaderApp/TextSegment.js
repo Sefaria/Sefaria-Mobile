@@ -38,7 +38,7 @@ onLayout: function(event){
          	key={this.props.segmentKey}
          	onLayout = {this.onLayout}
          >
-			{this.props.textRef}
+			{this.props.data}
          </Text>
     );
   }
