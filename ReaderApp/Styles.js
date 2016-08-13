@@ -36,11 +36,28 @@ module.exports = StyleSheet.create({
         borderColor: "#DDD"
     },
     headerButton: {
-        textAlign: "center",
-        fontSize: 18,
         width: 30,
-        alignSelf: "stretch",
         backgroundColor: "transparent"
+    },
+    menuButton: {
+        textAlign: "center",
+        alignSelf: "stretch",
+        fontSize: 18,
+    },
+    closeButton: {
+        textAlign: "center",
+        alignSelf: "stretch",
+        fontSize: 22,
+    },
+    searchButton: {
+        textAlign: "center",
+        alignSelf: "stretch",
+        fontSize: 22,
+    },
+    displaySettingsButton: {
+        textAlign: "center",
+        alignSelf: "stretch",
+        fontSize: 16,
     },
     menu: {
         backgroundColor: '#f9f9f7',
@@ -50,9 +67,6 @@ module.exports = StyleSheet.create({
     menuContent: {
         paddingHorizontal: 20,
         paddingVertical: 20
-    },
-    closeNav: {
-
     },
     languageToggle: {
         width: 30,
@@ -72,7 +86,7 @@ module.exports = StyleSheet.create({
     },
     navigationMenuTitle: {
         fontSize: 18,
-        alignSelf: "stretch",
+        flex: 1,
         textAlign: "center"
     },
     readerNavCategory: {
@@ -90,9 +104,27 @@ module.exports = StyleSheet.create({
         fontSize: 12,
         color: "#999"
     },
+    categoryTitle: {
+        flex: 1,
+        textAlign: "center"
+    },
+    categorySectionTitle: {
+        flex: 1,
+        textAlign: "center",
+        marginVertical: 15,
+        color: "#999"
+    },
+    textBlockLink: {
+        height: 40,
+        backgroundColor: "white",
+        margin: 5,
+        flexDirection: "row",
+        justifyContent: "center",
+        alignItems: "center"
+    },
     searchInput: {
         alignSelf: 'stretch',
-        width: 300,
+        flex: 1,
         fontSize: 14,
         backgroundColor: "transparent"
     },
@@ -170,11 +202,9 @@ module.exports = StyleSheet.create({
 	   width:0
 	},
     searchPage: {
-        marginTop:20,
         flex:1,
         flexDirection:'column',
         alignItems:'flex-start',
-        borderWidth:4
     },
     searchTextResult: {
         margin: 20

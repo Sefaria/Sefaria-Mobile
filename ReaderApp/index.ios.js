@@ -20,18 +20,28 @@ var {
 	TextInput, 
 	TouchableOpacity, 
 	ActivityIndicatorIOS
-	} = React;
+} = React;
 
 var ReaderPanel = require('./ReaderPanel');
 
+var {
+  LoadingView
+} = require('./Misc.js');
+
 var ReaderApp = React.createClass({
     getInitialState: function () {
+        Sefaria.init().then(function() {
+            this.forceUpdate();
+        }.bind(this));
+
         return {
-        	segmentRef: 0,
-        	ref: "Exodus 1:1",
-      		textReference: "Exodus 1", 
-      		bookReference: "Exodus", 
-      		loaded: false,
+            segmentRef: 0,
+            ref: "Exodus 1:1",
+            textReference: "Exodus 1", 
+            bookReference: "Exodus",
+            loaded: false,
+            menuOpen: "navigation",
+            navigationCategories: [],
             interfaceLang: "english" // TODO check device settings for Hebrew
         };
     },
@@ -41,14 +51,10 @@ var ReaderApp = React.createClass({
          }.bind(this)).catch(function(error) {
           console.log('oh no', error);
         });
-
-
     },
-
     TextSegmentPressed: function(q) {
         this.setState({segmentRef: q})
     },
-
     loadNewText: function(ref) {
 
       Sefaria.data(ref).then(function(data) {
@@ -62,26 +68,37 @@ var ReaderApp = React.createClass({
         });
 
     },
-
     RefPressed: function(ref) {
         this.setState({
-            loaded: false
+            loaded: false,
+            textReference: ref
         });
+        this.closeMenu();
         this.loadNewText(ref);
     },
-    renderLoadingView: function () {
-        return (
-            <View style={styles.container}>
-				<ActivityIndicatorIOS
-				  animating={this.state.animating}
-				  style={[styles.centering, {height: 80}]}
-				  size="large"
-				/>
-            </View>
-        );
+    openMenu: function(menu) {
+        this.setState({menuOpen: menu});
+    },
+    closeMenu: function() {
+        this.clearMenuState();
+        this.openMenu(null);
+    },
+    openNav: function() {
+        this.openMenu("navigation");
+    },
+    setNavigationCategories: function(categories) {
+        this.setState({navigationCategories: categories});
+    },
+    openSearch: function(query) {
+        this.openMenu("search");
+    },
+    clearMenuState: function() {
+        this.setState({
+            navigationCategories: []
+        });
     },
     render: function () {
-        if (!this.state.loaded) {return this.renderLoadingView();}
+        if (!this.state.loaded) { return <LoadingView />; }
         else {
             return (
                 <View style={styles.container}>
@@ -90,10 +107,18 @@ var ReaderApp = React.createClass({
                         data={this.state.data.content}
                         segmentRef={this.state.segmentRef}
                         textList={0}
+                        menuOpen={this.state.menuOpen}
+                        navigationCategories={this.state.navigationCategories}
                         style={styles.mainTextPanel}
                         TextSegmentPressed={ this.TextSegmentPressed }
                         RefPressed={ this.RefPressed }
-                        interfaceLang={this.state.interfaceLang} />
+                        interfaceLang={this.state.interfaceLang}
+                        openMenu={this.openMenu}
+                        closeMenu={this.closeMenu}
+                        openNav={this.openNav}
+                        setNavigationCategories={this.setNavigationCategories}
+                        openSearch={this.openSearch}
+                        Sefaria={Sefaria} />
                 </View>
             );
         }

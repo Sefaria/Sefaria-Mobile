@@ -18,12 +18,12 @@ var styles               = require('./Styles.js');
 
 var ReaderPanel = React.createClass({
   propTypes: {
-    interfaceLang: React.PropTypes.string.isRequired
+    interfaceLang: React.PropTypes.string.isRequired,
+    Sefaria:       React.PropTypes.object.isRequired
   },
   getInitialState: function () {
+    Sefaria = this.props.Sefaria;
     return {
-      menuOpen: "navigation",
-      navigationCategories: [],
     	textFlow: this.props.textFlow || 'segmented', 	// alternative is 'continuous'
     	columnLanguage: this.props.columnLanguage || 'english', 	// alternative is 'hebrew' &  'bilingual'
       searchQuery: '',
@@ -37,22 +37,6 @@ var ReaderPanel = React.createClass({
         fontSize:      62.5
       }
     };
-  },
-  openMenu: function(menu) {
-    this.setState({menuOpen: menu});
-  },
-  closeMenu: function() {
-    this.clearMenuState();
-    this.openMenu(null);
-  },
-  openNav: function() {
-    this.openMenu("navigation");
-  },
-  setNavigationCategories: function(categories) {
-    this.setState({navigationCategories: categories});
-  },
-  openSearch: function(query) {
-    this.openMenu("search");
   },
   onQueryChange: function(query) {
     var req = JSON.stringify(Sefaria.search.get_query_object(query,false,[],10,1,"text"));
@@ -78,12 +62,7 @@ var ReaderPanel = React.createClass({
   },
   search: function(query) {
     this.onQueryChange(query);    
-    this.openSearch();
-  },
-  clearMenuState: function() {
-    this.setState({
-      navigationCategories: []
-    });
+    this.props.openSearch();
   },
   toggleLanguage: function() {
     // Toggle current display language between english/hebrew only
@@ -122,28 +101,31 @@ var ReaderPanel = React.createClass({
   },
   render: function() {
     
-    switch(this.state.menuOpen) {
+    switch(this.props.menuOpen) {
       case (null):
         break;
       case ("navigation"):
         return (
           <ReaderNavigationMenu
-            categories={this.state.navigationCategories}
-            setCategories={this.setNavigationCategories} 
-            openNav={this.openNav}
-            closeNav={this.closeMenu}
+            categories={this.props.navigationCategories}
+            setCategories={this.props.setNavigationCategories}
+            openRef={this.props.RefPressed}
+            openNav={this.props.openNav}
+            closeNav={this.props.closeMenu}
             openSearch={this.search} 
+            toggleLanguage={this.toggleLanguage}
             settings={this.state.settings}
-            interfaceLang={this.props.interfaceLang} />);
+            interfaceLang={this.props.interfaceLang}
+            Sefaria={Sefaria} />);
         break;
       case ("search"):
         return(
           <SearchPage
-          closeNav={this.closeMenu}
-          onQueryChange={this.onQueryChange}
-          searchQuery={this.state.searchQuery}
-          loading={this.state.isQueryRunning}
-          queryResult={this.state.searchQueryResult}/>);
+            closeNav={this.props.closeMenu}
+            onQueryChange={this.onQueryChange}
+            searchQuery={this.state.searchQuery}
+            loading={this.state.isQueryRunning}
+            queryResult={this.state.searchQueryResult} />);
         break;
     }
 
@@ -151,7 +133,7 @@ var ReaderPanel = React.createClass({
   		<View style={styles.container}>
     		<View style={styles.header}>
     			
-          <TouchableOpacity onPress={this.openNav}>
+          <TouchableOpacity onPress={this.props.openNav}>
             <Text style={styles.headerButton}>☰</Text>
           </TouchableOpacity>
 
