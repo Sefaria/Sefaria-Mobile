@@ -2,6 +2,7 @@
 var React = require('react-native');
 
 var {
+	View,
 	Text
 } = React;
 
@@ -9,11 +10,15 @@ var styles = require('./Styles.js');
 
 var SearchTextResult = React.createClass({
 	propTypes: {
-		text: React.PropTypes.string
+		text: React.PropTypes.string,
+		title: React.PropTypes.string
 	},
 	render: function() {
 		return (
-			<Text style={styles.searchTextResult}>{this.props.text}</Text>
+			<View style={styles.searchTextResult}>
+				<Text>{this.props.title}</Text>
+				<Text>{this.props.text}</Text>
+			</View>
 		);
 	}
 });

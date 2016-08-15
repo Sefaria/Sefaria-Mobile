@@ -27,7 +27,9 @@ var ReaderPanel = React.createClass({
     	textFlow: this.props.textFlow || 'segmented', 	// alternative is 'continuous'
     	columnLanguage: this.props.columnLanguage || 'english', 	// alternative is 'hebrew' &  'bilingual'
       searchQuery: '',
-      searchQueryResult: 'yoyoy',
+      searchQueryResult: [],
+      isQueryRunning: false,
+      currSearchPage: 0,
       settings: {
         language:      "bilingual",
         layoutDefault: "segmented",
@@ -54,8 +56,12 @@ var ReaderPanel = React.createClass({
   openSearch: function(query) {
     this.openMenu("search");
   },
-  onQueryChange: function(query) {
-    var req = JSON.stringify(Sefaria.search.get_query_object(query,false,[],10,1,"text"));
+  onQueryChange: function(query,resetQuery) {
+    if (resetQuery) {
+      this.setState({currSearchPage: 0});
+    }
+
+    var req = JSON.stringify(Sefaria.search.get_query_object(query,false,[],10,this.state.currSearchPage,"text"));
     this.setState({searchQueryResult:"loading"});
     fetch(Sefaria.search.baseUrl,{
       method: 'POST',
@@ -77,7 +83,7 @@ var ReaderPanel = React.createClass({
     this.setState({isQueryRunning: true});
   },
   search: function(query) {
-    this.onQueryChange(query);    
+    this.onQueryChange(query,true);    
     this.openSearch();
   },
   clearMenuState: function() {

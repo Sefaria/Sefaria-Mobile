@@ -28,7 +28,7 @@ var SearchBar = React.createClass({
         <TextInput
           style={styles.searchInput}
           onChangeText={(text) => this.setState({text})}
-          onSubmitEditing={(event) => this.props.onQueryChange(event.nativeEvent.text)}
+          onSubmitEditing={(event) => this.props.onQueryChange(event.nativeEvent.text,true)}
           value={this.state.text}/>
       </View>
     );
