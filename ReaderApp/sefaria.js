@@ -14,7 +14,6 @@ Sefaria = {
         });
     },
     data: function(ref, settings) {
-        //also technically includes links due to structure of JSON.
         return new Promise(function(resolve, reject) {
 
             var fileNameStem = ref.split(":")[0];

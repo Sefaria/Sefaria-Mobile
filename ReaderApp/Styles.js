@@ -208,5 +208,9 @@ module.exports = StyleSheet.create({
     },
     searchTextResult: {
         margin: 20
+    },
+    readerOptions: {
+        width: 30,
+        height: 40,
     }
 });
