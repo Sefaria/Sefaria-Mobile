@@ -8,6 +8,7 @@ var {
   TouchableOpacity,
   View,
   Image,
+  ListView,
     Modal
 } = React;
 
@@ -29,8 +30,8 @@ var ReaderPanel = React.createClass({
     	textFlow: this.props.textFlow || 'segmented', 	// alternative is 'continuous'
     	columnLanguage: this.props.columnLanguage || 'english', 	// alternative is 'hebrew' &  'bilingual'
       searchQuery: '',
-      searchQueryResult: [],
       isQueryRunning: false,
+      isQueryLoadingTail: false,
       currSearchPage: 0,
       settings: {
         language:      "bilingual",
@@ -53,12 +54,13 @@ var ReaderPanel = React.createClass({
       console.log(this.state.ReaderDisplayOptionsMenuVisible);
   },
   onQueryChange: function(query,resetQuery) {
-    if (resetQuery) {
-      this.setState({currSearchPage: 0});
-    }
+    var newSearchPage = 0;
+    if (!resetQuery) 
+      newSearchPage = this.state.currSearchPage+1;
 
-    var req = JSON.stringify(Sefaria.search.get_query_object(query,false,[],10,this.state.currSearchPage,"text"));
-    this.setState({searchQueryResult:"loading"});
+    this.setState({searchQuery:query, currSearchPage: newSearchPage});
+
+    var req = JSON.stringify(Sefaria.search.get_query_object(query,false,[],20,20*this.state.currSearchPage,"text"));
     fetch(Sefaria.search.baseUrl,{
       method: 'POST',
       headers: {
@@ -69,14 +71,24 @@ var ReaderPanel = React.createClass({
     })
     .then((response) => response.json())
     .then((responseJson) => {
-      var resultArray = responseJson["hits"]["hits"];
-      this.setState({isQueryRunning: false, searchQueryResult:resultArray});
+      var resultArray = resetQuery ? responseJson["hits"]["hits"] : this.state.searchQueryResult.concat(responseJson["hits"]["hits"]);
+      console.log("currSearchPage",this.state.currSearchPage);
+      console.log("resultArray",resultArray);
+      this.setState({isQueryLoadingTail: false, isQueryRunning: false, searchQueryResult:resultArray});
     })
     .catch((error) => {
-      this.setState({isQueryRunning: false, searchQueryResult:["error"]});
+      //TODO: add hasError boolean to state
+      console.log(error);
+      this.setState({isQueryLoadingTail: false, isQueryRunning: false, searchQueryResult:[]});
     });
 
     this.setState({isQueryRunning: true});
+  },
+  setLoadQueryTail: function(isLoading) {
+    this.setState({isQueryLoadingTail: isLoading});
+    if (isLoading) {
+      this.onQueryChange(this.state.searchQuery,false);
+    }
   },
   search: function(query) {
     this.onQueryChange(query,true);
@@ -141,8 +153,10 @@ var ReaderPanel = React.createClass({
           <SearchPage
             closeNav={this.props.closeMenu}
             onQueryChange={this.onQueryChange}
+            setLoadTail={this.setLoadQueryTail}
             searchQuery={this.state.searchQuery}
-            loading={this.state.isQueryRunning}
+            loadingQuery={this.state.isQueryRunning}
+            loadingTail={this.state.isQueryLoadingTail}
             queryResult={this.state.searchQueryResult} />);
         break;
     }

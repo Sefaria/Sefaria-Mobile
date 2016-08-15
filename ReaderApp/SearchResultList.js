@@ -10,31 +10,37 @@ var {
 
 var SearchResultList = React.createClass({
 	propTypes:{
-		queryResult: React.PropTypes.array
+		queryResult:   React.PropTypes.array,
+		loadingTail:   React.PropTypes.bool,
+		onQueryChange: React.PropTypes.func.isRequired,
+		setLoadTail:   React.PropTypes.func.isRequired
 	},
 	getInitialState: function() {
-  		var ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
-  		var queryArray = this.props.queryResult.map(function(r) {return {"title": r._source.ref, "text": r.highlight.content[0]}});
-
-  		console.log("queryArray",queryArray);
-
   		return {
-    		dataSource: ds.cloneWithRows(queryArray),
-    		currPage: 0
+    		dataSource: new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2})
   		};
 	},
-	handleScroll: function(event) {
-		var y = event.nativeEvent.contentOffset.y;
-		console.log(y);
-	},
 	onEndReached: function() {
-		console.log("done scrollingg.....");
+		if (this.props.loadingTail) {
+			//already loading tail
+			return;
+		}
+		this.props.setLoadTail(true);
+	},
+	renderRow: function(rowData) {
+		return(
+				<SearchTextResult textType={rowData.textType} title={rowData.title} text={rowData.text}/>
+			);
 	},
 	render: function() {
+
+		var queryArray = this.props.queryResult.map(function(r) {return {"title": r._source.ref, "text": r.highlight.content[0], "textType":r._id.includes("[he]") ? "hebrew" : "english"}});
+    	var dataSourceRows = this.state.dataSource.cloneWithRows(queryArray);
+
 		return (
 			<ListView
-      			dataSource={this.state.dataSource}
-      			renderRow={(rowData) => <SearchTextResult title={rowData.title} text={rowData.text}/>}
+      			dataSource={dataSourceRows}
+      			renderRow={this.renderRow}
       			onEndReached={this.onEndReached}/>
     	);
 	}
