@@ -3,8 +3,17 @@ var RNFS = require('react-native-fs'); //for access to file system -- (https://g
 // var HTMLView = require('react-native-htmlview'); //to convert html'afied JSON to something react can render (https://github.com/jsdf/react-native-htmlview)
 
 Sefaria = {
+    init: function() {
+        // Load TOC JSON
+        var JSONSourcePath = (RNFS.MainBundlePath + "/sources/toc.json");
+        return new Promise(function(resolve, reject) {
+            Sefaria._loadJSON(JSONSourcePath, function(data) {
+                Sefaria.toc = data;
+                resolve();
+            });
+        });
+    },
     data: function(ref, settings) {
-        //also technically includes links due to structure of JSON.
         return new Promise(function(resolve, reject) {
 
             var fileNameStem = ref.split(":")[0];
@@ -27,20 +36,23 @@ Sefaria = {
 
         });
     },
-    toc: function() {
-        var JSONSourcePath = (RNFS.MainBundlePath + "/sources/toc.json");
-        return new Promise(function(resolve, reject) {
-            if (Sefaria._toc) {
-                resolve(Sefaria._toc);
-            } else {
-                Sefaria._loadJSON(JSONSourcePath, function(data) {
-                    Sefaria._toc = data;
-                    resolve(data);
-                });
-            }
-        });
+    toc: null,
+    tocItemsByCategories: function(cats) {
+      // Returns the TOC items that correspond to the list of categories 'cats'
+      var list = Sefaria.toc
+      for (var i = 0; i < cats.length; i++) {
+        var found = false;
+        for (var k = 0; k < list.length; k++) {
+          if (list[k].category == cats[i]) { 
+            list = Sefaria.util.clone(list[k].contents);
+            found = true;
+            break;
+          }
+        }
+        if (!found) { return []; }
+      }
+      return list;        
     },
-    _toc: null,
     _deleteAllFiles: function () {
         return new Promise(function(resolve, reject) {
             RNFS.readDir(RNFS.DocumentDirectoryPath).then((result) => {
@@ -257,6 +269,52 @@ Sefaria = {
         }
     }
 
+};
+
+Sefaria.util = {
+    clone: function clone(obj) {
+        // Handle the 3 simple types, and null or undefined
+        if (null == obj || "object" != typeof obj) return obj;
+
+        // Handle Date
+        if (obj instanceof Date) {
+            var copy = new Date();
+            copy.setTime(obj.getTime());
+            return copy;
+        }
+
+        // Handle Array
+        if (obj instanceof Array) {
+            var copy = [];
+            var len = obj.length;
+            for (var i = 0; i < len; ++i) {
+                copy[i] = clone(obj[i]);
+            }
+            return copy;
+        }
+
+        // Handle Object
+        if (obj instanceof Object) {
+            var copy = {};
+            for (var attr in obj) {
+                if (obj.hasOwnProperty(attr)) copy[attr] = clone(obj[attr]);
+            }
+            return copy;
+        }
+
+        throw new Error("Unable to copy obj! Its type isn't supported.");
+    },
+    inArray: function(needle, haystack) {
+      if (!haystack) { return -1 } //For parity of behavior w/ JQuery inArray
+      var index = -1;
+      for (var i = 0; i < haystack.length; i++) {
+        if (haystack[i] === needle) {
+          index = i;
+          break;
+        }
+      }
+      return index;
+    }
 };
 
 Sefaria.hebrewCategory = function(cat) {

@@ -1,23 +1,23 @@
 'use strict';
 
 var React = require('react-native');
-var Sefaria = require('./sefaria');
 
 var {
   StyleSheet,
   Text,
   TouchableOpacity,
-  View
+  View,
+  ScrollView
 } = React;
 
 var {
   CategoryColorLine,
   TwoBox,
   LanguageToggleButton
-} = require('./Util.js');
+} = require('./Misc.js');
 
 var SearchBar = require('./SearchBar');
-
+var ReaderNavigationCategoryMenu = require('./ReaderNavigationCategoryMenu');
 var styles = require('./Styles.js');
 
 
@@ -28,15 +28,15 @@ var ReaderNavigationMenu = React.createClass({
     settings:       React.PropTypes.object.isRequired,
     interfaceLang:  React.PropTypes.string.isRequired,
     setCategories:  React.PropTypes.func.isRequired,
+    openRef:        React.PropTypes.func.isRequired,
     closeNav:       React.PropTypes.func.isRequired,
     openNav:        React.PropTypes.func.isRequired,
     openSearch:     React.PropTypes.func.isRequired,
     toggleLanguage: React.PropTypes.func.isRequired,
-    //onTextClick:   React.PropTypes.func.isRequired,
-    //onRecentClick: React.PropTypes.func.isRequired,
-    //closePanel:    React.PropTypes.func,
+    Sefaria:        React.PropTypes.object.isRequired
   },
   getInitialState: function() {
+    Sefaria = this.props.Sefaria;
     return {
       showMore: false,
     };
@@ -56,11 +56,13 @@ var ReaderNavigationMenu = React.createClass({
       return (<ReaderNavigationCategoryMenu
                 categories={this.props.categories}
                 category={this.props.categories.slice(-1)[0]}
+                settings={this.props.settings}
                 closeNav={this.props.closeNav}
                 setCategories={this.props.setCategories}
-                openText={this.props.openText}
+                openRef={this.props.openRef}
                 toggleLanguage={this.props.toggleLanguage}
-                navHome={this.navHome} />);
+                navHome={this.navHome}
+                Sefaria={Sefaria} />);
     } else {
       // Root Library Menu
       var categories = [
@@ -109,14 +111,14 @@ var ReaderNavigationMenu = React.createClass({
               <SearchBar 
                 closeNav={this.props.closeNav}
                 onQueryChange={this.props.openSearch} />
-              <View style={styles.menuContent}>
+              <ScrollView style={styles.menuContent}>
                 {title}
                 <ReaderNavigationMenuSection 
                   title="BROWSE" 
                   heTitle="טקסטים"
                   content={categories} 
                   interfaceLang={this.props.interfaceLang} />
-              </View>
+              </ScrollView>
             </View>);
     }
   }
@@ -128,13 +130,13 @@ var CategoryBlockLink = React.createClass({
     category: React.PropTypes.string,
     language: React.PropTypes.string,
     style:    React.PropTypes.string,
-    onPress:  React.PropTypes.function
+    onPress:  React.PropTypes.func,
   },
   render: function() {
     var style = this.props.style || {"borderColor": Sefaria.palette.categoryColor(this.props.category)};
     var content = this.props.language == "english"?
       (<Text style={styles.en}>{this.props.category}</Text>) :
-      (<Text style={styles.he}>){Sefaria.hebrewCategory(this.props.category)}</Text>);
+      (<Text style={styles.he}>{Sefaria.hebrewCategory(this.props.category)}</Text>);
     return (<TouchableOpacity onPress={this.props.onPress} style={[styles.readerNavCategory, style]}>
               {content}
             </TouchableOpacity>);
@@ -154,39 +156,10 @@ var ReaderNavigationMenuSection = React.createClass({
     if (!this.props.content) { return null; }
     var title = this.props.interfaceLang !== "hebrew" ? this.props.title : this.props.heTitle;
     var langStyle = this.props.interfaceLang !== "hebrew" ? styles.intEn : styles.intHe;
-    return (
-      <View style={styles.readerNavSection}>
-        <Text style={[styles.readerNavSectionTitle, langStyle]}>{title}</Text>
-        {this.props.content}
-      </View>
-      );
-  }
-});
-
-
-var ReaderNavigationCategoryMenu = React.createClass({
-  // Navigation Menu for a single category of texts (e.g., "Tanakh", "Bavli")
-  propTypes: {
-    category:       React.PropTypes.string.isRequired,
-    categories:     React.PropTypes.array.isRequired,
-    closeNav:       React.PropTypes.func.isRequired,
-    setCategories:  React.PropTypes.func.isRequired,
-    navHome:        React.PropTypes.func.isRequired,
-    toggleLanguage: React.PropTypes.func.isRequired,
-  },
-  render: function() {
-    return (<View style={[styles.menu]}>
-              <View style={styles.header}>
-                <TouchableOpacity onPress={this.props.navHome}>
-                  <Text style={styles.headerButton}>☰</Text>
-                </TouchableOpacity>
-              </View>
-
-              <View style={styles.menuContent}>
-                <Text>Navigation: {this.props.category}</Text>
-              </View>
-
-            </View>);  
+    return (<View style={styles.readerNavSection}>
+              <Text style={[styles.readerNavSectionTitle, langStyle]}>{title}</Text>
+              {this.props.content}
+            </View>);
   }
 });
 

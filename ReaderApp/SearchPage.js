@@ -20,7 +20,7 @@ var SearchPage = React.createClass({
 	},
 	render: function() {
 		return (
-			<View style={styles.searchPage}>
+			<View style={styles.menu}>
 				<SearchBar 
 					closeNav={this.props.closeNav}
 					onQueryChange={this.props.onQueryChange}/>

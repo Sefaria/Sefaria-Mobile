@@ -6,7 +6,9 @@ var {
   StyleSheet,
   Text,
   TouchableOpacity,
-  View
+  View,
+  Image,
+    Modal
 } = React;
 
 var ReaderNavigationMenu = require('./ReaderNavigationMenu');
@@ -18,12 +20,12 @@ var styles               = require('./Styles.js');
 
 var ReaderPanel = React.createClass({
   propTypes: {
-    interfaceLang: React.PropTypes.string.isRequired
+    interfaceLang: React.PropTypes.string.isRequired,
+    Sefaria:       React.PropTypes.object.isRequired
   },
   getInitialState: function () {
+    Sefaria = this.props.Sefaria;
     return {
-      menuOpen: "navigation",
-      navigationCategories: [],
     	textFlow: this.props.textFlow || 'segmented', 	// alternative is 'continuous'
     	columnLanguage: this.props.columnLanguage || 'english', 	// alternative is 'hebrew' &  'bilingual'
       searchQuery: '',
@@ -36,25 +38,19 @@ var ReaderPanel = React.createClass({
         layoutTalmud:  "continuous",
         layoutTanakh:  "segmented",
         color:         "light",
-        fontSize:      62.5
-      }
+        fontSize:      62.5,
+      },
+        ReaderDisplayOptionsMenuVisible: false
+
     };
   },
-  openMenu: function(menu) {
-    this.setState({menuOpen: menu});
-  },
-  closeMenu: function() {
-    this.clearMenuState();
-    this.openMenu(null);
-  },
-  openNav: function() {
-    this.openMenu("navigation");
-  },
-  setNavigationCategories: function(categories) {
-    this.setState({navigationCategories: categories});
-  },
-  openSearch: function(query) {
-    this.openMenu("search");
+  openReaderDisplayOptionsMenu: function () {
+    if (this.state.ReaderDisplayOptionsMenuVisible == false) {
+  	 this.setState({ReaderDisplayOptionsMenuVisible:  true})
+  	} else {
+  	 this.setState({ReaderDisplayOptionsMenuVisible:  false})}
+
+      console.log(this.state.ReaderDisplayOptionsMenuVisible);
   },
   onQueryChange: function(query,resetQuery) {
     if (resetQuery) {
@@ -79,17 +75,12 @@ var ReaderPanel = React.createClass({
     .catch((error) => {
       this.setState({isQueryRunning: false, searchQueryResult:["error"]});
     });
-    
+
     this.setState({isQueryRunning: true});
   },
   search: function(query) {
-    this.onQueryChange(query,true);    
-    this.openSearch();
-  },
-  clearMenuState: function() {
-    this.setState({
-      navigationCategories: []
-    });
+    this.onQueryChange(query,true);
+    this.props.openSearch();
   },
   toggleLanguage: function() {
     // Toggle current display language between english/hebrew only
@@ -105,7 +96,7 @@ var ReaderPanel = React.createClass({
   	 this.setState({textFlow:  "segmented"})
   	} else {
   	 this.setState({textFlow:  "continuous"})
-  	 
+
   	 if (this.state.columnLanguage == "bilingual") {
         this.setState({columnLanguage:  "hebrew"})
   	 }
@@ -127,70 +118,131 @@ var ReaderPanel = React.createClass({
     }
   },
   render: function() {
-    
-    switch(this.state.menuOpen) {
+
+    switch(this.props.menuOpen) {
       case (null):
         break;
       case ("navigation"):
         return (
           <ReaderNavigationMenu
-            categories={this.state.navigationCategories}
-            setCategories={this.setNavigationCategories} 
-            openNav={this.openNav}
-            closeNav={this.closeMenu}
-            openSearch={this.search} 
+            categories={this.props.navigationCategories}
+            setCategories={this.props.setNavigationCategories}
+            openRef={this.props.RefPressed}
+            openNav={this.props.openNav}
+            closeNav={this.props.closeMenu}
+            openSearch={this.search}
+            toggleLanguage={this.toggleLanguage}
             settings={this.state.settings}
-            interfaceLang={this.props.interfaceLang} />);
+            interfaceLang={this.props.interfaceLang}
+            Sefaria={Sefaria} />);
         break;
       case ("search"):
         return(
           <SearchPage
-          closeNav={this.closeMenu}
-          onQueryChange={this.onQueryChange}
-          searchQuery={this.state.searchQuery}
-          loading={this.state.isQueryRunning}
-          queryResult={this.state.searchQueryResult}/>);
+            closeNav={this.props.closeMenu}
+            onQueryChange={this.onQueryChange}
+            searchQuery={this.state.searchQuery}
+            loading={this.state.isQueryRunning}
+            queryResult={this.state.searchQueryResult} />);
         break;
     }
 
     return (
   		<View style={styles.container}>
-    		<View style={styles.header}>
-    			
-          <TouchableOpacity onPress={this.openNav}>
+          <ReaderControls
+            textReference={this.props.textReference}
+            openNav={this.props.openNav}
+            openReaderDisplayOptionsMenu={this.openReaderDisplayOptionsMenu}
+          />
+          {this.state.ReaderDisplayOptionsMenuVisible ? (<ReaderDisplayOptionsMenu
+            textFlow={this.state.textFlow}
+            textReference={this.props.textReference}
+            columnLanguage={this.state.columnLanguage}
+            ReaderDisplayOptionsMenuVisible={this.state.ReaderDisplayOptionsMenuVisible}
+            toggleTextFlow={this.toggleTextFlow}
+            togglecolumnLanguage={this.togglecolumnLanguage}
+          />) : null }
+
+          <View style={styles.mainTextPanel}>
+            <TextColumn data={this.props.data} segmentRef={this.props.segmentRef} textFlow={this.state.textFlow} columnLanguage={this.state.columnLanguage} TextSegmentPressed={ this.props.TextSegmentPressed } />
+          </View>
+          <View style={styles.commentaryTextPanel}>
+            <TextList data={this.props.data} segmentRef={this.props.segmentRef} textFlow={this.state.textFlow} columnLanguage={this.state.columnLanguage} RefPressed={ this.props.RefPressed } />
+          </View>
+        </View>);
+  }
+});
+
+
+var ReaderControls = React.createClass({
+  propTypes: {
+    textReference:    React.PropTypes.string,
+    openNav:  React.PropTypes.function,
+    openReaderDisplayOptionsMenu:  React.PropTypes.function,
+  },
+  render: function() {
+    return (
+        <View style={styles.header}>
+          <TouchableOpacity onPress={this.props.openNav}>
             <Text style={styles.headerButton}>☰</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity onPress={this.toggleTextFlow} style={[{width:100}]}>
-    				<Text style={styles.title}>
-    					{this.state.textFlow}
-    				</Text>
-    			</TouchableOpacity>
-
-    			<TouchableOpacity onPress={this.togglecolumnLanguage} style={[{width:100}]}>
-    				<Text style={styles.title}>
-    					{this.state.columnLanguage}
-    				</Text>
-    			</TouchableOpacity>
-
-          <TouchableOpacity onPress={this.openSearch} style={[{width:30}]}>
-            <Text>Search</Text>
-          </TouchableOpacity>
-    			
           <Text style={[{width:100}]}>
-    			   {this.props.textReference}
-    			</Text>
-    		</View>
-  	   	
-        <View style={styles.mainTextPanel}>
-          <TextColumn data={this.props.data} segmentRef={this.props.segmentRef} textFlow={this.state.textFlow} columnLanguage={this.state.columnLanguage} TextSegmentPressed={ this.props.TextSegmentPressed } />
+            {this.props.textReference}
+          </Text>
+
+          <TouchableOpacity onPress={this.props.openReaderDisplayOptionsMenu}>
+            <Image source={require('./img/ayealeph.png')} style={styles.readerOptions} resizeMode={Image.resizeMode.contain}/>
+          </TouchableOpacity>
+
         </View>
-        <View style={styles.commentaryTextPanel}>
-          <TextList data={this.props.data} segmentRef={this.props.segmentRef} textFlow={this.state.textFlow} columnLanguage={this.state.columnLanguage} RefPressed={ this.props.RefPressed } />
-        </View>
-      </View>);
+    );
+
+
+
+
+
+
+
   }
 });
+
+var ReaderDisplayOptionsMenu = React.createClass({
+  propTypes: {
+    textFlow:    React.PropTypes.string,
+    textReference:    React.PropTypes.string,
+    columnLanguage:    React.PropTypes.string,
+    ReaderDisplayOptionsMenuVisible: React.PropTypes.bool,
+    openNav:  React.PropTypes.function,
+    toggleTextFlow:  React.PropTypes.function,
+    togglecolumnLanguage:  React.PropTypes.function,
+    openSearch:  React.PropTypes.function,
+  },
+  render: function() {
+    return (
+        <View style={styles.header}>
+            <TouchableOpacity onPress={this.props.toggleTextFlow} style={[{width:100}]}>
+              <Text style={styles.title}>
+                {this.props.textFlow}
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={this.props.togglecolumnLanguage} style={[{width:100}]}>
+              <Text style={styles.title}>
+                {this.props.columnLanguage}
+              </Text>
+            </TouchableOpacity>
+        </View>
+    );
+
+
+
+
+
+
+
+  }
+});
+
 
 
 module.exports = ReaderPanel;

@@ -8,23 +8,26 @@ var {
   TextInput
 } = React;
 
+var {
+  CloseButton,
+  SearchButton
+} = require('./Misc.js');
+
 var styles = require('./Styles.js');
 
 
 var SearchBar = React.createClass({
-  getInitialState: function() {
-    return {text: "Search"};
-  },
   propTypes:{
     closeNav:        React.PropTypes.func.isRequired,
     onQueryChange:   React.PropTypes.func.isRequired
   },
+  getInitialState: function() {
+    return {text: "Search"};
+  },
   render: function() {
     return (
       <View style={styles.header}>
-        <TouchableOpacity onPress={this.props.closeNav}>
-            <Text style={styles.headerButton}>X</Text>
-        </TouchableOpacity>
+        <CloseButton onPress={this.props.closeNav} />
         <TextInput
           style={styles.searchInput}
           onChangeText={(text) => this.setState({text})}
