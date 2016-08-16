@@ -126,8 +126,8 @@ var ReaderNavigationCategoryMenuContents = React.createClass({
             var openCat = this.props.setCategories.bind(null, newCats);
             content.push((<TouchableOpacity onPress={openCat} style={styles.textBlockLink} key={i}>
                             { showHebrew ? 
-                              <Text style={styles.he}>{Sefaria.hebrewCategory(this.props.category)}</Text> :
-                              <Text style={styles.en}>{this.props.category}</Text> }
+                              <Text style={[styles.he, styles.centerText]}>{Sefaria.hebrewCategory(item.category)}</Text> :
+                              <Text style={[styles.en, styles.centerText]}>{item.category}</Text> }
                           </TouchableOpacity>));
             continue;
           }
@@ -139,6 +139,7 @@ var ReaderNavigationCategoryMenuContents = React.createClass({
                           <ReaderNavigationCategoryMenuContents 
                             contents={item.contents}
                             categories={newCats}
+                            setCategories={this.props.setCategories}
                             openRef={this.props.openRef}
                             settings={this.props.settings} />
                         </View>));
@@ -149,17 +150,19 @@ var ReaderNavigationCategoryMenuContents = React.createClass({
           var openRef = this.props.openRef.bind(null, item.firstSection);
           content.push((<TouchableOpacity  style={styles.textBlockLink}  onPress={openRef} key={i}>
                             { showHebrew ? 
-                              <Text style={styles.he}>{heTitle}</Text> :
-                              <Text style={styles.en}>{title}</Text> }
+                              <Text style={[styles.he, styles.centerText]}>{heTitle}</Text> :
+                              <Text style={[styles.en, styles.centerText]}>{title}</Text> }
                           </TouchableOpacity>));
         }
       }
+      console.log(content);
       var boxedContent = [];
       var currentRun   = [];
       for (var i = 0; i < content.length; i++) {
         // Walk through content looking for runs of texts/subcats to group together into a table
-        if (content[i].type == "View") { // this is a subcategory
+        if (content[i].type.displayName == "View") { // this is a subcategory
           if (currentRun.length) {
+            console.log("view")
             boxedContent.push((<TwoBox content={currentRun} key={i} />));
             currentRun = [];
           }

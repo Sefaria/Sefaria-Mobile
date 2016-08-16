@@ -96,7 +96,7 @@ var ReaderPanel = React.createClass({
   },
   toggleLanguage: function() {
     // Toggle current display language between english/hebrew only
-    if (this.state.settings.language == "english") {
+    if (this.state.settings.language !== "hebrew") {
       this.state.settings.language = "hebrew";
     } else {
       this.state.settings.language = "english";
