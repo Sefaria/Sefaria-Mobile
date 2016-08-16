@@ -42,7 +42,7 @@ function htmlToElement(rawHtml, opts, done) {
             {domToElement(node.children, node)}
             {node.name == 'br' ? LINE_BREAK : null}
             {node.name == 'li' ? LINE_BREAK : null}
-            {node.name == 'p' && index < list.length - 1 ? PARAGRAPH_BREAK : null}
+            {node.name == 'p' && index < list.length-1 ? PARAGRAPH_BREAK : null}
           </Text>
         )
       }
@@ -100,7 +100,7 @@ var HTMLView = React.createClass({
   },
   render() {
     if (this.state.element) {
-      return <Text children={this.state.element}/>
+      return <Text children={this.state.element} />
     }
     return <Text />
   }
