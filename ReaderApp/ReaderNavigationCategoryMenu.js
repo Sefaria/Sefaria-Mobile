@@ -43,7 +43,7 @@ var ReaderNavigationCategoryMenu = React.createClass({
     var showHebrew = this.props.settings.language == "hebrew";
 
     // Show Talmud with Toggles
-    var categories  = this.props.categories[0] === "Talmud" && this.props.categories.length == 1 ? 
+    var categories  = this.props.categories[0] === "Talmud" && this.props.categories.length == 1 ?
                         ["Talmud", "Bavli"] : this.props.categories;
 
 
@@ -57,16 +57,16 @@ var ReaderNavigationCategoryMenu = React.createClass({
 
       var bStyles = [styles.navToggle].concat(categories[1] === "Bavli" ? [styles.navToggleActive] : []);
       var yStyles = [styles.navToggle].concat(categories[1] === "Yerushalmi" ? [styles.navToggleActive] : []);
-      
+
       var toggle = (<View style={styles.navToggles}>
                         <TouchableOpacity style={bStyles} onPress={setBavli}>
-                          {showHebrew ? 
+                          {showHebrew ?
                             <Text style={styles.he}>בבלי</Text> :
                             <Text style={styles.en}>Bavli</Text> }
                         </TouchableOpacity>
                         <Text style={styles.navTogglesDivider}>|</Text>
                         <TouchableOpacity style={yStyles} onPress={setYerushalmi}>
-                          {showHebrew ? 
+                          {showHebrew ?
                             <Text style={styles.he}>ירושלמי</Text> :
                             <Text style={styles.en}>Yerushalmi</Text> }
                         </TouchableOpacity>
@@ -83,15 +83,15 @@ var ReaderNavigationCategoryMenu = React.createClass({
               <View style={styles.header}>
                 <CategoryColorLine category={categories[0]} />
                 <MenuButton onPress={this.props.navHome} />
-                {showHebrew ? 
+                {showHebrew ?
                   <Text style={styles.he, styles.categoryTitle}>{Sefaria.hebrewCategory(this.props.category)}</Text> :
                   <Text style={styles.en, styles.categoryTitle}>{this.props.category}</Text> }
                 <DisplaySettingsButton onPress={this.props.openDisplaySettings} />
               </View>
-              
+
               <ScrollView style={styles.menuContent}>
-                  <ReaderNavigationCategoryMenuContents 
-                    contents={catContents} 
+                  <ReaderNavigationCategoryMenuContents
+                    contents={catContents}
                     categories={categories}
                     setCategories={this.props.setCategories}
                     openRef={this.props.openRef}
@@ -125,7 +125,7 @@ var ReaderNavigationCategoryMenuContents = React.createClass({
           if (Sefaria.util.inArray(item.category, subcats) > -1) {
             var openCat = this.props.setCategories.bind(null, newCats);
             content.push((<TouchableOpacity onPress={openCat} style={styles.textBlockLink} key={i}>
-                            { showHebrew ? 
+                            { showHebrew ?
                               <Text style={styles.he}>{Sefaria.hebrewCategory(this.props.category)}</Text> :
                               <Text style={styles.en}>{this.props.category}</Text> }
                           </TouchableOpacity>));
@@ -133,10 +133,10 @@ var ReaderNavigationCategoryMenuContents = React.createClass({
           }
           // Add a Category
           content.push((<View style={styles.category} key={i}>
-                          { showHebrew ? 
+                          { showHebrew ?
                               <Text style={[styles.he, styles.categorySectionTitle]}>{item.heCategory}</Text> :
                               <Text style={[styles.en, styles.categorySectionTitle]}>{item.category}</Text> }
-                          <ReaderNavigationCategoryMenuContents 
+                          <ReaderNavigationCategoryMenuContents
                             contents={item.contents}
                             categories={newCats}
                             openRef={this.props.openRef}
@@ -148,7 +148,7 @@ var ReaderNavigationCategoryMenuContents = React.createClass({
           var heTitle = item.heTitle.replace(/(משנה תורה,|תלמוד ירושלמי) /, "");
           var openRef = this.props.openRef.bind(null, item.firstSection);
           content.push((<TouchableOpacity  style={styles.textBlockLink}  onPress={openRef} key={i}>
-                            { showHebrew ? 
+                            { showHebrew ?
                               <Text style={styles.he}>{heTitle}</Text> :
                               <Text style={styles.en}>{title}</Text> }
                           </TouchableOpacity>));

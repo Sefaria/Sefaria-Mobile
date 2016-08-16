@@ -7,7 +7,6 @@ var React   = require('react-native');
 var styles  = require('./Styles.js');
 var Sefaria = require('./sefaria');
 
-// var HTMLView = require('react-native-htmlview'); //to convert html'afied JSON to something react can render (https://github.com/jsdf/react-native-htmlview)
 
 var {
 	AppRegistry, 
@@ -36,9 +35,9 @@ var ReaderApp = React.createClass({
 
         return {
             segmentRef: 0,
-            ref: "Exodus 1:1",
-            textReference: "Exodus 1", 
-            bookReference: "Exodus",
+            ref: "Berakhot 2a",
+            textReference: "Berakhot 2a",
+            bookReference: "Berakhot",
             loaded: false,
             menuOpen: "navigation",
             navigationCategories: [],
