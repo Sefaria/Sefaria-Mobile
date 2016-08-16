@@ -20,9 +20,18 @@ var TwoBox = React.createClass({
     },
     render: function() {
         var content = this.props.content.map(function(item, i) {
-            return (<View style={styles.twoBoxChild} key={i}>{item}</View>);
+            return (<View style={styles.twoBoxItem} key={i}>{item}</View>);
         });
-        return (<View style={styles.twoBox}>{content}</View>);
+        var rows = [];
+        for (var i=0; i < content.length; i += 2) {
+            if (content.length > i+1) {
+              var items = [content[i], content[i+1]];
+            } else {
+              var items = [content[i]];
+            }
+            rows.push(<View style={styles.twoBoxRow} key={i}>{items}</View>);
+        }
+        return (<View style={styles.twoBox}>{rows}</View>);
     }
 });
 

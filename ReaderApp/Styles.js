@@ -115,12 +115,13 @@ module.exports = StyleSheet.create({
         color: "#999"
     },
     textBlockLink: {
-        height: 40,
+        paddingVertical: 10,
+        paddingHorizontal: 10,
         backgroundColor: "white",
         margin: 5,
-        flexDirection: "row",
-        justifyContent: "center",
-        alignItems: "center"
+        flex: 1,
+        flexWrap: "wrap",
+        alignSelf: "stretch",
     },
     searchInput: {
         alignSelf: 'stretch',
@@ -212,5 +213,20 @@ module.exports = StyleSheet.create({
     readerOptions: {
         width: 30,
         height: 40,
+    },
+    twoBox: {
+        flex: 1,
+    },
+    twoBoxRow: {
+        flex: 1,
+        flexDirection: "row",
+        alignItems: "stretch"
+    },
+    twoBoxItem: {
+        flex: 1,
+        alignItems: "stretch"
+    },
+    centerText: {
+        textAlign: "center"
     }
 });
