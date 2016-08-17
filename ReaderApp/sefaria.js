@@ -4,12 +4,23 @@ var RNFS = require('react-native-fs'); //for access to file system -- (https://g
 
 Sefaria = {
   init: function() {
-    // Load TOC JSON
-    var JSONSourcePath = (RNFS.MainBundlePath + "/sources/toc.json");
+    // Load JSON data for TOC and Calendar
     return new Promise(function(resolve, reject) {
-      Sefaria._loadJSON(JSONSourcePath, function(data) {
+      var checkResolve = function() {
+        if (Sefaria.toc && Sefaria.calendar) {
+          resolve();
+        }
+      };
+      var tocPath = (RNFS.MainBundlePath + "/sources/toc.json");
+      Sefaria._loadJSON(tocPath, function(data) {
         Sefaria.toc = data;
-        resolve();
+        checkResolve();
+      });
+      var calendarPath = (RNFS.MainBundlePath + "/sources/calendar.json");
+      console.log(calendarPath)
+      Sefaria._loadJSON(calendarPath, function(data) {
+        Sefaria.calendar = data;
+        checkResolve();
       });
     });
   },
@@ -55,6 +66,28 @@ Sefaria = {
     }
     return list;
   },
+  calendar: null,
+  parashah: function() {
+    // Returns an object representing this week's Parashah
+    var date = new Date();
+    date.setDate(date.getDate() + (6 - 1 - date.getDay() + 7) % 7 + 1);
+    dateString = Sefaria._dateString(date);
+    console.log("Getting parasha for " + dateString)
+    return Sefaria.calendar ? Sefaria.calendar.parshiot[dateString] : null;
+  },
+  dafYomi: function() {
+    // Returns an object representing today's Daf Yomi
+    return Sefaria.calendar ? Sefaria.calendar.dafyomi[Sefaria._dateString()] : null;
+  },
+  _dateString: function(date) {
+    // Returns of string in the format "DD/MM/YYYY" for either `date` or today.
+    var date = typeof date === 'undefined' ? new Date() : date;
+    var day = date.getDate();
+    var month = date.getMonth()+1; //January is 0!
+    var year = date.getFullYear();
+
+    return month + '/' + day + '/' + year;
+  },
   _deleteAllFiles: function() {
     return new Promise(function(resolve, reject) {
       RNFS.readDir(RNFS.DocumentDirectoryPath).then((result) => {
@@ -71,9 +104,11 @@ Sefaria = {
     });
   },
   _loadJSON: function(JSONSourcePath, callback) {
-    fetch(JSONSourcePath).then((response) => response.json()).then((responseData) => {
-      callback(responseData);
-    }).done();
+    fetch(JSONSourcePath)
+      .then((response) => response.json())
+      .then((responseData) => {
+        callback(responseData);
+      }).done();
   },
   _JSONSourcePath: function(fileName) {
     return (RNFS.DocumentDirectoryPath + "/" + fileName + ".json");

@@ -91,6 +91,9 @@ module.exports = StyleSheet.create({
     flex: 1,
     textAlign: "center"
   },
+  readerNavSection: {
+    marginBottom: 30
+  },
   readerNavCategory: {
     height: 40,
     backgroundColor: "white",
