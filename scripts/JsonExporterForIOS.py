@@ -179,6 +179,47 @@ def export_toc():
 	write_doc(toc, path)
 
 
+def export_calendar():
+	"""
+	Writes a JSON file with Parashah and Daf Yomi calendar from today onward.
+	"""
+	calendar = {
+		"parshiot": {},
+		"dafyomi": {}
+	}
+	date = datetime.now()
+	date_format = lambda date : date.strftime(" %m/ %d/%Y").replace(" 0", "").replace(" ", "")
+	date_str = date_format(date)
+
+	daf_today = db.dafyomi.find_one({"date": date_str})
+	
+	dafyomi = db.dafyomi.find({"_id": {"$gte": daf_today["_id"]}}).sort([("_id", 1)])
+	for yom in dafyomi:
+		try:
+			ref = model.Ref(yom["daf"] + "a").normal()
+			calendar["dafyomi"][yom["date"]] = {
+				"name": yom["daf"],
+				"ref": ref
+			}
+		except InputError, e:
+			print "Error parsing '%s': %s" % (yom["daf"], str(e))
+
+
+	parshiot = db.parshiot.find({"date": {"$gt": date}}).sort([("date", 1)])
+	for parashah in parshiot:
+		calendar["parshiot"][date_format(parashah["date"])] = {
+			"name": parashah["parasha"],
+			"ref": parashah["ref"],
+			"haftara": parashah["haftara"],
+			# below fields not currently used
+			# "aliyot": parashah["aliyot"],
+			# "shabbatName": parasha["shabbat_name"],
+		}
+
+	path = "%s/calendar.json" % (SEFARIA_EXPORT_PATH)
+	write_doc(calendar, path)
+
+
 def clear_exports():
 	"""
 	Deletes all files from any export directory listed in export_formats.
@@ -197,4 +238,5 @@ def export_all(skip_existing=False):
 		clear_exports()
 	export_texts(skip_existing)
 	export_toc()
+	export_calendar()
 	print("--- %s seconds ---" % round(time.time() - start_time, 2))
