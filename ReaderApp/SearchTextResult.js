@@ -1,5 +1,8 @@
 'use strict';
 var React = require('react-native');
+var HTMLView = require('./node_modules/react-native-htmlview/HTMLView');
+
+//        <Text style={this.props.textType == "hebrew" ? styles.hebrewText : styles.englishText}>{this.props.text}</Text>
 
 var {
   View,
@@ -18,7 +21,7 @@ var SearchTextResult = React.createClass({
     return (
       <View style={styles.searchTextResult}>
         <Text>{this.props.title}</Text>
-        <Text style={this.props.textType == "hebrew" ? styles.hebrewText : styles.englishText}>{this.props.text}</Text>
+        <HTMLView value={this.props.text}/>
       </View>
     );
   }

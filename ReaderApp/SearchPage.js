@@ -27,7 +27,7 @@ var SearchPage = React.createClass({
 				<SearchBar 
 					closeNav={this.props.closeNav}
 					onQueryChange={this.props.onQueryChange}/>
-				{this.props.loadingQuery ?
+				{this.props.loadingQuery?
 					<Text>Loading!!!</Text>
 					: <SearchResultList
 					queryResult={this.props.queryResult}
