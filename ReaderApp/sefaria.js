@@ -17,7 +17,6 @@ Sefaria = {
         checkResolve();
       });
       var calendarPath = (RNFS.MainBundlePath + "/sources/calendar.json");
-      console.log(calendarPath)
       Sefaria._loadJSON(calendarPath, function(data) {
         Sefaria.calendar = data;
         checkResolve();
@@ -72,7 +71,6 @@ Sefaria = {
     var date = new Date();
     date.setDate(date.getDate() + (6 - 1 - date.getDay() + 7) % 7 + 1);
     dateString = Sefaria._dateString(date);
-    console.log("Getting parasha for " + dateString)
     return Sefaria.calendar ? Sefaria.calendar.parshiot[dateString] : null;
   },
   dafYomi: function() {

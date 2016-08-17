@@ -12,7 +12,9 @@ var {
 
 
 var TextList = React.createClass({
-
+  propTypes: {
+    openRef: React.PropTypes.func.isRequired
+  },
   componentDidMount: function() {
 
   },
@@ -27,7 +29,7 @@ var TextList = React.createClass({
   onPressRef: function(q) {
 
 //	 console.log(this.props);
-    this.props.RefPressed(q);
+    this.props.openRef(q);
 
 
   },

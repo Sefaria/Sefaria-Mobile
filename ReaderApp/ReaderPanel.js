@@ -21,6 +21,7 @@ var styles               = require('./Styles.js');
 
 var ReaderPanel = React.createClass({
   propTypes: {
+    openRef:       React.PropTypes.func.isRequired,
     interfaceLang: React.PropTypes.string.isRequired,
     Sefaria:       React.PropTypes.object.isRequired
   },
@@ -136,7 +137,7 @@ var ReaderPanel = React.createClass({
           <ReaderNavigationMenu
             categories={this.props.navigationCategories}
             setCategories={this.props.setNavigationCategories}
-            openRef={this.props.RefPressed}
+            openRef={this.props.openRef}
             openNav={this.props.openNav}
             closeNav={this.props.closeMenu}
             openSearch={this.search}
@@ -178,7 +179,7 @@ var ReaderPanel = React.createClass({
             <TextColumn data={this.props.data} segmentRef={this.props.segmentRef} textFlow={this.state.textFlow} columnLanguage={this.state.columnLanguage} TextSegmentPressed={ this.props.TextSegmentPressed } />
           </View>
           <View style={styles.commentaryTextPanel}>
-            <TextList data={this.props.data} segmentRef={this.props.segmentRef} textFlow={this.state.textFlow} columnLanguage={this.state.columnLanguage} RefPressed={ this.props.RefPressed } />
+            <TextList data={this.props.data} segmentRef={this.props.segmentRef} textFlow={this.state.textFlow} columnLanguage={this.state.columnLanguage} openRef={ this.props.openRef } />
           </View>
         </View>);
   }

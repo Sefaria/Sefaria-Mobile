@@ -68,7 +68,7 @@ var ReaderApp = React.createClass({
         });
 
     },
-    RefPressed: function(ref) {
+    openRef: function(ref) {
         this.setState({
             loaded: false,
             textReference: ref
@@ -111,7 +111,7 @@ var ReaderApp = React.createClass({
                         navigationCategories={this.state.navigationCategories}
                         style={styles.mainTextPanel}
                         TextSegmentPressed={ this.TextSegmentPressed }
-                        RefPressed={ this.RefPressed }
+                        openRef={ this.openRef }
                         interfaceLang={this.state.interfaceLang}
                         openMenu={this.openMenu}
                         closeMenu={this.closeMenu}
