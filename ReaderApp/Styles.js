@@ -37,6 +37,9 @@ module.exports = StyleSheet.create({
   },
   headerButton: {
     width: 30,
+    height: 30,
+    justifyContent: "center",
+    alignItems: "center",
     backgroundColor: "transparent"
   },
   menuButton: {
@@ -55,9 +58,8 @@ module.exports = StyleSheet.create({
     fontSize: 22,
   },
   displaySettingsButton: {
-    textAlign: "center",
-    alignSelf: "stretch",
-    fontSize: 16,
+    width: 22,
+    height: 22,
   },
   menu: {
     backgroundColor: '#f9f9f7',
@@ -104,6 +106,9 @@ module.exports = StyleSheet.create({
     fontSize: 12,
     color: "#999"
   },
+  category: {
+    marginBottom: 10
+  },
   categoryTitle: {
     flex: 1,
     textAlign: "center"
@@ -120,8 +125,6 @@ module.exports = StyleSheet.create({
     backgroundColor: "white",
     margin: 5,
     flex: 1,
-    flexWrap: "wrap",
-    alignSelf: "stretch",
   },
   searchInput: {
     alignSelf: 'stretch',
@@ -176,7 +179,6 @@ module.exports = StyleSheet.create({
     justifyContent: 'center',
     paddingTop: 20,
     alignItems: "flex-start"
-
   },
   rightContainer: {
     flex: 1
@@ -197,6 +199,22 @@ module.exports = StyleSheet.create({
   },
   hebrewSystemFont: {
     fontFamily: "Open Sans Hebrew"
+  },
+  en: {
+    fontFamily: "EB Garamond",
+    textAlign: 'left',
+  },
+  he: {
+    fontFamily: "Taamey Frank CLM",
+    textAlign: 'right'
+  },
+  enInt: {
+    fontFamily: "Montserrat",
+    textAlign: 'left'
+  },
+  heInt: {
+    fontFamily: "Open Sans Hebrew",
+    textAlign: 'right'
   },
   blank: {
     height: 0,
@@ -224,7 +242,7 @@ module.exports = StyleSheet.create({
   },
   twoBoxItem: {
     flex: 1,
-    alignItems: "stretch"
+    alignItems: "stretch",
   },
   centerText: {
     textAlign: "center"

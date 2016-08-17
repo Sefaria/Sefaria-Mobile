@@ -41,7 +41,7 @@ var ReaderApp = React.createClass({
             bookReference: "Exodus",
             loaded: false,
             menuOpen: "navigation",
-            navigationCategories: [],
+            navigationCategories: ["Midrash"],
             interfaceLang: "english" // TODO check device settings for Hebrew
         };
     },
