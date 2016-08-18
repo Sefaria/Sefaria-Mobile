@@ -1,14 +1,13 @@
 'use strict';
-
-var React = require('react-native');
-
-var {
+import React, { Component } from 'react';
+import { 	AppRegistry,
   StyleSheet,
   View,
   ScrollView,
   Text,
   ListView
-} = React;
+} from 'react-native';
+
 
 var TextRange = require('./TextRange');
 var TextRangeContinuous = require('./TextRangeContinuous');
@@ -27,7 +26,6 @@ var TextColumn = React.createClass({
   },
 
   generateDataSource: function() {
-
     var curTextRange;
     var sourceArray = [];
 
@@ -67,6 +65,14 @@ var TextColumn = React.createClass({
 
   onEndReached: function() {
     console.log("end of section")
+
+    Sefaria.data(this.props.next).then(function(data) {
+
+     // this.props.updateData(this.props.data.concat(data),this.props.next);
+
+     }.bind(this)).catch(function(error) {
+      console.log('oh no', error);
+    });
 
   },
 

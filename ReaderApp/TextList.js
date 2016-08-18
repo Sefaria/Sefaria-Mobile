@@ -1,15 +1,12 @@
 'use strict';
-
-var React = require('react-native');
-
-var {
+import React, { Component } from 'react';
+import { 	AppRegistry,
   StyleSheet,
   View,
   ScrollView,
   Text,
   ListView
-} = React;
-
+} from 'react-native';
 
 var TextList = React.createClass({
 
@@ -34,6 +31,7 @@ var TextList = React.createClass({
 
 
   render: function() {
+    console.log(this.props.segmentRef);
 
     var ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
 

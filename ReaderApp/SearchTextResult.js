@@ -1,13 +1,9 @@
 'use strict';
-var React = require('react-native');
-//var HTMLView = require('./node_modules/react-native-htmlview/HTMLView');
-
-//        <Text style={this.props.textType == "hebrew" ? styles.hebrewText : styles.englishText}>{this.props.text}</Text>
-
-var {
-  View,
-  Text
-} = React;
+import React, { Component } from 'react';
+import { 	
+	Text,
+	View,
+} from 'react-native';
 
 var styles = require('./Styles.js');
 

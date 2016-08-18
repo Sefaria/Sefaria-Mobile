@@ -1,14 +1,12 @@
 'use strict';
 
-var React = require('react-native');
-//var HTMLView = require('react-native-htmlview'); //to convert html'afied JSON to something react can render (https://github.com/jsdf/react-native-htmlview)
-
-var {
+import React, { Component } from 'react';
+import { 
   StyleSheet,
   Text,
   TouchableOpacity,
   View
-} = React;
+} from 'react-native';
 
 
 var TextSegment = React.createClass({

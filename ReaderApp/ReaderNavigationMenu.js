@@ -1,14 +1,12 @@
 'use strict';
-
-var React = require('react-native');
-
-var {
+import React, { Component } from 'react';
+import {
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
   ScrollView
-} = React;
+} from 'react-native';
 
 var {
   CategoryColorLine,

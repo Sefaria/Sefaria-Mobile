@@ -1,13 +1,14 @@
 'use strict';
 
-var React            = require('react-native');
+import React, { Component } from 'react';
+import {
+	View,
+	Text
+} from 'react-native';
+
 var SearchBar        = require('./SearchBar');
 var SearchResultList = require('./SearchResultList');
 var styles           = require('./Styles.js');
-var {
-	View,
-	Text
-} = React;
 
 
 

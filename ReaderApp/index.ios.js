@@ -3,24 +3,25 @@
  * https://github.com/facebook/react-native
  */
 'use strict';
-var React   = require('react-native');
+import React, { Component } from 'react';
+import { 	
+  AppRegistry,
+	StyleSheet,
+	ScrollView,
+	Text,
+	View,
+	ListView,
+	Modal,
+	TextInput,
+	TouchableOpacity,
+	ActivityIndicatorIOS
+} from 'react-native';
+
 var styles  = require('./Styles.js');
 var Sefaria = require('./sefaria');
+var HTMLView = require('./node_modules/react-native-htmlview/HTMLView');
 
 // var HTMLView = require('react-native-htmlview'); //to convert html'afied JSON to something react can render (https://github.com/jsdf/react-native-htmlview)
-
-var {
-	AppRegistry, 
-	StyleSheet, 
-	ScrollView, 
-	Text, 
-	View, 
-	ListView, 
-	Modal, 
-	TextInput, 
-	TouchableOpacity, 
-	ActivityIndicatorIOS
-} = React;
 
 var ReaderPanel = require('./ReaderPanel');
 
@@ -42,7 +43,7 @@ var ReaderApp = React.createClass({
             loaded: false,
             menuOpen: "navigation",
             navigationCategories: [],
-            interfaceLang: "english" // TODO check device settings for Hebrew
+            interfaceLang: "english" // TODO check device settings for Hebrew: ### import {NativeModules} from 'react-native'; console.log(NativeModules.SettingsManager.settings.AppleLocale);
         };
     },
     componentDidMount: function () {
@@ -58,15 +59,23 @@ var ReaderApp = React.createClass({
     loadNewText: function(ref) {
 
       Sefaria.data(ref).then(function(data) {
-
             this.setState({
-                data: data,
+                data: data.content,
+                next: data.next,
+                prev: data.prev,
                 loaded: true
             });
          }.bind(this)).catch(function(error) {
           console.log('oh no', error);
         });
 
+    },
+    updateData: function(data,ref) {
+        this.setState({
+            data: data,
+            textReference: ref,
+            loaded: true
+        });
     },
     RefPressed: function(ref) {
         this.setState({
@@ -104,12 +113,15 @@ var ReaderApp = React.createClass({
                 <View style={styles.container}>
                     <ReaderPanel
                         textReference={this.state.textReference}
-                        data={this.state.data.content}
+                        data={this.state.data}
+                        next={this.state.next}
+                        prev={this.state.prev}
                         segmentRef={this.state.segmentRef}
                         textList={0}
                         menuOpen={this.state.menuOpen}
                         navigationCategories={this.state.navigationCategories}
                         style={styles.mainTextPanel}
+                        updateData={this.updateData}
                         TextSegmentPressed={ this.TextSegmentPressed }
                         RefPressed={ this.RefPressed }
                         interfaceLang={this.state.interfaceLang}

@@ -1,12 +1,11 @@
 'use strict';
 
-var React = require('react-native');
-
-var {
+import React, { Component } from 'react';
+import { 	AppRegistry,
   StyleSheet,
   View,
   Text
-} = React;
+} from 'react-native';
 
 var TextSegment = require('./TextSegment');
 

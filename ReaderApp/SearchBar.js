@@ -1,12 +1,11 @@
 'use strict';
-var React = require('react-native');
-
-var {
+import React, { Component } from 'react';
+import {
   TouchableOpacity,
   Text,
   View,
   TextInput
-} = React;
+} from 'react-native';
 
 var {
   CloseButton,

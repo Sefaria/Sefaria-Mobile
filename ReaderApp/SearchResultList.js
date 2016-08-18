@@ -1,12 +1,13 @@
 'use strict';
 
-var React = require('react-native');
-var styles = require('./Styles.js');
-var SearchTextResult = require('./SearchTextResult');
-var {
+import React, { Component } from 'react';
+import {
   Text,
   ListView
-} = React;
+} from 'react-native';
+
+var styles = require('./Styles.js');
+var SearchTextResult = require('./SearchTextResult');
 
 var SearchResultList = React.createClass({
   propTypes: {

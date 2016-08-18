@@ -7,8 +7,10 @@
     "setup": "sudo npm install -g react-native-cli"
   },
   "dependencies": {
-    "react-native": "^0.14.2",
+    "react": "^15.2.1",
+    "react-native": "^0.31.0",
     "react-native-fs": "^1.2.0",
+    "react-native-htmlview": "^0.5.0",
     "react-native-zip-archive": "0.0.6"
   }
 }

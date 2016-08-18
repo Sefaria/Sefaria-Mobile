@@ -1,15 +1,15 @@
 'use strict';
 
-var React = require('react-native');
-var Sefaria = require('./sefaria');
-
-var {
+import React, { Component } from 'react';
+import {
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
   ActivityIndicatorIOS
-} = React;
+} from 'react-native';
+
+var Sefaria = require('./sefaria');
 
 var styles = require('./Styles.js');
 

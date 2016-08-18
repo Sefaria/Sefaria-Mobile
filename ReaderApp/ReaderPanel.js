@@ -1,8 +1,7 @@
 'use strict';
 
-var React = require('react-native');
-
-var {
+import React, { Component } from 'react';
+import {
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -10,7 +9,8 @@ var {
   Image,
   ListView,
     Modal
-} = React;
+} from 'react-native';
+
 
 var ReaderNavigationMenu = require('./ReaderNavigationMenu');
 var SearchPage           = require('./SearchPage');
@@ -175,10 +175,25 @@ var ReaderPanel = React.createClass({
           />) : null }
 
           <View style={styles.mainTextPanel}>
-            <TextColumn data={this.props.data} segmentRef={this.props.segmentRef} textFlow={this.state.textFlow} columnLanguage={this.state.columnLanguage} TextSegmentPressed={ this.props.TextSegmentPressed } />
+            <TextColumn
+              data={this.props.data}
+              segmentRef={this.props.segmentRef}
+              textFlow={this.state.textFlow}
+              columnLanguage={this.state.columnLanguage}
+              updateData={this.props.updateData}
+              TextSegmentPressed={ this.props.TextSegmentPressed }
+              next={this.props.next}
+              prev={this.props.prev}
+            />
           </View>
+
           <View style={styles.commentaryTextPanel}>
-            <TextList data={this.props.data} segmentRef={this.props.segmentRef} textFlow={this.state.textFlow} columnLanguage={this.state.columnLanguage} RefPressed={ this.props.RefPressed } />
+            <TextList
+              data={this.props.data}
+              segmentRef={this.props.segmentRef}
+              textFlow={this.state.textFlow}
+              columnLanguage={this.state.columnLanguage}
+              RefPressed={ this.props.RefPressed } />
           </View>
         </View>);
   }
