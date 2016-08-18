@@ -98,6 +98,8 @@ var ReaderNavigationMenu = React.createClass({
       categories = this.state.showMore ? categories : categories.slice(0,9).concat(more);
       categories = (<View style={styles.readerNavCategories}><TwoBox content={categories} /></View>);
 
+
+
       var title = (<View style={styles.navigationMenuTitleBox}>
                     { this.props.interfaceLang == "english" ?
                       <Text style={[styles.navigationMenuTitle, styles.intEn]}>The Sefaria Library</Text> :
@@ -116,12 +118,53 @@ var ReaderNavigationMenu = React.createClass({
                   heTitle="טקסטים"
                   content={categories} 
                   interfaceLang={this.props.interfaceLang} />
+                <CalendarSection 
+                  openRef={this.props.openRef}
+                  language={language} 
+                  interfaceLang={this.props.interfaceLang} />
               </ScrollView>
             </View>);
     }
   }
 });
 
+
+var CalendarSection = React.createClass({
+  propTypes: {
+    openRef:       React.PropTypes.func.isRequired,
+    interfaceLang: React.PropTypes.string.isRequired,
+    language:      React.PropTypes.string.isRequired
+  },
+  render: function() {
+    if (!Sefaria.calendar) { return null; }
+    var parashah = Sefaria.parashah();
+    var dafYomi  = Sefaria.dafYomi();
+    var calendar = [<CategoryBlockLink 
+                    category={parashah.name}
+                    heCat={"פרשה"}
+                    language={this.props.language}
+                    style={{"borderColor": Sefaria.palette.categoryColor("Tanakh")}}
+                    onPress={this.props.openRef.bind(null, parashah.ref)} />,
+          <CategoryBlockLink 
+                    category={"Haftara"}
+                    heCat={"הפטרה"}
+                    language={this.props.language}
+                    style={{"borderColor": Sefaria.palette.categoryColor("Tanakh")}}
+                    onPress={this.props.openRef.bind(null, parashah.haftara[0])} />,
+          <CategoryBlockLink 
+                    category={"Daf Yomi"}
+                    heCat={"עוד"}
+                    language={this.props.language}
+                    style={{"borderColor": Sefaria.palette.categoryColor("Talmud")}}
+                    onPress={this.props.openRef.bind(null, dafYomi.ref)} />];
+
+    return <ReaderNavigationMenuSection 
+              title="CALENDAR" 
+              heTitle="לוח יומי"
+              content={<TwoBox content={calendar} />} 
+              interfaceLang={this.props.interfaceLang} />
+  }
+});
 
 var CategoryBlockLink = React.createClass({
   propTypes: {

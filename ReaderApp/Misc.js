@@ -6,6 +6,7 @@ import {
   Text,
   TouchableOpacity,
   View,
+  Image,
   ActivityIndicatorIOS
 } from 'react-native';
 
@@ -89,7 +90,9 @@ var CloseButton = React.createClass({
 var DisplaySettingsButton = React.createClass({
   render: function() { 
     return (<TouchableOpacity style={[styles.headerButton]} onPress={this.props.onPress}>
-              <Text style={styles.displaySettingsButton}>Aא</Text>
+              <Image source={require('./img/ayealeph.png')} 
+                     style={styles.displaySettingsButton} 
+                     resizeMode={Image.resizeMode.contain} />
             </TouchableOpacity>);
   }
 });

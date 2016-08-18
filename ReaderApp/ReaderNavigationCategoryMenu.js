@@ -77,7 +77,6 @@ var ReaderNavigationCategoryMenu = React.createClass({
     if (!Sefaria.toc) { return (<LoadingView />); }
 
     var catContents = Sefaria.tocItemsByCategories(categories);
-    console.log(catContents);
     return (<View style={styles.menu}>
               <View style={styles.header}>
                 <CategoryColorLine category={categories[0]} />

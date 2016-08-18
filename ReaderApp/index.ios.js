@@ -77,7 +77,7 @@ var ReaderApp = React.createClass({
             loaded: true
         });
     },
-    RefPressed: function(ref) {
+    openRef: function(ref) {
         this.setState({
             loaded: false,
             textReference: ref
@@ -123,7 +123,7 @@ var ReaderApp = React.createClass({
                         style={styles.mainTextPanel}
                         updateData={this.updateData}
                         TextSegmentPressed={ this.TextSegmentPressed }
-                        RefPressed={ this.RefPressed }
+                        openRef={ this.openRef }
                         interfaceLang={this.state.interfaceLang}
                         openMenu={this.openMenu}
                         closeMenu={this.closeMenu}
