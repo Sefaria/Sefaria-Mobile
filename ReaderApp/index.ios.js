@@ -29,14 +29,14 @@ var {
 var ReaderApp = React.createClass({
     getInitialState: function () {
         Sefaria.init().then(function() {
-            this.forceUpdate();
+            this.setState({loaded: true});
         }.bind(this));
 
         return {
             segmentRef: 0,
-            ref: "Exodus 1:1",
-            textReference: "Exodus 1",
-            bookReference: "Exodus",
+            ref: "",
+            textReference: "",
+            bookReference: "",
             loaded: false,
             menuOpen: "navigation",
             navigationCategories: [],
@@ -46,7 +46,7 @@ var ReaderApp = React.createClass({
     },
     componentDidMount: function () {
       Sefaria._deleteAllFiles().then(function() {
-          this.loadNewText(this.state.ref);
+          // this.loadNewText(this.state.ref);
          }.bind(this)).catch(function(error) {
           console.log('oh no', error);
         });
@@ -55,15 +55,15 @@ var ReaderApp = React.createClass({
         this.setState({segmentRef: q})
     },
     loadNewText: function(ref) {
-
-      Sefaria.data(ref).then(function(data) {
+        Sefaria.data(ref).then(function(data) {
             this.setState({
                 data: data.content,
                 next: data.next,
                 prev: data.prev,
                 loaded: true
             });
-         }.bind(this)).catch(function(error) {
+            Sefaria.saveRecentRef(ref);
+        }.bind(this)).catch(function(error) {
           console.log('oh no', error);
         });
 
