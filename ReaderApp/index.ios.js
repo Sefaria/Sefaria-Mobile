@@ -35,11 +35,12 @@ var ReaderApp = React.createClass({
         return {
             segmentRef: 0,
             ref: "Exodus 1:1",
-            textReference: "Exodus 1", 
+            textReference: "Exodus 1",
             bookReference: "Exodus",
             loaded: false,
             menuOpen: "navigation",
             navigationCategories: [],
+            loadingTextTail: false,
             interfaceLang: "english" // TODO check device settings for Hebrew: ### import {NativeModules} from 'react-native'; console.log(NativeModules.SettingsManager.settings.AppleLocale);
         };
     },
@@ -67,11 +68,14 @@ var ReaderApp = React.createClass({
         });
 
     },
-    updateData: function(data,ref) {
+    updateData: function(data,ref,next,prev) {
         this.setState({
             data: data,
             textReference: ref,
-            loaded: true
+            loaded: true,
+            loadingTextTail: false,
+            next: next,
+            prev: prev
         });
     },
     openRef: function(ref) {
@@ -103,6 +107,11 @@ var ReaderApp = React.createClass({
             navigationCategories: []
         });
     },
+    setLoadTextTail: function(setting) {
+        this.setState({
+            loadingTextTail: setting
+        });
+    },
     render: function () {
         if (!this.state.loaded) { return <LoadingView />; }
         else {
@@ -127,6 +136,8 @@ var ReaderApp = React.createClass({
                         openNav={this.openNav}
                         setNavigationCategories={this.setNavigationCategories}
                         openSearch={this.openSearch}
+                        loadingTextTail={this.props.loadingTextTail}
+                        setLoadTextTail={this.setLoadTextTail}
                         Sefaria={Sefaria} />
                 </View>
             );

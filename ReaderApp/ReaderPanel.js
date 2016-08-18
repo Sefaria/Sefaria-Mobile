@@ -187,6 +187,8 @@ var ReaderPanel = React.createClass({
               TextSegmentPressed={ this.props.TextSegmentPressed }
               next={this.props.next}
               prev={this.props.prev}
+              loadingTextTail={this.props.loadingTextTail}
+              setLoadTextTail={this.props.setLoadTextTail}
             />
           </View>
 
