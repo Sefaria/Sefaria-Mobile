@@ -34,9 +34,9 @@ var ReaderApp = React.createClass({
 
         return {
             segmentRef: 0,
-            ref: "Exodus 1:1",
-            textReference: "Exodus 1",
-            bookReference: "Exodus",
+            ref: "Genesis 50:1",
+            textReference: "Genesis 50",
+            bookReference: "Genesis",
             loaded: false,
             menuOpen: "navigation",
             navigationCategories: [],
@@ -136,7 +136,7 @@ var ReaderApp = React.createClass({
                         openNav={this.openNav}
                         setNavigationCategories={this.setNavigationCategories}
                         openSearch={this.openSearch}
-                        loadingTextTail={this.props.loadingTextTail}
+                        loadingTextTail={this.state.loadingTextTail}
                         setLoadTextTail={this.setLoadTextTail}
                         Sefaria={Sefaria} />
                 </View>
