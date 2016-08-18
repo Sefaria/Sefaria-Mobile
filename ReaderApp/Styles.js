@@ -253,8 +253,9 @@ module.exports = StyleSheet.create({
 
 
 //HTML Styles:
-  b: {
+  strong: {
     fontWeight: "bold"
-  }
+
+  },
 
 });

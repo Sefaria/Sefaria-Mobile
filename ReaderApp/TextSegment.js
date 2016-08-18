@@ -7,6 +7,8 @@ import {
   TouchableOpacity,
   View
 } from 'react-native';
+var HTMLView = require('react-native-htmlview'); //to convert html'afied JSON to something react can render (https://github.com/jsdf/react-native-htmlview)
+var styles = require('./Styles.js');
 
 
 var TextSegment = React.createClass({
@@ -35,32 +37,17 @@ var TextSegment = React.createClass({
         key={this.props.segmentKey}
         onLayout={this.onLayout}
       >
-        {this.props.data}
+          <HTMLView
+            value={this.props.data}
+            stylesheet={styles}
+
+          />
+
+
       </Text>
     );
   }
 });
 
-
-var styles = StyleSheet.create({
-
-
-  englishText: {
-    fontFamily: "EB Garamond",
-    textAlign: 'left',
-    alignSelf: 'stretch',
-    fontSize: 16,
-    flex: 1
-  },
-  hebrewText: {
-    fontFamily: "Taamey Frank CLM",
-    textAlign: 'right',
-    alignSelf: 'stretch',
-    fontSize: 20,
-    flex: 1
-  },
-
-
-});
 
 module.exports = TextSegment;
