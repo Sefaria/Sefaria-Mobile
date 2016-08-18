@@ -249,5 +249,12 @@ module.exports = StyleSheet.create({
   },
   centerText: {
     textAlign: "center"
+  },
+
+
+//HTML Styles:
+  b: {
+    fontWeight: "bold"
   }
+
 });

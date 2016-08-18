@@ -73,9 +73,11 @@ var ReaderPanel = React.createClass({
     .then((response) => response.json())
     .then((responseJson) => {
       var resultArray = resetQuery ? responseJson["hits"]["hits"] : this.state.searchQueryResult.concat(responseJson["hits"]["hits"]);
+      console.log(resultArray);
       this.setState({isQueryLoadingTail: false, isQueryRunning: false, searchQueryResult:resultArray});
     })
     .catch((error) => {
+      console.log(error)
       //TODO: add hasError boolean to state
       this.setState({isQueryLoadingTail: false, isQueryRunning: false, searchQueryResult:[]});
     });

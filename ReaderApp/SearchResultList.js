@@ -6,6 +6,7 @@ import {
   ListView
 } from 'react-native';
 
+
 var styles = require('./Styles.js');
 var SearchTextResult = require('./SearchTextResult');
 

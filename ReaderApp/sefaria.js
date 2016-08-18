@@ -146,7 +146,6 @@ Sefaria = {
         return null;
       }
       var url = Sefaria.search.baseUrl;
-
       return $.ajax({
         url: url,
         type: 'POST',
