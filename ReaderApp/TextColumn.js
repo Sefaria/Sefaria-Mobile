@@ -17,7 +17,9 @@ var TextColumn = React.createClass({
 
   getInitialState: function() {
     return {
-      dataSource: new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2})
+      dataSource: new ListView.DataSource({rowHasChanged: (r1, r2) => r1!== r2}),
+      height: 0,
+      prevHeight:0,
     };
   },
 
@@ -57,6 +59,11 @@ var TextColumn = React.createClass({
   handleScroll: function(e) {
 
 
+     if (e.nativeEvent.contentOffset.y < -50) {
+       this.onTopReached();
+     }
+
+
     if (segmentRefPositionArray[this.props.segmentRef + 1] < e.nativeEvent.contentOffset.y) {
       this.props.TextSegmentPressed(this.props.segmentRef + 1);
     }
@@ -67,6 +74,40 @@ var TextColumn = React.createClass({
 //		console.log(segmentRefPositionArray[this.props.segmentRef+1] + " " + e.nativeEvent.contentOffset.y)
 
   },
+
+  updateHeight: function(newHeight) {
+    this.setState({
+      height: newHeight
+    });
+
+  },
+  calculateOffset: function() {
+    console.log(this.state.height - this.state.prevHeight);
+    var offset = this.state.height - this.state.prevHeight;
+    this.setState({
+      prevHeight: this.state.height
+    });
+    return offset;
+  },
+  onTopReached: function() {
+    if (this.props.loadingTextTail) {
+      //already loading tail
+      return;
+    }
+    this.props.setLoadTextTail(true);
+    this.refs._listView.scrollTo({x: 0, y: this.calculateOffset()+363, animated: false}) //TODO replace 363 with the height of textColumn
+
+
+
+    Sefaria.data(this.props.prev).then(function(data) {
+
+      this.props.updateData(data.content.concat(this.props.data),this.props.prev,this.props.next,data.prev); //combined data content, new section title, the next section to be loaded on end , the previous section to load on top
+     }.bind(this)).catch(function(error) {
+      console.log('oh no', error);
+    });
+
+  },
+
 
 
   onEndReached: function() {
@@ -94,10 +135,12 @@ var TextColumn = React.createClass({
     var dataSourceRows = this.state.dataSource.cloneWithRows(this.generateDataSource({}));
 
     return (
-      <ListView style={styles.listview}
+      <ListView ref='_listView'
+                style={styles.listview}
                 dataSource={dataSourceRows}
                 renderRow={(rowData) =>  <View style={styles.verseContainer}>{rowData}</View>}
                 onScroll={this.handleScroll}
+                onContentSizeChange={(w, h) => {this.updateHeight(h)}}
                 onEndReached={this.onEndReached}
                 onEndReachedThreshold={300}
 

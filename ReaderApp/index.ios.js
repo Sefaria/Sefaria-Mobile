@@ -136,7 +136,7 @@ var ReaderApp = React.createClass({
                         openNav={this.openNav}
                         setNavigationCategories={this.setNavigationCategories}
                         openSearch={this.openSearch}
-                        loadingTextTail={this.props.loadingTextTail}
+                        loadingTextTail={this.state.loadingTextTail}
                         setLoadTextTail={this.setLoadTextTail}
                         Sefaria={Sefaria} />
                 </View>
