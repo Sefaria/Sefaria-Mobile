@@ -57,6 +57,23 @@ module.exports = StyleSheet.create({
     alignSelf: "stretch",
     fontSize: 22,
   },
+  searchResultSummary: {
+    margin: 10
+  },
+  searchInput: {
+    alignSelf: 'stretch',
+    flex: 1,
+    fontSize: 14,
+    backgroundColor: "transparent"
+  },
+  searchPage: {
+    flex: 1,
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+  },
+  searchTextResult: {
+    margin: 20
+  },
   displaySettingsButton: {
     width: 22,
     height: 22,
@@ -129,12 +146,7 @@ module.exports = StyleSheet.create({
     margin: 5,
     flex: 1,
   },
-  searchInput: {
-    alignSelf: 'stretch',
-    flex: 1,
-    fontSize: 14,
-    backgroundColor: "transparent"
-  },
+
   mainTextPanel: {
     flex: .5,
     flexWrap: "nowrap",
@@ -222,14 +234,6 @@ module.exports = StyleSheet.create({
   blank: {
     height: 0,
     width: 0
-  },
-  searchPage: {
-    flex: 1,
-    flexDirection: 'column',
-    alignItems: 'flex-start',
-  },
-  searchTextResult: {
-    margin: 20
   },
   readerOptions: {
     width: 30,

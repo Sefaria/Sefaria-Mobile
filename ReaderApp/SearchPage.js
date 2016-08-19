@@ -17,27 +17,31 @@ var SearchPage = React.createClass({
 		closeNav:      React.PropTypes.func.isRequired,
 		onQueryChange: React.PropTypes.func.isRequired,
 		setLoadTail:   React.PropTypes.func.isRequired,
+		setIsNewSearch:React.PropTypes.func.isRequired,
 		searchQuery:   React.PropTypes.string,
 		queryResult:   React.PropTypes.array,
 		loadingQuery:  React.PropTypes.bool,
-		loadingTail:   React.PropTypes.bool
+		loadingTail:   React.PropTypes.bool,
+		isNewSearch:   React.PropTypes.bool,
+		numResults:    React.PropTypes.number
 	},
 	render: function() {
+	
 		return (
 			<View style={styles.menu}>
 				<SearchBar 
 					closeNav={this.props.closeNav}
-					onQueryChange={this.props.onQueryChange}/>
-				{this.props.loadingQuery?
-					<Text>Loading!!!</Text>
-					: <SearchResultList
+					onQueryChange={this.props.onQueryChange}
+					setIsNewSearch={this.props.setIsNewSearch}/>
+				<Text style={styles.searchResultSummary} >Results: {this.props.numResults} {this.props.loadingQuery || this.props.loadingTail ? "Loading..." : ""}</Text>
+				<SearchResultList
 					queryResult={this.props.queryResult}
 					loadingTail={this.props.loadingTail}
 					onQueryChange={this.props.onQueryChange}
 					setLoadTail={this.props.setLoadTail}
-					/>
-				}
-				
+					setIsNewSearch={this.props.setIsNewSearch}
+					isNewSearch={this.props.isNewSearch}
+				/>
 			</View>
 		);
 	}

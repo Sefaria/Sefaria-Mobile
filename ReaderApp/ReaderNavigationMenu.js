@@ -30,6 +30,7 @@ var ReaderNavigationMenu = React.createClass({
     closeNav:       React.PropTypes.func.isRequired,
     openNav:        React.PropTypes.func.isRequired,
     openSearch:     React.PropTypes.func.isRequired,
+    setIsNewSearch: React.PropTypes.func.isRequired,
     toggleLanguage: React.PropTypes.func.isRequired,
     Sefaria:        React.PropTypes.object.isRequired
   },
@@ -110,7 +111,8 @@ var ReaderNavigationMenu = React.createClass({
       return(<View style={[styles.menu]}>
               <SearchBar 
                 closeNav={this.props.closeNav}
-                onQueryChange={this.props.openSearch} />
+                onQueryChange={this.props.openSearch}
+                setIsNewSearch={this.props.setIsNewSearch} />
               <ScrollView style={styles.menuContent}>
                 {title}
                 <ReaderNavigationMenuSection 

@@ -1,5 +1,6 @@
 'use strict';
-import React, { Component } from 'react';
+import React, {Component} from 'react';
+
 import {
   TouchableOpacity,
   Text,
@@ -18,19 +19,25 @@ var styles = require('./Styles.js');
 var SearchBar = React.createClass({
   propTypes:{
     closeNav:        React.PropTypes.func.isRequired,
-    onQueryChange:   React.PropTypes.func.isRequired
+    onQueryChange:   React.PropTypes.func.isRequired,
+    setIsNewSearch:  React.PropTypes.func.isRequired
   },
   getInitialState: function() {
     return {text: "Search"};
   },
   render: function() {
+
     return (
       <View style={styles.header}>
         <CloseButton onPress={this.props.closeNav} />
         <TextInput
           style={styles.searchInput}
+          onFocus= {() => this.setState({text : ''})}
           onChangeText={(text) => this.setState({text})}
-          onSubmitEditing={(event) => this.props.onQueryChange(event.nativeEvent.text,true)}
+          onSubmitEditing={(event) => {
+            this.props.setIsNewSearch(true);
+            this.props.onQueryChange(event.nativeEvent.text,true);
+          }}
           value={this.state.text}/>
       </View>
     );
