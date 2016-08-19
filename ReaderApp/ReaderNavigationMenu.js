@@ -115,11 +115,18 @@ var ReaderNavigationMenu = React.createClass({
                 setIsNewSearch={this.props.setIsNewSearch} />
               <ScrollView style={styles.menuContent}>
                 {title}
+                
+                <RecentSection 
+                  openRef={this.props.openRef}
+                  language={language} 
+                  interfaceLang={this.props.interfaceLang} />
+
                 <ReaderNavigationMenuSection 
                   title="BROWSE" 
                   heTitle="טקסטים"
                   content={categories} 
                   interfaceLang={this.props.interfaceLang} />
+                
                 <CalendarSection 
                   openRef={this.props.openRef}
                   language={language} 
@@ -127,6 +134,33 @@ var ReaderNavigationMenu = React.createClass({
               </ScrollView>
             </View>);
     }
+  }
+});
+
+
+var RecentSection = React.createClass({
+  propTypes: {
+    openRef:       React.PropTypes.func.isRequired,
+    interfaceLang: React.PropTypes.string.isRequired,
+    language:      React.PropTypes.string.isRequired
+  },
+  render: function() {
+    if (!Sefaria.recent || !Sefaria.recent.length) { return null; }
+
+    var recent = Sefaria.recent.map(function(item) {
+      return (<CategoryBlockLink 
+                    category={item.ref}
+                    heCat={item.heRef}
+                    language={this.props.language}
+                    style={{"borderColor": Sefaria.palette.categoryColor(item.category)}}
+                    onPress={this.props.openRef.bind(null, item.ref)} />);
+    }.bind(this));
+
+    return (<ReaderNavigationMenuSection 
+              title="RECENT" 
+              heTitle="נצפו לאחרונה"
+              content={<TwoBox content={recent} />} 
+              interfaceLang={this.props.interfaceLang} />);
   }
 });
 
@@ -160,19 +194,20 @@ var CalendarSection = React.createClass({
                     style={{"borderColor": Sefaria.palette.categoryColor("Talmud")}}
                     onPress={this.props.openRef.bind(null, dafYomi.ref)} />];
 
-    return <ReaderNavigationMenuSection 
+    return (<ReaderNavigationMenuSection 
               title="CALENDAR" 
               heTitle="לוח יומי"
               content={<TwoBox content={calendar} />} 
-              interfaceLang={this.props.interfaceLang} />
+              interfaceLang={this.props.interfaceLang} />);
   }
 });
+
 
 var CategoryBlockLink = React.createClass({
   propTypes: {
     category: React.PropTypes.string,
     language: React.PropTypes.string,
-    style:    React.PropTypes.string,
+    style:    React.PropTypes.object,
     onPress:  React.PropTypes.func,
   },
   render: function() {

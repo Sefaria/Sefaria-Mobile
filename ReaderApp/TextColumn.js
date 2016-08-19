@@ -15,6 +15,14 @@ var segmentRefPositionArray = {};
 
 var TextColumn = React.createClass({
 
+  getInitialState: function() {
+    return {
+      dataSource: new ListView.DataSource({rowHasChanged: (r1, r2) => r1!== r2}),
+      height: 0,
+      prevHeight:0,
+    };
+  },
+
   componentDidMount: function() {
 
   },
@@ -51,6 +59,11 @@ var TextColumn = React.createClass({
   handleScroll: function(e) {
 
 
+     if (e.nativeEvent.contentOffset.y < -50) {
+       this.onTopReached();
+     }
+
+
     if (segmentRefPositionArray[this.props.segmentRef + 1] < e.nativeEvent.contentOffset.y) {
       this.props.TextSegmentPressed(this.props.segmentRef + 1);
     }
@@ -62,14 +75,51 @@ var TextColumn = React.createClass({
 
   },
 
+  updateHeight: function(newHeight) {
+    this.setState({
+      height: newHeight
+    });
+
+  },
+  calculateOffset: function() {
+    console.log(this.state.height - this.state.prevHeight);
+    var offset = this.state.height - this.state.prevHeight;
+    this.setState({
+      prevHeight: this.state.height
+    });
+    return offset;
+  },
+  onTopReached: function() {
+    if (this.props.loadingTextTail) {
+      //already loading tail
+      return;
+    }
+    this.props.setLoadTextTail(true);
+    this.refs._listView.scrollTo({x: 0, y: this.calculateOffset()+363, animated: false}) //TODO replace 363 with the height of textColumn
+
+
+
+    Sefaria.data(this.props.prev).then(function(data) {
+
+      this.props.updateData(data.content.concat(this.props.data),this.props.prev,this.props.next,data.prev); //combined data content, new section title, the next section to be loaded on end , the previous section to load on top
+     }.bind(this)).catch(function(error) {
+      console.log('oh no', error);
+    });
+
+  },
+
+
 
   onEndReached: function() {
-    console.log("end of section")
+    if (this.props.loadingTextTail) {
+      //already loading tail
+      return;
+    }
+    this.props.setLoadTextTail(true);
 
     Sefaria.data(this.props.next).then(function(data) {
 
-     // this.props.updateData(this.props.data.concat(data),this.props.next);
-
+      this.props.updateData(this.props.data.concat(data.content),this.props.next,data.next,this.props.prev); //combined data content, new section title, the next section to be loaded on end , the previous section to load on top
      }.bind(this)).catch(function(error) {
       console.log('oh no', error);
     });
@@ -81,34 +131,18 @@ var TextColumn = React.createClass({
 
   },
 
-
   render: function() {
-
-    var ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
-
-    var curTextRange;
-
-
-    if (this.props.textFlow == 'continuous') {
-      curTextRange = <TextRangeContinuous data={this.props.data} segmentRef={this.props.segmentRef}
-                                          columnLanguage={this.props.columnLanguage}
-                                          TextSegmentPressed={ this.props.TextSegmentPressed }
-                                          generateSegmentRefPositionArray={this.generateSegmentRefPositionArray}/>;
-    } else {
-      curTextRange =
-        <TextRange data={this.props.data} segmentRef={this.props.segmentRef} columnLanguage={this.props.columnLanguage}
-                   TextSegmentPressed={ this.props.TextSegmentPressed }
-                   generateSegmentRefPositionArray={this.generateSegmentRefPositionArray}/>;
-    }
-
+    var dataSourceRows = this.state.dataSource.cloneWithRows(this.generateDataSource({}));
 
     return (
-      <ListView style={styles.listview}
-                dataSource={ds.cloneWithRows(this.generateDataSource({}))}
+      <ListView ref='_listView'
+                style={styles.listview}
+                dataSource={dataSourceRows}
                 renderRow={(rowData) =>  <View style={styles.verseContainer}>{rowData}</View>}
                 onScroll={this.handleScroll}
+                onContentSizeChange={(w, h) => {this.updateHeight(h)}}
                 onEndReached={this.onEndReached}
-                onEndReachedThreshold={150}
+                onEndReachedThreshold={300}
 
       />
 

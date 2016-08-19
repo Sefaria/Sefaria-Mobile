@@ -33,7 +33,6 @@ var TextList = React.createClass({
 
 
   render: function() {
-    console.log(this.props.segmentRef);
 
     var ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
 

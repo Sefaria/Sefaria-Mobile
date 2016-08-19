@@ -153,14 +153,12 @@ var ReaderNavigationCategoryMenuContents = React.createClass({
                           </TouchableOpacity>));
         }
       }
-      console.log(content);
       var boxedContent = [];
       var currentRun   = [];
       for (var i = 0; i < content.length; i++) {
         // Walk through content looking for runs of texts/subcats to group together into a table
         if (content[i].type.displayName == "View") { // this is a subcategory
           if (currentRun.length) {
-            console.log("view")
             boxedContent.push((<TwoBox content={currentRun} key={i} />));
             currentRun = [];
           }

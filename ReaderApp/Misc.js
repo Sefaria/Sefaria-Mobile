@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   View,
   Image,
-  ActivityIndicatorIOS
+  ActivityIndicator
 } from 'react-native';
 
 var Sefaria = require('./sefaria');
@@ -101,7 +101,7 @@ var DisplaySettingsButton = React.createClass({
 var LoadingView = React.createClass({
     render: function() {
       return ( <View style={styles.container}>
-                  <ActivityIndicatorIOS
+                  <ActivityIndicator
                     animating={true}
                     style={[styles.centering, {height: 80}]}
                     size="large" />

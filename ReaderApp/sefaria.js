@@ -1,13 +1,15 @@
 const ZipArchive = require('react-native-zip-archive'); //for unzipping -- (https://github.com/plrthink/react-native-zip-archive)
 var RNFS = require('react-native-fs'); //for access to file system -- (https://github.com/johanneslumpe/react-native-fs)
-// var HTMLView = require('react-native-htmlview'); //to convert html'afied JSON to something react can render (https://github.com/jsdf/react-native-htmlview)
+
+import { AsyncStorage } from 'react-native';
+
 
 Sefaria = {
   init: function() {
     // Load JSON data for TOC and Calendar
     return new Promise(function(resolve, reject) {
       var checkResolve = function() {
-        if (Sefaria.toc && Sefaria.calendar) {
+        if (Sefaria.toc && Sefaria.calendar && Sefaria.recent) {
           resolve();
         }
       };
@@ -21,6 +23,7 @@ Sefaria = {
         Sefaria.calendar = data;
         checkResolve();
       });
+      Sefaria._loadRecentItems(checkResolve);
     });
   },
   data: function(ref, settings) {
@@ -86,11 +89,38 @@ Sefaria = {
 
     return month + '/' + day + '/' + year;
   },
+  recent: null,
+  saveRecentRef: function(ref) {
+    var items = Sefaria.recent || [];
+    var item = {
+      ref: ref,
+      heRef: ref, // TODO
+      category: "Tanakh" // TODO
+    };
+    items = items.filter(function(item) {
+      return item.ref !== ref; 
+    });
+    items = [item].concat(items).slice(0,3);
+    Sefaria.recent = items;
+    AsyncStorage.setItem("recent", JSON.stringify(items)).catch(function(error) {
+      console.log("AsyncStorage failed to save: " + error);
+    });
+  },
+  _loadRecentItems: function(callback) {
+    AsyncStorage.getItem("recent").then(function(data) {
+      Sefaria.recent = JSON.parse(data) || [];
+      callback();
+    }).catch(function(error) {
+      console.log("AsyncStorage failed to load: " + error);
+    });;
+  },
   _deleteAllFiles: function() {
     return new Promise(function(resolve, reject) {
       RNFS.readDir(RNFS.DocumentDirectoryPath).then((result) => {
         for (var i = 0; i < result.length; i++) {
-          RNFS.unlink(result[i].path)
+          if (result[i].isFile()) {
+            RNFS.unlink(result[i].path);
+          }
         }
         resolve();
       });
@@ -411,6 +441,7 @@ Sefaria.hebrewCategory = function(cat) {
   return cat in categories ? categories[cat] : cat;
 };
 
+
 Sefaria.palette = {
   colors: {
     darkteal: "#004e5f",
@@ -462,5 +493,6 @@ Sefaria.palette.categoryColor = function(cat) {
   }
   return "transparent";
 };
+
 
 module.exports = Sefaria;

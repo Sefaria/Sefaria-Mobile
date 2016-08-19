@@ -29,23 +29,24 @@ var {
 var ReaderApp = React.createClass({
     getInitialState: function () {
         Sefaria.init().then(function() {
-            this.forceUpdate();
+            this.setState({loaded: true});
         }.bind(this));
 
         return {
             segmentRef: 0,
-            ref: "Exodus 1:1",
-            textReference: "Exodus 1", 
-            bookReference: "Exodus",
+            ref: "",
+            textReference: "",
+            bookReference: "",
             loaded: false,
             menuOpen: "navigation",
             navigationCategories: [],
+            loadingTextTail: false,
             interfaceLang: "english" // TODO check device settings for Hebrew: ### import {NativeModules} from 'react-native'; console.log(NativeModules.SettingsManager.settings.AppleLocale);
         };
     },
     componentDidMount: function () {
       Sefaria._deleteAllFiles().then(function() {
-          this.loadNewText(this.state.ref);
+          // this.loadNewText(this.state.ref);
          }.bind(this)).catch(function(error) {
           console.log('oh no', error);
         });
@@ -54,24 +55,27 @@ var ReaderApp = React.createClass({
         this.setState({segmentRef: q})
     },
     loadNewText: function(ref) {
-
-      Sefaria.data(ref).then(function(data) {
+        Sefaria.data(ref).then(function(data) {
             this.setState({
                 data: data.content,
                 next: data.next,
                 prev: data.prev,
                 loaded: true
             });
-         }.bind(this)).catch(function(error) {
+            Sefaria.saveRecentRef(ref);
+        }.bind(this)).catch(function(error) {
           console.log('oh no', error);
         });
 
     },
-    updateData: function(data,ref) {
+    updateData: function(data,ref,next,prev) {
         this.setState({
             data: data,
             textReference: ref,
-            loaded: true
+            loaded: true,
+            loadingTextTail: false,
+            next: next,
+            prev: prev
         });
     },
     openRef: function(ref) {
@@ -103,6 +107,11 @@ var ReaderApp = React.createClass({
             navigationCategories: []
         });
     },
+    setLoadTextTail: function(setting) {
+        this.setState({
+            loadingTextTail: setting
+        });
+    },
     render: function () {
         if (!this.state.loaded) { return <LoadingView />; }
         else {
@@ -127,6 +136,8 @@ var ReaderApp = React.createClass({
                         openNav={this.openNav}
                         setNavigationCategories={this.setNavigationCategories}
                         openSearch={this.openSearch}
+                        loadingTextTail={this.state.loadingTextTail}
+                        setLoadTextTail={this.setLoadTextTail}
                         Sefaria={Sefaria} />
                 </View>
             );
