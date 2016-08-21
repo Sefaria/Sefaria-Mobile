@@ -53,9 +53,9 @@ var TextList = React.createClass({
 
     var viewList = [];
     links.map((cat)=>{
-      viewList = viewList.concat(<LinkCategory category={cat.category} language={"english"}/>);
+      viewList = viewList.concat(<LinkCategory category={cat.category} count={cat.count} language={"english"}/>);
       var innerViewList = cat.books.map((obook)=>{
-        return (<LinkBook title={obook.title} heTitle={obook.heTitle} language={"english"}/>);
+        return (<LinkBook title={obook.title} heTitle={obook.heTitle} count={obook.count} language={"english"}/>);
       });
       viewList = viewList.concat(<TwoBox content={innerViewList}/>);
 
@@ -85,14 +85,16 @@ var LinkCategory = React.createClass({
 
   propTypes: {
     category: React.PropTypes.string,
-    language: React.PropTypes.string
+    language: React.PropTypes.string,
+    count:    React.PropTypes.number
   },
 
   render: function() {
+    var countStr = " | " + this.props.count;
     var style = {"borderColor": Sefaria.palette.categoryColor(this.props.category)};
     var content = this.props.language == "english"?
-      (<Text style={styles.en}>{this.props.category}</Text>) :
-      (<Text style={styles.he}>{Sefaria.hebrewCategory(this.props.category)}</Text>);
+      (<Text style={styles.en}>{this.props.category.toUpperCase() + countStr}</Text>) :
+      (<Text style={styles.he}>{Sefaria.hebrewCategory(this.props.category) + countStr}</Text>);
     return (<View style={[styles.readerNavCategory, style]}>
               {content}
             </View>);
@@ -101,17 +103,19 @@ var LinkCategory = React.createClass({
 
 var LinkBook = React.createClass({
   propTypes: {
-    title: React.PropTypes.string,
-    heTitle: React.PropTypes.string,
-    language: React.PropTypes.string
+    title:    React.PropTypes.string,
+    heTitle:  React.PropTypes.string,
+    language: React.PropTypes.string,
+    count:    React.PropTypes.number
   },
 
   render: function() {
+    var countStr = " (" + this.props.count + ")";
     return (
       <View  style={styles.textBlockLink}>
         { this.props.language == "hebrew" ? 
-          <Text style={[styles.he, styles.centerText]}>{this.props.heTitle}</Text> :
-          <Text style={[styles.en, styles.centerText]}>{this.props.title}</Text> }
+          <Text style={[styles.he, styles.centerText]}>{this.props.heTitle + countStr}</Text> :
+          <Text style={[styles.en, styles.centerText]}>{this.props.title + countStr}</Text> }
       </View>
     );
   }
