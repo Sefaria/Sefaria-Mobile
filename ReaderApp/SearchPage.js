@@ -16,9 +16,10 @@ var SearchPage = React.createClass({
 	propTypes: {
 		closeNav:      React.PropTypes.func.isRequired,
 		onQueryChange: React.PropTypes.func.isRequired,
+		openRef:       React.PropTypes.func.isRequired,
 		setLoadTail:   React.PropTypes.func.isRequired,
 		setIsNewSearch:React.PropTypes.func.isRequired,
-		query:   React.PropTypes.string,
+		query:         React.PropTypes.string,
 		queryResult:   React.PropTypes.array,
 		loadingQuery:  React.PropTypes.bool,
 		loadingTail:   React.PropTypes.bool,
@@ -39,6 +40,7 @@ var SearchPage = React.createClass({
 					queryResult={this.props.queryResult}
 					loadingTail={this.props.loadingTail}
 					onQueryChange={this.props.onQueryChange}
+					openRef={this.props.openRef}
 					setLoadTail={this.props.setLoadTail}
 					setIsNewSearch={this.props.setIsNewSearch}
 					isNewSearch={this.props.isNewSearch}

@@ -169,6 +169,7 @@ Sefaria = {
       }
       var req = JSON.stringify(Sefaria.search.get_query_object(args.query, args.get_filters, args.applied_filters, args.size, args.from, args.type));
       var cache_result = this.cache(req);
+      //console.log("cache",JSON.stringify(cache_result));
       if (cache_result) {
         return cache_result;
       }

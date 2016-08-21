@@ -16,6 +16,7 @@ var SearchResultList = React.createClass({
     queryResult:    React.PropTypes.array,
     loadingTail:    React.PropTypes.bool,
     onQueryChange:  React.PropTypes.func.isRequired,
+    openRef:        React.PropTypes.func.isRequired,
     setLoadTail:    React.PropTypes.func.isRequired,
     setIsNewSearch: React.PropTypes.func.isRequired,
     isNewSearch:    React.PropTypes.bool
@@ -34,7 +35,7 @@ var SearchResultList = React.createClass({
   },
   renderRow: function(rowData) {
     return (
-      <SearchTextResult textType={rowData.textType} title={rowData.title} text={rowData.text}/>
+      <SearchTextResult textType={rowData.textType} title={rowData.title} text={rowData.text} openRef={this.props.openRef}/>
     );
   },
   componentDidUpdate: function() {

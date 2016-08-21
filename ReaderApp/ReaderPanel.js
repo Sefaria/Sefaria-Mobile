@@ -159,6 +159,7 @@ var ReaderPanel = React.createClass({
           <SearchPage
             closeNav={this.props.closeMenu}
             onQueryChange={this.onQueryChange}
+            openRef={this.props.openRef}
             setLoadTail={this.setLoadQueryTail}
             setIsNewSearch={this.setIsNewSearch}
             query={this.state.searchQuery}
