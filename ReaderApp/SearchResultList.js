@@ -37,6 +37,10 @@ var SearchResultList = React.createClass({
       <SearchTextResult textType={rowData.textType} title={rowData.title} text={rowData.text}/>
     );
   },
+  componentDidUpdate: function() {
+  	if (this.props.isNewSearch) 
+  		this.props.setIsNewSearch(false);
+  },
   render: function() {
 
   	//if isNewSearch, temporarily hide the ListView, which apparently resets the scroll position to the top
@@ -58,8 +62,6 @@ var SearchResultList = React.createClass({
 	        onEndReached={this.onEndReached}/>
 	    );  		
   	} else {
-  		if (this.props.isNewSearch)
-  			this.props.setIsNewSearch(false);
   		return (<View/>);
   	}
 

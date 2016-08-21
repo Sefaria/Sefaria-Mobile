@@ -20,10 +20,12 @@ var SearchBar = React.createClass({
   propTypes:{
     closeNav:        React.PropTypes.func.isRequired,
     onQueryChange:   React.PropTypes.func.isRequired,
-    setIsNewSearch:  React.PropTypes.func.isRequired
+    setIsNewSearch:  React.PropTypes.func.isRequired,
+    query:           React.PropTypes.string
   },
   getInitialState: function() {
-    return {text: "Search"};
+    var init_text = this.props.query ? this.props.query : "Search";
+    return {text: init_text};
   },
   render: function() {
 

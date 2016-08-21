@@ -18,7 +18,7 @@ var SearchPage = React.createClass({
 		onQueryChange: React.PropTypes.func.isRequired,
 		setLoadTail:   React.PropTypes.func.isRequired,
 		setIsNewSearch:React.PropTypes.func.isRequired,
-		searchQuery:   React.PropTypes.string,
+		query:   React.PropTypes.string,
 		queryResult:   React.PropTypes.array,
 		loadingQuery:  React.PropTypes.bool,
 		loadingTail:   React.PropTypes.bool,
@@ -26,12 +26,13 @@ var SearchPage = React.createClass({
 		numResults:    React.PropTypes.number
 	},
 	render: function() {
-	
+
 		return (
 			<View style={styles.menu}>
 				<SearchBar 
 					closeNav={this.props.closeNav}
 					onQueryChange={this.props.onQueryChange}
+					query={this.props.query}
 					setIsNewSearch={this.props.setIsNewSearch}/>
 				<Text style={styles.searchResultSummary} >Results: {this.props.numResults} {this.props.loadingQuery || this.props.loadingTail ? "Loading..." : ""}</Text>
 				<SearchResultList

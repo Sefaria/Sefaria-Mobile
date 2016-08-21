@@ -61,16 +61,17 @@ var ReaderPanel = React.createClass({
       newSearchPage = this.state.currSearchPage+1;
 
 
-    var req = JSON.stringify(Sefaria.search.get_query_object(query,false,[],20,20*newSearchPage,"text"));
-    fetch(Sefaria.search.baseUrl,{
-      method: 'POST',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-      },
-      body: req
-    })
-    .then((response) => response.json())
+    //var req = JSON.stringify(Sefaria.search.get_query_object(query,false,[],20,20*newSearchPage,"text"));
+    
+    var query_props = {
+      query: query,
+      size: 20,
+      from: 20*newSearchPage,
+      type: "text",
+      get_filters: false,
+      applied_filters: []
+    }
+    Sefaria.search.execute_query(query_props)
     .then((responseJson) => {
       var resultArray = resetQuery ? responseJson["hits"]["hits"] : this.state.searchQueryResult.concat(responseJson["hits"]["hits"]);
       //console.log("resultArray",resultArray);
@@ -78,7 +79,7 @@ var ReaderPanel = React.createClass({
       this.setState({isQueryLoadingTail: false, isQueryRunning: false, searchQueryResult:resultArray, numSearchResults: numResults});
     })
     .catch((error) => {
-      console.log(error)
+      console.log(error);
       //TODO: add hasError boolean to state
       this.setState({isQueryLoadingTail: false, isQueryRunning: false, searchQueryResult:[], numSearchResults: 0});
     });
@@ -160,7 +161,7 @@ var ReaderPanel = React.createClass({
             onQueryChange={this.onQueryChange}
             setLoadTail={this.setLoadQueryTail}
             setIsNewSearch={this.setIsNewSearch}
-            searchQuery={this.state.searchQuery}
+            query={this.state.searchQuery}
             loadingQuery={this.state.isQueryRunning}
             isNewSearch={this.state.isNewSearch}
             loadingTail={this.state.isQueryLoadingTail}

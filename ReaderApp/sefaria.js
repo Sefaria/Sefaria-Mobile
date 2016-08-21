@@ -163,8 +163,6 @@ Sefaria = {
        type: null, "sheet" or "text"
        get_filters: if to fetch initial filters
        applied_filters: filter query by these filters
-       success: callback on success
-       error: callback on error
        */
       if (!args.query) {
         return;
@@ -172,22 +170,19 @@ Sefaria = {
       var req = JSON.stringify(Sefaria.search.get_query_object(args.query, args.get_filters, args.applied_filters, args.size, args.from, args.type));
       var cache_result = this.cache(req);
       if (cache_result) {
-        args.success(cache_result);
-        return null;
+        return cache_result;
       }
-      var url = Sefaria.search.baseUrl;
-      return $.ajax({
-        url: url,
-        type: 'POST',
-        data: req,
-        crossDomain: true,
-        processData: false,
-        dataType: 'json',
-        success: function(data) {
-          this.cache(req, data);
-          args.success(data);
-        }.bind(this),
-        error: args.error
+      return fetch(Sefaria.search.baseUrl,{
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: req
+      })
+      .then((response) => {
+        //this.cache(req,json);
+        return response.json();
       });
     },
     get_query_object: function(query, get_filters, applied_filters, size, from, type) {
