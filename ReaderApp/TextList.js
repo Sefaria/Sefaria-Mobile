@@ -8,10 +8,25 @@ import { 	AppRegistry,
   ListView
 } from 'react-native';
 
+var {
+  CategoryColorLine,
+  TwoBox,
+} = require('./Misc.js');
+
+
 var TextList = React.createClass({
   propTypes: {
-    openRef: React.PropTypes.func.isRequired
+    openRef:    React.PropTypes.func.isRequired,
+    segmentRef: React.PropTypes.number,
+    links:      React.PropTypes.array
   },
+
+  getInitialState: function() {
+    Sefaria = this.props.Sefaria;
+    
+    return {};
+  },
+
   componentDidMount: function() {
 
   },
@@ -32,20 +47,36 @@ var TextList = React.createClass({
   },
 
 
+
   render: function() {
 
-    var ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
+    var links = Sefaria.linkSummary(this.props.links);
 
-    return (
+    var viewList = [];
+    links.map((cat)=>{
+      viewList = viewList.concat(<Text>{cat.category}</Text>);
+      var innerViewList = cat.books.map((obook)=>{
+        return (<Text>{obook.book}</Text>);
+      });
+      viewList = viewList.concat(<TwoBox content={innerViewList}/>);
+
+    });
+
+    return (<View>
+    {
+      viewList
+    }
+      </View>);
+    /*return (
       <ListView style={styles.listview}
-                dataSource={ds.cloneWithRows(this.props.data[this.props.segmentRef].links)}
+                dataSource={ds.cloneWithRows(links)}
                 renderRow={(rowData) =>  
       <View style={styles.verseContainer}>
-      		<Text onPress={ () => this.onPressRef(rowData.sourceRef) } style={styles.englishText}>{rowData.sourceRef}</Text>
+      		<Text onPress={ () => this.onPressRef(rowData.sourceRef) } style={styles.englishText}>{rowData.category}</Text>
       </View>}
       />
 
-    );
+    );*/
   }
   
 

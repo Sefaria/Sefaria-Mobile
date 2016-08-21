@@ -55,7 +55,6 @@ var ReaderApp = React.createClass({
         this.setState({segmentRef: q})
     },
     loadNewText: function(ref) {
-        console.log("Sefaria",Sefaria);
         Sefaria.data(ref).then(function(data) {
             this.setState({
                 data: data.content,

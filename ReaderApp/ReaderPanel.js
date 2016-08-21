@@ -203,7 +203,7 @@ var ReaderPanel = React.createClass({
           </View>
 
           <View style={styles.commentaryTextPanel}>
-            <TextList data={this.props.data} segmentRef={this.props.segmentRef} textFlow={this.state.textFlow} columnLanguage={this.state.columnLanguage} openRef={ this.props.openRef } />
+            <TextList Sefaria={Sefaria} links={this.props.data[this.props.segmentRef].links} segmentRef={this.props.segmentRef} textFlow={this.state.textFlow} columnLanguage={this.state.columnLanguage} openRef={ this.props.openRef } />
           </View>
         </View>);
   }

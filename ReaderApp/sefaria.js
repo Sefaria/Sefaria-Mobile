@@ -26,9 +26,9 @@ Sefaria = {
       Sefaria._loadRecentItems(checkResolve);
     });
   },
+
   data: function(ref, settings) {
     return new Promise(function(resolve, reject) {
-
       var fileNameStem = ref.split(":")[0];
       var bookRefStem = fileNameStem.substring(0, fileNameStem.lastIndexOf(" "));
 
@@ -48,6 +48,16 @@ Sefaria = {
         });
 
     });
+  },
+  getTitle: function(ref,isCommentary,isHe) {
+      var fileNameStem = ref.split(":")[0];
+      var bookRefStem = fileNameStem.substring(0, fileNameStem.lastIndexOf(" "));
+      if (isCommentary) {
+          var onInd = isHe ? bookRefStem.indexOf(" על ") : bookRefStem.indexOf(" on ");
+          if (onInd != -1)
+            bookRefStem = bookRefStem.substring(0,onInd);
+      }   
+      return bookRefStem;
   },
   toc: null,
   tocItemsByCategories: function(cats) {
@@ -143,6 +153,96 @@ Sefaria = {
   },
   _zipSourcePath: function(fileName) {
     return (RNFS.MainBundlePath + "/sources/" + fileName + ".zip");
+  },
+  linkSummary: function(links) {
+    // Returns an ordered array summarizing the link counts by category and text
+    // Takes an array of links which are of the form { "category", "sourceHeRef", "sourceRef", "index_title"}
+
+    var summary = {};
+    for (var i = 0; i < links.length; i++) {
+      var link = links[i];
+      // Count Category
+      if (link.category in summary) {
+        summary[link.category].count += 1
+      } else {
+        summary[link.category] = {count: 1, books: {}};
+      }
+      var category = summary[link.category];
+      // Count Book
+      if (link.index_title in category.books) {
+        category.books[link.index_title].count += 1;
+      } else {
+        var isCommentary = link.category == "Commentary";
+        category.books[link.index_title] = 
+        {
+            count: 1, 
+            book: Sefaria.getTitle(link.sourceRef,isCommentary,false), 
+            bookHe: Sefaria.getTitle(link.sourceHeRef,isCommentary,true), 
+            category: link.category
+        };
+      }
+    }
+    /*
+    // Add Zero counts for every commentator in this section not already in list
+    var baseRef    = typeof ref == "string" ? ref : ref[0]; // TODO handle refs spanning sections
+    var oRef       = Sefaria.ref(baseRef);
+    var sectionRef = oRef ? oRef.sectionRef : baseRef;
+    if (ref !== sectionRef) {
+      var sectionLinks = Sefaria.links(sectionRef);
+      for (var i = 0; i < sectionLinks.length; i++) {
+        var l = sectionLinks[i]; 
+        if (l.category === "Commentary") {
+          if (!("Commentary" in summary)) {
+            summary["Commentary"] = {count: 0, books: {}};
+          }
+          if (!(l.commentator in summary["Commentary"].books)) {
+            summary["Commentary"].books[l.commentator] = {count: 0};
+          }
+        }
+      }
+    }*/
+    
+    // Convert object into ordered list
+    var summaryList = Object.keys(summary).map(function(category) {
+      var categoryData = summary[category];
+      categoryData.category = category;
+      categoryData.books = Object.keys(categoryData.books).map(function(book) {
+        var bookData = categoryData.books[book];
+        return bookData;
+      });
+      // Sort the books in the category
+      categoryData.books.sort(function(a, b) { 
+        // First sort by predefined "top"
+        var topByCategory = {
+          "Tanakh": ["Rashi", "Ibn Ezra", "Ramban", "Sforno"],
+          "Talmud": ["Rashi", "Tosafot"]
+        };
+        //TODO set cat to something not null
+        var cat = null;
+        var top = topByCategory[cat] || [];
+        var aTop = top.indexOf(a.book);
+        var bTop = top.indexOf(b.book);
+        if (aTop !== -1 || bTop !== -1) {
+          aTop = aTop === -1 ? 999 : aTop;
+          bTop = bTop === -1 ? 999 : bTop;
+          return aTop < bTop ? -1 : 1;
+        }
+        // Then sort alphabetically
+        return a.book > b.book ? 1 : -1; 
+      });
+      return categoryData;
+    });
+    // Sort the categories
+    summaryList.sort(function(a, b) {
+      // always put Commentary first 
+      if      (a.category === "Commentary") { return -1; }
+      else if (b.category === "Commentary") { return  1; }
+      // always put Modern Works last
+      if      (a.category === "Modern Works") { return  1; }
+      else if (b.category === "Modern Works") { return -1; }
+      return b.count - a.count;
+    });
+    return summaryList;
   },
   search: {
     baseUrl: "http://search.sefaria.org/merged/_search/",
