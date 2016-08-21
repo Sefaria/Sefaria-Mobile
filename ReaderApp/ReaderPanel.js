@@ -43,7 +43,9 @@ var ReaderPanel = React.createClass({
         color:         "light",
         fontSize:      62.5,
       },
-        ReaderDisplayOptionsMenuVisible: false
+      filter: [],
+      recentFilters: [],
+      ReaderDisplayOptionsMenuVisible: false
 
     };
   },
@@ -98,6 +100,13 @@ var ReaderPanel = React.createClass({
   search: function(query) {
     this.onQueryChange(query,true);
     this.props.openSearch();
+  },
+  openTextListCat: function(title,heTitle,refList) {
+    var filter = {title:title,heTitle:heTitle,refList:refList}; //redundant much?
+    this.state.recentFilters.push(filter);
+    if (this.state.recentFilters.length > 5)
+      this.state.recentFilters.shift();
+    this.setState({filter:[filter],recentFilters:this.state.recentFilters});
   },
   toggleLanguage: function() {
     // Toggle current display language between english/hebrew only
@@ -203,7 +212,16 @@ var ReaderPanel = React.createClass({
           </View>
 
           <View style={styles.commentaryTextPanel}>
-            <TextList Sefaria={Sefaria} links={this.props.data[this.props.segmentRef].links} segmentRef={this.props.segmentRef} textFlow={this.state.textFlow} columnLanguage={this.state.columnLanguage} openRef={ this.props.openRef } />
+            <TextList 
+              Sefaria={Sefaria} 
+              links={this.props.data[this.props.segmentRef].links} 
+              segmentRef={this.props.segmentRef} 
+              textFlow={this.state.textFlow} 
+              columnLanguage={this.state.columnLanguage} 
+              openRef={ this.props.openRef } 
+              openCat={this.openTextListCat} 
+              filter={this.state.filter} 
+              recentFilters={this.state.recentFilters} />
           </View>
         </View>);
   }

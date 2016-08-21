@@ -171,14 +171,16 @@ Sefaria = {
       // Count Book
       if (link.index_title in category.books) {
         category.books[link.index_title].count += 1;
+        category.books[link.index_title].refList.push(link.sourceRef);
       } else {
         var isCommentary = link.category == "Commentary";
         category.books[link.index_title] = 
         {
             count: 1, 
-            title: Sefaria.getTitle(link.sourceRef,isCommentary,false), 
-            heTitle: Sefaria.getTitle(link.sourceHeRef,isCommentary,true), 
-            category: link.category
+            title:    Sefaria.getTitle(link.sourceRef,isCommentary,false), 
+            heTitle:  Sefaria.getTitle(link.sourceHeRef,isCommentary,true), 
+            category: link.category,
+            refList:  [link.sourceRef]
         };
       }
     }
@@ -206,8 +208,10 @@ Sefaria = {
     var summaryList = Object.keys(summary).map(function(category) {
       var categoryData = summary[category];
       categoryData.category = category;
+      categoryData.refList = [];
       categoryData.books = Object.keys(categoryData.books).map(function(book) {
         var bookData = categoryData.books[book];
+        categoryData.refList = categoryData.refList.concat(bookData.refList);
         return bookData;
       });
       // Sort the books in the category
