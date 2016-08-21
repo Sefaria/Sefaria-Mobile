@@ -217,7 +217,7 @@ module.exports = StyleSheet.create({
   },
   en: {
     fontFamily: "EB Garamond",
-    textAlign: 'left',
+    textAlign: 'left'
   },
   he: {
     fontFamily: "Taamey Frank CLM",

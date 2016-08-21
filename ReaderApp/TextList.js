@@ -1,16 +1,15 @@
 'use strict';
 import React, { Component } from 'react';
-import { 	AppRegistry,
-  StyleSheet,
+import { 	
   View,
   ScrollView,
-  Text,
-  ListView
+  Text
 } from 'react-native';
-
+var styles = require('./Styles.js');
 var {
   CategoryColorLine,
   TwoBox,
+  TouchableOpacity
 } = require('./Misc.js');
 
 
@@ -54,19 +53,19 @@ var TextList = React.createClass({
 
     var viewList = [];
     links.map((cat)=>{
-      viewList = viewList.concat(<Text>{cat.category}</Text>);
+      viewList = viewList.concat(<LinkCategory category={cat.category} language={"english"}/>);
       var innerViewList = cat.books.map((obook)=>{
-        return (<Text>{obook.book}</Text>);
+        return (<LinkBook title={obook.title} heTitle={obook.heTitle} language={"english"}/>);
       });
       viewList = viewList.concat(<TwoBox content={innerViewList}/>);
 
     });
 
-    return (<View>
+    return (<ScrollView>
     {
       viewList
     }
-      </View>);
+      </ScrollView>);
     /*return (
       <ListView style={styles.listview}
                 dataSource={ds.cloneWithRows(links)}
@@ -82,42 +81,40 @@ var TextList = React.createClass({
 
 });
 
+var LinkCategory = React.createClass({
 
-var styles = StyleSheet.create({
-  listView: {
-    flex: 1,
-    padding: 20,
-    alignSelf: 'stretch'
+  propTypes: {
+    category: React.PropTypes.string,
+    language: React.PropTypes.string
   },
 
-  verseContainer: {
-    flex: 1,
-//        flexDirection: 'row',
-    justifyContent: 'center',
-    paddingTop: 20,
-    alignItems: "flex-start",
-    width: 320
+  render: function() {
+    var style = {"borderColor": Sefaria.palette.categoryColor(this.props.category)};
+    var content = this.props.language == "english"?
+      (<Text style={styles.en}>{this.props.category}</Text>) :
+      (<Text style={styles.he}>{Sefaria.hebrewCategory(this.props.category)}</Text>);
+    return (<View style={[styles.readerNavCategory, style]}>
+              {content}
+            </View>);
+  }
+});
 
+var LinkBook = React.createClass({
+  propTypes: {
+    title: React.PropTypes.string,
+    heTitle: React.PropTypes.string,
+    language: React.PropTypes.string
   },
 
-  englishText: {
-    fontFamily: "EB Garamond",
-    textAlign: 'left',
-    alignSelf: 'stretch',
-    fontSize: 16,
-    flex: 1
-  },
-  hebrewText: {
-    fontFamily: "Taamey Frank CLM",
-    textAlign: 'right',
-    alignSelf: 'stretch',
-    fontSize: 20,
-    flex: 1
-  },
-
-
-  container: {}
-
+  render: function() {
+    return (
+      <View  style={styles.textBlockLink}>
+        { this.props.language == "hebrew" ? 
+          <Text style={[styles.he, styles.centerText]}>{this.props.heTitle}</Text> :
+          <Text style={[styles.en, styles.centerText]}>{this.props.title}</Text> }
+      </View>
+    );
+  }
 });
 
 module.exports = TextList;

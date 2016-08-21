@@ -176,8 +176,8 @@ Sefaria = {
         category.books[link.index_title] = 
         {
             count: 1, 
-            book: Sefaria.getTitle(link.sourceRef,isCommentary,false), 
-            bookHe: Sefaria.getTitle(link.sourceHeRef,isCommentary,true), 
+            title: Sefaria.getTitle(link.sourceRef,isCommentary,false), 
+            heTitle: Sefaria.getTitle(link.sourceHeRef,isCommentary,true), 
             category: link.category
         };
       }
