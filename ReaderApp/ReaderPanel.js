@@ -43,7 +43,7 @@ var ReaderPanel = React.createClass({
         color:         "light",
         fontSize:      62.5,
       },
-      filter: [],
+      filter: null,
       recentFilters: [],
       ReaderDisplayOptionsMenuVisible: false
 
@@ -106,7 +106,7 @@ var ReaderPanel = React.createClass({
     this.state.recentFilters.push(filter);
     if (this.state.recentFilters.length > 5)
       this.state.recentFilters.shift();
-    this.setState({filter:[filter],recentFilters:this.state.recentFilters});
+    this.setState({filter:filter,recentFilters:this.state.recentFilters});
   },
   toggleLanguage: function() {
     // Toggle current display language between english/hebrew only

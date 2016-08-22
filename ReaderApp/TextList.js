@@ -20,7 +20,7 @@ var TextList = React.createClass({
     openCat:      React.PropTypes.func.isRequired,
     segmentRef:   React.PropTypes.number,
     links:        React.PropTypes.array,
-    filter:       React.PropTypes.array, /* for legacy reasons it's an array */
+    filter:       React.PropTypes.object, /* of the form {title,heTitle,refList} */
     recentFilters:React.PropTypes.array
   },
 
@@ -35,14 +35,16 @@ var TextList = React.createClass({
     this.props.openRef(q);
   },
 
-  renderRow: function(rowData) {
-    return (<Text onClick={this.props.openRef}>{rowData}</Text>);
+  renderRow: function(ref) {
+    var link_text = Sefaria.links.load_link(ref);
+
+    return (<Text onClick={this.props.openRef}>{link_text}</Text>);
   },
 
   render: function() {
-    var isSummaryMode = this.props.filter.length == 0;
+    var isSummaryMode = this.props.filter == null;
     if (isSummaryMode) {
-      var links = Sefaria.linkSummary(this.props.links);
+      var links = Sefaria.links.linkSummary(this.props.links);
 
       var viewList = [];
       links.map((cat)=>{
@@ -69,7 +71,7 @@ var TextList = React.createClass({
 
       });
     } else {
-      var dataSourceRows = this.state.dataSource.cloneWithRows(this.props.filter[0].refList);
+      var dataSourceRows = this.state.dataSource.cloneWithRows(this.props.filter.refList);
     }
 
     if (isSummaryMode) {
