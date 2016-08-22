@@ -18,6 +18,8 @@ var TextList = React.createClass({
   propTypes: {
     openRef:      React.PropTypes.func.isRequired,
     openCat:      React.PropTypes.func.isRequired,
+    onLinkLoad:   React.PropTypes.func.isRequired,
+    linkContents: React.PropTypes.array,
     segmentRef:   React.PropTypes.number,
     links:        React.PropTypes.array,
     filter:       React.PropTypes.object, /* of the form {title,heTitle,refList} */
@@ -35,10 +37,20 @@ var TextList = React.createClass({
     this.props.openRef(q);
   },
 
-  renderRow: function(ref) {
-    var link_text = Sefaria.links.load_link(ref);
+  renderRow: function(linkContent,sectionId,rowId) {
+    if (linkContent == null) {
+      var ref = this.props.filter.refList[rowId];
+      Sefaria.links.load_link(ref)
+      .then((data)=>{
+        this.props.onLinkLoad(data,rowId);
+      })
+      .catch((error)=>{
+        this.props.onLinkLoad(JSON.stringify(error),rowId);
+      });
+      linkContent = "Loading...";      
+    } 
 
-    return (<Text onClick={this.props.openRef}>{link_text}</Text>);
+    return (<Text selectable={true}>{JSON.stringify(linkContent)}</Text>);
   },
 
   render: function() {
@@ -71,8 +83,10 @@ var TextList = React.createClass({
 
       });
     } else {
-      var dataSourceRows = this.state.dataSource.cloneWithRows(this.props.filter.refList);
+      var dataSourceRows = this.state.dataSource.cloneWithRows(this.props.linkContents);
+      console.log("links","refreshing links");
     }
+    console.log("links","rendering");
 
     if (isSummaryMode) {
        return (<ScrollView>

@@ -45,6 +45,7 @@ var ReaderPanel = React.createClass({
       },
       filter: null,
       recentFilters: [],
+      linkContents: [],
       ReaderDisplayOptionsMenuVisible: false
 
     };
@@ -101,12 +102,18 @@ var ReaderPanel = React.createClass({
     this.onQueryChange(query,true);
     this.props.openSearch();
   },
-  openTextListCat: function(title,heTitle,refList) {
+  openLinkCat: function(title,heTitle,refList) {
     var filter = {title:title,heTitle:heTitle,refList:refList}; //redundant much?
     this.state.recentFilters.push(filter);
     if (this.state.recentFilters.length > 5)
       this.state.recentFilters.shift();
-    this.setState({filter:filter,recentFilters:this.state.recentFilters});
+
+    var linkContents = refList.map((ref)=>null);
+    this.setState({filter:filter,recentFilters:this.state.recentFilters,linkContents:linkContents});
+  },
+  onLinkLoad: function(data,pos) {
+    this.state.linkContents[pos] = data;
+    this.setState({linkContents:this.state.linkContents});
   },
   toggleLanguage: function() {
     // Toggle current display language between english/hebrew only
@@ -219,7 +226,9 @@ var ReaderPanel = React.createClass({
               textFlow={this.state.textFlow} 
               columnLanguage={this.state.columnLanguage} 
               openRef={ this.props.openRef } 
-              openCat={this.openTextListCat} 
+              openCat={this.openLinkCat}
+              onLinkLoad={this.onLinkLoad}
+              linkContents={this.state.linkContents} 
               filter={this.state.filter} 
               recentFilters={this.state.recentFilters} />
           </View>

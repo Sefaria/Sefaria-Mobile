@@ -155,22 +155,49 @@ Sefaria = {
     return (RNFS.MainBundlePath + "/sources/" + fileName + ".zip");
   },
   links: {
-    _cache: {},
-    cache: function(key, result) {
-      if (result !== undefined) {
-        this._cache[key] = result;
-      }
-      return this._cache[key]
-    },
     load_link: function(ref) {
-      console.log("links","cache");
-      var cache_result = this.cache(ref);
-      if (cache_result) {
-        return cache_result + " cache";
-      }
-      //TODO actually load_link
-      this.cache(ref,ref);
-      return ref;
+      return new Promise(function(resolve, reject) {
+        var fileNameStem = ref.split(":")[0];
+        var bookRefStem = fileNameStem.substring(0, fileNameStem.lastIndexOf(" "));
+
+        fetch(Sefaria._JSONSourcePath(fileNameStem))
+        .then(
+            (response) => response.json())
+        .then(
+          (data) => {
+            var icol = ref.lastIndexOf(":");
+            if (icol != -1) {
+                var segNum = ref.substring(icol);
+            } else reject();
+            var seg = null;
+            data.content.forEach((item,i)=>{
+                if (item.segmentNumber == segNum) {
+                    resolve(item);
+                    return;
+                }
+            });
+            reject();
+          }
+        )
+        .catch(function() {
+          Sefaria._unZipAndLoadJSON(Sefaria._zipSourcePath(bookRefStem), Sefaria._JSONSourcePath(fileNameStem), function(data) {
+
+            var icol = ref.lastIndexOf(":");
+            if (icol != -1) {
+                var segNum = ref.substring(icol+1);
+            } else reject({"negative one issue":true});
+            var seg = null;
+            data.content.forEach((item,i)=>{
+                if (item.segmentNumber == segNum) {
+                    resolve(item);
+                    return;
+                }
+            });
+            reject({"not found":true});
+          })
+        });
+
+      });
     },
     linkSummary: function(links) {
         // Returns an ordered array summarizing the link counts by category and text
