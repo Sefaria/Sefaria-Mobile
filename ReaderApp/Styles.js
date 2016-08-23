@@ -24,6 +24,7 @@ module.exports = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    alignSelf: 'stretch',
     backgroundColor: '#F5FCFF'
   },
   header: {
@@ -31,6 +32,7 @@ module.exports = StyleSheet.create({
     paddingTop: 18,
     backgroundColor: '#F9F9F7',
     alignItems: 'center',
+    alignSelf: 'stretch',
     flexDirection: 'row',
     borderBottomWidth: 1,
     borderColor: "#DDD"
@@ -56,6 +58,11 @@ module.exports = StyleSheet.create({
     textAlign: "center",
     alignSelf: "stretch",
     fontSize: 22,
+  },
+  headerTextTitle: {
+    flex: 1,
+    alignItems: 'center',
+    fontSize: 18,
   },
   searchResultSummary: {
     margin: 10

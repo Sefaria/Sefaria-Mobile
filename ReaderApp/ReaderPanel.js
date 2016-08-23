@@ -8,7 +8,7 @@ import {
   View,
   Image,
   ListView,
-    Modal
+  Modal
 } from 'react-native';
 
 
@@ -18,10 +18,18 @@ var TextColumn           = require('./TextColumn');
 var TextList             = require('./TextList');
 var styles               = require('./Styles.js');
 
+var {
+  MenuButton,
+  DisplaySettingsButton,
+  LoadingView
+} = require('./Misc.js');
+
 
 var ReaderPanel = React.createClass({
   propTypes: {
     openRef:       React.PropTypes.func.isRequired,
+    openNav:       React.PropTypes.func.isRequired,
+    openTextToc:   React.PropTypes.func.isRequired,
     interfaceLang: React.PropTypes.string.isRequired,
     Sefaria:       React.PropTypes.object.isRequired
   },
@@ -239,36 +247,25 @@ var ReaderPanel = React.createClass({
 
 var ReaderControls = React.createClass({
   propTypes: {
-    textReference:    React.PropTypes.string,
-    openNav:  React.PropTypes.function,
-    openReaderDisplayOptionsMenu:  React.PropTypes.function,
+    textReference:                 React.PropTypes.string,
+    openNav:                       React.PropTypes.func,
+    openReaderDisplayOptionsMenu:  React.PropTypes.func,
   },
   render: function() {
     return (
         <View style={styles.header}>
-          <TouchableOpacity onPress={this.props.openNav}>
-            <Text style={styles.headerButton}>☰</Text>
+          <MenuButton onPress={this.props.openNav} />
+          <TouchableOpacity style={styles.headerTextTitle} onPress={this.props.openTextToc}>
+            <Text>
+              {this.props.textReference}
+            </Text>
           </TouchableOpacity>
-
-          <Text style={[{width:100}]}>
-            {this.props.textReference}
-          </Text>
-
-          <TouchableOpacity onPress={this.props.openReaderDisplayOptionsMenu}>
-            <Image source={require('./img/ayealeph.png')} style={styles.readerOptions} resizeMode={Image.resizeMode.contain}/>
-          </TouchableOpacity>
-
+          <DisplaySettingsButton onPress={this.props.openReaderDisplayOptionsMenu} />
         </View>
     );
-
-
-
-
-
-
-
   }
 });
+
 
 var ReaderDisplayOptionsMenu = React.createClass({
   propTypes: {
@@ -296,13 +293,6 @@ var ReaderDisplayOptionsMenu = React.createClass({
             </TouchableOpacity>
         </View>
     );
-
-
-
-
-
-
-
   }
 });
 

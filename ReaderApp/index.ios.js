@@ -99,6 +99,9 @@ var ReaderApp = React.createClass({
     setNavigationCategories: function(categories) {
         this.setState({navigationCategories: categories});
     },
+    openTextToc: function() {
+        this.openMenu("text toc");
+    },
     openSearch: function(query) {
         this.openMenu("search");
     },
@@ -135,6 +138,7 @@ var ReaderApp = React.createClass({
                         closeMenu={this.closeMenu}
                         openNav={this.openNav}
                         setNavigationCategories={this.setNavigationCategories}
+                        openTextToc={this.openTextToc}
                         openSearch={this.openSearch}
                         loadingTextTail={this.state.loadingTextTail}
                         setLoadTextTail={this.setLoadTextTail}
