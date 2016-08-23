@@ -213,8 +213,8 @@ var CategoryBlockLink = React.createClass({
   render: function() {
     var style = this.props.style || {"borderColor": Sefaria.palette.categoryColor(this.props.category)};
     var content = this.props.language == "english"?
-      (<Text style={styles.en}>{this.props.category}</Text>) :
-      (<Text style={styles.he}>{Sefaria.hebrewCategory(this.props.category)}</Text>);
+      (<Text style={styles.en} numberOfLines={1}>{this.props.category}</Text>) :
+      (<Text style={styles.he} numberOfLines={1}>{this.props.heCat || Sefaria.hebrewCategory(this.props.category)}</Text>);
     return (<TouchableOpacity onPress={this.props.onPress} style={[styles.readerNavCategory, style]}>
               {content}
             </TouchableOpacity>);

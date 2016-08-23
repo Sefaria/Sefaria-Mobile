@@ -100,15 +100,10 @@ Sefaria = {
     return month + '/' + day + '/' + year;
   },
   recent: null,
-  saveRecentRef: function(ref) {
+  saveRecentItem: function(item) {
     var items = Sefaria.recent || [];
-    var item = {
-      ref: ref,
-      heRef: ref, // TODO
-      category: "Tanakh" // TODO
-    };
-    items = items.filter(function(item) {
-      return item.ref !== ref; 
+    items = items.filter(function(existing) {
+      return existing.ref !== item.ref; 
     });
     items = [item].concat(items).slice(0,3);
     Sefaria.recent = items;
