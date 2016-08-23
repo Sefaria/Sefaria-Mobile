@@ -113,7 +113,8 @@ module.exports = StyleSheet.create({
   navigationMenuTitle: {
     fontSize: 18,
     flex: 1,
-    textAlign: "center"
+    textAlign: "center",
+    paddingLeft: 30
   },
   readerNavSection: {
     marginBottom: 30
@@ -153,7 +154,11 @@ module.exports = StyleSheet.create({
     margin: 5,
     flex: 1,
   },
-
+  textTocHeaderTitle: {
+    flex: 1,
+    paddingRight: 30,
+    textAlign: 'center'
+  },
   mainTextPanel: {
     flex: .5,
     flexWrap: "nowrap",

@@ -26,7 +26,6 @@ Sefaria = {
       Sefaria._loadRecentItems(checkResolve);
     });
   },
-
   data: function(ref, settings) {
     return new Promise(function(resolve, reject) {
       var fileNameStem = ref.split(":")[0];
@@ -49,7 +48,7 @@ Sefaria = {
 
     });
   },
-  getTitle: function(ref,isCommentary,isHe) {
+  getTitle: function(ref, isCommentary, isHe) {
       var fileNameStem = ref.split(":")[0];
       var bookRefStem = fileNameStem.substring(0, fileNameStem.lastIndexOf(" "));
       if (isCommentary) {
@@ -77,6 +76,18 @@ Sefaria = {
       }
     }
     return list;
+  },
+  _textToc: {},
+  textToc: function(title, callback) {
+    if (title in Sefaria._textToc) {
+      return Sefaria._textToc[title];
+    }
+    var path = Sefaria._JSONSourcePath(title + "_index");
+    Sefaria._loadJSON(path, function(data) {
+      Sefaria._textToc[title] = data;
+      callback(data);
+    });
+    return null;
   },
   calendar: null,
   parashah: function() {

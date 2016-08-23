@@ -36,7 +36,7 @@ var ReaderApp = React.createClass({
             segmentRef: 0,
             ref: "",
             textReference: "",
-            bookReference: "",
+            textTitle: "",
             loaded: false,
             menuOpen: "navigation",
             navigationCategories: [],
@@ -57,10 +57,11 @@ var ReaderApp = React.createClass({
     loadNewText: function(ref) {
         Sefaria.data(ref).then(function(data) {
             this.setState({
-                data: data.content,
-                next: data.next,
-                prev: data.prev,
-                loaded: true
+                data:      data.content,
+                textTitle: data.indexTitle,
+                next:      data.next,
+                prev:      data.prev,
+                loaded:    true
             });
             Sefaria.saveRecentItem({ref: ref, heRef: data.heRef, category: data.categories[0]});
         }.bind(this)).catch(function(error) {
@@ -68,7 +69,7 @@ var ReaderApp = React.createClass({
         });
 
     },
-    updateData: function(data,ref,next,prev) {
+    updateData: function(data, ref, next, prev) {
         this.setState({
             data: data,
             textReference: ref,
@@ -122,6 +123,7 @@ var ReaderApp = React.createClass({
                 <View style={styles.container}>
                     <ReaderPanel
                         textReference={this.state.textReference}
+                        textTitle={this.state.textTitle}
                         data={this.state.data}
                         next={this.state.next}
                         prev={this.state.prev}

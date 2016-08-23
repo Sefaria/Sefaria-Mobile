@@ -12,11 +12,12 @@ import {
 } from 'react-native';
 
 
-var ReaderNavigationMenu = require('./ReaderNavigationMenu');
-var SearchPage           = require('./SearchPage');
-var TextColumn           = require('./TextColumn');
-var TextList             = require('./TextList');
-var styles               = require('./Styles.js');
+var ReaderNavigationMenu      = require('./ReaderNavigationMenu');
+var ReaderTextTableOfContents = require('./ReaderTextTableOfContents');
+var SearchPage                = require('./SearchPage');
+var TextColumn                = require('./TextColumn');
+var TextList                  = require('./TextList');
+var styles                    = require('./Styles.js');
 
 var {
   MenuButton,
@@ -27,6 +28,8 @@ var {
 
 var ReaderPanel = React.createClass({
   propTypes: {
+    data:          React.PropTypes.array,
+    textTitle:     React.PropTypes.string,
     openRef:       React.PropTypes.func.isRequired,
     openNav:       React.PropTypes.func.isRequired,
     openTextToc:   React.PropTypes.func.isRequired,
@@ -178,6 +181,17 @@ var ReaderPanel = React.createClass({
             interfaceLang={this.props.interfaceLang}
             Sefaria={Sefaria} />);
         break;
+      case ("text toc"):
+        return (
+          <ReaderTextTableOfContents
+            title={this.props.textTitle}
+            interfaceLang={this.props.interfaceLang}
+            close={this.props.closeMenu}
+            settingsLanguage={this.state.settings.language == "hebrew"?"he":"en"}
+            openRef={this.props.openRef}
+            toggleLanguage={this.toggleLanguage}
+            Sefaria={Sefaria} />);
+        break;
       case ("search"):
         return(
           <SearchPage
@@ -200,16 +214,17 @@ var ReaderPanel = React.createClass({
           <ReaderControls
             textReference={this.props.textReference}
             openNav={this.props.openNav}
-            openReaderDisplayOptionsMenu={this.openReaderDisplayOptionsMenu}
-          />
-          {this.state.ReaderDisplayOptionsMenuVisible ? (<ReaderDisplayOptionsMenu
+            openTextToc={this.props.openTextToc}
+            openReaderDisplayOptionsMenu={this.openReaderDisplayOptionsMenu} />
+
+          {this.state.ReaderDisplayOptionsMenuVisible ? 
+          (<ReaderDisplayOptionsMenu
             textFlow={this.state.textFlow}
             textReference={this.props.textReference}
             columnLanguage={this.state.columnLanguage}
             ReaderDisplayOptionsMenuVisible={this.state.ReaderDisplayOptionsMenuVisible}
             toggleTextFlow={this.toggleTextFlow}
-            togglecolumnLanguage={this.togglecolumnLanguage}
-          />) : null }
+            togglecolumnLanguage={this.togglecolumnLanguage}/>) : null }
 
           <View style={styles.mainTextPanel}>
             <TextColumn
@@ -222,8 +237,7 @@ var ReaderPanel = React.createClass({
               next={this.props.next}
               prev={this.props.prev}
               loadingTextTail={this.props.loadingTextTail}
-              setLoadTextTail={this.props.setLoadTextTail}
-            />
+              setLoadTextTail={this.props.setLoadTextTail} />
           </View>
 
           <View style={styles.commentaryTextPanel}>
@@ -249,6 +263,7 @@ var ReaderControls = React.createClass({
   propTypes: {
     textReference:                 React.PropTypes.string,
     openNav:                       React.PropTypes.func,
+    openTextToc:                   React.PropTypes.func,
     openReaderDisplayOptionsMenu:  React.PropTypes.func,
   },
   render: function() {
