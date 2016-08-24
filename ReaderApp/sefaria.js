@@ -174,7 +174,7 @@ Sefaria = {
             var icol = ref.lastIndexOf(":");
             if (icol != -1) {
                 var segNum = ref.substring(icol);
-            } else reject();
+            } else reject({"negative one issue":true});
             var seg = null;
             data.content.forEach((item,i)=>{
                 if (item.segmentNumber == segNum) {
@@ -182,7 +182,7 @@ Sefaria = {
                     return;
                 }
             });
-            reject();
+            reject({"not found":true});
           }
         )
         .catch(function() {

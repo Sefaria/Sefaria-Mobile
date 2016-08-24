@@ -26,6 +26,9 @@ var TextList = React.createClass({
     recentFilters:React.PropTypes.array
   },
 
+  _rowsToLoad:[],
+  _rowsLoading:[],
+
   getInitialState: function() {
     Sefaria = this.props.Sefaria; //Is this bad practice to use getInitialState() as an init function
     return {
@@ -36,17 +39,38 @@ var TextList = React.createClass({
   onPressRef: function(q) {
     this.props.openRef(q);
   },
+  componentDidUpdate: function() {
+    for (let item of this._rowsToLoad) {
+      var ref = item.ref;
+      var rowId = item.rowId;
+      if (this._rowsLoading.indexOf(rowId) == -1) {
+        this._rowsLoading.push(rowId);
+      } else
+        continue; //wait for it to finish loading
+
+
+      //closures to save ref and rowId
+      var resolve = ((ref,rowId)=>(data)=>{
+        this.props.onLinkLoad(data,rowId);
+        let index = this._rowsLoading.indexOf(rowId);
+        if (index != -1) this._rowsLoading.splice(index,1);
+      })(ref,rowId);
+      var reject = ((ref,rowId)=>(error)=>{
+        this.props.onLinkLoad(error,rowId);
+        let index = this._rowsLoading.indexOf(rowId);
+        if (index != -1) this._rowsLoading.splice(index,1);
+      })(ref,rowId);
+
+      //here's the meat
+      Sefaria.links.load_link(ref).then(resolve).catch(reject);
+    };
+    this._rowsToLoad = [];
+  },
 
   renderRow: function(linkContent,sectionId,rowId) {
     if (linkContent == null) {
       var ref = this.props.filter.refList[rowId];
-      Sefaria.links.load_link(ref)
-      .then((data)=>{
-        this.props.onLinkLoad(data,rowId);
-      })
-      .catch((error)=>{
-        this.props.onLinkLoad(JSON.stringify(error),rowId);
-      });
+      this._rowsToLoad.push({ref:ref,rowId:rowId});
       linkContent = "Loading...";      
     } 
 
@@ -84,9 +108,8 @@ var TextList = React.createClass({
       });
     } else {
       var dataSourceRows = this.state.dataSource.cloneWithRows(this.props.linkContents);
-      console.log("links","refreshing links");
+      //console.log("links","refreshing links");
     }
-    console.log("links","rendering");
 
     if (isSummaryMode) {
        return (<ScrollView>
