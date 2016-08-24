@@ -10,7 +10,8 @@ import {
 
 var {
   CloseButton,
-  LanguageToggleButton
+  LanguageToggleButton,
+  LoadingView
 } = require('./Misc.js');
 
 var styles = require('./Styles.js');
@@ -41,8 +42,6 @@ var ReaderTextTableOfContents = React.createClass({
 
   },
   render: function() {
-
-
     var title = (<View style={styles.navigationMenuTitleBox}>
                   { this.props.contentLang == "hebrew" ?
                     <Text style={[styles.he, styles.navigationMenuTitle]}>{this.state.textToc ? this.state.textToc.heTitle : null}</Text> :
@@ -50,7 +49,6 @@ var ReaderTextTableOfContents = React.createClass({
                   <LanguageToggleButton toggleLanguage={this.props.toggleLanguage} language={this.props.contentLang} />
                 </View>);
 
-    var status = this.state.textToc ? "loaded" : "loading...";
     return (
       <View style={[styles.menu]}>
             
@@ -67,7 +65,8 @@ var ReaderTextTableOfContents = React.createClass({
             <TextSchemaNode
               schema={this.state.textToc.schema}
               contentLang={this.props.contentLang}
-              openRef={this.props.openRef} /> : null }
+              refPath={this.props.title + " "}
+              openRef={this.props.openRef} /> : <LoadingView /> }
 
         </ScrollView>
 
@@ -81,6 +80,7 @@ var TextSchemaNode = React.createClass({
   propTypes: {
     schema:      React.PropTypes.object.isRequired,
     contentLang: React.PropTypes.string.isRequired,
+    refPath:     React.PropTypes.string.isRequired,   
     openRef:     React.PropTypes.func.isRequired
   },
   render: function() {
@@ -89,6 +89,7 @@ var TextSchemaNode = React.createClass({
         <TextJaggedArrayNode
           schema={this.props.schema}
           contentLang={this.props.contentLang}
+          refPath={this.props.refPath}
           openRef={this.props.openRef} />
       );
     } else { 
@@ -104,11 +105,34 @@ var TextJaggedArrayNode = React.createClass({
   propTypes: {
     schema:      React.PropTypes.object.isRequired,
     contentLang: React.PropTypes.string.isRequired,
+    refPath:     React.PropTypes.string.isRequired,
     openRef:     React.PropTypes.func.isRequired,
   },
   render: function() {
+    var schema = this.props.schema;
+    var sectionLinks = [];
+    for (var i = 1; i <= schema.lengths[0]; i++) {
+      if (schema.addressTypes[0] === "Talmud") {
+        var section = Sefaria.hebrew.intToDaf(i);
+        var heSection = Sefaria.hebrew.encodeHebrewDaf(section);
+      } else {
+        var section = i;
+        var heSection = Sefaria.hebrew.encodeHebrewNumeral(i);
+      }
+      var open = this.props.openRef.bind(null, this.props.refPath + section);
+      var link = (
+        <TouchableOpacity style={styles.sectionLink} onPress={open} key={i}>
+          { this.props.contentLang == "english" ?
+            <Text style={[styles.centerText]}>{section}</Text> :
+            <Text style={[styles.he, styles.centerText]}>{heSection}</Text>}
+        </TouchableOpacity>
+      );
+      sectionLinks.push(link);
+    }
+    sectionLinks.push(<View style={styles.lineEnd}></View>);
+
     return (
-      <Text>Simple texts coming soon...</Text>
+      <View style={styles.textTocNumberedSection}>{sectionLinks}</View>
     );
   }
 });

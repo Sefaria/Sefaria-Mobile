@@ -52,7 +52,7 @@ var LanguageToggleButton = React.createClass({
   },
   render: function() {
     var content = this.props.language == "hebrew" ? 
-        (<Text>A</Text>) : (<Text>א</Text>);
+        (<Text style={styles.en}>A</Text>) : (<Text style={styles.he}>א</Text>);
     return (<TouchableOpacity style={styles.languageToggle} onPress={this.props.toggleLanguage}>
               {content}
             </TouchableOpacity>);
@@ -103,7 +103,7 @@ var LoadingView = React.createClass({
       return ( <View style={styles.container}>
                   <ActivityIndicator
                     animating={true}
-                    style={[styles.centering, {height: 80}]}
+                    style={[styles.loadingView]}
                     size="large" />
                </View> );
     }

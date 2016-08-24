@@ -210,6 +210,22 @@ module.exports = StyleSheet.create({
   rightContainer: {
     flex: 1
   },
+  textTocNumberedSection: {
+    flex: 1,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    flexWrap: "wrap"
+  },
+  sectionLink: {
+    height: 40,
+    minWidth: 40,
+    backgroundColor: "white",
+    margin: 3,
+    justifyContent: "center"
+  },
+  lineEnd: {
+    flex: 1
+  },
   englishText: {
     fontFamily: "EB Garamond",
     textAlign: 'left',
@@ -250,6 +266,10 @@ module.exports = StyleSheet.create({
   readerOptions: {
     width: 30,
     height: 40,
+  },
+  loadingView: {
+    height: 80,
+    backgroundColor: "transparent",
   },
   twoBox: {
     flex: 1,
