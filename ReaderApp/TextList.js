@@ -8,6 +8,7 @@ import {
   TouchableOpacity
 } from 'react-native';
 var styles = require('./Styles.js');
+var HTMLView = require('react-native-htmlview');
 var {
   CategoryColorLine,
   TwoBox
@@ -16,14 +17,15 @@ var {
 
 var TextList = React.createClass({
   propTypes: {
-    openRef:      React.PropTypes.func.isRequired,
-    openCat:      React.PropTypes.func.isRequired,
-    onLinkLoad:   React.PropTypes.func.isRequired,
-    linkContents: React.PropTypes.array,
-    segmentRef:   React.PropTypes.number,
-    links:        React.PropTypes.array,
-    filter:       React.PropTypes.object, /* of the form {title,heTitle,refList} */
-    recentFilters:React.PropTypes.array
+    openRef:        React.PropTypes.func.isRequired,
+    openCat:        React.PropTypes.func.isRequired,
+    onLinkLoad:     React.PropTypes.func.isRequired,
+    linkContents:   React.PropTypes.array,
+    segmentRef:     React.PropTypes.number,
+    links:          React.PropTypes.array,
+    filter:         React.PropTypes.object, /* of the form {title,heTitle,refList} */
+    recentFilters:  React.PropTypes.array,
+    columnLanguage: React.PropTypes.string
   },
 
   _rowsToLoad:[],
@@ -56,7 +58,7 @@ var TextList = React.createClass({
         if (index != -1) this._rowsLoading.splice(index,1);
       })(ref,rowId);
       var reject = ((ref,rowId)=>(error)=>{
-        this.props.onLinkLoad(error,rowId);
+        this.props.onLinkLoad({en:"error",he:"shguya"},rowId);
         let index = this._rowsLoading.indexOf(rowId);
         if (index != -1) this._rowsLoading.splice(index,1);
       })(ref,rowId);
@@ -67,14 +69,22 @@ var TextList = React.createClass({
     this._rowsToLoad = [];
   },
 
-  renderRow: function(linkContent,sectionId,rowId) {
-    if (linkContent == null) {
-      var ref = this.props.filter.refList[rowId];
+  renderRow: function(linkContentObj,sectionId,rowId) {
+    var linkContent = "";
+    var ref = this.props.filter.refList[rowId];
+    if (linkContentObj == null) {
       this._rowsToLoad.push({ref:ref,rowId:rowId});
       linkContent = "Loading...";      
-    } 
+    } else {
+      linkContent = this.props.columnLanguage == "english" ? linkContentObj.en : linkContentObj.he;
+      if (linkContent.trim() == "") linkContent = "<i>No text for this language</i>"
+    }
 
-    return (<Text selectable={true}>{JSON.stringify(linkContent)}</Text>);
+    return (
+      <View style={styles.searchTextResult}>
+        <Text>{ref}</Text>
+        <HTMLView value={linkContent}/>
+      </View>);
   },
 
   render: function() {

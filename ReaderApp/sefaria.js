@@ -178,7 +178,7 @@ Sefaria = {
             var seg = null;
             data.content.forEach((item,i)=>{
                 if (item.segmentNumber == segNum) {
-                    resolve(item);
+                    resolve({en:item.text.join(" "),he:item.he.join(" ")});
                     return;
                 }
             });
@@ -195,7 +195,10 @@ Sefaria = {
             var seg = null;
             data.content.forEach((item,i)=>{
                 if (item.segmentNumber == segNum) {
-                    resolve(item);
+                    let enText = item.text instanceof Array ? item.text.join(" ") : "";
+                    let heText = item.he instanceof Array ? item.he.join(" ") : "";
+
+                    resolve({en:enText,he:heText});
                     return;
                 }
             });
