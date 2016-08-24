@@ -185,9 +185,9 @@ var ReaderPanel = React.createClass({
         return (
           <ReaderTextTableOfContents
             title={this.props.textTitle}
+            contentLang={this.state.settings.language == "hebrew" ? "hebrew" : "english"}
             interfaceLang={this.props.interfaceLang}
             close={this.props.closeMenu}
-            settingsLanguage={this.state.settings.language == "hebrew"?"he":"en"}
             openRef={this.props.openRef}
             toggleLanguage={this.toggleLanguage}
             Sefaria={Sefaria} />);
