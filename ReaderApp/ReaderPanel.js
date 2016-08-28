@@ -123,6 +123,9 @@ var ReaderPanel = React.createClass({
     var linkContents = refList.map((ref)=>null);
     this.setState({filter:filter,recentFilters:this.state.recentFilters,linkContents:linkContents});
   },
+  closeLinkCat: function() {
+    this.setState({filter:null});
+  },
   updateLinkCat: function(links) {
     //search for the current filter in the the links object
     if (this.state.filter == null) return;
@@ -283,6 +286,7 @@ var ReaderPanel = React.createClass({
               columnLanguage={this.state.columnLanguage} 
               openRef={ this.props.openRef } 
               openCat={this.openLinkCat}
+              closeCat={this.closeLinkCat}
               updateCat={this.updateLinkCat}
               onLinkLoad={this.onLinkLoad}
               linkContents={this.state.linkContents} 

@@ -81,6 +81,12 @@ module.exports = StyleSheet.create({
   searchTextResult: {
     margin: 20
   },
+  textListHeader: {
+    height: 40,
+    backgroundColor: "white",
+    borderTopWidth: 4,
+    flexDirection: "row"
+  },
   displaySettingsButton: {
     width: 22,
     height: 22,

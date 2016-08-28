@@ -7,8 +7,9 @@ import {
   Text,
   TouchableOpacity
 } from 'react-native';
-var styles = require('./Styles.js');
-var HTMLView = require('react-native-htmlview');
+var styles         = require('./Styles.js');
+var HTMLView       = require('react-native-htmlview');
+var TextListHeader = require('./TextListHeader');
 var {
   CategoryColorLine,
   TwoBox
@@ -19,6 +20,7 @@ var TextList = React.createClass({
   propTypes: {
     openRef:        React.PropTypes.func.isRequired,
     openCat:        React.PropTypes.func.isRequired,
+    closeCat:       React.PropTypes.func.isRequired,
     updateCat:      React.PropTypes.func.isRequired,
     onLinkLoad:     React.PropTypes.func.isRequired,
     linkContents:   React.PropTypes.array,
@@ -131,10 +133,20 @@ var TextList = React.createClass({
         {viewList}
       </ScrollView>);
     } else {
-      return (<ListView 
-        dataSource={dataSourceRows}
-        renderRow={this.renderRow}
-      />);
+      return (
+      <View>
+        <TextListHeader 
+          Sefaria={Sefaria}
+          closeCat={this.props.closeCat}
+          category={this.props.filter.title} 
+          
+        />
+        <ListView 
+          dataSource={dataSourceRows}
+          renderRow={this.renderRow}
+        />
+      </View>
+      );
     }
   }
   
