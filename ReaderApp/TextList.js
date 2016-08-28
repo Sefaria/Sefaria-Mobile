@@ -19,6 +19,7 @@ var TextList = React.createClass({
   propTypes: {
     openRef:        React.PropTypes.func.isRequired,
     openCat:        React.PropTypes.func.isRequired,
+    updateCat:      React.PropTypes.func.isRequired,
     onLinkLoad:     React.PropTypes.func.isRequired,
     linkContents:   React.PropTypes.array,
     segmentRef:     React.PropTypes.number,
@@ -58,7 +59,7 @@ var TextList = React.createClass({
         if (index != -1) this._rowsLoading.splice(index,1);
       })(ref,rowId);
       var reject = ((ref,rowId)=>(error)=>{
-        this.props.onLinkLoad({en:"error",he:"shguya"},rowId);
+        this.props.onLinkLoad({en:JSON.stringify(error),he:JSON.stringify(error)},rowId);
         let index = this._rowsLoading.indexOf(rowId);
         if (index != -1) this._rowsLoading.splice(index,1);
       })(ref,rowId);
@@ -67,6 +68,11 @@ var TextList = React.createClass({
       Sefaria.links.load_link(ref).then(resolve).catch(reject);
     };
     this._rowsToLoad = [];
+  },
+  componentWillUpdate: function(nextProps) {
+    if (this.props.segmentRef != nextProps.segmentRef) {
+      this.props.updateCat(nextProps.links);
+    }
   },
 
   renderRow: function(linkContentObj,sectionId,rowId) {
@@ -90,10 +96,9 @@ var TextList = React.createClass({
   render: function() {
     var isSummaryMode = this.props.filter == null;
     if (isSummaryMode) {
-      var links = Sefaria.links.linkSummary(this.props.links);
 
       var viewList = [];
-      links.map((cat)=>{
+      this.props.links.map((cat)=>{
         viewList.push(
           <LinkCategory 
             category={cat.category}

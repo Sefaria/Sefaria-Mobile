@@ -171,18 +171,21 @@ Sefaria = {
             (response) => response.json())
         .then(
           (data) => {
+            
             var icol = ref.lastIndexOf(":");
             if (icol != -1) {
-                var segNum = ref.substring(icol);
+                var segNum = ref.substring(icol+1);
             } else reject({"negative one issue":true});
             var seg = null;
             data.content.forEach((item,i)=>{
                 if (item.segmentNumber == segNum) {
-                    resolve({en:item.text.join(" "),he:item.he.join(" ")});
+                    let enText = item.text instanceof Array ? item.text.join(" ") : "";
+                    let heText = item.he instanceof Array ? item.he.join(" ") : "";
+                    resolve({en:enText,he:heText});
                     return;
                 }
             });
-            reject({"not found":true});
+            reject({"not found":ref});
           }
         )
         .catch(function() {
@@ -202,7 +205,7 @@ Sefaria = {
                     return;
                 }
             });
-            reject({"not found":true});
+            reject({"not found" :ref});
           })
         });
 

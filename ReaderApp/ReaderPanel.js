@@ -29,6 +29,7 @@ var {
 var ReaderPanel = React.createClass({
   propTypes: {
     data:          React.PropTypes.array,
+    links:         React.PropTypes.array,
     textTitle:     React.PropTypes.string,
     openRef:       React.PropTypes.func.isRequired,
     openNav:       React.PropTypes.func.isRequired,
@@ -121,6 +122,39 @@ var ReaderPanel = React.createClass({
 
     var linkContents = refList.map((ref)=>null);
     this.setState({filter:filter,recentFilters:this.state.recentFilters,linkContents:linkContents});
+  },
+  updateLinkCat: function(links) {
+    //search for the current filter in the the links object
+    if (this.state.filter == null) return;
+
+    var filterStr = this.state.filter.title;
+    var filterStrHe = this.state.filter.heTitle;
+    var nextFilter = null
+    for (let cat of links) {
+      if (cat.category == filterStr) {
+        nextFiler = {title:filterStr,heTitle:filterStrHe,refList:cat.refList};
+        break;
+      }
+      for (let book of cat.books) {
+        if (book.title == filterStr) {
+          nextFilter = {title:filterStr,heTitle:filterStrHe,refList:book.refList};
+          break;
+        }
+      }
+    }
+    if (nextFilter == null) {
+      nextFilter = {title:filterStr,heTitle:filterStrHe,refList:[]};
+    }
+
+    for (let i = 0; i < this.state.recentFilters.length; i++) {
+      if (this.state.recentFilters[i].title == nextFilter.title) {
+        this.state.recentFilters[i] = nextFilter;
+        break;
+      }
+    }
+
+    var linkContents = nextFilter.refList.map((ref)=>null);
+    this.setState({filter:nextFilter,recentFilters:this.state.recentFilters,linkContents:linkContents});
   },
   onLinkLoad: function(data,pos) {
     this.state.linkContents[pos] = data;
@@ -243,12 +277,13 @@ var ReaderPanel = React.createClass({
           <View style={styles.commentaryTextPanel}>
             <TextList 
               Sefaria={Sefaria} 
-              links={this.props.data[this.props.segmentRef].links} 
+              links={this.props.links} 
               segmentRef={this.props.segmentRef} 
               textFlow={this.state.textFlow} 
               columnLanguage={this.state.columnLanguage} 
               openRef={ this.props.openRef } 
               openCat={this.openLinkCat}
+              updateCat={this.updateLinkCat}
               onLinkLoad={this.onLinkLoad}
               linkContents={this.state.linkContents} 
               filter={this.state.filter} 
