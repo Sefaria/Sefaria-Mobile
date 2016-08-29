@@ -162,6 +162,24 @@ Sefaria = {
   },
   links: {
     load_link: function(ref) {
+
+      parseData = function(resolve,reject,data) {
+        var icol = ref.lastIndexOf(":");
+        if (icol != -1) {
+            var segNum = ref.substring(icol+1);
+        } else reject({"negative one issue":true});
+        var seg = null;
+        data.content.forEach((item,i)=>{
+            if (item.segmentNumber == segNum) {
+                let enText = item.text instanceof Array ? item.text.join(" ") : "";
+                let heText = item.he instanceof Array ? item.he.join(" ") : "";
+                resolve({en:enText,he:heText});
+                return;
+            }
+        });
+        reject({"not found":ref});
+      };
+
       return new Promise(function(resolve, reject) {
         var fileNameStem = ref.split(":")[0];
         var bookRefStem = fileNameStem.substring(0, fileNameStem.lastIndexOf(" "));
@@ -171,38 +189,12 @@ Sefaria = {
             (response) => response.json())
         .then(
           (data) => {
-            var icol = ref.lastIndexOf(":");
-            if (icol != -1) {
-                var segNum = ref.substring(icol);
-            } else reject({"negative one issue":true});
-            var seg = null;
-            data.content.forEach((item,i)=>{
-                if (item.segmentNumber == segNum) {
-                    resolve({en:item.text.join(" "),he:item.he.join(" ")});
-                    return;
-                }
-            });
-            reject({"not found":true});
+            parseData(resolve,reject,data);
           }
         )
         .catch(function() {
           Sefaria._unZipAndLoadJSON(Sefaria._zipSourcePath(bookRefStem), Sefaria._JSONSourcePath(fileNameStem), function(data) {
-
-            var icol = ref.lastIndexOf(":");
-            if (icol != -1) {
-                var segNum = ref.substring(icol+1);
-            } else reject({"negative one issue":true});
-            var seg = null;
-            data.content.forEach((item,i)=>{
-                if (item.segmentNumber == segNum) {
-                    let enText = item.text instanceof Array ? item.text.join(" ") : "";
-                    let heText = item.he instanceof Array ? item.he.join(" ") : "";
-
-                    resolve({en:enText,he:heText});
-                    return;
-                }
-            });
-            reject({"not found":true});
+            parseData(resolve,reject,data);
           })
         });
 
