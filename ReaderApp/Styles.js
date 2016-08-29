@@ -303,7 +303,7 @@ module.exports = StyleSheet.create({
     backgroundColor: "transparent",
   },
   twoBox: {
-    flex: 1,
+    
   },
   twoBoxRow: {
     flex: 1,
