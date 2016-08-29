@@ -93,7 +93,8 @@ module.exports = StyleSheet.create({
     alignItems: 'flex-start',
   },
   searchTextResult: {
-    margin: 20
+    margin: 20,
+    flexDirection: 'column'
   },
   textListHeader: {
     height: 40,

@@ -87,11 +87,7 @@ var TextList = React.createClass({
       if (linkContent.trim() == "") linkContent = "<i>No text for this language</i>"
     }
 
-    return (
-      <View style={styles.searchTextResult}>
-        <Text>{ref}</Text>
-        <HTMLView value={linkContent}/>
-      </View>);
+    return (<LinkContent openRef={this.props.openRef} refStr={ref} linkContent={linkContent}/>);
   },
 
   render: function() {
@@ -220,4 +216,20 @@ var LinkBook = React.createClass({
   }
 });
 
+var LinkContent = React.createClass({
+  propTypes: {
+    openRef:     React.PropTypes.func.isRequired,
+    refStr:      React.PropTypes.string,
+    linkContent: React.PropTypes.string
+  },
+
+  render: function() {
+    return (
+      <TouchableOpacity style={styles.searchTextResult} onPress={()=>{this.props.openRef(this.props.refStr)}}>
+        <Text>{this.props.refStr}</Text>
+        <HTMLView value={this.props.linkContent}/>
+      </TouchableOpacity>
+    );
+  }
+});
 module.exports = TextList;
