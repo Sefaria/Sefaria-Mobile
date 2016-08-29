@@ -59,10 +59,24 @@ module.exports = StyleSheet.create({
     alignSelf: "stretch",
     fontSize: 22,
   },
+  tripleDotsContainer: {
+    flexDirection: "column",
+    flex: 1,
+    alignSelf: "stretch",
+    width: 30,
+    height: 30,
+    marginLeft: 5,
+    marginRight: 5,
+    justifyContent: "center"
+  },
+  tripleDots: {
+    width:15,
+    height:15,
+    opacity: 0.5
+  },
   headerTextTitle: {
     flex: 1,
-    alignItems: 'center',
-    fontSize: 18,
+    alignItems: 'center'
   },
   searchResultSummary: {
     margin: 10
@@ -85,7 +99,17 @@ module.exports = StyleSheet.create({
     height: 40,
     backgroundColor: "white",
     borderTopWidth: 4,
+    paddingRight: 10,
+    paddingLeft: 10,
     flexDirection: "row"
+  },
+  textListHeaderItem: {
+    margin: 5,
+    justifyContent: "center",
+    color: "#999"
+  },
+  textListHeaderItemSelected: {
+    color: "#000"
   },
   displaySettingsButton: {
     width: 22,

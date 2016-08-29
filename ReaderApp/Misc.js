@@ -86,6 +86,14 @@ var CloseButton = React.createClass({
   }
 });
 
+var TripleDots = React.createClass({
+  render: function() {
+    return (<TouchableOpacity style={styles.tripleDotsContainer} onPress={this.props.onPress}>
+              <Image style={styles.tripleDots}source={require('./img/dots.png')} />
+            </TouchableOpacity>);
+  }
+});
+
 
 var DisplaySettingsButton = React.createClass({
   render: function() { 
@@ -115,5 +123,6 @@ module.exports.LanguageToggleButton = LanguageToggleButton;
 module.exports.SearchButton = SearchButton;
 module.exports.MenuButton = MenuButton;
 module.exports.CloseButton = CloseButton;
+module.exports.TripleDots = TripleDots;
 module.exports.DisplaySettingsButton = DisplaySettingsButton;
 module.exports.LoadingView = LoadingView;

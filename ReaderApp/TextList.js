@@ -53,7 +53,6 @@ var TextList = React.createClass({
       } else
         continue; //wait for it to finish loading
 
-
       //closures to save ref and rowId
       var resolve = ((ref,rowId)=>(data)=>{
         this.props.onLinkLoad(data,rowId);
@@ -73,7 +72,7 @@ var TextList = React.createClass({
   },
   componentWillUpdate: function(nextProps) {
     if (this.props.segmentRef != nextProps.segmentRef) {
-      this.props.updateCat(nextProps.links);
+      this.props.updateCat(nextProps.links,null);
     }
   },
 
@@ -125,8 +124,19 @@ var TextList = React.createClass({
 
       });
     } else {
+      var allNull = true;
+      for (let yo of this.props.linkContents) {
+        if (yo != null) {
+          allNull = false;
+          break;
+        }
+      }
+      if (allNull) {
+        console.log("ALL NULL!!!!!!!");
+        console.log("REFS",this.props.recentFilters[this.props.filterIndex].refList);
+      }
+
       var dataSourceRows = this.state.dataSource.cloneWithRows(this.props.linkContents);
-      //console.log("links","refreshing links");
     }
 
     if (isSummaryMode) {
@@ -138,8 +148,10 @@ var TextList = React.createClass({
       <View>
         <TextListHeader 
           Sefaria={Sefaria}
+          updateCat={this.props.updateCat}
           closeCat={this.props.closeCat}
           category={this.props.recentFilters[this.props.filterIndex].category} 
+          filterIndex={this.props.filterIndex}
           recentFilters={this.props.recentFilters}
           columnLanguage={this.props.columnLanguage}
         />
@@ -172,9 +184,11 @@ var LinkCategory = React.createClass({
     var content = this.props.language == "english"?
       (<Text style={styles.en}>{this.props.category.toUpperCase() + countStr}</Text>) :
       (<Text style={styles.he}>{heCategory + countStr}</Text>);
+
+    var filter = {title:this.props.category,heTitle:heCategory,refList:this.props.refList,category:this.props.category};
     return (<TouchableOpacity 
               style={[styles.readerNavCategory, style]} 
-              onPress={()=>{this.props.openCat(this.props.category,heCategory,this.props.refList,this.props.category)}}>
+              onPress={()=>{this.props.openCat(filter)}}>
               {content}
             </TouchableOpacity>);
   }
@@ -193,10 +207,11 @@ var LinkBook = React.createClass({
 
   render: function() {
     var countStr = " (" + this.props.count + ")";
+    var filter = {title:this.props.title,heTitle:this.props.heTitle,refList:this.props.refList,category:this.props.category};
     return (
       <TouchableOpacity  
         style={styles.textBlockLink} 
-        onPress={()=>{this.props.openCat(this.props.title,this.props.heTitle,this.props.refList,this.props.category)}}>
+        onPress={()=>{this.props.openCat(filter)}}>
         { this.props.language == "hebrew" ? 
           <Text style={[styles.he, styles.centerText]}>{this.props.heTitle + countStr}</Text> :
           <Text style={[styles.en, styles.centerText]}>{this.props.title + countStr}</Text> }

@@ -2,19 +2,22 @@
 import React, { Component } from 'react';
 import { 	
   View,
-  Text
+  Text,
+  TouchableOpacity
 } from 'react-native';
 var styles = require('./Styles.js');
 var {
   CategoryColorLine,
-  CloseButton
+  TripleDots
 } = require('./Misc.js');
 
 var TextListHeader = React.createClass({
 	propTypes: {
 		Sefaria:        React.PropTypes.object.isRequired,
+		updateCat:      React.PropTypes.func.isRequired,
 		closeCat:       React.PropTypes.func.isRequired,
 		category:       React.PropTypes.string,
+		filterIndex:    React.PropTypes.number,
 		recentFilters:  React.PropTypes.array,
 		columnLanguage: React.PropTypes.string
 	},
@@ -27,10 +30,13 @@ var TextListHeader = React.createClass({
 	render: function() {
 		var style = {"borderColor": Sefaria.palette.categoryColor(this.props.category)};
 
-		var viewList = this.props.recentFilters.map((filter)=>{
+		var viewList = this.props.recentFilters.map((filter,i)=>{
 			return (<TextListHeaderItem 
 						columnLanguage={this.props.columnLanguage}
 						filter={filter}
+						filterIndex={i}
+						selected={i == this.props.filterIndex}
+						updateCat={this.props.updateCat}
 					/>
 					);
 		});
@@ -38,7 +44,7 @@ var TextListHeader = React.createClass({
 		return (
 			<View style={[styles.textListHeader, style]}>
 				{viewList}
-				<CloseButton onPress={()=>this.props.closeCat()}/>
+				<TripleDots onPress={this.props.closeCat}/>
 			 </View>
 			);
 	}
@@ -46,14 +52,22 @@ var TextListHeader = React.createClass({
 
 var TextListHeaderItem = React.createClass({
 	propTypes: {
+		updateCat:      React.PropTypes.func.isRequired,
 		filter:         React.PropTypes.object,
-		columnLanguage: React.PropTypes.string
+		filterIndex:    React.PropTypes.number,
+		columnLanguage: React.PropTypes.string,
+		selected:       React.PropTypes.bool
 	},
 	render: function() {
 		var filterStr = this.props.columnLanguage == "hebrew" ? 
 			this.props.filter.heTitle : 
 			this.props.filter.title;
-		return (<Text>{filterStr}</Text>);
+		var stylesArray = this.props.selected ? [styles.textListHeaderItem,styles.textListHeaderItemSelected] : [styles.textListHeaderItem];
+		return (
+			<TouchableOpacity onPress={()=>{this.props.updateCat(null,this.props.filterIndex)}}>
+				<Text style={stylesArray}>{filterStr}</Text>
+			</TouchableOpacity>
+			);
 	}
 });
 
