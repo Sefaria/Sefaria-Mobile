@@ -25,9 +25,9 @@ var TextList = React.createClass({
     onLinkLoad:     React.PropTypes.func.isRequired,
     linkContents:   React.PropTypes.array,
     segmentRef:     React.PropTypes.number,
-    links:          React.PropTypes.array,
-    filter:         React.PropTypes.object, /* of the form {title,heTitle,refList} */
-    recentFilters:  React.PropTypes.array,
+    links:          React.PropTypes.array, 
+    filterIndex:    React.PropTypes.number, 
+    recentFilters:  React.PropTypes.array, /* of the form [{title,heTitle,refList}...] */
     columnLanguage: React.PropTypes.string
   },
 
@@ -79,7 +79,7 @@ var TextList = React.createClass({
 
   renderRow: function(linkContentObj,sectionId,rowId) {
     var linkContent = "";
-    var ref = this.props.filter.refList[rowId];
+    var ref = this.props.recentFilters[this.props.filterIndex].refList[rowId];
     if (linkContentObj == null) {
       this._rowsToLoad.push({ref:ref,rowId:rowId});
       linkContent = "Loading...";      
@@ -96,7 +96,7 @@ var TextList = React.createClass({
   },
 
   render: function() {
-    var isSummaryMode = this.props.filter == null;
+    var isSummaryMode = this.props.filterIndex == null;
     if (isSummaryMode) {
 
       var viewList = [];
@@ -114,6 +114,7 @@ var TextList = React.createClass({
           <LinkBook 
             title={obook.title} 
             heTitle={obook.heTitle}
+            category={cat.category}
             refList={obook.refList} 
             count={obook.count} 
             language={"english"} 
@@ -138,8 +139,9 @@ var TextList = React.createClass({
         <TextListHeader 
           Sefaria={Sefaria}
           closeCat={this.props.closeCat}
-          category={this.props.filter.title} 
-          
+          category={this.props.recentFilters[this.props.filterIndex].category} 
+          recentFilters={this.props.recentFilters}
+          columnLanguage={this.props.columnLanguage}
         />
         <ListView 
           dataSource={dataSourceRows}
@@ -172,7 +174,7 @@ var LinkCategory = React.createClass({
       (<Text style={styles.he}>{heCategory + countStr}</Text>);
     return (<TouchableOpacity 
               style={[styles.readerNavCategory, style]} 
-              onPress={()=>{this.props.openCat(this.props.category,heCategory,this.props.refList)}}>
+              onPress={()=>{this.props.openCat(this.props.category,heCategory,this.props.refList,this.props.category)}}>
               {content}
             </TouchableOpacity>);
   }
@@ -183,6 +185,7 @@ var LinkBook = React.createClass({
     openCat:  React.PropTypes.func.isRequired,
     title:    React.PropTypes.string,
     heTitle:  React.PropTypes.string,
+    category: React.PropTypes.string,
     refList:  React.PropTypes.array,
     language: React.PropTypes.string,
     count:    React.PropTypes.number
@@ -193,7 +196,7 @@ var LinkBook = React.createClass({
     return (
       <TouchableOpacity  
         style={styles.textBlockLink} 
-        onPress={()=>{this.props.openCat(this.props.title,this.props.heTitle,this.props.refList)}}>
+        onPress={()=>{this.props.openCat(this.props.title,this.props.heTitle,this.props.refList,this.props.category)}}>
         { this.props.language == "hebrew" ? 
           <Text style={[styles.he, styles.centerText]}>{this.props.heTitle + countStr}</Text> :
           <Text style={[styles.en, styles.centerText]}>{this.props.title + countStr}</Text> }

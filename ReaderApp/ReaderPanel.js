@@ -55,7 +55,7 @@ var ReaderPanel = React.createClass({
         color:         "light",
         fontSize:      62.5,
       },
-      filter: null,
+      filterIndex: null, /* index of filter in recentFilters */
       recentFilters: [],
       linkContents: [],
       ReaderDisplayOptionsMenuVisible: false
@@ -114,50 +114,44 @@ var ReaderPanel = React.createClass({
     this.onQueryChange(query,true);
     this.props.openSearch();
   },
-  openLinkCat: function(title,heTitle,refList) {
-    var filter = {title:title,heTitle:heTitle,refList:refList}; //redundant much?
+  openLinkCat: function(title,heTitle,refList,category) {
+    var filter = {title:title,heTitle:heTitle,refList:refList,category:category}; //redundant much?
     this.state.recentFilters.push(filter);
     if (this.state.recentFilters.length > 5)
       this.state.recentFilters.shift();
 
     var linkContents = refList.map((ref)=>null);
-    this.setState({filter:filter,recentFilters:this.state.recentFilters,linkContents:linkContents});
+    this.setState({filterIndex:this.state.recentFilters.length-1,recentFilters:this.state.recentFilters,linkContents:linkContents});
   },
   closeLinkCat: function() {
-    this.setState({filter:null});
+    this.setState({filterIndex:null});
   },
   updateLinkCat: function(links) {
     //search for the current filter in the the links object
-    if (this.state.filter == null) return;
+    if (this.state.filterIndex == null) return;
 
-    var filterStr = this.state.filter.title;
-    var filterStrHe = this.state.filter.heTitle;
-    var nextFilter = null
+    var filterStr = this.state.recentFilters[this.state.filterIndex].title;
+    var filterStrHe = this.state.recentFilters[this.state.filterIndex].heTitle;
+    var category = this.state.recentFilters[this.state.filterIndex].category;
+    var nextRefList = [];
     for (let cat of links) {
       if (cat.category == filterStr) {
-        nextFiler = {title:filterStr,heTitle:filterStrHe,refList:cat.refList};
+        nextRefList = cat.refList;
         break;
       }
       for (let book of cat.books) {
         if (book.title == filterStr) {
-          nextFilter = {title:filterStr,heTitle:filterStrHe,refList:book.refList};
+          nextRefList = book.refList;
           break;
         }
       }
     }
-    if (nextFilter == null) {
-      nextFilter = {title:filterStr,heTitle:filterStrHe,refList:[]};
-    }
+    var nextFilter = {title:filterStr,heTitle:filterStrHe,refList:nextRefList,category:category};
 
-    for (let i = 0; i < this.state.recentFilters.length; i++) {
-      if (this.state.recentFilters[i].title == nextFilter.title) {
-        this.state.recentFilters[i] = nextFilter;
-        break;
-      }
-    }
+    this.state.recentFilters[this.state.filterIndex] = nextFilter;
 
     var linkContents = nextFilter.refList.map((ref)=>null);
-    this.setState({filter:nextFilter,recentFilters:this.state.recentFilters,linkContents:linkContents});
+    this.setState({recentFilters:this.state.recentFilters,linkContents:linkContents});
   },
   onLinkLoad: function(data,pos) {
     this.state.linkContents[pos] = data;
@@ -290,7 +284,7 @@ var ReaderPanel = React.createClass({
               updateCat={this.updateLinkCat}
               onLinkLoad={this.onLinkLoad}
               linkContents={this.state.linkContents} 
-              filter={this.state.filter} 
+              filterIndex={this.state.filterIndex} 
               recentFilters={this.state.recentFilters} />
           </View>
         </View>);
