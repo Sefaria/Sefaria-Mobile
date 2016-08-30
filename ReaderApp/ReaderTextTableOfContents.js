@@ -152,12 +152,11 @@ var TextJaggedArrayNodeSection = React.createClass({
       }
       return ( <View>{content}</View> );
     }
-    if (this.props.depth == 1) {
-      // treat like d2
-    }
+
+    var contentCounts = this.props.depth == 1 ? new Array(this.props.contentCounts).fill(1) : this.props.contentCounts;
     var sectionLinks = [];
-    for (var i = 0; i < this.props.contentCounts.length; i++) {
-      if (this.props.contentCounts[i] == 0) { continue; }
+    for (var i = 0; i < contentCounts.length; i++) {
+      if (contentCounts[i] == 0) { continue; }
       if (this.props.addressTypes[0] === "Talmud") {
         var section = Sefaria.hebrew.intToDaf(i);
         var heSection = Sefaria.hebrew.encodeHebrewDaf(section);

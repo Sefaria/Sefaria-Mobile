@@ -309,7 +309,7 @@ module.exports = StyleSheet.create({
   },
   loadingView: {
     height: 80,
-    backgroundColor: "transparent",
+    backgroundColor: '#F5FCFF',
   },
   twoBox: {
     
