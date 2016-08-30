@@ -65,7 +65,7 @@ var ReaderTextTableOfContents = React.createClass({
             <TextSchemaNode
               schema={this.state.textToc.schema}
               contentLang={this.props.contentLang}
-              refPath={this.props.title + " "}
+              refPath={this.props.title}
               openRef={this.props.openRef} /> : <LoadingView /> }
 
         </ScrollView>
@@ -109,22 +109,69 @@ var TextJaggedArrayNode = React.createClass({
     openRef:     React.PropTypes.func.isRequired,
   },
   render: function() {
-    var schema = this.props.schema;
+    return (<TextJaggedArrayNodeSection
+              depth={this.props.schema.depth}
+              sectionNames={this.props.schema.sectionNames}
+              addressTypes={this.props.schema.addressTypes}
+              contentCounts={this.props.schema.content_counts}
+              contentLang={this.props.contentLang}
+              refPath={this.props.refPath}
+              openRef={this.props.openRef} />);
+  }
+});
+
+
+var TextJaggedArrayNodeSection = React.createClass({
+  propTypes: {
+    depth:           React.PropTypes.number.isRequired,
+    sectionNames:    React.PropTypes.array.isRequired,
+    addressTypes:    React.PropTypes.array.isRequired,
+    contentCounts:   React.PropTypes.array.isRequired,
+    contentLang:     React.PropTypes.string.isRequired,
+    refPath:         React.PropTypes.string.isRequired,
+    openRef:         React.PropTypes.func.isRequired,
+  },
+  render: function() {
+    if (this.props.depth > 2) {
+      var content = [];
+      for (var i = 0; i < this.props.contentCounts.length; i++) {
+        content.push(
+          <View style={styles.textTocNumberedSectionBox} key={i}>
+            {this.props.contentLang == "english" ?
+              <Text style={[styles.en, styles.textTocNumberedSectionTitle]}>{this.props.sectionNames[0] + " " + (i+1)}</Text> :
+              <Text style={[styles.he, styles.textTocNumberedSectionTitle]}>{this.props.sectionNames[0] + " " + (i+1)}</Text> }
+            <TextJaggedArrayNodeSection
+              depth={this.props.depth - 1}
+              sectionNames={this.props.sectionNames.slice(1)}
+              addressTypes={this.props.addressTypes.slice(1)}
+              contentCounts={this.props.contentCounts[i]}
+              contentLang={this.props.contentLang}
+              refPath={this.props.refPath + ":" + (i+1)}
+              openRef={this.props.openRef} />
+          </View>);
+      }
+      return ( <View>{content}</View> );
+    }
+    if (this.props.depth == 1) {
+      // treat like d2
+    }
     var sectionLinks = [];
-    for (var i = 1; i <= schema.lengths[0]; i++) {
-      if (schema.addressTypes[0] === "Talmud") {
+    for (var i = 0; i < this.props.contentCounts.length; i++) {
+      if (this.props.contentCounts[i] == 0) { continue; }
+      if (this.props.addressTypes[0] === "Talmud") {
         var section = Sefaria.hebrew.intToDaf(i);
         var heSection = Sefaria.hebrew.encodeHebrewDaf(section);
       } else {
-        var section = i;
-        var heSection = Sefaria.hebrew.encodeHebrewNumeral(i);
+        var section = i+1;
+        var heSection = Sefaria.hebrew.encodeHebrewNumeral(i+1);
       }
-      var open = this.props.openRef.bind(null, this.props.refPath + section);
+      var ref  = (this.props.refPath + ":" + section).replace(":", " ");
+      var open = this.props.openRef.bind(null, ref);
       var link = (
         <TouchableOpacity style={styles.sectionLink} onPress={open} key={i}>
           { this.props.contentLang == "english" ?
             <Text style={[styles.centerText]}>{section}</Text> :
-            <Text style={[styles.he, styles.centerText]}>{heSection}</Text>}
+            <Text style={[styles.he, styles.centerText]}>{heSection}</Text> }
         </TouchableOpacity>
       );
       sectionLinks.push(link);
@@ -136,6 +183,5 @@ var TextJaggedArrayNode = React.createClass({
     );
   }
 });
-
 
 module.exports = ReaderTextTableOfContents;

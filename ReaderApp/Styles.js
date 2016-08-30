@@ -246,6 +246,9 @@ module.exports = StyleSheet.create({
   rightContainer: {
     flex: 1
   },
+  textTocNumberedSectionBox: {
+    marginBottom: 20
+  },
   textTocNumberedSection: {
     flex: 1,
     flexDirection: "row",
@@ -260,7 +263,8 @@ module.exports = StyleSheet.create({
     justifyContent: "center"
   },
   lineEnd: {
-    flex: 1
+    flex: 1,
+    height: 1
   },
   englishText: {
     fontFamily: "EB Garamond",
