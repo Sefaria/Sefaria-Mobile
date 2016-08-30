@@ -112,6 +112,11 @@ module.exports = StyleSheet.create({
   textListHeaderItemSelected: {
     color: "#000"
   },
+  noLinks: {
+    flex:1,
+    alignItems: "center",
+    margin: 10
+  },
   displaySettingsButton: {
     width: 22,
     height: 22,

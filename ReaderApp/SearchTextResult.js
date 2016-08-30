@@ -21,8 +21,6 @@ var SearchTextResult = React.createClass({
         <Text>{this.props.title}</Text>
           <HTMLView
             value={this.props.text}
-            stylesheet={styles}
-
           />
       </TouchableOpacity>
     );
