@@ -120,18 +120,6 @@ var TextList = React.createClass({
 
       });
     } else {
-      var allNull = true;
-      for (let yo of this.props.linkContents) {
-        if (yo != null) {
-          allNull = false;
-          break;
-        }
-      }
-      if (allNull) {
-        console.log("ALL NULL!!!!!!!");
-        console.log("REFS",this.props.recentFilters[this.props.filterIndex].refList);
-      }
-
       var dataSourceRows = this.state.dataSource.cloneWithRows(this.props.linkContents);
     }
 
@@ -151,10 +139,14 @@ var TextList = React.createClass({
           recentFilters={this.props.recentFilters}
           columnLanguage={this.props.columnLanguage}
         />
-        <ListView 
-          dataSource={dataSourceRows}
-          renderRow={this.renderRow}
-        />
+        {this.props.linkContents.length == 0 ? 
+          <View style={styles.noLinks}><HTMLView value={"<i>No Links</i>"}/></View>:
+          <ListView 
+            dataSource={dataSourceRows}
+            renderRow={this.renderRow}
+          />
+        }
+
       </View>
       );
     }
