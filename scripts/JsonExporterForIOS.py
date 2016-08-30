@@ -164,11 +164,16 @@ def export_index(title):
 	"""
 	Writes the JSON of the index record of the text called `title`. 
 	"""
-	index = model.get_index(title)
-	index = index.contents_with_content_counts()
-	path  = "%s/%s_index.json" % (SEFARIA_EXPORT_PATH, title)
-	write_doc(index, path)
-
+	try:
+		index = model.get_index(title)
+		index = index.contents_with_content_counts()
+		path  = "%s/%s_index.json" % (SEFARIA_EXPORT_PATH, title)
+		write_doc(index, path)
+	except Exception, e:
+		print "Error exporting Index for %s: %s" % (title, e)
+		import traceback
+		print traceback.format_exc()
+			
 
 def export_toc():
 	"""

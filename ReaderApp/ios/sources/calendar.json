@@ -408,13 +408,6 @@
             "ref": "Numbers 30:2-36:13", 
             "name": "Matot-Masei"
         }, 
-        "4/10/2021": {
-            "haftara": [
-                "II Samuel 6:1-7:17"
-            ], 
-            "ref": "Leviticus 9:1-11:47", 
-            "name": "Shmini"
-        }, 
         "3/10/2018": {
             "haftara": [
                 "Ezekiel 36:16-36:38"
@@ -727,13 +720,6 @@
             ], 
             "ref": "Leviticus 12:1-15:33", 
             "name": "Tazria-Metzora"
-        }, 
-        "5/26/2018": {
-            "haftara": [
-                "Judges 13:2-13:25"
-            ], 
-            "ref": "Numbers 4:21-7:89", 
-            "name": "Nasso"
         }, 
         "7/7/2018": {
             "haftara": [
@@ -1194,19 +1180,14 @@
             "ref": "Exodus 10:1-13:16", 
             "name": "Bo"
         }, 
-        "5/1/2021": {
+        "9/23/2017": {
             "haftara": [
-                "Ezekiel 44:15-44:31"
+                "Hosea 14:2-10", 
+                "Micah 7:18-20", 
+                "Joel 2:15-27"
             ], 
-            "ref": "Leviticus 21:1-24:23", 
-            "name": "Emor"
-        }, 
-        "8/20/2016": {
-            "haftara": [
-                "Isaiah 40:1-40:26"
-            ], 
-            "ref": "Deuteronomy 3:23-7:11", 
-            "name": "Vaetchanan"
+            "ref": "Deuteronomy 32:1-52", 
+            "name": "Ha'Azinu"
         }, 
         "11/16/2019": {
             "haftara": [
@@ -1383,13 +1364,12 @@
             "ref": "Leviticus 6:1-8:36", 
             "name": "Tzav"
         }, 
-        "1/21/2017": {
+        "4/10/2021": {
             "haftara": [
-                "Isaiah 27:6-28:13", 
-                "Isaiah 29:22-29:23"
+                "II Samuel 6:1-7:17"
             ], 
-            "ref": "Exodus 1:1-6:1", 
-            "name": "Shemot"
+            "ref": "Leviticus 9:1-11:47", 
+            "name": "Shmini"
         }, 
         "6/23/2018": {
             "haftara": [
@@ -1575,14 +1555,12 @@
             "ref": "Exodus 10:1-13:16", 
             "name": "Bo"
         }, 
-        "9/23/2017": {
+        "5/26/2018": {
             "haftara": [
-                "Hosea 14:2-10", 
-                "Micah 7:18-20", 
-                "Joel 2:15-27"
+                "Judges 13:2-13:25"
             ], 
-            "ref": "Deuteronomy 32:1-52", 
-            "name": "Ha'Azinu"
+            "ref": "Numbers 4:21-7:89", 
+            "name": "Nasso"
         }, 
         "6/29/2019": {
             "haftara": [
@@ -1684,12 +1662,13 @@
             "ref": "Deuteronomy 16:18-21:9", 
             "name": "Shoftim"
         }, 
-        "8/27/2016": {
+        "1/21/2017": {
             "haftara": [
-                "Isaiah 49:14-51:3"
+                "Isaiah 27:6-28:13", 
+                "Isaiah 29:22-29:23"
             ], 
-            "ref": "Deuteronomy 7:12-11:25", 
-            "name": "Eikev"
+            "ref": "Exodus 1:1-6:1", 
+            "name": "Shemot"
         }, 
         "7/10/2021": {
             "haftara": [
@@ -1754,6 +1733,13 @@
             ], 
             "ref": "Deuteronomy 1:1-3:22", 
             "name": "Devarim"
+        }, 
+        "5/1/2021": {
+            "haftara": [
+                "Ezekiel 44:15-44:31"
+            ], 
+            "ref": "Leviticus 21:1-24:23", 
+            "name": "Emor"
         }
     }, 
     "dafyomi": {
@@ -1945,9 +1931,9 @@
             "ref": "Sanhedrin 36a", 
             "name": "Sanhedrin 36"
         }, 
-        "8/21/2016": {
-            "ref": "Bava Kamma 82a", 
-            "name": "Baba Kama 82"
+        "12/29/2018": {
+            "ref": "Chullin 32a", 
+            "name": "Hullin 32"
         }, 
         "12/2/2017": {
             "ref": "Shevuot 4a", 
@@ -2073,10 +2059,6 @@
             "ref": "Bava Metzia 40a", 
             "name": "Baba Metzia 40"
         }, 
-        "4/15/2017": {
-            "ref": "Bava Batra 83a", 
-            "name": "Baba Batra 83"
-        }, 
         "10/28/2019": {
             "ref": "Niddah 5a", 
             "name": "Niddah 5"
@@ -2085,9 +2067,9 @@
             "ref": "Niddah 13a", 
             "name": "Niddah 13"
         }, 
-        "11/19/2017": {
-            "ref": "Makkot 14a", 
-            "name": "Makot 14"
+        "11/5/2018": {
+            "ref": "Menachot 87a", 
+            "name": "Menachot 87"
         }, 
         "9/1/2017": {
             "ref": "Sanhedrin 47a", 
@@ -2137,10 +2119,6 @@
             "ref": "Niddah 45a", 
             "name": "Niddah 45"
         }, 
-        "9/25/2019": {
-            "ref": "Meilah 8a", 
-            "name": "Meilah 8"
-        }, 
         "6/12/2019": {
             "ref": "Bekhorot 56a", 
             "name": "Bechorot 56"
@@ -2177,9 +2155,9 @@
             "ref": "Temurah 34a", 
             "name": "Temurah 34"
         }, 
-        "8/22/2016": {
-            "ref": "Bava Kamma 83a", 
-            "name": "Baba Kama 83"
+        "12/24/2016": {
+            "ref": "Bava Metzia 89a", 
+            "name": "Baba Metzia 89"
         }, 
         "8/22/2017": {
             "ref": "Sanhedrin 37a", 
@@ -2437,9 +2415,9 @@
             "ref": "Temurah 28a", 
             "name": "Temurah 28"
         }, 
-        "4/27/2017": {
-            "ref": "Bava Batra 95a", 
-            "name": "Baba Batra 95"
+        "6/14/2017": {
+            "ref": "Bava Batra 143a", 
+            "name": "Baba Batra 143"
         }, 
         "5/17/2019": {
             "ref": "Bekhorot 30a", 
@@ -2469,9 +2447,9 @@
             "ref": "Bava Batra 144a", 
             "name": "Baba Batra 144"
         }, 
-        "5/6/2017": {
-            "ref": "Bava Batra 104a", 
-            "name": "Baba Batra 104"
+        "8/3/2017": {
+            "ref": "Sanhedrin 18a", 
+            "name": "Sanhedrin 18"
         }, 
         "8/21/2019": {
             "ref": "Temurah 33a", 
@@ -2552,10 +2530,6 @@
         "3/10/2019": {
             "ref": "Chullin 103a", 
             "name": "Hullin 103"
-        }, 
-        "7/30/2017": {
-            "ref": "Sanhedrin 14a", 
-            "name": "Sanhedrin 14"
         }, 
         "7/14/2019": {
             "ref": "Arakhin 28a", 
@@ -2713,10 +2687,6 @@
             "ref": "Niddah 21a", 
             "name": "Niddah 21"
         }, 
-        "12/29/2018": {
-            "ref": "Chullin 32a", 
-            "name": "Hullin 32"
-        }, 
         "9/22/2017": {
             "ref": "Sanhedrin 68a", 
             "name": "Sanhedrin 68"
@@ -2837,9 +2807,9 @@
             "ref": "Sanhedrin 42a", 
             "name": "Sanhedrin 42"
         }, 
-        "8/27/2016": {
-            "ref": "Bava Kamma 88a", 
-            "name": "Baba Kama 88"
+        "11/7/2018": {
+            "ref": "Menachot 89a", 
+            "name": "Menachot 89"
         }, 
         "5/30/2017": {
             "ref": "Bava Batra 128a", 
@@ -3037,10 +3007,6 @@
             "ref": "Shevuot 24a", 
             "name": "Shevuot 24"
         }, 
-        "9/5/2018": {
-            "ref": "Menachot 26a", 
-            "name": "Menachot 26"
-        }, 
         "7/6/2019": {
             "ref": "Arakhin 20a", 
             "name": "Arachin 20"
@@ -3152,10 +3118,6 @@
         "8/18/2017": {
             "ref": "Sanhedrin 33a", 
             "name": "Sanhedrin 33"
-        }, 
-        "8/18/2016": {
-            "ref": "Bava Kamma 79a", 
-            "name": "Baba Kama 79"
         }, 
         "6/12/2018": {
             "ref": "Zevachim 60a", 
@@ -3333,6 +3295,10 @@
             "ref": "Bekhorot 43a", 
             "name": "Bechorot 43"
         }, 
+        "3/28/2017": {
+            "ref": "Bava Batra 65a", 
+            "name": "Baba Batra 65"
+        }, 
         "4/12/2019": {
             "ref": "Chullin 136a", 
             "name": "Hullin 136"
@@ -3400,10 +3366,6 @@
         "3/22/2017": {
             "ref": "Bava Batra 59a", 
             "name": "Baba Batra 59"
-        }, 
-        "11/5/2018": {
-            "ref": "Menachot 87a", 
-            "name": "Menachot 87"
         }, 
         "1/4/2019": {
             "ref": "Chullin 38a", 
@@ -3541,10 +3503,6 @@
             "ref": "Chullin 15a", 
             "name": "Hullin 15"
         }, 
-        "8/17/2016": {
-            "ref": "Bava Kamma 78a", 
-            "name": "Baba Kama 78"
-        }, 
         "8/17/2017": {
             "ref": "Sanhedrin 32a", 
             "name": "Sanhedrin 32"
@@ -3660,10 +3618,6 @@
         "12/19/2017": {
             "ref": "Shevuot 21a", 
             "name": "Shevuot 21"
-        }, 
-        "8/26/2016": {
-            "ref": "Bava Kamma 87a", 
-            "name": "Baba Kama 87"
         }, 
         "8/26/2017": {
             "ref": "Sanhedrin 41a", 
@@ -3793,9 +3747,9 @@
             "ref": "Niddah 33a", 
             "name": "Niddah 33"
         }, 
-        "11/7/2018": {
-            "ref": "Menachot 89a", 
-            "name": "Menachot 89"
+        "9/25/2019": {
+            "ref": "Meilah 8a", 
+            "name": "Meilah 8"
         }, 
         "4/30/2019": {
             "ref": "Bekhorot 13a", 
@@ -4012,10 +3966,6 @@
         "10/19/2017": {
             "ref": "Sanhedrin 95a", 
             "name": "Sanhedrin 95"
-        }, 
-        "12/24/2016": {
-            "ref": "Bava Metzia 89a", 
-            "name": "Baba Metzia 89"
         }, 
         "9/5/2017": {
             "ref": "Sanhedrin 51a", 
@@ -4621,10 +4571,6 @@
             "ref": "Bekhorot 24a", 
             "name": "Bechorot 24"
         }, 
-        "8/28/2016": {
-            "ref": "Bava Kamma 89a", 
-            "name": "Baba Kama 89"
-        }, 
         "8/28/2017": {
             "ref": "Sanhedrin 43a", 
             "name": "Sanhedrin 43"
@@ -4761,9 +4707,9 @@
             "ref": "Sanhedrin 38a", 
             "name": "Sanhedrin 38"
         }, 
-        "8/23/2016": {
-            "ref": "Bava Kamma 84a", 
-            "name": "Baba Kama 84"
+        "4/15/2017": {
+            "ref": "Bava Batra 83a", 
+            "name": "Baba Batra 83"
         }, 
         "3/29/2019": {
             "ref": "Chullin 122a", 
@@ -4977,9 +4923,9 @@
             "ref": "Temurah 23a", 
             "name": "Temurah 23"
         }, 
-        "8/24/2016": {
-            "ref": "Bava Kamma 85a", 
-            "name": "Baba Kama 85"
+        "11/19/2017": {
+            "ref": "Makkot 14a", 
+            "name": "Makot 14"
         }, 
         "11/19/2016": {
             "ref": "Bava Metzia 54a", 
@@ -5028,10 +4974,6 @@
         "9/12/2019": {
             "ref": "Keritot 22a", 
             "name": "Keritot 22"
-        }, 
-        "8/19/2016": {
-            "ref": "Bava Kamma 80a", 
-            "name": "Baba Kama 80"
         }, 
         "8/19/2017": {
             "ref": "Sanhedrin 34a", 
@@ -5777,9 +5719,9 @@
             "ref": "Temurah 11a", 
             "name": "Temurah 11"
         }, 
-        "3/28/2017": {
-            "ref": "Bava Batra 65a", 
-            "name": "Baba Batra 65"
+        "7/30/2017": {
+            "ref": "Sanhedrin 14a", 
+            "name": "Sanhedrin 14"
         }, 
         "3/11/2019": {
             "ref": "Chullin 104a", 
@@ -5957,9 +5899,9 @@
             "ref": "Bekhorot 61a", 
             "name": "Bechorot 61"
         }, 
-        "6/14/2017": {
-            "ref": "Bava Batra 143a", 
-            "name": "Baba Batra 143"
+        "4/27/2017": {
+            "ref": "Bava Batra 95a", 
+            "name": "Baba Batra 95"
         }, 
         "9/11/2018": {
             "ref": "Menachot 32a", 
@@ -6217,10 +6159,6 @@
             "ref": "Niddah 69a", 
             "name": "Niddah 69"
         }, 
-        "8/20/2016": {
-            "ref": "Bava Kamma 81a", 
-            "name": "Baba Kama 81"
-        }, 
         "4/26/2017": {
             "ref": "Bava Batra 94a", 
             "name": "Baba Batra 94"
@@ -6257,9 +6195,9 @@
             "ref": "Bava Metzia 81a", 
             "name": "Baba Metzia 81"
         }, 
-        "8/3/2017": {
-            "ref": "Sanhedrin 18a", 
-            "name": "Sanhedrin 18"
+        "5/6/2017": {
+            "ref": "Bava Batra 104a", 
+            "name": "Baba Batra 104"
         }, 
         "6/28/2018": {
             "ref": "Zevachim 76a", 
@@ -6589,9 +6527,9 @@
             "ref": "Horayot 5a", 
             "name": "Horiyot 5"
         }, 
-        "8/25/2016": {
-            "ref": "Bava Kamma 86a", 
-            "name": "Baba Kama 86"
+        "9/5/2018": {
+            "ref": "Menachot 26a", 
+            "name": "Menachot 26"
         }, 
         "8/10/2017": {
             "ref": "Sanhedrin 25a", 
