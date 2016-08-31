@@ -58,16 +58,16 @@ var ReaderNavigationCategoryMenu = React.createClass({
       var yStyles = [styles.navToggle].concat(categories[1] === "Yerushalmi" ? [styles.navToggleActive] : []);
       
       var toggle = (<View style={styles.navToggles}>
-                        <TouchableOpacity style={bStyles} onPress={setBavli}>
+                        <TouchableOpacity onPress={setBavli}>
                           {showHebrew ? 
-                            <Text style={styles.he}>בבלי</Text> :
-                            <Text style={styles.en}>Bavli</Text> }
+                            <Text style={[bStyles, styles.he]}>בבלי</Text> :
+                            <Text style={[bStyles, styles.en]}>Bavli</Text> }
                         </TouchableOpacity>
                         <Text style={styles.navTogglesDivider}>|</Text>
-                        <TouchableOpacity style={yStyles} onPress={setYerushalmi}>
+                        <TouchableOpacity onPress={setYerushalmi}>
                           {showHebrew ? 
-                            <Text style={styles.he}>ירושלמי</Text> :
-                            <Text style={styles.en}>Yerushalmi</Text> }
+                            <Text style={[yStyles, styles.he]}>ירושלמי</Text> :
+                            <Text style={[yStyles, styles.en]}>Yerushalmi</Text> }
                         </TouchableOpacity>
                      </View>);
     } else {
@@ -88,6 +88,7 @@ var ReaderNavigationCategoryMenu = React.createClass({
               </View>
               
               <ScrollView style={styles.menuContent}>
+                  {toggle}
                   <ReaderNavigationCategoryMenuContents 
                     contents={catContents} 
                     categories={categories}

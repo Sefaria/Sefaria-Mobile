@@ -190,6 +190,22 @@ module.exports = StyleSheet.create({
     margin: 5,
     flex: 1,
   },
+  navToggles: {
+    flex: 1,
+    flexDirection: "row",
+    justifyContent: "center",
+    marginBottom: 5
+  },
+  navToggle: {
+    color: "#999"
+  },
+  navToggleActive: {
+    color: "#000"
+  },
+  navTogglesDivider: {
+    color: "#999",
+    marginHorizontal: 7
+  },
   textTocHeaderTitle: {
     flex: 1,
     paddingRight: 30,
