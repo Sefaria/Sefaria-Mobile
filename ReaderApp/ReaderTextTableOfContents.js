@@ -84,7 +84,7 @@ var TextSchemaNode = React.createClass({
     openRef:     React.PropTypes.func.isRequired
   },
   render: function() {
-    if (this.props.schema.nodeType == "JaggedArrayNode") {
+    if (!("nodes" in this.props.schema)) {
       return (
         <TextJaggedArrayNode
           schema={this.props.schema}
@@ -93,8 +93,43 @@ var TextSchemaNode = React.createClass({
           openRef={this.props.openRef} />
       );
     } else { 
+      var content = this.props.schema.nodes.map(function(node, i) {
+        if ("nodes" in node) {
+          return (
+            <View style={styles.textTocNamedSection} key={i}>
+              {this.props.contentLang == "english" ?
+                <Text style={[styles.en, styles.textTocSectionTitle]}>{node.title}</Text> :
+                <Text style={[styles.he, styles.textTocSectionTitle]}>{node.heTitle}</Text> }
+              <TextSchemaNode
+                schema={node}
+                contentLang={this.props.contentLang}
+                refPath={this.props.refPath + ", " + node.title}
+                openRef={this.props.openRef} />
+            </View>);
+        } else if (node.depth == 1) {
+          var open = this.props.openRef.bind(null, this.props.refPath + ", " + node.title);
+          return (
+            <TouchableOpacity style={styles.textTocNamedSection} onPress={open} key={i}>
+              {this.props.contentLang == "english" ?
+                <Text style={[styles.en, styles.textTocSectionTitle]}>{node.title + " >"}</Text> :
+                <Text style={[styles.he, styles.textTocSectionTitle]}>{node.heTitle + " >"}</Text> }
+            </TouchableOpacity>);
+        } else {
+          return (
+            <View style={styles.textTocNamedSection} key={i}>
+              {this.props.contentLang == "english" ?
+                <Text style={[styles.en, styles.textTocSectionTitle]}>{node.title}</Text> :
+                <Text style={[styles.he, styles.textTocSectionTitle]}>{node.heTitle}</Text> }
+              <TextJaggedArrayNode
+                schema={node}
+                contentLang={this.props.contentLang}
+                refPath={this.props.refPath + ", " + node.title}
+                openRef={this.props.openRef} />
+            </View>);
+        }
+      }.bind(this));
       return (
-        <Text>Complex texts coming soon...</Text>
+        <View>{content}</View>
       );
     }
   }
@@ -175,10 +210,10 @@ var TextJaggedArrayNodeSection = React.createClass({
       );
       sectionLinks.push(link);
     }
-    sectionLinks.push(<View style={styles.lineEnd}></View>);
-
+    // sectionLinks.push(<View style={styles.lineEnd}></View>);
+    var langStyles = this.props.contentLang == "hebrew" ? styles.rtlRow : null;
     return (
-      <View style={styles.textTocNumberedSection}>{sectionLinks}</View>
+      <View style={[styles.textTocNumberedSection, langStyles]}>{sectionLinks}</View>
     );
   }
 });

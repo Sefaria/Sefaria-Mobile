@@ -252,14 +252,21 @@ module.exports = StyleSheet.create({
   textTocNumberedSection: {
     flex: 1,
     flexDirection: "row",
-    justifyContent: "space-between",
     flexWrap: "wrap"
+  },
+  textTocNamedSection: {
+    marginBottom: 15,
+    marginHorizontal: 15
+  },
+  textTocSectionTitle: {
+    fontSize: 16,
+    marginBottom: 10
   },
   sectionLink: {
     height: 40,
     minWidth: 40,
     backgroundColor: "white",
-    margin: 3,
+    margin: 2,
     justifyContent: "center"
   },
   lineEnd: {
@@ -325,6 +332,9 @@ module.exports = StyleSheet.create({
   },
   centerText: {
     textAlign: "center"
+  },
+  rtlRow: {
+    flexDirection: "row-reverse"
   },
 
 
