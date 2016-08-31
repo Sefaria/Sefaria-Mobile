@@ -106,6 +106,39 @@ var DisplaySettingsButton = React.createClass({
 });
 
 
+var ToggleSet = React.createClass({
+  propTypes: {
+    options:     React.PropTypes.array.isRequired, // array of object with `name`. `text`, `heText`, `onPress` 
+    contentLang: React.PropTypes.string.isRequired,
+    active:      React.PropTypes.string.isRequired
+  },
+  render: function() {
+    var showHebrew = this.props.contentLang == "hebrew";
+    var options = this.props.options.map(function(option, i) {
+      var style = [styles.navToggle].concat(this.props.active === option.name ? [styles.navToggleActive] : []);
+      return (
+        <TouchableOpacity onPress={option.onPress} key={i} >
+          {showHebrew ? 
+            <Text style={[style, styles.he]}>{option.heText}</Text> :
+            <Text style={[style, styles.en]}>{option.text}</Text> }
+        </TouchableOpacity>
+      );
+    }.bind(this)); 
+
+    var dividedOptions = [];
+    for (var i = 0; i < options.length; i++) {
+      dividedOptions.push(options[i])
+      dividedOptions.push(<Text style={styles.navTogglesDivider} key={i+"d"}>|</Text>);
+    }
+    dividedOptions = dividedOptions.slice(0,-1);
+    
+    return (<View style={styles.navToggles}>
+              {dividedOptions}
+            </View>);
+  }
+});
+
+
 var LoadingView = React.createClass({
     render: function() {
       return ( <View style={styles.container}>
@@ -117,6 +150,7 @@ var LoadingView = React.createClass({
     }
 });
 
+
 module.exports.TwoBox = TwoBox;
 module.exports.CategoryColorLine = CategoryColorLine;
 module.exports.LanguageToggleButton = LanguageToggleButton;
@@ -125,4 +159,5 @@ module.exports.MenuButton = MenuButton;
 module.exports.CloseButton = CloseButton;
 module.exports.TripleDots = TripleDots;
 module.exports.DisplaySettingsButton = DisplaySettingsButton;
+module.exports.ToggleSet = ToggleSet;
 module.exports.LoadingView = LoadingView;

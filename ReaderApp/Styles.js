@@ -191,10 +191,9 @@ module.exports = StyleSheet.create({
     flex: 1,
   },
   navToggles: {
-    flex: 1,
     flexDirection: "row",
     justifyContent: "center",
-    marginBottom: 5
+    marginBottom: 15
   },
   navToggle: {
     color: "#999"

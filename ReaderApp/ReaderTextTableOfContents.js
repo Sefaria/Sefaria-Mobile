@@ -11,6 +11,8 @@ import {
 var {
   CloseButton,
   LanguageToggleButton,
+  ToggleSet,
+  TwoBox,
   LoadingView
 } = require('./Misc.js');
 
@@ -62,10 +64,12 @@ var ReaderTextTableOfContents = React.createClass({
           {title}
           
           {this.state.textToc ? 
-            <TextSchemaNode
+            <TextTableOfContentsNavigation
               schema={this.state.textToc.schema}
+              commentatorList={Sefaria.commentaryList(this.props.title)}
+              alts={this.state.textToc.alts || null}
               contentLang={this.props.contentLang}
-              refPath={this.props.title}
+              title={this.props.title}
               openRef={this.props.openRef} /> : <LoadingView /> }
 
         </ScrollView>
@@ -74,6 +78,77 @@ var ReaderTextTableOfContents = React.createClass({
   }
 });
 
+
+var TextTableOfContentsNavigation = React.createClass({
+  propTypes: {
+    schema:          React.PropTypes.object.isRequired,
+    commentatorList: React.PropTypes.array,
+    alts:            React.PropTypes.object,
+    contentLang:     React.PropTypes.string.isRequired,
+    title:           React.PropTypes.string.isRequired,   
+    openRef:         React.PropTypes.func.isRequired
+  },
+  getInitialState: function() {
+    return {
+      tab: "default"
+    }
+  },
+  setTab: function(tab) {
+    this.setState({tab: tab});
+  },
+  render: function() {
+    if (this.props.commentatorList.length || this.props.alts) {
+      var options = [{
+        name: "default",
+        text: "sectionNames" in this.props.schema ? this.props.schema.sectionNames[0] : "Contents",
+        heText: "sectionNames" in this.props.schema ? Sefaria.hebrewSectionName(this.props.schema.sectionNames[0]) : "תוכן",
+        onPress: this.setTab.bind(null, "default")
+      }];
+      // add alt structs
+      if (this.props.commentatorList.length) {
+        options.push({
+          name: "commentary",
+          text: "Commentary",
+          heText: "מפרשים",
+          onPress: this.setTab.bind(null, "commentary")
+        }); 
+      }
+
+      var toggle = <ToggleSet
+                      options={options}
+                      contentLang={this.props.contentLang}
+                      active={this.state.tab} />;
+    } else {
+      var toggle = null;
+    }
+
+    switch(this.state.tab) {
+      case "default":
+        var content = <TextSchemaNode
+                        schema={this.props.schema}
+                        contentLang={this.props.contentLang}
+                        refPath={this.props.title}
+                        openRef={this.props.openRef} />;
+        break;
+      case "commentary":
+        var content = <CommentatorList
+                        commentatorList={this.props.commentatorList}
+                        contentLang={this.props.contentLang}
+                        openRef={this.props.openRef} />;
+        break;
+      default:
+        var content = <Text>Alt structs coming soon...</Text>;
+        break;
+    }
+
+    return (
+      <View>
+        {toggle}
+        {content}
+      </View>
+    );
+  }
+})
 
 
 var TextSchemaNode = React.createClass({
@@ -217,5 +292,23 @@ var TextJaggedArrayNodeSection = React.createClass({
     );
   }
 });
+
+
+var CommentatorList = React.createClass({
+  propTypes: {
+    commentatorList: React.PropTypes.array.isRequired,
+    contentLang:     React.PropTypes.string.isRequired,
+    openRef:         React.PropTypes.func.isRequired,
+  },
+  render: function() {
+    return (
+      <View>
+        {this.props.commentatorList.map(function(commentator) {
+          return (<Text>{commentator.commentator}</Text>);
+        })}
+      </View>
+    )
+  }
+})
 
 module.exports = ReaderTextTableOfContents;

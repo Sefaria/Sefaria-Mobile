@@ -15,6 +15,7 @@ var {
   LanguageToggleButton,
   MenuButton,
   DisplaySettingsButton,
+  ToggleSet,
   LoadingView
 } = require('./Misc.js');
 
@@ -47,29 +48,23 @@ var ReaderNavigationCategoryMenu = React.createClass({
 
 
     if (categories[0] === "Talmud") {
-      var setBavli = function() {
-        this.props.setCategories(["Talmud", "Bavli"]);
-      }.bind(this);
-      var setYerushalmi = function() {
-        this.props.setCategories(["Talmud", "Yerushalmi"]);
-      }.bind(this);
+      var options = [{
+        name: "Bavli",
+        text: "Bavli",
+        heText: "בבלי",
+        onPress: this.props.setCategories.bind(null, ["Talmud", "Bavli"])
+      },
+      {
+        name: "Yerushalmi",
+        text: "Yerushalmi",
+        heText: "ירושלמי",
+        onPress: this.props.setCategories.bind(null, ["Talmud", "Yerushalmi"])
+      }];
 
-      var bStyles = [styles.navToggle].concat(categories[1] === "Bavli" ? [styles.navToggleActive] : []);
-      var yStyles = [styles.navToggle].concat(categories[1] === "Yerushalmi" ? [styles.navToggleActive] : []);
-      
-      var toggle = (<View style={styles.navToggles}>
-                        <TouchableOpacity onPress={setBavli}>
-                          {showHebrew ? 
-                            <Text style={[bStyles, styles.he]}>בבלי</Text> :
-                            <Text style={[bStyles, styles.en]}>Bavli</Text> }
-                        </TouchableOpacity>
-                        <Text style={styles.navTogglesDivider}>|</Text>
-                        <TouchableOpacity onPress={setYerushalmi}>
-                          {showHebrew ? 
-                            <Text style={[yStyles, styles.he]}>ירושלמי</Text> :
-                            <Text style={[yStyles, styles.en]}>Yerushalmi</Text> }
-                        </TouchableOpacity>
-                     </View>);
+      var toggle = <ToggleSet
+                      options={options}
+                      active={categories[1]}
+                      contentLang={this.props.settings.language} />;
     } else {
       var toggle = null;
     }
