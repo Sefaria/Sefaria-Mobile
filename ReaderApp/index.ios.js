@@ -52,15 +52,15 @@ var ReaderApp = React.createClass({
           console.log('oh no', error);
         });
     },
-    TextSegmentPressed: function(q) {
-        var links = Sefaria.links.linkSummary(this.state.data[q].links);
-        this.setState({segmentRef: q,links:links});
+    TextSegmentPressed: function(section,segment) {
+        var links = Sefaria.links.linkSummary(this.state.data[section][segment].links);
+        this.setState({segmentRef: segment,links:links});
     },
     loadNewText: function(ref) {
         Sefaria.data(ref).then(function(data) { 
             var links = Sefaria.links.linkSummary(data.content[this.state.segmentRef].links);
             this.setState({
-                data:      data.content,
+                data:      [data.content],
                 links:     links,
                 textTitle: data.indexTitle,
                 next:      data.next,

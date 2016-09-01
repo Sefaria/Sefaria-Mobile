@@ -21,7 +21,10 @@ var TextColumn = React.createClass({
 
   getInitialState: function() {
     return {
-      dataSource: new ListView.DataSource({rowHasChanged: (r1, r2) => r1!== r2}),
+      dataSource: new ListView.DataSource({
+        rowHasChanged: (r1, r2) => r1!== r2,
+        sectionHeaderHasChanged: (s1, s2) => s1!==s2
+      }),
       height: 0,
       prevHeight:0,
     };
@@ -41,32 +44,35 @@ var TextColumn = React.createClass({
 
     var data = this.props.data;
     var columnLanguage = this.props.columnLanguage;
+    var sections = {};
+    for (var section=0; section < data.length; section++) {
+      var rows = [];
+      for (var i = 0; i < data[section].length; i++) {
+        var segment = []
 
-    var rows = [];
-    for (var i = 0; i < data.length; i++) {
-      var segment = []
+        segment.push(<Text style={styles.verseNumber}>{data[section][i].segmentNumber}.</Text>)
 
-      segment.push(<Text style={styles.verseNumber}>{data[i].segmentNumber}.</Text>)
+        if (columnLanguage == "english" || columnLanguage == "bilingual") {
+          segment.push(<TextSegment segmentRef={this.props.segmentRef} segmentKey={section+":"+data[section][i].segmentNumber}
+                                    data={data[section][i].text}
+                                    textType="english" TextSegmentPressed={ this.props.TextSegmentPressed }
 
-      if (columnLanguage == "english" || columnLanguage == "bilingual") {
-        segment.push(<TextSegment segmentRef={this.props.segmentRef} segmentKey={data[i].segmentNumber} data={data[i].text}
-                               textType="english" TextSegmentPressed={ this.props.TextSegmentPressed }
+          />);
+        }
 
-        />);
+        if (columnLanguage == "hebrew" || columnLanguage == "bilingual") {
+          segment.push(<TextSegment segmentRef={this.props.segmentRef} segmentKey={section+":"+data[section][i].segmentNumber}
+                                    data={data[section][i].he}
+                                    textType="hebrew" TextSegmentPressed={ this.props.TextSegmentPressed }
+
+          />);
+
+        }
+        rows.push(segment);
       }
-
-      if (columnLanguage == "hebrew" || columnLanguage == "bilingual") {
-        segment.push(<TextSegment segmentRef={this.props.segmentRef} segmentKey={data[i].segmentNumber} data={data[i].he}
-                               textType="hebrew" TextSegmentPressed={ this.props.TextSegmentPressed }
-
-        />);
-
-      }
-      rows.push(segment);
-
+    sections[section] = rows;
     }
-
-    return (rows)
+    return (sections)
 
 /*
     if (this.props.textFlow == 'continuous') {
@@ -114,13 +120,13 @@ var TextColumn = React.createClass({
       return;
     }
     this.props.setLoadTextTail(true);
-    this.refs._listView.scrollTo({x: 0, y: this.calculateOffset()+363, animated: false}) //TODO replace 363 with the height of textColumn
+//    this.refs._listView.scrollTo({x: 0, y: this.calculateOffset()+363, animated: false}) //TODO replace 363 with the height of textColumn
 
 
 
     Sefaria.data(this.props.prev).then(function(data) {
 
-      this.props.updateData(data.content.concat(this.props.data),this.props.prev,this.props.next,data.prev); //combined data content, new section title, the next section to be loaded on end , the previous section to load on top
+      this.props.updateData(this.props.data.unshift(data.content),this.props.prev,this.props.next,data.prev); //combined data content, new section title, the next section to be loaded on end , the previous section to load on top
      }.bind(this)).catch(function(error) {
       console.log('oh no', error);
     });
@@ -138,7 +144,9 @@ var TextColumn = React.createClass({
 
     Sefaria.data(this.props.next).then(function(data) {
 
-      this.props.updateData(this.props.data.concat(data.content),this.props.next,data.next,this.props.prev); //combined data content, new section title, the next section to be loaded on end , the previous section to load on top
+      var updatedData = this.props.data;
+      updatedData.push(data.content);
+      this.props.updateData(updatedData,this.props.next,data.next,this.props.prev); //combined data content, new section title, the next section to be loaded on end , the previous section to load on top
      }.bind(this)).catch(function(error) {
       console.log('oh no', error);
     });
@@ -146,15 +154,19 @@ var TextColumn = React.createClass({
   },
 
   visibleRowsChanged: function(visibleRows, changedRows) {
-
     for (var section in visibleRows) {
       var numberOfVisibleSegments = Object.keys(visibleRows[section]).length;
-      this.props.TextSegmentPressed(Object.keys(visibleRows[section])[numberOfVisibleSegments-2])
+      if (numberOfVisibleSegments < 2) {
+        this.props.TextSegmentPressed(section,0)
+      }
+      else {
+        this.props.TextSegmentPressed(section,Object.keys(visibleRows[section])[numberOfVisibleSegments-2])
+      }
     }
   },
 
   render: function() {
-    var dataSourceRows = this.state.dataSource.cloneWithRows(this.generateDataSource({}));
+    var dataSourceRows = this.state.dataSource.cloneWithRowsAndSections(this.generateDataSource({}));
 
     return (
       <ListView ref='_listView'

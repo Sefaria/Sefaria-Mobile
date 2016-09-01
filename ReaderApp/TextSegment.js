@@ -13,9 +13,11 @@ var styles = require('./Styles.js');
 
 var TextSegment = React.createClass({
 
-  onPressTextSegment: function(q) {
-//	console.log(this.props);
-    this.props.TextSegmentPressed(q - 1);
+  onPressTextSegment: function(key) {
+  	console.log(key);
+    var section = key.split(":")[0];
+    var segment = key.split(":")[1];
+    this.props.TextSegmentPressed(section,segment - 1);
 
 
   },
@@ -23,7 +25,6 @@ var TextSegment = React.createClass({
   render: function() {
 
     // console.log(this.props.segmentKey+": "+typeof(this.props.textRef));
-
     return (
       <Text
         style={this.props.textType == "hebrew" ? styles.hebrewText : styles.englishText}
