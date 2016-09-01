@@ -1,7 +1,7 @@
 'use strict';
 
 import React, { Component } from 'react';
-import { 
+import {
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -19,11 +19,6 @@ var TextSegment = React.createClass({
 
 
   },
-
-  onLayout: function(event) {
-    this.props.generateSegmentRefPositionArray(this.props.segmentKey, event.nativeEvent.layout.y)
-  },
-
 
   render: function() {
 

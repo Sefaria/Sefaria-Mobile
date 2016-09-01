@@ -234,15 +234,13 @@ module.exports = StyleSheet.create({
     fontWeight: "bold"
   },
   verseNumber: {
-    color: '#ff0000',
+    color: '#999',
     textAlign: 'left',
-    alignItems: 'center',
-    justifyContent: 'center',
-    alignSelf: 'flex-start',
     fontFamily: "Montserrat",
     fontWeight: "100",
-    marginRight: 20
+    marginRight: 5
   },
+
   englishSystemFont: {
     fontFamily: "Montserrat",
     fontWeight: "100"
@@ -254,8 +252,9 @@ module.exports = StyleSheet.create({
   verseContainer: {
     flex: 1,
     flexDirection: 'row',
-    justifyContent: 'center',
-    paddingTop: 20,
+    flexWrap: 'wrap',
+    justifyContent: 'flex-start',
+    marginBottom: 20,
     alignItems: "flex-start"
   },
   rightContainer: {
@@ -291,9 +290,9 @@ module.exports = StyleSheet.create({
   englishText: {
     fontFamily: "EB Garamond",
     textAlign: 'left',
-    alignSelf: 'stretch',
+    flex: -1,
+
     fontSize: 16,
-    flex: 1
   },
   hebrewText: {
     fontFamily: "Taamey Frank CLM",
@@ -350,6 +349,9 @@ module.exports = StyleSheet.create({
   },
   rtlRow: {
     flexDirection: "row-reverse"
+  },
+  segmentHighlight: {
+    backgroundColor: "#e9e9e7"
   },
 
 

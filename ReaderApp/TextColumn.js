@@ -8,10 +8,14 @@ import { 	AppRegistry,
   ListView
 } from 'react-native';
 
+var styles = require('./Styles.js');
+
 
 var TextRange = require('./TextRange');
 var TextRangeContinuous = require('./TextRangeContinuous');
 var segmentRefPositionArray = {};
+
+var TextSegment = require('./TextSegment');
 
 var TextColumn = React.createClass({
 
@@ -34,9 +38,37 @@ var TextColumn = React.createClass({
   },
 
   generateDataSource: function() {
-    var curTextRange;
-    var sourceArray = [];
 
+    var data = this.props.data;
+    var columnLanguage = this.props.columnLanguage;
+
+    var rows = [];
+    for (var i = 0; i < data.length; i++) {
+      var segment = []
+
+      segment.push(<Text style={styles.verseNumber}>{data[i].segmentNumber}.</Text>)
+
+      if (columnLanguage == "english" || columnLanguage == "bilingual") {
+        segment.push(<TextSegment segmentRef={this.props.segmentRef} segmentKey={data[i].segmentNumber} data={data[i].text}
+                               textType="english" TextSegmentPressed={ this.props.TextSegmentPressed }
+
+        />);
+      }
+
+      if (columnLanguage == "hebrew" || columnLanguage == "bilingual") {
+        segment.push(<TextSegment segmentRef={this.props.segmentRef} segmentKey={data[i].segmentNumber} data={data[i].he}
+                               textType="hebrew" TextSegmentPressed={ this.props.TextSegmentPressed }
+
+        />);
+
+      }
+      rows.push(segment);
+
+    }
+
+    return (rows)
+
+/*
     if (this.props.textFlow == 'continuous') {
       curTextRange = <TextRangeContinuous data={this.props.data} segmentRef={this.props.segmentRef}
                                           columnLanguage={this.props.columnLanguage}
@@ -51,28 +83,15 @@ var TextColumn = React.createClass({
 
     sourceArray.push(curTextRange);
 
-
     return (sourceArray)
+*/
 
   },
 
   handleScroll: function(e) {
-
-
      if (e.nativeEvent.contentOffset.y < -50) {
        this.onTopReached();
      }
-
-
-    if (segmentRefPositionArray[this.props.segmentRef + 1] < e.nativeEvent.contentOffset.y) {
-      this.props.TextSegmentPressed(this.props.segmentRef + 1);
-    }
-    else if (segmentRefPositionArray[this.props.segmentRef] > e.nativeEvent.contentOffset.y && this.props.segmentRef != 0) {
-      this.props.TextSegmentPressed(this.props.segmentRef - 1);
-    }
-
-//		console.log(segmentRefPositionArray[this.props.segmentRef+1] + " " + e.nativeEvent.contentOffset.y)
-
   },
 
   updateHeight: function(newHeight) {
@@ -126,9 +145,12 @@ var TextColumn = React.createClass({
 
   },
 
-  generateSegmentRefPositionArray: function(key, y) {
-    segmentRefPositionArray[key] = y;
+  visibleRowsChanged: function(visibleRows, changedRows) {
 
+    for (var section in visibleRows) {
+      var numberOfVisibleSegments = Object.keys(visibleRows[section]).length;
+      this.props.TextSegmentPressed(Object.keys(visibleRows[section])[numberOfVisibleSegments-2])
+    }
   },
 
   render: function() {
@@ -138,8 +160,13 @@ var TextColumn = React.createClass({
       <ListView ref='_listView'
                 style={styles.listview}
                 dataSource={dataSourceRows}
-                renderRow={(rowData) =>  <View style={styles.verseContainer}>{rowData}</View>}
+                
+
+
+                
+                renderRow={(rowData, sID, rID) =>  <View style={rID == this.props.segmentRef ? [styles.verseContainer,styles.segmentHighlight] : styles.verseContainer}>{rowData}</View>}
                 onScroll={this.handleScroll}
+                onChangeVisibleRows={(visibleRows, changedRows) => this.visibleRowsChanged(visibleRows, changedRows)}
                 onContentSizeChange={(w, h) => {this.updateHeight(h)}}
                 onEndReached={this.onEndReached}
                 onEndReachedThreshold={300}
@@ -150,26 +177,5 @@ var TextColumn = React.createClass({
   }
 });
 
-
-var styles = StyleSheet.create({
-  listView: {
-    flex: 1,
-    padding: 20,
-    alignSelf: 'stretch'
-  },
-
-  verseContainer: {
-    flex: 1,
-//        flexDirection: 'row',
-    justifyContent: 'center',
-    paddingTop: 20,
-    alignItems: "flex-start"
-
-  },
-
-
-  container: {}
-
-});
 
 module.exports = TextColumn;
