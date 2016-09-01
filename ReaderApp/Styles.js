@@ -238,7 +238,7 @@ module.exports = StyleSheet.create({
     textAlign: 'left',
     fontFamily: "Montserrat",
     fontWeight: "100",
-    marginRight: 5
+    marginRight: 5,
   },
 
   englishSystemFont: {
@@ -250,12 +250,9 @@ module.exports = StyleSheet.create({
     fontSize: 20
   },
   verseContainer: {
-    flex: 1,
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'flex-start',
-    marginBottom: 20,
-    alignItems: "flex-start"
+    flexDirection: "row",
+    paddingTop: 10,
+    paddingBottom: 10,
   },
   rightContainer: {
     flex: 1
@@ -291,15 +288,13 @@ module.exports = StyleSheet.create({
     fontFamily: "EB Garamond",
     textAlign: 'left',
     flex: -1,
-
     fontSize: 16,
   },
   hebrewText: {
     fontFamily: "Taamey Frank CLM",
     textAlign: 'right',
-    alignSelf: 'stretch',
+    flex: -1,
     fontSize: 20,
-    flex: 1
   },
   hebrewSystemFont: {
     fontFamily: "Open Sans Hebrew"
