@@ -301,13 +301,21 @@ var CommentatorList = React.createClass({
     openRef:         React.PropTypes.func.isRequired,
   },
   render: function() {
+    var showHebrew = this.props.contentLang == "hebrew";
+    var content = this.props.commentatorList.map(function(commentator, i) {
+      var open = this.props.openRef.bind(null, commentator.firstSection);
+      return (<TouchableOpacity onPress={open} style={styles.textBlockLink} key={i}>
+              { showHebrew ? 
+                <Text style={[styles.he, styles.centerText]}>{commentator.heCommentator}</Text> :
+                <Text style={[styles.en, styles.centerText]}>{commentator.commentator}</Text> }
+            </TouchableOpacity>);
+    }.bind(this));
+
     return (
       <View>
-        {this.props.commentatorList.map(function(commentator) {
-          return (<Text>{commentator.commentator}</Text>);
-        })}
+        <TwoBox content={content} />
       </View>
-    )
+    );
   }
 })
 
