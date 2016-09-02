@@ -25,12 +25,14 @@ var TextColumn = React.createClass({
         rowHasChanged: (r1, r2) => r1!== r2,
         sectionHeaderHasChanged: (s1, s2) => s1!==s2
       }),
+      sectionArray: [this.props.textReference],
       height: 0,
       prevHeight:0,
     };
   },
 
   componentDidMount: function() {
+
 
   },
 
@@ -123,11 +125,21 @@ var TextColumn = React.createClass({
 //    this.refs._listView.scrollTo({x: 0, y: this.calculateOffset()+363, animated: false}) //TODO replace 363 with the height of textColumn
 
 
-
     Sefaria.data(this.props.prev).then(function(data) {
 
-      this.props.updateData(this.props.data.unshift(data.content),this.props.prev,this.props.next,data.prev); //combined data content, new section title, the next section to be loaded on end , the previous section to load on top
-     }.bind(this)).catch(function(error) {
+      var updatedData = this.props.data;
+      updatedData.unshift(data.content);
+
+
+      var newTitleArray = this.state.sectionArray;
+      newTitleArray.unshift(this.props.prev);
+      this.setState({sectionArray: newTitleArray});
+
+      this.props.updateData(updatedData,this.props.prev,this.props.next,data.prev); //combined data content, new section title, the next section to be loaded on end , the previous section to load on top
+
+
+
+    }.bind(this)).catch(function(error) {
       console.log('oh no', error);
     });
 
@@ -146,7 +158,16 @@ var TextColumn = React.createClass({
 
       var updatedData = this.props.data;
       updatedData.push(data.content);
+
+      var newTitleArray = this.state.sectionArray;
+      newTitleArray.push(this.props.next);
+      this.setState({sectionArray: newTitleArray});
+
       this.props.updateData(updatedData,this.props.next,data.next,this.props.prev); //combined data content, new section title, the next section to be loaded on end , the previous section to load on top
+
+
+
+
      }.bind(this)).catch(function(error) {
       console.log('oh no', error);
     });
@@ -154,15 +175,25 @@ var TextColumn = React.createClass({
   },
 
   visibleRowsChanged: function(visibleRows, changedRows) {
+
+    //Change Title of ReaderPanel based on last visible section
+    var indexOfLastVisibleSection = Object.keys(visibleRows).length - 1;
+    var titleOfLastVisibleSection = this.state.sectionArray[Object.keys(visibleRows)[indexOfLastVisibleSection]];
+    if (titleOfLastVisibleSection != this.props.textReference) {
+      this.props.updateTitle(titleOfLastVisibleSection)
+    }
+
+    //auto highlight the second to last visible segment
     for (var section in visibleRows) {
       var numberOfVisibleSegments = Object.keys(visibleRows[section]).length;
       if (numberOfVisibleSegments < 2) {
-        this.props.TextSegmentPressed(section,0)
+        this.props.TextSegmentPressed(section,0) //If there's only one verse from the new section, click it.
       }
       else {
-        this.props.TextSegmentPressed(section,Object.keys(visibleRows[section])[numberOfVisibleSegments-2])
+        this.props.TextSegmentPressed(section,Object.keys(visibleRows[section])[numberOfVisibleSegments-2]) //click the second to last visible segment
       }
     }
+
   },
 
   render: function() {
@@ -172,10 +203,6 @@ var TextColumn = React.createClass({
       <ListView ref='_listView'
                 style={styles.listview}
                 dataSource={dataSourceRows}
-                
-
-
-                
                 renderRow={(rowData, sID, rID) =>  <View style={rID == this.props.segmentRef ? [styles.verseContainer,styles.segmentHighlight] : styles.verseContainer}>{rowData}</View>}
                 onScroll={this.handleScroll}
                 onChangeVisibleRows={(visibleRows, changedRows) => this.visibleRowsChanged(visibleRows, changedRows)}

@@ -280,10 +280,12 @@ var ReaderPanel = React.createClass({
           <View style={styles.mainTextPanel}>
             <TextColumn
               data={this.props.data}
+              textReference={this.props.textReference}
               segmentRef={this.props.segmentRef}
               textFlow={this.state.textFlow}
               columnLanguage={this.state.columnLanguage}
               updateData={this.props.updateData}
+              updateTitle={this.props.updateTitle}
               TextSegmentPressed={ this.props.TextSegmentPressed }
               next={this.props.next}
               prev={this.props.prev}
