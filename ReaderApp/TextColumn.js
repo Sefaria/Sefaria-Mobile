@@ -72,7 +72,7 @@ var TextColumn = React.createClass({
         }
         rows.push(segment);
       }
-    sections[section] = rows;
+    sections[this.state.sectionArray[section]] = rows;
     }
     return (sections)
 
@@ -177,21 +177,21 @@ var TextColumn = React.createClass({
   visibleRowsChanged: function(visibleRows, changedRows) {
 
     //Change Title of ReaderPanel based on last visible section
-    var indexOfLastVisibleSection = Object.keys(visibleRows).length - 1;
-    var titleOfLastVisibleSection = this.state.sectionArray[Object.keys(visibleRows)[indexOfLastVisibleSection]];
-    if (titleOfLastVisibleSection != this.props.textReference) {
-      this.props.updateTitle(titleOfLastVisibleSection)
+    if (Object.keys(visibleRows)[0] != this.props.textReference) {
+      this.props.updateTitle(Object.keys(visibleRows)[0])
     }
 
     //auto highlight the second to last visible segment
+    var i = 0;
     for (var section in visibleRows) {
       var numberOfVisibleSegments = Object.keys(visibleRows[section]).length;
       if (numberOfVisibleSegments < 2) {
-        this.props.TextSegmentPressed(section,0) //If there's only one verse from the new section, click it.
+        this.props.TextSegmentPressed(i,0) //If there's only one verse from the new section, click it.
       }
       else {
-        this.props.TextSegmentPressed(section,Object.keys(visibleRows[section])[numberOfVisibleSegments-2]) //click the second to last visible segment
+        this.props.TextSegmentPressed(i,Object.keys(visibleRows[section])[numberOfVisibleSegments-2]) //click the second to last visible segment
       }
+    i++;
     }
 
   },
