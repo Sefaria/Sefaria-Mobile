@@ -2,7 +2,8 @@
 import React, { Component } from 'react';
 import {
 	Text,
-	TouchableOpacity
+	TouchableOpacity,
+	View
 } from 'react-native';
 var HTMLView = require('react-native-htmlview'); //to convert html'afied JSON to something react can render (https://github.com/jsdf/react-native-htmlview)
 

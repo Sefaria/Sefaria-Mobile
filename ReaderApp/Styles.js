@@ -96,6 +96,14 @@ module.exports = StyleSheet.create({
     margin: 20,
     flexDirection: 'column'
   },
+  textListContentOuter: {
+    flex: 1,
+    flexDirection: "column"
+  },
+  textListContentListView: {
+    flex: 1,
+    flexDirection: "column"
+  },
   textListHeader: {
     height: 40,
     backgroundColor: "white",
@@ -328,7 +336,7 @@ module.exports = StyleSheet.create({
     backgroundColor: '#F5FCFF',
   },
   twoBox: {
-    
+
   },
   twoBoxRow: {
     flex: 1,

@@ -1,15 +1,19 @@
 'use strict';
 import React, { Component } from 'react';
-import { 	
+import {
   View,
   ScrollView,
   ListView,
   Text,
-  TouchableOpacity
+  TouchableOpacity,
+  Dimensions
 } from 'react-native';
 var styles         = require('./Styles.js');
 var HTMLView       = require('react-native-htmlview');
 var TextListHeader = require('./TextListHeader');
+
+const ViewPort = Dimensions.get('window');
+
 var {
   CategoryColorLine,
   TwoBox
@@ -25,8 +29,8 @@ var TextList = React.createClass({
     onLinkLoad:     React.PropTypes.func.isRequired,
     linkContents:   React.PropTypes.array,
     segmentRef:     React.PropTypes.number,
-    links:          React.PropTypes.array, 
-    filterIndex:    React.PropTypes.number, 
+    links:          React.PropTypes.array,
+    filterIndex:    React.PropTypes.number,
     recentFilters:  React.PropTypes.array, /* of the form [{title,heTitle,refList}...] */
     columnLanguage: React.PropTypes.string
   },
@@ -82,13 +86,13 @@ var TextList = React.createClass({
     if (linkContentObj == null) {
       loading = true;
       this._rowsToLoad.push({ref:ref,rowId:rowId});
-      linkContentObj = {en:"Loading...",he:"טוען..."};      
-    } 
+      linkContentObj = {en:"Loading...",he:"טוען..."};
+    }
 
-    return (<LinkContent 
-              openRef={this.props.openRef} 
-              refStr={ref} 
-              linkContentObj={linkContentObj} 
+    return (<LinkContent
+              openRef={this.props.openRef}
+              refStr={ref}
+              linkContentObj={linkContentObj}
               columnLanguage={this.props.columnLanguage}
               loading={loading}
             />);
@@ -101,22 +105,22 @@ var TextList = React.createClass({
       var viewList = [];
       this.props.links.map((cat)=>{
         viewList.push(
-          <LinkCategory 
+          <LinkCategory
             category={cat.category}
-            refList={cat.refList} 
-            count={cat.count} 
-            language={"english"} 
+            refList={cat.refList}
+            count={cat.count}
+            language={"english"}
             openCat={this.props.openCat}
           />);
         var innerViewList = cat.books.map((obook)=>{
           return (
-          <LinkBook 
-            title={obook.title} 
+          <LinkBook
+            title={obook.title}
             heTitle={obook.heTitle}
             category={cat.category}
-            refList={obook.refList} 
-            count={obook.count} 
-            language={"english"} 
+            refList={obook.refList}
+            count={obook.count}
+            language={"english"}
             openCat={this.props.openCat}
           />);
         });
@@ -133,19 +137,19 @@ var TextList = React.createClass({
       </ScrollView>);
     } else {
       return (
-      <View>
-        <TextListHeader 
+      <View style={styles.textListContentOuter}>
+        <TextListHeader
           Sefaria={Sefaria}
           updateCat={this.props.updateCat}
           closeCat={this.props.closeCat}
-          category={this.props.recentFilters[this.props.filterIndex].category} 
+          category={this.props.recentFilters[this.props.filterIndex].category}
           filterIndex={this.props.filterIndex}
           recentFilters={this.props.recentFilters}
           columnLanguage={this.props.columnLanguage}
         />
-        {this.props.linkContents.length == 0 ? 
+        {this.props.linkContents.length == 0 ?
           <View style={styles.noLinks}><HTMLView value={"<i>No Links</i>"}/></View>:
-          <ListView 
+          <ListView style={styles.textListContentListView}
             dataSource={dataSourceRows}
             renderRow={this.renderRow}
           />
@@ -155,7 +159,7 @@ var TextList = React.createClass({
       );
     }
   }
-  
+
 
 });
 
@@ -178,8 +182,8 @@ var LinkCategory = React.createClass({
       (<Text style={styles.he}>{heCategory + countStr}</Text>);
 
     var filter = {title:this.props.category,heTitle:heCategory,refList:this.props.refList,category:this.props.category};
-    return (<TouchableOpacity 
-              style={[styles.readerNavCategory, style]} 
+    return (<TouchableOpacity
+              style={[styles.readerNavCategory, style]}
               onPress={()=>{this.props.openCat(filter)}}>
               {content}
             </TouchableOpacity>);
@@ -201,10 +205,10 @@ var LinkBook = React.createClass({
     var countStr = " (" + this.props.count + ")";
     var filter = {title:this.props.title,heTitle:this.props.heTitle,refList:this.props.refList,category:this.props.category};
     return (
-      <TouchableOpacity  
-        style={styles.textBlockLink} 
+      <TouchableOpacity
+        style={styles.textBlockLink}
         onPress={()=>{this.props.openCat(filter)}}>
-        { this.props.language == "hebrew" ? 
+        { this.props.language == "hebrew" ?
           <Text style={[styles.he, styles.centerText]}>{this.props.heTitle + countStr}</Text> :
           <Text style={[styles.en, styles.centerText]}>{this.props.title + countStr}</Text> }
       </TouchableOpacity>
@@ -230,13 +234,13 @@ var LinkContent = React.createClass({
         textViews = [<HTMLView value={lco.he}/>,<HTMLView value={lco.en}/>];
       } else if (lco.en.trim() == "") lang = "hebrew";
       else lang = "english";
-      
+
     }
     if (lang == "hebrew") {
-      let content = lco.he.trim() == "" ? "<i>No content in this language</i>" : lco.he;
+      let content = lco.he.trim() == "" ? lco.en: lco.he;
       textViews = [<HTMLView value={content}/>];
     } else if (lang == "english") {
-      let content = lco.en.trim() == "" ? "<i>No content in this language</i>" : lco.en;
+      let content = lco.en.trim() == "" ? lco.he : lco.en;
       textViews = [<HTMLView value={content}/>];
     }
 
