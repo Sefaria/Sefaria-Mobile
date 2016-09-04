@@ -97,7 +97,7 @@ def export_text(title):
 	"""
 	print title
 	try:
-		for oref in model.Ref(title).all_subrefs():
+		for oref in model.get_index(title).all_top_section_refs():
 			text = model.TextFamily(oref, version=None, lang=None, commentary=0, context=0, pad=0, alts=False).contents()
 			text["next"]	= oref.next_section_ref().normal() if oref.next_section_ref() else None
 			text["prev"]	= oref.prev_section_ref().normal() if oref.prev_section_ref() else None
@@ -155,19 +155,25 @@ def export_text(title):
 				path = make_path(text, "json")
 				write_doc(text, path)
 	except Exception, e:
-		logging.warning(e) 	
-		pass
+		print "Error exporting %s: %s" % (title, e)
+		import traceback
+		print traceback.format_exc()
 			
 
 def export_index(title):
 	"""
 	Writes the JSON of the index record of the text called `title`. 
 	"""
-	index = model.get_index(title)
-	index = index.contents(v2=True)
-	path  = "%s/%s_index.json" % (SEFARIA_EXPORT_PATH, title)
-	write_doc(index, path)
-
+	try:
+		index = model.get_index(title)
+		index = index.contents_with_content_counts()
+		path  = "%s/%s_index.json" % (SEFARIA_EXPORT_PATH, title)
+		write_doc(index, path)
+	except Exception, e:
+		print "Error exporting Index for %s: %s" % (title, e)
+		import traceback
+		print traceback.format_exc()
+			
 
 def export_toc():
 	"""

@@ -190,6 +190,21 @@ module.exports = StyleSheet.create({
     margin: 5,
     flex: 1,
   },
+  navToggles: {
+    flexDirection: "row",
+    justifyContent: "center",
+    marginBottom: 15
+  },
+  navToggle: {
+    color: "#999"
+  },
+  navToggleActive: {
+    color: "#000"
+  },
+  navTogglesDivider: {
+    color: "#999",
+    marginHorizontal: 7
+  },
   textTocHeaderTitle: {
     flex: 1,
     paddingRight: 30,
@@ -219,15 +234,13 @@ module.exports = StyleSheet.create({
     fontWeight: "bold"
   },
   verseNumber: {
-    color: '#ff0000',
+    color: '#999',
     textAlign: 'left',
-    alignItems: 'center',
-    justifyContent: 'center',
-    alignSelf: 'flex-start',
     fontFamily: "Montserrat",
     fontWeight: "100",
-    marginRight: 20
+    marginRight: 5,
   },
+
   englishSystemFont: {
     fontFamily: "Montserrat",
     fontWeight: "100"
@@ -237,44 +250,51 @@ module.exports = StyleSheet.create({
     fontSize: 20
   },
   verseContainer: {
-    flex: 1,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    paddingTop: 20,
-    alignItems: "flex-start"
+    flexDirection: "row",
+    paddingTop: 10,
+    paddingBottom: 10,
   },
   rightContainer: {
     flex: 1
   },
+  textTocNumberedSectionBox: {
+    marginBottom: 20
+  },
   textTocNumberedSection: {
     flex: 1,
     flexDirection: "row",
-    justifyContent: "space-between",
     flexWrap: "wrap"
+  },
+  textTocNamedSection: {
+    marginBottom: 15,
+    marginHorizontal: 15
+  },
+  textTocSectionTitle: {
+    fontSize: 16,
+    marginBottom: 10
   },
   sectionLink: {
     height: 40,
     minWidth: 40,
     backgroundColor: "white",
-    margin: 3,
+    margin: 2,
     justifyContent: "center"
   },
   lineEnd: {
-    flex: 1
+    flex: 1,
+    height: 1
   },
   englishText: {
     fontFamily: "EB Garamond",
     textAlign: 'left',
-    alignSelf: 'stretch',
+    flex: -1,
     fontSize: 16,
-    flex: 1
   },
   hebrewText: {
     fontFamily: "Taamey Frank CLM",
     textAlign: 'right',
-    alignSelf: 'stretch',
+    flex: -1,
     fontSize: 20,
-    flex: 1
   },
   hebrewSystemFont: {
     fontFamily: "Open Sans Hebrew"
@@ -305,7 +325,7 @@ module.exports = StyleSheet.create({
   },
   loadingView: {
     height: 80,
-    backgroundColor: "transparent",
+    backgroundColor: '#F5FCFF',
   },
   twoBox: {
     
@@ -321,6 +341,12 @@ module.exports = StyleSheet.create({
   },
   centerText: {
     textAlign: "center"
+  },
+  rtlRow: {
+    flexDirection: "row-reverse"
+  },
+  segmentHighlight: {
+    backgroundColor: "#e9e9e7"
   },
 
 

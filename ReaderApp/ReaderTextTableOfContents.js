@@ -11,6 +11,8 @@ import {
 var {
   CloseButton,
   LanguageToggleButton,
+  ToggleSet,
+  TwoBox,
   LoadingView
 } = require('./Misc.js');
 
@@ -62,10 +64,13 @@ var ReaderTextTableOfContents = React.createClass({
           {title}
           
           {this.state.textToc ? 
-            <TextSchemaNode
+            <TextTableOfContentsNavigation
               schema={this.state.textToc.schema}
+              commentatorList={Sefaria.commentaryList(this.props.title)}
+              alts={this.state.textToc.alts || null}
+              defaultStruct={this.state.textToc.default_struct || "default"}
               contentLang={this.props.contentLang}
-              refPath={this.props.title + " "}
+              title={this.props.title}
               openRef={this.props.openRef} /> : <LoadingView /> }
 
         </ScrollView>
@@ -75,8 +80,98 @@ var ReaderTextTableOfContents = React.createClass({
 });
 
 
+var TextTableOfContentsNavigation = React.createClass({
+  propTypes: {
+    schema:          React.PropTypes.object.isRequired,
+    commentatorList: React.PropTypes.array,
+    alts:            React.PropTypes.object,
+    defaultStruct:   React.PropTypes.string,
+    contentLang:     React.PropTypes.string.isRequired,
+    title:           React.PropTypes.string.isRequired,   
+    openRef:         React.PropTypes.func.isRequired
+  },
+  getInitialState: function() {
+    return {
+      tab: this.props.defaultStruct
+    }
+  },
+  setTab: function(tab) {
+    this.setState({tab: tab});
+  },
+  render: function() {
+    if (this.props.commentatorList.length || this.props.alts) {
+      var options = [{
+        name: "default",
+        text: "sectionNames" in this.props.schema ? this.props.schema.sectionNames[0] : "Contents",
+        heText: "sectionNames" in this.props.schema ? Sefaria.hebrewSectionName(this.props.schema.sectionNames[0]) : "תוכן",
+        onPress: this.setTab.bind(null, "default")
+      }];
+      if (this.props.alts) {
+        for (var alt in this.props.alts) {
+          if (this.props.alts.hasOwnProperty(alt)) {
+            options.push({
+              name: alt,
+              text: alt,
+              heText: Sefaria.hebrewSectionName(alt),
+              onPress: this.setTab.bind(null, alt)
+            });
+          }
+        }
+      }
+      if (this.props.commentatorList.length) {
+        options.push({
+          name: "commentary",
+          text: "Commentary",
+          heText: "מפרשים",
+          onPress: this.setTab.bind(null, "commentary")
+        }); 
+      }
+      options = options.sort(function(a, b) {
+        return a.name == this.props.defaultStruct ? -1 :
+                b.name == this.props.defaultStruct ? 1 : 0;
+      }.bind(this));
+      var toggle = <ToggleSet
+                      options={options}
+                      contentLang={this.props.contentLang}
+                      active={this.state.tab} />;
+    } else {
+      var toggle = null;
+    }
 
-var TextSchemaNode = React.createClass({
+    switch(this.state.tab) {
+      case "default":
+        var content = <SchemaNode
+                        schema={this.props.schema}
+                        contentLang={this.props.contentLang}
+                        refPath={this.props.title}
+                        openRef={this.props.openRef} />;
+        break;
+      case "commentary":
+        var content = <CommentatorList
+                        commentatorList={this.props.commentatorList}
+                        contentLang={this.props.contentLang}
+                        openRef={this.props.openRef} />;
+        break;
+      default:
+        var content = <SchemaNode
+                        schema={this.props.alts[this.state.tab]}
+                        contentLang={this.props.contentLang}
+                        refPath={this.props.title}
+                        openRef={this.props.openRef} />;
+        break;
+    }
+
+    return (
+      <View>
+        {toggle}
+        {content}
+      </View>
+    );
+  }
+})
+
+
+var SchemaNode = React.createClass({
   propTypes: {
     schema:      React.PropTypes.object.isRequired,
     contentLang: React.PropTypes.string.isRequired,
@@ -84,24 +179,70 @@ var TextSchemaNode = React.createClass({
     openRef:     React.PropTypes.func.isRequired
   },
   render: function() {
-    if (this.props.schema.nodeType == "JaggedArrayNode") {
-      return (
-        <TextJaggedArrayNode
-          schema={this.props.schema}
-          contentLang={this.props.contentLang}
-          refPath={this.props.refPath}
-          openRef={this.props.openRef} />
-      );
+    if (!("nodes" in this.props.schema)) {
+      if (this.props.schema.nodeType === "JaggedArrayNode") {
+        return (
+          <JaggedArrayNode
+            schema={this.props.schema}
+            contentLang={this.props.contentLang}
+            refPath={this.props.refPath}
+            openRef={this.props.openRef} />
+        );
+      } else if (this.props.schema.nodeType === "ArrayMapNode") {
+        return (
+          <ArrayMapNode
+            schema={this.props.schema}
+            contentLang={this.props.contentLang}
+            openRef={this.props.openRef} />
+        );
+      }
+
     } else { 
+      var showHebrew = this.props.contentLang === "hebrew";
+      var content = this.props.schema.nodes.map(function(node, i) {
+        if ("nodes" in node || "refs" in node) {
+          return (
+            <View style={styles.textTocNamedSection} key={i}>
+              {showHebrew ?
+                <Text style={[styles.he, styles.textTocSectionTitle]}>{node.heTitle}</Text> :
+                <Text style={[styles.en, styles.textTocSectionTitle]}>{node.title}</Text> }
+              <SchemaNode
+                schema={node}
+                contentLang={this.props.contentLang}
+                refPath={this.props.refPath + ", " + node.title}
+                openRef={this.props.openRef} />
+            </View>);
+        } else if (node.depth == 1) {
+          var open = this.props.openRef.bind(null, this.props.refPath + ", " + node.title);
+          return (
+            <TouchableOpacity style={styles.textTocNamedSection} onPress={open} key={i}>
+              {showHebrew ?
+                <Text style={[styles.he, styles.textTocSectionTitle]}>{node.heTitle + " >"}</Text> : 
+                <Text style={[styles.en, styles.textTocSectionTitle]}>{node.title + " >"}</Text> }
+            </TouchableOpacity>);
+        } else {
+          return (
+            <View style={styles.textTocNamedSection} key={i}>
+              {showHebrew ?
+                <Text style={[styles.he, styles.textTocSectionTitle]}>{node.heTitle}</Text> :
+                <Text style={[styles.en, styles.textTocSectionTitle]}>{node.title}</Text> }
+              <JaggedArrayNode
+                schema={node}
+                contentLang={this.props.contentLang}
+                refPath={this.props.refPath + ", " + node.title}
+                openRef={this.props.openRef} />
+            </View>);
+        }
+      }.bind(this));
       return (
-        <Text>Complex texts coming soon...</Text>
+        <View>{content}</View>
       );
     }
   }
 });
 
 
-var TextJaggedArrayNode = React.createClass({
+var JaggedArrayNode = React.createClass({
   propTypes: {
     schema:      React.PropTypes.object.isRequired,
     contentLang: React.PropTypes.string.isRequired,
@@ -109,33 +250,142 @@ var TextJaggedArrayNode = React.createClass({
     openRef:     React.PropTypes.func.isRequired,
   },
   render: function() {
-    var schema = this.props.schema;
+    return (<JaggedArrayNodeSection
+              depth={this.props.schema.depth}
+              sectionNames={this.props.schema.sectionNames}
+              addressTypes={this.props.schema.addressTypes}
+              contentCounts={this.props.schema.content_counts}
+              contentLang={this.props.contentLang}
+              refPath={this.props.refPath}
+              openRef={this.props.openRef} />);
+  }
+});
+
+
+var JaggedArrayNodeSection = React.createClass({
+  propTypes: {
+    depth:           React.PropTypes.number.isRequired,
+    sectionNames:    React.PropTypes.array.isRequired,
+    addressTypes:    React.PropTypes.array.isRequired,
+    contentCounts:   React.PropTypes.array.isRequired,
+    contentLang:     React.PropTypes.string.isRequired,
+    refPath:         React.PropTypes.string.isRequired,
+    openRef:         React.PropTypes.func.isRequired,
+  },
+  render: function() {
+    var showHebrew = this.props.contentLang === "hebrew";
+    if (this.props.depth > 2) {
+      var content = [];
+      for (var i = 0; i < this.props.contentCounts.length; i++) {
+        var enSection = this.props.sectionNames[0] + " " + (i+1);
+        var heSection = Sefaria.hebrewSectionName(this.props.sectionNames[0]) + " " + Sefaria.hebrew.encodeHebrewNumeral(i+1);
+        content.push(
+          <View style={styles.textTocNumberedSectionBox} key={i}>
+            {showHebrew ?
+              <Text style={[styles.he, styles.textTocNumberedSectionTitle]}>{heSection}</Text> :
+              <Text style={[styles.en, styles.textTocNumberedSectionTitle]}>{enSection}</Text> }
+            <JaggedArrayNodeSection
+              depth={this.props.depth - 1}
+              sectionNames={this.props.sectionNames.slice(1)}
+              addressTypes={this.props.addressTypes.slice(1)}
+              contentCounts={this.props.contentCounts[i]}
+              contentLang={this.props.contentLang}
+              refPath={this.props.refPath + ":" + (i+1)}
+              openRef={this.props.openRef} />
+          </View>);
+      }
+      return ( <View>{content}</View> );
+    }
+
+    var contentCounts = this.props.depth == 1 ? new Array(this.props.contentCounts).fill(1) : this.props.contentCounts;
     var sectionLinks = [];
-    for (var i = 1; i <= schema.lengths[0]; i++) {
-      if (schema.addressTypes[0] === "Talmud") {
+    for (var i = 0; i < contentCounts.length; i++) {
+      if (contentCounts[i] == 0) { continue; }
+      if (this.props.addressTypes[0] === "Talmud") {
         var section = Sefaria.hebrew.intToDaf(i);
         var heSection = Sefaria.hebrew.encodeHebrewDaf(section);
       } else {
-        var section = i;
-        var heSection = Sefaria.hebrew.encodeHebrewNumeral(i);
+        var section = i+1;
+        var heSection = Sefaria.hebrew.encodeHebrewNumeral(i+1);
       }
-      var open = this.props.openRef.bind(null, this.props.refPath + section);
+      var ref  = (this.props.refPath + ":" + section).replace(":", " ");
+      var open = this.props.openRef.bind(null, ref);
       var link = (
         <TouchableOpacity style={styles.sectionLink} onPress={open} key={i}>
-          { this.props.contentLang == "english" ?
-            <Text style={[styles.centerText]}>{section}</Text> :
-            <Text style={[styles.he, styles.centerText]}>{heSection}</Text>}
+          { showHebrew ?
+            <Text style={[styles.he, styles.centerText]}>{heSection}</Text> :
+            <Text style={[styles.centerText]}>{section}</Text> }
         </TouchableOpacity>
       );
       sectionLinks.push(link);
     }
-    sectionLinks.push(<View style={styles.lineEnd}></View>);
-
+    // sectionLinks.push(<View style={styles.lineEnd}></View>);
+    var langStyles = showHebrew ? styles.rtlRow : null;
     return (
-      <View style={styles.textTocNumberedSection}>{sectionLinks}</View>
+      <View style={[styles.textTocNumberedSection, langStyles]}>{sectionLinks}</View>
     );
   }
 });
 
+
+var ArrayMapNode = React.createClass({
+  propTypes: {
+    schema:      React.PropTypes.object.isRequired,
+    contentLang: React.PropTypes.string.isRequired,
+    openRef:     React.PropTypes.func.isRequired,
+  },
+  render: function() {
+    var showHebrew = this.props.contentLang == "hebrew";
+    var sectionLinks = this.props.schema.refs.map(function(ref, i) {
+      i += this.props.schema.offset || 0;
+      var open = this.props.openRef.bind(null, ref);
+      if (this.props.schema.addressTypes[0] === "Talmud") {
+        var section = Sefaria.hebrew.intToDaf(i);
+        var heSection = Sefaria.hebrew.encodeHebrewDaf(section);
+      } else {
+        var section = i+1;
+        var heSection = Sefaria.hebrew.encodeHebrewNumeral(i+1);
+      }
+      return (
+        <TouchableOpacity style={styles.sectionLink} onPress={open} key={i}>
+          { showHebrew ?
+            <Text style={[styles.he, styles.centerText]}>{heSection}</Text> :
+            <Text style={[styles.centerText]}>{section}</Text> }
+        </TouchableOpacity>
+      );
+    }.bind(this));
+
+    var langStyles = showHebrew ? styles.rtlRow : null;
+    return (
+      <View style={[styles.textTocNumberedSection, langStyles]}>{sectionLinks}</View>
+    );
+  }
+});
+
+
+var CommentatorList = React.createClass({
+  propTypes: {
+    commentatorList: React.PropTypes.array.isRequired,
+    contentLang:     React.PropTypes.string.isRequired,
+    openRef:         React.PropTypes.func.isRequired,
+  },
+  render: function() {
+    var showHebrew = this.props.contentLang == "hebrew";
+    var content = this.props.commentatorList.map(function(commentator, i) {
+      var open = this.props.openRef.bind(null, commentator.firstSection);
+      return (<TouchableOpacity onPress={open} style={styles.textBlockLink} key={i}>
+              { showHebrew ? 
+                <Text style={[styles.he, styles.centerText]}>{commentator.heCommentator}</Text> :
+                <Text style={[styles.en, styles.centerText]}>{commentator.commentator}</Text> }
+            </TouchableOpacity>);
+    }.bind(this));
+
+    return (
+      <View>
+        <TwoBox content={content} />
+      </View>
+    );
+  }
+})
 
 module.exports = ReaderTextTableOfContents;

@@ -52,9 +52,9 @@ var ReaderApp = React.createClass({
           console.log('oh no', error);
         });
     },
-    TextSegmentPressed: function(q) {
-        var links = Sefaria.links.linkSummary(this.state.data[q].links);
-        this.setState({segmentRef: q,links:links});
+    TextSegmentPressed: function(section,segment) {
+        var links = Sefaria.links.linkSummary(this.state.data[section][segment].links);
+        this.setState({segmentRef: segment,links:links});
     },
     loadNewText: function(ref) {
         Sefaria.data(ref).then(function(data) {
@@ -64,7 +64,7 @@ var ReaderApp = React.createClass({
             } 
             
             this.setState({
-                data:      data.content,
+                data:      [data.content],
                 links:     links,
                 textTitle: data.indexTitle,
                 next:      data.next,
@@ -87,6 +87,12 @@ var ReaderApp = React.createClass({
             next:            next,
             prev:            prev
         });
+    },
+    updateTitle: function(ref) {
+        this.setState({
+          textReference:   ref
+        });
+
     },
     openRef: function(ref) {
         this.setState({
@@ -143,6 +149,7 @@ var ReaderApp = React.createClass({
                         navigationCategories={this.state.navigationCategories}
                         style={styles.mainTextPanel}
                         updateData={this.updateData}
+                        updateTitle={this.updateTitle}
                         TextSegmentPressed={ this.TextSegmentPressed }
                         openRef={ this.openRef }
                         interfaceLang={this.state.interfaceLang}

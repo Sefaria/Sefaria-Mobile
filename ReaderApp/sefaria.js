@@ -16,6 +16,7 @@ Sefaria = {
       var tocPath = (RNFS.MainBundlePath + "/sources/toc.json");
       Sefaria._loadJSON(tocPath, function(data) {
         Sefaria.toc = data;
+        Sefaria._cacheIndexFromToc(data);
         checkResolve();
       });
       var calendarPath = (RNFS.MainBundlePath + "/sources/calendar.json");
@@ -29,7 +30,7 @@ Sefaria = {
   data: function(ref, settings) {
     return new Promise(function(resolve, reject) {
       var fileNameStem = ref.split(":")[0];
-      var bookRefStem = fileNameStem.substring(0, fileNameStem.lastIndexOf(" "));
+      var bookRefStem = Sefaria.textTitleForRef(ref);
 
       fetch(Sefaria._JSONSourcePath(fileNameStem))
         .then(
@@ -48,6 +49,16 @@ Sefaria = {
 
     });
   },
+  textTitleForRef: function(ref) {
+    // Returns the book title named in `ref` by examining the list of known book titles. 
+    for (i = ref.length; i >= 0; i--) {
+      book = ref.slice(0, i);
+      if (book in Sefaria.booksDict) {
+        return book;
+      }
+    }
+    return null;
+  },
   getTitle: function(ref, isCommentary, isHe) {
       var fileNameStem = ref.split(":")[0];
       var bookRefStem = fileNameStem.substring(0, fileNameStem.lastIndexOf(" "));
@@ -57,6 +68,26 @@ Sefaria = {
             bookRefStem = bookRefStem.substring(0,onInd);
       }   
       return bookRefStem;
+  },
+  booksDict: {},
+  _index: {}, // Cache for text index records
+  index: function(text, index) {
+    if (!index) {
+      return this._index[text];
+    } else {
+      this._index[text] = index;
+    }
+  },
+  _cacheIndexFromToc: function(toc) {
+    // Unpacks contents of Sefaria.toc into index cache.
+    for (var i = 0; i < toc.length; i++) {
+      if ("category" in toc[i]) {
+        Sefaria._cacheIndexFromToc(toc[i].contents)
+      } else {
+        Sefaria.index(toc[i].title, toc[i]);
+        Sefaria.booksDict[toc[i].title] = 1;
+      }
+    }
   },
   toc: null,
   tocItemsByCategories: function(cats) {
@@ -76,6 +107,29 @@ Sefaria = {
       }
     }
     return list;
+  },
+  commentaryList: function(title) {
+    // Returns the list of commentaries for 'title' which are found in Sefaria.toc
+    var index = this.index(title);
+    if (!index) { return []; }
+    var cats   = [index.categories[0], "Commentary"];
+    var branch = this.tocItemsByCategories(cats);
+    var commentariesInBranch = function(title, branch) {
+      // Recursively walk a branch of TOC, return a list of all commentaries found on `title`.
+      var results = [];
+      for (var i=0; i < branch.length; i++) {
+        if (branch[i].title) {
+          var split = branch[i].title.split(" on ");
+          if (split.length == 2 && split[1] === title) {
+            results.push(branch[i]);
+          }
+        } else {
+          results = results.concat(commentariesInBranch(title, branch[i].contents));
+        }
+      }
+      return results;
+    };
+    return commentariesInBranch(title, branch);
   },
   _textToc: {},
   textToc: function(title, callback) {
@@ -772,6 +826,76 @@ Sefaria.hebrewCategory = function(cat) {
     "Community": "קהילה"
   };
   return cat in categories ? categories[cat] : cat;
+};
+
+Sefaria.hebrewSectionName = function(name) {
+  sectionNames = {
+    "Chapter":          "פרק",
+    "Chapters":         "פרקים",
+    "Perek":            "פרק",
+    "Line":             "שורה",
+    "Negative Mitzvah": "מצות לא תעשה",
+    "Positive Mitzvah": "מצות עשה",
+    "Negative Mitzvot": "מצוות לא תעשה",
+    "Positive Mitzvot": "מצוות עשה",
+    "Daf":              "דף",
+    "Paragraph":        "פסקה",
+    "Parsha":           "פרשה",
+    "Parasha":          "פרשה",
+    "Parashah":         "פרשה",
+    "Seif":             "סעיף",
+    "Se'if":            "סעיף",
+    "Siman":            "סימן",
+    "Section":          "חלק",
+    "Verse":            "פסוק",
+    "Sentence":         "משפט",
+    "Sha'ar":           "שער",
+    "Gate":             "שער",
+    "Comment":          "פירוש",
+    "Phrase":           "ביטוי",
+    "Mishna":           "משנה",
+    "Chelek":           "חלק",
+    "Helek":            "חלק",
+    "Year":             "שנה",
+    "Masechet":         "מסכת",
+    "Massechet":        "מסכת",
+    "Letter":           "אות",
+    "Halacha":          "הלכה",
+    "Piska":            "פסקה",
+    "Seif Katan":       "סעיף קטן",
+    "Se'if Katan":      "סעיף קטן",
+    "Volume":           "כרך",
+    "Book":             "ספר",
+    "Shar":             "שער",
+    "Seder":            "סדר",
+    "Part":             "חלק",
+    "Pasuk":            "פסוק",
+    "Sefer":            "ספר",
+    "Teshuva":          "תשובה",
+    "Teshuvot":         "תשובות",
+    "Tosefta":          "תוספתא",
+    "Halakhah":         "הלכה",
+    "Kovetz":           "קובץ",
+    "Path":             "נתיב",
+    "Parshah":          "פרשה",
+    "Midrash":          "מדרש",
+    "Mitzvah":          "מצוה",
+    "Tefillah":         "תפילה",
+    "Torah":            "תורה",
+    "Perush":           "פירוש",
+    "Peirush":          "פירוש",
+    "Aliyah":           "עלייה",
+    "Tikkun":           "תיקון",
+    "Tikkunim":         "תיקונים",
+    "Hilchot":          "הילכות",
+    "Topic":            "נושא",
+    "Contents":         "תוכן",
+    "Article":          "סעיף",
+    "Shoresh":          "שורש",
+    "Story":            "סיפור",
+    "Remez":            "רמז"
+  };
+  return name in sectionNames ? sectionNames[name] : name;
 };
 
 

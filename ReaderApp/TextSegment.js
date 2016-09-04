@@ -1,7 +1,7 @@
 'use strict';
 
 import React, { Component } from 'react';
-import { 
+import {
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -13,22 +13,17 @@ var styles = require('./Styles.js');
 
 var TextSegment = React.createClass({
 
-  onPressTextSegment: function(q) {
-//	console.log(this.props);
-    this.props.TextSegmentPressed(q - 1);
+  onPressTextSegment: function(key) {
+    var section = key.split(":")[0];
+    var segment = key.split(":")[1];
+    this.props.TextSegmentPressed(section,segment - 1);
 
 
   },
-
-  onLayout: function(event) {
-    this.props.generateSegmentRefPositionArray(this.props.segmentKey, event.nativeEvent.layout.y)
-  },
-
 
   render: function() {
 
     // console.log(this.props.segmentKey+": "+typeof(this.props.textRef));
-
     return (
       <Text
         style={this.props.textType == "hebrew" ? styles.hebrewText : styles.englishText}
