@@ -120,8 +120,6 @@ var ReaderPanel = React.createClass({
       let tempFilter = this.state.recentFilters[i];
       if (tempFilter.title == filter.title) {
         filterIndex = i;
-        //we actually need to do an update first
-        needsAnUpdate = true;
         break;
       }
     }

@@ -77,17 +77,21 @@ var TextList = React.createClass({
   },
 
   renderRow: function(linkContentObj,sectionId,rowId) {
-    var linkContent = "";
     var ref = this.props.recentFilters[this.props.filterIndex].refList[rowId];
+    var loading = false;
     if (linkContentObj == null) {
+      loading = true;
       this._rowsToLoad.push({ref:ref,rowId:rowId});
-      linkContent = "Loading...";      
-    } else {
-      linkContent = this.props.columnLanguage == "english" ? linkContentObj.en : linkContentObj.he;
-      if (linkContent.trim() == "") linkContent = "<i>No text for this language</i>"
-    }
+      linkContentObj = {en:"Loading...",he:"טוען..."};      
+    } 
 
-    return (<LinkContent openRef={this.props.openRef} refStr={ref} linkContent={linkContent}/>);
+    return (<LinkContent 
+              openRef={this.props.openRef} 
+              refStr={ref} 
+              linkContentObj={linkContentObj} 
+              columnLanguage={this.props.columnLanguage}
+              loading={loading}
+            />);
   },
 
   render: function() {
@@ -210,16 +214,36 @@ var LinkBook = React.createClass({
 
 var LinkContent = React.createClass({
   propTypes: {
-    openRef:     React.PropTypes.func.isRequired,
-    refStr:      React.PropTypes.string,
-    linkContent: React.PropTypes.string
+    openRef:           React.PropTypes.func.isRequired,
+    refStr:            React.PropTypes.string,
+    linkContentObj:    React.PropTypes.object, /* of the form {en,he} */
+    columnLanguage:    React.PropTypes.string,
+    loading:           React.PropTypes.bool
   },
 
   render: function() {
+    var lco = this.props.linkContentObj;
+    var lang = this.props.columnLanguage;
+    var textViews = [];
+    if (lang == "bilingual") {
+      if (lco.en.trim() != "" && lco.he.trim() != "") {
+        textViews = [<HTMLView value={lco.he}/>,<HTMLView value={lco.en}/>];
+      } else if (lco.en.trim() == "") lang = "hebrew";
+      else lang = "english";
+      
+    }
+    if (lang == "hebrew") {
+      let content = lco.he.trim() == "" ? "<i>No content in this language</i>" : lco.he;
+      textViews = [<HTMLView value={content}/>];
+    } else if (lang == "english") {
+      let content = lco.en.trim() == "" ? "<i>No content in this language</i>" : lco.en;
+      textViews = [<HTMLView value={content}/>];
+    }
+
     return (
       <TouchableOpacity style={styles.searchTextResult} onPress={()=>{this.props.openRef(this.props.refStr)}}>
         <Text>{this.props.refStr}</Text>
-        <HTMLView value={this.props.linkContent}/>
+        {textViews}
       </TouchableOpacity>
     );
   }
