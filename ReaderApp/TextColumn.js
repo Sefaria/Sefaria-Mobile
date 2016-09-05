@@ -182,15 +182,18 @@ var TextColumn = React.createClass({
     }
 
     //auto highlight the second to last visible segment
-    for (var section in visibleRows) {
-      var numberOfVisibleSegments = Object.keys(visibleRows[section]).length;
-      if (numberOfVisibleSegments < 2) {
-        this.props.TextSegmentPressed(this.state.sectionArray.indexOf(section),0) //If there's only one verse from the new section, click it.
-      }
-      else {
-        this.props.TextSegmentPressed(this.state.sectionArray.indexOf(section),Object.keys(visibleRows[section])[numberOfVisibleSegments-2]) //click the second to last visible segment
-      }
+    if (this.props.textListVisible) {
+      for (var section in visibleRows) {
+        var numberOfVisibleSegments = Object.keys(visibleRows[section]).length;
+        if (numberOfVisibleSegments < 2) {
+          this.props.TextSegmentPressed(this.state.sectionArray.indexOf(section),0) //If there's only one verse from the new section, click it.
+        }
+        else {
+          this.props.TextSegmentPressed(this.state.sectionArray.indexOf(section),Object.keys(visibleRows[section])[numberOfVisibleSegments-2]) //click the second to last visible segment
+        }
+      }      
     }
+
 
   },
 

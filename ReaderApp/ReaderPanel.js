@@ -72,12 +72,12 @@ var ReaderPanel = React.createClass({
   },
   onQueryChange: function(query,resetQuery) {
     var newSearchPage = 0;
-    if (!resetQuery) 
+    if (!resetQuery)
       newSearchPage = this.state.currSearchPage+1;
 
 
     //var req = JSON.stringify(Sefaria.search.get_query_object(query,false,[],20,20*newSearchPage,"text"));
-    
+
     var query_props = {
       query: query,
       size: 20,
@@ -127,8 +127,8 @@ var ReaderPanel = React.createClass({
     if (filterIndex == null) {
       this.state.recentFilters.push(filter);
       if (this.state.recentFilters.length > 5)
-        this.state.recentFilters.shift(); 
-      filterIndex = this.state.recentFilters.length-1;     
+        this.state.recentFilters.shift();
+      filterIndex = this.state.recentFilters.length-1;
     }
 
 
@@ -169,7 +169,7 @@ var ReaderPanel = React.createClass({
 
     var linkContents = nextFilter.refList.map((ref)=>null);
     this.setState({filterIndex:filterIndex,recentFilters:this.state.recentFilters,linkContents:linkContents});
-    
+
   },
   onLinkLoad: function(data,pos) {
     this.state.linkContents[pos] = data;
@@ -258,6 +258,27 @@ var ReaderPanel = React.createClass({
         break;
     }
 
+    let textList = <View/>;
+    if (this.props.textListVisible) {
+      textList =
+        <View style={styles.commentaryTextPanel}>
+          <TextList
+            Sefaria={Sefaria}
+            links={this.props.links}
+            segmentRef={this.props.segmentRef}
+            textFlow={this.state.textFlow}
+            columnLanguage={this.state.columnLanguage}
+            openRef={ this.props.openRef }
+            openCat={this.openLinkCat}
+            closeCat={this.closeLinkCat}
+            updateCat={this.updateLinkCat}
+            onLinkLoad={this.onLinkLoad}
+            linkContents={this.state.linkContents}
+            filterIndex={this.state.filterIndex}
+            recentFilters={this.state.recentFilters} />
+        </View>;
+    }
+
     return (
   		<View style={styles.container}>
           <ReaderControls
@@ -266,7 +287,7 @@ var ReaderPanel = React.createClass({
             openTextToc={this.props.openTextToc}
             openReaderDisplayOptionsMenu={this.openReaderDisplayOptionsMenu} />
 
-          {this.state.ReaderDisplayOptionsMenuVisible ? 
+          {this.state.ReaderDisplayOptionsMenuVisible ?
           (<ReaderDisplayOptionsMenu
             textFlow={this.state.textFlow}
             textReference={this.props.textReference}
@@ -285,28 +306,14 @@ var ReaderPanel = React.createClass({
               updateData={this.props.updateData}
               updateTitle={this.props.updateTitle}
               TextSegmentPressed={ this.props.TextSegmentPressed }
+              textListVisible={this.props.textListVisible}
               next={this.props.next}
               prev={this.props.prev}
               loadingTextTail={this.props.loadingTextTail}
               setLoadTextTail={this.props.setLoadTextTail} />
           </View>
 
-          <View style={styles.commentaryTextPanel}>
-            <TextList 
-              Sefaria={Sefaria} 
-              links={this.props.links} 
-              segmentRef={this.props.segmentRef} 
-              textFlow={this.state.textFlow} 
-              columnLanguage={this.state.columnLanguage} 
-              openRef={ this.props.openRef } 
-              openCat={this.openLinkCat}
-              closeCat={this.closeLinkCat}
-              updateCat={this.updateLinkCat}
-              onLinkLoad={this.onLinkLoad}
-              linkContents={this.state.linkContents} 
-              filterIndex={this.state.filterIndex} 
-              recentFilters={this.state.recentFilters} />
-          </View>
+          {textList}
         </View>);
   }
 });

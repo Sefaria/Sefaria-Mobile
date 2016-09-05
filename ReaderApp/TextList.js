@@ -237,10 +237,10 @@ var LinkContent = React.createClass({
 
     }
     if (lang == "hebrew") {
-      let content = lco.he.trim() == "" ? lco.en: lco.he;
+      let content = lco.he.trim() === "" ? lco.en : lco.he;
       textViews = [<HTMLView value={content}/>];
     } else if (lang == "english") {
-      let content = lco.en.trim() == "" ? lco.he : lco.en;
+      let content = lco.en.trim() === "" ? lco.he : lco.en;
       textViews = [<HTMLView value={content}/>];
     }
 

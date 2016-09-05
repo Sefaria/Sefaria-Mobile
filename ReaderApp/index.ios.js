@@ -4,7 +4,7 @@
  */
 'use strict';
 import React, { Component } from 'react';
-import { 	
+import {
   AppRegistry,
 	StyleSheet,
 	ScrollView,
@@ -42,6 +42,7 @@ var ReaderApp = React.createClass({
             menuOpen: "navigation",
             navigationCategories: [],
             loadingTextTail: false,
+            textListVisible: false,
             interfaceLang: "english" // TODO check device settings for Hebrew: ### import {NativeModules} from 'react-native'; console.log(NativeModules.SettingsManager.settings.AppleLocale);
         };
     },
@@ -54,15 +55,15 @@ var ReaderApp = React.createClass({
     },
     TextSegmentPressed: function(section,segment) {
         var links = Sefaria.links.linkSummary(this.state.data[section][segment].links);
-        this.setState({segmentRef: segment,links:links});
+        this.setState({segmentRef: segment,links:links,textListVisible:true});
     },
     loadNewText: function(ref) {
         Sefaria.data(ref).then(function(data) {
             var links = [];
             if (data.content) {
                 links = Sefaria.links.linkSummary(data.content[this.state.segmentRef].links);
-            } 
-            
+            }
+
             this.setState({
                 data:      [data.content],
                 links:     links,
@@ -161,6 +162,7 @@ var ReaderApp = React.createClass({
                         openSearch={this.openSearch}
                         loadingTextTail={this.state.loadingTextTail}
                         setLoadTextTail={this.setLoadTextTail}
+                        textListVisible={this.state.textListVisible}
                         Sefaria={Sefaria} />
                 </View>
             );
