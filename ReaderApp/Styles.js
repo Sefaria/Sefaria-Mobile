@@ -65,7 +65,8 @@ module.exports = StyleSheet.create({
     height:50,
     borderWidth: 1,
     borderColor: "#DDD",
-    backgroundColor: "white"
+    backgroundColor: "white",
+    justifyContent: "center"
   },
   readerDisplayOptionsMenuItemLeft: {
     borderTopLeftRadius: 10,
@@ -81,6 +82,12 @@ module.exports = StyleSheet.create({
   },
   readerDisplayOptionsMenuItemSelected: {
     backgroundColor: "#EEE"
+  },
+  readerDisplayOptionsMenuIcon: {
+    width: 15,
+    height: 15,
+    alignSelf: "center",
+    flexDirection: "row"
   },
   headerButton: {
     width: 30,

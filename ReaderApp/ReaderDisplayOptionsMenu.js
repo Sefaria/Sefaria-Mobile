@@ -4,10 +4,15 @@ import React, { Component } from 'react';
 import {
   Text,
   TouchableOpacity,
-  View
+  View,
+  Image
 } from 'react-native';
-var styles = require('./Styles.js');
-
+var styles          = require('./Styles.js');
+var a_aleph_icon    = require('./img/a_aleph2.png');
+var a_icon          = require('./img/a_icon.png');
+var aleph_icon      = require('./img/aleph.png');
+var segmented_icon  = require('./img/breaks.png');
+var continuous_icon = require('./img/continuous.png');
 
 var ReaderDisplayOptionsMenu = React.createClass({
   propTypes: {
@@ -26,29 +31,35 @@ var ReaderDisplayOptionsMenu = React.createClass({
       {
         onPress:this.props.togglecolumnLanguage,
         buttons:["english","bilingual","hebrew"],
+        icons:[a_icon,a_aleph_icon,aleph_icon],
+        iconWidths:[15,30,15],
         currVal: this.props.columnLanguage
       },
       {
         onPress:this.props.toggleTextFlow,
         buttons:["segmented","continuous"],
+        icons:[segmented_icon,continuous_icon],
+        iconWidths:[15,15],
         currVal: this.props.textFlow
       }];
     var alignments = [["left","right"],["left","center","right"]];
     var optionViews = [];
     for (let optionRow of options) {
       let row = [];
-      let count = 0;
-      for (let option of optionRow.buttons) {
+      for (let i = 0; i < optionRow.buttons.length; i++) {
+        let option = optionRow.buttons[i];
+        let icon = optionRow.icons[i];
+        let iconWidth = optionRow.iconWidths[i];
         let selected = optionRow.currVal == option;
         row.push(
           <ReaderDisplayOptionsMenuItem
             onPress={optionRow.onPress}
-            text={option}
-            align={alignments[optionRow.buttons.length-2][count]}
+            icon={icon}
+            iconWidth={iconWidth}
+            align={alignments[optionRow.buttons.length-2][i]}
             selected={selected}
           />
         );
-        count++;
       }
       optionViews.push(<ReaderDisplayOptionsMenuRow content={row}/>);
     }
@@ -73,7 +84,8 @@ var ReaderDisplayOptionsMenuRow = React.createClass({
 
 var ReaderDisplayOptionsMenuItem = React.createClass({
   propTypes: {
-    text:     React.PropTypes.string,
+    icon:     React.PropTypes.string,
+    iconWidth:React.PropTypes.number,
     align:    React.PropTypes.string,
     onPress:  React.PropTypes.func.isRequired,
     selected: React.PropTypes.bool
@@ -91,9 +103,7 @@ var ReaderDisplayOptionsMenuItem = React.createClass({
       tempStyles.push(styles.readerDisplayOptionsMenuItemSelected);
     return (
       <TouchableOpacity onPress={this.props.onPress} style={tempStyles}>
-        <Text style={[styles.title,{textAlign:"center"}]}>
-          {this.props.text}
-        </Text>
+        <Image style={[styles.readerDisplayOptionsMenuIcon,{width:this.props.iconWidth}]} source={this.props.icon}/>
       </TouchableOpacity>
     );
   }
