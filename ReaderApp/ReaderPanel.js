@@ -258,27 +258,6 @@ var ReaderPanel = React.createClass({
         break;
     }
 
-    let textList = <View/>;
-    if (this.props.textListVisible) {
-      textList =
-        <View style={styles.commentaryTextPanel}>
-          <TextList
-            Sefaria={Sefaria}
-            links={this.props.links}
-            segmentRef={this.props.segmentRef}
-            textFlow={this.state.textFlow}
-            columnLanguage={this.state.columnLanguage}
-            openRef={ this.props.openRef }
-            openCat={this.openLinkCat}
-            closeCat={this.closeLinkCat}
-            updateCat={this.updateLinkCat}
-            onLinkLoad={this.onLinkLoad}
-            linkContents={this.state.linkContents}
-            filterIndex={this.state.filterIndex}
-            recentFilters={this.state.recentFilters} />
-        </View>;
-    }
-
     return (
   		<View style={styles.container}>
           <ReaderControls
@@ -313,7 +292,24 @@ var ReaderPanel = React.createClass({
               setLoadTextTail={this.props.setLoadTextTail} />
           </View>
 
-          {textList}
+          {this.props.textListVisible ?
+            <View style={styles.commentaryTextPanel}>
+              <TextList
+                Sefaria={Sefaria}
+                links={this.props.links}
+                segmentRef={this.props.segmentRef}
+                textFlow={this.state.textFlow}
+                columnLanguage={this.state.columnLanguage}
+                openRef={ this.props.openRef }
+                openCat={this.openLinkCat}
+                closeCat={this.closeLinkCat}
+                updateCat={this.updateLinkCat}
+                onLinkLoad={this.onLinkLoad}
+                linkContents={this.state.linkContents}
+                filterIndex={this.state.filterIndex}
+                recentFilters={this.state.recentFilters} />
+            </View>
+          : null}
         </View>);
   }
 });
