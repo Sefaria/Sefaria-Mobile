@@ -11,7 +11,7 @@ import {
   Modal
 } from 'react-native';
 
-
+var ReaderDisplayOptionsMenu  = require('./ReaderDisplayOptionsMenu');
 var ReaderNavigationMenu      = require('./ReaderNavigationMenu');
 var ReaderTextTableOfContents = require('./ReaderTextTableOfContents');
 var SearchPage                = require('./SearchPage');
@@ -266,15 +266,6 @@ var ReaderPanel = React.createClass({
             openTextToc={this.props.openTextToc}
             openReaderDisplayOptionsMenu={this.openReaderDisplayOptionsMenu} />
 
-          {this.state.ReaderDisplayOptionsMenuVisible ?
-          (<ReaderDisplayOptionsMenu
-            textFlow={this.state.textFlow}
-            textReference={this.props.textReference}
-            columnLanguage={this.state.columnLanguage}
-            ReaderDisplayOptionsMenuVisible={this.state.ReaderDisplayOptionsMenuVisible}
-            toggleTextFlow={this.toggleTextFlow}
-            togglecolumnLanguage={this.togglecolumnLanguage}/>) : null }
-
           <View style={styles.mainTextPanel}>
             <TextColumn
               data={this.props.data}
@@ -292,6 +283,15 @@ var ReaderPanel = React.createClass({
               setLoadTextTail={this.props.setLoadTextTail} />
           </View>
 
+          {this.state.ReaderDisplayOptionsMenuVisible ?
+          (<ReaderDisplayOptionsMenu
+            textFlow={this.state.textFlow}
+            textReference={this.props.textReference}
+            columnLanguage={this.state.columnLanguage}
+            ReaderDisplayOptionsMenuVisible={this.state.ReaderDisplayOptionsMenuVisible}
+            toggleTextFlow={this.toggleTextFlow}
+            togglecolumnLanguage={this.togglecolumnLanguage}/>) : null }
+            
           {this.props.textListVisible ?
             <View style={styles.commentaryTextPanel}>
               <TextList
@@ -336,37 +336,5 @@ var ReaderControls = React.createClass({
     );
   }
 });
-
-
-var ReaderDisplayOptionsMenu = React.createClass({
-  propTypes: {
-    textFlow:    React.PropTypes.string,
-    textReference:    React.PropTypes.string,
-    columnLanguage:    React.PropTypes.string,
-    ReaderDisplayOptionsMenuVisible: React.PropTypes.bool,
-    openNav:  React.PropTypes.function,
-    toggleTextFlow:  React.PropTypes.function,
-    togglecolumnLanguage:  React.PropTypes.function,
-    openSearch:  React.PropTypes.function,
-  },
-  render: function() {
-    return (
-        <View style={styles.header}>
-            <TouchableOpacity onPress={this.props.toggleTextFlow} style={[{width:100}]}>
-              <Text style={styles.title}>
-                {this.props.textFlow}
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={this.props.togglecolumnLanguage} style={[{width:100}]}>
-              <Text style={styles.title}>
-                {this.props.columnLanguage}
-              </Text>
-            </TouchableOpacity>
-        </View>
-    );
-  }
-});
-
-
 
 module.exports = ReaderPanel;

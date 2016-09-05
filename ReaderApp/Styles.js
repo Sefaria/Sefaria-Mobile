@@ -1,6 +1,6 @@
 'use strict'
 const React = require('react-native');
-const {StyleSheet} = React;
+const {StyleSheet,Dimensions} = React;
 
 module.exports = StyleSheet.create({
   modal: {
@@ -36,6 +36,51 @@ module.exports = StyleSheet.create({
     flexDirection: 'row',
     borderBottomWidth: 1,
     borderColor: "#DDD"
+  },
+  readerDisplayOptionsMenu: {
+    position: "absolute",
+    width: Dimensions.get('window').width,
+    top:50,
+    paddingLeft: 30,
+    paddingRight: 30,
+    paddingTop: 10,
+    paddingBottom: 10,
+    backgroundColor: '#F9F9F7',
+    alignItems: 'center',
+    alignSelf: 'stretch',
+    flexDirection: 'column',
+    borderBottomWidth: 1,
+    borderColor: "#DDD"
+  },
+  readerDisplayOptionsMenuRow: {
+    justifyContent: "center",
+    flexDirection: 'row',
+    flex:1,
+    paddingTop: 10,
+    paddingBottom: 10
+  },
+  readerDisplayOptionsMenuItem: {
+    flex: 1,
+    flexDirection: "row",
+    height:50,
+    borderWidth: 1,
+    borderColor: "#DDD",
+    backgroundColor: "white"
+  },
+  readerDisplayOptionsMenuItemLeft: {
+    borderTopLeftRadius: 10,
+    borderBottomLeftRadius: 10,
+    borderRightWidth: 0,
+  },
+  readerDisplayOptionsMenuItemCenter: {
+    borderRightWidth: 0
+  },
+  readerDisplayOptionsMenuItemRight: {
+    borderTopRightRadius: 10,
+    borderBottomRightRadius: 10
+  },
+  readerDisplayOptionsMenuItemSelected: {
+    backgroundColor: "#EEE"
   },
   headerButton: {
     width: 30,
