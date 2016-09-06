@@ -41,8 +41,6 @@ module.exports = StyleSheet.create({
     position: "absolute",
     width: Dimensions.get('window').width,
     top:50,
-    paddingLeft: 30,
-    paddingRight: 30,
     paddingTop: 10,
     paddingBottom: 10,
     backgroundColor: '#F9F9F7',
@@ -63,10 +61,13 @@ module.exports = StyleSheet.create({
     flex: 1,
     flexDirection: "row",
     height:50,
+    paddingLeft: 30,
+    paddingRight: 30,
     borderWidth: 1,
     borderColor: "#DDD",
     backgroundColor: "white",
-    justifyContent: "center"
+    justifyContent: "center",
+    alignItems: "center"
   },
   readerDisplayOptionsMenuItemLeft: {
     borderTopLeftRadius: 10,
@@ -84,10 +85,8 @@ module.exports = StyleSheet.create({
     backgroundColor: "#EEE"
   },
   readerDisplayOptionsMenuIcon: {
-    width: 15,
-    height: 15,
-    alignSelf: "center",
-    flexDirection: "row"
+    resizeMode: "contain",
+    height: 15
   },
   headerButton: {
     width: 30,

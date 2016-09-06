@@ -184,30 +184,17 @@ var ReaderPanel = React.createClass({
     }
     this.setState({settings: this.state.settings});
   },
-  toggleTextFlow:function() {
-    if (this.state.textFlow == "continuous") {
-  	 this.setState({textFlow:  "segmented"})
-  	} else {
-  	 this.setState({textFlow:  "continuous"})
+  setTextFlow: function(textFlow) {
+    this.setState({textFlow: textFlow});
 
-  	 if (this.state.columnLanguage == "bilingual") {
-        this.setState({columnLanguage:  "hebrew"})
-  	 }
-  	}
+    if (textFlow == "continuous" && this.state.columnLanguage == "bilingual") {
+      this.setColumnLanguage("hebrew");
+    }
   },
-  togglecolumnLanguage:function() {
-    switch(this.state.columnLanguage) {
-      case "english":
-          this.setState({columnLanguage:  "hebrew"})
-          break;
-      case "hebrew":
-      	this.state.textFlow == "continuous" ? this.setState({columnLanguage:  "english"}) : this.setState({columnLanguage:  "bilingual"})
-          break;
-      case "bilingual":
-          this.setState({columnLanguage:  "english"})
-          break;
-      default:
-          this.setState({columnLanguage:  "bilingual"})
+  setColumnLanguage: function(columnLanguage) {
+    this.setState({columnLanguage: columnLanguage});
+    if (columnLanguage == "bilingual" && this.state.textFlow == "continuous") {
+      this.setTextFlow("segmented");
     }
   },
   render: function() {
@@ -289,9 +276,9 @@ var ReaderPanel = React.createClass({
             textReference={this.props.textReference}
             columnLanguage={this.state.columnLanguage}
             ReaderDisplayOptionsMenuVisible={this.state.ReaderDisplayOptionsMenuVisible}
-            toggleTextFlow={this.toggleTextFlow}
-            togglecolumnLanguage={this.togglecolumnLanguage}/>) : null }
-            
+            setTextFlow={this.setTextFlow}
+            setColumnLanguage={this.setColumnLanguage}/>) : null }
+
           {this.props.textListVisible ?
             <View style={styles.commentaryTextPanel}>
               <TextList
