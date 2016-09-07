@@ -62,7 +62,7 @@ var ReaderPanel = React.createClass({
 
     };
   },
-  openReaderDisplayOptionsMenu: function () {
+  toggleReaderDisplayOptionsMenu: function () {
     if (this.state.ReaderDisplayOptionsMenuVisible == false) {
   	 this.setState({ReaderDisplayOptionsMenuVisible:  true})
   	} else {
@@ -190,12 +190,14 @@ var ReaderPanel = React.createClass({
     if (textFlow == "continuous" && this.state.columnLanguage == "bilingual") {
       this.setColumnLanguage("hebrew");
     }
+    this.toggleReaderDisplayOptionsMenu();
   },
   setColumnLanguage: function(columnLanguage) {
     this.setState({columnLanguage: columnLanguage});
     if (columnLanguage == "bilingual" && this.state.textFlow == "continuous") {
       this.setTextFlow("segmented");
     }
+    this.toggleReaderDisplayOptionsMenu();
   },
   incrementFont: function(incrementString) {
     if (incrementString == "incrementFont") {
@@ -260,7 +262,7 @@ var ReaderPanel = React.createClass({
             textReference={this.props.textReference}
             openNav={this.props.openNav}
             openTextToc={this.props.openTextToc}
-            openReaderDisplayOptionsMenu={this.openReaderDisplayOptionsMenu} />
+            toggleReaderDisplayOptionsMenu={this.toggleReaderDisplayOptionsMenu} />
 
           <View style={styles.mainTextPanel}>
             <TextColumn
@@ -285,7 +287,6 @@ var ReaderPanel = React.createClass({
             textFlow={this.state.textFlow}
             textReference={this.props.textReference}
             columnLanguage={this.state.columnLanguage}
-            ReaderDisplayOptionsMenuVisible={this.state.ReaderDisplayOptionsMenuVisible}
             setTextFlow={this.setTextFlow}
             setColumnLanguage={this.setColumnLanguage}
             incrementFont={this.incrementFont}/>) : null }
@@ -318,7 +319,7 @@ var ReaderControls = React.createClass({
     textReference:                 React.PropTypes.string,
     openNav:                       React.PropTypes.func,
     openTextToc:                   React.PropTypes.func,
-    openReaderDisplayOptionsMenu:  React.PropTypes.func,
+    toggleReaderDisplayOptionsMenu:  React.PropTypes.func,
   },
   render: function() {
     return (
@@ -329,7 +330,7 @@ var ReaderControls = React.createClass({
               {this.props.textReference}
             </Text>
           </TouchableOpacity>
-          <DisplaySettingsButton onPress={this.props.openReaderDisplayOptionsMenu} />
+          <DisplaySettingsButton onPress={this.props.toggleReaderDisplayOptionsMenu} />
         </View>
     );
   }

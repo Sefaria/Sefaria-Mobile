@@ -19,12 +19,9 @@ var ReaderDisplayOptionsMenu = React.createClass({
     textFlow:                        React.PropTypes.oneOf(['segmented','continuous']),
     textReference:                   React.PropTypes.string,
     columnLanguage:                  React.PropTypes.oneOf(['hebrew','english','bilingual']),
-    ReaderDisplayOptionsMenuVisible: React.PropTypes.bool,
-    openNav:                         React.PropTypes.func,
     setTextFlow:                     React.PropTypes.func,
     setColumnLanguage:               React.PropTypes.func,
-    incrementFont:                   React.PropTypes.func,
-    openSearch:                      React.PropTypes.func,
+    incrementFont:                   React.PropTypes.func
   },
   render: function() {
 
