@@ -12,7 +12,14 @@ var styles = require('./Styles.js');
 
 
 var TextSegment = React.createClass({
-
+  propTypes: {
+    segmentRef:      React.PropTypes.number,
+    segmentKey:      React.PropTypes.string,
+    data:            React.PropTypes.string,
+    textType:        React.PropTypes.oneOf(["english","hebrew"]),
+    TextSegmentPressed: React.PropTypes.func.isRequired,
+    settings:        React.PropTypes.object
+  },
   onPressTextSegment: function(key) {
     var section = key.split(":")[0];
     var segment = key.split(":")[1];
