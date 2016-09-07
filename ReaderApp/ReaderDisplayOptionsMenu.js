@@ -16,14 +16,15 @@ var continuous_icon = require('./img/continuous.png');
 
 var ReaderDisplayOptionsMenu = React.createClass({
   propTypes: {
-    textFlow:                        React.PropTypes.string,
+    textFlow:                        React.PropTypes.oneOf(['segmented','continuous']),
     textReference:                   React.PropTypes.string,
-    columnLanguage:                  React.PropTypes.string,
+    columnLanguage:                  React.PropTypes.oneOf(['hebrew','english','bilingual']),
     ReaderDisplayOptionsMenuVisible: React.PropTypes.bool,
-    openNav:                         React.PropTypes.function,
-    setTextFlow:                     React.PropTypes.function,
-    setColumnLanguage:               React.PropTypes.function,
-    openSearch:                      React.PropTypes.function,
+    openNav:                         React.PropTypes.func,
+    setTextFlow:                     React.PropTypes.func,
+    setColumnLanguage:               React.PropTypes.func,
+    incrementFont:                   React.PropTypes.func,
+    openSearch:                      React.PropTypes.func,
   },
   render: function() {
 
@@ -46,18 +47,18 @@ var ReaderDisplayOptionsMenu = React.createClass({
         divider: "true"
       },
       {
-        onPress:()=>null,
+        onPress:this.props.incrementFont,
         buttons:["decrementFont","incrementFont"],
         icons:[a_icon,a_icon],
         currVal: null,
-        parametrized: false
+        parametrized: true
       }
     ];
     var alignments = [["left","right"],["left","center","right"]];
     var optionViews = [];
     for (let optionRow of options) {
       if (optionRow.divider) {
-        optionViews.push(<View style={{flex:1,flexDirection:"row",height:1,backgroundColor:"#DDD"}}/>);
+        optionViews.push(<View style={styles.readerDisplayOptionsMenuDivider}/>);
       } else {
         let row = [];
         for (let i = 0; i < optionRow.buttons.length; i++) {
@@ -101,7 +102,7 @@ var ReaderDisplayOptionsMenuRow = React.createClass({
 var ReaderDisplayOptionsMenuItem = React.createClass({
   propTypes: {
     option:       React.PropTypes.string,
-    icon:         React.PropTypes.object,
+    icon:         React.PropTypes.number, /*PTP: why are images numbers? */
     align:        React.PropTypes.string,
     onPress:      React.PropTypes.func.isRequired,
     parametrized: React.PropTypes.bool, /* should onPress() use option as a paremeter*/

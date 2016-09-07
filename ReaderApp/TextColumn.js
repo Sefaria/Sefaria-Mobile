@@ -18,7 +18,22 @@ var segmentRefPositionArray = {};
 var TextSegment = require('./TextSegment');
 
 var TextColumn = React.createClass({
-
+  propTypes: {
+    settings:         React.PropTypes.object,
+    data:             React.PropTypes.array,
+    textReference:    React.PropTypes.string,
+    segmentRef:       React.PropTypes.number,
+    textFlow:         React.PropTypes.oneOf(["segmented","continuous"]),
+    columnLanguage:   React.PropTypes.oneOf(["hebrew","english","bilingual"]),
+    updateData:       React.PropTypes.func,
+    updateTitle:      React.PropTypes.func,
+    TextSegmentPressed:React.PropTypes.func,
+    textListVisible:  React.PropTypes.bool,
+    next:             React.PropTypes.string,
+    prev:             React.PropTypes.string,
+    loadingTextTail:  React.PropTypes.bool,
+    setLoadTextTail:  React.PropTypes.func
+  },
   getInitialState: function() {
     return {
       dataSource: new ListView.DataSource({
@@ -55,19 +70,24 @@ var TextColumn = React.createClass({
         segment.push(<Text style={styles.verseNumber}>{data[section][i].segmentNumber}.</Text>)
 
         if (columnLanguage == "english" || columnLanguage == "bilingual") {
-          segment.push(<TextSegment segmentRef={this.props.segmentRef} segmentKey={section+":"+data[section][i].segmentNumber}
-                                    data={data[section][i].text}
-                                    textType="english" TextSegmentPressed={ this.props.TextSegmentPressed }
-
-          />);
+          segment.push(<TextSegment
+                          segmentRef={this.props.segmentRef}
+                          segmentKey={section+":"+data[section][i].segmentNumber}
+                          data={data[section][i].text}
+                          textType="english"
+                          TextSegmentPressed={ this.props.TextSegmentPressed }
+                          settings={this.props.settings}
+                        />);
         }
 
         if (columnLanguage == "hebrew" || columnLanguage == "bilingual") {
-          segment.push(<TextSegment segmentRef={this.props.segmentRef} segmentKey={section+":"+data[section][i].segmentNumber}
-                                    data={data[section][i].he}
-                                    textType="hebrew" TextSegmentPressed={ this.props.TextSegmentPressed }
-
-          />);
+          segment.push(<TextSegment
+                          segmentRef={this.props.segmentRef}
+                          segmentKey={section+":"+data[section][i].segmentNumber}
+                          data={data[section][i].he}
+                          textType="hebrew" TextSegmentPressed={ this.props.TextSegmentPressed }
+                          settings={this.props.settings}
+                        />);
 
         }
         rows.push(segment);
@@ -191,7 +211,7 @@ var TextColumn = React.createClass({
         else {
           this.props.TextSegmentPressed(this.state.sectionArray.indexOf(section),Object.keys(visibleRows[section])[numberOfVisibleSegments-2]) //click the second to last visible segment
         }
-      }      
+      }
     }
 
 

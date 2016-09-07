@@ -55,14 +55,14 @@ module.exports = StyleSheet.create({
     flexDirection: 'row',
     flex:1,
     paddingTop: 10,
-    paddingBottom: 10
+    paddingBottom: 10,
+    marginLeft: 15,
+    marginRight: 15,
   },
   readerDisplayOptionsMenuItem: {
     flex: 1,
     flexDirection: "row",
     height:50,
-    paddingLeft: 30,
-    paddingRight: 30,
     borderWidth: 1,
     borderColor: "#DDD",
     backgroundColor: "white",
@@ -87,6 +87,13 @@ module.exports = StyleSheet.create({
   readerDisplayOptionsMenuIcon: {
     resizeMode: "contain",
     height: 15
+  },
+  readerDisplayOptionsMenuDivider: {
+    marginTop: 10,
+    marginBottom: 10,
+    width:1000,
+    height:1,
+    backgroundColor:"#DDD"
   },
   headerButton: {
     width: 30,

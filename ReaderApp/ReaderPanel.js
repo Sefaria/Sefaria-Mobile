@@ -53,7 +53,7 @@ var ReaderPanel = React.createClass({
         layoutTalmud:  "continuous",
         layoutTanakh:  "segmented",
         color:         "light",
-        fontSize:      62.5,
+        fontSize:      20,
       },
       filterIndex: null, /* index of filter in recentFilters */
       recentFilters: [],
@@ -197,6 +197,15 @@ var ReaderPanel = React.createClass({
       this.setTextFlow("segmented");
     }
   },
+  incrementFont: function(incrementString) {
+    if (incrementString == "incrementFont") {
+      this.state.settings.fontSize = this.state.settings.fontSize+1;
+      this.setState({settings:this.state.settings});
+    } else /*if (incrementString == "decrementFont") */{
+      this.state.settings.fontSize = this.state.settings.fontSize-1;
+      this.setState({settings:this.state.settings});
+    }
+  },
   render: function() {
 
     switch(this.props.menuOpen) {
@@ -255,6 +264,7 @@ var ReaderPanel = React.createClass({
 
           <View style={styles.mainTextPanel}>
             <TextColumn
+              settings={this.state.settings}
               data={this.props.data}
               textReference={this.props.textReference}
               segmentRef={this.props.segmentRef}
@@ -277,7 +287,8 @@ var ReaderPanel = React.createClass({
             columnLanguage={this.state.columnLanguage}
             ReaderDisplayOptionsMenuVisible={this.state.ReaderDisplayOptionsMenuVisible}
             setTextFlow={this.setTextFlow}
-            setColumnLanguage={this.setColumnLanguage}/>) : null }
+            setColumnLanguage={this.setColumnLanguage}
+            incrementFont={this.incrementFont}/>) : null }
 
           {this.props.textListVisible ?
             <View style={styles.commentaryTextPanel}>
