@@ -109,6 +109,7 @@ var ReaderNavigationMenu = React.createClass({
                   </View>);
 
       return(<View style={[styles.menu]}>
+              <CategoryColorLine category={"Other"} />
               <SearchBar 
                 closeNav={this.props.closeNav}
                 onQueryChange={this.props.openSearch}

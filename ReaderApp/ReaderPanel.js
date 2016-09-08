@@ -22,7 +22,8 @@ var styles                    = require('./Styles.js');
 var {
   MenuButton,
   DisplaySettingsButton,
-  LoadingView
+  LoadingView,
+  CategoryColorLine
 } = require('./Misc.js');
 
 
@@ -258,6 +259,7 @@ var ReaderPanel = React.createClass({
 
     return (
   		<View style={styles.container}>
+          <CategoryColorLine category={Sefaria.categoryForTitle(this.props.textTitle)} />
           <ReaderControls
             textReference={this.props.textReference}
             openNav={this.props.openNav}
@@ -307,8 +309,7 @@ var ReaderPanel = React.createClass({
                 linkContents={this.state.linkContents}
                 filterIndex={this.state.filterIndex}
                 recentFilters={this.state.recentFilters} />
-            </View>
-          : null}
+            </View> : null}
         </View>);
   }
 });

@@ -14,7 +14,8 @@ import {
 	Modal,
 	TextInput,
 	TouchableOpacity,
-	ActivityIndicatorIOS
+	ActivityIndicatorIOS,
+    StatusBar
 } from 'react-native';
 
 var styles  = require('./Styles.js');
@@ -23,7 +24,8 @@ var Sefaria = require('./sefaria');
 var ReaderPanel = require('./ReaderPanel');
 
 var {
-  LoadingView
+  LoadingView,
+  CategoryColorLine,
 } = require('./Misc.js');
 
 var ReaderApp = React.createClass({
@@ -138,40 +140,41 @@ var ReaderApp = React.createClass({
         });
     },
     render: function () {
-        if (!this.state.loaded) { return <LoadingView />; }
-        else {
-            return (
-                <View style={styles.container}>
-                    <ReaderPanel
-                        textReference={this.state.textReference}
-                        textTitle={this.state.textTitle}
-                        data={this.state.data}
-                        links={this.state.links}
-                        next={this.state.next}
-                        prev={this.state.prev}
-                        segmentRef={this.state.segmentRef}
-                        textList={0}
-                        menuOpen={this.state.menuOpen}
-                        navigationCategories={this.state.navigationCategories}
-                        style={styles.mainTextPanel}
-                        updateData={this.updateData}
-                        updateTitle={this.updateTitle}
-                        TextSegmentPressed={ this.TextSegmentPressed }
-                        openRef={ this.openRef }
-                        interfaceLang={this.state.interfaceLang}
-                        openMenu={this.openMenu}
-                        closeMenu={this.closeMenu}
-                        openNav={this.openNav}
-                        setNavigationCategories={this.setNavigationCategories}
-                        openTextToc={this.openTextToc}
-                        openSearch={this.openSearch}
-                        loadingTextTail={this.state.loadingTextTail}
-                        setLoadTextTail={this.setLoadTextTail}
-                        textListVisible={this.state.textListVisible}
-                        Sefaria={Sefaria} />
-                </View>
-            );
-        }
+        return (
+            <View style={styles.container}>
+                <StatusBar 
+                    barStyle="light-content" />
+                { this.state.loaded ? 
+                <ReaderPanel
+                    textReference={this.state.textReference}
+                    textTitle={this.state.textTitle}
+                    data={this.state.data}
+                    links={this.state.links}
+                    next={this.state.next}
+                    prev={this.state.prev}
+                    segmentRef={this.state.segmentRef}
+                    textList={0}
+                    menuOpen={this.state.menuOpen}
+                    navigationCategories={this.state.navigationCategories}
+                    style={styles.mainTextPanel}
+                    updateData={this.updateData}
+                    updateTitle={this.updateTitle}
+                    TextSegmentPressed={ this.TextSegmentPressed }
+                    openRef={ this.openRef }
+                    interfaceLang={this.state.interfaceLang}
+                    openMenu={this.openMenu}
+                    closeMenu={this.closeMenu}
+                    openNav={this.openNav}
+                    setNavigationCategories={this.setNavigationCategories}
+                    openTextToc={this.openTextToc}
+                    openSearch={this.openSearch}
+                    loadingTextTail={this.state.loadingTextTail}
+                    setLoadTextTail={this.setLoadTextTail}
+                    textListVisible={this.state.textListVisible}
+                    Sefaria={Sefaria} /> 
+                : <LoadingView /> }
+            </View>
+        );
     },
 });
 

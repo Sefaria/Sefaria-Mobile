@@ -73,6 +73,7 @@ var ReaderNavigationCategoryMenu = React.createClass({
 
     var catContents = Sefaria.tocItemsByCategories(categories);
     return (<View style={styles.menu}>
+              <CategoryColorLine category={this.props.category} />
               <View style={styles.header}>
                 <CategoryColorLine category={categories[0]} />
                 <MenuButton onPress={this.props.navHome} />

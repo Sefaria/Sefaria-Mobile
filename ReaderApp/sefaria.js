@@ -59,6 +59,12 @@ Sefaria = {
     }
     return null;
   },
+  categoryForTitle: function(title) {
+    console.log("category for title: " + title);
+    var index = Sefaria.index(title);
+    console.log(index ? index.categories[0] : null);
+    return index ? index.categories[0] : null;
+  },
   getTitle: function(ref, isCommentary, isHe) {
       var fileNameStem = ref.split(":")[0];
       var bookRefStem = fileNameStem.substring(0, fileNameStem.lastIndexOf(" "));
