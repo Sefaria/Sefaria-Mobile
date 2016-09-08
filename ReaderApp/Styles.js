@@ -282,7 +282,8 @@ module.exports = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: '#fff',
     alignSelf: 'stretch',
-    alignItems: "flex-start"
+    alignItems: "flex-start",
+    flexDirection:"row"
   },
   commentaryTextPanel: {
     flex: .5,
@@ -290,11 +291,6 @@ module.exports = StyleSheet.create({
     alignSelf: 'stretch',
     borderTopWidth: 1,
     borderColor: "#111"
-  },
-  listView: {
-    flex: 1,
-    padding: 20,
-    alignSelf: 'stretch'
   },
   b: {
     fontWeight: "bold"
@@ -305,6 +301,7 @@ module.exports = StyleSheet.create({
     fontFamily: "Montserrat",
     fontWeight: "100",
     marginRight: 5,
+    flex:.05
   },
 
   englishSystemFont: {
@@ -315,11 +312,37 @@ module.exports = StyleSheet.create({
     fontFamily: "EB Garamond",
     fontSize: 20
   },
+
   verseContainer: {
-    flexDirection: "row",
-    paddingTop: 10,
-    paddingBottom: 10,
+    flexDirection: "column",
+    marginLeft:20,
+    marginRight:20,
+    marginTop:10,
+    marginBottom:10,
   },
+  textColumn: {
+    flexDirection: "row",
+    alignItems: 'stretch'
+
+  },
+  sectionHeader: {
+    flex: 1,
+    alignItems:'stretch',
+    alignSelf:'stretch',
+  },
+  TextSegment: {
+    flexDirection: "column",
+    flexWrap:"wrap",
+    flex:.95
+  },
+  numberSegmentHolderEn: {
+    flexDirection: "row",
+  },
+  numberSegmentHolderBiHe: {
+    flexDirection: "row-reverse",
+  },
+
+
   rightContainer: {
     flex: 1
   },

@@ -279,7 +279,10 @@ var ReaderPanel = React.createClass({
               next={this.props.next}
               prev={this.props.prev}
               loadingTextTail={this.props.loadingTextTail}
-              setLoadTextTail={this.props.setLoadTextTail} />
+              setLoadTextTail={this.props.setLoadTextTail}
+              style={styles.textColumn}
+
+            />
           </View>
 
           {this.state.ReaderDisplayOptionsMenuVisible ?

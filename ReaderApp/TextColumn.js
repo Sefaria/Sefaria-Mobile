@@ -66,22 +66,18 @@ var TextColumn = React.createClass({
       var rows = [];
       for (var i = 0; i < data[section].length; i++) {
         var segment = []
-
-        segment.push(<Text style={styles.verseNumber}>{data[section][i].segmentNumber}.</Text>)
-
-        if (columnLanguage == "english" || columnLanguage == "bilingual") {
-          segment.push(<TextSegment
-                          segmentRef={this.props.segmentRef}
-                          segmentKey={section+":"+data[section][i].segmentNumber}
-                          data={data[section][i].text}
-                          textType="english"
-                          TextSegmentPressed={ this.props.TextSegmentPressed }
-                          settings={this.props.settings}
-                        />);
+        if (i==0) {
+          segment.push(<View style={styles.sectionHeader}><Text>- {this.state.sectionArray[section]} -</Text></View>);
         }
 
+        var numberSegmentHolder = [];
+
+        numberSegmentHolder.push(<Text style={styles.verseNumber}>{data[section][i].segmentNumber}</Text>)
+
+        var segmentText = [];
+
         if (columnLanguage == "hebrew" || columnLanguage == "bilingual") {
-          segment.push(<TextSegment
+          segmentText.push(<TextSegment
                           segmentRef={this.props.segmentRef}
                           segmentKey={section+":"+data[section][i].segmentNumber}
                           data={data[section][i].he}
@@ -90,6 +86,23 @@ var TextColumn = React.createClass({
                         />);
 
         }
+        
+
+        if (columnLanguage == "english" || columnLanguage == "bilingual") {
+          segmentText.push(<TextSegment
+                          style={styles.TextSegment}
+                          segmentRef={this.props.segmentRef}
+                          segmentKey={section+":"+data[section][i].segmentNumber}
+                          data={data[section][i].text}
+                          textType="english"
+                          TextSegmentPressed={ this.props.TextSegmentPressed }
+                          settings={this.props.settings}
+                        />);
+        }
+        numberSegmentHolder.push(<View style={styles.TextSegment}>{segmentText}</View>)
+
+        segment.push(<View style={styles.numberSegmentHolderEn}>{numberSegmentHolder}</View>)
+
         rows.push(segment);
       }
     sections[this.state.sectionArray[section]] = rows;
@@ -143,6 +156,7 @@ var TextColumn = React.createClass({
     }
     this.props.setLoadTextTail(true);
 //    this.refs._listView.scrollTo({x: 0, y: this.calculateOffset()+363, animated: false}) //TODO replace 363 with the height of textColumn
+    console.log(this.refs._listView.getMetrics());
 
 
     Sefaria.data(this.props.prev).then(function(data) {
@@ -158,6 +172,7 @@ var TextColumn = React.createClass({
       this.props.updateData(updatedData,this.props.prev,this.props.next,data.prev); //combined data content, new section title, the next section to be loaded on end , the previous section to load on top
 
 
+        console.log(this.refs._listView.getMetrics());
 
     }.bind(this)).catch(function(error) {
       console.log('oh no', error);
@@ -195,6 +210,7 @@ var TextColumn = React.createClass({
   },
 
   visibleRowsChanged: function(visibleRows, changedRows) {
+    console.log(visibleRows)
 
     //Change Title of ReaderPanel based on last visible section
     if (Object.keys(visibleRows)[0] != this.props.textReference) {
@@ -222,7 +238,6 @@ var TextColumn = React.createClass({
 
     return (
       <ListView ref='_listView'
-                style={styles.listview}
                 dataSource={dataSourceRows}
                 renderRow={(rowData, sID, rID) =>  <View style={rID == this.props.segmentRef ? [styles.verseContainer,styles.segmentHighlight] : styles.verseContainer}>{rowData}</View>}
                 onScroll={this.handleScroll}
@@ -230,7 +245,6 @@ var TextColumn = React.createClass({
                 onContentSizeChange={(w, h) => {this.updateHeight(h)}}
                 onEndReached={this.onEndReached}
                 onEndReachedThreshold={300}
-
       />
 
     );
