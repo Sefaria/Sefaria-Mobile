@@ -79,6 +79,10 @@ var ReaderApp = React.createClass({
                 prev:      data.prev,
                 loaded:    true
             });
+
+            // Preload Text TOC data into memory
+            Sefaria.textToc(data.indexTitle, function() {});
+
             Sefaria.saveRecentItem({ref: ref, heRef: data.heRef, category: data.categories[0]});
         }.bind(this)).catch(function(error) {
           console.log('oh no', error);
