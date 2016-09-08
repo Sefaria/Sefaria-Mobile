@@ -235,13 +235,15 @@ module.exports = StyleSheet.create({
     marginBottom: 30
   },
   readerNavCategory: {
-    height: 40,
     backgroundColor: "white",
     borderTopWidth: 4,
     margin: 5,
-    flexDirection: "row",
+    minHeight: 40,
+    paddingVertical: 5,
+    paddingHorizontal: 5,  
+    flex: 1,
     justifyContent: "center",
-    alignItems: "center"
+    alignItems: "center",
   },
   readerNavSectionTitle: {
     alignSelf: "center",
