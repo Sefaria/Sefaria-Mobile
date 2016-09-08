@@ -45,6 +45,7 @@ var ReaderApp = React.createClass({
             navigationCategories: [],
             loadingTextTail: false,
             textListVisible: false,
+            data: null,
             interfaceLang: "english" // TODO check device settings for Hebrew: ### import {NativeModules} from 'react-native'; console.log(NativeModules.SettingsManager.settings.AppleLocale);
         };
     },
@@ -66,6 +67,8 @@ var ReaderApp = React.createClass({
     },
     loadNewText: function(ref) {
         Sefaria.data(ref).then(function(data) {
+            console.log("Loaded data for " + ref);
+            console.log(data);
             var links = [];
             if (data.content) {
                 links = Sefaria.links.linkSummary(data.content[this.state.segmentRef].links);
@@ -148,7 +151,6 @@ var ReaderApp = React.createClass({
             <View style={styles.container}>
                 <StatusBar 
                     barStyle="light-content" />
-                { this.state.loaded ? 
                 <ReaderPanel
                     textReference={this.state.textReference}
                     textTitle={this.state.textTitle}
@@ -175,8 +177,8 @@ var ReaderApp = React.createClass({
                     loadingTextTail={this.state.loadingTextTail}
                     setLoadTextTail={this.setLoadTextTail}
                     textListVisible={this.state.textListVisible}
+                    loading={!this.state.loaded}
                     Sefaria={Sefaria} /> 
-                : <LoadingView /> }
             </View>
         );
     },

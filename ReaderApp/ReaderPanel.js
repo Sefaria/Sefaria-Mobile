@@ -36,6 +36,7 @@ var ReaderPanel = React.createClass({
     openNav:       React.PropTypes.func.isRequired,
     openTextToc:   React.PropTypes.func.isRequired,
     interfaceLang: React.PropTypes.string.isRequired,
+    loading:       React.PropTypes.bool,
     Sefaria:       React.PropTypes.object.isRequired
   },
   getInitialState: function () {
@@ -266,6 +267,8 @@ var ReaderPanel = React.createClass({
             openTextToc={this.props.openTextToc}
             toggleReaderDisplayOptionsMenu={this.toggleReaderDisplayOptionsMenu} />
 
+          { this.props.loading ? 
+          <LoadingView /> : 
           <View style={styles.mainTextPanel}>
             <TextColumn
               settings={this.state.settings}
@@ -282,7 +285,7 @@ var ReaderPanel = React.createClass({
               prev={this.props.prev}
               loadingTextTail={this.props.loadingTextTail}
               setLoadTextTail={this.props.setLoadTextTail} />
-          </View>
+          </View> }
 
           {this.state.ReaderDisplayOptionsMenuVisible ?
           (<ReaderDisplayOptionsMenu
@@ -293,7 +296,7 @@ var ReaderPanel = React.createClass({
             setColumnLanguage={this.setColumnLanguage}
             incrementFont={this.incrementFont}/>) : null }
 
-          {this.props.textListVisible ?
+          {this.props.textListVisible && !this.props.loading ?
             <View style={styles.commentaryTextPanel}>
               <TextList
                 Sefaria={Sefaria}
