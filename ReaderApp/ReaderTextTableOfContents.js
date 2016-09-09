@@ -11,6 +11,7 @@ import {
 var {
   CloseButton,
   LanguageToggleButton,
+  CategoryColorLine,
   ToggleSet,
   TwoBox,
   LoadingView
@@ -53,7 +54,7 @@ var ReaderTextTableOfContents = React.createClass({
 
     return (
       <View style={[styles.menu]}>
-            
+        <CategoryColorLine category={Sefaria.categoryForTitle(this.props.title)} />
         <View style={styles.header}>
           <CloseButton onPress={this.props.close} />
           <Text style={[styles.textTocHeaderTitle, styles.textCenter]}>TABLE OF CONTENTS</Text>

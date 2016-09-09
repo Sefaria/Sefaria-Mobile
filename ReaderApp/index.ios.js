@@ -14,7 +14,8 @@ import {
 	Modal,
 	TextInput,
 	TouchableOpacity,
-	ActivityIndicatorIOS
+	ActivityIndicatorIOS,
+    StatusBar
 } from 'react-native';
 
 var styles  = require('./Styles.js');
@@ -23,7 +24,8 @@ var Sefaria = require('./sefaria');
 var ReaderPanel = require('./ReaderPanel');
 
 var {
-  LoadingView
+  LoadingView,
+  CategoryColorLine,
 } = require('./Misc.js');
 
 var ReaderApp = React.createClass({
@@ -43,6 +45,7 @@ var ReaderApp = React.createClass({
             navigationCategories: [],
             loadingTextTail: false,
             textListVisible: false,
+            data: null,
             interfaceLang: "english" // TODO check device settings for Hebrew: ### import {NativeModules} from 'react-native'; console.log(NativeModules.SettingsManager.settings.AppleLocale);
         };
     },
@@ -64,6 +67,8 @@ var ReaderApp = React.createClass({
     },
     loadNewText: function(ref) {
         Sefaria.data(ref).then(function(data) {
+            console.log("Loaded data for " + ref);
+            console.log(data);
             var links = [];
             if (data.content) {
                 links = Sefaria.links.linkSummary(data.content[this.state.segmentRef].links);
@@ -77,6 +82,10 @@ var ReaderApp = React.createClass({
                 prev:      data.prev,
                 loaded:    true
             });
+
+            // Preload Text TOC data into memory
+            Sefaria.textToc(data.indexTitle, function() {});
+
             Sefaria.saveRecentItem({ref: ref, heRef: data.heRef, category: data.categories[0]});
         }.bind(this)).catch(function(error) {
           console.log('oh no', error);
@@ -138,40 +147,40 @@ var ReaderApp = React.createClass({
         });
     },
     render: function () {
-        if (!this.state.loaded) { return <LoadingView />; }
-        else {
-            return (
-                <View style={styles.container}>
-                    <ReaderPanel
-                        textReference={this.state.textReference}
-                        textTitle={this.state.textTitle}
-                        data={this.state.data}
-                        links={this.state.links}
-                        next={this.state.next}
-                        prev={this.state.prev}
-                        segmentRef={this.state.segmentRef}
-                        textList={0}
-                        menuOpen={this.state.menuOpen}
-                        navigationCategories={this.state.navigationCategories}
-                        style={styles.mainTextPanel}
-                        updateData={this.updateData}
-                        updateTitle={this.updateTitle}
-                        TextSegmentPressed={ this.TextSegmentPressed }
-                        openRef={ this.openRef }
-                        interfaceLang={this.state.interfaceLang}
-                        openMenu={this.openMenu}
-                        closeMenu={this.closeMenu}
-                        openNav={this.openNav}
-                        setNavigationCategories={this.setNavigationCategories}
-                        openTextToc={this.openTextToc}
-                        openSearch={this.openSearch}
-                        loadingTextTail={this.state.loadingTextTail}
-                        setLoadTextTail={this.setLoadTextTail}
-                        textListVisible={this.state.textListVisible}
-                        Sefaria={Sefaria} />
-                </View>
-            );
-        }
+        return (
+            <View style={styles.container}>
+                <StatusBar 
+                    barStyle="light-content" />
+                <ReaderPanel
+                    textReference={this.state.textReference}
+                    textTitle={this.state.textTitle}
+                    data={this.state.data}
+                    links={this.state.links}
+                    next={this.state.next}
+                    prev={this.state.prev}
+                    segmentRef={this.state.segmentRef}
+                    textList={0}
+                    menuOpen={this.state.menuOpen}
+                    navigationCategories={this.state.navigationCategories}
+                    style={styles.mainTextPanel}
+                    updateData={this.updateData}
+                    updateTitle={this.updateTitle}
+                    TextSegmentPressed={ this.TextSegmentPressed }
+                    openRef={ this.openRef }
+                    interfaceLang={this.state.interfaceLang}
+                    openMenu={this.openMenu}
+                    closeMenu={this.closeMenu}
+                    openNav={this.openNav}
+                    setNavigationCategories={this.setNavigationCategories}
+                    openTextToc={this.openTextToc}
+                    openSearch={this.openSearch}
+                    loadingTextTail={this.state.loadingTextTail}
+                    setLoadTextTail={this.setLoadTextTail}
+                    textListVisible={this.state.textListVisible}
+                    loading={!this.state.loaded}
+                    Sefaria={Sefaria} /> 
+            </View>
+        );
     },
 });
 

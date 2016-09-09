@@ -2,6 +2,9 @@
 const React = require('react-native');
 const {StyleSheet,Dimensions} = React;
 
+var Sefaria = require('./sefaria'); // Included for Sefaria.palette
+
+
 module.exports = StyleSheet.create({
   modal: {
     justifyContent: 'center',
@@ -27,20 +30,25 @@ module.exports = StyleSheet.create({
     alignSelf: 'stretch',
     backgroundColor: '#F5FCFF'
   },
+  categoryColorLine: {
+    height: 26,
+    borderTopWidth: 20,
+    borderTopColor: "black",
+    alignSelf: "stretch"
+  },
   header: {
     height: 50,
-    paddingTop: 18,
     backgroundColor: '#F9F9F7',
     alignItems: 'center',
     alignSelf: 'stretch',
     flexDirection: 'row',
     borderBottomWidth: 1,
-    borderColor: "#DDD"
+    borderBottomColor: "#DDD"
   },
   readerDisplayOptionsMenu: {
     position: "absolute",
     width: Dimensions.get('window').width,
-    top:50,
+    top: 76,
     paddingTop: 10,
     paddingBottom: 10,
     backgroundColor: '#F9F9F7',
@@ -86,7 +94,7 @@ module.exports = StyleSheet.create({
   },
   readerDisplayOptionsMenuIcon: {
     resizeMode: "contain",
-    height: 15
+    height: 14,
   },
   readerDisplayOptionsMenuDivider: {
     marginTop: 10,
@@ -96,8 +104,8 @@ module.exports = StyleSheet.create({
     backgroundColor:"#DDD"
   },
   headerButton: {
-    width: 30,
-    height: 30,
+    width: 40,
+    height: 50,
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: "transparent"
@@ -105,17 +113,21 @@ module.exports = StyleSheet.create({
   menuButton: {
     textAlign: "center",
     alignSelf: "stretch",
-    fontSize: 18,
+    fontSize: 22,
+    color: "#BFBFBF"
   },
   closeButton: {
     textAlign: "center",
     alignSelf: "stretch",
-    fontSize: 22,
+    fontSize: 40,
+    color: "#BFBFBF",
+    top: -4
   },
   searchButton: {
     textAlign: "center",
     alignSelf: "stretch",
-    fontSize: 22,
+    fontSize: 25,
+    color: "#BFBFBF"
   },
   tripleDotsContainer: {
     flexDirection: "column",
@@ -184,8 +196,9 @@ module.exports = StyleSheet.create({
     margin: 10
   },
   displaySettingsButton: {
-    width: 22,
-    height: 22,
+    width: 25,
+    height: 25,
+    opacity: 0.3
   },
   menu: {
     backgroundColor: '#f9f9f7',
@@ -222,13 +235,15 @@ module.exports = StyleSheet.create({
     marginBottom: 30
   },
   readerNavCategory: {
-    height: 40,
     backgroundColor: "white",
     borderTopWidth: 4,
     margin: 5,
-    flexDirection: "row",
+    minHeight: 40,
+    paddingVertical: 5,
+    paddingHorizontal: 5,  
+    flex: 1,
     justifyContent: "center",
-    alignItems: "center"
+    alignItems: "center",
   },
   readerNavSectionTitle: {
     alignSelf: "center",

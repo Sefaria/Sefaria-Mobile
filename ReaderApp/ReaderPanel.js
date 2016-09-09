@@ -22,7 +22,8 @@ var styles                    = require('./Styles.js');
 var {
   MenuButton,
   DisplaySettingsButton,
-  LoadingView
+  LoadingView,
+  CategoryColorLine
 } = require('./Misc.js');
 
 
@@ -35,6 +36,7 @@ var ReaderPanel = React.createClass({
     openNav:       React.PropTypes.func.isRequired,
     openTextToc:   React.PropTypes.func.isRequired,
     interfaceLang: React.PropTypes.string.isRequired,
+    loading:       React.PropTypes.bool,
     Sefaria:       React.PropTypes.object.isRequired
   },
   getInitialState: function () {
@@ -258,12 +260,15 @@ var ReaderPanel = React.createClass({
 
     return (
   		<View style={styles.container}>
+          <CategoryColorLine category={Sefaria.categoryForTitle(this.props.textTitle)} />
           <ReaderControls
             textReference={this.props.textReference}
             openNav={this.props.openNav}
             openTextToc={this.props.openTextToc}
             toggleReaderDisplayOptionsMenu={this.toggleReaderDisplayOptionsMenu} />
 
+          { this.props.loading ?
+          <LoadingView /> :
           <View style={styles.mainTextPanel}>
             <TextColumn
               settings={this.state.settings}
@@ -282,9 +287,8 @@ var ReaderPanel = React.createClass({
               loadingTextTail={this.props.loadingTextTail}
               setLoadTextTail={this.props.setLoadTextTail}
               style={styles.textColumn}
-
             />
-          </View>
+          </View> }
 
           {this.state.ReaderDisplayOptionsMenuVisible ?
           (<ReaderDisplayOptionsMenu
@@ -295,7 +299,7 @@ var ReaderPanel = React.createClass({
             setColumnLanguage={this.setColumnLanguage}
             incrementFont={this.incrementFont}/>) : null }
 
-          {this.props.textListVisible ?
+          {this.props.textListVisible && !this.props.loading ?
             <View style={styles.commentaryTextPanel}>
               <TextList
                 Sefaria={Sefaria}
@@ -311,8 +315,7 @@ var ReaderPanel = React.createClass({
                 linkContents={this.state.linkContents}
                 filterIndex={this.state.filterIndex}
                 recentFilters={this.state.recentFilters} />
-            </View>
-          : null}
+            </View> : null}
         </View>);
   }
 });

@@ -10,7 +10,9 @@ var SearchBar        = require('./SearchBar');
 var SearchResultList = require('./SearchResultList');
 var styles           = require('./Styles.js');
 
-
+var {
+  CategoryColorLine,
+} = require('./Misc.js');
 
 var SearchPage = React.createClass({
 	propTypes: {
@@ -30,6 +32,7 @@ var SearchPage = React.createClass({
 
 		return (
 			<View style={styles.menu}>
+				<CategoryColorLine category={"Other"} />
 				<SearchBar 
 					closeNav={this.props.closeNav}
 					onQueryChange={this.props.onQueryChange}
