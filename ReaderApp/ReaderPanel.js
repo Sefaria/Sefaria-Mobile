@@ -274,6 +274,7 @@ var ReaderPanel = React.createClass({
               columnLanguage={this.state.columnLanguage}
               updateData={this.props.updateData}
               updateTitle={this.props.updateTitle}
+              textTitle={this.props.textTitle}
               TextSegmentPressed={ this.props.TextSegmentPressed }
               textListVisible={this.props.textListVisible}
               next={this.props.next}

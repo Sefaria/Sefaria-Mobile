@@ -327,8 +327,15 @@ module.exports = StyleSheet.create({
   },
   sectionHeader: {
     flex: 1,
-    alignItems:'stretch',
-    alignSelf:'stretch',
+    alignItems: 'center',
+    alignSelf: 'stretch',
+  },
+  sectionHeaderText: {
+    borderBottomWidth: 4,
+    borderBottomColor: "#e6e5e6",
+    borderStyle: "solid",
+    paddingBottom: 3,
+    color: "#999",
   },
   TextSegment: {
     flexDirection: "column",

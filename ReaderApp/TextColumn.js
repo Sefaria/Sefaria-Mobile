@@ -23,6 +23,7 @@ var TextColumn = React.createClass({
     data:             React.PropTypes.array,
     textReference:    React.PropTypes.string,
     segmentRef:       React.PropTypes.number,
+    textTitle:        React.PropTypes.string,
     textFlow:         React.PropTypes.oneOf(["segmented","continuous"]),
     columnLanguage:   React.PropTypes.oneOf(["hebrew","english","bilingual"]),
     updateData:       React.PropTypes.func,
@@ -67,7 +68,7 @@ var TextColumn = React.createClass({
       for (var i = 0; i < data[section].length; i++) {
         var segment = []
         if (i==0) {
-          segment.push(<View style={styles.sectionHeader}><Text>- {this.state.sectionArray[section]} -</Text></View>);
+          segment.push(<View style={styles.sectionHeader}><Text style={styles.sectionHeaderText}>{this.state.sectionArray[section].replace(this.props.textTitle,'')}</Text></View>);
         }
 
         var numberSegmentHolder = [];
@@ -130,9 +131,56 @@ var TextColumn = React.createClass({
   },
 
   handleScroll: function(e) {
-     if (e.nativeEvent.contentOffset.y < -50) {
+
+    if (e.nativeEvent.contentOffset.y < -50) {
        this.onTopReached();
-     }
+    }
+
+    var visibleRows = this.refs._listView._visibleRows;
+//    var numberOfVisibleSections = Object.keys(visibleRows).length;
+    var nameOfFirstSection = Object.keys(visibleRows)[0];
+    var nameOfSecondSection = Object.keys(visibleRows)[1] || null;
+    var numberOfVisibleSegmentsInFirstSection = Object.keys(visibleRows[nameOfFirstSection]).length;
+    if (nameOfSecondSection !== null) {
+      var numberOfVisibleSegmentsInSecondSection = Object.keys(visibleRows[nameOfSecondSection]).length;
+    }
+    else {
+      var numberOfVisibleSegmentsInSecondSection = 0;
+    }
+
+
+    //update title
+    if (numberOfVisibleSegmentsInFirstSection > numberOfVisibleSegmentsInSecondSection) {
+      this.props.updateTitle(nameOfFirstSection)
+    }
+    else {
+      this.props.updateTitle(nameOfSecondSection)
+    }
+
+    //auto highlight middle visible segment
+    if (this.props.textListVisible) {
+
+      var indexOfMiddleVisibleSegment = parseInt((numberOfVisibleSegmentsInFirstSection + numberOfVisibleSegmentsInSecondSection) / 2);
+      //    console.log(indexOfMiddleVisibleSegment);
+      //console.log(visibleRows);
+
+      if (indexOfMiddleVisibleSegment < numberOfVisibleSegmentsInFirstSection) {
+        var segmentToLoad = Object.keys(visibleRows[nameOfFirstSection])[indexOfMiddleVisibleSegment];
+        console.log(segmentToLoad);
+        this.props.TextSegmentPressed(this.state.sectionArray.indexOf(nameOfFirstSection), segmentToLoad);
+      }
+      else {
+        var segmentToLoad = Object.keys(visibleRows[nameOfSecondSection])[indexOfMiddleVisibleSegment - numberOfVisibleSegmentsInFirstSection];
+        console.log(segmentToLoad);
+        this.props.TextSegmentPressed(this.state.sectionArray.indexOf(nameOfSecondSection), segmentToLoad);
+      }
+    }
+
+
+
+
+
+
   },
 
   updateHeight: function(newHeight) {
@@ -210,25 +258,7 @@ var TextColumn = React.createClass({
   },
 
   visibleRowsChanged: function(visibleRows, changedRows) {
-    console.log(visibleRows)
-
-    //Change Title of ReaderPanel based on last visible section
-    if (Object.keys(visibleRows)[0] != this.props.textReference) {
-      this.props.updateTitle(Object.keys(visibleRows)[0])
-    }
-
-    //auto highlight the second to last visible segment
-    if (this.props.textListVisible) {
-      for (var section in visibleRows) {
-        var numberOfVisibleSegments = Object.keys(visibleRows[section]).length;
-        if (numberOfVisibleSegments < 2) {
-          this.props.TextSegmentPressed(this.state.sectionArray.indexOf(section),0); //If there's only one verse from the new section, click it.
-        }
-        else {
-          this.props.TextSegmentPressed(this.state.sectionArray.indexOf(section),parseInt(Object.keys(visibleRows[section])[numberOfVisibleSegments-2])); //click the second to last visible segment
-        }
-      }
-    }
+//    console.log(visibleRows)
 
 
   },
@@ -239,12 +269,13 @@ var TextColumn = React.createClass({
     return (
       <ListView ref='_listView'
                 dataSource={dataSourceRows}
-                renderRow={(rowData, sID, rID) =>  <View style={rID == this.props.segmentRef ? [styles.verseContainer,styles.segmentHighlight] : styles.verseContainer}>{rowData}</View>}
+                renderRow={(rowData, sID, rID) =>  <View style={rID == this.props.segmentRef && this.props.textListVisible == true ? [styles.verseContainer,styles.segmentHighlight] : styles.verseContainer}>{rowData}</View>}
                 onScroll={this.handleScroll}
                 onChangeVisibleRows={(visibleRows, changedRows) => this.visibleRowsChanged(visibleRows, changedRows)}
                 onContentSizeChange={(w, h) => {this.updateHeight(h)}}
                 onEndReached={this.onEndReached}
                 onEndReachedThreshold={300}
+                scrollEventThrottle={200}
       />
 
     );
