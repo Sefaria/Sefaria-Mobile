@@ -21,8 +21,8 @@ var TextSegment = React.createClass({
     settings:        React.PropTypes.object
   },
   onPressTextSegment: function(key) {
-    var section = key.split(":")[0];
-    var segment = key.split(":")[1];
+    let section = key.split(":")[0];
+    let segment = key.split(":")[1];
     this.props.TextSegmentPressed(section,segment - 1,true);
 
 

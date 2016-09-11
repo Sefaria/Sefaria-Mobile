@@ -233,8 +233,8 @@ var LinkContent = React.createClass({
     var lang = Sefaria.util.getColumnLanguageWithContent(this.props.columnLanguage,lco.en,lco.he);
     var textViews = [];
 
-    let hebrewElem = <Text style={[styles.hebrewText, {fontSize:this.props.settings.fontSize}]}><HTMLView stylesheet={styles} value={lco.he}/></Text>;
-    let englishElem = <Text style={[styles.englishText, {fontSize:0.8*this.props.settings.fontSize}]}><HTMLView stylesheet={styles} value={lco.en}/></Text>;
+    var hebrewElem =  <Text style={[styles.hebrewText,  {fontSize:this.props.settings.fontSize}]}>    <HTMLView stylesheet={styles} value={lco.he}/></Text>;
+    var englishElem = <Text style={[styles.englishText, {fontSize:0.8*this.props.settings.fontSize}]}><HTMLView stylesheet={styles} value={lco.en}/></Text>;
     if (lang == "bilingual") {
       textViews = [hebrewElem,englishElem];
     } else if (lang == "hebrew") {

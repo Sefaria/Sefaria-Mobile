@@ -167,12 +167,12 @@ var TextColumn = React.createClass({
       //console.log(visibleRows);
 
       if (indexOfMiddleVisibleSegment < numberOfVisibleSegmentsInFirstSection) {
-        var segmentToLoad = Object.keys(visibleRows[nameOfFirstSection])[indexOfMiddleVisibleSegment];
+        var segmentToLoad = parseInt(Object.keys(visibleRows[nameOfFirstSection])[indexOfMiddleVisibleSegment]);
         console.log(segmentToLoad);
         this.props.TextSegmentPressed(this.state.sectionArray.indexOf(nameOfFirstSection), segmentToLoad);
       }
       else {
-        var segmentToLoad = Object.keys(visibleRows[nameOfSecondSection])[indexOfMiddleVisibleSegment - numberOfVisibleSegmentsInFirstSection];
+        var segmentToLoad = parseInt(Object.keys(visibleRows[nameOfSecondSection])[indexOfMiddleVisibleSegment - numberOfVisibleSegmentsInFirstSection]);
         console.log(segmentToLoad);
         this.props.TextSegmentPressed(this.state.sectionArray.indexOf(nameOfSecondSection), segmentToLoad);
       }
