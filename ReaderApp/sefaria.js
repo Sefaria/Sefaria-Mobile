@@ -222,19 +222,32 @@ Sefaria = {
     load_link: function(ref) {
 
       parseData = function(resolve,reject,data) {
-        var icol = ref.lastIndexOf(":");
-        if (icol != -1) {
-            var segNum = ref.substring(icol+1);
-        } else reject({"negative one issue":true});
+        var refSplit = ref.split(":");
+        var segNum = null;
+        if (refSplit.length <= 1) reject({"negative one issue":true});
+        else {
+          //always get the second level from the top
+          segNum = refSplit[1];
+        }
         var seg = null;
-        data.content.forEach((item,i)=>{
+
+        for (let i = 0; i < data.content.length; i++) {
+          let item = data.content[i];
+          if (item.segmentNumber == segNum) {
+              let enText = item.text instanceof Array ? item.text.join(" ") : "";
+              let heText = item.he instanceof Array ? item.he.join(" ") : "";
+              resolve({en:enText,he:heText});
+              return;
+          }
+        }
+        /*data.content.forEach((item,i)=>{
             if (item.segmentNumber == segNum) {
                 let enText = item.text instanceof Array ? item.text.join(" ") : "";
                 let heText = item.he instanceof Array ? item.he.join(" ") : "";
                 resolve({en:enText,he:heText});
                 return;
             }
-        });
+        });*/
         reject({"not found":ref});
       };
 
