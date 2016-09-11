@@ -22,6 +22,7 @@ var {
 
 var TextList = React.createClass({
   propTypes: {
+    settings:       React.PropTypes.object,
     openRef:        React.PropTypes.func.isRequired,
     openCat:        React.PropTypes.func.isRequired,
     closeCat:       React.PropTypes.func.isRequired,
@@ -90,6 +91,7 @@ var TextList = React.createClass({
     }
 
     return (<LinkContent
+              settings={this.props.settings}
               openRef={this.props.openRef}
               refStr={ref}
               linkContentObj={linkContentObj}
@@ -218,6 +220,7 @@ var LinkBook = React.createClass({
 
 var LinkContent = React.createClass({
   propTypes: {
+    settings:          React.PropTypes.object,
     openRef:           React.PropTypes.func.isRequired,
     refStr:            React.PropTypes.string,
     linkContentObj:    React.PropTypes.object, /* of the form {en,he} */
@@ -227,21 +230,17 @@ var LinkContent = React.createClass({
 
   render: function() {
     var lco = this.props.linkContentObj;
-    var lang = this.props.columnLanguage;
+    var lang = Sefaria.util.getColumnLanguageWithContent(this.props.columnLanguage,lco.en,lco.he);
     var textViews = [];
-    if (lang == "bilingual") {
-      if (lco.en.trim() != "" && lco.he.trim() != "") {
-        textViews = [<HTMLView value={lco.he}/>,<HTMLView value={lco.en}/>];
-      } else if (lco.en.trim() == "") lang = "hebrew";
-      else lang = "english";
 
-    }
-    if (lang == "hebrew") {
-      let content = lco.he.trim() === "" ? lco.en : lco.he;
-      textViews = [<HTMLView value={content}/>];
+    let hebrewElem = <Text style={[styles.hebrewText, {fontSize:this.props.settings.fontSize}]}><HTMLView stylesheet={styles} value={lco.he}/></Text>;
+    let englishElem = <Text style={[styles.englishText, {fontSize:0.8*this.props.settings.fontSize}]}><HTMLView stylesheet={styles} value={lco.en}/></Text>;
+    if (lang == "bilingual") {
+      textViews = [hebrewElem,englishElem];
+    } else if (lang == "hebrew") {
+      textViews = [hebrewElem];
     } else if (lang == "english") {
-      let content = lco.en.trim() === "" ? lco.he : lco.en;
-      textViews = [<HTMLView value={content}/>];
+      textViews = [englishElem];
     }
 
     return (

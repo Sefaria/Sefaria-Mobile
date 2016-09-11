@@ -37,6 +37,13 @@ var ReaderPanel = React.createClass({
     openTextToc:   React.PropTypes.func.isRequired,
     interfaceLang: React.PropTypes.string.isRequired,
     loading:       React.PropTypes.bool,
+    openLinkCat:   React.PropTypes.func.isRequired,
+    closeLinkCat:  React.PropTypes.func.isRequired,
+    updateLinkCat: React.PropTypes.func.isRequired,
+    onLinkLoad:    React.PropTypes.func.isRequired,
+    filterIndex:   React.PropTypes.number,
+    recentFilters: React.PropTypes.array,
+    linkContents:  React.PropTypes.array,
     Sefaria:       React.PropTypes.object.isRequired
   },
   getInitialState: function () {
@@ -57,9 +64,6 @@ var ReaderPanel = React.createClass({
         color:         "light",
         fontSize:      20,
       },
-      filterIndex: null, /* index of filter in recentFilters */
-      recentFilters: [],
-      linkContents: [],
       ReaderDisplayOptionsMenuVisible: false
 
     };
@@ -115,67 +119,6 @@ var ReaderPanel = React.createClass({
   search: function(query) {
     this.onQueryChange(query,true);
     this.props.openSearch();
-  },
-  openLinkCat: function(filter) {
-    var filterIndex = null;
-    for (let i = 0; i < this.state.recentFilters.length; i++) {
-      let tempFilter = this.state.recentFilters[i];
-      if (tempFilter.title == filter.title) {
-        filterIndex = i;
-        break;
-      }
-    }
-
-    if (filterIndex == null) {
-      this.state.recentFilters.push(filter);
-      if (this.state.recentFilters.length > 5)
-        this.state.recentFilters.shift();
-      filterIndex = this.state.recentFilters.length-1;
-    }
-
-
-    var linkContents = filter.refList.map((ref)=>null);
-    this.setState({filterIndex:filterIndex,recentFilters:this.state.recentFilters,linkContents:linkContents});
-  },
-  closeLinkCat: function() {
-    this.setState({filterIndex:null});
-  },
-  updateLinkCat: function(links,filterIndex) {
-    //search for the current filter in the the links object
-    if (this.state.filterIndex == null) return;
-    if (links == null) links = this.props.links;
-    if (filterIndex == null) filterIndex = this.state.filterIndex;
-
-    var filterStr = this.state.recentFilters[filterIndex].title;
-    var filterStrHe = this.state.recentFilters[filterIndex].heTitle;
-    var category = this.state.recentFilters[filterIndex].category;
-    var nextRefList = [];
-
-
-
-    for (let cat of links) {
-      if (cat.category == filterStr) {
-        nextRefList = cat.refList;
-        break;
-      }
-      for (let book of cat.books) {
-        if (book.title == filterStr) {
-          nextRefList = book.refList;
-          break;
-        }
-      }
-    }
-    var nextFilter = {title:filterStr,heTitle:filterStrHe,refList:nextRefList,category:category};
-
-    this.state.recentFilters[filterIndex] = nextFilter;
-
-    var linkContents = nextFilter.refList.map((ref)=>null);
-    this.setState({filterIndex:filterIndex,recentFilters:this.state.recentFilters,linkContents:linkContents});
-
-  },
-  onLinkLoad: function(data,pos) {
-    this.state.linkContents[pos] = data;
-    this.setState({linkContents:this.state.linkContents});
   },
   toggleLanguage: function() {
     // Toggle current display language between english/hebrew only
@@ -303,18 +246,19 @@ var ReaderPanel = React.createClass({
             <View style={styles.commentaryTextPanel}>
               <TextList
                 Sefaria={Sefaria}
+                settings={this.state.settings}
                 links={this.props.links}
                 segmentRef={this.props.segmentRef}
                 textFlow={this.state.textFlow}
                 columnLanguage={this.state.columnLanguage}
                 openRef={ this.props.openRef }
-                openCat={this.openLinkCat}
-                closeCat={this.closeLinkCat}
-                updateCat={this.updateLinkCat}
-                onLinkLoad={this.onLinkLoad}
-                linkContents={this.state.linkContents}
-                filterIndex={this.state.filterIndex}
-                recentFilters={this.state.recentFilters} />
+                openCat={this.props.openLinkCat}
+                closeCat={this.props.closeLinkCat}
+                updateCat={this.props.updateLinkCat}
+                onLinkLoad={this.props.onLinkLoad}
+                linkContents={this.props.linkContents}
+                filterIndex={this.props.filterIndex}
+                recentFilters={this.props.recentFilters} />
             </View> : null}
         </View>);
   }

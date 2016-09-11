@@ -50,7 +50,7 @@ Sefaria = {
     });
   },
   textTitleForRef: function(ref) {
-    // Returns the book title named in `ref` by examining the list of known book titles. 
+    // Returns the book title named in `ref` by examining the list of known book titles.
     for (i = ref.length; i >= 0; i--) {
       book = ref.slice(0, i);
       if (book in Sefaria.booksDict) {
@@ -70,7 +70,7 @@ Sefaria = {
           var onInd = isHe ? bookRefStem.indexOf(" על ") : bookRefStem.indexOf(" on ");
           if (onInd != -1)
             bookRefStem = bookRefStem.substring(0,onInd);
-      }   
+      }
       return bookRefStem;
   },
   booksDict: {},
@@ -172,7 +172,7 @@ Sefaria = {
   saveRecentItem: function(item) {
     var items = Sefaria.recent || [];
     items = items.filter(function(existing) {
-      return existing.ref !== item.ref; 
+      return existing.ref !== item.ref;
     });
     items = [item].concat(items).slice(0,3);
     Sefaria.recent = items;
@@ -278,11 +278,11 @@ Sefaria = {
             category.books[link.index_title].refList.push(link.sourceRef);
           } else {
             var isCommentary = link.category == "Commentary";
-            category.books[link.index_title] = 
+            category.books[link.index_title] =
             {
-                count: 1, 
-                title:    Sefaria.getTitle(link.sourceRef,isCommentary,false), 
-                heTitle:  Sefaria.getTitle(link.sourceHeRef,isCommentary,true), 
+                count: 1,
+                title:    Sefaria.getTitle(link.sourceRef,isCommentary,false),
+                heTitle:  Sefaria.getTitle(link.sourceHeRef,isCommentary,true),
                 category: link.category,
                 refList:  [link.sourceRef]
             };
@@ -296,7 +296,7 @@ Sefaria = {
         if (ref !== sectionRef) {
           var sectionLinks = Sefaria.links(sectionRef);
           for (var i = 0; i < sectionLinks.length; i++) {
-            var l = sectionLinks[i]; 
+            var l = sectionLinks[i];
             if (l.category === "Commentary") {
               if (!("Commentary" in summary)) {
                 summary["Commentary"] = {count: 0, books: {}};
@@ -307,7 +307,7 @@ Sefaria = {
             }
           }
         }*/
-        
+
         // Convert object into ordered list
         var summaryList = Object.keys(summary).map(function(category) {
           var categoryData = summary[category];
@@ -319,7 +319,7 @@ Sefaria = {
             return bookData;
           });
           // Sort the books in the category
-          categoryData.books.sort(function(a, b) { 
+          categoryData.books.sort(function(a, b) {
             // First sort by predefined "top"
             var topByCategory = {
               "Tanakh": ["Rashi", "Ibn Ezra", "Ramban", "Sforno"],
@@ -336,13 +336,13 @@ Sefaria = {
               return aTop < bTop ? -1 : 1;
             }
             // Then sort alphabetically
-            return a.book > b.book ? 1 : -1; 
+            return a.book > b.book ? 1 : -1;
           });
           return categoryData;
         });
         // Sort the categories
         summaryList.sort(function(a, b) {
-          // always put Commentary first 
+          // always put Commentary first
           if      (a.category === "Commentary") { return -1; }
           else if (b.category === "Commentary") { return  1; }
           // always put Modern Works last
@@ -585,12 +585,27 @@ Sefaria.util = {
       }
     }
     return index;
+  },
+  getColumnLanguageWithContent(colLang,en,he) {
+    let newColLang = colLang;
+
+    if (newColLang == "bilingual") {
+      if (en.trim() != "" && he.trim() == "") {
+        newColLang = "english";
+      } else if (en.trim() == "") newColLang = "hebrew";
+    }
+
+    if (newColLang == "english")
+      newColLang = en.trim() != "" ? "english" : "hebrew";
+    else if (newColLang == "hebrew")
+      newColLang = he.trim() != "" || en.trim() == "" ? "hebrew" : "english"; //make sure when there's no content it's hebrew
+    return newColLang;
   }
 };
 
 
 Sefaria.hebrew = {
-  hebrewNumerals: { 
+  hebrewNumerals: {
     "\u05D0": 1,
     "\u05D1": 2,
     "\u05D2": 3,
@@ -649,13 +664,13 @@ Sefaria.hebrew = {
     800: "\u05EA\u05EA"
   },
   decodeHebrewNumeral: function(h) {
-    // Takes a string representing a Hebrew numeral and returns it integer value. 
+    // Takes a string representing a Hebrew numeral and returns it integer value.
     var values = Sefaria.hebrew.hebrewNumerals;
 
     if (h === values[15] || h === values[16]) {
       return values[h];
-    } 
-    
+    }
+
     var n = 0
     for (c in h) {
       n += values[h[c]];
@@ -664,7 +679,7 @@ Sefaria.hebrew = {
     return n;
   },
   encodeHebrewNumeral: function(n) {
-    // Takes an integer and returns a string encoding it as a Hebrew numeral. 
+    // Takes an integer and returns a string encoding it as a Hebrew numeral.
     if (n >= 900) {
       return n;
     }
@@ -674,23 +689,23 @@ Sefaria.hebrew = {
     if (n === 15 || n === 16) {
       return values[n];
     }
-    
+
     var heb = "";
-    if (n >= 100) { 
+    if (n >= 100) {
       var hundreds = n - (n % 100);
       heb += values[hundreds];
       n -= hundreds;
-    } 
+    }
     if (n >= 10) {
       var tens = n - (n % 10);
       heb += values[tens];
       n -= tens;
     }
-    
+
     if (n > 0) {
-      heb += values[n]; 
-    } 
-    
+      heb += values[n];
+    }
+
     return heb;
   },
   encodeHebrewDaf: function(daf, form) {
@@ -701,7 +716,7 @@ Sefaria.hebrew = {
     if (form === "short") {
       a = {a: ".", b: ":"}[a];
       return Sefaria.hebrew.encodeHebrewNumeral(n) + a;
-    }   
+    }
     else if (form === "long"){
       a = {a: 1, b: 2}[a];
       return Sefaria.hebrew.encodeHebrewNumeral(n) + " " + Sefaria.hebrew.encodeHebrewNumeral(a);

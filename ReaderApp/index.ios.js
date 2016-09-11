@@ -46,7 +46,10 @@ var ReaderApp = React.createClass({
             loadingTextTail: false,
             textListVisible: false,
             data: null,
-            interfaceLang: "english" // TODO check device settings for Hebrew: ### import {NativeModules} from 'react-native'; console.log(NativeModules.SettingsManager.settings.AppleLocale);
+            interfaceLang: "english", // TODO check device settings for Hebrew: ### import {NativeModules} from 'react-native'; console.log(NativeModules.SettingsManager.settings.AppleLocale);
+            filterIndex: null, /* index of filter in recentFilters */
+            recentFilters: [],
+            linkContents: []
         };
     },
     componentDidMount: function () {
@@ -75,12 +78,16 @@ var ReaderApp = React.createClass({
             }
 
             this.setState({
-                data:      [data.content],
-                links:     links,
-                textTitle: data.indexTitle,
-                next:      data.next,
-                prev:      data.prev,
-                loaded:    true
+                data:          [data.content],
+                links:         links,
+                textTitle:     data.indexTitle,
+                next:          data.next,
+                prev:          data.prev,
+                loaded:        true,
+                filterIndex:   null, /*Reset link state */
+                recentFilters: [],
+                linkContents:  [],
+                textListVisible: false
             });
 
             // Preload Text TOC data into memory
@@ -146,10 +153,71 @@ var ReaderApp = React.createClass({
             loadingTextTail: setting
         });
     },
+    openLinkCat: function(filter) {
+      var filterIndex = null;
+      for (let i = 0; i < this.state.recentFilters.length; i++) {
+        let tempFilter = this.state.recentFilters[i];
+        if (tempFilter.title == filter.title) {
+          filterIndex = i;
+          break;
+        }
+      }
+
+      if (filterIndex == null) {
+        this.state.recentFilters.push(filter);
+        if (this.state.recentFilters.length > 5)
+          this.state.recentFilters.shift();
+        filterIndex = this.state.recentFilters.length-1;
+      }
+
+
+      var linkContents = filter.refList.map((ref)=>null);
+      this.setState({filterIndex:filterIndex,recentFilters:this.state.recentFilters,linkContents:linkContents});
+    },
+    closeLinkCat: function() {
+      this.setState({filterIndex:null});
+    },
+    updateLinkCat: function(links,filterIndex) {
+      //search for the current filter in the the links object
+      if (this.state.filterIndex == null) return;
+      if (links == null) links = this.state.links;
+      if (filterIndex == null) filterIndex = this.state.filterIndex;
+
+      var filterStr = this.state.recentFilters[filterIndex].title;
+      var filterStrHe = this.state.recentFilters[filterIndex].heTitle;
+      var category = this.state.recentFilters[filterIndex].category;
+      var nextRefList = [];
+
+
+
+      for (let cat of links) {
+        if (cat.category == filterStr) {
+          nextRefList = cat.refList;
+          break;
+        }
+        for (let book of cat.books) {
+          if (book.title == filterStr) {
+            nextRefList = book.refList;
+            break;
+          }
+        }
+      }
+      var nextFilter = {title:filterStr,heTitle:filterStrHe,refList:nextRefList,category:category};
+
+      this.state.recentFilters[filterIndex] = nextFilter;
+
+      var linkContents = nextFilter.refList.map((ref)=>null);
+      this.setState({filterIndex:filterIndex,recentFilters:this.state.recentFilters,linkContents:linkContents});
+
+    },
+    onLinkLoad: function(data,pos) {
+      this.state.linkContents[pos] = data;
+      this.setState({linkContents:this.state.linkContents});
+    },
     render: function () {
         return (
             <View style={styles.container}>
-                <StatusBar 
+                <StatusBar
                     barStyle="light-content" />
                 <ReaderPanel
                     textReference={this.state.textReference}
@@ -178,7 +246,14 @@ var ReaderApp = React.createClass({
                     setLoadTextTail={this.setLoadTextTail}
                     textListVisible={this.state.textListVisible}
                     loading={!this.state.loaded}
-                    Sefaria={Sefaria} /> 
+                    openLinkCat={this.openLinkCat}
+                    closeLinkCat={this.closeLinkCat}
+                    updateLinkCat={this.updateLinkCat}
+                    onLinkLoad={this.onLinkLoad}
+                    filterIndex={this.state.filterIndex}
+                    recentFilters={this.state.recentFilters}
+                    linkContents={this.state.linkContents}
+                    Sefaria={Sefaria} />
             </View>
         );
     },

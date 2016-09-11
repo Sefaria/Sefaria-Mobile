@@ -61,11 +61,11 @@ var TextColumn = React.createClass({
   generateDataSource: function() {
 
     var data = this.props.data;
-    var columnLanguage = this.props.columnLanguage;
     var sections = {};
     for (var section=0; section < data.length; section++) {
       var rows = [];
       for (var i = 0; i < data[section].length; i++) {
+        var currSegData = data[section][i];
         var segment = []
         if (i==0) {
           segment.push(<View style={styles.sectionHeader}><Text style={styles.sectionHeaderText}>{this.state.sectionArray[section].replace(this.props.textTitle,'')}</Text></View>);
@@ -76,25 +76,27 @@ var TextColumn = React.createClass({
         numberSegmentHolder.push(<Text style={styles.verseNumber}>{data[section][i].segmentNumber}</Text>)
 
         var segmentText = [];
+        var columnLanguage = Sefaria.util.getColumnLanguageWithContent(this.props.columnLanguage,currSegData.text,currSegData.he);
 
         if (columnLanguage == "hebrew" || columnLanguage == "bilingual") {
           segmentText.push(<TextSegment
                           segmentRef={this.props.segmentRef}
                           segmentKey={section+":"+data[section][i].segmentNumber}
-                          data={data[section][i].he}
-                          textType="hebrew" TextSegmentPressed={ this.props.TextSegmentPressed }
+                          data={currSegData.he}
+                          textType="hebrew"
+                          TextSegmentPressed={ this.props.TextSegmentPressed }
                           settings={this.props.settings}
                         />);
 
         }
-        
+
 
         if (columnLanguage == "english" || columnLanguage == "bilingual") {
           segmentText.push(<TextSegment
                           style={styles.TextSegment}
                           segmentRef={this.props.segmentRef}
                           segmentKey={section+":"+data[section][i].segmentNumber}
-                          data={data[section][i].text}
+                          data={currSegData.text}
                           textType="english"
                           TextSegmentPressed={ this.props.TextSegmentPressed }
                           settings={this.props.settings}
