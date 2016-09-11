@@ -13,16 +13,18 @@ var SearchTextResult = React.createClass({
   propTypes: {
     text:     React.PropTypes.string,
     title:    React.PropTypes.string,
-    textType: React.PropTypes.string,
+    textType: React.PropTypes.oneOf(["english","hebrew"]),
     openRef:  React.PropTypes.func.isRequired
   },
-  render: function() {
+	render: function() {
     return (
       <TouchableOpacity style={styles.searchTextResult} onPress={()=>this.props.openRef(this.props.title)}>
         <Text>{this.props.title}</Text>
+				<Text style={this.props.textType == "hebrew" ? styles.hebrewText : styles.englishText}>
           <HTMLView
             value={this.props.text}
           />
+				</Text>
       </TouchableOpacity>
     );
   }
