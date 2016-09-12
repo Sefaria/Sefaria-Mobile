@@ -219,57 +219,43 @@ Sefaria = {
     return (RNFS.MainBundlePath + "/sources/" + fileName + ".zip");
   },
   links: {
-    load_link: function(ref) {
+    loadLinks: function(ref) {
 
-      parseData = function(resolve,reject,data) {
-        var refSplit = ref.split(":");
-        var segNum = null;
-        if (refSplit.length <= 1) reject({"negative one issue":true});
-        else {
-          //always get the second level from the top
-          segNum = refSplit[1];
-        }
-        var seg = null;
-
-        for (let i = 0; i < data.content.length; i++) {
-          let item = data.content[i];
-          if (item.segmentNumber == segNum) {
-              let enText = item.text instanceof Array ? item.text.join(" ") : "";
-              let heText = item.he instanceof Array ? item.he.join(" ") : "";
-              resolve({en:enText,he:heText});
-              return;
+      parseData = function(data) {
+        return new Promise(function(resolve, reject) {
+          var refSplit = ref.split(":");
+          var segNum = null;
+          if (refSplit.length <= 1) reject({"negative one issue":true});
+          else {
+            //always get the second level from the top
+            segNum = refSplit[1];
           }
-        }
-        /*data.content.forEach((item,i)=>{
+          var seg = null;
+
+          for (let i = 0; i < data.content.length; i++) {
+            let item = data.content[i];
             if (item.segmentNumber == segNum) {
                 let enText = item.text instanceof Array ? item.text.join(" ") : "";
                 let heText = item.he instanceof Array ? item.he.join(" ") : "";
                 resolve({en:enText,he:heText});
                 return;
             }
-        });*/
-        reject({"not found":ref});
-      };
-
-      return new Promise(function(resolve, reject) {
-        var fileNameStem = ref.split(":")[0];
-        var bookRefStem = fileNameStem.substring(0, fileNameStem.lastIndexOf(" "));
-
-        fetch(Sefaria._JSONSourcePath(fileNameStem))
-        .then(
-            (response) => response.json())
-        .then(
-          (data) => {
-            parseData(resolve,reject,data);
           }
-        )
-        .catch(function() {
-          Sefaria._unZipAndLoadJSON(Sefaria._zipSourcePath(bookRefStem), Sefaria._JSONSourcePath(fileNameStem), function(data) {
-            parseData(resolve,reject,data);
-          })
+          /*data.content.forEach((item,i)=>{
+              if (item.segmentNumber == segNum) {
+                  let enText = item.text instanceof Array ? item.text.join(" ") : "";
+                  let heText = item.he instanceof Array ? item.he.join(" ") : "";
+                  resolve({en:enText,he:heText});
+                  return;
+              }
+          });*/
+          reject({"not found":ref});
+
         });
 
-      });
+      };
+
+      return Sefaria.data(ref).then(parseData);
     },
     linkSummary: function(links) {
         // Returns an ordered array summarizing the link counts by category and text
@@ -293,7 +279,7 @@ Sefaria = {
             var isCommentary = link.category == "Commentary";
             category.books[link.index_title] =
             {
-                count: 1,
+                count:    1,
                 title:    Sefaria.getTitle(link.sourceRef,isCommentary,false),
                 heTitle:  Sefaria.getTitle(link.sourceHeRef,isCommentary,true),
                 category: link.category,

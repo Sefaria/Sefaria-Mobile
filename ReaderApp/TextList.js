@@ -71,7 +71,7 @@ var TextList = React.createClass({
       })(ref,rowId);
 
       //here's the meat
-      Sefaria.links.load_link(ref).then(resolve).catch(reject);
+      Sefaria.links.loadLinks(ref).then(resolve).catch(reject);
     };
     this._rowsToLoad = [];
   },
