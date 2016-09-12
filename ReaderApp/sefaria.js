@@ -14,13 +14,13 @@ Sefaria = {
         }
       };
       var tocPath = (RNFS.MainBundlePath + "/sources/toc.json");
-      Sefaria._loadJSON(tocPath, function(data) {
+      Sefaria._loadJSON(tocPath).then(function(data) {
         Sefaria.toc = data;
         Sefaria._cacheIndexFromToc(data);
         checkResolve();
       });
       var calendarPath = (RNFS.MainBundlePath + "/sources/calendar.json");
-      Sefaria._loadJSON(calendarPath, function(data) {
+      Sefaria._loadJSON(calendarPath).then(function(data) {
         Sefaria.calendar = data;
         checkResolve();
       });
@@ -30,21 +30,20 @@ Sefaria = {
   data: function(ref, settings) {
     return new Promise(function(resolve, reject) {
       var fileNameStem = ref.split(":")[0];
-      var bookRefStem = Sefaria.textTitleForRef(ref);
+      var bookRefStem  = Sefaria.textTitleForRef(ref);
+      var jsonPath     = Sefaria._JSONSourcePath(fileNameStem);
+      var zipPath      = Sefaria._zipSourcePath(bookRefStem)
 
-      fetch(Sefaria._JSONSourcePath(fileNameStem))
-        .then(
-          (response) => response.json())
-        .then(
-          (data) => {
-            resolve(data);
-          }
-        )
+      Sefaria._loadJSON(jsonPath)
+        .then(resolve)
         .catch(function() {
           // If there was en error, assume it's because the data was not unzipped yet
-          Sefaria._unZipAndLoadJSON(Sefaria._zipSourcePath(bookRefStem), Sefaria._JSONSourcePath(fileNameStem), function(data) {
-            resolve(data);
-          })
+          Sefaria._unzip(zipPath)
+            .then(() => Sefaria._loadJSON(jsonPath))
+            .then(resolve)
+            .catch(function() {
+              console.log("Error finding JSON file");
+            })
         });
 
     });
@@ -141,7 +140,7 @@ Sefaria = {
       return Sefaria._textToc[title];
     }
     var path = Sefaria._JSONSourcePath(title + "_index");
-    Sefaria._loadJSON(path, function(data) {
+    Sefaria._loadJSON(path).then(function(data) {
       Sefaria._textToc[title] = data;
       callback(data);
     });
@@ -200,17 +199,17 @@ Sefaria = {
       });
     });
   },
+  _unzip: function(zipSourcePath) {
+    return ZipArchive.unzip(zipSourcePath, RNFS.DocumentDirectoryPath);
+  },
   _unZipAndLoadJSON: function(zipSourcePath, JSONSourcePath, callback) {
     ZipArchive.unzip(zipSourcePath, RNFS.DocumentDirectoryPath).then(() => {
-      this._loadJSON(JSONSourcePath, callback);
+      this._loadJSON(JSONSourcePath).then(callback);
     });
   },
-  _loadJSON: function(JSONSourcePath, callback) {
-    fetch(JSONSourcePath)
-      .then((response) => response.json())
-      .then((responseData) => {
-        callback(responseData);
-      }).done();
+  _loadJSON: function(JSONSourcePath) {
+    return fetch(JSONSourcePath)
+      .then((response) => response.json());
   },
   _JSONSourcePath: function(fileName) {
     return (RNFS.DocumentDirectoryPath + "/" + fileName + ".json");
