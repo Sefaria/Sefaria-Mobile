@@ -37,8 +37,8 @@ var ReaderApp = React.createClass({
         return {
             segmentRef: 0,
             links: [],
-            textReference: "Genesis 1",
-            textTitle: "Genesis",
+            textReference: "",
+            textTitle: "",
             loaded: false,
             menuOpen: "navigation",
             navigationCategories: [],
@@ -55,7 +55,7 @@ var ReaderApp = React.createClass({
       Sefaria._deleteAllFiles().then(function() {
          
          }).catch(function(error) {
-          console.log('oh no', error);
+          console.error('Error caught from Sefaria_deleteAllFiles', error);
         });
     },
     TextSegmentPressed: function(section,segment,shouldToggle) {
@@ -68,7 +68,7 @@ var ReaderApp = React.createClass({
         this.setState(stateObj);
     },
     loadNewText: function(ref) {
-        this.setState({loaded: false});
+        this.setState({loaded: false, data: [], textReference: ref});
         Sefaria.data(ref).then(function(data) {
             var links = [];
             if (data.content) {
@@ -76,15 +76,15 @@ var ReaderApp = React.createClass({
             }
 
             this.setState({
-                data:          [data.content],
-                links:         links,
-                textTitle:     data.indexTitle,
-                next:          data.next,
-                prev:          data.prev,
-                loaded:        true,
-                filterIndex:   null, /*Reset link state */
-                recentFilters: [],
-                linkContents:  [],
+                data:            [data.content],
+                links:           links,
+                textTitle:       data.indexTitle,
+                next:            data.next,
+                prev:            data.prev,
+                loaded:          true,
+                filterIndex:     null, /*Reset link state */
+                recentFilters:   [],
+                linkContents:    [],
                 textListVisible: false
             });
 
@@ -93,7 +93,7 @@ var ReaderApp = React.createClass({
 
             Sefaria.saveRecentItem({ref: ref, heRef: data.heRef, category: data.categories[0]});
         }.bind(this)).catch(function(error) {
-          console.log('oh no', error);
+          console.error('Error caught frome Sefaria.data', error);
         });
 
     },
@@ -110,17 +110,18 @@ var ReaderApp = React.createClass({
     },
     updateTitle: function(ref) {
         this.setState({
-          textReference:   ref
+          textReference: ref
         });
-
     },
     openRef: function(ref) {
         this.setState({
             loaded: false,
             textReference: ref
-        });
+        }, function() {
+            this.closeMenu(); // Don't close until these values are in state, so we know if we need to load defualt text
+        }.bind(this));
+
         this.loadNewText(ref);
-        this.closeMenu();
     },
     openMenu: function(menu) {
         this.setState({menuOpen: menu});
@@ -128,8 +129,8 @@ var ReaderApp = React.createClass({
     closeMenu: function() {
         this.clearMenuState();
         this.openMenu(null);
-        if (!this.state.data) {
-            this.loadNewText(this.state.textReference);
+        if (!this.state.textReference) {
+            this.openDefaultText();
         }
     },
     openNav: function() {
@@ -148,6 +149,9 @@ var ReaderApp = React.createClass({
         this.setState({
             navigationCategories: []
         });
+    },
+    openDefaultText: function() { 
+        this.loadNewText("Genesis 1");
     },
     setLoadTextTail: function(setting) {
         this.setState({
