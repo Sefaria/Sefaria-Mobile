@@ -42,10 +42,17 @@ Sefaria = {
             .then(() => Sefaria._loadJSON(jsonPath))
             .then(resolve)
             .catch(function() {
-              console.log("Error finding JSON file");
-            })
+              // Now that the file is unzipped, if there was an error assume we have a depth 1 text
+              var depth1JSONPath = Sefaria._JSONSourcePath(bookRefStem);
+              Sefaria._unzip(zipPath)
+                .then(() => Sefaria._loadJSON(depth1JSONPath))
+                .then(resolve)
+                .catch(function() {
+                  console.error("Couldn't find JSON file: " + jsonPath);
+                  console.error("Also tried: " + depth1JSONPath);
+                });
+            });
         });
-
     });
   },
   textTitleForRef: function(ref) {
@@ -202,14 +209,8 @@ Sefaria = {
   _unzip: function(zipSourcePath) {
     return ZipArchive.unzip(zipSourcePath, RNFS.DocumentDirectoryPath);
   },
-  _unZipAndLoadJSON: function(zipSourcePath, JSONSourcePath, callback) {
-    ZipArchive.unzip(zipSourcePath, RNFS.DocumentDirectoryPath).then(() => {
-      this._loadJSON(JSONSourcePath).then(callback);
-    });
-  },
   _loadJSON: function(JSONSourcePath) {
-    return fetch(JSONSourcePath)
-      .then((response) => response.json());
+    return fetch(JSONSourcePath).then((response) => response.json());
   },
   _JSONSourcePath: function(fileName) {
     return (RNFS.DocumentDirectoryPath + "/" + fileName + ".json");

@@ -70,8 +70,6 @@ var ReaderApp = React.createClass({
     loadNewText: function(ref) {
         this.setState({loaded: false});
         Sefaria.data(ref).then(function(data) {
-            console.log("Loaded data for " + ref);
-            console.log(data);
             var links = [];
             if (data.content) {
                 links = Sefaria.links.linkSummary(data.content[this.state.segmentRef].links);
