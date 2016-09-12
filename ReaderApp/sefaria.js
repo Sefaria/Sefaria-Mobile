@@ -41,8 +41,8 @@ Sefaria = {
           }
         )
         .catch(function() {
+          // If there was en error, assume it's because the data was not unzipped yet
           Sefaria._unZipAndLoadJSON(Sefaria._zipSourcePath(bookRefStem), Sefaria._JSONSourcePath(fileNameStem), function(data) {
-
             resolve(data);
           })
         });

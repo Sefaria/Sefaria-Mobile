@@ -37,7 +37,6 @@ var ReaderApp = React.createClass({
         return {
             segmentRef: 0,
             links: [],
-            ref: "Genesis 1",
             textReference: "Genesis 1",
             textTitle: "Genesis",
             loaded: false,
@@ -54,8 +53,8 @@ var ReaderApp = React.createClass({
     },
     componentDidMount: function () {
       Sefaria._deleteAllFiles().then(function() {
-          // this.loadNewText(this.state.ref);
-         }.bind(this)).catch(function(error) {
+         
+         }).catch(function(error) {
           console.log('oh no', error);
         });
     },
@@ -122,8 +121,8 @@ var ReaderApp = React.createClass({
             loaded: false,
             textReference: ref
         });
-        this.closeMenu();
         this.loadNewText(ref);
+        this.closeMenu();
     },
     openMenu: function(menu) {
         this.setState({menuOpen: menu});
@@ -132,7 +131,7 @@ var ReaderApp = React.createClass({
         this.clearMenuState();
         this.openMenu(null);
         if (!this.state.data) {
-            this.loadNewText(this.state.ref);
+            this.loadNewText(this.state.textReference);
         }
     },
     openNav: function() {
