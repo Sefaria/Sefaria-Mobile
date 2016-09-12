@@ -37,9 +37,9 @@ var ReaderApp = React.createClass({
         return {
             segmentRef: 0,
             links: [],
-            ref: "",
-            textReference: "",
-            textTitle: "",
+            ref: "Genesis 1",
+            textReference: "Genesis 1",
+            textTitle: "Genesis",
             loaded: false,
             menuOpen: "navigation",
             navigationCategories: [],
@@ -69,6 +69,7 @@ var ReaderApp = React.createClass({
         this.setState(stateObj);
     },
     loadNewText: function(ref) {
+        this.setState({loaded: false});
         Sefaria.data(ref).then(function(data) {
             console.log("Loaded data for " + ref);
             console.log(data);
@@ -130,6 +131,9 @@ var ReaderApp = React.createClass({
     closeMenu: function() {
         this.clearMenuState();
         this.openMenu(null);
+        if (!this.state.data) {
+            this.loadNewText(this.state.ref);
+        }
     },
     openNav: function() {
         this.openMenu("navigation");
