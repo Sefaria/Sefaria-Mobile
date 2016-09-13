@@ -32,6 +32,8 @@ var ReaderPanel = React.createClass({
     data:          React.PropTypes.array,
     links:         React.PropTypes.array,
     textTitle:     React.PropTypes.string,
+    heTitle:       React.PropTypes.string,
+    heRef:         React.PropTypes.string,
     openRef:       React.PropTypes.func.isRequired,
     openNav:       React.PropTypes.func.isRequired,
     openTextToc:   React.PropTypes.func.isRequired,
@@ -223,6 +225,8 @@ var ReaderPanel = React.createClass({
               updateData={this.props.updateData}
               updateTitle={this.props.updateTitle}
               textTitle={this.props.textTitle}
+              heTitle={this.props.heTitle}
+              heRef={this.props.heRef}
               TextSegmentPressed={ this.props.TextSegmentPressed }
               textListVisible={this.props.textListVisible}
               next={this.props.next}

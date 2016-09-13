@@ -81,6 +81,8 @@ var ReaderApp = React.createClass({
                 textTitle:       data.indexTitle,
                 next:            data.next,
                 prev:            data.prev,
+                heTitle:         data.heTitle,
+                heRef:           data.heRef,
                 loaded:          true,
                 filterIndex:     null, /*Reset link state */
                 recentFilters:   [],
@@ -150,7 +152,7 @@ var ReaderApp = React.createClass({
             navigationCategories: []
         });
     },
-    openDefaultText: function() { 
+    openDefaultText: function() {
         this.loadNewText("Genesis 1");
     },
     setLoadTextTail: function(setting) {
@@ -227,6 +229,8 @@ var ReaderApp = React.createClass({
                 <ReaderPanel
                     textReference={this.state.textReference}
                     textTitle={this.state.textTitle}
+                    heTitle={this.state.heTitle}
+                    heRef={this.state.heRef}
                     data={this.state.data}
                     links={this.state.links}
                     next={this.state.next}
