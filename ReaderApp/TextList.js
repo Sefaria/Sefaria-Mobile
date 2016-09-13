@@ -244,7 +244,7 @@ var LinkContent = React.createClass({
     }
 
     return (
-      <TouchableOpacity style={styles.searchTextResult} onPress={()=>{this.props.openRef(this.props.refStr)}}>
+      <TouchableOpacity style={styles.searchTextResult} onPress={()=>{this.props.openRef(this.props.refStr,true)}}>
         <Text>{this.props.refStr}</Text>
         {textViews}
       </TouchableOpacity>

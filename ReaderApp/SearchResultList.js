@@ -39,7 +39,7 @@ var SearchResultList = React.createClass({
     );
   },
   componentDidUpdate: function() {
-  	if (this.props.isNewSearch) 
+  	if (this.props.isNewSearch)
   		this.props.setIsNewSearch(false);
   },
   render: function() {
@@ -61,7 +61,7 @@ var SearchResultList = React.createClass({
 	        dataSource={dataSourceRows}
 	        renderRow={this.renderRow}
 	        onEndReached={this.onEndReached}/>
-	    );  		
+	    );
   	} else {
   		return (<View/>);
   	}

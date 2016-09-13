@@ -9,7 +9,7 @@ import { 	AppRegistry,
 } from 'react-native';
 
 var styles = require('./Styles.js');
-
+const UIManager = require('NativeModules').UIManager;
 
 var TextRange = require('./TextRange');
 var TextRangeContinuous = require('./TextRangeContinuous');
@@ -23,6 +23,7 @@ var TextColumn = React.createClass({
     data:             React.PropTypes.array,
     textReference:    React.PropTypes.string,
     segmentRef:       React.PropTypes.number,
+    offsetRef:        React.PropTypes.string,
     textTitle:        React.PropTypes.string,
     heTitle:          React.PropTypes.string,
     heRef:            React.PropTypes.string,
@@ -54,6 +55,11 @@ var TextColumn = React.createClass({
 
   },
 
+  componentDidUpdate: function() {
+    if (this.props.offsetRef != null) {
+
+    }
+  },
 
   componentWillReceiveProps: function(nextProps) {
 
@@ -147,6 +153,7 @@ var TextColumn = React.createClass({
 //    var numberOfVisibleSections = Object.keys(visibleRows).length;
     var nameOfFirstSection = Object.keys(visibleRows)[0];
     var nameOfSecondSection = Object.keys(visibleRows)[1] || null;
+    if (!visibleRows[nameOfFirstSection]) return; //look at ListView implementation. renderScrollComponent runs before visibleRows is populated
     var numberOfVisibleSegmentsInFirstSection = Object.keys(visibleRows[nameOfFirstSection]).length;
     if (nameOfSecondSection !== null) {
       var numberOfVisibleSegmentsInSecondSection = Object.keys(visibleRows[nameOfSecondSection]).length;
@@ -281,6 +288,17 @@ var TextColumn = React.createClass({
   render: function() {
     var dataSourceRows = this.state.dataSource.cloneWithRowsAndSections(this.generateDataSource({}));
 
+    if (this.props.offsetRef != null) {
+      console.log("NOAHLUVSLITAL",this.props.offsetRef);
+      const handle = React.findNodeHandle(this.refs[this.props.offsetRef]);
+      /*UIManager.measureLayoutRelativeToParent(
+        handle,
+        (e) => {console.error(e)},
+        (x, y, w, h) => {
+          console.log('offset', x, y, w, h);
+        });*/
+    }
+
     return (
       <ListView ref='_listView'
                 dataSource={dataSourceRows}
@@ -289,6 +307,7 @@ var TextColumn = React.createClass({
                 onChangeVisibleRows={(visibleRows, changedRows) => this.visibleRowsChanged(visibleRows, changedRows)}
                 onContentSizeChange={(w, h) => {this.updateHeight(h)}}
                 onEndReached={this.onEndReached}
+                renderScrollComponent={props => <ScrollView {...props} contentOffset={{y:100}}/>}
                 onEndReachedThreshold={300}
                 scrollEventThrottle={200}
       />

@@ -36,6 +36,7 @@ var ReaderApp = React.createClass({
 
         return {
             segmentRef: 0,
+            offsetRef: null, /* used to jump to specific ref when opening a link*/
             links: [],
             textReference: "",
             textTitle: "",
@@ -67,7 +68,8 @@ var ReaderApp = React.createClass({
 
         this.setState(stateObj);
     },
-    loadNewText: function(ref) {
+    /*isSegmentLevel is true when you loadNewText() is triggered by a link click or search item click that needs to jump to a certain ref*/
+    loadNewText: function(ref,isSegmentLevel=false) {
         this.setState({loaded: false, data: [], textReference: ref});
         Sefaria.data(ref).then(function(data) {
             var links = [];
@@ -75,6 +77,10 @@ var ReaderApp = React.createClass({
                 links = Sefaria.links.linkSummary(data.content[this.state.segmentRef].links);
             }
 
+            var yo;
+            if (isSegmentLevel === true) {
+              yo = ref;
+            }
             this.setState({
                 data:            [data.content],
                 links:           links,
@@ -87,7 +93,8 @@ var ReaderApp = React.createClass({
                 filterIndex:     null, /*Reset link state */
                 recentFilters:   [],
                 linkContents:    [],
-                textListVisible: false
+                textListVisible: false,
+                offsetRef:       yo
             });
 
             // Preload Text TOC data into memory
@@ -115,7 +122,8 @@ var ReaderApp = React.createClass({
           textReference: ref
         });
     },
-    openRef: function(ref) {
+    /*  isSegmentLevel - see explanation in loadNewText()*/
+    openRef: function(ref,isSegmentLevel=false) {
         this.setState({
             loaded: false,
             textReference: ref
@@ -123,7 +131,7 @@ var ReaderApp = React.createClass({
             this.closeMenu(); // Don't close until these values are in state, so we know if we need to load defualt text
         }.bind(this));
 
-        this.loadNewText(ref);
+        this.loadNewText(ref,isSegmentLevel);
     },
     openMenu: function(menu) {
         this.setState({menuOpen: menu});
@@ -221,6 +229,10 @@ var ReaderApp = React.createClass({
       this.state.linkContents[pos] = data;
       this.setState({linkContents:this.state.linkContents});
     },
+    /* used after TextList has used the offsetRef to render initially*/
+    clearOffsetRef() {
+      this.setState({offsetRef:null});
+    },
     render: function () {
         return (
             <View style={styles.container}>
@@ -236,6 +248,7 @@ var ReaderApp = React.createClass({
                     next={this.state.next}
                     prev={this.state.prev}
                     segmentRef={this.state.segmentRef}
+                    offsetRef={this.state.offsetRef}
                     textList={0}
                     menuOpen={this.state.menuOpen}
                     navigationCategories={this.state.navigationCategories}
