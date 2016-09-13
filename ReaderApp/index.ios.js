@@ -53,7 +53,7 @@ var ReaderApp = React.createClass({
     },
     componentDidMount: function () {
       Sefaria._deleteAllFiles().then(function() {
-         
+
          }).catch(function(error) {
           console.error('Error caught from Sefaria_deleteAllFiles', error);
         });

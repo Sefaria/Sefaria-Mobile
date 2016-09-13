@@ -172,13 +172,22 @@ var TextColumn = React.createClass({
       //    console.log(indexOfMiddleVisibleSegment);
       //console.log(visibleRows);
 
+      //manually check for index of nameOfFirstSection because elements of this.state.sectionArray are of the form [engTitle,heTitle] and not simple strings
+      let sectionIndex = -1;
+      for (let i = 0; i < this.state.sectionArray.length; i++) {
+        if (this.state.sectionArray[i][0] === nameOfFirstSection) {
+          sectionIndex = i;
+          break;
+        }
+      }
+
       if (indexOfMiddleVisibleSegment < numberOfVisibleSegmentsInFirstSection) {
         var segmentToLoad = parseInt(Object.keys(visibleRows[nameOfFirstSection])[indexOfMiddleVisibleSegment]);
-        this.props.TextSegmentPressed(this.state.sectionArray.indexOf(nameOfFirstSection), segmentToLoad);
+        this.props.TextSegmentPressed(sectionIndex, segmentToLoad);
       }
       else {
         var segmentToLoad = parseInt(Object.keys(visibleRows[nameOfSecondSection])[indexOfMiddleVisibleSegment - numberOfVisibleSegmentsInFirstSection]);
-        this.props.TextSegmentPressed(this.state.sectionArray.indexOf(nameOfSecondSection), segmentToLoad);
+        this.props.TextSegmentPressed(sectionIndex, segmentToLoad);
       }
     }
 
