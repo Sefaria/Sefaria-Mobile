@@ -43,7 +43,8 @@ var TextColumn = React.createClass({
         rowHasChanged: (r1, r2) => r1!== r2,
         sectionHeaderHasChanged: (s1, s2) => s1!==s2
       }),
-      sectionArray: [[this.props.textReference,this.props.heRef]],
+      sectionArray: [this.props.textReference],
+      sectionHeArray: [this.props.heRef],
       height: 0,
       prevHeight:0,
     };
@@ -70,11 +71,9 @@ var TextColumn = React.createClass({
         var currSegData = data[section][i];
         var segment = []
         var columnLanguage = Sefaria.util.getColumnLanguageWithContent(this.props.columnLanguage,currSegData.text,currSegData.he);
-        var sectionArrayLangToggleIndex;
-        columnLanguage == "hebrew" ? sectionArrayLangToggleIndex = 1 : sectionArrayLangToggleIndex = 0;
-//        console.log(this.state.sectionArray)
+
         if (i==0) {
-          segment.push(<View style={styles.sectionHeader}><Text style={styles.sectionHeaderText}>{this.state.sectionArray[section][sectionArrayLangToggleIndex].replace(this.props.textTitle,'')}</Text></View>);
+          segment.push(<View style={styles.sectionHeader}><Text style={styles.sectionHeaderText}>{columnLanguage == "hebrew" ? this.state.sectionHeArray[section] : this.state.sectionArray[section].replace(this.props.textTitle,'')}</Text></View>);
         }
 
         var numberSegmentHolder = [];
@@ -113,7 +112,7 @@ var TextColumn = React.createClass({
 
         rows.push(segment);
       }
-    sections[this.state.sectionArray[section][sectionArrayLangToggleIndex]] = rows;
+    sections[this.state.sectionArray[section]] = rows;
     }
     return (sections)
 
@@ -138,7 +137,6 @@ var TextColumn = React.createClass({
   },
 
   handleScroll: function(e) {
-
     if (e.nativeEvent.contentOffset.y < -50) {
        this.onTopReached();
     }
@@ -155,14 +153,19 @@ var TextColumn = React.createClass({
       var numberOfVisibleSegmentsInSecondSection = 0;
     }
 
-   // console.log(visibleRows)
+    console.log(nameOfFirstSection);
+    console.log(nameOfSecondSection);
+    console.log(this.state.sectionArray);
+
+
 
     //update title
     if (numberOfVisibleSegmentsInFirstSection > numberOfVisibleSegmentsInSecondSection) {
-      this.props.updateTitle(nameOfFirstSection)
+      this.props.columnLanguage == "hebrew" ? this.props.updateTitle(this.state.sectionHeArray[this.state.sectionArray.indexOf(nameOfFirstSection)]) : this.props.updateTitle(nameOfFirstSection);
+
     }
     else {
-      this.props.updateTitle(nameOfSecondSection)
+      this.props.columnLanguage == "hebrew" ? this.props.updateTitle(this.state.sectionHeArray[this.state.sectionArray.indexOf(nameOfSecondSection)]) : this.props.updateTitle(nameOfSecondSection);
     }
 
     //auto highlight middle visible segment
@@ -172,22 +175,13 @@ var TextColumn = React.createClass({
       //    console.log(indexOfMiddleVisibleSegment);
       //console.log(visibleRows);
 
-      //manually check for index of nameOfFirstSection because elements of this.state.sectionArray are of the form [engTitle,heTitle] and not simple strings
-      let sectionIndex = -1;
-      for (let i = 0; i < this.state.sectionArray.length; i++) {
-        if (this.state.sectionArray[i][0] === nameOfFirstSection) {
-          sectionIndex = i;
-          break;
-        }
-      }
-
       if (indexOfMiddleVisibleSegment < numberOfVisibleSegmentsInFirstSection) {
         var segmentToLoad = parseInt(Object.keys(visibleRows[nameOfFirstSection])[indexOfMiddleVisibleSegment]);
-        this.props.TextSegmentPressed(sectionIndex, segmentToLoad);
+        this.props.TextSegmentPressed(this.state.sectionArray.indexOf(nameOfFirstSection), segmentToLoad);
       }
       else {
         var segmentToLoad = parseInt(Object.keys(visibleRows[nameOfSecondSection])[indexOfMiddleVisibleSegment - numberOfVisibleSegmentsInFirstSection]);
-        this.props.TextSegmentPressed(sectionIndex, segmentToLoad);
+        this.props.TextSegmentPressed(this.state.sectionArray.indexOf(nameOfSecondSection), segmentToLoad);
       }
     }
 
@@ -229,8 +223,14 @@ var TextColumn = React.createClass({
 
 
       var newTitleArray = this.state.sectionArray;
-      newTitleArray.unshift([data.sectionRef,data.heRef]);
-      this.setState({sectionArray: newTitleArray});
+      var newHeTitleArray = this.state.sectionHeArray;
+      newTitleArray.unshift(data.sectionRef);
+      newHeTitleArray.unshift(data.heRef);
+
+      this.setState({
+        sectionArray: newTitleArray,
+        sectionHeArray: newHeTitleArray
+      });
 
       this.props.updateData(updatedData,this.props.prev,this.props.next,data.prev); //combined data content, new section title, the next section to be loaded on end , the previous section to load on top
 
@@ -258,8 +258,14 @@ var TextColumn = React.createClass({
       updatedData.push(data.content);
 
       var newTitleArray = this.state.sectionArray;
-      newTitleArray.push([data.sectionRef,data.heRef]);
-      this.setState({sectionArray: newTitleArray});
+      var newHeTitleArray = this.state.sectionHeArray;
+      newTitleArray.push(data.sectionRef);
+      newHeTitleArray.push(data.heRef);
+      this.setState({
+        sectionArray: newTitleArray,
+        sectionHeArray: newHeTitleArray
+      });
+
 
       this.props.updateData(updatedData,this.props.next,data.next,this.props.prev); //combined data content, new section title, the next section to be loaded on end , the previous section to load on top
 
