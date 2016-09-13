@@ -234,9 +234,14 @@ Sefaria = {
 
           for (let i = 0; i < data.content.length; i++) {
             let item = data.content[i];
-            if (item.segmentNumber == segNum) {
-                let enText = item.text instanceof Array ? item.text.join(" ") : "";
-                let heText = item.he instanceof Array ? item.he.join(" ") : "";
+            if (item.segmentNumber === segNum) {
+                let enText = "", heText = "";
+                if (item.text instanceof Array) enText = item.text.join(" ");
+                else if (typeof item.text === "string") enText = item.text;
+
+                if (item.he instanceof Array) heText = item.he.join(" ");
+                else if (typeof item.he === "string") heText = item.he;
+                
                 resolve({en:enText,he:heText});
                 return;
             }
