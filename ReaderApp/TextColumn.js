@@ -66,7 +66,7 @@ var TextColumn = React.createClass({
     var data = this.props.data;
     var sections = {};
     for (var section=0; section < data.length; section++) {
-      var rows = [];
+      var rows = {};
       for (var i = 0; i < data[section].length; i++) {
         var currSegData = data[section][i];
         var segment = []
@@ -110,7 +110,8 @@ var TextColumn = React.createClass({
 
         segment.push(<View style={styles.numberSegmentHolderEn}>{numberSegmentHolder}</View>)
 
-        rows.push(segment);
+//        rows.push(segment);
+        rows[this.state.sectionArray[section]+"_"+[i]] = segment
       }
     sections[this.state.sectionArray[section]] = rows;
     }
@@ -153,12 +154,6 @@ var TextColumn = React.createClass({
       var numberOfVisibleSegmentsInSecondSection = 0;
     }
 
-    console.log(nameOfFirstSection);
-    console.log(nameOfSecondSection);
-    console.log(this.state.sectionArray);
-
-
-
     //update title
     if (numberOfVisibleSegmentsInFirstSection > numberOfVisibleSegmentsInSecondSection) {
       this.props.columnLanguage == "hebrew" ? this.props.updateTitle(this.state.sectionHeArray[this.state.sectionArray.indexOf(nameOfFirstSection)]) : this.props.updateTitle(nameOfFirstSection);
@@ -176,11 +171,13 @@ var TextColumn = React.createClass({
       //console.log(visibleRows);
 
       if (indexOfMiddleVisibleSegment < numberOfVisibleSegmentsInFirstSection) {
-        var segmentToLoad = parseInt(Object.keys(visibleRows[nameOfFirstSection])[indexOfMiddleVisibleSegment]);
+        var segmentToLoad = parseInt(Object.keys(visibleRows[nameOfFirstSection])[indexOfMiddleVisibleSegment].replace(nameOfFirstSection+"_",""));
+        console.log(Object.keys(visibleRows[nameOfFirstSection])[indexOfMiddleVisibleSegment]);
         this.props.TextSegmentPressed(this.state.sectionArray.indexOf(nameOfFirstSection), segmentToLoad);
       }
       else {
-        var segmentToLoad = parseInt(Object.keys(visibleRows[nameOfSecondSection])[indexOfMiddleVisibleSegment - numberOfVisibleSegmentsInFirstSection]);
+        var segmentToLoad = parseInt(Object.keys(visibleRows[nameOfSecondSection])[indexOfMiddleVisibleSegment - numberOfVisibleSegmentsInFirstSection].replace(nameOfSecondSection+"_",""));
+        console.log(Object.keys(visibleRows[nameOfSecondSection])[indexOfMiddleVisibleSegment - numberOfVisibleSegmentsInFirstSection]);
         this.props.TextSegmentPressed(this.state.sectionArray.indexOf(nameOfSecondSection), segmentToLoad);
       }
     }
@@ -290,7 +287,7 @@ var TextColumn = React.createClass({
     return (
       <ListView ref='_listView'
                 dataSource={dataSourceRows}
-                renderRow={(rowData, sID, rID) =>  <View style={rID == this.props.segmentRef && this.props.textListVisible == true ? [styles.verseContainer,styles.segmentHighlight] : styles.verseContainer}>{rowData}</View>}
+                renderRow={(rowData, sID, rID) =>  <View style={rID == this.props.textReference+"_"+this.props.segmentRef && this.props.textListVisible == true ? [styles.verseContainer,styles.segmentHighlight] : styles.verseContainer}>{rowData}</View>}
                 onScroll={this.handleScroll}
                 onChangeVisibleRows={(visibleRows, changedRows) => this.visibleRowsChanged(visibleRows, changedRows)}
                 onContentSizeChange={(w, h) => {this.updateHeight(h)}}
