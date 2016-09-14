@@ -91,7 +91,7 @@ var TextColumn = React.createClass({
         if (columnLanguage == "hebrew" || columnLanguage == "bilingual") {
           segmentText.push(<TextSegment
                           segmentRef={this.props.segmentRef}
-                          segmentKey={section+":"+data[section][i].segmentNumber}
+                          segmentKey={section+":"+i}
                           data={currSegData.he}
                           textType="hebrew"
                           TextSegmentPressed={ this.props.TextSegmentPressed }
@@ -105,7 +105,7 @@ var TextColumn = React.createClass({
           segmentText.push(<TextSegment
                           style={styles.TextSegment}
                           segmentRef={this.props.segmentRef}
-                          segmentKey={section+":"+data[section][i].segmentNumber}
+                          segmentKey={section+":"+i}
                           data={currSegData.text}
                           textType="english"
                           TextSegmentPressed={ this.props.TextSegmentPressed }
@@ -117,7 +117,7 @@ var TextColumn = React.createClass({
         segment.push(<View style={styles.numberSegmentHolderEn}>{numberSegmentHolder}</View>)
 
 //        rows.push(segment);
-        rows[this.state.sectionArray[section]+"_"+[i]] = segment
+        rows[this.state.sectionArray[section]+"_"+data[section][i].segmentNumber] = segment
       }
     sections[this.state.sectionArray[section]] = rows;
     }
@@ -149,7 +149,11 @@ var TextColumn = React.createClass({
     }
 
     var visibleRows = this.refs._listView._visibleRows;
-//    var numberOfVisibleSections = Object.keys(visibleRows).length;
+
+console.log(visibleRows);
+
+
+
     var nameOfFirstSection = Object.keys(visibleRows)[0];
     var nameOfSecondSection = Object.keys(visibleRows)[1] || null;
     if (!visibleRows[nameOfFirstSection]) return; //look at ListView implementation. renderScrollComponent runs before visibleRows is populated
@@ -171,7 +175,7 @@ var TextColumn = React.createClass({
     }
 
     //auto highlight middle visible segment
-    if (this.props.textListVisible) {
+   if (this.props.textListVisible) {
 
       var indexOfMiddleVisibleSegment = parseInt((numberOfVisibleSegmentsInFirstSection + numberOfVisibleSegmentsInSecondSection) / 2);
       //    console.log(indexOfMiddleVisibleSegment);
@@ -290,9 +294,8 @@ var TextColumn = React.createClass({
 
   render: function() {
     var dataSourceRows = this.state.dataSource.cloneWithRowsAndSections(this.generateDataSource({}));
-
     if (this.props.offsetRef != null) {
-      console.log("NOAHLUVSLITAL",this.props.offsetRef);
+      console.log("NOAHL",this.props.offsetRef);
       const handle = React.findNodeHandle(this.refs[this.props.offsetRef]);
       /*UIManager.measureLayoutRelativeToParent(
         handle,
@@ -305,7 +308,7 @@ var TextColumn = React.createClass({
     return (
       <ListView ref='_listView'
                 dataSource={dataSourceRows}
-                renderRow={(rowData, sID, rID) =>  <View style={rID == this.props.textReference+"_"+this.props.segmentRef && this.props.textListVisible == true ? [styles.verseContainer,styles.segmentHighlight] : styles.verseContainer}>{rowData}</View>}
+                renderRow={(rowData, sID, rID) =>  <View style={rID == this.props.textReference+"_"+this.props.data[this.state.sectionArray.indexOf(sID)][this.props.segmentRef].segmentNumber && this.props.textListVisible == true ? [styles.verseContainer,styles.segmentHighlight] : styles.verseContainer}>{rowData}</View>}
                 onScroll={this.handleScroll}
                 onChangeVisibleRows={(visibleRows, changedRows) => this.visibleRowsChanged(visibleRows, changedRows)}
                 onContentSizeChange={(w, h) => {this.updateHeight(h)}}
