@@ -272,33 +272,6 @@ var TextColumn = React.createClass({
     });
 
   },
-  checkPosition: function(lastSection) {
-    var visibleRows = this.refs._listView._visibleRows;
-    console.log(visibleRows);
-    console.log(lastSection);
-    console.log(Object.keys(visibleRows)[0])
-
-    if (lastSection !== Object.keys(visibleRows)[0] && lastSection !== Object.keys(visibleRows)[1]) {
-      this.scrollLengthOfListView(lastSection)
-    }
-  },
-
-  scrollToSegment: function(segment) {
-    console.log(this.state.dataSourceRows.rowIdentities)
-    var handler = findNodeHandle(this.refs[segment])
-    queryLayoutByID(
-       handler,
-       null, /*Error callback that doesn't yet have a hook in native so doesn't get called */
-       (left, top, width, height, pageX, pageY) => {
-//         console.log(left, top, width, height, pageX, pageY)
-       }
-    );
-
-
-
-
-  },
-
 
   onEndReached: function() {
     if (this.props.loadingTextTail) {
