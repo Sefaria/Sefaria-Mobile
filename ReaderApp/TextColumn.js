@@ -5,11 +5,13 @@ import { 	AppRegistry,
   View,
   ScrollView,
   Text,
+  findNodeHandle,
   ListView
 } from 'react-native';
 
 var styles = require('./Styles.js');
 
+const queryLayoutByID = require('queryLayoutByID');
 
 var TextRange = require('./TextRange');
 var TextRangeContinuous = require('./TextRangeContinuous');
@@ -47,6 +49,9 @@ var TextColumn = React.createClass({
       sectionHeArray: [this.props.heRef],
       height: 0,
       prevHeight:0,
+      targetSectionRef: "",
+      scrollingToTargetRef:false,
+      scrolledAtLeastOnceToTargetRef: false,
     };
   },
 
@@ -78,7 +83,7 @@ var TextColumn = React.createClass({
 
         var numberSegmentHolder = [];
 
-        numberSegmentHolder.push(<Text style={styles.verseNumber}>{data[section][i].segmentNumber}</Text>)
+        numberSegmentHolder.push(<Text ref={this.state.sectionArray[section]+"_"+data[section][i].segmentNumber} style={styles.verseNumber}>{data[section][i].segmentNumber}</Text>)
 
         var segmentText = [];
 
@@ -144,10 +149,6 @@ var TextColumn = React.createClass({
 
     var visibleRows = this.refs._listView._visibleRows;
 
-console.log(visibleRows);
-
-
-
     var nameOfFirstSection = Object.keys(visibleRows)[0];
     var nameOfSecondSection = Object.keys(visibleRows)[1] || null;
     var numberOfVisibleSegmentsInFirstSection = Object.keys(visibleRows[nameOfFirstSection]).length;
@@ -192,30 +193,58 @@ console.log(visibleRows);
 
 
   },
+  scrollToTarget: function() {
+      console.log(Object.keys(this.refs._listView._visibleRows)[0]);
+      console.log(this.state.targetSectionRef)
+      //if current section not visible
+      if (this.state.targetSectionRef !== Object.keys(this.refs._listView._visibleRows)[0] && this.state.targetSectionRef !== Object.keys(this.refs._listView._visibleRows)[1]) {
+        this.refs._listView.scrollTo({
+          x: 0,
+          y: this.refs._listView.scrollProperties.offset + (this.refs._listView.scrollProperties.visibleLength),
+          animated: false
+        });
+        this.state.scrolledAtLeastOnceToTargetRef = true;
+      }
+      else if (this.state.scrolledAtLeastOnceToTargetRef == true) {
+        var handler = findNodeHandle(this.refs[(Object.keys(this.refs._listView._visibleRows[Object.keys(this.refs._listView._visibleRows)[1]])[0])])
+        queryLayoutByID(
+           handler,
+           null, /*Error callback that doesn't yet have a hook in native so doesn't get called */
+           (left, top, width, height, pageX, pageY) => {
+             console.log(left, top, width, height, pageX, pageY)
+             this.refs._listView.scrollTo({
+               x: 0,
+               y: this.refs._listView.scrollProperties.offset+pageY-150,
+               animated: false
+             });
+           }
+        );
+        this.setState({
+          scrollingToTargetRef: false,
+          scrolledAtLeastOnceToTargetRef: false,
+          targetSectionRef: ""
+        });
+      }
+
+
+  },
 
   updateHeight: function(newHeight) {
-    this.setState({
-      height: newHeight
-    });
+    if (this.props.loadingTextTail == false && this.state.targetSectionRef != "" && this.state.scrollingToTargetRef == true) {
+      this.scrollToTarget();
+    }
+  },
 
-  },
-  calculateOffset: function() {
-    console.log(this.state.height - this.state.prevHeight);
-    var offset = this.state.height - this.state.prevHeight;
-    this.setState({
-      prevHeight: this.state.height
-    });
-    return offset;
-  },
   onTopReached: function() {
     if (this.props.loadingTextTail) {
       //already loading tail
       return;
     }
     this.props.setLoadTextTail(true);
-//    this.refs._listView.scrollTo({x: 0, y: this.calculateOffset()+363, animated: false}) //TODO replace 363 with the height of textColumn
-    console.log(this.refs._listView.getMetrics());
+//    this.refs._listView.scrollTo({x: 0, y: this.calculateOffset(), animated: false}) //TODO replace 363 with the height of textColumn
 
+    this.state.scrollingToTargetRef = true;
+    this.state.targetSectionRef=this.props.textReference;
 
     Sefaria.data(this.props.prev).then(function(data) {
 
@@ -236,14 +265,39 @@ console.log(visibleRows);
       this.props.updateData(updatedData,this.props.prev,this.props.next,data.prev); //combined data content, new section title, the next section to be loaded on end , the previous section to load on top
 
 
-        console.log(this.refs._listView.getMetrics());
+
 
     }.bind(this)).catch(function(error) {
       console.log('oh no', error);
     });
 
   },
+  checkPosition: function(lastSection) {
+    var visibleRows = this.refs._listView._visibleRows;
+    console.log(visibleRows);
+    console.log(lastSection);
+    console.log(Object.keys(visibleRows)[0])
 
+    if (lastSection !== Object.keys(visibleRows)[0] && lastSection !== Object.keys(visibleRows)[1]) {
+      this.scrollLengthOfListView(lastSection)
+    }
+  },
+
+  scrollToSegment: function(segment) {
+    console.log(this.state.dataSourceRows.rowIdentities)
+    var handler = findNodeHandle(this.refs[segment])
+    queryLayoutByID(
+       handler,
+       null, /*Error callback that doesn't yet have a hook in native so doesn't get called */
+       (left, top, width, height, pageX, pageY) => {
+//         console.log(left, top, width, height, pageX, pageY)
+       }
+    );
+
+
+
+
+  },
 
 
   onEndReached: function() {
@@ -280,21 +334,25 @@ console.log(visibleRows);
   },
 
   visibleRowsChanged: function(visibleRows, changedRows) {
-//    console.log(visibleRows)
+    console.log(visibleRows)
+    if (this.props.loadingTextTail == false && this.state.targetSectionRef != "" && this.state.scrollingToTargetRef == true) {
+      this.scrollToTarget();
+    }
 
 
   },
 
   render: function() {
-    var dataSourceRows = this.state.dataSource.cloneWithRowsAndSections(this.generateDataSource({}));
+    this.state.dataSourceRows = this.state.dataSource.cloneWithRowsAndSections(this.generateDataSource({}));
     return (
       <ListView ref='_listView'
-                dataSource={dataSourceRows}
+                dataSource={this.state.dataSourceRows}
                 renderRow={(rowData, sID, rID) =>  <View style={rID == this.props.textReference+"_"+this.props.data[this.state.sectionArray.indexOf(sID)][this.props.segmentRef].segmentNumber && this.props.textListVisible == true ? [styles.verseContainer,styles.segmentHighlight] : styles.verseContainer}>{rowData}</View>}
                 onScroll={this.handleScroll}
                 onChangeVisibleRows={(visibleRows, changedRows) => this.visibleRowsChanged(visibleRows, changedRows)}
-                onContentSizeChange={(w, h) => {this.updateHeight(h)}}
                 onEndReached={this.onEndReached}
+                initialListSize={40}
+                onContentSizeChange={(w, h) => {this.updateHeight(h)}}
                 onEndReachedThreshold={300}
                 scrollEventThrottle={200}
       />
