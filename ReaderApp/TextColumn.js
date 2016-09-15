@@ -361,7 +361,12 @@ var TextColumn = React.createClass({
   componentDidUpdate:function() {
     this.scrollToOffsetRef(false);
   },
-
+  renderRow: function(rowData, sID, rID) {
+    let seg = this.props.data[this.state.sectionArray.indexOf(sID)][this.props.segmentIndexRef];
+    let style = seg && rID === sID+"_"+seg.segmentNumber && this.props.textListVisible
+      ? [styles.verseContainer,styles.segmentHighlight] : styles.verseContainer;
+    return <View style={style}>{rowData}</View>;
+  },
   render: function() {
     this.state.dataSourceRows = this.state.dataSource.cloneWithRowsAndSections(this.generateDataSource({}));
     if (this.props.offsetRef != null) {
@@ -372,7 +377,7 @@ var TextColumn = React.createClass({
     return (
       <ListView ref='_listView'
                 dataSource={this.state.dataSourceRows}
-                renderRow={(rowData, sID, rID) =>  <View style={typeof this.props.data[this.state.sectionArray.indexOf(sID)][this.props.segmentIndexRef] === "undefined" || rID !== sID+"_"+this.props.data[this.state.sectionArray.indexOf(sID)][this.props.segmentIndexRef].segmentNumber || this.props.textListVisible == false ? styles.verseContainer : [styles.verseContainer,styles.segmentHighlight] }>{rowData}</View>}
+                renderRow={this.renderRow}
                 onScroll={this.handleScroll}
                 onChangeVisibleRows={(visibleRows, changedRows) => this.visibleRowsChanged(visibleRows, changedRows)}
                 onEndReached={this.onEndReached}
