@@ -15,7 +15,7 @@ const queryLayoutByID = require('queryLayoutByID');
 
 var TextRange = require('./TextRange');
 var TextRangeContinuous = require('./TextRangeContinuous');
-var segmentRefPositionArray = {};
+var segmentIndexRefPositionArray = {};
 
 var TextSegment = require('./TextSegment');
 
@@ -24,7 +24,7 @@ var TextColumn = React.createClass({
     settings:         React.PropTypes.object,
     data:             React.PropTypes.array,
     textReference:    React.PropTypes.string,
-    segmentRef:       React.PropTypes.number,
+    segmentIndexRef:       React.PropTypes.number,
     textTitle:        React.PropTypes.string,
     heTitle:          React.PropTypes.string,
     heRef:            React.PropTypes.string,
@@ -89,7 +89,7 @@ var TextColumn = React.createClass({
 
         if (columnLanguage == "hebrew" || columnLanguage == "bilingual") {
           segmentText.push(<TextSegment
-                          segmentRef={this.props.segmentRef}
+                          segmentIndexRef={this.props.segmentIndexRef}
                           segmentKey={section+":"+i}
                           data={currSegData.he}
                           textType="hebrew"
@@ -103,7 +103,7 @@ var TextColumn = React.createClass({
         if (columnLanguage == "english" || columnLanguage == "bilingual") {
           segmentText.push(<TextSegment
                           style={styles.TextSegment}
-                          segmentRef={this.props.segmentRef}
+                          segmentIndexRef={this.props.segmentIndexRef}
                           segmentKey={section+":"+i}
                           data={currSegData.text}
                           textType="english"
@@ -124,15 +124,15 @@ var TextColumn = React.createClass({
 
 /*
     if (this.props.textFlow == 'continuous') {
-      curTextRange = <TextRangeContinuous data={this.props.data} segmentRef={this.props.segmentRef}
+      curTextRange = <TextRangeContinuous data={this.props.data} segmentIndexRef={this.props.segmentIndexRef}
                                           columnLanguage={this.props.columnLanguage}
                                           TextSegmentPressed={ this.props.TextSegmentPressed }
-                                          generateSegmentRefPositionArray={this.generateSegmentRefPositionArray}/>;
+                                          generatesegmentIndexRefPositionArray={this.generatesegmentIndexRefPositionArray}/>;
     } else {
       curTextRange =
-        <TextRange data={this.props.data} segmentRef={this.props.segmentRef} columnLanguage={this.props.columnLanguage}
+        <TextRange data={this.props.data} segmentIndexRef={this.props.segmentIndexRef} columnLanguage={this.props.columnLanguage}
                    TextSegmentPressed={ this.props.TextSegmentPressed }
-                   generateSegmentRefPositionArray={this.generateSegmentRefPositionArray}/>;
+                   generatesegmentIndexRefPositionArray={this.generatesegmentIndexRefPositionArray}/>;
     }
 
     sourceArray.push(curTextRange);
@@ -177,12 +177,10 @@ var TextColumn = React.createClass({
 
       if (indexOfMiddleVisibleSegment < numberOfVisibleSegmentsInFirstSection) {
         var segmentToLoad = parseInt(Object.keys(visibleRows[nameOfFirstSection])[indexOfMiddleVisibleSegment].replace(nameOfFirstSection+"_",""));
-        console.log(Object.keys(visibleRows[nameOfFirstSection])[indexOfMiddleVisibleSegment]);
         this.props.TextSegmentPressed(this.state.sectionArray.indexOf(nameOfFirstSection), segmentToLoad);
       }
       else {
         var segmentToLoad = parseInt(Object.keys(visibleRows[nameOfSecondSection])[indexOfMiddleVisibleSegment - numberOfVisibleSegmentsInFirstSection].replace(nameOfSecondSection+"_",""));
-        console.log(Object.keys(visibleRows[nameOfSecondSection])[indexOfMiddleVisibleSegment - numberOfVisibleSegmentsInFirstSection]);
         this.props.TextSegmentPressed(this.state.sectionArray.indexOf(nameOfSecondSection), segmentToLoad);
       }
     }
@@ -307,7 +305,6 @@ var TextColumn = React.createClass({
   },
 
   visibleRowsChanged: function(visibleRows, changedRows) {
-    console.log(visibleRows)
     if (this.props.loadingTextTail == false && this.state.targetSectionRef != "" && this.state.scrollingToTargetRef == true) {
       this.scrollToTarget();
     }
@@ -320,7 +317,8 @@ var TextColumn = React.createClass({
     return (
       <ListView ref='_listView'
                 dataSource={this.state.dataSourceRows}
-                renderRow={(rowData, sID, rID) =>  <View style={rID == this.props.textReference+"_"+this.props.data[this.state.sectionArray.indexOf(sID)][this.props.segmentRef].segmentNumber && this.props.textListVisible == true ? [styles.verseContainer,styles.segmentHighlight] : styles.verseContainer}>{rowData}</View>}
+                renderRow={(rowData, sID, rID) =>  <View style={typeof this.props.data[this.state.sectionArray.indexOf(sID)][this.props.segmentIndexRef] === "undefined" || rID !== sID+"_"+this.props.data[this.state.sectionArray.indexOf(sID)][this.props.segmentIndexRef].segmentNumber || this.props.textListVisible == false ? styles.verseContainer : [styles.verseContainer,styles.segmentHighlight] }>{rowData}</View>}
+//                renderRow={(rowData, sID, rID) =>  <View style={rID.split("_")[1] == sID+"_"+this.props.data[this.state.sectionArray.indexOf(sID)][this.props.segmentRef].segmentNumber && this.props.textListVisible == true ? [styles.verseContainer,styles.segmentHighlight] : styles.verseContainer}><Text>{rID.split("_")[1]} {this.props.segmentIndexRef}</Text>{rowData}</View>}
                 onScroll={this.handleScroll}
                 onChangeVisibleRows={(visibleRows, changedRows) => this.visibleRowsChanged(visibleRows, changedRows)}
                 onEndReached={this.onEndReached}

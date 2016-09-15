@@ -29,7 +29,7 @@ var TextList = React.createClass({
     updateCat:      React.PropTypes.func.isRequired,
     onLinkLoad:     React.PropTypes.func.isRequired,
     linkContents:   React.PropTypes.array,
-    segmentRef:     React.PropTypes.number,
+    segmentIndexRef:     React.PropTypes.number,
     links:          React.PropTypes.array,
     filterIndex:    React.PropTypes.number,
     recentFilters:  React.PropTypes.array, /* of the form [{title,heTitle,refList}...] */
@@ -76,7 +76,7 @@ var TextList = React.createClass({
     this._rowsToLoad = [];
   },
   componentWillUpdate: function(nextProps) {
-    if (this.props.segmentRef != nextProps.segmentRef) {
+    if (this.props.segmentIndexRef != nextProps.segmentIndexRef) {
       this.props.updateCat(nextProps.links,null);
     }
   },
