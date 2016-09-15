@@ -22,16 +22,16 @@ var TextRangeContinuous = React.createClass({
       rows.push(<Text style={styles.verseNumber}>{data[i].segmentNumber}.</Text>)
 
       if (columnLanguage == "english") {
-        rows.push(<TextSegment segmentRef={this.props.segmentRef} segmentKey={data[i].segmentNumber} data={data[i].text}
+        rows.push(<TextSegment segmentIndexRef={this.props.segmentIndexRef} segmentKey={data[i].segmentNumber} data={data[i].text}
                                textType="english" TextSegmentPressed={ this.props.TextSegmentPressed }
-                               generateSegmentRefPositionArray={this.props.generateSegmentRefPositionArray}/>);
+                               generatesegmentIndexRefPositionArray={this.props.generatesegmentIndexRefPositionArray}/>);
         rows.push(<Text> </Text>);
       }
 
       if (columnLanguage == "hebrew") {
-        rows.push(<TextSegment segmentRef={this.props.segmentRef} segmentKey={data[i].segmentNumber} data={data[i].he}
+        rows.push(<TextSegment segmentIndexRef={this.props.segmentIndexRef} segmentKey={data[i].segmentNumber} data={data[i].he}
                                textType="hebrew" TextSegmentPressed={ this.props.TextSegmentPressed }
-                               generateSegmentRefPositionArray={this.props.generateSegmentRefPositionArray}/>);
+                               generatesegmentIndexRefPositionArray={this.props.generatesegmentIndexRefPositionArray}/>);
         rows.push(<Text> </Text>);
       }
 

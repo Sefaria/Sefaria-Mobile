@@ -35,8 +35,12 @@ var ReaderApp = React.createClass({
         }.bind(this));
 
         return {
+<<<<<<< HEAD
             segmentRef: 0,
             offsetRef: null, /* used to jump to specific ref when opening a link*/
+=======
+            segmentIndexRef: 0,
+>>>>>>> 35f390501e544f1072a0edbcd5e25f93b68e4705
             links: [],
             textReference: "",
             textTitle: "",
@@ -64,8 +68,9 @@ var ReaderApp = React.createClass({
           return;
         }
         var links = Sefaria.links.linkSummary(this.state.data[section][segment].links);
+        console.log(section,segment)
 
-        let stateObj = {segmentRef: segment,links:links};
+        let stateObj = {segmentIndexRef: segment,links:links};
         if (shouldToggle)
           stateObj.textListVisible = !this.state.textListVisible;
 
@@ -84,7 +89,7 @@ var ReaderApp = React.createClass({
         Sefaria.data(ref).then(function(data) {
             var links = [];
             if (data.content) {
-                links = Sefaria.links.linkSummary(data.content[this.state.segmentRef].links);
+                links = Sefaria.links.linkSummary(data.content[this.state.segmentIndexRef].links);
             }
 
 
@@ -114,7 +119,7 @@ var ReaderApp = React.createClass({
 
     },
     updateData: function(data, ref, next, prev) {
-        //var links = Sefaria.links.linkSummary(data[this.state.segmentRef].links);
+        //var links = Sefaria.links.linkSummary(data[this.state.segmentIndexRef].links);
         this.setState({
             data:            data,
             textReference:   ref,
@@ -259,8 +264,12 @@ var ReaderApp = React.createClass({
                     links={this.state.links}
                     next={this.state.next}
                     prev={this.state.prev}
+<<<<<<< HEAD
                     segmentRef={this.state.segmentRef}
                     offsetRef={this.state.offsetRef}
+=======
+                    segmentIndexRef={this.state.segmentIndexRef}
+>>>>>>> 35f390501e544f1072a0edbcd5e25f93b68e4705
                     textList={0}
                     menuOpen={this.state.menuOpen}
                     navigationCategories={this.state.navigationCategories}

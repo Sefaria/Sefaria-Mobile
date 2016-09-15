@@ -5,6 +5,7 @@ import ReactNative, { 	AppRegistry,
   View,
   ScrollView,
   Text,
+  findNodeHandle,
   ListView
 } from 'react-native';
 
@@ -14,7 +15,7 @@ const queryLayoutByID = require('queryLayoutByID');
 
 var TextRange = require('./TextRange');
 var TextRangeContinuous = require('./TextRangeContinuous');
-var segmentRefPositionArray = {};
+var segmentIndexRefPositionArray = {};
 
 var TextSegment = require('./TextSegment');
 
@@ -23,8 +24,8 @@ var TextColumn = React.createClass({
     settings:         React.PropTypes.object,
     data:             React.PropTypes.array,
     textReference:    React.PropTypes.string,
-    segmentRef:       React.PropTypes.number,
     offsetRef:        React.PropTypes.string,
+    segmentIndexRef:  React.PropTypes.number,
     textTitle:        React.PropTypes.string,
     heTitle:          React.PropTypes.string,
     heRef:            React.PropTypes.string,
@@ -49,6 +50,9 @@ var TextColumn = React.createClass({
       sectionHeArray: [this.props.heRef],
       height: 0,
       prevHeight:0,
+      targetSectionRef: "",
+      scrollingToTargetRef:false,
+      scrolledAtLeastOnceToTargetRef: false,
     };
   },
 
@@ -79,13 +83,13 @@ var TextColumn = React.createClass({
 
         var numberSegmentHolder = [];
 
-        numberSegmentHolder.push(<Text style={styles.verseNumber}>{data[section][i].segmentNumber}</Text>)
+        numberSegmentHolder.push(<Text ref={this.state.sectionArray[section]+"_"+data[section][i].segmentNumber} style={styles.verseNumber}>{data[section][i].segmentNumber}</Text>)
 
         var segmentText = [];
 
         if (columnLanguage == "hebrew" || columnLanguage == "bilingual") {
           segmentText.push(<TextSegment
-                          segmentRef={this.props.segmentRef}
+                          segmentIndexRef={this.props.segmentIndexRef}
                           segmentKey={section+":"+i}
                           data={currSegData.he}
                           textType="hebrew"
@@ -99,7 +103,7 @@ var TextColumn = React.createClass({
         if (columnLanguage == "english" || columnLanguage == "bilingual") {
           segmentText.push(<TextSegment
                           style={styles.TextSegment}
-                          segmentRef={this.props.segmentRef}
+                          segmentIndexRef={this.props.segmentIndexRef}
                           segmentKey={section+":"+i}
                           data={currSegData.text}
                           textType="english"
@@ -121,15 +125,15 @@ var TextColumn = React.createClass({
 
 /*
     if (this.props.textFlow == 'continuous') {
-      curTextRange = <TextRangeContinuous data={this.props.data} segmentRef={this.props.segmentRef}
+      curTextRange = <TextRangeContinuous data={this.props.data} segmentIndexRef={this.props.segmentIndexRef}
                                           columnLanguage={this.props.columnLanguage}
                                           TextSegmentPressed={ this.props.TextSegmentPressed }
-                                          generateSegmentRefPositionArray={this.generateSegmentRefPositionArray}/>;
+                                          generatesegmentIndexRefPositionArray={this.generatesegmentIndexRefPositionArray}/>;
     } else {
       curTextRange =
-        <TextRange data={this.props.data} segmentRef={this.props.segmentRef} columnLanguage={this.props.columnLanguage}
+        <TextRange data={this.props.data} segmentIndexRef={this.props.segmentIndexRef} columnLanguage={this.props.columnLanguage}
                    TextSegmentPressed={ this.props.TextSegmentPressed }
-                   generateSegmentRefPositionArray={this.generateSegmentRefPositionArray}/>;
+                   generatesegmentIndexRefPositionArray={this.generatesegmentIndexRefPositionArray}/>;
     }
 
     sourceArray.push(curTextRange);
@@ -145,10 +149,6 @@ var TextColumn = React.createClass({
     }
 
     var visibleRows = this.refs._listView._visibleRows;
-
-console.log(visibleRows);
-
-
 
     var nameOfFirstSection = Object.keys(visibleRows)[0];
     var nameOfSecondSection = Object.keys(visibleRows)[1] || null;
@@ -179,12 +179,10 @@ console.log(visibleRows);
 
       if (indexOfMiddleVisibleSegment < numberOfVisibleSegmentsInFirstSection) {
         var segmentToLoad = parseInt(Object.keys(visibleRows[nameOfFirstSection])[indexOfMiddleVisibleSegment].replace(nameOfFirstSection+"_",""));
-        console.log(Object.keys(visibleRows[nameOfFirstSection])[indexOfMiddleVisibleSegment]);
         this.props.TextSegmentPressed(this.state.sectionArray.indexOf(nameOfFirstSection), segmentToLoad);
       }
       else {
         var segmentToLoad = parseInt(Object.keys(visibleRows[nameOfSecondSection])[indexOfMiddleVisibleSegment - numberOfVisibleSegmentsInFirstSection].replace(nameOfSecondSection+"_",""));
-        console.log(Object.keys(visibleRows[nameOfSecondSection])[indexOfMiddleVisibleSegment - numberOfVisibleSegmentsInFirstSection]);
         this.props.TextSegmentPressed(this.state.sectionArray.indexOf(nameOfSecondSection), segmentToLoad);
       }
     }
@@ -195,30 +193,58 @@ console.log(visibleRows);
 
 
   },
+  scrollToTarget: function() {
+      console.log(Object.keys(this.refs._listView._visibleRows)[0]);
+      console.log(this.state.targetSectionRef)
+      //if current section not visible
+      if (this.state.targetSectionRef !== Object.keys(this.refs._listView._visibleRows)[0] && this.state.targetSectionRef !== Object.keys(this.refs._listView._visibleRows)[1]) {
+        this.refs._listView.scrollTo({
+          x: 0,
+          y: this.refs._listView.scrollProperties.offset + (this.refs._listView.scrollProperties.visibleLength),
+          animated: false
+        });
+        this.state.scrolledAtLeastOnceToTargetRef = true;
+      }
+      else if (this.state.scrolledAtLeastOnceToTargetRef == true) {
+        var handler = findNodeHandle(this.refs[(Object.keys(this.refs._listView._visibleRows[Object.keys(this.refs._listView._visibleRows)[1]])[0])])
+        queryLayoutByID(
+           handler,
+           null, /*Error callback that doesn't yet have a hook in native so doesn't get called */
+           (left, top, width, height, pageX, pageY) => {
+             console.log(left, top, width, height, pageX, pageY)
+             this.refs._listView.scrollTo({
+               x: 0,
+               y: this.refs._listView.scrollProperties.offset+pageY-150,
+               animated: false
+             });
+           }
+        );
+        this.setState({
+          scrollingToTargetRef: false,
+          scrolledAtLeastOnceToTargetRef: false,
+          targetSectionRef: ""
+        });
+      }
+
+
+  },
 
   updateHeight: function(newHeight) {
-    this.setState({
-      height: newHeight
-    });
+    if (this.props.loadingTextTail == false && this.state.targetSectionRef != "" && this.state.scrollingToTargetRef == true) {
+      this.scrollToTarget();
+    }
+  },
 
-  },
-  calculateOffset: function() {
-    console.log(this.state.height - this.state.prevHeight);
-    var offset = this.state.height - this.state.prevHeight;
-    this.setState({
-      prevHeight: this.state.height
-    });
-    return offset;
-  },
   onTopReached: function() {
     if (this.props.loadingTextTail) {
       //already loading tail
       return;
     }
     this.props.setLoadTextTail(true);
-//    this.refs._listView.scrollTo({x: 0, y: this.calculateOffset()+363, animated: false}) //TODO replace 363 with the height of textColumn
-    console.log(this.refs._listView.getMetrics());
+//    this.refs._listView.scrollTo({x: 0, y: this.calculateOffset(), animated: false}) //TODO replace 363 with the height of textColumn
 
+    this.state.scrollingToTargetRef = true;
+    this.state.targetSectionRef=this.props.textReference;
 
     Sefaria.data(this.props.prev).then(function(data) {
 
@@ -239,15 +265,13 @@ console.log(visibleRows);
       this.props.updateData(updatedData,this.props.prev,this.props.next,data.prev); //combined data content, new section title, the next section to be loaded on end , the previous section to load on top
 
 
-        console.log(this.refs._listView.getMetrics());
+
 
     }.bind(this)).catch(function(error) {
       console.log('oh no', error);
     });
 
   },
-
-
 
   onEndReached: function() {
     if (this.props.loadingTextTail) {
@@ -283,7 +307,9 @@ console.log(visibleRows);
   },
 
   visibleRowsChanged: function(visibleRows, changedRows) {
-//    console.log(visibleRows)
+    if (this.props.loadingTextTail == false && this.state.targetSectionRef != "" && this.state.scrollingToTargetRef == true) {
+      this.scrollToTarget();
+    }
 
 
   },
@@ -308,8 +334,7 @@ console.log(visibleRows);
   },
 
   render: function() {
-    this.dataSource = this.generateDataSource({});
-    var dataSourceRows = this.state.dataSource.cloneWithRowsAndSections(this.dataSource);
+    this.state.dataSourceRows = this.state.dataSource.cloneWithRowsAndSections(this.generateDataSource({}));
     if (this.props.offsetRef != null) {
       //console.log("NOAHL",this.props.offsetRef);
       //console.log("NOAHL2",this.dataSource[this.state.sectionArray[0]][this.props.offsetRef]);
@@ -317,13 +342,14 @@ console.log(visibleRows);
     //ref={this.props.textReference+"_"+this.props.data[this.state.sectionArray.indexOf(sID)][this.props.segmentRef].segmentNumber}
     return (
       <ListView ref='_listView'
-                dataSource={dataSourceRows}
-                renderRow={(rowData, sID, rID) =>  <View  ref={this.props.textReference+"_"+this.props.data[this.state.sectionArray.indexOf(sID)][this.props.segmentRef].segmentNumber} style={rID == this.props.textReference+"_"+this.props.data[this.state.sectionArray.indexOf(sID)][this.props.segmentRef].segmentNumber && this.props.textListVisible == true ? [styles.verseContainer,styles.segmentHighlight] : styles.verseContainer}>{rowData}</View>}
+                dataSource={this.state.dataSourceRows}
+                renderRow={(rowData, sID, rID) =>  <View style={typeof this.props.data[this.state.sectionArray.indexOf(sID)][this.props.segmentIndexRef] === "undefined" || rID !== sID+"_"+this.props.data[this.state.sectionArray.indexOf(sID)][this.props.segmentIndexRef].segmentNumber || this.props.textListVisible == false ? styles.verseContainer : [styles.verseContainer,styles.segmentHighlight] }>{rowData}</View>}
                 onScroll={this.handleScroll}
                 onChangeVisibleRows={(visibleRows, changedRows) => this.visibleRowsChanged(visibleRows, changedRows)}
-                onContentSizeChange={(w, h) => {this.updateHeight(h)}}
                 onEndReached={this.onEndReached}
                 renderScrollComponent={props => <ScrollView {...props} contentOffset={{y:100}}/>}
+                initialListSize={40}
+                onContentSizeChange={(w, h) => {this.updateHeight(h)}}
                 onEndReachedThreshold={300}
                 scrollEventThrottle={200}
       />
