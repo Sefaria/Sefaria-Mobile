@@ -1,6 +1,6 @@
 'use strict';
 import React, { Component } from 'react';
-import { 	AppRegistry,
+import ReactNative, { 	AppRegistry,
   StyleSheet,
   View,
   ScrollView,
@@ -10,6 +10,7 @@ import { 	AppRegistry,
 
 var styles = require('./Styles.js');
 const UIManager = require('NativeModules').UIManager;
+const queryLayoutByID = require('queryLayoutByID');
 
 var TextRange = require('./TextRange');
 var TextRangeContinuous = require('./TextRangeContinuous');
@@ -54,12 +55,6 @@ var TextColumn = React.createClass({
   componentDidMount: function() {
 
 
-  },
-
-  componentDidUpdate: function() {
-    if (this.props.offsetRef != null) {
-
-    }
   },
 
   componentWillReceiveProps: function(nextProps) {
@@ -117,11 +112,12 @@ var TextColumn = React.createClass({
         segment.push(<View style={styles.numberSegmentHolderEn}>{numberSegmentHolder}</View>)
 
 //        rows.push(segment);
-        rows[this.state.sectionArray[section]+"_"+data[section][i].segmentNumber] = segment
+        rows[this.state.sectionArray[section]+"_"+data[section][i].segmentNumber] = segment;
+        console.log("SEGID",this.state.sectionArray[section]+"_"+data[section][i].segmentNumber);
       }
     sections[this.state.sectionArray[section]] = rows;
     }
-    return (sections)
+    return sections;
 
 /*
     if (this.props.textFlow == 'continuous') {
@@ -292,23 +288,37 @@ console.log(visibleRows);
 
   },
 
-  render: function() {
-    var dataSourceRows = this.state.dataSource.cloneWithRowsAndSections(this.generateDataSource({}));
+  componentDidUpdate: function() {
     if (this.props.offsetRef != null) {
-      console.log("NOAHL",this.props.offsetRef);
-      const handle = React.findNodeHandle(this.refs[this.props.offsetRef]);
+      //console.log("ref",Object.keys(this.rows));
+      var yo = this.refs._listView;
+      if (yo != null) {
+        //const handle = queryLayoutByID(ReactNative.findNodeHandle(yo));
+        console.log("handle",queryLayoutByID(ReactNative.findNodeHandle(yo)));
+      } else {
+        console.log("handle","null");
+      }
       /*UIManager.measureLayoutRelativeToParent(
-        handle,
+        this.refs[this.props.offsetRef],
         (e) => {console.error(e)},
         (x, y, w, h) => {
           console.log('offset', x, y, w, h);
         });*/
     }
+  },
 
+  render: function() {
+    this.dataSource = this.generateDataSource({});
+    var dataSourceRows = this.state.dataSource.cloneWithRowsAndSections(this.dataSource);
+    if (this.props.offsetRef != null) {
+      //console.log("NOAHL",this.props.offsetRef);
+      //console.log("NOAHL2",this.dataSource[this.state.sectionArray[0]][this.props.offsetRef]);
+    }
+    //ref={this.props.textReference+"_"+this.props.data[this.state.sectionArray.indexOf(sID)][this.props.segmentRef].segmentNumber}
     return (
       <ListView ref='_listView'
                 dataSource={dataSourceRows}
-                renderRow={(rowData, sID, rID) =>  <View style={rID == this.props.textReference+"_"+this.props.data[this.state.sectionArray.indexOf(sID)][this.props.segmentRef].segmentNumber && this.props.textListVisible == true ? [styles.verseContainer,styles.segmentHighlight] : styles.verseContainer}>{rowData}</View>}
+                renderRow={(rowData, sID, rID) =>  <View  ref={this.props.textReference+"_"+this.props.data[this.state.sectionArray.indexOf(sID)][this.props.segmentRef].segmentNumber} style={rID == this.props.textReference+"_"+this.props.data[this.state.sectionArray.indexOf(sID)][this.props.segmentRef].segmentNumber && this.props.textListVisible == true ? [styles.verseContainer,styles.segmentHighlight] : styles.verseContainer}>{rowData}</View>}
                 onScroll={this.handleScroll}
                 onChangeVisibleRows={(visibleRows, changedRows) => this.visibleRowsChanged(visibleRows, changedRows)}
                 onContentSizeChange={(w, h) => {this.updateHeight(h)}}

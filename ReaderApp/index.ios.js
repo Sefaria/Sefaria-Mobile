@@ -60,6 +60,9 @@ var ReaderApp = React.createClass({
         });
     },
     TextSegmentPressed: function(section,segment,shouldToggle) {
+        if (!this.state.data[section][segment]) {
+          return;
+        }
         var links = Sefaria.links.linkSummary(this.state.data[section][segment].links);
 
         let stateObj = {segmentRef: segment,links:links};
@@ -70,17 +73,21 @@ var ReaderApp = React.createClass({
     },
     /*isSegmentLevel is true when you loadNewText() is triggered by a link click or search item click that needs to jump to a certain ref*/
     loadNewText: function(ref,isSegmentLevel=false) {
-        this.setState({loaded: false, data: [], textReference: ref});
+        let segmentNum;
+        let sectionRef = ref;
+        if (isSegmentLevel === true) {
+          segmentNum = ref.split(":")[1];
+          sectionRef = ref.split(":")[0];
+        }
+
+        this.setState({loaded: false, data: [], textReference: sectionRef});
         Sefaria.data(ref).then(function(data) {
             var links = [];
             if (data.content) {
                 links = Sefaria.links.linkSummary(data.content[this.state.segmentRef].links);
             }
 
-            var yo;
-            if (isSegmentLevel === true) {
-              yo = ref;
-            }
+
             this.setState({
                 data:            [data.content],
                 links:           links,
@@ -94,7 +101,7 @@ var ReaderApp = React.createClass({
                 recentFilters:   [],
                 linkContents:    [],
                 textListVisible: false,
-                offsetRef:       yo
+                offsetRef:       segmentNum ? sectionRef + "_" + segmentNum : null
             });
 
             // Preload Text TOC data into memory
@@ -124,9 +131,14 @@ var ReaderApp = React.createClass({
     },
     /*  isSegmentLevel - see explanation in loadNewText()*/
     openRef: function(ref,isSegmentLevel=false) {
+        let sectionRef = ref;
+        if (isSegmentLevel === true) {
+          sectionRef = ref.split(":")[0];
+        }
+
         this.setState({
             loaded: false,
-            textReference: ref
+            textReference: sectionRef
         }, function() {
             this.closeMenu(); // Don't close until these values are in state, so we know if we need to load defualt text
         }.bind(this));
