@@ -67,8 +67,11 @@ var ReaderApp = React.createClass({
         console.log(section,segment)
 
         let stateObj = {segmentIndexRef: segment,links:links};
-        if (shouldToggle)
+        if (shouldToggle) {
           stateObj.textListVisible = !this.state.textListVisible;
+          stateObj.offsetRef = null; //offsetRef is used to highlight. once you open textlist, you should remove the highlight
+        }
+
 
         this.setState(stateObj);
     },

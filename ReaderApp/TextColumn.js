@@ -363,8 +363,11 @@ var TextColumn = React.createClass({
   },
   renderRow: function(rowData, sID, rID) {
     let seg = this.props.data[this.state.sectionArray.indexOf(sID)][this.props.segmentIndexRef];
-    let style = seg && rID === sID+"_"+seg.segmentNumber && this.props.textListVisible
-      ? [styles.verseContainer,styles.segmentHighlight] : styles.verseContainer;
+
+    let style = [styles.verseContainer];
+    if ((seg && rID === sID+"_"+seg.segmentNumber && this.props.textListVisible) || this.props.offsetRef == rID) {
+        style.push(styles.segmentHighlight);
+    }
     return <View style={style}>{rowData}</View>;
   },
   render: function() {
