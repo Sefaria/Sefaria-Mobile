@@ -309,7 +309,14 @@ var TextColumn = React.createClass({
 
   },
 
-  scrollToOffsetRef: function() {
+  /* Warning, this function is hacky. anyone who knows how to improve it, be my guest
+  didMount - true if comint from componentDidMount. it seems that none of the rows have heights (even if they're on screen) at the did mount stage. so I scroll by one pixel so that the rows get measured
+
+  the function looks to see if this.props.offsetRef is on screen. it determines if its on screen by measuring the row. if it's height is 0, it is probably not on screen. right now I can't find a better way to do this
+  if on screen, it jumps to it
+  if not, it jumps a whole screen downwards (except if didMount is true, see above). on the next render it will check again
+  */
+  scrollToOffsetRef: function(didMount) {
     if (this.props.offsetRef != null && !this.state.scrolledToOffsetRef) {
       let ref = this.refs[this.props.offsetRef];
       let handle = findNodeHandle(ref);
@@ -319,18 +326,20 @@ var TextColumn = React.createClass({
            null, /*Error callback that doesn't yet have a hook in native so doesn't get called */
            (left, top, width, height, pageX, pageY) => {
              if (pageY == 0) { //I'm forced to assume this means it's not on screen, though it could also be at the top of the page...
+                console.log("ZEROOOO");
                 queryLayoutByID(
                   findNodeHandle(this.refs._listView),
                   null,
                   (left,top,width,height,pageX,pageY) => {
                     this.refs._listView.scrollTo({
                       x: 0,
-                      y: this.refs._listView.scrollProperties.offset+height,
+                      y: didMount ? 1 :this.refs._listView.scrollProperties.offset+height,
                       animated: false
                     });
                   }
                 );
              } else {
+               console.log("YESHHH");
                this.setState({scrolledToOffsetRef:true});
                this.refs._listView.scrollTo({
                  x: 0,
@@ -341,16 +350,16 @@ var TextColumn = React.createClass({
            }
         );
       } else {
-        //ßconsole.log("FAIL","fail...");
+        //console.log("FAIL","fail...");
       }
     }
   },
 
   componentDidMount: function() {
-    this.scrollToOffsetRef();
+    this.scrollToOffsetRef(true);
   },
   componentDidUpdate:function() {
-    this.scrollToOffsetRef();
+    this.scrollToOffsetRef(false);
   },
 
   render: function() {
