@@ -9,15 +9,15 @@ import ReactNative, { 	AppRegistry,
   ListView
 } from 'react-native';
 
-var styles = require('./Styles.js');
-const UIManager = require('NativeModules').UIManager;
+const styles = require('./Styles.js');
 const queryLayoutByID = require('queryLayoutByID');
+const TextRange = require('./TextRange');
+const TextRangeContinuous = require('./TextRangeContinuous');
+const TextSegment = require('./TextSegment');
 
-var TextRange = require('./TextRange');
-var TextRangeContinuous = require('./TextRangeContinuous');
 var segmentIndexRefPositionArray = {};
 
-var TextSegment = require('./TextSegment');
+
 
 var TextColumn = React.createClass({
   propTypes: {
@@ -53,12 +53,8 @@ var TextColumn = React.createClass({
       targetSectionRef: "",
       scrollingToTargetRef:false,
       scrolledAtLeastOnceToTargetRef: false,
+      scrolledToOffsetRef:false
     };
-  },
-
-  componentDidMount: function() {
-
-
   },
 
   componentWillReceiveProps: function(nextProps) {
@@ -117,7 +113,6 @@ var TextColumn = React.createClass({
 
 //        rows.push(segment);
         rows[this.state.sectionArray[section]+"_"+data[section][i].segmentNumber] = segment;
-        console.log("SEGID",this.state.sectionArray[section]+"_"+data[section][i].segmentNumber);
       }
     sections[this.state.sectionArray[section]] = rows;
     }
@@ -314,23 +309,48 @@ var TextColumn = React.createClass({
 
   },
 
-  componentDidUpdate: function() {
-    if (this.props.offsetRef != null) {
-      //console.log("ref",Object.keys(this.rows));
-      var yo = this.refs._listView;
-      if (yo != null) {
-        //const handle = queryLayoutByID(ReactNative.findNodeHandle(yo));
-        console.log("handle",queryLayoutByID(ReactNative.findNodeHandle(yo)));
+  scrollToOffsetRef: function() {
+    if (this.props.offsetRef != null && !this.state.scrolledToOffsetRef) {
+      let ref = this.refs[this.props.offsetRef];
+      let handle = findNodeHandle(ref);
+      if (handle != null) {
+        queryLayoutByID(
+           handle,
+           null, /*Error callback that doesn't yet have a hook in native so doesn't get called */
+           (left, top, width, height, pageX, pageY) => {
+             if (pageY == 0) { //I'm forced to assume this means it's not on screen, though it could also be at the top of the page...
+                queryLayoutByID(
+                  findNodeHandle(this.refs._listView),
+                  null,
+                  (left,top,width,height,pageX,pageY) => {
+                    this.refs._listView.scrollTo({
+                      x: 0,
+                      y: this.refs._listView.scrollProperties.offset+height,
+                      animated: false
+                    });
+                  }
+                );
+             } else {
+               this.setState({scrolledToOffsetRef:true});
+               this.refs._listView.scrollTo({
+                 x: 0,
+                 y: this.refs._listView.scrollProperties.offset+pageY-100,
+                 animated: false
+               });
+             }
+           }
+        );
       } else {
-        console.log("handle","null");
+        //ßconsole.log("FAIL","fail...");
       }
-      /*UIManager.measureLayoutRelativeToParent(
-        this.refs[this.props.offsetRef],
-        (e) => {console.error(e)},
-        (x, y, w, h) => {
-          console.log('offset', x, y, w, h);
-        });*/
     }
+  },
+
+  componentDidMount: function() {
+    this.scrollToOffsetRef();
+  },
+  componentDidUpdate:function() {
+    this.scrollToOffsetRef();
   },
 
   render: function() {
@@ -347,7 +367,7 @@ var TextColumn = React.createClass({
                 onScroll={this.handleScroll}
                 onChangeVisibleRows={(visibleRows, changedRows) => this.visibleRowsChanged(visibleRows, changedRows)}
                 onEndReached={this.onEndReached}
-                renderScrollComponent={props => <ScrollView {...props} contentOffset={{y:100}}/>}
+                /*renderScrollComponent={props => <ScrollView {...props} contentOffset={{y:100}}/>}*/
                 initialListSize={40}
                 onContentSizeChange={(w, h) => {this.updateHeight(h)}}
                 onEndReachedThreshold={300}

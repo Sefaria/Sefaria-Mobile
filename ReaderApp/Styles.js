@@ -240,7 +240,7 @@ module.exports = StyleSheet.create({
     margin: 5,
     minHeight: 40,
     paddingVertical: 5,
-    paddingHorizontal: 5,  
+    paddingHorizontal: 5,
     flex: 1,
     justifyContent: "center",
     alignItems: "center",

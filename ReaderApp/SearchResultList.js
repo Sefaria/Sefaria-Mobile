@@ -8,8 +8,8 @@ import {
 } from 'react-native';
 
 
-var styles = require('./Styles.js');
-var SearchTextResult = require('./SearchTextResult');
+const styles = require('./Styles.js');
+const SearchTextResult = require('./SearchTextResult');
 
 var SearchResultList = React.createClass({
   propTypes: {

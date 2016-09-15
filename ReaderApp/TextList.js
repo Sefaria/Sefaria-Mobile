@@ -8,13 +8,12 @@ import {
   TouchableOpacity,
   Dimensions
 } from 'react-native';
-var styles         = require('./Styles.js');
-var HTMLView       = require('react-native-htmlview');
-var TextListHeader = require('./TextListHeader');
-
+const styles         = require('./Styles.js');
+const HTMLView       = require('react-native-htmlview');
+const TextListHeader = require('./TextListHeader');
 const ViewPort = Dimensions.get('window');
 
-var {
+const {
   CategoryColorLine,
   TwoBox
 } = require('./Misc.js');

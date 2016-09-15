@@ -1,5 +1,5 @@
 const ZipArchive = require('react-native-zip-archive'); //for unzipping -- (https://github.com/plrthink/react-native-zip-archive)
-var RNFS = require('react-native-fs'); //for access to file system -- (https://github.com/johanneslumpe/react-native-fs)
+const RNFS = require('react-native-fs'); //for access to file system -- (https://github.com/johanneslumpe/react-native-fs)
 
 import { AsyncStorage } from 'react-native';
 
@@ -241,7 +241,7 @@ Sefaria = {
 
                 if (item.he instanceof Array) heText = item.he.join(" ");
                 else if (typeof item.he === "string") heText = item.he;
-                
+
                 resolve({en:enText,he:heText});
                 return;
             }
