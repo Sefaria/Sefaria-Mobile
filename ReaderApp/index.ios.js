@@ -35,12 +35,8 @@ var ReaderApp = React.createClass({
         }.bind(this));
 
         return {
-<<<<<<< HEAD
-            segmentRef: 0,
             offsetRef: null, /* used to jump to specific ref when opening a link*/
-=======
             segmentIndexRef: 0,
->>>>>>> 35f390501e544f1072a0edbcd5e25f93b68e4705
             links: [],
             textReference: "",
             textTitle: "",
@@ -264,12 +260,8 @@ var ReaderApp = React.createClass({
                     links={this.state.links}
                     next={this.state.next}
                     prev={this.state.prev}
-<<<<<<< HEAD
-                    segmentRef={this.state.segmentRef}
                     offsetRef={this.state.offsetRef}
-=======
                     segmentIndexRef={this.state.segmentIndexRef}
->>>>>>> 35f390501e544f1072a0edbcd5e25f93b68e4705
                     textList={0}
                     menuOpen={this.state.menuOpen}
                     navigationCategories={this.state.navigationCategories}
