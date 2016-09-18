@@ -111,7 +111,7 @@ module.exports = StyleSheet.create({
     marginLeft: 5
   },
   readerDisplayOptionsMenuColorSelected: {
-
+    borderColor: "#000"
   },
   readerDisplayOptionsMenuIcon: {
     resizeMode: "contain",
