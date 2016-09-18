@@ -80,8 +80,9 @@ var ReaderApp = React.createClass({
         let segmentNum;
         let sectionRef = ref;
         if (isSegmentLevel === true) {
-          segmentNum = ref.split(":")[1];
-          sectionRef = ref.split(":")[0];
+          let dashSplit = ref.split("-");
+          segmentNum = dashSplit[0].split(":")[1];
+          sectionRef = dashSplit[0].split(":")[0];
         }
 
         this.setState({loaded: false, data: [], textReference: sectionRef});

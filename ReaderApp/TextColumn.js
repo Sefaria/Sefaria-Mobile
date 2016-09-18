@@ -326,7 +326,6 @@ var TextColumn = React.createClass({
            null, /*Error callback that doesn't yet have a hook in native so doesn't get called */
            (left, top, width, height, pageX, pageY) => {
              if (pageY == 0) { //I'm forced to assume this means it's not on screen, though it could also be at the top of the page...
-                console.log("ZEROOOO");
                 queryLayoutByID(
                   findNodeHandle(this.refs._listView),
                   null,
@@ -339,7 +338,6 @@ var TextColumn = React.createClass({
                   }
                 );
              } else {
-               console.log("YESHHH");
                this.setState({scrolledToOffsetRef:true});
                this.refs._listView.scrollTo({
                  x: 0,

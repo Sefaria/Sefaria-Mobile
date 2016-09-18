@@ -91,7 +91,7 @@ var ReaderNavigationMenu = React.createClass({
                   language={language}
                   onPress={openCat} />);
       }.bind(this));
-      var more = (<CategoryBlockLink 
+      var more = (<CategoryBlockLink
                     category={"More"}
                     heCat={"עוד"}
                     language={language}
@@ -110,27 +110,27 @@ var ReaderNavigationMenu = React.createClass({
 
       return(<View style={[styles.menu]}>
               <CategoryColorLine category={"Other"} />
-              <SearchBar 
+              <SearchBar
                 closeNav={this.props.closeNav}
                 onQueryChange={this.props.openSearch}
                 setIsNewSearch={this.props.setIsNewSearch} />
               <ScrollView style={styles.menuContent}>
                 {title}
-                
-                <RecentSection 
+
+                <RecentSection
                   openRef={this.props.openRef}
-                  language={language} 
+                  language={language}
                   interfaceLang={this.props.interfaceLang} />
 
-                <ReaderNavigationMenuSection 
-                  title="BROWSE" 
+                <ReaderNavigationMenuSection
+                  title="BROWSE"
                   heTitle="טקסטים"
-                  content={categories} 
+                  content={categories}
                   interfaceLang={this.props.interfaceLang} />
-                
-                <CalendarSection 
+
+                <CalendarSection
                   openRef={this.props.openRef}
-                  language={language} 
+                  language={language}
                   interfaceLang={this.props.interfaceLang} />
               </ScrollView>
             </View>);
@@ -149,18 +149,18 @@ var RecentSection = React.createClass({
     if (!Sefaria.recent || !Sefaria.recent.length) { return null; }
 
     var recent = Sefaria.recent.map(function(item) {
-      return (<CategoryBlockLink 
+      return (<CategoryBlockLink
                     category={item.ref}
                     heCat={item.heRef}
                     language={this.props.language}
                     style={{"borderColor": Sefaria.palette.categoryColor(item.category)}}
-                    onPress={this.props.openRef.bind(null, item.ref)} />);
+                    onPress={this.props.openRef.bind(null, item.ref,true)} />);
     }.bind(this));
 
-    return (<ReaderNavigationMenuSection 
-              title="RECENT" 
+    return (<ReaderNavigationMenuSection
+              title="RECENT"
               heTitle="נצפו לאחרונה"
-              content={<TwoBox content={recent} />} 
+              content={<TwoBox content={recent} />}
               interfaceLang={this.props.interfaceLang} />);
   }
 });
@@ -176,29 +176,29 @@ var CalendarSection = React.createClass({
     if (!Sefaria.calendar) { return null; }
     var parashah = Sefaria.parashah();
     var dafYomi  = Sefaria.dafYomi();
-    var calendar = [<CategoryBlockLink 
+    var calendar = [<CategoryBlockLink
                     category={parashah.name}
                     heCat={"פרשה"}
                     language={this.props.language}
                     style={{"borderColor": Sefaria.palette.categoryColor("Tanakh")}}
-                    onPress={this.props.openRef.bind(null, parashah.ref)} />,
-          <CategoryBlockLink 
+                    onPress={this.props.openRef.bind(null, parashah.ref,true)} />,
+          <CategoryBlockLink
                     category={"Haftara"}
                     heCat={"הפטרה"}
                     language={this.props.language}
                     style={{"borderColor": Sefaria.palette.categoryColor("Tanakh")}}
-                    onPress={this.props.openRef.bind(null, parashah.haftara[0])} />,
-          <CategoryBlockLink 
+                    onPress={this.props.openRef.bind(null, parashah.haftara[0],true)} />,
+          <CategoryBlockLink
                     category={"Daf Yomi"}
                     heCat={"עוד"}
                     language={this.props.language}
                     style={{"borderColor": Sefaria.palette.categoryColor("Talmud")}}
                     onPress={this.props.openRef.bind(null, dafYomi.ref)} />];
 
-    return (<ReaderNavigationMenuSection 
-              title="CALENDAR" 
+    return (<ReaderNavigationMenuSection
+              title="CALENDAR"
               heTitle="לוח יומי"
-              content={<TwoBox content={calendar} />} 
+              content={<TwoBox content={calendar} />}
               interfaceLang={this.props.interfaceLang} />);
   }
 });
