@@ -22,6 +22,7 @@ const {
 var TextList = React.createClass({
   propTypes: {
     settings:       React.PropTypes.object,
+    theme:          React.PropTypes.object,
     openRef:        React.PropTypes.func.isRequired,
     openCat:        React.PropTypes.func.isRequired,
     closeCat:       React.PropTypes.func.isRequired,
@@ -141,6 +142,7 @@ var TextList = React.createClass({
       <View style={styles.textListContentOuter}>
         <TextListHeader
           Sefaria={Sefaria}
+          theme={this.props.theme}
           updateCat={this.props.updateCat}
           closeCat={this.props.closeCat}
           category={this.props.recentFilters[this.props.filterIndex].category}

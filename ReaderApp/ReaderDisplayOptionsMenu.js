@@ -19,7 +19,7 @@ var ReaderDisplayOptionsMenu = React.createClass({
     textFlow:                        React.PropTypes.oneOf(['segmented','continuous']),
     textReference:                   React.PropTypes.string,
     columnLanguage:                  React.PropTypes.oneOf(['hebrew','english','bilingual']),
-    theme:                           React.PropTypes.oneOf(['white','grey','black']),
+    themeStr:                        React.PropTypes.oneOf(['white','grey','black']),
     setTextFlow:                     React.PropTypes.func,
     setColumnLanguage:               React.PropTypes.func,
     incrementFont:                   React.PropTypes.func,
@@ -49,7 +49,7 @@ var ReaderDisplayOptionsMenu = React.createClass({
         onPress:this.props.setTheme,
         buttons:["white","grey","black"],
         colors:["#ffffff","#dddddd","#444444"],
-        currVal: this.props.theme,
+        currVal: this.props.themeStr,
         parametrized: true
       },
       {

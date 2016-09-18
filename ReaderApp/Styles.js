@@ -197,7 +197,6 @@ module.exports = StyleSheet.create({
   },
   textListHeader: {
     height: 40,
-    backgroundColor: "white",
     borderTopWidth: 4,
     paddingRight: 10,
     paddingLeft: 10,

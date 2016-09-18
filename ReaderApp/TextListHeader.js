@@ -1,6 +1,6 @@
 'use strict';
 import React, { Component } from 'react';
-import { 	
+import {
   View,
   Text,
   TouchableOpacity
@@ -14,6 +14,7 @@ var {
 var TextListHeader = React.createClass({
 	propTypes: {
 		Sefaria:        React.PropTypes.object.isRequired,
+    theme:          React.PropTypes.object.isRequired,
 		updateCat:      React.PropTypes.func.isRequired,
 		closeCat:       React.PropTypes.func.isRequired,
 		category:       React.PropTypes.string,
@@ -24,14 +25,14 @@ var TextListHeader = React.createClass({
 	getInitialState: function() {
 		Sefaria = this.props.Sefaria; //Is this bad practice to use getInitialState() as an init function
 		return {
-			
+
 		};
 	},
 	render: function() {
 		var style = {"borderColor": Sefaria.palette.categoryColor(this.props.category)};
 
 		var viewList = this.props.recentFilters.map((filter,i)=>{
-			return (<TextListHeaderItem 
+			return (<TextListHeaderItem
 						columnLanguage={this.props.columnLanguage}
 						filter={filter}
 						filterIndex={i}
@@ -42,7 +43,7 @@ var TextListHeader = React.createClass({
 		});
 
 		return (
-			<View style={[styles.textListHeader, style]}>
+			<View style={[styles.textListHeader, this.props.theme.textListHeaderTheme, style]}>
 				{viewList}
 				<TripleDots onPress={this.props.closeCat}/>
 			 </View>
@@ -59,8 +60,8 @@ var TextListHeaderItem = React.createClass({
 		selected:       React.PropTypes.bool
 	},
 	render: function() {
-		var filterStr = this.props.columnLanguage == "hebrew" ? 
-			this.props.filter.heTitle : 
+		var filterStr = this.props.columnLanguage == "hebrew" ?
+			this.props.filter.heTitle :
 			this.props.filter.title;
 		var stylesArray = this.props.selected ? [styles.textListHeaderItem,styles.textListHeaderItemSelected] : [styles.textListHeaderItem];
 		return (

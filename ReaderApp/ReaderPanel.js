@@ -49,7 +49,8 @@ var ReaderPanel = React.createClass({
     recentFilters: React.PropTypes.array,
     linkContents:  React.PropTypes.array,
     setTheme:      React.PropTypes.func.isRequired,
-    theme:         React.PropTypes.oneOf(["white","grey","black"]),
+    theme:         React.PropTypes.object,
+    themeStr:      React.PropTypes.oneOf(["white","grey","black"]),
     Sefaria:       React.PropTypes.object.isRequired
   },
   getInitialState: function () {
@@ -250,13 +251,14 @@ var ReaderPanel = React.createClass({
             setColumnLanguage={this.setColumnLanguage}
             incrementFont={this.incrementFont}
             setTheme={this.props.setTheme}
-            theme={this.props.theme}/>) : null }
+            themeStr={this.props.themeStr}/>) : null }
 
           {this.props.textListVisible && !this.props.loading ?
             <View style={styles.commentaryTextPanel}>
               <TextList
                 Sefaria={Sefaria}
                 settings={this.state.settings}
+                theme={this.props.theme}
                 links={this.props.links}
                 segmentIndexRef={this.props.segmentIndexRef}
                 textFlow={this.state.textFlow}

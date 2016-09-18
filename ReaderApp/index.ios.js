@@ -19,9 +19,13 @@ import {
 } from 'react-native';
 
 var styles  = require('./Styles.js');
-var Sefaria = require('./sefaria');
-
+var themeWhite  = require('./ThemeWhite');
+var themeGrey   = require('./ThemeGrey');
+var themeBlack  = require('./ThemeBlack');
+var Sefaria     = require('./sefaria');
 var ReaderPanel = require('./ReaderPanel');
+
+
 
 var {
   LoadingView,
@@ -50,7 +54,8 @@ var ReaderApp = React.createClass({
             filterIndex: null, /* index of filter in recentFilters */
             recentFilters: [],
             linkContents: [],
-            theme: "white"
+            theme: themeWhite,
+            themeStr: "white"
         };
     },
     componentDidMount: function () {
@@ -251,8 +256,12 @@ var ReaderApp = React.createClass({
     clearOffsetRef: function() {
       this.setState({offsetRef:null});
     },
-    setTheme: function(theme) {
+    setTheme: function(themeStr) {
+      if (themeStr === "white") this.state.theme = themeWhite;
+      else if (themeStr === "grey") this.state.theme = themeGrey;
+      else if (themeStr === "black") this.state.theme = themeBlack;
 
+      this.setState({theme: this.state.theme,themeStr: themeStr});
     },
     render: function () {
         return (
@@ -298,6 +307,7 @@ var ReaderApp = React.createClass({
                     linkContents={this.state.linkContents}
                     setTheme={this.setTheme}
                     theme={this.state.theme}
+                    themeStr={this.state.themeStr}
                     Sefaria={Sefaria} />
             </View>
         );
