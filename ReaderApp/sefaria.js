@@ -266,7 +266,7 @@ Sefaria = {
         // Returns an ordered array summarizing the link counts by category and text
         // Takes an array of links which are of the form { "category", "sourceHeRef", "sourceRef", "index_title"}
 
-        var summary = {};
+        var summary = {"All":{count:0,books:{}},"Commentary":{count:0,books:{}}};
         for (var i = 0; i < links.length; i++) {
           var link = links[i];
           // Count Category
@@ -275,6 +275,9 @@ Sefaria = {
           } else {
             summary[link.category] = {count: 1, books: {}};
           }
+          summary["All"].count += 1;
+
+
           var category = summary[link.category];
           // Count Book
           if (link.index_title in category.books) {
@@ -312,28 +315,26 @@ Sefaria = {
           }
         }*/
 
+
         // Convert object into ordered list
+
         var summaryList = Object.keys(summary).map(function(category) {
           var categoryData = summary[category];
           categoryData.category = category;
           categoryData.refList = [];
           categoryData.books = Object.keys(categoryData.books).map(function(book) {
             var bookData = categoryData.books[book];
-            categoryData.refList = categoryData.refList.concat(bookData.refList);
             return bookData;
           });
           // Sort the books in the category
           categoryData.books.sort(function(a, b) {
             // First sort by predefined "top"
             var topByCategory = {
-              "Tanakh": ["Rashi", "Ibn Ezra", "Ramban", "Sforno"],
-              "Talmud": ["Rashi", "Tosafot"]
+              "Commentary": ["Rashi", "Ibn Ezra", "Ramban", "Sforno","Tosafot"]
             };
-            //TODO set cat to something not null
-            var cat = null;
-            var top = topByCategory[cat] || [];
-            var aTop = top.indexOf(a.book);
-            var bTop = top.indexOf(b.book);
+            var top = topByCategory[categoryData.category] || [];
+            var aTop = top.indexOf(a.title);
+            var bTop = top.indexOf(b.title);
             if (aTop !== -1 || bTop !== -1) {
               aTop = aTop === -1 ? 999 : aTop;
               bTop = bTop === -1 ? 999 : bTop;
@@ -344,9 +345,24 @@ Sefaria = {
           });
           return categoryData;
         });
+
+        var allRefs = [];
+        for (let cat of summaryList) {
+          for (let book of cat.books) {
+            cat.refList = cat.refList.concat(book.refList);
+            allRefs = allRefs.concat(book.refList);
+          }
+        }
+
         // Sort the categories
         summaryList.sort(function(a, b) {
-          // always put Commentary first
+          // always put All, Commentary first
+          if      (a.category === "All" && b.category === "Commentary") { return -1; }
+          else if (b.category === "All" && b.category === "Commentary") { return  1; }
+
+          if      (a.category === "All") { return -1; }
+          else if (b.category === "All") { return  1; }
+
           if      (a.category === "Commentary") { return -1; }
           else if (b.category === "Commentary") { return  1; }
           // always put Modern Works last
@@ -354,6 +370,10 @@ Sefaria = {
           else if (b.category === "Modern Works") { return -1; }
           return b.count - a.count;
         });
+
+        //All category should be first
+        summaryList[0].refList = allRefs;
+
         return summaryList;
       },
   },
@@ -939,33 +959,35 @@ Sefaria.palette = {
     lightblue: "#5a99b7",
     lightgreen: "#97b386",
     red: "#802f3e",
-    teal: "#00827f"
+    teal: "#00827f",
+    system: "#142b51"
   }
 };
 Sefaria.palette.categoryColors = {
-  "Commentary": Sefaria.palette.colors.blue,
-  "Tanakh": Sefaria.palette.colors.darkteal,
-  "Midrash": Sefaria.palette.colors.green,
-  "Mishnah": Sefaria.palette.colors.lightblue,
-  "Talmud": Sefaria.palette.colors.yellow,
-  "Halakhah": Sefaria.palette.colors.red,
-  "Kabbalah": Sefaria.palette.colors.purple,
-  "Philosophy": Sefaria.palette.colors.lavender,
-  "Liturgy": Sefaria.palette.colors.darkpink,
-  "Tosefta": Sefaria.palette.colors.teal,
-  "Parshanut": Sefaria.palette.colors.paleblue,
-  "Chasidut": Sefaria.palette.colors.lightgreen,
-  "Musar": Sefaria.palette.colors.raspberry,
-  "Responsa": Sefaria.palette.colors.orange,
-  "Apocrypha": Sefaria.palette.colors.lightpink,
-  "Other": Sefaria.palette.colors.darkblue,
+  "All":                Sefaria.palette.colors.system,
+  "Commentary":         Sefaria.palette.colors.blue,
+  "Tanakh":             Sefaria.palette.colors.darkteal,
+  "Midrash":            Sefaria.palette.colors.green,
+  "Mishnah":            Sefaria.palette.colors.lightblue,
+  "Talmud":             Sefaria.palette.colors.yellow,
+  "Halakhah":           Sefaria.palette.colors.red,
+  "Kabbalah":           Sefaria.palette.colors.purple,
+  "Philosophy":         Sefaria.palette.colors.lavender,
+  "Liturgy":            Sefaria.palette.colors.darkpink,
+  "Tosefta":            Sefaria.palette.colors.teal,
+  "Parshanut":          Sefaria.palette.colors.paleblue,
+  "Chasidut":           Sefaria.palette.colors.lightgreen,
+  "Musar":              Sefaria.palette.colors.raspberry,
+  "Responsa":           Sefaria.palette.colors.orange,
+  "Apocrypha":          Sefaria.palette.colors.lightpink,
+  "Other":              Sefaria.palette.colors.darkblue,
   "Quoting Commentary": Sefaria.palette.colors.orange,
-  "Commentary2": Sefaria.palette.colors.blue,
-  "Sheets": Sefaria.palette.colors.raspberry,
-  "Community": Sefaria.palette.colors.raspberry,
-  "Targum": Sefaria.palette.colors.lavender,
-  "Modern Works": Sefaria.palette.colors.raspberry,
-  "More": Sefaria.palette.colors.darkblue,
+  "Commentary2":        Sefaria.palette.colors.blue,
+  "Sheets":             Sefaria.palette.colors.raspberry,
+  "Community":          Sefaria.palette.colors.raspberry,
+  "Targum":             Sefaria.palette.colors.lavender,
+  "Modern Works":       Sefaria.palette.colors.raspberry,
+  "More":               Sefaria.palette.colors.darkblue,
 };
 Sefaria.palette.categoryColor = function(cat) {
   if (cat in Sefaria.palette.categoryColors) {
