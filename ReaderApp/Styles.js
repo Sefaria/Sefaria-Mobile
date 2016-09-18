@@ -92,6 +92,27 @@ module.exports = StyleSheet.create({
   readerDisplayOptionsMenuItemSelected: {
     backgroundColor: "#EEE"
   },
+  readerDisplayOptionsMenuColor: {
+    flex: 1,
+    flexDirection: "row",
+    height: 50,
+    borderWidth: 1,
+    borderColor: "#AAA",
+    borderRadius: 10
+  },
+  readerDisplayOptionsMenuColorLeft: {
+    marginRight: 5
+  },
+  readerDisplayOptionsMenuColorCenter: {
+    marginLeft: 5,
+    marginRight: 5
+  },
+  readerDisplayOptionsMenuColorRight: {
+    marginLeft: 5
+  },
+  readerDisplayOptionsMenuColorSelected: {
+
+  },
   readerDisplayOptionsMenuIcon: {
     resizeMode: "contain",
     height: 14,

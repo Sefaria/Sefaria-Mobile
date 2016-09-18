@@ -49,7 +49,8 @@ var ReaderApp = React.createClass({
             interfaceLang: "english", // TODO check device settings for Hebrew: ### import {NativeModules} from 'react-native'; console.log(NativeModules.SettingsManager.settings.AppleLocale);
             filterIndex: null, /* index of filter in recentFilters */
             recentFilters: [],
-            linkContents: []
+            linkContents: [],
+            theme: "white"
         };
     },
     componentDidMount: function () {
@@ -247,8 +248,11 @@ var ReaderApp = React.createClass({
       this.setState({linkContents:this.state.linkContents});
     },
     /* used after TextList has used the offsetRef to render initially*/
-    clearOffsetRef() {
+    clearOffsetRef: function() {
       this.setState({offsetRef:null});
+    },
+    setTheme: function(theme) {
+
     },
     render: function () {
         return (
@@ -292,6 +296,8 @@ var ReaderApp = React.createClass({
                     filterIndex={this.state.filterIndex}
                     recentFilters={this.state.recentFilters}
                     linkContents={this.state.linkContents}
+                    setTheme={this.setTheme}
+                    theme={this.state.theme}
                     Sefaria={Sefaria} />
             </View>
         );

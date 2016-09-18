@@ -48,6 +48,8 @@ var ReaderPanel = React.createClass({
     filterIndex:   React.PropTypes.number,
     recentFilters: React.PropTypes.array,
     linkContents:  React.PropTypes.array,
+    setTheme:      React.PropTypes.func.isRequired,
+    theme:         React.PropTypes.oneOf(["white","grey","black"]),
     Sefaria:       React.PropTypes.object.isRequired
   },
   getInitialState: function () {
@@ -246,7 +248,9 @@ var ReaderPanel = React.createClass({
             columnLanguage={this.state.columnLanguage}
             setTextFlow={this.setTextFlow}
             setColumnLanguage={this.setColumnLanguage}
-            incrementFont={this.incrementFont}/>) : null }
+            incrementFont={this.incrementFont}
+            setTheme={this.props.setTheme}
+            theme={this.props.theme}/>) : null }
 
           {this.props.textListVisible && !this.props.loading ?
             <View style={styles.commentaryTextPanel}>
