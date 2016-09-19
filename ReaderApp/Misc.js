@@ -47,13 +47,14 @@ var CategoryColorLine = React.createClass({
 
 var LanguageToggleButton = React.createClass({
   propTypes: {
+    theme:          React.PropTypes.object.isRequired,
     language:       React.PropTypes.string.isRequired,
     toggleLanguage: React.PropTypes.func.isRequired
   },
   render: function() {
-    var content = this.props.language == "hebrew" ? 
+    var content = this.props.language == "hebrew" ?
         (<Text style={styles.en}>A</Text>) : (<Text style={styles.he}>א</Text>);
-    return (<TouchableOpacity style={styles.languageToggle} onPress={this.props.toggleLanguage}>
+    return (<TouchableOpacity style={[styles.languageToggle,this.props.theme.languageToggle]} onPress={this.props.toggleLanguage}>
               {content}
             </TouchableOpacity>);
   }
@@ -61,9 +62,9 @@ var LanguageToggleButton = React.createClass({
 
 
 var SearchButton = React.createClass({
-  render: function() { 
+  render: function() {
     return (<TouchableOpacity style={[styles.headerButton]} onPress={this.props.onPress}>
-              <Text style={styles.searchButton}>🔎</Text>
+              <Text style={[styles.searchButton, this.props.theme.searchButton]}>🔎</Text>
             </TouchableOpacity>);
   }
 });
@@ -72,7 +73,7 @@ var SearchButton = React.createClass({
 var MenuButton = React.createClass({
   render: function() {
     return (<TouchableOpacity style={[styles.headerButton]} onPress={this.props.onPress}>
-              <Text style={styles.menuButton}>☰</Text>
+              <Text style={[styles.menuButton, this.props.theme.menuButton]}>☰</Text>
             </TouchableOpacity>);
   }
 });
@@ -81,7 +82,7 @@ var MenuButton = React.createClass({
 var CloseButton = React.createClass({
   render: function() {
     return (<TouchableOpacity style={[styles.headerButton]} onPress={this.props.onPress}>
-              <Text style={styles.closeButton}>×</Text>
+              <Text style={[styles.closeButton, this.props.theme.closeButton]}>×</Text>
             </TouchableOpacity>);
   }
 });
@@ -96,10 +97,10 @@ var TripleDots = React.createClass({
 
 
 var DisplaySettingsButton = React.createClass({
-  render: function() { 
+  render: function() {
     return (<TouchableOpacity style={[styles.headerButton]} onPress={this.props.onPress}>
-              <Image source={require('./img/ayealeph.png')} 
-                     style={styles.displaySettingsButton} 
+              <Image source={require('./img/ayealeph.png')}
+                     style={styles.displaySettingsButton}
                      resizeMode={Image.resizeMode.contain} />
             </TouchableOpacity>);
   }
@@ -108,30 +109,31 @@ var DisplaySettingsButton = React.createClass({
 
 var ToggleSet = React.createClass({
   propTypes: {
-    options:     React.PropTypes.array.isRequired, // array of object with `name`. `text`, `heText`, `onPress` 
+    theme:       React.PropTypes.object.isRequired,
+    options:     React.PropTypes.array.isRequired, // array of object with `name`. `text`, `heText`, `onPress`
     contentLang: React.PropTypes.string.isRequired,
     active:      React.PropTypes.string.isRequired
   },
   render: function() {
     var showHebrew = this.props.contentLang == "hebrew";
     var options = this.props.options.map(function(option, i) {
-      var style = [styles.navToggle].concat(this.props.active === option.name ? [styles.navToggleActive] : []);
+      var style = [styles.navToggle, this.props.theme.navToggle].concat(this.props.active === option.name ? [styles.navToggleActive, this.props.theme.navToggleActive] : []);
       return (
         <TouchableOpacity onPress={option.onPress} key={i} >
-          {showHebrew ? 
+          {showHebrew ?
             <Text style={[style, styles.he]}>{option.heText}</Text> :
             <Text style={[style, styles.en]}>{option.text}</Text> }
         </TouchableOpacity>
       );
-    }.bind(this)); 
+    }.bind(this));
 
     var dividedOptions = [];
     for (var i = 0; i < options.length; i++) {
       dividedOptions.push(options[i])
-      dividedOptions.push(<Text style={styles.navTogglesDivider} key={i+"d"}>|</Text>);
+      dividedOptions.push(<Text style={[styles.navTogglesDivider,this.props.theme.navTogglesDivider]} key={i+"d"}>|</Text>);
     }
     dividedOptions = dividedOptions.slice(0,-1);
-    
+
     return (<View style={styles.navToggles}>
               {dividedOptions}
             </View>);
@@ -144,7 +146,7 @@ var LoadingView = React.createClass({
       return ( <View style={styles.container}>
                   <ActivityIndicator
                     animating={true}
-                    style={[styles.loadingView]}
+                    style={[styles.loadingView,this.props.theme.loadingView]}
                     size="large" />
                </View> );
     }

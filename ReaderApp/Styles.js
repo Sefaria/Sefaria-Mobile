@@ -20,7 +20,7 @@ module.exports = StyleSheet.create({
   },
   instructions: {
     textAlign: 'center',
-    color: '#333333',
+    color:  '#333333',
     marginBottom: 5
   },
   container: {
@@ -38,12 +38,10 @@ module.exports = StyleSheet.create({
   },
   header: {
     height: 50,
-    backgroundColor: '#F9F9F7',
     alignItems: 'center',
     alignSelf: 'stretch',
     flexDirection: 'row',
-    borderBottomWidth: 1,
-    borderBottomColor: "#DDD"
+    borderBottomWidth: 1
   },
   readerDisplayOptionsMenu: {
     position: "absolute",
@@ -51,12 +49,10 @@ module.exports = StyleSheet.create({
     top: 76,
     paddingTop: 10,
     paddingBottom: 10,
-    backgroundColor: '#F9F9F7',
     alignItems: 'center',
     alignSelf: 'stretch',
     flexDirection: 'column',
     borderBottomWidth: 1,
-    borderColor: "#DDD"
   },
   readerDisplayOptionsMenuRow: {
     justifyContent: "center",
@@ -72,8 +68,6 @@ module.exports = StyleSheet.create({
     flexDirection: "row",
     height:50,
     borderWidth: 1,
-    borderColor: "#DDD",
-    backgroundColor: "white",
     justifyContent: "center",
     alignItems: "center"
   },
@@ -89,15 +83,11 @@ module.exports = StyleSheet.create({
     borderTopRightRadius: 10,
     borderBottomRightRadius: 10
   },
-  readerDisplayOptionsMenuItemSelected: {
-    backgroundColor: "#EEE"
-  },
   readerDisplayOptionsMenuColor: {
     flex: 1,
     flexDirection: "row",
     height: 50,
     borderWidth: 1,
-    borderColor: "#AAA",
     borderRadius: 10
   },
   readerDisplayOptionsMenuColorLeft: {
@@ -110,9 +100,6 @@ module.exports = StyleSheet.create({
   readerDisplayOptionsMenuColorRight: {
     marginLeft: 5
   },
-  readerDisplayOptionsMenuColorSelected: {
-    borderColor: "#000"
-  },
   readerDisplayOptionsMenuIcon: {
     resizeMode: "contain",
     height: 14,
@@ -121,8 +108,7 @@ module.exports = StyleSheet.create({
     marginTop: 10,
     marginBottom: 10,
     width:1000,
-    height:1,
-    backgroundColor:"#DDD"
+    height:1
   },
   headerButton: {
     width: 40,
@@ -134,21 +120,18 @@ module.exports = StyleSheet.create({
   menuButton: {
     textAlign: "center",
     alignSelf: "stretch",
-    fontSize: 22,
-    color: "#BFBFBF"
+    fontSize: 22
   },
   closeButton: {
     textAlign: "center",
     alignSelf: "stretch",
     fontSize: 40,
-    color: "#BFBFBF",
     top: -4
   },
   searchButton: {
     textAlign: "center",
     alignSelf: "stretch",
-    fontSize: 25,
-    color: "#BFBFBF"
+    fontSize: 25
   },
   tripleDotsContainer: {
     flexDirection: "column",
@@ -204,11 +187,7 @@ module.exports = StyleSheet.create({
   },
   textListHeaderItem: {
     margin: 5,
-    justifyContent: "center",
-    color: "#999"
-  },
-  textListHeaderItemSelected: {
-    color: "#000"
+    justifyContent: "center"
   },
   noLinks: {
     flex:1,
@@ -221,7 +200,6 @@ module.exports = StyleSheet.create({
     opacity: 0.3
   },
   menu: {
-    backgroundColor: '#f9f9f7',
     alignSelf: 'stretch',
     flex: 1
   },
@@ -232,7 +210,6 @@ module.exports = StyleSheet.create({
   languageToggle: {
     width: 30,
     height: 30,
-    borderColor: "#ddd",
     borderWidth: 1,
     borderRadius: 4,
     flexDirection: "row",
@@ -255,7 +232,6 @@ module.exports = StyleSheet.create({
     marginBottom: 30
   },
   readerNavCategory: {
-    backgroundColor: "white",
     borderTopWidth: 4,
     margin: 5,
     minHeight: 40,
@@ -269,7 +245,6 @@ module.exports = StyleSheet.create({
     alignSelf: "center",
     marginBottom: 10,
     fontSize: 12,
-    color: "#999"
   },
   category: {
     marginBottom: 10
@@ -281,13 +256,11 @@ module.exports = StyleSheet.create({
   categorySectionTitle: {
     flex: 1,
     textAlign: "center",
-    marginVertical: 15,
-    color: "#999"
+    marginVertical: 15
   },
   textBlockLink: {
     paddingVertical: 10,
     paddingHorizontal: 10,
-    backgroundColor: "white",
     margin: 5,
     flex: 1,
   },
@@ -296,14 +269,7 @@ module.exports = StyleSheet.create({
     justifyContent: "center",
     marginBottom: 15
   },
-  navToggle: {
-    color: "#999"
-  },
-  navToggleActive: {
-    color: "#000"
-  },
   navTogglesDivider: {
-    color: "#999",
     marginHorizontal: 7
   },
   textTocHeaderTitle: {
@@ -315,23 +281,16 @@ module.exports = StyleSheet.create({
     flex: .5,
     flexWrap: "nowrap",
     justifyContent: 'center',
-    backgroundColor: '#fff',
     alignSelf: 'stretch',
     alignItems: "flex-start",
     flexDirection:"row"
   },
   commentaryTextPanel: {
     flex: .5,
-    backgroundColor: '#F5FCFF',
     alignSelf: 'stretch',
-    borderTopWidth: 1,
-    borderColor: "#111"
-  },
-  b: {
-    fontWeight: "bold"
+    borderTopWidth: 1
   },
   verseNumber: {
-    color: '#999',
     textAlign: 'left',
     fontFamily: "Montserrat",
     fontWeight: "100",
@@ -367,10 +326,8 @@ module.exports = StyleSheet.create({
   },
   sectionHeaderText: {
     borderBottomWidth: 4,
-    borderBottomColor: "#e6e5e6",
     borderStyle: "solid",
-    paddingBottom: 3,
-    color: "#999",
+    paddingBottom: 3
   },
   TextSegment: {
     flexDirection: "column",
@@ -407,7 +364,6 @@ module.exports = StyleSheet.create({
   sectionLink: {
     height: 40,
     minWidth: 40,
-    backgroundColor: "white",
     margin: 2,
     justifyContent: "center"
   },
@@ -455,8 +411,7 @@ module.exports = StyleSheet.create({
     height: 40,
   },
   loadingView: {
-    height: 80,
-    backgroundColor: '#F5FCFF',
+    height: 80
   },
   twoBox: {
 
@@ -476,15 +431,15 @@ module.exports = StyleSheet.create({
   rtlRow: {
     flexDirection: "row-reverse"
   },
-  segmentHighlight: {
-    backgroundColor: "#e9e9e7"
-  },
 
 
 //HTML Styles:
   strong: {
     fontWeight: "bold"
 
+  },
+  b: {
+    fontWeight: "bold"
   },
 
 });

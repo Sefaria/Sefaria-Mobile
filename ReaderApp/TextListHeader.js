@@ -33,6 +33,7 @@ var TextListHeader = React.createClass({
 
 		var viewList = this.props.recentFilters.map((filter,i)=>{
 			return (<TextListHeaderItem
+            theme={this.props.theme}
 						columnLanguage={this.props.columnLanguage}
 						filter={filter}
 						filterIndex={i}
@@ -43,7 +44,7 @@ var TextListHeader = React.createClass({
 		});
 
 		return (
-			<View style={[styles.textListHeader, this.props.theme.textListHeaderTheme, style]}>
+			<View style={[styles.textListHeader, this.props.theme.textListHeader, style]}>
 				{viewList}
 				<TripleDots onPress={this.props.closeCat}/>
 			 </View>
@@ -53,6 +54,7 @@ var TextListHeader = React.createClass({
 
 var TextListHeaderItem = React.createClass({
 	propTypes: {
+    theme:          React.PropTypes.object,
 		updateCat:      React.PropTypes.func.isRequired,
 		filter:         React.PropTypes.object,
 		filterIndex:    React.PropTypes.number,
@@ -63,7 +65,7 @@ var TextListHeaderItem = React.createClass({
 		var filterStr = this.props.columnLanguage == "hebrew" ?
 			this.props.filter.heTitle :
 			this.props.filter.title;
-		var stylesArray = this.props.selected ? [styles.textListHeaderItem,styles.textListHeaderItemSelected] : [styles.textListHeaderItem];
+		var stylesArray = this.props.selected ? [styles.textListHeaderItem,this.props.theme.textListHeaderItem,this.props.theme.textListHeaderItemSelected] : [styles.textListHeaderItem, this.props.theme.textListHeaderItem];
 		return (
 			<TouchableOpacity onPress={()=>{this.props.updateCat(null,this.props.filterIndex)}}>
 				<Text style={stylesArray}>{filterStr}</Text>

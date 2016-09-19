@@ -16,6 +16,7 @@ var continuous_icon = require('./img/continuous.png');
 
 var ReaderDisplayOptionsMenu = React.createClass({
   propTypes: {
+    theme:                           React.PropTypes.object,
     textFlow:                        React.PropTypes.oneOf(['segmented','continuous']),
     textReference:                   React.PropTypes.string,
     columnLanguage:                  React.PropTypes.oneOf(['hebrew','english','bilingual']),
@@ -64,7 +65,7 @@ var ReaderDisplayOptionsMenu = React.createClass({
     var optionViews = [];
     for (let optionRow of options) {
       if (optionRow.divider) {
-        optionViews.push(<View style={styles.readerDisplayOptionsMenuDivider}/>);
+        optionViews.push(<View style={[styles.readerDisplayOptionsMenuDivider, this.props.theme.readerDisplayOptionsMenuDivider]}/>);
       } else {
         let row = [];
         let isColor = "colors" in optionRow;
@@ -81,6 +82,7 @@ var ReaderDisplayOptionsMenu = React.createClass({
             let color = optionRow.colors[i];
             row.push(
               <ReaderDisplayOptionsMenuColor
+                theme={this.props.theme}
                 option={option}
                 onPress={optionRow.onPress}
                 parametrized={optionRow.parametrized}
@@ -93,6 +95,7 @@ var ReaderDisplayOptionsMenu = React.createClass({
             let icon = optionRow.icons[i];
             row.push(
               <ReaderDisplayOptionsMenuItem
+                theme={this.props.theme}
                 option={option}
                 onPress={optionRow.onPress}
                 parametrized={optionRow.parametrized}
@@ -110,7 +113,7 @@ var ReaderDisplayOptionsMenu = React.createClass({
     }
 
     return (
-        <View style={styles.readerDisplayOptionsMenu}>
+        <View style={[styles.readerDisplayOptionsMenu,this.props.theme.readerDisplayOptionsMenu]}>
           {optionViews}
         </View>
     );
@@ -129,6 +132,7 @@ var ReaderDisplayOptionsMenuRow = React.createClass({
 
 var ReaderDisplayOptionsMenuItem = React.createClass({
   propTypes: {
+    theme:        React.PropTypes.object,
     option:       React.PropTypes.string,
     icon:         React.PropTypes.number, /*PTP: why are images numbers? */
     align:        React.PropTypes.string,
@@ -144,9 +148,9 @@ var ReaderDisplayOptionsMenuItem = React.createClass({
     else /*if (this.props.align == "center") */ alignStyle = styles.readerDisplayOptionsMenuItemCenter;
 
     var onPress = this.props.parametrized ? (()=>this.props.onPress(this.props.option)) : this.props.onPress;
-    var tempStyles = [styles.readerDisplayOptionsMenuItem,alignStyle];
+    var tempStyles = [styles.readerDisplayOptionsMenuItem, this.props.theme.readerDisplayOptionsMenuItem, alignStyle];
     if (this.props.selected)
-      tempStyles.push(styles.readerDisplayOptionsMenuItemSelected);
+      tempStyles.push(this.props.theme.readerDisplayOptionsMenuItemSelected);
     return (
       <TouchableOpacity onPress={onPress} style={tempStyles}>
         <Image style={[styles.readerDisplayOptionsMenuIcon]} source={this.props.icon}/>
@@ -157,6 +161,7 @@ var ReaderDisplayOptionsMenuItem = React.createClass({
 
 var ReaderDisplayOptionsMenuColor = React.createClass({
   propTypes: {
+    theme:        React.PropTypes.object,
     option:       React.PropTypes.string,
     color:        React.PropTypes.string,
     align:        React.PropTypes.string,
@@ -172,7 +177,7 @@ var ReaderDisplayOptionsMenuColor = React.createClass({
     else /*if (this.props.align == "center") */ alignStyle = styles.readerDisplayOptionsMenuColorCenter;
 
     var onPress = this.props.parametrized ? (()=>this.props.onPress(this.props.option)) : this.props.onPress;
-    var tempStyles = [styles.readerDisplayOptionsMenuColor, {"backgroundColor": this.props.color}, alignStyle];
+    var tempStyles = [styles.readerDisplayOptionsMenuColor, this.props.theme.readerDisplayOptionsMenuColor, {"backgroundColor": this.props.color}, alignStyle];
     if (this.props.selected)
       tempStyles.push(styles.readerDisplayOptionsMenuColorSelected);
     return (

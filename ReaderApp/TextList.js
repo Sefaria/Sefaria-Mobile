@@ -22,7 +22,7 @@ const {
 var TextList = React.createClass({
   propTypes: {
     settings:       React.PropTypes.object,
-    theme:          React.PropTypes.object,
+    theme:          React.PropTypes.object.isRequired,
     openRef:        React.PropTypes.func.isRequired,
     openCat:        React.PropTypes.func.isRequired,
     closeCat:       React.PropTypes.func.isRequired,
@@ -108,6 +108,7 @@ var TextList = React.createClass({
       this.props.links.map((cat)=>{
         viewList.push(
           <LinkCategory
+            theme={this.props.theme}
             category={cat.category}
             refList={cat.refList}
             count={cat.count}
@@ -117,6 +118,7 @@ var TextList = React.createClass({
         var innerViewList = cat.books.map((obook)=>{
           return (
           <LinkBook
+            theme={this.props.theme}
             title={obook.title}
             heTitle={obook.heTitle}
             category={cat.category}
@@ -169,6 +171,7 @@ var TextList = React.createClass({
 var LinkCategory = React.createClass({
 
   propTypes: {
+    theme:    React.PropTypes.object.isRequired,
     openCat:  React.PropTypes.func.isRequired,
     category: React.PropTypes.string,
     refList:  React.PropTypes.array,
@@ -186,7 +189,7 @@ var LinkCategory = React.createClass({
 
     var filter = {title:this.props.category,heTitle:heCategory,refList:this.props.refList,category:this.props.category};
     return (<TouchableOpacity
-              style={[styles.readerNavCategory, style]}
+              style={[styles.readerNavCategory, this.props.theme.readerNavCategory, style]}
               onPress={()=>{this.props.openCat(filter)}}>
               {content}
             </TouchableOpacity>);
@@ -195,6 +198,7 @@ var LinkCategory = React.createClass({
 
 var LinkBook = React.createClass({
   propTypes: {
+    theme:    React.PropTypes.object.isRequired,
     openCat:  React.PropTypes.func.isRequired,
     title:    React.PropTypes.string,
     heTitle:  React.PropTypes.string,
@@ -209,7 +213,7 @@ var LinkBook = React.createClass({
     var filter = {title:this.props.title,heTitle:this.props.heTitle,refList:this.props.refList,category:this.props.category};
     return (
       <TouchableOpacity
-        style={styles.textBlockLink}
+        style={[styles.textBlockLink,this.props.theme.textBlockLink]}
         onPress={()=>{this.props.openCat(filter)}}>
         { this.props.language == "hebrew" ?
           <Text style={[styles.he, styles.centerText]}>{this.props.heTitle + countStr}</Text> :

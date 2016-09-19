@@ -1,7 +1,7 @@
 'use strict';
 
 import React, { Component } from 'react';
-import { 	
+import {
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -25,6 +25,7 @@ var styles = require('./Styles.js');
 var ReaderNavigationCategoryMenu = React.createClass({
   // Navigation Menu for a single category of texts (e.g., "Tanakh", "Bavli")
   propTypes: {
+    theme:          React.PropTypes.object.isRequired,
     category:       React.PropTypes.string.isRequired,
     categories:     React.PropTypes.array.isRequired,
     closeNav:       React.PropTypes.func.isRequired,
@@ -43,7 +44,7 @@ var ReaderNavigationCategoryMenu = React.createClass({
     var showHebrew = this.props.settings.language == "hebrew";
 
     // Show Talmud with Toggles
-    var categories  = this.props.categories[0] === "Talmud" && this.props.categories.length == 1 ? 
+    var categories  = this.props.categories[0] === "Talmud" && this.props.categories.length == 1 ?
                         ["Talmud", "Bavli"] : this.props.categories;
 
 
@@ -62,6 +63,7 @@ var ReaderNavigationCategoryMenu = React.createClass({
       }];
 
       var toggle = <ToggleSet
+                      theme={this.props.theme}
                       options={options}
                       active={categories[1]}
                       contentLang={this.props.settings.language} />;
@@ -72,21 +74,22 @@ var ReaderNavigationCategoryMenu = React.createClass({
     if (!Sefaria.toc) { return (<LoadingView />); }
 
     var catContents = Sefaria.tocItemsByCategories(categories);
-    return (<View style={styles.menu}>
+    return (<View style={[styles.menu,this.props.theme.menu]}>
               <CategoryColorLine category={this.props.category} />
-              <View style={styles.header}>
+              <View style={[styles.header, this.props.theme.header]}>
                 <CategoryColorLine category={categories[0]} />
-                <MenuButton onPress={this.props.navHome} />
-                {showHebrew ? 
+                <MenuButton onPress={this.props.navHome} theme={this.props.theme}/>
+                {showHebrew ?
                   <Text style={styles.he, styles.categoryTitle}>{Sefaria.hebrewCategory(this.props.category)}</Text> :
                   <Text style={styles.en, styles.categoryTitle}>{this.props.category}</Text> }
                 <DisplaySettingsButton onPress={this.props.openDisplaySettings} />
               </View>
-              
+
               <ScrollView style={styles.menuContent}>
                   {toggle}
-                  <ReaderNavigationCategoryMenuContents 
-                    contents={catContents} 
+                  <ReaderNavigationCategoryMenuContents
+                    theme={this.props.theme}
+                    contents={catContents}
                     categories={categories}
                     setCategories={this.props.setCategories}
                     openRef={this.props.openRef}
@@ -100,6 +103,7 @@ var ReaderNavigationCategoryMenu = React.createClass({
 var ReaderNavigationCategoryMenuContents = React.createClass({
   // Inner content of Category menu (just category title and boxes)
   propTypes: {
+    theme:         React.PropTypes.object.isRequired,
     contents:      React.PropTypes.array.isRequired,
     categories:    React.PropTypes.array.isRequired,
     setCategories: React.PropTypes.func.isRequired,
@@ -119,8 +123,8 @@ var ReaderNavigationCategoryMenuContents = React.createClass({
           var subcats = [ "Mishneh Torah", "Shulchan Arukh", "Midrash Rabbah", "Maharal" ];
           if (Sefaria.util.inArray(item.category, subcats) > -1) {
             var openCat = this.props.setCategories.bind(null, newCats);
-            content.push((<TouchableOpacity onPress={openCat} style={styles.textBlockLink} key={i}>
-                            { showHebrew ? 
+            content.push((<TouchableOpacity onPress={openCat} style={[styles.textBlockLink,this.props.theme.textBlockLink]} key={i}>
+                            { showHebrew ?
                               <Text style={[styles.he, styles.centerText]}>{Sefaria.hebrewCategory(item.category)}</Text> :
                               <Text style={[styles.en, styles.centerText]}>{item.category}</Text> }
                           </TouchableOpacity>));
@@ -128,10 +132,11 @@ var ReaderNavigationCategoryMenuContents = React.createClass({
           }
           // Add a Category
           content.push((<View style={styles.category} key={i}>
-                          { showHebrew ? 
-                              <Text style={[styles.he, styles.categorySectionTitle]}>{item.heCategory}</Text> :
-                              <Text style={[styles.en, styles.categorySectionTitle]}>{item.category}</Text> }
-                          <ReaderNavigationCategoryMenuContents 
+                          { showHebrew ?
+                              <Text style={[styles.he, styles.categorySectionTitle, this.props.theme.categorySectionTitle]}>{item.heCategory}</Text> :
+                              <Text style={[styles.en, styles.categorySectionTitle, this.props.theme.categorySectionTitle]}>{item.category}</Text> }
+                          <ReaderNavigationCategoryMenuContents
+                            theme={this.props.theme}
                             contents={item.contents}
                             categories={newCats}
                             setCategories={this.props.setCategories}
@@ -143,8 +148,8 @@ var ReaderNavigationCategoryMenuContents = React.createClass({
           var title   = item.title.replace(/(Mishneh Torah,|Shulchan Arukh,|Jerusalem Talmud) /, "");
           var heTitle = item.heTitle.replace(/(משנה תורה,|תלמוד ירושלמי) /, "");
           var openRef = this.props.openRef.bind(null, item.firstSection);
-          content.push((<TouchableOpacity  style={styles.textBlockLink}  onPress={openRef} key={i}>
-                            { showHebrew ? 
+          content.push((<TouchableOpacity  style={[styles.textBlockLink,this.props.theme.textBlockLink]}  onPress={openRef} key={i}>
+                            { showHebrew ?
                               <Text style={[styles.he, styles.centerText]}>{heTitle}</Text> :
                               <Text style={[styles.en, styles.centerText]}>{title}</Text> }
                           </TouchableOpacity>));

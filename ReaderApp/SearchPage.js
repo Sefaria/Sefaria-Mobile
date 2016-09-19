@@ -16,6 +16,7 @@ var {
 
 var SearchPage = React.createClass({
 	propTypes: {
+		theme:         React.PropTypes.object,
 		closeNav:      React.PropTypes.func.isRequired,
 		onQueryChange: React.PropTypes.func.isRequired,
 		openRef:       React.PropTypes.func.isRequired,
@@ -31,9 +32,10 @@ var SearchPage = React.createClass({
 	render: function() {
 
 		return (
-			<View style={styles.menu}>
+			<View style={[styles.menu,this.props.theme.menu]}>
 				<CategoryColorLine category={"Other"} />
-				<SearchBar 
+				<SearchBar
+					theme={this.props.theme}
 					closeNav={this.props.closeNav}
 					onQueryChange={this.props.onQueryChange}
 					query={this.props.query}

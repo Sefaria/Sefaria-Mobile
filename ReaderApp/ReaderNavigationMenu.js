@@ -22,6 +22,7 @@ var styles = require('./Styles.js');
 var ReaderNavigationMenu = React.createClass({
   // The Navigation menu for browsing and searching texts
   propTypes: {
+    theme:          React.PropTypes.object.isRequired,
     categories:     React.PropTypes.array.isRequired,
     settings:       React.PropTypes.object.isRequired,
     interfaceLang:  React.PropTypes.string.isRequired,
@@ -53,6 +54,7 @@ var ReaderNavigationMenu = React.createClass({
     if (this.props.categories.length) {
       // List of Text in a Category
       return (<ReaderNavigationCategoryMenu
+                theme={this.props.theme}
                 categories={this.props.categories}
                 category={this.props.categories.slice(-1)[0]}
                 settings={this.props.settings}
@@ -86,12 +88,14 @@ var ReaderNavigationMenu = React.createClass({
         var openCat = function() {this.props.setCategories([cat])}.bind(this);
         var heCat   = Sefaria.hebrewCategory(cat);
         return (<CategoryBlockLink
+                  theme={this.props.theme}
                   category={cat}
                   heCat={heCat}
                   language={language}
                   onPress={openCat} />);
       }.bind(this));
       var more = (<CategoryBlockLink
+                    theme={this.props.theme}
                     category={"More"}
                     heCat={"עוד"}
                     language={language}
@@ -105,12 +109,13 @@ var ReaderNavigationMenu = React.createClass({
                     { this.props.interfaceLang == "english" ?
                       <Text style={[styles.navigationMenuTitle, styles.intEn]}>The Sefaria Library</Text> :
                       <Text style={[styles.navigationMenuTitle, styles.intHe]}>האוסף של ספאריה</Text>}
-                    <LanguageToggleButton toggleLanguage={this.props.toggleLanguage} language={language} />
+                    <LanguageToggleButton theme={this.props.theme} toggleLanguage={this.props.toggleLanguage} language={language} />
                   </View>);
 
-      return(<View style={[styles.menu]}>
+      return(<View style={[styles.menu,this.props.theme.menu]}>
               <CategoryColorLine category={"Other"} />
               <SearchBar
+                theme={this.props.theme}
                 closeNav={this.props.closeNav}
                 onQueryChange={this.props.openSearch}
                 setIsNewSearch={this.props.setIsNewSearch} />
@@ -118,17 +123,20 @@ var ReaderNavigationMenu = React.createClass({
                 {title}
 
                 <RecentSection
+                  theme={this.props.theme}
                   openRef={this.props.openRef}
                   language={language}
                   interfaceLang={this.props.interfaceLang} />
 
                 <ReaderNavigationMenuSection
+                  theme={this.props.theme}
                   title="BROWSE"
                   heTitle="טקסטים"
                   content={categories}
                   interfaceLang={this.props.interfaceLang} />
 
                 <CalendarSection
+                  theme={this.props.theme}
                   openRef={this.props.openRef}
                   language={language}
                   interfaceLang={this.props.interfaceLang} />
@@ -141,6 +149,7 @@ var ReaderNavigationMenu = React.createClass({
 
 var RecentSection = React.createClass({
   propTypes: {
+    theme:         React.PropTypes.object.isRequired,
     openRef:       React.PropTypes.func.isRequired,
     interfaceLang: React.PropTypes.string.isRequired,
     language:      React.PropTypes.string.isRequired
@@ -150,6 +159,7 @@ var RecentSection = React.createClass({
 
     var recent = Sefaria.recent.map(function(item) {
       return (<CategoryBlockLink
+                    theme={this.props.theme}
                     category={item.ref}
                     heCat={item.heRef}
                     language={this.props.language}
@@ -158,6 +168,7 @@ var RecentSection = React.createClass({
     }.bind(this));
 
     return (<ReaderNavigationMenuSection
+              theme={this.props.theme}
               title="RECENT"
               heTitle="נצפו לאחרונה"
               content={<TwoBox content={recent} />}
@@ -168,6 +179,7 @@ var RecentSection = React.createClass({
 
 var CalendarSection = React.createClass({
   propTypes: {
+    theme:         React.PropTypes.object.isRequired,
     openRef:       React.PropTypes.func.isRequired,
     interfaceLang: React.PropTypes.string.isRequired,
     language:      React.PropTypes.string.isRequired
@@ -177,18 +189,21 @@ var CalendarSection = React.createClass({
     var parashah = Sefaria.parashah();
     var dafYomi  = Sefaria.dafYomi();
     var calendar = [<CategoryBlockLink
+                    theme={this.props.theme}
                     category={parashah.name}
                     heCat={"פרשה"}
                     language={this.props.language}
                     style={{"borderColor": Sefaria.palette.categoryColor("Tanakh")}}
                     onPress={this.props.openRef.bind(null, parashah.ref,true)} />,
           <CategoryBlockLink
+                    theme={this.props.theme}
                     category={"Haftara"}
                     heCat={"הפטרה"}
                     language={this.props.language}
                     style={{"borderColor": Sefaria.palette.categoryColor("Tanakh")}}
                     onPress={this.props.openRef.bind(null, parashah.haftara[0],true)} />,
           <CategoryBlockLink
+                    theme={this.props.theme}
                     category={"Daf Yomi"}
                     heCat={"עוד"}
                     language={this.props.language}
@@ -196,6 +211,7 @@ var CalendarSection = React.createClass({
                     onPress={this.props.openRef.bind(null, dafYomi.ref)} />];
 
     return (<ReaderNavigationMenuSection
+              theme={this.props.theme}
               title="CALENDAR"
               heTitle="לוח יומי"
               content={<TwoBox content={calendar} />}
@@ -206,6 +222,7 @@ var CalendarSection = React.createClass({
 
 var CategoryBlockLink = React.createClass({
   propTypes: {
+    theme:    React.PropTypes.object.isRequired,
     category: React.PropTypes.string,
     language: React.PropTypes.string,
     style:    React.PropTypes.object,
@@ -216,7 +233,7 @@ var CategoryBlockLink = React.createClass({
     var content = this.props.language == "english"?
       (<Text style={[styles.en, styles.centerText]}>{this.props.category}</Text>) :
       (<Text style={[styles.he, styles.centerText]}>{this.props.heCat || Sefaria.hebrewCategory(this.props.category)}</Text>);
-    return (<TouchableOpacity onPress={this.props.onPress} style={[styles.readerNavCategory, style]}>
+    return (<TouchableOpacity onPress={this.props.onPress} style={[styles.readerNavCategory, this.props.theme.readerNavCategory,style]}>
               {content}
             </TouchableOpacity>);
   }
@@ -226,6 +243,7 @@ var CategoryBlockLink = React.createClass({
 var ReaderNavigationMenuSection = React.createClass({
   // A Section on the main navigation which includes a title over a grid of options
   propTypes: {
+    theme:         React.PropTypes.object,
     title:         React.PropTypes.string,
     heTitle:       React.PropTypes.string,
     interfaceLang: React.PropTypes.string,
@@ -236,7 +254,7 @@ var ReaderNavigationMenuSection = React.createClass({
     var title = this.props.interfaceLang !== "hebrew" ? this.props.title : this.props.heTitle;
     var langStyle = this.props.interfaceLang !== "hebrew" ? styles.intEn : styles.intHe;
     return (<View style={styles.readerNavSection}>
-              <Text style={[styles.readerNavSectionTitle, langStyle]}>{title}</Text>
+              <Text style={[styles.readerNavSectionTitle, this.props.theme.readerNavSectionTitle, langStyle]}>{title}</Text>
               {this.props.content}
             </View>);
   }
