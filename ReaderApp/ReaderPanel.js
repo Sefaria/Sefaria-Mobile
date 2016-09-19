@@ -296,7 +296,7 @@ var ReaderControls = React.createClass({
         <View style={[styles.header, this.props.theme.header]}>
           <MenuButton onPress={this.props.openNav} theme={this.props.theme}/>
           <TouchableOpacity style={styles.headerTextTitle} onPress={this.props.openTextToc}>
-            <Text>
+            <Text style={this.props.theme.text}>
               {this.props.textReference}
             </Text>
           </TouchableOpacity>

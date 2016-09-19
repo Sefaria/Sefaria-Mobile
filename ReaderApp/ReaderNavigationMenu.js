@@ -107,8 +107,8 @@ var ReaderNavigationMenu = React.createClass({
 
       var title = (<View style={styles.navigationMenuTitleBox}>
                     { this.props.interfaceLang == "english" ?
-                      <Text style={[styles.navigationMenuTitle, styles.intEn]}>The Sefaria Library</Text> :
-                      <Text style={[styles.navigationMenuTitle, styles.intHe]}>האוסף של ספאריה</Text>}
+                      <Text style={[styles.navigationMenuTitle, styles.intEn, this.props.theme.text]}>The Sefaria Library</Text> :
+                      <Text style={[styles.navigationMenuTitle, styles.intHe, this.props.theme.text]}>האוסף של ספאריה</Text>}
                     <LanguageToggleButton theme={this.props.theme} toggleLanguage={this.props.toggleLanguage} language={language} />
                   </View>);
 
@@ -231,8 +231,8 @@ var CategoryBlockLink = React.createClass({
   render: function() {
     var style = this.props.style || {"borderColor": Sefaria.palette.categoryColor(this.props.category)};
     var content = this.props.language == "english"?
-      (<Text style={[styles.en, styles.centerText]}>{this.props.category}</Text>) :
-      (<Text style={[styles.he, styles.centerText]}>{this.props.heCat || Sefaria.hebrewCategory(this.props.category)}</Text>);
+      (<Text style={[styles.en, styles.centerText, this.props.theme.text]}>{this.props.category}</Text>) :
+      (<Text style={[styles.he, styles.centerText, this.props.theme.text]}>{this.props.heCat || Sefaria.hebrewCategory(this.props.category)}</Text>);
     return (<TouchableOpacity onPress={this.props.onPress} style={[styles.readerNavCategory, this.props.theme.readerNavCategory,style]}>
               {content}
             </TouchableOpacity>);

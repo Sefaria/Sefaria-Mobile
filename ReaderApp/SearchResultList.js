@@ -35,7 +35,7 @@ var SearchResultList = React.createClass({
   },
   renderRow: function(rowData) {
     return (
-      <SearchTextResult textType={rowData.textType} title={rowData.title} text={rowData.text} openRef={this.props.openRef}/>
+      <SearchTextResult theme={this.props.theme} textType={rowData.textType} title={rowData.title} text={rowData.text} openRef={this.props.openRef}/>
     );
   },
   componentDidUpdate: function() {
