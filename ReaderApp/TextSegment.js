@@ -13,6 +13,7 @@ var styles = require('./Styles.js');
 
 var TextSegment = React.createClass({
   propTypes: {
+    theme:           React.PropTypes.object.isRequired,
     segmentIndexRef:      React.PropTypes.number,
     segmentKey:      React.PropTypes.string,
     data:            React.PropTypes.string,
@@ -35,6 +36,7 @@ var TextSegment = React.createClass({
     return (
       <Text
         style={[this.props.textType == "hebrew" ? styles.hebrewText : styles.englishText,
+              this.props.theme.text,
               {fontSize:this.props.textType == "hebrew" ? this.props.settings.fontSize : 0.8*this.props.settings.fontSize}]}
         suppressHighlighting={false}
         onPress={ () => this.onPressTextSegment(this.props.segmentKey) }

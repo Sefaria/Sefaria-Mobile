@@ -54,7 +54,7 @@ var TextListHeader = React.createClass({
 
 var TextListHeaderItem = React.createClass({
 	propTypes: {
-    theme:          React.PropTypes.object,
+    theme:          React.PropTypes.object.isRequired,
 		updateCat:      React.PropTypes.func.isRequired,
 		filter:         React.PropTypes.object,
 		filterIndex:    React.PropTypes.number,
@@ -65,7 +65,9 @@ var TextListHeaderItem = React.createClass({
 		var filterStr = this.props.columnLanguage == "hebrew" ?
 			this.props.filter.heTitle :
 			this.props.filter.title;
-		var stylesArray = this.props.selected ? [styles.textListHeaderItem,this.props.theme.textListHeaderItem,this.props.theme.textListHeaderItemSelected] : [styles.textListHeaderItem, this.props.theme.textListHeaderItem];
+		var stylesArray = [styles.textListHeaderItem, this.props.theme.textListHeaderItem, this.props.theme.text];
+    if (this.props.selected)
+      stylesArray.push(this.props.theme.textListHeaderItemSelected);
 		return (
 			<TouchableOpacity onPress={()=>{this.props.updateCat(null,this.props.filterIndex)}}>
 				<Text style={stylesArray}>{filterStr}</Text>

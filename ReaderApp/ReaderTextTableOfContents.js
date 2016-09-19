@@ -48,8 +48,8 @@ var ReaderTextTableOfContents = React.createClass({
   render: function() {
     var title = (<View style={styles.navigationMenuTitleBox}>
                   { this.props.contentLang == "hebrew" ?
-                    <Text style={[styles.he, styles.navigationMenuTitle]}>{this.state.textToc ? this.state.textToc.heTitle : null}</Text> :
-                    <Text style={[styles.en, styles.navigationMenuTitle]}>{this.props.title}</Text> }
+                    <Text style={[styles.he, styles.navigationMenuTitle, this.props.theme.text]}>{this.state.textToc ? this.state.textToc.heTitle : null}</Text> :
+                    <Text style={[styles.en, styles.navigationMenuTitle, this.props.theme.text]}>{this.props.title}</Text> }
                   <LanguageToggleButton theme={this.props.theme} toggleLanguage={this.props.toggleLanguage} language={this.props.contentLang} />
                 </View>);
 
@@ -58,7 +58,7 @@ var ReaderTextTableOfContents = React.createClass({
         <CategoryColorLine category={Sefaria.categoryForTitle(this.props.title)} />
         <View style={[styles.header, this.props.theme.header]}>
           <CloseButton onPress={this.props.close} theme={this.props.theme} />
-          <Text style={[styles.textTocHeaderTitle, styles.textCenter]}>TABLE OF CONTENTS</Text>
+          <Text style={[styles.textTocHeaderTitle, styles.textCenter, this.props.theme.text]}>TABLE OF CONTENTS</Text>
         </View>
 
         <ScrollView style={styles.menuContent}>
@@ -146,6 +146,7 @@ var TextTableOfContentsNavigation = React.createClass({
     switch(this.state.tab) {
       case "default":
         var content = <SchemaNode
+                        theme={this.props.theme}
                         schema={this.props.schema}
                         contentLang={this.props.contentLang}
                         refPath={this.props.title}
@@ -153,12 +154,14 @@ var TextTableOfContentsNavigation = React.createClass({
         break;
       case "commentary":
         var content = <CommentatorList
+                        theme={this.props.theme}
                         commentatorList={this.props.commentatorList}
                         contentLang={this.props.contentLang}
                         openRef={this.props.openRef} />;
         break;
       default:
         var content = <SchemaNode
+                        theme={this.props.theme}
                         schema={this.props.alts[this.state.tab]}
                         contentLang={this.props.contentLang}
                         refPath={this.props.title}
@@ -178,6 +181,7 @@ var TextTableOfContentsNavigation = React.createClass({
 
 var SchemaNode = React.createClass({
   propTypes: {
+    theme:       React.PropTypes.object.isRequired,
     schema:      React.PropTypes.object.isRequired,
     contentLang: React.PropTypes.string.isRequired,
     refPath:     React.PropTypes.string.isRequired,
@@ -188,6 +192,7 @@ var SchemaNode = React.createClass({
       if (this.props.schema.nodeType === "JaggedArrayNode") {
         return (
           <JaggedArrayNode
+            theme={this.props.theme}
             schema={this.props.schema}
             contentLang={this.props.contentLang}
             refPath={this.props.refPath}
@@ -196,6 +201,7 @@ var SchemaNode = React.createClass({
       } else if (this.props.schema.nodeType === "ArrayMapNode") {
         return (
           <ArrayMapNode
+            theme={this.props.theme}
             schema={this.props.schema}
             contentLang={this.props.contentLang}
             openRef={this.props.openRef} />
@@ -209,9 +215,10 @@ var SchemaNode = React.createClass({
           return (
             <View style={styles.textTocNamedSection} key={i}>
               {showHebrew ?
-                <Text style={[styles.he, styles.textTocSectionTitle]}>{node.heTitle}</Text> :
-                <Text style={[styles.en, styles.textTocSectionTitle]}>{node.title}</Text> }
+                <Text style={[styles.he, styles.textTocSectionTitle, this.props.theme.text]}>{node.heTitle}</Text> :
+                <Text style={[styles.en, styles.textTocSectionTitle, this.props.theme.text]}>{node.title}</Text> }
               <SchemaNode
+                theme={this.props.theme}
                 schema={node}
                 contentLang={this.props.contentLang}
                 refPath={this.props.refPath + ", " + node.title}
@@ -222,16 +229,17 @@ var SchemaNode = React.createClass({
           return (
             <TouchableOpacity style={styles.textTocNamedSection} onPress={open} key={i}>
               {showHebrew ?
-                <Text style={[styles.he, styles.textTocSectionTitle]}>{node.heTitle + " >"}</Text> :
-                <Text style={[styles.en, styles.textTocSectionTitle]}>{node.title + " >"}</Text> }
+                <Text style={[styles.he, styles.textTocSectionTitle, this.props.theme.text]}>{node.heTitle + " >"}</Text> :
+                <Text style={[styles.en, styles.textTocSectionTitle, this.props.theme.text]}>{node.title + " >"}</Text> }
             </TouchableOpacity>);
         } else {
           return (
             <View style={styles.textTocNamedSection} key={i}>
               {showHebrew ?
-                <Text style={[styles.he, styles.textTocSectionTitle]}>{node.heTitle}</Text> :
-                <Text style={[styles.en, styles.textTocSectionTitle]}>{node.title}</Text> }
+                <Text style={[styles.he, styles.textTocSectionTitle, this.props.theme.text]}>{node.heTitle}</Text> :
+                <Text style={[styles.en, styles.textTocSectionTitle, this.props.theme.text]}>{node.title}</Text> }
               <JaggedArrayNode
+                theme={this.props.theme}
                 schema={node}
                 contentLang={this.props.contentLang}
                 refPath={this.props.refPath + ", " + node.title}
@@ -249,6 +257,7 @@ var SchemaNode = React.createClass({
 
 var JaggedArrayNode = React.createClass({
   propTypes: {
+    theme:       React.PropTypes.object.isRequired,
     schema:      React.PropTypes.object.isRequired,
     contentLang: React.PropTypes.string.isRequired,
     refPath:     React.PropTypes.string.isRequired,
@@ -256,6 +265,7 @@ var JaggedArrayNode = React.createClass({
   },
   render: function() {
     return (<JaggedArrayNodeSection
+              theme={this.props.theme}
               depth={this.props.schema.depth}
               sectionNames={this.props.schema.sectionNames}
               addressTypes={this.props.schema.addressTypes}
@@ -269,6 +279,7 @@ var JaggedArrayNode = React.createClass({
 
 var JaggedArrayNodeSection = React.createClass({
   propTypes: {
+    theme:           React.PropTypes.object.isRequired,
     depth:           React.PropTypes.number.isRequired,
     sectionNames:    React.PropTypes.array.isRequired,
     addressTypes:    React.PropTypes.array.isRequired,
@@ -287,9 +298,10 @@ var JaggedArrayNodeSection = React.createClass({
         content.push(
           <View style={styles.textTocNumberedSectionBox} key={i}>
             {showHebrew ?
-              <Text style={[styles.he, styles.textTocNumberedSectionTitle]}>{heSection}</Text> :
-              <Text style={[styles.en, styles.textTocNumberedSectionTitle]}>{enSection}</Text> }
+              <Text style={[styles.he, styles.textTocNumberedSectionTitle, this.props.theme.text]}>{heSection}</Text> :
+              <Text style={[styles.en, styles.textTocNumberedSectionTitle, this.props.theme.text]}>{enSection}</Text> }
             <JaggedArrayNodeSection
+              theme={this.props.theme}
               depth={this.props.depth - 1}
               sectionNames={this.props.sectionNames.slice(1)}
               addressTypes={this.props.addressTypes.slice(1)}
@@ -316,10 +328,10 @@ var JaggedArrayNodeSection = React.createClass({
       var ref  = (this.props.refPath + ":" + section).replace(":", " ");
       var open = this.props.openRef.bind(null, ref);
       var link = (
-        <TouchableOpacity style={styles.sectionLink} onPress={open} key={i}>
+        <TouchableOpacity style={[styles.sectionLink,this.props.theme.sectionLink]} onPress={open} key={i}>
           { showHebrew ?
-            <Text style={[styles.he, styles.centerText]}>{heSection}</Text> :
-            <Text style={[styles.centerText]}>{section}</Text> }
+            <Text style={[styles.he, styles.centerText, this.props.theme.text]}>{heSection}</Text> :
+            <Text style={[styles.centerText, this.props.theme.text]}>{section}</Text> }
         </TouchableOpacity>
       );
       sectionLinks.push(link);
@@ -335,6 +347,7 @@ var JaggedArrayNodeSection = React.createClass({
 
 var ArrayMapNode = React.createClass({
   propTypes: {
+    theme:       React.PropTypes.object.isRequired,
     schema:      React.PropTypes.object.isRequired,
     contentLang: React.PropTypes.string.isRequired,
     openRef:     React.PropTypes.func.isRequired,
@@ -352,10 +365,10 @@ var ArrayMapNode = React.createClass({
         var heSection = Sefaria.hebrew.encodeHebrewNumeral(i+1);
       }
       return (
-        <TouchableOpacity style={styles.sectionLink} onPress={open} key={i}>
+        <TouchableOpacity style={[styles.sectionLink,this.props.theme.sectionLink]} onPress={open} key={i}>
           { showHebrew ?
-            <Text style={[styles.he, styles.centerText]}>{heSection}</Text> :
-            <Text style={[styles.centerText]}>{section}</Text> }
+            <Text style={[styles.he, styles.centerText, this.props.theme.text]}>{heSection}</Text> :
+            <Text style={[styles.centerText, this.props.theme.text]}>{section}</Text> }
         </TouchableOpacity>
       );
     }.bind(this));
@@ -370,6 +383,7 @@ var ArrayMapNode = React.createClass({
 
 var CommentatorList = React.createClass({
   propTypes: {
+    theme:           React.PropTypes.object.isRequired,
     commentatorList: React.PropTypes.array.isRequired,
     contentLang:     React.PropTypes.string.isRequired,
     openRef:         React.PropTypes.func.isRequired,
@@ -378,10 +392,10 @@ var CommentatorList = React.createClass({
     var showHebrew = this.props.contentLang == "hebrew";
     var content = this.props.commentatorList.map(function(commentator, i) {
       var open = this.props.openRef.bind(null, commentator.firstSection);
-      return (<TouchableOpacity onPress={open} style={styles.textBlockLink} key={i}>
+      return (<TouchableOpacity onPress={open} style={[styles.textBlockLink,this.props.theme.textBlockLink]} key={i}>
               { showHebrew ?
-                <Text style={[styles.he, styles.centerText]}>{commentator.heCommentator}</Text> :
-                <Text style={[styles.en, styles.centerText]}>{commentator.commentator}</Text> }
+                <Text style={[styles.he, styles.centerText, this.props.theme.text]}>{commentator.heCommentator}</Text> :
+                <Text style={[styles.en, styles.centerText, this.props.theme.text]}>{commentator.commentator}</Text> }
             </TouchableOpacity>);
     }.bind(this));
 

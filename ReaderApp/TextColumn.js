@@ -97,6 +97,7 @@ var TextColumn = React.createClass({
 
         if (columnLanguage == "hebrew" || columnLanguage == "bilingual") {
           segmentText.push(<TextSegment
+                          theme={this.props.theme}
                           segmentIndexRef={this.props.segmentIndexRef}
                           segmentKey={section+":"+i}
                           data={currSegData.he}
@@ -110,6 +111,7 @@ var TextColumn = React.createClass({
 
         if (columnLanguage == "english" || columnLanguage == "bilingual") {
           segmentText.push(<TextSegment
+                          theme={this.props.theme}
                           style={styles.TextSegment}
                           segmentIndexRef={this.props.segmentIndexRef}
                           segmentKey={section+":"+i}
