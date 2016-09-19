@@ -19,9 +19,13 @@ import {
 } from 'react-native';
 
 var styles  = require('./Styles.js');
-var Sefaria = require('./sefaria');
-
+var themeWhite  = require('./ThemeWhite');
+var themeGrey   = require('./ThemeGrey');
+var themeBlack  = require('./ThemeBlack');
+var Sefaria     = require('./sefaria');
 var ReaderPanel = require('./ReaderPanel');
+
+
 
 var {
   LoadingView,
@@ -49,7 +53,9 @@ var ReaderApp = React.createClass({
             interfaceLang: "english", // TODO check device settings for Hebrew: ### import {NativeModules} from 'react-native'; console.log(NativeModules.SettingsManager.settings.AppleLocale);
             filterIndex: null, /* index of filter in recentFilters */
             recentFilters: [],
-            linkContents: []
+            linkContents: [],
+            theme: themeWhite,
+            themeStr: "white"
         };
     },
     componentDidMount: function () {
@@ -80,8 +86,9 @@ var ReaderApp = React.createClass({
         let segmentNum;
         let sectionRef = ref;
         if (isSegmentLevel === true) {
-          segmentNum = ref.split(":")[1];
-          sectionRef = ref.split(":")[0];
+          let dashSplit = ref.split("-");
+          segmentNum = dashSplit[0].split(":")[1];
+          sectionRef = dashSplit[0].split(":")[0];
         }
 
         this.setState({loaded: false, data: [], textReference: sectionRef});
@@ -245,9 +252,16 @@ var ReaderApp = React.createClass({
     clearOffsetRef: function() {
       this.setState({offsetRef:null});
     },
+    setTheme: function(themeStr) {
+      if (themeStr === "white") this.state.theme = themeWhite;
+      else if (themeStr === "grey") this.state.theme = themeGrey;
+      else if (themeStr === "black") this.state.theme = themeBlack;
+
+      this.setState({theme: this.state.theme,themeStr: themeStr});
+    },
     render: function () {
         return (
-            <View style={styles.container}>
+            <View style={[styles.container,this.state.theme.container]}>
                 <StatusBar
                     barStyle="light-content" />
                 <ReaderPanel
@@ -287,6 +301,9 @@ var ReaderApp = React.createClass({
                     filterIndex={this.state.filterIndex}
                     recentFilters={this.state.recentFilters}
                     linkContents={this.state.linkContents}
+                    setTheme={this.setTheme}
+                    theme={this.state.theme}
+                    themeStr={this.state.themeStr}
                     Sefaria={Sefaria} />
             </View>
         );

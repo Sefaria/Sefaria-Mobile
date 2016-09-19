@@ -44,10 +44,6 @@ var TextList = React.createClass({
       dataSource: new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2})
     };
   },
-
-  onPressRef: function(q) {
-    this.props.openRef(q);
-  },
   componentDidUpdate: function() {
     for (let item of this._rowsToLoad) {
       var ref = item.ref;
@@ -89,6 +85,7 @@ var TextList = React.createClass({
     }
 
     return (<LinkContent
+              theme={this.props.theme}
               settings={this.props.settings}
               openRef={this.props.openRef}
               refStr={ref}
@@ -104,6 +101,7 @@ var TextList = React.createClass({
       this.props.links.map((cat)=>{
         viewList.push(
           <LinkCategory
+            theme={this.props.theme}
             category={cat.category}
             refList={cat.refList}
             count={cat.count}
@@ -112,6 +110,7 @@ var TextList = React.createClass({
         var innerViewList = cat.books.map((obook)=>{
           return (
           <LinkBook
+            theme={this.props.theme}
             title={obook.title}
             heTitle={obook.heTitle}
             category={cat.category}
@@ -136,6 +135,7 @@ var TextList = React.createClass({
       <View style={styles.textListContentOuter}>
         <TextListHeader
           Sefaria={Sefaria}
+          theme={this.props.theme}
           updateCat={this.props.updateCat}
           closeCat={this.props.closeCat}
           category={this.props.recentFilters[this.props.filterIndex].category}
@@ -157,6 +157,7 @@ var TextList = React.createClass({
 
 var LinkCategory = React.createClass({
   propTypes: {
+    theme:    React.PropTypes.object.isRequired,
     openCat:  React.PropTypes.func.isRequired,
     category: React.PropTypes.string,
     refList:  React.PropTypes.array,
@@ -168,12 +169,12 @@ var LinkCategory = React.createClass({
     var style = {"borderColor": Sefaria.palette.categoryColor(this.props.category)};
     var heCategory = Sefaria.hebrewCategory(this.props.category);
     var content = this.props.language == "english"?
-      (<Text style={styles.en}>{this.props.category.toUpperCase() + countStr}</Text>) :
-      (<Text style={styles.he}>{heCategory + countStr}</Text>);
+      (<Text style={[styles.en, this.props.theme.text]}>{this.props.category.toUpperCase() + countStr}</Text>) :
+      (<Text style={[styles.he, this.props.theme.text]}>{heCategory + countStr}</Text>);
 
     var filter = {title:this.props.category,heTitle:heCategory,refList:this.props.refList,category:this.props.category};
     return (<TouchableOpacity
-              style={[styles.readerNavCategory, style]}
+              style={[styles.readerNavCategory, this.props.theme.readerNavCategory, style]}
               onPress={()=>{this.props.openCat(filter)}}>
               {content}
             </TouchableOpacity>);
@@ -183,6 +184,7 @@ var LinkCategory = React.createClass({
 
 var LinkBook = React.createClass({
   propTypes: {
+    theme:    React.PropTypes.object.isRequired,
     openCat:  React.PropTypes.func.isRequired,
     title:    React.PropTypes.string,
     heTitle:  React.PropTypes.string,
@@ -196,11 +198,11 @@ var LinkBook = React.createClass({
     var filter = {title:this.props.title,heTitle:this.props.heTitle,refList:this.props.refList,category:this.props.category};
     return (
       <TouchableOpacity
-        style={styles.textBlockLink}
+        style={[styles.textBlockLink,this.props.theme.textBlockLink]}
         onPress={()=>{this.props.openCat(filter)}}>
         { this.props.language == "hebrew" ?
-          <Text style={[styles.he, styles.centerText]}>{this.props.heTitle + countStr}</Text> :
-          <Text style={[styles.en, styles.centerText]}>{this.props.title + countStr}</Text> }
+          <Text style={[styles.he, styles.centerText, this.props.theme.text]}>{this.props.heTitle + countStr}</Text> :
+          <Text style={[styles.en, styles.centerText, this.props.theme.text]}>{this.props.title + countStr}</Text> }
       </TouchableOpacity>
     );
   }
@@ -209,6 +211,7 @@ var LinkBook = React.createClass({
 
 var LinkContent = React.createClass({
   propTypes: {
+    theme:             React.PropTypes.object.isRequired,
     settings:          React.PropTypes.object,
     openRef:           React.PropTypes.func.isRequired,
     refStr:            React.PropTypes.string,
@@ -221,8 +224,8 @@ var LinkContent = React.createClass({
     var lang = Sefaria.util.getColumnLanguageWithContent(this.props.columnLanguage,lco.en,lco.he);
     var textViews = [];
 
-    var hebrewElem =  <Text style={[styles.hebrewText,  {fontSize:this.props.settings.fontSize}]}>    <HTMLView stylesheet={styles} value={lco.he}/></Text>;
-    var englishElem = <Text style={[styles.englishText, {fontSize:0.8*this.props.settings.fontSize}]}><HTMLView stylesheet={styles} value={lco.en}/></Text>;
+    var hebrewElem =  <Text style={[styles.hebrewText, this.props.theme.text, {fontSize:this.props.settings.fontSize}]}>    <HTMLView stylesheet={styles} value={lco.he}/></Text>;
+    var englishElem = <Text style={[styles.englishText, this.props.theme.text, {fontSize:0.8*this.props.settings.fontSize}]}><HTMLView stylesheet={styles} value={lco.en}/></Text>;
     if (lang == "bilingual") {
       textViews = [hebrewElem,englishElem];
     } else if (lang == "hebrew") {
@@ -233,7 +236,7 @@ var LinkContent = React.createClass({
 
     return (
       <TouchableOpacity style={styles.searchTextResult} onPress={()=>{this.props.openRef(this.props.refStr,true)}}>
-        <Text>{this.props.refStr}</Text>
+        <Text style={[this.props.theme.text]}>{this.props.refStr}</Text>
         {textViews}
       </TouchableOpacity>
     );

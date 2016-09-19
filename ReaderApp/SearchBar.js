@@ -9,8 +9,7 @@ import {
 } from 'react-native';
 
 var {
-  CloseButton,
-  SearchButton
+  CloseButton
 } = require('./Misc.js');
 
 var styles = require('./Styles.js');
@@ -18,6 +17,7 @@ var styles = require('./Styles.js');
 
 var SearchBar = React.createClass({
   propTypes:{
+    theme:           React.PropTypes.object.isRequired,
     closeNav:        React.PropTypes.func.isRequired,
     onQueryChange:   React.PropTypes.func.isRequired,
     setIsNewSearch:  React.PropTypes.func.isRequired,
@@ -30,10 +30,10 @@ var SearchBar = React.createClass({
   render: function() {
 
     return (
-      <View style={styles.header}>
-        <CloseButton onPress={this.props.closeNav} />
+      <View style={[styles.header, this.props.theme.header]}>
+        <CloseButton onPress={this.props.closeNav} theme={this.props.theme}/>
         <TextInput
-          style={styles.searchInput}
+          style={[styles.searchInput,this.props.theme.text]}
           onFocus= {() => this.setState({text : ''})}
           onChangeText={(text) => this.setState({text})}
           onSubmitEditing={(event) => {

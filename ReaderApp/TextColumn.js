@@ -6,7 +6,8 @@ import ReactNative, { 	AppRegistry,
   ScrollView,
   Text,
   findNodeHandle,
-  ListView
+  ListView,
+  LayoutAnimation
 } from 'react-native';
 
 const styles = require('./Styles.js');
@@ -17,10 +18,20 @@ const TextSegment = require('./TextSegment');
 
 var segmentIndexRefPositionArray = {};
 
-
+var CustomLayoutAnimation = {
+  duration: 100,
+  create: {
+    type: LayoutAnimation.Types.linear,
+    property: LayoutAnimation.Properties.opacity,
+  },
+  update: {
+    type: LayoutAnimation.Types.linear,
+  },
+};
 
 var TextColumn = React.createClass({
   propTypes: {
+    theme:            React.PropTypes.object.isRequired,
     settings:         React.PropTypes.object,
     data:             React.PropTypes.array,
     textReference:    React.PropTypes.string,
@@ -53,7 +64,8 @@ var TextColumn = React.createClass({
       targetSectionRef: "",
       scrollingToTargetRef:false,
       scrolledAtLeastOnceToTargetRef: false,
-      scrolledToOffsetRef:false
+      scrolledToOffsetRef:false,
+      scrollOffset:0
     };
   },
 
@@ -76,17 +88,18 @@ var TextColumn = React.createClass({
         var columnLanguage = Sefaria.util.getColumnLanguageWithContent(this.props.columnLanguage,currSegData.text,currSegData.he);
 
         if (i==0) {
-          segment.push(<View style={styles.sectionHeader}><Text style={styles.sectionHeaderText}>{columnLanguage == "hebrew" ? this.state.sectionHeArray[section] : this.state.sectionArray[section].replace(this.props.textTitle,'')}</Text></View>);
+          segment.push(<View style={styles.sectionHeader}><Text style={[styles.sectionHeaderText,this.props.theme.sectionHeaderText]}>{columnLanguage == "hebrew" ? this.state.sectionHeArray[section] : this.state.sectionArray[section].replace(this.props.textTitle,'')}</Text></View>);
         }
 
         var numberSegmentHolder = [];
 
-        numberSegmentHolder.push(<Text ref={this.state.sectionArray[section]+"_"+data[section][i].segmentNumber} style={styles.verseNumber}>{data[section][i].segmentNumber}</Text>)
+        numberSegmentHolder.push(<Text ref={this.state.sectionArray[section]+"_"+data[section][i].segmentNumber} style={[styles.verseNumber,this.props.theme.verseNumber]}>{data[section][i].segmentNumber}</Text>)
 
         var segmentText = [];
 
         if (columnLanguage == "hebrew" || columnLanguage == "bilingual") {
           segmentText.push(<TextSegment
+                          theme={this.props.theme}
                           segmentIndexRef={this.props.segmentIndexRef}
                           segmentKey={section+":"+i}
                           data={currSegData.he}
@@ -99,6 +112,7 @@ var TextColumn = React.createClass({
 
         if (columnLanguage == "english" || columnLanguage == "bilingual") {
           segmentText.push(<TextSegment
+                          theme={this.props.theme}
                           style={styles.TextSegment}
                           segmentIndexRef={this.props.segmentIndexRef}
                           segmentKey={section+":"+i}
@@ -326,26 +340,27 @@ var TextColumn = React.createClass({
            null, /*Error callback that doesn't yet have a hook in native so doesn't get called */
            (left, top, width, height, pageX, pageY) => {
              if (pageY == 0) { //I'm forced to assume this means it's not on screen, though it could also be at the top of the page...
-                console.log("ZEROOOO");
                 queryLayoutByID(
                   findNodeHandle(this.refs._listView),
                   null,
                   (left,top,width,height,pageX,pageY) => {
-                    this.refs._listView.scrollTo({
+                    LayoutAnimation.configureNext(CustomLayoutAnimation);
+                    this.setState({scrollOffset:didMount ? 1 :this.refs._listView.scrollProperties.offset+height});
+                    /*this.refs._listView.scrollTo({
                       x: 0,
                       y: didMount ? 1 :this.refs._listView.scrollProperties.offset+height,
                       animated: false
-                    });
+                    });*/
                   }
                 );
              } else {
-               console.log("YESHHH");
-               this.setState({scrolledToOffsetRef:true});
-               this.refs._listView.scrollTo({
+               LayoutAnimation.configureNext(CustomLayoutAnimation);
+               this.setState({scrolledToOffsetRef:true,scrollOffset:this.refs._listView.scrollProperties.offset+pageY-100});
+               /*this.refs._listView.scrollTo({
                  x: 0,
                  y: this.refs._listView.scrollProperties.offset+pageY-100,
                  animated: false
-               });
+               });*/
              }
            }
         );
@@ -366,7 +381,7 @@ var TextColumn = React.createClass({
 
     let style = [styles.verseContainer];
     if ((seg && rID === sID+"_"+seg.segmentNumber && this.props.textListVisible) || this.props.offsetRef == rID) {
-        style.push(styles.segmentHighlight);
+        style.push(this.props.theme.segmentHighlight);
     }
     return <View style={style}>{rowData}</View>;
   },
@@ -384,7 +399,7 @@ var TextColumn = React.createClass({
                 onScroll={this.handleScroll}
                 onChangeVisibleRows={(visibleRows, changedRows) => this.visibleRowsChanged(visibleRows, changedRows)}
                 onEndReached={this.onEndReached}
-                /*renderScrollComponent={props => <ScrollView {...props} contentOffset={{y:100}}/>}*/
+                renderScrollComponent={props => <ScrollView {...props} contentOffset={{y:this.state.scrollOffset}}/>}
                 initialListSize={40}
                 onContentSizeChange={(w, h) => {this.updateHeight(h)}}
                 onEndReachedThreshold={300}
