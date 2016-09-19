@@ -67,6 +67,7 @@ var ReaderTextTableOfContents = React.createClass({
 
           {this.state.textToc ?
             <TextTableOfContentsNavigation
+              theme={this.props.theme}
               schema={this.state.textToc.schema}
               commentatorList={Sefaria.commentaryList(this.props.title)}
               alts={this.state.textToc.alts || null}
@@ -84,6 +85,7 @@ var ReaderTextTableOfContents = React.createClass({
 
 var TextTableOfContentsNavigation = React.createClass({
   propTypes: {
+    theme:           React.PropTypes.object.isRequired,
     schema:          React.PropTypes.object.isRequired,
     commentatorList: React.PropTypes.array,
     alts:            React.PropTypes.object,

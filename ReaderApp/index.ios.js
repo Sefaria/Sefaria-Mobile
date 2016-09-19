@@ -265,7 +265,7 @@ var ReaderApp = React.createClass({
     },
     render: function () {
         return (
-            <View style={styles.container}>
+            <View style={[styles.container,this.state.theme.container]}>
                 <StatusBar
                     barStyle="light-content" />
                 <ReaderPanel
