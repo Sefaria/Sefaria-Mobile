@@ -56,7 +56,7 @@ var ReaderApp = React.createClass({
       Sefaria._deleteAllFiles().then(function() {
 
          }).catch(function(error) {
-          console.error('Error caught from Sefaria_deleteAllFiles', error);
+          console.error('Error caught from Sefaria._deleteAllFiles', error);
         });
     },
     TextSegmentPressed: function(section,segment,shouldToggle) {
@@ -87,10 +87,9 @@ var ReaderApp = React.createClass({
         this.setState({loaded: false, data: [], textReference: sectionRef});
         Sefaria.data(ref).then(function(data) {
             var links = [];
-            if (data.content) {
+            if (data.content && data.content.links) {
                 links = Sefaria.links.linkSummary(data.content[this.state.segmentIndexRef].links);
             }
-
 
             this.setState({
                 data:            [data.content],
@@ -111,9 +110,9 @@ var ReaderApp = React.createClass({
             // Preload Text TOC data into memory
             Sefaria.textToc(data.indexTitle, function() {});
 
-            Sefaria.saveRecentItem({ref: ref, heRef: data.heRef, category: data.categories[0]});
+            Sefaria.saveRecentItem({ref: ref, heRef: data.heRef, category: Sefaria.categoryForRef(ref)});
         }.bind(this)).catch(function(error) {
-          console.error('Error caught frome Sefaria.data', error);
+          console.error('Error caught from Sefaria.data', error);
         });
 
     },
@@ -201,7 +200,6 @@ var ReaderApp = React.createClass({
         filterIndex = this.state.recentFilters.length-1;
       }
 
-
       var linkContents = filter.refList.map((ref)=>null);
       this.setState({filterIndex:filterIndex,recentFilters:this.state.recentFilters,linkContents:linkContents});
     },
@@ -218,8 +216,6 @@ var ReaderApp = React.createClass({
       var filterStrHe = this.state.recentFilters[filterIndex].heTitle;
       var category = this.state.recentFilters[filterIndex].category;
       var nextRefList = [];
-
-
 
       for (let cat of links) {
         if (cat.category == filterStr) {
@@ -246,7 +242,7 @@ var ReaderApp = React.createClass({
       this.setState({linkContents:this.state.linkContents});
     },
     /* used after TextList has used the offsetRef to render initially*/
-    clearOffsetRef() {
+    clearOffsetRef: function() {
       this.setState({offsetRef:null});
     },
     render: function () {

@@ -21,18 +21,18 @@ const {
 
 var TextList = React.createClass({
   propTypes: {
-    settings:       React.PropTypes.object,
-    openRef:        React.PropTypes.func.isRequired,
-    openCat:        React.PropTypes.func.isRequired,
-    closeCat:       React.PropTypes.func.isRequired,
-    updateCat:      React.PropTypes.func.isRequired,
-    onLinkLoad:     React.PropTypes.func.isRequired,
-    linkContents:   React.PropTypes.array,
-    segmentIndexRef:     React.PropTypes.number,
-    links:          React.PropTypes.array,
-    filterIndex:    React.PropTypes.number,
-    recentFilters:  React.PropTypes.array, /* of the form [{title,heTitle,refList}...] */
-    columnLanguage: React.PropTypes.string
+    settings:        React.PropTypes.object,
+    openRef:         React.PropTypes.func.isRequired,
+    openCat:         React.PropTypes.func.isRequired,
+    closeCat:        React.PropTypes.func.isRequired,
+    updateCat:       React.PropTypes.func.isRequired,
+    onLinkLoad:      React.PropTypes.func.isRequired,
+    linkContents:    React.PropTypes.array,
+    segmentIndexRef: React.PropTypes.number,
+    links:           React.PropTypes.array,
+    filterIndex:     React.PropTypes.number,
+    recentFilters:   React.PropTypes.array, /* of the form [{title,heTitle,refList}...] */
+    columnLanguage:  React.PropTypes.string
   },
 
   _rowsToLoad:[],
@@ -70,7 +70,7 @@ var TextList = React.createClass({
       })(ref,rowId);
 
       //here's the meat
-      Sefaria.links.loadLinks(ref).then(resolve).catch(reject);
+      Sefaria.links.loadLinkData(ref).then(resolve).catch(reject);
     };
     this._rowsToLoad = [];
   },
@@ -79,14 +79,13 @@ var TextList = React.createClass({
       this.props.updateCat(nextProps.links,null);
     }
   },
-
-  renderRow: function(linkContentObj,sectionId,rowId) {
+  renderRow: function(linkContentObj, sectionId, rowId) {
     var ref = this.props.recentFilters[this.props.filterIndex].refList[rowId];
     var loading = false;
     if (linkContentObj == null) {
       loading = true;
       this._rowsToLoad.push({ref:ref,rowId:rowId});
-      linkContentObj = {en:"Loading...",he:"טוען..."};
+      linkContentObj = {en:"Loading...", he:"טוען..."};
     }
 
     return (<LinkContent
@@ -95,10 +94,8 @@ var TextList = React.createClass({
               refStr={ref}
               linkContentObj={linkContentObj}
               columnLanguage={this.props.columnLanguage}
-              loading={loading}
-            />);
+              loading={loading} />);
   },
-
   render: function() {
     var isSummaryMode = this.props.filterIndex == null;
     if (isSummaryMode) {
@@ -111,8 +108,7 @@ var TextList = React.createClass({
             refList={cat.refList}
             count={cat.count}
             language={"english"}
-            openCat={this.props.openCat}
-          />);
+            openCat={this.props.openCat} />);
         var innerViewList = cat.books.map((obook)=>{
           return (
           <LinkBook
@@ -122,8 +118,7 @@ var TextList = React.createClass({
             refList={obook.refList}
             count={obook.count}
             language={"english"}
-            openCat={this.props.openCat}
-          />);
+            openCat={this.props.openCat} />);
         });
         viewList.push(<TwoBox content={innerViewList}/>);
 
@@ -146,26 +141,21 @@ var TextList = React.createClass({
           category={this.props.recentFilters[this.props.filterIndex].category}
           filterIndex={this.props.filterIndex}
           recentFilters={this.props.recentFilters}
-          columnLanguage={this.props.columnLanguage}
-        />
+          columnLanguage={this.props.columnLanguage} />
         {this.props.linkContents.length == 0 ?
           <View style={styles.noLinks}><HTMLView value={"<i>No Links</i>"}/></View>:
           <ListView style={styles.textListContentListView}
             dataSource={dataSourceRows}
-            renderRow={this.renderRow}
-          />
+            renderRow={this.renderRow} />
         }
-
       </View>
       );
     }
   }
-
-
 });
 
-var LinkCategory = React.createClass({
 
+var LinkCategory = React.createClass({
   propTypes: {
     openCat:  React.PropTypes.func.isRequired,
     category: React.PropTypes.string,
@@ -173,7 +163,6 @@ var LinkCategory = React.createClass({
     language: React.PropTypes.string,
     count:    React.PropTypes.number
   },
-
   render: function() {
     var countStr = " | " + this.props.count;
     var style = {"borderColor": Sefaria.palette.categoryColor(this.props.category)};
@@ -191,6 +180,7 @@ var LinkCategory = React.createClass({
   }
 });
 
+
 var LinkBook = React.createClass({
   propTypes: {
     openCat:  React.PropTypes.func.isRequired,
@@ -201,7 +191,6 @@ var LinkBook = React.createClass({
     language: React.PropTypes.string,
     count:    React.PropTypes.number
   },
-
   render: function() {
     var countStr = " (" + this.props.count + ")";
     var filter = {title:this.props.title,heTitle:this.props.heTitle,refList:this.props.refList,category:this.props.category};
@@ -217,6 +206,7 @@ var LinkBook = React.createClass({
   }
 });
 
+
 var LinkContent = React.createClass({
   propTypes: {
     settings:          React.PropTypes.object,
@@ -226,7 +216,6 @@ var LinkContent = React.createClass({
     columnLanguage:    React.PropTypes.string,
     loading:           React.PropTypes.bool
   },
-
   render: function() {
     var lco = this.props.linkContentObj;
     var lang = Sefaria.util.getColumnLanguageWithContent(this.props.columnLanguage,lco.en,lco.he);
@@ -250,4 +239,6 @@ var LinkContent = React.createClass({
     );
   }
 });
+
+
 module.exports = TextList;

@@ -981,6 +981,23 @@
                                 ]
                             }, 
                             {
+                                "title": "Harchev Davar on Genesis", 
+                                "firstSection": "Harchev Davar on Genesis 1", 
+                                "heCommentator": "העמק דבר", 
+                                "heTitle": "הרחב דבר על בראשית", 
+                                "sparseness": 4, 
+                                "commentator": "Haamek Davar", 
+                                "order": [
+                                    1, 
+                                    1
+                                ], 
+                                "categories": [
+                                    "Commentary2", 
+                                    "Tanakh", 
+                                    "Haamek Davar"
+                                ]
+                            }, 
+                            {
                                 "title": "Haamek Davar on Exodus", 
                                 "firstSection": "Haamek Davar on Exodus 1:1", 
                                 "heCommentator": "העמק דבר", 
@@ -993,6 +1010,23 @@
                                 ], 
                                 "categories": [
                                     "Commentary", 
+                                    "Tanakh", 
+                                    "Haamek Davar"
+                                ]
+                            }, 
+                            {
+                                "title": "Harchev Davar on Exodus", 
+                                "firstSection": "Harchev Davar on Exodus 1", 
+                                "heCommentator": "העמק דבר", 
+                                "heTitle": "הרחב דבר על שמות", 
+                                "sparseness": 4, 
+                                "commentator": "Haamek Davar", 
+                                "order": [
+                                    2, 
+                                    2
+                                ], 
+                                "categories": [
+                                    "Commentary2", 
                                     "Tanakh", 
                                     "Haamek Davar"
                                 ]
@@ -1015,6 +1049,23 @@
                                 ]
                             }, 
                             {
+                                "title": "Harchev Davar on Leviticus", 
+                                "firstSection": "Harchev Davar on Leviticus 1", 
+                                "heCommentator": "העמק דבר", 
+                                "heTitle": "הרחב דבר על ויקרא", 
+                                "sparseness": 4, 
+                                "commentator": "Haamek Davar", 
+                                "order": [
+                                    3, 
+                                    3
+                                ], 
+                                "categories": [
+                                    "Commentary2", 
+                                    "Tanakh", 
+                                    "Haamek Davar"
+                                ]
+                            }, 
+                            {
                                 "title": "Haamek Davar on Numbers", 
                                 "firstSection": "Haamek Davar on Numbers 1:1", 
                                 "heCommentator": "העמק דבר", 
@@ -1027,6 +1078,23 @@
                                 ], 
                                 "categories": [
                                     "Commentary", 
+                                    "Tanakh", 
+                                    "Haamek Davar"
+                                ]
+                            }, 
+                            {
+                                "title": "Harchev Davar on Numbers", 
+                                "firstSection": "Harchev Davar on Numbers 2", 
+                                "heCommentator": "העמק דבר", 
+                                "heTitle": "הרחב דבר על במדבר", 
+                                "sparseness": 4, 
+                                "commentator": "Haamek Davar", 
+                                "order": [
+                                    4, 
+                                    4
+                                ], 
+                                "categories": [
+                                    "Commentary2", 
                                     "Tanakh", 
                                     "Haamek Davar"
                                 ]
@@ -1050,58 +1118,20 @@
                             }, 
                             {
                                 "title": "Harchev Davar on Deuteronomy", 
+                                "firstSection": "Harchev Davar on Deuteronomy 1", 
+                                "heCommentator": "העמק דבר", 
                                 "heTitle": "הרחב דבר על דברים", 
                                 "sparseness": 4, 
-                                "categories": [
-                                    "Tanakh", 
-                                    "Commentary", 
-                                    "Haamek Davar"
+                                "commentator": "Haamek Davar", 
+                                "order": [
+                                    5, 
+                                    5
                                 ], 
-                                "firstSection": "Harchev Davar on Deuteronomy 1"
-                            }, 
-                            {
-                                "title": "Harchev Davar on Exodus", 
-                                "heTitle": "הרחב דבר על שמות", 
-                                "sparseness": 4, 
                                 "categories": [
+                                    "Commentary2", 
                                     "Tanakh", 
-                                    "Commentary", 
                                     "Haamek Davar"
-                                ], 
-                                "firstSection": "Harchev Davar on Exodus 1"
-                            }, 
-                            {
-                                "title": "Harchev Davar on Genesis", 
-                                "heTitle": "הרחב דבר על בראשית", 
-                                "sparseness": 4, 
-                                "categories": [
-                                    "Tanakh", 
-                                    "Commentary", 
-                                    "Haamek Davar"
-                                ], 
-                                "firstSection": "Harchev Davar on Genesis 1"
-                            }, 
-                            {
-                                "title": "Harchev Davar on Leviticus", 
-                                "heTitle": "הרחב דבר על ויקרא", 
-                                "sparseness": 4, 
-                                "categories": [
-                                    "Tanakh", 
-                                    "Commentary", 
-                                    "Haamek Davar"
-                                ], 
-                                "firstSection": "Harchev Davar on Leviticus 1"
-                            }, 
-                            {
-                                "title": "Harchev Davar on Numbers", 
-                                "heTitle": "הרחב דבר על במדבר", 
-                                "sparseness": 4, 
-                                "categories": [
-                                    "Tanakh", 
-                                    "Commentary", 
-                                    "Haamek Davar"
-                                ], 
-                                "firstSection": "Harchev Davar on Numbers 2"
+                                ]
                             }
                         ]
                     }, 

@@ -70,6 +70,8 @@ var TextColumn = React.createClass({
       var rows = {};
       for (var i = 0; i < data[section].length; i++) {
         var currSegData = data[section][i];
+        currSegData.text = currSegData.text || "";
+        currSegData.he   = currSegData.he || "";
         var segment = []
         var columnLanguage = Sefaria.util.getColumnLanguageWithContent(this.props.columnLanguage,currSegData.text,currSegData.he);
 
@@ -90,8 +92,7 @@ var TextColumn = React.createClass({
                           data={currSegData.he}
                           textType="hebrew"
                           TextSegmentPressed={ this.props.TextSegmentPressed }
-                          settings={this.props.settings}
-                        />);
+                          settings={this.props.settings} />);
 
         }
 
@@ -104,8 +105,7 @@ var TextColumn = React.createClass({
                           data={currSegData.text}
                           textType="english"
                           TextSegmentPressed={ this.props.TextSegmentPressed }
-                          settings={this.props.settings}
-                        />);
+                          settings={this.props.settings} />);
         }
         numberSegmentHolder.push(<View style={styles.TextSegment}>{segmentText}</View>)
 

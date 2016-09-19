@@ -27,20 +27,45 @@ Sefaria = {
       Sefaria._loadRecentItems(checkResolve);
     });
   },
-  data: function(ref, settings) {
+  data: function(ref) {
     return new Promise(function(resolve, reject) {
       var fileNameStem = ref.split(":")[0];
       var bookRefStem  = Sefaria.textTitleForRef(ref);
       var jsonPath     = Sefaria._JSONSourcePath(fileNameStem);
-      var zipPath      = Sefaria._zipSourcePath(bookRefStem)
+      var zipPath      = Sefaria._zipSourcePath(bookRefStem);
+
+      var processData = function(data) {
+        if ("content" in data) {
+          var result = data;
+        } else {
+          // If the data file represents multiple sections, pick the appropriate one to return
+          var refUpOne = ref.lastIndexOf(":") !== -1 ? ref.slice(0, ref.lastIndexOf(":")) : ref;
+          if (ref in data.sections) {
+            var result = data.sections[ref];
+          } else if (refUpOne in data.sections) {
+            var result = data.sections[refUpOne];
+          } else {
+            reject("Couldn't find section in depth 3+ text");
+            return;
+          }
+        }
+        result.requestedRef   = ref;
+        result.isSectionLevel = (ref === result.sectionRef);
+        debugResolve(result);
+      };
+
+      var debugResolve = function(data) {
+        //console.log(data);
+        resolve(data);
+      }
 
       Sefaria._loadJSON(jsonPath)
-        .then(resolve)
+        .then(processData)
         .catch(function() {
           // If there was en error, assume it's because the data was not unzipped yet
           Sefaria._unzip(zipPath)
             .then(() => Sefaria._loadJSON(jsonPath))
-            .then(resolve)
+            .then(processData)
             .catch(function() {
               // Now that the file is unzipped, if there was an error assume we have a depth 1 text
               var depth1JSONPath = Sefaria._JSONSourcePath(bookRefStem);
@@ -68,6 +93,9 @@ Sefaria = {
   categoryForTitle: function(title) {
     var index = Sefaria.index(title);
     return index ? index.categories[0] : null;
+  },
+  categoryForRef: function(ref) {
+    return Sefaria.categoryForTitle(Sefaria.textTitleForRef(ref));
   },
   getTitle: function(ref, isCommentary, isHe) {
       var fileNameStem = ref.split(":")[0];
@@ -183,7 +211,7 @@ Sefaria = {
     items = [item].concat(items).slice(0,3);
     Sefaria.recent = items;
     AsyncStorage.setItem("recent", JSON.stringify(items)).catch(function(error) {
-      console.log("AsyncStorage failed to save: " + error);
+      console.error("AsyncStorage failed to save: " + error);
     });
   },
   _loadRecentItems: function(callback) {
@@ -191,7 +219,7 @@ Sefaria = {
       Sefaria.recent = JSON.parse(data) || [];
       callback();
     }).catch(function(error) {
-      console.log("AsyncStorage failed to load: " + error);
+      console.error("AsyncStorage failed to load: " + error);
     });;
   },
   _deleteAllFiles: function() {
@@ -218,54 +246,51 @@ Sefaria = {
   _zipSourcePath: function(fileName) {
     return (RNFS.MainBundlePath + "/sources/" + fileName + ".zip");
   },
+  textFromRefData: function(data) {
+    // Returns a dictionary of the form {en: "", he: ""} that includes a single string with
+    // Hebrew and English for `data.requestedRef` found in `data` as returned from Sefaria.data.
+    // `data.requestedRef` may be either section or segment level.
+    if (data.isSectionLevel) {
+      let enText = "", heText = "";
+      for (let i = 0; i < data.content.length; i++) {
+        let item = data.content[i];
+        if (typeof item.text === "string") enText += item.text + " ";
+        if (typeof item.he === "string") heText += item.he + " ";
+      }
+      return({en: enText, he: heText});
+    } else {
+      var segmentNumber = data.requestedRef.slice(data.ref.length+1);
+      for (let i = 0; i < data.content.length; i++) {
+        let item = data.content[i];
+        if (item.segmentNumber === segmentNumber) {
+            let enText = "", heText = "";
+            if (typeof item.text === "string") enText = item.text;
+            if (typeof item.he === "string") heText = item.he;
+            return({en: enText, he: heText});
+        }
+      }
+    }
+    return null;
+  },
   links: {
-    loadLinks: function(ref) {
-
+    loadLinkData: function(ref) {
       parseData = function(data) {
         return new Promise(function(resolve, reject) {
-          var refSplit = ref.split(":");
-          var segNum = null;
-          if (refSplit.length <= 1) reject({"negative one issue":true});
-          else {
-            //always get the second level from the top
-            segNum = refSplit[1];
+          var result = Sefaria.textFromRefData(data);
+          // console.log(data.requestedRef + ": " + result.en + " / " + result.he);
+          if (result) {
+            resolve(result);
+          } else {
+            reject(result);
           }
-          var seg = null;
-
-          for (let i = 0; i < data.content.length; i++) {
-            let item = data.content[i];
-            if (item.segmentNumber === segNum) {
-                let enText = "", heText = "";
-                if (item.text instanceof Array) enText = item.text.join(" ");
-                else if (typeof item.text === "string") enText = item.text;
-
-                if (item.he instanceof Array) heText = item.he.join(" ");
-                else if (typeof item.he === "string") heText = item.he;
-
-                resolve({en:enText,he:heText});
-                return;
-            }
-          }
-          /*data.content.forEach((item,i)=>{
-              if (item.segmentNumber == segNum) {
-                  let enText = item.text instanceof Array ? item.text.join(" ") : "";
-                  let heText = item.he instanceof Array ? item.he.join(" ") : "";
-                  resolve({en:enText,he:heText});
-                  return;
-              }
-          });*/
-          reject({"not found":ref});
-
         });
-
       };
-
       return Sefaria.data(ref).then(parseData);
     },
     linkSummary: function(links) {
         // Returns an ordered array summarizing the link counts by category and text
         // Takes an array of links which are of the form { "category", "sourceHeRef", "sourceRef", "index_title"}
-
+        var links = links || [];
         var summary = {};
         for (var i = 0; i < links.length; i++) {
           var link = links[i];
