@@ -31,15 +31,15 @@ var TextListHeader = React.createClass({
 	render: function() {
 		var style = {"borderColor": Sefaria.palette.categoryColor(this.props.category)};
 
-		var viewList = this.props.recentFilters.map((filter,i)=>{
+		var viewList = this.props.recentFilters.map((filter, i)=>{
 			return (<TextListHeaderItem
-            theme={this.props.theme}
+            			theme={this.props.theme}
 						columnLanguage={this.props.columnLanguage}
 						filter={filter}
 						filterIndex={i}
 						selected={i == this.props.filterIndex}
 						updateCat={this.props.updateCat}
-					/>
+						key={i} />
 					);
 		});
 

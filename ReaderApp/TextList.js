@@ -27,9 +27,9 @@ var TextList = React.createClass({
     closeCat:        React.PropTypes.func.isRequired,
     updateCat:       React.PropTypes.func.isRequired,
     onLinkLoad:      React.PropTypes.func.isRequired,
+    linkSummary:     React.PropTypes.array,
     linkContents:    React.PropTypes.array,
     segmentIndexRef: React.PropTypes.number,
-    links:           React.PropTypes.array,
     filterIndex:     React.PropTypes.number,
     recentFilters:   React.PropTypes.array, /* of the form [{title,heTitle,refList}...] */
     columnLanguage:  React.PropTypes.string
@@ -72,7 +72,7 @@ var TextList = React.createClass({
   },
   componentWillUpdate: function(nextProps) {
     if (this.props.segmentIndexRef != nextProps.segmentIndexRef) {
-      this.props.updateCat(nextProps.links,null);
+      this.props.updateCat(nextProps.linkSummary, null);
     }
   },
   renderRow: function(linkContentObj, sectionId, rowId) {
@@ -80,7 +80,7 @@ var TextList = React.createClass({
     var loading = false;
     if (linkContentObj == null) {
       loading = true;
-      this._rowsToLoad.push({ref:ref,rowId:rowId});
+      this._rowsToLoad.push({ref: ref, rowId: rowId});
       linkContentObj = {en:"Loading...", he:"טוען..."};
     }
 
@@ -98,7 +98,7 @@ var TextList = React.createClass({
     if (isSummaryMode) {
 
       var viewList = [];
-      this.props.links.map((cat)=>{
+      this.props.linkSummary.map((cat)=>{
         viewList.push(
           <LinkCategory
             theme={this.props.theme}
@@ -130,8 +130,8 @@ var TextList = React.createClass({
 
     if (isSummaryMode) {
        return (<ScrollView>
-        {viewList}
-      </ScrollView>);
+                  {viewList}
+                </ScrollView>);
     } else {
       return (
       <View style={styles.textListContentOuter}>
@@ -226,8 +226,8 @@ var LinkContent = React.createClass({
     var lang = Sefaria.util.getColumnLanguageWithContent(this.props.columnLanguage,lco.en,lco.he);
     var textViews = [];
 
-    var hebrewElem =  <Text style={[styles.hebrewText, this.props.theme.text, {fontSize:this.props.settings.fontSize}]}>    <HTMLView stylesheet={styles} value={lco.he}/></Text>;
-    var englishElem = <Text style={[styles.englishText, this.props.theme.text, {fontSize:0.8*this.props.settings.fontSize}]}><HTMLView stylesheet={styles} value={lco.en}/></Text>;
+    var hebrewElem =  <Text style={[styles.hebrewText, this.props.theme.text, {fontSize:this.props.settings.fontSize}]} key={this.props.refStr+"-he"}><HTMLView stylesheet={styles} value={lco.he}/></Text>;
+    var englishElem = <Text style={[styles.englishText, this.props.theme.text, {fontSize:0.8*this.props.settings.fontSize}]} key={this.props.refStr+"-en"}><HTMLView stylesheet={styles} value={lco.en}/></Text>;
     if (lang == "bilingual") {
       textViews = [hebrewElem,englishElem];
     } else if (lang == "hebrew") {
@@ -237,7 +237,7 @@ var LinkContent = React.createClass({
     }
 
     return (
-      <TouchableOpacity style={styles.searchTextResult} onPress={()=>{this.props.openRef(this.props.refStr,true)}}>
+      <TouchableOpacity style={styles.searchTextResult} onPress={()=>{this.props.openRef(this.props.refStr, true)}}>
         <Text style={[this.props.theme.text]}>{this.props.refStr}</Text>
         {textViews}
       </TouchableOpacity>

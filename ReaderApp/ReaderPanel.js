@@ -32,7 +32,6 @@ var ReaderPanel = React.createClass({
     segmentRef:    React.PropTypes.number,
     offsetRef:     React.PropTypes.string,
     data:          React.PropTypes.array,
-    links:         React.PropTypes.array,
     textTitle:     React.PropTypes.string,
     heTitle:       React.PropTypes.string,
     heRef:         React.PropTypes.string,
@@ -47,6 +46,7 @@ var ReaderPanel = React.createClass({
     onLinkLoad:    React.PropTypes.func.isRequired,
     filterIndex:   React.PropTypes.number,
     recentFilters: React.PropTypes.array,
+    linkSummary:   React.PropTypes.array,
     linkContents:  React.PropTypes.array,
     setTheme:      React.PropTypes.func.isRequired,
     theme:         React.PropTypes.object,
@@ -240,7 +240,7 @@ var ReaderPanel = React.createClass({
               textTitle={this.props.textTitle}
               heTitle={this.props.heTitle}
               heRef={this.props.heRef}
-              TextSegmentPressed={ this.props.TextSegmentPressed }
+              textSegmentPressed={ this.props.textSegmentPressed }
               textListVisible={this.props.textListVisible}
               next={this.props.next}
               prev={this.props.prev}
@@ -267,7 +267,6 @@ var ReaderPanel = React.createClass({
                 Sefaria={Sefaria}
                 settings={this.state.settings}
                 theme={this.props.theme}
-                links={this.props.links}
                 segmentIndexRef={this.props.segmentIndexRef}
                 textFlow={this.state.textFlow}
                 columnLanguage={this.state.columnLanguage}
@@ -276,6 +275,7 @@ var ReaderPanel = React.createClass({
                 closeCat={this.props.closeLinkCat}
                 updateCat={this.props.updateLinkCat}
                 onLinkLoad={this.props.onLinkLoad}
+                linkSummary={this.props.linkSummary}
                 linkContents={this.props.linkContents}
                 filterIndex={this.props.filterIndex}
                 recentFilters={this.props.recentFilters} />

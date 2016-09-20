@@ -45,7 +45,7 @@ var TextColumn = React.createClass({
     columnLanguage:     React.PropTypes.oneOf(["hebrew","english","bilingual"]),
     updateData:         React.PropTypes.func,
     updateTitle:        React.PropTypes.func,
-    TextSegmentPressed: React.PropTypes.func,
+    textSegmentPressed: React.PropTypes.func,
     textListVisible:    React.PropTypes.bool,
     next:               React.PropTypes.string,
     prev:               React.PropTypes.string,
@@ -118,7 +118,7 @@ var TextColumn = React.createClass({
                           key={section+":"+i}
                           data={currSegData.he}
                           textType="hebrew"
-                          TextSegmentPressed={ this.props.TextSegmentPressed }
+                          textSegmentPressed={ this.props.textSegmentPressed }
                           settings={this.props.settings} />);
         }
 
@@ -131,7 +131,7 @@ var TextColumn = React.createClass({
                           key={section+":"+i}
                           data={currSegData.text}
                           textType="english"
-                          TextSegmentPressed={ this.props.TextSegmentPressed }
+                          textSegmentPressed={ this.props.textSegmentPressed }
                           settings={this.props.settings} />);
         }
         numberSegmentHolder.push(<View style={styles.TextSegment} key={section+":"+i}>{segmentText}</View>)
@@ -203,11 +203,11 @@ var TextColumn = React.createClass({
 
       if (indexOfMiddleVisibleSegment < numberOfVisibleSegmentsInFirstSection) {
         var segmentToLoad = parseInt(Object.keys(visibleRows[nameOfFirstSection])[indexOfMiddleVisibleSegment].replace(nameOfFirstSection+"_",""));
-        this.props.TextSegmentPressed(this.state.sectionArray.indexOf(nameOfFirstSection), segmentToLoad);
+        this.props.textSegmentPressed(this.state.sectionArray.indexOf(nameOfFirstSection), segmentToLoad);
       }
       else {
         var segmentToLoad = parseInt(Object.keys(visibleRows[nameOfSecondSection])[indexOfMiddleVisibleSegment - numberOfVisibleSegmentsInFirstSection].replace(nameOfSecondSection+"_",""));
-        this.props.TextSegmentPressed(this.state.sectionArray.indexOf(nameOfSecondSection), segmentToLoad);
+        this.props.textSegmentPressed(this.state.sectionArray.indexOf(nameOfSecondSection), segmentToLoad);
       }
     }
   },

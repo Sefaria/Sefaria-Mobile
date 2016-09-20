@@ -18,14 +18,14 @@ var TextSegment = React.createClass({
     segmentKey:         React.PropTypes.string,
     data:               React.PropTypes.string,
     textType:           React.PropTypes.oneOf(["english","hebrew"]),
-    TextSegmentPressed: React.PropTypes.func.isRequired,
+    textSegmentPressed: React.PropTypes.func.isRequired,
     settings:           React.PropTypes.object
   },
   onPressTextSegment: function(key) {
     let section = parseInt(key.split(":")[0]);
     let segment = parseInt(key.split(":")[1]);
     console.log(key)
-    this.props.TextSegmentPressed(section,segment,true);
+    this.props.textSegmentPressed(section,segment,true);
   },
   render: function() {
     // console.log(this.props.segmentKey+": "+typeof(this.props.textRef));

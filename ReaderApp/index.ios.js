@@ -41,7 +41,6 @@ var ReaderApp = React.createClass({
         return {
             offsetRef: null, /* used to jump to specific ref when opening a link*/
             segmentIndexRef: 0,
-            links: [],
             textReference: "",
             textTitle: "",
             loaded: false,
@@ -53,6 +52,7 @@ var ReaderApp = React.createClass({
             interfaceLang: "english", // TODO check device settings for Hebrew: ### import {NativeModules} from 'react-native'; console.log(NativeModules.SettingsManager.settings.AppleLocale);
             filterIndex: null, /* index of filter in recentFilters */
             recentFilters: [],
+            linkSummary: [],
             linkContents: [],
             theme: themeWhite,
             themeStr: "white"
@@ -65,24 +65,23 @@ var ReaderApp = React.createClass({
           console.error('Error caught from Sefaria._deleteAllFiles', error);
         });
     },
-    TextSegmentPressed: function(section,segment,shouldToggle) {
+    textSegmentPressed: function(section, segment, shouldToggle) {
         if (!this.state.data[section][segment]) {
           return;
         }
-        var links = Sefaria.links.linkSummary(this.state.data[section][segment].links);
-        console.log(section,segment)
+        var linkSummary = Sefaria.links.linkSummary(this.state.data[section][segment].links);
+        console.log(section, segment);
 
-        let stateObj = {segmentIndexRef: segment,links:links};
+        let stateObj = {segmentIndexRef: segment, linkSummary: linkSummary};
         if (shouldToggle) {
           stateObj.textListVisible = !this.state.textListVisible;
           stateObj.offsetRef = null; //offsetRef is used to highlight. once you open textlist, you should remove the highlight
         }
 
-
         this.setState(stateObj);
     },
     /*isSegmentLevel is true when you loadNewText() is triggered by a link click or search item click that needs to jump to a certain ref*/
-    loadNewText: function(ref,isSegmentLevel=false) {
+    loadNewText: function(ref, isSegmentLevel=false) {
         let segmentNum;
         let sectionRef = ref;
         if (isSegmentLevel === true) {
@@ -91,16 +90,20 @@ var ReaderApp = React.createClass({
           sectionRef = dashSplit[0].split(":")[0];
         }
 
-        this.setState({loaded: false, data: [], textReference: sectionRef});
+        this.setState({
+            loaded: false,
+            data: [],
+            textReference: sectionRef,
+            textTitle: Sefaria.textTitleForRef(sectionRef)
+        });
         Sefaria.data(ref).then(function(data) {
-            var links = [];
+            var linkSummary = [];
             if (data.content && data.content.links) {
-                links = Sefaria.links.linkSummary(data.content[this.state.segmentIndexRef].links);
+                linkSummary = Sefaria.links.linkSummary(data.content[this.state.segmentIndexRef].links);
             }
 
             this.setState({
                 data:            [data.content],
-                links:           links,
                 textTitle:       data.indexTitle,
                 next:            data.next,
                 prev:            data.prev,
@@ -109,6 +112,7 @@ var ReaderApp = React.createClass({
                 loaded:          true,
                 filterIndex:     null, /*Reset link state */
                 recentFilters:   [],
+                linkSummary:     linkSummary,
                 linkContents:    [],
                 textListVisible: false,
                 offsetRef:       segmentNum ? sectionRef + "_" + segmentNum : null
@@ -219,7 +223,7 @@ var ReaderApp = React.createClass({
     updateLinkCat: function(links,filterIndex) {
       //search for the current filter in the the links object
       if (this.state.filterIndex == null) return;
-      if (links == null) links = this.state.links;
+      if (links == null) links = this.state.linkSummary;
       if (filterIndex == null) filterIndex = this.state.filterIndex;
 
       var filterStr = this.state.recentFilters[filterIndex].title;
@@ -273,7 +277,6 @@ var ReaderApp = React.createClass({
                     heTitle={this.state.heTitle}
                     heRef={this.state.heRef}
                     data={this.state.data}
-                    links={this.state.links}
                     next={this.state.next}
                     prev={this.state.prev}
                     offsetRef={this.state.offsetRef}
@@ -284,7 +287,7 @@ var ReaderApp = React.createClass({
                     style={styles.mainTextPanel}
                     updateData={this.updateData}
                     updateTitle={this.updateTitle}
-                    TextSegmentPressed={ this.TextSegmentPressed }
+                    textSegmentPressed={ this.textSegmentPressed }
                     openRef={ this.openRef }
                     interfaceLang={this.state.interfaceLang}
                     openMenu={this.openMenu}
@@ -303,6 +306,7 @@ var ReaderApp = React.createClass({
                     onLinkLoad={this.onLinkLoad}
                     filterIndex={this.state.filterIndex}
                     recentFilters={this.state.recentFilters}
+                    linkSummary={this.state.linkSummary}
                     linkContents={this.state.linkContents}
                     setTheme={this.setTheme}
                     theme={this.state.theme}
