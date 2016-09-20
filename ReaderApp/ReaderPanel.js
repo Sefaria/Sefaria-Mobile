@@ -167,8 +167,9 @@ var ReaderPanel = React.createClass({
         break;
       case ("navigation"):
         return (
+          this.props.loading ?
+          <LoadingView theme={this.props.theme} /> :  
           <ReaderNavigationMenu
-            theme={this.props.theme}
             categories={this.props.navigationCategories}
             setCategories={this.props.setNavigationCategories}
             openRef={this.props.openRef}
@@ -179,6 +180,7 @@ var ReaderPanel = React.createClass({
             toggleLanguage={this.toggleLanguage}
             settings={this.state.settings}
             interfaceLang={this.props.interfaceLang}
+            theme={this.props.theme}
             Sefaria={Sefaria} />);
         break;
       case ("text toc"):
@@ -216,14 +218,14 @@ var ReaderPanel = React.createClass({
           <CategoryColorLine category={Sefaria.categoryForTitle(this.props.textTitle)} />
           <ReaderControls
             theme={this.props.theme}
-            textReference={this.props.textReference}
+            title={this.state.columnLanguage == "hebrew" ? this.props.heRef : this.props.textReference}
             openNav={this.props.openNav}
             openTextToc={this.props.openTextToc}
             toggleReaderDisplayOptionsMenu={this.toggleReaderDisplayOptionsMenu} />
 
           { this.props.loading ?
           <LoadingView theme={this.props.theme}/> :
-          <View style={[styles.mainTextPanel,this.props.theme.mainTextPanel]}>
+          <View style={[styles.mainTextPanel, this.props.theme.mainTextPanel]}>
             <TextColumn
               theme={this.props.theme}
               settings={this.state.settings}
@@ -260,7 +262,7 @@ var ReaderPanel = React.createClass({
             themeStr={this.props.themeStr}/>) : null }
 
           {this.props.textListVisible && !this.props.loading ?
-            <View style={[styles.commentaryTextPanel,this.props.theme.commentaryTextPanel]}>
+            <View style={[styles.commentaryTextPanel, this.props.theme.commentaryTextPanel]}>
               <TextList
                 Sefaria={Sefaria}
                 settings={this.state.settings}
@@ -285,10 +287,10 @@ var ReaderPanel = React.createClass({
 
 var ReaderControls = React.createClass({
   propTypes: {
-    theme:                         React.PropTypes.object,
-    textReference:                 React.PropTypes.string,
-    openNav:                       React.PropTypes.func,
-    openTextToc:                   React.PropTypes.func,
+    theme:                           React.PropTypes.object,
+    title:                           React.PropTypes.string,
+    openNav:                         React.PropTypes.func,
+    openTextToc:                     React.PropTypes.func,
     toggleReaderDisplayOptionsMenu:  React.PropTypes.func,
   },
   render: function() {
@@ -297,7 +299,7 @@ var ReaderControls = React.createClass({
           <MenuButton onPress={this.props.openNav} theme={this.props.theme}/>
           <TouchableOpacity style={styles.headerTextTitle} onPress={this.props.openTextToc}>
             <Text style={this.props.theme.text}>
-              {this.props.textReference}
+              {this.props.title}
             </Text>
           </TouchableOpacity>
           <DisplaySettingsButton onPress={this.props.toggleReaderDisplayOptionsMenu} />

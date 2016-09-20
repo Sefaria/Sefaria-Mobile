@@ -116,8 +116,8 @@ var ReaderApp = React.createClass({
 
             // Preload Text TOC data into memory
             Sefaria.textToc(data.indexTitle, function() {});
-
             Sefaria.saveRecentItem({ref: ref, heRef: data.heRef, category: Sefaria.categoryForRef(ref)});
+
         }.bind(this)).catch(function(error) {
           console.error('Error caught from Sefaria.data', error);
         });
@@ -134,13 +134,16 @@ var ReaderApp = React.createClass({
             prev:            prev
         });
     },
-    updateTitle: function(ref) {
+    updateTitle: function(ref, heRef) {
         this.setState({
-          textReference: ref
+          textReference: ref,
+          heRef: heRef
         });
+        Sefaria.saveRecentItem({ref: ref, heRef: heRef, category: Sefaria.categoryForRef(ref)});
     },
-    /*  isSegmentLevel - see explanation in loadNewText()*/
-    openRef: function(ref,isSegmentLevel=false) {
+    openRef: function(ref, isSegmentLevel=false) {
+        // Opens the text named by `ref`
+        // `isSegmentLevel` - see explanation in loadNewText()
         let sectionRef = ref;
         if (isSegmentLevel === true) {
           sectionRef = ref.split(":")[0];
@@ -153,7 +156,7 @@ var ReaderApp = React.createClass({
             this.closeMenu(); // Don't close until these values are in state, so we know if we need to load defualt text
         }.bind(this));
 
-        this.loadNewText(ref,isSegmentLevel);
+        this.loadNewText(ref, isSegmentLevel);
     },
     openMenu: function(menu) {
         this.setState({menuOpen: menu});

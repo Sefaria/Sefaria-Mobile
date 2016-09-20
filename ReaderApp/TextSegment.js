@@ -13,25 +13,21 @@ var styles = require('./Styles.js');
 
 var TextSegment = React.createClass({
   propTypes: {
-    theme:           React.PropTypes.object.isRequired,
-    segmentIndexRef:      React.PropTypes.number,
-    segmentKey:      React.PropTypes.string,
-    data:            React.PropTypes.string,
-    textType:        React.PropTypes.oneOf(["english","hebrew"]),
+    theme:              React.PropTypes.object.isRequired,
+    segmentIndexRef:    React.PropTypes.number,
+    segmentKey:         React.PropTypes.string,
+    data:               React.PropTypes.string,
+    textType:           React.PropTypes.oneOf(["english","hebrew"]),
     TextSegmentPressed: React.PropTypes.func.isRequired,
-    settings:        React.PropTypes.object
+    settings:           React.PropTypes.object
   },
   onPressTextSegment: function(key) {
     let section = parseInt(key.split(":")[0]);
     let segment = parseInt(key.split(":")[1]);
     console.log(key)
     this.props.TextSegmentPressed(section,segment,true);
-
-
   },
-
   render: function() {
-
     // console.log(this.props.segmentKey+": "+typeof(this.props.textRef));
     return (
       <Text
@@ -41,14 +37,11 @@ var TextSegment = React.createClass({
         suppressHighlighting={false}
         onPress={ () => this.onPressTextSegment(this.props.segmentKey) }
         key={this.props.segmentKey}
-        onLayout={this.onLayout}
-      >
+        onLayout={this.onLayout} >
+          
           <HTMLView
             value={this.props.data}
-            stylesheet={styles}
-
-          />
-
+            stylesheet={styles} />
 
       </Text>
     );

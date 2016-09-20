@@ -29,27 +29,28 @@ var CustomLayoutAnimation = {
   },
 };
 
+
 var TextColumn = React.createClass({
   propTypes: {
-    theme:            React.PropTypes.object.isRequired,
-    settings:         React.PropTypes.object,
-    data:             React.PropTypes.array,
-    textReference:    React.PropTypes.string,
-    offsetRef:        React.PropTypes.string,
-    segmentIndexRef:  React.PropTypes.number,
-    textTitle:        React.PropTypes.string,
-    heTitle:          React.PropTypes.string,
-    heRef:            React.PropTypes.string,
-    textFlow:         React.PropTypes.oneOf(["segmented","continuous"]),
-    columnLanguage:   React.PropTypes.oneOf(["hebrew","english","bilingual"]),
-    updateData:       React.PropTypes.func,
-    updateTitle:      React.PropTypes.func,
-    TextSegmentPressed:React.PropTypes.func,
-    textListVisible:  React.PropTypes.bool,
-    next:             React.PropTypes.string,
-    prev:             React.PropTypes.string,
-    loadingTextTail:  React.PropTypes.bool,
-    setLoadTextTail:  React.PropTypes.func
+    theme:              React.PropTypes.object.isRequired,
+    settings:           React.PropTypes.object,
+    data:               React.PropTypes.array,
+    textReference:      React.PropTypes.string,
+    offsetRef:          React.PropTypes.string,
+    segmentIndexRef:    React.PropTypes.number,
+    textTitle:          React.PropTypes.string,
+    heTitle:            React.PropTypes.string,
+    heRef:              React.PropTypes.string,
+    textFlow:           React.PropTypes.oneOf(["segmented","continuous"]),
+    columnLanguage:     React.PropTypes.oneOf(["hebrew","english","bilingual"]),
+    updateData:         React.PropTypes.func,
+    updateTitle:        React.PropTypes.func,
+    TextSegmentPressed: React.PropTypes.func,
+    textListVisible:    React.PropTypes.bool,
+    next:               React.PropTypes.string,
+    prev:               React.PropTypes.string,
+    loadingTextTail:    React.PropTypes.bool,
+    setLoadTextTail:    React.PropTypes.func
   },
   getInitialState: function() {
     return {
@@ -68,14 +69,16 @@ var TextColumn = React.createClass({
       scrollOffset:0
     };
   },
-
+  componentDidMount: function() {
+    this.scrollToOffsetRef(true);
+  },
+  componentDidUpdate:function() {
+    this.scrollToOffsetRef(false);
+  },
   componentWillReceiveProps: function(nextProps) {
 
-
   },
-
   generateDataSource: function() {
-
     var data = this.props.data;
     var sections = {};
     for (var section=0; section < data.length; section++) {
@@ -84,16 +87,26 @@ var TextColumn = React.createClass({
         var currSegData = data[section][i];
         currSegData.text = currSegData.text || "";
         currSegData.he   = currSegData.he || "";
-        var segment = []
+        var segment = [];
         var columnLanguage = Sefaria.util.getColumnLanguageWithContent(this.props.columnLanguage,currSegData.text,currSegData.he);
 
         if (i==0) {
-          segment.push(<View style={styles.sectionHeader}><Text style={[styles.sectionHeaderText,this.props.theme.sectionHeaderText]}>{columnLanguage == "hebrew" ? this.state.sectionHeArray[section] : this.state.sectionArray[section].replace(this.props.textTitle,'')}</Text></View>);
+          segment.push(<View style={styles.sectionHeader} key={section+"header"}>
+                        <Text style={[styles.sectionHeaderText, this.props.theme.sectionHeaderText]}>
+                          {columnLanguage == "hebrew" ? 
+                           this.state.sectionHeArray[section] : 
+                           this.state.sectionArray[section].replace(this.props.textTitle,'')}
+                        </Text>
+                      </View>);
         }
 
         var numberSegmentHolder = [];
 
-        numberSegmentHolder.push(<Text ref={this.state.sectionArray[section]+"_"+data[section][i].segmentNumber} style={[styles.verseNumber,this.props.theme.verseNumber]}>{data[section][i].segmentNumber}</Text>)
+        numberSegmentHolder.push(<Text ref={this.state.sectionArray[section]+"_"+data[section][i].segmentNumber} 
+                                       style={[styles.verseNumber,this.props.theme.verseNumber]}
+                                       key={section+":"+i+"segment-number"}>
+                                         {data[section][i].segmentNumber}
+                                 </Text>);
 
         var segmentText = [];
 
@@ -102,13 +115,12 @@ var TextColumn = React.createClass({
                           theme={this.props.theme}
                           segmentIndexRef={this.props.segmentIndexRef}
                           segmentKey={section+":"+i}
+                          key={section+":"+i}
                           data={currSegData.he}
                           textType="hebrew"
                           TextSegmentPressed={ this.props.TextSegmentPressed }
                           settings={this.props.settings} />);
-
         }
-
 
         if (columnLanguage == "english" || columnLanguage == "bilingual") {
           segmentText.push(<TextSegment
@@ -116,16 +128,17 @@ var TextColumn = React.createClass({
                           style={styles.TextSegment}
                           segmentIndexRef={this.props.segmentIndexRef}
                           segmentKey={section+":"+i}
+                          key={section+":"+i}
                           data={currSegData.text}
                           textType="english"
                           TextSegmentPressed={ this.props.TextSegmentPressed }
                           settings={this.props.settings} />);
         }
-        numberSegmentHolder.push(<View style={styles.TextSegment}>{segmentText}</View>)
+        numberSegmentHolder.push(<View style={styles.TextSegment} key={section+":"+i}>{segmentText}</View>)
 
-        segment.push(<View style={styles.numberSegmentHolderEn}>{numberSegmentHolder}</View>)
+        segment.push(<View style={styles.numberSegmentHolderEn} key={section+":"+i}>{numberSegmentHolder}</View>)
 
-//        rows.push(segment);
+        // rows.push(segment);
         rows[this.state.sectionArray[section]+"_"+data[section][i].segmentNumber] = segment;
       }
     sections[this.state.sectionArray[section]] = rows;
@@ -151,7 +164,6 @@ var TextColumn = React.createClass({
 */
 
   },
-
   handleScroll: function(e) {
     if (e.nativeEvent.contentOffset.y < -50) {
        this.onTopReached();
@@ -172,11 +184,14 @@ var TextColumn = React.createClass({
 
     //update title
     if (numberOfVisibleSegmentsInFirstSection > numberOfVisibleSegmentsInSecondSection) {
-      this.props.columnLanguage == "hebrew" ? this.props.updateTitle(this.state.sectionHeArray[this.state.sectionArray.indexOf(nameOfFirstSection)]) : this.props.updateTitle(nameOfFirstSection);
-
+      var enTitle = nameOfFirstSection;
+      var heTitle = this.state.sectionHeArray[this.state.sectionArray.indexOf(nameOfFirstSection)];
+      this.props.updateTitle(enTitle, heTitle);
     }
     else {
-      this.props.columnLanguage == "hebrew" ? this.props.updateTitle(this.state.sectionHeArray[this.state.sectionArray.indexOf(nameOfSecondSection)]) : this.props.updateTitle(nameOfSecondSection);
+      var enTitle = nameOfSecondSection;
+      var heTitle = this.state.sectionHeArray[this.state.sectionArray.indexOf(nameOfSecondSection)];
+      this.props.updateTitle(enTitle, heTitle);
     }
 
     //auto highlight middle visible segment
@@ -195,12 +210,6 @@ var TextColumn = React.createClass({
         this.props.TextSegmentPressed(this.state.sectionArray.indexOf(nameOfSecondSection), segmentToLoad);
       }
     }
-
-
-
-
-
-
   },
   scrollToTarget: function() {
       console.log(Object.keys(this.refs._listView._visibleRows)[0]);
@@ -237,13 +246,11 @@ var TextColumn = React.createClass({
 
 
   },
-
   updateHeight: function(newHeight) {
     if (this.props.loadingTextTail == false && this.state.targetSectionRef != "" && this.state.scrollingToTargetRef == true) {
       this.scrollToTarget();
     }
   },
-
   onTopReached: function() {
     if (this.props.loadingTextTail) {
       //already loading tail
@@ -281,7 +288,6 @@ var TextColumn = React.createClass({
     });
 
   },
-
   onEndReached: function() {
     if (this.props.loadingTextTail) {
       //already loading tail
@@ -314,23 +320,19 @@ var TextColumn = React.createClass({
     });
 
   },
-
   visibleRowsChanged: function(visibleRows, changedRows) {
     if (this.props.loadingTextTail == false && this.state.targetSectionRef != "" && this.state.scrollingToTargetRef == true) {
       this.scrollToTarget();
     }
-
-
   },
-
-  /* Warning, this function is hacky. anyone who knows how to improve it, be my guest
-  didMount - true if comint from componentDidMount. it seems that none of the rows have heights (even if they're on screen) at the did mount stage. so I scroll by one pixel so that the rows get measured
-
-  the function looks to see if this.props.offsetRef is on screen. it determines if its on screen by measuring the row. if it's height is 0, it is probably not on screen. right now I can't find a better way to do this
-  if on screen, it jumps to it
-  if not, it jumps a whole screen downwards (except if didMount is true, see above). on the next render it will check again
-  */
   scrollToOffsetRef: function(didMount) {
+    /* Warning, this function is hacky. anyone who knows how to improve it, be my guest
+    didMount - true if comint from componentDidMount. it seems that none of the rows have heights (even if they're on screen) at the did mount stage. so I scroll by one pixel so that the rows get measured
+
+    the function looks to see if this.props.offsetRef is on screen. it determines if its on screen by measuring the row. if it's height is 0, it is probably not on screen. right now I can't find a better way to do this
+    if on screen, it jumps to it
+    if not, it jumps a whole screen downwards (except if didMount is true, see above). on the next render it will check again
+    */
     if (this.props.offsetRef != null && !this.state.scrolledToOffsetRef) {
       let ref = this.refs[this.props.offsetRef];
       let handle = findNodeHandle(ref);
@@ -369,13 +371,6 @@ var TextColumn = React.createClass({
       }
     }
   },
-
-  componentDidMount: function() {
-    this.scrollToOffsetRef(true);
-  },
-  componentDidUpdate:function() {
-    this.scrollToOffsetRef(false);
-  },
   renderRow: function(rowData, sID, rID) {
     let seg = this.props.data[this.state.sectionArray.indexOf(sID)][this.props.segmentIndexRef];
 
@@ -403,9 +398,7 @@ var TextColumn = React.createClass({
                 initialListSize={40}
                 onContentSizeChange={(w, h) => {this.updateHeight(h)}}
                 onEndReachedThreshold={300}
-                scrollEventThrottle={200}
-      />
-
+                scrollEventThrottle={200} />
     );
   }
 });

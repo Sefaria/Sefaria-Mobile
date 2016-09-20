@@ -106,7 +106,8 @@ var TextList = React.createClass({
             refList={cat.refList}
             count={cat.count}
             language={"english"}
-            openCat={this.props.openCat} />);
+            openCat={this.props.openCat}
+            key={cat.category} />);
         var innerViewList = cat.books.map((obook)=>{
           return (
           <LinkBook
@@ -117,9 +118,10 @@ var TextList = React.createClass({
             refList={obook.refList}
             count={obook.count}
             language={"english"}
-            openCat={this.props.openCat} />);
+            openCat={this.props.openCat}
+            key={obook.title} />);
         });
-        viewList.push(<TwoBox content={innerViewList}/>);
+        viewList.push(<TwoBox content={innerViewList} key={cat.category+"-container"} />);
 
       });
     } else {

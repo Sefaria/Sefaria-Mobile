@@ -206,7 +206,7 @@ Sefaria = {
   saveRecentItem: function(item) {
     var items = Sefaria.recent || [];
     items = items.filter(function(existing) {
-      return existing.ref !== item.ref;
+      return Sefaria.textTitleForRef(existing.ref) !== Sefaria.textTitleForRef(item.ref);
     });
     items = [item].concat(items).slice(0,3);
     Sefaria.recent = items;
