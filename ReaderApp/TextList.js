@@ -44,17 +44,35 @@ var TextList = React.createClass({
       dataSource: new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2})
     };
   },
+  componentDidMount: function() {
+    console.log("TL didMount");
+    //this.props.updateCat(this.props.linkSummary, null);
+  },
   componentDidUpdate: function() {
+    this.processRowsToLoad();
+  },
+  componentWillUpdate: function(nextProps) {
+    console.log("TL will update")
+    if (this.props.segmentIndexRef != nextProps.segmentIndexRef) {
+      console.log("...with new segmentIndexRef")
+      this.props.updateCat(nextProps.linkSummary, null);
+    }
+  },
+  processRowsToLoad: function() {
+    console.log("Processing _rowsToLoad")
+    console.log(this._rowsToLoad);
     for (let item of this._rowsToLoad) {
       var ref = item.ref;
       var rowId = item.rowId;
       if (this._rowsLoading.indexOf(rowId) == -1) {
         this._rowsLoading.push(rowId);
-      } else
-        continue; //wait for it to finish loading
+      } else {
+        continue; //wait for it to finish loading        
+      }
 
       //closures to save ref and rowId
       var resolve = ((ref,rowId)=>(data)=>{
+        console.log("Loaded " + ref)
         this.props.onLinkLoad(data,rowId);
         let index = this._rowsLoading.indexOf(rowId);
         if (index != -1) this._rowsLoading.splice(index,1);
@@ -68,12 +86,7 @@ var TextList = React.createClass({
       //here's the meat
       Sefaria.links.loadLinkData(ref).then(resolve).catch(reject);
     };
-    this._rowsToLoad = [];
-  },
-  componentWillUpdate: function(nextProps) {
-    if (this.props.segmentIndexRef != nextProps.segmentIndexRef) {
-      this.props.updateCat(nextProps.linkSummary, null);
-    }
+    this._rowsToLoad = [];    
   },
   renderRow: function(linkContentObj, sectionId, rowId) {
     var ref = this.props.recentFilters[this.props.filterIndex].refList[rowId];
@@ -81,7 +94,8 @@ var TextList = React.createClass({
     if (linkContentObj == null) {
       loading = true;
       this._rowsToLoad.push({ref: ref, rowId: rowId});
-      linkContentObj = {en:"Loading...", he:"טוען..."};
+      //console.log("Pushed " + ref + " to _rowsToLoad")
+      linkContentObj = {en: "Loading...", he: "טוען..."};
     }
 
     return (<LinkContent
@@ -91,7 +105,8 @@ var TextList = React.createClass({
               refStr={ref}
               linkContentObj={linkContentObj}
               columnLanguage={this.props.columnLanguage}
-              loading={loading} />);
+              loading={loading}
+              key={rowId} />);
   },
   render: function() {
     var isSummaryMode = this.props.filterIndex == null;
@@ -126,6 +141,8 @@ var TextList = React.createClass({
       });
     } else {
       var dataSourceRows = this.state.dataSource.cloneWithRows(this.props.linkContents);
+      console.log("linkContents in render:")
+      console.log(this.props.linkContents);
     }
 
     if (isSummaryMode) {
@@ -145,7 +162,7 @@ var TextList = React.createClass({
           recentFilters={this.props.recentFilters}
           columnLanguage={this.props.columnLanguage} />
         {this.props.linkContents.length == 0 ?
-          <View style={styles.noLinks}><HTMLView value={"<i>No Links</i>"}/></View>:
+          <View style={styles.noLinks}><HTMLView value={"<i>No connections available.</i>"}/></View>:
           <ListView style={styles.textListContentListView}
             dataSource={dataSourceRows}
             renderRow={this.renderRow} />

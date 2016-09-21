@@ -40,7 +40,7 @@ var ReaderApp = React.createClass({
 
         return {
             offsetRef: null, /* used to jump to specific ref when opening a link*/
-            segmentIndexRef: 0,
+            segmentIndexRef: -1,
             textReference: "",
             textTitle: "",
             loaded: false,
@@ -50,7 +50,7 @@ var ReaderApp = React.createClass({
             textListVisible: false,
             data: null,
             interfaceLang: "english", // TODO check device settings for Hebrew: ### import {NativeModules} from 'react-native'; console.log(NativeModules.SettingsManager.settings.AppleLocale);
-            filterIndex: null, /* index of filter in recentFilters */
+            filterIndex: null, /* index of filters in recentFilters */
             recentFilters: [],
             linkSummary: [],
             linkContents: [],
@@ -72,12 +72,14 @@ var ReaderApp = React.createClass({
         var linkSummary = Sefaria.links.linkSummary(this.state.data[section][segment].links);
         console.log(section, segment);
 
-        let stateObj = {segmentIndexRef: segment, linkSummary: linkSummary};
+        let stateObj = {
+            segmentIndexRef: segment,
+            linkSummary: linkSummary
+        };
         if (shouldToggle) {
           stateObj.textListVisible = !this.state.textListVisible;
           stateObj.offsetRef = null; //offsetRef is used to highlight. once you open textlist, you should remove the highlight
         }
-
         this.setState(stateObj);
     },
     /*isSegmentLevel is true when you loadNewText() is triggered by a link click or search item click that needs to jump to a certain ref*/
@@ -198,62 +200,69 @@ var ReaderApp = React.createClass({
         });
     },
     openLinkCat: function(filter) {
-      var filterIndex = null;
-      for (let i = 0; i < this.state.recentFilters.length; i++) {
-        let tempFilter = this.state.recentFilters[i];
-        if (tempFilter.title == filter.title) {
-          filterIndex = i;
-          break;
+        var filterIndex = null;
+        for (let i = 0; i < this.state.recentFilters.length; i++) {
+            let tempFilter = this.state.recentFilters[i];
+            if (tempFilter.title == filter.title) {
+              filterIndex = i;
+              break;
+            }
         }
-      }
 
-      if (filterIndex == null) {
-        this.state.recentFilters.push(filter);
-        if (this.state.recentFilters.length > 5)
-          this.state.recentFilters.shift();
-        filterIndex = this.state.recentFilters.length-1;
-      }
+        if (filterIndex == null) {
+            this.state.recentFilters.push(filter);
+            if (this.state.recentFilters.length > 5)
+              this.state.recentFilters.shift();
+            filterIndex = this.state.recentFilters.length-1;
+        }
 
-      var linkContents = filter.refList.map((ref)=>null);
-      this.setState({filterIndex:filterIndex,recentFilters:this.state.recentFilters,linkContents:linkContents});
+        var linkContents = filter.refList.map((ref)=>null);
+        this.setState({
+            filterIndex: filterIndex,
+            recentFilters: this.state.recentFilters,
+            linkContents: linkContents
+        });
     },
     closeLinkCat: function() {
-      this.setState({filterIndex:null});
+      this.setState({filterIndex: null});
     },
-    updateLinkCat: function(links,filterIndex) {
-      //search for the current filter in the the links object
-      if (this.state.filterIndex == null) return;
-      if (links == null) links = this.state.linkSummary;
-      if (filterIndex == null) filterIndex = this.state.filterIndex;
+    updateLinkCat: function(linkSummary, filterIndex) {
+        //search for the current filter in the the links object
+        if (this.state.filterIndex == null) return;
+        if (linkSummary == null) linkSummary = this.state.linkSummary;
+        if (filterIndex == null) filterIndex = this.state.filterIndex;
 
-      var filterStr = this.state.recentFilters[filterIndex].title;
-      var filterStrHe = this.state.recentFilters[filterIndex].heTitle;
-      var category = this.state.recentFilters[filterIndex].category;
-      var nextRefList = [];
+        var filterStr   = this.state.recentFilters[filterIndex].title;
+        var filterStrHe = this.state.recentFilters[filterIndex].heTitle;
+        var category    = this.state.recentFilters[filterIndex].category;
+        var nextRefList = [];
 
-      for (let cat of links) {
-        if (cat.category == filterStr) {
-          nextRefList = cat.refList;
-          break;
+        for (let cat of linkSummary) {
+            if (cat.category == filterStr) {
+              nextRefList = cat.refList;
+              break;
+            }
+            for (let book of cat.books) {
+              if (book.title == filterStr) {
+                nextRefList = book.refList;
+                break;
+              }
+            }
         }
-        for (let book of cat.books) {
-          if (book.title == filterStr) {
-            nextRefList = book.refList;
-            break;
-          }
-        }
-      }
-      var nextFilter = {title:filterStr,heTitle:filterStrHe,refList:nextRefList,category:category};
+        var nextFilter = {title:filterStr, heTitle: filterStrHe, refList: nextRefList, category: category};
 
-      this.state.recentFilters[filterIndex] = nextFilter;
+        this.state.recentFilters[filterIndex] = nextFilter;
 
-      var linkContents = nextFilter.refList.map((ref)=>null);
-      this.setState({filterIndex:filterIndex,recentFilters:this.state.recentFilters,linkContents:linkContents});
-
+        var linkContents = nextFilter.refList.map((ref)=>null);
+        this.setState({
+            filterIndex: filterIndex,
+            recentFilters: this.state.recentFilters,
+            linkContents: linkContents
+        });
     },
-    onLinkLoad: function(data,pos) {
+    onLinkLoad: function(data, pos) {
       this.state.linkContents[pos] = data;
-      this.setState({linkContents:this.state.linkContents});
+      this.setState({linkContents: this.state.linkContents});
     },
     /* used after TextList has used the offsetRef to render initially*/
     clearOffsetRef: function() {

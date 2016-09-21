@@ -54,7 +54,7 @@ var TextListHeader = React.createClass({
 
 var TextListHeaderItem = React.createClass({
 	propTypes: {
-    theme:          React.PropTypes.object.isRequired,
+    	theme:          React.PropTypes.object.isRequired,
 		updateCat:      React.PropTypes.func.isRequired,
 		filter:         React.PropTypes.object,
 		filterIndex:    React.PropTypes.number,
@@ -69,7 +69,7 @@ var TextListHeaderItem = React.createClass({
     if (this.props.selected)
       stylesArray.push(this.props.theme.textListHeaderItemSelected);
 		return (
-			<TouchableOpacity onPress={()=>{this.props.updateCat(null,this.props.filterIndex)}}>
+			<TouchableOpacity onPress={()=>{this.props.updateCat(null, this.props.filterIndex)}}>
 				<Text style={stylesArray}>{filterStr}</Text>
 			</TouchableOpacity>
 			);
