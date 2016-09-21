@@ -24,7 +24,7 @@ var themeGrey   = require('./ThemeGrey');
 var themeBlack  = require('./ThemeBlack');
 var Sefaria     = require('./sefaria');
 var ReaderPanel = require('./ReaderPanel');
-
+var LinkFilter  = require('./LinkFilter');
 
 
 var {
@@ -51,9 +51,10 @@ var ReaderApp = React.createClass({
             data: null,
             interfaceLang: "english", // TODO check device settings for Hebrew: ### import {NativeModules} from 'react-native'; console.log(NativeModules.SettingsManager.settings.AppleLocale);
             filterIndex: null, /* index of filters in recentFilters */
-            recentFilters: [],
             linkSummary: [],
             linkContents: [],
+            linkRecentFilters: [],
+            linkStaleRecentFilters: [], /*bool array indicating whether the corresponding filter in recentFilters is no longer synced up with the current segment*/
             theme: themeWhite,
             themeStr: "white"
         };
@@ -78,6 +79,7 @@ var ReaderApp = React.createClass({
         let stateObj = {
             segmentIndexRef: segment,
             linkSummary: linkSummary,
+            linkStaleRecentFilters: this.state.linkRecentFilters.map(()=>true)
         };
         if (shouldToggle) {
           stateObj.textListVisible = !this.state.textListVisible;
@@ -117,7 +119,7 @@ var ReaderApp = React.createClass({
                 heRef:           data.heRef,
                 loaded:          true,
                 filterIndex:     null, /*Reset link state */
-                recentFilters:   [],
+                linkRecentFilters:   [],
                 linkSummary:     linkSummary,
                 linkContents:    [],
                 textListVisible: false,
@@ -205,25 +207,32 @@ var ReaderApp = React.createClass({
     },
     openLinkCat: function(filter) {
         var filterIndex = null;
-        for (let i = 0; i < this.state.recentFilters.length; i++) {
-            let tempFilter = this.state.recentFilters[i];
+        //check if filter is already in recentFilters
+        for (let i = 0; i < this.state.linkRecentFilters.length; i++) {
+            let tempFilter = this.state.linkRecentFilters[i];
             if (tempFilter.title == filter.title) {
               filterIndex = i;
+              if (this.state.linkStaleRecentFilters[i]) {
+                this.state.linkRecentFilters[i] = filter;
+                this.state.linkStaleRecentFilters[i] = false;
+              }
               break;
             }
         }
 
+        //if it's not in recentFilters, add it
         if (filterIndex == null) {
-            this.state.recentFilters.push(filter);
-            if (this.state.recentFilters.length > 5)
-              this.state.recentFilters.shift();
-            filterIndex = this.state.recentFilters.length-1;
+            this.state.linkRecentFilters.push(filter);
+            if (this.state.linkRecentFilters.length > 5)
+              this.state.linkRecentFilters.shift();
+            filterIndex = this.state.linkRecentFilters.length-1;
         }
 
         var linkContents = filter.refList.map((ref)=>null);
         this.setState({
             filterIndex: filterIndex,
-            recentFilters: this.state.recentFilters,
+            recentFilters: this.state.linkRecentFilters,
+            linkStaleRecentFilters: this.state.linkStaleRecentFilters,
             linkContents: linkContents
         });
     },
@@ -236,9 +245,9 @@ var ReaderApp = React.createClass({
         if (linkSummary == null) linkSummary = this.state.linkSummary;
         if (filterIndex == null) filterIndex = this.state.filterIndex;
 
-        var filterStr   = this.state.recentFilters[filterIndex].title;
-        var filterStrHe = this.state.recentFilters[filterIndex].heTitle;
-        var category    = this.state.recentFilters[filterIndex].category;
+        var filterStr   = this.state.linkRecentFilters[filterIndex].title;
+        var filterStrHe = this.state.linkRecentFilters[filterIndex].heTitle;
+        var category    = this.state.linkRecentFilters[filterIndex].category;
         var nextRefList = [];
 
         for (let cat of linkSummary) {
@@ -253,14 +262,14 @@ var ReaderApp = React.createClass({
               }
             }
         }
-        var nextFilter = {title:filterStr, heTitle: filterStrHe, refList: nextRefList, category: category};
+        var nextFilter = new LinkFilter(filterStr, filterStrHe, nextRefList, category,);
 
-        this.state.recentFilters[filterIndex] = nextFilter;
+        this.state.linkRecentFilters[filterIndex] = nextFilter;
 
         var linkContents = nextFilter.refList.map((ref)=>null);
         this.setState({
             filterIndex: filterIndex,
-            recentFilters: this.state.recentFilters,
+            linkRecentFilters: this.state.linkRecentFilters,
             linkContents: linkContents
         });
     },
@@ -268,18 +277,18 @@ var ReaderApp = React.createClass({
       // Loads text content for `ref` then inserts it into `this.state.linkContents[pos]`
       var isLinkCurrent = function(ref, pos) {
         // check that we haven't loaded a different link set in the mean time
-        if (typeof this.state.recentFilters[this.state.filterIndex] === "undefined") { return false;}
-        var refList = this.state.recentFilters[this.state.filterIndex].refList;
+        if (typeof this.state.linkRecentFilters[this.state.filterIndex] === "undefined") { return false;}
+        var refList = this.state.linkRecentFilters[this.state.filterIndex].refList;
         if (pos > refList.length) { return false; }
         return (refList[pos] === ref);
       }.bind(this);
       var resolve = (data) => {
-        if (isLinkCurrent(ref, pos)) { 
+        if (isLinkCurrent(ref, pos)) {
             this.onLinkLoad(data, pos);
-        } 
+        }
       };
       var reject = (error) => {
-        if (isLinkCurrent(ref, pos)) { 
+        if (isLinkCurrent(ref, pos)) {
             this.onLinkLoad({en:JSON.stringify(error), he:JSON.stringify(error)}, pos);
         }
       };
@@ -342,7 +351,7 @@ var ReaderApp = React.createClass({
                     loadLinkContent={this.loadLinkContent}
                     onLinkLoad={this.onLinkLoad}
                     filterIndex={this.state.filterIndex}
-                    recentFilters={this.state.recentFilters}
+                    linkRecentFilters={this.state.linkRecentFilters}
                     linkSummary={this.state.linkSummary}
                     linkContents={this.state.linkContents}
                     setTheme={this.setTheme}

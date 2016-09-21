@@ -45,7 +45,7 @@ var ReaderPanel = React.createClass({
     updateLinkCat: React.PropTypes.func.isRequired,
     onLinkLoad:    React.PropTypes.func.isRequired,
     filterIndex:   React.PropTypes.number,
-    recentFilters: React.PropTypes.array,
+    linkRecentFilters: React.PropTypes.array,
     linkSummary:   React.PropTypes.array,
     linkContents:  React.PropTypes.array,
     setTheme:      React.PropTypes.func.isRequired,
@@ -168,7 +168,7 @@ var ReaderPanel = React.createClass({
       case ("navigation"):
         return (
           this.props.loading ?
-          <LoadingView theme={this.props.theme} /> :  
+          <LoadingView theme={this.props.theme} /> :
           <ReaderNavigationMenu
             categories={this.props.navigationCategories}
             setCategories={this.props.setNavigationCategories}
@@ -279,7 +279,7 @@ var ReaderPanel = React.createClass({
                 linkSummary={this.props.linkSummary}
                 linkContents={this.props.linkContents}
                 filterIndex={this.props.filterIndex}
-                recentFilters={this.props.recentFilters} />
+                recentFilters={this.props.linkRecentFilters} />
             </View> : null}
         </View>);
   }

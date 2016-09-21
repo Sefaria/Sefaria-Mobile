@@ -12,6 +12,7 @@ const styles         = require('./Styles.js');
 const HTMLView       = require('react-native-htmlview');
 const TextListHeader = require('./TextListHeader');
 const ViewPort = Dimensions.get('window');
+const LinkFilter = require('./LinkFilter');
 
 const {
   CategoryColorLine,
@@ -140,7 +141,7 @@ var LinkCategory = React.createClass({
       (<Text style={[styles.en, this.props.theme.text]}>{this.props.category.toUpperCase() + countStr}</Text>) :
       (<Text style={[styles.he, this.props.theme.text]}>{heCategory + countStr}</Text>);
 
-    var filter = {title:this.props.category,heTitle:heCategory,refList:this.props.refList,category:this.props.category};
+    var filter = new LinkFilter(this.props.category,heCategory,this.props.refList,this.props.category);
     return (<TouchableOpacity
               style={[styles.readerNavCategory, this.props.theme.readerNavCategory, style]}
               onPress={()=>{this.props.openCat(filter)}}>
@@ -163,7 +164,7 @@ var LinkBook = React.createClass({
   },
   render: function() {
     var countStr = " (" + this.props.count + ")";
-    var filter = {title:this.props.title,heTitle:this.props.heTitle,refList:this.props.refList,category:this.props.category};
+    var filter = new LinkFilter(this.props.title,this.props.heTitle,this.props.refList,this.props.category);
     return (
       <TouchableOpacity
         style={[styles.textBlockLink,this.props.theme.textBlockLink]}

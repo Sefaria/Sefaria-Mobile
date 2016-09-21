@@ -33,13 +33,13 @@ var TextListHeader = React.createClass({
 
 		var viewList = this.props.recentFilters.map((filter, i)=>{
 			return (<TextListHeaderItem
-            			theme={this.props.theme}
-						columnLanguage={this.props.columnLanguage}
-						filter={filter}
-						filterIndex={i}
-						selected={i == this.props.filterIndex}
-						updateCat={this.props.updateCat}
-						key={i} />
+            		theme={this.props.theme}
+						    columnLanguage={this.props.columnLanguage}
+						    filter={filter}
+						    filterIndex={i}
+						    selected={i == this.props.filterIndex}
+						    updateCat={this.props.updateCat}
+						    key={i} />
 					);
 		});
 
@@ -65,7 +65,7 @@ var TextListHeaderItem = React.createClass({
 		var filterStr = this.props.columnLanguage == "hebrew" ?
 			this.props.filter.heTitle :
 			this.props.filter.title;
-		var stylesArray = [styles.textListHeaderItem, this.props.theme.textListHeaderItem, this.props.theme.text];
+		var stylesArray = [styles.textListHeaderItem, this.props.theme.textListHeaderItem];
     if (this.props.selected)
       stylesArray.push(this.props.theme.textListHeaderItemSelected);
 		return (
