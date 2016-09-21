@@ -35,6 +35,10 @@ Sefaria = {
       var zipPath      = Sefaria._zipSourcePath(bookRefStem);
 
       var processData = function(data) {
+        // Store data in in memory cache if it's not there already
+        if (!(jsonPath in Sefaria._jsonData)) {
+          Sefaria._jsonData[jsonPath] = data;
+        }
         if ("content" in data) {
           var result = data;
         } else {
@@ -59,6 +63,12 @@ Sefaria = {
         resolve(data);
       }
 
+      // Pull data from in memory cache if available
+      if (jsonPath in Sefaria._jsonData) {
+        processData(Sefaria._jsonData[jsonPath]);
+        return;
+      }
+
       Sefaria._loadJSON(jsonPath)
         .then(processData)
         .catch(function() {
@@ -80,6 +90,7 @@ Sefaria = {
         });
     });
   },
+  _jsonData: {}, // in memory cache for JSON data
   textTitleForRef: function(ref) {
     // Returns the book title named in `ref` by examining the list of known book titles.
     for (i = ref.length; i >= 0; i--) {
