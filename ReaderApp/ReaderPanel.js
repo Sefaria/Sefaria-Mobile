@@ -274,6 +274,7 @@ var ReaderPanel = React.createClass({
                 openCat={this.props.openLinkCat}
                 closeCat={this.props.closeLinkCat}
                 updateCat={this.props.updateLinkCat}
+                loadLinkContent={this.props.loadLinkContent}
                 onLinkLoad={this.props.onLinkLoad}
                 linkSummary={this.props.linkSummary}
                 linkContents={this.props.linkContents}

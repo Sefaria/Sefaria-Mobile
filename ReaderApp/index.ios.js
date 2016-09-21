@@ -69,18 +69,22 @@ var ReaderApp = React.createClass({
         if (!this.state.data[section][segment]) {
           return;
         }
-        var linkSummary = Sefaria.links.linkSummary(this.state.data[section][segment].links);
         console.log(section, segment);
+        var linkSummary = this.state.linkSummary;
+        if (segment !== this.state.segmentIndexRef) {
+            var linkSummary = Sefaria.links.linkSummary(this.state.data[section][segment].links);
+        }
 
         let stateObj = {
             segmentIndexRef: segment,
-            linkSummary: linkSummary
+            linkSummary: linkSummary,
         };
         if (shouldToggle) {
           stateObj.textListVisible = !this.state.textListVisible;
           stateObj.offsetRef = null; //offsetRef is used to highlight. once you open textlist, you should remove the highlight
         }
         this.setState(stateObj);
+        this.updateLinkCat(linkSummary, null); // Set up `linkContents` in their initial state as an array of nulls
     },
     /*isSegmentLevel is true when you loadNewText() is triggered by a link click or search item click that needs to jump to a certain ref*/
     loadNewText: function(ref, isSegmentLevel=false) {
@@ -260,12 +264,35 @@ var ReaderApp = React.createClass({
             linkContents: linkContents
         });
     },
+    loadLinkContent: function(ref, pos) {
+      // Loads text content for `ref` then inserts it into `this.state.linkContents[pos]`
+      var isLinkCurrent = function(ref, pos) {
+        // check that we haven't loaded a different link set in the mean time
+        if (typeof this.state.recentFilters[this.state.filterIndex] === "undefined") { return false;}
+        var refList = this.state.recentFilters[this.state.filterIndex].refList;
+        if (pos > refList.length) { return false; }
+        return (refList[pos] === ref);
+      }.bind(this);
+      var resolve = (data) => {
+        if (isLinkCurrent(ref, pos)) { 
+            this.onLinkLoad(data, pos);
+        } 
+      };
+      var reject = (error) => {
+        if (isLinkCurrent(ref, pos)) { 
+            this.onLinkLoad({en:JSON.stringify(error), he:JSON.stringify(error)}, pos);
+        }
+      };
+
+      //here's the meat
+      Sefaria.links.loadLinkData(ref).then(resolve).catch(reject);
+    },
     onLinkLoad: function(data, pos) {
       this.state.linkContents[pos] = data;
       this.setState({linkContents: this.state.linkContents});
     },
-    /* used after TextList has used the offsetRef to render initially*/
     clearOffsetRef: function() {
+      /* used after TextList has used the offsetRef to render initially*/
       this.setState({offsetRef:null});
     },
     setTheme: function(themeStr) {
@@ -312,6 +339,7 @@ var ReaderApp = React.createClass({
                     openLinkCat={this.openLinkCat}
                     closeLinkCat={this.closeLinkCat}
                     updateLinkCat={this.updateLinkCat}
+                    loadLinkContent={this.loadLinkContent}
                     onLinkLoad={this.onLinkLoad}
                     filterIndex={this.state.filterIndex}
                     recentFilters={this.state.recentFilters}
