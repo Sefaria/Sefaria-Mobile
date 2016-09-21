@@ -16,6 +16,8 @@ const TextRange = require('./TextRange');
 const TextRangeContinuous = require('./TextRangeContinuous');
 const TextSegment = require('./TextSegment');
 
+const MAX_NUM_SECTIONS = 200; //num sections that can be in this.props.data
+
 var segmentIndexRefPositionArray = {};
 
 var CustomLayoutAnimation = {
@@ -93,8 +95,8 @@ var TextColumn = React.createClass({
         if (i==0) {
           segment.push(<View style={styles.sectionHeader} key={section+"header"}>
                         <Text style={[styles.sectionHeaderText, this.props.theme.sectionHeaderText]}>
-                          {columnLanguage == "hebrew" ? 
-                           this.state.sectionHeArray[section] : 
+                          {columnLanguage == "hebrew" ?
+                           this.state.sectionHeArray[section] :
                            this.state.sectionArray[section].replace(this.props.textTitle,'')}
                         </Text>
                       </View>);
@@ -102,7 +104,7 @@ var TextColumn = React.createClass({
 
         var numberSegmentHolder = [];
 
-        numberSegmentHolder.push(<Text ref={this.state.sectionArray[section]+"_"+data[section][i].segmentNumber} 
+        numberSegmentHolder.push(<Text ref={this.state.sectionArray[section]+"_"+data[section][i].segmentNumber}
                                        style={[styles.verseNumber,this.props.theme.verseNumber]}
                                        key={section+":"+i+"segment-number"}>
                                          {data[section][i].segmentNumber}
@@ -267,11 +269,15 @@ var TextColumn = React.createClass({
       var updatedData = this.props.data;
       updatedData.unshift(data.content);
 
-
       var newTitleArray = this.state.sectionArray;
       var newHeTitleArray = this.state.sectionHeArray;
       newTitleArray.unshift(data.sectionRef);
       newHeTitleArray.unshift(data.heRef);
+      if (updatedData.length > MAX_NUM_SECTIONS) {
+        updatedData.pop();
+        newTitleArray.pop();
+        newHeTitleArray.pop();
+      }
 
       this.setState({
         sectionArray: newTitleArray,
@@ -300,10 +306,19 @@ var TextColumn = React.createClass({
       var updatedData = this.props.data;
       updatedData.push(data.content);
 
+
       var newTitleArray = this.state.sectionArray;
       var newHeTitleArray = this.state.sectionHeArray;
       newTitleArray.push(data.sectionRef);
       newHeTitleArray.push(data.heRef);
+
+      if (updatedData.length > MAX_NUM_SECTIONS) {
+        updatedData.shift();
+        newTitleArray.shift();
+        newHeTitleArray.shift();
+      }
+
+
       this.setState({
         sectionArray: newTitleArray,
         sectionHeArray: newHeTitleArray
@@ -342,27 +357,19 @@ var TextColumn = React.createClass({
            null, /*Error callback that doesn't yet have a hook in native so doesn't get called */
            (left, top, width, height, pageX, pageY) => {
              if (pageY == 0) { //I'm forced to assume this means it's not on screen, though it could also be at the top of the page...
-                queryLayoutByID(
-                  findNodeHandle(this.refs._listView),
-                  null,
-                  (left,top,width,height,pageX,pageY) => {
-                    LayoutAnimation.configureNext(CustomLayoutAnimation);
-                    this.setState({scrollOffset:didMount ? 1 :this.refs._listView.scrollProperties.offset+height});
-                    /*this.refs._listView.scrollTo({
-                      x: 0,
-                      y: didMount ? 1 :this.refs._listView.scrollProperties.offset+height,
-                      animated: false
-                    });*/
-                  }
-                );
+              this.refs._listView.scrollTo({
+                x: 0,
+                y: didMount ? 1 :this.refs._listView.scrollProperties.offset+this.refs._listView.scrollProperties.visibleLength,
+                animated: false
+              });
              } else {
-               LayoutAnimation.configureNext(CustomLayoutAnimation);
-               this.setState({scrolledToOffsetRef:true,scrollOffset:this.refs._listView.scrollProperties.offset+pageY-100});
-               /*this.refs._listView.scrollTo({
+               //LayoutAnimation.configureNext(CustomLayoutAnimation);
+               //this.setState({scrolledToOffsetRef:true,scrollOffset:this.refs._listView.scrollProperties.offset+pageY-100});
+               this.refs._listView.scrollTo({
                  x: 0,
                  y: this.refs._listView.scrollProperties.offset+pageY-100,
                  animated: false
-               });*/
+               });
              }
            }
         );
@@ -394,7 +401,7 @@ var TextColumn = React.createClass({
                 onScroll={this.handleScroll}
                 onChangeVisibleRows={(visibleRows, changedRows) => this.visibleRowsChanged(visibleRows, changedRows)}
                 onEndReached={this.onEndReached}
-                renderScrollComponent={props => <ScrollView {...props} contentOffset={{y:this.state.scrollOffset}}/>}
+                /*renderScrollComponent={props => <ScrollView {...props} contentOffset={{y:this.state.scrollOffset}}/>}*/
                 initialListSize={40}
                 onContentSizeChange={(w, h) => {this.updateHeight(h)}}
                 onEndReachedThreshold={300}

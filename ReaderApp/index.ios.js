@@ -136,7 +136,6 @@ var ReaderApp = React.createClass({
 
     },
     updateData: function(data, ref, next, prev) {
-        //var links = Sefaria.links.linkSummary(data[this.state.segmentIndexRef].links);
         this.setState({
             data:            data,
             textReference:   ref,
