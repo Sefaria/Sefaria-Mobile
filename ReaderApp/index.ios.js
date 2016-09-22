@@ -73,16 +73,17 @@ var ReaderApp = React.createClass({
           return;
         }
         console.log(section, segment);
-        let linkSummary = this.state.linkSummary;
         let loadingLinks = false;
         if (segment !== this.state.segmentIndexRef) {
             loadingLinks = true;
-            Sefaria.links.linkSummary(this.state.data[section][segment].links).then((data)=>this.setState({linkSummary:data,loadingLinks:false}));
+            Sefaria.links.linkSummary(this.state.data[section][segment].links).then((data)=>{
+              this.setState({linkSummary:data,loadingLinks:false});
+              this.updateLinkCat(data, null); // Set up `linkContents` in their initial state as an array of nulls
+            });
         }
 
         let stateObj = {
             segmentIndexRef: segment,
-            linkSummary: linkSummary,
             linkStaleRecentFilters: this.state.linkRecentFilters.map(()=>true),
             loadingLinks: loadingLinks
         };
@@ -91,7 +92,7 @@ var ReaderApp = React.createClass({
           stateObj.offsetRef = null; //offsetRef is used to highlight. once you open textlist, you should remove the highlight
         }
         this.setState(stateObj);
-        this.updateLinkCat(linkSummary, null); // Set up `linkContents` in their initial state as an array of nulls
+
     },
     /*isSegmentLevel is true when you loadNewText() is triggered by a link click or search item click that needs to jump to a certain ref*/
     loadNewText: function(ref, isSegmentLevel=false) {

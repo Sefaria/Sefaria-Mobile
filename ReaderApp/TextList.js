@@ -98,11 +98,13 @@ var TextList = React.createClass({
     }
 
     if (isSummaryMode) {
-        return <View>{(this.props.loading) ? <Text>Loading...</Text> : null}
-                  <ScrollView>
+      if (this.props.loading) {
+        return <Text>Loading...</Text>;
+      } else {
+        return (<ScrollView>
                    {viewList}
-                  </ScrollView>
-                </View>;
+                 </ScrollView>);
+      }
 
     } else {
       return (
