@@ -67,6 +67,7 @@ var ReaderApp = React.createClass({
         });
     },
     textSegmentPressed: function(section, segment, shouldToggle) {
+        console.log("textSegmentPressed")
         if (!this.state.data[section][segment]) {
           return;
         }
@@ -117,6 +118,8 @@ var ReaderApp = React.createClass({
                 prev:            data.prev,
                 heTitle:         data.heTitle,
                 heRef:           data.heRef,
+                sectionArray:    [data.ref],
+                sectionHeArray:  [data.heRef],
                 loaded:          true,
                 filterIndex:     null, /*Reset link state */
                 linkRecentFilters:   [],
@@ -131,21 +134,70 @@ var ReaderApp = React.createClass({
             Sefaria.saveRecentItem({ref: ref, heRef: data.heRef, category: Sefaria.categoryForRef(ref)});
 
         }.bind(this)).catch(function(error) {
-          console.error('Error caught from Sefaria.data', error);
+          console.error('Error caught from ReaderApp.loadNewText', error);
         });
 
     },
-    updateData: function(data, ref, next, prev) {
-        this.setState({
-            data:            data,
-            textReference:   ref,
-            loaded:          true,
+    updateData: function(direction) {
+        console.log("updating data -- " + direction);
+        if (direction === "next") {
+            this.updateDataNext();
+        } else if (direction == "prev") {
+            this.updateDataPrev();
+        }
+    },
+    updateDataPrev: function() {
+        this.setState({loadingTextTail: true});
+        Sefaria.data(this.state.prev).then(function(data) {
+
+          var updatedData = [data.content].concat(this.state.data);
+
+          var newTitleArray = this.state.sectionArray;
+          var newHeTitleArray = this.state.sectionHeArray;
+          newTitleArray.unshift(data.sectionRef);
+          newHeTitleArray.unshift(data.heRef);
+
+          this.setState({
+            data: updatedData,
+            textReference: this.state.prev,
+            prev: data.prev,
+            sectionArray: newTitleArray,
+            sectionHeArray: newHeTitleArray,
+            loaded: true,
             loadingTextTail: false,
-            next:            next,
-            prev:            prev
+          });
+
+        }.bind(this)).catch(function(error) {
+          console.log('Error caught from ReaderApp.updateDataPrev', error);
+        });
+    },
+    updateDataNext: function() {
+        this.setState({loadingTextTail: true});
+        Sefaria.data(this.state.next).then(function(data) {
+
+          var updatedData = this.state.data.concat([data.content]);
+
+          var newTitleArray = this.state.sectionArray;
+          var newHeTitleArray = this.state.sectionHeArray;
+          newTitleArray.push(data.sectionRef);
+          newHeTitleArray.push(data.heRef);
+
+          this.setState({
+            data: updatedData,
+            textReference: this.state.prev,
+            next: data.next,
+            sectionArray: newTitleArray,
+            sectionHeArray: newHeTitleArray,
+            loaded: true,
+            loadingTextTail: false,
+          });
+
+        }.bind(this)).catch(function(error) {
+          console.log('Error caught from ReaderApp.updateDataNext', error);
         });
     },
     updateTitle: function(ref, heRef) {
+        console.log("updateTitle");
         this.setState({
           textReference: ref,
           heRef: heRef
@@ -323,6 +375,8 @@ var ReaderApp = React.createClass({
                     data={this.state.data}
                     next={this.state.next}
                     prev={this.state.prev}
+                    sectionArray={this.state.sectionArray}
+                    sectionHeArray={this.state.sectionHeArray}
                     offsetRef={this.state.offsetRef}
                     segmentIndexRef={this.state.segmentIndexRef}
                     textList={0}

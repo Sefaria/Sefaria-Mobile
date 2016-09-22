@@ -322,6 +322,7 @@ module.exports = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     alignSelf: 'stretch',
+    marginVertical: 15
   },
   sectionHeaderText: {
     borderBottomWidth: 4,

@@ -38,6 +38,8 @@ var TextColumn = React.createClass({
     settings:           React.PropTypes.object,
     data:               React.PropTypes.array,
     textReference:      React.PropTypes.string,
+    sectionArray:       React.PropTypes.array,
+    sectionHeArray:     React.PropTypes.array,
     offsetRef:          React.PropTypes.string,
     segmentIndexRef:    React.PropTypes.number,
     textTitle:          React.PropTypes.string,
@@ -52,16 +54,15 @@ var TextColumn = React.createClass({
     next:               React.PropTypes.string,
     prev:               React.PropTypes.string,
     loadingTextTail:    React.PropTypes.bool,
-    setLoadTextTail:    React.PropTypes.func
   },
   getInitialState: function() {
-    return {
-      dataSource: new ListView.DataSource({
+    var dataSource = new ListView.DataSource({
         rowHasChanged: (r1, r2) => r1!== r2,
         sectionHeaderHasChanged: (s1, s2) => s1!==s2
-      }),
-      sectionArray: [this.props.textReference],
-      sectionHeArray: [this.props.heRef],
+      });
+    
+    return {
+      dataSource: dataSource,
       height: 0,
       prevHeight:0,
       targetSectionRef: "",
@@ -78,145 +79,14 @@ var TextColumn = React.createClass({
     this.scrollToOffsetRef(false);
   },
   componentWillReceiveProps: function(nextProps) {
-
-  },
-  generateDataSource: function() {
-    var data = this.props.data;
-    var sections = {};
-
-    if (this.props.textFlow == 'continuous') {
-      for (var section = 0; section < data.length; section++) {
-        var rows = {};
-        var segmentText = [];
-
-        for (var i = 0; i < data[section].length; i++) {
-          var currSegData = data[section][i];
-          currSegData.text = currSegData.text || "";
-          currSegData.he = currSegData.he || "";
-          var columnLanguage = Sefaria.util.getColumnLanguageWithContent(this.props.columnLanguage, currSegData.text, currSegData.he);
-
-          if (i == 0) {
-            segmentText.push(<Text style={styles.sectionHeader} key={section+"header"}>
-              <Text style={[styles.sectionHeaderText, this.props.theme.sectionHeaderText]}>
-                {columnLanguage == "hebrew" ?
-                  this.state.sectionHeArray[section] :
-                  this.state.sectionArray[section].replace(this.props.textTitle, '')}
-              </Text>
-            </Text>);
-          }
-
-          segmentText.push(<Text ref={this.state.sectionArray[section]+"_"+data[section][i].segmentNumber}
-                                         style={[styles.verseNumber,this.props.theme.verseNumber]}
-                                         key={section+":"+i+"segment-number"}>
-            {data[section][i].segmentNumber}
-          </Text>);
-
-
-          if (columnLanguage == "hebrew" || columnLanguage == "bilingual") {
-            segmentText.push(<TextSegment
-              theme={this.props.theme}
-              segmentIndexRef={this.props.segmentIndexRef}
-              segmentKey={section+":"+i}
-              key={section+":"+i}
-              data={currSegData.he}
-              textType="hebrew"
-              textSegmentPressed={ this.props.textSegmentPressed }
-              settings={this.props.settings}/>);
-          }
-
-          if (columnLanguage == "english" || columnLanguage == "bilingual") {
-            segmentText.push(<TextSegment
-              theme={this.props.theme}
-              style={styles.TextSegment}
-              segmentIndexRef={this.props.segmentIndexRef}
-              segmentKey={section+":"+i}
-              key={section+":"+i}
-              data={currSegData.text}
-              textType="english"
-              textSegmentPressed={ this.props.textSegmentPressed }
-              settings={this.props.settings}/>);
-          }
-
-          segmentText.push(<Text> </Text>);
-
-
-
-          // rows.push(segment);
-          rows[this.state.sectionArray[section] + "_" + "wholeSection"] = <View style={styles.numberSegmentHolderEnContinuous} key={section+":"+1}><Text>{segmentText}</Text></View>;
-
-        }
-        sections[this.state.sectionArray[section]] = rows;
-      }
-      return sections;
+    console.log("TextColumn Will Receive Props");
+    console.log("data length: " + this.props.data.length + " -> " + nextProps.data.length)
+    return;
+    if (this.props.data.length !== nextProps.data.length) {
+      console.log("... this.dataUpdated = true")
+      this.dataUpdated = true;
+      //this.setState({dataSource: this.state.dataSource.cloneWithRowsAndSections(this.generateDataSource(nextProps.data))});
     }
-
-    else if (this.props.textFlow == 'segmented') {
-      for (var section = 0; section < data.length; section++) {
-        var rows = {};
-        for (var i = 0; i < data[section].length; i++) {
-          var currSegData = data[section][i];
-          currSegData.text = currSegData.text || "";
-          currSegData.he = currSegData.he || "";
-          var segment = [];
-          var columnLanguage = Sefaria.util.getColumnLanguageWithContent(this.props.columnLanguage, currSegData.text, currSegData.he);
-
-          if (i == 0) {
-            segment.push(<View style={styles.sectionHeader} key={section+"header"}>
-              <Text style={[styles.sectionHeaderText, this.props.theme.sectionHeaderText]}>
-                {columnLanguage == "hebrew" ?
-                  this.state.sectionHeArray[section] :
-                  this.state.sectionArray[section].replace(this.props.textTitle, '')}
-              </Text>
-            </View>);
-          }
-
-          var numberSegmentHolder = [];
-
-          numberSegmentHolder.push(<Text ref={this.state.sectionArray[section]+"_"+data[section][i].segmentNumber}
-                                         style={[styles.verseNumber,this.props.theme.verseNumber]}
-                                         key={section+":"+i+"segment-number"}>
-            {data[section][i].segmentNumber}
-          </Text>);
-
-          var segmentText = [];
-
-          if (columnLanguage == "hebrew" || columnLanguage == "bilingual") {
-            segmentText.push(<TextSegment
-              theme={this.props.theme}
-              segmentIndexRef={this.props.segmentIndexRef}
-              segmentKey={section+":"+i}
-              key={section+":"+i}
-              data={currSegData.he}
-              textType="hebrew"
-              textSegmentPressed={ this.props.textSegmentPressed }
-              settings={this.props.settings}/>);
-          }
-
-          if (columnLanguage == "english" || columnLanguage == "bilingual") {
-            segmentText.push(<TextSegment
-              theme={this.props.theme}
-              style={styles.TextSegment}
-              segmentIndexRef={this.props.segmentIndexRef}
-              segmentKey={section+":"+i}
-              key={section+":"+i}
-              data={currSegData.text}
-              textType="english"
-              textSegmentPressed={ this.props.textSegmentPressed }
-              settings={this.props.settings}/>);
-          }
-          numberSegmentHolder.push(<View style={styles.TextSegment} key={section+":"+i}>{segmentText}</View>)
-
-          segment.push(<View style={styles.numberSegmentHolderEn} key={section+":"+i}>{numberSegmentHolder}</View>)
-
-          // rows.push(segment);
-          rows[this.state.sectionArray[section] + "_" + data[section][i].segmentNumber] = segment;
-        }
-        sections[this.state.sectionArray[section]] = rows;
-      }
-      return sections;
-    }
-
-
   },
   handleScroll: function(e) {
     if (e.nativeEvent.contentOffset.y < -50) {
@@ -236,16 +106,19 @@ var TextColumn = React.createClass({
       var numberOfVisibleSegmentsInSecondSection = 0;
     }
 
-    //update title
+    // update title
     if (numberOfVisibleSegmentsInFirstSection > numberOfVisibleSegmentsInSecondSection) {
       var enTitle = nameOfFirstSection;
-      var heTitle = this.state.sectionHeArray[this.state.sectionArray.indexOf(nameOfFirstSection)];
-      this.props.updateTitle(enTitle, heTitle);
-    }
-    else {
+      var heTitle = this.props.sectionHeArray[this.props.sectionArray.indexOf(nameOfFirstSection)];
+      if (enTitle !== this.props.textReference) {
+        this.props.updateTitle(enTitle, heTitle);
+      }
+    } else {
       var enTitle = nameOfSecondSection;
-      var heTitle = this.state.sectionHeArray[this.state.sectionArray.indexOf(nameOfSecondSection)];
-      this.props.updateTitle(enTitle, heTitle);
+      var heTitle = this.props.sectionHeArray[this.props.sectionArray.indexOf(nameOfSecondSection)];
+      if (enTitle !== this.props.textReference) {
+        this.props.updateTitle(enTitle, heTitle);
+      }
     }
 
     //auto highlight middle visible segment
@@ -257,11 +130,11 @@ var TextColumn = React.createClass({
 
       if (indexOfMiddleVisibleSegment < numberOfVisibleSegmentsInFirstSection) {
         var segmentToLoad = parseInt(Object.keys(visibleRows[nameOfFirstSection])[indexOfMiddleVisibleSegment].replace(nameOfFirstSection+"_",""));
-        this.props.textSegmentPressed(this.state.sectionArray.indexOf(nameOfFirstSection), segmentToLoad);
+        this.props.textSegmentPressed(this.props.sectionArray.indexOf(nameOfFirstSection), segmentToLoad);
       }
       else {
         var segmentToLoad = parseInt(Object.keys(visibleRows[nameOfSecondSection])[indexOfMiddleVisibleSegment - numberOfVisibleSegmentsInFirstSection].replace(nameOfSecondSection+"_",""));
-        this.props.textSegmentPressed(this.state.sectionArray.indexOf(nameOfSecondSection), segmentToLoad);
+        this.props.textSegmentPressed(this.props.sectionArray.indexOf(nameOfSecondSection), segmentToLoad);
       }
     }
   },
@@ -310,82 +183,20 @@ var TextColumn = React.createClass({
       //already loading tail
       return;
     }
-    this.props.setLoadTextTail(true);
-//    this.refs._listView.scrollTo({x: 0, y: this.calculateOffset(), animated: false}) //TODO replace 363 with the height of textColumn
+
+    // this.refs._listView.scrollTo({x: 0, y: this.calculateOffset(), animated: false}) //TODO replace 363 with the height of textColumn
 
     this.state.scrollingToTargetRef = true;
     this.state.targetSectionRef=this.props.textReference;
 
-    Sefaria.data(this.props.prev).then(function(data) {
-
-      var updatedData = this.props.data;
-      updatedData.unshift(data.content);
-
-      var newTitleArray = this.state.sectionArray;
-      var newHeTitleArray = this.state.sectionHeArray;
-      newTitleArray.unshift(data.sectionRef);
-      newHeTitleArray.unshift(data.heRef);
-      if (updatedData.length > MAX_NUM_SECTIONS) {
-        updatedData.pop();
-        newTitleArray.pop();
-        newHeTitleArray.pop();
-      }
-
-      this.setState({
-        sectionArray: newTitleArray,
-        sectionHeArray: newHeTitleArray
-      });
-
-      this.props.updateData(updatedData,this.props.prev,this.props.next,data.prev); //combined data content, new section title, the next section to be loaded on end , the previous section to load on top
-
-
-
-
-    }.bind(this)).catch(function(error) {
-      console.log('oh no', error);
-    });
-
+    this.props.updateData("prev");
   },
   onEndReached: function() {
     if (this.props.loadingTextTail) {
       //already loading tail
       return;
     }
-    this.props.setLoadTextTail(true);
-
-    Sefaria.data(this.props.next).then(function(data) {
-
-      var updatedData = this.props.data;
-      updatedData.push(data.content);
-
-
-      var newTitleArray = this.state.sectionArray;
-      var newHeTitleArray = this.state.sectionHeArray;
-      newTitleArray.push(data.sectionRef);
-      newHeTitleArray.push(data.heRef);
-
-      if (updatedData.length > MAX_NUM_SECTIONS) {
-        updatedData.shift();
-        newTitleArray.shift();
-        newHeTitleArray.shift();
-      }
-
-
-      this.setState({
-        sectionArray: newTitleArray,
-        sectionHeArray: newHeTitleArray
-      });
-
-
-      this.props.updateData(updatedData,this.props.next,data.next,this.props.prev); //combined data content, new section title, the next section to be loaded on end , the previous section to load on top
-
-
-
-
-     }.bind(this)).catch(function(error) {
-      console.log('oh no', error);
-    });
-
+    this.props.updateData("next");
   },
   visibleRowsChanged: function(visibleRows, changedRows) {
     if (this.props.loadingTextTail == false && this.state.targetSectionRef != "" && this.state.scrollingToTargetRef == true) {
@@ -430,17 +241,159 @@ var TextColumn = React.createClass({
       }
     }
   },
+  generateDataSource: function(data) {
+    var start = new Date();
+    var sections = {};
+
+    if (this.props.textFlow == 'continuous') {
+      for (var section = 0; section < data.length; section++) {
+        var rows = {};
+        var segmentText = [];
+
+        for (var i = 0; i < data[section].length; i++) {
+          var currSegData = data[section][i];
+          currSegData.text = currSegData.text || "";
+          currSegData.he = currSegData.he || "";
+          var columnLanguage = Sefaria.util.getColumnLanguageWithContent(this.props.columnLanguage, currSegData.text, currSegData.he);
+
+          if (i == 0) {
+            segmentText.push(<Text style={styles.sectionHeader} key={section+"header"}>
+              <Text style={[styles.sectionHeaderText, this.props.theme.sectionHeaderText]}>
+                {columnLanguage == "hebrew" ?
+                  this.props.sectionHeArray[section] :
+                  this.props.sectionArray[section].replace(this.props.textTitle, '')}
+              </Text>
+            </Text>);
+          }
+
+          segmentText.push(<Text ref={this.props.sectionArray[section]+"_"+data[section][i].segmentNumber}
+                                         style={[styles.verseNumber,this.props.theme.verseNumber]}
+                                         key={section+":"+i+"segment-number"}>
+            {data[section][i].segmentNumber}
+          </Text>);
+
+
+          if (columnLanguage == "hebrew" || columnLanguage == "bilingual") {
+            segmentText.push(<TextSegment
+              theme={this.props.theme}
+              segmentIndexRef={this.props.segmentIndexRef}
+              segmentKey={section+":"+i}
+              key={section+":"+i}
+              data={currSegData.he}
+              textType="hebrew"
+              textSegmentPressed={ this.props.textSegmentPressed }
+              settings={this.props.settings}/>);
+          }
+
+          if (columnLanguage == "english" || columnLanguage == "bilingual") {
+            segmentText.push(<TextSegment
+              theme={this.props.theme}
+              style={styles.TextSegment}
+              segmentIndexRef={this.props.segmentIndexRef}
+              segmentKey={section+":"+i}
+              key={section+":"+i}
+              data={currSegData.text}
+              textType="english"
+              textSegmentPressed={ this.props.textSegmentPressed }
+              settings={this.props.settings}/>);
+          }
+
+          segmentText.push(<Text> </Text>);
+
+          // rows.push(segment);
+          rows[this.props.sectionArray[section] + "_" + "wholeSection"] = <View style={styles.numberSegmentHolderEnContinuous} key={section+":"+1}><Text>{segmentText}</Text></View>;
+
+        }
+        sections[this.props.sectionArray[section]] = rows;
+      }
+    }
+
+    else if (this.props.textFlow == 'segmented') {
+      for (var section = 0; section < data.length; section++) {
+        var rows = {};
+        for (var i = 0; i < data[section].length; i++) {
+          var currSegData = data[section][i];
+          currSegData.text = currSegData.text || "";
+          currSegData.he = currSegData.he || "";
+          var segment = [];
+          var columnLanguage = Sefaria.util.getColumnLanguageWithContent(this.props.columnLanguage, currSegData.text, currSegData.he);
+
+          if (i == 0) {
+            segment.push(<View style={styles.sectionHeader} key={section+"header"}>
+              <Text style={[styles.sectionHeaderText, this.props.theme.sectionHeaderText]}>
+                {columnLanguage == "hebrew" ?
+                  this.props.sectionHeArray[section] :
+                  this.props.sectionArray[section].replace(this.props.textTitle, '')}
+              </Text>
+            </View>);
+          }
+
+          var numberSegmentHolder = [];
+
+          numberSegmentHolder.push(<Text ref={this.props.sectionArray[section]+"_"+data[section][i].segmentNumber}
+                                         style={[styles.verseNumber,this.props.theme.verseNumber]}
+                                         key={section+":"+i+"segment-number"}>
+            {data[section][i].segmentNumber}
+          </Text>);
+
+          var segmentText = [];
+
+          if (columnLanguage == "hebrew" || columnLanguage == "bilingual") {
+            segmentText.push(<TextSegment
+              theme={this.props.theme}
+              segmentIndexRef={this.props.segmentIndexRef}
+              segmentKey={section+":"+i}
+              key={section+":"+i}
+              data={currSegData.he}
+              textType="hebrew"
+              textSegmentPressed={ this.props.textSegmentPressed }
+              settings={this.props.settings}/>);
+          }
+
+          if (columnLanguage == "english" || columnLanguage == "bilingual") {
+            segmentText.push(<TextSegment
+              theme={this.props.theme}
+              style={styles.TextSegment}
+              segmentIndexRef={this.props.segmentIndexRef}
+              segmentKey={section+":"+i}
+              key={section+":"+i}
+              data={currSegData.text}
+              textType="english"
+              textSegmentPressed={ this.props.textSegmentPressed }
+              settings={this.props.settings}/>);
+          }
+          numberSegmentHolder.push(<View style={styles.TextSegment} key={section+":"+i}>{segmentText}</View>)
+
+          segment.push(<View style={styles.numberSegmentHolderEn} key={section+":"+i}>{numberSegmentHolder}</View>)
+
+          // rows.push(segment);
+          rows[this.props.sectionArray[section] + "_" + data[section][i].segmentNumber] = segment;
+        }
+        sections[this.props.sectionArray[section]] = rows;
+      }
+    }
+    console.log("generateDataSource finished in " + (new Date() - start));
+    return sections;
+
+  },
+  renderSegmentedRow: function(rowData) {
+
+  },
+  renderContinuousRow: function(rowData) {
+
+  },
   renderRow: function(rowData, sID, rID) {
-    let seg = this.props.data[this.state.sectionArray.indexOf(sID)][this.props.segmentIndexRef];
+    let seg = this.props.data[this.props.sectionArray.indexOf(sID)][this.props.segmentIndexRef];
 
     let style = [styles.verseContainer];
     if ((seg && rID === sID+"_"+seg.segmentNumber && this.props.textListVisible) || this.props.offsetRef == rID) {
         style.push(this.props.theme.segmentHighlight);
     }
+    //console.log("Rendering " + sID + ", " + rID);
     return <View style={style}>{rowData}</View>;
   },
   render: function() {
-    this.state.dataSourceRows = this.state.dataSource.cloneWithRowsAndSections(this.generateDataSource({}));
+    var dataSource = this.state.dataSource.cloneWithRowsAndSections(this.generateDataSource(this.props.data));
     if (this.props.offsetRef != null) {
       //console.log("NOAHL",this.props.offsetRef);
       //console.log("NOAHL2",this.dataSource[this.state.sectionArray[0]][this.props.offsetRef]);
@@ -448,7 +401,7 @@ var TextColumn = React.createClass({
     //ref={this.props.textReference+"_"+this.props.data[this.state.sectionArray.indexOf(sID)][this.props.segmentRef].segmentNumber}
     return (
       <ListView ref='_listView'
-                dataSource={this.state.dataSourceRows}
+                dataSource={dataSource}
                 renderRow={this.renderRow}
                 onScroll={this.handleScroll}
                 onChangeVisibleRows={(visibleRows, changedRows) => this.visibleRowsChanged(visibleRows, changedRows)}
@@ -456,8 +409,8 @@ var TextColumn = React.createClass({
                 /*renderScrollComponent={props => <ScrollView {...props} contentOffset={{y:this.state.scrollOffset}}/>}*/
                 initialListSize={40}
                 onContentSizeChange={(w, h) => {this.updateHeight(h)}}
-                onEndReachedThreshold={500}
-                scrollEventThrottle={200} />
+                onEndReachedThreshold={1000}
+                scrollEventThrottle={400} />
     );
   }
 });
