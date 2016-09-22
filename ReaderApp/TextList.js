@@ -30,6 +30,7 @@ var TextList = React.createClass({
     onLinkLoad:      React.PropTypes.func.isRequired,
     linkSummary:     React.PropTypes.array,
     linkContents:    React.PropTypes.array,
+    loading:         React.PropTypes.bool,
     segmentIndexRef: React.PropTypes.number,
     filterIndex:     React.PropTypes.number,
     recentFilters:   React.PropTypes.array, /* of the form [{title,heTitle,refList}...] */
@@ -97,9 +98,14 @@ var TextList = React.createClass({
     }
 
     if (isSummaryMode) {
-       return (<ScrollView>
-                  {viewList}
-                </ScrollView>);
+      if (this.props.loading) {
+        return <Text>yo</Text>;
+      } else {
+        return (<ScrollView>
+                   {viewList}
+                 </ScrollView>);    
+      }
+
     } else {
       return (
       <View style={styles.textListContentOuter}>

@@ -48,6 +48,7 @@ var ReaderPanel = React.createClass({
     linkRecentFilters: React.PropTypes.array,
     linkSummary:   React.PropTypes.array,
     linkContents:  React.PropTypes.array,
+    loadingLinks:  React.PropTypes.bool,
     setTheme:      React.PropTypes.func.isRequired,
     theme:         React.PropTypes.object,
     themeStr:      React.PropTypes.oneOf(["white","grey","black"]),
@@ -280,6 +281,7 @@ var ReaderPanel = React.createClass({
                 onLinkLoad={this.props.onLinkLoad}
                 linkSummary={this.props.linkSummary}
                 linkContents={this.props.linkContents}
+                loading={this.props.loadingLinks}
                 filterIndex={this.props.filterIndex}
                 recentFilters={this.props.linkRecentFilters} />
             </View> : null}

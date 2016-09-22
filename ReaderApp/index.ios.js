@@ -55,6 +55,7 @@ var ReaderApp = React.createClass({
             linkContents: [],
             linkRecentFilters: [],
             linkStaleRecentFilters: [], /*bool array indicating whether the corresponding filter in recentFilters is no longer synced up with the current segment*/
+            loadingLinks: false,
             theme: themeWhite,
             themeStr: "white"
         };
@@ -72,15 +73,18 @@ var ReaderApp = React.createClass({
           return;
         }
         console.log(section, segment);
-        var linkSummary = this.state.linkSummary;
+        let linkSummary = this.state.linkSummary;
+        let loadingLinks = false;
         if (segment !== this.state.segmentIndexRef) {
-            var linkSummary = Sefaria.links.linkSummary(this.state.data[section][segment].links);
+            loadingLinks = true;
+            Sefaria.links.linkSummary(this.state.data[section][segment].links).then((data)=>this.setState({linkSummary:data,loadingLinks:false}));
         }
 
         let stateObj = {
             segmentIndexRef: segment,
             linkSummary: linkSummary,
-            linkStaleRecentFilters: this.state.linkRecentFilters.map(()=>true)
+            linkStaleRecentFilters: this.state.linkRecentFilters.map(()=>true),
+            loadingLinks: loadingLinks
         };
         if (shouldToggle) {
           stateObj.textListVisible = !this.state.textListVisible;
@@ -107,8 +111,12 @@ var ReaderApp = React.createClass({
         });
         Sefaria.data(ref).then(function(data) {
             var linkSummary = [];
+            var loadingLinks = false;
             if (data.content && data.content.links) {
-                linkSummary = Sefaria.links.linkSummary(data.content[this.state.segmentIndexRef].links);
+                loadingLinks = true;
+                Sefaria.links.linkSummary(data.content[this.state.segmentIndexRef].links).then(()=>
+                  this.setState({linkSummary:linkSummary,loadingLinks:false})
+                );
             }
 
             this.setState({
@@ -125,6 +133,7 @@ var ReaderApp = React.createClass({
                 linkRecentFilters:   [],
                 linkSummary:     linkSummary,
                 linkContents:    [],
+                loadingLinks:    loadingLinks,
                 textListVisible: false,
                 offsetRef:       segmentNum ? sectionRef + "_" + segmentNum : null
             });
@@ -132,7 +141,6 @@ var ReaderApp = React.createClass({
             // Preload Text TOC data into memory
             Sefaria.textToc(data.indexTitle, function() {});
             Sefaria.saveRecentItem({ref: ref, heRef: data.heRef, category: Sefaria.categoryForRef(ref)});
-
         }.bind(this)).catch(function(error) {
           console.error('Error caught from ReaderApp.loadNewText', error);
         });
@@ -407,6 +415,7 @@ var ReaderApp = React.createClass({
                     linkRecentFilters={this.state.linkRecentFilters}
                     linkSummary={this.state.linkSummary}
                     linkContents={this.state.linkContents}
+                    loadingLinks={this.state.loadingLinks}
                     setTheme={this.setTheme}
                     theme={this.state.theme}
                     themeStr={this.state.themeStr}
