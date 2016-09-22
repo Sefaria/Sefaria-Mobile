@@ -230,7 +230,6 @@ var TextColumn = React.createClass({
              if (pageY == 0) { //I'm forced to assume this means it's not on screen, though it could also be at the top of the page...
                 this.scrollOneScreenDown(didMount);
              } else {
-               console.log("Yesh");
                //LayoutAnimation.configureNext(CustomLayoutAnimation);
                this.setState({scrolledToOffsetRef:true});
                this.refs._listView.scrollTo({

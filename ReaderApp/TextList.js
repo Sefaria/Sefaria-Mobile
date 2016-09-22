@@ -66,6 +66,8 @@ var TextList = React.createClass({
 
       var viewList = [];
       this.props.linkSummary.map((cat)=>{
+        let heCategory = Sefaria.hebrewCategory(this.props.category);
+        let filter = new LinkFilter(cat.category,heCategory,cat.refList,cat.category);
         viewList.push(
           <LinkCategory
             theme={this.props.theme}
@@ -73,19 +75,18 @@ var TextList = React.createClass({
             refList={cat.refList}
             count={cat.count}
             language={"english"}
-            openCat={this.props.openCat}
+            onPress={this.props.openCat.bind(null,filter)}
             key={cat.category} />);
         var innerViewList = cat.books.map((obook)=>{
+          let filter = new LinkFilter(obook.title,obook.heTitle,obook.refList,cat.category);
           return (
           <LinkBook
             theme={this.props.theme}
             title={obook.title}
             heTitle={obook.heTitle}
-            category={cat.category}
-            refList={obook.refList}
             count={obook.count}
             language={"english"}
-            openCat={this.props.openCat}
+            onPress={this.props.openCat.bind(null,filter)}
             key={obook.title} />);
         });
         viewList.push(<TwoBox content={innerViewList} key={cat.category+"-container"} />);
@@ -127,24 +128,22 @@ var TextList = React.createClass({
 var LinkCategory = React.createClass({
   propTypes: {
     theme:    React.PropTypes.object.isRequired,
-    openCat:  React.PropTypes.func.isRequired,
+    onPress:  React.PropTypes.func.isRequired,
     category: React.PropTypes.string,
-    refList:  React.PropTypes.array,
     language: React.PropTypes.string,
     count:    React.PropTypes.number
   },
   render: function() {
-    var countStr = " | " + this.props.count;
-    var style = {"borderColor": Sefaria.palette.categoryColor(this.props.category)};
-    var heCategory = Sefaria.hebrewCategory(this.props.category);
-    var content = this.props.language == "english"?
+    let countStr = " | " + this.props.count;
+    let style = {"borderColor": Sefaria.palette.categoryColor(this.props.category)};
+    let heCategory = Sefaria.hebrewCategory(this.props.category);
+    let content = this.props.language == "english"?
       (<Text style={[styles.en, this.props.theme.text]}>{this.props.category.toUpperCase() + countStr}</Text>) :
       (<Text style={[styles.he, this.props.theme.text]}>{heCategory + countStr}</Text>);
 
-    var filter = new LinkFilter(this.props.category,heCategory,this.props.refList,this.props.category);
     return (<TouchableOpacity
               style={[styles.readerNavCategory, this.props.theme.readerNavCategory, style]}
-              onPress={()=>{this.props.openCat(filter)}}>
+              onPress={this.props.onPress}>
               {content}
             </TouchableOpacity>);
   }
@@ -154,21 +153,18 @@ var LinkCategory = React.createClass({
 var LinkBook = React.createClass({
   propTypes: {
     theme:    React.PropTypes.object.isRequired,
-    openCat:  React.PropTypes.func.isRequired,
+    onPress:  React.PropTypes.func.isRequired,
     title:    React.PropTypes.string,
     heTitle:  React.PropTypes.string,
-    category: React.PropTypes.string,
-    refList:  React.PropTypes.array,
     language: React.PropTypes.string,
     count:    React.PropTypes.number
   },
   render: function() {
     var countStr = " (" + this.props.count + ")";
-    var filter = new LinkFilter(this.props.title,this.props.heTitle,this.props.refList,this.props.category);
     return (
       <TouchableOpacity
         style={[styles.textBlockLink,this.props.theme.textBlockLink]}
-        onPress={()=>{this.props.openCat(filter)}}>
+        onPress={this.props.onPress}>
         { this.props.language == "hebrew" ?
           <Text style={[styles.he, styles.centerText, this.props.theme.text]}>{this.props.heTitle + countStr}</Text> :
           <Text style={[styles.en, styles.centerText, this.props.theme.text]}>{this.props.title + countStr}</Text> }
