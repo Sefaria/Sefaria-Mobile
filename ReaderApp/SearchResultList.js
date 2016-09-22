@@ -13,6 +13,7 @@ const SearchTextResult = require('./SearchTextResult');
 
 var SearchResultList = React.createClass({
   propTypes: {
+    theme:          React.PropTypes.object.isRequired,
     queryResult:    React.PropTypes.array,
     loadingTail:    React.PropTypes.bool,
     onQueryChange:  React.PropTypes.func.isRequired,

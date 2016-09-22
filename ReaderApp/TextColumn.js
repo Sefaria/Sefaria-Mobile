@@ -60,7 +60,7 @@ var TextColumn = React.createClass({
         rowHasChanged: (r1, r2) => r1!== r2,
         sectionHeaderHasChanged: (s1, s2) => s1!==s2
       });
-    
+
     return {
       dataSource: dataSource,
       height: 0,
@@ -79,11 +79,11 @@ var TextColumn = React.createClass({
     this.scrollToOffsetRef(false);
   },
   componentWillReceiveProps: function(nextProps) {
-    console.log("TextColumn Will Receive Props");
-    console.log("data length: " + this.props.data.length + " -> " + nextProps.data.length)
+    //console.log("TextColumn Will Receive Props");
+    //console.log("data length: " + this.props.data.length + " -> " + nextProps.data.length)
     return;
     if (this.props.data.length !== nextProps.data.length) {
-      console.log("... this.dataUpdated = true")
+      //console.log("... this.dataUpdated = true")
       this.dataUpdated = true;
       //this.setState({dataSource: this.state.dataSource.cloneWithRowsAndSections(this.generateDataSource(nextProps.data))});
     }
@@ -139,8 +139,8 @@ var TextColumn = React.createClass({
     }
   },
   scrollToTarget: function() {
-      console.log(Object.keys(this.refs._listView._visibleRows)[0]);
-      console.log(this.state.targetSectionRef)
+      //console.log(Object.keys(this.refs._listView._visibleRows)[0]);
+      //console.log(this.state.targetSectionRef)
       //if current section not visible
       if (this.state.targetSectionRef !== Object.keys(this.refs._listView._visibleRows)[0] && this.state.targetSectionRef !== Object.keys(this.refs._listView._visibleRows)[1]) {
         this.refs._listView.scrollTo({
@@ -156,7 +156,7 @@ var TextColumn = React.createClass({
            handler,
            null, /*Error callback that doesn't yet have a hook in native so doesn't get called */
            (left, top, width, height, pageX, pageY) => {
-             console.log(left, top, width, height, pageX, pageY)
+             //console.log(left, top, width, height, pageX, pageY)
              this.refs._listView.scrollTo({
                x: 0,
                y: this.refs._listView.scrollProperties.offset+pageY-150,
@@ -203,6 +203,14 @@ var TextColumn = React.createClass({
       this.scrollToTarget();
     }
   },
+  scrollOneScreenDown: function(initialScroll) {
+    this.refs._listView.scrollTo({
+      x: 0,
+      y: initialScroll ? 1 :this.refs._listView.scrollProperties.offset+(1.5*this.refs._listView.scrollProperties.visibleLength),
+      animated: false
+    });
+    this.setState({continueScrolling:true}); //needed to continue rendering after each success scroll
+  },
   scrollToOffsetRef: function(didMount) {
     /* Warning, this function is hacky. anyone who knows how to improve it, be my guest
     didMount - true if comint from componentDidMount. it seems that none of the rows have heights (even if they're on screen) at the did mount stage. so I scroll by one pixel so that the rows get measured
@@ -220,14 +228,11 @@ var TextColumn = React.createClass({
            null, /*Error callback that doesn't yet have a hook in native so doesn't get called */
            (left, top, width, height, pageX, pageY) => {
              if (pageY == 0) { //I'm forced to assume this means it's not on screen, though it could also be at the top of the page...
-              this.refs._listView.scrollTo({
-                x: 0,
-                y: didMount ? 1 :this.refs._listView.scrollProperties.offset+this.refs._listView.scrollProperties.visibleLength,
-                animated: false
-              });
+                this.scrollOneScreenDown(didMount);
              } else {
+               console.log("Yesh");
                //LayoutAnimation.configureNext(CustomLayoutAnimation);
-               //this.setState({scrolledToOffsetRef:true,scrollOffset:this.refs._listView.scrollProperties.offset+pageY-100});
+               this.setState({scrolledToOffsetRef:true});
                this.refs._listView.scrollTo({
                  x: 0,
                  y: this.refs._listView.scrollProperties.offset+pageY-100,
@@ -237,7 +242,7 @@ var TextColumn = React.createClass({
            }
         );
       } else {
-        //console.log("FAIL","fail...");
+        //this.scrollOneScreenDown(didMount);
       }
     }
   },
@@ -372,7 +377,7 @@ var TextColumn = React.createClass({
         sections[this.props.sectionArray[section]] = rows;
       }
     }
-    console.log("generateDataSource finished in " + (new Date() - start));
+    //console.log("generateDataSource finished in " + (new Date() - start));
     return sections;
 
   },
@@ -394,10 +399,6 @@ var TextColumn = React.createClass({
   },
   render: function() {
     var dataSource = this.state.dataSource.cloneWithRowsAndSections(this.generateDataSource(this.props.data));
-    if (this.props.offsetRef != null) {
-      //console.log("NOAHL",this.props.offsetRef);
-      //console.log("NOAHL2",this.dataSource[this.state.sectionArray[0]][this.props.offsetRef]);
-    }
     //ref={this.props.textReference+"_"+this.props.data[this.state.sectionArray.indexOf(sID)][this.props.segmentRef].segmentNumber}
     return (
       <ListView ref='_listView'

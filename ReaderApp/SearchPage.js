@@ -42,6 +42,7 @@ var SearchPage = React.createClass({
 					setIsNewSearch={this.props.setIsNewSearch}/>
 				<Text style={styles.searchResultSummary} >Results: {this.props.numResults} {this.props.loadingQuery || this.props.loadingTail ? "Loading..." : ""}</Text>
 				<SearchResultList
+					theme={this.props.theme}
 					queryResult={this.props.queryResult}
 					loadingTail={this.props.loadingTail}
 					onQueryChange={this.props.onQueryChange}
