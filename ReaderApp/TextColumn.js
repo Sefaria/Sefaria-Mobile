@@ -56,11 +56,14 @@ var TextColumn = React.createClass({
     loadingTextTail:    React.PropTypes.bool,
   },
   getInitialState: function() {
+    var settings = this.props.settings;
+    settings.textFlow = this.props.textFlow;
+    settings.columnLanguage = this.props.columnLanguage;
     return {
       dataSource: new ListView.DataSource({
-          rowHasChanged: (r1, r2) => r1 != r2,
+          rowHasChanged: this.rowHasChanged,
           sectionHeaderHasChanged: (s1, s2) => s1 !== s2
-        }).cloneWithRowsAndSections(this.generateDataSource(this.props.data)),
+        }).cloneWithRowsAndSections(this.generateDataSource(this.props.data, settings)),
       height: 0,
       prevHeight:0,
       targetSectionRef: "",
@@ -80,11 +83,15 @@ var TextColumn = React.createClass({
     //console.log("TextColumn Will Receive Props");
     //console.log("data length: " + this.props.data.length + " -> " + nextProps.data.length)
     if (this.props.data.length !== nextProps.data.length ||
-        this.props.textFlow !== nextProps.textFlow) {
+        this.props.textFlow !== nextProps.textFlow ||
+        this.props.columnLanguage !== nextProps.columnLanguage ||
+        this.props.settings.fontSize !== nextProps.settings.fontSize) {
       // Only update dataSource when a change has occurred that will result in different data
-      console.log("updating datasource")
-      this.setState({dataSource: this.state.dataSource.cloneWithRowsAndSections(this.generateDataSource(nextProps.data))});
-      this.forceUpdate();
+      var settings = this.props.settings;
+      settings.textFlow = nextProps.textFlow;
+      settings.columnLanguage = nextProps.columnLanguage;
+      var newData = this.generateDataSource(nextProps.data, settings);
+      this.setState({dataSource: this.state.dataSource.cloneWithRowsAndSections(newData)});
     }
   },
   handleScroll: function(e) {
@@ -244,16 +251,17 @@ var TextColumn = React.createClass({
       }
     }
   },
-  generateDataSource: function(data) {
+  generateDataSource: function(data, settings) {
     var start = new Date();
     var sections = {};
 
-    if (this.props.textFlow == 'continuous') {
+    if (settings.textFlow == 'continuous') {
       var rows = {};
       for (var section = 0; section < data.length; section++) {
         var row = {
                     section: section,
-                    segmentData: []
+                    segmentData: [],
+                    changeString: [data[section].ref, settings.columnLanguage, settings.textFlow, settings.fontSize].join("|")
                   };
 
         for (var i = 0; i < data[section].length; i++) {
@@ -265,24 +273,27 @@ var TextColumn = React.createClass({
       }
     }
 
-    else if (this.props.textFlow == 'segmented') {
+    else if (settings.textFlow == 'segmented') {
       for (var section = 0; section < data.length; section++) {
         var rows = {};
         for (var i = 0; i < data[section].length; i++) {
-          var rowData = data[section][i];
+          var rowData = {}; 
+          rowData.content = data[section][i]; // Store data in `content` so that we can manipulate other fields without manipulating the original data
           rowData.section = section;
           rowData.row = i;
+          rowData.changeString = [data[section].ref + ":" + i, settings.columnLanguage, settings.textFlow, settings.fontSize].join("|");
           rows[this.props.sectionArray[section] + "_" + data[section][i].segmentNumber] = rowData;
         }
         sections[this.props.sectionArray[section]] = rows;
       }
     }
-    console.log("generateDataSource finished in " + (new Date() - start));
+    // console.log("generateDataSource finished in " + (new Date() - start));
     // console.log(sections);
     return sections;
 
   },
   renderContinuousRow: function(rowData, sID, rID) {
+    // In continuous case, rowData represent an entire section of text
     var segmentText = [];
     for (var i = 0; i < rowData.segmentData.length; i++) {
       var currSegData = rowData.segmentData[i];
@@ -290,16 +301,6 @@ var TextColumn = React.createClass({
       currSegData.he = currSegData.he || "";
       var columnLanguage = Sefaria.util.getColumnLanguageWithContent(this.props.columnLanguage, currSegData.text, currSegData.he);
       var refSection = rowData.section + ":" + i;
-
-      if (i == 0) {
-        segmentText.push(<Text style={styles.sectionHeader} key={rowData.section+"header"}>
-          <Text style={[styles.sectionHeaderText, this.props.theme.sectionHeaderText]}>
-            {columnLanguage == "hebrew" ?
-              this.props.sectionHeArray[rowData.section] :
-              this.props.sectionArray[rowData.section].replace(this.props.textTitle, '')}
-          </Text>
-        </Text>);
-      }
 
       segmentText.push(<Text ref={this.props.sectionArray[rowData.section] + "_" + currSegData.segmentNumber}
                                      style={[styles.verseNumber,this.props.theme.verseNumber]}
@@ -313,7 +314,7 @@ var TextColumn = React.createClass({
           theme={this.props.theme}
           segmentIndexRef={this.props.segmentIndexRef}
           segmentKey={refSection}
-          key={refSection}
+          key={refSection+"-he"}
           data={currSegData.he}
           textType="hebrew"
           textSegmentPressed={ this.props.textSegmentPressed }
@@ -326,7 +327,7 @@ var TextColumn = React.createClass({
           style={styles.TextSegment}
           segmentIndexRef={this.props.segmentIndexRef}
           segmentKey={refSection}
-          key={refSection}
+          key={refSection+"-en"}
           data={currSegData.text}
           textType="english"
           textSegmentPressed={ this.props.textSegmentPressed }
@@ -336,11 +337,21 @@ var TextColumn = React.createClass({
       segmentText.push(<Text> </Text>);
 
     }
-    return <View style={styles.numberSegmentHolderEnContinuous} key={rowData.section+":"+1}><Text>{segmentText}</Text></View>;
+    return <View style={styles.numberSegmentHolderEnContinuous} key={rowData.section+":"+1}>
+              <View style={styles.sectionHeader} key={rowData.section+"header"}>
+                <Text style={[styles.sectionHeaderText, this.props.theme.sectionHeaderText]}>
+                  {columnLanguage == "hebrew" ?
+                    this.props.sectionHeArray[rowData.section] :
+                    this.props.sectionArray[rowData.section].replace(this.props.textTitle, '')}
+                </Text>
+              </View>
+              <Text>{segmentText}</Text>
+           </View>;
   },
   renderSegmentedRow: function(rowData, sID, rID) {
-    rowData.text = rowData.text || "";
-    rowData.he = rowData.he || "";
+    // In segmented case, rowData represents a segments of text
+    rowData.text = rowData.content.text || "";
+    rowData.he = rowData.content.he || "";
     var segment = [];
     var columnLanguage = Sefaria.util.getColumnLanguageWithContent(this.props.columnLanguage, rowData.text, rowData.he);
     var refSection = rowData.section + ":" + rowData.row;
@@ -357,10 +368,10 @@ var TextColumn = React.createClass({
 
     var numberSegmentHolder = [];
 
-    numberSegmentHolder.push(<Text ref={this.props.sectionArray[rowData.section] + "_"+ rowData.segmentNumber}
+    numberSegmentHolder.push(<Text ref={this.props.sectionArray[rowData.section] + "_"+ rowData.content.segmentNumber}
                                    style={[styles.verseNumber,this.props.theme.verseNumber]}
                                    key={refSection + "segment-number"}>
-      {rowData.segmentNumber}
+      {rowData.content.segmentNumber}
     </Text>);
 
 
@@ -371,7 +382,7 @@ var TextColumn = React.createClass({
         theme={this.props.theme}
         segmentIndexRef={this.props.segmentIndexRef}
         segmentKey={refSection}
-        key={refSection}
+        key={refSection+"-he"}
         data={rowData.he}
         textType="hebrew"
         textSegmentPressed={ this.props.textSegmentPressed }
@@ -384,7 +395,7 @@ var TextColumn = React.createClass({
         style={styles.TextSegment}
         segmentIndexRef={this.props.segmentIndexRef}
         segmentKey={refSection}
-        key={refSection}
+        key={refSection+"-en"}
         data={rowData.text}
         textType="english"
         textSegmentPressed={ this.props.textSegmentPressed }
@@ -395,6 +406,12 @@ var TextColumn = React.createClass({
     segment.push(<View style={styles.numberSegmentHolderEn} key={refSection}>{numberSegmentHolder}</View>);
 
     return segment;
+  },
+  rowHasChanged: function(r1, r2) {
+    
+    var changed = (r1.changeString !== r2.changeString);
+
+    return (changed);
   },
   renderRow: function(rowData, sID, rID) {
     let seg = this.props.data[this.props.sectionArray.indexOf(sID)][this.props.segmentIndexRef];
