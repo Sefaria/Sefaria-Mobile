@@ -82,7 +82,7 @@ var ReaderPanel = React.createClass({
   	} else {
   	 this.setState({ReaderDisplayOptionsMenuVisible:  false})}
 
-      console.log(this.state.ReaderDisplayOptionsMenuVisible);
+     //console.log(this.state.ReaderDisplayOptionsMenuVisible);
   },
   onQueryChange: function(query,resetQuery) {
     var newSearchPage = 0;
