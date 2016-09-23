@@ -130,6 +130,13 @@ var TextColumn = React.createClass({
     //auto highlight middle visible segment
    if (this.props.textListVisible) {
 
+      // Measure scroll velocity, don't update unless we're moving slowly.
+      if (Math.abs(this.previousY - e.nativeEvent.contentOffset.y) > 20) {
+        this.previousY = e.nativeEvent.contentOffset.y;
+        return;
+      }
+      this.previousY = e.nativeEvent.contentOffset.y;
+
       var indexOfMiddleVisibleSegment = parseInt((numberOfVisibleSegmentsInFirstSection + numberOfVisibleSegmentsInSecondSection) / 2);
       //console.log(indexOfMiddleVisibleSegment);
       //console.log(visibleRows);
@@ -439,12 +446,12 @@ var TextColumn = React.createClass({
     return <View style={style}>{segment}</View>;
   },
   rowHasChanged: function(r1, r2) {
-    // console.log(r1.changeString + " vs. " + r2.changeString);
+    //console.log(r1.changeString + " vs. " + r2.changeString);
     var changed = (r1.changeString !== r2.changeString);
     return (changed);
   },
   renderRow: function(rowData, sID, rID) {
-    console.log("Rendering " + rID);
+    //console.log("Rendering " + rID);
     if (this.props.textFlow == 'continuous') {
       var row = this.renderContinuousRow(rowData);
     } else if (this.props.textFlow == 'segmented') {
@@ -469,7 +476,7 @@ var TextColumn = React.createClass({
                 initialListSize={40}
                 onContentSizeChange={(w, h) => {this.updateHeight(h)}}
                 onEndReachedThreshold={1000}
-                scrollEventThrottle={400} />
+                scrollEventThrottle={100} />
     );
   }
 });
