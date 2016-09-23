@@ -68,7 +68,7 @@ var ReaderApp = React.createClass({
         });
     },
     textSegmentPressed: function(section, segment, shouldToggle) {
-        console.log("textSegmentPressed")
+        console.log("textSegmentPressed");
         if (!this.state.data[section][segment]) {
           return;
         }
@@ -76,7 +76,7 @@ var ReaderApp = React.createClass({
         let loadingLinks = false;
         if (segment !== this.state.segmentIndexRef) {
             loadingLinks = true;
-            Sefaria.links.linkSummary(this.state.data[section][segment].links).then((data)=>{
+            Sefaria.links.linkSummary(this.state.data[section][segment].links).then((data) => {
               this.setState({linkSummary:data,loadingLinks:false});
               this.updateLinkCat(data, null); // Set up `linkContents` in their initial state as an array of nulls
             });

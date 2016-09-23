@@ -260,14 +260,16 @@ var TextColumn = React.createClass({
     // Returns data representing sections and rows to be passed into ListView.DataSource.cloneWithSectionsAndRows
     // Takes `props` as an argument so it can generate data with `nextProps`.
     var start = new Date();
-    var data = props.data
+    var data = props.data;
     var sections = {};
+
+    var highlightedRow = props.textReference + "_" + (props.segmentIndexRef+1);
 
     if (props.textFlow == 'continuous') {
       var rows = {};
       var highlight = null;
       for (var section = 0; section < data.length; section++) {
-        var rowID = this.props.sectionArray[section] + "_" + "wholeSection";
+        var rowID = props.sectionArray[section] + "_" + "wholeSection";
         var rowData = {
           section: section,
           segmentData: [],
@@ -277,7 +279,7 @@ var TextColumn = React.createClass({
         for (var i = 0; i < data[section].length; i++) {
           var segmentData = {
             content: data[section][i],
-            highlight: props.offsetRef == rowID.replace("wholeSection", i+1) || (props.textListVisible && i == props.segmentIndexRef)
+            highlight: props.offsetRef == rowID.replace("wholeSection", i+1) || (props.textListVisible && highlightedRow == rowID.replace("wholeSection", i+1))
           }
           highlight = segmentData.highlight ? i : highlight;
           rowData.segmentData.push(segmentData);
@@ -292,12 +294,12 @@ var TextColumn = React.createClass({
       for (var section = 0; section < data.length; section++) {
         var rows = {};
         for (var i = 0; i < data[section].length; i++) {
-          var rowID = this.props.sectionArray[section] + "_" + data[section][i].segmentNumber;
+          var rowID = props.sectionArray[section] + "_" + data[section][i].segmentNumber;
           var rowData = {
             content: data[section][i], // Store data in `content` so that we can manipulate other fields without manipulating the original data
             section: section,
             row: i,
-            highlight: props.offsetRef == rowID || (props.textListVisible && i == props.segmentIndexRef),
+            highlight: props.offsetRef == rowID || (props.textListVisible && highlightedRow == rowID),
             changeString: [rowID, props.columnLanguage, props.textFlow, props.settings.fontSize].join("|")          
           }; 
           rowData.changeString += rowData.highlight ? "|highlight" : "";
