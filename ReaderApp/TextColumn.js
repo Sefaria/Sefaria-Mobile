@@ -131,17 +131,22 @@ var TextColumn = React.createClass({
    if (this.props.textListVisible) {
 
       var indexOfMiddleVisibleSegment = parseInt((numberOfVisibleSegmentsInFirstSection + numberOfVisibleSegmentsInSecondSection) / 2);
-      //    console.log(indexOfMiddleVisibleSegment);
+      //console.log(indexOfMiddleVisibleSegment);
       //console.log(visibleRows);
 
       if (indexOfMiddleVisibleSegment < numberOfVisibleSegmentsInFirstSection) {
         var segmentToLoad = parseInt(Object.keys(visibleRows[nameOfFirstSection])[indexOfMiddleVisibleSegment].replace(nameOfFirstSection+"_",""));
-        this.props.textSegmentPressed(this.props.sectionArray.indexOf(nameOfFirstSection), segmentToLoad);
+        var section = this.props.sectionArray.indexOf(nameOfFirstSection);
       }
       else {
         var segmentToLoad = parseInt(Object.keys(visibleRows[nameOfSecondSection])[indexOfMiddleVisibleSegment - numberOfVisibleSegmentsInFirstSection].replace(nameOfSecondSection+"_",""));
-        this.props.textSegmentPressed(this.props.sectionArray.indexOf(nameOfSecondSection), segmentToLoad);
+        var section = this.props.sectionArray.indexOf(nameOfSecondSection);
       }
+
+      if (segmentToLoad !== this.props.segmentIndexRef) {
+        this.props.textSegmentPressed(section, segmentToLoad);
+      }
+
     }
   },
   scrollToTarget: function() {
@@ -302,8 +307,8 @@ var TextColumn = React.createClass({
         sections[this.props.sectionArray[section]] = rows;
       }
     }
-    console.log("generateDataSource finished in " + (new Date() - start));
-    console.log(sections);
+    //console.log("generateDataSource finished in " + (new Date() - start));
+    //console.log(sections);
     return sections;
 
   },
@@ -432,7 +437,7 @@ var TextColumn = React.createClass({
     return <View style={style}>{segment}</View>;
   },
   rowHasChanged: function(r1, r2) {
-    console.log(r1.changeString + " vs. " + r2.changeString);
+    // console.log(r1.changeString + " vs. " + r2.changeString);
     var changed = (r1.changeString !== r2.changeString);
     return (changed);
   },
