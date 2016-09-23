@@ -60,14 +60,11 @@ var TextColumn = React.createClass({
     loadingTextTail:    React.PropTypes.bool,
   },
   getInitialState: function() {
-    var settings = this.props.settings;
-    settings.textFlow = this.props.textFlow;
-    settings.columnLanguage = this.props.columnLanguage;
     return {
       dataSource: new ListView.DataSource({
           rowHasChanged: this.rowHasChanged,
           sectionHeaderHasChanged: (s1, s2) => s1 !== s2
-        }).cloneWithRowsAndSections(this.generateDataSource(this.props.data, settings)),
+        }).cloneWithRowsAndSections(this.generateDataSource(this.props)),
       height: 0,
       prevHeight:0,
       targetSectionRef: "",
@@ -89,12 +86,11 @@ var TextColumn = React.createClass({
     if (this.props.data.length !== nextProps.data.length ||
         this.props.textFlow !== nextProps.textFlow ||
         this.props.columnLanguage !== nextProps.columnLanguage ||
-        this.props.settings.fontSize !== nextProps.settings.fontSize) {
+        this.props.settings.fontSize !== nextProps.settings.fontSize || 
+        this.props.textListVisible !== nextProps.textListVisible ||
+        this.props.segmentIndexRef !== nextProps.segmentIndexRef) {
       // Only update dataSource when a change has occurred that will result in different data
-      var settings = this.props.settings;
-      settings.textFlow = nextProps.textFlow;
-      settings.columnLanguage = nextProps.columnLanguage;
-      var newData = this.generateDataSource(nextProps.data, settings);
+      var newData = this.generateDataSource(nextProps);
       this.setState({dataSource: this.state.dataSource.cloneWithRowsAndSections(newData)});
     }
   },
@@ -255,54 +251,70 @@ var TextColumn = React.createClass({
       }
     }
   },
-  generateDataSource: function(data, settings) {
+  generateDataSource: function(props) {
+    // Returns data representing sections and rows to be passed into ListView.DataSource.cloneWithSectionsAndRows
+    // Takes `props` as an argument so it can generate data with `nextProps`.
     var start = new Date();
+    var data = props.data
     var sections = {};
 
-    if (settings.textFlow == 'continuous') {
+    if (props.textFlow == 'continuous') {
       var rows = {};
+      var highlight = null;
       for (var section = 0; section < data.length; section++) {
-        var row = {
-                    section: section,
-                    segmentData: [],
-                    changeString: [data[section].ref, settings.columnLanguage, settings.textFlow, settings.fontSize].join("|")
-                  };
+        var rowID = this.props.sectionArray[section] + "_" + "wholeSection";
+        var rowData = {
+          section: section,
+          segmentData: [],
+          changeString: [section, props.columnLanguage, props.textFlow, props.settings.fontSize].join("|")
+        };
 
         for (var i = 0; i < data[section].length; i++) {
-          row.segmentData.push(data[section][i]);
+          var segmentData = {
+            content: data[section][i],
+            highlight: props.offsetRef == rowID.replace("wholeSection", i+1) || (props.textListVisible && i == props.segmentIndexRef)
+          }
+          highlight = segmentData.highlight ? i : highlight;
+          rowData.segmentData.push(segmentData);
         }
-
-        rows[this.props.sectionArray[section] + "_" + "wholeSection"] = row
+        rowData.changeString += highlight ? "|highlight:" + highlight : "";
+        rows[rowID] = rowData;
         sections[this.props.sectionArray[section]] = rows;
       }
     }
 
-    else if (settings.textFlow == 'segmented') {
+    else if (props.textFlow == 'segmented') {
       for (var section = 0; section < data.length; section++) {
         var rows = {};
         for (var i = 0; i < data[section].length; i++) {
-          var rowData = {}; 
-          rowData.content = data[section][i]; // Store data in `content` so that we can manipulate other fields without manipulating the original data
-          rowData.section = section;
-          rowData.row = i;
-          rowData.changeString = [data[section].ref + ":" + i, settings.columnLanguage, settings.textFlow, settings.fontSize].join("|");
-          rows[this.props.sectionArray[section] + "_" + data[section][i].segmentNumber] = rowData;
+          var rowID = this.props.sectionArray[section] + "_" + data[section][i].segmentNumber;
+          var rowData = {
+            content: data[section][i], // Store data in `content` so that we can manipulate other fields without manipulating the original data
+            section: section,
+            row: i,
+            highlight: props.offsetRef == rowID || (props.textListVisible && i == props.segmentIndexRef),
+            changeString: [rowID, props.columnLanguage, props.textFlow, props.settings.fontSize].join("|")          
+          }; 
+          rowData.changeString += rowData.highlight ? "|highlight" : "";
+
+          rows[rowID] = rowData;
         }
         sections[this.props.sectionArray[section]] = rows;
       }
     }
-    // console.log("generateDataSource finished in " + (new Date() - start));
-    // console.log(sections);
+    console.log("generateDataSource finished in " + (new Date() - start));
+    console.log(sections);
     return sections;
 
   },
   renderContinuousRow: function(rowData, sID, rID) {
     // In continuous case, rowData represent an entire section of text
-    var segmentText = [];
+    var segments = [];
     for (var i = 0; i < rowData.segmentData.length; i++) {
+      var segmentText = [];
       var currSegData = rowData.segmentData[i];
-      currSegData.text = currSegData.text || "";
-      currSegData.he = currSegData.he || "";
+      currSegData.text = currSegData.content.text || "";
+      currSegData.he = currSegData.content.he || "";
       var columnLanguage = Sefaria.util.getColumnLanguageWithContent(this.props.columnLanguage, currSegData.text, currSegData.he);
       var refSection = rowData.section + ":" + i;
 
@@ -339,9 +351,12 @@ var TextColumn = React.createClass({
       }
 
       segmentText.push(<Text> </Text>);
+      // Highlight within continuous isn't working yet
+      var style = rowData.highlight ? [this.props.theme.segmentHighlight] : [];
+      segments.push(<Text style={style}>{segmentText}</Text>);
 
     }
-    return <View style={styles.numberSegmentHolderEnContinuous} key={rowData.section+":"+1}>
+    return <View style={[styles.verseContainer, styles.numberSegmentHolderEnContinuous]} key={rowData.section + ":" + 1}>
               <View style={styles.sectionHeader} key={rowData.section+"header"}>
                 <Text style={[styles.sectionHeaderText, this.props.theme.sectionHeaderText]}>
                   {columnLanguage == "hebrew" ?
@@ -349,7 +364,7 @@ var TextColumn = React.createClass({
                     this.props.sectionArray[rowData.section].replace(this.props.textTitle, '')}
                 </Text>
               </View>
-              <Text>{segmentText}</Text>
+              <Text>{segments}</Text>
            </View>;
   },
   renderSegmentedRow: function(rowData, sID, rID) {
@@ -409,28 +424,26 @@ var TextColumn = React.createClass({
 
     segment.push(<View style={styles.numberSegmentHolderEn} key={refSection}>{numberSegmentHolder}</View>);
 
-    return segment;
+    let style = [styles.verseContainer];
+    if (rowData.highlight) {
+        style.push(this.props.theme.segmentHighlight);
+    }
+
+    return <View style={style}>{segment}</View>;
   },
   rowHasChanged: function(r1, r2) {
-    
+    console.log(r1.changeString + " vs. " + r2.changeString);
     var changed = (r1.changeString !== r2.changeString);
-
     return (changed);
   },
   renderRow: function(rowData, sID, rID) {
-    let seg = this.props.data[this.props.sectionArray.indexOf(sID)][this.props.segmentIndexRef];
-
-    let style = [styles.verseContainer];
-    if ((seg && rID === sID+"_"+seg.segmentNumber && this.props.textListVisible) || this.props.offsetRef == rID) {
-        style.push(this.props.theme.segmentHighlight);
-    }
     console.log("Rendering " + rID);
     if (this.props.textFlow == 'continuous') {
-      var content = this.renderContinuousRow(rowData);
+      var row = this.renderContinuousRow(rowData);
     } else if (this.props.textFlow == 'segmented') {
-      var content = this.renderSegmentedRow(rowData);
+      var row = this.renderSegmentedRow(rowData);
     }
-    return <View style={style}>{content}</View>;
+    return row;
   },
   renderFooter: function() {
     return this.props.next ? <LoadingView theme={this.props.theme} /> : null;

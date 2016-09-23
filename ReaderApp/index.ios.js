@@ -116,28 +116,28 @@ var ReaderApp = React.createClass({
             if (data.content && data.content.links) {
                 loadingLinks = true;
                 Sefaria.links.linkSummary(data.content[this.state.segmentIndexRef].links).then(()=>
-                  this.setState({linkSummary:linkSummary,loadingLinks:false})
+                  this.setState({linkSummary: linkSummary, loadingLinks: false})
                 );
             }
 
-            this.setState({
-                data:            [data.content],
-                textTitle:       data.indexTitle,
-                next:            data.next,
-                prev:            data.prev,
-                heTitle:         data.heTitle,
-                heRef:           data.heRef,
-                sectionArray:    [data.ref],
-                sectionHeArray:  [data.heRef],
-                loaded:          true,
-                filterIndex:     null, /*Reset link state */
-                linkRecentFilters:   [],
-                linkSummary:     linkSummary,
-                linkContents:    [],
-                loadingLinks:    loadingLinks,
-                textListVisible: false,
-                offsetRef:       segmentNum ? sectionRef + "_" + segmentNum : null
-            });
+            this.setState({  
+                data:              [data.content],
+                textTitle:         data.indexTitle,
+                next:              data.next,
+                prev:              data.prev,
+                heTitle:           data.heTitle,
+                heRef:             data.heRef,
+                sectionArray:      [data.ref],
+                sectionHeArray:    [data.heRef],
+                loaded:            true,
+                filterIndex:       null, /*Reset link state */
+                linkRecentFilters: [],
+                linkSummary:       linkSummary,
+                linkContents:      [],
+                loadingLinks:      loadingLinks,
+                textListVisible:   false,
+                offsetRef:         segmentNum ? sectionRef + "_" + segmentNum : null
+            });  
 
             // Preload Text TOC data into memory
             Sefaria.textToc(data.indexTitle, function() {});

@@ -146,7 +146,7 @@ var LoadingView = React.createClass({
       return ( <View style={styles.container}>
                   <ActivityIndicator
                     animating={true}
-                    style={[styles.loadingView,this.props.theme.loadingView]}
+                    style={[styles.loadingView, this.props.theme.loadingView]}
                     size="large" />
                </View> );
     }
