@@ -16,6 +16,10 @@ const TextRange = require('./TextRange');
 const TextRangeContinuous = require('./TextRangeContinuous');
 const TextSegment = require('./TextSegment');
 
+const {
+  LoadingView,
+} = require('./Misc.js');
+
 const MAX_NUM_SECTIONS = 200; //num sections that can be in this.props.data
 
 var segmentIndexRefPositionArray = {};
@@ -428,6 +432,9 @@ var TextColumn = React.createClass({
     }
     return <View style={style}>{content}</View>;
   },
+  renderFooter: function() {
+    return this.props.next ? <LoadingView theme={this.props.theme} /> : null;
+  },
   render: function() {
     //ref={this.props.textReference+"_"+this.props.data[this.state.sectionArray.indexOf(sID)][this.props.segmentRef].segmentNumber}
     return (
@@ -437,6 +444,7 @@ var TextColumn = React.createClass({
                 onScroll={this.handleScroll}
                 onChangeVisibleRows={(visibleRows, changedRows) => this.visibleRowsChanged(visibleRows, changedRows)}
                 onEndReached={this.onEndReached}
+                renderFooter={this.renderFooter}
                 /*renderScrollComponent={props => <ScrollView {...props} contentOffset={{y:this.state.scrollOffset}}/>}*/
                 initialListSize={40}
                 onContentSizeChange={(w, h) => {this.updateHeight(h)}}
