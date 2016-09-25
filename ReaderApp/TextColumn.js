@@ -60,6 +60,7 @@ var TextColumn = React.createClass({
     loadingTextTail:    React.PropTypes.bool,
   },
   getInitialState: function() {
+    this.rowRefs = {}; //hash table of currently loaded row refs. 
     return {
       dataSource: new ListView.DataSource({
           rowHasChanged: this.rowHasChanged,
@@ -86,7 +87,7 @@ var TextColumn = React.createClass({
     if (this.props.data.length !== nextProps.data.length ||
         this.props.textFlow !== nextProps.textFlow ||
         this.props.columnLanguage !== nextProps.columnLanguage ||
-        this.props.settings.fontSize !== nextProps.settings.fontSize || 
+        this.props.settings.fontSize !== nextProps.settings.fontSize ||
         this.props.textListVisible !== nextProps.textListVisible ||
         this.props.segmentIndexRef !== nextProps.segmentIndexRef) {
       // Only update dataSource when a change has occurred that will result in different data
@@ -237,8 +238,9 @@ var TextColumn = React.createClass({
     if on screen, it jumps to it
     if not, it jumps a whole screen downwards (except if didMount is true, see above). on the next render it will check again
     */
+
     if (this.props.offsetRef != null && !this.state.scrolledToOffsetRef) {
-      let ref = this.refs[this.props.offsetRef];
+      let ref = this.rowRefs[this.props.offsetRef];
       let handle = findNodeHandle(ref);
       if (handle != null) {
         queryLayoutByID(
@@ -307,10 +309,9 @@ var TextColumn = React.createClass({
             section: section,
             row: i,
             highlight: props.offsetRef == rowID || (props.textListVisible && highlightedRow == rowID),
-            changeString: [rowID, props.columnLanguage, props.textFlow, props.settings.fontSize].join("|")          
-          }; 
+            changeString: [rowID, props.columnLanguage, props.textFlow, props.settings.fontSize].join("|")
+          };
           rowData.changeString += rowData.highlight ? "|highlight" : "";
-
           rows[rowID] = rowData;
         }
         sections[this.props.sectionArray[section]] = rows;
@@ -388,6 +389,8 @@ var TextColumn = React.createClass({
     var segment = [];
     var columnLanguage = Sefaria.util.getColumnLanguageWithContent(this.props.columnLanguage, rowData.text, rowData.he);
     var refSection = rowData.section + ":" + rowData.row;
+    //props.sectionArray[section] + "_" + data[section][i].segmentNumber;
+    var reactRef = this.props.sectionArray[rowData.section] + "_" + this.props.data[rowData.section][rowData.row].segmentNumber; //TODO use : instead of _ for seperator
 
     if (rowData.row == 0) {
       segment.push(<View style={styles.sectionHeader} key={rowData.section+"header"}>
@@ -443,7 +446,7 @@ var TextColumn = React.createClass({
         style.push(this.props.theme.segmentHighlight);
     }
 
-    return <View style={style}>{segment}</View>;
+    return <View style={style} ref={(view)=>this.rowRefs[reactRef]=view}>{segment}</View>;
   },
   rowHasChanged: function(r1, r2) {
     //console.log(r1.changeString + " vs. " + r2.changeString);
