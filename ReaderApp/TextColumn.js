@@ -60,7 +60,7 @@ var TextColumn = React.createClass({
     loadingTextTail:    React.PropTypes.bool,
   },
   getInitialState: function() {
-    this.rowRefs = {}; //hash table of currently loaded row refs. 
+    this.rowRefs = {}; //hash table of currently loaded row refs.
     return {
       dataSource: new ListView.DataSource({
           rowHasChanged: this.rowHasChanged,
@@ -332,6 +332,7 @@ var TextColumn = React.createClass({
       currSegData.he = currSegData.content.he || "";
       var columnLanguage = Sefaria.util.getColumnLanguageWithContent(this.props.columnLanguage, currSegData.text, currSegData.he);
       var refSection = rowData.section + ":" + i;
+      var reactRef = this.props.sectionArray[rowData.section] + "_" + this.props.data[rowData.section][i].segmentNumber; //TODO use : instead of _ for seperator
 
       segmentText.push(<Text ref={this.props.sectionArray[rowData.section] + "_" + currSegData.segmentNumber}
                                      style={[styles.verseNumber,this.props.theme.verseNumber]}
@@ -368,7 +369,7 @@ var TextColumn = React.createClass({
       segmentText.push(<Text> </Text>);
       // Highlight within continuous isn't working yet
       var style = rowData.highlight ? [this.props.theme.segmentHighlight] : [];
-      segments.push(<Text style={style}>{segmentText}</Text>);
+      segments.push(<Text style={style} ref={(view)=>this.rowRefs[reactRef]=view}>{segmentText}</Text>);
 
     }
     return <View style={[styles.verseContainer, styles.numberSegmentHolderEnContinuous]} key={rowData.section + ":" + 1}>
@@ -389,7 +390,6 @@ var TextColumn = React.createClass({
     var segment = [];
     var columnLanguage = Sefaria.util.getColumnLanguageWithContent(this.props.columnLanguage, rowData.text, rowData.he);
     var refSection = rowData.section + ":" + rowData.row;
-    //props.sectionArray[section] + "_" + data[section][i].segmentNumber;
     var reactRef = this.props.sectionArray[rowData.section] + "_" + this.props.data[rowData.section][rowData.row].segmentNumber; //TODO use : instead of _ for seperator
 
     if (rowData.row == 0) {
