@@ -95,6 +95,23 @@ var TextColumn = React.createClass({
       this.setState({dataSource: this.state.dataSource.cloneWithRowsAndSections(newData)});
     }
   },
+  /*findDataSectionIndex: function(sectionName) {
+    for (let i = 0; i < this.props.data.length; i++) {
+      if
+    }
+  },*/
+  /*note segNum is a numerical string */
+  findDataSegmentIndex: function (secIndex,segNum) {
+    let start = this.props.data[secIndex].length-1;
+    for (let i = start; i >= 0; i--) {
+      if (segNum == "25") console.log("COMPARE",this.props.data[secIndex][i].segmentNumber,segNum);
+      if (this.props.data[secIndex][i].segmentNumber === segNum) {
+        return i;
+      }
+    }
+    return -1;
+  },
+
   handleScroll: function(e) {
     if (e.nativeEvent.contentOffset.y < -50) {
        this.onTopReached();
@@ -104,6 +121,17 @@ var TextColumn = React.createClass({
 
     var nameOfFirstSection = Object.keys(visibleRows)[0];
     var nameOfSecondSection = Object.keys(visibleRows)[1] || null;
+
+    if (nameOfSecondSection != null) {
+      let firstInd = this.props.sectionArray.indexOf(nameOfFirstSection);
+      let secondInd = this.props.sectionArray.indexOf(nameOfSecondSection);
+      if (firstInd > secondInd) {
+        let tempFirst = nameOfFirstSection;
+        nameOfFirstSection = nameOfSecondSection;
+        nameOfSecondSection = tempFirst;
+      }
+    }
+
     if (!visibleRows[nameOfFirstSection]) return; //look at ListView implementation. renderScrollComponent runs before visibleRows is populated
     var numberOfVisibleSegmentsInFirstSection = Object.keys(visibleRows[nameOfFirstSection]).length;
     if (nameOfSecondSection !== null) {
@@ -138,32 +166,30 @@ var TextColumn = React.createClass({
       }
       this.previousY = e.nativeEvent.contentOffset.y;
 
-      //var indexOfMiddleVisibleSegment = parseInt((numberOfVisibleSegmentsInFirstSection + numberOfVisibleSegmentsInSecondSection) / 2);
-
       var allVisibleRows = [];
+
+
+
       for (let seg of Object.keys(visibleRows[nameOfFirstSection])) {
         let segNum = parseInt(seg.replace(nameOfFirstSection+"_",""));
-        allVisibleRows.push({"segNum":segNum,"sortNum":segNum});
+
+        allVisibleRows.push({"segIndex":this.findDataSegmentIndex(0,""+segNum),"secIndex":0,"sortNum":segNum});
       }
       if (nameOfSecondSection != null) {
         for (let seg of Object.keys(visibleRows[nameOfSecondSection])) {
           let segNum = parseInt(seg.replace(nameOfSecondSection+"_",""));
-          allVisibleRows.push({"segNum":segNum,"sortNum":10000*segNum});
+          allVisibleRows.push({"segIndex":this.findDataSegmentIndex(1,""+segNum),"secIndex":1,"sortNum":10000*segNum});
         }
       }
       allVisibleRows.sort((a,b)=>a.sortNum-b.sortNum);
-      var indexOfMiddleVisibleSegment = 0; //parseInt(numberOfVisibleSegmentsInFirstSection);
-      console.log(allVisibleRows);
 
-      var segmentToLoad = allVisibleRows[indexOfMiddleVisibleSegment].segNum;
-      var section = this.props.sectionArray.indexOf(nameOfFirstSection);
-      /*else {
-        var segmentToLoad = parseInt(Object.keys(visibleRows[nameOfSecondSection])[indexOfMiddleVisibleSegment - numberOfVisibleSegmentsInFirstSection].replace(nameOfSecondSection+"_",""));
-        var section = this.props.sectionArray.indexOf(nameOfSecondSection);
-      }*/
+      let highlightIndex = allVisibleRows.length >= 2 ? 1 : 0;
+      var segmentToLoad = allVisibleRows[highlightIndex].segIndex; //we now know the first element has the lowest segment number
+      var sectionToLoad = allVisibleRows[highlightIndex].secIndex;
+      console.log("VISIBLE",allVisibleRows,"TO LOAD",segmentToLoad);
 
       if (segmentToLoad !== this.props.segmentIndexRef) {
-        this.props.textSegmentPressed(section, segmentToLoad);
+        this.props.textSegmentPressed(sectionToLoad, segmentToLoad);
       }
 
     }
@@ -272,7 +298,7 @@ var TextColumn = React.createClass({
            }
         );
       } else {
-        console.log("FAIL!!!");
+        //console.log("FAIL!!!");
         //this.scrollOneScreenDown(didMount);
       }
     }
@@ -363,6 +389,7 @@ var TextColumn = React.createClass({
           data={currSegData.he}
           textType="hebrew"
           textSegmentPressed={ this.props.textSegmentPressed }
+          textListVisible={this.props.textListVisible}
           settings={this.props.settings}/>);
       }
 
@@ -378,6 +405,7 @@ var TextColumn = React.createClass({
           data={currSegData.text}
           textType="english"
           textSegmentPressed={ this.props.textSegmentPressed }
+          textListVisible={this.props.textListVisible}
           settings={this.props.settings}/>);
       }
 
@@ -439,6 +467,7 @@ var TextColumn = React.createClass({
         data={rowData.he}
         textType="hebrew"
         textSegmentPressed={ this.props.textSegmentPressed }
+        textListVisible={this.props.textListVisible}
         settings={this.props.settings}/>);
     }
 
@@ -454,6 +483,7 @@ var TextColumn = React.createClass({
         data={rowData.text}
         textType="english"
         textSegmentPressed={ this.props.textSegmentPressed }
+        textListVisible={this.props.textListVisible}
         settings={this.props.settings} />);
     }
     numberSegmentHolder.push(<View style={styles.TextSegment} key={refSection}>{segmentText}</View>);
@@ -485,6 +515,7 @@ var TextColumn = React.createClass({
     return this.props.next ? <LoadingView theme={this.props.theme} /> : null;
   },
   render: function() {
+    console.log("HASHSIZE",Object.keys(this.rowRefs).length);
     //ref={this.props.textReference+"_"+this.props.data[this.state.sectionArray.indexOf(sID)][this.props.segmentRef].segmentNumber}
     return (
       <ListView ref='_listView'

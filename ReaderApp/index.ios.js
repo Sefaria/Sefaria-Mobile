@@ -81,7 +81,6 @@ var ReaderApp = React.createClass({
               this.updateLinkCat(data, null); // Set up `linkContents` in their initial state as an array of nulls
             });
         }
-        console.log("SEG IND REF",segment);
         let stateObj = {
             segmentIndexRef: segment,
             linkStaleRecentFilters: this.state.linkRecentFilters.map(()=>true),

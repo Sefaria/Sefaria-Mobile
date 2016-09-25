@@ -21,6 +21,7 @@ var TextSegment = React.createClass({
     data:               React.PropTypes.string,
     textType:           React.PropTypes.oneOf(["english","hebrew"]),
     textSegmentPressed: React.PropTypes.func.isRequired,
+    textListVisible:    React.PropTypes.bool.isRequired,
     settings:           React.PropTypes.object
   },
   onPressTextSegment: function(key) {
