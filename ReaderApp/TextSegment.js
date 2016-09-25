@@ -14,6 +14,8 @@ var styles = require('./Styles.js');
 var TextSegment = React.createClass({
   propTypes: {
     theme:              React.PropTypes.object.isRequired,
+    rowRef:             React.PropTypes.string.isRequired, /* this ref keys into TextColumn.rowRefs */
+    scrollToRef:        React.PropTypes.func.isRequired,
     segmentIndexRef:    React.PropTypes.number,
     segmentKey:         React.PropTypes.string,
     data:               React.PropTypes.string,
@@ -24,6 +26,7 @@ var TextSegment = React.createClass({
   onPressTextSegment: function(key) {
     let section = parseInt(key.split(":")[0]);
     let segment = parseInt(key.split(":")[1]);
+    this.props.scrollToRef(this.props.rowRef,true,true);
     this.props.textSegmentPressed(section,segment,true);
   },
   render: function() {
@@ -37,7 +40,7 @@ var TextSegment = React.createClass({
         onPress={ () => this.onPressTextSegment(this.props.segmentKey) }
         key={this.props.segmentKey}
         onLayout={this.onLayout} >
-          
+
           <HTMLView
             value={this.props.data}
             stylesheet={styles} />

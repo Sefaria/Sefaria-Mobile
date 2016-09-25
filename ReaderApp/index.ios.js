@@ -68,7 +68,7 @@ var ReaderApp = React.createClass({
         });
     },
     textSegmentPressed: function(section, segment, shouldToggle) {
-        console.log("textSegmentPressed");
+        console.log("textSegmentPressed",shouldToggle);
         if (!this.state.data[section][segment]) {
           return;
         }
@@ -81,7 +81,7 @@ var ReaderApp = React.createClass({
               this.updateLinkCat(data, null); // Set up `linkContents` in their initial state as an array of nulls
             });
         }
-
+        console.log("SEG IND REF",segment);
         let stateObj = {
             segmentIndexRef: segment,
             linkStaleRecentFilters: this.state.linkRecentFilters.map(()=>true),
@@ -120,7 +120,7 @@ var ReaderApp = React.createClass({
                 );
             }
 
-            this.setState({  
+            this.setState({
                 data:              [data.content],
                 textTitle:         data.indexTitle,
                 next:              data.next,
@@ -137,7 +137,7 @@ var ReaderApp = React.createClass({
                 loadingLinks:      loadingLinks,
                 textListVisible:   false,
                 offsetRef:         segmentNum ? sectionRef + "_" + segmentNum : null
-            });  
+            });
 
             // Preload Text TOC data into memory
             Sefaria.textToc(data.indexTitle, function() {});

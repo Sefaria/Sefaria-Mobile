@@ -76,10 +76,10 @@ var TextColumn = React.createClass({
     };
   },
   componentDidMount: function() {
-    this.scrollToOffsetRef(true);
+    this.scrollToRef(this.props.offsetRef,true,false);
   },
   componentDidUpdate:function() {
-    this.scrollToOffsetRef(false);
+    this.scrollToRef(this.props.offsetRef,false,false);
   },
   componentWillReceiveProps: function(nextProps) {
     //console.log("TextColumn Will Receive Props");
@@ -138,18 +138,29 @@ var TextColumn = React.createClass({
       }
       this.previousY = e.nativeEvent.contentOffset.y;
 
-      var indexOfMiddleVisibleSegment = parseInt((numberOfVisibleSegmentsInFirstSection + numberOfVisibleSegmentsInSecondSection) / 2);
-      //console.log(indexOfMiddleVisibleSegment);
-      //console.log(visibleRows);
+      //var indexOfMiddleVisibleSegment = parseInt((numberOfVisibleSegmentsInFirstSection + numberOfVisibleSegmentsInSecondSection) / 2);
 
-      if (indexOfMiddleVisibleSegment < numberOfVisibleSegmentsInFirstSection) {
-        var segmentToLoad = parseInt(Object.keys(visibleRows[nameOfFirstSection])[indexOfMiddleVisibleSegment].replace(nameOfFirstSection+"_",""));
-        var section = this.props.sectionArray.indexOf(nameOfFirstSection);
+      var allVisibleRows = [];
+      for (let seg of Object.keys(visibleRows[nameOfFirstSection])) {
+        let segNum = parseInt(seg.replace(nameOfFirstSection+"_",""));
+        allVisibleRows.push({"segNum":segNum,"sortNum":segNum});
       }
-      else {
+      if (nameOfSecondSection != null) {
+        for (let seg of Object.keys(visibleRows[nameOfSecondSection])) {
+          let segNum = parseInt(seg.replace(nameOfSecondSection+"_",""));
+          allVisibleRows.push({"segNum":segNum,"sortNum":10000*segNum});
+        }
+      }
+      allVisibleRows.sort((a,b)=>a.sortNum-b.sortNum);
+      var indexOfMiddleVisibleSegment = 0; //parseInt(numberOfVisibleSegmentsInFirstSection);
+      console.log(allVisibleRows);
+
+      var segmentToLoad = allVisibleRows[indexOfMiddleVisibleSegment].segNum;
+      var section = this.props.sectionArray.indexOf(nameOfFirstSection);
+      /*else {
         var segmentToLoad = parseInt(Object.keys(visibleRows[nameOfSecondSection])[indexOfMiddleVisibleSegment - numberOfVisibleSegmentsInFirstSection].replace(nameOfSecondSection+"_",""));
         var section = this.props.sectionArray.indexOf(nameOfSecondSection);
-      }
+      }*/
 
       if (segmentToLoad !== this.props.segmentIndexRef) {
         this.props.textSegmentPressed(section, segmentToLoad);
@@ -230,7 +241,7 @@ var TextColumn = React.createClass({
     });
     this.setState({continueScrolling:true}); //needed to continue rendering after each success scroll
   },
-  scrollToOffsetRef: function(didMount) {
+  scrollToRef: function(rowRef,didMount,isClickScroll) {
     /* Warning, this function is hacky. anyone who knows how to improve it, be my guest
     didMount - true if comint from componentDidMount. it seems that none of the rows have heights (even if they're on screen) at the did mount stage. so I scroll by one pixel so that the rows get measured
 
@@ -239,8 +250,8 @@ var TextColumn = React.createClass({
     if not, it jumps a whole screen downwards (except if didMount is true, see above). on the next render it will check again
     */
 
-    if (this.props.offsetRef != null && !this.state.scrolledToOffsetRef) {
-      let ref = this.rowRefs[this.props.offsetRef];
+    if (rowRef && rowRef != null && (!this.state.scrolledToOffsetRef || isClickScroll)) {
+      let ref = this.rowRefs[rowRef];
       let handle = findNodeHandle(ref);
       if (handle != null) {
         queryLayoutByID(
@@ -261,6 +272,7 @@ var TextColumn = React.createClass({
            }
         );
       } else {
+        console.log("FAIL!!!");
         //this.scrollOneScreenDown(didMount);
       }
     }
@@ -333,7 +345,6 @@ var TextColumn = React.createClass({
       var columnLanguage = Sefaria.util.getColumnLanguageWithContent(this.props.columnLanguage, currSegData.text, currSegData.he);
       var refSection = rowData.section + ":" + i;
       var reactRef = this.props.sectionArray[rowData.section] + "_" + this.props.data[rowData.section][i].segmentNumber; //TODO use : instead of _ for seperator
-
       segmentText.push(<Text ref={this.props.sectionArray[rowData.section] + "_" + currSegData.segmentNumber}
                                      style={[styles.verseNumber,this.props.theme.verseNumber]}
                                      key={refSection+"segment-number"}>
@@ -345,6 +356,8 @@ var TextColumn = React.createClass({
         segmentText.push(<TextSegment
           theme={this.props.theme}
           segmentIndexRef={this.props.segmentIndexRef}
+          rowRef={reactRef}
+          scrollToRef={this.scrollToRef}
           segmentKey={refSection}
           key={refSection+"-he"}
           data={currSegData.he}
@@ -358,6 +371,8 @@ var TextColumn = React.createClass({
           theme={this.props.theme}
           style={styles.TextSegment}
           segmentIndexRef={this.props.segmentIndexRef}
+          rowRef={reactRef}
+          scrollToRef={this.scrollToRef}
           segmentKey={refSection}
           key={refSection+"-en"}
           data={currSegData.text}
@@ -415,9 +430,11 @@ var TextColumn = React.createClass({
 
     if (columnLanguage == "hebrew" || columnLanguage == "bilingual") {
       segmentText.push(<TextSegment
+        rowRef={reactRef}
         theme={this.props.theme}
         segmentIndexRef={this.props.segmentIndexRef}
         segmentKey={refSection}
+        scrollToRef={this.scrollToRef}
         key={refSection+"-he"}
         data={rowData.he}
         textType="hebrew"
@@ -427,10 +444,12 @@ var TextColumn = React.createClass({
 
     if (columnLanguage == "english" || columnLanguage == "bilingual") {
       segmentText.push(<TextSegment
+        rowRef={reactRef}
         theme={this.props.theme}
         style={styles.TextSegment}
         segmentIndexRef={this.props.segmentIndexRef}
         segmentKey={refSection}
+        scrollToRef={this.scrollToRef}
         key={refSection+"-en"}
         data={rowData.text}
         textType="english"
