@@ -60,6 +60,7 @@ Sefaria = {
 
       var debugResolve = function(data) {
         //console.log(data);
+        Sefaria.cacheCommentatorListBySection(data);
         resolve(data);
       }
 
@@ -180,6 +181,30 @@ Sefaria = {
     };
     return commentariesInBranch(title, branch);
   },
+  _commentatorListBySection: {},
+  commentatorListBySection: function(ref) {
+    return Sefaria._commentatorListBySection[ref];
+  },
+  cacheCommentatorListBySection: function(data) {
+    if (data.ref in Sefaria._commentatorListBySection) { return; }
+    var en = new Set();
+    var he = new Set();
+    for (var i = 0; i < data.content.length; i++) {
+      if (!("links" in data.content[i])) { continue; }
+      for (var j =0; j < data.content[i].links.length; j++) {
+        var link = data.content[i].links[j];
+        if (link.category === "Commentary") {
+          en.add(Sefaria.getTitle(link.sourceRef, true, false));
+          he.add(Sefaria.getTitle(link.sourceHeRef, true, true));
+        }
+      }
+    }
+    commentators = {
+      en: [...en],
+      he: [...he]
+    }
+    Sefaria._commentatorListBySection[data.ref] = commentators;
+  },
   _textToc: {},
   textToc: function(title, callback) {
     if (title in Sefaria._textToc) {
@@ -299,12 +324,12 @@ Sefaria = {
       return Sefaria.data(ref).then(parseData);
     },
     linkSummary: function(tempLinks) {
-        return new Promise(function(resolve,reject) {
+        return new Promise(function(resolve, reject) {
           // Returns an ordered array summarizing the link counts by category and text
           // Takes an array of links which are of the form { "category", "sourceHeRef", "sourceRef", "index_title"}
           let links = tempLinks || [];
 
-          var summary = {"All":{count: 0, books: {}}, "Commentary": {count: 0, books: {}}};
+          var summary = {"All": {count: 0, books: {}}, "Commentary": {count: 0, books: {}}};
           for (let link of links) {
             // Count Category
             if (link.category in summary) {
@@ -325,8 +350,8 @@ Sefaria = {
               category.books[link.index_title] =
               {
                   count:    1,
-                  title:    Sefaria.getTitle(link.sourceRef,isCommentary,false),
-                  heTitle:  Sefaria.getTitle(link.sourceHeRef,isCommentary,true),
+                  title:    Sefaria.getTitle(link.sourceRef, isCommentary, false),
+                  heTitle:  Sefaria.getTitle(link.sourceHeRef, isCommentary, true),
                   category: link.category,
                   refList:  [link.sourceRef]
               };
