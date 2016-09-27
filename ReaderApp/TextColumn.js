@@ -117,6 +117,8 @@ var TextColumn = React.createClass({
        this.onTopReached();
     }
 
+    console.log(this.rowRefs)
+
     var visibleRows = this.refs._listView._visibleRows;
 
     var nameOfFirstSection = Object.keys(visibleRows)[0];
@@ -422,7 +424,11 @@ var TextColumn = React.createClass({
       }
 
       segmentText.push(<Text> </Text>);
-      segments.push(<Text style={style} ref={(view)=>this.rowRefs[reactRef]=view}>{segmentText}</Text>);
+      var refSetter = function(key, ref) {
+        //console.log("Setting ref for " + key);
+        this.rowRefs[key] = ref;
+      }.bind(this, reactRef);
+      segments.push(<Text style={style} ref={refSetter}>{segmentText}</Text>);
 
     }
     return <View style={[styles.verseContainer, styles.numberSegmentHolderEnContinuous]} key={rowData.section + ":" + 1}>
