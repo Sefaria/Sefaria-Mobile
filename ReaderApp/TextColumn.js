@@ -377,6 +377,7 @@ var TextColumn = React.createClass({
       var currSegData = rowData.segmentData[i];
       currSegData.text = currSegData.content.text || "";
       currSegData.he = currSegData.content.he || "";
+      currSegData.segmentNumber = currSegData.segmentNumber || this.props.data[rowData.section][i].segmentNumber;
       var columnLanguage = Sefaria.util.getColumnLanguageWithContent(this.props.columnLanguage, currSegData.text, currSegData.he);
       var refSection = rowData.section + ":" + i;
       var reactRef = this.props.sectionArray[rowData.section] + "_" + this.props.data[rowData.section][i].segmentNumber; //TODO use : instead of _ for seperator
