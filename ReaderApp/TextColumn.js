@@ -61,6 +61,7 @@ var TextColumn = React.createClass({
     next:               React.PropTypes.string,
     prev:               React.PropTypes.string,
     loadingTextTail:    React.PropTypes.bool,
+    loadingTextHead:    React.PropTypes.bool,
   },
   getInitialState: function() {
     this.rowRefs = {}; //hash table of currently loaded row refs.
@@ -83,7 +84,7 @@ var TextColumn = React.createClass({
   componentDidMount: function() {
     this.scrollToRef(this.props.offsetRef, true, false);
   },
-  componentDidUpdate:function() {
+  componentDidUpdate:function(prevProps, prevState) {
     this.scrollToRef(this.props.offsetRef, false, false);
   },
   componentWillReceiveProps: function(nextProps) {
@@ -100,13 +101,8 @@ var TextColumn = React.createClass({
       this.setState({dataSource: this.state.dataSource.cloneWithRowsAndSections(newData)});
     }
   },
-  /*findDataSectionIndex: function(sectionName) {
-    for (let i = 0; i < this.props.data.length; i++) {
-      if
-    }
-  },*/
-  /*note segNum is a numerical string */
   findDataSegmentIndex: function (secIndex, segNum) {
+    // note segNum is a numerical string
     let start = this.props.data[secIndex].length-1;
     for (let i = start; i >= 0; i--) {
       if (this.props.data[secIndex][i].segmentNumber === segNum) {
@@ -115,7 +111,6 @@ var TextColumn = React.createClass({
     }
     return -1;
   },
-
   handleScroll: function(e) {
 
     //console.log(this.rowRefs)
@@ -217,9 +212,10 @@ var TextColumn = React.createClass({
   },
   scrollToTarget: function() {
       //console.log(Object.keys(this.refs._listView._visibleRows)[0]);
-      //console.log(this.state.targetSectionRef)
-      //if current section not visible
+      console.log("scrollToTarget", this.state.targetSectionRef)
+      //if current section is not visible
       if (this.state.targetSectionRef !== Object.keys(this.refs._listView._visibleRows)[0] && this.state.targetSectionRef !== Object.keys(this.refs._listView._visibleRows)[1]) {
+        console.log("scrolling one page")
         this.refs._listView.scrollTo({
           x: 0,
           y: this.refs._listView.scrollProperties.offset + (this.refs._listView.scrollProperties.visibleLength),
@@ -228,6 +224,7 @@ var TextColumn = React.createClass({
         this.state.scrolledAtLeastOnceToTargetRef = true;
       }
       else if (this.state.scrolledAtLeastOnceToTargetRef == true) {
+        console.log("scrolling to target")
         let ref = this.rowRefs[this.state.targetSectionRef+"_1"];
         let handle = findNodeHandle(ref);
         queryLayoutByID(
@@ -247,9 +244,9 @@ var TextColumn = React.createClass({
           scrolledAtLeastOnceToTargetRef: false,
           targetSectionRef: ""
         });
+      } else {
+        console.log("did nothing")
       }
-
-
   },
   updateHeight: function(newHeight) {
     if (this.props.loadingTextTail == false && this.state.targetSectionRef != "" && this.state.scrollingToTargetRef == true) {
@@ -257,11 +254,11 @@ var TextColumn = React.createClass({
     }
   },
   onTopReached: function() {
-    if (this.props.loadingTextTail == true || !this.props.prev) {
-      //already loading tail, or nothing ab
+    if (this.props.loadingTextHead == true || !this.props.prev) {
+      //already loading tail, or nothing above
       return;
     }
-
+    console.log("onTopReached setting targetSectionRef", this.props.textReference)
     this.setState({
       scrollingToTargetRef: true,
       targetSectionRef: this.props.textReference
@@ -278,8 +275,8 @@ var TextColumn = React.createClass({
   },
   visibleRowsChanged: function(visibleRows, changedRows) {
     counter++;
-    //console.log(counter,"VISIBLE ROWS CHANGED",Object.keys(visibleRows),Object.keys(changedRows));
-    if (this.props.loadingTextTail == false && this.state.targetSectionRef != "" && this.state.scrollingToTargetRef == true) {
+    console.log(counter,"VISIBLE ROWS CHANGED. Visible: ",Object.keys(visibleRows),"Changed: :",Object.keys(changedRows));
+    if (this.props.loadingTextHead == false && this.state.targetSectionRef != "" && this.state.scrollingToTargetRef == true) {
       this.scrollToTarget();
     }
   },
@@ -571,7 +568,7 @@ var TextColumn = React.createClass({
                 scrollEventThrottle={100}
                 refreshControl={
                   <RefreshControl
-                    refreshing={this.props.loadingTextTail}
+                    refreshing={this.props.loadingTextHead}
                     onRefresh={this.onTopReached}
                     tintColor="#CCCCCC"
                     style={{ backgroundColor: 'transparent' }} />

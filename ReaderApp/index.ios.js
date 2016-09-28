@@ -48,6 +48,7 @@ var ReaderApp = React.createClass({
             menuOpen: "navigation",
             navigationCategories: [],
             loadingTextTail: false,
+            loadingTextHead: false,
             textListVisible: false,
             data: null,
             interfaceLang: "english", // TODO check device settings for Hebrew: ### import {NativeModules} from 'react-native'; console.log(NativeModules.SettingsManager.settings.AppleLocale);
@@ -160,7 +161,7 @@ var ReaderApp = React.createClass({
         }
     },
     updateDataPrev: function() {
-        this.setState({loadingTextTail: true});
+        this.setState({loadingTextHead: true});
         Sefaria.data(this.state.prev).then(function(data) {
 
           var updatedData = [data.content].concat(this.state.data);
@@ -177,7 +178,7 @@ var ReaderApp = React.createClass({
             sectionArray: newTitleArray,
             sectionHeArray: newHeTitleArray,
             loaded: true,
-            loadingTextTail: false,
+            loadingTextHead: false,
           });
 
         }.bind(this)).catch(function(error) {
@@ -263,11 +264,6 @@ var ReaderApp = React.createClass({
     },
     openDefaultText: function() {
         this.loadNewText("Genesis 1");
-    },
-    setLoadTextTail: function(setting) {
-        this.setState({
-            loadingTextTail: setting
-        });
     },
     openLinkCat: function(filter) {
         var filterIndex = null;
@@ -409,7 +405,7 @@ var ReaderApp = React.createClass({
                     openTextToc={this.openTextToc}
                     openSearch={this.openSearch}
                     loadingTextTail={this.state.loadingTextTail}
-                    setLoadTextTail={this.setLoadTextTail}
+                    loadingTextHead={this.state.loadingTextHead}
                     textListVisible={this.state.textListVisible}
                     loading={!this.state.loaded}
                     openLinkCat={this.openLinkCat}
