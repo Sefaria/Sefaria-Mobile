@@ -8,6 +8,7 @@ import ReactNative, { 	AppRegistry,
   findNodeHandle,
   ActivityIndicator,
   ListView,
+  RefreshControl,
   LayoutAnimation
 } from 'react-native';
 
@@ -116,9 +117,6 @@ var TextColumn = React.createClass({
   },
 
   handleScroll: function(e) {
-    if (e.nativeEvent.contentOffset.y < -50) {
-       this.onTopReached();
-    }
 
     //console.log(this.rowRefs)
 
@@ -221,7 +219,6 @@ var TextColumn = React.createClass({
       //console.log(Object.keys(this.refs._listView._visibleRows)[0]);
       //console.log(this.state.targetSectionRef)
       //if current section not visible
-      console.log("scrollToTarget", this.state)
       if (this.state.targetSectionRef !== Object.keys(this.refs._listView._visibleRows)[0] && this.state.targetSectionRef !== Object.keys(this.refs._listView._visibleRows)[1]) {
         this.refs._listView.scrollTo({
           x: 0,
@@ -233,7 +230,6 @@ var TextColumn = React.createClass({
       else if (this.state.scrolledAtLeastOnceToTargetRef == true) {
         let ref = this.rowRefs[this.state.targetSectionRef+"_1"];
         let handle = findNodeHandle(ref);
-
         queryLayoutByID(
            handle,
            null, /*Error callback that doesn't yet have a hook in native so doesn't get called */
@@ -261,14 +257,15 @@ var TextColumn = React.createClass({
     }
   },
   onTopReached: function() {
-    if (this.props.loadingTextTail == true) {
-      //already loading tail
+    if (this.props.loadingTextTail == true || !this.props.prev) {
+      //already loading tail, or nothing ab
       return;
     }
 
-
-    this.state.scrollingToTargetRef = true;
-    this.state.targetSectionRef=this.props.textReference;
+    this.setState({
+      scrollingToTargetRef: true,
+      targetSectionRef: this.props.textReference
+    });
 
     this.props.updateData("prev");
   },
@@ -292,7 +289,7 @@ var TextColumn = React.createClass({
       y: initialScroll ? 1 :this.refs._listView.scrollProperties.offset+(1.5*this.refs._listView.scrollProperties.visibleLength),
       animated: false
     });
-    this.setState({continueScrolling:true}); //needed to continue rendering after each success scroll
+    this.setState({continueScrolling: true}); //needed to continue rendering after each success scroll
   },
   scrollToRef: function(rowRef, didMount, isClickScroll) {
     /* Warning, this function is hacky. anyone who knows how to improve it, be my guest
@@ -307,7 +304,6 @@ var TextColumn = React.createClass({
     if not, it jumps a whole screen downwards (except if didMount is true, see above).
     on the next render it will check again
     */
-    console.log("scrollToRef", rowRef)
     if (rowRef && (!this.state.scrolledToOffsetRef || isClickScroll)) {
       let ref = this.rowRefs[rowRef];
       let handle = findNodeHandle(ref);
@@ -558,13 +554,9 @@ var TextColumn = React.createClass({
   render: function() {
     //console.log("HASHSIZE",Object.keys(this.rowRefs).length);
     //ref={this.props.textReference+"_"+this.props.data[this.state.sectionArray.indexOf(sID)][this.props.segmentRef].segmentNumber}
+
     return (
     <View style={{flex:1}}>
-    <ActivityIndicator
-            animating={true}
-            style={this.state.scrollingToTargetRef == true ? [styles.loadingView] : {width:0, height:0, opacity:0}}
-            size="large"/>
-
       <ListView ref='_listView'
                 dataSource={this.state.dataSource}
                 renderRow={this.renderRow}
@@ -576,7 +568,14 @@ var TextColumn = React.createClass({
                 initialListSize={40}
                 onContentSizeChange={(w, h) => {this.updateHeight(h)}}
                 onEndReachedThreshold={1000}
-                scrollEventThrottle={100} />
+                scrollEventThrottle={100}
+                refreshControl={
+                  <RefreshControl
+                    refreshing={this.props.loadingTextTail}
+                    onRefresh={this.onTopReached}
+                    tintColor="#CCCCCC"
+                    style={{ backgroundColor: 'transparent' }} />
+                }/>
       </View>
     );
   }

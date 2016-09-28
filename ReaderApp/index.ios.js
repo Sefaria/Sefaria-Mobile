@@ -210,7 +210,7 @@ var ReaderApp = React.createClass({
         });
     },
     updateTitle: function(ref, heRef) {
-        console.log("updateTitle");
+        //console.log("updateTitle");
         this.setState({
           textReference: ref,
           heRef: heRef
