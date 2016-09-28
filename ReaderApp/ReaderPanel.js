@@ -29,7 +29,8 @@ var {
 
 var ReaderPanel = React.createClass({
   propTypes: {
-    segmentRef:    React.PropTypes.number,
+    segmentRef:    React.PropTypes.string,
+    segmentIndexRef: React.PropTypes.number,
     offsetRef:     React.PropTypes.string,
     data:          React.PropTypes.array,
     textTitle:     React.PropTypes.string,
@@ -235,6 +236,7 @@ var ReaderPanel = React.createClass({
               sectionArray={this.props.sectionArray}
               sectionHeArray={this.props.sectionHeArray}
               offsetRef={this.props.offsetRef}
+              segmentRef={this.props.segmentRef}
               segmentIndexRef={this.props.segmentIndexRef}
               textFlow={this.state.textFlow}
               columnLanguage={this.state.columnLanguage}

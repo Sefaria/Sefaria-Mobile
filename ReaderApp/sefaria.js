@@ -359,22 +359,25 @@ Sefaria = {
 
           //Add zero commentaries
           let commentatorList = Sefaria.commentatorListBySection(sectionRef);
-          let commentaryBooks = summary["Commentary"].books;
-          let commentaryBookTitles = Object.keys(commentaryBooks).map((book)=>commentaryBooks[book].title);
-          for (let i = 0; i < commentatorList.en.length; i++) {
-            let commEn = commentatorList.en[i];
-            let commHe = commentatorList.he[i];
-            if (commentaryBookTitles.indexOf(commEn) == -1) {
-              commentaryBooks[commEn] =
-              {
-                count:    0,
-                title:    commEn,
-                heTitle:  commHe,
-                category: "Commentary",
-                refList:  []
+          if (commentatorList) {
+            let commentaryBooks = summary["Commentary"].books;
+            let commentaryBookTitles = Object.keys(commentaryBooks).map((book)=>commentaryBooks[book].title);
+            for (let i = 0; i < commentatorList.en.length; i++) {
+              let commEn = commentatorList.en[i];
+              let commHe = commentatorList.he[i];
+              if (commentaryBookTitles.indexOf(commEn) == -1) {
+                commentaryBooks[commEn] =
+                {
+                  count:    0,
+                  title:    commEn,
+                  heTitle:  commHe,
+                  category: "Commentary",
+                  refList:  []
+                }
               }
             }
           }
+
 
           // Convert object into ordered list
 

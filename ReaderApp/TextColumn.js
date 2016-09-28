@@ -45,6 +45,7 @@ var TextColumn = React.createClass({
     sectionArray:       React.PropTypes.array,
     sectionHeArray:     React.PropTypes.array,
     offsetRef:          React.PropTypes.string,
+    segmentRef:         React.PropTypes.string,
     segmentIndexRef:    React.PropTypes.number,
     textTitle:          React.PropTypes.string,
     heTitle:            React.PropTypes.string,
@@ -125,7 +126,7 @@ var TextColumn = React.createClass({
     var nameOfSecondSection = Object.keys(visibleRows)[1] || null;
 
     if (!nameOfFirstSection) {
-      console.log("HELP ME!!!");
+      console.log("VISIBLE ROWS IS NULL!!! oh no!!!");
       //this.props.setColumnLanguage(this.props.columnLanguage == "english" ? "hebrew" : "english");
     }
     if (nameOfSecondSection != null) {
@@ -208,8 +209,7 @@ var TextColumn = React.createClass({
         //console.log("VISIBLE", allVisibleRows, "TO LOAD", segmentToLoad,"Seg Ind Ref",this.props.segmentIndexRef);
 
         if (segmentToLoad !== this.props.segmentIndexRef) {
-          this.highlightRef = highlightRef;
-          this.props.textSegmentPressed(sectionToLoad, segmentToLoad);
+          this.props.textSegmentPressed(sectionToLoad, segmentToLoad,highlightRef);
         }
       }
 
@@ -333,7 +333,6 @@ var TextColumn = React.createClass({
     var data = props.data;
     var sections = {};
 
-    var highlightedRow = props.textReference + "_" + (props.segmentIndexRef+1);
     if (props.textFlow == 'continuous') {
       var rows = {};
       var highlight = null;
@@ -348,7 +347,7 @@ var TextColumn = React.createClass({
         for (var i = 0; i < data[section].length; i++) {
           var segmentData = {
             content: data[section][i],
-            highlight: props.offsetRef == rowID.replace("wholeSection", i+1) || (props.textListVisible && highlightedRow == rowID.replace("wholeSection", i+1))
+            highlight: props.offsetRef == rowID.replace("wholeSection", i+1) || (props.textListVisible && props.segmentRef == rowID.replace("wholeSection", i+1))
           }
           highlight = segmentData.highlight ? i : highlight;
           rowData.segmentData.push(segmentData);
@@ -368,7 +367,7 @@ var TextColumn = React.createClass({
             content: data[section][i], // Store data in `content` so that we can manipulate other fields without manipulating the original data
             section: section,
             row: i,
-            highlight: props.offsetRef == rowID || (props.textListVisible && this.highlightRef == rowID),
+            highlight: props.offsetRef == rowID || (props.textListVisible && props.segmentRef == rowID),
             changeString: [rowID, props.columnLanguage, props.textFlow, props.settings.fontSize].join("|")
           };
           rowData.changeString += rowData.highlight ? "|highlight" : "";

@@ -40,6 +40,7 @@ var ReaderApp = React.createClass({
 
         return {
             offsetRef: null, /* used to jump to specific ref when opening a link*/
+            segmentRef: "", /* only used for highlighting right now */
             segmentIndexRef: -1,
             textReference: "",
             textTitle: "",
@@ -67,7 +68,7 @@ var ReaderApp = React.createClass({
           console.error('Error caught from Sefaria._deleteAllFiles', error);
         });
     },
-    textSegmentPressed: function(section, segment, shouldToggle) {
+    textSegmentPressed: function(section, segment, segmentRef, shouldToggle) {
         console.log("textSegmentPressed",shouldToggle);
         if (!this.state.data[section][segment]) {
           return;
@@ -82,6 +83,7 @@ var ReaderApp = React.createClass({
             });
         }
         let stateObj = {
+            segmentRef: segmentRef,
             segmentIndexRef: segment,
             linkStaleRecentFilters: this.state.linkRecentFilters.map(()=>true),
             loadingLinks: loadingLinks
@@ -386,6 +388,7 @@ var ReaderApp = React.createClass({
                     sectionArray={this.state.sectionArray}
                     sectionHeArray={this.state.sectionHeArray}
                     offsetRef={this.state.offsetRef}
+                    segmentRef={this.state.segmentRef}
                     segmentIndexRef={this.state.segmentIndexRef}
                     textList={0}
                     menuOpen={this.state.menuOpen}

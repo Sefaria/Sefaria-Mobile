@@ -28,7 +28,7 @@ var TextSegment = React.createClass({
     let section = parseInt(key.split(":")[0]);
     let segment = parseInt(key.split(":")[1]);
     this.props.scrollToRef(this.props.rowRef,true,true);
-    this.props.textSegmentPressed(section,segment,true);
+    this.props.textSegmentPressed(section,segment,this.props.rowRef,true);
   },
   render: function() {
     // console.log(this.props.segmentKey+": "+typeof(this.props.textRef));
