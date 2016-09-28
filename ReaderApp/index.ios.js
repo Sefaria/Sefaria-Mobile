@@ -69,7 +69,7 @@ var ReaderApp = React.createClass({
         });
     },
     textSegmentPressed: function(section, segment, segmentRef, shouldToggle) {
-        console.log("textSegmentPressed", segmentRef, shouldToggle);
+        console.log("textSegmentPressed", segment, segmentRef, shouldToggle);
         if (!this.state.data[section][segment]) {
           return;
         }
@@ -150,9 +150,9 @@ var ReaderApp = React.createClass({
     },
     updateData: function(direction) {
         console.log("updating data -- " + direction);
-        if (direction === "next") {
+        if (direction === "next" && this.state.next) {
             this.updateDataNext();
-        } else if (direction == "prev") {
+        } else if (direction == "prev" && this.state.prev) {
             this.updateDataPrev();
         }
     },

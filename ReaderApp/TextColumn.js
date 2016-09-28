@@ -104,7 +104,7 @@ var TextColumn = React.createClass({
     }
   },*/
   /*note segNum is a numerical string */
-  findDataSegmentIndex: function (secIndex,segNum) {
+  findDataSegmentIndex: function (secIndex, segNum) {
     let start = this.props.data[secIndex].length-1;
     for (let i = start; i >= 0; i--) {
       if (this.props.data[secIndex][i].segmentNumber === segNum) {
@@ -210,7 +210,7 @@ var TextColumn = React.createClass({
         //console.log("VISIBLE", allVisibleRows, "TO LOAD", segmentToLoad,"Seg Ind Ref",this.props.segmentIndexRef);
 
         if (segmentToLoad !== this.props.segmentIndexRef) {
-          this.props.textSegmentPressed(sectionToLoad, segmentToLoad,highlightRef);
+          this.props.textSegmentPressed(sectionToLoad, segmentToLoad, highlightRef);
         }
       }
 
