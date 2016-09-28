@@ -69,7 +69,7 @@ var ReaderApp = React.createClass({
         });
     },
     textSegmentPressed: function(section, segment, segmentRef, shouldToggle) {
-        console.log("textSegmentPressed",shouldToggle);
+        console.log("textSegmentPressed", segmentRef, shouldToggle);
         if (!this.state.data[section][segment]) {
           return;
         }

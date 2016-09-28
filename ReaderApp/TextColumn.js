@@ -62,6 +62,7 @@ var TextColumn = React.createClass({
   },
   getInitialState: function() {
     this.rowRefs = {}; //hash table of currently loaded row refs.
+    this.previousY = 0; // for measuring scroll speed
     return {
       dataSource: new ListView.DataSource({
           rowHasChanged: this.rowHasChanged,
@@ -168,8 +169,8 @@ var TextColumn = React.createClass({
     //auto highlight middle visible segment
    if (this.props.textListVisible) {
 
-      // Measure scroll velocity, don't update unless we're moving slowly.
-      if (Math.abs(this.previousY - e.nativeEvent.contentOffset.y) > 200) {
+      // Measure scroll speed, don't update unless we're moving slowly.
+      if (Math.abs(this.previousY - e.nativeEvent.contentOffset.y) > 40) {
         this.previousY = e.nativeEvent.contentOffset.y;
         return;
       }
