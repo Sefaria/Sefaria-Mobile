@@ -72,7 +72,8 @@ var TextColumn = React.createClass({
       scrollingToTargetRef:false,
       scrolledAtLeastOnceToTargetRef: false,
       scrolledToOffsetRef:false,
-      scrollOffset:0
+      scrollOffset:0,
+      highlightRef: ""
     };
   },
   componentDidMount: function() {
@@ -183,7 +184,8 @@ var TextColumn = React.createClass({
           allVisibleRows.push({
             "segIndex": this.findDataSegmentIndex(0, "" + segNum),
             "secIndex": 0,
-            "sortNum": segNum
+            "sortNum": segNum,
+            "ref": seg
           });
         }
         if (nameOfSecondSection != null) {
@@ -192,7 +194,8 @@ var TextColumn = React.createClass({
             allVisibleRows.push({
               "segIndex": this.findDataSegmentIndex(1, "" + segNum),
               "secIndex": 1,
-              "sortNum": 10000 * segNum
+              "sortNum": 10000 * segNum,
+              "ref": seg
             });
           }
         }
@@ -201,9 +204,11 @@ var TextColumn = React.createClass({
         let highlightIndex = allVisibleRows.length >= 2 ? 1 : 0;
         var segmentToLoad = allVisibleRows[highlightIndex].segIndex; //we now know the first element has the lowest segment number
         var sectionToLoad = allVisibleRows[highlightIndex].secIndex;
+        let highlightRef = allVisibleRows[highlightIndex].ref;
         //console.log("VISIBLE", allVisibleRows, "TO LOAD", segmentToLoad,"Seg Ind Ref",this.props.segmentIndexRef);
 
         if (segmentToLoad !== this.props.segmentIndexRef) {
+          this.highlightRef = highlightRef;
           this.props.textSegmentPressed(sectionToLoad, segmentToLoad);
         }
       }
@@ -363,7 +368,7 @@ var TextColumn = React.createClass({
             content: data[section][i], // Store data in `content` so that we can manipulate other fields without manipulating the original data
             section: section,
             row: i,
-            highlight: props.offsetRef == rowID || (props.textListVisible && highlightedRow == rowID),
+            highlight: props.offsetRef == rowID || (props.textListVisible && this.highlightRef == rowID),
             changeString: [rowID, props.columnLanguage, props.textFlow, props.settings.fontSize].join("|")
           };
           rowData.changeString += rowData.highlight ? "|highlight" : "";

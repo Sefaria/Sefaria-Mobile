@@ -70,7 +70,6 @@ var ReaderApp = React.createClass({
     textSegmentPressed: function(section, segment, shouldToggle) {
         console.log("textSegmentPressed",shouldToggle);
         if (!this.state.data[section][segment]) {
-          console.log("data is UNDEFINED !!! oh noooooo!!!")
           return;
         }
         console.log(section, segment);

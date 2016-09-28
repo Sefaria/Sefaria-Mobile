@@ -356,6 +356,8 @@ Sefaria = {
               };
             }
           }
+
+          //Add zero commentaries
           let commentatorList = Sefaria.commentatorListBySection(sectionRef);
           let commentaryBooks = summary["Commentary"].books;
           let commentaryBookTitles = Object.keys(commentaryBooks).map((book)=>commentaryBooks[book].title);
