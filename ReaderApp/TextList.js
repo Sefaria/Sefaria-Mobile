@@ -166,14 +166,15 @@ var LinkBook = React.createClass({
     count:    React.PropTypes.number
   },
   render: function() {
-    var countStr = " (" + this.props.count + ")";
+    let countStr = this.props.count == 0 ? "" : " (" + this.props.count + ")";
+    let textStyle = this.props.count == 0 ? this.props.theme.verseNumber : this.props.theme.text;
     return (
       <TouchableOpacity
         style={[styles.textBlockLink,this.props.theme.textBlockLink]}
         onPress={this.props.onPress}>
         { this.props.language == "hebrew" ?
-          <Text style={[styles.he, styles.centerText, this.props.theme.text]}>{this.props.heTitle + countStr}</Text> :
-          <Text style={[styles.en, styles.centerText, this.props.theme.text]}>{this.props.title + countStr}</Text> }
+          <Text style={[styles.he, styles.centerText, textStyle]}>{this.props.heTitle + countStr}</Text> :
+          <Text style={[styles.en, styles.centerText, textStyle]}>{this.props.title + countStr}</Text> }
       </TouchableOpacity>
     );
   }

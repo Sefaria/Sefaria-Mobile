@@ -70,13 +70,14 @@ var ReaderApp = React.createClass({
     textSegmentPressed: function(section, segment, shouldToggle) {
         console.log("textSegmentPressed",shouldToggle);
         if (!this.state.data[section][segment]) {
+          console.log("data is UNDEFINED !!! oh noooooo!!!")
           return;
         }
         console.log(section, segment);
         let loadingLinks = false;
         if (segment !== this.state.segmentIndexRef) {
             loadingLinks = true;
-            Sefaria.links.linkSummary(this.state.data[section][segment].links).then((data) => {
+            Sefaria.links.linkSummary(this.state.textReference,this.state.data[section][segment].links).then((data) => {
               this.setState({linkSummary:data,loadingLinks:false});
               this.updateLinkCat(data, null); // Set up `linkContents` in their initial state as an array of nulls
             });
@@ -114,7 +115,7 @@ var ReaderApp = React.createClass({
             var loadingLinks = false;
             if (data.content && data.content.links) {
                 loadingLinks = true;
-                Sefaria.links.linkSummary(data.content[this.state.segmentIndexRef].links).then(()=>
+                Sefaria.links.linkSummary(data.ref,data.content[this.state.segmentIndexRef].links).then(()=>
                   this.setState({linkSummary: linkSummary, loadingLinks: false})
                 );
             }

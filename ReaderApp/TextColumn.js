@@ -116,7 +116,7 @@ var TextColumn = React.createClass({
        this.onTopReached();
     }
 
-    console.log(this.rowRefs)
+    //console.log(this.rowRefs)
 
     var visibleRows = this.refs._listView._visibleRows;
 
@@ -131,13 +131,13 @@ var TextColumn = React.createClass({
       let firstInd = this.props.sectionArray.indexOf(nameOfFirstSection);
       let secondInd = this.props.sectionArray.indexOf(nameOfSecondSection);
       if (firstInd > secondInd) {
-        console.log("SWAP",nameOfFirstSection,nameOfSecondSection);
+        //console.log("SWAP",nameOfFirstSection,nameOfSecondSection);
         let tempFirst = nameOfFirstSection;
         nameOfFirstSection = nameOfSecondSection;
         nameOfSecondSection = tempFirst;
       }
     }
-    console.log("VISIBLE TITLES",nameOfFirstSection,nameOfSecondSection,Object.keys(this.refs._listView._visibleRows));
+    //console.log("VISIBLE TITLES",nameOfFirstSection,nameOfSecondSection,Object.keys(this.refs._listView._visibleRows));
 
     if (!visibleRows[nameOfFirstSection]) return; //look at ListView implementation. renderScrollComponent runs before visibleRows is populated
     var numberOfVisibleSegmentsInFirstSection = Object.keys(visibleRows[nameOfFirstSection]).length;
@@ -201,7 +201,7 @@ var TextColumn = React.createClass({
         let highlightIndex = allVisibleRows.length >= 2 ? 1 : 0;
         var segmentToLoad = allVisibleRows[highlightIndex].segIndex; //we now know the first element has the lowest segment number
         var sectionToLoad = allVisibleRows[highlightIndex].secIndex;
-        console.log("VISIBLE", allVisibleRows, "TO LOAD", segmentToLoad);
+        //console.log("VISIBLE", allVisibleRows, "TO LOAD", segmentToLoad,"Seg Ind Ref",this.props.segmentIndexRef);
 
         if (segmentToLoad !== this.props.segmentIndexRef) {
           this.props.textSegmentPressed(sectionToLoad, segmentToLoad);
@@ -272,7 +272,7 @@ var TextColumn = React.createClass({
   },
   visibleRowsChanged: function(visibleRows, changedRows) {
     counter++;
-    console.log(counter,"VISIBLE ROWS CHANGED",Object.keys(visibleRows),Object.keys(changedRows));
+    //console.log(counter,"VISIBLE ROWS CHANGED",Object.keys(visibleRows),Object.keys(changedRows));
     if (this.props.loadingTextTail == false && this.state.targetSectionRef != "" && this.state.scrollingToTargetRef == true) {
       this.scrollToTarget();
     }
@@ -329,7 +329,6 @@ var TextColumn = React.createClass({
     var sections = {};
 
     var highlightedRow = props.textReference + "_" + (props.segmentIndexRef+1);
-
     if (props.textFlow == 'continuous') {
       var rows = {};
       var highlight = null;

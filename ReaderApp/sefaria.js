@@ -323,12 +323,11 @@ Sefaria = {
       };
       return Sefaria.data(ref).then(parseData);
     },
-    linkSummary: function(tempLinks) {
+    linkSummary: function(sectionRef,tempLinks) {
         return new Promise(function(resolve, reject) {
           // Returns an ordered array summarizing the link counts by category and text
           // Takes an array of links which are of the form { "category", "sourceHeRef", "sourceRef", "index_title"}
           let links = tempLinks || [];
-
           var summary = {"All": {count: 0, books: {}}, "Commentary": {count: 0, books: {}}};
           for (let link of links) {
             // Count Category
@@ -357,26 +356,26 @@ Sefaria = {
               };
             }
           }
-          /*
-          // Add Zero counts for every commentator in this section not already in list
-          var baseRef    = typeof ref == "string" ? ref : ref[0]; // TODO handle refs spanning sections
-          var oRef       = Sefaria.ref(baseRef);
-          var sectionRef = oRef ? oRef.sectionRef : baseRef;
-          if (ref !== sectionRef) {
-            var sectionLinks = Sefaria.links(sectionRef);
-            for (var i = 0; i < sectionLinks.length; i++) {
-              var l = sectionLinks[i];
-              if (l.category === "Commentary") {
-                if (!("Commentary" in summary)) {
-                  summary["Commentary"] = {count: 0, books: {}};
-                }
-                if (!(l.commentator in summary["Commentary"].books)) {
-                  summary["Commentary"].books[l.commentator] = {count: 0};
-                }
+          let commentatorList = Sefaria.commentatorListBySection(sectionRef);
+          let commentaryBooks = summary["Commentary"].books;
+          let commentaryBookTitles = Object.keys(commentaryBooks).map((book)=>commentaryBooks[book].title);
+          console.log(commentaryBooks);
+          console.log(commentaryBookTitles);
+          console.log(commentatorList.en);
+          for (let i = 0; i < commentatorList.en.length; i++) {
+            let commEn = commentatorList.en[i];
+            let commHe = commentatorList.he[i];
+            if (commentaryBookTitles.indexOf(commEn) == -1) {
+              commentaryBooks[commEn] =
+              {
+                count:    0,
+                title:    commEn,
+                heTitle:  commHe,
+                category: "Commentary",
+                refList:  []
               }
             }
-          }*/
-
+          }
 
           // Convert object into ordered list
 
