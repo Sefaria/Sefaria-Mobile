@@ -359,9 +359,6 @@ Sefaria = {
           let commentatorList = Sefaria.commentatorListBySection(sectionRef);
           let commentaryBooks = summary["Commentary"].books;
           let commentaryBookTitles = Object.keys(commentaryBooks).map((book)=>commentaryBooks[book].title);
-          console.log(commentaryBooks);
-          console.log(commentaryBookTitles);
-          console.log(commentatorList.en);
           for (let i = 0; i < commentatorList.en.length; i++) {
             let commEn = commentatorList.en[i];
             let commHe = commentatorList.he[i];
