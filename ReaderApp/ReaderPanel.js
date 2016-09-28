@@ -249,6 +249,7 @@ var ReaderPanel = React.createClass({
               prev={this.props.prev}
               loadingTextTail={this.props.loadingTextTail}
               setLoadTextTail={this.props.setLoadTextTail}
+              setColumnLanguage={this.setColumnLanguage}
               style={styles.textColumn} />
           </View> }
 

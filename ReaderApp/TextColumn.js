@@ -21,7 +21,7 @@ const {
 } = require('./Misc.js');
 
 const MAX_NUM_SECTIONS = 200; //num sections that can be in this.props.data
-
+var counter = 0;
 var segmentIndexRefPositionArray = {};
 
 var CustomLayoutAnimation = {
@@ -104,7 +104,6 @@ var TextColumn = React.createClass({
   findDataSegmentIndex: function (secIndex,segNum) {
     let start = this.props.data[secIndex].length-1;
     for (let i = start; i >= 0; i--) {
-      if (segNum == "25") console.log("COMPARE",this.props.data[secIndex][i].segmentNumber,segNum);
       if (this.props.data[secIndex][i].segmentNumber === segNum) {
         return i;
       }
@@ -122,15 +121,21 @@ var TextColumn = React.createClass({
     var nameOfFirstSection = Object.keys(visibleRows)[0];
     var nameOfSecondSection = Object.keys(visibleRows)[1] || null;
 
+    if (!nameOfFirstSection) {
+      console.log("HELP ME!!!");
+      //this.props.setColumnLanguage(this.props.columnLanguage == "english" ? "hebrew" : "english");
+    }
     if (nameOfSecondSection != null) {
       let firstInd = this.props.sectionArray.indexOf(nameOfFirstSection);
       let secondInd = this.props.sectionArray.indexOf(nameOfSecondSection);
       if (firstInd > secondInd) {
+        console.log("SWAP",nameOfFirstSection,nameOfSecondSection);
         let tempFirst = nameOfFirstSection;
         nameOfFirstSection = nameOfSecondSection;
         nameOfSecondSection = tempFirst;
       }
     }
+    console.log("VISIBLE TITLES",nameOfFirstSection,nameOfSecondSection,Object.keys(this.refs._listView._visibleRows));
 
     if (!visibleRows[nameOfFirstSection]) return; //look at ListView implementation. renderScrollComponent runs before visibleRows is populated
     var numberOfVisibleSegmentsInFirstSection = Object.keys(visibleRows[nameOfFirstSection]).length;
@@ -160,7 +165,7 @@ var TextColumn = React.createClass({
    if (this.props.textListVisible) {
 
       // Measure scroll velocity, don't update unless we're moving slowly.
-      if (Math.abs(this.previousY - e.nativeEvent.contentOffset.y) > 20) {
+      if (Math.abs(this.previousY - e.nativeEvent.contentOffset.y) > 200) {
         this.previousY = e.nativeEvent.contentOffset.y;
         return;
       }
@@ -186,7 +191,7 @@ var TextColumn = React.createClass({
       let highlightIndex = allVisibleRows.length >= 2 ? 1 : 0;
       var segmentToLoad = allVisibleRows[highlightIndex].segIndex; //we now know the first element has the lowest segment number
       var sectionToLoad = allVisibleRows[highlightIndex].secIndex;
-      console.log("VISIBLE",allVisibleRows,"TO LOAD",segmentToLoad);
+      console.log("VISIBLE",this.props.sectionArray);
 
       if (segmentToLoad !== this.props.segmentIndexRef) {
         this.props.textSegmentPressed(sectionToLoad, segmentToLoad);
@@ -255,6 +260,8 @@ var TextColumn = React.createClass({
     this.props.updateData("next");
   },
   visibleRowsChanged: function(visibleRows, changedRows) {
+    counter++;
+    console.log(counter,"VISIBLE ROWS CHANGED",Object.keys(visibleRows),Object.keys(changedRows));
     if (this.props.loadingTextTail == false && this.state.targetSectionRef != "" && this.state.scrollingToTargetRef == true) {
       this.scrollToTarget();
     }
@@ -515,14 +522,14 @@ var TextColumn = React.createClass({
     return this.props.next ? <LoadingView theme={this.props.theme} /> : null;
   },
   render: function() {
-    console.log("HASHSIZE",Object.keys(this.rowRefs).length);
+    //console.log("HASHSIZE",Object.keys(this.rowRefs).length);
     //ref={this.props.textReference+"_"+this.props.data[this.state.sectionArray.indexOf(sID)][this.props.segmentRef].segmentNumber}
     return (
       <ListView ref='_listView'
                 dataSource={this.state.dataSource}
                 renderRow={this.renderRow}
                 onScroll={this.handleScroll}
-                onChangeVisibleRows={(visibleRows, changedRows) => this.visibleRowsChanged(visibleRows, changedRows)}
+                onChangeVisibleRows={this.visibleRowsChanged}
                 onEndReached={this.onEndReached}
                 renderFooter={this.renderFooter}
                 /*renderScrollComponent={props => <ScrollView {...props} contentOffset={{y:this.state.scrollOffset}}/>}*/
