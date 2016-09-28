@@ -116,6 +116,8 @@ var TextColumn = React.createClass({
        this.onTopReached();
     }
 
+    console.log(this.rowRefs)
+
     var visibleRows = this.refs._listView._visibleRows;
 
     var nameOfFirstSection = Object.keys(visibleRows)[0];
@@ -173,28 +175,37 @@ var TextColumn = React.createClass({
 
       var allVisibleRows = [];
 
+      if (this.props.textFlow == 'segmented') {
 
+        for (let seg of Object.keys(visibleRows[nameOfFirstSection])) {
+          let segNum = parseInt(seg.replace(nameOfFirstSection + "_", ""));
 
-      for (let seg of Object.keys(visibleRows[nameOfFirstSection])) {
-        let segNum = parseInt(seg.replace(nameOfFirstSection+"_",""));
-
-        allVisibleRows.push({"segIndex":this.findDataSegmentIndex(0,""+segNum),"secIndex":0,"sortNum":segNum});
-      }
-      if (nameOfSecondSection != null) {
-        for (let seg of Object.keys(visibleRows[nameOfSecondSection])) {
-          let segNum = parseInt(seg.replace(nameOfSecondSection+"_",""));
-          allVisibleRows.push({"segIndex":this.findDataSegmentIndex(1,""+segNum),"secIndex":1,"sortNum":10000*segNum});
+          allVisibleRows.push({
+            "segIndex": this.findDataSegmentIndex(0, "" + segNum),
+            "secIndex": 0,
+            "sortNum": segNum
+          });
         }
-      }
-      allVisibleRows.sort((a,b)=>a.sortNum-b.sortNum);
+        if (nameOfSecondSection != null) {
+          for (let seg of Object.keys(visibleRows[nameOfSecondSection])) {
+            let segNum = parseInt(seg.replace(nameOfSecondSection + "_", ""));
+            allVisibleRows.push({
+              "segIndex": this.findDataSegmentIndex(1, "" + segNum),
+              "secIndex": 1,
+              "sortNum": 10000 * segNum
+            });
+          }
+        }
+        allVisibleRows.sort((a, b)=>a.sortNum - b.sortNum);
 
-      let highlightIndex = allVisibleRows.length >= 2 ? 1 : 0;
-      var segmentToLoad = allVisibleRows[highlightIndex].segIndex; //we now know the first element has the lowest segment number
-      var sectionToLoad = allVisibleRows[highlightIndex].secIndex;
-      console.log("VISIBLE",this.props.sectionArray);
+        let highlightIndex = allVisibleRows.length >= 2 ? 1 : 0;
+        var segmentToLoad = allVisibleRows[highlightIndex].segIndex; //we now know the first element has the lowest segment number
+        var sectionToLoad = allVisibleRows[highlightIndex].secIndex;
+        console.log("VISIBLE", allVisibleRows, "TO LOAD", segmentToLoad);
 
-      if (segmentToLoad !== this.props.segmentIndexRef) {
-        this.props.textSegmentPressed(sectionToLoad, segmentToLoad);
+        if (segmentToLoad !== this.props.segmentIndexRef) {
+          this.props.textSegmentPressed(sectionToLoad, segmentToLoad);
+        }
       }
 
     }
@@ -375,11 +386,14 @@ var TextColumn = React.createClass({
       var currSegData = rowData.segmentData[i];
       currSegData.text = currSegData.content.text || "";
       currSegData.he = currSegData.content.he || "";
+      currSegData.segmentNumber = currSegData.segmentNumber || this.props.data[rowData.section][i].segmentNumber;
       var columnLanguage = Sefaria.util.getColumnLanguageWithContent(this.props.columnLanguage, currSegData.text, currSegData.he);
       var refSection = rowData.section + ":" + i;
       var reactRef = this.props.sectionArray[rowData.section] + "_" + this.props.data[rowData.section][i].segmentNumber; //TODO use : instead of _ for seperator
+      var style = currSegData.highlight ? [styles.verseNumber,this.props.theme.verseNumber,this.props.theme.segmentHighlight] : [styles.verseNumber,this.props.theme.verseNumber];
+
       segmentText.push(<Text ref={this.props.sectionArray[rowData.section] + "_" + currSegData.segmentNumber}
-                                     style={[styles.verseNumber,this.props.theme.verseNumber]}
+                                     style={style}
                                      key={refSection+"segment-number"}>
         {currSegData.segmentNumber}
       </Text>);
@@ -417,9 +431,11 @@ var TextColumn = React.createClass({
       }
 
       segmentText.push(<Text> </Text>);
-      // Highlight within continuous isn't working yet
-      var style = rowData.highlight ? [this.props.theme.segmentHighlight] : [];
-      segments.push(<Text style={style} ref={(view)=>this.rowRefs[reactRef]=view}>{segmentText}</Text>);
+      var refSetter = function(key, ref) {
+        //console.log("Setting ref for " + key);
+        this.rowRefs[key] = ref;
+      }.bind(this, reactRef);
+      segments.push(<Text style={style} ref={refSetter}>{segmentText}</Text>);
 
     }
     return <View style={[styles.verseContainer, styles.numberSegmentHolderEnContinuous]} key={rowData.section + ":" + 1}>
