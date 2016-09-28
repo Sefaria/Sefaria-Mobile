@@ -69,11 +69,14 @@ var ReaderApp = React.createClass({
         });
     },
     textSegmentPressed: function(section, segment, segmentRef, shouldToggle) {
-        console.log("textSegmentPressed", segment, segmentRef, shouldToggle);
+        console.log("textSegmentPressed", section, segment, segmentRef, shouldToggle);
+        if (shouldToggle && this.state.textListVisible) {
+            this.setState({textListVisible: false});
+            return; // Don't bother with other changes if we are simply closing the TextList
+        }
         if (!this.state.data[section][segment]) {
           return;
         }
-        console.log(section, segment);
         let loadingLinks = false;
         if (segment !== this.state.segmentIndexRef) {
             loadingLinks = true;

@@ -79,10 +79,10 @@ var TextColumn = React.createClass({
     };
   },
   componentDidMount: function() {
-    this.scrollToRef(this.props.offsetRef,true,false);
+    this.scrollToRef(this.props.offsetRef, true, false);
   },
   componentDidUpdate:function() {
-    this.scrollToRef(this.props.offsetRef,false,false);
+    this.scrollToRef(this.props.offsetRef, false, false);
   },
   componentWillReceiveProps: function(nextProps) {
     //console.log("TextColumn Will Receive Props");
@@ -220,6 +220,7 @@ var TextColumn = React.createClass({
       //console.log(Object.keys(this.refs._listView._visibleRows)[0]);
       //console.log(this.state.targetSectionRef)
       //if current section not visible
+      console.log("scrollToTarget", this.state)
       if (this.state.targetSectionRef !== Object.keys(this.refs._listView._visibleRows)[0] && this.state.targetSectionRef !== Object.keys(this.refs._listView._visibleRows)[1]) {
         this.refs._listView.scrollTo({
           x: 0,
@@ -291,16 +292,21 @@ var TextColumn = React.createClass({
     });
     this.setState({continueScrolling:true}); //needed to continue rendering after each success scroll
   },
-  scrollToRef: function(rowRef,didMount,isClickScroll) {
+  scrollToRef: function(rowRef, didMount, isClickScroll) {
     /* Warning, this function is hacky. anyone who knows how to improve it, be my guest
-    didMount - true if comint from componentDidMount. it seems that none of the rows have heights (even if they're on screen) at the did mount stage. so I scroll by one pixel so that the rows get measured
+    didMount - true if comint from componentDidMount. it seems that none of the rows 
+    have heights (even if they're on screen) at the did mount stage. so I scroll by 
+    one pixel so that the rows get measured
 
-    the function looks to see if this.props.offsetRef is on screen. it determines if its on screen by measuring the row. if it's height is 0, it is probably not on screen. right now I can't find a better way to do this
+    the function looks to see if this.props.offsetRef is on screen. it determines if its 
+    on screen by measuring the row. if it's height is 0, it is probably not on screen. 
+    right now I can't find a better way to do this
     if on screen, it jumps to it
-    if not, it jumps a whole screen downwards (except if didMount is true, see above). on the next render it will check again
+    if not, it jumps a whole screen downwards (except if didMount is true, see above).
+    on the next render it will check again
     */
-
-    if (rowRef && rowRef != null && (!this.state.scrolledToOffsetRef || isClickScroll)) {
+    console.log("scrollToRef", rowRef)
+    if (rowRef && (!this.state.scrolledToOffsetRef || isClickScroll)) {
       let ref = this.rowRefs[rowRef];
       let handle = findNodeHandle(ref);
       if (handle != null) {
@@ -312,7 +318,7 @@ var TextColumn = React.createClass({
                 this.scrollOneScreenDown(didMount);
              } else {
                //LayoutAnimation.configureNext(CustomLayoutAnimation);
-               this.setState({scrolledToOffsetRef:true});
+               this.setState({scrolledToOffsetRef: true});
                this.refs._listView.scrollTo({
                  x: 0,
                  y: this.refs._listView.scrollProperties.offset+pageY-100,
@@ -326,6 +332,12 @@ var TextColumn = React.createClass({
         //this.scrollOneScreenDown(didMount);
       }
     }
+  },
+  textSegmentPressed: function(section, segment, segmentRef, shouldToggle) {
+    if (!this.props.textListVisible) {
+      this.scrollToRef(segmentRef, true, true);
+    }
+    this.props.textSegmentPressed(section, segment, segmentRef, true);
   },
   generateDataSource: function(props) {
     // Returns data representing sections and rows to be passed into ListView.DataSource.cloneWithSectionsAndRows
@@ -413,7 +425,7 @@ var TextColumn = React.createClass({
           key={refSection+"-he"}
           data={currSegData.he}
           textType="hebrew"
-          textSegmentPressed={ this.props.textSegmentPressed }
+          textSegmentPressed={ this.textSegmentPressed }
           textListVisible={this.props.textListVisible}
           settings={this.props.settings}/>);
       }
@@ -429,7 +441,7 @@ var TextColumn = React.createClass({
           key={refSection+"-en"}
           data={currSegData.text}
           textType="english"
-          textSegmentPressed={ this.props.textSegmentPressed }
+          textSegmentPressed={ this.textSegmentPressed }
           textListVisible={this.props.textListVisible}
           settings={this.props.settings}/>);
       }
@@ -493,7 +505,7 @@ var TextColumn = React.createClass({
         key={refSection+"-he"}
         data={rowData.he}
         textType="hebrew"
-        textSegmentPressed={ this.props.textSegmentPressed }
+        textSegmentPressed={ this.textSegmentPressed }
         textListVisible={this.props.textListVisible}
         settings={this.props.settings}/>);
     }
@@ -509,7 +521,7 @@ var TextColumn = React.createClass({
         key={refSection+"-en"}
         data={rowData.text}
         textType="english"
-        textSegmentPressed={ this.props.textSegmentPressed }
+        textSegmentPressed={ this.textSegmentPressed }
         textListVisible={this.props.textListVisible}
         settings={this.props.settings} />);
     }
