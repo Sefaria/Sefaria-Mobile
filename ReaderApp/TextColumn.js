@@ -6,6 +6,7 @@ import ReactNative, { 	AppRegistry,
   ScrollView,
   Text,
   findNodeHandle,
+  ActivityIndicator,
   ListView,
   LayoutAnimation
 } from 'react-native';
@@ -230,15 +231,17 @@ var TextColumn = React.createClass({
         this.state.scrolledAtLeastOnceToTargetRef = true;
       }
       else if (this.state.scrolledAtLeastOnceToTargetRef == true) {
-        var handler = findNodeHandle(this.refs[(Object.keys(this.refs._listView._visibleRows[Object.keys(this.refs._listView._visibleRows)[1]])[0])])
+        let ref = this.rowRefs[this.state.targetSectionRef+"_1"];
+        let handle = findNodeHandle(ref);
+
         queryLayoutByID(
-           handler,
+           handle,
            null, /*Error callback that doesn't yet have a hook in native so doesn't get called */
            (left, top, width, height, pageX, pageY) => {
              //console.log(left, top, width, height, pageX, pageY)
              this.refs._listView.scrollTo({
                x: 0,
-               y: this.refs._listView.scrollProperties.offset+pageY-150,
+               y: this.refs._listView.scrollProperties.offset+pageY-160,
                animated: false
              });
            }
@@ -258,12 +261,11 @@ var TextColumn = React.createClass({
     }
   },
   onTopReached: function() {
-    if (this.props.loadingTextTail) {
+    if (this.props.loadingTextTail == true) {
       //already loading tail
       return;
     }
 
-    // this.refs._listView.scrollTo({x: 0, y: this.calculateOffset(), animated: false}) //TODO replace 363 with the height of textColumn
 
     this.state.scrollingToTargetRef = true;
     this.state.targetSectionRef=this.props.textReference;
@@ -271,7 +273,7 @@ var TextColumn = React.createClass({
     this.props.updateData("prev");
   },
   onEndReached: function() {
-    if (this.props.loadingTextTail) {
+    if (this.props.loadingTextTail == true) {
       //already loading tail
       return;
     }
@@ -557,6 +559,12 @@ var TextColumn = React.createClass({
     //console.log("HASHSIZE",Object.keys(this.rowRefs).length);
     //ref={this.props.textReference+"_"+this.props.data[this.state.sectionArray.indexOf(sID)][this.props.segmentRef].segmentNumber}
     return (
+    <View style={{flex:1}}>
+    <ActivityIndicator
+            animating={true}
+            style={this.state.scrollingToTargetRef == true ? [styles.loadingView] : {width:0, height:0, opacity:0}}
+            size="large"/>
+
       <ListView ref='_listView'
                 dataSource={this.state.dataSource}
                 renderRow={this.renderRow}
@@ -569,6 +577,7 @@ var TextColumn = React.createClass({
                 onContentSizeChange={(w, h) => {this.updateHeight(h)}}
                 onEndReachedThreshold={1000}
                 scrollEventThrottle={100} />
+      </View>
     );
   }
 });
