@@ -77,7 +77,7 @@ var ReaderApp = React.createClass({
         }
         if (!this.state.data[section][segment]) {
           return;
-        }
+        } 
         let loadingLinks = false;
         if (segment !== this.state.segmentIndexRef) {
             loadingLinks = true;
@@ -97,7 +97,7 @@ var ReaderApp = React.createClass({
           stateObj.offsetRef = null; //offsetRef is used to highlight. once you open textlist, you should remove the highlight
         }
         this.setState(stateObj);
-
+        this.forceUpdate();
     },
     /*isSegmentLevel is true when you loadNewText() is triggered by a link click or search item click that needs to jump to a certain ref*/
     loadNewText: function(ref, isSegmentLevel=false) {

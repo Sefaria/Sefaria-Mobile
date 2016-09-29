@@ -88,14 +88,15 @@ var TextColumn = React.createClass({
     this.scrollToRef(this.props.offsetRef, false, false);
   },
   componentWillReceiveProps: function(nextProps) {
-    //console.log("TextColumn Will Receive Props");
+    console.log("TextColumn Will Receive Props",this.props.segmentRef + " -> " + nextProps.segmentRef);
     //console.log("data length: " + this.props.data.length + " -> " + nextProps.data.length)
     if (this.props.data.length !== nextProps.data.length ||
         this.props.textFlow !== nextProps.textFlow ||
         this.props.columnLanguage !== nextProps.columnLanguage ||
         this.props.settings.fontSize !== nextProps.settings.fontSize ||
         this.props.textListVisible !== nextProps.textListVisible ||
-        this.props.segmentIndexRef !== nextProps.segmentIndexRef) {
+        this.props.segmentIndexRef !== nextProps.segmentIndexRef ||
+        this.props.segmentRef !== nextProps.segmentRef) {
       // Only update dataSource when a change has occurred that will result in different data
       var newData = this.generateDataSource(nextProps);
       this.setState({dataSource: this.state.dataSource.cloneWithRowsAndSections(newData)});
@@ -121,14 +122,13 @@ var TextColumn = React.createClass({
     var nameOfSecondSection = Object.keys(visibleRows)[1] || null;
 
     if (!nameOfFirstSection) {
-      console.log("VISIBLE ROWS IS NULL!!! oh no!!!");
+      console.log("VISIBLE ROWS IS EMPTY!!! oh no!!!");
       //this.props.setColumnLanguage(this.props.columnLanguage == "english" ? "hebrew" : "english");
     }
     if (nameOfSecondSection != null) {
       let firstInd = this.props.sectionArray.indexOf(nameOfFirstSection);
       let secondInd = this.props.sectionArray.indexOf(nameOfSecondSection);
-      if (firstInd > secondInd) {
-        //console.log("SWAP",nameOfFirstSection,nameOfSecondSection);
+      if (firstInd > secondInd) { //SWAP
         let tempFirst = nameOfFirstSection;
         nameOfFirstSection = nameOfSecondSection;
         nameOfSecondSection = tempFirst;
@@ -176,7 +176,6 @@ var TextColumn = React.createClass({
 
         for (let seg of Object.keys(visibleRows[nameOfFirstSection])) {
           let segNum = parseInt(seg.replace(nameOfFirstSection + "_", ""));
-
           allVisibleRows.push({
             "segIndex": this.findDataSegmentIndex(0, "" + segNum),
             "secIndex": 0,
@@ -195,15 +194,16 @@ var TextColumn = React.createClass({
             });
           }
         }
+
         allVisibleRows.sort((a, b)=>a.sortNum - b.sortNum);
+        //console.log("ALL VISIBLE ROWS",allVisibleRows);
 
         let highlightIndex = allVisibleRows.length >= 2 ? 1 : 0;
         var segmentToLoad = allVisibleRows[highlightIndex].segIndex; //we now know the first element has the lowest segment number
         var sectionToLoad = allVisibleRows[highlightIndex].secIndex;
         let highlightRef = allVisibleRows[highlightIndex].ref;
         //console.log("VISIBLE", allVisibleRows, "TO LOAD", segmentToLoad,"Seg Ind Ref",this.props.segmentIndexRef);
-
-        if (segmentToLoad !== this.props.segmentIndexRef) {
+        if (segmentToLoad !== this.props.segmentIndexRef || highlightRef !== this.props.segmentRef) {
           this.props.textSegmentPressed(sectionToLoad, segmentToLoad, highlightRef);
         }
       }
@@ -275,7 +275,6 @@ var TextColumn = React.createClass({
   },
   visibleRowsChanged: function(visibleRows, changedRows) {
     counter++;
-    console.log(counter,"VISIBLE ROWS CHANGED. Visible: ",Object.keys(visibleRows),"Changed: :",Object.keys(changedRows));
     if (this.props.loadingTextHead == false && this.state.targetSectionRef != "" && this.state.scrollingToTargetRef == true) {
       this.scrollToTarget();
     }
@@ -290,12 +289,12 @@ var TextColumn = React.createClass({
   },
   scrollToRef: function(rowRef, didMount, isClickScroll) {
     /* Warning, this function is hacky. anyone who knows how to improve it, be my guest
-    didMount - true if comint from componentDidMount. it seems that none of the rows 
-    have heights (even if they're on screen) at the did mount stage. so I scroll by 
+    didMount - true if comint from componentDidMount. it seems that none of the rows
+    have heights (even if they're on screen) at the did mount stage. so I scroll by
     one pixel so that the rows get measured
 
-    the function looks to see if this.props.offsetRef is on screen. it determines if its 
-    on screen by measuring the row. if it's height is 0, it is probably not on screen. 
+    the function looks to see if this.props.offsetRef is on screen. it determines if its
+    on screen by measuring the row. if it's height is 0, it is probably not on screen.
     right now I can't find a better way to do this
     if on screen, it jumps to it
     if not, it jumps a whole screen downwards (except if didMount is true, see above).
@@ -371,6 +370,7 @@ var TextColumn = React.createClass({
         var rows = {};
         for (var i = 0; i < data[section].length; i++) {
           var rowID = props.sectionArray[section] + "_" + data[section][i].segmentNumber;
+          console.log("ROW ID",rowID,props.segmentRef);
           var rowData = {
             content: data[section][i], // Store data in `content` so that we can manipulate other fields without manipulating the original data
             section: section,
