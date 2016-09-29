@@ -141,7 +141,7 @@ var ReaderApp = React.createClass({
                 linkContents:      [],
                 loadingLinks:      loadingLinks,
                 textListVisible:   false,
-                offsetRef:         segmentNum ? sectionRef + "_" + segmentNum : null
+                offsetRef:         segmentNum ? sectionRef + ":" + segmentNum : null
             });
 
             // Preload Text TOC data into memory
