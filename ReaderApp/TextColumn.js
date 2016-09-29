@@ -88,7 +88,7 @@ var TextColumn = React.createClass({
     this.scrollToRef(this.props.offsetRef, false, false);
   },
   componentWillReceiveProps: function(nextProps) {
-    console.log("TextColumn Will Receive Props",this.props.segmentRef + " -> " + nextProps.segmentRef);
+    //console.log("TextColumn Will Receive Props",this.props.segmentRef + " -> " + nextProps.segmentRef);
     //console.log("data length: " + this.props.data.length + " -> " + nextProps.data.length)
     if (this.props.data.length !== nextProps.data.length ||
         this.props.textFlow !== nextProps.textFlow ||
@@ -101,16 +101,6 @@ var TextColumn = React.createClass({
       var newData = this.generateDataSource(nextProps);
       this.setState({dataSource: this.state.dataSource.cloneWithRowsAndSections(newData)});
     }
-  },
-  findDataSegmentIndex: function (secIndex, segNum) {
-    // note segNum is a numerical string
-    let start = this.props.data[secIndex].length-1;
-    for (let i = start; i >= 0; i--) {
-      if (this.props.data[secIndex][i].segmentNumber === segNum) {
-        return i;
-      }
-    }
-    return -1;
   },
   handleScroll: function(e) {
 
@@ -174,21 +164,23 @@ var TextColumn = React.createClass({
 
       if (this.props.textFlow == 'segmented') {
 
+        var firstSecIndex = this.props.sectionArray.indexOf(nameOfFirstSection.replace("_", ":"));
         for (let seg of Object.keys(visibleRows[nameOfFirstSection])) {
           let segNum = parseInt(seg.replace(nameOfFirstSection + "_", ""));
           allVisibleRows.push({
-            "segIndex": this.findDataSegmentIndex(0, "" + segNum),
-            "secIndex": 0,
+            "segIndex": this.findDataSegmentIndex(firstSecIndex, "" + segNum),
+            "secIndex": firstSecIndex,
             "sortNum": segNum,
             "ref": seg
           });
         }
         if (nameOfSecondSection != null) {
+          var secondSecIndex = this.props.sectionArray.indexOf(nameOfSecondSection.replace("_", ":"));
           for (let seg of Object.keys(visibleRows[nameOfSecondSection])) {
             let segNum = parseInt(seg.replace(nameOfSecondSection + "_", ""));
             allVisibleRows.push({
-              "segIndex": this.findDataSegmentIndex(1, "" + segNum),
-              "secIndex": 1,
+              "segIndex": this.findDataSegmentIndex(secondSecIndex, "" + segNum),
+              "secIndex": secondSecIndex,
               "sortNum": 10000 * segNum,
               "ref": seg
             });
@@ -209,6 +201,18 @@ var TextColumn = React.createClass({
       }
 
     }
+  },
+  findDataSegmentIndex: function (secIndex, segNum) {
+    // Returns the segment index (int) for `segNum` (a numerical string) within `this.props.data[secIndex]`
+    let start = this.props.data[secIndex].length-1;
+    for (let i = start; i >= 0; i--) {
+      if (this.props.data[secIndex][i].segmentNumber === segNum) {
+        return i;
+      }
+    }
+    console.log("findDataSegmentIndex couldn't find ", secIndex, segNum, "in data:")
+    console.log(this.props.data);
+    return -1;
   },
   scrollToTarget: function() {
       //console.log(Object.keys(this.refs._listView._visibleRows)[0]);
@@ -370,7 +374,7 @@ var TextColumn = React.createClass({
         var rows = {};
         for (var i = 0; i < data[section].length; i++) {
           var rowID = props.sectionArray[section] + "_" + data[section][i].segmentNumber;
-          console.log("ROW ID",rowID,props.segmentRef);
+          // console.log("ROW ID",rowID,props.segmentRef);
           var rowData = {
             content: data[section][i], // Store data in `content` so that we can manipulate other fields without manipulating the original data
             section: section,
