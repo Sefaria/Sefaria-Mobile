@@ -99,21 +99,12 @@ var ReaderApp = React.createClass({
         this.setState(stateObj);
         this.forceUpdate();
     },
-    /*isSegmentLevel is true when you loadNewText() is triggered by a link click or search item click that needs to jump to a certain ref*/
-    loadNewText: function(ref, isSegmentLevel=false) {
-        let segmentNum;
-        let sectionRef = ref;
-        if (isSegmentLevel === true) {
-          let dashSplit = ref.split("-");
-          segmentNum = dashSplit[0].split(":")[1];
-          sectionRef = dashSplit[0].split(":")[0];
-        }
-
+    loadNewText: function(ref) {
         this.setState({
             loaded: false,
             data: [],
-            textReference: sectionRef,
-            textTitle: Sefaria.textTitleForRef(sectionRef)
+            textReference: ref,
+            textTitle: Sefaria.textTitleForRef(ref)
         });
         Sefaria.data(ref).then(function(data) {
             var linkSummary = [];
@@ -141,7 +132,7 @@ var ReaderApp = React.createClass({
                 linkContents:      [],
                 loadingLinks:      loadingLinks,
                 textListVisible:   false,
-                offsetRef:         segmentNum ? sectionRef + ":" + segmentNum : null
+                offsetRef:         !data.isSectionLevel ? data.requestedRef : null,
             });
 
             // Preload Text TOC data into memory
