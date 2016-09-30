@@ -238,7 +238,7 @@ var TextColumn = React.createClass({
              //console.log(left, top, width, height, pageX, pageY)
              this.refs._listView.scrollTo({
                x: 0,
-               y: this.refs._listView.scrollProperties.offset+pageY-160,
+               y: this.refs._listView.scrollProperties.offset+pageY-100,
                animated: false
              });
            }
@@ -476,7 +476,7 @@ var TextColumn = React.createClass({
     if (rowData.row == 0) {
       segment.push(<View style={styles.sectionHeader} key={rowData.section+"header"}>
         <Text style={[styles.sectionHeaderText, this.props.theme.sectionHeaderText]}>
-          {columnLanguage == "hebrew" ?
+          {this.props.columnLanguage == "hebrew" ?
             this.props.sectionHeArray[rowData.section] :
             this.props.sectionArray[rowData.section].replace(this.props.textTitle, '')}
         </Text>
