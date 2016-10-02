@@ -110,6 +110,7 @@ var TextColumn = React.createClass({
         return i;
       }
     }
+    console.log("NEG ONE",secIndex,segNum);
     return -1;
   },
   handleScroll: function(e) {
