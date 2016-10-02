@@ -180,9 +180,12 @@ module.exports = StyleSheet.create({
   textListHeader: {
     height: 40,
     borderTopWidth: 4,
-    paddingRight: 10,
     paddingLeft: 10,
     flexDirection: "row"
+  },
+
+  textListHeaderScrollView: {
+    flex: 200 //made scrollview flex:200 to push the tripledots all the way to the right. seems to work well
   },
   textListHeaderItem: {
     margin: 5,

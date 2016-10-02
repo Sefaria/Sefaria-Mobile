@@ -3,7 +3,8 @@ import React, { Component } from 'react';
 import {
   View,
   Text,
-  TouchableOpacity
+  TouchableOpacity,
+  ScrollView
 } from 'react-native';
 var styles = require('./Styles.js');
 var {
@@ -45,7 +46,7 @@ var TextListHeader = React.createClass({
 
 		return (
 			<View style={[styles.textListHeader, this.props.theme.textListHeader, style]}>
-				{viewList}
+				<ScrollView style={styles.textListHeaderScrollView} horizontal={true}>{viewList}</ScrollView>
 				<TripleDots onPress={this.props.closeCat}/>
 			 </View>
 			);
@@ -54,7 +55,7 @@ var TextListHeader = React.createClass({
 
 var TextListHeaderItem = React.createClass({
 	propTypes: {
-    	theme:          React.PropTypes.object.isRequired,
+    theme:          React.PropTypes.object.isRequired,
 		updateCat:      React.PropTypes.func.isRequired,
 		filter:         React.PropTypes.object,
 		filterIndex:    React.PropTypes.number,

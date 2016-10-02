@@ -15,7 +15,6 @@ var TextSegment = React.createClass({
   propTypes: {
     theme:              React.PropTypes.object.isRequired,
     rowRef:             React.PropTypes.string.isRequired, /* this ref keys into TextColumn.rowRefs */
-    scrollToRef:        React.PropTypes.func.isRequired,
     segmentIndexRef:    React.PropTypes.number,
     segmentKey:         React.PropTypes.string,
     data:               React.PropTypes.string,

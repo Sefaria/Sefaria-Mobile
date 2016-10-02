@@ -314,7 +314,9 @@ var TextColumn = React.createClass({
            (left, top, width, height, pageX, pageY) => {
              if (pageY == 0) { //I'm forced to assume this means it's not on screen, though it could also be at the top of the page...
                 this.scrollOneScreenDown(didMount);
+                //console.log("Zerooo");
              } else {
+               //console.log('yeshhh');
                //LayoutAnimation.configureNext(CustomLayoutAnimation);
                this.setState({scrolledToOffsetRef: true});
                this.refs._listView.scrollTo({
@@ -419,7 +421,6 @@ var TextColumn = React.createClass({
           theme={this.props.theme}
           segmentIndexRef={this.props.segmentIndexRef}
           rowRef={reactRef}
-          scrollToRef={this.scrollToRef}
           segmentKey={refSection}
           key={refSection+"-he"}
           data={currSegData.he}
@@ -435,7 +436,6 @@ var TextColumn = React.createClass({
           style={styles.TextSegment}
           segmentIndexRef={this.props.segmentIndexRef}
           rowRef={reactRef}
-          scrollToRef={this.scrollToRef}
           segmentKey={refSection}
           key={refSection+"-en"}
           data={currSegData.text}
@@ -500,7 +500,6 @@ var TextColumn = React.createClass({
         theme={this.props.theme}
         segmentIndexRef={this.props.segmentIndexRef}
         segmentKey={refSection}
-        scrollToRef={this.scrollToRef}
         key={refSection+"-he"}
         data={rowData.he}
         textType="hebrew"
@@ -516,7 +515,6 @@ var TextColumn = React.createClass({
         style={styles.TextSegment}
         segmentIndexRef={this.props.segmentIndexRef}
         segmentKey={refSection}
-        scrollToRef={this.scrollToRef}
         key={refSection+"-en"}
         data={rowData.text}
         textType="english"
