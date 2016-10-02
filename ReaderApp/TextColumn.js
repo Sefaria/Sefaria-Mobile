@@ -88,7 +88,7 @@ var TextColumn = React.createClass({
     this.scrollToRef(this.props.offsetRef, false, false);
   },
   componentWillReceiveProps: function(nextProps) {
-    console.log("TextColumn Will Receive Props",this.props.segmentRef + " -> " + nextProps.segmentRef);
+    //console.log("TextColumn Will Receive Props",this.props.segmentRef + " -> " + nextProps.segmentRef);
     //console.log("data length: " + this.props.data.length + " -> " + nextProps.data.length)
     if (this.props.data.length !== nextProps.data.length ||
         this.props.textFlow !== nextProps.textFlow ||
@@ -101,17 +101,6 @@ var TextColumn = React.createClass({
       var newData = this.generateDataSource(nextProps);
       this.setState({dataSource: this.state.dataSource.cloneWithRowsAndSections(newData)});
     }
-  },
-  findDataSegmentIndex: function (secIndex, segNum) {
-    // note segNum is a numerical string
-    let start = this.props.data[secIndex].length-1;
-    for (let i = start; i >= 0; i--) {
-      if (this.props.data[secIndex][i].segmentNumber === segNum) {
-        return i;
-      }
-    }
-    console.log("NEG ONE",secIndex,segNum);
-    return -1;
   },
   handleScroll: function(e) {
 
@@ -175,21 +164,23 @@ var TextColumn = React.createClass({
 
       if (this.props.textFlow == 'segmented') {
 
+        var firstSecIndex = this.props.sectionArray.indexOf(nameOfFirstSection);
         for (let seg of Object.keys(visibleRows[nameOfFirstSection])) {
-          let segNum = parseInt(seg.replace(nameOfFirstSection + "_", ""));
+          let segNum = parseInt(seg.replace(nameOfFirstSection + ":", ""));
           allVisibleRows.push({
-            "segIndex": this.findDataSegmentIndex(0, "" + segNum),
-            "secIndex": 0,
+            "segIndex": this.findDataSegmentIndex(firstSecIndex, "" + segNum),
+            "secIndex": firstSecIndex,
             "sortNum": segNum,
             "ref": seg
           });
         }
         if (nameOfSecondSection != null) {
+          var secondSecIndex = this.props.sectionArray.indexOf(nameOfSecondSection);
           for (let seg of Object.keys(visibleRows[nameOfSecondSection])) {
-            let segNum = parseInt(seg.replace(nameOfSecondSection + "_", ""));
+            let segNum = parseInt(seg.replace(nameOfSecondSection + ":", ""));
             allVisibleRows.push({
-              "segIndex": this.findDataSegmentIndex(1, "" + segNum),
-              "secIndex": 1,
+              "segIndex": this.findDataSegmentIndex(secondSecIndex, "" + segNum),
+              "secIndex": secondSecIndex,
               "sortNum": 10000 * segNum,
               "ref": seg
             });
@@ -211,6 +202,18 @@ var TextColumn = React.createClass({
 
     }
   },
+  findDataSegmentIndex: function (secIndex, segNum) {
+    // Returns the segment index (int) for `segNum` (a numerical string) within `this.props.data[secIndex]`
+    let start = this.props.data[secIndex].length-1;
+    for (let i = start; i >= 0; i--) {
+      if (this.props.data[secIndex][i].segmentNumber === segNum) {
+        return i;
+      }
+    }
+    console.log("findDataSegmentIndex couldn't find ", secIndex, segNum, "in data:")
+    console.log(this.props.data);
+    return -1;
+  },
   scrollToTarget: function() {
       //console.log(Object.keys(this.refs._listView._visibleRows)[0]);
       console.log("scrollToTarget", this.state.targetSectionRef)
@@ -226,7 +229,7 @@ var TextColumn = React.createClass({
       }
       else if (this.state.scrolledAtLeastOnceToTargetRef == true) {
         console.log("scrolling to target")
-        let ref = this.rowRefs[this.state.targetSectionRef+"_1"];
+        let ref = this.rowRefs[this.state.targetSectionRef+":1"];
         let handle = findNodeHandle(ref);
         queryLayoutByID(
            handle,
@@ -235,7 +238,7 @@ var TextColumn = React.createClass({
              //console.log(left, top, width, height, pageX, pageY)
              this.refs._listView.scrollTo({
                x: 0,
-               y: this.refs._listView.scrollProperties.offset+pageY-160,
+               y: this.refs._listView.scrollProperties.offset+pageY-100,
                animated: false
              });
            }
@@ -345,7 +348,7 @@ var TextColumn = React.createClass({
       var rows = {};
       var highlight = null;
       for (var section = 0; section < data.length; section++) {
-        var rowID = props.sectionArray[section] + "_" + "wholeSection";
+        var rowID = props.sectionArray[section] + ":" + "wholeSection";
         var rowData = {
           section: section,
           segmentData: [],
@@ -370,8 +373,8 @@ var TextColumn = React.createClass({
       for (var section = 0; section < data.length; section++) {
         var rows = {};
         for (var i = 0; i < data[section].length; i++) {
-          var rowID = props.sectionArray[section] + "_" + data[section][i].segmentNumber;
-          console.log("ROW ID",rowID,props.segmentRef);
+          var rowID = props.sectionArray[section] + ":" + data[section][i].segmentNumber;
+          // console.log("ROW ID",rowID,props.segmentRef);
           var rowData = {
             content: data[section][i], // Store data in `content` so that we can manipulate other fields without manipulating the original data
             section: section,
@@ -401,10 +404,10 @@ var TextColumn = React.createClass({
       currSegData.segmentNumber = currSegData.segmentNumber || this.props.data[rowData.section][i].segmentNumber;
       var columnLanguage = Sefaria.util.getColumnLanguageWithContent(this.props.columnLanguage, currSegData.text, currSegData.he);
       var refSection = rowData.section + ":" + i;
-      var reactRef = this.props.sectionArray[rowData.section] + "_" + this.props.data[rowData.section][i].segmentNumber; //TODO use : instead of _ for seperator
+      var reactRef = this.props.sectionArray[rowData.section] + ":" + this.props.data[rowData.section][i].segmentNumber; //TODO use : instead of _ for seperator
       var style = currSegData.highlight ? [styles.verseNumber,this.props.theme.verseNumber,this.props.theme.segmentHighlight] : [styles.verseNumber,this.props.theme.verseNumber];
 
-      segmentText.push(<Text ref={this.props.sectionArray[rowData.section] + "_" + currSegData.segmentNumber}
+      segmentText.push(<Text ref={this.props.sectionArray[rowData.section] + ":" + currSegData.segmentNumber}
                                      style={style}
                                      key={refSection+"segment-number"}>
         {currSegData.segmentNumber}
@@ -468,12 +471,12 @@ var TextColumn = React.createClass({
     var segment = [];
     var columnLanguage = Sefaria.util.getColumnLanguageWithContent(this.props.columnLanguage, rowData.text, rowData.he);
     var refSection = rowData.section + ":" + rowData.row;
-    var reactRef = this.props.sectionArray[rowData.section] + "_" + this.props.data[rowData.section][rowData.row].segmentNumber; //TODO use : instead of _ for seperator
+    var reactRef = this.props.sectionArray[rowData.section] + ":" + this.props.data[rowData.section][rowData.row].segmentNumber;
 
     if (rowData.row == 0) {
       segment.push(<View style={styles.sectionHeader} key={rowData.section+"header"}>
         <Text style={[styles.sectionHeaderText, this.props.theme.sectionHeaderText]}>
-          {columnLanguage == "hebrew" ?
+          {this.props.columnLanguage == "hebrew" ?
             this.props.sectionHeArray[rowData.section] :
             this.props.sectionArray[rowData.section].replace(this.props.textTitle, '')}
         </Text>
@@ -482,7 +485,7 @@ var TextColumn = React.createClass({
 
     var numberSegmentHolder = [];
 
-    numberSegmentHolder.push(<Text ref={this.props.sectionArray[rowData.section] + "_"+ rowData.content.segmentNumber}
+    numberSegmentHolder.push(<Text ref={this.props.sectionArray[rowData.section] + ":"+ rowData.content.segmentNumber}
                                    style={[styles.verseNumber,this.props.theme.verseNumber]}
                                    key={refSection + "segment-number"}>
       {rowData.content.segmentNumber}

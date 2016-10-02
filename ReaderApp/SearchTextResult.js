@@ -19,7 +19,7 @@ var SearchTextResult = React.createClass({
   },
 	render: function() {
     return (
-      <TouchableOpacity style={styles.searchTextResult} onPress={()=>this.props.openRef(this.props.title,true)}>
+      <TouchableOpacity style={styles.searchTextResult} onPress={()=>this.props.openRef(this.props.title)}>
         <Text style={this.props.theme.text}>{this.props.title}</Text>
 				<Text style={[this.props.textType == "hebrew" ? styles.hebrewText : styles.englishText,this.props.theme.text]}>
           <HTMLView
