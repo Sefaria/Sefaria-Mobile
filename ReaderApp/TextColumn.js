@@ -22,8 +22,6 @@ const {
   LoadingView,
 } = require('./Misc.js');
 
-const MAX_NUM_SECTIONS = 200; //num sections that can be in this.props.data
-var counter = 0;
 var segmentIndexRefPositionArray = {};
 
 var CustomLayoutAnimation = {
@@ -76,7 +74,6 @@ var TextColumn = React.createClass({
       prevHeight:0,
       targetSectionRef: "",
       scrollingToTargetRef:false,
-      scrolledAtLeastOnceToTargetRef: false,
       scrolledToOffsetRef:false,
       scrollOffset:0,
       highlightRef: ""
@@ -104,27 +101,32 @@ var TextColumn = React.createClass({
     }
   },
   handleScroll: function(e) {
-
-    //console.log(this.rowRefs)
-
+    this.updateTitle();
+    //auto highlight middle visible segment
+    if (this.props.textListVisible) {
+      
+      // Measure scroll speed, don't update unless we're moving slowly.
+      if (Math.abs(this.previousY - e.nativeEvent.contentOffset.y) > 40) {
+        this.previousY = e.nativeEvent.contentOffset.y;
+        return;
+      }
+      this.previousY = e.nativeEvent.contentOffset.y;
+      this.updateHighlightedSegment();
+    }
+  },
+  updateTitle: function() {
+    // Update title in header depending on what section is most visible.
     var visibleRows = this.refs._listView._visibleRows;
+    var visibleSections = this.getVisibleSections();
 
-    var nameOfFirstSection = Object.keys(visibleRows)[0];
-    var nameOfSecondSection = Object.keys(visibleRows)[1] || null;
+    var nameOfFirstSection = visibleSections[0];
+    var nameOfSecondSection = visibleSections[1] || null;
 
-    if (!nameOfFirstSection) {
+    if (visibleSections.lengt == 0) {
       console.log("VISIBLE ROWS IS EMPTY!!! oh no!!!");
       //this.props.setColumnLanguage(this.props.columnLanguage == "english" ? "hebrew" : "english");
     }
-    if (nameOfSecondSection != null) {
-      let firstInd = this.props.sectionArray.indexOf(nameOfFirstSection);
-      let secondInd = this.props.sectionArray.indexOf(nameOfSecondSection);
-      if (firstInd > secondInd) { //SWAP
-        let tempFirst = nameOfFirstSection;
-        nameOfFirstSection = nameOfSecondSection;
-        nameOfSecondSection = tempFirst;
-      }
-    }
+
     //console.log("VISIBLE TITLES",nameOfFirstSection,nameOfSecondSection,Object.keys(this.refs._listView._visibleRows));
 
     if (!visibleRows[nameOfFirstSection]) return; //look at ListView implementation. renderScrollComponent runs before visibleRows is populated
@@ -150,57 +152,39 @@ var TextColumn = React.createClass({
         this.props.updateTitle(enTitle, heTitle);
       }
     }
+  },
+  updateHighlightedSegment: function() {
+    var visibleRows = this.refs._listView._visibleRows;
+    var visibleSections = this.getVisibleSections();
+    var allVisibleRows = [];
 
-    //auto highlight middle visible segment
-   if (this.props.textListVisible) {
-
-      // Measure scroll speed, don't update unless we're moving slowly.
-      if (Math.abs(this.previousY - e.nativeEvent.contentOffset.y) > 40) {
-        this.previousY = e.nativeEvent.contentOffset.y;
-        return;
-      }
-      this.previousY = e.nativeEvent.contentOffset.y;
-
-      var allVisibleRows = [];
-
-      if (this.props.textFlow == 'segmented') {
-
-        var firstSecIndex = this.props.sectionArray.indexOf(nameOfFirstSection);
-        for (let seg of Object.keys(visibleRows[nameOfFirstSection])) {
-          let segNum = parseInt(seg.replace(nameOfFirstSection + ":", ""));
+    if (this.props.textFlow == 'segmented') { 
+      for (var i = 0; i < visibleSections.length; i++) {
+        var section = visibleSections[i];
+        var secIndex = this.props.sectionArray.indexOf(section);
+        for (let seg of Object.keys(visibleRows[section])) {
+          let segNum = parseInt(seg.replace(section + ":", ""));
           allVisibleRows.push({
-            "segIndex": this.findDataSegmentIndex(firstSecIndex, "" + segNum),
-            "secIndex": firstSecIndex,
-            "sortNum": segNum,
+            "segIndex": this.findDataSegmentIndex(secIndex, "" + segNum),
+            "secIndex": secIndex,
+            "sortNum": segNum + (i * 10000),
             "ref": seg
           });
         }
-        if (nameOfSecondSection != null) {
-          var secondSecIndex = this.props.sectionArray.indexOf(nameOfSecondSection);
-          for (let seg of Object.keys(visibleRows[nameOfSecondSection])) {
-            let segNum = parseInt(seg.replace(nameOfSecondSection + ":", ""));
-            allVisibleRows.push({
-              "segIndex": this.findDataSegmentIndex(secondSecIndex, "" + segNum),
-              "secIndex": secondSecIndex,
-              "sortNum": 10000 * segNum,
-              "ref": seg
-            });
-          }
-        }
 
-        allVisibleRows.sort((a, b)=>a.sortNum - b.sortNum);
-        //console.log("ALL VISIBLE ROWS",allVisibleRows);
-
-        let highlightIndex = allVisibleRows.length >= 2 ? 1 : 0;
-        var segmentToLoad = allVisibleRows[highlightIndex].segIndex; //we now know the first element has the lowest segment number
-        var sectionToLoad = allVisibleRows[highlightIndex].secIndex;
-        let highlightRef = allVisibleRows[highlightIndex].ref;
-        //console.log("VISIBLE", allVisibleRows, "TO LOAD", segmentToLoad,"Seg Ind Ref",this.props.segmentIndexRef);
-        if (segmentToLoad !== this.props.segmentIndexRef || highlightRef !== this.props.segmentRef) {
-          this.props.textSegmentPressed(sectionToLoad, segmentToLoad, highlightRef);
-        }
       }
 
+      allVisibleRows.sort((a, b)=>a.sortNum - b.sortNum);
+      //console.log("ALL VISIBLE ROWS",allVisibleRows);
+
+      let highlightIndex = allVisibleRows.length >= 2 ? 1 : 0;
+      let segmentToLoad  = allVisibleRows[highlightIndex].segIndex; //we now know the first element has the lowest segment number
+      let sectionToLoad  = allVisibleRows[highlightIndex].secIndex;
+      let highlightRef   = allVisibleRows[highlightIndex].ref;
+      //console.log("VISIBLE", allVisibleRows, "TO LOAD", segmentToLoad,"Seg Ind Ref",this.props.segmentIndexRef);
+      if (segmentToLoad !== this.props.segmentIndexRef || highlightRef !== this.props.segmentRef) {
+        this.props.textSegmentPressed(sectionToLoad, segmentToLoad, highlightRef);
+      }
     }
   },
   findDataSegmentIndex: function (secIndex, segNum) {
@@ -216,42 +200,45 @@ var TextColumn = React.createClass({
     return -1;
   },
   scrollToTarget: function() {
-      //console.log(Object.keys(this.refs._listView._visibleRows)[0]);
-      console.log("scrollToTarget", this.state.targetSectionRef)
+      
+    if (!this.state.scrollingToTargetRef) { return; }
+
+    console.log("scrollToTarget", this.state.targetSectionRef)
+    var visibleSections = this.getVisibleSections();
+    console.log("visibleSections", visibleSections);
+   
+    if (visibleSections.indexOf(this.state.targetSectionRef) == -1) {
       //if current section is not visible
-      if (this.state.targetSectionRef !== Object.keys(this.refs._listView._visibleRows)[0] && this.state.targetSectionRef !== Object.keys(this.refs._listView._visibleRows)[1]) {
-        console.log("scrolling one page")
-        this.refs._listView.scrollTo({
-          x: 0,
-          y: this.refs._listView.scrollProperties.offset + (this.refs._listView.scrollProperties.visibleLength),
-          animated: false
-        });
-        this.state.scrolledAtLeastOnceToTargetRef = true;
+      console.log("scrolling one page down")
+      this.scrollOneScreenDown();
+    } else {
+      console.log("scrolling to target")
+      let ref = this.rowRefs[this.state.targetSectionRef+":1"];
+      let handle = findNodeHandle(ref);
+      if (!handle) {
+        console.log("Could't find ref handle!", this.state.targetSectionRef);
+        console.log("scrolling one page down")
+        this.scrollOneScreenDown();
+        return;
       }
-      else if (this.state.scrolledAtLeastOnceToTargetRef == true) {
-        console.log("scrolling to target")
-        let ref = this.rowRefs[this.state.targetSectionRef+":1"];
-        let handle = findNodeHandle(ref);
-        queryLayoutByID(
-           handle,
-           null, /*Error callback that doesn't yet have a hook in native so doesn't get called */
-           (left, top, width, height, pageX, pageY) => {
-             //console.log(left, top, width, height, pageX, pageY)
-             this.refs._listView.scrollTo({
-               x: 0,
-               y: this.refs._listView.scrollProperties.offset+pageY-100,
-               animated: false
-             });
-           }
-        );
-        this.setState({
-          scrollingToTargetRef: false,
-          scrolledAtLeastOnceToTargetRef: false,
-          targetSectionRef: ""
-        });
-      } else {
-        console.log("did nothing")
-      }
+      queryLayoutByID(
+         handle,
+         null, /*Error callback that doesn't yet have a hook in native so doesn't get called */
+         (left, top, width, height, pageX, pageY) => {
+           //console.log(left, top, width, height, pageX, pageY)
+           this.refs._listView.scrollTo({
+             x: 0,
+             y: this.refs._listView.scrollProperties.offset+pageY-120,
+             animated: false
+           });
+         }
+      );
+      this.setState({
+        scrollingToTargetRef: false,
+        targetSectionRef: ""
+      });
+      this.updateTitle();
+    }
   },
   updateHeight: function(newHeight) {
     if (this.props.loadingTextTail == false && this.state.targetSectionRef != "" && this.state.scrollingToTargetRef == true) {
@@ -279,18 +266,23 @@ var TextColumn = React.createClass({
     this.props.updateData("next");
   },
   visibleRowsChanged: function(visibleRows, changedRows) {
-    counter++;
     if (this.props.loadingTextHead == false && this.state.targetSectionRef != "" && this.state.scrollingToTargetRef == true) {
       this.scrollToTarget();
     }
   },
+  getVisibleSections: function() {
+    // Returns an array of strings naming the currently visible sections in proper order.
+    var visibleSectionsObject = this.refs._listView._visibleRows;
+    var visibleSections = Object.keys(visibleSectionsObject);
+    visibleSections.sort((a, b) => (this.props.sectionArray.indexOf(a) - this.props.sectionArray.indexOf(b)));
+    return visibleSections;
+  },
   scrollOneScreenDown: function(initialScroll) {
     this.refs._listView.scrollTo({
       x: 0,
-      y: initialScroll ? 1 :this.refs._listView.scrollProperties.offset+(1.5*this.refs._listView.scrollProperties.visibleLength),
+      y: initialScroll ? 1 : this.refs._listView.scrollProperties.offset+(1*this.refs._listView.scrollProperties.visibleLength),
       animated: false
     });
-    this.setState({continueScrolling: true}); //needed to continue rendering after each success scroll
   },
   scrollToRef: function(rowRef, didMount, isClickScroll) {
     /* Warning, this function is hacky. anyone who knows how to improve it, be my guest
@@ -315,6 +307,7 @@ var TextColumn = React.createClass({
            (left, top, width, height, pageX, pageY) => {
              if (pageY == 0) { //I'm forced to assume this means it's not on screen, though it could also be at the top of the page...
                 this.scrollOneScreenDown(didMount);
+                this.setState({continueScrolling: true}); //needed to continue rendering after each success scroll
                 //console.log("Zerooo");
              } else {
                //console.log('yeshhh');
