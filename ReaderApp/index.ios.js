@@ -70,7 +70,7 @@ var ReaderApp = React.createClass({
         });
     },
     textSegmentPressed: function(section, segment, segmentRef, shouldToggle) {
-        console.log("textSegmentPressed", section, segment, segmentRef, shouldToggle);
+        //console.log("textSegmentPressed", section, segment, segmentRef, shouldToggle);
         if (shouldToggle && this.state.textListVisible) {
             this.setState({textListVisible: false});
             return; // Don't bother with other changes if we are simply closing the TextList
@@ -144,7 +144,7 @@ var ReaderApp = React.createClass({
 
     },
     updateData: function(direction) {
-        console.log("updating data -- " + direction);
+        //console.log("updating data -- " + direction);
         if (direction === "next" && this.state.next) {
             this.updateDataNext();
         } else if (direction == "prev" && this.state.prev) {

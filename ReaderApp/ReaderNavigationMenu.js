@@ -185,7 +185,15 @@ var CalendarSection = React.createClass({
     language:      React.PropTypes.string.isRequired
   },
   render: function() {
-    if (!Sefaria.calendar) { return null; }
+    if (!Sefaria.calendar) { 
+      Sefaria.loadCalendar(function() { this.forceUpdate(); }.bind(this));
+      return (<ReaderNavigationMenuSection
+                theme={this.props.theme}
+                title="CALENDAR LOADING..."
+                heTitle="לוח יומי..."
+                content={null}
+                interfaceLang={this.props.interfaceLang} />);
+    }
     var parashah = Sefaria.parashah();
     var dafYomi  = Sefaria.dafYomi();
     var calendar = [<CategoryBlockLink

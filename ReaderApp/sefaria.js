@@ -9,22 +9,18 @@ Sefaria = {
     // Load JSON data for TOC and Calendar
     return new Promise(function(resolve, reject) {
       var checkResolve = function() {
-        if (Sefaria.toc && Sefaria.calendar && Sefaria.recent) {
+        if (Sefaria.toc && Sefaria.recent) {
           resolve();
         }
       };
       var tocPath = (RNFS.MainBundlePath + "/sources/toc.json");
       Sefaria._loadJSON(tocPath).then(function(data) {
         Sefaria.toc = data;
+        checkResolve();
         Sefaria._cacheIndexFromToc(data);
-        checkResolve();
-      });
-      var calendarPath = (RNFS.MainBundlePath + "/sources/calendar.json");
-      Sefaria._loadJSON(calendarPath).then(function(data) {
-        Sefaria.calendar = data;
-        checkResolve();
       });
       Sefaria._loadRecentItems(checkResolve);
+      // Sefaria.calendar is loaded async when ReaderNavigationMenu renders
     });
   },
   data: function(ref) {
@@ -218,6 +214,13 @@ Sefaria = {
     return null;
   },
   calendar: null,
+  loadCalendar: function(callback) {
+    var calendarPath = (RNFS.MainBundlePath + "/sources/calendar.json");
+    Sefaria._loadJSON(calendarPath).then(function(data) {
+      Sefaria.calendar = data;
+      callback();
+    });
+  },
   parashah: function() {
     // Returns an object representing this week's Parashah
     var date = new Date();
