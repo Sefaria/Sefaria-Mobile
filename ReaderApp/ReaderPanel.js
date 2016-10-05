@@ -230,6 +230,7 @@ var ReaderPanel = React.createClass({
           <View style={[styles.mainTextPanel, this.props.theme.mainTextPanel]}>
             <TextColumn
               theme={this.props.theme}
+              themeStr={this.props.themeStr}
               settings={this.state.settings}
               data={this.props.data}
               textReference={this.props.textReference}

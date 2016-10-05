@@ -41,6 +41,7 @@ var CustomLayoutAnimation = {
 var TextColumn = React.createClass({
   propTypes: {
     theme:              React.PropTypes.object.isRequired,
+    themeStr:           React.PropTypes.string,
     settings:           React.PropTypes.object,
     data:               React.PropTypes.array,
     textReference:      React.PropTypes.string,
@@ -354,7 +355,7 @@ var TextColumn = React.createClass({
         var rowData = {
           section: section,
           segmentData: [],
-          changeString: [section, props.columnLanguage, props.textFlow, props.settings.fontSize].join("|")
+          changeString: [section, props.columnLanguage, props.textFlow, props.settings.fontSize, props.themeStr].join("|")
         };
 
         for (var i = 0; i < data[section].length; i++) {
@@ -382,7 +383,7 @@ var TextColumn = React.createClass({
             section: section,
             row: i,
             highlight: props.offsetRef == rowID || (props.textListVisible && props.segmentRef == rowID),
-            changeString: [rowID, props.columnLanguage, props.textFlow, props.settings.fontSize].join("|")
+            changeString: [rowID, props.columnLanguage, props.textFlow, props.settings.fontSize, props.themeStr].join("|")
           };
           rowData.changeString += rowData.highlight ? "|highlight" : "";
           rows[rowID] = rowData;
