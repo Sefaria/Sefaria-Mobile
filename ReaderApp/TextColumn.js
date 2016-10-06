@@ -104,7 +104,7 @@ var TextColumn = React.createClass({
     this.updateTitle();
     //auto highlight middle visible segment
     if (this.props.textListVisible) {
-      
+
       // Measure scroll speed, don't update unless we're moving slowly.
       if (Math.abs(this.previousY - e.nativeEvent.contentOffset.y) > 40) {
         this.previousY = e.nativeEvent.contentOffset.y;
@@ -154,11 +154,21 @@ var TextColumn = React.createClass({
     }
   },
   updateHighlightedSegment: function() {
+    var setHighlight = function (highlightIndex) {
+      let segmentToLoad  = allVisibleRows[highlightIndex].segIndex; //we now know the first element has the lowest segment number
+      let sectionToLoad  = allVisibleRows[highlightIndex].secIndex;
+      let highlightRef   = allVisibleRows[highlightIndex].ref;
+      //console.log("VISIBLE", allVisibleRows, "TO LOAD", segmentToLoad,"Seg Ind Ref",this.props.segmentIndexRef);
+      if (segmentToLoad !== this.props.segmentIndexRef || highlightRef !== this.props.segmentRef) {
+        this.props.textSegmentPressed(sectionToLoad, segmentToLoad, highlightRef);
+      }
+    }.bind(this);
+
     var visibleRows = this.refs._listView._visibleRows;
     var visibleSections = this.getVisibleSections();
     var allVisibleRows = [];
 
-    if (this.props.textFlow == 'segmented') { 
+    if (this.props.textFlow == 'segmented') {
       for (var i = 0; i < visibleSections.length; i++) {
         var section = visibleSections[i];
         var secIndex = this.props.sectionArray.indexOf(section);
@@ -174,17 +184,25 @@ var TextColumn = React.createClass({
 
       }
 
-      allVisibleRows.sort((a, b)=>a.sortNum - b.sortNum);
-      //console.log("ALL VISIBLE ROWS",allVisibleRows);
-
-      let highlightIndex = allVisibleRows.length >= 2 ? 1 : 0;
-      let segmentToLoad  = allVisibleRows[highlightIndex].segIndex; //we now know the first element has the lowest segment number
-      let sectionToLoad  = allVisibleRows[highlightIndex].secIndex;
-      let highlightRef   = allVisibleRows[highlightIndex].ref;
-      //console.log("VISIBLE", allVisibleRows, "TO LOAD", segmentToLoad,"Seg Ind Ref",this.props.segmentIndexRef);
-      if (segmentToLoad !== this.props.segmentIndexRef || highlightRef !== this.props.segmentRef) {
-        this.props.textSegmentPressed(sectionToLoad, segmentToLoad, highlightRef);
+      if (allVisibleRows.length > 0) { //it should always be, but sometimes visibleRows is empty
+        allVisibleRows.sort((a, b)=>a.sortNum - b.sortNum);
+        let handle = findNodeHandle(this.rowRefs[allVisibleRows[0].ref]);
+        if (handle) {
+          queryLayoutByID(
+             handle,
+             null, /*Error callback that doesn't yet have a hook in native so doesn't get called */
+             (left, top, width, height, pageX, pageY) => {
+               let highlightIndex = pageY + height > 150 || allVisibleRows.length == 1 ? 0 : 1;
+               setHighlight(highlightIndex);
+             }
+           );
+        } else {
+          console.log("falling back to old highlighting method");
+          let highlightIndex = allVisibleRows.length >= 2 ? 1 : 0;
+          setHighlight(highlightIndex);
+        }
       }
+
     }
   },
   findDataSegmentIndex: function (secIndex, segNum) {
@@ -200,13 +218,13 @@ var TextColumn = React.createClass({
     return -1;
   },
   scrollToTarget: function() {
-      
+
     if (!this.state.scrollingToTargetRef) { return; }
 
     console.log("scrollToTarget", this.state.targetSectionRef)
     var visibleSections = this.getVisibleSections();
     console.log("visibleSections", visibleSections);
-   
+
     if (visibleSections.indexOf(this.state.targetSectionRef) == -1) {
       //if current section is not visible
       console.log("scrolling one page down")
