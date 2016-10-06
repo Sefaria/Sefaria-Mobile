@@ -162,6 +162,11 @@ var ReaderPanel = React.createClass({
       this.setState({settings:this.state.settings});
     }
   },
+  setTheme: function(themeStr) {
+    this.props.setTheme(themeStr);
+    this.toggleReaderDisplayOptionsMenu();
+  },
+
   render: function() {
 
     switch(this.props.menuOpen) {
@@ -265,7 +270,7 @@ var ReaderPanel = React.createClass({
             setTextFlow={this.setTextFlow}
             setColumnLanguage={this.setColumnLanguage}
             incrementFont={this.incrementFont}
-            setTheme={this.props.setTheme}
+            setTheme={this.setTheme}
             themeStr={this.props.themeStr}/>) : null }
 
           {this.props.textListVisible && !this.props.loading ?
