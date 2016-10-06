@@ -232,7 +232,13 @@ var ReaderPanel = React.createClass({
 
           { this.props.loading ?
           <LoadingView theme={this.props.theme}/> :
-          <View style={[styles.mainTextPanel, this.props.theme.mainTextPanel]}>
+          <View style={[styles.mainTextPanel, this.props.theme.mainTextPanel]}
+                onStartShouldSetResponderCapture={() => {
+                  if (this.state.ReaderDisplayOptionsMenuVisible == true) {
+                     this.toggleReaderDisplayOptionsMenu();
+                  }
+                }}
+          >
             <TextColumn
               theme={this.props.theme}
               themeStr={this.props.themeStr}
@@ -274,7 +280,13 @@ var ReaderPanel = React.createClass({
             themeStr={this.props.themeStr}/>) : null }
 
           {this.props.textListVisible && !this.props.loading ?
-            <View style={[styles.commentaryTextPanel, this.props.theme.commentaryTextPanel]}>
+            <View style={[styles.commentaryTextPanel, this.props.theme.commentaryTextPanel]}
+                onStartShouldSetResponderCapture={() => {
+                  if (this.state.ReaderDisplayOptionsMenuVisible == true) {
+                     this.toggleReaderDisplayOptionsMenu();
+                  }
+                }}
+            >
               <TextList
                 Sefaria={Sefaria}
                 settings={this.state.settings}
