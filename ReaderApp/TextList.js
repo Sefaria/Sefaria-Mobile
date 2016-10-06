@@ -122,7 +122,8 @@ var TextList = React.createClass({
           <View style={styles.noLinks}><HTMLView value={"<i>No connections available.</i>"}/></View>:
           <ListView style={styles.textListContentListView}
             dataSource={dataSourceRows}
-            renderRow={this.renderRow} />
+            renderRow={this.renderRow}
+            scrollRenderAheadDistance={20} />
         }
       </View>
       );
