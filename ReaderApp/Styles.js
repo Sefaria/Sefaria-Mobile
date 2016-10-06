@@ -297,7 +297,7 @@ module.exports = StyleSheet.create({
     fontFamily: "Montserrat",
     fontWeight: "100",
     marginRight: 5,
-    flex:.05
+    flex:.07
   },
 
   englishSystemFont: {
@@ -335,7 +335,7 @@ module.exports = StyleSheet.create({
   TextSegment: {
     flexDirection: "column",
     flexWrap:"wrap",
-    flex:.95
+    flex:.93
   },
   numberSegmentHolderEn: {
     flexDirection: "row",
