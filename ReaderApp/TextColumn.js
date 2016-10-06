@@ -122,7 +122,7 @@ var TextColumn = React.createClass({
     var nameOfFirstSection = visibleSections[0];
     var nameOfSecondSection = visibleSections[1] || null;
 
-    if (visibleSections.lengt == 0) {
+    if (visibleSections.length == 0) {
       console.log("VISIBLE ROWS IS EMPTY!!! oh no!!!");
       //this.props.setColumnLanguage(this.props.columnLanguage == "english" ? "hebrew" : "english");
     }
