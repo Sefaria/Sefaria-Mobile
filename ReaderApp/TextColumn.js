@@ -70,8 +70,6 @@ var TextColumn = React.createClass({
           rowHasChanged: this.rowHasChanged,
           sectionHeaderHasChanged: (s1, s2) => s1 !== s2
         }).cloneWithRowsAndSections(this.generateDataSource(this.props)),
-      height: 0,
-      prevHeight:0,
       targetSectionRef: "",
       scrollingToTargetRef:false,
       scrolledToOffsetRef:false,
@@ -257,11 +255,7 @@ var TextColumn = React.createClass({
       });
       this.updateTitle();
     }
-  },
-  updateHeight: function(newHeight) {
-    if (this.props.loadingTextTail == false && this.state.targetSectionRef != "" && this.state.scrollingToTargetRef == true) {
-      this.scrollToTarget();
-    }
+    
   },
   onTopReached: function() {
     if (this.props.loadingTextHead == true || !this.props.prev) {
@@ -418,12 +412,12 @@ var TextColumn = React.createClass({
       currSegData.segmentNumber = currSegData.segmentNumber || this.props.data[rowData.section][i].segmentNumber;
       var columnLanguage = Sefaria.util.getColumnLanguageWithContent(this.props.columnLanguage, currSegData.text, currSegData.he);
       var refSection = rowData.section + ":" + i;
-      var reactRef = this.props.sectionArray[rowData.section] + ":" + this.props.data[rowData.section][i].segmentNumber; //TODO use : instead of _ for seperator
+      var reactRef = this.props.sectionArray[rowData.section] + ":" + this.props.data[rowData.section][i].segmentNumber;
       var style = currSegData.highlight ? [styles.verseNumber,this.props.theme.verseNumber,this.props.theme.segmentHighlight] : [styles.verseNumber,this.props.theme.verseNumber];
 
       segmentText.push(<Text ref={this.props.sectionArray[rowData.section] + ":" + currSegData.segmentNumber}
                                      style={style}
-                                     key={refSection+"segment-number"}>
+                                     key={reactRef+"|segment-number"}>
         {currSegData.segmentNumber}
       </Text>);
 
@@ -434,7 +428,7 @@ var TextColumn = React.createClass({
           segmentIndexRef={this.props.segmentIndexRef}
           rowRef={reactRef}
           segmentKey={refSection}
-          key={refSection+"-he"}
+          key={reactRef+"-he"}
           data={currSegData.he}
           textType="hebrew"
           textSegmentPressed={ this.textSegmentPressed }
@@ -449,7 +443,7 @@ var TextColumn = React.createClass({
           segmentIndexRef={this.props.segmentIndexRef}
           rowRef={reactRef}
           segmentKey={refSection}
-          key={refSection+"-en"}
+          key={reactRef+"-en"}
           data={currSegData.text}
           textType="english"
           textSegmentPressed={ this.textSegmentPressed }
@@ -465,8 +459,9 @@ var TextColumn = React.createClass({
       segments.push(<Text style={style} ref={refSetter}>{segmentText}</Text>);
 
     }
-    return <View style={[styles.verseContainer, styles.numberSegmentHolderEnContinuous]} key={rowData.section + ":" + 1}>
-              <View style={styles.sectionHeader} key={rowData.section+"header"}>
+    var sectionRef = this.props.sectionArray[rowData.section];
+    return <View style={[styles.verseContainer, styles.numberSegmentHolderEnContinuous]} key={sectionRef}>
+              <View style={styles.sectionHeader} key={sectionRef+"|header"}>
                 <Text style={[styles.sectionHeaderText, this.props.theme.sectionHeaderText]}>
                   {columnLanguage == "hebrew" ?
                     this.props.sectionHeArray[rowData.section] :
@@ -499,7 +494,7 @@ var TextColumn = React.createClass({
 
     numberSegmentHolder.push(<Text ref={this.props.sectionArray[rowData.section] + ":"+ rowData.content.segmentNumber}
                                    style={[styles.verseNumber,this.props.theme.verseNumber]}
-                                   key={refSection + "segment-number"}>
+                                   key={reactRef + "|segment-number"}>
       {rowData.content.segmentNumber}
     </Text>);
 
@@ -512,7 +507,7 @@ var TextColumn = React.createClass({
         theme={this.props.theme}
         segmentIndexRef={this.props.segmentIndexRef}
         segmentKey={refSection}
-        key={refSection+"-he"}
+        key={reactRef+"|hebrew"}
         data={rowData.he}
         textType="hebrew"
         textSegmentPressed={ this.textSegmentPressed }
@@ -527,23 +522,25 @@ var TextColumn = React.createClass({
         style={styles.TextSegment}
         segmentIndexRef={this.props.segmentIndexRef}
         segmentKey={refSection}
-        key={refSection+"-en"}
+        key={reactRef+"|english"}
         data={rowData.text}
         textType="english"
         textSegmentPressed={ this.textSegmentPressed }
         textListVisible={this.props.textListVisible}
         settings={this.props.settings} />);
     }
-    numberSegmentHolder.push(<View style={styles.TextSegment} key={refSection}>{segmentText}</View>);
+    numberSegmentHolder.push(<View style={styles.TextSegment} key={reactRef+"|text-box"}>{segmentText}</View>);
 
-    segment.push(<View style={styles.numberSegmentHolderEn} key={refSection}>{numberSegmentHolder}</View>);
+    segment.push(<View style={styles.numberSegmentHolderEn} key={reactRef+"|inner-box"}>{numberSegmentHolder}</View>);
 
     let style = [styles.verseContainer];
     if (rowData.highlight) {
         style.push(this.props.theme.segmentHighlight);
     }
 
-    return <View style={style} ref={(view)=>this.rowRefs[reactRef]=view}>{segment}</View>;
+    console.log("Rendering Row:", reactRef);
+
+    return <View style={style} key={reactRef} ref={(view)=>this.rowRefs[reactRef]=view}>{segment}</View>;
   },
   rowHasChanged: function(r1, r2) {
     //console.log(r1.changeString + " vs. " + r2.changeString);
@@ -576,8 +573,8 @@ var TextColumn = React.createClass({
                 onEndReached={this.onEndReached}
                 renderFooter={this.renderFooter}
                 /*renderScrollComponent={props => <ScrollView {...props} contentOffset={{y:this.state.scrollOffset}}/>}*/
+                pageSize={10}
                 initialListSize={40}
-                onContentSizeChange={(w, h) => {this.updateHeight(h)}}
                 onEndReachedThreshold={1000}
                 scrollEventThrottle={100}
                 refreshControl={
