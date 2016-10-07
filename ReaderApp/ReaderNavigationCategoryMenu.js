@@ -131,7 +131,7 @@ var ReaderNavigationCategoryMenuContents = React.createClass({
             continue;
           }
           // Add a Category
-          content.push((<View style={styles.category} key={i}>
+          content.push((<View style={styles.category} key={"category-" + i}>
                           { showHebrew ?
                               <Text style={[styles.he, styles.categorySectionTitle, this.props.theme.categorySectionTitle]}>{item.heCategory}</Text> :
                               <Text style={[styles.en, styles.categorySectionTitle, this.props.theme.categorySectionTitle]}>{item.category}</Text> }
@@ -159,7 +159,7 @@ var ReaderNavigationCategoryMenuContents = React.createClass({
       var currentRun   = [];
       for (var i = 0; i < content.length; i++) {
         // Walk through content looking for runs of texts/subcats to group together into a table
-        if (content[i].type.displayName == "View") { // this is a subcategory
+        if (content[i].key.startsWith("category")) { // this is a subcategory
           if (currentRun.length) {
             boxedContent.push((<TwoBox content={currentRun} key={i} />));
             currentRun = [];
