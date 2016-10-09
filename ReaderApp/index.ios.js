@@ -15,7 +15,8 @@ import {
 	TextInput,
 	TouchableOpacity,
 	ActivityIndicatorIOS,
-    StatusBar
+  StatusBar,
+  NetInfo
 } from 'react-native';
 
 var styles  = require('./Styles.js');
@@ -37,7 +38,10 @@ var ReaderApp = React.createClass({
         Sefaria.init().then(function() {
             this.setState({loaded: true});
         }.bind(this));
-
+        NetInfo.isConnected.addEventListener(
+          'change',
+          this.networkChangeListener
+        );
         return {
             offsetRef: null, /* used to jump to specific ref when opening a link*/
             segmentRef: "", /* only used for highlighting right now */
@@ -68,6 +72,10 @@ var ReaderApp = React.createClass({
          }).catch(function(error) {
           console.error('Error caught from Sefaria._deleteAllFiles', error);
         });
+    },
+    networkChangeListener: function (isConnected) {
+      console.log("Has Internet",isConnected);
+      this.setState({hasInternet: isConnected});
     },
     textSegmentPressed: function(section, segment, segmentRef, shouldToggle) {
         //console.log("textSegmentPressed", section, segment, segmentRef, shouldToggle);
@@ -424,6 +432,7 @@ var ReaderApp = React.createClass({
                     setTheme={this.setTheme}
                     theme={this.state.theme}
                     themeStr={this.state.themeStr}
+                    hasInternet={this.state.hasInternet}
                     Sefaria={Sefaria} />
             </View>
         );

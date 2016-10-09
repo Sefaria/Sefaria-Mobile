@@ -3,7 +3,8 @@
 import React, { Component } from 'react';
 import {
 	View,
-	Text
+	Text,
+	AlertIOS
 } from 'react-native';
 
 var SearchBar        = require('./SearchBar');
@@ -17,6 +18,7 @@ var {
 var SearchPage = React.createClass({
 	propTypes: {
 		theme:         React.PropTypes.object,
+		hasInternet:   React.PropTypes.bool,
 		closeNav:      React.PropTypes.func.isRequired,
 		onQueryChange: React.PropTypes.func.isRequired,
 		openRef:       React.PropTypes.func.isRequired,
@@ -29,8 +31,32 @@ var SearchPage = React.createClass({
 		isNewSearch:   React.PropTypes.bool,
 		numResults:    React.PropTypes.number
 	},
-	render: function() {
+	componentDidMount: function() {
+		if (!this.props.hasInternet) {
+			this.showNoInternetAlert();
+		}
+	},
+	componentWillReceiveProps: function(nextProps) {
+		if (this.props.hasInternet && !nextProps.hasInternet) {
+			this.showNoInternetAlert();
+		}
 
+	},
+	showNoInternetAlert: function() {
+		AlertIOS.alert(
+		 'No Internet',
+		 'Search requires internet to work',
+		 [
+			 {text: 'Cancel', onPress: () => null, style: 'cancel'},
+			 {text: 'Retry', onPress: () => {
+				 	if (!this.props.hasInternet) {
+						this.showNoInternetAlert();
+					}
+			 }},
+		 ],
+		);
+	},
+	render: function() {
 		return (
 			<View style={[styles.menu,this.props.theme.menu]}>
 				<CategoryColorLine category={"Other"} />
@@ -40,7 +66,7 @@ var SearchPage = React.createClass({
 					onQueryChange={this.props.onQueryChange}
 					query={this.props.query}
 					setIsNewSearch={this.props.setIsNewSearch}/>
-				<Text style={styles.searchResultSummary} >Results: {this.props.numResults} {this.props.loadingQuery || this.props.loadingTail ? "Loading..." : ""}</Text>
+				<Text style={styles.searchResultSummary} >Results: {this.props.hasInternet ? this.props.numResults : "N/A"} {this.props.loadingQuery || this.props.loadingTail ? "Loading..." : ""}</Text>
 				<SearchResultList
 					theme={this.props.theme}
 					queryResult={this.props.queryResult}

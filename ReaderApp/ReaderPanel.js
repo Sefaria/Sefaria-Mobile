@@ -52,6 +52,7 @@ var ReaderPanel = React.createClass({
     setTheme:      React.PropTypes.func.isRequired,
     theme:         React.PropTypes.object,
     themeStr:      React.PropTypes.oneOf(["white","grey","black"]),
+    hasInternet:   React.PropTypes.bool,
     Sefaria:       React.PropTypes.object.isRequired
   },
   getInitialState: function () {
@@ -207,6 +208,7 @@ var ReaderPanel = React.createClass({
         return(
           <SearchPage
             theme={this.props.theme}
+            hasInternet={this.props.hasInternet}
             closeNav={this.props.closeMenu}
             onQueryChange={this.onQueryChange}
             openRef={this.props.openRef}

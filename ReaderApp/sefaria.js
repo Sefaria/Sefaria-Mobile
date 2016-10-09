@@ -65,7 +65,6 @@ Sefaria = {
         processData(Sefaria._jsonData[jsonPath]);
         return;
       }
-
       Sefaria._loadJSON(jsonPath)
         .then(processData)
         .catch(function() {
@@ -331,7 +330,7 @@ Sefaria = {
           }
           let prev = Sefaria.links._linkContentLoadingStack.shift();
           //delete Sefaria.links._linkContentLoadingHash[prev.ref];
-          console.log("Removing from queue:",prev.ref,"Length:",Sefaria.links._linkContentLoadingStack.length);
+          //console.log("Removing from queue:",prev.ref,"Length:",Sefaria.links._linkContentLoadingStack.length);
           if (Sefaria.links._linkContentLoadingStack.length > 0) {
             let next = Sefaria.links._linkContentLoadingStack[0]; //Sefaria.links._linkContentLoadingStack.length-1
             Sefaria.links.loadLinkData(next.ref,next.pos,null,null,true).then(next.resolveClosure).catch(next.rejectClosure);
@@ -340,12 +339,12 @@ Sefaria = {
       };
       if (ref.indexOf("Abarbanel") != -1) return new Promise(function(reject,resolve){reject({en:"I like to cause bugs in otherwise perfectly fine apps",he:"I like to cause bugs in otherwise perfectly fine apps"})});
       if (!runNow && !Sefaria.links._linkContentLoadingHash[ref]) {
-        console.log("Putting in queue:",ref,"Length:",Sefaria.links._linkContentLoadingStack.length);
+        //console.log("Putting in queue:",ref,"Length:",Sefaria.links._linkContentLoadingStack.length);
         Sefaria.links._linkContentLoadingStack.push({"ref":ref,"pos":pos,"resolveClosure":resolveClosure,"rejectClosure":rejectClosure});
         Sefaria.links._linkContentLoadingHash[ref] = true;
       }
       if ((Sefaria.links._linkContentLoadingStack.length == 1 && !Sefaria.links._linkContentLoadingStack[ref]) || runNow) {
-        console.log("Starting to load",ref);
+        //console.log("Starting to load",ref);
         return Sefaria.data(ref).then(parseData);
       } else {
 
