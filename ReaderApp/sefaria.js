@@ -312,19 +312,33 @@ Sefaria = {
     return null;
   },
   links: {
-    loadLinkData: function(ref) {
+    _linkContentLoadingQueue: [],
+    loadLinkData: function(ref,pos,resolveClosure,rejectClosure,runNow) {
       parseData = function(data) {
         return new Promise(function(resolve, reject) {
           var result = Sefaria.textFromRefData(data);
           // console.log(data.requestedRef + ": " + result.en + " / " + result.he);
           if (result) {
             resolve(result);
+            Sefaria.links._linkContentLoadingQueue.unshift();
+            if (Sefaria.links._linkContentLoadingQueue.length > 0) {
+              let next = Sefaria.links._linkContentLoadingQueue;
+              Sefaria.links.loadLinkData(next.ref,next.pos,null,true).then(next.resolveClosure).except(next.rejectClosure);
+            }
           } else {
             reject(result);
           }
         });
       };
-      return Sefaria.data(ref).then(parseData);
+      if (Sefaria.links._linkContentLoadingQueue.length == 0 || runNow) {
+        console.log("Starting to load",ref);
+        return Sefaria.data(ref).then(parseData);
+      } else {
+        Sefaria.links._linkContentLoadingQueue.push({"ref":ref,"pos":pos,"resolveClosure":resolveClosure,"rejectClosure":rejectClosure});
+        return new Promise(function(resolve,reject) {
+          reject('inQueue');
+        })
+      }
     },
     linkSummary: function(sectionRef,tempLinks) {
         return new Promise(function(resolve, reject) {

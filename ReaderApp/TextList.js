@@ -27,7 +27,6 @@ var TextList = React.createClass({
     openCat:         React.PropTypes.func.isRequired,
     closeCat:        React.PropTypes.func.isRequired,
     updateCat:       React.PropTypes.func.isRequired,
-    onLinkLoad:      React.PropTypes.func.isRequired,
     linkSummary:     React.PropTypes.array,
     linkContents:    React.PropTypes.array,
     loading:         React.PropTypes.bool,

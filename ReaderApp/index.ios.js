@@ -77,7 +77,7 @@ var ReaderApp = React.createClass({
         }
         if (!this.state.data[section][segment]) {
           return;
-        } 
+        }
         let loadingLinks = false;
         if (segment !== this.state.segmentIndexRef) {
             loadingLinks = true;
@@ -335,19 +335,29 @@ var ReaderApp = React.createClass({
       }.bind(this);
       var resolve = (data) => {
         if (isLinkCurrent(ref, pos)) {
-            this.onLinkLoad(data, pos);
+            this.onLinkLoad(pos, data);
         }
       };
       var reject = (error) => {
-        if (isLinkCurrent(ref, pos)) {
-            this.onLinkLoad({en:JSON.stringify(error), he:JSON.stringify(error)}, pos);
+        if (error != 'inQueue') {
+          if (isLinkCurrent(ref, pos)) {
+              this.onLinkLoad(pos, {en:JSON.stringify(error), he:JSON.stringify(error)});
+          }
         }
       };
 
       //here's the meat
-      Sefaria.links.loadLinkData(ref).then(resolve).catch(reject);
+      var resolveClosure = function(ref,pos,data) {
+        resolve(data);
+      }.bind(this,ref,pos);
+
+      var rejectClosure = function(ref,pos,data) {
+        reject(data);
+      }.bind(this,ref,pos);
+
+      Sefaria.links.loadLinkData(ref,pos,resolveClosure,rejectClosure).then(resolve).catch(reject);
     },
-    onLinkLoad: function(data, pos) {
+    onLinkLoad: function(pos, data) {
       this.state.linkContents[pos] = data;
       this.setState({linkContents: this.state.linkContents});
     },
@@ -403,7 +413,6 @@ var ReaderApp = React.createClass({
                     closeLinkCat={this.closeLinkCat}
                     updateLinkCat={this.updateLinkCat}
                     loadLinkContent={this.loadLinkContent}
-                    onLinkLoad={this.onLinkLoad}
                     filterIndex={this.state.filterIndex}
                     linkRecentFilters={this.state.linkRecentFilters}
                     linkSummary={this.state.linkSummary}

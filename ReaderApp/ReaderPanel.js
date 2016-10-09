@@ -44,7 +44,6 @@ var ReaderPanel = React.createClass({
     openLinkCat:   React.PropTypes.func.isRequired,
     closeLinkCat:  React.PropTypes.func.isRequired,
     updateLinkCat: React.PropTypes.func.isRequired,
-    onLinkLoad:    React.PropTypes.func.isRequired,
     filterIndex:   React.PropTypes.number,
     linkRecentFilters: React.PropTypes.array,
     linkSummary:   React.PropTypes.array,
@@ -299,7 +298,6 @@ var ReaderPanel = React.createClass({
                 closeCat={this.props.closeLinkCat}
                 updateCat={this.props.updateLinkCat}
                 loadLinkContent={this.props.loadLinkContent}
-                onLinkLoad={this.props.onLinkLoad}
                 linkSummary={this.props.linkSummary}
                 linkContents={this.props.linkContents}
                 loading={this.props.loadingLinks}
