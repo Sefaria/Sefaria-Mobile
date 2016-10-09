@@ -154,11 +154,13 @@ var ReaderPanel = React.createClass({
   },
   incrementFont: function(incrementString) {
     if (incrementString == "incrementFont") {
-      this.state.settings.fontSize = this.state.settings.fontSize+1;
-      this.setState({settings:this.state.settings});
+      var updatedSettings = Sefaria.util.clone(this.state.settings)
+      updatedSettings.fontSize = this.state.settings.fontSize+1;
+      this.setState({settings:updatedSettings});
     } else /*if (incrementString == "decrementFont") */{
-      this.state.settings.fontSize = this.state.settings.fontSize-1;
-      this.setState({settings:this.state.settings});
+      var updatedSettings = Sefaria.util.clone(this.state.settings)
+      updatedSettings.fontSize  = this.state.settings.fontSize-1;
+      this.setState({settings:updatedSettings});
     }
   },
   setTheme: function(themeStr) {

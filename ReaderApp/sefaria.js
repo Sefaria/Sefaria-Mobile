@@ -435,24 +435,22 @@ Sefaria = {
           }
 
           // Sort the categories
+          var order = ["Commentary", "byCount", "Modern Works", "All"];
           summaryList.sort(function(a, b) {
-            // always put All, Commentary first
-            if      (a.category === "All" && b.category === "Commentary") { return -1; }
-            else if (b.category === "All" && b.category === "Commentary") { return  1; }
+            var indexByCount = order.indexOf("byCount");
+            var indexA = order.indexOf(a.category) != -1 ? order.indexOf(a.category) : indexByCount;
+            var indexB = order.indexOf(b.category) != -1 ? order.indexOf(b.category) : indexByCount;
 
-            if      (a.category === "All") { return -1; }
-            else if (b.category === "All") { return  1; }
+            if (indexA == indexByCount && indexB == indexByCount) { 
+              return b.count - a.count
+            }
 
-            if      (a.category === "Commentary") { return -1; }
-            else if (b.category === "Commentary") { return  1; }
-            // always put Modern Works last
-            if      (a.category === "Modern Works") { return  1; }
-            else if (b.category === "Modern Works") { return -1; }
-            return b.count - a.count;
+            return indexA - indexB;
+
           });
 
-          //All category should be first
-          summaryList[0].refList = allRefs;
+          //All category should be last
+          summaryList[summaryList.length-1].refList = allRefs;
 
           resolve(summaryList);
         });
