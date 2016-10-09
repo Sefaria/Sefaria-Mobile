@@ -316,8 +316,8 @@ Sefaria = {
     _linkContentLoadingHash: {},
     /* when you switch segments, delete stack and hashtable*/
     reset: function() {
-      _linkContentLoadingStack = [];
-      _linkContentLoadingHash = {};
+      Sefaria.links._linkContentLoadingStack = [];
+      Sefaria.links._linkContentLoadingHash = {};
     },
     loadLinkData: function(ref,pos,resolveClosure,rejectClosure,runNow) {
       parseData = function(data) {
@@ -338,6 +338,7 @@ Sefaria = {
           }
         });
       };
+      if (ref.indexOf("Abarbanel") != -1) return new Promise(function(reject,resolve){reject({en:"I like to cause bugs in otherwise perfectly fine apps",he:"I like to cause bugs in otherwise perfectly fine apps"})});
       if (!runNow && !Sefaria.links._linkContentLoadingHash[ref]) {
         console.log("Putting in queue:",ref,"Length:",Sefaria.links._linkContentLoadingStack.length);
         Sefaria.links._linkContentLoadingStack.push({"ref":ref,"pos":pos,"resolveClosure":resolveClosure,"rejectClosure":rejectClosure});
