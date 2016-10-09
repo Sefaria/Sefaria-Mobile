@@ -255,7 +255,7 @@ var TextColumn = React.createClass({
       });
       this.updateTitle();
     }
-    
+
   },
   onTopReached: function() {
     if (this.props.loadingTextHead == true || !this.props.prev) {
@@ -538,7 +538,7 @@ var TextColumn = React.createClass({
         style.push(this.props.theme.segmentHighlight);
     }
 
-    console.log("Rendering Row:", reactRef);
+    //console.log("Rendering Row:", reactRef);
 
     return <View style={style} key={reactRef} ref={(view)=>this.rowRefs[reactRef]=view}>{segment}</View>;
   },

@@ -64,7 +64,7 @@ var SearchResultList = React.createClass({
 	        onEndReached={this.onEndReached}/>
 	    );
   	} else {
-  		return (<View/>);
+  		return null;
   	}
 
   }

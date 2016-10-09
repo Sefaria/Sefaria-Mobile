@@ -134,7 +134,7 @@ var ReaderApp = React.createClass({
                 textListVisible:   false,
                 offsetRef:         !data.isSectionLevel ? data.requestedRef : null,
             });
-
+            Sefaria.links.reset();
             // Preload Text TOC data into memory
             Sefaria.textToc(data.indexTitle, function() {});
             Sefaria.saveRecentItem({ref: ref, heRef: data.heRef, category: Sefaria.categoryForRef(ref)});
@@ -280,6 +280,7 @@ var ReaderApp = React.createClass({
         }
 
         var linkContents = filter.refList.map((ref)=>null);
+        Sefaria.links.reset();
         this.setState({
             filterIndex: filterIndex,
             recentFilters: this.state.linkRecentFilters,
@@ -318,6 +319,7 @@ var ReaderApp = React.createClass({
         this.state.linkRecentFilters[filterIndex] = nextFilter;
 
         var linkContents = nextFilter.refList.map((ref)=>null);
+        Sefaria.links.reset();
         this.setState({
             filterIndex: filterIndex,
             linkRecentFilters: this.state.linkRecentFilters,
@@ -352,6 +354,7 @@ var ReaderApp = React.createClass({
       }.bind(this,ref,pos);
 
       var rejectClosure = function(ref,pos,data) {
+        console.log("REJJJJJJEECTTTTTT",data);
         reject(data);
       }.bind(this,ref,pos);
 

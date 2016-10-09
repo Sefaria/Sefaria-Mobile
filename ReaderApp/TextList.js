@@ -38,8 +38,18 @@ var TextList = React.createClass({
   getInitialState: function() {
     Sefaria = this.props.Sefaria; //Is this bad practice to use getInitialState() as an init function
     return {
-      dataSource: new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2})
+      dataSource: new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2}),
+      isNewSegment: false
     };
+  },
+  componentWillReceiveProps: function(nextProps) {
+    if (this.props.segmentIndexRef !== nextProps.segmentIndexRef) {
+      this.setState({isNewSegment:true});
+    }
+  },
+  componentDidUpdate: function() {
+    if (this.state.isNewSegment)
+      this.setState({isNewSegment:false});
   },
   renderRow: function(linkContentObj, sectionId, rowId) {
     var ref = this.props.recentFilters[this.props.filterIndex].refList[rowId];
@@ -105,7 +115,7 @@ var TextList = React.createClass({
                  </ScrollView>);
       }
 
-    } else {
+    } else if (!this.state.isNewSegment){
       return (
       <View style={styles.textListContentOuter}>
         <TextListHeader
@@ -117,15 +127,17 @@ var TextList = React.createClass({
           filterIndex={this.props.filterIndex}
           recentFilters={this.props.recentFilters}
           columnLanguage={this.props.columnLanguage} />
-        {this.props.linkContents.length == 0 ?
+        {this.props.linkContents.length == 0?
           <View style={styles.noLinks}><HTMLView value={"<i>No connections available.</i>"}/></View>:
           <ListView style={styles.textListContentListView}
             dataSource={dataSourceRows}
             renderRow={this.renderRow}
-            scrollRenderAheadDistance={20} />
+            /*scrollRenderAheadDistance={500}*/ />
         }
       </View>
       );
+    } else {
+      return null;
     }
   }
 });

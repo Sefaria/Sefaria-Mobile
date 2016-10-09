@@ -312,7 +312,13 @@ Sefaria = {
     return null;
   },
   links: {
-    _linkContentLoadingQueue: [],
+    _linkContentLoadingStack: [],
+    _linkContentLoadingHash: {},
+    /* when you switch segments, delete stack and hashtable*/
+    reset: function() {
+      _linkContentLoadingStack = [];
+      _linkContentLoadingHash = {};
+    },
     loadLinkData: function(ref,pos,resolveClosure,rejectClosure,runNow) {
       parseData = function(data) {
         return new Promise(function(resolve, reject) {
@@ -320,21 +326,28 @@ Sefaria = {
           // console.log(data.requestedRef + ": " + result.en + " / " + result.he);
           if (result) {
             resolve(result);
-            Sefaria.links._linkContentLoadingQueue.unshift();
-            if (Sefaria.links._linkContentLoadingQueue.length > 0) {
-              let next = Sefaria.links._linkContentLoadingQueue;
-              Sefaria.links.loadLinkData(next.ref,next.pos,null,true).then(next.resolveClosure).except(next.rejectClosure);
-            }
           } else {
             reject(result);
           }
+          let prev = Sefaria.links._linkContentLoadingStack.shift();
+          //delete Sefaria.links._linkContentLoadingHash[prev.ref];
+          console.log("Removing from queue:",prev.ref,"Length:",Sefaria.links._linkContentLoadingStack.length);
+          if (Sefaria.links._linkContentLoadingStack.length > 0) {
+            let next = Sefaria.links._linkContentLoadingStack[0]; //Sefaria.links._linkContentLoadingStack.length-1
+            Sefaria.links.loadLinkData(next.ref,next.pos,null,null,true).then(next.resolveClosure).catch(next.rejectClosure);
+          }
         });
       };
-      if (Sefaria.links._linkContentLoadingQueue.length == 0 || runNow) {
+      if (!runNow && !Sefaria.links._linkContentLoadingHash[ref]) {
+        console.log("Putting in queue:",ref,"Length:",Sefaria.links._linkContentLoadingStack.length);
+        Sefaria.links._linkContentLoadingStack.push({"ref":ref,"pos":pos,"resolveClosure":resolveClosure,"rejectClosure":rejectClosure});
+        Sefaria.links._linkContentLoadingHash[ref] = true;
+      }
+      if ((Sefaria.links._linkContentLoadingStack.length == 1 && !Sefaria.links._linkContentLoadingStack[ref]) || runNow) {
         console.log("Starting to load",ref);
         return Sefaria.data(ref).then(parseData);
       } else {
-        Sefaria.links._linkContentLoadingQueue.push({"ref":ref,"pos":pos,"resolveClosure":resolveClosure,"rejectClosure":rejectClosure});
+
         return new Promise(function(resolve,reject) {
           reject('inQueue');
         })
@@ -441,7 +454,7 @@ Sefaria = {
             var indexA = order.indexOf(a.category) != -1 ? order.indexOf(a.category) : indexByCount;
             var indexB = order.indexOf(b.category) != -1 ? order.indexOf(b.category) : indexByCount;
 
-            if (indexA == indexByCount && indexB == indexByCount) { 
+            if (indexA == indexByCount && indexB == indexByCount) {
               return b.count - a.count
             }
 
