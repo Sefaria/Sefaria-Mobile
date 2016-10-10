@@ -239,6 +239,7 @@ var ReaderPanel = React.createClass({
                 onStartShouldSetResponderCapture={() => {
                   if (this.state.ReaderDisplayOptionsMenuVisible == true) {
                      this.toggleReaderDisplayOptionsMenu();
+                     return true;
                   }
                 }}
           >
@@ -287,6 +288,7 @@ var ReaderPanel = React.createClass({
                 onStartShouldSetResponderCapture={() => {
                   if (this.state.ReaderDisplayOptionsMenuVisible == true) {
                      this.toggleReaderDisplayOptionsMenu();
+                     return true;
                   }
                 }}
             >
