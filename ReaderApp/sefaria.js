@@ -30,13 +30,11 @@ Sefaria = {
       var jsonPath     = Sefaria._JSONSourcePath(fileNameStem);
       var zipPath      = Sefaria._zipSourcePath(bookRefStem);
       var processData = function(data) {
-        console.log("HEREE");
         // Store data in in memory cache if it's not there already
         if (!(jsonPath in Sefaria._jsonData)) {
           Sefaria._jsonData[jsonPath] = data;
         }
         if ("content" in data) {
-          console.log("HERE CONTENT");
           var result = data;
         } else {
           // If the data file represents multiple sections, pick the appropriate one to return
@@ -291,7 +289,6 @@ Sefaria = {
     // Returns a dictionary of the form {en: "", he: ""} that includes a single string with
     // Hebrew and English for `data.requestedRef` found in `data` as returned from Sefaria.data.
     // `data.requestedRef` may be either section or segment level.
-    console.log("YOYODDO",data.isSectionLevel,data.requestedRef,Object.keys(data));
     if (data.isSectionLevel) {
       let enText = "", heText = "";
       for (let i = 0; i < data.content.length; i++) {
