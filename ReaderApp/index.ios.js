@@ -89,8 +89,8 @@ var ReaderApp = React.createClass({
         let loadingLinks = false;
         if (segment !== this.state.segmentIndexRef) {
             loadingLinks = true;
-            Sefaria.links.linkSummary(this.state.textReference,this.state.data[section][segment].links).then((data) => {
-              this.setState({linkSummary:data,loadingLinks:false});
+            Sefaria.links.linkSummary(this.state.textReference, this.state.data[section][segment].links).then((data) => {
+              this.setState({linkSummary: data, loadingLinks: false});
               this.updateLinkCat(data, null); // Set up `linkContents` in their initial state as an array of nulls
             });
         }
@@ -112,7 +112,8 @@ var ReaderApp = React.createClass({
             loaded: false,
             data: [],
             textReference: ref,
-            textTitle: Sefaria.textTitleForRef(ref)
+            textTitle: Sefaria.textTitleForRef(ref),
+            segmentIndexRef: -1,
         });
         Sefaria.data(ref).then(function(data) {
             var linkSummary = [];
