@@ -70,7 +70,8 @@ Sefaria = {
             .then(processData)
             .catch(function() {
               // Now that the file is unzipped, if there was an error assume we have a depth 1 text
-              var depth1JSONPath = Sefaria._JSONSourcePath(bookRefStem);
+              var depth1FilenameStem = fileNameStem.substr(0, fileNameStem.lastIndexOf(" "));
+              var depth1JSONPath = Sefaria._JSONSourcePath(depth1FilenameStem);
               Sefaria._loadJSON(depth1JSONPath)
                 .then(processData)
                 .catch(function() {

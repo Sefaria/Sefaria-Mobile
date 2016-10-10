@@ -120,7 +120,7 @@ var ReaderApp = React.createClass({
             var loadingLinks = false;
             if (data.content && data.content.links) {
                 loadingLinks = true;
-                Sefaria.links.linkSummary(data.ref,data.content[this.state.segmentIndexRef].links).then(()=>
+                Sefaria.links.linkSummary(data.ref, data.content[this.state.segmentIndexRef].links).then(()=>
                   this.setState({linkSummary: linkSummary, loadingLinks: false})
                 );
             }
