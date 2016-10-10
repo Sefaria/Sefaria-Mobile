@@ -50,14 +50,10 @@ Sefaria = {
         }
         result.requestedRef   = ref;
         result.isSectionLevel = (ref === result.sectionRef);
-        debugResolve(result);
+        Sefaria.cacheCommentatorListBySection(result);
+        resolve(result);
       };
 
-      var debugResolve = function(data) {
-        //console.log(data);
-        Sefaria.cacheCommentatorListBySection(data);
-        resolve(data);
-      }
 
       // Pull data from in memory cache if available
       if (jsonPath in Sefaria._jsonData) {
@@ -67,21 +63,18 @@ Sefaria = {
       Sefaria._loadJSON(jsonPath)
         .then(processData)
         .catch(function() {
-
-          Sefaria._loadJSON()
           // If there was en error, assume it's because the data was not unzipped yet
           Sefaria._unzip(zipPath)
+            .catch(function() { console.error("Error unzipping: ", zipPath)})
             .then(() => Sefaria._loadJSON(jsonPath))
             .then(processData)
             .catch(function() {
               // Now that the file is unzipped, if there was an error assume we have a depth 1 text
               var depth1JSONPath = Sefaria._JSONSourcePath(bookRefStem);
-              Sefaria._unzip(zipPath)
-                .then(() => Sefaria._loadJSON(depth1JSONPath))
+              Sefaria._loadJSON(depth1JSONPath)
                 .then(processData)
                 .catch(function() {
-                  console.error("Couldn't find JSON file: " + jsonPath);
-                  console.error("Also tried: " + depth1JSONPath);
+                  console.error("Error loading JSON file: " + jsonPath + " OR " + depth1JSONPath);
                 });
             });
         });
