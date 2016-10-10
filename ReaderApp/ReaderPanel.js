@@ -271,18 +271,6 @@ var ReaderPanel = React.createClass({
               style={styles.textColumn} />
           </View> }
 
-          {this.state.ReaderDisplayOptionsMenuVisible ?
-          (<ReaderDisplayOptionsMenu
-            theme={this.props.theme}
-            textFlow={this.state.textFlow}
-            textReference={this.props.textReference}
-            columnLanguage={this.state.columnLanguage}
-            setTextFlow={this.setTextFlow}
-            setColumnLanguage={this.setColumnLanguage}
-            incrementFont={this.incrementFont}
-            setTheme={this.setTheme}
-            themeStr={this.props.themeStr}/>) : null }
-
           {this.props.textListVisible && !this.props.loading ?
             <View style={[styles.commentaryTextPanel, this.props.theme.commentaryTextPanel]}
                 onStartShouldSetResponderCapture={() => {
@@ -310,6 +298,18 @@ var ReaderPanel = React.createClass({
                 filterIndex={this.props.filterIndex}
                 recentFilters={this.props.linkRecentFilters} />
             </View> : null}
+
+            {this.state.ReaderDisplayOptionsMenuVisible ?
+            (<ReaderDisplayOptionsMenu
+              theme={this.props.theme}
+              textFlow={this.state.textFlow}
+              textReference={this.props.textReference}
+              columnLanguage={this.state.columnLanguage}
+              setTextFlow={this.setTextFlow}
+              setColumnLanguage={this.setColumnLanguage}
+              incrementFont={this.incrementFont}
+              setTheme={this.setTheme}
+              themeStr={this.props.themeStr}/>) : null }
         </View>);
   }
 });
