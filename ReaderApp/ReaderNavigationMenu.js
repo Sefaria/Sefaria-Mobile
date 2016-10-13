@@ -107,8 +107,8 @@ var ReaderNavigationMenu = React.createClass({
 
       var title = (<View style={styles.navigationMenuTitleBox}>
                     { this.props.interfaceLang == "english" ?
-                      <Text style={[styles.navigationMenuTitle, styles.intEn, this.props.theme.text]}>The Sefaria Library</Text> :
-                      <Text style={[styles.navigationMenuTitle, styles.intHe, this.props.theme.text]}>האוסף של ספאריה</Text>}
+                      <Text style={[styles.en, styles.navigationMenuTitle, this.props.theme.text]}>The Sefaria Library</Text> :
+                      <Text style={[styles.he, styles.navigationMenuTitle, this.props.theme.text]}>האוסף של ספאריה</Text>}
                     <LanguageToggleButton theme={this.props.theme} toggleLanguage={this.props.toggleLanguage} language={language} />
                   </View>);
 

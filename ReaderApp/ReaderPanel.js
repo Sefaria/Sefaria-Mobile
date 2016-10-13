@@ -229,6 +229,7 @@ var ReaderPanel = React.createClass({
           <ReaderControls
             theme={this.props.theme}
             title={this.state.columnLanguage == "hebrew" ? this.props.heRef : this.props.textReference}
+            language={this.state.columnLanguage}
             openNav={this.props.openNav}
             openTextToc={this.props.openTextToc}
             toggleReaderDisplayOptionsMenu={this.toggleReaderDisplayOptionsMenu} />
@@ -319,16 +320,19 @@ var ReaderControls = React.createClass({
   propTypes: {
     theme:                           React.PropTypes.object,
     title:                           React.PropTypes.string,
+    language:                        React.PropTypes.string,
     openNav:                         React.PropTypes.func,
     openTextToc:                     React.PropTypes.func,
     toggleReaderDisplayOptionsMenu:  React.PropTypes.func,
   },
   render: function() {
+    var titleTextStyle = this.props.language === "hebrew" ? [styles.he] : [styles.en];
+    titleTextStyle.push(this.props.theme.text);
     return (
         <View style={[styles.header, this.props.theme.header]}>
           <MenuButton onPress={this.props.openNav} theme={this.props.theme}/>
           <TouchableOpacity style={styles.headerTextTitle} onPress={this.props.openTextToc}>
-            <Text style={this.props.theme.text}>
+            <Text style={titleTextStyle}>
               {this.props.title}
             </Text>
           </TouchableOpacity>
