@@ -218,6 +218,9 @@ module.exports = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center"
   },
+  languageToggleText: {
+    color: "black"
+  },
   navigationMenuTitleBox: {
     flexDirection: "row",
     alignItems: "center",

@@ -7,13 +7,13 @@ var Colors = {
   mainBackground: "#2d2d2b",
   secondaryBackground: "#333331",
   mainText: "#fff",
-  secondaryText: "#666",
+  secondaryText: "#ddd",
   mainForeground: "black",
   mainForegroundContrast: "white",
   textBackground: "#333331",
   textSectionTitleBorder: "#666",
   textSegmentHighlight: "#444",
-  button: "#666"
+  button: "#ddd"
 }
 
 module.exports = StyleSheet.create({
@@ -30,10 +30,10 @@ module.exports = StyleSheet.create({
   },
   readerDisplayOptionsMenuItem: {
     borderColor: Colors.border,
-    backgroundColor: Colors.mainForeground,
+    backgroundColor: Colors.mainForegroundContrast,
   },
   readerDisplayOptionsMenuItemSelected: {
-    backgroundColor: "#EEE"
+    backgroundColor: "#CCC"
   },
   readerDisplayOptionsMenuColor: {
     borderColor: "#AAA"
@@ -67,6 +67,9 @@ module.exports = StyleSheet.create({
   },
   languageToggle: {
     borderColor: Colors.border
+  },
+  languageToggleText: {
+    color: Colors.mainText
   },
   readerNavCategory: {
     backgroundColor: Colors.mainForeground

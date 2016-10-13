@@ -10,6 +10,7 @@ import {
 var styles          = require('./Styles.js');
 var a_aleph_icon    = require('./img/a_aleph2.png');
 var a_icon          = require('./img/a_icon.png');
+var a_icon_small    = require('./img/a_icon_small.png');
 var aleph_icon      = require('./img/aleph.png');
 var segmented_icon  = require('./img/breaks.png');
 var continuous_icon = require('./img/continuous.png');
@@ -56,7 +57,7 @@ var ReaderDisplayOptionsMenu = React.createClass({
       {
         onPress:this.props.incrementFont,
         buttons:["decrementFont","incrementFont"],
-        icons:[a_icon,a_icon],
+        icons:[a_icon_small,a_icon],
         currVal: null,
         parametrized: true
       }
@@ -88,8 +89,7 @@ var ReaderDisplayOptionsMenu = React.createClass({
                 parametrized={optionRow.parametrized}
                 color={color}
                 align={alignments[optionRow.buttons.length-2][i]}
-                selected={selected}
-              />
+                selected={selected} />
             );
           } else {
             let icon = optionRow.icons[i];
@@ -101,8 +101,7 @@ var ReaderDisplayOptionsMenu = React.createClass({
                 parametrized={optionRow.parametrized}
                 icon={icon}
                 align={alignments[optionRow.buttons.length-2][i]}
-                selected={selected}
-              />
+                selected={selected} />
             );
           }
 
