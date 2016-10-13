@@ -241,10 +241,9 @@ module.exports = StyleSheet.create({
   },
   readerNavCategory: {
     borderTopWidth: 4,
-    margin: 5,
-    minHeight: 40,
-    paddingVertical: 5,
-    paddingHorizontal: 5,
+    margin: 3,
+    paddingVertical: 10,
+    paddingHorizontal: 10,
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
@@ -269,7 +268,9 @@ module.exports = StyleSheet.create({
   textBlockLink: {
     paddingVertical: 10,
     paddingHorizontal: 10,
-    margin: 5,
+    margin: 3,
+    alignItems: "center",
+    justifyContent: "center",
     flex: 1,
   },
   navToggles: {
@@ -426,7 +427,6 @@ module.exports = StyleSheet.create({
 
   },
   twoBoxRow: {
-    flex: 1,
     flexDirection: "row",
     alignItems: "stretch"
   },
