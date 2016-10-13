@@ -5,7 +5,8 @@ import {
   Text,
   TouchableOpacity,
   View,
-  ScrollView
+  ScrollView,
+  Dimensions
 } from 'react-native';
 
 var {
@@ -143,14 +144,24 @@ var TextTableOfContentsNavigation = React.createClass({
       var toggle = null;
     }
 
+    // Set margins around nav sections dependent on screen width so grid centered no mater how many sections fit per line
+    var {height, width} = Dimensions.get('window');
+    var availableWidth  = width - (2 * 20); // 20 is  margin set on `menuContent`. 
+    var itemWidth       = 40 + 2*2; // width of `sectionLink` plus two times margin
+    var gridWidth       = parseInt(availableWidth / itemWidth) * itemWidth;
+    var gridMargins     = (availableWidth - gridWidth) / 2;
+    var gridBoxStyle    = {marginHorizontal: gridMargins};
+
     switch(this.state.tab) {
       case "default":
-        var content = <SchemaNode
-                        theme={this.props.theme}
-                        schema={this.props.schema}
-                        contentLang={this.props.contentLang}
-                        refPath={this.props.title}
-                        openRef={this.props.openRef} />;
+        var content = <View style={gridBoxStyle}>
+                        <SchemaNode
+                          theme={this.props.theme}
+                          schema={this.props.schema}
+                          contentLang={this.props.contentLang}
+                          refPath={this.props.title}
+                          openRef={this.props.openRef} />
+                      </View>;
         break;
       case "commentary":
         var content = <CommentatorList
@@ -160,12 +171,14 @@ var TextTableOfContentsNavigation = React.createClass({
                         openRef={this.props.openRef} />;
         break;
       default:
-        var content = <SchemaNode
-                        theme={this.props.theme}
-                        schema={this.props.alts[this.state.tab]}
-                        contentLang={this.props.contentLang}
-                        refPath={this.props.title}
-                        openRef={this.props.openRef} />;
+        var content = <View style={gridBoxStyle}>
+                        <SchemaNode
+                          theme={this.props.theme}
+                          schema={this.props.alts[this.state.tab]}
+                          contentLang={this.props.contentLang}
+                          refPath={this.props.title}
+                          openRef={this.props.openRef} />
+                      </View>;
         break;
     }
 
@@ -392,18 +405,15 @@ var CommentatorList = React.createClass({
     var showHebrew = this.props.contentLang == "hebrew";
     var content = this.props.commentatorList.map(function(commentator, i) {
       var open = this.props.openRef.bind(null, commentator.firstSection);
-      return (<TouchableOpacity onPress={open} style={[styles.textBlockLink,this.props.theme.textBlockLink]} key={i}>
+      return (<TouchableOpacity onPress={open} style={[styles.textBlockLink, this.props.theme.textBlockLink]} key={i}>
               { showHebrew ?
                 <Text style={[styles.he, styles.centerText, this.props.theme.text]}>{commentator.heCommentator}</Text> :
                 <Text style={[styles.en, styles.centerText, this.props.theme.text]}>{commentator.commentator}</Text> }
             </TouchableOpacity>);
     }.bind(this));
 
-    return (
-      <View>
-        <TwoBox content={content} />
-      </View>
-    );
+    return (<TwoBox content={content} />);
+
   }
 })
 

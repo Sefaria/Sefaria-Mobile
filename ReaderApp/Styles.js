@@ -183,7 +183,6 @@ module.exports = StyleSheet.create({
     paddingLeft: 10,
     flexDirection: "row"
   },
-
   textListHeaderScrollView: {
     flex: 200 //made scrollview flex:200 to push the tripledots all the way to the right. seems to work well
   },
@@ -326,7 +325,6 @@ module.exports = StyleSheet.create({
   textColumn: {
     flexDirection: "row",
     alignItems: 'stretch'
-
   },
   sectionHeader: {
     flex: 1,
@@ -350,8 +348,6 @@ module.exports = StyleSheet.create({
   numberSegmentHolderBiHe: {
     flexDirection: "row-reverse",
   },
-
-
   rightContainer: {
     flex: 1
   },
