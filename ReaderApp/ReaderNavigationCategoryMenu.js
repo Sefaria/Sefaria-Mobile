@@ -74,14 +74,16 @@ var ReaderNavigationCategoryMenu = React.createClass({
     if (!Sefaria.toc) { return (<LoadingView />); }
 
     var catContents = Sefaria.tocItemsByCategories(categories);
+    var enTitle = this.props.category.toUpperCase();
+    var heTitle = Sefaria.hebrewCategory(this.props.category);
     return (<View style={[styles.menu,this.props.theme.menu]}>
               <CategoryColorLine category={this.props.category} />
               <View style={[styles.header, this.props.theme.header]}>
                 <CategoryColorLine category={categories[0]} />
                 <MenuButton onPress={this.props.navHome} theme={this.props.theme}/>
                 {showHebrew ?
-                  <Text style={[styles.he, styles.categoryTitle, this.props.theme.categoryTitle]}>{Sefaria.hebrewCategory(this.props.category)}</Text> :
-                  <Text style={[styles.en, styles.categoryTitle, this.props.theme.categoryTitle]}>{this.props.category}</Text> }
+                  <Text style={[styles.intHe, styles.categoryTitle, this.props.theme.categoryTitle]}>{heTitle}</Text> :
+                  <Text style={[styles.intEn, styles.categoryTitle, this.props.theme.categoryTitle]}>{enTitle}</Text> }
                 <DisplaySettingsButton onPress={this.props.openDisplaySettings} />
               </View>
 
