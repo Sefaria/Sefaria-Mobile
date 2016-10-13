@@ -363,7 +363,6 @@ var ReaderApp = React.createClass({
       }.bind(this,ref,pos);
 
       var rejectClosure = function(ref,pos,data) {
-        console.log("REJJJJJJEECTTTTTT",data);
         reject(data);
       }.bind(this,ref,pos);
 

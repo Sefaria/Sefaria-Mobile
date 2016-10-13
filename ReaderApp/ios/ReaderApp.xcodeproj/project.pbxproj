@@ -427,7 +427,7 @@
 						TestTargetID = 13B07F861A680F5B00A75B9A;
 					};
 					13B07F861A680F5B00A75B9A = {
-						DevelopmentTeam = 2626EW4BML;
+						DevelopmentTeam = Q5QFCUXYE7;
 					};
 				};
 			};
@@ -701,7 +701,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				DEAD_CODE_STRIPPING = NO;
-				DEVELOPMENT_TEAM = 2626EW4BML;
+				DEVELOPMENT_TEAM = Q5QFCUXYE7;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
@@ -716,7 +716,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = org.sefaria.sefariaApp;
+				PRODUCT_BUNDLE_IDENTIFIER = org.sefaria.sefaria;
 				PRODUCT_NAME = ReaderApp;
 				PROVISIONING_PROFILE = "";
 			};
@@ -729,7 +729,7 @@
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = "Brand Assets";
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				DEVELOPMENT_TEAM = 2626EW4BML;
+				DEVELOPMENT_TEAM = Q5QFCUXYE7;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
@@ -744,7 +744,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = org.sefaria.sefariaApp;
+				PRODUCT_BUNDLE_IDENTIFIER = org.sefaria.sefaria;
 				PRODUCT_NAME = ReaderApp;
 				PROVISIONING_PROFILE = "";
 			};
