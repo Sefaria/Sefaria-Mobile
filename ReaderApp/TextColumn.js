@@ -92,7 +92,8 @@ var TextColumn = React.createClass({
         this.props.settings.fontSize !== nextProps.settings.fontSize ||
         this.props.textListVisible !== nextProps.textListVisible ||
         this.props.segmentIndexRef !== nextProps.segmentIndexRef ||
-        this.props.segmentRef !== nextProps.segmentRef) {
+        this.props.segmentRef !== nextProps.segmentRef ||
+        this.props.themeStr !== nextProps.themeStr) {
       // Only update dataSource when a change has occurred that will result in different data
       var newData = this.generateDataSource(nextProps);
       this.setState({dataSource: this.state.dataSource.cloneWithRowsAndSections(newData)});
