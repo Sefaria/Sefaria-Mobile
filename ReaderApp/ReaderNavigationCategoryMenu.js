@@ -80,8 +80,8 @@ var ReaderNavigationCategoryMenu = React.createClass({
                 <CategoryColorLine category={categories[0]} />
                 <MenuButton onPress={this.props.navHome} theme={this.props.theme}/>
                 {showHebrew ?
-                  <Text style={styles.he, styles.categoryTitle}>{Sefaria.hebrewCategory(this.props.category)}</Text> :
-                  <Text style={styles.en, styles.categoryTitle}>{this.props.category}</Text> }
+                  <Text style={[styles.he, styles.categoryTitle, this.props.theme.categoryTitle]}>{Sefaria.hebrewCategory(this.props.category)}</Text> :
+                  <Text style={[styles.en, styles.categoryTitle, this.props.theme.categoryTitle]}>{this.props.category}</Text> }
                 <DisplaySettingsButton onPress={this.props.openDisplaySettings} />
               </View>
 
@@ -125,8 +125,8 @@ var ReaderNavigationCategoryMenuContents = React.createClass({
             var openCat = this.props.setCategories.bind(null, newCats);
             content.push((<TouchableOpacity onPress={openCat} style={[styles.textBlockLink,this.props.theme.textBlockLink]} key={i}>
                             { showHebrew ?
-                              <Text style={[styles.he, styles.centerText]}>{Sefaria.hebrewCategory(item.category)}</Text> :
-                              <Text style={[styles.en, styles.centerText]}>{item.category}</Text> }
+                              <Text style={[styles.he, styles.centerText, this.props.theme.text]}>{Sefaria.hebrewCategory(item.category)}</Text> :
+                              <Text style={[styles.en, styles.centerText, this.props.theme.text]}>{item.category}</Text> }
                           </TouchableOpacity>));
             continue;
           }
@@ -150,8 +150,8 @@ var ReaderNavigationCategoryMenuContents = React.createClass({
           var openRef = this.props.openRef.bind(null, item.firstSection);
           content.push((<TouchableOpacity  style={[styles.textBlockLink,this.props.theme.textBlockLink]}  onPress={openRef} key={i}>
                             { showHebrew ?
-                              <Text style={[styles.he, styles.centerText]}>{heTitle}</Text> :
-                              <Text style={[styles.en, styles.centerText]}>{title}</Text> }
+                              <Text style={[styles.he, styles.centerText, this.props.theme.text]}>{heTitle}</Text> :
+                              <Text style={[styles.en, styles.centerText, this.props.theme.text]}>{title}</Text> }
                           </TouchableOpacity>));
         }
       }

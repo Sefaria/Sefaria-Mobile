@@ -128,7 +128,7 @@ var TextList = React.createClass({
           recentFilters={this.props.recentFilters}
           columnLanguage={this.props.columnLanguage} />
         {this.props.linkContents.length == 0?
-          <View style={styles.noLinks}><HTMLView value={"<i>No connections available.</i>"}/></View>:
+          <View style={styles.noLinks}><EmptyLinksMessage theme={this.props.theme} /></View>:
           <ListView style={styles.textListContentListView}
             dataSource={dataSourceRows}
             renderRow={this.renderRow}
@@ -224,6 +224,18 @@ var LinkContent = React.createClass({
         {textViews}
       </TouchableOpacity>
     );
+  }
+});
+
+
+var EmptyLinksMessage = React.createClass({
+  propTypes: {
+    theme:         React.PropTypes.object.isRequired,
+    interfaceLang: React.PropTypes.string
+  },
+  render: function() {
+    // TODO hebrew interface language
+    return (<Text style={[styles.emptyLinksMessage, this.props.theme.text]}>No connections available.</Text>);
   }
 });
 

@@ -77,6 +77,9 @@ module.exports = StyleSheet.create({
   readerNavSectionTitle: {
     color: Colors.secondaryText
   },
+  categoryTitle: {
+    color: Colors.mainText
+  },  
   categorySectionTitle: {
     color: Colors.secondaryText
   },

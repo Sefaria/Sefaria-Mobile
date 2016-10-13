@@ -196,6 +196,9 @@ module.exports = StyleSheet.create({
     alignItems: "center",
     margin: 10
   },
+  emptyLinksMessage: {
+    fontStyle: "italic"
+  },
   displaySettingsButton: {
     width: 25,
     height: 25,
