@@ -78,10 +78,10 @@ var TextColumn = React.createClass({
     };
   },
   componentDidMount: function() {
-    this.scrollToRef(this.props.offsetRef, true, false);
+    this.scrollToRef(this._standardizeOffsetRef(this.props.offsetRef), true, false);
   },
   componentDidUpdate:function(prevProps, prevState) {
-    this.scrollToRef(this.props.offsetRef, false, false);
+    this.scrollToRef(this._standardizeOffsetRef(this.props.offsetRef), false, false);
   },
   componentWillReceiveProps: function(nextProps) {
     //console.log("TextColumn Will Receive Props",this.props.segmentRef + " -> " + nextProps.segmentRef);
@@ -220,7 +220,7 @@ var TextColumn = React.createClass({
 
     if (!this.state.scrollingToTargetRef) { return; }
 
-    console.log("scrollToTarget", this.state.targetSectionRef)
+    console.log("scrollToTarget", this.state.targetSectionRef);
     var visibleSections = this.getVisibleSections();
     console.log("visibleSections", visibleSections);
 
@@ -303,7 +303,7 @@ var TextColumn = React.createClass({
     have heights (even if they're on screen) at the did mount stage. so I scroll by
     one pixel so that the rows get measured
 
-    the function looks to see if this.props.offsetRef is on screen. it determines if its
+    the function looks to see if `rowRef` is on screen. it determines if its
     on screen by measuring the row. if it's height is 0, it is probably not on screen.
     right now I can't find a better way to do this
     if on screen, it jumps to it
@@ -340,6 +340,17 @@ var TextColumn = React.createClass({
       }
     }
   },
+  _standardizeOffsetRef: function(ref) {
+    // Since the code for setting this.rowRefs assumes we can construct a ref by adding ":" + segment index, 
+    // we generate weird refs internally for depth 1 texts like "Sefer HaBahir:2"
+    // This functions returns that weird format for depth1 texts by assuming that ref
+    // is segment level (which offsetRefs must be), so absense of ":" means it is depth 1.
+    if (ref && ref.indexOf(":") == -1 ) {
+      var lastSpace = ref.lastIndexOf(" ");
+      var ref = ref.substring(0, lastSpace) + ":" + ref.substring(lastSpace+1, ref.length);
+    }
+    return ref;
+  },
   textSegmentPressed: function(section, segment, segmentRef, shouldToggle) {
     if (!this.props.textListVisible) {
       this.scrollToRef(segmentRef, true, true);
@@ -349,9 +360,10 @@ var TextColumn = React.createClass({
   generateDataSource: function(props) {
     // Returns data representing sections and rows to be passed into ListView.DataSource.cloneWithSectionsAndRows
     // Takes `props` as an argument so it can generate data with `nextProps`.
-    var start = new Date();
     var data = props.data;
     var sections = {};
+
+    var offsetRef = this._standardizeOffsetRef(props.offsetRef);
 
     if (props.textFlow == 'continuous') {
       var rows = {};
@@ -367,7 +379,7 @@ var TextColumn = React.createClass({
         for (var i = 0; i < data[section].length; i++) {
           var segmentData = {
             content: data[section][i],
-            highlight: props.offsetRef == rowID.replace("wholeSection", i+1) || (props.textListVisible && props.segmentRef == rowID.replace("wholeSection", i+1))
+            highlight: offsetRef == rowID.replace("wholeSection", i+1) || (props.textListVisible && props.segmentRef == rowID.replace("wholeSection", i+1))
           }
           highlight = segmentData.highlight ? i : highlight;
           rowData.segmentData.push(segmentData);
@@ -388,7 +400,7 @@ var TextColumn = React.createClass({
             content: data[section][i], // Store data in `content` so that we can manipulate other fields without manipulating the original data
             section: section,
             row: i,
-            highlight: props.offsetRef == rowID || (props.textListVisible && props.segmentRef == rowID),
+            highlight: offsetRef == rowID || (props.textListVisible && props.segmentRef == rowID),
             changeString: [rowID, props.columnLanguage, props.textFlow, props.settings.fontSize, props.themeStr].join("|")
           };
           rowData.changeString += rowData.highlight ? "|highlight" : "";
@@ -397,7 +409,6 @@ var TextColumn = React.createClass({
         sections[this.props.sectionArray[section]] = rows;
       }
     }
-    //console.log("generateDataSource finished in " + (new Date() - start));
     //console.log(sections);
     return sections;
 
