@@ -296,7 +296,10 @@ var JaggedArrayNodeSection = React.createClass({
     depth:           React.PropTypes.number.isRequired,
     sectionNames:    React.PropTypes.array.isRequired,
     addressTypes:    React.PropTypes.array.isRequired,
-    contentCounts:   React.PropTypes.array.isRequired,
+    contentCounts:   React.PropTypes.oneOfType([
+                        React.PropTypes.array,
+                        React.PropTypes.number
+                      ]),
     contentLang:     React.PropTypes.string.isRequired,
     refPath:         React.PropTypes.string.isRequired,
     openRef:         React.PropTypes.func.isRequired,
