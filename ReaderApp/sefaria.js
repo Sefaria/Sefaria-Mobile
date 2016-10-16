@@ -217,10 +217,18 @@ Sefaria = {
   },
   parashah: function() {
     // Returns an object representing this week's Parashah
-    var date = new Date();
-    date.setDate(date.getDate() + (6 - 1 - date.getDay() + 7) % 7 + 1);
-    dateString = Sefaria._dateString(date);
-    return Sefaria.calendar ? Sefaria.calendar.parshiot[dateString] : null;
+    let parashah;
+    let weekOffset = 1;
+
+    //go back in time until you get a week with a parashah
+    while (!parashah) {
+      let date = new Date();
+      date.setDate(date.getDate() + (6 - 1 - date.getDay() + (weekOffset*7)) % 7 + 1);
+      dateString = Sefaria._dateString(date);
+      parashah = Sefaria.calendar.parshiot[dateString];
+      weekOffset -= 1;
+    }
+    return Sefaria.calendar ? parashah : null;
   },
   dafYomi: function() {
     // Returns an object representing today's Daf Yomi
