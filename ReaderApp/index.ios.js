@@ -282,10 +282,10 @@ var ReaderApp = React.createClass({
 
         //if it's not in recentFilters, add it
         if (filterIndex == null) {
-            this.state.linkRecentFilters.push(filter);
+            this.state.linkRecentFilters.unshift(filter);
             if (this.state.linkRecentFilters.length > 5)
-              this.state.linkRecentFilters.shift();
-            filterIndex = this.state.linkRecentFilters.length-1;
+              this.state.linkRecentFilters.pop();
+            filterIndex = 0;
         }
 
         var linkContents = filter.refList.map((ref)=>null);
