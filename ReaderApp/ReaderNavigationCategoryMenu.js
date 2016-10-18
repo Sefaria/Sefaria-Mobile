@@ -163,7 +163,7 @@ var ReaderNavigationCategoryMenuContents = React.createClass({
         // Walk through content looking for runs of texts/subcats to group together into a table
         if (content[i].key.startsWith("category")) { // this is a subcategory
           if (currentRun.length) {
-            boxedContent.push((<TwoBox content={currentRun} key={i} />));
+            boxedContent.push((<TwoBox content={currentRun} key={i} language={showHebrew ? "hebrew" : "english"} />));
             currentRun = [];
           }
           boxedContent.push(content[i]);
@@ -172,7 +172,7 @@ var ReaderNavigationCategoryMenuContents = React.createClass({
         }
       }
       if (currentRun.length) {
-        boxedContent.push((<TwoBox content={currentRun} key={i} />));
+        boxedContent.push((<TwoBox content={currentRun} key={i} language={showHebrew ? "hebrew" : "english"} />));
       }
       return (<View>{boxedContent}</View>);
   }

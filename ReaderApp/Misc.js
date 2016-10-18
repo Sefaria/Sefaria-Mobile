@@ -17,20 +17,22 @@ var styles = require('./Styles.js');
 
 var TwoBox = React.createClass({
     propTypes: {
-        content: React.PropTypes.array.isRequired
+        content:  React.PropTypes.array.isRequired,
+        language: React.PropTypes.oneOf(["hebrew","english"]),
     },
     render: function() {
         var content = this.props.content.map(function(item, i) {
             return (<View style={styles.twoBoxItem} key={i}>{item}</View>);
         });
+        if (content.length % 2 !== 0) {
+          content.push(<View style={styles.twoBoxItem} key={i}></View>);
+        }
         var rows = [];
+        var rowStyle = this.props.language == "hebrew" ? [styles.twoBoxRow, styles.rtlRow] : [styles.twoBoxRow];
+        console.log(rowStyle);
         for (var i=0; i < content.length; i += 2) {
-            if (content.length > i+1) {
-              var items = [content[i], content[i+1]];
-            } else {
-              var items = [content[i]];
-            }
-            rows.push(<View style={styles.twoBoxRow} key={i}>{items}</View>);
+          var items = [content[i], content[i+1]];
+          rows.push(<View style={rowStyle} key={i}>{items}</View>);
         }
         return (<View style={styles.twoBox}>{rows}</View>);
     }

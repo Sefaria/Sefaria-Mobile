@@ -101,8 +101,7 @@ var ReaderNavigationMenu = React.createClass({
                     language={language}
                     onPress={this.showMore} />);
       categories = this.state.showMore ? categories : categories.slice(0,9).concat(more);
-      categories = (<View style={styles.readerNavCategories}><TwoBox content={categories} /></View>);
-
+      categories = (<View style={styles.readerNavCategories}><TwoBox content={categories} language={language}/></View>);
 
 
       var title = (<View style={styles.navigationMenuTitleBox}>
@@ -171,7 +170,7 @@ var RecentSection = React.createClass({
               theme={this.props.theme}
               title="RECENT"
               heTitle="נצפו לאחרונה"
-              content={<TwoBox content={recent} />}
+              content={<TwoBox content={recent} language={this.props.language}/>}
               interfaceLang={this.props.interfaceLang} />);
   }
 });
@@ -213,7 +212,7 @@ var CalendarSection = React.createClass({
           <CategoryBlockLink
                     theme={this.props.theme}
                     category={"Daf Yomi"}
-                    heCat={"עוד"}
+                    heCat={"דף יומי"}
                     language={this.props.language}
                     style={{"borderColor": Sefaria.palette.categoryColor("Talmud")}}
                     onPress={this.props.openRef.bind(null, dafYomi.ref)} />];
@@ -222,7 +221,7 @@ var CalendarSection = React.createClass({
               theme={this.props.theme}
               title="CALENDAR"
               heTitle="לוח יומי"
-              content={<TwoBox content={calendar} />}
+              content={<TwoBox content={calendar} language={this.props.language}/>}
               interfaceLang={this.props.interfaceLang} />);
   }
 });
