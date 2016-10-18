@@ -716,7 +716,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = org.sefaria.sefaria;
+				PRODUCT_BUNDLE_IDENTIFIER = org.sefaria.sefariaApp;
 				PRODUCT_NAME = ReaderApp;
 				PROVISIONING_PROFILE = "";
 			};
@@ -744,7 +744,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = org.sefaria.sefaria;
+				PRODUCT_BUNDLE_IDENTIFIER = org.sefaria.sefariaApp;
 				PRODUCT_NAME = ReaderApp;
 				PROVISIONING_PROFILE = "";
 			};
