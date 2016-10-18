@@ -110,6 +110,9 @@ module.exports = StyleSheet.create({
   verseNumber: {
     color: Colors.secondaryText
   },
+  sectionHeader: {
+    borderColor: "#e6e5e6",
+  },
   sectionHeaderText: {
     borderBottomColor: Colors.textSectionTitleBorder,
     color: Colors.secondaryText

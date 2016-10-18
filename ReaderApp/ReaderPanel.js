@@ -224,7 +224,7 @@ var ReaderPanel = React.createClass({
     }
 
     return (
-  		<View style={styles.container}>
+  		<View style={[styles.container, this.props.theme.container]}>
           <CategoryColorLine category={Sefaria.categoryForTitle(this.props.textTitle)} />
           <ReaderControls
             theme={this.props.theme}

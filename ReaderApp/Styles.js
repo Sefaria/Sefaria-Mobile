@@ -340,16 +340,17 @@ module.exports = StyleSheet.create({
     flexDirection: "row",
     alignItems: 'stretch'
   },
-  sectionHeader: {
+  sectionHeaderBox: {
     flex: 1,
-    alignItems: 'center',
-    alignSelf: 'stretch',
-    marginVertical: 15
+    alignItems: "center"
+  },
+  sectionHeader: {
+    marginVertical: 25,
+    padding: 5,
+    borderBottomWidth: 4,
   },
   sectionHeaderText: {
-    borderBottomWidth: 4,
-    borderStyle: "solid",
-    paddingBottom: 3
+    textAlign: "center"
   },
   textSegment: {
     flexDirection: "column",

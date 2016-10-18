@@ -473,13 +473,12 @@ var TextColumn = React.createClass({
     }
     var sectionRef = this.props.sectionArray[rowData.section];
     return <View style={[styles.sectionContainer, styles.numberSegmentHolderEnContinuous]} key={sectionRef}>
-              <View style={styles.sectionHeader} key={sectionRef+"|header"}>
-                <Text style={[styles.sectionHeaderText, this.props.theme.sectionHeaderText]}>
-                  {columnLanguage == "hebrew" ?
-                    this.props.sectionHeArray[rowData.section] :
-                    this.props.sectionArray[rowData.section].replace(this.props.textTitle, '')}
-                </Text>
-              </View>
+            <SectionHeader
+              title={this.props.columnLanguage == "hebrew" ?
+                      this.props.sectionHeArray[rowData.section] :
+                      this.props.sectionArray[rowData.section].replace(this.props.textTitle, '').trim()}
+              theme={this.props.theme}
+              key={rowData.section+"header"} />
               <Text style={styles.justifyText}>{segments}</Text>
            </View>;
   },
@@ -493,13 +492,12 @@ var TextColumn = React.createClass({
     var reactRef = this.props.sectionArray[rowData.section] + ":" + this.props.data[rowData.section][rowData.row].segmentNumber;
 
     if (rowData.row == 0) {
-      segment.push(<View style={styles.sectionHeader} key={rowData.section+"header"}>
-        <Text style={[styles.sectionHeaderText, this.props.theme.sectionHeaderText]}>
-          {this.props.columnLanguage == "hebrew" ?
-            this.props.sectionHeArray[rowData.section] :
-            this.props.sectionArray[rowData.section].replace(this.props.textTitle, '')}
-        </Text>
-      </View>);
+      segment.push(<SectionHeader
+                      title={this.props.columnLanguage == "hebrew" ?
+                              this.props.sectionHeArray[rowData.section] :
+                              this.props.sectionArray[rowData.section].replace(this.props.textTitle, '').trim()}
+                      theme={this.props.theme}
+                      key={rowData.section+"header"} />);
     }
 
 
@@ -607,6 +605,21 @@ var TextColumn = React.createClass({
     );
   }
 });
+
+
+var SectionHeader = React.createClass({
+  propTypes: {
+    title: React.PropTypes.string.isRequired,
+    theme: React.PropTypes.object.isRequired,
+  },
+  render: function() {
+    return <View style={styles.sectionHeaderBox}>
+            <View style={[styles.sectionHeader, this.props.theme.sectionHeader]}>
+              <Text style={[styles.sectionHeaderText, this.props.theme.sectionHeaderText]}>{this.props.title}</Text>
+            </View>
+          </View>;
+  }
+})
 
 
 module.exports = TextColumn;

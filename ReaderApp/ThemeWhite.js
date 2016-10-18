@@ -5,6 +5,7 @@ const {StyleSheet,Dimensions} = React;
 var Colors = {
   border: "#d5d5d4",
   secondaryBorder: "#eee",
+
   mainBackground: "#F9F9F7",
   secondaryBackground: "#F5FCFF",
   mainText: "#000",
@@ -109,6 +110,9 @@ module.exports = StyleSheet.create({
   },
   verseNumber: {
     color: Colors.secondaryText
+  },
+  sectionHeader: {
+    borderColor: "#e6e5e6",
   },
   sectionHeaderText: {
     borderBottomColor: Colors.textSectionTitleBorder,
