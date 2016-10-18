@@ -66,12 +66,15 @@ var TextListHeaderItem = React.createClass({
 		var filterStr = this.props.columnLanguage == "hebrew" ?
 			this.props.filter.heTitle :
 			this.props.filter.title;
-		var stylesArray = [styles.textListHeaderItem, this.props.theme.textListHeaderItem];
-    if (this.props.selected)
-      stylesArray.push(this.props.theme.textListHeaderItemSelected);
+		var langStyle = this.props.columnLanguage == "hebrew" ? styles.he : styles. en;
+		var textStyles = [langStyle, this.props.theme.textListHeaderItemText];
+	    
+	    if (this.props.selected) {
+	    	textStyles.push(this.props.theme.textListHeaderItemSelected);
+	    }
 		return (
-			<TouchableOpacity onPress={()=>{this.props.updateCat(null, this.props.filterIndex)}}>
-				<Text style={stylesArray}>{filterStr}</Text>
+			<TouchableOpacity style={styles.textListHeaderItem} onPress={()=>{this.props.updateCat(null, this.props.filterIndex)}}>
+				<Text style={textStyles}>{filterStr}</Text>
 			</TouchableOpacity>
 			);
 	}

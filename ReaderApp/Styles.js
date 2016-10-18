@@ -136,8 +136,7 @@ module.exports = StyleSheet.create({
     flexDirection: "column",
     flex: 1,
     alignSelf: "stretch",
-    width: 30,
-    height: 30,
+    width: 15,
     marginLeft: 5,
     marginRight: 5,
     justifyContent: "center"
@@ -166,8 +165,18 @@ module.exports = StyleSheet.create({
     alignItems: 'flex-start',
   },
   searchTextResult: {
-    margin: 20,
-    flexDirection: 'column'
+    marginHorizontal: 30,
+    marginVertical: 12,
+    paddingVertical: 16,
+    flexDirection: 'column',
+    borderBottomWidth: 1,
+  },
+  textListSummary: {
+    flex: 1
+  },
+  textListSummaryScrollView: {
+    paddingHorizontal: 30,
+    paddingVertical: 30,
   },
   textListContentOuter: {
     flex: 1,
@@ -178,9 +187,10 @@ module.exports = StyleSheet.create({
     flexDirection: "column"
   },
   textListHeader: {
-    height: 40,
+    height: 50,
     borderTopWidth: 4,
-    paddingLeft: 10,
+    borderBottomWidth: 1,
+    paddingHorizontal: 25,
     flexDirection: "row"
   },
   textListHeaderScrollView: {
@@ -188,7 +198,8 @@ module.exports = StyleSheet.create({
   },
   textListHeaderItem: {
     margin: 5,
-    justifyContent: "center"
+    justifyContent: "center",
+    alignItems: "center",
   },
   noLinks: {
     flex:1,
@@ -294,7 +305,7 @@ module.exports = StyleSheet.create({
     flexDirection:"row"
   },
   commentaryTextPanel: {
-    flex: .5,
+    flex: .6,
     alignSelf: 'stretch',
     borderTopWidth: 1
   },
@@ -303,9 +314,8 @@ module.exports = StyleSheet.create({
     fontFamily: "Montserrat",
     fontWeight: "100",
     marginRight: 5,
-    flex:.07
+    flex: .07
   },
-
   englishSystemFont: {
     fontFamily: "Montserrat",
     fontWeight: "100"
@@ -314,7 +324,6 @@ module.exports = StyleSheet.create({
     fontFamily: "EB Garamond",
     fontSize: 20
   },
-
   verseContainer: {
     flexDirection: "column",
     marginLeft:20,

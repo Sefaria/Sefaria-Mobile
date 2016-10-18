@@ -108,16 +108,15 @@ var TextList = React.createClass({
 
     if (isSummaryMode) {
       if (this.props.loading) {
-        return <Text>Loading...</Text>;
+        var content = <Text>Loading...</Text>;
       } else {
-        return (<ScrollView>
-                   {viewList}
-                 </ScrollView>);
+        var content = (<ScrollView style={styles.textListSummaryScrollView}>{viewList}</ScrollView>);
       }
+      return <View style={[styles.textListSummary, this.props.theme.textListSummary]}>{content}</View>;
 
     } else if (!this.state.isNewSegment){
       return (
-      <View style={styles.textListContentOuter}>
+      <View style={[styles.textListContentOuter, this.props.theme.textListContentOuter]}>
         <TextListHeader
           Sefaria={Sefaria}
           theme={this.props.theme}
@@ -127,8 +126,8 @@ var TextList = React.createClass({
           filterIndex={this.props.filterIndex}
           recentFilters={this.props.recentFilters}
           columnLanguage={this.props.columnLanguage} />
-        {this.props.linkContents.length == 0?
-          <View style={styles.noLinks}><EmptyLinksMessage theme={this.props.theme} /></View>:
+        {this.props.linkContents.length == 0 ?
+          <View style={styles.noLinks}><EmptyLinksMessage theme={this.props.theme} /></View> :
           <ListView style={styles.textListContentListView}
             dataSource={dataSourceRows}
             renderRow={this.renderRow}
@@ -219,7 +218,7 @@ var LinkContent = React.createClass({
     }
 
     return (
-      <TouchableOpacity style={styles.searchTextResult} onPress={()=>{this.props.openRef(this.props.refStr, true)}}>
+      <TouchableOpacity style={[styles.searchTextResult, this.props.theme.searchTextResult]} onPress={()=>{this.props.openRef(this.props.refStr, true)}}>
         <Text style={[this.props.theme.text]}>{this.props.refStr}</Text>
         {textViews}
       </TouchableOpacity>

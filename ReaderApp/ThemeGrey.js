@@ -3,7 +3,8 @@ const React = require('react-native');
 const {StyleSheet,Dimensions} = React;
 
 var Colors = {
-  border: "#DDD",
+  border: "#d5d5d4",
+  secondaryBorder: "#eee",
   mainBackground: "#F9F9F7",
   secondaryBackground: "#F5FCFF",
   mainText: "#000",
@@ -53,14 +54,24 @@ module.exports = StyleSheet.create({
   searchButton: {
     color: Colors.button
   },
-  textListHeader: {
-    backgroundColor: Colors.mainForeground
+  textListSummary: {
+    backgroundColor: Colors.mainBackground,
   },
-  textListHeaderItem: {
+  textListHeader: {
+    backgroundColor: Colors.mainBackground,
+    borderBottomColor: Colors.border,
+  },
+  textListHeaderItemText: {
     color: Colors.secondaryText
   },
   textListHeaderItemSelected: {
     color: Colors.mainText
+  },
+  textListContentOuter: {
+    backgroundColor: Colors.textBackground,
+  },
+  searchTextResult: {
+    borderColor: Colors.secondaryBorder,
   },
   menu: {
     backgroundColor: Colors.mainBackground

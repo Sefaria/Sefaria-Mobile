@@ -4,6 +4,7 @@ const {StyleSheet,Dimensions} = React;
 
 var Colors = {
   border: "#444",
+  secondaryBorder: "#666",
   mainBackground: "#2d2d2b",
   secondaryBackground: "#333331",
   mainText: "#fff",
@@ -53,14 +54,24 @@ module.exports = StyleSheet.create({
   searchButton: {
     color: Colors.button
   },
-  textListHeader: {
-    backgroundColor: Colors.mainForeground
+  textListSummary: {
+    backgroundColor: Colors.mainBackground,
   },
-  textListHeaderItem: {
+  textListHeader: {
+    backgroundColor: Colors.mainForeground,
+    borderBottomColor: Colors.border,
+  },
+  textListHeaderItemText: {
     color: Colors.secondaryText
   },
   textListHeaderItemSelected: {
     color: Colors.mainText
+  },
+  textListContentOuter: {
+    backgroundColor: Colors.textBackground,
+  },
+  searchTextResult: {
+    borderColor: Colors.secondaryBorder,
   },
   menu: {
     backgroundColor: Colors.mainBackground
