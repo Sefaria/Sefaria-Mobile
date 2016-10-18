@@ -25,11 +25,11 @@ var TwoBox = React.createClass({
             return (<View style={styles.twoBoxItem} key={i}>{item}</View>);
         });
         if (content.length % 2 !== 0) {
-          content.push(<View style={styles.twoBoxItem} key={i}></View>);
+          content.push(<View style={styles.twoBoxItem} key={i+1}></View>);
         }
         var rows = [];
         var rowStyle = this.props.language == "hebrew" ? [styles.twoBoxRow, styles.rtlRow] : [styles.twoBoxRow];
-        console.log(rowStyle);
+
         for (var i=0; i < content.length; i += 2) {
           var items = [content[i], content[i+1]];
           rows.push(<View style={rowStyle} key={i}>{items}</View>);

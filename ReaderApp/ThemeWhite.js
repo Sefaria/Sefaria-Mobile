@@ -71,6 +71,9 @@ module.exports = StyleSheet.create({
   textListContentOuter: {
     backgroundColor: Colors.textBackground,
   },
+  textListCitation: {
+    color: Colors.secondaryText,
+  },
   searchTextResult: {
     borderColor: Colors.secondaryBorder,
   },

@@ -30,12 +30,12 @@ var TextSegment = React.createClass({
   },
   render: function() {
     // console.log(this.props.segmentKey+": "+typeof(this.props.textRef));
+    var style = this.props.textType == "hebrew" ?
+                  [styles.hebrewText, this.props.theme.text, {fontSize: this.props.settings.fontSize}] :
+                  [styles.englishText, this.props.theme.text, styles.justifyText, {fontSize: 0.8 * this.props.settings.fontSize}];
     return (
       <Text
-        style={[this.props.textType == "hebrew" ? styles.hebrewText : styles.englishText,
-              this.props.theme.text,
-              styles.justifyText,
-              {fontSize:this.props.textType == "hebrew" ? this.props.settings.fontSize : 0.8*this.props.settings.fontSize}]}
+        style={style}
         suppressHighlighting={false}
         onPress={ () => this.onPressTextSegment(this.props.segmentKey) }
         key={this.props.segmentKey}

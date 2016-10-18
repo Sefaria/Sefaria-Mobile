@@ -479,7 +479,7 @@ var TextColumn = React.createClass({
                       this.props.sectionArray[rowData.section].replace(this.props.textTitle, '').trim()}
               theme={this.props.theme}
               key={rowData.section+"header"} />
-              <Text style={styles.justifyText}>{segments}</Text>
+              <Text style={this.props.columnLanguage == "hebrew" ? styles.he : styles.justifyText}>{segments}</Text>
            </View>;
   },
   renderSegmentedRow: function(rowData, sID, rID) {
@@ -560,7 +560,7 @@ var TextColumn = React.createClass({
     return <View style={styles.verseContainer} key={reactRef} ref={(view)=>this.rowRefs[reactRef]=view}>{segment}</View>;
   },
   rowHasChanged: function(r1, r2) {
-    //console.log(r1.changeString + " vs. " + r2.changeString);
+    console.log(r1.changeString + " vs. " + r2.changeString);
     var changed = (r1.changeString !== r2.changeString);
     return (changed);
   },

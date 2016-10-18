@@ -169,8 +169,8 @@ module.exports = StyleSheet.create({
   },
   searchTextResult: {
     marginHorizontal: 30,
-    marginVertical: 12,
-    paddingVertical: 16,
+    marginTop: 20,
+    paddingBottom: 20,
     flexDirection: 'column',
     borderBottomWidth: 1,
   },
@@ -413,7 +413,7 @@ module.exports = StyleSheet.create({
   },
   he: {
     fontFamily: "Taamey Frank CLM",
-    textAlign: 'right'
+    textAlign: 'right',
   },
   enInt: {
     fontFamily: "Montserrat",

@@ -219,7 +219,7 @@ var LinkContent = React.createClass({
 
     return (
       <TouchableOpacity style={[styles.searchTextResult, this.props.theme.searchTextResult]} onPress={()=>{this.props.openRef(this.props.refStr, true)}}>
-        <Text style={[this.props.theme.text]}>{this.props.refStr}</Text>
+        <Text style={[styles.en, this.props.theme.textListCitation]}>{this.props.refStr}</Text>
         {textViews}
       </TouchableOpacity>
     );
