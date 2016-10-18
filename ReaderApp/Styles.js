@@ -148,7 +148,10 @@ module.exports = StyleSheet.create({
   },
   headerTextTitle: {
     flex: 1,
-    alignItems: 'center'
+    alignItems: 'center',
+  },
+  headerTextTitleText: {
+    fontSize: 16
   },
   searchResultSummary: {
     margin: 10
@@ -310,11 +313,10 @@ module.exports = StyleSheet.create({
     borderTopWidth: 1
   },
   verseNumber: {
-    textAlign: 'left',
+    textAlign: 'center',
     fontFamily: "Montserrat",
     fontWeight: "100",
-    marginRight: 5,
-    flex: .07
+    width: 30,
   },
   englishSystemFont: {
     fontFamily: "Montserrat",
@@ -326,10 +328,13 @@ module.exports = StyleSheet.create({
   },
   verseContainer: {
     flexDirection: "column",
-    marginLeft:20,
-    marginRight:20,
     marginTop:10,
     marginBottom:10,
+  },
+  sectionContainer: {
+    flexDirection: "column",
+    marginVertical: 10,
+    marginHorizontal: 30,
   },
   textColumn: {
     flexDirection: "row",
@@ -346,7 +351,7 @@ module.exports = StyleSheet.create({
     borderStyle: "solid",
     paddingBottom: 3
   },
-  TextSegment: {
+  textSegment: {
     flexDirection: "column",
     flexWrap:"wrap",
     flex:.93
@@ -442,6 +447,9 @@ module.exports = StyleSheet.create({
   centerText: {
     textAlign: "center"
   },
+  justifyText: {
+    textAlign: "justify"
+  },
   rtlRow: {
     flexDirection: "row-reverse"
   },
@@ -450,7 +458,6 @@ module.exports = StyleSheet.create({
 //HTML Styles:
   strong: {
     fontWeight: "bold"
-
   },
   b: {
     fontWeight: "bold"

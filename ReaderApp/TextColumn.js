@@ -472,7 +472,7 @@ var TextColumn = React.createClass({
 
     }
     var sectionRef = this.props.sectionArray[rowData.section];
-    return <View style={[styles.verseContainer, styles.numberSegmentHolderEnContinuous]} key={sectionRef}>
+    return <View style={[styles.sectionContainer, styles.numberSegmentHolderEnContinuous]} key={sectionRef}>
               <View style={styles.sectionHeader} key={sectionRef+"|header"}>
                 <Text style={[styles.sectionHeaderText, this.props.theme.sectionHeaderText]}>
                   {columnLanguage == "hebrew" ?
@@ -480,7 +480,7 @@ var TextColumn = React.createClass({
                     this.props.sectionArray[rowData.section].replace(this.props.textTitle, '')}
                 </Text>
               </View>
-              <Text>{segments}</Text>
+              <Text style={styles.justifyText}>{segments}</Text>
            </View>;
   },
   renderSegmentedRow: function(rowData, sID, rID) {
@@ -502,13 +502,17 @@ var TextColumn = React.createClass({
       </View>);
     }
 
-    var numberSegmentHolder = [];
 
-    numberSegmentHolder.push(<Text ref={this.props.sectionArray[rowData.section] + ":"+ rowData.content.segmentNumber}
+    var leftMargin = (<Text ref={this.props.sectionArray[rowData.section] + ":"+ rowData.content.segmentNumber}
                                    style={[styles.verseNumber,this.props.theme.verseNumber]}
                                    key={reactRef + "|segment-number"}>
-      {rowData.content.segmentNumber}
-    </Text>);
+                        {rowData.content.segmentNumber}
+                      </Text>);
+
+    var rightMargin = (<Text ref={this.props.sectionArray[rowData.section] + ":"+ rowData.content.segmentNumber}
+                                   style={[styles.verseNumber,this.props.theme.verseNumber]}
+                                   key={reactRef + "|segment-dot"}>
+                      </Text>);
 
 
     var segmentText = [];
@@ -541,18 +545,21 @@ var TextColumn = React.createClass({
         textListVisible={this.props.textListVisible}
         settings={this.props.settings} />);
     }
-    numberSegmentHolder.push(<View style={styles.TextSegment} key={reactRef+"|text-box"}>{segmentText}</View>);
 
-    segment.push(<View style={styles.numberSegmentHolderEn} key={reactRef+"|inner-box"}>{numberSegmentHolder}</View>);
-
-    let style = [styles.verseContainer];
+    let textStyle = [styles.textSegment];
     if (rowData.highlight) {
-        style.push(this.props.theme.segmentHighlight);
+        textStyle.push(this.props.theme.segmentHighlight);
     }
+
+    segmentText = <View style={textStyle} key={reactRef+"|text-box"}>{segmentText}</View>;
+
+    segment.push(<View style={styles.numberSegmentHolderEn} key={reactRef+"|inner-box"}>
+                    {[leftMargin, segmentText, rightMargin]}
+                  </View>);
 
     //console.log("Rendering Row:", reactRef);
 
-    return <View style={style} key={reactRef} ref={(view)=>this.rowRefs[reactRef]=view}>{segment}</View>;
+    return <View style={styles.verseContainer} key={reactRef} ref={(view)=>this.rowRefs[reactRef]=view}>{segment}</View>;
   },
   rowHasChanged: function(r1, r2) {
     //console.log(r1.changeString + " vs. " + r2.changeString);

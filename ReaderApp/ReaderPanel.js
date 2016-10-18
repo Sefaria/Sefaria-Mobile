@@ -326,8 +326,8 @@ var ReaderControls = React.createClass({
     toggleReaderDisplayOptionsMenu:  React.PropTypes.func,
   },
   render: function() {
-    var titleTextStyle = this.props.language === "hebrew" ? [styles.he] : [styles.en];
-    titleTextStyle.push(this.props.theme.text);
+    var langStyle = this.props.language === "hebrew" ? [styles.he] : [styles.en];
+    var titleTextStyle = [langStyle, styles.headerTextTitleText, this.props.theme.text];
     return (
         <View style={[styles.header, this.props.theme.header]}>
           <MenuButton onPress={this.props.openNav} theme={this.props.theme}/>
