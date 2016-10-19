@@ -84,7 +84,7 @@ var TextList = React.createClass({
             category={cat.category}
             refList={cat.refList}
             count={cat.count}
-            language={"english"}
+            language={this.props.columnLanguage}
             onPress={this.props.openCat.bind(null,filter)}
             key={cat.category} />);
         var innerViewList = cat.books.map((obook)=>{
@@ -95,7 +95,7 @@ var TextList = React.createClass({
             title={obook.title}
             heTitle={obook.heTitle}
             count={obook.count}
-            language={"english"}
+            language={this.props.columnLanguage}
             onPress={this.props.openCat.bind(null,filter)}
             key={obook.title} />);
         });
@@ -154,9 +154,9 @@ var LinkCategory = React.createClass({
     let countStr = " | " + this.props.count;
     let style = {"borderColor": Sefaria.palette.categoryColor(this.props.category)};
     let heCategory = Sefaria.hebrewCategory(this.props.category);
-    let content = this.props.language == "english"?
-      (<Text style={[styles.en, this.props.theme.text]}>{this.props.category.toUpperCase() + countStr}</Text>) :
-      (<Text style={[styles.he, this.props.theme.text]}>{heCategory + countStr}</Text>);
+    let content = this.props.language == "hebrew"?
+      (<Text style={[styles.he, this.props.theme.text]}>{heCategory + countStr}</Text>) :
+      (<Text style={[styles.en, this.props.theme.text]}>{this.props.category.toUpperCase() + countStr}</Text>);
 
     return (<TouchableOpacity
               style={[styles.readerNavCategory, this.props.theme.readerNavCategory, style]}
