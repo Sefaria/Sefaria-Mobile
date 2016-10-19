@@ -341,7 +341,7 @@ var TextColumn = React.createClass({
     }
   },
   _standardizeOffsetRef: function(ref) {
-    // Since the code for setting this.rowRefs assumes we can construct a ref by adding ":" + segment index, 
+    // Since the code for setting this.rowRefs assumes we can construct a ref by adding ":" + segment index,
     // we generate weird refs internally for depth 1 texts like "Sefer HaBahir:2"
     // This functions returns that weird format for depth1 texts by assuming that ref
     // is segment level (which offsetRefs must be), so absense of ":" means it is depth 1.
@@ -501,15 +501,18 @@ var TextColumn = React.createClass({
     }
 
 
-    var leftMargin = (<Text ref={this.props.sectionArray[rowData.section] + ":"+ rowData.content.segmentNumber}
+    var numberMargin = (<Text ref={this.props.sectionArray[rowData.section] + ":"+ rowData.content.segmentNumber}
                                    style={[styles.verseNumber,this.props.theme.verseNumber]}
                                    key={reactRef + "|segment-number"}>
-                        {rowData.content.segmentNumber}
+                        {this.props.columnLanguage == "hebrew" ?
+                         Sefaria.hebrew.encodeHebrewNumeral(rowData.content.segmentNumber) :
+                         rowData.content.segmentNumber}
                       </Text>);
 
-    var rightMargin = (<Text ref={this.props.sectionArray[rowData.section] + ":"+ rowData.content.segmentNumber}
-                                   style={[styles.verseNumber,this.props.theme.verseNumber]}
+    var bulletMargin = (<Text ref={this.props.sectionArray[rowData.section] + ":"+ rowData.content.segmentNumber}
+                                   style={[styles.verseBullet,this.props.theme.verseNumber]}
                                    key={reactRef + "|segment-dot"}>
+                        {"●"}
                       </Text>);
 
 
@@ -551,8 +554,10 @@ var TextColumn = React.createClass({
 
     segmentText = <View style={textStyle} key={reactRef+"|text-box"}>{segmentText}</View>;
 
+    let completeSeg = this.props.columnLanguage == "english" ? [numberMargin, segmentText, bulletMargin] : [bulletMargin, segmentText, numberMargin];
+
     segment.push(<View style={styles.numberSegmentHolderEn} key={reactRef+"|inner-box"}>
-                    {[leftMargin, segmentText, rightMargin]}
+                    {completeSeg}
                   </View>);
 
     //console.log("Rendering Row:", reactRef);

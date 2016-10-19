@@ -313,10 +313,18 @@ module.exports = StyleSheet.create({
     borderTopWidth: 1
   },
   verseNumber: {
+    paddingTop: 5,
     textAlign: 'center',
     fontFamily: "Montserrat",
-    fontWeight: "100",
+    fontWeight: '100',
+    fontSize: 10,
     width: 30,
+  },
+  verseBullet: {
+    paddingTop: 5,
+    textAlign: 'center',
+    fontSize: 5,
+    width: 30
   },
   englishSystemFont: {
     fontFamily: "Montserrat",
