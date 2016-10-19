@@ -78,6 +78,9 @@ var TextColumn = React.createClass({
     };
   },
   componentDidMount: function() {
+    // Scroll one pixel to ensure next section is loaded if current section is very short
+    this.refs._listView.scrollTo({x: 0, y: 1, animated: false });
+
     this.scrollToRef(this._standardizeOffsetRef(this.props.offsetRef), true, false);
   },
   componentDidUpdate:function(prevProps, prevState) {
@@ -141,15 +144,29 @@ var TextColumn = React.createClass({
     if (numberOfVisibleSegmentsInFirstSection > numberOfVisibleSegmentsInSecondSection) {
       var enTitle = nameOfFirstSection;
       var heTitle = this.props.sectionHeArray[this.props.sectionArray.indexOf(nameOfFirstSection)];
-      if (enTitle !== this.props.textReference) {
-        this.props.updateTitle(enTitle, heTitle);
-      }
     } else {
       var enTitle = nameOfSecondSection;
       var heTitle = this.props.sectionHeArray[this.props.sectionArray.indexOf(nameOfSecondSection)];
-      if (enTitle !== this.props.textReference) {
-        this.props.updateTitle(enTitle, heTitle);
-      }
+    }
+
+    if (enTitle !== this.props.textReference) {
+      this.props.updateTitle(enTitle, heTitle);
+    }
+  },
+  updateTitleALTERNATE: function() {
+    // This method just sets the title base on the first visible section. 
+    // It has the benefit of simplicity and not giving a wrong title initially when loading short sections
+    // like the beginning of Siddur. Not sure it yet if it's preferable.
+    var visibleSections = this.getVisibleSections();
+    if (visibleSections.length == 0) {
+      console.log("VISIBLE ROWS IS EMPTY!!! oh no!!!");
+      //this.props.setColumnLanguage(this.props.columnLanguage == "english" ? "hebrew" : "english");
+      return;
+    }
+    var enTitle = visibleSections[0];
+    var heTitle = this.props.sectionHeArray[this.props.sectionArray.indexOf(enTitle)];
+    if (enTitle !== this.props.textReference) {
+      this.props.updateTitle(enTitle, heTitle);
     }
   },
   updateHighlightedSegment: function() {
@@ -570,7 +587,7 @@ var TextColumn = React.createClass({
     return <View style={styles.verseContainer} key={reactRef} ref={(view)=>this.rowRefs[reactRef]=view}>{segment}</View>;
   },
   rowHasChanged: function(r1, r2) {
-    console.log(r1.changeString + " vs. " + r2.changeString);
+    // console.log(r1.changeString + " vs. " + r2.changeString);
     var changed = (r1.changeString !== r2.changeString);
     return (changed);
   },

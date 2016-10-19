@@ -198,7 +198,7 @@ var ReaderApp = React.createClass({
 
           this.setState({
             data: updatedData,
-            textReference: this.state.prev,
+            textReference: this.state.next,
             next: data.next,
             sectionArray: newTitleArray,
             sectionHeArray: newHeTitleArray,
