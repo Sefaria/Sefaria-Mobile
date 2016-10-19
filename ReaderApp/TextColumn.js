@@ -160,7 +160,6 @@ var TextColumn = React.createClass({
     var visibleSections = this.getVisibleSections();
     if (visibleSections.length == 0) {
       console.log("VISIBLE ROWS IS EMPTY!!! oh no!!!");
-      //this.props.setColumnLanguage(this.props.columnLanguage == "english" ? "hebrew" : "english");
       return;
     }
     var enTitle = visibleSections[0];

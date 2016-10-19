@@ -146,10 +146,10 @@ var ToggleSet = React.createClass({
 
 var LoadingView = React.createClass({
     render: function() {
-      return ( <View style={[styles.container, this.props.theme.container]}>
+      return ( <View style={styles.loadingViewBox}>
                   <ActivityIndicator
                     animating={true}
-                    style={[styles.loadingView, this.props.theme.loadingView]}
+                    style={styles.loadingView}
                     size="large" />
                </View> );
     }

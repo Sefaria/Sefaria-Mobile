@@ -439,8 +439,15 @@ module.exports = StyleSheet.create({
     width: 30,
     height: 40,
   },
+  loadingViewBox: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    alignSelf: 'stretch'
+  },
   loadingView: {
-    height: 80
+    backgroundColor: "transparent",
+    height: 80,
   },
   twoBox: {
 

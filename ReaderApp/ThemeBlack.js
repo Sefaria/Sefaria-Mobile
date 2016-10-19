@@ -6,7 +6,6 @@ var Colors = {
   border: "#444",
   secondaryBorder: "#666",
   mainBackground: "#2d2d2b",
-  secondaryBackground: "#333331",
   mainText: "#fff",
   secondaryText: "#ddd",
   mainForeground: "black",
@@ -19,7 +18,7 @@ var Colors = {
 
 module.exports = StyleSheet.create({
   container: {
-    backgroundColor: Colors.secondaryBackground
+    backgroundColor: Colors.mainBackground
   },
   header: {
     backgroundColor: Colors.mainBackground,
@@ -113,7 +112,7 @@ module.exports = StyleSheet.create({
     backgroundColor: Colors.textBackground
   },
   commentaryTextPanel: {
-    backgroundColor: Colors.secondaryBackground,
+    backgroundColor: Colors.mainBackground,
     borderColor: Colors.border
   },
   verseNumber: {
@@ -130,7 +129,7 @@ module.exports = StyleSheet.create({
     backgroundColor: Colors.mainForeground
   },
   loadingView: {
-    backgroundColor: Colors.secondaryBackground
+    backgroundColor: "transparent"
   },
   segmentHighlight: {
     backgroundColor: Colors.textSegmentHighlight
