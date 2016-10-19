@@ -486,6 +486,7 @@ var TextColumn = React.createClass({
     // In segmented case, rowData represents a segments of text
     rowData.text = rowData.content.text || "";
     rowData.he = rowData.content.he || "";
+    rowData.numLinks = rowData.content.links ? rowData.content.links.length : 0;
     var segment = [];
     var columnLanguage = Sefaria.util.getColumnLanguageWithContent(this.props.columnLanguage, rowData.text, rowData.he);
     var refSection = rowData.section + ":" + rowData.row;
@@ -509,8 +510,12 @@ var TextColumn = React.createClass({
                          rowData.content.segmentNumber}
                       </Text>);
 
+    let bulletOpacity = (rowData.numLinks-20) / (70-20);
+    if (bulletOpacity < 0.3) bulletOpacity = 0.3;
+    else if (bulletOpacity > 0.8) bulletOpacity = 0.8;
+
     var bulletMargin = (<Text ref={this.props.sectionArray[rowData.section] + ":"+ rowData.content.segmentNumber}
-                                   style={[styles.verseBullet,this.props.theme.verseNumber]}
+                                   style={[styles.verseBullet,this.props.theme.verseNumber,{opacity:bulletOpacity}]}
                                    key={reactRef + "|segment-dot"}>
                         {"●"}
                       </Text>);
