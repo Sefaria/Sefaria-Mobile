@@ -33,8 +33,7 @@ var TextList = React.createClass({
     segmentIndexRef: React.PropTypes.number,
     filterIndex:     React.PropTypes.number,
     recentFilters:   React.PropTypes.array, /* of the form [{title,heTitle,refList}...] */
-    columnLanguage:  React.PropTypes.oneOf(["english","hebrew","bilingual"]),
-    interfaceLang:  React.PropTypes.oneOf(["english","hebrew"]).isRequired,
+    columnLanguage:  React.PropTypes.oneOf(["english","hebrew","bilingual"])
   },
   getInitialState: function() {
     Sefaria = this.props.Sefaria; //Is this bad practice to use getInitialState() as an init function
@@ -85,7 +84,7 @@ var TextList = React.createClass({
             category={cat.category}
             refList={cat.refList}
             count={cat.count}
-            language={this.props.interfaceLang}
+            language={this.props.settings.language}
             onPress={this.props.openCat.bind(null,filter)}
             key={cat.category} />);
         var innerViewList = cat.books.map((obook)=>{
@@ -96,7 +95,7 @@ var TextList = React.createClass({
             title={obook.title}
             heTitle={obook.heTitle}
             count={obook.count}
-            language={this.props.interfaceLang}
+            language={this.props.settings.language}
             onPress={this.props.openCat.bind(null,filter)}
             key={obook.title} />);
         });

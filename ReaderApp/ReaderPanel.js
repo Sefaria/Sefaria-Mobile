@@ -287,7 +287,6 @@ var ReaderPanel = React.createClass({
                 theme={this.props.theme}
                 segmentIndexRef={this.props.segmentIndexRef}
                 textFlow={this.state.textFlow}
-                interfaceLang={this.props.interfaceLang}
                 columnLanguage={this.state.columnLanguage}
                 openRef={ this.props.openRef }
                 openCat={this.props.openLinkCat}
