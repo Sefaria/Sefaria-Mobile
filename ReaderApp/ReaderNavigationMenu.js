@@ -25,7 +25,7 @@ var ReaderNavigationMenu = React.createClass({
     theme:          React.PropTypes.object.isRequired,
     categories:     React.PropTypes.array.isRequired,
     settings:       React.PropTypes.object.isRequired,
-    interfaceLang:  React.PropTypes.string.isRequired,
+    interfaceLang:  React.PropTypes.oneOf(["english","hebrew"]).isRequired,
     setCategories:  React.PropTypes.func.isRequired,
     openRef:        React.PropTypes.func.isRequired,
     closeNav:       React.PropTypes.func.isRequired,
@@ -184,7 +184,7 @@ var CalendarSection = React.createClass({
     language:      React.PropTypes.string.isRequired
   },
   render: function() {
-    if (!Sefaria.calendar) { 
+    if (!Sefaria.calendar) {
       Sefaria.loadCalendar(function() { this.forceUpdate(); }.bind(this));
       return (<ReaderNavigationMenuSection
                 theme={this.props.theme}

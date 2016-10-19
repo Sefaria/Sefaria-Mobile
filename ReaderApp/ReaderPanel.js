@@ -39,7 +39,7 @@ var ReaderPanel = React.createClass({
     openRef:       React.PropTypes.func.isRequired,
     openNav:       React.PropTypes.func.isRequired,
     openTextToc:   React.PropTypes.func.isRequired,
-    interfaceLang: React.PropTypes.string.isRequired,
+    interfaceLang:  React.PropTypes.oneOf(["english","hebrew"]).isRequired,
     loading:       React.PropTypes.bool,
     openLinkCat:   React.PropTypes.func.isRequired,
     closeLinkCat:  React.PropTypes.func.isRequired,
@@ -287,6 +287,7 @@ var ReaderPanel = React.createClass({
                 theme={this.props.theme}
                 segmentIndexRef={this.props.segmentIndexRef}
                 textFlow={this.state.textFlow}
+                interfaceLang={this.props.interfaceLang}
                 columnLanguage={this.state.columnLanguage}
                 openRef={ this.props.openRef }
                 openCat={this.props.openLinkCat}
