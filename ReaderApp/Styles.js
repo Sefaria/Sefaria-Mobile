@@ -350,7 +350,8 @@ module.exports = StyleSheet.create({
   },
   sectionHeaderBox: {
     flex: 1,
-    alignItems: "center"
+    alignItems: "center",
+    marginHorizontal: 30,
   },
   sectionHeader: {
     marginVertical: 25,

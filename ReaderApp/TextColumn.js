@@ -373,6 +373,11 @@ var TextColumn = React.createClass({
     }
     this.props.textSegmentPressed(section, segment, segmentRef, true);
   },
+  inlineSectionHeader: function(ref) {
+    // Returns a string to be used as an inline section header for `ref`.
+    var trimmer = new RegExp("^" + this.props.textTitle + ",? ");
+    return ref.replace(trimmer, '');
+  },
   generateDataSource: function(props) {
     // Returns data representing sections and rows to be passed into ListView.DataSource.cloneWithSectionsAndRows
     // Takes `props` as an argument so it can generate data with `nextProps`.
@@ -492,7 +497,7 @@ var TextColumn = React.createClass({
             <SectionHeader
               title={this.props.columnLanguage == "hebrew" ?
                       this.props.sectionHeArray[rowData.section] :
-                      this.props.sectionArray[rowData.section].replace(this.props.textTitle, '').trim()}
+                      this.inlineSectionHeader(this.props.sectionArray[rowData.section])}
               theme={this.props.theme}
               key={rowData.section+"header"} />
               <Text style={this.props.columnLanguage == "hebrew" ? styles.he : styles.justifyText}>{segments}</Text>
@@ -512,7 +517,7 @@ var TextColumn = React.createClass({
       segment.push(<SectionHeader
                       title={this.props.columnLanguage == "hebrew" ?
                               this.props.sectionHeArray[rowData.section] :
-                              this.props.sectionArray[rowData.section].replace(this.props.textTitle, '').trim()}
+                              this.inlineSectionHeader(this.props.sectionArray[rowData.section])}
                       theme={this.props.theme}
                       key={rowData.section+"header"} />);
     }
