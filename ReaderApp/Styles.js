@@ -117,20 +117,24 @@ module.exports = StyleSheet.create({
     backgroundColor: "transparent"
   },
   menuButton: {
-    textAlign: "center",
-    alignSelf: "stretch",
-    fontSize: 22
+    width: 17,
+    height: 17,
+  },
+  displaySettingsButton: {
+    width: 25,
+    height: 25,
   },
   closeButton: {
-    textAlign: "center",
-    alignSelf: "stretch",
-    fontSize: 40,
-    top: -4
+    width: 16,
+    height: 16,
+  },
+  headerButtonSearch: {
+    width: 24,
+    marginRight: 18
   },
   searchButton: {
-    textAlign: "center",
-    alignSelf: "stretch",
-    fontSize: 25
+    width: 17,
+    height: 17,
   },
   tripleDotsContainer: {
     flexDirection: "column",
@@ -142,16 +146,25 @@ module.exports = StyleSheet.create({
     justifyContent: "center"
   },
   tripleDots: {
-    width:15,
-    height:15,
+    width: 15,
+    height: 15,
     opacity: 0.5
   },
   headerTextTitle: {
     flex: 1,
     alignItems: 'center',
+    justifyContent: "center",
+    flexDirection: "row",
   },
   headerTextTitleText: {
-    fontSize: 16
+    fontSize: 16,
+    textAlign: "center",
+    marginHorizontal: 5
+  },
+  downCaret: {
+    width: 10,
+    height: 10,
+    marginTop: 3,
   },
   searchResultSummary: {
     margin: 10
@@ -211,11 +224,6 @@ module.exports = StyleSheet.create({
   },
   emptyLinksMessage: {
     fontStyle: "italic"
-  },
-  displaySettingsButton: {
-    width: 25,
-    height: 25,
-    opacity: 0.3
   },
   menu: {
     alignSelf: 'stretch',

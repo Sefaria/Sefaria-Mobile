@@ -66,9 +66,11 @@ var LanguageToggleButton = React.createClass({
 
 var SearchButton = React.createClass({
   render: function() {
-    return (<TouchableOpacity style={[styles.headerButton]} onPress={this.props.onPress}>
-              <Text style={[styles.searchButton, this.props.theme.searchButton]}>🔎</Text>
-            </TouchableOpacity>);
+    return (<TouchableOpacity style={[styles.headerButton, styles.headerButtonSearch]} onPress={this.props.onPress}>
+              <Image source={require('./img/search.png')}
+                     style={styles.searchButton}
+                     resizeMode={Image.resizeMode.contain} />
+              </TouchableOpacity>);
   }
 });
 
@@ -76,7 +78,9 @@ var SearchButton = React.createClass({
 var MenuButton = React.createClass({
   render: function() {
     return (<TouchableOpacity style={[styles.headerButton]} onPress={this.props.onPress}>
-              <Text style={[styles.menuButton, this.props.theme.menuButton]}>☰</Text>
+              <Image source={require('./img/menu.png')}
+                     style={styles.menuButton}
+                     resizeMode={Image.resizeMode.contain} />
             </TouchableOpacity>);
   }
 });
@@ -85,7 +89,9 @@ var MenuButton = React.createClass({
 var CloseButton = React.createClass({
   render: function() {
     return (<TouchableOpacity style={[styles.headerButton]} onPress={this.props.onPress}>
-              <Text style={[styles.closeButton, this.props.theme.closeButton]}>×</Text>
+              <Image source={require('./img/close.png')}
+                 style={styles.closeButton}
+                 resizeMode={Image.resizeMode.contain} />
             </TouchableOpacity>);
   }
 });
@@ -93,7 +99,7 @@ var CloseButton = React.createClass({
 var TripleDots = React.createClass({
   render: function() {
     return (<TouchableOpacity style={styles.tripleDotsContainer} onPress={this.props.onPress}>
-              <Image style={styles.tripleDots}source={require('./img/dots.png')} />
+              <Image style={styles.tripleDots} source={require('./img/dots.png')} />
             </TouchableOpacity>);
   }
 });
@@ -102,7 +108,7 @@ var TripleDots = React.createClass({
 var DisplaySettingsButton = React.createClass({
   render: function() {
     return (<TouchableOpacity style={[styles.headerButton]} onPress={this.props.onPress}>
-              <Image source={require('./img/ayealeph.png')}
+              <Image source={require('./img/a-aleph.png')}
                      style={styles.displaySettingsButton}
                      resizeMode={Image.resizeMode.contain} />
             </TouchableOpacity>);

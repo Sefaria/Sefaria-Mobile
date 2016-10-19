@@ -326,15 +326,21 @@ var ReaderControls = React.createClass({
     toggleReaderDisplayOptionsMenu:  React.PropTypes.func,
   },
   render: function() {
-    var langStyle = this.props.language === "hebrew" ? [styles.he] : [styles.en];
+    var langStyle = this.props.language === "hebrew" ? [styles.he, {marginTop: 5}] : [styles.en];
     var titleTextStyle = [langStyle, styles.headerTextTitleText, this.props.theme.text];
     return (
         <View style={[styles.header, this.props.theme.header]}>
           <MenuButton onPress={this.props.openNav} theme={this.props.theme}/>
           <TouchableOpacity style={styles.headerTextTitle} onPress={this.props.openTextToc}>
+            <Image source={require('./img/caret.png')}
+                     style={[styles.downCaret, this.props.language === "hebrew" ? null: {opacity: 0}]}
+                     resizeMode={Image.resizeMode.contain} />
             <Text style={titleTextStyle}>
               {this.props.title}
             </Text>
+            <Image source={require('./img/caret.png')}
+                     style={[styles.downCaret, this.props.language === "hebrew" ? {opacity: 0} : null]}
+                     resizeMode={Image.resizeMode.contain} />
           </TouchableOpacity>
           <DisplaySettingsButton onPress={this.props.toggleReaderDisplayOptionsMenu} />
         </View>

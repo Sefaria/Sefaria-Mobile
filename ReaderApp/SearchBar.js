@@ -9,7 +9,8 @@ import {
 } from 'react-native';
 
 var {
-  CloseButton
+  CloseButton,
+  SearchButton
 } = require('./Misc.js');
 
 var styles = require('./Styles.js');
@@ -27,19 +28,21 @@ var SearchBar = React.createClass({
     var init_text = this.props.query ? this.props.query : "Search";
     return {text: init_text};
   },
+  submitSearch: function() {
+    this.props.setIsNewSearch(true);
+    this.props.onQueryChange(this.state.text, true);
+  },
   render: function() {
 
     return (
       <View style={[styles.header, this.props.theme.header]}>
         <CloseButton onPress={this.props.closeNav} theme={this.props.theme}/>
+        <SearchButton onPress={this.submitSearch} theme={this.props.theme}/>
         <TextInput
           style={[styles.searchInput,this.props.theme.text]}
           onFocus= {() => this.setState({text : ''})}
           onChangeText={(text) => this.setState({text})}
-          onSubmitEditing={(event) => {
-            this.props.setIsNewSearch(true);
-            this.props.onQueryChange(event.nativeEvent.text,true);
-          }}
+          onSubmitEditing={this.submitSearch}
           value={this.state.text}/>
       </View>
     );
