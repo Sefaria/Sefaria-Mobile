@@ -78,10 +78,12 @@ var TextColumn = React.createClass({
     };
   },
   componentDidMount: function() {
-    // Scroll one pixel to ensure next section is loaded if current section is very short
-    this.refs._listView.scrollTo({x: 0, y: 1, animated: false });
-
-    this.scrollToRef(this._standardizeOffsetRef(this.props.offsetRef), true, false);
+    if (this._standardizeOffsetRef(this.props.offsetRef) && !this.state.scrolledToOffsetRef) {
+      this.scrollToRef(this._standardizeOffsetRef(this.props.offsetRef), true, false);
+    } else {
+      // Scroll one pixel to ensure next section is loaded if current section is very short
+      this.refs._listView.scrollTo({x: 0, y: 1, animated: false });
+    }
   },
   componentDidUpdate:function(prevProps, prevState) {
     this.scrollToRef(this._standardizeOffsetRef(this.props.offsetRef), false, false);
@@ -154,7 +156,7 @@ var TextColumn = React.createClass({
     }
   },
   updateTitleALTERNATE: function() {
-    // This method just sets the title base on the first visible section. 
+    // This method just sets the title base on the first visible section.
     // It has the benefit of simplicity and not giving a wrong title initially when loading short sections
     // like the beginning of Siddur. Not sure it yet if it's preferable.
     var visibleSections = this.getVisibleSections();
@@ -351,7 +353,7 @@ var TextColumn = React.createClass({
            }
         );
       } else {
-        //console.log("FAIL!!!");
+        console.log("FAIL!!!");
         //this.scrollOneScreenDown(didMount);
       }
     }
