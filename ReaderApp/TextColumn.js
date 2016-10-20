@@ -297,8 +297,10 @@ var TextColumn = React.createClass({
     this.props.updateData("next");
   },
   visibleRowsChanged: function(visibleRows, changedRows) {
-    if (this.props.loadingTextHead == false && this.state.targetSectionRef != "" && this.state.scrollingToTargetRef == true) {
+    if (!this.props.loadingTextHead && this.state.targetSectionRef && this.state.scrollingToTargetRef) {
       this.scrollToTarget();
+    } else if (this.props.offsetRef && !this.state.scrolledToOffsetRef) {
+      this.scrollToRef(this._standardizeOffsetRef(this.props.offsetRef), false, false);
     }
   },
   getVisibleSections: function() {
@@ -317,7 +319,7 @@ var TextColumn = React.createClass({
   },
   scrollToRef: function(rowRef, didMount, isClickScroll) {
     /* Warning, this function is hacky. anyone who knows how to improve it, be my guest
-    didMount - true if comint from componentDidMount. it seems that none of the rows
+    didMount - true if coming from componentDidMount. it seems that none of the rows
     have heights (even if they're on screen) at the did mount stage. so I scroll by
     one pixel so that the rows get measured
 
@@ -338,7 +340,7 @@ var TextColumn = React.createClass({
            (left, top, width, height, pageX, pageY) => {
              if (pageY == 0) { //I'm forced to assume this means it's not on screen, though it could also be at the top of the page...
                 this.scrollOneScreenDown(didMount);
-                this.setState({continueScrolling: true}); //needed to continue rendering after each success scroll
+                if (didMount) { this.setState({continueScrolling: true}); } //needed to continue rendering after each success scroll
                 //console.log("Zerooo");
              } else {
                //console.log('yeshhh');
@@ -353,8 +355,7 @@ var TextColumn = React.createClass({
            }
         );
       } else {
-        console.log("FAIL!!!");
-        //this.scrollOneScreenDown(didMount);
+        console.log("scrollToRef couldn't find ref handle");
       }
     }
   },
@@ -624,7 +625,7 @@ var TextColumn = React.createClass({
                 renderFooter={this.renderFooter}
                 /*renderScrollComponent={props => <ScrollView {...props} contentOffset={{y:this.state.scrollOffset}}/>}*/
                 pageSize={10}
-                initialListSize={40}
+                initialListSize={this.props.segmentIndexRef || 40}
                 onEndReachedThreshold={1000}
                 scrollEventThrottle={100}
                 refreshControl={
