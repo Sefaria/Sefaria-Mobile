@@ -99,9 +99,26 @@ Sefaria = {
   categoryForRef: function(ref) {
     return Sefaria.categoryForTitle(Sefaria.textTitleForRef(ref));
   },
-  getTitle: function(ref, isCommentary, isHe) {
-      var fileNameStem = ref.split(":")[0];
-      var bookRefStem = fileNameStem.substring(0, fileNameStem.lastIndexOf(" "));
+  getTitle: function(ref, isCommentary, isHe, engTitle) {
+      if (isHe && engTitle) {
+        //console.log("yoyoyoyo");
+        var engSeg = engTitle.split(":")[1];
+        var engFileNameStem = engTitle.split(":")[0];
+        var engSec = engFileNameStem.substring(engFileNameStem.lastIndexOf(" ")+1,engFileNameStem.length);
+
+        var heDaf = Sefaria.hebrew.encodeHebrewDaf(engSec,"long");
+        if (heDaf != null) {
+          var fullHeDaf = heDaf + ":" + Sefaria.hebrew.encodeHebrewNumeral(engSeg);
+          console.log("got it!",fullHeDaf);
+        }
+      }
+      if (fullHeDaf) {
+        var bookRefStem = ref.replace('\u05f4','').split(" " + fullHeDaf)[0];
+      } else {
+        var fileNameStem = ref.split(":")[0];
+        var bookRefStem = fileNameStem.substring(0, fileNameStem.lastIndexOf(" "));
+      }
+
       if (isCommentary) {
           var onInd = isHe ? bookRefStem.indexOf(" על ") : bookRefStem.indexOf(" on ");
           if (onInd != -1)
@@ -383,7 +400,7 @@ Sefaria = {
               {
                   count:    1,
                   title:    Sefaria.getTitle(link.sourceRef, isCommentary, false),
-                  heTitle:  Sefaria.getTitle(link.sourceHeRef, isCommentary, true),
+                  heTitle:  Sefaria.getTitle(link.sourceHeRef, isCommentary, true,link.sourceRef),
                   category: link.category,
                   refList:  [link.sourceRef]
               };
@@ -830,9 +847,12 @@ Sefaria.hebrew = {
   },
   encodeHebrewDaf: function(daf, form) {
     // Ruturns Hebrew daf strings from "32b"
+    //if not in form of 32b, returns null
     var form = form || "short"
     var n = parseInt(daf.slice(0,-1));
     var a = daf.slice(-1);
+    if (a != 'a' && a != 'b')
+      return null; //ERROR
     if (form === "short") {
       a = {a: ".", b: ":"}[a];
       return Sefaria.hebrew.encodeHebrewNumeral(n) + a;
