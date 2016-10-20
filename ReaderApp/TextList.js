@@ -52,7 +52,9 @@ var TextList = React.createClass({
       this.setState({isNewSegment:false});
   },
   renderRow: function(linkContentObj, sectionId, rowId) {
-    var ref = this.props.recentFilters[this.props.filterIndex].refList[rowId];
+    var linkFilter = this.props.recentFilters[this.props.filterIndex];
+    var ref = linkFilter.refList[rowId];
+    var isCommentaryBook = linkFilter.category === "Commentary" && linkFilter.title !== "Commentary";
     var loading = false;
     if (linkContentObj == null) {
       loading = true;
@@ -68,6 +70,7 @@ var TextList = React.createClass({
               linkContentObj={linkContentObj}
               columnLanguage={this.props.columnLanguage}
               loading={loading}
+              isCommentaryBook={isCommentaryBook}
               key={rowId} />);
   },
   render: function() {
@@ -200,7 +203,8 @@ var LinkContent = React.createClass({
     refStr:            React.PropTypes.string,
     linkContentObj:    React.PropTypes.object, /* of the form {en,he} */
     columnLanguage:    React.PropTypes.string,
-    loading:           React.PropTypes.bool
+    loading:           React.PropTypes.bool,
+    isCommentaryBook:  React.PropTypes.bool
   },
   render: function() {
     var lco = this.props.linkContentObj;
@@ -219,7 +223,7 @@ var LinkContent = React.createClass({
 
     return (
       <TouchableOpacity style={[styles.searchTextResult, this.props.theme.searchTextResult]} onPress={()=>{this.props.openRef(this.props.refStr, true)}}>
-        <Text style={[styles.en, this.props.theme.textListCitation]}>{this.props.refStr}</Text>
+        {this.props.isCommentaryBook ? null : <Text style={[styles.en, this.props.theme.textListCitation]}>{this.props.refStr}</Text>}
         {textViews}
       </TouchableOpacity>
     );

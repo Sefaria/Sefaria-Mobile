@@ -323,7 +323,7 @@ var ReaderApp = React.createClass({
               }
             }
         }
-        var nextFilter = new LinkFilter(filterStr, filterStrHe, nextRefList, category,);
+        var nextFilter = new LinkFilter(filterStr, filterStrHe, nextRefList, category);
 
         this.state.linkRecentFilters[filterIndex] = nextFilter;
 
