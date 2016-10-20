@@ -389,14 +389,14 @@ var TextColumn = React.createClass({
     var offsetRef = this._standardizeOffsetRef(props.offsetRef);
 
     if (props.textFlow == 'continuous') {
-      var rows = {};
       var highlight = null;
       for (var section = 0; section < data.length; section++) {
+        var rows = {};
         var rowID = props.sectionArray[section] + ":" + "wholeSection";
         var rowData = {
           section: section,
           segmentData: [],
-          changeString: [section, props.columnLanguage, props.textFlow, props.settings.fontSize, props.themeStr].join("|")
+          changeString: [rowID, props.columnLanguage, props.textFlow, props.settings.fontSize, props.themeStr].join("|")
         };
 
         for (var i = 0; i < data[section].length; i++) {
