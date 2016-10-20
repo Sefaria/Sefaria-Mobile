@@ -440,6 +440,21 @@ var TextColumn = React.createClass({
     // In continuous case, rowData represent an entire section of text
     var segments = [];
     for (var i = 0; i < rowData.segmentData.length; i++) {
+      segments.push(this.renderSegmentForContinuousRow(i, rowData));
+    }
+    var sectionRef = this.props.sectionArray[rowData.section];
+    return <View style={[styles.verseContainer, styles.numberSegmentHolderEnContinuous]} key={sectionRef}>
+              <View style={styles.sectionHeader} key={sectionRef+"|header"}>
+                <Text style={[styles.sectionHeaderText, this.props.theme.sectionHeaderText]}>
+                  {this.props.columnLanguage == "hebrew" ?
+                    this.props.sectionHeArray[rowData.section] :
+                    this.props.sectionArray[rowData.section].replace(this.props.textTitle, '')}
+                </Text>
+              </View>
+              <Text>{segments}</Text>
+           </View>;
+  },
+  renderSegmentForContinuousRow: function(i, rowData) {
       var segmentText = [];
       var currSegData = rowData.segmentData[i];
       currSegData.text = currSegData.content.text || "";
@@ -491,19 +506,9 @@ var TextColumn = React.createClass({
         //console.log("Setting ref for " + key);
         this.rowRefs[key] = ref;
       }.bind(this, reactRef);
-      segments.push(<Text style={style} ref={refSetter}>{segmentText}</Text>);
 
-    }
-    var sectionRef = this.props.sectionArray[rowData.section];
-    return <View style={[styles.sectionContainer, styles.numberSegmentHolderEnContinuous]} key={sectionRef}>
-            <SectionHeader
-              title={this.props.columnLanguage == "hebrew" ?
-                      this.props.sectionHeArray[rowData.section] :
-                      this.inlineSectionHeader(this.props.sectionArray[rowData.section])}
-              theme={this.props.theme}
-              key={rowData.section+"header"} />
-              <Text style={this.props.columnLanguage == "hebrew" ? styles.he : styles.justifyText}>{segments}</Text>
-           </View>;
+      return (<Text style={style} ref={refSetter}>{segmentText}</Text>);
+
   },
   renderSegmentedRow: function(rowData, sID, rID) {
     // In segmented case, rowData represents a segments of text
