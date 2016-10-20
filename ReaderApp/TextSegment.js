@@ -41,9 +41,11 @@ var TextSegment = React.createClass({
         key={this.props.segmentKey}
         onLayout={this.onLayout} >
 
-          <HTMLView
-            value={this.props.data}
-            stylesheet={styles} />
+          <HTMLView value={
+            this.props.textType == "english" ?
+              "&#x200E;"+this.props.data :
+              this.props.data
+              } stylesheet={styles} />
 
       </Text>
     );
