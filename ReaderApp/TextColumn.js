@@ -464,13 +464,26 @@ var TextColumn = React.createClass({
       var columnLanguage = Sefaria.util.getColumnLanguageWithContent(this.props.columnLanguage, currSegData.text, currSegData.he);
       var refSection = rowData.section + ":" + i;
       var reactRef = this.props.sectionArray[rowData.section] + ":" + this.props.data[rowData.section][i].segmentNumber;
-      var style = currSegData.highlight ? [styles.verseNumber,this.props.theme.verseNumber,this.props.theme.segmentHighlight] : [styles.verseNumber,this.props.theme.verseNumber];
+      var style = currSegData.highlight ? [styles.continuousVerseNumber,this.props.theme.verseNumber,this.props.theme.segmentHighlight] : [styles.continuousVerseNumber,this.props.theme.verseNumber];
 
-      segmentText.push(<Text ref={this.props.sectionArray[rowData.section] + ":" + currSegData.segmentNumber}
-                                     style={style}
-                                     key={reactRef+"|segment-number"}>
-        {currSegData.segmentNumber}
-      </Text>);
+      segmentText.push(<View ref={this.props.sectionArray[rowData.section] + ":" + currSegData.segmentNumber}
+                                     style={styles.continuousVerseNumberHolder}
+                                     onLayout={(event) => {
+                                     if (currSegData.highlight) {
+                                       var {x, y, width, height} = event.nativeEvent.layout;
+                                       console.log(this.props.sectionArray[rowData.section] + ":" + currSegData.segmentNumber + " y=" + y)
+                                       this.refs._listView.scrollTo({
+                                         x: 0,
+                                         y: y,
+                                         animated: false
+                                       });
+
+                                       }
+                                       }
+                                     }
+                                     key={reactRef+"|segment-number"}><Text style={style}>
+        {currSegData.segmentNumber}</Text>
+      </View>);
 
 
       if (columnLanguage == "hebrew" || columnLanguage == "bilingual") {

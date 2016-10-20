@@ -328,6 +328,17 @@ module.exports = StyleSheet.create({
     fontSize: 10,
     width: 30,
   },
+  continuousVerseNumber: {
+    textAlign: 'center',
+    fontFamily: "Montserrat",
+    fontWeight: '100',
+    fontSize: 10,
+  },
+  continuousVerseNumberHolder: {
+    height: 19,
+    width: 19,
+
+  },
   verseBullet: {
     paddingTop: 5,
     textAlign: 'center',
