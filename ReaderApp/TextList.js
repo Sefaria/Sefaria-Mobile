@@ -128,7 +128,7 @@ var TextList = React.createClass({
           category={this.props.recentFilters[this.props.filterIndex].category}
           filterIndex={this.props.filterIndex}
           recentFilters={this.props.recentFilters}
-          columnLanguage={this.props.columnLanguage} />
+          language={this.props.settings.language} />
         {this.props.linkContents.length == 0 ?
           <View style={styles.noLinks}><EmptyLinksMessage theme={this.props.theme} /></View> :
           <ListView style={styles.textListContentListView}

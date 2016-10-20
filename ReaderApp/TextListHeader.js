@@ -21,7 +21,7 @@ var TextListHeader = React.createClass({
 		category:       React.PropTypes.string,
 		filterIndex:    React.PropTypes.number,
 		recentFilters:  React.PropTypes.array,
-		columnLanguage: React.PropTypes.string
+		language:       React.PropTypes.oneOf(["english","hebrew","bilingual"])
 	},
 	getInitialState: function() {
 		Sefaria = this.props.Sefaria; //Is this bad practice to use getInitialState() as an init function
@@ -35,7 +35,7 @@ var TextListHeader = React.createClass({
 		var viewList = this.props.recentFilters.map((filter, i)=>{
 			return (<TextListHeaderItem
             		theme={this.props.theme}
-						    columnLanguage={this.props.columnLanguage}
+						    language={this.props.language}
 						    filter={filter}
 						    filterIndex={i}
 						    selected={i == this.props.filterIndex}
@@ -59,16 +59,16 @@ var TextListHeaderItem = React.createClass({
 		updateCat:      React.PropTypes.func.isRequired,
 		filter:         React.PropTypes.object,
 		filterIndex:    React.PropTypes.number,
-		columnLanguage: React.PropTypes.string,
+		language:       React.PropTypes.oneOf(["english","hebrew","bilingual"]),
 		selected:       React.PropTypes.bool
 	},
 	render: function() {
-		var filterStr = this.props.columnLanguage == "hebrew" ?
+		var filterStr = this.props.language == "hebrew" ?
 			this.props.filter.heTitle :
 			this.props.filter.title;
-		var langStyle = this.props.columnLanguage == "hebrew" ? styles.he : styles. en;
+		var langStyle = this.props.language == "hebrew" ? styles.he : styles. en;
 		var textStyles = [langStyle, this.props.theme.textListHeaderItemText];
-	    
+
 	    if (this.props.selected) {
 	    	textStyles.push(this.props.theme.textListHeaderItemSelected);
 	    }
