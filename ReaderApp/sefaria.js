@@ -109,11 +109,15 @@ Sefaria = {
         var heDaf = Sefaria.hebrew.encodeHebrewDaf(engSec,"long");
         if (heDaf != null) {
           var fullHeDaf = heDaf + ":" + Sefaria.hebrew.encodeHebrewNumeral(engSeg);
-          console.log("got it!",fullHeDaf);
+        } else {
+
         }
       }
       if (fullHeDaf) {
-        var bookRefStem = ref.replace('\u05f4','').split(" " + fullHeDaf)[0];
+        var find = '[״׳]'; //remove geresh and gershaim
+        var re = new RegExp(find, 'g');
+        ref = ref.replace(re, '');
+        var bookRefStem = ref.split(" " + fullHeDaf)[0];
       } else {
         var fileNameStem = ref.split(":")[0];
         var bookRefStem = fileNameStem.substring(0, fileNameStem.lastIndexOf(" "));
