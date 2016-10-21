@@ -74,7 +74,8 @@ var TextColumn = React.createClass({
       scrollingToTargetRef:false,
       scrolledToOffsetRef:false,
       scrollOffset:0,
-      highlightRef: ""
+      highlightRef: "",
+      continuousSectionOffset: 90,
     };
   },
   componentDidMount: function() {
@@ -105,7 +106,7 @@ var TextColumn = React.createClass({
     }
   },
   updateHighlightedSegmentContinuous: function(e) {
-    if (this.rowRefs[this.props.segmentRef]._initY + 90 < this.refs._listView.scrollProperties.offset) {
+    if (this.rowRefs[this.props.segmentRef]._initY + this.state.continuousSectionOffset < this.refs._listView.scrollProperties.offset) {
       var keys = Object.keys(this.rowRefs);
       var loc = keys.indexOf(this.props.segmentRef);
       var highlightRef = keys[loc+1]
@@ -115,16 +116,24 @@ var TextColumn = React.createClass({
       var nameOfFirstSection = visibleSections[0];
       var nameOfSecondSection = visibleSections[1] || null;
 
-      var firstSecIndex = this.props.sectionArray.indexOf(nameOfFirstSection);
-      var secondSecIndex = this.props.sectionArray.indexOf(nameOfSecondSection);
+      var curSection = this.props.segmentRef.split(":")[0];
+      var nextSection = highlightRef.split(":")[0];
+
+      if (curSection != nextSection) {
+        console.log(this.rowRefs[this.props.segmentRef]._initY + " "+ this.state.continuousSectionOffset+ " "+ this.refs._listView.scrollProperties.offset);
+        this.state.continuousSectionOffset = this.refs._listView.scrollProperties.offset+90; //TODO -- this needs to be some value that increases as number of loaded sections increases. Not sure why. Probably b/c _initY is relative to parent view and we're not measuring that yet
+        console.log(this.rowRefs[this.props.segmentRef]._initY + " "+ this.state.continuousSectionOffset+ " "+ this.refs._listView.scrollProperties.offset);
+      }
 
 
-      var sectionToLoad = firstSecIndex;
-      var segmentToLoad = parseInt(highlightRef.split(" ")[1].split(":")[1])-1;
+      var sectionToLoad = this.props.sectionArray.indexOf(highlightRef.split(":")[0]);
+      var segmentToLoad = parseInt(highlightRef.split(":")[1])-1;
       console.log(this.refs._listView.scrollProperties);
-      console.log(sectionToLoad +" "+ segmentToLoad +" "+ highlightRef + " "+ (this.rowRefs[this.props.segmentRef]._initY + 90) + " "+ this.refs._listView.scrollProperties.offset)
+      console.log(sectionToLoad +" "+ segmentToLoad +" "+ highlightRef + " "+ (this.rowRefs[this.props.segmentRef]._initY + this.state.continuousSectionOffset) + " "+ this.refs._listView.scrollProperties.offset)
       this.props.textSegmentPressed(sectionToLoad, segmentToLoad, highlightRef);
     }
+
+
   },
 
   handleScroll: function(e) {
