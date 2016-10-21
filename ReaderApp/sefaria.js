@@ -247,7 +247,6 @@ Sefaria = {
       date.setDate(date.getDate() + (6 - 1 - date.getDay() + 7) % 7 + weekOffset);
       dateString = Sefaria._dateString(date);
       parashah = Sefaria.calendar.parshiot[dateString];
-      console.log(dateString+" "+parashah+" "+weekOffset);
       weekOffset += 1;
     }
     return Sefaria.calendar ? parashah : null;

@@ -104,16 +104,36 @@ var TextColumn = React.createClass({
       this.setState({dataSource: this.state.dataSource.cloneWithRowsAndSections(newData)});
     }
   },
+  updateHighlightedSegmentContinuous: function(e) {
+    if (this.rowRefs[this.props.segmentRef]._initY + 90 < this.refs._listView.scrollProperties.offset) {
+      var keys = Object.keys(this.rowRefs);
+      var loc = keys.indexOf(this.props.segmentRef);
+      var highlightRef = keys[loc+1]
+
+      var visibleSections = this.getVisibleSections();
+
+      var nameOfFirstSection = visibleSections[0];
+      var nameOfSecondSection = visibleSections[1] || null;
+
+      var firstSecIndex = this.props.sectionArray.indexOf(nameOfFirstSection);
+      var secondSecIndex = this.props.sectionArray.indexOf(nameOfSecondSection);
+
+
+      var sectionToLoad = firstSecIndex;
+      var segmentToLoad = parseInt(highlightRef.split(" ")[1].split(":")[1])-1;
+      console.log(this.refs._listView.scrollProperties);
+      console.log(sectionToLoad +" "+ segmentToLoad +" "+ highlightRef + " "+ (this.rowRefs[this.props.segmentRef]._initY + 90) + " "+ this.refs._listView.scrollProperties.offset)
+      this.props.textSegmentPressed(sectionToLoad, segmentToLoad, highlightRef);
+    }
+  },
+
   handleScroll: function(e) {
+
+
     if (this.props.textFlow == 'continuous') {
-      if (this.props.segmentRef !== "") {
-
-        if (this.rowRefs[this.props.segmentRef]._initY + 90 < this.refs._listView.scrollProperties.offset) {
-             console.log(this.rowRefs[this.props.segmentRef]);
-//          var keys = this.rowRefs.keys(items).sort();
- //         var loc = keys.indexOf(item);
-
-        }
+      //update highlightedSegment Continuous Style
+      if (this.props.textListVisible) {
+        this.updateHighlightedSegmentContinuous();
       }
     }
 
