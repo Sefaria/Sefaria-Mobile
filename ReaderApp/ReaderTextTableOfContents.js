@@ -146,7 +146,7 @@ var TextTableOfContentsNavigation = React.createClass({
 
     // Set margins around nav sections dependent on screen width so grid centered no mater how many sections fit per line
     var {height, width} = Dimensions.get('window');
-    var availableWidth  = width - (2 * 20); // 20 is  margin set on `menuContent`.
+    var availableWidth  = width - (2 * 9); // 9 is  margin set on `menuContent`.
     var itemWidth       = 40 + 2*2; // width of `sectionLink` plus two times margin
     var gridWidth       = parseInt(availableWidth / itemWidth) * itemWidth;
     var gridMargins     = (availableWidth - gridWidth) / 2;

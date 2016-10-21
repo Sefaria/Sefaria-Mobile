@@ -106,22 +106,16 @@ var ReaderNavigationMenu = React.createClass({
       categories = (<View style={styles.readerNavCategories}><TwoBox content={categories} language={language}/></View>);
 
 
-      var title = (<View style={styles.navigationMenuTitleBox}>
-                    { this.props.interfaceLang == "english" ?
-                      <Text style={[styles.en, styles.navigationMenuTitle, this.props.theme.text]}>The Sefaria Library</Text> :
-                      <Text style={[styles.he, styles.navigationMenuTitle, this.props.theme.text]}>האוסף של ספאריה</Text>}
-                    <LanguageToggleButton theme={this.props.theme} toggleLanguage={this.props.toggleLanguage} language={language} />
-                  </View>);
-
-      return(<View style={[styles.menu,this.props.theme.menu]}>
+      return(<View style={[styles.menu, this.props.theme.menu]}>
               <CategoryColorLine category={"Other"} />
               <SearchBar
                 theme={this.props.theme}
                 closeNav={this.props.closeNav}
                 onQueryChange={this.props.openSearch}
-                setIsNewSearch={this.props.setIsNewSearch} />
+                setIsNewSearch={this.props.setIsNewSearch}
+                toggleLanguage={this.props.toggleLanguage}
+                language={language} />
               <ScrollView style={styles.menuContent}>
-                {title}
 
                 <RecentSection
                   theme={this.props.theme}

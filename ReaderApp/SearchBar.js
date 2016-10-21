@@ -10,7 +10,8 @@ import {
 
 var {
   CloseButton,
-  SearchButton
+  SearchButton,
+  LanguageToggleButton,
 } = require('./Misc.js');
 
 var styles = require('./Styles.js');
@@ -22,6 +23,8 @@ var SearchBar = React.createClass({
     closeNav:        React.PropTypes.func.isRequired,
     onQueryChange:   React.PropTypes.func.isRequired,
     setIsNewSearch:  React.PropTypes.func.isRequired,
+    toggleLanguage:  React.PropTypes.func,
+    language:        React.PropTypes.string,
     query:           React.PropTypes.string
   },
   getInitialState: function() {
@@ -44,6 +47,13 @@ var SearchBar = React.createClass({
           onChangeText={(text) => this.setState({text})}
           onSubmitEditing={this.submitSearch}
           value={this.state.text}/>
+        {this.props.toggleLanguage ? 
+          <LanguageToggleButton 
+            theme={this.props.theme} 
+            toggleLanguage={this.props.toggleLanguage} 
+            language={this.props.language}
+            margin={true} />
+           : null}
       </View>
     );
   }
