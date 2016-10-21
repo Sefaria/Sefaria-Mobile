@@ -241,13 +241,14 @@ Sefaria = {
     let parashah;
     let weekOffset = 1;
 
-    //go back in time until you get a week with a parashah
+    //See if there's a Parshah this week -- If not return next week's, if not return the week after that... אא"וו
     while (!parashah) {
       let date = new Date();
-      date.setDate(date.getDate() + (6 - 1 - date.getDay() + (weekOffset*7)) % 7 + 1);
+      date.setDate(date.getDate() + (6 - 1 - date.getDay() + 7) % 7 + weekOffset);
       dateString = Sefaria._dateString(date);
       parashah = Sefaria.calendar.parshiot[dateString];
-      weekOffset -= 1;
+      console.log(dateString+" "+parashah+" "+weekOffset);
+      weekOffset += 1;
     }
     return Sefaria.calendar ? parashah : null;
   },
