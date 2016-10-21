@@ -527,7 +527,7 @@ var TextColumn = React.createClass({
 
 
     var numberMargin = (<Text ref={this.props.sectionArray[rowData.section] + ":"+ rowData.content.segmentNumber}
-                                   style={[styles.verseNumber,this.props.theme.verseNumber]}
+                                   style={[styles.verseNumber, this.props.theme.verseNumber]}
                                    key={reactRef + "|segment-number"}>
                         {this.props.columnLanguage == "hebrew" ?
                          Sefaria.hebrew.encodeHebrewNumeral(rowData.content.segmentNumber) :
@@ -539,7 +539,7 @@ var TextColumn = React.createClass({
     else if (bulletOpacity > 0.8) bulletOpacity = 0.8;
 
     var bulletMargin = (<Text ref={this.props.sectionArray[rowData.section] + ":"+ rowData.content.segmentNumber}
-                                   style={[styles.verseBullet,this.props.theme.verseNumber,{opacity:bulletOpacity}]}
+                                   style={[styles.verseBullet, this.props.theme.verseBullet, {opacity:bulletOpacity}]}
                                    key={reactRef + "|segment-dot"}>
                         {"●"}
                       </Text>);
@@ -571,6 +571,7 @@ var TextColumn = React.createClass({
         key={reactRef+"|english"}
         data={rowData.text}
         textType="english"
+        bilingual={columnLanguage === "bilingual"}
         textSegmentPressed={ this.textSegmentPressed }
         textListVisible={this.props.textListVisible}
         settings={this.props.settings} />);

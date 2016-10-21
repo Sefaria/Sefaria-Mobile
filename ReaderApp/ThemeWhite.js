@@ -8,7 +8,6 @@ var Colors = {
   mainBackground: "#F9F9F7",
   mainText: "#000",
   secondaryText: "#999",
-  verseNumber: "#000",
   mainForeground: "white",
   mainForegroundContrast: "black",
   textBackground: "white",
@@ -111,7 +110,10 @@ module.exports = StyleSheet.create({
     borderColor: Colors.border
   },
   verseNumber: {
-    color: Colors.verseNumber
+    color: Colors.secondaryText
+  },
+  verseBullet: {
+    color: "black"
   },
   sectionHeader: {
     borderColor: "#e6e5e6",
@@ -131,5 +133,8 @@ module.exports = StyleSheet.create({
   },
   text: {
     color: Colors.mainForegroundContrast
+  },
+  bilingualEnglishText: {
+    color: "#666"
   }
 });

@@ -118,6 +118,9 @@ module.exports = StyleSheet.create({
   verseNumber: {
     color: Colors.secondaryText
   },
+  verseBullet: {
+    color: "white"
+  },
   sectionHeader: {
     borderColor: Colors.border,
   },
@@ -136,5 +139,8 @@ module.exports = StyleSheet.create({
   },
   text: {
     color: Colors.mainForegroundContrast
+  },
+  bilingualEnglishText: {
+    color: "#BBB"
   }
 });

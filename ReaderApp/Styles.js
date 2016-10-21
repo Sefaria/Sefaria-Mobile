@@ -335,14 +335,14 @@ module.exports = StyleSheet.create({
     paddingTop: 5,
     textAlign: 'center',
     fontFamily: "Montserrat",
-    fontWeight: '100',
-    fontSize: 10,
+    fontWeight: '400',
+    fontSize: 9,
     width: 30,
   },
   verseBullet: {
-    paddingTop: 5,
+    paddingTop: 7,
     textAlign: 'center',
-    fontSize: 5,
+    fontSize: 7,
     width: 30
   },
   englishSystemFont: {
