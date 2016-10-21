@@ -734,7 +734,7 @@ Sefaria.util = {
     if (newColLang == "bilingual") {
       if (en.trim() != "" && he.trim() == "") {
         newColLang = "english";
-      } else if (en.trim() == "") newColLang = "hebrew";
+      } else if (en.trim() == "") newColLang  = "hebrew";
     }
 
     if (newColLang == "english")

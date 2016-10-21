@@ -167,7 +167,9 @@ module.exports = StyleSheet.create({
     marginTop: 3,
   },
   searchResultSummary: {
-    margin: 10
+    paddingVertical: 10,
+    paddingHorizontal: 30,
+    borderBottomWidth: 1,
   },
   searchInput: {
     alignSelf: 'stretch',

@@ -79,6 +79,12 @@ module.exports = StyleSheet.create({
   searchTextResult: {
     borderColor: Colors.secondaryBorder,
   },
+  searchResultSummary: {
+    borderColor: Colors.border
+  },
+  searchResultSummaryText: {
+    color: Colors.mainText,    
+  },
   menu: {
     backgroundColor: Colors.mainBackground
   },
