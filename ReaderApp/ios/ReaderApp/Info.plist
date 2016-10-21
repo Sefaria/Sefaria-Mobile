@@ -44,6 +44,7 @@
 	<string></string>
 	<key>UIAppFonts</key>
 	<array>
+		<string>EBGaramond-Italic.ttf</string>
 		<string>EBGaramond-Regular.ttf</string>
 		<string>TaameyFrankCLM-Medium.ttf</string>
 		<string>Montserrat-Regular.ttf</string>

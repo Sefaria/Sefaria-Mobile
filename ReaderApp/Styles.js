@@ -173,7 +173,15 @@ module.exports = StyleSheet.create({
     alignSelf: 'stretch',
     flex: 1,
     fontSize: 14,
+    fontStyle: "normal",
+    paddingTop: 0,
     backgroundColor: "transparent"
+  },
+  searchInputPlaceholder: {
+    fontStyle: "italic",
+    fontSize: 16,
+    fontFamily: "EB Garamond",
+    paddingTop: 5
   },
   searchPage: {
     flex: 1,

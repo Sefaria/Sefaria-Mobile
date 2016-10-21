@@ -53,6 +53,9 @@ module.exports = StyleSheet.create({
   searchButton: {
     color: Colors.button
   },
+  searchInputPlaceholder: {
+    color: "#CCC",
+  },
   textListSummary: {
     backgroundColor: Colors.mainBackground,
   },

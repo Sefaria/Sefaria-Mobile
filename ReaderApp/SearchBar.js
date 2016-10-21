@@ -28,25 +28,28 @@ var SearchBar = React.createClass({
     query:           React.PropTypes.string
   },
   getInitialState: function() {
-    var init_text = this.props.query ? this.props.query : "Search";
-    return {text: init_text};
+    return {text: this.props.query || ""};
   },
   submitSearch: function() {
     this.props.setIsNewSearch(true);
     this.props.onQueryChange(this.state.text, true);
   },
   render: function() {
-
+    var textInputStyle = [styles.searchInput, this.props.theme.text];
+    if (this.state.text == "") { 
+      textInputStyle = textInputStyle.concat([styles.searchInputPlaceholder, this.props.theme.searchInputPlaceholder]);
+    }
+    
     return (
       <View style={[styles.header, this.props.theme.header]}>
         <CloseButton onPress={this.props.closeNav} theme={this.props.theme}/>
         <SearchButton onPress={this.submitSearch} theme={this.props.theme}/>
         <TextInput
-          style={[styles.searchInput,this.props.theme.text]}
-          onFocus= {() => this.setState({text : ''})}
+          style={textInputStyle}
           onChangeText={(text) => this.setState({text})}
           onSubmitEditing={this.submitSearch}
-          value={this.state.text}/>
+          value={this.state.text} 
+          placeholder={"Search"} />
         {this.props.toggleLanguage ? 
           <LanguageToggleButton 
             theme={this.props.theme} 
