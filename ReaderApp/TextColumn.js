@@ -105,6 +105,18 @@ var TextColumn = React.createClass({
     }
   },
   handleScroll: function(e) {
+    if (this.props.textFlow == 'continuous') {
+      if (this.props.segmentRef !== "") {
+
+        if (this.rowRefs[this.props.segmentRef]._initY + 90 < this.refs._listView.scrollProperties.offset) {
+             console.log(this.rowRefs[this.props.segmentRef]);
+//          var keys = this.rowRefs.keys(items).sort();
+ //         var loc = keys.indexOf(item);
+
+        }
+      }
+    }
+
     this.updateTitle();
     //auto highlight middle visible segment
     if (this.props.textListVisible) {
@@ -469,9 +481,10 @@ var TextColumn = React.createClass({
       segmentText.push(<View ref={this.props.sectionArray[rowData.section] + ":" + currSegData.segmentNumber}
                                      style={styles.continuousVerseNumberHolder}
                                      onLayout={(event) => {
-                                     if (currSegData.highlight) {
                                        var {x, y, width, height} = event.nativeEvent.layout;
-                                       console.log(this.props.sectionArray[rowData.section] + ":" + currSegData.segmentNumber + " y=" + y)
+//                                       console.log(this.props.sectionArray[rowData.section] + ":" + currSegData.segmentNumber + " y=" + y)
+                                       this.rowRefs[reactRef]._initY = y;
+                                     if (currSegData.highlight) {
                                        this.refs._listView.scrollTo({
                                          x: 0,
                                          y: y,
