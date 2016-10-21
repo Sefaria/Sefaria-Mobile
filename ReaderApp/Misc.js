@@ -55,8 +55,8 @@ var LanguageToggleButton = React.createClass({
   },
   render: function() {
     var content = this.props.language == "hebrew" ?
-        (<Text style={[styles.languageToggleText, this.props.theme.languageToggleText, styles.en]}>A</Text>) : 
-        (<Text style={[styles.languageToggleText, this.props.theme.languageToggleText, styles.he]}>א</Text>);
+        (<Text style={[styles.languageToggleTextEn, this.props.theme.languageToggleText, styles.en]}>A</Text>) : 
+        (<Text style={[styles.languageToggleTextHe, this.props.theme.languageToggleText, styles.he]}>א</Text>);
     return (<TouchableOpacity style={[styles.languageToggle,this.props.theme.languageToggle]} onPress={this.props.toggleLanguage}>
               {content}
             </TouchableOpacity>);

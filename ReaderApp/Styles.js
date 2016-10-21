@@ -159,7 +159,7 @@ module.exports = StyleSheet.create({
   headerTextTitleText: {
     fontSize: 16,
     textAlign: "center",
-    marginHorizontal: 5
+    marginHorizontal: 15
   },
   downCaret: {
     width: 10,
@@ -230,7 +230,7 @@ module.exports = StyleSheet.create({
     flex: 1
   },
   menuContent: {
-    paddingHorizontal: 20,
+    paddingHorizontal: 9,
     paddingVertical: 20
   },
   languageToggle: {
@@ -242,8 +242,17 @@ module.exports = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center"
   },
-  languageToggleText: {
-    color: "black"
+  languageToggleTextEn: {
+    color: "black",
+    backgroundColor: "transparent",
+    fontSize: 15,
+    marginTop: -1
+  },
+  languageToggleTextHe: {
+    color: "black",
+    backgroundColor: "transparent",
+    fontSize: 19,
+    marginTop: 5,
   },
   navigationMenuTitleBox: {
     flexDirection: "row",
@@ -272,14 +281,16 @@ module.exports = StyleSheet.create({
   readerNavSectionTitle: {
     alignSelf: "center",
     marginBottom: 10,
-    fontSize: 12,
+    fontSize: 13,
+    letterSpacing: 1,
   },
   category: {
     marginBottom: 10
   },
   categoryTitle: {
     flex: 1,
-    textAlign: "center"
+    textAlign: "center",
+    letterSpacing: 1,
   },
   categorySectionTitle: {
     flex: 1,
@@ -474,6 +485,9 @@ module.exports = StyleSheet.create({
   },
   justifyText: {
     textAlign: "justify"
+  },
+  spacedText: {
+    letterSpacing: 1
   },
   rtlRow: {
     flexDirection: "row-reverse"

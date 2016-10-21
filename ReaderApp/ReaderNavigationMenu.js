@@ -91,6 +91,7 @@ var ReaderNavigationMenu = React.createClass({
                   theme={this.props.theme}
                   category={cat}
                   heCat={heCat}
+                  upperCase={true}
                   language={language}
                   onPress={openCat} />);
       }.bind(this));
@@ -98,6 +99,7 @@ var ReaderNavigationMenu = React.createClass({
                     theme={this.props.theme}
                     category={"More"}
                     heCat={"עוד"}
+                    upperCase={true}
                     language={language}
                     onPress={this.showMore} />);
       categories = this.state.showMore ? categories : categories.slice(0,9).concat(more);
@@ -229,18 +231,22 @@ var CalendarSection = React.createClass({
 
 var CategoryBlockLink = React.createClass({
   propTypes: {
-    theme:    React.PropTypes.object.isRequired,
-    category: React.PropTypes.string,
-    language: React.PropTypes.string,
-    style:    React.PropTypes.object,
-    onPress:  React.PropTypes.func,
+    theme:     React.PropTypes.object.isRequired,
+    category:  React.PropTypes.string,
+    language:  React.PropTypes.string,
+    style:     React.PropTypes.object,
+    upperCase: React.PropTypes.bool,
+    onPress:   React.PropTypes.func,
   },
   render: function() {
-    var style = this.props.style || {"borderColor": Sefaria.palette.categoryColor(this.props.category)};
+    var style  = this.props.style || {"borderColor": Sefaria.palette.categoryColor(this.props.category)};
+    var enText = this.props.upperCase ? this.props.category.toUpperCase() : this.props.category;
+    var heText = this.props.heCat || Sefaria.hebrewCategory(this.props.category);
+    var textStyle  = [styles.centerText, this.props.theme.text, this.props.upperCase ? styles.spacedText : null];
     var content = this.props.language == "english"?
-      (<Text style={[styles.en, styles.centerText, this.props.theme.text]}>{this.props.category}</Text>) :
-      (<Text style={[styles.he, styles.centerText, this.props.theme.text]}>{this.props.heCat || Sefaria.hebrewCategory(this.props.category)}</Text>);
-    return (<TouchableOpacity onPress={this.props.onPress} style={[styles.readerNavCategory, this.props.theme.readerNavCategory,style]}>
+      (<Text style={[styles.en].concat(textStyle)}>{enText}</Text>) :
+      (<Text style={[styles.he].concat(textStyle)}>{heText}</Text>);
+    return (<TouchableOpacity onPress={this.props.onPress} style={[styles.readerNavCategory, this.props.theme.readerNavCategory, style]}>
               {content}
             </TouchableOpacity>);
   }
