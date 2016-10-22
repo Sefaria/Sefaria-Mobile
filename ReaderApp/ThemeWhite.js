@@ -61,7 +61,7 @@ module.exports = StyleSheet.create({
   },
   textListHeader: {
     backgroundColor: Colors.mainBackground,
-    borderBottomColor: Colors.border,
+    borderColor: Colors.border,
   },
   textListHeaderItemText: {
     color: Colors.secondaryText
@@ -79,7 +79,7 @@ module.exports = StyleSheet.create({
     borderColor: Colors.border
   },
   searchResultSummaryText: {
-    color: Colors.mainText,    
+    color: Colors.mainText, 
   },
   searchTextResult: {
     borderColor: Colors.secondaryBorder,
@@ -142,6 +142,9 @@ module.exports = StyleSheet.create({
   },
   text: {
     color: Colors.mainForegroundContrast
+  },
+  secondaryText: {
+    color: Colors.secondaryText
   },
   bilingualEnglishText: {
     color: "#666"

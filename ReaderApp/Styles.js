@@ -140,14 +140,14 @@ module.exports = StyleSheet.create({
     flexDirection: "column",
     flex: 1,
     alignSelf: "stretch",
-    width: 15,
+    width: 22,
     marginLeft: 5,
     marginRight: 5,
     justifyContent: "center"
   },
   tripleDots: {
-    width: 15,
-    height: 15,
+    width: 22,
+    height: 22,
     opacity: 0.5
   },
   headerTextTitle: {
@@ -159,7 +159,7 @@ module.exports = StyleSheet.create({
   headerTextTitleText: {
     fontSize: 16,
     textAlign: "center",
-    marginHorizontal: 15
+    marginHorizontal: 5
   },
   downCaret: {
     width: 10,
@@ -200,9 +200,20 @@ module.exports = StyleSheet.create({
   textListSummary: {
     flex: 1
   },
+  textListHeaderSummary: {
+    alignItems: "center",
+    justifyContent: "center",
+    borderTopWidth: 1,
+  },
+  textListHeaderSummaryText: {
+    textAlign: "center",
+  },
   textListSummaryScrollView: {
-    paddingHorizontal: 30,
-    paddingVertical: 30,
+    paddingHorizontal: 10,
+    paddingVertical: 20,
+  },
+  textListSummarySection: {
+    marginBottom: 14
   },
   textListContentOuter: {
     flex: 1,
@@ -214,7 +225,7 @@ module.exports = StyleSheet.create({
   },
   textListHeader: {
     height: 50,
-    borderTopWidth: 4,
+    borderTopWidth: 6,
     borderBottomWidth: 1,
     paddingHorizontal: 25,
     flexDirection: "row"
@@ -227,20 +238,25 @@ module.exports = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
+  textListCitation: {
+    marginBottom: 2,
+  },
   noLinks: {
     flex:1,
     alignItems: "center",
     margin: 10
   },
   emptyLinksMessage: {
-    fontStyle: "italic"
+    fontStyle: "italic",
+    fontFamily: "EB Garamond",
+    marginTop: 8
   },
   menu: {
     alignSelf: 'stretch',
     flex: 1
   },
   menuContent: {
-    paddingHorizontal: 9,
+    paddingHorizontal: 10,
     paddingVertical: 20
   },
   languageToggle: {
@@ -277,11 +293,11 @@ module.exports = StyleSheet.create({
     paddingLeft: 30
   },
   readerNavSection: {
-    marginBottom: 30
+    marginVertical: 15
   },
   readerNavCategory: {
     borderTopWidth: 4,
-    margin: 3,
+    margin: 2,
     paddingVertical: 10,
     paddingHorizontal: 10,
     flex: 1,
@@ -310,7 +326,7 @@ module.exports = StyleSheet.create({
   textBlockLink: {
     paddingVertical: 10,
     paddingHorizontal: 10,
-    margin: 3,
+    margin: 2,
     alignItems: "center",
     justifyContent: "center",
     flex: 1,
@@ -339,7 +355,6 @@ module.exports = StyleSheet.create({
   commentaryTextPanel: {
     flex: .6,
     alignSelf: 'stretch',
-    borderTopWidth: 1
   },
   verseNumber: {
     paddingTop: 5,

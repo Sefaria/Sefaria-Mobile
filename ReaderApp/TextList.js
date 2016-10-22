@@ -81,17 +81,9 @@ var TextList = React.createClass({
       this.props.linkSummary.map((cat)=>{
         let heCategory = Sefaria.hebrewCategory(this.props.category);
         let filter = new LinkFilter(cat.category,heCategory,cat.refList,cat.category);
-        viewList.push(
-          <LinkCategory
-            theme={this.props.theme}
-            category={cat.category}
-            refList={cat.refList}
-            count={cat.count}
-            language={this.props.settings.language}
-            onPress={this.props.openCat.bind(null,filter)}
-            key={cat.category} />);
+
         var innerViewList = cat.books.map((obook)=>{
-          let filter = new LinkFilter(obook.title,obook.heTitle,obook.refList,cat.category);
+          let filter = new LinkFilter(obook.title, obook.heTitle, obook.refList, cat.category);
           return (
           <LinkBook
             theme={this.props.theme}
@@ -102,7 +94,19 @@ var TextList = React.createClass({
             onPress={this.props.openCat.bind(null,filter)}
             key={obook.title} />);
         });
-        viewList.push(<TwoBox content={innerViewList} key={cat.category+"-container"} />);
+
+        viewList.push(
+          <View style={styles.textListSummarySection} key={cat.category+"-container"}>
+            <LinkCategory
+              theme={this.props.theme}
+              category={cat.category}
+              refList={cat.refList}
+              count={cat.count}
+              language={this.props.settings.language}
+              onPress={this.props.openCat.bind(null,filter)}
+              key={cat.category} />
+            <TwoBox content={innerViewList} />
+          </View>);
 
       });
     } else {
@@ -115,7 +119,13 @@ var TextList = React.createClass({
       } else {
         var content = (<ScrollView style={styles.textListSummaryScrollView}>{viewList}</ScrollView>);
       }
-      return <View style={[styles.textListSummary, this.props.theme.textListSummary]}>{content}</View>;
+      return (
+        <View style={[styles.textListSummary, this.props.theme.textListSummary]}>
+          <View style={[styles.textListHeader, this.props.theme.textListHeader, styles.textListHeaderSummary]}>
+            <Text style={[styles.textListHeaderSummaryText, this.props.theme.secondaryText]}>CONNECTIONS</Text>
+          </View>
+          {content}
+        </View>);
 
     } else if (!this.state.isNewSegment){
       return (
@@ -184,7 +194,7 @@ var LinkBook = React.createClass({
     let textStyle = this.props.count == 0 ? this.props.theme.verseNumber : this.props.theme.text;
     return (
       <TouchableOpacity
-        style={[styles.textBlockLink,this.props.theme.textBlockLink]}
+        style={[styles.textBlockLink, this.props.theme.textBlockLink]}
         onPress={this.props.onPress}>
         { this.props.language == "hebrew" ?
           <Text style={[styles.he, styles.centerText, textStyle]}>{this.props.heTitle + countStr}</Text> :
@@ -214,7 +224,7 @@ var LinkContent = React.createClass({
     var hebrewElem =  <Text style={[styles.hebrewText, this.props.theme.text, {fontSize:this.props.settings.fontSize}]} key={this.props.refStr+"-he"}><HTMLView stylesheet={styles} value={lco.he}/></Text>;
     var englishElem = <Text style={[styles.englishText, this.props.theme.text, {fontSize:0.8*this.props.settings.fontSize}]} key={this.props.refStr+"-en"}><HTMLView stylesheet={styles} value={"&#x200E;"+lco.en}/></Text>;
     if (lang == "bilingual") {
-      textViews = [hebrewElem,englishElem];
+      textViews = [hebrewElem, englishElem];
     } else if (lang == "hebrew") {
       textViews = [hebrewElem];
     } else if (lang == "english") {
@@ -223,7 +233,7 @@ var LinkContent = React.createClass({
 
     return (
       <TouchableOpacity style={[styles.searchTextResult, this.props.theme.searchTextResult]} onPress={()=>{this.props.openRef(this.props.refStr, true)}}>
-        {this.props.isCommentaryBook ? null : <Text style={[styles.en, this.props.theme.textListCitation]}>{this.props.refStr}</Text>}
+        {this.props.isCommentaryBook ? null : <Text style={[styles.en, styles.textListCitation, this.props.theme.textListCitation]}>{this.props.refStr}</Text>}
         {textViews}
       </TouchableOpacity>
     );
@@ -238,7 +248,7 @@ var EmptyLinksMessage = React.createClass({
   },
   render: function() {
     // TODO hebrew interface language
-    return (<Text style={[styles.emptyLinksMessage, this.props.theme.text]}>No connections available.</Text>);
+    return (<Text style={[styles.emptyLinksMessage, this.props.theme.secondaryText]}>No connections available.</Text>);
   }
 });
 
