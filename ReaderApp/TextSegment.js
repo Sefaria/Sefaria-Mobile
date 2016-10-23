@@ -19,6 +19,7 @@ var TextSegment = React.createClass({
     segmentKey:         React.PropTypes.string,
     data:               React.PropTypes.string,
     textType:           React.PropTypes.oneOf(["english","hebrew"]),
+    bilingual:          React.PropTypes.bool,
     textSegmentPressed: React.PropTypes.func.isRequired,
     textListVisible:    React.PropTypes.bool.isRequired,
     settings:           React.PropTypes.object
@@ -33,6 +34,9 @@ var TextSegment = React.createClass({
     var style = this.props.textType == "hebrew" ?
                   [styles.hebrewText, this.props.theme.text, {fontSize: this.props.settings.fontSize}] :
                   [styles.englishText, this.props.theme.text, styles.justifyText, {fontSize: 0.8 * this.props.settings.fontSize}];
+    if (this.props.bilingual && this.props.textType == "english") {
+      style.push(this.props.theme.bilingualEnglishText)
+    }
     return (
       <Text
         style={style}

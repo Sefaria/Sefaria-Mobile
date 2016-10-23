@@ -10,6 +10,7 @@ var Colors = {
   secondaryText: "#999",
   mainForeground: "white",
   mainForegroundContrast: "black",
+  verseNumber: "#999",
   textBackground: "#F8FCF8",
   textSectionTitleBorder: "#e6e5e6",
   textSegmentHighlight: "#e9e9e7",
@@ -53,6 +54,9 @@ module.exports = StyleSheet.create({
   searchButton: {
     color: Colors.button
   },
+  searchInputPlaceholder: {
+    color: "#999",
+  },
   textListSummary: {
     backgroundColor: Colors.mainBackground,
   },
@@ -74,6 +78,12 @@ module.exports = StyleSheet.create({
   },
   searchTextResult: {
     borderColor: Colors.secondaryBorder,
+  },
+  searchResultSummary: {
+    borderColor: Colors.border
+  },
+  searchResultSummaryText: {
+    color: Colors.mainText,    
   },
   menu: {
     backgroundColor: Colors.mainBackground
@@ -112,6 +122,9 @@ module.exports = StyleSheet.create({
   verseNumber: {
     color: Colors.secondaryText
   },
+  verseBullet: {
+    color: "black"
+  },
   sectionHeader: {
     borderColor: "#e6e5e6",
   },
@@ -130,5 +143,8 @@ module.exports = StyleSheet.create({
   },
   text: {
     color: Colors.mainForegroundContrast
+  },
+  bilingualEnglishText: {
+    color: "#666"
   }
 });

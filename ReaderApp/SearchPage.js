@@ -45,7 +45,7 @@ var SearchPage = React.createClass({
 	showNoInternetAlert: function() {
 		AlertIOS.alert(
 		 'No Internet',
-		 'Search requires internet to work',
+		 'Search requires an internet connection.',
 		 [
 			 {text: 'Cancel', onPress: () => null, style: 'cancel'},
 			 {text: 'Retry', onPress: () => {
@@ -56,9 +56,17 @@ var SearchPage = React.createClass({
 		 ],
 		);
 	},
+	numberWithCommas: function(x) {
+    	return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+	},
 	render: function() {
+		var status = this.props.hasInternet ? 
+						this.props.loadingQuery ? "Loading..." 
+						: this.numberWithCommas(this.props.numResults) + " Results"
+					: "Connect to the internet to search.";
+
 		return (
-			<View style={[styles.menu,this.props.theme.menu]}>
+			<View style={[styles.menu, this.props.theme.menu]}>
 				<CategoryColorLine category={"Other"} />
 				<SearchBar
 					theme={this.props.theme}
@@ -66,7 +74,9 @@ var SearchPage = React.createClass({
 					onQueryChange={this.props.onQueryChange}
 					query={this.props.query}
 					setIsNewSearch={this.props.setIsNewSearch}/>
-				<Text style={styles.searchResultSummary} >Results: {this.props.hasInternet ? this.props.numResults : "N/A"} {this.props.loadingQuery || this.props.loadingTail ? "Loading..." : ""}</Text>
+				<View style={[styles.searchResultSummary, this.props.theme.searchResultSummary]}>
+					<Text style={[styles.searchResultSummaryText, this.props.theme.searchResultSummaryText]} >{status}</Text>
+				</View>
 				<SearchResultList
 					theme={this.props.theme}
 					queryResult={this.props.queryResult}
@@ -75,8 +85,7 @@ var SearchPage = React.createClass({
 					openRef={this.props.openRef}
 					setLoadTail={this.props.setLoadTail}
 					setIsNewSearch={this.props.setIsNewSearch}
-					isNewSearch={this.props.isNewSearch}
-				/>
+					isNewSearch={this.props.isNewSearch} />
 			</View>
 		);
 	}

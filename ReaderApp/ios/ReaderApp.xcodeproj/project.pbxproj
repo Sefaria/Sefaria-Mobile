@@ -34,6 +34,7 @@
 		A1C678221DB7FF8000392A83 /* libRNFS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A1C6781F1DB7FD4600392A83 /* libRNFS.a */; };
 		A1C678231DB7FF8000392A83 /* libRNZipArchive.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A1C678191DB7FD0100392A83 /* libRNZipArchive.a */; };
 		A1C678261DB8000A00392A83 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = A1C678251DB8000A00392A83 /* libz.tbd */; };
+		DD7B126F1DBACAEE00AC4D6C /* EBGaramond-Italic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = DD7B126E1DBACAEE00AC4D6C /* EBGaramond-Italic.ttf */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -163,6 +164,7 @@
 		A1C678141DB7FD0000392A83 /* RNZipArchive.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RNZipArchive.xcodeproj; path = "../node_modules/react-native-zip-archive/RNZipArchive.xcodeproj"; sourceTree = "<group>"; };
 		A1C6781A1DB7FD4600392A83 /* RNFS.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RNFS.xcodeproj; path = "../node_modules/react-native-fs/RNFS.xcodeproj"; sourceTree = "<group>"; };
 		A1C678251DB8000A00392A83 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
+		DD7B126E1DBACAEE00AC4D6C /* EBGaramond-Italic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "EBGaramond-Italic.ttf"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -329,6 +331,7 @@
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
+				DD7B126E1DBACAEE00AC4D6C /* EBGaramond-Italic.ttf */,
 				A14793921DB8036F00B6572F /* EBGaramond-Regular.ttf */,
 				A14793931DB8037000B6572F /* Montserrat-Black.ttf */,
 				A14793941DB8037000B6572F /* Montserrat-Bold.ttf */,
@@ -426,7 +429,7 @@
 		83CBB9F71A601CBA00E9B192 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0610;
+				LastUpgradeCheck = 0800;
 				ORGANIZATIONNAME = Facebook;
 				TargetAttributes = {
 					00E356ED1AD99517003FC87E = {
@@ -616,6 +619,7 @@
 				A147939C1DB8037000B6572F /* Montserrat-Bold.ttf in Resources */,
 				A147939A1DB8037000B6572F /* EBGaramond-Regular.ttf in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
+				DD7B126F1DBACAEE00AC4D6C /* EBGaramond-Italic.ttf in Resources */,
 				A14793A11DB8037000B6572F /* TaameyFrankCLM-Medium.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

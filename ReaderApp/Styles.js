@@ -140,14 +140,14 @@ module.exports = StyleSheet.create({
     flexDirection: "column",
     flex: 1,
     alignSelf: "stretch",
-    width: 15,
+    width: 22,
     marginLeft: 5,
     marginRight: 5,
     justifyContent: "center"
   },
   tripleDots: {
-    width: 15,
-    height: 15,
+    width: 22,
+    height: 22,
     opacity: 0.5
   },
   headerTextTitle: {
@@ -167,13 +167,23 @@ module.exports = StyleSheet.create({
     marginTop: 3,
   },
   searchResultSummary: {
-    margin: 10
+    paddingVertical: 10,
+    paddingHorizontal: 30,
+    borderBottomWidth: 1,
   },
   searchInput: {
     alignSelf: 'stretch',
     flex: 1,
     fontSize: 14,
+    fontStyle: "normal",
+    paddingTop: 0,
     backgroundColor: "transparent"
+  },
+  searchInputPlaceholder: {
+    fontStyle: "italic",
+    fontSize: 16,
+    fontFamily: "EB Garamond",
+    paddingTop: 5
   },
   searchPage: {
     flex: 1,
@@ -190,9 +200,20 @@ module.exports = StyleSheet.create({
   textListSummary: {
     flex: 1
   },
+  textListHeaderSummary: {
+    alignItems: "center",
+    justifyContent: "center",
+    borderTopWidth: 1,
+  },
+  textListHeaderSummaryText: {
+    textAlign: "center",
+  },
   textListSummaryScrollView: {
-    paddingHorizontal: 30,
-    paddingVertical: 30,
+    paddingHorizontal: 10,
+    paddingVertical: 20,
+  },
+  textListSummarySection: {
+    marginBottom: 14
   },
   textListContentOuter: {
     flex: 1,
@@ -204,7 +225,7 @@ module.exports = StyleSheet.create({
   },
   textListHeader: {
     height: 50,
-    borderTopWidth: 4,
+    borderTopWidth: 6,
     borderBottomWidth: 1,
     paddingHorizontal: 25,
     flexDirection: "row"
@@ -217,20 +238,25 @@ module.exports = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
+  textListCitation: {
+    marginBottom: 2,
+  },
   noLinks: {
     flex:1,
     alignItems: "center",
     margin: 10
   },
   emptyLinksMessage: {
-    fontStyle: "italic"
+    fontStyle: "italic",
+    fontFamily: "EB Garamond",
+    marginTop: 8
   },
   menu: {
     alignSelf: 'stretch',
     flex: 1
   },
   menuContent: {
-    paddingHorizontal: 20,
+    paddingHorizontal: 10,
     paddingVertical: 20
   },
   languageToggle: {
@@ -242,8 +268,17 @@ module.exports = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center"
   },
-  languageToggleText: {
-    color: "black"
+  languageToggleTextEn: {
+    color: "black",
+    backgroundColor: "transparent",
+    fontSize: 15,
+    marginTop: -1
+  },
+  languageToggleTextHe: {
+    color: "black",
+    backgroundColor: "transparent",
+    fontSize: 19,
+    marginTop: 5,
   },
   navigationMenuTitleBox: {
     flexDirection: "row",
@@ -258,11 +293,11 @@ module.exports = StyleSheet.create({
     paddingLeft: 30
   },
   readerNavSection: {
-    marginBottom: 30
+    marginVertical: 15
   },
   readerNavCategory: {
     borderTopWidth: 4,
-    margin: 3,
+    margin: 2,
     paddingVertical: 10,
     paddingHorizontal: 10,
     flex: 1,
@@ -272,14 +307,16 @@ module.exports = StyleSheet.create({
   readerNavSectionTitle: {
     alignSelf: "center",
     marginBottom: 10,
-    fontSize: 12,
+    fontSize: 13,
+    letterSpacing: 1,
   },
   category: {
     marginBottom: 10
   },
   categoryTitle: {
     flex: 1,
-    textAlign: "center"
+    textAlign: "center",
+    letterSpacing: 1,
   },
   categorySectionTitle: {
     flex: 1,
@@ -289,7 +326,7 @@ module.exports = StyleSheet.create({
   textBlockLink: {
     paddingVertical: 10,
     paddingHorizontal: 10,
-    margin: 3,
+    margin: 2,
     alignItems: "center",
     justifyContent: "center",
     flex: 1,
@@ -318,14 +355,13 @@ module.exports = StyleSheet.create({
   commentaryTextPanel: {
     flex: .6,
     alignSelf: 'stretch',
-    borderTopWidth: 1
   },
   verseNumber: {
     paddingTop: 5,
     textAlign: 'center',
     fontFamily: "Montserrat",
-    fontWeight: '100',
-    fontSize: 10,
+    fontWeight: '400',
+    fontSize: 9,
     width: 30,
   },
   continuousVerseNumber: {
@@ -340,9 +376,9 @@ module.exports = StyleSheet.create({
 
   },
   verseBullet: {
-    paddingTop: 5,
+    paddingTop: 7,
     textAlign: 'center',
-    fontSize: 5,
+    fontSize: 7,
     width: 30
   },
   englishSystemFont: {
@@ -485,6 +521,9 @@ module.exports = StyleSheet.create({
   },
   justifyText: {
     textAlign: "justify"
+  },
+  spacedText: {
+    letterSpacing: 1
   },
   rtlRow: {
     flexDirection: "row-reverse"

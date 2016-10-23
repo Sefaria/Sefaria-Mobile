@@ -15,7 +15,7 @@ var {
 var TextListHeader = React.createClass({
 	propTypes: {
 		Sefaria:        React.PropTypes.object.isRequired,
-    theme:          React.PropTypes.object.isRequired,
+        theme:          React.PropTypes.object.isRequired,
 		updateCat:      React.PropTypes.func.isRequired,
 		closeCat:       React.PropTypes.func.isRequired,
 		category:       React.PropTypes.string,
@@ -30,7 +30,7 @@ var TextListHeader = React.createClass({
 		};
 	},
 	render: function() {
-		var style = {"borderColor": Sefaria.palette.categoryColor(this.props.category)};
+		var style = {"borderTopColor": Sefaria.palette.categoryColor(this.props.category)};
 
 		var viewList = this.props.recentFilters.map((filter, i)=>{
 			return (<TextListHeaderItem
@@ -66,8 +66,7 @@ var TextListHeaderItem = React.createClass({
 		var filterStr = this.props.language == "hebrew" ?
 			this.props.filter.heTitle :
 			this.props.filter.title;
-		var langStyle = this.props.language == "hebrew" ? styles.he : styles. en;
-		var textStyles = [langStyle, this.props.theme.textListHeaderItemText];
+		var textStyles = [this.props.theme.textListHeaderItemText];
 
 	    if (this.props.selected) {
 	    	textStyles.push(this.props.theme.textListHeaderItemSelected);
