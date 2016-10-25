@@ -259,7 +259,7 @@ var ReaderNavigationMenuSection = React.createClass({
   render: function() {
     if (!this.props.content) { return null; }
     var title = this.props.interfaceLang !== "hebrew" ? this.props.title : this.props.heTitle;
-    var langStyle = this.props.interfaceLang !== "hebrew" ? styles.intEn : styles.intHe;
+    var langStyle = this.props.interfaceLang !== "hebrew" ? styles.enInt : styles.heInt;
     return (<View style={styles.readerNavSection}>
               <Text style={[styles.readerNavSectionTitle, this.props.theme.readerNavSectionTitle, langStyle]}>{title}</Text>
               {this.props.content}

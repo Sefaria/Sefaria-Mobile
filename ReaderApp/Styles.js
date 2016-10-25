@@ -289,8 +289,7 @@ module.exports = StyleSheet.create({
   navigationMenuTitle: {
     fontSize: 18,
     flex: 1,
-    textAlign: "center",
-    paddingLeft: 30
+    textAlign: "center"
   },
   readerNavSection: {
     marginVertical: 15
@@ -321,6 +320,7 @@ module.exports = StyleSheet.create({
   categorySectionTitle: {
     flex: 1,
     textAlign: "center",
+    fontSize: 13,
     marginVertical: 15
   },
   textBlockLink: {
@@ -330,6 +330,10 @@ module.exports = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     flex: 1,
+  },
+  navToggle: {
+    fontSize: 10,
+    paddingTop: 2
   },
   navToggles: {
     flexDirection: "row",
@@ -341,8 +345,9 @@ module.exports = StyleSheet.create({
   },
   textTocHeaderTitle: {
     flex: 1,
-    paddingRight: 30,
-    textAlign: 'center'
+    paddingLeft: 10,
+    textAlign: 'center',
+    letterSpacing: 1
   },
   mainTextPanel: {
     flex: .5,
