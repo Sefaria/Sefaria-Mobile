@@ -83,8 +83,8 @@ var ReaderNavigationCategoryMenu = React.createClass({
                 <CategoryColorLine category={categories[0]} />
                 <MenuButton onPress={this.props.navHome} theme={this.props.theme}/>
                 {showHebrew ?
-                  <Text style={[styles.intHe, styles.categoryTitle, this.props.theme.categoryTitle]}>{heTitle}</Text> :
-                  <Text style={[styles.intEn, styles.categoryTitle, this.props.theme.categoryTitle]}>{enTitle}</Text> }
+                  <Text style={[styles.he, styles.categoryTitle, this.props.theme.categoryTitle]}>{heTitle}</Text> :
+                  <Text style={[styles.en, styles.categoryTitle, this.props.theme.categoryTitle]}>{enTitle}</Text> }
                   <LanguageToggleButton
                     theme={this.props.theme}
                     toggleLanguage={this.props.toggleLanguage}
@@ -140,8 +140,8 @@ var ReaderNavigationCategoryMenuContents = React.createClass({
           // Add a Category
           content.push((<View style={styles.category} key={"category-" + i}>
                           { showHebrew ?
-                              <Text style={[styles.he, styles.categorySectionTitle, this.props.theme.categorySectionTitle]}>{item.heCategory}</Text> :
-                              <Text style={[styles.en, styles.categorySectionTitle, this.props.theme.categorySectionTitle]}>{item.category}</Text> }
+                              <Text style={[styles.heInt, styles.categorySectionTitle, this.props.theme.categorySectionTitle]}>{item.heCategory}</Text> :
+                              <Text style={[styles.enInt, styles.categorySectionTitle, this.props.theme.categorySectionTitle]}>{item.category.toUpperCase()}</Text> }
                           <ReaderNavigationCategoryMenuContents
                             theme={this.props.theme}
                             contents={item.contents}
