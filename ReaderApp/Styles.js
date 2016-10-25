@@ -154,10 +154,11 @@ module.exports = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: "center",
-    flexDirection: "row",
+    flexDirection: "row"
   },
   headerTextTitleText: {
     fontSize: 16,
+    maxWidth: 210,
     textAlign: "center",
     marginHorizontal: 5
   },

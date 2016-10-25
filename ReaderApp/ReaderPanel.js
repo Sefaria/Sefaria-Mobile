@@ -335,7 +335,7 @@ var ReaderControls = React.createClass({
             <Image source={require('./img/caret.png')}
                      style={[styles.downCaret, this.props.language === "hebrew" ? null: {opacity: 0}]}
                      resizeMode={Image.resizeMode.contain} />
-            <Text style={titleTextStyle}>
+            <Text style={titleTextStyle} numberOfLines={1} ellipsizeMode={"tail"}>
               {this.props.title}
             </Text>
             <Image source={require('./img/caret.png')}
