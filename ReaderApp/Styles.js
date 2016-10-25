@@ -314,6 +314,7 @@ module.exports = StyleSheet.create({
     marginBottom: 10
   },
   categoryTitle: {
+    fontFamily: "EB Garamond",
     flex: 1,
     textAlign: "center",
     letterSpacing: 1,

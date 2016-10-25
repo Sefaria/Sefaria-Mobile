@@ -76,6 +76,7 @@ var ReaderNavigationCategoryMenu = React.createClass({
     var catContents = Sefaria.tocItemsByCategories(categories);
     var enTitle = this.props.category.toUpperCase();
     var heTitle = Sefaria.hebrewCategory(this.props.category);
+    var language = this.props.settings.language == "hebrew" ? "hebrew" : "english";
     return (<View style={[styles.menu, this.props.theme.menu]}>
               <CategoryColorLine category={this.props.category} />
               <View style={[styles.header, this.props.theme.header]}>
@@ -84,7 +85,11 @@ var ReaderNavigationCategoryMenu = React.createClass({
                 {showHebrew ?
                   <Text style={[styles.intHe, styles.categoryTitle, this.props.theme.categoryTitle]}>{heTitle}</Text> :
                   <Text style={[styles.intEn, styles.categoryTitle, this.props.theme.categoryTitle]}>{enTitle}</Text> }
-                <DisplaySettingsButton onPress={this.props.openDisplaySettings} />
+                  <LanguageToggleButton
+                    theme={this.props.theme}
+                    toggleLanguage={this.props.toggleLanguage}
+                    language={language}
+                    margin={true} />
               </View>
 
               <ScrollView style={styles.menuContent}>
