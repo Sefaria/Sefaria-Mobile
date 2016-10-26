@@ -379,7 +379,11 @@ module.exports = StyleSheet.create({
   continuousVerseNumberHolder: {
     height: 19,
     width: 19,
-
+    left:-25,
+  },
+  continuousRowHolder: {
+    marginLeft: 30,
+    marginRight: 30,
   },
   verseBullet: {
     paddingTop: 7,
