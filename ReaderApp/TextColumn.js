@@ -106,15 +106,18 @@ var TextColumn = React.createClass({
     }
   },
   updateHighlightedSegmentContinuous: function(e) {
-    if (this.rowRefs[this.props.segmentRef]._initY + this.state.continuousSectionOffset < this.refs._listView.scrollProperties.offset) {
+    var currentOffset = e.nativeEvent.contentOffset.y;
+    var direction = currentOffset > this.offset ? 'down' : 'up';
+    this.offset = currentOffset;
+
+
+    if ((this.rowRefs[this.props.segmentRef]._initY + this.state.continuousSectionOffset < this.refs._listView.scrollProperties.offset) && direction == "down") {
       var keys = Object.keys(this.rowRefs);
       var loc = keys.indexOf(this.props.segmentRef);
       var highlightRef = keys[loc+1]
 
       var visibleSections = this.getVisibleSections();
 
-      var nameOfFirstSection = visibleSections[0];
-      var nameOfSecondSection = visibleSections[1] || null;
 
       var curSection = this.props.segmentRef.split(":")[0];
       var nextSection = highlightRef.split(":")[0];
@@ -133,16 +136,40 @@ var TextColumn = React.createClass({
       this.props.textSegmentPressed(sectionToLoad, segmentToLoad, highlightRef);
     }
 
+    if ((this.rowRefs[this.props.segmentRef]._initY + this.state.continuousSectionOffset > this.refs._listView.scrollProperties.offset) && direction == "up") {
+      var keys = Object.keys(this.rowRefs);
+      var loc = keys.indexOf(this.props.segmentRef);
+      var highlightRef = keys[loc-1]
+      if(typeof highlightRef == "undefined") highlightRef = keys[loc]
+
+      var visibleSections = this.getVisibleSections();
+
+
+      var curSection = this.props.segmentRef.split(":")[0];
+      var prevSection = highlightRef.split(":")[0];
+
+      if (curSection != prevSection) {
+        console.log(this.rowRefs[this.props.segmentRef]._initY + " "+ this.state.continuousSectionOffset+ " "+ this.refs._listView.scrollProperties.offset);
+        this.state.continuousSectionOffset = this.refs._listView.scrollProperties.offset-90; //TODO -- this needs to be some value that increases as number of loaded sections increases. Not sure why. Probably b/c _initY is relative to parent view and we're not measuring that yet
+        console.log(this.rowRefs[this.props.segmentRef]._initY + " "+ this.state.continuousSectionOffset+ " "+ this.refs._listView.scrollProperties.offset);
+      }
+
+
+      var sectionToLoad = this.props.sectionArray.indexOf(highlightRef.split(":")[0]);
+      var segmentToLoad = parseInt(highlightRef.split(":")[1])-1;
+      console.log(this.refs._listView.scrollProperties);
+      console.log(sectionToLoad +" "+ segmentToLoad +" "+ highlightRef + " "+ (this.rowRefs[this.props.segmentRef]._initY + this.state.continuousSectionOffset) + " "+ this.refs._listView.scrollProperties.offset)
+      this.props.textSegmentPressed(sectionToLoad, segmentToLoad, highlightRef);
+    }
 
   },
 
   handleScroll: function(e) {
 
-
     if (this.props.textFlow == 'continuous') {
       //update highlightedSegment Continuous Style
       if (this.props.textListVisible) {
-        this.updateHighlightedSegmentContinuous();
+        this.updateHighlightedSegmentContinuous(e);
       }
     }
 
