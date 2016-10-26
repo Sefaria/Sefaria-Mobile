@@ -121,19 +121,15 @@ var TextColumn = React.createClass({
       var nextSection = highlightRef.split(":")[0];
 
       if (curSection != nextSection) {
-        console.log(this.rowRefs[this.props.segmentRef]._initY + " "+ this.state.continuousSectionOffset+ " "+ this.refs._listView.scrollProperties.offset);
         this.state.continuousSectionOffset = this.refs._listView.scrollProperties.offset+90; //TODO -- this needs to be some value that increases as number of loaded sections increases. Not sure why. Probably b/c _initY is relative to parent view and we're not measuring that yet
-        console.log(this.rowRefs[this.props.segmentRef]._initY + " "+ this.state.continuousSectionOffset+ " "+ this.refs._listView.scrollProperties.offset);
       }
 
 
       var sectionToLoad = this.props.sectionArray.indexOf(highlightRef.split(":")[0]);
       var segmentToLoad = parseInt(highlightRef.split(":")[1])-1;
-      console.log(this.refs._listView.scrollProperties);
-      console.log(sectionToLoad +" "+ segmentToLoad +" "+ highlightRef + " "+ (this.rowRefs[this.props.segmentRef]._initY + this.state.continuousSectionOffset) + " "+ this.refs._listView.scrollProperties.offset)
       this.props.textSegmentPressed(sectionToLoad, segmentToLoad, highlightRef);
     }
-    
+
   },
 
   handleScroll: function(e) {
@@ -372,30 +368,48 @@ var TextColumn = React.createClass({
     */
     if (rowRef && (!this.state.scrolledToOffsetRef || isClickScroll)) {
       let ref = this.rowRefs[rowRef];
-      let handle = findNodeHandle(ref);
-      if (handle != null) {
-        queryLayoutByID(
-           handle,
-           null, /*Error callback that doesn't yet have a hook in native so doesn't get called */
-           (left, top, width, height, pageX, pageY) => {
-             if (pageY == 0) { //I'm forced to assume this means it's not on screen, though it could also be at the top of the page...
+
+      if (this.props.textFlow == 'segmented') {
+        let handle = findNodeHandle(ref);
+        if (handle != null) {
+          queryLayoutByID(
+            handle,
+            null, /*Error callback that doesn't yet have a hook in native so doesn't get called */
+            (left, top, width, height, pageX, pageY) => {
+              if (pageY == 0) { //I'm forced to assume this means it's not on screen, though it could also be at the top of the page...
                 this.scrollOneScreenDown(didMount);
-                if (didMount) { this.setState({continueScrolling: true}); } //needed to continue rendering after each success scroll
+                if (didMount) {
+                  this.setState({continueScrolling: true});
+                } //needed to continue rendering after each success scroll
                 //console.log("Zerooo");
-             } else {
-               //console.log('yeshhh');
-               //LayoutAnimation.configureNext(CustomLayoutAnimation);
-               this.setState({scrolledToOffsetRef: true});
-               this.refs._listView.scrollTo({
-                 x: 0,
-                 y: this.refs._listView.scrollProperties.offset+pageY-100,
-                 animated: false
-               });
-             }
-           }
-        );
-      } else {
-        console.log("scrollToRef couldn't find ref handle");
+              } else {
+                //console.log('yeshhh');
+                //LayoutAnimation.configureNext(CustomLayoutAnimation);
+                this.setState({scrolledToOffsetRef: true});
+                this.refs._listView.scrollTo({
+                  x: 0,
+                  y: this.refs._listView.scrollProperties.offset + pageY - 100,
+                  animated: false
+                });
+              }
+            }
+          );
+        } else {
+          console.log("scrollToRef couldn't find ref handle");
+        }
+      }
+
+      /*
+      continuous case is much easier to deal with because we know that all segments have been loaded and
+      y position is generated/stored on layout.
+      */
+      else {
+        this.setState({scrolledToOffsetRef: true});
+        this.refs._listView.scrollTo({
+          x: 0,
+          y: ref._initY + this.state.continuousSectionOffset,
+          animated: false
+        });
       }
     }
   },
