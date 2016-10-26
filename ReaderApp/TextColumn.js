@@ -571,11 +571,11 @@ var TextColumn = React.createClass({
     rowData.text = rowData.content.text || "";
     rowData.he = rowData.content.he || "";
     rowData.numLinks = rowData.content.links ? rowData.content.links.length : 0;
+
     var segment = [];
     var columnLanguage = Sefaria.util.getColumnLanguageWithContent(this.props.columnLanguage, rowData.text, rowData.he);
     var refSection = rowData.section + ":" + rowData.row;
     var reactRef = this.props.sectionArray[rowData.section] + ":" + this.props.data[rowData.section][rowData.row].segmentNumber;
-
     if (rowData.row == 0) {
       segment.push(<SectionHeader
                       title={this.props.columnLanguage == "hebrew" ?
@@ -585,13 +585,12 @@ var TextColumn = React.createClass({
                       key={rowData.section+"header"} />);
     }
 
-
     var numberMargin = (<Text ref={this.props.sectionArray[rowData.section] + ":"+ rowData.content.segmentNumber}
                                    style={[styles.verseNumber, this.props.theme.verseNumber]}
                                    key={reactRef + "|segment-number"}>
-                        {this.props.columnLanguage == "hebrew" ?
+                        {Sefaria.showSegmentNumbers(this.props.textTitle) ? (this.props.columnLanguage == "hebrew" ?
                          Sefaria.hebrew.encodeHebrewNumeral(rowData.content.segmentNumber) :
-                         rowData.content.segmentNumber}
+                         rowData.content.segmentNumber) : ""}
                       </Text>);
 
     let bulletOpacity = (rowData.numLinks-20) / (70-20);
