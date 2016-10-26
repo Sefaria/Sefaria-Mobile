@@ -310,6 +310,7 @@ var ReaderPanel = React.createClass({
               setColumnLanguage={this.setColumnLanguage}
               incrementFont={this.incrementFont}
               setTheme={this.setTheme}
+              canBeContinuous={Sefaria.canBeContinuous(this.props.textTitle)}
               themeStr={this.props.themeStr}/>) : null }
         </View>);
   }

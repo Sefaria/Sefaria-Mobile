@@ -141,8 +141,13 @@ Sefaria = {
   },
   showSegmentNumbers: function(text) {
     let index = Sefaria.index(text);
-    if (!index) return true;
+    if (!index) return true; //default to true
     return ['Talmud','Liturgy'].indexOf(index.categories[0]) == -1;
+  },
+  canBeContinuous: function(text) {
+    let index = Sefaria.index(text);
+    if (!index) return false; // default to false
+    return ['Talmud','Tanakh'].indexOf(index.categories[0]) != -1;
   },
   _cacheIndexFromToc: function(toc) {
     // Unpacks contents of Sefaria.toc into index cache.

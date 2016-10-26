@@ -19,7 +19,7 @@ var ReaderDisplayOptionsMenu = React.createClass({
   propTypes: {
     theme:                           React.PropTypes.object,
     textFlow:                        React.PropTypes.oneOf(['segmented','continuous']),
-    textReference:                   React.PropTypes.string,
+    canBeContinuous:                 React.PropTypes.bool,
     columnLanguage:                  React.PropTypes.oneOf(['hebrew','english','bilingual']),
     themeStr:                        React.PropTypes.oneOf(['white','grey','black']),
     setTextFlow:                     React.PropTypes.func,
@@ -35,13 +35,6 @@ var ReaderDisplayOptionsMenu = React.createClass({
         buttons:["english","bilingual","hebrew"],
         icons:[a_icon,a_aleph_icon,aleph_icon],
         currVal: this.props.columnLanguage,
-        parametrized: true
-      },
-      {
-        onPress:this.props.setTextFlow,
-        buttons:["segmented","continuous"],
-        icons:[segmented_icon,continuous_icon],
-        currVal: this.props.textFlow,
         parametrized: true
       },
       {
@@ -62,6 +55,19 @@ var ReaderDisplayOptionsMenu = React.createClass({
         parametrized: true
       }
     ];
+
+    var segcontopt =
+    {
+      onPress:this.props.setTextFlow,
+      buttons:["segmented","continuous"],
+      icons:[segmented_icon,continuous_icon],
+      currVal: this.props.textFlow,
+      parametrized: true
+    };
+
+    if (this.props.canBeContinuous) //if can be continuous, add that option
+      options.splice(1,0,segcontopt);
+
     var alignments = [["left","right"],["left","center","right"]];
     var optionViews = [];
     for (let optionRow of options) {
