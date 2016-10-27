@@ -76,14 +76,17 @@ module.exports = StyleSheet.create({
   readerDisplayOptionsMenuItemLeft: {
     borderTopLeftRadius: PixelRatio.roundToNearestPixel(10),
     borderBottomLeftRadius: PixelRatio.roundToNearestPixel(10),
-    borderRightWidth: PixelRatio.roundToNearestPixel(0),
+    borderRightWidth: 0,
+
   },
   readerDisplayOptionsMenuItemCenter: {
-    borderRightWidth: PixelRatio.roundToNearestPixel(0)
+    borderLeftWidth: 1,
+    borderRightWidth: 1,
   },
   readerDisplayOptionsMenuItemRight: {
     borderTopRightRadius: PixelRatio.roundToNearestPixel(10),
-    borderBottomRightRadius: PixelRatio.roundToNearestPixel(10)
+    borderBottomRightRadius: PixelRatio.roundToNearestPixel(10),
+    borderLeftWidth: 0,
   },
   readerDisplayOptionsMenuColor: {
     flex: PixelRatio.roundToNearestPixel(1),
