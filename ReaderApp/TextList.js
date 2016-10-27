@@ -79,8 +79,11 @@ var TextList = React.createClass({
     return true;
   },
   onResponderMove: function(evt) {
-    console.log("moving!",evt.nativeEvent.pageY);
-    this.props.setTextListFlex(1.0 - evt.nativeEvent.pageY/700);
+    let headerHeight = 75;
+    let flex = 1.0 - (evt.nativeEvent.pageY-headerHeight)/(ViewPort.height-headerHeight);
+    if (flex > 1.0) flex = 0.99;
+    console.log("moving!",evt.nativeEvent.pageY,ViewPort.height,flex);
+    this.props.setTextListFlex(flex);
   },
   render: function() {
     var isSummaryMode = this.props.filterIndex == null;
