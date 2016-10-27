@@ -250,6 +250,7 @@ module.exports = StyleSheet.create({
   emptyLinksMessage: {
     fontStyle: "italic",
     fontFamily: "EB Garamond",
+    textAlign: "center",
     marginTop: 8
   },
   menu: {

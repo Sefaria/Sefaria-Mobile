@@ -361,16 +361,15 @@ var ReaderApp = React.createClass({
         }
       };
 
-      //here's the meat
-      var resolveClosure = function(ref,pos,data) {
+      var resolveClosure = function(ref, pos, data) {
         resolve(data);
       }.bind(this,ref,pos);
 
-      var rejectClosure = function(ref,pos,data) {
+      var rejectClosure = function(ref, pos, data) {
         reject(data);
       }.bind(this,ref,pos);
 
-      Sefaria.links.loadLinkData(ref,pos,resolveClosure,rejectClosure).then(resolve).catch(reject);
+      Sefaria.links.loadLinkData(ref, pos, resolveClosure, rejectClosure).then(resolve).catch(reject);
     },
     onLinkLoad: function(pos, data) {
       this.state.linkContents[pos] = data;
