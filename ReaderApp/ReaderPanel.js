@@ -29,31 +29,34 @@ var {
 
 var ReaderPanel = React.createClass({
   propTypes: {
-    segmentRef:    React.PropTypes.string,
-    segmentIndexRef: React.PropTypes.number,
-    offsetRef:     React.PropTypes.string,
-    data:          React.PropTypes.array,
-    textTitle:     React.PropTypes.string,
-    heTitle:       React.PropTypes.string,
-    heRef:         React.PropTypes.string,
-    openRef:       React.PropTypes.func.isRequired,
-    openNav:       React.PropTypes.func.isRequired,
-    openTextToc:   React.PropTypes.func.isRequired,
-    interfaceLang:  React.PropTypes.oneOf(["english","hebrew"]).isRequired,
-    loading:       React.PropTypes.bool,
-    openLinkCat:   React.PropTypes.func.isRequired,
-    closeLinkCat:  React.PropTypes.func.isRequired,
-    updateLinkCat: React.PropTypes.func.isRequired,
-    filterIndex:   React.PropTypes.number,
+    segmentRef:        React.PropTypes.string,
+    segmentIndexRef:   React.PropTypes.number,
+    offsetRef:         React.PropTypes.string,
+    data:              React.PropTypes.array,
+    textTitle:         React.PropTypes.string,
+    heTitle:           React.PropTypes.string,
+    heRef:             React.PropTypes.string,
+    openRef:           React.PropTypes.func.isRequired,
+    openNav:           React.PropTypes.func.isRequired,
+    openTextToc:       React.PropTypes.func.isRequired,
+    interfaceLang:     React.PropTypes.oneOf(["english","hebrew"]).isRequired,
+    loading:           React.PropTypes.bool,
+    textListVisible:   React.PropTypes.bool,
+    textListFlex:      React.PropTypes.number,
+    setTextListFlex:   React.PropTypes.func.isRequired,
+    openLinkCat:       React.PropTypes.func.isRequired,
+    closeLinkCat:      React.PropTypes.func.isRequired,
+    updateLinkCat:     React.PropTypes.func.isRequired,
+    filterIndex:       React.PropTypes.number,
     linkRecentFilters: React.PropTypes.array,
-    linkSummary:   React.PropTypes.array,
-    linkContents:  React.PropTypes.array,
-    loadingLinks:  React.PropTypes.bool,
-    setTheme:      React.PropTypes.func.isRequired,
-    theme:         React.PropTypes.object,
-    themeStr:      React.PropTypes.oneOf(["white","grey","black"]),
-    hasInternet:   React.PropTypes.bool,
-    Sefaria:       React.PropTypes.object.isRequired
+    linkSummary:       React.PropTypes.array,
+    linkContents:      React.PropTypes.array,
+    loadingLinks:      React.PropTypes.bool,
+    setTheme:          React.PropTypes.func.isRequired,
+    theme:             React.PropTypes.object,
+    themeStr:          React.PropTypes.oneOf(["white","grey","black"]),
+    hasInternet:       React.PropTypes.bool,
+    Sefaria:           React.PropTypes.object.isRequired
   },
   getInitialState: function () {
     Sefaria = this.props.Sefaria;
@@ -236,7 +239,7 @@ var ReaderPanel = React.createClass({
 
           { this.props.loading ?
           <LoadingView theme={this.props.theme}/> :
-          <View style={[styles.mainTextPanel, this.props.theme.mainTextPanel]}
+          <View style={[{flex: 1.0 - this.props.textListFlex}, styles.mainTextPanel, this.props.theme.mainTextPanel]}
                 onStartShouldSetResponderCapture={() => {
                   if (this.state.ReaderDisplayOptionsMenuVisible == true) {
                      this.toggleReaderDisplayOptionsMenu();
@@ -273,7 +276,7 @@ var ReaderPanel = React.createClass({
           </View> }
 
           {this.props.textListVisible && !this.props.loading ?
-            <View style={[styles.commentaryTextPanel, this.props.theme.commentaryTextPanel]}
+            <View style={[{flex:this.props.textListFlex}, styles.commentaryTextPanel, this.props.theme.commentaryTextPanel]}
                 onStartShouldSetResponderCapture={() => {
                   if (this.state.ReaderDisplayOptionsMenuVisible == true) {
                      this.toggleReaderDisplayOptionsMenu();
@@ -297,7 +300,8 @@ var ReaderPanel = React.createClass({
                 linkContents={this.props.linkContents}
                 loading={this.props.loadingLinks}
                 filterIndex={this.props.filterIndex}
-                recentFilters={this.props.linkRecentFilters} />
+                recentFilters={this.props.linkRecentFilters}
+                setTextListFlex={this.props.setTextListFlex} />
             </View> : null}
 
             {this.state.ReaderDisplayOptionsMenuVisible ?

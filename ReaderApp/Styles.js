@@ -351,7 +351,6 @@ module.exports = StyleSheet.create({
     letterSpacing: 1
   },
   mainTextPanel: {
-    flex: .5,
     flexWrap: "nowrap",
     justifyContent: 'center',
     alignSelf: 'stretch',
@@ -359,8 +358,7 @@ module.exports = StyleSheet.create({
     flexDirection:"row"
   },
   commentaryTextPanel: {
-    flex: .6,
-    alignSelf: 'stretch',
+    alignSelf: 'stretch'
   },
   verseNumber: {
     paddingTop: 5,

@@ -15,13 +15,14 @@ var {
 var TextListHeader = React.createClass({
 	propTypes: {
 		Sefaria:        React.PropTypes.object.isRequired,
-        theme:          React.PropTypes.object.isRequired,
+    theme:          React.PropTypes.object.isRequired,
 		updateCat:      React.PropTypes.func.isRequired,
 		closeCat:       React.PropTypes.func.isRequired,
 		category:       React.PropTypes.string,
 		filterIndex:    React.PropTypes.number,
 		recentFilters:  React.PropTypes.array,
-		language:       React.PropTypes.oneOf(["english","hebrew","bilingual"])
+		language:       React.PropTypes.oneOf(["english","hebrew","bilingual"]),
+    isSummaryMode:  React.PropTypes.bool
 	},
 	getInitialState: function() {
 		Sefaria = this.props.Sefaria; //Is this bad practice to use getInitialState() as an init function
@@ -43,13 +44,19 @@ var TextListHeader = React.createClass({
 						    key={i} />
 					);
 		});
+    if (this.props.isSummaryMode) {
+      return (<View style={[styles.textListHeader, this.props.theme.textListHeader, styles.textListHeaderSummary]}>
+                <Text style={[styles.textListHeaderSummaryText, this.props.theme.secondaryText]}>CONNECTIONS</Text>
+              </View>);
+    } else {
+      return (
+  			<View style={[styles.textListHeader, this.props.theme.textListHeader, style]}>
+  				<ScrollView style={styles.textListHeaderScrollView} horizontal={true}>{viewList}</ScrollView>
+  				<TripleDots onPress={this.props.closeCat}/>
+  			 </View>
+  			);
+    }
 
-		return (
-			<View style={[styles.textListHeader, this.props.theme.textListHeader, style]}>
-				<ScrollView style={styles.textListHeaderScrollView} horizontal={true}>{viewList}</ScrollView>
-				<TripleDots onPress={this.props.closeCat}/>
-			 </View>
-			);
 	}
 });
 

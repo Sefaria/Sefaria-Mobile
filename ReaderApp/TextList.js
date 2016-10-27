@@ -33,7 +33,8 @@ var TextList = React.createClass({
     segmentIndexRef: React.PropTypes.number,
     filterIndex:     React.PropTypes.number,
     recentFilters:   React.PropTypes.array, /* of the form [{title,heTitle,refList}...] */
-    columnLanguage:  React.PropTypes.oneOf(["english","hebrew","bilingual"])
+    columnLanguage:  React.PropTypes.oneOf(["english","hebrew","bilingual"]),
+    setTextListFlex: React.PropTypes.func.isRequired
   },
   getInitialState: function() {
     Sefaria = this.props.Sefaria; //Is this bad practice to use getInitialState() as an init function
@@ -72,6 +73,14 @@ var TextList = React.createClass({
               loading={loading}
               isCommentaryBook={isCommentaryBook}
               key={rowId} />);
+  },
+  onStartShouldSetResponder: function(evt) {
+    console.log("starting");
+    return true;
+  },
+  onResponderMove: function(evt) {
+    console.log("moving!",evt.nativeEvent.pageY);
+    this.props.setTextListFlex(1.0 - evt.nativeEvent.pageY/700);
   },
   render: function() {
     var isSummaryMode = this.props.filterIndex == null;
@@ -113,6 +122,24 @@ var TextList = React.createClass({
       var dataSourceRows = this.state.dataSource.cloneWithRows(this.props.linkContents);
     }
 
+    var textListHeader = (
+      <View
+        onStartShouldSetResponder={(evt)=>this.onStartShouldSetResponder(evt)}
+        onResponderMove={(evt)=>this.onResponderMove(evt)}>
+
+        <TextListHeader
+          Sefaria={Sefaria}
+          theme={this.props.theme}
+          updateCat={this.props.updateCat}
+          closeCat={this.props.closeCat}
+          category={isSummaryMode ? null : this.props.recentFilters[this.props.filterIndex].category}
+          filterIndex={this.props.filterIndex}
+          recentFilters={this.props.recentFilters}
+          language={this.props.settings.language}
+          isSummaryMode={isSummaryMode} />
+      </View>
+    );
+
     if (isSummaryMode) {
       if (this.props.loading) {
         var content = <Text>Loading...</Text>;
@@ -121,24 +148,14 @@ var TextList = React.createClass({
       }
       return (
         <View style={[styles.textListSummary, this.props.theme.textListSummary]}>
-          <View style={[styles.textListHeader, this.props.theme.textListHeader, styles.textListHeaderSummary]}>
-            <Text style={[styles.textListHeaderSummaryText, this.props.theme.secondaryText]}>CONNECTIONS</Text>
-          </View>
+          {textListHeader}
           {content}
         </View>);
 
     } else if (!this.state.isNewSegment){
       return (
       <View style={[styles.textListContentOuter, this.props.theme.textListContentOuter]}>
-        <TextListHeader
-          Sefaria={Sefaria}
-          theme={this.props.theme}
-          updateCat={this.props.updateCat}
-          closeCat={this.props.closeCat}
-          category={this.props.recentFilters[this.props.filterIndex].category}
-          filterIndex={this.props.filterIndex}
-          recentFilters={this.props.recentFilters}
-          language={this.props.settings.language} />
+        {textListHeader}
         {this.props.linkContents.length == 0 ?
           <View style={styles.noLinks}><EmptyLinksMessage theme={this.props.theme} /></View> :
           <ListView style={styles.textListContentListView}

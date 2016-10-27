@@ -54,6 +54,7 @@ var ReaderApp = React.createClass({
             loadingTextTail: false,
             loadingTextHead: false,
             textListVisible: false,
+            textListFlex: 0.6,
             data: null,
             interfaceLang: "english", // TODO check device settings for Hebrew: ### import {NativeModules} from 'react-native'; console.log(NativeModules.SettingsManager.settings.AppleLocale);
             filterIndex: null, /* index of filters in recentFilters */
@@ -383,6 +384,9 @@ var ReaderApp = React.createClass({
 
       this.setState({theme: this.state.theme,themeStr: themeStr});
     },
+    setTextListFlex: function(newFlex) {
+      this.setState({textListFlex:newFlex});
+    },
     render: function () {
         return (
             <View style={[styles.container,this.state.theme.container]}>
@@ -419,6 +423,8 @@ var ReaderApp = React.createClass({
                     loadingTextTail={this.state.loadingTextTail}
                     loadingTextHead={this.state.loadingTextHead}
                     textListVisible={this.state.textListVisible}
+                    textListFlex={this.state.textListFlex}
+                    setTextListFlex={this.setTextListFlex}
                     loading={!this.state.loaded}
                     openLinkCat={this.openLinkCat}
                     closeLinkCat={this.closeLinkCat}
