@@ -1,6 +1,9 @@
 'use strict'
 const React = require('react-native');
 const {StyleSheet,Dimensions} = React;
+import {
+PixelRatio
+} from 'react-native';
 
 var Sefaria = require('./sefaria'); // Included for Sefaria.palette
 
@@ -8,263 +11,263 @@ var Sefaria = require('./sefaria'); // Included for Sefaria.palette
 module.exports = StyleSheet.create({
   modal: {
     justifyContent: 'center',
-    flex: 1,
+    flex: PixelRatio.roundToNearestPixel(1),
     textAlign: 'center',
     alignSelf: 'stretch',
     alignItems: "flex-end"
   },
   welcome: {
-    fontSize: 20,
+    fontSize: PixelRatio.roundToNearestPixel(20),
     textAlign: 'center',
-    margin: 10
+    margin: PixelRatio.roundToNearestPixel(10)
   },
   instructions: {
     textAlign: 'center',
     color:  '#333333',
-    marginBottom: 5
+    marginBottom: PixelRatio.roundToNearestPixel(5)
   },
   container: {
-    flex: 1,
+    flex: PixelRatio.roundToNearestPixel(1),
     justifyContent: 'center',
     alignItems: 'center',
     alignSelf: 'stretch'
   },
   categoryColorLine: {
-    height: 26,
-    borderTopWidth: 20,
+    height: PixelRatio.roundToNearestPixel(26),
+    borderTopWidth: PixelRatio.roundToNearestPixel(20),
     borderTopColor: "black",
     alignSelf: "stretch"
   },
   header: {
-    height: 50,
+    height: PixelRatio.roundToNearestPixel(50),
     alignItems: 'center',
     alignSelf: 'stretch',
     flexDirection: 'row',
-    borderBottomWidth: 1
+    borderBottomWidth: PixelRatio.roundToNearestPixel(1)
   },
   readerDisplayOptionsMenu: {
     position: "absolute",
     width: Dimensions.get('window').width,
-    top: 76,
-    paddingTop: 10,
-    paddingBottom: 10,
+    top: PixelRatio.roundToNearestPixel(76),
+    paddingTop: PixelRatio.roundToNearestPixel(10),
+    paddingBottom: PixelRatio.roundToNearestPixel(10),
     alignItems: 'center',
     alignSelf: 'stretch',
     flexDirection: 'column',
-    borderBottomWidth: 1,
+    borderBottomWidth: PixelRatio.roundToNearestPixel(1),
   },
   readerDisplayOptionsMenuRow: {
     justifyContent: "center",
     flexDirection: 'row',
-    flex:1,
-    paddingTop: 10,
-    paddingBottom: 10,
-    marginLeft: 15,
-    marginRight: 15,
+    flex:PixelRatio.roundToNearestPixel(1),
+    paddingTop: PixelRatio.roundToNearestPixel(10),
+    paddingBottom: PixelRatio.roundToNearestPixel(10),
+    marginLeft: PixelRatio.roundToNearestPixel(15),
+    marginRight: PixelRatio.roundToNearestPixel(15),
   },
   readerDisplayOptionsMenuItem: {
-    flex: 1,
+    flex: PixelRatio.roundToNearestPixel(1),
     flexDirection: "row",
-    height:50,
-    borderWidth: 1,
+    height:PixelRatio.roundToNearestPixel(50),
+    borderWidth: PixelRatio.roundToNearestPixel(1),
     justifyContent: "center",
     alignItems: "center"
   },
   readerDisplayOptionsMenuItemLeft: {
-    borderTopLeftRadius: 10,
-    borderBottomLeftRadius: 10,
-    borderRightWidth: 0,
+    borderTopLeftRadius: PixelRatio.roundToNearestPixel(10),
+    borderBottomLeftRadius: PixelRatio.roundToNearestPixel(10),
+    borderRightWidth: PixelRatio.roundToNearestPixel(0),
   },
   readerDisplayOptionsMenuItemCenter: {
-    borderRightWidth: 0
+    borderRightWidth: PixelRatio.roundToNearestPixel(0)
   },
   readerDisplayOptionsMenuItemRight: {
-    borderTopRightRadius: 10,
-    borderBottomRightRadius: 10
+    borderTopRightRadius: PixelRatio.roundToNearestPixel(10),
+    borderBottomRightRadius: PixelRatio.roundToNearestPixel(10)
   },
   readerDisplayOptionsMenuColor: {
-    flex: 1,
+    flex: PixelRatio.roundToNearestPixel(1),
     flexDirection: "row",
-    height: 50,
-    borderWidth: 1,
-    borderRadius: 10
+    height: PixelRatio.roundToNearestPixel(50),
+    borderWidth: PixelRatio.roundToNearestPixel(1),
+    borderRadius: PixelRatio.roundToNearestPixel(10)
   },
   readerDisplayOptionsMenuColorLeft: {
-    marginRight: 5
+    marginRight: PixelRatio.roundToNearestPixel(5)
   },
   readerDisplayOptionsMenuColorCenter: {
-    marginLeft: 5,
-    marginRight: 5
+    marginLeft: PixelRatio.roundToNearestPixel(5),
+    marginRight: PixelRatio.roundToNearestPixel(5)
   },
   readerDisplayOptionsMenuColorRight: {
-    marginLeft: 5
+    marginLeft: PixelRatio.roundToNearestPixel(5)
   },
   readerDisplayOptionsMenuIcon: {
     resizeMode: "contain",
-    height: 14,
+    height: PixelRatio.roundToNearestPixel(14),
   },
   readerDisplayOptionsMenuDivider: {
-    marginTop: 10,
-    marginBottom: 10,
-    width:1000,
-    height:1
+    marginTop: PixelRatio.roundToNearestPixel(10),
+    marginBottom: PixelRatio.roundToNearestPixel(10),
+    width:PixelRatio.roundToNearestPixel(1000),
+    height:PixelRatio.roundToNearestPixel(1)
   },
   headerButton: {
-    width: 40,
-    height: 50,
+    width: PixelRatio.roundToNearestPixel(40),
+    height: PixelRatio.roundToNearestPixel(50),
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: "transparent"
   },
   menuButton: {
-    width: 17,
-    height: 17,
+    width: PixelRatio.roundToNearestPixel(17),
+    height: PixelRatio.roundToNearestPixel(17),
   },
   displaySettingsButton: {
-    width: 25,
-    height: 25,
+    width: PixelRatio.roundToNearestPixel(25),
+    height: PixelRatio.roundToNearestPixel(25),
   },
   closeButton: {
-    width: 16,
-    height: 16,
+    width: PixelRatio.roundToNearestPixel(16),
+    height: PixelRatio.roundToNearestPixel(16),
   },
   headerButtonSearch: {
-    width: 24,
-    marginRight: 18
+    width: PixelRatio.roundToNearestPixel(24),
+    marginRight: PixelRatio.roundToNearestPixel(18)
   },
   searchButton: {
-    width: 17,
-    height: 17,
+    width: PixelRatio.roundToNearestPixel(17),
+    height: PixelRatio.roundToNearestPixel(17),
   },
   tripleDotsContainer: {
     flexDirection: "column",
-    flex: 1,
+    flex: PixelRatio.roundToNearestPixel(1),
     alignSelf: "stretch",
-    width: 22,
-    marginLeft: 5,
-    marginRight: 5,
+    width: PixelRatio.roundToNearestPixel(22),
+    marginLeft: PixelRatio.roundToNearestPixel(5),
+    marginRight: PixelRatio.roundToNearestPixel(5),
     justifyContent: "center"
   },
   tripleDots: {
-    width: 22,
-    height: 22,
+    width: PixelRatio.roundToNearestPixel(22),
+    height: PixelRatio.roundToNearestPixel(22),
     opacity: 0.5
   },
   headerTextTitle: {
-    flex: 1,
+    flex: PixelRatio.roundToNearestPixel(1),
     alignItems: 'center',
     justifyContent: "center",
     flexDirection: "row"
   },
   headerTextTitleText: {
-    fontSize: 16,
-    maxWidth: 210,
+    fontSize: PixelRatio.roundToNearestPixel(16),
+    maxWidth: PixelRatio.roundToNearestPixel(210),
     textAlign: "center",
-    marginHorizontal: 5
+    marginHorizontal: PixelRatio.roundToNearestPixel(5)
   },
   downCaret: {
-    width: 10,
-    height: 10,
-    marginTop: 3,
+    width: PixelRatio.roundToNearestPixel(10),
+    height: PixelRatio.roundToNearestPixel(10),
+    marginTop: PixelRatio.roundToNearestPixel(3),
   },
   searchResultSummary: {
-    paddingVertical: 10,
-    paddingHorizontal: 30,
-    borderBottomWidth: 1,
+    paddingVertical: PixelRatio.roundToNearestPixel(10),
+    paddingHorizontal: PixelRatio.roundToNearestPixel(30),
+    borderBottomWidth: PixelRatio.roundToNearestPixel(1),
   },
   searchInput: {
     alignSelf: 'stretch',
-    flex: 1,
-    fontSize: 14,
+    flex: PixelRatio.roundToNearestPixel(1),
+    fontSize: PixelRatio.roundToNearestPixel(14),
     fontStyle: "normal",
-    paddingTop: 0,
+    paddingTop: PixelRatio.roundToNearestPixel(0),
     backgroundColor: "transparent"
   },
   searchInputPlaceholder: {
     fontStyle: "italic",
-    fontSize: 16,
+    fontSize: PixelRatio.roundToNearestPixel(16),
     fontFamily: "EB Garamond",
-    paddingTop: 5
+    paddingTop: PixelRatio.roundToNearestPixel(5)
   },
   searchPage: {
-    flex: 1,
+    flex: PixelRatio.roundToNearestPixel(1),
     flexDirection: 'column',
     alignItems: 'flex-start',
   },
   searchTextResult: {
-    marginHorizontal: 30,
-    marginTop: 20,
-    paddingBottom: 20,
+    marginHorizontal: PixelRatio.roundToNearestPixel(30),
+    marginTop: PixelRatio.roundToNearestPixel(20),
+    paddingBottom: PixelRatio.roundToNearestPixel(20),
     flexDirection: 'column',
-    borderBottomWidth: 1,
+    borderBottomWidth: PixelRatio.roundToNearestPixel(1),
   },
   textListSummary: {
-    flex: 1
+    flex: PixelRatio.roundToNearestPixel(1)
   },
   textListHeaderSummary: {
     alignItems: "center",
     justifyContent: "center",
-    borderTopWidth: 1,
+    borderTopWidth: PixelRatio.roundToNearestPixel(1),
   },
   textListHeaderSummaryText: {
     textAlign: "center",
   },
   textListSummaryScrollView: {
-    paddingHorizontal: 10,
-    paddingVertical: 20,
+    paddingHorizontal: PixelRatio.roundToNearestPixel(10),
+    paddingVertical: PixelRatio.roundToNearestPixel(20),
   },
   textListSummarySection: {
-    marginBottom: 14
+    marginBottom: PixelRatio.roundToNearestPixel(14)
   },
   textListContentOuter: {
-    flex: 1,
+    flex: PixelRatio.roundToNearestPixel(1),
     flexDirection: "column"
   },
   textListContentListView: {
-    flex: 1,
+    flex: PixelRatio.roundToNearestPixel(1),
     flexDirection: "column"
   },
   textListHeader: {
-    height: 50,
-    borderTopWidth: 6,
-    borderBottomWidth: 1,
-    paddingHorizontal: 25,
+    height: PixelRatio.roundToNearestPixel(50),
+    borderTopWidth: PixelRatio.roundToNearestPixel(6),
+    borderBottomWidth: PixelRatio.roundToNearestPixel(1),
+    paddingHorizontal: PixelRatio.roundToNearestPixel(25),
     flexDirection: "row"
   },
   textListHeaderScrollView: {
-    flex: 200 //made scrollview flex:200 to push the tripledots all the way to the right. seems to work well
+    flex: PixelRatio.roundToNearestPixel(200) //made scrollview flex:PixelRatio.roundToNearestPixel(200) to push the tripledots all the way to the right. seems to work well
   },
   textListHeaderItem: {
-    margin: 5,
+    margin: PixelRatio.roundToNearestPixel(5),
     justifyContent: "center",
     alignItems: "center",
   },
   textListCitation: {
-    marginBottom: 2,
+    marginBottom: PixelRatio.roundToNearestPixel(2),
   },
   noLinks: {
-    flex:1,
+    flex:PixelRatio.roundToNearestPixel(1),
     alignItems: "center",
-    margin: 10
+    margin: PixelRatio.roundToNearestPixel(10)
   },
   emptyLinksMessage: {
     fontStyle: "italic",
     fontFamily: "EB Garamond",
-    marginTop: 8
+    marginTop: PixelRatio.roundToNearestPixel(8)
   },
   menu: {
     alignSelf: 'stretch',
-    flex: 1
+    flex: PixelRatio.roundToNearestPixel(1)
   },
   menuContent: {
-    paddingHorizontal: 10,
-    paddingVertical: 20
+    paddingHorizontal: PixelRatio.roundToNearestPixel(10),
+    paddingVertical: PixelRatio.roundToNearestPixel(20)
   },
   languageToggle: {
-    width: 30,
-    height: 30,
-    borderWidth: 1,
-    borderRadius: 4,
+    width: PixelRatio.roundToNearestPixel(30),
+    height: PixelRatio.roundToNearestPixel(30),
+    borderWidth: PixelRatio.roundToNearestPixel(1),
+    borderRadius: PixelRatio.roundToNearestPixel(4),
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center"
@@ -272,83 +275,83 @@ module.exports = StyleSheet.create({
   languageToggleTextEn: {
     color: "black",
     backgroundColor: "transparent",
-    fontSize: 15,
-    marginTop: -1
+    fontSize: PixelRatio.roundToNearestPixel(15),
+    marginTop: -PixelRatio.roundToNearestPixel(1)
   },
   languageToggleTextHe: {
     color: "black",
     backgroundColor: "transparent",
-    fontSize: 19,
-    marginTop: 5,
+    fontSize: PixelRatio.roundToNearestPixel(19),
+    marginTop: PixelRatio.roundToNearestPixel(5),
   },
   navigationMenuTitleBox: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: 20
+    marginBottom: PixelRatio.roundToNearestPixel(20)
   },
   navigationMenuTitle: {
-    fontSize: 18,
-    flex: 1,
+    fontSize: PixelRatio.roundToNearestPixel(18),
+    flex: PixelRatio.roundToNearestPixel(1),
     textAlign: "center"
   },
   readerNavSection: {
-    marginVertical: 15
+    marginVertical: PixelRatio.roundToNearestPixel(15)
   },
   readerNavCategory: {
-    borderTopWidth: 4,
-    margin: 2,
-    paddingVertical: 10,
-    paddingHorizontal: 10,
-    flex: 1,
+    borderTopWidth: PixelRatio.roundToNearestPixel(4),
+    margin: PixelRatio.roundToNearestPixel(2),
+    paddingVertical: PixelRatio.roundToNearestPixel(10),
+    paddingHorizontal: PixelRatio.roundToNearestPixel(10),
+    flex: PixelRatio.roundToNearestPixel(1),
     justifyContent: "center",
     alignItems: "center",
   },
   readerNavSectionTitle: {
     alignSelf: "center",
-    marginBottom: 10,
-    fontSize: 13,
-    letterSpacing: 1,
+    marginBottom: PixelRatio.roundToNearestPixel(10),
+    fontSize: PixelRatio.roundToNearestPixel(13),
+    letterSpacing: PixelRatio.roundToNearestPixel(1),
   },
   category: {
-    marginBottom: 10
+    marginBottom: PixelRatio.roundToNearestPixel(10)
   },
   categoryTitle: {
-    flex: 1,
+    flex: PixelRatio.roundToNearestPixel(1),
     textAlign: "center",
-    letterSpacing: 1,
+    letterSpacing: PixelRatio.roundToNearestPixel(1),
   },
   categorySectionTitle: {
-    flex: 1,
+    flex: PixelRatio.roundToNearestPixel(1),
     textAlign: "center",
-    fontSize: 13,
-    marginVertical: 15
+    fontSize: PixelRatio.roundToNearestPixel(13),
+    marginVertical: PixelRatio.roundToNearestPixel(15)
   },
   textBlockLink: {
-    paddingVertical: 10,
-    paddingHorizontal: 10,
-    margin: 2,
+    paddingVertical: PixelRatio.roundToNearestPixel(10),
+    paddingHorizontal: PixelRatio.roundToNearestPixel(10),
+    margin: PixelRatio.roundToNearestPixel(2),
     alignItems: "center",
     justifyContent: "center",
-    flex: 1,
+    flex: PixelRatio.roundToNearestPixel(1),
   },
   navToggle: {
-    fontSize: 10,
-    paddingTop: 2
+    fontSize: PixelRatio.roundToNearestPixel(10),
+    paddingTop: PixelRatio.roundToNearestPixel(2)
   },
   navToggles: {
     flexDirection: "row",
     justifyContent: "center",
-    marginBottom: 15
+    marginBottom: PixelRatio.roundToNearestPixel(15)
   },
   navTogglesDivider: {
-    marginHorizontal: 7
+    marginHorizontal: PixelRatio.roundToNearestPixel(7)
   },
   textTocHeaderTitle: {
-    flex: 1,
-    paddingLeft: 10,
+    flex: PixelRatio.roundToNearestPixel(1),
+    paddingLeft: PixelRatio.roundToNearestPixel(10),
     textAlign: 'center',
-    letterSpacing: 1
+    letterSpacing: PixelRatio.roundToNearestPixel(1)
   },
   mainTextPanel: {
     flexWrap: "nowrap",
@@ -361,33 +364,33 @@ module.exports = StyleSheet.create({
     alignSelf: 'stretch'
   },
   verseNumber: {
-    paddingTop: 5,
+    paddingTop: PixelRatio.roundToNearestPixel(5),
     textAlign: 'center',
     fontFamily: "Montserrat",
     fontWeight: '400',
-    fontSize: 9,
-    width: 30,
+    fontSize: PixelRatio.roundToNearestPixel(9),
+    width: PixelRatio.roundToNearestPixel(30),
   },
   continuousVerseNumber: {
     textAlign: 'center',
     fontFamily: "Montserrat",
     fontWeight: '100',
-    fontSize: 10,
+    fontSize: PixelRatio.roundToNearestPixel(10),
   },
   continuousVerseNumberHolder: {
-    height: 19,
-    width: 19,
-    left:-25,
+    height: PixelRatio.roundToNearestPixel(19),
+    width: PixelRatio.roundToNearestPixel(19),
+    left:-PixelRatio.roundToNearestPixel(25),
   },
   continuousRowHolder: {
-    marginLeft: 30,
-    marginRight: 30,
+    marginLeft: PixelRatio.roundToNearestPixel(30),
+    marginRight: PixelRatio.roundToNearestPixel(30),
   },
   verseBullet: {
-    paddingTop: 7,
+    paddingTop: PixelRatio.roundToNearestPixel(7),
     textAlign: 'center',
-    fontSize: 7,
-    width: 30
+    fontSize: PixelRatio.roundToNearestPixel(7),
+    width: PixelRatio.roundToNearestPixel(30)
   },
   englishSystemFont: {
     fontFamily: "Montserrat",
@@ -395,31 +398,31 @@ module.exports = StyleSheet.create({
   },
   title: {
     fontFamily: "EB Garamond",
-    fontSize: 20
+    fontSize: PixelRatio.roundToNearestPixel(20)
   },
   verseContainer: {
     flexDirection: "column",
-    marginTop:10,
-    marginBottom:10,
+    marginTop:PixelRatio.roundToNearestPixel(10),
+    marginBottom:PixelRatio.roundToNearestPixel(10),
   },
   sectionContainer: {
     flexDirection: "column",
-    marginVertical: 10,
-    marginHorizontal: 30,
+    marginVertical: PixelRatio.roundToNearestPixel(10),
+    marginHorizontal: PixelRatio.roundToNearestPixel(30),
   },
   textColumn: {
     flexDirection: "row",
     alignItems: 'stretch'
   },
   sectionHeaderBox: {
-    flex: 1,
+    flex: PixelRatio.roundToNearestPixel(1),
     alignItems: "center",
-    marginHorizontal: 30,
+    marginHorizontal: PixelRatio.roundToNearestPixel(30),
   },
   sectionHeader: {
-    marginVertical: 25,
-    padding: 5,
-    borderBottomWidth: 4,
+    marginVertical: PixelRatio.roundToNearestPixel(25),
+    padding: PixelRatio.roundToNearestPixel(5),
+    borderBottomWidth: PixelRatio.roundToNearestPixel(4),
   },
   sectionHeaderText: {
     textAlign: "center"
@@ -427,7 +430,7 @@ module.exports = StyleSheet.create({
   textSegment: {
     flexDirection: "column",
     flexWrap:"wrap",
-    flex:.93
+    flex: PixelRatio.roundToNearestPixel(.93)
   },
   numberSegmentHolderEn: {
     flexDirection: "row",
@@ -436,45 +439,45 @@ module.exports = StyleSheet.create({
     flexDirection: "row-reverse",
   },
   rightContainer: {
-    flex: 1
+    flex: PixelRatio.roundToNearestPixel(1)
   },
   textTocNumberedSectionBox: {
-    marginBottom: 20
+    marginBottom: PixelRatio.roundToNearestPixel(20)
   },
   textTocNumberedSection: {
-    flex: 1,
+    flex: PixelRatio.roundToNearestPixel(1),
     flexDirection: "row",
     flexWrap: "wrap"
   },
   textTocNamedSection: {
-    marginBottom: 15,
-    marginHorizontal: 15
+    marginBottom: PixelRatio.roundToNearestPixel(15),
+    marginHorizontal: PixelRatio.roundToNearestPixel(15)
   },
   textTocSectionTitle: {
-    fontSize: 16,
-    marginBottom: 10
+    fontSize: PixelRatio.roundToNearestPixel(16),
+    marginBottom: PixelRatio.roundToNearestPixel(10)
   },
   sectionLink: {
-    height: 40,
-    minWidth: 40,
-    margin: 2,
+    height: PixelRatio.roundToNearestPixel(40),
+    minWidth: PixelRatio.roundToNearestPixel(40),
+    margin: PixelRatio.roundToNearestPixel(2),
     justifyContent: "center"
   },
   lineEnd: {
-    flex: 1,
-    height: 1
+    flex: PixelRatio.roundToNearestPixel(1),
+    height: PixelRatio.roundToNearestPixel(1)
   },
   englishText: {
     fontFamily: "EB Garamond",
     textAlign: 'left',
-    flex: -1,
-    fontSize: 16,
+    flex: -PixelRatio.roundToNearestPixel(1),
+    fontSize: PixelRatio.roundToNearestPixel(16),
   },
   hebrewText: {
     fontFamily: "Taamey Frank CLM",
     textAlign: 'right',
-    flex: -1,
-    fontSize: 20,
+    flex: -PixelRatio.roundToNearestPixel(1),
+    fontSize: PixelRatio.roundToNearestPixel(20),
   },
   hebrewSystemFont: {
     fontFamily: "Open Sans Hebrew"
@@ -496,22 +499,22 @@ module.exports = StyleSheet.create({
     textAlign: 'right'
   },
   blank: {
-    height: 0,
-    width: 0
+    height: PixelRatio.roundToNearestPixel(0),
+    width: PixelRatio.roundToNearestPixel(0)
   },
   readerOptions: {
-    width: 30,
-    height: 40,
+    width: PixelRatio.roundToNearestPixel(30),
+    height: PixelRatio.roundToNearestPixel(40),
   },
   loadingViewBox: {
-    flex: 1,
+    flex: PixelRatio.roundToNearestPixel(1),
     justifyContent: 'center',
     alignItems: 'center',
     alignSelf: 'stretch'
   },
   loadingView: {
     backgroundColor: "transparent",
-    height: 80,
+    height: PixelRatio.roundToNearestPixel(80),
   },
   twoBox: {
 
@@ -521,7 +524,7 @@ module.exports = StyleSheet.create({
     alignItems: "stretch"
   },
   twoBoxItem: {
-    flex: 1,
+    flex: PixelRatio.roundToNearestPixel(1),
     alignItems: "stretch",
   },
   centerText: {
@@ -531,7 +534,7 @@ module.exports = StyleSheet.create({
     textAlign: "justify"
   },
   spacedText: {
-    letterSpacing: 1
+    letterSpacing: PixelRatio.roundToNearestPixel(1)
   },
   rtlRow: {
     flexDirection: "row-reverse"
