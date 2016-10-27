@@ -5,13 +5,11 @@ import {
   ScrollView,
   ListView,
   Text,
-  TouchableOpacity,
-  Dimensions
+  TouchableOpacity
 } from 'react-native';
 const styles         = require('./Styles.js');
 const HTMLView       = require('react-native-htmlview');
 const TextListHeader = require('./TextListHeader');
-const ViewPort = Dimensions.get('window');
 const LinkFilter = require('./LinkFilter');
 
 const {
@@ -34,7 +32,8 @@ var TextList = React.createClass({
     filterIndex:     React.PropTypes.number,
     recentFilters:   React.PropTypes.array, /* of the form [{title,heTitle,refList}...] */
     columnLanguage:  React.PropTypes.oneOf(["english","hebrew","bilingual"]),
-    setTextListFlex: React.PropTypes.func.isRequired
+    onDragStart:     React.PropTypes.func.isRequired,
+    onDragMove:      React.PropTypes.func.isRequired
   },
   getInitialState: function() {
     Sefaria = this.props.Sefaria; //Is this bad practice to use getInitialState() as an init function
@@ -73,17 +72,6 @@ var TextList = React.createClass({
               loading={loading}
               isCommentaryBook={isCommentaryBook}
               key={rowId} />);
-  },
-  onStartShouldSetResponder: function(evt) {
-    console.log("starting");
-    return true;
-  },
-  onResponderMove: function(evt) {
-    let headerHeight = 75;
-    let flex = 1.0 - (evt.nativeEvent.pageY-headerHeight)/(ViewPort.height-headerHeight);
-    if (flex > 1.0) flex = 0.99;
-    console.log("moving!",evt.nativeEvent.pageY,ViewPort.height,flex);
-    this.props.setTextListFlex(flex);
   },
   render: function() {
     var isSummaryMode = this.props.filterIndex == null;
@@ -127,8 +115,8 @@ var TextList = React.createClass({
 
     var textListHeader = (
       <View
-        onStartShouldSetResponder={(evt)=>this.onStartShouldSetResponder(evt)}
-        onResponderMove={(evt)=>this.onResponderMove(evt)}>
+        onStartShouldSetResponder={(evt)=>this.props.onDragStart(evt)}
+        onResponderMove={(evt)=>this.props.onDragMove(evt)}>
 
         <TextListHeader
           Sefaria={Sefaria}

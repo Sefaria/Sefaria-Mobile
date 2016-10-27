@@ -43,7 +43,8 @@ var ReaderPanel = React.createClass({
     loading:           React.PropTypes.bool,
     textListVisible:   React.PropTypes.bool,
     textListFlex:      React.PropTypes.number,
-    setTextListFlex:   React.PropTypes.func.isRequired,
+    onTextListDragStart:React.PropTypes.func.isRequired,
+    onTextListDragMove:React.PropTypes.func.isRequired,
     openLinkCat:       React.PropTypes.func.isRequired,
     closeLinkCat:      React.PropTypes.func.isRequired,
     updateLinkCat:     React.PropTypes.func.isRequired,
@@ -301,7 +302,8 @@ var ReaderPanel = React.createClass({
                 loading={this.props.loadingLinks}
                 filterIndex={this.props.filterIndex}
                 recentFilters={this.props.linkRecentFilters}
-                setTextListFlex={this.props.setTextListFlex} />
+                onDragStart={this.props.onTextListDragStart}
+                onDragMove={this.props.onTextListDragMove} />
             </View> : null}
 
             {this.state.ReaderDisplayOptionsMenuVisible ?

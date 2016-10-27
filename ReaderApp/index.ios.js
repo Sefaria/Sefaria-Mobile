@@ -5,18 +5,20 @@
 'use strict';
 import React, { Component } from 'react';
 import {
+  ActivityIndicatorIOS,
+  Animated,
   AppRegistry,
-	StyleSheet,
-	ScrollView,
-	Text,
-	View,
+  Dimensions,
 	ListView,
 	Modal,
-	TextInput,
-	TouchableOpacity,
-	ActivityIndicatorIOS,
+  NetInfo,
+  ScrollView,
   StatusBar,
-  NetInfo
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
 } from 'react-native';
 
 var styles  = require('./Styles.js');
@@ -26,7 +28,7 @@ var themeBlack  = require('./ThemeBlack');
 var Sefaria     = require('./sefaria');
 var ReaderPanel = require('./ReaderPanel');
 var LinkFilter  = require('./LinkFilter');
-
+const ViewPort = Dimensions.get('window');
 
 var {
   LoadingView,
@@ -55,6 +57,7 @@ var ReaderApp = React.createClass({
             loadingTextHead: false,
             textListVisible: false,
             textListFlex: 0.6,
+            textListAnimating: false,
             data: null,
             interfaceLang: "english", // TODO check device settings for Hebrew: ### import {NativeModules} from 'react-native'; console.log(NativeModules.SettingsManager.settings.AppleLocale);
             filterIndex: null, /* index of filters in recentFilters */
@@ -384,8 +387,41 @@ var ReaderApp = React.createClass({
 
       this.setState({theme: this.state.theme,themeStr: themeStr});
     },
-    setTextListFlex: function(newFlex) {
-      this.setState({textListFlex:newFlex});
+    onTextListDragStart: function(evt) {
+      console.log("STARTTTT");
+      return !this.state.textListAnimating;
+    },
+    onTextListDragMove: function(evt) {
+      if (this.state.textListAnimating) return;
+
+      let headerHeight = 75;
+      let flex = 1.0 - (evt.nativeEvent.pageY-headerHeight)/(ViewPort.height-headerHeight);
+
+      var onTextListAnimate = function(animVal,value) {
+        //console.log("updating animation");
+        this.setState({textListFlex:value.value});
+        if (value.value > 0.999 || value.value < 0.001) {
+          animVal.stopAnimation();
+          let tempState = {textListAnimating:false,textListFlex: value.value > 0.999 ? 0.9999 : 0.3}; //important. if closing textlist, make sure to set the final flex to something visible
+          if (value.value < 0.001)
+            tempState.textListVisible = false;
+          this.setState(tempState);
+        }
+      };
+
+      if (flex > 0.9 || flex < 0.2) {
+        this.setState({textListAnimating:true});
+        let animVal = new Animated.Value(flex);
+        animVal.addListener(onTextListAnimate.bind(this,animVal));
+        Animated.timing(
+          animVal,
+          {toValue: flex > 0.9 ? 0.9999 : 0.0001}
+        ).start();
+        //console.log("STOPPP");
+        return;
+      }
+      //console.log("moving!",evt.nativeEvent.pageY,ViewPort.height,flex);
+      this.setState({textListFlex:flex});
     },
     render: function () {
         return (
@@ -424,7 +460,8 @@ var ReaderApp = React.createClass({
                     loadingTextHead={this.state.loadingTextHead}
                     textListVisible={this.state.textListVisible}
                     textListFlex={this.state.textListFlex}
-                    setTextListFlex={this.setTextListFlex}
+                    onTextListDragStart={this.onTextListDragStart}
+                    onTextListDragMove={this.onTextListDragMove}
                     loading={!this.state.loaded}
                     openLinkCat={this.openLinkCat}
                     closeLinkCat={this.closeLinkCat}
