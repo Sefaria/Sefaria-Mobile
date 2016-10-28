@@ -89,7 +89,7 @@ var ReaderPanel = React.createClass({
 
      //console.log(this.state.ReaderDisplayOptionsMenuVisible);
   },
-  onQueryChange: function(query,resetQuery) {
+  onQueryChange: function(query, resetQuery) {
     var newSearchPage = 0;
     if (!resetQuery)
       newSearchPage = this.state.currSearchPage+1;
@@ -97,15 +97,16 @@ var ReaderPanel = React.createClass({
 
     //var req = JSON.stringify(Sefaria.search.get_query_object(query,false,[],20,20*newSearchPage,"text"));
 
-    var query_props = {
+    var queryProps = {
       query: query,
       size: 20,
       from: 20*newSearchPage,
       type: "text",
       get_filters: false,
       applied_filters: []
-    }
-    Sefaria.search.execute_query(query_props)
+    };
+    console.log(queryProps)
+    Sefaria.search.execute_query(queryProps)
     .then((responseJson) => {
       var resultArray = resetQuery ? responseJson["hits"]["hits"] : this.state.searchQueryResult.concat(responseJson["hits"]["hits"]);
       //console.log("resultArray",resultArray);
