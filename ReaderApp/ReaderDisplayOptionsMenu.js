@@ -112,7 +112,7 @@ var ReaderDisplayOptionsMenu = React.createClass({
           }
 
         }
-        optionViews.push(<ReaderDisplayOptionsMenuRow content={row}/>);
+        optionViews.push(<ReaderDisplayOptionsMenuRow content={row} colorRow={isColor} theme={this.props.theme}/>);
       }
 
     }
@@ -127,8 +127,10 @@ var ReaderDisplayOptionsMenu = React.createClass({
 
 var ReaderDisplayOptionsMenuRow = React.createClass({
   render: function() {
+    //styles.readerDisplayOptionMenuRowNotColor is a hack required to solve the problem of react native / ios display not yet properly rendering borderRadius & borderWidth w/o 'smearing'
+    var tempStyles = this.props.colorRow ? [styles.readerDisplayOptionsMenuRow] : [styles.readerDisplayOptionsMenuRow,styles.readerDisplayOptionMenuRowNotColor,this.props.theme.readerDisplayOptionsMenuDivider];
     return (
-      <View style={styles.readerDisplayOptionsMenuRow}>
+      <View style={tempStyles}>
         {this.props.content}
       </View>
     );

@@ -57,10 +57,13 @@ module.exports = StyleSheet.create({
     justifyContent: "center",
     flexDirection: 'row',
     flex:1,
-    paddingTop: 10,
-    paddingBottom: 10,
+    marginTop: 10,
+    marginBottom: 10,
     marginLeft: 15,
     marginRight: 15,
+  },
+  readerDisplayOptionMenuRowNotColor: {
+    borderRadius: 10
   },
   readerDisplayOptionsMenuItem: {
     flex: 1,
@@ -76,11 +79,15 @@ module.exports = StyleSheet.create({
     borderRightWidth: 0,
   },
   readerDisplayOptionsMenuItemCenter: {
-    borderRightWidth: 0
+    borderRightWidth: 0,
+    borderLeftWidth: 0,
+    marginLeft: 1
   },
   readerDisplayOptionsMenuItemRight: {
     borderTopRightRadius: 10,
-    borderBottomRightRadius: 10
+    borderBottomRightRadius: 10,
+    borderLeftWidth: 0,
+    marginLeft: 1
   },
   readerDisplayOptionsMenuColor: {
     flex: 1,
