@@ -664,7 +664,15 @@ var TextColumn = React.createClass({
 
     //console.log("Rendering Row:", reactRef);
 
-    return <View style={styles.verseContainer} key={reactRef} ref={(view)=>this.rowRefs[reactRef]=view}>{segment}</View>;
+    return <View style={styles.verseContainer} key={reactRef} ref={(view)=>this.rowRefs[reactRef]=view}
+
+                                             onLayout={(event) => {
+                                       var {x, y, width, height} = event.nativeEvent.layout;
+                                       this.rowRefs[reactRef]._initY = y;
+                                       }
+                                     }
+
+    >{segment}</View>;
   },
   rowHasChanged: function(r1, r2) {
     // console.log(r1.changeString + " vs. " + r2.changeString);
