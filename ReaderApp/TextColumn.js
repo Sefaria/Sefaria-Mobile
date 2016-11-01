@@ -274,41 +274,85 @@ var TextColumn = React.createClass({
 
     if (!this.state.scrollingToTargetRef) { return; }
 
-    console.log("scrollToTarget", this.state.targetSectionRef);
-    var visibleSections = this.getVisibleSections();
-    console.log("visibleSections", visibleSections);
+    if (this.props.textFlow == 'segmented') {
 
-    if (visibleSections.indexOf(this.state.targetSectionRef) == -1) {
-      //if current section is not visible
-      console.log("scrolling one page down")
-      this.scrollOneScreenDown();
-    } else {
-      console.log("scrolling to target")
-      let ref = this.rowRefs[this.state.targetSectionRef+":1"];
-      let handle = findNodeHandle(ref);
-      if (!handle) {
-        console.log("Could't find ref handle!", this.state.targetSectionRef);
+      console.log("scrollToTarget", this.state.targetSectionRef);
+      var visibleSections = this.getVisibleSections();
+      console.log("visibleSections", visibleSections);
+
+      if (visibleSections.indexOf(this.state.targetSectionRef) == -1) {
+        //if current section is not visible
         console.log("scrolling one page down")
         this.scrollOneScreenDown();
-        return;
+      } else {
+        console.log("scrolling to target")
+        let ref = this.rowRefs[this.state.targetSectionRef + ":1"];
+        let handle = findNodeHandle(ref);
+        if (!handle) {
+          console.log("Could't find ref handle!", this.state.targetSectionRef);
+          console.log("scrolling one page down")
+          this.scrollOneScreenDown();
+          return;
+        }
+        queryLayoutByID(
+          handle,
+          null, /*Error callback that doesn't yet have a hook in native so doesn't get called */
+          (left, top, width, height, pageX, pageY) => {
+            //console.log(left, top, width, height, pageX, pageY)
+            this.refs._listView.scrollTo({
+              x: 0,
+              y: this.refs._listView.scrollProperties.offset + pageY - 120,
+              animated: false
+            });
+          }
+        );
+        this.setState({
+          scrollingToTargetRef: false,
+          targetSectionRef: ""
+        });
+        this.updateTitle();
       }
-      queryLayoutByID(
-         handle,
-         null, /*Error callback that doesn't yet have a hook in native so doesn't get called */
-         (left, top, width, height, pageX, pageY) => {
-           //console.log(left, top, width, height, pageX, pageY)
-           this.refs._listView.scrollTo({
-             x: 0,
-             y: this.refs._listView.scrollProperties.offset+pageY-120,
-             animated: false
-           });
-         }
-      );
-      this.setState({
-        scrollingToTargetRef: false,
-        targetSectionRef: ""
-      });
-      this.updateTitle();
+    }
+
+    else /*if this.props.textFlow == 'continuous' */ {
+
+      var ref = this.rowRefs[this.props.sectionArray[0]+":"+this.props.data[0].length];
+      if (ref) {
+        if (ref._initY != null) {
+          console.log(ref._initY)
+          this.refs._listView.scrollTo({
+            x: 0,
+            y: ref._initY,
+            animated: false
+          });
+          this.setState({
+            scrollingToTargetRef: false,
+            targetSectionRef: ""
+          });
+        }
+
+      else {
+          console.log(this.props.sectionArray[0]+":"+this.props.data[0].length)
+        console.log(this.props.data[0])
+        console.log(this.rowRefs)
+        this.refs._listView.scrollTo({
+            x: 0,
+            y: 100,
+            animated: false
+          });
+
+          return
+      }
+          this.updateTitleALTERNATE();
+
+      }
+
+      else {
+        console.log(this.props.data[0])
+        console.log(this.rowRefs)
+        console.log(this.refs._listView.scrollProperties.contentLength)
+      }
+
     }
 
   },
