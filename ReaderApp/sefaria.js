@@ -387,7 +387,7 @@ Sefaria = {
         })
       }
     },
-    linkSummary: function(sectionRef,tempLinks) {
+    linkSummary: function(sectionRef, tempLinks) {
         return new Promise(function(resolve, reject) {
           // Returns an ordered array summarizing the link counts by category and text
           // Takes an array of links which are of the form { "category", "sourceHeRef", "sourceRef", "index_title"}
@@ -414,7 +414,7 @@ Sefaria = {
               {
                   count:    1,
                   title:    Sefaria.getTitle(link.sourceRef, isCommentary, false),
-                  heTitle:  Sefaria.getTitle(link.sourceHeRef, isCommentary, true,link.sourceRef),
+                  heTitle:  Sefaria.getTitle(link.sourceHeRef, isCommentary, true, link.sourceRef),
                   category: link.category,
                   refList:  [link.sourceRef]
               };
@@ -442,9 +442,7 @@ Sefaria = {
             }
           }
 
-
           // Convert object into ordered list
-
           var summaryList = Object.keys(summary).map(function(category) {
             var categoryData = summary[category];
             categoryData.category = category;
@@ -496,8 +494,13 @@ Sefaria = {
 
           });
 
-          //All category should be last
+          // Attach data to "All" category in last position
           summaryList[summaryList.length-1].refList = allRefs;
+
+          // Remove "Commentary" section if it is empty or only contains greyed out items
+          if (summaryList[0].books.length == 0) { summaryList = summaryList.slice(1); }
+          // Remove "All" section if it's count is zero
+          if (summaryList[summaryList.length-1].count == 0) { summaryList = summaryList.slice(0, -1); }
 
           resolve(summaryList);
         });

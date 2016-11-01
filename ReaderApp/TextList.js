@@ -14,7 +14,8 @@ const LinkFilter = require('./LinkFilter');
 
 const {
   CategoryColorLine,
-  TwoBox
+  TwoBox,
+  LoadingView,
 } = require('./Misc.js');
 
 
@@ -109,6 +110,7 @@ var TextList = React.createClass({
           </View>);
 
       });
+      if (viewList.length == 0) { viewList = <EmptyLinksMessage theme={this.props.theme} />; }
     } else {
       var dataSourceRows = this.state.dataSource.cloneWithRows(this.props.linkContents);
     }
@@ -132,18 +134,16 @@ var TextList = React.createClass({
     );
 
     if (isSummaryMode) {
-      if (this.props.loading) {
-        var content = <Text>Loading...</Text>;
-      } else {
-        var content = (<ScrollView style={styles.textListSummaryScrollView}>{viewList}</ScrollView>);
-      }
+      var content = this.props.loading ? 
+                      <LoadingView /> :
+                      <ScrollView style={styles.textListSummaryScrollView}>{viewList}</ScrollView>;
       return (
         <View style={[styles.textListSummary, this.props.theme.textListSummary]}>
           {textListHeader}
           {content}
         </View>);
 
-    } else if (!this.state.isNewSegment){
+    } else if (!this.state.isNewSegment) {
       return (
       <View style={[styles.textListContentOuter, this.props.theme.textListContentOuter]}>
         {textListHeader}

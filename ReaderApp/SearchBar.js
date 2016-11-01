@@ -32,8 +32,10 @@ var SearchBar = React.createClass({
     return {text: this.props.query || ""};
   },
   submitSearch: function() {
-    this.props.setIsNewSearch(true);
-    this.props.onQueryChange(this.state.text, true);
+    if (this.state.text) {
+      this.props.setIsNewSearch(true);
+      this.props.onQueryChange(this.state.text, true);
+    }
   },
   render: function() {
     var textInputStyle = [styles.searchInput, this.props.theme.text];
