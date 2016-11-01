@@ -194,6 +194,7 @@ var ReaderPanel = React.createClass({
             settings={this.state.settings}
             interfaceLang={this.props.interfaceLang}
             theme={this.props.theme}
+            themeStr={this.props.themeStr}
             Sefaria={Sefaria} />);
         break;
       case ("text toc"):
@@ -212,6 +213,7 @@ var ReaderPanel = React.createClass({
         return(
           <SearchPage
             theme={this.props.theme}
+            themeStr={this.props.themeStr}
             hasInternet={this.props.hasInternet}
             closeNav={this.props.closeMenu}
             onQueryChange={this.onQueryChange}

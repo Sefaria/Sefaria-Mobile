@@ -23,6 +23,7 @@ var ReaderNavigationMenu = React.createClass({
   // The Navigation menu for browsing and searching texts
   propTypes: {
     theme:          React.PropTypes.object.isRequired,
+    themeStr:       React.PropTypes.string.isRequired,
     categories:     React.PropTypes.array.isRequired,
     settings:       React.PropTypes.object.isRequired,
     interfaceLang:  React.PropTypes.oneOf(["english","hebrew"]).isRequired,
@@ -110,6 +111,7 @@ var ReaderNavigationMenu = React.createClass({
               <CategoryColorLine category={"Other"} />
               <SearchBar
                 theme={this.props.theme}
+                themeStr={this.props.themeStr}
                 closeNav={this.props.closeNav}
                 onQueryChange={this.props.openSearch}
                 setIsNewSearch={this.props.setIsNewSearch}

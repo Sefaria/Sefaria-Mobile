@@ -45,8 +45,8 @@ var TextListHeader = React.createClass({
 					);
 		});
     if (this.props.isSummaryMode) {
-      return (<View style={[styles.textListHeader, this.props.theme.textListHeader, styles.textListHeaderSummary]}>
-                <Text style={[styles.textListHeaderSummaryText, this.props.theme.secondaryText]}>CONNECTIONS</Text>
+      return (<View style={[styles.textListHeader, styles.textListHeaderSummary, this.props.theme.textListHeader]}>
+                <Text style={[styles.textListHeaderSummaryText, this.props.theme.textListHeaderSummaryText]}>CONNECTIONS</Text>
               </View>);
     } else {
       return (

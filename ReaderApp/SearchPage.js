@@ -17,7 +17,8 @@ var {
 
 var SearchPage = React.createClass({
 	propTypes: {
-		theme:         React.PropTypes.object,
+		theme:         React.PropTypes.object.isRequired,
+		themeStr:      React.PropTypes.string.isRequired,
 		hasInternet:   React.PropTypes.bool,
 		closeNav:      React.PropTypes.func.isRequired,
 		onQueryChange: React.PropTypes.func.isRequired,
@@ -60,8 +61,8 @@ var SearchPage = React.createClass({
     	return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 	},
 	render: function() {
-		var status = this.props.hasInternet ? 
-						this.props.loadingQuery ? "Loading..." 
+		var status = this.props.hasInternet ?
+						this.props.loadingQuery ? "Loading..."
 						: this.numberWithCommas(this.props.numResults) + " Results"
 					: "Connect to the internet to search.";
 
@@ -70,6 +71,7 @@ var SearchPage = React.createClass({
 				<CategoryColorLine category={"Other"} />
 				<SearchBar
 					theme={this.props.theme}
+					themeStr={this.props.themeStr}
 					closeNav={this.props.closeNav}
 					onQueryChange={this.props.onQueryChange}
 					query={this.props.query}

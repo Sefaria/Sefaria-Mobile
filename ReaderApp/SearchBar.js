@@ -20,6 +20,7 @@ var styles = require('./Styles.js');
 var SearchBar = React.createClass({
   propTypes:{
     theme:           React.PropTypes.object.isRequired,
+    themeStr:        React.PropTypes.string.isRequired,
     closeNav:        React.PropTypes.func.isRequired,
     onQueryChange:   React.PropTypes.func.isRequired,
     setIsNewSearch:  React.PropTypes.func.isRequired,
@@ -36,10 +37,11 @@ var SearchBar = React.createClass({
   },
   render: function() {
     var textInputStyle = [styles.searchInput, this.props.theme.text];
-    if (this.state.text == "") { 
-      textInputStyle = textInputStyle.concat([styles.searchInputPlaceholder, this.props.theme.searchInputPlaceholder]);
+    if (this.state.text == "") {
+      textInputStyle = textInputStyle.concat([styles.searchInputPlaceholder]);
     }
-    
+    //TODO sorry for the hard-coded colors. because the prop placeholderTextColor of TextInput doesn't take a style and instead requires an explicit color string, I had to do it this way
+    var placeholderTextColor = this.props.themeStr == "black" ? "#CCC" : "#999";
     return (
       <View style={[styles.header, this.props.theme.header]}>
         <CloseButton onPress={this.props.closeNav} theme={this.props.theme}/>
@@ -48,12 +50,13 @@ var SearchBar = React.createClass({
           style={textInputStyle}
           onChangeText={(text) => this.setState({text})}
           onSubmitEditing={this.submitSearch}
-          value={this.state.text} 
-          placeholder={"Search"} />
-        {this.props.toggleLanguage ? 
-          <LanguageToggleButton 
-            theme={this.props.theme} 
-            toggleLanguage={this.props.toggleLanguage} 
+          value={this.state.text}
+          placeholder={"Search"}
+          placeholderTextColor={placeholderTextColor} />
+        {this.props.toggleLanguage ?
+          <LanguageToggleButton
+            theme={this.props.theme}
+            toggleLanguage={this.props.toggleLanguage}
             language={this.props.language}
             margin={true} />
            : null}

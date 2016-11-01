@@ -14,7 +14,9 @@ var Colors = {
   textBackground: "#F8FCF8",
   textSectionTitleBorder: "#e6e5e6",
   textSegmentHighlight: "#e9e9e7",
-  button: "#bfbfbf"
+  textListHeader: "#999",
+  button: "#bfbfbf",
+  buttonBackground: "#afafaf"
 }
 
 module.exports = StyleSheet.create({
@@ -60,9 +62,12 @@ module.exports = StyleSheet.create({
   textListSummary: {
     backgroundColor: Colors.mainBackground,
   },
+  textListHeaderSummaryText: {
+    color: Colors.secondaryText
+  },
   textListHeader: {
-    backgroundColor: Colors.mainBackground,
-    borderBottomColor: Colors.border,
+    backgroundColor: Colors.textListHeader,
+    borderColor: Colors.border,
   },
   textListHeaderItemText: {
     color: Colors.secondaryText
@@ -83,7 +88,7 @@ module.exports = StyleSheet.create({
     borderColor: Colors.border
   },
   searchResultSummaryText: {
-    color: Colors.mainText,    
+    color: Colors.mainText,
   },
   menu: {
     backgroundColor: Colors.mainBackground
@@ -92,7 +97,7 @@ module.exports = StyleSheet.create({
     borderColor: Colors.border
   },
   readerNavCategory: {
-    backgroundColor: Colors.mainForeground
+    backgroundColor: Colors.buttonBackground
   },
   readerNavSectionTitle: {
     color: Colors.secondaryText
@@ -101,7 +106,7 @@ module.exports = StyleSheet.create({
     color: Colors.secondaryText
   },
   textBlockLink: {
-    backgroundColor: Colors.mainForeground
+    backgroundColor: Colors.buttonBackground
   },
   navToggle: {
     color: Colors.secondaryText
