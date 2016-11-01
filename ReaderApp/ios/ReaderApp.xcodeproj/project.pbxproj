@@ -30,6 +30,7 @@
 		A147939F1DB8037000B6572F /* Montserrat-Thin.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A14793971DB8037000B6572F /* Montserrat-Thin.ttf */; };
 		A14793A01DB8037000B6572F /* OpenSansHebrew-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A14793981DB8037000B6572F /* OpenSansHebrew-Regular.ttf */; };
 		A14793A11DB8037000B6572F /* TaameyFrankCLM-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A14793991DB8037000B6572F /* TaameyFrankCLM-Medium.ttf */; };
+		A15D510F1DC917640093676D /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = A15D510E1DC917640093676D /* LaunchScreen.xib */; };
 		A1C678201DB7FE4100392A83 /* libRNFS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A1C6781F1DB7FD4600392A83 /* libRNFS.a */; };
 		A1C678221DB7FF8000392A83 /* libRNFS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A1C6781F1DB7FD4600392A83 /* libRNFS.a */; };
 		A1C678231DB7FF8000392A83 /* libRNZipArchive.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A1C678191DB7FD0100392A83 /* libRNZipArchive.a */; };
@@ -161,6 +162,7 @@
 		A14793971DB8037000B6572F /* Montserrat-Thin.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Montserrat-Thin.ttf"; sourceTree = "<group>"; };
 		A14793981DB8037000B6572F /* OpenSansHebrew-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "OpenSansHebrew-Regular.ttf"; sourceTree = "<group>"; };
 		A14793991DB8037000B6572F /* TaameyFrankCLM-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "TaameyFrankCLM-Medium.ttf"; sourceTree = "<group>"; };
+		A15D510E1DC917640093676D /* LaunchScreen.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = LaunchScreen.xib; sourceTree = "<group>"; };
 		A1C678141DB7FD0000392A83 /* RNZipArchive.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RNZipArchive.xcodeproj; path = "../node_modules/react-native-zip-archive/RNZipArchive.xcodeproj"; sourceTree = "<group>"; };
 		A1C6781A1DB7FD4600392A83 /* RNFS.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RNFS.xcodeproj; path = "../node_modules/react-native-fs/RNFS.xcodeproj"; sourceTree = "<group>"; };
 		A1C678251DB8000A00392A83 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
@@ -276,6 +278,7 @@
 			isa = PBXGroup;
 			children = (
 				008F07F21AC5B25A0029DE68 /* main.jsbundle */,
+				A15D510E1DC917640093676D /* LaunchScreen.xib */,
 				13B07FAF1A68108700A75B9A /* AppDelegate.h */,
 				13B07FB01A68108700A75B9A /* AppDelegate.m */,
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
@@ -614,6 +617,7 @@
 				A14793A01DB8037000B6572F /* OpenSansHebrew-Regular.ttf in Resources */,
 				A147939F1DB8037000B6572F /* Montserrat-Thin.ttf in Resources */,
 				A147939D1DB8037000B6572F /* Montserrat-Light.ttf in Resources */,
+				A15D510F1DC917640093676D /* LaunchScreen.xib in Resources */,
 				A14793851DB801F100B6572F /* sources in Resources */,
 				A147939B1DB8037000B6572F /* Montserrat-Black.ttf in Resources */,
 				A147939C1DB8037000B6572F /* Montserrat-Bold.ttf in Resources */,
