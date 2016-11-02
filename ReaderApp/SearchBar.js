@@ -59,8 +59,7 @@ var SearchBar = React.createClass({
           <LanguageToggleButton
             theme={this.props.theme}
             toggleLanguage={this.props.toggleLanguage}
-            language={this.props.language}
-            margin={true} />
+            language={this.props.language} />
            : null}
       </View>
     );

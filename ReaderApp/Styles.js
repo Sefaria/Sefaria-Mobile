@@ -130,6 +130,7 @@ module.exports = StyleSheet.create({
   displaySettingsButton: {
     width: 25,
     height: 25,
+    marginRight: 4
   },
   closeButton: {
     width: 16,
@@ -137,7 +138,7 @@ module.exports = StyleSheet.create({
   },
   headerButtonSearch: {
     width: 24,
-    marginRight: 18
+    marginRight: 10,
   },
   searchButton: {
     width: 17,
@@ -184,13 +185,13 @@ module.exports = StyleSheet.create({
     flex: 1,
     fontSize: 14,
     fontStyle: "normal",
+    fontFamily: "EB Garamond",
     paddingTop: 0,
     backgroundColor: "transparent"
   },
   searchInputPlaceholder: {
     fontStyle: "italic",
     fontSize: 16,
-    fontFamily: "EB Garamond",
     paddingTop: 5
   },
   searchPage: {
@@ -221,7 +222,7 @@ module.exports = StyleSheet.create({
     paddingVertical: 20,
   },
   textListSummarySection: {
-    marginBottom: 14
+    marginBottom: 22
   },
   textListContentOuter: {
     flex: 1,
@@ -266,13 +267,16 @@ module.exports = StyleSheet.create({
   },
   menuContent: {
     paddingHorizontal: 10,
-    paddingVertical: 20
+    paddingTop: 20,
+    paddingBottom: 40,
   },
   languageToggle: {
     width: 30,
     height: 30,
+    marginRight: 10,
     borderWidth: 1,
     borderRadius: 4,
+
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center"
@@ -296,7 +300,7 @@ module.exports = StyleSheet.create({
     marginBottom: 20
   },
   navigationMenuTitle: {
-    fontSize: 18,
+    fontSize: 19,
     flex: 1,
     textAlign: "center"
   },
@@ -314,7 +318,7 @@ module.exports = StyleSheet.create({
   },
   readerNavSectionTitle: {
     alignSelf: "center",
-    marginBottom: 10,
+    marginBottom: 15,
     fontSize: 13,
     letterSpacing: 1,
   },
@@ -347,7 +351,7 @@ module.exports = StyleSheet.create({
   navToggles: {
     flexDirection: "row",
     justifyContent: "center",
-    marginBottom: 15
+    marginBottom: 22
   },
   navTogglesDivider: {
     marginHorizontal: 7

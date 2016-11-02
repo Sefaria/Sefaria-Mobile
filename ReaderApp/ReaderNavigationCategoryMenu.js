@@ -88,8 +88,7 @@ var ReaderNavigationCategoryMenu = React.createClass({
                   <LanguageToggleButton
                     theme={this.props.theme}
                     toggleLanguage={this.props.toggleLanguage}
-                    language={language}
-                    margin={true} />
+                    language={language} />
               </View>
 
               <ScrollView style={styles.menuContent}>

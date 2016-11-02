@@ -137,6 +137,8 @@ var ReaderNavigationMenu = React.createClass({
                   openRef={this.props.openRef}
                   language={language}
                   interfaceLang={this.props.interfaceLang} />
+
+                <View style={{height: 20}} />
               </ScrollView>
             </View>);
     }

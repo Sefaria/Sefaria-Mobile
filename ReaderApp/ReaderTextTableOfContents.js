@@ -59,7 +59,7 @@ var ReaderTextTableOfContents = React.createClass({
         <View style={[styles.header, this.props.theme.header]}>
           <CloseButton onPress={this.props.close} theme={this.props.theme} />
           <Text style={[styles.textTocHeaderTitle, styles.textCenter, this.props.theme.text]}>TABLE OF CONTENTS</Text>
-                            <LanguageToggleButton theme={this.props.theme} toggleLanguage={this.props.toggleLanguage} language={this.props.contentLang} margin={true}/>
+                            <LanguageToggleButton theme={this.props.theme} toggleLanguage={this.props.toggleLanguage} language={this.props.contentLang} />
         </View>
 
         <ScrollView style={styles.menuContent}>
