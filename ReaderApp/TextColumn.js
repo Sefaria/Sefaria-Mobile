@@ -157,7 +157,7 @@ var TextColumn = React.createClass({
 
       if (i == currentSectionSegmentsPos.length -1 && currentSectionSegmentsPos[i][1] + this.state.continuousSectionOffset < this.refs._listView.scrollProperties.offset && nameOfSecondSection != null ) {
         console.log('next section? '+nameOfFirstSection)
-        this.state.continuousSectionOffset = this.refs._listView.scrollProperties.offset+100; //TODO -- this needs to be some value that increases as number of loaded sections increases. Not sure why. Probably b/c _initY is relative to parent view and we're not measuring that yet
+        this.state.continuousSectionOffset = this.refs._listView.scrollProperties.offset+100; //the 100 is to accommodate the section header where _initY's offset is relatively measured at
 
       }
 
