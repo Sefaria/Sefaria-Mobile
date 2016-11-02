@@ -130,18 +130,32 @@ var TextColumn = React.createClass({
             return a[1] - b[1]
         }
     )
-//    console.log(currentSectionSegmentsPos)
 
 
     for (var i = 0; i < currentSectionSegmentsPos.length; i++) {
       if (currentSectionSegmentsPos[i][1] + this.state.continuousSectionOffset >= this.refs._listView.scrollProperties.offset) {
 
+        if (i == 0 && direction == 'up' && nameOfSecondSection != null ) {
+          console.log('scrolling up? '+nameOfFirstSection)
+          this.state.continuousSectionOffset = this.refs._listView.scrollProperties.offset - currentSectionSegmentsPos[currentSectionSegmentsPos.length-1][1]
+          
+        }
+
+        if (i == currentSectionSegmentsPos.length -1) {
+          console.log('loading last one!')
+          console.log(currentSectionSegmentsPos[i][1] + this.state.continuousSectionOffset+ " "+ this.refs._listView.scrollProperties.offset)
+        }
+
+
         if (Math.abs(this.previousY - e.nativeEvent.contentOffset.y) > 40) {
           this.previousY = e.nativeEvent.contentOffset.y;
           return;
         }
-/*
-        console.log(currentSectionSegmentsPos[i][0])
+
+
+        console.log(currentSectionSegmentsPos[i][0]+ " "+ this.state.continuousSectionOffset)
+
+        /*
         console.log("total sections & rows " + this.refs._listView.props.dataSource.getRowAndSectionCount())
         console.log("curRenderedRows " + this.refs._listView.state.curRenderedRowsCount)
         console.log(this.props.sectionArray)
@@ -155,7 +169,7 @@ var TextColumn = React.createClass({
 
       }
 
-      if (i == currentSectionSegmentsPos.length -1 && currentSectionSegmentsPos[i][1] + this.state.continuousSectionOffset < this.refs._listView.scrollProperties.offset && nameOfSecondSection != null ) {
+      if (i == currentSectionSegmentsPos.length -1 && currentSectionSegmentsPos[i][1] + this.state.continuousSectionOffset <= this.refs._listView.scrollProperties.offset && nameOfSecondSection != null ) {
         console.log('next section? '+nameOfFirstSection)
         this.state.continuousSectionOffset = this.refs._listView.scrollProperties.offset+100; //the 100 is to accommodate the section header where _initY's offset is relatively measured at
 
