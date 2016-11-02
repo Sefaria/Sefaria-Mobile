@@ -521,7 +521,7 @@ var TextColumn = React.createClass({
   _standardizeOffsetRef: function(ref) {
     // Since the code for setting this.rowRefs assumes we can construct a ref by adding ":" + segment index,
     // we generate weird refs internally for depth 1 texts like "Sefer HaBahir:2"
-    // This functions returns that weird format for depth1 texts by assuming that ref
+    // This functions returns that weird format for depth1 texts by assuming that `ref`
     // is segment level (which offsetRefs must be), so absense of ":" means it is depth 1.
     if (ref && ref.indexOf(":") == -1 ) {
       var lastSpace = ref.lastIndexOf(" ");
@@ -537,7 +537,8 @@ var TextColumn = React.createClass({
   },
   inlineSectionHeader: function(ref) {
     // Returns a string to be used as an inline section header for `ref`.
-    var trimmer = new RegExp("^" + this.props.textTitle + ",? ");
+    var heTitle = Sefaria.index(this.props.textTitle).heTitle;
+    var trimmer = new RegExp("^(" + this.props.textTitle + "|" + heTitle + "),? ");
     return ref.replace(trimmer, '');
   },
   generateDataSource: function(props) {
@@ -606,8 +607,9 @@ var TextColumn = React.createClass({
     return <View style={[styles.verseContainer, styles.continuousRowHolder]} key={sectionRef}>
                 <SectionHeader
                                 title={this.props.columnLanguage == "hebrew" ?
-                                        this.props.sectionHeArray[rowData.section] :
+                                        this.inlineSectionHeader(this.props.sectionHeArray[rowData.section]) :
                                         this.inlineSectionHeader(this.props.sectionArray[rowData.section])}
+                                isHebrew={this.props.columnLanguage == "hebrew"}
                                 theme={this.props.theme}
                                 key={rowData.section+"header"} />
 
@@ -623,7 +625,10 @@ var TextColumn = React.createClass({
       var columnLanguage = Sefaria.util.getColumnLanguageWithContent(this.props.columnLanguage, currSegData.text, currSegData.he);
       var refSection = rowData.section + ":" + i;
       var reactRef = this.props.sectionArray[rowData.section] + ":" + this.props.data[rowData.section][i].segmentNumber;
-      var style = currSegData.highlight ? [styles.continuousVerseNumber,this.props.theme.verseNumber,this.props.theme.segmentHighlight] : [styles.continuousVerseNumber,this.props.theme.verseNumber];
+      var style = [styles.continuousVerseNumber, 
+                   this.props.columnLanguage == "hebrew" ? styles.hebrewVerseNumber : null,
+                   this.props.theme.verseNumber,
+                   currSegData.highlight ? this.props.theme.segmentHighlight : null];
 
       segmentText.push(<View ref={this.props.sectionArray[rowData.section] + ":" + currSegData.segmentNumber}
                                      style={styles.continuousVerseNumberHolder}
@@ -641,8 +646,11 @@ var TextColumn = React.createClass({
                                        }
                                        }
                                      }
-                                     key={reactRef+"|segment-number"}><Text style={style}>
-        {currSegData.segmentNumber}</Text>
+                                     key={reactRef+"|segment-number"}>
+                          <Text style={style}>
+                            {Sefaria.showSegmentNumbers(this.props.textTitle) ? (this.props.columnLanguage == "hebrew" ?
+                              Sefaria.hebrew.encodeHebrewNumeral(currSegData.segmentNumber) :
+                              currSegData.segmentNumber) : ""}</Text>
       </View>);
 
 
@@ -697,14 +705,16 @@ var TextColumn = React.createClass({
     if (rowData.row == 0) {
       segment.push(<SectionHeader
                       title={this.props.columnLanguage == "hebrew" ?
-                              this.props.sectionHeArray[rowData.section] :
+                              this.inlineSectionHeader(this.props.sectionHeArray[rowData.section]) :
                               this.inlineSectionHeader(this.props.sectionArray[rowData.section])}
+                      isHebrew={this.props.columnLanguage == "hebrew"}
                       theme={this.props.theme}
                       key={rowData.section+"header"} />);
     }
 
+
     var numberMargin = (<Text ref={this.props.sectionArray[rowData.section] + ":"+ rowData.content.segmentNumber}
-                                   style={[styles.verseNumber, this.props.theme.verseNumber]}
+                                   style={[styles.verseNumber, this.props.columnLanguage == "hebrew" ? styles.hebrewVerseNumber : null, this.props.theme.verseNumber]}
                                    key={reactRef + "|segment-number"}>
                         {Sefaria.showSegmentNumbers(this.props.textTitle) ? (this.props.columnLanguage == "hebrew" ?
                          Sefaria.hebrew.encodeHebrewNumeral(rowData.content.segmentNumber) :
@@ -830,13 +840,14 @@ var TextColumn = React.createClass({
 
 var SectionHeader = React.createClass({
   propTypes: {
-    title: React.PropTypes.string.isRequired,
-    theme: React.PropTypes.object.isRequired,
+    title:    React.PropTypes.string.isRequired,
+    isHebrew: React.PropTypes.bool.isRequired,
+    theme:    React.PropTypes.object.isRequired,
   },
   render: function() {
     return <View style={styles.sectionHeaderBox}>
             <View style={[styles.sectionHeader, this.props.theme.sectionHeader]}>
-              <Text style={[styles.sectionHeaderText, this.props.theme.sectionHeaderText]}>{this.props.title}</Text>
+              <Text style={[styles.sectionHeaderText, this.props.isHebrew ? styles.hebrewSectionHeaderText : null, this.props.theme.sectionHeaderText]}>{this.props.title}</Text>
             </View>
           </View>;
   }

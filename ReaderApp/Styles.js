@@ -248,7 +248,7 @@ module.exports = StyleSheet.create({
     alignItems: "center",
   },
   textListCitation: {
-    marginBottom: 2,
+    marginBottom: 4,
   },
   noLinks: {
     flex:1,
@@ -380,16 +380,19 @@ module.exports = StyleSheet.create({
     fontSize: 9,
     width: 30,
   },
+  hebrewVerseNumber: {
+    fontSize: 11,
+  },
   continuousVerseNumber: {
     textAlign: 'center',
     fontFamily: "Montserrat",
-    fontWeight: '100',
-    fontSize: 10,
+    fontWeight: '400',
+    fontSize: 9,
   },
   continuousVerseNumberHolder: {
     height: 19,
     width: 19,
-    left:-25,
+    left: -25,
   },
   continuousRowHolder: {
     marginLeft: 30,
@@ -434,7 +437,11 @@ module.exports = StyleSheet.create({
     borderBottomWidth: 4,
   },
   sectionHeaderText: {
-    textAlign: "center"
+    textAlign: "center",
+    fontSize: 14,
+  },
+  hebrewSectionHeaderText: {
+    fontSize: 17,
   },
   textSegment: {
     flexDirection: "column",
@@ -484,6 +491,7 @@ module.exports = StyleSheet.create({
   },
   hebrewText: {
     fontFamily: "Taamey Frank CLM",
+    writingDirection: "rtl",
     textAlign: 'right',
     flex: -1,
     fontSize: 20,
