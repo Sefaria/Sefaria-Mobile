@@ -651,8 +651,9 @@ var TextColumn = React.createClass({
                       </Text>);
 
     let bulletOpacity = (rowData.numLinks-20) / (70-20);
-    if (bulletOpacity < 0.3) bulletOpacity = 0.3;
-    else if (bulletOpacity > 0.8) bulletOpacity = 0.8;
+    if (rowData.numLinks == 0) { bulletOpacity = 0; }
+    else if (bulletOpacity < 0.3) { bulletOpacity = 0.3; }
+    else if (bulletOpacity > 0.8) { bulletOpacity = 0.8; }
 
     var bulletMargin = (<Text ref={this.props.sectionArray[rowData.section] + ":"+ rowData.content.segmentNumber}
                                    style={[styles.verseBullet, this.props.theme.verseBullet, {opacity:bulletOpacity}]}
