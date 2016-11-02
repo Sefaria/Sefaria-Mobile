@@ -111,10 +111,70 @@ var TextColumn = React.createClass({
     this.offset = currentOffset;
 
 
+    var visibleSections = this.getVisibleSections();
+    var nameOfFirstSection = visibleSections[0];
+    var nameOfSecondSection = visibleSections[1] || null;
+
+    var curRowRefs =  this.rowRefs
+
+    var currentSectionSegmentsPos = [];
+
+
+    for (var eachRow in curRowRefs) {
+      if (eachRow.split(":")[0] == nameOfFirstSection) {
+        currentSectionSegmentsPos.push([eachRow, this.rowRefs[eachRow]._initY])
+      }
+    }
+    currentSectionSegmentsPos.sort(
+        function(a, b) {
+            return a[1] - b[1]
+        }
+    )
+//    console.log(currentSectionSegmentsPos)
+
+
+    for (var i = 0; i < currentSectionSegmentsPos.length; i++) {
+      if (currentSectionSegmentsPos[i][1] + this.state.continuousSectionOffset >= this.refs._listView.scrollProperties.offset) {
+
+        if (Math.abs(this.previousY - e.nativeEvent.contentOffset.y) > 40) {
+          this.previousY = e.nativeEvent.contentOffset.y;
+          return;
+        }
+/*
+        console.log(currentSectionSegmentsPos[i][0])
+        console.log("total sections & rows " + this.refs._listView.props.dataSource.getRowAndSectionCount())
+        console.log("curRenderedRows " + this.refs._listView.state.curRenderedRowsCount)
+        console.log(this.props.sectionArray)
+*/
+
+        var sectionToLoad = this.props.sectionArray.indexOf(currentSectionSegmentsPos[i][0].split(":")[0]);
+        var segmentToLoad = parseInt(currentSectionSegmentsPos[i][0].split(":")[1])-1;
+        this.props.textSegmentPressed(sectionToLoad, segmentToLoad, currentSectionSegmentsPos[i][0]);
+
+        return;
+
+      }
+
+      if (i == currentSectionSegmentsPos.length -1 && currentSectionSegmentsPos[i][1] + this.state.continuousSectionOffset < this.refs._listView.scrollProperties.offset && nameOfSecondSection != null ) {
+        console.log('next section? '+nameOfFirstSection)
+        this.state.continuousSectionOffset = this.refs._listView.scrollProperties.offset+100; //TODO -- this needs to be some value that increases as number of loaded sections increases. Not sure why. Probably b/c _initY is relative to parent view and we're not measuring that yet
+
+      }
+
+    }
+
+//    console.log(this.refs._listView.scrollProperties.offset)
+
+
+
+/*
+
     if (((this.rowRefs[this.props.segmentRef]._initY + this.state.continuousSectionOffset < this.refs._listView.scrollProperties.offset) && direction == "down") || ((this.rowRefs[this.props.segmentRef]._initY + this.state.continuousSectionOffset > this.refs._listView.scrollProperties.offset) && direction == "up")) {
       var keys = Object.keys(this.rowRefs);
+
       var loc = keys.indexOf(this.props.segmentRef);
       var highlightRef = direction == "down" ? keys[loc+1] : keys[loc-1];
+      console.log(loc)
       if(typeof highlightRef == "undefined") highlightRef = keys[loc]
 
       var curSection = this.props.segmentRef.split(":")[0];
@@ -127,9 +187,10 @@ var TextColumn = React.createClass({
 
       var sectionToLoad = this.props.sectionArray.indexOf(highlightRef.split(":")[0]);
       var segmentToLoad = parseInt(highlightRef.split(":")[1])-1;
+      console.log(sectionToLoad + " " + segmentToLoad  + " " + highlightRef + " " + direction + " " + e.nativeEvent.contentOffset.y)
       this.props.textSegmentPressed(sectionToLoad, segmentToLoad, highlightRef);
     }
-
+*/
   },
 
   handleScroll: function(e) {
