@@ -43,7 +43,7 @@ var SearchBar = React.createClass({
       textInputStyle = textInputStyle.concat([styles.searchInputPlaceholder]);
     }
     //TODO sorry for the hard-coded colors. because the prop placeholderTextColor of TextInput doesn't take a style and instead requires an explicit color string, I had to do it this way
-    var placeholderTextColor = this.props.themeStr == "black" ? "#CCC" : "#999";
+    var placeholderTextColor = this.props.themeStr == "black" ? "#BBB" : "#777";
     return (
       <View style={[styles.header, this.props.theme.header]}>
         <CloseButton onPress={this.props.closeNav} theme={this.props.theme}/>

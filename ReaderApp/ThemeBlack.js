@@ -156,5 +156,8 @@ module.exports = StyleSheet.create({
   },
   bilingualEnglishText: {
     color: "#BBB"
+  },
+  languageToggleText: {
+    color: Colors.secondaryText
   }
 });
