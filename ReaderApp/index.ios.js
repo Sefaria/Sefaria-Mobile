@@ -3,6 +3,7 @@
  * https://github.com/facebook/react-native
  */
 'use strict';
+import GoogleAnalytics from 'react-native-google-analytics-bridge';
 import React, { Component } from 'react';
 import {
   ActivityIndicatorIOS,

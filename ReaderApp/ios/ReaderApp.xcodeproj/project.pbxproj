@@ -13,6 +13,11 @@
 		00C302E91ABCBA2D00DB3ED1 /* libRCTNetwork.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 00C302DC1ABCB9D200DB3ED1 /* libRCTNetwork.a */; };
 		00C302EA1ABCBA2D00DB3ED1 /* libRCTVibration.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 00C302E41ABCB9EE00DB3ED1 /* libRCTVibration.a */; };
 		00E356F31AD99517003FC87E /* ReaderAppTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E356F21AD99517003FC87E /* ReaderAppTests.m */; };
+		07C9F1571DCA1C83004F7EF2 /* libRCTGoogleAnalyticsBridge.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 07C9F14C1DCA18B8004F7EF2 /* libRCTGoogleAnalyticsBridge.a */; };
+		07C9F1591DCA1CB7004F7EF2 /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 07C9F1581DCA1CB7004F7EF2 /* CoreData.framework */; };
+		07C9F15B1DCA1CC4004F7EF2 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 07C9F15A1DCA1CC4004F7EF2 /* SystemConfiguration.framework */; };
+		07C9F15D1DCA1CDE004F7EF2 /* libsqlite3.0.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 07C9F15C1DCA1CDE004F7EF2 /* libsqlite3.0.tbd */; };
+		07C9F15F1DCA1D53004F7EF2 /* AdSupport.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 07C9F15E1DCA1D53004F7EF2 /* AdSupport.framework */; };
 		133E29F31AD74F7200F7D852 /* libRCTLinking.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 78C398B91ACF4ADC00677621 /* libRCTLinking.a */; };
 		139105C61AF99C1200B5F7CC /* libRCTSettings.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 139105C11AF99BAD00B5F7CC /* libRCTSettings.a */; };
 		139FDEF61B0652A700C62182 /* libRCTWebSocket.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 139FDEF41B06529B00C62182 /* libRCTWebSocket.a */; };
@@ -82,6 +87,13 @@
 			remoteGlobalIDString = 13B07F861A680F5B00A75B9A;
 			remoteInfo = ReaderApp;
 		};
+		07C9F14B1DCA18B8004F7EF2 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 07C9F1451DCA18B8004F7EF2 /* RCTGoogleAnalyticsBridge.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = A79185C61C30694E001236A6;
+			remoteInfo = RCTGoogleAnalyticsBridge;
+		};
 		139105C01AF99BAD00B5F7CC /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 139105B61AF99BAD00B5F7CC /* RCTSettings.xcodeproj */;
@@ -143,6 +155,11 @@
 		00E356EE1AD99517003FC87E /* ReaderAppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ReaderAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		00E356F11AD99517003FC87E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		00E356F21AD99517003FC87E /* ReaderAppTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ReaderAppTests.m; sourceTree = "<group>"; };
+		07C9F1451DCA18B8004F7EF2 /* RCTGoogleAnalyticsBridge.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTGoogleAnalyticsBridge.xcodeproj; path = "../node_modules/react-native-google-analytics-bridge/ios/RCTGoogleAnalyticsBridge/RCTGoogleAnalyticsBridge.xcodeproj"; sourceTree = "<group>"; };
+		07C9F1581DCA1CB7004F7EF2 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
+		07C9F15A1DCA1CC4004F7EF2 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
+		07C9F15C1DCA1CDE004F7EF2 /* libsqlite3.0.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libsqlite3.0.tbd; path = usr/lib/libsqlite3.0.tbd; sourceTree = SDKROOT; };
+		07C9F15E1DCA1D53004F7EF2 /* AdSupport.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AdSupport.framework; path = System/Library/Frameworks/AdSupport.framework; sourceTree = SDKROOT; };
 		139105B61AF99BAD00B5F7CC /* RCTSettings.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTSettings.xcodeproj; path = "../node_modules/react-native/Libraries/Settings/RCTSettings.xcodeproj"; sourceTree = "<group>"; };
 		139FDEE61B06529A00C62182 /* RCTWebSocket.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTWebSocket.xcodeproj; path = "../node_modules/react-native/Libraries/WebSocket/RCTWebSocket.xcodeproj"; sourceTree = "<group>"; };
 		13B07F961A680F5B00A75B9A /* ReaderApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ReaderApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -184,6 +201,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				07C9F15F1DCA1D53004F7EF2 /* AdSupport.framework in Frameworks */,
+				07C9F15D1DCA1CDE004F7EF2 /* libsqlite3.0.tbd in Frameworks */,
+				07C9F15B1DCA1CC4004F7EF2 /* SystemConfiguration.framework in Frameworks */,
+				07C9F1591DCA1CB7004F7EF2 /* CoreData.framework in Frameworks */,
+				07C9F1571DCA1C83004F7EF2 /* libRCTGoogleAnalyticsBridge.a in Frameworks */,
 				A1C678261DB8000A00392A83 /* libz.tbd in Frameworks */,
 				A1C678221DB7FF8000392A83 /* libRNFS.a in Frameworks */,
 				A1C678231DB7FF8000392A83 /* libRNZipArchive.a in Frameworks */,
@@ -260,6 +282,14 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
+		07C9F1461DCA18B8004F7EF2 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				07C9F14C1DCA18B8004F7EF2 /* libRCTGoogleAnalyticsBridge.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		139105B71AF99BAD00B5F7CC /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -310,6 +340,7 @@
 		832341AE1AAA6A7D00B99B32 /* Libraries */ = {
 			isa = PBXGroup;
 			children = (
+				07C9F1451DCA18B8004F7EF2 /* RCTGoogleAnalyticsBridge.xcodeproj */,
 				A1C6781A1DB7FD4600392A83 /* RNFS.xcodeproj */,
 				A1C678141DB7FD0000392A83 /* RNZipArchive.xcodeproj */,
 				146833FF1AC3E56700842450 /* React.xcodeproj */,
@@ -385,6 +416,10 @@
 		A1C678241DB8000A00392A83 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				07C9F15E1DCA1D53004F7EF2 /* AdSupport.framework */,
+				07C9F15C1DCA1CDE004F7EF2 /* libsqlite3.0.tbd */,
+				07C9F15A1DCA1CC4004F7EF2 /* SystemConfiguration.framework */,
+				07C9F1581DCA1CB7004F7EF2 /* CoreData.framework */,
 				A1C678251DB8000A00392A83 /* libz.tbd */,
 			);
 			name = Frameworks;
@@ -469,6 +504,10 @@
 					ProjectRef = 00C302B51ABCB90400DB3ED1 /* RCTGeolocation.xcodeproj */;
 				},
 				{
+					ProductGroup = 07C9F1461DCA18B8004F7EF2 /* Products */;
+					ProjectRef = 07C9F1451DCA18B8004F7EF2 /* RCTGoogleAnalyticsBridge.xcodeproj */;
+				},
+				{
 					ProductGroup = 00C302BC1ABCB91800DB3ED1 /* Products */;
 					ProjectRef = 00C302BB1ABCB91800DB3ED1 /* RCTImage.xcodeproj */;
 				},
@@ -551,6 +590,13 @@
 			fileType = archive.ar;
 			path = libRCTVibration.a;
 			remoteRef = 00C302E31ABCB9EE00DB3ED1 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		07C9F14C1DCA18B8004F7EF2 /* libRCTGoogleAnalyticsBridge.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libRCTGoogleAnalyticsBridge.a;
+			remoteRef = 07C9F14B1DCA18B8004F7EF2 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 		139105C11AF99BAD00B5F7CC /* libRCTSettings.a */ = {
