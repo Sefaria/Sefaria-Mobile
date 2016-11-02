@@ -23,7 +23,6 @@ import {
 
 var styles  = require('./Styles.js');
 var themeWhite  = require('./ThemeWhite');
-var themeGrey   = require('./ThemeGrey');
 var themeBlack  = require('./ThemeBlack');
 var Sefaria     = require('./sefaria');
 var ReaderPanel = require('./ReaderPanel');
@@ -381,7 +380,6 @@ var ReaderApp = React.createClass({
     },
     setTheme: function(themeStr) {
       if (themeStr === "white") this.state.theme = themeWhite;
-      else if (themeStr === "grey") this.state.theme = themeGrey;
       else if (themeStr === "black") this.state.theme = themeBlack;
 
       this.setState({theme: this.state.theme,themeStr: themeStr});

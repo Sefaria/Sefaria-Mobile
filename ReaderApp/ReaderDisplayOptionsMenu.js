@@ -18,10 +18,10 @@ var continuous_icon = require('./img/continuous.png');
 var ReaderDisplayOptionsMenu = React.createClass({
   propTypes: {
     theme:                           React.PropTypes.object,
-    textFlow:                        React.PropTypes.oneOf(['segmented','continuous']),
+    textFlow:                        React.PropTypes.oneOf(['segmented', 'continuous']),
     canBeContinuous:                 React.PropTypes.bool,
-    columnLanguage:                  React.PropTypes.oneOf(['hebrew','english','bilingual']),
-    themeStr:                        React.PropTypes.oneOf(['white','grey','black']),
+    columnLanguage:                  React.PropTypes.oneOf(['hebrew', 'english', 'bilingual']),
+    themeStr:                        React.PropTypes.oneOf(['white', 'black']),
     setTextFlow:                     React.PropTypes.func,
     setColumnLanguage:               React.PropTypes.func,
     incrementFont:                   React.PropTypes.func,
@@ -42,8 +42,8 @@ var ReaderDisplayOptionsMenu = React.createClass({
       },
       {
         onPress:this.props.setTheme,
-        buttons:["white","grey","black"],
-        colors:["#ffffff","#dddddd","#444444"],
+        buttons:["white","black"],
+        colors:["#ffffff", "#444444"],
         currVal: this.props.themeStr,
         parametrized: true
       },

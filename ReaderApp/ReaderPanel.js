@@ -39,7 +39,7 @@ var ReaderPanel = React.createClass({
     openRef:           React.PropTypes.func.isRequired,
     openNav:           React.PropTypes.func.isRequired,
     openTextToc:       React.PropTypes.func.isRequired,
-    interfaceLang:     React.PropTypes.oneOf(["english","hebrew"]).isRequired,
+    interfaceLang:     React.PropTypes.oneOf(["english", "hebrew"]).isRequired,
     loading:           React.PropTypes.bool,
     textListVisible:   React.PropTypes.bool,
     textListFlex:      React.PropTypes.number,
@@ -55,7 +55,7 @@ var ReaderPanel = React.createClass({
     loadingLinks:      React.PropTypes.bool,
     setTheme:          React.PropTypes.func.isRequired,
     theme:             React.PropTypes.object,
-    themeStr:          React.PropTypes.oneOf(["white","grey","black"]),
+    themeStr:          React.PropTypes.oneOf(["white", "black"]),
     hasInternet:       React.PropTypes.bool,
     Sefaria:           React.PropTypes.object.isRequired
   },
