@@ -143,7 +143,7 @@ module.exports = StyleSheet.create({
     color: Colors.secondaryText
   },
   sectionLink: {
-    backgroundColor: Colors.mainForeground
+    backgroundColor: Colors.buttonBackground
   },
   loadingView: {
     backgroundColor: "transparent"
