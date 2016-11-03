@@ -394,7 +394,12 @@ module.exports = StyleSheet.create({
     width: 19,
     left: -25,
   },
-  continuousRowHolder: {
+ continuousVerseNumberHolderTalmud: {
+    height: 19,
+    width: 10,
+    left: -25,
+  },
+   continuousRowHolder: {
     marginLeft: 30,
     marginRight: 30,
   },

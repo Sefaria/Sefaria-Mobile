@@ -645,7 +645,6 @@ var TextColumn = React.createClass({
                    currSegData.highlight ? this.props.theme.segmentHighlight : null];
 
       segmentText.push(<View ref={this.props.sectionArray[rowData.section] + ":" + currSegData.segmentNumber}
-                                     style={styles.continuousVerseNumberHolder}
                                      onLayout={(event) => {
                                        var {x, y, width, height} = event.nativeEvent.layout;
 //                                       console.log(this.props.sectionArray[rowData.section] + ":" + currSegData.segmentNumber + " y=" + y)
