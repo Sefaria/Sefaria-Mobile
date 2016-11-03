@@ -640,11 +640,12 @@ var TextColumn = React.createClass({
       var refSection = rowData.section + ":" + i;
       var reactRef = this.props.sectionArray[rowData.section] + ":" + this.props.data[rowData.section][i].segmentNumber;
       var style = [styles.continuousVerseNumber, 
-                   this.props.columnLanguage == "hebrew" ? styles.hebrewVerseNumber : null,
+                   this.props.columnLanguage == "hebrew" ? styles.continuousHebrewVerseNumber : null,
                    this.props.theme.verseNumber,
                    currSegData.highlight ? this.props.theme.segmentHighlight : null];
 
       segmentText.push(<View ref={this.props.sectionArray[rowData.section] + ":" + currSegData.segmentNumber}
+                                     style={Sefaria.showSegmentNumbers(this.props.textTitle) ? styles.continuousVerseNumberHolder : styles.continuousVerseNumberHolderTalmud}
                                      onLayout={(event) => {
                                        var {x, y, width, height} = event.nativeEvent.layout;
 //                                       console.log(this.props.sectionArray[rowData.section] + ":" + currSegData.segmentNumber + " y=" + y)

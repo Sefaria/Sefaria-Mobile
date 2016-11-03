@@ -383,11 +383,16 @@ module.exports = StyleSheet.create({
   hebrewVerseNumber: {
     fontSize: 11,
   },
+  continuousHebrewVerseNumber: {
+    fontSize: 11,
+    paddingTop: 0
+  },
   continuousVerseNumber: {
     textAlign: 'center',
     fontFamily: "Open Sans",
     fontWeight: '400',
     fontSize: 9,
+    paddingTop: 5
   },
   continuousVerseNumberHolder: {
     height: 19,
