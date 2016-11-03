@@ -53,6 +53,8 @@
 		<string>Montserrat-Light.ttf</string>
 		<string>Montserrat-Thin.ttf</string>
 		<string>OpenSansHebrew-Regular.ttf</string>
+		<string>OpenSans-Regular.ttf</string>
+		<string>OpenSans-Light.ttf</string>
 	</array>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>

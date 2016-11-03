@@ -375,7 +375,7 @@ module.exports = StyleSheet.create({
   verseNumber: {
     paddingTop: 5,
     textAlign: 'center',
-    fontFamily: "Montserrat",
+    fontFamily: "Open Sans",
     fontWeight: '400',
     fontSize: 9,
     width: 30,
@@ -385,7 +385,7 @@ module.exports = StyleSheet.create({
   },
   continuousVerseNumber: {
     textAlign: 'center',
-    fontFamily: "Montserrat",
+    fontFamily: "Open Sans",
     fontWeight: '400',
     fontSize: 9,
   },
@@ -405,7 +405,7 @@ module.exports = StyleSheet.create({
     width: 30
   },
   englishSystemFont: {
-    fontFamily: "Montserrat",
+    fontFamily: "Open Sans",
     fontWeight: "100"
   },
   title: {
@@ -508,7 +508,7 @@ module.exports = StyleSheet.create({
     textAlign: 'right',
   },
   enInt: {
-    fontFamily: "Montserrat",
+    fontFamily: "Open Sans",
     textAlign: 'left'
   },
   heInt: {
