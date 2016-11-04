@@ -22,18 +22,19 @@ import {
   View
 } from 'react-native';
 
-var styles  = require('./Styles.js');
+var styles      = require('./Styles.js');
 var themeWhite  = require('./ThemeWhite');
 var themeBlack  = require('./ThemeBlack');
 var Sefaria     = require('./sefaria');
 var ReaderPanel = require('./ReaderPanel');
 var LinkFilter  = require('./LinkFilter');
-const ViewPort = Dimensions.get('window');
+const ViewPort  = Dimensions.get('window');
 
 var {
   LoadingView,
   CategoryColorLine,
 } = require('./Misc.js');
+
 
 var ReaderApp = React.createClass({
     getInitialState: function () {

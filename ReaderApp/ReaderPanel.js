@@ -203,6 +203,8 @@ var ReaderPanel = React.createClass({
           <ReaderTextTableOfContents
             theme={this.props.theme}
             title={this.props.textTitle}
+            currentRef={this.props.textReference}
+            currentHeRef={this.props.heRef}
             contentLang={this.state.settings.language == "hebrew" ? "hebrew" : "english"}
             interfaceLang={this.props.interfaceLang}
             close={this.props.closeMenu}
