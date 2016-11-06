@@ -3,7 +3,7 @@
  * https://github.com/facebook/react-native
  */
 'use strict';
-import GoogleAnalytics from 'react-native-google-analytics-bridge';
+
 import React, { Component } from 'react';
 import {
   ActivityIndicatorIOS,
@@ -35,11 +35,14 @@ var {
   CategoryColorLine,
 } = require('./Misc.js');
 
+
+
 var ReaderApp = React.createClass({
     getInitialState: function () {
         Sefaria.init().then(function() {
             this.setState({loaded: true});
         }.bind(this));
+        Sefaria.track.init();
         NetInfo.isConnected.addEventListener(
           'change',
           this.networkChangeListener

@@ -1,6 +1,6 @@
 const ZipArchive = require('react-native-zip-archive'); //for unzipping -- (https://github.com/plrthink/react-native-zip-archive)
 const RNFS = require('react-native-fs'); //for access to file system -- (https://github.com/johanneslumpe/react-native-fs)
-
+import GoogleAnalytics from 'react-native-google-analytics-bridge';
 import { AsyncStorage } from 'react-native';
 
 
@@ -690,8 +690,64 @@ Sefaria = {
       this.parent = null;
       this.selected = 0; //0 - not selected, 1 - selected, 2 - partially selected
     }
-  }
-
+  },
+  track: {
+      // Helper functions for event tracking (with Google Analytics and Mixpanel)
+      _tracker: null,
+      init: function() {
+        //GoogleAnalytics.setTrackerId('UA-24447636-4');
+        Sefaria.track._tracker = new GoogleAnalyticsTracker('UA-24447636-4',
+          {'Panels Open':1},{'Book Name':2},{'Ref':3},{'Version Title':4},{'Page Type':5},{'Sidebars':6});
+      },
+      event: function(category, action, label, value, options) {
+          Sefaria.track._tracker.trackEvent(category,action,{label:label,value:value});
+      },
+      pageview: function(page) {
+          Sefaria.track._tracker.trackScreenView(page);
+          //TODO make sure this both sets the screen and sends the screen
+      },
+      setPrimaryCategory: function(category_name) {
+          ga('set', 'contentGroup1', category_name);
+      },
+      setSecondaryCategory: function(category_name) {
+          ga('set', 'contentGroup2', category_name);
+      },
+      setContentLanguage: function(language) {
+          ga('set', 'contentGroup5', language);
+      },
+      setNumberOfPanels: function(val) {
+          ga('set', 'dimension1', val);
+      },
+      setBookName: function(val) {
+          ga('set', 'dimension2', val);
+          ga('set', 'contentGroup3', val);
+      },
+      setRef: function(val) {
+          ga('set', 'dimension3', val);
+      },
+      setVersionTitle: function(val) {
+          ga('set', 'dimension4', val);
+      },
+      setPageType: function(val) {
+          ga('set', 'dimension5', val);
+      },
+      setSidebars: function(val) {
+          ga('set', 'dimension6', val);
+      },
+      sheets: function(action, label) {
+          Sefaria.site.track.event("Sheets", action, label);
+      },
+      exploreUrl: function(url) {
+          Sefaria.site.track.event("Explorer", "Open", url);
+          Sefaria.site.track.pageview(url);
+      },
+      exploreBook: function(book) {
+          Sefaria.site.track.event("Explorer", "Book", book);
+      },
+      exploreBrush: function(book) {
+          Sefaria.site.track.event("Explorer", "Brush", book);
+      }
+    }
 };
 
 Sefaria.util = {
@@ -1128,6 +1184,4 @@ Sefaria.palette.categoryColor = function(cat) {
   }
   return "transparent";
 };
-
-
 module.exports = Sefaria;
