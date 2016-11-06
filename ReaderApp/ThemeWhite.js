@@ -145,11 +145,17 @@ module.exports = StyleSheet.create({
   segmentHighlight: {
     backgroundColor: Colors.textSegmentHighlight
   },
+  textTocSectionString: {
+    color: "#666",
+  },
   text: {
     color: Colors.mainForegroundContrast
   },
   secondaryText: {
     color: Colors.secondaryText
+  },
+  bordered: {
+    borderColor: Colors.border,
   },
   bilingualEnglishText: {
     color: "#666"

@@ -293,17 +293,6 @@ module.exports = StyleSheet.create({
     fontSize: 19,
     marginTop: 5,
   },
-  navigationMenuTitleBox: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: 20
-  },
-  navigationMenuTitle: {
-    fontSize: 19,
-    flex: 1,
-    textAlign: "center"
-  },
   readerNavSection: {
     marginVertical: 15
   },
@@ -375,7 +364,7 @@ module.exports = StyleSheet.create({
   verseNumber: {
     paddingTop: 5,
     textAlign: 'center',
-    fontFamily: "Montserrat",
+    fontFamily: "Open Sans",
     fontWeight: '400',
     fontSize: 9,
     width: 30,
@@ -383,18 +372,28 @@ module.exports = StyleSheet.create({
   hebrewVerseNumber: {
     fontSize: 11,
   },
+  continuousHebrewVerseNumber: {
+    fontSize: 11,
+    paddingTop: 0
+  },
   continuousVerseNumber: {
     textAlign: 'center',
-    fontFamily: "Montserrat",
+    fontFamily: "Open Sans",
     fontWeight: '400',
     fontSize: 9,
+    paddingTop: 5
   },
   continuousVerseNumberHolder: {
     height: 19,
     width: 19,
     left: -25,
   },
-  continuousRowHolder: {
+ continuousVerseNumberHolderTalmud: {
+    height: 19,
+    width: 10,
+    left: -25,
+  },
+   continuousRowHolder: {
     marginLeft: 30,
     marginRight: 30,
   },
@@ -405,7 +404,7 @@ module.exports = StyleSheet.create({
     width: 30
   },
   englishSystemFont: {
-    fontFamily: "Montserrat",
+    fontFamily: "Open Sans",
     fontWeight: "100"
   },
   title: {
@@ -456,6 +455,28 @@ module.exports = StyleSheet.create({
   },
   rightContainer: {
     flex: 1
+  },
+  textTocTopBox: {
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 22,
+    paddingBottom: 14,
+    borderBottomWidth: 1
+  },
+  textTocTitle: {
+    fontSize: 19,
+    flex: 1,
+    textAlign: "center"
+  },
+  textTocCategoryBox: {
+    marginTop: 3,
+    marginBottom: 12,
+  },
+  textTocCategory: {
+    fontSize: 12,
+  },
+  textTocSectionString: {
+    fontSize: 12
   },
   textTocNumberedSectionBox: {
     marginBottom: 20
@@ -508,7 +529,7 @@ module.exports = StyleSheet.create({
     textAlign: 'right',
   },
   enInt: {
-    fontFamily: "Montserrat",
+    fontFamily: "Open Sans",
     textAlign: 'left'
   },
   heInt: {

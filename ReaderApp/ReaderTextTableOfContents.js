@@ -26,6 +26,8 @@ var ReaderTextTableOfContents = React.createClass({
   propTypes: {
     theme:          React.PropTypes.object.isRequired,
     title:          React.PropTypes.string.isRequired,
+    currentRef:     React.PropTypes.string.isRequired,
+    currentHeRef:   React.PropTypes.string.isRequired,
     openRef:        React.PropTypes.func.isRequired,
     close:          React.PropTypes.func.isRequired,
     contentLang:    React.PropTypes.string.isRequired,
@@ -43,15 +45,37 @@ var ReaderTextTableOfContents = React.createClass({
       textToc: toc
     };
   },
-  componentDidMount: function() {
+  sectionString: function() {
+    // Returns a string expressing just the section we're currently looking including section name when possible
+    // e.g. "Genesis 1" -> "Chapter 1"
+    if (!this.state.textToc) { return "";}
+    var textToc = this.state.textToc;
+    var sectionName = ("sectionNames" in textToc) ?
+                        textToc.sectionNames[textToc.sectionNames.length > 1 ? textToc.sectionNames.length-2 : 0] :
+                        null;
 
+    if (this.props.contentLang == "hebrew") {
+      var trimmer = new RegExp("^(" + textToc.heTitle + "),? ");
+      var sectionString = this.props.currentHeRef.replace(trimmer, '');
+      if (sectionName) {
+        sectionString = Sefaria.hebrewSectionName(sectionName) + " " + sectionString;
+      }
+    } else {
+      var trimmer = new RegExp("^(" + textToc.title + "),? ");
+      var sectionString = this.props.currentRef.replace(trimmer, '');
+      if (sectionName) {
+        sectionString = sectionName + " " + sectionString;
+      }
+    }
+    return sectionString;
   },
   render: function() {
-    var title = (<View style={styles.navigationMenuTitleBox}>
-                  { this.props.contentLang == "hebrew" ?
-                    <Text style={[styles.he, styles.navigationMenuTitle, this.props.theme.text]}>{this.state.textToc ? this.state.textToc.heTitle : null}</Text> :
-                    <Text style={[styles.en, styles.navigationMenuTitle, this.props.theme.text]}>{this.props.title}</Text> }
-                </View>);
+    var enTitle = this.props.title;
+    var heTitle = Sefaria.index(this.props.title).heTitle;
+
+    var categories  = Sefaria.index(this.props.title).categories;
+    var enCatString   = categories.join(", ");
+    var heCatString = categories.map(Sefaria.hebrewCategory).join(", ");
 
     return (
       <View style={[styles.menu,this.props.theme.menu]}>
@@ -63,8 +87,27 @@ var ReaderTextTableOfContents = React.createClass({
         </View>
 
         <ScrollView style={styles.menuContent}>
+          <View style={[styles.textTocTopBox, this.props.theme.bordered]}>
+            <View>
+              { this.props.contentLang == "hebrew" ?
+                <Text style={[styles.he, styles.textTocTitle, this.props.theme.text]}>{heTitle}</Text> :
+                <Text style={[styles.en, styles.textTocTitle, this.props.theme.text]}>{enTitle}</Text> }
+            </View>
 
-          {title}
+            <View style={styles.textTocCategoryBox}>
+            { this.props.contentLang == "hebrew" ?
+              <Text style={[styles.he, styles.textTocCategory, this.props.theme.secondaryText]}>{heCatString}</Text> :
+              <Text style={[styles.en, styles.textTocCategory, this.props.theme.secondaryText]}>{enCatString}</Text> }
+            </View>
+
+
+            <View>
+            { this.props.contentLang == "hebrew" ?
+              <Text style={[styles.intHe, styles.textTocSectionString, this.props.theme.textTocSectionString]}>{this.sectionString()}</Text> :
+              <Text style={[styles.intEn, styles.textTocSectionString, this.props.theme.textTocSectionString]}>{this.sectionString()}</Text> }
+            </View>
+
+          </View>
 
           {this.state.textToc ?
             <TextTableOfContentsNavigation

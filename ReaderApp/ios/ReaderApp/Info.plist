@@ -47,12 +47,9 @@
 		<string>EBGaramond-Italic.ttf</string>
 		<string>EBGaramond-Regular.ttf</string>
 		<string>TaameyFrankCLM-Medium.ttf</string>
-		<string>Montserrat-Regular.ttf</string>
-		<string>Montserrat-Black.ttf</string>
-		<string>Montserrat-Bold.ttf</string>
-		<string>Montserrat-Light.ttf</string>
-		<string>Montserrat-Thin.ttf</string>
 		<string>OpenSansHebrew-Regular.ttf</string>
+		<string>OpenSans-Regular.ttf</string>
+		<string>OpenSans-Light.ttf</string>
 	</array>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
