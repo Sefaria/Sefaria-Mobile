@@ -146,12 +146,14 @@ def section_data(oref):
 
 		links = get_links(text["ref"] + ":" + curContent["segmentNumber"], False)
 		def simple_link(link):
-			return {
-				"category":    link["category"],
+			simple = {
 				"sourceHeRef": link["sourceHeRef"],
-				"index_title": link["index_title"],
 				"sourceRef":   link["sourceRef"]
 			}
+			if link["category"] in ("Quoting Commentary", "Targum"):
+				simple["category"] = link["category"]
+			return simple
+			
 		if len(links) > 0:
 			curContent["links"] = [simple_link(link) for link in links]
 	
