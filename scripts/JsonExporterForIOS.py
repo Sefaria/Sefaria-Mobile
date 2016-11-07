@@ -25,9 +25,6 @@ from sefaria.system.exceptions import InputError
 from sefaria.system.database import db
 
 
-PROJECT_PATH = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-SEFARIA_EXPORT_PATH = PROJECT_PATH + "/ReaderApp/ios/sources"
-
 
 def make_path(doc, format):
 	"""
@@ -153,7 +150,7 @@ def section_data(oref):
 			if link["category"] in ("Quoting Commentary", "Targum"):
 				simple["category"] = link["category"]
 			return simple
-			
+
 		if len(links) > 0:
 			curContent["links"] = [simple_link(link) for link in links]
 	
