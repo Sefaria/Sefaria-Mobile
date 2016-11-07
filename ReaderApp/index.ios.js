@@ -121,6 +121,12 @@ var ReaderApp = React.createClass({
             textTitle: Sefaria.textTitleForRef(ref),
             segmentIndexRef: -1,
         });
+
+        if (ref.indexOf("-") != -1) {
+          // Open ranged refs to their first segment (not ideal behavior, but good enough for now)
+          ref = ref.split("-")[0];
+        }
+
         Sefaria.data(ref).then(function(data) {
             var linkSummary = [];
             var loadingLinks = false;
@@ -224,22 +230,15 @@ var ReaderApp = React.createClass({
         });
         Sefaria.saveRecentItem({ref: ref, heRef: heRef, category: Sefaria.categoryForRef(ref)});
     },
-    openRef: function(ref, isSegmentLevel=false) {
-        // Opens the text named by `ref`
-        // `isSegmentLevel` - see explanation in loadNewText()
-        let sectionRef = ref;
-        if (isSegmentLevel === true) {
-          sectionRef = ref.split(":")[0];
-        }
-
+    openRef: function(ref) {
         this.setState({
             loaded: false,
-            textReference: sectionRef
+            textReference: ref
         }, function() {
             this.closeMenu(); // Don't close until these values are in state, so we know if we need to load defualt text
         }.bind(this));
 
-        this.loadNewText(ref, isSegmentLevel);
+        this.loadNewText(ref);
     },
     openMenu: function(menu) {
         this.setState({menuOpen: menu});
