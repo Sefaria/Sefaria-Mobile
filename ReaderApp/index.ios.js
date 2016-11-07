@@ -41,7 +41,7 @@ var ReaderApp = React.createClass({
         Sefaria.init().then(function() {
             this.setState({loaded: true});
         }.bind(this));
-        Sefaria.track.init();
+//        Sefaria.track.init();
         NetInfo.isConnected.addEventListener(
           'change',
           this.networkChangeListener
