@@ -26,12 +26,12 @@
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		146834051AC3E58100842450 /* libReact.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 146834041AC3E56700842450 /* libReact.a */; };
 		832341BD1AAA6AB300B99B32 /* libRCTText.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 832341B51AAA6A8300B99B32 /* libRCTText.a */; };
+		A14510B61DD114B000B8B2BF /* two1536x2048.png in Resources */ = {isa = PBXBuildFile; fileRef = A14510B51DD114B000B8B2BF /* two1536x2048.png */; };
 		A14793851DB801F100B6572F /* sources in Resources */ = {isa = PBXBuildFile; fileRef = A14793841DB801F100B6572F /* sources */; };
 		A147939A1DB8037000B6572F /* EBGaramond-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A14793921DB8036F00B6572F /* EBGaramond-Regular.ttf */; };
 		A14793A01DB8037000B6572F /* OpenSansHebrew-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A14793981DB8037000B6572F /* OpenSansHebrew-Regular.ttf */; };
 		A14793A11DB8037000B6572F /* TaameyFrankCLM-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A14793991DB8037000B6572F /* TaameyFrankCLM-Medium.ttf */; };
 		A15D510F1DC917640093676D /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = A15D510E1DC917640093676D /* LaunchScreen.xib */; };
-		A15D51211DC91DD30093676D /* 1536x2048.png in Resources */ = {isa = PBXBuildFile; fileRef = A15D51201DC91DD30093676D /* 1536x2048.png */; };
 		A1C678201DB7FE4100392A83 /* libRNFS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A1C6781F1DB7FD4600392A83 /* libRNFS.a */; };
 		A1C678221DB7FF8000392A83 /* libRNFS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A1C6781F1DB7FD4600392A83 /* libRNFS.a */; };
 		A1C678231DB7FF8000392A83 /* libRNZipArchive.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A1C678191DB7FD0100392A83 /* libRNZipArchive.a */; };
@@ -168,12 +168,12 @@
 		146833FF1AC3E56700842450 /* React.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = React.xcodeproj; path = "../node_modules/react-native/React/React.xcodeproj"; sourceTree = "<group>"; };
 		78C398B01ACF4ADC00677621 /* RCTLinking.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTLinking.xcodeproj; path = "../node_modules/react-native/Libraries/LinkingIOS/RCTLinking.xcodeproj"; sourceTree = "<group>"; };
 		832341B01AAA6A8300B99B32 /* RCTText.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTText.xcodeproj; path = "../node_modules/react-native/Libraries/Text/RCTText.xcodeproj"; sourceTree = "<group>"; };
+		A14510B51DD114B000B8B2BF /* two1536x2048.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = two1536x2048.png; sourceTree = "<group>"; };
 		A14793841DB801F100B6572F /* sources */ = {isa = PBXFileReference; lastKnownFileType = folder; path = sources; sourceTree = "<group>"; };
 		A14793921DB8036F00B6572F /* EBGaramond-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "EBGaramond-Regular.ttf"; sourceTree = "<group>"; };
 		A14793981DB8037000B6572F /* OpenSansHebrew-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "OpenSansHebrew-Regular.ttf"; sourceTree = "<group>"; };
 		A14793991DB8037000B6572F /* TaameyFrankCLM-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "TaameyFrankCLM-Medium.ttf"; sourceTree = "<group>"; };
 		A15D510E1DC917640093676D /* LaunchScreen.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = LaunchScreen.xib; sourceTree = "<group>"; };
-		A15D51201DC91DD30093676D /* 1536x2048.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = 1536x2048.png; path = ReaderApp/Images.xcassets/LaunchImage.launchimage/1536x2048.png; sourceTree = "<group>"; };
 		A1C678141DB7FD0000392A83 /* RNZipArchive.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RNZipArchive.xcodeproj; path = "../node_modules/react-native-zip-archive/RNZipArchive.xcodeproj"; sourceTree = "<group>"; };
 		A1C6781A1DB7FD4600392A83 /* RNFS.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RNFS.xcodeproj; path = "../node_modules/react-native-fs/RNFS.xcodeproj"; sourceTree = "<group>"; };
 		A1C678251DB8000A00392A83 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
@@ -307,7 +307,7 @@
 				A15D510E1DC917640093676D /* LaunchScreen.xib */,
 				13B07FAF1A68108700A75B9A /* AppDelegate.h */,
 				13B07FB01A68108700A75B9A /* AppDelegate.m */,
-				A15D51201DC91DD30093676D /* 1536x2048.png */,
+				A14510B51DD114B000B8B2BF /* two1536x2048.png */,
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				13B07FB71A68108700A75B9A /* main.m */,
@@ -657,12 +657,12 @@
 				DD24DA6B1DCBADD200954157 /* OpenSans-Light.ttf in Resources */,
 				A15D510F1DC917640093676D /* LaunchScreen.xib in Resources */,
 				DD24DA6C1DCBADD200954157 /* OpenSans-Regular.ttf in Resources */,
-				A15D51211DC91DD30093676D /* 1536x2048.png in Resources */,
 				A14793851DB801F100B6572F /* sources in Resources */,
 				A147939A1DB8037000B6572F /* EBGaramond-Regular.ttf in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				DD7B126F1DBACAEE00AC4D6C /* EBGaramond-Italic.ttf in Resources */,
 				A14793A11DB8037000B6572F /* TaameyFrankCLM-Medium.ttf in Resources */,
+				A14510B61DD114B000B8B2BF /* two1536x2048.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
