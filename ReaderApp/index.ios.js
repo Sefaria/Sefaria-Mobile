@@ -69,7 +69,12 @@ var ReaderApp = React.createClass({
             linkStaleRecentFilters: [], /*bool array indicating whether the corresponding filter in recentFilters is no longer synced up with the current segment*/
             loadingLinks: false,
             theme: themeWhite,
-            themeStr: "white"
+            themeStr: "white",
+            searchQuery: '',
+            isQueryRunning: false,
+            isQueryLoadingTail: false,
+            isNewSearch: false,
+            currSearchPage: 0
         };
     },
     componentDidMount: function () {
@@ -230,7 +235,10 @@ var ReaderApp = React.createClass({
         });
         Sefaria.saveRecentItem({ref: ref, heRef: heRef, category: Sefaria.categoryForRef(ref)});
     },
-    openRef: function(ref) {
+    /*
+    calledFrom parameter only used for analytics
+    */
+    openRef: function(ref,calledFrom) {
         this.setState({
             loaded: false,
             textReference: ref
@@ -239,6 +247,20 @@ var ReaderApp = React.createClass({
         }.bind(this));
 
         this.loadNewText(ref);
+
+        switch (calledFrom) {
+          case "Search":
+            Sefaria.track.event("Search","Search Result Text Click",this.state.searchQuery + ' - ' + ref);
+            break;
+          case "Navigation":
+            break;
+          case "TOC":
+            break;
+          case "TextList":
+            break;
+          default:
+            break;
+        }
     },
     openMenu: function(menu) {
         this.setState({menuOpen: menu});
@@ -422,6 +444,56 @@ var ReaderApp = React.createClass({
       //console.log("moving!",evt.nativeEvent.pageY,ViewPort.height,flex);
       this.setState({textListFlex:flex});
     },
+    onQueryChange: function(query, resetQuery) {
+      var newSearchPage = 0;
+      if (!resetQuery)
+        newSearchPage = this.state.currSearchPage+1;
+
+
+      //var req = JSON.stringify(Sefaria.search.get_query_object(query,false,[],20,20*newSearchPage,"text"));
+
+      var queryProps = {
+        query: query,
+        size: 20,
+        from: 20*newSearchPage,
+        type: "text",
+        get_filters: false,
+        applied_filters: []
+      };
+      Sefaria.search.execute_query(queryProps)
+      .then((responseJson) => {
+        var resultArray = resetQuery ? responseJson["hits"]["hits"] : this.state.searchQueryResult.concat(responseJson["hits"]["hits"]);
+        //console.log("resultArray",resultArray);
+        var numResults = responseJson["hits"]["total"];
+        this.setState({isQueryLoadingTail: false, isQueryRunning: false, searchQueryResult:resultArray, numSearchResults: numResults});
+
+        if (resetQuery) {
+          Sefaria.track.event("Search","Query: text", query, numResults);
+        }
+      })
+      .catch((error) => {
+        console.log(error);
+        //TODO: add hasError boolean to state
+        this.setState({isQueryLoadingTail: false, isQueryRunning: false, searchQueryResult:[], numSearchResults: 0});
+      });
+
+      this.setState({searchQuery:query, currSearchPage: newSearchPage, isQueryRunning: true});
+    },
+    setLoadQueryTail: function(isLoading) {
+      this.setState({isQueryLoadingTail: isLoading});
+      if (isLoading) {
+        this.onQueryChange(this.state.searchQuery,false);
+      }
+    },
+    setIsNewSearch: function(isNewSearch) {
+      this.setState({isNewSearch: isNewSearch});
+    },
+    search: function(query) {
+      this.onQueryChange(query,true);
+      this.openSearch();
+
+      Sefaria.track.event("Search","Search Box Search",query);
+    },
     render: function () {
         return (
             <View style={[styles.container,this.state.theme.container]}>
@@ -475,6 +547,10 @@ var ReaderApp = React.createClass({
                     theme={this.state.theme}
                     themeStr={this.state.themeStr}
                     hasInternet={this.state.hasInternet}
+                    onQueryChange={this.onQueryChange}
+                    setLoadQueryTail={this.setLoadQueryTail}
+                    setIsNewSearch={this.setIsNewSearch}
+                    search={this.search}
                     Sefaria={Sefaria} />
             </View>
         );

@@ -57,6 +57,10 @@ var ReaderPanel = React.createClass({
     theme:             React.PropTypes.object,
     themeStr:          React.PropTypes.oneOf(["white", "black"]),
     hasInternet:       React.PropTypes.bool,
+    onQueryChange:     React.PropTypes.func.isRequired,
+    setLoadQueryTail:  React.PropTypes.func.isRequired,
+    setIsNewSearch:    React.PropTypes.func.isRequired,
+    search:            React.PropTypes.func.isRequired,
     Sefaria:           React.PropTypes.object.isRequired
   },
   getInitialState: function () {
@@ -65,11 +69,6 @@ var ReaderPanel = React.createClass({
     return {
     	textFlow: this.props.textFlow || 'segmented', 	// alternative is 'continuous'
     	columnLanguage: this.props.columnLanguage || 'english', 	// alternative is 'hebrew' &  'bilingual'
-      searchQuery: '',
-      isQueryRunning: false,
-      isQueryLoadingTail: false,
-      isNewSearch: false,
-      currSearchPage: 0,
       settings: {
         language:      "bilingual",
         layoutDefault: "segmented",
@@ -90,61 +89,6 @@ var ReaderPanel = React.createClass({
 
      //console.log(this.state.ReaderDisplayOptionsMenuVisible);
     this.trackPageview();
-  },
-  onQueryChange: function(query, resetQuery) {
-    var newSearchPage = 0;
-    if (!resetQuery)
-      newSearchPage = this.state.currSearchPage+1;
-
-
-    //var req = JSON.stringify(Sefaria.search.get_query_object(query,false,[],20,20*newSearchPage,"text"));
-
-    var queryProps = {
-      query: query,
-      size: 20,
-      from: 20*newSearchPage,
-      type: "text",
-      get_filters: false,
-      applied_filters: []
-    };
-    console.log(queryProps)
-    Sefaria.search.execute_query(queryProps)
-    .then((responseJson) => {
-      var resultArray = resetQuery ? responseJson["hits"]["hits"] : this.state.searchQueryResult.concat(responseJson["hits"]["hits"]);
-      //console.log("resultArray",resultArray);
-      var numResults = responseJson["hits"]["total"];
-      this.setState({isQueryLoadingTail: false, isQueryRunning: false, searchQueryResult:resultArray, numSearchResults: numResults});
-
-      if (resetQuery) {
-        Sefaria.track.event("Search","Query: text", query, numResults);
-      }
-    })
-    .catch((error) => {
-      console.log(error);
-      //TODO: add hasError boolean to state
-      this.setState({isQueryLoadingTail: false, isQueryRunning: false, searchQueryResult:[], numSearchResults: 0});
-    });
-
-    this.setState({searchQuery:query, currSearchPage: newSearchPage, isQueryRunning: true});
-  },
-  setLoadQueryTail: function(isLoading) {
-    this.setState({isQueryLoadingTail: isLoading});
-    if (isLoading) {
-      this.onQueryChange(this.state.searchQuery,false);
-    }
-  },
-  openSearchRef: function(ref) {
-    this.props.openRef(ref);
-    Sefaria.track.event("Search","Search Result Text Click",this.props.searchQuery + ' - ' + ref);
-  },
-  setIsNewSearch: function(isNewSearch) {
-    this.setState({isNewSearch: isNewSearch});
-  },
-  search: function(query) {
-    this.onQueryChange(query,true);
-    this.props.openSearch();
-
-    Sefaria.track.event("Search","Search Box Search",query);
   },
   toggleLanguage: function() {
     // Toggle current display language between english/hebrew only
@@ -237,11 +181,11 @@ var ReaderPanel = React.createClass({
           <ReaderNavigationMenu
             categories={this.props.navigationCategories}
             setCategories={this.props.setNavigationCategories}
-            openRef={this.props.openRef}
+            openRef={(ref)=>this.props.openRef(ref,"Navigation")}
             openNav={this.props.openNav}
             closeNav={this.props.closeMenu}
-            openSearch={this.search}
-            setIsNewSearch={this.setIsNewSearch}
+            openSearch={this.props.search}
+            setIsNewSearch={this.props.setIsNewSearch}
             toggleLanguage={this.toggleLanguage}
             settings={this.state.settings}
             interfaceLang={this.props.interfaceLang}
@@ -259,7 +203,7 @@ var ReaderPanel = React.createClass({
             contentLang={this.state.settings.language == "hebrew" ? "hebrew" : "english"}
             interfaceLang={this.props.interfaceLang}
             close={this.props.closeMenu}
-            openRef={this.props.openRef}
+            openRef={(ref)=>this.props.openRef(ref,"TOC")}
             toggleLanguage={this.toggleLanguage}
             Sefaria={Sefaria} />);
         break;
@@ -270,16 +214,16 @@ var ReaderPanel = React.createClass({
             themeStr={this.props.themeStr}
             hasInternet={this.props.hasInternet}
             closeNav={this.props.closeMenu}
-            onQueryChange={this.onQueryChange}
-            openSearchRef={this.openSearchRef}
-            setLoadTail={this.setLoadQueryTail}
-            setIsNewSearch={this.setIsNewSearch}
-            query={this.state.searchQuery}
-            loadingQuery={this.state.isQueryRunning}
-            isNewSearch={this.state.isNewSearch}
-            loadingTail={this.state.isQueryLoadingTail}
-            queryResult={this.state.searchQueryResult}
-            numResults={this.state.numSearchResults} />);
+            onQueryChange={this.props.onQueryChange}
+            openRef={(ref)=>this.props.openRef(ref,"Search")}
+            setLoadTail={this.props.setLoadQueryTail}
+            setIsNewSearch={this.props.setIsNewSearch}
+            query={this.props.searchQuery}
+            loadingQuery={this.props.isQueryRunning}
+            isNewSearch={this.props.isNewSearch}
+            loadingTail={this.props.isQueryLoadingTail}
+            queryResult={this.props.searchQueryResult}
+            numResults={this.props.numSearchResults} />);
         break;
     }
 
@@ -348,7 +292,7 @@ var ReaderPanel = React.createClass({
                 segmentIndexRef={this.props.segmentIndexRef}
                 textFlow={this.state.textFlow}
                 columnLanguage={this.state.columnLanguage}
-                openRef={ this.props.openRef }
+                openRef={(ref)=>this.props.openRef(ref,"TextList")}
                 openCat={this.props.openLinkCat}
                 closeCat={this.props.closeLinkCat}
                 updateCat={this.props.updateLinkCat}
