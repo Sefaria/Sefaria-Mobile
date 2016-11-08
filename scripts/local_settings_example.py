@@ -8,3 +8,5 @@ Copy this file to `local_settings.py` and import values as needed.
 
 # Where does Sefaria-Project live
 SEFARIA_PROJECT_PATH = "/path/your/copy/of/Sefaria-Project"
+SEFARIA_EXPORT_PATH = "/path/to/export/data"
+MINIFY_JSON = False

@@ -15,6 +15,7 @@ from datetime import datetime
 from local_settings import *
 
 sys.path.insert(0, SEFARIA_PROJECT_PATH)
+sys.path.insert(0, SEFARIA_PROJECT_PATH + "/sefaria")
 os.environ['DJANGO_SETTINGS_MODULE'] = "settings"
 
 import sefaria.model as model
@@ -24,9 +25,6 @@ from sefaria.utils.talmud import section_to_daf
 from sefaria.system.exceptions import InputError
 from sefaria.system.database import db
 
-
-PROJECT_PATH = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-SEFARIA_EXPORT_PATH = PROJECT_PATH + "/ReaderApp/ios/sources"
 
 
 def make_path(doc, format):
@@ -146,12 +144,14 @@ def section_data(oref):
 
 		links = get_links(text["ref"] + ":" + curContent["segmentNumber"], False)
 		def simple_link(link):
-			return {
-				"category":    link["category"],
+			simple = {
 				"sourceHeRef": link["sourceHeRef"],
-				"index_title": link["index_title"],
 				"sourceRef":   link["sourceRef"]
 			}
+			if link["category"] in ("Quoting Commentary", "Targum"):
+				simple["category"] = link["category"]
+			return simple
+
 		if len(links) > 0:
 			curContent["links"] = [simple_link(link) for link in links]
 	

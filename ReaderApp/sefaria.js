@@ -48,6 +48,17 @@ Sefaria = {
             return;
           }
         }
+        // Annotate link objects with useful fields not included in export
+        result.content.forEach(function(segment) {
+          if ("links" in segment) {
+            segment.links.map(function(link) {
+              link.textTitle = Sefaria.textTitleForRef(link.sourceRef);
+              if (!("category" in link)) {
+                link.category = Sefaria.categoryForTitle(link.textTitle);
+              }
+            });
+          }          
+        });
         result.requestedRef   = ref;
         result.isSectionLevel = (ref === result.sectionRef);
         Sefaria.cacheCommentatorListBySection(result);
@@ -94,7 +105,8 @@ Sefaria = {
   },
   categoryForTitle: function(title) {
     var index = Sefaria.index(title);
-    return index ? index.categories[0] : null;
+    if (!index) { return null;}
+    return index.categories[0] == "Commentary2" ? "Commentary" : index.categories[0];
   },
   categoryForRef: function(ref) {
     return Sefaria.categoryForTitle(Sefaria.textTitleForRef(ref));
@@ -390,7 +402,7 @@ Sefaria = {
     linkSummary: function(sectionRef, tempLinks) {
         return new Promise(function(resolve, reject) {
           // Returns an ordered array summarizing the link counts by category and text
-          // Takes an array of links which are of the form { "category", "sourceHeRef", "sourceRef", "index_title"}
+          // Takes an array of links which are of the form { "category", "sourceHeRef", "sourceRef", "textTitle"}
           let links = tempLinks || [];
           var summary = {"All": {count: 0, books: {}}, "Commentary": {count: 0, books: {}}};
           for (let link of links) {
@@ -405,12 +417,12 @@ Sefaria = {
 
             var category = summary[link.category];
             // Count Book
-            if (link.index_title in category.books) {
-              category.books[link.index_title].count += 1;
-              category.books[link.index_title].refList.push(link.sourceRef);
+            if (link.textTitle in category.books) {
+              category.books[link.textTitle].count += 1;
+              category.books[link.textTitle].refList.push(link.sourceRef);
             } else {
               var isCommentary = link.category == "Commentary";
-              category.books[link.index_title] =
+              category.books[link.textTitle] =
               {
                   count:    1,
                   title:    Sefaria.getTitle(link.sourceRef, isCommentary, false),
