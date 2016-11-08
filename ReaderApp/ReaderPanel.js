@@ -61,6 +61,7 @@ var ReaderPanel = React.createClass({
   },
   getInitialState: function () {
     Sefaria = this.props.Sefaria;
+
     return {
     	textFlow: this.props.textFlow || 'segmented', 	// alternative is 'continuous'
     	columnLanguage: this.props.columnLanguage || 'english', 	// alternative is 'hebrew' &  'bilingual'
@@ -88,6 +89,7 @@ var ReaderPanel = React.createClass({
   	 this.setState({ReaderDisplayOptionsMenuVisible:  false})}
 
      //console.log(this.state.ReaderDisplayOptionsMenuVisible);
+    this.trackPageview();
   },
   onQueryChange: function(query, resetQuery) {
     var newSearchPage = 0;
@@ -172,6 +174,46 @@ var ReaderPanel = React.createClass({
   setTheme: function(themeStr) {
     this.props.setTheme(themeStr);
     this.toggleReaderDisplayOptionsMenu();
+  },
+  /*
+  send current page stats to analytics
+  */
+  trackPageview: function() {
+    let pageType  = this.props.menuOpen || (this.props.textListVisible ? "Text and Commentary" : "Text");
+    let numPanels = this.props.textListVisible ? '1.1' : '1';
+    let ref       = this.props.segmentRef !== '' ? this.props.segmentRef : this.props.textReference;
+    let bookName  = this.props.textTitle;
+    let index     = Sefaria.index(this.props.textTitle);
+    let cats      = index ? index.categories : undefined;
+    let primCat   = cats && cats.length > 0 ? ((cats[0] === "Commentary") ?
+        cats[1] + " Commentary" : cats[0]) : "";
+    let secoCat   = cats ? ((cats[0] === "Commentary")?
+        ((cats.length > 2) ? cats[2] : ""):
+        ((cats.length > 1) ? cats[1] : "")) : "";
+    let contLang  = this.state.settings.language;
+    let sideBar   = this.props.linkRecentFilters.length > 0 ? this.props.recentFilters.map(filt => filt.title).join('+') : 'all';
+    let versTit   = ''; //we don't support this yet
+
+    Sefaria.track.pageview(pageType,
+      {'Panels Open': numPanels, 'Book Name': bookName, 'Ref': ref, 'Version Title': versTit, 'Page Type': pageType, 'Sidebars': sideBar},
+      {1: primCat, 2: secoCat, 3: bookName, 5: contLang}
+    );
+
+  },
+  componentWillReceiveProps(nextProps) {
+    if (this.props.menuOpen          !== nextProps.menuOpen          ||
+        this.props.textTitle         !== nextProps.textTitle         ||
+        this.props.textFlow          !== nextProps.textFlow          ||
+        this.props.columnLanguage    !== nextProps.columnLanguage    ||
+        this.props.settings.fontSize !== nextProps.settings.fontSize ||
+        this.props.settings.language !== nextProps.settings.language ||
+        this.props.textListVisible   !== nextProps.textListVisible   ||
+        this.props.segmentIndexRef   !== nextProps.segmentIndexRef   ||
+        this.props.segmentRef        !== nextProps.segmentRef        ||
+        this.props.linkRecentFilters !== nextProps.linkRecentFilters ||
+        this.props.themeStr          !== nextProps.themeStr) {
+          this.trackPageview();
+    }
   },
 
   render: function() {
