@@ -29,6 +29,7 @@ Sefaria = {
       var bookRefStem  = Sefaria.textTitleForRef(ref);
       var jsonPath     = Sefaria._JSONSourcePath(fileNameStem);
       var zipPath      = Sefaria._zipSourcePath(bookRefStem);
+      
       var processData = function(data) {
         // Store data in in memory cache if it's not there already
         if (!(jsonPath in Sefaria._jsonData)) {
@@ -75,19 +76,34 @@ Sefaria = {
         .then(processData)
         .catch(function() {
           // If there was en error, assume it's because the data was not unzipped yet
-          Sefaria._unzip(zipPath)
-            .catch(function() { console.error("Error unzipping: ", zipPath)})
-            .then(() => Sefaria._loadJSON(jsonPath))
-            .then(processData)
-            .catch(function() {
-              // Now that the file is unzipped, if there was an error assume we have a depth 1 text
-              var depth1FilenameStem = fileNameStem.substr(0, fileNameStem.lastIndexOf(" "));
-              var depth1JSONPath = Sefaria._JSONSourcePath(depth1FilenameStem);
-              Sefaria._loadJSON(depth1JSONPath)
-                .then(processData)
-                .catch(function() {
-                  console.error("Error loading JSON file: " + jsonPath + " OR " + depth1JSONPath);
-                });
+          RNFS.exists(zipPath)
+            .then(function(exists) {
+              if (exists) {
+                Sefaria._unzip(zipPath)
+                  .then(function() {
+                    Sefaria._loadJSON(jsonPath)
+                      .then(processData)
+                      .catch(function() {
+                        // Now that the file is unzipped, if there was an error assume we have a depth 1 text
+                        var depth1FilenameStem = fileNameStem.substr(0, fileNameStem.lastIndexOf(" "));
+                        var depth1JSONPath = Sefaria._JSONSourcePath(depth1FilenameStem);
+                        Sefaria._loadJSON(depth1JSONPath)
+                          .then(processData)
+                          .catch(function() {                  
+                            console.error("Error loading JSON file: " + jsonPath + " OR " + depth1JSONPath);
+                          });
+                      });
+                  });
+              } else {
+                // The zip doesn't exist yet, so download it and try again
+                Sefaria._downloadZip(bookRefStem)
+                  .then(function(downloadResult) {
+                    Sefaria.data(ref).then(processData);
+                  })
+                  .catch(function() {
+                    console.error("Error downloading: ", bookRefStem)
+                  });              
+              }
             });
         });
     });
@@ -306,11 +322,11 @@ Sefaria = {
       console.error("AsyncStorage failed to load: " + error);
     });;
   },
-  _deleteAllFiles: function() {
+  _deleteUnzippedFiles: function() {
     return new Promise(function(resolve, reject) {
       RNFS.readDir(RNFS.DocumentDirectoryPath).then((result) => {
         for (var i = 0; i < result.length; i++) {
-          if (result[i].isFile()) {
+          if (result[i].isFile() && result[i].path.endsWith(".json")) {
             RNFS.unlink(result[i].path);
           }
         }
@@ -324,11 +340,30 @@ Sefaria = {
   _loadJSON: function(JSONSourcePath) {
     return fetch(JSONSourcePath).then((response) => response.json());
   },
+  _downloadZip: function(title) {
+    var toFile = RNFS.DocumentDirectoryPath + "/" + title + ".zip";
+    var start = new Date();
+    console.log("Starting download of " + title);
+    return new Promise(function(resolve, reject) {
+      RNFS.downloadFile({
+        fromUrl: "http://dev.sefaria.org/static/ios-export/" + encodeURIComponent(title) + ".zip",
+        toFile: toFile
+      }).then(function(downloadResult) {
+        console.log("Downloaded " + title + " in " + (new Date() - start));
+        if (downloadResult.statusCode == 200) {
+          resolve();
+        } else {
+          reject(downloadResult.statusCode);
+          RNFS.unlink(toFile);
+        }
+      })
+    });
+  },
   _JSONSourcePath: function(fileName) {
     return (RNFS.DocumentDirectoryPath + "/" + fileName + ".json");
   },
   _zipSourcePath: function(fileName) {
-    return (RNFS.MainBundlePath + "/sources/" + fileName + ".zip");
+    return (RNFS.DocumentDirectoryPath + "/" + fileName + ".zip");
   },
   textFromRefData: function(data) {
     // Returns a dictionary of the form {en: "", he: ""} that includes a single string with

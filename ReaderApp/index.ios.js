@@ -73,7 +73,7 @@ var ReaderApp = React.createClass({
         };
     },
     componentDidMount: function () {
-      Sefaria._deleteAllFiles().then(function() {
+      Sefaria._deleteUnzippedFiles().then(function() {
 
          }).catch(function(error) {
           console.error('Error caught from Sefaria._deleteAllFiles', error);
