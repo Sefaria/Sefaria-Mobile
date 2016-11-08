@@ -112,8 +112,12 @@ var ReaderPanel = React.createClass({
     .then((responseJson) => {
       var resultArray = resetQuery ? responseJson["hits"]["hits"] : this.state.searchQueryResult.concat(responseJson["hits"]["hits"]);
       //console.log("resultArray",resultArray);
-      var numResults = responseJson["hits"]["total"]
+      var numResults = responseJson["hits"]["total"];
       this.setState({isQueryLoadingTail: false, isQueryRunning: false, searchQueryResult:resultArray, numSearchResults: numResults});
+
+      if (resetQuery) {
+        Sefaria.track.event("Search","Query: text", query, numResults);
+      }
     })
     .catch((error) => {
       console.log(error);
@@ -129,12 +133,18 @@ var ReaderPanel = React.createClass({
       this.onQueryChange(this.state.searchQuery,false);
     }
   },
+  openSearchRef: function(ref) {
+    this.props.openRef(ref);
+    Sefaria.track.event("Search","Search Result Text Click",this.props.searchQuery + ' - ' + ref);
+  },
   setIsNewSearch: function(isNewSearch) {
     this.setState({isNewSearch: isNewSearch});
   },
   search: function(query) {
     this.onQueryChange(query,true);
     this.props.openSearch();
+
+    Sefaria.track.event("Search","Search Box Search",query);
   },
   toggleLanguage: function() {
     // Toggle current display language between english/hebrew only
@@ -179,7 +189,7 @@ var ReaderPanel = React.createClass({
   send current page stats to analytics
   */
   trackPageview: function() {
-    let pageType  = this.props.menuOpen || (this.props.textListVisible ? "Text and Commentary" : "Text");
+    let pageType  = this.props.menuOpen || (this.props.textListVisible ? "TextAndConnections" : "Text");
     let numPanels = this.props.textListVisible ? '1.1' : '1';
     let ref       = this.props.segmentRef !== '' ? this.props.segmentRef : this.props.textReference;
     let bookName  = this.props.textTitle;
@@ -201,12 +211,11 @@ var ReaderPanel = React.createClass({
 
   },
   componentWillReceiveProps(nextProps) {
+    //TODO account for infinite
     if (this.props.menuOpen          !== nextProps.menuOpen          ||
         this.props.textTitle         !== nextProps.textTitle         ||
         this.props.textFlow          !== nextProps.textFlow          ||
         this.props.columnLanguage    !== nextProps.columnLanguage    ||
-        this.props.settings.fontSize !== nextProps.settings.fontSize ||
-        this.props.settings.language !== nextProps.settings.language ||
         this.props.textListVisible   !== nextProps.textListVisible   ||
         this.props.segmentIndexRef   !== nextProps.segmentIndexRef   ||
         this.props.segmentRef        !== nextProps.segmentRef        ||
@@ -262,7 +271,7 @@ var ReaderPanel = React.createClass({
             hasInternet={this.props.hasInternet}
             closeNav={this.props.closeMenu}
             onQueryChange={this.onQueryChange}
-            openRef={this.props.openRef}
+            openSearchRef={this.openSearchRef}
             setLoadTail={this.setLoadQueryTail}
             setIsNewSearch={this.setIsNewSearch}
             query={this.state.searchQuery}

@@ -22,7 +22,7 @@ var SearchPage = React.createClass({
 		hasInternet:   React.PropTypes.bool,
 		closeNav:      React.PropTypes.func.isRequired,
 		onQueryChange: React.PropTypes.func.isRequired,
-		openRef:       React.PropTypes.func.isRequired,
+		openSearchRef: React.PropTypes.func.isRequired,
 		setLoadTail:   React.PropTypes.func.isRequired,
 		setIsNewSearch:React.PropTypes.func.isRequired,
 		query:         React.PropTypes.string,
@@ -84,7 +84,7 @@ var SearchPage = React.createClass({
 					queryResult={this.props.queryResult}
 					loadingTail={this.props.loadingTail}
 					onQueryChange={this.props.onQueryChange}
-					openRef={this.props.openRef}
+					openSearchRef={this.props.openSearchRef}
 					setLoadTail={this.props.setLoadTail}
 					setIsNewSearch={this.props.setIsNewSearch}
 					isNewSearch={this.props.isNewSearch} />
