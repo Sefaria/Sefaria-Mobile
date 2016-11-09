@@ -57,7 +57,7 @@ Sefaria = {
                 link.category = Sefaria.categoryForTitle(link.textTitle);
               }
             });
-          }          
+          }
         });
         result.requestedRef   = ref;
         result.isSectionLevel = (ref === result.sectionRef);
@@ -736,6 +736,8 @@ Sefaria = {
         } else {
           Sefaria.track._tracker.trackEvent(category, action, {label: label, value: value});
         }
+
+        console.log("EVENT",category,action,label,value);
       },
       pageview: function(page, customDimensions, contentGroups) {
         //console.log('Page',page);

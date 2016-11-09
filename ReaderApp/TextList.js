@@ -95,7 +95,7 @@ var TextList = React.createClass({
             onPress={function(filter,title) {
               this.props.openCat(filter);
               Sefaria.track.event("Reader","Text Filter Click",title);
-            }.bind(this,filter,title)}
+            }.bind(this,filter,obook.title)}
             key={obook.title} />);
         });
 
@@ -110,7 +110,7 @@ var TextList = React.createClass({
               onPress={function(filter,category) {
                 this.props.openCat(filter);
                 Sefaria.track.event("Reader","Category Filter Click",category);
-              }.bind(this,filter,category)}
+              }.bind(this,filter,cat.category)}
               key={cat.category} />
             <TwoBox content={innerViewList} />
           </View>);
