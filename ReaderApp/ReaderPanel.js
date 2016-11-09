@@ -103,6 +103,8 @@ var ReaderPanel = React.createClass({
     } else {
       this.state.settings.language = "english";
     }
+    Sefaria.track.event("Reader","Change Language",this.state.settings.language);
+
     this.setState({settings: this.state.settings});
   },
   setTextFlow: function(textFlow) {

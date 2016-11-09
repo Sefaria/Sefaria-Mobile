@@ -92,6 +92,8 @@ var ReaderApp = React.createClass({
     },
     textSegmentPressed: function(section, segment, segmentRef, shouldToggle) {
         //console.log("textSegmentPressed", section, segment, segmentRef, shouldToggle);
+        Sefaria.track.event("Reader","Text Segment Click",segmentRef);
+
         if (shouldToggle && this.state.textListVisible) {
             this.setState({textListVisible: false});
             return; // Don't bother with other changes if we are simply closing the TextList
@@ -175,8 +177,10 @@ var ReaderApp = React.createClass({
         //console.log("updating data -- " + direction);
         if (direction === "next" && this.state.next) {
             this.updateDataNext();
+            Sefaria.track.event("Reader","Infinite Scroll","Down");
         } else if (direction == "prev" && this.state.prev) {
             this.updateDataPrev();
+            Sefaria.track.event("Reader","Infinite Scroll","Up");
         }
     },
     updateDataPrev: function() {
@@ -260,6 +264,7 @@ var ReaderApp = React.createClass({
           case "text toc":
             break;
           case "text list":
+            Sefaria.track.event("Reader","Click Text from TextList",ref);
             break;
           default:
             break;
@@ -329,6 +334,7 @@ var ReaderApp = React.createClass({
     },
     closeLinkCat: function() {
       this.setState({filterIndex: null});
+      Sefaria.track.event("Reader","Show All Filters Click","1");
     },
     updateLinkCat: function(linkSummary, filterIndex) {
         //search for the current filter in the the links object
