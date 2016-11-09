@@ -29,39 +29,45 @@ var {
 
 var ReaderPanel = React.createClass({
   propTypes: {
-    segmentRef:        React.PropTypes.string,
-    segmentIndexRef:   React.PropTypes.number,
-    offsetRef:         React.PropTypes.string,
-    data:              React.PropTypes.array,
-    textTitle:         React.PropTypes.string,
-    heTitle:           React.PropTypes.string,
-    heRef:             React.PropTypes.string,
-    openRef:           React.PropTypes.func.isRequired,
-    openNav:           React.PropTypes.func.isRequired,
-    openTextToc:       React.PropTypes.func.isRequired,
-    interfaceLang:     React.PropTypes.oneOf(["english", "hebrew"]).isRequired,
-    loading:           React.PropTypes.bool,
-    textListVisible:   React.PropTypes.bool,
-    textListFlex:      React.PropTypes.number,
-    onTextListDragStart:React.PropTypes.func.isRequired,
-    onTextListDragMove:React.PropTypes.func.isRequired,
-    openLinkCat:       React.PropTypes.func.isRequired,
-    closeLinkCat:      React.PropTypes.func.isRequired,
-    updateLinkCat:     React.PropTypes.func.isRequired,
-    filterIndex:       React.PropTypes.number,
-    linkRecentFilters: React.PropTypes.array,
-    linkSummary:       React.PropTypes.array,
-    linkContents:      React.PropTypes.array,
-    loadingLinks:      React.PropTypes.bool,
-    setTheme:          React.PropTypes.func.isRequired,
-    theme:             React.PropTypes.object,
-    themeStr:          React.PropTypes.oneOf(["white", "black"]),
-    hasInternet:       React.PropTypes.bool,
-    onQueryChange:     React.PropTypes.func.isRequired,
-    setLoadQueryTail:  React.PropTypes.func.isRequired,
-    setIsNewSearch:    React.PropTypes.func.isRequired,
-    search:            React.PropTypes.func.isRequired,
-    Sefaria:           React.PropTypes.object.isRequired
+    segmentRef:          React.PropTypes.string,
+    segmentIndexRef:     React.PropTypes.number,
+    offsetRef:           React.PropTypes.string,
+    data:                React.PropTypes.array,
+    textTitle:           React.PropTypes.string,
+    heTitle:             React.PropTypes.string,
+    heRef:               React.PropTypes.string,
+    openRef:             React.PropTypes.func.isRequired,
+    openNav:             React.PropTypes.func.isRequired,
+    openTextToc:         React.PropTypes.func.isRequired,
+    interfaceLang:       React.PropTypes.oneOf(["english", "hebrew"]).isRequired,
+    loading:             React.PropTypes.bool,
+    textListVisible:     React.PropTypes.bool,
+    textListFlex:        React.PropTypes.number,
+    onTextListDragStart: React.PropTypes.func.isRequired,
+    onTextListDragMove:  React.PropTypes.func.isRequired,
+    openLinkCat:         React.PropTypes.func.isRequired,
+    closeLinkCat:        React.PropTypes.func.isRequired,
+    updateLinkCat:       React.PropTypes.func.isRequired,
+    filterIndex:         React.PropTypes.number,
+    linkRecentFilters:   React.PropTypes.array,
+    linkSummary:         React.PropTypes.array,
+    linkContents:        React.PropTypes.array,
+    loadingLinks:        React.PropTypes.bool,
+    setTheme:            React.PropTypes.func.isRequired,
+    theme:               React.PropTypes.object,
+    themeStr:            React.PropTypes.oneOf(["white", "black"]),
+    hasInternet:         React.PropTypes.bool,
+    isQueryRunning:      React.PropTypes.bool,
+    searchQuery:         React.PropTypes.string,
+    isQueryLoadingTail:  React.PropTypes.bool,
+    isNewSearch:         React.PropTypes.bool,
+    numSearchResults:    React.PropTypes.number,
+    searchQueryResult:   React.PropTypes.array,
+    onQueryChange:       React.PropTypes.func.isRequired,
+    setLoadQueryTail:    React.PropTypes.func.isRequired,
+    setIsNewSearch:      React.PropTypes.func.isRequired,
+    search:              React.PropTypes.func.isRequired,
+    Sefaria:             React.PropTypes.object.isRequired
   },
   getInitialState: function () {
     Sefaria = this.props.Sefaria;
@@ -145,7 +151,7 @@ var ReaderPanel = React.createClass({
         ((cats.length > 2) ? cats[2] : ""):
         ((cats.length > 1) ? cats[1] : "")) : "";
     let contLang  = this.state.settings.language;
-    let sideBar   = this.props.linkRecentFilters.length > 0 ? this.props.recentFilters.map(filt => filt.title).join('+') : 'all';
+    let sideBar   = this.props.linkRecentFilters.length > 0 ? this.props.linkRecentFilters.map(filt => filt.title).join('+') : 'all';
     let versTit   = ''; //we don't support this yet
 
     Sefaria.track.pageview(pageType,
@@ -181,7 +187,7 @@ var ReaderPanel = React.createClass({
           <ReaderNavigationMenu
             categories={this.props.navigationCategories}
             setCategories={this.props.setNavigationCategories}
-            openRef={(ref)=>this.props.openRef(ref,"Navigation")}
+            openRef={(ref)=>this.props.openRef(ref,"navigation")}
             openNav={this.props.openNav}
             closeNav={this.props.closeMenu}
             openSearch={this.props.search}
@@ -203,7 +209,7 @@ var ReaderPanel = React.createClass({
             contentLang={this.state.settings.language == "hebrew" ? "hebrew" : "english"}
             interfaceLang={this.props.interfaceLang}
             close={this.props.closeMenu}
-            openRef={(ref)=>this.props.openRef(ref,"TOC")}
+            openRef={(ref)=>this.props.openRef(ref,"text toc")}
             toggleLanguage={this.toggleLanguage}
             Sefaria={Sefaria} />);
         break;
@@ -215,7 +221,7 @@ var ReaderPanel = React.createClass({
             hasInternet={this.props.hasInternet}
             closeNav={this.props.closeMenu}
             onQueryChange={this.props.onQueryChange}
-            openRef={(ref)=>this.props.openRef(ref,"Search")}
+            openRef={(ref)=>this.props.openRef(ref,"search")}
             setLoadTail={this.props.setLoadQueryTail}
             setIsNewSearch={this.props.setIsNewSearch}
             query={this.props.searchQuery}
@@ -292,7 +298,7 @@ var ReaderPanel = React.createClass({
                 segmentIndexRef={this.props.segmentIndexRef}
                 textFlow={this.state.textFlow}
                 columnLanguage={this.state.columnLanguage}
-                openRef={(ref)=>this.props.openRef(ref,"TextList")}
+                openRef={(ref)=>this.props.openRef(ref,"text list")}
                 openCat={this.props.openLinkCat}
                 closeCat={this.props.closeLinkCat}
                 updateCat={this.props.updateLinkCat}

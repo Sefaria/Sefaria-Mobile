@@ -74,7 +74,9 @@ var ReaderApp = React.createClass({
             isQueryRunning: false,
             isQueryLoadingTail: false,
             isNewSearch: false,
-            currSearchPage: 0
+            currSearchPage: 0,
+            numSearchResults: 0,
+            searchQueryResult: []
         };
     },
     componentDidMount: function () {
@@ -249,14 +251,14 @@ var ReaderApp = React.createClass({
         this.loadNewText(ref);
 
         switch (calledFrom) {
-          case "Search":
+          case "search":
             Sefaria.track.event("Search","Search Result Text Click",this.state.searchQuery + ' - ' + ref);
             break;
-          case "Navigation":
+          case "navigation":
             break;
-          case "TOC":
+          case "text toc":
             break;
-          case "TextList":
+          case "text list":
             break;
           default:
             break;
@@ -547,6 +549,13 @@ var ReaderApp = React.createClass({
                     theme={this.state.theme}
                     themeStr={this.state.themeStr}
                     hasInternet={this.state.hasInternet}
+                    isQueryRunning={this.state.isQueryRunning}
+                    searchQuery={this.state.searchQuery}
+                    isQueryLoadingTail={this.state.isQueryLoadingTail}
+                    isNewSearch={this.state.isNewSearch}
+                    numSearchResults={this.state.numSearchResults}
+                    currSearchPage={this.state.currSearchPage}
+                    searchQueryResult={this.state.searchQueryResult}
                     onQueryChange={this.onQueryChange}
                     setLoadQueryTail={this.setLoadQueryTail}
                     setIsNewSearch={this.setIsNewSearch}

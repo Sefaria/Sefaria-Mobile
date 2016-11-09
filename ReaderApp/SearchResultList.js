@@ -17,7 +17,7 @@ var SearchResultList = React.createClass({
     queryResult:    React.PropTypes.array,
     loadingTail:    React.PropTypes.bool,
     onQueryChange:  React.PropTypes.func.isRequired,
-    openRef:  React.PropTypes.func.isRequired,
+    openRef:        React.PropTypes.func.isRequired,
     setLoadTail:    React.PropTypes.func.isRequired,
     setIsNewSearch: React.PropTypes.func.isRequired,
     isNewSearch:    React.PropTypes.bool
