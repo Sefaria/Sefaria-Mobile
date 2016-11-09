@@ -112,6 +112,7 @@ var ReaderPanel = React.createClass({
       this.setColumnLanguage("hebrew");
     }
     this.toggleReaderDisplayOptionsMenu();
+    Sefaria.track.event("Reader","Display Option Click","layout - " + textFlow);
   },
   setColumnLanguage: function(columnLanguage) {
     this.setState({columnLanguage: columnLanguage});
@@ -119,9 +120,10 @@ var ReaderPanel = React.createClass({
       this.setTextFlow("segmented");
     }
     this.toggleReaderDisplayOptionsMenu();
+    Sefaria.track.event("Reader","Display Option Click","language - " + columnLanguage);
   },
   incrementFont: function(incrementString) {
-    if (incrementString == "incrementFont") {
+    if (incrementString == "larger") {
       var updatedSettings = Sefaria.util.clone(this.state.settings)
       updatedSettings.fontSize = this.state.settings.fontSize+1;
       this.setState({settings:updatedSettings});
@@ -130,6 +132,7 @@ var ReaderPanel = React.createClass({
       updatedSettings.fontSize  = this.state.settings.fontSize-1;
       this.setState({settings:updatedSettings});
     }
+    Sefaria.track.event("Reader","Display Option Click","fontSize - " + incrementString);
   },
   setTheme: function(themeStr) {
     this.props.setTheme(themeStr);

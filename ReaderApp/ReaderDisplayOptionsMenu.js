@@ -49,7 +49,7 @@ var ReaderDisplayOptionsMenu = React.createClass({
       },
       {
         onPress:this.props.incrementFont,
-        buttons:["decrementFont","incrementFont"],
+        buttons:["smaller","larger"],
         icons:[a_icon_small,a_icon],
         currVal: null,
         parametrized: true
