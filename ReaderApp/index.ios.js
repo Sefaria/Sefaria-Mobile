@@ -255,6 +255,7 @@ var ReaderApp = React.createClass({
             Sefaria.track.event("Search","Search Result Text Click",this.state.searchQuery + ' - ' + ref);
             break;
           case "navigation":
+            Sefaria.track.event("Reader","Navigation Text Click", ref);
             break;
           case "text toc":
             break;

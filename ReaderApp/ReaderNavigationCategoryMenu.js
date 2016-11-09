@@ -128,7 +128,10 @@ var ReaderNavigationCategoryMenuContents = React.createClass({
           // Special Case categories which should nest
           var subcats = [ "Mishneh Torah", "Shulchan Arukh", "Midrash Rabbah", "Maharal" ];
           if (Sefaria.util.inArray(item.category, subcats) > -1) {
-            var openCat = this.props.setCategories.bind(null, newCats);
+            var openCat = function(newCats) {
+              this.props.setCategories(newCats);
+              Sefaria.track.event("Reader","Navigation Sub Category Click",newCats.join(" / "));
+            }.bind(this,newCats);
             content.push((<TouchableOpacity onPress={openCat} style={[styles.textBlockLink,this.props.theme.textBlockLink]} key={i}>
                             { showHebrew ?
                               <Text style={[styles.he, styles.centerText, this.props.theme.text]}>{Sefaria.hebrewCategory(item.category)}</Text> :
