@@ -96,14 +96,9 @@ Sefaria = {
                   });
               } else {
                 // The zip doesn't exist yet, so make an API call
-                Sefaria._apiCall(ref,'text')
-                  .then(function(textResult) {
-                    //console.log('API Result',Sefaria._urlForRef(ref,false,'text'));
-                    //console.log(apiResult);
-                    //Sefaria.data(ref).then(processData);
-                    console.log("API",Sefaria._APItoiOS(textResult,{}));
-                    processData(Sefaria._APItoiOS(textResult,{}));
-                  })
+                Sefaria._apiTextandLinks(ref)
+                  .then(Sefaria._APItoiOS)
+                  .then(processData)
                   .catch(function() {
                     console.error("Error with API: ", Sefaria._urlForRef(ref,false,'text'));
                   });
@@ -347,7 +342,24 @@ Sefaria = {
   /*
   takes responses from text and links api and returns json in the format of iOS json
   */
-  _APItoiOS: function(text_response,links_response) {
+  _APItoiOS: function(responses) {
+      let text_response = responses.text;
+      let baseRef = responses.ref;
+      let link_response = new Array(text_response.length);
+      for (let i = 0; i < responses.links.length; i++) {
+        let link = responses.links[i];
+        let linkSegIndex = parseInt(link.anchorRef.substring(link.anchorRef.lastIndexOf(':') + 1)) - 1;
+        if (!link_response[linkSegIndex]) {
+          link_response[linkSegIndex] = [];
+        }
+        link_response[linkSegIndex].push({
+          "category": link.category,
+          "sourceRef": link.sourceRef,
+          "sourceHeRef": link.sourceHeRef,
+          "index_title": link.index_title
+        });
+      }
+
       return {
         "heTitleVariants": text_response.heTitleVariants,
         "heTitle": text_response.heTitle,
@@ -359,8 +371,8 @@ Sefaria = {
         "content": text_response.text.map((en,i)=>({
             "segmentNumber": i+1,
             "he": text_response.he[i],
-            "en": en,
-            "links": []
+            "text": en,
+            "links": link_response[i] ? link_response[i] : []
         })),
         "book": text_response.book,
         "prev": text_response.prev,
@@ -399,10 +411,10 @@ Sefaria = {
           urlSuffix = '?context=0&commentary=0';
           break;
         case "count":
-          url += 'api/counts';
+          url += 'api/counts/';
           break;
         case "links":
-          url += 'api/links';
+          url += 'api/links/';
           urlSuffix = '?with_text=0';
           break;
         default:
@@ -415,9 +427,36 @@ Sefaria = {
     console.log("URL",url);
     return url;
   },
+  _apiTextandLinks: function(ref) {
+    var checkResolve = function(resolve) {
+      if (numResponses == 2) {
+        resolve({"text": textResponse, "links": linkResponse, "ref": ref});
+      }
+    }
+
+    var numResponses = 0;
+    var textResponse = null;
+    var linkResponse = null;
+    console.log('api text and links');
+    return new Promise(function(resolve,reject) {
+      Sefaria._apiCall(ref,'text')
+      .then((response)=>{
+        numResponses += 1;
+        textResponse = response;
+        checkResolve(resolve);
+      });
+      Sefaria._apiCall(ref,'links')
+      .then((response)=>{
+        numResponses += 1;
+        linkResponse = response;
+        checkResolve(resolve);
+      });
+    });
+  },
   _apiCall: function(ref,apiType) {
     var url = Sefaria._urlForRef(ref,false,apiType);
     return new Promise(function(resolve,reject) {
+      console.log('fetching');
       fetch(url)
       .then(function(response) {
         console.log('checking response',response.status);
