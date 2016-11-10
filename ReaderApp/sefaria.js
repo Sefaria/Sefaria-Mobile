@@ -1,5 +1,4 @@
 const ZipArchive = require('react-native-zip-archive'); //for unzipping -- (https://github.com/plrthink/react-native-zip-archive)
-
 const RNFS = require('react-native-fs'); //for access to file system -- (https://github.com/johanneslumpe/react-native-fs)
 import GoogleAnalytics from 'react-native-google-analytics-bridge';
 import { AsyncStorage } from 'react-native';
@@ -30,7 +29,7 @@ Sefaria = {
       var bookRefStem  = Sefaria.textTitleForRef(ref);
       var jsonPath     = Sefaria._JSONSourcePath(fileNameStem);
       var zipPath      = Sefaria._zipSourcePath(bookRefStem);
-      
+
       var processData = function(data) {
         // Store data in in memory cache if it's not there already
         if (!(jsonPath in Sefaria._jsonData)) {
@@ -59,7 +58,7 @@ Sefaria = {
                 link.category = Sefaria.categoryForTitle(link.textTitle);
               }
             });
-          }          
+          }
         });
         result.requestedRef   = ref;
         result.isSectionLevel = (ref === result.sectionRef);
@@ -90,20 +89,24 @@ Sefaria = {
                         var depth1JSONPath = Sefaria._JSONSourcePath(depth1FilenameStem);
                         Sefaria._loadJSON(depth1JSONPath)
                           .then(processData)
-                          .catch(function() {                  
+                          .catch(function() {
                             console.error("Error loading JSON file: " + jsonPath + " OR " + depth1JSONPath);
                           });
                       });
                   });
               } else {
-                // The zip doesn't exist yet, so download it and try again
-                Sefaria._downloadZip(bookRefStem)
-                  .then(function(downloadResult) {
-                    Sefaria.data(ref).then(processData);
+                // The zip doesn't exist yet, so make an API call
+                Sefaria._apiCall(ref,'text')
+                  .then(function(textResult) {
+                    //console.log('API Result',Sefaria._urlForRef(ref,false,'text'));
+                    //console.log(apiResult);
+                    //Sefaria.data(ref).then(processData);
+                    console.log("API",Sefaria._APItoiOS(textResult,{}));
+                    processData(Sefaria._APItoiOS(textResult,{}));
                   })
                   .catch(function() {
-                    console.error("Error downloading: ", bookRefStem)
-                  });              
+                    console.error("Error with API: ", Sefaria._urlForRef(ref,false,'text'));
+                  });
               }
             });
         });
@@ -340,6 +343,92 @@ Sefaria = {
   },
   _loadJSON: function(JSONSourcePath) {
     return fetch(JSONSourcePath).then((response) => response.json());
+  },
+  /*
+  takes responses from text and links api and returns json in the format of iOS json
+  */
+  _APItoiOS: function(text_response,links_response) {
+      return {
+        "heTitleVariants": text_response.heTitleVariants,
+        "heTitle": text_response.heTitle,
+        "heRef": text_response.heRef,
+        "toSections": text_response.toSections,
+        "sectionRef": text_response.sectionRef,
+        "lengths": text_response.length,
+        "next": text_response.next,
+        "content": text_response.text.map((en,i)=>({
+            "segmentNumber": i+1,
+            "he": text_response.he[i],
+            "en": en,
+            "links": []
+        })),
+        "book": text_response.book,
+        "prev": text_response.prev,
+        "textDepth": text_response.textDepth,
+        "sectionNames": text_response.sectionNames,
+        "sections": text_response.sections,
+        "isComplex": text_response.isComplex,
+        "titleVariants": text_response.titleVariants,
+        "categories": text_response.categories,
+        "ref": text_response.ref,
+        "type": text_response.type,
+        "addressTypes": text_response.addressTypes,
+        "length": text_response.length,
+        "indexTitle": text_response.indexTitle,
+        "heIndexTitle": text_response.heIndexTitle,
+        "alts": text_response.alts,
+        "order": text_response.order
+      };
+  },
+  /*
+  apiType: string oneOf(["text","count","links"]). passing undefined gets the standard Reader URL.
+  */
+  _urlForRef: function(ref, useHTTPS, apiType) {
+    var url = '';
+    if (useHTTPS) {
+      url += 'https://www.sefaria.org/';
+    } else {
+      url += 'http://www.sefaria.org/';
+    }
+
+    var urlSuffix = '';
+    if (apiType) {
+      switch (apiType) {
+        case "text":
+          url += 'api/texts/';
+          urlSuffix = '?context=0&commentary=0';
+          break;
+        case "count":
+          url += 'api/counts';
+          break;
+        case "links":
+          url += 'api/links';
+          urlSuffix = '?with_text=0';
+          break;
+        default:
+          break;
+      }
+    }
+
+    ref = ref.replace(':', '.').replace(' ', '_');
+    url += ref + urlSuffix;
+    console.log("URL",url);
+    return url;
+  },
+  _apiCall: function(ref,apiType) {
+    var url = Sefaria._urlForRef(ref,false,apiType);
+    return new Promise(function(resolve,reject) {
+      fetch(url)
+      .then(function(response) {
+        console.log('checking response',response.status);
+        if (response.status >= 200 && response.status < 300) {
+          return response;
+        } else {
+          reject(response.statusText);
+        }
+      })
+      .then(response => resolve(response.json()));
+    });
   },
   _downloadZip: function(title) {
     var toFile = RNFS.DocumentDirectoryPath + "/" + title + ".zip";
