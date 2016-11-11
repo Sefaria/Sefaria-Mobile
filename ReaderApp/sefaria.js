@@ -1,11 +1,15 @@
 const ZipArchive = require('react-native-zip-archive'); //for unzipping -- (https://github.com/plrthink/react-native-zip-archive)
 const RNFS = require('react-native-fs'); //for access to file system -- (https://github.com/johanneslumpe/react-native-fs)
+const Downloader = require('./downloader')
 import GoogleAnalytics from 'react-native-google-analytics-bridge';
 import { AsyncStorage } from 'react-native';
 
 
 Sefaria = {
   init: function() {
+    
+    Sefaria.downloader.init();
+
     // Load JSON data for TOC and Calendar
     return new Promise(function(resolve, reject) {
       var checkResolve = function() {
@@ -95,14 +99,9 @@ Sefaria = {
                       });
                   });
               } else {
-                // The zip doesn't exist yet, so download it and try again
-                Sefaria._downloadZip(bookRefStem)
-                  .then(function(downloadResult) {
-                    Sefaria.data(ref).then(processData);
-                  })
-                  .catch(function() {
-                    console.error("Error downloading: ", bookRefStem)
-                  });              
+                // The zip doesn't exist yet
+                Sefaria.downloader.prioritizeDownload(bookRefStem);
+                reject(zipPath + " doesn't exist"); 
               }
             });
         });
@@ -344,7 +343,7 @@ Sefaria = {
     return (RNFS.DocumentDirectoryPath + "/" + fileName + ".json");
   },
   _zipSourcePath: function(fileName) {
-    return (RNFS.DocumentDirectoryPath + "/" + fileName + ".zip");
+    return (RNFS.DocumentDirectoryPath + "/library/" + fileName + ".zip");
   },
   textFromRefData: function(data) {
     // Returns a dictionary of the form {en: "", he: ""} that includes a single string with
@@ -841,6 +840,7 @@ Sefaria.util = {
   }
 };
 
+Sefaria.downloader = Downloader;
 
 Sefaria.hebrew = {
   hebrewNumerals: {
