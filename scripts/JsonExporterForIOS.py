@@ -66,7 +66,7 @@ def zip_last_text(title):
 	z = zipfile.ZipFile(zipPath, "w", zipfile.ZIP_DEFLATED)
 
 	for file in glob.glob("*.json"):
-		if file.endswith("calendar.json") or file.endswith("toc.json"):
+		if file.endswith("calendar.json") or file.endswith("toc.json") or file.endswith("last_update.json"):
 			continue
 		z.write(file)
 		os.remove(file)
@@ -86,12 +86,14 @@ def export_texts(skip_existing=False):
 			continue 
 		export_text(title)
 
+	write_last_updated(titles)
+
 
 def export_text(title):
 	"""Writes a ZIP file containing text content json and text index JSON"""
 	export_text_json(title)
 	export_index(title)
-	zip_last_text(title)	
+	zip_last_text(title)
 
 
 def export_text_json(title):
@@ -176,7 +178,17 @@ def export_index(title):
 		print "Error exporting Index for %s: %s" % (title, e)
 		import traceback
 		print traceback.format_exc()
-			
+
+
+def write_last_updated(titles):
+	"""
+	Writes to `last_updated.json` the current time stamp for all `titles`.
+	TODO -- read current file, don't just overwrite
+	"""
+	timestamp = datetime.now().replace(second=0, microsecond=0).isoformat()
+	last_updated = {title: timestamp for title in titles}
+	write_doc(last_updated, SEFARIA_EXPORT_PATH + "/last_updated.json")
+
 
 def export_toc():
 	"""

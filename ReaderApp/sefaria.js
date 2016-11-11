@@ -340,25 +340,6 @@ Sefaria = {
   _loadJSON: function(JSONSourcePath) {
     return fetch(JSONSourcePath).then((response) => response.json());
   },
-  _downloadZip: function(title) {
-    var toFile = RNFS.DocumentDirectoryPath + "/" + title + ".zip";
-    var start = new Date();
-    console.log("Starting download of " + title);
-    return new Promise(function(resolve, reject) {
-      RNFS.downloadFile({
-        fromUrl: "http://dev.sefaria.org/static/ios-export/" + encodeURIComponent(title) + ".zip",
-        toFile: toFile
-      }).then(function(downloadResult) {
-        console.log("Downloaded " + title + " in " + (new Date() - start));
-        if (downloadResult.statusCode == 200) {
-          resolve();
-        } else {
-          reject(downloadResult.statusCode);
-          RNFS.unlink(toFile);
-        }
-      })
-    });
-  },
   _JSONSourcePath: function(fileName) {
     return (RNFS.DocumentDirectoryPath + "/" + fileName + ".json");
   },
