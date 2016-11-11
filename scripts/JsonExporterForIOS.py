@@ -26,12 +26,15 @@ from sefaria.system.exceptions import InputError
 from sefaria.system.database import db
 
 
+SCHEMA_VERSION = "1"
+EXPORT_PATH = SEFARIA_EXPORT_PATH + "/" + SCHEMA_VERSION
+
 
 def make_path(doc, format):
 	"""
 	Returns the full path and file name for exporting 'doc' in 'format'.
 	"""
-	path = "%s/%s.%s" % (SEFARIA_EXPORT_PATH, doc["ref"], format)
+	path = "%s/%s.%s" % (EXPORT_PATH, doc["ref"], format)
 	return path
 
 
@@ -59,9 +62,9 @@ def zip_last_text(title):
 	Zip up the JSON files of the last text exported into and delete the original JSON files.
 	Assumes that all previous JSON files have been deleted and the remaining ones should go in the new zip.
 	"""
-	os.chdir(SEFARIA_EXPORT_PATH)
+	os.chdir(EXPORT_PATH)
 
-	zipPath = "%s/%s.%s" % (SEFARIA_EXPORT_PATH, title, "zip")
+	zipPath = "%s/%s.%s" % (EXPORT_PATH, title, "zip")
 
 	z = zipfile.ZipFile(zipPath, "w", zipfile.ZIP_DEFLATED)
 
@@ -82,7 +85,7 @@ def export_texts(skip_existing=False):
 	titles = [i.title for i in model.library.all_index_records(with_commentary=True)]
 
 	for title in titles:
-		if skip_existing and os.path.isfile("%s/%s.zip" % (SEFARIA_EXPORT_PATH, title)):
+		if skip_existing and os.path.isfile("%s/%s.zip" % (EXPORT_PATH, title)):
 			continue 
 		export_text(title)
 
@@ -172,7 +175,7 @@ def export_index(title):
 	try:
 		index = model.get_index(title)
 		index = index.contents_with_content_counts()
-		path  = "%s/%s_index.json" % (SEFARIA_EXPORT_PATH, title)
+		path  = "%s/%s_index.json" % (EXPORT_PATH, title)
 		write_doc(index, path)
 	except Exception, e:
 		print "Error exporting Index for %s: %s" % (title, e)
@@ -187,7 +190,7 @@ def write_last_updated(titles):
 	"""
 	timestamp = datetime.now().replace(second=0, microsecond=0).isoformat()
 	last_updated = {title: timestamp for title in titles}
-	write_doc(last_updated, SEFARIA_EXPORT_PATH + "/last_updated.json")
+	write_doc(last_updated, EXPORT_PATH + "/last_updated.json")
 
 
 def export_toc():
@@ -196,7 +199,7 @@ def export_toc():
 	"""
 	print "Export Table of Contents"
 	toc  = model.library.get_toc()
-	path = "%s/toc.json" % (SEFARIA_EXPORT_PATH)
+	path = "%s/toc.json" % (EXPORT_PATH)
 	write_doc(toc, path)
 
 
@@ -237,7 +240,7 @@ def export_calendar():
 			# "shabbatName": parasha["shabbat_name"],
 		}
 
-	path = "%s/calendar.json" % (SEFARIA_EXPORT_PATH)
+	path = "%s/calendar.json" % (EXPORT_PATH)
 	write_doc(calendar, path)
 
 
@@ -245,8 +248,8 @@ def clear_exports():
 	"""
 	Deletes all files from any export directory listed in export_formats.
 	"""
-	if os.path.exists(SEFARIA_EXPORT_PATH):
-		rmtree(SEFARIA_EXPORT_PATH)
+	if os.path.exists(EXPORT_PATH):
+		rmtree(EXPORT_PATH)
 
 
 def export_all(skip_existing=False):
