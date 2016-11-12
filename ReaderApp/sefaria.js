@@ -23,14 +23,17 @@ Sefaria = {
       // Sefaria.calendar is loaded async when ReaderNavigationMenu renders
     });
   },
-  data: function(ref) {
+  /*
+  if `isLinkRequest` and you're using API, only return single segment corresponding to link
+  */
+  data: function(ref,isLinkRequest) {
     return new Promise(function(resolve, reject) {
       var fileNameStem = ref.split(":")[0];
       var bookRefStem  = Sefaria.textTitleForRef(ref);
       var jsonPath     = Sefaria._JSONSourcePath(fileNameStem);
       var zipPath      = Sefaria._zipSourcePath(bookRefStem);
 
-      var processData = function(data) {
+      var processFileData = function(data) {
         // Store data in in memory cache if it's not there already
         if (!(jsonPath in Sefaria._jsonData)) {
           Sefaria._jsonData[jsonPath] = data;
@@ -66,14 +69,28 @@ Sefaria = {
         resolve(result);
       };
 
+      var processApiData = function(data) {
+        if (!(data.requestedRef in Sefaria._apiData)) {
+          Sefaria._apiData[data.requestedRef] = data;
+          //console.log("Pushing ",data.requestedRef,"into API cache");
+        }
+        Sefaria.cacheCommentatorListBySection(data);
+        //console.log(data);
+        resolve(data);
+      };
 
       // Pull data from in memory cache if available
       if (jsonPath in Sefaria._jsonData) {
-        processData(Sefaria._jsonData[jsonPath]);
+        processFileData(Sefaria._jsonData[jsonPath]);
+        return;
+      }
+      if (ref in Sefaria._apiData) {
+        processApiData(Sefaria._apiData[ref]);
+        //console.log("Pulling ",ref,"From API cache");
         return;
       }
       Sefaria._loadJSON(jsonPath)
-        .then(processData)
+        .then(processFileData)
         .catch(function() {
           // If there was en error, assume it's because the data was not unzipped yet
           RNFS.exists(zipPath)
@@ -82,13 +99,13 @@ Sefaria = {
                 Sefaria._unzip(zipPath)
                   .then(function() {
                     Sefaria._loadJSON(jsonPath)
-                      .then(processData)
+                      .then(processFileData)
                       .catch(function() {
                         // Now that the file is unzipped, if there was an error assume we have a depth 1 text
                         var depth1FilenameStem = fileNameStem.substr(0, fileNameStem.lastIndexOf(" "));
                         var depth1JSONPath = Sefaria._JSONSourcePath(depth1FilenameStem);
                         Sefaria._loadJSON(depth1JSONPath)
-                          .then(processData)
+                          .then(processFileData)
                           .catch(function() {
                             console.error("Error loading JSON file: " + jsonPath + " OR " + depth1JSONPath);
                           });
@@ -96,18 +113,35 @@ Sefaria = {
                   });
               } else {
                 // The zip doesn't exist yet, so make an API call
-                Sefaria._apiTextandLinks(ref)
-                  .then(Sefaria._APItoiOS)
-                  .then(processData)
-                  .catch(function() {
-                    console.error("Error with API: ", Sefaria._urlForRef(ref,false,'text'));
-                  });
+                if (isLinkRequest) {
+                  Sefaria._apiCall(ref, 'text')
+                    .then((data) => {
+                      resolve({
+                        "fromAPI": true,
+                        "result":
+                        {
+                          "en": data.text instanceof Array ? data.text.join(' ') : data.text,
+                          "he": data.he   instanceof Array ? data.he.join(' ')   : data.he
+                        }
+                      });
+                    })
+                    .catch(() => { console.error("Error with API loading link text: ", Sefaria._urlForRef(ref,false,'text'))})
+                } else {
+                  Sefaria._apiTextandLinks(ref)
+                    .then(Sefaria._APItoiOS)
+                    .then(processApiData)
+                    .catch(function() {
+                      console.error("Error with API: ", Sefaria._urlForRef(ref,false,'text'));
+                    });
+                }
+
               }
             });
         });
     });
   },
   _jsonData: {}, // in memory cache for JSON data
+  _apiData: {}, //in memory cache for API data
   textTitleForRef: function(ref) {
     // Returns the book title named in `ref` by examining the list of known book titles.
     for (i = ref.length; i >= 0; i--) {
@@ -354,13 +388,15 @@ Sefaria = {
         }
         link_response[linkSegIndex].push({
           "category": link.category,
-          "sourceRef": link.sourceRef,
-          "sourceHeRef": link.sourceHeRef,
-          "index_title": link.index_title
+          "sourceRef": link.sourceRef, //.substring(0,link.sourceRef.lastIndexOf(':')),
+          "sourceHeRef": link.sourceHeRef, //.substring(0,link.sourceHeRef.lastIndexOf(':')),
+          "textTitle": link.index_title
         });
       }
 
       return {
+        "requestedRef": responses.ref,
+        "isSectionLevel": responses.ref === text_response.sectionRef,
         "heTitleVariants": text_response.heTitleVariants,
         "heTitle": text_response.heTitle,
         "heRef": text_response.heRef,
@@ -369,7 +405,7 @@ Sefaria = {
         "lengths": text_response.length,
         "next": text_response.next,
         "content": text_response.text.map((en,i)=>({
-            "segmentNumber": i+1,
+            "segmentNumber": ""+(i+1),
             "he": text_response.he[i],
             "text": en,
             "links": link_response[i] ? link_response[i] : []
@@ -422,7 +458,7 @@ Sefaria = {
       }
     }
 
-    ref = ref.replace(':', '.').replace(' ', '_');
+    ref = ref.replace(/:/g,'.').replace(/ /g,'_');
     url += ref + urlSuffix;
     console.log("URL",url);
     return url;
@@ -437,7 +473,6 @@ Sefaria = {
     var numResponses = 0;
     var textResponse = null;
     var linkResponse = null;
-    console.log('api text and links');
     return new Promise(function(resolve,reject) {
       Sefaria._apiCall(ref,'text')
       .then((response)=>{
@@ -456,7 +491,6 @@ Sefaria = {
   _apiCall: function(ref,apiType) {
     var url = Sefaria._urlForRef(ref,false,apiType);
     return new Promise(function(resolve,reject) {
-      console.log('fetching');
       fetch(url)
       .then(function(response) {
         console.log('checking response',response.status);
@@ -531,7 +565,14 @@ Sefaria = {
     loadLinkData: function(ref,pos,resolveClosure,rejectClosure,runNow) {
       parseData = function(data) {
         return new Promise(function(resolve, reject) {
-          var result = Sefaria.textFromRefData(data);
+
+          if (data.fromAPI) {
+            var result = data.result;
+            console.log("HERE",data.result);
+          } else {
+            var result = Sefaria.textFromRefData(data);
+          }
+
           // console.log(data.requestedRef + ": " + result.en + " / " + result.he);
           if (result) {
             resolve(result);
@@ -555,7 +596,7 @@ Sefaria = {
       }
       if ((Sefaria.links._linkContentLoadingStack.length == 1 && !Sefaria.links._linkContentLoadingStack[ref]) || runNow) {
         //console.log("Starting to load",ref);
-        return Sefaria.data(ref).then(parseData);
+        return Sefaria.data(ref,true).then(parseData);
       } else {
 
         return new Promise(function(resolve,reject) {

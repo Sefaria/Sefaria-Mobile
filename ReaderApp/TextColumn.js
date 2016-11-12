@@ -138,7 +138,7 @@ var TextColumn = React.createClass({
         if (i == 0 && direction == 'up' && nameOfSecondSection != null ) {
           console.log('scrolling up? '+nameOfFirstSection)
           this.state.continuousSectionOffset = this.refs._listView.scrollProperties.offset - currentSectionSegmentsPos[currentSectionSegmentsPos.length-1][1]
-          
+
         }
 
         if (i == currentSectionSegmentsPos.length -1) {
@@ -342,7 +342,7 @@ var TextColumn = React.createClass({
       }
     }
     console.log("findDataSegmentIndex couldn't find ", secIndex, segNum, "in data:")
-    console.log(this.props.data);
+    //console.log(this.props.data);
     return -1;
   },
   scrollToTarget: function() {
@@ -639,7 +639,7 @@ var TextColumn = React.createClass({
       var columnLanguage = Sefaria.util.getColumnLanguageWithContent(this.props.columnLanguage, currSegData.text, currSegData.he);
       var refSection = rowData.section + ":" + i;
       var reactRef = this.props.sectionArray[rowData.section] + ":" + this.props.data[rowData.section][i].segmentNumber;
-      var style = [styles.continuousVerseNumber, 
+      var style = [styles.continuousVerseNumber,
                    this.props.columnLanguage == "hebrew" ? styles.continuousHebrewVerseNumber : null,
                    this.props.theme.verseNumber,
                    currSegData.highlight ? this.props.theme.segmentHighlight : null];

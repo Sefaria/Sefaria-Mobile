@@ -134,7 +134,7 @@ var TextList = React.createClass({
     );
 
     if (isSummaryMode) {
-      var content = this.props.loading ? 
+      var content = this.props.loading ?
                       <LoadingView /> :
                       <ScrollView style={styles.textListSummaryScrollView}>{viewList}</ScrollView>;
       return (
