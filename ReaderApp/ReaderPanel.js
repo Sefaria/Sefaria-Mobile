@@ -17,6 +17,7 @@ var ReaderTextTableOfContents = require('./ReaderTextTableOfContents');
 var SearchPage                = require('./SearchPage');
 var TextColumn                = require('./TextColumn');
 var TextList                  = require('./TextList');
+var SettingsPage              = require('./SettingsPage');
 var styles                    = require('./Styles.js');
 
 var {
@@ -37,6 +38,7 @@ var ReaderPanel = React.createClass({
     heTitle:           React.PropTypes.string,
     heRef:             React.PropTypes.string,
     openRef:           React.PropTypes.func.isRequired,
+    openMenu:          React.PropTypes.func.isRequired,
     openNav:           React.PropTypes.func.isRequired,
     openTextToc:       React.PropTypes.func.isRequired,
     interfaceLang:     React.PropTypes.oneOf(["english", "hebrew"]).isRequired,
@@ -189,6 +191,7 @@ var ReaderPanel = React.createClass({
             openRef={this.props.openRef}
             openNav={this.props.openNav}
             closeNav={this.props.closeMenu}
+            openSettings={this.props.openMenu.bind(null, "settings")}
             openSearch={this.search}
             setIsNewSearch={this.setIsNewSearch}
             toggleLanguage={this.toggleLanguage}
@@ -229,6 +232,13 @@ var ReaderPanel = React.createClass({
             loadingTail={this.state.isQueryLoadingTail}
             queryResult={this.state.searchQueryResult}
             numResults={this.state.numSearchResults} />);
+        break;
+      case ("settings"):
+        return(
+          <SettingsPage
+            close={this.props.openNav}
+            theme={this.props.theme}
+            Sefaria={Sefaria} />);
         break;
     }
 

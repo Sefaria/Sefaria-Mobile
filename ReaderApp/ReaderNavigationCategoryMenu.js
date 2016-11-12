@@ -85,10 +85,10 @@ var ReaderNavigationCategoryMenu = React.createClass({
                 {showHebrew ?
                   <Text style={[styles.he, styles.categoryTitle, this.props.theme.categoryTitle]}>{heTitle}</Text> :
                   <Text style={[styles.en, styles.categoryTitle, this.props.theme.categoryTitle]}>{enTitle}</Text> }
-                  <LanguageToggleButton
-                    theme={this.props.theme}
-                    toggleLanguage={this.props.toggleLanguage}
-                    language={language} />
+                <LanguageToggleButton
+                  theme={this.props.theme}
+                  toggleLanguage={this.props.toggleLanguage}
+                  language={language} />
               </View>
 
               <ScrollView style={styles.menuContent}>

@@ -139,6 +139,13 @@ var ReaderNavigationMenu = React.createClass({
                   interfaceLang={this.props.interfaceLang} />
 
                 <View style={{height: 20}} />
+
+                <TouchableOpacity onPress={this.props.openSettings}>
+                  <Text>Settings</Text>
+                </TouchableOpacity>
+
+                <View style={{height: 20}} />
+
               </ScrollView>
             </View>);
     }

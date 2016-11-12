@@ -14,49 +14,47 @@ var Downloader = {
     downloadInProgress: [], // List of titles currently downloading
     lastUpdateCheck: null,  // Timestamp of last download of updates list
   },
+  onChange: null, // Handler set above called when books in the Library finish downloading, or download mode changes. 
   init: function() {
     this._loadData()
       .then(function() {
-        console.log("Downloader init with data")
+        console.log("Downloader init with data:")
         console.log(Downloader._data);
         console.log(Downloader.titlesAvailable().length + " title available");
         console.log(Downloader.titlesDownloaded().length + " title downloaded");
 
-
-        if (!Downloader._data.shouldDownload) {
-          Downloader.downloadLibrary();
-          return;
-        }
-
-        Downloader._updateDownloadQueue();
-
-
-        // if titles where left in progress, put them back in the queue
-        if (Downloader._data.downloadInProgress.length) {
-          Downloader._setData("downloadQueue", Downloader._data.downloadQueue.concat(Downloader._data.downloadInProgress));
-          Downloader._setData("downloadInProgress", []);
-        }
-        // Resume working through queue
-        if (Downloader._data.shouldDownload) {
-          Downloader._downloadNext();
-        }
+        Downloader.resumeDownload();
       });
   },
   downloadLibrary: function() {
     RNFS.mkdir(RNFS.DocumentDirectoryPath + "/library");
     RNFS.mkdir(RNFS.DocumentDirectoryPath + "/tmp");
-    this._setData("shouldDownload", true);
-    this.checkForUpdates()
+    Downloader._setData("shouldDownload", true);
+    Downloader.checkForUpdates()
       .then(() => { 
         Downloader._updateDownloadQueue();
         Downloader._downloadNext(); 
      });
+    this.onChange && this.onChange();
   },
   deleteLibrary: function() {
     RNFS.unlink(RNFS.DocumentDirectoryPath + "/library");
     RNFS.unlink(RNFS.DocumentDirectoryPath + "/tmp");
-    this._setData("lastDownload", {});
-    this._setData("shouldDownload", false);
+    Downloader._setData("lastDownload", {});
+    Downloader._setData("shouldDownload", false);
+    Downloader.onChange && Downloader.onChange();
+  },
+  resumeDownload: function() {
+    // Resumes the download process if anything is left in progress or in queue.
+    // if titles where left in progress, put them back in the queue
+    if (Downloader._data.downloadInProgress.length) {
+      Downloader._setData("downloadQueue", Downloader._data.downloadQueue.concat(Downloader._data.downloadInProgress));
+      Downloader._setData("downloadInProgress", []);
+    }
+    // Resume working through queue
+    if (Downloader._data.shouldDownload) {
+      Downloader._downloadNext();
+    }
   },
   checkForUpdates: function() {
     // Downloads the "last_update.json", stores it in _data.availableDownloads 
@@ -111,25 +109,33 @@ var Downloader = {
     return downloaded;
   },
   _updateDownloadQueue: function() {
+    // Examines availableDownloads and adds any title to the downloadQueue that has a newer download available
+    // and is not already in queue. 
     for (var title in this._data.availableDownloads) {
       if (this._data.availableDownloads.hasOwnProperty(title) && 
           this._data.availableDownloads[title] !== this._data.lastDownload[title]) {
-            this._data.downloadQueue.push(title);
+            if (this._data.downloadQueue.indexOf(title) == -1) {
+              this._data.downloadQueue.push(title);
+            }
       }
     }
     this._setData("downloadQueue", this._data.downloadQueue);
   },
   _downloadNext: function() {
+    // Starts download of the next item of the queue, and continues doing so after successful completion.
     if (!this._data.downloadQueue.length) { return; }
-    var nextTitle = this._data.downloadQueue.shift();
+    var nextTitle = this._data.downloadQueue[0];
     this._downloadZip(nextTitle)
       .then(() => { Downloader._downloadNext(); });
-    this._setData("downloadQueue", this._data.downloadQueue);
   },
   _downloadZip: function(title) {
+    // Downloads `title`, first to /tmp then to /library when complete.
+    // Manages `title`'s presense in downloadQueue and downloadInProgress.
     var toFile = RNFS.DocumentDirectoryPath + "/tmp/" + title + ".zip";
     var start = new Date();
     console.log("Starting download of " + title);
+    this._removeFromDowloadQueue(title);
+    this._setData("downloadInProgress", [title].concat(this._data.downloadInProgress));
     return new Promise(function(resolve, reject) {
       RNFS.downloadFile({
         fromUrl: HOST_PATH + encodeURIComponent(title) + ".zip",
@@ -138,11 +144,12 @@ var Downloader = {
       }).then(function(downloadResult) {
         console.log("Downloaded " + title + " in " + (new Date() - start));
         if (downloadResult.statusCode == 200) {
-          RNFS.unlink(RNFS.DocumentDirectoryPath + "/library/" + title + ".zip");
+          RNFS.unlink(RNFS.DocumentDirectoryPath + "/library/" + title + ".zip").catch(() => {});
           RNFS.moveFile(toFile, RNFS.DocumentDirectoryPath + "/library/" + title + ".zip");
           Downloader._removeFromInProgress(title);
           Downloader._data.lastDownload[title] = Downloader._data.availableDownloads[title];
           Downloader._setData("lastDownload", Downloader._data.lastDownload);
+          Downloader.onChange && Downloader.onChange();
           resolve();
         } else {
           reject(downloadResult.statusCode);
@@ -150,6 +157,13 @@ var Downloader = {
         }
       })
     });
+  },
+  _removeFromDowloadQueue: function(title) {
+    var i = this._data.downloadQueue.indexOf(title);
+    if (i > -1) {
+        this._data.downloadQueue.splice(i, 1);
+        this._setData("downloadQueue", this._data.downloadQueue);
+    }
   },
   _removeFromInProgress: function(title) {
     var i = this._data.downloadInProgress.indexOf(title);

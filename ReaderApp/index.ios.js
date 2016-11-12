@@ -80,7 +80,7 @@ var ReaderApp = React.createClass({
         });
     },
     networkChangeListener: function (isConnected) {
-      // console.log("Has Internet",isConnected);
+      //console.log("Has Internet", isConnected);
       this.setState({hasInternet: isConnected});
     },
     textSegmentPressed: function(section, segment, segmentRef, shouldToggle) {
