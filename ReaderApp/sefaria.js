@@ -1,5 +1,6 @@
 const ZipArchive = require('react-native-zip-archive'); //for unzipping -- (https://github.com/plrthink/react-native-zip-archive)
 const RNFS = require('react-native-fs'); //for access to file system -- (https://github.com/johanneslumpe/react-native-fs)
+const LinkContent  = require('./LinkContent');
 import GoogleAnalytics from 'react-native-google-analytics-bridge';
 import { AsyncStorage } from 'react-native';
 
@@ -118,13 +119,11 @@ Sefaria = {
                 if (isLinkRequest) {
                   Sefaria._apiCall(ref, 'text')
                     .then((data) => {
+                      let en_text = (data.text instanceof Array) ? data.text.join(' ') : data.text;
+                      let he_text = (data.he   instanceof Array) ? data.he.join(' ')   : data.he;
                       resolve({
                         "fromAPI": true,
-                        "result":
-                        {
-                          "en": data.text instanceof Array ? data.text.join(' ') : data.text,
-                          "he": data.he   instanceof Array ? data.he.join(' ')   : data.he
-                        }
+                        "result": new LinkContent(en_text, he_text, data.sectionRef)
                       });
                     })
                     .catch(() => { console.error("Error with API loading link text: ", Sefaria._urlForRef(ref,false,'text'))})
@@ -385,9 +384,13 @@ Sefaria = {
       let counts_response = responses.counts;
       let counts_en = counts_response._en.availableTexts;
       let counts_he = counts_response._he.availableTexts;
-      for (let section_index of text_response.sections) {
-        counts_en = counts_en[section_index-1];
-        counts_he = counts_he[section_index-1];
+      for (let i = 0; i < text_response.sections.length; i++) {
+        let section_address = text_response.sections[i];
+        if (text_response.addressTypes[i] == "Talmud") {
+          section_address = Sefaria.hebrew.dafToInt(section_address) + 1;
+        }
+        counts_en = counts_en[section_address-1];
+        counts_he = counts_he[section_address-1];
       }
       let link_response = new Array(counts_he.length);
       let baseRef = responses.ref;
@@ -500,8 +503,8 @@ Sefaria = {
     }
 
     var sectionNumberIndex = ref.lastIndexOf(' '); //index of beginning of section numbers in ref. should be length of string if it's 1-level
-    console.log('Secions ',ref.substring(sectionNumberIndex+1).replace(/[:\-]/g,''));
-    if (isNaN(ref.substring(sectionNumberIndex+1).replace(/[:\-]/g,''))) {
+    var patt = new RegExp(/^[0-9:\-]+[ab]?$/);
+    if (!patt.test(ref.substring(sectionNumberIndex+1))) {
       sectionNumberIndex = ref.length;
     }
     var bookName = ref.substring(0,sectionNumberIndex); //technically not book name for complex text, but for counts api it doesn't matter
@@ -510,18 +513,15 @@ Sefaria = {
     var textResponse = null;
     var linksResponse = null;
     var countsResponse = bookName in Sefaria._apiCountsData ? Sefaria._apiCountsData[bookName] : null;
-    console.log("HERE");
     return new Promise(function(resolve,reject) {
       Sefaria._apiCall(ref,'text')
       .then((response)=>{
-        console.log("text done");
         numResponses += 1;
         textResponse = response;
         checkResolve(resolve);
       });
       Sefaria._apiCall(ref,'links')
       .then((response)=>{
-        console.log("links done");
         numResponses += 1;
         linksResponse = response;
         checkResolve(resolve);
@@ -532,7 +532,6 @@ Sefaria = {
       } else {
         Sefaria._apiCall(bookName,'counts')
         .then((response)=>{
-          console.log("counts done");
           numResponses += 1;
           countsResponse = response;
           Sefaria._apiCountsData[bookName] = countsResponse;
@@ -583,8 +582,9 @@ Sefaria = {
     return (RNFS.DocumentDirectoryPath + "/" + fileName + ".zip");
   },
   textFromRefData: function(data) {
-    // Returns a dictionary of the form {en: "", he: ""} that includes a single string with
+    // Returns a dictionary of the form {en: "", he: "", sectionRef: ""} that includes a single string with
     // Hebrew and English for `data.requestedRef` found in `data` as returned from Sefaria.data.
+    //sectionRef is so that we know which file / api call to make to open this text
     // `data.requestedRef` may be either section or segment level.
     if (data.isSectionLevel) {
       let enText = "", heText = "";
@@ -593,7 +593,7 @@ Sefaria = {
         if (typeof item.text === "string") enText += item.text + " ";
         if (typeof item.he === "string") heText += item.he + " ";
       }
-      return({en: enText, he: heText});
+      return new LinkContent(enText, heText, sectionRef);
     } else {
       var segmentNumber = data.requestedRef.slice(data.ref.length+1);
       for (let i = 0; i < data.content.length; i++) {
@@ -602,7 +602,7 @@ Sefaria = {
             let enText = "", heText = "";
             if (typeof item.text === "string") enText = item.text;
             if (typeof item.he === "string") heText = item.he;
-            return({en: enText, he: heText});
+            return new LinkContent(enText, heText, sectionRef);
         }
       }
     }
@@ -622,7 +622,6 @@ Sefaria = {
 
           if (data.fromAPI) {
             var result = data.result;
-            console.log("HERE",data.result);
           } else {
             var result = Sefaria.textFromRefData(data);
           }

@@ -357,7 +357,7 @@ var ReaderApp = React.createClass({
       var reject = (error) => {
         if (error != 'inQueue') {
           if (isLinkCurrent(ref, pos)) {
-              this.onLinkLoad(pos, {en:JSON.stringify(error), he:JSON.stringify(error)});
+              this.onLinkLoad(pos, {en:JSON.stringify(error), he:JSON.stringify(error), sectionRef: ""});
           }
         }
       };

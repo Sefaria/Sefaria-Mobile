@@ -60,7 +60,7 @@ var TextList = React.createClass({
     if (linkContentObj == null) {
       loading = true;
       this.props.loadLinkContent(ref, rowId);
-      linkContentObj = {en: "Loading...", he: "טוען..."};
+      linkContentObj = {en: "Loading...", he: "טוען...", sectionRef: ""};
     }
 
     return (<LinkContent
@@ -240,7 +240,7 @@ var LinkContent = React.createClass({
     }
 
     return (
-      <TouchableOpacity style={[styles.searchTextResult, this.props.theme.searchTextResult]} onPress={()=>{this.props.openRef(this.props.refStr)}}>
+      <TouchableOpacity style={[styles.searchTextResult, this.props.theme.searchTextResult]} onPress={()=>{this.props.openRef(this.props.linkContentObj.sectionRef)}}>
         {this.props.isCommentaryBook ? null : <Text style={[styles.en, styles.textListCitation, this.props.theme.textListCitation]}>{this.props.refStr}</Text>}
         {textViews}
       </TouchableOpacity>
