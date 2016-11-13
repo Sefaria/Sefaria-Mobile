@@ -33,6 +33,8 @@ Sefaria = {
       var jsonPath     = Sefaria._JSONSourcePath(fileNameStem);
       var zipPath      = Sefaria._zipSourcePath(bookRefStem);
 
+      console.log("file name stem",fileNameStem);
+
       var processFileData = function(data) {
         // Store data in in memory cache if it's not there already
         if (!(jsonPath in Sefaria._jsonData)) {
@@ -72,7 +74,7 @@ Sefaria = {
       var processApiData = function(data) {
         if (!(data.requestedRef in Sefaria._apiData)) {
           Sefaria._apiData[data.requestedRef] = data;
-          //console.log("Pushing ",data.requestedRef,"into API cache");
+          console.log("Pushing ",data.requestedRef,"into API cache");
         }
         Sefaria.cacheCommentatorListBySection(data);
         //console.log(data);
@@ -86,7 +88,7 @@ Sefaria = {
       }
       if (ref in Sefaria._apiData) {
         processApiData(Sefaria._apiData[ref]);
-        //console.log("Pulling ",ref,"From API cache");
+        console.log("Pulling ",ref,"From API cache");
         return;
       }
       Sefaria._loadJSON(jsonPath)
@@ -127,7 +129,7 @@ Sefaria = {
                     })
                     .catch(() => { console.error("Error with API loading link text: ", Sefaria._urlForRef(ref,false,'text'))})
                 } else {
-                  Sefaria._apiTextandLinks(ref)
+                  Sefaria._apiTextandLinksandCounts(ref)
                     .then(Sefaria._APItoiOS)
                     .then(processApiData)
                     .catch(function() {
@@ -142,6 +144,7 @@ Sefaria = {
   },
   _jsonData: {}, // in memory cache for JSON data
   _apiData: {}, //in memory cache for API data
+  _apiCountsData: {}, //cache for counts documents for books from api
   textTitleForRef: function(ref) {
     // Returns the book title named in `ref` by examining the list of known book titles.
     for (i = ref.length; i >= 0; i--) {
@@ -377,9 +380,18 @@ Sefaria = {
   takes responses from text and links api and returns json in the format of iOS json
   */
   _APItoiOS: function(responses) {
+      //console.log(responses);
       let text_response = responses.text;
+      let counts_response = responses.counts;
+      let counts_en = counts_response._en.availableTexts;
+      let counts_he = counts_response._he.availableTexts;
+      for (let section_index of text_response.sections) {
+        counts_en = counts_en[section_index-1];
+        counts_he = counts_he[section_index-1];
+      }
+      let link_response = new Array(counts_he.length);
       let baseRef = responses.ref;
-      let link_response = new Array(text_response.length);
+
       for (let i = 0; i < responses.links.length; i++) {
         let link = responses.links[i];
         let linkSegIndex = parseInt(link.anchorRef.substring(link.anchorRef.lastIndexOf(':') + 1)) - 1;
@@ -394,6 +406,26 @@ Sefaria = {
         });
       }
 
+      let en_pointer = 0;
+      let he_pointer = 0;
+      let content = counts_he.map((hc,i) => {
+        let he_text = '';
+        let en_text = '';
+        if (counts_he[i] > 0) {
+          he_text = text_response.he[he_pointer];
+          he_pointer++;
+        }
+        if (counts_en[i] > 0) {
+          en_text = text_response.text[en_pointer];
+          en_pointer++;
+        }
+        return {
+          "segmentNumber": ""+(i+1),
+          "he": he_text,
+          "text": en_text,
+          "links": link_response[i] ? link_response[i] : []
+        };
+      });
       return {
         "requestedRef": responses.ref,
         "isSectionLevel": responses.ref === text_response.sectionRef,
@@ -404,12 +436,7 @@ Sefaria = {
         "sectionRef": text_response.sectionRef,
         "lengths": text_response.length,
         "next": text_response.next,
-        "content": text_response.text.map((en,i)=>({
-            "segmentNumber": ""+(i+1),
-            "he": text_response.he[i],
-            "text": en,
-            "links": link_response[i] ? link_response[i] : []
-        })),
+        "content": content,
         "book": text_response.book,
         "prev": text_response.prev,
         "textDepth": text_response.textDepth,
@@ -429,7 +456,8 @@ Sefaria = {
       };
   },
   /*
-  apiType: string oneOf(["text","count","links"]). passing undefined gets the standard Reader URL.
+  apiType: string oneOf(["text","counts","links"]). passing undefined gets the standard Reader URL.
+  NOTE: ref should be a book name if apiType == "counts"
   */
   _urlForRef: function(ref, useHTTPS, apiType) {
     var url = '';
@@ -446,7 +474,7 @@ Sefaria = {
           url += 'api/texts/';
           urlSuffix = '?context=0&commentary=0';
           break;
-        case "count":
+        case "counts":
           url += 'api/counts/';
           break;
         case "links":
@@ -463,29 +491,55 @@ Sefaria = {
     console.log("URL",url);
     return url;
   },
-  _apiTextandLinks: function(ref) {
+  _apiTextandLinksandCounts: function(ref) {
     var checkResolve = function(resolve) {
-      if (numResponses == 2) {
-        resolve({"text": textResponse, "links": linkResponse, "ref": ref});
+      if (numResponses == 3) {
+        console.log("ALL Done ");
+        resolve({"text": textResponse, "links": linksResponse, "counts": countsResponse, "ref": ref});
       }
     }
 
+    var sectionNumberIndex = ref.lastIndexOf(' '); //index of beginning of section numbers in ref. should be length of string if it's 1-level
+    console.log('Secions ',ref.substring(sectionNumberIndex+1).replace(/[:\-]/g,''));
+    if (isNaN(ref.substring(sectionNumberIndex+1).replace(/[:\-]/g,''))) {
+      sectionNumberIndex = ref.length;
+    }
+    var bookName = ref.substring(0,sectionNumberIndex); //technically not book name for complex text, but for counts api it doesn't matter
+    console.log('Book name',bookName);
     var numResponses = 0;
     var textResponse = null;
-    var linkResponse = null;
+    var linksResponse = null;
+    var countsResponse = bookName in Sefaria._apiCountsData ? Sefaria._apiCountsData[bookName] : null;
+    console.log("HERE");
     return new Promise(function(resolve,reject) {
       Sefaria._apiCall(ref,'text')
       .then((response)=>{
+        console.log("text done");
         numResponses += 1;
         textResponse = response;
         checkResolve(resolve);
       });
       Sefaria._apiCall(ref,'links')
       .then((response)=>{
+        console.log("links done");
         numResponses += 1;
-        linkResponse = response;
+        linksResponse = response;
         checkResolve(resolve);
       });
+      if (countsResponse != null) {
+        numResponses += 1;
+        checkResolve(resolve);
+      } else {
+        Sefaria._apiCall(bookName,'counts')
+        .then((response)=>{
+          console.log("counts done");
+          numResponses += 1;
+          countsResponse = response;
+          Sefaria._apiCountsData[bookName] = countsResponse;
+          checkResolve(resolve);
+        });
+      }
+
     });
   },
   _apiCall: function(ref,apiType) {
