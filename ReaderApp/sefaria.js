@@ -75,7 +75,6 @@ Sefaria = {
       var processApiData = function(data) {
         if (!(data.requestedRef in Sefaria._apiData)) {
           Sefaria._apiData[data.requestedRef] = data;
-          console.log("Pushing ",data.requestedRef,"into API cache");
         }
         Sefaria.cacheCommentatorListBySection(data);
         //console.log(data);
@@ -89,7 +88,6 @@ Sefaria = {
       }
       if (ref in Sefaria._apiData) {
         processApiData(Sefaria._apiData[ref]);
-        console.log("Pulling ",ref,"From API cache");
         return;
       }
       Sefaria._loadJSON(jsonPath)

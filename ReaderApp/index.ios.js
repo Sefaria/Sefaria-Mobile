@@ -113,7 +113,8 @@ var ReaderApp = React.createClass({
         this.setState(stateObj);
         this.forceUpdate();
     },
-    loadNewText: function(ref) {
+
+    loadNewText: function(ref, sectionRef=undefined) {
         this.setState({
             loaded: false,
             data: [],
@@ -127,7 +128,7 @@ var ReaderApp = React.createClass({
           ref = ref.split("-")[0];
         }
 
-        Sefaria.data(ref).then(function(data) {
+        Sefaria.data(sectionRef ? sectionRef : ref).then(function(data) {
             var linkSummary = [];
             var loadingLinks = false;
             if (data.content && data.content.links) {
@@ -153,7 +154,7 @@ var ReaderApp = React.createClass({
                 linkContents:      [],
                 loadingLinks:      loadingLinks,
                 textListVisible:   false,
-                offsetRef:         !data.isSectionLevel ? data.requestedRef : null,
+                offsetRef:         !data.isSectionLevel ? data.requestedRef : (sectionRef ? ref : null),
             });
             Sefaria.links.reset();
             // Preload Text TOC data into memory
@@ -230,15 +231,19 @@ var ReaderApp = React.createClass({
         });
         Sefaria.saveRecentItem({ref: ref, heRef: heRef, category: Sefaria.categoryForRef(ref)});
     },
-    openRef: function(ref) {
+    /*
+    sectionRef is optional. Used to make sure the API request is made on the section level, yet offsetRef points to the segment level
+    */
+    openRef: function(ref, sectionRef=undefined) {
+        let loadSection = typeof sectionRef == "string";
         this.setState({
-            loaded: false,
-            textReference: ref
+          loaded: false,
+          textReference: ref
         }, function() {
             this.closeMenu(); // Don't close until these values are in state, so we know if we need to load defualt text
         }.bind(this));
 
-        this.loadNewText(ref);
+        this.loadNewText(ref, loadSection ? sectionRef : undefined);
     },
     openMenu: function(menu) {
         this.setState({menuOpen: menu});

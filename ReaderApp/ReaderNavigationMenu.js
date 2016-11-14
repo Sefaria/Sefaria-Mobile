@@ -163,7 +163,7 @@ var RecentSection = React.createClass({
                     heCat={item.heRef}
                     language={this.props.language}
                     style={{"borderColor": Sefaria.palette.categoryColor(item.category)}}
-                    onPress={this.props.openRef.bind(null, item.ref,true)} />);
+                    onPress={this.props.openRef.bind(null, item.ref)} />);
     }.bind(this));
 
     return (<ReaderNavigationMenuSection
@@ -201,14 +201,14 @@ var CalendarSection = React.createClass({
                     heCat={"פרשה"}
                     language={this.props.language}
                     style={{"borderColor": Sefaria.palette.categoryColor("Tanakh")}}
-                    onPress={this.props.openRef.bind(null, parashah.ref,true)} />,
+                    onPress={this.props.openRef.bind(null, parashah.ref)} />,
           <CategoryBlockLink
                     theme={this.props.theme}
                     category={"Haftara"}
                     heCat={"הפטרה"}
                     language={this.props.language}
                     style={{"borderColor": Sefaria.palette.categoryColor("Tanakh")}}
-                    onPress={this.props.openRef.bind(null, parashah.haftara[0],true)} />,
+                    onPress={this.props.openRef.bind(null, parashah.haftara[0])} />,
           <CategoryBlockLink
                     theme={this.props.theme}
                     category={"Daf Yomi"}
