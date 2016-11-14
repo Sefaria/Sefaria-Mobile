@@ -503,7 +503,7 @@ Sefaria = {
     }
 
     var sectionNumberIndex = ref.lastIndexOf(' '); //index of beginning of section numbers in ref. should be length of string if it's 1-level
-    var patt = new RegExp(/^[0-9:\-]+[ab]?$/);
+    var patt = new RegExp(/^([0-9]+[ab]?[:\-]?)+$/);
     if (!patt.test(ref.substring(sectionNumberIndex+1))) {
       sectionNumberIndex = ref.length;
     }
