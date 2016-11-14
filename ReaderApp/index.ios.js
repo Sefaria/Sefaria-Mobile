@@ -73,6 +73,7 @@ var ReaderApp = React.createClass({
         };
     },
     componentDidMount: function () {
+      Sefaria.downloader.promptLibraryDownload();
       Sefaria._deleteUnzippedFiles().then(function() {
 
          }).catch(function(error) {

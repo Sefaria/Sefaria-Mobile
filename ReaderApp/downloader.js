@@ -1,5 +1,8 @@
 const RNFS = require('react-native-fs'); //for access to file system -- (https://github.com/johanneslumpe/react-native-fs)
-import { AsyncStorage } from 'react-native';
+import { 
+  Alert,
+  AsyncStorage
+} from 'react-native';
 
 const SCHEMA_VERSION = "1";
 const HOST_PATH = "http://dev.sefaria.org/static/ios-export/" + SCHEMA_VERSION + "/";
@@ -107,6 +110,40 @@ var Downloader = {
       }   
     }
     return downloaded;
+  },
+  promptLibraryDownload: function() {
+    // If it hasn't been done already, prompt the user to download the library.
+    AsyncStorage.getItem("libraryDownloadPrompted")
+      .then((prompted) => {
+        if (!prompted) {
+          var onDownload = function() {
+            AsyncStorage.setItem("libraryDownloadPrompted", "true");
+            Downloader.downloadLibrary();
+            Alert.alert(
+              'Library Downloading',
+              'You can check on the progress of the download or delete the library in the Settings screen.',
+              [
+                {text: 'OK'},
+              ]);
+          };
+          var onCancel = function() {
+            AsyncStorage.setItem("libraryDownloadPrompted", "true");
+            Alert.alert(
+              'Using Online Library',
+              'You can download the library in the future from the Settings screen.',
+              [
+                {text: 'OK'},
+              ]);
+          };
+          Alert.alert(
+          'Welcome',
+          'We recommend downloading the offline library for a better experience. It requires about 280MB of storage. Otherwise you will need an Internet connection to use the app.',
+          [
+            {text: 'Download', onPress: onDownload},
+            {text: 'Not now', onPress: onCancel}
+          ]);
+        }
+      });
   },
   _updateDownloadQueue: function() {
     // Examines availableDownloads and adds any title to the downloadQueue that has a newer download available
