@@ -68,6 +68,7 @@ var ReaderApp = React.createClass({
             linkRecentFilters: [],
             linkStaleRecentFilters: [], /*bool array indicating whether the corresponding filter in recentFilters is no longer synced up with the current segment*/
             loadingLinks: false,
+            loadingApiLinks: false,
             theme: themeWhite,
             themeStr: "white"
         };
