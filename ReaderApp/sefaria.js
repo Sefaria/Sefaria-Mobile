@@ -31,7 +31,8 @@ Sefaria = {
   /*
   if `isLinkRequest` and you're using API, only return single segment corresponding to link
   */
-  data: function(ref,isLinkRequest) {
+  data: function(ref, isLinkRequest) {
+    console.log("data call for ", ref)
     return new Promise(function(resolve, reject) {
       var fileNameStem = ref.split(":")[0];
       var bookRefStem  = Sefaria.textTitleForRef(ref);
@@ -73,6 +74,7 @@ Sefaria = {
         result.requestedRef   = ref;
         result.isSectionLevel = (ref === result.sectionRef);
         Sefaria.cacheCommentatorListBySection(result);
+        console.log(result)
         resolve(result);
       };
 

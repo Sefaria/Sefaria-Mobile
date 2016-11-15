@@ -38,14 +38,22 @@ var Downloader = {
         Downloader._updateDownloadQueue();
         Downloader._downloadNext(); 
      });
-    this.onChange && this.onChange();
+    Downloader.onChange && Downloader.onChange();
   },
   deleteLibrary: function() {
-    RNFS.unlink(RNFS.DocumentDirectoryPath + "/library");
-    RNFS.unlink(RNFS.DocumentDirectoryPath + "/tmp");
-    Downloader._setData("lastDownload", {});
-    Downloader._setData("shouldDownload", false);
-    Downloader.onChange && Downloader.onChange();
+    Alert.alert(
+      'Delete Library',
+      'Are you sure you want to delete the offline library? You will need an Internet connection to use the app.',
+      [
+        {text: 'Cancel'},
+        {text: 'Delete', onPress: () => {
+          RNFS.unlink(RNFS.DocumentDirectoryPath + "/library");
+          RNFS.unlink(RNFS.DocumentDirectoryPath + "/tmp");
+          Downloader._setData("lastDownload", {});
+          Downloader._setData("shouldDownload", false);
+          Downloader.onChange && Downloader.onChange();
+        }}
+      ]);
   },
   resumeDownload: function() {
     // Resumes the download process if anything is left in progress or in queue.
