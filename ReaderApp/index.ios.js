@@ -61,6 +61,7 @@ var ReaderApp = React.createClass({
             textListFlex: 0.6,
             textListAnimating: false,
             data: null,
+            linksLoaded: null,
             interfaceLang: "english", // TODO check device settings for Hebrew: ### import {NativeModules} from 'react-native'; console.log(NativeModules.SettingsManager.settings.AppleLocale);
             filterIndex: null, /* index of filters in recentFilters */
             linkSummary: [],
@@ -68,6 +69,7 @@ var ReaderApp = React.createClass({
             linkRecentFilters: [],
             linkStaleRecentFilters: [], /*bool array indicating whether the corresponding filter in recentFilters is no longer synced up with the current segment*/
             loadingLinks: false,
+            loadingApiLinks: false,
             theme: themeWhite,
             themeStr: "white"
         };
@@ -149,6 +151,7 @@ var ReaderApp = React.createClass({
                 heRef:             data.heRef,
                 sectionArray:      [data.ref],
                 sectionHeArray:    [data.heRef],
+                linksLoaded:       [false],
                 loaded:            true,
                 filterIndex:       null, /*Reset link state */
                 linkRecentFilters: [],
@@ -157,15 +160,31 @@ var ReaderApp = React.createClass({
                 loadingLinks:      loadingLinks,
                 textListVisible:   false,
                 offsetRef:         !data.isSectionLevel ? data.requestedRef : null,
-            });
+            }, ()=>{this.loadApiLinks(ref)});
             Sefaria.links.reset();
             // Preload Text TOC data into memory
             Sefaria.textToc(data.indexTitle, function() {});
+
+
             Sefaria.saveRecentItem({ref: ref, heRef: data.heRef, category: Sefaria.categoryForRef(ref)});
         }.bind(this)).catch(function(error) {
           console.error('Error caught from ReaderApp.loadNewText', error);
         });
 
+    },
+    loadApiLinks: function(ref) {
+      Sefaria.api.links(ref)
+        .then((linksResponse)=>{
+          //add the links into the appropriate section and reload
+          this.state.sectionArray.map((secRef,iSec)=>{
+            if (secRef == ref) {
+              this.state.data[iSec] = Sefaria.api.addLinksToText(this.state.data[iSec],linksResponse);
+              this.state.linksLoaded[iSec] = true;
+              this.setState({data: this.state.data, linksLoaded: this.state.linksLoaded});
+            }
+          })
+        })
+        .catch(()=>{/*we have the file and don't need to make an API request*/});
     },
     updateData: function(direction) {
         //console.log("updating data -- " + direction);
@@ -183,8 +202,10 @@ var ReaderApp = React.createClass({
 
           var newTitleArray = this.state.sectionArray;
           var newHeTitleArray = this.state.sectionHeArray;
+          var newLinksLoaded = this.state.linksLoaded;
           newTitleArray.unshift(data.sectionRef);
           newHeTitleArray.unshift(data.heRef);
+          newLinksLoaded.unshift(false);
 
           this.setState({
             data: updatedData,
@@ -192,9 +213,10 @@ var ReaderApp = React.createClass({
             prev: data.prev,
             sectionArray: newTitleArray,
             sectionHeArray: newHeTitleArray,
+            linksLoaded: newLinksLoaded,
             loaded: true,
             loadingTextHead: false,
-          });
+          }, ()=>{this.loadApiLinks(data.sectionRef)});
 
         }.bind(this)).catch(function(error) {
           console.log('Error caught from ReaderApp.updateDataPrev', error);
@@ -208,8 +230,10 @@ var ReaderApp = React.createClass({
 
           var newTitleArray = this.state.sectionArray;
           var newHeTitleArray = this.state.sectionHeArray;
+          var newLinksLoaded = this.state.linksLoaded;
           newTitleArray.push(data.sectionRef);
           newHeTitleArray.push(data.heRef);
+          newLinksLoaded.push(false);
 
           this.setState({
             data: updatedData,
@@ -217,9 +241,10 @@ var ReaderApp = React.createClass({
             next: data.next,
             sectionArray: newTitleArray,
             sectionHeArray: newHeTitleArray,
+            linksLoaded: newLinksLoaded,
             loaded: true,
             loadingTextTail: false,
-          });
+          }, ()=>{this.loadApiLinks(data.sectionRef)});
 
         }.bind(this)).catch(function(error) {
           console.log('Error caught from ReaderApp.updateDataNext', error);
@@ -470,6 +495,7 @@ var ReaderApp = React.createClass({
                     updateLinkCat={this.updateLinkCat}
                     loadLinkContent={this.loadLinkContent}
                     filterIndex={this.state.filterIndex}
+                    linksLoaded={this.state.linksLoaded}
                     linkRecentFilters={this.state.linkRecentFilters}
                     linkSummary={this.state.linkSummary}
                     linkContents={this.state.linkContents}

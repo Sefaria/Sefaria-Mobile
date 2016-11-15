@@ -61,6 +61,7 @@ var TextColumn = React.createClass({
     prev:               React.PropTypes.string,
     loadingTextTail:    React.PropTypes.bool,
     loadingTextHead:    React.PropTypes.bool,
+    linksLoaded:        React.PropTypes.array,
   },
   getInitialState: function() {
     this.rowRefs = {}; //hash table of currently loaded row refs.
@@ -92,6 +93,7 @@ var TextColumn = React.createClass({
   componentWillReceiveProps: function(nextProps) {
     //console.log("TextColumn Will Receive Props",this.props.segmentRef + " -> " + nextProps.segmentRef);
     //console.log("data length: " + this.props.data.length + " -> " + nextProps.data.length)
+    console.log(this.props.linksLoaded + ' -> ' + nextProps.linksLoaded);
     if (this.props.data.length !== nextProps.data.length ||
         this.props.textFlow !== nextProps.textFlow ||
         this.props.columnLanguage !== nextProps.columnLanguage ||
@@ -99,7 +101,8 @@ var TextColumn = React.createClass({
         this.props.textListVisible !== nextProps.textListVisible ||
         this.props.segmentIndexRef !== nextProps.segmentIndexRef ||
         this.props.segmentRef !== nextProps.segmentRef ||
-        this.props.themeStr !== nextProps.themeStr) {
+        this.props.themeStr !== nextProps.themeStr ||
+        this.props.linksLoaded !== nextProps.linksLoaded) {
       // Only update dataSource when a change has occurred that will result in different data
       var newData = this.generateDataSource(nextProps);
       this.setState({dataSource: this.state.dataSource.cloneWithRowsAndSections(newData)});
