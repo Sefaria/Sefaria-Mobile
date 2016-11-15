@@ -292,10 +292,13 @@ Sefaria = {
       return Sefaria._textToc[title];
     }
     var path = Sefaria._JSONSourcePath(title + "_index");
-    Sefaria._loadJSON(path).then(function(data) {
+
+    var resolver = function(data) {
       Sefaria._textToc[title] = data;
       callback(data);
-    });
+    };
+    Sefaria._loadJSON(path).then(resolver)
+    .catch(()=>{Sefaria._apiCall(title, 'index').then(resolver)})
     return null;
   },
   calendar: null,
@@ -444,7 +447,7 @@ Sefaria = {
       };
   },
   /*
-  apiType: string oneOf(["text","links"]). passing undefined gets the standard Reader URL.
+  apiType: string `oneOf(["text","links","index"])`. passing undefined gets the standard Reader URL.
   context is a required param if apiType == 'text'. o/w it's ignored
   */
   _urlForRef: function(ref, useHTTPS, apiType, context) {
@@ -465,6 +468,10 @@ Sefaria = {
         case "links":
           url += 'api/links/';
           urlSuffix = '?with_text=0';
+          break;
+        case "index":
+          url += 'api/v2/index/';
+          urlSuffix = '?with_content_counts=1';
           break;
         default:
           console.error("You passed invalid type: ",apiType," into _urlForRef()");
