@@ -81,7 +81,6 @@ var ReaderApp = React.createClass({
         });
     },
     networkChangeListener: function (isConnected) {
-      //console.log("Has Internet", isConnected);
       this.setState({hasInternet: isConnected});
     },
     textSegmentPressed: function(section, segment, segmentRef, shouldToggle) {
@@ -114,6 +113,7 @@ var ReaderApp = React.createClass({
         this.setState(stateObj);
         this.forceUpdate();
     },
+
     loadNewText: function(ref) {
         this.setState({
             loaded: false,
@@ -131,12 +131,14 @@ var ReaderApp = React.createClass({
         Sefaria.data(ref).then(function(data) {
             var linkSummary = [];
             var loadingLinks = false;
+            /*TODO these lines of code seem useless. I'll keep them here for a bit and see if it causes any issues (-Noah Nov 14, 2016) NOTE: If you are reading this (long) comment many months after this date, feel free to delete this useless code. Good luck!
             if (data.content && data.content.links) {
+                console.log("HERE");
                 loadingLinks = true;
                 Sefaria.links.linkSummary(data.ref, data.content[this.state.segmentIndexRef].links).then(()=>
                   this.setState({linkSummary: linkSummary, loadingLinks: false})
                 );
-            }
+            }*/
 
             this.setState({
                 data:              [data.content],
@@ -233,8 +235,8 @@ var ReaderApp = React.createClass({
     },
     openRef: function(ref) {
         this.setState({
-            loaded: false,
-            textReference: ref
+          loaded: false,
+          textReference: ref
         }, function() {
             this.closeMenu(); // Don't close until these values are in state, so we know if we need to load defualt text
         }.bind(this));
@@ -358,7 +360,7 @@ var ReaderApp = React.createClass({
       var reject = (error) => {
         if (error != 'inQueue') {
           if (isLinkCurrent(ref, pos)) {
-              this.onLinkLoad(pos, {en:JSON.stringify(error), he:JSON.stringify(error)});
+              this.onLinkLoad(pos, {en:JSON.stringify(error), he:JSON.stringify(error), sectionRef: ""});
           }
         }
       };

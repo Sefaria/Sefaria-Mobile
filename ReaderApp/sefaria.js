@@ -1,6 +1,7 @@
 const ZipArchive = require('react-native-zip-archive'); //for unzipping -- (https://github.com/plrthink/react-native-zip-archive)
 const RNFS = require('react-native-fs'); //for access to file system -- (https://github.com/johanneslumpe/react-native-fs)
 const Downloader = require('./downloader')
+const LinkContent  = require('./LinkContent');
 import GoogleAnalytics from 'react-native-google-analytics-bridge';
 import { AsyncStorage } from 'react-native';
 
@@ -27,14 +28,19 @@ Sefaria = {
       // Sefaria.calendar is loaded async when ReaderNavigationMenu renders
     });
   },
-  data: function(ref) {
+  /*
+  if `isLinkRequest` and you're using API, only return single segment corresponding to link
+  */
+  data: function(ref,isLinkRequest) {
     return new Promise(function(resolve, reject) {
       var fileNameStem = ref.split(":")[0];
       var bookRefStem  = Sefaria.textTitleForRef(ref);
       var jsonPath     = Sefaria._JSONSourcePath(fileNameStem);
       var zipPath      = Sefaria._zipSourcePath(bookRefStem);
-      
-      var processData = function(data) {
+
+      console.log("file name stem",fileNameStem);
+
+      var processFileData = function(data) {
         // Store data in in memory cache if it's not there already
         if (!(jsonPath in Sefaria._jsonData)) {
           Sefaria._jsonData[jsonPath] = data;
@@ -62,7 +68,7 @@ Sefaria = {
                 link.category = Sefaria.categoryForTitle(link.textTitle);
               }
             });
-          }          
+          }
         });
         result.requestedRef   = ref;
         result.isSectionLevel = (ref === result.sectionRef);
@@ -70,44 +76,75 @@ Sefaria = {
         resolve(result);
       };
 
+      var processApiData = function(data) {
+        if (!(data.requestedRef in Sefaria._apiData)) {
+          Sefaria._apiData[data.requestedRef] = data;
+        }
+        Sefaria.cacheCommentatorListBySection(data);
+        //console.log(data);
+        resolve(data);
+      };
 
       // Pull data from in memory cache if available
       if (jsonPath in Sefaria._jsonData) {
-        processData(Sefaria._jsonData[jsonPath]);
+        processFileData(Sefaria._jsonData[jsonPath]);
+        return;
+      }
+      if (ref in Sefaria._apiData) {
+        processApiData(Sefaria._apiData[ref]);
         return;
       }
       Sefaria._loadJSON(jsonPath)
-        .then(processData)
+        .then(processFileData)
         .catch(function() {
-          // If there was en error, assume it's because the data was not unzipped yet
+          // If there was en error, check that we have the zip file downloaded
           RNFS.exists(zipPath)
             .then(function(exists) {
               if (exists) {
                 Sefaria._unzip(zipPath)
                   .then(function() {
                     Sefaria._loadJSON(jsonPath)
-                      .then(processData)
+                      .then(processFileData)
                       .catch(function() {
                         // Now that the file is unzipped, if there was an error assume we have a depth 1 text
                         var depth1FilenameStem = fileNameStem.substr(0, fileNameStem.lastIndexOf(" "));
                         var depth1JSONPath = Sefaria._JSONSourcePath(depth1FilenameStem);
                         Sefaria._loadJSON(depth1JSONPath)
-                          .then(processData)
-                          .catch(function() {                  
+                          .then(processFileData)
+                          .catch(function() {
                             console.error("Error loading JSON file: " + jsonPath + " OR " + depth1JSONPath);
                           });
                       });
                   });
               } else {
-                // The zip doesn't exist yet
+                // The zip doesn't exist yet, so make an API call
+                if (isLinkRequest) {
+                  Sefaria._apiCall(ref, 'text', false)
+                    .then((data) => {
+                      let en_text = (data.text instanceof Array) ? data.text.join(' ') : data.text;
+                      let he_text = (data.he   instanceof Array) ? data.he.join(' ')   : data.he;
+                      resolve({
+                        "fromAPI": true,
+                        "result": new LinkContent(en_text, he_text, data.sectionRef)
+                      });
+                    })
+                    .catch(() => { console.error("Error with API loading link text: ", Sefaria._urlForRef(ref,false,'text',false))})
+                } else {
+                  Sefaria._apiTextandLinks(ref)
+                    .then(Sefaria._APItoiOS)
+                    .then(processApiData)
+                    .catch(function() {
+                      console.error("Error with API: ", Sefaria._urlForRef(ref,false,'text',true));
+                    });
+                }
                 Sefaria.downloader.prioritizeDownload(bookRefStem);
-                reject(zipPath + " doesn't exist"); 
               }
             });
         });
     });
   },
   _jsonData: {}, // in memory cache for JSON data
+  _apiData: {},  // in memory cache for API data
   textTitleForRef: function(ref) {
     // Returns the book title named in `ref` by examining the list of known book titles.
     for (i = ref.length; i >= 0; i--) {
@@ -259,10 +296,13 @@ Sefaria = {
       return Sefaria._textToc[title];
     }
     var path = Sefaria._JSONSourcePath(title + "_index");
-    Sefaria._loadJSON(path).then(function(data) {
+
+    var resolver = function(data) {
       Sefaria._textToc[title] = data;
       callback(data);
-    });
+    };
+    Sefaria._loadJSON(path).then(resolver)
+    .catch(()=>{Sefaria._apiCall(title, 'index').then(resolver)})
     return null;
   },
   calendar: null,
@@ -339,6 +379,179 @@ Sefaria = {
   _loadJSON: function(JSONSourcePath) {
     return fetch(JSONSourcePath).then((response) => response.json());
   },
+  /*
+  takes responses from text and links api and returns json in the format of iOS json
+  */
+  _APItoiOS: function(responses) {
+      //console.log(responses);
+      let text_response = responses.text;
+      let to_pad, pad_length;
+      if (text_response.text.length < text_response.he.length) {
+        to_pad = text_response.text;
+        pad_length = text_response.he.length;
+      } else{
+        to_pad = text_response.he;
+        pad_length = text_response.text.length;
+      }
+      while (to_pad.length < pad_length) {
+        to_pad.push("");
+      }
+
+      let link_response = new Array(text_response.text.length);
+      let baseRef = responses.ref;
+
+      for (let i = 0; i < responses.links.length; i++) {
+        let link = responses.links[i];
+        let linkSegIndex = parseInt(link.anchorRef.substring(link.anchorRef.lastIndexOf(':') + 1)) - 1;
+        if (!link_response[linkSegIndex]) {
+          link_response[linkSegIndex] = [];
+        }
+        link_response[linkSegIndex].push({
+          "category": link.category,
+          "sourceRef": link.sourceRef, //.substring(0,link.sourceRef.lastIndexOf(':')),
+          "sourceHeRef": link.sourceHeRef, //.substring(0,link.sourceHeRef.lastIndexOf(':')),
+          "textTitle": link.index_title
+        });
+      }
+
+      let content = text_response.text.map((en,i) => ({
+        "segmentNumber": ""+(i+1),
+        "he": text_response.he[i],
+        "text": en,
+        "links": link_response[i] ? link_response[i] : []
+      }));
+
+      return {
+        "requestedRef": responses.ref,
+        "isSectionLevel": responses.ref === text_response.sectionRef,
+        "heTitleVariants": text_response.heTitleVariants,
+        "heTitle": text_response.heTitle,
+        "heRef": text_response.heRef,
+        "toSections": text_response.toSections,
+        "sectionRef": text_response.sectionRef,
+        "lengths": text_response.length,
+        "next": text_response.next,
+        "content": content,
+        "book": text_response.book,
+        "prev": text_response.prev,
+        "textDepth": text_response.textDepth,
+        "sectionNames": text_response.sectionNames,
+        "sections": text_response.sections,
+        "isComplex": text_response.isComplex,
+        "titleVariants": text_response.titleVariants,
+        "categories": text_response.categories,
+        "ref": text_response.sectionRef,
+        "type": text_response.type,
+        "addressTypes": text_response.addressTypes,
+        "length": text_response.length,
+        "indexTitle": text_response.indexTitle,
+        "heIndexTitle": text_response.heIndexTitle,
+        "alts": text_response.alts,
+        "order": text_response.order
+      };
+  },
+  /*
+  apiType: string `oneOf(["text","links","index"])`. passing undefined gets the standard Reader URL.
+  context is a required param if apiType == 'text'. o/w it's ignored
+  */
+  _urlForRef: function(ref, useHTTPS, apiType, context) {
+    var url = '';
+    if (useHTTPS) {
+      url += 'https://www.sefaria.org/';
+    } else {
+      url += 'http://www.sefaria.org/';
+    }
+
+    var urlSuffix = '';
+    if (apiType) {
+      switch (apiType) {
+        case "text":
+          url += 'api/texts/';
+          urlSuffix = `?context=${context === true ? 1 : 0}&commentary=0`;
+          break;
+        case "links":
+          url += 'api/links/';
+          urlSuffix = '?with_text=0';
+          break;
+        case "index":
+          url += 'api/v2/index/';
+          urlSuffix = '?with_content_counts=1';
+          break;
+        default:
+          console.error("You passed invalid type: ",apiType," into _urlForRef()");
+          break;
+      }
+    }
+
+    ref = ref.replace(/:/g,'.').replace(/ /g,'_');
+    url += ref + urlSuffix;
+    console.log("URL",url);
+    return url;
+  },
+  _apiTextandLinks: function(ref) {
+    var checkResolve = function(resolve) {
+      if (numResponses == 2) {
+        console.log("ALL Done ");
+        resolve({"text": textResponse, "links": linksResponse, "ref": ref});
+      }
+    }
+
+    var numResponses = 0;
+    var textResponse = null;
+    var linksResponse = null;
+    return new Promise(function(resolve,reject) {
+      Sefaria._apiCall(ref,'text',true)
+      .then((response)=>{
+        numResponses += 1;
+        textResponse = response;
+        checkResolve(resolve);
+      });
+      Sefaria._apiCall(ref,'links')
+      .then((response)=>{
+        numResponses += 1;
+        linksResponse = response;
+        checkResolve(resolve);
+      });
+
+    });
+  },
+  /*
+  context is a required param if apiType == 'text'. o/w it's ignored
+  */
+  _apiCall: function(ref,apiType, context) {
+    var url = Sefaria._urlForRef(ref, false, apiType, context);
+    return new Promise(function(resolve,reject) {
+      fetch(url)
+      .then(function(response) {
+        console.log('checking response',response.status);
+        if (response.status >= 200 && response.status < 300) {
+          return response;
+        } else {
+          reject(response.statusText);
+        }
+      })
+      .then(response => resolve(response.json()));
+    });
+  },
+  _downloadZip: function(title) {
+    var toFile = RNFS.DocumentDirectoryPath + "/" + title + ".zip";
+    var start = new Date();
+    console.log("Starting download of " + title);
+    return new Promise(function(resolve, reject) {
+      RNFS.downloadFile({
+        fromUrl: "http://dev.sefaria.org/static/ios-export/" + encodeURIComponent(title) + ".zip",
+        toFile: toFile
+      }).then(function(downloadResult) {
+        console.log("Downloaded " + title + " in " + (new Date() - start));
+        if (downloadResult.statusCode == 200) {
+          resolve();
+        } else {
+          reject(downloadResult.statusCode);
+          RNFS.unlink(toFile);
+        }
+      })
+    });
+  },
   _JSONSourcePath: function(fileName) {
     return (RNFS.DocumentDirectoryPath + "/" + fileName + ".json");
   },
@@ -346,8 +559,9 @@ Sefaria = {
     return (RNFS.DocumentDirectoryPath + "/library/" + fileName + ".zip");
   },
   textFromRefData: function(data) {
-    // Returns a dictionary of the form {en: "", he: ""} that includes a single string with
+    // Returns a dictionary of the form {en: "", he: "", sectionRef: ""} that includes a single string with
     // Hebrew and English for `data.requestedRef` found in `data` as returned from Sefaria.data.
+    //sectionRef is so that we know which file / api call to make to open this text
     // `data.requestedRef` may be either section or segment level.
     if (data.isSectionLevel) {
       let enText = "", heText = "";
@@ -356,7 +570,7 @@ Sefaria = {
         if (typeof item.text === "string") enText += item.text + " ";
         if (typeof item.he === "string") heText += item.he + " ";
       }
-      return({en: enText, he: heText});
+      return new LinkContent(enText, heText, sectionRef);
     } else {
       var segmentNumber = data.requestedRef.slice(data.ref.length+1);
       for (let i = 0; i < data.content.length; i++) {
@@ -365,7 +579,7 @@ Sefaria = {
             let enText = "", heText = "";
             if (typeof item.text === "string") enText = item.text;
             if (typeof item.he === "string") heText = item.he;
-            return({en: enText, he: heText});
+            return new LinkContent(enText, heText, sectionRef);
         }
       }
     }
@@ -382,7 +596,13 @@ Sefaria = {
     loadLinkData: function(ref,pos,resolveClosure,rejectClosure,runNow) {
       parseData = function(data) {
         return new Promise(function(resolve, reject) {
-          var result = Sefaria.textFromRefData(data);
+
+          if (data.fromAPI) {
+            var result = data.result;
+          } else {
+            var result = Sefaria.textFromRefData(data);
+          }
+
           // console.log(data.requestedRef + ": " + result.en + " / " + result.he);
           if (result) {
             resolve(result);
@@ -406,7 +626,7 @@ Sefaria = {
       }
       if ((Sefaria.links._linkContentLoadingStack.length == 1 && !Sefaria.links._linkContentLoadingStack[ref]) || runNow) {
         //console.log("Starting to load",ref);
-        return Sefaria.data(ref).then(parseData);
+        return Sefaria.data(ref,true).then(parseData);
       } else {
 
         return new Promise(function(resolve,reject) {
