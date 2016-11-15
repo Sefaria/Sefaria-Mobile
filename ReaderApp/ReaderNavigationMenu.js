@@ -1,11 +1,12 @@
 'use strict';
 import React, { Component } from 'react';
 import {
+  Linking,
+  ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
-  ScrollView
 } from 'react-native';
 
 var {
@@ -138,13 +139,25 @@ var ReaderNavigationMenu = React.createClass({
                   language={language}
                   interfaceLang={this.props.interfaceLang} />
 
-                <View style={{height: 20}} />
 
-                <TouchableOpacity onPress={this.props.openSettings}>
-                  <Text>Settings</Text>
-                </TouchableOpacity>
+                <View style={styles.navBottomLinks}>
+                  <TouchableOpacity style={[styles.navBottomLink]} onPress={this.props.openSettings}>
+                    <Text style={[this.props.theme.tertiaryText]}>Settings</Text>
+                  </TouchableOpacity>
 
-                <View style={{height: 20}} />
+                  <Text style={[styles.navBottomLink, this.props.theme.tertiaryText]}>•</Text>
+
+                  <TouchableOpacity style={[styles.navBottomLink]} onPress={() => {Linking.openURL("http://www.sefaria.org/about");}}>
+                    <Text style={[this.props.theme.tertiaryText]}>About</Text>
+                  </TouchableOpacity>
+
+                  <Text style={[styles.navBottomLink, this.props.theme.tertiaryText]}>•</Text>
+
+                  <TouchableOpacity style={[styles.navBottomLink]} onPress={() => {Linking.openURL("mailto:ios@sefaria.org");}}>
+                    <Text style={[this.props.theme.tertiaryText]}>Feedback</Text>
+                  </TouchableOpacity>
+
+                </View>
 
               </ScrollView>
             </View>);

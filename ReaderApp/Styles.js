@@ -311,6 +311,16 @@ module.exports = StyleSheet.create({
     fontSize: 13,
     letterSpacing: 1,
   },
+  navBottomLinks: {
+    marginTop: 20,
+    paddingBottom: 50,
+    flex: 1,
+    flexDirection: "row",
+    justifyContent: "center",
+  },
+  navBottomLink: {
+    marginHorizontal: 3,
+  },
   category: {
     marginBottom: 10
   },
@@ -499,6 +509,35 @@ module.exports = StyleSheet.create({
     minWidth: 40,
     margin: 2,
     justifyContent: "center"
+  },
+  settingsHeader: {
+    flex: 1,
+    letterSpacing: 1,
+    paddingRight: 40,
+    textAlign: "center"
+  },
+  settingsSectionHeader: {
+    flex: 1,
+    textAlign: "center",
+    fontSize: 14,
+    marginBottom: 10
+  },
+  settingsMessage: {
+    flex: 1,
+    textAlign: "center",
+    marginBottom: 6,
+  },
+  button: {
+    flex: 1,
+    borderRadius: 4,
+    borderWidth: 1,
+    backgroundColor: "white",
+    paddingVertical: 14,
+    marginVertical: 5
+  },
+  buttonText: {
+    textAlign: "center",
+    color: "#666",
   },
   lineEnd: {
     flex: 1,

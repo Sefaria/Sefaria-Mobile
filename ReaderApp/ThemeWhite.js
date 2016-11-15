@@ -8,6 +8,7 @@ var Colors = {
   mainBackground: "#F9F9F7",
   mainText: "#000",
   secondaryText: "#999",
+  tertiaryText: "#666",
   mainForeground: "white",
   mainForegroundContrast: "black",
   textBackground: "white",
@@ -146,19 +147,22 @@ module.exports = StyleSheet.create({
     backgroundColor: Colors.textSegmentHighlight
   },
   textTocSectionString: {
-    color: "#666",
+    color: Colors.tertiaryText,
   },
   text: {
     color: Colors.mainForegroundContrast
   },
   secondaryText: {
-    color: Colors.secondaryText
+    color: Colors.secondaryText,
+  },
+  tertiaryText: {
+    color: Colors.tertiaryText,
   },
   bordered: {
     borderColor: Colors.border,
   },
   bilingualEnglishText: {
-    color: "#666"
+    color: Colors.tertiaryText
   },
   languageToggleText: {
     color: Colors.secondaryText

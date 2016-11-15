@@ -39,26 +39,25 @@ var SettingsPage = React.createClass({
   },
   render: function() {
     return (<View style={[styles.menu, this.props.theme.menu]}>
-              <CategoryColorLine category={this.props.category} />
+              <CategoryColorLine category={"Other"} />
               <View style={[styles.header, this.props.theme.header]}>
-                <CategoryColorLine category={"Other"} />
                 <CloseButton onPress={this.props.close} theme={this.props.theme}/>
-                <Text style={[]}>SETTINGS</Text>
+                <Text style={[styles.settingsHeader, this.props.theme.text]}>SETTINGS</Text>
               </View>
 
               <ScrollView style={styles.menuContent}>
-                <Text>OFFLINE ACCESS</Text>
-                <Text>Requires ~280MB of storage on your device.</Text>
+                <Text style={[styles.settingsSectionHeader, this.props.theme.tertiaryText]}>OFFLINE ACCESS</Text>
+                <Text style={[styles.settingsMessage, this.props.theme.tertiaryText]}>Requires ~280MB of storage on your device.</Text>
                 {Sefaria.downloader._data.shouldDownload ? 
                   <View>
-                    <Text>{Sefaria.downloader.titlesDownloaded().length} / {Sefaria.downloader.titlesAvailable().length} texts downloaded.</Text>
+                    <Text style={[styles.settingsMessage, this.props.theme.tertiaryText]}>{Sefaria.downloader.titlesDownloaded().length} / {Sefaria.downloader.titlesAvailable().length} texts downloaded.</Text>
                     <TouchableOpacity style={styles.button} onPress={Sefaria.downloader.deleteLibrary}>
-                      <Text>Delete Library</Text>
+                      <Text style={styles.buttonText}>Delete Library</Text>
                     </TouchableOpacity>
                   </View> :
                   <View>
                     <TouchableOpacity style={styles.button} onPress={Sefaria.downloader.downloadLibrary}>
-                      <Text>Download Library</Text>
+                      <Text style={styles.buttonText}>Download Library</Text>
                     </TouchableOpacity>
                   </View>
 
