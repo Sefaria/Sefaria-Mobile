@@ -126,11 +126,11 @@ Sefaria = {
                     })
                     .catch(() => { console.error("Error with API loading link text: ", Sefaria.api._toURL(ref,false,'text',false))})
                 } else {
-                  Sefaria.api._textandlinks(ref)
+                  Sefaria.api._text(ref)
                     .then(Sefaria.api._toIOS)
                     .then(processApiData)
                     .catch(function() {
-                      console.error("Error with API: ", Sefaria.api._toURL(ref,false,'text',true));
+                      console.error("Error with API: ", Sefaria.api._toURL(ref, false, 'text', true));
                     });
                 }
 
@@ -841,6 +841,7 @@ Sefaria = {
       takes responses from text and links api and returns json in the format of iOS json
       */
       _textCache: {}, //in memory cache for API data
+      _linkCache: {},
       _toIOS: function(responses) {
           //console.log(responses);
           let text_response = responses.text;
@@ -946,6 +947,61 @@ Sefaria = {
         url += ref + urlSuffix;
         console.log("URL",url);
         return url;
+      },
+      _text: function(ref) {
+        return new Promise((resolve, reject)=>{
+          Sefaria.api._request(ref,'text',true)
+          .then((response)=>{
+            resolve({"text": response, "links": [], "ref": ref});
+          });
+        });
+      },
+      links: function(ref) {
+        var bookRefStem  = Sefaria.textTitleForRef(ref);
+        var zipPath      = Sefaria._zipSourcePath(bookRefStem);
+        return new Promise((resolve,reject)=>{
+          RNFS.exists(zipPath)
+          .then((exists)=>{
+            if (exists) {
+              reject(); //you already opened these links from the file
+            } else {
+              if (ref in Sefaria.api._linkCache) {
+                resolve(Sefaria.api._linkCache[ref]);
+              } else {
+                Sefaria.api._request(ref,'links')
+                .then((response)=>{
+                  Sefaria.api._linkCache[ref] = response;
+                  resolve(response);
+                })
+                .catch(()=>{
+                  console.error("Links API error:",ref);
+                });
+              }
+            }
+          })
+        });
+      },
+      addLinksToText: function(text, links) {
+        let link_response = new Array(text.length);
+        for (let i = 0; i < links.length; i++) {
+          let link = links[i];
+          let linkSegIndex = parseInt(link.anchorRef.substring(link.anchorRef.lastIndexOf(':') + 1)) - 1;
+          if (!link_response[linkSegIndex]) {
+            link_response[linkSegIndex] = [];
+          }
+          link_response[linkSegIndex].push({
+            "category": link.category,
+            "sourceRef": link.sourceRef, //.substring(0,link.sourceRef.lastIndexOf(':')),
+            "sourceHeRef": link.sourceHeRef, //.substring(0,link.sourceHeRef.lastIndexOf(':')),
+            "textTitle": link.index_title
+          });
+        }
+        return text.map((seg,i) => ({
+          "segmentNumber": seg.segmentNumber,
+          "he": seg.he,
+          "text": seg.text,
+          "links": link_response[i] ? link_response[i] : []
+        }));
       },
       _textandlinks: function(ref) {
         var checkResolve = function(resolve) {
