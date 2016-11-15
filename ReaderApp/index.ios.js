@@ -80,7 +80,6 @@ var ReaderApp = React.createClass({
         });
     },
     networkChangeListener: function (isConnected) {
-      // console.log("Has Internet",isConnected);
       this.setState({hasInternet: isConnected});
     },
     textSegmentPressed: function(section, segment, segmentRef, shouldToggle) {
@@ -114,7 +113,7 @@ var ReaderApp = React.createClass({
         this.forceUpdate();
     },
 
-    loadNewText: function(ref, sectionRef=undefined) {
+    loadNewText: function(ref) {
         this.setState({
             loaded: false,
             data: [],
@@ -128,15 +127,17 @@ var ReaderApp = React.createClass({
           ref = ref.split("-")[0];
         }
 
-        Sefaria.data(sectionRef ? sectionRef : ref).then(function(data) {
+        Sefaria.data(ref).then(function(data) {
             var linkSummary = [];
             var loadingLinks = false;
+            /*TODO these lines of code seem useless. I'll keep them here for a bit and see if it causes any issues (-Noah Nov 14, 2016) NOTE: If you are reading this (long) comment many months after this date, feel free to delete this useless code. Good luck!
             if (data.content && data.content.links) {
+                console.log("HERE");
                 loadingLinks = true;
                 Sefaria.links.linkSummary(data.ref, data.content[this.state.segmentIndexRef].links).then(()=>
                   this.setState({linkSummary: linkSummary, loadingLinks: false})
                 );
-            }
+            }*/
 
             this.setState({
                 data:              [data.content],
@@ -154,7 +155,7 @@ var ReaderApp = React.createClass({
                 linkContents:      [],
                 loadingLinks:      loadingLinks,
                 textListVisible:   false,
-                offsetRef:         !data.isSectionLevel ? data.requestedRef : (sectionRef ? ref : null),
+                offsetRef:         !data.isSectionLevel ? data.requestedRef : null,
             });
             Sefaria.links.reset();
             // Preload Text TOC data into memory
@@ -231,11 +232,7 @@ var ReaderApp = React.createClass({
         });
         Sefaria.saveRecentItem({ref: ref, heRef: heRef, category: Sefaria.categoryForRef(ref)});
     },
-    /*
-    sectionRef is optional. Used to make sure the API request is made on the section level, yet offsetRef points to the segment level
-    */
-    openRef: function(ref, sectionRef=undefined) {
-        let loadSection = typeof sectionRef == "string";
+    openRef: function(ref) {
         this.setState({
           loaded: false,
           textReference: ref
@@ -243,7 +240,7 @@ var ReaderApp = React.createClass({
             this.closeMenu(); // Don't close until these values are in state, so we know if we need to load defualt text
         }.bind(this));
 
-        this.loadNewText(ref, loadSection ? sectionRef : undefined);
+        this.loadNewText(ref);
     },
     openMenu: function(menu) {
         this.setState({menuOpen: menu});

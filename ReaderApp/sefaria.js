@@ -115,7 +115,7 @@ Sefaria = {
               } else {
                 // The zip doesn't exist yet, so make an API call
                 if (isLinkRequest) {
-                  Sefaria._apiCall(ref, 'text')
+                  Sefaria._apiCall(ref, 'text', false)
                     .then((data) => {
                       let en_text = (data.text instanceof Array) ? data.text.join(' ') : data.text;
                       let he_text = (data.he   instanceof Array) ? data.he.join(' ')   : data.he;
@@ -124,13 +124,13 @@ Sefaria = {
                         "result": new LinkContent(en_text, he_text, data.sectionRef)
                       });
                     })
-                    .catch(() => { console.error("Error with API loading link text: ", Sefaria._urlForRef(ref,false,'text'))})
+                    .catch(() => { console.error("Error with API loading link text: ", Sefaria._urlForRef(ref,false,'text',false))})
                 } else {
-                  Sefaria._apiTextandLinksandCounts(ref)
+                  Sefaria._apiTextandLinks(ref)
                     .then(Sefaria._APItoiOS)
                     .then(processApiData)
                     .catch(function() {
-                      console.error("Error with API: ", Sefaria._urlForRef(ref,false,'text'));
+                      console.error("Error with API: ", Sefaria._urlForRef(ref,false,'text',true));
                     });
                 }
 
@@ -141,7 +141,6 @@ Sefaria = {
   },
   _jsonData: {}, // in memory cache for JSON data
   _apiData: {}, //in memory cache for API data
-  _apiCountsData: {}, //cache for counts documents for books from api
   textTitleForRef: function(ref) {
     // Returns the book title named in `ref` by examining the list of known book titles.
     for (i = ref.length; i >= 0; i--) {
@@ -379,18 +378,19 @@ Sefaria = {
   _APItoiOS: function(responses) {
       //console.log(responses);
       let text_response = responses.text;
-      let counts_response = responses.counts;
-      let counts_en = counts_response._en.availableTexts;
-      let counts_he = counts_response._he.availableTexts;
-      for (let i = 0; i < text_response.sections.length; i++) {
-        let section_address = text_response.sections[i];
-        if (text_response.addressTypes[i] == "Talmud") {
-          section_address = Sefaria.hebrew.dafToInt(section_address) + 1;
-        }
-        counts_en = counts_en[section_address-1];
-        counts_he = counts_he[section_address-1];
+      let to_pad, pad_length;
+      if (text_response.text.length < text_response.he.length) {
+        to_pad = text_response.text;
+        pad_length = text_response.he.length;
+      } else{
+        to_pad = text_response.he;
+        pad_length = text_response.text.length;
       }
-      let link_response = new Array(counts_he.length);
+      while (to_pad.length < pad_length) {
+        to_pad.push("");
+      }
+
+      let link_response = new Array(text_response.text.length);
       let baseRef = responses.ref;
 
       for (let i = 0; i < responses.links.length; i++) {
@@ -407,26 +407,13 @@ Sefaria = {
         });
       }
 
-      let en_pointer = 0;
-      let he_pointer = 0;
-      let content = counts_he.map((hc,i) => {
-        let he_text = '';
-        let en_text = '';
-        if (counts_he[i] > 0) {
-          he_text = text_response.he[he_pointer];
-          he_pointer++;
-        }
-        if (counts_en[i] > 0) {
-          en_text = text_response.text[en_pointer];
-          en_pointer++;
-        }
-        return {
-          "segmentNumber": ""+(i+1),
-          "he": he_text,
-          "text": en_text,
-          "links": link_response[i] ? link_response[i] : []
-        };
-      });
+      let content = text_response.text.map((en,i) => ({
+        "segmentNumber": ""+(i+1),
+        "he": text_response.he[i],
+        "text": en,
+        "links": link_response[i] ? link_response[i] : []
+      }));
+
       return {
         "requestedRef": responses.ref,
         "isSectionLevel": responses.ref === text_response.sectionRef,
@@ -446,7 +433,7 @@ Sefaria = {
         "isComplex": text_response.isComplex,
         "titleVariants": text_response.titleVariants,
         "categories": text_response.categories,
-        "ref": text_response.ref,
+        "ref": text_response.sectionRef,
         "type": text_response.type,
         "addressTypes": text_response.addressTypes,
         "length": text_response.length,
@@ -457,10 +444,10 @@ Sefaria = {
       };
   },
   /*
-  apiType: string oneOf(["text","counts","links"]). passing undefined gets the standard Reader URL.
-  NOTE: ref should be a book name if apiType == "counts"
+  apiType: string oneOf(["text","links"]). passing undefined gets the standard Reader URL.
+  context is a required param if apiType == 'text'. o/w it's ignored
   */
-  _urlForRef: function(ref, useHTTPS, apiType) {
+  _urlForRef: function(ref, useHTTPS, apiType, context) {
     var url = '';
     if (useHTTPS) {
       url += 'https://www.sefaria.org/';
@@ -473,16 +460,14 @@ Sefaria = {
       switch (apiType) {
         case "text":
           url += 'api/texts/';
-          urlSuffix = '?context=0&commentary=0';
-          break;
-        case "counts":
-          url += 'api/counts/';
+          urlSuffix = `?context=${context === true ? 1 : 0}&commentary=0`;
           break;
         case "links":
           url += 'api/links/';
           urlSuffix = '?with_text=0';
           break;
         default:
+          console.error("You passed invalid type: ",apiType," into _urlForRef()");
           break;
       }
     }
@@ -492,27 +477,19 @@ Sefaria = {
     console.log("URL",url);
     return url;
   },
-  _apiTextandLinksandCounts: function(ref) {
+  _apiTextandLinks: function(ref) {
     var checkResolve = function(resolve) {
-      if (numResponses == 3) {
+      if (numResponses == 2) {
         console.log("ALL Done ");
-        resolve({"text": textResponse, "links": linksResponse, "counts": countsResponse, "ref": ref});
+        resolve({"text": textResponse, "links": linksResponse, "ref": ref});
       }
     }
 
-    var sectionNumberIndex = ref.lastIndexOf(' '); //index of beginning of section numbers in ref. should be length of string if it's 1-level
-    var patt = new RegExp(/^([0-9]+[ab]?[:\-]?)+$/);
-    if (!patt.test(ref.substring(sectionNumberIndex+1))) {
-      sectionNumberIndex = ref.length;
-    }
-    var bookName = ref.substring(0,sectionNumberIndex); //technically not book name for complex text, but for counts api it doesn't matter
-    console.log('Book name',bookName);
     var numResponses = 0;
     var textResponse = null;
     var linksResponse = null;
-    var countsResponse = bookName in Sefaria._apiCountsData ? Sefaria._apiCountsData[bookName] : null;
     return new Promise(function(resolve,reject) {
-      Sefaria._apiCall(ref,'text')
+      Sefaria._apiCall(ref,'text',true)
       .then((response)=>{
         numResponses += 1;
         textResponse = response;
@@ -524,23 +501,14 @@ Sefaria = {
         linksResponse = response;
         checkResolve(resolve);
       });
-      if (countsResponse != null) {
-        numResponses += 1;
-        checkResolve(resolve);
-      } else {
-        Sefaria._apiCall(bookName,'counts')
-        .then((response)=>{
-          numResponses += 1;
-          countsResponse = response;
-          Sefaria._apiCountsData[bookName] = countsResponse;
-          checkResolve(resolve);
-        });
-      }
 
     });
   },
-  _apiCall: function(ref,apiType) {
-    var url = Sefaria._urlForRef(ref,false,apiType);
+  /*
+  context is a required param if apiType == 'text'. o/w it's ignored
+  */
+  _apiCall: function(ref,apiType, context) {
+    var url = Sefaria._urlForRef(ref, false, apiType, context);
     return new Promise(function(resolve,reject) {
       fetch(url)
       .then(function(response) {
