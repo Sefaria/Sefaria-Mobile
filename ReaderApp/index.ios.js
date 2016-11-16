@@ -19,7 +19,8 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  View
+  View,
+  AlertIOS
 } from 'react-native';
 
 var styles      = require('./Styles.js');
@@ -475,6 +476,20 @@ var ReaderApp = React.createClass({
       //console.log("moving!",evt.nativeEvent.pageY,ViewPort.height,flex);
       this.setState({textListFlex:flex});
     },
+    showNoInternetAlert: function() {
+      AlertIOS.alert(
+       'No Internet',
+       'This feature requires an internet connection.',
+       [
+         {text: 'Cancel', onPress: () => null, style: 'cancel'},
+         {text: 'Retry', onPress: () => {
+            if (!this.state.hasInternet) {
+              this.showNoInternetAlert();
+            }
+         }},
+       ],
+      );
+    },
     render: function () {
         return (
             <View style={[styles.container,this.state.theme.container]}>
@@ -529,6 +544,7 @@ var ReaderApp = React.createClass({
                     theme={this.state.theme}
                     themeStr={this.state.themeStr}
                     hasInternet={this.state.hasInternet}
+                    showNoInternetAlert={this.showNoInternetAlert}
                     Sefaria={Sefaria} />
             </View>
         );

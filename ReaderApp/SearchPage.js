@@ -3,8 +3,7 @@
 import React, { Component } from 'react';
 import {
 	View,
-	Text,
-	AlertIOS
+	Text
 } from 'react-native';
 
 var SearchBar        = require('./SearchBar');
@@ -17,46 +16,34 @@ var {
 
 var SearchPage = React.createClass({
 	propTypes: {
-		theme:         React.PropTypes.object.isRequired,
-		themeStr:      React.PropTypes.string.isRequired,
-		hasInternet:   React.PropTypes.bool,
-		closeNav:      React.PropTypes.func.isRequired,
-		onQueryChange: React.PropTypes.func.isRequired,
-		openRef:       React.PropTypes.func.isRequired,
-		setLoadTail:   React.PropTypes.func.isRequired,
-		setIsNewSearch:React.PropTypes.func.isRequired,
-		query:         React.PropTypes.string,
-		queryResult:   React.PropTypes.array,
-		loadingQuery:  React.PropTypes.bool,
-		loadingTail:   React.PropTypes.bool,
-		isNewSearch:   React.PropTypes.bool,
-		numResults:    React.PropTypes.number
+		theme:               React.PropTypes.object.isRequired,
+		themeStr:            React.PropTypes.string.isRequired,
+		hasInternet:         React.PropTypes.bool,
+		showNoInternetAlert: React.PropTypes.func.isRequired,
+		closeNav:            React.PropTypes.func.isRequired,
+		onQueryChange:       React.PropTypes.func.isRequired,
+		openRef:             React.PropTypes.func.isRequired,
+		setLoadTail:         React.PropTypes.func.isRequired,
+		setIsNewSearch:      React.PropTypes.func.isRequired,
+		query:               React.PropTypes.string,
+		queryResult:         React.PropTypes.array,
+		loadingQuery:        React.PropTypes.bool,
+		loadingTail:         React.PropTypes.bool,
+		isNewSearch:         React.PropTypes.bool,
+		numResults:          React.PropTypes.number
 	},
 	componentDidMount: function() {
 		if (!this.props.hasInternet) {
-			this.showNoInternetAlert();
+			this.props.showNoInternetAlert();
 		}
 	},
 	componentWillReceiveProps: function(nextProps) {
 		if (this.props.hasInternet && !nextProps.hasInternet) {
-			this.showNoInternetAlert();
+			this.props.showNoInternetAlert();
 		}
 
 	},
-	showNoInternetAlert: function() {
-		AlertIOS.alert(
-		 'No Internet',
-		 'Search requires an internet connection.',
-		 [
-			 {text: 'Cancel', onPress: () => null, style: 'cancel'},
-			 {text: 'Retry', onPress: () => {
-				 	if (!this.props.hasInternet) {
-						this.showNoInternetAlert();
-					}
-			 }},
-		 ],
-		);
-	},
+
 	numberWithCommas: function(x) {
     	return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 	},

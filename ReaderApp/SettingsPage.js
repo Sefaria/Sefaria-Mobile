@@ -61,7 +61,7 @@ var SettingsPage = React.createClass({
                     'NOTICE',
                     `You\'ve just ${Sefaria.downloader._data.debugNoLibrary ? "disabled" : "enabled"} library access. Press "Cool!" to continue.`,
                     [
-                      {text: 'OK', onPress: ()=>{this.forceUpdate();}},
+                      {text: 'Cool!', onPress: ()=>{this.forceUpdate();}},
                     ]);
                   }
                 }}>
@@ -75,16 +75,19 @@ var SettingsPage = React.createClass({
                 {Sefaria.downloader._data.shouldDownload ?
                   <View>
                     <Text style={[styles.settingsMessage, this.props.theme.tertiaryText]}>
-                      {Sefaria.downloader.downloading ? "Download in progress (" : ""}
-                      {Math.round(1000 * (Sefaria.downloader.titlesDownloaded().length / Sefaria.downloader.titlesAvailable().length)) / 10}
-                      {Sefaria.downloader.downloading ? "%) " : "."}
+                      {Sefaria.downloader.downloading ?
+                        `Download in progress (${Math.round(1000 * (Sefaria.downloader.titlesDownloaded().length / Sefaria.downloader.titlesAvailable().length)) / 10}%)` :
+                        ""}
                     </Text>
-                    <ProgressBar
-                      fillStyle={{}}
-                      backgroundStyle={{backgroundColor: '#cccccc', borderRadius: 2}}
-                      style={{marginTop: 10, width: 300}}
-                      progress={Sefaria.downloader.titlesDownloaded().length / Sefaria.downloader.titlesAvailable().length}
-                    />
+                    {Sefaria.downloader.downloading ?
+                      <ProgressBar
+                        fillStyle={{}}
+                        backgroundStyle={{backgroundColor: '#cccccc', borderRadius: 2}}
+                        style={{marginTop: 10, width: 300}}
+                        progress={Sefaria.downloader.titlesDownloaded().length / Sefaria.downloader.titlesAvailable().length}
+                      /> : null
+                    }
+
                     {!downloadComplete && !Sefaria.downloader.downloading ?
                       <TouchableOpacity style={styles.button} onPress={Sefaria.downloader.resumeDownload}>
                         <Text style={styles.buttonText}>Resume Download</Text>

@@ -1,3 +1,7 @@
+import {
+  Alert
+} from 'react-native';
+
 const RNFS = require('react-native-fs'); //for access to file system -- (https://github.com/johanneslumpe/react-native-fs)
 
 var Api = {
@@ -209,7 +213,18 @@ var Api = {
           reject(response.statusText);
         }
       })
-      .then(response => resolve(response.json()));
+      .then(response => resolve(response.json()))
+      .catch(()=>{
+        Alert.alert(
+          'Internet Error',
+          'There was an error accessing the Internet. Check that you have Internet and retry',
+          [
+            {text: 'Cancel'},
+            {text: 'Retry', onPress: () => {
+              Sefaria.api._request(ref,apiType,context).then(resolve);
+            }}
+          ]);
+      });
     });
   }
 }
