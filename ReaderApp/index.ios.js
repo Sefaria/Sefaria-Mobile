@@ -544,7 +544,6 @@ var ReaderApp = React.createClass({
                     theme={this.state.theme}
                     themeStr={this.state.themeStr}
                     hasInternet={this.state.hasInternet}
-                    showNoInternetAlert={this.showNoInternetAlert}
                     Sefaria={Sefaria} />
             </View>
         );

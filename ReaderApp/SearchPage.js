@@ -19,7 +19,6 @@ var SearchPage = React.createClass({
 		theme:               React.PropTypes.object.isRequired,
 		themeStr:            React.PropTypes.string.isRequired,
 		hasInternet:         React.PropTypes.bool,
-		showNoInternetAlert: React.PropTypes.func.isRequired,
 		closeNav:            React.PropTypes.func.isRequired,
 		onQueryChange:       React.PropTypes.func.isRequired,
 		openRef:             React.PropTypes.func.isRequired,
@@ -31,17 +30,6 @@ var SearchPage = React.createClass({
 		loadingTail:         React.PropTypes.bool,
 		isNewSearch:         React.PropTypes.bool,
 		numResults:          React.PropTypes.number
-	},
-	componentDidMount: function() {
-		if (!this.props.hasInternet) {
-			this.props.showNoInternetAlert();
-		}
-	},
-	componentWillReceiveProps: function(nextProps) {
-		if (this.props.hasInternet && !nextProps.hasInternet) {
-			this.props.showNoInternetAlert();
-		}
-
 	},
 
 	numberWithCommas: function(x) {

@@ -4,7 +4,7 @@ const Downloader = require('./downloader');
 const Api = require('./api');
 const LinkContent  = require('./LinkContent');
 import GoogleAnalytics from 'react-native-google-analytics-bridge';
-import { AsyncStorage } from 'react-native';
+import { AsyncStorage, Alert } from 'react-native';
 
 
 Sefaria = {
@@ -773,26 +773,39 @@ Sefaria = {
        get_filters: if to fetch initial filters
        applied_filters: filter query by these filters
        */
-      if (!args.query) {
-        return;
-      }
-      var req = JSON.stringify(Sefaria.search.get_query_object(args.query, args.get_filters, args.applied_filters, args.size, args.from, args.type));
-      var cache_result = this.cache(req);
-      //console.log("cache",JSON.stringify(cache_result));
-      if (cache_result) {
-        return cache_result;
-      }
-      return fetch(Sefaria.search.baseUrl,{
-        method: 'POST',
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-        },
-        body: req
-      })
-      .then((response) => {
-        //this.cache(req,json);
-        return response.json();
+      return new Promise((resolve, reject)=>{
+        if (!args.query) {
+          reject();
+        }
+        var req = JSON.stringify(Sefaria.search.get_query_object(args.query, args.get_filters, args.applied_filters, args.size, args.from, args.type));
+        var cache_result = this.cache(req);
+        //console.log("cache",JSON.stringify(cache_result));
+        if (cache_result) {
+          resolve(cache_result);
+        }
+        return fetch(Sefaria.search.baseUrl,{
+          method: 'POST',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+          },
+          body: req
+        })
+        .then((response) => {
+          //this.cache(req,json);
+          resolve(response.json());
+        })
+        .catch(()=>{
+          Alert.alert(
+            'Internet Error',
+            'There was an error accessing the Internet. Check that you have Internet and retry',
+            [
+              {text: 'Cancel'},
+              {text: 'Retry', onPress: () => {
+                Sefaria.search.execute_query(args).then(resolve);
+              }}
+            ]);
+        });
       });
     },
     get_query_object: function(query, get_filters, applied_filters, size, from, type) {
