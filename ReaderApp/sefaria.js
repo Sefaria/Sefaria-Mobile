@@ -4,7 +4,7 @@ const Downloader = require('./downloader');
 const Api = require('./api');
 const LinkContent  = require('./LinkContent');
 import GoogleAnalytics from 'react-native-google-analytics-bridge';
-import { AsyncStorage, Alert } from 'react-native';
+import { AsyncStorage, AlertIOS } from 'react-native';
 
 
 Sefaria = {
@@ -796,11 +796,11 @@ Sefaria = {
           resolve(response.json());
         })
         .catch(()=>{
-          Alert.alert(
+          AlertIOS.alert(
             'Internet Error',
             'There was an error accessing the Internet. Check that you have Internet and retry',
             [
-              {text: 'Cancel', onPress: () => {reject("Canceled")}},
+              {text: 'Cancel', onPress: () => {reject("Canceled")}, style: 'cancel'},
               {text: 'Retry', onPress: () => {
                 Sefaria.search.execute_query(args).then(resolve);
               }}

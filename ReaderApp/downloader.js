@@ -1,6 +1,6 @@
 const RNFS = require('react-native-fs'); //for access to file system -- (https://github.com/johanneslumpe/react-native-fs)
 import {
-  Alert,
+  AlertIOS,
   AsyncStorage
 } from 'react-native';
 
@@ -44,12 +44,12 @@ var Downloader = {
     Downloader.onChange && Downloader.onChange();
   },
   deleteLibrary: function() {
-    Alert.alert(
+    AlertIOS.alert(
       'Delete Library',
       'Are you sure you want to delete the offline library? You will need an Internet connection to use the app.',
       [
-        {text: 'Cancel'},
-        {text: 'Delete', onPress: () => {
+        {text: 'Cancel', style: 'cancel'},
+        {text: 'Delete', style: 'destructive', onPress: () => {
           RNFS.unlink(RNFS.DocumentDirectoryPath + "/library");
           RNFS.unlink(RNFS.DocumentDirectoryPath + "/tmp");
           Downloader._setData("lastDownload", {});
@@ -131,7 +131,7 @@ var Downloader = {
           var onDownload = function() {
             AsyncStorage.setItem("libraryDownloadPrompted", "true");
             Downloader.downloadLibrary();
-            Alert.alert(
+            AlertIOS.alert(
               'Library Downloading',
               'You can check on the progress of the download or delete the library in the Settings screen.',
               [
@@ -140,19 +140,19 @@ var Downloader = {
           };
           var onCancel = function() {
             AsyncStorage.setItem("libraryDownloadPrompted", "true");
-            Alert.alert(
+            AlertIOS.alert(
               'Using Online Library',
               'You can download the library in the future from the Settings screen.',
               [
                 {text: 'OK'},
               ]);
           };
-          Alert.alert(
+          AlertIOS.alert(
           'Welcome',
           'We recommend downloading the offline library for a better experience. It requires about 280MB of storage. Otherwise you will need an Internet connection to use the app.',
           [
             {text: 'Download', onPress: onDownload},
-            {text: 'Not now', onPress: onCancel}
+            {text: 'Not now', onPress: onCancel, style: 'cancel'}
           ]);
         }
       });

@@ -1,5 +1,5 @@
 import {
-  Alert
+  AlertIOS
 } from 'react-native';
 
 const RNFS = require('react-native-fs'); //for access to file system -- (https://github.com/johanneslumpe/react-native-fs)
@@ -215,11 +215,11 @@ var Api = {
       })
       .then(response => resolve(response.json()))
       .catch(()=>{
-        Alert.alert(
+        AlertIOS.alert(
           'Internet Error',
           'There was an error accessing the Internet. Check that you have Internet and retry',
           [
-            {text: 'Cancel'},
+            {text: 'Cancel', style: 'cancel'},
             {text: 'Retry', onPress: () => {
               Sefaria.api._request(ref,apiType,context).then(resolve);
             }}
