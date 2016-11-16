@@ -94,11 +94,6 @@ var TextColumn = React.createClass({
   componentWillReceiveProps: function(nextProps) {
     //console.log("TextColumn Will Receive Props",this.props.segmentRef + " -> " + nextProps.segmentRef);
     //console.log("data length: " + this.props.data.length + " -> " + nextProps.data.length)
-    console.log(this.props.linksLoadedApi + ' -> ' + nextProps.linksLoadedApi);
-    if (this.props.linksLoadedApi !== nextProps.linksLoadedApi) {
-      this.forceUpdate();
-      console.log("FORCE UPDATE!");
-    }
 
     if (this.props.data.length !== nextProps.data.length ||
         this.props.textFlow !== nextProps.textFlow ||

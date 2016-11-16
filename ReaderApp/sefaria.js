@@ -101,7 +101,7 @@ Sefaria = {
           // If there was en error, check that we have the zip file downloaded
           RNFS.exists(zipPath)
             .then(function(exists) {
-              if (exists) {
+              if (exists && !Sefaria.downloader._data.debugNoLibrary) {
                 Sefaria._unzip(zipPath)
                   .then(function() {
                     Sefaria._loadJSON(jsonPath)

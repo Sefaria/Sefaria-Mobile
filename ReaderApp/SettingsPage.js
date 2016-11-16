@@ -5,8 +5,10 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
+  TouchableWithoutFeedback,
   View,
-  ScrollView
+  ScrollView,
+  Alert
 } from 'react-native';
 var ProgressBar = require('./ProgressBar');
 var {
@@ -24,6 +26,7 @@ var SettingsPage = React.createClass({
     theme:       React.PropTypes.object.isRequired,
     Sefaria:     React.PropTypes.object.isRequired
   },
+  _numPressesDebug: 0,
   getInitialState: function() {
     Sefaria = this.props.Sefaria;
     return {};
@@ -49,7 +52,25 @@ var SettingsPage = React.createClass({
               </View>
 
               <ScrollView style={styles.menuContent}>
-                <Text style={[styles.settingsSectionHeader, this.props.theme.tertiaryText]}>OFFLINE ACCESS</Text>
+                <TouchableWithoutFeedback onPress={()=>{
+                  this._numPressesDebug++;
+                  if (this._numPressesDebug >= 7) {
+                    this._numPressesDebug = 0;
+                    Sefaria.downloader._setData("debugNoLibrary",!Sefaria.downloader._data.debugNoLibrary);
+                    Alert.alert(
+                    'NOTICE',
+                    `You\'ve just ${Sefaria.downloader._data.debugNoLibrary ? "disabled" : "enabled"} library access. Press "Cool!" to continue.`,
+                    [
+                      {text: 'OK', onPress: ()=>{this.forceUpdate();}},
+                    ]);
+                  }
+                }}>
+                  <View>
+                    <Text style={[styles.settingsSectionHeader, this.props.theme.tertiaryText]}>OFFLINE ACCESS</Text>
+                  </View>
+                </TouchableWithoutFeedback>
+                {Sefaria.downloader._data.debugNoLibrary ?
+                  <Text style={[styles.settingsMessage, this.props.theme.tertiaryText]}>Debug No Library</Text> : null}
                 <Text style={[styles.settingsMessage, this.props.theme.tertiaryText]}>Requires ~280MB of storage on your device.</Text>
                 {Sefaria.downloader._data.shouldDownload ?
                   <View>

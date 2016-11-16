@@ -126,7 +126,7 @@ var Api = {
     return new Promise((resolve,reject)=>{
       RNFS.exists(zipPath)
       .then((exists)=>{
-        if (exists) {
+        if (exists && !Sefaria.downloader._data.debugNoLibrary) {
           reject(); //you already opened these links from the file
         } else {
           if (ref in Sefaria.api._linkCache) {

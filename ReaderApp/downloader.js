@@ -1,5 +1,5 @@
 const RNFS = require('react-native-fs'); //for access to file system -- (https://github.com/johanneslumpe/react-native-fs)
-import { 
+import {
   Alert,
   AsyncStorage
 } from 'react-native';
@@ -16,9 +16,10 @@ var Downloader = {
     downloadQueue: [],      // Ordered list of title to download
     downloadInProgress: [], // List of titles currently downloading
     lastUpdateCheck: null,  // Timestamp of last download of updates list
+    debugNoLibrary: false   // True if you want to disable library access even if it's downloaded for debugging purposes
   },
   downloading: false,     // Whether the download is currently active, not stored in _data because we never want to persist value
-  onChange: null, // Handler set above called when books in the Library finish downloading, or download mode changes. 
+  onChange: null, // Handler set above called when books in the Library finish downloading, or download mode changes.
   init: function() {
     this._loadData()
       .then(function() {
@@ -35,10 +36,10 @@ var Downloader = {
     RNFS.mkdir(RNFS.DocumentDirectoryPath + "/tmp");
     Downloader._setData("shouldDownload", true);
     Downloader.checkForUpdates()
-      .then(() => { 
+      .then(() => {
         Downloader._updateDownloadQueue();
         Downloader.downloading = true;
-        Downloader._downloadNext(); 
+        Downloader._downloadNext();
      });
     Downloader.onChange && Downloader.onChange();
   },
@@ -71,7 +72,7 @@ var Downloader = {
     }
   },
   checkForUpdates: function() {
-    // Downloads the "last_update.json", stores it in _data.availableDownloads 
+    // Downloads the "last_update.json", stores it in _data.availableDownloads
     // and adds any new items to _data.lastDownload with a null value indicating they've never been downlaoded
     return new Promise(function(resolve, reject) {
       fetch(HOST_PATH + "last_updated.json")
@@ -107,7 +108,7 @@ var Downloader = {
     for (var title in this._data.availableDownloads) {
       if (this._data.availableDownloads.hasOwnProperty(title)) {
         available.push(title)
-      }   
+      }
     }
     return available;
   },
@@ -118,7 +119,7 @@ var Downloader = {
       if (this._data.lastDownload.hasOwnProperty(title)
           && this._data.lastDownload[title] !== null) {
         downloaded.push(title)
-      }   
+      }
     }
     return downloaded;
   },
@@ -158,9 +159,9 @@ var Downloader = {
   },
   _updateDownloadQueue: function() {
     // Examines availableDownloads and adds any title to the downloadQueue that has a newer download available
-    // and is not already in queue. 
+    // and is not already in queue.
     for (var title in this._data.availableDownloads) {
-      if (this._data.availableDownloads.hasOwnProperty(title) && 
+      if (this._data.availableDownloads.hasOwnProperty(title) &&
           this._data.availableDownloads[title] !== this._data.lastDownload[title]) {
             if (this._data.downloadQueue.indexOf(title) == -1) {
               this._data.downloadQueue.push(title);
@@ -171,7 +172,7 @@ var Downloader = {
   },
   _downloadNext: function() {
     // Starts download of the next item of the queue, and continues doing so after successful completion.
-    if (!this._data.downloadQueue.length) { 
+    if (!this._data.downloadQueue.length) {
       this.downloading = false;
       return;
     }
@@ -226,7 +227,7 @@ var Downloader = {
   },
   _loadData: function() {
     // Loads data from each field in `_data` stored in Async storage into local memory for sync access.
-    // Returns a Promise that resolves when all fields are loaded. 
+    // Returns a Promise that resolves when all fields are loaded.
     var promises = [];
     for (var field in this._data) {
       if (this._data.hasOwnProperty(field)) {
@@ -239,7 +240,7 @@ var Downloader = {
           .catch(function(error) {
             console.error("AsyncStorage failed to load libraryData: " + error);
           });;
-        promises.push(promise);  
+        promises.push(promise);
       }
     }
     return Promise.all(promises);
