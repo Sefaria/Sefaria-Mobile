@@ -61,7 +61,7 @@ var ReaderApp = React.createClass({
             textListFlex: 0.6,
             textListAnimating: false,
             data: null,
-            linksLoaded: null,
+            linksLoadedApi: null,
             interfaceLang: "english", // TODO check device settings for Hebrew: ### import {NativeModules} from 'react-native'; console.log(NativeModules.SettingsManager.settings.AppleLocale);
             filterIndex: null, /* index of filters in recentFilters */
             linkSummary: [],
@@ -154,7 +154,7 @@ var ReaderApp = React.createClass({
                 heRef:             data.heRef,
                 sectionArray:      [data.ref],
                 sectionHeArray:    [data.heRef],
-                linksLoaded:       [false],
+                linksLoadedApi:    [false],
                 loaded:            true,
                 filterIndex:       null, /*Reset link state */
                 linkRecentFilters: [],
@@ -181,9 +181,13 @@ var ReaderApp = React.createClass({
           //add the links into the appropriate section and reload
           this.state.sectionArray.map((secRef,iSec)=>{
             if (secRef == ref) {
-              this.state.data[iSec] = Sefaria.api.addLinksToText(this.state.data[iSec],linksResponse);
-              this.state.linksLoaded[iSec] = true;
-              this.setState({data: this.state.data, linksLoaded: this.state.linksLoaded});
+              setTimeout(()=>{
+                this.state.data[iSec] = Sefaria.api.addLinksToText(this.state.data[iSec],linksResponse);
+                let yo = this.state.linksLoadedApi.slice(0);
+                yo[iSec] = true;
+                this.setState({data: this.state.data, linksLoadedApi: yo});
+              }, 3000);
+
             }
           })
         })
@@ -205,10 +209,10 @@ var ReaderApp = React.createClass({
 
           var newTitleArray = this.state.sectionArray;
           var newHeTitleArray = this.state.sectionHeArray;
-          var newLinksLoaded = this.state.linksLoaded;
+          var newlinksLoadedApi = this.state.linksLoadedApi;
           newTitleArray.unshift(data.sectionRef);
           newHeTitleArray.unshift(data.heRef);
-          newLinksLoaded.unshift(false);
+          newlinksLoadedApi.unshift(false);
 
           this.setState({
             data: updatedData,
@@ -216,7 +220,7 @@ var ReaderApp = React.createClass({
             prev: data.prev,
             sectionArray: newTitleArray,
             sectionHeArray: newHeTitleArray,
-            linksLoaded: newLinksLoaded,
+            linksLoadedApi: newlinksLoadedApi,
             loaded: true,
             loadingTextHead: false,
           }, ()=>{this.loadApiLinks(data.sectionRef)});
@@ -233,10 +237,10 @@ var ReaderApp = React.createClass({
 
           var newTitleArray = this.state.sectionArray;
           var newHeTitleArray = this.state.sectionHeArray;
-          var newLinksLoaded = this.state.linksLoaded;
+          var newlinksLoadedApi = this.state.linksLoadedApi;
           newTitleArray.push(data.sectionRef);
           newHeTitleArray.push(data.heRef);
-          newLinksLoaded.push(false);
+          newlinksLoadedApi.push(false);
 
           this.setState({
             data: updatedData,
@@ -244,7 +248,7 @@ var ReaderApp = React.createClass({
             next: data.next,
             sectionArray: newTitleArray,
             sectionHeArray: newHeTitleArray,
-            linksLoaded: newLinksLoaded,
+            linksLoadedApi: newlinksLoadedApi,
             loaded: true,
             loadingTextTail: false,
           }, ()=>{this.loadApiLinks(data.sectionRef)});
@@ -498,7 +502,7 @@ var ReaderApp = React.createClass({
                     updateLinkCat={this.updateLinkCat}
                     loadLinkContent={this.loadLinkContent}
                     filterIndex={this.state.filterIndex}
-                    linksLoaded={this.state.linksLoaded}
+                    linksLoadedApi={this.state.linksLoadedApi}
                     linkRecentFilters={this.state.linkRecentFilters}
                     linkSummary={this.state.linkSummary}
                     linkContents={this.state.linkContents}

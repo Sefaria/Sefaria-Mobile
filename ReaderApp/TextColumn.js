@@ -61,7 +61,7 @@ var TextColumn = React.createClass({
     prev:               React.PropTypes.string,
     loadingTextTail:    React.PropTypes.bool,
     loadingTextHead:    React.PropTypes.bool,
-    linksLoaded:        React.PropTypes.array,
+    linksLoadedApi:     React.PropTypes.array,
   },
   getInitialState: function() {
     this.rowRefs = {}; //hash table of currently loaded row refs.
@@ -90,10 +90,16 @@ var TextColumn = React.createClass({
   componentDidUpdate:function(prevProps, prevState) {
     this.scrollToRef(this._standardizeOffsetRef(this.props.offsetRef), false, false);
   },
+
   componentWillReceiveProps: function(nextProps) {
     //console.log("TextColumn Will Receive Props",this.props.segmentRef + " -> " + nextProps.segmentRef);
     //console.log("data length: " + this.props.data.length + " -> " + nextProps.data.length)
-    console.log(this.props.linksLoaded + ' -> ' + nextProps.linksLoaded);
+    console.log(this.props.linksLoadedApi + ' -> ' + nextProps.linksLoadedApi);
+    if (this.props.linksLoadedApi !== nextProps.linksLoadedApi) {
+      this.forceUpdate();
+      console.log("FORCE UPDATE!");
+    }
+
     if (this.props.data.length !== nextProps.data.length ||
         this.props.textFlow !== nextProps.textFlow ||
         this.props.columnLanguage !== nextProps.columnLanguage ||
@@ -102,7 +108,7 @@ var TextColumn = React.createClass({
         this.props.segmentIndexRef !== nextProps.segmentIndexRef ||
         this.props.segmentRef !== nextProps.segmentRef ||
         this.props.themeStr !== nextProps.themeStr ||
-        this.props.linksLoaded !== nextProps.linksLoaded) {
+        this.props.linksLoadedApi !== nextProps.linksLoadedApi) {
       // Only update dataSource when a change has occurred that will result in different data
       var newData = this.generateDataSource(nextProps);
       this.setState({dataSource: this.state.dataSource.cloneWithRowsAndSections(newData)});
@@ -602,7 +608,7 @@ var TextColumn = React.createClass({
             section: section,
             row: i,
             highlight: offsetRef == rowID || (props.textListVisible && props.segmentRef == rowID),
-            changeString: [rowID, props.columnLanguage, props.textFlow, props.settings.fontSize, props.themeStr].join("|")
+            changeString: [rowID, props.columnLanguage, props.textFlow, props.settings.fontSize, props.themeStr, props.linksLoadedApi[section]].join("|")
           };
           rowData.changeString += rowData.highlight ? "|highlight" : "";
           rows[rowID] = rowData;

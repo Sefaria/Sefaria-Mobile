@@ -47,7 +47,7 @@ var ReaderPanel = React.createClass({
     textListFlex:      React.PropTypes.number,
     onTextListDragStart:React.PropTypes.func.isRequired,
     onTextListDragMove:React.PropTypes.func.isRequired,
-    linksLoaded:       React.PropTypes.array,
+    linksLoadedApi:       React.PropTypes.array,
     openLinkCat:       React.PropTypes.func.isRequired,
     closeLinkCat:      React.PropTypes.func.isRequired,
     updateLinkCat:     React.PropTypes.func.isRequired,
@@ -286,7 +286,7 @@ var ReaderPanel = React.createClass({
               textListVisible={this.props.textListVisible}
               next={this.props.next}
               prev={this.props.prev}
-              linksLoaded={this.props.linksLoaded}
+              linksLoadedApi={this.props.linksLoadedApi}
               loadingTextTail={this.props.loadingTextTail}
               loadingTextHead={this.props.loadingTextHead}
               setColumnLanguage={this.setColumnLanguage}
