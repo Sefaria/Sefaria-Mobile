@@ -25,9 +25,8 @@ var Downloader = {
       .then(function() {
         //console.log("Downloader init with data:")
         //console.log(Downloader._data);
-        console.log(Downloader.titlesAvailable().length + " title available");
-        console.log(Downloader.titlesDownloaded().length + " title downloaded");
-
+        console.log(Downloader.titlesAvailable().length + " titles available");
+        console.log(Downloader.titlesDownloaded().length + " titles downloaded");
         Downloader.resumeDownload();
       });
   },
@@ -183,7 +182,8 @@ var Downloader = {
       .then(() => { Downloader._downloadNext(); })
       .catch(this._handleDownloadError);
   },
-  _handleDownloadError: function() {
+  _handleDownloadError: function(error) {
+    console.log("Download error: ", error);
     Downloader.downloading = false;
     var cancelAlert = function() {
       AlertIOS.alert(

@@ -79,10 +79,7 @@ Sefaria = {
         processFileData(Sefaria._jsonData[jsonPath]);
         return;
       }
-      if (ref in Sefaria.api._textCache) {
-        processApiData(Sefaria.api._textCache[ref]);
-        return;
-      }
+
       Sefaria._loadJSON(jsonPath)
         .then(processFileData)
         .catch(function() {
@@ -107,6 +104,12 @@ Sefaria = {
                   });
               } else {
                 // The zip doesn't exist yet, so make an API call
+                if (ref in Sefaria.api._textCache) {
+                  // Don't check the API cahce until we've checked for a local file, because the API
+                  // cache may be left in a state with text but without links.
+                  processApiData(Sefaria.api._textCache[ref]);
+                  return;
+                }
                 if (isLinkRequest) {
                   Sefaria.api._request(ref, 'text', false)
                     .then((data) => {

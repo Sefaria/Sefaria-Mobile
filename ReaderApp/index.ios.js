@@ -98,7 +98,7 @@ var ReaderApp = React.createClass({
     },
     textSegmentPressed: function(section, segment, segmentRef, shouldToggle) {
         //console.log("textSegmentPressed", section, segment, segmentRef, shouldToggle);
-        Sefaria.track.event("Reader","Text Segment Click",segmentRef);
+        Sefaria.track.event("Reader","Text Segment Click", segmentRef);
 
         if (shouldToggle && this.state.textListVisible) {
             this.setState({textListVisible: false});
@@ -129,7 +129,6 @@ var ReaderApp = React.createClass({
         this.setState(stateObj);
         this.forceUpdate();
     },
-
     loadNewText: function(ref) {
         this.setState({
             loaded: false,
