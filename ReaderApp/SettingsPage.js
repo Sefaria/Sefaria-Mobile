@@ -8,7 +8,7 @@ import {
   View,
   ScrollView
 } from 'react-native';
-
+var ProgressBar = require('./ProgressBar');
 var {
   CategoryColorLine,
   CloseButton
@@ -51,14 +51,20 @@ var SettingsPage = React.createClass({
               <ScrollView style={styles.menuContent}>
                 <Text style={[styles.settingsSectionHeader, this.props.theme.tertiaryText]}>OFFLINE ACCESS</Text>
                 <Text style={[styles.settingsMessage, this.props.theme.tertiaryText]}>Requires ~280MB of storage on your device.</Text>
-                {Sefaria.downloader._data.shouldDownload ? 
+                {Sefaria.downloader._data.shouldDownload ?
                   <View>
                     <Text style={[styles.settingsMessage, this.props.theme.tertiaryText]}>
                       {Sefaria.downloader.downloading ? "Download in progress (" : ""}
-                      {Sefaria.downloader.titlesDownloaded().length} / {Sefaria.downloader.titlesAvailable().length} texts downloaded
-                      {Sefaria.downloader.downloading ? ") " : "."}
+                      {Math.round(1000 * (Sefaria.downloader.titlesDownloaded().length / Sefaria.downloader.titlesAvailable().length)) / 10}
+                      {Sefaria.downloader.downloading ? "%) " : "."}
                     </Text>
-                    {!downloadComplete && !Sefaria.downloader.downloading ? 
+                    <ProgressBar
+                      fillStyle={{}}
+                      backgroundStyle={{backgroundColor: '#cccccc', borderRadius: 2}}
+                      style={{marginTop: 10, width: 300}}
+                      progress={Sefaria.downloader.titlesDownloaded().length / Sefaria.downloader.titlesAvailable().length}
+                    />
+                    {!downloadComplete && !Sefaria.downloader.downloading ?
                       <TouchableOpacity style={styles.button} onPress={Sefaria.downloader.resumeDownload}>
                         <Text style={styles.buttonText}>Resume Download</Text>
                       </TouchableOpacity>

@@ -21,7 +21,6 @@ import {
   TouchableOpacity,
   View
 } from 'react-native';
-var ProgressBar = require('./ProgressBar');
 
 var styles      = require('./Styles.js');
 var themeWhite  = require('./ThemeWhite');

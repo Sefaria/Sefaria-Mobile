@@ -20,6 +20,7 @@ var TextList                  = require('./TextList');
 var SettingsPage              = require('./SettingsPage');
 var styles                    = require('./Styles.js');
 
+
 var {
   MenuButton,
   DisplaySettingsButton,
