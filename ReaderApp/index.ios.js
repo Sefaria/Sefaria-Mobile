@@ -21,6 +21,7 @@ import {
   TouchableOpacity,
   View
 } from 'react-native';
+var ProgressBar = require('./ProgressBar');
 
 var styles      = require('./Styles.js');
 var themeWhite  = require('./ThemeWhite');
@@ -70,7 +71,6 @@ var ReaderApp = React.createClass({
             linkRecentFilters: [],
             linkStaleRecentFilters: [], /*bool array indicating whether the corresponding filter in recentFilters is no longer synced up with the current segment*/
             loadingLinks: false,
-            loadingApiLinks: false,
             theme: themeWhite,
             themeStr: "white"
         };
