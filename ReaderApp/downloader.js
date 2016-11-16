@@ -74,25 +74,27 @@ var Downloader = {
   checkForUpdates: function() {
     // Downloads the "last_update.json", stores it in _data.availableDownloads
     // and adds any new items to _data.lastDownload with a null value indicating they've never been downlaoded
-    return new Promise(function(resolve, reject) {
-      fetch(HOST_PATH + "last_updated.json")
-        .then((response) => response.json())
-        .then((data) => {
-          Downloader._setData("availableDownloads", data);
-          // Add titles to lastDownload list if they haven't been seen before
-          for (var title in data) {
-            if (data.hasOwnProperty(title) && !(title in Downloader._data.lastDownload)) {
-              Downloader._data.lastDownload[title] = null;
-            }
+    // Also downloads latest "toc.json"
+    var lastUpdatePromise = fetch(HOST_PATH + "last_updated.json")
+      .then((response) => response.json())
+      .then((data) => {
+        Downloader._setData("availableDownloads", data);
+        // Add titles to lastDownload list if they haven't been seen before
+        for (var title in data) {
+          if (data.hasOwnProperty(title) && !(title in Downloader._data.lastDownload)) {
+            Downloader._data.lastDownload[title] = null;
           }
-          Downloader._setData("lastDownload", Downloader._data.lastDownload);
-          resolve();
-        })
-        .catch((error) => {
-          console.log(error);
-          reject(error)
-        });
+        }
+        Downloader._setData("lastDownload", Downloader._data.lastDownload);
+      });
+    var tocPromise = RNFS.downloadFile({
+      fromUrl: HOST_PATH + "toc.json",
+      toFile: RNFS.DocumentDirectoryPath + "/library/toc.json",
+      background: true,
+    }).then(() => {
+      Sefaria._loadTOC();
     });
+    return Promise.all([lastUpdatePromise, tocPromise]);
   },
   prioritizeDownload: function(title) {
     // Moves `title` to the front of the downloadQueue if it's there

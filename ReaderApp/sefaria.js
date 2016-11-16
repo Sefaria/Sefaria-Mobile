@@ -13,22 +13,9 @@ Sefaria = {
 
     Sefaria.downloader.init();
 
-    // Load JSON data for TOC and Calendar
-    return new Promise(function(resolve, reject) {
-      var checkResolve = function() {
-        if (Sefaria.toc && Sefaria.recent) {
-          resolve();
-        }
-      };
-      var tocPath = (RNFS.MainBundlePath + "/sources/toc.json");
-      Sefaria._loadJSON(tocPath).then(function(data) {
-        Sefaria.toc = data;
-        checkResolve();
-        Sefaria._cacheIndexFromToc(data);
-      });
-      Sefaria._loadRecentItems(checkResolve);
-      // Sefaria.calendar is loaded async when ReaderNavigationMenu renders
-    });
+    // Load JSON data for TOC and Recent items
+    return Promise.all([Sefaria._loadTOC(), Sefaria._loadRecentItems()])
+    // Sefaria.calendar is loaded async when ReaderNavigationMenu renders
   },
   /*
   if `isLinkRequest` and you're using API, only return single segment corresponding to link
@@ -215,6 +202,20 @@ Sefaria = {
     if (!index) { return false; } // default to false
     return ['Talmud','Tanakh'].indexOf(index.categories[0]) != -1;
   },
+  _loadTOC: function() {
+    return new Promise(function(resolve, reject) {
+      RNFS.exists(RNFS.DocumentDirectoryPath + "/library/toc.json")
+        .then(function(exists) {
+          var tocPath = exists ? (RNFS.DocumentDirectoryPath + "/library/toc.json") :
+                                 (RNFS.MainBundlePath + "/sources/toc.json");
+          Sefaria._loadJSON(tocPath).then(function(data) {
+            Sefaria.toc = data;
+            Sefaria._cacheIndexFromToc(data);
+            resolve();
+          });
+        });
+    });
+  },
   _cacheIndexFromToc: function(toc) {
     // Unpacks contents of Sefaria.toc into index cache.
     for (var i = 0; i < toc.length; i++) {
@@ -355,13 +356,10 @@ Sefaria = {
       console.error("AsyncStorage failed to save: " + error);
     });
   },
-  _loadRecentItems: function(callback) {
-    AsyncStorage.getItem("recent").then(function(data) {
+  _loadRecentItems: function() {
+    return AsyncStorage.getItem("recent").then(function(data) {
       Sefaria.recent = JSON.parse(data) || [];
-      callback();
-    }).catch(function(error) {
-      console.error("AsyncStorage failed to load: " + error);
-    });;
+    });
   },
   _deleteUnzippedFiles: function() {
     return new Promise(function(resolve, reject) {
