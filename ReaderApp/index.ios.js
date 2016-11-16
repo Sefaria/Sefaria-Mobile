@@ -83,6 +83,9 @@ var ReaderApp = React.createClass({
         });
     },
     networkChangeListener: function (isConnected) {
+      if (isConnected && !this.state.hasInternet && !Sefaria.downloader.downloading) {
+        //Sefaria.downloader.resumeDownload();
+      }
       this.setState({hasInternet: isConnected});
     },
     textSegmentPressed: function(section, segment, segmentRef, shouldToggle) {

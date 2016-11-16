@@ -17,12 +17,13 @@ var Downloader = {
     downloadInProgress: [], // List of titles currently downloading
     lastUpdateCheck: null,  // Timestamp of last download of updates list
   },
+  downloading: false,     // Whether the download is currently active, not stored in _data because we never want to persist value
   onChange: null, // Handler set above called when books in the Library finish downloading, or download mode changes. 
   init: function() {
     this._loadData()
       .then(function() {
-        console.log("Downloader init with data:")
-        console.log(Downloader._data);
+        //console.log("Downloader init with data:")
+        //console.log(Downloader._data);
         console.log(Downloader.titlesAvailable().length + " title available");
         console.log(Downloader.titlesDownloaded().length + " title downloaded");
 
@@ -36,6 +37,7 @@ var Downloader = {
     Downloader.checkForUpdates()
       .then(() => { 
         Downloader._updateDownloadQueue();
+        Downloader.downloading = true;
         Downloader._downloadNext(); 
      });
     Downloader.onChange && Downloader.onChange();
@@ -64,6 +66,7 @@ var Downloader = {
     }
     // Resume working through queue
     if (Downloader._data.shouldDownload) {
+      Downloader.downloading = true;
       Downloader._downloadNext();
     }
   },
@@ -168,10 +171,14 @@ var Downloader = {
   },
   _downloadNext: function() {
     // Starts download of the next item of the queue, and continues doing so after successful completion.
-    if (!this._data.downloadQueue.length) { return; }
+    if (!this._data.downloadQueue.length) { 
+      this.downloading = false;
+      return;
+    }
     var nextTitle = this._data.downloadQueue[0];
     this._downloadZip(nextTitle)
-      .then(() => { Downloader._downloadNext(); });
+      .then(() => { Downloader._downloadNext(); })
+      .catch(() => { Downloader.downloading = false; });
   },
   _downloadZip: function(title) {
     // Downloads `title`, first to /tmp then to /library when complete.

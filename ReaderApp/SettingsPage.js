@@ -38,6 +38,9 @@ var SettingsPage = React.createClass({
     this.forceUpdate();
   },
   render: function() {
+    var nDownloaded = Sefaria.downloader.titlesDownloaded().length;
+    var nAvailable  = Sefaria.downloader.titlesAvailable().length;
+    var downloadComplete = nDownloaded == nAvailable;
     return (<View style={[styles.menu, this.props.theme.menu]}>
               <CategoryColorLine category={"Other"} />
               <View style={[styles.header, this.props.theme.header]}>
@@ -50,7 +53,16 @@ var SettingsPage = React.createClass({
                 <Text style={[styles.settingsMessage, this.props.theme.tertiaryText]}>Requires ~280MB of storage on your device.</Text>
                 {Sefaria.downloader._data.shouldDownload ? 
                   <View>
-                    <Text style={[styles.settingsMessage, this.props.theme.tertiaryText]}>{Sefaria.downloader.titlesDownloaded().length} / {Sefaria.downloader.titlesAvailable().length} texts downloaded.</Text>
+                    <Text style={[styles.settingsMessage, this.props.theme.tertiaryText]}>
+                      {Sefaria.downloader.downloading ? "Download in progress (" : ""}
+                      {Sefaria.downloader.titlesDownloaded().length} / {Sefaria.downloader.titlesAvailable().length} texts downloaded
+                      {Sefaria.downloader.downloading ? ") " : "."}
+                    </Text>
+                    {!downloadComplete && !Sefaria.downloader.downloading ? 
+                      <TouchableOpacity style={styles.button} onPress={Sefaria.downloader.resumeDownload}>
+                        <Text style={styles.buttonText}>Resume Download</Text>
+                      </TouchableOpacity>
+                      : null }
                     <TouchableOpacity style={styles.button} onPress={Sefaria.downloader.deleteLibrary}>
                       <Text style={styles.buttonText}>Delete Library</Text>
                     </TouchableOpacity>
