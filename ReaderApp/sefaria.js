@@ -800,7 +800,7 @@ Sefaria = {
             'Internet Error',
             'There was an error accessing the Internet. Check that you have Internet and retry',
             [
-              {text: 'Cancel'},
+              {text: 'Cancel', onPress: () => {reject("Canceled")}},
               {text: 'Retry', onPress: () => {
                 Sefaria.search.execute_query(args).then(resolve);
               }}

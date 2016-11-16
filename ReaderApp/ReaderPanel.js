@@ -119,8 +119,9 @@ var ReaderPanel = React.createClass({
     })
     .catch((error) => {
       console.log(error);
-      //TODO: add hasError boolean to state
-      this.setState({isQueryLoadingTail: false, isQueryRunning: false, searchQueryResult:[], numSearchResults: 0});
+      if (error != "Canceled") {
+        this.setState({isQueryLoadingTail: false, isQueryRunning: false, searchQueryResult:[], numSearchResults: 0});
+      }
     });
 
     this.setState({searchQuery:query, currSearchPage: newSearchPage, isQueryRunning: true});
