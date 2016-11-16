@@ -34,6 +34,7 @@ var ReaderNavigationMenu = React.createClass({
     openNav:        React.PropTypes.func.isRequired,
     openSearch:     React.PropTypes.func.isRequired,
     setIsNewSearch: React.PropTypes.func.isRequired,
+    openSettings:   React.PropTypes.func.isRequired,
     toggleLanguage: React.PropTypes.func.isRequired,
     Sefaria:        React.PropTypes.object.isRequired
   },
@@ -87,7 +88,10 @@ var ReaderNavigationMenu = React.createClass({
       ];
       var language = this.props.settings.language == "hebrew" ? "hebrew" : "english";
       categories = categories.map(function(cat) {
-        var openCat = function() {this.props.setCategories([cat])}.bind(this);
+        var openCat = function() {
+          this.props.setCategories([cat]);
+          Sefaria.track.event("Reader","Navigation Sub Category Click",cat);
+        }.bind(this);
         var heCat   = Sefaria.hebrewCategory(cat);
         return (<CategoryBlockLink
                   theme={this.props.theme}
