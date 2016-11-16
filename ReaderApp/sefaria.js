@@ -32,14 +32,13 @@ Sefaria = {
   if `isLinkRequest` and you're using API, only return single segment corresponding to link
   */
   data: function(ref, isLinkRequest) {
-    console.log("data call for ", ref)
     return new Promise(function(resolve, reject) {
       var fileNameStem = ref.split(":")[0];
       var bookRefStem  = Sefaria.textTitleForRef(ref);
       var jsonPath     = Sefaria._JSONSourcePath(fileNameStem);
       var zipPath      = Sefaria._zipSourcePath(bookRefStem);
 
-      console.log("file name stem",fileNameStem);
+      //console.log("file name stem",fileNameStem);
 
       var processFileData = function(data) {
         // Store data in in memory cache if it's not there already
@@ -74,7 +73,6 @@ Sefaria = {
         result.requestedRef   = ref;
         result.isSectionLevel = (ref === result.sectionRef);
         Sefaria.cacheCommentatorListBySection(result);
-        console.log(result)
         resolve(result);
       };
 
@@ -563,7 +561,7 @@ Sefaria = {
   textFromRefData: function(data) {
     // Returns a dictionary of the form {en: "", he: "", sectionRef: ""} that includes a single string with
     // Hebrew and English for `data.requestedRef` found in `data` as returned from Sefaria.data.
-    //sectionRef is so that we know which file / api call to make to open this text
+    // sectionRef is so that we know which file / api call to make to open this text
     // `data.requestedRef` may be either section or segment level.
     if (data.isSectionLevel) {
       let enText = "", heText = "";
@@ -572,7 +570,7 @@ Sefaria = {
         if (typeof item.text === "string") enText += item.text + " ";
         if (typeof item.he === "string") heText += item.he + " ";
       }
-      return new LinkContent(enText, heText, sectionRef);
+      return new LinkContent(enText, heText, data.sectionRef);
     } else {
       var segmentNumber = data.requestedRef.slice(data.ref.length+1);
       for (let i = 0; i < data.content.length; i++) {
@@ -581,7 +579,7 @@ Sefaria = {
             let enText = "", heText = "";
             if (typeof item.text === "string") enText = item.text;
             if (typeof item.he === "string") heText = item.he;
-            return new LinkContent(enText, heText, sectionRef);
+            return new LinkContent(enText, heText, data.sectionRef);
         }
       }
     }
@@ -598,7 +596,6 @@ Sefaria = {
     loadLinkData: function(ref,pos,resolveClosure,rejectClosure,runNow) {
       parseData = function(data) {
         return new Promise(function(resolve, reject) {
-
           if (data.fromAPI) {
             var result = data.result;
           } else {
@@ -620,7 +617,6 @@ Sefaria = {
           }
         });
       };
-      //if (ref.indexOf("Abarbanel") != -1) return new Promise(function(reject,resolve){reject({en:"I like to cause bugs in otherwise perfectly fine apps",he:"I like to cause bugs in otherwise perfectly fine apps"})});
       if (!runNow && !Sefaria.links._linkContentLoadingHash[ref]) {
         //console.log("Putting in queue:",ref,"Length:",Sefaria.links._linkContentLoadingStack.length);
         Sefaria.links._linkContentLoadingStack.push({"ref":ref,"pos":pos,"resolveClosure":resolveClosure,"rejectClosure":rejectClosure});

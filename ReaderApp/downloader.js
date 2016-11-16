@@ -178,7 +178,7 @@ var Downloader = {
     // Manages `title`'s presense in downloadQueue and downloadInProgress.
     var toFile = RNFS.DocumentDirectoryPath + "/tmp/" + title + ".zip";
     var start = new Date();
-    console.log("Starting download of " + title);
+    //console.log("Starting download of " + title);
     this._removeFromDowloadQueue(title);
     this._setData("downloadInProgress", [title].concat(this._data.downloadInProgress));
     return new Promise(function(resolve, reject) {
@@ -187,7 +187,7 @@ var Downloader = {
         toFile: toFile,
         background: true,
       }).then(function(downloadResult) {
-        console.log("Downloaded " + title + " in " + (new Date() - start));
+        //console.log("Downloaded " + title + " in " + (new Date() - start));
         if (downloadResult.statusCode == 200) {
           RNFS.unlink(RNFS.DocumentDirectoryPath + "/library/" + title + ".zip").catch(() => {});
           RNFS.moveFile(toFile, RNFS.DocumentDirectoryPath + "/library/" + title + ".zip");
