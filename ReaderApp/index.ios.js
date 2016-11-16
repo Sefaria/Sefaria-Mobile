@@ -192,9 +192,18 @@ var ReaderApp = React.createClass({
 
               this.setState({data: this.state.data, linksLoadedApi: tempLinksLoaded});
             }
-          })
+          });
         })
-        .catch(()=>{/*we have the file and don't need to make an API request*/});
+        .catch(()=>{
+          this.state.sectionArray.map((secRef, iSec)=>{
+            if (secRef == ref) {
+              let tempLinksLoaded = this.state.linksLoadedApi.slice(0);
+              tempLinksLoaded[iSec] = true;
+              this.setState({linksLoadedApi: tempLinksLoaded});
+            }
+          });
+
+        });
     },
     updateData: function(direction) {
         //console.log("updating data -- " + direction);
