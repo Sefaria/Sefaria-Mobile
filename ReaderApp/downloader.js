@@ -38,9 +38,9 @@ var Downloader = {
     Downloader.checkForUpdates()
       .then(() => {
         Downloader._updateDownloadQueue();
-        Downloader.downloading = true;
         Downloader._downloadNext();
      });
+    Downloader.downloading = true;
     Downloader.onChange && Downloader.onChange();
   },
   deleteLibrary: function() {
@@ -179,7 +179,25 @@ var Downloader = {
     var nextTitle = this._data.downloadQueue[0];
     this._downloadZip(nextTitle)
       .then(() => { Downloader._downloadNext(); })
-      .catch(() => { Downloader.downloading = false; });
+      .catch(this._handleDownloadError);
+  },
+  _handleDownloadError: function() {
+    Downloader.downloading = false;
+    var cancelAlert = function() {
+      AlertIOS.alert(
+        'Download Paused',
+        'You can resume the download in the Settings screen.',
+        [
+          {text: 'OK'},
+      ]);
+    };
+    AlertIOS.alert(
+      'Download Error',
+      'Unfortunately we encountered an error downloading the library.',
+      [
+        {text: 'Try Again', onPress: () => { Downloader.resumeDownload(); }},
+        {text: 'Pause', onPress: cancelAlert}
+    ]);
   },
   _downloadZip: function(title) {
     // Downloads `title`, first to /tmp then to /library when complete.
