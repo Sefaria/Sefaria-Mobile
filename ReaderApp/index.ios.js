@@ -50,6 +50,7 @@ var ReaderApp = React.createClass({
             offsetRef: null, /* used to jump to specific ref when opening a link*/
             segmentRef: "", /* only used for highlighting right now */
             segmentIndexRef: -1,
+            sectionIndexRef: -1,
             textReference: "",
             textTitle: "",
             loaded: false,
@@ -99,15 +100,16 @@ var ReaderApp = React.createClass({
         }
         let loadingLinks = false;
         if (segment !== this.state.segmentIndexRef) {
+
             loadingLinks = true;
-            Sefaria.links.linkSummary(this.state.textReference, this.state.data[section][segment].links).then((data) => {
-              this.setState({linkSummary: data, loadingLinks: false});
-              this.updateLinkCat(data, null); // Set up `linkContents` in their initial state as an array of nulls
-            });
+            if (this.state.linksLoadedApi[section]) {
+              this.updateLinkSummary(section, segment);
+            }
         }
         let stateObj = {
             segmentRef: segmentRef,
             segmentIndexRef: segment,
+            sectionIndexRef: section,
             linkStaleRecentFilters: this.state.linkRecentFilters.map(()=>true),
             loadingLinks: loadingLinks
         };
@@ -126,6 +128,7 @@ var ReaderApp = React.createClass({
             textReference: ref,
             textTitle: Sefaria.textTitleForRef(ref),
             segmentIndexRef: -1,
+            sectionIndexRef: -1
         });
 
         if (ref.indexOf("-") != -1) {
@@ -181,13 +184,14 @@ var ReaderApp = React.createClass({
           //add the links into the appropriate section and reload
           this.state.sectionArray.map((secRef,iSec)=>{
             if (secRef == ref) {
-              setTimeout(()=>{
-                this.state.data[iSec] = Sefaria.api.addLinksToText(this.state.data[iSec],linksResponse);
-                let yo = this.state.linksLoadedApi.slice(0);
-                yo[iSec] = true;
-                this.setState({data: this.state.data, linksLoadedApi: yo});
-              }, 3000);
+              this.state.data[iSec] = Sefaria.api.addLinksToText(this.state.data[iSec],linksResponse);
+              let tempLinksLoaded = this.state.linksLoadedApi.slice(0);
+              tempLinksLoaded[iSec] = true;
+              if (this.state.segmentIndexRef != -1 && this.state.sectionIndexRef != -1) {
+                this.updateLinkSummary(this.state.sectionIndexRef, this.state.segmentIndexRef);
+              }
 
+              this.setState({data: this.state.data, linksLoadedApi: tempLinksLoaded});
             }
           })
         })
@@ -339,6 +343,12 @@ var ReaderApp = React.createClass({
     },
     closeLinkCat: function() {
       this.setState({filterIndex: null});
+    },
+    updateLinkSummary: function(section, segment) {
+      Sefaria.links.linkSummary(this.state.textReference, this.state.data[section][segment].links).then((data) => {
+        this.setState({linkSummary: data, loadingLinks: false});
+        this.updateLinkCat(data, null); // Set up `linkContents` in their initial state as an array of nulls
+      });
     },
     updateLinkCat: function(linkSummary, filterIndex) {
         //search for the current filter in the the links object
