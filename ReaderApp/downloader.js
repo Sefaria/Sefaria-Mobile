@@ -41,6 +41,11 @@ var Downloader = {
      });
     Downloader.downloading = true;
     Downloader.onChange && Downloader.onChange();
+    AlertIOS.alert(
+      'Library Downloading',
+      'The library will download while you have the app open. You can check on the status of the download in the Settings screen.',
+      [{text: 'OK'}]
+    );
   },
   deleteLibrary: function() {
     AlertIOS.alert(
@@ -60,6 +65,9 @@ var Downloader = {
   resumeDownload: function() {
     // Resumes the download process if anything is left in progress or in queue.
     // if titles where left in progress, put them back in the queue
+    console.log("Resume Download")
+    RNFS.unlink(RNFS.DocumentDirectoryPath + "/tmp");
+    RNFS.mkdir(RNFS.DocumentDirectoryPath + "/tmp");
     if (Downloader._data.downloadInProgress.length) {
       Downloader._setData("downloadQueue", Downloader._data.downloadQueue.concat(Downloader._data.downloadInProgress));
       Downloader._setData("downloadInProgress", []);
@@ -132,12 +140,6 @@ var Downloader = {
           var onDownload = function() {
             AsyncStorage.setItem("libraryDownloadPrompted", "true");
             Downloader.downloadLibrary();
-            AlertIOS.alert(
-              'Library Downloading',
-              'You can check on the progress of the download or delete the library in the Settings screen.',
-              [
-                {text: 'OK'},
-              ]);
           };
           var onCancel = function() {
             AsyncStorage.setItem("libraryDownloadPrompted", "true");
@@ -153,7 +155,7 @@ var Downloader = {
           'We recommend downloading the offline library for a better experience. It requires about 280MB of storage. Otherwise you will need an Internet connection to use the app.',
           [
             {text: 'Download', onPress: onDownload},
-            {text: 'Not now', onPress: onCancel, style: 'cancel'}
+            {text: 'Not now', onPress: onCancel}
           ]);
         }
       });
@@ -204,21 +206,23 @@ var Downloader = {
   _downloadZip: function(title) {
     // Downloads `title`, first to /tmp then to /library when complete.
     // Manages `title`'s presense in downloadQueue and downloadInProgress.
-    var toFile = RNFS.DocumentDirectoryPath + "/tmp/" + title + ".zip";
+    var tempFile = RNFS.DocumentDirectoryPath + "/tmp/" + title + ".zip";
+    var toFile   = RNFS.DocumentDirectoryPath + "/library/" + title + ".zip"
     var start = new Date();
-    //console.log("Starting download of " + title);
+    console.log("Starting download of " + title);
     this._removeFromDowloadQueue(title);
     this._setData("downloadInProgress", [title].concat(this._data.downloadInProgress));
     return new Promise(function(resolve, reject) {
+      RNFS.exists(toFile).then((exists) => {
+        if (exists) { RNFS.unlink(toFile); }   
+      });
       RNFS.downloadFile({
         fromUrl: HOST_PATH + encodeURIComponent(title) + ".zip",
-        toFile: toFile,
-        background: true,
+        toFile: tempFile
       }).then(function(downloadResult) {
-        //console.log("Downloaded " + title + " in " + (new Date() - start));
         if (downloadResult.statusCode == 200) {
-          RNFS.unlink(RNFS.DocumentDirectoryPath + "/library/" + title + ".zip").catch(() => {});
-          RNFS.moveFile(toFile, RNFS.DocumentDirectoryPath + "/library/" + title + ".zip");
+          console.log("Downloaded " + title + " in " + (new Date() - start));
+          RNFS.moveFile(tempFile, toFile);
           Downloader._removeFromInProgress(title);
           Downloader._data.lastDownload[title] = Downloader._data.availableDownloads[title];
           Downloader._setData("lastDownload", Downloader._data.lastDownload);
@@ -226,7 +230,7 @@ var Downloader = {
           resolve();
         } else {
           reject(downloadResult.statusCode);
-          RNFS.unlink(toFile);
+          RNFS.unlink(tempFile);
         }
       })
     });
