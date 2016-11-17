@@ -212,12 +212,42 @@ Sefaria = {
           var tocPath = exists ? (RNFS.DocumentDirectoryPath + "/library/toc.json") :
                                  (RNFS.MainBundlePath + "/sources/toc.json");
           Sefaria._loadJSON(tocPath).then(function(data) {
+
+            data = Sefaria._removeBook(data, "Kol Dodi Dofek");
             Sefaria.toc = data;
             Sefaria._cacheIndexFromToc(data);
             resolve();
           });
         });
     });
+  },
+  //for debugging
+  _removeBook: function(toc, book) {
+    findCats = function(toc, book, cats) {
+      for (let i = 0; i < toc.length; i++) {
+        if ('title' in toc[i]) {
+          if (toc[i].title == book) {
+            cats.push(i);
+            return cats;
+          }
+        } else {
+          let newCats = cats.slice(0);
+          newCats.push(i);
+          let ret = findCats(toc[i].contents, book, newCats);
+          if (ret) {
+            return ret;
+          }
+        }
+      }
+    }
+    var cats = findCats(toc, book, []);
+    var newToc = Sefaria.util.clone(toc);
+    var tempToc = newToc;
+    for (var j = 0; j < cats.length-1; j++) {
+      tempToc = tempToc[cats[j]].contents;
+    }
+    tempToc.splice(cats[cats.length-1],1);
+    return newToc;
   },
   _cacheIndexFromToc: function(toc) {
     // Unpacks contents of Sefaria.toc into index cache.
@@ -381,160 +411,6 @@ Sefaria = {
   },
   _loadJSON: function(JSONSourcePath) {
     return fetch(JSONSourcePath).then((response) => response.json());
-  },
-  /*
-  takes responses from text and links api and returns json in the format of iOS json
-  */
-  _APItoiOS: function(responses) {
-      //console.log(responses);
-      let text_response = responses.text;
-      let to_pad, pad_length;
-      if (text_response.text.length < text_response.he.length) {
-        to_pad = text_response.text;
-        pad_length = text_response.he.length;
-      } else{
-        to_pad = text_response.he;
-        pad_length = text_response.text.length;
-      }
-      while (to_pad.length < pad_length) {
-        to_pad.push("");
-      }
-
-      let link_response = new Array(text_response.text.length);
-      let baseRef = responses.ref;
-
-      for (let i = 0; i < responses.links.length; i++) {
-        let link = responses.links[i];
-        let linkSegIndex = parseInt(link.anchorRef.substring(link.anchorRef.lastIndexOf(':') + 1)) - 1;
-        if (!link_response[linkSegIndex]) {
-          link_response[linkSegIndex] = [];
-        }
-        link_response[linkSegIndex].push({
-          "category": link.category,
-          "sourceRef": link.sourceRef, //.substring(0,link.sourceRef.lastIndexOf(':')),
-          "sourceHeRef": link.sourceHeRef, //.substring(0,link.sourceHeRef.lastIndexOf(':')),
-          "textTitle": link.index_title
-        });
-      }
-
-      let content = text_response.text.map((en,i) => ({
-        "segmentNumber": ""+(i+1),
-        "he": text_response.he[i],
-        "text": en,
-        "links": link_response[i] ? link_response[i] : []
-      }));
-
-      return {
-        "requestedRef": responses.ref,
-        "isSectionLevel": responses.ref === text_response.sectionRef,
-        "heTitleVariants": text_response.heTitleVariants,
-        "heTitle": text_response.heTitle,
-        "heRef": text_response.heRef,
-        "toSections": text_response.toSections,
-        "sectionRef": text_response.sectionRef,
-        "lengths": text_response.length,
-        "next": text_response.next,
-        "content": content,
-        "book": text_response.book,
-        "prev": text_response.prev,
-        "textDepth": text_response.textDepth,
-        "sectionNames": text_response.sectionNames,
-        "sections": text_response.sections,
-        "isComplex": text_response.isComplex,
-        "titleVariants": text_response.titleVariants,
-        "categories": text_response.categories,
-        "ref": text_response.sectionRef,
-        "type": text_response.type,
-        "addressTypes": text_response.addressTypes,
-        "length": text_response.length,
-        "indexTitle": text_response.indexTitle,
-        "heIndexTitle": text_response.heIndexTitle,
-        "alts": text_response.alts,
-        "order": text_response.order
-      };
-  },
-  /*
-  apiType: string `oneOf(["text","links","index"])`. passing undefined gets the standard Reader URL.
-  context is a required param if apiType == 'text'. o/w it's ignored
-  */
-  _urlForRef: function(ref, useHTTPS, apiType, context) {
-    var url = '';
-    if (useHTTPS) {
-      url += 'https://www.sefaria.org/';
-    } else {
-      url += 'http://www.sefaria.org/';
-    }
-
-    var urlSuffix = '';
-    if (apiType) {
-      switch (apiType) {
-        case "text":
-          url += 'api/texts/';
-          urlSuffix = `?context=${context === true ? 1 : 0}&commentary=0`;
-          break;
-        case "links":
-          url += 'api/links/';
-          urlSuffix = '?with_text=0';
-          break;
-        case "index":
-          url += 'api/v2/index/';
-          urlSuffix = '?with_content_counts=1';
-          break;
-        default:
-          console.error("You passed invalid type: ",apiType," into _urlForRef()");
-          break;
-      }
-    }
-
-    ref = ref.replace(/:/g,'.').replace(/ /g,'_');
-    url += ref + urlSuffix;
-    console.log("URL",url);
-    return url;
-  },
-  _apiTextandLinks: function(ref) {
-    var checkResolve = function(resolve) {
-      if (numResponses == 2) {
-        console.log("ALL Done ");
-        resolve({"text": textResponse, "links": linksResponse, "ref": ref});
-      }
-    }
-
-    var numResponses = 0;
-    var textResponse = null;
-    var linksResponse = null;
-    return new Promise(function(resolve,reject) {
-      Sefaria._apiCall(ref,'text',true)
-      .then((response)=>{
-        numResponses += 1;
-        textResponse = response;
-        checkResolve(resolve);
-      });
-      Sefaria._apiCall(ref,'links')
-      .then((response)=>{
-        numResponses += 1;
-        linksResponse = response;
-        checkResolve(resolve);
-      });
-
-    });
-  },
-  /*
-  context is a required param if apiType == 'text'. o/w it's ignored
-  */
-  _apiCall: function(ref,apiType, context) {
-    var url = Sefaria._urlForRef(ref, false, apiType, context);
-    return new Promise(function(resolve,reject) {
-      fetch(url)
-      .then(function(response) {
-        console.log('checking response',response.status);
-        if (response.status >= 200 && response.status < 300) {
-          return response;
-        } else {
-          reject(response.statusText);
-        }
-      })
-      .then(response => resolve(response.json()));
-    });
   },
   _downloadZip: function(title) {
     var toFile = RNFS.DocumentDirectoryPath + "/" + title + ".zip";

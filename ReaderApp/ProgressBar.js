@@ -1,4 +1,5 @@
 'use strict'
+//code from: https://github.com/lwansbrough/react-native-progress-bar
 
 import React, { Component } from 'react';
 import {

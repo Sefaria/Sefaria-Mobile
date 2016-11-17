@@ -138,8 +138,8 @@ var Api = {
           } else {
             Sefaria.api._request(ref,'links')
             .then((response)=>{
-              console.log("Setting API Link Cache for ",ref)
-              console.log(response)
+              //console.log("Setting API Link Cache for ",ref)
+              //console.log(response)
               Sefaria.api._linkCache[ref] = response;
               resolve(response);
             })
@@ -153,6 +153,11 @@ var Api = {
   },
   addLinksToText: function(text, links) {
     let link_response = new Array(text.length);
+
+    //filter out books not in toc
+    links = links.filter((l)=>{
+      return l.index_title in Sefaria.booksDict;
+    });
     for (let i = 0; i < links.length; i++) {
       let link = links[i];
       let linkSegIndex = parseInt(link.anchorRef.substring(link.anchorRef.lastIndexOf(':') + 1)) - 1;
