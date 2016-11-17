@@ -138,6 +138,8 @@ var Api = {
           } else {
             Sefaria.api._request(ref,'links')
             .then((response)=>{
+              console.log("Setting API Link Cache for ",ref)
+              console.log(response)
               Sefaria.api._linkCache[ref] = response;
               resolve(response);
             })

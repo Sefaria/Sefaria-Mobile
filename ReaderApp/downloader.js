@@ -25,9 +25,8 @@ var Downloader = {
       .then(function() {
         //console.log("Downloader init with data:")
         //console.log(Downloader._data);
-        console.log(Downloader.titlesAvailable().length + " title available");
-        console.log(Downloader.titlesDownloaded().length + " title downloaded");
-
+        console.log(Downloader.titlesAvailable().length + " titles available");
+        console.log(Downloader.titlesDownloaded().length + " titles downloaded");
         Downloader.resumeDownload();
       });
   },
@@ -38,9 +37,9 @@ var Downloader = {
     Downloader.checkForUpdates()
       .then(() => {
         Downloader._updateDownloadQueue();
-        Downloader.downloading = true;
         Downloader._downloadNext();
      });
+    Downloader.downloading = true;
     Downloader.onChange && Downloader.onChange();
   },
   deleteLibrary: function() {
@@ -74,25 +73,27 @@ var Downloader = {
   checkForUpdates: function() {
     // Downloads the "last_update.json", stores it in _data.availableDownloads
     // and adds any new items to _data.lastDownload with a null value indicating they've never been downlaoded
-    return new Promise(function(resolve, reject) {
-      fetch(HOST_PATH + "last_updated.json")
-        .then((response) => response.json())
-        .then((data) => {
-          Downloader._setData("availableDownloads", data);
-          // Add titles to lastDownload list if they haven't been seen before
-          for (var title in data) {
-            if (data.hasOwnProperty(title) && !(title in Downloader._data.lastDownload)) {
-              Downloader._data.lastDownload[title] = null;
-            }
+    // Also downloads latest "toc.json"
+    var lastUpdatePromise = fetch(HOST_PATH + "last_updated.json")
+      .then((response) => response.json())
+      .then((data) => {
+        Downloader._setData("availableDownloads", data);
+        // Add titles to lastDownload list if they haven't been seen before
+        for (var title in data) {
+          if (data.hasOwnProperty(title) && !(title in Downloader._data.lastDownload)) {
+            Downloader._data.lastDownload[title] = null;
           }
-          Downloader._setData("lastDownload", Downloader._data.lastDownload);
-          resolve();
-        })
-        .catch((error) => {
-          console.log(error);
-          reject(error)
-        });
+        }
+        Downloader._setData("lastDownload", Downloader._data.lastDownload);
+      });
+    var tocPromise = RNFS.downloadFile({
+      fromUrl: HOST_PATH + "toc.json",
+      toFile: RNFS.DocumentDirectoryPath + "/library/toc.json",
+      background: true,
+    }).then(() => {
+      Sefaria._loadTOC();
     });
+    return Promise.all([lastUpdatePromise, tocPromise]);
   },
   prioritizeDownload: function(title) {
     // Moves `title` to the front of the downloadQueue if it's there
@@ -179,7 +180,26 @@ var Downloader = {
     var nextTitle = this._data.downloadQueue[0];
     this._downloadZip(nextTitle)
       .then(() => { Downloader._downloadNext(); })
-      .catch(() => { Downloader.downloading = false; });
+      .catch(this._handleDownloadError);
+  },
+  _handleDownloadError: function(error) {
+    console.log("Download error: ", error);
+    Downloader.downloading = false;
+    var cancelAlert = function() {
+      AlertIOS.alert(
+        'Download Paused',
+        'You can resume the download in the Settings screen.',
+        [
+          {text: 'OK'},
+      ]);
+    };
+    AlertIOS.alert(
+      'Download Error',
+      'Unfortunately we encountered an error downloading the library.',
+      [
+        {text: 'Try Again', onPress: () => { Downloader.resumeDownload(); }},
+        {text: 'Pause', onPress: cancelAlert}
+    ]);
   },
   _downloadZip: function(title) {
     // Downloads `title`, first to /tmp then to /library when complete.

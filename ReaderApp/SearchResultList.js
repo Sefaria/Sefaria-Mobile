@@ -36,12 +36,12 @@ var SearchResultList = React.createClass({
   },
   renderRow: function(rowData) {
     return (
-      <SearchTextResult 
+      <SearchTextResult
         theme={this.props.theme}
         textType={rowData.textType}
         title={rowData.title}
         text={rowData.text}
-        openRef={this.props.openRef} />
+        onPress={this.props.openRef.bind(null,rowData.title)} />
     );
   },
   componentDidUpdate: function() {

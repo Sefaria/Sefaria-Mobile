@@ -31,48 +31,53 @@ var {
 
 var ReaderPanel = React.createClass({
   propTypes: {
-    segmentRef:        React.PropTypes.string,
-    segmentIndexRef:   React.PropTypes.number,
-    offsetRef:         React.PropTypes.string,
-    data:              React.PropTypes.array,
-    textTitle:         React.PropTypes.string,
-    heTitle:           React.PropTypes.string,
-    heRef:             React.PropTypes.string,
-    openRef:           React.PropTypes.func.isRequired,
-    openMenu:          React.PropTypes.func.isRequired,
-    openNav:           React.PropTypes.func.isRequired,
-    openTextToc:       React.PropTypes.func.isRequired,
-    interfaceLang:     React.PropTypes.oneOf(["english", "hebrew"]).isRequired,
-    loading:           React.PropTypes.bool,
-    textListVisible:   React.PropTypes.bool,
-    textListFlex:      React.PropTypes.number,
-    onTextListDragStart:React.PropTypes.func.isRequired,
-    onTextListDragMove:React.PropTypes.func.isRequired,
-    linksLoadedApi:       React.PropTypes.array,
-    openLinkCat:       React.PropTypes.func.isRequired,
-    closeLinkCat:      React.PropTypes.func.isRequired,
-    updateLinkCat:     React.PropTypes.func.isRequired,
-    filterIndex:       React.PropTypes.number,
-    linkRecentFilters: React.PropTypes.array,
-    linkSummary:       React.PropTypes.array,
-    linkContents:      React.PropTypes.array,
-    loadingLinks:      React.PropTypes.bool,
-    setTheme:          React.PropTypes.func.isRequired,
-    theme:             React.PropTypes.object,
-    themeStr:          React.PropTypes.oneOf(["white", "black"]),
-    hasInternet:       React.PropTypes.bool,
-    Sefaria:           React.PropTypes.object.isRequired
+    segmentRef:          React.PropTypes.string,
+    segmentIndexRef:     React.PropTypes.number,
+    offsetRef:           React.PropTypes.string,
+    data:                React.PropTypes.array,
+    textTitle:           React.PropTypes.string,
+    heTitle:             React.PropTypes.string,
+    heRef:               React.PropTypes.string,
+    openRef:             React.PropTypes.func.isRequired,
+    openNav:             React.PropTypes.func.isRequired,
+    openTextToc:         React.PropTypes.func.isRequired,
+    openSettings:        React.PropTypes.func.isRequired,
+    interfaceLang:       React.PropTypes.oneOf(["english", "hebrew"]).isRequired,
+    loading:             React.PropTypes.bool,
+    textListVisible:     React.PropTypes.bool,
+    textListFlex:        React.PropTypes.number,
+    onTextListDragStart: React.PropTypes.func.isRequired,
+    onTextListDragMove:  React.PropTypes.func.isRequired,
+    openLinkCat:         React.PropTypes.func.isRequired,
+    closeLinkCat:        React.PropTypes.func.isRequired,
+    updateLinkCat:       React.PropTypes.func.isRequired,
+    filterIndex:         React.PropTypes.number,
+    linkRecentFilters:   React.PropTypes.array,
+    linkSummary:         React.PropTypes.array,
+    linkContents:        React.PropTypes.array,
+    loadingLinks:        React.PropTypes.bool,
+    setTheme:            React.PropTypes.func.isRequired,
+    theme:               React.PropTypes.object,
+    themeStr:            React.PropTypes.oneOf(["white", "black"]),
+    hasInternet:         React.PropTypes.bool,
+    isQueryRunning:      React.PropTypes.bool,
+    searchQuery:         React.PropTypes.string,
+    isQueryLoadingTail:  React.PropTypes.bool,
+    isNewSearch:         React.PropTypes.bool,
+    numSearchResults:    React.PropTypes.number,
+    searchQueryResult:   React.PropTypes.array,
+    onQueryChange:       React.PropTypes.func.isRequired,
+    setLoadQueryTail:    React.PropTypes.func.isRequired,
+    setIsNewSearch:      React.PropTypes.func.isRequired,
+    search:              React.PropTypes.func.isRequired,
+    Sefaria:             React.PropTypes.object.isRequired
   },
   getInitialState: function () {
     Sefaria = this.props.Sefaria;
+
     return {
     	textFlow: this.props.textFlow || 'segmented', 	// alternative is 'continuous'
     	columnLanguage: this.props.columnLanguage || 'english', 	// alternative is 'hebrew' &  'bilingual'
-      searchQuery: '',
-      isQueryRunning: false,
-      isQueryLoadingTail: false,
-      isNewSearch: false,
-      currSearchPage: 0,
       settings: {
         language:      "bilingual",
         layoutDefault: "segmented",
@@ -92,52 +97,7 @@ var ReaderPanel = React.createClass({
   	 this.setState({ReaderDisplayOptionsMenuVisible:  false})}
 
      //console.log(this.state.ReaderDisplayOptionsMenuVisible);
-  },
-  onQueryChange: function(query, resetQuery) {
-    var newSearchPage = 0;
-    if (!resetQuery)
-      newSearchPage = this.state.currSearchPage+1;
-
-
-    //var req = JSON.stringify(Sefaria.search.get_query_object(query,false,[],20,20*newSearchPage,"text"));
-
-    var queryProps = {
-      query: query,
-      size: 20,
-      from: 20*newSearchPage,
-      type: "text",
-      get_filters: false,
-      applied_filters: []
-    };
-    console.log(queryProps)
-    Sefaria.search.execute_query(queryProps)
-    .then((responseJson) => {
-      var resultArray = resetQuery ? responseJson["hits"]["hits"] : this.state.searchQueryResult.concat(responseJson["hits"]["hits"]);
-      //console.log("resultArray",resultArray);
-      var numResults = responseJson["hits"]["total"]
-      this.setState({isQueryLoadingTail: false, isQueryRunning: false, searchQueryResult:resultArray, numSearchResults: numResults});
-    })
-    .catch((error) => {
-      console.log(error);
-      if (error != "Canceled") {
-        this.setState({isQueryLoadingTail: false, isQueryRunning: false, searchQueryResult:[], numSearchResults: 0});
-      }
-    });
-
-    this.setState({searchQuery:query, currSearchPage: newSearchPage, isQueryRunning: true});
-  },
-  setLoadQueryTail: function(isLoading) {
-    this.setState({isQueryLoadingTail: isLoading});
-    if (isLoading) {
-      this.onQueryChange(this.state.searchQuery,false);
-    }
-  },
-  setIsNewSearch: function(isNewSearch) {
-    this.setState({isNewSearch: isNewSearch});
-  },
-  search: function(query) {
-    this.onQueryChange(query,true);
-    this.props.openSearch();
+    this.trackPageview();
   },
   toggleLanguage: function() {
     // Toggle current display language between english/hebrew only
@@ -146,6 +106,8 @@ var ReaderPanel = React.createClass({
     } else {
       this.state.settings.language = "english";
     }
+    Sefaria.track.event("Reader","Change Language",this.state.settings.language);
+
     this.setState({settings: this.state.settings});
   },
   setTextFlow: function(textFlow) {
@@ -155,6 +117,7 @@ var ReaderPanel = React.createClass({
       this.setColumnLanguage("hebrew");
     }
     this.toggleReaderDisplayOptionsMenu();
+    Sefaria.track.event("Reader","Display Option Click","layout - " + textFlow);
   },
   setColumnLanguage: function(columnLanguage) {
     this.setState({columnLanguage: columnLanguage});
@@ -162,9 +125,10 @@ var ReaderPanel = React.createClass({
       this.setTextFlow("segmented");
     }
     this.toggleReaderDisplayOptionsMenu();
+    Sefaria.track.event("Reader","Display Option Click","language - " + columnLanguage);
   },
   incrementFont: function(incrementString) {
-    if (incrementString == "incrementFont") {
+    if (incrementString == "larger") {
       var updatedSettings = Sefaria.util.clone(this.state.settings)
       updatedSettings.fontSize = this.state.settings.fontSize+1;
       this.setState({settings:updatedSettings});
@@ -173,14 +137,52 @@ var ReaderPanel = React.createClass({
       updatedSettings.fontSize  = this.state.settings.fontSize-1;
       this.setState({settings:updatedSettings});
     }
+    Sefaria.track.event("Reader","Display Option Click","fontSize - " + incrementString);
   },
   setTheme: function(themeStr) {
     this.props.setTheme(themeStr);
     this.toggleReaderDisplayOptionsMenu();
   },
+  /*
+  send current page stats to analytics
+  */
+  trackPageview: function() {
+    let pageType  = this.props.menuOpen || (this.props.textListVisible ? "TextAndConnections" : "Text");
+    let numPanels = this.props.textListVisible ? '1.1' : '1';
+    let ref       = this.props.segmentRef !== '' ? this.props.segmentRef : this.props.textReference;
+    let bookName  = this.props.textTitle;
+    let index     = Sefaria.index(this.props.textTitle);
+    let cats      = index ? index.categories : undefined;
+    let primCat   = cats && cats.length > 0 ? ((cats[0] === "Commentary") ?
+        cats[1] + " Commentary" : cats[0]) : "";
+    let secoCat   = cats ? ((cats[0] === "Commentary")?
+        ((cats.length > 2) ? cats[2] : ""):
+        ((cats.length > 1) ? cats[1] : "")) : "";
+    let contLang  = this.state.settings.language;
+    let sideBar   = this.props.linkRecentFilters.length > 0 ? this.props.linkRecentFilters.map(filt => filt.title).join('+') : 'all';
+    let versTit   = ''; //we don't support this yet
 
+    Sefaria.track.pageview(pageType,
+      {'Panels Open': numPanels, 'Book Name': bookName, 'Ref': ref, 'Version Title': versTit, 'Page Type': pageType, 'Sidebars': sideBar},
+      {1: primCat, 2: secoCat, 3: bookName, 5: contLang}
+    );
+
+  },
+  componentWillReceiveProps(nextProps) {
+    //TODO account for infinite
+    if (this.props.menuOpen          !== nextProps.menuOpen          ||
+        this.props.textTitle         !== nextProps.textTitle         ||
+        this.props.textFlow          !== nextProps.textFlow          ||
+        this.props.columnLanguage    !== nextProps.columnLanguage    ||
+        this.props.textListVisible   !== nextProps.textListVisible   ||
+        this.props.segmentIndexRef   !== nextProps.segmentIndexRef   ||
+        this.props.segmentRef        !== nextProps.segmentRef        ||
+        this.props.linkRecentFilters !== nextProps.linkRecentFilters ||
+        this.props.themeStr          !== nextProps.themeStr) {
+          this.trackPageview();
+    }
+  },
   render: function() {
-
     switch(this.props.menuOpen) {
       case (null):
         break;
@@ -191,14 +193,14 @@ var ReaderPanel = React.createClass({
           <ReaderNavigationMenu
             categories={this.props.navigationCategories}
             setCategories={this.props.setNavigationCategories}
-            openRef={this.props.openRef}
+            openRef={(ref)=>this.props.openRef(ref,"navigation")}
             openNav={this.props.openNav}
             closeNav={this.props.closeMenu}
-            openSettings={this.props.openMenu.bind(null, "settings")}
-            openSearch={this.search}
-            setIsNewSearch={this.setIsNewSearch}
+            openSearch={this.props.search}
+            setIsNewSearch={this.props.setIsNewSearch}
             toggleLanguage={this.toggleLanguage}
             settings={this.state.settings}
+            openSettings={this.props.openSettings}
             interfaceLang={this.props.interfaceLang}
             theme={this.props.theme}
             themeStr={this.props.themeStr}
@@ -214,7 +216,7 @@ var ReaderPanel = React.createClass({
             contentLang={this.state.settings.language == "hebrew" ? "hebrew" : "english"}
             interfaceLang={this.props.interfaceLang}
             close={this.props.closeMenu}
-            openRef={this.props.openRef}
+            openRef={(ref)=>this.props.openRef(ref,"text toc")}
             toggleLanguage={this.toggleLanguage}
             Sefaria={Sefaria} />);
         break;
@@ -225,16 +227,16 @@ var ReaderPanel = React.createClass({
             themeStr={this.props.themeStr}
             hasInternet={this.props.hasInternet}
             closeNav={this.props.closeMenu}
-            onQueryChange={this.onQueryChange}
-            openRef={this.props.openRef}
-            setLoadTail={this.setLoadQueryTail}
-            setIsNewSearch={this.setIsNewSearch}
-            query={this.state.searchQuery}
-            loadingQuery={this.state.isQueryRunning}
-            isNewSearch={this.state.isNewSearch}
-            loadingTail={this.state.isQueryLoadingTail}
-            queryResult={this.state.searchQueryResult}
-            numResults={this.state.numSearchResults} />);
+            onQueryChange={this.props.onQueryChange}
+            openRef={(ref)=>this.props.openRef(ref,"search")}
+            setLoadTail={this.props.setLoadQueryTail}
+            setIsNewSearch={this.props.setIsNewSearch}
+            query={this.props.searchQuery}
+            loadingQuery={this.props.isQueryRunning}
+            isNewSearch={this.props.isNewSearch}
+            loadingTail={this.props.isQueryLoadingTail}
+            queryResult={this.props.searchQueryResult}
+            numResults={this.props.numSearchResults} />);
         break;
       case ("settings"):
         return(
@@ -311,7 +313,7 @@ var ReaderPanel = React.createClass({
                 segmentIndexRef={this.props.segmentIndexRef}
                 textFlow={this.state.textFlow}
                 columnLanguage={this.state.columnLanguage}
-                openRef={ this.props.openRef }
+                openRef={(ref)=>this.props.openRef(ref,"text list")}
                 openCat={this.props.openLinkCat}
                 closeCat={this.props.closeLinkCat}
                 updateCat={this.props.updateLinkCat}

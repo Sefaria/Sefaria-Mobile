@@ -40,6 +40,19 @@ var SettingsPage = React.createClass({
   onDownloaderChange: function() {
     this.forceUpdate();
   },
+  onDebugNoLibraryTouch: function() {
+    this._numPressesDebug++;
+    if (this._numPressesDebug >= 7) {
+      this._numPressesDebug = 0;
+      Sefaria.downloader._setData("debugNoLibrary",!Sefaria.downloader._data.debugNoLibrary);
+      Alert.alert(
+      'Testing Library Mode',
+      `You\'ve just ${Sefaria.downloader._data.debugNoLibrary ? "disabled" : "enabled"} library access. You can change this setting by tapping "OFFLINE ACCESS" seven times.`,
+      [
+        {text: 'OK', onPress: ()=>{this.forceUpdate();}},
+      ]);
+    }
+  },
   render: function() {
     var nDownloaded = Sefaria.downloader.titlesDownloaded().length;
     var nAvailable  = Sefaria.downloader.titlesAvailable().length;
@@ -52,40 +65,30 @@ var SettingsPage = React.createClass({
               </View>
 
               <ScrollView style={styles.menuContent}>
-                <TouchableWithoutFeedback onPress={()=>{
-                  this._numPressesDebug++;
-                  if (this._numPressesDebug >= 7) {
-                    this._numPressesDebug = 0;
-                    Sefaria.downloader._setData("debugNoLibrary",!Sefaria.downloader._data.debugNoLibrary);
-                    Alert.alert(
-                    'NOTICE',
-                    `You\'ve just ${Sefaria.downloader._data.debugNoLibrary ? "disabled" : "enabled"} library access. Press "Cool!" to continue.`,
-                    [
-                      {text: 'Cool!', onPress: ()=>{this.forceUpdate();}},
-                    ]);
-                  }
-                }}>
+                <TouchableWithoutFeedback onPress={this.onDebugNoLibraryTouch}>
                   <View>
                     <Text style={[styles.settingsSectionHeader, this.props.theme.tertiaryText]}>OFFLINE ACCESS</Text>
                   </View>
                 </TouchableWithoutFeedback>
                 {Sefaria.downloader._data.debugNoLibrary ?
-                  <Text style={[styles.settingsMessage, this.props.theme.tertiaryText]}>Debug No Library</Text> : null}
+                  <Text style={[styles.settingsMessage, this.props.theme.tertiaryText]}>Debug No Library</Text> : null }
                 <Text style={[styles.settingsMessage, this.props.theme.tertiaryText]}>Requires ~280MB of storage on your device.</Text>
                 {Sefaria.downloader._data.shouldDownload ?
                   <View>
                     <Text style={[styles.settingsMessage, this.props.theme.tertiaryText]}>
-                      {Sefaria.downloader.downloading ?
-                        `Download in progress (${Math.round(1000 * (Sefaria.downloader.titlesDownloaded().length / Sefaria.downloader.titlesAvailable().length)) / 10}%)` :
-                        ""}
+                       {Sefaria.downloader.downloading ? "Download in progress (" : ""}
+                       {nDownloaded} / {nAvailable} texts downloaded
+                       {Sefaria.downloader.downloading ? ") " : "."}
                     </Text>
                     {Sefaria.downloader.downloading ?
-                      <ProgressBar
-                        fillStyle={{}}
-                        backgroundStyle={{backgroundColor: '#cccccc', borderRadius: 2}}
-                        style={{marginTop: 10, width: 300}}
-                        progress={Sefaria.downloader.titlesDownloaded().length / Sefaria.downloader.titlesAvailable().length}
-                      /> : null
+                      <View style={{flex: 1, flexDirection: 'row', justifyContent: 'center'}}>
+                        <ProgressBar
+                          fillStyle={{}}
+                          backgroundStyle={{backgroundColor: '#cccccc', borderRadius: 2}}
+                          style={{marginTop: 0, marginBottom: 10, width: 300}}
+                          progress={nDownloaded / nAvailable} />
+                      </View>
+                      : null
                     }
 
                     {!downloadComplete && !Sefaria.downloader.downloading ?
