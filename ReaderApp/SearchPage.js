@@ -31,7 +31,6 @@ var SearchPage = React.createClass({
 		isNewSearch:         React.PropTypes.bool,
 		numResults:          React.PropTypes.number
 	},
-
 	numberWithCommas: function(x) {
     	return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 	},
