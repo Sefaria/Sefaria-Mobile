@@ -5,7 +5,7 @@ import {
 } from 'react-native';
 
 const SCHEMA_VERSION = "1";
-const HOST_PATH = "http://dev.sefaria.org/static/ios-export/" + SCHEMA_VERSION + "/";
+const HOST_PATH = "http://readonly.sefaria.org/static/ios-export/" + SCHEMA_VERSION + "/";
 
 
 var Downloader = {
