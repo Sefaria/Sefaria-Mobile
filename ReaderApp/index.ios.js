@@ -40,7 +40,11 @@ var {
 var ReaderApp = React.createClass({
     getInitialState: function () {
         Sefaria.init().then(function() {
-            this.setState({loaded: true});
+            this.setState({
+              loaded: true,
+              defaultSettingsLoaded: true,
+            });
+            this.setDefaultTheme();
         }.bind(this));
         Sefaria.track.init();
         NetInfo.isConnected.addEventListener(
@@ -55,6 +59,7 @@ var ReaderApp = React.createClass({
             textReference: "",
             textTitle: "",
             loaded: false,
+            defaultSettingsLoaded: false,
             menuOpen: "navigation",
             navigationCategories: [],
             loadingTextTail: false,
@@ -465,13 +470,15 @@ var ReaderApp = React.createClass({
       this.setState({offsetRef:null});
     },
     setTheme: function(themeStr) {
-      if (themeStr === "white") this.state.theme = themeWhite;
-      else if (themeStr === "black") this.state.theme = themeBlack;
-
-      this.setState({theme: this.state.theme,themeStr: themeStr});
+      if (themeStr === "white") { this.state.theme = themeWhite; }
+      else if (themeStr === "black") { this.state.theme = themeBlack; }
+      this.setState({theme: this.state.theme, themeStr: themeStr});
+      Sefaria.settings.set("color", themeStr);
+    },
+    setDefaultTheme: function() {
+      this.setTheme(Sefaria.settings.color);
     },
     onTextListDragStart: function(evt) {
-      console.log("STARTTTT");
       return !this.state.textListAnimating;
     },
     onTextListDragMove: function(evt) {
@@ -572,7 +579,7 @@ var ReaderApp = React.createClass({
     },
     render: function () {
         return (
-            <View style={[styles.container,this.state.theme.container]}>
+            <View style={[styles.container, this.state.theme.container]}>
                 <StatusBar
                     barStyle="light-content" />
                 <ReaderPanel
@@ -611,6 +618,7 @@ var ReaderApp = React.createClass({
                     onTextListDragStart={this.onTextListDragStart}
                     onTextListDragMove={this.onTextListDragMove}
                     loading={!this.state.loaded}
+                    defaultSettingsLoaded={this.state.defaultSettingsLoaded}
                     openLinkCat={this.openLinkCat}
                     closeLinkCat={this.closeLinkCat}
                     updateLinkCat={this.updateLinkCat}

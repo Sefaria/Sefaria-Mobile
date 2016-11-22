@@ -20,10 +20,10 @@ var ReaderDisplayOptionsMenu = React.createClass({
     theme:                           React.PropTypes.object,
     textFlow:                        React.PropTypes.oneOf(['segmented', 'continuous']),
     canBeContinuous:                 React.PropTypes.bool,
-    columnLanguage:                  React.PropTypes.oneOf(['hebrew', 'english', 'bilingual']),
+    textLanguage:                    React.PropTypes.oneOf(['hebrew', 'english', 'bilingual']),
     themeStr:                        React.PropTypes.oneOf(['white', 'black']),
     setTextFlow:                     React.PropTypes.func,
-    setColumnLanguage:               React.PropTypes.func,
+    setTextLanguage:                 React.PropTypes.func,
     incrementFont:                   React.PropTypes.func,
     setTheme:                        React.PropTypes.func
   },
@@ -31,10 +31,10 @@ var ReaderDisplayOptionsMenu = React.createClass({
 
     var options = [
       {
-        onPress:this.props.setColumnLanguage,
+        onPress:this.props.setTextLanguage,
         buttons:["english","bilingual","hebrew"],
         icons:[a_icon,a_aleph_icon,aleph_icon],
-        currVal: this.props.columnLanguage,
+        currVal: this.props.textLanguage,
         parametrized: true
       },
       {

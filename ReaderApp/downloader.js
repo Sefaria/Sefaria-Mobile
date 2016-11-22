@@ -21,14 +21,14 @@ var Downloader = {
   downloading: false,     // Whether the download is currently active, not stored in _data because we never want to persist value
   onChange: null, // Handler set above called when books in the Library finish downloading, or download mode changes.
   init: function() {
-    this._loadData()
-      .then(function() {
-        //console.log("Downloader init with data:")
-        //console.log(Downloader._data);
-        console.log(Downloader.titlesAvailable().length + " titles available");
-        console.log(Downloader.titlesDownloaded().length + " titles downloaded");
-        Downloader.resumeDownload();
-      });
+    return this._loadData()
+            .then(function() {
+              //console.log("Downloader init with data:")
+              //console.log(Downloader._data);
+              //console.log(Downloader.titlesAvailable().length + " titles available");
+              //console.log(Downloader.titlesDownloaded().length + " titles downloaded");
+              Downloader.resumeDownload();
+            });
   },
   downloadLibrary: function() {
     RNFS.mkdir(RNFS.DocumentDirectoryPath + "/library");
@@ -65,7 +65,6 @@ var Downloader = {
   resumeDownload: function() {
     // Resumes the download process if anything is left in progress or in queue.
     // if titles where left in progress, put them back in the queue
-    console.log("Resume Download")
     RNFS.unlink(RNFS.DocumentDirectoryPath + "/tmp");
     RNFS.mkdir(RNFS.DocumentDirectoryPath + "/tmp");
     if (Downloader._data.downloadInProgress.length) {
@@ -209,7 +208,7 @@ var Downloader = {
     var tempFile = RNFS.DocumentDirectoryPath + "/tmp/" + title + ".zip";
     var toFile   = RNFS.DocumentDirectoryPath + "/library/" + title + ".zip"
     var start = new Date();
-    console.log("Starting download of " + title);
+    //console.log("Starting download of " + title);
     this._removeFromDowloadQueue(title);
     this._setData("downloadInProgress", [title].concat(this._data.downloadInProgress));
     return new Promise(function(resolve, reject) {
@@ -221,7 +220,7 @@ var Downloader = {
         toFile: tempFile
       }).then(function(downloadResult) {
         if (downloadResult.statusCode == 200) {
-          console.log("Downloaded " + title + " in " + (new Date() - start));
+          //console.log("Downloaded " + title + " in " + (new Date() - start));
           RNFS.moveFile(tempFile, toFile);
           Downloader._removeFromInProgress(title);
           Downloader._data.lastDownload[title] = Downloader._data.availableDownloads[title];

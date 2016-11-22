@@ -31,64 +31,87 @@ var {
 
 var ReaderPanel = React.createClass({
   propTypes: {
-    segmentRef:          React.PropTypes.string,
-    segmentIndexRef:     React.PropTypes.number,
-    offsetRef:           React.PropTypes.string,
-    data:                React.PropTypes.array,
-    textTitle:           React.PropTypes.string,
-    heTitle:             React.PropTypes.string,
-    heRef:               React.PropTypes.string,
-    openRef:             React.PropTypes.func.isRequired,
-    openNav:             React.PropTypes.func.isRequired,
-    openTextToc:         React.PropTypes.func.isRequired,
-    openSettings:        React.PropTypes.func.isRequired,
-    interfaceLang:       React.PropTypes.oneOf(["english", "hebrew"]).isRequired,
-    loading:             React.PropTypes.bool,
-    textListVisible:     React.PropTypes.bool,
-    textListFlex:        React.PropTypes.number,
-    onTextListDragStart: React.PropTypes.func.isRequired,
-    onTextListDragMove:  React.PropTypes.func.isRequired,
-    openLinkCat:         React.PropTypes.func.isRequired,
-    closeLinkCat:        React.PropTypes.func.isRequired,
-    updateLinkCat:       React.PropTypes.func.isRequired,
-    filterIndex:         React.PropTypes.number,
-    linkRecentFilters:   React.PropTypes.array,
-    linkSummary:         React.PropTypes.array,
-    linkContents:        React.PropTypes.array,
-    loadingLinks:        React.PropTypes.bool,
-    setTheme:            React.PropTypes.func.isRequired,
-    theme:               React.PropTypes.object,
-    themeStr:            React.PropTypes.oneOf(["white", "black"]),
-    hasInternet:         React.PropTypes.bool,
-    isQueryRunning:      React.PropTypes.bool,
-    searchQuery:         React.PropTypes.string,
-    isQueryLoadingTail:  React.PropTypes.bool,
-    isNewSearch:         React.PropTypes.bool,
-    numSearchResults:    React.PropTypes.number,
-    searchQueryResult:   React.PropTypes.array,
-    onQueryChange:       React.PropTypes.func.isRequired,
-    setLoadQueryTail:    React.PropTypes.func.isRequired,
-    setIsNewSearch:      React.PropTypes.func.isRequired,
-    search:              React.PropTypes.func.isRequired,
-    Sefaria:             React.PropTypes.object.isRequired
+    segmentRef:            React.PropTypes.string,
+    segmentIndexRef:       React.PropTypes.number,
+    offsetRef:             React.PropTypes.string,
+    data:                  React.PropTypes.array,
+    textTitle:             React.PropTypes.string,
+    heTitle:               React.PropTypes.string,
+    heRef:                 React.PropTypes.string,
+    openRef:               React.PropTypes.func.isRequired,
+    openNav:               React.PropTypes.func.isRequired,
+    openTextToc:           React.PropTypes.func.isRequired,
+    openSettings:          React.PropTypes.func.isRequired,
+    interfaceLang:         React.PropTypes.oneOf(["english", "hebrew"]).isRequired,
+    loading:               React.PropTypes.bool,
+    defaultSettingsLoaded: React.PropTypes.bool,
+    textListVisible:       React.PropTypes.bool,
+    textListFlex:          React.PropTypes.number,
+    onTextListDragStart:   React.PropTypes.func.isRequired,
+    onTextListDragMove:    React.PropTypes.func.isRequired,
+    openLinkCat:           React.PropTypes.func.isRequired,
+    closeLinkCat:          React.PropTypes.func.isRequired,
+    updateLinkCat:         React.PropTypes.func.isRequired,
+    filterIndex:           React.PropTypes.number,
+    linkRecentFilters:     React.PropTypes.array,
+    linkSummary:           React.PropTypes.array,
+    linkContents:          React.PropTypes.array,
+    loadingLinks:          React.PropTypes.bool,
+    setTheme:              React.PropTypes.func.isRequired,
+    theme:                 React.PropTypes.object,
+    themeStr:              React.PropTypes.oneOf(["white", "black"]),
+    hasInternet:           React.PropTypes.bool,
+    isQueryRunning:        React.PropTypes.bool,
+    searchQuery:           React.PropTypes.string,
+    isQueryLoadingTail:    React.PropTypes.bool,
+    isNewSearch:           React.PropTypes.bool,
+    numSearchResults:      React.PropTypes.number,
+    searchQueryResult:     React.PropTypes.array,
+    onQueryChange:         React.PropTypes.func.isRequired,
+    setLoadQueryTail:      React.PropTypes.func.isRequired,
+    setIsNewSearch:        React.PropTypes.func.isRequired,
+    search:                React.PropTypes.func.isRequired,
+    Sefaria:               React.PropTypes.object.isRequired
   },
   getInitialState: function () {
     Sefaria = this.props.Sefaria;
-
     return {
-    	textFlow: this.props.textFlow || 'segmented', 	// alternative is 'continuous'
-    	columnLanguage: this.props.columnLanguage || 'english', 	// alternative is 'hebrew' &  'bilingual'
-      settings: {
-        language:      "bilingual",
-        layoutDefault: "segmented",
-        layoutTalmud:  "continuous",
-        layoutTanakh:  "segmented",
-        color:         "light",
-        fontSize:      20,
-      },
-      ReaderDisplayOptionsMenuVisible: false
-
+      ReaderDisplayOptionsMenuVisible: false,
+      settings: {},
     };
+  },
+  componentWillReceiveProps: function(nextProps) {
+     if (!this.props.defaultSettingsLoaded && nextProps.defaultSettingsLoaded) {
+      this.setDefaultSettings();
+    }
+
+    // Should track pageview? TODO account for infinite
+    if (this.props.menuOpen          !== nextProps.menuOpen          ||
+        this.props.textTitle         !== nextProps.textTitle         ||
+        this.props.textFlow          !== nextProps.textFlow          ||
+        this.props.textLanguage      !== nextProps.textLanguage      ||
+        this.props.textListVisible   !== nextProps.textListVisible   ||
+        this.props.segmentIndexRef   !== nextProps.segmentIndexRef   ||
+        this.props.segmentRef        !== nextProps.segmentRef        ||
+        this.props.linkRecentFilters !== nextProps.linkRecentFilters ||
+        this.props.themeStr          !== nextProps.themeStr) {
+          this.trackPageview();
+    }
+  },
+  setDefaultSettings: function() {
+    // This function is called only after Sefaria.settings.init() has returned and signaled readiness by setting 
+    // the prop `defaultSettingsLoaded: true`. Necessary because ReaderPanel is rendered immediately with `loading:true`
+    // so getInitialState() is called before settings have finished init().
+    console.log("setDefault Settings");
+    this.setState({
+      textFlow: 'segmented',   // alternative is 'continuous'
+      textLanguage: Sefaria.settings.textLanguage,
+      settings: {
+        language:      Sefaria.settings.menuLanguage,
+        fontSize:      Sefaria.settings.fontSize,
+      }
+    });
+    // Theme settings is set in ReaderApp.
   },
   toggleReaderDisplayOptionsMenu: function () {
     if (this.state.ReaderDisplayOptionsMenuVisible == false) {
@@ -100,7 +123,7 @@ var ReaderPanel = React.createClass({
     this.trackPageview();
   },
   toggleLanguage: function() {
-    // Toggle current display language between english/hebrew only
+    // Toggle current menu language between english/hebrew only
     if (this.state.settings.language !== "hebrew") {
       this.state.settings.language = "hebrew";
     } else {
@@ -113,30 +136,31 @@ var ReaderPanel = React.createClass({
   setTextFlow: function(textFlow) {
     this.setState({textFlow: textFlow});
 
-    if (textFlow == "continuous" && this.state.columnLanguage == "bilingual") {
-      this.setColumnLanguage("hebrew");
+    if (textFlow == "continuous" && this.state.textLanguage == "bilingual") {
+      this.setTextLanguage("hebrew");
     }
     this.toggleReaderDisplayOptionsMenu();
     Sefaria.track.event("Reader","Display Option Click","layout - " + textFlow);
   },
-  setColumnLanguage: function(columnLanguage) {
-    this.setState({columnLanguage: columnLanguage});
-    if (columnLanguage == "bilingual" && this.state.textFlow == "continuous") {
+  setTextLanguage: function(textLanguage) {
+    this.setState({textLanguage: textLanguage});
+    // Sefaria.settings.set("textLanguage", textLanguage); // Makes every language change sticky
+    if (textLanguage == "bilingual" && this.state.textFlow == "continuous") {
       this.setTextFlow("segmented");
     }
     this.toggleReaderDisplayOptionsMenu();
-    Sefaria.track.event("Reader","Display Option Click","language - " + columnLanguage);
+    Sefaria.track.event("Reader", "Display Option Click", "language - " + textLanguage);
   },
   incrementFont: function(incrementString) {
     if (incrementString == "larger") {
       var updatedSettings = Sefaria.util.clone(this.state.settings)
       updatedSettings.fontSize = this.state.settings.fontSize+1;
-      this.setState({settings:updatedSettings});
     } else /*if (incrementString == "decrementFont") */{
       var updatedSettings = Sefaria.util.clone(this.state.settings)
       updatedSettings.fontSize  = this.state.settings.fontSize-1;
-      this.setState({settings:updatedSettings});
     }
+    this.setState({settings: updatedSettings});
+    Sefaria.settings.set("fontSize", updatedSettings.fontSize);
     Sefaria.track.event("Reader","Display Option Click","fontSize - " + incrementString);
   },
   setTheme: function(themeStr) {
@@ -167,20 +191,6 @@ var ReaderPanel = React.createClass({
       {1: primCat, 2: secoCat, 3: bookName, 5: contLang}
     );
 
-  },
-  componentWillReceiveProps(nextProps) {
-    //TODO account for infinite
-    if (this.props.menuOpen          !== nextProps.menuOpen          ||
-        this.props.textTitle         !== nextProps.textTitle         ||
-        this.props.textFlow          !== nextProps.textFlow          ||
-        this.props.columnLanguage    !== nextProps.columnLanguage    ||
-        this.props.textListVisible   !== nextProps.textListVisible   ||
-        this.props.segmentIndexRef   !== nextProps.segmentIndexRef   ||
-        this.props.segmentRef        !== nextProps.segmentRef        ||
-        this.props.linkRecentFilters !== nextProps.linkRecentFilters ||
-        this.props.themeStr          !== nextProps.themeStr) {
-          this.trackPageview();
-    }
   },
   render: function() {
     switch(this.props.menuOpen) {
@@ -252,8 +262,8 @@ var ReaderPanel = React.createClass({
           <CategoryColorLine category={Sefaria.categoryForTitle(this.props.textTitle)} />
           <ReaderControls
             theme={this.props.theme}
-            title={this.state.columnLanguage == "hebrew" ? this.props.heRef : this.props.textReference}
-            language={this.state.columnLanguage}
+            title={this.state.textLanguage == "hebrew" ? this.props.heRef : this.props.textReference}
+            language={this.state.textLanguage}
             openNav={this.props.openNav}
             openTextToc={this.props.openTextToc}
             toggleReaderDisplayOptionsMenu={this.toggleReaderDisplayOptionsMenu} />
@@ -280,7 +290,7 @@ var ReaderPanel = React.createClass({
               segmentRef={this.props.segmentRef}
               segmentIndexRef={this.props.segmentIndexRef}
               textFlow={this.state.textFlow}
-              columnLanguage={this.state.columnLanguage}
+              textLanguage={this.state.textLanguage}
               updateData={this.props.updateData}
               updateTitle={this.props.updateTitle}
               textTitle={this.props.textTitle}
@@ -293,7 +303,7 @@ var ReaderPanel = React.createClass({
               linksLoadedApi={this.props.linksLoadedApi}
               loadingTextTail={this.props.loadingTextTail}
               loadingTextHead={this.props.loadingTextHead}
-              setColumnLanguage={this.setColumnLanguage}
+              setTextLanguage={this.setTextLanguage}
               style={styles.textColumn} />
           </View> }
 
@@ -312,7 +322,7 @@ var ReaderPanel = React.createClass({
                 theme={this.props.theme}
                 segmentIndexRef={this.props.segmentIndexRef}
                 textFlow={this.state.textFlow}
-                columnLanguage={this.state.columnLanguage}
+                textLanguage={this.state.textLanguage}
                 openRef={(ref)=>this.props.openRef(ref,"text list")}
                 openCat={this.props.openLinkCat}
                 closeCat={this.props.closeLinkCat}
@@ -332,9 +342,9 @@ var ReaderPanel = React.createClass({
               theme={this.props.theme}
               textFlow={this.state.textFlow}
               textReference={this.props.textReference}
-              columnLanguage={this.state.columnLanguage}
+              textLanguage={this.state.textLanguage}
               setTextFlow={this.setTextFlow}
-              setColumnLanguage={this.setColumnLanguage}
+              setTextLanguage={this.setTextLanguage}
               incrementFont={this.incrementFont}
               setTheme={this.setTheme}
               canBeContinuous={Sefaria.canBeContinuous(this.props.textTitle)}

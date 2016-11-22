@@ -52,7 +52,7 @@ var TextColumn = React.createClass({
     heTitle:            React.PropTypes.string,
     heRef:              React.PropTypes.string,
     textFlow:           React.PropTypes.oneOf(["segmented","continuous"]),
-    columnLanguage:     React.PropTypes.oneOf(["hebrew","english","bilingual"]),
+    textLanguage:     React.PropTypes.oneOf(["hebrew","english","bilingual"]),
     updateData:         React.PropTypes.func,
     updateTitle:        React.PropTypes.func,
     textSegmentPressed: React.PropTypes.func,
@@ -97,7 +97,7 @@ var TextColumn = React.createClass({
 
     if (this.props.data.length !== nextProps.data.length ||
         this.props.textFlow !== nextProps.textFlow ||
-        this.props.columnLanguage !== nextProps.columnLanguage ||
+        this.props.textLanguage !== nextProps.textLanguage ||
         this.props.settings.fontSize !== nextProps.settings.fontSize ||
         this.props.textListVisible !== nextProps.textListVisible ||
         this.props.segmentIndexRef !== nextProps.segmentIndexRef ||
@@ -243,7 +243,7 @@ var TextColumn = React.createClass({
 
     if (visibleSections.length == 0) {
       console.log("VISIBLE ROWS IS EMPTY!!! oh no!!!");
-      //this.props.setColumnLanguage(this.props.columnLanguage == "english" ? "hebrew" : "english");
+      //this.props.setTextLanguage(this.props.textLanguage == "english" ? "hebrew" : "english");
     }
 
     //console.log("VISIBLE TITLES",nameOfFirstSection,nameOfSecondSection,Object.keys(this.refs._listView._visibleRows));
@@ -575,7 +575,7 @@ var TextColumn = React.createClass({
         var rowData = {
           section: section,
           segmentData: [],
-          changeString: [rowID, props.columnLanguage, props.textFlow, props.settings.fontSize, props.themeStr].join("|")
+          changeString: [rowID, props.textLanguage, props.textFlow, props.settings.fontSize, props.themeStr].join("|")
         };
 
         for (var i = 0; i < data[section].length; i++) {
@@ -603,7 +603,7 @@ var TextColumn = React.createClass({
             section: section,
             row: i,
             highlight: offsetRef == rowID || (props.textListVisible && props.segmentRef == rowID),
-            changeString: [rowID, props.columnLanguage, props.textFlow, props.settings.fontSize, props.themeStr, props.linksLoadedApi[section]].join("|")
+            changeString: [rowID, props.textLanguage, props.textFlow, props.settings.fontSize, props.themeStr, props.linksLoadedApi[section]].join("|")
           };
           rowData.changeString += rowData.highlight ? "|highlight" : "";
           rows[rowID] = rowData;
@@ -624,10 +624,10 @@ var TextColumn = React.createClass({
     var sectionRef = this.props.sectionArray[rowData.section];
     return <View style={[styles.verseContainer, styles.continuousRowHolder]} key={sectionRef}>
                 <SectionHeader
-                                title={this.props.columnLanguage == "hebrew" ?
+                                title={this.props.textLanguage == "hebrew" ?
                                         this.inlineSectionHeader(this.props.sectionHeArray[rowData.section]) :
                                         this.inlineSectionHeader(this.props.sectionArray[rowData.section])}
-                                isHebrew={this.props.columnLanguage == "hebrew"}
+                                isHebrew={this.props.textLanguage == "hebrew"}
                                 theme={this.props.theme}
                                 key={rowData.section+"header"} />
 
@@ -640,11 +640,11 @@ var TextColumn = React.createClass({
       currSegData.text = currSegData.content.text || "";
       currSegData.he = currSegData.content.he || "";
       currSegData.segmentNumber = currSegData.segmentNumber || this.props.data[rowData.section][i].segmentNumber;
-      var columnLanguage = Sefaria.util.getColumnLanguageWithContent(this.props.columnLanguage, currSegData.text, currSegData.he);
+      var textLanguage = Sefaria.util.getTextLanguageWithContent(this.props.textLanguage, currSegData.text, currSegData.he);
       var refSection = rowData.section + ":" + i;
       var reactRef = this.props.sectionArray[rowData.section] + ":" + this.props.data[rowData.section][i].segmentNumber;
       var style = [styles.continuousVerseNumber,
-                   this.props.columnLanguage == "hebrew" ? styles.continuousHebrewVerseNumber : null,
+                   this.props.textLanguage == "hebrew" ? styles.continuousHebrewVerseNumber : null,
                    this.props.theme.verseNumber,
                    currSegData.highlight ? this.props.theme.segmentHighlight : null];
 
@@ -666,13 +666,13 @@ var TextColumn = React.createClass({
                                      }
                                      key={reactRef+"|segment-number"}>
                           <Text style={style}>
-                            {Sefaria.showSegmentNumbers(this.props.textTitle) ? (this.props.columnLanguage == "hebrew" ?
+                            {Sefaria.showSegmentNumbers(this.props.textTitle) ? (this.props.textLanguage == "hebrew" ?
                               Sefaria.hebrew.encodeHebrewNumeral(currSegData.segmentNumber) :
                               currSegData.segmentNumber) : ""}</Text>
       </View>);
 
 
-      if (columnLanguage == "hebrew" || columnLanguage == "bilingual") {
+      if (textLanguage == "hebrew" || textLanguage == "bilingual") {
         segmentText.push(<TextSegment
           theme={this.props.theme}
           segmentIndexRef={this.props.segmentIndexRef}
@@ -686,7 +686,7 @@ var TextColumn = React.createClass({
           settings={this.props.settings}/>);
       }
 
-      if (columnLanguage == "english" || columnLanguage == "bilingual") {
+      if (textLanguage == "english" || textLanguage == "bilingual") {
         segmentText.push(<TextSegment
           theme={this.props.theme}
           style={styles.TextSegment}
@@ -717,24 +717,24 @@ var TextColumn = React.createClass({
     rowData.numLinks = rowData.content.links ? rowData.content.links.length : 0;
 
     var segment = [];
-    var columnLanguage = Sefaria.util.getColumnLanguageWithContent(this.props.columnLanguage, rowData.text, rowData.he);
+    var textLanguage = Sefaria.util.getTextLanguageWithContent(this.props.textLanguage, rowData.text, rowData.he);
     var refSection = rowData.section + ":" + rowData.row;
     var reactRef = this.props.sectionArray[rowData.section] + ":" + this.props.data[rowData.section][rowData.row].segmentNumber;
     if (rowData.row == 0) {
       segment.push(<SectionHeader
-                      title={this.props.columnLanguage == "hebrew" ?
+                      title={this.props.textLanguage == "hebrew" ?
                               this.inlineSectionHeader(this.props.sectionHeArray[rowData.section]) :
                               this.inlineSectionHeader(this.props.sectionArray[rowData.section])}
-                      isHebrew={this.props.columnLanguage == "hebrew"}
+                      isHebrew={this.props.textLanguage == "hebrew"}
                       theme={this.props.theme}
                       key={rowData.section+"header"} />);
     }
 
 
     var numberMargin = (<Text ref={this.props.sectionArray[rowData.section] + ":"+ rowData.content.segmentNumber}
-                                   style={[styles.verseNumber, this.props.columnLanguage == "hebrew" ? styles.hebrewVerseNumber : null, this.props.theme.verseNumber]}
+                                   style={[styles.verseNumber, this.props.textLanguage == "hebrew" ? styles.hebrewVerseNumber : null, this.props.theme.verseNumber]}
                                    key={reactRef + "|segment-number"}>
-                        {Sefaria.showSegmentNumbers(this.props.textTitle) ? (this.props.columnLanguage == "hebrew" ?
+                        {Sefaria.showSegmentNumbers(this.props.textTitle) ? (this.props.textLanguage == "hebrew" ?
                          Sefaria.hebrew.encodeHebrewNumeral(rowData.content.segmentNumber) :
                          rowData.content.segmentNumber) : ""}
                       </Text>);
@@ -753,7 +753,7 @@ var TextColumn = React.createClass({
 
     var segmentText = [];
 
-    if (columnLanguage == "hebrew" || columnLanguage == "bilingual") {
+    if (textLanguage == "hebrew" || textLanguage == "bilingual") {
       segmentText.push(<TextSegment
         rowRef={reactRef}
         theme={this.props.theme}
@@ -767,7 +767,7 @@ var TextColumn = React.createClass({
         settings={this.props.settings}/>);
     }
 
-    if (columnLanguage == "english" || columnLanguage == "bilingual") {
+    if (textLanguage == "english" || textLanguage == "bilingual") {
       segmentText.push(<TextSegment
         rowRef={reactRef}
         theme={this.props.theme}
@@ -777,7 +777,7 @@ var TextColumn = React.createClass({
         key={reactRef+"|english"}
         data={rowData.text}
         textType="english"
-        bilingual={columnLanguage === "bilingual"}
+        bilingual={textLanguage === "bilingual"}
         textSegmentPressed={ this.textSegmentPressed }
         textListVisible={this.props.textListVisible}
         settings={this.props.settings} />);
@@ -790,7 +790,7 @@ var TextColumn = React.createClass({
 
     segmentText = <View style={textStyle} key={reactRef+"|text-box"}>{segmentText}</View>;
 
-    let completeSeg = this.props.columnLanguage == "english" ? [numberMargin, segmentText, bulletMargin] : [bulletMargin, segmentText, numberMargin];
+    let completeSeg = this.props.textLanguage == "english" ? [numberMargin, segmentText, bulletMargin] : [bulletMargin, segmentText, numberMargin];
 
     segment.push(<View style={styles.numberSegmentHolderEn} key={reactRef+"|inner-box"}>
                     {completeSeg}

@@ -32,7 +32,7 @@ var TextList = React.createClass({
     segmentIndexRef: React.PropTypes.number,
     filterIndex:     React.PropTypes.number,
     recentFilters:   React.PropTypes.array, /* of the form [{title,heTitle,refList}...] */
-    columnLanguage:  React.PropTypes.oneOf(["english","hebrew","bilingual"]),
+    textLanguage:  React.PropTypes.oneOf(["english","hebrew","bilingual"]),
     onDragStart:     React.PropTypes.func.isRequired,
     onDragMove:      React.PropTypes.func.isRequired
   },
@@ -69,7 +69,7 @@ var TextList = React.createClass({
               openRef={this.props.openRef}
               refStr={ref}
               linkContentObj={linkContentObj}
-              columnLanguage={this.props.columnLanguage}
+              textLanguage={this.props.textLanguage}
               loading={loading}
               isCommentaryBook={isCommentaryBook}
               key={rowId} />);
@@ -226,13 +226,13 @@ var LinkContent = React.createClass({
     openRef:           React.PropTypes.func.isRequired,
     refStr:            React.PropTypes.string,
     linkContentObj:    React.PropTypes.object, /* of the form {en,he} */
-    columnLanguage:    React.PropTypes.string,
+    textLanguage:      React.PropTypes.string,
     loading:           React.PropTypes.bool,
     isCommentaryBook:  React.PropTypes.bool
   },
   render: function() {
     var lco = this.props.linkContentObj;
-    var lang = Sefaria.util.getColumnLanguageWithContent(this.props.columnLanguage,lco.en,lco.he);
+    var lang = Sefaria.util.getTextLanguageWithContent(this.props.textLanguage,lco.en,lco.he);
     var textViews = [];
 
     var hebrewElem =  <Text style={[styles.hebrewText, this.props.theme.text, {fontSize:this.props.settings.fontSize}]} key={this.props.refStr+"-he"}><HTMLView stylesheet={styles} value={lco.he}/></Text>;

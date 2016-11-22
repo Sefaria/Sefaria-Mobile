@@ -10,11 +10,12 @@ import { AsyncStorage, AlertIOS } from 'react-native';
 
 Sefaria = {
   init: function() {
-
-    Sefaria.downloader.init();
-
-    // Load JSON data for TOC and Recent items
-    return Promise.all([Sefaria._loadTOC(), Sefaria._loadRecentItems()])
+    return Promise.all([
+      Sefaria._loadTOC(),
+      Sefaria._loadRecentItems(),
+      Sefaria.downloader.init(),
+      Sefaria.settings.init(),
+    ]);
     // Sefaria.calendar is loaded async when ReaderNavigationMenu renders
   },
   /*
@@ -862,7 +863,7 @@ Sefaria = {
           Sefaria.track._tracker.trackEvent(category, action, {label: label, value: value});
         }
 
-        console.log("EVENT",category,action,label,value);
+        // console.log("EVENT",category,action,label,value);
       },
       pageview: function(page, customDimensions, contentGroups) {
         //console.log('Page',page);
@@ -976,25 +977,62 @@ Sefaria.util = {
     }
     return index;
   },
-  getColumnLanguageWithContent(colLang,en,he) {
-    let newColLang = colLang;
+  getTextLanguageWithContent: function(lang, en, he) {
+    // Returns a language that has content in it give strings `en` and `he`, with a preference for `lang`. 
+    let newLang = lang;
 
-    if (newColLang == "bilingual") {
+    if (newLang == "bilingual") {
       if (en.trim() != "" && he.trim() == "") {
-        newColLang = "english";
-      } else if (en.trim() == "") newColLang  = "hebrew";
+        newLang = "english";
+      } else if (en.trim() == "") newLang  = "hebrew";
     }
 
-    if (newColLang == "english")
-      newColLang = en.trim() != "" ? "english" : "hebrew";
-    else if (newColLang == "hebrew")
-      newColLang = he.trim() != "" || en.trim() == "" ? "hebrew" : "english"; //make sure when there's no content it's hebrew
-    return newColLang;
+    if (newLang == "english")
+      newLang = en.trim() != "" ? "english" : "hebrew";
+    else if (newLang == "hebrew")
+      newLang = he.trim() != "" || en.trim() == "" ? "hebrew" : "english"; //make sure when there's no content it's hebrew
+    return newLang;
   }
 };
 
 Sefaria.downloader = Downloader;
+
 Sefaria.api = Api;
+
+Sefaria.settings = {
+  _fields: {
+    // List of keys to load on init as well as their default values
+    textLanguage: "bilingual",
+    menuLanguage: "english",
+    color: "white",
+    fontSize: 20,
+  },
+  init: function() {
+    // Loads data from each field in `_data` stored in Async storage into local memory for sync access.
+    // Returns a Promise that resolves when all fields are loaded.
+    var promises = [];
+    for (field in this._fields) {
+      if (Sefaria.settings._fields.hasOwnProperty(field)) {
+        var loader = function(field, value) {
+          Sefaria.settings[field] = value ? JSON.parse(value) : Sefaria.settings._fields[field];
+        }.bind(null, field);
+        var promise = AsyncStorage.getItem(field)
+          .then(loader)
+          .catch(function(error) {
+            console.error("AsyncStorage failed to load setting: " + error);
+          });;
+        promises.push(promise);
+      }
+    }
+    return Promise.all(promises);
+  },
+  set: function(field, value) {
+    // Sets `Sefaria.settings[field]` to `value` in local memory and saves it to Async storage
+    this[field] = value;
+    AsyncStorage.setItem(field, JSON.stringify(value));
+  },
+};
+
 
 Sefaria.hebrew = {
   hebrewNumerals: {
