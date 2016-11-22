@@ -65,8 +65,9 @@ var ReaderDisplayOptionsMenu = React.createClass({
       parametrized: true
     };
 
-    if (this.props.canBeContinuous) //if can be continuous, add that option
+    if (this.props.canBeContinuous) { //if can be continuous, add that option
       options.splice(1,0,segcontopt);
+    }
 
     var alignments = [["left","right"],["left","center","right"]];
     var optionViews = [];
@@ -76,11 +77,7 @@ var ReaderDisplayOptionsMenu = React.createClass({
       } else {
         let row = [];
         let isColor = "colors" in optionRow;
-        if (isColor) {
 
-        } else {
-
-        }
         for (let i = 0; i < optionRow.buttons.length; i++) {
           let option = optionRow.buttons[i];
           let selected = optionRow.currVal == option;
@@ -156,8 +153,9 @@ var ReaderDisplayOptionsMenuItem = React.createClass({
 
     var onPress = this.props.parametrized ? (()=>this.props.onPress(this.props.option)) : this.props.onPress;
     var tempStyles = [styles.readerDisplayOptionsMenuItem, this.props.theme.readerDisplayOptionsMenuItem, alignStyle];
-    if (this.props.selected)
+    if (this.props.selected) {
       tempStyles.push(this.props.theme.readerDisplayOptionsMenuItemSelected);
+    }
     return (
       <TouchableOpacity onPress={onPress} style={tempStyles}>
         <Image style={[styles.readerDisplayOptionsMenuIcon]} source={this.props.icon}/>
@@ -185,12 +183,14 @@ var ReaderDisplayOptionsMenuColor = React.createClass({
 
     var onPress = this.props.parametrized ? (()=>this.props.onPress(this.props.option)) : this.props.onPress;
     var tempStyles = [styles.readerDisplayOptionsMenuColor, this.props.theme.readerDisplayOptionsMenuColor, {"backgroundColor": this.props.color}, alignStyle];
-    if (this.props.selected)
+    if (this.props.selected) {
       tempStyles.push(styles.readerDisplayOptionsMenuColorSelected);
+    }
     return (
       <TouchableOpacity onPress={onPress} style={tempStyles}/>
     );
   }
 });
+
 
 module.exports = ReaderDisplayOptionsMenu;
