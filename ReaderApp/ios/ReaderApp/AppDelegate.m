@@ -16,7 +16,7 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-  [NSThread sleepForTimeInterval:1.0];
+  [NSThread sleepForTimeInterval:1.4];
 
   NSURL *jsCodeLocation;
 
