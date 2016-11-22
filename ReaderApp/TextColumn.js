@@ -631,7 +631,7 @@ var TextColumn = React.createClass({
                                 theme={this.props.theme}
                                 key={rowData.section+"header"} />
 
-              <Text>{segments}</Text>
+              <Text style={styles.continuousSectionRow}>{segments}</Text>
            </View>;
   },
   renderSegmentForContinuousRow: function(i, rowData) {
