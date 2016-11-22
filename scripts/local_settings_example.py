@@ -7,6 +7,11 @@ Copy this file to `local_settings.py` and import values as needed.
 """
 
 # Where does Sefaria-Project live
-SEFARIA_PROJECT_PATH = "/path/your/copy/of/Sefaria-Project"
-SEFARIA_EXPORT_PATH = "/path/to/export/data"
+SEFARIA_PROJECT_PATH = "/Users/blocks/Drive/dev/sefaria"
+SEFARIA_EXPORT_PATH = "/Users/blocks/Drive/dev/Sefaria-iOS-export"
 MINIFY_JSON = False
+USE_CLOUDFLARE = False
+CLOUDFLARE_ZONE = ""
+CLOUDFLARE_EMAIL = ""
+CLOUDFLARE_TOKEN = ""
+CLOUDFLARE_PATH = "http://readonly.sefaria.org/static/ios-export"

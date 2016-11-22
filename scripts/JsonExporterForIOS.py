@@ -81,6 +81,7 @@ def zip_last_text(title):
 def export_texts(skip_existing=False):
 	"""
 	Exports all texts in the database. 
+	TODO -- check history and last_updated to only export texts with changes
 	"""
 	titles = [i.title for i in model.library.all_index_records(with_commentary=True)]
 
@@ -191,6 +192,8 @@ def write_last_updated(titles):
 	timestamp = datetime.now().replace(second=0, microsecond=0).isoformat()
 	last_updated = {title: timestamp for title in titles}
 	write_doc(last_updated, EXPORT_PATH + "/last_updated.json")
+	if USE_CLOUDFLARE:
+		purge_cloudflare_cache(titles)
 
 
 def export_toc():
@@ -252,6 +255,25 @@ def clear_exports():
 		rmtree(EXPORT_PATH)
 
 
+def purge_cloudflare_cache(titles):
+	"""
+	Purges the URL for each zip file named in `titles` as well as toc.json, last_updated.json and calendar.json.
+	"""
+	import requests
+	files = ["%s/%s/%s.zip" % (CLOUDFLARE_PATH, SCHEMA_VERSION, title) for title in titles]
+	files += ["%s/%s/%s.json" % (CLOUDFLARE_PATH, SCHEMA_VERSION, title) for title in ("toc", "last_updated", "calendar")]
+	url = 'https://api.cloudflare.com/client/v4/zones/%s/purge_cache' % CLOUDFLARE_ZONE
+	payload = {"files": files}
+	headers = {
+		"X-Auth-Email": CLOUDFLARE_EMAIL,
+		"X-Auth-Key": CLOUDFLARE_TOKEN,
+		"Content-Type": "application/json",
+	}
+	print files
+	r = requests.delete(url, data=json.dumps(payload), headers=headers)
+	return r
+
+
 def export_all(skip_existing=False):
 	"""
 	Export everything we need.
@@ -260,7 +282,7 @@ def export_all(skip_existing=False):
 	start_time = time.time()
 	if not skip_existing:
 		clear_exports()
-	export_texts(skip_existing)
 	export_toc()
 	export_calendar()
+	export_texts(skip_existing)
 	print("--- %s seconds ---" % round(time.time() - start_time, 2))
