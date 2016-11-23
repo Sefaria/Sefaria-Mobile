@@ -179,7 +179,7 @@ var ReaderApp = React.createClass({
                 loadingLinks:      loadingLinks,
                 textListVisible:   false,
                 offsetRef:         !data.isSectionLevel ? data.requestedRef : null,
-            }, ()=>{this.loadApiLinks(ref)});
+            }, ()=>{this.loadApiLinks(data.sectionRef)});
             Sefaria.links.reset();
             // Preload Text TOC data into memory
             Sefaria.textToc(data.indexTitle, function() {});
