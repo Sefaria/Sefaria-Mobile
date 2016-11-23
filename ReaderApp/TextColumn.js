@@ -481,7 +481,7 @@ var TextColumn = React.createClass({
         this.setState({scrolledToOffsetRef: true});
         this.refs._listView.scrollTo({
           x: 0,
-          y: ref._initY + this.state.continuousSectionOffset,
+          y: ref._initY + this.sectionRefsHash[rowRef.split(":")[0]].y,
           animated: false
         });
       }
@@ -631,9 +631,10 @@ var TextColumn = React.createClass({
 //                                       console.log(this.props.sectionArray[rowData.section] + ":" + currSegData.segmentNumber + " y=" + y)
                                        this.rowRefs[reactRef]._initY = y;
                                      if (currSegData.highlight) {
+                                     console.log('scrollling...')
                                        this.refs._listView.scrollTo({
                                          x: 0,
-                                         y: y,
+                                         y: y+this.sectionRefsHash[rowData.section].y,
                                          animated: false
                                        });
 
