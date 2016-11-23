@@ -65,6 +65,7 @@ var TextColumn = React.createClass({
   },
   getInitialState: function() {
     this.rowRefs = {}; //hash table of currently loaded row refs.
+    this.sectionRefsHash= {}; //hash table of currently loaded section refs.
     this.previousY = 0; // for measuring scroll speed
     return {
       dataSource: new ListView.DataSource({
@@ -76,7 +77,6 @@ var TextColumn = React.createClass({
       scrolledToOffsetRef:false,
       scrollOffset:0,
       highlightRef: "",
-      continuousSectionOffset: 90,
     };
   },
   componentDidMount: function() {
@@ -137,17 +137,10 @@ var TextColumn = React.createClass({
 
 
     for (var i = 0; i < currentSectionSegmentsPos.length; i++) {
-      if (currentSectionSegmentsPos[i][1] + this.state.continuousSectionOffset >= this.refs._listView.scrollProperties.offset) {
-
-        if (i == 0 && direction == 'up' && nameOfSecondSection != null ) {
-          console.log('scrolling up? '+nameOfFirstSection)
-          this.state.continuousSectionOffset = this.refs._listView.scrollProperties.offset - currentSectionSegmentsPos[currentSectionSegmentsPos.length-1][1]
-
-        }
+      if (currentSectionSegmentsPos[i][1] + this.sectionRefsHash[nameOfFirstSection].y >= this.refs._listView.scrollProperties.offset) {
 
         if (i == currentSectionSegmentsPos.length -1) {
           console.log('loading last one!')
-          console.log(currentSectionSegmentsPos[i][1] + this.state.continuousSectionOffset+ " "+ this.refs._listView.scrollProperties.offset)
         }
 
 
@@ -157,14 +150,6 @@ var TextColumn = React.createClass({
         }
 
 
-        console.log(currentSectionSegmentsPos[i][0]+ " "+ this.state.continuousSectionOffset)
-
-        /*
-        console.log("total sections & rows " + this.refs._listView.props.dataSource.getRowAndSectionCount())
-        console.log("curRenderedRows " + this.refs._listView.state.curRenderedRowsCount)
-        console.log(this.props.sectionArray)
-*/
-
         var sectionToLoad = this.props.sectionArray.indexOf(currentSectionSegmentsPos[i][0].split(":")[0]);
         var segmentToLoad = parseInt(currentSectionSegmentsPos[i][0].split(":")[1])-1;
         this.props.textSegmentPressed(sectionToLoad, segmentToLoad, currentSectionSegmentsPos[i][0]);
@@ -173,42 +158,8 @@ var TextColumn = React.createClass({
 
       }
 
-      if (i == currentSectionSegmentsPos.length -1 && currentSectionSegmentsPos[i][1] + this.state.continuousSectionOffset <= this.refs._listView.scrollProperties.offset && nameOfSecondSection != null ) {
-        console.log('next section? '+nameOfFirstSection)
-        this.state.continuousSectionOffset = this.refs._listView.scrollProperties.offset+100; //the 100 is to accommodate the section header where _initY's offset is relatively measured at
-
-      }
-
     }
 
-//    console.log(this.refs._listView.scrollProperties.offset)
-
-
-
-/*
-
-    if (((this.rowRefs[this.props.segmentRef]._initY + this.state.continuousSectionOffset < this.refs._listView.scrollProperties.offset) && direction == "down") || ((this.rowRefs[this.props.segmentRef]._initY + this.state.continuousSectionOffset > this.refs._listView.scrollProperties.offset) && direction == "up")) {
-      var keys = Object.keys(this.rowRefs);
-
-      var loc = keys.indexOf(this.props.segmentRef);
-      var highlightRef = direction == "down" ? keys[loc+1] : keys[loc-1];
-      console.log(loc)
-      if(typeof highlightRef == "undefined") highlightRef = keys[loc]
-
-      var curSection = this.props.segmentRef.split(":")[0];
-      var nextSection = highlightRef.split(":")[0];
-
-      if (curSection != nextSection) {
-        this.state.continuousSectionOffset = this.refs._listView.scrollProperties.offset+90; //TODO -- this needs to be some value that increases as number of loaded sections increases. Not sure why. Probably b/c _initY is relative to parent view and we're not measuring that yet
-      }
-
-
-      var sectionToLoad = this.props.sectionArray.indexOf(highlightRef.split(":")[0]);
-      var segmentToLoad = parseInt(highlightRef.split(":")[1])-1;
-      console.log(sectionToLoad + " " + segmentToLoad  + " " + highlightRef + " " + direction + " " + e.nativeEvent.contentOffset.y)
-      this.props.textSegmentPressed(sectionToLoad, segmentToLoad, highlightRef);
-    }
-*/
   },
 
   handleScroll: function(e) {
@@ -622,14 +573,39 @@ var TextColumn = React.createClass({
       segments.push(this.renderSegmentForContinuousRow(i, rowData));
     }
     var sectionRef = this.props.sectionArray[rowData.section];
-    return <View style={[styles.verseContainer, styles.continuousRowHolder]} key={sectionRef}>
+    return <View style={[styles.verseContainer, styles.continuousRowHolder]} key={sectionRef}
+
+
+                                       onLayout={(event) => {
+                                       var {x, y, width, height} = event.nativeEvent.layout;
+                                       var sectionName = this.props.sectionArray[rowData.section];
+
+                                       console.log(this.sectionRefsHash)
+
+                                       this.sectionRefsHash[sectionName] = {height: height, y: y};
+                                       console.log(this.sectionRefsHash)
+ /*                                    if (currSegData.highlight) {
+                                       this.refs._listView.scrollTo({
+                                         x: 0,
+                                         y: y,
+                                         animated: false
+                                       });
+
+                                       }
+*/
+                                       }
+                                     }
+
+
+    >
                 <SectionHeader
                                 title={this.props.textLanguage == "hebrew" ?
                                         this.inlineSectionHeader(this.props.sectionHeArray[rowData.section]) :
                                         this.inlineSectionHeader(this.props.sectionArray[rowData.section])}
                                 isHebrew={this.props.textLanguage == "hebrew"}
                                 theme={this.props.theme}
-                                key={rowData.section+"header"} />
+                                key={rowData.section+"header"}
+                />
 
               <Text style={styles.continuousSectionRow}>{segments}</Text>
            </View>;
