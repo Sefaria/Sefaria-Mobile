@@ -312,7 +312,7 @@ module.exports = StyleSheet.create({
   },
   navBottomLinks: {
     marginTop: 20,
-    paddingBottom: 50,
+    paddingBottom: 30,
     flex: 1,
     flexDirection: "row",
     justifyContent: "center",
@@ -554,6 +554,13 @@ module.exports = StyleSheet.create({
     textAlign: "center",
     color: "#666",
   },
+  dedication: {
+    fontStyle: "italic",
+    fontFamily: "EB Garamond",
+    fontSize: 13,
+    textAlign: "center",
+    marginBottom: 20
+  },
   lineEnd: {
     flex: 1,
     height: 1
@@ -640,5 +647,8 @@ module.exports = StyleSheet.create({
   b: {
     fontWeight: "bold"
   },
+  i: {
+    fontStyle: "italic"
+  }
 
 });

@@ -163,6 +163,11 @@ var ReaderNavigationMenu = React.createClass({
 
                 </View>
 
+
+                <Text style={[styles.dedication, this.props.theme.secondaryText]}>
+                  Dedicated in honor of Henry Koschitzky by his children.
+                </Text>
+
               </ScrollView>
             </View>);
     }
