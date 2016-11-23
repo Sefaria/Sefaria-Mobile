@@ -572,6 +572,7 @@ var TextColumn = React.createClass({
     for (var i = 0; i < rowData.segmentData.length; i++) {
       segments.push(this.renderSegmentForContinuousRow(i, rowData));
     }
+    var textStyle = this.props.textLanguage == "hebrew" ? styles.hebrewText : styles.englishText;
     var sectionRef = this.props.sectionArray[rowData.section];
     return <View style={[styles.verseContainer, styles.continuousRowHolder]} key={sectionRef}
 
@@ -607,7 +608,7 @@ var TextColumn = React.createClass({
                                 key={rowData.section+"header"}
                 />
 
-              <Text style={styles.continuousSectionRow}>{segments}</Text>
+              <Text style={[textStyle, styles.continuousSectionRow]}>{segments}</Text>
            </View>;
   },
   renderSegmentForContinuousRow: function(i, rowData) {
