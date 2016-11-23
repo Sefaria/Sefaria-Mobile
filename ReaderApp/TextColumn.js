@@ -574,39 +574,32 @@ var TextColumn = React.createClass({
     }
     var textStyle = this.props.textLanguage == "hebrew" ? styles.hebrewText : styles.englishText;
     var sectionRef = this.props.sectionArray[rowData.section];
-    return <View style={[styles.verseContainer, styles.continuousRowHolder]} key={sectionRef}
+    var onSectionLayout = (event) => {
+      var {x, y, width, height} = event.nativeEvent.layout;
+      var sectionName = this.props.sectionArray[rowData.section];
 
+      //console.log(this.sectionRefsHash);
 
-                                       onLayout={(event) => {
-                                       var {x, y, width, height} = event.nativeEvent.layout;
-                                       var sectionName = this.props.sectionArray[rowData.section];
-
-                                       console.log(this.sectionRefsHash)
-
-                                       this.sectionRefsHash[sectionName] = {height: height, y: y};
-                                       console.log(this.sectionRefsHash)
- /*                                    if (currSegData.highlight) {
-                                       this.refs._listView.scrollTo({
-                                         x: 0,
-                                         y: y,
-                                         animated: false
-                                       });
-
-                                       }
-*/
-                                       }
-                                     }
-
-
-    >
-                <SectionHeader
-                                title={this.props.textLanguage == "hebrew" ?
-                                        this.inlineSectionHeader(this.props.sectionHeArray[rowData.section]) :
-                                        this.inlineSectionHeader(this.props.sectionArray[rowData.section])}
-                                isHebrew={this.props.textLanguage == "hebrew"}
-                                theme={this.props.theme}
-                                key={rowData.section+"header"}
-                />
+      this.sectionRefsHash[sectionName] = {height: height, y: y};
+      //console.log(this.sectionRefsHash);
+      /*                                    
+      if (currSegData.highlight) {
+        this.refs._listView.scrollTo({
+         x: 0,
+         y: y,
+         animated: false
+        });
+      }
+      */
+    };
+    return <View style={[styles.verseContainer, styles.continuousRowHolder]} key={sectionRef} onLayout={onSectionLayout} >
+              <SectionHeader
+                title={this.props.textLanguage == "hebrew" ?
+                        this.inlineSectionHeader(this.props.sectionHeArray[rowData.section]) :
+                        this.inlineSectionHeader(this.props.sectionArray[rowData.section])}
+                isHebrew={this.props.textLanguage == "hebrew"}
+                theme={this.props.theme}
+                key={rowData.section+"header"} />
 
               <Text style={[textStyle, styles.continuousSectionRow]}>{segments}</Text>
            </View>;
@@ -624,25 +617,23 @@ var TextColumn = React.createClass({
                    this.props.textLanguage == "hebrew" ? styles.continuousHebrewVerseNumber : null,
                    this.props.theme.verseNumber,
                    currSegData.highlight ? this.props.theme.segmentHighlight : null];
-
+      var onSegmentLayout = (event) => {
+        var {x, y, width, height} = event.nativeEvent.layout;
+        // console.log(this.props.sectionArray[rowData.section] + ":" + currSegData.segmentNumber + " y=" + y)
+        this.rowRefs[reactRef]._initY = y;
+        if (currSegData.highlight) {
+          console.log('scrollling...')
+          this.refs._listView.scrollTo({
+           x: 0,
+           y: y+this.sectionRefsHash[rowData.section].y,
+           animated: false
+          });
+        }
+      };
       segmentText.push(<View ref={this.props.sectionArray[rowData.section] + ":" + currSegData.segmentNumber}
-                                     style={Sefaria.showSegmentNumbers(this.props.textTitle) ? styles.continuousVerseNumberHolder : styles.continuousVerseNumberHolderTalmud}
-                                     onLayout={(event) => {
-                                       var {x, y, width, height} = event.nativeEvent.layout;
-//                                       console.log(this.props.sectionArray[rowData.section] + ":" + currSegData.segmentNumber + " y=" + y)
-                                       this.rowRefs[reactRef]._initY = y;
-                                     if (currSegData.highlight) {
-                                     console.log('scrollling...')
-                                       this.refs._listView.scrollTo({
-                                         x: 0,
-                                         y: y+this.sectionRefsHash[rowData.section].y,
-                                         animated: false
-                                       });
-
-                                       }
-                                       }
-                                     }
-                                     key={reactRef+"|segment-number"}>
+                             style={Sefaria.showSegmentNumbers(this.props.textTitle) ? styles.continuousVerseNumberHolder : styles.continuousVerseNumberHolderTalmud}
+                             onLayout={onSegmentLayout}
+                             key={reactRef+"|segment-number"} >
                           <Text style={style}>
                             {Sefaria.showSegmentNumbers(this.props.textTitle) ? (this.props.textLanguage == "hebrew" ?
                               Sefaria.hebrew.encodeHebrewNumeral(currSegData.segmentNumber) :
