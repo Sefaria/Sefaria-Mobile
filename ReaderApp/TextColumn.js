@@ -518,7 +518,7 @@ var TextColumn = React.createClass({
 
     var offsetRef = this._standardizeOffsetRef(props.offsetRef);
 
-    if (props.textFlow == 'continuous') {
+    if (props.textFlow == 'continuous' && Sefaria.canBeContinuous(props.textTitle)) {
       var highlight = null;
       for (var section = 0; section < data.length; section++) {
         var rows = {};
@@ -543,7 +543,7 @@ var TextColumn = React.createClass({
       }
     }
 
-    else if (props.textFlow == 'segmented') {
+    else { // segmented
       for (var section = 0; section < data.length; section++) {
         var rows = {};
         for (var i = 0; i < data[section].length; i++) {
@@ -784,9 +784,9 @@ var TextColumn = React.createClass({
   },
   renderRow: function(rowData, sID, rID) {
     //console.log("Rendering " + rID);
-    if (this.props.textFlow == 'continuous') {
+    if (this.props.textFlow == 'continuous' && Sefaria.canBeContinuous(this.props.textTitle)) {
       var row = this.renderContinuousRow(rowData);
-    } else if (this.props.textFlow == 'segmented') {
+    } else { // segmented
       var row = this.renderSegmentedRow(rowData);
     }
     return row;
