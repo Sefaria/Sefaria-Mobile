@@ -63,7 +63,7 @@ module.exports = StyleSheet.create({
     marginRight: 15,
   },
   readerDisplayOptionMenuRowNotColor: {
-    borderRadius: 10
+    borderRadius: 5
   },
   readerDisplayOptionsMenuItem: {
     flex: 1,
@@ -74,8 +74,8 @@ module.exports = StyleSheet.create({
     alignItems: "center"
   },
   readerDisplayOptionsMenuItemLeft: {
-    borderTopLeftRadius: 10,
-    borderBottomLeftRadius: 10,
+    borderTopLeftRadius: 5,
+    borderBottomLeftRadius: 5,
     borderRightWidth: 0,
   },
   readerDisplayOptionsMenuItemCenter: {
@@ -84,8 +84,8 @@ module.exports = StyleSheet.create({
     marginLeft: 1
   },
   readerDisplayOptionsMenuItemRight: {
-    borderTopRightRadius: 10,
-    borderBottomRightRadius: 10,
+    borderTopRightRadius: 5,
+    borderBottomRightRadius: 5,
     borderLeftWidth: 0,
     marginLeft: 1
   },
@@ -94,7 +94,7 @@ module.exports = StyleSheet.create({
     flexDirection: "row",
     height: 50,
     borderWidth: 1,
-    borderRadius: 10
+    borderRadius: 5
   },
   readerDisplayOptionsMenuColorLeft: {
     marginRight: 5
@@ -113,7 +113,7 @@ module.exports = StyleSheet.create({
   readerDisplayOptionsMenuDivider: {
     marginTop: 10,
     marginBottom: 10,
-    width:1000,
+    alignSelf: "stretch",
     height:1
   },
   headerButton: {
@@ -276,7 +276,6 @@ module.exports = StyleSheet.create({
     marginRight: 10,
     borderWidth: 1,
     borderRadius: 4,
-
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center"
@@ -526,14 +525,26 @@ module.exports = StyleSheet.create({
     fontSize: 14,
     marginBottom: 10
   },
+  settingsSection: {
+    marginTop: 15,
+    marginBottom: 5,
+  },
+  buttonToggleSet: {
+    marginRight: 0,
+    marginLeft: 0,
+  },
   settingsMessage: {
     flex: 1,
     textAlign: "center",
     marginBottom: 6,
   },
+  settingsDivider: {
+    marginTop: 20,
+    marginBottom: 30,
+  },
   button: {
     flex: 1,
-    borderRadius: 4,
+    borderRadius: 5,
     borderWidth: 1,
     backgroundColor: "white",
     paddingVertical: 14,

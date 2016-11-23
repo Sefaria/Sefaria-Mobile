@@ -152,6 +152,44 @@ var ToggleSet = React.createClass({
 });
 
 
+
+var ButtonToggleSet = React.createClass({
+  propTypes: {
+    theme:       React.PropTypes.object.isRequired,
+    options:     React.PropTypes.array.isRequired, // array of object with `name`. `text`, `heText`, `onPress`
+    contentLang: React.PropTypes.string.isRequired,
+    active:      React.PropTypes.string.isRequired
+  },
+  render: function() {
+    var showHebrew = this.props.contentLang == "hebrew";
+    var options = this.props.options.map(function(option, i) {
+      
+      let alignStyle;
+      if (i == this.props.options.length -1) { alignStyle = styles.readerDisplayOptionsMenuItemRight; }
+      else if (i == 0)                       { alignStyle = styles.readerDisplayOptionsMenuItemLeft; }
+      else                                   { alignStyle = styles.readerDisplayOptionsMenuItemCenter; }
+
+      var itemStyles = [styles.readerDisplayOptionsMenuItem, this.props.theme.readerDisplayOptionsMenuItem, alignStyle];
+      itemStyles = itemStyles.concat(this.props.active === option.name ? [this.props.theme.readerDisplayOptionsMenuItemSelected] : []);
+      return (
+        <TouchableOpacity onPress={option.onPress} key={i} style={itemStyles} >
+          {showHebrew ?
+            <Text style={[styles.heInt, this.props.theme.tertiaryText]}>{option.heText}</Text> :
+            <Text style={[styles.enInt, this.props.theme.tertiaryText]}>{option.text}</Text> }
+        </TouchableOpacity>
+      );
+    }.bind(this));
+
+    return (<View style={[styles.readerDisplayOptionsMenuRow, 
+                          styles.readerDisplayOptionMenuRowNotColor, 
+                          this.props.theme.readerDisplayOptionsMenuDivider, 
+                          styles.buttonToggleSet]}>
+              {options}
+            </View>);
+  }
+});
+
+
 var LoadingView = React.createClass({
     render: function() {
       return ( <View style={styles.loadingViewBox}>
@@ -173,4 +211,5 @@ module.exports.CloseButton = CloseButton;
 module.exports.TripleDots = TripleDots;
 module.exports.DisplaySettingsButton = DisplaySettingsButton;
 module.exports.ToggleSet = ToggleSet;
+module.exports.ButtonToggleSet = ButtonToggleSet;
 module.exports.LoadingView = LoadingView;

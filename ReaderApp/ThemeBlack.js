@@ -161,6 +161,9 @@ module.exports = StyleSheet.create({
   secondaryText: {
     color: Colors.secondaryText,
   },
+  tertiaryText: {
+    color: Colors.tertiaryText,
+  },
   bordered: {
     borderColor: Colors.border,
   },

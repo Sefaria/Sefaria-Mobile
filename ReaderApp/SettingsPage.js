@@ -13,7 +13,8 @@ import {
 var ProgressBar = require('./ProgressBar');
 var {
   CategoryColorLine,
-  CloseButton
+  CloseButton,
+  ButtonToggleSet,
 } = require('./Misc.js');
 
 var styles = require('./Styles.js');
@@ -54,6 +55,17 @@ var SettingsPage = React.createClass({
     }
   },
   render: function() {
+    var menuLanguageOptions = [
+      {name: "english", text: "ENGLISH", heText: "ENGLISH", onPress: () => { Sefaria.settings.set("menuLanguage", "english"); this.forceUpdate(); }},
+      {name: "hebrew", text: "HEBREW", heText: "HEBREW", onPress: () => { Sefaria.settings.set("menuLanguage", "hebrew"); this.forceUpdate(); }}
+    ];
+
+    var textLanguageOptions = [
+      {name: "english", text: "ENGLISH", heText: "ENGLISH", onPress: () => { Sefaria.settings.set("textLanguage", "english"); this.forceUpdate(); }},
+      {name: "bilingual", text: "BILINGUAL", heText: "BILINGUAL", onPress: () => { Sefaria.settings.set("textLanguage", "bilingual"); this.forceUpdate(); }},
+      {name: "hebrew", text: "HEBREW", heText: "HEBREW", onPress: () => { Sefaria.settings.set("textLanguage", "hebrew"); this.forceUpdate(); }}
+    ];
+
     var nDownloaded = Sefaria.downloader.titlesDownloaded().length;
     var nAvailable  = Sefaria.downloader.titlesAvailable().length;
     var downloadComplete = nDownloaded == nAvailable;
@@ -65,6 +77,31 @@ var SettingsPage = React.createClass({
               </View>
 
               <ScrollView style={styles.menuContent}>
+                <View style={styles.settingsSection}>
+                  <View>
+                    <Text style={[styles.settingsSectionHeader, this.props.theme.tertiaryText]}>DEFAULT MENU LANGUAGE</Text>
+                  </View>
+                  <ButtonToggleSet
+                    theme={this.props.theme}
+                    options={menuLanguageOptions}
+                    contentLang={"english"}
+                    active={Sefaria.settings.menuLanguage} />
+                </View>
+
+                <View style={styles.settingsSection}>                
+                  <View>
+                    <Text style={[styles.settingsSectionHeader, this.props.theme.tertiaryText]}>DEFAULT TEXT LANGUAGE</Text>
+                  </View>
+                  <ButtonToggleSet
+                    theme={this.props.theme}
+                    options={textLanguageOptions}
+                    contentLang={"english"}
+                    active={Sefaria.settings.textLanguage} />
+                </View>
+
+
+                <View style={[styles.readerDisplayOptionsMenuDivider, styles.settingsDivider, this.props.theme.readerDisplayOptionsMenuDivider]}/>
+
                 <TouchableWithoutFeedback onPress={this.onDebugNoLibraryTouch}>
                   <View>
                     <Text style={[styles.settingsSectionHeader, this.props.theme.tertiaryText]}>OFFLINE ACCESS</Text>
