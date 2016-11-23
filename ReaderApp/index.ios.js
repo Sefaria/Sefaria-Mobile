@@ -9,6 +9,7 @@ import {
   ActivityIndicatorIOS,
   Animated,
   AppRegistry,
+  AppState,
   Dimensions,
 	ListView,
 	Modal,
@@ -88,6 +89,11 @@ var ReaderApp = React.createClass({
         };
     },
     componentDidMount: function () {
+      AppState.addEventListener('change', state => {
+        if (state == "active") {
+          Sefaria.downloader.resumeDownload();
+        }
+      });
       Sefaria.downloader.promptLibraryDownload();
       Sefaria._deleteUnzippedFiles().then(function() {
 
