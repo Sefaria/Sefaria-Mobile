@@ -102,7 +102,6 @@ var ReaderPanel = React.createClass({
     // This function is called only after Sefaria.settings.init() has returned and signaled readiness by setting 
     // the prop `defaultSettingsLoaded: true`. Necessary because ReaderPanel is rendered immediately with `loading:true`
     // so getInitialState() is called before settings have finished init().
-    console.log("setDefault Settings");
     this.setState({
       textFlow: 'segmented',   // alternative is 'continuous'
       textLanguage: Sefaria.settings.textLanguage,
