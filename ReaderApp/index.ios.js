@@ -68,7 +68,7 @@ var ReaderApp = React.createClass({
             textListFlex: 0.6,
             textListAnimating: false,
             data: null,
-            linksLoadedApi: null,
+            linksLoaded: [],  // bool arrary corresponding to data indicating if links have been loaded, which occurs async with API 
             interfaceLang: "english", // TODO check device settings for Hebrew: ### import {NativeModules} from 'react-native'; console.log(NativeModules.SettingsManager.settings.AppleLocale);
             filterIndex: null, /* index of filters in recentFilters */
             linkSummary: [],
@@ -116,7 +116,7 @@ var ReaderApp = React.createClass({
         if (segment !== this.state.segmentIndexRef) {
 
             loadingLinks = true;
-            if (this.state.linksLoadedApi[section]) {
+            if (this.state.linksLoaded[section]) {
               this.updateLinkSummary(section, segment);
             }
         }
@@ -170,7 +170,7 @@ var ReaderApp = React.createClass({
                 heRef:             data.heRef,
                 sectionArray:      [data.ref],
                 sectionHeArray:    [data.heRef],
-                linksLoadedApi:    [false],
+                linksLoaded:       [false],
                 loaded:            true,
                 filterIndex:       null, /*Reset link state */
                 linkRecentFilters: [],
@@ -179,7 +179,7 @@ var ReaderApp = React.createClass({
                 loadingLinks:      loadingLinks,
                 textListVisible:   false,
                 offsetRef:         !data.isSectionLevel ? data.requestedRef : null,
-            }, ()=>{this.loadApiLinks(data.sectionRef)});
+            }, ()=>{this.loadLinks(data.sectionRef)});
             Sefaria.links.reset();
             // Preload Text TOC data into memory
             Sefaria.textToc(data.indexTitle, function() {});
@@ -191,29 +191,32 @@ var ReaderApp = React.createClass({
         });
 
     },
-    loadApiLinks: function(ref) {
+    loadLinks: function(ref) {
+      // Ensures that links have been loaded for `ref` and stores result in `this.state.linksLoaded` array.
+      // Within Sefaria.api.links a check is made if the zip file exists. If so then no API call is made and links
+      // are marked as having already been loading by previoius call to Sefaria.data.
       Sefaria.api.links(ref)
         .then((linksResponse)=>{
           //add the links into the appropriate section and reload
           this.state.sectionArray.map((secRef,iSec)=>{
             if (secRef == ref) {
               this.state.data[iSec] = Sefaria.api.addLinksToText(this.state.data[iSec],linksResponse);
-              let tempLinksLoaded = this.state.linksLoadedApi.slice(0);
+              let tempLinksLoaded = this.state.linksLoaded.slice(0);
               tempLinksLoaded[iSec] = true;
               if (this.state.segmentIndexRef != -1 && this.state.sectionIndexRef != -1) {
                 this.updateLinkSummary(this.state.sectionIndexRef, this.state.segmentIndexRef);
               }
 
-              this.setState({data: this.state.data, linksLoadedApi: tempLinksLoaded});
+              this.setState({data: this.state.data, linksLoaded: tempLinksLoaded});
             }
           });
         })
         .catch(()=>{
           this.state.sectionArray.map((secRef, iSec)=>{
             if (secRef == ref) {
-              let tempLinksLoaded = this.state.linksLoadedApi.slice(0);
+              let tempLinksLoaded = this.state.linksLoaded.slice(0);
               tempLinksLoaded[iSec] = true;
-              this.setState({linksLoadedApi: tempLinksLoaded});
+              this.setState({linksLoaded: tempLinksLoaded});
             }
           });
 
@@ -237,10 +240,10 @@ var ReaderApp = React.createClass({
 
           var newTitleArray = this.state.sectionArray;
           var newHeTitleArray = this.state.sectionHeArray;
-          var newlinksLoadedApi = this.state.linksLoadedApi;
+          var newlinksLoaded = this.state.linksLoaded;
           newTitleArray.unshift(data.sectionRef);
           newHeTitleArray.unshift(data.heRef);
-          newlinksLoadedApi.unshift(false);
+          newlinksLoaded.unshift(false);
 
           this.setState({
             data: updatedData,
@@ -248,10 +251,10 @@ var ReaderApp = React.createClass({
             prev: data.prev,
             sectionArray: newTitleArray,
             sectionHeArray: newHeTitleArray,
-            linksLoadedApi: newlinksLoadedApi,
+            linksLoaded: newlinksLoaded,
             loaded: true,
             loadingTextHead: false,
-          }, ()=>{this.loadApiLinks(data.sectionRef)});
+          }, ()=>{this.loadLinks(data.sectionRef)});
 
         }.bind(this)).catch(function(error) {
           console.log('Error caught from ReaderApp.updateDataPrev', error);
@@ -265,10 +268,10 @@ var ReaderApp = React.createClass({
 
           var newTitleArray = this.state.sectionArray;
           var newHeTitleArray = this.state.sectionHeArray;
-          var newlinksLoadedApi = this.state.linksLoadedApi;
+          var newlinksLoaded = this.state.linksLoaded;
           newTitleArray.push(data.sectionRef);
           newHeTitleArray.push(data.heRef);
-          newlinksLoadedApi.push(false);
+          newlinksLoaded.push(false);
 
           this.setState({
             data: updatedData,
@@ -276,10 +279,10 @@ var ReaderApp = React.createClass({
             next: data.next,
             sectionArray: newTitleArray,
             sectionHeArray: newHeTitleArray,
-            linksLoadedApi: newlinksLoadedApi,
+            linksLoaded: newlinksLoaded,
             loaded: true,
             loadingTextTail: false,
-          }, ()=>{this.loadApiLinks(data.sectionRef)});
+          }, ()=>{this.loadLinks(data.sectionRef)});
 
         }.bind(this)).catch(function(error) {
           console.log('Error caught from ReaderApp.updateDataNext', error);
@@ -624,7 +627,7 @@ var ReaderApp = React.createClass({
                     updateLinkCat={this.updateLinkCat}
                     loadLinkContent={this.loadLinkContent}
                     filterIndex={this.state.filterIndex}
-                    linksLoadedApi={this.state.linksLoadedApi}
+                    linksLoaded={this.state.linksLoaded}
                     linkRecentFilters={this.state.linkRecentFilters}
                     linkSummary={this.state.linkSummary}
                     linkContents={this.state.linkContents}

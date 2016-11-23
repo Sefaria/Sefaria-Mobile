@@ -52,7 +52,7 @@ var TextColumn = React.createClass({
     heTitle:            React.PropTypes.string,
     heRef:              React.PropTypes.string,
     textFlow:           React.PropTypes.oneOf(["segmented","continuous"]),
-    textLanguage:     React.PropTypes.oneOf(["hebrew","english","bilingual"]),
+    textLanguage:       React.PropTypes.oneOf(["hebrew","english","bilingual"]),
     updateData:         React.PropTypes.func,
     updateTitle:        React.PropTypes.func,
     textSegmentPressed: React.PropTypes.func,
@@ -61,7 +61,7 @@ var TextColumn = React.createClass({
     prev:               React.PropTypes.string,
     loadingTextTail:    React.PropTypes.bool,
     loadingTextHead:    React.PropTypes.bool,
-    linksLoadedApi:     React.PropTypes.array,
+    linksLoaded:     React.PropTypes.array,
   },
   getInitialState: function() {
     this.rowRefs = {}; //hash table of currently loaded row refs.
@@ -103,7 +103,7 @@ var TextColumn = React.createClass({
         this.props.segmentIndexRef !== nextProps.segmentIndexRef ||
         this.props.segmentRef !== nextProps.segmentRef ||
         this.props.themeStr !== nextProps.themeStr ||
-        this.props.linksLoadedApi !== nextProps.linksLoadedApi) {
+        this.props.linksLoaded !== nextProps.linksLoaded) {
       // Only update dataSource when a change has occurred that will result in different data
       var newData = this.generateDataSource(nextProps);
       this.setState({dataSource: this.state.dataSource.cloneWithRowsAndSections(newData)});
@@ -603,7 +603,7 @@ var TextColumn = React.createClass({
             section: section,
             row: i,
             highlight: offsetRef == rowID || (props.textListVisible && props.segmentRef == rowID),
-            changeString: [rowID, props.textLanguage, props.textFlow, props.settings.fontSize, props.themeStr, props.linksLoadedApi[section]].join("|")
+            changeString: [rowID, props.textLanguage, props.textFlow, props.settings.fontSize, props.themeStr, props.linksLoaded[section]].join("|")
           };
           rowData.changeString += rowData.highlight ? "|highlight" : "";
           rows[rowID] = rowData;
