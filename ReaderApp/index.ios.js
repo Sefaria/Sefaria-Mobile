@@ -85,7 +85,8 @@ var ReaderApp = React.createClass({
             isNewSearch: false,
             currSearchPage: 0,
             numSearchResults: 0,
-            searchQueryResult: []
+            searchQueryResult: [],
+            backStack: ['Genesis 1:1']
         };
     },
     componentDidMount: function () {
@@ -138,6 +139,7 @@ var ReaderApp = React.createClass({
           stateObj.offsetRef = null; //offsetRef is used to highlight. once you open textlist, you should remove the highlight
         }
         this.setState(stateObj);
+        this.forceUpdate();
         this.forceUpdate();
     },
     loadNewText: function(ref) {
@@ -586,6 +588,12 @@ var ReaderApp = React.createClass({
 
       Sefaria.track.event("Search","Search Box Search",query);
     },
+    goBack: function(pageReference, pageType) {
+      console.log(pageReference);
+      console.log(pageType);
+    },
+
+
     render: function () {
         return (
             <View style={[styles.container, this.state.theme.container]}>
@@ -649,6 +657,8 @@ var ReaderApp = React.createClass({
                     numSearchResults={this.state.numSearchResults}
                     currSearchPage={this.state.currSearchPage}
                     searchQueryResult={this.state.searchQueryResult}
+                    backStack={this.state.backStack}
+                    goBack={this.goBack}
                     onQueryChange={this.onQueryChange}
                     setLoadQueryTail={this.setLoadQueryTail}
                     setIsNewSearch={this.setIsNewSearch}

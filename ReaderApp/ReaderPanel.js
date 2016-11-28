@@ -23,6 +23,7 @@ var styles                    = require('./Styles.js');
 
 var {
   MenuButton,
+  BackButton,
   DisplaySettingsButton,
   LoadingView,
   CategoryColorLine
@@ -67,6 +68,8 @@ var ReaderPanel = React.createClass({
     isNewSearch:           React.PropTypes.bool,
     numSearchResults:      React.PropTypes.number,
     searchQueryResult:     React.PropTypes.array,
+    backStack:             React.PropTypes.array,
+    goBack:                React.PropTypes.func.isRequired,
     onQueryChange:         React.PropTypes.func.isRequired,
     setLoadQueryTail:      React.PropTypes.func.isRequired,
     setIsNewSearch:        React.PropTypes.func.isRequired,
@@ -265,6 +268,7 @@ var ReaderPanel = React.createClass({
             language={this.state.textLanguage}
             openNav={this.props.openNav}
             openTextToc={this.props.openTextToc}
+            backStack={this.props.backStack}
             toggleReaderDisplayOptionsMenu={this.toggleReaderDisplayOptionsMenu} />
 
           { this.props.loading ?
@@ -361,13 +365,20 @@ var ReaderControls = React.createClass({
     openNav:                         React.PropTypes.func,
     openTextToc:                     React.PropTypes.func,
     toggleReaderDisplayOptionsMenu:  React.PropTypes.func,
+    backStack:                       React.PropTypes.array,
   },
   render: function() {
     var langStyle = this.props.language === "hebrew" ? [styles.he, {marginTop: 5}] : [styles.en];
     var titleTextStyle = [langStyle, styles.headerTextTitleText, this.props.theme.text];
+    if (this.props.backStack.length == 0) {
+      var leftMenuButton = <MenuButton onPress={this.props.openNav} theme={this.props.theme}/>
+    }
+    else {
+      var leftMenuButton = <BackButton onPress={this.props.openNav} theme={this.props.theme}/>
+    }
     return (
         <View style={[styles.header, this.props.theme.header]}>
-          <MenuButton onPress={this.props.openNav} theme={this.props.theme}/>
+          {leftMenuButton}
           <TouchableOpacity style={styles.headerTextTitle} onPress={this.props.openTextToc}>
             <Image source={require('./img/caret.png')}
                      style={[styles.downCaret, this.props.language === "hebrew" ? null: {opacity: 0}]}
