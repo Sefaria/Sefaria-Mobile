@@ -86,8 +86,7 @@ var ReaderApp = React.createClass({
             currSearchPage: 0,
             numSearchResults: 0,
             searchQueryResult: [],
-            backStack: ['Genesis 1:1']
-  //          backStack: []
+            backStack: []
         };
     },
     componentDidMount: function () {
@@ -306,9 +305,10 @@ var ReaderApp = React.createClass({
         Sefaria.saveRecentItem({ref: ref, heRef: heRef, category: Sefaria.categoryForRef(ref)});
     },
     /*
-    calledFrom parameter only used for analytics
+    calledFrom parameter used for analytics and for back button
     */
     openRef: function(ref,calledFrom) {
+        var prevRef = this.state.textReference;
         this.setState({
           loaded: false,
           textReference: ref
@@ -321,6 +321,7 @@ var ReaderApp = React.createClass({
         switch (calledFrom) {
           case "search":
             Sefaria.track.event("Search","Search Result Text Click",this.state.searchQuery + ' - ' + ref);
+            this.state.backStack=[prevRef];
             break;
           case "navigation":
             Sefaria.track.event("Reader","Navigation Text Click", ref);
@@ -329,6 +330,7 @@ var ReaderApp = React.createClass({
             break;
           case "text list":
             Sefaria.track.event("Reader","Click Text from TextList",ref);
+            this.state.backStack.push(prevRef);
             break;
           default:
             break;
@@ -349,8 +351,7 @@ var ReaderApp = React.createClass({
         this.openMenu("navigation");
     },
     goBack: function() {
-      console.log(this.state.backStack.pop());
-      this.forceUpdate();
+      this.openRef(this.state.backStack.pop());
     },
     setNavigationCategories: function(categories) {
         this.setState({navigationCategories: categories});
