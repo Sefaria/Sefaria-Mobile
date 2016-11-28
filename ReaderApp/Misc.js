@@ -87,7 +87,7 @@ var MenuButton = React.createClass({
   }
 });
 
-var BackButton = React.createClass({
+var GoBackButton = React.createClass({
   render: function() {
     return (<TouchableOpacity style={[styles.headerButton]} onPress={this.props.onPress}>
               <Image source={require('./img/back.png')}
@@ -217,7 +217,7 @@ module.exports.CategoryColorLine = CategoryColorLine;
 module.exports.LanguageToggleButton = LanguageToggleButton;
 module.exports.SearchButton = SearchButton;
 module.exports.MenuButton = MenuButton;
-module.exports.BackButton = BackButton;
+module.exports.GoBackButton = GoBackButton;
 module.exports.CloseButton = CloseButton;
 module.exports.TripleDots = TripleDots;
 module.exports.DisplaySettingsButton = DisplaySettingsButton;

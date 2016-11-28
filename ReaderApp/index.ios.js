@@ -87,6 +87,7 @@ var ReaderApp = React.createClass({
             numSearchResults: 0,
             searchQueryResult: [],
             backStack: ['Genesis 1:1']
+  //          backStack: []
         };
     },
     componentDidMount: function () {
@@ -344,7 +345,12 @@ var ReaderApp = React.createClass({
         }
     },
     openNav: function() {
+      console.log('open')
         this.openMenu("navigation");
+    },
+    goBack: function() {
+      console.log(this.state.backStack.pop());
+      this.forceUpdate();
     },
     setNavigationCategories: function(categories) {
         this.setState({navigationCategories: categories});
@@ -588,11 +594,6 @@ var ReaderApp = React.createClass({
 
       Sefaria.track.event("Search","Search Box Search",query);
     },
-    goBack: function(pageReference, pageType) {
-      console.log(pageReference);
-      console.log(pageType);
-    },
-
 
     render: function () {
         return (
