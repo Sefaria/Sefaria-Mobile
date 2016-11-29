@@ -321,7 +321,7 @@ var ReaderApp = React.createClass({
         switch (calledFrom) {
           case "search":
             Sefaria.track.event("Search","Search Result Text Click",this.state.searchQuery + ' - ' + ref);
-            this.state.backStack=[prevRef];
+            this.state.backStack=["SEARCH:"+this.state.searchQuery];
             break;
           case "navigation":
             Sefaria.track.event("Reader","Navigation Text Click", ref);
@@ -347,11 +347,15 @@ var ReaderApp = React.createClass({
         }
     },
     openNav: function() {
-      console.log('open')
         this.openMenu("navigation");
     },
     goBack: function() {
+      if /* last page was search page */((this.state.backStack.slice(-1)[0]).indexOf("SEARCH:") != -1) {
+        this.search((this.state.backStack.pop()).split(":")[1]);
+      }
+      else /*is ref*/ {
       this.openRef(this.state.backStack.pop());
+      }
     },
     setNavigationCategories: function(categories) {
         this.setState({navigationCategories: categories});
