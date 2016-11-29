@@ -501,20 +501,24 @@ var ReaderApp = React.createClass({
       this.setTheme(Sefaria.settings.color);
     },
     onTextListDragStart: function(evt) {
+      let headerHeight = 75;
+      let flex = 1.0 - (evt.nativeEvent.pageY-headerHeight)/(ViewPort.height-headerHeight);
+      // Save an offset which represent how high inside the header the click started
+      this._textListDragOffset = this.state.textListFlex - flex;
       return !this.state.textListAnimating;
     },
     onTextListDragMove: function(evt) {
       if (this.state.textListAnimating) return;
 
       let headerHeight = 75;
-      let flex = 1.0 - (evt.nativeEvent.pageY-headerHeight)/(ViewPort.height-headerHeight);
+      let flex = 1.0 - (evt.nativeEvent.pageY-headerHeight)/(ViewPort.height-headerHeight) + this._textListDragOffset;
 
       var onTextListAnimate = function(animVal,value) {
         //console.log("updating animation");
         this.setState({textListFlex:value.value});
         if (value.value > 0.999 || value.value < 0.001) {
           animVal.stopAnimation();
-          let tempState = {textListAnimating:false,textListFlex: value.value > 0.999 ? 0.9999 : 0.3}; //important. if closing textlist, make sure to set the final flex to something visible
+          let tempState = {textListAnimating:false, textListFlex: value.value > 0.999 ? 0.9999 : 0.3}; //important. if closing textlist, make sure to set the final flex to something visible
           if (value.value < 0.001)
             tempState.textListVisible = false;
           this.setState(tempState);
@@ -527,7 +531,7 @@ var ReaderApp = React.createClass({
         animVal.addListener(onTextListAnimate.bind(this,animVal));
         Animated.timing(
           animVal,
-          {toValue: flex > 0.9 ? 0.9999 : 0.0001}
+          {toValue: flex > 0.9 ? 0.9999 : 0.0001, duration: 200}
         ).start();
         //console.log("STOPPP");
         return;
