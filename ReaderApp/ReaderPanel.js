@@ -23,6 +23,7 @@ var styles                    = require('./Styles.js');
 
 var {
   MenuButton,
+  GoBackButton,
   DisplaySettingsButton,
   LoadingView,
   CategoryColorLine
@@ -67,6 +68,8 @@ var ReaderPanel = React.createClass({
     isNewSearch:           React.PropTypes.bool,
     numSearchResults:      React.PropTypes.number,
     searchQueryResult:     React.PropTypes.array,
+    backStack:             React.PropTypes.array,
+    goBack:                React.PropTypes.func.isRequired,
     onQueryChange:         React.PropTypes.func.isRequired,
     setLoadQueryTail:      React.PropTypes.func.isRequired,
     setIsNewSearch:        React.PropTypes.func.isRequired,
@@ -203,6 +206,7 @@ var ReaderPanel = React.createClass({
             categories={this.props.navigationCategories}
             setCategories={this.props.setNavigationCategories}
             openRef={(ref)=>this.props.openRef(ref,"navigation")}
+            goBack={this.props.goBack}
             openNav={this.props.openNav}
             closeNav={this.props.closeMenu}
             openSearch={this.props.search}
@@ -264,7 +268,9 @@ var ReaderPanel = React.createClass({
             title={this.state.textLanguage == "hebrew" ? this.props.heRef : this.props.textReference}
             language={this.state.textLanguage}
             openNav={this.props.openNav}
+            goBack={this.props.goBack}
             openTextToc={this.props.openTextToc}
+            backStack={this.props.backStack}
             toggleReaderDisplayOptionsMenu={this.toggleReaderDisplayOptionsMenu} />
 
           { this.props.loading ?
@@ -360,14 +366,22 @@ var ReaderControls = React.createClass({
     language:                        React.PropTypes.string,
     openNav:                         React.PropTypes.func,
     openTextToc:                     React.PropTypes.func,
+    goBack:                          React.PropTypes.func,
     toggleReaderDisplayOptionsMenu:  React.PropTypes.func,
+    backStack:                       React.PropTypes.array,
   },
   render: function() {
     var langStyle = this.props.language === "hebrew" ? [styles.he, {marginTop: 5}] : [styles.en];
     var titleTextStyle = [langStyle, styles.headerTextTitleText, this.props.theme.text];
+    if (this.props.backStack.length == 0) {
+      var leftMenuButton = <MenuButton onPress={this.props.openNav} theme={this.props.theme}/>
+    }
+    else {
+      var leftMenuButton = <GoBackButton onPress={this.props.goBack} theme={this.props.theme}/>
+    }
     return (
         <View style={[styles.header, this.props.theme.header]}>
-          <MenuButton onPress={this.props.openNav} theme={this.props.theme}/>
+          {leftMenuButton}
           <TouchableOpacity style={styles.headerTextTitle} onPress={this.props.openTextToc}>
             <Image source={require('./img/caret.png')}
                      style={[styles.downCaret, this.props.language === "hebrew" ? null: {opacity: 0}]}

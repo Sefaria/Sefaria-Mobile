@@ -85,7 +85,8 @@ var ReaderApp = React.createClass({
             isNewSearch: false,
             currSearchPage: 0,
             numSearchResults: 0,
-            searchQueryResult: []
+            searchQueryResult: [],
+            backStack: []
         };
     },
     componentDidMount: function () {
@@ -138,6 +139,7 @@ var ReaderApp = React.createClass({
           stateObj.offsetRef = null; //offsetRef is used to highlight. once you open textlist, you should remove the highlight
         }
         this.setState(stateObj);
+        this.forceUpdate();
         this.forceUpdate();
     },
     loadNewText: function(ref) {
@@ -303,9 +305,10 @@ var ReaderApp = React.createClass({
         Sefaria.saveRecentItem({ref: ref, heRef: heRef, category: Sefaria.categoryForRef(ref)});
     },
     /*
-    calledFrom parameter only used for analytics
+    calledFrom parameter used for analytics and for back button
     */
     openRef: function(ref,calledFrom) {
+        var prevRef = this.state.textReference;
         this.setState({
           loaded: false,
           textReference: ref
@@ -318,6 +321,7 @@ var ReaderApp = React.createClass({
         switch (calledFrom) {
           case "search":
             Sefaria.track.event("Search","Search Result Text Click",this.state.searchQuery + ' - ' + ref);
+            this.state.backStack=["SEARCH:"+this.state.searchQuery];
             break;
           case "navigation":
             Sefaria.track.event("Reader","Navigation Text Click", ref);
@@ -326,6 +330,7 @@ var ReaderApp = React.createClass({
             break;
           case "text list":
             Sefaria.track.event("Reader","Click Text from TextList",ref);
+            this.state.backStack.push(prevRef);
             break;
           default:
             break;
@@ -343,6 +348,14 @@ var ReaderApp = React.createClass({
     },
     openNav: function() {
         this.openMenu("navigation");
+    },
+    goBack: function() {
+      if /* last page was search page */((this.state.backStack.slice(-1)[0]).indexOf("SEARCH:") != -1) {
+        this.search((this.state.backStack.pop()).split(":")[1]);
+      }
+      else /*is ref*/ {
+      this.openRef(this.state.backStack.pop());
+      }
     },
     setNavigationCategories: function(categories) {
         this.setState({navigationCategories: categories});
@@ -586,6 +599,7 @@ var ReaderApp = React.createClass({
 
       Sefaria.track.event("Search","Search Box Search",query);
     },
+
     render: function () {
         return (
             <View style={[styles.container, this.state.theme.container]}>
@@ -649,6 +663,8 @@ var ReaderApp = React.createClass({
                     numSearchResults={this.state.numSearchResults}
                     currSearchPage={this.state.currSearchPage}
                     searchQueryResult={this.state.searchQueryResult}
+                    backStack={this.state.backStack}
+                    goBack={this.goBack}
                     onQueryChange={this.onQueryChange}
                     setLoadQueryTail={this.setLoadQueryTail}
                     setIsNewSearch={this.setIsNewSearch}
