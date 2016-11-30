@@ -240,7 +240,6 @@ var TextTableOfContentsNavigation = React.createClass({
 var SchemaNode = React.createClass({
   propTypes: {
     theme:       React.PropTypes.object.isRequired,
-    addressTypes:React.PropTypes.array.isRequired,
     schema:      React.PropTypes.object.isRequired,
     contentLang: React.PropTypes.string.isRequired,
     refPath:     React.PropTypes.string.isRequired,
@@ -252,7 +251,6 @@ var SchemaNode = React.createClass({
         return (
           <JaggedArrayNode
             theme={this.props.theme}
-            addressTypes={this.props.addressTypes}
             schema={this.props.schema}
             contentLang={this.props.contentLang}
             refPath={this.props.refPath}
@@ -262,7 +260,6 @@ var SchemaNode = React.createClass({
         return (
           <ArrayMapNode
             theme={this.props.theme}
-            addressTypes={this.props.addressTypes}
             schema={this.props.schema}
             contentLang={this.props.contentLang}
             openRef={this.props.openRef} />
@@ -280,7 +277,6 @@ var SchemaNode = React.createClass({
                 <Text style={[styles.en, styles.textTocSectionTitle, this.props.theme.text]}>{node.title}</Text> }
               <SchemaNode
                 theme={this.props.theme}
-                addressTypes={this.props.addressTypes}
                 schema={node}
                 contentLang={this.props.contentLang}
                 refPath={this.props.refPath + ", " + node.title}
@@ -302,7 +298,6 @@ var SchemaNode = React.createClass({
                 <Text style={[styles.en, styles.textTocSectionTitle, this.props.theme.text]}>{node.title}</Text> }
               <JaggedArrayNode
                 theme={this.props.theme}
-                addressTypes={this.props.addressTypes}
                 schema={node}
                 contentLang={this.props.contentLang}
                 refPath={this.props.refPath + ", " + node.title}
@@ -321,7 +316,6 @@ var SchemaNode = React.createClass({
 var JaggedArrayNode = React.createClass({
   propTypes: {
     theme:       React.PropTypes.object.isRequired,
-    addressTypes:React.PropTypes.array.isRequired,
     schema:      React.PropTypes.object.isRequired,
     contentLang: React.PropTypes.string.isRequired,
     refPath:     React.PropTypes.string.isRequired,
@@ -332,7 +326,7 @@ var JaggedArrayNode = React.createClass({
               theme={this.props.theme}
               depth={this.props.schema.depth}
               sectionNames={this.props.schema.sectionNames}
-              addressTypes={this.props.addressTypes}
+              addressTypes={this.props.schema.addressTypes}
               contentCounts={this.props.schema.content_counts}
               contentLang={this.props.contentLang}
               refPath={this.props.refPath}
@@ -415,7 +409,6 @@ var JaggedArrayNodeSection = React.createClass({
 var ArrayMapNode = React.createClass({
   propTypes: {
     theme:       React.PropTypes.object.isRequired,
-    addressTypes:React.PropTypes.array.isRequired,
     schema:      React.PropTypes.object.isRequired,
     contentLang: React.PropTypes.string.isRequired,
     openRef:     React.PropTypes.func.isRequired,
@@ -425,8 +418,7 @@ var ArrayMapNode = React.createClass({
     var sectionLinks = this.props.schema.refs.map(function(ref, i) {
       i += this.props.schema.offset || 0;
       var open = this.props.openRef.bind(null, ref);
-      if (this.props.addressTypes.length >= 2 &&
-        this.props.addressTypes[this.props.addressTypes.length-2] === "Talmud") {
+      if (this.props.schema.addressTypes[0] === "Talmud") {
         var section = Sefaria.hebrew.intToDaf(i);
         var heSection = Sefaria.hebrew.encodeHebrewDaf(section);
       } else {

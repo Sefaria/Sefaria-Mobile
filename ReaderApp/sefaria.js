@@ -338,12 +338,27 @@ Sefaria = {
     var path = Sefaria._JSONSourcePath(title + "_index");
 
     var resolver = function(data) {
+      data = Sefaria._fixTalmudAltStructAddressTypes(data);
       Sefaria._textToc[title] = data;
+      console.log(data)
       callback(data);
     };
     Sefaria._loadJSON(path).then(resolver)
     .catch(()=>{Sefaria.api._request(title, 'index').then(resolver)})
     return null;
+  },
+  _fixTalmudAltStructAddressTypes: function(textToc) {
+    // This is a bandaid on what may or may not be bad data. For Talmud alt struct "Chapter", we want to display
+    // sections with Talmud address type, but the data current lists them as Integer. 
+    if (textToc.categories.length == 3 && 
+        textToc.categories[0] == "Talmud" &&
+        textToc.categories[1] == "Bavli") {
+
+      for (var i = 0; i < textToc.alts.Chapters.nodes.length; i++) {
+        textToc.alts.Chapters.nodes[i].addressTypes = ["Talmud"];
+      }
+    }
+    return textToc;
   },
   calendar: null,
   loadCalendar: function(callback) {
