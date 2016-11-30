@@ -121,13 +121,16 @@ Sefaria = {
                         "result": new LinkContent(en_text, he_text, data.sectionRef)
                       });
                     })
-                    .catch(() => { console.error("Error with API loading link text: ", Sefaria.api._toURL(ref,false,'text',false))})
+                    .catch(() => { 
+                      //console.error("Error with API loading link text: ", Sefaria.api._toURL(ref,false,'text',false));
+                    });
                 } else {
                   Sefaria.api._text(ref)
                     .then(Sefaria.api._toIOS)
                     .then(processApiData)
-                    .catch(function() {
-                      console.error("Error with API: ", Sefaria.api._toURL(ref, false, 'text', true));
+                    .catch(function(error) {
+                      //console.error("Error with API: ", Sefaria.api._toURL(ref, false, 'text', true));
+                      reject(error);
                     });
                 }
                 Sefaria.downloader.prioritizeDownload(bookRefStem);

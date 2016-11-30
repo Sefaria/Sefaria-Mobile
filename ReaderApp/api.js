@@ -12,6 +12,7 @@ var Api = {
   _linkCache: {},
   _toIOS: function(responses) {
       //console.log(responses);
+      if (!responses) { return responses; }
       let text_response = responses.text;
       let to_pad, pad_length;
       if (text_response.text.length < text_response.he.length) {
@@ -121,7 +122,7 @@ var Api = {
       Sefaria.api._request(ref,'text',true)
       .then((response)=>{
         resolve({"text": response, "links": [], "ref": ref});
-      });
+      }).catch(error => reject(error));
     });
   },
   links: function(ref) {
@@ -208,19 +209,29 @@ var Api = {
   /*
   context is a required param if apiType == 'text'. o/w it's ignored
   */
-  _request: function(ref,apiType, context) {
+  _request: function(ref, apiType, context) {
     var url = Sefaria.api._toURL(ref, false, apiType, context);
-    return new Promise(function(resolve,reject) {
+    return new Promise(function(resolve, reject) {
       fetch(url)
       .then(function(response) {
-        console.log('checking response',response.status);
+        //console.log('checking response',response.status);
         if (response.status >= 200 && response.status < 300) {
           return response;
         } else {
           reject(response.statusText);
         }
       })
-      .then(response => resolve(response.json()))
+      .then(response => response.json())
+      .then(json => {
+        if ("error" in json) {
+          AlertIOS.alert(
+            'Text Unavailable',
+            'The text you requested is not currently available from www.sefaria.org',
+            [{text: 'OK', onPress: () => { reject("Return to Nav"); } }]);
+        } else {
+          resolve(json);
+        }
+      })
       .catch(()=>{
         AlertIOS.alert(
           'Internet Error',

@@ -195,8 +195,14 @@ var ReaderApp = React.createClass({
 
             Sefaria.saveRecentItem({ref: ref, heRef: data.heRef, category: Sefaria.categoryForRef(ref)});
         }.bind(this)).catch(function(error) {
+          console.log(error);
+          if (error == "Return to Nav") {
+            this.setState({loaded: true});
+            this.openNav();
+            return;
+          }
           console.error('Error caught from ReaderApp.loadNewText', error);
-        });
+        }.bind(this));
 
     },
     loadLinks: function(ref) {
