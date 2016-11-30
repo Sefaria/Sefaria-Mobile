@@ -1144,7 +1144,7 @@ Sefaria.hebrew = {
 
     var values = Sefaria.hebrew.hebrewNumerals;
 
-    if (n === 15 || n === 16) {
+    if (n == 15 || n == 16) {
       return values[n];
     }
 
