@@ -478,7 +478,6 @@ module.exports = StyleSheet.create({
   },
   textTocTitle: {
     fontSize: 19,
-    flex: 1,
     textAlign: "center"
   },
   textTocCategoryBox: {
