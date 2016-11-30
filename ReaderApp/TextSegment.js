@@ -30,7 +30,9 @@ var TextSegment = React.createClass({
     this.props.textSegmentPressed(section, segment, this.props.rowRef, true);
   },
   sanitizeTextToRemoveCharactersCausingGlyphErrors: function(textToSanitize) {
-        return textToSanitize.replace(/[\u05bd\u05bf-\u05c2\u05c4-\u05c7]/g,"");
+    return textToSanitize
+      .replace(/[\u0591-\u05AF]/g,"") //remove taamim
+      .replace(/[\u05bd\u05bf\u05c0]/g,"") //remove meteg, rafe, paseq
   },
 
   render: function() {
