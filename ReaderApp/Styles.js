@@ -575,6 +575,7 @@ module.exports = StyleSheet.create({
     writingDirection: "rtl",
     textAlign: 'right',
     flex: -1,
+    paddingTop: 5,
     fontSize: 20,
   },
   hebrewSystemFont: {
