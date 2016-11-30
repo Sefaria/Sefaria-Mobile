@@ -55,15 +55,22 @@ var SettingsPage = React.createClass({
     }
   },
   render: function() {
+    var setMenuLanguage = function(lang) {
+      if (Sefaria.settings.menuLangue !== lang) {
+        this.props.toggleMenuLanguage();
+        Sefaria.settings.set("menuLanguage", lang);
+        this.forceUpdate();
+      }
+    }.bind(this);
     var menuLanguageOptions = [
-      {name: "english", text: "ENGLISH", heText: "ENGLISH", onPress: () => { Sefaria.settings.set("menuLanguage", "english"); this.forceUpdate(); }},
-      {name: "hebrew", text: "HEBREW", heText: "HEBREW", onPress: () => { Sefaria.settings.set("menuLanguage", "hebrew"); this.forceUpdate(); }}
+      {name: "english", text: "ENGLISH", heText: "ENGLISH", onPress: () => { setMenuLanguage("english"); }},
+      {name: "hebrew", text: "HEBREW", heText: "HEBREW", onPress: () => { setMenuLanguage("hebrew"); }}
     ];
 
     var textLanguageOptions = [
-      {name: "english", text: "ENGLISH", heText: "ENGLISH", onPress: () => { Sefaria.settings.set("textLanguage", "english"); this.forceUpdate(); }},
-      {name: "bilingual", text: "BILINGUAL", heText: "BILINGUAL", onPress: () => { Sefaria.settings.set("textLanguage", "bilingual"); this.forceUpdate(); }},
-      {name: "hebrew", text: "HEBREW", heText: "HEBREW", onPress: () => { Sefaria.settings.set("textLanguage", "hebrew"); this.forceUpdate(); }}
+      {name: "english", text: "ENGLISH", heText: "ENGLISH", onPress: () => { Sefaria.settings.set("defaultTextLanguage", "english"); this.forceUpdate(); }},
+      {name: "bilingual", text: "BILINGUAL", heText: "BILINGUAL", onPress: () => { Sefaria.settings.set("defaultTextLanguage", "bilingual"); this.forceUpdate(); }},
+      {name: "hebrew", text: "HEBREW", heText: "HEBREW", onPress: () => { Sefaria.settings.set("defaultTextLanguage", "hebrew"); this.forceUpdate(); }}
     ];
 
     var nDownloaded = Sefaria.downloader.titlesDownloaded().length;
@@ -79,7 +86,7 @@ var SettingsPage = React.createClass({
               <ScrollView style={styles.menuContent}>
                 <View style={styles.settingsSection}>
                   <View>
-                    <Text style={[styles.settingsSectionHeader, this.props.theme.tertiaryText]}>DEFAULT MENU LANGUAGE</Text>
+                    <Text style={[styles.settingsSectionHeader, this.props.theme.tertiaryText]}>MENU LANGUAGE</Text>
                   </View>
                   <ButtonToggleSet
                     theme={this.props.theme}
@@ -96,7 +103,7 @@ var SettingsPage = React.createClass({
                     theme={this.props.theme}
                     options={textLanguageOptions}
                     contentLang={"english"}
-                    active={Sefaria.settings.textLanguage} />
+                    active={Sefaria.settings.defaultTextLanguage} />
                 </View>
 
 

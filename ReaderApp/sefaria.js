@@ -340,7 +340,6 @@ Sefaria = {
     var resolver = function(data) {
       data = Sefaria._fixTalmudAltStructAddressTypes(data);
       Sefaria._textToc[title] = data;
-      console.log(data)
       callback(data);
     };
     Sefaria._loadJSON(path).then(resolver)
@@ -1020,7 +1019,8 @@ Sefaria.api = Api;
 Sefaria.settings = {
   _fields: {
     // List of keys to load on init as well as their default values
-    textLanguage: "bilingual",
+    defaultTextLanguage: "bilingual",
+    textLangaugeByTitle: {},
     menuLanguage: "english",
     color: "white",
     fontSize: 20,
@@ -1049,6 +1049,16 @@ Sefaria.settings = {
     this[field] = value;
     AsyncStorage.setItem(field, JSON.stringify(value));
   },
+  textLanguage: function(text, language = null) {
+    // Getter/Setter for sticky text language by text title.
+    if (language) {
+      this.textLangaugeByTitle[text] = language;
+      this.set("textLangaugeByTitle", this.textLangaugeByTitle);
+    } else {
+      // Fall back to default in no value has been set
+      return text in this.textLangaugeByTitle ? this.textLangaugeByTitle[text] : this.defaultTextLanguage;
+    }
+  }
 };
 
 

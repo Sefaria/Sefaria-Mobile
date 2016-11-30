@@ -84,8 +84,12 @@ var ReaderPanel = React.createClass({
     };
   },
   componentWillReceiveProps: function(nextProps) {
-     if (!this.props.defaultSettingsLoaded && nextProps.defaultSettingsLoaded) {
+    if (!this.props.defaultSettingsLoaded && nextProps.defaultSettingsLoaded) {
       this.setDefaultSettings();
+    }
+
+    if (nextProps.defaultSettingsLoaded && !this.props.textTitle !== nextProps.textTitle) {
+      this.setState({textLanguage: Sefaria.settings.textLanguage(nextProps.textTitle)});
     }
 
     // Should track pageview? TODO account for infinite
@@ -107,7 +111,7 @@ var ReaderPanel = React.createClass({
     // so getInitialState() is called before settings have finished init().
     this.setState({
       textFlow: 'segmented',   // alternative is 'continuous'
-      textLanguage: Sefaria.settings.textLanguage,
+      textLanguage: Sefaria.settings.textLanguage(this.props.textTitle),
       settings: {
         language:      Sefaria.settings.menuLanguage,
         fontSize:      Sefaria.settings.fontSize,
@@ -124,16 +128,17 @@ var ReaderPanel = React.createClass({
      //console.log(this.state.ReaderDisplayOptionsMenuVisible);
     this.trackPageview();
   },
-  toggleLanguage: function() {
+  toggleMenuLanguage: function() {
     // Toggle current menu language between english/hebrew only
     if (this.state.settings.language !== "hebrew") {
       this.state.settings.language = "hebrew";
     } else {
       this.state.settings.language = "english";
     }
-    Sefaria.track.event("Reader","Change Language",this.state.settings.language);
+    Sefaria.track.event("Reader","Change Language", this.state.settings.language);
 
     this.setState({settings: this.state.settings});
+    Sefaria.settings.set("menuLanguage", this.state.settings.language);
   },
   setTextFlow: function(textFlow) {
     this.setState({textFlow: textFlow});
@@ -145,6 +150,7 @@ var ReaderPanel = React.createClass({
     Sefaria.track.event("Reader","Display Option Click","layout - " + textFlow);
   },
   setTextLanguage: function(textLanguage) {
+    Sefaria.settings.textLanguage(this.props.textTitle, textLanguage);
     this.setState({textLanguage: textLanguage});
     // Sefaria.settings.set("textLanguage", textLanguage); // Makes every language change sticky
     if (textLanguage == "bilingual" && this.state.textFlow == "continuous") {
@@ -211,7 +217,7 @@ var ReaderPanel = React.createClass({
             closeNav={this.props.closeMenu}
             openSearch={this.props.search}
             setIsNewSearch={this.props.setIsNewSearch}
-            toggleLanguage={this.toggleLanguage}
+            toggleLanguage={this.toggleMenuLanguage}
             settings={this.state.settings}
             openSettings={this.props.openSettings}
             interfaceLang={this.props.interfaceLang}
@@ -230,7 +236,7 @@ var ReaderPanel = React.createClass({
             interfaceLang={this.props.interfaceLang}
             close={this.props.closeMenu}
             openRef={(ref)=>this.props.openRef(ref,"text toc")}
-            toggleLanguage={this.toggleLanguage}
+            toggleLanguage={this.toggleMenuLanguage}
             Sefaria={Sefaria} />);
         break;
       case ("search"):
@@ -256,6 +262,7 @@ var ReaderPanel = React.createClass({
           <SettingsPage
             close={this.props.openNav}
             theme={this.props.theme}
+            toggleMenuLanguage={this.toggleMenuLanguage}
             Sefaria={Sefaria} />);
         break;
     }
