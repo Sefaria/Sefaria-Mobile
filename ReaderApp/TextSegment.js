@@ -29,6 +29,10 @@ var TextSegment = React.createClass({
     let segment = parseInt(key.split(":")[1]);
     this.props.textSegmentPressed(section, segment, this.props.rowRef, true);
   },
+  sanitizeTextToRemoveCharactersCausingGlyphErrors: function(textToSanitize) {
+        return textToSanitize.replace(/[\u05bd\u05bf-\u05c2\u05c4-\u05c7]/g,"");
+  },
+
   render: function() {
     // console.log(this.props.segmentKey+": "+typeof(this.props.textRef));
     var style = this.props.textType == "hebrew" ?
@@ -48,7 +52,7 @@ var TextSegment = React.createClass({
           <HTMLView value={
             this.props.textType == "english" ?
               "&#x200E;"+this.props.data :
-              this.props.data
+              this.sanitizeTextToRemoveCharactersCausingGlyphErrors(this.props.data)
               } stylesheet={styles} />
 
       </Text>
