@@ -530,6 +530,7 @@ var TextColumn = React.createClass({
         };
 
         for (var i = 0; i < data[section].length; i++) {
+          if (!data[section][i].text && !data[section][i].he) { continue; } // Skip empty segments
           var segmentData = {
             content: data[section][i],
             highlight: offsetRef == rowID.replace("wholeSection", i+1) || (props.textListVisible && props.segmentRef == rowID.replace("wholeSection", i+1))
@@ -547,6 +548,7 @@ var TextColumn = React.createClass({
       for (var section = 0; section < data.length; section++) {
         var rows = {};
         for (var i = 0; i < data[section].length; i++) {
+          if (i !== 0 &&  !data[section][i].text && !data[section][i].he) { continue; } // Skip empty segments
           var rowID = props.sectionArray[section] + ":" + data[section][i].segmentNumber;
           // console.log("ROW ID",rowID,props.segmentRef);
           var rowData = {
@@ -761,9 +763,12 @@ var TextColumn = React.createClass({
 
     let completeSeg = this.props.textLanguage == "english" ? [numberMargin, segmentText, bulletMargin] : [bulletMargin, segmentText, numberMargin];
 
-    segment.push(<View style={styles.numberSegmentHolderEn} key={reactRef+"|inner-box"}>
-                    {completeSeg}
-                  </View>);
+    if (rowData.text || rowData.he) {
+      segment.push(<View style={styles.numberSegmentHolderEn} key={reactRef+"|inner-box"}>
+                      {completeSeg}
+                    </View>);      
+    }
+
 
     //console.log("Rendering Row:", reactRef);
 
