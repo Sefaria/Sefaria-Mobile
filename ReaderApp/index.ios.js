@@ -328,7 +328,6 @@ var ReaderApp = React.createClass({
           return;
         }
 
-        var prevRef = this.state.textReference;
         this.setState({
           loaded: false,
           textReference: ref
@@ -350,7 +349,7 @@ var ReaderApp = React.createClass({
             break;
           case "text list":
             Sefaria.track.event("Reader","Click Text from TextList",ref);
-            this.state.backStack.push(prevRef);
+            this.state.backStack.push(this.state.segmentRef);
             break;
           default:
             break;
