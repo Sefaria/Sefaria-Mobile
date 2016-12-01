@@ -7,10 +7,12 @@
 import React, { Component } from 'react';
 import {
   ActivityIndicatorIOS,
+  AlertIOS,
   Animated,
   AppRegistry,
   AppState,
   Dimensions,
+  Linking,
 	ListView,
 	Modal,
   NetInfo,
@@ -21,7 +23,6 @@ import {
   TextInput,
   TouchableOpacity,
   View,
-  AlertIOS
 } from 'react-native';
 
 var styles      = require('./Styles.js');
@@ -313,7 +314,20 @@ var ReaderApp = React.createClass({
     /*
     calledFrom parameter used for analytics and for back button
     */
-    openRef: function(ref,calledFrom) {
+    openRef: function(ref, calledFrom) {
+        if (!Sefaria.textTitleForRef(ref)) {
+          AlertIOS.alert(
+            'Text Unavailable',
+            'This text is not currently available in the mobile app. Would you like to open it on the Web?',
+            [
+              {text: 'Cancel', style: 'cancel'},
+              {text: 'Open', onPress: () => {
+                Linking.openURL("http://www.sefaria.org/" + ref.replace(/ /g, "_"));
+              }}
+            ]);
+          return;
+        }
+
         var prevRef = this.state.textReference;
         this.setState({
           loaded: false,
