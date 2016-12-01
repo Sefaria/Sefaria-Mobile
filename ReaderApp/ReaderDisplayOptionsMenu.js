@@ -5,8 +5,12 @@ import {
   Text,
   TouchableOpacity,
   View,
-  Image
+  Image,
+  Dimensions
 } from 'react-native';
+
+
+
 var styles          = require('./Styles.js');
 var a_aleph_icon    = require('./img/a_aleph2.png');
 var a_icon          = require('./img/a_icon.png');
@@ -115,7 +119,7 @@ var ReaderDisplayOptionsMenu = React.createClass({
     }
 
     return (
-        <View style={[styles.readerDisplayOptionsMenu,this.props.theme.readerDisplayOptionsMenu]}>
+        <View style={[styles.readerDisplayOptionsMenu,this.props.theme.readerDisplayOptionsMenu,{width: Dimensions.get('window').width}]}>
           {optionViews}
         </View>
     );
