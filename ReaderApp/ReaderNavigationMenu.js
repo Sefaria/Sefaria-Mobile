@@ -271,8 +271,8 @@ var CategoryBlockLink = React.createClass({
     var heText = this.props.heCat || Sefaria.hebrewCategory(this.props.category);
     var textStyle  = [styles.centerText, this.props.theme.text, this.props.upperCase ? styles.spacedText : null];
     var content = this.props.language == "english"?
-      (<Text style={[styles.en].concat(textStyle)}>{enText}</Text>) :
-      (<Text style={[styles.he].concat(textStyle)}>{heText}</Text>);
+      (<Text style={[styles.englishText].concat(textStyle)}>{enText}</Text>) :
+      (<Text style={[styles.englishText].concat(textStyle)}>{heText}</Text>);
     return (<TouchableOpacity onPress={this.props.onPress} style={[styles.readerNavCategory, this.props.theme.readerNavCategory, style]}>
               {content}
             </TouchableOpacity>);

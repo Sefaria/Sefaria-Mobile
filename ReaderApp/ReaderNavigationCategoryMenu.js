@@ -159,8 +159,8 @@ var ReaderNavigationCategoryMenuContents = React.createClass({
           var openRef = this.props.openRef.bind(null, item.firstSection);
           content.push((<TouchableOpacity  style={[styles.textBlockLink,this.props.theme.textBlockLink]}  onPress={openRef} key={i}>
                             { showHebrew ?
-                              <Text style={[styles.he, styles.centerText, this.props.theme.text]}>{heTitle}</Text> :
-                              <Text style={[styles.en, styles.centerText, this.props.theme.text]}>{title}</Text> }
+                              <Text style={[styles.hebrewText, styles.centerText, this.props.theme.text]}>{heTitle}</Text> :
+                              <Text style={[styles.englishText, styles.centerText, this.props.theme.text]}>{title}</Text> }
                           </TouchableOpacity>));
         }
       }

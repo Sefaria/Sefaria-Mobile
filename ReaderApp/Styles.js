@@ -4,10 +4,7 @@ import {
   StyleSheet,
 } from 'react-native';
 
-
-const iPadMinSize = 768*1024;
-const {height, width} = Dimensions.get('window');
-const iPad = height * width >= iPadMinSize;
+const iPad = require('./isIPad');
 
 
 var Sefaria = require('./sefaria'); // Included for Sefaria.palette
@@ -174,7 +171,7 @@ module.exports = StyleSheet.create({
     flexDirection: "row"
   },
   headerTextTitleText: {
-    fontSize: 16,
+    fontSize: iPad ? 20 : 16,
     textAlign: "center",
     marginHorizontal: 5
   },
@@ -254,6 +251,9 @@ module.exports = StyleSheet.create({
     margin: 5,
     justifyContent: "center",
     alignItems: "center",
+  },
+  textListHeaderItemText: {
+    fontSize: iPad ? 20 : 16,
   },
   textListCitation: {
     marginBottom: 4,
@@ -351,7 +351,7 @@ module.exports = StyleSheet.create({
     flex: 1,
   },
   navToggle: {
-    fontSize: 10,
+    fontSize: iPad ? 18 : 10,
     paddingTop: 2
   },
   navToggles: {
@@ -360,6 +360,7 @@ module.exports = StyleSheet.create({
     marginBottom: 22
   },
   navTogglesDivider: {
+    fontSize: iPad ? 18 : 10,
     marginHorizontal: 7
   },
   textTocHeaderTitle: {
@@ -383,7 +384,7 @@ module.exports = StyleSheet.create({
     textAlign: 'center',
     fontFamily: "Open Sans",
     fontWeight: '400',
-    fontSize: 9,
+    fontSize: iPad ? 16 : 9,
     width: iPad ? 60 : 30,
   },
   hebrewVerseNumber: {
@@ -421,7 +422,7 @@ module.exports = StyleSheet.create({
   verseBullet: {
     paddingTop: 7,
     textAlign: 'center',
-    fontSize: 7,
+    fontSize: iPad ? 11 : 7,
     width: iPad ? 60 : 30,
   },
   englishSystemFont: {
@@ -458,10 +459,10 @@ module.exports = StyleSheet.create({
   },
   sectionHeaderText: {
     textAlign: "center",
-    fontSize: 14,
+    fontSize: iPad ? 22 : 14,
   },
   hebrewSectionHeaderText: {
-    fontSize: 17,
+    fontSize: iPad ? 26 : 17,
   },
   textSegment: {
     flexDirection: "column",
@@ -486,7 +487,7 @@ module.exports = StyleSheet.create({
     borderBottomWidth: 1
   },
   textTocTitle: {
-    fontSize: 19,
+    fontSize: iPad ? 32 : 19,
     textAlign: "center"
   },
   textTocCategoryBox: {
@@ -494,10 +495,10 @@ module.exports = StyleSheet.create({
     marginBottom: 12,
   },
   textTocCategory: {
-    fontSize: 12,
+    fontSize: iPad ? 20 : 12,
   },
   textTocSectionString: {
-    fontSize: 12
+    fontSize: iPad ? 20 : 12
   },
   textTocNumberedSectionBox: {
     marginBottom: 20
@@ -577,7 +578,7 @@ module.exports = StyleSheet.create({
     fontFamily: "EB Garamond",
     textAlign: 'left',
     flex: -1,
-    fontSize: 16,
+    fontSize: iPad ? 20 : 16,
   },
   hebrewText: {
     fontFamily: "Taamey Frank CLM",
@@ -585,7 +586,7 @@ module.exports = StyleSheet.create({
     textAlign: 'right',
     flex: -1,
     paddingTop: 5,
-    fontSize: 20,
+    fontSize: iPad ? 25 : 20,
   },
   hebrewSystemFont: {
     fontFamily: "Open Sans Hebrew"

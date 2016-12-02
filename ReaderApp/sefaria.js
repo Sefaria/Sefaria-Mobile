@@ -3,6 +3,7 @@ const RNFS = require('react-native-fs'); //for access to file system -- (https:/
 const Downloader = require('./downloader');
 const Api = require('./api');
 const LinkContent  = require('./LinkContent');
+const iPad = require('./isIPad');
 import { GoogleAnalyticsTracker } from 'react-native-google-analytics-bridge'; //https://github.com/idehub/react-native-google-analytics-bridge/blob/master/README.md
 import { AsyncStorage, AlertIOS } from 'react-native';
 
@@ -1023,7 +1024,7 @@ Sefaria.settings = {
     textLangaugeByTitle: {},
     menuLanguage: "english",
     color: "white",
-    fontSize: 20,
+    fontSize: iPad ? 25 : 20,
   },
   init: function() {
     // Loads data from each field in `_data` stored in Async storage into local memory for sync access.

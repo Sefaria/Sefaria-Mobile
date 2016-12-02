@@ -3,7 +3,7 @@
  * https://github.com/facebook/react-native
  */
 'use strict';
-console.log("start")
+
 import React, { Component } from 'react';
 import {
   ActivityIndicatorIOS,

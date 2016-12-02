@@ -10,7 +10,7 @@ import {
 const styles         = require('./Styles.js');
 const HTMLView       = require('react-native-htmlview');
 const TextListHeader = require('./TextListHeader');
-const LinkFilter = require('./LinkFilter');
+const LinkFilter     = require('./LinkFilter');
 
 const {
   CategoryColorLine,
@@ -182,8 +182,8 @@ var LinkCategory = React.createClass({
     let style = {"borderColor": Sefaria.palette.categoryColor(this.props.category)};
     let heCategory = Sefaria.hebrewCategory(this.props.category);
     let content = this.props.language == "hebrew"?
-      (<Text style={[styles.he, this.props.theme.text]}>{heCategory + countStr}</Text>) :
-      (<Text style={[styles.en, this.props.theme.text]}>{this.props.category.toUpperCase() + countStr}</Text>);
+      (<Text style={[styles.hebrewText, this.props.theme.text]}>{heCategory + countStr}</Text>) :
+      (<Text style={[styles.englishText, this.props.theme.text]}>{this.props.category.toUpperCase() + countStr}</Text>);
 
     return (<TouchableOpacity
               style={[styles.readerNavCategory, this.props.theme.readerNavCategory, style]}
@@ -211,8 +211,8 @@ var LinkBook = React.createClass({
         style={[styles.textBlockLink, this.props.theme.textBlockLink]}
         onPress={this.props.onPress}>
         { this.props.language == "hebrew" ?
-          <Text style={[styles.he, styles.centerText, textStyle]}>{this.props.heTitle + countStr}</Text> :
-          <Text style={[styles.en, styles.centerText, textStyle]}>{this.props.title + countStr}</Text> }
+          <Text style={[styles.hebrewText, styles.centerText, textStyle]}>{this.props.heTitle + countStr}</Text> :
+          <Text style={[styles.englishText, styles.centerText, textStyle]}>{this.props.title + countStr}</Text> }
       </TouchableOpacity>
     );
   }
