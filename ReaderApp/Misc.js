@@ -79,7 +79,7 @@ var SearchButton = React.createClass({
 
 var MenuButton = React.createClass({
   render: function() {
-    return (<TouchableOpacity style={[styles.headerButton]} onPress={this.props.onPress}>
+    return (<TouchableOpacity style={[styles.headerButton, styles.leftHeaderButton]} onPress={this.props.onPress}>
               <Image source={require('./img/menu.png')}
                      style={styles.menuButton}
                      resizeMode={Image.resizeMode.contain} />
@@ -89,7 +89,7 @@ var MenuButton = React.createClass({
 
 var GoBackButton = React.createClass({
   render: function() {
-    return (<TouchableOpacity style={[styles.headerButton]} onPress={this.props.onPress}>
+    return (<TouchableOpacity style={[styles.headerButton, styles.leftHeaderButton]} onPress={this.props.onPress}>
               <Image source={require('./img/back.png')}
                      style={styles.menuButton}
                      resizeMode={Image.resizeMode.contain} />
@@ -100,7 +100,7 @@ var GoBackButton = React.createClass({
 
 var CloseButton = React.createClass({
   render: function() {
-    return (<TouchableOpacity style={[styles.headerButton]} onPress={this.props.onPress}>
+    return (<TouchableOpacity style={[styles.headerButton, styles.leftHeaderButton]} onPress={this.props.onPress}>
               <Image source={require('./img/close.png')}
                  style={styles.closeButton}
                  resizeMode={Image.resizeMode.contain} />

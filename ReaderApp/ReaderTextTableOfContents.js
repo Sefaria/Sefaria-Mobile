@@ -188,12 +188,15 @@ var TextTableOfContentsNavigation = React.createClass({
     }
 
     // Set margins around nav sections dependent on screen width so grid centered no mater how many sections fit per line
-    var {height, width} = Dimensions.get('window');
-    var availableWidth  = width - (2 * 10); // 9 is  margin set on `menuContent`.
-    var itemWidth       = 40 + 2*2; // width of `sectionLink` plus two times margin
-    var gridWidth       = parseInt(availableWidth / itemWidth) * itemWidth;
-    var gridMargins     = (availableWidth - gridWidth) / 2;
-    var gridBoxStyle    = {marginHorizontal: gridMargins};
+    var {height, width}   = Dimensions.get('window');
+    var iPadMinSize       = 768*1024;
+    var iPad              = height * width >= iPadMinSize;
+    var menuContentMargin = iPad ? 20 : 10; // matching values in Styles.js
+    var availableWidth    = width - (2 * menuContentMargin);
+    var itemWidth         = 40 + 2*2; // width of `sectionLink` plus two times margin
+    var gridWidth         = parseInt(availableWidth / itemWidth) * itemWidth;
+    var gridMargins       = (availableWidth - gridWidth) / 2;
+    var gridBoxStyle      = {marginHorizontal: gridMargins};
 
     switch(this.state.tab) {
       case "default":

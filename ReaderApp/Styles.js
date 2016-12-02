@@ -1,9 +1,16 @@
 'use strict'
-const React = require('react-native');
-const {StyleSheet,Dimensions} = React;
+import {
+  Dimensions,
+  StyleSheet,
+} from 'react-native';
+
+
+const iPadMinSize = 768*1024;
+const {height, width} = Dimensions.get('window');
+const iPad = height * width >= iPadMinSize;
+
 
 var Sefaria = require('./sefaria'); // Included for Sefaria.palette
-
 
 module.exports = StyleSheet.create({
   modal: {
@@ -58,8 +65,7 @@ module.exports = StyleSheet.create({
     flex:1,
     marginTop: 10,
     marginBottom: 10,
-    marginLeft: 15,
-    marginRight: 15,
+    marginHorizontal: iPad ? 20 : 15,
   },
   readerDisplayOptionMenuRowNotColor: {
     borderRadius: 5
@@ -122,6 +128,9 @@ module.exports = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "transparent"
   },
+  leftHeaderButton: {
+    marginLeft: iPad ? 10 : 0
+  },
   menuButton: {
     width: 17,
     height: 17,
@@ -129,7 +138,7 @@ module.exports = StyleSheet.create({
   displaySettingsButton: {
     width: 25,
     height: 25,
-    marginRight: 4
+    marginRight: iPad ? 22 : 4
   },
   closeButton: {
     width: 16,
@@ -159,13 +168,13 @@ module.exports = StyleSheet.create({
   },
   headerTextTitle: {
     flex: 1,
+    paddingHorizontal: 10,
     alignItems: 'center',
     justifyContent: "center",
     flexDirection: "row"
   },
   headerTextTitleText: {
     fontSize: 16,
-    maxWidth: 210,
     textAlign: "center",
     marginHorizontal: 5
   },
@@ -176,7 +185,7 @@ module.exports = StyleSheet.create({
   },
   searchResultSummary: {
     paddingVertical: 10,
-    paddingHorizontal: 30,
+    paddingHorizontal: iPad ? 60 : 30,
     borderBottomWidth: 1,
   },
   searchInput: {
@@ -199,7 +208,7 @@ module.exports = StyleSheet.create({
     alignItems: 'flex-start',
   },
   searchTextResult: {
-    marginHorizontal: 30,
+    marginHorizontal: iPad ? 60 : 30,
     marginTop: 20,
     paddingBottom: 20,
     flexDirection: 'column',
@@ -217,7 +226,7 @@ module.exports = StyleSheet.create({
     textAlign: "center",
   },
   textListSummaryScrollView: {
-    paddingHorizontal: 10,
+    paddingHorizontal: iPad ? 20 : 10,
     paddingVertical: 20,
   },
   textListSummarySection: {
@@ -265,14 +274,14 @@ module.exports = StyleSheet.create({
     flex: 1
   },
   menuContent: {
-    paddingHorizontal: 10,
+    paddingHorizontal: iPad ? 20 : 10,
     paddingTop: 20,
     paddingBottom: 40,
   },
   languageToggle: {
     width: 30,
     height: 30,
-    marginRight: 10,
+    marginRight: iPad ? 20 : 10,
     borderWidth: 1,
     borderRadius: 4,
     flexDirection: "row",
@@ -375,7 +384,7 @@ module.exports = StyleSheet.create({
     fontFamily: "Open Sans",
     fontWeight: '400',
     fontSize: 9,
-    width: 30,
+    width: iPad ? 60 : 30,
   },
   hebrewVerseNumber: {
     fontSize: 11,
@@ -413,7 +422,7 @@ module.exports = StyleSheet.create({
     paddingTop: 7,
     textAlign: 'center',
     fontSize: 7,
-    width: 30
+    width: iPad ? 60 : 30,
   },
   englishSystemFont: {
     fontFamily: "Open Sans",
@@ -472,7 +481,8 @@ module.exports = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 22,
-    paddingBottom: 14,
+    paddingBottom: iPad ? 28 : 14,
+    paddingTop: iPad ? 20 : 0,
     borderBottomWidth: 1
   },
   textTocTitle: {
