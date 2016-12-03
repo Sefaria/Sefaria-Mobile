@@ -150,9 +150,6 @@ module.exports = StyleSheet.create({
     height: 17,
   },
   tripleDotsContainer: {
-    flexDirection: "column",
-    flex: 1,
-    alignSelf: "stretch",
     width: 22,
     marginLeft: 5,
     marginRight: 5,
@@ -241,11 +238,11 @@ module.exports = StyleSheet.create({
     height: 50,
     borderTopWidth: 6,
     borderBottomWidth: 1,
-    paddingHorizontal: 25,
+    paddingHorizontal: iPad ? 55 : 25,
     flexDirection: "row"
   },
   textListHeaderScrollView: {
-    flex: 200 //made scrollview flex:200 to push the tripledots all the way to the right. seems to work well
+    alignSelf: "stretch"
   },
   textListHeaderItem: {
     margin: 5,
