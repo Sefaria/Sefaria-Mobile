@@ -50,6 +50,7 @@ var ReaderPanel = React.createClass({
     textListFlex:          React.PropTypes.number,
     onTextListDragStart:   React.PropTypes.func.isRequired,
     onTextListDragMove:    React.PropTypes.func.isRequired,
+    onTextListDragEnd:     React.PropTypes.func.isRequired,
     openLinkCat:           React.PropTypes.func.isRequired,
     closeLinkCat:          React.PropTypes.func.isRequired,
     updateLinkCat:         React.PropTypes.func.isRequired,
@@ -106,7 +107,7 @@ var ReaderPanel = React.createClass({
     }
   },
   setDefaultSettings: function() {
-    // This function is called only after Sefaria.settings.init() has returned and signaled readiness by setting 
+    // This function is called only after Sefaria.settings.init() has returned and signaled readiness by setting
     // the prop `defaultSettingsLoaded: true`. Necessary because ReaderPanel is rendered immediately with `loading:true`
     // so getInitialState() is called before settings have finished init().
     this.setState({
@@ -346,7 +347,8 @@ var ReaderPanel = React.createClass({
                 filterIndex={this.props.filterIndex}
                 recentFilters={this.props.linkRecentFilters}
                 onDragStart={this.props.onTextListDragStart}
-                onDragMove={this.props.onTextListDragMove} />
+                onDragMove={this.props.onTextListDragMove}
+                onDragEnd={this.props.onTextListDragEnd} />
             </View> : null}
 
             {this.state.ReaderDisplayOptionsMenuVisible ?

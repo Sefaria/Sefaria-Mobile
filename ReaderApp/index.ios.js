@@ -70,7 +70,7 @@ var ReaderApp = React.createClass({
             textListFlex: 0.6,
             textListAnimating: false,
             data: null,
-            linksLoaded: [],  // bool arrary corresponding to data indicating if links have been loaded, which occurs async with API 
+            linksLoaded: [],  // bool arrary corresponding to data indicating if links have been loaded, which occurs async with API
             interfaceLang: "english", // TODO check device settings for Hebrew: ### import {NativeModules} from 'react-native'; console.log(NativeModules.SettingsManager.settings.AppleLocale);
             filterIndex: null, /* index of filters in recentFilters */
             linkSummary: [],
@@ -531,7 +531,15 @@ var ReaderApp = React.createClass({
 
       let headerHeight = 75;
       let flex = 1.0 - (evt.nativeEvent.pageY-headerHeight)/(ViewPort.height-headerHeight) + this._textListDragOffset;
-
+      if (flex > 0.999) {
+        flex = 0.999;
+      } else if (flex < 0.001) {
+        flex = 0.001;
+      }
+      //console.log("moving!",evt.nativeEvent.pageY,ViewPort.height,flex);
+      this.setState({textListFlex:flex});
+    },
+    onTextListDragEnd: function(evt) {
       var onTextListAnimate = function(animVal,value) {
         //console.log("updating animation");
         this.setState({textListFlex:value.value});
@@ -543,6 +551,8 @@ var ReaderApp = React.createClass({
           this.setState(tempState);
         }
       };
+      let headerHeight = 75;
+      let flex = 1.0 - (evt.nativeEvent.pageY-headerHeight)/(ViewPort.height-headerHeight) + this._textListDragOffset;
 
       if (flex > 0.9 || flex < 0.2) {
         this.setState({textListAnimating:true});
@@ -555,8 +565,6 @@ var ReaderApp = React.createClass({
         //console.log("STOPPP");
         return;
       }
-      //console.log("moving!",evt.nativeEvent.pageY,ViewPort.height,flex);
-      this.setState({textListFlex:flex});
     },
     showNoInternetAlert: function() {
       AlertIOS.alert(
@@ -663,6 +671,7 @@ var ReaderApp = React.createClass({
                     textListFlex={this.state.textListFlex}
                     onTextListDragStart={this.onTextListDragStart}
                     onTextListDragMove={this.onTextListDragMove}
+                    onTextListDragEnd={this.onTextListDragEnd}
                     loading={!this.state.loaded}
                     defaultSettingsLoaded={this.state.defaultSettingsLoaded}
                     openLinkCat={this.openLinkCat}

@@ -32,9 +32,10 @@ var TextList = React.createClass({
     segmentIndexRef: React.PropTypes.number,
     filterIndex:     React.PropTypes.number,
     recentFilters:   React.PropTypes.array, /* of the form [{title,heTitle,refList}...] */
-    textLanguage:  React.PropTypes.oneOf(["english","hebrew","bilingual"]),
+    textLanguage:    React.PropTypes.oneOf(["english","hebrew","bilingual"]),
     onDragStart:     React.PropTypes.func.isRequired,
-    onDragMove:      React.PropTypes.func.isRequired
+    onDragMove:      React.PropTypes.func.isRequired,
+    onDragEnd:       React.PropTypes.func.isRequired
   },
   getInitialState: function() {
     Sefaria = this.props.Sefaria; //Is this bad practice to use getInitialState() as an init function
@@ -124,7 +125,8 @@ var TextList = React.createClass({
     var textListHeader = (
       <View
         onStartShouldSetResponder={(evt)=>this.props.onDragStart(evt)}
-        onResponderMove={(evt)=>this.props.onDragMove(evt)}>
+        onResponderMove={(evt)=>this.props.onDragMove(evt)}
+        onResponderRelease={(evt)=>this.props.onDragEnd(evt)}>
 
         <TextListHeader
           Sefaria={Sefaria}
