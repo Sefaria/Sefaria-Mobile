@@ -13,6 +13,7 @@
 		00C302E91ABCBA2D00DB3ED1 /* libRCTNetwork.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 00C302DC1ABCB9D200DB3ED1 /* libRCTNetwork.a */; };
 		00C302EA1ABCBA2D00DB3ED1 /* libRCTVibration.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 00C302E41ABCB9EE00DB3ED1 /* libRCTVibration.a */; };
 		00E356F31AD99517003FC87E /* ReaderAppTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E356F21AD99517003FC87E /* ReaderAppTests.m */; };
+		0717F1601DF46345003F96EC /* libReactNativeLocalization.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0717F15D1DF462FD003F96EC /* libReactNativeLocalization.a */; };
 		07C9F1571DCA1C83004F7EF2 /* libRCTGoogleAnalyticsBridge.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 07C9F14C1DCA18B8004F7EF2 /* libRCTGoogleAnalyticsBridge.a */; };
 		07C9F1591DCA1CB7004F7EF2 /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 07C9F1581DCA1CB7004F7EF2 /* CoreData.framework */; };
 		07C9F15B1DCA1CC4004F7EF2 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 07C9F15A1DCA1CC4004F7EF2 /* SystemConfiguration.framework */; };
@@ -84,6 +85,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = 13B07F861A680F5B00A75B9A;
 			remoteInfo = ReaderApp;
+		};
+		0717F15C1DF462FD003F96EC /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0717F1441DF462FD003F96EC /* ReactNativeLocalization.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 7B5D9D0A1B6AD0EA00CF3A83;
+			remoteInfo = ReactNativeLocalization;
 		};
 		07C9F14B1DCA18B8004F7EF2 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -216,6 +224,7 @@
 		00E356EE1AD99517003FC87E /* ReaderAppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ReaderAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		00E356F11AD99517003FC87E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		00E356F21AD99517003FC87E /* ReaderAppTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ReaderAppTests.m; sourceTree = "<group>"; };
+		0717F1441DF462FD003F96EC /* ReactNativeLocalization.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = ReactNativeLocalization.xcodeproj; path = "../node_modules/react-native-localization/ReactNativeLocalization.xcodeproj"; sourceTree = "<group>"; };
 		07C9F1451DCA18B8004F7EF2 /* RCTGoogleAnalyticsBridge.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTGoogleAnalyticsBridge.xcodeproj; path = "../node_modules/react-native-google-analytics-bridge/ios/RCTGoogleAnalyticsBridge/RCTGoogleAnalyticsBridge.xcodeproj"; sourceTree = "<group>"; };
 		07C9F1581DCA1CB7004F7EF2 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
 		07C9F15A1DCA1CC4004F7EF2 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
@@ -260,6 +269,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0717F1601DF46345003F96EC /* libReactNativeLocalization.a in Frameworks */,
 				A106F3A21DEFE49300497F98 /* libRCTAnimation.a in Frameworks */,
 				07C9F15F1DCA1D53004F7EF2 /* AdSupport.framework in Frameworks */,
 				07C9F15D1DCA1CDE004F7EF2 /* libsqlite3.0.tbd in Frameworks */,
@@ -344,6 +354,14 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
+		0717F1451DF462FD003F96EC /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				0717F15D1DF462FD003F96EC /* libReactNativeLocalization.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		07C9F1461DCA18B8004F7EF2 /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -406,6 +424,7 @@
 		832341AE1AAA6A7D00B99B32 /* Libraries */ = {
 			isa = PBXGroup;
 			children = (
+				0717F1441DF462FD003F96EC /* ReactNativeLocalization.xcodeproj */,
 				A106F3851DEFE45E00497F98 /* RCTAnimation.xcodeproj */,
 				07C9F1451DCA18B8004F7EF2 /* RCTGoogleAnalyticsBridge.xcodeproj */,
 				A1C6781A1DB7FD4600392A83 /* RNFS.xcodeproj */,
@@ -623,6 +642,10 @@
 					ProjectRef = 146833FF1AC3E56700842450 /* React.xcodeproj */;
 				},
 				{
+					ProductGroup = 0717F1451DF462FD003F96EC /* Products */;
+					ProjectRef = 0717F1441DF462FD003F96EC /* ReactNativeLocalization.xcodeproj */;
+				},
+				{
 					ProductGroup = A1C6781B1DB7FD4600392A83 /* Products */;
 					ProjectRef = A1C6781A1DB7FD4600392A83 /* RNFS.xcodeproj */;
 				},
@@ -673,6 +696,13 @@
 			fileType = archive.ar;
 			path = libRCTVibration.a;
 			remoteRef = 00C302E31ABCB9EE00DB3ED1 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		0717F15D1DF462FD003F96EC /* libReactNativeLocalization.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libReactNativeLocalization.a;
+			remoteRef = 0717F15C1DF462FD003F96EC /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 		07C9F14C1DCA18B8004F7EF2 /* libRCTGoogleAnalyticsBridge.a */ = {

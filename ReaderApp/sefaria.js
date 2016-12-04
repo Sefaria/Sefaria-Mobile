@@ -6,7 +6,7 @@ const LinkContent  = require('./LinkContent');
 const iPad = require('./isIPad');
 import { GoogleAnalyticsTracker } from 'react-native-google-analytics-bridge'; //https://github.com/idehub/react-native-google-analytics-bridge/blob/master/README.md
 import { AsyncStorage, AlertIOS } from 'react-native';
-
+import LocalizedStrings from 'react-native-localization';
 
 
 Sefaria = {
@@ -122,7 +122,7 @@ Sefaria = {
                         "result": new LinkContent(en_text, he_text, data.sectionRef)
                       });
                     })
-                    .catch(() => { 
+                    .catch(() => {
                       //console.error("Error with API loading link text: ", Sefaria.api._toURL(ref,false,'text',false));
                     });
                 } else {
@@ -349,8 +349,8 @@ Sefaria = {
   },
   _fixTalmudAltStructAddressTypes: function(textToc) {
     // This is a bandaid on what may or may not be bad data. For Talmud alt struct "Chapter", we want to display
-    // sections with Talmud address type, but the data current lists them as Integer. 
-    if (textToc.categories.length == 3 && 
+    // sections with Talmud address type, but the data current lists them as Integer.
+    if (textToc.categories.length == 3 &&
         textToc.categories[0] == "Talmud" &&
         textToc.categories[1] == "Bavli") {
 
@@ -996,7 +996,7 @@ Sefaria.util = {
     return index;
   },
   getTextLanguageWithContent: function(lang, en, he) {
-    // Returns a language that has content in it give strings `en` and `he`, with a preference for `lang`. 
+    // Returns a language that has content in it give strings `en` and `he`, with a preference for `lang`.
     let newLang = lang;
 
     if (newLang == "bilingual") {

@@ -12,6 +12,7 @@
     "react-native-fs": "^1.2.0",
     "react-native-google-analytics-bridge": "^4.0.0",
     "react-native-htmlview": "^0.5.0",
+    "react-native-localization": "^0.1.22",
     "react-native-zip-archive": "0.0.6"
   }
 }
