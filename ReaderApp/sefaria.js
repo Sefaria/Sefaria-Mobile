@@ -6,7 +6,7 @@ const LinkContent  = require('./LinkContent');
 const iPad = require('./isIPad');
 import { GoogleAnalyticsTracker } from 'react-native-google-analytics-bridge'; //https://github.com/idehub/react-native-google-analytics-bridge/blob/master/README.md
 import { AsyncStorage, AlertIOS } from 'react-native';
-import LocalizedStrings from 'react-native-localization';
+
 
 
 Sefaria = {

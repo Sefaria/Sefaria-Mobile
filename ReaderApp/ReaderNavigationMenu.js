@@ -18,6 +18,7 @@ var {
 var SearchBar = require('./SearchBar');
 var ReaderNavigationCategoryMenu = require('./ReaderNavigationCategoryMenu');
 var styles = require('./Styles.js');
+var strings = require('./LocalizedStrings.js');
 
 
 var ReaderNavigationMenu = React.createClass({
@@ -197,7 +198,7 @@ var RecentSection = React.createClass({
 
     return (<ReaderNavigationMenuSection
               theme={this.props.theme}
-              title="RECENT"
+              title={strings.recent}
               heTitle="נצפו לאחרונה"
               content={<TwoBox content={recent} language={this.props.language}/>}
               interfaceLang={this.props.interfaceLang} />);
