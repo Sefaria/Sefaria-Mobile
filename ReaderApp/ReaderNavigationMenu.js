@@ -133,7 +133,7 @@ var ReaderNavigationMenu = React.createClass({
 
                 <ReaderNavigationMenuSection
                   theme={this.props.theme}
-                  title="BROWSE"
+                  title={strings.browse}
                   heTitle="טקסטים"
                   content={categories}
                   interfaceLang={this.props.interfaceLang} />
@@ -147,26 +147,26 @@ var ReaderNavigationMenu = React.createClass({
 
                 <View style={styles.navBottomLinks}>
                   <TouchableOpacity style={[styles.navBottomLink]} onPress={this.props.openSettings}>
-                    <Text style={[this.props.theme.tertiaryText]}>Settings</Text>
+                    <Text style={[this.props.theme.tertiaryText]}>{strings.settings}</Text>
                   </TouchableOpacity>
 
                   <Text style={[styles.navBottomLink, this.props.theme.tertiaryText]}>•</Text>
 
                   <TouchableOpacity style={[styles.navBottomLink]} onPress={() => {Linking.openURL("http://www.sefaria.org/about");}}>
-                    <Text style={[this.props.theme.tertiaryText]}>About</Text>
+                    <Text style={[this.props.theme.tertiaryText]}>{strings.about}</Text>
                   </TouchableOpacity>
 
                   <Text style={[styles.navBottomLink, this.props.theme.tertiaryText]}>•</Text>
 
                   <TouchableOpacity style={[styles.navBottomLink]} onPress={() => {Linking.openURL("mailto:ios@sefaria.org");}}>
-                    <Text style={[this.props.theme.tertiaryText]}>Feedback</Text>
+                    <Text style={[this.props.theme.tertiaryText]}>{strings.feedback}</Text>
                   </TouchableOpacity>
 
                 </View>
 
 
                 <Text style={[styles.dedication, this.props.theme.secondaryText]}>
-                  Dedicated in honor of Henry Koschitzky by his children
+                  {strings.dedicated}
                 </Text>
 
               </ScrollView>
@@ -249,7 +249,7 @@ var CalendarSection = React.createClass({
 
     return (<ReaderNavigationMenuSection
               theme={this.props.theme}
-              title="CALENDAR"
+              title={strings.calendar}
               heTitle="לוח יומי"
               content={<TwoBox content={calendar} language={this.props.language}/>}
               interfaceLang={this.props.interfaceLang} />);
