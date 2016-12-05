@@ -131,6 +131,7 @@ var TextList = React.createClass({
         <TextListHeader
           Sefaria={Sefaria}
           theme={this.props.theme}
+          themeStr={this.props.themeStr}
           updateCat={this.props.updateCat}
           closeCat={this.props.closeCat}
           category={isSummaryMode ? null : this.props.recentFilters[this.props.filterIndex].category}

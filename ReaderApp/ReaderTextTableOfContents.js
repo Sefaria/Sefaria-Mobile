@@ -26,6 +26,7 @@ var ReaderTextTableOfContents = React.createClass({
   // The Table of Contents for a single Text
   propTypes: {
     theme:          React.PropTypes.object.isRequired,
+    themeStr:       React.PropTypes.string.isRequired,
     title:          React.PropTypes.string.isRequired,
     currentRef:     React.PropTypes.string.isRequired,
     currentHeRef:   React.PropTypes.string.isRequired,
@@ -82,7 +83,7 @@ var ReaderTextTableOfContents = React.createClass({
       <View style={[styles.menu,this.props.theme.menu]}>
         <CategoryColorLine category={Sefaria.categoryForTitle(this.props.title)} />
         <View style={[styles.header, this.props.theme.header]}>
-          <CloseButton onPress={this.props.close} theme={this.props.theme} />
+          <CloseButton onPress={this.props.close} theme={this.props.theme} themeStr={this.props.themeStr} />
           <Text style={[styles.textTocHeaderTitle, styles.textCenter, this.props.theme.text]}>TABLE OF CONTENTS</Text>
                             <LanguageToggleButton theme={this.props.theme} toggleLanguage={this.props.toggleLanguage} language={this.props.contentLang} />
         </View>

@@ -230,6 +230,7 @@ var ReaderPanel = React.createClass({
         return (
           <ReaderTextTableOfContents
             theme={this.props.theme}
+            themeStr={this.props.themeStr}
             title={this.props.textTitle}
             currentRef={this.props.textReference}
             currentHeRef={this.props.heRef}
@@ -263,6 +264,7 @@ var ReaderPanel = React.createClass({
           <SettingsPage
             close={this.props.openNav}
             theme={this.props.theme}
+            themeStr={this.props.themeStr}
             toggleMenuLanguage={this.toggleMenuLanguage}
             Sefaria={Sefaria} />);
         break;
@@ -276,6 +278,7 @@ var ReaderPanel = React.createClass({
             title={this.state.textLanguage == "hebrew" ? this.props.heRef : this.props.textReference}
             language={this.state.textLanguage}
             openNav={this.props.openNav}
+            themeStr={this.props.themeStr}
             goBack={this.props.goBack}
             openTextToc={this.props.openTextToc}
             backStack={this.props.backStack}
@@ -333,6 +336,7 @@ var ReaderPanel = React.createClass({
                 Sefaria={Sefaria}
                 settings={this.state.settings}
                 theme={this.props.theme}
+                themeStr={this.props.themeStr}
                 segmentIndexRef={this.props.segmentIndexRef}
                 textFlow={this.state.textFlow}
                 textLanguage={this.state.textLanguage}
@@ -376,6 +380,7 @@ var ReaderControls = React.createClass({
     openNav:                         React.PropTypes.func,
     openTextToc:                     React.PropTypes.func,
     goBack:                          React.PropTypes.func,
+    themeStr:                        React.PropTypes.oneOf(["white", "black"]),
     toggleReaderDisplayOptionsMenu:  React.PropTypes.func,
     backStack:                       React.PropTypes.array,
   },
@@ -383,26 +388,26 @@ var ReaderControls = React.createClass({
     var langStyle = this.props.language === "hebrew" ? [styles.he, {marginTop: 5}] : [styles.en];
     var titleTextStyle = [langStyle, styles.headerTextTitleText, this.props.theme.text];
     if (this.props.backStack.length == 0) {
-      var leftMenuButton = <MenuButton onPress={this.props.openNav} theme={this.props.theme}/>
+      var leftMenuButton = <MenuButton onPress={this.props.openNav} theme={this.props.theme} themeStr={this.props.themeStr}/>
     }
     else {
-      var leftMenuButton = <GoBackButton onPress={this.props.goBack} theme={this.props.theme}/>
+      var leftMenuButton = <GoBackButton onPress={this.props.goBack} theme={this.props.theme} themeStr={this.props.themeStr}/>
     }
     return (
         <View style={[styles.header, this.props.theme.header]}>
           {leftMenuButton}
           <TouchableOpacity style={styles.headerTextTitle} onPress={this.props.openTextToc}>
-            <Image source={require('./img/caret.png')}
+            <Image source={this.props.themeStr == "white" ? require('./img/caret.png'): require('./img/caret-light.png') }
                      style={[styles.downCaret, this.props.language === "hebrew" ? null: {opacity: 0}]}
                      resizeMode={Image.resizeMode.contain} />
             <Text style={titleTextStyle} numberOfLines={1} ellipsizeMode={"tail"}>
               {this.props.title}
             </Text>
-            <Image source={require('./img/caret.png')}
+            <Image source={this.props.themeStr == "white" ? require('./img/caret.png'): require('./img/caret-light.png') }
                      style={[styles.downCaret, this.props.language === "hebrew" ? {opacity: 0} : null]}
                      resizeMode={Image.resizeMode.contain} />
           </TouchableOpacity>
-          <DisplaySettingsButton onPress={this.props.toggleReaderDisplayOptionsMenu} />
+          <DisplaySettingsButton onPress={this.props.toggleReaderDisplayOptionsMenu} themeStr={this.props.themeStr}/>
         </View>
     );
   }

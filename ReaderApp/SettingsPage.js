@@ -79,7 +79,7 @@ var SettingsPage = React.createClass({
     return (<View style={[styles.menu, this.props.theme.menu]}>
               <CategoryColorLine category={"Other"} />
               <View style={[styles.header, this.props.theme.header]}>
-                <CloseButton onPress={this.props.close} theme={this.props.theme}/>
+                <CloseButton onPress={this.props.close} theme={this.props.theme} themeStr={this.props.themeStr}/>
                 <Text style={[styles.settingsHeader, this.props.theme.text]}>SETTINGS</Text>
               </View>
 

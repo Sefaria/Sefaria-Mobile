@@ -46,8 +46,8 @@ var SearchBar = React.createClass({
     var placeholderTextColor = this.props.themeStr == "black" ? "#BBB" : "#777";
     return (
       <View style={[styles.header, this.props.theme.header]}>
-        <CloseButton onPress={this.props.closeNav} theme={this.props.theme}/>
-        <SearchButton onPress={this.submitSearch} theme={this.props.theme}/>
+        <CloseButton onPress={this.props.closeNav} theme={this.props.theme} themeStr={this.props.themeStr} />
+        <SearchButton onPress={this.submitSearch} theme={this.props.theme} themeStr={this.props.themeStr} />
         <TextInput
           style={textInputStyle}
           onChangeText={(text) => this.setState({text})}
@@ -59,7 +59,9 @@ var SearchBar = React.createClass({
           <LanguageToggleButton
             theme={this.props.theme}
             toggleLanguage={this.props.toggleLanguage}
-            language={this.props.language} />
+            language={this.props.language}
+            themeStr={this.props.themeStr}
+          />
            : null}
       </View>
     );

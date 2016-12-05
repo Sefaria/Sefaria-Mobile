@@ -11,13 +11,19 @@ import {
 
 
 
-var styles          = require('./Styles.js');
-var a_aleph_icon    = require('./img/a_aleph.png');
-var a_icon          = require('./img/a_icon.png');
-var a_icon_small    = require('./img/a_icon_small.png');
-var aleph_icon      = require('./img/aleph.png');
-var segmented_icon  = require('./img/breaks.png');
-var continuous_icon = require('./img/continuous.png');
+var styles                = require('./Styles.js');
+var a_aleph_icon          = require('./img/a_aleph.png');
+var a_icon                = require('./img/a_icon.png');
+var a_icon_small          = require('./img/a_icon_small.png');
+var aleph_icon            = require('./img/aleph.png');
+var segmented_icon        = require('./img/breaks.png');
+var continuous_icon       = require('./img/continuous.png');
+var a_aleph_icon_light    = require('./img/a_aleph-light.png');
+var a_icon_light          = require('./img/a_icon-light.png');
+var a_icon_small_light    = require('./img/a_icon_small-light.png');
+var aleph_icon_light      = require('./img/aleph-light.png');
+var segmented_icon_light  = require('./img/breaks-light.png');
+var continuous_icon_light = require('./img/continuous-light.png');
 
 var ReaderDisplayOptionsMenu = React.createClass({
   propTypes: {
@@ -37,7 +43,7 @@ var ReaderDisplayOptionsMenu = React.createClass({
       {
         onPress:this.props.setTextLanguage,
         buttons:["english","bilingual","hebrew"],
-        icons:[a_icon,a_aleph_icon,aleph_icon],
+        icons: this.props.themeStr == "white" ? [a_icon,a_aleph_icon,aleph_icon]: [a_icon_light,a_aleph_icon_light,aleph_icon_light],
         currVal: this.props.textLanguage,
         parametrized: true
       },
@@ -54,7 +60,7 @@ var ReaderDisplayOptionsMenu = React.createClass({
       {
         onPress:this.props.incrementFont,
         buttons:["smaller","larger"],
-        icons:[a_icon_small,a_icon],
+        icons:this.props.themeStr == "white" ? [a_icon_small,a_icon]: [a_icon_small_light,a_icon_light],
         currVal: null,
         parametrized: true
       }
@@ -64,7 +70,7 @@ var ReaderDisplayOptionsMenu = React.createClass({
     {
       onPress:this.props.setTextFlow,
       buttons:["segmented","continuous"],
-      icons:[segmented_icon,continuous_icon],
+      icons: this.props.themeStr == "white" ? [segmented_icon,continuous_icon]: [segmented_icon_light,continuous_icon_light],
       currVal: this.props.textFlow,
       parametrized: true
     };
