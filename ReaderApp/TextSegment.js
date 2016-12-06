@@ -49,7 +49,9 @@ var TextSegment = React.createClass({
         suppressHighlighting={false}
         onPress={ () => this.onPressTextSegment(this.props.segmentKey) }
         key={this.props.segmentKey}
-        onLayout={this.onLayout} >
+        onLayout={this.onLayout}
+        selectable={true}
+      >
 
           <HTMLView value={
             this.props.textType == "english" ?

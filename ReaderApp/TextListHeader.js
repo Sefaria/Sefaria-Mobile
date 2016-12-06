@@ -56,7 +56,7 @@ var TextListHeader = React.createClass({
       return (
   			<View style={[styles.textListHeader, this.props.theme.textListHeader, style]}>
   				<ScrollView style={styles.textListHeaderScrollView} horizontal={true}>{viewList}</ScrollView>
-  				<TripleDots onPress={this.props.closeCat}/>
+  				<TripleDots onPress={this.props.closeCat} themeStr={this.props.themeStr}/>
   			 </View>
   			);
     }

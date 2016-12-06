@@ -69,7 +69,8 @@ var LanguageToggleButton = React.createClass({
 var SearchButton = React.createClass({
   render: function() {
     return (<TouchableOpacity style={[styles.headerButton, styles.headerButtonSearch]} onPress={this.props.onPress}>
-              <Image source={require('./img/search.png')}
+                <Image source={this.props.themeStr == "white" ? require('./img/search.png'): require('./img/search-light.png') }
+
                      style={styles.searchButton}
                      resizeMode={Image.resizeMode.contain} />
               </TouchableOpacity>);
@@ -80,7 +81,7 @@ var SearchButton = React.createClass({
 var MenuButton = React.createClass({
   render: function() {
     return (<TouchableOpacity style={[styles.headerButton, styles.leftHeaderButton]} onPress={this.props.onPress}>
-              <Image source={require('./img/menu.png')}
+              <Image source={this.props.themeStr == "white" ? require('./img/menu.png'): require('./img/menu-light.png') }
                      style={styles.menuButton}
                      resizeMode={Image.resizeMode.contain} />
             </TouchableOpacity>);
@@ -90,7 +91,7 @@ var MenuButton = React.createClass({
 var GoBackButton = React.createClass({
   render: function() {
     return (<TouchableOpacity style={[styles.headerButton, styles.leftHeaderButton]} onPress={this.props.onPress}>
-              <Image source={require('./img/back.png')}
+              <Image source={this.props.themeStr == "white" ? require('./img/back.png'): require('./img/back-light.png') }
                      style={styles.menuButton}
                      resizeMode={Image.resizeMode.contain} />
             </TouchableOpacity>);
@@ -101,7 +102,7 @@ var GoBackButton = React.createClass({
 var CloseButton = React.createClass({
   render: function() {
     return (<TouchableOpacity style={[styles.headerButton, styles.leftHeaderButton]} onPress={this.props.onPress}>
-              <Image source={require('./img/close.png')}
+              <Image source={this.props.themeStr == "white" ? require('./img/close.png'): require('./img/close-light.png') }
                  style={styles.closeButton}
                  resizeMode={Image.resizeMode.contain} />
             </TouchableOpacity>);
@@ -111,7 +112,7 @@ var CloseButton = React.createClass({
 var TripleDots = React.createClass({
   render: function() {
     return (<TouchableOpacity style={styles.tripleDotsContainer} onPress={this.props.onPress}>
-              <Image style={styles.tripleDots} source={require('./img/dots.png')} />
+              <Image style={styles.tripleDots} source={this.props.themeStr == "white" ? require('./img/dots.png'): require('./img/dots-light.png') } />
             </TouchableOpacity>);
   }
 });
@@ -120,7 +121,7 @@ var TripleDots = React.createClass({
 var DisplaySettingsButton = React.createClass({
   render: function() {
     return (<TouchableOpacity style={[styles.headerButton]} onPress={this.props.onPress}>
-              <Image source={require('./img/a-aleph.png')}
+              <Image source={this.props.themeStr == "white" ? require('./img/a-aleph.png'): require('./img/a-aleph-light.png') }
                      style={styles.displaySettingsButton}
                      resizeMode={Image.resizeMode.contain} />
             </TouchableOpacity>);

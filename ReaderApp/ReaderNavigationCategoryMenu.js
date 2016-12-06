@@ -26,6 +26,7 @@ var ReaderNavigationCategoryMenu = React.createClass({
   // Navigation Menu for a single category of texts (e.g., "Tanakh", "Bavli")
   propTypes: {
     theme:          React.PropTypes.object.isRequired,
+    themeStr:       React.PropTypes.string.isRequired,
     category:       React.PropTypes.string.isRequired,
     categories:     React.PropTypes.array.isRequired,
     closeNav:       React.PropTypes.func.isRequired,
@@ -81,7 +82,7 @@ var ReaderNavigationCategoryMenu = React.createClass({
               <CategoryColorLine category={this.props.category} />
               <View style={[styles.header, this.props.theme.header]}>
                 <CategoryColorLine category={categories[0]} />
-                <MenuButton onPress={this.props.navHome} theme={this.props.theme}/>
+                <MenuButton onPress={this.props.navHome} theme={this.props.theme} themeStr={this.props.themeStr}/>
                 {showHebrew ?
                   <Text style={[styles.he, styles.categoryTitle, this.props.theme.categoryTitle]}>{heTitle}</Text> :
                   <Text style={[styles.en, styles.categoryTitle, this.props.theme.categoryTitle]}>{enTitle}</Text> }

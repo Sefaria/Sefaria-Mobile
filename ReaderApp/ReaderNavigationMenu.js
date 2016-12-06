@@ -59,6 +59,7 @@ var ReaderNavigationMenu = React.createClass({
       // List of Text in a Category
       return (<ReaderNavigationCategoryMenu
                 theme={this.props.theme}
+                themeStr={this.props.themeStr}
                 categories={this.props.categories}
                 category={this.props.categories.slice(-1)[0]}
                 settings={this.props.settings}
