@@ -5,7 +5,8 @@ import {
   ScrollView,
   ListView,
   Text,
-  TouchableOpacity
+  TouchableOpacity,
+  Dimensions
 } from 'react-native';
 const HTMLView       = require('react-native-htmlview');
 const styles         = require('./Styles');
@@ -62,7 +63,7 @@ var TextList = React.createClass({
     if (linkContentObj == null) {
       loading = true;
       this.props.loadLinkContent(ref, rowId);
-      linkContentObj = {en: strings.loading, he: strings.loading, sectionRef: ""};
+      linkContentObj = {en: "Loading...", he: "טוען...", sectionRef: ""};
     }
 
     return (<LinkContent
@@ -154,15 +155,21 @@ var TextList = React.createClass({
         </View>);
 
     } else if (!this.state.isNewSegment) {
+      // Using Dimension to adjust marings on text at maximum line width because I can't figure out
+      // how to get flex to center a component with maximum width without allows breaking the stretch 
+      // behavior of its contents, result in rows in the list view with small width if their content is small.
+      const {height, width} = Dimensions.get('window');
+      var marginAdjust = width > 800 ? (width-800)/2 : 0
+      var listViewStyles = [styles.textListContentListView, {marginLeft: marginAdjust}];
       return (
       <View style={[styles.textListContentOuter, this.props.theme.textListContentOuter]}>
         {textListHeader}
         {this.props.linkContents.length == 0 ?
           <View style={styles.noLinks}><EmptyLinksMessage theme={this.props.theme} /></View> :
-          <ListView style={styles.textListContentListView}
+          <ListView style={listViewStyles}
             dataSource={dataSourceRows}
             renderRow={this.renderRow}
-            /*scrollRenderAheadDistance={500}*/ />
+            contentContainerStyle={{justifyContent: "center"}} />
         }
       </View>
       );
@@ -239,8 +246,8 @@ var LinkContent = React.createClass({
     var lang = Sefaria.util.getTextLanguageWithContent(this.props.textLanguage,lco.en,lco.he);
     var textViews = [];
 
-    var hebrewElem =  <Text style={[styles.hebrewText, this.props.theme.text, {fontSize:this.props.settings.fontSize}]} key={this.props.refStr+"-he"}><HTMLView stylesheet={styles} value={lco.he}/></Text>;
-    var englishElem = <Text style={[styles.englishText, this.props.theme.text, {fontSize:0.8*this.props.settings.fontSize}]} key={this.props.refStr+"-en"}><HTMLView stylesheet={styles} value={"&#x200E;"+lco.en}/></Text>;
+    var hebrewElem =  <Text style={[styles.linkContentText, styles.hebrewText, this.props.theme.text, {fontSize:this.props.settings.fontSize}]} key={this.props.refStr+"-he"}><HTMLView stylesheet={styles} value={lco.he}/></Text>;
+    var englishElem = <Text style={[styles.linkContentText, styles.englishText, this.props.theme.text, {fontSize:0.8*this.props.settings.fontSize}]} key={this.props.refStr+"-en"}><HTMLView stylesheet={styles} value={"&#x200E;"+lco.en}/></Text>;
     if (lang == "bilingual") {
       textViews = [hebrewElem, englishElem];
     } else if (lang == "hebrew") {

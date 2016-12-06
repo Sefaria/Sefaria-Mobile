@@ -202,6 +202,8 @@ module.exports = StyleSheet.create({
     alignItems: 'flex-start',
   },
   searchTextResult: {
+    flex: 1,
+    maxWidth: 800,
     marginHorizontal: iPad ? 60 : 30,
     marginTop: 20,
     paddingBottom: 20,
@@ -228,18 +230,19 @@ module.exports = StyleSheet.create({
   },
   textListContentOuter: {
     flex: 1,
-    flexDirection: "column"
+    flexDirection: "column",
   },
   textListContentListView: {
     flex: 1,
-    flexDirection: "column"
+    flexDirection: "column",
   },
   textListHeader: {
     height: 50,
+    alignSelf: "stretch",
     borderTopWidth: 6,
     borderBottomWidth: 1,
     paddingHorizontal: iPad ? 55 : 25,
-    flexDirection: "row"
+    flexDirection: "row",
   },
   textListHeaderScrollView: {
     alignSelf: "stretch"
@@ -254,6 +257,10 @@ module.exports = StyleSheet.create({
   },
   textListCitation: {
     marginBottom: 4,
+  },
+  linkContentText: {
+    flex: 1,
+    alignItems: "stretch"
   },
   noLinks: {
     flex:1,
@@ -441,6 +448,7 @@ module.exports = StyleSheet.create({
     marginHorizontal: 30,
   },
   textColumn: {
+    maxWidth: 800,
     flexDirection: "row",
     alignItems: 'stretch'
   },

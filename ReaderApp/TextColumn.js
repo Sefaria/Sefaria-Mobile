@@ -803,7 +803,7 @@ var TextColumn = React.createClass({
     //ref={this.props.textReference+"_"+this.props.data[this.state.sectionArray.indexOf(sID)][this.props.segmentRef].segmentNumber}
 
     return (
-    <View style={styles.textColumn}>
+    <View style={styles.textColumn} >
       <ListView ref='_listView'
                 dataSource={this.state.dataSource}
                 renderRow={this.renderRow}

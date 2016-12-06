@@ -319,8 +319,7 @@ var ReaderPanel = React.createClass({
               linksLoaded={this.props.linksLoaded}
               loadingTextTail={this.props.loadingTextTail}
               loadingTextHead={this.props.loadingTextHead}
-              setTextLanguage={this.setTextLanguage}
-              style={styles.textColumn} />
+              setTextLanguage={this.setTextLanguage} />
           </View> }
 
           {this.props.textListVisible && !this.props.loading ?
