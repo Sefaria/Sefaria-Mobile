@@ -139,7 +139,6 @@ var ReaderApp = React.createClass({
         }
         this.setState(stateObj);
         this.forceUpdate();
-        this.forceUpdate();
     },
     loadNewText: function(ref) {
         this.setState({
