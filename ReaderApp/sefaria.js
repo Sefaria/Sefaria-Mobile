@@ -14,6 +14,7 @@ Sefaria = {
     return Promise.all([
       Sefaria._loadTOC(),
       Sefaria._loadRecentItems(),
+      Sefaria._loadCalendar(),
       Sefaria.downloader.init(),
       Sefaria.settings.init(),
     ]);
@@ -361,11 +362,13 @@ Sefaria = {
     return textToc;
   },
   calendar: null,
-  loadCalendar: function(callback) {
-    var calendarPath = (RNFS.MainBundlePath + "/sources/calendar.json");
-    Sefaria._loadJSON(calendarPath).then(function(data) {
-      Sefaria.calendar = data;
-      callback();
+  _loadCalendar: function() {
+    return new Promise(function(resolve, reject) {
+      var calendarPath = (RNFS.MainBundlePath + "/sources/calendar.json");
+      Sefaria._loadJSON(calendarPath).then(function(data) {
+        Sefaria.calendar = data;
+        resolve();
+      });
     });
   },
   parashah: function() {
