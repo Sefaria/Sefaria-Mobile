@@ -36,7 +36,7 @@ module.exports = StyleSheet.create({
     backgroundColor: Colors.textBackground,
   },
   readerDisplayOptionsMenuItemSelected: {
-    backgroundColor: Colors.mainForegroundContrast
+    backgroundColor: "#444"
   },
   readerDisplayOptionsMenuColor: {
     borderColor: "#AAA"
