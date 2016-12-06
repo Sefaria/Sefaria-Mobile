@@ -220,7 +220,7 @@ var CalendarSection = React.createClass({
   render: function() {
     if (!Sefaria.calendar) {
       Sefaria._loadCalendar()
-        .then(function() { this.forceUpdate(); }.bind(this));
+        .then(function() { console.log('calendar loaded?') }.bind(this));
       var calendarContent = <TwoBox content={[<Text>{strings.loading}</Text>]} 
                                     language={this.props.language}/>;
     } else {
