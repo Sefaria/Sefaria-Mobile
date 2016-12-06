@@ -96,7 +96,7 @@ var SettingsPage = React.createClass({
                     active={Sefaria.settings.menuLanguage} />
                 </View>
 
-                <View style={styles.settingsSection}>                
+                <View style={styles.settingsSection}>
                   <View>
                     <Text style={[styles.settingsSectionHeader, this.props.theme.tertiaryText]}>{strings.defaultTextLanguage}</Text>
                   </View>

@@ -10,7 +10,7 @@ module.exports = new LocalizedStrings({
     feedback: "Feedback",
     dedicated: "Dedicated in honor of Henry Koschitzky by his children",
     cancel: "Cancel",
-    open: "Open", 
+    open: "Open",
     tryAgain: "Try Again",
     ok: "OK",
     parashah: "Parashah",
@@ -54,7 +54,7 @@ module.exports = new LocalizedStrings({
     howToResumeDownloadMessage: "You can resume the download in the Settings screen.",
     downloadError: "Download Error",
     downloadErrorMessage: "Unfortunately we encountered an error downloading the library.",
-    pause: "Pause",
+    pause: "Pause"
   },
   he: {
     recent: "נצפו לאחרונה",
@@ -65,7 +65,7 @@ module.exports = new LocalizedStrings({
     feedback: "Feedback",
     dedicated: "Dedicated in honor of Henry Koschitzky by his children",
     cancel: "בטל",
-    open: "Open", 
+    open: "Open",
     tryAgain: "Try Again",
     ok: "קבל",
     parashah: "Parasha",
@@ -109,6 +109,6 @@ module.exports = new LocalizedStrings({
     howToResumeDownloadMessage: "You can resume the download in the Settings screen.",
     downloadError: "Download Error",
     downloadErrorMessage: "Unfortunately we encountered an error downloading the library.",
-    pause: "Pause",
+    pause: "Pause"
   }
 });

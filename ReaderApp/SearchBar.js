@@ -17,7 +17,6 @@ var {
 const styles  = require('./Styles');
 const strings = require('./LocalizedStrings');
 
-
 var SearchBar = React.createClass({
   propTypes:{
     theme:           React.PropTypes.object.isRequired,
