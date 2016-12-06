@@ -147,7 +147,7 @@ var Downloader = {
             AsyncStorage.setItem("libraryDownloadPrompted", "true");
             AlertIOS.alert(
               strings.usingOnlineLibrary,
-              strings.usingOnlineLibraryMessage,
+              strings.howToDownloadLibraryMessage,
               [
                 {text: strings.ok},
               ]);
