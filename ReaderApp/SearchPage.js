@@ -6,9 +6,10 @@ import {
 	Text
 } from 'react-native';
 
-var SearchBar        = require('./SearchBar');
-var SearchResultList = require('./SearchResultList');
-var styles           = require('./Styles.js');
+const SearchBar        = require('./SearchBar');
+const SearchResultList = require('./SearchResultList');
+const styles           = require('./Styles');
+const strings          = require('./LocalizedStrings');
 
 var {
   CategoryColorLine,
@@ -36,9 +37,9 @@ var SearchPage = React.createClass({
 	},
 	render: function() {
 		var status = this.props.hasInternet ?
-						this.props.loadingQuery ? "Loading..."
-						: this.numberWithCommas(this.props.numResults) + " Results"
-					: "Connect to the internet to search.";
+						this.props.loadingQuery ? strings.loading
+						: this.numberWithCommas(this.props.numResults) + " " + strings.results
+					: strings.connectToSearchMessage;
 
 		return (
 			<View style={[styles.menu, this.props.theme.menu]}>

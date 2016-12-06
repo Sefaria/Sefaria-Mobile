@@ -18,8 +18,9 @@ var {
   LoadingView
 } = require('./Misc.js');
 
-var styles = require('./Styles.js');
-const iPad = require('./isIPad');
+const styles  = require('./Styles');
+const strings = require('./LocalizedStrings');
+const iPad    = require('./isIPad');
 
 
 var ReaderTextTableOfContents = React.createClass({
@@ -75,7 +76,7 @@ var ReaderTextTableOfContents = React.createClass({
     var heTitle = Sefaria.index(this.props.title).heTitle;
 
     var categories  = Sefaria.index(this.props.title).categories;
-    var enCatString   = categories.join(", ");
+    var enCatString = categories.join(", ");
     var heCatString = categories.map(Sefaria.hebrewCategory).join(", ");
 
     return (
@@ -83,7 +84,7 @@ var ReaderTextTableOfContents = React.createClass({
         <CategoryColorLine category={Sefaria.categoryForTitle(this.props.title)} />
         <View style={[styles.header, this.props.theme.header]}>
           <CloseButton onPress={this.props.close} theme={this.props.theme} />
-          <Text style={[styles.textTocHeaderTitle, styles.textCenter, this.props.theme.text]}>TABLE OF CONTENTS</Text>
+          <Text style={[styles.textTocHeaderTitle, styles.textCenter, this.props.theme.text]}>{strings.tableOfContents}</Text>
                             <LanguageToggleButton theme={this.props.theme} toggleLanguage={this.props.toggleLanguage} language={this.props.contentLang} />
         </View>
 

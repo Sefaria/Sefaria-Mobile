@@ -7,8 +7,9 @@ import {
   Text,
   TouchableOpacity
 } from 'react-native';
-const styles         = require('./Styles.js');
 const HTMLView       = require('react-native-htmlview');
+const styles         = require('./Styles');
+const strings        = require('./LocalizedStrings');
 const TextListHeader = require('./TextListHeader');
 const LinkFilter     = require('./LinkFilter');
 
@@ -61,7 +62,7 @@ var TextList = React.createClass({
     if (linkContentObj == null) {
       loading = true;
       this.props.loadLinkContent(ref, rowId);
-      linkContentObj = {en: "Loading...", he: "טוען...", sectionRef: ""};
+      linkContentObj = {en: strings.loading, he: strings.loading, sectionRef: ""};
     }
 
     return (<LinkContent
@@ -263,8 +264,7 @@ var EmptyLinksMessage = React.createClass({
     interfaceLang: React.PropTypes.string
   },
   render: function() {
-    // TODO hebrew interface language
-    return (<Text style={[styles.emptyLinksMessage, this.props.theme.secondaryText]}>No connections available.</Text>);
+    return (<Text style={[styles.emptyLinksMessage, this.props.theme.secondaryText]}>{strings.noConnectionsMessage}</Text>);
   }
 });
 

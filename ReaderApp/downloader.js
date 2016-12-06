@@ -1,8 +1,11 @@
-const RNFS = require('react-native-fs'); //for access to file system -- (https://github.com/johanneslumpe/react-native-fs)
 import {
   AlertIOS,
   AsyncStorage
 } from 'react-native';
+
+const RNFS = require('react-native-fs'); //for access to file system -- (https://github.com/johanneslumpe/react-native-fs)
+const strings = require('./LocalizedStrings');
+
 
 const SCHEMA_VERSION = "1";
 const HOST_PATH = "http://readonly.sefaria.org/static/ios-export/" + SCHEMA_VERSION + "/";
@@ -42,18 +45,18 @@ var Downloader = {
     Downloader.downloading = true;
     Downloader.onChange && Downloader.onChange();
     AlertIOS.alert(
-      'Library Downloading',
-      'The library will download while you have the app open. You can check on the status of the download in the Settings screen.',
-      [{text: 'OK'}]
+      strings.libraryDownloading,
+      strings.libraryDownloadingMessage,
+      [{text: strings.ok}]
     );
   },
   deleteLibrary: function() {
     AlertIOS.alert(
-      'Delete Library',
-      'Are you sure you want to delete the offline library? You will need an Internet connection to use the app.',
+      strings.deleteLibrary,
+      strings.confirmDeleteLibraryMessage,
       [
-        {text: 'Cancel', style: 'cancel'},
-        {text: 'Delete', style: 'destructive', onPress: () => {
+        {text: strings.cancel, style: 'cancel'},
+        {text: strings.delete, style: 'destructive', onPress: () => {
           RNFS.unlink(RNFS.DocumentDirectoryPath + "/library");
           RNFS.unlink(RNFS.DocumentDirectoryPath + "/tmp");
           Downloader._setData("lastDownload", {});
@@ -143,19 +146,19 @@ var Downloader = {
           var onCancel = function() {
             AsyncStorage.setItem("libraryDownloadPrompted", "true");
             AlertIOS.alert(
-              'Using Online Library',
-              'You can download the library in the future from the Settings screen.',
+              strings.usingOnlineLibrary,
+              strings.usingOnlineLibraryMessage,
               [
-                {text: 'OK'},
+                {text: strings.ok},
               ]);
           };
           AlertIOS.alert(
-          'Welcome',
-          'We recommend downloading the offline library for a better experience. It requires about 280MB of storage. Otherwise you will need an Internet connection to use the app.',
-          [
-            {text: 'Download', onPress: onDownload},
-            {text: 'Not now', onPress: onCancel}
-          ]);
+            strings.welcome,
+            strings.downloadLibraryRecommendedMessage,
+            [
+              {text: strings.download, onPress: onDownload},
+              {text: strings.notNow, onPress: onCancel}
+            ]);
         }
       });
   },
@@ -188,19 +191,19 @@ var Downloader = {
     Downloader.downloading = false;
     var cancelAlert = function() {
       AlertIOS.alert(
-        'Download Paused',
-        'You can resume the download in the Settings screen.',
+        strings.downloadPaused,
+        strings.howToResumeDownloadMessage,
         [
-          {text: 'OK'},
-      ]);
+          {text: strings.ok},
+        ]);
     };
     AlertIOS.alert(
-      'Download Error',
-      'Unfortunately we encountered an error downloading the library.',
+      strings.downloadError,
+      strings.downloadErrorMessage,
       [
-        {text: 'Try Again', onPress: () => { Downloader.resumeDownload(); }},
-        {text: 'Pause', onPress: cancelAlert}
-    ]);
+        {text: strings.tryAgain, onPress: () => { Downloader.resumeDownload(); }},
+        {text: strings.pause, onPress: cancelAlert}
+      ]);
   },
   _downloadZip: function(title) {
     // Downloads `title`, first to /tmp then to /library when complete.

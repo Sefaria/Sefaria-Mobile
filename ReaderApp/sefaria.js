@@ -1,12 +1,12 @@
-const ZipArchive = require('react-native-zip-archive'); //for unzipping -- (https://github.com/plrthink/react-native-zip-archive)
-const RNFS = require('react-native-fs'); //for access to file system -- (https://github.com/johanneslumpe/react-native-fs)
-const Downloader = require('./downloader');
-const Api = require('./api');
-const LinkContent  = require('./LinkContent');
-const iPad = require('./isIPad');
-import { GoogleAnalyticsTracker } from 'react-native-google-analytics-bridge'; //https://github.com/idehub/react-native-google-analytics-bridge/blob/master/README.md
 import { AsyncStorage, AlertIOS } from 'react-native';
-
+import { GoogleAnalyticsTracker } from 'react-native-google-analytics-bridge'; //https://github.com/idehub/react-native-google-analytics-bridge/blob/master/README.md
+const ZipArchive  = require('react-native-zip-archive'); //for unzipping -- (https://github.com/plrthink/react-native-zip-archive)
+const RNFS        = require('react-native-fs'); //for access to file system -- (https://github.com/johanneslumpe/react-native-fs)
+const Downloader  = require('./downloader');
+const Api         = require('./api');
+const LinkContent = require('./LinkContent');
+const iPad        = require('./isIPad');
+const strings     = require('./LocalizedStrings');
 
 
 Sefaria = {
@@ -694,11 +694,11 @@ Sefaria = {
         })
         .catch(()=>{
           AlertIOS.alert(
-            'Internet Error',
-            'There was an error accessing the Internet. Check that you have Internet and retry',
+            strings.noInternet,
+            strings.noInternetMessage,
             [
-              {text: 'Cancel', onPress: () => {reject("Canceled")}, style: 'cancel'},
-              {text: 'Retry', onPress: () => {
+              {text: strings.cancel, onPress: () => {reject("Canceled")}, style: 'cancel'},
+              {text: strings.tryAgain, onPress: () => {
                 Sefaria.search.execute_query(args).then(resolve);
               }}
             ]);
@@ -1020,9 +1020,9 @@ Sefaria.api = Api;
 Sefaria.settings = {
   _fields: {
     // List of keys to load on init as well as their default values
-    defaultTextLanguage: "bilingual",
+    defaultTextLanguage: strings.getInterfaceLanguage().startsWith("he") ? "hebrew" : "bilingual",
     textLangaugeByTitle: {},
-    menuLanguage: "english",
+    menuLanguage: strings.getInterfaceLanguage().startsWith("he") ? "hebrew" : "english",
     color: "white",
     fontSize: iPad ? 25 : 20,
   },
@@ -1056,7 +1056,7 @@ Sefaria.settings = {
       this.textLangaugeByTitle[text] = language;
       this.set("textLangaugeByTitle", this.textLangaugeByTitle);
     } else {
-      // Fall back to default in no value has been set
+      // Fall back to default if no value has been set
       return text in this.textLangaugeByTitle ? this.textLangaugeByTitle[text] : this.defaultTextLanguage;
     }
   }

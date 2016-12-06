@@ -624,7 +624,7 @@ var TextColumn = React.createClass({
         // console.log(this.props.sectionArray[rowData.section] + ":" + currSegData.segmentNumber + " y=" + y)
         this.rowRefs[reactRef]._initY = y;
         if (currSegData.highlight) {
-          console.log('scrollling...')
+          // console.log('scrollling...')
           this.refs._listView.scrollTo({
            x: 0,
            y: y+this.sectionRefsHash[rowData.section].y,
@@ -803,7 +803,7 @@ var TextColumn = React.createClass({
     //ref={this.props.textReference+"_"+this.props.data[this.state.sectionArray.indexOf(sID)][this.props.segmentRef].segmentNumber}
 
     return (
-    <View style={{flex:1}}>
+    <View style={styles.textColumn}>
       <ListView ref='_listView'
                 dataSource={this.state.dataSource}
                 renderRow={this.renderRow}

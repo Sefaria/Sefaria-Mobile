@@ -6,11 +6,15 @@ import {
   TouchableOpacity,
   ScrollView
 } from 'react-native';
-var styles = require('./Styles.js');
+
 var {
   CategoryColorLine,
   TripleDots
 } = require('./Misc.js');
+
+const styles  = require('./Styles');
+const strings = require('./LocalizedStrings');
+
 
 var TextListHeader = React.createClass({
 	propTypes: {
@@ -46,7 +50,7 @@ var TextListHeader = React.createClass({
 		});
     if (this.props.isSummaryMode) {
       return (<View style={[styles.textListHeader, styles.textListHeaderSummary, this.props.theme.textListHeader]}>
-                <Text style={[styles.textListHeaderSummaryText, this.props.theme.textListHeaderSummaryText]}>CONNECTIONS</Text>
+                <Text style={[styles.textListHeaderSummaryText, this.props.theme.textListHeaderSummaryText]}>{strings.connections}</Text>
               </View>);
     } else {
       return (

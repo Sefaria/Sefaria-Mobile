@@ -2,7 +2,8 @@ import {
   AlertIOS
 } from 'react-native';
 
-const RNFS = require('react-native-fs'); //for access to file system -- (https://github.com/johanneslumpe/react-native-fs)
+const RNFS    = require('react-native-fs'); //for access to file system -- (https://github.com/johanneslumpe/react-native-fs)
+const strings = require('./LocalizedStrings');
 
 var Api = {
   /*
@@ -182,7 +183,7 @@ var Api = {
   _textandlinks: function(ref) {
     var checkResolve = function(resolve) {
       if (numResponses == 2) {
-        console.log("ALL Done ");
+        //console.log("ALL Done ");
         resolve({"text": textResponse, "links": linksResponse, "ref": ref});
       }
     }
@@ -225,20 +226,20 @@ var Api = {
       .then(json => {
         if ("error" in json) {
           AlertIOS.alert(
-            'Text Unavailable',
-            'The text you requested is not currently available from www.sefaria.org',
-            [{text: 'OK', onPress: () => { reject("Return to Nav"); } }]);
+            strings.textUnavailable,
+            strings.textUnavailableMessage,
+            [{text: strings.ok, onPress: () => { reject("Return to Nav"); } }]);
         } else {
           resolve(json);
         }
       })
       .catch(()=>{
         AlertIOS.alert(
-          'Internet Error',
-          'There was an error accessing the Internet. Check that you have Internet and retry',
+          strings.noInternet,
+          strings.noInternetMessage,
           [
-            {text: 'Cancel', style: 'cancel'},
-            {text: 'Retry', onPress: () => {
+            {text: strings.cancel, style: 'cancel'},
+            {text: strings.tryAgain, onPress: () => {
               Sefaria.api._request(ref,apiType,context).then(resolve);
             }}
           ]);

@@ -25,7 +25,8 @@ import {
   View,
 } from 'react-native';
 
-var styles      = require('./Styles.js');
+var styles      = require('./Styles');
+var strings     = require('./LocalizedStrings');
 var themeWhite  = require('./ThemeWhite');
 var themeBlack  = require('./ThemeBlack');
 var Sefaria     = require('./sefaria');
@@ -104,9 +105,6 @@ var ReaderApp = React.createClass({
         });
     },
     networkChangeListener: function (isConnected) {
-      if (isConnected && !this.state.hasInternet && !Sefaria.downloader.downloading) {
-        //Sefaria.downloader.resumeDownload();
-      }
       this.setState({hasInternet: isConnected});
     },
     textSegmentPressed: function(section, segment, segmentRef, shouldToggle) {
@@ -317,11 +315,11 @@ var ReaderApp = React.createClass({
     openRef: function(ref, calledFrom) {
         if (!Sefaria.textTitleForRef(ref)) {
           AlertIOS.alert(
-            'Text Unavailable',
-            'This text is not currently available in the mobile app. Would you like to open it on the Web?',
+            strings.textUnavailable,
+            strings.promptOpenOnWebMessage,
             [
-              {text: 'Cancel', style: 'cancel'},
-              {text: 'Open', onPress: () => {
+              {text: strings.cancel, style: 'cancel'},
+              {text: strings.open, onPress: () => {
                 Linking.openURL("http://www.sefaria.org/" + ref.replace(/ /g, "_"));
               }}
             ]);
@@ -565,20 +563,6 @@ var ReaderApp = React.createClass({
         //console.log("STOPPP");
         return;
       }
-    },
-    showNoInternetAlert: function() {
-      AlertIOS.alert(
-       'No Internet',
-       'This feature requires an internet connection.',
-       [
-         {text: 'Cancel', onPress: () => null, style: 'cancel'},
-         {text: 'Retry', onPress: () => {
-            if (!this.state.hasInternet) {
-              this.showNoInternetAlert();
-            }
-         }},
-       ],
-      );
     },
     onQueryChange: function(query, resetQuery) {
       var newSearchPage = 0;

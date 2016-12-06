@@ -14,7 +14,8 @@ var {
   LanguageToggleButton,
 } = require('./Misc.js');
 
-var styles = require('./Styles.js');
+const styles  = require('./Styles');
+const strings = require('./LocalizedStrings');
 
 
 var SearchBar = React.createClass({
@@ -53,7 +54,7 @@ var SearchBar = React.createClass({
           onChangeText={(text) => this.setState({text})}
           onSubmitEditing={this.submitSearch}
           value={this.state.text}
-          placeholder={"Search"}
+          placeholder={strings.search}
           placeholderTextColor={placeholderTextColor} />
         {this.props.toggleLanguage ?
           <LanguageToggleButton

@@ -17,7 +17,8 @@ var {
   ButtonToggleSet,
 } = require('./Misc.js');
 
-var styles = require('./Styles.js');
+const styles  = require('./Styles');
+const strings = require('./LocalizedStrings');
 
 
 var SettingsPage = React.createClass({
@@ -63,14 +64,14 @@ var SettingsPage = React.createClass({
       }
     }.bind(this);
     var menuLanguageOptions = [
-      {name: "english", text: "ENGLISH", heText: "ENGLISH", onPress: () => { setMenuLanguage("english"); }},
-      {name: "hebrew", text: "HEBREW", heText: "HEBREW", onPress: () => { setMenuLanguage("hebrew"); }}
+      {name: "english", text: strings.english, heText: strings.english, onPress: () => { setMenuLanguage("english"); }},
+      {name: "hebrew", text: strings.hebrew, heText: strings.hebrew, onPress: () => { setMenuLanguage("hebrew"); }}
     ];
 
     var textLanguageOptions = [
-      {name: "english", text: "ENGLISH", heText: "ENGLISH", onPress: () => { Sefaria.settings.set("defaultTextLanguage", "english"); this.forceUpdate(); }},
-      {name: "bilingual", text: "BILINGUAL", heText: "BILINGUAL", onPress: () => { Sefaria.settings.set("defaultTextLanguage", "bilingual"); this.forceUpdate(); }},
-      {name: "hebrew", text: "HEBREW", heText: "HEBREW", onPress: () => { Sefaria.settings.set("defaultTextLanguage", "hebrew"); this.forceUpdate(); }}
+      {name: "english", text: strings.english, heText: strings.english, onPress: () => { Sefaria.settings.set("defaultTextLanguage", "english"); this.forceUpdate(); }},
+      {name: "bilingual", text: strings.bilingual, heText: strings.bilingual, onPress: () => { Sefaria.settings.set("defaultTextLanguage", "bilingual"); this.forceUpdate(); }},
+      {name: "hebrew", text: strings.hebrew, heText: strings.hebrew, onPress: () => { Sefaria.settings.set("defaultTextLanguage", "hebrew"); this.forceUpdate(); }}
     ];
 
     var nDownloaded = Sefaria.downloader.titlesDownloaded().length;
@@ -80,13 +81,13 @@ var SettingsPage = React.createClass({
               <CategoryColorLine category={"Other"} />
               <View style={[styles.header, this.props.theme.header]}>
                 <CloseButton onPress={this.props.close} theme={this.props.theme}/>
-                <Text style={[styles.settingsHeader, this.props.theme.text]}>SETTINGS</Text>
+                <Text style={[styles.settingsHeader, this.props.theme.text]}>{strings.settings.toUpperCase()}</Text>
               </View>
 
               <ScrollView style={styles.menuContent}>
                 <View style={styles.settingsSection}>
                   <View>
-                    <Text style={[styles.settingsSectionHeader, this.props.theme.tertiaryText]}>MENU LANGUAGE</Text>
+                    <Text style={[styles.settingsSectionHeader, this.props.theme.tertiaryText]}>{strings.menuLanguage}</Text>
                   </View>
                   <ButtonToggleSet
                     theme={this.props.theme}
@@ -97,7 +98,7 @@ var SettingsPage = React.createClass({
 
                 <View style={styles.settingsSection}>                
                   <View>
-                    <Text style={[styles.settingsSectionHeader, this.props.theme.tertiaryText]}>DEFAULT TEXT LANGUAGE</Text>
+                    <Text style={[styles.settingsSectionHeader, this.props.theme.tertiaryText]}>{strings.defaultTextLanguage}</Text>
                   </View>
                   <ButtonToggleSet
                     theme={this.props.theme}
@@ -111,17 +112,17 @@ var SettingsPage = React.createClass({
 
                 <TouchableWithoutFeedback onPress={this.onDebugNoLibraryTouch}>
                   <View>
-                    <Text style={[styles.settingsSectionHeader, this.props.theme.tertiaryText]}>OFFLINE ACCESS</Text>
+                    <Text style={[styles.settingsSectionHeader, this.props.theme.tertiaryText]}>{strings.offlineAccess}</Text>
                   </View>
                 </TouchableWithoutFeedback>
                 {Sefaria.downloader._data.debugNoLibrary ?
                   <Text style={[styles.settingsMessage, this.props.theme.tertiaryText]}>Debug No Library</Text> : null }
-                <Text style={[styles.settingsMessage, this.props.theme.tertiaryText]}>Requires ~280MB of storage on your device.</Text>
+                <Text style={[styles.settingsMessage, this.props.theme.tertiaryText]}>{strings.offlineAccessMessage}</Text>
                 {Sefaria.downloader._data.shouldDownload ?
                   <View>
                     <Text style={[styles.settingsMessage, this.props.theme.tertiaryText]}>
-                       {Sefaria.downloader.downloading ? "Download in progress (" : ""}
-                       {nDownloaded} / {nAvailable} texts downloaded
+                       {Sefaria.downloader.downloading ? strings.downloadInProgress + " (" : ""}
+                       {nDownloaded} / {nAvailable}  {strings.textsDownloaded}
                        {Sefaria.downloader.downloading ? ") " : "."}
                     </Text>
                     {Sefaria.downloader.downloading ?
@@ -137,16 +138,16 @@ var SettingsPage = React.createClass({
 
                     {!downloadComplete && !Sefaria.downloader.downloading ?
                       <TouchableOpacity style={styles.button} onPress={Sefaria.downloader.resumeDownload}>
-                        <Text style={styles.buttonText}>Resume Download</Text>
+                        <Text style={styles.buttonText}>{strings.resumeDownload}</Text>
                       </TouchableOpacity>
                       : null }
                     <TouchableOpacity style={styles.button} onPress={Sefaria.downloader.deleteLibrary}>
-                      <Text style={styles.buttonText}>Delete Library</Text>
+                      <Text style={styles.buttonText}>{strings.deleteLibrary}</Text>
                     </TouchableOpacity>
                   </View> :
                   <View>
                     <TouchableOpacity style={styles.button} onPress={Sefaria.downloader.downloadLibrary}>
-                      <Text style={styles.buttonText}>Download Library</Text>
+                      <Text style={styles.buttonText}>{strings.downloadLibrary}</Text>
                     </TouchableOpacity>
                   </View>
 

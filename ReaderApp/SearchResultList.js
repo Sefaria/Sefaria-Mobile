@@ -7,9 +7,9 @@ import {
   View
 } from 'react-native';
 
-
-const styles = require('./Styles.js');
+const styles = require('./Styles');
 const SearchTextResult = require('./SearchTextResult');
+
 
 var SearchResultList = React.createClass({
   propTypes: {

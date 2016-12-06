@@ -199,7 +199,7 @@ var RecentSection = React.createClass({
     return (<ReaderNavigationMenuSection
               theme={this.props.theme}
               title={strings.recent}
-              heTitle="נצפו לאחרונה"
+              heTitle={strings.recent}
               content={<TwoBox content={recent} language={this.props.language}/>}
               interfaceLang={this.props.interfaceLang} />);
   }
@@ -228,21 +228,21 @@ var CalendarSection = React.createClass({
     var calendar = [<CategoryBlockLink
                     theme={this.props.theme}
                     category={parashah.name}
-                    heCat={"פרשה"}
+                    heCat={strings.parashah}
                     language={this.props.language}
                     style={{"borderColor": Sefaria.palette.categoryColor("Tanakh")}}
                     onPress={this.props.openRef.bind(null, parashah.ref)} />,
           <CategoryBlockLink
                     theme={this.props.theme}
-                    category={"Haftara"}
-                    heCat={"הפטרה"}
+                    category={strings.haftara}
+                    heCat={strings.haftara}
                     language={this.props.language}
                     style={{"borderColor": Sefaria.palette.categoryColor("Tanakh")}}
                     onPress={this.props.openRef.bind(null, parashah.haftara[0])} />,
           <CategoryBlockLink
                     theme={this.props.theme}
-                    category={"Daf Yomi"}
-                    heCat={"דף יומי"}
+                    category={strings.dafYomi}
+                    heCat={strings.dafYomi}
                     language={this.props.language}
                     style={{"borderColor": Sefaria.palette.categoryColor("Talmud")}}
                     onPress={this.props.openRef.bind(null, dafYomi.ref)} />];
@@ -250,7 +250,7 @@ var CalendarSection = React.createClass({
     return (<ReaderNavigationMenuSection
               theme={this.props.theme}
               title={strings.calendar}
-              heTitle="לוח יומי"
+              heTitle={strings.calendar}
               content={<TwoBox content={calendar} language={this.props.language}/>}
               interfaceLang={this.props.interfaceLang} />);
   }
