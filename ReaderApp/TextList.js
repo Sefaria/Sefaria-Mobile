@@ -246,7 +246,7 @@ var LinkContent = React.createClass({
     var lang = Sefaria.util.getTextLanguageWithContent(this.props.textLanguage,lco.en,lco.he);
     var textViews = [];
 
-    var hebrewElem =  <Text style={[styles.linkContentText, styles.hebrewText, this.props.theme.text, {fontSize:this.props.settings.fontSize}]} key={this.props.refStr+"-he"}><HTMLView stylesheet={styles} value={lco.he}/></Text>;
+    var hebrewElem =  <Text style={[styles.linkContentText, styles.hebrewText, this.props.theme.text, {fontSize:this.props.settings.fontSize}]} key={this.props.refStr+"-he"}><HTMLView stylesheet={styles} value={Sefaria.hebrew.sanitizeTextToRemoveCharactersCausingGlyphErrors(lco.he)}/></Text>;
     var englishElem = <Text style={[styles.linkContentText, styles.englishText, this.props.theme.text, {fontSize:0.8*this.props.settings.fontSize}]} key={this.props.refStr+"-en"}><HTMLView stylesheet={styles} value={"&#x200E;"+lco.en}/></Text>;
     if (lang == "bilingual") {
       textViews = [hebrewElem, englishElem];

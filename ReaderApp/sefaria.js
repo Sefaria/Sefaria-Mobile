@@ -1187,6 +1187,11 @@ Sefaria.hebrew = {
       return Sefaria.hebrew.encodeHebrewNumeral(n) + " " + Sefaria.hebrew.encodeHebrewNumeral(a);
     }
   },
+  sanitizeTextToRemoveCharactersCausingGlyphErrors: function(textToSanitize) {
+    return textToSanitize
+      .replace(/[\u0591-\u05AF]/g,"") //remove taamim
+      .replace(/[\u05bd\u05bf\u05c0]/g,"") //remove meteg, rafe, paseq
+  },
   stripNikkud: function(rawString) {
     return rawString.replace(/[\u0591-\u05C7]/g,"");
   },
