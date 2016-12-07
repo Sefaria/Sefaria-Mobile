@@ -247,6 +247,7 @@ var ReaderPanel = React.createClass({
             theme={this.props.theme}
             themeStr={this.props.themeStr}
             hasInternet={this.props.hasInternet}
+            openNav={this.props.openNav}
             closeNav={this.props.closeMenu}
             onQueryChange={this.props.onQueryChange}
             openRef={(ref)=>this.props.openRef(ref,"search")}

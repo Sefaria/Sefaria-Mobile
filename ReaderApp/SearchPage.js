@@ -47,7 +47,9 @@ var SearchPage = React.createClass({
 				<SearchBar
 					theme={this.props.theme}
 					themeStr={this.props.themeStr}
+					openNav={this.props.openNav}
 					closeNav={this.props.closeNav}
+					leftMenuButton="back"
 					onQueryChange={this.props.onQueryChange}
 					query={this.props.query}
 					setIsNewSearch={this.props.setIsNewSearch}/>
