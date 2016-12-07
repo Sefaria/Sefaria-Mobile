@@ -110,7 +110,7 @@ module.exports = StyleSheet.create({
   },
   readerDisplayOptionsMenuIcon: {
     resizeMode: "contain",
-    height: 14,
+    height: 18,
   },
   readerDisplayOptionsMenuDivider: {
     marginTop: 10,
