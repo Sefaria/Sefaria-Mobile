@@ -218,42 +218,37 @@ var CalendarSection = React.createClass({
     language:      React.PropTypes.string.isRequired
   },
   render: function() {
-    if (!Sefaria.calendar) {
-      Sefaria._loadCalendar()
-        .then(function() { console.log('calendar loaded?') }.bind(this));
-      var calendarContent = <TwoBox content={[<Text>{strings.loading}</Text>]} 
-                                    language={this.props.language}/>;
-    } else {
-      var parashah = Sefaria.parashah();
-      var dafYomi  = Sefaria.dafYomi();
-      var calendar = [
-              <CategoryBlockLink
-                theme={this.props.theme}
-                category={parashah.name}
-                heCat={"פרשה"}
-                language={this.props.language}
-                style={{"borderColor": Sefaria.palette.categoryColor("Tanakh")}}
-                onPress={this.props.openRef.bind(null, parashah.ref)}
-                key="parashah" />,
-              <CategoryBlockLink
-                theme={this.props.theme}
-                category={"Haftara"}
-                heCat={"הפטרה"}
-                language={this.props.language}
-                style={{"borderColor": Sefaria.palette.categoryColor("Tanakh")}}
-                onPress={this.props.openRef.bind(null, parashah.haftara[0])}
-                key="haftara" />,
-              <CategoryBlockLink
-                theme={this.props.theme}
-                category={"Daf Yomi"}
-                heCat={"דף יומי"}
-                language={this.props.language}
-                style={{"borderColor": Sefaria.palette.categoryColor("Talmud")}}
-                onPress={this.props.openRef.bind(null, dafYomi.ref)} 
-                key="dafYomi" />];
+    if (!Sefaria.calendar) { return null; } 
 
-      var calendarContent = <TwoBox content={calendar} language={this.props.language}/>;
-    }
+    var parashah = Sefaria.parashah();
+    var dafYomi  = Sefaria.dafYomi();
+    var calendar = [
+            <CategoryBlockLink
+              theme={this.props.theme}
+              category={parashah.name}
+              heCat={"פרשה"}
+              language={this.props.language}
+              style={{"borderColor": Sefaria.palette.categoryColor("Tanakh")}}
+              onPress={this.props.openRef.bind(null, parashah.ref)}
+              key="parashah" />,
+            <CategoryBlockLink
+              theme={this.props.theme}
+              category={"Haftara"}
+              heCat={"הפטרה"}
+              language={this.props.language}
+              style={{"borderColor": Sefaria.palette.categoryColor("Tanakh")}}
+              onPress={this.props.openRef.bind(null, parashah.haftara[0])}
+              key="haftara" />,
+            <CategoryBlockLink
+              theme={this.props.theme}
+              category={"Daf Yomi"}
+              heCat={"דף יומי"}
+              language={this.props.language}
+              style={{"borderColor": Sefaria.palette.categoryColor("Talmud")}}
+              onPress={this.props.openRef.bind(null, dafYomi.ref)} 
+              key="dafYomi" />];
+
+    var calendarContent = <TwoBox content={calendar} language={this.props.language}/>;
 
     return (<ReaderNavigationMenuSection
               theme={this.props.theme}
