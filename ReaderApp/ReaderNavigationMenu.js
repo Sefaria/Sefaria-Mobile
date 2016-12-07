@@ -230,23 +230,23 @@ var CalendarSection = React.createClass({
               <CategoryBlockLink
                 theme={this.props.theme}
                 category={parashah.name}
-                heCat={strings.parashah}
+                heCat={"פרשה"}
                 language={this.props.language}
                 style={{"borderColor": Sefaria.palette.categoryColor("Tanakh")}}
                 onPress={this.props.openRef.bind(null, parashah.ref)}
                 key="parashah" />,
               <CategoryBlockLink
                 theme={this.props.theme}
-                category={strings.haftara}
-                heCat={strings.haftara}
+                category={"Haftara"}
+                heCat={"הפטרה"}
                 language={this.props.language}
                 style={{"borderColor": Sefaria.palette.categoryColor("Tanakh")}}
                 onPress={this.props.openRef.bind(null, parashah.haftara[0])}
                 key="haftara" />,
               <CategoryBlockLink
                 theme={this.props.theme}
-                category={strings.dafYomi}
-                heCat={strings.dafYomi}
+                category={"Daf Yomi"}
+                heCat={"דף יומי"}
                 language={this.props.language}
                 style={{"borderColor": Sefaria.palette.categoryColor("Talmud")}}
                 onPress={this.props.openRef.bind(null, dafYomi.ref)} 
