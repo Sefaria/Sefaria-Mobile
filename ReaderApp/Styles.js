@@ -110,7 +110,7 @@ module.exports = StyleSheet.create({
   },
   readerDisplayOptionsMenuIcon: {
     resizeMode: "contain",
-    height: 14,
+    height: 18,
   },
   readerDisplayOptionsMenuDivider: {
     marginTop: 10,
@@ -185,7 +185,7 @@ module.exports = StyleSheet.create({
   searchInput: {
     alignSelf: 'stretch',
     flex: 1,
-    fontSize: 14,
+    fontSize: 16,
     fontStyle: "normal",
     fontFamily: "EB Garamond",
     paddingTop: 0,
@@ -193,8 +193,6 @@ module.exports = StyleSheet.create({
   },
   searchInputPlaceholder: {
     fontStyle: "italic",
-    fontSize: 16,
-    paddingTop: 5
   },
   searchPage: {
     flex: 1,
@@ -202,6 +200,8 @@ module.exports = StyleSheet.create({
     alignItems: 'flex-start',
   },
   searchTextResult: {
+    flex: 1,
+    maxWidth: 800,
     marginHorizontal: iPad ? 60 : 30,
     marginTop: 20,
     paddingBottom: 20,
@@ -228,18 +228,19 @@ module.exports = StyleSheet.create({
   },
   textListContentOuter: {
     flex: 1,
-    flexDirection: "column"
+    flexDirection: "column",
   },
   textListContentListView: {
     flex: 1,
-    flexDirection: "column"
+    flexDirection: "column",
   },
   textListHeader: {
     height: 50,
+    alignSelf: "stretch",
     borderTopWidth: 6,
     borderBottomWidth: 1,
     paddingHorizontal: iPad ? 55 : 25,
-    flexDirection: "row"
+    flexDirection: "row",
   },
   textListHeaderScrollView: {
     alignSelf: "stretch"
@@ -254,6 +255,10 @@ module.exports = StyleSheet.create({
   },
   textListCitation: {
     marginBottom: 4,
+  },
+  linkContentText: {
+    flex: 1,
+    alignItems: "stretch"
   },
   noLinks: {
     flex:1,
@@ -348,7 +353,7 @@ module.exports = StyleSheet.create({
     flex: 1,
   },
   navToggle: {
-    fontSize: iPad ? 18 : 10,
+    fontSize: iPad ? 14 : 10,
     paddingTop: 2
   },
   navToggles: {
@@ -381,7 +386,7 @@ module.exports = StyleSheet.create({
     textAlign: 'center',
     fontFamily: "Open Sans",
     fontWeight: '400',
-    fontSize: iPad ? 16 : 9,
+    fontSize: iPad ? 11 : 9,
     width: iPad ? 60 : 30,
   },
   hebrewVerseNumber: {
@@ -419,7 +424,7 @@ module.exports = StyleSheet.create({
   verseBullet: {
     paddingTop: 7,
     textAlign: 'center',
-    fontSize: iPad ? 11 : 7,
+    fontSize: iPad ? 10 : 7,
     width: iPad ? 60 : 30,
   },
   englishSystemFont: {
@@ -441,6 +446,7 @@ module.exports = StyleSheet.create({
     marginHorizontal: 30,
   },
   textColumn: {
+    maxWidth: 800,
     flexDirection: "row",
     alignItems: 'stretch'
   },
@@ -575,15 +581,14 @@ module.exports = StyleSheet.create({
     fontFamily: "EB Garamond",
     textAlign: 'left',
     flex: -1,
-    fontSize: iPad ? 20 : 16,
+    fontSize: iPad ? 19 : 15,
   },
   hebrewText: {
     fontFamily: "Taamey Frank CLM",
     writingDirection: "rtl",
     textAlign: 'right',
     flex: -1,
-    paddingTop: 5,
-    fontSize: iPad ? 25 : 20,
+    fontSize: iPad ? 22 : 18,
   },
   hebrewSystemFont: {
     fontFamily: "Open Sans Hebrew"
