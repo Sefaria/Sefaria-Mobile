@@ -201,7 +201,6 @@ module.exports = StyleSheet.create({
   },
   searchTextResult: {
     flex: 1,
-    maxWidth: 800,
     marginHorizontal: iPad ? 60 : 30,
     marginTop: 20,
     paddingBottom: 20,
@@ -232,6 +231,7 @@ module.exports = StyleSheet.create({
   },
   textListContentListView: {
     flex: 1,
+    maxWidth: 800,
     flexDirection: "column",
   },
   textListHeader: {
