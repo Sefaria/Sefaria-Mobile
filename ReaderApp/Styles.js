@@ -581,15 +581,14 @@ module.exports = StyleSheet.create({
     fontFamily: "EB Garamond",
     textAlign: 'left',
     flex: -1,
-    fontSize: iPad ? 20 : 16,
+    fontSize: iPad ? 19 : 15,
   },
   hebrewText: {
     fontFamily: "Taamey Frank CLM",
     writingDirection: "rtl",
     textAlign: 'right',
     flex: -1,
-    paddingTop: 5,
-    fontSize: iPad ? 25 : 20,
+    fontSize: iPad ? 22 : 18,
   },
   hebrewSystemFont: {
     fontFamily: "Open Sans Hebrew"
