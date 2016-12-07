@@ -5,8 +5,7 @@ import {
   Text,
   TouchableOpacity,
   View,
-  Image,
-  Dimensions
+  Image
 } from 'react-native';
 
 
@@ -125,7 +124,7 @@ var ReaderDisplayOptionsMenu = React.createClass({
     }
 
     return (
-        <View style={[styles.readerDisplayOptionsMenu,this.props.theme.readerDisplayOptionsMenu,{width: Dimensions.get('window').width}]}>
+        <View style={[styles.readerDisplayOptionsMenu,this.props.theme.readerDisplayOptionsMenu,{width: this.props.windowWidth}]}>
           {optionViews}
         </View>
     );

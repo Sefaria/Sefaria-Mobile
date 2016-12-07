@@ -8,7 +8,8 @@ import {
   View,
   Image,
   ListView,
-  Modal
+  Modal,
+  Dimensions
 } from 'react-native';
 
 var ReaderDisplayOptionsMenu  = require('./ReaderDisplayOptionsMenu');
@@ -113,6 +114,7 @@ var ReaderPanel = React.createClass({
     this.setState({
       textFlow: 'segmented',   // alternative is 'continuous'
       textLanguage: Sefaria.settings.textLanguage(this.props.textTitle),
+      windowWidth: Dimensions.get('window').width,
       settings: {
         language:      Sefaria.settings.menuLanguage,
         fontSize:      Sefaria.settings.fontSize,
@@ -159,6 +161,10 @@ var ReaderPanel = React.createClass({
     }
     this.toggleReaderDisplayOptionsMenu();
     Sefaria.track.event("Reader", "Display Option Click", "language - " + textLanguage);
+  },
+  getWindowWidth: function() {
+    this.state.windowWidth = Dimensions.get('window').width;
+    this.forceUpdate();
   },
   incrementFont: function(incrementString) {
     if (incrementString == "larger") {
@@ -275,7 +281,7 @@ var ReaderPanel = React.createClass({
     }
 
     return (
-  		<View style={[styles.container, this.props.theme.container]}>
+  		<View style={[styles.container, this.props.theme.container]} onLayout={this.getWindowWidth}>
           <CategoryColorLine category={Sefaria.categoryForTitle(this.props.textTitle)} />
           <ReaderControls
             theme={this.props.theme}
@@ -362,6 +368,7 @@ var ReaderPanel = React.createClass({
             (<ReaderDisplayOptionsMenu
               theme={this.props.theme}
               textFlow={this.state.textFlow}
+              windowWidth={this.state.windowWidth}
               textReference={this.props.textReference}
               textLanguage={this.state.textLanguage}
               setTextFlow={this.setTextFlow}
@@ -370,7 +377,7 @@ var ReaderPanel = React.createClass({
               setTheme={this.setTheme}
               canBeContinuous={Sefaria.canBeContinuous(this.props.textTitle)}
               themeStr={this.props.themeStr}/>) : null }
-        </View>);
+      </View>);
   }
 });
 
