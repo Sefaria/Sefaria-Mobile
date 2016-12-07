@@ -40,7 +40,7 @@ var SearchBar = React.createClass({
   render: function() {
     var textInputStyle = [styles.searchInput, this.props.theme.text];
     if (this.state.text == "") {
-      textInputStyle = textInputStyle.concat([styles.searchInputPlaceholder]);
+      //textInputStyle = textInputStyle.concat([styles.searchInputPlaceholder]);
     }
     //TODO sorry for the hard-coded colors. because the prop placeholderTextColor of TextInput doesn't take a style and instead requires an explicit color string, I had to do it this way
     var placeholderTextColor = this.props.themeStr == "black" ? "#BBB" : "#777";

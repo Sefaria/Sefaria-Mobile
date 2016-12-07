@@ -185,7 +185,7 @@ module.exports = StyleSheet.create({
   searchInput: {
     alignSelf: 'stretch',
     flex: 1,
-    fontSize: 14,
+    fontSize: 16,
     fontStyle: "normal",
     fontFamily: "EB Garamond",
     paddingTop: 0,
@@ -193,8 +193,6 @@ module.exports = StyleSheet.create({
   },
   searchInputPlaceholder: {
     fontStyle: "italic",
-    fontSize: 16,
-    paddingTop: 5
   },
   searchPage: {
     flex: 1,
@@ -355,7 +353,7 @@ module.exports = StyleSheet.create({
     flex: 1,
   },
   navToggle: {
-    fontSize: iPad ? 18 : 10,
+    fontSize: iPad ? 14 : 10,
     paddingTop: 2
   },
   navToggles: {
@@ -388,7 +386,7 @@ module.exports = StyleSheet.create({
     textAlign: 'center',
     fontFamily: "Open Sans",
     fontWeight: '400',
-    fontSize: iPad ? 16 : 9,
+    fontSize: iPad ? 11 : 9,
     width: iPad ? 60 : 30,
   },
   hebrewVerseNumber: {
@@ -426,7 +424,7 @@ module.exports = StyleSheet.create({
   verseBullet: {
     paddingTop: 7,
     textAlign: 'center',
-    fontSize: iPad ? 11 : 7,
+    fontSize: iPad ? 10 : 7,
     width: iPad ? 60 : 30,
   },
   englishSystemFont: {
