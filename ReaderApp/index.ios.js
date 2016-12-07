@@ -86,6 +86,7 @@ var ReaderApp = React.createClass({
             isQueryLoadingTail: false,
             isNewSearch: false,
             currSearchPage: 0,
+            initSearchScrollPos: 0,
             numSearchResults: 0,
             searchQueryResult: [],
             backStack: []
@@ -310,6 +311,7 @@ var ReaderApp = React.createClass({
     },
     /*
     calledFrom parameter used for analytics and for back button
+    prevScrollPos parameter used for back button
     */
     openRef: function(ref, calledFrom) {
         if (!Sefaria.textTitleForRef(ref)) {
@@ -367,7 +369,8 @@ var ReaderApp = React.createClass({
     },
     goBack: function() {
       if /* last page was search page */((this.state.backStack.slice(-1)[0]).indexOf("SEARCH:") != -1) {
-        this.search((this.state.backStack.pop()).split(":")[1]);
+        this.onQueryChange((this.state.backStack.pop()).split(":")[1],true,true);
+        this.openSearch();
       }
       else /*is ref*/ {
       this.openRef(this.state.backStack.pop());
@@ -375,6 +378,9 @@ var ReaderApp = React.createClass({
     },
     setNavigationCategories: function(categories) {
         this.setState({navigationCategories: categories});
+    },
+    setInitSearchScrollPos: function(pos) {
+        this.setState({initSearchScrollPos: pos});
     },
     openTextToc: function() {
         this.openMenu("text toc");
@@ -563,18 +569,29 @@ var ReaderApp = React.createClass({
         return;
       }
     },
-    onQueryChange: function(query, resetQuery) {
+    onQueryChange: function(query, resetQuery, fromBackButton) {
       var newSearchPage = 0;
-      if (!resetQuery)
-        newSearchPage = this.state.currSearchPage+1;
-
+      var from = 0;
+      var size = 20;
+      if (resetQuery && !fromBackButton) {
+        this.setInitSearchScrollPos(0);
+        console.log('yay')
+      }
+      if (!resetQuery) {
+        newSearchPage = this.state.currSearchPage + 1;
+        from = 20 * newSearchPage;
+      }
+      if (fromBackButton) {
+        size = 20 * this.state.currSearchPage;
+        newSearchPage = size/20;
+      }
 
       //var req = JSON.stringify(Sefaria.search.get_query_object(query,false,[],20,20*newSearchPage,"text"));
 
       var queryProps = {
         query: query,
-        size: 20,
-        from: 20*newSearchPage,
+        size: size,
+        from: from,
         type: "text",
         get_filters: false,
         applied_filters: []
@@ -584,7 +601,7 @@ var ReaderApp = React.createClass({
         var resultArray = resetQuery ? responseJson["hits"]["hits"] : this.state.searchQueryResult.concat(responseJson["hits"]["hits"]);
         //console.log("resultArray",resultArray);
         var numResults = responseJson["hits"]["total"];
-        this.setState({isQueryLoadingTail: false, isQueryRunning: false, searchQueryResult:resultArray, numSearchResults: numResults});
+        this.setState({isQueryLoadingTail: false, isQueryRunning: false, searchQueryResult:resultArray, numSearchResults: numResults, initSearchListSize: size});
 
         if (resetQuery) {
           Sefaria.track.event("Search","Query: text", query, numResults);
@@ -593,7 +610,7 @@ var ReaderApp = React.createClass({
       .catch((error) => {
         console.log(error);
         //TODO: add hasError boolean to state
-        this.setState({isQueryLoadingTail: false, isQueryRunning: false, searchQueryResult:[], numSearchResults: 0});
+        this.setState({isQueryLoadingTail: false, isQueryRunning: false, searchQueryResult:[], numSearchResults: 0, initSearchListSize: 20, initSearchScrollPos: 0});
       });
 
       this.setState({searchQuery:query, currSearchPage: newSearchPage, isQueryRunning: true});
@@ -674,6 +691,9 @@ var ReaderApp = React.createClass({
                     isQueryRunning={this.state.isQueryRunning}
                     searchQuery={this.state.searchQuery}
                     isQueryLoadingTail={this.state.isQueryLoadingTail}
+                    initSearchListSize={this.state.initSearchListSize}
+                    initSearchScrollPos={this.state.initSearchScrollPos}
+                    setInitSearchScrollPos={this.setInitSearchScrollPos}
                     isNewSearch={this.state.isNewSearch}
                     numSearchResults={this.state.numSearchResults}
                     currSearchPage={this.state.currSearchPage}

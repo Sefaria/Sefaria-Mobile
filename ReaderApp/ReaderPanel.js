@@ -256,6 +256,9 @@ var ReaderPanel = React.createClass({
             loadingQuery={this.props.isQueryRunning}
             isNewSearch={this.props.isNewSearch}
             loadingTail={this.props.isQueryLoadingTail}
+            initSearchListSize={this.props.initSearchListSize}
+            initSearchScrollPos={this.props.initSearchScrollPos}
+            setInitSearchScrollPos={this.props.setInitSearchScrollPos}
             queryResult={this.props.searchQueryResult}
             numResults={this.props.numSearchResults} />);
         break;

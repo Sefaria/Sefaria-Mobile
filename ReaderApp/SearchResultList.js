@@ -24,7 +24,7 @@ var SearchResultList = React.createClass({
   },
   getInitialState: function() {
     return {
-      dataSource: new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2})
+      dataSource: new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2}),
     };
   },
   onEndReached: function() {
@@ -48,6 +48,16 @@ var SearchResultList = React.createClass({
   	if (this.props.isNewSearch)
   		this.props.setIsNewSearch(false);
   },
+  scrollToSearchResult: function() {
+    this.refs.searchResultsListView.scrollTo({
+               x: 0,
+               y: this.props.initSearchScrollPos || 0,
+               animated: false
+            })
+  },
+  setCurScrollPos: function() {
+    this.props.setInitSearchScrollPos(this.refs.searchResultsListView.scrollProperties.offset);
+  },
   render: function() {
 
   	//if isNewSearch, temporarily hide the ListView, which apparently resets the scroll position to the top
@@ -64,8 +74,13 @@ var SearchResultList = React.createClass({
 
 	    return (
 	      <ListView
+          ref="searchResultsListView"
 	        dataSource={dataSourceRows}
+          initialListSize={this.props.initSearchListSize || 20}
 	        renderRow={this.renderRow}
+          onLayout={this.scrollToSearchResult}
+          onScroll={this.setCurScrollPos}
+          scrollEventThrottle={100}
 	        onEndReached={this.onEndReached}/>
 	    );
   	} else {

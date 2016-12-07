@@ -219,9 +219,8 @@ var CalendarSection = React.createClass({
   },
   render: function() {
     if (!Sefaria.calendar) {
-      Sefaria._loadCalendar()
-        .then(function() { console.log('calendar loaded?') }.bind(this));
-      var calendarContent = <TwoBox content={[<Text>{strings.loading}</Text>]} 
+      Sefaria._loadCalendar();
+      var calendarContent = <TwoBox content={[<Text>{strings.loading}</Text>]}
                                     language={this.props.language}/>;
     } else {
       var parashah = Sefaria.parashah();

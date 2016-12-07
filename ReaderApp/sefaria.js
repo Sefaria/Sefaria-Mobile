@@ -367,8 +367,8 @@ Sefaria = {
       var calendarPath = (RNFS.MainBundlePath + "/sources/calendar.json");
       Sefaria._loadJSON(calendarPath).then(function(data) {
         Sefaria.calendar = data;
-        resolve();
       });
+        resolve();
     });
   },
   parashah: function() {
