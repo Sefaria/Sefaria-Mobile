@@ -48,6 +48,10 @@ var ReaderApp = React.createClass({
               defaultSettingsLoaded: true,
             });
             this.setDefaultTheme();
+            
+            var ref =  Sefaria.recent.length ? Sefaria.recent[0].ref : "Genesis 1";
+            this.openRef(ref);
+
         }.bind(this));
         Sefaria.track.init();
         NetInfo.isConnected.addEventListener(

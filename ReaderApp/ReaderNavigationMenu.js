@@ -167,7 +167,6 @@ var ReaderNavigationMenu = React.createClass({
 
                 </View>
 
-
                 <Text style={[styles.dedication, this.props.theme.secondaryText]}>
                   {strings.dedicated}
                 </Text>
