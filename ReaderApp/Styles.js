@@ -569,7 +569,7 @@ module.exports = StyleSheet.create({
   dedication: {
     fontStyle: "italic",
     fontFamily: "EB Garamond",
-    fontSize: 13,
+    fontSize: 14,
     textAlign: "center",
     marginBottom: 20
   },
