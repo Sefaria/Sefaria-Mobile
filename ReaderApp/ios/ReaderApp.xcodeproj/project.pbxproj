@@ -40,6 +40,7 @@
 		A1C678261DB8000A00392A83 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = A1C678251DB8000A00392A83 /* libz.tbd */; };
 		DD24DA6B1DCBADD200954157 /* OpenSans-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = DD24DA681DCBADD200954157 /* OpenSans-Light.ttf */; };
 		DD24DA6C1DCBADD200954157 /* OpenSans-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = DD24DA691DCBADD200954157 /* OpenSans-Regular.ttf */; };
+		DD74C7D01DF8C3B900946024 /* libRCTOrientation.a in Frameworks */ = {isa = PBXBuildFile; fileRef = DD74C7CF1DF8C36C00946024 /* libRCTOrientation.a */; };
 		DD7B126F1DBACAEE00AC4D6C /* EBGaramond-Italic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = DD7B126E1DBACAEE00AC4D6C /* EBGaramond-Italic.ttf */; };
 /* End PBXBuildFile section */
 
@@ -212,6 +213,13 @@
 			remoteGlobalIDString = 2D2A28131D9B038B00D4039D;
 			remoteInfo = "React-tvOS";
 		};
+		DD74C7CE1DF8C36C00946024 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = DD74C7CA1DF8C36C00946024 /* RCTOrientation.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 134814201AA4EA6300B7C361;
+			remoteInfo = RCTOrientation;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
@@ -253,6 +261,7 @@
 		A1C678251DB8000A00392A83 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		DD24DA681DCBADD200954157 /* OpenSans-Light.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "OpenSans-Light.ttf"; sourceTree = "<group>"; };
 		DD24DA691DCBADD200954157 /* OpenSans-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "OpenSans-Regular.ttf"; sourceTree = "<group>"; };
+		DD74C7CA1DF8C36C00946024 /* RCTOrientation.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTOrientation.xcodeproj; path = "../node_modules/react-native-orientation/iOS/RCTOrientation.xcodeproj"; sourceTree = "<group>"; };
 		DD7B126E1DBACAEE00AC4D6C /* EBGaramond-Italic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "EBGaramond-Italic.ttf"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -269,6 +278,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DD74C7D01DF8C3B900946024 /* libRCTOrientation.a in Frameworks */,
 				A1259D101DF7BDBC00E51FC9 /* libReactNativeLocalization.a in Frameworks */,
 				A106F3A21DEFE49300497F98 /* libRCTAnimation.a in Frameworks */,
 				07C9F15F1DCA1D53004F7EF2 /* AdSupport.framework in Frameworks */,
@@ -424,6 +434,7 @@
 		832341AE1AAA6A7D00B99B32 /* Libraries */ = {
 			isa = PBXGroup;
 			children = (
+				DD74C7CA1DF8C36C00946024 /* RCTOrientation.xcodeproj */,
 				0717F1441DF462FD003F96EC /* ReactNativeLocalization.xcodeproj */,
 				A106F3851DEFE45E00497F98 /* RCTAnimation.xcodeproj */,
 				07C9F1451DCA18B8004F7EF2 /* RCTGoogleAnalyticsBridge.xcodeproj */,
@@ -516,6 +527,14 @@
 				A1C678251DB8000A00392A83 /* libz.tbd */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		DD74C7CB1DF8C36C00946024 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				DD74C7CF1DF8C36C00946024 /* libRCTOrientation.a */,
+			);
+			name = Products;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -620,6 +639,10 @@
 				{
 					ProductGroup = 00C302D41ABCB9D200DB3ED1 /* Products */;
 					ProjectRef = 00C302D31ABCB9D200DB3ED1 /* RCTNetwork.xcodeproj */;
+				},
+				{
+					ProductGroup = DD74C7CB1DF8C36C00946024 /* Products */;
+					ProjectRef = DD74C7CA1DF8C36C00946024 /* RCTOrientation.xcodeproj */;
 				},
 				{
 					ProductGroup = 139105B71AF99BAD00B5F7CC /* Products */;
@@ -824,6 +847,13 @@
 			remoteRef = DD45FE4D1DF22C5900931DAE /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
+		DD74C7CF1DF8C36C00946024 /* libRCTOrientation.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libRCTOrientation.a;
+			remoteRef = DD74C7CE1DF8C36C00946024 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
 /* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
@@ -944,6 +974,7 @@
 					"$(SRCROOT)/../node_modules/react-native/React/**",
 					"$(SRCROOT)/../react-native/React/**",
 					"$(SRCROOT)/../../React/**",
+					"$(SRCROOT)/../node_modules/react-native-orientation/iOS/RCTOrientation",
 				);
 				INFOPLIST_FILE = ReaderApp/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -972,6 +1003,7 @@
 					"$(SRCROOT)/../node_modules/react-native/React/**",
 					"$(SRCROOT)/../react-native/React/**",
 					"$(SRCROOT)/../../React/**",
+					"$(SRCROOT)/../node_modules/react-native-orientation/iOS/RCTOrientation",
 				);
 				INFOPLIST_FILE = ReaderApp/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";

@@ -9,6 +9,7 @@ import {
   Dimensions
 } from 'react-native';
 const HTMLView       = require('react-native-htmlview');
+const Orientation    = require('react-native-orientation');
 const styles         = require('./Styles');
 const strings        = require('./LocalizedStrings');
 const TextListHeader = require('./TextListHeader');
@@ -41,10 +42,20 @@ var TextList = React.createClass({
   },
   getInitialState: function() {
     Sefaria = this.props.Sefaria; //Is this bad practice to use getInitialState() as an init function
+    var {height, width} = Dimensions.get('window');
     return {
       dataSource: new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2}),
-      isNewSegment: false
+      isNewSegment: false,
+      width: width,
+      height: height,
     };
+  },
+  componentDidMount: function() {
+    Orientation.addOrientationListener(this._orientationDidChange);
+    Orientation.getOrientation(this._verifyDimensions);
+  },
+  componentWillUnmount: function() {
+    Orientation.removeOrientationListener(this._orientationDidChange);
   },
   componentWillReceiveProps: function(nextProps) {
     if (this.props.segmentIndexRef !== nextProps.segmentIndexRef) {
@@ -54,6 +65,23 @@ var TextList = React.createClass({
   componentDidUpdate: function() {
     if (this.state.isNewSegment)
       this.setState({isNewSegment:false});
+  },
+  _orientationDidChange: function(orientation) {
+    this.setState({
+      width: this.state.height,
+      height: this.state.width
+    })
+  },
+  _verifyDimensions: function(err, orientation) {
+    // Dimensions seems to often swap height/width. This checks them against the orientation and swaps them if they're wrong.
+    var {height, width} = Dimensions.get('window');
+    //console.log(orientation, "h: ",height,"w: ",width);
+    if ((width > height && orientation !== "LANDSCAPE") || 
+        (width < height && orientation == "LANDSCAPE")) {
+      [height, width] = [width, height];
+    }
+    //console.log(orientation, "h: ",height,"w: ",width);
+    this.setState({height: height, width: width});
   },
   renderRow: function(linkContentObj, sectionId, rowId) {
     var linkFilter = this.props.recentFilters[this.props.filterIndex];
@@ -155,11 +183,10 @@ var TextList = React.createClass({
         </View>);
 
     } else if (!this.state.isNewSegment) {
-      // Using Dimension to adjust marings on text at maximum line width because I can't figure out
+      // Using Dimensions to adjust marings on text at maximum line width because I can't figure out
       // how to get flex to center a component with maximum width without allows breaking the stretch 
       // behavior of its contents, result in rows in the list view with small width if their content is small.
-      const {height, width} = Dimensions.get('window');
-      var marginAdjust = width > 800 ? (width-800)/2 : 0
+      var marginAdjust = this.state.width > 800 ? (this.state.width-800)/2 : 0
       var listViewStyles = [styles.textListContentListView, {marginLeft: marginAdjust}];
       return (
       <View style={[styles.textListContentOuter, this.props.theme.textListContentOuter]}>
