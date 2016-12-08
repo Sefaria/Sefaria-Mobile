@@ -102,7 +102,7 @@ var ReaderPanel = React.createClass({
               this.incrementFont(this.pendingIncrement);
               this.pendingIncrement = 1;
               this.incrementTimer = null;
-            }, 100);
+            }, 50);
           }
         }
       },
@@ -204,8 +204,8 @@ var ReaderPanel = React.createClass({
     }
     var updatedSettings = Sefaria.util.clone(this.state.settings);
     updatedSettings.fontSize *= x;
-    updatedSettings.fontSize = updatedSettings.fontSize > 80 ? 80 : updatedSettings.fontSize; // Max size
-    updatedSettings.fontSize = updatedSettings.fontSize < 15 ? 15 : updatedSettings.fontSize; // Min size
+    updatedSettings.fontSize = updatedSettings.fontSize > 60 ? 60 : updatedSettings.fontSize; // Max size
+    updatedSettings.fontSize = updatedSettings.fontSize < 18 ? 18 : updatedSettings.fontSize; // Min size
 
     this.setState({settings: updatedSettings});
     Sefaria.settings.set("fontSize", updatedSettings.fontSize);
