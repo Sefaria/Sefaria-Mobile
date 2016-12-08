@@ -49,6 +49,8 @@ module.exports = StyleSheet.create({
   readerDisplayOptionsMenu: {
     position: "absolute",
     top: 76,
+    left: 0,
+    right: 0,
     paddingTop: 10,
     paddingBottom: 10,
     alignItems: 'center',

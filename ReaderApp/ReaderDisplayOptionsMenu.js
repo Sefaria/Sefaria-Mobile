@@ -8,8 +8,6 @@ import {
   Image
 } from 'react-native';
 
-
-
 var styles                = require('./Styles.js');
 var a_aleph_icon          = require('./img/a_aleph.png');
 var a_icon                = require('./img/a_icon.png');
@@ -23,6 +21,7 @@ var a_icon_small_light    = require('./img/a_icon_small-light.png');
 var aleph_icon_light      = require('./img/aleph-light.png');
 var segmented_icon_light  = require('./img/breaks-light.png');
 var continuous_icon_light = require('./img/continuous-light.png');
+
 
 var ReaderDisplayOptionsMenu = React.createClass({
   propTypes: {
@@ -124,12 +123,13 @@ var ReaderDisplayOptionsMenu = React.createClass({
     }
 
     return (
-        <View style={[styles.readerDisplayOptionsMenu,this.props.theme.readerDisplayOptionsMenu,{width: this.props.windowWidth}]}>
+        <View style={[styles.readerDisplayOptionsMenu,this.props.theme.readerDisplayOptionsMenu]}>
           {optionViews}
         </View>
     );
   }
 });
+
 
 var ReaderDisplayOptionsMenuRow = React.createClass({
   render: function() {
@@ -142,6 +142,7 @@ var ReaderDisplayOptionsMenuRow = React.createClass({
     );
   }
 });
+
 
 var ReaderDisplayOptionsMenuItem = React.createClass({
   propTypes: {
@@ -172,6 +173,7 @@ var ReaderDisplayOptionsMenuItem = React.createClass({
     );
   }
 });
+
 
 var ReaderDisplayOptionsMenuColor = React.createClass({
   propTypes: {

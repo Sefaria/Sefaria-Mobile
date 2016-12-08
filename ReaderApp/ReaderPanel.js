@@ -401,7 +401,6 @@ var ReaderPanel = React.createClass({
             (<ReaderDisplayOptionsMenu
               theme={this.props.theme}
               textFlow={this.state.textFlow}
-              windowWidth={this.state.windowWidth}
               textReference={this.props.textReference}
               textLanguage={this.state.textLanguage}
               setTextFlow={this.setTextFlow}
