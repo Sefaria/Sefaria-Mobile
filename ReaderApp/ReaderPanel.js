@@ -89,10 +89,18 @@ var ReaderPanel = React.createClass({
   componentWillMount: function() {
 
     this.gestureResponder = createResponder({
-      onStartShouldSetResponder: (evt, gestureState) => true,
-      onStartShouldSetResponderCapture: (evt, gestureState) => true,
-      onMoveShouldSetResponder: (evt, gestureState) => true,
-      onMoveShouldSetResponderCapture: (evt, gestureState) => true,
+      onStartShouldSetResponder: (evt, gestureState) => {
+        return gestureState.pinch;
+      },
+      onStartShouldSetResponderCapture: (evt, gestureState) => {
+        return gestureState.pinch;
+      },
+      onMoveShouldSetResponder: (evt, gestureState) => {
+        return gestureState.pinch;
+      },
+      onMoveShouldSetResponderCapture: (evt, gestureState) => {
+        return gestureState.pinch;
+      },
 
       onResponderGrant: (evt, gestureState) => {},
       onResponderMove: (evt, gestureState) => {
