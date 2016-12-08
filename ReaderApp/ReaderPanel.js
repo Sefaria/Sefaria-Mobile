@@ -105,6 +105,8 @@ var ReaderPanel = React.createClass({
       onResponderGrant: (evt, gestureState) => {},
       onResponderMove: (evt, gestureState) => {
         if (gestureState.pinch && gestureState.previousPinch) {
+          this.incrementFont(gestureState.pinch / gestureState.previousPinch);
+          return;
           var pinchChange = (gestureState.pinch - gestureState.previousPinch);
           console.log("Pinch Change: ", pinchChange);
           if (pinchChange > 5) {
@@ -205,13 +207,15 @@ var ReaderPanel = React.createClass({
   },
   incrementFont: function(incrementString) {
     if (incrementString == "larger") {
-      var updatedSettings = Sefaria.util.clone(this.state.settings)
-      updatedSettings.fontSize = this.state.settings.fontSize*1.1;
-    } else /*if (incrementString == "decrementFont") */{
-      var updatedSettings = Sefaria.util.clone(this.state.settings)
-      updatedSettings.fontSize  = this.state.settings.fontSize*.9;
+      var x = 1.1;
+    } else if (incrementString == "smaller") {
+      var x = .9;
+    } else {
+      var x = incrementString;
     }
-    updatedSettings.fontSize = updatedSettings.fontSize > 120 ? 120 : updatedSettings.fontSize; // Max size
+    var updatedSettings = Sefaria.util.clone(this.state.settings)
+    updatedSettings.fontSize *= x;
+    updatedSettings.fontSize = updatedSettings.fontSize > 80 ? 80 : updatedSettings.fontSize; // Max size
     updatedSettings.fontSize = updatedSettings.fontSize < 15 ? 15 : updatedSettings.fontSize; // Min size
 
     this.setState({settings: updatedSettings});
