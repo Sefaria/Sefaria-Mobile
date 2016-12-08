@@ -11,6 +11,7 @@ import {
   Modal,
   Dimensions
 } from 'react-native';
+import {createResponder} from 'react-native-gesture-responder';
 
 var ReaderDisplayOptionsMenu  = require('./ReaderDisplayOptionsMenu');
 var ReaderNavigationMenu      = require('./ReaderNavigationMenu');
@@ -84,6 +85,34 @@ var ReaderPanel = React.createClass({
       ReaderDisplayOptionsMenuVisible: false,
       settings: {},
     };
+  },
+  componentWillMount: function() {
+
+    this.gestureResponder = createResponder({
+      onStartShouldSetResponder: (evt, gestureState) => true,
+      onStartShouldSetResponderCapture: (evt, gestureState) => true,
+      onMoveShouldSetResponder: (evt, gestureState) => true,
+      onMoveShouldSetResponderCapture: (evt, gestureState) => true,
+
+      onResponderGrant: (evt, gestureState) => {},
+      onResponderMove: (evt, gestureState) => {
+        if (gestureState.pinch && gestureState.previousPinch) {
+          var pinchChange = (gestureState.pinch - gestureState.previousPinch);
+          console.log("Pinch Change: ", pinchChange);
+          if (pinchChange > 5) {
+            this.incrementFont("larger");
+          } else if (pinchChange < -5) {
+            this.incrementFont("smaller");
+          }
+        }
+      },
+      onResponderTerminationRequest: (evt, gestureState) => true,
+      onResponderRelease: (evt, gestureState) => {},
+      onResponderTerminate: (evt, gestureState) => {},
+      onResponderSingleTapConfirmed: (evt, gestureState) => {},
+      debug: false
+    });
+    console.log(this.gestureResponder);
   },
   componentWillReceiveProps: function(nextProps) {
     if (!this.props.defaultSettingsLoaded && nextProps.defaultSettingsLoaded) {
@@ -169,11 +198,14 @@ var ReaderPanel = React.createClass({
   incrementFont: function(incrementString) {
     if (incrementString == "larger") {
       var updatedSettings = Sefaria.util.clone(this.state.settings)
-      updatedSettings.fontSize = this.state.settings.fontSize+1;
+      updatedSettings.fontSize = this.state.settings.fontSize*1.1;
     } else /*if (incrementString == "decrementFont") */{
       var updatedSettings = Sefaria.util.clone(this.state.settings)
-      updatedSettings.fontSize  = this.state.settings.fontSize-1;
+      updatedSettings.fontSize  = this.state.settings.fontSize*.9;
     }
+    updatedSettings.fontSize = updatedSettings.fontSize > 120 ? 120 : updatedSettings.fontSize; // Max size
+    updatedSettings.fontSize = updatedSettings.fontSize < 15 ? 15 : updatedSettings.fontSize; // Min size
+
     this.setState({settings: updatedSettings});
     Sefaria.settings.set("fontSize", updatedSettings.fontSize);
     Sefaria.track.event("Reader","Display Option Click","fontSize - " + incrementString);
@@ -281,7 +313,7 @@ var ReaderPanel = React.createClass({
     }
 
     return (
-  		<View style={[styles.container, this.props.theme.container]} onLayout={this.getWindowWidth}>
+  		<View style={[styles.container, this.props.theme.container]} onLayout={this.getWindowWidth} {...this.gestureResponder}>
           <CategoryColorLine category={Sefaria.categoryForTitle(this.props.textTitle)} />
           <ReaderControls
             theme={this.props.theme}
