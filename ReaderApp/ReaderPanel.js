@@ -87,32 +87,22 @@ var ReaderPanel = React.createClass({
     };
   },
   componentWillMount: function() {
-
     this.gestureResponder = createResponder({
-      onStartShouldSetResponder: (evt, gestureState) => {
-        return gestureState.pinch;
-      },
-      onStartShouldSetResponderCapture: (evt, gestureState) => {
-        return gestureState.pinch;
-      },
-      onMoveShouldSetResponder: (evt, gestureState) => {
-        return gestureState.pinch;
-      },
-      onMoveShouldSetResponderCapture: (evt, gestureState) => {
-        return gestureState.pinch;
-      },
+      onStartShouldSetResponder: (evt, gestureState) => { return gestureState.pinch; },
+      onStartShouldSetResponderCapture: (evt, gestureState) => { return gestureState.pinch; },
+      onMoveShouldSetResponder: (evt, gestureState) => { return gestureState.pinch; },
+      onMoveShouldSetResponderCapture: (evt, gestureState) => { return gestureState.pinch; },
 
       onResponderGrant: (evt, gestureState) => {},
       onResponderMove: (evt, gestureState) => {
         if (gestureState.pinch && gestureState.previousPinch) {
-          this.incrementFont(gestureState.pinch / gestureState.previousPinch);
-          return;
-          var pinchChange = (gestureState.pinch - gestureState.previousPinch);
-          console.log("Pinch Change: ", pinchChange);
-          if (pinchChange > 5) {
-            this.incrementFont("larger");
-          } else if (pinchChange < -5) {
-            this.incrementFont("smaller");
+          this.pendingIncrement *= gestureState.pinch / gestureState.previousPinch
+          if (!this.incrementTimer) {
+            this.incrementTimer = setTimeout(() => {
+              this.incrementFont(this.pendingIncrement);
+              this.pendingIncrement = 1;
+              this.incrementTimer = null;
+            }, 100);
           }
         }
       },
@@ -120,10 +110,9 @@ var ReaderPanel = React.createClass({
       onResponderRelease: (evt, gestureState) => {},
       onResponderTerminate: (evt, gestureState) => {},
       onResponderSingleTapConfirmed: (evt, gestureState) => {},
-      debug: false
     });
-    console.log(this.gestureResponder);
   },
+  pendingIncrement: 1,
   componentWillReceiveProps: function(nextProps) {
     if (!this.props.defaultSettingsLoaded && nextProps.defaultSettingsLoaded) {
       this.setDefaultSettings();
@@ -205,22 +194,22 @@ var ReaderPanel = React.createClass({
     this.state.windowWidth = Dimensions.get('window').width;
     this.forceUpdate();
   },
-  incrementFont: function(incrementString) {
-    if (incrementString == "larger") {
+  incrementFont: function(increment) {
+    if (increment == "larger") {
       var x = 1.1;
-    } else if (incrementString == "smaller") {
+    } else if (increment == "smaller") {
       var x = .9;
     } else {
-      var x = incrementString;
+      var x = increment;
     }
-    var updatedSettings = Sefaria.util.clone(this.state.settings)
+    var updatedSettings = Sefaria.util.clone(this.state.settings);
     updatedSettings.fontSize *= x;
     updatedSettings.fontSize = updatedSettings.fontSize > 80 ? 80 : updatedSettings.fontSize; // Max size
     updatedSettings.fontSize = updatedSettings.fontSize < 15 ? 15 : updatedSettings.fontSize; // Min size
 
     this.setState({settings: updatedSettings});
     Sefaria.settings.set("fontSize", updatedSettings.fontSize);
-    Sefaria.track.event("Reader","Display Option Click","fontSize - " + incrementString);
+    Sefaria.track.event("Reader","Display Option Click","fontSize - " + increment);
   },
   setTheme: function(themeStr) {
     this.props.setTheme(themeStr);
