@@ -200,7 +200,6 @@ var ReaderApp = React.createClass({
         }.bind(this)).catch(function(error) {
           console.log(error);
           if (error == "Return to Nav") {
-            this.setState({loaded: true});
             this.openNav();
             return;
           }
@@ -369,6 +368,7 @@ var ReaderApp = React.createClass({
         }
     },
     openNav: function() {
+        this.setState({loaded: true});
         this.openMenu("navigation");
     },
     goBack: function() {
