@@ -238,7 +238,6 @@ var Api = {
           strings.noInternet,
           strings.noInternetMessage,
           [
-            {text: strings.cancel, style: 'cancel'},
             {text: strings.tryAgain, onPress: () => {
               Sefaria.api._request(ref,apiType,context).then(resolve);
             }}
