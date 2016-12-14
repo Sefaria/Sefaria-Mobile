@@ -45,7 +45,7 @@ var TextSegment = React.createClass({
         onPress={ () => this.onPressTextSegment(this.props.segmentKey) }
         key={this.props.segmentKey}
         onLayout={this.onLayout}
-//        selectable={true}
+        selectable={true}
       >
 
           <HTMLView value={
