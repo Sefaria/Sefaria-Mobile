@@ -71,7 +71,7 @@ def zip_last_text(title):
 	z = zipfile.ZipFile(zipPath, "w", zipfile.ZIP_DEFLATED)
 
 	for file in glob.glob("*.json"):
-		if file.endswith("calendar.json") or file.endswith("toc.json") or file.endswith("last_update.json"):
+		if file.endswith("calendar.json") or file.endswith("toc.json") or file.endswith("last_updated.json"):
 			continue
 		z.write(file)
 		os.remove(file)
