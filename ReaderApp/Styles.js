@@ -312,7 +312,6 @@ module.exports = StyleSheet.create({
     margin: 2,
     paddingVertical: 10,
     paddingHorizontal: 10,
-    flex: 1,
     justifyContent: "center",
     alignItems: "center",
   },
@@ -453,7 +452,6 @@ module.exports = StyleSheet.create({
     alignItems: 'stretch'
   },
   sectionHeaderBox: {
-    flex: 1,
     alignItems: "center",
     marginHorizontal: 30,
   },
