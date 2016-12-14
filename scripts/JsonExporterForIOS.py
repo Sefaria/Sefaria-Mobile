@@ -42,8 +42,10 @@ def make_json(doc):
 	"""
 	Returns JSON of `doc` with export settings.
 	"""
-	return json.dumps(doc, indent=4, encoding='utf-8', ensure_ascii=False) #prettified
-	#return json.dumps(doc, separators=(',',':'), encoding='utf-8', ensure_ascii=False) #minified
+	if MINIFY_JSON:
+		return json.dumps(doc, separators=(',',':'), encoding='utf-8', ensure_ascii=False) #minified
+	else:
+		return json.dumps(doc, indent=4, encoding='utf-8', ensure_ascii=False) #prettified
 
 
 def write_doc(doc, path):
@@ -280,9 +282,15 @@ def export_all(skip_existing=False):
 	If `skip_existing`, skip any text that already has a zip file, otherwise delete everything and start fresh.
 	"""
 	start_time = time.time()
-	if not skip_existing:
-		clear_exports()
 	export_toc()
 	export_calendar()
 	export_texts(skip_existing)
 	print("--- %s seconds ---" % round(time.time() - start_time, 2))
+
+
+if __name__ == '__main__':
+	action = sys.argv[1] if len(sys.argv) > 1 else None
+	if action == "export_all":
+		export_all()
+	elif action == "export_all_skip_existing":
+		export_all(skip_existing=True)
