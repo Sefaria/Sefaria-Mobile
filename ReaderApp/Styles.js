@@ -189,7 +189,7 @@ module.exports = StyleSheet.create({
     flex: 1,
     fontSize: 16,
     fontStyle: "normal",
-    fontFamily: "EB Garamond",
+    fontFamily: "Crimson Text",
     paddingTop: 0,
     backgroundColor: "transparent"
   },
@@ -269,7 +269,7 @@ module.exports = StyleSheet.create({
   },
   emptyLinksMessage: {
     fontStyle: "italic",
-    fontFamily: "EB Garamond",
+    fontFamily: "Crimson Text",
     textAlign: "center",
     marginTop: 8
   },
@@ -433,7 +433,7 @@ module.exports = StyleSheet.create({
     fontWeight: "100"
   },
   title: {
-    fontFamily: "EB Garamond",
+    fontFamily: "Crimson Text",
     fontSize: 20
   },
   verseContainer: {
@@ -568,7 +568,7 @@ module.exports = StyleSheet.create({
   },
   dedication: {
     fontStyle: "italic",
-    fontFamily: "EB Garamond",
+    fontFamily: "Crimson Text",
     fontSize: 14,
     textAlign: "center",
     marginBottom: 20
@@ -578,7 +578,7 @@ module.exports = StyleSheet.create({
     height: 1
   },
   englishText: {
-    fontFamily: "EB Garamond",
+    fontFamily: "Crimson Text",
     textAlign: 'left',
     flex: -1,
     fontSize: iPad ? 19 : 15,
@@ -594,7 +594,7 @@ module.exports = StyleSheet.create({
     fontFamily: "Open Sans Hebrew"
   },
   en: {
-    fontFamily: "EB Garamond",
+    fontFamily: "Crimson Text",
     textAlign: 'left'
   },
   he: {
