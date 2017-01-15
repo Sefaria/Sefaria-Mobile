@@ -405,7 +405,7 @@ Sefaria = {
     items = items.filter(function(existing) {
       return Sefaria.textTitleForRef(existing.ref) !== Sefaria.textTitleForRef(item.ref);
     });
-    items = [item].concat(items).slice(0,4);
+    items = [item].concat(items); //.slice(0,4)
     Sefaria.recent = items;
     AsyncStorage.setItem("recent", JSON.stringify(items)).catch(function(error) {
       console.error("AsyncStorage failed to save: " + error);
