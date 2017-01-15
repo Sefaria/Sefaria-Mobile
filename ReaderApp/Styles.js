@@ -316,10 +316,29 @@ module.exports = StyleSheet.create({
     alignItems: "center",
   },
   readerNavSectionTitle: {
-    alignSelf: "center",
-    marginBottom: 15,
     fontSize: 13,
-    letterSpacing: 1,
+    letterSpacing: 1
+  },
+  readerNavSectionTitleOuter: {
+    marginBottom: 15,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center'
+  },
+  readerNavSectionMoreEn: {
+    textAlign: "right",
+    paddingRight: 10,
+    fontSize: 10,
+    width: 100
+  },
+  readerNavSectionMoreHe: {
+    textAlign: "left",
+    paddingLeft: 10,
+    fontSize: 10,
+    width: 100
+  },
+  readerNavSectionMoreInvisible: {
+    opacity: 0
   },
   navBottomLinks: {
     marginTop: 20,

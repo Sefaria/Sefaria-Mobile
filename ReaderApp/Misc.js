@@ -15,6 +15,7 @@ var Sefaria = require('./sefaria');
 var styles = require('./Styles.js');
 
 
+
 var TwoBox = React.createClass({
     propTypes: {
         content:  React.PropTypes.array.isRequired,
@@ -38,6 +39,28 @@ var TwoBox = React.createClass({
     }
 });
 
+var CategoryBlockLink = React.createClass({
+  propTypes: {
+    theme:     React.PropTypes.object.isRequired,
+    category:  React.PropTypes.string,
+    language:  React.PropTypes.string,
+    style:     React.PropTypes.object,
+    upperCase: React.PropTypes.bool,
+    onPress:   React.PropTypes.func,
+  },
+  render: function() {
+    var style  = this.props.style || {"borderColor": Sefaria.palette.categoryColor(this.props.category)};
+    var enText = this.props.upperCase ? this.props.category.toUpperCase() : this.props.category;
+    var heText = this.props.heCat || Sefaria.hebrewCategory(this.props.category);
+    var textStyle  = [styles.centerText, this.props.theme.text, this.props.upperCase ? styles.spacedText : null];
+    var content = this.props.language == "english"?
+      (<Text style={[styles.englishText].concat(textStyle)}>{enText}</Text>) :
+      (<Text style={[styles.hebrewText].concat(textStyle)}>{heText}</Text>);
+    return (<TouchableOpacity onPress={this.props.onPress} style={[styles.readerNavCategory, this.props.theme.readerNavCategory, style]}>
+              {content}
+            </TouchableOpacity>);
+  }
+});
 
 var CategoryColorLine = React.createClass({
   render: function() {
@@ -174,7 +197,7 @@ var ButtonToggleSet = React.createClass({
   render: function() {
     var showHebrew = this.props.contentLang == "hebrew";
     var options = this.props.options.map(function(option, i) {
-      
+
       let alignStyle;
       if (i == this.props.options.length -1) { alignStyle = styles.readerDisplayOptionsMenuItemRight; }
       else if (i == 0)                       { alignStyle = styles.readerDisplayOptionsMenuItemLeft; }
@@ -191,9 +214,9 @@ var ButtonToggleSet = React.createClass({
       );
     }.bind(this));
 
-    return (<View style={[styles.readerDisplayOptionsMenuRow, 
-                          styles.readerDisplayOptionMenuRowNotColor, 
-                          this.props.theme.readerDisplayOptionsMenuDivider, 
+    return (<View style={[styles.readerDisplayOptionsMenuRow,
+                          styles.readerDisplayOptionMenuRowNotColor,
+                          this.props.theme.readerDisplayOptionsMenuDivider,
                           styles.buttonToggleSet]}>
               {options}
             </View>);
@@ -215,6 +238,7 @@ var LoadingView = React.createClass({
 
 module.exports.TwoBox = TwoBox;
 module.exports.CategoryColorLine = CategoryColorLine;
+module.exports.CategoryBlockLink = CategoryBlockLink;
 module.exports.LanguageToggleButton = LanguageToggleButton;
 module.exports.SearchButton = SearchButton;
 module.exports.MenuButton = MenuButton;
