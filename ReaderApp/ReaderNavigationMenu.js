@@ -141,7 +141,8 @@ var ReaderNavigationMenu = React.createClass({
                   title={strings.browse}
                   heTitle="טקסטים"
                   content={categories}
-                  interfaceLang={this.props.interfaceLang} />
+                  interfaceLang={this.props.interfaceLang}
+                  hasmore={false} />
 
                 <CalendarSection
                   theme={this.props.theme}
@@ -190,7 +191,7 @@ var RecentSection = React.createClass({
   render: function() {
     if (!Sefaria.recent || !Sefaria.recent.length) { return null; }
 
-    var recent = Sefaria.recent.map(function(item) {
+    var recent = Sefaria.recent.slice(0,4).map(function(item) {
       return (<CategoryBlockLink
                     theme={this.props.theme}
                     category={item.ref}
@@ -206,7 +207,8 @@ var RecentSection = React.createClass({
               title={strings.recent}
               heTitle={strings.recent}
               content={<TwoBox content={recent} language={this.props.language}/>}
-              interfaceLang={this.props.interfaceLang} />);
+              interfaceLang={this.props.interfaceLang}
+              hasmore={Sefaria.recent.length > 4} />);
   }
 });
 
@@ -256,7 +258,8 @@ var CalendarSection = React.createClass({
               title={strings.calendar}
               heTitle={strings.calendar}
               content={calendarContent}
-              interfaceLang={this.props.interfaceLang} />);
+              interfaceLang={this.props.interfaceLang}
+              hasmore={false} />);
   }
 });
 
@@ -292,7 +295,8 @@ var ReaderNavigationMenuSection = React.createClass({
     title:         React.PropTypes.string,
     heTitle:       React.PropTypes.string,
     interfaceLang: React.PropTypes.string,
-    content:       React.PropTypes.object
+    content:       React.PropTypes.object,
+    hasmore:       React.PropTypes.bool
   },
   render: function() {
     if (!this.props.content) { return null; }
