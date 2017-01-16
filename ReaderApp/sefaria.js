@@ -289,15 +289,15 @@ Sefaria = {
   },
   _versionInfo: {},
   cacheVersionInfo: function(data, shouldOverwrite) {
-    if (data.indexTitle in Sefaria._versionInfo) { return; }
+    if (data.sectionRef in Sefaria._versionInfo) { return; }
     attrs = ['versionTitle','heVersionTitle','versionNotes','heVersionNotes','license','heLicense'];
-    Sefaria._versionInfo[data.indexTitle] = {};
+    Sefaria._versionInfo[data.sectionRef] = {};
     attrs.map((attr)=>{
-      if ((!shouldOverwrite && !Sefaria._versionInfo[data.indexTitle][attr]) || shouldOverwrite) {
-        Sefaria._versionInfo[data.indexTitle][attr] = data[attr];
+      if ((!shouldOverwrite && !Sefaria._versionInfo[data.sectionRef][attr]) || shouldOverwrite) {
+        Sefaria._versionInfo[data.sectionRef][attr] = data[attr];
       }
     });
-    console.log(data.ref,Sefaria._versionInfo[data.indexTitle]);
+    console.log(data.ref,Sefaria._versionInfo[data.sectionRef]);
   },
   versionInfo: function(ref) {
     return Sefaria._versionInfo[ref];

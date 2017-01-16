@@ -50,6 +50,29 @@ var Api = {
         "text": en,
         "links": link_response[i] ? link_response[i] : []
       }));
+
+      //
+      if (!text_response.versionTitle && text_response.sources) {
+        text_response.versionTitle = "Merged from ";
+        sourceSet = new Set(text_response.sources);
+        isFirst = true;
+        for (let source of sourceSet) {
+          if (!isFirst) text_response.versionTitle += ", ";
+          text_response.versionTitle += source;
+          isFirst = false;
+        }
+      }
+      if (!text_response.heVersionTitle && text_response.heSources) {
+        text_response.heVersionTitle = "Merged from ";
+        sourceSet = new Set(text_response.heSources);
+        isFirst = true;
+        for (let source of sourceSet) {
+          if (!isFirst) text_response.heVersionTitle += ", ";
+          text_response.heVersionTitle += source;
+          isFirst = false;
+        }
+      }
+
       return {
         "versionTitle": text_response.versionTitle,
         "heVersionTitle": text_response.heVersionTitle,
