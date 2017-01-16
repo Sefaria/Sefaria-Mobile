@@ -43,7 +43,7 @@ var ReaderTextTableOfContents = React.createClass({
     var toc = Sefaria.textToc(this.props.title, function(data) {
       this.setState({textToc: data});
     }.bind(this));
-
+    console.log("VERS INF",Sefaria.versionInfo(this.props.title));
     return {
       textToc: toc
     };

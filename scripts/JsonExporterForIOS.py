@@ -44,6 +44,7 @@ any section has a version different than the default version
 
 SCHEMA_VERSION = "1"
 EXPORT_PATH = SEFARIA_EXPORT_PATH + "/" + SCHEMA_VERSION
+MINIFY_JSON = True
 
 
 def make_path(doc, format):
@@ -224,9 +225,9 @@ def section_data(oref, defaultVersions):
 	if he_vnotes:
 		data['heVersionNotes'] = he_vnotes
 	if en_vlicense:
-		data['versionLicense'] = en_vlicense
+		data['license'] = en_vlicense
 	if he_vlicense:
-		data['heVersionLicense'] = he_vlicense
+		data['heLicense'] = he_vlicense
 
 
 
@@ -265,7 +266,7 @@ def export_index(index):
 			except AttributeError:
 				pass
 			try:
-				index_counts['versionLicense'] = default_versions['en'].versionLicense
+				index_counts['license'] = default_versions['en'].versionLicense
 			except AttributeError:
 				pass
 		if 'he' in default_versions:
@@ -275,7 +276,7 @@ def export_index(index):
 			except AttributeError:
 				pass
 			try:
-				index_counts['heVersionLicense'] = default_versions['he'].versionLicense
+				index_counts['heLicense'] = default_versions['he'].versionLicense
 			except AttributeError:
 				pass
 		path  = "%s/%s_index.json" % (EXPORT_PATH, index.title)

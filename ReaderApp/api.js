@@ -50,8 +50,13 @@ var Api = {
         "text": en,
         "links": link_response[i] ? link_response[i] : []
       }));
-
       return {
+        "versionTitle": text_response.versionTitle,
+        "heVersionTitle": text_response.heVersionTitle,
+        "versionNotes": text_response.versionNotes,
+        "heVersionNotes": text_response.heVersionNotes,
+        "license": text_response.license,
+        "heLicense": text_response.heLicense,
         "requestedRef": responses.ref,
         "isSectionLevel": responses.ref === text_response.sectionRef,
         "heTitleVariants": text_response.heTitleVariants,
