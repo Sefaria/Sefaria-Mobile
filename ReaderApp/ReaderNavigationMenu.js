@@ -207,6 +207,7 @@ var RecentSection = React.createClass({
     }.bind(this));
 
     return (<ReaderNavigationMenuSection
+              hasmore={Sefaria.recent.length > 4}
               theme={this.props.theme}
               title={strings.recent}
               heTitle={strings.recent}
@@ -259,6 +260,7 @@ var CalendarSection = React.createClass({
     var calendarContent = <TwoBox content={calendar} language={this.props.language}/>;
 
     return (<ReaderNavigationMenuSection
+              hasmore={false}
               theme={this.props.theme}
               title={strings.calendar}
               heTitle={strings.calendar}

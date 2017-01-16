@@ -8,8 +8,8 @@ const strings = require('./LocalizedStrings');
 
 
 const SCHEMA_VERSION = "1";
-const HOST_PATH = "http://readonly.sefaria.org/static/ios-export/" + SCHEMA_VERSION + "/";
-
+//const HOST_PATH = "http://readonly.sefaria.org/static/ios-export/" + SCHEMA_VERSION + "/";
+const HOST_PATH = "file:///Users/nss/Documents/Sefaria-Export/ios/" + SCHEMA_VERSION + "/";
 
 var Downloader = {
   _data: {
@@ -216,7 +216,7 @@ var Downloader = {
     this._setData("downloadInProgress", [title].concat(this._data.downloadInProgress));
     return new Promise(function(resolve, reject) {
       RNFS.exists(toFile).then((exists) => {
-        if (exists) { RNFS.unlink(toFile); }   
+        if (exists) { RNFS.unlink(toFile); }
       });
       RNFS.downloadFile({
         fromUrl: HOST_PATH + encodeURIComponent(title) + ".zip",
