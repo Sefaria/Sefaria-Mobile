@@ -320,8 +320,9 @@ var ReaderPanel = React.createClass({
             close={this.props.openNav}
             theme={this.props.theme}
             themeStr={this.props.themeStr}
-            toggleMenuLanguage={this.toggleMenuLanguage}
+            toggleLanguage={this.toggleMenuLanguage}
             openRef={this.props.openRef}
+            language={this.state.settings.language}
             Sefaria={Sefaria} />
         );
         break;

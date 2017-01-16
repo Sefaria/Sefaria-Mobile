@@ -15,8 +15,7 @@ var {
   CategoryBlockLink,
   CloseButton,
   TwoBox,
-  ButtonToggleSet,
-  CategoryBlockLink
+  LanguageToggleButton
 } = require('./Misc.js');
 
 const styles           = require('./Styles');
@@ -31,8 +30,9 @@ var RecentPage = React.createClass({
     close:              React.PropTypes.func.isRequired,
     theme:              React.PropTypes.object.isRequired,
     themeStr:           React.PropTypes.string.isRequired,
-    toggleMenuLanguage: React.PropTypes.func.isRequired,
+    toggleLanguage:     React.PropTypes.func.isRequired,
     openRef:            React.PropTypes.func.isRequired,
+    language:           React.PropTypes.oneOf(["english","hebrew"]),
     Sefaria:            React.PropTypes.object.isRequired
   },
 
@@ -53,12 +53,18 @@ var RecentPage = React.createClass({
         <CategoryColorLine category={"Other"} />
         <View style={[styles.header, this.props.theme.header]}>
           <CloseButton onPress={this.props.close} theme={this.props.theme} themeStr={this.props.themeStr}/>
-          <Text style={[styles.settingsHeader, this.props.theme.text]}>{strings.recent.toUpperCase()}</Text>
+          <Text style={[styles.textTocHeaderTitle, styles.textCenter, this.props.theme.text]}>{strings.recent.toUpperCase()}</Text>
+          <LanguageToggleButton
+            theme={this.props.theme}
+            toggleLanguage={this.props.toggleLanguage}
+            language={this.props.language}
+            themeStr={this.props.themeStr}
+          />
         </View>
 
         <ScrollView style={styles.menuContent}>
           <View style={styles.readerNavSection}>
-            <TwoBox content={recent} language={"english"}/>
+            <TwoBox content={recent} language={this.props.language}/>
           </View>
         </ScrollView>
       </View>
