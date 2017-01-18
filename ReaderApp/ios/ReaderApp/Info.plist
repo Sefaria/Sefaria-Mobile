@@ -21,7 +21,7 @@
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleVersion</key>
-	<string>1</string>
+	<string>2</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSAppTransportSecurity</key>
@@ -46,8 +46,9 @@
 	<string></string>
 	<key>UIAppFonts</key>
 	<array>
-		<string>EBGaramond-Italic.ttf</string>
-		<string>EBGaramond-Regular.ttf</string>
+		<string>CrimsonText-Bold.ttf</string>
+		<string>CrimsonText-Roman.ttf</string>
+		<string>CrimsonText-Italic.ttf</string>
 		<string>TaameyFrankCLM-Medium.ttf</string>
 		<string>OpenSansHebrew-Regular.ttf</string>
 		<string>OpenSans-Regular.ttf</string>

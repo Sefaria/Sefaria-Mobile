@@ -11,6 +11,7 @@ import {
 
 var {
   CategoryColorLine,
+  CategoryBlockLink,
   TwoBox,
   LanguageToggleButton
 } = require('./Misc.js');
@@ -36,6 +37,7 @@ var ReaderNavigationMenu = React.createClass({
     openSearch:     React.PropTypes.func.isRequired,
     setIsNewSearch: React.PropTypes.func.isRequired,
     openSettings:   React.PropTypes.func.isRequired,
+    openRecent:     React.PropTypes.func.isRequired,
     toggleLanguage: React.PropTypes.func.isRequired,
     Sefaria:        React.PropTypes.object.isRequired
   },
@@ -134,14 +136,16 @@ var ReaderNavigationMenu = React.createClass({
                   theme={this.props.theme}
                   openRef={this.props.openRef}
                   language={language}
-                  interfaceLang={this.props.interfaceLang} />
+                  interfaceLang={this.props.interfaceLang}
+                  openRecent={this.props.openRecent} />
 
                 <ReaderNavigationMenuSection
                   theme={this.props.theme}
                   title={strings.browse}
                   heTitle="טקסטים"
                   content={categories}
-                  interfaceLang={this.props.interfaceLang} />
+                  interfaceLang={this.props.interfaceLang}
+                  hasmore={false} />
 
                 <CalendarSection
                   theme={this.props.theme}
@@ -185,12 +189,13 @@ var RecentSection = React.createClass({
     theme:         React.PropTypes.object.isRequired,
     openRef:       React.PropTypes.func.isRequired,
     interfaceLang: React.PropTypes.string.isRequired,
-    language:      React.PropTypes.string.isRequired
+    language:      React.PropTypes.string.isRequired,
+    openRecent:    React.PropTypes.func.isRequired,
   },
   render: function() {
     if (!Sefaria.recent || !Sefaria.recent.length) { return null; }
 
-    var recent = Sefaria.recent.map(function(item) {
+    var recent = Sefaria.recent.slice(0,4).map(function(item) {
       return (<CategoryBlockLink
                     theme={this.props.theme}
                     category={item.ref}
@@ -202,11 +207,14 @@ var RecentSection = React.createClass({
     }.bind(this));
 
     return (<ReaderNavigationMenuSection
+              hasmore={Sefaria.recent.length > 4}
               theme={this.props.theme}
               title={strings.recent}
               heTitle={strings.recent}
               content={<TwoBox content={recent} language={this.props.language}/>}
-              interfaceLang={this.props.interfaceLang} />);
+              interfaceLang={this.props.interfaceLang}
+              hasmore={Sefaria.recent.length > 4}
+              moreClick={this.props.openRecent} />);
   }
 });
 
@@ -252,38 +260,15 @@ var CalendarSection = React.createClass({
     var calendarContent = <TwoBox content={calendar} language={this.props.language}/>;
 
     return (<ReaderNavigationMenuSection
+              hasmore={false}
               theme={this.props.theme}
               title={strings.calendar}
               heTitle={strings.calendar}
               content={calendarContent}
-              interfaceLang={this.props.interfaceLang} />);
+              interfaceLang={this.props.interfaceLang}
+              hasmore={false} />);
   }
 });
-
-
-var CategoryBlockLink = React.createClass({
-  propTypes: {
-    theme:     React.PropTypes.object.isRequired,
-    category:  React.PropTypes.string,
-    language:  React.PropTypes.string,
-    style:     React.PropTypes.object,
-    upperCase: React.PropTypes.bool,
-    onPress:   React.PropTypes.func,
-  },
-  render: function() {
-    var style  = this.props.style || {"borderColor": Sefaria.palette.categoryColor(this.props.category)};
-    var enText = this.props.upperCase ? this.props.category.toUpperCase() : this.props.category;
-    var heText = this.props.heCat || Sefaria.hebrewCategory(this.props.category);
-    var textStyle  = [styles.centerText, this.props.theme.text, this.props.upperCase ? styles.spacedText : null];
-    var content = this.props.language == "english"?
-      (<Text style={[styles.englishText].concat(textStyle)}>{enText}</Text>) :
-      (<Text style={[styles.hebrewText].concat(textStyle)}>{heText}</Text>);
-    return (<TouchableOpacity onPress={this.props.onPress} style={[styles.readerNavCategory, this.props.theme.readerNavCategory, style]}>
-              {content}
-            </TouchableOpacity>);
-  }
-});
-
 
 var ReaderNavigationMenuSection = React.createClass({
   // A Section on the main navigation which includes a title over a grid of options
@@ -292,14 +277,28 @@ var ReaderNavigationMenuSection = React.createClass({
     title:         React.PropTypes.string,
     heTitle:       React.PropTypes.string,
     interfaceLang: React.PropTypes.string,
-    content:       React.PropTypes.object
+    content:       React.PropTypes.object,
+    hasmore:       React.PropTypes.bool,
+    moreClick:     React.PropTypes.func
   },
   render: function() {
     if (!this.props.content) { return null; }
-    var title = this.props.interfaceLang !== "hebrew" ? this.props.title : this.props.heTitle;
-    var langStyle = this.props.interfaceLang !== "hebrew" ? styles.enInt : styles.heInt;
+
+    var isheb = this.props.interfaceLang === "hebrew";
+    var title = !isheb ? this.props.title : this.props.heTitle;
+    var langStyle = !isheb ? styles.enInt : styles.heInt;
+    var moreHeStyle = !isheb || !this.props.hasmore ? [styles.readerNavSectionMoreInvisible, styles.readerNavSectionMoreHe] : [styles.readerNavSectionMoreHe];
+    var moreEnStyle = isheb || !this.props.hasmore ? [styles.readerNavSectionMoreInvisible, styles.readerNavSectionMoreEn] : [styles.readerNavSectionMoreEn];
     return (<View style={styles.readerNavSection}>
-              <Text style={[styles.readerNavSectionTitle, this.props.theme.readerNavSectionTitle, langStyle]}>{title}</Text>
+              <View style={styles.readerNavSectionTitleOuter}>
+                <TouchableOpacity onPress={isheb ? this.props.moreClick : ()=>{}}>
+                  <Text style={moreHeStyle}> עוד &gt;</Text>
+                </TouchableOpacity>
+                <Text style={[styles.readerNavSectionTitle, this.props.theme.readerNavSectionTitle, langStyle]}>{title}</Text>
+                <TouchableOpacity onPress={!isheb ? this.props.moreClick : ()=>{}}>
+                  <Text style={moreEnStyle}> MORE &gt;</Text>
+                </TouchableOpacity>
+              </View>
               {this.props.content}
             </View>);
   }

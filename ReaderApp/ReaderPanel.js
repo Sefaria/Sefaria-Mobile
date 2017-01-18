@@ -20,6 +20,7 @@ var SearchPage                = require('./SearchPage');
 var TextColumn                = require('./TextColumn');
 var TextList                  = require('./TextList');
 var SettingsPage              = require('./SettingsPage');
+var RecentPage                = require('./RecentPage');
 var styles                    = require('./Styles.js');
 
 
@@ -45,6 +46,7 @@ var ReaderPanel = React.createClass({
     openNav:               React.PropTypes.func.isRequired,
     openTextToc:           React.PropTypes.func.isRequired,
     openSettings:          React.PropTypes.func.isRequired,
+    openRecent:            React.PropTypes.func.isRequired,
     interfaceLang:         React.PropTypes.oneOf(["english", "hebrew"]).isRequired,
     loading:               React.PropTypes.bool,
     defaultSettingsLoaded: React.PropTypes.bool,
@@ -260,6 +262,7 @@ var ReaderPanel = React.createClass({
             toggleLanguage={this.toggleMenuLanguage}
             settings={this.state.settings}
             openSettings={this.props.openSettings}
+            openRecent={this.props.openRecent}
             interfaceLang={this.props.interfaceLang}
             theme={this.props.theme}
             themeStr={this.props.themeStr}
@@ -310,6 +313,18 @@ var ReaderPanel = React.createClass({
             themeStr={this.props.themeStr}
             toggleMenuLanguage={this.toggleMenuLanguage}
             Sefaria={Sefaria} />);
+        break;
+      case ("recent"):
+        return(
+          <RecentPage
+            close={this.props.openNav}
+            theme={this.props.theme}
+            themeStr={this.props.themeStr}
+            toggleLanguage={this.toggleMenuLanguage}
+            openRef={this.props.openRef}
+            language={this.state.settings.language}
+            Sefaria={Sefaria} />
+        );
         break;
     }
 

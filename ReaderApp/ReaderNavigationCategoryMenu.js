@@ -155,8 +155,8 @@ var ReaderNavigationCategoryMenuContents = React.createClass({
                         </View>));
         } else {
           // Add a Text
-          var title   = item.title.replace(/^(Mishneh Torah,|Shulchan Arukh,|Jerusalem Talmud|Mishnah|Tosefta) /, "");
-          var heTitle = item.heTitle.replace(/^(משנה תורה,|תלמוד ירושלמי|משנה|תוספתא) /, "");
+          var title   = item.title.replace(/^(Mishneh Torah,|Shulchan Arukh,|Jerusalem Talmud|Mishnah(?! Berurah)|Tosefta) /, "");
+          var heTitle = item.heTitle.replace(/^(משנה תורה,|תלמוד ירושלמי|משנה(?! ברורה)|תוספתא) /, "");
           var openRef = this.props.openRef.bind(null, item.firstSection);
           content.push((<TouchableOpacity  style={[styles.textBlockLink,this.props.theme.textBlockLink]}  onPress={openRef} key={i}>
                             { showHebrew ?

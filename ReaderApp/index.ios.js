@@ -48,7 +48,7 @@ var ReaderApp = React.createClass({
               defaultSettingsLoaded: true,
             });
             this.setDefaultTheme();
-            
+
             var ref =  Sefaria.recent.length ? Sefaria.recent[0].ref : "Genesis 1";
             this.openRef(ref);
 
@@ -669,6 +669,7 @@ var ReaderApp = React.createClass({
                     openSettings={this.openMenu.bind(null, "settings")}
                     openTextToc={this.openTextToc}
                     openSearch={this.openSearch}
+                    openRecent={this.openMenu.bind(null, "recent")}
                     loadingTextTail={this.state.loadingTextTail}
                     loadingTextHead={this.state.loadingTextHead}
                     textListVisible={this.state.textListVisible}

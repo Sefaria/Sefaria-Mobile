@@ -26,6 +26,7 @@ var SettingsPage = React.createClass({
   propTypes: {
     close:       React.PropTypes.func.isRequired,
     theme:       React.PropTypes.object.isRequired,
+    toggleMenuLanguage: React.PropTypes.func.isRequired,
     Sefaria:     React.PropTypes.object.isRequired
   },
   _numPressesDebug: 0,

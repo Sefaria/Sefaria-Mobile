@@ -43,7 +43,6 @@ var ReaderTextTableOfContents = React.createClass({
     var toc = Sefaria.textToc(this.props.title, function(data) {
       this.setState({textToc: data});
     }.bind(this));
-
     return {
       textToc: toc
     };
@@ -79,7 +78,15 @@ var ReaderTextTableOfContents = React.createClass({
     var categories  = Sefaria.index(this.props.title).categories;
     var enCatString = categories.join(", ");
     var heCatString = categories.map(Sefaria.hebrewCategory).join(", ");
-
+    var versionInfo = Sefaria.versionInfo(this.props.currentRef);
+    if (!versionInfo) {
+      //try one level up in case this ref is segment level
+      var colInd = this.props.currentRef.lastIndexOf(":");
+      if (colInd != -1) {
+        versionInfo = Sefaria.versionInfo(splitRef.substring(0,colInd));
+      }
+    }
+    
     return (
       <View style={[styles.menu,this.props.theme.menu]}>
         <CategoryColorLine category={Sefaria.categoryForTitle(this.props.title)} />
@@ -109,6 +116,9 @@ var ReaderTextTableOfContents = React.createClass({
               <Text style={[styles.intHe, styles.textTocSectionString, this.props.theme.textTocSectionString]}>{this.sectionString()}</Text> :
               <Text style={[styles.intEn, styles.textTocSectionString, this.props.theme.textTocSectionString]}>{this.sectionString()}</Text> }
             </View>
+
+            <Text>EN - {versionInfo['versionTitle'] ? versionInfo['versionTitle'] : 'None'}</Text>
+            <Text>HE - {versionInfo['heVersionTitle'] ? versionInfo['heVersionTitle'] : 'NONE'}</Text>
 
           </View>
 

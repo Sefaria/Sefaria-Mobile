@@ -65,6 +65,7 @@ Sefaria = {
         result.requestedRef   = ref;
         result.isSectionLevel = (ref === result.sectionRef);
         Sefaria.cacheCommentatorListBySection(result);
+        Sefaria.cacheVersionInfo(result, true);
         resolve(result);
       };
 
@@ -73,6 +74,7 @@ Sefaria = {
           Sefaria.api._textCache[data.requestedRef] = data;
         }
         Sefaria.cacheCommentatorListBySection(data);
+        Sefaria.cacheVersionInfo(data, true);
         //console.log(data);
         resolve(data);
       };
@@ -285,6 +287,21 @@ Sefaria = {
     }
     return list;
   },
+  _versionInfo: {},
+  cacheVersionInfo: function(data, shouldOverwrite) {
+    if (data.sectionRef in Sefaria._versionInfo) { return; }
+    attrs = ['versionTitle','heVersionTitle','versionNotes','heVersionNotes','license','heLicense'];
+    Sefaria._versionInfo[data.sectionRef] = {};
+    attrs.map((attr)=>{
+      if ((!shouldOverwrite && !Sefaria._versionInfo[data.sectionRef][attr]) || shouldOverwrite) {
+        Sefaria._versionInfo[data.sectionRef][attr] = data[attr];
+      }
+    });
+    console.log(data.ref,Sefaria._versionInfo[data.sectionRef]);
+  },
+  versionInfo: function(ref) {
+    return Sefaria._versionInfo[ref];
+  },
   commentaryList: function(title) {
     // Returns the list of commentaries for 'title' which are found in Sefaria.toc
     var index = this.index(title);
@@ -342,6 +359,7 @@ Sefaria = {
     var resolver = function(data) {
       data = Sefaria._fixTalmudAltStructAddressTypes(data);
       Sefaria._textToc[title] = data;
+      Sefaria.cacheVersionInfo(data,false);
       callback(data);
     };
     Sefaria._loadJSON(path).then(resolver)
@@ -405,7 +423,7 @@ Sefaria = {
     items = items.filter(function(existing) {
       return Sefaria.textTitleForRef(existing.ref) !== Sefaria.textTitleForRef(item.ref);
     });
-    items = [item].concat(items).slice(0,4);
+    items = [item].concat(items); //.slice(0,4);
     Sefaria.recent = items;
     AsyncStorage.setItem("recent", JSON.stringify(items)).catch(function(error) {
       console.error("AsyncStorage failed to save: " + error);

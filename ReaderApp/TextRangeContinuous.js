@@ -53,7 +53,7 @@ var TextRangeContinuous = React.createClass({
 var styles = StyleSheet.create({
 
   englishText: {
-    fontFamily: "EB Garamond",
+    fontFamily: "Crimson Text",
     textAlign: 'left',
     alignSelf: 'stretch',
     fontSize: 16,
