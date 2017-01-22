@@ -368,13 +368,19 @@ var JaggedArrayNodeSection = React.createClass({
     if (this.props.depth > 2) {
       var content = [];
       for (var i = 0; i < this.props.contentCounts.length; i++) {
-        var enSection = this.props.sectionNames[0] + " " + (i+1);
-        var heSection = Sefaria.hebrewSectionName(this.props.sectionNames[0]) + " " + Sefaria.hebrew.encodeHebrewNumeral(i+1);
+        if (!this.props.contentCounts[i]) { continue; }
+        if (this.props.addressTypes[0] === "Talmud") {
+          var enSection = Sefaria.hebrew.intToDaf(i);
+          var heSection = Sefaria.hebrew.encodeHebrewDaf(enSection);
+        } else {
+          var enSection = i+1;
+          var heSection = Sefaria.hebrew.encodeHebrewNumeral(i+1);
+        }
         content.push(
           <View style={styles.textTocNumberedSectionBox} key={i}>
             {showHebrew ?
-              <Text style={[styles.he, styles.textTocNumberedSectionTitle, this.props.theme.text]}>{heSection}</Text> :
-              <Text style={[styles.en, styles.textTocNumberedSectionTitle, this.props.theme.text]}>{enSection}</Text> }
+              <Text style={[styles.he, styles.textTocNumberedSectionTitle, this.props.theme.text]}>{Sefaria.hebrewSectionName(this.props.sectionNames[0]) + " " +heSection}</Text> :
+              <Text style={[styles.en, styles.textTocNumberedSectionTitle, this.props.theme.text]}>{this.props.sectionNames[0] + " " + enSection}</Text> }
             <JaggedArrayNodeSection
               theme={this.props.theme}
               depth={this.props.depth - 1}
