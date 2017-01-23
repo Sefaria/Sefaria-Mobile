@@ -385,12 +385,6 @@ module.exports = StyleSheet.create({
     fontSize: iPad ? 18 : 10,
     marginHorizontal: 7
   },
-  textTocHeaderTitle: {
-    flex: 1,
-    paddingLeft: 10,
-    textAlign: 'center',
-    letterSpacing: 1
-  },
   mainTextPanel: {
     flexWrap: "nowrap",
     justifyContent: 'center',
@@ -499,6 +493,25 @@ module.exports = StyleSheet.create({
   },
   rightContainer: {
     flex: 1
+  },
+  textTocHeaderTitle: {
+    flex: 1,
+    paddingLeft: 10,
+    textAlign: 'center',
+    letterSpacing: 1
+  },
+  textTocVersionInfo: {
+    flexDirection: "row",
+    justifyContent: "center",
+    paddingBottom: 15
+  },
+  textTocVersionInfoItem: {
+    paddingHorizontal: 7
+  },
+  textTocVersionTitle: {
+    paddingTop: 10,
+    fontSize: iPad ? 28 : 17,
+    textAlign: "center"
   },
   textTocTopBox: {
     alignItems: "center",
