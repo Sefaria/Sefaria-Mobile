@@ -14,6 +14,7 @@ var {
   CloseButton,
   LanguageToggleButton,
   CategoryColorLine,
+  CategoryAttribution,
   ToggleSet,
   TwoBox,
   LoadingView
@@ -116,6 +117,10 @@ var ReaderTextTableOfContents = React.createClass({
 
         <ScrollView style={styles.menuContent}>
           <View style={[styles.textTocTopBox, this.props.theme.bordered]}>
+            <CategoryAttribution
+              categories={categories}
+              language={this.props.contentLang}
+              context={"textToc"} />
             <View>
               { this.props.contentLang == "hebrew" ?
                 <Text style={[styles.he, styles.textTocTitle, this.props.theme.text]}>{heTitle}</Text> :

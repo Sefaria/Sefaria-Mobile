@@ -517,6 +517,22 @@ module.exports = StyleSheet.create({
   rightContainer: {
     flex: 1
   },
+  textTocCategoryAttribution: {
+    marginBottom: 20,
+  },
+  textTocCategoryAttributionTextEn: {
+    fontSize: 22,
+    color: "#666",
+    fontStyle: "italic",
+    textAlign: "center",
+    fontFamily: "Crimson Text",
+  },
+  textTocCategoryAttributionTextHe: {
+    fontSize: 20,
+    color: "#666",
+    textAlign: "center",
+    fontFamily: "Taamey Frank CLM",
+  },
   textTocHeaderTitle: {
     flex: 1,
     paddingLeft: 10,
