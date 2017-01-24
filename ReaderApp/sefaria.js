@@ -288,19 +288,30 @@ Sefaria = {
     return list;
   },
   _versionInfo: {},
-  cacheVersionInfo: function(data, shouldOverwrite) {
-    if (data.sectionRef in Sefaria._versionInfo) { return; }
-    attrs = ['versionTitle','heVersionTitle','versionNotes','heVersionNotes','license','heLicense'];
-    Sefaria._versionInfo[data.sectionRef] = {};
+  cacheVersionInfo: function(data, isSection) {
+    //isSection = true if data has `sectionRef`. false if data has `title`
+    attrs = ['versionTitle','heVersionTitle','versionNotes','heVersionNotes','license','heLicense','versionSource','heVersionSource'];
+
+    cacheKey = isSection ? data.sectionRef : data.title;
+    Sefaria._versionInfo[cacheKey] = {};
     attrs.map((attr)=>{
-      if ((!shouldOverwrite && !Sefaria._versionInfo[data.sectionRef][attr]) || shouldOverwrite) {
-        Sefaria._versionInfo[data.sectionRef][attr] = data[attr];
+      Sefaria._versionInfo[cacheKey][attr] = data[attr];
+    });
+    //console.log("SETTING VERSION INFO", cacheKey, isSection,Sefaria._versionInfo[cacheKey]);
+  },
+  versionInfo: function(ref, title) {
+    let sectionInfo = Sefaria._versionInfo[ref];
+    if (!sectionInfo) sectionInfo = {};
+    let indexInfo = Sefaria._versionInfo[title];
+    if (!indexInfo) indexInfo = {};
+    attrs = ['versionTitle','heVersionTitle','versionNotes','heVersionNotes','license','heLicense','versionSource','heVersionSource'];
+    attrs.map((attr)=>{
+      if (!sectionInfo[attr]) {
+        sectionInfo[attr] = indexInfo[attr];
       }
     });
-    console.log(data.ref,Sefaria._versionInfo[data.sectionRef]);
-  },
-  versionInfo: function(ref) {
-    return Sefaria._versionInfo[ref];
+
+    return sectionInfo;
   },
   commentaryList: function(title) {
     // Returns the list of commentaries for 'title' which are found in Sefaria.toc
@@ -989,6 +1000,22 @@ Sefaria = {
 };
 
 Sefaria.util = {
+  parseURLhost: function(url) {
+    //regex source https://stackoverflow.com/questions/27745/getting-parts-of-a-url-regex
+    if (!url) return null;
+    let matches = url.match(/^((http[s]?|ftp):\/)?\/?([^:\/\s]+)((\/\w+)*\/)([\w\-\.]+[^#?\s]+)(.*)?(#[\w\-]+)?$/);
+    return matches ? matches[3] : null; //host name. matches[2] is the stuff after
+  },
+  _licenseMap: {
+    "Public Domain": "http://en.wikipedia.org/wiki/Public_domain",
+    "CC0": "http://creativecommons.org/publicdomain/zero/1.0/",
+    "CC-BY": "http://creativecommons.org/licenses/by/3.0/",
+    "CC-BY-SA": "http://creativecommons.org/licenses/by-sa/3.0/",
+    "CC-BY-NC": "https://creativecommons.org/licenses/by-nc/4.0/"
+  },
+  getLicenseURL: function(license) {
+      return Sefaria.util._licenseMap[license];
+  },
   clone: function clone(obj) {
     // Handle the 3 simple types, and null or undefined
     if (null == obj || "object" != typeof obj) return obj;

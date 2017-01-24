@@ -202,19 +202,23 @@ def section_data(oref, defaultVersions):
 					vlicense = version.license
 				except AttributeError:
 					vlicense = None
+				try:
+					vsource = version.versionSource
+				except AttributeError:
+					vsource = None
 
-				return version.versionTitle, vnotes, vlicense
+				return version.versionTitle, vnotes, vlicense, vsource
 			else:
-				return None, None, None # default version
+				return None, None, None, None # default version
 		else:
 			#merged
 			print "MERGED SECTION {} ({})".format(oref, chunk.lang)
 			all_versions = set(chunk.sources)
 			merged_version = u'Merged from {}'.format(u', '.join(all_versions))
-			return merged_version, None, None
+			return merged_version, None, None, None
 
-	en_vtitle, en_vnotes, en_vlicense = get_version_title(tf._chunks['en'])
-	he_vtitle, he_vnotes, he_vlicense = get_version_title(tf._chunks['he'])
+	en_vtitle, en_vnotes, en_vlicense, en_vsource = get_version_title(tf._chunks['en'])
+	he_vtitle, he_vnotes, he_vlicense, he_vsource = get_version_title(tf._chunks['he'])
 
 	if en_vtitle:
 		data['versionTitle'] = en_vtitle
@@ -228,6 +232,10 @@ def section_data(oref, defaultVersions):
 		data['license'] = en_vlicense
 	if he_vlicense:
 		data['heLicense'] = he_vlicense
+	if en_vsource:
+		data['versionSource'] = en_vsource
+	if he_vsource:
+		data['heVersionSource'] = he_vsource
 
 
 
@@ -266,7 +274,11 @@ def export_index(index):
 			except AttributeError:
 				pass
 			try:
-				index_counts['license'] = default_versions['en'].versionLicense
+				index_counts['license'] = default_versions['en'].license
+			except AttributeError:
+				pass
+			try:
+				index_counts['versionSource'] = default_versions['en'].versionSource
 			except AttributeError:
 				pass
 		if 'he' in default_versions:
@@ -276,7 +288,11 @@ def export_index(index):
 			except AttributeError:
 				pass
 			try:
-				index_counts['heLicense'] = default_versions['he'].versionLicense
+				index_counts['heLicense'] = default_versions['he'].license
+			except AttributeError:
+				pass
+			try:
+				index_counts['heVersionSource'] = default_versions['he'].versionSource
 			except AttributeError:
 				pass
 		path  = "%s/%s_index.json" % (EXPORT_PATH, index.title)

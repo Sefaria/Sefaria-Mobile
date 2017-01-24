@@ -51,7 +51,7 @@ var Api = {
         "links": link_response[i] ? link_response[i] : []
       }));
 
-      //
+      //check merged version title
       if (!text_response.versionTitle && text_response.sources) {
         text_response.versionTitle = "Merged from ";
         sourceSet = new Set(text_response.sources);
@@ -80,6 +80,8 @@ var Api = {
         "heVersionNotes": text_response.heVersionNotes,
         "license": text_response.license,
         "heLicense": text_response.heLicense,
+        "versionSource": text_response.versionSource,
+        "heVersionSource": text_response.heVersionSource,
         "requestedRef": responses.ref,
         "isSectionLevel": responses.ref === text_response.sectionRef,
         "heTitleVariants": text_response.heTitleVariants,
@@ -115,9 +117,9 @@ var Api = {
   _toURL: function(ref, useHTTPS, apiType, context) {
     var url = '';
     if (useHTTPS) {
-      url += 'https://www.sefaria.org/';
+      url += 'https://lev.sefaria.org/';
     } else {
-      url += 'http://www.sefaria.org/';
+      url += 'http://lev.sefaria.org/';
     }
 
     var urlSuffix = '';

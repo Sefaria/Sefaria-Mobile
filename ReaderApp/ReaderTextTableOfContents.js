@@ -1,6 +1,7 @@
 'use strict';
 import React, { Component } from 'react';
 import {
+  Linking,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -33,7 +34,8 @@ var ReaderTextTableOfContents = React.createClass({
     currentHeRef:   React.PropTypes.string.isRequired,
     openRef:        React.PropTypes.func.isRequired,
     close:          React.PropTypes.func.isRequired,
-    contentLang:    React.PropTypes.string.isRequired,
+    textLang:       React.PropTypes.oneOf(["english","hebrew"]).isRequired,
+    contentLang:    React.PropTypes.oneOf(["english","hebrew"]).isRequired,
     interfaceLang:  React.PropTypes.oneOf(["english","hebrew"]).isRequired,
     toggleLanguage: React.PropTypes.func.isRequired,
     Sefaria:        React.PropTypes.object.isRequired
@@ -78,7 +80,7 @@ var ReaderTextTableOfContents = React.createClass({
     var categories  = Sefaria.index(this.props.title).categories;
     var enCatString = categories.join(", ");
     var heCatString = categories.map(Sefaria.hebrewCategory).join(", ");
-    var versionInfo = Sefaria.versionInfo(this.props.currentRef);
+    var versionInfo = Sefaria.versionInfo(this.props.currentRef, this.props.title);
     if (!versionInfo) {
       //try one level up in case this ref is segment level
       var colInd = this.props.currentRef.lastIndexOf(":");
@@ -86,7 +88,23 @@ var ReaderTextTableOfContents = React.createClass({
         versionInfo = Sefaria.versionInfo(splitRef.substring(0,colInd));
       }
     }
-    
+
+    //console.log("IN TEXT TOC", this.props.currentRef, this.props.title, versionInfo);
+     if (this.props.textLang == "hebrew") {
+      var versionTitle = versionInfo['heVersionTitle'];
+      var versionSource = versionInfo['heVersionSource'];
+      var shortVersionSource = Sefaria.util.parseURLhost(versionSource);
+      var license = versionInfo['heLicense'];
+      var licenseURL = Sefaria.util.getLicenseURL(license);
+      var versionNotes = versionInfo['heVersionNotes'];
+    } else {
+      var versionTitle = versionInfo['versionTitle'];
+      var versionSource = versionInfo['versionSource'];
+      var shortVersionSource = Sefaria.util.parseURLhost(versionSource);
+      var license = versionInfo['license'];
+      var licenseURL = Sefaria.util.getLicenseURL(license);
+      var versionNotes = versionInfo['versionNotes'];
+    }
     return (
       <View style={[styles.menu,this.props.theme.menu]}>
         <CategoryColorLine category={Sefaria.categoryForTitle(this.props.title)} />
@@ -117,8 +135,36 @@ var ReaderTextTableOfContents = React.createClass({
               <Text style={[styles.intEn, styles.textTocSectionString, this.props.theme.textTocSectionString]}>{this.sectionString()}</Text> }
             </View>
 
-            <Text>EN - {versionInfo['versionTitle'] ? versionInfo['versionTitle'] : 'None'}</Text>
-            <Text>HE - {versionInfo['heVersionTitle'] ? versionInfo['heVersionTitle'] : 'NONE'}</Text>
+            <View>
+              {
+                versionTitle ?
+                <Text style={[styles.en, styles.textTocVersionTitle, this.props.theme.text]}>{versionTitle}</Text>
+                : null
+              }
+              <View style={styles.textTocVersionInfo}>
+                { versionSource ?
+                  <TouchableOpacity style={[styles.navBottomLink, styles.textTocVersionInfoItem]} onPress={() => {Linking.openURL(versionSource);}}>
+                    <Text style={[this.props.theme.tertiaryText]}>{shortVersionSource}</Text>
+                  </TouchableOpacity>
+                  : null
+                }
+                { license ?
+                  <TouchableOpacity style={[styles.navBottomLink, styles.textTocVersionInfoItem]} onPress={() => licenseURL ? Linking.openURL(licenseURL) : null}>
+                    <Text style={[this.props.theme.tertiaryText]}>{license}</Text>
+                  </TouchableOpacity>
+                  : null
+                }
+              </View>
+              {
+                versionNotes ?
+                <Text style={this.props.theme.tertiaryText}>{versionInfo['versionNotes']}</Text>
+                : null
+              }
+
+            </View>
+
+
+
 
           </View>
 
