@@ -385,6 +385,23 @@ module.exports = StyleSheet.create({
     fontSize: iPad ? 18 : 10,
     marginHorizontal: 7
   },
+  navigationCategoryCategoryAttribution: {
+    marginBottom: 25,
+    marginTop: 10,
+  },
+  navigationCategoryCategoryAttributionTextEn: {
+    fontSize: 22,
+    color: "#999",
+    fontStyle: "italic",
+    textAlign: "center",
+    fontFamily: "Crimson Text",
+  },
+  navigationCategoryCategoryAttributionTextHe: {
+    fontSize: 20,
+    color: "#999",
+    textAlign: "center",
+    fontFamily: "Taamey Frank CLM",
+  },
   textTocHeaderTitle: {
     flex: 1,
     paddingLeft: 10,

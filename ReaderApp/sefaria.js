@@ -379,6 +379,24 @@ Sefaria = {
     }
     return textToc;
   },
+  categoryAttribution: function(categories) {
+    var attributions = [
+      {
+        categories: ["Talmud", "Bavli"],
+        english: "The William Davidson Talmud",
+        hebrew: "תלמוד מהדורת ויליאם דוידסון"
+      }
+    ];
+    var attribution = null;
+    for (var i = 0; i < attributions.length; i++) {
+      if (categories && categories.length >= attributions[i].categories.length &&
+        Sefaria.util.compareArrays(attributions[i].categories, categories.slice(0, attributions[i].categories.length))) {
+        attribution = attributions[i];
+        break;
+      }
+    }
+    return attribution;
+  },
   calendar: null,
   _loadCalendar: function() {
     return new Promise(function(resolve, reject) {
@@ -1015,6 +1033,13 @@ Sefaria.util = {
       }
     }
     return index;
+  },
+  compareArrays: function(a, b) {
+      if (a.length != b.length) return false;
+      for (var i = 0; i < b.length; i++) {
+          if (a[i] !== b[i]) return false;
+      }
+      return true;
   },
   getTextLanguageWithContent: function(lang, en, he) {
     // Returns a language that has content in it give strings `en` and `he`, with a preference for `lang`.

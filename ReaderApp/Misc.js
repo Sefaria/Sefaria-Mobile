@@ -11,9 +11,7 @@ import {
 } from 'react-native';
 
 var Sefaria = require('./sefaria');
-
 var styles = require('./Styles.js');
-
 
 
 var TwoBox = React.createClass({
@@ -39,6 +37,7 @@ var TwoBox = React.createClass({
     }
 });
 
+
 var CategoryBlockLink = React.createClass({
   propTypes: {
     theme:     React.PropTypes.object.isRequired,
@@ -62,10 +61,31 @@ var CategoryBlockLink = React.createClass({
   }
 });
 
+
 var CategoryColorLine = React.createClass({
   render: function() {
     var style = {backgroundColor: Sefaria.palette.categoryColor(this.props.category)};
     return (<View style={[styles.categoryColorLine, style]}></View>);
+  }
+});
+
+
+var CategoryAttribution = React.createClass({
+  propTypes: {
+    categories: React.PropTypes.array.isRequired,
+    language:   React.PropTypes.string.isRequired,
+    context:    React.PropTypes.string.isRequired
+  },
+  render: function() {
+    var attribution = Sefaria.categoryAttribution(this.props.categories);
+    var boxStyles = [styles.categoryAttribution, styles[this.props.context + "CategoryAttribution" ]];
+    return attribution ?
+            <View style={boxStyles}>
+              {this.props.language == "english" ? 
+                <Text style={styles[this.props.context + "CategoryAttributionTextEn"]}>{attribution.english}</Text> :
+                <Text style={styles[this.props.context + "CategoryAttributionTextHe"]}>{attribution.hebrew}</Text>
+              }
+            </View> : null;
   }
 });
 
@@ -110,6 +130,7 @@ var MenuButton = React.createClass({
             </TouchableOpacity>);
   }
 });
+
 
 var GoBackButton = React.createClass({
   render: function() {
@@ -239,6 +260,7 @@ var LoadingView = React.createClass({
 module.exports.TwoBox = TwoBox;
 module.exports.CategoryColorLine = CategoryColorLine;
 module.exports.CategoryBlockLink = CategoryBlockLink;
+module.exports.CategoryAttribution = CategoryAttribution;
 module.exports.LanguageToggleButton = LanguageToggleButton;
 module.exports.SearchButton = SearchButton;
 module.exports.MenuButton = MenuButton;

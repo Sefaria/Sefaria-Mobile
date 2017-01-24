@@ -11,6 +11,7 @@ import {
 
 var {
   CategoryColorLine,
+  CategoryAttribution,
   TwoBox,
   LanguageToggleButton,
   MenuButton,
@@ -94,6 +95,10 @@ var ReaderNavigationCategoryMenu = React.createClass({
 
               <ScrollView style={styles.menuContent}>
                   {toggle}
+                  <CategoryAttribution
+                    categories={categories}
+                    language={showHebrew ? "hebrew" : "english"}
+                    context={"navigationCategory"} />
                   <ReaderNavigationCategoryMenuContents
                     theme={this.props.theme}
                     contents={catContents}
