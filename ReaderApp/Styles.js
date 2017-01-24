@@ -542,15 +542,23 @@ module.exports = StyleSheet.create({
   textTocVersionInfo: {
     flexDirection: "row",
     justifyContent: "center",
-    paddingBottom: 15
-  },
+    paddingBottom: 5
+  }, 
   textTocVersionInfoItem: {
-    paddingHorizontal: 7
+    paddingHorizontal: 7,
+  },
+  textTocVersionInfoText: {
+    fontSize: 12
   },
   textTocVersionTitle: {
-    paddingTop: 10,
+    paddingTop: 25,
     fontSize: iPad ? 28 : 17,
     textAlign: "center"
+  },
+  textTocVersionNotes: {
+    textAlign: "center",
+    fontFamily: "Crimson Text",
+    fontSize: 13,
   },
   textTocTopBox: {
     alignItems: "center",

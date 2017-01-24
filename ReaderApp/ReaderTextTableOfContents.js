@@ -149,23 +149,21 @@ var ReaderTextTableOfContents = React.createClass({
               <View style={styles.textTocVersionInfo}>
                 { versionSource ?
                   <TouchableOpacity style={[styles.navBottomLink, styles.textTocVersionInfoItem]} onPress={() => {Linking.openURL(versionSource);}}>
-                    <Text style={[this.props.theme.tertiaryText]}>{shortVersionSource}</Text>
+                    <Text style={[styles.textTocVersionInfoText, this.props.theme.tertiaryText]}>{shortVersionSource}</Text>
                   </TouchableOpacity>
                   : null
                 }
                 { license ?
                   <TouchableOpacity style={[styles.navBottomLink, styles.textTocVersionInfoItem]} onPress={() => licenseURL ? Linking.openURL(licenseURL) : null}>
-                    <Text style={[this.props.theme.tertiaryText]}>{license}</Text>
+                    <Text style={[styles.textTocVersionInfoText, this.props.theme.tertiaryText]}>{license}</Text>
                   </TouchableOpacity>
                   : null
                 }
               </View>
-              {
-                versionNotes ?
-                <Text style={this.props.theme.tertiaryText}>{versionInfo['versionNotes']}</Text>
+              { versionNotes ?
+                <Text style={[styles.textTocVersionNotes, this.props.theme.tertiaryText]}>{versionInfo['versionNotes']}</Text>
                 : null
               }
-
             </View>
 
 
