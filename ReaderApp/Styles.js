@@ -167,17 +167,31 @@ module.exports = StyleSheet.create({
     paddingHorizontal: 10,
     alignItems: 'center',
     justifyContent: "center",
-    flexDirection: "row"
+    flexDirection: "column"
+  },
+  headerTextTitleInner: {
+    flexDirection: "row",
+    alignItems: 'center',
+    justifyContent: "center",
   },
   headerTextTitleText: {
     fontSize: iPad ? 20 : 16,
     textAlign: "center",
     marginHorizontal: 5
   },
+  headerCategoryAttributionTextEn: {
+    fontFamily: "Crimson Text",
+    fontStyle: "italic",
+    color: "#999"
+  },
+  headerCategoryAttributionTextHe: {
+    fontFamily: "Taamey Frank CLM",
+    color: "#999"
+  },
   downCaret: {
     width: 10,
     height: 10,
-    marginTop: 3,
+    marginTop: 1,
   },
   searchResultSummary: {
     paddingVertical: 10,

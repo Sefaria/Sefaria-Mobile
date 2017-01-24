@@ -160,6 +160,11 @@ Sefaria = {
     if (!index) { return null;}
     return index.categories[0] == "Commentary2" ? "Commentary" : index.categories[0];
   },
+  categoriesForTitle: function(title) {
+    var index = Sefaria.index(title);
+    if (!index) { return null;}
+    return index.categories;
+  },
   categoryForRef: function(ref) {
     return Sefaria.categoryForTitle(Sefaria.textTitleForRef(ref));
   },
