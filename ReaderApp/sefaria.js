@@ -53,11 +53,6 @@ Sefaria = {
         }
         // Annotate link objects with useful fields not included in export
         result.content.forEach(function(segment) {
-          if ("text" in segment) {
-            segment.text = segment.text.replace(/<span\s+class="gemarra-regular">(.+?)<\/span>/g,'<b>$1</b>');
-            segment.text = segment.text.replace(/<span\s+class="gemarra-italic">(.+?)<\/span>/g,'<b><i>$1</i></b>');
-            segment.text = segment.text.replace(/<span\s+class="it-text">(.+?)<\/span>/g,'<i>$1</i>');
-          }
           if ("links" in segment) {
             segment.links.map(function(link) {
               link.textTitle = Sefaria.textTitleForRef(link.sourceRef);
@@ -399,6 +394,12 @@ Sefaria = {
       }
     }
     return textToc;
+  },
+  reformatTalmudContent(segment) {
+    return segment
+      .replace(/<span\s+class="gemarra-regular">(.+?)<\/span>/g, '<b>$1</b>')
+      .replace(/<span\s+class="gemarra-italic">(.+?)<\/span>/g, '<bi>$1</bi>')
+      .replace(/<span\s+class="it-text">(.+?)<\/span>/g, '<i>$1</i>')
   },
   categoryAttribution: function(categories) {
     var attributions = [

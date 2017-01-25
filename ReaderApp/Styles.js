@@ -752,10 +752,13 @@ module.exports = StyleSheet.create({
     fontWeight: "bold"
   },
   b: {
-    fontWeight: "bold"
+    fontWeight: "500"
   },
   i: {
     fontStyle: "italic"
-  }
-
+  },
+  bi: {
+    fontStyle: "italic",
+    fontWeight: "500",
+  },
 });
