@@ -677,11 +677,13 @@ module.exports = StyleSheet.create({
     fontSize: iPad ? 19 : 15,
   },
   hebrewText: {
-    fontFamily: "Taamey Frank CLM",
+    fontFamily: "Taamey Frank Taamim Fix",
     writingDirection: "rtl",
     textAlign: 'right',
     flex: -1,
     fontSize: iPad ? 22 : 18,
+    paddingTop: 10,
+    marginTop: -5,
   },
   hebrewSystemFont: {
     fontFamily: "Open Sans Hebrew"
@@ -691,7 +693,7 @@ module.exports = StyleSheet.create({
     textAlign: 'left'
   },
   he: {
-    fontFamily: "Taamey Frank CLM",
+    fontFamily: "Taamey Frank Taamim Fix",
     textAlign: 'right',
   },
   enInt: {

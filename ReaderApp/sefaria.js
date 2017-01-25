@@ -1264,8 +1264,17 @@ Sefaria.hebrew = {
   },
   sanitizeTextToRemoveCharactersCausingGlyphErrors: function(textToSanitize) {
     return textToSanitize
-      .replace(/[\u0591-\u05AF]/g,"") //remove taamim
-      .replace(/[\u05bd\u05bf\u05c0]/g,"") //remove meteg, rafe, paseq
+    //    .replace(/[\u05bd]/g,"") //remove meteg
+
+    /*
+        .replace(/[\u05bd]/g,"") //remove meteg
+        .replace(/\u05BE/g,"-") //replace maqaf with dash
+        .replace(/\(ס\)|\(פ\)/g,"") //remove shin/peh for text markings
+        .replace(/[\u05c1-\u05c2]/g,"") //shin/sin dot
+*/
+
+//      .replace(/[\u0591-\u05AF]/g,"") //remove taamim
+//      .replace(/[\u05bd\u05bf\u05c0]/g,"") //remove meteg, rafe, paseq
   },
   stripNikkud: function(rawString) {
     return rawString.replace(/[\u0591-\u05C7]/g,"");
