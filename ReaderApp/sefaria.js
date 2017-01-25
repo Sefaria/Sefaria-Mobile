@@ -397,8 +397,8 @@ Sefaria = {
   },
   reformatTalmudContent(segment) {
     return segment
-      .replace(/<span\s+class="gemarra-regular">(.+?)<\/span>/g, '<b>$1</b>')
-      .replace(/<span\s+class="gemarra-italic">(.+?)<\/span>/g, '<bi>$1</bi>')
+      .replace(/<span\s+class="gemarra-regular">(.+?)<\/span>/g, '<gemarraregular>$1</gemarraregular>')
+      .replace(/<span\s+class="gemarra-italic">(.+?)<\/span>/g, '<gemarraitalic>$1</gemarraitalic>')
       .replace(/<span\s+class="it-text">(.+?)<\/span>/g, '<i>$1</i>')
   },
   categoryAttribution: function(categories) {
