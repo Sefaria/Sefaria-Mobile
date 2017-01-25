@@ -195,7 +195,7 @@ var RecentSection = React.createClass({
   render: function() {
     if (!Sefaria.recent || !Sefaria.recent.length) { return null; }
 
-    var recent = Sefaria.recent.slice(0,4).map(function(item) {
+    var recent = Sefaria.recent.slice(0,3).map(function(item) {
       return (<CategoryBlockLink
                     theme={this.props.theme}
                     category={item.ref}
@@ -206,14 +206,24 @@ var RecentSection = React.createClass({
                     key={item.ref} />);
     }.bind(this));
 
+    var more = (<CategoryBlockLink
+                  theme={this.props.theme}
+                  category={"More"}
+                  heCat={"עוד"}
+                  upperCase={true}
+                  language={this.props.language}
+                  onPress={this.props.openRecent}
+                  key={"More"} />);
+
+    recent = recent.concat(more);
+
     return (<ReaderNavigationMenuSection
-              hasmore={Sefaria.recent.length > 4}
+              hasmore={false}
               theme={this.props.theme}
               title={strings.recent}
               heTitle={strings.recent}
               content={<TwoBox content={recent} language={this.props.language}/>}
               interfaceLang={this.props.interfaceLang}
-              hasmore={Sefaria.recent.length > 4}
               moreClick={this.props.openRecent} />);
   }
 });
