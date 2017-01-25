@@ -9,7 +9,7 @@ const strings = require('./LocalizedStrings');
 
 const SCHEMA_VERSION = "2";
 const HOST_PATH = "http://readonly.sefaria.org/static/ios-export/" + SCHEMA_VERSION + "/";
-//git commconst HOST_PATH = "file:///Users/nss/Documents/Sefaria-Export/ios/" + SCHEMA_VERSION + "/";
+//const HOST_PATH = "file:///Users/nss/Documents/Sefaria-Export/ios/" + SCHEMA_VERSION + "/";
 
 var Downloader = {
   _data: {
