@@ -167,17 +167,31 @@ module.exports = StyleSheet.create({
     paddingHorizontal: 10,
     alignItems: 'center',
     justifyContent: "center",
-    flexDirection: "row"
+    flexDirection: "column"
+  },
+  headerTextTitleInner: {
+    flexDirection: "row",
+    alignItems: 'center',
+    justifyContent: "center",
   },
   headerTextTitleText: {
     fontSize: iPad ? 20 : 16,
     textAlign: "center",
     marginHorizontal: 5
   },
+  headerCategoryAttributionTextEn: {
+    fontFamily: "Crimson Text",
+    fontStyle: "italic",
+    color: "#999"
+  },
+  headerCategoryAttributionTextHe: {
+    fontFamily: "Taamey Frank CLM",
+    color: "#999"
+  },
   downCaret: {
     width: 10,
     height: 10,
-    marginTop: 3,
+    marginTop: 1,
   },
   searchResultSummary: {
     paddingVertical: 10,
@@ -385,6 +399,29 @@ module.exports = StyleSheet.create({
     fontSize: iPad ? 18 : 10,
     marginHorizontal: 7
   },
+  navigationCategoryCategoryAttribution: {
+    marginBottom: 25,
+    marginTop: 10,
+  },
+  navigationCategoryCategoryAttributionTextEn: {
+    fontSize: 22,
+    color: "#999",
+    fontStyle: "italic",
+    textAlign: "center",
+    fontFamily: "Crimson Text",
+  },
+  navigationCategoryCategoryAttributionTextHe: {
+    fontSize: 20,
+    color: "#999",
+    textAlign: "center",
+    fontFamily: "Taamey Frank CLM",
+  },
+  textTocHeaderTitle: {
+    flex: 1,
+    paddingLeft: 10,
+    textAlign: 'center',
+    letterSpacing: 1
+  },
   mainTextPanel: {
     flexWrap: "nowrap",
     justifyContent: 'center',
@@ -494,6 +531,22 @@ module.exports = StyleSheet.create({
   rightContainer: {
     flex: 1
   },
+  textTocCategoryAttribution: {
+    marginBottom: 20,
+  },
+  textTocCategoryAttributionTextEn: {
+    fontSize: 22,
+    color: "#666",
+    fontStyle: "italic",
+    textAlign: "center",
+    fontFamily: "Crimson Text",
+  },
+  textTocCategoryAttributionTextHe: {
+    fontSize: 20,
+    color: "#666",
+    textAlign: "center",
+    fontFamily: "Taamey Frank CLM",
+  },
   textTocHeaderTitle: {
     flex: 1,
     paddingLeft: 10,
@@ -503,15 +556,23 @@ module.exports = StyleSheet.create({
   textTocVersionInfo: {
     flexDirection: "row",
     justifyContent: "center",
-    paddingBottom: 15
-  },
+    paddingBottom: 5
+  }, 
   textTocVersionInfoItem: {
-    paddingHorizontal: 7
+    paddingHorizontal: 7,
+  },
+  textTocVersionInfoText: {
+    fontSize: 12
   },
   textTocVersionTitle: {
-    paddingTop: 10,
+    paddingTop: 25,
     fontSize: iPad ? 28 : 17,
     textAlign: "center"
+  },
+  textTocVersionNotes: {
+    textAlign: "center",
+    fontFamily: "Crimson Text",
+    fontSize: 13,
   },
   textTocTopBox: {
     alignItems: "center",
@@ -616,11 +677,13 @@ module.exports = StyleSheet.create({
     fontSize: iPad ? 19 : 15,
   },
   hebrewText: {
-    fontFamily: "Taamey Frank CLM",
+    fontFamily: "Taamey Frank Taamim Fix",
     writingDirection: "rtl",
     textAlign: 'right',
     flex: -1,
     fontSize: iPad ? 22 : 18,
+    paddingTop: 10,
+    marginTop: -5,
   },
   hebrewSystemFont: {
     fontFamily: "Open Sans Hebrew"
@@ -630,7 +693,7 @@ module.exports = StyleSheet.create({
     textAlign: 'left'
   },
   he: {
-    fontFamily: "Taamey Frank CLM",
+    fontFamily: "Taamey Frank Taamim Fix",
     textAlign: 'right',
   },
   enInt: {

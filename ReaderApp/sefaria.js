@@ -160,6 +160,11 @@ Sefaria = {
     if (!index) { return null;}
     return index.categories[0] == "Commentary2" ? "Commentary" : index.categories[0];
   },
+  categoriesForTitle: function(title) {
+    var index = Sefaria.index(title);
+    if (!index) { return null;}
+    return index.categories;
+  },
   categoryForRef: function(ref) {
     return Sefaria.categoryForTitle(Sefaria.textTitleForRef(ref));
   },
@@ -389,6 +394,24 @@ Sefaria = {
       }
     }
     return textToc;
+  },
+  categoryAttribution: function(categories) {
+    var attributions = [
+      {
+        categories: ["Talmud", "Bavli"],
+        english: "The William Davidson Talmud",
+        hebrew: "תלמוד מהדורת ויליאם דוידסון"
+      }
+    ];
+    var attribution = null;
+    for (var i = 0; i < attributions.length; i++) {
+      if (categories && categories.length >= attributions[i].categories.length &&
+        Sefaria.util.compareArrays(attributions[i].categories, categories.slice(0, attributions[i].categories.length))) {
+        attribution = attributions[i];
+        break;
+      }
+    }
+    return attribution;
   },
   calendar: null,
   _loadCalendar: function() {
@@ -1043,6 +1066,13 @@ Sefaria.util = {
     }
     return index;
   },
+  compareArrays: function(a, b) {
+      if (a.length != b.length) return false;
+      for (var i = 0; i < b.length; i++) {
+          if (a[i] !== b[i]) return false;
+      }
+      return true;
+  },
   getTextLanguageWithContent: function(lang, en, he) {
     // Returns a language that has content in it give strings `en` and `he`, with a preference for `lang`.
     let newLang = lang;
@@ -1234,8 +1264,17 @@ Sefaria.hebrew = {
   },
   sanitizeTextToRemoveCharactersCausingGlyphErrors: function(textToSanitize) {
     return textToSanitize
-      .replace(/[\u0591-\u05AF]/g,"") //remove taamim
-      .replace(/[\u05bd\u05bf\u05c0]/g,"") //remove meteg, rafe, paseq
+    //    .replace(/[\u05bd]/g,"") //remove meteg
+
+    /*
+        .replace(/[\u05bd]/g,"") //remove meteg
+        .replace(/\u05BE/g,"-") //replace maqaf with dash
+        .replace(/\(ס\)|\(פ\)/g,"") //remove shin/peh for text markings
+        .replace(/[\u05c1-\u05c2]/g,"") //shin/sin dot
+*/
+
+//      .replace(/[\u0591-\u05AF]/g,"") //remove taamim
+//      .replace(/[\u05bd\u05bf\u05c0]/g,"") //remove meteg, rafe, paseq
   },
   stripNikkud: function(rawString) {
     return rawString.replace(/[\u0591-\u05C7]/g,"");

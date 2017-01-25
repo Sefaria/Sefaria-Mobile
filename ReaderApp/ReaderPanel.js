@@ -29,7 +29,8 @@ var {
   GoBackButton,
   DisplaySettingsButton,
   LoadingView,
-  CategoryColorLine
+  CategoryColorLine,
+  CategoryAttribution
 } = require('./Misc.js');
 
 
@@ -336,6 +337,7 @@ var ReaderPanel = React.createClass({
             theme={this.props.theme}
             title={this.state.textLanguage == "hebrew" ? this.props.heRef : this.props.textReference}
             language={this.state.textLanguage}
+            categories={Sefaria.categoriesForTitle(this.props.textTitle)}
             openNav={this.props.openNav}
             themeStr={this.props.themeStr}
             goBack={this.props.goBack}
@@ -435,6 +437,7 @@ var ReaderControls = React.createClass({
     theme:                           React.PropTypes.object,
     title:                           React.PropTypes.string,
     language:                        React.PropTypes.string,
+    categories:                      React.PropTypes.array,
     openNav:                         React.PropTypes.func,
     openTextToc:                     React.PropTypes.func,
     goBack:                          React.PropTypes.func,
@@ -455,15 +458,21 @@ var ReaderControls = React.createClass({
         <View style={[styles.header, this.props.theme.header]}>
           {leftMenuButton}
           <TouchableOpacity style={styles.headerTextTitle} onPress={this.props.openTextToc}>
-            <Image source={this.props.themeStr == "white" ? require('./img/caret.png'): require('./img/caret-light.png') }
-                     style={[styles.downCaret, this.props.language === "hebrew" ? null: {opacity: 0}]}
-                     resizeMode={Image.resizeMode.contain} />
-            <Text style={titleTextStyle} numberOfLines={1} ellipsizeMode={"tail"}>
-              {this.props.title}
-            </Text>
-            <Image source={this.props.themeStr == "white" ? require('./img/caret.png'): require('./img/caret-light.png') }
-                     style={[styles.downCaret, this.props.language === "hebrew" ? {opacity: 0} : null]}
-                     resizeMode={Image.resizeMode.contain} />
+            <View style={styles.headerTextTitleInner}>
+              <Image source={this.props.themeStr == "white" ? require('./img/caret.png'): require('./img/caret-light.png') }
+                       style={[styles.downCaret, this.props.language === "hebrew" ? null: {opacity: 0}]}
+                       resizeMode={Image.resizeMode.contain} />
+              <Text style={titleTextStyle} numberOfLines={1} ellipsizeMode={"tail"}>
+                {this.props.title}
+              </Text>
+              <Image source={this.props.themeStr == "white" ? require('./img/caret.png'): require('./img/caret-light.png') }
+                       style={[styles.downCaret, this.props.language === "hebrew" ? {opacity: 0} : null]}
+                       resizeMode={Image.resizeMode.contain} />
+            </View>
+            <CategoryAttribution
+              categories={this.props.categories}
+              language={this.props.language === "hebrew" ? "hebrew" : "english"}
+              context={"header"} />
           </TouchableOpacity>
           <DisplaySettingsButton onPress={this.props.toggleReaderDisplayOptionsMenu} themeStr={this.props.themeStr}/>
         </View>
