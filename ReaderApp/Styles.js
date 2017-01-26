@@ -177,7 +177,7 @@ module.exports = StyleSheet.create({
   headerTextTitleText: {
     fontSize: iPad ? 20 : 16,
     textAlign: "center",
-    marginHorizontal: 5
+    marginHorizontal: 5,
   },
   headerCategoryAttributionTextEn: {
     fontFamily: "Crimson",
@@ -185,7 +185,7 @@ module.exports = StyleSheet.create({
     color: "#999"
   },
   headerCategoryAttributionTextHe: {
-    fontFamily: "Taamey Frank CLM",
+    fontFamily: "Taamey Frank Taamim Fix",
     color: "#999"
   },
   downCaret: {
@@ -425,7 +425,7 @@ module.exports = StyleSheet.create({
     fontSize: 20,
     color: "#999",
     textAlign: "center",
-    fontFamily: "Taamey Frank CLM",
+    fontFamily: "Taamey Frank Taamim Fix",
   },
   textTocHeaderTitle: {
     flex: 1,
@@ -556,7 +556,7 @@ module.exports = StyleSheet.create({
     fontSize: 20,
     color: "#666",
     textAlign: "center",
-    fontFamily: "Taamey Frank CLM",
+    fontFamily: "Taamey Frank Taamim Fix",
   },
   textTocHeaderTitle: {
     flex: 1,
