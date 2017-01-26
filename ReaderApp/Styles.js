@@ -193,6 +193,17 @@ module.exports = StyleSheet.create({
     height: 10,
     marginTop: 1,
   },
+  moreArrowEn: {
+    width: 12,
+    height: 12,
+    paddingLeft: 20,
+    marginBottom: 4
+  },
+  moreArrowHe: {
+    width: 12,
+    height: 12,
+    paddingRight: 20
+  },
   searchResultSummary: {
     paddingVertical: 10,
     paddingHorizontal: iPad ? 60 : 30,
@@ -557,7 +568,7 @@ module.exports = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "center",
     paddingBottom: 5
-  }, 
+  },
   textTocVersionInfoItem: {
     paddingHorizontal: 7,
   },

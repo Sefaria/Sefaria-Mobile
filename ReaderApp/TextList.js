@@ -76,7 +76,7 @@ var TextList = React.createClass({
     // Dimensions seems to often swap height/width. This checks them against the orientation and swaps them if they're wrong.
     var {height, width} = Dimensions.get('window');
     //console.log(orientation, "h: ",height,"w: ",width);
-    if ((width > height && orientation !== "LANDSCAPE") || 
+    if ((width > height && orientation !== "LANDSCAPE") ||
         (width < height && orientation == "LANDSCAPE")) {
       [height, width] = [width, height];
     }
@@ -184,7 +184,7 @@ var TextList = React.createClass({
 
     } else if (!this.state.isNewSegment) {
       // Using Dimensions to adjust marings on text at maximum line width because I can't figure out
-      // how to get flex to center a component with maximum width without allows breaking the stretch 
+      // how to get flex to center a component with maximum width without allows breaking the stretch
       // behavior of its contents, result in rows in the list view with small width if their content is small.
       var marginAdjust = this.state.width > 800 ? (this.state.width-800)/2 : 0
       var listViewStyles = [styles.textListContentListView, {marginLeft: marginAdjust}];
@@ -273,7 +273,7 @@ var LinkContent = React.createClass({
     var lang = Sefaria.util.getTextLanguageWithContent(this.props.textLanguage,lco.en,lco.he);
     var textViews = [];
 
-    var hebrewElem =  <Text style={[styles.linkContentText, styles.hebrewText, this.props.theme.text, {fontSize:this.props.settings.fontSize}]} key={this.props.refStr+"-he"}><HTMLView stylesheet={styles} value={Sefaria.hebrew.sanitizeTextToRemoveCharactersCausingGlyphErrors(lco.he)}/></Text>;
+    var hebrewElem =  <Text style={[styles.linkContentText, styles.hebrewText, this.props.theme.text, {fontSize:this.props.settings.fontSize}]} key={this.props.refStr+"-he"}><HTMLView stylesheet={styles} value={lco.he}/></Text>;
     var englishElem = <Text style={[styles.linkContentText, styles.englishText, this.props.theme.text, {fontSize:0.8*this.props.settings.fontSize}]} key={this.props.refStr+"-en"}><HTMLView stylesheet={styles} value={"&#x200E;"+lco.en}/></Text>;
     if (lang == "bilingual") {
       textViews = [hebrewElem, englishElem];
