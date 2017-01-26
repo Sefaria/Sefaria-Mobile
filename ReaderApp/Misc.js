@@ -72,11 +72,12 @@ var CategoryColorLine = React.createClass({
 
 var CategoryAttribution = React.createClass({
   propTypes: {
-    categories: React.PropTypes.array.isRequired,
+    categories: React.PropTypes.array,
     language:   React.PropTypes.string.isRequired,
     context:    React.PropTypes.string.isRequired
   },
   render: function() {
+    if (!this.props.categories) { return null; }
     var attribution = Sefaria.categoryAttribution(this.props.categories);
     var boxStyles = [styles.categoryAttribution, styles[this.props.context + "CategoryAttribution" ]];
     return attribution ?

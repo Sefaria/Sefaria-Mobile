@@ -54,7 +54,16 @@ module.exports = new LocalizedStrings({
     howToResumeDownloadMessage: "You can resume the download in the Settings screen.",
     downloadError: "Download Error",
     downloadErrorMessage: "Unfortunately we encountered an error downloading the library.",
-    pause: "Pause"
+    pause: "Pause",
+    updateLater: "Update Later",
+    howToUpdateLibraryMessage: "You can update your library in the future from the Settings screen.",
+    updateLibrary: "Library Updates",
+    updatesAvailable: "texts have updates available.", // to be combined with a number, e.g. "14 texts have..."
+    updatesAvailableMessage: "texts have updates available. Would you like to download them now?", // to be combined with a number, e.g. "14 texts have..."
+    libraryUpToDate: "Library Up To Date",
+    libraryUpToDateMessage: "You have the most current version of the Sefaria Library for iOS.",
+    checkForUpdates: "Check for Updates",
+    downloadUpdates: "Download Updates",
   },
   he: {
     recent: "נצפו לאחרונה",
@@ -109,6 +118,15 @@ module.exports = new LocalizedStrings({
     howToResumeDownloadMessage: "ניתן לחדש את ההורדה ממסך ההגדרות.",
     downloadError: "שגיאה בהורדה",
     downloadErrorMessage: "לצערנו ארעה תקלה בזמן ההורדה",
-    pause: "עצור"
+    pause: "עצור",
+    updateLater: "Update Later",
+    howToUpdateLibraryMessage: "You can update your library in the future from the Settings screen.",
+    updateLibrary: "Library Updates",
+    updatesAvailable: "texts have updates availalbe.", // to be combined with a number, e.g. "14 texts have..."
+    updatesAvailableMessage: "texts have updates available. Would you like to download them now?", // to be combined with a number, e.g. "14 texts have..."
+    libraryUpToDate: "Library Up To Date",
+    libraryUpToDateMessage: "You have the most current version of the Sefaria Library for iOS.",
+    checkForUpdates: "Check for Updates",
+    downloadUpdates: "Download Updates",
   }
 });

@@ -77,7 +77,8 @@ var SettingsPage = React.createClass({
 
     var nDownloaded = Sefaria.downloader.titlesDownloaded().length;
     var nAvailable  = Sefaria.downloader.titlesAvailable().length;
-    var downloadComplete = nDownloaded == nAvailable;
+    var nUpdates    = Sefaria.downloader.updatesAvailable().length;
+    var updatesOnly = !!nUpdates && nDownloaded == nAvailable
     return (<View style={[styles.menu, this.props.theme.menu]}>
               <CategoryColorLine category={"Other"} />
               <View style={[styles.header, this.props.theme.header]}>
@@ -116,6 +117,7 @@ var SettingsPage = React.createClass({
                     <Text style={[styles.settingsSectionHeader, this.props.theme.tertiaryText]}>{strings.offlineAccess}</Text>
                   </View>
                 </TouchableWithoutFeedback>
+
                 {Sefaria.downloader._data.debugNoLibrary ?
                   <Text style={[styles.settingsMessage, this.props.theme.tertiaryText]}>Debug No Library</Text> : null }
                 <Text style={[styles.settingsMessage, this.props.theme.tertiaryText]}>{strings.offlineAccessMessage}</Text>
@@ -123,7 +125,7 @@ var SettingsPage = React.createClass({
                   <View>
                     <Text style={[styles.settingsMessage, this.props.theme.tertiaryText]}>
                        {Sefaria.downloader.downloading ? strings.downloadInProgress + " (" : ""}
-                       {nDownloaded} / {nAvailable}  {strings.textsDownloaded}
+                       {nAvailable - nUpdates} / {nAvailable}  {strings.textsDownloaded}
                        {Sefaria.downloader.downloading ? ") " : "."}
                     </Text>
                     {Sefaria.downloader.downloading ?
@@ -132,21 +134,41 @@ var SettingsPage = React.createClass({
                           fillStyle={{}}
                           backgroundStyle={{backgroundColor: '#cccccc', borderRadius: 2}}
                           style={{marginTop: 0, marginBottom: 10, width: 300}}
-                          progress={nDownloaded / nAvailable} />
+                          progress={(nAvailable - nUpdates) / nAvailable} />
                       </View>
                       : null
                     }
 
-                    {!downloadComplete && !Sefaria.downloader.downloading ?
+                    { !!nUpdates && updatesOnly && !Sefaria.downloader.downloading ?
+                      <View>
+                        <Text style={[styles.settingsMessage, this.props.theme.tertiaryText]}>
+                          {nUpdates} {strings.updatesAvailable}
+                        </Text>
+                        <TouchableOpacity style={styles.button} onPress={Sefaria.downloader.downloadUpdates}>
+                          <Text style={styles.buttonText}>{strings.downloadUpdates}</Text>
+                        </TouchableOpacity>
+                      </View>
+                      : null }
+
+                    { !!nUpdates && !updatesOnly && !Sefaria.downloader.downloading ?
                       <TouchableOpacity style={styles.button} onPress={Sefaria.downloader.resumeDownload}>
                         <Text style={styles.buttonText}>{strings.resumeDownload}</Text>
                       </TouchableOpacity>
                       : null }
+
+
+                    { !Sefaria.downloader.downloading ?
+                      <TouchableOpacity style={styles.button} onPress={Sefaria.downloader.checkForUpdates}>
+                        <Text style={styles.buttonText}>{strings.checkForUpdates}</Text>
+                      </TouchableOpacity> 
+                      : null }
+
                     <TouchableOpacity style={styles.button} onPress={Sefaria.downloader.deleteLibrary}>
                       <Text style={styles.buttonText}>{strings.deleteLibrary}</Text>
                     </TouchableOpacity>
-                  </View> :
-                  <View>
+                  </View>
+
+                  : <View>
                     <TouchableOpacity style={styles.button} onPress={Sefaria.downloader.downloadLibrary}>
                       <Text style={styles.buttonText}>{strings.downloadLibrary}</Text>
                     </TouchableOpacity>

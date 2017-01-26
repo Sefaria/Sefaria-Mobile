@@ -1,6 +1,7 @@
 import {
   AlertIOS,
-  AsyncStorage
+  AsyncStorage,
+  NetInfo
 } from 'react-native';
 
 const RNFS = require('react-native-fs'); //for access to file system -- (https://github.com/johanneslumpe/react-native-fs)
@@ -9,7 +10,7 @@ const strings = require('./LocalizedStrings');
 
 const SCHEMA_VERSION = "2";
 const HOST_PATH = "http://readonly.sefaria.org/static/ios-export/" + SCHEMA_VERSION + "/";
-//git commconst HOST_PATH = "file:///Users/nss/Documents/Sefaria-Export/ios/" + SCHEMA_VERSION + "/";
+//const HOST_PATH = "file:///Users/nss/Documents/Sefaria-Export/ios/" + SCHEMA_VERSION + "/";
 
 var Downloader = {
   _data: {
@@ -30,6 +31,8 @@ var Downloader = {
               //console.log(Downloader._data);
               //console.log(Downloader.titlesAvailable().length + " titles available");
               //console.log(Downloader.titlesDownloaded().length + " titles downloaded");
+              //console.log("Updates:" , Downloader.updatesAvailable());
+              Downloader.checkForUpdatesIfNeeded();
               Downloader.resumeDownload();
             });
   },
@@ -37,7 +40,7 @@ var Downloader = {
     RNFS.mkdir(RNFS.DocumentDirectoryPath + "/library");
     RNFS.mkdir(RNFS.DocumentDirectoryPath + "/tmp");
     Downloader._setData("shouldDownload", true);
-    Downloader.checkForUpdates()
+    Downloader.downloadUpdatesList()
       .then(() => {
         Downloader._updateDownloadQueue();
         Downloader._downloadNext();
@@ -78,13 +81,14 @@ var Downloader = {
     if (Downloader._data.shouldDownload) {
       Downloader.downloading = true;
       Downloader._downloadNext();
+      Downloader.onChange && Downloader.onChange();
     }
   },
-  checkForUpdates: function() {
+  downloadUpdatesList: function() {
     // Downloads the "last_update.json", stores it in _data.availableDownloads
     // and adds any new items to _data.lastDownload with a null value indicating they've never been downlaoded
     // Also downloads latest "toc.json"
-    var lastUpdatePromise = fetch(HOST_PATH + "last_updated.json")
+    var lastUpdatePromise = fetch(HOST_PATH + "last_updated.json", {headers: {'Cache-Control': 'no-cache'}})
       .then((response) => response.json())
       .then((data) => {
         Downloader._setData("availableDownloads", data);
@@ -103,7 +107,51 @@ var Downloader = {
     }).then(() => {
       Sefaria._loadTOC();
     });
-    return Promise.all([lastUpdatePromise, tocPromise]);
+    return Promise.all([lastUpdatePromise, tocPromise]).then(() => {
+      var timestamp = new Date().toJSON();
+      Downloader._setData("lastUpdateCheck", timestamp)
+      Downloader.onChange && Downloader.onChange();
+    });
+  },
+  downloadUpdates: function() {
+    // Starts download of any known updates
+    Downloader._updateDownloadQueue();
+    Downloader.resumeDownload();
+  },
+  checkForUpdates: function() {
+    // Downloads the most recent update list then prompts to download updates
+    // or notifies the user that the library is update. 
+    Downloader.downloadUpdatesList().then(() => {
+      var updates = Downloader.updatesAvailable();
+      if (updates.length) {
+        Downloader.promptLibraryUpdate();
+      } else {
+        AlertIOS.alert(
+          strings.libraryUpToDate,
+          strings.libraryUpToDateMessage,
+          [
+            {text: strings.ok},
+          ]);
+      }
+    });
+  },
+  checkForUpdatesIfNeeded: function() {
+    // Downloads the most recent update list if enough time has passed since previous check.
+    // If not updates are available, prompts for to download.
+    if (Downloader._data.shouldDownload && Downloader._isUpdateCheckNeeded()) {
+      
+      NetInfo.isConnected.fetch().then(isConnected => {
+        if (isConnected) {
+          this.downloadUpdatesList()
+            .then(() => {
+              var updates = Downloader.updatesAvailable();
+              if (updates.length) {
+                Downloader.promptLibraryUpdate();
+              }
+            });          
+          }
+      });
+    }
   },
   prioritizeDownload: function(title) {
     // Moves `title` to the front of the downloadQueue if it's there
@@ -134,6 +182,17 @@ var Downloader = {
     }
     return downloaded;
   },
+  updatesAvailable: function() {
+    // Returns a list of titles that have updates available to download
+    var updates = [];
+    for (var title in this._data.availableDownloads) {
+      if (this._data.availableDownloads.hasOwnProperty(title) &&
+          this._data.availableDownloads[title] !== this._data.lastDownload[title]) {
+            updates.push(title);
+      }
+    }
+    return updates;
+  },
   promptLibraryDownload: function() {
     // If it hasn't been done already, prompt the user to download the library.
     AsyncStorage.getItem("libraryDownloadPrompted")
@@ -162,15 +221,38 @@ var Downloader = {
         }
       });
   },
+  promptLibraryUpdate: function() {
+    var updates = Downloader.updatesAvailable();
+    if (updates.length == 0) { return; }
+
+    var onCancel = function() {
+      AlertIOS.alert(
+        strings.updateLater,
+        strings.howToUpdateLibraryMessage,
+        [
+          {text: strings.ok},
+        ]);
+    };
+    AlertIOS.alert(
+      strings.updateLibrary,
+      updates.length + " " + strings.updatesAvailableMessage,
+      [
+        {text: strings.download, onPress: Downloader.downloadUpdates},
+        {text: strings.notNow, onPress: onCancel}
+      ]);
+  },
   _updateDownloadQueue: function() {
     // Examines availableDownloads and adds any title to the downloadQueue that has a newer download available
     // and is not already in queue.
-    for (var title in this._data.availableDownloads) {
-      if (this._data.availableDownloads.hasOwnProperty(title) &&
-          this._data.availableDownloads[title] !== this._data.lastDownload[title]) {
-            if (this._data.downloadQueue.indexOf(title) == -1) {
-              this._data.downloadQueue.push(title);
-            }
+    // Removes anything from downloadQueue that is not in the list of availableDownloads
+    this._data.downloadQueue = this._data.downloadQueue.filter((title) => {
+      return title in this._data.availableDownloads;
+    });
+    var updates = this.updatesAvailable();
+    for (var i = 0; i < updates.length; i++) {
+      var title = updates[i];
+      if (this._data.downloadQueue.indexOf(title) == -1) {
+        this._data.downloadQueue.push(title);
       }
     }
     this._setData("downloadQueue", this._data.downloadQueue);
@@ -179,6 +261,7 @@ var Downloader = {
     // Starts download of the next item of the queue, and continues doing so after successful completion.
     if (!this._data.downloadQueue.length) {
       this.downloading = false;
+      Downloader.onChange && Downloader.onChange();
       return;
     }
     var nextTitle = this._data.downloadQueue[0];
@@ -196,6 +279,7 @@ var Downloader = {
         [
           {text: strings.ok},
         ]);
+      Downloader.onChange && Downloader.onChange();
     };
     AlertIOS.alert(
       strings.downloadError,
@@ -250,6 +334,14 @@ var Downloader = {
         this._data.downloadInProgress.splice(i, 1);
         this._setData("downloadInProgress", this._data.downloadInProgress);
     }
+  },
+  _isUpdateCheckNeeded: function() {
+    // Returns true if enough time has passed since the last check for updates
+    if (!this._data.lastUpdateCheck) { return true; }
+    var cutoff = new Date(this._data.lastUpdateCheck);
+    cutoff.setDate(cutoff.getDate() + 7) // One week;
+    var now = new Date();
+    return now > cutoff;
   },
   _loadData: function() {
     // Loads data from each field in `_data` stored in Async storage into local memory for sync access.

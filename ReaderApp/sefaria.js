@@ -175,7 +175,6 @@ Sefaria = {
   },
   getTitle: function(ref, isCommentary, isHe, engTitle) {
       if (isHe && engTitle) {
-        //console.log("yoyoyoyo");
         var engSeg = engTitle.split(":")[1];
         var engFileNameStem = engTitle.split(":")[0];
         var engSec = engFileNameStem.substring(engFileNameStem.lastIndexOf(" ")+1,engFileNameStem.length);
@@ -494,13 +493,13 @@ Sefaria = {
   _downloadZip: function(title) {
     var toFile = RNFS.DocumentDirectoryPath + "/" + title + ".zip";
     var start = new Date();
-    console.log("Starting download of " + title);
+    //console.log("Starting download of " + title);
     return new Promise(function(resolve, reject) {
       RNFS.downloadFile({
         fromUrl: "http://dev.sefaria.org/static/ios-export/" + encodeURIComponent(title) + ".zip",
         toFile: toFile
       }).then(function(downloadResult) {
-        console.log("Downloaded " + title + " in " + (new Date() - start));
+        //console.log("Downloaded " + title + " in " + (new Date() - start));
         if (downloadResult.statusCode == 200) {
           resolve();
         } else {

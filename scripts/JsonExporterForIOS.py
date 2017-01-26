@@ -309,6 +309,7 @@ def write_last_updated(titles):
 	"""
 	timestamp = datetime.now().replace(second=0, microsecond=0).isoformat()
 	last_updated = {title: timestamp for title in titles}
+	last_updated["SCHEMA_VERSION"] = SCHEMA_VERSION
 	write_doc(last_updated, EXPORT_PATH + "/last_updated.json")
 	if USE_CLOUDFLARE:
 		purge_cloudflare_cache(titles)
