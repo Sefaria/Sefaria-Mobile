@@ -459,15 +459,32 @@ Sefaria = {
   },
   recent: null,
   saveRecentItem: function(item) {
+    var itemTitle = Sefaria.textTitleForRef(item.ref);
+    console.log('ITEM TITLE',itemTitle);
     var items = Sefaria.recent || [];
     items = items.filter(function(existing) {
-      return Sefaria.textTitleForRef(existing.ref) !== Sefaria.textTitleForRef(item.ref);
+      return Sefaria.textTitleForRef(existing.ref) !== itemTitle;
     });
     items = [item].concat(items); //.slice(0,4);
     Sefaria.recent = items;
     AsyncStorage.setItem("recent", JSON.stringify(items)).catch(function(error) {
       console.error("AsyncStorage failed to save: " + error);
     });
+  },
+  getRecentRefForTitle: function(title) {
+    //given an index title, return the ref of that title in Sefaria.recent.
+    //if it doesn't exist, return null
+    var items = Sefaria.recent || [];
+    items = items.filter(function(existing) {
+      return Sefaria.textTitleForRef(existing.ref) === title;
+    });
+
+    if (items.length > 0) {
+      return items[0].ref;
+    } else {
+      return null;
+    }
+
   },
   _loadRecentItems: function() {
     return AsyncStorage.getItem("recent").then(function(data) {

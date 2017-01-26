@@ -162,7 +162,12 @@ var ReaderNavigationCategoryMenuContents = React.createClass({
           // Add a Text
           var title   = item.title.replace(/^(Mishneh Torah,|Shulchan Arukh,|Jerusalem Talmud|Mishnah(?! Berurah)|Tosefta) /, "");
           var heTitle = item.heTitle.replace(/^(משנה תורה,|תלמוד ירושלמי|משנה(?! ברורה)|תוספתא) /, "");
-          var openRef = this.props.openRef.bind(null, item.firstSection);
+
+          var refToOpen = Sefaria.getRecentRefForTitle(item.title);
+          if (!refToOpen) {
+            refToOpen = item.firstSection;
+          }
+          var openRef = this.props.openRef.bind(null, refToOpen);
           content.push((<TouchableOpacity  style={[styles.textBlockLink,this.props.theme.textBlockLink]}  onPress={openRef} key={i}>
                             { showHebrew ?
                               <Text style={[styles.hebrewText, styles.centerText, this.props.theme.text]}>{heTitle}</Text> :
