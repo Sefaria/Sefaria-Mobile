@@ -50,8 +50,8 @@ var TextSegment = React.createClass({
 
           <HTMLView value={
             this.props.textType == "english" ?
-              "&#x200E;"+this.props.data :
-              Sefaria.hebrew.sanitizeTextToRemoveCharactersCausingGlyphErrors(this.props.data)
+              "&#x200E;"+Sefaria.reformatTalmudContent(this.props.data) :
+                this.props.data
               } stylesheet={styles} />
 
       </Text>

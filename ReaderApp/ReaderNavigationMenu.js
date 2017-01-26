@@ -113,6 +113,7 @@ var ReaderNavigationMenu = React.createClass({
                     upperCase={true}
                     language={language}
                     onPress={this.showMore}
+                    withArrow={true}
                     key={"More"} />);
       categories = this.state.showMore ? categories : categories.slice(0,9).concat(more);
       categories = (<View style={styles.readerNavCategories}><TwoBox content={categories} language={language}/></View>);
@@ -213,6 +214,7 @@ var RecentSection = React.createClass({
                   upperCase={true}
                   language={this.props.language}
                   onPress={this.props.openRecent}
+                  withArrow={true}
                   key={"More"} />);
 
     recent = recent.concat(more);

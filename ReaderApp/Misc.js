@@ -45,6 +45,7 @@ var CategoryBlockLink = React.createClass({
     language:  React.PropTypes.string,
     style:     React.PropTypes.object,
     upperCase: React.PropTypes.bool,
+    withArrow: React.PropTypes.bool,
     onPress:   React.PropTypes.func,
   },
   render: function() {
@@ -55,8 +56,14 @@ var CategoryBlockLink = React.createClass({
     var content = this.props.language == "english"?
       (<Text style={[styles.englishText].concat(textStyle)}>{enText}</Text>) :
       (<Text style={[styles.hebrewText].concat(textStyle)}>{heText}</Text>);
-    return (<TouchableOpacity onPress={this.props.onPress} style={[styles.readerNavCategory, this.props.theme.readerNavCategory, style]}>
+    return (<TouchableOpacity onPress={this.props.onPress} style={[styles.readerNavCategory, this.props.theme.readerNavCategory, style, {flexDirection: "row"}]}>
+              <Image source={this.props.themeStr == "white" ? require('./img/back.png'): require('./img/back-light.png') }
+                style={[styles.moreArrowHe, this.props.language === "english" || !this.props.withArrow ? {opacity: 0} : null]}
+                resizeMode={Image.resizeMode.contain} />
               {content}
+              <Image source={this.props.themeStr == "white" ? require('./img/forward.png'): require('./img/forward-light.png') }
+                style={[styles.moreArrowEn, this.props.language === "hebrew" || !this.props.withArrow ? {opacity: 0} : null]}
+                resizeMode={Image.resizeMode.contain} />
             </TouchableOpacity>);
   }
 });
@@ -82,7 +89,7 @@ var CategoryAttribution = React.createClass({
     var boxStyles = [styles.categoryAttribution, styles[this.props.context + "CategoryAttribution" ]];
     return attribution ?
             <View style={boxStyles}>
-              {this.props.language == "english" ? 
+              {this.props.language == "english" ?
                 <Text style={styles[this.props.context + "CategoryAttributionTextEn"]}>{attribution.english}</Text> :
                 <Text style={styles[this.props.context + "CategoryAttributionTextHe"]}>{attribution.hebrew}</Text>
               }

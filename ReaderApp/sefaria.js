@@ -53,11 +53,6 @@ Sefaria = {
         }
         // Annotate link objects with useful fields not included in export
         result.content.forEach(function(segment) {
-          if ("text" in segment) {
-            segment.text = segment.text.replace(/<span\s+class="gemarra-regular">(.+?)<\/span>/g,'<b>$1</b>');
-            segment.text = segment.text.replace(/<span\s+class="gemarra-italic">(.+?)<\/span>/g,'<b><i>$1</i></b>');
-            segment.text = segment.text.replace(/<span\s+class="it-text">(.+?)<\/span>/g,'<i>$1</i>');
-          }
           if ("links" in segment) {
             segment.links.map(function(link) {
               link.textTitle = Sefaria.textTitleForRef(link.sourceRef);
@@ -399,6 +394,12 @@ Sefaria = {
     }
     return textToc;
   },
+  reformatTalmudContent(segment) {
+    return segment
+      .replace(/<span\s+class="gemarra-regular">(.+?)<\/span>/g, '<gemarraregular>$1</gemarraregular>')
+      .replace(/<span\s+class="gemarra-italic">(.+?)<\/span>/g, '<gemarraitalic>$1</gemarraitalic>')
+      .replace(/<span\s+class="it-text">(.+?)<\/span>/g, '<i>$1</i>')
+  },
   categoryAttribution: function(categories) {
     var attributions = [
       {
@@ -457,15 +458,32 @@ Sefaria = {
   },
   recent: null,
   saveRecentItem: function(item) {
+    var itemTitle = Sefaria.textTitleForRef(item.ref);
+    console.log('ITEM TITLE',itemTitle);
     var items = Sefaria.recent || [];
     items = items.filter(function(existing) {
-      return Sefaria.textTitleForRef(existing.ref) !== Sefaria.textTitleForRef(item.ref);
+      return Sefaria.textTitleForRef(existing.ref) !== itemTitle;
     });
     items = [item].concat(items); //.slice(0,4);
     Sefaria.recent = items;
     AsyncStorage.setItem("recent", JSON.stringify(items)).catch(function(error) {
       console.error("AsyncStorage failed to save: " + error);
     });
+  },
+  getRecentRefForTitle: function(title) {
+    //given an index title, return the ref of that title in Sefaria.recent.
+    //if it doesn't exist, return null
+    var items = Sefaria.recent || [];
+    items = items.filter(function(existing) {
+      return Sefaria.textTitleForRef(existing.ref) === title;
+    });
+
+    if (items.length > 0) {
+      return items[0].ref;
+    } else {
+      return null;
+    }
+
   },
   _loadRecentItems: function() {
     return AsyncStorage.getItem("recent").then(function(data) {
@@ -1265,20 +1283,6 @@ Sefaria.hebrew = {
       a = {a: 1, b: 2}[a];
       return Sefaria.hebrew.encodeHebrewNumeral(n) + " " + Sefaria.hebrew.encodeHebrewNumeral(a);
     }
-  },
-  sanitizeTextToRemoveCharactersCausingGlyphErrors: function(textToSanitize) {
-    return textToSanitize
-    //    .replace(/[\u05bd]/g,"") //remove meteg
-
-    /*
-        .replace(/[\u05bd]/g,"") //remove meteg
-        .replace(/\u05BE/g,"-") //replace maqaf with dash
-        .replace(/\(ס\)|\(פ\)/g,"") //remove shin/peh for text markings
-        .replace(/[\u05c1-\u05c2]/g,"") //shin/sin dot
-*/
-
-//      .replace(/[\u0591-\u05AF]/g,"") //remove taamim
-//      .replace(/[\u05bd\u05bf\u05c0]/g,"") //remove meteg, rafe, paseq
   },
   stripNikkud: function(rawString) {
     return rawString.replace(/[\u0591-\u05C7]/g,"");

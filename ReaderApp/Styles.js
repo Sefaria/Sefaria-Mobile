@@ -180,7 +180,7 @@ module.exports = StyleSheet.create({
     marginHorizontal: 5
   },
   headerCategoryAttributionTextEn: {
-    fontFamily: "Crimson Text",
+    fontFamily: "Crimson",
     fontStyle: "italic",
     color: "#999"
   },
@@ -193,6 +193,17 @@ module.exports = StyleSheet.create({
     height: 10,
     marginTop: 1,
   },
+  moreArrowEn: {
+    width: 12,
+    height: 12,
+    paddingLeft: 20,
+    marginBottom: 4
+  },
+  moreArrowHe: {
+    width: 12,
+    height: 12,
+    paddingRight: 20
+  },
   searchResultSummary: {
     paddingVertical: 10,
     paddingHorizontal: iPad ? 60 : 30,
@@ -203,7 +214,7 @@ module.exports = StyleSheet.create({
     flex: 1,
     fontSize: 16,
     fontStyle: "normal",
-    fontFamily: "Crimson Text",
+    fontFamily: "Crimson",
     paddingTop: 0,
     backgroundColor: "transparent"
   },
@@ -283,7 +294,7 @@ module.exports = StyleSheet.create({
   },
   emptyLinksMessage: {
     fontStyle: "italic",
-    fontFamily: "Crimson Text",
+    fontFamily: "Crimson",
     textAlign: "center",
     marginTop: 8
   },
@@ -408,7 +419,7 @@ module.exports = StyleSheet.create({
     color: "#999",
     fontStyle: "italic",
     textAlign: "center",
-    fontFamily: "Crimson Text",
+    fontFamily: "Crimson",
   },
   navigationCategoryCategoryAttributionTextHe: {
     fontSize: 20,
@@ -483,7 +494,7 @@ module.exports = StyleSheet.create({
     fontWeight: "100"
   },
   title: {
-    fontFamily: "Crimson Text",
+    fontFamily: "Crimson",
     fontSize: 20
   },
   verseContainer: {
@@ -539,7 +550,7 @@ module.exports = StyleSheet.create({
     color: "#666",
     fontStyle: "italic",
     textAlign: "center",
-    fontFamily: "Crimson Text",
+    fontFamily: "Crimson",
   },
   textTocCategoryAttributionTextHe: {
     fontSize: 20,
@@ -557,7 +568,7 @@ module.exports = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "center",
     paddingBottom: 5
-  }, 
+  },
   textTocVersionInfoItem: {
     paddingHorizontal: 7,
   },
@@ -571,7 +582,7 @@ module.exports = StyleSheet.create({
   },
   textTocVersionNotes: {
     textAlign: "center",
-    fontFamily: "Crimson Text",
+    fontFamily: "Crimson",
     fontSize: 13,
   },
   textTocTopBox: {
@@ -661,7 +672,7 @@ module.exports = StyleSheet.create({
   },
   dedication: {
     fontStyle: "italic",
-    fontFamily: "Crimson Text",
+    fontFamily: "Crimson",
     fontSize: 14,
     textAlign: "center",
     marginBottom: 20
@@ -671,7 +682,7 @@ module.exports = StyleSheet.create({
     height: 1
   },
   englishText: {
-    fontFamily: "Crimson Text",
+    fontFamily: "Crimson",
     textAlign: 'left',
     flex: -1,
     fontSize: iPad ? 19 : 15,
@@ -689,7 +700,7 @@ module.exports = StyleSheet.create({
     fontFamily: "Open Sans Hebrew"
   },
   en: {
-    fontFamily: "Crimson Text",
+    fontFamily: "Crimson",
     textAlign: 'left'
   },
   he: {
@@ -752,10 +763,17 @@ module.exports = StyleSheet.create({
     fontWeight: "bold"
   },
   b: {
-    fontWeight: "bold"
+    fontWeight: "500"
   },
   i: {
     fontStyle: "italic"
-  }
+  },
+  gemarraregular: {
+    fontWeight: "500",
 
+  },
+  gemarraitalic: {
+    fontStyle: "italic",
+    fontWeight: "500",
+  },
 });
