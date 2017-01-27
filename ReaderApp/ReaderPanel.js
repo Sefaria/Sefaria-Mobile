@@ -446,7 +446,7 @@ var ReaderControls = React.createClass({
     backStack:                       React.PropTypes.array,
   },
   render: function() {
-    var langStyle = this.props.language === "hebrew" ? [styles.he, {marginTop: 5}] : [styles.en];
+    var langStyle = this.props.language === "hebrew" ? [styles.he, {marginTop: 5}] : [styles.en, styles.headerTextTitleTextEn];
     var titleTextStyle = [langStyle, styles.headerTextTitleText, this.props.theme.text];
     if (this.props.backStack.length == 0) {
       var leftMenuButton = <MenuButton onPress={this.props.openNav} theme={this.props.theme} themeStr={this.props.themeStr}/>

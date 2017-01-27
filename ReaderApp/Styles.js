@@ -179,19 +179,28 @@ module.exports = StyleSheet.create({
     textAlign: "center",
     marginHorizontal: 5,
   },
+  headerTextTitleTextEn: {
+    height: iPad ? 28 : 20,
+    lineHeight: iPad ? 28 : 20,
+    marginTop: 5,
+  },
   headerCategoryAttributionTextEn: {
     fontFamily: "Crimson",
     fontStyle: "italic",
+    fontSize: 15,
+    height: 18,
+    lineHeight: 18,
     color: "#999"
   },
   headerCategoryAttributionTextHe: {
     fontFamily: "Taamey Frank Taamim Fix",
-    color: "#999"
+    color: "#999",
+    fontSize: 15,
   },
   downCaret: {
     width: 10,
     height: 10,
-    marginTop: 1,
+    marginTop: 3,
   },
   moreArrowEn: {
     width: 12,
