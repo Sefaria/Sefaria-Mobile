@@ -342,6 +342,7 @@ module.exports = StyleSheet.create({
     marginVertical: 15
   },
   readerNavCategory: {
+    flex: 1,
     borderTopWidth: 4,
     margin: 2,
     paddingVertical: 10,
