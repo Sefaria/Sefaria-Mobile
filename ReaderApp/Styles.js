@@ -706,6 +706,9 @@ module.exports = StyleSheet.create({
     paddingTop: 10,
     marginTop: -5,
   },
+  bilingualEnglishText: {
+    paddingTop: 10
+  },
   hebrewSystemFont: {
     fontFamily: "Open Sans Hebrew"
   },
