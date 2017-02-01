@@ -10,6 +10,7 @@ import {
   Dimensions
 } from 'react-native';
 
+var HTMLView = require('react-native-htmlview'); //to convert html'afied JSON to something react can render (https://github.com/jsdf/react-native-htmlview)
 var {
   CloseButton,
   LanguageToggleButton,
@@ -161,7 +162,7 @@ var ReaderTextTableOfContents = React.createClass({
                 }
               </View>
               { versionNotes ?
-                <Text style={[styles.textTocVersionNotes, this.props.theme.tertiaryText]}>{versionInfo['versionNotes']}</Text>
+                <Text style={[styles.textTocVersionNotes, this.props.theme.tertiaryText]}><HTMLView value={versionInfo['versionNotes'] } onLinkPress={(url) => Linking.openURL(url) } stylesheet={styles} /></Text>
                 : null
               }
             </View>
