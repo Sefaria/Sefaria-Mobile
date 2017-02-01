@@ -789,4 +789,7 @@ module.exports = StyleSheet.create({
     fontStyle: "italic",
     fontWeight: "500",
   },
+  a: {
+    fontWeight: "300",
+  }
 });
