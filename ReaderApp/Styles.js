@@ -294,7 +294,8 @@ module.exports = StyleSheet.create({
   },
   linkContentText: {
     flex: 1,
-    alignItems: "stretch"
+    alignItems: "stretch",
+    paddingTop: 2
   },
   noLinks: {
     flex:1,
@@ -696,6 +697,8 @@ module.exports = StyleSheet.create({
     textAlign: 'left',
     flex: -1,
     fontSize: iPad ? 19 : 15,
+    lineHeight: iPad ? 20 : 16,
+    marginTop: 5
   },
   hebrewText: {
     fontFamily: "Taamey Frank Taamim Fix",
