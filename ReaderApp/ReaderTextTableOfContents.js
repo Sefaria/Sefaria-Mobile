@@ -166,9 +166,6 @@ var ReaderTextTableOfContents = React.createClass({
               }
             </View>
 
-
-
-
           </View>
 
           {this.state.textToc ?
@@ -177,7 +174,7 @@ var ReaderTextTableOfContents = React.createClass({
               schema={this.state.textToc.schema}
               commentatorList={Sefaria.commentaryList(this.props.title)}
               alts={this.state.textToc.alts || null}
-              defaultStruct={this.state.textToc.default_struct || "default"}
+              defaultStruct={"default_struct" in this.state.textToc && this.state.textToc.default_struct in this.state.textToc.alts ? this.state.textToc.default_struct : "default"}
               contentLang={this.props.contentLang}
               title={this.props.title}
               openRef={this.props.openRef} /> : <LoadingView /> }
@@ -201,6 +198,7 @@ var TextTableOfContentsNavigation = React.createClass({
     openRef:         React.PropTypes.func.isRequired
   },
   getInitialState: function() {
+    console.log(this.props)
     return {
       tab: this.props.defaultStruct
     }
