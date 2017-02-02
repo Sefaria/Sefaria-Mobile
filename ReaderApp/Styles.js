@@ -286,7 +286,7 @@ module.exports = StyleSheet.create({
     alignItems: "center",
   },
   textListHeaderItemText: {
-    fontSize: iPad ? 20 : 16,
+    fontSize: iPad ? 18 : 16,
   },
   textListCitation: {
     marginBottom: 4,
@@ -496,7 +496,7 @@ module.exports = StyleSheet.create({
   verseBullet: {
     paddingTop: 7,
     textAlign: 'center',
-    fontSize: iPad ? 10 : 7,
+    fontSize: iPad ? 9 : 7,
     width: iPad ? 60 : 30,
   },
   englishSystemFont: {
