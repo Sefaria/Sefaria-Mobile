@@ -20,6 +20,7 @@ var Downloader = {
     downloadQueue: [],      // Ordered list of title to download
     downloadInProgress: [], // List of titles currently downloading
     lastUpdateCheck: null,  // Timestamp of last download of updates list
+    lastUpdateSchema: null, // Schema Version of  last update check
     debugNoLibrary: false   // True if you want to disable library access even if it's downloaded for debugging purposes
   },
   downloading: false,     // Whether the download is currently active, not stored in _data because we never want to persist value
@@ -110,6 +111,7 @@ var Downloader = {
     return Promise.all([lastUpdatePromise, tocPromise]).then(() => {
       var timestamp = new Date().toJSON();
       Downloader._setData("lastUpdateCheck", timestamp)
+      Downloader._setData("lastUpdateSchema", SCHEMA_VERSION)
       Downloader.onChange && Downloader.onChange();
     });
   },
