@@ -497,7 +497,7 @@ module.exports = StyleSheet.create({
   verseBullet: {
     paddingTop: 7,
     textAlign: 'center',
-    fontSize: iPad ? 10 : 7,
+    fontSize: iPad ? 9 : 7,
     width: iPad ? 60 : 30,
   },
   englishSystemFont: {
