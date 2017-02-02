@@ -287,7 +287,7 @@ module.exports = StyleSheet.create({
     alignItems: "center",
   },
   textListHeaderItemText: {
-    fontSize: iPad ? 20 : 16,
+    fontSize: iPad ? 18 : 16,
   },
   textListCitation: {
     marginBottom: 4,
