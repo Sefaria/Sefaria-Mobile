@@ -119,14 +119,14 @@ module.exports = new LocalizedStrings({
     downloadError: "שגיאה בהורדה",
     downloadErrorMessage: "לצערנו ארעה תקלה בזמן ההורדה",
     pause: "עצור",
-    updateLater: "Update Later",
-    howToUpdateLibraryMessage: "You can update your library in the future from the Settings screen.",
-    updateLibrary: "Library Updates",
-    updatesAvailable: "texts have updates availalbe.", // to be combined with a number, e.g. "14 texts have..."
-    updatesAvailableMessage: "texts have updates available. Would you like to download them now?", // to be combined with a number, e.g. "14 texts have..."
-    libraryUpToDate: "Library Up To Date",
-    libraryUpToDateMessage: "You have the most current version of the Sefaria Library for iOS.",
-    checkForUpdates: "Check for Updates",
-    downloadUpdates: "Download Updates",
+    updateLater: "עדכן אחר כך",
+    howToUpdateLibraryMessage: "תוכל לעדכן את הספריה הבלתי מקוונת בעתיד ממסך ההגדרות",
+    updateLibrary: "עדכונים לספריה הבלתי מקוונת",
+    updatesAvailable: "עדכוני טקסט קיימים", // to be combined with a number, e.g. "14 texts have..."
+    updatesAvailableMessage: "קיימים עדכונים לטקסטים. האם תרצה להוריד אותם כעת?", // to be combined with a number, e.g. "14 texts have..."
+    libraryUpToDate: "הספריה מעודכנת",
+    libraryUpToDateMessage: "הגרסה העדכנית ביותר של הספרייה הבלתי מקוונת ל-iOS מעודכנת במכשירך",
+    checkForUpdates: "בדוק עדכונים קיימים",
+    downloadUpdates: "הורד עדכונים",
   }
 });
