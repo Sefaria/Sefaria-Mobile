@@ -61,7 +61,6 @@ module.exports = StyleSheet.create({
   readerDisplayOptionsMenuRow: {
     justifyContent: "center",
     flexDirection: 'row',
-    flex:1,
     marginTop: 10,
     marginBottom: 10,
     marginHorizontal: iPad ? 20 : 15,
@@ -118,7 +117,7 @@ module.exports = StyleSheet.create({
     marginTop: 10,
     marginBottom: 10,
     alignSelf: "stretch",
-    height:1
+    height: 1
   },
   headerButton: {
     width: 40,
@@ -647,7 +646,6 @@ module.exports = StyleSheet.create({
     textAlign: "center"
   },
   settingsSectionHeader: {
-    flex: 1,
     textAlign: "center",
     fontSize: 14,
     marginBottom: 10
@@ -661,7 +659,6 @@ module.exports = StyleSheet.create({
     marginLeft: 0,
   },
   settingsMessage: {
-    flex: 1,
     textAlign: "center",
     marginBottom: 6,
   },
@@ -670,7 +667,6 @@ module.exports = StyleSheet.create({
     marginBottom: 30,
   },
   button: {
-    flex: 1,
     borderRadius: 5,
     borderWidth: 1,
     backgroundColor: "white",
