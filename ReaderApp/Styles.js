@@ -133,10 +133,13 @@ module.exports = StyleSheet.create({
     width: 17,
     height: 17,
   },
+  rightHeaderButton: {
+    marginRight: iPad ? 10 : 0
+  },
   displaySettingsButton: {
     width: 25,
     height: 25,
-    marginRight: iPad ? 22 : 4
+    marginRight: 4
   },
   closeButton: {
     width: 16,
@@ -588,6 +591,7 @@ module.exports = StyleSheet.create({
   textTocVersionTitle: {
     paddingTop: 25,
     fontSize: iPad ? 28 : 17,
+    lineHeight: iPad ? 30 : 18,
     textAlign: "center"
   },
   textTocVersionNotes: {
@@ -598,8 +602,8 @@ module.exports = StyleSheet.create({
   textTocTopBox: {
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: 22,
-    paddingBottom: iPad ? 28 : 14,
+    marginBottom: iPad ? 34 : 24,
+    paddingBottom: iPad ? 34 : 24,
     paddingTop: iPad ? 20 : 0,
     borderBottomWidth: 1
   },
@@ -613,9 +617,11 @@ module.exports = StyleSheet.create({
   },
   textTocCategory: {
     fontSize: iPad ? 20 : 12,
+    lineHeight: iPad ? 22 : 13,
   },
   textTocSectionString: {
-    fontSize: iPad ? 20 : 12
+    fontSize: iPad ? 20 : 12,
+    lineHeight: iPad ? 20 : 12,
   },
   textTocNumberedSectionBox: {
     marginBottom: 20
@@ -693,7 +699,7 @@ module.exports = StyleSheet.create({
     textAlign: 'left',
     flex: -1,
     fontSize: iPad ? 19 : 15,
-    lineHeight: iPad ? 20 : 16,
+    lineHeight: iPad ? 21 : 16,
     marginTop: 5
   },
   hebrewText: {

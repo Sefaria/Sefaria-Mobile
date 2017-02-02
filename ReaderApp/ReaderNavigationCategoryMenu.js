@@ -140,8 +140,8 @@ var ReaderNavigationCategoryMenuContents = React.createClass({
             }.bind(this,newCats);
             content.push((<TouchableOpacity onPress={openCat} style={[styles.textBlockLink,this.props.theme.textBlockLink]} key={i}>
                             { showHebrew ?
-                              <Text style={[styles.he, styles.centerText, this.props.theme.text]}>{Sefaria.hebrewCategory(item.category)}</Text> :
-                              <Text style={[styles.en, styles.centerText, this.props.theme.text]}>{item.category}</Text> }
+                              <Text style={[styles.hebrewText, styles.centerText, this.props.theme.text]}>{Sefaria.hebrewCategory(item.category)}</Text> :
+                              <Text style={[styles.englishText, styles.centerText, this.props.theme.text]}>{item.category}</Text> }
                           </TouchableOpacity>));
             continue;
           }

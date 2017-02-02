@@ -282,6 +282,7 @@ var CalendarSection = React.createClass({
   }
 });
 
+
 var ReaderNavigationMenuSection = React.createClass({
   // A Section on the main navigation which includes a title over a grid of options
   propTypes: {

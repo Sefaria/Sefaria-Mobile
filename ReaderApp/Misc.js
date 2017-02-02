@@ -172,7 +172,7 @@ var TripleDots = React.createClass({
 
 var DisplaySettingsButton = React.createClass({
   render: function() {
-    return (<TouchableOpacity style={[styles.headerButton]} onPress={this.props.onPress}>
+    return (<TouchableOpacity style={[styles.headerButton, styles.rightHeaderButton]} onPress={this.props.onPress}>
               <Image source={this.props.themeStr == "white" ? require('./img/a-aleph.png'): require('./img/a-aleph-light.png') }
                      style={styles.displaySettingsButton}
                      resizeMode={Image.resizeMode.contain} />
