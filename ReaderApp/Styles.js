@@ -345,7 +345,8 @@ module.exports = StyleSheet.create({
     marginVertical: 15
   },
   readerNavCategory: {
-    flex: 1,
+    flexGrow: 1,
+    flexDirection: "row",
     borderTopWidth: 4,
     margin: 2,
     paddingVertical: 10,
@@ -697,7 +698,6 @@ module.exports = StyleSheet.create({
   englishText: {
     fontFamily: "Crimson",
     textAlign: 'left',
-    flex: -1,
     fontSize: iPad ? 19 : 15,
     lineHeight: iPad ? 21 : 16,
     marginTop: 5

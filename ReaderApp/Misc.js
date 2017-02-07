@@ -56,7 +56,7 @@ var CategoryBlockLink = React.createClass({
     var content = this.props.language == "english"?
       (<Text style={[styles.englishText].concat(textStyle)}>{enText}</Text>) :
       (<Text style={[styles.hebrewText].concat(textStyle)}>{heText}</Text>);
-    return (<TouchableOpacity onPress={this.props.onPress} style={[styles.readerNavCategory, this.props.theme.readerNavCategory, style, {flexDirection: "row"}]}>
+    return (<TouchableOpacity onPress={this.props.onPress} style={[styles.readerNavCategory, this.props.theme.readerNavCategory, style]}>
               <Image source={this.props.themeStr == "white" ? require('./img/back.png'): require('./img/back-light.png') }
                 style={[styles.moreArrowHe, this.props.language === "english" || !this.props.withArrow ? {opacity: 0} : null]}
                 resizeMode={Image.resizeMode.contain} />
