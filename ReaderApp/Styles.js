@@ -349,7 +349,7 @@ module.exports = StyleSheet.create({
     borderTopWidth: 4,
     margin: 2,
     paddingVertical: 10,
-    paddingHorizontal: 10,
+    paddingHorizontal: 2,
     justifyContent: "center",
     alignItems: "center",
   },
