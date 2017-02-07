@@ -117,9 +117,9 @@ var Api = {
   _toURL: function(ref, useHTTPS, apiType, context) {
     var url = '';
     if (useHTTPS) {
-      url += 'https://lev.sefaria.org/';
+      url += 'https://www.sefaria.org/';
     } else {
-      url += 'http://lev.sefaria.org/';
+      url += 'http://www.sefaria.org/';
     }
 
     var urlSuffix = '';
