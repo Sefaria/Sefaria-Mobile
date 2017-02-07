@@ -699,7 +699,7 @@ module.exports = StyleSheet.create({
     fontFamily: "Crimson",
     textAlign: 'left',
     fontSize: iPad ? 19 : 15,
-    lineHeight: iPad ? 21 : 16,
+    lineHeight: iPad ? 21 : 17,
     marginTop: 5
   },
   hebrewText: {
