@@ -384,6 +384,19 @@ var JaggedArrayNode = React.createClass({
     openRef:     React.PropTypes.func.isRequired,
   },
   render: function() {
+    if (this.props.refPath.startsWith("Beit Yosef, ")) { this.props.schema.toc_zoom = 2; }
+
+    if ("toc_zoom" in this.props.schema) {
+      var zoom = this.props.schema.toc_zoom - 1;
+      return (<JaggedArrayNodeSection
+                theme={this.props.theme}
+                depth={this.props.schema.depth - zoom}
+                sectionNames={this.props.schema.sectionNames.slice(0, -zoom)}
+                addressTypes={this.props.schema.addressTypes.slice(0, -zoom)}
+                contentCounts={this.props.schema.content_counts}
+                refPath={this.props.refPath} 
+                openRef={this.props.openRef} />);      
+    }
     return (<JaggedArrayNodeSection
               theme={this.props.theme}
               depth={this.props.schema.depth}
@@ -411,12 +424,32 @@ var JaggedArrayNodeSection = React.createClass({
     refPath:         React.PropTypes.string.isRequired,
     openRef:         React.PropTypes.func.isRequired,
   },
+  contentCountIsEmpty: function(count) {
+    // Returns true if count is zero or is an an array (of arrays) of zeros.
+    if (typeof count == "number") { return count == 0; }
+    var innerCounts = count.map(this.contentCountIsEmpty);
+    return innerCounts.every((empty) => {empty});
+  },
+  refPathTerminal: function(count) {
+    // Returns a string to be added to the end of a section link depending on a content count
+    // Used in cases of "zoomed" JaggedArrays, where `contentCounts` is deeper than `depth` so that zoomed section
+    // links still point to section level.
+    if (typeof count == "number") { return ""; }
+    var terminal = ":";
+    for (var i = 0; i < count.length; i++) {
+      if (count[i]) {
+        terminal += (i+1) + this.refPathTerminal(count[i]);
+        break;
+      }
+    }
+    return terminal;
+  },
   render: function() {
     var showHebrew = this.props.contentLang === "hebrew";
     if (this.props.depth > 2) {
       var content = [];
       for (var i = 0; i < this.props.contentCounts.length; i++) {
-        if (!this.props.contentCounts[i]) { continue; }
+        if (this.contentCountIsEmpty(this.props.contentCounts[i])) { continue; }
         if (this.props.addressTypes[0] === "Talmud") {
           var enSection = Sefaria.hebrew.intToDaf(i);
           var heSection = Sefaria.hebrew.encodeHebrewDaf(enSection);
@@ -446,7 +479,7 @@ var JaggedArrayNodeSection = React.createClass({
     var contentCounts = this.props.depth == 1 ? new Array(this.props.contentCounts).fill(1) : this.props.contentCounts;
     var sectionLinks = [];
     for (var i = 0; i < contentCounts.length; i++) {
-      if (contentCounts[i] == 0) { continue; }
+      if (this.contentCountIsEmpty(contentCounts[i])) { continue; }
       if (this.props.addressTypes[0] === "Talmud") {
         var section = Sefaria.hebrew.intToDaf(i);
         var heSection = Sefaria.hebrew.encodeHebrewDaf(section);
@@ -454,7 +487,7 @@ var JaggedArrayNodeSection = React.createClass({
         var section = i+1;
         var heSection = Sefaria.hebrew.encodeHebrewNumeral(i+1);
       }
-      var ref  = (this.props.refPath + ":" + section).replace(":", " ");
+      var ref  = (this.props.refPath + ":" + section).replace(":", " ") + this.refPathTerminal(contentCounts[i]);
       var open = this.props.openRef.bind(null, ref);
       var link = (
         <TouchableOpacity style={[styles.sectionLink,this.props.theme.sectionLink]} onPress={open} key={i}>
@@ -465,7 +498,7 @@ var JaggedArrayNodeSection = React.createClass({
       );
       sectionLinks.push(link);
     }
-    // sectionLinks.push(<View style={styles.lineEnd}></View>);
+
     var langStyles = showHebrew ? styles.rtlRow : null;
     return (
       <View style={[styles.textTocNumberedSection, langStyles]}>{sectionLinks}</View>
