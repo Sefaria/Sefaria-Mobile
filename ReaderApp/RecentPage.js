@@ -13,7 +13,7 @@ import {
 var {
   CategoryColorLine,
   CategoryBlockLink,
-  CloseButton,
+  GoBackButton,
   TwoBox,
   LanguageToggleButton
 } = require('./Misc.js');
@@ -52,7 +52,7 @@ var RecentPage = React.createClass({
       <View style={[styles.menu, this.props.theme.menu]}>
         <CategoryColorLine category={"Other"} />
         <View style={[styles.header, this.props.theme.header]}>
-          <CloseButton onPress={this.props.close} theme={this.props.theme} themeStr={this.props.themeStr}/>
+          <GoBackButton onPress={this.props.close} theme={this.props.theme} themeStr={this.props.themeStr}/>
           <Text style={[styles.textTocHeaderTitle, styles.textCenter, this.props.theme.text]}>{strings.recent.toUpperCase()}</Text>
           <LanguageToggleButton
             theme={this.props.theme}
