@@ -224,8 +224,6 @@ Sefaria = {
           var tocPath = exists ? (RNFS.DocumentDirectoryPath + "/library/toc.json") :
                                  (RNFS.MainBundlePath + "/sources/toc.json");
           Sefaria._loadJSON(tocPath).then(function(data) {
-
-            data = Sefaria._removeBook(data, "Kol Dodi Dofek");
             Sefaria.toc = data;
             Sefaria._cacheIndexFromToc(data);
             resolve();
