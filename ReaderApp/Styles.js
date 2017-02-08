@@ -177,22 +177,18 @@ module.exports = StyleSheet.create({
     justifyContent: "center",
   },
   headerTextTitleText: {
-    fontSize: iPad ? 20 : 16,
+    fontSize: iPad ? 18 : 16,
     textAlign: "center",
     marginHorizontal: 5,
   },
-  headerTextTitleTextEn: {
-    height: iPad ? 28 : 20,
-    lineHeight: iPad ? 28 : 20,
-    marginTop: 5,
-  },
   headerCategoryAttributionTextEn: {
-    fontFamily: "Crimson",
+    fontFamily: "Amiri",
     fontStyle: "italic",
     fontSize: 15,
-    height: 18,
     lineHeight: 18,
-    color: "#999"
+    color: "#999",
+    paddingTop: 2,
+    marginTop: -3
   },
   headerCategoryAttributionTextHe: {
     fontFamily: "Taamey Frank Taamim Fix",
@@ -202,7 +198,7 @@ module.exports = StyleSheet.create({
   downCaret: {
     width: 10,
     height: 10,
-    marginTop: 3,
+    marginTop: 1,
   },
   moreArrowEn: {
     width: 12,
@@ -225,7 +221,7 @@ module.exports = StyleSheet.create({
     flex: 1,
     fontSize: 16,
     fontStyle: "normal",
-    fontFamily: "Crimson",
+    fontFamily: "Amiri",
     paddingTop: 0,
     backgroundColor: "transparent"
   },
@@ -306,7 +302,7 @@ module.exports = StyleSheet.create({
   },
   emptyLinksMessage: {
     fontStyle: "italic",
-    fontFamily: "Crimson",
+    fontFamily: "Amiri",
     textAlign: "center",
     marginTop: 8
   },
@@ -433,7 +429,7 @@ module.exports = StyleSheet.create({
     color: "#999",
     fontStyle: "italic",
     textAlign: "center",
-    fontFamily: "Crimson",
+    fontFamily: "Amiri",
   },
   navigationCategoryCategoryAttributionTextHe: {
     fontSize: 20,
@@ -508,7 +504,7 @@ module.exports = StyleSheet.create({
     fontWeight: "100"
   },
   title: {
-    fontFamily: "Crimson",
+    fontFamily: "Amiri",
     fontSize: 20
   },
   verseContainer: {
@@ -564,7 +560,7 @@ module.exports = StyleSheet.create({
     color: "#666",
     fontStyle: "italic",
     textAlign: "center",
-    fontFamily: "Crimson",
+    fontFamily: "Amiri",
   },
   textTocCategoryAttributionTextHe: {
     fontSize: 20,
@@ -592,12 +588,11 @@ module.exports = StyleSheet.create({
   textTocVersionTitle: {
     paddingTop: 25,
     fontSize: iPad ? 28 : 17,
-    lineHeight: iPad ? 30 : 18,
     textAlign: "center"
   },
   textTocVersionNotes: {
     textAlign: "center",
-    fontFamily: "Crimson",
+    fontFamily: "Amiri",
     fontSize: 13,
   },
   textTocTopBox: {
@@ -618,11 +613,9 @@ module.exports = StyleSheet.create({
   },
   textTocCategory: {
     fontSize: iPad ? 20 : 12,
-    lineHeight: iPad ? 22 : 13,
   },
   textTocSectionString: {
     fontSize: iPad ? 20 : 12,
-    lineHeight: iPad ? 20 : 12,
   },
   textTocNumberedSectionBox: {
     marginBottom: 20
@@ -686,7 +679,7 @@ module.exports = StyleSheet.create({
   },
   dedication: {
     fontStyle: "italic",
-    fontFamily: "Crimson",
+    fontFamily: "Amiri",
     fontSize: 14,
     textAlign: "center",
     marginBottom: 20
@@ -696,10 +689,9 @@ module.exports = StyleSheet.create({
     height: 1
   },
   englishText: {
-    fontFamily: "Crimson",
+    fontFamily: "Amiri",
     textAlign: 'left',
     fontSize: iPad ? 19 : 15,
-    lineHeight: iPad ? 21 : 17,
     marginTop: 5
   },
   hebrewText: {
@@ -718,7 +710,7 @@ module.exports = StyleSheet.create({
     fontFamily: "Open Sans Hebrew"
   },
   en: {
-    fontFamily: "Crimson",
+    fontFamily: "Amiri",
     textAlign: 'left'
   },
   he: {
