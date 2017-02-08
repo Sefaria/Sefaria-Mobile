@@ -24,12 +24,16 @@ var TextSegment = React.createClass({
     textListVisible:    React.PropTypes.bool.isRequired,
     settings:           React.PropTypes.object
   },
-  onPressTextSegment: function(key) {
+  onPressTextSegment: function() {
+    console.log("press")
+    let key = this.props.segmentKey;
     let section = parseInt(key.split(":")[0]);
     let segment = parseInt(key.split(":")[1]);
     this.props.textSegmentPressed(section, segment, this.props.rowRef, true);
   },
-
+  onLongPress: function() {
+    // Do nothing -- need to prevent onPress from firing onLongPress
+  },
   render: function() {
     // console.log(this.props.segmentKey+": "+typeof(this.props.textRef));
     var style = this.props.textType == "hebrew" ?
@@ -43,7 +47,8 @@ var TextSegment = React.createClass({
       <Text
         style={style}
         suppressHighlighting={false}
-        onPress={ () => this.onPressTextSegment(this.props.segmentKey) }
+        onPress={this.onPressTextSegment}
+        onLongPress={this.onLongPress}
         key={this.props.segmentKey}
         onLayout={this.onLayout}
         selectable={true} >
