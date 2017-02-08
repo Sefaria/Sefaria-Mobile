@@ -46,14 +46,14 @@
 	<string></string>
 	<key>UIAppFonts</key>
 	<array>
-		<string>Crimson-Bold.ttf</string>
-		<string>Crimson-Roman.ttf</string>
-		<string>Crimson-Italic.ttf</string>
-		<string>Crimson-BoldItalic.ttf</string>
 		<string>TaameyFrank-taamim-fix.ttf</string>
 		<string>OpenSansHebrew-Regular.ttf</string>
 		<string>OpenSans-Regular.ttf</string>
 		<string>OpenSans-Light.ttf</string>
+		<string>Amiri-Slanted.ttf</string>
+		<string>Amiri-Regular.ttf</string>
+		<string>Amiri-Bold.ttf</string>
+		<string>Amiri-BoldSlanted.ttf</string>
 	</array>
 	<key>UIBackgroundModes</key>
 	<array>

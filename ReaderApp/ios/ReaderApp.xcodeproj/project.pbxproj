@@ -34,18 +34,15 @@
 		A14793A01DB8037000B6572F /* OpenSansHebrew-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A14793981DB8037000B6572F /* OpenSansHebrew-Regular.ttf */; };
 		A14793A11DB8037000B6572F /* TaameyFrankCLM-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A14793991DB8037000B6572F /* TaameyFrankCLM-Medium.ttf */; };
 		A15D510F1DC917640093676D /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = A15D510E1DC917640093676D /* LaunchScreen.xib */; };
-		A17201F61E280F4E001F561A /* CrimsonText-Roman.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A17201DD1E280F0F001F561A /* CrimsonText-Roman.ttf */; };
-		A17201F71E280F52001F561A /* CrimsonText-Italic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A17201DC1E280F0F001F561A /* CrimsonText-Italic.ttf */; };
-		A17201F81E280F55001F561A /* CrimsonText-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A17201DB1E280F0F001F561A /* CrimsonText-Bold.ttf */; };
+		A17895771E4BA0C80063B465 /* Amiri-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A17895761E4BA0C80063B465 /* Amiri-Regular.ttf */; };
+		A17895911E4BA0DE0063B465 /* Amiri-Slanted.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A17895901E4BA0DE0063B465 /* Amiri-Slanted.ttf */; };
+		A17895941E4BA2000063B465 /* Amiri-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A17895921E4BA2000063B465 /* Amiri-Bold.ttf */; };
+		A17895951E4BA2000063B465 /* Amiri-BoldSlanted.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A17895931E4BA2000063B465 /* Amiri-BoldSlanted.ttf */; };
 		A1C678201DB7FE4100392A83 /* libRNFS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A1C6781F1DB7FD4600392A83 /* libRNFS.a */; };
 		A1C678221DB7FF8000392A83 /* libRNFS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A1C6781F1DB7FD4600392A83 /* libRNFS.a */; };
 		A1C678231DB7FF8000392A83 /* libRNZipArchive.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A1C678191DB7FD0100392A83 /* libRNZipArchive.a */; };
 		A1C678261DB8000A00392A83 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = A1C678251DB8000A00392A83 /* libz.tbd */; };
 		A1ED30821E42F8170062EF11 /* TaameyFrank-taamim-fix.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A1ED30811E42F8170062EF11 /* TaameyFrank-taamim-fix.ttf */; };
-		A1FAD9771E393CC300D4CA50 /* CrimsonText-BoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A1FAD9761E393CC300D4CA50 /* CrimsonText-BoldItalic.ttf */; };
-		A1FAD9931E39418200D4CA50 /* Crimson-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A1FAD9901E39418200D4CA50 /* Crimson-Bold.ttf */; };
-		A1FAD9941E39418200D4CA50 /* Crimson-BoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A1FAD9911E39418200D4CA50 /* Crimson-BoldItalic.ttf */; };
-		A1FAD9951E39418200D4CA50 /* Crimson-Roman.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A1FAD9921E39418200D4CA50 /* Crimson-Roman.ttf */; };
 		A1FAD9971E39429100D4CA50 /* Crimson-Italic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A1FAD9961E39429100D4CA50 /* Crimson-Italic.ttf */; };
 		DD24DA6B1DCBADD200954157 /* OpenSans-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = DD24DA681DCBADD200954157 /* OpenSans-Light.ttf */; };
 		DD24DA6C1DCBADD200954157 /* OpenSans-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = DD24DA691DCBADD200954157 /* OpenSans-Regular.ttf */; };
@@ -265,17 +262,14 @@
 		A14793981DB8037000B6572F /* OpenSansHebrew-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "OpenSansHebrew-Regular.ttf"; sourceTree = "<group>"; };
 		A14793991DB8037000B6572F /* TaameyFrankCLM-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "TaameyFrankCLM-Medium.ttf"; sourceTree = "<group>"; };
 		A15D510E1DC917640093676D /* LaunchScreen.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = LaunchScreen.xib; sourceTree = "<group>"; };
-		A17201DB1E280F0F001F561A /* CrimsonText-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "CrimsonText-Bold.ttf"; sourceTree = "<group>"; };
-		A17201DC1E280F0F001F561A /* CrimsonText-Italic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "CrimsonText-Italic.ttf"; sourceTree = "<group>"; };
-		A17201DD1E280F0F001F561A /* CrimsonText-Roman.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "CrimsonText-Roman.ttf"; sourceTree = "<group>"; };
+		A17895761E4BA0C80063B465 /* Amiri-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Amiri-Regular.ttf"; sourceTree = "<group>"; };
+		A17895901E4BA0DE0063B465 /* Amiri-Slanted.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Amiri-Slanted.ttf"; sourceTree = "<group>"; };
+		A17895921E4BA2000063B465 /* Amiri-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Amiri-Bold.ttf"; sourceTree = "<group>"; };
+		A17895931E4BA2000063B465 /* Amiri-BoldSlanted.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Amiri-BoldSlanted.ttf"; sourceTree = "<group>"; };
 		A1C678141DB7FD0000392A83 /* RNZipArchive.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RNZipArchive.xcodeproj; path = "../node_modules/react-native-zip-archive/RNZipArchive.xcodeproj"; sourceTree = "<group>"; };
 		A1C6781A1DB7FD4600392A83 /* RNFS.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RNFS.xcodeproj; path = "../node_modules/react-native-fs/RNFS.xcodeproj"; sourceTree = "<group>"; };
 		A1C678251DB8000A00392A83 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		A1ED30811E42F8170062EF11 /* TaameyFrank-taamim-fix.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "TaameyFrank-taamim-fix.ttf"; sourceTree = "<group>"; };
-		A1FAD9761E393CC300D4CA50 /* CrimsonText-BoldItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "CrimsonText-BoldItalic.ttf"; sourceTree = "<group>"; };
-		A1FAD9901E39418200D4CA50 /* Crimson-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Crimson-Bold.ttf"; sourceTree = "<group>"; };
-		A1FAD9911E39418200D4CA50 /* Crimson-BoldItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Crimson-BoldItalic.ttf"; sourceTree = "<group>"; };
-		A1FAD9921E39418200D4CA50 /* Crimson-Roman.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Crimson-Roman.ttf"; sourceTree = "<group>"; };
 		A1FAD9961E39429100D4CA50 /* Crimson-Italic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Crimson-Italic.ttf"; sourceTree = "<group>"; };
 		DD24DA681DCBADD200954157 /* OpenSans-Light.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "OpenSans-Light.ttf"; sourceTree = "<group>"; };
 		DD24DA691DCBADD200954157 /* OpenSans-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "OpenSans-Regular.ttf"; sourceTree = "<group>"; };
@@ -484,14 +478,11 @@
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
-				A17201DB1E280F0F001F561A /* CrimsonText-Bold.ttf */,
-				A17201DC1E280F0F001F561A /* CrimsonText-Italic.ttf */,
-				A1FAD9761E393CC300D4CA50 /* CrimsonText-BoldItalic.ttf */,
-				A1FAD9901E39418200D4CA50 /* Crimson-Bold.ttf */,
-				A1FAD9911E39418200D4CA50 /* Crimson-BoldItalic.ttf */,
-				A1FAD9921E39418200D4CA50 /* Crimson-Roman.ttf */,
+				A17895761E4BA0C80063B465 /* Amiri-Regular.ttf */,
+				A17895901E4BA0DE0063B465 /* Amiri-Slanted.ttf */,
+				A17895921E4BA2000063B465 /* Amiri-Bold.ttf */,
+				A17895931E4BA2000063B465 /* Amiri-BoldSlanted.ttf */,
 				A1ED30811E42F8170062EF11 /* TaameyFrank-taamim-fix.ttf */,
-				A17201DD1E280F0F001F561A /* CrimsonText-Roman.ttf */,
 				DD24DA681DCBADD200954157 /* OpenSans-Light.ttf */,
 				DD24DA691DCBADD200954157 /* OpenSans-Regular.ttf */,
 				A1FAD9961E39429100D4CA50 /* Crimson-Italic.ttf */,
@@ -896,21 +887,18 @@
 			buildActionMask = 2147483647;
 			files = (
 				A14793A01DB8037000B6572F /* OpenSansHebrew-Regular.ttf in Resources */,
-				A1FAD9941E39418200D4CA50 /* Crimson-BoldItalic.ttf in Resources */,
-				A17201F81E280F55001F561A /* CrimsonText-Bold.ttf in Resources */,
 				DD24DA6B1DCBADD200954157 /* OpenSans-Light.ttf in Resources */,
 				A15D510F1DC917640093676D /* LaunchScreen.xib in Resources */,
-				A1FAD9771E393CC300D4CA50 /* CrimsonText-BoldItalic.ttf in Resources */,
-				A1FAD9931E39418200D4CA50 /* Crimson-Bold.ttf in Resources */,
+				A17895941E4BA2000063B465 /* Amiri-Bold.ttf in Resources */,
 				DD24DA6C1DCBADD200954157 /* OpenSans-Regular.ttf in Resources */,
-				A1FAD9951E39418200D4CA50 /* Crimson-Roman.ttf in Resources */,
+				A17895911E4BA0DE0063B465 /* Amiri-Slanted.ttf in Resources */,
 				A14793851DB801F100B6572F /* sources in Resources */,
+				A17895771E4BA0C80063B465 /* Amiri-Regular.ttf in Resources */,
 				A1FAD9971E39429100D4CA50 /* Crimson-Italic.ttf in Resources */,
 				A1ED30821E42F8170062EF11 /* TaameyFrank-taamim-fix.ttf in Resources */,
-				A17201F71E280F52001F561A /* CrimsonText-Italic.ttf in Resources */,
+				A17895951E4BA2000063B465 /* Amiri-BoldSlanted.ttf in Resources */,
 				A147939A1DB8037000B6572F /* EBGaramond-Regular.ttf in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
-				A17201F61E280F4E001F561A /* CrimsonText-Roman.ttf in Resources */,
 				DD7B126F1DBACAEE00AC4D6C /* EBGaramond-Italic.ttf in Resources */,
 				A14793A11DB8037000B6572F /* TaameyFrankCLM-Medium.ttf in Resources */,
 				A14510B61DD114B000B8B2BF /* two1536x2048.png in Resources */,
