@@ -198,7 +198,6 @@ module.exports = StyleSheet.create({
   downCaret: {
     width: 10,
     height: 10,
-    marginTop: 1,
   },
   moreArrowEn: {
     width: 12,
@@ -293,7 +292,6 @@ module.exports = StyleSheet.create({
   linkContentText: {
     flex: 1,
     alignItems: "stretch",
-    paddingTop: 2
   },
   noLinks: {
     flex:1,
@@ -692,6 +690,7 @@ module.exports = StyleSheet.create({
     fontFamily: "Amiri",
     textAlign: 'left',
     fontSize: iPad ? 19 : 15,
+    lineHeight: iPad ? 26 : 20,
     marginTop: 5
   },
   hebrewText: {
