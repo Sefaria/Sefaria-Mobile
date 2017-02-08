@@ -331,7 +331,7 @@ var SchemaNode = React.createClass({
     } else {
       var showHebrew = this.props.contentLang === "hebrew";
       var content = this.props.schema.nodes.map(function(node, i) {
-        if ("nodes" in node || "refs" in node) {
+        if ("nodes" in node || "refs" in node && node.refs.length) {
           return (
             <View style={styles.textTocNamedSection} key={i}>
               {showHebrew ?
@@ -344,6 +344,14 @@ var SchemaNode = React.createClass({
                 refPath={this.props.refPath + ", " + node.title}
                 openRef={this.props.openRef} />
             </View>);
+        } else if (node.nodeType == "ArrayMapNode") {
+          // ArrayMapNode with only wholeRef
+          return <ArrayMapNode 
+                    theme={this.props.theme}
+                    schema={node}
+                    contentLang={this.props.contentLang}
+                    openRef={this.props.openRef}
+                    key={i} />;
         } else if (node.depth == 1) {
           var open = this.props.openRef.bind(null, this.props.refPath + ", " + node.title);
           return (
@@ -516,29 +524,40 @@ var ArrayMapNode = React.createClass({
   },
   render: function() {
     var showHebrew = this.props.contentLang == "hebrew";
-    var sectionLinks = this.props.schema.refs.map(function(ref, i) {
-      i += this.props.schema.offset || 0;
-      var open = this.props.openRef.bind(null, ref);
-      if (this.props.schema.addressTypes[0] === "Talmud") {
-        var section = Sefaria.hebrew.intToDaf(i);
-        var heSection = Sefaria.hebrew.encodeHebrewDaf(section);
-      } else {
-        var section = i+1;
-        var heSection = Sefaria.hebrew.encodeHebrewNumeral(i+1);
-      }
-      return (
-        <TouchableOpacity style={[styles.sectionLink,this.props.theme.sectionLink]} onPress={open} key={i}>
-          { showHebrew ?
-            <Text style={[styles.he, styles.centerText, this.props.theme.text]}>{heSection}</Text> :
-            <Text style={[styles.centerText, this.props.theme.text]}>{section}</Text> }
-        </TouchableOpacity>
-      );
-    }.bind(this));
+    if ("refs" in this.props.schema && this.props.schema.refs.length) {
+      var sectionLinks = this.props.schema.refs.map(function(ref, i) {
+        i += this.props.schema.offset || 0;
+        var open = this.props.openRef.bind(null, ref);
+        if (this.props.schema.addressTypes[0] === "Talmud") {
+          var section = Sefaria.hebrew.intToDaf(i);
+          var heSection = Sefaria.hebrew.encodeHebrewDaf(section);
+        } else {
+          var section = i+1;
+          var heSection = Sefaria.hebrew.encodeHebrewNumeral(i+1);
+        }
+        return (
+          <TouchableOpacity style={[styles.sectionLink,this.props.theme.sectionLink]} onPress={open} key={i}>
+            { showHebrew ?
+              <Text style={[styles.he, styles.centerText, this.props.theme.text]}>{heSection}</Text> :
+              <Text style={[styles.centerText, this.props.theme.text]}>{section}</Text> }
+          </TouchableOpacity>
+        );
+      }.bind(this));
 
-    var langStyles = showHebrew ? styles.rtlRow : null;
-    return (
-      <View style={[styles.textTocNumberedSection, langStyles]}>{sectionLinks}</View>
-    );
+      var langStyles = showHebrew ? styles.rtlRow : null;
+      return (
+        <View style={[styles.textTocNumberedSection, langStyles]}>{sectionLinks}</View>
+      );
+    } else {
+      var open = this.props.openRef.bind(null, this.props.schema.wholeRef.replace(/\./g, " "));
+      return (
+          <TouchableOpacity style={[]} onPress={open} key={i}>
+            { showHebrew ?
+              <Text style={[styles.he, styles.textTocSectionTitle, this.props.theme.text]}>{this.props.schema.heTitle}</Text> :
+              <Text style={[styles.en, styles.textTocSectionTitle, this.props.theme.text]}>{this.props.schema.title}</Text> }
+          </TouchableOpacity>
+      );
+    }
   }
 });
 
