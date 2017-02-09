@@ -38,7 +38,7 @@ var TextSegment = React.createClass({
     // console.log(this.props.segmentKey+": "+typeof(this.props.textRef));
     var style = this.props.textType == "hebrew" ?
                   [styles.hebrewText, this.props.theme.text, styles.justifyText, {fontSize: this.props.settings.fontSize, lineHeight: this.props.settings.fontSize * 1.1},] :
-                  [styles.englishText, this.props.theme.text, styles.justifyText, {fontSize: 0.8 * this.props.settings.fontSize, lineHeight: this.props.settings.fontSize}];
+                  [styles.englishText, this.props.theme.text, styles.justifyText, {fontSize: 0.8 * this.props.settings.fontSize, lineHeight: this.props.settings.fontSize * 1.04 }];
     if (this.props.bilingual && this.props.textType == "english") {
       style.push(styles.bilingualEnglishText);
       style.push(this.props.theme.bilingualEnglishText);
