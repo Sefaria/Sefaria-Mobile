@@ -241,7 +241,7 @@ var Api = {
   context is a required param if apiType == 'text'. o/w it's ignored
   */
   _request: function(ref, apiType, context) {
-    var url = Sefaria.api._toURL(ref, false, apiType, context);
+    var url = Sefaria.api._toURL(ref, true, apiType, context);
     return new Promise(function(resolve, reject) {
       fetch(url)
       .then(function(response) {

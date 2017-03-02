@@ -726,7 +726,7 @@ Sefaria = {
       },
   },
   search: {
-    baseUrl: "http://search.sefaria.org/merged/_search/",
+    baseUrl: "https://search.sefaria.org/merged/_search/",
     _cache: {},
     cache: function(key, result) {
       if (result !== undefined) {
