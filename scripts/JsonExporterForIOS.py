@@ -435,3 +435,8 @@ if __name__ == '__main__':
 			print "To export_index, please provide index title"
 		else:
 			export_text(index, update=True)
+	elif action == "purge_cloudflare": #purge general toc and last_updated files
+		if USE_CLOUDFLARE:
+			purge_cloudflare_cache([])
+		else:
+			print "not using cloudflare"

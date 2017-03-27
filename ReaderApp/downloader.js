@@ -122,7 +122,7 @@ var Downloader = {
   },
   checkForUpdates: function() {
     // Downloads the most recent update list then prompts to download updates
-    // or notifies the user that the library is update. 
+    // or notifies the user that the library is update.
     Downloader.downloadUpdatesList().then(() => {
       var updates = Downloader.updatesAvailable();
       if (updates.length) {
@@ -141,7 +141,7 @@ var Downloader = {
     // Downloads the most recent update list if enough time has passed since previous check.
     // If not updates are available, prompts for to download.
     if (Downloader._data.shouldDownload && Downloader._isUpdateCheckNeeded()) {
-      
+
       NetInfo.isConnected.fetch().then(isConnected => {
         if (isConnected) {
           this.downloadUpdatesList()
@@ -150,7 +150,7 @@ var Downloader = {
               if (updates.length) {
                 Downloader.promptLibraryUpdate();
               }
-            });          
+            });
           }
       });
     }
@@ -317,7 +317,7 @@ var Downloader = {
           Downloader.onChange && Downloader.onChange();
           resolve();
         } else {
-          reject(downloadResult.statusCode);
+          reject(downloadResult.statusCode + " - " + title);
           RNFS.unlink(tempFile);
         }
       })
