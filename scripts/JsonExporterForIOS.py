@@ -24,7 +24,7 @@ import sefaria.model as model
 from sefaria.client.wrapper import get_links
 from sefaria.model.text import Version
 from sefaria.utils.talmud import section_to_daf
-from sefaria.system.exceptions import InputError
+from sefaria.system.exceptions import InputError, BookNameError
 from sefaria.system.exceptions import NoVersionFoundError
 from sefaria.system.database import db
 
@@ -42,7 +42,7 @@ or
 any section has a version different than the default version
 """
 
-SCHEMA_VERSION = "2"
+SCHEMA_VERSION = "1"
 EXPORT_PATH = SEFARIA_EXPORT_PATH + "/" + SCHEMA_VERSION
 MINIFY_JSON = True
 
@@ -65,10 +65,20 @@ def make_json(doc):
 		return json.dumps(doc, indent=4, encoding='utf-8', ensure_ascii=False) #prettified
 
 
-def write_doc(doc, path):
+def write_doc(doc, path, update=False):
 	"""
 	Takes a dictionary `doc` ready to export and actually writes the file to the filesystem.
+	:param update: True if you only want to update the file, not overwrite
 	"""
+	if update:
+		try:
+			old_doc = json.load(open(path, "rb"))
+		except IOError:
+			old_doc = {}
+
+		old_doc.update(doc)
+		doc = old_doc
+
 	out  = make_json(doc)
 	if not os.path.exists(os.path.dirname(path)):
 		os.makedirs(os.path.dirname(path))
@@ -112,12 +122,20 @@ def export_texts(skip_existing=False):
 	write_last_updated([i.title for i in indexes])
 
 
-def export_text(index):
-	"""Writes a ZIP file containing text content json and text index JSON"""
+def export_text(index, update=False):
+	"""Writes a ZIP file containing text content json and text index JSON
+	:param index: can be either Index or str
+	:param update: True if you want to write_last_updated for just this index
+	"""
+	if isinstance(index, str):
+		index = model.library.get_index(index)
+
 	export_text_json(index)
 	export_index(index)
 	zip_last_text(index.title)
 
+	if update:
+		write_last_updated([index.title], update=update)
 
 def get_default_versions(index):
 	vdict = {}
@@ -302,15 +320,16 @@ def export_index(index):
 		print traceback.format_exc()
 
 
-def write_last_updated(titles):
+def write_last_updated(titles, update=False):
 	"""
 	Writes to `last_updated.json` the current time stamp for all `titles`.
 	TODO -- read current file, don't just overwrite
+	:param update: True if you only want to update the file and not overwrite
 	"""
 	timestamp = datetime.now().replace(second=0, microsecond=0).isoformat()
 	last_updated = {title: timestamp for title in titles}
 	last_updated["SCHEMA_VERSION"] = SCHEMA_VERSION
-	write_doc(last_updated, EXPORT_PATH + "/last_updated.json")
+	write_doc(last_updated, EXPORT_PATH + "/last_updated.json", update=update)
 	if USE_CLOUDFLARE:
 		purge_cloudflare_cache(titles)
 
@@ -406,7 +425,13 @@ def export_all(skip_existing=False):
 
 if __name__ == '__main__':
 	action = sys.argv[1] if len(sys.argv) > 1 else None
+	index = sys.argv[2] if len(sys.argv) > 2 else None
 	if action == "export_all":
 		export_all()
 	elif action == "export_all_skip_existing":
 		export_all(skip_existing=True)
+	elif action == "export_text":
+		if not index:
+			print "To export_index, please provide index title"
+		else:
+			export_text(index, update=True)
