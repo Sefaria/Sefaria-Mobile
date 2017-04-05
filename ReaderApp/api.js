@@ -245,7 +245,7 @@ var Api = {
     return new Promise(function(resolve, reject) {
       fetch(url)
       .then(function(response) {
-        console.log('checking response',response.status);
+        //console.log('checking response',response.status);
         if (response.status >= 200 && response.status < 300) {
           return response;
         } else {
