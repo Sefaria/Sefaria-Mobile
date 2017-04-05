@@ -143,7 +143,7 @@ var Api = {
       }
     }
 
-    ref = ref.replace(/:/g,'.').replace(/ /g,'_');
+    ref = ref.replace(/:/g,'.').replace(/ /g,'.');
     url += ref + urlSuffix;
     console.log("URL",url);
     return url;
@@ -245,7 +245,7 @@ var Api = {
     return new Promise(function(resolve, reject) {
       fetch(url)
       .then(function(response) {
-        //console.log('checking response',response.status);
+        console.log('checking response',response.status);
         if (response.status >= 200 && response.status < 300) {
           return response;
         } else {
@@ -263,7 +263,9 @@ var Api = {
           resolve(json);
         }
       })
-      .catch(()=>{
+      .catch((response)=>{
+        console.log(response);
+
         AlertIOS.alert(
           strings.noInternet,
           strings.noInternetMessage,

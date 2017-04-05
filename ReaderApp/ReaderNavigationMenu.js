@@ -162,7 +162,7 @@ var ReaderNavigationMenu = React.createClass({
 
                   <Text style={[styles.navBottomLink, this.props.theme.tertiaryText]}>•</Text>
 
-                  <TouchableOpacity style={[styles.navBottomLink]} onPress={() => {Linking.openURL("http://www.sefaria.org/about");}}>
+                  <TouchableOpacity style={[styles.navBottomLink]} onPress={() => {Linking.openURL("https://www.sefaria.org/about");}}>
                     <Text style={[this.props.theme.tertiaryText]}>{strings.about}</Text>
                   </TouchableOpacity>
 
