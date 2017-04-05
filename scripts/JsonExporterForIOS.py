@@ -13,6 +13,7 @@ from shutil import rmtree
 from random import random
 from pprint import pprint
 from datetime import datetime
+import dateutil.parser
 
 from local_settings import *
 
@@ -136,6 +137,44 @@ def export_text(index, update=False):
 
 	if update:
 		write_last_updated([index.title], update=update)
+
+def export_updated():
+
+	#edit text, add text, edit text: {"date" : {"$gte": ISODate("2017-01-05T00:42:00")}, "ref" : /^Rashi on Leviticus/} REMOVE NONE INDEXES
+	#add link, edit link: {"rev_type": "add link", "new.refs": /^Rashi on Berakhot/} REMOVE NONE INDEXES
+	#delete link, edit link: {"rev_type": "add link", "old.refs": /^Rashi on Berakhot/} REMOVE NONE INDEXES
+
+	last_updated = json.load(open(EXPORT_PATH + "/last_updated.json", "rb"))
+	updated_list = []
+	for title, timestamp in last_updated.items():
+		if has_updated(title, dateutil.parser.parse(timestamp)):
+			updated_list += [model.library.get_index(title)]
+
+	for index in updated_list:
+		export_text(index)
+
+	write_last_updated(updated_list, update=True)
+
+
+def has_updated(title, last_updated):
+	"""
+	title - str name of index
+	last_updated - datetime obj of our current knowledge of when this title was last updated
+	"""
+	title_reg = re.compile(r"^{} ".format(title))
+	text_count = HistorySet({"date": {"$gt": last_updated}, "ref": title_reg}).count()
+	if text_count > 0:
+		return True
+
+	old_link_count = HistorySet({"date": {"$gt": last_updated}, "old.refs": title_reg}).count()
+	if old_link_count > 0:
+		return True
+
+	new_link_count = HistorySet({"date": {"$gt": last_updated}, "new.refs": title_reg}).count()
+	if new_link_count > 0:
+		return True
+
+	return False
 
 def get_default_versions(index):
 	vdict = {}
@@ -328,8 +367,11 @@ def write_last_updated(titles, update=False):
 	"""
 	timestamp = datetime.now().replace(second=0, microsecond=0).isoformat()
 	last_updated = {title: timestamp for title in titles}
-	last_updated["SCHEMA_VERSION"] = SCHEMA_VERSION
+	#last_updated["SCHEMA_VERSION"] = SCHEMA_VERSION
 	write_doc(last_updated, EXPORT_PATH + "/last_updated.json", update=update)
+	if update:
+		#write a report of the last indexes that were updated
+		write_doc(last_updated, EXPORT_PATH + "/last_updated_report.json")
 	if USE_CLOUDFLARE:
 		purge_cloudflare_cache(titles)
 
@@ -435,6 +477,8 @@ if __name__ == '__main__':
 			print "To export_index, please provide index title"
 		else:
 			export_text(index, update=True)
+	elif action == "export_updated":
+		export_updated()
 	elif action == "purge_cloudflare": #purge general toc and last_updated files
 		if USE_CLOUDFLARE:
 			purge_cloudflare_cache([])
