@@ -113,7 +113,7 @@ def export_texts(skip_existing=False):
 	Exports all texts in the database.
 	TODO -- check history and last_updated to only export texts with changes
 	"""
-	indexes = model.library.all_index_records(with_commentary=True)
+	indexes = model.library.all_index_records()
 
 	for index in indexes:
 		if skip_existing and os.path.isfile("%s/%s.zip" % (EXPORT_PATH, index.title)):
