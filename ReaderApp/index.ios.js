@@ -324,7 +324,7 @@ var ReaderApp = React.createClass({
             [
               {text: strings.cancel, style: 'cancel'},
               {text: strings.open, onPress: () => {
-                Linking.openURL("http://www.sefaria.org/" + ref.replace(/ /g, "_"));
+                Linking.openURL("https://www.sefaria.org/" + ref.replace(/ /g, "_"));
               }}
             ]);
           return;

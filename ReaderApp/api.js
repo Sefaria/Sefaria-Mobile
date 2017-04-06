@@ -143,7 +143,7 @@ var Api = {
       }
     }
 
-    ref = ref.replace(/:/g,'.').replace(/ /g,'_');
+    ref = ref.replace(/:/g,'.').replace(/ /g,'.');
     url += ref + urlSuffix;
     console.log("URL",url);
     return url;
@@ -263,7 +263,9 @@ var Api = {
           resolve(json);
         }
       })
-      .catch(()=>{
+      .catch((response)=>{
+        console.log(response);
+
         AlertIOS.alert(
           strings.noInternet,
           strings.noInternetMessage,
