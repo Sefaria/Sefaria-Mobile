@@ -27,6 +27,7 @@ from sefaria.model.text import Version
 from sefaria.utils.talmud import section_to_daf
 from sefaria.system.exceptions import InputError, BookNameError
 from sefaria.system.exceptions import NoVersionFoundError
+from sefaria.model.history import HistorySet
 from sefaria.system.database import db
 
 """
@@ -143,17 +144,22 @@ def export_updated():
 	#edit text, add text, edit text: {"date" : {"$gte": ISODate("2017-01-05T00:42:00")}, "ref" : /^Rashi on Leviticus/} REMOVE NONE INDEXES
 	#add link, edit link: {"rev_type": "add link", "new.refs": /^Rashi on Berakhot/} REMOVE NONE INDEXES
 	#delete link, edit link: {"rev_type": "add link", "old.refs": /^Rashi on Berakhot/} REMOVE NONE INDEXES
-
+	updated_books = export_toc(update=True)
 	last_updated = json.load(open(EXPORT_PATH + "/last_updated.json", "rb"))
-	updated_list = []
-	for title, timestamp in last_updated.items():
-		if has_updated(title, dateutil.parser.parse(timestamp)):
-			updated_list += [model.library.get_index(title)]
+	updated_books += map(lambda x: x[0], filter(lambda x: has_updated(x[0], dateutil.parser.parse(x[1])), last_updated.items()))
+	print "Updating {} books\n{}".format(len(updated_books), "\n\t".join(updated_books))
+	updated_indexes = []
+	for t in updated_books:
+		try:
+			updated_indexes += [model.library.get_index(t)]
+		except BookNameError:
+			print "Skipping update for non-existent book '{}'".format(title)
 
-	for index in updated_list:
+
+	for index in updated_indexes:
 		export_text(index)
 
-	write_last_updated(updated_list, update=True)
+	write_last_updated(updated_books, update=True)
 
 
 def has_updated(title, last_updated):
@@ -161,17 +167,28 @@ def has_updated(title, last_updated):
 	title - str name of index
 	last_updated - datetime obj of our current knowledge of when this title was last updated
 	"""
-	title_reg = re.compile(r"^{} ".format(title))
-	text_count = HistorySet({"date": {"$gt": last_updated}, "ref": title_reg}).count()
+	def construct_query(attribute, queries):
+		query_list = [{attribute: {'$regex': query}} for query in queries]
+		return {"date": {"$gt": last_updated}, '$or': query_list}
+	try:
+		title_queries = model.Ref(title).regex(as_list=True)
+	except InputError:
+		return False
+
+	text_count = HistorySet(construct_query("ref", title_queries)).count()
 	if text_count > 0:
 		return True
 
-	old_link_count = HistorySet({"date": {"$gt": last_updated}, "old.refs": title_reg}).count()
+	old_link_count = HistorySet(construct_query("old.refs", title_queries)).count()
 	if old_link_count > 0:
 		return True
 
-	new_link_count = HistorySet({"date": {"$gt": last_updated}, "new.refs": title_reg}).count()
+	new_link_count = HistorySet(construct_query("new.refs", title_queries)).count()
 	if new_link_count > 0:
+		return True
+
+	index_count = HistorySet({"date": {"$gt": last_updated}, "title":title}).count()
+	if index_count > 0:
 		return True
 
 	return False
@@ -376,14 +393,41 @@ def write_last_updated(titles, update=False):
 		purge_cloudflare_cache(titles)
 
 
-def export_toc():
+def export_toc(update=False):
 	"""
 	Writes the Table of Contents JSON to a single file.
+	:param update: True if you want to return the books that are new in the toc
 	"""
 	print "Export Table of Contents"
-	toc  = model.library.get_toc()
 	path = "%s/toc.json" % (EXPORT_PATH)
-	write_doc(toc, path)
+	old_toc = json.load(open(path, 'rb'))
+	new_toc  = model.library.get_toc()
+
+	write_doc(new_toc, path)
+	if update:
+		def get_books(temp_toc, books):
+			if isinstance(temp_toc, list):
+				for child_toc in temp_toc:
+					if "contents" in child_toc:
+						child_toc = child_toc["contents"]
+					books.update(get_books(child_toc, set()))
+			else:
+				books.add(temp_toc["title"])
+			return books
+
+		old_books = get_books(old_toc, set())
+		new_books = get_books(new_toc, set())
+
+		added_books = []
+		for nbook in new_books:
+			if nbook not in old_books:
+				added_books += [nbook]
+		return added_books
+
+
+
+
+
 
 
 def export_calendar():
