@@ -22,7 +22,29 @@
 
   NSURL *jsCodeLocation;
 
-  jsCodeLocation = [[RCTBundleURLProvider sharedSettings] jsBundleURLForBundleRoot:@"index.ios" fallbackResource:nil];
+  //jsCodeLocation = [[RCTBundleURLProvider sharedSettings] jsBundleURLForBundleRoot:@"index.ios" fallbackResource:nil];
+
+  
+ #if DEBUG
+  NSLog(@"AppDelegate:DEBUG");
+
+#if TARGET_IPHONE_SIMULATOR
+  NSLog(@"AppDelegate:DEBUG:TARGET_IPHONE_SIMULATOR");
+  jsCodeLocation = [NSURL URLWithString:@"http://localhost:8081/index.ios.bundle"];
+#else
+  NSLog(@"AppDelegate:DEBUG:!TARGET_IPHONE_SIMULATOR");
+  NSLog(@"To device debug, open RCTWebSocketExecutor.m & replace localhost with MacBook IP.");
+  // Get dev host IP Address:
+  //    ifconfig | grep inet\ | tail -1 | cut -d " " -f 2
+  jsCodeLocation = [NSURL URLWithString:@"http://192.16.29.213:8081/index.ios.bundle"];
+#endif
+
+#else
+  NSLog(@"AppDelegate:RELEASE jsbundle");
+  jsCodeLocation = [[NSBundle mainBundle] URLForResource:@"main" withExtension:@"jsbundle"];
+#endif
+
+  NSLog(@"jsCodeLocation = %@",jsCodeLocation); 
 
   RCTRootView *rootView = [[RCTRootView alloc] initWithBundleURL:jsCodeLocation
                                                       moduleName:@"ReaderApp"

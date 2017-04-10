@@ -158,7 +158,14 @@ Sefaria = {
   categoryForTitle: function(title) {
     var index = Sefaria.index(title);
     if (!index) { return null;}
-    return index.categories[0] == "Commentary2" ? "Commentary" : index.categories[0];
+
+    let cat = index.categories[0];
+    if (index.categories.includes("Commentary")) {
+      cat = "Commentary";
+    } else if (index.categories.includes("Targum")) {
+      cat = "Targum";
+    }
+    return cat;
   },
   categoriesForTitle: function(title) {
     var index = Sefaria.index(title);
@@ -336,7 +343,9 @@ Sefaria = {
       }
       return results;
     };
-    return commentariesInBranch(title, branch);
+    let comms = commentariesInBranch(title, branch);
+    console.log("comms",comms);
+    return comms;
   },
   _commentatorListBySection: {},
   commentatorListBySection: function(ref) {

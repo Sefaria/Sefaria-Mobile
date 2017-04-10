@@ -16,5 +16,8 @@
     "react-native-localization": "^0.1.22",
     "react-native-orientation": "^1.17.0",
     "react-native-zip-archive": "0.0.6"
+  },
+  "devDependencies": {
+    "invariant": "^2.2.2"
   }
 }

@@ -116,10 +116,12 @@ def export_texts(skip_existing=False):
 	"""
 	indexes = model.library.all_index_records()
 
-	for index in indexes:
+	for index in reversed(indexes):
 		if skip_existing and os.path.isfile("%s/%s.zip" % (EXPORT_PATH, index.title)):
 			continue
-		export_text(index)
+		success = export_text(index)
+		if not success:
+			indexes.remove(index)
 
 	write_last_updated([i.title for i in indexes])
 
@@ -132,12 +134,14 @@ def export_text(index, update=False):
 	if isinstance(index, str):
 		index = model.library.get_index(index)
 
-	export_text_json(index)
-	export_index(index)
+	success = export_text_json(index)
+	success = export_index(index) and success
 	zip_last_text(index.title)
 
-	if update:
+	if update and success:
 		write_last_updated([index.title], update=update)
+
+	return success
 
 def export_updated():
 
@@ -156,8 +160,10 @@ def export_updated():
 			print "Skipping update for non-existent book '{}'".format(title)
 
 
-	for index in updated_indexes:
-		export_text(index)
+	for index, title in zip(updated_indexes, updated_books):
+		success = export_text(index)
+		if not success:
+			updated_books.remove(title) # don't include books which dont export
 
 	write_last_updated(updated_books, update=True)
 
@@ -209,6 +215,8 @@ def export_text_json(index):
 	"""
 	Takes a single document from the `texts` collection exports it, by chopping it up
 	Add helpful data like
+
+	returns True if export was successful
 	"""
 	print index.title
 	defaultVersions = get_default_versions(index)
@@ -227,10 +235,12 @@ def export_text_json(index):
 
 			path = make_path(doc, "json")
 			write_doc(doc, path)
+		return True
 
 	except Exception, e:
 		print "Error exporting %s: %s" % (index.title, e)
 		print traceback.format_exc()
+		return False
 
 
 def simple_link(link):
@@ -371,9 +381,13 @@ def export_index(index):
 				pass
 		path  = "%s/%s_index.json" % (EXPORT_PATH, index.title)
 		write_doc(index_counts, path)
+
+		return True
 	except Exception, e:
 		print "Error exporting Index for %s: %s" % (index.title, e)
 		print traceback.format_exc()
+
+		return False
 
 
 def write_last_updated(titles, update=False):

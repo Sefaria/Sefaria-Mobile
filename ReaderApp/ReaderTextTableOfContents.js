@@ -346,7 +346,7 @@ var SchemaNode = React.createClass({
             </View>);
         } else if (node.nodeType == "ArrayMapNode") {
           // ArrayMapNode with only wholeRef
-          return <ArrayMapNode 
+          return <ArrayMapNode
                     theme={this.props.theme}
                     schema={node}
                     contentLang={this.props.contentLang}
@@ -402,8 +402,8 @@ var JaggedArrayNode = React.createClass({
                 sectionNames={this.props.schema.sectionNames.slice(0, -zoom)}
                 addressTypes={this.props.schema.addressTypes.slice(0, -zoom)}
                 contentCounts={this.props.schema.content_counts}
-                refPath={this.props.refPath} 
-                openRef={this.props.openRef} />);      
+                refPath={this.props.refPath}
+                openRef={this.props.openRef} />);
     }
     return (<JaggedArrayNodeSection
               theme={this.props.theme}
@@ -575,8 +575,8 @@ var CommentatorList = React.createClass({
       var open = this.props.openRef.bind(null, commentator.firstSection);
       return (<TouchableOpacity onPress={open} style={[styles.textBlockLink, this.props.theme.textBlockLink]} key={i}>
               { showHebrew ?
-                <Text style={[styles.he, styles.centerText, this.props.theme.text]}>{commentator.heCommentator}</Text> :
-                <Text style={[styles.en, styles.centerText, this.props.theme.text]}>{commentator.commentator}</Text> }
+                <Text style={[styles.he, styles.centerText, this.props.theme.text]}>{commentator.heTitle}</Text> :
+                <Text style={[styles.en, styles.centerText, this.props.theme.text]}>{commentator.title}</Text> }
             </TouchableOpacity>);
     }.bind(this));
 

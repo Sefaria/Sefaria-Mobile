@@ -50,7 +50,7 @@ var ReaderNavigationCategoryMenu = React.createClass({
                         ["Talmud", "Bavli"] : this.props.categories;
 
 
-    if (categories[0] === "Talmud") {
+    if (categories[0] === "Talmud" && this.props.categories.length <= 2) {
       var options = [{
         name: "Bavli",
         text: "Bavli",
@@ -80,7 +80,7 @@ var ReaderNavigationCategoryMenu = React.createClass({
     var heTitle = Sefaria.hebrewCategory(this.props.category);
     var language = this.props.settings.language == "hebrew" ? "hebrew" : "english";
     return (<View style={[styles.menu, this.props.theme.menu]}>
-              <CategoryColorLine category={this.props.category} />
+              <CategoryColorLine category={categories[0]} />
               <View style={[styles.header, this.props.theme.header]}>
                 <CategoryColorLine category={categories[0]} />
                 <MenuButton onPress={this.props.navHome} theme={this.props.theme} themeStr={this.props.themeStr}/>
@@ -126,13 +126,24 @@ var ReaderNavigationCategoryMenuContents = React.createClass({
       var content = [];
       var showHebrew = this.props.settings.language == "hebrew";
       var cats = this.props.categories || [];
+      //remove commentary category
+      let subcats = [ "Mishneh Torah", "Shulchan Arukh", "Midrash Rabbah", "Maharal" ];
+      if (cats.length > 0 && (cats[cats.length - 1] === "Commentary" ||
+        cats[cats.length - 1] === "Targum")) {
+        subcats = subcats.concat(this.props.contents.map((item)=>item.category ? item.category : item.title));
+        console.log("subcats", subcats);
+      }
+
       for (var i = 0; i < this.props.contents.length; i++) {
         var item = this.props.contents[i];
         if (item.category) {
-          if (item.category == "Commentary") { continue; }
+
+          if (item.category == "Commentary") {
+            subcats.push(item)
+          }
           var newCats = cats.concat(item.category);
           // Special Case categories which should nest
-          var subcats = [ "Mishneh Torah", "Shulchan Arukh", "Midrash Rabbah", "Maharal" ];
+
           if (Sefaria.util.inArray(item.category, subcats) > -1) {
             var openCat = function(newCats) {
               this.props.setCategories(newCats);

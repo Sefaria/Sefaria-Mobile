@@ -143,7 +143,7 @@ var Api = {
       }
     }
 
-    ref = ref.replace(/:/g,'.').replace(/ /g,'.');
+    ref = ref.replace(/:/g,'.').replace(/ /g,'_');
     url += ref + urlSuffix;
     console.log("URL",url);
     return url;
