@@ -67,19 +67,10 @@ def make_json(doc):
 		return json.dumps(doc, indent=4, encoding='utf-8', ensure_ascii=False) #prettified
 
 
-def write_doc(doc, path, update=False):
+def write_doc(doc, path):
 	"""
 	Takes a dictionary `doc` ready to export and actually writes the file to the filesystem.
-	:param update: True if you only want to update the file, not overwrite
 	"""
-	if update:
-		try:
-			old_doc = json.load(open(path, "rb"))
-		except IOError:
-			old_doc = {}
-
-		old_doc.update(doc)
-		doc = old_doc
 
 	out  = make_json(doc)
 	if not os.path.exists(os.path.dirname(path)):
@@ -397,12 +388,27 @@ def write_last_updated(titles, update=False):
 	:param update: True if you only want to update the file and not overwrite
 	"""
 	timestamp = datetime.now().replace(second=0, microsecond=0).isoformat()
-	last_updated = {title: timestamp for title in titles}
+	last_updated = {
+		"schema_version": SCHEMA_VERSION,
+		"comment":"",
+		"titles": {title: timestamp for title in titles}
+	}
 	#last_updated["SCHEMA_VERSION"] = SCHEMA_VERSION
-	write_doc(last_updated, EXPORT_PATH + "/last_updated.json", update=update)
 	if update:
+		try:
+			old_doc = json.load(open(EXPORT_PATH + "/last_updated.json", "rb"))
+		except IOError:
+			old_doc = {"schema_version": 0, "comment": "", "titles": {}}
+
+		old_doc["schema_version"] = last_updated["schema_version"]
+		old_doc["comment"] = last_updated["comment"]
+		old_doc["titles"].update(last_updated)
+		last_updated = old_doc
 		#write a report of the last indexes that were updated
 		write_doc(last_updated, EXPORT_PATH + "/last_updated_report.json")
+
+	write_doc(last_updated, EXPORT_PATH + "/last_updated.json")
+
 	if USE_CLOUDFLARE:
 		purge_cloudflare_cache(titles)
 
