@@ -44,7 +44,7 @@ or
 any section has a version different than the default version
 """
 
-SCHEMA_VERSION = "2"
+SCHEMA_VERSION = "3"
 EXPORT_PATH = SEFARIA_EXPORT_PATH + "/" + SCHEMA_VERSION
 MINIFY_JSON = True
 
