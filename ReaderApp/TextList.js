@@ -112,15 +112,15 @@ var TextList = React.createClass({
       var viewList = [];
       this.props.linkSummary.map((cat)=>{
         let heCategory = Sefaria.hebrewCategory(this.props.category);
-        let filter = new LinkFilter(cat.category,heCategory,cat.refList,cat.category);
+        let filter = new LinkFilter(cat.category, heCategory, cat.category, heCategory, cat.refList,cat.category);
 
         var innerViewList = cat.books.map((obook)=>{
-          let filter = new LinkFilter(obook.title, obook.heTitle, obook.refList, cat.category);
+          let filter = new LinkFilter(obook.title, obook.heTitle, obook.collectiveTitle, obook.heCollectiveTitle, obook.refList, cat.category);
           return (
           <LinkBook
             theme={this.props.theme}
-            title={obook.title}
-            heTitle={obook.heTitle}
+            collectiveTitle={obook.collectiveTitle}
+            heCollectiveTitle={obook.heCollectiveTitle}
             count={obook.count}
             language={this.props.settings.language}
             onPress={function(filter,title) {
@@ -234,12 +234,12 @@ var LinkCategory = React.createClass({
 
 var LinkBook = React.createClass({
   propTypes: {
-    theme:    React.PropTypes.object.isRequired,
-    onPress:  React.PropTypes.func.isRequired,
-    title:    React.PropTypes.string,
-    heTitle:  React.PropTypes.string,
-    language: React.PropTypes.string,
-    count:    React.PropTypes.number
+    theme:              React.PropTypes.object.isRequired,
+    onPress:            React.PropTypes.func.isRequired,
+    collectiveTitle:    React.PropTypes.string,
+    heCollectiveTitle:  React.PropTypes.string,
+    language:           React.PropTypes.string,
+    count:              React.PropTypes.number
   },
   render: function() {
     let countStr = this.props.count == 0 ? "" : " (" + this.props.count + ")";
@@ -249,8 +249,8 @@ var LinkBook = React.createClass({
         style={[styles.textBlockLink, this.props.theme.textBlockLink]}
         onPress={this.props.onPress}>
         { this.props.language == "hebrew" ?
-          <Text style={[styles.hebrewText, styles.centerText, textStyle]}>{this.props.heTitle + countStr}</Text> :
-          <Text style={[styles.englishText, styles.centerText, textStyle]}>{this.props.title + countStr}</Text> }
+          <Text style={[styles.hebrewText, styles.centerText, textStyle]}>{this.props.heCollectiveTitle + countStr}</Text> :
+          <Text style={[styles.englishText, styles.centerText, textStyle]}>{this.props.collectiveTitle + countStr}</Text> }
       </TouchableOpacity>
     );
   }

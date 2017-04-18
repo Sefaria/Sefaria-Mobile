@@ -75,8 +75,8 @@ var TextListHeaderItem = React.createClass({
 	},
 	render: function() {
 		var filterStr = this.props.language == "hebrew" ?
-			this.props.filter.heTitle :
-			this.props.filter.title;
+			this.props.filter.heCollectiveTitle :
+			this.props.filter.collectiveTitle;
 		var textStyles = [styles.textListHeaderItemText, this.props.theme.textListHeaderItemText];
 
 	    if (this.props.selected) {

@@ -451,6 +451,8 @@ var ReaderApp = React.createClass({
         var filterStr   = this.state.linkRecentFilters[filterIndex].title;
         var filterStrHe = this.state.linkRecentFilters[filterIndex].heTitle;
         var category    = this.state.linkRecentFilters[filterIndex].category;
+        var collectiveTitle = this.state.linkRecentFilters[filterIndex].collectiveTitle;
+        var heCollectiveTitle = this.state.linkRecentFilters[filterIndex].heCollectiveTitle;
         var nextRefList = [];
 
         for (let cat of linkSummary) {
@@ -465,7 +467,7 @@ var ReaderApp = React.createClass({
               }
             }
         }
-        var nextFilter = new LinkFilter(filterStr, filterStrHe, nextRefList, category);
+        var nextFilter = new LinkFilter(filterStr, filterStrHe, collectiveTitle, heCollectiveTitle, nextRefList, category);
 
         this.state.linkRecentFilters[filterIndex] = nextFilter;
 

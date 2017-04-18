@@ -199,7 +199,7 @@ var TextTableOfContentsNavigation = React.createClass({
     openRef:         React.PropTypes.func.isRequired
   },
   getInitialState: function() {
-    console.log(this.props)
+    //console.log(this.props)
     return {
       tab: this.props.defaultStruct
     }

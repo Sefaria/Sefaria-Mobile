@@ -326,15 +326,14 @@ Sefaria = {
     // Returns the list of commentaries for 'title' which are found in Sefaria.toc
     var index = this.index(title);
     if (!index) { return []; }
-    var cats   = [index.categories[0], "Commentary"];
+    var cats   = [index.categories[0]];
     var branch = this.tocItemsByCategories(cats);
     var commentariesInBranch = function(title, branch) {
       // Recursively walk a branch of TOC, return a list of all commentaries found on `title`.
       var results = [];
       for (var i=0; i < branch.length; i++) {
         if (branch[i].title) {
-          var split = branch[i].title.split(" on ");
-          if (split.length == 2 && split[1] === title) {
+          if (branch[i].dependence === "Commentary" && branch[i].base_text_titles && branch[i].base_text_titles.includes(title)) {
             results.push(branch[i]);
           }
         } else {
@@ -344,7 +343,7 @@ Sefaria = {
       return results;
     };
     let comms = commentariesInBranch(title, branch);
-    console.log("comms",comms);
+    //console.log("comms",comms);
     return comms;
   },
   _commentatorListBySection: {},
@@ -466,7 +465,7 @@ Sefaria = {
   recent: null,
   saveRecentItem: function(item) {
     var itemTitle = Sefaria.textTitleForRef(item.ref);
-    console.log('ITEM TITLE',itemTitle);
+    //console.log('ITEM TITLE',itemTitle);
     var items = Sefaria.recent || [];
     items = items.filter(function(existing) {
       return Sefaria.textTitleForRef(existing.ref) !== itemTitle;
@@ -639,11 +638,13 @@ Sefaria = {
               var isCommentary = link.category == "Commentary";
               category.books[link.textTitle] =
               {
-                  count:    1,
-                  title:    Sefaria.getTitle(link.sourceRef, isCommentary, false),
-                  heTitle:  Sefaria.getTitle(link.sourceHeRef, isCommentary, true, link.sourceRef),
-                  category: link.category,
-                  refList:  [link.sourceRef]
+                  count:             1,
+                  title:             Sefaria.getTitle(link.sourceRef, isCommentary, false),
+                  heTitle:           Sefaria.getTitle(link.sourceHeRef, isCommentary, true, link.sourceRef),
+                  collectiveTitle:   link.collectiveTitle,
+                  heCollectiveTitle: link.heCollectiveTitle,
+                  category:          link.category,
+                  refList:           [link.sourceRef]
               };
             }
           }

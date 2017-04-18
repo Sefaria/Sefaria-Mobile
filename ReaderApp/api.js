@@ -200,7 +200,9 @@ var Api = {
         "category": link.category,
         "sourceRef": link.sourceRef, //.substring(0,link.sourceRef.lastIndexOf(':')),
         "sourceHeRef": link.sourceHeRef, //.substring(0,link.sourceHeRef.lastIndexOf(':')),
-        "textTitle": link.index_title
+        "textTitle": link.index_title,
+        "collectiveTitle": link.collectiveTitle.en,
+        "heCollectiveTitle": link.collectiveTitle.he
       });
     }
     return text.map((seg,i) => ({

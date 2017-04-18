@@ -296,7 +296,7 @@ def section_data(oref, defaultVersions):
 				return None, None, None, None # default version
 		else:
 			#merged
-			print "MERGED SECTION {} ({})".format(oref, chunk.lang)
+			#print "MERGED SECTION {} ({})".format(oref, chunk.lang)
 			all_versions = set(chunk.sources)
 			merged_version = u'Merged from {}'.format(u', '.join(all_versions))
 			return merged_version, None, None, None
