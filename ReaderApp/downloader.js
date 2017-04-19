@@ -8,7 +8,7 @@ const RNFS = require('react-native-fs'); //for access to file system -- (https:/
 const strings = require('./LocalizedStrings');
 
 
-const SCHEMA_VERSION = "2";
+const SCHEMA_VERSION = "3";
 const HOST_PATH = "https://readonly.sefaria.org/static/ios-export/" + SCHEMA_VERSION + "/";
 //const HOST_PATH = "file:///Users/nss/Documents/Sefaria-Export/ios/" + SCHEMA_VERSION + "/";
 
@@ -17,6 +17,7 @@ var Downloader = {
     shouldDownload: false,  // Whether or not to download books at all or just stick to API mode
     lastDownload: {},       // Map book titles to timestamp of their last downloaded version or null
     availableDownloads: {}, // Server provided map of titles to ther timestamp of their last update available
+    updateComment: "",      // Current update comment. Generally a short note on what's new
     downloadQueue: [],      // Ordered list of title to download
     downloadInProgress: [], // List of titles currently downloading
     lastUpdateCheck: null,  // Timestamp of last download of updates list
@@ -92,10 +93,19 @@ var Downloader = {
     var lastUpdatePromise = fetch(HOST_PATH + "last_updated.json", {headers: {'Cache-Control': 'no-cache'}})
       .then((response) => response.json())
       .then((data) => {
-        Downloader._setData("availableDownloads", data);
         // Add titles to lastDownload list if they haven't been seen before
-        for (var title in data) {
-          if (data.hasOwnProperty(title) && !(title in Downloader._data.lastDownload)) {
+        var titles;
+        if (data.titles) {
+          titles = data.titles;
+        } else {
+          titles = data; //NOTE backwards compatibility
+        }
+        Downloader._setData("availableDownloads", titles);
+        if (data.comment) {
+          Downloader._setData("updateComment", data.comment);
+        }
+        for (var title in titles) {
+          if (titles.hasOwnProperty(title) && !(title in Downloader._data.lastDownload)) {
             Downloader._data.lastDownload[title] = null;
           }
         }
@@ -195,6 +205,10 @@ var Downloader = {
     }
     return updates;
   },
+  updateComments: function() {
+    //Returns list of update comments, oldest first
+    return this._data.updateComments;
+  },
   promptLibraryDownload: function() {
     // If it hasn't been done already, prompt the user to download the library.
     AsyncStorage.getItem("libraryDownloadPrompted")
@@ -225,6 +239,12 @@ var Downloader = {
   },
   promptLibraryUpdate: function() {
     var updates = Downloader.updatesAvailable();
+    var updateComment = Downloader.updateComment();
+    var updateFullString = updates.length + " " + strings.updatesAvailableMessage;
+    if (updateComment.length > 0) {
+      updateFullString += ". " + updateComment;
+    }
+
     if (updates.length == 0) { return; }
 
     var onCancel = function() {

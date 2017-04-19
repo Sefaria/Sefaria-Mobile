@@ -119,8 +119,8 @@ var TextList = React.createClass({
           return (
           <LinkBook
             theme={this.props.theme}
-            collectiveTitle={obook.collectiveTitle}
-            heCollectiveTitle={obook.heCollectiveTitle}
+            title={obook.collectiveTitle ? obook.collectiveTitle : obook.title} //NOTE backwards compatibility
+            heTitle={obook.heCollectiveTitle ? obook.heCollectiveTitle : obook.heTitle}
             count={obook.count}
             language={this.props.settings.language}
             onPress={function(filter,title) {
@@ -234,12 +234,12 @@ var LinkCategory = React.createClass({
 
 var LinkBook = React.createClass({
   propTypes: {
-    theme:              React.PropTypes.object.isRequired,
-    onPress:            React.PropTypes.func.isRequired,
-    collectiveTitle:    React.PropTypes.string,
-    heCollectiveTitle:  React.PropTypes.string,
-    language:           React.PropTypes.string,
-    count:              React.PropTypes.number
+    theme:    React.PropTypes.object.isRequired,
+    onPress:  React.PropTypes.func.isRequired,
+    title:    React.PropTypes.string,
+    heTitle:  React.PropTypes.string,
+    language: React.PropTypes.string,
+    count:    React.PropTypes.number
   },
   render: function() {
     let countStr = this.props.count == 0 ? "" : " (" + this.props.count + ")";
@@ -249,8 +249,8 @@ var LinkBook = React.createClass({
         style={[styles.textBlockLink, this.props.theme.textBlockLink]}
         onPress={this.props.onPress}>
         { this.props.language == "hebrew" ?
-          <Text style={[styles.hebrewText, styles.centerText, textStyle]}>{this.props.heCollectiveTitle + countStr}</Text> :
-          <Text style={[styles.englishText, styles.centerText, textStyle]}>{this.props.collectiveTitle + countStr}</Text> }
+          <Text style={[styles.hebrewText, styles.centerText, textStyle]}>{this.props.heTitle + countStr}</Text> :
+          <Text style={[styles.englishText, styles.centerText, textStyle]}>{this.props.title + countStr}</Text> }
       </TouchableOpacity>
     );
   }

@@ -66,7 +66,7 @@ var TextListHeader = React.createClass({
 
 var TextListHeaderItem = React.createClass({
 	propTypes: {
-        theme:          React.PropTypes.object.isRequired,
+    theme:          React.PropTypes.object.isRequired,
 		updateCat:      React.PropTypes.func.isRequired,
 		filter:         React.PropTypes.object,
 		filterIndex:    React.PropTypes.number,
@@ -75,8 +75,8 @@ var TextListHeaderItem = React.createClass({
 	},
 	render: function() {
 		var filterStr = this.props.language == "hebrew" ?
-			this.props.filter.heCollectiveTitle :
-			this.props.filter.collectiveTitle;
+			(this.props.filter.heCollectiveTitle ? this.props.filter.heCollectiveTitle : this.props.filter.heTitle) : //NOTE backwards compatibility
+			(this.props.filter.collectiveTitle ? this.props.filter.collectiveTitle : this.props.filter.title);
 		var textStyles = [styles.textListHeaderItemText, this.props.theme.textListHeaderItemText];
 
 	    if (this.props.selected) {

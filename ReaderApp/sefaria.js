@@ -326,16 +326,33 @@ Sefaria = {
     // Returns the list of commentaries for 'title' which are found in Sefaria.toc
     var index = this.index(title);
     if (!index) { return []; }
-    var cats   = [index.categories[0]];
+    var cats = [index.categories[0], "Commentary"]; //NOTE backwards compatibility
     var branch = this.tocItemsByCategories(cats);
+    console.log("Branch", branch);
+    var isCommentaryRefactor = false;
+    if (branch.length == 0) {
+      //assume this means we're dealing with a commentary refactor TOC
+      cats   = [index.categories[0]];
+      branch = this.tocItemsByCategories(cats);
+      isCommentaryRefactor = true;
+    }
+
     var commentariesInBranch = function(title, branch) {
       // Recursively walk a branch of TOC, return a list of all commentaries found on `title`.
       var results = [];
       for (var i=0; i < branch.length; i++) {
         if (branch[i].title) {
-          if (branch[i].dependence === "Commentary" && branch[i].base_text_titles && branch[i].base_text_titles.includes(title)) {
-            results.push(branch[i]);
+          if (isCommentaryRefactor) {
+            if (branch[i].dependence === "Commentary" && branch[i].base_text_titles && branch[i].base_text_titles.includes(title)) {
+              results.push(branch[i]);
+            }
+          } else {
+            var split = branch[i].title.split(" on ");
+            if (split.length == 2 && split[1] === title) {
+              results.push(branch[i]);
+            }
           }
+
         } else {
           results = results.concat(commentariesInBranch(title, branch[i].contents));
         }
@@ -343,7 +360,7 @@ Sefaria = {
       return results;
     };
     let comms = commentariesInBranch(title, branch);
-    //console.log("comms",comms);
+    //console.log("isComms", isCommentaryRefactor, "comms",comms);
     return comms;
   },
   _commentatorListBySection: {},

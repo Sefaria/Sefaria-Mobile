@@ -548,3 +548,6 @@ if __name__ == '__main__':
 			purge_cloudflare_cache([])
 		else:
 			print "not using cloudflare"
+	elif action == "export_toc":
+		export_toc()
+		purge_cloudflare_cache([])
