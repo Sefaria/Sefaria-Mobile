@@ -376,7 +376,6 @@ Sefaria = {
         var link = data.content[i].links[j];
         if (link.category === "Commentary") {
           var title = Sefaria.getTitle(link.sourceRef, true, false);
-          console.log("ref", link.sourceRef, "title", title);
           en.add(title);
           he.add(Sefaria.getTitle(link.sourceHeRef, true, true));
         }

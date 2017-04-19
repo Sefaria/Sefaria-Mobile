@@ -95,14 +95,11 @@ var Downloader = {
       .then((data) => {
         // Add titles to lastDownload list if they haven't been seen before
         var titles;
-        console.log("DATA", Object.keys(data));
         if (!!data.titles) {
           titles = data.titles;
         } else {
           titles = data; //NOTE backwards compatibility
         }
-
-        console.log("TITLES", Object.keys(titles));
         Downloader._setData("availableDownloads", titles);
         if (data.comment) {
           Downloader._setData("updateComment", data.comment);
@@ -133,9 +130,14 @@ var Downloader = {
     Downloader._updateDownloadQueue();
     Downloader.resumeDownload();
   },
+  clearQueue: function() {
+    Downloader._setData("downloadQueue",[]);
+    Downloader._setData("downloadInProgress",[]);
+  },
   checkForUpdates: function() {
     // Downloads the most recent update list then prompts to download updates
     // or notifies the user that the library is update.
+    Downloader.clearQueue();
     Downloader.downloadUpdatesList().then(() => {
       var updates = Downloader.updatesAvailable();
       if (updates.length) {
@@ -153,6 +155,7 @@ var Downloader = {
   checkForUpdatesIfNeeded: function() {
     // Downloads the most recent update list if enough time has passed since previous check.
     // If not updates are available, prompts for to download.
+    Downloader.clearQueue();
     if (Downloader._data.shouldDownload && Downloader._isUpdateCheckNeeded()) {
 
       NetInfo.isConnected.fetch().then(isConnected => {

@@ -575,8 +575,12 @@ var CommentatorList = React.createClass({
       var open = this.props.openRef.bind(null, commentator.firstSection);
       return (<TouchableOpacity onPress={open} style={[styles.textBlockLink, this.props.theme.textBlockLink]} key={i}>
               { showHebrew ?
-                <Text style={[styles.he, styles.centerText, this.props.theme.text]}>{commentator.heTitle}</Text> :
-                <Text style={[styles.en, styles.centerText, this.props.theme.text]}>{commentator.title}</Text> }
+                <Text style={[styles.he, styles.centerText, this.props.theme.text]}>
+                  {commentator.heCollectiveTitle ? commentator.heCollectiveTitle : commentator.heTitle}
+                </Text> :
+                <Text style={[styles.en, styles.centerText, this.props.theme.text]}>
+                  {commentator.collectiveTitle ? commentator.collectiveTitle : commentator.title}
+                </Text> }
             </TouchableOpacity>);
     }.bind(this));
 

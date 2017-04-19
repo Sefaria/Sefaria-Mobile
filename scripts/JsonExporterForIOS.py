@@ -395,6 +395,7 @@ def write_last_updated(titles, update=False):
 	}
 	#last_updated["SCHEMA_VERSION"] = SCHEMA_VERSION
 	if update:
+		write_doc(last_updated, EXPORT_PATH + "/last_updated_report.json")
 		try:
 			old_doc = json.load(open(EXPORT_PATH + "/last_updated.json", "rb"))
 		except IOError:
@@ -405,7 +406,7 @@ def write_last_updated(titles, update=False):
 		old_doc["titles"].update(last_updated["titles"])
 		last_updated = old_doc
 		#write a report of the last indexes that were updated
-		write_doc(last_updated, EXPORT_PATH + "/last_updated_report.json")
+
 
 	write_doc(last_updated, EXPORT_PATH + "/last_updated.json")
 
