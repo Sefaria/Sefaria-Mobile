@@ -95,11 +95,14 @@ var Downloader = {
       .then((data) => {
         // Add titles to lastDownload list if they haven't been seen before
         var titles;
-        if (data.titles) {
+        console.log("DATA", Object.keys(data));
+        if (!!data.titles) {
           titles = data.titles;
         } else {
           titles = data; //NOTE backwards compatibility
         }
+
+        console.log("TITLES", Object.keys(titles));
         Downloader._setData("availableDownloads", titles);
         if (data.comment) {
           Downloader._setData("updateComment", data.comment);
@@ -205,9 +208,9 @@ var Downloader = {
     }
     return updates;
   },
-  updateComments: function() {
+  updateComment: function() {
     //Returns list of update comments, oldest first
-    return this._data.updateComments;
+    return this._data.updateComment;
   },
   promptLibraryDownload: function() {
     // If it hasn't been done already, prompt the user to download the library.
@@ -257,7 +260,7 @@ var Downloader = {
     };
     AlertIOS.alert(
       strings.updateLibrary,
-      updates.length + " " + strings.updatesAvailableMessage,
+      updateFullString,
       [
         {text: strings.download, onPress: Downloader.downloadUpdates},
         {text: strings.notNow, onPress: onCancel}

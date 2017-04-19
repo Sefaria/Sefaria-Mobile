@@ -402,7 +402,7 @@ def write_last_updated(titles, update=False):
 
 		old_doc["schema_version"] = last_updated["schema_version"]
 		old_doc["comment"] = last_updated["comment"]
-		old_doc["titles"].update(last_updated)
+		old_doc["titles"].update(last_updated["titles"])
 		last_updated = old_doc
 		#write a report of the last indexes that were updated
 		write_doc(last_updated, EXPORT_PATH + "/last_updated_report.json")

@@ -328,9 +328,8 @@ Sefaria = {
     if (!index) { return []; }
     var cats = [index.categories[0], "Commentary"]; //NOTE backwards compatibility
     var branch = this.tocItemsByCategories(cats);
-    console.log("Branch", branch);
     var isCommentaryRefactor = false;
-    if (branch.length == 0) {
+    if (branch.length == 0 || true) {
       //assume this means we're dealing with a commentary refactor TOC
       cats   = [index.categories[0]];
       branch = this.tocItemsByCategories(cats);
@@ -343,7 +342,7 @@ Sefaria = {
       for (var i=0; i < branch.length; i++) {
         if (branch[i].title) {
           if (isCommentaryRefactor) {
-            if (branch[i].dependence === "Commentary" && branch[i].base_text_titles && branch[i].base_text_titles.includes(title)) {
+            if (branch[i].dependence === "Commentary" && !!branch[i].base_text_titles && branch[i].base_text_titles.includes(title)) {
               results.push(branch[i]);
             }
           } else {
@@ -376,7 +375,9 @@ Sefaria = {
       for (var j =0; j < data.content[i].links.length; j++) {
         var link = data.content[i].links[j];
         if (link.category === "Commentary") {
-          en.add(Sefaria.getTitle(link.sourceRef, true, false));
+          var title = Sefaria.getTitle(link.sourceRef, true, false);
+          console.log("ref", link.sourceRef, "title", title);
+          en.add(title);
           he.add(Sefaria.getTitle(link.sourceHeRef, true, true));
         }
       }
@@ -652,7 +653,7 @@ Sefaria = {
               category.books[link.textTitle].count += 1;
               category.books[link.textTitle].refList.push(link.sourceRef);
             } else {
-              var isCommentary = link.category == "Commentary";
+              var isCommentary = link.category === "Commentary";
               category.books[link.textTitle] =
               {
                   count:             1,
