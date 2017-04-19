@@ -8,7 +8,7 @@ const RNFS = require('react-native-fs'); //for access to file system -- (https:/
 const strings = require('./LocalizedStrings');
 
 
-const SCHEMA_VERSION = "3";
+const SCHEMA_VERSION = "2";
 const HOST_PATH = "https://readonly.sefaria.org/static/ios-export/" + SCHEMA_VERSION + "/";
 //const HOST_PATH = "file:///Users/nss/Documents/Sefaria-Export/ios/" + SCHEMA_VERSION + "/";
 

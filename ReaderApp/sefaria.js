@@ -327,14 +327,12 @@ Sefaria = {
     var index = this.index(title);
     if (!index) { return []; }
     var cats = [index.categories[0], "Commentary"]; //NOTE backwards compatibility
-    var branch = this.tocItemsByCategories(cats);
-    var isCommentaryRefactor = false;
-    if (branch.length == 0 || true) {
-      //assume this means we're dealing with a commentary refactor TOC
-      cats   = [index.categories[0]];
-      branch = this.tocItemsByCategories(cats);
-      isCommentaryRefactor = true;
+    var isCommentaryRefactor = this.isTOCCommentaryRefactor();
+    if (isCommentaryRefactor) {
+      cats = [index.categories[0]];
     }
+    var branch = this.tocItemsByCategories(cats);
+
 
     var commentariesInBranch = function(title, branch) {
       // Recursively walk a branch of TOC, return a list of all commentaries found on `title`.
@@ -361,6 +359,19 @@ Sefaria = {
     let comms = commentariesInBranch(title, branch);
     //console.log("isComms", isCommentaryRefactor, "comms",comms);
     return comms;
+  },
+  isTOCCommentaryRefactor: function() {
+    var list = Sefaria.toc;
+    var leafSeen = false; // once we see the first leaf, we can check for `dependence` field
+    while (!leafSeen) {
+      if (list[0].hasOwnProperty('title')) {
+        leafSeen = true;
+        return list[0].hasOwnProperty('dependence');
+      } else {
+        list = list[0].contents;
+      }
+    }
+    return false;
   },
   _commentatorListBySection: {},
   commentatorListBySection: function(ref) {

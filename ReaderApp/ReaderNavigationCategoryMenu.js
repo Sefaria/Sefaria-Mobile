@@ -131,7 +131,6 @@ var ReaderNavigationCategoryMenuContents = React.createClass({
       if (cats.length > 0 && (cats[cats.length - 1] === "Commentary" ||
         cats[cats.length - 1] === "Targum")) {
         subcats = subcats.concat(this.props.contents.map((item)=>item.category ? item.category : item.title));
-        console.log("subcats", subcats);
       }
 
       for (var i = 0; i < this.props.contents.length; i++) {
