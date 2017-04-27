@@ -158,6 +158,11 @@ Sefaria = {
   categoryForTitle: function(title) {
     var index = Sefaria.index(title);
     if (!index) { return null;}
+    if (Sefaria.util.inArray("Commentary", index.categories) != -1 
+      || Sefaria.util.inArray("Targum", index.categories) != -1 ) {
+      return "Commentary";
+    }
+    // Kept for backwards compatibility of pre-commentary refactor downloaded data
     return index.categories[0] == "Commentary2" ? "Commentary" : index.categories[0];
   },
   categoriesForTitle: function(title) {
