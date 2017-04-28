@@ -66,6 +66,7 @@ var Downloader = {
           RNFS.unlink(RNFS.DocumentDirectoryPath + "/tmp");
           Downloader._setData("lastDownload", {});
           Downloader._setData("shouldDownload", false);
+          Downloader.clearQueue();
           Downloader.onChange && Downloader.onChange();
         }}
       ]);
@@ -131,12 +132,12 @@ var Downloader = {
     Downloader.resumeDownload();
   },
   clearQueue: function() {
-    Downloader._setData("downloadQueue",[]);
-    Downloader._setData("downloadInProgress",[]);
+    Downloader._setData("downloadQueue", []);
+    Downloader._setData("downloadInProgress", []);
   },
   checkForUpdates: function() {
     // Downloads the most recent update list then prompts to download updates
-    // or notifies the user that the library is update.
+    // or notifies the user that the library is up to date.
     Downloader.clearQueue();
     Downloader.downloadUpdatesList().then(() => {
       var updates = Downloader.updatesAvailable();

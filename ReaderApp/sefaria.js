@@ -165,7 +165,8 @@ Sefaria = {
     } else if (index.categories.includes("Targum")) {
       cat = "Targum";
     }
-    return cat;
+    // Kept for backwards compatibility of pre-commentary refactor downloaded data
+    return cat == "Commentary2" ? "Commentary" : cat;
   },
   categoriesForTitle: function(title) {
     var index = Sefaria.index(title);
