@@ -15,6 +15,7 @@ const HOST_PATH = "https://readonly.sefaria.org/static/ios-export/" + SCHEMA_VER
 var Downloader = {
   _data: {
     shouldDownload: false,  // Whether or not to download books at all or just stick to API mode
+    downloadPaused: false,  // Whether or not the download process has been temporarily paused
     lastDownload: {},       // Map book titles to timestamp of their last downloaded version or null
     availableDownloads: {}, // Server provided map of titles to ther timestamp of their last update available
     updateComment: "",      // Current update comment. Generally a short note on what's new
@@ -35,7 +36,9 @@ var Downloader = {
               //console.log(Downloader.titlesDownloaded().length + " titles downloaded");
               //console.log("Updates:" , Downloader.updatesAvailable());
               Downloader.checkForUpdatesIfNeeded();
-              Downloader.resumeDownload();
+              if (!Downloader._data.downloadPaused) {
+                Downloader.resumeDownload();
+              }
             });
   },
   downloadLibrary: function() {
@@ -76,6 +79,7 @@ var Downloader = {
     // if titles where left in progress, put them back in the queue
     RNFS.unlink(RNFS.DocumentDirectoryPath + "/tmp");
     RNFS.mkdir(RNFS.DocumentDirectoryPath + "/tmp");
+    Downloader._setData("downloadPaused", false);
     if (Downloader._data.downloadInProgress.length) {
       Downloader._setData("downloadQueue", Downloader._data.downloadQueue.concat(Downloader._data.downloadInProgress));
       Downloader._setData("downloadInProgress", []);
@@ -142,7 +146,7 @@ var Downloader = {
     Downloader.downloadUpdatesList().then(() => {
       var updates = Downloader.updatesAvailable();
       if (updates.length) {
-        Downloaded._updateDownloadQueue();
+        Downloader._updateDownloadQueue();
         Downloader.promptLibraryUpdate();
       } else if (confirmUpToDate) {
         AlertIOS.alert(
@@ -296,6 +300,7 @@ var Downloader = {
     console.log("Download error: ", error);
     Downloader.downloading = false;
     var cancelAlert = function() {
+      Downloader._setData("downloadPaused", true);
       AlertIOS.alert(
         strings.downloadPaused,
         strings.howToResumeDownloadMessage,
@@ -360,7 +365,6 @@ var Downloader = {
   },
   _isUpdateCheckNeeded: function() {
     // Returns true if enough time has passed since the last check for updates
-    return true;
     if (!this._data.lastUpdateCheck) { return true; }
     var cutoff = new Date(this._data.lastUpdateCheck);
     cutoff.setDate(cutoff.getDate() + 7) // One week;
