@@ -57,6 +57,7 @@ var Downloader = {
       strings.libraryDownloadingMessage,
       [{text: strings.ok}]
     );
+    Sefaria.track.event("Downloader", "Download Library");
   },
   deleteLibrary: function() {
     AlertIOS.alert(
@@ -71,6 +72,7 @@ var Downloader = {
           Downloader._setData("shouldDownload", false);
           Downloader.clearQueue();
           Downloader.onChange && Downloader.onChange();
+          Sefaria.track.event("Downloader", "Delete Library");
         }}
       ]);
   },
@@ -222,6 +224,7 @@ var Downloader = {
           var onDownload = function() {
             AsyncStorage.setItem("libraryDownloadPrompted", "true");
             Downloader.downloadLibrary();
+            Sefaria.track.event("Downloader", "Initial Download Prompt", "accept");
           };
           var onCancel = function() {
             AsyncStorage.setItem("libraryDownloadPrompted", "true");
@@ -231,6 +234,7 @@ var Downloader = {
               [
                 {text: strings.ok},
               ]);
+            Sefaria.track.event("Downloader", "Initial Download Prompt", "decline");
           };
           AlertIOS.alert(
             strings.welcome,
@@ -252,6 +256,11 @@ var Downloader = {
 
     if (updates.length == 0) { return; }
 
+    var onDownload = function() {
+      Downloader.downloadUpdates();
+      Sefaria.track.event("Downloader", "Update Prompt", "accept");
+    };
+
     var onCancel = function() {
       AlertIOS.alert(
         strings.updateLater,
@@ -259,12 +268,14 @@ var Downloader = {
         [
           {text: strings.ok},
         ]);
+      Downloader._setData("downloadPaused", true);
+      Sefaria.track.event("Downloader", "Update Prompt", "decline");
     };
     AlertIOS.alert(
       strings.updateLibrary,
       updateFullString,
       [
-        {text: strings.download, onPress: Downloader.downloadUpdates},
+        {text: strings.download, onPress: onDownload},
         {text: strings.notNow, onPress: onCancel}
       ]);
   },
@@ -286,7 +297,7 @@ var Downloader = {
   },
   _downloadNext: function() {
     // Starts download of the next item of the queue, and continues doing so after successful completion.
-    if (!this._data.downloadQueue.length) {
+    if (!this._data.downloadQueue.length || Downloader._data.downloadPaused) {
       this.downloading = false;
       Downloader.onChange && Downloader.onChange();
       return;
@@ -316,6 +327,7 @@ var Downloader = {
         {text: strings.tryAgain, onPress: () => { Downloader.resumeDownload(); }},
         {text: strings.pause, onPress: cancelAlert}
       ]);
+    Sefaria.track.event("Downloader", "Download Error", error);
   },
   _downloadZip: function(title) {
     // Downloads `title`, first to /tmp then to /library when complete.
