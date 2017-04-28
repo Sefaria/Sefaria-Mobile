@@ -156,12 +156,9 @@ var SettingsPage = React.createClass({
                       </TouchableOpacity>
                       : null }
 
-
-                    { !Sefaria.downloader.downloading ?
-                      <TouchableOpacity style={styles.button} onPress={Sefaria.downloader.checkForUpdates}>
-                        <Text style={styles.buttonText}>{strings.checkForUpdates}</Text>
-                      </TouchableOpacity> 
-                      : null }
+                    <TouchableOpacity style={styles.button} onPress={Sefaria.downloader.checkForUpdates}>
+                      <Text style={styles.buttonText}>{strings.checkForUpdates}</Text>
+                    </TouchableOpacity> 
 
                     <TouchableOpacity style={styles.button} onPress={Sefaria.downloader.deleteLibrary}>
                       <Text style={styles.buttonText}>{strings.deleteLibrary}</Text>

@@ -135,15 +135,16 @@ var Downloader = {
     Downloader._setData("downloadQueue", []);
     Downloader._setData("downloadInProgress", []);
   },
-  checkForUpdates: function() {
+  checkForUpdates: function(confirmUpToDate = true) {
     // Downloads the most recent update list then prompts to download updates
     // or notifies the user that the library is up to date.
     Downloader.clearQueue();
     Downloader.downloadUpdatesList().then(() => {
       var updates = Downloader.updatesAvailable();
       if (updates.length) {
+        Downloaded._updateDownloadQueue();
         Downloader.promptLibraryUpdate();
-      } else {
+      } else if (confirmUpToDate) {
         AlertIOS.alert(
           strings.libraryUpToDate,
           strings.libraryUpToDateMessage,
@@ -156,19 +157,12 @@ var Downloader = {
   checkForUpdatesIfNeeded: function() {
     // Downloads the most recent update list if enough time has passed since previous check.
     // If not updates are available, prompts for to download.
-    Downloader.clearQueue();
     if (Downloader._data.shouldDownload && Downloader._isUpdateCheckNeeded()) {
 
       NetInfo.isConnected.fetch().then(isConnected => {
         if (isConnected) {
-          this.downloadUpdatesList()
-            .then(() => {
-              var updates = Downloader.updatesAvailable();
-              if (updates.length) {
-                Downloader.promptLibraryUpdate();
-              }
-            });
-          }
+          this.checkForUpdates(false);
+        };
       });
     }
   },
@@ -366,6 +360,7 @@ var Downloader = {
   },
   _isUpdateCheckNeeded: function() {
     // Returns true if enough time has passed since the last check for updates
+    return true;
     if (!this._data.lastUpdateCheck) { return true; }
     var cutoff = new Date(this._data.lastUpdateCheck);
     cutoff.setDate(cutoff.getDate() + 7) // One week;
