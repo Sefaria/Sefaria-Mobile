@@ -347,7 +347,7 @@ var SchemaNode = React.createClass({
                           refPath={this.props.refPath + ", " + node.title}
                           openRef={this.props.openRef} />);
           return (
-              <CollapsibleTitleText
+              <CollapsibleNode
                 key={i}
                 theme={this.props.theme}
                 themeStr={this.props.themeStr}
@@ -382,7 +382,7 @@ var SchemaNode = React.createClass({
             refPath={this.props.refPath + ", " + node.title}
             openRef={this.props.openRef} />);
           return (
-            <CollapsibleTitleText
+            <CollapsibleNode
               key={i}
               theme={this.props.theme}
               themeStr={this.props.themeStr}
@@ -608,7 +608,7 @@ var CommentatorList = React.createClass({
   }
 });
 
-var CollapsibleTitleText = React.createClass({
+var CollapsibleNode = React.createClass({
   propTypes: {
     theme:             React.PropTypes.object,
     themeStr:          React.PropTypes.string,
