@@ -18,7 +18,8 @@ var {
   CategoryAttribution,
   ToggleSet,
   TwoBox,
-  LoadingView
+  LoadingView,
+  CollapseIcon
 } = require('./Misc.js');
 
 const styles  = require('./Styles');
@@ -172,6 +173,7 @@ var ReaderTextTableOfContents = React.createClass({
           {this.state.textToc ?
             <TextTableOfContentsNavigation
               theme={this.props.theme}
+              themeStr={this.props.themeStr}
               schema={this.state.textToc.schema}
               commentatorList={Sefaria.commentaryList(this.props.title)}
               alts={this.state.textToc.alts || null}
@@ -190,6 +192,7 @@ var ReaderTextTableOfContents = React.createClass({
 var TextTableOfContentsNavigation = React.createClass({
   propTypes: {
     theme:           React.PropTypes.object.isRequired,
+    themeStr:        React.PropTypes.string.isRequired,
     schema:          React.PropTypes.object.isRequired,
     commentatorList: React.PropTypes.array,
     alts:            React.PropTypes.object,
@@ -262,6 +265,7 @@ var TextTableOfContentsNavigation = React.createClass({
         var content = <View style={gridBoxStyle}>
                         <SchemaNode
                           theme={this.props.theme}
+                          themeStr={this.props.themeStr}
                           schema={this.props.schema}
                           addressTypes={this.props.schema.addressTypes}
                           contentLang={this.props.contentLang}
@@ -280,6 +284,7 @@ var TextTableOfContentsNavigation = React.createClass({
         var content = <View style={gridBoxStyle}>
                         <SchemaNode
                           theme={this.props.theme}
+                          themeStr={this.props.themeStr}
                           schema={this.props.alts[this.state.tab]}
                           addressTypes={this.props.schema.addressTypes}
                           contentLang={this.props.contentLang}
@@ -302,6 +307,7 @@ var TextTableOfContentsNavigation = React.createClass({
 var SchemaNode = React.createClass({
   propTypes: {
     theme:       React.PropTypes.object.isRequired,
+    themeStr:    React.PropTypes.string.isRequired,
     schema:      React.PropTypes.object.isRequired,
     contentLang: React.PropTypes.string.isRequired,
     refPath:     React.PropTypes.string.isRequired,
@@ -332,18 +338,26 @@ var SchemaNode = React.createClass({
       var showHebrew = this.props.contentLang === "hebrew";
       var content = this.props.schema.nodes.map(function(node, i) {
         if ("nodes" in node || "refs" in node && node.refs.length) {
+          console.log("NODE",Object.keys(node));
+          let content = (<SchemaNode
+                          theme={this.props.theme}
+                          themeStr={this.props.themeStr}
+                          schema={node}
+                          contentLang={this.props.contentLang}
+                          refPath={this.props.refPath + ", " + node.title}
+                          openRef={this.props.openRef} />);
           return (
-            <View style={styles.textTocNamedSection} key={i}>
-              {showHebrew ?
-                <Text style={[styles.he, styles.textTocSectionTitle, this.props.theme.text]}>{node.heTitle}</Text> :
-                <Text style={[styles.en, styles.textTocSectionTitle, this.props.theme.text]}>{node.title}</Text> }
-              <SchemaNode
+              <CollapsibleTitleText
+                key={i}
                 theme={this.props.theme}
-                schema={node}
-                contentLang={this.props.contentLang}
-                refPath={this.props.refPath + ", " + node.title}
-                openRef={this.props.openRef} />
-            </View>);
+                themeStr={this.props.themeStr}
+                defaultVisibility={node.includeSections ? true : false}
+                showHebrew={showHebrew}
+                en={node.title}
+                he={node.heTitle}
+                content={content}
+                node={node}/>
+              );
         } else if (node.nodeType == "ArrayMapNode") {
           // ArrayMapNode with only wholeRef
           return <ArrayMapNode
@@ -357,22 +371,27 @@ var SchemaNode = React.createClass({
           return (
             <TouchableOpacity style={styles.textTocNamedSection} onPress={open} key={i}>
               {showHebrew ?
-                <Text style={[styles.he, styles.textTocSectionTitle, this.props.theme.text]}>{node.heTitle + " >"}</Text> :
-                <Text style={[styles.en, styles.textTocSectionTitle, this.props.theme.text]}>{node.title + " >"}</Text> }
+                <Text style={[styles.he, styles.textTocSectionTitle, this.props.theme.text, {textDecorationLine: "underline"}]}>{node.heTitle}</Text> :
+                <Text style={[styles.en, styles.textTocSectionTitle, this.props.theme.text, {textDecorationLine: "underline"}]}>{node.title}</Text> }
             </TouchableOpacity>);
         } else {
+          let content = (<JaggedArrayNode
+            theme={this.props.theme}
+            schema={node}
+            contentLang={this.props.contentLang}
+            refPath={this.props.refPath + ", " + node.title}
+            openRef={this.props.openRef} />);
           return (
-            <View style={styles.textTocNamedSection} key={i}>
-              {showHebrew ?
-                <Text style={[styles.he, styles.textTocSectionTitle, this.props.theme.text]}>{node.heTitle}</Text> :
-                <Text style={[styles.en, styles.textTocSectionTitle, this.props.theme.text]}>{node.title}</Text> }
-              <JaggedArrayNode
-                theme={this.props.theme}
-                schema={node}
-                contentLang={this.props.contentLang}
-                refPath={this.props.refPath + ", " + node.title}
-                openRef={this.props.openRef} />
-            </View>);
+            <CollapsibleTitleText
+              key={i}
+              theme={this.props.theme}
+              themeStr={this.props.themeStr}
+              showHebrew={showHebrew}
+              defaultVisibility={node.includeSections ? true : false}
+              en={node.title}
+              he={node.heTitle}
+              content={content}
+              node={node}/>);
         }
       }.bind(this));
       return (
@@ -587,6 +606,46 @@ var CommentatorList = React.createClass({
     return (<TwoBox content={content} />);
 
   }
-})
+});
+
+var CollapsibleTitleText = React.createClass({
+  propTypes: {
+    theme:             React.PropTypes.object,
+    themeStr:          React.PropTypes.string,
+    language:          React.PropTypes.oneOf(["hebrew", "english"]),
+    defaultVisibility: React.PropTypes.bool,
+    showHebrew:        React.PropTypes.bool,
+    en:                React.PropTypes.string,
+    he:                React.PropTypes.string,
+    content:           React.PropTypes.object,
+    node:              React.PropTypes.object
+  },
+  getInitialState: function() {
+    return {
+      isVisible: this.props.defaultVisibility
+    };
+  },
+  toggleVisibility: function() {
+    this.setState({isVisible: !this.state.isVisible});
+  },
+  render: function() {
+    let icon = (<CollapseIcon themeStr={this.props.themeStr} isVisible={this.state.isVisible} showHebrew={this.props.showHebrew} />);
+    return (
+      <View style={styles.textTocNamedSection}>
+        {this.props.showHebrew ?
+          <TouchableOpacity onPress={this.toggleVisibility} style={{flexDirection: "row", justifyContent:"flex-end"}}>
+            {icon}
+            <Text style={[styles.he, styles.textTocSectionTitle, this.props.theme.text]}>{this.props.node.heTitle}</Text>
+          </TouchableOpacity>:
+          <TouchableOpacity onPress={this.toggleVisibility} style={{flexDirection: "row", justifyContent:"flex-start"}}>
+            <Text style={[styles.en, styles.textTocSectionTitle, this.props.theme.text]}>{this.props.node.title}</Text>
+            {icon}
+          </TouchableOpacity>}
+        { this.state.isVisible ? this.props.content : null }
+      </View>
+
+    );
+  }
+});
 
 module.exports = ReaderTextTableOfContents;

@@ -210,6 +210,18 @@ module.exports = StyleSheet.create({
     height: 12,
     paddingRight: 20
   },
+  collapseArrowEn: {
+    width: 12,
+    height: 12,
+    paddingLeft: 20,
+    marginTop: 8
+  },
+  collapseArrowHe: {
+    width: 12,
+    height: 12,
+    paddingRight: 20,
+    marginTop: 3
+  },
   searchResultSummary: {
     paddingVertical: 10,
     paddingHorizontal: iPad ? 60 : 30,
