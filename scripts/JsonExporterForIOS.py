@@ -268,7 +268,7 @@ def section_data(oref, defaultVersions):
 		if not chunk.is_merged:
 			version = chunk.version()
 			if version and version.language in defaultVersions and version.versionTitle != defaultVersions[version.language].versionTitle:
-				print "VERSION NOT DEFAULT {} ({})".format(oref, chunk.lang)
+				#print "VERSION NOT DEFAULT {} ({})".format(oref, chunk.lang)
 				try:
 					vnotes = version.versionNotes
 				except AttributeError:
@@ -513,8 +513,9 @@ def purge_cloudflare_cache(titles):
 		"X-Auth-Key": CLOUDFLARE_TOKEN,
 		"Content-Type": "application/json",
 	}
-	print files
 	r = requests.delete(url, data=json.dumps(payload), headers=headers)
+	print  "Purged {} files from Cloudflare".format(len(files))
+
 	return r
 
 
