@@ -138,6 +138,7 @@ def export_text(index, update=False):
 
 	return success
 
+
 def export_updated():
 	"""
 	Writes new TOC and zip files for each text that has changed since the last update.
@@ -146,9 +147,9 @@ def export_updated():
 	#edit text, add text, edit text: {"date" : {"$gte": ISODate("2017-01-05T00:42:00")}, "ref" : /^Rashi on Leviticus/} REMOVE NONE INDEXES
 	#add link, edit link: {"rev_type": "add link", "new.refs": /^Rashi on Berakhot/} REMOVE NONE INDEXES
 	#delete link, edit link: {"rev_type": "add link", "old.refs": /^Rashi on Berakhot/} REMOVE NONE INDEXES
-	updated_books = export_toc(update=True)
+	updated_books = new_books_since_last_update()
 	if os.path.exists(LAST_UPDATED_PATH):
-		last_updated = json.load(open(LAST_UPDATED_PATH, "rb"))
+		last_updated = json.load(open(LAST_UPDATED_PATH, "rb")).get("titles", {})
 		print "Generating updated books list."
 		updated_books += map(lambda x: x[0], filter(lambda x: has_updated(x[0], dateutil.parser.parse(x[1])), last_updated.items()))
 	else:
@@ -169,6 +170,7 @@ def export_updated():
 		if not success:
 			updated_books.remove(title) # don't include books which dont export
 
+	export_toc()
 	write_last_updated(updated_books, update=True)
 
 
@@ -428,32 +430,37 @@ def write_last_updated(titles, update=False):
 		purge_cloudflare_cache(titles)
 
 
-def export_toc(update=False):
+def export_toc():
 	"""
 	Writes the Table of Contents JSON to a single file.
-	:param update: True if you want to return the books that are new in the toc
 	"""
 	print "Export Table of Contents"
-	old_toc = json.load(open(TOC_PATH, 'rb')) if os.path.exists(TOC_PATH) else []
 	new_toc = model.library.get_toc()
 
 	write_doc(new_toc, TOC_PATH)
-	if update:
-		def get_books(temp_toc, books):
-			if isinstance(temp_toc, list):
-				for child_toc in temp_toc:
-					if "contents" in child_toc:
-						child_toc = child_toc["contents"]
-					books.update(get_books(child_toc, set()))
-			else:
-				books.add(temp_toc["title"])
-			return books
 
-		old_books = get_books(old_toc, set())
-		new_books = get_books(new_toc, set())
 
-		added_books = [book for book in new_books if book not in old_books]
-		return added_books
+def new_books_since_last_update():
+	"""
+	Returns a list of books that have been added to the library since the last update.
+	"""
+	new_toc = model.library.get_toc()
+	def get_books(temp_toc, books):
+		if isinstance(temp_toc, list):
+			for child_toc in temp_toc:
+				if "contents" in child_toc:
+					child_toc = child_toc["contents"]
+				books.update(get_books(child_toc, set()))
+		else:
+			books.add(temp_toc["title"])
+		return books
+	
+	last_updated = json.load(open(LAST_UPDATED_PATH, 'rb')) if os.path.exists(LAST_UPDATED_PATH) else {"titles": {}}
+	old_books = last_updated["titles"].keys()
+	new_books = get_books(new_toc, set())
+
+	added_books = [book for book in new_books if book not in old_books]
+	return added_books
 
 
 def export_calendar():
