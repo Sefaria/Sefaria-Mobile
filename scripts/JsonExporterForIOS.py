@@ -48,6 +48,10 @@ SCHEMA_VERSION = "3"
 EXPORT_PATH = SEFARIA_EXPORT_PATH + "/" + SCHEMA_VERSION
 MINIFY_JSON = True
 
+TOC_PATH          = EXPORT_PATH + "/toc.json"
+LAST_UPDATED_PATH = EXPORT_PATH + "/last_updated.json"
+
+
 
 def make_path(doc, format):
 	"""
@@ -135,13 +139,22 @@ def export_text(index, update=False):
 	return success
 
 def export_updated():
-
+	"""
+	Writes new TOC and zip files for each text that has changed since the last update.
+	Write update times to last updated list.
+	"""
 	#edit text, add text, edit text: {"date" : {"$gte": ISODate("2017-01-05T00:42:00")}, "ref" : /^Rashi on Leviticus/} REMOVE NONE INDEXES
 	#add link, edit link: {"rev_type": "add link", "new.refs": /^Rashi on Berakhot/} REMOVE NONE INDEXES
 	#delete link, edit link: {"rev_type": "add link", "old.refs": /^Rashi on Berakhot/} REMOVE NONE INDEXES
 	updated_books = export_toc(update=True)
-	last_updated = json.load(open(EXPORT_PATH + "/last_updated.json", "rb"))
-	updated_books += map(lambda x: x[0], filter(lambda x: has_updated(x[0], dateutil.parser.parse(x[1])), last_updated.items()))
+	if os.path.exists(LAST_UPDATED_PATH):
+		last_updated = json.load(open(LAST_UPDATED_PATH, "rb"))
+		print "Generating updated books list."
+		updated_books += map(lambda x: x[0], filter(lambda x: has_updated(x[0], dateutil.parser.parse(x[1])), last_updated.items()))
+	else:
+		export_all()
+		return
+
 	print "Updating {} books\n{}".format(len(updated_books), "\n\t".join(updated_books))
 	updated_indexes = []
 	for t in updated_books:
@@ -189,6 +202,7 @@ def has_updated(title, last_updated):
 		return True
 
 	return False
+
 
 def get_default_versions(index):
 	vdict = {}
@@ -245,6 +259,7 @@ def simple_link(link):
 	if link["category"] in ("Quoting Commentary", "Targum"):
 		simple["category"] = link["category"]
 	return simple
+
 
 def section_data(oref, defaultVersions):
 	"""
@@ -311,7 +326,6 @@ def section_data(oref, defaultVersions):
 		data['versionSource'] = en_vsource
 	if he_vsource:
 		data['heVersionSource'] = he_vsource
-
 
 
 	en_len = len(text["text"])
@@ -395,9 +409,9 @@ def write_last_updated(titles, update=False):
 	}
 	#last_updated["SCHEMA_VERSION"] = SCHEMA_VERSION
 	if update:
-		write_doc(last_updated, EXPORT_PATH + "/last_updated_report.json")
+		write_doc(last_updated, LAST_UPDATED_PATH)
 		try:
-			old_doc = json.load(open(EXPORT_PATH + "/last_updated.json", "rb"))
+			old_doc = json.load(open(LAST_UPDATED_PATH, "rb"))
 		except IOError:
 			old_doc = {"schema_version": 0, "comment": "", "titles": {}}
 
@@ -408,7 +422,7 @@ def write_last_updated(titles, update=False):
 		#write a report of the last indexes that were updated
 
 
-	write_doc(last_updated, EXPORT_PATH + "/last_updated.json")
+	write_doc(last_updated, LAST_UPDATED_PATH)
 
 	if USE_CLOUDFLARE:
 		purge_cloudflare_cache(titles)
@@ -420,11 +434,10 @@ def export_toc(update=False):
 	:param update: True if you want to return the books that are new in the toc
 	"""
 	print "Export Table of Contents"
-	path = "%s/toc.json" % (EXPORT_PATH)
-	old_toc = json.load(open(path, 'rb'))
-	new_toc  = model.library.get_toc()
+	old_toc = json.load(open(TOC_PATH, 'rb')) if os.path.exists(TOC_PATH) else []
+	new_toc = model.library.get_toc()
 
-	write_doc(new_toc, path)
+	write_doc(new_toc, TOC_PATH)
 	if update:
 		def get_books(temp_toc, books):
 			if isinstance(temp_toc, list):
@@ -439,16 +452,8 @@ def export_toc(update=False):
 		old_books = get_books(old_toc, set())
 		new_books = get_books(new_toc, set())
 
-		added_books = []
-		for nbook in new_books:
-			if nbook not in old_books:
-				added_books += [nbook]
+		added_books = [book for book in new_books if book not in old_books]
 		return added_books
-
-
-
-
-
 
 
 def export_calendar():
