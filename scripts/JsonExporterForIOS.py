@@ -400,7 +400,6 @@ def export_index(index):
 def write_last_updated(titles, update=False):
 	"""
 	Writes to `last_updated.json` the current time stamp for all `titles`.
-	TODO -- read current file, don't just overwrite
 	:param update: True if you only want to update the file and not overwrite
 	"""
 	timestamp = datetime.now().replace(second=0, microsecond=0).isoformat()
@@ -411,7 +410,6 @@ def write_last_updated(titles, update=False):
 	}
 	#last_updated["SCHEMA_VERSION"] = SCHEMA_VERSION
 	if update:
-		write_doc(last_updated, LAST_UPDATED_PATH)
 		try:
 			old_doc = json.load(open(LAST_UPDATED_PATH, "rb"))
 		except IOError:
@@ -421,8 +419,6 @@ def write_last_updated(titles, update=False):
 		old_doc["comment"] = last_updated["comment"]
 		old_doc["titles"].update(last_updated["titles"])
 		last_updated = old_doc
-		#write a report of the last indexes that were updated
-
 
 	write_doc(last_updated, LAST_UPDATED_PATH)
 
