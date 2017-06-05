@@ -147,15 +147,17 @@ def export_updated():
 	#edit text, add text, edit text: {"date" : {"$gte": ISODate("2017-01-05T00:42:00")}, "ref" : /^Rashi on Leviticus/} REMOVE NONE INDEXES
 	#add link, edit link: {"rev_type": "add link", "new.refs": /^Rashi on Berakhot/} REMOVE NONE INDEXES
 	#delete link, edit link: {"rev_type": "add link", "old.refs": /^Rashi on Berakhot/} REMOVE NONE INDEXES
-	updated_books = new_books_since_last_update()
-	if os.path.exists(LAST_UPDATED_PATH):
-		last_updated = json.load(open(LAST_UPDATED_PATH, "rb")).get("titles", {})
-		print "Generating updated books list."
-		updated_books += map(lambda x: x[0], filter(lambda x: has_updated(x[0], dateutil.parser.parse(x[1])), last_updated.items()))
-	else:
+	if not os.path.exists(LAST_UPDATED_PATH):
 		export_all()
 		return
 
+	print "Generating updated books list."
+	updated_books = updated_books_list()
+	print "{} books updated.".format(len(updated_books))
+	new_books = new_books_since_last_update()
+	print "{} books added.".format(len(new_books))
+	update_books += new_books
+	
 	print "Updating {} books\n{}".format(len(updated_books), "\n\t".join(updated_books))
 	updated_indexes = []
 	for t in updated_books:
@@ -164,7 +166,6 @@ def export_updated():
 		except BookNameError:
 			print "Skipping update for non-existent book '{}'".format(title)
 
-
 	for index, title in zip(updated_indexes, updated_books):
 		success = export_text(index)
 		if not success:
@@ -172,6 +173,18 @@ def export_updated():
 
 	export_toc()
 	write_last_updated(updated_books, update=True)
+
+
+def updated_books_list():
+	"""
+	Returns a list of books that have updated since the last export.
+	Returns None is there is no previous last_updated.json
+	"""
+	if not os.path.exists(LAST_UPDATED_PATH):
+		return None
+	last_updated = json.load(open(LAST_UPDATED_PATH, "rb")).get("titles", {})
+	updated_books = map(lambda x: x[0], filter(lambda x: has_updated(x[0], dateutil.parser.parse(x[1])), last_updated.items()))
+	return updated_books
 
 
 def has_updated(title, last_updated):
