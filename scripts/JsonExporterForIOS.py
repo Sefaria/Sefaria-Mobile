@@ -156,8 +156,8 @@ def export_updated():
 	print "{} books updated.".format(len(updated_books))
 	new_books = new_books_since_last_update()
 	print "{} books added.".format(len(new_books))
-	update_books += new_books
-	
+	updated_books += new_books
+
 	print "Updating {} books\n{}".format(len(updated_books), "\n\t".join(updated_books))
 	updated_indexes = []
 	for t in updated_books:
