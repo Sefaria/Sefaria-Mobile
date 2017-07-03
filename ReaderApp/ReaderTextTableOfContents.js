@@ -496,6 +496,7 @@ var JaggedArrayNodeSection = React.createClass({
         var heSection = Sefaria.hebrew.encodeHebrewNumeral(i+1);
       }
       var ref  = (this.props.refPath + ":" + section).replace(":", " ") + this.refPathTerminal(contentCounts[i]);
+      ref = ref.replace(",  ", " "); // the above line seems to generate bad links for complex text with Default nodes when the library is downloaded (Messilat Yesharim, Sefer haChinuch, etc. the format is consistent, and this seems to rectify the situation.
       var open = this.props.openRef.bind(null, ref);
       var link = (
         <TouchableOpacity style={[styles.sectionLink,this.props.theme.sectionLink]} onPress={open} key={i}>
