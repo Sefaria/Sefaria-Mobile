@@ -117,7 +117,7 @@ var ReaderTextTableOfContents = React.createClass({
           <LanguageToggleButton theme={this.props.theme} toggleLanguage={this.props.toggleLanguage} language={this.props.contentLang} />
         </View>
 
-        <ScrollView style={styles.menuContent}>
+        <ScrollView style={styles.menuContent}}>
           <View style={[styles.textTocTopBox, this.props.theme.bordered]}>
             <CategoryAttribution
               categories={categories}
@@ -355,7 +355,7 @@ var SchemaNode = React.createClass({
                 showHebrew={showHebrew}
                 en={node.title}
                 he={node.heTitle}
-                content={content}
+                children={content}
                 node={node}/>
               );
         } else if (node.nodeType == "ArrayMapNode") {
@@ -390,7 +390,7 @@ var SchemaNode = React.createClass({
               defaultVisibility={node.includeSections ? true : false}
               en={node.title}
               he={node.heTitle}
-              content={content}
+              children={content}
               node={node}/>);
         }
       }.bind(this));
@@ -617,7 +617,7 @@ var CollapsibleNode = React.createClass({
     showHebrew:        React.PropTypes.bool,
     en:                React.PropTypes.string,
     he:                React.PropTypes.string,
-    content:           React.PropTypes.object,
+    children:           React.PropTypes.object,
     node:              React.PropTypes.object
   },
   getInitialState: function() {
@@ -641,7 +641,7 @@ var CollapsibleNode = React.createClass({
             <Text style={[styles.en, styles.textTocSectionTitle, this.props.theme.text]}>{this.props.node.title}</Text>
             {icon}
           </TouchableOpacity>}
-        { this.state.isVisible ? this.props.content : null }
+        { this.state.isVisible ? this.props.children : null }
       </View>
 
     );
