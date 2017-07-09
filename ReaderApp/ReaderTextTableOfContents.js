@@ -379,7 +379,7 @@ var SchemaNode = React.createClass({
             theme={this.props.theme}
             schema={node}
             contentLang={this.props.contentLang}
-            refPath={this.props.refPath + ", " + node.title}
+            refPath={this.props.refPath + (node.default ? "" : ", " + node.title)}
             openRef={this.props.openRef} />);
           return (
             <CollapsibleNode
@@ -647,5 +647,4 @@ var CollapsibleNode = React.createClass({
     );
   }
 });
-
 module.exports = ReaderTextTableOfContents;
