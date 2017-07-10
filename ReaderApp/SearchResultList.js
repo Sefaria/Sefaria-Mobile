@@ -11,8 +11,8 @@ const styles = require('./Styles');
 const SearchTextResult = require('./SearchTextResult');
 
 
-var SearchResultList = React.createClass({
-  propTypes: {
+class SearchResultList extends React.Component {
+  static propTypes = {
     theme:          React.PropTypes.object.isRequired,
     queryResult:    React.PropTypes.array,
     loadingTail:    React.PropTypes.bool,
@@ -21,20 +21,21 @@ var SearchResultList = React.createClass({
     setLoadTail:    React.PropTypes.func.isRequired,
     setIsNewSearch: React.PropTypes.func.isRequired,
     isNewSearch:    React.PropTypes.bool
-  },
-  getInitialState: function() {
-    return {
-      dataSource: new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2}),
-    };
-  },
-  onEndReached: function() {
+  };
+
+  state = {
+    dataSource: new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2}),
+  };
+
+  onEndReached = () => {
     if (this.props.loadingTail) {
       //already loading tail
       return;
     }
     this.props.setLoadTail(true);
-  },
-  renderRow: function(rowData) {
+  };
+
+  renderRow = (rowData) => {
     return (
       <SearchTextResult
         theme={this.props.theme}
@@ -43,22 +44,26 @@ var SearchResultList = React.createClass({
         text={rowData.text}
         onPress={this.props.openRef.bind(null,rowData.title)} />
     );
-  },
-  componentDidUpdate: function() {
+  };
+
+  componentDidUpdate() {
   	if (this.props.isNewSearch)
   		this.props.setIsNewSearch(false);
-  },
-  scrollToSearchResult: function() {
+  }
+
+  scrollToSearchResult = () => {
     this.refs.searchResultsListView.scrollTo({
                x: 0,
                y: this.props.initSearchScrollPos || 0,
                animated: false
             })
-  },
-  setCurScrollPos: function() {
+  };
+
+  setCurScrollPos = () => {
     this.props.setInitSearchScrollPos(this.refs.searchResultsListView.scrollProperties.offset);
-  },
-  render: function() {
+  };
+
+  render() {
 
   	//if isNewSearch, temporarily hide the ListView, which apparently resets the scroll position to the top
   	if (this.props.queryResult && !this.props.isNewSearch) {
@@ -88,8 +93,7 @@ var SearchResultList = React.createClass({
   	}
 
   }
-
-});
+}
 
 
 module.exports = SearchResultList;

@@ -21,29 +21,36 @@ const styles  = require('./Styles');
 const strings = require('./LocalizedStrings');
 
 
-var SettingsPage = React.createClass({
+class SettingsPage extends React.Component {
   // Navigation Menu for a single category of texts (e.g., "Tanakh", "Bavli")
-  propTypes: {
+  static propTypes = {
     close:       React.PropTypes.func.isRequired,
     theme:       React.PropTypes.object.isRequired,
     toggleMenuLanguage: React.PropTypes.func.isRequired,
     Sefaria:     React.PropTypes.object.isRequired
-  },
-  _numPressesDebug: 0,
-  getInitialState: function() {
-    Sefaria = this.props.Sefaria;
-    return {};
-  },
-  componentDidMount: function() {
+  };
+
+  constructor(props) {
+    super(props);
+    Sefaria = props.Sefaria;
+    this.state = {};
+  }
+
+  _numPressesDebug = 0;
+
+  componentDidMount() {
     Sefaria.downloader.onChange = this.onDownloaderChange;
-  },
-  componentWillUnmount: function() {
+  }
+
+  componentWillUnmount() {
     Sefaria.downloader.onChange = null;
-  },
-  onDownloaderChange: function() {
+  }
+
+  onDownloaderChange = () => {
     this.forceUpdate();
-  },
-  onDebugNoLibraryTouch: function() {
+  };
+
+  onDebugNoLibraryTouch = () => {
     this._numPressesDebug++;
     if (this._numPressesDebug >= 7) {
       this._numPressesDebug = 0;
@@ -55,8 +62,9 @@ var SettingsPage = React.createClass({
         {text: 'OK', onPress: ()=>{this.forceUpdate();}},
       ]);
     }
-  },
-  render: function() {
+  };
+
+  render() {
     var setMenuLanguage = function(lang) {
       if (Sefaria.settings.menuLangue !== lang) {
         this.props.toggleMenuLanguage();
@@ -175,7 +183,7 @@ var SettingsPage = React.createClass({
               </ScrollView>
             </View>);
   }
-});
+}
 
 
 module.exports = SettingsPage;

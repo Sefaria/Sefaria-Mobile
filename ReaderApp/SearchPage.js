@@ -15,8 +15,8 @@ var {
   CategoryColorLine,
 } = require('./Misc.js');
 
-var SearchPage = React.createClass({
-	propTypes: {
+class SearchPage extends React.Component {
+    static propTypes = {
 		theme:               React.PropTypes.object.isRequired,
 		themeStr:            React.PropTypes.string.isRequired,
 		hasInternet:         React.PropTypes.bool,
@@ -31,11 +31,13 @@ var SearchPage = React.createClass({
 		loadingTail:         React.PropTypes.bool,
 		isNewSearch:         React.PropTypes.bool,
 		numResults:          React.PropTypes.number
-	},
-	numberWithCommas: function(x) {
+	};
+
+    numberWithCommas = (x) => {
     	return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-	},
-	render: function() {
+	};
+
+    render() {
 		var status = this.props.hasInternet ?
 						this.props.loadingQuery ? strings.loading
 						: this.numberWithCommas(this.props.numResults) + " " + strings.results
@@ -71,6 +73,6 @@ var SearchPage = React.createClass({
 			</View>
 		);
 	}
-});
+}
 
 module.exports = SearchPage;

@@ -10,9 +10,8 @@ import { 	AppRegistry,
 var TextSegment = require('./TextSegment');
 
 
-var TextRangeContinuous = React.createClass({
-
-  render: function() {
+class TextRangeContinuous extends React.Component {
+  render() {
     var data = this.props.data;
     var textLanguage = this.props.textLanguage;
 
@@ -47,7 +46,7 @@ var TextRangeContinuous = React.createClass({
       </View>
     );
   }
-});
+}
 
 
 var styles = StyleSheet.create({

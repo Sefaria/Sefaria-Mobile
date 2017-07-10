@@ -18,8 +18,8 @@ var {
 const styles  = require('./Styles');
 const strings = require('./LocalizedStrings');
 
-var SearchBar = React.createClass({
-  propTypes:{
+class SearchBar extends React.Component {
+  static propTypes = {
     theme:           React.PropTypes.object.isRequired,
     themeStr:        React.PropTypes.string.isRequired,
     closeNav:        React.PropTypes.func.isRequired,
@@ -28,17 +28,18 @@ var SearchBar = React.createClass({
     toggleLanguage:  React.PropTypes.func,
     language:        React.PropTypes.string,
     query:           React.PropTypes.string
-  },
-  getInitialState: function() {
-    return {text: this.props.query || ""};
-  },
-  submitSearch: function() {
+  };
+
+  state = {text: this.props.query || ""};
+
+  submitSearch = () => {
     if (this.state.text) {
       this.props.setIsNewSearch(true);
       this.props.onQueryChange(this.state.text, true);
     }
-  },
-  render: function() {
+  };
+
+  render() {
     var textInputStyle = [styles.searchInput, this.props.theme.text];
     if (this.state.text == "") {
       //textInputStyle = textInputStyle.concat([styles.searchInputPlaceholder]);
@@ -67,6 +68,6 @@ var SearchBar = React.createClass({
       </View>
     );
   }
-});
+}
 
 module.exports = SearchBar;

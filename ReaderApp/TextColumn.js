@@ -37,8 +37,8 @@ var CustomLayoutAnimation = {
 };
 
 
-var TextColumn = React.createClass({
-  propTypes: {
+class TextColumn extends React.Component {
+  static propTypes = {
     theme:              React.PropTypes.object.isRequired,
     themeStr:           React.PropTypes.string,
     settings:           React.PropTypes.object,
@@ -63,36 +63,41 @@ var TextColumn = React.createClass({
     loadingTextTail:    React.PropTypes.bool,
     loadingTextHead:    React.PropTypes.bool,
     linksLoaded:     React.PropTypes.array,
-  },
-  getInitialState: function() {
+  };
+
+  constructor(props, context) {
+    super(props, context);
     this.rowRefs = {}; //hash table of currently loaded row refs.
     this.sectionRefsHash= {}; //hash table of currently loaded section refs.
     this.previousY = 0; // for measuring scroll speed
-    return {
+
+    this.state = {
       dataSource: new ListView.DataSource({
           rowHasChanged: this.rowHasChanged,
           sectionHeaderHasChanged: (s1, s2) => s1 !== s2
-        }).cloneWithRowsAndSections(this.generateDataSource(this.props)),
+        }).cloneWithRowsAndSections(this.generateDataSource(props)),
       targetSectionRef: "",
       scrollingToTargetRef:false,
       scrolledToOffsetRef:false,
       scrollOffset:0,
       highlightRef: "",
     };
-  },
-  componentDidMount: function() {
+  }
+
+  componentDidMount() {
     if (this._standardizeOffsetRef(this.props.offsetRef) && !this.state.scrolledToOffsetRef) {
       this.scrollToRef(this._standardizeOffsetRef(this.props.offsetRef), true, false);
     } else {
       // Scroll one pixel to ensure next section is loaded if current section is very short
       this.refs._listView.scrollTo({x: 0, y: 1, animated: false });
     }
-  },
-  componentDidUpdate:function(prevProps, prevState) {
-    this.scrollToRef(this._standardizeOffsetRef(this.props.offsetRef), false, false);
-  },
+  }
 
-  componentWillReceiveProps: function(nextProps) {
+  componentDidUpdate(prevProps, prevState) {
+    this.scrollToRef(this._standardizeOffsetRef(this.props.offsetRef), false, false);
+  }
+
+  componentWillReceiveProps(nextProps) {
     //console.log("TextColumn Will Receive Props",this.props.segmentRef + " -> " + nextProps.segmentRef);
     //console.log("data length: " + this.props.data.length + " -> " + nextProps.data.length)
 
@@ -109,8 +114,9 @@ var TextColumn = React.createClass({
       var newData = this.generateDataSource(nextProps);
       this.setState({dataSource: this.state.dataSource.cloneWithRowsAndSections(newData)});
     }
-  },
-  updateHighlightedSegmentContinuous: function(e) {
+  }
+
+  updateHighlightedSegmentContinuous = (e) => {
     var currentOffset = e.nativeEvent.contentOffset.y;
     var direction = currentOffset > this.offset ? 'down' : 'up';
     this.offset = currentOffset;
@@ -161,9 +167,9 @@ var TextColumn = React.createClass({
 
     }
 
-  },
+  };
 
-  handleScroll: function(e) {
+  handleScroll = (e) => {
 
     if (this.props.textFlow == 'continuous') {
       //update highlightedSegment Continuous Style
@@ -184,8 +190,9 @@ var TextColumn = React.createClass({
       this.previousY = e.nativeEvent.contentOffset.y;
       this.updateHighlightedSegment();
     }
-  },
-  updateTitle: function() {
+  };
+
+  updateTitle = () => {
     // Update title in header depending on what section is most visible.
     var visibleRows = this.refs._listView._visibleRows;
     var visibleSections = this.getVisibleSections();
@@ -221,8 +228,9 @@ var TextColumn = React.createClass({
     if (enTitle !== this.props.textReference) {
       this.props.updateTitle(enTitle, heTitle);
     }
-  },
-  updateTitleALTERNATE: function() {
+  };
+
+  updateTitleALTERNATE = () => {
     // This method just sets the title base on the first visible section.
     // It has the benefit of simplicity and not giving a wrong title initially when loading short sections
     // like the beginning of Siddur. Not sure it yet if it's preferable.
@@ -236,8 +244,9 @@ var TextColumn = React.createClass({
     if (enTitle !== this.props.textReference) {
       this.props.updateTitle(enTitle, heTitle);
     }
-  },
-  updateHighlightedSegment: function() {
+  };
+
+  updateHighlightedSegment = () => {
     var setHighlight = function (highlightIndex) {
       let segmentToLoad  = allVisibleRows[highlightIndex].segIndex; //we now know the first element has the lowest segment number
       let sectionToLoad  = allVisibleRows[highlightIndex].secIndex;
@@ -288,8 +297,9 @@ var TextColumn = React.createClass({
       }
 
     }
-  },
-  findDataSegmentIndex: function (secIndex, segNum) {
+  };
+
+  findDataSegmentIndex = (secIndex, segNum) => {
     // Returns the segment index (int) for `segNum` (a numerical string) within `this.props.data[secIndex]`
     let start = this.props.data[secIndex].length-1;
     for (let i = start; i >= 0; i--) {
@@ -300,8 +310,9 @@ var TextColumn = React.createClass({
     console.log("findDataSegmentIndex couldn't find ", secIndex, segNum, "in data:")
     //console.log(this.props.data);
     return -1;
-  },
-  scrollToTarget: function() {
+  };
+
+  scrollToTarget = () => {
 
     if (!this.state.scrollingToTargetRef) { return; }
 
@@ -386,8 +397,9 @@ var TextColumn = React.createClass({
 
     }
 
-  },
-  onTopReached: function() {
+  };
+
+  onTopReached = () => {
     if (this.props.loadingTextHead == true || !this.props.prev) {
       //already loading tail, or nothing above
       return;
@@ -399,36 +411,41 @@ var TextColumn = React.createClass({
     });
 
     this.props.updateData("prev");
-  },
-  onEndReached: function() {
+  };
+
+  onEndReached = () => {
     if (this.props.loadingTextTail == true) {
       //already loading tail
       return;
     }
     this.props.updateData("next");
-  },
-  visibleRowsChanged: function(visibleRows, changedRows) {
+  };
+
+  visibleRowsChanged = (visibleRows, changedRows) => {
     if (!this.props.loadingTextHead && this.state.targetSectionRef && this.state.scrollingToTargetRef) {
       this.scrollToTarget();
     } else if (this.props.offsetRef && !this.state.scrolledToOffsetRef) {
       this.scrollToRef(this._standardizeOffsetRef(this.props.offsetRef), false, false);
     }
-  },
-  getVisibleSections: function() {
+  };
+
+  getVisibleSections = () => {
     // Returns an array of strings naming the currently visible sections in proper order.
     var visibleSectionsObject = this.refs._listView._visibleRows;
     var visibleSections = Object.keys(visibleSectionsObject);
     visibleSections.sort((a, b) => (this.props.sectionArray.indexOf(a) - this.props.sectionArray.indexOf(b)));
     return visibleSections;
-  },
-  scrollOneScreenDown: function(initialScroll) {
+  };
+
+  scrollOneScreenDown = (initialScroll) => {
     this.refs._listView.scrollTo({
       x: 0,
       y: initialScroll ? 1 : this.refs._listView.scrollProperties.offset+(1*this.refs._listView.scrollProperties.visibleLength),
       animated: false
     });
-  },
-  scrollToRef: function(rowRef, didMount, isClickScroll) {
+  };
+
+  scrollToRef = (rowRef, didMount, isClickScroll) => {
     /* Warning, this function is hacky. anyone who knows how to improve it, be my guest
     didMount - true if coming from componentDidMount. it seems that none of the rows
     have heights (even if they're on screen) at the did mount stage. so I scroll by
@@ -487,8 +504,9 @@ var TextColumn = React.createClass({
         });
       }
     }
-  },
-  _standardizeOffsetRef: function(ref) {
+  };
+
+  _standardizeOffsetRef = (ref) => {
     // Since the code for setting this.rowRefs assumes we can construct a ref by adding ":" + segment index,
     // we generate weird refs internally for depth 1 texts like "Sefer HaBahir:2"
     // This functions returns that weird format for depth1 texts by assuming that `ref`
@@ -498,20 +516,23 @@ var TextColumn = React.createClass({
       var ref = ref.substring(0, lastSpace) + ":" + ref.substring(lastSpace+1, ref.length);
     }
     return ref;
-  },
-  textSegmentPressed: function(section, segment, segmentRef, shouldToggle) {
+  };
+
+  textSegmentPressed = (section, segment, segmentRef, shouldToggle) => {
     if (!this.props.textListVisible) {
       this.scrollToRef(segmentRef, true, true);
     }
     this.props.textSegmentPressed(section, segment, segmentRef, true);
-  },
-  inlineSectionHeader: function(ref) {
+  };
+
+  inlineSectionHeader = (ref) => {
     // Returns a string to be used as an inline section header for `ref`.
     var heTitle = Sefaria.index(this.props.textTitle).heTitle;
     var trimmer = new RegExp("^(" + this.props.textTitle + "|" + heTitle + "),? ");
     return ref.replace(trimmer, '');
-  },
-  generateDataSource: function(props) {
+  };
+
+  generateDataSource = (props) => {
     // Returns data representing sections and rows to be passed into ListView.DataSource.cloneWithSectionsAndRows
     // Takes `props` as an argument so it can generate data with `nextProps`.
     var data = props.data;
@@ -568,8 +589,9 @@ var TextColumn = React.createClass({
     //console.log(sections);
     return sections;
 
-  },
-  renderContinuousRow: function(rowData, sID, rID) {
+  };
+
+  renderContinuousRow = (rowData, sID, rID) => {
     // In continuous case, rowData represent an entire section of text
     var segments = [];
     for (var i = 0; i < rowData.segmentData.length; i++) {
@@ -606,8 +628,9 @@ var TextColumn = React.createClass({
 
               <Text style={[textStyle, styles.continuousSectionRow]}>{segments}</Text>
            </View>;
-  },
-  renderSegmentForContinuousRow: function(i, rowData) {
+  };
+
+  renderSegmentForContinuousRow = (i, rowData) => {
       var segmentText = [];
       var currSegData = rowData.segmentData[i];
       currSegData.text = currSegData.content.text || "";
@@ -681,8 +704,9 @@ var TextColumn = React.createClass({
 
       return (<Text style={style} ref={refSetter}>{segmentText}</Text>);
 
-  },
-  renderSegmentedRow: function(rowData, sID, rID) {
+  };
+
+  renderSegmentedRow = (rowData, sID, rID) => {
     // In segmented case, rowData represents a segments of text
     rowData.text = rowData.content.text || "";
     rowData.he = rowData.content.he || "";
@@ -781,13 +805,15 @@ var TextColumn = React.createClass({
               key={reactRef}
               ref={(view)=>this.rowRefs[reactRef]=view}
               onLayout={onSegmentLayout}>{segment}</View>;
-  },
-  rowHasChanged: function(r1, r2) {
+  };
+
+  rowHasChanged = (r1, r2) => {
     // console.log(r1.changeString + " vs. " + r2.changeString);
     var changed = (r1.changeString !== r2.changeString);
     return (changed);
-  },
-  renderRow: function(rowData, sID, rID) {
+  };
+
+  renderRow = (rowData, sID, rID) => {
     //console.log("Rendering " + rID);
     if (this.props.textFlow == 'continuous' && Sefaria.canBeContinuous(this.props.textTitle)) {
       var row = this.renderContinuousRow(rowData);
@@ -795,11 +821,13 @@ var TextColumn = React.createClass({
       var row = this.renderSegmentedRow(rowData);
     }
     return row;
-  },
-  renderFooter: function() {
+  };
+
+  renderFooter = () => {
     return this.props.next ? <LoadingView theme={this.props.theme} /> : null;
-  },
-  render: function() {
+  };
+
+  render() {
     //console.log("HASHSIZE",Object.keys(this.rowRefs).length);
     //ref={this.props.textReference+"_"+this.props.data[this.state.sectionArray.indexOf(sID)][this.props.segmentRef].segmentNumber}
 
@@ -827,23 +855,23 @@ var TextColumn = React.createClass({
       </View>
     );
   }
-});
+}
 
-
-var SectionHeader = React.createClass({
-  propTypes: {
+class SectionHeader extends React.Component {
+  static propTypes = {
     title:    React.PropTypes.string.isRequired,
     isHebrew: React.PropTypes.bool.isRequired,
     theme:    React.PropTypes.object.isRequired,
-  },
-  render: function() {
+  };
+
+  render() {
     return <View style={styles.sectionHeaderBox}>
             <View style={[styles.sectionHeader, this.props.theme.sectionHeader]}>
               <Text style={[styles.sectionHeaderText, this.props.isHebrew ? styles.hebrewSectionHeaderText : null, this.props.theme.sectionHeaderText]}>{this.props.title}</Text>
             </View>
           </View>;
   }
-})
+}
 
 
 module.exports = TextColumn;

@@ -22,9 +22,9 @@ var styles = require('./Styles.js');
 var strings = require('./LocalizedStrings.js');
 
 
-var ReaderNavigationMenu = React.createClass({
+class ReaderNavigationMenu extends React.Component {
   // The Navigation menu for browsing and searching texts
-  propTypes: {
+  static propTypes = {
     theme:          React.PropTypes.object.isRequired,
     themeStr:       React.PropTypes.string.isRequired,
     categories:     React.PropTypes.array.isRequired,
@@ -40,23 +40,30 @@ var ReaderNavigationMenu = React.createClass({
     openRecent:     React.PropTypes.func.isRequired,
     toggleLanguage: React.PropTypes.func.isRequired,
     Sefaria:        React.PropTypes.object.isRequired
-  },
-  getInitialState: function() {
-    Sefaria = this.props.Sefaria;
-    return {
+  };
+
+  constructor(props) {
+    super(props);
+    Sefaria = props.Sefaria;
+
+    this.state = {
       showMore: false,
     };
-  },
-  componentDidMount: function() {
+  }
 
-  },
-  showMore: function() {
+  componentDidMount() {
+
+  }
+
+  showMore = () => {
     this.setState({showMore: true});
-  },
-  navHome: function() {
+  };
+
+  navHome = () => {
     this.props.setCategories([]);
-  },
-  render: function() {
+  };
+
+  render() {
     if (this.props.categories.length) {
       // List of Text in a Category
       return (<ReaderNavigationCategoryMenu
@@ -182,18 +189,18 @@ var ReaderNavigationMenu = React.createClass({
             </View>);
     }
   }
-});
+}
 
-
-var RecentSection = React.createClass({
-  propTypes: {
+class RecentSection extends React.Component {
+  static propTypes = {
     theme:         React.PropTypes.object.isRequired,
     openRef:       React.PropTypes.func.isRequired,
     interfaceLang: React.PropTypes.string.isRequired,
     language:      React.PropTypes.string.isRequired,
     openRecent:    React.PropTypes.func.isRequired,
-  },
-  render: function() {
+  };
+
+  render() {
     if (!Sefaria.recent || !Sefaria.recent.length) { return null; }
 
     var recent = Sefaria.recent.slice(0,3).map(function(item) {
@@ -228,17 +235,17 @@ var RecentSection = React.createClass({
               interfaceLang={this.props.interfaceLang}
               moreClick={this.props.openRecent} />);
   }
-});
+}
 
-
-var CalendarSection = React.createClass({
-  propTypes: {
+class CalendarSection extends React.Component {
+  static propTypes = {
     theme:         React.PropTypes.object.isRequired,
     openRef:       React.PropTypes.func.isRequired,
     interfaceLang: React.PropTypes.string.isRequired,
     language:      React.PropTypes.string.isRequired
-  },
-  render: function() {
+  };
+
+  render() {
     if (!Sefaria.calendar) { return null; }
 
     var parashah = Sefaria.parashah();
@@ -280,12 +287,11 @@ var CalendarSection = React.createClass({
               interfaceLang={this.props.interfaceLang}
               hasmore={false} />);
   }
-});
+}
 
-
-var ReaderNavigationMenuSection = React.createClass({
+class ReaderNavigationMenuSection extends React.Component {
   // A Section on the main navigation which includes a title over a grid of options
-  propTypes: {
+  static propTypes = {
     theme:         React.PropTypes.object,
     title:         React.PropTypes.string,
     heTitle:       React.PropTypes.string,
@@ -293,8 +299,9 @@ var ReaderNavigationMenuSection = React.createClass({
     content:       React.PropTypes.object,
     hasmore:       React.PropTypes.bool,
     moreClick:     React.PropTypes.func
-  },
-  render: function() {
+  };
+
+  render() {
     if (!this.props.content) { return null; }
 
     var isheb = this.props.interfaceLang === "hebrew";
@@ -315,7 +322,7 @@ var ReaderNavigationMenuSection = React.createClass({
               {this.props.content}
             </View>);
   }
-});
+}
 
 
 module.exports = ReaderNavigationMenu;

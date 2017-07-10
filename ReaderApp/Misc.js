@@ -14,32 +14,32 @@ var Sefaria = require('./sefaria');
 var styles = require('./Styles.js');
 
 
-var TwoBox = React.createClass({
-    propTypes: {
-        content:  React.PropTypes.array.isRequired,
-        language: React.PropTypes.oneOf(["hebrew","english"]),
-    },
-    render: function() {
-        var content = this.props.content.map(function(item, i) {
-            return (<View style={styles.twoBoxItem} key={i}>{item}</View>);
-        });
-        if (content.length % 2 !== 0) {
-          content.push(<View style={styles.twoBoxItem} key={i+1}></View>);
-        }
-        var rows = [];
-        var rowStyle = this.props.language == "hebrew" ? [styles.twoBoxRow, styles.rtlRow] : [styles.twoBoxRow];
+class TwoBox extends React.Component {
+  static propTypes = {
+      content:  React.PropTypes.array.isRequired,
+      language: React.PropTypes.oneOf(["hebrew","english"]),
+  };
 
-        for (var i=0; i < content.length; i += 2) {
-          var items = [content[i], content[i+1]];
-          rows.push(<View style={rowStyle} key={i}>{items}</View>);
-        }
-        return (<View style={styles.twoBox}>{rows}</View>);
-    }
-});
+  render() {
+      var content = this.props.content.map(function(item, i) {
+          return (<View style={styles.twoBoxItem} key={i}>{item}</View>);
+      });
+      if (content.length % 2 !== 0) {
+        content.push(<View style={styles.twoBoxItem} key={i+1}></View>);
+      }
+      var rows = [];
+      var rowStyle = this.props.language == "hebrew" ? [styles.twoBoxRow, styles.rtlRow] : [styles.twoBoxRow];
 
+      for (var i=0; i < content.length; i += 2) {
+        var items = [content[i], content[i+1]];
+        rows.push(<View style={rowStyle} key={i}>{items}</View>);
+      }
+      return (<View style={styles.twoBox}>{rows}</View>);
+  }
+}
 
-var CategoryBlockLink = React.createClass({
-  propTypes: {
+class CategoryBlockLink extends React.Component {
+  static propTypes = {
     theme:     React.PropTypes.object.isRequired,
     category:  React.PropTypes.string,
     language:  React.PropTypes.string,
@@ -47,8 +47,9 @@ var CategoryBlockLink = React.createClass({
     upperCase: React.PropTypes.bool,
     withArrow: React.PropTypes.bool,
     onPress:   React.PropTypes.func,
-  },
-  render: function() {
+  };
+
+  render() {
     var style  = this.props.style || {"borderColor": Sefaria.palette.categoryColor(this.props.category)};
     var enText = this.props.upperCase ? this.props.category.toUpperCase() : this.props.category;
     var heText = this.props.heCat || Sefaria.hebrewCategory(this.props.category);
@@ -66,24 +67,23 @@ var CategoryBlockLink = React.createClass({
                 resizeMode={Image.resizeMode.contain} />
             </TouchableOpacity>);
   }
-});
+}
 
-
-var CategoryColorLine = React.createClass({
-  render: function() {
+class CategoryColorLine extends React.Component {
+  render() {
     var style = {backgroundColor: Sefaria.palette.categoryColor(this.props.category)};
     return (<View style={[styles.categoryColorLine, style]}></View>);
   }
-});
+}
 
-
-var CategoryAttribution = React.createClass({
-  propTypes: {
+class CategoryAttribution extends React.Component {
+  static propTypes = {
     categories: React.PropTypes.array,
     language:   React.PropTypes.string.isRequired,
     context:    React.PropTypes.string.isRequired
-  },
-  render: function() {
+  };
+
+  render() {
     if (!this.props.categories) { return null; }
     var attribution = Sefaria.categoryAttribution(this.props.categories);
     var boxStyles = [styles.categoryAttribution, styles[this.props.context + "CategoryAttribution" ]];
@@ -95,17 +95,17 @@ var CategoryAttribution = React.createClass({
               }
             </View> : null;
   }
-});
+}
 
-
-var LanguageToggleButton = React.createClass({
-  propTypes: {
+class LanguageToggleButton extends React.Component {
+  static propTypes = {
     theme:          React.PropTypes.object.isRequired,
     language:       React.PropTypes.string.isRequired,
     toggleLanguage: React.PropTypes.func.isRequired,
     margin:         React.PropTypes.bool
-  },
-  render: function() {
+  };
+
+  render() {
     var content = this.props.language == "hebrew" ?
         (<Text style={[styles.languageToggleTextEn, this.props.theme.languageToggleText, styles.en]}>A</Text>) :
         (<Text style={[styles.languageToggleTextHe, this.props.theme.languageToggleText, styles.he]}>א</Text>);
@@ -114,15 +114,16 @@ var LanguageToggleButton = React.createClass({
               {content}
             </TouchableOpacity>);
   }
-});
+}
 
-var CollapseIcon = React.createClass({
-  propTypes: {
+class CollapseIcon extends React.Component {
+  static propTypes = {
     themeStr:  React.PropTypes.string,
     showHebrew:  React.PropTypes.bool,
     isVisible: React.PropTypes.bool
-  },
-  render: function() {
+  };
+
+  render() {
     var src;
     if (this.props.themeStr == "white") {
       if (this.props.isVisible) {
@@ -149,10 +150,10 @@ var CollapseIcon = React.createClass({
              style={(this.props.showHebrew ? styles.collapseArrowHe : styles.collapseArrowEn)}
              resizeMode={Image.resizeMode.contain} />);
   }
-});
+}
 
-var SearchButton = React.createClass({
-  render: function() {
+class SearchButton extends React.Component {
+  render() {
     return (<TouchableOpacity style={[styles.headerButton, styles.headerButtonSearch]} onPress={this.props.onPress}>
                 <Image source={this.props.themeStr == "white" ? require('./img/search.png'): require('./img/search-light.png') }
 
@@ -160,69 +161,65 @@ var SearchButton = React.createClass({
                      resizeMode={Image.resizeMode.contain} />
               </TouchableOpacity>);
   }
-});
+}
 
-
-var MenuButton = React.createClass({
-  render: function() {
+class MenuButton extends React.Component {
+  render() {
     return (<TouchableOpacity style={[styles.headerButton, styles.leftHeaderButton]} onPress={this.props.onPress}>
               <Image source={this.props.themeStr == "white" ? require('./img/menu.png'): require('./img/menu-light.png') }
                      style={styles.menuButton}
                      resizeMode={Image.resizeMode.contain} />
             </TouchableOpacity>);
   }
-});
+}
 
-
-var GoBackButton = React.createClass({
-  render: function() {
+class GoBackButton extends React.Component {
+  render() {
     return (<TouchableOpacity style={[styles.headerButton, styles.leftHeaderButton]} onPress={this.props.onPress}>
               <Image source={this.props.themeStr == "white" ? require('./img/back.png'): require('./img/back-light.png') }
                      style={styles.menuButton}
                      resizeMode={Image.resizeMode.contain} />
             </TouchableOpacity>);
   }
-});
+}
 
-
-var CloseButton = React.createClass({
-  render: function() {
+class CloseButton extends React.Component {
+  render() {
     return (<TouchableOpacity style={[styles.headerButton, styles.leftHeaderButton]} onPress={this.props.onPress}>
               <Image source={this.props.themeStr == "white" ? require('./img/close.png'): require('./img/close-light.png') }
                  style={styles.closeButton}
                  resizeMode={Image.resizeMode.contain} />
             </TouchableOpacity>);
   }
-});
+}
 
-var TripleDots = React.createClass({
-  render: function() {
+class TripleDots extends React.Component {
+  render() {
     return (<TouchableOpacity style={styles.tripleDotsContainer} onPress={this.props.onPress}>
               <Image style={styles.tripleDots} source={this.props.themeStr == "white" ? require('./img/dots.png'): require('./img/dots-light.png') } />
             </TouchableOpacity>);
   }
-});
+}
 
-
-var DisplaySettingsButton = React.createClass({
-  render: function() {
+class DisplaySettingsButton extends React.Component {
+  render() {
     return (<TouchableOpacity style={[styles.headerButton, styles.rightHeaderButton]} onPress={this.props.onPress}>
               <Image source={this.props.themeStr == "white" ? require('./img/a-aleph.png'): require('./img/a-aleph-light.png') }
                      style={styles.displaySettingsButton}
                      resizeMode={Image.resizeMode.contain} />
             </TouchableOpacity>);
   }
-});
+}
 
-
-var ToggleSet = React.createClass({
-  propTypes: {
+class ToggleSet extends React.Component {
+  static propTypes = {
     theme:       React.PropTypes.object.isRequired,
     options:     React.PropTypes.array.isRequired, // array of object with `name`. `text`, `heText`, `onPress`
     contentLang: React.PropTypes.string.isRequired,
     active:      React.PropTypes.string.isRequired
-  },
-  render: function() {
+  };
+
+  render() {
     var showHebrew = this.props.contentLang == "hebrew";
     var options = this.props.options.map(function(option, i) {
       var style = [styles.navToggle, this.props.theme.navToggle].concat(this.props.active === option.name ? [styles.navToggleActive, this.props.theme.navToggleActive] : []);
@@ -246,18 +243,17 @@ var ToggleSet = React.createClass({
               {dividedOptions}
             </View>);
   }
-});
+}
 
-
-
-var ButtonToggleSet = React.createClass({
-  propTypes: {
+class ButtonToggleSet extends React.Component {
+  static propTypes = {
     theme:       React.PropTypes.object.isRequired,
     options:     React.PropTypes.array.isRequired, // array of object with `name`. `text`, `heText`, `onPress`
     contentLang: React.PropTypes.string.isRequired,
     active:      React.PropTypes.string.isRequired
-  },
-  render: function() {
+  };
+
+  render() {
     var showHebrew = this.props.contentLang == "hebrew";
     var options = this.props.options.map(function(option, i) {
 
@@ -284,19 +280,18 @@ var ButtonToggleSet = React.createClass({
               {options}
             </View>);
   }
-});
+}
 
-
-var LoadingView = React.createClass({
-    render: function() {
-      return ( <View style={styles.loadingViewBox}>
-                  <ActivityIndicator
-                    animating={true}
-                    style={styles.loadingView}
-                    size="large" />
-               </View> );
-    }
-});
+class LoadingView extends React.Component {
+  render() {
+    return ( <View style={styles.loadingViewBox}>
+                <ActivityIndicator
+                  animating={true}
+                  style={styles.loadingView}
+                  size="large" />
+             </View> );
+  }
+}
 
 
 module.exports.TwoBox = TwoBox;

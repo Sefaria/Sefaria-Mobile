@@ -25,8 +25,8 @@ var {
   CategoryColorLine,
 } = require('./Misc.js');
 
-var RecentPage = React.createClass({
-  propTypes: {
+class RecentPage extends React.Component {
+  static propTypes = {
     close:              React.PropTypes.func.isRequired,
     theme:              React.PropTypes.object.isRequired,
     themeStr:           React.PropTypes.string.isRequired,
@@ -34,9 +34,9 @@ var RecentPage = React.createClass({
     openRef:            React.PropTypes.func.isRequired,
     language:           React.PropTypes.oneOf(["english","hebrew"]),
     Sefaria:            React.PropTypes.object.isRequired
-  },
+  };
 
-  render: function() {
+  render() {
     var recent = Sefaria.recent.map(function(item) {
       return (<CategoryBlockLink
                     theme={this.props.theme}
@@ -70,6 +70,6 @@ var RecentPage = React.createClass({
       </View>
     );
   }
-});
+}
 
 module.exports = RecentPage;

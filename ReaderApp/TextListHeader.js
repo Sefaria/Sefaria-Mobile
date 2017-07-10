@@ -16,8 +16,8 @@ const styles  = require('./Styles');
 const strings = require('./LocalizedStrings');
 
 
-var TextListHeader = React.createClass({
-	propTypes: {
+class TextListHeader extends React.Component {
+    static propTypes = {
 		Sefaria:        React.PropTypes.object.isRequired,
     theme:          React.PropTypes.object.isRequired,
 		updateCat:      React.PropTypes.func.isRequired,
@@ -27,14 +27,18 @@ var TextListHeader = React.createClass({
 		recentFilters:  React.PropTypes.array,
 		language:       React.PropTypes.oneOf(["english","hebrew","bilingual"]),
     isSummaryMode:  React.PropTypes.bool
-	},
-	getInitialState: function() {
-		Sefaria = this.props.Sefaria; //Is this bad practice to use getInitialState() as an init function
-		return {
+	};
+
+    constructor(props) {
+        super(props);
+        Sefaria = props.Sefaria; //Is this bad practice to use getInitialState() as an init function
+
+        this.state = {
 
 		};
-	},
-	render: function() {
+    }
+
+    render() {
 		var style = {"borderTopColor": Sefaria.palette.categoryColor(this.props.category)};
 
 		var viewList = this.props.recentFilters.map((filter, i)=>{
@@ -62,18 +66,19 @@ var TextListHeader = React.createClass({
     }
 
 	}
-});
+}
 
-var TextListHeaderItem = React.createClass({
-	propTypes: {
+class TextListHeaderItem extends React.Component {
+    static propTypes = {
     theme:          React.PropTypes.object.isRequired,
 		updateCat:      React.PropTypes.func.isRequired,
 		filter:         React.PropTypes.object,
 		filterIndex:    React.PropTypes.number,
 		language:       React.PropTypes.oneOf(["english","hebrew","bilingual"]),
 		selected:       React.PropTypes.bool
-	},
-	render: function() {
+	};
+
+    render() {
 		var filterStr = this.props.language == "hebrew" ?
 			(this.props.filter.heCollectiveTitle ? this.props.filter.heCollectiveTitle : this.props.filter.heTitle) : //NOTE backwards compatibility
 			(this.props.filter.collectiveTitle ? this.props.filter.collectiveTitle : this.props.filter.title);
@@ -88,6 +93,6 @@ var TextListHeaderItem = React.createClass({
 			</TouchableOpacity>
 			);
 	}
-});
+}
 
 module.exports = TextListHeader;
