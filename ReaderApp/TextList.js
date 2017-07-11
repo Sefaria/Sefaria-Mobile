@@ -9,7 +9,7 @@ import {
   TouchableOpacity,
   Dimensions
 } from 'react-native';
-const HTMLView       = require('react-native-htmlview');
+import HTMLView from 'react-native-htmlview'; //const HTMLView       = require('react-native-htmlview');
 const Orientation    = require('react-native-orientation');
 const styles         = require('./Styles');
 const strings        = require('./LocalizedStrings');

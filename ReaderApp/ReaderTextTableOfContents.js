@@ -11,7 +11,7 @@ import {
   Dimensions
 } from 'react-native';
 
-var HTMLView = require('react-native-htmlview'); //to convert html'afied JSON to something react can render (https://github.com/jsdf/react-native-htmlview)
+import HTMLView from 'react-native-htmlview'; //var HTMLView = require('react-native-htmlview'); //to convert html'afied JSON to something react can render (https://github.com/jsdf/react-native-htmlview)
 var {
   CloseButton,
   LanguageToggleButton,
