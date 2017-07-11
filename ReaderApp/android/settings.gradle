@@ -1,3 +1,5 @@
 rootProject.name = 'ReaderApp'
+include ':react-native-zip-archive'
+project(':react-native-zip-archive').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-zip-archive/android')
 
 include ':app'
