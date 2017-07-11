@@ -308,6 +308,7 @@ class ReaderPanel extends React.Component {
           <SearchPage
             theme={this.props.theme}
             themeStr={this.props.themeStr}
+            interfaceLang={this.props.interfaceLang}
             hasInternet={this.props.hasInternet}
             openNav={this.props.openNav}
             closeNav={this.props.closeMenu}

@@ -21,6 +21,7 @@ class SearchPage extends React.Component {
     static propTypes = {
 		theme:               PropTypes.object.isRequired,
 		themeStr:            PropTypes.string.isRequired,
+		interfaceLang:       PropTypes.oneOf(["english", "hebrew"]).isRequired,
 		hasInternet:         PropTypes.bool,
 		closeNav:            PropTypes.func.isRequired,
 		onQueryChange:       PropTypes.func.isRequired,
@@ -44,7 +45,8 @@ class SearchPage extends React.Component {
 						this.props.loadingQuery ? strings.loading
 						: this.numberWithCommas(this.props.numResults) + " " + strings.results
 					: strings.connectToSearchMessage;
-
+		var isheb = this.props.interfaceLang === "hebrew";
+    var langStyle = !isheb ? styles.enInt : styles.heInt;
 		return (
 			<View style={[styles.menu, this.props.theme.menu]}>
 				<CategoryColorLine category={"Other"} />
@@ -58,7 +60,8 @@ class SearchPage extends React.Component {
 					query={this.props.query}
 					setIsNewSearch={this.props.setIsNewSearch}/>
 				<View style={[styles.searchResultSummary, this.props.theme.searchResultSummary]}>
-					<Text style={[styles.searchResultSummaryText, this.props.theme.searchResultSummaryText]} >{status}</Text>
+					<Text style={[styles.searchResultSummaryText, this.props.theme.searchResultSummaryText, langStyle]} >{status}</Text>
+					<Text> {"Filter"} </Text>
 				</View>
 				<SearchResultList
 					theme={this.props.theme}
