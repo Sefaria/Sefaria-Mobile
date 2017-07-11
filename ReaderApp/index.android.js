@@ -12,8 +12,8 @@ var {
   View,
 } = React;
 
-var ReaderApp = React.createClass({
-  render: function() {
+class ReaderApp extends React.Component {
+  render() {
     return (
       <View style={styles.container}>
         <Text style={styles.welcome}>
@@ -28,7 +28,7 @@ var ReaderApp = React.createClass({
       </View>
     );
   }
-});
+}
 
 var styles = StyleSheet.create({
   container: {

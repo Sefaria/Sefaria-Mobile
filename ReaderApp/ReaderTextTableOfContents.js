@@ -26,9 +26,9 @@ const strings = require('./LocalizedStrings');
 const iPad    = require('./isIPad');
 
 
-var ReaderTextTableOfContents = React.createClass({
+class ReaderTextTableOfContents extends React.Component {
   // The Table of Contents for a single Text
-  propTypes: {
+  static propTypes = {
     theme:          React.PropTypes.object.isRequired,
     themeStr:       React.PropTypes.string.isRequired,
     title:          React.PropTypes.string.isRequired,
@@ -41,17 +41,21 @@ var ReaderTextTableOfContents = React.createClass({
     interfaceLang:  React.PropTypes.oneOf(["english","hebrew"]).isRequired,
     toggleLanguage: React.PropTypes.func.isRequired,
     Sefaria:        React.PropTypes.object.isRequired
-  },
-  getInitialState: function() {
-    Sefaria = this.props.Sefaria;
-    var toc = Sefaria.textToc(this.props.title, function(data) {
+  };
+
+  constructor(props, context) {
+    super(props, context);
+    Sefaria = props.Sefaria;
+    var toc = Sefaria.textToc(props.title, function(data) {
       this.setState({textToc: data});
     }.bind(this));
-    return {
+
+    this.state = {
       textToc: toc
     };
-  },
-  sectionString: function() {
+  }
+
+  sectionString = () => {
     // Returns a string expressing just the section we're currently looking including section name when possible
     // e.g. "Genesis 1" -> "Chapter 1"
     if (!this.state.textToc) { return "";}
@@ -74,8 +78,9 @@ var ReaderTextTableOfContents = React.createClass({
       }
     }
     return sectionString;
-  },
-  render: function() {
+  };
+
+  render() {
     var enTitle = this.props.title;
     var heTitle = Sefaria.index(this.props.title).heTitle;
 
@@ -184,11 +189,10 @@ var ReaderTextTableOfContents = React.createClass({
 
       </View>);
   }
-});
+}
 
-
-var TextTableOfContentsNavigation = React.createClass({
-  propTypes: {
+class TextTableOfContentsNavigation extends React.Component {
+  static propTypes = {
     theme:           React.PropTypes.object.isRequired,
     schema:          React.PropTypes.object.isRequired,
     commentatorList: React.PropTypes.array,
@@ -197,17 +201,17 @@ var TextTableOfContentsNavigation = React.createClass({
     contentLang:     React.PropTypes.string.isRequired,
     title:           React.PropTypes.string.isRequired,
     openRef:         React.PropTypes.func.isRequired
-  },
-  getInitialState: function() {
-    //console.log(this.props)
-    return {
-      tab: this.props.defaultStruct
-    }
-  },
-  setTab: function(tab) {
+  };
+
+  state = {
+    tab: this.props.defaultStruct
+  };
+
+  setTab = (tab) => {
     this.setState({tab: tab});
-  },
-  render: function() {
+  };
+
+  render() {
     if (this.props.commentatorList.length || this.props.alts) {
       var options = [{
         name: "default",
@@ -296,18 +300,18 @@ var TextTableOfContentsNavigation = React.createClass({
       </View>
     );
   }
-})
+}
 
-
-var SchemaNode = React.createClass({
-  propTypes: {
+class SchemaNode extends React.Component {
+  static propTypes = {
     theme:       React.PropTypes.object.isRequired,
     schema:      React.PropTypes.object.isRequired,
     contentLang: React.PropTypes.string.isRequired,
     refPath:     React.PropTypes.string.isRequired,
     openRef:     React.PropTypes.func.isRequired
-  },
-  render: function() {
+  };
+
+  render() {
     if (!("nodes" in this.props.schema)) {
       if (this.props.schema.nodeType === "JaggedArrayNode") {
         return (
@@ -380,18 +384,18 @@ var SchemaNode = React.createClass({
       );
     }
   }
-});
+}
 
-
-var JaggedArrayNode = React.createClass({
-  propTypes: {
+class JaggedArrayNode extends React.Component {
+  static propTypes = {
     theme:       React.PropTypes.object.isRequired,
     schema:      React.PropTypes.object.isRequired,
     contentLang: React.PropTypes.string.isRequired,
     refPath:     React.PropTypes.string.isRequired,
     openRef:     React.PropTypes.func.isRequired,
-  },
-  render: function() {
+  };
+
+  render() {
     if (this.props.refPath.startsWith("Beit Yosef, ")) { this.props.schema.toc_zoom = 2; }
 
     if ("toc_zoom" in this.props.schema) {
@@ -415,11 +419,10 @@ var JaggedArrayNode = React.createClass({
               refPath={this.props.refPath}
               openRef={this.props.openRef} />);
   }
-});
+}
 
-
-var JaggedArrayNodeSection = React.createClass({
-  propTypes: {
+class JaggedArrayNodeSection extends React.Component {
+  static propTypes = {
     theme:           React.PropTypes.object.isRequired,
     depth:           React.PropTypes.number.isRequired,
     sectionNames:    React.PropTypes.array.isRequired,
@@ -431,14 +434,16 @@ var JaggedArrayNodeSection = React.createClass({
     contentLang:     React.PropTypes.string.isRequired,
     refPath:         React.PropTypes.string.isRequired,
     openRef:         React.PropTypes.func.isRequired,
-  },
-  contentCountIsEmpty: function(count) {
+  };
+
+  contentCountIsEmpty = (count) => {
     // Returns true if count is zero or is an an array (of arrays) of zeros.
     if (typeof count == "number") { return count == 0; }
     var innerCounts = count.map(this.contentCountIsEmpty);
     return innerCounts.every((empty) => {empty});
-  },
-  refPathTerminal: function(count) {
+  };
+
+  refPathTerminal = (count) => {
     // Returns a string to be added to the end of a section link depending on a content count
     // Used in cases of "zoomed" JaggedArrays, where `contentCounts` is deeper than `depth` so that zoomed section
     // links still point to section level.
@@ -451,8 +456,9 @@ var JaggedArrayNodeSection = React.createClass({
       }
     }
     return terminal;
-  },
-  render: function() {
+  };
+
+  render() {
     var showHebrew = this.props.contentLang === "hebrew";
     if (this.props.depth > 2) {
       var content = [];
@@ -512,17 +518,17 @@ var JaggedArrayNodeSection = React.createClass({
       <View style={[styles.textTocNumberedSection, langStyles]}>{sectionLinks}</View>
     );
   }
-});
+}
 
-
-var ArrayMapNode = React.createClass({
-  propTypes: {
+class ArrayMapNode extends React.Component {
+  static propTypes = {
     theme:       React.PropTypes.object.isRequired,
     schema:      React.PropTypes.object.isRequired,
     contentLang: React.PropTypes.string.isRequired,
     openRef:     React.PropTypes.func.isRequired,
-  },
-  render: function() {
+  };
+
+  render() {
     var showHebrew = this.props.contentLang == "hebrew";
     if ("refs" in this.props.schema && this.props.schema.refs.length) {
       var sectionLinks = this.props.schema.refs.map(function(ref, i) {
@@ -559,17 +565,17 @@ var ArrayMapNode = React.createClass({
       );
     }
   }
-});
+}
 
-
-var CommentatorList = React.createClass({
-  propTypes: {
+class CommentatorList extends React.Component {
+  static propTypes = {
     theme:           React.PropTypes.object.isRequired,
     commentatorList: React.PropTypes.array.isRequired,
     contentLang:     React.PropTypes.string.isRequired,
     openRef:         React.PropTypes.func.isRequired,
-  },
-  render: function() {
+  };
+
+  render() {
     var showHebrew = this.props.contentLang == "hebrew";
     var content = this.props.commentatorList.map(function(commentator, i) {
       var open = this.props.openRef.bind(null, commentator.firstSection);
@@ -587,6 +593,6 @@ var CommentatorList = React.createClass({
     return (<TwoBox content={content} />);
 
   }
-})
+}
 
 module.exports = ReaderTextTableOfContents;

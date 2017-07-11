@@ -11,9 +11,8 @@ import { 	AppRegistry,
 var TextSegment = require('./TextSegment');
 
 
-var TextRange = React.createClass({
-
-  render: function() {
+class TextRange extends React.Component {
+  render() {
     var data = this.props.data;
     var textLanguage = this.props.textLanguage;
 
@@ -45,7 +44,7 @@ var TextRange = React.createClass({
       </View>
     );
   }
-});
+}
 
 
 var styles = StyleSheet.create({

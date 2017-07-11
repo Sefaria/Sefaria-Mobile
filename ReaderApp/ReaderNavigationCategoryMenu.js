@@ -23,9 +23,9 @@ var {
 var styles = require('./Styles.js');
 
 
-var ReaderNavigationCategoryMenu = React.createClass({
+class ReaderNavigationCategoryMenu extends React.Component {
   // Navigation Menu for a single category of texts (e.g., "Tanakh", "Bavli")
-  propTypes: {
+  static propTypes = {
     theme:          React.PropTypes.object.isRequired,
     themeStr:       React.PropTypes.string.isRequired,
     category:       React.PropTypes.string.isRequired,
@@ -37,12 +37,15 @@ var ReaderNavigationCategoryMenu = React.createClass({
     toggleLanguage: React.PropTypes.func.isRequired,
     settings:       React.PropTypes.object.isRequired,
     Sefaria:        React.PropTypes.object.isRequired
-  },
-  getInitialState: function() {
-    Sefaria = this.props.Sefaria;
-    return {};
-  },
-  render: function() {
+  };
+
+  constructor(props) {
+    super(props);
+    Sefaria = props.Sefaria;
+    this.state = {};
+  }
+
+  render() {
     var showHebrew = this.props.settings.language == "hebrew";
 
     // Show Talmud with Toggles
@@ -109,20 +112,20 @@ var ReaderNavigationCategoryMenu = React.createClass({
               </ScrollView>
             </View>);
   }
-});
+}
 
-
-var ReaderNavigationCategoryMenuContents = React.createClass({
+class ReaderNavigationCategoryMenuContents extends React.Component {
   // Inner content of Category menu (just category title and boxes)
-  propTypes: {
+  static propTypes = {
     theme:         React.PropTypes.object.isRequired,
     contents:      React.PropTypes.array.isRequired,
     categories:    React.PropTypes.array.isRequired,
     setCategories: React.PropTypes.func.isRequired,
     openRef:       React.PropTypes.func.isRequired,
     settings:      React.PropTypes.object.isRequired
-  },
-  render: function() {
+  };
+
+  render() {
       var content = [];
       var showHebrew = this.props.settings.language == "hebrew";
       var cats = this.props.categories || [];
@@ -204,7 +207,7 @@ var ReaderNavigationCategoryMenuContents = React.createClass({
       }
       return (<View>{boxedContent}</View>);
   }
-});
+}
 
 
 module.exports = ReaderNavigationCategoryMenu;

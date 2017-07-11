@@ -23,8 +23,8 @@ var segmented_icon_light  = require('./img/breaks-light.png');
 var continuous_icon_light = require('./img/continuous-light.png');
 
 
-var ReaderDisplayOptionsMenu = React.createClass({
-  propTypes: {
+class ReaderDisplayOptionsMenu extends React.Component {
+  static propTypes = {
     theme:                           React.PropTypes.object,
     textFlow:                        React.PropTypes.oneOf(['segmented', 'continuous']),
     canBeContinuous:                 React.PropTypes.bool,
@@ -34,8 +34,9 @@ var ReaderDisplayOptionsMenu = React.createClass({
     setTextLanguage:                 React.PropTypes.func,
     incrementFont:                   React.PropTypes.func,
     setTheme:                        React.PropTypes.func
-  },
-  render: function() {
+  };
+
+  render() {
 
     var options = [
       {
@@ -128,11 +129,10 @@ var ReaderDisplayOptionsMenu = React.createClass({
         </View>
     );
   }
-});
+}
 
-
-var ReaderDisplayOptionsMenuRow = React.createClass({
-  render: function() {
+class ReaderDisplayOptionsMenuRow extends React.Component {
+  render() {
     //styles.readerDisplayOptionMenuRowNotColor is a hack required to solve the problem of react native / ios display not yet properly rendering borderRadius & borderWidth w/o 'smearing'
     var tempStyles = this.props.colorRow ? [styles.readerDisplayOptionsMenuRow] : [styles.readerDisplayOptionsMenuRow,styles.readerDisplayOptionMenuRowNotColor,this.props.theme.readerDisplayOptionsMenuDivider];
     return (
@@ -141,11 +141,10 @@ var ReaderDisplayOptionsMenuRow = React.createClass({
       </View>
     );
   }
-});
+}
 
-
-var ReaderDisplayOptionsMenuItem = React.createClass({
-  propTypes: {
+class ReaderDisplayOptionsMenuItem extends React.Component {
+  static propTypes = {
     theme:        React.PropTypes.object,
     option:       React.PropTypes.string,
     icon:         React.PropTypes.number, /*PTP: why are images numbers? */
@@ -153,9 +152,9 @@ var ReaderDisplayOptionsMenuItem = React.createClass({
     onPress:      React.PropTypes.func.isRequired,
     parametrized: React.PropTypes.bool, /* should onPress() use option as a paremeter*/
     selected:     React.PropTypes.bool
-  },
+  };
 
-  render: function () {
+  render() {
     let alignStyle;
     if (this.props.align == "right") alignStyle = styles.readerDisplayOptionsMenuItemRight;
     else if (this.props.align == "left") alignStyle = styles.readerDisplayOptionsMenuItemLeft;
@@ -172,11 +171,10 @@ var ReaderDisplayOptionsMenuItem = React.createClass({
       </TouchableOpacity>
     );
   }
-});
+}
 
-
-var ReaderDisplayOptionsMenuColor = React.createClass({
-  propTypes: {
+class ReaderDisplayOptionsMenuColor extends React.Component {
+  static propTypes = {
     theme:        React.PropTypes.object,
     option:       React.PropTypes.string,
     color:        React.PropTypes.string,
@@ -184,9 +182,9 @@ var ReaderDisplayOptionsMenuColor = React.createClass({
     onPress:      React.PropTypes.func.isRequired,
     parametrized: React.PropTypes.bool, /* should onPress() use option as a paremeter*/
     selected:     React.PropTypes.bool
-  },
+  };
 
-  render: function () {
+  render() {
     let alignStyle;
     if (this.props.align == "right") alignStyle = styles.readerDisplayOptionsMenuColorRight;
     else if (this.props.align == "left") alignStyle = styles.readerDisplayOptionsMenuColorLeft;
@@ -201,7 +199,7 @@ var ReaderDisplayOptionsMenuColor = React.createClass({
       <TouchableOpacity onPress={onPress} style={tempStyles}/>
     );
   }
-});
+}
 
 
 module.exports = ReaderDisplayOptionsMenu;

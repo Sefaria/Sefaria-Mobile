@@ -22,8 +22,8 @@ const {
 } = require('./Misc.js');
 
 
-var TextList = React.createClass({
-  propTypes: {
+class TextList extends React.Component {
+  static propTypes = {
     settings:        React.PropTypes.object,
     openRef:         React.PropTypes.func.isRequired,
     openCat:         React.PropTypes.func.isRequired,
@@ -39,40 +39,49 @@ var TextList = React.createClass({
     onDragStart:     React.PropTypes.func.isRequired,
     onDragMove:      React.PropTypes.func.isRequired,
     onDragEnd:       React.PropTypes.func.isRequired
-  },
-  getInitialState: function() {
-    Sefaria = this.props.Sefaria; //Is this bad practice to use getInitialState() as an init function
+  };
+
+  constructor(props) {
+    super(props);
+    Sefaria = props.Sefaria; //Is this bad practice to use getInitialState() as an init function
     var {height, width} = Dimensions.get('window');
-    return {
+
+    this.state = {
       dataSource: new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2}),
       isNewSegment: false,
       width: width,
       height: height,
     };
-  },
-  componentDidMount: function() {
+  }
+
+  componentDidMount() {
     Orientation.addOrientationListener(this._orientationDidChange);
     Orientation.getOrientation(this._verifyDimensions);
-  },
-  componentWillUnmount: function() {
+  }
+
+  componentWillUnmount() {
     Orientation.removeOrientationListener(this._orientationDidChange);
-  },
-  componentWillReceiveProps: function(nextProps) {
+  }
+
+  componentWillReceiveProps(nextProps) {
     if (this.props.segmentIndexRef !== nextProps.segmentIndexRef) {
       this.setState({isNewSegment:true});
     }
-  },
-  componentDidUpdate: function() {
+  }
+
+  componentDidUpdate() {
     if (this.state.isNewSegment)
       this.setState({isNewSegment:false});
-  },
-  _orientationDidChange: function(orientation) {
+  }
+
+  _orientationDidChange = (orientation) => {
     this.setState({
       width: this.state.height,
       height: this.state.width
     })
-  },
-  _verifyDimensions: function(err, orientation) {
+  };
+
+  _verifyDimensions = (err, orientation) => {
     // Dimensions seems to often swap height/width. This checks them against the orientation and swaps them if they're wrong.
     var {height, width} = Dimensions.get('window');
     //console.log(orientation, "h: ",height,"w: ",width);
@@ -82,8 +91,9 @@ var TextList = React.createClass({
     }
     //console.log(orientation, "h: ",height,"w: ",width);
     this.setState({height: height, width: width});
-  },
-  renderRow: function(linkContentObj, sectionId, rowId) {
+  };
+
+  renderRow = (linkContentObj, sectionId, rowId) => {
     var linkFilter = this.props.recentFilters[this.props.filterIndex];
     var ref = linkFilter.refList[rowId];
     var isCommentaryBook = linkFilter.category === "Commentary" && linkFilter.title !== "Commentary";
@@ -104,8 +114,9 @@ var TextList = React.createClass({
               loading={loading}
               isCommentaryBook={isCommentaryBook}
               key={rowId} />);
-  },
-  render: function() {
+  };
+
+  render() {
     var isSummaryMode = this.props.filterIndex == null;
     if (isSummaryMode) {
 
@@ -204,18 +215,18 @@ var TextList = React.createClass({
       return null;
     }
   }
-});
+}
 
-
-var LinkCategory = React.createClass({
-  propTypes: {
+class LinkCategory extends React.Component {
+  static propTypes = {
     theme:    React.PropTypes.object.isRequired,
     onPress:  React.PropTypes.func.isRequired,
     category: React.PropTypes.string,
     language: React.PropTypes.string,
     count:    React.PropTypes.number
-  },
-  render: function() {
+  };
+
+  render() {
     let countStr = " | " + this.props.count;
     let style = {"borderColor": Sefaria.palette.categoryColor(this.props.category)};
     let heCategory = Sefaria.hebrewCategory(this.props.category);
@@ -229,19 +240,19 @@ var LinkCategory = React.createClass({
               {content}
             </TouchableOpacity>);
   }
-});
+}
 
-
-var LinkBook = React.createClass({
-  propTypes: {
+class LinkBook extends React.Component {
+  static propTypes = {
     theme:    React.PropTypes.object.isRequired,
     onPress:  React.PropTypes.func.isRequired,
     title:    React.PropTypes.string,
     heTitle:  React.PropTypes.string,
     language: React.PropTypes.string,
     count:    React.PropTypes.number
-  },
-  render: function() {
+  };
+
+  render() {
     let countStr = this.props.count == 0 ? "" : " (" + this.props.count + ")";
     let textStyle = this.props.count == 0 ? this.props.theme.verseNumber : this.props.theme.text;
     return (
@@ -254,11 +265,10 @@ var LinkBook = React.createClass({
       </TouchableOpacity>
     );
   }
-});
+}
 
-
-var LinkContent = React.createClass({
-  propTypes: {
+class LinkContent extends React.Component {
+  static propTypes = {
     theme:             React.PropTypes.object.isRequired,
     settings:          React.PropTypes.object,
     openRef:           React.PropTypes.func.isRequired,
@@ -267,8 +277,9 @@ var LinkContent = React.createClass({
     textLanguage:      React.PropTypes.string,
     loading:           React.PropTypes.bool,
     isCommentaryBook:  React.PropTypes.bool
-  },
-  render: function() {
+  };
+
+  render() {
     var lco = this.props.linkContentObj;
     var lang = Sefaria.util.getTextLanguageWithContent(this.props.textLanguage,lco.en,lco.he);
     var textViews = [];
@@ -290,18 +301,18 @@ var LinkContent = React.createClass({
       </TouchableOpacity>
     );
   }
-});
+}
 
-
-var EmptyLinksMessage = React.createClass({
-  propTypes: {
+class EmptyLinksMessage extends React.Component {
+  static propTypes = {
     theme:         React.PropTypes.object.isRequired,
     interfaceLang: React.PropTypes.string
-  },
-  render: function() {
+  };
+
+  render() {
     return (<Text style={[styles.emptyLinksMessage, this.props.theme.secondaryText]}>{strings.noConnectionsMessage}</Text>);
   }
-});
+}
 
 
 module.exports = TextList;

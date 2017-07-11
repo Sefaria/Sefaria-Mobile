@@ -34,8 +34,8 @@ var {
 } = require('./Misc.js');
 
 
-var ReaderPanel = React.createClass({
-  propTypes: {
+class ReaderPanel extends React.Component {
+  static propTypes = {
     segmentRef:            React.PropTypes.string,
     segmentIndexRef:       React.PropTypes.number,
     offsetRef:             React.PropTypes.string,
@@ -81,15 +81,19 @@ var ReaderPanel = React.createClass({
     setIsNewSearch:        React.PropTypes.func.isRequired,
     search:                React.PropTypes.func.isRequired,
     Sefaria:               React.PropTypes.object.isRequired
-  },
-  getInitialState: function () {
-    Sefaria = this.props.Sefaria;
-    return {
+  };
+
+  constructor(props) {
+    super(props);
+    Sefaria = props.Sefaria;
+
+    this.state = {
       ReaderDisplayOptionsMenuVisible: false,
       settings: {},
     };
-  },
-  componentWillMount: function() {
+  }
+
+  componentWillMount() {
     this.gestureResponder = createResponder({
       onStartShouldSetResponder: (evt, gestureState) => { return gestureState.pinch; },
       onStartShouldSetResponderCapture: (evt, gestureState) => { return gestureState.pinch; },
@@ -114,9 +118,11 @@ var ReaderPanel = React.createClass({
       onResponderTerminate: (evt, gestureState) => {},
       onResponderSingleTapConfirmed: (evt, gestureState) => {},
     });
-  },
-  pendingIncrement: 1,
-  componentWillReceiveProps: function(nextProps) {
+  }
+
+  pendingIncrement = 1;
+
+  componentWillReceiveProps(nextProps) {
     if (!this.props.defaultSettingsLoaded && nextProps.defaultSettingsLoaded) {
       this.setDefaultSettings();
     }
@@ -137,8 +143,9 @@ var ReaderPanel = React.createClass({
         this.props.themeStr          !== nextProps.themeStr) {
           this.trackPageview();
     }
-  },
-  setDefaultSettings: function() {
+  }
+
+  setDefaultSettings = () => {
     // This function is called only after Sefaria.settings.init() has returned and signaled readiness by setting
     // the prop `defaultSettingsLoaded: true`. Necessary because ReaderPanel is rendered immediately with `loading:true`
     // so getInitialState() is called before settings have finished init().
@@ -152,8 +159,9 @@ var ReaderPanel = React.createClass({
       }
     });
     // Theme settings is set in ReaderApp.
-  },
-  toggleReaderDisplayOptionsMenu: function () {
+  };
+
+  toggleReaderDisplayOptionsMenu = () => {
     if (this.state.ReaderDisplayOptionsMenuVisible == false) {
   	 this.setState({ReaderDisplayOptionsMenuVisible:  true})
   	} else {
@@ -161,8 +169,9 @@ var ReaderPanel = React.createClass({
 
      //console.log(this.state.ReaderDisplayOptionsMenuVisible);
     this.trackPageview();
-  },
-  toggleMenuLanguage: function() {
+  };
+
+  toggleMenuLanguage = () => {
     // Toggle current menu language between english/hebrew only
     if (this.state.settings.language !== "hebrew") {
       this.state.settings.language = "hebrew";
@@ -173,8 +182,9 @@ var ReaderPanel = React.createClass({
 
     this.setState({settings: this.state.settings});
     Sefaria.settings.set("menuLanguage", this.state.settings.language);
-  },
-  setTextFlow: function(textFlow) {
+  };
+
+  setTextFlow = (textFlow) => {
     this.setState({textFlow: textFlow});
 
     if (textFlow == "continuous" && this.state.textLanguage == "bilingual") {
@@ -182,8 +192,9 @@ var ReaderPanel = React.createClass({
     }
     this.toggleReaderDisplayOptionsMenu();
     Sefaria.track.event("Reader","Display Option Click","layout - " + textFlow);
-  },
-  setTextLanguage: function(textLanguage) {
+  };
+
+  setTextLanguage = (textLanguage) => {
     Sefaria.settings.textLanguage(this.props.textTitle, textLanguage);
     this.setState({textLanguage: textLanguage});
     // Sefaria.settings.set("textLanguage", textLanguage); // Makes every language change sticky
@@ -192,12 +203,14 @@ var ReaderPanel = React.createClass({
     }
     this.toggleReaderDisplayOptionsMenu();
     Sefaria.track.event("Reader", "Display Option Click", "language - " + textLanguage);
-  },
-  getWindowWidth: function() {
+  };
+
+  getWindowWidth = () => {
     this.state.windowWidth = Dimensions.get('window').width;
     this.forceUpdate();
-  },
-  incrementFont: function(increment) {
+  };
+
+  incrementFont = (increment) => {
     if (increment == "larger") {
       var x = 1.1;
     } else if (increment == "smaller") {
@@ -213,15 +226,17 @@ var ReaderPanel = React.createClass({
     this.setState({settings: updatedSettings});
     Sefaria.settings.set("fontSize", updatedSettings.fontSize);
     Sefaria.track.event("Reader","Display Option Click","fontSize - " + increment);
-  },
-  setTheme: function(themeStr) {
+  };
+
+  setTheme = (themeStr) => {
     this.props.setTheme(themeStr);
     this.toggleReaderDisplayOptionsMenu();
-  },
+  };
+
   /*
   send current page stats to analytics
   */
-  trackPageview: function() {
+  trackPageview = () => {
     let pageType  = this.props.menuOpen || (this.props.textListVisible ? "TextAndConnections" : "Text");
     let numPanels = this.props.textListVisible ? '1.1' : '1';
     let ref       = this.props.segmentRef !== '' ? this.props.segmentRef : this.props.textReference;
@@ -242,8 +257,9 @@ var ReaderPanel = React.createClass({
       {1: primCat, 2: secoCat, 3: bookName, 5: contLang}
     );
 
-  },
-  render: function() {
+  };
+
+  render() {
     switch(this.props.menuOpen) {
       case (null):
         break;
@@ -429,11 +445,10 @@ var ReaderPanel = React.createClass({
               themeStr={this.props.themeStr}/>) : null }
       </View>);
   }
-});
+}
 
-
-var ReaderControls = React.createClass({
-  propTypes: {
+class ReaderControls extends React.Component {
+  static propTypes = {
     theme:                           React.PropTypes.object,
     title:                           React.PropTypes.string,
     language:                        React.PropTypes.string,
@@ -444,8 +459,9 @@ var ReaderControls = React.createClass({
     themeStr:                        React.PropTypes.oneOf(["white", "black"]),
     toggleReaderDisplayOptionsMenu:  React.PropTypes.func,
     backStack:                       React.PropTypes.array,
-  },
-  render: function() {
+  };
+
+  render() {
     var langStyle = this.props.language === "hebrew" ? [styles.he, {marginTop: 4}] : [styles.en];
     var titleTextStyle = [langStyle, styles.headerTextTitleText, this.props.theme.text];
     if (this.props.backStack.length == 0) {
@@ -477,6 +493,6 @@ var ReaderControls = React.createClass({
         </View>
     );
   }
-});
+}
 
 module.exports = ReaderPanel;

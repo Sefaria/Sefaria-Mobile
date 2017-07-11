@@ -11,8 +11,8 @@ var HTMLView = require('react-native-htmlview'); //to convert html'afied JSON to
 var styles = require('./Styles.js');
 
 
-var TextSegment = React.createClass({
-  propTypes: {
+class TextSegment extends React.Component {
+  static propTypes = {
     theme:              React.PropTypes.object.isRequired,
     rowRef:             React.PropTypes.string.isRequired, /* this ref keys into TextColumn.rowRefs */
     segmentIndexRef:    React.PropTypes.number,
@@ -23,18 +23,21 @@ var TextSegment = React.createClass({
     textSegmentPressed: React.PropTypes.func.isRequired,
     textListVisible:    React.PropTypes.bool.isRequired,
     settings:           React.PropTypes.object
-  },
-  onPressTextSegment: function() {
+  };
+
+  onPressTextSegment = () => {
     console.log("press")
     let key = this.props.segmentKey;
     let section = parseInt(key.split(":")[0]);
     let segment = parseInt(key.split(":")[1]);
     this.props.textSegmentPressed(section, segment, this.props.rowRef, true);
-  },
-  onLongPress: function() {
+  };
+
+  onLongPress = () => {
     // Do nothing -- need to prevent onPress from firing onLongPress
-  },
-  render: function() {
+  };
+
+  render() {
     // console.log(this.props.segmentKey+": "+typeof(this.props.textRef));
     var style = this.props.textType == "hebrew" ?
                   [styles.hebrewText, this.props.theme.text, styles.justifyText, {fontSize: this.props.settings.fontSize, lineHeight: this.props.settings.fontSize * 1.1},] :
@@ -62,7 +65,7 @@ var TextSegment = React.createClass({
       </Text>
     );
   }
-});
+}
 
 
 module.exports = TextSegment;
