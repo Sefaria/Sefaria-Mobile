@@ -222,10 +222,27 @@ module.exports = StyleSheet.create({
     paddingRight: 20,
     marginTop: 3
   },
+  forwardButtonEn: {
+    width: 12,
+    height: 12,
+    paddingRight: 20,
+    marginTop: 4
+  },
+  forwardButtonHe: {
+    width: 12,
+    height: 12,
+    paddingRight: 20,
+    marginTop: 4
+  },
   searchResultSummary: {
     paddingVertical: 10,
     paddingHorizontal: iPad ? 60 : 30,
     borderBottomWidth: 1,
+    flexDirection: "row",
+    justifyContent: "space-between"
+  },
+  searchResultSummaryHe: {
+    flexDirection: "row-reverse",
   },
   searchInput: {
     alignSelf: 'stretch',

@@ -64,6 +64,7 @@ module.exports = new LocalizedStrings({
     libraryUpToDateMessage: "You have the most current version of the Sefaria Library for iOS.",
     checkForUpdates: "Check for Updates",
     downloadUpdates: "Download Updates",
+    filter: "FILTER"
   },
   he: {
     recent: "נצפו לאחרונה",
@@ -128,5 +129,6 @@ module.exports = new LocalizedStrings({
     libraryUpToDateMessage: "הגרסה העדכנית ביותר של הספרייה הבלתי מקוונת ל-iOS מעודכנת במכשירך",
     checkForUpdates: "בדוק עדכונים קיימים",
     downloadUpdates: "הורד עדכונים",
+    filter: "סינון"
   }
 });

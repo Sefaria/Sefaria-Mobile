@@ -5,7 +5,9 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import {
 	View,
-	Text
+	Text,
+	TouchableOpacity,
+	Image
 } from 'react-native';
 
 const SearchBar        = require('./SearchBar');
@@ -15,10 +17,11 @@ const strings          = require('./LocalizedStrings');
 
 var {
   CategoryColorLine,
+	ForwardButton
 } = require('./Misc.js');
 
 class SearchPage extends React.Component {
-    static propTypes = {
+  static propTypes = {
 		theme:               PropTypes.object.isRequired,
 		themeStr:            PropTypes.string.isRequired,
 		interfaceLang:       PropTypes.oneOf(["english", "hebrew"]).isRequired,
@@ -36,17 +39,22 @@ class SearchPage extends React.Component {
 		numResults:          PropTypes.number
 	};
 
-    numberWithCommas = (x) => {
-    	return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  numberWithCommas = (x) => {
+    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 	};
 
-    render() {
+  render() {
 		var status = this.props.hasInternet ?
 						this.props.loadingQuery ? strings.loading
 						: this.numberWithCommas(this.props.numResults) + " " + strings.results
 					: strings.connectToSearchMessage;
 		var isheb = this.props.interfaceLang === "hebrew";
     var langStyle = !isheb ? styles.enInt : styles.heInt;
+		var summaryStyle = [styles.searchResultSummary, this.props.theme.searchResultSummary];
+		if (isheb) {
+			summaryStyle.push(styles.searchResultSummaryHe);
+		}
+    var imageStyle = isheb ? styles.forwardButtonHe : styles.forwardButtonEn;
 		return (
 			<View style={[styles.menu, this.props.theme.menu]}>
 				<CategoryColorLine category={"Other"} />
@@ -59,9 +67,15 @@ class SearchPage extends React.Component {
 					onQueryChange={this.props.onQueryChange}
 					query={this.props.query}
 					setIsNewSearch={this.props.setIsNewSearch}/>
-				<View style={[styles.searchResultSummary, this.props.theme.searchResultSummary]}>
-					<Text style={[styles.searchResultSummaryText, this.props.theme.searchResultSummaryText, langStyle]} >{status}</Text>
-					<Text> {"Filter"} </Text>
+				<View style={summaryStyle}>
+					<Text style={[this.props.theme.searchResultSummaryText, langStyle]} >{status}</Text>
+					<ForwardButton
+						text={strings.filter}
+						language={this.props.interfaceLang}
+						themeStr={this.props.themeStr}
+						textStyle={[this.props.theme.searchResultSummaryText, langStyle]}
+						imageStyle={imageStyle}
+						callback={()=>{}}/>
 				</View>
 				<SearchResultList
 					theme={this.props.theme}

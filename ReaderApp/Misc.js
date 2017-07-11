@@ -154,6 +154,42 @@ class CollapseIcon extends React.Component {
   }
 }
 
+class ForwardButton extends React.Component {
+  //simple button with callback and a forward arrow. NOTE: arrow should change direction depending on interfaceLang
+  static propTypes = {
+    text:       PropTypes.string.isRequired,
+    themeStr:   PropTypes.string.isRequired,
+    language:   PropTypes.oneOf(["hebrew", "english"]).isRequired,
+    textStyle:  PropTypes.oneOfType([PropTypes.style, PropTypes.array]),
+    imageStyle: PropTypes.oneOfType([PropTypes.style, PropTypes.array]),
+    callback:   PropTypes.func.isRequired
+  };
+
+  render() {
+    var src;
+    if (this.props.language === "hebrew") {
+      if (this.props.themeStr === "white") {
+        src = require("./img/back.png");
+      } else {
+        src = require("./img/back-light.png");
+      }
+    } else {
+      if (this.props.themeStr === "white") {
+        src = require("./img/forward.png");
+      } else {
+        src = require("./img/forward-light.png");
+      }
+    }
+    return (
+      <TouchableOpacity onPress={this.props.callback}
+        style={{flexDirection: this.props.language === "hebrew" ? "row-reverse" : "row"}}>
+        <Text style={this.props.textStyle}>{this.props.text}</Text>
+        <Image source={src} style={this.props.imageStyle} resizeMode={Image.resizeMode.contain}/>
+      </TouchableOpacity>
+    );
+  }
+}
+
 class SearchButton extends React.Component {
   render() {
     return (<TouchableOpacity style={[styles.headerButton, styles.headerButtonSearch]} onPress={this.props.onPress}>
@@ -302,6 +338,7 @@ module.exports.CategoryBlockLink = CategoryBlockLink;
 module.exports.CategoryAttribution = CategoryAttribution;
 module.exports.LanguageToggleButton = LanguageToggleButton;
 module.exports.CollapseIcon = CollapseIcon;
+module.exports.ForwardButton = ForwardButton;
 module.exports.SearchButton = SearchButton;
 module.exports.MenuButton = MenuButton;
 module.exports.GoBackButton = GoBackButton;

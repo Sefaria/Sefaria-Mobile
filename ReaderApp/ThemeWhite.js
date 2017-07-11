@@ -85,7 +85,7 @@ module.exports = StyleSheet.create({
     borderColor: Colors.border
   },
   searchResultSummaryText: {
-    color: Colors.mainText,
+    color: Colors.tertiaryText,
   },
   searchTextResult: {
     borderColor: Colors.secondaryBorder,
