@@ -8,7 +8,7 @@
   },
   "dependencies": {
     "react": "^16.0.0-alpha.6",
-    "react-native": "^0.43.3",
+    "react-native": "^0.43.4",
     "react-native-fs": "^2.3.3",
     "react-native-gesture-responder": "^0.1.1",
     "react-native-google-analytics-bridge": "^5.1.0",
