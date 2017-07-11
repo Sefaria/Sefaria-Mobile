@@ -1,5 +1,7 @@
 'use strict';
 
+import PropTypes from 'prop-types';
+
 import React, { Component } from 'react';
 import {
   Text,
@@ -13,14 +15,14 @@ const SearchTextResult = require('./SearchTextResult');
 
 class SearchResultList extends React.Component {
   static propTypes = {
-    theme:          React.PropTypes.object.isRequired,
-    queryResult:    React.PropTypes.array,
-    loadingTail:    React.PropTypes.bool,
-    onQueryChange:  React.PropTypes.func.isRequired,
-    openRef:        React.PropTypes.func.isRequired,
-    setLoadTail:    React.PropTypes.func.isRequired,
-    setIsNewSearch: React.PropTypes.func.isRequired,
-    isNewSearch:    React.PropTypes.bool
+    theme:          PropTypes.object.isRequired,
+    queryResult:    PropTypes.array,
+    loadingTail:    PropTypes.bool,
+    onQueryChange:  PropTypes.func.isRequired,
+    openRef:        PropTypes.func.isRequired,
+    setLoadTail:    PropTypes.func.isRequired,
+    setIsNewSearch: PropTypes.func.isRequired,
+    isNewSearch:    PropTypes.bool
   };
 
   state = {

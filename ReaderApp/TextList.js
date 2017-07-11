@@ -1,4 +1,5 @@
 'use strict';
+import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import {
   View,
@@ -24,21 +25,21 @@ const {
 
 class TextList extends React.Component {
   static propTypes = {
-    settings:        React.PropTypes.object,
-    openRef:         React.PropTypes.func.isRequired,
-    openCat:         React.PropTypes.func.isRequired,
-    closeCat:        React.PropTypes.func.isRequired,
-    updateCat:       React.PropTypes.func.isRequired,
-    linkSummary:     React.PropTypes.array,
-    linkContents:    React.PropTypes.array,
-    loading:         React.PropTypes.bool,
-    segmentIndexRef: React.PropTypes.number,
-    filterIndex:     React.PropTypes.number,
-    recentFilters:   React.PropTypes.array, /* of the form [{title,heTitle,refList}...] */
-    textLanguage:    React.PropTypes.oneOf(["english","hebrew","bilingual"]),
-    onDragStart:     React.PropTypes.func.isRequired,
-    onDragMove:      React.PropTypes.func.isRequired,
-    onDragEnd:       React.PropTypes.func.isRequired
+    settings:        PropTypes.object,
+    openRef:         PropTypes.func.isRequired,
+    openCat:         PropTypes.func.isRequired,
+    closeCat:        PropTypes.func.isRequired,
+    updateCat:       PropTypes.func.isRequired,
+    linkSummary:     PropTypes.array,
+    linkContents:    PropTypes.array,
+    loading:         PropTypes.bool,
+    segmentIndexRef: PropTypes.number,
+    filterIndex:     PropTypes.number,
+    recentFilters:   PropTypes.array, /* of the form [{title,heTitle,refList}...] */
+    textLanguage:    PropTypes.oneOf(["english","hebrew","bilingual"]),
+    onDragStart:     PropTypes.func.isRequired,
+    onDragMove:      PropTypes.func.isRequired,
+    onDragEnd:       PropTypes.func.isRequired
   };
 
   constructor(props) {
@@ -219,11 +220,11 @@ class TextList extends React.Component {
 
 class LinkCategory extends React.Component {
   static propTypes = {
-    theme:    React.PropTypes.object.isRequired,
-    onPress:  React.PropTypes.func.isRequired,
-    category: React.PropTypes.string,
-    language: React.PropTypes.string,
-    count:    React.PropTypes.number
+    theme:    PropTypes.object.isRequired,
+    onPress:  PropTypes.func.isRequired,
+    category: PropTypes.string,
+    language: PropTypes.string,
+    count:    PropTypes.number
   };
 
   render() {
@@ -244,12 +245,12 @@ class LinkCategory extends React.Component {
 
 class LinkBook extends React.Component {
   static propTypes = {
-    theme:    React.PropTypes.object.isRequired,
-    onPress:  React.PropTypes.func.isRequired,
-    title:    React.PropTypes.string,
-    heTitle:  React.PropTypes.string,
-    language: React.PropTypes.string,
-    count:    React.PropTypes.number
+    theme:    PropTypes.object.isRequired,
+    onPress:  PropTypes.func.isRequired,
+    title:    PropTypes.string,
+    heTitle:  PropTypes.string,
+    language: PropTypes.string,
+    count:    PropTypes.number
   };
 
   render() {
@@ -269,14 +270,14 @@ class LinkBook extends React.Component {
 
 class LinkContent extends React.Component {
   static propTypes = {
-    theme:             React.PropTypes.object.isRequired,
-    settings:          React.PropTypes.object,
-    openRef:           React.PropTypes.func.isRequired,
-    refStr:            React.PropTypes.string,
-    linkContentObj:    React.PropTypes.object, /* of the form {en,he} */
-    textLanguage:      React.PropTypes.string,
-    loading:           React.PropTypes.bool,
-    isCommentaryBook:  React.PropTypes.bool
+    theme:             PropTypes.object.isRequired,
+    settings:          PropTypes.object,
+    openRef:           PropTypes.func.isRequired,
+    refStr:            PropTypes.string,
+    linkContentObj:    PropTypes.object, /* of the form {en,he} */
+    textLanguage:      PropTypes.string,
+    loading:           PropTypes.bool,
+    isCommentaryBook:  PropTypes.bool
   };
 
   render() {
@@ -305,8 +306,8 @@ class LinkContent extends React.Component {
 
 class EmptyLinksMessage extends React.Component {
   static propTypes = {
-    theme:         React.PropTypes.object.isRequired,
-    interfaceLang: React.PropTypes.string
+    theme:         PropTypes.object.isRequired,
+    interfaceLang: PropTypes.string
   };
 
   render() {

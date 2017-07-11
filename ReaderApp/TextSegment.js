@@ -1,5 +1,7 @@
 'use strict';
 
+import PropTypes from 'prop-types';
+
 import React, { Component } from 'react';
 import {
   StyleSheet,
@@ -13,16 +15,16 @@ var styles = require('./Styles.js');
 
 class TextSegment extends React.Component {
   static propTypes = {
-    theme:              React.PropTypes.object.isRequired,
-    rowRef:             React.PropTypes.string.isRequired, /* this ref keys into TextColumn.rowRefs */
-    segmentIndexRef:    React.PropTypes.number,
-    segmentKey:         React.PropTypes.string,
-    data:               React.PropTypes.string,
-    textType:           React.PropTypes.oneOf(["english","hebrew"]),
-    bilingual:          React.PropTypes.bool,
-    textSegmentPressed: React.PropTypes.func.isRequired,
-    textListVisible:    React.PropTypes.bool.isRequired,
-    settings:           React.PropTypes.object
+    theme:              PropTypes.object.isRequired,
+    rowRef:             PropTypes.string.isRequired, /* this ref keys into TextColumn.rowRefs */
+    segmentIndexRef:    PropTypes.number,
+    segmentKey:         PropTypes.string,
+    data:               PropTypes.string,
+    textType:           PropTypes.oneOf(["english","hebrew"]),
+    bilingual:          PropTypes.bool,
+    textSegmentPressed: PropTypes.func.isRequired,
+    textListVisible:    PropTypes.bool.isRequired,
+    settings:           PropTypes.object
   };
 
   onPressTextSegment = () => {

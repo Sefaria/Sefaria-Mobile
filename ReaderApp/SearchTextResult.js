@@ -1,4 +1,5 @@
 'use strict';
+import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import {
 	Text,
@@ -11,11 +12,11 @@ var styles = require('./Styles.js');
 
 class SearchTextResult extends React.Component {
   static propTypes = {
-		theme:    React.PropTypes.object.isRequired,
-    text:     React.PropTypes.string,
-    title:    React.PropTypes.string,
-    textType: React.PropTypes.oneOf(["english","hebrew"]),
-    onPress:  React.PropTypes.func.isRequired
+		theme:    PropTypes.object.isRequired,
+    text:     PropTypes.string,
+    title:    PropTypes.string,
+    textType: PropTypes.oneOf(["english","hebrew"]),
+    onPress:  PropTypes.func.isRequired
   };
 
   render() {

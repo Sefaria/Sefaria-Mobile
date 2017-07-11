@@ -1,5 +1,7 @@
 'use strict';
 
+import PropTypes from 'prop-types';
+
 import React, { Component } from 'react';
 import {
   StyleSheet,
@@ -26,17 +28,17 @@ var styles = require('./Styles.js');
 class ReaderNavigationCategoryMenu extends React.Component {
   // Navigation Menu for a single category of texts (e.g., "Tanakh", "Bavli")
   static propTypes = {
-    theme:          React.PropTypes.object.isRequired,
-    themeStr:       React.PropTypes.string.isRequired,
-    category:       React.PropTypes.string.isRequired,
-    categories:     React.PropTypes.array.isRequired,
-    closeNav:       React.PropTypes.func.isRequired,
-    setCategories:  React.PropTypes.func.isRequired,
-    openRef:        React.PropTypes.func.isRequired,
-    navHome:        React.PropTypes.func.isRequired,
-    toggleLanguage: React.PropTypes.func.isRequired,
-    settings:       React.PropTypes.object.isRequired,
-    Sefaria:        React.PropTypes.object.isRequired
+    theme:          PropTypes.object.isRequired,
+    themeStr:       PropTypes.string.isRequired,
+    category:       PropTypes.string.isRequired,
+    categories:     PropTypes.array.isRequired,
+    closeNav:       PropTypes.func.isRequired,
+    setCategories:  PropTypes.func.isRequired,
+    openRef:        PropTypes.func.isRequired,
+    navHome:        PropTypes.func.isRequired,
+    toggleLanguage: PropTypes.func.isRequired,
+    settings:       PropTypes.object.isRequired,
+    Sefaria:        PropTypes.object.isRequired
   };
 
   constructor(props) {
@@ -117,12 +119,12 @@ class ReaderNavigationCategoryMenu extends React.Component {
 class ReaderNavigationCategoryMenuContents extends React.Component {
   // Inner content of Category menu (just category title and boxes)
   static propTypes = {
-    theme:         React.PropTypes.object.isRequired,
-    contents:      React.PropTypes.array.isRequired,
-    categories:    React.PropTypes.array.isRequired,
-    setCategories: React.PropTypes.func.isRequired,
-    openRef:       React.PropTypes.func.isRequired,
-    settings:      React.PropTypes.object.isRequired
+    theme:         PropTypes.object.isRequired,
+    contents:      PropTypes.array.isRequired,
+    categories:    PropTypes.array.isRequired,
+    setCategories: PropTypes.func.isRequired,
+    openRef:       PropTypes.func.isRequired,
+    settings:      PropTypes.object.isRequired
   };
 
   render() {

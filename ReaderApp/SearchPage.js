@@ -1,5 +1,7 @@
 'use strict';
 
+import PropTypes from 'prop-types';
+
 import React, { Component } from 'react';
 import {
 	View,
@@ -17,20 +19,20 @@ var {
 
 class SearchPage extends React.Component {
     static propTypes = {
-		theme:               React.PropTypes.object.isRequired,
-		themeStr:            React.PropTypes.string.isRequired,
-		hasInternet:         React.PropTypes.bool,
-		closeNav:            React.PropTypes.func.isRequired,
-		onQueryChange:       React.PropTypes.func.isRequired,
-		openRef:             React.PropTypes.func.isRequired,
-		setLoadTail:         React.PropTypes.func.isRequired,
-		setIsNewSearch:      React.PropTypes.func.isRequired,
-		query:               React.PropTypes.string,
-		queryResult:         React.PropTypes.array,
-		loadingQuery:        React.PropTypes.bool,
-		loadingTail:         React.PropTypes.bool,
-		isNewSearch:         React.PropTypes.bool,
-		numResults:          React.PropTypes.number
+		theme:               PropTypes.object.isRequired,
+		themeStr:            PropTypes.string.isRequired,
+		hasInternet:         PropTypes.bool,
+		closeNav:            PropTypes.func.isRequired,
+		onQueryChange:       PropTypes.func.isRequired,
+		openRef:             PropTypes.func.isRequired,
+		setLoadTail:         PropTypes.func.isRequired,
+		setIsNewSearch:      PropTypes.func.isRequired,
+		query:               PropTypes.string,
+		queryResult:         PropTypes.array,
+		loadingQuery:        PropTypes.bool,
+		loadingTail:         PropTypes.bool,
+		isNewSearch:         PropTypes.bool,
+		numResults:          PropTypes.number
 	};
 
     numberWithCommas = (x) => {

@@ -1,4 +1,5 @@
 'use strict';
+import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import {
   Linking,
@@ -25,21 +26,21 @@ var strings = require('./LocalizedStrings.js');
 class ReaderNavigationMenu extends React.Component {
   // The Navigation menu for browsing and searching texts
   static propTypes = {
-    theme:          React.PropTypes.object.isRequired,
-    themeStr:       React.PropTypes.string.isRequired,
-    categories:     React.PropTypes.array.isRequired,
-    settings:       React.PropTypes.object.isRequired,
-    interfaceLang:  React.PropTypes.oneOf(["english","hebrew"]).isRequired,
-    setCategories:  React.PropTypes.func.isRequired,
-    openRef:        React.PropTypes.func.isRequired,
-    closeNav:       React.PropTypes.func.isRequired,
-    openNav:        React.PropTypes.func.isRequired,
-    openSearch:     React.PropTypes.func.isRequired,
-    setIsNewSearch: React.PropTypes.func.isRequired,
-    openSettings:   React.PropTypes.func.isRequired,
-    openRecent:     React.PropTypes.func.isRequired,
-    toggleLanguage: React.PropTypes.func.isRequired,
-    Sefaria:        React.PropTypes.object.isRequired
+    theme:          PropTypes.object.isRequired,
+    themeStr:       PropTypes.string.isRequired,
+    categories:     PropTypes.array.isRequired,
+    settings:       PropTypes.object.isRequired,
+    interfaceLang:  PropTypes.oneOf(["english","hebrew"]).isRequired,
+    setCategories:  PropTypes.func.isRequired,
+    openRef:        PropTypes.func.isRequired,
+    closeNav:       PropTypes.func.isRequired,
+    openNav:        PropTypes.func.isRequired,
+    openSearch:     PropTypes.func.isRequired,
+    setIsNewSearch: PropTypes.func.isRequired,
+    openSettings:   PropTypes.func.isRequired,
+    openRecent:     PropTypes.func.isRequired,
+    toggleLanguage: PropTypes.func.isRequired,
+    Sefaria:        PropTypes.object.isRequired
   };
 
   constructor(props) {
@@ -193,11 +194,11 @@ class ReaderNavigationMenu extends React.Component {
 
 class RecentSection extends React.Component {
   static propTypes = {
-    theme:         React.PropTypes.object.isRequired,
-    openRef:       React.PropTypes.func.isRequired,
-    interfaceLang: React.PropTypes.string.isRequired,
-    language:      React.PropTypes.string.isRequired,
-    openRecent:    React.PropTypes.func.isRequired,
+    theme:         PropTypes.object.isRequired,
+    openRef:       PropTypes.func.isRequired,
+    interfaceLang: PropTypes.string.isRequired,
+    language:      PropTypes.string.isRequired,
+    openRecent:    PropTypes.func.isRequired,
   };
 
   render() {
@@ -239,10 +240,10 @@ class RecentSection extends React.Component {
 
 class CalendarSection extends React.Component {
   static propTypes = {
-    theme:         React.PropTypes.object.isRequired,
-    openRef:       React.PropTypes.func.isRequired,
-    interfaceLang: React.PropTypes.string.isRequired,
-    language:      React.PropTypes.string.isRequired
+    theme:         PropTypes.object.isRequired,
+    openRef:       PropTypes.func.isRequired,
+    interfaceLang: PropTypes.string.isRequired,
+    language:      PropTypes.string.isRequired
   };
 
   render() {
@@ -292,13 +293,13 @@ class CalendarSection extends React.Component {
 class ReaderNavigationMenuSection extends React.Component {
   // A Section on the main navigation which includes a title over a grid of options
   static propTypes = {
-    theme:         React.PropTypes.object,
-    title:         React.PropTypes.string,
-    heTitle:       React.PropTypes.string,
-    interfaceLang: React.PropTypes.string,
-    content:       React.PropTypes.object,
-    hasmore:       React.PropTypes.bool,
-    moreClick:     React.PropTypes.func
+    theme:         PropTypes.object,
+    title:         PropTypes.string,
+    heTitle:       PropTypes.string,
+    interfaceLang: PropTypes.string,
+    content:       PropTypes.object,
+    hasmore:       PropTypes.bool,
+    moreClick:     PropTypes.func
   };
 
   render() {

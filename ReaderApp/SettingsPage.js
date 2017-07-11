@@ -1,5 +1,7 @@
 'use strict';
 
+import PropTypes from 'prop-types';
+
 import React, { Component } from 'react';
 import {
   StyleSheet,
@@ -24,10 +26,10 @@ const strings = require('./LocalizedStrings');
 class SettingsPage extends React.Component {
   // Navigation Menu for a single category of texts (e.g., "Tanakh", "Bavli")
   static propTypes = {
-    close:       React.PropTypes.func.isRequired,
-    theme:       React.PropTypes.object.isRequired,
-    toggleMenuLanguage: React.PropTypes.func.isRequired,
-    Sefaria:     React.PropTypes.object.isRequired
+    close:       PropTypes.func.isRequired,
+    theme:       PropTypes.object.isRequired,
+    toggleMenuLanguage: PropTypes.func.isRequired,
+    Sefaria:     PropTypes.object.isRequired
   };
 
   constructor(props) {

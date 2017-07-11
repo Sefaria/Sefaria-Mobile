@@ -1,5 +1,7 @@
 'use strict';
 
+import PropTypes from 'prop-types';
+
 import React, { Component } from 'react';
 import {
   Text,
@@ -25,15 +27,15 @@ var continuous_icon_light = require('./img/continuous-light.png');
 
 class ReaderDisplayOptionsMenu extends React.Component {
   static propTypes = {
-    theme:                           React.PropTypes.object,
-    textFlow:                        React.PropTypes.oneOf(['segmented', 'continuous']),
-    canBeContinuous:                 React.PropTypes.bool,
-    textLanguage:                    React.PropTypes.oneOf(['hebrew', 'english', 'bilingual']),
-    themeStr:                        React.PropTypes.oneOf(['white', 'black']),
-    setTextFlow:                     React.PropTypes.func,
-    setTextLanguage:                 React.PropTypes.func,
-    incrementFont:                   React.PropTypes.func,
-    setTheme:                        React.PropTypes.func
+    theme:                           PropTypes.object,
+    textFlow:                        PropTypes.oneOf(['segmented', 'continuous']),
+    canBeContinuous:                 PropTypes.bool,
+    textLanguage:                    PropTypes.oneOf(['hebrew', 'english', 'bilingual']),
+    themeStr:                        PropTypes.oneOf(['white', 'black']),
+    setTextFlow:                     PropTypes.func,
+    setTextLanguage:                 PropTypes.func,
+    incrementFont:                   PropTypes.func,
+    setTheme:                        PropTypes.func
   };
 
   render() {
@@ -145,13 +147,13 @@ class ReaderDisplayOptionsMenuRow extends React.Component {
 
 class ReaderDisplayOptionsMenuItem extends React.Component {
   static propTypes = {
-    theme:        React.PropTypes.object,
-    option:       React.PropTypes.string,
-    icon:         React.PropTypes.number, /*PTP: why are images numbers? */
-    align:        React.PropTypes.string,
-    onPress:      React.PropTypes.func.isRequired,
-    parametrized: React.PropTypes.bool, /* should onPress() use option as a paremeter*/
-    selected:     React.PropTypes.bool
+    theme:        PropTypes.object,
+    option:       PropTypes.string,
+    icon:         PropTypes.number, /*PTP: why are images numbers? */
+    align:        PropTypes.string,
+    onPress:      PropTypes.func.isRequired,
+    parametrized: PropTypes.bool, /* should onPress() use option as a paremeter*/
+    selected:     PropTypes.bool
   };
 
   render() {
@@ -175,13 +177,13 @@ class ReaderDisplayOptionsMenuItem extends React.Component {
 
 class ReaderDisplayOptionsMenuColor extends React.Component {
   static propTypes = {
-    theme:        React.PropTypes.object,
-    option:       React.PropTypes.string,
-    color:        React.PropTypes.string,
-    align:        React.PropTypes.string,
-    onPress:      React.PropTypes.func.isRequired,
-    parametrized: React.PropTypes.bool, /* should onPress() use option as a paremeter*/
-    selected:     React.PropTypes.bool
+    theme:        PropTypes.object,
+    option:       PropTypes.string,
+    color:        PropTypes.string,
+    align:        PropTypes.string,
+    onPress:      PropTypes.func.isRequired,
+    parametrized: PropTypes.bool, /* should onPress() use option as a paremeter*/
+    selected:     PropTypes.bool
   };
 
   render() {

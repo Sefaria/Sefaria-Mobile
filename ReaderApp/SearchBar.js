@@ -1,4 +1,5 @@
 'use strict';
+import PropTypes from 'prop-types';
 import React, {Component} from 'react';
 
 import {
@@ -20,14 +21,14 @@ const strings = require('./LocalizedStrings');
 
 class SearchBar extends React.Component {
   static propTypes = {
-    theme:           React.PropTypes.object.isRequired,
-    themeStr:        React.PropTypes.string.isRequired,
-    closeNav:        React.PropTypes.func.isRequired,
-    onQueryChange:   React.PropTypes.func.isRequired,
-    setIsNewSearch:  React.PropTypes.func.isRequired,
-    toggleLanguage:  React.PropTypes.func,
-    language:        React.PropTypes.string,
-    query:           React.PropTypes.string
+    theme:           PropTypes.object.isRequired,
+    themeStr:        PropTypes.string.isRequired,
+    closeNav:        PropTypes.func.isRequired,
+    onQueryChange:   PropTypes.func.isRequired,
+    setIsNewSearch:  PropTypes.func.isRequired,
+    toggleLanguage:  PropTypes.func,
+    language:        PropTypes.string,
+    query:           PropTypes.string
   };
 
   state = {text: this.props.query || ""};

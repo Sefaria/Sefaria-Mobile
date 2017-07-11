@@ -1,4 +1,5 @@
 'use strict';
+import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import {
   View,
@@ -18,15 +19,15 @@ const strings = require('./LocalizedStrings');
 
 class TextListHeader extends React.Component {
     static propTypes = {
-		Sefaria:        React.PropTypes.object.isRequired,
-    theme:          React.PropTypes.object.isRequired,
-		updateCat:      React.PropTypes.func.isRequired,
-		closeCat:       React.PropTypes.func.isRequired,
-		category:       React.PropTypes.string,
-		filterIndex:    React.PropTypes.number,
-		recentFilters:  React.PropTypes.array,
-		language:       React.PropTypes.oneOf(["english","hebrew","bilingual"]),
-    isSummaryMode:  React.PropTypes.bool
+		Sefaria:        PropTypes.object.isRequired,
+    theme:          PropTypes.object.isRequired,
+		updateCat:      PropTypes.func.isRequired,
+		closeCat:       PropTypes.func.isRequired,
+		category:       PropTypes.string,
+		filterIndex:    PropTypes.number,
+		recentFilters:  PropTypes.array,
+		language:       PropTypes.oneOf(["english","hebrew","bilingual"]),
+    isSummaryMode:  PropTypes.bool
 	};
 
     constructor(props) {
@@ -70,12 +71,12 @@ class TextListHeader extends React.Component {
 
 class TextListHeaderItem extends React.Component {
     static propTypes = {
-    theme:          React.PropTypes.object.isRequired,
-		updateCat:      React.PropTypes.func.isRequired,
-		filter:         React.PropTypes.object,
-		filterIndex:    React.PropTypes.number,
-		language:       React.PropTypes.oneOf(["english","hebrew","bilingual"]),
-		selected:       React.PropTypes.bool
+    theme:          PropTypes.object.isRequired,
+		updateCat:      PropTypes.func.isRequired,
+		filter:         PropTypes.object,
+		filterIndex:    PropTypes.number,
+		language:       PropTypes.oneOf(["english","hebrew","bilingual"]),
+		selected:       PropTypes.bool
 	};
 
     render() {

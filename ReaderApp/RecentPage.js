@@ -1,5 +1,7 @@
 'use strict';
 
+import PropTypes from 'prop-types';
+
 import React, { Component } from 'react';
 import {
   StyleSheet,
@@ -27,13 +29,13 @@ var {
 
 class RecentPage extends React.Component {
   static propTypes = {
-    close:              React.PropTypes.func.isRequired,
-    theme:              React.PropTypes.object.isRequired,
-    themeStr:           React.PropTypes.string.isRequired,
-    toggleLanguage:     React.PropTypes.func.isRequired,
-    openRef:            React.PropTypes.func.isRequired,
-    language:           React.PropTypes.oneOf(["english","hebrew"]),
-    Sefaria:            React.PropTypes.object.isRequired
+    close:              PropTypes.func.isRequired,
+    theme:              PropTypes.object.isRequired,
+    themeStr:           PropTypes.string.isRequired,
+    toggleLanguage:     PropTypes.func.isRequired,
+    openRef:            PropTypes.func.isRequired,
+    language:           PropTypes.oneOf(["english","hebrew"]),
+    Sefaria:            PropTypes.object.isRequired
   };
 
   render() {

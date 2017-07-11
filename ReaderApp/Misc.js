@@ -1,5 +1,7 @@
 'use strict';
 
+import PropTypes from 'prop-types';
+
 import React, { Component } from 'react';
 import {
   StyleSheet,
@@ -16,8 +18,8 @@ var styles = require('./Styles.js');
 
 class TwoBox extends React.Component {
   static propTypes = {
-      content:  React.PropTypes.array.isRequired,
-      language: React.PropTypes.oneOf(["hebrew","english"]),
+      content:  PropTypes.array.isRequired,
+      language: PropTypes.oneOf(["hebrew","english"]),
   };
 
   render() {
@@ -40,13 +42,13 @@ class TwoBox extends React.Component {
 
 class CategoryBlockLink extends React.Component {
   static propTypes = {
-    theme:     React.PropTypes.object.isRequired,
-    category:  React.PropTypes.string,
-    language:  React.PropTypes.string,
-    style:     React.PropTypes.object,
-    upperCase: React.PropTypes.bool,
-    withArrow: React.PropTypes.bool,
-    onPress:   React.PropTypes.func,
+    theme:     PropTypes.object.isRequired,
+    category:  PropTypes.string,
+    language:  PropTypes.string,
+    style:     PropTypes.object,
+    upperCase: PropTypes.bool,
+    withArrow: PropTypes.bool,
+    onPress:   PropTypes.func,
   };
 
   render() {
@@ -78,9 +80,9 @@ class CategoryColorLine extends React.Component {
 
 class CategoryAttribution extends React.Component {
   static propTypes = {
-    categories: React.PropTypes.array,
-    language:   React.PropTypes.string.isRequired,
-    context:    React.PropTypes.string.isRequired
+    categories: PropTypes.array,
+    language:   PropTypes.string.isRequired,
+    context:    PropTypes.string.isRequired
   };
 
   render() {
@@ -99,10 +101,10 @@ class CategoryAttribution extends React.Component {
 
 class LanguageToggleButton extends React.Component {
   static propTypes = {
-    theme:          React.PropTypes.object.isRequired,
-    language:       React.PropTypes.string.isRequired,
-    toggleLanguage: React.PropTypes.func.isRequired,
-    margin:         React.PropTypes.bool
+    theme:          PropTypes.object.isRequired,
+    language:       PropTypes.string.isRequired,
+    toggleLanguage: PropTypes.func.isRequired,
+    margin:         PropTypes.bool
   };
 
   render() {
@@ -118,9 +120,9 @@ class LanguageToggleButton extends React.Component {
 
 class CollapseIcon extends React.Component {
   static propTypes = {
-    themeStr:  React.PropTypes.string,
-    showHebrew:  React.PropTypes.bool,
-    isVisible: React.PropTypes.bool
+    themeStr:  PropTypes.string,
+    showHebrew:  PropTypes.bool,
+    isVisible: PropTypes.bool
   };
 
   render() {
@@ -213,10 +215,10 @@ class DisplaySettingsButton extends React.Component {
 
 class ToggleSet extends React.Component {
   static propTypes = {
-    theme:       React.PropTypes.object.isRequired,
-    options:     React.PropTypes.array.isRequired, // array of object with `name`. `text`, `heText`, `onPress`
-    contentLang: React.PropTypes.string.isRequired,
-    active:      React.PropTypes.string.isRequired
+    theme:       PropTypes.object.isRequired,
+    options:     PropTypes.array.isRequired, // array of object with `name`. `text`, `heText`, `onPress`
+    contentLang: PropTypes.string.isRequired,
+    active:      PropTypes.string.isRequired
   };
 
   render() {
@@ -247,10 +249,10 @@ class ToggleSet extends React.Component {
 
 class ButtonToggleSet extends React.Component {
   static propTypes = {
-    theme:       React.PropTypes.object.isRequired,
-    options:     React.PropTypes.array.isRequired, // array of object with `name`. `text`, `heText`, `onPress`
-    contentLang: React.PropTypes.string.isRequired,
-    active:      React.PropTypes.string.isRequired
+    theme:       PropTypes.object.isRequired,
+    options:     PropTypes.array.isRequired, // array of object with `name`. `text`, `heText`, `onPress`
+    contentLang: PropTypes.string.isRequired,
+    active:      PropTypes.string.isRequired
   };
 
   render() {

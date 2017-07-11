@@ -1,4 +1,5 @@
 'use strict';
+import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import ReactNative, { 	
   AppRegistry,
@@ -39,30 +40,30 @@ var CustomLayoutAnimation = {
 
 class TextColumn extends React.Component {
   static propTypes = {
-    theme:              React.PropTypes.object.isRequired,
-    themeStr:           React.PropTypes.string,
-    settings:           React.PropTypes.object,
-    data:               React.PropTypes.array,
-    textReference:      React.PropTypes.string,
-    sectionArray:       React.PropTypes.array,
-    sectionHeArray:     React.PropTypes.array,
-    offsetRef:          React.PropTypes.string,
-    segmentRef:         React.PropTypes.string,
-    segmentIndexRef:    React.PropTypes.number,
-    textTitle:          React.PropTypes.string,
-    heTitle:            React.PropTypes.string,
-    heRef:              React.PropTypes.string,
-    textFlow:           React.PropTypes.oneOf(["segmented","continuous"]),
-    textLanguage:       React.PropTypes.oneOf(["hebrew","english","bilingual"]),
-    updateData:         React.PropTypes.func,
-    updateTitle:        React.PropTypes.func,
-    textSegmentPressed: React.PropTypes.func,
-    textListVisible:    React.PropTypes.bool,
-    next:               React.PropTypes.string,
-    prev:               React.PropTypes.string,
-    loadingTextTail:    React.PropTypes.bool,
-    loadingTextHead:    React.PropTypes.bool,
-    linksLoaded:     React.PropTypes.array,
+    theme:              PropTypes.object.isRequired,
+    themeStr:           PropTypes.string,
+    settings:           PropTypes.object,
+    data:               PropTypes.array,
+    textReference:      PropTypes.string,
+    sectionArray:       PropTypes.array,
+    sectionHeArray:     PropTypes.array,
+    offsetRef:          PropTypes.string,
+    segmentRef:         PropTypes.string,
+    segmentIndexRef:    PropTypes.number,
+    textTitle:          PropTypes.string,
+    heTitle:            PropTypes.string,
+    heRef:              PropTypes.string,
+    textFlow:           PropTypes.oneOf(["segmented","continuous"]),
+    textLanguage:       PropTypes.oneOf(["hebrew","english","bilingual"]),
+    updateData:         PropTypes.func,
+    updateTitle:        PropTypes.func,
+    textSegmentPressed: PropTypes.func,
+    textListVisible:    PropTypes.bool,
+    next:               PropTypes.string,
+    prev:               PropTypes.string,
+    loadingTextTail:    PropTypes.bool,
+    loadingTextHead:    PropTypes.bool,
+    linksLoaded:     PropTypes.array,
   };
 
   constructor(props, context) {
@@ -859,9 +860,9 @@ class TextColumn extends React.Component {
 
 class SectionHeader extends React.Component {
   static propTypes = {
-    title:    React.PropTypes.string.isRequired,
-    isHebrew: React.PropTypes.bool.isRequired,
-    theme:    React.PropTypes.object.isRequired,
+    title:    PropTypes.string.isRequired,
+    isHebrew: PropTypes.bool.isRequired,
+    theme:    PropTypes.object.isRequired,
   };
 
   render() {

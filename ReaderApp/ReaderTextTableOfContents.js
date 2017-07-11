@@ -1,4 +1,5 @@
 'use strict';
+import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import {
   Linking,
@@ -30,18 +31,18 @@ const iPad    = require('./isIPad');
 class ReaderTextTableOfContents extends React.Component {
   // The Table of Contents for a single Text
   static propTypes = {
-    theme:          React.PropTypes.object.isRequired,
-    themeStr:       React.PropTypes.string.isRequired,
-    title:          React.PropTypes.string.isRequired,
-    currentRef:     React.PropTypes.string.isRequired,
-    currentHeRef:   React.PropTypes.string.isRequired,
-    openRef:        React.PropTypes.func.isRequired,
-    close:          React.PropTypes.func.isRequired,
-    textLang:       React.PropTypes.oneOf(["english","hebrew"]).isRequired,
-    contentLang:    React.PropTypes.oneOf(["english","hebrew"]).isRequired,
-    interfaceLang:  React.PropTypes.oneOf(["english","hebrew"]).isRequired,
-    toggleLanguage: React.PropTypes.func.isRequired,
-    Sefaria:        React.PropTypes.object.isRequired
+    theme:          PropTypes.object.isRequired,
+    themeStr:       PropTypes.string.isRequired,
+    title:          PropTypes.string.isRequired,
+    currentRef:     PropTypes.string.isRequired,
+    currentHeRef:   PropTypes.string.isRequired,
+    openRef:        PropTypes.func.isRequired,
+    close:          PropTypes.func.isRequired,
+    textLang:       PropTypes.oneOf(["english","hebrew"]).isRequired,
+    contentLang:    PropTypes.oneOf(["english","hebrew"]).isRequired,
+    interfaceLang:  PropTypes.oneOf(["english","hebrew"]).isRequired,
+    toggleLanguage: PropTypes.func.isRequired,
+    Sefaria:        PropTypes.object.isRequired
   };
 
   constructor(props, context) {
@@ -195,15 +196,15 @@ class ReaderTextTableOfContents extends React.Component {
 
 class TextTableOfContentsNavigation extends React.Component {
   static propTypes = {
-    theme:           React.PropTypes.object.isRequired,
-    themeStr:        React.PropTypes.string.isRequired,
-    schema:          React.PropTypes.object.isRequired,
-    commentatorList: React.PropTypes.array,
-    alts:            React.PropTypes.object,
-    defaultStruct:   React.PropTypes.string,
-    contentLang:     React.PropTypes.string.isRequired,
-    title:           React.PropTypes.string.isRequired,
-    openRef:         React.PropTypes.func.isRequired
+    theme:           PropTypes.object.isRequired,
+    themeStr:        PropTypes.string.isRequired,
+    schema:          PropTypes.object.isRequired,
+    commentatorList: PropTypes.array,
+    alts:            PropTypes.object,
+    defaultStruct:   PropTypes.string,
+    contentLang:     PropTypes.string.isRequired,
+    title:           PropTypes.string.isRequired,
+    openRef:         PropTypes.func.isRequired
   };
 
   state = {
@@ -309,12 +310,12 @@ class TextTableOfContentsNavigation extends React.Component {
 
 class SchemaNode extends React.Component {
   static propTypes = {
-    theme:       React.PropTypes.object.isRequired,
-    themeStr:    React.PropTypes.string.isRequired,
-    schema:      React.PropTypes.object.isRequired,
-    contentLang: React.PropTypes.string.isRequired,
-    refPath:     React.PropTypes.string.isRequired,
-    openRef:     React.PropTypes.func.isRequired
+    theme:       PropTypes.object.isRequired,
+    themeStr:    PropTypes.string.isRequired,
+    schema:      PropTypes.object.isRequired,
+    contentLang: PropTypes.string.isRequired,
+    refPath:     PropTypes.string.isRequired,
+    openRef:     PropTypes.func.isRequired
   };
 
   render() {
@@ -407,11 +408,11 @@ class SchemaNode extends React.Component {
 
 class JaggedArrayNode extends React.Component {
   static propTypes = {
-    theme:       React.PropTypes.object.isRequired,
-    schema:      React.PropTypes.object.isRequired,
-    contentLang: React.PropTypes.string.isRequired,
-    refPath:     React.PropTypes.string.isRequired,
-    openRef:     React.PropTypes.func.isRequired,
+    theme:       PropTypes.object.isRequired,
+    schema:      PropTypes.object.isRequired,
+    contentLang: PropTypes.string.isRequired,
+    refPath:     PropTypes.string.isRequired,
+    openRef:     PropTypes.func.isRequired,
   };
 
   render() {
@@ -442,17 +443,17 @@ class JaggedArrayNode extends React.Component {
 
 class JaggedArrayNodeSection extends React.Component {
   static propTypes = {
-    theme:           React.PropTypes.object.isRequired,
-    depth:           React.PropTypes.number.isRequired,
-    sectionNames:    React.PropTypes.array.isRequired,
-    addressTypes:    React.PropTypes.array.isRequired,
-    contentCounts:   React.PropTypes.oneOfType([
-                        React.PropTypes.array,
-                        React.PropTypes.number
+    theme:           PropTypes.object.isRequired,
+    depth:           PropTypes.number.isRequired,
+    sectionNames:    PropTypes.array.isRequired,
+    addressTypes:    PropTypes.array.isRequired,
+    contentCounts:   PropTypes.oneOfType([
+                        PropTypes.array,
+                        PropTypes.number
                       ]),
-    contentLang:     React.PropTypes.string.isRequired,
-    refPath:         React.PropTypes.string.isRequired,
-    openRef:         React.PropTypes.func.isRequired,
+    contentLang:     PropTypes.string.isRequired,
+    refPath:         PropTypes.string.isRequired,
+    openRef:         PropTypes.func.isRequired,
   };
 
   contentCountIsEmpty = (count) => {
@@ -541,10 +542,10 @@ class JaggedArrayNodeSection extends React.Component {
 
 class ArrayMapNode extends React.Component {
   static propTypes = {
-    theme:       React.PropTypes.object.isRequired,
-    schema:      React.PropTypes.object.isRequired,
-    contentLang: React.PropTypes.string.isRequired,
-    openRef:     React.PropTypes.func.isRequired,
+    theme:       PropTypes.object.isRequired,
+    schema:      PropTypes.object.isRequired,
+    contentLang: PropTypes.string.isRequired,
+    openRef:     PropTypes.func.isRequired,
   };
 
   render() {
@@ -588,10 +589,10 @@ class ArrayMapNode extends React.Component {
 
 class CommentatorList extends React.Component {
   static propTypes = {
-    theme:           React.PropTypes.object.isRequired,
-    commentatorList: React.PropTypes.array.isRequired,
-    contentLang:     React.PropTypes.string.isRequired,
-    openRef:         React.PropTypes.func.isRequired,
+    theme:           PropTypes.object.isRequired,
+    commentatorList: PropTypes.array.isRequired,
+    contentLang:     PropTypes.string.isRequired,
+    openRef:         PropTypes.func.isRequired,
   };
 
   render() {
@@ -616,15 +617,15 @@ class CommentatorList extends React.Component {
 
 class CollapsibleNode extends React.Component {
   static propTypes = {
-    theme:             React.PropTypes.object,
-    themeStr:          React.PropTypes.string,
-    language:          React.PropTypes.oneOf(["hebrew", "english"]),
-    defaultVisibility: React.PropTypes.bool,
-    showHebrew:        React.PropTypes.bool,
-    en:                React.PropTypes.string,
-    he:                React.PropTypes.string,
-    children:           React.PropTypes.object,
-    node:              React.PropTypes.object
+    theme:             PropTypes.object,
+    themeStr:          PropTypes.string,
+    language:          PropTypes.oneOf(["hebrew", "english"]),
+    defaultVisibility: PropTypes.bool,
+    showHebrew:        PropTypes.bool,
+    en:                PropTypes.string,
+    he:                PropTypes.string,
+    children:           PropTypes.object,
+    node:              PropTypes.object
   };
 
   state = {
