@@ -116,6 +116,42 @@ class LanguageToggleButton extends React.Component {
   }
 }
 
+class CollapseIcon extends React.Component {
+  static propTypes = {
+    themeStr:  React.PropTypes.string,
+    showHebrew:  React.PropTypes.bool,
+    isVisible: React.PropTypes.bool
+  };
+
+  render() {
+    var src;
+    if (this.props.themeStr == "white") {
+      if (this.props.isVisible) {
+        src = require('./img/down.png');
+      } else {
+        if (this.props.showHebrew) {
+          src = require('./img/back.png');
+        } else {
+          src = require('./img/forward.png');
+        }
+      }
+    } else {
+      if (this.props.isVisible) {
+        src = require('./img/down-light.png');
+      } else {
+        if (this.props.showHebrew) {
+          src = require('./img/back-light.png');
+        } else {
+          src = require('./img/forward-light.png');
+        }
+      }
+    }
+    return (<Image source={src}
+             style={(this.props.showHebrew ? styles.collapseArrowHe : styles.collapseArrowEn)}
+             resizeMode={Image.resizeMode.contain} />);
+  }
+}
+
 class SearchButton extends React.Component {
   render() {
     return (<TouchableOpacity style={[styles.headerButton, styles.headerButtonSearch]} onPress={this.props.onPress}>
@@ -263,6 +299,7 @@ module.exports.CategoryColorLine = CategoryColorLine;
 module.exports.CategoryBlockLink = CategoryBlockLink;
 module.exports.CategoryAttribution = CategoryAttribution;
 module.exports.LanguageToggleButton = LanguageToggleButton;
+module.exports.CollapseIcon = CollapseIcon;
 module.exports.SearchButton = SearchButton;
 module.exports.MenuButton = MenuButton;
 module.exports.GoBackButton = GoBackButton;
