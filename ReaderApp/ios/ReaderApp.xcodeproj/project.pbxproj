@@ -52,6 +52,7 @@
 		A17895911E4BA0DE0063B465 /* Amiri-Slanted.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A17895901E4BA0DE0063B465 /* Amiri-Slanted.ttf */; };
 		A17895941E4BA2000063B465 /* Amiri-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A17895921E4BA2000063B465 /* Amiri-Bold.ttf */; };
 		A17895951E4BA2000063B465 /* Amiri-BoldSlanted.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A17895931E4BA2000063B465 /* Amiri-BoldSlanted.ttf */; };
+		A1A35E851F15C4D200DC7F1B /* TaameyFrank-taamim-fix-bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A1A35E841F15C4D200DC7F1B /* TaameyFrank-taamim-fix-bold.ttf */; };
 		A1C678201DB7FE4100392A83 /* libRNFS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A1C6781F1DB7FD4600392A83 /* libRNFS.a */; };
 		A1C678221DB7FF8000392A83 /* libRNFS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A1C6781F1DB7FD4600392A83 /* libRNFS.a */; };
 		A1C678261DB8000A00392A83 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = A1C678251DB8000A00392A83 /* libz.tbd */; };
@@ -382,6 +383,7 @@
 		A17895901E4BA0DE0063B465 /* Amiri-Slanted.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Amiri-Slanted.ttf"; sourceTree = "<group>"; };
 		A17895921E4BA2000063B465 /* Amiri-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Amiri-Bold.ttf"; sourceTree = "<group>"; };
 		A17895931E4BA2000063B465 /* Amiri-BoldSlanted.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Amiri-BoldSlanted.ttf"; sourceTree = "<group>"; };
+		A1A35E841F15C4D200DC7F1B /* TaameyFrank-taamim-fix-bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "TaameyFrank-taamim-fix-bold.ttf"; sourceTree = "<group>"; };
 		A1C6781A1DB7FD4600392A83 /* RNFS.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RNFS.xcodeproj; path = "../node_modules/react-native-fs/RNFS.xcodeproj"; sourceTree = "<group>"; };
 		A1C678251DB8000A00392A83 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		A1ED30811E42F8170062EF11 /* TaameyFrank-taamim-fix.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "TaameyFrank-taamim-fix.ttf"; sourceTree = "<group>"; };
@@ -642,6 +644,7 @@
 				A17895901E4BA0DE0063B465 /* Amiri-Slanted.ttf */,
 				A17895921E4BA2000063B465 /* Amiri-Bold.ttf */,
 				A17895931E4BA2000063B465 /* Amiri-BoldSlanted.ttf */,
+				A1A35E841F15C4D200DC7F1B /* TaameyFrank-taamim-fix-bold.ttf */,
 				A1ED30811E42F8170062EF11 /* TaameyFrank-taamim-fix.ttf */,
 				DD24DA681DCBADD200954157 /* OpenSans-Light.ttf */,
 				DD24DA691DCBADD200954157 /* OpenSans-Regular.ttf */,
@@ -1201,6 +1204,7 @@
 				A17895771E4BA0C80063B465 /* Amiri-Regular.ttf in Resources */,
 				A1FAD9971E39429100D4CA50 /* Crimson-Italic.ttf in Resources */,
 				A1ED30821E42F8170062EF11 /* TaameyFrank-taamim-fix.ttf in Resources */,
+				A1A35E851F15C4D200DC7F1B /* TaameyFrank-taamim-fix-bold.ttf in Resources */,
 				A17895951E4BA2000063B465 /* Amiri-BoldSlanted.ttf in Resources */,
 				A147939A1DB8037000B6572F /* EBGaramond-Regular.ttf in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
