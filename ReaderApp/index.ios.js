@@ -70,6 +70,7 @@ class ReaderApp extends React.Component {
         loaded: false,
         defaultSettingsLoaded: false,
         menuOpen: "navigation",
+        subMenuOpen: null, // currently only used to define subpages in search
         navigationCategories: [],
         loadingTextTail: false,
         loadingTextHead: false,
@@ -354,7 +355,8 @@ class ReaderApp extends React.Component {
       switch (calledFrom) {
         case "search":
           Sefaria.track.event("Search","Search Result Text Click",this.state.searchQuery + ' - ' + ref);
-          this.state.backStack=["SEARCH:"+this.state.searchQuery];
+          //this.state.backStack=["SEARCH:"+this.state.searchQuery];
+          this.addBackItem("search", this.state.searchQuery);
           break;
         case "navigation":
           Sefaria.track.event("Reader","Navigation Text Click", ref);
@@ -363,15 +365,26 @@ class ReaderApp extends React.Component {
           break;
         case "text list":
           Sefaria.track.event("Reader","Click Text from TextList",ref);
-          this.state.backStack.push(this.state.segmentRef);
+          //this.state.backStack.push(this.state.segmentRef);
+          this.addBackItem("text list", this.state.segmentRef);
           break;
         default:
           break;
       }
   };
 
+  addBackItem = (page, state) => {
+    //page - currently can be either "search", "search filter", or "text list"
+    //state - state object required to rebuild previous state
+    this.state.backStack.push({"page": page, "state": state});
+  };
+
   openMenu = (menu) => {
-      this.setState({menuOpen: menu});
+    this.setState({menuOpen: menu});
+  };
+
+  openSubMenu = (subMenu) => {
+    this.setState({subMenuOpen: subMenu});
   };
 
   closeMenu = () => {
@@ -388,12 +401,12 @@ class ReaderApp extends React.Component {
   };
 
   goBack = () => {
-    if /* last page was search page */((this.state.backStack.slice(-1)[0]).indexOf("SEARCH:") != -1) {
-      this.onQueryChange((this.state.backStack.pop()).split(":")[1],true,true);
+    if /* last page was search page */((this.state.backStack.slice(-1)[0]).page === "search") {
+      this.onQueryChange((this.state.backStack.pop()).state,true,true);
       this.openSearch();
     }
     else /*is ref*/ {
-    this.openRef(this.state.backStack.pop());
+    this.openRef(this.state.backStack.pop().state);
     }
   };
 
@@ -695,6 +708,7 @@ class ReaderApp extends React.Component {
                   segmentIndexRef={this.state.segmentIndexRef}
                   textList={0}
                   menuOpen={this.state.menuOpen}
+                  subMenuOpen={this.state.subMenuOpen}
                   navigationCategories={this.state.navigationCategories}
                   style={styles.mainTextPanel}
                   updateData={this.updateData}
@@ -703,6 +717,7 @@ class ReaderApp extends React.Component {
                   openRef={ this.openRef }
                   interfaceLang={this.state.interfaceLang}
                   openMenu={this.openMenu}
+                  openSubMenu={this.openSubMenu}
                   closeMenu={this.closeMenu}
                   openNav={this.openNav}
                   setNavigationCategories={this.setNavigationCategories}

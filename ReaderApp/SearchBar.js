@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 
 var {
-  GoBackButton,
+  DirectedButton,
   CloseButton,
   SearchButton,
   LanguageToggleButton,
@@ -49,7 +49,15 @@ class SearchBar extends React.Component {
     var placeholderTextColor = this.props.themeStr == "black" ? "#BBB" : "#777";
     return (
       <View style={[styles.header, this.props.theme.header]}>
-        {this.props.leftMenuButton == "close" ?  <CloseButton onPress={this.props.closeNav} theme={this.props.theme} themeStr={this.props.themeStr} /> : <GoBackButton onPress={this.props.openNav} theme={this.props.theme} themeStr={this.props.themeStr} /> }
+        {this.props.leftMenuButton == "close" ?
+          <CloseButton onPress={this.props.closeNav} theme={this.props.theme} themeStr={this.props.themeStr} /> :
+          <DirectedButton
+            onPress={this.props.openNav}
+            themeStr={this.props.themeStr}
+            imageStyle={[styles.menuButton, styles.directedButton]}
+            language="english"
+            direction="back"/>
+        }
         <SearchButton onPress={this.submitSearch} theme={this.props.theme} themeStr={this.props.themeStr} />
         <TextInput
           style={textInputStyle}

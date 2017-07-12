@@ -20,14 +20,15 @@ class SearchTextResult extends React.Component {
   };
 
   render() {
-  return (
-    <TouchableOpacity style={[styles.searchTextResult, this.props.theme.searchTextResult]} onPress={this.props.onPress}>
-      <Text style={[styles.en, styles.textListCitation, this.props.theme.textListCitation]}>{this.props.title}</Text>
-              <Text style={[this.props.textType == "hebrew" ? styles.hebrewText : styles.englishText,this.props.theme.text]}>
-        <HTMLView value={this.props.text} />
-              </Text>
-    </TouchableOpacity>
-  );
+		console.log(this.props.text);
+	  return (
+	    <TouchableOpacity style={[styles.searchTextResult, this.props.theme.searchTextResult]} onPress={this.props.onPress}>
+	      <Text style={[styles.en, styles.textListCitation, this.props.theme.textListCitation]}>{this.props.title}</Text>
+	        <Text style={[this.props.textType == "hebrew" ? styles.hebrewText : styles.englishText,this.props.theme.text]}>
+	        	<HTMLView value={this.props.text} stylesheet={styles}/>
+	        </Text>
+	    </TouchableOpacity>
+	  );
 }
 }
 

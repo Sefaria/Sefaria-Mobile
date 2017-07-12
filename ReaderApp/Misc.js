@@ -154,20 +154,24 @@ class CollapseIcon extends React.Component {
   }
 }
 
-class ForwardButton extends React.Component {
-  //simple button with callback and a forward arrow. NOTE: arrow should change direction depending on interfaceLang
+class DirectedButton extends React.Component {
+  //simple button with onPress() and a forward/back arrow. NOTE: arrow should change direction depending on interfaceLang
   static propTypes = {
-    text:       PropTypes.string.isRequired,
+    text:       PropTypes.string,
     themeStr:   PropTypes.string.isRequired,
     language:   PropTypes.oneOf(["hebrew", "english"]).isRequired,
     textStyle:  PropTypes.oneOfType([PropTypes.style, PropTypes.array]),
     imageStyle: PropTypes.oneOfType([PropTypes.style, PropTypes.array]),
-    callback:   PropTypes.func.isRequired
+    onPress:    PropTypes.func.isRequired,
+    direction:  PropTypes.oneOf(["forward", "back"]).isRequired
   };
 
   render() {
+    //the actual dir the arrow will face
+    var actualDirBack = (this.props.language === "hebrew"  && this.props.direction === "forward") || (this.props.language === "english" && this.props.direction === "back")
+    //I wish there was a way to reduce these if statements, but there's a limitation that require statements can't have variables in them
     var src;
-    if (this.props.language === "hebrew") {
+    if (actualDirBack) {
       if (this.props.themeStr === "white") {
         src = require("./img/back.png");
       } else {
@@ -181,9 +185,9 @@ class ForwardButton extends React.Component {
       }
     }
     return (
-      <TouchableOpacity onPress={this.props.callback}
-        style={{flexDirection: this.props.language === "hebrew" ? "row-reverse" : "row"}}>
-        <Text style={this.props.textStyle}>{this.props.text}</Text>
+      <TouchableOpacity onPress={this.props.onPress}
+        style={{flexDirection: actualDirBack ? "row-reverse" : "row"}}>
+        { this.props.text ? <Text style={this.props.textStyle}>{this.props.text}</Text> : null}
         <Image source={src} style={this.props.imageStyle} resizeMode={Image.resizeMode.contain}/>
       </TouchableOpacity>
     );
@@ -205,16 +209,6 @@ class MenuButton extends React.Component {
   render() {
     return (<TouchableOpacity style={[styles.headerButton, styles.leftHeaderButton]} onPress={this.props.onPress}>
               <Image source={this.props.themeStr == "white" ? require('./img/menu.png'): require('./img/menu-light.png') }
-                     style={styles.menuButton}
-                     resizeMode={Image.resizeMode.contain} />
-            </TouchableOpacity>);
-  }
-}
-
-class GoBackButton extends React.Component {
-  render() {
-    return (<TouchableOpacity style={[styles.headerButton, styles.leftHeaderButton]} onPress={this.props.onPress}>
-              <Image source={this.props.themeStr == "white" ? require('./img/back.png'): require('./img/back-light.png') }
                      style={styles.menuButton}
                      resizeMode={Image.resizeMode.contain} />
             </TouchableOpacity>);
@@ -338,10 +332,10 @@ module.exports.CategoryBlockLink = CategoryBlockLink;
 module.exports.CategoryAttribution = CategoryAttribution;
 module.exports.LanguageToggleButton = LanguageToggleButton;
 module.exports.CollapseIcon = CollapseIcon;
-module.exports.ForwardButton = ForwardButton;
+module.exports.DirectedButton = DirectedButton;
 module.exports.SearchButton = SearchButton;
 module.exports.MenuButton = MenuButton;
-module.exports.GoBackButton = GoBackButton;
+//module.exports.GoBackButton = GoBackButton;
 module.exports.CloseButton = CloseButton;
 module.exports.TripleDots = TripleDots;
 module.exports.DisplaySettingsButton = DisplaySettingsButton;

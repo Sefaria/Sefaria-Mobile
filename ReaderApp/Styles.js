@@ -129,6 +129,18 @@ module.exports = StyleSheet.create({
   leftHeaderButton: {
     marginLeft: iPad ? 10 : 0
   },
+  directedButton: {
+    marginLeft: 12,
+    marginRight: 12
+  },
+  directedButtonWithTextEn: {
+    marginLeft: 5,
+    marginRight: 12
+  },
+  directedButtonWithTextHe: {
+    marginLeft: 12,
+    marginRight: 5
+  },
   menuButton: {
     width: 17,
     height: 17,

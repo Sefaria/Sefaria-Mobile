@@ -15,7 +15,7 @@ import {
 var {
   CategoryColorLine,
   CategoryBlockLink,
-  GoBackButton,
+  DirectedButton,
   TwoBox,
   LanguageToggleButton
 } = require('./Misc.js');
@@ -54,7 +54,12 @@ class RecentPage extends React.Component {
       <View style={[styles.menu, this.props.theme.menu]}>
         <CategoryColorLine category={"Other"} />
         <View style={[styles.header, this.props.theme.header]}>
-          <GoBackButton onPress={this.props.close} theme={this.props.theme} themeStr={this.props.themeStr}/>
+          <DirectedButton
+            onPress={this.props.close}
+            themeStr={this.props.themeStr}
+            imageStyle={[styles.menuButton, styles.directedButton]}
+            direction="back"
+            language="english"/>
           <Text style={[styles.textTocHeaderTitle, styles.textCenter, this.props.theme.text]}>{strings.recent.toUpperCase()}</Text>
           <LanguageToggleButton
             theme={this.props.theme}

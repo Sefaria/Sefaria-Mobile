@@ -28,7 +28,7 @@ var styles                    = require('./Styles.js');
 
 var {
   MenuButton,
-  GoBackButton,
+  DirectedButton,
   DisplaySettingsButton,
   LoadingView,
   CategoryColorLine,
@@ -38,6 +38,10 @@ var {
 
 class ReaderPanel extends React.Component {
   static propTypes = {
+    menuOpen:              PropTypes.string,
+    subMenuOpen:           PropTypes.string,
+    openMenu:              PropTypes.func,
+    openSubMenu:           PropTypes.func,
     segmentRef:            PropTypes.string,
     segmentIndexRef:       PropTypes.number,
     offsetRef:             PropTypes.string,
@@ -309,6 +313,8 @@ class ReaderPanel extends React.Component {
             theme={this.props.theme}
             themeStr={this.props.themeStr}
             interfaceLang={this.props.interfaceLang}
+            subMenuOpen={this.props.subMenuOpen}
+            openSubMenu={this.props.openSubMenu}
             hasInternet={this.props.hasInternet}
             openNav={this.props.openNav}
             closeNav={this.props.closeMenu}
@@ -470,7 +476,13 @@ class ReaderControls extends React.Component {
     if (this.props.backStack.length == 0) {
       var leftMenuButton = <MenuButton onPress={this.props.openNav} theme={this.props.theme} themeStr={this.props.themeStr}/>
     } else {
-      var leftMenuButton = <GoBackButton onPress={this.props.goBack} theme={this.props.theme} themeStr={this.props.themeStr}/>
+      var leftMenuButton =
+        <DirectedButton
+          onPress={this.props.goBack}
+          themeStr={this.props.themeStr}
+          imageStyle={[styles.menuButton, styles.directedButton]}
+          language="english"
+          direction="back"/>
     }
     return (
         <View style={[styles.header, this.props.theme.header]}>
