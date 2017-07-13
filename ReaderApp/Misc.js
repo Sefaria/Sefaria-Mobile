@@ -9,7 +9,8 @@ import {
   TouchableOpacity,
   View,
   Image,
-  ActivityIndicator
+  ActivityIndicator,
+  ViewPropTypes
 } from 'react-native';
 
 var Sefaria = require('./sefaria');
@@ -160,8 +161,8 @@ class DirectedButton extends React.Component {
     text:       PropTypes.string,
     themeStr:   PropTypes.string.isRequired,
     language:   PropTypes.oneOf(["hebrew", "english"]).isRequired,
-    textStyle:  PropTypes.oneOfType([PropTypes.style, PropTypes.array]),
-    imageStyle: PropTypes.oneOfType([PropTypes.style, PropTypes.array]),
+    textStyle:  PropTypes.oneOfType([Text.propTypes.style, PropTypes.array]),
+    imageStyle: PropTypes.oneOfType([ViewPropTypes.style, PropTypes.array]),
     onPress:    PropTypes.func.isRequired,
     direction:  PropTypes.oneOf(["forward", "back"]).isRequired
   };
@@ -280,9 +281,9 @@ class ToggleSet extends React.Component {
 class ButtonToggleSet extends React.Component {
   static propTypes = {
     theme:       PropTypes.object.isRequired,
-    options:     PropTypes.array.isRequired, // array of object with `name`. `text`, `heText`, `onPress`
+    options:     PropTypes.array.isRequired, // array of object with `name`. `text`, `onPress`
     contentLang: PropTypes.string.isRequired,
-    active:      PropTypes.string.isRequired
+    active:      PropTypes.oneOfType([PropTypes.bool, PropTypes.string])
   };
 
   render() {
@@ -299,7 +300,7 @@ class ButtonToggleSet extends React.Component {
       return (
         <TouchableOpacity onPress={option.onPress} key={i} style={itemStyles} >
           {showHebrew ?
-            <Text style={[styles.heInt, this.props.theme.tertiaryText]}>{option.heText}</Text> :
+            <Text style={[styles.heInt, this.props.theme.tertiaryText]}>{option.text}</Text> :
             <Text style={[styles.enInt, this.props.theme.tertiaryText]}>{option.text}</Text> }
         </TouchableOpacity>
       );

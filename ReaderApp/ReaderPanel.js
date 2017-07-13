@@ -76,6 +76,8 @@ class ReaderPanel extends React.Component {
     hasInternet:           PropTypes.bool,
     isQueryRunning:        PropTypes.bool,
     searchQuery:           PropTypes.string,
+    searchSort:            PropTypes.string,
+    searchIsExact:         PropTypes.bool,
     isQueryLoadingTail:    PropTypes.bool,
     isNewSearch:           PropTypes.bool,
     numSearchResults:      PropTypes.number,
@@ -86,6 +88,7 @@ class ReaderPanel extends React.Component {
     setLoadQueryTail:      PropTypes.func.isRequired,
     setIsNewSearch:        PropTypes.func.isRequired,
     search:                PropTypes.func.isRequired,
+    setSearchOptions:      PropTypes.func.isRequired,
     Sefaria:               PropTypes.object.isRequired
   };
 
@@ -322,7 +325,10 @@ class ReaderPanel extends React.Component {
             openRef={(ref)=>this.props.openRef(ref,"search")}
             setLoadTail={this.props.setLoadQueryTail}
             setIsNewSearch={this.props.setIsNewSearch}
+            setSearchOptions={this.props.setSearchOptions}
             query={this.props.searchQuery}
+            sort={this.props.searchSort}
+            isExact={this.props.searchIsExact}
             loadingQuery={this.props.isQueryRunning}
             isNewSearch={this.props.isNewSearch}
             loadingTail={this.props.isQueryLoadingTail}

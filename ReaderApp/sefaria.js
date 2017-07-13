@@ -766,7 +766,7 @@ Sefaria = {
       },
   },
   search: {
-    baseUrl: "https://search.sefaria.org/merged/_search/",
+    baseUrl: "https://search.sefaria.org/merged-d/_search/",
     _cache: {},
     cache: function(key, result) {
       if (result !== undefined) {
@@ -784,12 +784,14 @@ Sefaria = {
        type: null, "sheet" or "text"
        get_filters: if to fetch initial filters
        applied_filters: filter query by these filters
+       sort_type: chronological or relevance
+       exact: if query is exact
        */
       return new Promise((resolve, reject)=>{
         if (!args.query) {
           reject();
         }
-        var req = JSON.stringify(Sefaria.search.get_query_object(args.query, args.get_filters, args.applied_filters, args.size, args.from, args.type));
+        var req = JSON.stringify(Sefaria.search.get_query_object(args.query, args.get_filters, args.applied_filters, args.size, args.from, args.type, args.sort_type, args.exact));
         var cache_result = this.cache(req);
         //console.log("cache",JSON.stringify(cache_result));
         if (cache_result) {
@@ -820,141 +822,166 @@ Sefaria = {
         });
       });
     },
-    get_query_object: function(query, get_filters, applied_filters, size, from, type) {
-      /*
-       Only the first argument - "query" - is required.
+    get_query_object: function (query, get_filters, applied_filters, size, from, type, sort_type, exact) {
+        /*
+         Only the first argument - "query" - is required.
 
-       query: string
-       get_filters: boolean
-       applied_filters: null or list of applied filters (in format supplied by Filter_Tree...)
-       size: int - number of results to request
-       from: int - start from result # (skip from - 1 results)
-       type: string - currently either "texts" or "sheets"
-       */
+         query: string
+         get_filters: boolean
+         applied_filters: null or list of applied filters (in format supplied by Filter_Tree...)
+         size: int - number of results to request
+         from: int - start from result # (skip from - 1 results)
+         type: string - currently either "texts" or "sheets"
+         field: string - which field to query. this essentially changes the exactness of the search. right now, 'exact' or 'naive_lemmatizer'
+         sort_type: "relevance", "chronological"
+         exact: boolean. true if query should be exact
+         */
+        var field = exact ? "exact" : "naive_lemmatizer";
 
-      get_filters = false; //Turning off filters for now
-      applied_filters = [];
+        var core_query = {
+            "match_phrase": {
 
-      var core_query = {
-        "query_string": {
-          "query": query.replace(/(\S)"(\S)/g, '$1\u05f4$2'), //Replace internal quotes with gershaim.
-          "default_operator": "AND",
-          "fields": ["content"]
-        }
-      };
-
-      var o = {
-        "from": from,
-        "size": size,
-        "sort": [{
-          "order": {}                 // the sort field name is "order"
-        }],
-        "_source": {
-          "exclude": ["content"]
-        },
-        "highlight": {
-          "pre_tags": ["<b>"],
-          "post_tags": ["</b>"],
-          "fields": {
-            "content": {"fragment_size": 200}
-          }
-        }
-      };
-
-      if (get_filters) {
-        //Initial, unfiltered query.  Get potential filters.
-        if (type) {
-          o['query'] = {
-            filtered: {
-              query: core_query,
-              filter: {type: {value: type}}
             }
-          };
-        } else {
-          o['query'] = core_query;
-        }
-
-        o['aggs'] = {
-          "category": {
-            "terms": {
-              "field": "path",
-              "size": 0
-            }
-          },
-          "type": {
-            "terms": {
-              "field": "_type",
-              "size": 0
-            }
-          }
         };
-      } else if (!applied_filters || applied_filters.length == 0) {
-        // This is identical to above - can be cleaned up into a variable
-        if (type) {
-          o['query'] = {
-            filtered: {
-              query: core_query,
-              filter: {type: {value: type}}
-            }
-          };
-        } else {
-          o['query'] = core_query;
+
+        core_query['match_phrase'][field] = {
+            "query": query.replace(/(\S)"(\S)/g, '$1\u05f4$2'), //Replace internal quotes with gershaim.
+        };
+
+        if (!exact) {
+            core_query['match_phrase'][field]['slop'] = 10;
         }
-      } else {
-        //Filtered query.  Add clauses.  Don't re-request potential filters.
-        var clauses = [];
-        for (var i = 0; i < applied_filters.length; i++) {
-          clauses.push({
-            "regexp": {
-              "path": RegExp.escape(applied_filters[i]) + ".*"
+
+        var o = {
+            "from": from,
+            "size": size,
+            "_source": {
+              "exclude": [ field ]
+            },
+            "highlight": {
+                "pre_tags": ["<b>"],
+                "post_tags": ["</b>"],
+                "fields": {}
             }
-          });
-          /* Test for Commentary2 as well as Commentary */
-          if (/^Commentary\//.test(applied_filters[i])) {
-            var c2 = "Commentary2/" + applied_filters[i].slice(11);
-            clauses.push({
-              "regexp": {
-                "path": RegExp.escape(c2) + ".*"
-              }
-            });
-          }
-        }
-        if (type) {
-          o['query'] = {
-            "filtered": {
-              "query": core_query,
-              "filter": {
-                "bool": {
-                  "must": [
-                    {"or": clauses},
-                    {type: {value: type}}
-                  ]
+        };
+
+        o["highlight"]["fields"][field] = {"fragment_size": 200};
+
+
+        if (sort_type == "chronological") {
+            o["sort"] = [
+                {"comp_date": {}},
+                {"order": {}}                 // the sort field name is "order"
+            ];
+        } else if (sort_type == "relevance") {
+
+            o["query"] = {
+                "function_score": {
+                    "field_value_factor": {
+                        "field": "pagesheetrank",
+                        "missing": 0.04     // this default value comes from the equation used to calculate pagesheetrank. see search.py where this field is created
+                    }
                 }
-              }
             }
-          };
-        } else {
-          o['query'] = {
-            "filtered": {
-              "query": core_query,
-              "filter": {
-                "or": clauses
-              }
-            }
-          };
         }
-        o['aggs'] = {
-          "type": {
-            "terms": {
-              "field": "_type",
-              "size": 0
-            }
-          }
-        };
-      }
-      return o;
-    },
 
+        var inner_query = {};
+        if (get_filters) {
+            //Initial, unfiltered query.  Get potential filters.
+            if (type) {
+              inner_query = {
+                  filtered: {
+                      query: core_query,
+                      filter: {type: {value: type}}
+                  }
+              };
+            } else {
+              inner_query = core_query
+
+            }
+
+            o['aggs'] = {
+                "category": {
+                    "terms": {
+                        "field": "path",
+                        "size": 0
+                    }
+                },
+                "type": {
+                    "terms": {
+                        "field": "_type",
+                        "size": 0
+                    }
+                }
+            };
+        } else if (!applied_filters || applied_filters.length == 0) {
+            // This is identical to above - can be cleaned up into a variable
+            if (type) {
+              inner_query = {
+                  filtered: {
+                      query: core_query,
+                      filter: {type: {value: type}}
+                  }
+              };
+            } else {
+              inner_query = core_query;
+            }
+        } else {
+            //Filtered query.  Add clauses.  Don't re-request potential filters.
+            var clauses = [];
+            for (var i = 0; i < applied_filters.length; i++) {
+
+                var filterSuffix = applied_filters[i].indexOf("/") != -1 ? ".*" : "/.*"; //filters with '/' might be leading to books. also, very unlikely they'll match an false positives
+                clauses.push({
+                    "regexp": {
+                        "path": RegExp.escape(applied_filters[i]) + filterSuffix
+                    }
+                });
+                /* Test for Commentary2 as well as Commentary */
+            }
+            if (type) {
+                inner_query = {
+                    "filtered": {
+                        "query": core_query,
+                        "filter": {
+                            "bool": {
+                                "must": [
+                                    {"or": clauses},
+                                    {type: {value: type}}
+                                ]
+                            }
+                        }
+                    }
+                };
+            } else {
+                inner_query = {
+                    "filtered": {
+                        "query": core_query,
+                        "filter": {
+                            "or": clauses
+                        }
+                    }
+                };
+            }
+            o['aggs'] = {
+                "type": {
+                    "terms": {
+                        "field": "_type",
+                        "size": 0
+                    }
+                }
+            };
+        }
+
+        //after that confusing logic, hopefully inner_query is defined properly
+        if (sort_type == "chronological") {
+            o['query'] = inner_query;
+        } else if (sort_type == "relevance") {
+            o['query']['function_score']['query'] = inner_query;
+        }
+        console.log(JSON.stringify(o));
+        return o;
+    },
     //FilterTree object - for category filters
     FilterNode: function() {
       this.children = [];

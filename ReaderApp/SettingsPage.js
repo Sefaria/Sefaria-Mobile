@@ -80,9 +80,9 @@ class SettingsPage extends React.Component {
     ];
 
     var textLanguageOptions = [
-      {name: "english", text: strings.english, heText: strings.english, onPress: () => { Sefaria.settings.set("defaultTextLanguage", "english"); this.forceUpdate(); }},
-      {name: "bilingual", text: strings.bilingual, heText: strings.bilingual, onPress: () => { Sefaria.settings.set("defaultTextLanguage", "bilingual"); this.forceUpdate(); }},
-      {name: "hebrew", text: strings.hebrew, heText: strings.hebrew, onPress: () => { Sefaria.settings.set("defaultTextLanguage", "hebrew"); this.forceUpdate(); }}
+      {name: "english", text: strings.english, onPress: () => { Sefaria.settings.set("defaultTextLanguage", "english"); this.forceUpdate(); }},
+      {name: "bilingual", text: strings.bilingual, onPress: () => { Sefaria.settings.set("defaultTextLanguage", "bilingual"); this.forceUpdate(); }},
+      {name: "hebrew", text: strings.hebrew, onPress: () => { Sefaria.settings.set("defaultTextLanguage", "hebrew"); this.forceUpdate(); }}
     ];
 
     var nDownloaded = Sefaria.downloader.titlesDownloaded().length;
@@ -168,7 +168,7 @@ class SettingsPage extends React.Component {
 
                     <TouchableOpacity style={styles.button} onPress={Sefaria.downloader.checkForUpdates}>
                       <Text style={styles.buttonText}>{strings.checkForUpdates}</Text>
-                    </TouchableOpacity> 
+                    </TouchableOpacity>
 
                     <TouchableOpacity style={styles.button} onPress={Sefaria.downloader.deleteLibrary}>
                       <Text style={styles.buttonText}>{strings.deleteLibrary}</Text>

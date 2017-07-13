@@ -20,7 +20,6 @@ class SearchTextResult extends React.Component {
   };
 
   render() {
-		console.log(this.props.text);
 	  return (
 	    <TouchableOpacity style={[styles.searchTextResult, this.props.theme.searchTextResult]} onPress={this.props.onPress}>
 	      <Text style={[styles.en, styles.textListCitation, this.props.theme.textListCitation]}>{this.props.title}</Text>

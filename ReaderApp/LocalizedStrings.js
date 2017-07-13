@@ -64,7 +64,15 @@ module.exports = new LocalizedStrings({
     libraryUpToDateMessage: "You have the most current version of the Sefaria Library for iOS.",
     checkForUpdates: "Check for Updates",
     downloadUpdates: "Download Updates",
-    filter: "FILTER"
+    clearAll: "Clear All",
+    filter: "FILTER",
+    sortBy: "SORT BY",
+    chronological: "Chronological",
+    relevance: "Relevance",
+    filterTexts: "FILTER TEXTS",
+    allResults: "All Results",
+    exactMatches: "Exact Matches",
+    category: "CATEGORY"
   },
   he: {
     recent: "נצפו לאחרונה",
@@ -129,6 +137,14 @@ module.exports = new LocalizedStrings({
     libraryUpToDateMessage: "הגרסה העדכנית ביותר של הספרייה הבלתי מקוונת ל-iOS מעודכנת במכשירך",
     checkForUpdates: "בדוק עדכונים קיימים",
     downloadUpdates: "הורד עדכונים",
-    filter: "סינון"
+    clearAll: "Clear All",
+    filter: "סינון",
+    sortBy: "מיון לפי",
+    chronological: "כרונולוגי",
+    relevance: "רלוונטיות",
+    filterTexts: "FILTER TEXTS",
+    allResults: "All Results",
+    exactMatches: "Exact Matches",
+    category: "CATEGORY"
   }
 });

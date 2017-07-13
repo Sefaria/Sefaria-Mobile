@@ -89,6 +89,8 @@ class ReaderApp extends React.Component {
         theme: themeWhite,
         themeStr: "white",
         searchQuery: '',
+        searchSort: 'relevance', // relevance or chronological
+        searchIsExact: false,
         isQueryRunning: false,
         isQueryLoadingTail: false,
         isNewSearch: false,
@@ -629,14 +631,13 @@ class ReaderApp extends React.Component {
     var size = 20;
     if (resetQuery && !fromBackButton) {
       this.setInitSearchScrollPos(0);
-      console.log('yay')
     }
     if (!resetQuery) {
       newSearchPage = this.state.currSearchPage + 1;
       from = 20 * newSearchPage;
     }
     if (fromBackButton) {
-      size = 20 * this.state.currSearchPage;
+      size = 20 * (this.state.currSearchPage + 1);
       newSearchPage = size/20;
     }
 
@@ -648,12 +649,23 @@ class ReaderApp extends React.Component {
       from: from,
       type: "text",
       get_filters: false,
-      applied_filters: []
+      applied_filters: [],
+      sort_type: this.state.searchSort,
+      exact: this.state.searchIsExact
     };
+    var field = this.state.searchIsExact ? "exact" : "naive_lemmatizer";
     Sefaria.search.execute_query(queryProps)
     .then((responseJson) => {
-      var resultArray = resetQuery ? responseJson["hits"]["hits"] : this.state.searchQueryResult.concat(responseJson["hits"]["hits"]);
-      //console.log("resultArray",resultArray);
+      var newResultsArray = responseJson["hits"]["hits"].map(function(r) {
+        return {
+          "title": r._source.ref,
+          "text": r.highlight[field][0],
+          "textType": r._id.includes("[he]") ? "hebrew" : "english"
+        }
+      });
+      var resultArray = resetQuery ? newResultsArray :
+        this.state.searchQueryResult.concat(newResultsArray);
+
       var numResults = responseJson["hits"]["total"];
       this.setState({isQueryLoadingTail: false, isQueryRunning: false, searchQueryResult:resultArray, numSearchResults: numResults, initSearchListSize: size});
 
@@ -686,6 +698,10 @@ class ReaderApp extends React.Component {
     this.openSearch();
 
     Sefaria.track.event("Search","Search Box Search",query);
+  };
+
+  setSearchOptions = (sort, isExact) => {
+    this.setState({searchSort: sort, searchIsExact: isExact});
   };
 
   render() {
@@ -750,6 +766,8 @@ class ReaderApp extends React.Component {
                   hasInternet={this.state.hasInternet}
                   isQueryRunning={this.state.isQueryRunning}
                   searchQuery={this.state.searchQuery}
+                  searchSort={this.state.searchSort}
+                  searchIsExact={this.state.searchIsExact}
                   isQueryLoadingTail={this.state.isQueryLoadingTail}
                   initSearchListSize={this.state.initSearchListSize}
                   initSearchScrollPos={this.state.initSearchScrollPos}
@@ -764,6 +782,7 @@ class ReaderApp extends React.Component {
                   setLoadQueryTail={this.setLoadQueryTail}
                   setIsNewSearch={this.setIsNewSearch}
                   search={this.search}
+                  setSearchOptions={this.setSearchOptions}
                   Sefaria={Sefaria} />
           </View>
       );

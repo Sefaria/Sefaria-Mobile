@@ -22,7 +22,8 @@ class SearchResultList extends React.Component {
     openRef:        PropTypes.func.isRequired,
     setLoadTail:    PropTypes.func.isRequired,
     setIsNewSearch: PropTypes.func.isRequired,
-    isNewSearch:    PropTypes.bool
+    isNewSearch:    PropTypes.bool,
+    isExact:        PropTypes.bool,
   };
 
   state = {
@@ -66,18 +67,9 @@ class SearchResultList extends React.Component {
   };
 
   render() {
-
   	//if isNewSearch, temporarily hide the ListView, which apparently resets the scroll position to the top
   	if (this.props.queryResult && !this.props.isNewSearch) {
-	    var queryArray = this.props.queryResult.map(function(r) {
-	      return {
-	        "title": r._source.ref,
-	        "text": r.highlight.content[0],
-	        "textType": r._id.includes("[he]") ? "hebrew" : "english"
-	      }
-	    });
-
-	    var dataSourceRows = this.state.dataSource.cloneWithRows(queryArray);
+	    var dataSourceRows = this.state.dataSource.cloneWithRows(this.props.queryResult);
 
 	    return (
 	      <ListView
