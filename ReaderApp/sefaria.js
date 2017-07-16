@@ -4,6 +4,7 @@ const ZipArchive  = require('react-native-zip-archive'); //for unzipping -- (htt
 const RNFS        = require('react-native-fs'); //for access to file system -- (https://github.com/johanneslumpe/react-native-fs)
 const Downloader  = require('./downloader');
 const Api         = require('./api');
+const Search      = require('./search');
 const LinkContent = require('./LinkContent');
 const iPad        = require('./isIPad');
 const strings     = require('./LocalizedStrings');
@@ -13,6 +14,7 @@ Sefaria = {
   init: function() {
     return Promise.all([
       Sefaria._loadTOC(),
+      Sefaria.search._loadSearchTOC(),
       Sefaria._loadRecentItems(),
       Sefaria._loadCalendar(),
       Sefaria.downloader.init(),
@@ -765,230 +767,6 @@ Sefaria = {
 
       },
   },
-  search: {
-    baseUrl: "https://search.sefaria.org/merged-d/_search/",
-    _cache: {},
-    cache: function(key, result) {
-      if (result !== undefined) {
-        this._cache[key] = result;
-      }
-      return this._cache[key]
-    },
-    execute_query: function(args) {
-      // To replace sjs.search.post in search.js
-
-      /* args can contain
-       query: query string
-       size: size of result set
-       from: from what result to start
-       type: null, "sheet" or "text"
-       get_filters: if to fetch initial filters
-       applied_filters: filter query by these filters
-       sort_type: chronological or relevance
-       exact: if query is exact
-       */
-      return new Promise((resolve, reject)=>{
-        if (!args.query) {
-          reject();
-        }
-        var req = JSON.stringify(Sefaria.search.get_query_object(args.query, args.get_filters, args.applied_filters, args.size, args.from, args.type, args.sort_type, args.exact));
-        var cache_result = this.cache(req);
-        //console.log("cache",JSON.stringify(cache_result));
-        if (cache_result) {
-          resolve(cache_result);
-        }
-        return fetch(Sefaria.search.baseUrl,{
-          method: 'POST',
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-          },
-          body: req
-        })
-        .then((response) => {
-          //this.cache(req,json);
-          resolve(response.json());
-        })
-        .catch(()=>{
-          AlertIOS.alert(
-            strings.noInternet,
-            strings.noInternetMessage,
-            [
-              {text: strings.cancel, onPress: () => {reject("Canceled")}, style: 'cancel'},
-              {text: strings.tryAgain, onPress: () => {
-                Sefaria.search.execute_query(args).then(resolve);
-              }}
-            ]);
-        });
-      });
-    },
-    get_query_object: function (query, get_filters, applied_filters, size, from, type, sort_type, exact) {
-        /*
-         Only the first argument - "query" - is required.
-
-         query: string
-         get_filters: boolean
-         applied_filters: null or list of applied filters (in format supplied by Filter_Tree...)
-         size: int - number of results to request
-         from: int - start from result # (skip from - 1 results)
-         type: string - currently either "texts" or "sheets"
-         field: string - which field to query. this essentially changes the exactness of the search. right now, 'exact' or 'naive_lemmatizer'
-         sort_type: "relevance", "chronological"
-         exact: boolean. true if query should be exact
-         */
-        var field = exact ? "exact" : "naive_lemmatizer";
-
-        var core_query = {
-            "match_phrase": {
-
-            }
-        };
-
-        core_query['match_phrase'][field] = {
-            "query": query.replace(/(\S)"(\S)/g, '$1\u05f4$2'), //Replace internal quotes with gershaim.
-        };
-
-        if (!exact) {
-            core_query['match_phrase'][field]['slop'] = 10;
-        }
-
-        var o = {
-            "from": from,
-            "size": size,
-            "_source": {
-              "exclude": [ field ]
-            },
-            "highlight": {
-                "pre_tags": ["<b>"],
-                "post_tags": ["</b>"],
-                "fields": {}
-            }
-        };
-
-        o["highlight"]["fields"][field] = {"fragment_size": 200};
-
-
-        if (sort_type == "chronological") {
-            o["sort"] = [
-                {"comp_date": {}},
-                {"order": {}}                 // the sort field name is "order"
-            ];
-        } else if (sort_type == "relevance") {
-
-            o["query"] = {
-                "function_score": {
-                    "field_value_factor": {
-                        "field": "pagesheetrank",
-                        "missing": 0.04     // this default value comes from the equation used to calculate pagesheetrank. see search.py where this field is created
-                    }
-                }
-            }
-        }
-
-        var inner_query = {};
-        if (get_filters) {
-            //Initial, unfiltered query.  Get potential filters.
-            if (type) {
-              inner_query = {
-                  filtered: {
-                      query: core_query,
-                      filter: {type: {value: type}}
-                  }
-              };
-            } else {
-              inner_query = core_query
-
-            }
-
-            o['aggs'] = {
-                "category": {
-                    "terms": {
-                        "field": "path",
-                        "size": 0
-                    }
-                },
-                "type": {
-                    "terms": {
-                        "field": "_type",
-                        "size": 0
-                    }
-                }
-            };
-        } else if (!applied_filters || applied_filters.length == 0) {
-            // This is identical to above - can be cleaned up into a variable
-            if (type) {
-              inner_query = {
-                  filtered: {
-                      query: core_query,
-                      filter: {type: {value: type}}
-                  }
-              };
-            } else {
-              inner_query = core_query;
-            }
-        } else {
-            //Filtered query.  Add clauses.  Don't re-request potential filters.
-            var clauses = [];
-            for (var i = 0; i < applied_filters.length; i++) {
-
-                var filterSuffix = applied_filters[i].indexOf("/") != -1 ? ".*" : "/.*"; //filters with '/' might be leading to books. also, very unlikely they'll match an false positives
-                clauses.push({
-                    "regexp": {
-                        "path": RegExp.escape(applied_filters[i]) + filterSuffix
-                    }
-                });
-                /* Test for Commentary2 as well as Commentary */
-            }
-            if (type) {
-                inner_query = {
-                    "filtered": {
-                        "query": core_query,
-                        "filter": {
-                            "bool": {
-                                "must": [
-                                    {"or": clauses},
-                                    {type: {value: type}}
-                                ]
-                            }
-                        }
-                    }
-                };
-            } else {
-                inner_query = {
-                    "filtered": {
-                        "query": core_query,
-                        "filter": {
-                            "or": clauses
-                        }
-                    }
-                };
-            }
-            o['aggs'] = {
-                "type": {
-                    "terms": {
-                        "field": "_type",
-                        "size": 0
-                    }
-                }
-            };
-        }
-
-        //after that confusing logic, hopefully inner_query is defined properly
-        if (sort_type == "chronological") {
-            o['query'] = inner_query;
-        } else if (sort_type == "relevance") {
-            o['query']['function_score']['query'] = inner_query;
-        }
-        console.log(JSON.stringify(o));
-        return o;
-    },
-    //FilterTree object - for category filters
-    FilterNode: function() {
-      this.children = [];
-      this.parent = null;
-      this.selected = 0; //0 - not selected, 1 - selected, 2 - partially selected
-    }
-  },
   track: {
       // Helper functions for event tracking (with Google Analytics and Mixpanel)
       _tracker: null,
@@ -1181,6 +959,8 @@ Sefaria.util = {
 Sefaria.downloader = Downloader;
 
 Sefaria.api = Api;
+
+Sefaria.search = Search;
 
 Sefaria.settings = {
   _fields: {

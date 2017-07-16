@@ -90,6 +90,10 @@ class ReaderApp extends React.Component {
         themeStr: "white",
         searchQuery: '',
         searchSort: 'relevance', // relevance or chronological
+        availableSearchFilters: [],
+        appliedSearchFilters: [],
+        orphanSearchFilters: [],
+        searchFiltersValid: false,
         searchIsExact: false,
         isQueryRunning: false,
         isQueryLoadingTail: false,
@@ -642,14 +646,14 @@ class ReaderApp extends React.Component {
     }
 
     //var req = JSON.stringify(Sefaria.search.get_query_object(query,false,[],20,20*newSearchPage,"text"));
-
+    var request_filters = this.state.searchFiltersValid && this.state.appliedSearchFilters;
     var queryProps = {
       query: query,
       size: size,
       from: from,
       type: "text",
-      get_filters: false,
-      applied_filters: [],
+      get_filters: !this.state.searchFiltersValid,
+      applied_filters: request_filters,
       sort_type: this.state.searchSort,
       exact: this.state.searchIsExact
     };
@@ -667,19 +671,46 @@ class ReaderApp extends React.Component {
         this.state.searchQueryResult.concat(newResultsArray);
 
       var numResults = responseJson["hits"]["total"];
-      this.setState({isQueryLoadingTail: false, isQueryRunning: false, searchQueryResult:resultArray, numSearchResults: numResults, initSearchListSize: size});
+      this.setState({
+        isQueryLoadingTail: false,
+        isQueryRunning: false,
+        searchQueryResult: resultArray,
+        numSearchResults: numResults,
+        initSearchListSize: size
+      });
 
       if (resetQuery) {
         Sefaria.track.event("Search","Query: text", query, numResults);
+      }
+      if (responseJson.aggregations) {
+        if (responseJson.aggregations.category) {
+          var ftree = Sefaria.search._buildFilterTree(responseJson.aggregations.category.buckets, this.state.appliedSearchFilters);
+          var orphans = Sefaria.search._applyFilters(ftree, this.state.appliedSearchFilters);
+          this.setAvailableSearchFilters(ftree.availableFilters, orphans);
+        }
       }
     })
     .catch((error) => {
       console.log(error);
       //TODO: add hasError boolean to state
-      this.setState({isQueryLoadingTail: false, isQueryRunning: false, searchQueryResult:[], numSearchResults: 0, initSearchListSize: 20, initSearchScrollPos: 0});
+      this.setState({
+        isQueryLoadingTail: false,
+        isQueryRunning: false,
+        searchFiltersValid: false,
+        searchQueryResult:[],
+        numSearchResults: 0,
+        initSearchListSize: 20,
+        initSearchScrollPos: 0
+      });
     });
 
-    this.setState({searchQuery:query, currSearchPage: newSearchPage, isQueryRunning: true});
+    this.setState({
+      searchQuery:query,
+      currSearchPage:
+      newSearchPage,
+      isQueryRunning: true,
+      searchFiltersValid: false
+    });
   };
 
   setLoadQueryTail = (isLoading) => {
@@ -691,6 +722,27 @@ class ReaderApp extends React.Component {
 
   setIsNewSearch = (isNewSearch) => {
     this.setState({isNewSearch: isNewSearch});
+  };
+
+  setAvailableSearchFilters = (availableFilters, orphans) => {
+    this.setState({availableSearchFilters: availableFilters, orphanSearchFilters: orphans, searchFiltersValid: true});
+  };
+
+  updateSearchFilter = (filterNode) => {
+    if (filterNode.isUnselected()) {
+      filterNode.setSelected(true);
+    } else {
+      filterNode.setUnselected(true);
+    }
+    this.setState({appliedSearchFilters: this.getAppliedFilters()})
+  };
+
+  getAppliedSearchFilters = (availableFilters) => {
+    var results = [];
+    for (var i = 0; i < availableFilters.length; i++) {
+        results = results.concat(availableFilters[i].getAppliedFilters());
+    }
+    return results;
   };
 
   search = (query) => {

@@ -49,6 +49,7 @@ EXPORT_PATH = SEFARIA_EXPORT_PATH + "/" + SCHEMA_VERSION
 MINIFY_JSON = True
 
 TOC_PATH          = EXPORT_PATH + "/toc.json"
+SEARCH_TOC_PATH   = EXPORT_PATH + "/search_toc.json"
 LAST_UPDATED_PATH = EXPORT_PATH + "/last_updated.json"
 
 
@@ -95,6 +96,7 @@ def zip_last_text(title):
 	z = zipfile.ZipFile(zipPath, "w", zipfile.ZIP_DEFLATED)
 
 	for file in glob.glob("*.json"):
+		# NOTE: this also will skip search_toc.json since it ends in `toc.json`
 		if file.endswith("calendar.json") or file.endswith("toc.json") or file.endswith("last_updated.json"):
 			continue
 		z.write(file)
@@ -445,8 +447,9 @@ def export_toc():
 	"""
 	print "Export Table of Contents"
 	new_toc = model.library.get_toc()
-
+	new_search_toc = model.library.get_search_filter_toc()
 	write_doc(new_toc, TOC_PATH)
+	write_doc(new_search_toc, SEARCH_TOC_PATH)
 
 
 def new_books_since_last_update():
@@ -463,7 +466,7 @@ def new_books_since_last_update():
 		else:
 			books.add(temp_toc["title"])
 		return books
-	
+
 	last_updated = json.load(open(LAST_UPDATED_PATH, 'rb')) if os.path.exists(LAST_UPDATED_PATH) else {"titles": {}}
 	old_books = last_updated["titles"].keys()
 	new_books = get_books(new_toc, set())
@@ -526,7 +529,7 @@ def purge_cloudflare_cache(titles):
 	Purges the URL for each zip file named in `titles` as well as toc.json, last_updated.json and calendar.json.
 	"""
 	files = ["%s/%s/%s.zip" % (CLOUDFLARE_PATH, SCHEMA_VERSION, title) for title in titles]
-	files += ["%s/%s/%s.json" % (CLOUDFLARE_PATH, SCHEMA_VERSION, title) for title in ("toc", "last_updated", "calendar")]
+	files += ["%s/%s/%s.json" % (CLOUDFLARE_PATH, SCHEMA_VERSION, title) for title in ("toc", "search_toc", "last_updated", "calendar")]
 	url = 'https://api.cloudflare.com/client/v4/zones/%s/purge_cache' % CLOUDFLARE_ZONE
 	payload = {"files": files}
 	headers = {
