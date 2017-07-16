@@ -263,6 +263,7 @@ module.exports = StyleSheet.create({
     fontStyle: "normal",
     fontFamily: "Amiri",
     paddingTop: 0,
+    paddingRight: 20,
     backgroundColor: "transparent"
   },
   searchInputPlaceholder: {
