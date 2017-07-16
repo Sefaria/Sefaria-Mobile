@@ -5,21 +5,18 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import {
 	View,
-	Text,
-	TouchableOpacity,
-	Image,
-	ScrollView
+	Text
 } from 'react-native';
 
 const SearchBar        = require('./SearchBar');
 const SearchResultList = require('./SearchResultList');
+const SearchFilterPage = require('./SearchFilterPage');
 const styles           = require('./Styles');
 const strings          = require('./LocalizedStrings');
 
 var {
   CategoryColorLine,
-	DirectedButton,
-	ButtonToggleSet
+	DirectedButton
 } = require('./Misc.js');
 
 class SearchPage extends React.Component {
@@ -50,11 +47,6 @@ class SearchPage extends React.Component {
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 	};
 
-	backFromFilter = () => {
-		this.props.openSubMenu(null);
-		this.props.onQueryChange(this.props.query, true, false);
-	};
-
   render() {
 		var status = this.props.hasInternet ?
 						this.props.loadingQuery ? strings.loading
@@ -67,16 +59,8 @@ class SearchPage extends React.Component {
 			summaryStyle.push(styles.searchResultSummaryHe);
 		}
     var forwardImageStyle = isheb ? styles.forwardButtonHe : styles.forwardButtonEn;
-		var backImageStyle = isheb ? styles.directedButtonWithTextHe : styles.directedButtonWithTextEn;
     var content = null;
-		var sortOptions = [
-			{name: "chronological", text: strings.chronological, onPress: () => { this.props.setSearchOptions("chronological", this.props.isExact); }},
-			{name: "relevance", text: strings.relevance, onPress: () => { this.props.setSearchOptions("relevance", this.props.isExact); }}
-		];
-		var exactOptions = [
-			{name: false, text: strings.allResults, onPress: () => { this.props.setSearchOptions(this.props.sort, false); }},
-			{name: true, text: strings.exactMatches, onPress: () => { this.props.setSearchOptions(this.props.sort, true); }}
-		];
+
 		switch (this.props.subMenuOpen) {
 			case (null):
         content = (
@@ -118,49 +102,16 @@ class SearchPage extends React.Component {
 			  break;
 			case ("filter"):
 				content = (
-					<View style={{flex:1}}>
-						<View style={[styles.header, this.props.theme.header, {justifyContent: "space-between"}]}>
-							<DirectedButton
-								onPress={this.backFromFilter}
-								theme={this.props.theme}
-								themeStr={this.props.themeStr}
-								text="Back"
-								direction="back"
-								language="english"
-								textStyle={[this.props.theme.searchResultSummaryText, langStyle]}
-								imageStyle={[styles.menuButton, backImageStyle]}/>
-							<TouchableOpacity onPress={this.backFromFilter} style={{marginLeft: 12, marginRight: 12}}>
-								<Text style={[this.props.theme.searchResultSummaryText, langStyle]}>{"Apply"}</Text>
-							</TouchableOpacity>
-						</View>
-						<ScrollView style={styles.menuContent}>
-							<View style={styles.settingsSection}>
-								<View>
-									<Text style={[styles.settingsSectionHeader, this.props.theme.tertiaryText]}>{strings.sortBy}</Text>
-								</View>
-								<ButtonToggleSet
-									theme={this.props.theme}
-									options={sortOptions}
-									contentLang={"english"}
-									active={this.props.sort} />
-							</View>
-							<View style={styles.settingsSection}>
-								<View>
-									<Text style={[styles.settingsSectionHeader, this.props.theme.tertiaryText]}>{strings.filterTexts}</Text>
-								</View>
-								<ButtonToggleSet
-									theme={this.props.theme}
-									options={exactOptions}
-									contentLang={"english"}
-									active={this.props.isExact} />
-							</View>
-							<View style={styles.settingsSection}>
-								<View>
-									<Text style={[styles.settingsSectionHeader, this.props.theme.tertiaryText]}>{strings.category}</Text>
-								</View>
-							</View>
-						</ScrollView>
-					</View>
+					<SearchFilterPage
+						theme={this.props.theme}
+						themeStr={this.props.themeStr}
+						query={this.props.query}
+						sort={this.props.sort}
+						isExact={this.props.isExact}
+						openSubMenu={this.props.openSubMenu}
+						onQueryChange={this.props.onQueryChange}
+						setSearchOptions={this.props.setSearchOptions}
+					/>
 				);
 		}
 		return (
