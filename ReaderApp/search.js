@@ -279,7 +279,7 @@ var Search = {
         if (branch !== null && typeof branch === "object") {
           // Recurse into children
           Object.keys(branch).forEach((key) => {
-            walker(branch[key]);
+            walker(key, branch[key]);
           });
           // Do the summation with a hacked object 'reduce'
           if ((!("docCount" in branch)) || (branch["docCount"] === 0)) {
