@@ -36,6 +36,9 @@ class SearchPage extends React.Component {
 		query:               PropTypes.string,
 		sort:                PropTypes.string,
 		isExact:             PropTypes.bool,
+		availableFilters:    PropTypes.array,
+		appliedFilters:      PropTypes.array,
+		filtersValid:        PropTypes.bool,
 		queryResult:         PropTypes.array,
 		loadingQuery:        PropTypes.bool,
 		loadingTail:         PropTypes.bool,
@@ -108,6 +111,9 @@ class SearchPage extends React.Component {
 						query={this.props.query}
 						sort={this.props.sort}
 						isExact={this.props.isExact}
+						availableFilters={this.props.availableFilters}
+						appliedFilters={this.props.appliedFilters}
+						filtersValid={this.props.filtersValid}
 						openSubMenu={this.props.openSubMenu}
 						onQueryChange={this.props.onQueryChange}
 						setSearchOptions={this.props.setSearchOptions}

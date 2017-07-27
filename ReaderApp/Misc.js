@@ -326,6 +326,33 @@ class LoadingView extends React.Component {
   }
 }
 
+class IndeterminateCheckBox extends React.Component {
+  static propTypes = {
+    theme:    PropTypes.object,
+    state:    PropTypes.bool,  // true, false or null
+    onPress:  PropTypes.func.isRequired
+  };
+
+  render() {
+    var src;
+    if (this.props.state === true) {
+      src = require('./img/checkbox-checked.png');
+    } else if (this.props.state === false) {
+      src = require('./img/checkbox-unchecked.png');
+    } else {
+      src = require('./img/checkbox-partially.png')
+    }
+
+    return (
+      <TouchableOpacity onPress={this.props.onPress}>
+        <Image source={src}
+          resizeMode={Image.resizeMode.contain}
+          style={styles.searchFilterCheckBox} />
+      </TouchableOpacity>
+    );
+  }
+}
+
 
 module.exports.TwoBox = TwoBox;
 module.exports.CategoryColorLine = CategoryColorLine;
@@ -336,10 +363,10 @@ module.exports.CollapseIcon = CollapseIcon;
 module.exports.DirectedButton = DirectedButton;
 module.exports.SearchButton = SearchButton;
 module.exports.MenuButton = MenuButton;
-//module.exports.GoBackButton = GoBackButton;
 module.exports.CloseButton = CloseButton;
 module.exports.TripleDots = TripleDots;
 module.exports.DisplaySettingsButton = DisplaySettingsButton;
 module.exports.ToggleSet = ToggleSet;
 module.exports.ButtonToggleSet = ButtonToggleSet;
 module.exports.LoadingView = LoadingView;
+module.exports.IndeterminateCheckBox = IndeterminateCheckBox;

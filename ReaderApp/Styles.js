@@ -282,6 +282,20 @@ module.exports = StyleSheet.create({
     flexDirection: 'column',
     borderBottomWidth: 1,
   },
+  searchFilterCat: {
+    flexGrow: 1,
+    flexDirection: "row",
+    borderTopWidth: 4,
+    margin: 2,
+    paddingVertical: 10,
+    paddingHorizontal: 5,
+    justifyContent: "flex-start",
+    alignItems: "center",
+  },
+  searchFilterCheckBox: {
+    width: 18,
+    height: 18,
+  },
   textListSummary: {
     flex: 1
   },

@@ -820,6 +820,9 @@ class ReaderApp extends React.Component {
                   searchQuery={this.state.searchQuery}
                   searchSort={this.state.searchSort}
                   searchIsExact={this.state.searchIsExact}
+                  availableSearchFilters={this.state.availableSearchFilters}
+                  appliedSearchFilters={this.state.appliedSearchFilters}
+                  searchFiltersValid={this.state.searchFiltersValid}
                   isQueryLoadingTail={this.state.isQueryLoadingTail}
                   initSearchListSize={this.state.initSearchListSize}
                   initSearchScrollPos={this.state.initSearchScrollPos}

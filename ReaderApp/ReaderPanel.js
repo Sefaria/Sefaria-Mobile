@@ -78,6 +78,9 @@ class ReaderPanel extends React.Component {
     searchQuery:           PropTypes.string,
     searchSort:            PropTypes.string,
     searchIsExact:         PropTypes.bool,
+    availableSearchFilters:PropTypes.array,
+    appliedSearchFilters:  PropTypes.array,
+    searchFiltersValid:    PropTypes.bool,
     isQueryLoadingTail:    PropTypes.bool,
     isNewSearch:           PropTypes.bool,
     numSearchResults:      PropTypes.number,
@@ -329,6 +332,9 @@ class ReaderPanel extends React.Component {
             query={this.props.searchQuery}
             sort={this.props.searchSort}
             isExact={this.props.searchIsExact}
+            availableFilters={this.props.availableSearchFilters}
+            appliedFilters={this.props.appliedSearchFilters}
+            filtersValid={this.props.searchFiltersValid}
             loadingQuery={this.props.isQueryRunning}
             isNewSearch={this.props.isNewSearch}
             loadingTail={this.props.isQueryLoadingTail}

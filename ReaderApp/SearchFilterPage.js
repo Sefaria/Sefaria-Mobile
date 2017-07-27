@@ -11,21 +11,28 @@ import {
 
 var {
 	DirectedButton,
-	ButtonToggleSet
+	ButtonToggleSet,
+	IndeterminateCheckBox,
 } = require('./Misc.js');
 
+const FilterNode       = require('./FilterNode');
 const styles           = require('./Styles');
 const strings          = require('./LocalizedStrings');
 
+//console.log("filternaodf", FilterNode.checkPropType({}, 'blah', 'hii'));
+
 class SearchFilterPage extends React.Component {
   static propTypes = {
-    theme:         PropTypes.object.isRequired,
-    themeStr:      PropTypes.string.isRequired,
-    query:         PropTypes.string,
-    sort:          PropTypes.string,
-    isExact:       PropTypes.bool,
-    openSubMenu:   PropTypes.func,
-    onQueryChange: PropTypes.func,
+    theme:            PropTypes.object.isRequired,
+    themeStr:         PropTypes.string.isRequired,
+    query:            PropTypes.string,
+    sort:             PropTypes.string,
+    isExact:          PropTypes.bool,
+		availableFilters: PropTypes.array,
+		appliedFilters:   PropTypes.array,
+		filtersValid:     PropTypes.bool,
+    openSubMenu:      PropTypes.func,
+    onQueryChange:    PropTypes.func,
     setSearchOptions: PropTypes.func
   };
 
@@ -92,10 +99,71 @@ class SearchFilterPage extends React.Component {
           <View>
             <Text style={[styles.settingsSectionHeader, this.props.theme.tertiaryText]}>{strings.category}</Text>
           </View>
+					<View>
+						{ this.props.filtersValid ?
+							this.props.availableFilters.map((filter)=>{
+								return (
+									<SearchFilter
+										theme={this.props.theme}
+										themeStr={this.props.themeStr}
+										filterNode={filter}
+									/>);
+							}) : (<Text>{"Loading..."}</Text>)
+						}
+					</View>
         </View>
       </ScrollView>
     </View>);
   }
+}
+
+class SearchFilter extends React.Component {
+	static propTypes = {
+			theme:       PropTypes.object,
+			themeStr:    PropTypes.string,
+			filterNode:  FilterNode.checkPropType
+	};
+
+	constructor(props) {
+		super(props);
+		this.state = {
+			state: true
+		}
+	}
+
+	clickCheckBox = () => {
+		var nextState;
+		if (this.state.state === true) {
+			nextState = null;
+		} else if (this.state.state === false) {
+			nextState = true;
+		} else {
+			nextState = false;
+		}
+		this.setState({state: nextState});
+	}
+
+	render() {
+		let filter = this.props.filterNode;
+		let isCat = filter.children.length > 0;
+		let title = isCat ? filter.title.toUpperCase() : filter.title;
+		let heTitle = filter.heTitle;
+		let count = filter.docCount;
+
+		let colorCat = Sefaria.palette.categoryColor(filter.title);
+		let colorStyle = {"borderColor": colorCat};
+		let textStyle  = [this.props.theme.text, isCat ? styles.spacedText : null];
+
+		return (
+			<TouchableOpacity onPress={()=>{}} style={[styles.searchFilterCat, this.props.theme.readerNavCategory, colorStyle]}>
+				<View style={{paddingHorizontal: 10}}>
+					<IndeterminateCheckBox theme={this.props.theme} state={this.state.state} onPress={this.clickCheckBox} />
+				</View>
+				{"english" == "english"?
+					(<Text style={[styles.englishText].concat(textStyle)}>{`${title} (${count})`}</Text>) :
+					(<Text style={[styles.hebrewText].concat(textStyle)}>{`${heTitle} (${count})`}</Text>)}
+			 </TouchableOpacity>);
+	}
 }
 
 module.exports = SearchFilterPage;
