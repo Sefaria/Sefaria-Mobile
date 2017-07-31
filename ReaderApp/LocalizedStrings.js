@@ -69,10 +69,10 @@ module.exports = new LocalizedStrings({
     sortBy: "SORT BY",
     chronological: "Chronological",
     relevance: "Relevance",
-    filterTexts: "FILTER TEXTS",
-    allResults: "All Results",
-    exactMatches: "Exact Matches",
-    category: "CATEGORY"
+    exactSearch: "EXACT SEARCH",
+    on: "On",
+    off: "Off",
+    filterByText: "FILTER BY TEXT"
   },
   he: {
     recent: "נצפו לאחרונה",
@@ -137,14 +137,14 @@ module.exports = new LocalizedStrings({
     libraryUpToDateMessage: "הגרסה העדכנית ביותר של הספרייה הבלתי מקוונת ל-iOS מעודכנת במכשירך",
     checkForUpdates: "בדוק עדכונים קיימים",
     downloadUpdates: "הורד עדכונים",
-    clearAll: "Clear All",
+    clearAll: "נקה הכל",
     filter: "סינון",
     sortBy: "מיון לפי",
     chronological: "כרונולוגי",
     relevance: "רלוונטיות",
-    filterTexts: "FILTER TEXTS",
-    allResults: "All Results",
-    exactMatches: "Exact Matches",
-    category: "CATEGORY"
+    exactSearch: "חיפוש מדויק",
+    on: "פעיל",
+    off: "כבוי",
+    filterByText: "סינול לפי טקסט"
   }
 });

@@ -43,8 +43,8 @@ class SearchFilterPage extends React.Component {
       {name: "relevance", text: strings.relevance, onPress: () => { this.props.setSearchOptions("relevance", this.props.isExact); }}
     ];
     this.exactOptions = [
-      {name: false, text: strings.allResults, onPress: () => { this.props.setSearchOptions(this.props.sort, false); }},
-      {name: true, text: strings.exactMatches, onPress: () => { this.props.setSearchOptions(this.props.sort, true); }}
+      {name: false, text: strings.off, onPress: () => { this.props.setSearchOptions(this.props.sort, false); }},
+      {name: true, text: strings.on, onPress: () => { this.props.setSearchOptions(this.props.sort, true); }}
     ];
   }
 
@@ -87,7 +87,7 @@ class SearchFilterPage extends React.Component {
         </View>
         <View style={styles.settingsSection}>
           <View>
-            <Text style={[styles.settingsSectionHeader, this.props.theme.tertiaryText]}>{strings.filterTexts}</Text>
+            <Text style={[styles.settingsSectionHeader, this.props.theme.tertiaryText]}>{strings.exactSearch}</Text>
           </View>
           <ButtonToggleSet
             theme={this.props.theme}
@@ -97,7 +97,7 @@ class SearchFilterPage extends React.Component {
         </View>
         <View style={styles.settingsSection}>
           <View>
-            <Text style={[styles.settingsSectionHeader, this.props.theme.tertiaryText]}>{strings.category}</Text>
+            <Text style={[styles.settingsSectionHeader, this.props.theme.tertiaryText]}>{strings.filterByText}</Text>
           </View>
 					<View>
 						{ this.props.filtersValid ?
@@ -150,7 +150,7 @@ class SearchFilter extends React.Component {
 		let heTitle = filter.heTitle;
 		let count = filter.docCount;
 
-		let colorCat = Sefaria.palette.categoryColor(filter.title);
+		let colorCat = Sefaria.palette.categoryColor(filter.title.replace(" Commentaries", ""));
 		let colorStyle = {"borderColor": colorCat};
 		let textStyle  = [this.props.theme.text, isCat ? styles.spacedText : null];
 

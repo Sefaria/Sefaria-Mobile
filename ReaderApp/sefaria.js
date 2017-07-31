@@ -1358,6 +1358,7 @@ Sefaria.palette.categoryColors = {
   "Philosophy":         Sefaria.palette.colors.lavender,
   "Liturgy":            Sefaria.palette.colors.darkpink,
   "Tosefta":            Sefaria.palette.colors.teal,
+  "Tanaitic":           Sefaria.palette.colors.teal,
   "Parshanut":          Sefaria.palette.colors.paleblue,
   "Chasidut":           Sefaria.palette.colors.lightgreen,
   "Musar":              Sefaria.palette.colors.raspberry,
