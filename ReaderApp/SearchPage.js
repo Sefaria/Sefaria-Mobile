@@ -103,11 +103,13 @@ class SearchPage extends React.Component {
 							isExact={this.props.isExact} />
 					  </View>);
 			  break;
-			case ("filter"):
+			default:
 				content = (
 					<SearchFilterPage
 						theme={this.props.theme}
 						themeStr={this.props.themeStr}
+						subMenuOpen={this.props.subMenuOpen}
+						openSubMenu={this.props.openSubMenu}
 						query={this.props.query}
 						sort={this.props.sort}
 						isExact={this.props.isExact}

@@ -25,6 +25,8 @@ class SearchFilterPage extends React.Component {
   static propTypes = {
     theme:            PropTypes.object.isRequired,
     themeStr:         PropTypes.string.isRequired,
+		subMenuOpen:      PropTypes.string.isRequired,
+		openSubMenu:      PropTypes.func.isRequired,
     query:            PropTypes.string,
     sort:             PropTypes.string,
     isExact:          PropTypes.bool,
@@ -50,8 +52,12 @@ class SearchFilterPage extends React.Component {
 
 
   backFromFilter = () => {
-		this.props.openSubMenu(null);
-		this.props.onQueryChange(this.props.query, true, false);
+		let backPage = this.props.subMenuOpen == "filter" ? null : "filter"; // if you're at a category filter page, go back to main filter page
+		this.props.openSubMenu(backPage);
+		if (backPage == null) {
+			//TODO consider only firing new query if you actually touched a button on the filter page
+			this.props.onQueryChange(this.props.query, true, false);
+		}
 	};
 
   render() {
@@ -59,6 +65,77 @@ class SearchFilterPage extends React.Component {
     var langStyle = !isheb ? styles.enInt : styles.heInt;
     var backImageStyle = isheb ? styles.directedButtonWithTextHe : styles.directedButtonWithTextEn;
 
+		var content = null;
+		switch (this.props.subMenuOpen) {
+			case "filter":
+				content =
+				(<View>
+					<View style={styles.settingsSection}>
+						<View>
+							<Text style={[styles.settingsSectionHeader, this.props.theme.tertiaryText]}>{strings.sortBy}</Text>
+						</View>
+						<ButtonToggleSet
+							theme={this.props.theme}
+							options={this.sortOptions}
+							contentLang={"english"}
+							active={this.props.sort} />
+					</View>
+					<View style={styles.settingsSection}>
+						<View>
+							<Text style={[styles.settingsSectionHeader, this.props.theme.tertiaryText]}>{strings.exactSearch}</Text>
+						</View>
+						<ButtonToggleSet
+							theme={this.props.theme}
+							options={this.exactOptions}
+							contentLang={"english"}
+							active={this.props.isExact} />
+					</View>
+					<View style={styles.settingsSection}>
+						<View>
+							<Text style={[styles.settingsSectionHeader, this.props.theme.tertiaryText]}>{strings.filterByText}</Text>
+						</View>
+						<View>
+							{ this.props.filtersValid ?
+								this.props.availableFilters.map((filter)=>{
+									return (
+										<SearchFilter
+											theme={this.props.theme}
+											themeStr={this.props.themeStr}
+											filterNode={filter}
+											openSubMenu={this.props.openSubMenu}
+										/>);
+								}) : (<Text>{"Loading..."}</Text>)
+							}
+						</View>
+					</View>
+				</View>);
+				break;
+			default:
+			  var currFilter = FilterNode.findFilterInList(this.props.availableFilters, this.props.subMenuOpen);
+        var filterList =
+				[(<SearchFilter
+					key={0}
+					theme={this.props.theme}
+					themeStr={this.props.themeStr}
+					filterNode={currFilter}
+					openSubMenu={()=>{}}
+					/>)];
+				content =
+				(<View>
+					{ this.props.filtersValid ?
+						filterList.concat(currFilter.getLeafNodes().map((filter, ifilter)=>{
+							return (
+								<SearchFilter
+									key={ifilter+1}
+									theme={this.props.theme}
+									themeStr={this.props.themeStr}
+									filterNode={filter}
+									openSubMenu={()=>{}}
+								/>);
+						})) : (<Text>{"Loading..."}</Text>)
+					}
+				</View>);
+		}
     return (<View style={{flex:1}}>
       <View style={[styles.header, this.props.theme.header, {justifyContent: "space-between"}]}>
         <DirectedButton
@@ -74,44 +151,8 @@ class SearchFilterPage extends React.Component {
           <Text style={[this.props.theme.searchResultSummaryText, langStyle]}>{"Apply"}</Text>
         </TouchableOpacity>
       </View>
-      <ScrollView style={styles.menuContent}>
-        <View style={styles.settingsSection}>
-          <View>
-            <Text style={[styles.settingsSectionHeader, this.props.theme.tertiaryText]}>{strings.sortBy}</Text>
-          </View>
-          <ButtonToggleSet
-            theme={this.props.theme}
-            options={this.sortOptions}
-            contentLang={"english"}
-            active={this.props.sort} />
-        </View>
-        <View style={styles.settingsSection}>
-          <View>
-            <Text style={[styles.settingsSectionHeader, this.props.theme.tertiaryText]}>{strings.exactSearch}</Text>
-          </View>
-          <ButtonToggleSet
-            theme={this.props.theme}
-            options={this.exactOptions}
-            contentLang={"english"}
-            active={this.props.isExact} />
-        </View>
-        <View style={styles.settingsSection}>
-          <View>
-            <Text style={[styles.settingsSectionHeader, this.props.theme.tertiaryText]}>{strings.filterByText}</Text>
-          </View>
-					<View>
-						{ this.props.filtersValid ?
-							this.props.availableFilters.map((filter)=>{
-								return (
-									<SearchFilter
-										theme={this.props.theme}
-										themeStr={this.props.themeStr}
-										filterNode={filter}
-									/>);
-							}) : (<Text>{"Loading..."}</Text>)
-						}
-					</View>
-        </View>
+      <ScrollView contentContainerStyle={styles.menuContent}>
+				{content}
       </ScrollView>
     </View>);
   }
@@ -121,7 +162,8 @@ class SearchFilter extends React.Component {
 	static propTypes = {
 			theme:       PropTypes.object,
 			themeStr:    PropTypes.string,
-			filterNode:  FilterNode.checkPropType
+			filterNode:  FilterNode.checkPropType,
+			openSubMenu: PropTypes.func,
 	};
 
 	constructor(props) {
@@ -155,7 +197,7 @@ class SearchFilter extends React.Component {
 		let textStyle  = [this.props.theme.text, isCat ? styles.spacedText : null];
 
 		return (
-			<TouchableOpacity onPress={()=>{}} style={[styles.searchFilterCat, this.props.theme.readerNavCategory, colorStyle]}>
+			<TouchableOpacity onPress={()=>{ this.props.openSubMenu(filter.title) }} style={[styles.searchFilterCat, this.props.theme.readerNavCategory, colorStyle]}>
 				<View style={{paddingHorizontal: 10}}>
 					<IndeterminateCheckBox theme={this.props.theme} state={this.state.state} onPress={this.clickCheckBox} />
 				</View>

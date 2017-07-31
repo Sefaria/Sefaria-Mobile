@@ -116,7 +116,14 @@ class FilterNode {
       }
       return results;
   }
-
+  static findFilterInList(filterList, filterName) {
+    for (let filter of filterList) {
+      if (filter.title == filterName) {
+        return filter;
+      }
+    }
+    return null;
+  }
   static checkPropType = function(props, propName, componentName) {
     if (typeof props[propName] == 'undefined' || props[propName] === null) {
       return new Error(`${props[propName]} cannot be null or undefined`);

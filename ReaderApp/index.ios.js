@@ -652,7 +652,7 @@ class ReaderApp extends React.Component {
       size: size,
       from: from,
       type: "text",
-      get_filters: !this.state.searchFiltersValid,
+      get_filters: resetQuery,
       applied_filters: request_filters,
       sort_type: this.state.searchSort,
       exact: this.state.searchIsExact
@@ -706,10 +706,9 @@ class ReaderApp extends React.Component {
 
     this.setState({
       searchQuery:query,
-      currSearchPage:
-      newSearchPage,
+      currSearchPage: newSearchPage,
       isQueryRunning: true,
-      searchFiltersValid: false
+      searchFiltersValid: !resetQuery,
     });
   };
 
@@ -734,7 +733,7 @@ class ReaderApp extends React.Component {
     } else {
       filterNode.setUnselected(true);
     }
-    this.setState({appliedSearchFilters: this.getAppliedFilters()})
+    this.setState({appliedSearchFilters: this.getAppliedSearchFilters(this.state.availableFilters)})
   };
 
   getAppliedSearchFilters = (availableFilters) => {
