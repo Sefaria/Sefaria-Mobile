@@ -80,7 +80,8 @@ class SearchResultList extends React.Component {
           onLayout={this.scrollToSearchResult}
           onScroll={this.setCurScrollPos}
           scrollEventThrottle={100}
-	        onEndReached={this.onEndReached}/>
+	        onEndReached={this.onEndReached}
+          contentContainerStyle={{marginBottom:50}}/>
 	    );
   	} else {
   		return null;

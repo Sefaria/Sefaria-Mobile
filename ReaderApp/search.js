@@ -86,6 +86,7 @@ var Search = {
       sort_type: "relevance", "chronological"
       exact: boolean. true if query should be exact
       */
+
       var field = exact ? "exact" : "naive_lemmatizer";
 
       var core_query = {
@@ -184,7 +185,7 @@ var Search = {
           var filterSuffix = applied_filters[i].indexOf("/") != -1 ? ".*" : "/.*"; //filters with '/' might be leading to books. also, very unlikely they'll match an false positives
           clauses.push({
             "regexp": {
-              "path": RegExp.escape(applied_filters[i]) + filterSuffix
+              "path": Sefaria.util.regexEscape(applied_filters[i]) + filterSuffix
             }
           });
           /* Test for Commentary2 as well as Commentary */
@@ -391,7 +392,7 @@ var Search = {
         else { orphans.push(path); }
       });
       return orphans;
-    }
+    },
   };
 
   module.exports = Search;

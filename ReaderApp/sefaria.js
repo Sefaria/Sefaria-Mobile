@@ -953,7 +953,10 @@ Sefaria.util = {
     else if (newLang == "hebrew")
       newLang = he.trim() != "" || en.trim() == "" ? "hebrew" : "english"; //make sure when there's no content it's hebrew
     return newLang;
-  }
+  },
+  regexEscape: function(s) {
+    return s.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+  },
 };
 
 Sefaria.downloader = Downloader;

@@ -11,6 +11,7 @@ import {
 
 var {
 	DirectedButton,
+	DirectedArrow,
 	ButtonToggleSet,
 	IndeterminateCheckBox,
 } = require('./Misc.js');
@@ -25,8 +26,11 @@ class SearchFilterPage extends React.Component {
   static propTypes = {
     theme:            PropTypes.object.isRequired,
     themeStr:         PropTypes.string.isRequired,
+		settings:         PropTypes.object.isRequired,
 		subMenuOpen:      PropTypes.string.isRequired,
+		updateFilter:     PropTypes.func.isRequired,
 		openSubMenu:      PropTypes.func.isRequired,
+		clearAllFilters:  PropTypes.func.isRequired,
     query:            PropTypes.string,
     sort:             PropTypes.string,
     isExact:          PropTypes.bool,
@@ -45,8 +49,12 @@ class SearchFilterPage extends React.Component {
       {name: "relevance", text: strings.relevance, onPress: () => { this.props.setSearchOptions("relevance", this.props.isExact); }}
     ];
     this.exactOptions = [
-      {name: false, text: strings.off, onPress: () => { this.props.setSearchOptions(this.props.sort, false); }},
-      {name: true, text: strings.on, onPress: () => { this.props.setSearchOptions(this.props.sort, true); }}
+      {name: false, text: strings.off, onPress: () => {
+				this.props.setSearchOptions(this.props.sort, false, ()=>this.props.onQueryChange(this.props.query, true, false, true));
+			}},
+      {name: true, text: strings.on, onPress: () => {
+				this.props.setSearchOptions(this.props.sort, true, ()=>this.props.onQueryChange(this.props.query, true, false, true));
+			}}
     ];
   }
 
@@ -96,13 +104,16 @@ class SearchFilterPage extends React.Component {
 						</View>
 						<View>
 							{ this.props.filtersValid ?
-								this.props.availableFilters.map((filter)=>{
+								this.props.availableFilters.map((filter, ifilter)=>{
 									return (
 										<SearchFilter
+											key={ifilter}
 											theme={this.props.theme}
 											themeStr={this.props.themeStr}
+											settings={this.props.settings}
 											filterNode={filter}
 											openSubMenu={this.props.openSubMenu}
+											updateFilter={this.props.updateFilter}
 										/>);
 								}) : (<Text>{"Loading..."}</Text>)
 							}
@@ -117,8 +128,10 @@ class SearchFilterPage extends React.Component {
 					key={0}
 					theme={this.props.theme}
 					themeStr={this.props.themeStr}
+					settings={this.props.settings}
 					filterNode={currFilter}
 					openSubMenu={()=>{}}
+					updateFilter={this.props.updateFilter}
 					/>)];
 				content =
 				(<View>
@@ -129,8 +142,10 @@ class SearchFilterPage extends React.Component {
 									key={ifilter+1}
 									theme={this.props.theme}
 									themeStr={this.props.themeStr}
+									settings={this.props.settings}
 									filterNode={filter}
 									openSubMenu={()=>{}}
+									updateFilter={this.props.updateFilter}
 								/>);
 						})) : (<Text>{"Loading..."}</Text>)
 					}
@@ -142,16 +157,19 @@ class SearchFilterPage extends React.Component {
           onPress={this.backFromFilter}
           theme={this.props.theme}
           themeStr={this.props.themeStr}
-          text="Back"
+          text={strings.back}
           direction="back"
           language="english"
           textStyle={[this.props.theme.searchResultSummaryText, langStyle]}
           imageStyle={[styles.menuButton, backImageStyle]}/>
-        <TouchableOpacity onPress={this.backFromFilter} style={{marginLeft: 12, marginRight: 12}}>
-          <Text style={[this.props.theme.searchResultSummaryText, langStyle]}>{"Apply"}</Text>
+				<TouchableOpacity onPress={this.props.clearAllFilters} style={{marginLeft: 12, marginRight: 12}}>
+          <Text style={[this.props.theme.searchResultSummaryText, langStyle]}>{strings.clearAll}</Text>
         </TouchableOpacity>
       </View>
-      <ScrollView contentContainerStyle={styles.menuContent}>
+      <ScrollView key={this.props.subMenuOpen} contentContainerStyle={styles.menuContent}>
+				<Text>
+					{ this.props.appliedFilters.join(", ") }
+				</Text>
 				{content}
       </ScrollView>
     </View>);
@@ -160,32 +178,20 @@ class SearchFilterPage extends React.Component {
 
 class SearchFilter extends React.Component {
 	static propTypes = {
-			theme:       PropTypes.object,
-			themeStr:    PropTypes.string,
-			filterNode:  FilterNode.checkPropType,
-			openSubMenu: PropTypes.func,
+			theme:        PropTypes.object,
+			themeStr:     PropTypes.string,
+			settings:     PropTypes.object.isRequired,
+			filterNode:   FilterNode.checkPropType,
+			openSubMenu:  PropTypes.func,
+			updateFilter: PropTypes.func.isRequired,
 	};
 
-	constructor(props) {
-		super(props);
-		this.state = {
-			state: true
-		}
-	}
-
 	clickCheckBox = () => {
-		var nextState;
-		if (this.state.state === true) {
-			nextState = null;
-		} else if (this.state.state === false) {
-			nextState = true;
-		} else {
-			nextState = false;
-		}
-		this.setState({state: nextState});
+		this.props.updateFilter(this.props.filterNode);
 	}
 
 	render() {
+    let language = this.props.settings.language == "hebrew" ? "hebrew" : "english";
 		let filter = this.props.filterNode;
 		let isCat = filter.children.length > 0;
 		let title = isCat ? filter.title.toUpperCase() : filter.title;
@@ -194,16 +200,22 @@ class SearchFilter extends React.Component {
 
 		let colorCat = Sefaria.palette.categoryColor(filter.title.replace(" Commentaries", ""));
 		let colorStyle = {"borderColor": colorCat};
-		let textStyle  = [this.props.theme.text, isCat ? styles.spacedText : null];
-
+		let textStyle  = [isCat ? styles.spacedText : null];
+		let flexDir = language == "english" ? "row" : "row-reverse";
 		return (
-			<TouchableOpacity onPress={()=>{ this.props.openSubMenu(filter.title) }} style={[styles.searchFilterCat, this.props.theme.readerNavCategory, colorStyle]}>
-				<View style={{paddingHorizontal: 10}}>
-					<IndeterminateCheckBox theme={this.props.theme} state={this.state.state} onPress={this.clickCheckBox} />
+			<TouchableOpacity onPress={()=>{ this.props.openSubMenu(filter.title) }} style={[styles.searchFilterCat, {flexDirection: flexDir}, colorStyle]}>
+				<View style={{flexDirection: flexDir, alignItems: "center"}}>
+					<View style={{paddingHorizontal: 10}}>
+						<IndeterminateCheckBox theme={this.props.theme} state={this.props.filterNode.selected} onPress={this.clickCheckBox} />
+					</View>
+					{language == "english"?
+						(<Text style={[styles.englishText].concat([this.props.theme.tertiaryText, textStyle])}>{`${title} `}<Text style={[styles.englishText].concat([this.props.theme.secondaryText, textStyle])}>{`(${count})`}</Text></Text>
+					   ) :
+						(<Text style={[styles.hebrewText].concat([this.props.theme.tertiaryText, textStyle])}>{`${heTitle} `}<Text style={[styles.englishText].concat([this.props.theme.secondaryText, textStyle])}>{`(${count})`}</Text></Text>
+
+				  )}
 				</View>
-				{"english" == "english"?
-					(<Text style={[styles.englishText].concat(textStyle)}>{`${title} (${count})`}</Text>) :
-					(<Text style={[styles.hebrewText].concat(textStyle)}>{`${heTitle} (${count})`}</Text>)}
+				<DirectedArrow themeStr={this.props.themeStr} imageStyle={{opacity: 0.5}} language={language} direction={"forward"} />
 			 </TouchableOpacity>);
 	}
 }

@@ -289,12 +289,13 @@ module.exports = StyleSheet.create({
     margin: 2,
     paddingVertical: 10,
     paddingHorizontal: 5,
-    justifyContent: "flex-start",
+    justifyContent: "space-between",
     alignItems: "center",
   },
   searchFilterCheckBox: {
     width: 18,
     height: 18,
+    opacity: 0.5,
   },
   textListSummary: {
     flex: 1

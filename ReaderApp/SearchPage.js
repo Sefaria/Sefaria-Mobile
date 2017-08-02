@@ -24,6 +24,7 @@ class SearchPage extends React.Component {
 		theme:               PropTypes.object.isRequired,
 		themeStr:            PropTypes.string.isRequired,
 		interfaceLang:       PropTypes.oneOf(["english", "hebrew"]).isRequired,
+		settings:            PropTypes.object.isRequired,
 		subMenuOpen:         PropTypes.string,
 		openSubMenu:         PropTypes.func,
 		hasInternet:         PropTypes.bool,
@@ -33,6 +34,8 @@ class SearchPage extends React.Component {
 		setLoadTail:         PropTypes.func.isRequired,
 		setIsNewSearch:      PropTypes.func.isRequired,
 		setSearchOptions:    PropTypes.func.isRequired,
+		clearAllFilters:     PropTypes.func.isRequired,
+		updateFilter:        PropTypes.func.isRequired,
 		query:               PropTypes.string,
 		sort:                PropTypes.string,
 		isExact:             PropTypes.bool,
@@ -67,7 +70,7 @@ class SearchPage extends React.Component {
 		switch (this.props.subMenuOpen) {
 			case (null):
         content = (
-					<View>
+					<View style={[styles.menu, this.props.theme.menu]}>
 						<SearchBar
 							theme={this.props.theme}
 							themeStr={this.props.themeStr}
@@ -108,6 +111,7 @@ class SearchPage extends React.Component {
 					<SearchFilterPage
 						theme={this.props.theme}
 						themeStr={this.props.themeStr}
+						settings={this.props.settings}
 						subMenuOpen={this.props.subMenuOpen}
 						openSubMenu={this.props.openSubMenu}
 						query={this.props.query}
@@ -119,6 +123,8 @@ class SearchPage extends React.Component {
 						openSubMenu={this.props.openSubMenu}
 						onQueryChange={this.props.onQueryChange}
 						setSearchOptions={this.props.setSearchOptions}
+						updateFilter={this.props.updateFilter}
+						clearAllFilters={this.props.clearAllFilters}
 					/>
 				);
 		}

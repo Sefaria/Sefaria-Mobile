@@ -80,6 +80,7 @@ class ReaderPanel extends React.Component {
     searchIsExact:         PropTypes.bool,
     availableSearchFilters:PropTypes.array,
     appliedSearchFilters:  PropTypes.array,
+    updateSearchFilter:    PropTypes.func,
     searchFiltersValid:    PropTypes.bool,
     isQueryLoadingTail:    PropTypes.bool,
     isNewSearch:           PropTypes.bool,
@@ -92,6 +93,7 @@ class ReaderPanel extends React.Component {
     setIsNewSearch:        PropTypes.func.isRequired,
     search:                PropTypes.func.isRequired,
     setSearchOptions:      PropTypes.func.isRequired,
+    clearAllSearchFilters: PropTypes.func.isRequired,
     Sefaria:               PropTypes.object.isRequired
   };
 
@@ -318,6 +320,7 @@ class ReaderPanel extends React.Component {
           <SearchPage
             theme={this.props.theme}
             themeStr={this.props.themeStr}
+            settings={this.state.settings}
             interfaceLang={this.props.interfaceLang}
             subMenuOpen={this.props.subMenuOpen}
             openSubMenu={this.props.openSubMenu}
@@ -334,6 +337,7 @@ class ReaderPanel extends React.Component {
             isExact={this.props.searchIsExact}
             availableFilters={this.props.availableSearchFilters}
             appliedFilters={this.props.appliedSearchFilters}
+            updateFilter={this.props.updateSearchFilter}
             filtersValid={this.props.searchFiltersValid}
             loadingQuery={this.props.isQueryRunning}
             isNewSearch={this.props.isNewSearch}
@@ -341,6 +345,7 @@ class ReaderPanel extends React.Component {
             initSearchListSize={this.props.initSearchListSize}
             initSearchScrollPos={this.props.initSearchScrollPos}
             setInitSearchScrollPos={this.props.setInitSearchScrollPos}
+            clearAllFilters={this.props.clearAllSearchFilters}
             queryResult={this.props.searchQueryResult}
             numResults={this.props.numSearchResults} />);
         break;

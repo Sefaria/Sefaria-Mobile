@@ -629,7 +629,8 @@ class ReaderApp extends React.Component {
     }
   };
 
-  onQueryChange = (query, resetQuery, fromBackButton) => {
+  onQueryChange = (query, resetQuery, fromBackButton, getFilters) => {
+    // getFilters should be true if the query has changed or the exactType has changed
     var newSearchPage = 0;
     var from = 0;
     var size = 20;
@@ -647,12 +648,13 @@ class ReaderApp extends React.Component {
 
     //var req = JSON.stringify(Sefaria.search.get_query_object(query,false,[],20,20*newSearchPage,"text"));
     var request_filters = this.state.searchFiltersValid && this.state.appliedSearchFilters;
+    console.log("get filters", getFilters);
     var queryProps = {
       query: query,
       size: size,
       from: from,
       type: "text",
-      get_filters: resetQuery,
+      get_filters: getFilters,
       applied_filters: request_filters,
       sort_type: this.state.searchSort,
       exact: this.state.searchIsExact
@@ -708,7 +710,7 @@ class ReaderApp extends React.Component {
       searchQuery:query,
       currSearchPage: newSearchPage,
       isQueryRunning: true,
-      searchFiltersValid: !resetQuery,
+      searchFiltersValid: !getFilters,
     });
   };
 
@@ -733,7 +735,7 @@ class ReaderApp extends React.Component {
     } else {
       filterNode.setUnselected(true);
     }
-    this.setState({appliedSearchFilters: this.getAppliedSearchFilters(this.state.availableFilters)})
+    this.setState({appliedSearchFilters: this.getAppliedSearchFilters(this.state.availableSearchFilters)});
   };
 
   getAppliedSearchFilters = (availableFilters) => {
@@ -745,14 +747,21 @@ class ReaderApp extends React.Component {
   };
 
   search = (query) => {
-    this.onQueryChange(query,true);
+    this.onQueryChange(query,true,false,true);
     this.openSearch();
 
     Sefaria.track.event("Search","Search Box Search",query);
   };
 
-  setSearchOptions = (sort, isExact) => {
-    this.setState({searchSort: sort, searchIsExact: isExact});
+  setSearchOptions = (sort, isExact, cb) => {
+    this.setState({searchSort: sort, searchIsExact: isExact}, cb);
+  };
+
+  clearAllSearchFilters = () => {
+    for (let filterNode of this.state.availableSearchFilters) {
+      filterNode.setUnselected(true);
+    }
+    this.setState({appliedSearchFilters: this.getAppliedSearchFilters(this.state.availableSearchFilters)});
   };
 
   render() {
@@ -821,6 +830,7 @@ class ReaderApp extends React.Component {
                   searchIsExact={this.state.searchIsExact}
                   availableSearchFilters={this.state.availableSearchFilters}
                   appliedSearchFilters={this.state.appliedSearchFilters}
+                  updateSearchFilter={this.updateSearchFilter}
                   searchFiltersValid={this.state.searchFiltersValid}
                   isQueryLoadingTail={this.state.isQueryLoadingTail}
                   initSearchListSize={this.state.initSearchListSize}
@@ -835,6 +845,7 @@ class ReaderApp extends React.Component {
                   onQueryChange={this.onQueryChange}
                   setLoadQueryTail={this.setLoadQueryTail}
                   setIsNewSearch={this.setIsNewSearch}
+                  clearAllSearchFilters={this.clearAllSearchFilters}
                   search={this.search}
                   setSearchOptions={this.setSearchOptions}
                   Sefaria={Sefaria} />

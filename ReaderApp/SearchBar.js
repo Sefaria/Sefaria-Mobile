@@ -36,7 +36,7 @@ class SearchBar extends React.Component {
   submitSearch = () => {
     if (this.state.text) {
       this.props.setIsNewSearch(true);
-      this.props.onQueryChange(this.state.text, true);
+      this.props.onQueryChange(this.state.text, true, false, true);
     }
   };
 

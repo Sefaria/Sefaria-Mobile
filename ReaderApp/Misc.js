@@ -170,6 +170,30 @@ class DirectedButton extends React.Component {
   render() {
     //the actual dir the arrow will face
     var actualDirBack = (this.props.language === "hebrew"  && this.props.direction === "forward") || (this.props.language === "english" && this.props.direction === "back")
+    return (
+      <TouchableOpacity onPress={this.props.onPress}
+        style={{flexDirection: actualDirBack ? "row-reverse" : "row"}}>
+        { this.props.text ? <Text style={this.props.textStyle}>{this.props.text}</Text> : null}
+        <DirectedArrow
+          themeStr={this.props.themeStr}
+          imageStyle={this.props.imageStyle}
+          language={this.props.language}
+          direction={this.props.direction} />
+      </TouchableOpacity>
+    );
+  }
+}
+
+class DirectedArrow extends React.Component {
+  static propTypes = {
+    imageStyle:   PropTypes.oneOfType([ViewPropTypes.style, PropTypes.array]),
+    themeStr:     PropTypes.string,
+    language:     PropTypes.oneOf(["hebrew", "english"]).isRequired,
+    direction:  PropTypes.oneOf(["forward", "back"]).isRequired,
+  }
+
+  render() {
+    var actualDirBack = (this.props.language === "hebrew"  && this.props.direction === "forward") || (this.props.language === "english" && this.props.direction === "back")
     //I wish there was a way to reduce these if statements, but there's a limitation that require statements can't have variables in them
     var src;
     if (actualDirBack) {
@@ -186,11 +210,7 @@ class DirectedButton extends React.Component {
       }
     }
     return (
-      <TouchableOpacity onPress={this.props.onPress}
-        style={{flexDirection: actualDirBack ? "row-reverse" : "row"}}>
-        { this.props.text ? <Text style={this.props.textStyle}>{this.props.text}</Text> : null}
-        <Image source={src} style={this.props.imageStyle} resizeMode={Image.resizeMode.contain}/>
-      </TouchableOpacity>
+      <Image source={src} style={this.props.imageStyle} resizeMode={Image.resizeMode.contain}/>
     );
   }
 }
@@ -328,16 +348,16 @@ class LoadingView extends React.Component {
 
 class IndeterminateCheckBox extends React.Component {
   static propTypes = {
-    theme:    PropTypes.object,
-    state:    PropTypes.bool,  // true, false or null
-    onPress:  PropTypes.func.isRequired
+    theme:      PropTypes.object,
+    state:      PropTypes.oneOf([0,1,2]),
+    onPress:    PropTypes.func.isRequired,
   };
 
   render() {
     var src;
-    if (this.props.state === true) {
+    if (this.props.state === 1) {
       src = require('./img/checkbox-checked.png');
-    } else if (this.props.state === false) {
+    } else if (this.props.state === 0) {
       src = require('./img/checkbox-unchecked.png');
     } else {
       src = require('./img/checkbox-partially.png')
@@ -361,6 +381,7 @@ module.exports.CategoryAttribution = CategoryAttribution;
 module.exports.LanguageToggleButton = LanguageToggleButton;
 module.exports.CollapseIcon = CollapseIcon;
 module.exports.DirectedButton = DirectedButton;
+module.exports.DirectedArrow = DirectedArrow;
 module.exports.SearchButton = SearchButton;
 module.exports.MenuButton = MenuButton;
 module.exports.CloseButton = CloseButton;
