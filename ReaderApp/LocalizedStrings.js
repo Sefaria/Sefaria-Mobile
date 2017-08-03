@@ -147,6 +147,6 @@ module.exports = new LocalizedStrings({
     exactSearch: "חיפוש מדויק",
     on: "פעיל",
     off: "כבוי",
-    filterByText: "סינול לפי טקסט"
+    filterByText: "סינון לפי טקסט"
   }
 });

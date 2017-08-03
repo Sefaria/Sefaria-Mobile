@@ -132,7 +132,7 @@ class ReaderNavigationCategoryMenuContents extends React.Component {
       var showHebrew = this.props.settings.language == "hebrew";
       var cats = this.props.categories || [];
       //remove commentary category
-      let subcats = [ "Mishneh Torah", "Shulchan Arukh", "Midrash Rabbah", "Maharal" ];
+      let subcats = [ "Mishneh Torah", "Shulchan Arukh", "Midrash Rabbah", "Maharal", "Tosefta"];
       if (cats.length > 0 && (cats[cats.length - 1] === "Commentary" ||
         cats[cats.length - 1] === "Targum")) {
         subcats = subcats.concat(this.props.contents.map((item)=>item.category ? item.category : item.title));

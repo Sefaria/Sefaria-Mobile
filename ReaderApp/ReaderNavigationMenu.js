@@ -90,7 +90,7 @@ class ReaderNavigationMenu extends React.Component {
         "Kabbalah",
         "Liturgy",
         "Philosophy",
-        "Tosefta",
+        "Tanaitic",
         "Chasidut",
         "Musar",
         "Responsa",

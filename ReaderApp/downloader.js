@@ -122,7 +122,7 @@ var Downloader = {
       fromUrl: HOST_PATH + "toc.json",
       toFile: RNFS.DocumentDirectoryPath + "/library/toc.json",
       background: true,
-    }).then(() => {
+    }).promise.then(() => {
       Sefaria._loadTOC();
     });
     return Promise.all([lastUpdatePromise, tocPromise]).then(() => {
@@ -345,7 +345,7 @@ var Downloader = {
       RNFS.downloadFile({
         fromUrl: HOST_PATH + encodeURIComponent(title) + ".zip",
         toFile: tempFile
-      }).then(function(downloadResult) {
+      }).promise.then(function(downloadResult) {
         if (downloadResult.statusCode == 200) {
           //console.log("Downloaded " + title + " in " + (new Date() - start));
           RNFS.moveFile(tempFile, toFile);
