@@ -829,7 +829,7 @@ module.exports = StyleSheet.create({
     fontWeight: "bold"
   },
   b: {
-    fontWeight: "500"
+    fontWeight: "bold"
   },
   i: {
     fontStyle: "italic"
