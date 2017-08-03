@@ -58,7 +58,7 @@ class SearchPage extends React.Component {
 						this.props.loadingQuery ? strings.loading
 						: this.numberWithCommas(this.props.numResults) + " " + strings.results
 					: strings.connectToSearchMessage;
-		var isheb = this.props.interfaceLang === "hebrew";
+		var isheb = this.props.interfaceLang === "hebrew" && false; //TODO enable when we properly handle interface hebrew throughout app
     var langStyle = !isheb ? styles.enInt : styles.heInt;
 		var summaryStyle = [styles.searchResultSummary, this.props.theme.searchResultSummary];
 		if (isheb) {
@@ -85,7 +85,7 @@ class SearchPage extends React.Component {
 							<DirectedButton
 								text={strings.filter}
 								direction="forward"
-								language={this.props.interfaceLang}
+								language={"english"}
 								themeStr={this.props.themeStr}
 								textStyle={[this.props.theme.searchResultSummaryText, langStyle]}
 								imageStyle={forwardImageStyle}

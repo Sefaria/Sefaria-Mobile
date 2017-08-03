@@ -69,7 +69,7 @@ class SearchFilterPage extends React.Component {
 	};
 
   render() {
-    var isheb = this.props.interfaceLang === "hebrew";
+    var isheb = this.props.interfaceLang === "hebrew" && false; //TODO enable when we properly handle interface hebrew throughout app
     var langStyle = !isheb ? styles.enInt : styles.heInt;
     var backImageStyle = isheb ? styles.directedButtonWithTextHe : styles.directedButtonWithTextEn;
 		var loadingMessage = (<Text style={[langStyle, this.props.theme.searchResultSummaryText]}>{strings.loadingFilters}</Text>);
@@ -130,7 +130,6 @@ class SearchFilterPage extends React.Component {
 					themeStr={this.props.themeStr}
 					settings={this.props.settings}
 					filterNode={currFilter}
-					openSubMenu={()=>{}}
 					updateFilter={this.props.updateFilter}
 					/>)];
 				content =
@@ -144,7 +143,6 @@ class SearchFilterPage extends React.Component {
 									themeStr={this.props.themeStr}
 									settings={this.props.settings}
 									filterNode={filter}
-									openSubMenu={()=>{}}
 									updateFilter={this.props.updateFilter}
 								/>);
 						})) : loadingMessage
@@ -200,7 +198,10 @@ class SearchFilter extends React.Component {
 		let textStyle  = [isCat ? styles.spacedText : null];
 		let flexDir = language == "english" ? "row" : "row-reverse";
 		return (
-			<TouchableOpacity onPress={()=>{ this.props.openSubMenu(filter.title) }} style={[styles.searchFilterCat, {flexDirection: flexDir}].concat(colorStyle)}>
+			<TouchableOpacity
+				disabled={!this.props.openSubMenu}
+				onPress={()=>{ this.props.openSubMenu ? this.props.openSubMenu(filter.title) : ()=>{} }}
+				style={[styles.searchFilterCat, {flexDirection: flexDir}].concat(colorStyle)}>
 				<View style={{flexDirection: flexDir, alignItems: "center"}}>
 					<View style={{paddingHorizontal: 10}}>
 						<IndeterminateCheckBox theme={this.props.theme} state={this.props.filterNode.selected} onPress={this.clickCheckBox} />
@@ -212,8 +213,11 @@ class SearchFilter extends React.Component {
 
 				  )}
 				</View>
-				<DirectedArrow themeStr={this.props.themeStr} imageStyle={{opacity: 0.5}} language={language} direction={"forward"} />
-			 </TouchableOpacity>);
+				{ this.props.openSubMenu ?
+					<DirectedArrow themeStr={this.props.themeStr} imageStyle={{opacity: 0.5}} language={language} direction={"forward"} />
+					: null
+				}
+		 </TouchableOpacity>);
 	}
 }
 
