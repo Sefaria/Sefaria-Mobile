@@ -1212,6 +1212,7 @@ Sefaria.hebrewCategory = function(cat) {
     "Targum": "תרגומים",
     "Mishnah": "משנה",
     "Tosefta": "תוספתא",
+    "Tanaitic": "ספרות תנאית",
     "Talmud": "תלמוד",
     "Bavli": "בבלי",
     "Yerushalmi": "ירושלמי",
