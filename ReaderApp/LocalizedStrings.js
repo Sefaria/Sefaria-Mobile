@@ -21,6 +21,7 @@ module.exports = new LocalizedStrings({
     noConnectionsMessage: "No connections available.",
     search: "Search",
     loading: "Loading...",
+    loadingFilters: "Loading Filters...",
     results: "Results", // to be combined with a number, e.g. "32 Results"
     connectToSearchMessage: "Connect to the internet to search.",
     menuLanguage: "MENU LANGUAGE",
@@ -95,6 +96,7 @@ module.exports = new LocalizedStrings({
     noConnectionsMessage: "אין קישורים",
     search: "חפש",
     loading: "טוען...",
+    loadingFilters: "טוען מסננים...",
     results: "תוצאות", // to be combined with a number, e.g. "32 Results"
     connectToSearchMessage: "התחבר לאינטרנט כדי לבצע חיפוש",
     menuLanguage: "שפת תפריט",

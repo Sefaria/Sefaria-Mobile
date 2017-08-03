@@ -72,7 +72,7 @@ class SearchFilterPage extends React.Component {
     var isheb = this.props.interfaceLang === "hebrew";
     var langStyle = !isheb ? styles.enInt : styles.heInt;
     var backImageStyle = isheb ? styles.directedButtonWithTextHe : styles.directedButtonWithTextEn;
-
+		var loadingMessage = (<Text style={[langStyle, this.props.theme.searchResultSummaryText]}>{strings.loadingFilters}</Text>);
 		var content = null;
 		switch (this.props.subMenuOpen) {
 			case "filter":
@@ -115,7 +115,7 @@ class SearchFilterPage extends React.Component {
 											openSubMenu={this.props.openSubMenu}
 											updateFilter={this.props.updateFilter}
 										/>);
-								}) : (<Text>{"Loading..."}</Text>)
+								}) : loadingMessage
 							}
 						</View>
 					</View>
@@ -147,7 +147,7 @@ class SearchFilterPage extends React.Component {
 									openSubMenu={()=>{}}
 									updateFilter={this.props.updateFilter}
 								/>);
-						})) : (<Text>{"Loading..."}</Text>)
+						})) : loadingMessage
 					}
 				</View>);
 		}
@@ -167,9 +167,6 @@ class SearchFilterPage extends React.Component {
         </TouchableOpacity>
       </View>
       <ScrollView key={this.props.subMenuOpen} contentContainerStyle={styles.menuContent}>
-				<Text>
-					{ this.props.appliedFilters.join(", ") }
-				</Text>
 				{content}
       </ScrollView>
     </View>);
@@ -199,19 +196,19 @@ class SearchFilter extends React.Component {
 		let count = filter.docCount;
 
 		let colorCat = Sefaria.palette.categoryColor(filter.title.replace(" Commentaries", ""));
-		let colorStyle = {"borderColor": colorCat};
+		let colorStyle = isCat ? [{"borderColor": colorCat}] : [this.props.theme.searchResultSummary, {"borderTopWidth": 1}];
 		let textStyle  = [isCat ? styles.spacedText : null];
 		let flexDir = language == "english" ? "row" : "row-reverse";
 		return (
-			<TouchableOpacity onPress={()=>{ this.props.openSubMenu(filter.title) }} style={[styles.searchFilterCat, {flexDirection: flexDir}, colorStyle]}>
+			<TouchableOpacity onPress={()=>{ this.props.openSubMenu(filter.title) }} style={[styles.searchFilterCat, {flexDirection: flexDir}].concat(colorStyle)}>
 				<View style={{flexDirection: flexDir, alignItems: "center"}}>
 					<View style={{paddingHorizontal: 10}}>
 						<IndeterminateCheckBox theme={this.props.theme} state={this.props.filterNode.selected} onPress={this.clickCheckBox} />
 					</View>
 					{language == "english"?
-						(<Text style={[styles.englishText].concat([this.props.theme.tertiaryText, textStyle])}>{`${title} `}<Text style={[styles.englishText].concat([this.props.theme.secondaryText, textStyle])}>{`(${count})`}</Text></Text>
+						(<Text style={[styles.englishText].concat([this.props.theme.tertiaryText, textStyle, {paddingTop:3}])}>{`${title} `}<Text style={[styles.englishText].concat([this.props.theme.secondaryText, textStyle])}>{`(${count})`}</Text></Text>
 					   ) :
-						(<Text style={[styles.hebrewText].concat([this.props.theme.tertiaryText, textStyle])}>{`${heTitle} `}<Text style={[styles.englishText].concat([this.props.theme.secondaryText, textStyle])}>{`(${count})`}</Text></Text>
+						(<Text style={[styles.hebrewText].concat([this.props.theme.tertiaryText, textStyle, {paddingTop:13}])}>{`${heTitle} `}<Text style={[styles.englishText].concat([this.props.theme.secondaryText, textStyle])}>{`(${count})`}</Text></Text>
 
 				  )}
 				</View>
