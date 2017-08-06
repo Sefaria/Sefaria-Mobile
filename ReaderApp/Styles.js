@@ -295,7 +295,11 @@ module.exports = StyleSheet.create({
   searchFilterCheckBox: {
     width: 18,
     height: 18,
-    opacity: 0.5,
+  },
+  searchFilterClearAll: {
+    width: 18,
+    height: 18,
+    marginHorizontal: 10
   },
   textListSummary: {
     flex: 1
@@ -724,7 +728,6 @@ module.exports = StyleSheet.create({
   button: {
     borderRadius: 5,
     borderWidth: 1,
-    backgroundColor: "white",
     paddingVertical: 14,
     marginVertical: 5
   },

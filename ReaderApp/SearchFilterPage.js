@@ -6,7 +6,8 @@ import {
 	View,
 	Text,
 	TouchableOpacity,
-	ScrollView
+	ScrollView,
+	Image,
 } from 'react-native';
 
 var {
@@ -68,16 +69,32 @@ class SearchFilterPage extends React.Component {
 		}
 	};
 
+	applyFilters = () => {
+		this.props.openSubMenu(null);
+		this.props.onQueryChange(this.props.query, true, false);
+	};
+
   render() {
     var isheb = this.props.interfaceLang === "hebrew" && false; //TODO enable when we properly handle interface hebrew throughout app
     var langStyle = !isheb ? styles.enInt : styles.heInt;
     var backImageStyle = isheb ? styles.directedButtonWithTextHe : styles.directedButtonWithTextEn;
 		var loadingMessage = (<Text style={[langStyle, this.props.theme.searchResultSummaryText]}>{strings.loadingFilters}</Text>);
 		var content = null;
+		var closeSrc = this.props.themeStr == "white" ? require("./img/circle-close.png") : require("./img/circle-close-light.png");
+		var flexDir = { flexDirection: this.props.interfaceLang === "hebrew" ? "row-reverse" : "row" };
 		switch (this.props.subMenuOpen) {
 			case "filter":
 				content =
 				(<View>
+					<TouchableOpacity style={[styles.readerDisplayOptionsMenuItem, styles.button, this.props.theme.readerDisplayOptionsMenuItem]} onPress={this.props.clearAllFilters}>
+						<Image source={closeSrc}
+							resizeMode={Image.resizeMode.contain}
+							style={styles.searchFilterClearAll} />
+						{this.interfaceLang === "hebrew" ?
+							<Text style={[styles.heInt, this.props.theme.tertiaryText]}>{string.clearAll}</Text> :
+							<Text style={[styles.enInt, this.props.theme.tertiaryText]}>{strings.clearAll}</Text> }
+
+					</TouchableOpacity>
 					<View style={styles.settingsSection}>
 						<View>
 							<Text style={[styles.settingsSectionHeader, this.props.theme.tertiaryText]}>{strings.sortBy}</Text>
@@ -160,8 +177,8 @@ class SearchFilterPage extends React.Component {
           language="english"
           textStyle={[this.props.theme.searchResultSummaryText, langStyle]}
           imageStyle={[styles.menuButton, backImageStyle]}/>
-				<TouchableOpacity onPress={this.props.clearAllFilters} style={{marginLeft: 12, marginRight: 12}}>
-          <Text style={[this.props.theme.searchResultSummaryText, langStyle]}>{strings.clearAll}</Text>
+				<TouchableOpacity onPress={this.applyFilters} style={{marginLeft: 12, marginRight: 12}}>
+          <Text style={[this.props.theme.searchResultSummaryText, langStyle]}>{strings.apply}</Text>
         </TouchableOpacity>
       </View>
       <ScrollView key={this.props.subMenuOpen} contentContainerStyle={styles.menuContent}>
@@ -184,7 +201,7 @@ class SearchFilter extends React.Component {
 	clickCheckBox = () => {
 		this.props.updateFilter(this.props.filterNode);
 	}
-
+///^[^_]*$
 	render() {
     let language = this.props.settings.language == "hebrew" ? "hebrew" : "english";
 		let filter = this.props.filterNode;
@@ -199,12 +216,11 @@ class SearchFilter extends React.Component {
 		let flexDir = language == "english" ? "row" : "row-reverse";
 		return (
 			<TouchableOpacity
-				disabled={!this.props.openSubMenu}
-				onPress={()=>{ this.props.openSubMenu ? this.props.openSubMenu(filter.title) : ()=>{} }}
+				onPress={()=>{ this.props.openSubMenu ? this.props.openSubMenu(filter.title) : this.clickCheckBox() }}
 				style={[styles.searchFilterCat, {flexDirection: flexDir}].concat(colorStyle)}>
 				<View style={{flexDirection: flexDir, alignItems: "center"}}>
 					<View style={{paddingHorizontal: 10}}>
-						<IndeterminateCheckBox theme={this.props.theme} state={this.props.filterNode.selected} onPress={this.clickCheckBox} />
+						<IndeterminateCheckBox themeStr={this.props.themeStr} state={this.props.filterNode.selected} onPress={this.clickCheckBox} />
 					</View>
 					{language == "english"?
 						(<Text style={[styles.englishText].concat([this.props.theme.tertiaryText, textStyle, {paddingTop:3}])}>{`${title} `}<Text style={[styles.englishText].concat([this.props.theme.secondaryText, textStyle])}>{`(${count})`}</Text></Text>

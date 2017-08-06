@@ -348,7 +348,7 @@ class LoadingView extends React.Component {
 
 class IndeterminateCheckBox extends React.Component {
   static propTypes = {
-    theme:      PropTypes.object,
+    themeStr:   PropTypes.string.isRequired,
     state:      PropTypes.oneOf([0,1,2]),
     onPress:    PropTypes.func.isRequired,
   };
@@ -356,11 +356,23 @@ class IndeterminateCheckBox extends React.Component {
   render() {
     var src;
     if (this.props.state === 1) {
-      src = require('./img/checkbox-checked.png');
+      if (this.props.themeStr == "white") {
+        src = require('./img/checkbox-checked.png');
+      } else {
+        src = require('./img/checkbox-checked-light.png');
+      }
     } else if (this.props.state === 0) {
-      src = require('./img/checkbox-unchecked.png');
+      if (this.props.themeStr == "white") {
+        src = require('./img/checkbox-unchecked.png');
+      } else {
+        src = require('./img/checkbox-unchecked-light.png');
+      }
     } else {
-      src = require('./img/checkbox-partially.png')
+      if (this.props.themeStr == "white") {
+        src = require('./img/checkbox-partially.png');
+      } else {
+        src = require('./img/checkbox-partially-light.png');
+      }
     }
 
     return (
