@@ -167,7 +167,7 @@ class SearchFilterPage extends React.Component {
 				</View>);
 		}
     return (<View style={{flex:1}}>
-      <View style={[styles.header, this.props.theme.header, {justifyContent: "space-between"}]}>
+      <View style={[styles.header, this.props.theme.header, {justifyContent: "space-between", marginLeft: 7, marginRight: 7}]}>
         <DirectedButton
           onPress={this.backFromFilter}
           theme={this.props.theme}
@@ -175,10 +175,10 @@ class SearchFilterPage extends React.Component {
           text={strings.back}
           direction="back"
           language="english"
-          textStyle={[this.props.theme.searchResultSummaryText, langStyle]}
+          textStyle={[this.props.theme.searchResultSummaryText, langStyle, {marginTop: -1}]}
           imageStyle={[styles.menuButton, backImageStyle]}/>
-				<TouchableOpacity onPress={this.applyFilters} style={{marginLeft: 12, marginRight: 12}}>
-          <Text style={[this.props.theme.searchResultSummaryText, langStyle]}>{strings.apply}</Text>
+				<TouchableOpacity onPress={this.applyFilters} style={{marginLeft: 7, marginRight: 7}}>
+          <Text style={[this.props.theme.searchResultSummaryText, langStyle, {marginTop: -1}]}>{strings.apply}</Text>
         </TouchableOpacity>
       </View>
       <ScrollView key={this.props.subMenuOpen} contentContainerStyle={styles.menuContent}>
