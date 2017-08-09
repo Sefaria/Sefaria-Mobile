@@ -67,12 +67,12 @@ class SearchFilterPage extends React.Component {
 			//TODO consider only firing new query if you actually touched a button on the filter page
 			this.props.onQueryChange(this.props.query, true, false);
 		}
-	};
+  };
 
-	applyFilters = () => {
-		this.props.openSubMenu(null);
-		this.props.onQueryChange(this.props.query, true, false);
-	};
+  applyFilters = () => {
+  	this.props.openSubMenu(null);
+  	this.props.onQueryChange(this.props.query, true, false);
+  };
 
   render() {
     var isheb = this.props.interfaceLang === "hebrew" && false; //TODO enable when we properly handle interface hebrew throughout app
@@ -230,8 +230,7 @@ class SearchFilter extends React.Component {
                         :
                         <Text style={[styles.hebrewText].concat([this.props.theme.tertiaryText, textStyle, {paddingTop:13}])}>
                           {`${heTitle} `}<Text style={[styles.englishText].concat([this.props.theme.secondaryText, textStyle])}>{`(${count})`}</Text>
-                        </Text>
-				    }
+                        </Text> }
 				</View>
 				{ this.props.openSubMenu ?
 					<DirectedArrow themeStr={this.props.themeStr} imageStyle={{opacity: 0.5}} language={language} direction={"forward"} />
