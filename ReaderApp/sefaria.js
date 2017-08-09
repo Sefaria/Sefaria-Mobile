@@ -443,7 +443,8 @@ Sefaria = {
       {
         categories: ["Talmud", "Bavli"],
         english: "The William Davidson Talmud",
-        hebrew: "תלמוד מהדורת ויליאם דוידסון"
+        hebrew: "תלמוד מהדורת ויליאם דוידסון",
+        link: "https://www.sefaria.org/william-davidson-talmud"
       }
     ];
     var attribution = null;

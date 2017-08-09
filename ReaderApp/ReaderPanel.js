@@ -519,7 +519,8 @@ class ReaderControls extends React.Component {
             <CategoryAttribution
               categories={this.props.categories}
               language={this.props.language === "hebrew" ? "hebrew" : "english"}
-              context={"header"} />
+              context={"header"}
+              linked={false} />
           </TouchableOpacity>
           <DisplaySettingsButton onPress={this.props.toggleReaderDisplayOptionsMenu} themeStr={this.props.themeStr}/>
         </View>

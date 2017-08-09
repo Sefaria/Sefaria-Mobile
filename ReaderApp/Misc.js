@@ -10,7 +10,8 @@ import {
   View,
   Image,
   ActivityIndicator,
-  ViewPropTypes
+  ViewPropTypes,
+  Linking,
 } from 'react-native';
 
 var Sefaria = require('./sefaria');
@@ -83,20 +84,31 @@ class CategoryAttribution extends React.Component {
   static propTypes = {
     categories: PropTypes.array,
     language:   PropTypes.string.isRequired,
-    context:    PropTypes.string.isRequired
+    context:    PropTypes.string.isRequired,
+    linked:     PropTypes.bool,
+  };
+  static defaultProps = {
+    linked:     true,
   };
 
   render() {
     if (!this.props.categories) { return null; }
     var attribution = Sefaria.categoryAttribution(this.props.categories);
+    if (!attribution) { return null; }
+
+    var openLink = () => {console.log("link!"); Linking.openURL(attribution.link)};
     var boxStyles = [styles.categoryAttribution, styles[this.props.context + "CategoryAttribution" ]];
-    return attribution ?
-            <View style={boxStyles}>
-              {this.props.language == "english" ?
+    var content = this.props.language == "english" ?
                 <Text style={styles[this.props.context + "CategoryAttributionTextEn"]}>{attribution.english}</Text> :
-                <Text style={styles[this.props.context + "CategoryAttributionTextHe"]}>{attribution.hebrew}</Text>
-              }
-            </View> : null;
+                <Text style={styles[this.props.context + "CategoryAttributionTextHe"]}>{attribution.hebrew}</Text>;
+
+    return this.props.linked ?
+            <TouchableOpacity style={boxStyles} onPress={openLink}>
+              {content}
+            </TouchableOpacity> :
+            <View style={boxStyles}>
+              {content}
+            </View>;
   }
 }
 
