@@ -27,17 +27,17 @@ class SearchFilterPage extends React.Component {
   static propTypes = {
     theme:            PropTypes.object.isRequired,
     themeStr:         PropTypes.string.isRequired,
-		settings:         PropTypes.object.isRequired,
-		subMenuOpen:      PropTypes.string.isRequired,
-		updateFilter:     PropTypes.func.isRequired,
-		openSubMenu:      PropTypes.func.isRequired,
-		clearAllFilters:  PropTypes.func.isRequired,
+    settings:         PropTypes.object.isRequired,
+    subMenuOpen:      PropTypes.string.isRequired,
+    updateFilter:     PropTypes.func.isRequired,
+    openSubMenu:      PropTypes.func.isRequired,
+    clearAllFilters:  PropTypes.func.isRequired,
     query:            PropTypes.string,
     sort:             PropTypes.string,
     isExact:          PropTypes.bool,
-		availableFilters: PropTypes.array,
-		appliedFilters:   PropTypes.array,
-		filtersValid:     PropTypes.bool,
+    availableFilters: PropTypes.array,
+    appliedFilters:   PropTypes.array,
+    filtersValid:     PropTypes.bool,
     openSubMenu:      PropTypes.func,
     onQueryChange:    PropTypes.func,
     setSearchOptions: PropTypes.func
@@ -182,11 +182,12 @@ class SearchFilterPage extends React.Component {
         </TouchableOpacity>
       </View>
       <ScrollView key={this.props.subMenuOpen} contentContainerStyle={styles.menuContent}>
-				{content}
+        {content}
       </ScrollView>
     </View>);
   }
 }
+
 
 class SearchFilter extends React.Component {
 	static propTypes = {
@@ -219,15 +220,18 @@ class SearchFilter extends React.Component {
 				onPress={()=>{ this.props.openSubMenu ? this.props.openSubMenu(filter.title) : this.clickCheckBox() }}
 				style={[styles.searchFilterCat, {flexDirection: flexDir}].concat(colorStyle)}>
 				<View style={{flexDirection: flexDir, alignItems: "center"}}>
-					<View style={{paddingHorizontal: 10}}>
+					<TouchableOpacity style={{paddingHorizontal: 10, paddingVertical: 15}} onPress={this.clickCheckBox} >
 						<IndeterminateCheckBox themeStr={this.props.themeStr} state={this.props.filterNode.selected} onPress={this.clickCheckBox} />
-					</View>
-					{language == "english"?
-						(<Text style={[styles.englishText].concat([this.props.theme.tertiaryText, textStyle, {paddingTop:3}])}>{`${title} `}<Text style={[styles.englishText].concat([this.props.theme.secondaryText, textStyle])}>{`(${count})`}</Text></Text>
-					   ) :
-						(<Text style={[styles.hebrewText].concat([this.props.theme.tertiaryText, textStyle, {paddingTop:13}])}>{`${heTitle} `}<Text style={[styles.englishText].concat([this.props.theme.secondaryText, textStyle])}>{`(${count})`}</Text></Text>
-
-				  )}
+					</TouchableOpacity>
+					{ language == "english" ?
+                        <Text style={[styles.englishText].concat([this.props.theme.tertiaryText, textStyle, {paddingTop:3}])}>
+                          {`${title} `}<Text style={[styles.englishText].concat([this.props.theme.secondaryText, textStyle])}>{`(${count})`}</Text>
+                        </Text>
+                        :
+                        <Text style={[styles.hebrewText].concat([this.props.theme.tertiaryText, textStyle, {paddingTop:13}])}>
+                          {`${heTitle} `}<Text style={[styles.englishText].concat([this.props.theme.secondaryText, textStyle])}>{`(${count})`}</Text>
+                        </Text>
+				    }
 				</View>
 				{ this.props.openSubMenu ?
 					<DirectedArrow themeStr={this.props.themeStr} imageStyle={{opacity: 0.5}} language={language} direction={"forward"} />

@@ -287,7 +287,7 @@ module.exports = StyleSheet.create({
     flexDirection: "row",
     borderTopWidth: 4,
     margin: 2,
-    paddingVertical: 10,
+    paddingVertical: 0,
     paddingHorizontal: 5,
     justifyContent: "space-between",
     alignItems: "center",
