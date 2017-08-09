@@ -308,6 +308,7 @@ class TextTableOfContentsNavigation extends React.Component {
   }
 }
 
+
 class SchemaNode extends React.Component {
   static propTypes = {
     theme:       PropTypes.object.isRequired,
@@ -356,7 +357,6 @@ class SchemaNode extends React.Component {
                 key={i}
                 theme={this.props.theme}
                 themeStr={this.props.themeStr}
-                defaultVisibility={node.includeSections ? true : false}
                 showHebrew={showHebrew}
                 en={node.title}
                 he={node.heTitle}
@@ -376,8 +376,8 @@ class SchemaNode extends React.Component {
           return (
             <TouchableOpacity style={styles.textTocNamedSection} onPress={open} key={i}>
               {showHebrew ?
-                <Text style={[styles.he, styles.textTocSectionTitle, this.props.theme.text, {textDecorationLine: "underline"}]}>{node.heTitle}</Text> :
-                <Text style={[styles.en, styles.textTocSectionTitle, this.props.theme.text, {textDecorationLine: "underline"}]}>{node.title}</Text> }
+                <Text style={[styles.he, styles.textTocSectionTitle, this.props.theme.text]}>{node.heTitle}</Text> :
+                <Text style={[styles.en, styles.textTocSectionTitle, this.props.theme.text]}>{node.title}</Text> }
             </TouchableOpacity>);
         } else {
           let content = (<JaggedArrayNode
@@ -392,7 +392,6 @@ class SchemaNode extends React.Component {
               theme={this.props.theme}
               themeStr={this.props.themeStr}
               showHebrew={showHebrew}
-              defaultVisibility={node.includeSections ? true : false}
               en={node.title}
               he={node.heTitle}
               children={content}
@@ -440,6 +439,7 @@ class JaggedArrayNode extends React.Component {
               openRef={this.props.openRef} />);
   }
 }
+
 
 class JaggedArrayNodeSection extends React.Component {
   static propTypes = {
@@ -540,6 +540,7 @@ class JaggedArrayNodeSection extends React.Component {
   }
 }
 
+
 class ArrayMapNode extends React.Component {
   static propTypes = {
     theme:       PropTypes.object.isRequired,
@@ -575,6 +576,7 @@ class ArrayMapNode extends React.Component {
         <View style={[styles.textTocNumberedSection, langStyles]}>{sectionLinks}</View>
       );
     } else {
+      console.log("Open: " + this.props.schema.wholeRef.replace(/\./g, " ") )
       var open = this.props.openRef.bind(null, this.props.schema.wholeRef.replace(/\./g, " "));
       return (
           <TouchableOpacity style={[]} onPress={open} key={i}>
@@ -586,6 +588,7 @@ class ArrayMapNode extends React.Component {
     }
   }
 }
+
 
 class CommentatorList extends React.Component {
   static propTypes = {
@@ -615,6 +618,7 @@ class CommentatorList extends React.Component {
   }
 }
 
+
 class CollapsibleNode extends React.Component {
   static propTypes = {
     theme:             PropTypes.object,
@@ -624,12 +628,12 @@ class CollapsibleNode extends React.Component {
     showHebrew:        PropTypes.bool,
     en:                PropTypes.string,
     he:                PropTypes.string,
-    children:           PropTypes.object,
+    children:          PropTypes.object,
     node:              PropTypes.object
   };
 
   state = {
-    isVisible: this.props.defaultVisibility
+    isVisible: this.props.node.includeSections || this.props.node.default,
   };
 
   toggleVisibility = () => {
@@ -637,7 +641,9 @@ class CollapsibleNode extends React.Component {
   };
 
   render() {
-    let icon = (<CollapseIcon themeStr={this.props.themeStr} isVisible={this.state.isVisible} showHebrew={this.props.showHebrew} />);
+    let icon = !this.props.node.default ? 
+                (<CollapseIcon themeStr={this.props.themeStr} isVisible={this.state.isVisible} showHebrew={this.props.showHebrew} />)
+                : null;
     return (
       <View style={styles.textTocNamedSection}>
         {this.props.showHebrew ?
@@ -655,5 +661,6 @@ class CollapsibleNode extends React.Component {
     );
   }
 }
+
 
 module.exports = ReaderTextTableOfContents;
