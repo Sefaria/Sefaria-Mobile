@@ -107,6 +107,7 @@ class SearchPage extends React.Component {
 					  </View>);
 			  break;
 			default:
+			  //either "filter" or any top level category cateory 
 				content = (
 					<SearchFilterPage
 						theme={this.props.theme}
