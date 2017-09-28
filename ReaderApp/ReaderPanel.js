@@ -371,7 +371,7 @@ class ReaderPanel extends React.Component {
         );
         break;
     }
-
+    let textColumnFlex = this.props.textListVisible && !this.props.loading ? 1.0 - this.props.textListFlex : 1.0;
     return (
   		<View style={[styles.container, this.props.theme.container]} onLayout={this.getWindowWidth} {...this.gestureResponder}>
           <CategoryColorLine category={Sefaria.categoryForTitle(this.props.textTitle)} />
@@ -389,7 +389,7 @@ class ReaderPanel extends React.Component {
 
           { this.props.loading ?
           <LoadingView theme={this.props.theme}/> :
-          <View style={[{flex: 1.0 - this.props.textListFlex}, styles.mainTextPanel, this.props.theme.mainTextPanel]}
+          <View style={[{flex: textColumnFlex}, styles.mainTextPanel, this.props.theme.mainTextPanel]}
                 onStartShouldSetResponderCapture={() => {
                   if (this.state.ReaderDisplayOptionsMenuVisible == true) {
                      this.toggleReaderDisplayOptionsMenu();

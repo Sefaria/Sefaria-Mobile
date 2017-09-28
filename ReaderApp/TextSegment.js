@@ -13,7 +13,7 @@ import HTMLView from 'react-native-htmlview'; //to convert html'afied JSON to so
 var styles = require('./Styles.js');
 
 
-class TextSegment extends React.Component {
+class TextSegment extends React.PureComponent {
   static propTypes = {
     theme:              PropTypes.object.isRequired,
     rowRef:             PropTypes.string.isRequired, /* this ref keys into TextColumn.rowRefs */

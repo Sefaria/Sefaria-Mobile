@@ -577,6 +577,7 @@ module.exports = StyleSheet.create({
     marginHorizontal: 30,
   },
   textColumn: {
+    flex: 1,
     maxWidth: 800,
     flexDirection: "row",
     alignItems: 'stretch'
