@@ -4,6 +4,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Text, View, StyleSheet } from 'react-native';
+const now = require('performance-now');
+
 //import invariant from 'invariant';
 
 const measureBatchSize = 50;
@@ -30,8 +32,10 @@ class TextHeightMeasurer extends React.PureComponent {
   static propTypes = {
     componentsToMeasure: PropTypes.arrayOf(PropTypes.shape({
       id: PropTypes.string.isRequired,
-      component: PropTypes.element.isRequired,
+      generator: PropTypes.func.isRequired,  // function which generates the component
+      param: PropTypes.object.isRequired, // parameter for the generator function
     })).isRequired,
+    setMeasuringHeights: PropTypes.func.isRequired,
     allHeightsMeasuredCallback: PropTypes.func.isRequired,
     minHeight: PropTypes.number,
     style: Text.propTypes.style,
@@ -55,14 +59,15 @@ class TextHeightMeasurer extends React.PureComponent {
   }
 
   componentWillReceiveProps(nextProps) {
-    if (nextProps.textToMeasure !== this.props.textToMeasure) {
-      this.resetInternalState(nextProps.textToMeasure);
+    if (nextProps.componentsToMeasure !== this.props.componentsToMeasure) {
+      this.resetInternalState(nextProps.componentsToMeasure);
     }
   }
 
   // resets this.leftToMeasure and this.nextTextToHeight
   resetInternalState(newComponentsToMeasure) {
-    console.log("resetting internal state of TextHeightMeasurer");
+    this.props.setMeasuringHeights(true);
+    this.start = now();
     this.leftToMeasure = new Set();
     const nextNextTextToHeight = new Map();
     for (let componentToMeasure of newComponentsToMeasure) {
@@ -109,12 +114,14 @@ class TextHeightMeasurer extends React.PureComponent {
     //invariant(this.nextTextToHeight, "nextTextToHeight should be set");
     this.currentTextToHeight = this.nextTextToHeight;
     this.nextTextToHeight = null;
-    console.log(this.currentTextToHeight);
+    this.props.setMeasuringHeights(false);
     this.props.allHeightsMeasuredCallback(
       componentsToMeasure,
       this.currentTextToHeight,
     );
     this.setState({ currentlyMeasuring: null });
+
+    console.log(`all heights measured, took: ${now()-this.start}ms`);
   }
 
   newBatch() {
@@ -143,11 +150,11 @@ class TextHeightMeasurer extends React.PureComponent {
           style={styles.text}
           onLayout={(event) => this.onTextLayout(componentToMeasure, event)}
           key={componentToMeasure.id}>
-          {componentToMeasure.component}
+          {componentToMeasure.generator(componentToMeasure.param)}
         </View>
       );
     });
-    return <View style={{flex:1,}}>{dummies}</View>;
+    return <View style={{flex:1, position:"absolute", left:0, right:0}}>{dummies}</View>;
   }
 
 }

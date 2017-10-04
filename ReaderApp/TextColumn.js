@@ -6,6 +6,7 @@ import ReactNative, {
   Text,
   SectionList,
   Button,
+  RefreshControl,
 } from 'react-native';
 
 const styles = require('./Styles.js');
@@ -13,7 +14,6 @@ const TextRange = require('./TextRange');
 const TextRangeContinuous = require('./TextRangeContinuous');
 const TextSegment = require('./TextSegment');
 const TextHeightMeasurer = require('./TextHeightMeasurer');
-const now = require('performance-now');
 
 const {
   LoadingView,
@@ -50,19 +50,22 @@ class TextColumn extends React.Component {
   constructor(props, context) {
     super(props, context);
     this.previousY = 0; // for measuring scroll speed
-    this.start = now();
-    let data = [];
-    for (let i = 0; i < 200; i++) {
-      data.push({text: "hi " + i, key: i});
-    }
 
     let {dataSource, componentsToMeasure} = this.generateDataSource(props);
 
     this.state = {
-      dataSource: dataSource,
+      nextDataSource: dataSource,
+      dataSource: [],
       componentsToMeasure: componentsToMeasure,
       scrolledToOffsetRef: false,
+      scrollingToTargetRef: false,
+      measuringHeights: false,
+      debugUseJumpList: true,
     };
+  }
+
+  setMeasuringHeights = (measuring) => {
+    this.setState({measuringHeights : measuring});
   }
 
   generateDataSource = (props) => {
@@ -95,7 +98,7 @@ class TextColumn extends React.Component {
         }
         rowData.changeString += highlight ? "|highlight:" + highlight : "";
         rows.push({ref: rowID, data: rowData});
-        dataSource.push({title: this.props.sectionArray[section], data: rows, sectionIndex: sectionIndex});
+        dataSource.push({ref: this.props.sectionArray[section], data: rows, sectionIndex: sectionIndex});
       }
     }
 
@@ -116,15 +119,15 @@ class TextColumn extends React.Component {
           rowData.changeString += rowData.highlight ? "|highlight" : "";
           rows.push({ref: rowID, data: rowData});
         }
-        dataSource.push({title: this.props.sectionArray[sectionIndex], data: rows, sectionIndex: sectionIndex});
+        dataSource.push({ref: this.props.sectionArray[sectionIndex], data: rows, sectionIndex: sectionIndex});
       }
     }
     //console.log(sections);
     let componentsToMeasure = [];
     for (let section of dataSource) {
-      componentsToMeasure.push({id: props.sectionArray[section.sectionIndex], component: this.renderSectionHeader({section: section, props: props})})
+      componentsToMeasure.push({id: props.sectionArray[section.sectionIndex], generator: this.renderSectionHeader, param: {section: section}})
       for (let segment of section.data) {
-        componentsToMeasure.push({id: segment.ref, component: this.renderSegmentedRow({item: segment, props: props})});
+        componentsToMeasure.push({id: segment.ref, generator: this.renderSegmentedRow, param: {item: segment}});
       }
     }
 
@@ -167,7 +170,8 @@ class TextColumn extends React.Component {
         this.props.linksLoaded !== nextProps.linksLoaded) {
       // Only update dataSource when a change has occurred that will result in different data
       let {dataSource, componentsToMeasure} = this.generateDataSource(nextProps);
-      this.setState({dataSource: dataSource, componentsToMeasure: componentsToMeasure});
+      //console.log("new datasource", dataSource.length);
+      this.setState({nextDataSource: dataSource, componentsToMeasure: componentsToMeasure});
     }
   }
 
@@ -235,8 +239,9 @@ class TextColumn extends React.Component {
         currSec = seg.section.sectionIndex;
         secData.indexes.push(currSec);
         secData.sections.push([]);
+      } else {
+        secData.sections[secData.sections.length-1].push(seg.item);
       }
-      secData.sections[secData.sections.length-1].push(seg.item);
     }
     return secData;
   };
@@ -276,24 +281,23 @@ class TextColumn extends React.Component {
   };
 
   updateTitle = (secData) => {
-
     if (secData.indexes.length == 0) {
       console.log("VISIBLE ROWS IS EMPTY!!! oh no!!!");
       return;
     }
-
     // update title
     let biggerSection = secData.sections.length >= 2 && secData.sections[1].length > secData.sections[0].length ? secData.indexes[1] : secData.indexes[0];
     let enTitle = this.props.sectionArray[biggerSection];
     let heTitle = this.props.sectionHeArray[biggerSection];
 
     if (enTitle !== this.props.textReference) {
+      console.log(enTitle, heTitle);
       this.props.updateTitle(enTitle, heTitle);
     }
   };
 
   handleScroll = (e) => {
-
+    /*
     if (this.props.textFlow == 'continuous') {
       //update highlightedSegment Continuous Style
       if (this.props.textListVisible) {
@@ -312,23 +316,22 @@ class TextColumn extends React.Component {
       }
       this.previousY = e.nativeEvent.contentOffset.y;
       this.updateHighlightedSegment();
-    }
+    }*/
   };
 
   onTopReached = () => {
-    /*
-    if (this.props.loadingTextHead == true || !this.props.prev) {
+
+    if (this.props.loadingTextHead == true || !this.props.prev || this.state.scrollingToTargetRef) {
       //already loading tail, or nothing above
       return;
     }
     console.log("onTopReached setting targetSectionRef", this.props.textReference)
-    //TODO do we need this?
-    /*this.setState({
+    this.setState({
       scrollingToTargetRef: true,
       targetSectionRef: this.props.textReference
     });
 
-    this.props.updateData("prev");*/
+    this.props.updateData("prev");
   };
 
   onEndReached = () => {
@@ -481,10 +484,9 @@ class TextColumn extends React.Component {
     let segment = [];
     let textLanguage = Sefaria.util.getTextLanguageWithContent(props.textLanguage, enText, heText);
     let refSection = rowData.sectionIndex + ":" + rowData.rowIndex;
-    let reactRef = props.sectionArray[rowData.sectionIndex] + ":" + props.data[rowData.sectionIndex][rowData.rowIndex].segmentNumber;
-    let numberMargin = (<Text ref={props.sectionArray[rowData.sectionIndex] + ":"+ rowData.content.segmentNumber}
+    let numberMargin = (<Text ref={item.ref}
                                    style={[styles.verseNumber, props.textLanguage == "hebrew" ? styles.hebrewVerseNumber : null, props.theme.verseNumber]}
-                                   key={reactRef + "|segment-number"}>
+                                   key={item.ref + "|segment-number"}>
                         {Sefaria.showSegmentNumbers(props.textTitle) ? (props.textLanguage == "hebrew" ?
                          Sefaria.hebrew.encodeHebrewNumeral(rowData.content.segmentNumber) :
                          rowData.content.segmentNumber) : ""}
@@ -495,9 +497,9 @@ class TextColumn extends React.Component {
     else if (bulletOpacity < 0.3) { bulletOpacity = 0.3; }
     else if (bulletOpacity > 0.8) { bulletOpacity = 0.8; }
 
-    var bulletMargin = (<Text ref={props.sectionArray[rowData.sectionIndex] + ":"+ rowData.content.segmentNumber}
+    var bulletMargin = (<Text ref={item.ref}
                                    style={[styles.verseBullet, props.theme.verseBullet, {opacity:bulletOpacity}]}
-                                   key={reactRef + "|segment-dot"}>
+                                   key={item.ref + "|segment-dot"}>
                         {"●"}
                       </Text>);
 
@@ -506,11 +508,11 @@ class TextColumn extends React.Component {
 
     if (textLanguage == "hebrew" || textLanguage == "bilingual") {
       segmentText.push(<TextSegment
-        rowRef={reactRef}
+        rowRef={item.ref}
         theme={props.theme}
         segmentIndexRef={props.segmentIndexRef}
         segmentKey={refSection}
-        key={reactRef+"|hebrew"}
+        key={item.ref+"|hebrew"}
         data={heText}
         textType="hebrew"
         textSegmentPressed={ props.textSegmentPressed }
@@ -520,12 +522,12 @@ class TextColumn extends React.Component {
 
     if (textLanguage == "english" || textLanguage == "bilingual") {
       segmentText.push(<TextSegment
-        rowRef={reactRef}
+        rowRef={item.ref}
         theme={props.theme}
         style={styles.TextSegment}
         segmentIndexRef={props.segmentIndexRef}
         segmentKey={refSection}
-        key={reactRef+"|english"}
+        key={item.ref+"|english"}
         data={enText}
         textType="english"
         bilingual={textLanguage === "bilingual"}
@@ -539,12 +541,12 @@ class TextColumn extends React.Component {
         textStyle.push(props.theme.segmentHighlight);
     }
 
-    segmentText = <View style={textStyle} key={reactRef+"|text-box"}>{segmentText}</View>;
+    segmentText = <View style={textStyle} key={item.ref+"|text-box"}>{segmentText}</View>;
 
     let completeSeg = props.textLanguage == "english" ? [numberMargin, segmentText, bulletMargin] : [bulletMargin, segmentText, numberMargin];
 
     if (enText || heText) {
-      segment.push(<View style={styles.numberSegmentHolderEn} key={reactRef+"|inner-box"}>
+      segment.push(<View style={styles.numberSegmentHolderEn} key={item.ref+"|inner-box"}>
                       {completeSeg}
                     </View>);
     }
@@ -578,6 +580,7 @@ class TextColumn extends React.Component {
   };
 
   scrollToIndex = () => {
+    if (!this.state.jumpInfoList) return;
     let randomIndex = Math.floor(Math.random(Date.now()) * this.state.componentsToMeasure.length);
     let randomRef = this.state.componentsToMeasure[randomIndex].id;
     this.setState({randomRef: randomRef});
@@ -600,11 +603,10 @@ class TextColumn extends React.Component {
   }
 
   allHeightsMeasured = (componentsToMeasure, textToHeightMap) => {
-    console.log("all heights measured", textToHeightMap.size);
     let currOffset = 0;
     let jumpInfoList = [];
     let currIndex = 0;
-    for (let section of this.state.dataSource) {
+    for (let section of this.state.nextDataSource) {
       let currHeight = textToHeightMap.get(this.props.sectionArray[section.sectionIndex]);
       jumpInfoList[currIndex] = {index: currIndex, length: currHeight, offset: currOffset};
       currOffset += currHeight;
@@ -616,46 +618,82 @@ class TextColumn extends React.Component {
         currIndex++;
       }
     }
-    console.log("jump", jumpInfoList);
-    this.setState({jumpInfoList: jumpInfoList});
+    if (jumpInfoList.length !== componentsToMeasure.length) {
+      console.log(jumpInfoList.length, componentsToMeasure.length);
+    }
+    this.setState({jumpInfoList: jumpInfoList, dataSource: this.state.nextDataSource},
+      ()=>{
+        if (this.state.scrollingToTargetRef) {
+          let targetIndex;
+          for (let i = 0; i < this.state.componentsToMeasure.length; i++) {
+            if (this.state.componentsToMeasure[i].id === this.state.targetSectionRef) {
+              targetIndex = i;
+              break;
+            }
+          }
+          if (targetIndex) {
+            this.sectionListRef.scrollToLocation({animated: false, sectionIndex: 0, itemIndex: targetIndex-1});
+            this.setState({scrollingToTargetRef: false});
+          } else {
+            console.log(`PROBLEM, couldn't find ${this.state.targetSectionRef}`);
+          }
+        }
+      }
+    );
 
     /*if (this.props.offsetRef && !this.state.scrolledToOffsetRef) {
       this.setState({jumpInfo: {index: 0, length: 0, offset: 0}}, this.sectionList.scrollToIndex({animated: false, index: this.props.offsetRef}));
     }*/
   }
 
+  _getSectionListRef = (ref) => {
+    this.sectionListRef = ref;
+  }
+
+  _keyExtractor = (item, index) => {
+    return item.ref;
+  }
+
   render() {
     return (
       <View style={{flex:1}}>
-        { this.state.jumpInfoList ?
-          <View style={{flexDirection: "row"}}>
-            <Button
-              onPress={this.scrollToIndex}
-              title="Jump!"/>
-            <Text>{this.state.randomRef ? this.state.randomRef : "ready"}</Text>
-          </View> :
-          <Text>{"waiting..."}</Text>}
+        <View style={{flexDirection: "row"}}>
+          <Button
+            onPress={this.scrollToIndex}
+            title="Jump!"/>
+          <Text>{this.state.jumpInfoList && this.state.debugUseJumpList ? (this.state.randomRef ? this.state.randomRef : "ready") : (this.state.debugUseJumpList ? "waiting..." : "off :(")}</Text>
+          <Button
+            onPress={()=>{this.setState({debugUseJumpList: !this.state.debugUseJumpList})}}
+            title={`JumpList ${this.state.debugUseJumpList ? "Off" : "On"}`}/>
+        </View>
       <View style={styles.textColumn}>
         <SectionList
-          ref={(ref)=> {this.sectionListRef = ref; }}
+          ref={this._getSectionListRef}
           sections={this.state.dataSource}
           renderItem={this.renderSegmentedRow}
           renderSectionHeader={this.renderSectionHeader}
           renderFooter={this.renderFooter}
-          getItemLayout={this.state.jumpInfoList ? this.getItemLayout : null}
-          onTopReached={this.onTopReached}
-          //onEndReached={this.onEndReached}
-          /*onScroll={this.handleScroll}
-
-          */
+          getItemLayout={this.getItemLayout}
+          //getItemLayout={this.state.jumpInfoList && this.state.debugUseJumpList ? this.getItemLayout : null}
+          onEndReached={this.onEndReached}
+          onEndReachedThreshold={100}
+          scrollEventThrottle={100}
           onViewableItemsChanged={this.onViewableItemsChanged}
-          extraData={this.jumpInfoList}
-          keyExtractor={(item, index)=>item.ref}
-          stickySectionHeadersEnabled={false} />
+          //extraData={this.jumpInfoList}
+          keyExtractor={this._keyExtractor}
+          stickySectionHeadersEnabled={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={this.props.loadingTextHead}
+              onRefresh={this.onTopReached}
+              tintColor="#CCCCCC"
+              style={{ backgroundColor: 'transparent' }} />
+          }/>
       </View>
       { this.state.scrolledToOffsetRef ? null :
         <TextHeightMeasurer
           componentsToMeasure={this.state.componentsToMeasure}
+          setMeasuringHeights={this.setMeasuringHeights}
           allHeightsMeasuredCallback={this.allHeightsMeasured}/> }
       </View>
     );
@@ -663,7 +701,7 @@ class TextColumn extends React.Component {
 
 }
 
-class SectionHeader extends React.Component {
+class SectionHeader extends React.PureComponent {
   static propTypes = {
     title:    PropTypes.string.isRequired,
     isHebrew: PropTypes.bool.isRequired,

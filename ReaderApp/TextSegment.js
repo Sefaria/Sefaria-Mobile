@@ -27,6 +27,16 @@ class TextSegment extends React.PureComponent {
     settings:           PropTypes.object
   };
 
+  constructor(props) {
+    super(props);
+    this.style = props.textType == "hebrew" ?
+                  [styles.hebrewText, props.theme.text, styles.justifyText, {fontSize: props.settings.fontSize, lineHeight: props.settings.fontSize * 1.1},] :
+                  [styles.englishText, props.theme.text, styles.justifyText, {fontSize: 0.8 * props.settings.fontSize, lineHeight: props.settings.fontSize * 1.04 }];
+    if (props.bilingual && props.textType == "english") {
+      this.style.push(styles.bilingualEnglishText);
+      this.style.push(props.theme.bilingualEnglishText);
+    }
+  }
   onPressTextSegment = () => {
     console.log("press")
     let key = this.props.segmentKey;
@@ -41,28 +51,29 @@ class TextSegment extends React.PureComponent {
 
   render() {
     // console.log(this.props.segmentKey+": "+typeof(this.props.textRef));
-    var style = this.props.textType == "hebrew" ?
-                  [styles.hebrewText, this.props.theme.text, styles.justifyText, {fontSize: this.props.settings.fontSize, lineHeight: this.props.settings.fontSize * 1.1},] :
-                  [styles.englishText, this.props.theme.text, styles.justifyText, {fontSize: 0.8 * this.props.settings.fontSize, lineHeight: this.props.settings.fontSize * 1.04 }];
-    if (this.props.bilingual && this.props.textType == "english") {
-      style.push(styles.bilingualEnglishText);
-      style.push(this.props.theme.bilingualEnglishText);
-    }
+    // var style = this.props.textType == "hebrew" ?
+    //               [styles.hebrewText, this.props.theme.text, styles.justifyText, {fontSize: this.props.settings.fontSize, lineHeight: this.props.settings.fontSize * 1.1},] :
+    //               [styles.englishText, this.props.theme.text, styles.justifyText, {fontSize: 0.8 * this.props.settings.fontSize, lineHeight: this.props.settings.fontSize * 1.04 }];
+    // if (this.props.bilingual && this.props.textType == "english") {
+    //   style.push(styles.bilingualEnglishText);
+    //   style.push(this.props.theme.bilingualEnglishText);
+    //}
     return (
       <Text
-        style={style}
+        style={this.style}
         suppressHighlighting={false}
         onPress={this.onPressTextSegment}
         onLongPress={this.onLongPress}
         key={this.props.segmentKey}
-        onLayout={this.onLayout}
+        //onLayout={this.onLayout}
         selectable={true} >
 
           <HTMLView value={
-            this.props.textType == "english" ?
-              "&#x200E;"+Sefaria.reformatTalmudContent(this.props.data) :
+            /*this.props.textType == "english" ?
+              "&#x200E;"+Sefaria.reformatTalmudContent(this.props.data) :*/
                 this.props.data
-              } stylesheet={styles} />
+              }
+            stylesheet={styles} />
 
       </Text>
     );

@@ -279,7 +279,7 @@ class ReaderApp extends React.Component {
 
         this.setState({
           data: updatedData,
-          textReference: this.state.prev,
+          //textReference: this.state.prev, this should be handled only by TextColumn
           prev: data.prev,
           sectionArray: newTitleArray,
           sectionHeArray: newHeTitleArray,
@@ -308,7 +308,7 @@ class ReaderApp extends React.Component {
 
         this.setState({
           data: updatedData,
-          textReference: this.state.next,
+          //textReference: this.state.next, this should be handled only by TextColumn
           next: data.next,
           sectionArray: newTitleArray,
           sectionHeArray: newHeTitleArray,
@@ -348,7 +348,6 @@ class ReaderApp extends React.Component {
           ]);
         return;
       }
-
       this.setState({
         loaded: false,
         textReference: ref
