@@ -581,16 +581,17 @@ class TextColumn extends React.Component {
 
   scrollToIndex = () => {
     if (!this.state.jumpInfoList) return;
-    let randomIndex = Math.floor(Math.random(Date.now()) * this.state.componentsToMeasure.length);
-    let randomRef = this.state.componentsToMeasure[randomIndex].id;
+    let randomSectionIndex = Math.floor(Math.random(Date.now()) * this.state.dataSource.length);
+    let randomSegmentIndex = Math.floor(Math.random(Date.now()) * this.state.dataSource[randomSectionIndex].data.length);
+    let randomRef = this.state.dataSource[randomSectionIndex].data[randomSegmentIndex].ref;
     this.setState({randomRef: randomRef});
-    this.sectionListRef.scrollToLocation({animated: false, sectionIndex: 0, itemIndex: randomIndex-1}); //TODO why -1???
+    this.sectionListRef.scrollToLocation({animated: false, sectionIndex: randomSectionIndex, itemIndex: randomSegmentIndex}); //TODO why -1???
   }
 
   getItemLayout = (data, index) => {
     if (this.state.jumpInfoList) {
       if (index >= this.state.jumpInfoList.length) {
-        //console.log("INDEx too big", index, this.state.jumpInfoList.length);
+        console.log("INDEx too big", index, this.state.jumpInfoList.length);
         let itemHeight = 100;
         return {length: itemHeight, offset: itemHeight * index, index};
       } else {
@@ -617,10 +618,10 @@ class TextColumn extends React.Component {
         currOffset += currHeight;
         currIndex++;
       }
+      jumpInfoList[currIndex] = {index: currIndex, length: 0, offset: currOffset};
+      currIndex++;
     }
-    if (jumpInfoList.length !== componentsToMeasure.length) {
-      console.log(jumpInfoList.length, componentsToMeasure.length);
-    }
+
     this.setState({jumpInfoList: jumpInfoList, dataSource: this.state.nextDataSource},
       ()=>{
         if (this.state.scrollingToTargetRef) {
@@ -672,7 +673,7 @@ class TextColumn extends React.Component {
           sections={this.state.dataSource}
           renderItem={this.renderSegmentedRow}
           renderSectionHeader={this.renderSectionHeader}
-          renderFooter={this.renderFooter}
+          //renderFooter={this.renderFooter}
           getItemLayout={this.getItemLayout}
           //getItemLayout={this.state.jumpInfoList && this.state.debugUseJumpList ? this.getItemLayout : null}
           onEndReached={this.onEndReached}
