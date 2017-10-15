@@ -119,7 +119,7 @@ class TextColumn extends React.Component {
           rowData.changeString += rowData.highlight ? "|highlight" : "";
           rows.push({ref: rowID, data: rowData});
         }
-        dataSource.push({ref: this.props.sectionArray[sectionIndex], data: rows, sectionIndex: sectionIndex});
+        dataSource.push({ref: this.props.sectionArray[sectionIndex], heRef: this.props.sectionHeArray[sectionIndex], data: rows, sectionIndex: sectionIndex});
       }
     }
     //console.log(sections);
@@ -360,9 +360,9 @@ class TextColumn extends React.Component {
     }
   };
 
-  /*
+  /******************
   RENDER
-  */
+  *******************/
 
   renderContinuousRow = (rowData, sID, rID) => {
     // In continuous case, rowData represent an entire section of text
@@ -564,11 +564,12 @@ class TextColumn extends React.Component {
     if (!props) {
       props = this.props;
     }
+
     return (
       <SectionHeader
         title={props.textLanguage == "hebrew" ?
-                this.inlineSectionHeader(props.sectionHeArray[section.sectionIndex]) :
-                this.inlineSectionHeader(props.sectionArray[section.sectionIndex])}
+                this.inlineSectionHeader(section.heRef) :
+                this.inlineSectionHeader(section.ref)}
         isHebrew={props.textLanguage == "hebrew"}
         theme={props.theme}
         />
@@ -636,6 +637,7 @@ class TextColumn extends React.Component {
             this.sectionListRef.scrollToLocation({animated: false, sectionIndex: 0, itemIndex: targetIndex-1});
             this.setState({scrollingToTargetRef: false});
           } else {
+            // this doesn't seem to happen
             console.log(`PROBLEM, couldn't find ${this.state.targetSectionRef}`);
           }
         }
