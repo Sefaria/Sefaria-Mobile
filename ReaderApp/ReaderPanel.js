@@ -236,7 +236,7 @@ class ReaderPanel extends React.Component {
     updatedSettings.fontSize *= x;
     updatedSettings.fontSize = updatedSettings.fontSize > 60 ? 60 : updatedSettings.fontSize; // Max size
     updatedSettings.fontSize = updatedSettings.fontSize < 18 ? 18 : updatedSettings.fontSize; // Min size
-
+    updatedSettings.fontSize = parseFloat(updatedSettings.fontSize.toFixed(2));
     this.setState({settings: updatedSettings});
     Sefaria.settings.set("fontSize", updatedSettings.fontSize);
     Sefaria.track.event("Reader","Display Option Click","fontSize - " + increment);

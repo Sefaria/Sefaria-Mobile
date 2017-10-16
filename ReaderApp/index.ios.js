@@ -184,7 +184,6 @@ class ReaderApp extends React.Component {
                 this.setState({linkSummary: linkSummary, loadingLinks: false})
               );
           }*/
-
           this.setState({
               data:              [data.content],
               textTitle:         data.indexTitle,

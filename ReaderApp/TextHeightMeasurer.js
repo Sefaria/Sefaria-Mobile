@@ -34,6 +34,7 @@ class TextHeightMeasurer extends React.PureComponent {
       id: PropTypes.string.isRequired,
       generator: PropTypes.func.isRequired,  // function which generates the component
       param: PropTypes.object.isRequired, // parameter for the generator function
+      ref: PropTypes.string.isRequired,
     })).isRequired,
     setMeasuringHeights: PropTypes.func.isRequired,
     allHeightsMeasuredCallback: PropTypes.func.isRequired,
@@ -121,7 +122,7 @@ class TextHeightMeasurer extends React.PureComponent {
     );
     this.setState({ currentlyMeasuring: null });
 
-    console.log(`all heights measured, took: ${now()-this.start}ms`);
+    //console.log(`all heights measured, took: ${now()-this.start}ms`);
   }
 
   newBatch() {

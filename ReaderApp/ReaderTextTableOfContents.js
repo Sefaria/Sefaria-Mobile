@@ -344,7 +344,6 @@ class SchemaNode extends React.Component {
       var showHebrew = this.props.contentLang === "hebrew";
       var content = this.props.schema.nodes.map(function(node, i) {
         if ("nodes" in node || "refs" in node && node.refs.length) {
-          console.log("NODE",Object.keys(node));
           let content = (<SchemaNode
                           theme={this.props.theme}
                           themeStr={this.props.themeStr}
@@ -641,7 +640,7 @@ class CollapsibleNode extends React.Component {
   };
 
   render() {
-    let icon = !this.props.node.default ? 
+    let icon = !this.props.node.default ?
                 (<CollapseIcon themeStr={this.props.themeStr} isVisible={this.state.isVisible} showHebrew={this.props.showHebrew} />)
                 : null;
     return (
