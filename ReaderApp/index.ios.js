@@ -252,18 +252,19 @@ class ReaderApp extends React.Component {
       });
   };
 
-  updateData = (direction) => {
-      //console.log("updating data -- " + direction);
+  updateData = (direction, shouldCull) => {
+      // direction: either "next" or "prev"
+      // shouldCull: bool, if True, remove either first or last section (depending on `direction`)
       if (direction === "next" && this.state.next) {
-          this.updateDataNext();
+          this.updateDataNext(shouldCull);
           Sefaria.track.event("Reader","Infinite Scroll","Down");
       } else if (direction == "prev" && this.state.prev) {
-          this.updateDataPrev();
+          this.updateDataPrev(shouldCull);
           Sefaria.track.event("Reader","Infinite Scroll","Up");
       }
   };
 
-  updateDataPrev = () => {
+  updateDataPrev = (shouldCull) => {
       this.setState({loadingTextHead: true});
       Sefaria.data(this.state.prev).then(function(data) {
 
@@ -275,11 +276,18 @@ class ReaderApp extends React.Component {
         newTitleArray.unshift(data.sectionRef);
         newHeTitleArray.unshift(data.heRef);
         newlinksLoaded.unshift(false);
+        let culledSectionRef = null;
+        if (shouldCull) {
+          updatedData.pop();
+          culledSectionRef = newTitleArray.pop();
+          newHeTitleArray.pop();
+          newlinksLoaded.pop();
+        }
 
         this.setState({
           data: updatedData,
-          //textReference: this.state.prev, this should be handled only by TextColumn
           prev: data.prev,
+          next: shouldCull ? culledSectionRef : this.state.next,
           sectionArray: newTitleArray,
           sectionHeArray: newHeTitleArray,
           linksLoaded: newlinksLoaded,
@@ -292,22 +300,28 @@ class ReaderApp extends React.Component {
       });
   };
 
-  updateDataNext = () => {
+  updateDataNext = (shouldCull) => {
       this.setState({loadingTextTail: true});
       Sefaria.data(this.state.next).then(function(data) {
 
         var updatedData = this.state.data.concat([data.content]);
-
         var newTitleArray = this.state.sectionArray;
         var newHeTitleArray = this.state.sectionHeArray;
         var newlinksLoaded = this.state.linksLoaded;
         newTitleArray.push(data.sectionRef);
         newHeTitleArray.push(data.heRef);
         newlinksLoaded.push(false);
+        let culledSectionRef = null
+        if (shouldCull) {
+          updatedData.shift();
+          culledSectionRef = newTitleArray.shift();
+          newHeTitleArray.shift();
+          newlinksLoaded.shift();
+        }
 
         this.setState({
           data: updatedData,
-          //textReference: this.state.next, this should be handled only by TextColumn
+          prev: shouldCull ? culledSectionRef : this.state.prev,
           next: data.next,
           sectionArray: newTitleArray,
           sectionHeArray: newHeTitleArray,

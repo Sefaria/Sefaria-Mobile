@@ -8,14 +8,17 @@ import ReactNative, {
   Button,
   RefreshControl,
   findNodeHandle,
+  Dimensions,
 } from 'react-native';
 
-const queryLayoutByID = require('queryLayoutByID');
-const styles = require('./Styles.js');
-const TextRange = require('./TextRange');
+const styles =                require('./Styles.js');
+const TextRange =            require('./TextRange');
 const TextRangeContinuous = require('./TextRangeContinuous');
-const TextSegment = require('./TextSegment');
 const TextHeightMeasurer = require('./TextHeightMeasurer');
+const queryLayoutByID =   require('queryLayoutByID');
+const ViewPort  = Dimensions.get('window');
+const now = require('performance-now');
+
 
 const {
   LoadingView,
@@ -53,60 +56,62 @@ class TextColumn extends React.Component {
     super(props, context);
     this.previousY = 0; // for measuring scroll speed
     this.rowRefs = {}; //hash table of currently loaded row refs.
+    this.sectionRefsHash= {}; //hash table of currently loaded section refs.
     let {dataSource, componentsToMeasure} = this.generateDataSource(props);
 
     this.state = {
       nextDataSource: dataSource,
       dataSource: [],
       componentsToMeasure: componentsToMeasure,
-      scrollingToTargetRef: !!props.offsetRef,
-      targetRef: props.offsetRef || null,
-      measuringHeights: false,
-      debugUseJumpList: true,
+      jumpState: { // if jumping is true, then look at jumpState when allHeightsMeasuredCallback is called
+        jumping: !!props.offsetRef,
+        targetRef: props.offsetRef || null,
+        viewPosition: 0,
+        animated: false,
+      },
+      changingTextFlow: false, // true while waiting for continuous data to be measured
     };
-  }
-
-  setMeasuringHeights = (measuring) => {
-    this.setState({measuringHeights : measuring});
   }
 
   generateDataSource = (props) => {
     // Returns data representing sections and rows to be passed into ListView.DataSource.cloneWithSectionsAndRows
     // Takes `props` as an argument so it can generate data with `nextProps`.
-    var data = props.data;
-    var dataSource = [];
+    let data = props.data;
+    let dataSource = [];
 
-    var offsetRef = this._standardizeOffsetRef(props.offsetRef);
-
+    let offsetRef = this._standardizeOffsetRef(props.offsetRef);
+    let segmentGenerator;
     if (props.textFlow == 'continuous' && Sefaria.canBeContinuous(props.textTitle)) {
-      var highlight = null;
-      for (var sectionIndex = 0; sectionIndex < data.length; sectionIndex++) {
-        var rows = [];
-        var rowID = props.sectionArray[sectionIndex] + ":" + "wholeSection";
-        var rowData = {
+      let highlight = null;
+      for (let sectionIndex = 0; sectionIndex < data.length; sectionIndex++) {
+        let rows = [];
+        let rowID = props.sectionArray[sectionIndex];
+        let rowData = {
           sectionIndex: sectionIndex,
           segmentData: [],
-          changeString: [rowID, props.textLanguage, props.textFlow, props.settings.fontSize, props.themeStr].join("|")
         };
 
-        for (var i = 0; i < data[sectionIndex].length; i++) {
+        for (let i = 0; i < data[sectionIndex].length; i++) {
           if (!data[sectionIndex][i].text && !data[sectionIndex][i].he) { continue; } // Skip empty segments
-          var segmentData = {
+          const segmentRef = `${rowID}:${i}`;
+          let segmentData = {
+            segmentNumber: i,
             content: data[sectionIndex][i],
-            highlight: offsetRef == rowID.replace("wholeSection", i+1) || (props.textListVisible && props.segmentRef == rowID.replace("wholeSection", i+1))
+            highlight: offsetRef == segmentRef || (props.textListVisible && props.segmentRef == segmentRef)
           }
           highlight = segmentData.highlight ? i : highlight;
           rowData.segmentData.push(segmentData);
         }
-        rowData.changeString += highlight ? "|highlight:" + highlight : "";
-        rows.push({ref: rowID, data: rowData});
-        dataSource.push({ref: props.sectionArray[section], data: rows, sectionIndex: sectionIndex});
+        const changeString = [rowID, props.textLanguage, props.textFlow, props.settings.fontSize].join("|");
+        rows.push({ref: rowID + "|content", data: rowData, changeString: changeString + "|content" });
+        dataSource.push({ref: props.sectionArray[sectionIndex], heRef: props.sectionHeArray[sectionIndex], data: rows, sectionIndex, changeString});
       }
+      segmentGenerator = this.renderContinuousRow;
     }
 
     else { // segmented
-      for (var sectionIndex = 0; sectionIndex < data.length; sectionIndex++) {
-        var rows = [];
+      for (let sectionIndex = 0; sectionIndex < data.length; sectionIndex++) {
+        let rows = [];
         for (var i = 0; i < data[sectionIndex].length; i++) {
           if (i !== 0 && !data[sectionIndex][i].text && !data[sectionIndex][i].he) { continue; } // Skip empty segments
           var rowID = props.sectionArray[sectionIndex] + ":" + data[sectionIndex][i].segmentNumber;
@@ -124,13 +129,14 @@ class TextColumn extends React.Component {
         }
         dataSource.push({ref: props.sectionArray[sectionIndex], heRef: props.sectionHeArray[sectionIndex], data: rows, sectionIndex: sectionIndex, changeString: [props.sectionArray[sectionIndex], props.textLanguage].join("|")});
       }
+      segmentGenerator = this.renderSegmentedRow;
     }
     //console.log(sections);
     let componentsToMeasure = [];
     for (let section of dataSource) {
       componentsToMeasure.push({ref: section.ref, id: section.changeString, generator: this.renderSectionHeader, param: {section: section}})
       for (let segment of section.data) {
-        componentsToMeasure.push({ref: segment.ref, id: segment.changeString, generator: this.renderSegmentedRow, param: {item: segment}});
+        componentsToMeasure.push({ref: segment.ref, id: segment.changeString, generator: segmentGenerator, param: {item: segment}});
       }
     }
 
@@ -149,6 +155,19 @@ class TextColumn extends React.Component {
       var ref = ref.substring(0, lastSpace) + ":" + ref.substring(lastSpace+1, ref.length);
     }
     return ref;
+  };
+
+  textSegmentPressed = (section, segment, segmentRef, shouldToggle) => {
+    if (!this.props.textListVisible) {
+      const targetIndex = this.state.jumpInfoMap.get(segmentRef);
+      this.sectionListRef.scrollToLocation({
+          animated: false,
+          sectionIndex: 0,
+          itemIndex: targetIndex-1,
+          viewPosition: 0.1,
+      });
+    }
+    this.props.textSegmentPressed(section, segment, segmentRef, true);
   };
 
   inlineSectionHeader = (ref) => {
@@ -170,9 +189,16 @@ class TextColumn extends React.Component {
         this.props.themeStr !== nextProps.themeStr ||
         this.props.linksLoaded !== nextProps.linksLoaded) {
       // Only update dataSource when a change has occurred that will result in different data
+
       let {dataSource, componentsToMeasure} = this.generateDataSource(nextProps);
-      //console.log("new datasource", dataSource.length);
-      this.setState({nextDataSource: dataSource, componentsToMeasure: componentsToMeasure});
+      const nextState = {nextDataSource: dataSource, componentsToMeasure: componentsToMeasure};
+      if (this.props.textFlow !== nextProps.textFlow) {
+        nextState.changingTextFlow = true;
+        nextState.dataSource = [];
+      } else {
+        nextState.changingTextFlow = false;
+      }
+      this.setState(nextState);
     }
   }
 
@@ -269,7 +295,6 @@ class TextColumn extends React.Component {
            }
          );
       } else {
-        console.log("falling back to old highlighting method");
         const seg = secData.sections[0].length === 1 ? secData.sections[0][0] : secData.sections[0][1];
         setHighlight(seg.data.sectionIndex, seg.data.rowIndex, seg.ref);
       }
@@ -278,7 +303,6 @@ class TextColumn extends React.Component {
 
   updateTitle = (secData) => {
     if (secData.indexes.length == 0) {
-      console.log("VISIBLE ROWS IS EMPTY!!! oh no!!!");
       return;
     }
     // update title
@@ -287,7 +311,6 @@ class TextColumn extends React.Component {
     let heTitle = this.props.sectionHeArray[biggerSection];
 
     if (enTitle !== this.props.textReference) {
-      console.log(enTitle, heTitle);
       this.props.updateTitle(enTitle, heTitle);
     }
   };
@@ -299,7 +322,6 @@ class TextColumn extends React.Component {
         this.updateHighlightedSegmentContinuous(e);
       }
     }
-
     //auto highlight middle visible segment
     if (this.props.textListVisible && this.viewableSectionData) {
 
@@ -311,28 +333,58 @@ class TextColumn extends React.Component {
       this.previousY = e.nativeEvent.contentOffset.y;
       this.updateHighlightedSegment(this.viewableSectionData);
     }
+
+    // specifically handling this here and not in onEndReached callback because it was getting called too often
+    /*if (e.nativeEvent.contentOffset.y + e.nativeEvent.layoutMeasurement.height > e.nativeEvent.contentSize.height &&
+        this.hasScrolledSinceLastLoad &&  // for debouncing
+        !this.props.loadingTextTail && this.props.next && !this.state.jumpState.jumping && !this.state.changingTextFlow) {
+      this.onEndReached();
+    }*/
   };
 
   onTopReached = () => {
-
-    if (this.props.loadingTextHead == true || !this.props.prev || this.state.scrollingToTargetRef) {
+    if (this.props.loadingTextHead === true || !this.props.prev || this.state.jumpState.jumping) {
       //already loading tail, or nothing above
       return;
     }
     this.setState({
-      scrollingToTargetRef: true,
-      targetRef: this.props.textReference
+      jumpState: {
+        jumping: true,
+        targetRef: this.props.textReference,
+        viewPosition: 0,
+        animated: false,
+      }
     });
-
-    this.props.updateData("prev");
+    let shouldCull = this.sectionsCoverScreen(0, this.state.dataSource.length - 2);
+    this.props.updateData("prev", shouldCull);
   };
 
   onEndReached = () => {
-    if (this.props.loadingTextTail == true) {
-      //already loading tail
-      return;
+    let shouldCull = false; //this.sectionsCoverScreen(1, this.state.dataSource.length - 1);
+    if (shouldCull) {
+      this.setState({
+        jumpState: {
+          jumping: true,
+          targetRef: this.props.next,
+          viewPosition: 1,
+          animated: false,
+        }
+      });
     }
-    this.props.updateData("next");
+    this.props.updateData("next", shouldCull);
+  };
+
+  sectionsCoverScreen = (startSectionInd, endSectionInd, direction) => {
+    // return true if there is enough space between the `startSectionInd` and `endSectionInd` to at least fill the screen.
+    if (this.state.dataSource.length <= 1) {
+      return false;
+    }
+    let extra
+    const startSegRef = this.state.dataSource[startSectionInd].data[0].ref;
+    const endSegRef = this.state.dataSource[endSectionInd].data.slice(-1)[0].ref;
+    const firstSeg = this.state.itemLayoutList[this.state.jumpInfoMap.get(startSegRef)];
+    const lastSeg = this.state.itemLayoutList[this.state.jumpInfoMap.get(endSegRef)];
+    return (lastSeg.offset + lastSeg.length - firstSeg.offset) > ViewPort.height;
   };
 
   onViewableItemsChanged = ({viewableItems, changed}) => {
@@ -348,118 +400,30 @@ class TextColumn extends React.Component {
   RENDER
   *******************/
 
-  renderContinuousRow = (rowData, sID, rID) => {
+  renderRow = ({ item }) => {
+    return (this.props.textFlow == 'continuous' && Sefaria.canBeContinuous(this.props.textTitle)) ? this.renderContinuousRow({ item }) : this.renderSegmentedRow({ item });
+  };
+
+  renderContinuousRow = ({ item }) => {
     // In continuous case, rowData represent an entire section of text
-    var segments = [];
-    for (var i = 0; i < rowData.segmentData.length; i++) {
-      segments.push(this.renderSegmentForContinuousRow(i, rowData));
-    }
-    var textStyle = this.props.textLanguage == "hebrew" ? styles.hebrewText : styles.englishText;
-    var sectionRef = this.props.sectionArray[rowData.section];
-    var onSectionLayout = (event) => {
-      var {x, y, width, height} = event.nativeEvent.layout;
-      var sectionName = this.props.sectionArray[rowData.section];
-
-      //console.log(this.sectionRefsHash);
-
-      this.sectionRefsHash[sectionName] = {height: height, y: y};
-      //console.log(this.sectionRefsHash);
-      /*
-      if (currSegData.highlight) {
-        this.refs._listView.scrollTo({
-         x: 0,
-         y: y,
-         animated: false
-        });
-      }
-      */
-    };
-    return <View style={[styles.verseContainer, styles.continuousRowHolder]} key={sectionRef} onLayout={onSectionLayout} >
-              <Text style={[textStyle, styles.continuousSectionRow]}>{segments}</Text>
-           </View>;
+    return (
+      <TextRangeContinuous
+        theme={this.props.theme}
+        settings={this.props.settings}
+        rowData={item.data}
+        sectionRef={item.ref.replace("|content","")}
+        textLanguage={this.props.textLanguage}
+        showSegmentNumbers={Sefaria.showSegmentNumbers(this.props.textTitle)}
+        textSegmentPressed={this.textSegmentPressed}
+        setSectionRef={(key, value)=>{ this.sectionRefsHash[key]=value; }}
+        setRowRef={(key, ref)=>{this.rowRefs[key]=ref; }}
+        Sefaria={Sefaria}
+      />
+    );
   };
 
-  renderSegmentForContinuousRow = (i, rowData) => {
-      var segmentText = [];
-      var currSegData = rowData.segmentData[i];
-      currSegData.text = currSegData.content.text || "";
-      currSegData.he = currSegData.content.he || "";
-      currSegData.segmentNumber = currSegData.segmentNumber || this.props.data[rowData.sectionIndex][i].segmentNumber;
-      var textLanguage = Sefaria.util.getTextLanguageWithContent(this.props.textLanguage, currSegData.text, currSegData.he);
-      var refSection = rowData.sectionIndex + ":" + i;
-      var reactRef = this.props.sectionArray[rowData.sectionIndex] + ":" + this.props.data[rowData.sectionIndex][i].segmentNumber;
-      var style = [styles.continuousVerseNumber,
-                   this.props.textLanguage == "hebrew" ? styles.continuousHebrewVerseNumber : null,
-                   this.props.theme.verseNumber,
-                   currSegData.highlight ? this.props.theme.segmentHighlight : null];
-      var onSegmentLayout = (event) => {
-        var {x, y, width, height} = event.nativeEvent.layout;
-        // console.log(this.props.sectionArray[rowData.sectionIndex] + ":" + currSegData.segmentNumber + " y=" + y)
-        this.rowRefs[reactRef]._initY = y;
-        if (currSegData.highlight) {
-          // console.log('scrollling...')
-          this.refs._listView.scrollTo({
-           x: 0,
-           y: y+this.sectionRefsHash[rowData.sectionIndex].y,
-           animated: false
-          });
-        }
-      };
-      segmentText.push(<View ref={this.props.sectionArray[rowData.sectionIndex] + ":" + currSegData.segmentNumber}
-                             style={Sefaria.showSegmentNumbers(this.props.textTitle) ? styles.continuousVerseNumberHolder : styles.continuousVerseNumberHolderTalmud}
-                             onLayout={onSegmentLayout}
-                             key={reactRef+"|segment-number"} >
-                          <Text style={style}>
-                            {Sefaria.showSegmentNumbers(this.props.textTitle) ? (this.props.textLanguage == "hebrew" ?
-                              Sefaria.hebrew.encodeHebrewNumeral(currSegData.segmentNumber) :
-                              currSegData.segmentNumber) : ""}</Text>
-      </View>);
-
-
-      if (textLanguage == "hebrew" || textLanguage == "bilingual") {
-        segmentText.push(<TextSegment
-          theme={this.props.theme}
-          segmentIndexRef={this.props.segmentIndexRef}
-          rowRef={reactRef}
-          segmentKey={refSection}
-          key={reactRef+"-he"}
-          data={currSegData.he}
-          textType="hebrew"
-          textSegmentPressed={ this.textSegmentPressed }
-          textListVisible={this.props.textListVisible}
-          settings={this.props.settings}/>);
-      }
-
-      if (textLanguage == "english" || textLanguage == "bilingual") {
-        segmentText.push(<TextSegment
-          theme={this.props.theme}
-          style={styles.TextSegment}
-          segmentIndexRef={this.props.segmentIndexRef}
-          rowRef={reactRef}
-          segmentKey={refSection}
-          key={reactRef+"-en"}
-          data={currSegData.text}
-          textType="english"
-          textSegmentPressed={ this.textSegmentPressed }
-          textListVisible={this.props.textListVisible}
-          settings={this.props.settings}/>);
-      }
-
-      segmentText.push(<Text> </Text>);
-      var refSetter = function(key, ref) {
-        //console.log("Setting ref for " + key);
-        this.rowRefs[key] = ref;
-      }.bind(this, reactRef);
-
-      return (<Text style={style} ref={refSetter}>{segmentText}</Text>);
-
-  };
-
-  renderSegmentedRow = ({item, props}) => {
+  renderSegmentedRow = ({ item }) => {
     // In segmented case, rowData represents a segments of text
-    if (!props) { // when this is run from constructor, need to pass in props
-      props = this.props;
-    }
     return (
       <TextRange
         theme={this.props.theme}
@@ -468,9 +432,8 @@ class TextColumn extends React.Component {
         segmentRef={item.ref}
         textLanguage={this.props.textLanguage}
         showSegmentNumbers={Sefaria.showSegmentNumbers(this.props.textTitle)}
-        textSegmentPressed={this.props.textSegmentPressed}
-        setRowRef={(key, ref)=>{this.rowRefs[key]=ref; }}
-        setRowRefInitY={(key, y)=>{this.rowRefs[key]._initY = y; }}
+        textSegmentPressed={this.textSegmentPressed}
+        setRowRef={(key, ref)=>{this.rowRefs[key]=ref;}}
         Sefaria={Sefaria}
       />
     );
@@ -497,55 +460,54 @@ class TextColumn extends React.Component {
   };
 
   getItemLayout = (data, index) => {
-    if (this.state.jumpInfoList) {
-      if (index >= this.state.jumpInfoList.length) {
-        console.log("INDEx too big", index, this.state.jumpInfoList.length);
+    if (this.state.itemLayoutList) {
+      if (index >= this.state.itemLayoutList.length) {
         let itemHeight = 100;
         return {length: itemHeight, offset: itemHeight * index, index};
       } else {
-        return this.state.jumpInfoList[index];
+        return this.state.itemLayoutList[index];
       }
-    } else {
-      let itemHeight = 100;
-      //never seems to get here
-      console.log("why are you here?", index);
-      //return {length: itemHeight, offset: itemHeight * index, index};
     }
   }
 
   allHeightsMeasured = (componentsToMeasure, textToHeightMap) => {
     let currOffset = 0;
-    let jumpInfoList = [];
+    let itemLayoutList = [];
     let jumpInfoMap = new Map();
     let currIndex = 0;
     for (let section of this.state.nextDataSource) {
       let currHeight = textToHeightMap.get(section.changeString);
-      jumpInfoList[currIndex] = {index: currIndex, length: currHeight, offset: currOffset};
+      itemLayoutList[currIndex] = {index: currIndex, length: currHeight, offset: currOffset};
       jumpInfoMap.set(section.ref, currIndex);
       currOffset += currHeight;
       currIndex++; //sections are counted in the index count
       for (let segment of section.data) {
         let currHeight = textToHeightMap.get(segment.changeString);
-        jumpInfoList[currIndex] = {index: currIndex, length: currHeight, offset: currOffset};
+        itemLayoutList[currIndex] = {index: currIndex, length: currHeight, offset: currOffset};
         jumpInfoMap.set(segment.ref, currIndex);
         currOffset += currHeight;
         currIndex++;
       }
-      jumpInfoList[currIndex] = {index: currIndex, length: 0, offset: currOffset};
+      itemLayoutList[currIndex] = {index: currIndex, length: 0, offset: currOffset};
       currIndex++;
     }
 
-    this.setState({jumpInfoList: jumpInfoList, jumpInfoMap: jumpInfoMap, dataSource: this.state.nextDataSource},
+    this.setState({itemLayoutList: itemLayoutList, jumpInfoMap: jumpInfoMap, dataSource: this.state.nextDataSource, changingTextFlow: false},
       ()=>{
-        if (this.state.scrollingToTargetRef) {
-          const targetIndex = this.state.jumpInfoMap.get(this.state.targetRef);
+        const { jumping, animated, viewPosition, targetRef } = this.state.jumpState;
+        if (jumping) {
+          const targetIndex = this.state.jumpInfoMap.get(targetRef);
           if (targetIndex) {
-            this.sectionListRef.scrollToLocation({animated: false, sectionIndex: 0, itemIndex: targetIndex-1});
-            this.setState({scrollingToTargetRef: false});
-          } else {
-            // this doesn't seem to happen
-            console.log(`PROBLEM, couldn't find ${this.state.targetRef}`);
+            this.sectionListRef.scrollToLocation(
+              {
+                animated: animated,
+                sectionIndex: 0,
+                itemIndex: targetIndex-1,
+                viewPosition: viewPosition
+              }
+            );
           }
+          this.setState({jumpState: { jumping: false }});
         }
       }
     );
@@ -565,13 +527,14 @@ class TextColumn extends React.Component {
           <SectionList
             ref={this._getSectionListRef}
             sections={this.state.dataSource}
-            renderItem={this.renderSegmentedRow}
+            renderItem={this.renderRow}
             renderSectionHeader={this.renderSectionHeader}
             ListFooterComponent={this.renderFooter}
             getItemLayout={this.getItemLayout}
             onEndReached={this.onEndReached}
-            onEndReachedThreshold={0.9}
+            onEndReachedThreshold={1.0}
             onScroll={this.handleScroll}
+            //onMomentumScrollEnd={()=>{this.hasScrolledSinceLastLoad = true; }}
             scrollEventThrottle={100}
             onViewableItemsChanged={this.onViewableItemsChanged}
             keyExtractor={this._keyExtractor}
@@ -585,7 +548,6 @@ class TextColumn extends React.Component {
             }/>
           <TextHeightMeasurer
             componentsToMeasure={this.state.componentsToMeasure}
-            setMeasuringHeights={this.setMeasuringHeights}
             allHeightsMeasuredCallback={this.allHeightsMeasured}/>
         </View>
     );

@@ -36,7 +36,6 @@ class TextHeightMeasurer extends React.PureComponent {
       param: PropTypes.object.isRequired, // parameter for the generator function
       ref: PropTypes.string.isRequired,
     })).isRequired,
-    setMeasuringHeights: PropTypes.func.isRequired,
     allHeightsMeasuredCallback: PropTypes.func.isRequired,
     minHeight: PropTypes.number,
     style: Text.propTypes.style,
@@ -67,7 +66,6 @@ class TextHeightMeasurer extends React.PureComponent {
 
   // resets this.leftToMeasure and this.nextTextToHeight
   resetInternalState(newComponentsToMeasure) {
-    this.props.setMeasuringHeights(true);
     this.start = now();
     this.leftToMeasure = new Set();
     const nextNextTextToHeight = new Map();
@@ -92,7 +90,7 @@ class TextHeightMeasurer extends React.PureComponent {
     }
   }
 
-  onTextLayout(componentToMeasure, event) {
+  onLayout(componentToMeasure, event) {
     //invariant(this.nextTextToHeight, "nextTextToHeight should be set");
     this.nextTextToHeight.set(
       componentToMeasure.id,
@@ -115,7 +113,6 @@ class TextHeightMeasurer extends React.PureComponent {
     //invariant(this.nextTextToHeight, "nextTextToHeight should be set");
     this.currentTextToHeight = this.nextTextToHeight;
     this.nextTextToHeight = null;
-    this.props.setMeasuringHeights(false);
     this.props.allHeightsMeasuredCallback(
       componentsToMeasure,
       this.currentTextToHeight,
@@ -149,7 +146,7 @@ class TextHeightMeasurer extends React.PureComponent {
       return (
         <View
           style={styles.text}
-          onLayout={(event) => this.onTextLayout(componentToMeasure, event)}
+          onLayout={(event) => this.onLayout(componentToMeasure, event)}
           key={componentToMeasure.id}>
           {componentToMeasure.generator(componentToMeasure.param)}
         </View>

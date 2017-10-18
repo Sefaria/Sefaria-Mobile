@@ -20,7 +20,6 @@ class TextRange extends React.PureComponent {
     showSegmentNumbers: PropTypes.bool.isRequired,
     textSegmentPressed: PropTypes.func.isRequired,
     setRowRef:          PropTypes.func.isRequired,
-    setRowRefInitY:     PropTypes.func.isRequired,
     Sefaria:            PropTypes.object.isRequired,
   };
 
@@ -28,12 +27,6 @@ class TextRange extends React.PureComponent {
     super(props);
     Sefaria = props.Sefaria;
   }
-
-  onSegmentLayout = (event) => {
-    const {x, y, width, height} = event.nativeEvent.layout;
-    this.props.setRowRefInitY(this.props.segmentRef, y);
-    //this.rowRefs[item.ref]._initY = y;
-  };
 
   render() {
     let enText = this.props.rowData.content.text || "";
@@ -81,7 +74,6 @@ class TextRange extends React.PureComponent {
       segmentText.push(<TextSegment
         rowRef={this.props.segmentRef}
         theme={this.props.theme}
-        style={styles.TextSegment}
         segmentKey={refSection}
         key={this.props.segmentRef+"|english"}
         data={enText}
@@ -110,7 +102,8 @@ class TextRange extends React.PureComponent {
       <View
         style={styles.verseContainer}
         ref={(view)=>{this.props.setRowRef(this.props.segmentRef, view)}}
-        onLayout={this.onSegmentLayout}>{segment}
+      >
+        {segment}
       </View>
     );
   }

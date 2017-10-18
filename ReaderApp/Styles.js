@@ -579,8 +579,8 @@ module.exports = StyleSheet.create({
   textColumn: {
     flex: 1,
     maxWidth: 800,
-    flexDirection: "row",
-    alignItems: 'stretch'
+    flexDirection: "column",
+    alignItems: 'stretch',
   },
   sectionHeaderBox: {
     alignItems: "center",
@@ -605,6 +605,7 @@ module.exports = StyleSheet.create({
   },
   numberSegmentHolderEn: {
     flexDirection: "row",
+    justifyContent: "center",
   },
   numberSegmentHolderBiHe: {
     flexDirection: "row-reverse",
