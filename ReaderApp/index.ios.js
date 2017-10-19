@@ -54,6 +54,7 @@ class ReaderApp extends React.Component {
         this.openRef(ref);
 
     }.bind(this));
+    console.log('josh code')
     Sefaria.track.init();
     NetInfo.isConnected.addEventListener(
       'change',

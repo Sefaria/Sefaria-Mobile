@@ -4,13 +4,19 @@
  */
 'use strict';
 
-var React = require('react-native');
-var {
+import React, { Component } from 'react';
+
+import {
   AppRegistry,
   StyleSheet,
   Text,
   View,
-} = React;
+  Image,
+  TextInput,
+  Button,
+  TouchableHighlight,
+} from 'react-native';
+
 
 class ReaderApp extends React.Component {
   render() {
