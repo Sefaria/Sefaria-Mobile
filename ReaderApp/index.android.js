@@ -20,10 +20,11 @@ import {
 
 class ReaderApp extends React.Component {
   render() {
+    console.warn('yellow josh code');
     return (
       <View style={styles.container}>
         <Text style={styles.welcome}>
-          Welcome to React Native!
+          Welcome to React Native! Hello J world
         </Text>
         <Text style={styles.instructions}>
           To get started, edit index.android.js
