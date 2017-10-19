@@ -15,3 +15,16 @@ npm run setup
 ```
 
 With these dependencies installed, you can open `/ReaderApp/ReadApp.xcodeprog` and hit run to start the simulator.
+
+
+### Working with Android
+
+
+1. Get [Android Studio](https://facebook.github.io/react-native/releases/0.23/docs/android-setup.html).
+1. Install lots of required stuff.
+1. Open new project.
+1. Create emulator.
+1. In `Sefaria-iOS/ReaderApp` run `react-native run-android`
+   - This should open the emulator with the project.
+1. Edit code
+2. Click r r (R twice to refresh the app).
