@@ -539,19 +539,19 @@ class ReaderApp extends React.Component {
 
   loadLinkContent = (ref, pos) => {
     // Loads text content for `ref` then inserts it into `this.state.linkContents[pos]`
-    var isLinkCurrent = function(ref, pos) {
+    let isLinkCurrent = function(ref, pos) {
       // check that we haven't loaded a different link set in the mean time
       if (typeof this.state.linkRecentFilters[this.state.filterIndex] === "undefined") { return false;}
       var refList = this.state.linkRecentFilters[this.state.filterIndex].refList;
       if (pos > refList.length) { return false; }
       return (refList[pos] === ref);
     }.bind(this);
-    var resolve = (data) => {
+    let resolve = (data) => {
       if (isLinkCurrent(ref, pos)) {
           this.onLinkLoad(pos, data);
       }
     };
-    var reject = (error) => {
+    let reject = (error) => {
       if (error != 'inQueue') {
         if (isLinkCurrent(ref, pos)) {
             this.onLinkLoad(pos, {en:JSON.stringify(error), he:JSON.stringify(error), sectionRef: ""});
@@ -559,15 +559,15 @@ class ReaderApp extends React.Component {
       }
     };
 
-    var resolveClosure = function(ref, pos, data) {
+    let resolveClosure = function(ref, pos, data) {
       resolve(data);
     }.bind(this,ref,pos);
 
-    var rejectClosure = function(ref, pos, data) {
+    let rejectClosure = function(ref, pos, data) {
       reject(data);
     }.bind(this,ref,pos);
 
-    Sefaria.links.loadLinkData(ref, pos, resolveClosure, rejectClosure).then(resolve).catch(reject);
+    Sefaria.links.loadLinkData(ref, pos, resolveClosure, rejectClosure).then(resolveClosure).catch(rejectClosure);
   };
 
   onLinkLoad = (pos, data) => {

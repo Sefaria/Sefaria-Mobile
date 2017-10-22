@@ -611,11 +611,9 @@ Sefaria = {
   },
   links: {
     _linkContentLoadingStack: [],
-    _linkContentLoadingHash: {},
     /* when you switch segments, delete stack and hashtable*/
     reset: function() {
       Sefaria.links._linkContentLoadingStack = [];
-      Sefaria.links._linkContentLoadingHash = {};
     },
     loadLinkData: function(ref,pos,resolveClosure,rejectClosure,runNow) {
 
@@ -626,8 +624,6 @@ Sefaria = {
           } else {
             var result = Sefaria.textFromRefData(data);
           }
-
-          // console.log(data.requestedRef + ": " + result.en + " / " + result.he);
           if (result) {
             resolve(result);
           } else {
@@ -642,16 +638,15 @@ Sefaria = {
           }
         });
       };
-      if (!runNow && !Sefaria.links._linkContentLoadingHash[ref]) {
+      if (!runNow) {
         //console.log("Putting in queue:",ref,"Length:",Sefaria.links._linkContentLoadingStack.length);
         Sefaria.links._linkContentLoadingStack.push({"ref":ref,"pos":pos,"resolveClosure":resolveClosure,"rejectClosure":rejectClosure});
-        Sefaria.links._linkContentLoadingHash[ref] = true;
       }
-      if ((Sefaria.links._linkContentLoadingStack.length == 1 && !Sefaria.links._linkContentLoadingStack[ref]) || runNow) {
+      if (Sefaria.links._linkContentLoadingStack.length == 1 || runNow) {
         //console.log("Starting to load",ref);
         return Sefaria.data(ref,true).then(parseData);
       } else {
-
+        //console.log("Rejecting", ref);
         return new Promise(function(resolve,reject) {
           reject('inQueue');
         })
