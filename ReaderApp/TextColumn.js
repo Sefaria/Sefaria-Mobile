@@ -18,7 +18,7 @@ const TextHeightMeasurer = require('./TextHeightMeasurer');
 const queryLayoutByID =   require('queryLayoutByID');
 const ViewPort  = Dimensions.get('window');
 const now = require('performance-now');
-
+const COMMENTARY_LINE_THRESHOLD = 150;
 
 const {
   LoadingView,
@@ -54,9 +54,10 @@ class TextColumn extends React.Component {
 
   constructor(props, context) {
     super(props, context);
-    this.previousY = 0; // for measuring scroll speed
+    this.currentY = 0; // for measuring scroll speed
     this.rowRefs = {}; //hash table of currently loaded row refs.
-    this.sectionRefsHash= {}; //hash table of currently loaded section refs.
+    this.continuousRowYHash = {};
+    this.continuousSectionYHash = {}; //hash table of currently loaded section refs.
     let {dataSource, componentsToMeasure} = this.generateDataSource(props);
 
     this.state = {
@@ -93,9 +94,11 @@ class TextColumn extends React.Component {
 
         for (let i = 0; i < data[sectionIndex].length; i++) {
           if (!data[sectionIndex][i].text && !data[sectionIndex][i].he) { continue; } // Skip empty segments
-          const segmentRef = `${rowID}:${i}`;
+          const segmentRef = props.sectionArray[sectionIndex] + ":" + data[sectionIndex][i].segmentNumber;
+
           let segmentData = {
             segmentNumber: i,
+            ref: segmentRef,
             content: data[sectionIndex][i],
             highlight: offsetRef == segmentRef || (props.textListVisible && props.segmentRef == segmentRef)
           }
@@ -159,13 +162,28 @@ class TextColumn extends React.Component {
 
   textSegmentPressed = (section, segment, segmentRef, shouldToggle) => {
     if (!this.props.textListVisible) {
-      const targetIndex = this.state.jumpInfoMap.get(segmentRef);
-      this.sectionListRef.scrollToLocation({
-          animated: false,
-          sectionIndex: 0,
-          itemIndex: targetIndex-1,
-          viewPosition: 0.1,
-      });
+      if (this.props.textFlow === 'continuous') {
+        const targetY = this.continuousRowYHash[segmentRef] + this.state.itemLayoutList[this.state.jumpInfoMap.get(this.props.sectionArray[section])].offset;
+        if (targetY) {
+          // yes this is ridiculous. hopefully scrollToOffset() will get implemented on SectionList soon.
+          // see https://github.com/facebook/react-native/issues/13151#issuecomment-337442644
+          this.sectionListRef._wrapperListRef._listRef.scrollToOffset({
+            animated: false,
+            offset: targetY,
+          });
+        } else {
+          console.log("target Y is no good :(", segmentRef);
+        }
+      } else {
+        const targetIndex = this.state.jumpInfoMap.get(segmentRef);
+        this.sectionListRef.scrollToLocation({
+            animated: false,
+            sectionIndex: 0,
+            itemIndex: targetIndex-1,
+            viewPosition: 0.1,
+        });
+      }
+
     }
     this.props.textSegmentPressed(section, segment, segmentRef, true);
   };
@@ -201,58 +219,21 @@ class TextColumn extends React.Component {
       this.setState(nextState);
     }
   }
-
-  updateHighlightedSegmentContinuous = (e) => {
-    var currentOffset = e.nativeEvent.contentOffset.y;
-    var direction = currentOffset > this.offset ? 'down' : 'up';
-    this.offset = currentOffset;
-
-
-    var visibleSections = this.getVisibleSections();
-    var nameOfFirstSection = visibleSections[0];
-    var nameOfSecondSection = visibleSections[1] || null;
-
-    var curRowRefs =  this.rowRefs
-
-    var currentSectionSegmentsPos = [];
-
-
-    for (var eachRow in curRowRefs) {
-      if (eachRow.split(":")[0] == nameOfFirstSection) {
-        currentSectionSegmentsPos.push([eachRow, this.rowRefs[eachRow]._initY])
-      }
-    }
-    currentSectionSegmentsPos.sort(
-        function(a, b) {
-            return a[1] - b[1]
-        }
-    )
-
-
-    for (var i = 0; i < currentSectionSegmentsPos.length; i++) {
-      if (currentSectionSegmentsPos[i][1] + this.sectionRefsHash[nameOfFirstSection].y >= this.refs._listView.scrollProperties.offset) {
-
-        if (i == currentSectionSegmentsPos.length -1) {
-          console.log('loading last one!')
-        }
-
-
-        if (Math.abs(this.previousY - e.nativeEvent.contentOffset.y) > 40) {
-          this.previousY = e.nativeEvent.contentOffset.y;
+  updateHighlightedSegmentContinuous = (secData) => {
+    for (let i = 0; i < secData.sections.length; i++) {
+      let sectionIndex = secData.indexes[i];
+      //let firstSegRefOffset = this.state.dataSource[sectionIndex].data[0].data.segmentData.length > 0 ? this.continuousRowYHash[this.state.dataSource[sectionIndex].data[0].data.segmentData[0].ref] : null;
+      for (let j = 0; j < this.state.dataSource[sectionIndex].data[0].data.segmentData.length; j++) {
+        let segment = this.state.dataSource[sectionIndex].data[0].data.segmentData[j];
+        const sectionOffset = this.state.itemLayoutList[this.state.jumpInfoMap.get(this.props.sectionArray[sectionIndex])].offset;
+        //console.log(segment.ref, this.continuousRowYHash[segment.ref], this.currentY, sectionOffset, firstSegRefOffset);
+        if (this.continuousRowYHash[segment.ref] + sectionOffset - this.currentY > -20) {
+          this.props.textSegmentPressed(sectionIndex, segment.segmentNumber, segment.ref);
+          //console.log("I choose you,", segment.ref, "!!!!")
           return;
         }
-
-
-        var sectionToLoad = this.props.sectionArray.indexOf(currentSectionSegmentsPos[i][0].split(":")[0]);
-        var segmentToLoad = parseInt(currentSectionSegmentsPos[i][0].split(":")[1])-1;
-        this.props.textSegmentPressed(sectionToLoad, segmentToLoad, currentSectionSegmentsPos[i][0]);
-
-        return;
-
       }
-
     }
-
   };
 
   getViewableSectionData = (viewableItems) => {
@@ -283,14 +264,14 @@ class TextColumn extends React.Component {
         this.props.textSegmentPressed(sectionIndex, segmentIndex, ref);
       }
     }.bind(this);
-    if (this.props.textFlow == 'segmented' && secData.sections.length > 0 && secData.sections[0].length > 0) {
+    if (secData.sections.length > 0 && secData.sections[0].length > 0) {
       let handle = findNodeHandle(this.rowRefs[secData.sections[0][0].ref]);
       if (handle) {
         queryLayoutByID(
            handle,
            null, /*Error callback that doesn't yet have a hook in native so doesn't get called */
            (left, top, width, height, pageX, pageY) => {
-             const seg = pageY + height > 150 || secData.sections[0].length === 1 ? secData.sections[0][0] : secData.sections[0][1];
+             const seg = pageY + height > COMMENTARY_LINE_THRESHOLD || secData.sections[0].length === 1 ? secData.sections[0][0] : secData.sections[0][1];
              setHighlight(seg.data.sectionIndex, seg.data.rowIndex, seg.ref);
            }
          );
@@ -316,30 +297,18 @@ class TextColumn extends React.Component {
   };
 
   handleScroll = (e) => {
-    if (this.props.textFlow == 'continuous') {
-      //update highlightedSegment Continuous Style
-      if (this.props.textListVisible) {
-        this.updateHighlightedSegmentContinuous(e);
-      }
-    }
-    //auto highlight middle visible segment
+    const previousY = this.currentY;
+    this.currentY = e.nativeEvent.contentOffset.y;
     if (this.props.textListVisible && this.viewableSectionData) {
-
-      // Measure scroll speed, don't update unless we're moving slowly.
-      if (Math.abs(this.previousY - e.nativeEvent.contentOffset.y) > 40) {
-        this.previousY = e.nativeEvent.contentOffset.y;
+      if (Math.abs(previousY - this.currentY) > 40) {
         return;
       }
-      this.previousY = e.nativeEvent.contentOffset.y;
-      this.updateHighlightedSegment(this.viewableSectionData);
+      if (this.props.textFlow === 'continuous') {
+        this.updateHighlightedSegmentContinuous(this.viewableSectionData);
+      } else {
+        this.updateHighlightedSegment(this.viewableSectionData);
+      }
     }
-
-    // specifically handling this here and not in onEndReached callback because it was getting called too often
-    /*if (e.nativeEvent.contentOffset.y + e.nativeEvent.layoutMeasurement.height > e.nativeEvent.contentSize.height &&
-        this.hasScrolledSinceLastLoad &&  // for debouncing
-        !this.props.loadingTextTail && this.props.next && !this.state.jumpState.jumping && !this.state.changingTextFlow) {
-      this.onEndReached();
-    }*/
   };
 
   onTopReached = () => {
@@ -360,7 +329,7 @@ class TextColumn extends React.Component {
   };
 
   onEndReached = () => {
-    let shouldCull = false; //this.sectionsCoverScreen(1, this.state.dataSource.length - 1);
+    let shouldCull = false; //this.sectionsCoverScreen(1, this.state.dataSource.length - 1); TODO too glitchy to release
     if (shouldCull) {
       this.setState({
         jumpState: {
@@ -406,17 +375,18 @@ class TextColumn extends React.Component {
 
   renderContinuousRow = ({ item }) => {
     // In continuous case, rowData represent an entire section of text
+    const sectionRef = item.ref.replace("|content","");
     return (
       <TextRangeContinuous
         theme={this.props.theme}
         settings={this.props.settings}
         rowData={item.data}
-        sectionRef={item.ref.replace("|content","")}
+        sectionRef={sectionRef}
         textLanguage={this.props.textLanguage}
         showSegmentNumbers={Sefaria.showSegmentNumbers(this.props.textTitle)}
         textSegmentPressed={this.textSegmentPressed}
-        setSectionRef={(key, value)=>{ this.sectionRefsHash[key]=value; }}
-        setRowRef={(key, ref)=>{this.rowRefs[key]=ref; }}
+        setRowRef={(key, ref)=>{this.rowRefs[key]=ref}}
+        setRowRefInitY={(key, y)=>{this.continuousRowYHash[key] = y}}
         Sefaria={Sefaria}
       />
     );
@@ -433,7 +403,7 @@ class TextColumn extends React.Component {
         textLanguage={this.props.textLanguage}
         showSegmentNumbers={Sefaria.showSegmentNumbers(this.props.textTitle)}
         textSegmentPressed={this.textSegmentPressed}
-        setRowRef={(key, ref)=>{this.rowRefs[key]=ref;}}
+        setRowRef={(key, ref)=>{this.rowRefs[key]=ref}}
         Sefaria={Sefaria}
       />
     );
@@ -534,7 +504,6 @@ class TextColumn extends React.Component {
             onEndReached={this.onEndReached}
             onEndReachedThreshold={1.0}
             onScroll={this.handleScroll}
-            //onMomentumScrollEnd={()=>{this.hasScrolledSinceLastLoad = true; }}
             scrollEventThrottle={100}
             onViewableItemsChanged={this.onViewableItemsChanged}
             keyExtractor={this._keyExtractor}

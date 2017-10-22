@@ -576,7 +576,7 @@ Sefaria = {
     // Returns a dictionary of the form {en: "", he: "", sectionRef: ""} that includes a single string with
     // Hebrew and English for `data.requestedRef` found in `data` as returned from Sefaria.data.
     // sectionRef is so that we know which file / api call to make to open this text
-    // `data.requestedRef` may be either section or segment level.
+    // `data.requestedRef` may be either section or segment level or ranged ref.
     if (data.isSectionLevel) {
       let enText = "", heText = "";
       for (let i = 0; i < data.content.length; i++) {
@@ -586,18 +586,28 @@ Sefaria = {
       }
       return new LinkContent(enText, heText, data.sectionRef);
     } else {
-      var segmentNumber = data.requestedRef.slice(data.ref.length+1);
+      let segmentNumber = data.requestedRef.slice(data.ref.length+1);
+      let toSegmentNumber = -1;
+      let dashIndex = segmentNumber.indexOf("-");
+      if (dashIndex !== -1) {
+        toSegmentNumber = segmentNumber.slice(dashIndex+1);
+        segmentNumber = segmentNumber.slice(0, dashIndex);
+      }
+      let enText = "";
+      let heText = "";
       for (let i = 0; i < data.content.length; i++) {
         let item = data.content[i];
-        if (item.segmentNumber === segmentNumber) {
-            let enText = "", heText = "";
-            if (typeof item.text === "string") enText = item.text;
-            if (typeof item.he === "string") heText = item.he;
-            return new LinkContent(enText, heText, data.sectionRef);
+        if (item.segmentNumber >= segmentNumber && (toSegmentNumber === -1 || item.segmentNumber <= toSegmentNumber)) {
+            if (typeof item.text === "string") enText += item.text + " ";
+            if (typeof item.he === "string") heText += item.he + " ";
+            if (toSegmentNumber === -1) {
+              break; //not a ranged ref
+            }
         }
       }
+      return new LinkContent(enText, heText, data.sectionRef);
     }
-    return null;
+
   },
   links: {
     _linkContentLoadingStack: [],
@@ -608,6 +618,7 @@ Sefaria = {
       Sefaria.links._linkContentLoadingHash = {};
     },
     loadLinkData: function(ref,pos,resolveClosure,rejectClosure,runNow) {
+
       parseData = function(data) {
         return new Promise(function(resolve, reject) {
           if (data.fromAPI) {
