@@ -571,8 +571,16 @@ class ReaderApp extends React.Component {
   };
 
   onLinkLoad = (pos, data) => {
+    // truncate data if it's crazy long (e.g. Smag)
+    if (data.en.length > 1000) {
+      data.en = data.en.slice(0, 1000) + "...";
+    }
+    if (data.he.length > 1000) {
+      data.he = data.he.slice(0, 1000) + "...";
+    }
+
     this.state.linkContents[pos] = data;
-    this.setState({linkContents: this.state.linkContents});
+    this.setState({linkContents: this.state.linkContents.slice(0)});
   };
 
   clearOffsetRef = () => {

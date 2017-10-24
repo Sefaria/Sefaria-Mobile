@@ -4,7 +4,7 @@ import React, { Component } from 'react';
 import {
   View,
   ScrollView,
-  ListView,
+  FlatList,
   Text,
   TouchableOpacity,
   Dimensions
@@ -22,6 +22,7 @@ const {
   LoadingView,
 } = require('./Misc.js');
 
+const DEFAULT_LINK_CONTENT = {en: "Loading...", he: "טוען...", sectionRef: ""};
 
 class TextList extends React.Component {
   static propTypes = {
@@ -45,10 +46,11 @@ class TextList extends React.Component {
   constructor(props) {
     super(props);
     Sefaria = props.Sefaria; //Is this bad practice to use getInitialState() as an init function
-    var {height, width} = Dimensions.get('window');
+    const {height, width} = Dimensions.get('window');
+    const dataSource = this.generateDataSource(props);
 
     this.state = {
-      dataSource: new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2}),
+      dataSource,
       isNewSegment: false,
       width: width,
       height: height,
@@ -67,6 +69,10 @@ class TextList extends React.Component {
   componentWillReceiveProps(nextProps) {
     if (this.props.segmentIndexRef !== nextProps.segmentIndexRef) {
       this.setState({isNewSegment:true});
+    } else if (this.props.recentFilters !== nextProps.recentFilters ||
+               this.props.filterIndex !== nextProps.filterIndex ||
+               this.props.linkContents !== nextProps.linkContents) {
+      this.setState({dataSource: this.generateDataSource(nextProps)});
     }
   }
 
@@ -74,6 +80,26 @@ class TextList extends React.Component {
     if (this.state.isNewSegment)
       this.setState({isNewSegment:false});
   }
+
+  generateDataSource = (props) => {
+    const linkFilter = props.recentFilters[props.filterIndex];
+    if (!linkFilter) {
+      return [];
+    }
+    const isCommentaryBook = linkFilter.category === "Commentary" && linkFilter.title !== "Commentary"
+    return linkFilter.refList.map((linkRef, index) => {
+      const key = `${props.segmentIndexRef}|${linkRef}`;
+      const loading = props.linkContents[index] == null;
+      return {
+        key,
+        ref: linkRef,
+        //changeString: [linkRef, loading, props.settings.fontSize, props.textLanguage].join("|"),
+        pos: index,
+        isCommentaryBook: isCommentaryBook,
+        content: props.linkContents[index],
+      };
+    });
+  };
 
   _orientationDidChange = (orientation) => {
     this.setState({
@@ -94,27 +120,27 @@ class TextList extends React.Component {
     this.setState({height: height, width: width});
   };
 
-  renderRow = (linkContentObj, sectionId, rowId) => {
-    var linkFilter = this.props.recentFilters[this.props.filterIndex];
-    var ref = linkFilter.refList[rowId];
-    var isCommentaryBook = linkFilter.category === "Commentary" && linkFilter.title !== "Commentary";
-    var loading = false;
-    if (linkContentObj == null) {
-      loading = true;
-      this.props.loadLinkContent(ref, rowId);
-      linkContentObj = {en: "Loading...", he: "טוען...", sectionRef: ""};
-    }
-
+  renderItem = ({ item }) => {
+    const loading = item.content == null;
+    const linkContentObj = loading ? DEFAULT_LINK_CONTENT : item.content;
     return (<LinkContent
               theme={this.props.theme}
               settings={this.props.settings}
               openRef={this.props.openRef}
-              refStr={ref}
+              refStr={item.ref}
               linkContentObj={linkContentObj}
               textLanguage={this.props.textLanguage}
               loading={loading}
-              isCommentaryBook={isCommentaryBook}
-              key={rowId} />);
+              isCommentaryBook={item.isCommentaryBook}
+    />);
+  };
+
+  onViewableItemsChanged = ({viewableItems, changed}) => {
+    for (let item of viewableItems) {
+      if (item.item.content === null) {
+        this.props.loadLinkContent(item.item.ref, item.item.pos);
+      }
+    }
   };
 
   render() {
@@ -160,8 +186,6 @@ class TextList extends React.Component {
 
       });
       if (viewList.length == 0) { viewList = <EmptyLinksMessage theme={this.props.theme} />; }
-    } else {
-      var dataSourceRows = this.state.dataSource.cloneWithRows(this.props.linkContents);
     }
 
     var textListHeader = (
@@ -205,10 +229,13 @@ class TextList extends React.Component {
         {textListHeader}
         {this.props.linkContents.length == 0 ?
           <View style={styles.noLinks}><EmptyLinksMessage theme={this.props.theme} /></View> :
-          <ListView style={listViewStyles}
-            dataSource={dataSourceRows}
-            renderRow={this.renderRow}
-            contentContainerStyle={{justifyContent: "center"}} />
+          <FlatList style={listViewStyles}
+            data={this.state.dataSource}
+            renderItem={this.renderItem}
+            getItemLayout={this.getItemLayout}
+            contentContainerStyle={{justifyContent: "center"}}
+            onViewableItemsChanged={this.onViewableItemsChanged}
+          />
         }
       </View>
       );
@@ -268,7 +295,7 @@ class LinkBook extends React.Component {
   }
 }
 
-class LinkContent extends React.Component {
+class LinkContent extends React.PureComponent {
   static propTypes = {
     theme:             PropTypes.object.isRequired,
     settings:          PropTypes.object,
