@@ -572,7 +572,7 @@ class ReaderApp extends React.Component {
 
   onLinkLoad = (pos, data) => {
     this.state.linkContents[pos] = data;
-    this.setState({linkContents: this.state.linkContents});
+    this.setState({linkContents: this.state.linkContents.slice(0)});
   };
 
   clearOffsetRef = () => {

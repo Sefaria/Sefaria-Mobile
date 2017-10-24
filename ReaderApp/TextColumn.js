@@ -58,12 +58,12 @@ class TextColumn extends React.Component {
     this.rowRefs = {}; //hash table of currently loaded row refs.
     this.continuousRowYHash = {};
     this.continuousSectionYHash = {}; //hash table of currently loaded section refs.
-    let {dataSource, componentsToMeasure} = this.generateDataSource(props);
+    const {dataSource, componentsToMeasure} = this.generateDataSource(props);
 
     this.state = {
       nextDataSource: dataSource,
       dataSource: [],
-      componentsToMeasure: componentsToMeasure,
+      componentsToMeasure,
       jumpState: { // if jumping is true, then look at jumpState when allHeightsMeasuredCallback is called
         jumping: !!props.offsetRef,
         targetRef: props.offsetRef || null,
@@ -144,7 +144,7 @@ class TextColumn extends React.Component {
     }
 
 
-    return {dataSource: dataSource, componentsToMeasure: componentsToMeasure};
+    return { dataSource, componentsToMeasure };
 
   };
 
@@ -409,18 +409,14 @@ class TextColumn extends React.Component {
     );
   };
 
-  renderSectionHeader = ({section, props}) => {
-    if (!props) {
-      props = this.props;
-    }
-
+  renderSectionHeader = ({ section }) => {
     return (
       <SectionHeader
-        title={props.textLanguage == "hebrew" ?
+        title={this.props.textLanguage == "hebrew" ?
                 this.inlineSectionHeader(section.heRef) :
                 this.inlineSectionHeader(section.ref)}
-        isHebrew={props.textLanguage == "hebrew"}
-        theme={props.theme}
+        isHebrew={this.props.textLanguage == "hebrew"}
+        theme={this.props.theme}
         />
     )
   };
@@ -462,6 +458,7 @@ class TextColumn extends React.Component {
       currIndex++;
     }
 
+    // now that itemLayoutList is in-sync with nextDataSource, we can update dataSource
     this.setState({itemLayoutList: itemLayoutList, jumpInfoMap: jumpInfoMap, dataSource: this.state.nextDataSource, changingTextFlow: false},
       ()=>{
         const { jumping, animated, viewPosition, targetRef } = this.state.jumpState;

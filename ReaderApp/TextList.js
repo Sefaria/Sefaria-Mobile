@@ -4,7 +4,7 @@ import React, { Component } from 'react';
 import {
   View,
   ScrollView,
-  ListView,
+  FlatList,
   Text,
   TouchableOpacity,
   Dimensions
@@ -15,6 +15,7 @@ const styles         = require('./Styles');
 const strings        = require('./LocalizedStrings');
 const TextListHeader = require('./TextListHeader');
 const LinkFilter     = require('./LinkFilter');
+const TextHeightMeasurer = require('./TextHeightMeasurer');
 
 const {
   CategoryColorLine,
@@ -22,6 +23,7 @@ const {
   LoadingView,
 } = require('./Misc.js');
 
+const DEFAULT_LINK_CONTENT = {en: "Loading...", he: "טוען...", sectionRef: ""};
 
 class TextList extends React.Component {
   static propTypes = {
@@ -45,10 +47,11 @@ class TextList extends React.Component {
   constructor(props) {
     super(props);
     Sefaria = props.Sefaria; //Is this bad practice to use getInitialState() as an init function
-    var {height, width} = Dimensions.get('window');
-
+    const {height, width} = Dimensions.get('window');
+    const {dataSource, componentsToMeasure} = this.generateDataSource(props);
     this.state = {
-      dataSource: new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2}),
+      nextDataSource: dataSource,
+      componentsToMeasure,
       isNewSegment: false,
       width: width,
       height: height,
@@ -67,6 +70,11 @@ class TextList extends React.Component {
   componentWillReceiveProps(nextProps) {
     if (this.props.segmentIndexRef !== nextProps.segmentIndexRef) {
       this.setState({isNewSegment:true});
+    } else if (this.props.recentFilters !== nextProps.recentFilters ||
+               this.props.filterIndex !== nextProps.filterIndex ||
+               this.props.linkContents !== nextProps.linkContents) {
+      const {dataSource, componentsToMeasure} = this.generateDataSource(nextProps);
+      this.setState({nextDataSource: dataSource, componentsToMeasure})
     }
   }
 
@@ -74,6 +82,35 @@ class TextList extends React.Component {
     if (this.state.isNewSegment)
       this.setState({isNewSegment:false});
   }
+
+  generateDataSource = (props) => {
+    const linkFilter = props.recentFilters[props.filterIndex];
+    if (!linkFilter) {
+      return [];
+    }
+    const isCommentaryBook = linkFilter.category === "Commentary" && linkFilter.title !== "Commentary"
+    const dataSource = linkFilter.refList.map((linkRef, index) => {
+      const key = `${props.segmentIndexRef}|${linkRef}`;
+      const loading = props.linkContents[index] == null;
+      return {
+        key,
+        ref: linkRef,
+        changeString: [linkRef, loading, props.settings.fontSize, props.textLanguage].join("|"),
+        pos: index,
+        isCommentaryBook: isCommentaryBook,
+        content: props.linkContents[index],
+      };
+    });
+    const componentsToMeasure = dataSource.map((item, index) => {
+      return {
+        ref: item.ref,
+        id: item.changeString,
+        generator: this.renderItem,
+        param: { item },
+      };
+    });
+    return { dataSource, componentsToMeasure };
+  };
 
   _orientationDidChange = (orientation) => {
     this.setState({
@@ -94,28 +131,60 @@ class TextList extends React.Component {
     this.setState({height: height, width: width});
   };
 
-  renderRow = (linkContentObj, sectionId, rowId) => {
-    var linkFilter = this.props.recentFilters[this.props.filterIndex];
-    var ref = linkFilter.refList[rowId];
-    var isCommentaryBook = linkFilter.category === "Commentary" && linkFilter.title !== "Commentary";
-    var loading = false;
+  renderItem = ({ item }) => {
+    let loading = false;
+    let linkContentObj = item.content;
     if (linkContentObj == null) {
       loading = true;
-      this.props.loadLinkContent(ref, rowId);
-      linkContentObj = {en: "Loading...", he: "טוען...", sectionRef: ""};
+      linkContentObj = DEFAULT_LINK_CONTENT;
     }
 
     return (<LinkContent
               theme={this.props.theme}
               settings={this.props.settings}
               openRef={this.props.openRef}
-              refStr={ref}
+              refStr={item.ref}
               linkContentObj={linkContentObj}
               textLanguage={this.props.textLanguage}
               loading={loading}
-              isCommentaryBook={isCommentaryBook}
-              key={rowId} />);
+              isCommentaryBook={item.isCommentaryBook}
+              />);
   };
+
+  getItemLayout = (data, index) => {
+    if (this.state.itemLayoutList) {
+      if (index >= this.state.itemLayoutList.length) {
+        console.log("Index greater than length!!!", index);
+        let itemHeight = 100;
+        return {length: itemHeight, offset: itemHeight * index, index};
+      } else {
+        console.log(this.state.itemLayoutList[index]);
+        return this.state.itemLayoutList[index];
+      }
+    }
+  };
+
+  allHeightsMeasured = (componentsToMeasure, textToHeightMap) => {
+    let currIndex = 0;
+    let currOffset = 0;
+    let itemLayoutList = [];
+    for (let item of this.state.nextDataSource) {
+      const currHeight = textToHeightMap.get(item.changeString);
+      itemLayoutList[currIndex] = {index: currIndex, length: currHeight, offset: currOffset};
+      currOffset += currHeight;
+      currIndex++;
+    }
+    // now that itemLayoutList is in-sync with nextDataSource, we can update dataSource
+    this.setState({itemLayoutList, dataSource: this.state.nextDataSource});
+  };
+
+  onViewableItemsChanged = ({viewableItems, changed}) => {
+    for (let item of viewableItems) {
+      if (item.item.content === null) {
+        this.props.loadLinkContent(item.item.ref, item.item.pos);
+      }
+    }
+  }
 
   render() {
     var isSummaryMode = this.props.filterIndex == null;
@@ -160,8 +229,6 @@ class TextList extends React.Component {
 
       });
       if (viewList.length == 0) { viewList = <EmptyLinksMessage theme={this.props.theme} />; }
-    } else {
-      var dataSourceRows = this.state.dataSource.cloneWithRows(this.props.linkContents);
     }
 
     var textListHeader = (
@@ -205,10 +272,17 @@ class TextList extends React.Component {
         {textListHeader}
         {this.props.linkContents.length == 0 ?
           <View style={styles.noLinks}><EmptyLinksMessage theme={this.props.theme} /></View> :
-          <ListView style={listViewStyles}
-            dataSource={dataSourceRows}
-            renderRow={this.renderRow}
-            contentContainerStyle={{justifyContent: "center"}} />
+          <View style={{flex:1, flexDirection: "column"}}>
+            <FlatList style={listViewStyles}
+              data={this.state.dataSource}
+              renderItem={this.renderItem}
+              getItemLayout={this.getItemLayout}
+              contentContainerStyle={{justifyContent: "center"}}
+              onViewableItemsChanged={this.onViewableItemsChanged} />
+            <TextHeightMeasurer
+              componentsToMeasure={this.state.componentsToMeasure}
+              allHeightsMeasuredCallback={this.allHeightsMeasured}/>
+          </View>
         }
       </View>
       );
@@ -268,7 +342,7 @@ class LinkBook extends React.Component {
   }
 }
 
-class LinkContent extends React.Component {
+class LinkContent extends React.PureComponent {
   static propTypes = {
     theme:             PropTypes.object.isRequired,
     settings:          PropTypes.object,
