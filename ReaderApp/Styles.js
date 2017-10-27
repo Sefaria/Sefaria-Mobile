@@ -629,12 +629,6 @@ module.exports = StyleSheet.create({
     textAlign: "center",
     fontFamily: "Taamey Frank Taamim Fix",
   },
-  textTocHeaderTitle: {
-    flex: 1,
-    paddingLeft: 10,
-    textAlign: 'center',
-    letterSpacing: 1
-  },
   textTocVersionInfo: {
     flexDirection: "row",
     justifyContent: "center",
