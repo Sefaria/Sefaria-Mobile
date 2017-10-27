@@ -843,5 +843,20 @@ module.exports = StyleSheet.create({
   },
   a: {
     fontWeight: "300",
+  },
+  hediv: {
+    fontFamily: "Taamey Frank Taamim Fix",
+    writingDirection: "rtl",
+    flex: -1,
+    paddingTop: 10,
+    marginTop: -5,
+    textAlign: "justify",
+  },
+  endiv: {
+    fontFamily: "Amiri",
+    textAlign: 'justify',
+    marginTop: 5,
   }
+
+
 });

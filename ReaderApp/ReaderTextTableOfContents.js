@@ -169,7 +169,12 @@ class ReaderTextTableOfContents extends React.Component {
                 }
               </View>
               { versionNotes ?
-                <Text style={[styles.textTocVersionNotes, this.props.theme.tertiaryText]}><HTMLView value={versionInfo['versionNotes'] } onLinkPress={(url) => Linking.openURL(url) } stylesheet={styles} /></Text>
+                <HTMLView
+                  value={"<div>"+versionInfo['versionNotes']+"</div>"}
+                  onLinkPress={(url) => Linking.openURL(url) }
+                  stylesheet={styles}
+         					textComponentProps={{style: [styles.textTocVersionNotes, this.props.theme.tertiaryText]}}
+                />
                 : null
               }
             </View>
