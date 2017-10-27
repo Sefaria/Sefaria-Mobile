@@ -41,29 +41,51 @@ class TextSegment extends React.PureComponent {
   };
 
   render() {
-    // console.log(this.props.segmentKey+": "+typeof(this.props.textRef));
-    const style = this.props.textType == "hebrew" ?
-                  [styles.hebrewText, this.props.theme.text, styles.justifyText, {fontSize: this.props.settings.fontSize, lineHeight: this.props.settings.fontSize * 1.1},] :
-                  [styles.englishText, this.props.theme.text, styles.justifyText, {fontSize: 0.8 * this.props.settings.fontSize, lineHeight: this.props.settings.fontSize * 1.04 }];
     if (this.props.bilingual && this.props.textType == "english") {
       style.push(styles.bilingualEnglishText);
       style.push(this.props.theme.bilingualEnglishText);
     }
+
+    const stylesheet = this.props.textType == "hebrew" ?
+      StyleSheet.create({
+        div: {
+          fontFamily: "Taamey Frank Taamim Fix",
+          writingDirection: "rtl",
+          flex: -1,
+          paddingTop: 10,
+          marginTop: -5,
+          textAlign: "justify",
+          fontSize: this.props.settings.fontSize,
+          lineHeight: this.props.settings.fontSize * 1.1
+        }
+      }) :
+
+     StyleSheet.create({
+        div: {
+          fontFamily: "Amiri",
+          textAlign: 'justify',
+          marginTop: 5,
+          fontSize: 0.8 * this.props.settings.fontSize,
+          lineHeight: this.props.settings.fontSize * 1.04
+        }
+      });
+
     return (
            <HTMLView
              value={"<div>"+this.props.data+"</div>"}
-             stylesheet={styles}
+             stylesheet={stylesheet}
              textComponentProps={
                {
-                 style: style,
                  suppressHighlighting: false,
                  onPress:this.onPressTextSegment,
                  onLongPress:this.onLongPress,
                  key:this.props.segmentKey,
-                 selectable: true,
-                 RootComponent: Text,
                }
-
+             }
+             nodeComponentProps={
+               {
+                 selectable: true,
+               }
              }
            />
 
