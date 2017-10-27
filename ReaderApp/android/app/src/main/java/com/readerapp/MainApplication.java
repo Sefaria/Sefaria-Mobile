@@ -28,6 +28,11 @@ public class MainApplication extends Application implements ReactApplication {
             new RNZipArchivePackage()
       );
     }
+
+    @Override
+    protected String getJSMainModuleName() {
+      return "index";
+    }
   };
 
   @Override

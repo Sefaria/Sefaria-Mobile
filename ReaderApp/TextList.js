@@ -312,8 +312,26 @@ class LinkContent extends React.PureComponent {
     var lang = Sefaria.util.getTextLanguageWithContent(this.props.textLanguage,lco.en,lco.he);
     var textViews = [];
 
-    var hebrewElem =  <Text style={[styles.hebrewText, styles.linkContentText, this.props.theme.text, {fontSize: this.props.settings.fontSize, lineHeight: this.props.settings.fontSize * 1.1}]} key={this.props.refStr+"-he"}><HTMLView stylesheet={styles} value={lco.he}/></Text>;
-    var englishElem = <Text style={[styles.englishText, styles.linkContentText, this.props.theme.text, {fontSize: 0.8 * this.props.settings.fontSize, lineHeight: this.props.settings.fontSize}]} key={this.props.refStr+"-en"}><HTMLView stylesheet={styles} value={"&#x200E;"+lco.en}/></Text>;
+    var hebrewElem =  <HTMLView
+                        stylesheet={styles}
+                        value={"<hediv>"+lco.he+"</hediv>"}
+                        textComponentProps={
+                          {
+                            style: [styles.hebrewText, styles.linkContentText, this.props.theme.text, {fontSize: this.props.settings.fontSize, lineHeight: this.props.settings.fontSize * 1.1}],
+                            key: this.props.refStr+"-he"
+                          }
+                        }
+                      />;
+    var englishElem = <HTMLView
+                        stylesheet={styles}
+                        value={"<endiv>"+"&#x200E;"+lco.en+"</endiv>"}
+                        textComponentProps={
+                          {
+                            style: [styles.englishText, styles.linkContentText, this.props.theme.text, {fontSize: 0.8 * this.props.settings.fontSize, lineHeight: this.props.settings.fontSize}],
+                            key: this.props.refStr+"-en"
+                          }
+                        }
+                      />;
     if (lang == "bilingual") {
       textViews = [hebrewElem, englishElem];
     } else if (lang == "hebrew") {

@@ -50,22 +50,25 @@ class TextSegment extends React.PureComponent {
       style.push(this.props.theme.bilingualEnglishText);
     }
     return (
-      <Text
-        style={style}
-        suppressHighlighting={false}
-        onPress={this.onPressTextSegment}
-        onLongPress={this.onLongPress}
-        key={this.props.segmentKey}
-        selectable={true} >
+           <HTMLView
+             value= {this.props.textType == "hebrew" ? "<hediv>"+this.props.data+"</hediv>" : "<endiv>"+this.props.data+"</endiv>"}
+             stylesheet={styles}
+             textComponentProps={
+               {
+                 suppressHighlighting: false,
+                 onPress:this.onPressTextSegment,
+                 onLongPress:this.onLongPress,
+                 key:this.props.segmentKey,
+                 style: style,
+               }
+             }
+             nodeComponentProps={
+               {
+                 selectable: true,
+               }
+             }
+           />
 
-          <HTMLView value={
-            /*this.props.textType == "english" ?
-              "&#x200E;"+Sefaria.reformatTalmudContent(this.props.data) :*/
-                this.props.data
-              }
-            stylesheet={styles} />
-
-      </Text>
     );
   }
 }
