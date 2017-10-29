@@ -24,6 +24,7 @@ os.environ['DJANGO_SETTINGS_MODULE'] = "settings"
 import sefaria.model as model
 from sefaria.client.wrapper import get_links
 from sefaria.model.text import Version
+from sefaria.model.schema import Term
 from sefaria.utils.talmud import section_to_daf
 from sefaria.system.exceptions import InputError, BookNameError
 from sefaria.system.exceptions import NoVersionFoundError
@@ -50,6 +51,7 @@ MINIFY_JSON = True
 
 TOC_PATH          = EXPORT_PATH + "/toc.json"
 SEARCH_TOC_PATH   = EXPORT_PATH + "/search_toc.json"
+HEB_CATS_PATH     = EXPORT_PATH + "/hebrew_categories.json"
 LAST_UPDATED_PATH = EXPORT_PATH + "/last_updated.json"
 
 
@@ -97,7 +99,7 @@ def zip_last_text(title):
 
     for file in glob.glob("*.json"):
         # NOTE: this also will skip search_toc.json since it ends in `toc.json`
-        if file.endswith("calendar.json") or file.endswith("toc.json") or file.endswith("last_updated.json"):
+        if file.endswith("calendar.json") or file.endswith("toc.json") or file.endswith("last_updated.json") or file.endswith("hebrew_categories.json"):
             continue
         z.write(file)
         os.remove(file)
@@ -174,6 +176,7 @@ def export_updated():
             updated_books.remove(title) # don't include books which dont export
 
     export_toc()
+    export_hebrew_categories()
     write_last_updated(updated_books, update=True)
 
 
@@ -441,6 +444,23 @@ def write_last_updated(titles, update=False):
         purge_cloudflare_cache(titles)
 
 
+def export_hebrew_categories():
+    """
+    Writes translation of all English categories into a single file.
+    """
+    print "Export Hebrew Categories"
+    term = Term()
+    eng_cats = model.library.get_text_categories()
+    hebrew_cats_json = {}
+    for e in eng_cats:
+        t = term.load_by_title(e)
+        if not t:
+            print u"Couldn't load term '{}'. Skipping Hebrew category".format(e)
+        else:
+            hebrew_cats_json[e] = t.titles[1][u'text']
+    write_doc(hebrew_cats_json, HEB_CATS_PATH)
+
+
 def export_toc():
     """
     Writes the Table of Contents JSON to a single file.
@@ -529,7 +549,7 @@ def purge_cloudflare_cache(titles):
     Purges the URL for each zip file named in `titles` as well as toc.json, last_updated.json and calendar.json.
     """
     files = ["%s/%s/%s.zip" % (CLOUDFLARE_PATH, SCHEMA_VERSION, title) for title in titles]
-    files += ["%s/%s/%s.json" % (CLOUDFLARE_PATH, SCHEMA_VERSION, title) for title in ("toc", "search_toc", "last_updated", "calendar")]
+    files += ["%s/%s/%s.json" % (CLOUDFLARE_PATH, SCHEMA_VERSION, title) for title in ("toc", "search_toc", "last_updated", "calendar", "hebrew_categories")]
     url = 'https://api.cloudflare.com/client/v4/zones/%s/purge_cache' % CLOUDFLARE_ZONE
     payload = {"files": files}
     headers = {
@@ -551,6 +571,7 @@ def export_all(skip_existing=False):
     start_time = time.time()
     export_toc()
     export_calendar()
+    export_hebrew_categories()
     export_texts(skip_existing)
     print("--- %s seconds ---" % round(time.time() - start_time, 2))
 
@@ -577,3 +598,5 @@ if __name__ == '__main__':
     elif action == "export_toc":
         export_toc()
         purge_cloudflare_cache([])
+    elif action == "export_hebrew_categories":
+        export_hebrew_categories()

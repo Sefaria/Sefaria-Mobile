@@ -15,6 +15,7 @@ Sefaria = {
     return Promise.all([
       Sefaria._loadTOC(),
       Sefaria.search._loadSearchTOC(),
+      Sefaria._loadHebrewCategories(),
       Sefaria._loadRecentItems(),
       Sefaria._loadCalendar(),
       Sefaria.downloader.init(),
@@ -236,6 +237,19 @@ Sefaria = {
           Sefaria._loadJSON(tocPath).then(function(data) {
             Sefaria.toc = data;
             Sefaria._cacheIndexFromToc(data);
+            resolve();
+          });
+        });
+    });
+  },
+  _loadHebrewCategories: function() {
+    return new Promise(function(resolve, reject) {
+      RNFS.exists(RNFS.DocumentDirectoryPath + "/library/hebrew_categories.json")
+        .then(function(exists) {
+          const hebCatPath = exists ? (RNFS.DocumentDirectoryPath + "/library/hebrew_categories.json") :
+                                      (RNFS.MainBundlePath + "/sources/hebrew_categories.json");
+          Sefaria._loadJSON(hebCatPath).then(function(data) {
+            Sefaria.hebrewCategories = data;
             resolve();
           });
         });
@@ -1208,7 +1222,14 @@ Sefaria.hebrew = {
 
 Sefaria.hebrewCategory = function(cat) {
   // Returns a string translating `cat` into Hebrew.
-  var categories = {
+  if (Sefaria.hebrewCategories) {
+    // pregenerated hebrew categories from dump
+    if (cat in Sefaria.hebrewCategories) {
+      return Sefaria.hebrewCategories[cat];
+    }  
+  }
+
+  const categories = {
     "Torah": "תורה",
     "Tanakh": 'תנ"ך',
     "Tanakh": 'תנ"ך',

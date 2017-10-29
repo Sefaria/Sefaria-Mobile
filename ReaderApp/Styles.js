@@ -374,6 +374,9 @@ module.exports = StyleSheet.create({
     paddingTop: 20,
     paddingBottom: 40
   },
+  menuScrollViewContent: {
+    paddingBottom: 100,
+  },
   languageToggle: {
     width: 30,
     height: 30,
