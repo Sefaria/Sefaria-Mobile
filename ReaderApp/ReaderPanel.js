@@ -119,11 +119,13 @@ class ReaderPanel extends React.Component {
         if (gestureState.pinch && gestureState.previousPinch) {
           this.pendingIncrement *= gestureState.pinch / gestureState.previousPinch
           if (!this.incrementTimer) {
+            const numSegments = this.props.data.reduce((prevVal, elem) => prevVal + elem.length, 0);
+            const timeout = Math.min(50 + Math.floor(numSegments/50)*25, 200); // range of timeout is [50,200] or in FPS [20,5]
             this.incrementTimer = setTimeout(() => {
               this.incrementFont(this.pendingIncrement);
               this.pendingIncrement = 1;
               this.incrementTimer = null;
-            }, 50);
+            }, timeout);
           }
         }
       },
@@ -194,7 +196,7 @@ class ReaderPanel extends React.Component {
     }
     Sefaria.track.event("Reader","Change Language", this.state.settings.language);
 
-    this.setState({settings: this.state.settings});
+    this.setState({settings: {...this.state.settings, language: this.state.settings.language }});
     Sefaria.settings.set("menuLanguage", this.state.settings.language);
   };
 

@@ -216,6 +216,12 @@ class TextColumn extends React.Component {
       } else {
         nextState.changingTextFlow = false;
       }
+
+      if (this.props.settings.fontSize !== nextProps.settings.fontSize ||
+          this.props.textLanguage !== nextProps.textLanguage) {
+        // updates to fontSize and language invalidate any components that are measuring in the background
+        this.textHeightMeasurerRef.stopMeasuring();
+      }
       this.setState(nextState);
     }
   }
@@ -487,8 +493,12 @@ class TextColumn extends React.Component {
     this.sectionListRef = ref;
   }
 
+  _getTextHeightMeasurerRef = (ref) => {
+    this.textHeightMeasurerRef = ref;
+  }
+
   _keyExtractor = (item, index) => {
-    return item.ref;
+    return item.changeString;
   }
 
   render() {
@@ -516,6 +526,7 @@ class TextColumn extends React.Component {
                 style={{ backgroundColor: 'transparent' }} />
             }/>
           <TextHeightMeasurer
+            ref={this._getTextHeightMeasurerRef}
             componentsToMeasure={this.state.componentsToMeasure}
             allHeightsMeasuredCallback={this.allHeightsMeasured}/>
         </View>

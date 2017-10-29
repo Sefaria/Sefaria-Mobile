@@ -153,8 +153,6 @@ class ReaderNavigationCategoryMenuContents extends React.Component {
               this.props.setCategories(newCats);
               Sefaria.track.event("Reader","Navigation Sub Category Click",newCats.join(" / "));
             }.bind(this,newCats);
-            debugger;
-            console.log(item.title);
             content.push((<TouchableOpacity onPress={openCat} style={[styles.textBlockLink,this.props.theme.textBlockLink]} key={i}>
                             { showHebrew ?
                               <Text style={[styles.hebrewText, styles.centerText, this.props.theme.text]}>{Sefaria.hebrewCategory(item.category)}</Text> :

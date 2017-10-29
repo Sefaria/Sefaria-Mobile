@@ -56,7 +56,7 @@ class ReaderApp extends React.Component {
     }.bind(this));
     Sefaria.track.init();
     NetInfo.isConnected.addEventListener(
-      'change',
+      'connectionChange',
       this.networkChangeListener
     );
 
@@ -121,6 +121,7 @@ class ReaderApp extends React.Component {
   }
 
   networkChangeListener = (isConnected) => {
+    console.log("netinfo", isConnected);
     this.setState({hasInternet: isConnected});
   };
 

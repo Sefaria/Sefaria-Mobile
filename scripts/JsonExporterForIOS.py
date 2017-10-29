@@ -355,7 +355,7 @@ def section_data(oref, defaultVersions):
         curContent["segmentNumber"] = str(x+1)
 
         links = get_links(text["ref"] + ":" + curContent["segmentNumber"], False)
-
+        print links
         if len(links) > 0:
             curContent["links"] = [simple_link(link) for link in links]
 

@@ -84,7 +84,7 @@ class ReaderDisplayOptionsMenu extends React.Component {
     var optionViews = [];
     for (let optionRow of options) {
       if (optionRow.divider) {
-        optionViews.push(<View style={[styles.readerDisplayOptionsMenuDivider, this.props.theme.readerDisplayOptionsMenuDivider]}/>);
+        optionViews.push(<View key={"options-divider"} style={[styles.readerDisplayOptionsMenuDivider, this.props.theme.readerDisplayOptionsMenuDivider]}/>);
       } else {
         let row = [];
         let isColor = "colors" in optionRow;
@@ -97,6 +97,7 @@ class ReaderDisplayOptionsMenu extends React.Component {
             let color = optionRow.colors[i];
             row.push(
               <ReaderDisplayOptionsMenuColor
+                key={option}
                 theme={this.props.theme}
                 option={option}
                 onPress={optionRow.onPress}
@@ -109,6 +110,7 @@ class ReaderDisplayOptionsMenu extends React.Component {
             let icon = optionRow.icons[i];
             row.push(
               <ReaderDisplayOptionsMenuItem
+                key={option}
                 theme={this.props.theme}
                 option={option}
                 onPress={optionRow.onPress}
@@ -120,7 +122,7 @@ class ReaderDisplayOptionsMenu extends React.Component {
           }
 
         }
-        optionViews.push(<ReaderDisplayOptionsMenuRow content={row} colorRow={isColor} theme={this.props.theme}/>);
+        optionViews.push(<ReaderDisplayOptionsMenuRow key={optionRow.buttons[0] + "|row"} content={row} colorRow={isColor} theme={this.props.theme}/>);
       }
 
     }
