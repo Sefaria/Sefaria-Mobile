@@ -851,14 +851,15 @@ module.exports = StyleSheet.create({
     fontFamily: "Taamey Frank Taamim Fix",
     writingDirection: "rtl",
     flex: -1,
-    paddingTop: 10,
-    marginTop: -5,
+    paddingTop: 15,
+    marginTop: -10,
     textAlign: "justify",
   },
   endiv: {
     fontFamily: "Amiri",
     textAlign: 'justify',
-    marginTop: 5,
+    paddingTop: 15,
+    marginTop: -10,
   }
 
 
