@@ -13,6 +13,7 @@ const styles = require('./Styles');
 class TextRange extends React.PureComponent {
   static propTypes = {
     theme:              PropTypes.object.isRequired,
+    themeStr:           PropTypes.string.isRequired,
     settings:           PropTypes.object.isRequired,
     rowData:            PropTypes.object.isRequired,
     segmentRef:         PropTypes.string.isRequired,
@@ -62,6 +63,7 @@ class TextRange extends React.PureComponent {
       segmentText.push(<TextSegment
         rowRef={this.props.segmentRef}
         theme={this.props.theme}
+        themeStr={this.props.themeStr}
         segmentKey={refSection}
         key={this.props.segmentRef+"|hebrew"}
         data={heText}
@@ -74,6 +76,7 @@ class TextRange extends React.PureComponent {
       segmentText.push(<TextSegment
         rowRef={this.props.segmentRef}
         theme={this.props.theme}
+        themeStr={this.props.themeStr}
         segmentKey={refSection}
         key={this.props.segmentRef+"|english"}
         data={enText}

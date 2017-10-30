@@ -15,6 +15,7 @@ class TextRangeContinuous extends React.PureComponent {
     Sefaria:            PropTypes.object.isRequired,
     settings:           PropTypes.object.isRequired,
     theme:              PropTypes.object.isRequired,
+    themeStr:           PropTypes.string.isRequired,
     rowData:            PropTypes.object.isRequired,
     textLanguage:       PropTypes.oneOf(["hebrew","english","bilingual"]),
     sectionRef:         PropTypes.string.isRequired,
@@ -61,6 +62,7 @@ class TextRangeContinuous extends React.PureComponent {
         segmentText.push(
           <TextSegment
             theme={this.props.theme}
+            themeStr={this.props.themeStr}
             rowRef={segmentRef}
             segmentKey={refSection}
             key={segmentRef+"-he"}
@@ -75,6 +77,7 @@ class TextRangeContinuous extends React.PureComponent {
       if (textLanguage == "english" || textLanguage == "bilingual") {
         segmentText.push(<TextSegment
           theme={this.props.theme}
+          themeStr={this.props.themeStr}
           segmentIndexRef={this.props.segmentIndexRef}
           rowRef={segmentRef}
           segmentKey={refSection}

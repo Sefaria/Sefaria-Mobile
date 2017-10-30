@@ -385,6 +385,7 @@ class TextColumn extends React.Component {
     return (
       <TextRangeContinuous
         theme={this.props.theme}
+        themeStr={this.props.themeStr}
         settings={this.props.settings}
         rowData={item.data}
         sectionRef={sectionRef}
@@ -403,6 +404,7 @@ class TextColumn extends React.Component {
     return (
       <TextRange
         theme={this.props.theme}
+        themeStr={this.props.themeStr}
         settings={this.props.settings}
         rowData={item.data}
         segmentRef={item.ref}
