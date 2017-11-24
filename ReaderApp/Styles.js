@@ -830,6 +830,9 @@ module.exports = StyleSheet.create({
   strong: {
     fontWeight: "bold"
   },
+  small: {
+    fontSize: 14
+  },
   b: {
     fontWeight: "bold"
   },
