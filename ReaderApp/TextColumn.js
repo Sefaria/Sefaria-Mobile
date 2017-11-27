@@ -58,12 +58,13 @@ class TextColumn extends React.Component {
     this.rowRefs = {}; //hash table of currently loaded row refs.
     this.continuousRowYHash = {};
     this.continuousSectionYHash = {}; //hash table of currently loaded section refs.
-    let {dataSource, componentsToMeasure} = this.generateDataSource(props);
+    let {dataSource, componentsToMeasure, jumpInfoMap} = this.generateDataSource(props);
 
     this.state = {
       nextDataSource: dataSource,
-      dataSource: [],
-      componentsToMeasure: componentsToMeasure,
+      dataSource: !!props.offsetRef ? [] : dataSource,
+      jumpInfoMap,
+      componentsToMeasure,
       jumpState: { // if jumping is true, then look at jumpState when allHeightsMeasuredCallback is called
         jumping: !!props.offsetRef,
         targetRef: props.offsetRef || null,
@@ -143,8 +144,8 @@ class TextColumn extends React.Component {
       }
     }
 
-
-    return {dataSource: dataSource, componentsToMeasure: componentsToMeasure};
+    const jumpInfoMap = this.updateJumpInfoMap(dataSource);
+    return {dataSource, componentsToMeasure, jumpInfoMap};
 
   };
 
@@ -208,8 +209,8 @@ class TextColumn extends React.Component {
         this.props.linksLoaded !== nextProps.linksLoaded) {
       // Only update dataSource when a change has occurred that will result in different data
 
-      let {dataSource, componentsToMeasure} = this.generateDataSource(nextProps);
-      const nextState = {nextDataSource: dataSource, componentsToMeasure: componentsToMeasure};
+      let {dataSource, componentsToMeasure, jumpInfoMap} = this.generateDataSource(nextProps);
+      const nextState = {nextDataSource: dataSource, componentsToMeasure, jumpInfoMap};
       if (this.props.textFlow !== nextProps.textFlow) {
         nextState.changingTextFlow = true;
         nextState.dataSource = [];
@@ -217,11 +218,15 @@ class TextColumn extends React.Component {
         nextState.changingTextFlow = false;
       }
 
-      if (this.props.settings.fontSize !== nextProps.settings.fontSize ||
+      if (!this.state.jumpState.jumping) {
+        nextState.dataSource = dataSource;
+      }
+
+      /*if (this.props.settings.fontSize !== nextProps.settings.fontSize ||
           this.props.textLanguage !== nextProps.textLanguage) {
         // updates to fontSize and language invalidate any components that are measuring in the background
         this.textHeightMeasurerRef.stopMeasuring();
-      }
+      }*/
       this.setState(nextState);
     }
   }
@@ -330,7 +335,7 @@ class TextColumn extends React.Component {
         animated: false,
       }
     });
-    let shouldCull = this.sectionsCoverScreen(0, this.state.dataSource.length - 2);
+    let shouldCull = false; //this.sectionsCoverScreen(0, this.state.dataSource.length - 2);
     this.props.updateData("prev", shouldCull);
   };
 
@@ -349,7 +354,7 @@ class TextColumn extends React.Component {
     this.props.updateData("next", shouldCull);
   };
 
-  sectionsCoverScreen = (startSectionInd, endSectionInd, direction) => {
+  sectionsCoverScreen = (startSectionInd, endSectionInd) => {
     // return true if there is enough space between the `startSectionInd` and `endSectionInd` to at least fill the screen.
     if (this.state.dataSource.length <= 1) {
       return false;
@@ -441,13 +446,31 @@ class TextColumn extends React.Component {
     if (this.state.itemLayoutList) {
       if (index >= this.state.itemLayoutList.length) {
         let itemHeight = 100;
+        console.log("too big", index, this.state.itemLayoutList);
         return {length: itemHeight, offset: itemHeight * index, index};
       } else {
-        return this.state.itemLayoutList[index];
+        const yo = this.state.itemLayoutList[index];
+        if (!yo) {
+          console.log("yo non existant", index, this.state.itemLayoutList);
+        }
+        return yo;
       }
     }
   }
-
+  updateJumpInfoMap = (dataSource) => {
+    let jumpInfoMap = new Map();
+    let currIndex = 0;
+    for (let section of dataSource) {
+      jumpInfoMap.set(section.ref, currIndex);
+      currIndex++; //sections are counted in the index count
+      for (let segment of section.data) {
+        jumpInfoMap.set(segment.ref, currIndex);
+        currIndex++;
+      }
+      currIndex++;
+    }
+    return jumpInfoMap;
+  }
   allHeightsMeasured = (componentsToMeasure, textToHeightMap) => {
     let currOffset = 0;
     let itemLayoutList = [];
@@ -470,7 +493,7 @@ class TextColumn extends React.Component {
       currIndex++;
     }
 
-    this.setState({itemLayoutList: itemLayoutList, jumpInfoMap: jumpInfoMap, dataSource: this.state.nextDataSource, changingTextFlow: false},
+    this.setState({itemLayoutList: itemLayoutList, jumpInfoMap: jumpInfoMap, changingTextFlow: false, dataSource: this.state.nextDataSource},
       ()=>{
         const { jumping, animated, viewPosition, targetRef } = this.state.jumpState;
         if (jumping) {
@@ -485,7 +508,7 @@ class TextColumn extends React.Component {
               }
             );
           }
-          this.setState({jumpState: { jumping: false }});
+          this.setState({itemLayoutList: null, jumpState: { jumping: false }});
         }
       }
     );
@@ -512,7 +535,7 @@ class TextColumn extends React.Component {
             renderItem={this.renderRow}
             renderSectionHeader={this.renderSectionHeader}
             ListFooterComponent={this.renderFooter}
-            getItemLayout={this.getItemLayout}
+            getItemLayout={this.state.itemLayoutList ? this.getItemLayout : null}
             onEndReached={this.onEndReached}
             onEndReachedThreshold={1.0}
             onScroll={this.handleScroll}
@@ -527,10 +550,12 @@ class TextColumn extends React.Component {
                 tintColor="#CCCCCC"
                 style={{ backgroundColor: 'transparent' }} />
             }/>
+        { this.state.jumpState.jumping ?
           <TextHeightMeasurer
             ref={this._getTextHeightMeasurerRef}
             componentsToMeasure={this.state.componentsToMeasure}
-            allHeightsMeasuredCallback={this.allHeightsMeasured}/>
+            allHeightsMeasuredCallback={this.allHeightsMeasured}/> : null
+        }
         </View>
     );
   }
