@@ -15,6 +15,7 @@ import {
   Linking,
 	ListView,
 	Modal,
+  NativeModules,
   NetInfo,
   ScrollView,
   StatusBar,
@@ -33,6 +34,7 @@ var Sefaria     = require('./sefaria');
 var ReaderPanel = require('./ReaderPanel');
 var LinkFilter  = require('./LinkFilter');
 const ViewPort  = Dimensions.get('window');
+
 
 var {
   LoadingView,
@@ -118,6 +120,7 @@ class ReaderApp extends React.Component {
        }).catch(function(error) {
         console.error('Error caught from Sefaria._deleteAllFiles', error);
       });
+    NativeModules.SefariaListView.getSystemVolume((e) => {console.log("Error!", e);}, (v) => {console.log("Volume!", v);});
   }
 
   networkChangeListener = (isConnected) => {
