@@ -15,7 +15,6 @@ import {
   Linking,
 	ListView,
 	Modal,
-  NativeModules,
   NetInfo,
   ScrollView,
   StatusBar,
@@ -120,7 +119,6 @@ class ReaderApp extends React.Component {
        }).catch(function(error) {
         console.error('Error caught from Sefaria._deleteAllFiles', error);
       });
-    NativeModules.SefariaListView.getSystemVolume((e) => {console.log("Error!", e);}, (v) => {console.log("Volume!", v);});
   }
 
   networkChangeListener = (isConnected) => {

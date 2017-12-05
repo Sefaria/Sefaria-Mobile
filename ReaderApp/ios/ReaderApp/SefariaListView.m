@@ -1,12 +1,8 @@
+#if __has_include(<React/RCTBridgeModule.h>)
+#import <React/RCTBridgeModule.h>
+#else
 #import "RCTBridgeModule.h"
-
-@interface RCT_EXTERN_MODULE(SefariaListView, NSObject)
-
-RCT_EXTERN_METHOD(getSystemVolume:(RCTResponseSenderBlock *)error blah:(RCTResponseSenderBlock *)success)
-
-+ (BOOL)requiresMainQueueSetup
-{
-    return YES;
-}
-
+#endif
+#import "RCTViewManager.h"
+@interface RCT_EXTERN_MODULE(SefariaListViewManager, RCTViewManager)
 @end
