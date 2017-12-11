@@ -11,6 +11,9 @@ import ReactNative, {
   Dimensions,
 } from 'react-native';
 
+import { RecyclerListView, DataProvider, LayoutProvider } from "recyclerlistview";
+
+
 const styles =                require('./Styles.js');
 const TextRange =            require('./TextRange');
 const TextRangeContinuous = require('./TextRangeContinuous');
@@ -23,6 +26,26 @@ const COMMENTARY_LINE_THRESHOLD = 150;
 const {
   LoadingView,
 } = require('./Misc.js');
+
+const ViewTypes = {
+    SECTIONHEADER: 0,
+    SEGMENT: 1,
+};
+
+let containerCount = 0;
+
+
+
+class CellContainer extends React.Component {
+    constructor(args) {
+        super(args);
+        this._containerId = containerCount++;
+    }
+    render() {
+        return <View {...this.props} style={styles.textSegment} >{this.props.children}<Text>Cell Id: {this._containerId}</Text></View>;
+    }
+}
+
 
 class TextColumn extends React.Component {
   static propTypes = {
@@ -60,7 +83,36 @@ class TextColumn extends React.Component {
     this.continuousSectionYHash = {}; //hash table of currently loaded section refs.
     let {dataSource, componentsToMeasure} = this.generateDataSource(props);
 
+    let { width } = Dimensions.get("window");
+
+    let dataProvider = new DataProvider((r1, r2) => {
+        return r1 !== r2;
+    });
+
+    this._layoutProvider = new LayoutProvider(
+        index => {
+            return ViewTypes.SEGMENT;
+        },
+        (type, dim) => {
+            switch (type) {
+                case ViewTypes.SEGMENT:
+                    dim.width = width;
+                    dim.height = 20;
+                    break;
+                default:
+                    dim.width = 0;
+                    dim.height = 0;
+            }
+        }
+    );
+
+    this._rowRenderer = this._rowRenderer.bind(this);
+
+
+
+
     this.state = {
+      dataProvider: dataProvider.cloneWithRows(this._generateArray(300)),
       nextDataSource: dataSource,
       dataSource: [],
       componentsToMeasure: componentsToMeasure,
@@ -73,6 +125,19 @@ class TextColumn extends React.Component {
       changingTextFlow: false, // true while waiting for continuous data to be measured
     };
   }
+
+  _generateArray(props) {
+      let data = props.data;
+
+      var n = 1000;
+
+      let arr = new Array(n);
+      for (let i = 0; i < n; i++) {
+          arr[i] = i;
+      }
+      return arr;
+  }
+
 
   generateDataSource = (props) => {
     // Returns data representing sections and rows to be passed into ListView.DataSource.cloneWithSectionsAndRows
@@ -207,6 +272,11 @@ class TextColumn extends React.Component {
         this.props.themeStr !== nextProps.themeStr ||
         this.props.linksLoaded !== nextProps.linksLoaded) {
       // Only update dataSource when a change has occurred that will result in different data
+
+
+        let dataProvider = new DataProvider((r1, r2) => {
+            return r1 !== r2;
+        });
 
       let {dataSource, componentsToMeasure} = this.generateDataSource(nextProps);
       const nextState = {nextDataSource: dataSource, componentsToMeasure: componentsToMeasure};
@@ -376,8 +446,33 @@ class TextColumn extends React.Component {
   *******************/
 
   renderRow = ({ item }) => {
-    return (this.props.textFlow == 'continuous' && Sefaria.canBeContinuous(this.props.textTitle)) ? this.renderContinuousRow({ item }) : this.renderSegmentedRow({ item });
+
+    var toReturn = (this.props.textFlow == 'continuous' && Sefaria.canBeContinuous(this.props.textTitle)) ? this.renderContinuousRow({ item }) : this.renderSegmentedRow({ item });
+    return (null, toReturn);
   };
+
+  _rowRenderer(type, data) {
+
+    switch (type) {
+        case ViewTypes.SEGMENT:
+
+          return (
+                    <CellContainer style={styles.containerGridLeft}>
+                        <Text>Data: {data}</Text>
+                    </CellContainer>
+
+
+          )
+        default:
+            return null;
+    }
+
+
+
+
+  }
+
+
 
   renderContinuousRow = ({ item }) => {
     // In continuous case, rowData represent an entire section of text
@@ -400,6 +495,18 @@ class TextColumn extends React.Component {
   };
 
   renderSegmentedRow = ({ item }) => {
+
+
+         console.log("*********************************************")
+      console.log("*********************************************")
+      console.log("*********************************************")
+
+
+    console.log(item.data);
+      console.log("*********************************************")
+      console.log("*********************************************")
+      console.log("*********************************************")
+
     // In segmented case, rowData represents a segments of text
     return (
       <TextRange
@@ -506,31 +613,9 @@ class TextColumn extends React.Component {
   render() {
     return (
         <View style={styles.textColumn} >
-          <SectionList
-            ref={this._getSectionListRef}
-            sections={this.state.dataSource}
-            renderItem={this.renderRow}
-            renderSectionHeader={this.renderSectionHeader}
-            ListFooterComponent={this.renderFooter}
-            getItemLayout={this.getItemLayout}
-            onEndReached={this.onEndReached}
-            onEndReachedThreshold={1.0}
-            onScroll={this.handleScroll}
-            scrollEventThrottle={100}
-            onViewableItemsChanged={this.onViewableItemsChanged}
-            keyExtractor={this._keyExtractor}
-            stickySectionHeadersEnabled={false}
-            refreshControl={
-              <RefreshControl
-                refreshing={this.props.loadingTextHead}
-                onRefresh={this.onTopReached}
-                tintColor="#CCCCCC"
-                style={{ backgroundColor: 'transparent' }} />
-            }/>
-          <TextHeightMeasurer
-            ref={this._getTextHeightMeasurerRef}
-            componentsToMeasure={this.state.componentsToMeasure}
-            allHeightsMeasuredCallback={this.allHeightsMeasured}/>
+
+           <RecyclerListView forceNonDeterministicRendering={true} layoutProvider={this._layoutProvider} dataProvider={this.state.dataProvider} rowRenderer={this._rowRenderer} />
+
         </View>
     );
   }
