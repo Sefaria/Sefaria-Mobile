@@ -21,6 +21,7 @@
     "react-native-localization": "^0.2.1",
     "react-native-orientation": "^3.1.0",
     "react-native-zip-archive": "^2.0.0",
+    "recyclerlistview": "^1.2.2",
     "simple-plist": "^0.2.1"
   },
   "devDependencies": {}

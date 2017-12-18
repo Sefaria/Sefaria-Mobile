@@ -570,6 +570,7 @@ module.exports = StyleSheet.create({
     fontSize: 20
   },
   verseContainer: {
+    flex: 1,
     flexDirection: "column",
     marginTop:10,
     marginBottom:10,
@@ -586,6 +587,7 @@ module.exports = StyleSheet.create({
     alignItems: 'stretch',
   },
   sectionHeaderBox: {
+    flex: 1,
     alignItems: "center",
     marginHorizontal: 30,
   },

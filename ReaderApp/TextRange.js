@@ -69,6 +69,7 @@ class TextRange extends React.PureComponent {
         data={heText}
         textType="hebrew"
         textSegmentPressed={ this.props.textSegmentPressed }
+        listIndex={this.props.rowData.listIndex}
         settings={this.props.settings}/>);
     }
 
@@ -83,6 +84,7 @@ class TextRange extends React.PureComponent {
         textType="english"
         bilingual={textLanguage === "bilingual"}
         textSegmentPressed={ this.props.textSegmentPressed }
+        listIndex={this.props.rowData.listIndex}
         settings={this.props.settings} />);
     }
 

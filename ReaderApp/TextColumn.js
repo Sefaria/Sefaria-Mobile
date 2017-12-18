@@ -20,7 +20,6 @@ const TextRangeContinuous = require('./TextRangeContinuous');
 const TextHeightMeasurer = require('./TextHeightMeasurer');
 const queryLayoutByID =   require('queryLayoutByID');
 const ViewPort  = Dimensions.get('window');
-const now = require('performance-now');
 const COMMENTARY_LINE_THRESHOLD = 150;
 
 const {
@@ -28,23 +27,17 @@ const {
 } = require('./Misc.js');
 
 const ViewTypes = {
-    SECTIONHEADER: 0,
+    SECTIONHEADER: -1,
     SEGMENT: 1,
 };
 
-let containerCount = 0;
-
-
-
-class CellContainer extends React.Component {
-    constructor(args) {
-        super(args);
-        this._containerId = containerCount++;
-    }
-    render() {
-        return <View {...this.props} style={styles.textSegment} >{this.props.children}<Text>Cell Id: {this._containerId}</Text></View>;
-    }
+const ROW_LAYOUT_CONSTANTS = {
+  margin: 20,
+  he_padding: 5,
+  en_padding: 5,
+  section_header: 100,
 }
+const ERRORS = [];
 
 
 class TextColumn extends React.Component {
@@ -81,41 +74,76 @@ class TextColumn extends React.Component {
     this.rowRefs = {}; //hash table of currently loaded row refs.
     this.continuousRowYHash = {};
     this.continuousSectionYHash = {}; //hash table of currently loaded section refs.
-    let {dataSource, componentsToMeasure} = this.generateDataSource(props);
+    let { dataSource, dataTypeMap, componentsToMeasure, jumpInfoMap } = this.generateDataSource(props, !!props.offsetRef);
 
     let { width } = Dimensions.get("window");
 
-    let dataProvider = new DataProvider((r1, r2) => {
-        return r1 !== r2;
+    this._dataProvider = new DataProvider((r1, r2) => {
+        return r1.changeString !== r2.changeString;
     });
 
     this._layoutProvider = new LayoutProvider(
         index => {
-            return ViewTypes.SEGMENT;
+          if (this.state.dataTypeMap && index < this.state.dataTypeMap.length) {
+            const type = this.state.dataTypeMap[index];
+            if (type === ViewTypes.SEGMENT) {
+              return index;
+            }
+            return type;
+          }
+          return ViewTypes.SECTIONHEADER;
         },
         (type, dim) => {
-            switch (type) {
-                case ViewTypes.SEGMENT:
-                    dim.width = width;
-                    dim.height = 20;
-                    break;
-                default:
-                    dim.width = 0;
-                    dim.height = 0;
-            }
+          dim.width = width;
+          switch (type) {
+            case ViewTypes.SECTIONHEADER:
+              dim.height = ROW_LAYOUT_CONSTANTS.section_header;
+              break;
+            default:
+              // in SEGMENT case, type is actually index in list
+              const row = this.state.dataSource[type];
+              const index = type;
+              if (this.state.itemLayoutList) {
+                if (index >= this.state.itemLayoutList.length) {
+                  dim.height = 100;
+                } else {
+                  const height = this.state.itemLayoutList[index];
+                  if (!height) {
+                    debugger;
+                    //console.log("yo non existant", index, this.state.itemLayoutList);
+                    dim.height = 100;
+                  }
+                  dim.height = height;
+                }
+              } else {
+                dim.height = 100;
+              }
+              break;
+          }
         }
     );
 
-    this._rowRenderer = this._rowRenderer.bind(this);
-
-
+    let initialRenderIndex;
+    if (!!props.offsetRef) {
+      for (let irow = 0; irow < dataSource.length; irow++) {
+        const row = dataSource[irow];
+        if (row.ref === props.offsetRef) {
+          initialRenderIndex = irow;
+          break;
+        }
+      }
+    }
 
 
     this.state = {
-      dataProvider: dataProvider.cloneWithRows(this._generateArray(300)),
       nextDataSource: dataSource,
-      dataSource: [],
-      componentsToMeasure: componentsToMeasure,
+      dataSource: !!props.offsetRef ? [] : dataSource,
+      dataProvider: this._dataProvider.cloneWithRows(!!props.offsetRef ? [] : dataSource),
+      dataTypeMap,
+      jumpInfoMap,
+      initialRenderIndex,
+      initialHeightsMeasured: !props.offsetRef,
+      componentsToMeasure,
       jumpState: { // if jumping is true, then look at jumpState when allHeightsMeasuredCallback is called
         jumping: !!props.offsetRef,
         targetRef: props.offsetRef || null,
@@ -126,25 +154,13 @@ class TextColumn extends React.Component {
     };
   }
 
-  _generateArray(props) {
-      let data = props.data;
-
-      var n = 1000;
-
-      let arr = new Array(n);
-      for (let i = 0; i < n; i++) {
-          arr[i] = i;
-      }
-      return arr;
-  }
-
-
-  generateDataSource = (props) => {
+  generateDataSource = (props, measureFirstSec) => {
     // Returns data representing sections and rows to be passed into ListView.DataSource.cloneWithSectionsAndRows
     // Takes `props` as an argument so it can generate data with `nextProps`.
     let data = props.data;
     let dataSource = [];
-
+    let dataTypeMap = [];  // mapping from row index to dataType
+    let numComponentsToMeasure = 0;
     let offsetRef = this._standardizeOffsetRef(props.offsetRef);
     let segmentGenerator;
     if (props.textFlow == 'continuous' && Sefaria.canBeContinuous(props.textTitle)) {
@@ -174,43 +190,53 @@ class TextColumn extends React.Component {
         rows.push({ref: rowID + "|content", data: rowData, changeString: changeString + "|content" });
         dataSource.push({ref: props.sectionArray[sectionIndex], heRef: props.sectionHeArray[sectionIndex], data: rows, sectionIndex, changeString});
       }
-      segmentGenerator = this.renderContinuousRow;
     }
 
     else { // segmented
       for (let sectionIndex = 0; sectionIndex < data.length; sectionIndex++) {
-        let rows = [];
+        dataSource.push({
+          ref: props.sectionArray[sectionIndex],
+          heRef: props.sectionHeArray[sectionIndex],
+          sectionIndex,
+          changeString: [props.sectionArray[sectionIndex], props.textLanguage, props.themeStr].join("|")
+        });
+        dataTypeMap.push(ViewTypes.SECTIONHEADER);
+        if (measureFirstSec && sectionIndex === 1) {
+          numComponentsToMeasure = data[sectionIndex-1].length + 2;
+        }
         for (var i = 0; i < data[sectionIndex].length; i++) {
           if (i !== 0 && !data[sectionIndex][i].text && !data[sectionIndex][i].he) { continue; } // Skip empty segments
           var rowID = props.sectionArray[sectionIndex] + ":" + data[sectionIndex][i].segmentNumber;
           // console.log("ROW ID",rowID,props.segmentRef);
           var rowData = {
             content: data[sectionIndex][i], // Store data in `content` so that we can manipulate other fields without manipulating the original data
-            sectionIndex: sectionIndex,
             rowIndex: i,
+            sectionIndex,
             highlight: offsetRef == rowID || (props.textListVisible && props.segmentRef == rowID),
-
+            listIndex: dataSource.length,
           };
-          // excluding b/c they don't change height: props.themeStr, props.linksLoaded[sectionIndex]
-          //rowData.changeString += rowData.highlight ? "|highlight" : "";
-          rows.push({ref: rowID, data: rowData, changeString: [rowID, props.textLanguage, props.textFlow, props.settings.fontSize].join("|")});
+          dataSource.push({
+            ref: rowID,
+            sectionIndex,
+            data: rowData,
+            changeString: [rowID, props.textLanguage, props.textFlow, props.settings.fontSize, props.linksLoaded[sectionIndex], (rowData.highlight ? "highlight" : "nohighlight"), props.themeStr].join("|")
+          });
+          dataTypeMap.push(ViewTypes.SEGMENT);
+          if (measureFirstSec && sectionIndex === 0 && i === data[sectionIndex].length - 1) {
+            numComponentsToMeasure = i + 2; // data[sectionIndex].length + section_header
+          }
         }
-        dataSource.push({ref: props.sectionArray[sectionIndex], heRef: props.sectionHeArray[sectionIndex], data: rows, sectionIndex: sectionIndex, changeString: [props.sectionArray[sectionIndex], props.textLanguage].join("|")});
       }
-      segmentGenerator = this.renderSegmentedRow;
     }
+
     //console.log(sections);
     let componentsToMeasure = [];
-    for (let section of dataSource) {
-      componentsToMeasure.push({ref: section.ref, id: section.changeString, generator: this.renderSectionHeader, param: {section: section}})
-      for (let segment of section.data) {
-        componentsToMeasure.push({ref: segment.ref, id: segment.changeString, generator: segmentGenerator, param: {item: segment}});
-      }
+    for (let j = 0; j < numComponentsToMeasure; j++) {
+      let row = dataSource[j];
+      componentsToMeasure.push({ref: row.ref, id: row.changeString, generator: dataTypeMap[j] === ViewTypes.SECTIONHEADER ? this.renderSectionHeader : this.renderSegmentedRow, param: row});
     }
-
-
-    return {dataSource: dataSource, componentsToMeasure: componentsToMeasure};
-
+    const jumpInfoMap = this.updateJumpInfoMap(dataSource);
+    return { dataSource, dataTypeMap, componentsToMeasure, jumpInfoMap };
   };
 
   _standardizeOffsetRef = (ref) => {
@@ -225,7 +251,7 @@ class TextColumn extends React.Component {
     return ref;
   };
 
-  textSegmentPressed = (section, segment, segmentRef, shouldToggle) => {
+  textSegmentPressed = (section, segment, segmentRef, shouldToggle, listIndex) => {
     if (!this.props.textListVisible) {
       if (this.props.textFlow === 'continuous') {
         const targetY = this.continuousRowYHash[segmentRef] + this.state.itemLayoutList[this.state.jumpInfoMap.get(this.props.sectionArray[section])].offset;
@@ -240,13 +266,7 @@ class TextColumn extends React.Component {
           console.log("target Y is no good :(", segmentRef);
         }
       } else {
-        const targetIndex = this.state.jumpInfoMap.get(segmentRef);
-        this.sectionListRef.scrollToLocation({
-            animated: false,
-            sectionIndex: 0,
-            itemIndex: targetIndex-1,
-            viewPosition: 0.1,
-        });
+        this.recyclerRef.scrollToIndex(listIndex);
       }
 
     }
@@ -273,26 +293,15 @@ class TextColumn extends React.Component {
         this.props.linksLoaded !== nextProps.linksLoaded) {
       // Only update dataSource when a change has occurred that will result in different data
 
-
-        let dataProvider = new DataProvider((r1, r2) => {
-            return r1 !== r2;
-        });
-
-      let {dataSource, componentsToMeasure} = this.generateDataSource(nextProps);
-      const nextState = {nextDataSource: dataSource, componentsToMeasure: componentsToMeasure};
-      if (this.props.textFlow !== nextProps.textFlow) {
-        nextState.changingTextFlow = true;
-        nextState.dataSource = [];
-      } else {
-        nextState.changingTextFlow = false;
-      }
-
-      if (this.props.settings.fontSize !== nextProps.settings.fontSize ||
-          this.props.textLanguage !== nextProps.textLanguage) {
-        // updates to fontSize and language invalidate any components that are measuring in the background
-        this.textHeightMeasurerRef.stopMeasuring();
-      }
-      this.setState(nextState);
+      const { dataSource, dataTypeMap, componentsToMeasure, jumpInfoMap } = this.generateDataSource(nextProps);
+      this.setState({
+        dataSource,
+        dataProvider: this._dataProvider.cloneWithRows(dataSource),
+        dataTypeMap,
+        jumpInfoMap,
+        componentsToMeasure,
+        changingTextFlow: this.props.textFlow !== nextProps.textFlow
+      });
     }
   }
   updateHighlightedSegmentContinuous = (secData) => {
@@ -333,56 +342,64 @@ class TextColumn extends React.Component {
     return secData;
   };
 
-  updateHighlightedSegment = (secData) => {
+  updateHighlightedSegment = (visibleRows) => {
     let setHighlight = function (sectionIndex, segmentIndex, ref) {
       //console.log("VISIBLE", allVisibleRows, "TO LOAD", segmentToLoad,"Seg Ind Ref",this.props.segmentIndexRef);
       if (segmentIndex !== this.props.segmentIndexRef || ref !== this.props.segmentRef) {
         this.props.textSegmentPressed(sectionIndex, segmentIndex, ref);
       }
     }.bind(this);
-    if (secData.sections.length > 0 && secData.sections[0].length > 0) {
-      let handle = findNodeHandle(this.rowRefs[secData.sections[0][0].ref]);
+    if (visibleRows.length > 0) {
+      let handle = findNodeHandle(this.rowRefs[visibleRows[0].ref]);
       if (handle) {
         queryLayoutByID(
            handle,
            null, /*Error callback that doesn't yet have a hook in native so doesn't get called */
            (left, top, width, height, pageX, pageY) => {
-             const seg = pageY + height > COMMENTARY_LINE_THRESHOLD || secData.sections[0].length === 1 ? secData.sections[0][0] : secData.sections[0][1];
+             const seg = pageY + height > COMMENTARY_LINE_THRESHOLD || visibleRows.length === 1 ? visibleRows[0] : visibleRows[1];
              setHighlight(seg.data.sectionIndex, seg.data.rowIndex, seg.ref);
            }
          );
       } else {
-        const seg = secData.sections[0].length === 1 ? secData.sections[0][0] : secData.sections[0][1];
+        const seg = visibleRows.length === 1 ? visibleRows[0] : visibleRows[1];
         setHighlight(seg.data.sectionIndex, seg.data.rowIndex, seg.ref);
       }
     }
   };
 
-  updateTitle = (secData) => {
-    if (secData.indexes.length == 0) {
+  updateTitle = (visibleRows) => {
+    if (!visibleRows.length) {
       return;
     }
+    const topSectionCounts = Object.entries(visibleRows.reduce((accum, curr) => {
+      if (!curr) return accum;
+      if (!accum[curr.sectionIndex]) {
+        accum[curr.sectionIndex] = 1;
+      } else {
+        accum[curr.sectionIndex] += 1;
+      }
+      return accum;
+    }, {})).sort((a,b) => b[1] - a[1]);
     // update title
-    let biggerSection = secData.sections.length >= 2 && secData.sections[1].length > secData.sections[0].length ? secData.indexes[1] : secData.indexes[0];
-    let enTitle = this.props.sectionArray[biggerSection];
-    let heTitle = this.props.sectionHeArray[biggerSection];
+    let enTitle = this.props.sectionArray[topSectionCounts[0][0]];
+    let heTitle = this.props.sectionHeArray[topSectionCounts[0][0]];
 
     if (enTitle !== this.props.textReference) {
       this.props.updateTitle(enTitle, heTitle);
     }
   };
 
-  handleScroll = (e) => {
+  handleScroll = (e, offsetX, offsetY) => {
     const previousY = this.currentY;
-    this.currentY = e.nativeEvent.contentOffset.y;
-    if (this.props.textListVisible && this.viewableSectionData) {
+    this.currentY = offsetY;
+    if (this.props.textListVisible && this.visibleRows) {
       if (Math.abs(previousY - this.currentY) > 40) {
         return;
       }
       if (this.props.textFlow === 'continuous') {
-        this.updateHighlightedSegmentContinuous(this.viewableSectionData);
+        this.updateHighlightedSegmentContinuous(this.visibleRows);
       } else {
-        this.updateHighlightedSegment(this.viewableSectionData);
+        this.updateHighlightedSegment(this.visibleRows);
       }
     }
   };
@@ -400,8 +417,8 @@ class TextColumn extends React.Component {
         animated: false,
       }
     });
-    let shouldCull = this.sectionsCoverScreen(0, this.state.dataSource.length - 2);
-    this.props.updateData("prev", shouldCull);
+    //let shouldCull = this.sectionsCoverScreen(0, this.state.dataSource.length - 2);
+    this.props.updateData("prev", false);
   };
 
   onEndReached = () => {
@@ -419,70 +436,31 @@ class TextColumn extends React.Component {
     this.props.updateData("next", shouldCull);
   };
 
-  sectionsCoverScreen = (startSectionInd, endSectionInd, direction) => {
-    // return true if there is enough space between the `startSectionInd` and `endSectionInd` to at least fill the screen.
-    if (this.state.dataSource.length <= 1) {
-      return false;
-    }
-    let extra
-    const startSegRef = this.state.dataSource[startSectionInd].data[0].ref;
-    const endSegRef = this.state.dataSource[endSectionInd].data.slice(-1)[0].ref;
-    const firstSeg = this.state.itemLayoutList[this.state.jumpInfoMap.get(startSegRef)];
-    const lastSeg = this.state.itemLayoutList[this.state.jumpInfoMap.get(endSegRef)];
-    return (lastSeg.offset + lastSeg.length - firstSeg.offset) > ViewPort.height;
-  };
-
-  onViewableItemsChanged = ({viewableItems, changed}) => {
-    let secData = this.getViewableSectionData(viewableItems);
-    if (this.props.textFlow == 'continuous') {
-
-    }
-    this.updateTitle(secData);
-    this.viewableSectionData = secData;
+  onVisibleIndexesChanged = (all, now, notNow) => {
+    this.visibleRows = all.map(index=>this.state.dataSource[index]);
+    this.updateTitle(this.visibleRows);
   };
 
   /******************
   RENDER
   *******************/
 
-  renderRow = ({ item }) => {
-
-    var toReturn = (this.props.textFlow == 'continuous' && Sefaria.canBeContinuous(this.props.textTitle)) ? this.renderContinuousRow({ item }) : this.renderSegmentedRow({ item });
-    return (null, toReturn);
+  renderRow = (type, data) => {
+    if (type === ViewTypes.SECTIONHEADER) {
+      return this.renderSectionHeader(data);
+    }
+    return (this.props.textFlow == 'continuous' && Sefaria.canBeContinuous(this.props.textTitle)) ? this.renderContinuousRow(data) : this.renderSegmentedRow(data);
   };
 
-  _rowRenderer(type, data) {
-
-    switch (type) {
-        case ViewTypes.SEGMENT:
-
-          return (
-                    <CellContainer style={styles.containerGridLeft}>
-                        <Text>Data: {data}</Text>
-                    </CellContainer>
-
-
-          )
-        default:
-            return null;
-    }
-
-
-
-
-  }
-
-
-
-  renderContinuousRow = ({ item }) => {
+  renderContinuousRow = (data) => {
     // In continuous case, rowData represent an entire section of text
-    const sectionRef = item.ref.replace("|content","");
+    const sectionRef = data.ref.replace("|content","");
     return (
       <TextRangeContinuous
         theme={this.props.theme}
         themeStr={this.props.themeStr}
         settings={this.props.settings}
-        rowData={item.data}
+        rowData={data.data}
         sectionRef={sectionRef}
         textLanguage={this.props.textLanguage}
         showSegmentNumbers={Sefaria.showSegmentNumbers(this.props.textTitle)}
@@ -494,18 +472,35 @@ class TextColumn extends React.Component {
     );
   };
 
-  renderSegmentedRow = ({ item }) => {
+  onSegmentRowLayout = (listIndex, height) => {
+    const row = this.state.dataSource[listIndex];
+    const heLen = row.data.content.he ? Sefaria.hebrew.stripNikkud(row.data.content.he).length : 0;
+    const enLen = row.data.content.text ? row.data.content.text.length : 0;
+    const layoutConstant = ROW_LAYOUT_CONSTANTS.margin + (!!heLen * ROW_LAYOUT_CONSTANTS.he_padding) + (!!enLen * ROW_LAYOUT_CONSTANTS.en_padding);
+    if (this._hebrewRatio === undefined) {
+      this._hebrewRatio = (height - layoutConstant) / (heLen + enLen);
+      this._englishRatio = this._hebrewRatio;
+      this._numSeen = 0;
+    }
+    const prevHebrewRatio = this._hebrewRatio;
+    const prevEnglishRatio = this._englishRatio;
+    if (heLen > 0) {
+      this._hebrewRatio = ((this._numSeen  * prevHebrewRatio) + (height - layoutConstant - (enLen * prevEnglishRatio))/heLen) / (this._numSeen + 1);
+    }
+    if (enLen > 0) {
+      this._englishRatio = ((this._numSeen * prevEnglishRatio) + (height - layoutConstant - (heLen * prevHebrewRatio))/enLen) / (this._numSeen + 1);
+    }
+    this._numSeen += 1;
 
+    // debug
+    const estimatedHeight = layoutConstant + (this._hebrewRatio * heLen) + (this._englishRatio * enLen);
+    const percentError = 100*(estimatedHeight - height) / (height);
+    //console.log("Percent Error:", percentError, "%", row.data.rowIndex+1);
+    ERRORS.push(percentError);
+    console.log("Avg:", ERRORS.reduce((accum, curr) => accum + curr, 0)/ERRORS.length, row.data.rowIndex+1);
+  }
 
-         console.log("*********************************************")
-      console.log("*********************************************")
-      console.log("*********************************************")
-
-
-    console.log(item.data);
-      console.log("*********************************************")
-      console.log("*********************************************")
-      console.log("*********************************************")
+  renderSegmentedRow = (data) => {
 
     // In segmented case, rowData represents a segments of text
     return (
@@ -513,8 +508,8 @@ class TextColumn extends React.Component {
         theme={this.props.theme}
         themeStr={this.props.themeStr}
         settings={this.props.settings}
-        rowData={item.data}
-        segmentRef={item.ref}
+        rowData={data.data}
+        segmentRef={data.ref}
         textLanguage={this.props.textLanguage}
         showSegmentNumbers={Sefaria.showSegmentNumbers(this.props.textTitle)}
         textSegmentPressed={this.textSegmentPressed}
@@ -524,73 +519,51 @@ class TextColumn extends React.Component {
     );
   };
 
-  renderSectionHeader = ({section, props}) => {
-    if (!props) {
-      props = this.props;
-    }
-
+  renderSectionHeader = (data) => {
     return (
       <SectionHeader
-        title={props.textLanguage == "hebrew" ?
-                this.inlineSectionHeader(section.heRef) :
-                this.inlineSectionHeader(section.ref)}
-        isHebrew={props.textLanguage == "hebrew"}
-        theme={props.theme}
+        title={this.props.textLanguage == "hebrew" ?
+                this.inlineSectionHeader(data.heRef) :
+                this.inlineSectionHeader(data.ref)}
+        isHebrew={this.props.textLanguage == "hebrew"}
+        theme={this.props.theme}
         />
-    )
+    );
   };
 
   renderFooter = () => {
     return this.props.next ? <LoadingView theme={this.props.theme} /> : null;
   };
 
-  getItemLayout = (data, index) => {
-    if (this.state.itemLayoutList) {
-      if (index >= this.state.itemLayoutList.length) {
-        let itemHeight = 100;
-        return {length: itemHeight, offset: itemHeight * index, index};
-      } else {
-        return this.state.itemLayoutList[index];
-      }
+  updateJumpInfoMap = (dataSource) => {
+    let jumpInfoMap = new Map();
+    let currIndex = 0;
+    for (let item of dataSource) {
+      jumpInfoMap.set(item.ref, currIndex);
+      currIndex++;
     }
+    return jumpInfoMap;
   }
-
   allHeightsMeasured = (componentsToMeasure, textToHeightMap) => {
     let currOffset = 0;
     let itemLayoutList = [];
     let jumpInfoMap = new Map();
     let currIndex = 0;
-    for (let section of this.state.nextDataSource) {
-      let currHeight = textToHeightMap.get(section.changeString);
-      itemLayoutList[currIndex] = {index: currIndex, length: currHeight, offset: currOffset};
-      jumpInfoMap.set(section.ref, currIndex);
-      currOffset += currHeight;
+    for (let item of this.state.nextDataSource) {
+      let height = textToHeightMap.get(item.changeString);
+      itemLayoutList[currIndex] = height;
+      jumpInfoMap.set(item.ref, currIndex);
+      currOffset += height;
       currIndex++; //sections are counted in the index count
-      for (let segment of section.data) {
-        let currHeight = textToHeightMap.get(segment.changeString);
-        itemLayoutList[currIndex] = {index: currIndex, length: currHeight, offset: currOffset};
-        jumpInfoMap.set(segment.ref, currIndex);
-        currOffset += currHeight;
-        currIndex++;
-      }
-      itemLayoutList[currIndex] = {index: currIndex, length: 0, offset: currOffset};
-      currIndex++;
     }
-
-    this.setState({itemLayoutList: itemLayoutList, jumpInfoMap: jumpInfoMap, dataSource: this.state.nextDataSource, changingTextFlow: false},
+    const prevInitialHeightsMeasured = this.state.initialHeightsMeasured;
+    this.setState({itemLayoutList: itemLayoutList, jumpInfoMap: jumpInfoMap, dataSource: this.state.nextDataSource, dataProvider: this._dataProvider.cloneWithRows(this.state.nextDataSource), changingTextFlow: false, initialHeightsMeasured: true},
       ()=>{
-        const { jumping, animated, viewPosition, targetRef } = this.state.jumpState;
-        if (jumping) {
+        const { jumping, animated, targetRef } = this.state.jumpState;
+        if (jumping && prevInitialHeightsMeasured) {
           const targetIndex = this.state.jumpInfoMap.get(targetRef);
           if (targetIndex) {
-            this.sectionListRef.scrollToLocation(
-              {
-                animated: animated,
-                sectionIndex: 0,
-                itemIndex: targetIndex-1,
-                viewPosition: viewPosition
-              }
-            );
+            this.recyclerRef.scrollToIndex(targetIndex, animated);
           }
           this.setState({jumpState: { jumping: false }});
         }
@@ -598,24 +571,41 @@ class TextColumn extends React.Component {
     );
   }
 
-  _getSectionListRef = (ref) => {
-    this.sectionListRef = ref;
-  }
-
-  _getTextHeightMeasurerRef = (ref) => {
-    this.textHeightMeasurerRef = ref;
-  }
-
-  _keyExtractor = (item, index) => {
-    return item.changeString;
+  _getRecyclerRef = (ref) => {
+    this.recyclerRef = ref;
   }
 
   render() {
     return (
         <View style={styles.textColumn} >
-
-           <RecyclerListView forceNonDeterministicRendering={true} layoutProvider={this._layoutProvider} dataProvider={this.state.dataProvider} rowRenderer={this._rowRenderer} />
-
+          { this.state.initialHeightsMeasured ?
+            <RecyclerListView
+              ref={this._getRecyclerRef}
+              initialRenderIndex={this.state.initialRenderIndex}
+              forceNonDeterministicRendering={true}
+              layoutProvider={this._layoutProvider}
+              dataProvider={this.state.dataProvider}
+              rowRenderer={this.renderRow}
+              onEndReached={this.onEndReached}
+              renderFooter={this.renderFooter}
+              onEndReachedThreshold={10}
+              scrollEventThrottle={100}
+              onScroll={this.handleScroll}
+              onVisibleIndexesChanged={this.onVisibleIndexesChanged}
+              refreshControl={
+                <RefreshControl
+                  refreshing={this.props.loadingTextHead}
+                  onRefresh={this.onTopReached}
+                  tintColor="#CCCCCC"
+                  style={{ backgroundColor: 'transparent' }} />
+              }
+            /> : null
+          }
+          { this.state.jumpState.jumping ?
+            <TextHeightMeasurer
+              componentsToMeasure={this.state.componentsToMeasure}
+              allHeightsMeasuredCallback={this.allHeightsMeasured}/> : null
+          }
         </View>
     );
   }

@@ -23,6 +23,7 @@ class TextSegment extends React.PureComponent {
     textType:           PropTypes.oneOf(["english","hebrew"]),
     bilingual:          PropTypes.bool,
     textSegmentPressed: PropTypes.func.isRequired,
+    listIndex:          PropTypes.number.isRequired,
     settings:           PropTypes.object
   };
 
@@ -36,7 +37,7 @@ class TextSegment extends React.PureComponent {
     let key = this.props.segmentKey;
     let section = parseInt(key.split(":")[0]);
     let segment = parseInt(key.split(":")[1]);
-    this.props.textSegmentPressed(section, segment, this.props.rowRef, true);
+    this.props.textSegmentPressed(section, segment, this.props.rowRef, true, this.props.listIndex);
   };
 
   onLongPress = () => {
