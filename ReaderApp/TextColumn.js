@@ -208,7 +208,7 @@ class TextColumn extends React.Component {
         this.props.themeStr !== nextProps.themeStr ||
         this.props.linksLoaded !== nextProps.linksLoaded) {
       // Only update dataSource when a change has occurred that will result in different data
-
+      this.onEndReaching = false;
       let {dataSource, componentsToMeasure, jumpInfoMap} = this.generateDataSource(nextProps);
       const nextState = {nextDataSource: dataSource, componentsToMeasure, jumpInfoMap};
       if (this.props.textFlow !== nextProps.textFlow) {
@@ -340,18 +340,14 @@ class TextColumn extends React.Component {
   };
 
   onEndReached = () => {
-    let shouldCull = false; //this.sectionsCoverScreen(1, this.state.dataSource.length - 1); TODO too glitchy to release
-    if (shouldCull) {
-      this.setState({
-        jumpState: {
-          jumping: true,
-          targetRef: this.props.next,
-          viewPosition: 1,
-          animated: false,
-        }
-      });
-    }
-    this.props.updateData("next", shouldCull);
+    if (this.onEndReaching === true) { return; }
+    this.onEndReaching = true;
+    let shouldCull = false;
+    this.setState({ itemLayoutList: null },
+      () => {
+        this.props.updateData("next", shouldCull);
+      }
+    );
   };
 
   sectionsCoverScreen = (startSectionInd, endSectionInd) => {
@@ -446,7 +442,7 @@ class TextColumn extends React.Component {
     if (this.state.itemLayoutList) {
       if (index >= this.state.itemLayoutList.length) {
         let itemHeight = 100;
-        console.log("too big", index, this.state.itemLayoutList);
+        console.log("too big", index);
         return {length: itemHeight, offset: itemHeight * index, index};
       } else {
         const yo = this.state.itemLayoutList[index];
@@ -455,6 +451,10 @@ class TextColumn extends React.Component {
         }
         return yo;
       }
+    } else {
+      let itemHeight = 100;
+      console.log("race condition");
+      return {length: itemHeight, offset: itemHeight * index, index};
     }
   }
   updateJumpInfoMap = (dataSource) => {
@@ -508,7 +508,7 @@ class TextColumn extends React.Component {
               }
             );
           }
-          this.setState({itemLayoutList: null, jumpState: { jumping: false }});
+          this.setState({ jumpState: { jumping: false }});
         }
       }
     );
@@ -527,6 +527,7 @@ class TextColumn extends React.Component {
   }
 
   render() {
+    console.log("Using getItemLayout", !!this.state.itemLayoutList);
     return (
         <View style={styles.textColumn} >
           <SectionList
