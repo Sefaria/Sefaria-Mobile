@@ -59,9 +59,9 @@ class TextColumn extends React.Component {
     this.continuousRowYHash = {};
     this.continuousSectionYHash = {}; //hash table of currently loaded section refs.
     this.backupItemLayoutList = []; // backup for race condition when itemLayoutList is set to null but SectionList still thinks it exists so it tries to call getItemLayout()
-    this.measuringHeights = false; // true when measuring heights for infinite scroll up
+    this.onTopReaching = false; // true when measuring heights for infinite scroll up
     let {dataSource, componentsToMeasure, jumpInfoMap} = this.generateDataSource(props, !!props.offsetRef);
-
+    this.measuringHeights = !!props.offsetRef;
     this.state = {
       nextDataSource: dataSource,
       dataSource: !!props.offsetRef ? [] : dataSource,
@@ -75,7 +75,12 @@ class TextColumn extends React.Component {
       },
     };
   }
-
+  componentDidMount() {
+    this._isMounted = true;
+  }
+  componentWillUnmount() {
+    this._isMounted = false;
+  }
   generateDataSource = (props, gonnaJump) => {
     // Returns data representing sections and rows to be passed into ListView.DataSource.cloneWithSectionsAndRows
     // Takes `props` as an argument so it can generate data with `nextProps`.
@@ -120,13 +125,11 @@ class TextColumn extends React.Component {
         for (var i = 0; i < data[sectionIndex].length; i++) {
           if (i !== 0 && !data[sectionIndex][i].text && !data[sectionIndex][i].he) { continue; } // Skip empty segments
           var rowID = props.sectionArray[sectionIndex] + ":" + data[sectionIndex][i].segmentNumber;
-          // console.log("ROW ID",rowID,props.segmentRef);
           var rowData = {
             content: data[sectionIndex][i], // Store data in `content` so that we can manipulate other fields without manipulating the original data
             sectionIndex: sectionIndex,
             rowIndex: i,
             highlight: offsetRef == rowID || (props.textListVisible && props.segmentRef == rowID),
-
           };
           // excluding b/c they don't change height: props.themeStr, props.linksLoaded[sectionIndex]
           //rowData.changeString += rowData.highlight ? "|highlight" : "";
@@ -216,9 +219,10 @@ class TextColumn extends React.Component {
       //TODO how to optimize this function when fontSize is changing?
       let {dataSource, componentsToMeasure, jumpInfoMap} = this.generateDataSource(nextProps, this.state.jumpState.jumping);
       if (this.props.data.length !== nextProps.data.length && this.state.jumpState.jumping) {
+        this.measuringHeights = true;
         this.setState({nextDataSource: dataSource, componentsToMeasure, jumpInfoMap});
       } else {
-        this.setState({dataSource});
+        this.setState({dataSource, jumpInfoMap});
       }
     }
   }
@@ -319,7 +323,7 @@ class TextColumn extends React.Component {
       //already loading tail, or nothing above
       return;
     }
-    this.measuringHeights = true;
+    this.onTopReaching = true;
     this.setState({
       jumpState: {
         jumping: true,
@@ -328,18 +332,11 @@ class TextColumn extends React.Component {
         animated: false,
       }
     });
-    let shouldCull = false; //this.sectionsCoverScreen(0, this.state.dataSource.length - 2);
-    this.props.updateData("prev", shouldCull);
+    this.props.updateData("prev");
   };
 
   onEndReached = () => {
-    let shouldCull = false;
-    /*this.sectionListRef._wrapperListRef._listRef._frames = {};
-    this.sectionListRef._wrapperListRef._listRef._totalCellLength = 0;
-    this.sectionListRef._wrapperListRef._listRef._totalCellsMeasured = 0;
-    this.sectionListRef._wrapperListRef._listRef._highestMeasuredFrameIndex = 0;
-    this.sectionListRef._wrapperListRef._listRef._averageCellLength = 0;*/
-    this.props.updateData("next", shouldCull);
+    this.props.updateData("next");
   };
 
   sectionsCoverScreen = (startSectionInd, endSectionInd) => {
@@ -469,23 +466,22 @@ class TextColumn extends React.Component {
     return jumpInfoMap;
   }
   waitForScrollToLocation = (i) => {
+    if (!this._isMounted) { return; }
     const topVis = this.sectionListRef._wrapperListRef._listRef._viewabilityHelper._viewableIndices[0];
     if (topVis !== this.targetScrollIndex) {
-      this.setState({itemLayoutList: null}, ()=>{this.measuringHeights = false});
+      this.setState({itemLayoutList: null}, ()=>{this.onTopReaching = false});
       this.sectionListRef.scrollToLocation({
           animated: false,
           sectionIndex: 0,
           itemIndex: this.targetScrollIndex,
           viewPosition: 0.1,
       });
-      console.log(`Took ${i} times`);
-    } else {
-      console.log("New vis", topVis);
+    } else if (i < 20) { // if it's running more than 400ms, kill the recursion
       setTimeout(()=>{this.waitForScrollToLocation(i+1)}, 20);
     }
   }
   allHeightsMeasured = (componentsToMeasure, textToHeightMap) => {
-    if (componentsToMeasure.length === 0) { return; }
+    if (!this.measuringHeights) { return; } //sometimes allHeightsMeasured() gets called but we don't care
     let currOffset = 0;
     let itemLayoutList = [];
     let jumpInfoMap = new Map();
@@ -507,6 +503,7 @@ class TextColumn extends React.Component {
       currIndex++;
     }
     this.backupItemLayoutList = itemLayoutList;
+    this.measuringHeights = false;
     this.setState({itemLayoutList: itemLayoutList, jumpInfoMap: jumpInfoMap, dataSource: this.state.nextDataSource},
       ()=>{
         const { jumping, animated, viewPosition, targetRef } = this.state.jumpState;
@@ -569,7 +566,7 @@ class TextColumn extends React.Component {
             stickySectionHeadersEnabled={false}
             refreshControl={
               <RefreshControl
-                refreshing={this.props.loadingTextHead || this.measuringHeights}
+                refreshing={this.props.loadingTextHead || this.onTopReaching}
                 onRefresh={this.onTopReached}
                 tintColor="#CCCCCC"
                 style={{ backgroundColor: 'transparent' }} />

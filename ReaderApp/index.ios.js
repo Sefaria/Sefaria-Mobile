@@ -253,19 +253,19 @@ class ReaderApp extends React.Component {
       });
   };
 
-  updateData = (direction, shouldCull) => {
+  updateData = (direction) => {
       // direction: either "next" or "prev"
       // shouldCull: bool, if True, remove either first or last section (depending on `direction`)
       if (direction === "next" && this.state.next) {
-          this.updateDataNext(shouldCull);
+          this.updateDataNext();
           Sefaria.track.event("Reader","Infinite Scroll","Down");
       } else if (direction == "prev" && this.state.prev) {
-          this.updateDataPrev(shouldCull);
+          this.updateDataPrev();
           Sefaria.track.event("Reader","Infinite Scroll","Up");
       }
   };
 
-  updateDataPrev = (shouldCull) => {
+  updateDataPrev = () => {
       this.setState({loadingTextHead: true});
       Sefaria.data(this.state.prev).then(function(data) {
 
@@ -277,18 +277,11 @@ class ReaderApp extends React.Component {
         newTitleArray.unshift(data.sectionRef);
         newHeTitleArray.unshift(data.heRef);
         newlinksLoaded.unshift(false);
-        let culledSectionRef = null;
-        if (shouldCull) {
-          updatedData.pop();
-          culledSectionRef = newTitleArray.pop();
-          newHeTitleArray.pop();
-          newlinksLoaded.pop();
-        }
 
         this.setState({
           data: updatedData,
           prev: data.prev,
-          next: shouldCull ? culledSectionRef : this.state.next,
+          next: this.state.next,
           sectionArray: newTitleArray,
           sectionHeArray: newHeTitleArray,
           linksLoaded: newlinksLoaded,
@@ -301,7 +294,7 @@ class ReaderApp extends React.Component {
       });
   };
 
-  updateDataNext = (shouldCull) => {
+  updateDataNext = () => {
       this.setState({loadingTextTail: true});
       Sefaria.data(this.state.next).then(function(data) {
 
@@ -312,17 +305,10 @@ class ReaderApp extends React.Component {
         newTitleArray.push(data.sectionRef);
         newHeTitleArray.push(data.heRef);
         newlinksLoaded.push(false);
-        let culledSectionRef = null
-        if (shouldCull) {
-          updatedData.shift();
-          culledSectionRef = newTitleArray.shift();
-          newHeTitleArray.shift();
-          newlinksLoaded.shift();
-        }
 
         this.setState({
           data: updatedData,
-          prev: shouldCull ? culledSectionRef : this.state.prev,
+          prev: this.state.prev,
           next: data.next,
           sectionArray: newTitleArray,
           sectionHeArray: newHeTitleArray,

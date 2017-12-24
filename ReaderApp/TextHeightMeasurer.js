@@ -68,6 +68,7 @@ class TextHeightMeasurer extends React.PureComponent {
   resetInternalState(newComponentsToMeasure) {
     this.start = now();
     this.leftToMeasure = new Set();
+    const idSet = new Set();
     const nextNextTextToHeight = new Map();
     for (let componentToMeasure of newComponentsToMeasure) {
       const id = componentToMeasure.id;
@@ -79,7 +80,10 @@ class TextHeightMeasurer extends React.PureComponent {
         //invariant(currentNext, "has() check said it had it!");
         nextNextTextToHeight.set(id, currentNext);
       } else {
-        this.leftToMeasure.add(componentToMeasure);
+        if (!idSet.has(componentToMeasure.id)) { // for whatever reason duplicate components are getting into leftToMeasure. Not anymore!
+          this.leftToMeasure.add(componentToMeasure);
+          idSet.add(componentToMeasure.id);
+        }
       }
     }
     this.nextTextToHeight = nextNextTextToHeight;
