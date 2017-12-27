@@ -125,6 +125,7 @@ class TextList extends React.Component {
     const linkContentObj = loading ? DEFAULT_LINK_CONTENT : item.content;
     return (<LinkContent
               theme={this.props.theme}
+              themeStr={this.props.themeStr}
               settings={this.props.settings}
               openRef={this.props.openRef}
               refStr={item.ref}
@@ -306,13 +307,26 @@ class LinkContent extends React.PureComponent {
     loading:           PropTypes.bool,
     isCommentaryBook:  PropTypes.bool
   };
-
+  constructor(props) {
+    super(props);
+    this.state = {
+      resetKeyEn: 0,
+      resetKeyHe: 1,
+    };
+  }
+  componentWillReceiveProps(nextProps) {
+    if (this.props.themeStr !== nextProps.themeStr ||
+        this.props.settings.fontSize !== nextProps.settings.fontSize) {
+      this.setState({ resetKeyEn: Math.random(), resetKeyHe: Math.random() }); //hacky fix to reset htmlview when theme colors change
+    }
+  }
   render() {
     var lco = this.props.linkContentObj;
     var lang = Sefaria.util.getTextLanguageWithContent(this.props.textLanguage,lco.en,lco.he);
     var textViews = [];
 
     var hebrewElem =  <HTMLView
+                        key={this.state.resetKeyHe}
                         stylesheet={styles}
                         value={"<hediv>"+lco.he+"</hediv>"}
                         textComponentProps={
@@ -323,6 +337,7 @@ class LinkContent extends React.PureComponent {
                         }
                       />;
     var englishElem = <HTMLView
+                        key={this.state.resetKeyEn}
                         stylesheet={styles}
                         value={"<endiv>"+"&#x200E;"+lco.en+"</endiv>"}
                         textComponentProps={

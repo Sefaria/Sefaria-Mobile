@@ -70,7 +70,7 @@ class TextColumn extends React.Component {
       jumpState: { // if jumping is true, then look at jumpState when allHeightsMeasuredCallback is called
         jumping: !!props.offsetRef,
         targetRef: props.offsetRef || null,
-        viewPosition: 0,
+        viewPosition: 0.1,
         animated: false,
       },
     };
@@ -112,7 +112,7 @@ class TextColumn extends React.Component {
           highlight = segmentData.highlight ? i : highlight;
           rowData.segmentData.push(segmentData);
         }
-        const changeString = [rowID, props.textLanguage, props.textFlow, props.settings.fontSize].join("|");
+        const changeString = rowID;
         rows.push({ref: rowID + "|content", data: rowData, changeString: changeString + "|content" });
         dataSource.push({ref: props.sectionArray[sectionIndex], heRef: props.sectionHeArray[sectionIndex], data: rows, sectionIndex, changeString});
       }
@@ -133,9 +133,9 @@ class TextColumn extends React.Component {
           };
           // excluding b/c they don't change height: props.themeStr, props.linksLoaded[sectionIndex]
           //rowData.changeString += rowData.highlight ? "|highlight" : "";
-          rows.push({ref: rowID, data: rowData, changeString: [rowID, props.textLanguage, props.textFlow, props.settings.fontSize].join("|")});
+          rows.push({ref: rowID, data: rowData, changeString: rowID});
         }
-        dataSource.push({ref: props.sectionArray[sectionIndex], heRef: props.sectionHeArray[sectionIndex], data: rows, sectionIndex: sectionIndex, changeString: [props.sectionArray[sectionIndex], props.textLanguage].join("|")});
+        dataSource.push({ref: props.sectionArray[sectionIndex], heRef: props.sectionHeArray[sectionIndex], data: rows, sectionIndex: sectionIndex, changeString: props.sectionArray[sectionIndex]});
       }
       segmentGenerator = this.renderSegmentedRow;
     }
@@ -209,7 +209,6 @@ class TextColumn extends React.Component {
     if (this.props.data.length !== nextProps.data.length ||
         this.props.textFlow !== nextProps.textFlow ||
         this.props.textLanguage !== nextProps.textLanguage ||
-        this.props.settings.fontSize !== nextProps.settings.fontSize ||
         this.props.textListVisible !== nextProps.textListVisible ||
         this.props.segmentIndexRef !== nextProps.segmentIndexRef ||
         this.props.segmentRef !== nextProps.segmentRef ||
@@ -509,8 +508,10 @@ class TextColumn extends React.Component {
         const { jumping, animated, viewPosition, targetRef } = this.state.jumpState;
         if (jumping) {
           const targetIndex = jumpInfoMap.get(targetRef);
-          if (targetIndex === 0) { debugger; }
-          if (targetIndex !== undefined || targetIndex !== null) {
+
+          if (targetIndex === undefined || targetIndex === null || targetIndex >= itemLayoutList.length) {
+            console.log("FAILED to find targetIndex", jumpInfoMap);
+          } else {
             //console.log("Before", this.sectionListRef._wrapperListRef._listRef);
             this.targetScrollIndex = targetIndex-1;
             console.log("Old vis", this.targetScrollIndex);
@@ -524,8 +525,6 @@ class TextColumn extends React.Component {
             );
             this.waitForScrollToLocation(0);
             //setTimeout(()=>{ console.log("After", this.sectionListRef._wrapperListRef._listRef); this.setState({itemLayoutList:null});}, 2000);
-          } else {
-            console.log("FAILED to find targetIndex", jumpInfoMap);
           }
           this.setState({jumpState: { jumping: false }});
         }
@@ -546,7 +545,6 @@ class TextColumn extends React.Component {
   }
 
   render() {
-    //console.log("Using getItemLayout", !!this.state.itemLayoutList);
     //if (this.sectionListRef) console.log("Before Before Nothing", pretty(this.sectionListRef._wrapperListRef._listRef));
     return (
         <View style={styles.textColumn} >
@@ -558,7 +556,7 @@ class TextColumn extends React.Component {
             ListFooterComponent={this.renderFooter}
             getItemLayout={this.state.itemLayoutList ? this.getItemLayout : null}
             onEndReached={this.onEndReached}
-            onEndReachedThreshold={1.0}
+            onEndReachedThreshold={2.0}
             onScroll={this.handleScroll}
             scrollEventThrottle={100}
             onViewableItemsChanged={this.onViewableItemsChanged}
