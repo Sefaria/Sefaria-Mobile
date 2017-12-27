@@ -327,6 +327,7 @@ module.exports = StyleSheet.create({
     flex: 1,
     maxWidth: 800,
     flexDirection: "column",
+    alignItems: "stretch",
   },
   textListHeader: {
     height: 50,

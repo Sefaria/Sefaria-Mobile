@@ -10,7 +10,6 @@ import {
   Dimensions
 } from 'react-native';
 import HTMLView from 'react-native-htmlview';
-const Orientation    = require('react-native-orientation');
 const styles         = require('./Styles');
 const strings        = require('./LocalizedStrings');
 const TextListHeader = require('./TextListHeader');
@@ -46,24 +45,12 @@ class TextList extends React.Component {
   constructor(props) {
     super(props);
     Sefaria = props.Sefaria; //Is this bad practice to use getInitialState() as an init function
-    const {height, width} = Dimensions.get('window');
     const dataSource = this.generateDataSource(props);
 
     this.state = {
       dataSource,
       isNewSegment: false,
-      width: width,
-      height: height,
     };
-  }
-
-  componentDidMount() {
-    Orientation.addOrientationListener(this._orientationDidChange);
-    Orientation.getOrientation(this._verifyDimensions);
-  }
-
-  componentWillUnmount() {
-    Orientation.removeOrientationListener(this._orientationDidChange);
   }
 
   componentWillReceiveProps(nextProps) {
@@ -99,25 +86,6 @@ class TextList extends React.Component {
         content: props.linkContents[index],
       };
     });
-  };
-
-  _orientationDidChange = (orientation) => {
-    this.setState({
-      width: this.state.height,
-      height: this.state.width
-    })
-  };
-
-  _verifyDimensions = (err, orientation) => {
-    // Dimensions seems to often swap height/width. This checks them against the orientation and swaps them if they're wrong.
-    var {height, width} = Dimensions.get('window');
-    //console.log(orientation, "h: ",height,"w: ",width);
-    if ((width > height && orientation !== "LANDSCAPE") ||
-        (width < height && orientation == "LANDSCAPE")) {
-      [height, width] = [width, height];
-    }
-    //console.log(orientation, "h: ",height,"w: ",width);
-    this.setState({height: height, width: width});
   };
 
   renderItem = ({ item }) => {
@@ -223,14 +191,14 @@ class TextList extends React.Component {
       // Using Dimensions to adjust marings on text at maximum line width because I can't figure out
       // how to get flex to center a component with maximum width without allows breaking the stretch
       // behavior of its contents, result in rows in the list view with small width if their content is small.
-      var marginAdjust = this.state.width > 800 ? (this.state.width-800)/2 : 0
-      var listViewStyles = [styles.textListContentListView, {marginLeft: marginAdjust}];
+      var listViewStyles = [styles.textListContentListView];
       return (
-      <View style={[styles.textListContentOuter, this.props.theme.textListContentOuter]}>
+      <View style={[styles.textColumn, this.props.theme.textListContentOuter, {maxWidth: null}]}>
         {textListHeader}
         {this.props.linkContents.length == 0 ?
           <View style={styles.noLinks}><EmptyLinksMessage theme={this.props.theme} /></View> :
-          <FlatList style={listViewStyles}
+          <FlatList
+
             data={this.state.dataSource}
             renderItem={this.renderItem}
             getItemLayout={this.getItemLayout}

@@ -428,7 +428,7 @@ class ReaderPanel extends React.Component {
           </View> }
 
           {this.props.textListVisible && !this.props.loading ?
-            <View style={[{flex:this.props.textListFlex}, styles.commentaryTextPanel, this.props.theme.commentaryTextPanel]}
+            <View style={[{flex:this.props.textListFlex}, styles.mainTextPanel, this.props.theme.commentaryTextPanel]}
                 onStartShouldSetResponderCapture={() => {
                   if (this.state.ReaderDisplayOptionsMenuVisible == true) {
                      this.toggleReaderDisplayOptionsMenu();
