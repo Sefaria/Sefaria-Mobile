@@ -4,13 +4,12 @@ import React, { Component } from 'react';
 import {
   View,
   ScrollView,
-  ListView,
+  FlatList,
   Text,
   TouchableOpacity,
   Dimensions
 } from 'react-native';
 import HTMLView from 'react-native-htmlview';
-const Orientation    = require('react-native-orientation');
 const styles         = require('./Styles');
 const strings        = require('./LocalizedStrings');
 const TextListHeader = require('./TextListHeader');
@@ -22,6 +21,7 @@ const {
   LoadingView,
 } = require('./Misc.js');
 
+const DEFAULT_LINK_CONTENT = {en: "Loading...", he: "טוען...", sectionRef: ""};
 
 class TextList extends React.Component {
   static propTypes = {
@@ -45,28 +45,21 @@ class TextList extends React.Component {
   constructor(props) {
     super(props);
     Sefaria = props.Sefaria; //Is this bad practice to use getInitialState() as an init function
-    var {height, width} = Dimensions.get('window');
+    const dataSource = this.generateDataSource(props);
 
     this.state = {
-      dataSource: new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2}),
+      dataSource,
       isNewSegment: false,
-      width: width,
-      height: height,
     };
-  }
-
-  componentDidMount() {
-    Orientation.addOrientationListener(this._orientationDidChange);
-    Orientation.getOrientation(this._verifyDimensions);
-  }
-
-  componentWillUnmount() {
-    Orientation.removeOrientationListener(this._orientationDidChange);
   }
 
   componentWillReceiveProps(nextProps) {
     if (this.props.segmentIndexRef !== nextProps.segmentIndexRef) {
       this.setState({isNewSegment:true});
+    } else if (this.props.recentFilters !== nextProps.recentFilters ||
+               this.props.filterIndex !== nextProps.filterIndex ||
+               this.props.linkContents !== nextProps.linkContents) {
+      this.setState({dataSource: this.generateDataSource(nextProps)});
     }
   }
 
@@ -75,46 +68,48 @@ class TextList extends React.Component {
       this.setState({isNewSegment:false});
   }
 
-  _orientationDidChange = (orientation) => {
-    this.setState({
-      width: this.state.height,
-      height: this.state.width
-    })
+  generateDataSource = (props) => {
+    const linkFilter = props.recentFilters[props.filterIndex];
+    if (!linkFilter) {
+      return [];
+    }
+    const isCommentaryBook = linkFilter.category === "Commentary" && linkFilter.title !== "Commentary"
+    return linkFilter.refList.map((linkRef, index) => {
+      const key = `${props.segmentIndexRef}|${linkRef}`;
+      const loading = props.linkContents[index] == null;
+      return {
+        key,
+        ref: linkRef,
+        //changeString: [linkRef, loading, props.settings.fontSize, props.textLanguage].join("|"),
+        pos: index,
+        isCommentaryBook: isCommentaryBook,
+        content: props.linkContents[index],
+      };
+    });
   };
 
-  _verifyDimensions = (err, orientation) => {
-    // Dimensions seems to often swap height/width. This checks them against the orientation and swaps them if they're wrong.
-    var {height, width} = Dimensions.get('window');
-    //console.log(orientation, "h: ",height,"w: ",width);
-    if ((width > height && orientation !== "LANDSCAPE") ||
-        (width < height && orientation == "LANDSCAPE")) {
-      [height, width] = [width, height];
-    }
-    //console.log(orientation, "h: ",height,"w: ",width);
-    this.setState({height: height, width: width});
-  };
-
-  renderRow = (linkContentObj, sectionId, rowId) => {
-    var linkFilter = this.props.recentFilters[this.props.filterIndex];
-    var ref = linkFilter.refList[rowId];
-    var isCommentaryBook = linkFilter.category === "Commentary" && linkFilter.title !== "Commentary";
-    var loading = false;
-    if (linkContentObj == null) {
-      loading = true;
-      this.props.loadLinkContent(ref, rowId);
-      linkContentObj = {en: "Loading...", he: "טוען...", sectionRef: ""};
-    }
-
+  renderItem = ({ item }) => {
+    const loading = item.content == null;
+    const linkContentObj = loading ? DEFAULT_LINK_CONTENT : item.content;
     return (<LinkContent
               theme={this.props.theme}
+              themeStr={this.props.themeStr}
               settings={this.props.settings}
               openRef={this.props.openRef}
-              refStr={ref}
+              refStr={item.ref}
               linkContentObj={linkContentObj}
               textLanguage={this.props.textLanguage}
               loading={loading}
-              isCommentaryBook={isCommentaryBook}
-              key={rowId} />);
+              isCommentaryBook={item.isCommentaryBook}
+    />);
+  };
+
+  onViewableItemsChanged = ({viewableItems, changed}) => {
+    for (let item of viewableItems) {
+      if (item.item.content === null) {
+        this.props.loadLinkContent(item.item.ref, item.item.pos);
+      }
+    }
   };
 
   render() {
@@ -160,8 +155,6 @@ class TextList extends React.Component {
 
       });
       if (viewList.length == 0) { viewList = <EmptyLinksMessage theme={this.props.theme} />; }
-    } else {
-      var dataSourceRows = this.state.dataSource.cloneWithRows(this.props.linkContents);
     }
 
     var textListHeader = (
@@ -198,17 +191,20 @@ class TextList extends React.Component {
       // Using Dimensions to adjust marings on text at maximum line width because I can't figure out
       // how to get flex to center a component with maximum width without allows breaking the stretch
       // behavior of its contents, result in rows in the list view with small width if their content is small.
-      var marginAdjust = this.state.width > 800 ? (this.state.width-800)/2 : 0
-      var listViewStyles = [styles.textListContentListView, {marginLeft: marginAdjust}];
+      var listViewStyles = [styles.textListContentListView];
       return (
-      <View style={[styles.textListContentOuter, this.props.theme.textListContentOuter]}>
+      <View style={[styles.textColumn, this.props.theme.textListContentOuter, {maxWidth: null}]}>
         {textListHeader}
         {this.props.linkContents.length == 0 ?
           <View style={styles.noLinks}><EmptyLinksMessage theme={this.props.theme} /></View> :
-          <ListView style={listViewStyles}
-            dataSource={dataSourceRows}
-            renderRow={this.renderRow}
-            contentContainerStyle={{justifyContent: "center"}} />
+          <FlatList
+
+            data={this.state.dataSource}
+            renderItem={this.renderItem}
+            getItemLayout={this.getItemLayout}
+            contentContainerStyle={{justifyContent: "center"}}
+            onViewableItemsChanged={this.onViewableItemsChanged}
+          />
         }
       </View>
       );
@@ -268,7 +264,7 @@ class LinkBook extends React.Component {
   }
 }
 
-class LinkContent extends React.Component {
+class LinkContent extends React.PureComponent {
   static propTypes = {
     theme:             PropTypes.object.isRequired,
     settings:          PropTypes.object,
@@ -279,14 +275,46 @@ class LinkContent extends React.Component {
     loading:           PropTypes.bool,
     isCommentaryBook:  PropTypes.bool
   };
-
+  constructor(props) {
+    super(props);
+    this.state = {
+      resetKeyEn: 0,
+      resetKeyHe: 1,
+    };
+  }
+  componentWillReceiveProps(nextProps) {
+    if (this.props.themeStr !== nextProps.themeStr ||
+        this.props.settings.fontSize !== nextProps.settings.fontSize) {
+      this.setState({ resetKeyEn: Math.random(), resetKeyHe: Math.random() }); //hacky fix to reset htmlview when theme colors change
+    }
+  }
   render() {
     var lco = this.props.linkContentObj;
     var lang = Sefaria.util.getTextLanguageWithContent(this.props.textLanguage,lco.en,lco.he);
     var textViews = [];
 
-    var hebrewElem =  <Text style={[styles.hebrewText, styles.linkContentText, this.props.theme.text, {fontSize: this.props.settings.fontSize, lineHeight: this.props.settings.fontSize * 1.1}]} key={this.props.refStr+"-he"}><HTMLView stylesheet={styles} value={lco.he}/></Text>;
-    var englishElem = <Text style={[styles.englishText, styles.linkContentText, this.props.theme.text, {fontSize: 0.8 * this.props.settings.fontSize, lineHeight: this.props.settings.fontSize}]} key={this.props.refStr+"-en"}><HTMLView stylesheet={styles} value={"&#x200E;"+lco.en}/></Text>;
+    var hebrewElem =  <HTMLView
+                        key={this.state.resetKeyHe}
+                        stylesheet={styles}
+                        value={"<hediv>"+lco.he+"</hediv>"}
+                        textComponentProps={
+                          {
+                            style: [styles.hebrewText, styles.linkContentText, this.props.theme.text, {fontSize: this.props.settings.fontSize, lineHeight: this.props.settings.fontSize * 1.1}],
+                            key: this.props.refStr+"-he"
+                          }
+                        }
+                      />;
+    var englishElem = <HTMLView
+                        key={this.state.resetKeyEn}
+                        stylesheet={styles}
+                        value={"<endiv>"+"&#x200E;"+lco.en+"</endiv>"}
+                        textComponentProps={
+                          {
+                            style: [styles.englishText, styles.linkContentText, this.props.theme.text, {fontSize: 0.8 * this.props.settings.fontSize, lineHeight: this.props.settings.fontSize}],
+                            key: this.props.refStr+"-en"
+                          }
+                        }
+                      />;
     if (lang == "bilingual") {
       textViews = [hebrewElem, englishElem];
     } else if (lang == "hebrew") {

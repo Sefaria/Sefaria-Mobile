@@ -1,42 +1,28 @@
 'use strict';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import ReactNative, { 	
-  AppRegistry,
-  StyleSheet,
+import ReactNative, {
   View,
-  ScrollView,
   Text,
-  findNodeHandle,
-  ActivityIndicator,
-  ListView,
+  SectionList,
+  Button,
   RefreshControl,
-  LayoutAnimation
+  findNodeHandle,
+  Dimensions,
 } from 'react-native';
 
-const styles = require('./Styles.js');
-const queryLayoutByID = require('queryLayoutByID');
-const TextRange = require('./TextRange');
+const styles =                require('./Styles.js');
+const TextRange =            require('./TextRange');
 const TextRangeContinuous = require('./TextRangeContinuous');
-const TextSegment = require('./TextSegment');
+const TextHeightMeasurer = require('./TextHeightMeasurer');
+const queryLayoutByID =   require('queryLayoutByID');
+const ViewPort  = Dimensions.get('window');
+const now = require('performance-now');
+const COMMENTARY_LINE_THRESHOLD = 150;
 
 const {
   LoadingView,
 } = require('./Misc.js');
-
-var segmentIndexRefPositionArray = {};
-
-var CustomLayoutAnimation = {
-  duration: 100,
-  create: {
-    type: LayoutAnimation.Types.linear,
-    property: LayoutAnimation.Properties.opacity,
-  },
-  update: {
-    type: LayoutAnimation.Types.linear,
-  },
-};
-
 
 class TextColumn extends React.Component {
   static propTypes = {
@@ -68,443 +54,106 @@ class TextColumn extends React.Component {
 
   constructor(props, context) {
     super(props, context);
+    this.currentY = 0; // for measuring scroll speed
     this.rowRefs = {}; //hash table of currently loaded row refs.
-    this.sectionRefsHash= {}; //hash table of currently loaded section refs.
-    this.previousY = 0; // for measuring scroll speed
-
+    this.continuousRowYHash = {};
+    this.continuousSectionYHash = {}; //hash table of currently loaded section refs.
+    this.backupItemLayoutList = []; // backup for race condition when itemLayoutList is set to null but SectionList still thinks it exists so it tries to call getItemLayout()
+    this.onTopReaching = false; // true when measuring heights for infinite scroll up
+    let {dataSource, componentsToMeasure, jumpInfoMap} = this.generateDataSource(props, !!props.offsetRef);
+    this.measuringHeights = !!props.offsetRef;
     this.state = {
-      dataSource: new ListView.DataSource({
-          rowHasChanged: this.rowHasChanged,
-          sectionHeaderHasChanged: (s1, s2) => s1 !== s2
-        }).cloneWithRowsAndSections(this.generateDataSource(props)),
-      targetSectionRef: "",
-      scrollingToTargetRef:false,
-      scrolledToOffsetRef:false,
-      scrollOffset:0,
-      highlightRef: "",
+      nextDataSource: dataSource,
+      dataSource: !!props.offsetRef ? [] : dataSource,
+      jumpInfoMap,
+      componentsToMeasure,
+      jumpState: { // if jumping is true, then look at jumpState when allHeightsMeasuredCallback is called
+        jumping: !!props.offsetRef,
+        targetRef: props.offsetRef || null,
+        viewPosition: 0.1,
+        animated: false,
+      },
     };
   }
-
   componentDidMount() {
-    if (this._standardizeOffsetRef(this.props.offsetRef) && !this.state.scrolledToOffsetRef) {
-      this.scrollToRef(this._standardizeOffsetRef(this.props.offsetRef), true, false);
-    } else {
-      // Scroll one pixel to ensure next section is loaded if current section is very short
-      this.refs._listView.scrollTo({x: 0, y: 1, animated: false });
-    }
+    this._isMounted = true;
   }
-
-  componentDidUpdate(prevProps, prevState) {
-    this.scrollToRef(this._standardizeOffsetRef(this.props.offsetRef), false, false);
+  componentWillUnmount() {
+    this._isMounted = false;
   }
+  generateDataSource = (props, gonnaJump) => {
+    // Returns data representing sections and rows to be passed into ListView.DataSource.cloneWithSectionsAndRows
+    // Takes `props` as an argument so it can generate data with `nextProps`.
+    let data = props.data;
+    let dataSource = [];
 
-  componentWillReceiveProps(nextProps) {
-    //console.log("TextColumn Will Receive Props",this.props.segmentRef + " -> " + nextProps.segmentRef);
-    //console.log("data length: " + this.props.data.length + " -> " + nextProps.data.length)
+    let offsetRef = this._standardizeOffsetRef(props.offsetRef);
+    let segmentGenerator;
+    if (props.textFlow == 'continuous' && Sefaria.canBeContinuous(props.textTitle)) {
+      let highlight = null;
+      for (let sectionIndex = 0; sectionIndex < data.length; sectionIndex++) {
+        let rows = [];
+        let rowID = props.sectionArray[sectionIndex];
+        let rowData = {
+          sectionIndex: sectionIndex,
+          segmentData: [],
+        };
 
-    if (this.props.data.length !== nextProps.data.length ||
-        this.props.textFlow !== nextProps.textFlow ||
-        this.props.textLanguage !== nextProps.textLanguage ||
-        this.props.settings.fontSize !== nextProps.settings.fontSize ||
-        this.props.textListVisible !== nextProps.textListVisible ||
-        this.props.segmentIndexRef !== nextProps.segmentIndexRef ||
-        this.props.segmentRef !== nextProps.segmentRef ||
-        this.props.themeStr !== nextProps.themeStr ||
-        this.props.linksLoaded !== nextProps.linksLoaded) {
-      // Only update dataSource when a change has occurred that will result in different data
-      var newData = this.generateDataSource(nextProps);
-      this.setState({dataSource: this.state.dataSource.cloneWithRowsAndSections(newData)});
-    }
-  }
+        for (let i = 0; i < data[sectionIndex].length; i++) {
+          if (!data[sectionIndex][i].text && !data[sectionIndex][i].he) { continue; } // Skip empty segments
+          const segmentRef = props.sectionArray[sectionIndex] + ":" + data[sectionIndex][i].segmentNumber;
 
-  updateHighlightedSegmentContinuous = (e) => {
-    var currentOffset = e.nativeEvent.contentOffset.y;
-    var direction = currentOffset > this.offset ? 'down' : 'up';
-    this.offset = currentOffset;
-
-
-    var visibleSections = this.getVisibleSections();
-    var nameOfFirstSection = visibleSections[0];
-    var nameOfSecondSection = visibleSections[1] || null;
-
-    var curRowRefs =  this.rowRefs
-
-    var currentSectionSegmentsPos = [];
-
-
-    for (var eachRow in curRowRefs) {
-      if (eachRow.split(":")[0] == nameOfFirstSection) {
-        currentSectionSegmentsPos.push([eachRow, this.rowRefs[eachRow]._initY])
-      }
-    }
-    currentSectionSegmentsPos.sort(
-        function(a, b) {
-            return a[1] - b[1]
-        }
-    )
-
-
-    for (var i = 0; i < currentSectionSegmentsPos.length; i++) {
-      if (currentSectionSegmentsPos[i][1] + this.sectionRefsHash[nameOfFirstSection].y >= this.refs._listView.scrollProperties.offset) {
-
-        if (i == currentSectionSegmentsPos.length -1) {
-          console.log('loading last one!')
-        }
-
-
-        if (Math.abs(this.previousY - e.nativeEvent.contentOffset.y) > 40) {
-          this.previousY = e.nativeEvent.contentOffset.y;
-          return;
-        }
-
-
-        var sectionToLoad = this.props.sectionArray.indexOf(currentSectionSegmentsPos[i][0].split(":")[0]);
-        var segmentToLoad = parseInt(currentSectionSegmentsPos[i][0].split(":")[1])-1;
-        this.props.textSegmentPressed(sectionToLoad, segmentToLoad, currentSectionSegmentsPos[i][0]);
-
-        return;
-
-      }
-
-    }
-
-  };
-
-  handleScroll = (e) => {
-
-    if (this.props.textFlow == 'continuous') {
-      //update highlightedSegment Continuous Style
-      if (this.props.textListVisible) {
-        this.updateHighlightedSegmentContinuous(e);
-      }
-    }
-
-    this.updateTitle();
-    //auto highlight middle visible segment
-    if (this.props.textListVisible) {
-
-      // Measure scroll speed, don't update unless we're moving slowly.
-      if (Math.abs(this.previousY - e.nativeEvent.contentOffset.y) > 40) {
-        this.previousY = e.nativeEvent.contentOffset.y;
-        return;
-      }
-      this.previousY = e.nativeEvent.contentOffset.y;
-      this.updateHighlightedSegment();
-    }
-  };
-
-  updateTitle = () => {
-    // Update title in header depending on what section is most visible.
-    var visibleRows = this.refs._listView._visibleRows;
-    var visibleSections = this.getVisibleSections();
-
-    var nameOfFirstSection = visibleSections[0];
-    var nameOfSecondSection = visibleSections[1] || null;
-
-    if (visibleSections.length == 0) {
-      console.log("VISIBLE ROWS IS EMPTY!!! oh no!!!");
-      //this.props.setTextLanguage(this.props.textLanguage == "english" ? "hebrew" : "english");
-    }
-
-    //console.log("VISIBLE TITLES",nameOfFirstSection,nameOfSecondSection,Object.keys(this.refs._listView._visibleRows));
-
-    if (!visibleRows[nameOfFirstSection]) return; //look at ListView implementation. renderScrollComponent runs before visibleRows is populated
-    var numberOfVisibleSegmentsInFirstSection = Object.keys(visibleRows[nameOfFirstSection]).length;
-    if (nameOfSecondSection !== null) {
-      var numberOfVisibleSegmentsInSecondSection = Object.keys(visibleRows[nameOfSecondSection]).length;
-    }
-    else {
-      var numberOfVisibleSegmentsInSecondSection = 0;
-    }
-
-    // update title
-    if (numberOfVisibleSegmentsInFirstSection > numberOfVisibleSegmentsInSecondSection) {
-      var enTitle = nameOfFirstSection;
-      var heTitle = this.props.sectionHeArray[this.props.sectionArray.indexOf(nameOfFirstSection)];
-    } else {
-      var enTitle = nameOfSecondSection;
-      var heTitle = this.props.sectionHeArray[this.props.sectionArray.indexOf(nameOfSecondSection)];
-    }
-
-    if (enTitle !== this.props.textReference) {
-      this.props.updateTitle(enTitle, heTitle);
-    }
-  };
-
-  updateTitleALTERNATE = () => {
-    // This method just sets the title base on the first visible section.
-    // It has the benefit of simplicity and not giving a wrong title initially when loading short sections
-    // like the beginning of Siddur. Not sure it yet if it's preferable.
-    var visibleSections = this.getVisibleSections();
-    if (visibleSections.length == 0) {
-      console.log("VISIBLE ROWS IS EMPTY!!! oh no!!!");
-      return;
-    }
-    var enTitle = visibleSections[0];
-    var heTitle = this.props.sectionHeArray[this.props.sectionArray.indexOf(enTitle)];
-    if (enTitle !== this.props.textReference) {
-      this.props.updateTitle(enTitle, heTitle);
-    }
-  };
-
-  updateHighlightedSegment = () => {
-    var setHighlight = function (highlightIndex) {
-      let segmentToLoad  = allVisibleRows[highlightIndex].segIndex; //we now know the first element has the lowest segment number
-      let sectionToLoad  = allVisibleRows[highlightIndex].secIndex;
-      let highlightRef   = allVisibleRows[highlightIndex].ref;
-      //console.log("VISIBLE", allVisibleRows, "TO LOAD", segmentToLoad,"Seg Ind Ref",this.props.segmentIndexRef);
-      if (segmentToLoad !== this.props.segmentIndexRef || highlightRef !== this.props.segmentRef) {
-        this.props.textSegmentPressed(sectionToLoad, segmentToLoad, highlightRef);
-      }
-    }.bind(this);
-
-    var visibleRows = this.refs._listView._visibleRows;
-    var visibleSections = this.getVisibleSections();
-    var allVisibleRows = [];
-
-    if (this.props.textFlow == 'segmented') {
-      for (var i = 0; i < visibleSections.length; i++) {
-        var section = visibleSections[i];
-        var secIndex = this.props.sectionArray.indexOf(section);
-        for (let seg of Object.keys(visibleRows[section])) {
-          let segNum = parseInt(seg.replace(section + ":", ""));
-          allVisibleRows.push({
-            "segIndex": this.findDataSegmentIndex(secIndex, "" + segNum),
-            "secIndex": secIndex,
-            "sortNum": segNum + (i * 10000),
-            "ref": seg
-          });
-        }
-
-      }
-
-      if (allVisibleRows.length > 0) { //it should always be, but sometimes visibleRows is empty
-        allVisibleRows.sort((a, b)=>a.sortNum - b.sortNum);
-        let handle = findNodeHandle(this.rowRefs[allVisibleRows[0].ref]);
-        if (handle) {
-          queryLayoutByID(
-             handle,
-             null, /*Error callback that doesn't yet have a hook in native so doesn't get called */
-             (left, top, width, height, pageX, pageY) => {
-               let highlightIndex = pageY + height > 150 || allVisibleRows.length == 1 ? 0 : 1;
-               setHighlight(highlightIndex);
-             }
-           );
-        } else {
-          console.log("falling back to old highlighting method");
-          let highlightIndex = allVisibleRows.length >= 2 ? 1 : 0;
-          setHighlight(highlightIndex);
-        }
-      }
-
-    }
-  };
-
-  findDataSegmentIndex = (secIndex, segNum) => {
-    // Returns the segment index (int) for `segNum` (a numerical string) within `this.props.data[secIndex]`
-    let start = this.props.data[secIndex].length-1;
-    for (let i = start; i >= 0; i--) {
-      if (this.props.data[secIndex][i].segmentNumber === segNum) {
-        return i;
-      }
-    }
-    console.log("findDataSegmentIndex couldn't find ", secIndex, segNum, "in data:")
-    //console.log(this.props.data);
-    return -1;
-  };
-
-  scrollToTarget = () => {
-
-    if (!this.state.scrollingToTargetRef) { return; }
-
-    if (this.props.textFlow == 'segmented') {
-
-      console.log("scrollToTarget", this.state.targetSectionRef);
-      var visibleSections = this.getVisibleSections();
-      console.log("visibleSections", visibleSections);
-
-      if (visibleSections.indexOf(this.state.targetSectionRef) == -1) {
-        //if current section is not visible
-        console.log("scrolling one page down")
-        this.scrollOneScreenDown();
-      } else {
-        console.log("scrolling to target")
-        let ref = this.rowRefs[this.state.targetSectionRef + ":1"];
-        let handle = findNodeHandle(ref);
-        if (!handle) {
-          console.log("Could't find ref handle!", this.state.targetSectionRef);
-          console.log("scrolling one page down")
-          this.scrollOneScreenDown();
-          return;
-        }
-        queryLayoutByID(
-          handle,
-          null, /*Error callback that doesn't yet have a hook in native so doesn't get called */
-          (left, top, width, height, pageX, pageY) => {
-            //console.log(left, top, width, height, pageX, pageY)
-            this.refs._listView.scrollTo({
-              x: 0,
-              y: this.refs._listView.scrollProperties.offset + pageY - 120,
-              animated: false
-            });
+          let segmentData = {
+            segmentNumber: i,
+            ref: segmentRef,
+            content: data[sectionIndex][i],
+            highlight: offsetRef == segmentRef || (props.textListVisible && props.segmentRef == segmentRef)
           }
-        );
-        this.setState({
-          scrollingToTargetRef: false,
-          targetSectionRef: ""
-        });
-        this.updateTitle();
-      }
-    }
-
-    else /*if this.props.textFlow == 'continuous' */ {
-
-      var ref = this.rowRefs[this.props.sectionArray[0]+":"+this.props.data[0].length];
-      if (ref) {
-        if (ref._initY != null) {
-          console.log(ref._initY)
-          this.refs._listView.scrollTo({
-            x: 0,
-            y: ref._initY,
-            animated: false
-          });
-          this.setState({
-            scrollingToTargetRef: false,
-            targetSectionRef: ""
-          });
+          highlight = segmentData.highlight ? i : highlight;
+          rowData.segmentData.push(segmentData);
         }
-
-      else {
-          console.log(this.props.sectionArray[0]+":"+this.props.data[0].length)
-        console.log(this.props.data[0])
-        console.log(this.rowRefs)
-        this.refs._listView.scrollTo({
-            x: 0,
-            y: 100,
-            animated: false
-          });
-
-          return
+        const changeString = rowID;
+        rows.push({ref: rowID + "|content", data: rowData, changeString: changeString + "|content" });
+        dataSource.push({ref: props.sectionArray[sectionIndex], heRef: props.sectionHeArray[sectionIndex], data: rows, sectionIndex, changeString});
       }
-          this.updateTitleALTERNATE();
+      segmentGenerator = this.renderContinuousRow;
+    }
 
+    else { // segmented
+      for (let sectionIndex = 0; sectionIndex < data.length; sectionIndex++) {
+        let rows = [];
+        for (var i = 0; i < data[sectionIndex].length; i++) {
+          if (i !== 0 && !data[sectionIndex][i].text && !data[sectionIndex][i].he) { continue; } // Skip empty segments
+          var rowID = props.sectionArray[sectionIndex] + ":" + data[sectionIndex][i].segmentNumber;
+          var rowData = {
+            content: data[sectionIndex][i], // Store data in `content` so that we can manipulate other fields without manipulating the original data
+            sectionIndex: sectionIndex,
+            rowIndex: i,
+            highlight: offsetRef == rowID || (props.textListVisible && props.segmentRef == rowID),
+          };
+          // excluding b/c they don't change height: props.themeStr, props.linksLoaded[sectionIndex]
+          //rowData.changeString += rowData.highlight ? "|highlight" : "";
+          rows.push({ref: rowID, data: rowData, changeString: rowID});
+        }
+        dataSource.push({ref: props.sectionArray[sectionIndex], heRef: props.sectionHeArray[sectionIndex], data: rows, sectionIndex: sectionIndex, changeString: props.sectionArray[sectionIndex]});
       }
-
-      else {
-        console.log(this.props.data[0])
-        console.log(this.rowRefs)
-        console.log(this.refs._listView.scrollProperties.contentLength)
-      }
-
+      segmentGenerator = this.renderSegmentedRow;
     }
-
-  };
-
-  onTopReached = () => {
-    if (this.props.loadingTextHead == true || !this.props.prev) {
-      //already loading tail, or nothing above
-      return;
-    }
-    console.log("onTopReached setting targetSectionRef", this.props.textReference)
-    this.setState({
-      scrollingToTargetRef: true,
-      targetSectionRef: this.props.textReference
-    });
-
-    this.props.updateData("prev");
-  };
-
-  onEndReached = () => {
-    if (this.props.loadingTextTail == true) {
-      //already loading tail
-      return;
-    }
-    this.props.updateData("next");
-  };
-
-  visibleRowsChanged = (visibleRows, changedRows) => {
-    if (!this.props.loadingTextHead && this.state.targetSectionRef && this.state.scrollingToTargetRef) {
-      this.scrollToTarget();
-    } else if (this.props.offsetRef && !this.state.scrolledToOffsetRef) {
-      this.scrollToRef(this._standardizeOffsetRef(this.props.offsetRef), false, false);
-    }
-  };
-
-  getVisibleSections = () => {
-    // Returns an array of strings naming the currently visible sections in proper order.
-    var visibleSectionsObject = this.refs._listView._visibleRows;
-    var visibleSections = Object.keys(visibleSectionsObject);
-    visibleSections.sort((a, b) => (this.props.sectionArray.indexOf(a) - this.props.sectionArray.indexOf(b)));
-    return visibleSections;
-  };
-
-  scrollOneScreenDown = (initialScroll) => {
-    this.refs._listView.scrollTo({
-      x: 0,
-      y: initialScroll ? 1 : this.refs._listView.scrollProperties.offset+(1*this.refs._listView.scrollProperties.visibleLength),
-      animated: false
-    });
-  };
-
-  scrollToRef = (rowRef, didMount, isClickScroll) => {
-    /* Warning, this function is hacky. anyone who knows how to improve it, be my guest
-    didMount - true if coming from componentDidMount. it seems that none of the rows
-    have heights (even if they're on screen) at the did mount stage. so I scroll by
-    one pixel so that the rows get measured
-
-    the function looks to see if `rowRef` is on screen. it determines if its
-    on screen by measuring the row. if it's height is 0, it is probably not on screen.
-    right now I can't find a better way to do this
-    if on screen, it jumps to it
-    if not, it jumps a whole screen downwards (except if didMount is true, see above).
-    on the next render it will check again
-    */
-    if (rowRef && (!this.state.scrolledToOffsetRef || isClickScroll)) {
-      let ref = this.rowRefs[rowRef];
-
-      if (this.props.textFlow == 'segmented') {
-        let handle = findNodeHandle(ref);
-        if (handle != null) {
-          queryLayoutByID(
-            handle,
-            null, /*Error callback that doesn't yet have a hook in native so doesn't get called */
-            (left, top, width, height, pageX, pageY) => {
-              if (pageY == 0) { //I'm forced to assume this means it's not on screen, though it could also be at the top of the page...
-                this.scrollOneScreenDown(didMount);
-                if (didMount) {
-                  this.setState({continueScrolling: true});
-                } //needed to continue rendering after each success scroll
-                //console.log("Zerooo");
-              } else {
-                //console.log('yeshhh');
-                //LayoutAnimation.configureNext(CustomLayoutAnimation);
-                this.setState({scrolledToOffsetRef: true});
-                this.refs._listView.scrollTo({
-                  x: 0,
-                  y: this.refs._listView.scrollProperties.offset + pageY - 100,
-                  animated: false
-                });
-              }
-            }
-          );
-        } else {
-          console.log("scrollToRef couldn't find ref handle");
+    const jumpInfoMap = this.updateJumpInfoMap(dataSource);
+    //console.log(sections);
+    const componentsToMeasure = [];
+    if (gonnaJump) {
+      for (let section of dataSource) {
+        componentsToMeasure.push({ref: section.ref, id: section.changeString, generator: this.renderSectionHeader, param: {section: section}})
+        for (let segment of section.data) {
+          componentsToMeasure.push({ref: segment.ref, id: segment.changeString, generator: segmentGenerator, param: {item: segment}});
         }
       }
 
-      /*
-      continuous case is much easier to deal with because we know that all segments have been loaded and
-      y position is generated/stored on layout.
-      */
-      else {
-        this.setState({scrolledToOffsetRef: true});
-        this.refs._listView.scrollTo({
-          x: 0,
-          y: ref._initY + this.sectionRefsHash[rowRef.split(":")[0]].y,
-          animated: false
-        });
-      }
     }
+
+    return {dataSource, componentsToMeasure, jumpInfoMap};
+
   };
 
   _standardizeOffsetRef = (ref) => {
@@ -521,7 +170,29 @@ class TextColumn extends React.Component {
 
   textSegmentPressed = (section, segment, segmentRef, shouldToggle) => {
     if (!this.props.textListVisible) {
-      this.scrollToRef(segmentRef, true, true);
+      if (this.props.textFlow === 'continuous') {
+        const targetY = this.continuousRowYHash[segmentRef] + this.state.itemLayoutList[this.state.jumpInfoMap.get(this.props.sectionArray[section])].offset;
+        if (targetY) {
+          // yes this is ridiculous. hopefully scrollToOffset() will get implemented on SectionList soon.
+          // see https://github.com/facebook/react-native/issues/13151#issuecomment-337442644
+          this.sectionListRef._wrapperListRef._listRef.scrollToOffset({
+            animated: false,
+            offset: targetY,
+          });
+        } else {
+          console.log("target Y is no good :(", segmentRef);
+        }
+      } else {
+        const targetIndex = this.state.jumpInfoMap.get(segmentRef);
+        if (!targetIndex) { debugger; }
+        this.sectionListRef.scrollToLocation({
+            animated: false,
+            sectionIndex: 0,
+            itemIndex: targetIndex-1,
+            viewPosition: 0.1,
+        });
+      }
+
     }
     this.props.textSegmentPressed(section, segment, segmentRef, true);
   };
@@ -533,332 +204,384 @@ class TextColumn extends React.Component {
     return ref.replace(trimmer, '');
   };
 
-  generateDataSource = (props) => {
-    // Returns data representing sections and rows to be passed into ListView.DataSource.cloneWithSectionsAndRows
-    // Takes `props` as an argument so it can generate data with `nextProps`.
-    var data = props.data;
-    var sections = {};
+  componentWillReceiveProps(nextProps) {
 
-    var offsetRef = this._standardizeOffsetRef(props.offsetRef);
-
-    if (props.textFlow == 'continuous' && Sefaria.canBeContinuous(props.textTitle)) {
-      var highlight = null;
-      for (var section = 0; section < data.length; section++) {
-        var rows = {};
-        var rowID = props.sectionArray[section] + ":" + "wholeSection";
-        var rowData = {
-          section: section,
-          segmentData: [],
-          changeString: [rowID, props.textLanguage, props.textFlow, props.settings.fontSize, props.themeStr].join("|")
-        };
-
-        for (var i = 0; i < data[section].length; i++) {
-          if (!data[section][i].text && !data[section][i].he) { continue; } // Skip empty segments
-          var segmentData = {
-            content: data[section][i],
-            highlight: offsetRef == rowID.replace("wholeSection", i+1) || (props.textListVisible && props.segmentRef == rowID.replace("wholeSection", i+1))
-          }
-          highlight = segmentData.highlight ? i : highlight;
-          rowData.segmentData.push(segmentData);
-        }
-        rowData.changeString += highlight ? "|highlight:" + highlight : "";
-        rows[rowID] = rowData;
-        sections[this.props.sectionArray[section]] = rows;
+    if (this.props.data.length !== nextProps.data.length ||
+        this.props.textFlow !== nextProps.textFlow ||
+        this.props.textLanguage !== nextProps.textLanguage ||
+        this.props.textListVisible !== nextProps.textListVisible ||
+        this.props.segmentIndexRef !== nextProps.segmentIndexRef ||
+        this.props.segmentRef !== nextProps.segmentRef ||
+        this.props.themeStr !== nextProps.themeStr ||
+        this.props.linksLoaded !== nextProps.linksLoaded) {
+      // Only update dataSource when a change has occurred that will result in different data
+      //TODO how to optimize this function when fontSize is changing?
+      let {dataSource, componentsToMeasure, jumpInfoMap} = this.generateDataSource(nextProps, this.state.jumpState.jumping);
+      if (this.props.data.length !== nextProps.data.length && this.state.jumpState.jumping) {
+        this.measuringHeights = true;
+        this.setState({nextDataSource: dataSource, componentsToMeasure, jumpInfoMap});
+      } else {
+        this.setState({dataSource, jumpInfoMap});
       }
     }
-
-    else { // segmented
-      for (var section = 0; section < data.length; section++) {
-        var rows = {};
-        for (var i = 0; i < data[section].length; i++) {
-          if (i !== 0 &&  !data[section][i].text && !data[section][i].he) { continue; } // Skip empty segments
-          var rowID = props.sectionArray[section] + ":" + data[section][i].segmentNumber;
-          // console.log("ROW ID",rowID,props.segmentRef);
-          var rowData = {
-            content: data[section][i], // Store data in `content` so that we can manipulate other fields without manipulating the original data
-            section: section,
-            row: i,
-            highlight: offsetRef == rowID || (props.textListVisible && props.segmentRef == rowID),
-            changeString: [rowID, props.textLanguage, props.textFlow, props.settings.fontSize, props.themeStr, props.linksLoaded[section]].join("|")
-          };
-          rowData.changeString += rowData.highlight ? "|highlight" : "";
-          rows[rowID] = rowData;
+  }
+  updateHighlightedSegmentContinuous = (secData) => {
+    for (let i = 0; i < secData.sections.length; i++) {
+      let sectionIndex = secData.indexes[i];
+      //let firstSegRefOffset = this.state.dataSource[sectionIndex].data[0].data.segmentData.length > 0 ? this.continuousRowYHash[this.state.dataSource[sectionIndex].data[0].data.segmentData[0].ref] : null;
+      for (let j = 0; j < this.state.dataSource[sectionIndex].data[0].data.segmentData.length; j++) {
+        let segment = this.state.dataSource[sectionIndex].data[0].data.segmentData[j];
+        const sectionOffset = this.state.itemLayoutList[this.state.jumpInfoMap.get(this.props.sectionArray[sectionIndex])].offset;
+        //console.log(segment.ref, this.continuousRowYHash[segment.ref], this.currentY, sectionOffset, firstSegRefOffset);
+        if (this.continuousRowYHash[segment.ref] + sectionOffset - this.currentY > -20) {
+          this.props.textSegmentPressed(sectionIndex, segment.segmentNumber, segment.ref);
+          //console.log("I choose you,", segment.ref, "!!!!")
+          return;
         }
-        sections[this.props.sectionArray[section]] = rows;
       }
     }
-    //console.log(sections);
-    return sections;
-
   };
 
-  renderContinuousRow = (rowData, sID, rID) => {
+  getViewableSectionData = (viewableItems) => {
+    let secData = {
+      indexes: [],
+      sections: [],
+    }
+    let currSec;
+    for (let seg of viewableItems) {
+      if (seg.index === null) {
+        continue; // apparently segments with null indexes are sections. who knew?
+      }
+      if (currSec !== seg.section.sectionIndex) {
+        currSec = seg.section.sectionIndex;
+        secData.indexes.push(currSec);
+        secData.sections.push([seg.item]);
+      } else {
+        secData.sections[secData.sections.length-1].push(seg.item);
+      }
+    }
+    return secData;
+  };
+
+  updateHighlightedSegment = (secData) => {
+    let setHighlight = function (sectionIndex, segmentIndex, ref) {
+      //console.log("VISIBLE", allVisibleRows, "TO LOAD", segmentToLoad,"Seg Ind Ref",this.props.segmentIndexRef);
+      if (segmentIndex !== this.props.segmentIndexRef || ref !== this.props.segmentRef) {
+        this.props.textSegmentPressed(sectionIndex, segmentIndex, ref);
+      }
+    }.bind(this);
+    if (secData.sections.length > 0 && secData.sections[0].length > 0) {
+      let handle = findNodeHandle(this.rowRefs[secData.sections[0][0].ref]);
+      if (handle) {
+        queryLayoutByID(
+           handle,
+           null, /*Error callback that doesn't yet have a hook in native so doesn't get called */
+           (left, top, width, height, pageX, pageY) => {
+             const seg = pageY + height > COMMENTARY_LINE_THRESHOLD || secData.sections[0].length === 1 ? secData.sections[0][0] : secData.sections[0][1];
+             setHighlight(seg.data.sectionIndex, seg.data.rowIndex, seg.ref);
+           }
+         );
+      } else {
+        const seg = secData.sections[0].length === 1 ? secData.sections[0][0] : secData.sections[0][1];
+        setHighlight(seg.data.sectionIndex, seg.data.rowIndex, seg.ref);
+      }
+    }
+  };
+
+  updateTitle = (secData) => {
+    if (secData.indexes.length == 0) {
+      return;
+    }
+    // update title
+    let biggerSection = secData.sections.length >= 2 && secData.sections[1].length > secData.sections[0].length ? secData.indexes[1] : secData.indexes[0];
+    let enTitle = this.props.sectionArray[biggerSection];
+    let heTitle = this.props.sectionHeArray[biggerSection];
+
+    if (enTitle !== this.props.textReference) {
+      this.props.updateTitle(enTitle, heTitle);
+    }
+  };
+
+  handleScroll = (e) => {
+    const previousY = this.currentY;
+    this.currentY = e.nativeEvent.contentOffset.y;
+    if (this.props.textListVisible && this.viewableSectionData) {
+      if (Math.abs(previousY - this.currentY) > 40) {
+        return;
+      }
+      if (this.props.textFlow === 'continuous') {
+        this.updateHighlightedSegmentContinuous(this.viewableSectionData);
+      } else {
+        this.updateHighlightedSegment(this.viewableSectionData);
+      }
+    }
+  };
+
+  onTopReached = () => {
+    if (this.props.loadingTextHead === true || !this.props.prev || this.state.jumpState.jumping) {
+      //already loading tail, or nothing above
+      return;
+    }
+    this.onTopReaching = true;
+    this.setState({
+      jumpState: {
+        jumping: true,
+        targetRef: this.props.textReference,
+        viewPosition: 0.1,
+        animated: false,
+      }
+    });
+    this.props.updateData("prev");
+  };
+
+  onEndReached = () => {
+    this.props.updateData("next");
+  };
+
+  sectionsCoverScreen = (startSectionInd, endSectionInd) => {
+    // return true if there is enough space between the `startSectionInd` and `endSectionInd` to at least fill the screen.
+    if (this.state.dataSource.length <= 1) {
+      return false;
+    }
+    let extra
+    const startSegRef = this.state.dataSource[startSectionInd].data[0].ref;
+    const endSegRef = this.state.dataSource[endSectionInd].data.slice(-1)[0].ref;
+    const firstSeg = this.state.itemLayoutList[this.state.jumpInfoMap.get(startSegRef)];
+    const lastSeg = this.state.itemLayoutList[this.state.jumpInfoMap.get(endSegRef)];
+    return (lastSeg.offset + lastSeg.length - firstSeg.offset) > ViewPort.height;
+  };
+
+  onViewableItemsChanged = ({viewableItems, changed}) => {
+    let secData = this.getViewableSectionData(viewableItems);
+    if (this.props.textFlow == 'continuous') {
+
+    }
+    this.updateTitle(secData);
+    this.viewableSectionData = secData;
+  };
+
+  /******************
+  RENDER
+  *******************/
+
+  renderRow = ({ item }) => {
+    return (this.props.textFlow == 'continuous' && Sefaria.canBeContinuous(this.props.textTitle)) ? this.renderContinuousRow({ item }) : this.renderSegmentedRow({ item });
+  };
+
+  renderContinuousRow = ({ item }) => {
     // In continuous case, rowData represent an entire section of text
-    var segments = [];
-    for (var i = 0; i < rowData.segmentData.length; i++) {
-      segments.push(this.renderSegmentForContinuousRow(i, rowData));
-    }
-    var textStyle = this.props.textLanguage == "hebrew" ? styles.hebrewText : styles.englishText;
-    var sectionRef = this.props.sectionArray[rowData.section];
-    var onSectionLayout = (event) => {
-      var {x, y, width, height} = event.nativeEvent.layout;
-      var sectionName = this.props.sectionArray[rowData.section];
-
-      //console.log(this.sectionRefsHash);
-
-      this.sectionRefsHash[sectionName] = {height: height, y: y};
-      //console.log(this.sectionRefsHash);
-      /*                                    
-      if (currSegData.highlight) {
-        this.refs._listView.scrollTo({
-         x: 0,
-         y: y,
-         animated: false
-        });
-      }
-      */
-    };
-    return <View style={[styles.verseContainer, styles.continuousRowHolder]} key={sectionRef} onLayout={onSectionLayout} >
-              <SectionHeader
-                title={this.props.textLanguage == "hebrew" ?
-                        this.inlineSectionHeader(this.props.sectionHeArray[rowData.section]) :
-                        this.inlineSectionHeader(this.props.sectionArray[rowData.section])}
-                isHebrew={this.props.textLanguage == "hebrew"}
-                theme={this.props.theme}
-                key={rowData.section+"header"} />
-
-              <Text style={[textStyle, styles.continuousSectionRow]}>{segments}</Text>
-           </View>;
+    const sectionRef = item.ref.replace("|content","");
+    return (
+      <TextRangeContinuous
+        theme={this.props.theme}
+        themeStr={this.props.themeStr}
+        settings={this.props.settings}
+        rowData={item.data}
+        sectionRef={sectionRef}
+        textLanguage={this.props.textLanguage}
+        showSegmentNumbers={Sefaria.showSegmentNumbers(this.props.textTitle)}
+        textSegmentPressed={this.textSegmentPressed}
+        setRowRef={(key, ref)=>{this.rowRefs[key]=ref}}
+        setRowRefInitY={(key, y)=>{this.continuousRowYHash[key] = y}}
+        Sefaria={Sefaria}
+      />
+    );
   };
 
-  renderSegmentForContinuousRow = (i, rowData) => {
-      var segmentText = [];
-      var currSegData = rowData.segmentData[i];
-      currSegData.text = currSegData.content.text || "";
-      currSegData.he = currSegData.content.he || "";
-      currSegData.segmentNumber = currSegData.segmentNumber || this.props.data[rowData.section][i].segmentNumber;
-      var textLanguage = Sefaria.util.getTextLanguageWithContent(this.props.textLanguage, currSegData.text, currSegData.he);
-      var refSection = rowData.section + ":" + i;
-      var reactRef = this.props.sectionArray[rowData.section] + ":" + this.props.data[rowData.section][i].segmentNumber;
-      var style = [styles.continuousVerseNumber,
-                   this.props.textLanguage == "hebrew" ? styles.continuousHebrewVerseNumber : null,
-                   this.props.theme.verseNumber,
-                   currSegData.highlight ? this.props.theme.segmentHighlight : null];
-      var onSegmentLayout = (event) => {
-        var {x, y, width, height} = event.nativeEvent.layout;
-        // console.log(this.props.sectionArray[rowData.section] + ":" + currSegData.segmentNumber + " y=" + y)
-        this.rowRefs[reactRef]._initY = y;
-        if (currSegData.highlight) {
-          // console.log('scrollling...')
-          this.refs._listView.scrollTo({
-           x: 0,
-           y: y+this.sectionRefsHash[rowData.section].y,
-           animated: false
-          });
-        }
-      };
-      segmentText.push(<View ref={this.props.sectionArray[rowData.section] + ":" + currSegData.segmentNumber}
-                             style={Sefaria.showSegmentNumbers(this.props.textTitle) ? styles.continuousVerseNumberHolder : styles.continuousVerseNumberHolderTalmud}
-                             onLayout={onSegmentLayout}
-                             key={reactRef+"|segment-number"} >
-                          <Text style={style}>
-                            {Sefaria.showSegmentNumbers(this.props.textTitle) ? (this.props.textLanguage == "hebrew" ?
-                              Sefaria.hebrew.encodeHebrewNumeral(currSegData.segmentNumber) :
-                              currSegData.segmentNumber) : ""}</Text>
-      </View>);
-
-
-      if (textLanguage == "hebrew" || textLanguage == "bilingual") {
-        segmentText.push(<TextSegment
-          theme={this.props.theme}
-          segmentIndexRef={this.props.segmentIndexRef}
-          rowRef={reactRef}
-          segmentKey={refSection}
-          key={reactRef+"-he"}
-          data={currSegData.he}
-          textType="hebrew"
-          textSegmentPressed={ this.textSegmentPressed }
-          textListVisible={this.props.textListVisible}
-          settings={this.props.settings}/>);
-      }
-
-      if (textLanguage == "english" || textLanguage == "bilingual") {
-        segmentText.push(<TextSegment
-          theme={this.props.theme}
-          style={styles.TextSegment}
-          segmentIndexRef={this.props.segmentIndexRef}
-          rowRef={reactRef}
-          segmentKey={refSection}
-          key={reactRef+"-en"}
-          data={currSegData.text}
-          textType="english"
-          textSegmentPressed={ this.textSegmentPressed }
-          textListVisible={this.props.textListVisible}
-          settings={this.props.settings}/>);
-      }
-
-      segmentText.push(<Text> </Text>);
-      var refSetter = function(key, ref) {
-        //console.log("Setting ref for " + key);
-        this.rowRefs[key] = ref;
-      }.bind(this, reactRef);
-
-      return (<Text style={style} ref={refSetter}>{segmentText}</Text>);
-
-  };
-
-  renderSegmentedRow = (rowData, sID, rID) => {
+  renderSegmentedRow = ({ item }) => {
     // In segmented case, rowData represents a segments of text
-    rowData.text = rowData.content.text || "";
-    rowData.he = rowData.content.he || "";
-    rowData.numLinks = rowData.content.links ? rowData.content.links.length : 0;
-
-    var segment = [];
-    var textLanguage = Sefaria.util.getTextLanguageWithContent(this.props.textLanguage, rowData.text, rowData.he);
-    var refSection = rowData.section + ":" + rowData.row;
-    var reactRef = this.props.sectionArray[rowData.section] + ":" + this.props.data[rowData.section][rowData.row].segmentNumber;
-    if (rowData.row == 0) {
-      segment.push(<SectionHeader
-                      title={this.props.textLanguage == "hebrew" ?
-                              this.inlineSectionHeader(this.props.sectionHeArray[rowData.section]) :
-                              this.inlineSectionHeader(this.props.sectionArray[rowData.section])}
-                      isHebrew={this.props.textLanguage == "hebrew"}
-                      theme={this.props.theme}
-                      key={rowData.section+"header"} />);
-    }
-
-
-    var numberMargin = (<Text ref={this.props.sectionArray[rowData.section] + ":"+ rowData.content.segmentNumber}
-                                   style={[styles.verseNumber, this.props.textLanguage == "hebrew" ? styles.hebrewVerseNumber : null, this.props.theme.verseNumber]}
-                                   key={reactRef + "|segment-number"}>
-                        {Sefaria.showSegmentNumbers(this.props.textTitle) ? (this.props.textLanguage == "hebrew" ?
-                         Sefaria.hebrew.encodeHebrewNumeral(rowData.content.segmentNumber) :
-                         rowData.content.segmentNumber) : ""}
-                      </Text>);
-
-    let bulletOpacity = (rowData.numLinks-20) / (70-20);
-    if (rowData.numLinks == 0) { bulletOpacity = 0; }
-    else if (bulletOpacity < 0.3) { bulletOpacity = 0.3; }
-    else if (bulletOpacity > 0.8) { bulletOpacity = 0.8; }
-
-    var bulletMargin = (<Text ref={this.props.sectionArray[rowData.section] + ":"+ rowData.content.segmentNumber}
-                                   style={[styles.verseBullet, this.props.theme.verseBullet, {opacity:bulletOpacity}]}
-                                   key={reactRef + "|segment-dot"}>
-                        {"●"}
-                      </Text>);
-
-
-    var segmentText = [];
-
-    if (textLanguage == "hebrew" || textLanguage == "bilingual") {
-      segmentText.push(<TextSegment
-        rowRef={reactRef}
+    return (
+      <TextRange
         theme={this.props.theme}
-        segmentIndexRef={this.props.segmentIndexRef}
-        segmentKey={refSection}
-        key={reactRef+"|hebrew"}
-        data={rowData.he}
-        textType="hebrew"
-        textSegmentPressed={ this.textSegmentPressed }
-        textListVisible={this.props.textListVisible}
-        settings={this.props.settings}/>);
-    }
-
-    if (textLanguage == "english" || textLanguage == "bilingual") {
-      segmentText.push(<TextSegment
-        rowRef={reactRef}
-        theme={this.props.theme}
-        style={styles.TextSegment}
-        segmentIndexRef={this.props.segmentIndexRef}
-        segmentKey={refSection}
-        key={reactRef+"|english"}
-        data={rowData.text}
-        textType="english"
-        bilingual={textLanguage === "bilingual"}
-        textSegmentPressed={ this.textSegmentPressed }
-        textListVisible={this.props.textListVisible}
-        settings={this.props.settings} />);
-    }
-
-    let textStyle = [styles.textSegment];
-    if (rowData.highlight) {
-        textStyle.push(this.props.theme.segmentHighlight);
-    }
-
-    segmentText = <View style={textStyle} key={reactRef+"|text-box"}>{segmentText}</View>;
-
-    let completeSeg = this.props.textLanguage == "english" ? [numberMargin, segmentText, bulletMargin] : [bulletMargin, segmentText, numberMargin];
-
-    if (rowData.text || rowData.he) {
-      segment.push(<View style={styles.numberSegmentHolderEn} key={reactRef+"|inner-box"}>
-                      {completeSeg}
-                    </View>);      
-    }
-
-    //console.log("Rendering Row:", reactRef);
-
-    var onSegmentLayout = (event) => {
-     var {x, y, width, height} = event.nativeEvent.layout;
-     this.rowRefs[reactRef]._initY = y;
-    };
-    return <View 
-              style={styles.verseContainer}
-              key={reactRef}
-              ref={(view)=>this.rowRefs[reactRef]=view}
-              onLayout={onSegmentLayout}>{segment}</View>;
+        themeStr={this.props.themeStr}
+        settings={this.props.settings}
+        rowData={item.data}
+        segmentRef={item.ref}
+        textLanguage={this.props.textLanguage}
+        showSegmentNumbers={Sefaria.showSegmentNumbers(this.props.textTitle)}
+        textSegmentPressed={this.textSegmentPressed}
+        setRowRef={(key, ref)=>{this.rowRefs[key]=ref}}
+        Sefaria={Sefaria}
+      />
+    );
   };
 
-  rowHasChanged = (r1, r2) => {
-    // console.log(r1.changeString + " vs. " + r2.changeString);
-    var changed = (r1.changeString !== r2.changeString);
-    return (changed);
-  };
-
-  renderRow = (rowData, sID, rID) => {
-    //console.log("Rendering " + rID);
-    if (this.props.textFlow == 'continuous' && Sefaria.canBeContinuous(this.props.textTitle)) {
-      var row = this.renderContinuousRow(rowData);
-    } else { // segmented
-      var row = this.renderSegmentedRow(rowData);
+  renderSectionHeader = ({section, props}) => {
+    if (!props) {
+      props = this.props;
     }
-    return row;
+
+    return (
+      <SectionHeader
+        title={props.textLanguage == "hebrew" ?
+                this.inlineSectionHeader(section.heRef) :
+                this.inlineSectionHeader(section.ref)}
+        isHebrew={props.textLanguage == "hebrew"}
+        theme={props.theme}
+        />
+    )
   };
 
   renderFooter = () => {
     return this.props.next ? <LoadingView theme={this.props.theme} /> : null;
   };
 
-  render() {
-    //console.log("HASHSIZE",Object.keys(this.rowRefs).length);
-    //ref={this.props.textReference+"_"+this.props.data[this.state.sectionArray.indexOf(sID)][this.props.segmentRef].segmentNumber}
+  getItemLayout = (data, index) => {
+    if (this.state.itemLayoutList) {
+      if (index >= this.state.itemLayoutList.length) {
+        let itemHeight = 100;
+        //console.log("too big", index);
+        return {length: itemHeight, offset: itemHeight * index, index};
+      } else {
+        const yo = this.state.itemLayoutList[index];
+        if (!yo) {
+          console.log("yo non existant", index, this.state.itemLayoutList);
+        }
+        return yo;
+      }
+    } else {
+      const yo = this.backupItemLayoutList[index];
+      if (!yo) {
+        let itemHeight = 100;
+        console.log("race condition");
+        return {length: itemHeight, offset: itemHeight * index, index};
+      }
+      return yo;
 
-    return (
-    <View style={styles.textColumn} {...this.gestureResponder}>
-      <ListView ref='_listView'
-                dataSource={this.state.dataSource}
-                renderRow={this.renderRow}
-                onScroll={this.handleScroll}
-                onChangeVisibleRows={this.visibleRowsChanged}
-                onEndReached={this.onEndReached}
-                renderFooter={this.renderFooter}
-                /*renderScrollComponent={props => <ScrollView {...props} contentOffset={{y:this.state.scrollOffset}}/>}*/
-                pageSize={10}
-                initialListSize={this.props.segmentIndexRef || 40}
-                onEndReachedThreshold={1000}
-                scrollEventThrottle={100}
-                refreshControl={
-                  <RefreshControl
-                    refreshing={this.props.loadingTextHead}
-                    onRefresh={this.onTopReached}
-                    tintColor="#CCCCCC"
-                    style={{ backgroundColor: 'transparent' }} />
-                }/>
-      </View>
+    }
+  }
+  updateJumpInfoMap = (dataSource) => {
+    let jumpInfoMap = new Map();
+    let currIndex = 0;
+    for (let section of dataSource) {
+      jumpInfoMap.set(section.ref, currIndex);
+      currIndex++; //sections are counted in the index count
+      for (let segment of section.data) {
+        jumpInfoMap.set(segment.ref, currIndex);
+        currIndex++;
+      }
+      currIndex++;
+    }
+    return jumpInfoMap;
+  }
+  waitForScrollToLocation = (i) => {
+    if (!this._isMounted) { return; }
+    const topVis = this.sectionListRef._wrapperListRef._listRef._viewabilityHelper._viewableIndices[0];
+    if (topVis !== this.targetScrollIndex) {
+      this.setState({itemLayoutList: null}, ()=>{this.onTopReaching = false});
+      this.sectionListRef.scrollToLocation({
+          animated: false,
+          sectionIndex: 0,
+          itemIndex: this.targetScrollIndex,
+          viewPosition: 0.1,
+      });
+    } else if (i < 20) { // if it's running more than 400ms, kill the recursion
+      setTimeout(()=>{this.waitForScrollToLocation(i+1)}, 20);
+    }
+  }
+  allHeightsMeasured = (componentsToMeasure, textToHeightMap) => {
+    if (!this.measuringHeights) { return; } //sometimes allHeightsMeasured() gets called but we don't care
+    let currOffset = 0;
+    let itemLayoutList = [];
+    let jumpInfoMap = new Map();
+    let currIndex = 0;
+    for (let section of this.state.nextDataSource) {
+      let currHeight = textToHeightMap.get(section.changeString);
+      itemLayoutList[currIndex] = {index: currIndex, length: currHeight, offset: currOffset};
+      jumpInfoMap.set(section.ref, currIndex);
+      currOffset += currHeight;
+      currIndex++; //sections are counted in the index count
+      for (let segment of section.data) {
+        let currHeight = textToHeightMap.get(segment.changeString);
+        itemLayoutList[currIndex] = {index: currIndex, length: currHeight, offset: currOffset};
+        jumpInfoMap.set(segment.ref, currIndex);
+        currOffset += currHeight;
+        currIndex++;
+      }
+      itemLayoutList[currIndex] = {index: currIndex, length: 0, offset: currOffset};
+      currIndex++;
+    }
+    this.backupItemLayoutList = itemLayoutList;
+    this.measuringHeights = false;
+    this.setState({itemLayoutList: itemLayoutList, jumpInfoMap: jumpInfoMap, dataSource: this.state.nextDataSource},
+      ()=>{
+        const { jumping, animated, viewPosition, targetRef } = this.state.jumpState;
+        if (jumping) {
+          const targetIndex = jumpInfoMap.get(targetRef);
+
+          if (targetIndex === undefined || targetIndex === null || targetIndex >= itemLayoutList.length) {
+            console.log("FAILED to find targetIndex", jumpInfoMap);
+          } else {
+            //console.log("Before", this.sectionListRef._wrapperListRef._listRef);
+            this.targetScrollIndex = targetIndex-1;
+            console.log("Old vis", this.targetScrollIndex);
+            this.sectionListRef.scrollToLocation(
+              {
+                animated: animated,
+                sectionIndex: 0,
+                itemIndex: targetIndex-1,
+                viewPosition: viewPosition
+              }
+            );
+            this.waitForScrollToLocation(0);
+            //setTimeout(()=>{ console.log("After", this.sectionListRef._wrapperListRef._listRef); this.setState({itemLayoutList:null});}, 2000);
+          }
+          this.setState({jumpState: { jumping: false }});
+        }
+      }
     );
   }
+
+  _getSectionListRef = (ref) => {
+    this.sectionListRef = ref;
+  }
+
+  _getTextHeightMeasurerRef = (ref) => {
+    this.textHeightMeasurerRef = ref;
+  }
+
+  _keyExtractor = (item, index) => {
+    return item.changeString;
+  }
+
+  render() {
+    //if (this.sectionListRef) console.log("Before Before Nothing", pretty(this.sectionListRef._wrapperListRef._listRef));
+    return (
+        <View style={styles.textColumn} >
+          <SectionList
+            ref={this._getSectionListRef}
+            sections={this.state.dataSource}
+            renderItem={this.renderRow}
+            renderSectionHeader={this.renderSectionHeader}
+            ListFooterComponent={this.renderFooter}
+            getItemLayout={this.state.itemLayoutList ? this.getItemLayout : null}
+            onEndReached={this.onEndReached}
+            onEndReachedThreshold={2.0}
+            onScroll={this.handleScroll}
+            scrollEventThrottle={100}
+            onViewableItemsChanged={this.onViewableItemsChanged}
+            keyExtractor={this._keyExtractor}
+            stickySectionHeadersEnabled={false}
+            refreshControl={
+              <RefreshControl
+                refreshing={this.props.loadingTextHead || this.onTopReaching}
+                onRefresh={this.onTopReached}
+                tintColor="#CCCCCC"
+                style={{ backgroundColor: 'transparent' }} />
+            }/>
+        { this.state.jumpState.jumping ?
+          <TextHeightMeasurer
+            ref={this._getTextHeightMeasurerRef}
+            componentsToMeasure={this.state.componentsToMeasure}
+            allHeightsMeasuredCallback={this.allHeightsMeasured}/> : null
+        }
+        </View>
+    );
+  }
+
 }
 
-class SectionHeader extends React.Component {
+class SectionHeader extends React.PureComponent {
   static propTypes = {
     title:    PropTypes.string.isRequired,
     isHebrew: PropTypes.bool.isRequired,
@@ -873,6 +596,5 @@ class SectionHeader extends React.Component {
           </View>;
   }
 }
-
 
 module.exports = TextColumn;

@@ -125,7 +125,14 @@ var Downloader = {
     }).promise.then(() => {
       Sefaria._loadTOC();
     });
-    return Promise.all([lastUpdatePromise, tocPromise]).then(() => {
+    var hebCatPromise = RNFS.downloadFile({
+      fromUrl: HOST_PATH + "hebrew_categories.json",
+      toFile: RNFS.DocumentDirectoryPath + "/library/hebrew_categories.json",
+      background: true,
+    }).promise.then(() => {
+      Sefaria._loadHebrewCategories();
+    });
+    return Promise.all([lastUpdatePromise, tocPromise, hebCatPromise]).then(() => {
       var timestamp = new Date().toJSON();
       Downloader._setData("lastUpdateCheck", timestamp)
       Downloader._setData("lastUpdateSchema", SCHEMA_VERSION)

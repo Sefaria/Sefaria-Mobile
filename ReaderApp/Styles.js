@@ -327,6 +327,7 @@ module.exports = StyleSheet.create({
     flex: 1,
     maxWidth: 800,
     flexDirection: "column",
+    alignItems: "stretch",
   },
   textListHeader: {
     height: 50,
@@ -373,6 +374,9 @@ module.exports = StyleSheet.create({
     paddingHorizontal: iPad ? 20 : 10,
     paddingTop: 20,
     paddingBottom: 40
+  },
+  menuScrollViewContent: {
+    paddingBottom: 100,
   },
   languageToggle: {
     width: 30,
@@ -577,9 +581,10 @@ module.exports = StyleSheet.create({
     marginHorizontal: 30,
   },
   textColumn: {
+    flex: 1,
     maxWidth: 800,
-    flexDirection: "row",
-    alignItems: 'stretch'
+    flexDirection: "column",
+    alignItems: 'stretch',
   },
   sectionHeaderBox: {
     alignItems: "center",
@@ -604,6 +609,7 @@ module.exports = StyleSheet.create({
   },
   numberSegmentHolderEn: {
     flexDirection: "row",
+    justifyContent: "center",
   },
   numberSegmentHolderBiHe: {
     flexDirection: "row-reverse",
@@ -626,12 +632,6 @@ module.exports = StyleSheet.create({
     color: "#666",
     textAlign: "center",
     fontFamily: "Taamey Frank Taamim Fix",
-  },
-  textTocHeaderTitle: {
-    flex: 1,
-    paddingLeft: 10,
-    textAlign: 'center',
-    letterSpacing: 1
   },
   textTocVersionInfo: {
     flexDirection: "row",
@@ -831,6 +831,9 @@ module.exports = StyleSheet.create({
   strong: {
     fontWeight: "bold"
   },
+  small: {
+    fontSize: 14
+  },
   b: {
     fontWeight: "bold"
   },
@@ -847,5 +850,21 @@ module.exports = StyleSheet.create({
   },
   a: {
     fontWeight: "300",
+  },
+  hediv: {
+    fontFamily: "Taamey Frank Taamim Fix",
+    writingDirection: "rtl",
+    flex: -1,
+    paddingTop: 15,
+    marginTop: -10,
+    textAlign: "justify",
+  },
+  endiv: {
+    fontFamily: "Amiri",
+    textAlign: 'justify',
+    paddingTop: 15,
+    marginTop: -10,
   }
+
+
 });

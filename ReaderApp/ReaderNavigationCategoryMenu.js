@@ -98,7 +98,7 @@ class ReaderNavigationCategoryMenu extends React.Component {
                   language={language} />
               </View>
 
-              <ScrollView style={styles.menuContent}>
+              <ScrollView style={styles.menuContent} contentContainerStyle={styles.menuScrollViewContent}>
                   {toggle}
                   <CategoryAttribution
                     categories={categories}

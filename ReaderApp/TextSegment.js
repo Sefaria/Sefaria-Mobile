@@ -2,7 +2,7 @@
 
 import PropTypes from 'prop-types';
 
-import React, { Component } from 'react';
+import React from 'react';
 import {
   StyleSheet,
   Text,
@@ -13,22 +13,26 @@ import HTMLView from 'react-native-htmlview'; //to convert html'afied JSON to so
 var styles = require('./Styles.js');
 
 
-class TextSegment extends React.Component {
+class TextSegment extends React.PureComponent {
   static propTypes = {
     theme:              PropTypes.object.isRequired,
+    themeStr:           PropTypes.string.isRequired,
     rowRef:             PropTypes.string.isRequired, /* this ref keys into TextColumn.rowRefs */
-    segmentIndexRef:    PropTypes.number,
     segmentKey:         PropTypes.string,
     data:               PropTypes.string,
     textType:           PropTypes.oneOf(["english","hebrew"]),
     bilingual:          PropTypes.bool,
     textSegmentPressed: PropTypes.func.isRequired,
-    textListVisible:    PropTypes.bool.isRequired,
     settings:           PropTypes.object
   };
 
+  constructor(props) {
+    super(props);
+    this.state = {
+      resetKey: 0
+    };
+  }
   onPressTextSegment = () => {
-    console.log("press")
     let key = this.props.segmentKey;
     let section = parseInt(key.split(":")[0]);
     let segment = parseInt(key.split(":")[1]);
@@ -39,9 +43,15 @@ class TextSegment extends React.Component {
     // Do nothing -- need to prevent onPress from firing onLongPress
   };
 
+  componentWillReceiveProps(nextProps) {
+    if (this.props.themeStr !== nextProps.themeStr ||
+        this.props.settings.fontSize !== nextProps.settings.fontSize) {
+      this.setState({ resetKey: Math.random() }); //hacky fix to reset htmlview when theme colors change
+    }
+  }
   render() {
     // console.log(this.props.segmentKey+": "+typeof(this.props.textRef));
-    var style = this.props.textType == "hebrew" ?
+    const style = this.props.textType == "hebrew" ?
                   [styles.hebrewText, this.props.theme.text, styles.justifyText, {fontSize: this.props.settings.fontSize, lineHeight: this.props.settings.fontSize * 1.1},] :
                   [styles.englishText, this.props.theme.text, styles.justifyText, {fontSize: 0.8 * this.props.settings.fontSize, lineHeight: this.props.settings.fontSize * 1.04 }];
     if (this.props.bilingual && this.props.textType == "english") {
@@ -49,22 +59,26 @@ class TextSegment extends React.Component {
       style.push(this.props.theme.bilingualEnglishText);
     }
     return (
-      <Text
-        style={style}
-        suppressHighlighting={false}
-        onPress={this.onPressTextSegment}
-        onLongPress={this.onLongPress}
-        key={this.props.segmentKey}
-        onLayout={this.onLayout}
-        selectable={true} >
+           <HTMLView
+             key={this.state.resetKey}
+             value= {this.props.textType == "hebrew" ? "<hediv>"+this.props.data+"</hediv>" : "<endiv>"+this.props.data+"</endiv>"}
+             stylesheet={styles}
+             textComponentProps={
+               {
+                 suppressHighlighting: false,
+                 onPress:this.onPressTextSegment,
+                 onLongPress:this.onLongPress,
+                 key:this.props.segmentKey,
+                 style: style,
+               }
+             }
+             nodeComponentProps={
+               {
+                 selectable: true,
+               }
+             }
+           />
 
-          <HTMLView value={
-            this.props.textType == "english" ?
-              "&#x200E;"+Sefaria.reformatTalmudContent(this.props.data) :
-                this.props.data
-              } stylesheet={styles} />
-
-      </Text>
     );
   }
 }

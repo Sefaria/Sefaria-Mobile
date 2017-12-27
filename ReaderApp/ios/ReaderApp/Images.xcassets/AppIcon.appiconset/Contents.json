@@ -139,6 +139,12 @@
       "idiom" : "ipad",
       "filename" : "samekh-icon-167.png",
       "scale" : "2x"
+    },
+    {
+      "size" : "1024x1024",
+      "idiom" : "ios-marketing",
+      "filename" : "1024x1024bb-80.png",
+      "scale" : "1x"
     }
   ],
   "info" : {

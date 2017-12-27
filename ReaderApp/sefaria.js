@@ -15,6 +15,7 @@ Sefaria = {
     return Promise.all([
       Sefaria._loadTOC(),
       Sefaria.search._loadSearchTOC(),
+      Sefaria._loadHebrewCategories(),
       Sefaria._loadRecentItems(),
       Sefaria._loadCalendar(),
       Sefaria.downloader.init(),
@@ -236,6 +237,19 @@ Sefaria = {
           Sefaria._loadJSON(tocPath).then(function(data) {
             Sefaria.toc = data;
             Sefaria._cacheIndexFromToc(data);
+            resolve();
+          });
+        });
+    });
+  },
+  _loadHebrewCategories: function() {
+    return new Promise(function(resolve, reject) {
+      RNFS.exists(RNFS.DocumentDirectoryPath + "/library/hebrew_categories.json")
+        .then(function(exists) {
+          const hebCatPath = exists ? (RNFS.DocumentDirectoryPath + "/library/hebrew_categories.json") :
+                                      (RNFS.MainBundlePath + "/sources/hebrew_categories.json");
+          Sefaria._loadJSON(hebCatPath).then(function(data) {
+            Sefaria.hebrewCategories = data;
             resolve();
           });
         });
@@ -576,7 +590,7 @@ Sefaria = {
     // Returns a dictionary of the form {en: "", he: "", sectionRef: ""} that includes a single string with
     // Hebrew and English for `data.requestedRef` found in `data` as returned from Sefaria.data.
     // sectionRef is so that we know which file / api call to make to open this text
-    // `data.requestedRef` may be either section or segment level.
+    // `data.requestedRef` may be either section or segment level or ranged ref.
     if (data.isSectionLevel) {
       let enText = "", heText = "";
       for (let i = 0; i < data.content.length; i++) {
@@ -586,28 +600,37 @@ Sefaria = {
       }
       return new LinkContent(enText, heText, data.sectionRef);
     } else {
-      var segmentNumber = data.requestedRef.slice(data.ref.length+1);
+      let segmentNumber = data.requestedRef.slice(data.ref.length+1);
+      let toSegmentNumber = -1;
+      let dashIndex = segmentNumber.indexOf("-");
+      if (dashIndex !== -1) {
+        toSegmentNumber = segmentNumber.slice(dashIndex+1);
+        segmentNumber = segmentNumber.slice(0, dashIndex);
+      }
+      let enText = "";
+      let heText = "";
       for (let i = 0; i < data.content.length; i++) {
         let item = data.content[i];
-        if (item.segmentNumber === segmentNumber) {
-            let enText = "", heText = "";
-            if (typeof item.text === "string") enText = item.text;
-            if (typeof item.he === "string") heText = item.he;
-            return new LinkContent(enText, heText, data.sectionRef);
+        if (item.segmentNumber >= segmentNumber && (toSegmentNumber === -1 || item.segmentNumber <= toSegmentNumber)) {
+            if (typeof item.text === "string") enText += item.text + " ";
+            if (typeof item.he === "string") heText += item.he + " ";
+            if (toSegmentNumber === -1) {
+              break; //not a ranged ref
+            }
         }
       }
+      return new LinkContent(enText, heText, data.sectionRef);
     }
-    return null;
+
   },
   links: {
     _linkContentLoadingStack: [],
-    _linkContentLoadingHash: {},
     /* when you switch segments, delete stack and hashtable*/
     reset: function() {
       Sefaria.links._linkContentLoadingStack = [];
-      Sefaria.links._linkContentLoadingHash = {};
     },
     loadLinkData: function(ref,pos,resolveClosure,rejectClosure,runNow) {
+
       parseData = function(data) {
         return new Promise(function(resolve, reject) {
           if (data.fromAPI) {
@@ -615,8 +638,6 @@ Sefaria = {
           } else {
             var result = Sefaria.textFromRefData(data);
           }
-
-          // console.log(data.requestedRef + ": " + result.en + " / " + result.he);
           if (result) {
             resolve(result);
           } else {
@@ -631,16 +652,15 @@ Sefaria = {
           }
         });
       };
-      if (!runNow && !Sefaria.links._linkContentLoadingHash[ref]) {
+      if (!runNow) {
         //console.log("Putting in queue:",ref,"Length:",Sefaria.links._linkContentLoadingStack.length);
         Sefaria.links._linkContentLoadingStack.push({"ref":ref,"pos":pos,"resolveClosure":resolveClosure,"rejectClosure":rejectClosure});
-        Sefaria.links._linkContentLoadingHash[ref] = true;
       }
-      if ((Sefaria.links._linkContentLoadingStack.length == 1 && !Sefaria.links._linkContentLoadingStack[ref]) || runNow) {
+      if (Sefaria.links._linkContentLoadingStack.length == 1 || runNow) {
         //console.log("Starting to load",ref);
         return Sefaria.data(ref,true).then(parseData);
       } else {
-
+        //console.log("Rejecting", ref);
         return new Promise(function(resolve,reject) {
           reject('inQueue');
         })
@@ -1202,7 +1222,14 @@ Sefaria.hebrew = {
 
 Sefaria.hebrewCategory = function(cat) {
   // Returns a string translating `cat` into Hebrew.
-  var categories = {
+  if (Sefaria.hebrewCategories) {
+    // pregenerated hebrew categories from dump
+    if (cat in Sefaria.hebrewCategories) {
+      return Sefaria.hebrewCategories[cat];
+    }  
+  }
+
+  const categories = {
     "Torah": "תורה",
     "Tanakh": 'תנ"ך',
     "Tanakh": 'תנ"ך',

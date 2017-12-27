@@ -56,7 +56,7 @@ class ReaderApp extends React.Component {
     }.bind(this));
     Sefaria.track.init();
     NetInfo.isConnected.addEventListener(
-      'change',
+      'connectionChange',
       this.networkChangeListener
     );
 
@@ -121,6 +121,7 @@ class ReaderApp extends React.Component {
   }
 
   networkChangeListener = (isConnected) => {
+    console.log("netinfo", isConnected);
     this.setState({hasInternet: isConnected});
   };
 
@@ -184,7 +185,6 @@ class ReaderApp extends React.Component {
                 this.setState({linkSummary: linkSummary, loadingLinks: false})
               );
           }*/
-
           this.setState({
               data:              [data.content],
               textTitle:         data.indexTitle,
@@ -254,7 +254,8 @@ class ReaderApp extends React.Component {
   };
 
   updateData = (direction) => {
-      //console.log("updating data -- " + direction);
+      // direction: either "next" or "prev"
+      // shouldCull: bool, if True, remove either first or last section (depending on `direction`)
       if (direction === "next" && this.state.next) {
           this.updateDataNext();
           Sefaria.track.event("Reader","Infinite Scroll","Down");
@@ -279,8 +280,8 @@ class ReaderApp extends React.Component {
 
         this.setState({
           data: updatedData,
-          textReference: this.state.prev,
           prev: data.prev,
+          next: this.state.next,
           sectionArray: newTitleArray,
           sectionHeArray: newHeTitleArray,
           linksLoaded: newlinksLoaded,
@@ -298,7 +299,6 @@ class ReaderApp extends React.Component {
       Sefaria.data(this.state.next).then(function(data) {
 
         var updatedData = this.state.data.concat([data.content]);
-
         var newTitleArray = this.state.sectionArray;
         var newHeTitleArray = this.state.sectionHeArray;
         var newlinksLoaded = this.state.linksLoaded;
@@ -308,7 +308,7 @@ class ReaderApp extends React.Component {
 
         this.setState({
           data: updatedData,
-          textReference: this.state.next,
+          prev: this.state.prev,
           next: data.next,
           sectionArray: newTitleArray,
           sectionHeArray: newHeTitleArray,
@@ -348,7 +348,6 @@ class ReaderApp extends React.Component {
           ]);
         return;
       }
-
       this.setState({
         loaded: false,
         textReference: ref
@@ -527,19 +526,19 @@ class ReaderApp extends React.Component {
 
   loadLinkContent = (ref, pos) => {
     // Loads text content for `ref` then inserts it into `this.state.linkContents[pos]`
-    var isLinkCurrent = function(ref, pos) {
+    let isLinkCurrent = function(ref, pos) {
       // check that we haven't loaded a different link set in the mean time
       if (typeof this.state.linkRecentFilters[this.state.filterIndex] === "undefined") { return false;}
       var refList = this.state.linkRecentFilters[this.state.filterIndex].refList;
       if (pos > refList.length) { return false; }
       return (refList[pos] === ref);
     }.bind(this);
-    var resolve = (data) => {
+    let resolve = (data) => {
       if (isLinkCurrent(ref, pos)) {
           this.onLinkLoad(pos, data);
       }
     };
-    var reject = (error) => {
+    let reject = (error) => {
       if (error != 'inQueue') {
         if (isLinkCurrent(ref, pos)) {
             this.onLinkLoad(pos, {en:JSON.stringify(error), he:JSON.stringify(error), sectionRef: ""});
@@ -547,20 +546,28 @@ class ReaderApp extends React.Component {
       }
     };
 
-    var resolveClosure = function(ref, pos, data) {
+    let resolveClosure = function(ref, pos, data) {
       resolve(data);
     }.bind(this,ref,pos);
 
-    var rejectClosure = function(ref, pos, data) {
+    let rejectClosure = function(ref, pos, data) {
       reject(data);
     }.bind(this,ref,pos);
 
-    Sefaria.links.loadLinkData(ref, pos, resolveClosure, rejectClosure).then(resolve).catch(reject);
+    Sefaria.links.loadLinkData(ref, pos, resolveClosure, rejectClosure).then(resolveClosure).catch(rejectClosure);
   };
 
   onLinkLoad = (pos, data) => {
+    // truncate data if it's crazy long (e.g. Smag)
+    if (data.en.length > 1000) {
+      data.en = data.en.slice(0, 1000) + "...";
+    }
+    if (data.he.length > 1000) {
+      data.he = data.he.slice(0, 1000) + "...";
+    }
+
     this.state.linkContents[pos] = data;
-    this.setState({linkContents: this.state.linkContents});
+    this.setState({linkContents: this.state.linkContents.slice(0)});
   };
 
   clearOffsetRef = () => {

@@ -2,6 +2,7 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import {
+  StyleSheet,
 	Text,
 	TouchableOpacity,
 	View
@@ -23,9 +24,11 @@ class SearchTextResult extends React.Component {
 	  return (
 	    <TouchableOpacity style={[styles.searchTextResult, this.props.theme.searchTextResult]} onPress={this.props.onPress}>
 	      <Text style={[styles.en, styles.textListCitation, this.props.theme.textListCitation]}>{this.props.title}</Text>
-	        <Text style={[this.props.textType == "hebrew" ? styles.hebrewText : styles.englishText,this.props.theme.text]}>
-	        	<HTMLView value={this.props.text} stylesheet={styles}/>
-	        </Text>
+				<HTMLView
+          value= {this.props.textType == "hebrew" ? "<hediv>"+this.props.text+"</hediv>" : "<endiv>"+this.props.text+"</endiv>"}
+          stylesheet={styles}
+          textComponentProps={{style: [this.props.textType == "hebrew" ? styles.hebrewText : styles.englishText,this.props.theme.text]}}
+				/>
 	    </TouchableOpacity>
 	  );
 }

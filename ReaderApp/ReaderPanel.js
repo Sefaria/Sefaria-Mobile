@@ -119,11 +119,13 @@ class ReaderPanel extends React.Component {
         if (gestureState.pinch && gestureState.previousPinch) {
           this.pendingIncrement *= gestureState.pinch / gestureState.previousPinch
           if (!this.incrementTimer) {
+            const numSegments = this.props.data.reduce((prevVal, elem) => prevVal + elem.length, 0);
+            const timeout = Math.min(50 + Math.floor(numSegments/50)*25, 200); // range of timeout is [50,200] or in FPS [20,5]
             this.incrementTimer = setTimeout(() => {
               this.incrementFont(this.pendingIncrement);
               this.pendingIncrement = 1;
               this.incrementTimer = null;
-            }, 50);
+            }, timeout);
           }
         }
       },
@@ -194,7 +196,7 @@ class ReaderPanel extends React.Component {
     }
     Sefaria.track.event("Reader","Change Language", this.state.settings.language);
 
-    this.setState({settings: this.state.settings});
+    this.setState({settings: {...this.state.settings, language: this.state.settings.language }});
     Sefaria.settings.set("menuLanguage", this.state.settings.language);
   };
 
@@ -236,7 +238,7 @@ class ReaderPanel extends React.Component {
     updatedSettings.fontSize *= x;
     updatedSettings.fontSize = updatedSettings.fontSize > 60 ? 60 : updatedSettings.fontSize; // Max size
     updatedSettings.fontSize = updatedSettings.fontSize < 18 ? 18 : updatedSettings.fontSize; // Min size
-
+    updatedSettings.fontSize = parseFloat(updatedSettings.fontSize.toFixed(2));
     this.setState({settings: updatedSettings});
     Sefaria.settings.set("fontSize", updatedSettings.fontSize);
     Sefaria.track.event("Reader","Display Option Click","fontSize - " + increment);
@@ -371,7 +373,7 @@ class ReaderPanel extends React.Component {
         );
         break;
     }
-
+    let textColumnFlex = this.props.textListVisible && !this.props.loading ? 1.0 - this.props.textListFlex : 1.0;
     return (
   		<View style={[styles.container, this.props.theme.container]} onLayout={this.getWindowWidth} {...this.gestureResponder}>
           <CategoryColorLine category={Sefaria.categoryForTitle(this.props.textTitle)} />
@@ -389,7 +391,7 @@ class ReaderPanel extends React.Component {
 
           { this.props.loading ?
           <LoadingView theme={this.props.theme}/> :
-          <View style={[{flex: 1.0 - this.props.textListFlex}, styles.mainTextPanel, this.props.theme.mainTextPanel]}
+          <View style={[{flex: textColumnFlex}, styles.mainTextPanel, this.props.theme.mainTextPanel]}
                 onStartShouldSetResponderCapture={() => {
                   if (this.state.ReaderDisplayOptionsMenuVisible == true) {
                      this.toggleReaderDisplayOptionsMenu();
@@ -426,7 +428,7 @@ class ReaderPanel extends React.Component {
           </View> }
 
           {this.props.textListVisible && !this.props.loading ?
-            <View style={[{flex:this.props.textListFlex}, styles.commentaryTextPanel, this.props.theme.commentaryTextPanel]}
+            <View style={[{flex:this.props.textListFlex}, styles.mainTextPanel, this.props.theme.commentaryTextPanel]}
                 onStartShouldSetResponderCapture={() => {
                   if (this.state.ReaderDisplayOptionsMenuVisible == true) {
                      this.toggleReaderDisplayOptionsMenu();
