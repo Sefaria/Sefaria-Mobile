@@ -190,40 +190,40 @@ class SearchFilterPage extends React.Component {
 
 
 class SearchFilter extends React.Component {
-	static propTypes = {
-			theme:        PropTypes.object,
-			themeStr:     PropTypes.string,
-			settings:     PropTypes.object.isRequired,
-			filterNode:   FilterNode.checkPropType,
-			openSubMenu:  PropTypes.func,
-			updateFilter: PropTypes.func.isRequired,
-	};
+  static propTypes = {
+    theme:        PropTypes.object,
+      themeStr:     PropTypes.string,
+      settings:     PropTypes.object.isRequired,
+      filterNode:   FilterNode.checkPropType,
+      openSubMenu:  PropTypes.func,
+      updateFilter: PropTypes.func.isRequired,
+  };
 
-	clickCheckBox = () => {
-		this.props.updateFilter(this.props.filterNode);
-	}
+  clickCheckBox = () => {
+    this.props.updateFilter(this.props.filterNode);
+  }
 ///^[^_]*$
-	render() {
+  render() {
     let language = this.props.settings.language == "hebrew" ? "hebrew" : "english";
-		let filter = this.props.filterNode;
-		let isCat = filter.children.length > 0;
-		let title = isCat ? filter.title.toUpperCase() : filter.title;
-		let heTitle = filter.heTitle;
-		let count = filter.docCount;
+    let filter = this.props.filterNode;
+    let isCat = filter.children.length > 0;
+    let title = isCat ? filter.title.toUpperCase() : filter.title;
+    let heTitle = filter.heTitle;
+    let count = filter.docCount;
 
-		let colorCat = Sefaria.palette.categoryColor(filter.title.replace(" Commentaries", ""));
-		let colorStyle = isCat ? [{"borderColor": colorCat}] : [this.props.theme.searchResultSummary, {"borderTopWidth": 1}];
-		let textStyle  = [isCat ? styles.spacedText : null];
-		let flexDir = language == "english" ? "row" : "row-reverse";
-		return (
-			<TouchableOpacity
-				onPress={()=>{ this.props.openSubMenu ? this.props.openSubMenu(filter.title) : this.clickCheckBox() }}
-				style={[styles.searchFilterCat, {flexDirection: flexDir}].concat(colorStyle)}>
-				<View style={{flexDirection: flexDir, alignItems: "center"}}>
-					<TouchableOpacity style={{paddingHorizontal: 10, paddingVertical: 15}} onPress={this.clickCheckBox} >
-						<IndeterminateCheckBox themeStr={this.props.themeStr} state={this.props.filterNode.selected} onPress={this.clickCheckBox} />
-					</TouchableOpacity>
-					{ language == "english" ?
+    let colorCat = Sefaria.palette.categoryColor(filter.title.replace(" Commentaries", ""));
+    let colorStyle = isCat ? [{"borderColor": colorCat}] : [this.props.theme.searchResultSummary, {"borderTopWidth": 1}];
+    let textStyle  = [isCat ? styles.spacedText : null];
+    let flexDir = language == "english" ? "row" : "row-reverse";
+    return (
+      <TouchableOpacity
+      onPress={()=>{ this.props.openSubMenu ? this.props.openSubMenu(filter.title) : this.clickCheckBox() }}
+        style={[styles.searchFilterCat, {flexDirection: flexDir}].concat(colorStyle)}>
+        <View style={{flexDirection: flexDir, alignItems: "center"}}>
+          <TouchableOpacity style={{paddingHorizontal: 10, paddingVertical: 15}} onPress={this.clickCheckBox} >
+            <IndeterminateCheckBox themeStr={this.props.themeStr} state={this.props.filterNode.selected} onPress={this.clickCheckBox} />
+            </TouchableOpacity>
+            { language == "english" ?
                         <Text style={[styles.englishText].concat([this.props.theme.tertiaryText, textStyle, {paddingTop:3}])}>
                           {`${title} `}<Text style={[styles.englishText].concat([this.props.theme.secondaryText, textStyle])}>{`(${count})`}</Text>
                         </Text>

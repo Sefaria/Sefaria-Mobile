@@ -5,13 +5,12 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import {
   Text,
-  ListView,
+  FlatList,
   View
 } from 'react-native';
 
 const styles = require('./Styles');
 const SearchTextResult = require('./SearchTextResult');
-
 
 class SearchResultList extends React.Component {
   static propTypes = {
@@ -26,10 +25,6 @@ class SearchResultList extends React.Component {
     isExact:        PropTypes.bool,
   };
 
-  state = {
-    dataSource: new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2}),
-  };
-
   onEndReached = () => {
     if (this.props.loadingTail) {
       //already loading tail
@@ -38,47 +33,54 @@ class SearchResultList extends React.Component {
     this.props.setLoadTail(true);
   };
 
-  renderRow = (rowData) => {
+  renderRow = ({ item }) => {
     return (
       <SearchTextResult
         theme={this.props.theme}
-        textType={rowData.textType}
-        title={rowData.title}
-        text={rowData.text}
-        onPress={this.props.openRef.bind(null,rowData.title)} />
+        textType={item.textType}
+        title={item.title}
+        text={item.text}
+        onPress={this.props.openRef.bind(null,item.title)} />
     );
   };
 
   componentDidUpdate() {
-  	if (this.props.isNewSearch)
-  		this.props.setIsNewSearch(false);
+    if (this.props.isNewSearch)
+      this.props.setIsNewSearch(false);
   }
 
   scrollToSearchResult = () => {
-    this.refs.searchResultsListView.scrollTo({
-               x: 0,
-               y: this.props.initSearchScrollPos || 0,
-               animated: false
-            })
+    console.log("init", this.props.initSearchScrollPos);
+    this.flatListRef._listRef.scrollToOffset({
+       offset: this.props.initSearchScrollPos || 0,
+       animated: false,
+    });
   };
 
   setCurScrollPos = () => {
-    this.props.setInitSearchScrollPos(this.refs.searchResultsListView.scrollProperties.offset);
+    this.props.setInitSearchScrollPos(this.flatListRef._listRef._scrollMetrics.offset);
+  };
+
+  _setFlatListRef = (ref) => {
+    this.flatListRef = ref;
+  };
+
+  _keyExtractor = (item, index) => {
+    return item.title + "|" + item.textType;
   };
 
   render() {
   	//if isNewSearch, temporarily hide the ListView, which apparently resets the scroll position to the top
   	if (this.props.queryResult && !this.props.isNewSearch) {
-	    var dataSourceRows = this.state.dataSource.cloneWithRows(this.props.queryResult);
-
 	    return (
-	      <ListView
-          ref="searchResultsListView"
-	        dataSource={dataSourceRows}
-          initialListSize={this.props.initSearchListSize || 20}
-	        renderRow={this.renderRow}
+	      <FlatList
+          ref={this._setFlatListRef}
+	        data={this.props.queryResult}
+          getItemLayout={this.getItemLayout}
+	        renderItem={this.renderRow}
           onLayout={this.scrollToSearchResult}
           onScroll={this.setCurScrollPos}
+          keyExtractor={this._keyExtractor}
           scrollEventThrottle={100}
 	        onEndReached={this.onEndReached}
           contentContainerStyle={{marginBottom:50}}/>

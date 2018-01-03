@@ -170,7 +170,7 @@ class CollapseIcon extends React.Component {
 class DirectedButton extends React.Component {
   //simple button with onPress() and a forward/back arrow. NOTE: arrow should change direction depending on interfaceLang
   static propTypes = {
-    text:       PropTypes.string,
+    text:       PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
     themeStr:   PropTypes.string.isRequired,
     language:   PropTypes.oneOf(["hebrew", "english"]).isRequired,
     textStyle:  PropTypes.oneOfType([Text.propTypes.style, PropTypes.array]),
