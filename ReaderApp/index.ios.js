@@ -401,7 +401,7 @@ class ReaderApp extends React.Component {
   };
 
   openNav = () => {
-      this.setState({loaded: true});
+      this.setState({loaded: true, appliedSearchFilters: [], searchFiltersValid: false});
       this.openMenu("navigation");
   };
 
@@ -433,7 +433,9 @@ class ReaderApp extends React.Component {
 
   clearMenuState = () => {
       this.setState({
-          navigationCategories: []
+          navigationCategories: [],
+          appliedSearchFilters: [],
+          searchFiltersValid: false,
       });
   };
 
@@ -655,7 +657,7 @@ class ReaderApp extends React.Component {
 
     //var req = JSON.stringify(Sefaria.search.get_query_object(query,false,[],20,20*newSearchPage,"text"));
     var request_filters = this.state.searchFiltersValid && this.state.appliedSearchFilters;
-    console.log("get filters", getFilters);
+    console.log("request filters", request_filters);
     var queryProps = {
       query: query,
       size: size,

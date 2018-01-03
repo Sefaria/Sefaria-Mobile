@@ -2,7 +2,7 @@ const FilterNode = require('./FilterNode');
 const RNFS       = require('react-native-fs');
 
 var Search = {
-  baseUrl: "https://search.sefaria.org/merged-d/_search/",
+  baseUrl: "https://search.sefaria.org/merged/_search/",
   _cache: {},
   cache: function(key, result) {
     if (result !== undefined) {
@@ -106,9 +106,9 @@ var Search = {
       var o = {
         "from": from,
         "size": size,
-        "_source": {
+        /*"_source": {
           "exclude": [ field ]
-        },
+        },*/
         "highlight": {
           "pre_tags": ["<b>"],
           "post_tags": ["</b>"],
@@ -135,9 +135,9 @@ var Search = {
           }
         }
       }
-
+      const has_filters = !!applied_filters && applied_filters.length > 0;
       var inner_query = {};
-      if (get_filters) {
+      if (get_filters && !has_filters) {
         //Initial, unfiltered query.  Get potential filters.
         if (type) {
           inner_query = {
@@ -147,8 +147,7 @@ var Search = {
             }
           };
         } else {
-          inner_query = core_query
-
+          inner_query = core_query;
         }
 
         o['aggs'] = {
@@ -222,6 +221,14 @@ var Search = {
             }
           }
         };
+        if (get_filters) {
+          o['aggs']['category'] = {
+            "terms": {
+              "field": "path",
+              "size": 0
+            }
+          };
+        }
       }
 
       //after that confusing logic, hopefully inner_query is defined properly
@@ -307,9 +314,8 @@ var Search = {
 
       for(var j = 0; j < Sefaria.search.search_toc.length; j++) {
         var b = walk.call(this, Sefaria.search.search_toc[j]);
-        if (b) filters.push(b);
+        if (b && b.children.length > 0) filters.push(b); // added check for children length to weed out categories without any children that appear in current toc
 
-        // Remove after commentary refactor ?
         // If there is commentary on this node, add it as a sibling
         if (commentaryNode.hasChildren()) {
           var toc_branch = Sefaria.toc[j];
@@ -338,7 +344,9 @@ var Search = {
         node["docCount"] = 0;
 
         if("category" in branch) { // Category node
-
+          //if (branch['category'] === "Philosophy Commentaries") {
+          //  debugger;
+          //}
           path.push(branch["category"]);  // Place this category at the *end* of the path
           Object.assign(node, {
             "title": path.slice(-1)[0],

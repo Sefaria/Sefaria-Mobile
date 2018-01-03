@@ -221,11 +221,6 @@ class ReaderPanel extends React.Component {
     Sefaria.track.event("Reader", "Display Option Click", "language - " + textLanguage);
   };
 
-  getWindowWidth = () => {
-    this.state.windowWidth = Dimensions.get('window').width;
-    this.forceUpdate();
-  };
-
   incrementFont = (increment) => {
     if (increment == "larger") {
       var x = 1.1;
@@ -375,7 +370,7 @@ class ReaderPanel extends React.Component {
     }
     let textColumnFlex = this.props.textListVisible && !this.props.loading ? 1.0 - this.props.textListFlex : 1.0;
     return (
-  		<View style={[styles.container, this.props.theme.container]} onLayout={this.getWindowWidth} {...this.gestureResponder}>
+  		<View style={[styles.container, this.props.theme.container]} {...this.gestureResponder}>
           <CategoryColorLine category={Sefaria.categoryForTitle(this.props.textTitle)} />
           <ReaderControls
             theme={this.props.theme}
