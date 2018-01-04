@@ -15,6 +15,7 @@ import {
 	ListView,
 	Modal,
   NetInfo,
+  SafeAreaView,
   ScrollView,
   StatusBar,
   StyleSheet,
@@ -773,92 +774,94 @@ class ReaderApp extends React.Component {
   };
 
   render() {
-      return (
-          <View style={[styles.container, this.state.theme.container]} {...this.gestureResponder}>
-              <StatusBar
-                  barStyle="light-content" />
-              <ReaderPanel
-                  textReference={this.state.textReference}
-                  textTitle={this.state.textTitle}
-                  heTitle={this.state.heTitle}
-                  heRef={this.state.heRef}
-                  data={this.state.data}
-                  next={this.state.next}
-                  prev={this.state.prev}
-                  sectionArray={this.state.sectionArray}
-                  sectionHeArray={this.state.sectionHeArray}
-                  offsetRef={this.state.offsetRef}
-                  segmentRef={this.state.segmentRef}
-                  segmentIndexRef={this.state.segmentIndexRef}
-                  textList={0}
-                  menuOpen={this.state.menuOpen}
-                  subMenuOpen={this.state.subMenuOpen}
-                  navigationCategories={this.state.navigationCategories}
-                  style={styles.mainTextPanel}
-                  updateData={this.updateData}
-                  updateTitle={this.updateTitle}
-                  textSegmentPressed={ this.textSegmentPressed }
-                  openRef={ this.openRef }
-                  interfaceLang={this.state.interfaceLang}
-                  openMenu={this.openMenu}
-                  openSubMenu={this.openSubMenu}
-                  closeMenu={this.closeMenu}
-                  openNav={this.openNav}
-                  setNavigationCategories={this.setNavigationCategories}
-                  openSettings={this.openMenu.bind(null, "settings")}
-                  openTextToc={this.openTextToc}
-                  openSearch={this.openSearch}
-                  openRecent={this.openMenu.bind(null,"recent")}
-                  loadingTextTail={this.state.loadingTextTail}
-                  loadingTextHead={this.state.loadingTextHead}
-                  textListVisible={this.state.textListVisible}
-                  textListFlex={this.state.textListFlex}
-                  onTextListDragStart={this.onTextListDragStart}
-                  onTextListDragMove={this.onTextListDragMove}
-                  onTextListDragEnd={this.onTextListDragEnd}
-                  loading={!this.state.loaded}
-                  defaultSettingsLoaded={this.state.defaultSettingsLoaded}
-                  openLinkCat={this.openLinkCat}
-                  closeLinkCat={this.closeLinkCat}
-                  updateLinkCat={this.updateLinkCat}
-                  loadLinkContent={this.loadLinkContent}
-                  filterIndex={this.state.filterIndex}
-                  linksLoaded={this.state.linksLoaded}
-                  linkRecentFilters={this.state.linkRecentFilters}
-                  linkSummary={this.state.linkSummary}
-                  linkContents={this.state.linkContents}
-                  loadingLinks={this.state.loadingLinks}
-                  setTheme={this.setTheme}
-                  theme={this.state.theme}
-                  themeStr={this.state.themeStr}
-                  hasInternet={this.state.hasInternet}
-                  isQueryRunning={this.state.isQueryRunning}
-                  searchQuery={this.state.searchQuery}
-                  searchSort={this.state.searchSort}
-                  searchIsExact={this.state.searchIsExact}
-                  availableSearchFilters={this.state.availableSearchFilters}
-                  appliedSearchFilters={this.state.appliedSearchFilters}
-                  updateSearchFilter={this.updateSearchFilter}
-                  searchFiltersValid={this.state.searchFiltersValid}
-                  isQueryLoadingTail={this.state.isQueryLoadingTail}
-                  initSearchListSize={this.state.initSearchListSize}
-                  initSearchScrollPos={this.state.initSearchScrollPos}
-                  setInitSearchScrollPos={this.setInitSearchScrollPos}
-                  isNewSearch={this.state.isNewSearch}
-                  numSearchResults={this.state.numSearchResults}
-                  currSearchPage={this.state.currSearchPage}
-                  searchQueryResult={this.state.searchQueryResult}
-                  backStack={this.state.backStack}
-                  goBack={this.goBack}
-                  onQueryChange={this.onQueryChange}
-                  setLoadQueryTail={this.setLoadQueryTail}
-                  setIsNewSearch={this.setIsNewSearch}
-                  clearAllSearchFilters={this.clearAllSearchFilters}
-                  search={this.search}
-                  setSearchOptions={this.setSearchOptions}
-                  Sefaria={Sefaria} />
-          </View>
-      );
+    return (
+      <SafeAreaView style={styles.safeArea}>
+        <View style={[styles.container, this.state.theme.container]} {...this.gestureResponder}>
+            <StatusBar
+                barStyle="light-content" />
+            <ReaderPanel
+                textReference={this.state.textReference}
+                textTitle={this.state.textTitle}
+                heTitle={this.state.heTitle}
+                heRef={this.state.heRef}
+                data={this.state.data}
+                next={this.state.next}
+                prev={this.state.prev}
+                sectionArray={this.state.sectionArray}
+                sectionHeArray={this.state.sectionHeArray}
+                offsetRef={this.state.offsetRef}
+                segmentRef={this.state.segmentRef}
+                segmentIndexRef={this.state.segmentIndexRef}
+                textList={0}
+                menuOpen={this.state.menuOpen}
+                subMenuOpen={this.state.subMenuOpen}
+                navigationCategories={this.state.navigationCategories}
+                style={styles.mainTextPanel}
+                updateData={this.updateData}
+                updateTitle={this.updateTitle}
+                textSegmentPressed={ this.textSegmentPressed }
+                openRef={ this.openRef }
+                interfaceLang={this.state.interfaceLang}
+                openMenu={this.openMenu}
+                openSubMenu={this.openSubMenu}
+                closeMenu={this.closeMenu}
+                openNav={this.openNav}
+                setNavigationCategories={this.setNavigationCategories}
+                openSettings={this.openMenu.bind(null, "settings")}
+                openTextToc={this.openTextToc}
+                openSearch={this.openSearch}
+                openRecent={this.openMenu.bind(null,"recent")}
+                loadingTextTail={this.state.loadingTextTail}
+                loadingTextHead={this.state.loadingTextHead}
+                textListVisible={this.state.textListVisible}
+                textListFlex={this.state.textListFlex}
+                onTextListDragStart={this.onTextListDragStart}
+                onTextListDragMove={this.onTextListDragMove}
+                onTextListDragEnd={this.onTextListDragEnd}
+                loading={!this.state.loaded}
+                defaultSettingsLoaded={this.state.defaultSettingsLoaded}
+                openLinkCat={this.openLinkCat}
+                closeLinkCat={this.closeLinkCat}
+                updateLinkCat={this.updateLinkCat}
+                loadLinkContent={this.loadLinkContent}
+                filterIndex={this.state.filterIndex}
+                linksLoaded={this.state.linksLoaded}
+                linkRecentFilters={this.state.linkRecentFilters}
+                linkSummary={this.state.linkSummary}
+                linkContents={this.state.linkContents}
+                loadingLinks={this.state.loadingLinks}
+                setTheme={this.setTheme}
+                theme={this.state.theme}
+                themeStr={this.state.themeStr}
+                hasInternet={this.state.hasInternet}
+                isQueryRunning={this.state.isQueryRunning}
+                searchQuery={this.state.searchQuery}
+                searchSort={this.state.searchSort}
+                searchIsExact={this.state.searchIsExact}
+                availableSearchFilters={this.state.availableSearchFilters}
+                appliedSearchFilters={this.state.appliedSearchFilters}
+                updateSearchFilter={this.updateSearchFilter}
+                searchFiltersValid={this.state.searchFiltersValid}
+                isQueryLoadingTail={this.state.isQueryLoadingTail}
+                initSearchListSize={this.state.initSearchListSize}
+                initSearchScrollPos={this.state.initSearchScrollPos}
+                setInitSearchScrollPos={this.setInitSearchScrollPos}
+                isNewSearch={this.state.isNewSearch}
+                numSearchResults={this.state.numSearchResults}
+                currSearchPage={this.state.currSearchPage}
+                searchQueryResult={this.state.searchQueryResult}
+                backStack={this.state.backStack}
+                goBack={this.goBack}
+                onQueryChange={this.onQueryChange}
+                setLoadQueryTail={this.setLoadQueryTail}
+                setIsNewSearch={this.setIsNewSearch}
+                clearAllSearchFilters={this.clearAllSearchFilters}
+                search={this.search}
+                setSearchOptions={this.setSearchOptions}
+                Sefaria={Sefaria} />
+        </View>
+      </SafeAreaView>
+    );
   }
 }
 
