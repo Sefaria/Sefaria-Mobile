@@ -6,7 +6,6 @@
 
 import React, { Component } from 'react';
 import {
-  ActivityIndicatorIOS,
   AlertIOS,
   Animated,
   AppRegistry,
