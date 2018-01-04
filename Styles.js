@@ -9,7 +9,7 @@ module.exports = StyleSheet.create({
   safeArea: {
     flex: 1,
     backgroundColor: "#000",
-  }
+  },
   modal: {
     justifyContent: 'center',
     flex: 1,
