@@ -1,6 +1,5 @@
 'use strict'
 import {
-  Dimensions,
   StyleSheet,
 } from 'react-native';
 

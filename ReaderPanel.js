@@ -11,7 +11,6 @@ import {
   Image,
   ListView,
   Modal,
-  Dimensions
 } from 'react-native';
 import {createResponder} from 'react-native-gesture-responder';
 
@@ -168,7 +167,6 @@ class ReaderPanel extends React.Component {
     this.setState({
       textFlow: 'segmented',   // alternative is 'continuous'
       textLanguage: Sefaria.settings.textLanguage(this.props.textTitle),
-      windowWidth: Dimensions.get('window').width,
       settings: {
         language:      Sefaria.settings.menuLanguage,
         fontSize:      Sefaria.settings.fontSize,

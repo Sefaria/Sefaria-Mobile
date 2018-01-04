@@ -1,6 +1,6 @@
 'use strict'
 const React = require('react-native');
-const {StyleSheet,Dimensions} = React;
+const { StyleSheet } = React;
 
 var Colors = {
   border: "#444",
