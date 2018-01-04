@@ -1,7 +1,6 @@
 'use strict';
 
 import PropTypes from 'prop-types';
-
 import React, { Component } from 'react';
 import {
   StyleSheet,
@@ -12,6 +11,8 @@ import {
   ScrollView,
   Alert
 } from 'react-native';
+import VersionNumber from 'react-native-version-number';
+ 
 var ProgressBar = require('./ProgressBar');
 var {
   CategoryColorLine,
@@ -182,6 +183,14 @@ class SettingsPage extends React.Component {
                   </View>
 
                 }
+
+                <View style={[styles.readerDisplayOptionsMenuDivider, styles.settingsDivider, this.props.theme.readerDisplayOptionsMenuDivider]}/>
+
+                <View>
+                  <Text style={[styles.settingsSectionHeader, this.props.theme.tertiaryText]}>
+                    {strings.appVersion}: {VersionNumber.appVersion}
+                  </Text>
+                </View>
               </ScrollView>
             </View>);
   }
