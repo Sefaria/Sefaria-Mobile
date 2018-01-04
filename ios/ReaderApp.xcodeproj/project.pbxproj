@@ -38,7 +38,6 @@
 		2D02E4C81E0B4AEC006451C7 /* libRCTWebSocket-tvOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3DAD3E991DF850E9000B6D8A /* libRCTWebSocket-tvOS.a */; };
 		2D02E4C91E0B4AEC006451C7 /* (null) in Frameworks */ = {isa = PBXBuildFile; };
 		2DCD954D1E0B4F2C00145EB5 /* ReaderAppTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E356F21AD99517003FC87E /* ReaderAppTests.m */; };
-		5E9157361DD0AC6A00FF2AA8 /* (null) in Frameworks */ = {isa = PBXBuildFile; };
 		832341BD1AAA6AB300B99B32 /* libRCTText.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 832341B51AAA6A8300B99B32 /* libRCTText.a */; };
 		A106F3A21DEFE49300497F98 /* (null) in Frameworks */ = {isa = PBXBuildFile; };
 		A1259D101DF7BDBC00E51FC9 /* libReactNativeLocalization.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0717F15D1DF462FD003F96EC /* libReactNativeLocalization.a */; };
@@ -62,6 +61,7 @@
 		ADBDB9381DFEBF1600ED6528 /* libRCTBlob.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ADBDB9271DFEBF0700ED6528 /* libRCTBlob.a */; };
 		DD24DA6B1DCBADD200954157 /* OpenSans-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = DD24DA681DCBADD200954157 /* OpenSans-Light.ttf */; };
 		DD24DA6C1DCBADD200954157 /* OpenSans-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = DD24DA691DCBADD200954157 /* OpenSans-Regular.ttf */; };
+		DD4015F91FFEF313004EA1F9 /* (null) in Frameworks */ = {isa = PBXBuildFile; };
 		DD7B126F1DBACAEE00AC4D6C /* EBGaramond-Italic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = DD7B126E1DBACAEE00AC4D6C /* EBGaramond-Italic.ttf */; };
 		EB6EBB93837A483F9AFC5537 /* libRNZipArchive.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F4855C9C71D648A08C39152A /* libRNZipArchive.a */; };
 /* End PBXBuildFile section */
@@ -471,9 +471,8 @@
 				A1C678261DB8000A00392A83 /* libz.tbd in Frameworks */,
 				A1C678221DB7FF8000392A83 /* libRNFS.a in Frameworks */,
 				ADBDB9381DFEBF1600ED6528 /* libRCTBlob.a in Frameworks */,
-				5E9157361DD0AC6A00FF2AA8 /* (null) in Frameworks */,
+				DD4015F91FFEF313004EA1F9 /* (null) in Frameworks */,
 				146834051AC3E58100842450 /* libReact.a in Frameworks */,
-				5E9157361DD0AC6A00FF2AA8 /* (null) in Frameworks */,
 				00C302E51ABCBA2D00DB3ED1 /* libRCTActionSheet.a in Frameworks */,
 				00C302E71ABCBA2D00DB3ED1 /* libRCTGeolocation.a in Frameworks */,
 				00C302E81ABCBA2D00DB3ED1 /* libRCTImage.a in Frameworks */,
@@ -882,7 +881,7 @@
 		83CBB9F71A601CBA00E9B192 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 810;
+				LastUpgradeCheck = 0920;
 				ORGANIZATIONNAME = Facebook;
 				TargetAttributes = {
 					00E356ED1AD99517003FC87E = {
@@ -1693,14 +1692,20 @@
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
@@ -1744,14 +1749,20 @@
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
