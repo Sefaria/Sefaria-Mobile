@@ -5,9 +5,6 @@ import {
 
 const iPad = require('./isIPad');
 
-
-var Sefaria = require('./sefaria'); // Included for Sefaria.palette
-
 module.exports = StyleSheet.create({
   modal: {
     justifyContent: 'center',
