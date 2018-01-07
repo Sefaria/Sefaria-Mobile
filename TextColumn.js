@@ -466,7 +466,14 @@ class TextColumn extends React.Component {
   }
   waitForScrollToLocation = (i) => {
     if (!this._isMounted) { return; }
-    const topVis = this.sectionListRef._wrapperListRef._listRef._viewabilityHelper._viewableIndices[0];
+    
+    try {
+      const topVis = this.sectionListRef._wrapperListRef._listRef._viewabilityHelper._viewableIndices[0];
+    } catch (e) {
+      setTimeout(()=>{this.waitForScrollToLocation(i+1)}, 20);
+      return;
+    }
+    
     if (topVis !== this.targetScrollIndex) {
       this.setState({itemLayoutList: null}, ()=>{this.onTopReaching = false});
       this.sectionListRef.scrollToLocation({
