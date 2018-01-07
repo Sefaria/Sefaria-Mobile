@@ -6,6 +6,10 @@ import {
 const iPad = require('./isIPad');
 
 module.exports = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: "#000",
+  },
   modal: {
     justifyContent: 'center',
     flex: 1,
@@ -821,7 +825,6 @@ module.exports = StyleSheet.create({
   rtlRow: {
     flexDirection: "row-reverse"
   },
-
 
 //HTML Styles:
   strong: {
