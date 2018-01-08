@@ -1,4 +1,9 @@
+import {
+  AlertIOS
+} from 'react-native';
+
 const FilterNode = require('./FilterNode');
+const strings = require('./LocalizedStrings');
 const RNFS       = require('react-native-fs');
 
 var Search = {
