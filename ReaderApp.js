@@ -208,9 +208,9 @@ class ReaderApp extends React.Component {
     Sefaria.api.links(ref)
       .then((linksResponse)=>{
         //add the links into the appropriate section and reload
-        this.state.sectionArray.map((secRef,iSec)=>{
+        this.state.sectionArray.map((secRef, iSec) => {
           if (secRef == ref) {
-            this.state.data[iSec] = Sefaria.api.addLinksToText(this.state.data[iSec],linksResponse);
+            this.state.data[iSec] = Sefaria.api.addLinksToText(this.state.data[iSec], linksResponse);
             let tempLinksLoaded = this.state.linksLoaded.slice(0);
             tempLinksLoaded[iSec] = true;
             if (this.state.segmentIndexRef != -1 && this.state.sectionIndexRef != -1) {
@@ -474,12 +474,12 @@ class ReaderApp extends React.Component {
       if (linkSummary == null) linkSummary = this.state.linkSummary;
       if (filterIndex == null) filterIndex = this.state.filterIndex;
 
-      var filterStr   = this.state.linkRecentFilters[filterIndex].title;
-      var filterStrHe = this.state.linkRecentFilters[filterIndex].heTitle;
-      var category    = this.state.linkRecentFilters[filterIndex].category;
-      var collectiveTitle = this.state.linkRecentFilters[filterIndex].collectiveTitle;
+      var filterStr         = this.state.linkRecentFilters[filterIndex].title;
+      var filterStrHe       = this.state.linkRecentFilters[filterIndex].heTitle;
+      var category          = this.state.linkRecentFilters[filterIndex].category;
+      var collectiveTitle   = this.state.linkRecentFilters[filterIndex].collectiveTitle;
       var heCollectiveTitle = this.state.linkRecentFilters[filterIndex].heCollectiveTitle;
-      var nextRefList = [];
+      var nextRefList       = [];
 
       for (let cat of linkSummary) {
           if (cat.category == filterStr) {
@@ -507,7 +507,7 @@ class ReaderApp extends React.Component {
   };
 
   loadLinkContent = (ref, pos) => {
-    // Loads text content for `ref` then inserts it into `this.state.linkContents[pos]`
+    // Loads link content for `ref` then inserts it into `this.state.linkContents[pos]`
     let isLinkCurrent = function(ref, pos) {
       // check that we haven't loaded a different link set in the mean time
       if (typeof this.state.linkRecentFilters[this.state.filterIndex] === "undefined") { return false;}
@@ -530,11 +530,11 @@ class ReaderApp extends React.Component {
 
     let resolveClosure = function(ref, pos, data) {
       resolve(data);
-    }.bind(this,ref,pos);
+    }.bind(this, ref, pos);
 
     let rejectClosure = function(ref, pos, data) {
       reject(data);
-    }.bind(this,ref,pos);
+    }.bind(this, ref, pos);
 
     Sefaria.links.loadLinkData(ref, pos, resolveClosure, rejectClosure).then(resolveClosure).catch(rejectClosure);
   };

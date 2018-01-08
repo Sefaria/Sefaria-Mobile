@@ -625,13 +625,12 @@ Sefaria = {
   },
   links: {
     _linkContentLoadingStack: [],
-    /* when you switch segments, delete stack and hashtable*/
+    /* when you switch segments, delete stack and hashtable */
     reset: function() {
       Sefaria.links._linkContentLoadingStack = [];
     },
-    loadLinkData: function(ref,pos,resolveClosure,rejectClosure,runNow) {
-
-      parseData = function(data) {
+    loadLinkData: function(ref, pos, resolveClosure, rejectClosure, runNow) {
+       const parseData = function(data) {
         return new Promise(function(resolve, reject) {
           if (data.fromAPI) {
             var result = data.result;
@@ -648,147 +647,156 @@ Sefaria = {
           //console.log("Removing from queue:",prev.ref,"Length:",Sefaria.links._linkContentLoadingStack.length);
           if (Sefaria.links._linkContentLoadingStack.length > 0) {
             let next = Sefaria.links._linkContentLoadingStack[0]; //Sefaria.links._linkContentLoadingStack.length-1
-            Sefaria.links.loadLinkData(next.ref,next.pos,null,null,true).then(next.resolveClosure).catch(next.rejectClosure);
+            Sefaria.links.loadLinkData(next.ref, next.pos, null, null, true)
+                            .then(next.resolveClosure)
+                            .catch(next.rejectClosure);
           }
         });
       };
+
       if (!runNow) {
         //console.log("Putting in queue:",ref,"Length:",Sefaria.links._linkContentLoadingStack.length);
-        Sefaria.links._linkContentLoadingStack.push({"ref":ref,"pos":pos,"resolveClosure":resolveClosure,"rejectClosure":rejectClosure});
+        Sefaria.links._linkContentLoadingStack.push({
+                                                      "ref":ref, 
+                                                      "pos":pos,
+                                                      "resolveClosure":resolveClosure, 
+                                                      "rejectClosure":rejectClosure
+                                                    });
       }
       if (Sefaria.links._linkContentLoadingStack.length == 1 || runNow) {
         //console.log("Starting to load",ref);
-        return Sefaria.data(ref,true).then(parseData);
+        return Sefaria.data(ref, true).then(parseData);
       } else {
         //console.log("Rejecting", ref);
-        return new Promise(function(resolve,reject) {
+        return new Promise(function(resolve, reject) {
           reject('inQueue');
         })
       }
+
     },
-    linkSummary: function(sectionRef, tempLinks) {
-        return new Promise(function(resolve, reject) {
-          // Returns an ordered array summarizing the link counts by category and text
-          // Takes an array of links which are of the form { "category", "sourceHeRef", "sourceRef", "textTitle"}
-          let links = tempLinks || [];
-          var summary = {"All": {count: 0, books: {}}, "Commentary": {count: 0, books: {}}};
-          
-          // Process tempLinks if any
-          for (let link of links) {
-            // Count Category
-            if (link.category in summary) {
-              summary[link.category].count += 1
-            } else {
-              summary[link.category] = {count: 1, books: {}};
-            }
-            summary["All"].count += 1;
+    linkSummary: function(sectionRef, links=[]) {
+      // Returns a categories and sorted summary of `links` with `sectionRef` (used to show empty commentators).
+      return new Promise(function(resolve, reject) {
+        // Returns an ordered array summarizing the link counts by category and text
+        // Takes an array of links which are of the form { "category", "sourceHeRef", "sourceRef", "textTitle"}
+        var summary = {"All": {count: 0, books: {}}, "Commentary": {count: 0, books: {}}};
+        
+        // Process tempLinks if any
+        for (let link of links) {
+          // Count Category
+          if (link.category in summary) {
+            summary[link.category].count += 1
+          } else {
+            summary[link.category] = {count: 1, books: {}};
+          }
+          summary["All"].count += 1;
 
-            var category = summary[link.category];
-            // Count Book
-            if (link.textTitle in category.books) {
-              category.books[link.textTitle].count += 1;
-              category.books[link.textTitle].refList.push(link.sourceRef);
-            } else {
-              var isCommentary = link.category === "Commentary";
-              category.books[link.textTitle] =
+          var category = summary[link.category];
+          // Count Book
+          if (link.textTitle in category.books) {
+            category.books[link.textTitle].count += 1;
+            category.books[link.textTitle].refList.push(link.sourceRef);
+          } else {
+            var isCommentary = link.category === "Commentary";
+            category.books[link.textTitle] =
+            {
+                count:             1,
+                title:             Sefaria.getTitle(link.sourceRef, isCommentary, false),
+                heTitle:           Sefaria.getTitle(link.sourceHeRef, isCommentary, true, link.sourceRef),
+                collectiveTitle:   link.collectiveTitle,
+                heCollectiveTitle: link.heCollectiveTitle,
+                category:          link.category,
+                refList:           [link.sourceRef]
+            };
+          }
+        }
+
+        //Add zero commentaries
+        let commentatorList = Sefaria.commentatorListBySection(sectionRef);
+        if (commentatorList) {
+          let commentaryBooks = summary["Commentary"].books;
+          let commentaryBookTitles = Object.keys(commentaryBooks).map((book)=>commentaryBooks[book].title);
+          for (let i = 0; i < commentatorList.en.length; i++) {
+            let commEn = commentatorList.en[i];
+            let commHe = commentatorList.he[i];
+            if (commentaryBookTitles.indexOf(commEn) == -1) {
+              commentaryBooks[commEn] =
               {
-                  count:             1,
-                  title:             Sefaria.getTitle(link.sourceRef, isCommentary, false),
-                  heTitle:           Sefaria.getTitle(link.sourceHeRef, isCommentary, true, link.sourceRef),
-                  collectiveTitle:   link.collectiveTitle,
-                  heCollectiveTitle: link.heCollectiveTitle,
-                  category:          link.category,
-                  refList:           [link.sourceRef]
-              };
-            }
-          }
-
-          //Add zero commentaries
-          let commentatorList = Sefaria.commentatorListBySection(sectionRef);
-          if (commentatorList) {
-            let commentaryBooks = summary["Commentary"].books;
-            let commentaryBookTitles = Object.keys(commentaryBooks).map((book)=>commentaryBooks[book].title);
-            for (let i = 0; i < commentatorList.en.length; i++) {
-              let commEn = commentatorList.en[i];
-              let commHe = commentatorList.he[i];
-              if (commentaryBookTitles.indexOf(commEn) == -1) {
-                commentaryBooks[commEn] =
-                {
-                  count:    0,
-                  title:    commEn,
-                  heTitle:  commHe,
-                  category: "Commentary",
-                  refList:  []
-                }
+                count:    0,
+                title:    commEn,
+                heTitle:  commHe,
+                category: "Commentary",
+                refList:  []
               }
             }
           }
+        }
 
-          // Convert object into ordered list
-          var summaryList = Object.keys(summary).map(function(category) {
-            var categoryData = summary[category];
-            categoryData.category = category;
-            categoryData.refList = [];
-            categoryData.books = Object.keys(categoryData.books).map(function(book) {
-              var bookData = categoryData.books[book];
-              return bookData;
-            });
-            // Sort the books in the category
-            categoryData.books.sort(function(a, b) {
-              // First sort by predefined "top"
-              var topByCategory = {
-                "Commentary": ["Rashi", "Ibn Ezra", "Ramban", "Sforno","Tosafot"]
-              };
-              var top = topByCategory[categoryData.category] || [];
-              var aTop = top.indexOf(a.title);
-              var bTop = top.indexOf(b.title);
-              if (aTop !== -1 || bTop !== -1) {
-                aTop = aTop === -1 ? 999 : aTop;
-                bTop = bTop === -1 ? 999 : bTop;
-                return aTop < bTop ? -1 : 1;
-              }
-              // Then sort alphabetically
-              return a.book > b.book ? 1 : -1;
-            });
-            return categoryData;
+        // Convert object into ordered list
+        var summaryList = Object.keys(summary).map(function(category) {
+          var categoryData = summary[category];
+          categoryData.category = category;
+          categoryData.refList = [];
+          categoryData.books = Object.keys(categoryData.books).map(function(book) {
+            var bookData = categoryData.books[book];
+            return bookData;
           });
-
-          var allRefs = [];
-          for (let cat of summaryList) {
-            for (let book of cat.books) {
-              cat.refList = cat.refList.concat(book.refList);
-              allRefs = allRefs.concat(book.refList);
+          // Sort the books in the category
+          categoryData.books.sort(function(a, b) {
+            // First sort by predefined "top"
+            var topByCategory = {
+              "Commentary": ["Rashi", "Ibn Ezra", "Ramban", "Sforno","Tosafot"]
+            };
+            var top = topByCategory[categoryData.category] || [];
+            var aTop = top.indexOf(a.title);
+            var bTop = top.indexOf(b.title);
+            if (aTop !== -1 || bTop !== -1) {
+              aTop = aTop === -1 ? 999 : aTop;
+              bTop = bTop === -1 ? 999 : bTop;
+              return aTop < bTop ? -1 : 1;
             }
-          }
-
-          // Sort the categories
-          var order = ["Commentary", "byCount", "Modern Works", "All"];
-          summaryList.sort(function(a, b) {
-            var indexByCount = order.indexOf("byCount");
-            var indexA = order.indexOf(a.category) != -1 ? order.indexOf(a.category) : indexByCount;
-            var indexB = order.indexOf(b.category) != -1 ? order.indexOf(b.category) : indexByCount;
-
-            if (indexA == indexByCount && indexB == indexByCount) {
-              return b.count - a.count
-            }
-
-            return indexA - indexB;
-
+            // Then sort alphabetically
+            return a.book > b.book ? 1 : -1;
           });
-
-          // Attach data to "All" category in last position
-          summaryList[summaryList.length-1].refList = allRefs;
-
-          // Remove "Commentary" section if it is empty or only contains greyed out items
-          if (summaryList[0].books.length == 0) { summaryList = summaryList.slice(1); }
-          
-          // Remove "All" section if it's count is zero
-          if (summaryList[summaryList.length-1].count == 0) { summaryList = summaryList.slice(0, -1); }
-
-          resolve(summaryList);
+          return categoryData;
         });
 
-      },
+        var allRefs = [];
+        for (let cat of summaryList) {
+          for (let book of cat.books) {
+            cat.refList = cat.refList.concat(book.refList);
+            allRefs = allRefs.concat(book.refList);
+          }
+        }
+
+        // Sort the categories
+        var order = ["Commentary", "byCount", "Modern Works", "All"];
+        summaryList.sort(function(a, b) {
+          var indexByCount = order.indexOf("byCount");
+          var indexA = order.indexOf(a.category) != -1 ? order.indexOf(a.category) : indexByCount;
+          var indexB = order.indexOf(b.category) != -1 ? order.indexOf(b.category) : indexByCount;
+
+          if (indexA == indexByCount && indexB == indexByCount) {
+            return b.count - a.count
+          }
+
+          return indexA - indexB;
+
+        });
+
+        // Attach data to "All" category in last position
+        summaryList[summaryList.length-1].refList = allRefs;
+
+        // Remove "Commentary" section if it is empty or only contains greyed out items
+        if (summaryList[0].books.length == 0) { summaryList = summaryList.slice(1); }
+        
+        // Remove "All" section if it's count is zero
+        if (summaryList[summaryList.length-1].count == 0) { summaryList = summaryList.slice(0, -1); }
+
+        resolve(summaryList);
+      });
+
+    },
   },
   track: {
       // Helper functions for event tracking (with Google Analytics and Mixpanel)
