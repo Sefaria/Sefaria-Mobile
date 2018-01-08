@@ -61,6 +61,7 @@
 		ADBDB9381DFEBF1600ED6528 /* libRCTBlob.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ADBDB9271DFEBF0700ED6528 /* libRCTBlob.a */; };
 		DD24DA6B1DCBADD200954157 /* OpenSans-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = DD24DA681DCBADD200954157 /* OpenSans-Light.ttf */; };
 		DD24DA6C1DCBADD200954157 /* OpenSans-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = DD24DA691DCBADD200954157 /* OpenSans-Regular.ttf */; };
+		DD321D142002DF0E008628D4 /* img in Resources */ = {isa = PBXBuildFile; fileRef = DD321CE72002DF0E008628D4 /* img */; };
 		DD4015F91FFEF313004EA1F9 /* (null) in Frameworks */ = {isa = PBXBuildFile; };
 		DD7B126F1DBACAEE00AC4D6C /* EBGaramond-Italic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = DD7B126E1DBACAEE00AC4D6C /* EBGaramond-Italic.ttf */; };
 		EB6EBB93837A483F9AFC5537 /* libRNZipArchive.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F4855C9C71D648A08C39152A /* libRNZipArchive.a */; };
@@ -442,6 +443,7 @@
 		ADBDB91F1DFEBF0600ED6528 /* RCTBlob.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTBlob.xcodeproj; path = "../node_modules/react-native/Libraries/Blob/RCTBlob.xcodeproj"; sourceTree = "<group>"; };
 		DD24DA681DCBADD200954157 /* OpenSans-Light.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "OpenSans-Light.ttf"; sourceTree = "<group>"; };
 		DD24DA691DCBADD200954157 /* OpenSans-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "OpenSans-Regular.ttf"; sourceTree = "<group>"; };
+		DD321CE72002DF0E008628D4 /* img */ = {isa = PBXFileReference; lastKnownFileType = folder; name = img; path = ../img; sourceTree = "<group>"; };
 		DD7B126E1DBACAEE00AC4D6C /* EBGaramond-Italic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "EBGaramond-Italic.ttf"; sourceTree = "<group>"; };
 		F4855C9C71D648A08C39152A /* libRNZipArchive.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRNZipArchive.a; sourceTree = "<group>"; };
 		FCF4AE4D589C47119326ADC7 /* libRNVersionNumber.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRNVersionNumber.a; sourceTree = "<group>"; };
@@ -698,6 +700,7 @@
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
+				DD321CE72002DF0E008628D4 /* img */,
 				A17895761E4BA0C80063B465 /* Amiri-Regular.ttf */,
 				A17895901E4BA0DE0063B465 /* Amiri-Slanted.ttf */,
 				A17895921E4BA2000063B465 /* Amiri-Bold.ttf */,
@@ -1326,6 +1329,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DD321D142002DF0E008628D4 /* img in Resources */,
 				A14793A01DB8037000B6572F /* OpenSansHebrew-Regular.ttf in Resources */,
 				DD24DA6B1DCBADD200954157 /* OpenSans-Light.ttf in Resources */,
 				A15D510F1DC917640093676D /* LaunchScreen.xib in Resources */,

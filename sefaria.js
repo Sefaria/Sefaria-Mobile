@@ -672,6 +672,8 @@ Sefaria = {
           // Takes an array of links which are of the form { "category", "sourceHeRef", "sourceRef", "textTitle"}
           let links = tempLinks || [];
           var summary = {"All": {count: 0, books: {}}, "Commentary": {count: 0, books: {}}};
+          
+          // Process tempLinks if any
           for (let link of links) {
             // Count Category
             if (link.category in summary) {
@@ -680,7 +682,6 @@ Sefaria = {
               summary[link.category] = {count: 1, books: {}};
             }
             summary["All"].count += 1;
-
 
             var category = summary[link.category];
             // Count Book
@@ -780,6 +781,7 @@ Sefaria = {
 
           // Remove "Commentary" section if it is empty or only contains greyed out items
           if (summaryList[0].books.length == 0) { summaryList = summaryList.slice(1); }
+          
           // Remove "All" section if it's count is zero
           if (summaryList[summaryList.length-1].count == 0) { summaryList = summaryList.slice(0, -1); }
 
