@@ -381,6 +381,8 @@ class ReaderApp extends React.Component {
   };
 
   openNav = () => {
+      console.log("openNav");
+      this.clearAllSearchFilters();
       this.setState({loaded: true, appliedSearchFilters: [], searchFiltersValid: false});
       this.openMenu("navigation");
   };
@@ -414,8 +416,6 @@ class ReaderApp extends React.Component {
   clearMenuState = () => {
       this.setState({
           navigationCategories: [],
-          appliedSearchFilters: [],
-          searchFiltersValid: false,
       });
   };
 
