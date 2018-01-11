@@ -112,6 +112,67 @@ class CategoryAttribution extends React.Component {
   }
 }
 
+class LibraryNavButton extends React.Component {
+  static propTypes = {
+    theme:           PropTypes.object,
+    themeStr:        PropTypes.string,
+    settings:        PropTypes.object.isRequired,
+    isCat:           PropTypes.bool.isRequired,
+    onPress:         PropTypes.func.isRequired,
+    onPressCheckBox: PropTypes.func,
+    checkBoxSelected:PropTypes.number,
+    enText:          PropTypes.string.isRequired,
+    heText:          PropTypes.string.isRequired,
+    count:           PropTypes.number,
+    withArrow:       PropTypes.bool.isRequired,
+  };
+
+  clickCheckBox = () => {
+    this.props.updateFilter(this.props.filterNode);
+  }
+
+  render() {
+    let { theme, themeStr, settings, isCat, onPress, onPressCheckBox, checkBoxSelected, enText, heText, count, withArrow } = this.props;
+    let language = settings.language == "hebrew" ? "hebrew" : "english";
+    let colorCat = Sefaria.palette.categoryColor(enText.replace(" Commentaries", ""));
+    enText = isCat ? enText.toUpperCase() : enText;
+    let colorStyle = isCat ? [{"borderColor": colorCat}] : [theme.searchResultSummary, {"borderTopWidth": 1}];
+    let textStyle  = [isCat ? styles.spacedText : null];
+    let flexDir = language == "english" ? "row" : "row-reverse";
+    return (
+      <TouchableOpacity
+        onPress={onPress}
+        style={[styles.searchFilterCat, {flexDirection: flexDir}].concat(colorStyle)}>
+        <View style={{flexDirection: flexDir, alignItems: "center"}}>
+          {
+            !!onPressCheckBox ? <TouchableOpacity style={{paddingHorizontal: 10, paddingVertical: 15}} onPress={this.clickCheckBox} >
+              <IndeterminateCheckBox themeStr={themeStr} state={checkBoxSelected} onPress={onPressCheckBox} />
+            </TouchableOpacity> : null
+          }
+          { language == "english" ?
+            <Text style={[styles.englishText].concat([theme.tertiaryText, textStyle, {paddingTop:3}])}>
+              {`${enText} `}
+              {
+                !!count || count === 0 ? <Text style={[styles.englishText].concat([theme.secondaryText, textStyle])}>{`(${count})`}</Text> : null
+              }
+            </Text>
+            :
+            <Text style={[styles.hebrewText].concat([theme.tertiaryText, textStyle, {paddingTop:13}])}>
+              {`${heText} `}
+              {
+                !!count || count === 0 ? <Text style={[styles.englishText].concat([theme.secondaryText, textStyle])}>{`(${count})`}</Text> : null
+              }
+            </Text>
+          }
+        </View>
+        { withArrow ?
+          <DirectedArrow themeStr={themeStr} imageStyle={{opacity: 0.5}} language={language} direction={"forward"} />
+          : null
+        }
+     </TouchableOpacity>);
+  }
+}
+
 class LanguageToggleButton extends React.Component {
   static propTypes = {
     theme:          PropTypes.object.isRequired,
@@ -415,3 +476,4 @@ module.exports.ToggleSet = ToggleSet;
 module.exports.ButtonToggleSet = ButtonToggleSet;
 module.exports.LoadingView = LoadingView;
 module.exports.IndeterminateCheckBox = IndeterminateCheckBox;
+module.exports.LibraryNavButton = LibraryNavButton;

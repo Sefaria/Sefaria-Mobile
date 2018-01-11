@@ -137,14 +137,16 @@ class TextList extends React.Component {
     );
     switch (this.props.connectionsMode) {
       case (null):
-        let content = (<LoadingView />);
-        if (!this.props.loading) {
+        let content;
+        if (this.props.loading) {
+          content = (<LoadingView />);
+        } else {
           var viewList = [];
           this.props.linkSummary.map((cat)=>{
             let heCategory = Sefaria.hebrewCategory(this.props.category);
             let filter = new LinkFilter(cat.category, heCategory, cat.category, heCategory, cat.refList,cat.category);
 
-            var innerViewList = cat.books.map((obook)=>{
+            /*var innerViewList = cat.books.map((obook)=>{
               let filter = new LinkFilter(obook.title, obook.heTitle, obook.collectiveTitle, obook.heCollectiveTitle, obook.refList, cat.category);
               return (
               <LinkBook
@@ -158,10 +160,9 @@ class TextList extends React.Component {
                   Sefaria.track.event("Reader","Text Filter Click",title);
                 }.bind(this,filter,obook.title)}
                 key={obook.title} />);
-            });
+            });*/
 
             viewList.push(
-              <View style={styles.textListSummarySection} key={cat.category+"-container"}>
                 <LinkCategory
                   theme={this.props.theme}
                   category={cat.category}
@@ -172,10 +173,7 @@ class TextList extends React.Component {
                     this.props.openCat(filter);
                     Sefaria.track.event("Reader","Category Filter Click",category);
                   }.bind(this,filter,cat.category)}
-                  key={cat.category} />
-                <TwoBox content={innerViewList} />
-              </View>);
-
+                  key={cat.category} />);
           });
           if (viewList.length == 0) { viewList = <EmptyLinksMessage theme={this.props.theme} />; }
           content = (<ScrollView style={styles.textListSummaryScrollView}>{viewList}</ScrollView>);
@@ -224,7 +222,7 @@ class LinkCategory extends React.Component {
   };
 
   render() {
-    let countStr = " | " + this.props.count;
+    let countStr = ` (${this.props.count})`;
     let style = {"borderColor": Sefaria.palette.categoryColor(this.props.category)};
     let heCategory = Sefaria.hebrewCategory(this.props.category);
     let content = this.props.language == "hebrew"?
@@ -232,7 +230,7 @@ class LinkCategory extends React.Component {
       (<Text style={[styles.englishText, this.props.theme.text]}>{this.props.category.toUpperCase() + countStr}</Text>);
 
     return (<TouchableOpacity
-              style={[styles.readerNavCategory, this.props.theme.readerNavCategory, style]}
+              style={[styles.textListCat, style]}
               onPress={this.props.onPress}>
               {content}
             </TouchableOpacity>);

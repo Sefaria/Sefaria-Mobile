@@ -15,6 +15,7 @@ var {
   DirectedArrow,
   ButtonToggleSet,
   IndeterminateCheckBox,
+  LibraryNavButton,
 } = require('./Misc.js');
 
 const FilterNode       = require('./FilterNode');
@@ -207,8 +208,6 @@ class SearchFilter extends React.Component {
     let language = this.props.settings.language == "hebrew" ? "hebrew" : "english";
     let filter = this.props.filterNode;
     let isCat = filter.children.length > 0;
-    let title = isCat ? filter.title.toUpperCase() : filter.title;
-    let heTitle = filter.heTitle;
     let count = filter.docCount;
 
     let colorCat = Sefaria.palette.categoryColor(filter.title.replace(" Commentaries", ""));
@@ -216,27 +215,19 @@ class SearchFilter extends React.Component {
     let textStyle  = [isCat ? styles.spacedText : null];
     let flexDir = language == "english" ? "row" : "row-reverse";
     return (
-      <TouchableOpacity
-      onPress={()=>{ this.props.openSubMenu ? this.props.openSubMenu(filter.title) : this.clickCheckBox() }}
-        style={[styles.searchFilterCat, {flexDirection: flexDir}].concat(colorStyle)}>
-        <View style={{flexDirection: flexDir, alignItems: "center"}}>
-          <TouchableOpacity style={{paddingHorizontal: 10, paddingVertical: 15}} onPress={this.clickCheckBox} >
-            <IndeterminateCheckBox themeStr={this.props.themeStr} state={this.props.filterNode.selected} onPress={this.clickCheckBox} />
-            </TouchableOpacity>
-            { language == "english" ?
-                        <Text style={[styles.englishText].concat([this.props.theme.tertiaryText, textStyle, {paddingTop:3}])}>
-                          {`${title} `}<Text style={[styles.englishText].concat([this.props.theme.secondaryText, textStyle])}>{`(${count})`}</Text>
-                        </Text>
-                        :
-                        <Text style={[styles.hebrewText].concat([this.props.theme.tertiaryText, textStyle, {paddingTop:13}])}>
-                          {`${heTitle} `}<Text style={[styles.englishText].concat([this.props.theme.secondaryText, textStyle])}>{`(${count})`}</Text>
-                        </Text> }
-        </View>
-        { this.props.openSubMenu ?
-          <DirectedArrow themeStr={this.props.themeStr} imageStyle={{opacity: 0.5}} language={language} direction={"forward"} />
-          : null
-        }
-     </TouchableOpacity>);
+      <LibraryNavButton
+        theme={this.props.theme}
+        themeStr={this.props.themeStr}
+        settings={this.props.settings}
+        isCat={isCat}
+        onPress={()=>{ this.props.openSubMenu ? this.props.openSubMenu(filter.title) : this.clickCheckBox() }}
+        onPressCheckBox={this.clickCheckBox}
+        checkBoxSelected={this.props.filterNode.selected}
+        enText={filter.title}
+        heText={filter.heTitle}
+        count={count}
+        withArrow={!!this.props.openSubMenu} />
+    );
   }
 }
 

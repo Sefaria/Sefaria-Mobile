@@ -470,6 +470,16 @@ module.exports = StyleSheet.create({
     justifyContent: "center",
     flex: 1,
   },
+  textListCat: {
+    flex: 1,
+    flexDirection: "row",
+    borderTopWidth: 4,
+    margin: 2,
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    justifyContent: "flex-start",
+    alignItems: "center",
+  },
   navToggle: {
     fontSize: iPad ? 14 : 10,
     paddingTop: 2

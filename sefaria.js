@@ -657,9 +657,9 @@ Sefaria = {
       if (!runNow) {
         //console.log("Putting in queue:",ref,"Length:",Sefaria.links._linkContentLoadingStack.length);
         Sefaria.links._linkContentLoadingStack.push({
-                                                      "ref":ref, 
+                                                      "ref":ref,
                                                       "pos":pos,
-                                                      "resolveClosure":resolveClosure, 
+                                                      "resolveClosure":resolveClosure,
                                                       "rejectClosure":rejectClosure
                                                     });
       }
@@ -680,7 +680,7 @@ Sefaria = {
         // Returns an ordered array summarizing the link counts by category and text
         // Takes an array of links which are of the form { "category", "sourceHeRef", "sourceRef", "textTitle"}
         var summary = {"All": {count: 0, books: {}}, "Commentary": {count: 0, books: {}}};
-        
+
         // Process tempLinks if any
         for (let link of links) {
           // Count Category
@@ -789,7 +789,7 @@ Sefaria = {
 
         // Remove "Commentary" section if it is empty or only contains greyed out items
         if (summaryList[0].books.length == 0) { summaryList = summaryList.slice(1); }
-        
+
         // Remove "All" section if it's count is zero
         if (summaryList[summaryList.length-1].count == 0) { summaryList = summaryList.slice(0, -1); }
 
@@ -1018,7 +1018,7 @@ Sefaria.settings = {
           .then(loader)
           .catch(function(error) {
             console.error("AsyncStorage failed to load setting: " + error);
-          });;
+          });
         promises.push(promise);
       }
     }
@@ -1236,12 +1236,11 @@ Sefaria.hebrewCategory = function(cat) {
     // pregenerated hebrew categories from dump
     if (cat in Sefaria.hebrewCategories) {
       return Sefaria.hebrewCategories[cat];
-    }  
+    }
   }
 
   const categories = {
     "Torah": "תורה",
-    "Tanakh": 'תנ"ך',
     "Tanakh": 'תנ"ך',
     "Prophets": "נביאים",
     "Writings": "כתובים",
@@ -1291,7 +1290,8 @@ Sefaria.hebrewCategory = function(cat) {
     "Shulchan Arukh": "שולחן ערוך",
     "Sheets": "דפי מקורות",
     "Notes": "הערות",
-    "Community": "קהילה"
+    "Community": "קהילה",
+    "All": "הכל",
   };
   return cat in categories ? categories[cat] : cat;
 };
