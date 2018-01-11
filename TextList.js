@@ -115,51 +115,8 @@ class TextList extends React.Component {
   };
 
   render() {
-    var isSummaryMode = this.props.connectionsMode === null;
-    if (isSummaryMode) {
-
-      var viewList = [];
-      this.props.linkSummary.map((cat)=>{
-        let heCategory = Sefaria.hebrewCategory(this.props.category);
-        let filter = new LinkFilter(cat.category, heCategory, cat.category, heCategory, cat.refList,cat.category);
-
-        var innerViewList = cat.books.map((obook)=>{
-          let filter = new LinkFilter(obook.title, obook.heTitle, obook.collectiveTitle, obook.heCollectiveTitle, obook.refList, cat.category);
-          return (
-          <LinkBook
-            theme={this.props.theme}
-            title={obook.collectiveTitle ? obook.collectiveTitle : obook.title} //NOTE backwards compatibility
-            heTitle={obook.heCollectiveTitle ? obook.heCollectiveTitle : obook.heTitle}
-            count={obook.count}
-            language={this.props.settings.language}
-            onPress={function(filter,title) {
-              this.props.openCat(filter);
-              Sefaria.track.event("Reader","Text Filter Click",title);
-            }.bind(this,filter,obook.title)}
-            key={obook.title} />);
-        });
-
-        viewList.push(
-          <View style={styles.textListSummarySection} key={cat.category+"-container"}>
-            <LinkCategory
-              theme={this.props.theme}
-              category={cat.category}
-              refList={cat.refList}
-              count={cat.count}
-              language={this.props.settings.language}
-              onPress={function(filter,category) {
-                this.props.openCat(filter);
-                Sefaria.track.event("Reader","Category Filter Click",category);
-              }.bind(this,filter,cat.category)}
-              key={cat.category} />
-            <TwoBox content={innerViewList} />
-          </View>);
-
-      });
-      if (viewList.length == 0) { viewList = <EmptyLinksMessage theme={this.props.theme} />; }
-    }
-
-    var textListHeader = (
+    const isSummaryMode = this.props.connectionsMode === null;
+    const textListHeader = (
       <View
         onStartShouldSetResponder={(evt)=>this.props.onDragStart(evt)}
         onResponderMove={(evt)=>this.props.onDragMove(evt)}
@@ -178,40 +135,80 @@ class TextList extends React.Component {
           isSummaryMode={isSummaryMode} />
       </View>
     );
+    switch (this.props.connectionsMode) {
+      case (null):
+        var viewList = [];
+        this.props.linkSummary.map((cat)=>{
+          let heCategory = Sefaria.hebrewCategory(this.props.category);
+          let filter = new LinkFilter(cat.category, heCategory, cat.category, heCategory, cat.refList,cat.category);
 
-    if (isSummaryMode) {
-      var content = this.props.loading ?
-                      <LoadingView /> :
-                      <ScrollView style={styles.textListSummaryScrollView}>{viewList}</ScrollView>;
-      return (
-        <View style={[styles.textListSummary, this.props.theme.textListSummary]}>
-          {textListHeader}
-          {content}
-        </View>);
+          var innerViewList = cat.books.map((obook)=>{
+            let filter = new LinkFilter(obook.title, obook.heTitle, obook.collectiveTitle, obook.heCollectiveTitle, obook.refList, cat.category);
+            return (
+            <LinkBook
+              theme={this.props.theme}
+              title={obook.collectiveTitle ? obook.collectiveTitle : obook.title} //NOTE backwards compatibility
+              heTitle={obook.heCollectiveTitle ? obook.heCollectiveTitle : obook.heTitle}
+              count={obook.count}
+              language={this.props.settings.language}
+              onPress={function(filter,title) {
+                this.props.openCat(filter);
+                Sefaria.track.event("Reader","Text Filter Click",title);
+              }.bind(this,filter,obook.title)}
+              key={obook.title} />);
+          });
 
-    } else if (!this.state.isNewSegment) {
-      // Using Dimensions to adjust marings on text at maximum line width because I can't figure out
-      // how to get flex to center a component with maximum width without allows breaking the stretch
-      // behavior of its contents, result in rows in the list view with small width if their content is small.
-      var listViewStyles = [styles.textListContentListView];
-      return (
-      <View style={[styles.textColumn, this.props.theme.textListContentOuter, {maxWidth: null}]}>
-        {textListHeader}
-        {this.props.linkContents.length == 0 ?
-          <View style={styles.noLinks}><EmptyLinksMessage theme={this.props.theme} /></View> :
-          <FlatList
+          viewList.push(
+            <View style={styles.textListSummarySection} key={cat.category+"-container"}>
+              <LinkCategory
+                theme={this.props.theme}
+                category={cat.category}
+                refList={cat.refList}
+                count={cat.count}
+                language={this.props.settings.language}
+                onPress={function(filter,category) {
+                  this.props.openCat(filter);
+                  Sefaria.track.event("Reader","Category Filter Click",category);
+                }.bind(this,filter,cat.category)}
+                key={cat.category} />
+              <TwoBox content={innerViewList} />
+            </View>);
 
-            data={this.state.dataSource}
-            renderItem={this.renderItem}
-            getItemLayout={this.getItemLayout}
-            contentContainerStyle={{justifyContent: "center"}}
-            onViewableItemsChanged={this.onViewableItemsChanged}
-          />
+        });
+        if (viewList.length == 0) { viewList = <EmptyLinksMessage theme={this.props.theme} />; }
+        var content = this.props.loading ?
+                        <LoadingView /> :
+                        <ScrollView style={styles.textListSummaryScrollView}>{viewList}</ScrollView>;
+        return (
+          <View style={[styles.textListSummary, this.props.theme.textListSummary]}>
+            {textListHeader}
+            {content}
+          </View>);
+      case ('filter'):
+        if (!this.state.isNewSegment) {
+          // Using Dimensions to adjust marings on text at maximum line width because I can't figure out
+          // how to get flex to center a component with maximum width without allows breaking the stretch
+          // behavior of its contents, result in rows in the list view with small width if their content is small.
+          var listViewStyles = [styles.textListContentListView];
+          return (
+          <View style={[styles.textColumn, this.props.theme.textListContentOuter, {maxWidth: null}]}>
+            {textListHeader}
+            {this.props.linkContents.length == 0 ?
+              <View style={styles.noLinks}><EmptyLinksMessage theme={this.props.theme} /></View> :
+              <FlatList
+
+                data={this.state.dataSource}
+                renderItem={this.renderItem}
+                getItemLayout={this.getItemLayout}
+                contentContainerStyle={{justifyContent: "center"}}
+                onViewableItemsChanged={this.onViewableItemsChanged}
+              />
+            }
+          </View>
+          );
+        } else {
+          return null;
         }
-      </View>
-      );
-    } else {
-      return null;
     }
   }
 }
