@@ -266,8 +266,6 @@ var Api = {
         }
       })
       .catch((response)=>{
-        console.log(response);
-
         AlertIOS.alert(
           strings.noInternet,
           strings.noInternetMessage,

@@ -34,6 +34,7 @@ class TextList extends React.Component {
     linkContents:    PropTypes.array,
     loading:         PropTypes.bool,
     segmentIndexRef: PropTypes.number,
+    connectionsMode: PropTypes.string,
     filterIndex:     PropTypes.number,
     recentFilters:   PropTypes.array, /* of the form [{title,heTitle,refList}...] */
     textLanguage:    PropTypes.oneOf(["english","hebrew","bilingual"]),
@@ -57,6 +58,7 @@ class TextList extends React.Component {
     if (this.props.segmentIndexRef !== nextProps.segmentIndexRef) {
       this.setState({isNewSegment:true});
     } else if (this.props.recentFilters !== nextProps.recentFilters ||
+               this.props.connectionsMode !== nextProps.connectionsMode ||
                this.props.filterIndex !== nextProps.filterIndex ||
                this.props.linkContents !== nextProps.linkContents) {
       this.setState({dataSource: this.generateDataSource(nextProps)});
@@ -113,7 +115,7 @@ class TextList extends React.Component {
   };
 
   render() {
-    var isSummaryMode = this.props.filterIndex == null;
+    var isSummaryMode = this.props.connectionsMode === null;
     if (isSummaryMode) {
 
       var viewList = [];

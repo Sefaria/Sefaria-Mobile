@@ -67,6 +67,7 @@ class ReaderApp extends React.Component {
         data: null,
         linksLoaded: [],  // bool arrary corresponding to data indicating if links have been loaded, which occurs async with API
         interfaceLang: strings.getLanguage() === "he" ? "hebrew" : "english", // TODO check device settings for Hebrew: ### import {NativeModules} from 'react-native'; console.log(NativeModules.SettingsManager.settings.AppleLocale);
+        connectionsMode: null, // null means connections summary
         filterIndex: null, /* index of filters in recentFilters */
         linkSummary: [],
         linkContents: [],
@@ -176,7 +177,8 @@ class ReaderApp extends React.Component {
               sectionHeArray:    [data.heRef],
               linksLoaded:       [false],
               loaded:            true,
-              filterIndex:       null, /*Reset link state */
+              connectionsMode:   null, /*Reset link state */
+              filterIndex:       null,
               linkRecentFilters: [],
               linkSummary:       linkSummary,
               linkContents:      [],
@@ -449,6 +451,7 @@ class ReaderApp extends React.Component {
       var linkContents = filter.refList.map((ref)=>null);
       Sefaria.links.reset();
       this.setState({
+          connectionsMode: "filter",
           filterIndex: filterIndex,
           recentFilters: this.state.linkRecentFilters,
           linkStaleRecentFilters: this.state.linkStaleRecentFilters,
@@ -457,7 +460,7 @@ class ReaderApp extends React.Component {
   };
 
   closeLinkCat = () => {
-    this.setState({filterIndex: null});
+    this.setState({connectionsMode: null});
     Sefaria.track.event("Reader","Show All Filters Click","1");
   };
 
@@ -500,6 +503,7 @@ class ReaderApp extends React.Component {
       var linkContents = nextFilter.refList.map((ref)=>null);
       Sefaria.links.reset();
       this.setState({
+          connectionsMode: "filter",
           filterIndex: filterIndex,
           linkRecentFilters: this.state.linkRecentFilters,
           linkContents: linkContents
@@ -804,6 +808,7 @@ class ReaderApp extends React.Component {
                 closeLinkCat={this.closeLinkCat}
                 updateLinkCat={this.updateLinkCat}
                 loadLinkContent={this.loadLinkContent}
+                connectionsMode={this.state.connectionsMode}
                 filterIndex={this.state.filterIndex}
                 linksLoaded={this.state.linksLoaded}
                 linkRecentFilters={this.state.linkRecentFilters}
