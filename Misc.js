@@ -127,10 +127,6 @@ class LibraryNavButton extends React.Component {
     withArrow:       PropTypes.bool.isRequired,
   };
 
-  clickCheckBox = () => {
-    this.props.updateFilter(this.props.filterNode);
-  }
-
   render() {
     let { theme, themeStr, settings, isCat, onPress, onPressCheckBox, checkBoxSelected, enText, heText, count, withArrow } = this.props;
     let language = settings.language == "hebrew" ? "hebrew" : "english";
@@ -145,7 +141,7 @@ class LibraryNavButton extends React.Component {
         style={[styles.searchFilterCat, {flexDirection: flexDir}].concat(colorStyle)}>
         <View style={{flexDirection: flexDir, alignItems: "center"}}>
           {
-            !!onPressCheckBox ? <TouchableOpacity style={{paddingHorizontal: 10, paddingVertical: 15}} onPress={this.clickCheckBox} >
+            !!onPressCheckBox ? <TouchableOpacity style={{paddingHorizontal: 10, paddingVertical: 15}} onPress={onPressCheckBox} >
               <IndeterminateCheckBox themeStr={themeStr} state={checkBoxSelected} onPress={onPressCheckBox} />
             </TouchableOpacity> : null
           }

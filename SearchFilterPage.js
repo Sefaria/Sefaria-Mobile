@@ -12,9 +12,7 @@ import {
 
 var {
   DirectedButton,
-  DirectedArrow,
   ButtonToggleSet,
-  IndeterminateCheckBox,
   LibraryNavButton,
 } = require('./Misc.js');
 

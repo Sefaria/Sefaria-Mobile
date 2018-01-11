@@ -19,12 +19,15 @@ const {
   CategoryColorLine,
   TwoBox,
   LoadingView,
+  LibraryNavButton,
 } = require('./Misc.js');
 
 const DEFAULT_LINK_CONTENT = {en: "Loading...", he: "טוען...", sectionRef: ""};
 
 class TextList extends React.Component {
   static propTypes = {
+    theme:           PropTypes.object.isRequired,
+    themeStr:        PropTypes.oneOf(["white", "black"]).isRequired,
     settings:        PropTypes.object,
     openRef:         PropTypes.func.isRequired,
     openCat:         PropTypes.func.isRequired,
@@ -165,6 +168,8 @@ class TextList extends React.Component {
             viewList.push(
                 <LinkCategory
                   theme={this.props.theme}
+                  themeStr={this.props.themeStr}
+                  settings={this.props.settings}
                   category={cat.category}
                   refList={cat.refList}
                   count={cat.count}
@@ -215,6 +220,8 @@ class TextList extends React.Component {
 class LinkCategory extends React.Component {
   static propTypes = {
     theme:    PropTypes.object.isRequired,
+    themeStr: PropTypes.string.isRequired,
+    settings: PropTypes.object.isRequired,
     onPress:  PropTypes.func.isRequired,
     category: PropTypes.string,
     language: PropTypes.string,
@@ -222,18 +229,18 @@ class LinkCategory extends React.Component {
   };
 
   render() {
-    let countStr = ` (${this.props.count})`;
-    let style = {"borderColor": Sefaria.palette.categoryColor(this.props.category)};
-    let heCategory = Sefaria.hebrewCategory(this.props.category);
-    let content = this.props.language == "hebrew"?
-      (<Text style={[styles.hebrewText, this.props.theme.text]}>{heCategory + countStr}</Text>) :
-      (<Text style={[styles.englishText, this.props.theme.text]}>{this.props.category.toUpperCase() + countStr}</Text>);
-
-    return (<TouchableOpacity
-              style={[styles.textListCat, style]}
-              onPress={this.props.onPress}>
-              {content}
-            </TouchableOpacity>);
+    return (
+      <LibraryNavButton
+        theme={this.props.theme}
+        themeStr={this.props.themeStr}
+        settings={this.props.settings}
+        isCat={true}
+        onPress={this.props.onPress}
+        enText={this.props.category}
+        heText={Sefaria.hebrewCategory(this.props.category)}
+        count={this.props.count}
+        withArrow={false} />
+    );
   }
 }
 

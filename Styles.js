@@ -283,6 +283,7 @@ module.exports = StyleSheet.create({
     borderBottomWidth: 1,
   },
   searchFilterCat: {
+    height: 48,
     flexGrow: 1,
     flexDirection: "row",
     borderTopWidth: 4,
