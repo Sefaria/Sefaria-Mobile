@@ -31,6 +31,7 @@ class TextList extends React.Component {
     settings:        PropTypes.object,
     openRef:         PropTypes.func.isRequired,
     openCat:         PropTypes.func.isRequired,
+    openFilter:      PropTypes.func.isRequired,
     closeCat:        PropTypes.func.isRequired,
     updateCat:       PropTypes.func.isRequired,
     linkSummary:     PropTypes.array,
@@ -131,7 +132,7 @@ class TextList extends React.Component {
           themeStr={this.props.themeStr}
           updateCat={this.props.updateCat}
           closeCat={this.props.closeCat}
-          category={isSummaryMode ? null : this.props.recentFilters[this.props.filterIndex].category}
+          category={isSummaryMode || true ? null : this.props.recentFilters[this.props.filterIndex].category}
           filterIndex={this.props.filterIndex}
           recentFilters={this.props.recentFilters}
           language={this.props.settings.language}
@@ -139,55 +140,6 @@ class TextList extends React.Component {
       </View>
     );
     switch (this.props.connectionsMode) {
-      case (null):
-        let content;
-        if (this.props.loading) {
-          content = (<LoadingView />);
-        } else {
-          var viewList = [];
-          this.props.linkSummary.map((cat)=>{
-            let heCategory = Sefaria.hebrewCategory(this.props.category);
-            let filter = new LinkFilter(cat.category, heCategory, cat.category, heCategory, cat.refList,cat.category);
-
-            /*var innerViewList = cat.books.map((obook)=>{
-              let filter = new LinkFilter(obook.title, obook.heTitle, obook.collectiveTitle, obook.heCollectiveTitle, obook.refList, cat.category);
-              return (
-              <LinkBook
-                theme={this.props.theme}
-                title={obook.collectiveTitle ? obook.collectiveTitle : obook.title} //NOTE backwards compatibility
-                heTitle={obook.heCollectiveTitle ? obook.heCollectiveTitle : obook.heTitle}
-                count={obook.count}
-                language={this.props.settings.language}
-                onPress={function(filter,title) {
-                  this.props.openCat(filter);
-                  Sefaria.track.event("Reader","Text Filter Click",title);
-                }.bind(this,filter,obook.title)}
-                key={obook.title} />);
-            });*/
-
-            viewList.push(
-                <LinkCategory
-                  theme={this.props.theme}
-                  themeStr={this.props.themeStr}
-                  settings={this.props.settings}
-                  category={cat.category}
-                  refList={cat.refList}
-                  count={cat.count}
-                  language={this.props.settings.language}
-                  onPress={function(filter,category) {
-                    this.props.openCat(filter);
-                    Sefaria.track.event("Reader","Category Filter Click",category);
-                  }.bind(this,filter,cat.category)}
-                  key={cat.category} />);
-          });
-          if (viewList.length == 0) { viewList = <EmptyLinksMessage theme={this.props.theme} />; }
-          content = (<ScrollView style={styles.textListSummaryScrollView}>{viewList}</ScrollView>);
-        }
-        return (
-          <View style={[styles.textListSummary, this.props.theme.textListSummary]}>
-            {textListHeader}
-            {content}
-          </View>);
       case ('filter'):
         if (!this.state.isNewSegment) {
           // Using Dimensions to adjust marings on text at maximum line width because I can't figure out
@@ -213,19 +165,87 @@ class TextList extends React.Component {
         } else {
           return null;
         }
+      default:
+        // either `null` or equal to a top-level category
+        let content;
+        if (this.props.loading) {
+          content = (<LoadingView />);
+        } else {
+          let viewList = [];
+          for (let i = 0; i < this.props.linkSummary.length; i++) {
+            const cat = this.props.linkSummary[i];
+            const catFilterSelected = cat.category === this.props.connectionsMode;
+            if (this.props.connectionsMode !== null && !catFilterSelected) { continue; }
+            const heCategory = Sefaria.hebrewCategory(cat.category);
+            const filter = new LinkFilter(cat.category, heCategory, cat.category, heCategory, cat.refList,cat.category);
+            viewList.push(
+                <LinkNavButton
+                  theme={this.props.theme}
+                  themeStr={this.props.themeStr}
+                  settings={this.props.settings}
+                  enText={cat.category}
+                  heText={Sefaria.hebrewCategory(cat.category)}
+                  isCat={true}
+                  count={cat.count}
+                  language={this.props.settings.language}
+                  onPress={function(filter,category) {
+                    if (catFilterSelected) {
+                      this.props.openFilter(filter);
+                    } else {
+                      this.props.openCat(category);
+                    }
+                    Sefaria.track.event("Reader","Category Filter Click",category);
+                  }.bind(this,filter,cat.category)}
+                  key={cat.category} />);
+            if (catFilterSelected) {
+              //if true, means we have a category filter selected
+              viewList = viewList.concat(cat.books.map((obook)=>{
+                const filter = new LinkFilter(obook.title, obook.heTitle, obook.collectiveTitle, obook.heCollectiveTitle, obook.refList, cat.category);
+                console.log(obook.title);
+                return (
+                  <LinkNavButton
+                    theme={this.props.theme}
+                    themeStr={this.props.themeStr}
+                    settings={this.props.settings}
+                    enText={obook.collectiveTitle ? obook.collectiveTitle : obook.title} //NOTE backwards compatibility
+                    heText={obook.heCollectiveTitle ? obook.heCollectiveTitle : obook.heTitle}
+                    isCat={false}
+                    count={obook.count}
+                    language={this.props.settings.language}
+                    onPress={function(filter,title) {
+                      this.props.openFilter(filter);
+                      Sefaria.track.event("Reader","Text Filter Click",title);
+                    }.bind(this,filter,obook.title)}
+                    key={obook.title}
+                  />
+                );
+              }));
+              break;
+            }
+          }
+          if (viewList.length == 0) { viewList = <EmptyLinksMessage theme={this.props.theme} />; }
+          content = (<ScrollView contentContainerStyle={styles.textListSummaryScrollView}>{viewList}</ScrollView>);
+        }
+        return (
+          <View style={[styles.textListSummary, this.props.theme.textListSummary]}>
+            {textListHeader}
+            {content}
+          </View>);
     }
   }
 }
 
-class LinkCategory extends React.Component {
+class LinkNavButton extends React.Component {
   static propTypes = {
     theme:    PropTypes.object.isRequired,
     themeStr: PropTypes.string.isRequired,
     settings: PropTypes.object.isRequired,
     onPress:  PropTypes.func.isRequired,
-    category: PropTypes.string,
+    enText:   PropTypes.string,
+    heText:   PropTypes.string,
     language: PropTypes.string,
-    count:    PropTypes.number
+    count:    PropTypes.number,
+    isCat:    PropTypes.bool.isRequired,
   };
 
   render() {
@@ -234,40 +254,16 @@ class LinkCategory extends React.Component {
         theme={this.props.theme}
         themeStr={this.props.themeStr}
         settings={this.props.settings}
-        isCat={true}
+        isCat={this.props.isCat}
         onPress={this.props.onPress}
-        enText={this.props.category}
-        heText={Sefaria.hebrewCategory(this.props.category)}
+        enText={this.props.enText}
+        heText={this.props.heText}
         count={this.props.count}
         withArrow={false} />
     );
   }
 }
 
-class LinkBook extends React.Component {
-  static propTypes = {
-    theme:    PropTypes.object.isRequired,
-    onPress:  PropTypes.func.isRequired,
-    title:    PropTypes.string,
-    heTitle:  PropTypes.string,
-    language: PropTypes.string,
-    count:    PropTypes.number
-  };
-
-  render() {
-    let countStr = this.props.count == 0 ? "" : " (" + this.props.count + ")";
-    let textStyle = this.props.count == 0 ? this.props.theme.verseNumber : this.props.theme.text;
-    return (
-      <TouchableOpacity
-        style={[styles.textBlockLink, this.props.theme.textBlockLink]}
-        onPress={this.props.onPress}>
-        { this.props.language == "hebrew" ?
-          <Text style={[styles.hebrewText, styles.centerText, textStyle]}>{this.props.heTitle + countStr}</Text> :
-          <Text style={[styles.englishText, styles.centerText, textStyle]}>{this.props.title + countStr}</Text> }
-      </TouchableOpacity>
-    );
-  }
-}
 
 class LinkContent extends React.PureComponent {
   static propTypes = {

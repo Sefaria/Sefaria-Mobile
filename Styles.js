@@ -289,7 +289,7 @@ module.exports = StyleSheet.create({
     borderTopWidth: 4,
     margin: 2,
     paddingVertical: 0,
-    paddingHorizontal: 5,
+    paddingHorizontal: 15,
     justifyContent: "space-between",
     alignItems: "center",
   },
@@ -315,7 +315,7 @@ module.exports = StyleSheet.create({
   },
   textListSummaryScrollView: {
     paddingHorizontal: iPad ? 20 : 10,
-    paddingVertical: 20,
+    paddingVertical: 35,
   },
   textListSummarySection: {
     marginBottom: 22

@@ -425,7 +425,11 @@ class ReaderApp extends React.Component {
       this.loadNewText("Genesis 1");
   };
 
-  openLinkCat = (filter) => {
+  openLinkCat = (cat) => {
+    this.setState({ connectionsMode: cat });
+  };
+
+  openLinkFilter = (filter) => {
       var filterIndex = null;
       //check if filter is already in recentFilters
       for (let i = 0; i < this.state.linkRecentFilters.length; i++) {
@@ -805,6 +809,7 @@ class ReaderApp extends React.Component {
                 loading={!this.state.loaded}
                 defaultSettingsLoaded={this.state.defaultSettingsLoaded}
                 openLinkCat={this.openLinkCat}
+                openLinkFilter={this.openLinkFilter}
                 closeLinkCat={this.closeLinkCat}
                 updateLinkCat={this.updateLinkCat}
                 loadLinkContent={this.loadLinkContent}
