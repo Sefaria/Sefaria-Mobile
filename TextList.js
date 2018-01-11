@@ -137,48 +137,49 @@ class TextList extends React.Component {
     );
     switch (this.props.connectionsMode) {
       case (null):
-        var viewList = [];
-        this.props.linkSummary.map((cat)=>{
-          let heCategory = Sefaria.hebrewCategory(this.props.category);
-          let filter = new LinkFilter(cat.category, heCategory, cat.category, heCategory, cat.refList,cat.category);
+        let content = (<LoadingView />);
+        if (!this.props.loading) {
+          var viewList = [];
+          this.props.linkSummary.map((cat)=>{
+            let heCategory = Sefaria.hebrewCategory(this.props.category);
+            let filter = new LinkFilter(cat.category, heCategory, cat.category, heCategory, cat.refList,cat.category);
 
-          var innerViewList = cat.books.map((obook)=>{
-            let filter = new LinkFilter(obook.title, obook.heTitle, obook.collectiveTitle, obook.heCollectiveTitle, obook.refList, cat.category);
-            return (
-            <LinkBook
-              theme={this.props.theme}
-              title={obook.collectiveTitle ? obook.collectiveTitle : obook.title} //NOTE backwards compatibility
-              heTitle={obook.heCollectiveTitle ? obook.heCollectiveTitle : obook.heTitle}
-              count={obook.count}
-              language={this.props.settings.language}
-              onPress={function(filter,title) {
-                this.props.openCat(filter);
-                Sefaria.track.event("Reader","Text Filter Click",title);
-              }.bind(this,filter,obook.title)}
-              key={obook.title} />);
-          });
-
-          viewList.push(
-            <View style={styles.textListSummarySection} key={cat.category+"-container"}>
-              <LinkCategory
+            var innerViewList = cat.books.map((obook)=>{
+              let filter = new LinkFilter(obook.title, obook.heTitle, obook.collectiveTitle, obook.heCollectiveTitle, obook.refList, cat.category);
+              return (
+              <LinkBook
                 theme={this.props.theme}
-                category={cat.category}
-                refList={cat.refList}
-                count={cat.count}
+                title={obook.collectiveTitle ? obook.collectiveTitle : obook.title} //NOTE backwards compatibility
+                heTitle={obook.heCollectiveTitle ? obook.heCollectiveTitle : obook.heTitle}
+                count={obook.count}
                 language={this.props.settings.language}
-                onPress={function(filter,category) {
+                onPress={function(filter,title) {
                   this.props.openCat(filter);
-                  Sefaria.track.event("Reader","Category Filter Click",category);
-                }.bind(this,filter,cat.category)}
-                key={cat.category} />
-              <TwoBox content={innerViewList} />
-            </View>);
+                  Sefaria.track.event("Reader","Text Filter Click",title);
+                }.bind(this,filter,obook.title)}
+                key={obook.title} />);
+            });
 
-        });
-        if (viewList.length == 0) { viewList = <EmptyLinksMessage theme={this.props.theme} />; }
-        var content = this.props.loading ?
-                        <LoadingView /> :
-                        <ScrollView style={styles.textListSummaryScrollView}>{viewList}</ScrollView>;
+            viewList.push(
+              <View style={styles.textListSummarySection} key={cat.category+"-container"}>
+                <LinkCategory
+                  theme={this.props.theme}
+                  category={cat.category}
+                  refList={cat.refList}
+                  count={cat.count}
+                  language={this.props.settings.language}
+                  onPress={function(filter,category) {
+                    this.props.openCat(filter);
+                    Sefaria.track.event("Reader","Category Filter Click",category);
+                  }.bind(this,filter,cat.category)}
+                  key={cat.category} />
+                <TwoBox content={innerViewList} />
+              </View>);
+
+          });
+          if (viewList.length == 0) { viewList = <EmptyLinksMessage theme={this.props.theme} />; }
+          content = (<ScrollView style={styles.textListSummaryScrollView}>{viewList}</ScrollView>);
+        }
         return (
           <View style={[styles.textListSummary, this.props.theme.textListSummary]}>
             {textListHeader}
