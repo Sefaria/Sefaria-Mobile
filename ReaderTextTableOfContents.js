@@ -123,7 +123,7 @@ class ReaderTextTableOfContents extends React.Component {
           <LanguageToggleButton theme={this.props.theme} toggleLanguage={this.props.toggleLanguage} language={this.props.contentLang} />
         </View>
 
-        <ScrollView style={styles.menuContent}>
+        <ScrollView contentContainerStyle={styles.menuContent}>
           <View style={[styles.textTocTopBox, this.props.theme.bordered]}>
             <CategoryAttribution
               categories={categories}

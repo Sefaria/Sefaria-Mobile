@@ -146,14 +146,14 @@ class LibraryNavButton extends React.Component {
             </TouchableOpacity> : null
           }
           { language == "english" ?
-            <Text style={[styles.englishText].concat([theme.tertiaryText, textStyle, {paddingTop:3}])}>
+            <Text style={[styles.englishText].concat([theme.tertiaryText, textStyle, {paddingTop:3, marginHorizontal: (!!onPressCheckBox ? 0 : 25)}])}>
               {`${enText} `}
               {
                 !!count || count === 0 ? <Text style={[styles.englishText].concat([theme.secondaryText, textStyle])}>{`(${count})`}</Text> : null
               }
             </Text>
             :
-            <Text style={[styles.hebrewText].concat([theme.tertiaryText, textStyle, {paddingTop:13}])}>
+            <Text style={[styles.hebrewText].concat([theme.tertiaryText, textStyle, {paddingTop:13, marginHorizontal: (!!onPressCheckBox ? 0 : 25)}])}>
               {`${heText} `}
               {
                 !!count || count === 0 ? <Text style={[styles.englishText].concat([theme.secondaryText, textStyle])}>{`(${count})`}</Text> : null

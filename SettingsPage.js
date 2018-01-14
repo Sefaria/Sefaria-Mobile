@@ -12,7 +12,7 @@ import {
   Alert
 } from 'react-native';
 import VersionNumber from 'react-native-version-number';
- 
+
 var ProgressBar = require('./ProgressBar');
 var {
   CategoryColorLine,
@@ -97,7 +97,7 @@ class SettingsPage extends React.Component {
                 <Text style={[styles.settingsHeader, this.props.theme.text]}>{strings.settings.toUpperCase()}</Text>
               </View>
 
-              <ScrollView style={styles.menuContent}>
+              <ScrollView contentContainerStyle={styles.menuContent}>
                 <View style={styles.settingsSection}>
                   <View>
                     <Text style={[styles.settingsSectionHeader, this.props.theme.tertiaryText]}>{strings.menuLanguage}</Text>

@@ -136,7 +136,7 @@ class TextList extends React.Component {
           filterIndex={this.props.filterIndex}
           recentFilters={this.props.recentFilters}
           language={this.props.settings.language}
-          isSummaryMode={isSummaryMode} />
+          connectionsMode={this.props.connectionsMode} />
       </View>
     );
     switch (this.props.connectionsMode) {

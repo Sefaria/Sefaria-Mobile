@@ -139,7 +139,7 @@ class ReaderNavigationMenu extends React.Component {
                 setIsNewSearch={this.props.setIsNewSearch}
                 toggleLanguage={this.props.toggleLanguage}
                 language={language} />
-              <ScrollView style={styles.menuContent}>
+              <ScrollView contentContainerStyle={styles.menuContent}>
 
                 <RecentSection
                   theme={this.props.theme}
