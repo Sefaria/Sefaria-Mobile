@@ -28,6 +28,7 @@ class TextList extends React.Component {
   static propTypes = {
     theme:           PropTypes.object.isRequired,
     themeStr:        PropTypes.oneOf(["white", "black"]).isRequired,
+    interfaceLang:   PropTypes.oneOf(["english", "hebrew"]).isRequired,
     settings:        PropTypes.object,
     openRef:         PropTypes.func.isRequired,
     openCat:         PropTypes.func.isRequired,
@@ -125,12 +126,13 @@ class TextList extends React.Component {
         onStartShouldSetResponder={(evt)=>this.props.onDragStart(evt)}
         onResponderMove={(evt)=>this.props.onDragMove(evt)}
         onResponderRelease={(evt)=>this.props.onDragEnd(evt)}>
-
         <TextListHeader
           Sefaria={Sefaria}
           theme={this.props.theme}
           themeStr={this.props.themeStr}
+          interfaceLang={this.props.interfaceLang}
           updateCat={this.props.updateCat}
+          openCat={this.props.openCat}
           closeCat={this.props.closeCat}
           category={isSummaryMode || true ? null : this.props.recentFilters[this.props.filterIndex].category}
           filterIndex={this.props.filterIndex}
@@ -152,7 +154,6 @@ class TextList extends React.Component {
             {this.props.linkContents.length == 0 ?
               <View style={styles.noLinks}><EmptyLinksMessage theme={this.props.theme} /></View> :
               <FlatList
-
                 data={this.state.dataSource}
                 renderItem={this.renderItem}
                 getItemLayout={this.getItemLayout}
@@ -201,7 +202,6 @@ class TextList extends React.Component {
               //if true, means we have a category filter selected
               viewList = viewList.concat(cat.books.map((obook)=>{
                 const filter = new LinkFilter(obook.title, obook.heTitle, obook.collectiveTitle, obook.heCollectiveTitle, obook.refList, cat.category);
-                console.log(obook.title);
                 return (
                   <LinkNavButton
                     theme={this.props.theme}

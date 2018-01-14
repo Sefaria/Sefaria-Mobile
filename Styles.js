@@ -310,9 +310,6 @@ module.exports = StyleSheet.create({
     justifyContent: "center",
     borderTopWidth: 1,
   },
-  textListHeaderSummaryText: {
-    textAlign: "center",
-  },
   textListSummaryScrollView: {
     paddingHorizontal: iPad ? 20 : 10,
     paddingVertical: 35,

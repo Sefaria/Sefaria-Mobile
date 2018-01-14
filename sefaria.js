@@ -683,6 +683,9 @@ Sefaria = {
 
         // Process tempLinks if any
         for (let link of links) {
+          if (!link.category) {
+            link.category = 'Other';
+          }
           // Count Category
           if (link.category in summary) {
             summary[link.category].count += 1
@@ -1419,6 +1422,6 @@ Sefaria.palette.categoryColor = function(cat) {
   if (cat in Sefaria.palette.categoryColors) {
     return Sefaria.palette.categoryColors[cat];
   }
-  return "transparent";
+  return Sefaria.palette.categoryColors["Other"];
 };
 module.exports = Sefaria;

@@ -436,6 +436,7 @@ class ReaderPanel extends React.Component {
                 settings={this.state.settings}
                 theme={this.props.theme}
                 themeStr={this.props.themeStr}
+                interfaceLang={this.props.interfaceLang}
                 segmentIndexRef={this.props.segmentIndexRef}
                 textFlow={this.state.textFlow}
                 textLanguage={this.state.textLanguage}

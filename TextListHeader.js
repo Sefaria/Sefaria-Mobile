@@ -10,7 +10,8 @@ import {
 
 var {
   CategoryColorLine,
-  TripleDots
+  TripleDots,
+  DirectedButton,
 } = require('./Misc.js');
 
 const styles  = require('./Styles');
@@ -21,7 +22,10 @@ class TextListHeader extends React.Component {
   static propTypes = {
     Sefaria:        PropTypes.object.isRequired,
     theme:          PropTypes.object.isRequired,
+    themeStr:       PropTypes.string.isRequired,
+    interfaceLang:  PropTypes.oneOf(["english", "hebrew"]).isRequired,
     updateCat:      PropTypes.func.isRequired,
+    openCat:        PropTypes.func.isRequired,
     closeCat:       PropTypes.func.isRequired,
     category:       PropTypes.string,
     filterIndex:    PropTypes.number,
@@ -40,30 +44,47 @@ class TextListHeader extends React.Component {
 
   render() {
     var style = {"borderTopColor": Sefaria.palette.categoryColor(this.props.category)};
+    let content;
+    let outerStyles;
     switch (this.props.connectionsMode) {
-      case ('filter'):
-        var viewList = this.props.recentFilters.map((filter, i)=>{
-          return (<TextListHeaderItem
-                    theme={this.props.theme}
-                    language={this.props.language}
-                    filter={filter}
-                    filterIndex={i}
-                    selected={i == this.props.filterIndex}
-                    updateCat={this.props.updateCat}
-                    key={i} />
-              );
-        });
-        return (
-          <View style={[styles.textListHeader, this.props.theme.textListHeader, style]}>
-            <ScrollView style={styles.textListHeaderScrollView} horizontal={true}>{viewList}</ScrollView>
-            <TripleDots onPress={this.props.closeCat} themeStr={this.props.themeStr}/>
-           </View>
+      case (null):
+        // summary
+        outerStyles = [styles.textListHeader, styles.textListHeaderSummary, this.props.theme.textListHeader];
+        content = (
+          <Text style={[styles.textListHeaderSummaryText, this.props.theme.textListHeaderSummaryText]}>{strings.resources}</Text>
         );
+        break;
       default:
-        return (<View style={[styles.textListHeader, styles.textListHeaderSummary, this.props.theme.textListHeader]}>
-                  <Text style={[styles.textListHeaderSummaryText, this.props.theme.textListHeaderSummaryText]}>{strings.resources}</Text>
-                </View>);
+        // category or book filter selected
+        const isheb = this.props.interfaceLang === "hebrew";
+        const backImageStyle = isheb ? styles.directedButtonWithTextHe : styles.directedButtonWithTextEn;
+        const selectedFilter = this.props.recentFilters[this.props.filterIndex];
+        const isInFilter = this.props.connectionsMode === 'filter';
+        const backText =  isInFilter ?
+          (this.props.language === "hebrew" ?
+            (Sefaria.hebrewCategory(selectedFilter.category)) : selectedFilter.category
+          ) : strings.resources;
+        outerStyles = [styles.textListHeader, styles.textListHeaderSummary, this.props.theme.textListHeader];
+        content = (
+          <View style={{flex: 1, flexDirection: isheb ? 'row-reverse' : 'row', justifyContent: 'flex-start' }}>
+            <DirectedButton
+              text={backText}
+              themeStr={this.props.themeStr}
+              language={this.props.interfaceLang}
+              textStyle={[this.props.theme.textListHeaderSummaryText]}
+              imageStyle={[styles.menuButton, backImageStyle]}
+              onPress={()=> { isInFilter ? this.props.openCat(selectedFilter.category) : this.props.closeCat(); }}
+              direction={"back"}
+            />
+          </View>
+        );
+        break;
     }
+    return (
+      <View style={outerStyles}>
+        { content }
+     </View>
+   );
   }
 }
 
