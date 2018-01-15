@@ -173,9 +173,7 @@ class TextColumn extends React.Component {
       if (this.props.textFlow === 'continuous') {
         const targetY = this.continuousRowYHash[segmentRef] + this.state.itemLayoutList[this.state.jumpInfoMap.get(this.props.sectionArray[section])].offset;
         if (targetY) {
-          // yes this is ridiculous. hopefully scrollToOffset() will get implemented on SectionList soon.
-          // see https://github.com/facebook/react-native/issues/13151#issuecomment-337442644
-          this.sectionListRef._wrapperListRef._listRef.scrollToOffset({
+          this.sectionListRef.scrollToOffset({
             animated: false,
             offset: targetY,
           });
@@ -466,22 +464,25 @@ class TextColumn extends React.Component {
   }
   waitForScrollToLocation = (i) => {
     if (!this._isMounted) { return; }
-    
+
+    let viewableIndices;
     try {
-      const topVis = this.sectionListRef._wrapperListRef._listRef._viewabilityHelper._viewableIndices[0];
+      viewableIndices = this.sectionListRef._wrapperListRef._listRef._viewabilityTuples[0].viewabilityHelper._viewableIndices;
     } catch (e) {
-      setTimeout(()=>{this.waitForScrollToLocation(i+1)}, 20);
+      if (i < 20) {
+        setTimeout(()=>{this.waitForScrollToLocation(i+1)}, 20);
+      }
       return;
     }
-    
-    if (topVis !== this.targetScrollIndex) {
-      this.setState({itemLayoutList: null}, ()=>{this.onTopReaching = false});
-      this.sectionListRef.scrollToLocation({
+
+    if (viewableIndices.indexOf(this.targetScrollIndex) !== -1) {
+      this.setState({itemLayoutList: null}, () => {this.onTopReaching = false;});
+      /*this.sectionListRef.scrollToLocation({
           animated: false,
           sectionIndex: 0,
           itemIndex: this.targetScrollIndex,
           viewPosition: 0.1,
-      });
+      });*/
     } else if (i < 20) { // if it's running more than 400ms, kill the recursion
       setTimeout(()=>{this.waitForScrollToLocation(i+1)}, 20);
     }
@@ -519,9 +520,7 @@ class TextColumn extends React.Component {
           if (targetIndex === undefined || targetIndex === null || targetIndex >= itemLayoutList.length) {
             console.log("FAILED to find targetIndex", jumpInfoMap);
           } else {
-            //console.log("Before", this.sectionListRef._wrapperListRef._listRef);
             this.targetScrollIndex = targetIndex-1;
-            console.log("Old vis", this.targetScrollIndex);
             this.sectionListRef.scrollToLocation(
               {
                 animated: animated,
@@ -531,7 +530,6 @@ class TextColumn extends React.Component {
               }
             );
             this.waitForScrollToLocation(0);
-            //setTimeout(()=>{ console.log("After", this.sectionListRef._wrapperListRef._listRef); this.setState({itemLayoutList:null});}, 2000);
           }
           this.setState({jumpState: { jumping: false }});
         }
@@ -552,7 +550,6 @@ class TextColumn extends React.Component {
   }
 
   render() {
-    //if (this.sectionListRef) console.log("Before Before Nothing", pretty(this.sectionListRef._wrapperListRef._listRef));
     return (
         <View style={styles.textColumn} >
           <SectionList
