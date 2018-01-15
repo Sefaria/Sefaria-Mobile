@@ -73,7 +73,7 @@ module.exports = StyleSheet.create({
     color: Colors.secondaryText
   },
   textListHeaderItemSelected: {
-    color: Colors.mainText
+    color: Colors.mainText,
   },
   textListContentOuter: {
     backgroundColor: Colors.textBackground,

@@ -149,19 +149,28 @@ class TextList extends React.Component {
           // behavior of its contents, result in rows in the list view with small width if their content is small.
           var listViewStyles = [styles.textListContentListView];
           return (
-          <View style={[styles.textColumn, this.props.theme.textListContentOuter, {maxWidth: null}]}>
-            {textListHeader}
-            {this.props.linkContents.length == 0 ?
-              <View style={styles.noLinks}><EmptyLinksMessage theme={this.props.theme} /></View> :
-              <FlatList
-                data={this.state.dataSource}
-                renderItem={this.renderItem}
-                getItemLayout={this.getItemLayout}
-                contentContainerStyle={{justifyContent: "center"}}
-                onViewableItemsChanged={this.onViewableItemsChanged}
-              />
-            }
-          </View>
+            <View style={[styles.textColumn, this.props.theme.textListContentOuter, {maxWidth: null}]}>
+              {textListHeader}
+              {this.props.linkContents.length == 0 ?
+                <View style={styles.noLinks}><EmptyLinksMessage theme={this.props.theme} /></View> :
+                <FlatList
+                  data={this.state.dataSource}
+                  renderItem={this.renderItem}
+                  getItemLayout={this.getItemLayout}
+                  contentContainerStyle={{justifyContent: "center"}}
+                  onViewableItemsChanged={this.onViewableItemsChanged}
+                  ListHeaderComponent={
+                    <RecentFilterNav
+                      theme={this.props.theme}
+                      recentFilters={this.props.recentFilters}
+                      filterIndex={this.props.filterIndex}
+                      updateCat={this.props.updateCat}
+                      language={this.props.language}
+                    />
+                  }
+                />
+              }
+            </View>
           );
         } else {
           return null;
@@ -341,6 +350,64 @@ class EmptyLinksMessage extends React.Component {
 
   render() {
     return (<Text style={[styles.emptyLinksMessage, this.props.theme.secondaryText]}>{strings.noConnectionsMessage}</Text>);
+  }
+}
+
+class RecentFilterNav extends React.Component {
+  static propTypes = {
+    theme:          PropTypes.object.isRequired,
+    updateCat:      PropTypes.func.isRequired,
+    recentFilters:  PropTypes.array,
+    filterIndex:    PropTypes.number,
+    language:       PropTypes.oneOf(["english","hebrew","bilingual"]),
+  }
+
+  render() {
+    return (
+      <View style={{flex: 1, flexDirection: 'row', flexWrap: 'wrap', padding: 10}}>
+        { this.props.recentFilters.map((filter, i) =>
+          <RecentFilterNavItem
+            theme={this.props.theme}
+            language={this.props.language}
+            updateCat={this.props.updateCat}
+            filter={filter}
+            filterIndex={i}
+            selected={i === this.props.filterIndex}
+            key={filter.title + "|" + filter.category}
+          />
+        )}
+      </View>
+    );
+  }
+}
+
+class RecentFilterNavItem extends React.Component {
+    static propTypes = {
+    theme:          PropTypes.object.isRequired,
+    updateCat:      PropTypes.func.isRequired,
+    filter:         PropTypes.object,
+    filterIndex:    PropTypes.number,
+    language:       PropTypes.oneOf(["english","hebrew","bilingual"]),
+    selected:       PropTypes.bool
+  };
+
+    render() {
+    var filterStr = this.props.language == "hebrew" ?
+      (this.props.filter.heCollectiveTitle ? this.props.filter.heCollectiveTitle : this.props.filter.heTitle) : //NOTE backwards compatibility
+      (this.props.filter.collectiveTitle ? this.props.filter.collectiveTitle : this.props.filter.title);
+    if (!this.props.filter.collectiveTitle) {
+      console.log("no coltits", this.props.filter);
+    }
+    var textStyles = [styles.textListHeaderItemText, this.props.theme.textListHeaderItemText];
+
+      if (this.props.selected) {
+        textStyles.push(this.props.theme.textListHeaderItemSelected);
+      }
+    return (
+      <TouchableOpacity style={{borderRadius: 12, borderWidth: 1, borderColor: "#ccc", paddingHorizontal: 14, paddingVertical: 8, margin: 5, backgroundColor: "white"}} onPress={()=>{this.props.updateCat(null, this.props.filterIndex)}}>
+        <Text style={textStyles}>{filterStr}</Text>
+      </TouchableOpacity>
+      );
   }
 }
 

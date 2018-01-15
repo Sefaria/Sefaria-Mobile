@@ -88,31 +88,4 @@ class TextListHeader extends React.Component {
   }
 }
 
-class TextListHeaderItem extends React.Component {
-    static propTypes = {
-    theme:          PropTypes.object.isRequired,
-    updateCat:      PropTypes.func.isRequired,
-    filter:         PropTypes.object,
-    filterIndex:    PropTypes.number,
-    language:       PropTypes.oneOf(["english","hebrew","bilingual"]),
-    selected:       PropTypes.bool
-  };
-
-    render() {
-    var filterStr = this.props.language == "hebrew" ?
-      (this.props.filter.heCollectiveTitle ? this.props.filter.heCollectiveTitle : this.props.filter.heTitle) : //NOTE backwards compatibility
-      (this.props.filter.collectiveTitle ? this.props.filter.collectiveTitle : this.props.filter.title);
-    var textStyles = [styles.textListHeaderItemText, this.props.theme.textListHeaderItemText];
-
-      if (this.props.selected) {
-        textStyles.push(this.props.theme.textListHeaderItemSelected);
-      }
-    return (
-      <TouchableOpacity style={styles.textListHeaderItem} onPress={()=>{this.props.updateCat(null, this.props.filterIndex)}}>
-        <Text style={textStyles}>{filterStr}</Text>
-      </TouchableOpacity>
-      );
-  }
-}
-
 module.exports = TextListHeader;

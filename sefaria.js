@@ -179,8 +179,16 @@ Sefaria = {
   categoryForRef: function(ref) {
     return Sefaria.categoryForTitle(Sefaria.textTitleForRef(ref));
   },
-  getTitle: function(ref, isCommentary, isHe, engTitle) {
-      if (isHe && engTitle) {
+  getTitle: function(ref, heRef, isCommentary, isHe) {
+      const bookTitle = Sefaria.textTitleForRef(ref);
+      const collectiveTitles = Sefaria.collectiveTitlesDict[bookTitle];
+      if (collectiveTitles) {
+        if (isHe) { return collectiveTitles.he; }
+        else      { return collectiveTitles.en; }
+      }
+      if (isHe) {
+        var engTitle = ref; //backwards compatibility for how this function was originally written
+        ref = heRef;
         var engSeg = engTitle.split(":")[1];
         var engFileNameStem = engTitle.split(":")[0];
         var engSec = engFileNameStem.substring(engFileNameStem.lastIndexOf(" ")+1,engFileNameStem.length);
@@ -188,8 +196,6 @@ Sefaria = {
         var heDaf = Sefaria.hebrew.encodeHebrewDaf(engSec,"long");
         if (heDaf != null) {
           var fullHeDaf = heDaf + ":" + Sefaria.hebrew.encodeHebrewNumeral(engSeg);
-        } else {
-
         }
       }
       if (fullHeDaf) {
@@ -210,6 +216,7 @@ Sefaria = {
       return bookRefStem;
   },
   booksDict: {},
+  collectiveTitlesDict: {},
   _index: {}, // Cache for text index records
   index: function(text, index) {
     if (!index) {
@@ -237,6 +244,7 @@ Sefaria = {
           Sefaria._loadJSON(tocPath).then(function(data) {
             Sefaria.toc = data;
             Sefaria._cacheIndexFromToc(data);
+            console.log("Size of", Sefaria.memorySizeOf(Sefaria.collectiveTitlesDict));
             resolve();
           });
         });
@@ -291,6 +299,9 @@ Sefaria = {
       } else {
         Sefaria.index(toc[i].title, toc[i]);
         Sefaria.booksDict[toc[i].title] = 1;
+        if (toc[i].collectiveTitle) {
+          Sefaria.collectiveTitlesDict[toc[i].title] = {en: toc[i].collectiveTitle, he: toc[i].heCollectiveTitle};
+        }
       }
     }
   },
@@ -403,9 +414,9 @@ Sefaria = {
       for (var j =0; j < data.content[i].links.length; j++) {
         var link = data.content[i].links[j];
         if (link.category === "Commentary") {
-          var title = Sefaria.getTitle(link.sourceRef, true, false);
+          var title = Sefaria.getTitle(link.sourceRef, link.sourceHeRef, true, false);
           en.add(title);
-          he.add(Sefaria.getTitle(link.sourceHeRef, true, true));
+          he.add(Sefaria.getTitle(link.sourceRef, link.sourceHeRef, true, true));
         }
       }
     }
@@ -704,8 +715,8 @@ Sefaria = {
             category.books[link.textTitle] =
             {
                 count:             1,
-                title:             Sefaria.getTitle(link.sourceRef, isCommentary, false),
-                heTitle:           Sefaria.getTitle(link.sourceHeRef, isCommentary, true, link.sourceRef),
+                title:             Sefaria.getTitle(link.sourceRef, link.sourceHeRef, isCommentary, false),
+                heTitle:           Sefaria.getTitle(link.sourceRef, link.sourceHeRef, isCommentary, true),
                 collectiveTitle:   link.collectiveTitle,
                 heCollectiveTitle: link.heCollectiveTitle,
                 category:          link.category,
@@ -1423,5 +1434,46 @@ Sefaria.palette.categoryColor = function(cat) {
     return Sefaria.palette.categoryColors[cat];
   }
   return Sefaria.palette.categoryColors["Other"];
+};
+
+//for debugging. from https://gist.github.com/zensh/4975495
+Sefaria.memorySizeOf = function (obj) {
+    var bytes = 0;
+
+    function sizeOf(obj) {
+        if(obj !== null && obj !== undefined) {
+            switch(typeof obj) {
+            case 'number':
+                bytes += 8;
+                break;
+            case 'string':
+                bytes += obj.length * 2;
+                break;
+            case 'boolean':
+                bytes += 4;
+                break;
+            case 'object':
+                var objClass = Object.prototype.toString.call(obj).slice(8, -1);
+                if(objClass === 'Object' || objClass === 'Array') {
+                    for(var key in obj) {
+                        if(!obj.hasOwnProperty(key)) continue;
+                        sizeOf(obj[key]);
+                        sizeOf(key);
+                    }
+                } else bytes += obj.toString().length * 2;
+                break;
+            }
+        }
+        return bytes;
+    };
+
+    function formatByteSize(bytes) {
+        if(bytes < 1024) return bytes + " bytes";
+        else if(bytes < 1048576) return(bytes / 1024).toFixed(3) + " KiB";
+        else if(bytes < 1073741824) return(bytes / 1048576).toFixed(3) + " MiB";
+        else return(bytes / 1073741824).toFixed(3) + " GiB";
+    };
+
+    return formatByteSize(sizeOf(obj));
 };
 module.exports = Sefaria;
