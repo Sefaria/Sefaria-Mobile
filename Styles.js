@@ -34,9 +34,7 @@ module.exports = StyleSheet.create({
     alignSelf: 'stretch'
   },
   categoryColorLine: {
-    height: 26,
-    borderTopWidth: 20,
-    borderTopColor: "black",
+    height: 8,
     alignSelf: "stretch"
   },
   header: {

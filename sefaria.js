@@ -657,9 +657,9 @@ Sefaria = {
       if (!runNow) {
         //console.log("Putting in queue:",ref,"Length:",Sefaria.links._linkContentLoadingStack.length);
         Sefaria.links._linkContentLoadingStack.push({
-                                                      "ref":ref, 
+                                                      "ref":ref,
                                                       "pos":pos,
-                                                      "resolveClosure":resolveClosure, 
+                                                      "resolveClosure":resolveClosure,
                                                       "rejectClosure":rejectClosure
                                                     });
       }
@@ -680,7 +680,7 @@ Sefaria = {
         // Returns an ordered array summarizing the link counts by category and text
         // Takes an array of links which are of the form { "category", "sourceHeRef", "sourceRef", "textTitle"}
         var summary = {"All": {count: 0, books: {}}, "Commentary": {count: 0, books: {}}};
-        
+
         // Process tempLinks if any
         for (let link of links) {
           // Count Category
@@ -789,7 +789,7 @@ Sefaria = {
 
         // Remove "Commentary" section if it is empty or only contains greyed out items
         if (summaryList[0].books.length == 0) { summaryList = summaryList.slice(1); }
-        
+
         // Remove "All" section if it's count is zero
         if (summaryList[summaryList.length-1].count == 0) { summaryList = summaryList.slice(0, -1); }
 
@@ -988,6 +988,28 @@ Sefaria.util = {
   regexEscape: function(s) {
     return s.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
   },
+  lightenDarkenColor: function(col, amt) {
+    var usePound = false;
+    if (col[0] == "#") {
+      col = col.slice(1);
+      usePound = true;
+    }
+    var num = parseInt(col,16);
+    var r = (num >> 16) + amt;
+    if (r > 255) r = 255;
+    else if  (r < 0) r = 0;
+    var b = ((num >> 8) & 0x00FF) + amt;
+    if (b > 255) b = 255;
+    else if  (b < 0) b = 0;
+    var g = (num & 0x0000FF) + amt;
+    if (g > 255) g = 255;
+    else if (g < 0) g = 0;
+    let colorString = (g | (b << 8) | (r << 16)).toString(16);
+    while (colorString.length < 6) {
+      colorString = "0" + colorString;
+    }
+    return (usePound?"#":"") + colorString;
+  }
 };
 
 Sefaria.downloader = Downloader;
@@ -1236,7 +1258,7 @@ Sefaria.hebrewCategory = function(cat) {
     // pregenerated hebrew categories from dump
     if (cat in Sefaria.hebrewCategories) {
       return Sefaria.hebrewCategories[cat];
-    }  
+    }
   }
 
   const categories = {
