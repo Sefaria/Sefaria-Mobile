@@ -182,7 +182,7 @@ Sefaria = {
   getTitle: function(ref, heRef, isCommentary, isHe) {
       const bookTitle = Sefaria.textTitleForRef(ref);
       const collectiveTitles = Sefaria.collectiveTitlesDict[bookTitle];
-      if (collectiveTitles) {
+      if (collectiveTitles && isCommentary) {
         if (isHe) { return collectiveTitles.he; }
         else      { return collectiveTitles.en; }
       }
@@ -244,7 +244,6 @@ Sefaria = {
           Sefaria._loadJSON(tocPath).then(function(data) {
             Sefaria.toc = data;
             Sefaria._cacheIndexFromToc(data);
-            console.log("Size of", Sefaria.memorySizeOf(Sefaria.collectiveTitlesDict));
             resolve();
           });
         });

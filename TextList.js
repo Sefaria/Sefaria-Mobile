@@ -151,25 +151,27 @@ class TextList extends React.Component {
           return (
             <View style={[styles.textColumn, this.props.theme.textListContentOuter, {maxWidth: null}]}>
               {textListHeader}
-              {this.props.linkContents.length == 0 ?
-                <View style={styles.noLinks}><EmptyLinksMessage theme={this.props.theme} /></View> :
-                <FlatList
-                  data={this.state.dataSource}
-                  renderItem={this.renderItem}
-                  getItemLayout={this.getItemLayout}
-                  contentContainerStyle={{justifyContent: "center"}}
-                  onViewableItemsChanged={this.onViewableItemsChanged}
-                  ListHeaderComponent={
-                    <RecentFilterNav
-                      theme={this.props.theme}
-                      recentFilters={this.props.recentFilters}
-                      filterIndex={this.props.filterIndex}
-                      updateCat={this.props.updateCat}
-                      language={this.props.language}
-                    />
-                  }
-                />
-              }
+              <FlatList
+                data={this.state.dataSource}
+                renderItem={this.renderItem}
+                getItemLayout={this.getItemLayout}
+                contentContainerStyle={{justifyContent: "center"}}
+                onViewableItemsChanged={this.onViewableItemsChanged}
+                ListHeaderComponent={
+                  <RecentFilterNav
+                    theme={this.props.theme}
+                    recentFilters={this.props.recentFilters}
+                    filterIndex={this.props.filterIndex}
+                    updateCat={this.props.updateCat}
+                    language={this.props.settings.language}
+                  />
+                }
+                ListEmptyComponent={
+                  <View style={styles.noLinks}>
+                    <EmptyLinksMessage theme={this.props.theme} />
+                  </View>
+                }
+              />
             </View>
           );
         } else {
@@ -364,7 +366,7 @@ class RecentFilterNav extends React.Component {
 
   render() {
     return (
-      <View style={{flex: 1, flexDirection: 'row', flexWrap: 'wrap', padding: 10}}>
+      <View style={[styles.textListRecentFilterNav, {flexDirection: this.props.language === "hebrew" ? "row-reverse" : "row"}]}>
         { this.props.recentFilters.map((filter, i) =>
           <RecentFilterNavItem
             theme={this.props.theme}
@@ -395,16 +397,19 @@ class RecentFilterNavItem extends React.Component {
     var filterStr = this.props.language == "hebrew" ?
       (this.props.filter.heCollectiveTitle ? this.props.filter.heCollectiveTitle : this.props.filter.heTitle) : //NOTE backwards compatibility
       (this.props.filter.collectiveTitle ? this.props.filter.collectiveTitle : this.props.filter.title);
-    if (!this.props.filter.collectiveTitle) {
-      console.log("no coltits", this.props.filter);
-    }
-    var textStyles = [styles.textListHeaderItemText, this.props.theme.textListHeaderItemText];
 
-      if (this.props.selected) {
-        textStyles.push(this.props.theme.textListHeaderItemSelected);
-      }
+    const touchStyles = [styles.textListHeaderItem, this.props.theme.textListHeaderItem];
+    var textStyles = [styles.textListHeaderItemText, this.props.theme.textListHeaderItemText, this.props.language == "hebrew" ? styles.hebrewText : styles.englishText];
+    if (this.props.selected) {
+      touchStyles.push(this.props.theme.textListHeaderItemSelected);
+      textStyles.push(this.props.theme.textListHeaderItemTextSelected);
+    }
     return (
-      <TouchableOpacity style={{borderRadius: 12, borderWidth: 1, borderColor: "#ccc", paddingHorizontal: 14, paddingVertical: 8, margin: 5, backgroundColor: "white"}} onPress={()=>{this.props.updateCat(null, this.props.filterIndex)}}>
+      <TouchableOpacity
+        style={touchStyles}
+        disabled={this.props.selected}
+        onPress={()=>{this.props.updateCat(null, this.props.filterIndex)}}
+      >
         <Text style={textStyles}>{filterStr}</Text>
       </TouchableOpacity>
       );

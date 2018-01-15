@@ -317,6 +317,11 @@ module.exports = StyleSheet.create({
   textListSummarySection: {
     marginBottom: 22
   },
+  textListRecentFilterNav: {
+    flex: 1,
+    flexWrap: 'wrap',
+    padding: 10,
+  },
   textListContentOuter: {
     flex: 1,
     flexDirection: "column",
@@ -339,9 +344,13 @@ module.exports = StyleSheet.create({
     alignSelf: "stretch"
   },
   textListHeaderItem: {
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "#ccc",
+    paddingHorizontal: 14,
+    paddingVertical: 5,
     margin: 5,
-    justifyContent: "center",
-    alignItems: "center",
+    backgroundColor: "white",
   },
   textListHeaderItemText: {
     fontSize: iPad ? 18 : 16,
