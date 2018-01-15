@@ -131,7 +131,6 @@ class TextList extends React.Component {
           theme={this.props.theme}
           themeStr={this.props.themeStr}
           interfaceLang={this.props.interfaceLang}
-          updateCat={this.props.updateCat}
           openCat={this.props.openCat}
           closeCat={this.props.closeCat}
           category={isSummaryMode || true ? null : this.props.recentFilters[this.props.filterIndex].category}

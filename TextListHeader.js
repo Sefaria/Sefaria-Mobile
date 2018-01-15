@@ -24,7 +24,6 @@ class TextListHeader extends React.Component {
     theme:          PropTypes.object.isRequired,
     themeStr:       PropTypes.string.isRequired,
     interfaceLang:  PropTypes.oneOf(["english", "hebrew"]).isRequired,
-    updateCat:      PropTypes.func.isRequired,
     openCat:        PropTypes.func.isRequired,
     closeCat:       PropTypes.func.isRequired,
     category:       PropTypes.string,
