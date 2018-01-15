@@ -383,7 +383,6 @@ class ReaderApp extends React.Component {
   };
 
   openNav = () => {
-      console.log("openNav");
       this.clearAllSearchFilters();
       this.setState({loaded: true, appliedSearchFilters: [], searchFiltersValid: false});
       this.openMenu("navigation");
@@ -762,8 +761,13 @@ class ReaderApp extends React.Component {
   };
 
   render() {
+    const cat = this.state.menuOpen ? (this.state.navigationCategories.length ? this.state.navigationCategories[0] : "Other") : Sefaria.categoryForTitle(this.state.textTitle);
+    let style = {};
+    if (cat) {
+      style = {backgroundColor: Sefaria.util.lightenDarkenColor(Sefaria.palette.categoryColor(cat), -25)};
+    }
     return (
-      <SafeAreaView style={styles.safeArea}>
+      <SafeAreaView style={[styles.safeArea, style]}>
         <View style={[styles.container, this.state.theme.container]} {...this.gestureResponder}>
             <StatusBar
                 barStyle="light-content" />
