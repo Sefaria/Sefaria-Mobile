@@ -761,13 +761,15 @@ class ReaderApp extends React.Component {
   };
 
   render() {
+    /*
+    // make the SafeAreaView background based on the category color
     const cat = this.state.menuOpen ? (this.state.navigationCategories.length ? this.state.navigationCategories[0] : "Other") : Sefaria.categoryForTitle(this.state.textTitle);
     let style = {};
     if (cat) {
       style = {backgroundColor: Sefaria.util.lightenDarkenColor(Sefaria.palette.categoryColor(cat), -25)};
-    }
+    }*/
     return (
-      <SafeAreaView style={[styles.safeArea, style]}>
+      <SafeAreaView style={styles.safeArea}>
         <View style={[styles.container, this.state.theme.container]} {...this.gestureResponder}>
             <StatusBar
                 barStyle="light-content" />
