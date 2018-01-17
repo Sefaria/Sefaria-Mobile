@@ -119,7 +119,7 @@ Sefaria = {
                   return;
                 }
                 if (isLinkRequest) {
-                  Sefaria.api._request(ref, 'text', false)
+                  Sefaria.api._request(ref, 'text', { context: false })
                     .then((data) => {
                       let en_text = (data.text instanceof Array) ? data.text.join(' ') : data.text;
                       let he_text = (data.he   instanceof Array) ? data.he.join(' ')   : data.he;

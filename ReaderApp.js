@@ -189,7 +189,9 @@ class ReaderApp extends React.Component {
           Sefaria.links.reset();
           // Preload Text TOC data into memory
           Sefaria.textToc(data.indexTitle, function() {});
-
+          Sefaria.api.versions(data.indexTitle).then((data)=> {
+            console.log("success", data);
+          });
 
           Sefaria.saveRecentItem({ref: ref, heRef: data.heRef, category: Sefaria.categoryForRef(ref)});
       }.bind(this)).catch(function(error) {

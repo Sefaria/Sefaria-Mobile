@@ -11,6 +11,8 @@ var Api = {
   */
   _textCache: {}, //in memory cache for API data
   _linkCache: {},
+  _versions: {},
+  _translateVersions: {},
   _toIOS: function(responses) {
       //console.log(responses);
       if (!responses) { return responses; }
@@ -114,20 +116,24 @@ var Api = {
   apiType: string `oneOf(["text","links","index"])`. passing undefined gets the standard Reader URL.
   context is a required param if apiType == 'text'. o/w it's ignored
   */
-  _toURL: function(ref, useHTTPS, apiType, context) {
-    var url = '';
+  _toURL: function(ref, useHTTPS, apiType, { context, versions }) {
+    let url = '';
     if (useHTTPS) {
       url += 'https://www.sefaria.org/';
     } else {
       url += 'http://www.sefaria.org/';
     }
 
-    var urlSuffix = '';
+    let urlSuffix = '';
     if (apiType) {
       switch (apiType) {
         case "text":
           url += 'api/texts/';
           urlSuffix = `?context=${context === true ? 1 : 0}&commentary=0`;
+          if (versions) {
+            if (versions.en) { urlSuffix += `&ven=${versions.en.replace(/ /g, "_")}`; }
+            if (versions.he) { urlSuffix += `&vhe=${versions.he.replace(/ /g, "_")}`; }
+          }
           break;
         case "links":
           url += 'api/links/';
@@ -137,8 +143,11 @@ var Api = {
           url += 'api/v2/index/';
           urlSuffix = '?with_content_counts=1';
           break;
+        case "versions":
+          url += "api/texts/versions/";
+          break;
         default:
-          console.error("You passed invalid type: ",apiType," into _urlForRef()");
+          console.error("You passed invalid type: ",apiType," into _toURL()");
           break;
       }
     }
@@ -150,7 +159,7 @@ var Api = {
   },
   _text: function(ref) {
     return new Promise((resolve, reject)=>{
-      Sefaria.api._request(ref,'text',true)
+      Sefaria.api._request(ref,'text', { context: true })
       .then((response)=>{
         resolve({"text": response, "links": [], "ref": ref});
       }).catch(error => reject(error));
@@ -224,7 +233,7 @@ var Api = {
     var textResponse = null;
     var linksResponse = null;
     return new Promise(function(resolve,reject) {
-      Sefaria.api._request(ref,'text',true)
+      Sefaria.api._request(ref,'text', {context: true})
       .then((response)=>{
         numResponses += 1;
         textResponse = response;
@@ -239,11 +248,32 @@ var Api = {
 
     });
   },
+  versions: function(ref) {
+    return new Promise((resolve, reject) => {
+      Sefaria.api._request(ref, 'versions', {}, true)
+      .then((response)=>{
+        for (let v of response) {
+          Sefaria.api._translateVersions[v.versionTitle] = {
+            en: v.versionTitle,
+            he: !!v.versionTitleInHebrew ? v.versionTitleInHebrew : v.versionTitle,
+            lang: v.language,
+          };
+        }
+        Sefaria.api._versions[ref] = response;
+        resolve(response);
+      })
+      .catch((error)=>{
+        console.log("Versions API error:",ref, error);
+      });
+    });
+  },
   /*
   context is a required param if apiType == 'text'. o/w it's ignored
+  versions is object with keys { en, he } specifying version titles
+  failSilently - if true, dont display a message if api call fails
   */
-  _request: function(ref, apiType, context) {
-    var url = Sefaria.api._toURL(ref, true, apiType, context);
+  _request: function(ref, apiType, { context, versions }, failSilently) {
+    var url = Sefaria.api._toURL(ref, true, apiType, { context, versions });
     return new Promise(function(resolve, reject) {
       fetch(url)
       .then(function(response) {
@@ -266,15 +296,20 @@ var Api = {
         }
       })
       .catch((response)=>{
-        AlertIOS.alert(
-          strings.noInternet,
-          strings.noInternetMessage,
-          [
-            {text: strings.cancel, onPress: () => { reject("Return to Nav"); }, style: 'cancel' },
-            {text: strings.tryAgain, onPress: () => {
-              Sefaria.api._request(ref,apiType,context).then(resolve);
-            }}
-          ]);
+        if (failSilently) {
+          reject("Return to Nav");
+        } else {
+          AlertIOS.alert(
+            strings.noInternet,
+            strings.noInternetMessage,
+            [
+              {text: strings.cancel, onPress: () => { reject("Return to Nav"); }, style: 'cancel' },
+              {text: strings.tryAgain, onPress: () => {
+                Sefaria.api._request(ref,apiType, { context, versions },failSilently).then(resolve);
+              }}
+            ]
+          );
+        }
       });
     });
   }
