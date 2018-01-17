@@ -25,13 +25,15 @@ Sefaria = {
   },
   /*
   if `isLinkRequest` and you're using API, only return single segment corresponding to link
+  versions is object with keys { en, he } specifying version titles of requested ref
   */
-  data: function(ref, isLinkRequest) {
+  data: function(ref, isLinkRequest, versions) {
     return new Promise(function(resolve, reject) {
       var fileNameStem = ref.split(":")[0];
       var bookRefStem  = Sefaria.textTitleForRef(ref);
-      var jsonPath     = Sefaria._JSONSourcePath(fileNameStem);
-      var zipPath      = Sefaria._zipSourcePath(bookRefStem);
+      //if you want to open a specific version, there is no json file. force an api call instead
+      var jsonPath     = !!versions ? null : Sefaria._JSONSourcePath(fileNameStem);
+      var zipPath      = !!versions ? null : Sefaria._zipSourcePath(bookRefStem);
 
       //console.log("file name stem",fileNameStem);
 
@@ -73,9 +75,7 @@ Sefaria = {
       };
 
       var processApiData = function(data) {
-        if (!(data.requestedRef in Sefaria.api._textCache)) {
-          Sefaria.api._textCache[data.requestedRef] = data;
-        }
+        Sefaria.api.textCache(ref, versions, data);
         Sefaria.cacheCommentatorListBySection(data);
         Sefaria.cacheVersionInfo(data, true);
         //console.log(data);
@@ -112,10 +112,11 @@ Sefaria = {
                   });
               } else {
                 // The zip doesn't exist yet, so make an API call
-                if (ref in Sefaria.api._textCache) {
+                const cacheValue = Sefaria.api.textCache(ref, versions);
+                if (cacheValue) {
                   // Don't check the API cahce until we've checked for a local file, because the API
                   // cache may be left in a state with text but without links.
-                  processApiData(Sefaria.api._textCache[ref]);
+                  processApiData(cacheValue);
                   return;
                 }
                 if (isLinkRequest) {
@@ -439,7 +440,7 @@ Sefaria = {
       callback(data);
     };
     Sefaria._loadJSON(path).then(resolver)
-    .catch(()=>{Sefaria.api._request(title, 'index').then(resolver)})
+    .catch(()=>{Sefaria.api._request(title, 'index', {}).then(resolver)})
     return null;
   },
   _fixTalmudAltStructAddressTypes: function(textToc) {

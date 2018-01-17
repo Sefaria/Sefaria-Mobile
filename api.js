@@ -13,6 +13,19 @@ var Api = {
   _linkCache: {},
   _versions: {},
   _translateVersions: {},
+  _textCacheKey: function(ref, versions) {
+    return ref + (!!versions ? (!!versions.en ? `|en:${versions.en}` : "") + (!!versions.he ? `|he:${versions.he}` : "")  : "");
+  },
+  textCache: function(ref, versions, value) {
+    const key = Sefaria.api._textCacheKey(ref, versions);
+    if (value) {
+      //setting
+      if (!(key in Sefaria.api._textCache)) { Sefaria.api._textCache[key] = value; }
+    } else {
+      //getting
+      return Sefaria.api._textCache[key];
+    }
+  },
   _toIOS: function(responses) {
       //console.log(responses);
       if (!responses) { return responses; }
@@ -177,7 +190,7 @@ var Api = {
           if (ref in Sefaria.api._linkCache) {
             resolve(Sefaria.api._linkCache[ref]);
           } else {
-            Sefaria.api._request(ref,'links')
+            Sefaria.api._request(ref,'links', {})
             .then((response)=>{
               //console.log("Setting API Link Cache for ",ref)
               //console.log(response)
@@ -239,7 +252,7 @@ var Api = {
         textResponse = response;
         checkResolve(resolve);
       });
-      Sefaria.api._request(ref,'links')
+      Sefaria.api._request(ref,'links', {})
       .then((response)=>{
         numResponses += 1;
         linksResponse = response;

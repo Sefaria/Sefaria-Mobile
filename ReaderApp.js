@@ -132,6 +132,9 @@ class ReaderApp extends React.Component {
             this.updateLinkSummary(section, segment);
           }
       }
+      if (this.state.connectionsMode === "versions") {
+        //update versions
+      }
       let stateObj = {
           segmentRef: segmentRef,
           segmentIndexRef: segment,
@@ -185,14 +188,10 @@ class ReaderApp extends React.Component {
               loadingLinks:      loadingLinks,
               textListVisible:   false,
               offsetRef:         !data.isSectionLevel ? data.requestedRef : null,
-          }, ()=>{this.loadLinks(data.sectionRef)});
+          }, ()=>{this.loadSecondaryData(data.sectionRef)});
           Sefaria.links.reset();
           // Preload Text TOC data into memory
           Sefaria.textToc(data.indexTitle, function() {});
-          Sefaria.api.versions(data.indexTitle).then((data)=> {
-            console.log("success", data);
-          });
-
           Sefaria.saveRecentItem({ref: ref, heRef: data.heRef, category: Sefaria.categoryForRef(ref)});
       }.bind(this)).catch(function(error) {
         console.log(error);
@@ -204,7 +203,12 @@ class ReaderApp extends React.Component {
       }.bind(this));
 
   };
-
+  loadSecondaryData = (ref) => {
+    //loads secondary data every time a section is loaded
+    //this data is not required for initial renderring of the section
+    this.loadLinks(ref);
+    this.loadVersions(ref);
+  };
   loadLinks = (ref) => {
     // Ensures that links have been loaded for `ref` and stores result in `this.state.linksLoaded` array.
     // Within Sefaria.api.links a check is made if the zip file exists. If so then no API call is made and links
@@ -235,6 +239,12 @@ class ReaderApp extends React.Component {
         });
 
       });
+  };
+
+  loadVersions = (ref) => {
+    Sefaria.api.versions(ref).then((data)=> {
+      console.log("success", ref, data);
+    });
   };
 
   updateData = (direction) => {
@@ -271,7 +281,7 @@ class ReaderApp extends React.Component {
           linksLoaded: newlinksLoaded,
           loaded: true,
           loadingTextHead: false,
-        }, ()=>{this.loadLinks(data.sectionRef)});
+        }, ()=>{this.loadSecondaryData(data.sectionRef)});
 
       }.bind(this)).catch(function(error) {
         console.log('Error caught from ReaderApp.updateDataPrev', error);
@@ -299,7 +309,7 @@ class ReaderApp extends React.Component {
           linksLoaded: newlinksLoaded,
           loaded: true,
           loadingTextTail: false,
-        }, ()=>{this.loadLinks(data.sectionRef)});
+        }, ()=>{this.loadSecondaryData(data.sectionRef)});
 
       }.bind(this)).catch(function(error) {
         console.log('Error caught from ReaderApp.updateDataNext', error);
