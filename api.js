@@ -261,23 +261,27 @@ var Api = {
 
     });
   },
-  versions: function(ref) {
+  versions: function(ref, failSilently) {
     return new Promise((resolve, reject) => {
-      Sefaria.api._request(ref, 'versions', {}, true)
-      .then((response)=>{
-        for (let v of response) {
-          Sefaria.api._translateVersions[v.versionTitle] = {
-            en: v.versionTitle,
-            he: !!v.versionTitleInHebrew ? v.versionTitleInHebrew : v.versionTitle,
-            lang: v.language,
-          };
-        }
-        Sefaria.api._versions[ref] = response;
-        resolve(response);
-      })
-      .catch((error)=>{
-        console.log("Versions API error:",ref, error);
-      });
+      if (ref in Sefaria.api._versions) {
+        resolve(Sefaria.api._versions[ref]);
+        return;
+      }
+      Sefaria.api._request(ref, 'versions', {}, failSilently)
+        .then((response)=>{
+          for (let v of response) {
+            Sefaria.api._translateVersions[v.versionTitle] = {
+              en: v.versionTitle,
+              he: !!v.versionTitleInHebrew ? v.versionTitleInHebrew : v.versionTitle,
+              lang: v.language,
+            };
+          }
+          Sefaria.api._versions[ref] = response;
+          resolve(response);
+        })
+        .catch((error)=>{
+          console.log("Versions API error:",ref, error);
+        });
     });
   },
   /*

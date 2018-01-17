@@ -242,7 +242,7 @@ class ReaderApp extends React.Component {
   };
 
   loadVersions = (ref) => {
-    Sefaria.api.versions(ref).then((data)=> {
+    Sefaria.api.versions(ref, true).then((data)=> {
       console.log("success", ref, data);
     });
   };
