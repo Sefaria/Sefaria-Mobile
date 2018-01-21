@@ -436,7 +436,7 @@ class ReaderApp extends React.Component {
       this.loadNewText("Genesis 1");
   };
 
-  openLinkCat = (cat) => {
+  setConnectionsMode = (cat) => {
     this.setState({ connectionsMode: cat });
   };
 
@@ -826,7 +826,7 @@ class ReaderApp extends React.Component {
                 onTextListDragEnd={this.onTextListDragEnd}
                 loading={!this.state.loaded}
                 defaultSettingsLoaded={this.state.defaultSettingsLoaded}
-                openLinkCat={this.openLinkCat}
+                setConnectionsMode={this.setConnectionsMode}
                 openLinkFilter={this.openLinkFilter}
                 closeLinkCat={this.closeLinkCat}
                 updateLinkCat={this.updateLinkCat}

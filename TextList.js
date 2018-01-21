@@ -17,7 +17,6 @@ const LinkFilter     = require('./LinkFilter');
 
 const {
   CategoryColorLine,
-  TwoBox,
   LoadingView,
   LibraryNavButton,
 } = require('./Misc.js');
@@ -31,7 +30,7 @@ class TextList extends React.Component {
     interfaceLang:   PropTypes.oneOf(["english", "hebrew"]).isRequired,
     settings:        PropTypes.object,
     openRef:         PropTypes.func.isRequired,
-    openCat:         PropTypes.func.isRequired,
+    setConnectionsMode:PropTypes.func.isRequired,
     openFilter:      PropTypes.func.isRequired,
     closeCat:        PropTypes.func.isRequired,
     updateCat:       PropTypes.func.isRequired,
@@ -131,7 +130,7 @@ class TextList extends React.Component {
           theme={this.props.theme}
           themeStr={this.props.themeStr}
           interfaceLang={this.props.interfaceLang}
-          openCat={this.props.openCat}
+          setConnectionsMode={this.props.setConnectionsMode}
           closeCat={this.props.closeCat}
           category={isSummaryMode || true ? null : this.props.recentFilters[this.props.filterIndex].category}
           filterIndex={this.props.filterIndex}
@@ -203,7 +202,7 @@ class TextList extends React.Component {
                     if (catFilterSelected) {
                       this.props.openFilter(filter);
                     } else {
-                      this.props.openCat(category);
+                      this.props.setConnectionsMode(category);
                     }
                     Sefaria.track.event("Reader","Category Filter Click",category);
                   }.bind(this,filter,cat.category)}

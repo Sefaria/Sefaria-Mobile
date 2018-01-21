@@ -1024,6 +1024,24 @@ Sefaria.util = {
     }
     return (usePound?"#":"") + colorString;
   }
+  translateISOLanguageCode(code) {
+    //takes two-letter ISO 639.2 code and returns full language name
+    const codeMap = {
+      "en": "English",
+      "he": "Hebrew",
+      "yi": "Yiddish",
+      "fi": "Finnish",
+      "pt": "Portuguese",
+      "es": "Spanish",
+      "fr": "French",
+      "de": "German",
+      "ar": "Arabic",
+      "it": "Italian",
+      "pl": "Polish",
+      "ru": "Russian",
+    };
+    return codeMap[code.toLowerCase()];
+  }
 };
 
 Sefaria.downloader = Downloader;

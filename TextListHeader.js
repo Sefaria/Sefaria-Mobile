@@ -20,17 +20,17 @@ const strings = require('./LocalizedStrings');
 
 class TextListHeader extends React.Component {
   static propTypes = {
-    Sefaria:        PropTypes.object.isRequired,
-    theme:          PropTypes.object.isRequired,
-    themeStr:       PropTypes.string.isRequired,
-    interfaceLang:  PropTypes.oneOf(["english", "hebrew"]).isRequired,
-    openCat:        PropTypes.func.isRequired,
-    closeCat:       PropTypes.func.isRequired,
-    category:       PropTypes.string,
-    filterIndex:    PropTypes.number,
-    recentFilters:  PropTypes.array,
-    language:       PropTypes.oneOf(["english","hebrew","bilingual"]),
-    connectionsMode:PropTypes.string,
+    Sefaria:            PropTypes.object.isRequired,
+    theme:              PropTypes.object.isRequired,
+    themeStr:           PropTypes.string.isRequired,
+    interfaceLang:      PropTypes.oneOf(["english", "hebrew"]).isRequired,
+    setConnectionsMode: PropTypes.func.isRequired,
+    closeCat:           PropTypes.func.isRequired,
+    category:           PropTypes.string,
+    filterIndex:        PropTypes.number,
+    recentFilters:      PropTypes.array,
+    language:           PropTypes.oneOf(["english","hebrew","bilingual"]),
+    connectionsMode:    PropTypes.string,
   };
 
   constructor(props) {
@@ -72,7 +72,7 @@ class TextListHeader extends React.Component {
               language={this.props.interfaceLang}
               textStyle={[this.props.theme.textListHeaderSummaryText]}
               imageStyle={[styles.menuButton, backImageStyle]}
-              onPress={()=> { isInFilter ? this.props.openCat(selectedFilter.category) : this.props.closeCat(); }}
+              onPress={()=> { isInFilter ? this.props.setConnectionsMode(selectedFilter.category) : this.props.closeCat(); }}
               direction={"back"}
             />
           </View>
