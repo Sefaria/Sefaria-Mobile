@@ -161,7 +161,7 @@ class ReaderTextTableOfContents extends React.Component {
                   </TouchableOpacity>
                   : null
                 }
-                { license ?
+                { license && license !== "unknown" ?
                   <TouchableOpacity style={[styles.navBottomLink, styles.textTocVersionInfoItem]} onPress={() => licenseURL ? Linking.openURL(licenseURL) : null}>
                     <Text style={[styles.textTocVersionInfoText, this.props.theme.tertiaryText]}>{license}</Text>
                   </TouchableOpacity>
