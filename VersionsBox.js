@@ -10,25 +10,23 @@ import {
 const {
   LoadingView,
 } = require('./Misc.js');
+
+const VersionBlock = require('./VersionBlock');
 const strings = require('./LocalizedStrings');
 
 
 class VersionsBox extends React.Component {
   static propTypes = {
     currObjectVersions:       PropTypes.object.isRequired,
-    mode:                     PropTypes.oneOf(["Versions", "Version Open"]),
+    mode:                     PropTypes.oneOf(["versions", "version Open"]),
     mainVersionLanguage:      PropTypes.oneOf(["english", "hebrew"]).isRequired,
-    vFilter:                  PropTypes.array,
+    vFilterIndex:             PropTypes.number,
     recentVFilters:           PropTypes.array,
-    srefs:                    PropTypes.array.isRequired,
-    getLicenseMap:            PropTypes.func.isRequired,
-    translateISOLanguageCode: PropTypes.func.isRequired,
+    segmentRef:               PropTypes.array.isRequired,
     setConnectionsMode:       PropTypes.func.isRequired,
     setFilter:                PropTypes.func.isRequired,
     selectVersion:            PropTypes.func.isRequired,
-    getDataRef:               PropTypes.func.isRequired,
     onRangeClick:             PropTypes.func.isRequired,
-    onCitationClick:          PropTypes.func.isRequired,
   };
 
   constructor(props) {
@@ -109,9 +107,6 @@ class VersionsBox extends React.Component {
                   <VersionBlock
                     version={v}
                     currVersions={currVersions}
-                    currentRef={this.props.srefs[0]}
-                    firstSectionRef={"firstSectionRef" in v ? v.firstSectionRef : null}
-                    getLicenseMap={this.props.getLicenseMap}
                     key={v.versionTitle + lang}
                     openVersionInReader={this.props.selectVersion}
                     openVersionInSidebar={this.openVersionInSidebar}
@@ -120,29 +115,29 @@ class VersionsBox extends React.Component {
                   />
                 ))
               }
-            </div>
+            </View>
           ))
         }
-      </div>
+      </View>
     );
   }
   renderModeSelected() {
     // open text in versionslist with current version selected
-    const currSelectedVersions = this.props.vFilter.length ? {[Sefaria.versionLanguage(this.props.vFilter[0])]: this.props.vFilter[0]} : {en: null, he: null};
+    const currSelectedVersions = this.props.vFilterIndex ? {[Sefaria.api.versionLanguage(this.props.recentVFilters[this.props.vFilterIndex])]: this.props.recentVFilters[this.props.vFilterIndex]} : {en: null, he: null};
     const onRangeClick = (sref)=>{this.props.onRangeClick(sref, false, currSelectedVersions)};
-    return (
+    return null;
+    /*return (
       <VersionsTextList
         srefs={this.props.srefs}
         vFilter={this.props.vFilter}
         recentVFilters={this.props.recentVFilters}
         setFilter={this.props.setFilter}
         onRangeClick={onRangeClick}
-        onCitationClick={this.props.onCitationClick}
       />
-    );
+    );*/
   }
   render() {
-    return (this.props.mode === "Versions" ? this.renderModeVersions() : this.renderModeSelected());
+    return (this.props.mode === "versions" ? this.renderModeVersions() : this.renderModeSelected());
   }
 }
 
@@ -196,8 +191,7 @@ class VersionsBox extends React.Component {
           hideTitle={true}
           numberLabel={0}
           basetext={false}
-          onRangeClick={this.props.onRangeClick}
-          onCitationClick={this.props.onCitationClick} />
+          onRangeClick={this.props.onRangeClick} />
       </div>);
   }
 }
@@ -207,7 +201,6 @@ VersionsTextList.propTypes = {
   recentVFilters:  PropTypes.array,
   setFilter:       PropTypes.func.isRequired,
   onRangeClick:    PropTypes.func.isRequired,
-  onCitationClick: PropTypes.func.isRequired,
 };*/
 
 module.exports = VersionsBox;

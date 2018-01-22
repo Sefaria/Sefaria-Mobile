@@ -4,17 +4,17 @@ import {
   View,
   Text,
   TouchableOpacity,
+  Linking,
 } from 'react-native';
+import HTMLView from 'react-native-htmlview'; //to convert html'afied JSON to something react can render (https://github.com/jsdf/react-native-htmlview)
 
 
 class VersionBlock extends React.Component {
   static propTypes = {
-    title:                PropTypes.string,
     version:              PropTypes.object.isRequired,
     currVersions:         PropTypes.object.isRequired,
     openVersionInSidebar: PropTypes.func,
     openVersionInReader:  PropTypes.func,
-    getLicenseMap:        PropTypes.func.isRequired,
     isCurrent:            PropTypes.bool,
   };
 

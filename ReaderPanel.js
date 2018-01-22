@@ -61,7 +61,7 @@ class ReaderPanel extends React.Component {
     onTextListDragStart:   PropTypes.func.isRequired,
     onTextListDragMove:    PropTypes.func.isRequired,
     onTextListDragEnd:     PropTypes.func.isRequired,
-    setConnectionsMode:           PropTypes.func.isRequired,
+    setConnectionsMode:    PropTypes.func.isRequired,
     openLinkFilter:        PropTypes.func.isRequired,
     closeLinkCat:          PropTypes.func.isRequired,
     updateLinkCat:         PropTypes.func.isRequired,
@@ -71,6 +71,9 @@ class ReaderPanel extends React.Component {
     linkSummary:           PropTypes.array,
     linkContents:          PropTypes.array,
     loadingLinks:          PropTypes.bool,
+    versionRecentFilters:  PropTypes.array.isRequired,
+    versionFilterIndex:    PropTypes.number,
+    currVersions:          PropTypes.object.isRequired,
     setTheme:              PropTypes.func.isRequired,
     theme:                 PropTypes.object,
     themeStr:              PropTypes.oneOf(["white", "black"]),
@@ -437,7 +440,7 @@ class ReaderPanel extends React.Component {
                 theme={this.props.theme}
                 themeStr={this.props.themeStr}
                 interfaceLang={this.props.interfaceLang}
-                segmentIndexRef={this.props.segmentIndexRef}
+                segmentRef={this.props.segmentRef}
                 textFlow={this.state.textFlow}
                 textLanguage={this.state.textLanguage}
                 openRef={(ref)=>this.props.openRef(ref,"text list")}
@@ -452,6 +455,9 @@ class ReaderPanel extends React.Component {
                 connectionsMode={this.props.connectionsMode}
                 filterIndex={this.props.filterIndex}
                 recentFilters={this.props.linkRecentFilters}
+                versionRecentFilters={this.props.versionRecentFilters}
+                versionFilterIndex={this.props.versionFilterIndex}
+                currVersions={this.props.currVersions}
                 onDragStart={this.props.onTextListDragStart}
                 onDragMove={this.props.onTextListDragMove}
                 onDragEnd={this.props.onTextListDragEnd} />

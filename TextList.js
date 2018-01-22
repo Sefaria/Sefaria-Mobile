@@ -25,26 +25,29 @@ const DEFAULT_LINK_CONTENT = {en: "Loading...", he: "טוען...", sectionRef: "
 
 class TextList extends React.Component {
   static propTypes = {
-    theme:           PropTypes.object.isRequired,
-    themeStr:        PropTypes.oneOf(["white", "black"]).isRequired,
-    interfaceLang:   PropTypes.oneOf(["english", "hebrew"]).isRequired,
-    settings:        PropTypes.object,
-    openRef:         PropTypes.func.isRequired,
-    setConnectionsMode:PropTypes.func.isRequired,
-    openFilter:      PropTypes.func.isRequired,
-    closeCat:        PropTypes.func.isRequired,
-    updateCat:       PropTypes.func.isRequired,
-    linkSummary:     PropTypes.array,
-    linkContents:    PropTypes.array,
-    loading:         PropTypes.bool,
-    segmentIndexRef: PropTypes.number,
-    connectionsMode: PropTypes.string,
-    filterIndex:     PropTypes.number,
-    recentFilters:   PropTypes.array, /* of the form [{title,heTitle,refList}...] */
-    textLanguage:    PropTypes.oneOf(["english","hebrew","bilingual"]),
-    onDragStart:     PropTypes.func.isRequired,
-    onDragMove:      PropTypes.func.isRequired,
-    onDragEnd:       PropTypes.func.isRequired
+    theme:                PropTypes.object.isRequired,
+    themeStr:             PropTypes.oneOf(["white", "black"]).isRequired,
+    interfaceLang:        PropTypes.oneOf(["english", "hebrew"]).isRequired,
+    settings:             PropTypes.object,
+    openRef:              PropTypes.func.isRequired,
+    setConnectionsMode:   PropTypes.func.isRequired,
+    openFilter:           PropTypes.func.isRequired,
+    closeCat:             PropTypes.func.isRequired,
+    updateCat:            PropTypes.func.isRequired,
+    linkSummary:          PropTypes.array,
+    linkContents:         PropTypes.array,
+    loading:              PropTypes.bool,
+    segmentRef:           PropTypes.string.isRequired,
+    connectionsMode:      PropTypes.string,
+    filterIndex:          PropTypes.number,
+    recentFilters:        PropTypes.array.isRequired, /* of the form [{title,heTitle,refList}...] */
+    versionRecentFilters: PropTypes.array.isRequired,
+    versionFilterIndex:   PropTypes.number,
+    currVersions:         PropTypes.object.isRequired,
+    textLanguage:         PropTypes.oneOf(["english","hebrew","bilingual"]),
+    onDragStart:          PropTypes.func.isRequired,
+    onDragMove:           PropTypes.func.isRequired,
+    onDragEnd:            PropTypes.func.isRequired,
   };
 
   constructor(props) {
@@ -59,7 +62,7 @@ class TextList extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    if (this.props.segmentIndexRef !== nextProps.segmentIndexRef) {
+    if (this.props.segmentRef !== nextProps.segmentRef) {
       this.setState({isNewSegment:true});
     } else if (this.props.recentFilters !== nextProps.recentFilters ||
                this.props.connectionsMode !== nextProps.connectionsMode ||
@@ -81,8 +84,8 @@ class TextList extends React.Component {
     }
     const isCommentaryBook = linkFilter.category === "Commentary" && linkFilter.title !== "Commentary"
     return linkFilter.refList.map((linkRef, index) => {
-      const key = `${props.segmentIndexRef}|${linkRef}`;
-      const loading = props.linkContents[index] == null;
+      const key = `${props.segmentRef}|${linkRef}`;
+      const loading = props.linkContents[index] === null;
       return {
         key,
         ref: linkRef,
@@ -175,6 +178,13 @@ class TextList extends React.Component {
         } else {
           return null;
         }
+      case 'versions': //note the "fall-through". see https://stackoverflow.com/questions/6513585/javascript-or-expression-in-a-switch-case
+      case 'version open':
+        return (
+          <VersionsBox
+            mode={this.props.connectionsMode}
+          />
+        );
       default:
         // either `null` or equal to a top-level category
         let content;

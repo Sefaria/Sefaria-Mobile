@@ -284,6 +284,10 @@ var Api = {
         });
     });
   },
+  versionLanguage: function(versionTitle) {
+    // given a versionTitle, return the language of the version
+    return Sefaria.api._translateVersions[versionTitle]["lang"]
+  },
   /*
   context is a required param if apiType == 'text'. o/w it's ignored
   versions is object with keys { en, he } specifying version titles

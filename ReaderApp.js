@@ -74,6 +74,10 @@ class ReaderApp extends React.Component {
         linkRecentFilters: [],
         linkStaleRecentFilters: [], /*bool array indicating whether the corresponding filter in recentFilters is no longer synced up with the current segment*/
         loadingLinks: false,
+        versionRecentFilters: [],
+        versionFilterIndex: null,
+        currVersions: {en: null, he: null},
+        versionStaleRecentFilters: [],
         theme: themeWhite,
         themeStr: "white",
         searchQuery: '',
@@ -157,7 +161,8 @@ class ReaderApp extends React.Component {
           textReference: ref,
           textTitle: Sefaria.textTitleForRef(ref),
           segmentIndexRef: -1,
-          sectionIndexRef: -1
+          sectionIndexRef: -1,
+          currVersions: {en: null, he: null},
       });
 
       if (ref.indexOf("-") != -1) {
@@ -191,7 +196,9 @@ class ReaderApp extends React.Component {
           }, ()=>{this.loadSecondaryData(data.sectionRef)});
           Sefaria.links.reset();
           // Preload Text TOC data into memory
-          Sefaria.textToc(data.indexTitle, function() {});
+          Sefaria.textToc(data.indexTitle, (data) => {
+            this.setState({ currVersions: { en: data.versionTitle, he: data.heVersionTitle } });
+          });
           Sefaria.saveRecentItem({ref: ref, heRef: data.heRef, category: Sefaria.categoryForRef(ref)});
       }.bind(this)).catch(function(error) {
         console.log(error);
@@ -838,6 +845,9 @@ class ReaderApp extends React.Component {
                 linkSummary={this.state.linkSummary}
                 linkContents={this.state.linkContents}
                 loadingLinks={this.state.loadingLinks}
+                versionRecentFilters={this.state.versionRecentFilters}
+                versionFilterIndex={this.state.versionFilterIndex}
+                currVersions={this.state.currVersions}
                 setTheme={this.setTheme}
                 theme={this.state.theme}
                 themeStr={this.state.themeStr}
