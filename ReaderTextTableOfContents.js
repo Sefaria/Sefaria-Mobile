@@ -48,12 +48,11 @@ class ReaderTextTableOfContents extends React.Component {
   constructor(props, context) {
     super(props, context);
     Sefaria = props.Sefaria;
-    var toc = Sefaria.textToc(props.title, function(data) {
+    Sefaria.textToc(props.title).then((data) => {
       this.setState({textToc: data});
-    }.bind(this));
-
+    });
     this.state = {
-      textToc: toc
+      textToc: null,
     };
   }
 
@@ -89,31 +88,21 @@ class ReaderTextTableOfContents extends React.Component {
     var categories  = Sefaria.index(this.props.title).categories;
     var enCatString = categories.join(", ");
     var heCatString = categories.map(Sefaria.hebrewCategory).join(", ");
-    var versionInfo = Sefaria.versionInfo(this.props.currentRef, this.props.title);
+    var versionInfo = Sefaria.versionInfo(this.props.currentRef, this.props.title, this.props.textLang);
     if (!versionInfo) {
       //try one level up in case this ref is segment level
       var colInd = this.props.currentRef.lastIndexOf(":");
       if (colInd != -1) {
-        versionInfo = Sefaria.versionInfo(splitRef.substring(0,colInd));
+        versionInfo = Sefaria.versionInfo(splitRef.substring(0,colInd), null, this.props.textLang);
       }
     }
 
-    //console.log("IN TEXT TOC", this.props.currentRef, this.props.title, versionInfo);
-     if (this.props.textLang == "hebrew") {
-      var versionTitle = versionInfo['heVersionTitle'];
-      var versionSource = versionInfo['heVersionSource'];
-      var shortVersionSource = Sefaria.util.parseURLhost(versionSource);
-      var license = versionInfo['heLicense'];
-      var licenseURL = Sefaria.util.getLicenseURL(license);
-      var versionNotes = versionInfo['heVersionNotes'];
-    } else {
-      var versionTitle = versionInfo['versionTitle'];
-      var versionSource = versionInfo['versionSource'];
-      var shortVersionSource = Sefaria.util.parseURLhost(versionSource);
-      var license = versionInfo['license'];
-      var licenseURL = Sefaria.util.getLicenseURL(license);
-      var versionNotes = versionInfo['versionNotes'];
-    }
+    const versionTitle = versionInfo['versionTitle'];
+    const versionSource = versionInfo['versionSource'];
+    const shortVersionSource = Sefaria.util.parseURLhost(versionSource);
+    const license = versionInfo['license'];
+    const licenseURL = Sefaria.util.getLicenseURL(license);
+    const versionNotes = versionInfo['versionNotes'];
     return (
       <View style={[styles.menu,this.props.theme.menu]}>
         <CategoryColorLine category={Sefaria.categoryForTitle(this.props.title)} />

@@ -196,8 +196,9 @@ class ReaderApp extends React.Component {
           }, ()=>{this.loadSecondaryData(data.sectionRef)});
           Sefaria.links.reset();
           // Preload Text TOC data into memory
-          Sefaria.textToc(data.indexTitle, (data) => {
-            this.setState({ currVersions: { en: data.versionTitle, he: data.heVersionTitle } });
+          Sefaria.textToc(data.indexTitle).then(() => {
+            // at this point, both book and section level version info is available
+            this.setCurrVersions(data.sectionRef, data.indexTitle);
           });
           Sefaria.saveRecentItem({ref: ref, heRef: data.heRef, category: Sefaria.categoryForRef(ref)});
       }.bind(this)).catch(function(error) {
@@ -209,6 +210,11 @@ class ReaderApp extends React.Component {
         console.error('Error caught from ReaderApp.loadNewText', error);
       }.bind(this));
 
+  };
+  setCurrVersions = (ref, title) => {
+    const enVInfo = Sefaria.versionInfo(ref, title, 'english');
+    const heVInfo = Sefaria.versionInfo(ref, title, 'hebrew');
+    this.setState({ currVersions: { en: enVInfo.versionTitle, he: heVInfo.versionTitle } }, ()=>{console.log(this.state.currVersions)});
   };
   loadSecondaryData = (ref) => {
     //loads secondary data every time a section is loaded
@@ -288,7 +294,10 @@ class ReaderApp extends React.Component {
           linksLoaded: newlinksLoaded,
           loaded: true,
           loadingTextHead: false,
-        }, ()=>{this.loadSecondaryData(data.sectionRef)});
+        }, ()=>{
+          this.loadSecondaryData(data.sectionRef);
+          this.setCurrVersions(data.sectionRef, data.indexTitle);
+        });
 
       }.bind(this)).catch(function(error) {
         console.log('Error caught from ReaderApp.updateDataPrev', error);
@@ -316,7 +325,10 @@ class ReaderApp extends React.Component {
           linksLoaded: newlinksLoaded,
           loaded: true,
           loadingTextTail: false,
-        }, ()=>{this.loadSecondaryData(data.sectionRef)});
+        }, ()=>{
+          this.loadSecondaryData(data.sectionRef);
+          this.setCurrVersions(data.sectionRef, data.indexTitle);
+        });
 
       }.bind(this)).catch(function(error) {
         console.log('Error caught from ReaderApp.updateDataNext', error);

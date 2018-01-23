@@ -327,7 +327,7 @@ Sefaria = {
   _versionInfo: {},
   cacheVersionInfo: function(data, isSection) {
     //isSection = true if data has `sectionRef`. false if data has `title`
-    attrs = ['versionTitle','heVersionTitle','versionNotes','heVersionNotes','license','heLicense','versionSource','heVersionSource'];
+    attrs = ['versionTitle','heVersionTitle','versionNotes','heVersionNotes','license','heLicense','versionSource','heVersionSource','versionTitleInHebrew','heVersionTitleInHebrew','versionNotesInHebrew','heVersionNotesInHebrew'];
 
     cacheKey = isSection ? data.sectionRef : data.title;
     Sefaria._versionInfo[cacheKey] = {};
@@ -336,19 +336,21 @@ Sefaria = {
     });
     //console.log("SETTING VERSION INFO", cacheKey, isSection,Sefaria._versionInfo[cacheKey]);
   },
-  versionInfo: function(ref, title) {
+  versionInfo: function(ref, title, vlang) {
+    const versionInfo = {};
     let sectionInfo = Sefaria._versionInfo[ref];
     if (!sectionInfo) sectionInfo = {};
     let indexInfo = Sefaria._versionInfo[title];
     if (!indexInfo) indexInfo = {};
-    attrs = ['versionTitle','heVersionTitle','versionNotes','heVersionNotes','license','heLicense','versionSource','heVersionSource'];
+    attrs = ['versionTitle', 'versionTitleInHebrew', 'versionNotes', 'versionNotesInHebrew', 'license', 'versionSource'];
     attrs.map((attr)=>{
-      if (!sectionInfo[attr]) {
-        sectionInfo[attr] = indexInfo[attr];
-      }
+      //if 'he', prepend 'he' to attr
+      const enAttr = attr;
+      if (vlang === 'hebrew') { attr = 'he' + attr[0].toUpperCase() + attr.substring(1); }
+      versionInfo[enAttr] = !!sectionInfo[attr] ? sectionInfo[attr] : indexInfo[attr];
     });
 
-    return sectionInfo;
+    return versionInfo;
   },
   commentaryList: function(title) {
     // Returns the list of commentaries for 'title' which are found in Sefaria.toc
@@ -427,21 +429,24 @@ Sefaria = {
     Sefaria._commentatorListBySection[data.ref] = commentators;
   },
   _textToc: {},
-  textToc: function(title, callback) {
-    if (title in Sefaria._textToc) {
-      return Sefaria._textToc[title];
-    }
-    var path = Sefaria._JSONSourcePath(title + "_index");
-
-    var resolver = function(data) {
-      data = Sefaria._fixTalmudAltStructAddressTypes(data);
-      Sefaria._textToc[title] = data;
-      Sefaria.cacheVersionInfo(data,false);
-      callback(data);
-    };
-    Sefaria._loadJSON(path).then(resolver)
-    .catch(()=>{Sefaria.api._request(title, 'index', {}).then(resolver)})
-    return null;
+  textToc: function(title) {
+    return new Promise((resolve, reject) => {
+      const resolver = function(data) {
+        data = Sefaria._fixTalmudAltStructAddressTypes(data);
+        Sefaria._textToc[title] = data;
+        Sefaria.cacheVersionInfo(data,false);
+        resolve(data);
+      };
+      if (title in Sefaria._textToc) {
+        resolve(Sefaria._textToc[title]);
+      } else {
+        const path = Sefaria._JSONSourcePath(title + "_index");
+        Sefaria
+        ._loadJSON(path)
+        .then(resolver)
+        .catch(()=>{Sefaria.api._request(title, 'index', {}).then(resolver)});
+      }
+    });
   },
   _fixTalmudAltStructAddressTypes: function(textToc) {
     // This is a bandaid on what may or may not be bad data. For Talmud alt struct "Chapter", we want to display
@@ -1023,7 +1028,7 @@ Sefaria.util = {
       colorString = "0" + colorString;
     }
     return (usePound?"#":"") + colorString;
-  }
+  },
   translateISOLanguageCode(code) {
     //takes two-letter ISO 639.2 code and returns full language name
     const codeMap = {
