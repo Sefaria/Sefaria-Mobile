@@ -101,11 +101,11 @@ class VersionsBox extends React.Component {
       currVersions[vlang] = !!tempV ? tempV.versionTitle : null;
     }
     return (
-      <ScrollView>
+      <ScrollView contentContainerStyle={styles.textListSummaryScrollView}>
         {
           this.state.versionLangs.map((lang) => (
             <View key={lang}>
-              <Text>{strings[Sefaria.util.translateISOLanguageCode(lang)]}<Text>{` (${this.state.versionLangMap[lang].length})`}</Text></Text>
+              <Text >{strings[Sefaria.util.translateISOLanguageCode(lang)].toUpperCase()}<Text>{` (${this.state.versionLangMap[lang].length})`}</Text></Text>
               {
                 this.state.versionLangMap[lang].map((v) => (
                   <VersionBlock
