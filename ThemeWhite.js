@@ -173,5 +173,5 @@ module.exports = StyleSheet.create({
   },
   languageToggleText: {
     color: Colors.secondaryText
-  }
+  },
 });

@@ -264,6 +264,7 @@ class TextList extends React.Component {
                 key={"resourcesList"}
                 theme={this.props.theme}
                 themeStr={this.props.themeStr}
+                versionsCount={this.props.versions.length}
                 setConnectionsMode={this.props.setConnectionsMode}
               />
             );
@@ -399,6 +400,7 @@ class ResourcesList extends React.Component {
     theme:              PropTypes.object.isRequired,
     themeStr:           PropTypes.string.isRequired,
     setConnectionsMode: PropTypes.func.isRequired,
+    versionsCount:      PropTypes.number.isRequired,
   }
 
   render() {
@@ -409,6 +411,7 @@ class ResourcesList extends React.Component {
           text={strings.versions}
           icon={isWhite ? require("./img/layers.png") : require("./img/layers-light.png")}
           theme={this.props.theme}
+          count={this.props.versionsCount}
           onPress={()=>{ this.props.setConnectionsMode("versions"); }}
         />
       </View>
@@ -426,12 +429,13 @@ class ToolsButton extends React.Component {
   }
 
   render() {
-    const iconComp = this.props.icon ? (<Image source={this.props.icon} style={styles.menuButton} resizeMode={Image.resizeMode.contain}></Image>) : null;
-    const countComp = this.props.count ? (<Text>`(${this.props.count})`</Text>) : null;
+    const { count, theme, icon } = this.props;
+    const iconComp = icon ? (<Image source={icon} style={styles.menuButton} resizeMode={Image.resizeMode.contain}></Image>) : null;
+    const countComp = !!count || count === 0 ? <Text style={[styles.enInt, theme.secondaryText, styles.spacedText]}>{`(${count})`}</Text> : null
     return (
-      <TouchableOpacity onPress={this.props.onPress}>
+      <TouchableOpacity style={[styles.searchFilterCat, styles.toolsButton, theme.bordered]} onPress={this.props.onPress}>
         { iconComp }
-        <Text>{this.props.text}</Text>
+        <Text style={[styles.enInt, styles.spacedText, styles.toolsButtonText, theme.tertiaryText]}>{this.props.text}</Text>
         { countComp }
       </TouchableOpacity>
     );

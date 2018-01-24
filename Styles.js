@@ -840,6 +840,14 @@ module.exports = StyleSheet.create({
   rtlRow: {
     flexDirection: "row-reverse"
   },
+  toolsButton: {
+    borderTopWidth: 1,
+    justifyContent: 'flex-start',
+    paddingHorizontal: 10,
+  },
+  toolsButtonText: {
+    paddingHorizontal: 7,
+  },
 
 //HTML Styles:
   strong: {
