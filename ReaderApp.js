@@ -77,6 +77,7 @@ class ReaderApp extends React.Component {
         versionRecentFilters: [],
         versionFilterIndex: null,
         currVersions: {en: null, he: null},
+        versions: [],
         versionStaleRecentFilters: [],
         theme: themeWhite,
         themeStr: "white",
@@ -214,7 +215,7 @@ class ReaderApp extends React.Component {
   setCurrVersions = (ref, title) => {
     const enVInfo = Sefaria.versionInfo(ref, title, 'english');
     const heVInfo = Sefaria.versionInfo(ref, title, 'hebrew');
-    this.setState({ currVersions: { en: enVInfo.versionTitle, he: heVInfo.versionTitle } }, ()=>{console.log(this.state.currVersions)});
+    this.setState({ currVersions: { en: enVInfo, he: heVInfo } }, ()=>{console.log(this.state.currVersions)});
   };
   loadSecondaryData = (ref) => {
     //loads secondary data every time a section is loaded
@@ -256,7 +257,7 @@ class ReaderApp extends React.Component {
 
   loadVersions = (ref) => {
     Sefaria.api.versions(ref, true).then((data)=> {
-      console.log("success", ref, data);
+      this.setState({ versions: data });
     });
   };
 
@@ -860,6 +861,7 @@ class ReaderApp extends React.Component {
                 versionRecentFilters={this.state.versionRecentFilters}
                 versionFilterIndex={this.state.versionFilterIndex}
                 currVersions={this.state.currVersions}
+                versions={this.state.versions}
                 setTheme={this.setTheme}
                 theme={this.state.theme}
                 themeStr={this.state.themeStr}

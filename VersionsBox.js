@@ -13,16 +13,19 @@ const {
 
 const VersionBlock = require('./VersionBlock');
 const strings = require('./LocalizedStrings');
+const styles = require('./Styles.js');
+
 
 
 class VersionsBox extends React.Component {
   static propTypes = {
-    currObjectVersions:       PropTypes.object.isRequired,
+    theme:                    PropTypes.object.isRequired,
+    versions:                 PropTypes.array.isRequired,
+    currVersions:             PropTypes.object.isRequired,
     mode:                     PropTypes.oneOf(["versions", "version Open"]),
-    mainVersionLanguage:      PropTypes.oneOf(["english", "hebrew"]).isRequired,
+    mainVersionLanguage:      PropTypes.oneOf(["english", "bilingual", "hebrew"]).isRequired,
     vFilterIndex:             PropTypes.number,
     recentVFilters:           PropTypes.array,
-    segmentRef:               PropTypes.array.isRequired,
     setConnectionsMode:       PropTypes.func.isRequired,
     setFilter:                PropTypes.func.isRequired,
     selectVersion:            PropTypes.func.isRequired,
@@ -31,32 +34,34 @@ class VersionsBox extends React.Component {
 
   constructor(props) {
     super(props);
-    Sefaria = props.Sefaria;
     const initialCurrVersions = {};
-    for (let vlang in props.currObjectVersions) {
-      const tempV = props.currObjectVersions[vlang];
+    for (let vlang in props.currVersions) {
+      const tempV = props.currVersions[vlang];
       initialCurrVersions[vlang] = !!tempV ? tempV.versionTitle : null;
     }
-    this.state = {
+    const state = {
       versionLangMap: null,  // object with version languages as keys and array of versions in that lang as values
-      versionLangs: this.getVersionLangs(props.versions);
       initialCurrVersions,
-      initialMainVersionLanguage: props.mainVersionLanguage,
+      initialMainVersionLanguage: props.mainVersionLanguage === "bilingual" ? "hebrew" : props.mainVersionLanguage,
     };
+    const {versionLangMap, versionLangs} = this.getVersionLangs(state, props.versions);
+    state.versionLangMap = versionLangMap;
+    state.versionLangs = versionLangs;
+    this.state = state;
   }
   componentDidUpdate(prevProps, prevState) {
     if (this.props.versions !== prevProps.versions) {
-      this.setState({versionLangs: this.getVersionLangs(this.props.versions)});
+      this.setState(this.getVersionLangs(this.state, this.props.versions));
     }
   }
-  getVersionLangs = (versions) => {
+  getVersionLangs = (state, versions) => {
     const versionLangMap = {};
     for (let v of versions) {
       const matches = v.versionTitle.match(new RegExp("\\[([a-z]{2})\\]$")); // two-letter ISO language code
       const lang = matches ? matches[1] : v.language;
       //if version is the initial one selected, put it first
       versionLangMap[lang] = !!versionLangMap[lang] ?
-        (this.state.initialCurrVersions[lang] === v.versionTitle ? [v].concat(versionLangMap[lang]) : versionLangMap[lang].concat(v)) : [v];
+        (state.initialCurrVersions[lang] === v.versionTitle ? [v].concat(versionLangMap[lang]) : versionLangMap[lang].concat(v)) : [v];
     }
 
     //sort versions by language so that
@@ -66,8 +71,8 @@ class VersionsBox extends React.Component {
     const standard_langs = ["en", "he"];
     const versionLangs = Object.keys(versionLangMap).sort(
       (a, b) => {
-        if      (a === this.state.initialMainVersionLanguage.slice(0,2)) {return -1;}
-        else if (b === this.state.initialMainVersionLanguage.slice(0,2)) {return  1;}
+        if      (a === state.initialMainVersionLanguage.slice(0,2)) {return -1;}
+        else if (b === state.initialMainVersionLanguage.slice(0,2)) {return  1;}
         else if (a in standard_langs && !(b in standard_langs))   {return -1;}
         else if (b in standard_langs && !(a in standard_langs))   {return  1;}
         else if (a < b)                                           {return -1;}
@@ -75,8 +80,7 @@ class VersionsBox extends React.Component {
         else                                                      {return  0;}
       }
     );
-    return versionLangs;
-    this.setState({versionLangMap, versionLangs});
+    return {versionLangMap, versionLangs};
   };
   openVersionInSidebar = (versionTitle, versionLanguage) => {
     this.props.setConnectionsMode("version open");
@@ -92,12 +96,12 @@ class VersionsBox extends React.Component {
       );
     }
     const currVersions = {};
-    for (let vlang in this.props.currObjectVersions) {
-      const tempV = this.props.currObjectVersions[vlang];
+    for (let vlang in this.props.currVersions) {
+      const tempV = this.props.currVersions[vlang];
       currVersions[vlang] = !!tempV ? tempV.versionTitle : null;
     }
     return (
-      <View>
+      <ScrollView>
         {
           this.state.versionLangs.map((lang) => (
             <View key={lang}>
@@ -105,20 +109,21 @@ class VersionsBox extends React.Component {
               {
                 this.state.versionLangMap[lang].map((v) => (
                   <VersionBlock
+                    theme={this.props.theme}
                     version={v}
                     currVersions={currVersions}
                     key={v.versionTitle + lang}
                     openVersionInReader={this.props.selectVersion}
                     openVersionInSidebar={this.openVersionInSidebar}
-                    isCurrent={(this.props.currObjectVersions.en && this.props.currObjectVersions.en.versionTitle === v.versionTitle) ||
-                              (this.props.currObjectVersions.he && this.props.currObjectVersions.he.versionTitle === v.versionTitle)}
+                    isCurrent={(this.props.currVersions.en && this.props.currVersions.en.versionTitle === v.versionTitle) ||
+                              (this.props.currVersions.he && this.props.currVersions.he.versionTitle === v.versionTitle)}
                   />
                 ))
               }
             </View>
           ))
         }
-      </View>
+      </ScrollView>
     );
   }
   renderModeSelected() {

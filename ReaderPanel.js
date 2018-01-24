@@ -74,6 +74,7 @@ class ReaderPanel extends React.Component {
     versionRecentFilters:  PropTypes.array.isRequired,
     versionFilterIndex:    PropTypes.number,
     currVersions:          PropTypes.object.isRequired,
+    versions:              PropTypes.array.isRequired,
     setTheme:              PropTypes.func.isRequired,
     theme:                 PropTypes.object,
     themeStr:              PropTypes.oneOf(["white", "black"]),
@@ -458,6 +459,7 @@ class ReaderPanel extends React.Component {
                 versionRecentFilters={this.props.versionRecentFilters}
                 versionFilterIndex={this.props.versionFilterIndex}
                 currVersions={this.props.currVersions}
+                versions={this.props.versions}
                 onDragStart={this.props.onTextListDragStart}
                 onDragMove={this.props.onTextListDragMove}
                 onDragEnd={this.props.onTextListDragEnd} />

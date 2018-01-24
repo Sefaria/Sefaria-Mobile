@@ -6,6 +6,7 @@ import {
   ScrollView,
   FlatList,
   Text,
+  Image,
   TouchableOpacity,
   Dimensions
 } from 'react-native';
@@ -14,6 +15,7 @@ const styles         = require('./Styles');
 const strings        = require('./LocalizedStrings');
 const TextListHeader = require('./TextListHeader');
 const LinkFilter     = require('./LinkFilter');
+const VersionsBox    = require('./VersionsBox');
 
 const {
   CategoryColorLine,
@@ -44,6 +46,7 @@ class TextList extends React.Component {
     versionRecentFilters: PropTypes.array.isRequired,
     versionFilterIndex:   PropTypes.number,
     currVersions:         PropTypes.object.isRequired,
+    versions:             PropTypes.array.isRequired,
     textLanguage:         PropTypes.oneOf(["english","hebrew","bilingual"]),
     onDragStart:          PropTypes.func.isRequired,
     onDragMove:           PropTypes.func.isRequired,
@@ -181,9 +184,22 @@ class TextList extends React.Component {
       case 'versions': //note the "fall-through". see https://stackoverflow.com/questions/6513585/javascript-or-expression-in-a-switch-case
       case 'version open':
         return (
-          <VersionsBox
-            mode={this.props.connectionsMode}
-          />
+          <View style={[styles.textColumn, this.props.theme.textListContentOuter, {maxWidth: null}]}>
+            {textListHeader}
+            <VersionsBox
+              theme={this.props.theme}
+              mode={this.props.connectionsMode}
+              currVersions={this.props.currVersions}
+              mainVersionLanguage={this.props.textLanguage}
+              vFilterIndex={this.props.versionFilterIndex}
+              recentVFilters={this.props.versionRecentFilters}
+              versions={this.props.versions}
+              setConnectionsMode={()=>{}}
+              setFilter={()=>{}}
+              selectVersion={()=>{}}
+              onRangeClick={()=>{}}
+            />
+          </View>
         );
       default:
         // either `null` or equal to a top-level category
@@ -242,8 +258,23 @@ class TextList extends React.Component {
               break;
             }
           }
-          if (viewList.length == 0) { viewList = <EmptyLinksMessage theme={this.props.theme} />; }
-          content = (<ScrollView contentContainerStyle={styles.textListSummaryScrollView}>{viewList}</ScrollView>);
+          if (this.props.connectionsMode === null) {
+            viewList.push(
+              <ResourcesList
+                key={"resourcesList"}
+                theme={this.props.theme}
+                themeStr={this.props.themeStr}
+                setConnectionsMode={this.props.setConnectionsMode}
+              />
+            );
+          }
+          content = (
+            <ScrollView
+              key={""+this.props.connectionsMode}
+              contentContainerStyle={styles.textListSummaryScrollView}>
+                {viewList}
+            </ScrollView>
+          );
         }
         return (
           <View style={[styles.textListSummary, this.props.theme.textListSummary]}>
@@ -360,6 +391,50 @@ class EmptyLinksMessage extends React.Component {
 
   render() {
     return (<Text style={[styles.emptyLinksMessage, this.props.theme.secondaryText]}>{strings.noConnectionsMessage}</Text>);
+  }
+}
+
+class ResourcesList extends React.Component {
+  static propTypes = {
+    theme:              PropTypes.object.isRequired,
+    themeStr:           PropTypes.string.isRequired,
+    setConnectionsMode: PropTypes.func.isRequired,
+  }
+
+  render() {
+    const isWhite = this.props.themeStr === "white";
+    return (
+      <View>
+        <ToolsButton
+          text={strings.versions}
+          icon={isWhite ? require("./img/layers.png") : require("./img/layers-light.png")}
+          theme={this.props.theme}
+          onPress={()=>{ this.props.setConnectionsMode("versions"); }}
+        />
+      </View>
+    );
+  }
+}
+
+class ToolsButton extends React.Component {
+  static propTypes = {
+    theme:   PropTypes.object.isRequired,
+    text:    PropTypes.string.isRequired,
+    onPress: PropTypes.func.isRequired,
+    icon:    PropTypes.number,
+    count:   PropTypes.number,
+  }
+
+  render() {
+    const iconComp = this.props.icon ? (<Image source={this.props.icon} style={styles.menuButton} resizeMode={Image.resizeMode.contain}></Image>) : null;
+    const countComp = this.props.count ? (<Text>`(${this.props.count})`</Text>) : null;
+    return (
+      <TouchableOpacity onPress={this.props.onPress}>
+        { iconComp }
+        <Text>{this.props.text}</Text>
+        { countComp }
+      </TouchableOpacity>
+    );
   }
 }
 

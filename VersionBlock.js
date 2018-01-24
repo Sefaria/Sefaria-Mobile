@@ -7,10 +7,12 @@ import {
   Linking,
 } from 'react-native';
 import HTMLView from 'react-native-htmlview'; //to convert html'afied JSON to something react can render (https://github.com/jsdf/react-native-htmlview)
+const styles = require('./Styles.js');
 
 
 class VersionBlock extends React.Component {
   static propTypes = {
+    theme:                PropTypes.object.isRequired,
     version:              PropTypes.object.isRequired,
     currVersions:         PropTypes.object.isRequired,
     openVersionInSidebar: PropTypes.func,

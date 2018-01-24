@@ -15,7 +15,7 @@ import {
 } from 'react-native';
 
 var Sefaria = require('./sefaria');
-var styles = require('./Styles.js');
+const styles = require('./Styles.js');
 
 
 class TwoBox extends React.Component {

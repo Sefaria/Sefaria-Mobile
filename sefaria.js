@@ -780,11 +780,13 @@ Sefaria = {
           return categoryData;
         });
 
-        var allRefs = [];
+        let allRefs = [];
+        const allBooks = [];
         for (let cat of summaryList) {
           for (let book of cat.books) {
             cat.refList = cat.refList.concat(book.refList);
             allRefs = allRefs.concat(book.refList);
+            allBooks.push(book);
           }
         }
 
@@ -805,6 +807,7 @@ Sefaria = {
 
         // Attach data to "All" category in last position
         summaryList[summaryList.length-1].refList = allRefs;
+        summaryList[summaryList.length-1].books = allBooks;
 
         // Remove "Commentary" section if it is empty or only contains greyed out items
         if (summaryList[0].books.length == 0) { summaryList = summaryList.slice(1); }
@@ -1032,18 +1035,18 @@ Sefaria.util = {
   translateISOLanguageCode(code) {
     //takes two-letter ISO 639.2 code and returns full language name
     const codeMap = {
-      "en": "English",
-      "he": "Hebrew",
-      "yi": "Yiddish",
-      "fi": "Finnish",
-      "pt": "Portuguese",
-      "es": "Spanish",
-      "fr": "French",
-      "de": "German",
-      "ar": "Arabic",
-      "it": "Italian",
-      "pl": "Polish",
-      "ru": "Russian",
+      "en": "english",
+      "he": "hebrew",
+      "yi": "yiddish",
+      "fi": "finnish",
+      "pt": "portuguese",
+      "es": "spanish",
+      "fr": "french",
+      "de": "german",
+      "ar": "arabic",
+      "it": "italian",
+      "pl": "polish",
+      "ru": "russian",
     };
     return codeMap[code.toLowerCase()];
   }

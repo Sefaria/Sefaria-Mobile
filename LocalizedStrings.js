@@ -89,6 +89,7 @@ module.exports = new LocalizedStrings({
     italian: "Italian",
     polish: "Polish",
     russian: "Russian",
+    versions: "Versions",
   },
   he: {
     recent: "נצפו לאחרונה",
@@ -178,5 +179,6 @@ module.exports = new LocalizedStrings({
     italian: "איטלקית",
     polish: "פולנית",
     russian: "רוסית",
+    versions: "גרסאות",
   }
 });
