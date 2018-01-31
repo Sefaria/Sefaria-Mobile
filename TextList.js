@@ -187,6 +187,7 @@ class TextList extends React.Component {
           <View style={[styles.textColumn, this.props.theme.textListContentOuter, {maxWidth: null}]}>
             {textListHeader}
             <VersionsBox
+              interfaceLang={this.props.interfaceLang}
               theme={this.props.theme}
               mode={this.props.connectionsMode}
               currVersions={this.props.currVersions}
@@ -264,6 +265,7 @@ class TextList extends React.Component {
                 key={"resourcesList"}
                 theme={this.props.theme}
                 themeStr={this.props.themeStr}
+                interfaceLang={this.props.interfaceLang}
                 versionsCount={this.props.versions.length}
                 setConnectionsMode={this.props.setConnectionsMode}
               />
@@ -399,6 +401,7 @@ class ResourcesList extends React.Component {
   static propTypes = {
     theme:              PropTypes.object.isRequired,
     themeStr:           PropTypes.string.isRequired,
+    interfaceLang:      PropTypes.oneOf(["english", "hebrew"]).isRequired,
     setConnectionsMode: PropTypes.func.isRequired,
     versionsCount:      PropTypes.number.isRequired,
   }
@@ -408,6 +411,7 @@ class ResourcesList extends React.Component {
     return (
       <View>
         <ToolsButton
+          interfaceLang={this.props.interfaceLang}
           text={strings.versions}
           icon={isWhite ? require("./img/layers.png") : require("./img/layers-light.png")}
           theme={this.props.theme}
@@ -421,21 +425,24 @@ class ResourcesList extends React.Component {
 
 class ToolsButton extends React.Component {
   static propTypes = {
-    theme:   PropTypes.object.isRequired,
-    text:    PropTypes.string.isRequired,
-    onPress: PropTypes.func.isRequired,
-    icon:    PropTypes.number,
-    count:   PropTypes.number,
+    interfaceLang: PropTypes.oneOf(["english", "hebrew"]).isRequired,
+    theme:         PropTypes.object.isRequired,
+    text:          PropTypes.string.isRequired,
+    onPress:       PropTypes.func.isRequired,
+    icon:          PropTypes.number,
+    count:         PropTypes.number,
   }
 
   render() {
-    const { count, theme, icon } = this.props;
+    const { count, theme, icon, interfaceLang } = this.props;
+    const textStyle = interfaceLang === "english" ? styles.enInt : styles.heInt;
+    const flexDir = interfaceLang === "english" ? null : styles.rtlRow;
     const iconComp = icon ? (<Image source={icon} style={styles.menuButton} resizeMode={Image.resizeMode.contain}></Image>) : null;
     const countComp = !!count || count === 0 ? <Text style={[styles.enInt, theme.secondaryText, styles.spacedText]}>{`(${count})`}</Text> : null
     return (
-      <TouchableOpacity style={[styles.searchFilterCat, styles.toolsButton, theme.bordered]} onPress={this.props.onPress}>
+      <TouchableOpacity style={[styles.searchFilterCat, styles.toolsButton, flexDir, theme.bordered]} onPress={this.props.onPress}>
         { iconComp }
-        <Text style={[styles.enInt, styles.spacedText, styles.toolsButtonText, theme.tertiaryText]}>{this.props.text}</Text>
+        <Text style={[textStyle, styles.spacedText, styles.toolsButtonText, theme.tertiaryText]}>{this.props.text}</Text>
         { countComp }
       </TouchableOpacity>
     );

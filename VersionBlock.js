@@ -14,10 +14,11 @@ class VersionBlock extends React.Component {
   static propTypes = {
     theme:                PropTypes.object.isRequired,
     version:              PropTypes.object.isRequired,
-    currVersions:         PropTypes.object.isRequired,
     openVersionInSidebar: PropTypes.func,
     openVersionInReader:  PropTypes.func,
     isCurrent:            PropTypes.bool,
+    center:               PropTypes.bool, /* true for textToc. false for sidebar */
+    interfaceLang:        PropTypes.oneOf(["english", "hebrew"]),
   };
 
   onVersionTitleClick = () => {
@@ -50,14 +51,17 @@ class VersionBlock extends React.Component {
       versionNotes = versionInfo['versionNotes'];
     }
 
+    const textAlign = this.props.center ? null : { textAlign: "left" };
+    const justifyContent = this.props.center ? null : { justifyContent: "flex-start" };
+    const margin = this.props.center ? null : { marginHorizontal: 25 };
     return (
-      <View>
+      <View style={margin}>
         {
           versionTitle ?
-          <Text style={[styles.en, styles.textTocVersionTitle, this.props.theme.text]}>{versionTitle}</Text>
+          <Text style={[styles.en, styles.textTocVersionTitle, textAlign, this.props.theme.text]}>{versionTitle}</Text>
           : null
         }
-        <View style={styles.textTocVersionInfo}>
+        <View style={[styles.textTocVersionInfo, justifyContent]}>
           { versionSource ?
             <TouchableOpacity style={[styles.navBottomLink, styles.textTocVersionInfoItem]} onPress={() => {Linking.openURL(versionSource);}}>
               <Text style={[styles.textTocVersionInfoText, this.props.theme.tertiaryText]}>{shortVersionSource}</Text>
@@ -76,7 +80,7 @@ class VersionBlock extends React.Component {
             value={"<div>"+versionInfo['versionNotes']+"</div>"}
             onLinkPress={(url) => Linking.openURL(url) }
             stylesheet={styles}
-            textComponentProps={{style: [styles.textTocVersionNotes, this.props.theme.tertiaryText]}}
+            textComponentProps={{style: [styles.textTocVersionNotes, textAlign, this.props.theme.tertiaryText]}}
           />
           : null
         }

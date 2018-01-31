@@ -23,6 +23,7 @@ class VersionsBox extends React.Component {
     versions:                 PropTypes.array.isRequired,
     currVersions:             PropTypes.object.isRequired,
     mode:                     PropTypes.oneOf(["versions", "version Open"]),
+    interfaceLang:            PropTypes.oneOf(["english", "hebrew"]).isRequired,
     mainVersionLanguage:      PropTypes.oneOf(["english", "bilingual", "hebrew"]).isRequired,
     vFilterIndex:             PropTypes.number,
     recentVFilters:           PropTypes.array,
@@ -100,12 +101,16 @@ class VersionsBox extends React.Component {
       const tempV = this.props.currVersions[vlang];
       currVersions[vlang] = !!tempV ? tempV.versionTitle : null;
     }
+    const isheb = this.props.interfaceLang === "hebrew";
+    const textStyle = isheb ? styles.hebrewText : styles.englishText;
     return (
-      <ScrollView contentContainerStyle={styles.textListSummaryScrollView}>
+      <ScrollView contentContainerStyle={[styles.textListSummaryScrollView, styles.versionsBoxScrollView]}>
         {
           this.state.versionLangs.map((lang) => (
             <View key={lang}>
-              <Text >{strings[Sefaria.util.translateISOLanguageCode(lang)].toUpperCase()}<Text>{` (${this.state.versionLangMap[lang].length})`}</Text></Text>
+              <View style={[styles.versionsBoxLang, this.props.theme.bordered]}>
+                <Text style={[textStyle, styles.versionsBoxLangText]}>{strings[Sefaria.util.translateISOLanguageCode(lang)].toUpperCase()}<Text>{` (${this.state.versionLangMap[lang].length})`}</Text></Text>
+              </View>
               {
                 this.state.versionLangMap[lang].map((v) => (
                   <VersionBlock

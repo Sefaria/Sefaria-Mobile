@@ -23,9 +23,10 @@ var {
   CollapseIcon
 } = require('./Misc.js');
 
-const styles  = require('./Styles');
-const strings = require('./LocalizedStrings');
-const iPad    = require('./isIPad');
+const styles       = require('./Styles');
+const strings      = require('./LocalizedStrings');
+const iPad         = require('./isIPad');
+const VersionBlock = require('./VersionBlock');
 
 
 class ReaderTextTableOfContents extends React.Component {
@@ -137,37 +138,10 @@ class ReaderTextTableOfContents extends React.Component {
               <Text style={[styles.intEn, styles.textTocSectionString, this.props.theme.textTocSectionString]}>{this.sectionString()}</Text> }
             </View>
 
-            <View>
-              {
-                versionTitle ?
-                <Text style={[styles.en, styles.textTocVersionTitle, this.props.theme.text]}>{versionTitle}</Text>
-                : null
-              }
-              <View style={styles.textTocVersionInfo}>
-                { versionSource ?
-                  <TouchableOpacity style={[styles.navBottomLink, styles.textTocVersionInfoItem]} onPress={() => {Linking.openURL(versionSource);}}>
-                    <Text style={[styles.textTocVersionInfoText, this.props.theme.tertiaryText]}>{shortVersionSource}</Text>
-                  </TouchableOpacity>
-                  : null
-                }
-                { license && license !== "unknown" ?
-                  <TouchableOpacity style={[styles.navBottomLink, styles.textTocVersionInfoItem]} onPress={() => licenseURL ? Linking.openURL(licenseURL) : null}>
-                    <Text style={[styles.textTocVersionInfoText, this.props.theme.tertiaryText]}>{license}</Text>
-                  </TouchableOpacity>
-                  : null
-                }
-              </View>
-              { versionNotes ?
-                <HTMLView
-                  value={"<div>"+versionInfo['versionNotes']+"</div>"}
-                  onLinkPress={(url) => Linking.openURL(url) }
-                  stylesheet={styles}
-         					textComponentProps={{style: [styles.textTocVersionNotes, this.props.theme.tertiaryText]}}
-                />
-                : null
-              }
-            </View>
-
+            <VersionBlock
+              theme={this.props.theme}
+              version={versionInfo}
+              center={true} />
           </View>
 
           {this.state.textToc ?

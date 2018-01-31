@@ -312,6 +312,10 @@ module.exports = StyleSheet.create({
     paddingHorizontal: iPad ? 20 : 10,
     paddingVertical: 35,
   },
+  versionsBoxScrollView: {
+    paddingTop: 10,
+    paddingBottom: 35,
+  },
   textListSummarySection: {
     marginBottom: 22
   },
@@ -847,6 +851,17 @@ module.exports = StyleSheet.create({
   },
   toolsButtonText: {
     paddingHorizontal: 7,
+  },
+  versionsBoxLang: {
+    flex: 1,
+    paddingHorizontal: 25,
+    paddingVertical: 5,
+    marginTop: 15,
+    borderBottomWidth: 1,
+  },
+  versionsBoxLangText: {
+    fontSize: 17,
+    lineHeight: 25,
   },
 
 //HTML Styles:
