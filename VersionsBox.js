@@ -108,21 +108,23 @@ class VersionsBox extends React.Component {
         {
           this.state.versionLangs.map((lang) => (
             <View key={lang}>
-              <View style={[styles.versionsBoxLang, this.props.theme.bordered]}>
+              <View style={[styles.versionsBoxLang]}>
                 <Text style={[textStyle, styles.versionsBoxLangText]}>{strings[Sefaria.util.translateISOLanguageCode(lang)].toUpperCase()}<Text>{` (${this.state.versionLangMap[lang].length})`}</Text></Text>
               </View>
               {
                 this.state.versionLangMap[lang].map((v) => (
-                  <VersionBlock
-                    theme={this.props.theme}
-                    version={v}
-                    currVersions={currVersions}
-                    key={v.versionTitle + lang}
-                    openVersionInReader={this.props.selectVersion}
-                    openVersionInSidebar={this.openVersionInSidebar}
-                    isCurrent={(this.props.currVersions.en && this.props.currVersions.en.versionTitle === v.versionTitle) ||
-                              (this.props.currVersions.he && this.props.currVersions.he.versionTitle === v.versionTitle)}
-                  />
+                  <View style={[styles.versionsBoxVersionBlockWrapper, this.props.theme.bordered]} key={v.versionTitle + lang}>
+                    <VersionBlock
+                      theme={this.props.theme}
+                      version={v}
+                      currVersions={currVersions}
+                      openVersionInReader={this.props.selectVersion}
+                      openVersionInSidebar={this.openVersionInSidebar}
+                      isCurrent={(this.props.currVersions.en && this.props.currVersions.en.versionTitle === v.versionTitle) ||
+                                (this.props.currVersions.he && this.props.currVersions.he.versionTitle === v.versionTitle)}
+                    />
+                  </View>
+
                 ))
               }
             </View>

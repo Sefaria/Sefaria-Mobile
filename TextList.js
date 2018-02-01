@@ -195,7 +195,7 @@ class TextList extends React.Component {
               vFilterIndex={this.props.versionFilterIndex}
               recentVFilters={this.props.versionRecentFilters}
               versions={this.props.versions}
-              setConnectionsMode={()=>{}}
+              setConnectionsMode={this.props.setConnectionsMode}
               setFilter={()=>{}}
               selectVersion={()=>{}}
               onRangeClick={()=>{}}
@@ -227,7 +227,7 @@ class TextList extends React.Component {
                   language={this.props.settings.language}
                   onPress={function(filter,category) {
                     if (catFilterSelected) {
-                      this.props.openFilter(filter);
+                      this.props.openFilter(filter, "link");
                     } else {
                       this.props.setConnectionsMode(category);
                     }
@@ -249,7 +249,7 @@ class TextList extends React.Component {
                     count={obook.count}
                     language={this.props.settings.language}
                     onPress={function(filter,title) {
-                      this.props.openFilter(filter);
+                      this.props.openFilter(filter, "link");
                       Sefaria.track.event("Reader","Text Filter Click",title);
                     }.bind(this,filter,obook.title)}
                     key={obook.title}

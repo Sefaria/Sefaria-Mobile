@@ -857,11 +857,14 @@ module.exports = StyleSheet.create({
     paddingHorizontal: 25,
     paddingVertical: 5,
     marginTop: 15,
-    borderBottomWidth: 1,
   },
   versionsBoxLangText: {
     fontSize: 17,
     lineHeight: 25,
+  },
+  versionsBoxVersionBlockWrapper: {
+    borderTopWidth: 1,
+    marginBottom: 15,
   },
 
 //HTML Styles:

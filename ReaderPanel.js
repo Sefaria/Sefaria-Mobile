@@ -62,7 +62,7 @@ class ReaderPanel extends React.Component {
     onTextListDragMove:    PropTypes.func.isRequired,
     onTextListDragEnd:     PropTypes.func.isRequired,
     setConnectionsMode:    PropTypes.func.isRequired,
-    openLinkFilter:        PropTypes.func.isRequired,
+    openFilter:            PropTypes.func.isRequired,
     closeLinkCat:          PropTypes.func.isRequired,
     updateLinkCat:         PropTypes.func.isRequired,
     connectionsMode:       PropTypes.string,
@@ -446,7 +446,7 @@ class ReaderPanel extends React.Component {
                 textLanguage={this.state.textLanguage}
                 openRef={(ref)=>this.props.openRef(ref,"text list")}
                 setConnectionsMode={this.props.setConnectionsMode}
-                openFilter={this.props.openLinkFilter}
+                openFilter={this.props.openFilter}
                 closeCat={this.props.closeLinkCat}
                 updateCat={this.props.updateLinkCat}
                 loadLinkContent={this.props.loadLinkContent}

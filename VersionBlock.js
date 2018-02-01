@@ -58,7 +58,15 @@ class VersionBlock extends React.Component {
       <View style={margin}>
         {
           versionTitle ?
-          <Text style={[styles.en, styles.textTocVersionTitle, textAlign, this.props.theme.text]}>{versionTitle}</Text>
+            (this.props.openVersionInSidebar ?
+              <TouchableOpacity onPress={this.props.openVersionInSidebar}>
+                <Text style={[styles.en, styles.textTocVersionTitle, textAlign, this.props.theme.text]}>
+                  {versionTitle}
+                </Text>
+              </TouchableOpacity> :
+              <Text style={[styles.en, styles.textTocVersionTitle, textAlign, this.props.theme.text]}>
+                {versionTitle}
+              </Text>)
           : null
         }
         <View style={[styles.textTocVersionInfo, justifyContent]}>

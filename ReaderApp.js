@@ -79,6 +79,7 @@ class ReaderApp extends React.Component {
         currVersions: {en: null, he: null},
         versions: [],
         versionStaleRecentFilters: [],
+        versionContents: [],
         theme: themeWhite,
         themeStr: "white",
         searchQuery: '',
@@ -460,16 +461,27 @@ class ReaderApp extends React.Component {
     this.setState({ connectionsMode: cat });
   };
 
-  openLinkFilter = (filter) => {
+  openFilter = (filter, type) => {
+      // type is either "link" or "version"
+      let recentFilters, staleRecentFilters;
+      switch (type) {
+        case "link":
+          recentFilters = this.state.linkRecentFilters;
+          staleRecentFilters = this.state.linkStaleRecentFilters;
+          break;
+        case "version":
+          recentFilters = this.state.versionRecentFilters;
+          staleRecentFilters = this.state.versionStaleRecentFilters;
+      }
       var filterIndex = null;
       //check if filter is already in recentFilters
-      for (let i = 0; i < this.state.linkRecentFilters.length; i++) {
-          let tempFilter = this.state.linkRecentFilters[i];
+      for (let i = 0; i < recentFilters.length; i++) {
+          let tempFilter = recentFilters[i];
           if (tempFilter.title == filter.title) {
             filterIndex = i;
-            if (this.state.linkStaleRecentFilters[i]) {
-              this.state.linkRecentFilters[i] = filter;
-              this.state.linkStaleRecentFilters[i] = false;
+            if (staleRecentFilters[i]) {
+              recentFilters[i] = filter;
+              staleRecentFilters[i] = false;
             }
             break;
           }
@@ -477,21 +489,38 @@ class ReaderApp extends React.Component {
 
       //if it's not in recentFilters, add it
       if (filterIndex == null) {
-          this.state.linkRecentFilters.unshift(filter);
-          if (this.state.linkRecentFilters.length > 5)
-            this.state.linkRecentFilters.pop();
+          recentFilters.unshift(filter);
+          if (recentFilters.length > 5)
+            recentFilters.pop();
           filterIndex = 0;
       }
 
-      var linkContents = filter.refList.map((ref)=>null);
-      Sefaria.links.reset();
-      this.setState({
-          connectionsMode: "filter",
-          filterIndex: filterIndex,
-          recentFilters: this.state.linkRecentFilters,
-          linkStaleRecentFilters: this.state.linkStaleRecentFilters,
-          linkContents: linkContents
-      });
+      let newState;
+      switch (type) {
+        case "link":
+          const linkContents = filter.refList.map((ref)=>null);
+          Sefaria.links.reset();
+          newState = {
+            connectionsMode: "filter",
+            filterIndex: filterIndex,
+            recentFilters: recentFilters,
+            linkStaleRecentFilters: staleRecentFilters,
+            linkContents: linkContents,
+          };
+          break;
+        case "version":
+          const versionContents = [null]; //hard-coded to one segment for now
+          newState = {
+            connectionsMode: "version open",
+            versionFilterIndex: filterIndex,
+            versionRecentFilters: recentFilters,
+            versionStaleRecentFilters: staleRecentFilters,
+            versionContents: versionContents,
+          }
+          break;
+      }
+
+      this.setState(newState);
   };
 
   closeLinkCat = () => {
@@ -589,6 +618,10 @@ class ReaderApp extends React.Component {
 
     this.state.linkContents[pos] = data;
     this.setState({linkContents: this.state.linkContents.slice(0)});
+  };
+
+  openVersionFilter = (filter) => {
+
   };
 
   clearOffsetRef = () => {
@@ -847,7 +880,7 @@ class ReaderApp extends React.Component {
                 loading={!this.state.loaded}
                 defaultSettingsLoaded={this.state.defaultSettingsLoaded}
                 setConnectionsMode={this.setConnectionsMode}
-                openLinkFilter={this.openLinkFilter}
+                openFilter={this.openFilter}
                 closeLinkCat={this.closeLinkCat}
                 updateLinkCat={this.updateLinkCat}
                 loadLinkContent={this.loadLinkContent}
