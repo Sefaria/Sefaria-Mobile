@@ -24,7 +24,7 @@ class VersionBlock extends React.Component {
   onVersionTitleClick = () => {
     const action = this.props.openVersionInSidebar ? this.props.openVersionInSidebar : this.props.openVersionInReader;
     if (action) {
-      action(this.props.version.versionTitle, this.props.version.language);
+      action(this.props.version.versionTitle, this.props.version.versionTitleInHebrew, this.props.version.language);
     }
   }
   onSelectVersionClick = () => {
@@ -59,7 +59,7 @@ class VersionBlock extends React.Component {
         {
           versionTitle ?
             (this.props.openVersionInSidebar ?
-              <TouchableOpacity onPress={this.props.openVersionInSidebar}>
+              <TouchableOpacity onPress={this.onVersionTitleClick}>
                 <Text style={[styles.en, styles.textTocVersionTitle, textAlign, this.props.theme.text]}>
                   {versionTitle}
                 </Text>

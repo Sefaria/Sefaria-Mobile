@@ -14,6 +14,7 @@ const {
 const VersionBlock = require('./VersionBlock');
 const strings = require('./LocalizedStrings');
 const styles = require('./Styles.js');
+const VersionFilter = require('./VersionFilter');
 
 
 
@@ -28,7 +29,7 @@ class VersionsBox extends React.Component {
     vFilterIndex:             PropTypes.number,
     recentVFilters:           PropTypes.array,
     setConnectionsMode:       PropTypes.func.isRequired,
-    setFilter:                PropTypes.func.isRequired,
+    openFilter:               PropTypes.func.isRequired,
     selectVersion:            PropTypes.func.isRequired,
     onRangeClick:             PropTypes.func.isRequired,
   };
@@ -83,9 +84,9 @@ class VersionsBox extends React.Component {
     );
     return {versionLangMap, versionLangs};
   };
-  openVersionInSidebar = (versionTitle, versionLanguage) => {
-    this.props.setConnectionsMode("version open");
-    this.props.setFilter(versionTitle);
+  openVersionInSidebar = (versionTitle, heVersionTitle, versionLanguage) => {
+    const filter = new VersionFilter(versionTitle, heVersionTitle, versionLanguage);
+    this.props.openFilter(filter, "version");
   };
   renderModeVersions() {
     if (!this.state.versionLangMap) {
@@ -138,7 +139,7 @@ class VersionsBox extends React.Component {
     const currSelectedVersions = this.props.vFilterIndex ? {[Sefaria.api.versionLanguage(this.props.recentVFilters[this.props.vFilterIndex])]: this.props.recentVFilters[this.props.vFilterIndex]} : {en: null, he: null};
     const onRangeClick = (sref)=>{this.props.onRangeClick(sref, false, currSelectedVersions)};
     return null;
-    /*return (
+    return (
       <VersionsTextList
         srefs={this.props.srefs}
         vFilter={this.props.vFilter}
@@ -146,7 +147,7 @@ class VersionsBox extends React.Component {
         setFilter={this.props.setFilter}
         onRangeClick={onRangeClick}
       />
-    );*/
+    );
   }
   render() {
     return (this.props.mode === "versions" ? this.renderModeVersions() : this.renderModeSelected());

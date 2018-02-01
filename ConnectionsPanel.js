@@ -148,9 +148,6 @@ class TextList extends React.Component {
     switch (this.props.connectionsMode) {
       case ('filter'):
         if (!this.state.isNewSegment) {
-          // Using Dimensions to adjust marings on text at maximum line width because I can't figure out
-          // how to get flex to center a component with maximum width without allows breaking the stretch
-          // behavior of its contents, result in rows in the list view with small width if their content is small.
           var listViewStyles = [styles.textListContentListView];
           return (
             <View style={[styles.textColumn, this.props.theme.textListContentOuter, {maxWidth: null}]}>
@@ -181,8 +178,13 @@ class TextList extends React.Component {
         } else {
           return null;
         }
-      case 'versions': //note the "fall-through". see https://stackoverflow.com/questions/6513585/javascript-or-expression-in-a-switch-case
       case 'version open':
+        if (!this.state.isNewSegment) {
+
+        } else {
+          return null;
+        }
+      case 'versions': //note the "fall-through". see https://stackoverflow.com/questions/6513585/javascript-or-expression-in-a-switch-case
         return (
           <View style={[styles.textColumn, this.props.theme.textListContentOuter, {maxWidth: null}]}>
             {textListHeader}
@@ -196,7 +198,7 @@ class TextList extends React.Component {
               recentVFilters={this.props.versionRecentFilters}
               versions={this.props.versions}
               setConnectionsMode={this.props.setConnectionsMode}
-              setFilter={()=>{}}
+              openFilter={this.props.openFilter}
               selectVersion={()=>{}}
               onRangeClick={()=>{}}
             />
