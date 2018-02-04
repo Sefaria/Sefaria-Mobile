@@ -70,6 +70,7 @@ class ReaderPanel extends React.Component {
     linkRecentFilters:     PropTypes.array,
     linkSummary:           PropTypes.array,
     linkContents:          PropTypes.array,
+    versionContents:       PropTypes.array,
     loadingLinks:          PropTypes.bool,
     versionRecentFilters:  PropTypes.array.isRequired,
     versionFilterIndex:    PropTypes.number,
@@ -452,6 +453,7 @@ class ReaderPanel extends React.Component {
                 loadLinkContent={this.props.loadLinkContent}
                 linkSummary={this.props.linkSummary}
                 linkContents={this.props.linkContents}
+                versionContents={this.props.versionContents}
                 loading={this.props.loadingLinks}
                 connectionsMode={this.props.connectionsMode}
                 filterIndex={this.props.filterIndex}

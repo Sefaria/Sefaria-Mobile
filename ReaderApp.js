@@ -890,6 +890,7 @@ class ReaderApp extends React.Component {
                 linkRecentFilters={this.state.linkRecentFilters}
                 linkSummary={this.state.linkSummary}
                 linkContents={this.state.linkContents}
+                versionContents={this.state.versionContents}
                 loadingLinks={this.state.loadingLinks}
                 versionRecentFilters={this.state.versionRecentFilters}
                 versionFilterIndex={this.state.versionFilterIndex}

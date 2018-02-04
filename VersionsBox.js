@@ -28,6 +28,7 @@ class VersionsBox extends React.Component {
     mainVersionLanguage:      PropTypes.oneOf(["english", "bilingual", "hebrew"]).isRequired,
     vFilterIndex:             PropTypes.number,
     recentVFilters:           PropTypes.array,
+    segmentRef:               PropTypes.string.isRequired,
     setConnectionsMode:       PropTypes.func.isRequired,
     openFilter:               PropTypes.func.isRequired,
     selectVersion:            PropTypes.func.isRequired,
@@ -85,7 +86,7 @@ class VersionsBox extends React.Component {
     return {versionLangMap, versionLangs};
   };
   openVersionInSidebar = (versionTitle, heVersionTitle, versionLanguage) => {
-    const filter = new VersionFilter(versionTitle, heVersionTitle, versionLanguage);
+    const filter = new VersionFilter(versionTitle, heVersionTitle, versionLanguage, this.props.segmentRef);
     this.props.openFilter(filter, "version");
   };
   renderModeVersions() {

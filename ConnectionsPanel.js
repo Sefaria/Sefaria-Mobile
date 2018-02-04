@@ -36,6 +36,7 @@ class ConnectionsPanel extends React.Component {
     updateCat:            PropTypes.func.isRequired,
     linkSummary:          PropTypes.array,
     linkContents:         PropTypes.array,
+    versionContents:      PropTypes.array,
     loading:              PropTypes.bool,
     segmentRef:           PropTypes.string.isRequired,
     connectionsMode:      PropTypes.string,
@@ -74,7 +75,7 @@ class ConnectionsPanel extends React.Component {
       </View>
     );
     switch (this.props.connectionsMode) {
-      case ('filter'):
+      case 'filter':
         return (
           <View style={[styles.textColumn, this.props.theme.textListContentOuter, {maxWidth: null}]}>
             {connectionsPanelHeader}
@@ -83,8 +84,6 @@ class ConnectionsPanel extends React.Component {
               themeStr={this.props.themeStr}
               settings={this.props.settings}
               textLanguage={this.props.textLanguage}
-              filterIndex={this.props.filterIndex}
-              recentFilters={this.props.recentFilters}
               openRef={this.props.openRef}
               loadLinkContent={this.props.loadLinkContent}
               updateCat={this.props.updateCat}
@@ -92,14 +91,31 @@ class ConnectionsPanel extends React.Component {
               connectionsMode={this.props.connectionsMode}
               recentFilters={this.props.recentFilters}
               filterIndex={this.props.filterIndex}
-              linkContents={this.props.linkContents}
+              listContents={this.props.linkContents}
             />
           </View>
         );
       case 'version open':
-        // return textlist
-        return null;
-      case 'versions': //note the "fall-through". see https://stackoverflow.com/questions/6513585/javascript-or-expression-in-a-switch-case
+        return (
+          <View style={[styles.textColumn, this.props.theme.textListContentOuter, {maxWidth: null}]}>
+            {connectionsPanelHeader}
+            <TextList
+              theme={this.props.theme}
+              themeStr={this.props.themeStr}
+              settings={this.props.settings}
+              textLanguage={this.props.textLanguage}
+              openRef={this.props.openRef}
+              loadLinkContent={this.props.loadLinkContent}
+              updateCat={this.props.updateCat}
+              connectionsPanelHeader={connectionsPanelHeader}
+              connectionsMode={this.props.connectionsMode}
+              recentFilters={this.props.versionRecentFilters}
+              filterIndex={this.props.versionFilterIndex}
+              listContents={this.props.versionContents}
+            />
+          </View>
+        );
+      case 'versions':
         return (
           <View style={[styles.textColumn, this.props.theme.textListContentOuter, {maxWidth: null}]}>
             {connectionsPanelHeader}
@@ -113,6 +129,7 @@ class ConnectionsPanel extends React.Component {
               recentVFilters={this.props.versionRecentFilters}
               versions={this.props.versions}
               setConnectionsMode={this.props.setConnectionsMode}
+              segmentRef={this.props.segmentRef}
               openFilter={this.props.openFilter}
               selectVersion={()=>{}}
               onRangeClick={()=>{}}

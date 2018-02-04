@@ -25,7 +25,7 @@ class TextList extends React.Component {
     textLanguage:    PropTypes.oneOf(["english", "hebrew", "bilingual"]),
     recentFilters:   PropTypes.array.isRequired,
     filterIndex:     PropTypes.number,
-    linkContents:    PropTypes.array,
+    listContents:    PropTypes.array,
     openRef:         PropTypes.func.isRequired,
     loadLinkContent: PropTypes.func.isRequired,
     updateCat:       PropTypes.func.isRequired,
@@ -33,15 +33,6 @@ class TextList extends React.Component {
 
   constructor(props) {
     super(props);
-
-    switch (props.connectionsMode) {
-      case "filter":
-        this.renderItem = this.renderItemLink;
-        this.onViewableItemsChanged = this.onViewableItemsChangedLink;
-        break;
-      case "version open":
-        break;
-    }
 
     const dataSource = this.generateDataSource(props);
     this.state = {
@@ -56,7 +47,7 @@ class TextList extends React.Component {
     } else if (this.props.recentFilters !== nextProps.recentFilters ||
                this.props.connectionsMode !== nextProps.connectionsMode ||
                this.props.filterIndex !== nextProps.filterIndex ||
-               this.props.linkContents !== nextProps.linkContents) {
+               this.props.listContents !== nextProps.listContents) {
       this.setState({dataSource: this.generateDataSource(nextProps)});
     }
   }
@@ -71,38 +62,42 @@ class TextList extends React.Component {
     if (!linkFilter) {
       return [];
     }
-    const isCommentaryBook = linkFilter.category === "Commentary" && linkFilter.title !== "Commentary"
+    const displayRef = (linkFilter.category === "Commentary" && linkFilter.title !== "Commentary") || !!linkFilter.versionTitle;
     return linkFilter.refList.map((linkRef, index) => {
       const key = `${props.segmentRef}|${linkRef}`;
-      const loading = props.linkContents[index] === null;
+      const loading = props.listContents[index] === null;
       return {
         key,
         ref: linkRef,
         //changeString: [linkRef, loading, props.settings.fontSize, props.textLanguage].join("|"),
+        versionTitle: linkFilter.versionTitle,
+        versionLanguage: linkFilter.versionLanguage,
         pos: index,
-        isCommentaryBook: isCommentaryBook,
-        content: props.linkContents[index],
+        displayRef,
+        content: props.listContents[index],
       };
     });
   };
 
-  renderItemLink = ({ item }) => {
+  renderItem = ({ item }) => {
     const loading = item.content == null;
     const linkContentObj = loading ? DEFAULT_LINK_CONTENT : item.content;
-    return (<LinkContent
+    return (<ListItem
               theme={this.props.theme}
               themeStr={this.props.themeStr}
               settings={this.props.settings}
               openRef={this.props.openRef}
               refStr={item.ref}
+              versionTitle={item.versionTitle}
+              versionLanguage={item.versionLanguage}
               linkContentObj={linkContentObj}
               textLanguage={this.props.textLanguage}
               loading={loading}
-              isCommentaryBook={item.isCommentaryBook}
+              displayRef={item.displayRef}
     />);
   };
 
-  onViewableItemsChangedLink = ({viewableItems, changed}) => {
+  onViewableItemsChanged = ({viewableItems, changed}) => {
     for (let item of viewableItems) {
       if (item.item.content === null) {
         this.props.loadLinkContent(item.item.ref, item.item.pos);
@@ -139,16 +134,18 @@ class EmptyLinksMessage extends React.Component {
   }
 }
 
-class LinkContent extends React.PureComponent {
+class ListItem extends React.PureComponent {
   static propTypes = {
     theme:             PropTypes.object.isRequired,
     settings:          PropTypes.object,
     openRef:           PropTypes.func.isRequired,
     refStr:            PropTypes.string,
+    versionTitle:      PropTypes.string,
+    versionLanguage:   PropTypes.string,
     linkContentObj:    PropTypes.object, /* of the form {en,he} */
     textLanguage:      PropTypes.string,
     loading:           PropTypes.bool,
-    isCommentaryBook:  PropTypes.bool
+    displayRef:        PropTypes.bool
   };
   constructor(props) {
     super(props);
@@ -200,7 +197,7 @@ class LinkContent extends React.PureComponent {
 
     return (
       <TouchableOpacity style={[styles.searchTextResult, this.props.theme.searchTextResult]} onPress={()=>{this.props.openRef(this.props.refStr, this.props.linkContentObj.sectionRef)}}>
-        {this.props.isCommentaryBook ? null : <Text style={[styles.en, styles.textListCitation, this.props.theme.textListCitation]}>{this.props.refStr}</Text>}
+        {this.props.displayRef ? null : <Text style={[styles.en, styles.textListCitation, this.props.theme.textListCitation]}>{this.props.refStr}</Text>}
         {textViews}
       </TouchableOpacity>
     );
