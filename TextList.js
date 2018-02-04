@@ -27,7 +27,7 @@ class TextList extends React.Component {
     filterIndex:     PropTypes.number,
     listContents:    PropTypes.array,
     openRef:         PropTypes.func.isRequired,
-    loadLinkContent: PropTypes.func.isRequired,
+    loadContent:     PropTypes.func.isRequired,
     updateCat:       PropTypes.func.isRequired,
   };
 
@@ -58,20 +58,20 @@ class TextList extends React.Component {
   }
 
   generateDataSource = (props) => {
-    const linkFilter = props.recentFilters[props.filterIndex];
-    if (!linkFilter) {
+    const filter = props.recentFilters[props.filterIndex];
+    if (!filter) {
       return [];
     }
-    const displayRef = (linkFilter.category === "Commentary" && linkFilter.title !== "Commentary") || !!linkFilter.versionTitle;
-    return linkFilter.refList.map((linkRef, index) => {
-      const key = `${props.segmentRef}|${linkRef}`;
+    const displayRef = (filter.category === "Commentary" && filter.title !== "Commentary") || !!filter.versionTitle;
+    return filter.refList.map((ref, index) => {
+      const key = `${ref}`;
       const loading = props.listContents[index] === null;
       return {
         key,
-        ref: linkRef,
+        ref,
         //changeString: [linkRef, loading, props.settings.fontSize, props.textLanguage].join("|"),
-        versionTitle: linkFilter.versionTitle,
-        versionLanguage: linkFilter.versionLanguage,
+        versionTitle: filter.versionTitle,
+        versionLanguage: filter.versionLanguage,
         pos: index,
         displayRef,
         content: props.listContents[index],
@@ -98,9 +98,10 @@ class TextList extends React.Component {
   };
 
   onViewableItemsChanged = ({viewableItems, changed}) => {
-    for (let item of viewableItems) {
-      if (item.item.content === null) {
-        this.props.loadLinkContent(item.item.ref, item.item.pos);
+    for (let vItem of viewableItems) {
+      const { item } = vItem;
+      if (item.content === null) {
+        this.props.loadContent(item.ref, item.pos, item.versionTitle, item.versionLanguage);
       }
     }
   };
@@ -115,7 +116,7 @@ class TextList extends React.Component {
         onViewableItemsChanged={this.onViewableItemsChanged}
         ListEmptyComponent={
           <View style={styles.noLinks}>
-            <EmptyLinksMessage theme={this.props.theme} />
+            <EmptyListMessage theme={this.props.theme} />
           </View>
         }
       />
@@ -123,7 +124,7 @@ class TextList extends React.Component {
   }
 }
 
-class EmptyLinksMessage extends React.Component {
+class EmptyListMessage extends React.Component {
   static propTypes = {
     theme:         PropTypes.object.isRequired,
     interfaceLang: PropTypes.string

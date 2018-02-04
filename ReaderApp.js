@@ -620,8 +620,8 @@ class ReaderApp extends React.Component {
     this.setState({linkContents: this.state.linkContents.slice(0)});
   };
 
-  openVersionFilter = (filter) => {
-
+  loadVersionContent = (ref, pos, versionTitle, versionLanguage) => {
+    console.log(ref, pos, versionTitle, versionLanguage);
   };
 
   clearOffsetRef = () => {
@@ -884,6 +884,7 @@ class ReaderApp extends React.Component {
                 closeLinkCat={this.closeLinkCat}
                 updateLinkCat={this.updateLinkCat}
                 loadLinkContent={this.loadLinkContent}
+                loadVersionContent={this.loadVersionContent}
                 connectionsMode={this.state.connectionsMode}
                 filterIndex={this.state.filterIndex}
                 linksLoaded={this.state.linksLoaded}

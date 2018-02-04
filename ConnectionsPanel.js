@@ -34,6 +34,8 @@ class ConnectionsPanel extends React.Component {
     openFilter:           PropTypes.func.isRequired,
     closeCat:             PropTypes.func.isRequired,
     updateCat:            PropTypes.func.isRequired,
+    loadLinkContent:      PropTypes.func.isRequired,
+    loadVersionContent:   PropTypes.func.isRequired,
     linkSummary:          PropTypes.array,
     linkContents:         PropTypes.array,
     versionContents:      PropTypes.array,
@@ -84,8 +86,9 @@ class ConnectionsPanel extends React.Component {
               themeStr={this.props.themeStr}
               settings={this.props.settings}
               textLanguage={this.props.textLanguage}
+              segmentRef={this.props.segmentRef}
               openRef={this.props.openRef}
-              loadLinkContent={this.props.loadLinkContent}
+              loadContent={this.props.loadLinkContent}
               updateCat={this.props.updateCat}
               connectionsPanelHeader={connectionsPanelHeader}
               connectionsMode={this.props.connectionsMode}
@@ -104,8 +107,9 @@ class ConnectionsPanel extends React.Component {
               themeStr={this.props.themeStr}
               settings={this.props.settings}
               textLanguage={this.props.textLanguage}
+              segmentRef={this.props.segmentRef}
               openRef={this.props.openRef}
-              loadLinkContent={this.props.loadLinkContent}
+              loadContent={this.props.loadVersionContent}
               updateCat={this.props.updateCat}
               connectionsPanelHeader={connectionsPanelHeader}
               connectionsMode={this.props.connectionsMode}
