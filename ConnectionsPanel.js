@@ -51,53 +51,6 @@ class ConnectionsPanel extends React.Component {
     onDragEnd:            PropTypes.func.isRequired,
   };
 
-  constructor(props) {
-    super(props);
-    Sefaria = props.Sefaria; //Is this bad practice to use getInitialState() as an init function
-    const dataSource = this.generateDataSource(props);
-
-    this.state = {
-      dataSource,
-      isNewSegment: false,
-    };
-  }
-
-  componentWillReceiveProps(nextProps) {
-    if (this.props.segmentRef !== nextProps.segmentRef) {
-      this.setState({isNewSegment:true});
-    } else if (this.props.recentFilters !== nextProps.recentFilters ||
-               this.props.connectionsMode !== nextProps.connectionsMode ||
-               this.props.filterIndex !== nextProps.filterIndex ||
-               this.props.linkContents !== nextProps.linkContents) {
-      this.setState({dataSource: this.generateDataSource(nextProps)});
-    }
-  }
-
-  componentDidUpdate() {
-    if (this.state.isNewSegment)
-      this.setState({isNewSegment:false});
-  }
-
-  generateDataSource = (props) => {
-    const linkFilter = props.recentFilters[props.filterIndex];
-    if (!linkFilter) {
-      return [];
-    }
-    const isCommentaryBook = linkFilter.category === "Commentary" && linkFilter.title !== "Commentary"
-    return linkFilter.refList.map((linkRef, index) => {
-      const key = `${props.segmentRef}|${linkRef}`;
-      const loading = props.linkContents[index] === null;
-      return {
-        key,
-        ref: linkRef,
-        //changeString: [linkRef, loading, props.settings.fontSize, props.textLanguage].join("|"),
-        pos: index,
-        isCommentaryBook: isCommentaryBook,
-        content: props.linkContents[index],
-      };
-    });
-  };
-
   render() {
     const isSummaryMode = this.props.connectionsMode === null;
     const connectionsPanelHeader = (
@@ -122,34 +75,30 @@ class ConnectionsPanel extends React.Component {
     );
     switch (this.props.connectionsMode) {
       case ('filter'):
-        if (!this.state.isNewSegment) {
-          return (
-            <View style={[styles.textColumn, this.props.theme.textListContentOuter, {maxWidth: null}]}>
-              {connectionsPanelHeader}
-              <TextList
-                dataSource={this.state.dataSource}
-                theme={this.props.theme}
-                themeStr={this.props.themeStr}
-                settings={this.props.settings}
-                textLanguage={this.props.textLanguage}
-                filterIndex={this.props.filterIndex}
-                recentFilters={this.props.recentFilters}
-                openRef={this.props.openRef}
-                loadLinkContent={this.props.loadLinkContent}
-                updateCat={this.props.updateCat}
-                connectionsPanelHeader={connectionsPanelHeader}
-              />
-            </View>
-          );
-        } else {
-          return null;
-        }
+        return (
+          <View style={[styles.textColumn, this.props.theme.textListContentOuter, {maxWidth: null}]}>
+            {connectionsPanelHeader}
+            <TextList
+              theme={this.props.theme}
+              themeStr={this.props.themeStr}
+              settings={this.props.settings}
+              textLanguage={this.props.textLanguage}
+              filterIndex={this.props.filterIndex}
+              recentFilters={this.props.recentFilters}
+              openRef={this.props.openRef}
+              loadLinkContent={this.props.loadLinkContent}
+              updateCat={this.props.updateCat}
+              connectionsPanelHeader={connectionsPanelHeader}
+              connectionsMode={this.props.connectionsMode}
+              recentFilters={this.props.recentFilters}
+              filterIndex={this.props.filterIndex}
+              linkContents={this.props.linkContents}
+            />
+          </View>
+        );
       case 'version open':
-        if (!this.state.isNewSegment) {
-
-        } else {
-          return null;
-        }
+        // return textlist
+        return null;
       case 'versions': //note the "fall-through". see https://stackoverflow.com/questions/6513585/javascript-or-expression-in-a-switch-case
         return (
           <View style={[styles.textColumn, this.props.theme.textListContentOuter, {maxWidth: null}]}>

@@ -23,12 +23,70 @@ class TextList extends React.Component {
     themeStr:        PropTypes.string.isRequired,
     settings:        PropTypes.object.isRequired,
     textLanguage:    PropTypes.oneOf(["english", "hebrew", "bilingual"]),
+    recentFilters:   PropTypes.array.isRequired,
+    filterIndex:     PropTypes.number,
+    linkContents:    PropTypes.array,
     openRef:         PropTypes.func.isRequired,
     loadLinkContent: PropTypes.func.isRequired,
     updateCat:       PropTypes.func.isRequired,
   };
 
-  renderItem = ({ item }) => {
+  constructor(props) {
+    super(props);
+
+    switch (props.connectionsMode) {
+      case "filter":
+        this.renderItem = this.renderItemLink;
+        this.onViewableItemsChanged = this.onViewableItemsChangedLink;
+        break;
+      case "version open":
+        break;
+    }
+
+    const dataSource = this.generateDataSource(props);
+    this.state = {
+      dataSource,
+      isNewSegment: false,
+    };
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (this.props.segmentRef !== nextProps.segmentRef) {
+      this.setState({isNewSegment:true});
+    } else if (this.props.recentFilters !== nextProps.recentFilters ||
+               this.props.connectionsMode !== nextProps.connectionsMode ||
+               this.props.filterIndex !== nextProps.filterIndex ||
+               this.props.linkContents !== nextProps.linkContents) {
+      this.setState({dataSource: this.generateDataSource(nextProps)});
+    }
+  }
+
+  componentDidUpdate() {
+    if (this.state.isNewSegment)
+      this.setState({isNewSegment:false});
+  }
+
+  generateDataSource = (props) => {
+    const linkFilter = props.recentFilters[props.filterIndex];
+    if (!linkFilter) {
+      return [];
+    }
+    const isCommentaryBook = linkFilter.category === "Commentary" && linkFilter.title !== "Commentary"
+    return linkFilter.refList.map((linkRef, index) => {
+      const key = `${props.segmentRef}|${linkRef}`;
+      const loading = props.linkContents[index] === null;
+      return {
+        key,
+        ref: linkRef,
+        //changeString: [linkRef, loading, props.settings.fontSize, props.textLanguage].join("|"),
+        pos: index,
+        isCommentaryBook: isCommentaryBook,
+        content: props.linkContents[index],
+      };
+    });
+  };
+
+  renderItemLink = ({ item }) => {
     const loading = item.content == null;
     const linkContentObj = loading ? DEFAULT_LINK_CONTENT : item.content;
     return (<LinkContent
@@ -44,7 +102,7 @@ class TextList extends React.Component {
     />);
   };
 
-  onViewableItemsChanged = ({viewableItems, changed}) => {
+  onViewableItemsChangedLink = ({viewableItems, changed}) => {
     for (let item of viewableItems) {
       if (item.item.content === null) {
         this.props.loadLinkContent(item.item.ref, item.item.pos);
@@ -53,9 +111,10 @@ class TextList extends React.Component {
   };
 
   render() {
+    if (this.state.isNewSegment) { return null; } // hacky way to reset scroll postion
     return (
       <FlatList
-        data={this.props.dataSource}
+        data={this.state.dataSource}
         renderItem={this.renderItem}
         contentContainerStyle={{justifyContent: "center"}}
         onViewableItemsChanged={this.onViewableItemsChanged}
