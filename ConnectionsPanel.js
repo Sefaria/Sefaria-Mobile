@@ -10,10 +10,10 @@ import {
   TouchableOpacity,
   Dimensions
 } from 'react-native';
-import HTMLView from 'react-native-htmlview';
 const styles         = require('./Styles');
 const strings        = require('./LocalizedStrings');
-const TextListHeader = require('./TextListHeader');
+const ConnectionsPanelHeader = require('./ConnectionsPanelHeader');
+const TextList       = require('./TextList');
 const LinkFilter     = require('./LinkFilter');
 const VersionsBox    = require('./VersionsBox');
 
@@ -23,9 +23,7 @@ const {
   LibraryNavButton,
 } = require('./Misc.js');
 
-const DEFAULT_LINK_CONTENT = {en: "Loading...", he: "טוען...", sectionRef: ""};
-
-class TextList extends React.Component {
+class ConnectionsPanel extends React.Component {
   static propTypes = {
     theme:                PropTypes.object.isRequired,
     themeStr:             PropTypes.oneOf(["white", "black"]).isRequired,
@@ -100,44 +98,21 @@ class TextList extends React.Component {
     });
   };
 
-  renderItem = ({ item }) => {
-    const loading = item.content == null;
-    const linkContentObj = loading ? DEFAULT_LINK_CONTENT : item.content;
-    return (<LinkContent
-              theme={this.props.theme}
-              themeStr={this.props.themeStr}
-              settings={this.props.settings}
-              openRef={this.props.openRef}
-              refStr={item.ref}
-              linkContentObj={linkContentObj}
-              textLanguage={this.props.textLanguage}
-              loading={loading}
-              isCommentaryBook={item.isCommentaryBook}
-    />);
-  };
-
-  onViewableItemsChanged = ({viewableItems, changed}) => {
-    for (let item of viewableItems) {
-      if (item.item.content === null) {
-        this.props.loadLinkContent(item.item.ref, item.item.pos);
-      }
-    }
-  };
-
   render() {
     const isSummaryMode = this.props.connectionsMode === null;
-    const textListHeader = (
+    const connectionsPanelHeader = (
       <View
         onStartShouldSetResponder={(evt)=>this.props.onDragStart(evt)}
         onResponderMove={(evt)=>this.props.onDragMove(evt)}
         onResponderRelease={(evt)=>this.props.onDragEnd(evt)}>
-        <TextListHeader
-          Sefaria={Sefaria}
+        <ConnectionsPanelHeader
           theme={this.props.theme}
           themeStr={this.props.themeStr}
+          settings={this.props.settings}
           interfaceLang={this.props.interfaceLang}
           setConnectionsMode={this.props.setConnectionsMode}
           closeCat={this.props.closeCat}
+          updateCat={this.props.updateCat}
           category={isSummaryMode || true ? null : this.props.recentFilters[this.props.filterIndex].category}
           filterIndex={this.props.filterIndex}
           recentFilters={this.props.recentFilters}
@@ -148,30 +123,21 @@ class TextList extends React.Component {
     switch (this.props.connectionsMode) {
       case ('filter'):
         if (!this.state.isNewSegment) {
-          var listViewStyles = [styles.textListContentListView];
           return (
             <View style={[styles.textColumn, this.props.theme.textListContentOuter, {maxWidth: null}]}>
-              {textListHeader}
-              <FlatList
-                data={this.state.dataSource}
-                renderItem={this.renderItem}
-                getItemLayout={this.getItemLayout}
-                contentContainerStyle={{justifyContent: "center"}}
-                onViewableItemsChanged={this.onViewableItemsChanged}
-                ListHeaderComponent={
-                  <RecentFilterNav
-                    theme={this.props.theme}
-                    recentFilters={this.props.recentFilters}
-                    filterIndex={this.props.filterIndex}
-                    updateCat={this.props.updateCat}
-                    language={this.props.settings.language}
-                  />
-                }
-                ListEmptyComponent={
-                  <View style={styles.noLinks}>
-                    <EmptyLinksMessage theme={this.props.theme} />
-                  </View>
-                }
+              {connectionsPanelHeader}
+              <TextList
+                dataSource={this.state.dataSource}
+                theme={this.props.theme}
+                themeStr={this.props.themeStr}
+                settings={this.props.settings}
+                textLanguage={this.props.textLanguage}
+                filterIndex={this.props.filterIndex}
+                recentFilters={this.props.recentFilters}
+                openRef={this.props.openRef}
+                loadLinkContent={this.props.loadLinkContent}
+                updateCat={this.props.updateCat}
+                connectionsPanelHeader={connectionsPanelHeader}
               />
             </View>
           );
@@ -187,7 +153,7 @@ class TextList extends React.Component {
       case 'versions': //note the "fall-through". see https://stackoverflow.com/questions/6513585/javascript-or-expression-in-a-switch-case
         return (
           <View style={[styles.textColumn, this.props.theme.textListContentOuter, {maxWidth: null}]}>
-            {textListHeader}
+            {connectionsPanelHeader}
             <VersionsBox
               interfaceLang={this.props.interfaceLang}
               theme={this.props.theme}
@@ -283,7 +249,7 @@ class TextList extends React.Component {
         }
         return (
           <View style={[styles.textListSummary, this.props.theme.textListSummary]}>
-            {textListHeader}
+            {connectionsPanelHeader}
             {content}
           </View>);
     }
@@ -319,85 +285,6 @@ class LinkNavButton extends React.Component {
   }
 }
 
-
-class LinkContent extends React.PureComponent {
-  static propTypes = {
-    theme:             PropTypes.object.isRequired,
-    settings:          PropTypes.object,
-    openRef:           PropTypes.func.isRequired,
-    refStr:            PropTypes.string,
-    linkContentObj:    PropTypes.object, /* of the form {en,he} */
-    textLanguage:      PropTypes.string,
-    loading:           PropTypes.bool,
-    isCommentaryBook:  PropTypes.bool
-  };
-  constructor(props) {
-    super(props);
-    this.state = {
-      resetKeyEn: 0,
-      resetKeyHe: 1,
-    };
-  }
-  componentWillReceiveProps(nextProps) {
-    if (this.props.themeStr !== nextProps.themeStr ||
-        this.props.settings.fontSize !== nextProps.settings.fontSize) {
-      this.setState({ resetKeyEn: Math.random(), resetKeyHe: Math.random() }); //hacky fix to reset htmlview when theme colors change
-    }
-  }
-  render() {
-    var lco = this.props.linkContentObj;
-    var lang = Sefaria.util.getTextLanguageWithContent(this.props.textLanguage,lco.en,lco.he);
-    var textViews = [];
-
-    var hebrewElem =  <HTMLView
-                        key={this.state.resetKeyHe}
-                        stylesheet={styles}
-                        value={"<hediv>"+lco.he+"</hediv>"}
-                        textComponentProps={
-                          {
-                            style: [styles.hebrewText, styles.linkContentText, this.props.theme.text, {fontSize: this.props.settings.fontSize, lineHeight: this.props.settings.fontSize * 1.1}],
-                            key: this.props.refStr+"-he"
-                          }
-                        }
-                      />;
-    var englishElem = <HTMLView
-                        key={this.state.resetKeyEn}
-                        stylesheet={styles}
-                        value={"<endiv>"+"&#x200E;"+lco.en+"</endiv>"}
-                        textComponentProps={
-                          {
-                            style: [styles.englishText, styles.linkContentText, this.props.theme.text, {fontSize: 0.8 * this.props.settings.fontSize, lineHeight: this.props.settings.fontSize}],
-                            key: this.props.refStr+"-en"
-                          }
-                        }
-                      />;
-    if (lang == "bilingual") {
-      textViews = [hebrewElem, englishElem];
-    } else if (lang == "hebrew") {
-      textViews = [hebrewElem];
-    } else if (lang == "english") {
-      textViews = [englishElem];
-    }
-
-    return (
-      <TouchableOpacity style={[styles.searchTextResult, this.props.theme.searchTextResult]} onPress={()=>{this.props.openRef(this.props.refStr, this.props.linkContentObj.sectionRef)}}>
-        {this.props.isCommentaryBook ? null : <Text style={[styles.en, styles.textListCitation, this.props.theme.textListCitation]}>{this.props.refStr}</Text>}
-        {textViews}
-      </TouchableOpacity>
-    );
-  }
-}
-
-class EmptyLinksMessage extends React.Component {
-  static propTypes = {
-    theme:         PropTypes.object.isRequired,
-    interfaceLang: PropTypes.string
-  };
-
-  render() {
-    return (<Text style={[styles.emptyLinksMessage, this.props.theme.secondaryText]}>{strings.noConnectionsMessage}</Text>);
-  }
-}
 
 class ResourcesList extends React.Component {
   static propTypes = {
@@ -451,66 +338,5 @@ class ToolsButton extends React.Component {
   }
 }
 
-class RecentFilterNav extends React.Component {
-  static propTypes = {
-    theme:          PropTypes.object.isRequired,
-    updateCat:      PropTypes.func.isRequired,
-    recentFilters:  PropTypes.array,
-    filterIndex:    PropTypes.number,
-    language:       PropTypes.oneOf(["english","hebrew","bilingual"]),
-  }
 
-  render() {
-    return (
-      <View style={[styles.textListRecentFilterNav, {flexDirection: this.props.language === "hebrew" ? "row-reverse" : "row"}]}>
-        { this.props.recentFilters.map((filter, i) =>
-          <RecentFilterNavItem
-            theme={this.props.theme}
-            language={this.props.language}
-            updateCat={this.props.updateCat}
-            filter={filter}
-            filterIndex={i}
-            selected={i === this.props.filterIndex}
-            key={filter.title + "|" + filter.category}
-          />
-        )}
-      </View>
-    );
-  }
-}
-
-class RecentFilterNavItem extends React.Component {
-    static propTypes = {
-    theme:          PropTypes.object.isRequired,
-    updateCat:      PropTypes.func.isRequired,
-    filter:         PropTypes.object,
-    filterIndex:    PropTypes.number,
-    language:       PropTypes.oneOf(["english","hebrew","bilingual"]),
-    selected:       PropTypes.bool
-  };
-
-    render() {
-    var filterStr = this.props.language == "hebrew" ?
-      (this.props.filter.heCollectiveTitle ? this.props.filter.heCollectiveTitle : this.props.filter.heTitle) : //NOTE backwards compatibility
-      (this.props.filter.collectiveTitle ? this.props.filter.collectiveTitle : this.props.filter.title);
-
-    const touchStyles = [styles.textListHeaderItem, this.props.theme.textListHeaderItem];
-    var textStyles = [styles.textListHeaderItemText, this.props.theme.textListHeaderItemText, this.props.language == "hebrew" ? styles.hebrewText : styles.englishText];
-    if (this.props.selected) {
-      touchStyles.push(this.props.theme.textListHeaderItemSelected);
-      textStyles.push(this.props.theme.textListHeaderItemTextSelected);
-    }
-    return (
-      <TouchableOpacity
-        style={touchStyles}
-        disabled={this.props.selected}
-        onPress={()=>{this.props.updateCat(null, this.props.filterIndex)}}
-      >
-        <Text style={textStyles}>{filterStr}</Text>
-      </TouchableOpacity>
-      );
-  }
-}
-
-
-module.exports = TextList;
+module.exports = ConnectionsPanel;

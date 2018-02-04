@@ -345,16 +345,10 @@ module.exports = StyleSheet.create({
   textListHeaderScrollView: {
     alignSelf: "stretch"
   },
-  textListHeaderItem: {
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: "#ccc",
-    paddingHorizontal: 14,
-    paddingVertical: 5,
-    margin: 5,
-    backgroundColor: "white",
+  connectionsPanelHeaderItem: {
+    paddingHorizontal: 10,
   },
-  textListHeaderItemText: {
+  connectionsPanelHeaderItemText: {
     fontSize: iPad ? 18 : 16,
   },
   textListCitation: {

@@ -69,17 +69,10 @@ module.exports = StyleSheet.create({
     backgroundColor: Colors.textListHeader,
     borderColor: Colors.border,
   },
-  textListHeaderItem: {
-    backgroundColor: Colors.mainBackground,
-    borderColor: Colors.border,
-  },
-  textListHeaderItemSelected: {
-    backgroundColor: Colors.textBackground,
-  },
-  textListHeaderItemText: {
+  connectionsPanelHeaderItemText: {
     color: Colors.secondaryText
   },
-  textListHeaderItemTextSelected: {
+  connectionsPanelHeaderItemTextSelected: {
     color: Colors.mainText,
   },
   textListContentOuter: {

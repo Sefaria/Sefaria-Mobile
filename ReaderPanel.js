@@ -19,7 +19,7 @@ var ReaderNavigationMenu      = require('./ReaderNavigationMenu');
 var ReaderTextTableOfContents = require('./ReaderTextTableOfContents');
 var SearchPage                = require('./SearchPage');
 var TextColumn                = require('./TextColumn');
-var TextList                  = require('./TextList');
+var ConnectionsPanel          = require('./ConnectionsPanel');
 var SettingsPage              = require('./SettingsPage');
 var RecentPage                = require('./RecentPage');
 var styles                    = require('./Styles.js');
@@ -435,7 +435,7 @@ class ReaderPanel extends React.Component {
                   }
                 }}
             >
-              <TextList
+              <ConnectionsPanel
                 Sefaria={Sefaria}
                 settings={this.state.settings}
                 theme={this.props.theme}
