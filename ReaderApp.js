@@ -18,14 +18,14 @@ import {
 } from 'react-native';
 import {createResponder} from 'react-native-gesture-responder';
 
-var styles      = require('./Styles');
-var strings     = require('./LocalizedStrings');
-var themeWhite  = require('./ThemeWhite');
-var themeBlack  = require('./ThemeBlack');
-var Sefaria     = require('./sefaria');
-var ReaderPanel = require('./ReaderPanel');
-var LinkFilter  = require('./LinkFilter');
-const ViewPort  = Dimensions.get('window');
+var styles         = require('./Styles');
+var strings       = require('./LocalizedStrings');
+var themeWhite     = require('./ThemeWhite');
+var themeBlack    = require('./ThemeBlack');
+var Sefaria        = require('./sefaria');
+var ReaderPanel   = require('./ReaderPanel');
+var { LinkFilter } = require('./Filter');
+const ViewPort    = Dimensions.get('window');
 
 class ReaderApp extends React.Component {
   constructor(props, context) {
@@ -146,6 +146,7 @@ class ReaderApp extends React.Component {
           segmentIndexRef: segment,
           sectionIndexRef: section,
           linkStaleRecentFilters: this.state.linkRecentFilters.map(()=>true),
+          versionStaleRecentFilters: this.state.versionRecentFilters.map(()=>true),
           loadingLinks: loadingLinks
       };
       if (shouldToggle) {
@@ -190,6 +191,8 @@ class ReaderApp extends React.Component {
               connectionsMode:   null, /*Reset link state */
               filterIndex:       null,
               linkRecentFilters: [],
+              versionFilterIndex: null,
+              versionRecentFilters: [],
               linkSummary:       linkSummary,
               linkContents:      [],
               loadingLinks:      loadingLinks,
@@ -477,7 +480,7 @@ class ReaderApp extends React.Component {
       //check if filter is already in recentFilters
       for (let i = 0; i < recentFilters.length; i++) {
           let tempFilter = recentFilters[i];
-          if (tempFilter.title == filter.title) {
+          if (tempFilter.name === filter.name) {
             filterIndex = i;
             if (staleRecentFilters[i]) {
               recentFilters[i] = filter;
@@ -498,7 +501,7 @@ class ReaderApp extends React.Component {
       let newState;
       switch (type) {
         case "link":
-          const linkContents = filter.refList.map((ref)=>null);
+          const linkContents = filter.refList.map(ref=>null);
           Sefaria.links.reset();
           newState = {
             connectionsMode: "filter",
@@ -540,27 +543,22 @@ class ReaderApp extends React.Component {
       if (this.state.filterIndex == null) return;
       if (linkSummary == null) linkSummary = this.state.linkSummary;
       if (filterIndex == null) filterIndex = this.state.filterIndex;
-
-      var filterStr         = this.state.linkRecentFilters[filterIndex].title;
-      var filterStrHe       = this.state.linkRecentFilters[filterIndex].heTitle;
-      var category          = this.state.linkRecentFilters[filterIndex].category;
-      var collectiveTitle   = this.state.linkRecentFilters[filterIndex].collectiveTitle;
-      var heCollectiveTitle = this.state.linkRecentFilters[filterIndex].heCollectiveTitle;
+      const { name, heName, category, collectiveTitle, heCollectiveTitle } = this.state.linkRecentFilters[filterIndex];
       var nextRefList       = [];
 
       for (let cat of linkSummary) {
-          if (cat.category == filterStr) {
+          if (cat.category == name) {
             nextRefList = cat.refList;
             break;
           }
           for (let book of cat.books) {
-            if (book.title == filterStr) {
+            if (book.title == name) {
               nextRefList = book.refList;
               break;
             }
           }
       }
-      var nextFilter = new LinkFilter(filterStr, filterStrHe, collectiveTitle, heCollectiveTitle, nextRefList, category);
+      var nextFilter = new LinkFilter(name, heName, collectiveTitle, heCollectiveTitle, nextRefList, category);
 
       this.state.linkRecentFilters[filterIndex] = nextFilter;
 
@@ -621,7 +619,9 @@ class ReaderApp extends React.Component {
   };
 
   loadVersionContent = (ref, pos, versionTitle, versionLanguage) => {
-    console.log(ref, pos, versionTitle, versionLanguage);
+    Sefaria.data(ref, false, {[versionLanguage]: versionTitle }).then((data) => {
+      console.log("DATTTTA", data);
+    })
   };
 
   clearOffsetRef = () => {

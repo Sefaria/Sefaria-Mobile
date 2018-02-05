@@ -38,7 +38,7 @@ class ConnectionsPanelHeader extends React.Component {
   constructor(props) {
     super(props);
     this.previousModes = { // mapping from modes to previous modes
-      "Version Open":"Versions"
+      "version open": "versions",
     };
   }
 
@@ -132,7 +132,7 @@ class RecentFilterNav extends React.Component {
             filter={filter}
             filterIndex={i}
             selected={i === this.props.filterIndex}
-            key={filter.title + "|" + filter.category}
+            key={filter.name + "|" + filter.category}
           />
         )}
       </View>
@@ -151,9 +151,7 @@ class RecentFilterNavItem extends React.Component {
   };
 
     render() {
-    var filterStr = this.props.language == "hebrew" ?
-      (this.props.filter.heCollectiveTitle ? this.props.filter.heCollectiveTitle : this.props.filter.heTitle) : //NOTE backwards compatibility
-      (this.props.filter.collectiveTitle ? this.props.filter.collectiveTitle : this.props.filter.title);
+    var filterStr = this.props.filter.toString(this.props.language);
 
     const touchStyles = [styles.connectionsPanelHeaderItem];
     var textStyles = [styles.connectionsPanelHeaderItemText, this.props.theme.connectionsPanelHeaderItemText, this.props.language == "hebrew" ? styles.hebrewText : styles.englishText];

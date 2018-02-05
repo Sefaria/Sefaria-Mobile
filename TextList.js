@@ -62,7 +62,7 @@ class TextList extends React.Component {
     if (!filter) {
       return [];
     }
-    const displayRef = (filter.category === "Commentary" && filter.title !== "Commentary") || !!filter.versionTitle;
+    const displayRef = filter.displayRef();
     return filter.refList.map((ref, index) => {
       const key = `${ref}`;
       const loading = props.listContents[index] === null;

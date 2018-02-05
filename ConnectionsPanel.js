@@ -14,7 +14,7 @@ const styles         = require('./Styles');
 const strings        = require('./LocalizedStrings');
 const ConnectionsPanelHeader = require('./ConnectionsPanelHeader');
 const TextList       = require('./TextList');
-const LinkFilter     = require('./LinkFilter');
+const { LinkFilter } = require('./Filter');
 const VersionsBox    = require('./VersionsBox');
 
 const {

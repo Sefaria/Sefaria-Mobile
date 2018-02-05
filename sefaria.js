@@ -24,16 +24,17 @@ Sefaria = {
     // Sefaria.calendar is loaded async when ReaderNavigationMenu renders
   },
   /*
-  if `isLinkRequest` and you're using API, only return single segment corresponding to link
+  if `context` and you're using API, only return section no matter what. default is true
   versions is object with keys { en, he } specifying version titles of requested ref
   */
-  data: function(ref, isLinkRequest, versions) {
+  data: function(ref, context, versions) {
+    if (typeof context === "undefined") { context = true; }
     return new Promise(function(resolve, reject) {
       var fileNameStem = ref.split(":")[0];
       var bookRefStem  = Sefaria.textTitleForRef(ref);
       //if you want to open a specific version, there is no json file. force an api call instead
-      var jsonPath     = !!versions ? null : Sefaria._JSONSourcePath(fileNameStem);
-      var zipPath      = !!versions ? null : Sefaria._zipSourcePath(bookRefStem);
+      var jsonPath     = !!versions ? "" : Sefaria._JSONSourcePath(fileNameStem);
+      var zipPath      = !!versions ? "" : Sefaria._zipSourcePath(bookRefStem);
 
       //console.log("file name stem",fileNameStem);
 
@@ -119,28 +120,15 @@ Sefaria = {
                   processApiData(cacheValue);
                   return;
                 }
-                if (isLinkRequest) {
-                  Sefaria.api._request(ref, 'text', { context: false })
-                    .then((data) => {
-                      let en_text = (data.text instanceof Array) ? data.text.join(' ') : data.text;
-                      let he_text = (data.he   instanceof Array) ? data.he.join(' ')   : data.he;
-                      resolve({
-                        "fromAPI": true,
-                        "result": new LinkContent(en_text, he_text, data.sectionRef)
-                      });
-                    })
-                    .catch(() => {
-                      //console.error("Error with API loading link text: ", Sefaria.api._toURL(ref,false,'text',false));
-                    });
-                } else {
-                  Sefaria.api._text(ref)
-                    .then(Sefaria.api._toIOS)
-                    .then(processApiData)
-                    .catch(function(error) {
-                      //console.error("Error with API: ", Sefaria.api._toURL(ref, false, 'text', true));
-                      reject(error);
-                    });
-                }
+                Sefaria.api._text(ref, { context, versions })
+                  .then(data => {
+                    if (context) { processApiData(data); }
+                    else         { resolve(data); }
+                  })
+                  .catch(function(error) {
+                    //console.error("Error with API: ", Sefaria.api._toURL(ref, false, 'text', true));
+                    reject(error);
+                });
                 Sefaria.downloader.prioritizeDownload(bookRefStem);
               }
             });

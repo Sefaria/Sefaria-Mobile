@@ -14,7 +14,7 @@ const {
 const VersionBlock = require('./VersionBlock');
 const strings = require('./LocalizedStrings');
 const styles = require('./Styles.js');
-const VersionFilter = require('./VersionFilter');
+const { VersionFilter } = require('./Filter');
 
 
 

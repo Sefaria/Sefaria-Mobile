@@ -4,6 +4,7 @@ import {
 
 const RNFS    = require('react-native-fs'); //for access to file system -- (https://github.com/johanneslumpe/react-native-fs)
 const strings = require('./LocalizedStrings');
+const LinkContent = require('./LinkContent');
 
 var Api = {
   /*
@@ -170,11 +171,20 @@ var Api = {
     //console.log("URL",url);
     return url;
   },
-  _text: function(ref) {
+  _text: function(ref, { context, versions }) {
     return new Promise((resolve, reject)=>{
-      Sefaria.api._request(ref,'text', { context: true })
-      .then((response)=>{
-        resolve({"text": response, "links": [], "ref": ref});
+      Sefaria.api._request(ref,'text', { context, versions })
+      .then(data => {
+        if (context) {
+          resolve(Sefaria.api._toIOS({"text": data, "links": [], "ref": ref}));
+        } else {
+          const en_text = (data.text instanceof Array) ? data.text.join(' ') : data.text;
+          const he_text = (data.he   instanceof Array) ? data.he.join(' ')   : data.he;
+          resolve({
+            "fromAPI": true,
+            "result": new LinkContent(en_text, he_text, data.sectionRef)
+          });
+        }
       }).catch(error => reject(error));
     });
   },
