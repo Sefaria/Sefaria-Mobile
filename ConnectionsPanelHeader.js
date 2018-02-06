@@ -27,7 +27,7 @@ class ConnectionsPanelHeader extends React.Component {
     interfaceLang:      PropTypes.oneOf(["english", "hebrew"]).isRequired,
     setConnectionsMode: PropTypes.func.isRequired,
     closeCat:           PropTypes.func.isRequired,
-    updateCat:          PropTypes.func.isRequired,
+    updateCat:          PropTypes.func,
     category:           PropTypes.string,
     filterIndex:        PropTypes.number,
     recentFilters:      PropTypes.array,
@@ -48,7 +48,6 @@ class ConnectionsPanelHeader extends React.Component {
     let outerStyles;
     const isheb = this.props.interfaceLang === "hebrew";
     const backImageStyle = isheb ? styles.directedButtonWithTextHe : styles.directedButtonWithTextEn;
-    const selectedFilter = this.props.recentFilters[this.props.filterIndex];
     switch (this.props.connectionsMode) {
       case (null):
         // summary
@@ -57,11 +56,14 @@ class ConnectionsPanelHeader extends React.Component {
           <Text style={[styles.textListHeaderSummaryText, this.props.theme.textListHeaderSummaryText]}>{strings.resources}</Text>
         );
         break;
+      case 'version open': // fall-through
       case 'filter':
+        const selectedFilter = this.props.recentFilters[this.props.filterIndex];
+        const backMode = this.props.connectionsMode === 'filter' ? selectedFilter.category : this.previousModes[this.props.connectionsMode];
         outerStyles = [styles.textListHeader, styles.textListHeaderSummary, this.props.theme.textListHeader];
         content = (
           <View style={{flex: 1, flexDirection: isheb ? 'row-reverse' : 'row', justifyContent: 'flex-start' }}>
-            <TouchableOpacity onPress={() => {this.props.setConnectionsMode(selectedFilter.category)}}>
+            <TouchableOpacity onPress={() => {this.props.setConnectionsMode(backMode)}}>
               <DirectedArrow
                 imageStyle={backImageStyle}
                 themeStr={this.props.themeStr}
@@ -82,12 +84,8 @@ class ConnectionsPanelHeader extends React.Component {
         );
         break;
       default:
-        // category or book filter selected
-        const isInFilter = this.props.connectionsMode === 'filter';
-        const backText =  isInFilter ?
-          (this.props.language === "hebrew" ?
-            (Sefaria.hebrewCategory(selectedFilter.category)) : selectedFilter.category
-          ) : strings.resources;
+        // category filter selected
+        const backText = strings.resources;
         outerStyles = [styles.textListHeader, styles.textListHeaderSummary, this.props.theme.textListHeader];
         content = (
           <View style={{flex: 1, flexDirection: isheb ? 'row-reverse' : 'row', justifyContent: 'flex-start' }}>
@@ -97,7 +95,7 @@ class ConnectionsPanelHeader extends React.Component {
               language={this.props.interfaceLang}
               textStyle={[this.props.theme.textListHeaderSummaryText]}
               imageStyle={[styles.menuButton, backImageStyle]}
-              onPress={()=> { isInFilter ? this.props.setConnectionsMode(selectedFilter.category) : this.props.closeCat(); }}
+              onPress={()=> { this.props.closeCat(); }}
               direction={"back"}
             />
           </View>
@@ -161,7 +159,7 @@ class RecentFilterNavItem extends React.Component {
     return (
       <TouchableOpacity
         style={touchStyles}
-        onPress={()=>{this.props.updateCat(null, this.props.filterIndex)}}
+        onPress={()=>{this.props.updateCat(this.props.filterIndex)}}
       >
         <Text style={textStyles}>{filterStr}</Text>
       </TouchableOpacity>

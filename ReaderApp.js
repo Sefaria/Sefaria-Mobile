@@ -534,17 +534,17 @@ class ReaderApp extends React.Component {
   updateLinkSummary = (section, segment) => {
     Sefaria.links.linkSummary(this.state.textReference, this.state.data[section][segment].links).then((data) => {
       this.setState({linkSummary: data, loadingLinks: false});
-      this.updateLinkCat(data, null); // Set up `linkContents` in their initial state as an array of nulls
+      this.updateLinkCat(null, data); // Set up `linkContents` in their initial state as an array of nulls
     });
   };
 
-  updateLinkCat = (linkSummary, filterIndex) => {
+  updateLinkCat = (filterIndex, linkSummary) => {
       //search for the current filter in the the links object
       if (this.state.filterIndex == null) return;
       if (linkSummary == null) linkSummary = this.state.linkSummary;
       if (filterIndex == null) filterIndex = this.state.filterIndex;
       const { name, heName, category, collectiveTitle, heCollectiveTitle } = this.state.linkRecentFilters[filterIndex];
-      var nextRefList       = [];
+      let nextRefList = [];
 
       for (let cat of linkSummary) {
           if (cat.category == name) {
@@ -558,17 +558,17 @@ class ReaderApp extends React.Component {
             }
           }
       }
-      var nextFilter = new LinkFilter(name, heName, collectiveTitle, heCollectiveTitle, nextRefList, category);
+      const nextFilter = new LinkFilter(name, heName, collectiveTitle, heCollectiveTitle, nextRefList, category);
 
       this.state.linkRecentFilters[filterIndex] = nextFilter;
 
-      var linkContents = nextFilter.refList.map((ref)=>null);
+      const linkContents = nextFilter.refList.map((ref)=>null);
       Sefaria.links.reset();
       this.setState({
           connectionsMode: "filter",
-          filterIndex: filterIndex,
+          filterIndex,
           linkRecentFilters: this.state.linkRecentFilters,
-          linkContents: linkContents
+          linkContents,
       });
   };
 
@@ -618,9 +618,26 @@ class ReaderApp extends React.Component {
     this.setState({linkContents: this.state.linkContents.slice(0)});
   };
 
+  updateVersionCat = (filterIndex) => {
+    this.state.versionRecentFilters[filterIndex].refList = [this.state.segmentRef];
+    const versionContents = [null];
+    //TODO make a parallel func for versions? Sefaria.links.reset();
+    this.setState({
+        connectionsMode: "version open",
+        versionFilterIndex: filterIndex,
+        versionRecentFilters: this.state.versionRecentFilters,
+        versionContents,
+    });
+  };
+
   loadVersionContent = (ref, pos, versionTitle, versionLanguage) => {
+    console.log("Requesting", ref, versionTitle);
     Sefaria.data(ref, false, {[versionLanguage]: versionTitle }).then((data) => {
-      console.log("DATTTTA", data);
+      // only want to show versionLanguage in results
+      const removeLang = versionLanguage === "he" ? "en" : "he";
+      data.result[removeLang] = "";
+      this.state.versionContents[pos] = data.result;
+      this.setState({versionContents: this.state.versionContents.slice(0)});
     })
   };
 
@@ -883,6 +900,7 @@ class ReaderApp extends React.Component {
                 openFilter={this.openFilter}
                 closeLinkCat={this.closeLinkCat}
                 updateLinkCat={this.updateLinkCat}
+                updateVersionCat={this.updateVersionCat}
                 loadLinkContent={this.loadLinkContent}
                 loadVersionContent={this.loadVersionContent}
                 connectionsMode={this.state.connectionsMode}

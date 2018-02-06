@@ -28,7 +28,6 @@ class TextList extends React.Component {
     listContents:    PropTypes.array,
     openRef:         PropTypes.func.isRequired,
     loadContent:     PropTypes.func.isRequired,
-    updateCat:       PropTypes.func.isRequired,
   };
 
   constructor(props) {
@@ -64,7 +63,7 @@ class TextList extends React.Component {
     }
     const displayRef = filter.displayRef();
     return filter.refList.map((ref, index) => {
-      const key = `${ref}`;
+      const key = filter.listKey(index);
       const loading = props.listContents[index] === null;
       return {
         key,
@@ -101,6 +100,7 @@ class TextList extends React.Component {
     for (let vItem of viewableItems) {
       const { item } = vItem;
       if (item.content === null) {
+        console.log('loading');
         this.props.loadContent(item.ref, item.pos, item.versionTitle, item.versionLanguage);
       }
     }

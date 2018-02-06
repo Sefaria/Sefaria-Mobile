@@ -65,6 +65,7 @@ class ReaderPanel extends React.Component {
     openFilter:            PropTypes.func.isRequired,
     closeLinkCat:          PropTypes.func.isRequired,
     updateLinkCat:         PropTypes.func.isRequired,
+    updateVersionCat:      PropTypes.func.isRequired,
     loadLinkContent:       PropTypes.func.isRequired,
     loadVersionContent:    PropTypes.func.isRequired,
     connectionsMode:       PropTypes.string,
@@ -451,7 +452,8 @@ class ReaderPanel extends React.Component {
                 setConnectionsMode={this.props.setConnectionsMode}
                 openFilter={this.props.openFilter}
                 closeCat={this.props.closeLinkCat}
-                updateCat={this.props.updateLinkCat}
+                updateLinkCat={this.props.updateLinkCat}
+                updateVersionCat={this.props.updateVersionCat}
                 loadLinkContent={this.props.loadLinkContent}
                 loadVersionContent={this.props.loadVersionContent}
                 linkSummary={this.props.linkSummary}

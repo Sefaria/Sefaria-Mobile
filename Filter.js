@@ -14,6 +14,11 @@ class Filter {
     return true;
   }
 
+  listKey(i) {
+    // returns key that uniquely identifies this a ref from filter.refList in a list
+    return this.refList[i];
+  }
+
 }
 
 class LinkFilter extends Filter {
@@ -41,6 +46,10 @@ class VersionFilter extends Filter {
     this.versionTitle = versionTitle;
     this.versionTitleInHebrew = versionTitleInHebrew;
     this.versionLanguage = versionLanguage;
+  }
+
+  listKey(i) {
+    return `${this.refList[i]}|${this.versionTitle}|${this.versionLanguage}`;
   }
 }
 

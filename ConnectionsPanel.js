@@ -33,7 +33,8 @@ class ConnectionsPanel extends React.Component {
     setConnectionsMode:   PropTypes.func.isRequired,
     openFilter:           PropTypes.func.isRequired,
     closeCat:             PropTypes.func.isRequired,
-    updateCat:            PropTypes.func.isRequired,
+    updateLinkCat:        PropTypes.func.isRequired,
+    updateVersionCat:     PropTypes.func.isRequired,
     loadLinkContent:      PropTypes.func.isRequired,
     loadVersionContent:   PropTypes.func.isRequired,
     linkSummary:          PropTypes.array,
@@ -55,6 +56,23 @@ class ConnectionsPanel extends React.Component {
   };
 
   render() {
+    let recentFilters, filterIndex, listContents, loadContent, updateCat;
+    switch (this.props.connectionsMode) {
+      case 'filter':
+        recentFilters = this.props.recentFilters;
+        filterIndex = this.props.filterIndex;
+        listContents = this.props.linkContents;
+        loadContent = this.props.loadLinkContent;
+        updateCat    = this.props.updateLinkCat;
+        break;
+      case 'version open':
+        recentFilters = this.props.versionRecentFilters;
+        filterIndex = this.props.versionFilterIndex;
+        listContents = this.props.versionContents;
+        loadContent = this.props.loadVersionContent;
+        updateCat    = this.props.updateVersionCat;
+        break;
+    }
     const isSummaryMode = this.props.connectionsMode === null;
     const connectionsPanelHeader = (
       <View
@@ -68,36 +86,16 @@ class ConnectionsPanel extends React.Component {
           interfaceLang={this.props.interfaceLang}
           setConnectionsMode={this.props.setConnectionsMode}
           closeCat={this.props.closeCat}
-          updateCat={this.props.updateCat}
+          updateCat={updateCat}
           category={isSummaryMode || true ? null : this.props.recentFilters[this.props.filterIndex].category}
-          filterIndex={this.props.filterIndex}
-          recentFilters={this.props.recentFilters}
+          filterIndex={filterIndex}
+          recentFilters={recentFilters}
           language={this.props.settings.language}
           connectionsMode={this.props.connectionsMode} />
       </View>
     );
     switch (this.props.connectionsMode) {
-      case 'filter':
-        return (
-          <View style={[styles.textColumn, this.props.theme.textListContentOuter, {maxWidth: null}]}>
-            {connectionsPanelHeader}
-            <TextList
-              theme={this.props.theme}
-              themeStr={this.props.themeStr}
-              settings={this.props.settings}
-              textLanguage={this.props.textLanguage}
-              segmentRef={this.props.segmentRef}
-              openRef={this.props.openRef}
-              loadContent={this.props.loadLinkContent}
-              updateCat={this.props.updateCat}
-              connectionsPanelHeader={connectionsPanelHeader}
-              connectionsMode={this.props.connectionsMode}
-              recentFilters={this.props.recentFilters}
-              filterIndex={this.props.filterIndex}
-              listContents={this.props.linkContents}
-            />
-          </View>
-        );
+      case 'filter': // fall-through
       case 'version open':
         return (
           <View style={[styles.textColumn, this.props.theme.textListContentOuter, {maxWidth: null}]}>
@@ -109,13 +107,12 @@ class ConnectionsPanel extends React.Component {
               textLanguage={this.props.textLanguage}
               segmentRef={this.props.segmentRef}
               openRef={this.props.openRef}
-              loadContent={this.props.loadVersionContent}
-              updateCat={this.props.updateCat}
               connectionsPanelHeader={connectionsPanelHeader}
               connectionsMode={this.props.connectionsMode}
-              recentFilters={this.props.versionRecentFilters}
-              filterIndex={this.props.versionFilterIndex}
-              listContents={this.props.versionContents}
+              loadContent={loadContent}
+              recentFilters={recentFilters}
+              filterIndex={filterIndex}
+              listContents={listContents}
             />
           </View>
         );
