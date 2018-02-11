@@ -44,13 +44,14 @@ class VersionsBox extends React.Component {
     }
     const state = {
       versionLangMap: null,  // object with version languages as keys and array of versions in that lang as values
+      openVersionBox: null,
       initialCurrVersions,
       initialMainVersionLanguage: props.mainVersionLanguage === "bilingual" ? "hebrew" : props.mainVersionLanguage,
     };
-    const {versionLangMap, versionLangs} = this.getVersionLangs(state, props.versions);
-    state.versionLangMap = versionLangMap;
-    state.versionLangs = versionLangs;
-    this.state = state;
+    this.state = {
+      ...state,
+      ...this.getVersionLangs(state, props.versions),
+    };
   }
   componentDidUpdate(prevProps, prevState) {
     if (this.props.versions !== prevProps.versions) {
@@ -83,11 +84,16 @@ class VersionsBox extends React.Component {
         else                                                      {return  0;}
       }
     );
-    return {versionLangMap, versionLangs};
+    return { versionLangMap, versionLangs };
   };
   openVersionInSidebar = (versionTitle, heVersionTitle, versionLanguage) => {
     const filter = new VersionFilter(versionTitle, heVersionTitle, versionLanguage, this.props.segmentRef);
     this.props.openFilter(filter, "version");
+  };
+  onPressVersionBlock = (vlang, vtitle) => {
+    let newState = `${vlang}|${vtitle}`;
+    if (this.state.openVersionBox === newState) { newState = null; } // if already set, toggle off
+    this.setState({ openVersionBox: newState });
   };
   render() {
     if (!this.state.versionLangMap) {
@@ -114,19 +120,28 @@ class VersionsBox extends React.Component {
                 <Text style={[textStyle, styles.versionsBoxLangText]}>{strings[Sefaria.util.translateISOLanguageCode(lang)].toUpperCase()}<Text>{` (${this.state.versionLangMap[lang].length})`}</Text></Text>
               </View>
               {
-                this.state.versionLangMap[lang].map((v) => (
-                  <View style={[styles.versionsBoxVersionBlockWrapper, this.props.theme.bordered]} key={v.versionTitle + lang}>
+                this.state.versionLangMap[lang].map(v => (
+                  <TouchableOpacity style={[styles.versionsBoxVersionBlockWrapper, this.props.theme.bordered]} key={v.versionTitle + lang} onPress={()=>{ this.onPressVersionBlock(lang, v.versionTitle); }}>
                     <VersionBlock
                       theme={this.props.theme}
                       version={v}
                       currVersions={currVersions}
                       openVersionInReader={this.props.selectVersion}
-                      openVersionInSidebar={this.openVersionInSidebar}
                       isCurrent={(this.props.currVersions.en && this.props.currVersions.en.versionTitle === v.versionTitle) ||
                                 (this.props.currVersions.he && this.props.currVersions.he.versionTitle === v.versionTitle)}
                     />
-                  </View>
-
+                  { this.state.openVersionBox === `${lang}|${v.versionTitle}` ?
+                    <View style={[styles.versionBlockBottomBar, this.props.theme.bordered]}>
+                      <TouchableOpacity style={styles.versionBoxBottomBarButton} onPress={()=>{}}>
+                        <Text>{"READ"}</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity style={styles.versionBoxBottomBarButton} onPress={()=> { this.openVersionInSidebar(v.versionTitle, v.versionTitleInHebrew, lang); }}>
+                        <Text>{"COMPARE"}</Text>
+                      </TouchableOpacity>
+                    </View> :
+                    null
+                  }
+                  </TouchableOpacity>
                 ))
               }
             </View>

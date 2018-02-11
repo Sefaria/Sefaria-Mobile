@@ -859,7 +859,19 @@ module.exports = StyleSheet.create({
     borderTopWidth: 1,
     marginBottom: 15,
   },
-
+  versionBlockBottomBar: {
+    flexDirection: 'row',
+    flex: 1,
+    paddingTop: 20,
+    paddingBottom: 5,
+    borderTopWidth: 1,
+    marginTop: 10,
+  },
+  versionBoxBottomBarButton: {
+    paddingHorizontal: 10,
+    flex: 1,
+    alignItems: 'center',
+  },
 //HTML Styles:
   strong: {
     fontWeight: "bold"
