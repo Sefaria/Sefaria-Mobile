@@ -76,7 +76,8 @@ class ReaderApp extends React.Component {
         loadingLinks: false,
         versionRecentFilters: [],
         versionFilterIndex: null,
-        currVersions: {en: null, he: null},
+        currVersions: {en: null, he: null}, /* actual current versions you're reading */
+        selectedVersions: {en: null, he: null}, /* custom versions you've selected. not necessarily available for the current section */
         versions: [],
         versionStaleRecentFilters: [],
         versionContents: [],
@@ -137,6 +138,7 @@ class ReaderApp extends React.Component {
           if (this.state.linksLoaded[section]) {
             this.updateLinkSummary(section, segment);
           }
+          this.updateVersionCat(null, segmentRef);
       }
       if (this.state.connectionsMode === "versions") {
         //update versions
@@ -157,7 +159,7 @@ class ReaderApp extends React.Component {
       this.forceUpdate();
   };
 
-  loadNewText = (ref) => {
+  loadNewText = (ref, versions) => {
       this.setState({
           loaded: false,
           data: [],
@@ -165,6 +167,7 @@ class ReaderApp extends React.Component {
           textTitle: Sefaria.textTitleForRef(ref),
           segmentIndexRef: -1,
           sectionIndexRef: -1,
+          selectedVersions: versions,
           currVersions: {en: null, he: null},
       });
 
@@ -173,7 +176,7 @@ class ReaderApp extends React.Component {
         ref = ref.split("-")[0];
       }
 
-      Sefaria.data(ref).then(function(data) {
+      Sefaria.data(ref, true, versions).then(function(data) {
           var linkSummary = [];
           var loadingLinks = false;
 
@@ -279,7 +282,7 @@ class ReaderApp extends React.Component {
 
   updateDataPrev = () => {
       this.setState({loadingTextHead: true});
-      Sefaria.data(this.state.prev).then(function(data) {
+      Sefaria.data(this.state.prev, true, this.state.selectedVersions).then(function(data) {
 
         var updatedData = [data.content].concat(this.state.data);
 
@@ -311,7 +314,7 @@ class ReaderApp extends React.Component {
 
   updateDataNext = () => {
       this.setState({loadingTextTail: true});
-      Sefaria.data(this.state.next).then(function(data) {
+      Sefaria.data(this.state.next, true, this.state.selectedVersions).then(function(data) {
 
         var updatedData = this.state.data.concat([data.content]);
         var newTitleArray = this.state.sectionArray;
@@ -353,7 +356,7 @@ class ReaderApp extends React.Component {
   calledFrom parameter used for analytics and for back button
   prevScrollPos parameter used for back button
   */
-  openRef = (ref, calledFrom) => {
+  openRef = (ref, calledFrom, versions) => {
       if (!Sefaria.textTitleForRef(ref)) {
         AlertIOS.alert(
           strings.textUnavailable,
@@ -373,7 +376,7 @@ class ReaderApp extends React.Component {
           this.closeMenu(); // Don't close until these values are in state, so we know if we need to load defualt text
       }.bind(this));
 
-      this.loadNewText(ref);
+      this.loadNewText(ref, versions);
 
       switch (calledFrom) {
         case "search":
@@ -618,8 +621,13 @@ class ReaderApp extends React.Component {
     this.setState({linkContents: this.state.linkContents.slice(0)});
   };
 
-  updateVersionCat = (filterIndex) => {
-    this.state.versionRecentFilters[filterIndex].refList = [this.state.segmentRef];
+  updateVersionCat = (filterIndex, segmentRef) => {
+    if (!filterIndex) {
+      if (this.state.versionFilterIndex == null) return;
+      filterIndex = this.state.versionFilterIndex;
+    }
+    if (!segmentRef) { segmentRef = this.state.segmentRef; }
+    this.state.versionRecentFilters[filterIndex].refList = [segmentRef];
     const versionContents = [null];
     //TODO make a parallel func for versions? Sefaria.links.reset();
     this.setState({

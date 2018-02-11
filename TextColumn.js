@@ -69,7 +69,7 @@ class TextColumn extends React.Component {
       componentsToMeasure,
       jumpState: { // if jumping is true, then look at jumpState when allHeightsMeasuredCallback is called
         jumping: !!props.offsetRef,
-        targetRef: props.offsetRef || null,
+        targetRef: this._standardizeOffsetRef(props.offsetRef) || null,
         viewPosition: 0.1,
         animated: false,
       },
@@ -448,6 +448,7 @@ class TextColumn extends React.Component {
 
     }
   }
+
   updateJumpInfoMap = (dataSource) => {
     let jumpInfoMap = new Map();
     let currIndex = 0;
@@ -462,6 +463,7 @@ class TextColumn extends React.Component {
     }
     return jumpInfoMap;
   }
+
   waitForScrollToLocation = (i) => {
     if (!this._isMounted) { return; }
 
@@ -469,24 +471,29 @@ class TextColumn extends React.Component {
     try {
       viewableIndices = this.sectionListRef._wrapperListRef._listRef._viewabilityTuples[0].viewabilityHelper._viewableIndices;
     } catch (e) {
-      if (i < 20) {
-        setTimeout(()=>{this.waitForScrollToLocation(i+1)}, 20);
+      if (i < 50) {
+        setTimeout(()=>{this.waitForScrollToLocation(i+1)}, 5);
       }
       return;
     }
 
     if (viewableIndices.indexOf(this.targetScrollIndex) !== -1) {
-      this.setState({itemLayoutList: null}, () => {this.onTopReaching = false;});
+      this.onScrollToLocation();
       /*this.sectionListRef.scrollToLocation({
           animated: false,
           sectionIndex: 0,
           itemIndex: this.targetScrollIndex,
           viewPosition: 0.1,
       });*/
-    } else if (i < 20) { // if it's running more than 400ms, kill the recursion
-      setTimeout(()=>{this.waitForScrollToLocation(i+1)}, 20);
+    } else if (i < 50) { // if it's running more than 250ms, kill the recursion
+      setTimeout(()=>{this.waitForScrollToLocation(i+1)}, 5);
     }
   }
+
+  onScrollToLocation = () => {
+    this.setState({itemLayoutList: null}, () => {this.onTopReaching = false;});
+  }
+
   allHeightsMeasured = (componentsToMeasure, textToHeightMap) => {
     if (!this.measuringHeights) { return; } //sometimes allHeightsMeasured() gets called but we don't care
     let currOffset = 0;
@@ -511,14 +518,14 @@ class TextColumn extends React.Component {
     }
     this.backupItemLayoutList = itemLayoutList;
     this.measuringHeights = false;
-    this.setState({itemLayoutList: itemLayoutList, jumpInfoMap: jumpInfoMap, dataSource: this.state.nextDataSource},
+    this.setState({itemLayoutList, jumpInfoMap, dataSource: this.state.nextDataSource},
       ()=>{
         const { jumping, animated, viewPosition, targetRef } = this.state.jumpState;
         if (jumping) {
           const targetIndex = jumpInfoMap.get(targetRef);
-
           if (targetIndex === undefined || targetIndex === null || targetIndex >= itemLayoutList.length) {
-            console.log("FAILED to find targetIndex", jumpInfoMap);
+            console.log("FAILED to find targetIndex", targetRef, targetIndex, jumpInfoMap);
+            this.onScrollToLocation();
           } else {
             this.targetScrollIndex = targetIndex-1;
             this.sectionListRef.scrollToLocation(
@@ -537,6 +544,10 @@ class TextColumn extends React.Component {
     );
   }
 
+  onScrollToIndexFailed = ({ index, highestMeasuredFrameIndex, averageItemLength }) => {
+    console.log("scroll to", index, "FAILED! highest is", highestMeasuredFrameIndex);
+  }
+
   _getSectionListRef = (ref) => {
     this.sectionListRef = ref;
   }
@@ -550,6 +561,7 @@ class TextColumn extends React.Component {
   }
 
   render() {
+    //console.log("using getItemLayout", !!this.state.itemLayoutList);
     return (
         <View style={styles.textColumn} >
           <SectionList
@@ -564,6 +576,7 @@ class TextColumn extends React.Component {
             onScroll={this.handleScroll}
             scrollEventThrottle={100}
             onViewableItemsChanged={this.onViewableItemsChanged}
+            onScrollToIndexFailed={this.onScrollToIndexFailed}
             keyExtractor={this._keyExtractor}
             stickySectionHeadersEnabled={false}
             refreshControl={

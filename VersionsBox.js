@@ -89,7 +89,7 @@ class VersionsBox extends React.Component {
     const filter = new VersionFilter(versionTitle, heVersionTitle, versionLanguage, this.props.segmentRef);
     this.props.openFilter(filter, "version");
   };
-  renderModeVersions() {
+  render() {
     if (!this.state.versionLangMap) {
       //TODO deal with no internet case
       return (
@@ -135,86 +135,6 @@ class VersionsBox extends React.Component {
       </ScrollView>
     );
   }
-  renderModeSelected() {
-    // open text in versionslist with current version selected
-    const currSelectedVersions = this.props.vFilterIndex ? {[Sefaria.api.versionLanguage(this.props.recentVFilters[this.props.vFilterIndex])]: this.props.recentVFilters[this.props.vFilterIndex]} : {en: null, he: null};
-    const onRangeClick = (sref)=>{this.props.onRangeClick(sref, false, currSelectedVersions)};
-    return null;
-    return (
-      <VersionsTextList
-        srefs={this.props.srefs}
-        vFilter={this.props.vFilter}
-        recentVFilters={this.props.recentVFilters}
-        setFilter={this.props.setFilter}
-        onRangeClick={onRangeClick}
-      />
-    );
-  }
-  render() {
-    return (this.props.mode === "versions" ? this.renderModeVersions() : this.renderModeSelected());
-  }
 }
-
-
-/*class VersionsTextList extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      loaded: false,
-    };
-  }
-  componentDidMount() {
-    this.preloadText(this.props.vFilter);
-  }
-  componentWillReceiveProps(nextProps) {
-    this.preloadText(nextProps.vFilter);
-  }
-  preloadText(filter) {
-    if (filter.length) {
-      this.setState({loaded: false});
-      const sectionRef = this.getSectionRef();
-      const language = Sefaria.versionLanguage(filter[0]);
-      let enVersion = null, heVersion = null;
-      if (language === "en") { enVersion = filter[0]; }
-      else                   { heVersion = filter[0]; }
-      Sefaria.text(sectionRef, {enVersion, heVersion}, () => {this.setState({loaded: true})});
-    }
-  }
-  getSectionRef() {
-    const ref = this.props.srefs[0]; // TODO account for selections spanning sections
-    const sectionRef = Sefaria.sectionRef(ref) || ref;
-    return sectionRef;
-  }
-  render() {
-    const vlang = Sefaria.versionLanguage(this.props.vFilter[0]);
-
-    return !this.state.loaded || !this.props.vFilter.length ?
-      (<LoadingMessage />) :
-      (<div className="versionsTextList">
-        <RecentFilterSet
-          srefs={this.props.srefs}
-          asHeader={false}
-          filter={this.props.vFilter}
-          recentFilters={this.props.recentVFilters}
-          setFilter={this.props.setFilter}/>
-        <TextRange
-          panelPosition ={this.props.panelPosition}
-          sref={Sefaria.humanRef(this.props.srefs)}
-          currVersions={{[vlang]: this.props.vFilter[0]}}
-          useVersionLanguage={true}
-          hideTitle={true}
-          numberLabel={0}
-          basetext={false}
-          onRangeClick={this.props.onRangeClick} />
-      </div>);
-  }
-}
-VersionsTextList.propTypes = {
-  srefs:           PropTypes.array,
-  vFilter:         PropTypes.array,
-  recentVFilters:  PropTypes.array,
-  setFilter:       PropTypes.func.isRequired,
-  onRangeClick:    PropTypes.func.isRequired,
-};*/
 
 module.exports = VersionsBox;

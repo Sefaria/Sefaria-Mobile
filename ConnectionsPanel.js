@@ -247,7 +247,8 @@ class LinkNavButton extends React.Component {
         enText={this.props.enText}
         heText={this.props.heText}
         count={this.props.count}
-        withArrow={false} />
+        withArrow={false}
+        buttonStyle={{margin: 0}} />
     );
   }
 }

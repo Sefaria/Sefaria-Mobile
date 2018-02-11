@@ -125,10 +125,11 @@ class LibraryNavButton extends React.Component {
     heText:          PropTypes.string.isRequired,
     count:           PropTypes.number,
     withArrow:       PropTypes.bool.isRequired,
+    buttonStyle:     PropTypes.oneOfType([ViewPropTypes.style, PropTypes.array]),
   };
 
   render() {
-    let { theme, themeStr, settings, isCat, onPress, onPressCheckBox, checkBoxSelected, enText, heText, count, withArrow } = this.props;
+    let { theme, themeStr, settings, isCat, onPress, onPressCheckBox, checkBoxSelected, enText, heText, count, withArrow, buttonStyle } = this.props;
     let language = settings.language == "hebrew" ? "hebrew" : "english";
     let colorCat = Sefaria.palette.categoryColor(enText.replace(" Commentaries", ""));
     enText = isCat ? enText.toUpperCase() : enText;
@@ -138,7 +139,7 @@ class LibraryNavButton extends React.Component {
     return (
       <TouchableOpacity
         onPress={onPress}
-        style={[styles.searchFilterCat, {flexDirection: flexDir}].concat(colorStyle)}>
+        style={[styles.searchFilterCat, {flexDirection: flexDir}, buttonStyle].concat(colorStyle)}>
         <View style={{flexDirection: flexDir, alignItems: "center"}}>
           {
             !!onPressCheckBox ? <TouchableOpacity style={{paddingHorizontal: 10, paddingVertical: 15}} onPress={onPressCheckBox} >

@@ -197,7 +197,7 @@ class ListItem extends React.PureComponent {
     }
 
     return (
-      <TouchableOpacity style={[styles.searchTextResult, this.props.theme.searchTextResult]} onPress={()=>{this.props.openRef(this.props.refStr, this.props.linkContentObj.sectionRef)}}>
+      <TouchableOpacity style={[styles.searchTextResult, this.props.theme.searchTextResult]} onPress={()=>{this.props.openRef(this.props.refStr, {[this.props.versionLanguage]: this.props.versionTitle})}}>
         {this.props.displayRef ? null : <Text style={[styles.en, styles.textListCitation, this.props.theme.textListCitation]}>{this.props.refStr}</Text>}
         {textViews}
       </TouchableOpacity>

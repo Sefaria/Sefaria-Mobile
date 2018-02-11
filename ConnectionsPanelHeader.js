@@ -53,7 +53,7 @@ class ConnectionsPanelHeader extends React.Component {
         // summary
         outerStyles = [styles.textListHeader, styles.textListHeaderSummary, this.props.theme.textListHeader];
         content = (
-          <Text style={[styles.textListHeaderSummaryText, this.props.theme.textListHeaderSummaryText]}>{strings.resources}</Text>
+          <Text style={[this.props.theme.textListHeaderSummaryText]}>{strings.resources}</Text>
         );
         break;
       case 'version open': // fall-through

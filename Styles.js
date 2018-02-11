@@ -305,12 +305,11 @@ module.exports = StyleSheet.create({
   },
   textListHeaderSummary: {
     alignItems: "center",
-    justifyContent: "center",
+    justifyContent: "flex-start",
     borderTopWidth: 1,
   },
   textListSummaryScrollView: {
-    paddingHorizontal: iPad ? 20 : 10,
-    paddingVertical: 35,
+    paddingBottom: 15,
   },
   versionsBoxScrollView: {
     paddingTop: 10,

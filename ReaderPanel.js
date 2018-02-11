@@ -448,7 +448,7 @@ class ReaderPanel extends React.Component {
                 segmentRef={this.props.segmentRef}
                 textFlow={this.state.textFlow}
                 textLanguage={this.state.textLanguage}
-                openRef={(ref)=>this.props.openRef(ref,"text list")}
+                openRef={(ref, versions)=>this.props.openRef(ref,"text list", versions)}
                 setConnectionsMode={this.props.setConnectionsMode}
                 openFilter={this.props.openFilter}
                 closeCat={this.props.closeLinkCat}
