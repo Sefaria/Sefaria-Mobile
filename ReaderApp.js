@@ -158,8 +158,10 @@ class ReaderApp extends React.Component {
       this.setState(stateObj);
       this.forceUpdate();
   };
-
-  loadNewText = (ref, versions) => {
+  /*
+    isLoadingVersion - true when you are replacing an already loaded text with a specific version
+  */
+  loadNewText = (ref, versions, isLoadingVersion) => {
       this.setState({
           loaded: false,
           data: [],
@@ -167,7 +169,7 @@ class ReaderApp extends React.Component {
           textTitle: Sefaria.textTitleForRef(ref),
           segmentIndexRef: -1,
           sectionIndexRef: -1,
-          selectedVersions: versions,
+          selectedVersions: versions, /* if loadVersion, merge with current this.state.selectedVersions */
           currVersions: {en: null, he: null},
       });
 
@@ -175,23 +177,28 @@ class ReaderApp extends React.Component {
         // Open ranged refs to their first segment (not ideal behavior, but good enough for now)
         ref = ref.split("-")[0];
       }
-
+      // if loadVersion, replace versions here
       Sefaria.data(ref, true, versions).then(function(data) {
           var linkSummary = [];
           var loadingLinks = false;
-
-          this.setState({
-              data:              [data.content],
-              textTitle:         data.indexTitle,
-              next:              data.next,
-              prev:              data.prev,
-              heTitle:           data.heTitle,
-              heRef:             data.heRef,
-              sectionArray:      [data.ref],
-              sectionHeArray:    [data.heRef],
+          let nextState = {
+            data:              [data.content],
+            textTitle:         data.indexTitle,
+            next:              data.next,
+            prev:              data.prev,
+            heTitle:           data.heTitle,
+            heRef:             data.heRef,
+            sectionArray:      [data.ref],
+            sectionHeArray:    [data.heRef],
+            loaded:            true,
+            offsetRef:         !data.isSectionLevel ? data.requestedRef : null, // keep
+          };
+          if (!isLoadingVersion) {
+            // also overwrite sidebar state
+            nextState = {
+              ...nextState,
               linksLoaded:       [false],
-              loaded:            true,
-              connectionsMode:   null, /*Reset link state */
+              connectionsMode:   null, //Reset link state
               filterIndex:       null,
               linkRecentFilters: [],
               versionFilterIndex: null,
@@ -200,15 +207,21 @@ class ReaderApp extends React.Component {
               linkContents:      [],
               loadingLinks:      loadingLinks,
               textListVisible:   false,
-              offsetRef:         !data.isSectionLevel ? data.requestedRef : null,
-          }, ()=>{this.loadSecondaryData(data.sectionRef)});
-          Sefaria.links.reset();
+            };
+            Sefaria.links.reset();
+          }
+          this.setState(nextState, ()=>{
+            if (!isLoadingVersion) {
+              this.loadSecondaryData(data.sectionRef);
+            }
+          });
+
           // Preload Text TOC data into memory
           Sefaria.textToc(data.indexTitle).then(() => {
             // at this point, both book and section level version info is available
-            this.setCurrVersions(data.sectionRef, data.indexTitle);
+            this.setCurrVersions(data.sectionRef, data.indexTitle); // not positive if this will combine versions well
           });
-          Sefaria.saveRecentItem({ref: ref, heRef: data.heRef, category: Sefaria.categoryForRef(ref)});
+          Sefaria.saveRecentItem({ref: ref, heRef: data.heRef, category: Sefaria.categoryForRef(ref)}); // include version info here
       }.bind(this)).catch(function(error) {
         console.log(error);
         if (error == "Return to Nav") {
@@ -219,6 +232,13 @@ class ReaderApp extends React.Component {
       }.bind(this));
 
   };
+  loadNewVersion = (ref, versions) => {
+    versions = {
+      ...this.state.selectedVersions,
+      ...versions,
+    };
+    this.loadNewText(ref, versions, true);
+  }
   setCurrVersions = (ref, title) => {
     const enVInfo = Sefaria.versionInfo(ref, title, 'english');
     const heVInfo = Sefaria.versionInfo(ref, title, 'hebrew');
@@ -918,6 +938,7 @@ class ReaderApp extends React.Component {
                 linkSummary={this.state.linkSummary}
                 linkContents={this.state.linkContents}
                 versionContents={this.state.versionContents}
+                loadNewVersion={this.loadNewVersion}
                 loadingLinks={this.state.loadingLinks}
                 versionRecentFilters={this.state.versionRecentFilters}
                 versionFilterIndex={this.state.versionFilterIndex}

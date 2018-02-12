@@ -31,7 +31,7 @@ class VersionsBox extends React.Component {
     segmentRef:               PropTypes.string.isRequired,
     setConnectionsMode:       PropTypes.func.isRequired,
     openFilter:               PropTypes.func.isRequired,
-    selectVersion:            PropTypes.func.isRequired,
+    loadNewVersion:           PropTypes.func.isRequired,
     onRangeClick:             PropTypes.func.isRequired,
   };
 
@@ -126,13 +126,13 @@ class VersionsBox extends React.Component {
                       theme={this.props.theme}
                       version={v}
                       currVersions={currVersions}
-                      openVersionInReader={this.props.selectVersion}
+                      openVersionInReader={()=>{}}
                       isCurrent={(this.props.currVersions.en && this.props.currVersions.en.versionTitle === v.versionTitle) ||
                                 (this.props.currVersions.he && this.props.currVersions.he.versionTitle === v.versionTitle)}
                     />
                   { this.state.openVersionBox === `${lang}|${v.versionTitle}` ?
                     <View style={[styles.versionBlockBottomBar, this.props.theme.bordered]}>
-                      <TouchableOpacity style={styles.versionBoxBottomBarButton} onPress={()=>{}}>
+                      <TouchableOpacity style={styles.versionBoxBottomBarButton} onPress={()=>{ this.props.loadNewVersion(this.props.segmentRef, { [lang]: v.versionTitle }); }}>
                         <Text>{"READ"}</Text>
                       </TouchableOpacity>
                       <TouchableOpacity style={styles.versionBoxBottomBarButton} onPress={()=> { this.openVersionInSidebar(v.versionTitle, v.versionTitleInHebrew, lang); }}>

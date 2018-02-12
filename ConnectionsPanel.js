@@ -37,6 +37,7 @@ class ConnectionsPanel extends React.Component {
     updateVersionCat:     PropTypes.func.isRequired,
     loadLinkContent:      PropTypes.func.isRequired,
     loadVersionContent:   PropTypes.func.isRequired,
+    loadNewVersion:       PropTypes.func.isRequired,
     linkSummary:          PropTypes.array,
     linkContents:         PropTypes.array,
     versionContents:      PropTypes.array,
@@ -132,7 +133,7 @@ class ConnectionsPanel extends React.Component {
               setConnectionsMode={this.props.setConnectionsMode}
               segmentRef={this.props.segmentRef}
               openFilter={this.props.openFilter}
-              selectVersion={()=>{}}
+              loadNewVersion={this.props.loadNewVersion}
               onRangeClick={()=>{}}
             />
           </View>
