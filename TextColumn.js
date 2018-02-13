@@ -489,8 +489,26 @@ class TextColumn extends React.Component {
       setTimeout(()=>{this.waitForScrollToLocation(i+1)}, 5);
     }
   }
+  _isMonotonicallyIncreasing = frames => {
+    //DEBUG tool. only works on depth 2 texts for now
+    const keys = Object.keys(frames).sort((a,b) => {
+      const aMatch = a.match(new RegExp("header|footer")) ?
+        a.match(new RegExp("^(\d+):")) :
+        a.match(new RegExp("^(\d+):.+ (\d+):(\d+)$"));
+      const bMatch = b.match(new RegExp("header|footer")) ?
+        b.match(new RegExp("^(\d+):")) :
+        b.match(new RegExp("^(\d+):.+ (\d+):(\d+)$"));
+      const i = parseInt;
+      return aMatch.reduce((accum, curr, icurr) => accum + Math.pow(i(curr), 6 - 2*(icurr + 1)), 0) - bMatch.reduce((accum, curr, icurr) => accum + Math.pow(i(curr), 6 - 2*(icurr + 1)), 0);
+    });
+    let lastOffset = -1;
 
+  }
   onScrollToLocation = () => {
+    //TODO are indexes repeated in weird case?
+    //maybe write a check to make sure offsets are monotonically increasing by ref
+    //what is the SOURCE????? must find it and destroy it.
+    this.sectionListRef._wrapperListRef._listRef._frames = {}; // good bye. can't say I miss you
     this.setState({itemLayoutList: null}, () => {this.onTopReaching = false;});
   }
 
@@ -562,6 +580,8 @@ class TextColumn extends React.Component {
 
   render() {
     //console.log("using getItemLayout", !!this.state.itemLayoutList);
+    if (this.sectionListRef)
+      console.log(this.sectionListRef._wrapperListRef._listRef._frames);
     return (
         <View style={styles.textColumn} >
           <SectionList
@@ -572,7 +592,7 @@ class TextColumn extends React.Component {
             ListFooterComponent={this.renderFooter}
             getItemLayout={this.state.itemLayoutList ? this.getItemLayout : null}
             onEndReached={this.onEndReached}
-            onEndReachedThreshold={2.0}
+            onEndReachedThreshold={0.1}
             onScroll={this.handleScroll}
             scrollEventThrottle={100}
             onViewableItemsChanged={this.onViewableItemsChanged}
