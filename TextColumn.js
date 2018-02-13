@@ -489,7 +489,33 @@ class TextColumn extends React.Component {
       setTimeout(()=>{this.waitForScrollToLocation(i+1)}, 5);
     }
   }
-
+  _isMonotonicallyIncreasing = frames => {
+    //DEBUG tool. only works on depth 2 texts for now
+    const keys = Object.keys(frames).sort((a,b) => {
+      const aMatch = a.indexOf("header") !== -1 ?
+        a.match(/^(\d+):/) : a.indexOf("footer") !== -1 ?
+        a.match(/^(\d+):/).concat(["98", "98"]) :
+        a.match(/^(\d+):.+ (\d+):(\d+)$/);
+      const bMatch = b.indexOf("header") !== -1 ?
+        b.match(/^(\d+):/) : b.indexOf("footer") !== -1 ?
+        b.match(/^(\d+):/).concat(["98", "98"]) :
+        b.match(/^(\d+):.+ (\d+):(\d+)$/);
+      const i = parseInt;
+      const anum = aMatch.slice(1,4).reduce((accum, curr, icurr) => accum + (i(curr)+1)*Math.pow(10, 7 - 2*(icurr + 1)), 0);
+      const bnum = bMatch.slice(1,4).reduce((accum, curr, icurr) => accum + (i(curr)+1)*Math.pow(10, 7 - 2*(icurr + 1)), 0);
+      return anum - bnum;
+    });
+    let lastOffset = -1;
+    for (let k of keys) {
+      if (frames[k].offset >= lastOffset) {
+        lastOffset = frames[k].offset;
+      } else {
+        console.log("out of order", k, lastOffset);
+        console.log(frames);
+        break;
+      }
+    }
+  }
   onScrollToLocation = () => {
     this.setState({itemLayoutList: null}, () => {this.onTopReaching = false;});
   }
