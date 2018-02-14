@@ -37,6 +37,8 @@ class VersionsBox extends React.Component {
 
   constructor(props) {
     super(props);
+    this.versionBlockYMap = {};
+    this.langBlockYMap = {};
     const initialCurrVersions = {};
     for (let vlang in props.currVersions) {
       const tempV = props.currVersions[vlang];
@@ -77,11 +79,11 @@ class VersionsBox extends React.Component {
       (a, b) => {
         if      (a === state.initialMainVersionLanguage.slice(0,2)) {return -1;}
         else if (b === state.initialMainVersionLanguage.slice(0,2)) {return  1;}
-        else if (a in standard_langs && !(b in standard_langs))   {return -1;}
-        else if (b in standard_langs && !(a in standard_langs))   {return  1;}
-        else if (a < b)                                           {return -1;}
-        else if (b > a)                                           {return  1;}
-        else                                                      {return  0;}
+        else if (a in standard_langs && !(b in standard_langs))     {return -1;}
+        else if (b in standard_langs && !(a in standard_langs))     {return  1;}
+        else if (a < b)                                             {return -1;}
+        else if (b > a)                                             {return  1;}
+        else                                                        {return  0;}
       }
     );
     return { versionLangMap, versionLangs };
@@ -90,11 +92,30 @@ class VersionsBox extends React.Component {
     const filter = new VersionFilter(versionTitle, heVersionTitle, versionLanguage, this.props.segmentRef);
     this.props.openFilter(filter, "version");
   };
+  onLayoutLangBlock = (vlang, y) => {
+    this.langBlockYMap[vlang] = y;
+  };
+  onLayoutVersionBlock = (vlang, vtitle, y) => {
+    this.versionBlockYMap[`${vlang}|${vtitle}`] = y;
+  };
+  onPressRead = (vlang, vtitle) => {
+    this.props.loadNewVersion(this.props.segmentRef, { [vlang]: vtitle });
+  }
   onPressVersionBlock = (vlang, vtitle) => {
     let newState = `${vlang}|${vtitle}`;
+    const y = this.langBlockYMap[vlang] + this.versionBlockYMap[newState] - 170;
+    //console.log(vlang, vtitle, y, this.langBlockYMap[vlang], this.versionBlockYMap[newState], this.currY);
+    this.scrollViewRef.scrollTo({
+      x:0,
+      y,
+      animated: false,
+    });
     if (this.state.openVersionBox === newState) { newState = null; } // if already set, toggle off
     this.setState({ openVersionBox: newState });
   };
+  _getScrollViewRef = ref => {
+    this.scrollViewRef = ref;
+  }
   render() {
     if (!this.state.versionLangMap) {
       //TODO deal with no internet case
@@ -112,16 +133,22 @@ class VersionsBox extends React.Component {
     const isheb = this.props.interfaceLang === "hebrew";
     const textStyle = isheb ? styles.hebrewText : styles.englishText;
     return (
-      <ScrollView contentContainerStyle={[styles.textListSummaryScrollView, styles.versionsBoxScrollView]}>
+      <ScrollView
+        ref={this._getScrollViewRef}
+        contentContainerStyle={[styles.textListSummaryScrollView, styles.versionsBoxScrollView]}>
         {
           this.state.versionLangs.map((lang) => (
-            <View key={lang}>
+            <View key={lang} onLayout={event => { this.onLayoutLangBlock(lang, event.nativeEvent.layout.y); }}>
               <View style={[styles.versionsBoxLang]}>
                 <Text style={[textStyle, styles.versionsBoxLangText]}>{strings[Sefaria.util.translateISOLanguageCode(lang)].toUpperCase()}<Text>{` (${this.state.versionLangMap[lang].length})`}</Text></Text>
               </View>
               {
                 this.state.versionLangMap[lang].map(v => (
-                  <TouchableOpacity style={[styles.versionsBoxVersionBlockWrapper, this.props.theme.bordered]} key={v.versionTitle + lang} onPress={()=>{ this.onPressVersionBlock(lang, v.versionTitle); }}>
+                  <TouchableOpacity
+                    onLayout={event => { this.onLayoutVersionBlock(lang, v.versionTitle, event.nativeEvent.layout.height + event.nativeEvent.layout.y); }}
+                    style={[styles.versionsBoxVersionBlockWrapper, this.props.theme.bordered]}
+                    key={v.versionTitle + lang}
+                    onPress={()=>{ this.onPressVersionBlock(lang, v.versionTitle); }}>
                     <VersionBlock
                       theme={this.props.theme}
                       version={v}
@@ -132,10 +159,10 @@ class VersionsBox extends React.Component {
                     />
                   { this.state.openVersionBox === `${lang}|${v.versionTitle}` ?
                     <View style={[styles.versionBlockBottomBar, this.props.theme.bordered]}>
-                      <TouchableOpacity style={styles.versionBoxBottomBarButton} onPress={()=>{ this.props.loadNewVersion(this.props.segmentRef, { [lang]: v.versionTitle }); }}>
+                      <TouchableOpacity style={styles.versionBoxBottomBarButton} onPress={()=>{ this.onPressRead(v.language, v.versionTitle); }}>
                         <Text>{"READ"}</Text>
                       </TouchableOpacity>
-                      <TouchableOpacity style={styles.versionBoxBottomBarButton} onPress={()=> { this.openVersionInSidebar(v.versionTitle, v.versionTitleInHebrew, lang); }}>
+                      <TouchableOpacity style={styles.versionBoxBottomBarButton} onPress={()=> { this.openVersionInSidebar(v.versionTitle, v.versionTitleInHebrew, v.language); }}>
                         <Text>{"COMPARE"}</Text>
                       </TouchableOpacity>
                     </View> :
