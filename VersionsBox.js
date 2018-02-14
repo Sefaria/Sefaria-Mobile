@@ -39,6 +39,7 @@ class VersionsBox extends React.Component {
     super(props);
     this.versionBlockYMap = {};
     this.langBlockYMap = {};
+    this.scrollViewHeight = 0;
     const initialCurrVersions = {};
     for (let vlang in props.currVersions) {
       const tempV = props.currVersions[vlang];
@@ -92,6 +93,9 @@ class VersionsBox extends React.Component {
     const filter = new VersionFilter(versionTitle, heVersionTitle, versionLanguage, this.props.segmentRef);
     this.props.openFilter(filter, "version");
   };
+  onLayoutScrollView = event => {
+    this.scrollViewHeight = event.nativeEvent.layout.height;
+  };
   onLayoutLangBlock = (vlang, y) => {
     this.langBlockYMap[vlang] = y;
   };
@@ -103,8 +107,8 @@ class VersionsBox extends React.Component {
   }
   onPressVersionBlock = (vlang, vtitle) => {
     let newState = `${vlang}|${vtitle}`;
-    const y = this.langBlockYMap[vlang] + this.versionBlockYMap[newState] - 170;
-    //console.log(vlang, vtitle, y, this.langBlockYMap[vlang], this.versionBlockYMap[newState], this.currY);
+    let y = this.langBlockYMap[vlang] + this.versionBlockYMap[newState] - this.scrollViewHeight + 100;
+    if (y < 0) { y = 0; }
     this.scrollViewRef.scrollTo({
       x:0,
       y,
@@ -135,7 +139,8 @@ class VersionsBox extends React.Component {
     return (
       <ScrollView
         ref={this._getScrollViewRef}
-        contentContainerStyle={[styles.textListSummaryScrollView, styles.versionsBoxScrollView]}>
+        contentContainerStyle={[styles.textListSummaryScrollView, styles.versionsBoxScrollView]}
+        onLayout={this.onLayoutScrollView}>
         {
           this.state.versionLangs.map((lang) => (
             <View key={lang} onLayout={event => { this.onLayoutLangBlock(lang, event.nativeEvent.layout.y); }}>
