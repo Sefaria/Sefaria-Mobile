@@ -158,6 +158,7 @@ class RecentFilterNavItem extends React.Component {
     }
     return (
       <TouchableOpacity
+        disabled={this.props.selected}
         style={touchStyles}
         onPress={()=>{this.props.updateCat(this.props.filterIndex)}}
       >
