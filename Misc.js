@@ -407,7 +407,7 @@ class ButtonToggleSet extends React.Component {
 
 class LoadingView extends React.Component {
   render() {
-    return ( <View style={styles.loadingViewBox}>
+    return ( <View style={[styles.loadingViewBox, this.props.style]}>
                 <ActivityIndicator
                   animating={true}
                   style={styles.loadingView}

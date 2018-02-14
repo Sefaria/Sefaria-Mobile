@@ -443,7 +443,7 @@ class ReaderApp extends React.Component {
 
   openNav = () => {
       this.clearAllSearchFilters();
-      this.setState({loaded: true, appliedSearchFilters: [], searchFiltersValid: false});
+      this.setState({loaded: true, appliedSearchFilters: [], searchFiltersValid: false, textListVisible: false});
       this.openMenu("navigation");
   };
 
