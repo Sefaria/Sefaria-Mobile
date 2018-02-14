@@ -557,7 +557,6 @@ class TextColumn extends React.Component {
   }
 
   render() {
-    console.log(this.props.loadingTextHead, this.onTopReaching);
     return (
         <View style={styles.textColumn} >
           <SectionList
