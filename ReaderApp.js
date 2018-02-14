@@ -560,7 +560,6 @@ class ReaderApp extends React.Component {
       this.updateLinkCat(null, data); // Set up `linkContents` in their initial state as an array of nulls
     });
   };
-
   updateLinkCat = (filterIndex, linkSummary) => {
       //search for the current filter in the the links object
       if (this.state.filterIndex == null) return;
@@ -588,7 +587,6 @@ class ReaderApp extends React.Component {
       const linkContents = nextFilter.refList.map((ref)=>null);
       Sefaria.links.reset();
       this.setState({
-          connectionsMode: "filter",
           filterIndex,
           linkRecentFilters: this.state.linkRecentFilters,
           linkContents,
