@@ -179,8 +179,6 @@ class ReaderApp extends React.Component {
       }
       // if loadVersion, replace versions here
       Sefaria.data(ref, true, versions).then(function(data) {
-          var linkSummary = [];
-          var loadingLinks = false;
           let nextState = {
             data:              [data.content],
             textTitle:         data.indexTitle,
@@ -203,17 +201,15 @@ class ReaderApp extends React.Component {
               linkRecentFilters: [],
               versionFilterIndex: null,
               versionRecentFilters: [],
-              linkSummary:       linkSummary,
+              linkSummary:       [],
               linkContents:      [],
-              loadingLinks:      loadingLinks,
+              loadingLinks:      false,
               textListVisible:   false,
             };
             Sefaria.links.reset();
           }
           this.setState(nextState, ()=>{
-            if (!isLoadingVersion) {
-              this.loadSecondaryData(data.sectionRef);
-            }
+            this.loadSecondaryData(data.sectionRef);
           });
 
           // Preload Text TOC data into memory
@@ -391,6 +387,7 @@ class ReaderApp extends React.Component {
       }
       this.setState({
         loaded: false,
+        textListVisible: false,
         textReference: ref
       }, function() {
           this.closeMenu(); // Don't close until these values are in state, so we know if we need to load defualt text
@@ -640,7 +637,7 @@ class ReaderApp extends React.Component {
   };
 
   updateVersionCat = (filterIndex, segmentRef) => {
-    if (!filterIndex) {
+    if (!filterIndex && filterIndex !== 0) {
       if (this.state.versionFilterIndex == null) return;
       filterIndex = this.state.versionFilterIndex;
     }
@@ -649,7 +646,6 @@ class ReaderApp extends React.Component {
     const versionContents = [null];
     //TODO make a parallel func for versions? Sefaria.links.reset();
     this.setState({
-        connectionsMode: "version open",
         versionFilterIndex: filterIndex,
         versionRecentFilters: this.state.versionRecentFilters,
         versionContents,
