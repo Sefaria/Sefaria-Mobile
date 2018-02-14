@@ -409,7 +409,7 @@ class ReaderApp extends React.Component {
         case "text list":
           Sefaria.track.event("Reader","Click Text from TextList",ref);
           //this.state.backStack.push(this.state.segmentRef);
-          this.addBackItem("text list", this.state.segmentRef);
+          this.addBackItem("text list", [this.state.segmentRef, null, this.state.selectedVersions]);
           break;
         default:
           break;
@@ -450,7 +450,9 @@ class ReaderApp extends React.Component {
       this.openSearch();
     }
     else /*is ref*/ {
-    this.openRef(this.state.backStack.pop().state);
+      const blah = this.state.backStack.pop().state;
+      console.log(blah);
+      this.openRef(...blah);
     }
   };
 
