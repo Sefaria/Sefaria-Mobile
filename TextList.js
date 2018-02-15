@@ -196,8 +196,10 @@ class ListItem extends React.PureComponent {
       textViews = [englishElem];
     }
 
+    // versionLanguage should only be defined when TextList is in VersionsBox. Otherwise you should open default version for that link
+    const versions = this.props.versionLanguage ? {[this.props.versionLanguage]: this.props.versionTitle} : null;
     return (
-      <TouchableOpacity style={[styles.searchTextResult, this.props.theme.searchTextResult]} onPress={()=>{this.props.openRef(this.props.refStr, {[this.props.versionLanguage]: this.props.versionTitle})}}>
+      <TouchableOpacity style={[styles.searchTextResult, this.props.theme.searchTextResult]} onPress={()=>{this.props.openRef(this.props.refStr, versions)}}>
         {this.props.displayRef ? null : <Text style={[styles.en, styles.textListCitation, this.props.theme.textListCitation]}>{this.props.refStr}</Text>}
         {textViews}
       </TouchableOpacity>

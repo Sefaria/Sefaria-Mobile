@@ -180,9 +180,9 @@ class ReaderNavigationCategoryMenuContents extends React.Component {
 
           var refToOpen = Sefaria.getRecentRefForTitle(item.title);
           if (!refToOpen) {
-            refToOpen = item.firstSection;
+            refToOpen = { ref: item.firstSection };
           }
-          var openRef = this.props.openRef.bind(null, refToOpen);
+          var openRef = this.props.openRef.bind(null, refToOpen.ref, refToOpen.versions);
           content.push((<TouchableOpacity  style={[styles.textBlockLink,this.props.theme.textBlockLink]}  onPress={openRef} key={i}>
                             { showHebrew ?
                               <Text style={[styles.hebrewText, styles.centerText, this.props.theme.text]}>{heTitle}</Text> :

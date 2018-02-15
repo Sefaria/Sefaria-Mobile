@@ -516,12 +516,11 @@ Sefaria = {
   recent: null,
   saveRecentItem: function(item) {
     var itemTitle = Sefaria.textTitleForRef(item.ref);
-    //console.log('ITEM TITLE',itemTitle);
     var items = Sefaria.recent || [];
     items = items.filter(function(existing) {
       return Sefaria.textTitleForRef(existing.ref) !== itemTitle;
     });
-    items = [item].concat(items); //.slice(0,4);
+    items = [item].concat(items);
     Sefaria.recent = items;
     AsyncStorage.setItem("recent", JSON.stringify(items)).catch(function(error) {
       console.error("AsyncStorage failed to save: " + error);
@@ -536,7 +535,7 @@ Sefaria = {
     });
 
     if (items.length > 0) {
-      return items[0].ref;
+      return items[0];
     } else {
       return null;
     }
@@ -1463,6 +1462,7 @@ Sefaria.palette.categoryColors = {
   "Community":          Sefaria.palette.colors.raspberry,
   "Targum":             Sefaria.palette.colors.lavender,
   "Modern Works":       Sefaria.palette.colors.raspberry,
+  "Modern Commentary":  Sefaria.palette.colors.raspberry,
   "More":               Sefaria.palette.colors.darkblue,
 };
 Sefaria.palette.categoryColor = function(cat) {

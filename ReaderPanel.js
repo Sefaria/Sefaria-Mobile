@@ -290,7 +290,7 @@ class ReaderPanel extends React.Component {
           <ReaderNavigationMenu
             categories={this.props.navigationCategories}
             setCategories={this.props.setNavigationCategories}
-            openRef={(ref)=>this.props.openRef(ref,"navigation")}
+            openRef={(ref, versions)=>this.props.openRef(ref,"navigation", versions)}
             goBack={this.props.goBack}
             openNav={this.props.openNav}
             closeNav={this.props.closeMenu}

@@ -46,7 +46,7 @@ class RecentPage extends React.Component {
                     heCat={item.heRef}
                     language={this.props.language}
                     style={{"borderColor": Sefaria.palette.categoryColor(item.category)}}
-                    onPress={this.props.openRef.bind(null, item.ref)}
+                    onPress={this.props.openRef.bind(null, item.ref, null, item.versions)}
                     key={item.ref} />);
     }.bind(this));
 

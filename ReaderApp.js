@@ -37,8 +37,8 @@ class ReaderApp extends React.Component {
         });
         this.setDefaultTheme();
 
-        var ref =  Sefaria.recent.length ? Sefaria.recent[0].ref : "Genesis 1";
-        this.openRef(ref);
+        const mostRecent =  Sefaria.recent.length ? Sefaria.recent[0] : {ref: "Genesis 1"};
+        this.openRef(mostRecent.ref, null, mostRecent.versions);
 
     }.bind(this));
     Sefaria.track.init();
@@ -217,7 +217,7 @@ class ReaderApp extends React.Component {
             // at this point, both book and section level version info is available
             this.setCurrVersions(data.sectionRef, data.indexTitle); // not positive if this will combine versions well
           });
-          Sefaria.saveRecentItem({ref: ref, heRef: data.heRef, category: Sefaria.categoryForRef(ref)}); // include version info here
+          Sefaria.saveRecentItem({ref: ref, heRef: data.heRef, category: Sefaria.categoryForRef(ref), versions: this.state.selectedVersions}); // include version info here
       }.bind(this)).catch(function(error) {
         console.log(error);
         if (error == "Return to Nav") {
@@ -365,7 +365,7 @@ class ReaderApp extends React.Component {
         textReference: ref,
         heRef: heRef
       });
-      Sefaria.saveRecentItem({ref: ref, heRef: heRef, category: Sefaria.categoryForRef(ref)});
+      Sefaria.saveRecentItem({ref: ref, heRef: heRef, category: Sefaria.categoryForRef(ref), versions: this.state.selectedVersions});
   };
 
   /*
@@ -373,47 +373,53 @@ class ReaderApp extends React.Component {
   prevScrollPos parameter used for back button
   */
   openRef = (ref, calledFrom, versions) => {
-      if (!Sefaria.textTitleForRef(ref)) {
-        AlertIOS.alert(
-          strings.textUnavailable,
-          strings.promptOpenOnWebMessage,
-          [
-            {text: strings.cancel, style: 'cancel'},
-            {text: strings.open, onPress: () => {
-              Linking.openURL("https://www.sefaria.org/" + ref.replace(/ /g, "_"));
-            }}
-          ]);
-        return;
-      }
-      this.setState({
-        loaded: false,
-        textListVisible: false,
-        textReference: ref
-      }, function() {
-          this.closeMenu(); // Don't close until these values are in state, so we know if we need to load defualt text
-      }.bind(this));
+    const title = Sefaria.textTitleForRef(ref);
+    if (!title) {
+      AlertIOS.alert(
+        strings.textUnavailable,
+        strings.promptOpenOnWebMessage,
+        [
+          {text: strings.cancel, style: 'cancel'},
+          {text: strings.open, onPress: () => {
+            Linking.openURL("https://www.sefaria.org/" + ref.replace(/ /g, "_"));
+          }}
+        ]);
+      return;
+    }
+    if (!versions) {
+      //pull up default versions
+      const recentItem = Sefaria.getRecentRefForTitle(title);
+      if (!!recentItem) { versions = recentItem.versions; }
+    }
+    this.setState({
+      loaded: false,
+      textListVisible: false,
+      textReference: ref
+    }, function() {
+        this.closeMenu(); // Don't close until these values are in state, so we know if we need to load defualt text
+    }.bind(this));
 
-      this.loadNewText(ref, versions);
+    this.loadNewText(ref, versions);
 
-      switch (calledFrom) {
-        case "search":
-          Sefaria.track.event("Search","Search Result Text Click",this.state.searchQuery + ' - ' + ref);
-          //this.state.backStack=["SEARCH:"+this.state.searchQuery];
-          this.addBackItem("search", this.state.searchQuery);
-          break;
-        case "navigation":
-          Sefaria.track.event("Reader","Navigation Text Click", ref);
-          break;
-        case "text toc":
-          break;
-        case "text list":
-          Sefaria.track.event("Reader","Click Text from TextList",ref);
-          //this.state.backStack.push(this.state.segmentRef);
-          this.addBackItem("text list", [this.state.segmentRef, null, this.state.selectedVersions]);
-          break;
-        default:
-          break;
-      }
+    switch (calledFrom) {
+      case "search":
+        Sefaria.track.event("Search","Search Result Text Click",this.state.searchQuery + ' - ' + ref);
+        //this.state.backStack=["SEARCH:"+this.state.searchQuery];
+        this.addBackItem("search", this.state.searchQuery);
+        break;
+      case "navigation":
+        Sefaria.track.event("Reader","Navigation Text Click", ref);
+        break;
+      case "text toc":
+        break;
+      case "text list":
+        Sefaria.track.event("Reader","Click Text from TextList",ref);
+        //this.state.backStack.push(this.state.segmentRef);
+        this.addBackItem("text list", {ref: this.state.segmentRef, versions: this.state.selectedVersions});
+        break;
+      default:
+        break;
+    }
   };
 
   addBackItem = (page, state) => {
@@ -450,9 +456,8 @@ class ReaderApp extends React.Component {
       this.openSearch();
     }
     else /*is ref*/ {
-      const blah = this.state.backStack.pop().state;
-      console.log(blah);
-      this.openRef(...blah);
+      const { state } = this.state.backStack.pop();
+      this.openRef(state.ref, null, state.versions);
     }
   };
 

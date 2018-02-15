@@ -204,14 +204,14 @@ class RecentSection extends React.Component {
   render() {
     if (!Sefaria.recent || !Sefaria.recent.length) { return null; }
 
-    var recent = Sefaria.recent.slice(0,3).map(function(item) {
+    let recent = Sefaria.recent.slice(0,3).map(function(item) {
       return (<CategoryBlockLink
                     theme={this.props.theme}
                     category={item.ref}
                     heCat={item.heRef}
                     language={this.props.language}
                     style={{"borderColor": Sefaria.palette.categoryColor(item.category)}}
-                    onPress={this.props.openRef.bind(null, item.ref)}
+                    onPress={()=>{ this.props.openRef(item.ref, item.versions); }}
                     key={item.ref} />);
     }.bind(this));
 
@@ -258,7 +258,7 @@ class CalendarSection extends React.Component {
               heCat={"פרשה"}
               language={this.props.language}
               style={{"borderColor": Sefaria.palette.categoryColor("Tanakh")}}
-              onPress={this.props.openRef.bind(null, parashah.ref)}
+              onPress={() => { this.props.openRef(parashah.ref); }}
               key="parashah" />,
             <CategoryBlockLink
               theme={this.props.theme}
@@ -266,7 +266,7 @@ class CalendarSection extends React.Component {
               heCat={"הפטרה"}
               language={this.props.language}
               style={{"borderColor": Sefaria.palette.categoryColor("Tanakh")}}
-              onPress={this.props.openRef.bind(null, parashah.haftara[0])}
+              onPress={() => { this.props.openRef(parashah.haftara[0]); }}
               key="haftara" />,
             <CategoryBlockLink
               theme={this.props.theme}
@@ -274,7 +274,7 @@ class CalendarSection extends React.Component {
               heCat={"דף יומי"}
               language={this.props.language}
               style={{"borderColor": Sefaria.palette.categoryColor("Talmud")}}
-              onPress={this.props.openRef.bind(null, dafYomi.ref)}
+              onPress={() => { this.props.openRef(dafYomi.ref); }}
               key="dafYomi" />];
 
     var calendarContent = <TwoBox content={calendar} language={this.props.language}/>;
