@@ -116,7 +116,6 @@ class ReaderApp extends React.Component {
   }
 
   networkChangeListener = (isConnected) => {
-    console.log("netinfo", isConnected);
     this.setState({hasInternet: isConnected});
   };
 
@@ -238,7 +237,7 @@ class ReaderApp extends React.Component {
   setCurrVersions = (ref, title) => {
     const enVInfo = Sefaria.versionInfo(ref, title, 'english');
     const heVInfo = Sefaria.versionInfo(ref, title, 'hebrew');
-    this.setState({ currVersions: { en: enVInfo, he: heVInfo } }, ()=>{console.log(this.state.currVersions)});
+    this.setState({ currVersions: { en: enVInfo, he: heVInfo } });
   };
   loadSecondaryData = (ref) => {
     //loads secondary data every time a section is loaded
@@ -566,6 +565,7 @@ class ReaderApp extends React.Component {
   };
   updateLinkCat = (filterIndex, linkSummary) => {
       //search for the current filter in the the links object
+      if (this.state.filterIndex === filterIndex) return;
       if (this.state.filterIndex == null) return;
       if (linkSummary == null) linkSummary = this.state.linkSummary;
       if (filterIndex == null) filterIndex = this.state.filterIndex;
@@ -644,6 +644,7 @@ class ReaderApp extends React.Component {
   };
 
   updateVersionCat = (filterIndex, segmentRef) => {
+    if (this.state.versionFilterIndex === filterIndex) return;
     if (!filterIndex && filterIndex !== 0) {
       if (this.state.versionFilterIndex == null) return;
       filterIndex = this.state.versionFilterIndex;
@@ -660,7 +661,6 @@ class ReaderApp extends React.Component {
   };
 
   loadVersionContent = (ref, pos, versionTitle, versionLanguage) => {
-    console.log("Requesting", ref, versionTitle);
     Sefaria.data(ref, false, {[versionLanguage]: versionTitle }).then((data) => {
       // only want to show versionLanguage in results
       const removeLang = versionLanguage === "he" ? "en" : "he";
@@ -755,7 +755,6 @@ class ReaderApp extends React.Component {
 
     //var req = JSON.stringify(Sefaria.search.get_query_object(query,false,[],20,20*newSearchPage,"text"));
     var request_filters = this.state.searchFiltersValid && this.state.appliedSearchFilters;
-    console.log("request filters", request_filters);
     var queryProps = {
       query: query,
       size: size,

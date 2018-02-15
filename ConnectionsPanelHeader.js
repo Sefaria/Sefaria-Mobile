@@ -156,9 +156,9 @@ class RecentFilterNavItem extends React.Component {
     if (this.props.selected) {
       textStyles.push(this.props.theme.connectionsPanelHeaderItemTextSelected);
     }
+    // dont disable because that makes it hard to scroll disabled={this.props.selected}
     return (
       <TouchableOpacity
-        disabled={this.props.selected}
         style={touchStyles}
         onPress={()=>{this.props.updateCat(this.props.filterIndex)}}
       >

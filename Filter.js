@@ -38,6 +38,10 @@ class LinkFilter extends Filter {
   displayRef() {
     return this.category === "Commentary" && this.name !== "Commentary";
   }
+
+  listKey(i) {
+    return `${this.refList[i]}|${this.name}`;
+  }
 }
 
 class VersionFilter extends Filter {

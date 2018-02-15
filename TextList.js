@@ -100,7 +100,6 @@ class TextList extends React.Component {
     for (let vItem of viewableItems) {
       const { item } = vItem;
       if (item.content === null) {
-        console.log('loading');
         this.props.loadContent(item.ref, item.pos, item.versionTitle, item.versionLanguage);
       }
     }
