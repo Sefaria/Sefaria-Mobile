@@ -32,7 +32,6 @@ class VersionsBox extends React.Component {
     setConnectionsMode:       PropTypes.func.isRequired,
     openFilter:               PropTypes.func.isRequired,
     loadNewVersion:           PropTypes.func.isRequired,
-    onRangeClick:             PropTypes.func.isRequired,
   };
 
   constructor(props) {

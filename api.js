@@ -14,6 +14,7 @@ var Api = {
   _linkCache: {},
   _versions: {},
   _translateVersions: {},
+  _indexDetails: {},
   _textCacheKey: function(ref, versions) {
     return ref + (!!versions ? (!!versions.en ? `|en:${versions.en}` : "") + (!!versions.he ? `|he:${versions.he}` : "")  : "");
   },
@@ -297,6 +298,20 @@ var Api = {
   versionLanguage: function(versionTitle) {
     // given a versionTitle, return the language of the version
     return Sefaria.api._translateVersions[versionTitle]["lang"]
+  },
+  indexDetails: function(title) {
+    // Returns detailed index record for `title` which includes info like author and description
+    return new Promise((resolve, reject) => {
+      const details = title in this._indexDetails ? this._indexDetails[title] : null;
+      if (details) {
+        resolve(details);
+      }
+      const url = Sefaria.apiHost + "/api/v2/index/" + title + "?with_content_counts=1";
+      this._api(url, function(data) {
+        if (cb) { cb(data); }
+        Sefaria._indexDetails[title] = data;
+      });
+    });
   },
   /*
   context is a required param if apiType == 'text'. o/w it's ignored

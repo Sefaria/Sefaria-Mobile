@@ -16,6 +16,7 @@ const ConnectionsPanelHeader = require('./ConnectionsPanelHeader');
 const TextList       = require('./TextList');
 const { LinkFilter } = require('./Filter');
 const VersionsBox    = require('./VersionsBox');
+const AboutBox       = require('./AboutBox');
 
 const {
   CategoryColorLine,
@@ -134,9 +135,17 @@ class ConnectionsPanel extends React.Component {
               segmentRef={this.props.segmentRef}
               openFilter={this.props.openFilter}
               loadNewVersion={this.props.loadNewVersion}
-              onRangeClick={()=>{}}
             />
           </View>
+        );
+      case 'about':
+        return (
+          <AboutBox
+            theme={this.props.theme}
+            interfaceLang={this.props.interfaceLang}
+            currVersions={this.props.currVersions}
+            mainVersionLanguage={this.props.textLanguage}
+          />
         );
       default:
         // either `null` or equal to a top-level category
