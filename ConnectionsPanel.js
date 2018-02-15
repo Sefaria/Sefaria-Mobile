@@ -144,11 +144,14 @@ class ConnectionsPanel extends React.Component {
         if (this.props.loading) {
           content = (<LoadingView />);
         } else {
+          // if you're in Modern Commentary, switch to Commentary
+          const connectionsMode = this.props.connectionsMode && this.props.connectionsMode.indexOf(" Commentary") !== -1 ? "Commentary" : this.props.connectionsMode;
           let viewList = [];
           for (let i = 0; i < this.props.linkSummary.length; i++) {
             const cat = this.props.linkSummary[i];
-            const catFilterSelected = cat.category === this.props.connectionsMode;
-            if (this.props.connectionsMode !== null && !catFilterSelected) { continue; }
+            const catFilterSelected = (cat.category === connectionsMode || (connectionsMode === "Commentary" && cat.category.indexOf(" Commentary") !== -1));
+            if (!catFilterSelected && (cat.category === "Quoting Commentary" || cat.category === "Modern Commentary")) { continue; }  // skip these categories in the main link summary and only include them under Commentary
+            if (connectionsMode !== null && !catFilterSelected) { continue; }
             const heCategory = Sefaria.hebrewCategory(cat.category);
             const filter = new LinkFilter(cat.category, heCategory, cat.category, heCategory, cat.refList,cat.category);
             viewList.push(
@@ -192,7 +195,6 @@ class ConnectionsPanel extends React.Component {
                   />
                 );
               }));
-              break;
             }
           }
           if (this.props.connectionsMode === null) {
