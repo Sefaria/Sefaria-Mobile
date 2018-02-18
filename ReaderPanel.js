@@ -471,7 +471,8 @@ class ReaderPanel extends React.Component {
                 versions={this.props.versions}
                 onDragStart={this.props.onTextListDragStart}
                 onDragMove={this.props.onTextListDragMove}
-                onDragEnd={this.props.onTextListDragEnd} />
+                onDragEnd={this.props.onTextListDragEnd}
+                textTitle={this.props.textTitle} />
             </View> : null}
 
             {this.state.ReaderDisplayOptionsMenuVisible ?

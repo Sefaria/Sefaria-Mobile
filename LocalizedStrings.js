@@ -90,6 +90,9 @@ module.exports = new LocalizedStrings({
     polish: "Polish",
     russian: "Russian",
     versions: "Versions",
+    aboutThisText: "About This Text",
+    currentHebrewVersion: "Current Hebrew Version",
+    currentEnglishVersion: "Current English Version",
   },
   he: {
     recent: "נצפו לאחרונה",
@@ -180,5 +183,8 @@ module.exports = new LocalizedStrings({
     polish: "פולנית",
     russian: "רוסית",
     versions: "גרסאות",
+    aboutThisText: "אודות ספר זה",
+    currentHebrewVersion: "גרסה עברית נוכחית",
+    currentEnglishVersion: "גרסה אנגלית נוכחית",
   }
 });

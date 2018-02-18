@@ -55,6 +55,7 @@ class ConnectionsPanel extends React.Component {
     onDragStart:          PropTypes.func.isRequired,
     onDragMove:           PropTypes.func.isRequired,
     onDragEnd:            PropTypes.func.isRequired,
+    textTitle:            PropTypes.string.isRequired,
   };
 
   render() {
@@ -143,8 +144,10 @@ class ConnectionsPanel extends React.Component {
           <AboutBox
             theme={this.props.theme}
             interfaceLang={this.props.interfaceLang}
+            contentLang={this.props.settings.language == "hebrew" ? "hebrew" : "english"}
             currVersions={this.props.currVersions}
             mainVersionLanguage={this.props.textLanguage}
+            textTitle={this.props.textTitle}
           />
         );
       default:
@@ -279,6 +282,13 @@ class ResourcesList extends React.Component {
     const isWhite = this.props.themeStr === "white";
     return (
       <View>
+        <ToolsButton
+          interfaceLang={this.props.interfaceLang}
+          text={strings.about}
+          icon={isWhite ? require("./img/layers.png") : require("./img/layers-light.png")}
+          theme={this.props.theme}
+          onPress={()=>{ this.props.setConnectionsMode("about"); }}
+        />
         <ToolsButton
           interfaceLang={this.props.interfaceLang}
           text={strings.versions}

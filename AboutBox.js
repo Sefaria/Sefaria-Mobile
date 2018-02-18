@@ -2,8 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import {
   View,
-  FlatList,
-  TouchableOpacity,
+  ScrollView,
   Text,
 } from 'react-native';
 
@@ -14,39 +13,41 @@ const {
 import HTMLView from 'react-native-htmlview';
 const strings = require('./LocalizedStrings');
 const styles = require('./Styles.js');
+const VersionBlock = require('./VersionBlock');
 
 
-class AboutBox extends Component {
+class AboutBox extends React.Component {
   static propTypes = {
     theme:               PropTypes.object.isRequired,
     currVersions:        PropTypes.object.isRequired,
+    contentLang:         PropTypes.oneOf(["english", "hebrew"]).isRequired,
     interfaceLang:       PropTypes.oneOf(["english", "hebrew"]).isRequired,
     mainVersionLanguage: PropTypes.oneOf(["english", "hebrew", "bilingual"]),
+    textTitle:           PropTypes.string.isRequired,
   };
 
   constructor(props) {
     super(props);
+    Sefaria.textToc(this.props.textTitle).then(textToc => {
+      this.setState({ textToc });
+    });
     this.state = {
-      details: null,
+      textToc: null,
     }
   }
-  componentDidMount() {
-    Sefaria.indexDetails(this.props.title, (data) => {
-      this.setState({details: data});
-    });
-  }
   render() {
-    const d = this.state.details;
-    const vh = this.props.currObjectVersions.he;
-    const ve = this.props.currObjectVersions.en;
+    const d = this.state.textToc;
+    const vh = this.props.currVersions.he;
+    const ve = this.props.currVersions.en;
+    const hec = this.props.contentLang === "hebrew";
     let detailSection = null;
     if (d) {
       let authorsEn, authorsHe;
       if (d.authors) {
         const authorArrayEn = d.authors.filter((elem) => !!elem.en);
         const authorArrayHe = d.authors.filter((elem) => !!elem.he);
-        authorsEn = authorArrayEn.map(author => <a key={author.en} href={"/person/" + author.en}>{author.en}</a> );
-        authorsHe = authorArrayHe.map(author => <a key={author.en} href={"/person/" + author.en}>{author.he}</a> );
+        authorsEn = authorArrayEn.map(author => <Text key={author.en}>{author.en}</Text> );
+        authorsHe = authorArrayHe.map(author => <Text key={author.en}>{author.he}</Text> );
       }
       // use compPlaceString and compDateString if available. then use compPlace o/w use pubPlace o/w nothing
       let placeTextEn, placeTextHe;
@@ -81,74 +82,57 @@ class AboutBox extends Component {
         dateTextHe = `(${Math.abs(d.pubDate)} ${d.pubDate < 0 ? 'לפנה"ס בקירוב' : 'לספירה בקירוב'})`;
       }
       detailSection = (
-        <div className="detailsSection">
-          <h2 className="aboutHeader">
-            <span className="int-en">About This Text</span>
-            <span className="int-he">אודות ספר זה</span>
-          </h2>
-          <div className="aboutTitle">
-            <span className="en">{d.title}</span>
-            <span className="he">{d.heTitle}</span>
-          </div>
+        <View className="detailsSection">
+          <Text style={styles.aboutHeader}>{strings.aboutThisText}</Text>
+          <Text style={styles.aboutTitle}>
+            { hec ? d.heTitle : d.title }
+          </Text>
           { authorsEn.length ?
-            <div className="aboutSubtitle">
-              <span className="en">Author: {authorsEn}</span>
-              <span className="he">מחבר: {authorsHe}</span>
-            </div> : null
+            <Text style={styles.aboutSubtitle}>
+              { hec ? `מחבר: ${authorsHe}`: `Author: ${authorsEn}`}
+            </Text> : null
           }
           { !!placeTextEn || !!dateTextEn ?
-            <div className="aboutSubtitle">
-              <span className="en">{`Composed: ${!!placeTextEn ? placeTextEn : ""} ${!!dateTextEn ? dateTextEn : ""}`}</span>
-              <span className="he">{`נוצר/נערך: ${!!placeTextHe ? placeTextHe : ""} ${!!dateTextHe ? dateTextHe : ""}`}</span>
-            </div> : null
+            <Text style={styles.aboutSubtitle}>
+              { hec ? `נוצר/נערך: ${!!placeTextHe ? placeTextHe : ""} ${!!dateTextHe ? dateTextHe : ""}` : `Composed: ${!!placeTextEn ? placeTextEn : ""} ${!!dateTextEn ? dateTextEn : ""}`}
+            </Text> : null
           }
-          <div className="aboutDesc">
-            { !!d.enDesc ? <span className="en">{d.enDesc}</span> : null}
-            { !!d.heDesc ? <span className="he">{d.heDesc}</span> : null}
-          </div>
-        </div>
+          { hec ? (!!d.heDesc ? <Text>{d.heDesc}</Text> : null) :
+                  (!!d.enDesc ? <Text>{d.enDesc}</Text> : null)
+          }
+        </View>
       );
     }
-    const currVersions = {};
-    for (let vlang in this.props.currObjectVersions) {
-      const tempV = this.props.currObjectVersions[vlang];
-      currVersions[vlang] = !!tempV ? tempV.versionTitle : null;
-    }
     const versionSectionHe =
-      (!!vh ? <div className="currVersionSection">
-        <h2 className="aboutHeader">
-          <span className="int-en">Current Hebrew Version</span>
-          <span className="int-he">גרסה עברית נוכחית</span>
-        </h2>
+      (!!vh ? <View style={styles.currVersionSection}>
+        <Text style={styles.aboutHeader}>
+          { strings.currentHebrewVersion }
+        </Text>
         <VersionBlock
+          theme={this.props.theme}
           version={vh}
-          currVersions={currVersions}
-          currentRef={this.props.srefs[0]}
-          firstSectionRef={"firstSectionRef" in vh ? vh.firstSectionRef : null}
-          getLicenseMap={this.props.getLicenseMap} />
-      </div> : null );
+          interfaceLang={this.props.interfaceLang}
+        />
+      </View> : null );
     const versionSectionEn =
-      (!!ve ? <div className="currVersionSection">
-        <h2 className="aboutHeader">
-          <span className="int-en">Current English Version</span>
-          <span className="int-he">גרסה אנגלית נוכחית</span>
-        </h2>
+      (!!ve ? <View style={styles.currVersionSection}>
+        <Text style={styles.aboutHeader}>
+          { strings.currentEnglishVersion }
+        </Text>
         <VersionBlock
+          theme={this.props.theme}
           version={ve}
-          currVersions={currVersions}
-          currentRef={this.props.srefs[0]}
-          firstSectionRef={"firstSectionRef" in ve ? ve.firstSectionRef : null}
-          viewExtendedNotes={this.props.viewExtendedNotes}
-          getLicenseMap={this.props.getLicenseMap} />
-      </div> : null );
+          interfaceLang={this.props.interfaceLang}
+        />
+      </View> : null );
     return (
-      <section className="aboutBox">
-        {detailSection}
+      <ScrollView contentContainerStyle={styles.aboutBox}>
+        { detailSection }
         { this.props.mainVersionLanguage === "english" ?
-          (<div>{versionSectionEn}{versionSectionHe}</div>) :
-          (<div>{versionSectionHe}{versionSectionEn}</div>)
+          (<View>{versionSectionEn}{versionSectionHe}</View>) :
+          (<View>{versionSectionHe}{versionSectionEn}</View>)
         }
-      </section>
+      </ScrollView>
     );
   }
 }
