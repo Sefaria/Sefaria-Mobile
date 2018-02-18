@@ -141,14 +141,17 @@ class ConnectionsPanel extends React.Component {
         );
       case 'about':
         return (
-          <AboutBox
-            theme={this.props.theme}
-            interfaceLang={this.props.interfaceLang}
-            contentLang={this.props.settings.language == "hebrew" ? "hebrew" : "english"}
-            currVersions={this.props.currVersions}
-            mainVersionLanguage={this.props.textLanguage}
-            textTitle={this.props.textTitle}
-          />
+          <View style={[styles.textColumn, this.props.theme.textListContentOuter, {maxWidth: null}]}>
+            {connectionsPanelHeader}
+            <AboutBox
+              theme={this.props.theme}
+              interfaceLang={this.props.interfaceLang}
+              contentLang={this.props.settings.language == "hebrew" ? "hebrew" : "english"}
+              currVersions={this.props.currVersions}
+              mainVersionLanguage={this.props.textLanguage}
+              textTitle={this.props.textTitle}
+            />
+          </View>
         );
       default:
         // either `null` or equal to a top-level category
@@ -285,7 +288,7 @@ class ResourcesList extends React.Component {
         <ToolsButton
           interfaceLang={this.props.interfaceLang}
           text={strings.about}
-          icon={isWhite ? require("./img/layers.png") : require("./img/layers-light.png")}
+          icon={isWhite ? require("./img/book.png") : require("./img/book-light.png")}
           theme={this.props.theme}
           onPress={()=>{ this.props.setConnectionsMode("about"); }}
         />
