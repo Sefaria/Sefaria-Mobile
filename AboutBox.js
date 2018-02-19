@@ -43,7 +43,7 @@ class AboutBox extends React.Component {
     let detailSection = null;
     if (d) {
       let authorsEn, authorsHe;
-      if (d.authors) {
+      if (d.authors && d.authors.length) {
         const authorArrayEn = d.authors.filter((elem) => !!elem.en);
         const authorArrayHe = d.authors.filter((elem) => !!elem.he);
         authorsEn = [<Text key="authorText">{"Author: "}</Text>];
@@ -88,10 +88,10 @@ class AboutBox extends React.Component {
           <View style={[styles.aboutHeaderWrapper, this.props.theme.bordered]}>
             <Text style={[styles.aboutHeader, this.props.theme.secondaryText]}>{strings.aboutThisText}</Text>
           </View>
-          <Text style={styles.aboutTitle}>
+          <Text style={[styles.aboutTitle, this.props.theme.text]}>
             { hec ? d.heTitle : d.title }
           </Text>
-          { authorsEn.length ?
+          { authorsEn && authorsEn.length ?
             <Text style={[styles.aboutSubtitle, this.props.theme.secondaryText]}>
               { hec ? authorsHe : authorsEn}
             </Text> : null
@@ -101,14 +101,14 @@ class AboutBox extends React.Component {
               { hec ? `נוצר/נערך: ${!!placeTextHe ? placeTextHe : ""} ${!!dateTextHe ? dateTextHe : ""}` : `Composed: ${!!placeTextEn ? placeTextEn : ""} ${!!dateTextEn ? dateTextEn : ""}`}
             </Text> : null
           }
-          { hec ? (!!d.heDesc ? <Text style={styles.aboutDescription}>{d.heDesc}</Text> : null) :
-                  (!!d.enDesc ? <Text style={styles.aboutDescription}>{d.enDesc}</Text> : null)
+          { hec ? (!!d.heDesc ? <Text style={[styles.aboutDescription, this.props.theme.text]}>{d.heDesc}</Text> : null) :
+                  (!!d.enDesc ? <Text style={[styles.aboutDescription, this.props.theme.text]}>{d.enDesc}</Text> : null)
           }
         </View>
       );
     }
     const versionSectionHe =
-      (!!vh ? <View style={styles.currVersionSection}>
+      (!!vh && !vh.disabled ? <View style={styles.currVersionSection}>
         <View style={[styles.aboutHeaderWrapper, this.props.theme.bordered]}>
           <Text style={[styles.aboutHeader, this.props.theme.secondaryText]}>{ strings.currentHebrewVersion }</Text>
         </View>
@@ -119,7 +119,7 @@ class AboutBox extends React.Component {
         />
       </View> : null );
     const versionSectionEn =
-      (!!ve ? <View style={styles.currVersionSection}>
+      (!!ve && !ve.disabled ? <View style={styles.currVersionSection}>
         <View style={[styles.aboutHeaderWrapper, this.props.theme.bordered]}>
           <Text style={[styles.aboutHeader, this.props.theme.secondaryText]}>{ strings.currentEnglishVersion }</Text>
         </View>

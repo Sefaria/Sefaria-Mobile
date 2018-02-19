@@ -236,7 +236,9 @@ class ReaderApp extends React.Component {
 
   setTextLanguage = (textLanguage) => {
     Sefaria.settings.textLanguage(this.state.textTitle, textLanguage);
-    this.setState({textLanguage: textLanguage});
+    this.setState({textLanguage: textLanguage}, () => {
+      this.setCurrVersions(); // update curr versions based on language
+    });
     // Sefaria.settings.set("textLanguage", textLanguage); // Makes every language change sticky
     if (textLanguage == "bilingual" && this.state.textFlow == "continuous") {
       this.setTextFlow("segmented");
@@ -406,9 +408,11 @@ class ReaderApp extends React.Component {
     this.loadNewText(ref, versions, true);
   };
 
-  setCurrVersions = (ref, title) => {
-    const enVInfo = Sefaria.versionInfo(ref, title, 'english');
-    const heVInfo = Sefaria.versionInfo(ref, title, 'hebrew');
+  setCurrVersions = (sectionRef, title) => {
+    let enVInfo = !sectionRef ? this.state.currVersions.en : Sefaria.versionInfo(sectionRef, title, 'english');
+    let heVInfo = !sectionRef ? this.state.currVersions.he : Sefaria.versionInfo(sectionRef, title, 'hebrew');
+    if (enVInfo) { enVInfo.disabled = this.state.textLanguage ===  'hebrew'; } // not currently viewing this version
+    if (heVInfo) { heVInfo.disabled = this.state.textLanguage === 'english'; }
     this.setState({ currVersions: { en: enVInfo, he: heVInfo } });
   };
 

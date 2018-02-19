@@ -144,7 +144,7 @@ class VersionsBox extends React.Component {
           this.state.versionLangs.map((lang) => (
             <View key={lang} onLayout={event => { this.onLayoutLangBlock(lang, event.nativeEvent.layout.y); }}>
               <View style={[styles.versionsBoxLang]}>
-                <Text style={[textStyle, styles.versionsBoxLangText]}>{strings[Sefaria.util.translateISOLanguageCode(lang)].toUpperCase()}<Text>{` (${this.state.versionLangMap[lang].length})`}</Text></Text>
+                <Text style={[textStyle, styles.versionsBoxLangText, this.props.theme.text]}>{strings[Sefaria.util.translateISOLanguageCode(lang)].toUpperCase()}<Text>{` (${this.state.versionLangMap[lang].length})`}</Text></Text>
               </View>
               {
                 this.state.versionLangMap[lang].map(v => (

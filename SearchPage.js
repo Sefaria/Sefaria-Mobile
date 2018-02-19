@@ -83,7 +83,7 @@ class SearchPage extends React.Component {
             <View style={summaryStyle}>
               <Text style={[this.props.theme.searchResultSummaryText, langStyle]} >{status}</Text>
               <DirectedButton
-                text={(<Text>{strings.filter} <Text style={{color: "black"}}>{`(${this.props.appliedFilters.length})`}</Text></Text>)}
+                text={(<Text>{strings.filter} <Text style={this.props.theme.text}>{`(${this.props.appliedFilters.length})`}</Text></Text>)}
                 direction="forward"
                 language={"english"}
                 themeStr={this.props.themeStr}
