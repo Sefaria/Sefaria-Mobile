@@ -8,16 +8,16 @@ import {
   Text
 } from 'react-native';
 
-const SearchBar        = require('./SearchBar');
-const SearchResultList = require('./SearchResultList');
-const SearchFilterPage = require('./SearchFilterPage');
-const styles           = require('./Styles');
-const strings          = require('./LocalizedStrings');
+import SearchBar from './SearchBar';
+import SearchResultList from './SearchResultList';
+import SearchFilterPage from './SearchFilterPage';
+import styles from './Styles';
+import strings from './LocalizedStrings';
 
-var {
+import {
   CategoryColorLine,
   DirectedButton
-} = require('./Misc.js');
+} from './Misc.js';
 
 class SearchPage extends React.Component {
   static propTypes = {
@@ -138,4 +138,4 @@ class SearchPage extends React.Component {
   }
 }
 
-module.exports = SearchPage;
+export default SearchPage;

@@ -4,31 +4,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Text, View, StyleSheet } from 'react-native';
-const now = require('performance-now');
-
-//import invariant from 'invariant';
 
 const measureBatchSize = 50;
 
-/*TextToHeight = Map<string, number>;
-type Props = {
-  textToMeasure: TextToMeasure[],
-  allHeightsMeasuredCallback: (
-    textToMeasure: TextToMeasure[],
-    heights: TextToHeight,
-  ) => void,
-  minHeight?: number,
-  style?: StyleObj,
-};
-type State = {
-  currentlyMeasuring: ?Set<TextToMeasure>,
-};*/
 class TextHeightMeasurer extends React.PureComponent {
 
-  /*props: Props;
-  state: State = {
-    currentlyMeasuring: null,
-  };*/
   static propTypes = {
     componentsToMeasure: PropTypes.arrayOf(PropTypes.shape({
       id: PropTypes.string.isRequired,
@@ -66,7 +46,6 @@ class TextHeightMeasurer extends React.PureComponent {
 
   // resets this.leftToMeasure and this.nextTextToHeight
   resetInternalState(newComponentsToMeasure) {
-    this.start = now();
     this.leftToMeasure = new Set();
     const idSet = new Set();
     const nextNextTextToHeight = new Map();
@@ -112,9 +91,6 @@ class TextHeightMeasurer extends React.PureComponent {
   }
 
   done(componentsToMeasure) {
-    //invariant(this.leftToMeasure.size === 0, "should be 0 left to measure");
-    //invariant(this.leftInBatch === 0, "batch should be complete");
-    //invariant(this.nextTextToHeight, "nextTextToHeight should be set");
     this.currentTextToHeight = this.nextTextToHeight;
     this.nextTextToHeight = null;
     this.props.allHeightsMeasuredCallback(
@@ -122,8 +98,6 @@ class TextHeightMeasurer extends React.PureComponent {
       this.currentTextToHeight,
     );
     this.setState({ currentlyMeasuring: null });
-
-    //console.log(`all heights measured, took: ${now()-this.start}ms`);
   }
 
   newBatch() {
@@ -173,4 +147,4 @@ const styles = StyleSheet.create({
   },
 });
 
-module.exports = TextHeightMeasurer;
+export default TextHeightMeasurer;

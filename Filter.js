@@ -57,5 +57,4 @@ class VersionFilter extends Filter {
   }
 }
 
-module.exports.LinkFilter = LinkFilter;
-module.exports.VersionFilter = VersionFilter;
+export { LinkFilter, VersionFilter };

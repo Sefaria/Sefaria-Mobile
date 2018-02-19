@@ -11,18 +11,17 @@ import ReactNative, {
   Dimensions,
 } from 'react-native';
 
-const styles =                require('./Styles.js');
-const TextRange =            require('./TextRange');
-const TextRangeContinuous = require('./TextRangeContinuous');
-const TextHeightMeasurer = require('./TextHeightMeasurer');
-const queryLayoutByID =   require('queryLayoutByID');
+import styles from './Styles.js';
+import TextRange from './TextRange';
+import TextRangeContinuous from './TextRangeContinuous';
+import TextHeightMeasurer from './TextHeightMeasurer';
+import queryLayoutByID from 'queryLayoutByID';
 const ViewPort  = Dimensions.get('window');
-const now = require('performance-now');
 const COMMENTARY_LINE_THRESHOLD = 150;
 
-const {
+import {
   LoadingView,
-} = require('./Misc.js');
+} from './Misc.js';
 
 class TextColumn extends React.Component {
   static propTypes = {

@@ -9,8 +9,8 @@ import {
   View
 } from 'react-native';
 
-const styles = require('./Styles');
-const SearchTextResult = require('./SearchTextResult');
+import styles from './Styles';
+import SearchTextResult from './SearchTextResult';
 
 class SearchResultList extends React.Component {
   static propTypes = {
@@ -70,27 +70,27 @@ class SearchResultList extends React.Component {
   };
 
   render() {
-  	//if isNewSearch, temporarily hide the ListView, which apparently resets the scroll position to the top
-  	if (this.props.queryResult && !this.props.isNewSearch) {
-	    return (
-	      <FlatList
+    //if isNewSearch, temporarily hide the ListView, which apparently resets the scroll position to the top
+    if (this.props.queryResult && !this.props.isNewSearch) {
+      return (
+        <FlatList
           ref={this._setFlatListRef}
-	        data={this.props.queryResult}
+          data={this.props.queryResult}
           getItemLayout={this.getItemLayout}
-	        renderItem={this.renderRow}
+          renderItem={this.renderRow}
           onLayout={this.scrollToSearchResult}
           onScroll={this.setCurScrollPos}
           keyExtractor={this._keyExtractor}
           scrollEventThrottle={100}
-	        onEndReached={this.onEndReached}
+          onEndReached={this.onEndReached}
           contentContainerStyle={{marginBottom:50}}/>
-	    );
-  	} else {
-  		return null;
-  	}
+      );
+    } else {
+      return null;
+    }
 
   }
 }
 
 
-module.exports = SearchResultList;
+export default SearchResultList;

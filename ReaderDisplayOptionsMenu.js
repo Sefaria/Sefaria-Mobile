@@ -10,7 +10,7 @@ import {
   Image
 } from 'react-native';
 
-var styles                = require('./Styles.js');
+import styles from './Styles.js';
 var a_aleph_icon          = require('./img/a_aleph.png');
 var a_icon                = require('./img/a_icon.png');
 var a_icon_small          = require('./img/a_icon_small.png');
@@ -206,4 +206,4 @@ class ReaderDisplayOptionsMenuColor extends React.Component {
 }
 
 
-module.exports = ReaderDisplayOptionsMenu;
+export default ReaderDisplayOptionsMenu;

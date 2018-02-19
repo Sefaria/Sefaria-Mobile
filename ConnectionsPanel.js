@@ -10,13 +10,13 @@ import {
   TouchableOpacity,
   Dimensions
 } from 'react-native';
-const styles         = require('./Styles');
-const strings        = require('./LocalizedStrings');
-const ConnectionsPanelHeader = require('./ConnectionsPanelHeader');
-const TextList       = require('./TextList');
-const { LinkFilter } = require('./Filter');
-const VersionsBox    = require('./VersionsBox');
-const AboutBox       = require('./AboutBox');
+import styles from './Styles';
+import strings from './LocalizedStrings';
+import ConnectionsPanelHeader from './ConnectionsPanelHeader';
+import TextList from './TextList';
+import { LinkFilter } from './Filter';
+import VersionsBox from './VersionsBox';
+import AboutBox from './AboutBox';
 
 const {
   CategoryColorLine,
@@ -331,5 +331,4 @@ class ToolsButton extends React.Component {
   }
 }
 
-
-module.exports = ConnectionsPanel;
+export default ConnectionsPanel;

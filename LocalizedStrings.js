@@ -1,6 +1,6 @@
 import LocalizedStrings from 'react-native-localization';
 
-module.exports = new LocalizedStrings({
+export default new LocalizedStrings({
   en: {
     recent: "RECENT",
     browse: "BROWSE",

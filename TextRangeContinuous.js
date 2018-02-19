@@ -6,8 +6,8 @@ import {
   Text
 } from 'react-native';
 
-const TextSegment = require('./TextSegment');
-const styles = require('./Styles');
+import TextSegment from './TextSegment';
+import styles from './Styles';
 
 
 class TextRangeContinuous extends React.PureComponent {
@@ -104,4 +104,4 @@ class TextRangeContinuous extends React.PureComponent {
   }
 }
 
-module.exports = TextRangeContinuous;
+export default TextRangeContinuous;

@@ -10,15 +10,15 @@ import {
   Image,
 } from 'react-native';
 
-var {
+import {
   DirectedButton,
   ButtonToggleSet,
   LibraryNavButton,
-} = require('./Misc.js');
+} from './Misc.js';
 
-const FilterNode       = require('./FilterNode');
-const styles           = require('./Styles');
-const strings          = require('./LocalizedStrings');
+import FilterNode from './FilterNode';
+import styles from './Styles';
+import strings from './LocalizedStrings';
 
 //console.log("filternaodf", FilterNode.checkPropType({}, 'blah', 'hii'));
 
@@ -229,4 +229,4 @@ class SearchFilter extends React.Component {
   }
 }
 
-module.exports = SearchFilterPage;
+export default SearchFilterPage;

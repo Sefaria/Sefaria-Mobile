@@ -7,7 +7,7 @@ import {
   Linking,
 } from 'react-native';
 import HTMLView from 'react-native-htmlview'; //to convert html'afied JSON to something react can render (https://github.com/jsdf/react-native-htmlview)
-const styles = require('./Styles.js');
+import styles from './Styles.js';
 
 
 class VersionBlock extends React.Component {
@@ -98,4 +98,4 @@ class VersionBlock extends React.Component {
   }
 }
 
-module.exports = VersionBlock;
+export default VersionBlock;

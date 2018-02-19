@@ -14,8 +14,8 @@ import {
   Linking,
 } from 'react-native';
 
-var Sefaria = require('./sefaria');
-const styles = require('./Styles.js');
+import Sefaria from './sefaria';
+import styles from './Styles.js';
 
 
 class TwoBox extends React.Component {
@@ -455,22 +455,23 @@ class IndeterminateCheckBox extends React.Component {
   }
 }
 
-
-module.exports.TwoBox = TwoBox;
-module.exports.CategoryColorLine = CategoryColorLine;
-module.exports.CategoryBlockLink = CategoryBlockLink;
-module.exports.CategoryAttribution = CategoryAttribution;
-module.exports.LanguageToggleButton = LanguageToggleButton;
-module.exports.CollapseIcon = CollapseIcon;
-module.exports.DirectedButton = DirectedButton;
-module.exports.DirectedArrow = DirectedArrow;
-module.exports.SearchButton = SearchButton;
-module.exports.MenuButton = MenuButton;
-module.exports.CloseButton = CloseButton;
-module.exports.TripleDots = TripleDots;
-module.exports.DisplaySettingsButton = DisplaySettingsButton;
-module.exports.ToggleSet = ToggleSet;
-module.exports.ButtonToggleSet = ButtonToggleSet;
-module.exports.LoadingView = LoadingView;
-module.exports.IndeterminateCheckBox = IndeterminateCheckBox;
-module.exports.LibraryNavButton = LibraryNavButton;
+export {
+  ButtonToggleSet,
+  CategoryBlockLink,
+  CategoryColorLine,
+  CategoryAttribution,
+  CloseButton,
+  CollapseIcon,
+  DirectedArrow,
+  DirectedButton,
+  DisplaySettingsButton,
+  IndeterminateCheckBox,
+  LanguageToggleButton,
+  LibraryNavButton,
+  LoadingView,
+  MenuButton,
+  SearchButton,
+  ToggleSet,
+  TripleDots,
+  TwoBox,
+}

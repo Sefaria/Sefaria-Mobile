@@ -3,8 +3,8 @@ import {
 } from 'react-native';
 
 const RNFS    = require('react-native-fs'); //for access to file system -- (https://github.com/johanneslumpe/react-native-fs)
-const strings = require('./LocalizedStrings');
-const LinkContent = require('./LinkContent');
+import strings from './LocalizedStrings';
+import LinkContent from './LinkContent';
 
 var Api = {
   /*

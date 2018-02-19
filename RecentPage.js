@@ -12,20 +12,16 @@ import {
   ScrollView,
   Alert
 } from 'react-native';
-var {
+import {
   CategoryColorLine,
   CategoryBlockLink,
   DirectedButton,
   TwoBox,
   LanguageToggleButton
-} = require('./Misc.js');
+} from './Misc.js';
 
-const styles           = require('./Styles');
-const strings          = require('./LocalizedStrings');
-
-var {
-  CategoryColorLine,
-} = require('./Misc.js');
+import styles from './Styles';
+import strings from './LocalizedStrings';
 
 class RecentPage extends React.Component {
   static propTypes = {
@@ -69,7 +65,7 @@ class RecentPage extends React.Component {
           />
         </View>
 
-        <ScrollView style={styles.menuContent}>
+        <ScrollView contentContainerStyle={styles.menuContent}>
           <View style={styles.readerNavSection}>
             <TwoBox content={recent} language={this.props.language}/>
           </View>
@@ -79,4 +75,4 @@ class RecentPage extends React.Component {
   }
 }
 
-module.exports = RecentPage;
+export default RecentPage;

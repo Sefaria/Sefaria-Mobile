@@ -8,15 +8,15 @@ import {
   ScrollView
 } from 'react-native';
 
-var {
+import {
   CategoryColorLine,
   TripleDots,
   DirectedButton,
   DirectedArrow,
-} = require('./Misc.js');
+} from './Misc.js';
 
-const styles  = require('./Styles');
-const strings = require('./LocalizedStrings');
+import styles from './Styles';
+import strings from './LocalizedStrings';
 
 
 class ConnectionsPanelHeader extends React.Component {
@@ -168,4 +168,4 @@ class RecentFilterNavItem extends React.Component {
   }
 }
 
-module.exports = ConnectionsPanelHeader;
+export default ConnectionsPanelHeader;

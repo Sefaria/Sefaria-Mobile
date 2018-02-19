@@ -62,4 +62,4 @@ class ProgressBar extends React.Component {
   };
 }
 
-module.exports = ProgressBar;
+export default ProgressBar;

@@ -7,15 +7,14 @@ import {
   TouchableOpacity,
 } from 'react-native';
 
-const {
+import {
   LoadingView,
-} = require('./Misc.js');
+} from './Misc.js';
 
-const VersionBlock = require('./VersionBlock');
-const strings = require('./LocalizedStrings');
-const styles = require('./Styles.js');
-const { VersionFilter } = require('./Filter');
-
+import VersionBlock from './VersionBlock';
+import strings from './LocalizedStrings';
+import styles from'./Styles.js';
+import { VersionFilter } from './Filter';
 
 
 class VersionsBox extends React.Component {
@@ -184,4 +183,4 @@ class VersionsBox extends React.Component {
   }
 }
 
-module.exports = VersionsBox;
+export default VersionsBox;

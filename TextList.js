@@ -7,13 +7,13 @@ import {
   Text,
 } from 'react-native';
 
-const {
+import {
   LoadingView,
-} = require('./Misc.js');
+} from './Misc.js';
 
 import HTMLView from 'react-native-htmlview';
-const strings = require('./LocalizedStrings');
-const styles = require('./Styles.js');
+import strings from './LocalizedStrings';
+import styles from './Styles.js';
 
 const DEFAULT_LINK_CONTENT = {en: "Loading...", he: "טוען...", sectionRef: ""};
 
@@ -206,4 +206,4 @@ class ListItem extends React.PureComponent {
   }
 }
 
-module.exports = TextList;
+export default TextList;

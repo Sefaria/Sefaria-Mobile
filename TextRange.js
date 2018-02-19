@@ -6,8 +6,8 @@ import {
   Text
 } from 'react-native';
 
-var TextSegment = require('./TextSegment');
-const styles = require('./Styles');
+import TextSegment from './TextSegment';
+import styles from './Styles';
 
 
 class TextRange extends React.PureComponent {
@@ -112,4 +112,4 @@ class TextRange extends React.PureComponent {
   }
 }
 
-module.exports = TextRange;
+export default TextRange;

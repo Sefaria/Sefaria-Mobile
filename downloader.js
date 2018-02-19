@@ -5,7 +5,7 @@ import {
 } from 'react-native';
 
 const RNFS = require('react-native-fs'); //for access to file system -- (https://github.com/johanneslumpe/react-native-fs)
-const strings = require('./LocalizedStrings');
+import strings from './LocalizedStrings';
 
 
 const SCHEMA_VERSION = "3";
@@ -418,4 +418,4 @@ var Downloader = {
 };
 
 
-module.exports = Downloader;
+export default Downloader;

@@ -13,15 +13,15 @@ import {
 } from 'react-native';
 import VersionNumber from 'react-native-version-number';
 
-var ProgressBar = require('./ProgressBar');
-var {
+import ProgressBar from './ProgressBar';
+import {
   CategoryColorLine,
   CloseButton,
   ButtonToggleSet,
-} = require('./Misc.js');
+} from './Misc.js';
 
-const styles  = require('./Styles');
-const strings = require('./LocalizedStrings');
+import styles from './Styles';
+import strings from './LocalizedStrings';
 
 
 class SettingsPage extends React.Component {
@@ -197,4 +197,4 @@ class SettingsPage extends React.Component {
 }
 
 
-module.exports = SettingsPage;
+export default SettingsPage;

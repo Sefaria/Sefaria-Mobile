@@ -10,17 +10,17 @@ import {
   View,
 } from 'react-native';
 
-var {
+import {
   CategoryColorLine,
   CategoryBlockLink,
   TwoBox,
   LanguageToggleButton
-} = require('./Misc.js');
+} from './Misc.js';
 
-var SearchBar = require('./SearchBar');
-var ReaderNavigationCategoryMenu = require('./ReaderNavigationCategoryMenu');
-var styles = require('./Styles.js');
-var strings = require('./LocalizedStrings.js');
+import SearchBar from './SearchBar';
+import ReaderNavigationCategoryMenu from './ReaderNavigationCategoryMenu';
+import styles from './Styles.js';
+import strings from './LocalizedStrings.js';
 
 
 class ReaderNavigationMenu extends React.Component {
@@ -326,4 +326,4 @@ class ReaderNavigationMenuSection extends React.Component {
 }
 
 
-module.exports = ReaderNavigationMenu;
+export default ReaderNavigationMenu;

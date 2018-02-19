@@ -8,4 +8,4 @@ const iPadMinSize = 768*1024;
 const {height, width} = Dimensions.get('window');
 const iPad = height * width >= iPadMinSize;
 
-module.exports = iPad;
+export default iPad;

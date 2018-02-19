@@ -9,15 +9,15 @@ import {
   TextInput
 } from 'react-native';
 
-var {
+import {
   DirectedButton,
   CloseButton,
   SearchButton,
   LanguageToggleButton,
-} = require('./Misc.js');
+} from './Misc.js';
 
-const styles  = require('./Styles');
-const strings = require('./LocalizedStrings');
+import styles from './Styles';
+import strings from './LocalizedStrings';
 
 class SearchBar extends React.Component {
   static propTypes = {
@@ -79,4 +79,4 @@ class SearchBar extends React.Component {
   }
 }
 
-module.exports = SearchBar;
+export default SearchBar;

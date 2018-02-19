@@ -11,7 +11,7 @@ import {
   ScrollView
 } from 'react-native';
 
-var {
+import {
   CategoryColorLine,
   CategoryAttribution,
   TwoBox,
@@ -20,9 +20,9 @@ var {
   DisplaySettingsButton,
   ToggleSet,
   LoadingView
-} = require('./Misc.js');
+} from './Misc.js';
 
-var styles = require('./Styles.js');
+import styles from './Styles.js';
 
 
 class ReaderNavigationCategoryMenu extends React.Component {
@@ -212,4 +212,4 @@ class ReaderNavigationCategoryMenuContents extends React.Component {
 }
 
 
-module.exports = ReaderNavigationCategoryMenu;
+export default ReaderNavigationCategoryMenu;

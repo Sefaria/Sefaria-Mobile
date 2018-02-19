@@ -1,6 +1,5 @@
 'use strict'
-const React = require('react-native');
-const { StyleSheet } = React;
+import { StyleSheet } from 'react-native';
 
 var Colors = {
   border: "#444",
@@ -19,7 +18,7 @@ var Colors = {
   buttonBackground: "#333331"
 }
 
-module.exports = StyleSheet.create({
+export default StyleSheet.create({
   container: {
     backgroundColor: Colors.mainBackground
   },

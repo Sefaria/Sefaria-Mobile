@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 
 import HTMLView from 'react-native-htmlview'; //to convert html'afied JSON to something react can render (https://github.com/jsdf/react-native-htmlview)
-var {
+import {
   CloseButton,
   LanguageToggleButton,
   CategoryColorLine,
@@ -21,12 +21,12 @@ var {
   TwoBox,
   LoadingView,
   CollapseIcon
-} = require('./Misc.js');
+} from './Misc.js';
 
-const styles       = require('./Styles');
-const strings      = require('./LocalizedStrings');
-const iPad         = require('./isIPad');
-const VersionBlock = require('./VersionBlock');
+import styles from './Styles';
+import strings from './LocalizedStrings';
+import iPad from './isIPad';
+import VersionBlock from './VersionBlock';
 
 
 class ReaderTextTableOfContents extends React.Component {
@@ -630,4 +630,4 @@ class CollapsibleNode extends React.Component {
 }
 
 
-module.exports = ReaderTextTableOfContents;
+export default ReaderTextTableOfContents;

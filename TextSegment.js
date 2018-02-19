@@ -10,7 +10,7 @@ import {
   View
 } from 'react-native';
 import HTMLView from 'react-native-htmlview'; //to convert html'afied JSON to something react can render (https://github.com/jsdf/react-native-htmlview)
-var styles = require('./Styles.js');
+import styles from './Styles.js';
 
 
 class TextSegment extends React.PureComponent {
@@ -84,4 +84,4 @@ class TextSegment extends React.PureComponent {
 }
 
 
-module.exports = TextSegment;
+export default TextSegment;

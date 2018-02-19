@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import HTMLView from 'react-native-htmlview'; //to convert html'afied JSON to something react can render (https://github.com/jsdf/react-native-htmlview)
 
-var styles = require('./Styles.js');
+import styles from './Styles.js';
 
 class SearchTextResult extends React.Component {
   static propTypes = {
@@ -34,4 +34,4 @@ class SearchTextResult extends React.Component {
 }
 }
 
-module.exports = SearchTextResult;
+export default SearchTextResult;

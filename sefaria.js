@@ -2,12 +2,12 @@ import { AsyncStorage, AlertIOS } from 'react-native';
 import { GoogleAnalyticsTracker } from 'react-native-google-analytics-bridge'; //https://github.com/idehub/react-native-google-analytics-bridge/blob/master/README.md
 const ZipArchive  = require('react-native-zip-archive'); //for unzipping -- (https://github.com/plrthink/react-native-zip-archive)
 const RNFS        = require('react-native-fs'); //for access to file system -- (https://github.com/johanneslumpe/react-native-fs)
-const Downloader  = require('./downloader');
-const Api         = require('./api');
-const Search      = require('./search');
-const LinkContent = require('./LinkContent');
-const iPad        = require('./isIPad');
-const strings     = require('./LocalizedStrings');
+import Downloader from './downloader';
+import Api from './api';
+import Search from './search';
+import LinkContent from './LinkContent';
+import iPad from './isIPad';
+import strings from './LocalizedStrings';
 
 
 Sefaria = {
@@ -1515,4 +1515,4 @@ Sefaria.memorySizeOf = function (obj) {
 
     return formatByteSize(sizeOf(obj));
 };
-module.exports = Sefaria;
+export default Sefaria;

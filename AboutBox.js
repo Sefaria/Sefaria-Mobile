@@ -6,14 +6,14 @@ import {
   Text,
 } from 'react-native';
 
-const {
+import {
   LoadingView,
-} = require('./Misc.js');
+} from './Misc.js';
 
 import HTMLView from 'react-native-htmlview';
-const strings = require('./LocalizedStrings');
-const styles = require('./Styles.js');
-const VersionBlock = require('./VersionBlock');
+import strings from './LocalizedStrings';
+import styles from './Styles';
+import VersionBlock from './VersionBlock';
 
 
 class AboutBox extends React.Component {
@@ -141,4 +141,4 @@ class AboutBox extends React.Component {
   }
 }
 
-module.exports = AboutBox;
+export default AboutBox;

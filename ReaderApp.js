@@ -17,25 +17,26 @@ import {
 import { connect } from 'react-redux';
 import { createResponder } from 'react-native-gesture-responder';
 import ReaderControls from './ReaderControls';
-var styles         = require('./Styles');
-var strings       = require('./LocalizedStrings');
-var themeWhite     = require('./ThemeWhite');
-var themeBlack    = require('./ThemeBlack');
-var Sefaria        = require('./sefaria');
-var { LinkFilter } = require('./Filter');
-const ViewPort    = Dimensions.get('window');
-var ReaderDisplayOptionsMenu  = require('./ReaderDisplayOptionsMenu');
-var ReaderNavigationMenu      = require('./ReaderNavigationMenu');
-var ReaderTextTableOfContents = require('./ReaderTextTableOfContents');
-var SearchPage                = require('./SearchPage');
-var TextColumn                = require('./TextColumn');
-var ConnectionsPanel          = require('./ConnectionsPanel');
-var SettingsPage              = require('./SettingsPage');
-var RecentPage                = require('./RecentPage');
-var {
+import styles from './Styles';
+import strings from './LocalizedStrings';
+import themeWhite from './ThemeWhite';
+import themeBlack from './ThemeBlack';
+import Sefaria from './sefaria';
+import { LinkFilter } from './Filter';
+import ReaderDisplayOptionsMenu from './ReaderDisplayOptionsMenu';
+import ReaderNavigationMenu from './ReaderNavigationMenu';
+import ReaderTextTableOfContents from './ReaderTextTableOfContents';
+import SearchPage from './SearchPage';
+import TextColumn from './TextColumn';
+import ConnectionsPanel from './ConnectionsPanel';
+import SettingsPage from './SettingsPage';
+import RecentPage from './RecentPage';
+import {
   LoadingView,
   CategoryColorLine,
-} = require('./Misc.js');
+} from './Misc.js';
+const ViewPort    = Dimensions.get('window');
+
 
 class ReaderApp extends React.Component {
   constructor(props, context) {

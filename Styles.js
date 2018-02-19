@@ -3,9 +3,9 @@ import {
   StyleSheet,
 } from 'react-native';
 
-const iPad = require('./isIPad');
+import iPad from './isIPad';
 
-module.exports = StyleSheet.create({
+export default StyleSheet.create({
   safeArea: {
     flex: 1,
     backgroundColor: "#000",

@@ -9,14 +9,14 @@ import {
   Image,
 } from 'react-native';
 
-const ReaderDisplayOptionsMenu  = require('./ReaderDisplayOptionsMenu');
-const styles                    = require('./Styles.js');
-const {
+import ReaderDisplayOptionsMenu from './ReaderDisplayOptionsMenu';
+import styles from './Styles.js';
+import {
   MenuButton,
   DirectedButton,
   DisplaySettingsButton,
   CategoryAttribution
-} = require('./Misc.js');
+} from './Misc.js';
 
 class ReaderControls extends React.Component {
   static propTypes = {
