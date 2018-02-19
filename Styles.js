@@ -315,6 +315,11 @@ module.exports = StyleSheet.create({
     paddingTop: 10,
     paddingBottom: 35,
   },
+  aboutBoxScrollView: {
+    paddingTop: 30,
+    paddingBottom: 45,
+    paddingHorizontal: 30,
+  },
   textListSummarySection: {
     marginBottom: 22
   },
@@ -871,6 +876,91 @@ module.exports = StyleSheet.create({
     paddingHorizontal: 10,
     flex: 1,
     alignItems: 'center',
+  },
+  /*
+  .aboutBox .aboutHeader {
+  color: #999;
+  padding-bottom: 13px;
+  margin: 0;
+  margin-bottom: 15px;
+  text-align: initial;
+  text-transform: none;
+  font-size: 20px;
+  border-bottom: solid 1px #CCC;
+}
+.aboutBox .aboutTitle {
+  padding: 10px 0 15px 0;
+  font-size: 20px;
+  color: black;
+  display: inline-block;
+}
+.aboutBox .aboutSubtitle {
+  font-style: italic;
+  font-size: 15px;
+  color: #999;
+}
+.aboutBox .aboutSubtitle .he {
+  font-style: normal;
+}
+.aboutBox .aboutDesc {
+  padding: 15px 0 30px 0;
+  font-size: 15px;
+}
+.aboutBox .versionNotes {
+  padding-bottom: 15px;
+  font-size: 15px;
+  color: #666;
+}
+.aboutBox .versionDetails,
+.versionsBox .versionDetails {
+  font-size: 13px;
+  font-family: "proxima-nova", "Helvetica Neue", "Helvetica", sans-serif;
+  color: #999;
+  padding-bottom: 5px;
+  text-align: left;
+  line-height: 150%;
+}
+.readerApp.interface-hebrew .aboutBox .versionDetails,
+.readerApp.interface-hebrew .versionsBox .versionDetails {
+  text-align: right;
+}
+.aboutBox .versionDetails .separator,
+.versionsBox .versionDetails .separator {
+  margin: 0 3px;
+}
+.aboutBox a,
+.versionsBox a {
+  color: #999;
+}
+.aboutBox .currVersionSection {
+  padding-bottom: 30px;
+}
+  */
+  aboutHeaderWrapper: {
+    borderBottomWidth: 1,
+  },
+  aboutHeader: {
+    paddingBottom: 13,
+    textAlign: 'left',
+    fontSize: 17,
+    letterSpacing: 1,
+    fontFamily: "Open Sans",
+  },
+  aboutTitle: {
+    fontFamily: "Amiri",
+    fontSize: 20,
+    paddingVertical: 10,
+  },
+  aboutSubtitle: {
+    fontFamily: 'Amiri',
+    fontStyle: 'italic',
+  },
+  aboutDescription: {
+    fontFamily: 'Amiri',
+    paddingTop: 10,
+  },
+  currVersionSection: {
+    paddingTop: 25,
   },
 //HTML Styles:
   strong: {

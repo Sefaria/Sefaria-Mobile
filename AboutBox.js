@@ -46,8 +46,10 @@ class AboutBox extends React.Component {
       if (d.authors) {
         const authorArrayEn = d.authors.filter((elem) => !!elem.en);
         const authorArrayHe = d.authors.filter((elem) => !!elem.he);
-        authorsEn = authorArrayEn.map(author => <Text key={author.en}>{author.en}</Text> );
-        authorsHe = authorArrayHe.map(author => <Text key={author.en}>{author.he}</Text> );
+        authorsEn = [<Text key="authorText">{"Author: "}</Text>];
+        authorsHe = [<Text key="authorText">{"מחבר: "}</Text>];
+        authorsEn = authorsEn.concat(authorArrayEn.map(author => <Text key={author.en}>{author.en}</Text> ));
+        authorsHe = authorsHe.concat(authorArrayHe.map(author => <Text key={author.en}>{author.he}</Text> ));
       }
       // use compPlaceString and compDateString if available. then use compPlace o/w use pubPlace o/w nothing
       let placeTextEn, placeTextHe;
@@ -82,32 +84,34 @@ class AboutBox extends React.Component {
         dateTextHe = `(${Math.abs(d.pubDate)} ${d.pubDate < 0 ? 'לפנה"ס בקירוב' : 'לספירה בקירוב'})`;
       }
       detailSection = (
-        <View className="detailsSection">
-          <Text style={styles.aboutHeader}>{strings.aboutThisText}</Text>
+        <View>
+          <View style={[styles.aboutHeaderWrapper, this.props.theme.bordered]}>
+            <Text style={[styles.aboutHeader, this.props.theme.secondaryText]}>{strings.aboutThisText}</Text>
+          </View>
           <Text style={styles.aboutTitle}>
             { hec ? d.heTitle : d.title }
           </Text>
           { authorsEn.length ?
-            <Text style={styles.aboutSubtitle}>
-              { hec ? `מחבר: ${authorsHe}`: `Author: ${authorsEn}`}
+            <Text style={[styles.aboutSubtitle, this.props.theme.secondaryText]}>
+              { hec ? authorsHe : authorsEn}
             </Text> : null
           }
           { !!placeTextEn || !!dateTextEn ?
-            <Text style={styles.aboutSubtitle}>
+            <Text style={[styles.aboutSubtitle, this.props.theme.secondaryText]}>
               { hec ? `נוצר/נערך: ${!!placeTextHe ? placeTextHe : ""} ${!!dateTextHe ? dateTextHe : ""}` : `Composed: ${!!placeTextEn ? placeTextEn : ""} ${!!dateTextEn ? dateTextEn : ""}`}
             </Text> : null
           }
-          { hec ? (!!d.heDesc ? <Text>{d.heDesc}</Text> : null) :
-                  (!!d.enDesc ? <Text>{d.enDesc}</Text> : null)
+          { hec ? (!!d.heDesc ? <Text style={styles.aboutDescription}>{d.heDesc}</Text> : null) :
+                  (!!d.enDesc ? <Text style={styles.aboutDescription}>{d.enDesc}</Text> : null)
           }
         </View>
       );
     }
     const versionSectionHe =
       (!!vh ? <View style={styles.currVersionSection}>
-        <Text style={styles.aboutHeader}>
-          { strings.currentHebrewVersion }
-        </Text>
+        <View style={[styles.aboutHeaderWrapper, this.props.theme.bordered]}>
+          <Text style={[styles.aboutHeader, this.props.theme.secondaryText]}>{ strings.currentHebrewVersion }</Text>
+        </View>
         <VersionBlock
           theme={this.props.theme}
           version={vh}
@@ -116,9 +120,9 @@ class AboutBox extends React.Component {
       </View> : null );
     const versionSectionEn =
       (!!ve ? <View style={styles.currVersionSection}>
-        <Text style={styles.aboutHeader}>
-          { strings.currentEnglishVersion }
-        </Text>
+        <View style={[styles.aboutHeaderWrapper, this.props.theme.bordered]}>
+          <Text style={[styles.aboutHeader, this.props.theme.secondaryText]}>{ strings.currentEnglishVersion }</Text>
+        </View>
         <VersionBlock
           theme={this.props.theme}
           version={ve}
@@ -126,7 +130,7 @@ class AboutBox extends React.Component {
         />
       </View> : null );
     return (
-      <ScrollView contentContainerStyle={styles.aboutBox}>
+      <ScrollView contentContainerStyle={[styles.textListSummaryScrollView, styles.aboutBoxScrollView]}>
         { detailSection }
         { this.props.mainVersionLanguage === "english" ?
           (<View>{versionSectionEn}{versionSectionHe}</View>) :

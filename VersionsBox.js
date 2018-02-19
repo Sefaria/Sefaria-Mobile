@@ -156,6 +156,7 @@ class VersionsBox extends React.Component {
                     <VersionBlock
                       theme={this.props.theme}
                       version={v}
+                      margin={true}
                       currVersions={currVersions}
                       openVersionInReader={()=>{}}
                       isCurrent={(this.props.currVersions.en && this.props.currVersions.en.versionTitle === v.versionTitle) ||

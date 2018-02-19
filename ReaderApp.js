@@ -227,24 +227,28 @@ class ReaderApp extends React.Component {
       }.bind(this));
 
   };
+
   loadNewVersion = (ref, versions) => {
     versions = {
       ...this.state.selectedVersions,
       ...versions,
     };
     this.loadNewText(ref, versions, true);
-  }
+  };
+
   setCurrVersions = (ref, title) => {
     const enVInfo = Sefaria.versionInfo(ref, title, 'english');
     const heVInfo = Sefaria.versionInfo(ref, title, 'hebrew');
     this.setState({ currVersions: { en: enVInfo, he: heVInfo } });
   };
+
   loadSecondaryData = (ref) => {
     //loads secondary data every time a section is loaded
     //this data is not required for initial renderring of the section
     this.loadLinks(ref);
     this.loadVersions(ref);
   };
+
   loadLinks = (ref) => {
     // Ensures that links have been loaded for `ref` and stores result in `this.state.linksLoaded` array.
     // Within Sefaria.api.links a check is made if the zip file exists. If so then no API call is made and links
