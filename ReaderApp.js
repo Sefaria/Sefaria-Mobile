@@ -6,26 +6,36 @@ import React, { Component } from 'react';
 import {
   AlertIOS,
   Animated,
-  AppRegistry,
   AppState,
   Dimensions,
   Linking,
   NetInfo,
-  SafeAreaView,
-  StatusBar,
-  StyleSheet,
   View,
+  StatusBar,
+  SafeAreaView,
 } from 'react-native';
-import {createResponder} from 'react-native-gesture-responder';
-
+import { connect } from 'react-redux';
+import { createResponder } from 'react-native-gesture-responder';
+import ReaderControls from './ReaderControls';
 var styles         = require('./Styles');
 var strings       = require('./LocalizedStrings');
 var themeWhite     = require('./ThemeWhite');
 var themeBlack    = require('./ThemeBlack');
 var Sefaria        = require('./sefaria');
-var ReaderPanel   = require('./ReaderPanel');
 var { LinkFilter } = require('./Filter');
 const ViewPort    = Dimensions.get('window');
+var ReaderDisplayOptionsMenu  = require('./ReaderDisplayOptionsMenu');
+var ReaderNavigationMenu      = require('./ReaderNavigationMenu');
+var ReaderTextTableOfContents = require('./ReaderTextTableOfContents');
+var SearchPage                = require('./SearchPage');
+var TextColumn                = require('./TextColumn');
+var ConnectionsPanel          = require('./ConnectionsPanel');
+var SettingsPage              = require('./SettingsPage');
+var RecentPage                = require('./RecentPage');
+var {
+  LoadingView,
+  CategoryColorLine,
+} = require('./Misc.js');
 
 class ReaderApp extends React.Component {
   constructor(props, context) {
@@ -97,7 +107,9 @@ class ReaderApp extends React.Component {
         initSearchScrollPos: 0,
         numSearchResults: 0,
         searchQueryResult: [],
-        backStack: []
+        backStack: [],
+        ReaderDisplayOptionsMenuVisible: false,
+        settings: {},
     };
   }
 
@@ -117,6 +129,164 @@ class ReaderApp extends React.Component {
 
   networkChangeListener = (isConnected) => {
     this.setState({hasInternet: isConnected});
+  };
+
+  componentWillMount() {
+    this.gestureResponder = createResponder({
+      onStartShouldSetResponder: (evt, gestureState) => { return gestureState.pinch; },
+      onStartShouldSetResponderCapture: (evt, gestureState) => { return gestureState.pinch; },
+      onMoveShouldSetResponder: (evt, gestureState) => { return gestureState.pinch; },
+      onMoveShouldSetResponderCapture: (evt, gestureState) => { return gestureState.pinch; },
+
+      onResponderGrant: (evt, gestureState) => {},
+      onResponderMove: (evt, gestureState) => {
+        if (gestureState.pinch && gestureState.previousPinch) {
+          this.pendingIncrement *= gestureState.pinch / gestureState.previousPinch
+          if (!this.incrementTimer) {
+            const numSegments = this.state.data.reduce((prevVal, elem) => prevVal + elem.length, 0);
+            const timeout = Math.min(50 + Math.floor(numSegments/50)*25, 200); // range of timeout is [50,200] or in FPS [20,5]
+            this.incrementTimer = setTimeout(() => {
+              this.incrementFont(this.pendingIncrement);
+              this.pendingIncrement = 1;
+              this.incrementTimer = null;
+            }, timeout);
+          }
+        }
+      },
+      onResponderTerminationRequest: (evt, gestureState) => true,
+      onResponderRelease: (evt, gestureState) => {},
+      onResponderTerminate: (evt, gestureState) => {},
+      onResponderSingleTapConfirmed: (evt, gestureState) => {},
+    });
+  }
+
+  pendingIncrement = 1;
+
+  componentWillUpdate(nextProps, nextState) {
+    if (!this.state.defaultSettingsLoaded && nextState.defaultSettingsLoaded) {
+      console.log("set default");
+      this.setDefaultSettings();
+    }
+
+    if (nextState.defaultSettingsLoaded && this.state.textTitle !== nextState.textTitle) {
+      this.setState({textLanguage: Sefaria.settings.textLanguage(nextState.textTitle)});
+    }
+
+    // Should track pageview? TODO account for infinite
+    if (this.state.menuOpen          !== nextState.menuOpen          ||
+        this.state.textTitle         !== nextState.textTitle         ||
+        this.state.textFlow          !== nextState.textFlow          ||
+        this.state.textLanguage      !== nextState.textLanguage      ||
+        this.state.textListVisible   !== nextState.textListVisible   ||
+        this.state.segmentIndexRef   !== nextState.segmentIndexRef   ||
+        this.state.segmentRef        !== nextState.segmentRef        ||
+        this.state.linkRecentFilters !== nextState.linkRecentFilters ||
+        this.state.themeStr          !== nextState.themeStr) {
+          this.trackPageview();
+    }
+  }
+
+  setDefaultSettings = () => {
+    // This function is called only after Sefaria.settings.init() has returned and signaled readiness by setting
+    // the prop `defaultSettingsLoaded: true`. Necessary because ReaderPanel is rendered immediately with `loading:true`
+    // so getInitialState() is called before settings have finished init().
+    this.setState({
+      textFlow: 'segmented',   // alternative is 'continuous'
+      textLanguage: Sefaria.settings.textLanguage(this.state.textTitle),
+      settings: {
+        language:      Sefaria.settings.menuLanguage,
+        fontSize:      Sefaria.settings.fontSize,
+      }
+    });
+    // Theme settings is set in ReaderApp.
+  };
+
+  toggleReaderDisplayOptionsMenu = () => {
+    if (this.state.ReaderDisplayOptionsMenuVisible == false) {
+  	 this.setState({ReaderDisplayOptionsMenuVisible:  true})
+  	} else {
+  	 this.setState({ReaderDisplayOptionsMenuVisible:  false})}
+
+     //console.log(this.state.ReaderDisplayOptionsMenuVisible);
+    this.trackPageview();
+  };
+
+  toggleMenuLanguage = () => {
+    // Toggle current menu language between english/hebrew only
+    if (this.state.settings.language !== "hebrew") {
+      this.state.settings.language = "hebrew";
+    } else {
+      this.state.settings.language = "english";
+    }
+    Sefaria.track.event("Reader","Change Language", this.state.settings.language);
+
+    this.setState({settings: {...this.state.settings, language: this.state.settings.language }});
+    Sefaria.settings.set("menuLanguage", this.state.settings.language);
+  };
+
+  setTextFlow = (textFlow) => {
+    this.setState({textFlow: textFlow});
+
+    if (textFlow == "continuous" && this.state.textLanguage == "bilingual") {
+      this.setTextLanguage("hebrew");
+    }
+    this.toggleReaderDisplayOptionsMenu();
+    Sefaria.track.event("Reader","Display Option Click","layout - " + textFlow);
+  };
+
+  setTextLanguage = (textLanguage) => {
+    Sefaria.settings.textLanguage(this.state.textTitle, textLanguage);
+    this.setState({textLanguage: textLanguage});
+    // Sefaria.settings.set("textLanguage", textLanguage); // Makes every language change sticky
+    if (textLanguage == "bilingual" && this.state.textFlow == "continuous") {
+      this.setTextFlow("segmented");
+    }
+    this.toggleReaderDisplayOptionsMenu();
+    Sefaria.track.event("Reader", "Display Option Click", "language - " + textLanguage);
+  };
+
+  incrementFont = (increment) => {
+    if (increment == "larger") {
+      var x = 1.1;
+    } else if (increment == "smaller") {
+      var x = .9;
+    } else {
+      var x = increment;
+    }
+    var updatedSettings = Sefaria.util.clone(this.state.settings);
+    updatedSettings.fontSize *= x;
+    updatedSettings.fontSize = updatedSettings.fontSize > 60 ? 60 : updatedSettings.fontSize; // Max size
+    updatedSettings.fontSize = updatedSettings.fontSize < 18 ? 18 : updatedSettings.fontSize; // Min size
+    updatedSettings.fontSize = parseFloat(updatedSettings.fontSize.toFixed(2));
+    this.setState({settings: updatedSettings});
+    Sefaria.settings.set("fontSize", updatedSettings.fontSize);
+    Sefaria.track.event("Reader","Display Option Click","fontSize - " + increment);
+  };
+
+  /*
+  send current page stats to analytics
+  */
+  trackPageview = () => {
+    let pageType  = this.state.menuOpen || (this.state.textListVisible ? "TextAndConnections" : "Text");
+    let numPanels = this.state.textListVisible ? '1.1' : '1';
+    let ref       = this.state.segmentRef !== '' ? this.state.segmentRef : this.state.textReference;
+    let bookName  = this.state.textTitle;
+    let index     = Sefaria.index(this.state.textTitle);
+    let cats      = index ? index.categories : undefined;
+    let primCat   = cats && cats.length > 0 ? ((cats[0] === "Commentary") ?
+        cats[1] + " Commentary" : cats[0]) : "";
+    let secoCat   = cats ? ((cats[0] === "Commentary")?
+        ((cats.length > 2) ? cats[2] : ""):
+        ((cats.length > 1) ? cats[1] : "")) : "";
+    let contLang  = this.state.settings.language;
+    let sideBar   = this.state.linkRecentFilters.length > 0 ? this.state.linkRecentFilters.map(filt => filt.title).join('+') : 'all';
+    let versTit   = ''; //we don't support this yet
+
+    Sefaria.track.pageview(pageType,
+      {'Panels Open': numPanels, 'Book Name': bookName, 'Ref': ref, 'Version Title': versTit, 'Page Type': pageType, 'Sidebars': sideBar},
+      {1: primCat, 2: secoCat, 3: bookName, 5: contLang}
+    );
+
   };
 
   textSegmentPressed = (section, segment, segmentRef, shouldToggle) => {
@@ -679,15 +849,17 @@ class ReaderApp extends React.Component {
     this.setState({offsetRef:null});
   };
 
-  setTheme = (themeStr) => {
+  setTheme = (themeStr, dontToggle) => {
+    /* dontToggle - true when setTheme is not called from a user's action */
     if (themeStr === "white") { this.state.theme = themeWhite; }
     else if (themeStr === "black") { this.state.theme = themeBlack; }
     this.setState({theme: this.state.theme, themeStr: themeStr});
     Sefaria.settings.set("color", themeStr);
+    if (!dontToggle) { this.toggleReaderDisplayOptionsMenu(); }
   };
 
   setDefaultTheme = () => {
-    this.setTheme(Sefaria.settings.color);
+    this.setTheme(Sefaria.settings.color, true);
   };
 
   onTextListDragStart = (evt) => {
@@ -873,6 +1045,217 @@ class ReaderApp extends React.Component {
     }
     this.setState({appliedSearchFilters: this.getAppliedSearchFilters(this.state.availableSearchFilters)});
   };
+  renderContent() {
+    const loading = !this.state.loaded;
+    switch(this.state.menuOpen) {
+      case (null):
+        break;
+      case ("navigation"):
+        return (
+          loading ?
+          <LoadingView theme={this.state.theme} /> :
+          <ReaderNavigationMenu
+            categories={this.state.navigationCategories}
+            setCategories={this.setNavigationCategories}
+            openRef={(ref, versions)=>this.openRef(ref,"navigation", versions)}
+            goBack={this.goBack}
+            openNav={this.openNav}
+            closeNav={this.closeMenu}
+            openSearch={this.search}
+            setIsNewSearch={this.setIsNewSearch}
+            toggleLanguage={this.toggleMenuLanguage}
+            settings={this.state.settings}
+            openSettings={this.openMenu.bind(null, "settings")}
+            openRecent={this.openMenu.bind(null, "recent")}
+            interfaceLang={this.state.interfaceLang}
+            theme={this.state.theme}
+            themeStr={this.state.themeStr}
+            Sefaria={Sefaria} />);
+        break;
+      case ("text toc"):
+        return (
+          <ReaderTextTableOfContents
+            theme={this.state.theme}
+            themeStr={this.state.themeStr}
+            title={this.state.textTitle}
+            currentRef={this.state.textReference}
+            currentHeRef={this.state.heRef}
+            textLang={this.state.textLanguage == "hebrew" ? "hebrew" : "english"}
+            contentLang={this.state.settings.language == "hebrew" ? "hebrew" : "english"}
+            interfaceLang={this.state.interfaceLang}
+            close={this.closeMenu}
+            openRef={(ref)=>this.openRef(ref,"text toc")}
+            toggleLanguage={this.toggleMenuLanguage}
+            Sefaria={Sefaria} />);
+        break;
+      case ("search"):
+        return(
+          <SearchPage
+            theme={this.state.theme}
+            themeStr={this.state.themeStr}
+            settings={this.state.settings}
+            interfaceLang={this.state.interfaceLang}
+            subMenuOpen={this.state.subMenuOpen}
+            openSubMenu={this.openSubMenu}
+            hasInternet={this.state.hasInternet}
+            openNav={this.openNav}
+            closeNav={this.closeMenu}
+            onQueryChange={this.onQueryChange}
+            openRef={(ref)=>this.openRef(ref,"search")}
+            setLoadTail={this.setLoadQueryTail}
+            setIsNewSearch={this.setIsNewSearch}
+            setSearchOptions={this.setSearchOptions}
+            query={this.state.searchQuery}
+            sort={this.state.searchSort}
+            isExact={this.state.searchIsExact}
+            availableFilters={this.state.availableSearchFilters}
+            appliedFilters={this.state.appliedSearchFilters}
+            updateFilter={this.updateSearchFilter}
+            filtersValid={this.state.searchFiltersValid}
+            loadingQuery={this.state.isQueryRunning}
+            isNewSearch={this.state.isNewSearch}
+            loadingTail={this.state.isQueryLoadingTail}
+            initSearchListSize={this.state.initSearchListSize}
+            initSearchScrollPos={this.state.initSearchScrollPos}
+            setInitSearchScrollPos={this.setInitSearchScrollPos}
+            clearAllFilters={this.clearAllSearchFilters}
+            queryResult={this.state.searchQueryResult}
+            numResults={this.state.numSearchResults} />);
+        break;
+      case ("settings"):
+        return(
+          <SettingsPage
+            close={this.openNav}
+            theme={this.state.theme}
+            themeStr={this.state.themeStr}
+            toggleMenuLanguage={this.toggleMenuLanguage}
+            Sefaria={Sefaria} />);
+        break;
+      case ("recent"):
+        return(
+          <RecentPage
+            close={this.openNav}
+            theme={this.state.theme}
+            themeStr={this.state.themeStr}
+            toggleLanguage={this.toggleMenuLanguage}
+            openRef={this.openRef}
+            language={this.state.settings.language}
+            Sefaria={Sefaria} />
+        );
+        break;
+    }
+    let textColumnFlex = this.state.textListVisible ? 1.0 - this.state.textListFlex : 1.0;
+    return (
+  		<View style={[styles.container, this.state.theme.container]} {...this.gestureResponder}>
+          <CategoryColorLine category={Sefaria.categoryForTitle(this.state.textTitle)} />
+          <ReaderControls
+            theme={this.state.theme}
+            title={this.state.textLanguage == "hebrew" ? this.state.heRef : this.state.textReference}
+            language={this.state.textLanguage}
+            categories={Sefaria.categoriesForTitle(this.state.textTitle)}
+            openNav={this.openNav}
+            themeStr={this.state.themeStr}
+            goBack={this.goBack}
+            openTextToc={this.openTextToc}
+            backStack={this.state.backStack}
+            toggleReaderDisplayOptionsMenu={this.toggleReaderDisplayOptionsMenu} />
+
+          { loading ?
+          <LoadingView theme={this.state.theme} style={{flex: textColumnFlex}}/> :
+          <View style={[{flex: textColumnFlex}, styles.mainTextPanel, this.state.theme.mainTextPanel]}
+                onStartShouldSetResponderCapture={() => {
+                  if (this.state.ReaderDisplayOptionsMenuVisible == true) {
+                     this.toggleReaderDisplayOptionsMenu();
+                     return true;
+                  }
+                }}
+          >
+            <TextColumn
+              theme={this.state.theme}
+              themeStr={this.state.themeStr}
+              settings={this.state.settings}
+              data={this.state.data}
+              textReference={this.state.textReference}
+              sectionArray={this.state.sectionArray}
+              sectionHeArray={this.state.sectionHeArray}
+              offsetRef={this.state.offsetRef}
+              segmentRef={this.state.segmentRef}
+              segmentIndexRef={this.state.segmentIndexRef}
+              textFlow={this.state.textFlow}
+              textLanguage={this.state.textLanguage}
+              updateData={this.updateData}
+              updateTitle={this.updateTitle}
+              textTitle={this.state.textTitle}
+              heTitle={this.state.heTitle}
+              heRef={this.state.heRef}
+              textSegmentPressed={ this.textSegmentPressed }
+              textListVisible={this.state.textListVisible}
+              next={this.state.next}
+              prev={this.state.prev}
+              linksLoaded={this.state.linksLoaded}
+              loadingTextTail={this.state.loadingTextTail}
+              loadingTextHead={this.state.loadingTextHead}
+              setTextLanguage={this.setTextLanguage} />
+          </View> }
+
+          {this.state.textListVisible ?
+            <View style={[{flex:this.state.textListFlex}, styles.mainTextPanel, this.state.theme.commentaryTextPanel]}
+                onStartShouldSetResponderCapture={() => {
+                  if (this.state.ReaderDisplayOptionsMenuVisible == true) {
+                     this.toggleReaderDisplayOptionsMenu();
+                     return true;
+                  }
+                }}
+            >
+              <ConnectionsPanel
+                Sefaria={Sefaria}
+                settings={this.state.settings}
+                theme={this.state.theme}
+                themeStr={this.state.themeStr}
+                interfaceLang={this.state.interfaceLang}
+                segmentRef={this.state.segmentRef}
+                textFlow={this.state.textFlow}
+                textLanguage={this.state.textLanguage}
+                openRef={(ref, versions)=>this.openRef(ref,"text list", versions)}
+                setConnectionsMode={this.setConnectionsMode}
+                openFilter={this.openFilter}
+                closeCat={this.closeLinkCat}
+                updateLinkCat={this.updateLinkCat}
+                updateVersionCat={this.updateVersionCat}
+                loadLinkContent={this.loadLinkContent}
+                loadVersionContent={this.loadVersionContent}
+                linkSummary={this.state.linkSummary}
+                linkContents={this.state.linkContents}
+                versionContents={this.state.versionContents}
+                loadNewVersion={this.loadNewVersion}
+                loading={this.state.loadingLinks}
+                connectionsMode={this.state.connectionsMode}
+                filterIndex={this.state.filterIndex}
+                recentFilters={this.state.linkRecentFilters}
+                versionRecentFilters={this.state.versionRecentFilters}
+                versionFilterIndex={this.state.versionFilterIndex}
+                currVersions={this.state.currVersions}
+                versions={this.state.versions}
+                onDragStart={this.onTextListDragStart}
+                onDragMove={this.onTextListDragMove}
+                onDragEnd={this.onTextListDragEnd}
+                textTitle={this.state.textTitle} />
+            </View> : null}
+
+            {this.state.ReaderDisplayOptionsMenuVisible ?
+            (<ReaderDisplayOptionsMenu
+              theme={this.state.theme}
+              textFlow={this.state.textFlow}
+              textReference={this.state.textReference}
+              textLanguage={this.state.textLanguage}
+              setTextFlow={this.setTextFlow}
+              setTextLanguage={this.setTextLanguage}
+              incrementFont={this.incrementFont}
+              setTheme={this.setTheme}
+              canBeContinuous={Sefaria.canBeContinuous(this.state.textTitle)}
+              themeStr={this.state.themeStr}/>) : null }
+      </View>);
+  }
 
   render() {
     /*
@@ -886,101 +1269,22 @@ class ReaderApp extends React.Component {
       <SafeAreaView style={styles.safeArea}>
         <View style={[styles.container, this.state.theme.container]} {...this.gestureResponder}>
             <StatusBar
-                barStyle="light-content" />
-            <ReaderPanel
-                textReference={this.state.textReference}
-                textTitle={this.state.textTitle}
-                heTitle={this.state.heTitle}
-                heRef={this.state.heRef}
-                data={this.state.data}
-                next={this.state.next}
-                prev={this.state.prev}
-                sectionArray={this.state.sectionArray}
-                sectionHeArray={this.state.sectionHeArray}
-                offsetRef={this.state.offsetRef}
-                segmentRef={this.state.segmentRef}
-                segmentIndexRef={this.state.segmentIndexRef}
-                textList={0}
-                menuOpen={this.state.menuOpen}
-                subMenuOpen={this.state.subMenuOpen}
-                navigationCategories={this.state.navigationCategories}
-                style={styles.mainTextPanel}
-                updateData={this.updateData}
-                updateTitle={this.updateTitle}
-                textSegmentPressed={ this.textSegmentPressed }
-                openRef={ this.openRef }
-                interfaceLang={this.state.interfaceLang}
-                openMenu={this.openMenu}
-                openSubMenu={this.openSubMenu}
-                closeMenu={this.closeMenu}
-                openNav={this.openNav}
-                setNavigationCategories={this.setNavigationCategories}
-                openSettings={this.openMenu.bind(null, "settings")}
-                openTextToc={this.openTextToc}
-                openSearch={this.openSearch}
-                openRecent={this.openMenu.bind(null,"recent")}
-                loadingTextTail={this.state.loadingTextTail}
-                loadingTextHead={this.state.loadingTextHead}
-                textListVisible={this.state.textListVisible}
-                textListFlex={this.state.textListFlex}
-                onTextListDragStart={this.onTextListDragStart}
-                onTextListDragMove={this.onTextListDragMove}
-                onTextListDragEnd={this.onTextListDragEnd}
-                loading={!this.state.loaded}
-                defaultSettingsLoaded={this.state.defaultSettingsLoaded}
-                setConnectionsMode={this.setConnectionsMode}
-                openFilter={this.openFilter}
-                closeLinkCat={this.closeLinkCat}
-                updateLinkCat={this.updateLinkCat}
-                updateVersionCat={this.updateVersionCat}
-                loadLinkContent={this.loadLinkContent}
-                loadVersionContent={this.loadVersionContent}
-                connectionsMode={this.state.connectionsMode}
-                filterIndex={this.state.filterIndex}
-                linksLoaded={this.state.linksLoaded}
-                linkRecentFilters={this.state.linkRecentFilters}
-                linkSummary={this.state.linkSummary}
-                linkContents={this.state.linkContents}
-                versionContents={this.state.versionContents}
-                loadNewVersion={this.loadNewVersion}
-                loadingLinks={this.state.loadingLinks}
-                versionRecentFilters={this.state.versionRecentFilters}
-                versionFilterIndex={this.state.versionFilterIndex}
-                currVersions={this.state.currVersions}
-                versions={this.state.versions}
-                setTheme={this.setTheme}
-                theme={this.state.theme}
-                themeStr={this.state.themeStr}
-                hasInternet={this.state.hasInternet}
-                isQueryRunning={this.state.isQueryRunning}
-                searchQuery={this.state.searchQuery}
-                searchSort={this.state.searchSort}
-                searchIsExact={this.state.searchIsExact}
-                availableSearchFilters={this.state.availableSearchFilters}
-                appliedSearchFilters={this.state.appliedSearchFilters}
-                updateSearchFilter={this.updateSearchFilter}
-                searchFiltersValid={this.state.searchFiltersValid}
-                isQueryLoadingTail={this.state.isQueryLoadingTail}
-                initSearchListSize={this.state.initSearchListSize}
-                initSearchScrollPos={this.state.initSearchScrollPos}
-                setInitSearchScrollPos={this.setInitSearchScrollPos}
-                isNewSearch={this.state.isNewSearch}
-                numSearchResults={this.state.numSearchResults}
-                currSearchPage={this.state.currSearchPage}
-                searchQueryResult={this.state.searchQueryResult}
-                backStack={this.state.backStack}
-                goBack={this.goBack}
-                onQueryChange={this.onQueryChange}
-                setLoadQueryTail={this.setLoadQueryTail}
-                setIsNewSearch={this.setIsNewSearch}
-                clearAllSearchFilters={this.clearAllSearchFilters}
-                search={this.search}
-                setSearchOptions={this.setSearchOptions}
-                Sefaria={Sefaria} />
+              barStyle="light-content"
+            />
+            { this.renderContent() }
         </View>
       </SafeAreaView>
     );
   }
 }
 
-module.exports = ReaderApp;
+const mapStateToProps = state => ({
+});
+
+const mapDispatchToProps = dispatch => ({
+});
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(ReaderApp);

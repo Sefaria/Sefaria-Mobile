@@ -21,6 +21,8 @@
     "react-native-localization": "^0.2.1",
     "react-native-version-number": "^0.3.0",
     "react-native-zip-archive": "^2.0.0",
+    "react-redux": "^5.0.7",
+    "redux": "^3.7.2",
     "simple-plist": "^0.2.1"
   },
   "devDependencies": {}
