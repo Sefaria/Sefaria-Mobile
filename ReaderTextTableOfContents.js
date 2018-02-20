@@ -43,12 +43,10 @@ class ReaderTextTableOfContents extends React.Component {
     contentLang:    PropTypes.oneOf(["english","hebrew"]).isRequired,
     interfaceLang:  PropTypes.oneOf(["english","hebrew"]).isRequired,
     toggleLanguage: PropTypes.func.isRequired,
-    Sefaria:        PropTypes.object.isRequired
   };
 
   constructor(props, context) {
     super(props, context);
-    Sefaria = props.Sefaria;
     Sefaria.textToc(props.title).then((data) => {
       this.setState({textToc: data});
     });

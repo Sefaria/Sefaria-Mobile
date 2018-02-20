@@ -380,7 +380,6 @@ class TextColumn extends React.Component {
         textSegmentPressed={this.textSegmentPressed}
         setRowRef={(key, ref)=>{this.rowRefs[key]=ref}}
         setRowRefInitY={(key, y)=>{this.continuousRowYHash[key] = y}}
-        Sefaria={Sefaria}
       />
     );
   };
@@ -398,7 +397,6 @@ class TextColumn extends React.Component {
         showSegmentNumbers={Sefaria.showSegmentNumbers(this.props.textTitle)}
         textSegmentPressed={this.textSegmentPressed}
         setRowRef={(key, ref)=>{this.rowRefs[key]=ref}}
-        Sefaria={Sefaria}
       />
     );
   };

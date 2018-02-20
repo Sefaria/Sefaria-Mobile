@@ -1074,8 +1074,7 @@ class ReaderApp extends React.Component {
             openRecent={this.openMenu.bind(null, "recent")}
             interfaceLang={this.state.interfaceLang}
             theme={this.state.theme}
-            themeStr={this.state.themeStr}
-            Sefaria={Sefaria} />);
+            themeStr={this.state.themeStr}/>);
         break;
       case ("text toc"):
         return (
@@ -1090,8 +1089,7 @@ class ReaderApp extends React.Component {
             interfaceLang={this.state.interfaceLang}
             close={this.closeMenu}
             openRef={(ref)=>this.openRef(ref,"text toc")}
-            toggleLanguage={this.toggleMenuLanguage}
-            Sefaria={Sefaria} />);
+            toggleLanguage={this.toggleMenuLanguage}/>);
         break;
       case ("search"):
         return(
@@ -1133,8 +1131,7 @@ class ReaderApp extends React.Component {
             close={this.openNav}
             theme={this.state.theme}
             themeStr={this.state.themeStr}
-            toggleMenuLanguage={this.toggleMenuLanguage}
-            Sefaria={Sefaria} />);
+            toggleMenuLanguage={this.toggleMenuLanguage}/>);
         break;
       case ("recent"):
         return(
@@ -1144,8 +1141,7 @@ class ReaderApp extends React.Component {
             themeStr={this.state.themeStr}
             toggleLanguage={this.toggleMenuLanguage}
             openRef={this.openRef}
-            language={this.state.settings.language}
-            Sefaria={Sefaria} />
+            language={this.state.settings.language}/>
         );
         break;
     }
@@ -1213,7 +1209,6 @@ class ReaderApp extends React.Component {
                 }}
             >
               <ConnectionsPanel
-                Sefaria={Sefaria}
                 settings={this.state.settings}
                 theme={this.state.theme}
                 themeStr={this.state.themeStr}

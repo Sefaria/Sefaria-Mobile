@@ -38,12 +38,10 @@ class ReaderNavigationCategoryMenu extends React.Component {
     navHome:        PropTypes.func.isRequired,
     toggleLanguage: PropTypes.func.isRequired,
     settings:       PropTypes.object.isRequired,
-    Sefaria:        PropTypes.object.isRequired
   };
 
   constructor(props) {
     super(props);
-    Sefaria = props.Sefaria;
     this.state = {};
   }
 

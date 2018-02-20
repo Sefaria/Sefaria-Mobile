@@ -31,7 +31,6 @@ class RecentPage extends React.Component {
     toggleLanguage:     PropTypes.func.isRequired,
     openRef:            PropTypes.func.isRequired,
     language:           PropTypes.oneOf(["english","hebrew"]),
-    Sefaria:            PropTypes.object.isRequired
   };
 
   render() {

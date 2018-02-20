@@ -21,12 +21,10 @@ class TextRange extends React.PureComponent {
     showSegmentNumbers: PropTypes.bool.isRequired,
     textSegmentPressed: PropTypes.func.isRequired,
     setRowRef:          PropTypes.func.isRequired,
-    Sefaria:            PropTypes.object.isRequired,
   };
 
   constructor(props) {
     super(props);
-    Sefaria = props.Sefaria;
   }
 
   render() {

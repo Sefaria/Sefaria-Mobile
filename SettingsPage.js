@@ -30,12 +30,10 @@ class SettingsPage extends React.Component {
     close:       PropTypes.func.isRequired,
     theme:       PropTypes.object.isRequired,
     toggleMenuLanguage: PropTypes.func.isRequired,
-    Sefaria:     PropTypes.object.isRequired
   };
 
   constructor(props) {
     super(props);
-    Sefaria = props.Sefaria;
     this.state = {};
   }
 

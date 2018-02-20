@@ -12,7 +12,6 @@ import styles from './Styles';
 
 class TextRangeContinuous extends React.PureComponent {
   static propTypes = {
-    Sefaria:            PropTypes.object.isRequired,
     settings:           PropTypes.object.isRequired,
     theme:              PropTypes.object.isRequired,
     themeStr:           PropTypes.string.isRequired,
@@ -27,7 +26,6 @@ class TextRangeContinuous extends React.PureComponent {
 
   constructor(props) {
     super(props);
-    Sefaria = props.Sefaria;
   }
 
   renderSegmentForContinuousRow = (currSegData) => {

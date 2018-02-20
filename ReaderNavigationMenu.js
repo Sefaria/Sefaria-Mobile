@@ -40,12 +40,10 @@ class ReaderNavigationMenu extends React.Component {
     openSettings:   PropTypes.func.isRequired,
     openRecent:     PropTypes.func.isRequired,
     toggleLanguage: PropTypes.func.isRequired,
-    Sefaria:        PropTypes.object.isRequired
   };
 
   constructor(props) {
     super(props);
-    Sefaria = props.Sefaria;
 
     this.state = {
       showMore: false,
@@ -77,8 +75,7 @@ class ReaderNavigationMenu extends React.Component {
                 setCategories={this.props.setCategories}
                 openRef={this.props.openRef}
                 toggleLanguage={this.props.toggleLanguage}
-                navHome={this.navHome}
-                Sefaria={Sefaria} />);
+                navHome={this.navHome}/>);
     } else {
       // Root Library Menu
       var categories = [
