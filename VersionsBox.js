@@ -119,6 +119,12 @@ class VersionsBox extends React.Component {
     this.scrollViewRef = ref;
   }
   render() {
+    const {
+      currVersions,
+      interfaceLang,
+      theme,
+    } = this.props;
+
     if (!this.state.versionLangMap) {
       //TODO deal with no internet case
       return (
@@ -127,12 +133,12 @@ class VersionsBox extends React.Component {
         </View>
       );
     }
-    const currVersions = {};
-    for (let vlang in this.props.currVersions) {
-      const tempV = this.props.currVersions[vlang];
-      currVersions[vlang] = !!tempV ? tempV.versionTitle : null;
+    const currVersionTitles = {};
+    for (let vlang in currVersions) {
+      const tempV = currVersions[vlang];
+      currVersionTitles[vlang] = !!tempV ? tempV.versionTitle : null;
     }
-    const isheb = this.props.interfaceLang === "hebrew";
+    const isheb = interfaceLang === "hebrew";
     const textStyle = isheb ? styles.hebrewText : styles.englishText;
     return (
       <ScrollView
@@ -143,31 +149,31 @@ class VersionsBox extends React.Component {
           this.state.versionLangs.map((lang) => (
             <View key={lang} onLayout={event => { this.onLayoutLangBlock(lang, event.nativeEvent.layout.y); }}>
               <View style={[styles.versionsBoxLang]}>
-                <Text style={[textStyle, styles.versionsBoxLangText, this.props.theme.text]}>{strings[Sefaria.util.translateISOLanguageCode(lang)].toUpperCase()}<Text>{` (${this.state.versionLangMap[lang].length})`}</Text></Text>
+                <Text style={[textStyle, styles.versionsBoxLangText, theme.text]}>{strings[Sefaria.util.translateISOLanguageCode(lang)].toUpperCase()}<Text>{` (${this.state.versionLangMap[lang].length})`}</Text></Text>
               </View>
               {
                 this.state.versionLangMap[lang].map(v => (
                   <TouchableOpacity
                     onLayout={event => { this.onLayoutVersionBlock(lang, v.versionTitle, event.nativeEvent.layout.height + event.nativeEvent.layout.y); }}
-                    style={[styles.versionsBoxVersionBlockWrapper, this.props.theme.bordered]}
+                    style={[styles.versionsBoxVersionBlockWrapper, theme.bordered]}
                     key={v.versionTitle + lang}
                     onPress={()=>{ this.onPressVersionBlock(lang, v.versionTitle); }}>
                     <VersionBlock
-                      theme={this.props.theme}
+                      theme={theme}
                       version={v}
                       margin={true}
-                      currVersions={currVersions}
+                      currVersions={currVersionTitles}
                       openVersionInReader={()=>{}}
-                      isCurrent={(this.props.currVersions.en && this.props.currVersions.en.versionTitle === v.versionTitle) ||
-                                (this.props.currVersions.he && this.props.currVersions.he.versionTitle === v.versionTitle)}
+                      isCurrent={(currVersions.en && currVersions.en.versionTitle === v.versionTitle) ||
+                                (currVersions.he && currVersions.he.versionTitle === v.versionTitle)}
                     />
                   { this.state.openVersionBox === `${lang}|${v.versionTitle}` ?
-                    <View style={[styles.versionBlockBottomBar, this.props.theme.bordered]}>
+                    <View style={[styles.versionBlockBottomBar, theme.bordered]}>
                       <TouchableOpacity style={styles.versionBoxBottomBarButton} onPress={()=>{ this.onPressRead(v.language, v.versionTitle); }}>
-                        <Text>{"READ"}</Text>
+                        <Text style={theme.text}>{strings.read}</Text>
                       </TouchableOpacity>
                       <TouchableOpacity style={styles.versionBoxBottomBarButton} onPress={()=> { this.openVersionInSidebar(v.versionTitle, v.versionTitleInHebrew, v.language); }}>
-                        <Text>{"COMPARE"}</Text>
+                        <Text style={theme.text}>{strings.compare}</Text>
                       </TouchableOpacity>
                     </View> :
                     null

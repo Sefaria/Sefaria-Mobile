@@ -56,7 +56,6 @@ class TextHeightMeasurer extends React.PureComponent {
         nextNextTextToHeight.set(id, current);
       } else if (this.nextTextToHeight && this.nextTextToHeight.has(id)) {
         const currentNext = this.nextTextToHeight.get(id);
-        //invariant(currentNext, "has() check said it had it!");
         nextNextTextToHeight.set(id, currentNext);
       } else {
         if (!idSet.has(componentToMeasure.id)) { // for whatever reason duplicate components are getting into leftToMeasure. Not anymore!
@@ -123,9 +122,7 @@ class TextHeightMeasurer extends React.PureComponent {
     if (set == null || set.size == 0) {
       return null;
     }
-    //invariant(set, "should be set");
     const dummies = Array.from(set).map((componentToMeasure) => {
-      //invariant(style, "style should exist for every text being measured!");
       return (
         <View
           style={styles.text}

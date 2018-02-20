@@ -93,6 +93,8 @@ export default new LocalizedStrings({
     aboutThisText: "About This Text",
     currentHebrewVersion: "Current Hebrew Version",
     currentEnglishVersion: "Current English Version",
+    read: "READ",
+    compare: "COMPARE",
   },
   he: {
     recent: "נצפו לאחרונה",
@@ -186,5 +188,7 @@ export default new LocalizedStrings({
     aboutThisText: "אודות ספר זה",
     currentHebrewVersion: "גרסה עברית נוכחית",
     currentEnglishVersion: "גרסה אנגלית נוכחית",
+    read: "קרא",
+    compare: "השווה",
   }
 });
