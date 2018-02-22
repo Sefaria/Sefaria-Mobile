@@ -99,7 +99,6 @@ const reducer = function (state = DEFAULT_STATE, action) {
         defaultTextLanguage: action.language,
       };
     case REDUX_ACTIONS.initTextLanguageByTitle:
-    console.log("initTextLanguageByTitle", action.textLanguageByTitle);
       return {
         ...state,
         textLanguageByTitle: action.textLanguageByTitle,
@@ -113,7 +112,6 @@ const reducer = function (state = DEFAULT_STATE, action) {
         },
         textLanguage: action.language, // also set the language for the current book
       };
-      console.log("setTextLanguageByTitle", newState.textLanguageByTitle, action.title, action.language);
       saveFieldToAsync('textLangaugeByTitle', newState.textLanguageByTitle);
       return newState;
     case REDUX_ACTIONS.setMenuLanguage:

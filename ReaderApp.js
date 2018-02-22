@@ -167,7 +167,6 @@ class ReaderApp extends React.Component {
 
   componentWillUpdate(nextProps, nextState) {
     if (nextState.defaultSettingsLoaded && this.state.textTitle !== nextState.textTitle) {
-      console.log("new text", nextState.textTitle,  "with lang", this.getTextByLanguage(nextState.textTitle))
       this.setTextLanguage(this.getTextByLanguage(nextState.textTitle), nextState.textTitle, nextState.textFlow, true);
     }
 
