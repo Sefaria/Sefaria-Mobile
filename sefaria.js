@@ -75,7 +75,7 @@ Sefaria = {
       };
 
       var processApiData = function(data) {
-        Sefaria.api.textCache(ref, versions, data);
+        Sefaria.api.textCache(ref, context, versions, data);
         Sefaria.cacheCommentatorListBySection(data);
         Sefaria.cacheVersionInfo(data, true);
         //console.log(data);
@@ -112,7 +112,7 @@ Sefaria = {
                   });
               } else {
                 // The zip doesn't exist yet, so make an API call
-                const cacheValue = Sefaria.api.textCache(ref, versions);
+                const cacheValue = Sefaria.api.textCache(ref, context, versions);
                 if (cacheValue) {
                   // Don't check the API cahce until we've checked for a local file, because the API
                   // cache may be left in a state with text but without links.

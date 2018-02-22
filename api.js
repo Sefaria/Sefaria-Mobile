@@ -15,11 +15,11 @@ var Api = {
   _versions: {},
   _translateVersions: {},
   _indexDetails: {},
-  _textCacheKey: function(ref, versions) {
-    return ref + (!!versions ? (!!versions.en ? `|en:${versions.en}` : "") + (!!versions.he ? `|he:${versions.he}` : "")  : "");
+  _textCacheKey: function(ref, context, versions) {
+    return `${ref}|${context}${(!!versions ? (!!versions.en ? `|en:${versions.en}` : "") + (!!versions.he ? `|he:${versions.he}` : "")  : "")}`;
   },
-  textCache: function(ref, versions, value) {
-    const key = Sefaria.api._textCacheKey(ref, versions);
+  textCache: function(ref, context, versions, value) {
+    const key = Sefaria.api._textCacheKey(ref, context, versions);
     if (value) {
       //setting
       if (!(key in Sefaria.api._textCache)) { Sefaria.api._textCache[key] = value; }
