@@ -693,17 +693,16 @@ Sefaria = {
           }
           // Count Category
           if (link.category in summary) {
-            summary[link.category].count += 1
+            //TODO summary[link.category].count += 1
           } else {
             summary[link.category] = {count: 1, books: {}};
           }
-          summary["All"].count += 1;
+          //TODO summary["All"].count += 1;
 
           var category = summary[link.category];
           // Count Book
           if (link.textTitle in category.books) {
-            category.books[link.textTitle].count += 1;
-            category.books[link.textTitle].refList.push(link.sourceRef);
+            category.books[link.textTitle].refSet.add(link.sourceRef);
           } else {
             var isCommentary = link.category === "Commentary";
             category.books[link.textTitle] =
@@ -714,7 +713,7 @@ Sefaria = {
                 collectiveTitle:   link.collectiveTitle,
                 heCollectiveTitle: link.heCollectiveTitle,
                 category:          link.category,
-                refList:           [link.sourceRef]
+                refSet:            new Set([link.sourceRef]), // make sure refs are unique here
             };
           }
         }
@@ -734,7 +733,7 @@ Sefaria = {
                 title:    commEn,
                 heTitle:  commHe,
                 category: "Commentary",
-                refList:  []
+                refSet:   new Set(),
               }
             }
           }
@@ -773,10 +772,15 @@ Sefaria = {
         const allBooks = [];
         for (let cat of summaryList) {
           for (let book of cat.books) {
-            cat.refList = cat.refList.concat(book.refList);
-            allRefs = allRefs.concat(book.refList);
+            const bookRefList = Array.from(book.refSet);
+            delete book.refSet;
+            book.refList = bookRefList;
+            book.count = book.refList.length;
+            cat.refList = cat.refList.concat(bookRefList);
+            allRefs = allRefs.concat(bookRefList);
             allBooks.push(book);
           }
+          cat.count = cat.refList.length;
         }
 
         // Sort the categories
@@ -797,13 +801,13 @@ Sefaria = {
         // Attach data to "All" category in last position
         summaryList[summaryList.length-1].refList = allRefs;
         summaryList[summaryList.length-1].books = allBooks;
+        summaryList[summaryList.length-1].count = allRefs.length;
 
         // Remove "Commentary" section if it is empty or only contains greyed out items
         if (summaryList[0].books.length == 0) { summaryList = summaryList.slice(1); }
 
         // Remove "All" section if it's count is zero
         if (summaryList[summaryList.length-1].count == 0) { summaryList = summaryList.slice(0, -1); }
-
         resolve(summaryList);
       });
 
