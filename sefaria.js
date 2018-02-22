@@ -315,7 +315,7 @@ Sefaria = {
   cacheVersionInfo: function(data, isSection) {
     //isSection = true if data has `sectionRef`. false if data has `title`
     attrs = ['versionTitle','heVersionTitle','versionNotes','heVersionNotes','license','heLicense','versionSource','heVersionSource','versionTitleInHebrew','heVersionTitleInHebrew','versionNotesInHebrew','heVersionNotesInHebrew'];
-
+    console.log(data, isSection);
     cacheKey = isSection ? data.sectionRef : data.title;
     Sefaria._versionInfo[cacheKey] = {};
     attrs.map((attr)=>{
@@ -324,6 +324,7 @@ Sefaria = {
     //console.log("SETTING VERSION INFO", cacheKey, isSection,Sefaria._versionInfo[cacheKey]);
   },
   versionInfo: function(ref, title, vlang) {
+    console.log(ref, title, vlang);
     let versionInfo = {};
     let sectionInfo = Sefaria._versionInfo[ref];
     if (!sectionInfo) sectionInfo = {};

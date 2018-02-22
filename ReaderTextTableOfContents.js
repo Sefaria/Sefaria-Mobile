@@ -87,21 +87,7 @@ class ReaderTextTableOfContents extends React.Component {
     var categories  = Sefaria.index(this.props.title).categories;
     var enCatString = categories.join(", ");
     var heCatString = categories.map(Sefaria.hebrewCategory).join(", ");
-    var versionInfo = Sefaria.versionInfo(this.props.currentRef, this.props.title, this.props.textLang);
-    if (!versionInfo) {
-      //try one level up in case this ref is segment level
-      var colInd = this.props.currentRef.lastIndexOf(":");
-      if (colInd != -1) {
-        versionInfo = Sefaria.versionInfo(splitRef.substring(0,colInd), null, this.props.textLang);
-      }
-    }
 
-    const versionTitle = versionInfo['versionTitle'];
-    const versionSource = versionInfo['versionSource'];
-    const shortVersionSource = Sefaria.util.parseURLhost(versionSource);
-    const license = versionInfo['license'];
-    const licenseURL = Sefaria.util.getLicenseURL(license);
-    const versionNotes = versionInfo['versionNotes'];
     return (
       <View style={[styles.menu,this.props.theme.menu]}>
         <CategoryColorLine category={Sefaria.categoryForTitle(this.props.title)} />
@@ -135,11 +121,6 @@ class ReaderTextTableOfContents extends React.Component {
               <Text style={[styles.intHe, styles.textTocSectionString, this.props.theme.textTocSectionString]}>{this.sectionString()}</Text> :
               <Text style={[styles.intEn, styles.textTocSectionString, this.props.theme.textTocSectionString]}>{this.sectionString()}</Text> }
             </View>
-
-            <VersionBlock
-              theme={this.props.theme}
-              version={versionInfo}
-              center={true} />
           </View>
 
           {this.state.textToc ?
