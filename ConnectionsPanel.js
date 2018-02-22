@@ -29,7 +29,8 @@ class ConnectionsPanel extends React.Component {
     theme:                PropTypes.object.isRequired,
     themeStr:             PropTypes.oneOf(["white", "black"]).isRequired,
     interfaceLang:        PropTypes.oneOf(["english", "hebrew"]).isRequired,
-    settings:             PropTypes.object,
+    menuLanguage:         PropTypes.oneOf(["english", "hebrew"]).isRequired,
+    fontSize:             PropTypes.number.isRequired,
     openRef:              PropTypes.func.isRequired,
     setConnectionsMode:   PropTypes.func.isRequired,
     openFilter:           PropTypes.func.isRequired,
@@ -85,7 +86,7 @@ class ConnectionsPanel extends React.Component {
         <ConnectionsPanelHeader
           theme={this.props.theme}
           themeStr={this.props.themeStr}
-          settings={this.props.settings}
+          menuLanguage={this.props.menuLanguage}
           interfaceLang={this.props.interfaceLang}
           setConnectionsMode={this.props.setConnectionsMode}
           closeCat={this.props.closeCat}
@@ -93,7 +94,6 @@ class ConnectionsPanel extends React.Component {
           category={isSummaryMode || true ? null : this.props.recentFilters[this.props.filterIndex].category}
           filterIndex={filterIndex}
           recentFilters={recentFilters}
-          language={this.props.settings.language}
           connectionsMode={this.props.connectionsMode} />
       </View>
     );
@@ -106,7 +106,7 @@ class ConnectionsPanel extends React.Component {
             <TextList
               theme={this.props.theme}
               themeStr={this.props.themeStr}
-              settings={this.props.settings}
+              fontSize={this.props.fontSize}
               textLanguage={this.props.textLanguage}
               segmentRef={this.props.segmentRef}
               openRef={this.props.openRef}
@@ -146,7 +146,7 @@ class ConnectionsPanel extends React.Component {
             <AboutBox
               theme={this.props.theme}
               interfaceLang={this.props.interfaceLang}
-              contentLang={this.props.settings.language == "hebrew" ? "hebrew" : "english"}
+              contentLang={this.props.menuLanguage}
               currVersions={this.props.currVersions}
               mainVersionLanguage={this.props.textLanguage}
               textTitle={this.props.textTitle}
@@ -173,12 +173,11 @@ class ConnectionsPanel extends React.Component {
                 <LinkNavButton
                   theme={this.props.theme}
                   themeStr={this.props.themeStr}
-                  settings={this.props.settings}
+                  menuLanguage={this.props.menuLanguage}
                   enText={cat.category}
                   heText={Sefaria.hebrewCategory(cat.category)}
                   isCat={true}
                   count={cat.count}
-                  language={this.props.settings.language}
                   onPress={function(filter,category) {
                     if (catFilterSelected) {
                       this.props.openFilter(filter, "link");
@@ -196,12 +195,11 @@ class ConnectionsPanel extends React.Component {
                   <LinkNavButton
                     theme={this.props.theme}
                     themeStr={this.props.themeStr}
-                    settings={this.props.settings}
+                    menuLanguage={this.props.menuLanguage}
                     enText={obook.collectiveTitle ? obook.collectiveTitle : obook.title} //NOTE backwards compatibility
                     heText={obook.heCollectiveTitle ? obook.heCollectiveTitle : obook.heTitle}
                     isCat={false}
                     count={obook.count}
-                    language={this.props.settings.language}
                     onPress={function(filter,title) {
                       this.props.openFilter(filter, "link");
                       Sefaria.track.event("Reader","Text Filter Click",title);
@@ -245,11 +243,10 @@ class LinkNavButton extends React.Component {
   static propTypes = {
     theme:    PropTypes.object.isRequired,
     themeStr: PropTypes.string.isRequired,
-    settings: PropTypes.object.isRequired,
+    menuLanguage: PropTypes.string.isRequired,
     onPress:  PropTypes.func.isRequired,
     enText:   PropTypes.string,
     heText:   PropTypes.string,
-    language: PropTypes.string,
     count:    PropTypes.number,
     isCat:    PropTypes.bool.isRequired,
   };
@@ -259,7 +256,7 @@ class LinkNavButton extends React.Component {
       <LibraryNavButton
         theme={this.props.theme}
         themeStr={this.props.themeStr}
-        settings={this.props.settings}
+        menuLanguage={this.props.menuLanguage}
         isCat={this.props.isCat}
         onPress={this.props.onPress}
         enText={this.props.enText}

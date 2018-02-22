@@ -116,7 +116,7 @@ class LibraryNavButton extends React.Component {
   static propTypes = {
     theme:           PropTypes.object,
     themeStr:        PropTypes.string,
-    settings:        PropTypes.object.isRequired,
+    menuLanguage:    PropTypes.string.isRequired,
     isCat:           PropTypes.bool.isRequired,
     onPress:         PropTypes.func.isRequired,
     onPressCheckBox: PropTypes.func,
@@ -129,13 +129,12 @@ class LibraryNavButton extends React.Component {
   };
 
   render() {
-    let { theme, themeStr, settings, isCat, onPress, onPressCheckBox, checkBoxSelected, enText, heText, count, withArrow, buttonStyle } = this.props;
-    let language = settings.language == "hebrew" ? "hebrew" : "english";
+    let { theme, themeStr, menuLanguage, isCat, onPress, onPressCheckBox, checkBoxSelected, enText, heText, count, withArrow, buttonStyle } = this.props;
     let colorCat = Sefaria.palette.categoryColor(enText.replace(" Commentaries", ""));
     enText = isCat ? enText.toUpperCase() : enText;
     let colorStyle = isCat ? [{"borderColor": colorCat}] : [theme.searchResultSummary, {"borderTopWidth": 1}];
     let textStyle  = [isCat ? styles.spacedText : null];
-    let flexDir = language == "english" ? "row" : "row-reverse";
+    let flexDir = menuLanguage == "english" ? "row" : "row-reverse";
     return (
       <TouchableOpacity
         onPress={onPress}
@@ -146,7 +145,7 @@ class LibraryNavButton extends React.Component {
               <IndeterminateCheckBox themeStr={themeStr} state={checkBoxSelected} onPress={onPressCheckBox} />
             </TouchableOpacity> : null
           }
-          { language == "english" ?
+          { menuLanguage == "english" ?
             <Text style={[styles.englishText].concat([theme.tertiaryText, textStyle, {paddingTop:3, marginHorizontal: (!!onPressCheckBox ? 0 : 25)}])}>
               {`${enText} `}
               {
@@ -163,7 +162,7 @@ class LibraryNavButton extends React.Component {
           }
         </View>
         { withArrow ?
-          <DirectedArrow themeStr={themeStr} imageStyle={{opacity: 0.5}} language={language} direction={"forward"} />
+          <DirectedArrow themeStr={themeStr} imageStyle={{opacity: 0.5}} language={menuLanguage} direction={"forward"} />
           : null
         }
      </TouchableOpacity>);

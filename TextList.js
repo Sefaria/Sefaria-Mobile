@@ -21,7 +21,7 @@ class TextList extends React.Component {
   static propTypes = {
     theme:           PropTypes.object.isRequired,
     themeStr:        PropTypes.string.isRequired,
-    settings:        PropTypes.object.isRequired,
+    fontSize:        PropTypes.number.isRequired,
     textLanguage:    PropTypes.oneOf(["english", "hebrew", "bilingual"]),
     recentFilters:   PropTypes.array.isRequired,
     filterIndex:     PropTypes.number,
@@ -84,7 +84,7 @@ class TextList extends React.Component {
     return (<ListItem
               theme={this.props.theme}
               themeStr={this.props.themeStr}
-              settings={this.props.settings}
+              fontSize={this.props.fontSize}
               openRef={this.props.openRef}
               refStr={item.ref}
               versionTitle={item.versionTitle}
@@ -137,7 +137,7 @@ class EmptyListMessage extends React.Component {
 class ListItem extends React.PureComponent {
   static propTypes = {
     theme:             PropTypes.object.isRequired,
-    settings:          PropTypes.object,
+    fontSize:          PropTypes.number.isRequired,
     openRef:           PropTypes.func.isRequired,
     refStr:            PropTypes.string,
     versionTitle:      PropTypes.string,
@@ -156,7 +156,7 @@ class ListItem extends React.PureComponent {
   }
   componentWillReceiveProps(nextProps) {
     if (this.props.themeStr !== nextProps.themeStr ||
-        this.props.settings.fontSize !== nextProps.settings.fontSize) {
+        this.props.fontSize !== nextProps.fontSize) {
       this.setState({ resetKeyEn: Math.random(), resetKeyHe: Math.random() }); //hacky fix to reset htmlview when theme colors change
     }
   }
@@ -171,7 +171,7 @@ class ListItem extends React.PureComponent {
                         value={"<hediv>"+lco.he+"</hediv>"}
                         textComponentProps={
                           {
-                            style: [styles.hebrewText, styles.linkContentText, this.props.theme.text, {fontSize: this.props.settings.fontSize, lineHeight: this.props.settings.fontSize * 1.1}],
+                            style: [styles.hebrewText, styles.linkContentText, this.props.theme.text, {fontSize: this.props.fontSize, lineHeight: this.props.fontSize * 1.1}],
                             key: this.props.refStr+"-he"
                           }
                         }
@@ -182,7 +182,7 @@ class ListItem extends React.PureComponent {
                         value={"<endiv>"+"&#x200E;"+lco.en+"</endiv>"}
                         textComponentProps={
                           {
-                            style: [styles.englishText, styles.linkContentText, this.props.theme.text, {fontSize: 0.8 * this.props.settings.fontSize, lineHeight: this.props.settings.fontSize}],
+                            style: [styles.englishText, styles.linkContentText, this.props.theme.text, {fontSize: 0.8 * this.props.fontSize, lineHeight: this.props.fontSize}],
                             key: this.props.refStr+"-en"
                           }
                         }

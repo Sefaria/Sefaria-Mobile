@@ -16,11 +16,10 @@ import {
 } from 'react-native';
 import { connect } from 'react-redux';
 import { createResponder } from 'react-native-gesture-responder';
+import { ACTION_CREATORS } from './ReduxStore';
 import ReaderControls from './ReaderControls';
 import styles from './Styles';
 import strings from './LocalizedStrings';
-import themeWhite from './ThemeWhite';
-import themeBlack from './ThemeBlack';
 import Sefaria from './sefaria';
 import { LinkFilter } from './Filter';
 import ReaderDisplayOptionsMenu from './ReaderDisplayOptionsMenu';
@@ -39,19 +38,24 @@ const ViewPort    = Dimensions.get('window');
 
 
 class ReaderApp extends React.Component {
+
+  static propTypes = {
+    theme:        PropTypes.object.isRequired,
+    themeStr:     PropTypes.string.isRequired,
+    setTheme:     PropTypes.func.isRequired,
+    textLanguage: PropTypes.string.isRequired,
+  };
+
   constructor(props, context) {
     super(props, context);
-    Sefaria.init().then(function() {
+    Sefaria.init().then(() => {
         this.setState({
           loaded: true,
           defaultSettingsLoaded: true,
         });
-        this.setDefaultTheme();
-
         const mostRecent =  Sefaria.recent.length ? Sefaria.recent[0] : {ref: "Genesis 1"};
         this.openRef(mostRecent.ref, null, mostRecent.versions);
-
-    }.bind(this));
+    });
     Sefaria.track.init();
     NetInfo.isConnected.addEventListener(
       'connectionChange',
@@ -68,6 +72,7 @@ class ReaderApp extends React.Component {
         loaded: false,
         defaultSettingsLoaded: false,
         menuOpen: "navigation",
+        textFlow: "segmented",
         subMenuOpen: null, // currently only used to define subpages in search
         navigationCategories: [],
         loadingTextTail: false,
@@ -92,8 +97,6 @@ class ReaderApp extends React.Component {
         versions: [],
         versionStaleRecentFilters: [],
         versionContents: [],
-        theme: themeWhite,
-        themeStr: "white",
         searchQuery: '',
         searchSort: 'relevance', // relevance or chronological
         availableSearchFilters: [],
@@ -110,7 +113,6 @@ class ReaderApp extends React.Component {
         searchQueryResult: [],
         backStack: [],
         ReaderDisplayOptionsMenuVisible: false,
-        settings: {},
     };
   }
 
@@ -164,43 +166,24 @@ class ReaderApp extends React.Component {
   pendingIncrement = 1;
 
   componentWillUpdate(nextProps, nextState) {
-    if (!this.state.defaultSettingsLoaded && nextState.defaultSettingsLoaded) {
-      console.log("set default");
-      this.setDefaultSettings();
-    }
-
     if (nextState.defaultSettingsLoaded && this.state.textTitle !== nextState.textTitle) {
-      this.setState({textLanguage: Sefaria.settings.textLanguage(nextState.textTitle)});
+      console.log("new text", nextState.textTitle,  "with lang", this.getTextByLanguage(nextState.textTitle))
+      this.setTextLanguage(this.getTextByLanguage(nextState.textTitle), nextState.textTitle, nextState.textFlow, true);
     }
 
     // Should track pageview? TODO account for infinite
     if (this.state.menuOpen          !== nextState.menuOpen          ||
         this.state.textTitle         !== nextState.textTitle         ||
         this.state.textFlow          !== nextState.textFlow          ||
-        this.state.textLanguage      !== nextState.textLanguage      ||
+        this.props.textLanguage      !== nextProps.textLanguage      || // note this var is coming from props
         this.state.textListVisible   !== nextState.textListVisible   ||
         this.state.segmentIndexRef   !== nextState.segmentIndexRef   ||
         this.state.segmentRef        !== nextState.segmentRef        ||
         this.state.linkRecentFilters !== nextState.linkRecentFilters ||
-        this.state.themeStr          !== nextState.themeStr) {
+        this.props.themeStr          !== nextState.themeStr) {
           this.trackPageview();
     }
   }
-
-  setDefaultSettings = () => {
-    // This function is called only after Sefaria.settings.init() has returned and signaled readiness by setting
-    // the prop `defaultSettingsLoaded: true`. Necessary because ReaderPanel is rendered immediately with `loading:true`
-    // so getInitialState() is called before settings have finished init().
-    this.setState({
-      textFlow: 'segmented',   // alternative is 'continuous'
-      textLanguage: Sefaria.settings.textLanguage(this.state.textTitle),
-      settings: {
-        language:      Sefaria.settings.menuLanguage,
-        fontSize:      Sefaria.settings.fontSize,
-      }
-    });
-    // Theme settings is set in ReaderApp.
-  };
 
   toggleReaderDisplayOptionsMenu = () => {
     if (this.state.ReaderDisplayOptionsMenuVisible == false) {
@@ -214,39 +197,43 @@ class ReaderApp extends React.Component {
 
   toggleMenuLanguage = () => {
     // Toggle current menu language between english/hebrew only
-    if (this.state.settings.language !== "hebrew") {
-      this.state.settings.language = "hebrew";
-    } else {
-      this.state.settings.language = "english";
-    }
-    Sefaria.track.event("Reader","Change Language", this.state.settings.language);
-
-    this.setState({settings: {...this.state.settings, language: this.state.settings.language }});
-    Sefaria.settings.set("menuLanguage", this.state.settings.language);
+    const newMenuLanguage = this.props.menuLanguage !== "hebrew" ? "hebrew" : "english";
+    Sefaria.track.event("Reader","Change Language", newMenuLanguage);
+    this.props.setMenuLanguage(newMenuLanguage);
   };
 
-  setTextFlow = (textFlow) => {
+  setTextFlow = textFlow => {
     this.setState({textFlow: textFlow});
 
-    if (textFlow == "continuous" && this.state.textLanguage == "bilingual") {
+    if (textFlow == "continuous" && this.props.textLanguage == "bilingual") {
       this.setTextLanguage("hebrew");
     }
     this.toggleReaderDisplayOptionsMenu();
     Sefaria.track.event("Reader","Display Option Click","layout - " + textFlow);
   };
 
-  setTextLanguage = (textLanguage) => {
-    Sefaria.settings.textLanguage(this.state.textTitle, textLanguage);
-    this.setState({textLanguage: textLanguage}, () => {
-      this.setCurrVersions(); // update curr versions based on language
-    });
-    // Sefaria.settings.set("textLanguage", textLanguage); // Makes every language change sticky
-    if (textLanguage == "bilingual" && this.state.textFlow == "continuous") {
+  getTextByLanguage = title => {
+    console.log("in textLanguageByTitle", this.props.textLanguageByTitle[title]);
+    return this.props.textLanguageByTitle[title] || this.props.defaultTextLanguage;
+  };
+
+  setTextLanguage = (textLanguage, textTitle, textFlow, dontToggle) => {
+    // try to be less dependent on state in this func because it is called in componentWillUpdate
+    textTitle = textTitle || this.state.textTitle;
+    textFlow = textFlow || this.state.textFlow;
+    this.props.setTextLanguageByTitle(textTitle, textLanguage);
+    this.setCurrVersions(); // update curr versions based on language
+    if (textLanguage == "bilingual" && textFlow == "continuous") {
       this.setTextFlow("segmented");
     }
-    this.toggleReaderDisplayOptionsMenu();
+    if (!dontToggle) { this.toggleReaderDisplayOptionsMenu(); }
     Sefaria.track.event("Reader", "Display Option Click", "language - " + textLanguage);
   };
+
+  setTheme = themeStr => {
+    this.props.setTheme(themeStr);
+    this.toggleReaderDisplayOptionsMenu();
+  }
 
   incrementFont = (increment) => {
     if (increment == "larger") {
@@ -256,13 +243,12 @@ class ReaderApp extends React.Component {
     } else {
       var x = increment;
     }
-    var updatedSettings = Sefaria.util.clone(this.state.settings);
-    updatedSettings.fontSize *= x;
-    updatedSettings.fontSize = updatedSettings.fontSize > 60 ? 60 : updatedSettings.fontSize; // Max size
-    updatedSettings.fontSize = updatedSettings.fontSize < 18 ? 18 : updatedSettings.fontSize; // Min size
-    updatedSettings.fontSize = parseFloat(updatedSettings.fontSize.toFixed(2));
-    this.setState({settings: updatedSettings});
-    Sefaria.settings.set("fontSize", updatedSettings.fontSize);
+    let newFontSize = this.props.fontSize;
+    newFontSize *= x;
+    newFontSize = newFontSize > 60 ? 60 : newFontSize; // Max size
+    newFontSize = newFontSize < 18 ? 18 : newFontSize; // Min size
+    newFontSize = parseFloat(newFontSize.toFixed(2));
+    this.props.setFontSize(newFontSize);
     Sefaria.track.event("Reader","Display Option Click","fontSize - " + increment);
   };
 
@@ -281,7 +267,7 @@ class ReaderApp extends React.Component {
     let secoCat   = cats ? ((cats[0] === "Commentary")?
         ((cats.length > 2) ? cats[2] : ""):
         ((cats.length > 1) ? cats[1] : "")) : "";
-    let contLang  = this.state.settings.language;
+    let contLang  = this.props.menuLanguage; // TODO why is this var called contLang? is this accessing the wrong variable?
     let sideBar   = this.state.linkRecentFilters.length > 0 ? this.state.linkRecentFilters.map(filt => filt.title).join('+') : 'all';
     let versTit   = ''; //we don't support this yet
 
@@ -412,8 +398,8 @@ class ReaderApp extends React.Component {
   setCurrVersions = (sectionRef, title) => {
     let enVInfo = !sectionRef ? this.state.currVersions.en : Sefaria.versionInfo(sectionRef, title, 'english');
     let heVInfo = !sectionRef ? this.state.currVersions.he : Sefaria.versionInfo(sectionRef, title, 'hebrew');
-    if (enVInfo) { enVInfo.disabled = this.state.textLanguage ===  'hebrew'; } // not currently viewing this version
-    if (heVInfo) { heVInfo.disabled = this.state.textLanguage === 'english'; }
+    if (enVInfo) { enVInfo.disabled = this.props.textLanguage ===  'hebrew'; } // not currently viewing this version
+    if (heVInfo) { heVInfo.disabled = this.props.textLanguage === 'english'; }
     this.setState({ currVersions: { en: enVInfo, he: heVInfo } });
   };
 
@@ -854,19 +840,6 @@ class ReaderApp extends React.Component {
     this.setState({offsetRef:null});
   };
 
-  setTheme = (themeStr, dontToggle) => {
-    /* dontToggle - true when setTheme is not called from a user's action */
-    if (themeStr === "white") { this.state.theme = themeWhite; }
-    else if (themeStr === "black") { this.state.theme = themeBlack; }
-    this.setState({theme: this.state.theme, themeStr: themeStr});
-    Sefaria.settings.set("color", themeStr);
-    if (!dontToggle) { this.toggleReaderDisplayOptionsMenu(); }
-  };
-
-  setDefaultTheme = () => {
-    this.setTheme(Sefaria.settings.color, true);
-  };
-
   onTextListDragStart = (evt) => {
     let headerHeight = 75;
     let flex = 1.0 - (evt.nativeEvent.pageY-headerHeight)/(ViewPort.height-headerHeight);
@@ -1058,7 +1031,7 @@ class ReaderApp extends React.Component {
       case ("navigation"):
         return (
           loading ?
-          <LoadingView theme={this.state.theme} /> :
+          <LoadingView theme={this.props.theme} /> :
           <ReaderNavigationMenu
             categories={this.state.navigationCategories}
             setCategories={this.setNavigationCategories}
@@ -1069,23 +1042,23 @@ class ReaderApp extends React.Component {
             openSearch={this.search}
             setIsNewSearch={this.setIsNewSearch}
             toggleLanguage={this.toggleMenuLanguage}
-            settings={this.state.settings}
+            menuLanguage={this.props.menuLanguage}
             openSettings={this.openMenu.bind(null, "settings")}
             openRecent={this.openMenu.bind(null, "recent")}
             interfaceLang={this.state.interfaceLang}
-            theme={this.state.theme}
-            themeStr={this.state.themeStr}/>);
+            theme={this.props.theme}
+            themeStr={this.props.themeStr}/>);
         break;
       case ("text toc"):
         return (
           <ReaderTextTableOfContents
-            theme={this.state.theme}
-            themeStr={this.state.themeStr}
+            theme={this.props.theme}
+            themeStr={this.props.themeStr}
             title={this.state.textTitle}
             currentRef={this.state.textReference}
             currentHeRef={this.state.heRef}
-            textLang={this.state.textLanguage == "hebrew" ? "hebrew" : "english"}
-            contentLang={this.state.settings.language == "hebrew" ? "hebrew" : "english"}
+            textLang={this.props.textLanguage == "hebrew" ? "hebrew" : "english"}
+            contentLang={this.props.menuLanguage}
             interfaceLang={this.state.interfaceLang}
             close={this.closeMenu}
             openRef={(ref)=>this.openRef(ref,"text toc")}
@@ -1094,9 +1067,9 @@ class ReaderApp extends React.Component {
       case ("search"):
         return(
           <SearchPage
-            theme={this.state.theme}
-            themeStr={this.state.themeStr}
-            settings={this.state.settings}
+            theme={this.props.theme}
+            themeStr={this.props.themeStr}
+            menuLanguage={this.props.menuLanguage}
             interfaceLang={this.state.interfaceLang}
             subMenuOpen={this.state.subMenuOpen}
             openSubMenu={this.openSubMenu}
@@ -1128,42 +1101,41 @@ class ReaderApp extends React.Component {
       case ("settings"):
         return(
           <SettingsPage
+            {...this.props}
             close={this.openNav}
-            theme={this.state.theme}
-            themeStr={this.state.themeStr}
-            toggleMenuLanguage={this.toggleMenuLanguage}/>);
+          />);
         break;
       case ("recent"):
         return(
           <RecentPage
             close={this.openNav}
-            theme={this.state.theme}
-            themeStr={this.state.themeStr}
+            theme={this.props.theme}
+            themeStr={this.props.themeStr}
             toggleLanguage={this.toggleMenuLanguage}
             openRef={this.openRef}
-            language={this.state.settings.language}/>
+            language={this.props.menuLanguage}/>
         );
         break;
     }
     let textColumnFlex = this.state.textListVisible ? 1.0 - this.state.textListFlex : 1.0;
     return (
-  		<View style={[styles.container, this.state.theme.container]} {...this.gestureResponder}>
+  		<View style={[styles.container, this.props.theme.container]} {...this.gestureResponder}>
           <CategoryColorLine category={Sefaria.categoryForTitle(this.state.textTitle)} />
           <ReaderControls
-            theme={this.state.theme}
-            title={this.state.textLanguage == "hebrew" ? this.state.heRef : this.state.textReference}
-            language={this.state.textLanguage}
+            theme={this.props.theme}
+            title={this.props.textLanguage == "hebrew" ? this.state.heRef : this.state.textReference}
+            language={this.props.textLanguage}
             categories={Sefaria.categoriesForTitle(this.state.textTitle)}
             openNav={this.openNav}
-            themeStr={this.state.themeStr}
+            themeStr={this.props.themeStr}
             goBack={this.goBack}
             openTextToc={this.openTextToc}
             backStack={this.state.backStack}
             toggleReaderDisplayOptionsMenu={this.toggleReaderDisplayOptionsMenu} />
 
           { loading ?
-          <LoadingView theme={this.state.theme} style={{flex: textColumnFlex}}/> :
-          <View style={[{flex: textColumnFlex}, styles.mainTextPanel, this.state.theme.mainTextPanel]}
+          <LoadingView theme={this.props.theme} style={{flex: textColumnFlex}}/> :
+          <View style={[{flex: textColumnFlex}, styles.mainTextPanel, this.props.theme.mainTextPanel]}
                 onStartShouldSetResponderCapture={() => {
                   if (this.state.ReaderDisplayOptionsMenuVisible == true) {
                      this.toggleReaderDisplayOptionsMenu();
@@ -1172,9 +1144,9 @@ class ReaderApp extends React.Component {
                 }}
           >
             <TextColumn
-              theme={this.state.theme}
-              themeStr={this.state.themeStr}
-              settings={this.state.settings}
+              theme={this.props.theme}
+              themeStr={this.props.themeStr}
+              fontSize={this.props.fontSize}
               data={this.state.data}
               textReference={this.state.textReference}
               sectionArray={this.state.sectionArray}
@@ -1183,7 +1155,7 @@ class ReaderApp extends React.Component {
               segmentRef={this.state.segmentRef}
               segmentIndexRef={this.state.segmentIndexRef}
               textFlow={this.state.textFlow}
-              textLanguage={this.state.textLanguage}
+              textLanguage={this.props.textLanguage}
               updateData={this.updateData}
               updateTitle={this.updateTitle}
               textTitle={this.state.textTitle}
@@ -1195,12 +1167,11 @@ class ReaderApp extends React.Component {
               prev={this.state.prev}
               linksLoaded={this.state.linksLoaded}
               loadingTextTail={this.state.loadingTextTail}
-              loadingTextHead={this.state.loadingTextHead}
-              setTextLanguage={this.setTextLanguage} />
+              loadingTextHead={this.state.loadingTextHead} />
           </View> }
 
           {this.state.textListVisible ?
-            <View style={[{flex:this.state.textListFlex}, styles.mainTextPanel, this.state.theme.commentaryTextPanel]}
+            <View style={[{flex:this.state.textListFlex}, styles.mainTextPanel, this.props.theme.commentaryTextPanel]}
                 onStartShouldSetResponderCapture={() => {
                   if (this.state.ReaderDisplayOptionsMenuVisible == true) {
                      this.toggleReaderDisplayOptionsMenu();
@@ -1209,13 +1180,14 @@ class ReaderApp extends React.Component {
                 }}
             >
               <ConnectionsPanel
-                settings={this.state.settings}
-                theme={this.state.theme}
-                themeStr={this.state.themeStr}
+                menuLanguage={this.props.menuLanguage}
+                fontSize={this.props.fontSize}
+                theme={this.props.theme}
+                themeStr={this.props.themeStr}
                 interfaceLang={this.state.interfaceLang}
                 segmentRef={this.state.segmentRef}
                 textFlow={this.state.textFlow}
-                textLanguage={this.state.textLanguage}
+                textLanguage={this.props.textLanguage}
                 openRef={(ref, versions)=>this.openRef(ref,"text list", versions)}
                 setConnectionsMode={this.setConnectionsMode}
                 openFilter={this.openFilter}
@@ -1244,16 +1216,16 @@ class ReaderApp extends React.Component {
 
             {this.state.ReaderDisplayOptionsMenuVisible ?
             (<ReaderDisplayOptionsMenu
-              theme={this.state.theme}
+              theme={this.props.theme}
               textFlow={this.state.textFlow}
               textReference={this.state.textReference}
-              textLanguage={this.state.textLanguage}
+              textLanguage={this.props.textLanguage}
               setTextFlow={this.setTextFlow}
               setTextLanguage={this.setTextLanguage}
               incrementFont={this.incrementFont}
               setTheme={this.setTheme}
               canBeContinuous={Sefaria.canBeContinuous(this.state.textTitle)}
-              themeStr={this.state.themeStr}/>) : null }
+              themeStr={this.props.themeStr}/>) : null }
       </View>);
   }
 
@@ -1267,7 +1239,7 @@ class ReaderApp extends React.Component {
     }*/
     return (
       <SafeAreaView style={styles.safeArea}>
-        <View style={[styles.container, this.state.theme.container]} {...this.gestureResponder}>
+        <View style={[styles.container, this.props.theme.container]} {...this.gestureResponder}>
             <StatusBar
               barStyle="light-content"
             />
@@ -1278,10 +1250,30 @@ class ReaderApp extends React.Component {
   }
 }
 
-const mapStateToProps = state => ({
+const mapStateToProps = (
+  { theme,
+    themeStr,
+    textLanguageByTitle,
+    defaultTextLanguage,
+    menuLanguage,
+    fontSize,
+    textLanguage,
+  }) => ({
+  theme,
+  themeStr,
+  defaultTextLanguage,
+  menuLanguage,
+  fontSize,
+  textLanguageByTitle,
+  textLanguage,
 });
 
 const mapDispatchToProps = dispatch => ({
+  setTheme: themeStr => { dispatch(ACTION_CREATORS.setTheme(themeStr)); },
+  setMenuLanguage: language => { dispatch(ACTION_CREATORS.setMenuLanguage(language)); },
+  setTextLanguageByTitle: (title, language) => { dispatch(ACTION_CREATORS.setTextLanguageByTitle(title, language)); },
+  setFontSize: fontSize => { dispatch(ACTION_CREATORS.setFontSize(fontSize)); },
+  setDefaultTextLanguage: language => { dispatch(ACTION_CREATORS.setDefaultTextLanguage(language)); },
 });
 
 export default connect(

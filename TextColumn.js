@@ -27,7 +27,7 @@ class TextColumn extends React.Component {
   static propTypes = {
     theme:              PropTypes.object.isRequired,
     themeStr:           PropTypes.string,
-    settings:           PropTypes.object,
+    fontSize:           PropTypes.number.isRequired,
     data:               PropTypes.array,
     textReference:      PropTypes.string,
     sectionArray:       PropTypes.array,
@@ -372,7 +372,7 @@ class TextColumn extends React.Component {
       <TextRangeContinuous
         theme={this.props.theme}
         themeStr={this.props.themeStr}
-        settings={this.props.settings}
+        fontSize={this.props.fontSize}
         rowData={item.data}
         sectionRef={sectionRef}
         textLanguage={this.props.textLanguage}
@@ -390,7 +390,7 @@ class TextColumn extends React.Component {
       <TextRange
         theme={this.props.theme}
         themeStr={this.props.themeStr}
-        settings={this.props.settings}
+        fontSize={this.props.fontSize}
         rowData={item.data}
         segmentRef={item.ref}
         textLanguage={this.props.textLanguage}

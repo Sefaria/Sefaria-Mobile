@@ -23,7 +23,7 @@ class TextSegment extends React.PureComponent {
     textType:           PropTypes.oneOf(["english","hebrew"]),
     bilingual:          PropTypes.bool,
     textSegmentPressed: PropTypes.func.isRequired,
-    settings:           PropTypes.object
+    fontSize:           PropTypes.number.isRequired,
   };
 
   constructor(props) {
@@ -45,15 +45,15 @@ class TextSegment extends React.PureComponent {
 
   componentWillReceiveProps(nextProps) {
     if (this.props.themeStr !== nextProps.themeStr ||
-        this.props.settings.fontSize !== nextProps.settings.fontSize) {
+        this.props.fontSize !== nextProps.fontSize) {
       this.setState({ resetKey: Math.random() }); //hacky fix to reset htmlview when theme colors change
     }
   }
   render() {
     // console.log(this.props.segmentKey+": "+typeof(this.props.textRef));
     const style = this.props.textType == "hebrew" ?
-                  [styles.hebrewText, this.props.theme.text, styles.justifyText, {fontSize: this.props.settings.fontSize, lineHeight: this.props.settings.fontSize * 1.1},] :
-                  [styles.englishText, this.props.theme.text, styles.justifyText, {fontSize: 0.8 * this.props.settings.fontSize, lineHeight: this.props.settings.fontSize * 1.04 }];
+                  [styles.hebrewText, this.props.theme.text, styles.justifyText, {fontSize: this.props.fontSize, lineHeight: this.props.fontSize * 1.1},] :
+                  [styles.englishText, this.props.theme.text, styles.justifyText, {fontSize: 0.8 * this.props.fontSize, lineHeight: this.props.fontSize * 1.04 }];
     if (this.props.bilingual && this.props.textType == "english") {
       style.push(styles.bilingualEnglishText);
       style.push(this.props.theme.bilingualEnglishText);

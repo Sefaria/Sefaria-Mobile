@@ -23,7 +23,7 @@ class ConnectionsPanelHeader extends React.Component {
   static propTypes = {
     theme:              PropTypes.object.isRequired,
     themeStr:           PropTypes.string.isRequired,
-    settings:           PropTypes.object.isRequired,
+    menuLanguage:       PropTypes.oneOf(["english", "hebrew"]).isRequired,
     interfaceLang:      PropTypes.oneOf(["english", "hebrew"]).isRequired,
     setConnectionsMode: PropTypes.func.isRequired,
     closeCat:           PropTypes.func.isRequired,
@@ -31,7 +31,6 @@ class ConnectionsPanelHeader extends React.Component {
     category:           PropTypes.string,
     filterIndex:        PropTypes.number,
     recentFilters:      PropTypes.array,
-    language:           PropTypes.oneOf(["english","hebrew","bilingual"]),
     connectionsMode:    PropTypes.string,
   };
 
@@ -77,7 +76,7 @@ class ConnectionsPanelHeader extends React.Component {
                 recentFilters={this.props.recentFilters}
                 filterIndex={this.props.filterIndex}
                 updateCat={this.props.updateCat}
-                language={this.props.settings.language}
+                language={this.props.menuLanguage}
               />
             </ScrollView>
           </View>

@@ -26,7 +26,7 @@ class SearchFilterPage extends React.Component {
   static propTypes = {
     theme:            PropTypes.object.isRequired,
     themeStr:         PropTypes.string.isRequired,
-    settings:         PropTypes.object.isRequired,
+    menuLanguage:     PropTypes.object.isRequired,
     subMenuOpen:      PropTypes.string.isRequired,
     updateFilter:     PropTypes.func.isRequired,
     openSubMenu:      PropTypes.func.isRequired,
@@ -126,7 +126,7 @@ class SearchFilterPage extends React.Component {
                       key={ifilter}
                       theme={this.props.theme}
                       themeStr={this.props.themeStr}
-                      settings={this.props.settings}
+                      menuLanguage={this.props.menuLanguage}
                       filterNode={filter}
                       openSubMenu={this.props.openSubMenu}
                       updateFilter={this.props.updateFilter}
@@ -144,7 +144,7 @@ class SearchFilterPage extends React.Component {
           key={0}
           theme={this.props.theme}
           themeStr={this.props.themeStr}
-          settings={this.props.settings}
+          menuLanguage={this.props.menuLanguage}
           filterNode={currFilter}
           updateFilter={this.props.updateFilter}
           />)];
@@ -157,7 +157,7 @@ class SearchFilterPage extends React.Component {
                   key={ifilter+1}
                   theme={this.props.theme}
                   themeStr={this.props.themeStr}
-                  settings={this.props.settings}
+                  menuLanguage={this.props.menuLanguage}
                   filterNode={filter}
                   updateFilter={this.props.updateFilter}
                 />);
@@ -192,7 +192,7 @@ class SearchFilter extends React.Component {
   static propTypes = {
     theme:        PropTypes.object,
       themeStr:     PropTypes.string,
-      settings:     PropTypes.object.isRequired,
+      menuLanguage: PropTypes.string.isRequired,
       filterNode:   FilterNode.checkPropType,
       openSubMenu:  PropTypes.func,
       updateFilter: PropTypes.func.isRequired,
@@ -203,7 +203,6 @@ class SearchFilter extends React.Component {
   }
 ///^[^_]*$
   render() {
-    let language = this.props.settings.language == "hebrew" ? "hebrew" : "english";
     let filter = this.props.filterNode;
     let isCat = filter.children.length > 0;
     let count = filter.docCount;
@@ -211,12 +210,12 @@ class SearchFilter extends React.Component {
     let colorCat = Sefaria.palette.categoryColor(filter.title.replace(" Commentaries", ""));
     let colorStyle = isCat ? [{"borderColor": colorCat}] : [this.props.theme.searchResultSummary, {"borderTopWidth": 1}];
     let textStyle  = [isCat ? styles.spacedText : null];
-    let flexDir = language == "english" ? "row" : "row-reverse";
+    let flexDir = this.props.menuLanguage == "english" ? "row" : "row-reverse";
     return (
       <LibraryNavButton
         theme={this.props.theme}
         themeStr={this.props.themeStr}
-        settings={this.props.settings}
+        menuLanguage={this.props.menuLanguage}
         isCat={isCat}
         onPress={()=>{ this.props.openSubMenu ? this.props.openSubMenu(filter.title) : this.clickCheckBox() }}
         onPressCheckBox={this.clickCheckBox}

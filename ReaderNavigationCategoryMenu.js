@@ -37,7 +37,7 @@ class ReaderNavigationCategoryMenu extends React.Component {
     openRef:        PropTypes.func.isRequired,
     navHome:        PropTypes.func.isRequired,
     toggleLanguage: PropTypes.func.isRequired,
-    settings:       PropTypes.object.isRequired,
+    menuLanguage:   PropTypes.string.isRequired,
   };
 
   constructor(props) {
@@ -46,7 +46,7 @@ class ReaderNavigationCategoryMenu extends React.Component {
   }
 
   render() {
-    var showHebrew = this.props.settings.language == "hebrew";
+    var showHebrew = this.props.menuLanguage == "hebrew";
 
     // Show Talmud with Toggles
     var categories  = this.props.categories[0] === "Talmud" && this.props.categories.length == 1 ?
@@ -71,7 +71,7 @@ class ReaderNavigationCategoryMenu extends React.Component {
                       theme={this.props.theme}
                       options={options}
                       active={categories[1]}
-                      contentLang={this.props.settings.language} />;
+                      contentLang={this.props.menuLanguage} />;
     } else {
       var toggle = null;
     }
@@ -81,7 +81,6 @@ class ReaderNavigationCategoryMenu extends React.Component {
     var catContents = Sefaria.tocItemsByCategories(categories);
     var enTitle = this.props.category.toUpperCase();
     var heTitle = Sefaria.hebrewCategory(this.props.category);
-    var language = this.props.settings.language == "hebrew" ? "hebrew" : "english";
     return (<View style={[styles.menu, this.props.theme.menu]}>
               <CategoryColorLine category={categories[0]} />
               <View style={[styles.header, this.props.theme.header]}>
@@ -93,14 +92,14 @@ class ReaderNavigationCategoryMenu extends React.Component {
                 <LanguageToggleButton
                   theme={this.props.theme}
                   toggleLanguage={this.props.toggleLanguage}
-                  language={language} />
+                  language={this.props.menuLanguage} />
               </View>
 
               <ScrollView style={styles.menuContent} contentContainerStyle={styles.menuScrollViewContent}>
                   {toggle}
                   <CategoryAttribution
                     categories={categories}
-                    language={showHebrew ? "hebrew" : "english"}
+                    language={this.props.menuLanguage}
                     context={"navigationCategory"} />
                   <ReaderNavigationCategoryMenuContents
                     theme={this.props.theme}
@@ -108,7 +107,7 @@ class ReaderNavigationCategoryMenu extends React.Component {
                     categories={categories}
                     setCategories={this.props.setCategories}
                     openRef={this.props.openRef}
-                    settings={this.props.settings} />
+                    menuLanguage={this.props.menuLanguage} />
               </ScrollView>
             </View>);
   }
@@ -122,12 +121,12 @@ class ReaderNavigationCategoryMenuContents extends React.Component {
     categories:    PropTypes.array.isRequired,
     setCategories: PropTypes.func.isRequired,
     openRef:       PropTypes.func.isRequired,
-    settings:      PropTypes.object.isRequired
+    menuLanguage:  PropTypes.string.isRequired
   };
 
   render() {
       var content = [];
-      var showHebrew = this.props.settings.language == "hebrew";
+      var showHebrew = this.props.menuLanguage == "hebrew";
       var cats = this.props.categories || [];
       //remove commentary category
       let subcats = [ "Mishneh Torah", "Shulchan Arukh", "Midrash Rabbah", "Maharal", "Tosefta"];
@@ -169,7 +168,7 @@ class ReaderNavigationCategoryMenuContents extends React.Component {
                             categories={newCats}
                             setCategories={this.props.setCategories}
                             openRef={this.props.openRef}
-                            settings={this.props.settings} />
+                            menuLanguage={this.props.menuLanguage} />
                         </View>));
         } else {
           // Add a Text
@@ -194,7 +193,7 @@ class ReaderNavigationCategoryMenuContents extends React.Component {
         // Walk through content looking for runs of texts/subcats to group together into a table
         if (content[i].key.startsWith("category")) { // this is a subcategory
           if (currentRun.length) {
-            boxedContent.push((<TwoBox content={currentRun} key={i} language={showHebrew ? "hebrew" : "english"} />));
+            boxedContent.push((<TwoBox content={currentRun} key={i} language={this.props.menuLanguage} />));
             currentRun = [];
           }
           boxedContent.push(content[i]);
@@ -203,7 +202,7 @@ class ReaderNavigationCategoryMenuContents extends React.Component {
         }
       }
       if (currentRun.length) {
-        boxedContent.push((<TwoBox content={currentRun} key={i} language={showHebrew ? "hebrew" : "english"} />));
+        boxedContent.push((<TwoBox content={currentRun} key={i} language={this.props.menuLanguage} />));
       }
       return (<View>{boxedContent}</View>);
   }

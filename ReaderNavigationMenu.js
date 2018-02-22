@@ -29,7 +29,7 @@ class ReaderNavigationMenu extends React.Component {
     theme:          PropTypes.object.isRequired,
     themeStr:       PropTypes.string.isRequired,
     categories:     PropTypes.array.isRequired,
-    settings:       PropTypes.object.isRequired,
+    menuLanguage:   PropTypes.string.isRequired,
     interfaceLang:  PropTypes.oneOf(["english","hebrew"]).isRequired,
     setCategories:  PropTypes.func.isRequired,
     openRef:        PropTypes.func.isRequired,
@@ -70,7 +70,7 @@ class ReaderNavigationMenu extends React.Component {
                 themeStr={this.props.themeStr}
                 categories={this.props.categories}
                 category={this.props.categories.slice(-1)[0]}
-                settings={this.props.settings}
+                menuLanguage={this.props.menuLanguage}
                 closeNav={this.props.closeNav}
                 setCategories={this.props.setCategories}
                 openRef={this.props.openRef}
@@ -95,7 +95,6 @@ class ReaderNavigationMenu extends React.Component {
         "Modern Works",
         "Other"
       ];
-      var language = this.props.settings.language == "hebrew" ? "hebrew" : "english";
       categories = categories.map(function(cat) {
         var openCat = function() {
           this.props.setCategories([cat]);
@@ -107,7 +106,7 @@ class ReaderNavigationMenu extends React.Component {
                   category={cat}
                   heCat={heCat}
                   upperCase={true}
-                  language={language}
+                  language={this.props.menuLanguage}
                   onPress={openCat}
                   key={cat} />);
       }.bind(this));
@@ -116,12 +115,12 @@ class ReaderNavigationMenu extends React.Component {
                     category={"More"}
                     heCat={"עוד"}
                     upperCase={true}
-                    language={language}
+                    language={this.props.menuLanguage}
                     onPress={this.showMore}
                     withArrow={true}
                     key={"More"} />);
       categories = this.state.showMore ? categories : categories.slice(0,9).concat(more);
-      categories = (<View style={styles.readerNavCategories}><TwoBox content={categories} language={language}/></View>);
+      categories = (<View style={styles.readerNavCategories}><TwoBox content={categories} language={this.props.menuLanguage}/></View>);
 
 
       return(<View style={[styles.menu, this.props.theme.menu]}>
@@ -135,13 +134,13 @@ class ReaderNavigationMenu extends React.Component {
                 onQueryChange={this.props.openSearch}
                 setIsNewSearch={this.props.setIsNewSearch}
                 toggleLanguage={this.props.toggleLanguage}
-                language={language} />
+                language={this.props.menuLanguage} />
               <ScrollView contentContainerStyle={styles.menuContent}>
 
                 <RecentSection
                   theme={this.props.theme}
                   openRef={this.props.openRef}
-                  language={language}
+                  language={this.props.menuLanguage}
                   interfaceLang={this.props.interfaceLang}
                   openRecent={this.props.openRecent} />
 
@@ -156,7 +155,7 @@ class ReaderNavigationMenu extends React.Component {
                 <CalendarSection
                   theme={this.props.theme}
                   openRef={this.props.openRef}
-                  language={language}
+                  language={this.props.menuLanguage}
                   interfaceLang={this.props.interfaceLang} />
 
 

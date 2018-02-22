@@ -6,8 +6,7 @@ import Downloader from './downloader';
 import Api from './api';
 import Search from './search';
 import LinkContent from './LinkContent';
-import iPad from './isIPad';
-import strings from './LocalizedStrings';
+import { initAsyncStorage } from './ReduxStore';
 
 
 Sefaria = {
@@ -19,7 +18,7 @@ Sefaria = {
       Sefaria._loadRecentItems(),
       Sefaria._loadCalendar(),
       Sefaria.downloader.init(),
-      Sefaria.settings.init(),
+      initAsyncStorage(),
     ]);
     // Sefaria.calendar is loaded async when ReaderNavigationMenu renders
   },
@@ -1047,52 +1046,6 @@ Sefaria.downloader = Downloader;
 Sefaria.api = Api;
 
 Sefaria.search = Search;
-
-Sefaria.settings = {
-  _fields: {
-    // List of keys to load on init as well as their default values
-    defaultTextLanguage: strings.getInterfaceLanguage().startsWith("he") ? "hebrew" : "bilingual",
-    textLangaugeByTitle: {},
-    menuLanguage: strings.getInterfaceLanguage().startsWith("he") ? "hebrew" : "english",
-    color: "white",
-    fontSize: iPad ? 25 : 20,
-  },
-  init: function() {
-    // Loads data from each field in `_data` stored in Async storage into local memory for sync access.
-    // Returns a Promise that resolves when all fields are loaded.
-    var promises = [];
-    for (field in this._fields) {
-      if (Sefaria.settings._fields.hasOwnProperty(field)) {
-        var loader = function(field, value) {
-          Sefaria.settings[field] = value ? JSON.parse(value) : Sefaria.settings._fields[field];
-        }.bind(null, field);
-        var promise = AsyncStorage.getItem(field)
-          .then(loader)
-          .catch(function(error) {
-            console.error("AsyncStorage failed to load setting: " + error);
-          });
-        promises.push(promise);
-      }
-    }
-    return Promise.all(promises);
-  },
-  set: function(field, value) {
-    // Sets `Sefaria.settings[field]` to `value` in local memory and saves it to Async storage
-    this[field] = value;
-    AsyncStorage.setItem(field, JSON.stringify(value));
-  },
-  textLanguage: function(text, language = null) {
-    // Getter/Setter for sticky text language by text title.
-    if (language) {
-      this.textLangaugeByTitle[text] = language;
-      this.set("textLangaugeByTitle", this.textLangaugeByTitle);
-    } else {
-      // Fall back to default if no value has been set
-      return text in this.textLangaugeByTitle ? this.textLangaugeByTitle[text] : this.defaultTextLanguage;
-    }
-  }
-};
-
 
 Sefaria.hebrew = {
   hebrewNumerals: {

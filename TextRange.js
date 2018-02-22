@@ -14,7 +14,7 @@ class TextRange extends React.PureComponent {
   static propTypes = {
     theme:              PropTypes.object.isRequired,
     themeStr:           PropTypes.string.isRequired,
-    settings:           PropTypes.object.isRequired,
+    fontSize:           PropTypes.number.isRequired,
     rowData:            PropTypes.object.isRequired,
     segmentRef:         PropTypes.string.isRequired,
     textLanguage:       PropTypes.oneOf(["hebrew","english","bilingual"]),
@@ -67,7 +67,7 @@ class TextRange extends React.PureComponent {
         data={heText}
         textType="hebrew"
         textSegmentPressed={ this.props.textSegmentPressed }
-        settings={this.props.settings}/>);
+        fontSize={this.props.fontSize}/>);
     }
 
     if (textLanguage == "english" || textLanguage == "bilingual") {
@@ -81,7 +81,7 @@ class TextRange extends React.PureComponent {
         textType="english"
         bilingual={textLanguage === "bilingual"}
         textSegmentPressed={ this.props.textSegmentPressed }
-        settings={this.props.settings} />);
+        fontSize={this.props.fontSize} />);
     }
 
     let textStyle = [styles.textSegment];

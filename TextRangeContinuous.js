@@ -12,7 +12,7 @@ import styles from './Styles';
 
 class TextRangeContinuous extends React.PureComponent {
   static propTypes = {
-    settings:           PropTypes.object.isRequired,
+    fontSize:           PropTypes.number.isRequired,
     theme:              PropTypes.object.isRequired,
     themeStr:           PropTypes.string.isRequired,
     rowData:            PropTypes.object.isRequired,
@@ -67,7 +67,7 @@ class TextRangeContinuous extends React.PureComponent {
             data={currSegData.he}
             textType="hebrew"
             textSegmentPressed={ this.props.textSegmentPressed }
-            settings={this.props.settings}
+            fontSize={this.props.fontSize}
           />
         );
       }
@@ -83,7 +83,7 @@ class TextRangeContinuous extends React.PureComponent {
           data={currSegData.text}
           textType="english"
           textSegmentPressed={ this.props.textSegmentPressed }
-          settings={this.props.settings}/>);
+          fontSize={this.props.fontSize}/>);
       }
 
       segmentText.push(<Text key={segmentRef+"-emptytext"}> </Text>);

@@ -24,7 +24,7 @@ class SearchPage extends React.Component {
     theme:               PropTypes.object.isRequired,
     themeStr:            PropTypes.string.isRequired,
     interfaceLang:       PropTypes.oneOf(["english", "hebrew"]).isRequired,
-    settings:            PropTypes.object.isRequired,
+    menuLanguage:        PropTypes.string.isRequired,
     subMenuOpen:         PropTypes.string,
     openSubMenu:         PropTypes.func,
     hasInternet:         PropTypes.bool,
@@ -112,7 +112,7 @@ class SearchPage extends React.Component {
           <SearchFilterPage
             theme={this.props.theme}
             themeStr={this.props.themeStr}
-            settings={this.props.settings}
+            menuLanguage={this.props.menuLanguage}
             subMenuOpen={this.props.subMenuOpen}
             openSubMenu={this.props.openSubMenu}
             query={this.props.query}
