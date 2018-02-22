@@ -1122,8 +1122,8 @@ class ReaderApp extends React.Component {
           <CategoryColorLine category={Sefaria.categoryForTitle(this.state.textTitle)} />
           <ReaderControls
             theme={this.props.theme}
-            title={this.props.textLanguage == "hebrew" ? this.state.heRef : this.state.textReference}
-            language={this.props.textLanguage}
+            title={this.props.menuLanguage == "hebrew" ? this.state.heRef : this.state.textReference}
+            language={this.props.menuLanguage}
             categories={Sefaria.categoriesForTitle(this.state.textTitle)}
             openNav={this.openNav}
             themeStr={this.props.themeStr}
