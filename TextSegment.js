@@ -42,7 +42,11 @@ class TextSegment extends React.PureComponent {
   onLongPress = () => {
     // Do nothing -- need to prevent onPress from firing onLongPress
   };
-
+  filterOutFootnotes = text => {
+    // right now app is not displaying footnotes properly. interim solution is to not display them at all
+    //NOTE need to be careful about nested i-tags
+    return text.replace(/<sup>[^<]*<\/sup> *<i +class=["']footnote["']>(?:[^<]*|(?:[^<]*<i>[^<]*<\/i>[^<]*)+)<\/i>/g, '');
+  }
   componentWillReceiveProps(nextProps) {
     if (this.props.themeStr !== nextProps.themeStr ||
         this.props.fontSize !== nextProps.fontSize) {
@@ -58,10 +62,11 @@ class TextSegment extends React.PureComponent {
       style.push(styles.bilingualEnglishText);
       style.push(this.props.theme.bilingualEnglishText);
     }
+    const data = this.filterOutFootnotes(this.props.data);
     return (
            <HTMLView
              key={this.state.resetKey}
-             value= {this.props.textType == "hebrew" ? "<hediv>"+this.props.data+"</hediv>" : "<endiv>"+this.props.data+"</endiv>"}
+             value= {this.props.textType == "hebrew" ? "<hediv>"+data+"</hediv>" : "<endiv>"+data+"</endiv>"}
              stylesheet={styles}
              textComponentProps={
                {
