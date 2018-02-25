@@ -8,6 +8,11 @@ import Search from './search';
 import LinkContent from './LinkContent';
 import { initAsyncStorage } from './ReduxStore';
 
+const ERRORS = {
+  NOT_OFFLINE: 1,
+  NO_CONTEXT: 2,
+  CANT_GET_SECTION_FROM_DATA: "Couldn't find section in depth 3+ text",
+};
 
 Sefaria = {
   init: function() {
@@ -29,67 +34,97 @@ Sefaria = {
   data: function(ref, context, versions) {
     if (typeof context === "undefined") { context = true; }
     return new Promise(function(resolve, reject) {
+      const bookRefStem  = Sefaria.textTitleForRef(ref);
+      Sefaria.loadOfflineFile(ref, context, versions)
+        .then(data => { Sefaria.processFileData(ref, data).then(resolve); })
+        .catch(error => {
+          if (error === ERRORS.NOT_OFFLINE) {
+            Sefaria.loadFromApi(ref, context, versions, bookRefStem)
+              .then(data => { Sefaria.processApiData(ref, context, versions, data).then(resolve); })
+              .catch(error => {
+                if (error.error === ERRORS.NO_CONTEXT) {
+                  resolve(error.data);
+                } else {
+                  reject(error);
+                }
+              })
+          } else {
+            reject(error);
+          }
+        })
+    });
+  },
+  getSectionFromJsonData: function(ref, data) {
+    if ("content" in data) {
+      return data;
+    } else {
+      // If the data file represents multiple sections, pick the appropriate one to return
+      var refUpOne = ref.lastIndexOf(":") !== -1 ? ref.slice(0, ref.lastIndexOf(":")) : ref;
+      if (ref in data.sections) {
+        return data.sections[ref];
+      } else if (refUpOne in data.sections) {
+        return data.sections[refUpOne];
+      } else {
+        return;
+      }
+    }
+  },
+  processFileData: function(ref, data) {
+    return new Promise((resolve, reject) => {
+      // Store data in in memory cache if it's not there already
+      const result = Sefaria.getSectionFromJsonData(ref, data);
+      if (!result) { reject(ERRORS.CANT_GET_SECTION_FROM_DATA); }
+      // Annotate link objects with useful fields not included in export
+      result.content.forEach(segment => {
+        if ("links" in segment) {
+          segment.links.map(link => {
+            link.textTitle = Sefaria.textTitleForRef(link.sourceRef);
+            if (!("category" in link)) {
+              link.category = Sefaria.categoryForTitle(link.textTitle);
+            }
+          });
+        }
+      });
+      result.requestedRef   = ref;
+      result.isSectionLevel = (ref === result.sectionRef);
+      Sefaria.cacheCommentatorListBySection(result);
+      Sefaria.cacheVersionInfo(result, true);
+      resolve(result);
+    });
+  },
+  processApiData: function(ref, context, versions, data) {
+    return new Promise((resolve, reject) => {
+      Sefaria.api.textCache(ref, context, versions, data);
+      Sefaria.cacheCommentatorListBySection(data);
+      Sefaria.cacheVersionInfo(data, true);
+      //console.log(data);
+      resolve(data);
+    });
+  },
+  loadOfflineFile: function(ref, context, versions) {
+    return new Promise(function(resolve, reject) {
       var fileNameStem = ref.split(":")[0];
       var bookRefStem  = Sefaria.textTitleForRef(ref);
       //if you want to open a specific version, there is no json file. force an api call instead
       var jsonPath     = !!versions ? "" : Sefaria._JSONSourcePath(fileNameStem);
       var zipPath      = !!versions ? "" : Sefaria._zipSourcePath(bookRefStem);
 
-      //console.log("file name stem",fileNameStem);
-
-      var processFileData = function(data) {
-        // Store data in in memory cache if it's not there already
-        if (!(jsonPath in Sefaria._jsonData)) {
-          Sefaria._jsonData[jsonPath] = data;
-        }
-        if ("content" in data) {
-          var result = data;
-        } else {
-          // If the data file represents multiple sections, pick the appropriate one to return
-          var refUpOne = ref.lastIndexOf(":") !== -1 ? ref.slice(0, ref.lastIndexOf(":")) : ref;
-          if (ref in data.sections) {
-            var result = data.sections[ref];
-          } else if (refUpOne in data.sections) {
-            var result = data.sections[refUpOne];
-          } else {
-            reject("Couldn't find section in depth 3+ text");
-            return;
-          }
-        }
-        // Annotate link objects with useful fields not included in export
-        result.content.forEach(function(segment) {
-          if ("links" in segment) {
-            segment.links.map(function(link) {
-              link.textTitle = Sefaria.textTitleForRef(link.sourceRef);
-              if (!("category" in link)) {
-                link.category = Sefaria.categoryForTitle(link.textTitle);
-              }
-            });
-          }
-        });
-        result.requestedRef   = ref;
-        result.isSectionLevel = (ref === result.sectionRef);
-        Sefaria.cacheCommentatorListBySection(result);
-        Sefaria.cacheVersionInfo(result, true);
-        resolve(result);
-      };
-
-      var processApiData = function(data) {
-        Sefaria.api.textCache(ref, context, versions, data);
-        Sefaria.cacheCommentatorListBySection(data);
-        Sefaria.cacheVersionInfo(data, true);
-        //console.log(data);
-        resolve(data);
-      };
-
       // Pull data from in memory cache if available
       if (jsonPath in Sefaria._jsonData) {
-        processFileData(Sefaria._jsonData[jsonPath]);
+        resolve(Sefaria._jsonData[jsonPath]);
         return;
       }
 
+      const preResolve = data => {
+        if (!(jsonPath in Sefaria._jsonData)) {
+          Sefaria._jsonData[jsonPath] = data;
+        }
+        console.log("OFFLINE");
+        resolve(data);
+      };
+
       Sefaria._loadJSON(jsonPath)
-        .then(processFileData)
+        .then(preResolve)
         .catch(function() {
           // If there was en error, check that we have the zip file downloaded
           RNFS.exists(zipPath)
@@ -98,40 +133,45 @@ Sefaria = {
                 Sefaria._unzip(zipPath)
                   .then(function() {
                     Sefaria._loadJSON(jsonPath)
-                      .then(processFileData)
+                      .then(preResolve)
                       .catch(function() {
                         // Now that the file is unzipped, if there was an error assume we have a depth 1 text
                         var depth1FilenameStem = fileNameStem.substr(0, fileNameStem.lastIndexOf(" "));
                         var depth1JSONPath = Sefaria._JSONSourcePath(depth1FilenameStem);
                         Sefaria._loadJSON(depth1JSONPath)
-                          .then(processFileData)
+                          .then(preResolve)
                           .catch(function() {
                             console.error("Error loading JSON file: " + jsonPath + " OR " + depth1JSONPath);
                           });
                       });
                   });
               } else {
-                // The zip doesn't exist yet, so make an API call
-                const cacheValue = Sefaria.api.textCache(ref, context, versions);
-                if (cacheValue) {
-                  // Don't check the API cahce until we've checked for a local file, because the API
-                  // cache may be left in a state with text but without links.
-                  processApiData(cacheValue);
-                  return;
-                }
-                Sefaria.api._text(ref, { context, versions })
-                  .then(data => {
-                    if (context) { processApiData(data); }
-                    else         { resolve(data); }
-                  })
-                  .catch(function(error) {
-                    //console.error("Error with API: ", Sefaria.api._toURL(ref, false, 'text', true));
-                    reject(error);
-                });
-                Sefaria.downloader.prioritizeDownload(bookRefStem);
+                console.log("API");
+                reject(ERRORS.NOT_OFFLINE);
               }
             });
         });
+    });
+  },
+  loadFromApi: function(ref, context, versions, bookRefStem) {
+    return new Promise((resolve, reject) => {
+      // The zip doesn't exist yet, so make an API call
+      const cacheValue = Sefaria.api.textCache(ref, context, versions);
+      if (cacheValue) {
+        // Don't check the API cahce until we've checked for a local file, because the API
+        // cache may be left in a state with text but without links.
+        resolve(cacheValue);
+      }
+      Sefaria.api._text(ref, { context, versions })
+        .then(data => {
+          if (context) { resolve(data); }
+          else         { reject({error: ERRORS.NO_CONTEXT, data}); }
+        })
+        .catch(function(error) {
+          //console.error("Error with API: ", Sefaria.api._toURL(ref, false, 'text', true));
+          reject(error);
+      });
+      Sefaria.downloader.prioritizeDownload(bookRefStem);
     });
   },
   _jsonData: {}, // in memory cache for JSON data
@@ -632,6 +672,62 @@ Sefaria = {
     /* when you switch segments, delete stack and hashtable */
     reset: function() {
       Sefaria.links._linkContentLoadingStack = [];
+    },
+    load: function(ref) {
+      return new Promise((resolve, reject) => {
+        Sefaria.loadOfflineFile(ref, false)
+        .then(data => {
+          // mimic response of links API so that addLinksToText() will work independent of data source
+          const sectionData = Sefaria.getSectionFromJsonData(ref, data);
+          if (!sectionData) { reject(ERRORS.CANT_GET_SECTION_FROM_DATA); }
+          const linkList = (sectionData.content.reduce((accum, segment, segNum) => accum.concat(
+            ("links" in segment) ? segment.links.map(link => {
+              const index_title = Sefaria.textTitleForRef(link.sourceRef);
+              return {
+                sourceRef: link.sourceRef,
+                sourceHeRef: link.sourceHeRef,
+                index_title,
+                category: ("category" in link) ? link.category : Sefaria.categoryForTitle(index_title),
+                anchorRef: `${ref}:${segNum+1}`,
+              }
+            }) : []
+          ), []));
+          resolve(linkList);
+        })
+        .catch(error => {
+          if (error === ERRORS.NOT_OFFLINE) {
+            Sefaria.api.links(ref).then(resolve);
+          } else { reject(error); }
+        })
+      });
+    },
+    addLinksToText: function(text, links) {
+      let link_response = new Array(text.length);
+      //filter out books not in toc
+      links = links.filter((l)=>{
+        return l.index_title in Sefaria.booksDict;
+      });
+      for (let i = 0; i < links.length; i++) {
+        let link = links[i];
+        let linkSegIndex = parseInt(link.anchorRef.substring(link.anchorRef.lastIndexOf(':') + 1)) - 1;
+        if (!link_response[linkSegIndex]) {
+          link_response[linkSegIndex] = [];
+        }
+        link_response[linkSegIndex].push({
+          "category": link.category,
+          "sourceRef": link.sourceRef, //.substring(0,link.sourceRef.lastIndexOf(':')),
+          "sourceHeRef": link.sourceHeRef, //.substring(0,link.sourceHeRef.lastIndexOf(':')),
+          "textTitle": link.index_title,
+          "collectiveTitle": link.collectiveTitle ? link.collectiveTitle.en: null,
+          "heCollectiveTitle": link.collectiveTitle ? link.collectiveTitle.he : null,
+        });
+      }
+      return text.map((seg,i) => ({
+        "segmentNumber": seg.segmentNumber,
+        "he": seg.he,
+        "text": seg.text,
+        "links": link_response[i] ? link_response[i] : []
+      }));
     },
     loadLinkData: function(ref, pos, resolveClosure, rejectClosure, runNow) {
        const parseData = function(data) {

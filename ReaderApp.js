@@ -411,33 +411,26 @@ class ReaderApp extends React.Component {
 
   loadLinks = (ref) => {
     // Ensures that links have been loaded for `ref` and stores result in `this.state.linksLoaded` array.
-    // Within Sefaria.api.links a check is made if the zip file exists. If so then no API call is made and links
-    // are marked as having already been loading by previoius call to Sefaria.data.
-    Sefaria.api.links(ref)
-      .then((linksResponse)=>{
+    // Links are not loaded yet in case you're in API mode, or you are reading a non-default version
+    const iSec = this.state.sectionArray.findIndex(secRef=>secRef===ref);
+    if (!iSec && iSec !== 0) { console.log("could not find section ref in sectionArray", ref); return; }
+    Sefaria.links.load(ref)
+      .then(linksResponse => {
         //add the links into the appropriate section and reload
-        this.state.sectionArray.map((secRef, iSec) => {
-          if (secRef == ref) {
-            this.state.data[iSec] = Sefaria.api.addLinksToText(this.state.data[iSec], linksResponse);
-            let tempLinksLoaded = this.state.linksLoaded.slice(0);
-            tempLinksLoaded[iSec] = true;
-            if (this.state.segmentIndexRef != -1 && this.state.sectionIndexRef != -1) {
-              this.updateLinkSummary(this.state.sectionIndexRef, this.state.segmentIndexRef);
-            }
+        this.state.data[iSec] = Sefaria.links.addLinksToText(this.state.data[iSec], linksResponse);
+        let tempLinksLoaded = this.state.linksLoaded.slice(0);
+        tempLinksLoaded[iSec] = true;
+        if (this.state.segmentIndexRef != -1 && this.state.sectionIndexRef != -1) {
+          this.updateLinkSummary(this.state.sectionIndexRef, this.state.segmentIndexRef);
+        }
 
-            this.setState({data: this.state.data, linksLoaded: tempLinksLoaded});
-          }
-        });
+        this.setState({data: this.state.data, linksLoaded: tempLinksLoaded});
       })
-      .catch(()=>{
-        this.state.sectionArray.map((secRef, iSec)=>{
-          if (secRef == ref) {
-            let tempLinksLoaded = this.state.linksLoaded.slice(0);
-            tempLinksLoaded[iSec] = true;
-            this.setState({linksLoaded: tempLinksLoaded});
-          }
-        });
-
+      .catch(error=>{
+        console.log("FAILED", error);
+        let tempLinksLoaded = this.state.linksLoaded.slice(0);
+        tempLinksLoaded[iSec] = true;
+        this.setState({linksLoaded: tempLinksLoaded});
       });
   };
 

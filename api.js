@@ -190,60 +190,22 @@ var Api = {
     });
   },
   links: function(ref) {
-    var bookRefStem  = Sefaria.textTitleForRef(ref);
-    var zipPath      = Sefaria._zipSourcePath(bookRefStem);
-    return new Promise((resolve,reject)=>{
-      RNFS.exists(zipPath)
-      .then((exists)=>{
-        if (exists && !Sefaria.downloader._data.debugNoLibrary) {
-          reject(); //you already opened these links from the file
-        } else {
-          if (ref in Sefaria.api._linkCache) {
-            resolve(Sefaria.api._linkCache[ref]);
-          } else {
-            Sefaria.api._request(ref,'links', {})
-            .then((response)=>{
-              //console.log("Setting API Link Cache for ",ref)
-              //console.log(response)
-              Sefaria.api._linkCache[ref] = response;
-              resolve(response);
-            })
-            .catch(()=>{
-              console.error("Links API error:",ref);
-            });
-          }
-        }
-      })
-    });
-  },
-  addLinksToText: function(text, links) {
-    let link_response = new Array(text.length);
-
-    //filter out books not in toc
-    links = links.filter((l)=>{
-      return l.index_title in Sefaria.booksDict;
-    });
-    for (let i = 0; i < links.length; i++) {
-      let link = links[i];
-      let linkSegIndex = parseInt(link.anchorRef.substring(link.anchorRef.lastIndexOf(':') + 1)) - 1;
-      if (!link_response[linkSegIndex]) {
-        link_response[linkSegIndex] = [];
+    return new Promise((resolve, reject) => {
+      if (ref in Sefaria.api._linkCache) {
+        resolve(Sefaria.api._linkCache[ref]);
+      } else {
+        Sefaria.api._request(ref,'links', {})
+        .then((response)=>{
+          //console.log("Setting API Link Cache for ",ref)
+          //console.log(response)
+          Sefaria.api._linkCache[ref] = response;
+          resolve(response);
+        })
+        .catch(()=>{
+          console.error("Links API error:",ref);
+        });
       }
-      link_response[linkSegIndex].push({
-        "category": link.category,
-        "sourceRef": link.sourceRef, //.substring(0,link.sourceRef.lastIndexOf(':')),
-        "sourceHeRef": link.sourceHeRef, //.substring(0,link.sourceHeRef.lastIndexOf(':')),
-        "textTitle": link.index_title,
-        "collectiveTitle": link.collectiveTitle.en,
-        "heCollectiveTitle": link.collectiveTitle.he
-      });
-    }
-    return text.map((seg,i) => ({
-      "segmentNumber": seg.segmentNumber,
-      "he": seg.he,
-      "text": seg.text,
-      "links": link_response[i] ? link_response[i] : []
-    }));
+    });
   },
   _textandlinks: function(ref) {
     var checkResolve = function(resolve) {
