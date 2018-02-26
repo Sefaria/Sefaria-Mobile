@@ -46,7 +46,7 @@ class TextSegment extends React.PureComponent {
     // right now app is not displaying footnotes properly. interim solution is to not display them at all
     //NOTE need to be careful about nested i-tags
     return text.replace(/<sup>[^<]*<\/sup> *<i +class=["']footnote["']>(?:[^<]*|(?:[^<]*<i>[^<]*<\/i>[^<]*)+)<\/i>/g, '');
-  }
+  };
   componentWillReceiveProps(nextProps) {
     if (this.props.themeStr !== nextProps.themeStr ||
         this.props.fontSize !== nextProps.fontSize) {

@@ -234,15 +234,26 @@ var Api = {
 
     });
   },
+  getCachedVersions: function(ref) {
+    const refUpOne = Sefaria.refUpOne(ref);
+    const cached = Sefaria.api._versions[ref] || Sefaria.api._versions[refUpOne];
+    if (!!cached) {
+      return cached;
+    }
+  },
   versions: function(ref, failSilently) {
     return new Promise((resolve, reject) => {
-      if (ref in Sefaria.api._versions) {
-        resolve(Sefaria.api._versions[ref]);
-        return;
-      }
+      const cached = Sefaria.api.getCachedVersions(ref);
+      if (!!cached) { resolve(cached); }
       Sefaria.api._request(ref, 'versions', {}, failSilently)
-        .then((response)=>{
+        .then(response => {
+          const defaultLangsFound = {};
           for (let v of response) {
+            // mark the first version in every language as default for that language
+            if (!defaultLangsFound[v.language]) {
+              defaultLangsFound[v.language] = true;
+              v.default = true;
+            }
             Sefaria.api._translateVersions[v.versionTitle] = {
               en: v.versionTitle,
               he: !!v.versionTitleInHebrew ? v.versionTitleInHebrew : v.versionTitle,

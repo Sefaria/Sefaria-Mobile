@@ -319,6 +319,7 @@ class ReaderApp extends React.Component {
     isLoadingVersion - true when you are replacing an already loaded text with a specific version
   */
   loadNewText = (ref, versions, isLoadingVersion) => {
+      versions = this.removeDefaultVersions(ref, versions);
       this.setState({
           loaded: false,
           data: [],
@@ -386,12 +387,27 @@ class ReaderApp extends React.Component {
 
   };
 
+  removeDefaultVersions = (ref, versions) => {
+    const cachedVersionList = Sefaria.api.getCachedVersions(ref);
+    if (!cachedVersionList) return versions;
+
+    const newVersions = {};
+    for (let [lang, versionTitle] of Object.entries(versions)) {
+      const versionObject = cachedVersionList.find(v => v.versionTitle === versionTitle && v.language === lang);
+      if (!versionObject || !versionObject.default) {
+        newVersions[lang] = versionTitle;
+      } // else you're switching to a default version. dont list this in `versions` so that it can be loaded offline (assuming you have it downloaded)
+    }
+    return newVersions;
+  };
+
   loadNewVersion = (ref, versions) => {
-    versions = {
+    // consider moving this logic to loadNewText()
+    const newVersions = {
       ...this.state.selectedVersions,
       ...versions,
-    };
-    this.loadNewText(ref, versions, true);
+    }
+    this.loadNewText(ref, newVersions, true);
   };
 
   setCurrVersions = (sectionRef, title) => {

@@ -59,7 +59,7 @@ Sefaria = {
       return data;
     } else {
       // If the data file represents multiple sections, pick the appropriate one to return
-      var refUpOne = ref.lastIndexOf(":") !== -1 ? ref.slice(0, ref.lastIndexOf(":")) : ref;
+      const refUpOne = Sefaria.refUpOne(ref);
       if (ref in data.sections) {
         return data.sections[ref];
       } else if (refUpOne in data.sections) {
@@ -68,6 +68,10 @@ Sefaria = {
         return;
       }
     }
+  },
+  refUpOne: function(ref) {
+    //return ref up one level, assuming you can
+    return ref.lastIndexOf(":") !== -1 ? ref.slice(0, ref.lastIndexOf(":")) : ref;
   },
   processFileData: function(ref, data) {
     return new Promise((resolve, reject) => {
@@ -101,14 +105,20 @@ Sefaria = {
       resolve(data);
     });
   },
+  shouldLoadFromApi: function(versions) {
+    // there are currently two cases where we load from API even if the index is downloaded
+    // 1) debugNoLibrary is true 2) you're loading a non-default version
+    return (!!versions && Object.keys(versions).length !== 0) || Sefaria.downloader._data.debugNoLibrary;
+  },
   loadOfflineFile: function(ref, context, versions) {
     return new Promise(function(resolve, reject) {
       var fileNameStem = ref.split(":")[0];
       var bookRefStem  = Sefaria.textTitleForRef(ref);
       //if you want to open a specific version, there is no json file. force an api call instead
-      var jsonPath     = !!versions ? "" : Sefaria._JSONSourcePath(fileNameStem);
-      var zipPath      = !!versions ? "" : Sefaria._zipSourcePath(bookRefStem);
-
+      const shouldLoadFromApi = Sefaria.shouldLoadFromApi(versions);
+      var jsonPath     = shouldLoadFromApi ? "" : Sefaria._JSONSourcePath(fileNameStem);
+      var zipPath      = shouldLoadFromApi ? "" : Sefaria._zipSourcePath(bookRefStem);
+      console.log("jsonPath", jsonPath, versions);
       // Pull data from in memory cache if available
       if (jsonPath in Sefaria._jsonData) {
         resolve(Sefaria._jsonData[jsonPath]);
@@ -119,34 +129,34 @@ Sefaria = {
         if (!(jsonPath in Sefaria._jsonData)) {
           Sefaria._jsonData[jsonPath] = data;
         }
-        console.log("OFFLINE");
+        console.log("OFFLINE", ref, context, versions);
         resolve(data);
       };
 
       Sefaria._loadJSON(jsonPath)
         .then(preResolve)
-        .catch(function() {
+        .catch(() => {
           // If there was en error, check that we have the zip file downloaded
           RNFS.exists(zipPath)
-            .then(function(exists) {
-              if (exists && !Sefaria.downloader._data.debugNoLibrary) {
+            .then(exists => {
+              if (exists) {
                 Sefaria._unzip(zipPath)
-                  .then(function() {
+                  .then(() => {
                     Sefaria._loadJSON(jsonPath)
                       .then(preResolve)
-                      .catch(function() {
+                      .catch(() => {
                         // Now that the file is unzipped, if there was an error assume we have a depth 1 text
                         var depth1FilenameStem = fileNameStem.substr(0, fileNameStem.lastIndexOf(" "));
                         var depth1JSONPath = Sefaria._JSONSourcePath(depth1FilenameStem);
                         Sefaria._loadJSON(depth1JSONPath)
                           .then(preResolve)
-                          .catch(function() {
+                          .catch(() => {
                             console.error("Error loading JSON file: " + jsonPath + " OR " + depth1JSONPath);
                           });
                       });
                   });
               } else {
-                console.log("API");
+                console.log("API", ref, context, versions);
                 reject(ERRORS.NOT_OFFLINE);
               }
             });
