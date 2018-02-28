@@ -407,6 +407,13 @@ class ReaderApp extends React.Component {
       ...this.state.selectedVersions,
       ...versions,
     }
+
+    // make sure loaded text will show the versions you selected
+    let newTextLang = this.props.textLanguage;
+    if (!!newVersions['en'] && !!newVersions['he']) { newTextLang = "bilingual"; }
+    else if (!!newVersions['en']) { newTextLang = "english"; }
+    else { newTextLang = "hebrew"; }
+    this.setTextLanguage(newTextLang, null, null, true);
     this.loadNewText(ref, newVersions, true);
   };
 
