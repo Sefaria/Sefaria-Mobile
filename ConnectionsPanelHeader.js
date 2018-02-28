@@ -129,7 +129,7 @@ class RecentFilterNav extends React.Component {
             filter={filter}
             filterIndex={i}
             selected={i === this.props.filterIndex}
-            key={filter.name + "|" + filter.category}
+            key={filter.listKey()}
           />
         )}
       </View>
@@ -148,23 +148,23 @@ class RecentFilterNavItem extends React.Component {
   };
 
     render() {
-    var filterStr = this.props.filter.toString(this.props.language);
+      var filterStr = this.props.filter.toString(this.props.language);
 
-    const touchStyles = [styles.connectionsPanelHeaderItem];
-    var textStyles = [styles.connectionsPanelHeaderItemText, this.props.theme.connectionsPanelHeaderItemText, this.props.language == "hebrew" ? styles.hebrewText : styles.englishText];
-    if (this.props.selected) {
-      textStyles.push(this.props.theme.connectionsPanelHeaderItemTextSelected);
+      const touchStyles = [styles.connectionsPanelHeaderItem];
+      var textStyles = [styles.connectionsPanelHeaderItemText, this.props.theme.connectionsPanelHeaderItemText, this.props.language == "hebrew" ? styles.hebrewText : styles.englishText];
+      if (this.props.selected) {
+        textStyles.push(this.props.theme.connectionsPanelHeaderItemTextSelected);
+      }
+      // dont disable because that makes it hard to scroll disabled={this.props.selected}
+      return (
+        <TouchableOpacity
+          style={touchStyles}
+          onPress={()=>{this.props.updateCat(this.props.filterIndex)}}
+        >
+          <Text style={textStyles}>{filterStr}</Text>
+        </TouchableOpacity>
+        );
     }
-    // dont disable because that makes it hard to scroll disabled={this.props.selected}
-    return (
-      <TouchableOpacity
-        style={touchStyles}
-        onPress={()=>{this.props.updateCat(this.props.filterIndex)}}
-      >
-        <Text style={textStyles}>{filterStr}</Text>
-      </TouchableOpacity>
-      );
-  }
 }
 
 export default ConnectionsPanelHeader;

@@ -679,7 +679,7 @@ class ReaderApp extends React.Component {
       //check if filter is already in recentFilters
       for (let i = 0; i < recentFilters.length; i++) {
           let tempFilter = recentFilters[i];
-          if (tempFilter.name === filter.name) {
+          if (tempFilter.equals(filter)) {
             filterIndex = i;
             if (staleRecentFilters[i]) {
               recentFilters[i] = filter;

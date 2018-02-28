@@ -118,7 +118,6 @@ Sefaria = {
       const shouldLoadFromApi = Sefaria.shouldLoadFromApi(versions);
       var jsonPath     = shouldLoadFromApi ? "" : Sefaria._JSONSourcePath(fileNameStem);
       var zipPath      = shouldLoadFromApi ? "" : Sefaria._zipSourcePath(bookRefStem);
-      console.log("jsonPath", jsonPath, versions);
       // Pull data from in memory cache if available
       if (jsonPath in Sefaria._jsonData) {
         resolve(Sefaria._jsonData[jsonPath]);
@@ -129,7 +128,6 @@ Sefaria = {
         if (!(jsonPath in Sefaria._jsonData)) {
           Sefaria._jsonData[jsonPath] = data;
         }
-        console.log("OFFLINE", ref, context, versions);
         resolve(data);
       };
 
@@ -156,7 +154,6 @@ Sefaria = {
                       });
                   });
               } else {
-                console.log("API", ref, context, versions);
                 reject(ERRORS.NOT_OFFLINE);
               }
             });

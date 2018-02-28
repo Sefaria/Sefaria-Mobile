@@ -6,7 +6,7 @@ class Filter {
   }
 
   toString(lang) {
-    return lang === "hebrew" ? this.heName : this.name;
+    return lang === "hebrew" && this.heName ? this.heName : this.name;
   }
 
   displayRef() {
@@ -17,6 +17,10 @@ class Filter {
   listKey(i) {
     // returns key that uniquely identifies this a ref from filter.refList in a list
     return this.refList[i];
+  }
+
+  equals(filter) {
+    return this.name === filter.name;
   }
 
 }
@@ -30,7 +34,8 @@ class LinkFilter extends Filter {
   }
 
   toString(lang) {
-    return lang === "hebrew" ?
+    // make sure that you only display Hebrew is there is Hebrew
+    return lang === "hebrew" && (this.heCollectiveTitle || this.heName) ?
       (this.heCollectiveTitle ? this.heCollectiveTitle : this.heName) : //NOTE backwards compatibility
       (this.collectiveTitle ? this.collectiveTitle : this.name);
   }
@@ -40,7 +45,7 @@ class LinkFilter extends Filter {
   }
 
   listKey(i) {
-    return `${this.refList[i]}|${this.name}`;
+    return `${(typeof i !== 'undefined') ? this.refList[i] : ''}|${this.name}`;
   }
 }
 
@@ -53,7 +58,21 @@ class VersionFilter extends Filter {
   }
 
   listKey(i) {
-    return `${this.refList[i]}|${this.versionTitle}|${this.versionLanguage}`;
+    return `${(typeof i !== 'undefined') ? this.refList[i] : ''}|${this.versionTitle}|${this.versionLanguage}`;
+  }
+
+  equals(filter) {
+    return this.versionTitle === filter.versionTitle && this.versionLanguage === filter.versionLanguage;
+  }
+
+  langToShortLang(isHeb) {
+    return isHeb ? (this.versionLanguage === "en" ? "אנ" : "עב") : (this.versionLanguage === "en" ? "en" : "he");
+  }
+
+  toString(lang) {
+    isHeb = lang === "hebrew" && this.heName;
+    const shortLang = this.langToShortLang(isHeb);
+    return isHeb ? `${this.heName} (${shortLang})` : `${this.name} (${shortLang})`;
   }
 }
 
