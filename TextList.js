@@ -15,7 +15,8 @@ import HTMLView from 'react-native-htmlview';
 import strings from './LocalizedStrings';
 import styles from './Styles.js';
 
-const DEFAULT_LINK_CONTENT = {en: "Loading...", he: "טוען...", sectionRef: ""};
+const DEFAULT_LINK_CONTENT = {en: strings.loading, he: "", sectionRef: ""};
+const NO_CONTENT_LINK_CONTENT = {en: strings.noContent, he: "", sectionRef: ""}
 
 class TextList extends React.Component {
   static propTypes = {
@@ -79,8 +80,9 @@ class TextList extends React.Component {
   };
 
   renderItem = ({ item }) => {
-    const loading = item.content == null;
-    const linkContentObj = loading ? DEFAULT_LINK_CONTENT : item.content;
+    const loading = item.content === null;
+    const noContent = !loading && item.content.he.length === 0 && item.content.en.length === 0;
+    const linkContentObj = loading ? DEFAULT_LINK_CONTENT : (noContent ? NO_CONTENT_LINK_CONTENT : item.content);
     return (<ListItem
               theme={this.props.theme}
               themeStr={this.props.themeStr}
