@@ -372,7 +372,7 @@ export default StyleSheet.create({
     fontStyle: "italic",
     fontFamily: "Amiri",
     textAlign: "center",
-    marginTop: 8
+    marginTop: 16,
   },
   menu: {
     alignSelf: 'stretch',

@@ -52,6 +52,7 @@ class ConnectionsPanel extends React.Component {
     versionFilterIndex:   PropTypes.number,
     currVersions:         PropTypes.object.isRequired,
     versions:             PropTypes.array.isRequired,
+    versionsApiError:     PropTypes.bool.isRequired,
     textLanguage:         PropTypes.oneOf(["english","hebrew","bilingual"]),
     onDragStart:          PropTypes.func.isRequired,
     onDragMove:           PropTypes.func.isRequired,
@@ -132,6 +133,7 @@ class ConnectionsPanel extends React.Component {
               vFilterIndex={this.props.versionFilterIndex}
               recentVFilters={this.props.versionRecentFilters}
               versions={this.props.versions}
+              versionsApiError={this.props.versionsApiError}
               setConnectionsMode={this.props.setConnectionsMode}
               segmentRef={this.props.segmentRef}
               openFilter={this.props.openFilter}

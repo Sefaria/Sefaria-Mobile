@@ -96,6 +96,7 @@ class ReaderApp extends React.Component {
         currVersions: {en: null, he: null}, /* actual current versions you're reading */
         selectedVersions: {en: null, he: null}, /* custom versions you've selected. not necessarily available for the current section */
         versions: [],
+        versionsApiError: false,
         versionStaleRecentFilters: [],
         versionContents: [],
         searchQuery: '',
@@ -467,8 +468,10 @@ class ReaderApp extends React.Component {
   };
 
   loadVersions = (ref) => {
-    Sefaria.api.versions(ref, true).then((data)=> {
-      this.setState({ versions: data });
+    Sefaria.api.versions(ref, true).then(data=> {
+      this.setState({ versions: data, versionsApiError: false });
+    }).catch(error=>{
+      this.setState({ versionsApiError: true });
     });
   };
 
@@ -1232,6 +1235,7 @@ class ReaderApp extends React.Component {
                 versionFilterIndex={this.state.versionFilterIndex}
                 currVersions={this.state.currVersions}
                 versions={this.state.versions}
+                versionsApiError={this.state.versionsApiError}
                 onDragStart={this.onTextListDragStart}
                 onDragMove={this.onTextListDragMove}
                 onDragEnd={this.onTextListDragEnd}

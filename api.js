@@ -265,6 +265,7 @@ var Api = {
         })
         .catch((error)=>{
           console.log("Versions API error:",ref, error);
+          reject();
         });
     });
   },

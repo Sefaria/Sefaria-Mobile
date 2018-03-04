@@ -21,6 +21,7 @@ class VersionsBox extends React.Component {
   static propTypes = {
     theme:                    PropTypes.object.isRequired,
     versions:                 PropTypes.array.isRequired,
+    versionsApiError:         PropTypes.bool.isRequired,
     currVersions:             PropTypes.object.isRequired,
     mode:                     PropTypes.oneOf(["versions", "version Open"]),
     interfaceLang:            PropTypes.oneOf(["english", "hebrew"]).isRequired,
@@ -124,9 +125,14 @@ class VersionsBox extends React.Component {
       interfaceLang,
       theme,
     } = this.props;
-
+    if (this.props.versionsApiError) {
+      return (
+        <View style={{flex:1}}>
+          <Text style={[styles.emptyLinksMessage, this.props.theme.secondaryText]}>{strings.connectToVersionsMessage}</Text>
+        </View>
+      );
+    }
     if (!this.state.versionLangMap) {
-      //TODO deal with no internet case
       return (
         <View>
           <LoadingView />

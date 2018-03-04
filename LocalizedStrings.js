@@ -25,6 +25,7 @@ export default new LocalizedStrings({
     loadingFilters: "Loading Filters...",
     results: "Results", // to be combined with a number, e.g. "32 Results"
     connectToSearchMessage: "Connect to the internet to search.",
+    connectToVersionsMessage: "Connect to the internet to read other versions.",
     menuLanguage: "MENU LANGUAGE",
     defaultTextLanguage: "DEFAULT TEXT LANGUAGE",
     english: "ENGLISH",
@@ -121,6 +122,7 @@ export default new LocalizedStrings({
     loadingFilters: "טוען מסננים...",
     results: "תוצאות", // to be combined with a number, e.g. "32 Results"
     connectToSearchMessage: "התחבר לאינטרנט כדי לבצע חיפוש",
+    connectToVersionsMessage: "התחבר לאינטרנט כדי לקרוא עוד גרסאות",
     menuLanguage: "שפת תפריט",
     defaultTextLanguage: "שפת ברירת מחדל לקריאה בטקסטים",
     english: "אנגלית",
