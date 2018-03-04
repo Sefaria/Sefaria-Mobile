@@ -44,6 +44,7 @@ class ReaderApp extends React.Component {
     themeStr:     PropTypes.string.isRequired,
     setTheme:     PropTypes.func.isRequired,
     textLanguage: PropTypes.string.isRequired,
+    overwriteVersions: PropTypes.bool.isRequired,
   };
 
   constructor(props, context) {
@@ -113,6 +114,7 @@ class ReaderApp extends React.Component {
         searchQueryResult: [],
         backStack: [],
         ReaderDisplayOptionsMenuVisible: false,
+        overwriteVersions: true, // false when you navigate to a text but dont want the current version to overwrite your sticky version
     };
   }
 
@@ -317,8 +319,14 @@ class ReaderApp extends React.Component {
   };
   /*
     isLoadingVersion - true when you are replacing an already loaded text with a specific version
+    overwriteVersions - false when you want to switch versions but not overwrite sticky version (e.g. search)
   */
-  loadNewText = (ref, versions, isLoadingVersion) => {
+  loadNewText = (ref, versions, isLoadingVersion, overwriteVersions=true) => {
+      if (!this.state.hasInternet) {
+        overwriteVersions = false;
+        versions = undefined; // change to default version in case they have offline library they'll still be able to read
+      }
+      this.props.setOverwriteVersions(overwriteVersions);
       versions = this.removeDefaultVersions(ref, versions);
       this.setState({
           loaded: false,
@@ -375,7 +383,7 @@ class ReaderApp extends React.Component {
             // at this point, both book and section level version info is available
             this.setCurrVersions(data.sectionRef, data.indexTitle); // not positive if this will combine versions well
           });
-          Sefaria.saveRecentItem({ref: ref, heRef: data.heRef, category: Sefaria.categoryForRef(ref), versions: this.state.selectedVersions}); // include version info here
+          Sefaria.saveRecentItem({ref: ref, heRef: data.heRef, category: Sefaria.categoryForRef(ref), versions: this.state.selectedVersions}, this.props.overwriteVersions);
       }.bind(this)).catch(function(error) {
         console.log(error);
         if (error == "Return to Nav") {
@@ -388,6 +396,7 @@ class ReaderApp extends React.Component {
   };
 
   removeDefaultVersions = (ref, versions) => {
+    if (!versions) return versions;
     const cachedVersionList = Sefaria.api.getCachedVersions(ref);
     if (!cachedVersionList) return versions;
 
@@ -544,7 +553,7 @@ class ReaderApp extends React.Component {
         textReference: ref,
         heRef: heRef
       });
-      Sefaria.saveRecentItem({ref: ref, heRef: heRef, category: Sefaria.categoryForRef(ref), versions: this.state.selectedVersions});
+      Sefaria.saveRecentItem({ref: ref, heRef: heRef, category: Sefaria.categoryForRef(ref), versions: this.state.selectedVersions}, this.props.overwriteVersions);
   };
 
   /*
@@ -553,6 +562,7 @@ class ReaderApp extends React.Component {
   */
   openRef = (ref, calledFrom, versions) => {
     const title = Sefaria.textTitleForRef(ref);
+    const overwriteVersions = calledFrom !== 'search'; // if called from search, use version specified by search (or default if none specified)
     if (!title) {
       AlertIOS.alert(
         strings.textUnavailable,
@@ -565,7 +575,7 @@ class ReaderApp extends React.Component {
         ]);
       return;
     }
-    if (!versions) {
+    if (!versions && overwriteVersions) {
       //pull up default versions
       const recentItem = Sefaria.getRecentRefForTitle(title);
       if (!!recentItem) { versions = recentItem.versions; }
@@ -577,8 +587,7 @@ class ReaderApp extends React.Component {
     }, function() {
         this.closeMenu(); // Don't close until these values are in state, so we know if we need to load defualt text
     }.bind(this));
-
-    this.loadNewText(ref, versions);
+    this.loadNewText(ref, versions, false, overwriteVersions);
 
     switch (calledFrom) {
       case "search":
@@ -1092,7 +1101,7 @@ class ReaderApp extends React.Component {
             openNav={this.openNav}
             closeNav={this.closeMenu}
             onQueryChange={this.onQueryChange}
-            openRef={(ref)=>this.openRef(ref,"search")}
+            openRef={(ref)=> this.openRef(ref,"search")}
             setLoadTail={this.setLoadQueryTail}
             setIsNewSearch={this.setIsNewSearch}
             setSearchOptions={this.setSearchOptions}
@@ -1273,6 +1282,7 @@ const mapStateToProps = (
     menuLanguage,
     fontSize,
     textLanguage,
+    overwriteVersions,
   }) => ({
   theme,
   themeStr,
@@ -1281,6 +1291,7 @@ const mapStateToProps = (
   fontSize,
   textLanguageByTitle,
   textLanguage,
+  overwriteVersions,
 });
 
 const mapDispatchToProps = dispatch => ({
@@ -1289,6 +1300,7 @@ const mapDispatchToProps = dispatch => ({
   setTextLanguageByTitle: (title, language) => { dispatch(ACTION_CREATORS.setTextLanguageByTitle(title, language)); },
   setFontSize: fontSize => { dispatch(ACTION_CREATORS.setFontSize(fontSize)); },
   setDefaultTextLanguage: language => { dispatch(ACTION_CREATORS.setDefaultTextLanguage(language)); },
+  setOverwriteVersions: overwrite => { dispatch(ACTION_CREATORS.setOverwriteVersions(overwrite)); },
 });
 
 export default connect(

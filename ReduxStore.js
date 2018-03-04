@@ -12,6 +12,7 @@ const REDUX_ACTIONS = {
   setTextLanguageByTitle: "SET_TEXT_LANGUAGE_BY_TITLE",
   setMenuLanguage: "SET_MENU_LANGUAGE",
   setFontSize: "SET_FONT_SIZE",
+  setOverwriteVersions: "SET_OVERWRITE_VERSIONS",
 };
 
 const ACTION_CREATORS = {
@@ -44,6 +45,10 @@ const ACTION_CREATORS = {
     fontSize,
     fromAsync,
   }),
+  setOverwriteVersions: overwrite => ({
+    type: REDUX_ACTIONS.setOverwriteVersions,
+    overwrite,
+  }),
 }
 
 const ASYNC_STORAGE_DEFAULTS = {
@@ -75,6 +80,7 @@ const DEFAULT_STATE = {
   textLanguage: ASYNC_STORAGE_DEFAULTS.defaultTextLanguage.default,
   menuLanguage: ASYNC_STORAGE_DEFAULTS.menuLanguage.default,
   fontSize: ASYNC_STORAGE_DEFAULTS.fontSize.default,
+  overwriteVersions: true,
 };
 
 const saveFieldToAsync = function (field, value) {
@@ -125,6 +131,11 @@ const reducer = function (state = DEFAULT_STATE, action) {
       return {
         ...state,
         fontSize: action.fontSize,
+      }
+    case REDUX_ACTIONS.setOverwriteVersions:
+      return {
+        ...state,
+        overwriteVersions: action.overwrite,
       }
     default:
       return state;

@@ -562,12 +562,16 @@ Sefaria = {
     return month + '/' + day + '/' + year;
   },
   recent: null,
-  saveRecentItem: function(item) {
+  saveRecentItem: function(item, overwriteVersions) {
     var itemTitle = Sefaria.textTitleForRef(item.ref);
     var items = Sefaria.recent || [];
-    items = items.filter(function(existing) {
-      return Sefaria.textTitleForRef(existing.ref) !== itemTitle;
-    });
+    const existingItemIndex = items.findIndex(existing => Sefaria.textTitleForRef(existing.ref) === itemTitle);
+    if (existingItemIndex !== -1) {
+      if (!overwriteVersions) {
+        item.versions = items[existingItemIndex].versions;
+      }
+      items.splice(existingItemIndex, 1);
+    }
     items = [item].concat(items);
     Sefaria.recent = items;
     AsyncStorage.setItem("recent", JSON.stringify(items)).catch(function(error) {

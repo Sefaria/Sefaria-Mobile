@@ -70,7 +70,7 @@ class ConnectionsPanelHeader extends React.Component {
                 direction={"back"}
               />
             </TouchableOpacity>
-            <ScrollView style={styles.textListHeaderScrollView} horizontal={true}>
+            <ScrollView contentContainerStyle={styles.textListHeaderScrollView} horizontal={true}>
               <RecentFilterNav
                 theme={this.props.theme}
                 recentFilters={this.props.recentFilters}

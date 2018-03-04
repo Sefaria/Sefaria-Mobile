@@ -133,11 +133,11 @@ export default StyleSheet.create({
   },
   directedButtonWithTextEn: {
     marginLeft: 5,
-    marginRight: 12
+    marginRight: 12,
   },
   directedButtonWithTextHe: {
     marginLeft: 12,
-    marginRight: 5
+    marginRight: 5,
   },
   menuButton: {
     width: 17,
@@ -347,7 +347,8 @@ export default StyleSheet.create({
     flexDirection: "row",
   },
   textListHeaderScrollView: {
-    alignSelf: "stretch"
+    alignSelf: "stretch",
+
   },
   connectionsPanelHeaderItem: {
     paddingHorizontal: 10,
