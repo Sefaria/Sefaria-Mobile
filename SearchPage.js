@@ -24,7 +24,7 @@ class SearchPage extends React.Component {
     theme:               PropTypes.object.isRequired,
     themeStr:            PropTypes.string.isRequired,
     interfaceLang:       PropTypes.oneOf(["english", "hebrew"]).isRequired,
-    menuLanguage:        PropTypes.string.isRequired,
+    menuLanguage:        PropTypes.oneOf(["english", "hebrew"]).isRequired,
     subMenuOpen:         PropTypes.string,
     openSubMenu:         PropTypes.func,
     hasInternet:         PropTypes.bool,
@@ -92,6 +92,7 @@ class SearchPage extends React.Component {
                 onPress={()=>this.props.openSubMenu("filter")}/>
             </View>
             <SearchResultList
+              menuLanguage={this.props.menuLanguage}
               theme={this.props.theme}
               queryResult={this.props.queryResult}
               loadingTail={this.props.loadingTail}

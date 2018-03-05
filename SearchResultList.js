@@ -14,6 +14,7 @@ import SearchTextResult from './SearchTextResult';
 
 class SearchResultList extends React.Component {
   static propTypes = {
+    menuLanguage:   PropTypes.oneOf(["english", "hebrew"]),
     theme:          PropTypes.object.isRequired,
     queryResult:    PropTypes.array,
     loadingTail:    PropTypes.bool,
@@ -36,9 +37,11 @@ class SearchResultList extends React.Component {
   renderRow = ({ item }) => {
     return (
       <SearchTextResult
+        menuLanguage={this.props.menuLanguage}
         theme={this.props.theme}
         textType={item.textType}
         title={item.title}
+        heTitle={item.heTitle}
         text={item.text}
         onPress={this.props.openRef.bind(null,item.title)} />
     );

@@ -1,8 +1,9 @@
 class Filter {
-  constructor(name, heName, refList) {
+  constructor(name, heName, refList, heRefList) {
     this.name = name;
     this.heName = heName;
     this.refList = refList;
+    this.heRefList = heRefList;
   }
 
   toString(lang) {
@@ -26,8 +27,8 @@ class Filter {
 }
 
 class LinkFilter extends Filter {
-  constructor(title, heTitle, collectiveTitle, heCollectiveTitle, refList, category) {
-    super(title, heTitle, refList);
+  constructor(title, heTitle, collectiveTitle, heCollectiveTitle, refList, heRefList, category) {
+    super(title, heTitle, refList, heRefList);
     this.collectiveTitle = collectiveTitle;
     this.heCollectiveTitle = heCollectiveTitle;
     this.category = category;
@@ -51,7 +52,7 @@ class LinkFilter extends Filter {
 
 class VersionFilter extends Filter {
   constructor(versionTitle, versionTitleInHebrew, versionLanguage, ref) {
-    super(versionTitle, versionTitleInHebrew, [ref]);
+    super(versionTitle, versionTitleInHebrew, [ref], [null]);  // heRefList is not necessary because it will never be displayed
     this.versionTitle = versionTitle;
     this.versionTitleInHebrew = versionTitleInHebrew;
     this.versionLanguage = versionLanguage;

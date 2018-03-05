@@ -810,6 +810,7 @@ Sefaria = {
           // Count Book
           if (link.textTitle in category.books) {
             category.books[link.textTitle].refSet.add(link.sourceRef);
+            category.books[link.textTitle].heRefSet.add(link.sourceHeRef);
           } else {
             var isCommentary = link.category === "Commentary";
             category.books[link.textTitle] =
@@ -821,6 +822,7 @@ Sefaria = {
                 heCollectiveTitle: link.heCollectiveTitle,
                 category:          link.category,
                 refSet:            new Set([link.sourceRef]), // make sure refs are unique here
+                heRefSet:          new Set([link.sourceHeRef]),
             };
           }
         }
@@ -840,7 +842,6 @@ Sefaria = {
                 title:    commEn,
                 heTitle:  commHe,
                 category: "Commentary",
-                refSet:   new Set(),
               }
             }
           }
@@ -851,6 +852,7 @@ Sefaria = {
           var categoryData = summary[category];
           categoryData.category = category;
           categoryData.refList = [];
+          categoryData.heRefList = [];
           categoryData.books = Object.keys(categoryData.books).map(function(book) {
             var bookData = categoryData.books[book];
             return bookData;
@@ -876,15 +878,22 @@ Sefaria = {
         });
 
         let allRefs = [];
+        let allHeRefs = [];
         const allBooks = [];
         for (let cat of summaryList) {
           for (let book of cat.books) {
             const bookRefList = Array.from(book.refSet);
+            const bookHeRefList = Array.from(book.heRefSet);
             delete book.refSet;
+            delete book.heRefSet;
             book.refList = bookRefList;
+            book.heRefList = bookHeRefList;
+            if (book.refList.length !== book.heRefList.length) { console.log("MAJOR ISSUES!!", book.refList)}
             book.count = book.refList.length;
             cat.refList = cat.refList.concat(bookRefList);
+            cat.heRefList = cat.heRefList.concat(bookHeRefList);
             allRefs = allRefs.concat(bookRefList);
+            allHeRefs = allHeRefs.concat(bookHeRefList);
             allBooks.push(book);
           }
           cat.count = cat.refList.length;
@@ -907,6 +916,7 @@ Sefaria = {
 
         // Attach data to "All" category in last position
         summaryList[summaryList.length-1].refList = allRefs;
+        summaryList[summaryList.length-1].heRefList = allHeRefs;
         summaryList[summaryList.length-1].books = allBooks;
         summaryList[summaryList.length-1].count = allRefs.length;
 

@@ -109,6 +109,7 @@ class ConnectionsPanel extends React.Component {
               themeStr={this.props.themeStr}
               fontSize={this.props.fontSize}
               textLanguage={this.props.textLanguage}
+              menuLanguage={this.props.menuLanguage}
               segmentRef={this.props.segmentRef}
               openRef={this.props.openRef}
               connectionsPanelHeader={connectionsPanelHeader}
@@ -170,7 +171,7 @@ class ConnectionsPanel extends React.Component {
             if (!catFilterSelected && (cat.category === "Quoting Commentary" || cat.category === "Modern Commentary")) { continue; }  // skip these categories in the main link summary and only include them under Commentary
             if (connectionsMode !== null && !catFilterSelected) { continue; }
             const heCategory = Sefaria.hebrewCategory(cat.category);
-            const filter = new LinkFilter(cat.category, heCategory, cat.category, heCategory, cat.refList,cat.category);
+            const filter = new LinkFilter(cat.category, heCategory, cat.category, heCategory, cat.refList, cat.heRefList, cat.category);
             viewList.push(
                 <LinkNavButton
                   theme={this.props.theme}
@@ -192,7 +193,7 @@ class ConnectionsPanel extends React.Component {
             if (catFilterSelected) {
               //if true, means we have a category filter selected
               viewList = viewList.concat(cat.books.map((obook)=>{
-                const filter = new LinkFilter(obook.title, obook.heTitle, obook.collectiveTitle, obook.heCollectiveTitle, obook.refList, cat.category);
+                const filter = new LinkFilter(obook.title, obook.heTitle, obook.collectiveTitle, obook.heCollectiveTitle, obook.refList, obook.heRefList, cat.category);
                 return (
                   <LinkNavButton
                     theme={this.props.theme}
@@ -319,7 +320,7 @@ class ToolsButton extends React.Component {
     const textStyle = interfaceLang === "english" ? styles.enInt : styles.heInt;
     const flexDir = interfaceLang === "english" ? null : styles.rtlRow;
     const iconComp = icon ? (<View style={styles.toolsButtonIcon}><Image source={icon} style={styles.menuButton} resizeMode={Image.resizeMode.contain}></Image></View>) : null;
-    const countComp = !!count || count === 0 ? <Text style={[styles.enInt, theme.secondaryText, styles.spacedText]}>{` (${count})`}</Text> : null
+    const countComp = !!count || count === 0 ? <Text style={[styles.enInt, theme.secondaryText, styles.spacedText]}>{` (${count}) `}</Text> : null
     return (
       <TouchableOpacity style={[styles.searchFilterCat, styles.toolsButton, flexDir, theme.bordered]} onPress={this.props.onPress}>
         { iconComp }

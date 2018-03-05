@@ -763,20 +763,22 @@ class ReaderApp extends React.Component {
       if (filterIndex == null) filterIndex = this.state.filterIndex;
       const { name, heName, category, collectiveTitle, heCollectiveTitle } = this.state.linkRecentFilters[filterIndex];
       let nextRefList = [];
-
+      let nextHeRefList = [];
       for (let cat of linkSummary) {
           if (cat.category == name) {
             nextRefList = cat.refList;
+            nextHeRefList = cat.heRefList;
             break;
           }
           for (let book of cat.books) {
             if (book.title == name) {
               nextRefList = book.refList;
+              nextHeRefList = book.heRefList;
               break;
             }
           }
       }
-      const nextFilter = new LinkFilter(name, heName, collectiveTitle, heCollectiveTitle, nextRefList, category);
+      const nextFilter = new LinkFilter(name, heName, collectiveTitle, heCollectiveTitle, nextRefList, nextHeRefList, category);
 
       this.state.linkRecentFilters[filterIndex] = nextFilter;
 
@@ -794,7 +796,7 @@ class ReaderApp extends React.Component {
     let isLinkCurrent = function(ref, pos) {
       // check that we haven't loaded a different link set in the mean time
       if (typeof this.state.linkRecentFilters[this.state.filterIndex] === "undefined") { return false;}
-      var refList = this.state.linkRecentFilters[this.state.filterIndex].refList;
+      const refList = this.state.linkRecentFilters[this.state.filterIndex].refList;
       if (pos > refList.length) { return false; }
       return (refList[pos] === ref);
     }.bind(this);
@@ -952,6 +954,7 @@ class ReaderApp extends React.Component {
       var newResultsArray = responseJson["hits"]["hits"].map(function(r) {
         return {
           "title": r._source.ref,
+          "heTitle": r._source.heRef,
           "text": r.highlight[field][0],
           "textType": r._id.includes("[he]") ? "hebrew" : "english"
         }

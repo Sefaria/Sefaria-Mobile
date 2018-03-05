@@ -50,7 +50,7 @@ class ConnectionsPanelHeader extends React.Component {
     switch (this.props.connectionsMode) {
       case (null):
         // summary
-        outerStyles = [styles.textListHeader, styles.textListHeaderSummary, this.props.theme.textListHeader];
+        outerStyles = [styles.textListHeader, styles.textListHeaderSummary, this.props.theme.textListHeader, {flexDirection: isheb ? 'row-reverse' : 'row'}];
         content = (
           <Text style={[this.props.theme.textListHeaderSummaryText]}>{strings.resources}</Text>
         );
@@ -70,7 +70,7 @@ class ConnectionsPanelHeader extends React.Component {
                 direction={"back"}
               />
             </TouchableOpacity>
-            <ScrollView contentContainerStyle={styles.textListHeaderScrollView} horizontal={true}>
+            <ScrollView style={{flexDirection: isheb ? 'row-reverse' : 'row'}} contentContainerStyle={styles.textListHeaderScrollView} horizontal={true}>
               <RecentFilterNav
                 theme={this.props.theme}
                 recentFilters={this.props.recentFilters}

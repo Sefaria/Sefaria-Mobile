@@ -360,6 +360,7 @@ export default StyleSheet.create({
   },
   textListCitation: {
     marginBottom: 4,
+    fontSize: iPad ? 18 : 16,
   },
   linkContentText: {
     flex: 1,

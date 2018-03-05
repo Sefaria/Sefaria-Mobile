@@ -24,6 +24,7 @@ class TextList extends React.Component {
     themeStr:        PropTypes.string.isRequired,
     fontSize:        PropTypes.number.isRequired,
     textLanguage:    PropTypes.oneOf(["english", "hebrew", "bilingual"]),
+    menuLanguage:    PropTypes.oneOf(["english", "hebrew"]).isRequired,
     recentFilters:   PropTypes.array.isRequired,
     filterIndex:     PropTypes.number,
     listContents:    PropTypes.array,
@@ -69,6 +70,7 @@ class TextList extends React.Component {
       return {
         key,
         ref,
+        heRef: filter.heRefList[index],
         //changeString: [linkRef, loading, props.settings.fontSize, props.textLanguage].join("|"),
         versionTitle: filter.versionTitle,
         versionLanguage: filter.versionLanguage,
@@ -89,9 +91,11 @@ class TextList extends React.Component {
               fontSize={this.props.fontSize}
               openRef={this.props.openRef}
               refStr={item.ref}
+              heRefStr={item.heRef}
               versionTitle={item.versionTitle}
               versionLanguage={item.versionLanguage}
               linkContentObj={linkContentObj}
+              menuLanguage={this.props.menuLanguage}
               textLanguage={this.props.textLanguage}
               loading={loading}
               displayRef={item.displayRef}
@@ -142,10 +146,12 @@ class ListItem extends React.PureComponent {
     fontSize:          PropTypes.number.isRequired,
     openRef:           PropTypes.func.isRequired,
     refStr:            PropTypes.string,
+    heRefStr:          PropTypes.string,
     versionTitle:      PropTypes.string,
     versionLanguage:   PropTypes.string,
     linkContentObj:    PropTypes.object, /* of the form {en,he} */
     textLanguage:      PropTypes.string,
+    menuLanguage:      PropTypes.string,
     loading:           PropTypes.bool,
     displayRef:        PropTypes.bool
   };
@@ -199,9 +205,11 @@ class ListItem extends React.PureComponent {
 
     // versionLanguage should only be defined when TextList is in VersionsBox. Otherwise you should open default version for that link
     const versions = this.props.versionLanguage ? {[this.props.versionLanguage]: this.props.versionTitle} : null;
+    const refTitleStyle = this.props.menuLanguage === 'hebrew' ? styles.he : styles.en;
+    const refStr = this.props.menuLanguage === 'hebrew' ? this.props.heRefStr : this.props.refStr;
     return (
       <TouchableOpacity style={[styles.searchTextResult, this.props.theme.searchTextResult]} onPress={()=>{this.props.openRef(this.props.refStr, versions)}}>
-        {this.props.displayRef ? null : <Text style={[styles.en, styles.textListCitation, this.props.theme.textListCitation]}>{this.props.refStr}</Text>}
+        {this.props.displayRef ? null : <Text style={[refTitleStyle, styles.textListCitation, this.props.theme.textListCitation]}>{refStr}</Text>}
         {textViews}
       </TouchableOpacity>
     );
