@@ -69,7 +69,7 @@ class SearchResultList extends React.Component {
   };
 
   _keyExtractor = (item, index) => {
-    return item.title + "|" + item.textType;
+    return item.id;
   };
 
   render() {

@@ -26,7 +26,7 @@ class SearchFilterPage extends React.Component {
   static propTypes = {
     theme:            PropTypes.object.isRequired,
     themeStr:         PropTypes.string.isRequired,
-    menuLanguage:     PropTypes.object.isRequired,
+    menuLanguage:     PropTypes.string.isRequired,
     subMenuOpen:      PropTypes.string.isRequired,
     updateFilter:     PropTypes.func.isRequired,
     openSubMenu:      PropTypes.func.isRequired,
