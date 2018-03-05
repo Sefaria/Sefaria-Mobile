@@ -451,6 +451,7 @@ class ReaderApp extends React.Component {
       .then(linksResponse => {
         //add the links into the appropriate section and reload
         this.state.data[iSec] = Sefaria.links.addLinksToText(this.state.data[iSec], linksResponse);
+        Sefaria.cacheCommentatorListBySection(ref, this.state.data[iSec]);
         let tempLinksLoaded = this.state.linksLoaded.slice(0);
         tempLinksLoaded[iSec] = true;
         if (this.state.segmentIndexRef != -1 && this.state.sectionIndexRef != -1) {

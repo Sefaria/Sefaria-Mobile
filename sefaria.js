@@ -91,7 +91,6 @@ Sefaria = {
       });
       result.requestedRef   = ref;
       result.isSectionLevel = (ref === result.sectionRef);
-      Sefaria.cacheCommentatorListBySection(result);
       Sefaria.cacheVersionInfo(result, true);
       resolve(result);
     });
@@ -99,7 +98,6 @@ Sefaria = {
   processApiData: function(ref, context, versions, data) {
     return new Promise((resolve, reject) => {
       Sefaria.api.textCache(ref, context, versions, data);
-      Sefaria.cacheCommentatorListBySection(data);
       Sefaria.cacheVersionInfo(data, true);
       //console.log(data);
       resolve(data);
@@ -443,16 +441,16 @@ Sefaria = {
   commentatorListBySection: function(ref) {
     return Sefaria._commentatorListBySection[ref];
   },
-  cacheCommentatorListBySection: function(data) {
-    if (data.ref in Sefaria._commentatorListBySection) { return; }
-    var en = new Set();
-    var he = new Set();
-    for (var i = 0; i < data.content.length; i++) {
-      if (!("links" in data.content[i])) { continue; }
-      for (var j =0; j < data.content[i].links.length; j++) {
-        var link = data.content[i].links[j];
+  cacheCommentatorListBySection: function(ref, data) {
+    if (ref in Sefaria._commentatorListBySection) { return; }
+    const en = new Set();
+    const he = new Set();
+    for (let i = 0; i < data.length; i++) {
+      if (!("links" in data[i])) { continue; }
+      for (let j =0; j < data[i].links.length; j++) {
+        const link = data[i].links[j];
         if (link.category === "Commentary") {
-          var title = Sefaria.getTitle(link.sourceRef, link.sourceHeRef, true, false);
+          const title = Sefaria.getTitle(link.sourceRef, link.sourceHeRef, true, false);
           en.add(title);
           he.add(Sefaria.getTitle(link.sourceRef, link.sourceHeRef, true, true));
         }
@@ -462,7 +460,7 @@ Sefaria = {
       en: [...en],
       he: [...he]
     }
-    Sefaria._commentatorListBySection[data.ref] = commentators;
+    Sefaria._commentatorListBySection[ref] = commentators;
   },
   _textToc: {},
   textToc: function(title) {
@@ -830,6 +828,7 @@ Sefaria = {
         //Add zero commentaries
         let commentatorList = Sefaria.commentatorListBySection(sectionRef);
         if (commentatorList) {
+          console.log(commentatorList);
           let commentaryBooks = summary["Commentary"].books;
           let commentaryBookTitles = Object.keys(commentaryBooks).map((book)=>commentaryBooks[book].title);
           for (let i = 0; i < commentatorList.en.length; i++) {
@@ -842,6 +841,8 @@ Sefaria = {
                 title:    commEn,
                 heTitle:  commHe,
                 category: "Commentary",
+                refSet:   new Set(),
+                heRefSet: new Set(),
               }
             }
           }
