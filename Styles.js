@@ -667,7 +667,7 @@ export default StyleSheet.create({
   },
   textTocVersionTitle: {
     paddingTop: 25,
-    fontSize: iPad ? 28 : 17,
+    fontSize: iPad ? 20 : 17,
     textAlign: "center"
   },
   textTocVersionNotes: {
@@ -883,65 +883,6 @@ export default StyleSheet.create({
     flex: 1,
     alignItems: 'center',
   },
-  /*
-  .aboutBox .aboutHeader {
-  color: #999;
-  padding-bottom: 13px;
-  margin: 0;
-  margin-bottom: 15px;
-  text-align: initial;
-  text-transform: none;
-  font-size: 20px;
-  border-bottom: solid 1px #CCC;
-}
-.aboutBox .aboutTitle {
-  padding: 10px 0 15px 0;
-  font-size: 20px;
-  color: black;
-  display: inline-block;
-}
-.aboutBox .aboutSubtitle {
-  font-style: italic;
-  font-size: 15px;
-  color: #999;
-}
-.aboutBox .aboutSubtitle .he {
-  font-style: normal;
-}
-.aboutBox .aboutDesc {
-  padding: 15px 0 30px 0;
-  font-size: 15px;
-}
-.aboutBox .versionNotes {
-  padding-bottom: 15px;
-  font-size: 15px;
-  color: #666;
-}
-.aboutBox .versionDetails,
-.versionsBox .versionDetails {
-  font-size: 13px;
-  font-family: "proxima-nova", "Helvetica Neue", "Helvetica", sans-serif;
-  color: #999;
-  padding-bottom: 5px;
-  text-align: left;
-  line-height: 150%;
-}
-.readerApp.interface-hebrew .aboutBox .versionDetails,
-.readerApp.interface-hebrew .versionsBox .versionDetails {
-  text-align: right;
-}
-.aboutBox .versionDetails .separator,
-.versionsBox .versionDetails .separator {
-  margin: 0 3px;
-}
-.aboutBox a,
-.versionsBox a {
-  color: #999;
-}
-.aboutBox .currVersionSection {
-  padding-bottom: 30px;
-}
-  */
   aboutHeaderWrapper: {
     borderBottomWidth: 1,
   },

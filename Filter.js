@@ -66,14 +66,8 @@ class VersionFilter extends Filter {
     return this.versionTitle === filter.versionTitle && this.versionLanguage === filter.versionLanguage;
   }
 
-  langToShortLang(isHeb) {
-    return isHeb ? (this.versionLanguage === "en" ? "אנ" : "עב") : (this.versionLanguage === "en" ? "en" : "he");
-  }
-
   toString(lang) {
-    isHeb = lang === "hebrew" && this.heName;
-    const shortLang = this.langToShortLang(isHeb);
-    return isHeb ? `${this.heName} (${shortLang})` : `${this.name} (${shortLang})`;
+    return lang === "hebrew" && this.heName ? this.heName : this.name;
   }
 }
 

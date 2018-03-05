@@ -40,6 +40,7 @@ class AboutBox extends React.Component {
     const vh = this.props.currVersions.he;
     const ve = this.props.currVersions.en;
     const hec = this.props.contentLang === "hebrew";
+    const hei = this.props.interfaceLang === "hebrew";
     let detailSection = null;
     if (d) {
       let authorsEn, authorsHe;
@@ -86,7 +87,7 @@ class AboutBox extends React.Component {
       detailSection = (
         <View>
           <View style={[styles.aboutHeaderWrapper, this.props.theme.bordered]}>
-            <Text style={[styles.aboutHeader, this.props.theme.secondaryText]}>{strings.aboutThisText}</Text>
+            <Text style={[styles.aboutHeader, this.props.theme.secondaryText, hei ? styles.heInt : null]}>{strings.aboutThisText}</Text>
           </View>
           <Text style={[styles.aboutTitle, this.props.theme.text]}>
             { hec ? d.heTitle : d.title }
@@ -110,7 +111,7 @@ class AboutBox extends React.Component {
     const versionSectionHe =
       (!!vh && !vh.disabled ? <View style={styles.currVersionSection}>
         <View style={[styles.aboutHeaderWrapper, this.props.theme.bordered]}>
-          <Text style={[styles.aboutHeader, this.props.theme.secondaryText]}>{ strings.currentHebrewVersion }</Text>
+          <Text style={[styles.aboutHeader, this.props.theme.secondaryText, hei ? styles.heInt : null]}>{ strings.currentHebrewVersion }</Text>
         </View>
         <VersionBlock
           theme={this.props.theme}
@@ -121,7 +122,7 @@ class AboutBox extends React.Component {
     const versionSectionEn =
       (!!ve && !ve.disabled ? <View style={styles.currVersionSection}>
         <View style={[styles.aboutHeaderWrapper, this.props.theme.bordered]}>
-          <Text style={[styles.aboutHeader, this.props.theme.secondaryText]}>{ strings.currentEnglishVersion }</Text>
+          <Text style={[styles.aboutHeader, this.props.theme.secondaryText, hei ? styles.heInt : null]}>{ strings.currentEnglishVersion }</Text>
         </View>
         <VersionBlock
           theme={this.props.theme}
