@@ -659,14 +659,15 @@ Sefaria = {
       let toSegmentNumber = -1;
       let dashIndex = segmentNumber.indexOf("-");
       if (dashIndex !== -1) {
-        toSegmentNumber = segmentNumber.slice(dashIndex+1);
-        segmentNumber = segmentNumber.slice(0, dashIndex);
-      }
+        toSegmentNumber = parseInt(segmentNumber.slice(dashIndex+1));
+        segmentNumber = parseInt(segmentNumber.slice(0, dashIndex));
+      } else { segmentNumber = parseInt(segmentNumber); }
       let enText = "";
       let heText = "";
       for (let i = 0; i < data.content.length; i++) {
         let item = data.content[i];
-        if (item.segmentNumber >= segmentNumber && (toSegmentNumber === -1 || item.segmentNumber <= toSegmentNumber)) {
+        const currSegNum = parseInt(item.segmentNumber);
+        if (currSegNum >= segmentNumber && (toSegmentNumber === -1 || currSegNum <= toSegmentNumber)) {
             if (typeof item.text === "string") enText += item.text + " ";
             if (typeof item.he === "string") heText += item.he + " ";
             if (toSegmentNumber === -1) {
