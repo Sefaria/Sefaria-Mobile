@@ -166,7 +166,7 @@ class SearchFilterPage extends React.Component {
         </View>);
     }
     return (<View style={{flex:1}}>
-      <View style={[styles.header, this.props.theme.header, {justifyContent: "space-between", marginLeft: 7, marginRight: 7}]}>
+      <View style={[styles.header, this.props.theme.header, {justifyContent: "space-between", paddingHorizontal: 12}]}>
         <DirectedButton
           onPress={this.backFromFilter}
           theme={this.props.theme}
@@ -223,7 +223,8 @@ class SearchFilter extends React.Component {
         enText={filter.title}
         heText={filter.heTitle}
         count={count}
-        withArrow={!!this.props.openSubMenu} />
+        withArrow={!!this.props.openSubMenu}
+        buttonStyle={{ margin: 2, paddingVertical: 0, paddingHorizontal: 5,}} />
     );
   }
 }

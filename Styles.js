@@ -4,8 +4,13 @@ import {
 } from 'react-native';
 
 import iPad from './isIPad';
+const readerSideMargin = 42;
+const readerSideMarginIpad = 60;
 
 export default StyleSheet.create({
+  readerSideMargin: {
+    marginHorizontal: iPad ? readerSideMarginIpad : readerSideMargin,
+  },
   safeArea: {
     flex: 1,
     backgroundColor: "#000",
@@ -132,12 +137,12 @@ export default StyleSheet.create({
     marginRight: 12
   },
   directedButtonWithTextEn: {
-    marginLeft: 5,
+    marginLeft: 0,
     marginRight: 12,
   },
   directedButtonWithTextHe: {
     marginLeft: 12,
-    marginRight: 5,
+    marginRight: 0,
   },
   menuButton: {
     width: 17,
@@ -285,9 +290,6 @@ export default StyleSheet.create({
     flexGrow: 1,
     flexDirection: "row",
     borderTopWidth: 4,
-    margin: 2,
-    paddingVertical: 0,
-    paddingHorizontal: 5,
     justifyContent: "space-between",
     alignItems: "center",
   },
@@ -343,7 +345,7 @@ export default StyleSheet.create({
     alignSelf: "stretch",
     borderTopWidth: 6,
     borderBottomWidth: 1,
-    paddingHorizontal: iPad ? 55 : 25,
+    paddingHorizontal: iPad ? readerSideMarginIpad : readerSideMargin,
     flexDirection: "row",
   },
   textListHeaderScrollView: {
@@ -540,7 +542,7 @@ export default StyleSheet.create({
     fontFamily: "Open Sans",
     fontWeight: '400',
     fontSize: iPad ? 11 : 9,
-    width: iPad ? 60 : 30,
+    width: iPad ? readerSideMarginIpad : readerSideMargin,
   },
   hebrewVerseNumber: {
     fontSize: 11,
@@ -578,7 +580,7 @@ export default StyleSheet.create({
     paddingTop: 7,
     textAlign: 'center',
     fontSize: iPad ? 9 : 7,
-    width: iPad ? 60 : 30,
+    width: iPad ? readerSideMarginIpad : readerSideMargin,
   },
   englishSystemFont: {
     fontFamily: "Open Sans",
@@ -623,7 +625,7 @@ export default StyleSheet.create({
   textSegment: {
     flexDirection: "column",
     flexWrap:"wrap",
-    flex:.93
+    flex:1
   },
   numberSegmentHolderEn: {
     flexDirection: "row",
@@ -846,10 +848,12 @@ export default StyleSheet.create({
   toolsButton: {
     borderTopWidth: 1,
     justifyContent: 'flex-start',
-    paddingHorizontal: 10,
+  },
+  toolsButtonIcon: {
+    width: iPad ? readerSideMarginIpad : readerSideMargin,
+    alignItems: 'center',
   },
   toolsButtonText: {
-    paddingHorizontal: 7,
   },
   versionsBoxLang: {
     flex: 1,

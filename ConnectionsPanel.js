@@ -265,7 +265,7 @@ class LinkNavButton extends React.Component {
         heText={this.props.heText}
         count={this.props.count}
         withArrow={false}
-        buttonStyle={{margin: 0}} />
+        buttonStyle={{margin: 0, padding: 0}} />
     );
   }
 }
@@ -318,8 +318,8 @@ class ToolsButton extends React.Component {
     const { count, theme, icon, interfaceLang } = this.props;
     const textStyle = interfaceLang === "english" ? styles.enInt : styles.heInt;
     const flexDir = interfaceLang === "english" ? null : styles.rtlRow;
-    const iconComp = icon ? (<Image source={icon} style={styles.menuButton} resizeMode={Image.resizeMode.contain}></Image>) : null;
-    const countComp = !!count || count === 0 ? <Text style={[styles.enInt, theme.secondaryText, styles.spacedText]}>{`(${count})`}</Text> : null
+    const iconComp = icon ? (<View style={styles.toolsButtonIcon}><Image source={icon} style={styles.menuButton} resizeMode={Image.resizeMode.contain}></Image></View>) : null;
+    const countComp = !!count || count === 0 ? <Text style={[styles.enInt, theme.secondaryText, styles.spacedText]}>{` (${count})`}</Text> : null
     return (
       <TouchableOpacity style={[styles.searchFilterCat, styles.toolsButton, flexDir, theme.bordered]} onPress={this.props.onPress}>
         { iconComp }

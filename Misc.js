@@ -135,6 +135,7 @@ class LibraryNavButton extends React.Component {
     let colorStyle = isCat ? [{"borderColor": colorCat}] : [theme.searchResultSummary, {"borderTopWidth": 1}];
     let textStyle  = [isCat ? styles.spacedText : null];
     let flexDir = menuLanguage == "english" ? "row" : "row-reverse";
+    let textMargin = !!onPressCheckBox ? { marginHorizontal: 0 } : styles.readerSideMargin;
     return (
       <TouchableOpacity
         onPress={onPress}
@@ -146,14 +147,14 @@ class LibraryNavButton extends React.Component {
             </TouchableOpacity> : null
           }
           { menuLanguage == "english" ?
-            <Text style={[styles.englishText].concat([theme.tertiaryText, textStyle, {paddingTop:3, marginHorizontal: (!!onPressCheckBox ? 0 : 25)}])}>
+            <Text style={[styles.englishText].concat([theme.tertiaryText, textStyle, {paddingTop:3}, textMargin])}>
               {`${enText} `}
               {
                 !!count || count === 0 ? <Text style={[styles.englishText].concat([theme.secondaryText, textStyle])}>{`(${count})`}</Text> : null
               }
             </Text>
             :
-            <Text style={[styles.hebrewText].concat([theme.tertiaryText, textStyle, {paddingTop:13, marginHorizontal: (!!onPressCheckBox ? 0 : 25)}])}>
+            <Text style={[styles.hebrewText].concat([theme.tertiaryText, textStyle, {paddingTop:13}, textMargin])}>
               {`${heText} `}
               {
                 !!count || count === 0 ? <Text style={[styles.englishText].concat([theme.secondaryText, textStyle])}>{`(${count})`}</Text> : null

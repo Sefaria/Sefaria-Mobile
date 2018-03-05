@@ -61,7 +61,7 @@ class ConnectionsPanelHeader extends React.Component {
         const backMode = this.props.connectionsMode === 'filter' ? selectedFilter.category : this.previousModes[this.props.connectionsMode];
         outerStyles = [styles.textListHeader, styles.textListHeaderSummary, this.props.theme.textListHeader];
         content = (
-          <View style={{flex: 1, flexDirection: isheb ? 'row-reverse' : 'row', justifyContent: 'flex-start' }}>
+          <View style={{flex: 1, flexDirection: isheb ? 'row-reverse' : 'row', justifyContent: 'flex-start', alignItems: 'center' }}>
             <TouchableOpacity onPress={() => {this.props.setConnectionsMode(backMode)}}>
               <DirectedArrow
                 imageStyle={backImageStyle}
