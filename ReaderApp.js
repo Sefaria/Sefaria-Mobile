@@ -955,7 +955,7 @@ class ReaderApp extends React.Component {
         return {
           "title": r._source.ref,
           "heTitle": r._source.heRef,
-          "text": r.highlight[field][0],
+          "text": r.highlight[field].join(" ... "),
           "textType": r._id.includes("[he]") ? "hebrew" : "english"
         }
       });
