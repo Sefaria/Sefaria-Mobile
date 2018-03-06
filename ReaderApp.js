@@ -345,17 +345,18 @@ class ReaderApp extends React.Component {
       }
       // if loadVersion, replace versions here
       Sefaria.data(ref, true, versions).then(function(data) {
+          console.log("section ref", data.sectionRef, "heSectionRef", data.heSectionRef, "heRef", data.heRef, "heTitle", data.heTitle)
           let nextState = {
             data:              [data.content],
             textTitle:         data.indexTitle,
             next:              data.next,
             prev:              data.prev,
             heTitle:           data.heTitle,
-            heRef:             data.heRef,
-            sectionArray:      [data.ref],
-            sectionHeArray:    [data.heRef],
+            heRef:             data.heSectionRef || data.heRef,
+            sectionArray:      [data.sectionRef],
+            sectionHeArray:    [data.heSectionRef || data.heRef], // backwards compatible because offline files are missing `heSectionRef`. we specifically want heSectionRef in case you load a segment ref with context
             loaded:            true,
-            offsetRef:         !data.isSectionLevel ? data.requestedRef : null, // keep
+            offsetRef:         !data.isSectionLevel ? data.requestedRef : null,
           };
           if (!isLoadingVersion) {
             // also overwrite sidebar state

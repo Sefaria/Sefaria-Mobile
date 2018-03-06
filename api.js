@@ -106,6 +106,7 @@ var Api = {
         "heRef": text_response.heRef,
         "toSections": text_response.toSections,
         "sectionRef": text_response.sectionRef,
+        "heSectionRef": text_response.heSectionRef, // doesn't actually appear in offline files
         "lengths": text_response.length,
         "next": text_response.next,
         "content": content,
