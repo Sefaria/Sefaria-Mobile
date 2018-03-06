@@ -215,7 +215,6 @@ class ReaderApp extends React.Component {
   };
 
   getTextByLanguage = title => {
-    console.log("in textLanguageByTitle", this.props.textLanguageByTitle[title]);
     return this.props.textLanguageByTitle[title] || this.props.defaultTextLanguage;
   };
 

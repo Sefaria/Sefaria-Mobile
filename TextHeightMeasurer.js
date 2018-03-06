@@ -113,7 +113,6 @@ class TextHeightMeasurer extends React.PureComponent {
   }
 
   stopMeasuring() {
-    console.log(`Stopping to measure ${this.leftToMeasure.size} components!`);
     this.leftToMeasure = new Set();
   }
 

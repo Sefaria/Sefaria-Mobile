@@ -25,6 +25,7 @@ import {
 
 class TextColumn extends React.Component {
   static propTypes = {
+    textToc:            PropTypes.object,
     theme:              PropTypes.object.isRequired,
     themeStr:           PropTypes.string,
     fontSize:           PropTypes.number.isRequired,
@@ -83,6 +84,8 @@ class TextColumn extends React.Component {
   generateDataSource = (props, gonnaJump) => {
     // Returns data representing sections and rows to be passed into ListView.DataSource.cloneWithSectionsAndRows
     // Takes `props` as an argument so it can generate data with `nextProps`.
+    const showParsha = !!props.textToc && props.textToc.categories.length === 2 && props.textToc.categories[1] === "Torah";
+    const
     let data = props.data;
     let dataSource = [];
 
@@ -554,7 +557,6 @@ class TextColumn extends React.Component {
   }
 
   render() {
-    console.log(this.props.loadingTextHead, this.onTopReaching);
     return (
         <View style={styles.textColumn} >
           <SectionList

@@ -53,7 +53,6 @@ class SearchResultList extends React.Component {
   }
 
   scrollToSearchResult = () => {
-    console.log("init", this.props.initSearchScrollPos);
     this.flatListRef._listRef.scrollToOffset({
        offset: this.props.initSearchScrollPos || 0,
        animated: false,

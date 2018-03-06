@@ -513,7 +513,6 @@ class ArrayMapNode extends React.Component {
         <View style={[styles.textTocNumberedSection, langStyles]}>{sectionLinks}</View>
       );
     } else {
-      console.log("Open: " + this.props.schema.wholeRef.replace(/\./g, " ") )
       var open = this.props.openRef.bind(null, this.props.schema.wholeRef.replace(/\./g, " "));
       return (
           <TouchableOpacity style={[]} onPress={open} key={i}>
