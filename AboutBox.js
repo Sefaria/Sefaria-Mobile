@@ -18,6 +18,7 @@ import VersionBlock from './VersionBlock';
 
 class AboutBox extends React.Component {
   static propTypes = {
+    textToc:             PropTypes.object,
     theme:               PropTypes.object.isRequired,
     currVersions:        PropTypes.object.isRequired,
     contentLang:         PropTypes.oneOf(["english", "hebrew"]).isRequired,
@@ -26,17 +27,8 @@ class AboutBox extends React.Component {
     textTitle:           PropTypes.string.isRequired,
   };
 
-  constructor(props) {
-    super(props);
-    Sefaria.textToc(this.props.textTitle).then(textToc => {
-      this.setState({ textToc });
-    });
-    this.state = {
-      textToc: null,
-    }
-  }
   render() {
-    const d = this.state.textToc;
+    const d = this.props.textToc;
     const vh = this.props.currVersions.he;
     const ve = this.props.currVersions.en;
     const hec = this.props.contentLang === "hebrew";

@@ -32,6 +32,7 @@ import VersionBlock from './VersionBlock';
 class ReaderTextTableOfContents extends React.Component {
   // The Table of Contents for a single Text
   static propTypes = {
+    textToc:        PropTypes.object,
     theme:          PropTypes.object.isRequired,
     themeStr:       PropTypes.string.isRequired,
     title:          PropTypes.string.isRequired,
@@ -45,21 +46,11 @@ class ReaderTextTableOfContents extends React.Component {
     toggleLanguage: PropTypes.func.isRequired,
   };
 
-  constructor(props, context) {
-    super(props, context);
-    Sefaria.textToc(props.title).then((data) => {
-      this.setState({textToc: data});
-    });
-    this.state = {
-      textToc: null,
-    };
-  }
-
   sectionString = () => {
     // Returns a string expressing just the section we're currently looking including section name when possible
     // e.g. "Genesis 1" -> "Chapter 1"
-    if (!this.state.textToc) { return "";}
-    var textToc = this.state.textToc;
+    if (!this.props.textToc) { return "";}
+    const textToc = this.props.textToc;
     var sectionName = ("sectionNames" in textToc) ?
                         textToc.sectionNames[textToc.sectionNames.length > 1 ? textToc.sectionNames.length-2 : 0] :
                         null;
@@ -123,14 +114,14 @@ class ReaderTextTableOfContents extends React.Component {
             </View>
           </View>
 
-          {this.state.textToc ?
+          {this.props.textToc ?
             <TextTableOfContentsNavigation
               theme={this.props.theme}
               themeStr={this.props.themeStr}
-              schema={this.state.textToc.schema}
+              schema={this.props.textToc.schema}
               commentatorList={Sefaria.commentaryList(this.props.title)}
-              alts={this.state.textToc.alts || null}
-              defaultStruct={"default_struct" in this.state.textToc && this.state.textToc.default_struct in this.state.textToc.alts ? this.state.textToc.default_struct : "default"}
+              alts={this.props.textToc.alts || null}
+              defaultStruct={"default_struct" in this.props.textToc && this.props.textToc.default_struct in this.props.textToc.alts ? this.props.textToc.default_struct : "default"}
               contentLang={this.props.contentLang}
               title={this.props.title}
               openRef={this.props.openRef} /> : <LoadingView /> }

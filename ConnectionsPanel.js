@@ -26,6 +26,7 @@ const {
 
 class ConnectionsPanel extends React.Component {
   static propTypes = {
+    textToc:              PropTypes.object,
     theme:                PropTypes.object.isRequired,
     themeStr:             PropTypes.oneOf(["white", "black"]).isRequired,
     interfaceLang:        PropTypes.oneOf(["english", "hebrew"]).isRequired,
@@ -147,6 +148,7 @@ class ConnectionsPanel extends React.Component {
           <View style={[styles.textColumn, this.props.theme.textListContentOuter, {maxWidth: null}]}>
             {connectionsPanelHeader}
             <AboutBox
+              textToc={this.props.textToc}
               theme={this.props.theme}
               interfaceLang={this.props.interfaceLang}
               contentLang={this.props.menuLanguage}

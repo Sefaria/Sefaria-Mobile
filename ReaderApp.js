@@ -380,7 +380,8 @@ class ReaderApp extends React.Component {
           });
 
           // Preload Text TOC data into memory
-          Sefaria.textToc(data.indexTitle).then(() => {
+          Sefaria.textToc(data.indexTitle).then((textToc) => {
+            this.setState({textToc});
             // at this point, both book and section level version info is available
             this.setCurrVersions(data.sectionRef, data.indexTitle); // not positive if this will combine versions well
           });
@@ -1084,6 +1085,7 @@ class ReaderApp extends React.Component {
       case ("text toc"):
         return (
           <ReaderTextTableOfContents
+            textToc={this.state.textToc}
             theme={this.props.theme}
             themeStr={this.props.themeStr}
             title={this.state.textTitle}
@@ -1176,6 +1178,7 @@ class ReaderApp extends React.Component {
                 }}
           >
             <TextColumn
+              textToc={this.state.textToc}
               theme={this.props.theme}
               themeStr={this.props.themeStr}
               fontSize={this.props.fontSize}
@@ -1212,6 +1215,7 @@ class ReaderApp extends React.Component {
                 }}
             >
               <ConnectionsPanel
+                textToc={this.state.textToc}
                 menuLanguage={this.props.menuLanguage}
                 fontSize={this.props.fontSize}
                 theme={this.props.theme}
