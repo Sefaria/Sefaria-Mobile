@@ -316,19 +316,27 @@ def section_data(oref, defaultVersions):
                     vsource = version.versionSource
                 except AttributeError:
                     vsource = None
+                try:
+                    vnotesInHebrew = version.versionNotesInHebrew
+                except AttributeError:
+                    vnotesInHebrew = None
+                try:
+                    versionTitleInHebrew = version.versionTitleInHebrew
+                except AttributeError:
+                    versionTitleInHebrew = None
 
-                return version.versionTitle, vnotes, vlicense, vsource
+                return version.versionTitle, vnotes, vlicense, vsource, versionTitleInHebrew, vnotesInHebrew
             else:
-                return None, None, None, None # default version
+                return None, None, None, None, None, None # default version
         else:
             #merged
             #print "MERGED SECTION {} ({})".format(oref, chunk.lang)
             all_versions = set(chunk.sources)
             merged_version = u'Merged from {}'.format(u', '.join(all_versions))
-            return merged_version, None, None, None
+            return merged_version, None, None, None, None, None
 
-    en_vtitle, en_vnotes, en_vlicense, en_vsource = get_version_title(tf._chunks['en'])
-    he_vtitle, he_vnotes, he_vlicense, he_vsource = get_version_title(tf._chunks['he'])
+    en_vtitle, en_vnotes, en_vlicense, en_vsource, en_vtitle_he, en_vnotes_he = get_version_title(tf._chunks['en'])
+    he_vtitle, he_vnotes, he_vlicense, he_vsource, he_vtitle_he, he_vnotes_he = get_version_title(tf._chunks['he'])
 
     if en_vtitle:
         data['versionTitle'] = en_vtitle
@@ -346,6 +354,14 @@ def section_data(oref, defaultVersions):
         data['versionSource'] = en_vsource
     if he_vsource:
         data['heVersionSource'] = he_vsource
+    if en_vtitle_he:
+        data['versionTitleInHebrew'] = en_vtitle_he
+    if he_vtitle_he:
+        data['heVersionTitleInHebrew'] = he_vtitle_he
+    if en_vnotes_he:
+        data['versionNotesInHebrew'] = en_vnotes_he
+    if he_vnotes_he:
+        data['heVersionNotesInHebrew'] = he_vnotes_he
 
 
     en_len = len(text["text"])
@@ -355,7 +371,7 @@ def section_data(oref, defaultVersions):
         curContent["segmentNumber"] = str(x+1)
 
         links = get_links(text["ref"] + ":" + curContent["segmentNumber"], False)
-        print links
+        #print links
         if len(links) > 0:
             curContent["links"] = [simple_link(link) for link in links]
 
@@ -390,6 +406,14 @@ def export_index(index):
                 index_counts['versionSource'] = default_versions['en'].versionSource
             except AttributeError:
                 pass
+            try:
+                index_counts['versionTitleInHebrew'] = default_versions['en'].versionTitleInHebrew
+            except AttributeError:
+                pass
+            try:
+                index_counts['versionNotesInHebrew'] = default_versions['en'].versionNotesInHebrew
+            except AttributeError:
+                pass
         if 'he' in default_versions:
             index_counts['heVersionTitle'] = default_versions['he'].versionTitle
             try:
@@ -402,6 +426,14 @@ def export_index(index):
                 pass
             try:
                 index_counts['heVersionSource'] = default_versions['he'].versionSource
+            except AttributeError:
+                pass
+            try:
+                index_counts['heVersionTitleInHebrew'] = default_versions['he'].versionTitleInHebrew
+            except AttributeError:
+                pass
+            try:
+                index_counts['heVersionNotesInHebrew'] = default_versions['he'].versionNotesInHebrew
             except AttributeError:
                 pass
         path  = "%s/%s_index.json" % (EXPORT_PATH, index.title)

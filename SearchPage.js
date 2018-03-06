@@ -8,23 +8,23 @@ import {
   Text
 } from 'react-native';
 
-const SearchBar        = require('./SearchBar');
-const SearchResultList = require('./SearchResultList');
-const SearchFilterPage = require('./SearchFilterPage');
-const styles           = require('./Styles');
-const strings          = require('./LocalizedStrings');
+import SearchBar from './SearchBar';
+import SearchResultList from './SearchResultList';
+import SearchFilterPage from './SearchFilterPage';
+import styles from './Styles';
+import strings from './LocalizedStrings';
 
-var {
+import {
   CategoryColorLine,
   DirectedButton
-} = require('./Misc.js');
+} from './Misc.js';
 
 class SearchPage extends React.Component {
   static propTypes = {
     theme:               PropTypes.object.isRequired,
     themeStr:            PropTypes.string.isRequired,
     interfaceLang:       PropTypes.oneOf(["english", "hebrew"]).isRequired,
-    settings:            PropTypes.object.isRequired,
+    menuLanguage:        PropTypes.oneOf(["english", "hebrew"]).isRequired,
     subMenuOpen:         PropTypes.string,
     openSubMenu:         PropTypes.func,
     hasInternet:         PropTypes.bool,
@@ -83,7 +83,7 @@ class SearchPage extends React.Component {
             <View style={summaryStyle}>
               <Text style={[this.props.theme.searchResultSummaryText, langStyle]} >{status}</Text>
               <DirectedButton
-                text={(<Text>{strings.filter} <Text style={{color: "black"}}>{`(${this.props.appliedFilters.length})`}</Text></Text>)}
+                text={(<Text>{strings.filter} <Text style={this.props.theme.text}>{`(${this.props.appliedFilters.length})`}</Text></Text>)}
                 direction="forward"
                 language={"english"}
                 themeStr={this.props.themeStr}
@@ -92,6 +92,7 @@ class SearchPage extends React.Component {
                 onPress={()=>this.props.openSubMenu("filter")}/>
             </View>
             <SearchResultList
+              menuLanguage={this.props.menuLanguage}
               theme={this.props.theme}
               queryResult={this.props.queryResult}
               loadingTail={this.props.loadingTail}
@@ -112,7 +113,7 @@ class SearchPage extends React.Component {
           <SearchFilterPage
             theme={this.props.theme}
             themeStr={this.props.themeStr}
-            settings={this.props.settings}
+            menuLanguage={this.props.menuLanguage}
             subMenuOpen={this.props.subMenuOpen}
             openSubMenu={this.props.openSubMenu}
             query={this.props.query}
@@ -138,4 +139,4 @@ class SearchPage extends React.Component {
   }
 }
 
-module.exports = SearchPage;
+export default SearchPage;

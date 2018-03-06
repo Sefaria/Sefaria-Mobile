@@ -9,11 +9,12 @@ import {
   View
 } from 'react-native';
 
-const styles = require('./Styles');
-const SearchTextResult = require('./SearchTextResult');
+import styles from './Styles';
+import SearchTextResult from './SearchTextResult';
 
 class SearchResultList extends React.Component {
   static propTypes = {
+    menuLanguage:   PropTypes.oneOf(["english", "hebrew"]),
     theme:          PropTypes.object.isRequired,
     queryResult:    PropTypes.array,
     loadingTail:    PropTypes.bool,
@@ -36,9 +37,11 @@ class SearchResultList extends React.Component {
   renderRow = ({ item }) => {
     return (
       <SearchTextResult
+        menuLanguage={this.props.menuLanguage}
         theme={this.props.theme}
         textType={item.textType}
         title={item.title}
+        heTitle={item.heTitle}
         text={item.text}
         onPress={this.props.openRef.bind(null,item.title)} />
     );
@@ -66,31 +69,31 @@ class SearchResultList extends React.Component {
   };
 
   _keyExtractor = (item, index) => {
-    return item.title + "|" + item.textType;
+    return item.id;
   };
 
   render() {
-  	//if isNewSearch, temporarily hide the ListView, which apparently resets the scroll position to the top
-  	if (this.props.queryResult && !this.props.isNewSearch) {
-	    return (
-	      <FlatList
+    //if isNewSearch, temporarily hide the ListView, which apparently resets the scroll position to the top
+    if (this.props.queryResult && !this.props.isNewSearch) {
+      return (
+        <FlatList
           ref={this._setFlatListRef}
-	        data={this.props.queryResult}
+          data={this.props.queryResult}
           getItemLayout={this.getItemLayout}
-	        renderItem={this.renderRow}
+          renderItem={this.renderRow}
           onLayout={this.scrollToSearchResult}
           onScroll={this.setCurScrollPos}
           keyExtractor={this._keyExtractor}
           scrollEventThrottle={100}
-	        onEndReached={this.onEndReached}
+          onEndReached={this.onEndReached}
           contentContainerStyle={{marginBottom:50}}/>
-	    );
-  	} else {
-  		return null;
-  	}
+      );
+    } else {
+      return null;
+    }
 
   }
 }
 
 
-module.exports = SearchResultList;
+export default SearchResultList;

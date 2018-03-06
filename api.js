@@ -3,7 +3,8 @@ import {
 } from 'react-native';
 
 const RNFS    = require('react-native-fs'); //for access to file system -- (https://github.com/johanneslumpe/react-native-fs)
-const strings = require('./LocalizedStrings');
+import strings from './LocalizedStrings';
+import LinkContent from './LinkContent';
 
 var Api = {
   /*
@@ -11,6 +12,22 @@ var Api = {
   */
   _textCache: {}, //in memory cache for API data
   _linkCache: {},
+  _versions: {},
+  _translateVersions: {},
+  _indexDetails: {},
+  _textCacheKey: function(ref, context, versions) {
+    return `${ref}|${context}${(!!versions ? (!!versions.en ? `|en:${versions.en}` : "") + (!!versions.he ? `|he:${versions.he}` : "")  : "")}`;
+  },
+  textCache: function(ref, context, versions, value) {
+    const key = Sefaria.api._textCacheKey(ref, context, versions);
+    if (value) {
+      //setting
+      if (!(key in Sefaria.api._textCache)) { Sefaria.api._textCache[key] = value; }
+    } else {
+      //getting
+      return Sefaria.api._textCache[key];
+    }
+  },
   _toIOS: function(responses) {
       //console.log(responses);
       if (!responses) { return responses; }
@@ -114,20 +131,24 @@ var Api = {
   apiType: string `oneOf(["text","links","index"])`. passing undefined gets the standard Reader URL.
   context is a required param if apiType == 'text'. o/w it's ignored
   */
-  _toURL: function(ref, useHTTPS, apiType, context) {
-    var url = '';
+  _toURL: function(ref, useHTTPS, apiType, { context, versions }) {
+    let url = '';
     if (useHTTPS) {
       url += 'https://www.sefaria.org/';
     } else {
       url += 'http://www.sefaria.org/';
     }
 
-    var urlSuffix = '';
+    let urlSuffix = '';
     if (apiType) {
       switch (apiType) {
         case "text":
           url += 'api/texts/';
           urlSuffix = `?context=${context === true ? 1 : 0}&commentary=0`;
+          if (versions) {
+            if (versions.en) { urlSuffix += `&ven=${versions.en.replace(/ /g, "_")}`; }
+            if (versions.he) { urlSuffix += `&vhe=${versions.he.replace(/ /g, "_")}`; }
+          }
           break;
         case "links":
           url += 'api/links/';
@@ -137,8 +158,11 @@ var Api = {
           url += 'api/v2/index/';
           urlSuffix = '?with_content_counts=1';
           break;
+        case "versions":
+          url += "api/texts/versions/";
+          break;
         default:
-          console.error("You passed invalid type: ",apiType," into _urlForRef()");
+          console.error("You passed invalid type: ",apiType," into _toURL()");
           break;
       }
     }
@@ -148,69 +172,40 @@ var Api = {
     //console.log("URL",url);
     return url;
   },
-  _text: function(ref) {
+  _text: function(ref, { context, versions }) {
     return new Promise((resolve, reject)=>{
-      Sefaria.api._request(ref,'text',true)
-      .then((response)=>{
-        resolve({"text": response, "links": [], "ref": ref});
+      Sefaria.api._request(ref,'text', { context, versions })
+      .then(data => {
+        if (context) {
+          resolve(Sefaria.api._toIOS({"text": data, "links": [], "ref": ref}));
+        } else {
+          const en_text = (data.text instanceof Array) ? data.text.join(' ') : data.text;
+          const he_text = (data.he   instanceof Array) ? data.he.join(' ')   : data.he;
+          resolve({
+            "fromAPI": true,
+            "result": new LinkContent(en_text, he_text, data.sectionRef)
+          });
+        }
       }).catch(error => reject(error));
     });
   },
   links: function(ref) {
-    var bookRefStem  = Sefaria.textTitleForRef(ref);
-    var zipPath      = Sefaria._zipSourcePath(bookRefStem);
-    return new Promise((resolve,reject)=>{
-      RNFS.exists(zipPath)
-      .then((exists)=>{
-        if (exists && !Sefaria.downloader._data.debugNoLibrary) {
-          reject(); //you already opened these links from the file
-        } else {
-          if (ref in Sefaria.api._linkCache) {
-            resolve(Sefaria.api._linkCache[ref]);
-          } else {
-            Sefaria.api._request(ref,'links')
-            .then((response)=>{
-              //console.log("Setting API Link Cache for ",ref)
-              //console.log(response)
-              Sefaria.api._linkCache[ref] = response;
-              resolve(response);
-            })
-            .catch(()=>{
-              console.error("Links API error:",ref);
-            });
-          }
-        }
-      })
-    });
-  },
-  addLinksToText: function(text, links) {
-    let link_response = new Array(text.length);
-
-    //filter out books not in toc
-    links = links.filter((l)=>{
-      return l.index_title in Sefaria.booksDict;
-    });
-    for (let i = 0; i < links.length; i++) {
-      let link = links[i];
-      let linkSegIndex = parseInt(link.anchorRef.substring(link.anchorRef.lastIndexOf(':') + 1)) - 1;
-      if (!link_response[linkSegIndex]) {
-        link_response[linkSegIndex] = [];
+    return new Promise((resolve, reject) => {
+      if (ref in Sefaria.api._linkCache) {
+        resolve(Sefaria.api._linkCache[ref]);
+      } else {
+        Sefaria.api._request(ref,'links', {})
+        .then((response)=>{
+          //console.log("Setting API Link Cache for ",ref)
+          //console.log(response)
+          Sefaria.api._linkCache[ref] = response;
+          resolve(response);
+        })
+        .catch(()=>{
+          console.error("Links API error:",ref);
+        });
       }
-      link_response[linkSegIndex].push({
-        "category": link.category,
-        "sourceRef": link.sourceRef, //.substring(0,link.sourceRef.lastIndexOf(':')),
-        "sourceHeRef": link.sourceHeRef, //.substring(0,link.sourceHeRef.lastIndexOf(':')),
-        "textTitle": link.index_title,
-        "collectiveTitle": link.collectiveTitle.en,
-        "heCollectiveTitle": link.collectiveTitle.he
-      });
-    }
-    return text.map((seg,i) => ({
-      "segmentNumber": seg.segmentNumber,
-      "he": seg.he,
-      "text": seg.text,
-      "links": link_response[i] ? link_response[i] : []
-    }));
+    });
   },
   _textandlinks: function(ref) {
     var checkResolve = function(resolve) {
@@ -224,13 +219,13 @@ var Api = {
     var textResponse = null;
     var linksResponse = null;
     return new Promise(function(resolve,reject) {
-      Sefaria.api._request(ref,'text',true)
+      Sefaria.api._request(ref,'text', {context: true})
       .then((response)=>{
         numResponses += 1;
         textResponse = response;
         checkResolve(resolve);
       });
-      Sefaria.api._request(ref,'links')
+      Sefaria.api._request(ref,'links', {})
       .then((response)=>{
         numResponses += 1;
         linksResponse = response;
@@ -239,11 +234,52 @@ var Api = {
 
     });
   },
+  getCachedVersions: function(ref) {
+    const refUpOne = Sefaria.refUpOne(ref);
+    const cached = Sefaria.api._versions[ref] || Sefaria.api._versions[refUpOne];
+    if (!!cached) {
+      return cached;
+    }
+  },
+  versions: function(ref, failSilently) {
+    return new Promise((resolve, reject) => {
+      const cached = Sefaria.api.getCachedVersions(ref);
+      if (!!cached) { resolve(cached); }
+      Sefaria.api._request(ref, 'versions', {}, failSilently)
+        .then(response => {
+          const defaultLangsFound = {};
+          for (let v of response) {
+            // mark the first version in every language as default for that language
+            if (!defaultLangsFound[v.language]) {
+              defaultLangsFound[v.language] = true;
+              v.default = true;
+            }
+            Sefaria.api._translateVersions[v.versionTitle] = {
+              en: v.versionTitle,
+              he: !!v.versionTitleInHebrew ? v.versionTitleInHebrew : v.versionTitle,
+              lang: v.language,
+            };
+          }
+          Sefaria.api._versions[ref] = response;
+          resolve(response);
+        })
+        .catch((error)=>{
+          console.log("Versions API error:",ref, error);
+          reject();
+        });
+    });
+  },
+  versionLanguage: function(versionTitle) {
+    // given a versionTitle, return the language of the version
+    return Sefaria.api._translateVersions[versionTitle]["lang"]
+  },
   /*
   context is a required param if apiType == 'text'. o/w it's ignored
+  versions is object with keys { en, he } specifying version titles
+  failSilently - if true, dont display a message if api call fails
   */
-  _request: function(ref, apiType, context) {
-    var url = Sefaria.api._toURL(ref, true, apiType, context);
+  _request: function(ref, apiType, { context, versions }, failSilently) {
+    var url = Sefaria.api._toURL(ref, true, apiType, { context, versions });
     return new Promise(function(resolve, reject) {
       fetch(url)
       .then(function(response) {
@@ -266,17 +302,20 @@ var Api = {
         }
       })
       .catch((response)=>{
-        console.log(response);
-
-        AlertIOS.alert(
-          strings.noInternet,
-          strings.noInternetMessage,
-          [
-            {text: strings.cancel, onPress: () => { reject("Return to Nav"); }, style: 'cancel' },
-            {text: strings.tryAgain, onPress: () => {
-              Sefaria.api._request(ref,apiType,context).then(resolve);
-            }}
-          ]);
+        if (failSilently) {
+          reject("Return to Nav");
+        } else {
+          AlertIOS.alert(
+            strings.noInternet,
+            strings.noInternetMessage,
+            [
+              {text: strings.cancel, onPress: () => { reject("Return to Nav"); }, style: 'cancel' },
+              {text: strings.tryAgain, onPress: () => {
+                Sefaria.api._request(ref,apiType, { context, versions },failSilently).then(resolve);
+              }}
+            ]
+          );
+        }
       });
     });
   }

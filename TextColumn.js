@@ -11,24 +11,23 @@ import ReactNative, {
   Dimensions,
 } from 'react-native';
 
-const styles =                require('./Styles.js');
-const TextRange =            require('./TextRange');
-const TextRangeContinuous = require('./TextRangeContinuous');
-const TextHeightMeasurer = require('./TextHeightMeasurer');
-const queryLayoutByID =   require('queryLayoutByID');
+import styles from './Styles.js';
+import TextRange from './TextRange';
+import TextRangeContinuous from './TextRangeContinuous';
+import TextHeightMeasurer from './TextHeightMeasurer';
+import queryLayoutByID from 'queryLayoutByID';
 const ViewPort  = Dimensions.get('window');
-const now = require('performance-now');
 const COMMENTARY_LINE_THRESHOLD = 150;
 
-const {
+import {
   LoadingView,
-} = require('./Misc.js');
+} from './Misc.js';
 
 class TextColumn extends React.Component {
   static propTypes = {
     theme:              PropTypes.object.isRequired,
     themeStr:           PropTypes.string,
-    settings:           PropTypes.object,
+    fontSize:           PropTypes.number.isRequired,
     data:               PropTypes.array,
     textReference:      PropTypes.string,
     sectionArray:       PropTypes.array,
@@ -373,7 +372,7 @@ class TextColumn extends React.Component {
       <TextRangeContinuous
         theme={this.props.theme}
         themeStr={this.props.themeStr}
-        settings={this.props.settings}
+        fontSize={this.props.fontSize}
         rowData={item.data}
         sectionRef={sectionRef}
         textLanguage={this.props.textLanguage}
@@ -381,7 +380,6 @@ class TextColumn extends React.Component {
         textSegmentPressed={this.textSegmentPressed}
         setRowRef={(key, ref)=>{this.rowRefs[key]=ref}}
         setRowRefInitY={(key, y)=>{this.continuousRowYHash[key] = y}}
-        Sefaria={Sefaria}
       />
     );
   };
@@ -392,14 +390,13 @@ class TextColumn extends React.Component {
       <TextRange
         theme={this.props.theme}
         themeStr={this.props.themeStr}
-        settings={this.props.settings}
+        fontSize={this.props.fontSize}
         rowData={item.data}
         segmentRef={item.ref}
         textLanguage={this.props.textLanguage}
         showSegmentNumbers={Sefaria.showSegmentNumbers(this.props.textTitle)}
         textSegmentPressed={this.textSegmentPressed}
         setRowRef={(key, ref)=>{this.rowRefs[key]=ref}}
-        Sefaria={Sefaria}
       />
     );
   };

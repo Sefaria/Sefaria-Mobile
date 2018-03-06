@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 
 import HTMLView from 'react-native-htmlview'; //to convert html'afied JSON to something react can render (https://github.com/jsdf/react-native-htmlview)
-var {
+import {
   CloseButton,
   LanguageToggleButton,
   CategoryColorLine,
@@ -21,11 +21,12 @@ var {
   TwoBox,
   LoadingView,
   CollapseIcon
-} = require('./Misc.js');
+} from './Misc.js';
 
-const styles  = require('./Styles');
-const strings = require('./LocalizedStrings');
-const iPad    = require('./isIPad');
+import styles from './Styles';
+import strings from './LocalizedStrings';
+import iPad from './isIPad';
+import VersionBlock from './VersionBlock';
 
 
 class ReaderTextTableOfContents extends React.Component {
@@ -42,18 +43,15 @@ class ReaderTextTableOfContents extends React.Component {
     contentLang:    PropTypes.oneOf(["english","hebrew"]).isRequired,
     interfaceLang:  PropTypes.oneOf(["english","hebrew"]).isRequired,
     toggleLanguage: PropTypes.func.isRequired,
-    Sefaria:        PropTypes.object.isRequired
   };
 
   constructor(props, context) {
     super(props, context);
-    Sefaria = props.Sefaria;
-    var toc = Sefaria.textToc(props.title, function(data) {
+    Sefaria.textToc(props.title).then((data) => {
       this.setState({textToc: data});
-    }.bind(this));
-
+    });
     this.state = {
-      textToc: toc
+      textToc: null,
     };
   }
 
@@ -89,31 +87,7 @@ class ReaderTextTableOfContents extends React.Component {
     var categories  = Sefaria.index(this.props.title).categories;
     var enCatString = categories.join(", ");
     var heCatString = categories.map(Sefaria.hebrewCategory).join(", ");
-    var versionInfo = Sefaria.versionInfo(this.props.currentRef, this.props.title);
-    if (!versionInfo) {
-      //try one level up in case this ref is segment level
-      var colInd = this.props.currentRef.lastIndexOf(":");
-      if (colInd != -1) {
-        versionInfo = Sefaria.versionInfo(splitRef.substring(0,colInd));
-      }
-    }
 
-    //console.log("IN TEXT TOC", this.props.currentRef, this.props.title, versionInfo);
-     if (this.props.textLang == "hebrew") {
-      var versionTitle = versionInfo['heVersionTitle'];
-      var versionSource = versionInfo['heVersionSource'];
-      var shortVersionSource = Sefaria.util.parseURLhost(versionSource);
-      var license = versionInfo['heLicense'];
-      var licenseURL = Sefaria.util.getLicenseURL(license);
-      var versionNotes = versionInfo['heVersionNotes'];
-    } else {
-      var versionTitle = versionInfo['versionTitle'];
-      var versionSource = versionInfo['versionSource'];
-      var shortVersionSource = Sefaria.util.parseURLhost(versionSource);
-      var license = versionInfo['license'];
-      var licenseURL = Sefaria.util.getLicenseURL(license);
-      var versionNotes = versionInfo['versionNotes'];
-    }
     return (
       <View style={[styles.menu,this.props.theme.menu]}>
         <CategoryColorLine category={Sefaria.categoryForTitle(this.props.title)} />
@@ -123,7 +97,7 @@ class ReaderTextTableOfContents extends React.Component {
           <LanguageToggleButton theme={this.props.theme} toggleLanguage={this.props.toggleLanguage} language={this.props.contentLang} />
         </View>
 
-        <ScrollView style={styles.menuContent}>
+        <ScrollView contentContainerStyle={styles.menuContent}>
           <View style={[styles.textTocTopBox, this.props.theme.bordered]}>
             <CategoryAttribution
               categories={categories}
@@ -147,38 +121,6 @@ class ReaderTextTableOfContents extends React.Component {
               <Text style={[styles.intHe, styles.textTocSectionString, this.props.theme.textTocSectionString]}>{this.sectionString()}</Text> :
               <Text style={[styles.intEn, styles.textTocSectionString, this.props.theme.textTocSectionString]}>{this.sectionString()}</Text> }
             </View>
-
-            <View>
-              {
-                versionTitle ?
-                <Text style={[styles.en, styles.textTocVersionTitle, this.props.theme.text]}>{versionTitle}</Text>
-                : null
-              }
-              <View style={styles.textTocVersionInfo}>
-                { versionSource ?
-                  <TouchableOpacity style={[styles.navBottomLink, styles.textTocVersionInfoItem]} onPress={() => {Linking.openURL(versionSource);}}>
-                    <Text style={[styles.textTocVersionInfoText, this.props.theme.tertiaryText]}>{shortVersionSource}</Text>
-                  </TouchableOpacity>
-                  : null
-                }
-                { license ?
-                  <TouchableOpacity style={[styles.navBottomLink, styles.textTocVersionInfoItem]} onPress={() => licenseURL ? Linking.openURL(licenseURL) : null}>
-                    <Text style={[styles.textTocVersionInfoText, this.props.theme.tertiaryText]}>{license}</Text>
-                  </TouchableOpacity>
-                  : null
-                }
-              </View>
-              { versionNotes ?
-                <HTMLView
-                  value={"<div>"+versionInfo['versionNotes']+"</div>"}
-                  onLinkPress={(url) => Linking.openURL(url) }
-                  stylesheet={styles}
-         					textComponentProps={{style: [styles.textTocVersionNotes, this.props.theme.tertiaryText]}}
-                />
-                : null
-              }
-            </View>
-
           </View>
 
           {this.state.textToc ?
@@ -667,4 +609,4 @@ class CollapsibleNode extends React.Component {
 }
 
 
-module.exports = ReaderTextTableOfContents;
+export default ReaderTextTableOfContents;

@@ -14,8 +14,8 @@ import {
   Linking,
 } from 'react-native';
 
-var Sefaria = require('./sefaria');
-var styles = require('./Styles.js');
+import Sefaria from './sefaria';
+import styles from './Styles.js';
 
 
 class TwoBox extends React.Component {
@@ -112,6 +112,65 @@ class CategoryAttribution extends React.Component {
   }
 }
 
+class LibraryNavButton extends React.Component {
+  static propTypes = {
+    theme:           PropTypes.object,
+    themeStr:        PropTypes.string,
+    menuLanguage:    PropTypes.string.isRequired,
+    isCat:           PropTypes.bool.isRequired,
+    onPress:         PropTypes.func.isRequired,
+    onPressCheckBox: PropTypes.func,
+    checkBoxSelected:PropTypes.number,
+    enText:          PropTypes.string.isRequired,
+    heText:          PropTypes.string.isRequired,
+    count:           PropTypes.number,
+    withArrow:       PropTypes.bool.isRequired,
+    buttonStyle:     PropTypes.oneOfType([ViewPropTypes.style, PropTypes.array]),
+  };
+
+  render() {
+    let { theme, themeStr, menuLanguage, isCat, onPress, onPressCheckBox, checkBoxSelected, enText, heText, count, withArrow, buttonStyle } = this.props;
+    let colorCat = Sefaria.palette.categoryColor(enText.replace(" Commentaries", ""));
+    enText = isCat ? enText.toUpperCase() : enText;
+    let colorStyle = isCat ? [{"borderColor": colorCat}] : [theme.searchResultSummary, {"borderTopWidth": 1}];
+    let textStyle  = [isCat ? styles.spacedText : null];
+    let flexDir = menuLanguage == "english" ? "row" : "row-reverse";
+    let textMargin = !!onPressCheckBox ? { marginHorizontal: 0 } : styles.readerSideMargin;
+    if (count === 0) { textStyle.push(theme.secondaryText); }
+    return (
+      <TouchableOpacity
+        onPress={onPress}
+        style={[styles.searchFilterCat, {flexDirection: flexDir}, buttonStyle].concat(colorStyle)}>
+        <View style={{flexDirection: flexDir, alignItems: "center"}}>
+          {
+            !!onPressCheckBox ? <TouchableOpacity style={{paddingHorizontal: 10, paddingVertical: 15}} onPress={onPressCheckBox} >
+              <IndeterminateCheckBox themeStr={themeStr} state={checkBoxSelected} onPress={onPressCheckBox} />
+            </TouchableOpacity> : null
+          }
+          { menuLanguage == "english" ?
+            <Text style={[styles.englishText].concat([theme.tertiaryText, textStyle, {paddingTop:3}, textMargin])}>
+              {`${enText} `}
+              {
+                !!count ? <Text style={[styles.englishText].concat([theme.secondaryText, textStyle])}>{`(${count})`}</Text> : null
+              }
+            </Text>
+            :
+            <Text style={[styles.hebrewText].concat([theme.tertiaryText, textStyle, {paddingTop:13}, textMargin])}>
+              {`${heText} `}
+              {
+                !!count ? <Text style={[styles.englishText].concat([theme.secondaryText, textStyle])}>{`(${count})`}</Text> : null
+              }
+            </Text>
+          }
+        </View>
+        { withArrow ?
+          <DirectedArrow themeStr={themeStr} imageStyle={{opacity: 0.5}} language={menuLanguage} direction={"forward"} />
+          : null
+        }
+     </TouchableOpacity>);
+  }
+}
+
 class LanguageToggleButton extends React.Component {
   static propTypes = {
     theme:          PropTypes.object.isRequired,
@@ -184,7 +243,7 @@ class DirectedButton extends React.Component {
     var actualDirBack = (this.props.language === "hebrew"  && this.props.direction === "forward") || (this.props.language === "english" && this.props.direction === "back")
     return (
       <TouchableOpacity onPress={this.props.onPress}
-        style={{flexDirection: actualDirBack ? "row-reverse" : "row"}}>
+        style={{ flexDirection: actualDirBack ? "row-reverse" : "row" }}>
         { this.props.text ? <Text style={this.props.textStyle}>{this.props.text}</Text> : null}
         <DirectedArrow
           themeStr={this.props.themeStr}
@@ -349,7 +408,7 @@ class ButtonToggleSet extends React.Component {
 
 class LoadingView extends React.Component {
   render() {
-    return ( <View style={styles.loadingViewBox}>
+    return ( <View style={[styles.loadingViewBox, this.props.style]}>
                 <ActivityIndicator
                   animating={true}
                   style={styles.loadingView}
@@ -397,21 +456,23 @@ class IndeterminateCheckBox extends React.Component {
   }
 }
 
-
-module.exports.TwoBox = TwoBox;
-module.exports.CategoryColorLine = CategoryColorLine;
-module.exports.CategoryBlockLink = CategoryBlockLink;
-module.exports.CategoryAttribution = CategoryAttribution;
-module.exports.LanguageToggleButton = LanguageToggleButton;
-module.exports.CollapseIcon = CollapseIcon;
-module.exports.DirectedButton = DirectedButton;
-module.exports.DirectedArrow = DirectedArrow;
-module.exports.SearchButton = SearchButton;
-module.exports.MenuButton = MenuButton;
-module.exports.CloseButton = CloseButton;
-module.exports.TripleDots = TripleDots;
-module.exports.DisplaySettingsButton = DisplaySettingsButton;
-module.exports.ToggleSet = ToggleSet;
-module.exports.ButtonToggleSet = ButtonToggleSet;
-module.exports.LoadingView = LoadingView;
-module.exports.IndeterminateCheckBox = IndeterminateCheckBox;
+export {
+  ButtonToggleSet,
+  CategoryBlockLink,
+  CategoryColorLine,
+  CategoryAttribution,
+  CloseButton,
+  CollapseIcon,
+  DirectedArrow,
+  DirectedButton,
+  DisplaySettingsButton,
+  IndeterminateCheckBox,
+  LanguageToggleButton,
+  LibraryNavButton,
+  LoadingView,
+  MenuButton,
+  SearchButton,
+  ToggleSet,
+  TripleDots,
+  TwoBox,
+}

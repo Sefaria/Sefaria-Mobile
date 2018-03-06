@@ -134,4 +134,4 @@ class FilterNode {
   };
 }
 
-module.exports = FilterNode;
+export default FilterNode;

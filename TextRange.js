@@ -6,27 +6,25 @@ import {
   Text
 } from 'react-native';
 
-var TextSegment = require('./TextSegment');
-const styles = require('./Styles');
+import TextSegment from './TextSegment';
+import styles from './Styles';
 
 
 class TextRange extends React.PureComponent {
   static propTypes = {
     theme:              PropTypes.object.isRequired,
     themeStr:           PropTypes.string.isRequired,
-    settings:           PropTypes.object.isRequired,
+    fontSize:           PropTypes.number.isRequired,
     rowData:            PropTypes.object.isRequired,
     segmentRef:         PropTypes.string.isRequired,
     textLanguage:       PropTypes.oneOf(["hebrew","english","bilingual"]),
     showSegmentNumbers: PropTypes.bool.isRequired,
     textSegmentPressed: PropTypes.func.isRequired,
     setRowRef:          PropTypes.func.isRequired,
-    Sefaria:            PropTypes.object.isRequired,
   };
 
   constructor(props) {
     super(props);
-    Sefaria = props.Sefaria;
   }
 
   render() {
@@ -69,7 +67,7 @@ class TextRange extends React.PureComponent {
         data={heText}
         textType="hebrew"
         textSegmentPressed={ this.props.textSegmentPressed }
-        settings={this.props.settings}/>);
+        fontSize={this.props.fontSize}/>);
     }
 
     if (textLanguage == "english" || textLanguage == "bilingual") {
@@ -83,7 +81,7 @@ class TextRange extends React.PureComponent {
         textType="english"
         bilingual={textLanguage === "bilingual"}
         textSegmentPressed={ this.props.textSegmentPressed }
-        settings={this.props.settings} />);
+        fontSize={this.props.fontSize} />);
     }
 
     let textStyle = [styles.textSegment];
@@ -112,4 +110,4 @@ class TextRange extends React.PureComponent {
   }
 }
 
-module.exports = TextRange;
+export default TextRange;

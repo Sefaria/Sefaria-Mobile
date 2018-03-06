@@ -12,30 +12,45 @@ import {
   Alert
 } from 'react-native';
 import VersionNumber from 'react-native-version-number';
- 
-var ProgressBar = require('./ProgressBar');
-var {
+
+import ProgressBar from './ProgressBar';
+import {
   CategoryColorLine,
   CloseButton,
   ButtonToggleSet,
-} = require('./Misc.js');
+} from './Misc.js';
 
-const styles  = require('./Styles');
-const strings = require('./LocalizedStrings');
+import styles from './Styles';
+import strings from './LocalizedStrings';
 
 
 class SettingsPage extends React.Component {
   // Navigation Menu for a single category of texts (e.g., "Tanakh", "Bavli")
   static propTypes = {
-    close:       PropTypes.func.isRequired,
-    theme:       PropTypes.object.isRequired,
-    toggleMenuLanguage: PropTypes.func.isRequired,
-    Sefaria:     PropTypes.object.isRequired
+    close:               PropTypes.func.isRequired,
+    theme:               PropTypes.object.isRequired,
+    themeStr:            PropTypes.string.isRequired,
+    fontSize:            PropTypes.number.isRequired,
+    menuLanguage:        PropTypes.string.isRequired,
+    defaultTextLanguage: PropTypes.string.isRequired,
+    setTheme:            PropTypes.func.isRequired,
+    setFontSize:         PropTypes.func.isRequired,
+    setMenuLanguage:     PropTypes.func.isRequired,
+    setDefaultTextLanguage: PropTypes.func.isRequired,
   };
 
   constructor(props) {
     super(props);
-    Sefaria = props.Sefaria;
+    this.menuLanguageOptions = [
+      {name: "english", text: strings.english, heText: strings.english, onPress: () => { this.setMenuLanguage("english"); }},
+      {name: "hebrew", text: strings.hebrew, heText: strings.hebrew, onPress: () => { this.setMenuLanguage("hebrew"); }}
+    ];
+
+    this.textLanguageOptions = [
+      {name: "english", text: strings.english, onPress: () => { this.props.setDefaultTextLanguage("english"); this.forceUpdate(); }},
+      {name: "bilingual", text: strings.bilingual, onPress: () => { this.props.setDefaultTextLanguage("bilingual"); this.forceUpdate(); }},
+      {name: "hebrew", text: strings.hebrew, onPress: () => { this.props.setDefaultTextLanguage("hebrew"); this.forceUpdate(); }}
+    ];
     this.state = {};
   }
 
@@ -67,24 +82,14 @@ class SettingsPage extends React.Component {
     }
   };
 
-  render() {
-    var setMenuLanguage = function(lang) {
-      if (Sefaria.settings.menuLangue !== lang) {
-        this.props.toggleMenuLanguage();
-        Sefaria.settings.set("menuLanguage", lang);
-        this.forceUpdate();
-      }
-    }.bind(this);
-    var menuLanguageOptions = [
-      {name: "english", text: strings.english, heText: strings.english, onPress: () => { setMenuLanguage("english"); }},
-      {name: "hebrew", text: strings.hebrew, heText: strings.hebrew, onPress: () => { setMenuLanguage("hebrew"); }}
-    ];
+  setMenuLanguage = (lang) => {
+    if (this.props.menuLanguage !== lang) {
+      this.props.setMenuLanguage(lang);
+      this.forceUpdate();
+    }
+  };
 
-    var textLanguageOptions = [
-      {name: "english", text: strings.english, onPress: () => { Sefaria.settings.set("defaultTextLanguage", "english"); this.forceUpdate(); }},
-      {name: "bilingual", text: strings.bilingual, onPress: () => { Sefaria.settings.set("defaultTextLanguage", "bilingual"); this.forceUpdate(); }},
-      {name: "hebrew", text: strings.hebrew, onPress: () => { Sefaria.settings.set("defaultTextLanguage", "hebrew"); this.forceUpdate(); }}
-    ];
+  render() {
 
     var nDownloaded = Sefaria.downloader.titlesDownloaded().length;
     var nAvailable  = Sefaria.downloader.titlesAvailable().length;
@@ -97,16 +102,16 @@ class SettingsPage extends React.Component {
                 <Text style={[styles.settingsHeader, this.props.theme.text]}>{strings.settings.toUpperCase()}</Text>
               </View>
 
-              <ScrollView style={styles.menuContent}>
+              <ScrollView contentContainerStyle={styles.menuContent}>
                 <View style={styles.settingsSection}>
                   <View>
                     <Text style={[styles.settingsSectionHeader, this.props.theme.tertiaryText]}>{strings.menuLanguage}</Text>
                   </View>
                   <ButtonToggleSet
                     theme={this.props.theme}
-                    options={menuLanguageOptions}
+                    options={this.menuLanguageOptions}
                     contentLang={"english"}
-                    active={Sefaria.settings.menuLanguage} />
+                    active={this.props.menuLanguage} />
                 </View>
 
                 <View style={styles.settingsSection}>
@@ -115,9 +120,9 @@ class SettingsPage extends React.Component {
                   </View>
                   <ButtonToggleSet
                     theme={this.props.theme}
-                    options={textLanguageOptions}
+                    options={this.textLanguageOptions}
                     contentLang={"english"}
-                    active={Sefaria.settings.defaultTextLanguage} />
+                    active={this.props.defaultTextLanguage} />
                 </View>
 
 
@@ -197,4 +202,4 @@ class SettingsPage extends React.Component {
 }
 
 
-module.exports = SettingsPage;
+export default SettingsPage;

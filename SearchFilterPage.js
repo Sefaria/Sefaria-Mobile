@@ -10,16 +10,15 @@ import {
   Image,
 } from 'react-native';
 
-var {
+import {
   DirectedButton,
-  DirectedArrow,
   ButtonToggleSet,
-  IndeterminateCheckBox,
-} = require('./Misc.js');
+  LibraryNavButton,
+} from './Misc.js';
 
-const FilterNode       = require('./FilterNode');
-const styles           = require('./Styles');
-const strings          = require('./LocalizedStrings');
+import FilterNode from './FilterNode';
+import styles from './Styles';
+import strings from './LocalizedStrings';
 
 //console.log("filternaodf", FilterNode.checkPropType({}, 'blah', 'hii'));
 
@@ -27,7 +26,7 @@ class SearchFilterPage extends React.Component {
   static propTypes = {
     theme:            PropTypes.object.isRequired,
     themeStr:         PropTypes.string.isRequired,
-    settings:         PropTypes.object.isRequired,
+    menuLanguage:     PropTypes.string.isRequired,
     subMenuOpen:      PropTypes.string.isRequired,
     updateFilter:     PropTypes.func.isRequired,
     openSubMenu:      PropTypes.func.isRequired,
@@ -127,7 +126,7 @@ class SearchFilterPage extends React.Component {
                       key={ifilter}
                       theme={this.props.theme}
                       themeStr={this.props.themeStr}
-                      settings={this.props.settings}
+                      menuLanguage={this.props.menuLanguage}
                       filterNode={filter}
                       openSubMenu={this.props.openSubMenu}
                       updateFilter={this.props.updateFilter}
@@ -145,7 +144,7 @@ class SearchFilterPage extends React.Component {
           key={0}
           theme={this.props.theme}
           themeStr={this.props.themeStr}
-          settings={this.props.settings}
+          menuLanguage={this.props.menuLanguage}
           filterNode={currFilter}
           updateFilter={this.props.updateFilter}
           />)];
@@ -158,7 +157,7 @@ class SearchFilterPage extends React.Component {
                   key={ifilter+1}
                   theme={this.props.theme}
                   themeStr={this.props.themeStr}
-                  settings={this.props.settings}
+                  menuLanguage={this.props.menuLanguage}
                   filterNode={filter}
                   updateFilter={this.props.updateFilter}
                 />);
@@ -167,7 +166,7 @@ class SearchFilterPage extends React.Component {
         </View>);
     }
     return (<View style={{flex:1}}>
-      <View style={[styles.header, this.props.theme.header, {justifyContent: "space-between", marginLeft: 7, marginRight: 7}]}>
+      <View style={[styles.header, this.props.theme.header, {justifyContent: "space-between", paddingHorizontal: 12}]}>
         <DirectedButton
           onPress={this.backFromFilter}
           theme={this.props.theme}
@@ -193,7 +192,7 @@ class SearchFilter extends React.Component {
   static propTypes = {
     theme:        PropTypes.object,
       themeStr:     PropTypes.string,
-      settings:     PropTypes.object.isRequired,
+      menuLanguage: PropTypes.string.isRequired,
       filterNode:   FilterNode.checkPropType,
       openSubMenu:  PropTypes.func,
       updateFilter: PropTypes.func.isRequired,
@@ -204,40 +203,30 @@ class SearchFilter extends React.Component {
   }
 ///^[^_]*$
   render() {
-    let language = this.props.settings.language == "hebrew" ? "hebrew" : "english";
     let filter = this.props.filterNode;
     let isCat = filter.children.length > 0;
-    let title = isCat ? filter.title.toUpperCase() : filter.title;
-    let heTitle = filter.heTitle;
     let count = filter.docCount;
 
     let colorCat = Sefaria.palette.categoryColor(filter.title.replace(" Commentaries", ""));
     let colorStyle = isCat ? [{"borderColor": colorCat}] : [this.props.theme.searchResultSummary, {"borderTopWidth": 1}];
     let textStyle  = [isCat ? styles.spacedText : null];
-    let flexDir = language == "english" ? "row" : "row-reverse";
+    let flexDir = this.props.menuLanguage == "english" ? "row" : "row-reverse";
     return (
-      <TouchableOpacity
-      onPress={()=>{ this.props.openSubMenu ? this.props.openSubMenu(filter.title) : this.clickCheckBox() }}
-        style={[styles.searchFilterCat, {flexDirection: flexDir}].concat(colorStyle)}>
-        <View style={{flexDirection: flexDir, alignItems: "center"}}>
-          <TouchableOpacity style={{paddingHorizontal: 10, paddingVertical: 15}} onPress={this.clickCheckBox} >
-            <IndeterminateCheckBox themeStr={this.props.themeStr} state={this.props.filterNode.selected} onPress={this.clickCheckBox} />
-            </TouchableOpacity>
-            { language == "english" ?
-                        <Text style={[styles.englishText].concat([this.props.theme.tertiaryText, textStyle, {paddingTop:3}])}>
-                          {`${title} `}<Text style={[styles.englishText].concat([this.props.theme.secondaryText, textStyle])}>{`(${count})`}</Text>
-                        </Text>
-                        :
-                        <Text style={[styles.hebrewText].concat([this.props.theme.tertiaryText, textStyle, {paddingTop:13}])}>
-                          {`${heTitle} `}<Text style={[styles.englishText].concat([this.props.theme.secondaryText, textStyle])}>{`(${count})`}</Text>
-                        </Text> }
-        </View>
-        { this.props.openSubMenu ?
-          <DirectedArrow themeStr={this.props.themeStr} imageStyle={{opacity: 0.5}} language={language} direction={"forward"} />
-          : null
-        }
-     </TouchableOpacity>);
+      <LibraryNavButton
+        theme={this.props.theme}
+        themeStr={this.props.themeStr}
+        menuLanguage={this.props.menuLanguage}
+        isCat={isCat}
+        onPress={()=>{ this.props.openSubMenu ? this.props.openSubMenu(filter.title) : this.clickCheckBox() }}
+        onPressCheckBox={this.clickCheckBox}
+        checkBoxSelected={this.props.filterNode.selected}
+        enText={filter.title}
+        heText={filter.heTitle}
+        count={count}
+        withArrow={!!this.props.openSubMenu}
+        buttonStyle={{ margin: 2, paddingVertical: 0, paddingHorizontal: 5,}} />
+    );
   }
 }
 
-module.exports = SearchFilterPage;
+export default SearchFilterPage;

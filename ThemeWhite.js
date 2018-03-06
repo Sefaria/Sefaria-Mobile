@@ -1,6 +1,5 @@
 'use strict'
-const React = require('react-native');
-const { StyleSheet } = React;
+import { StyleSheet } from 'react-native';
 
 var Colors = {
   border: "#d5d5d4",
@@ -19,7 +18,7 @@ var Colors = {
   buttonBackground: "#fff"
 }
 
-module.exports = StyleSheet.create({
+export default StyleSheet.create({
   container: {
     backgroundColor: Colors.mainBackground
   },
@@ -69,11 +68,11 @@ module.exports = StyleSheet.create({
     backgroundColor: Colors.textListHeader,
     borderColor: Colors.border,
   },
-  textListHeaderItemText: {
+  connectionsPanelHeaderItemText: {
     color: Colors.secondaryText
   },
-  textListHeaderItemSelected: {
-    color: Colors.mainText
+  connectionsPanelHeaderItemTextSelected: {
+    color: Colors.mainText,
   },
   textListContentOuter: {
     backgroundColor: Colors.textBackground,
@@ -166,5 +165,5 @@ module.exports = StyleSheet.create({
   },
   languageToggleText: {
     color: Colors.secondaryText
-  }
+  },
 });

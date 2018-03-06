@@ -10,7 +10,7 @@ import {
   View
 } from 'react-native';
 import HTMLView from 'react-native-htmlview'; //to convert html'afied JSON to something react can render (https://github.com/jsdf/react-native-htmlview)
-var styles = require('./Styles.js');
+import styles from './Styles.js';
 
 
 class TextSegment extends React.PureComponent {
@@ -23,7 +23,7 @@ class TextSegment extends React.PureComponent {
     textType:           PropTypes.oneOf(["english","hebrew"]),
     bilingual:          PropTypes.bool,
     textSegmentPressed: PropTypes.func.isRequired,
-    settings:           PropTypes.object
+    fontSize:           PropTypes.number.isRequired,
   };
 
   constructor(props) {
@@ -42,26 +42,31 @@ class TextSegment extends React.PureComponent {
   onLongPress = () => {
     // Do nothing -- need to prevent onPress from firing onLongPress
   };
-
+  filterOutFootnotes = text => {
+    // right now app is not displaying footnotes properly. interim solution is to not display them at all
+    //NOTE need to be careful about nested i-tags
+    return text.replace(/<sup>[^<]*<\/sup> *<i +class=["']footnote["']>(?:[^<]*|(?:[^<]*<i>[^<]*<\/i>[^<]*)+)<\/i>/g, '');
+  };
   componentWillReceiveProps(nextProps) {
     if (this.props.themeStr !== nextProps.themeStr ||
-        this.props.settings.fontSize !== nextProps.settings.fontSize) {
+        this.props.fontSize !== nextProps.fontSize) {
       this.setState({ resetKey: Math.random() }); //hacky fix to reset htmlview when theme colors change
     }
   }
   render() {
     // console.log(this.props.segmentKey+": "+typeof(this.props.textRef));
     const style = this.props.textType == "hebrew" ?
-                  [styles.hebrewText, this.props.theme.text, styles.justifyText, {fontSize: this.props.settings.fontSize, lineHeight: this.props.settings.fontSize * 1.1},] :
-                  [styles.englishText, this.props.theme.text, styles.justifyText, {fontSize: 0.8 * this.props.settings.fontSize, lineHeight: this.props.settings.fontSize * 1.04 }];
+                  [styles.hebrewText, this.props.theme.text, styles.justifyText, {fontSize: this.props.fontSize, lineHeight: this.props.fontSize * 1.1},] :
+                  [styles.englishText, this.props.theme.text, styles.justifyText, {fontSize: 0.8 * this.props.fontSize, lineHeight: this.props.fontSize * 1.04 }];
     if (this.props.bilingual && this.props.textType == "english") {
       style.push(styles.bilingualEnglishText);
       style.push(this.props.theme.bilingualEnglishText);
     }
+    const data = this.filterOutFootnotes(this.props.data);
     return (
            <HTMLView
              key={this.state.resetKey}
-             value= {this.props.textType == "hebrew" ? "<hediv>"+this.props.data+"</hediv>" : "<endiv>"+this.props.data+"</endiv>"}
+             value= {this.props.textType == "hebrew" ? "<hediv>"+data+"</hediv>" : "<endiv>"+data+"</endiv>"}
              stylesheet={styles}
              textComponentProps={
                {
@@ -84,4 +89,4 @@ class TextSegment extends React.PureComponent {
 }
 
 
-module.exports = TextSegment;
+export default TextSegment;

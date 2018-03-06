@@ -2,13 +2,17 @@ import { AsyncStorage, AlertIOS } from 'react-native';
 import { GoogleAnalyticsTracker } from 'react-native-google-analytics-bridge'; //https://github.com/idehub/react-native-google-analytics-bridge/blob/master/README.md
 const ZipArchive  = require('react-native-zip-archive'); //for unzipping -- (https://github.com/plrthink/react-native-zip-archive)
 const RNFS        = require('react-native-fs'); //for access to file system -- (https://github.com/johanneslumpe/react-native-fs)
-const Downloader  = require('./downloader');
-const Api         = require('./api');
-const Search      = require('./search');
-const LinkContent = require('./LinkContent');
-const iPad        = require('./isIPad');
-const strings     = require('./LocalizedStrings');
+import Downloader from './downloader';
+import Api from './api';
+import Search from './search';
+import LinkContent from './LinkContent';
+import { initAsyncStorage } from './ReduxStore';
 
+const ERRORS = {
+  NOT_OFFLINE: 1,
+  NO_CONTEXT: 2,
+  CANT_GET_SECTION_FROM_DATA: "Couldn't find section in depth 3+ text",
+};
 
 Sefaria = {
   init: function() {
@@ -19,131 +23,160 @@ Sefaria = {
       Sefaria._loadRecentItems(),
       Sefaria._loadCalendar(),
       Sefaria.downloader.init(),
-      Sefaria.settings.init(),
+      initAsyncStorage(),
     ]);
     // Sefaria.calendar is loaded async when ReaderNavigationMenu renders
   },
   /*
-  if `isLinkRequest` and you're using API, only return single segment corresponding to link
+  if `context` and you're using API, only return section no matter what. default is true
+  versions is object with keys { en, he } specifying version titles of requested ref
   */
-  data: function(ref, isLinkRequest) {
+  data: function(ref, context, versions) {
+    if (typeof context === "undefined") { context = true; }
+    return new Promise(function(resolve, reject) {
+      const bookRefStem  = Sefaria.textTitleForRef(ref);
+      Sefaria.loadOfflineFile(ref, context, versions)
+        .then(data => { Sefaria.processFileData(ref, data).then(resolve); })
+        .catch(error => {
+          if (error === ERRORS.NOT_OFFLINE) {
+            Sefaria.loadFromApi(ref, context, versions, bookRefStem)
+              .then(data => { Sefaria.processApiData(ref, context, versions, data).then(resolve); })
+              .catch(error => {
+                if (error.error === ERRORS.NO_CONTEXT) {
+                  resolve(error.data);
+                } else {
+                  reject(error);
+                }
+              })
+          } else {
+            reject(error);
+          }
+        })
+    });
+  },
+  getSectionFromJsonData: function(ref, data) {
+    if ("content" in data) {
+      return data;
+    } else {
+      // If the data file represents multiple sections, pick the appropriate one to return
+      const refUpOne = Sefaria.refUpOne(ref);
+      if (ref in data.sections) {
+        return data.sections[ref];
+      } else if (refUpOne in data.sections) {
+        return data.sections[refUpOne];
+      } else {
+        return;
+      }
+    }
+  },
+  refUpOne: function(ref) {
+    //return ref up one level, assuming you can
+    return ref.lastIndexOf(":") !== -1 ? ref.slice(0, ref.lastIndexOf(":")) : ref;
+  },
+  processFileData: function(ref, data) {
+    return new Promise((resolve, reject) => {
+      // Store data in in memory cache if it's not there already
+      const result = Sefaria.getSectionFromJsonData(ref, data);
+      if (!result) { reject(ERRORS.CANT_GET_SECTION_FROM_DATA); }
+      // Annotate link objects with useful fields not included in export
+      result.content.forEach(segment => {
+        if ("links" in segment) {
+          segment.links.map(link => {
+            link.textTitle = Sefaria.textTitleForRef(link.sourceRef);
+            if (!("category" in link)) {
+              link.category = Sefaria.categoryForTitle(link.textTitle);
+            }
+          });
+        }
+      });
+      result.requestedRef   = ref;
+      result.isSectionLevel = (ref === result.sectionRef);
+      Sefaria.cacheVersionInfo(result, true);
+      resolve(result);
+    });
+  },
+  processApiData: function(ref, context, versions, data) {
+    return new Promise((resolve, reject) => {
+      Sefaria.api.textCache(ref, context, versions, data);
+      Sefaria.cacheVersionInfo(data, true);
+      //console.log(data);
+      resolve(data);
+    });
+  },
+  shouldLoadFromApi: function(versions) {
+    // there are currently two cases where we load from API even if the index is downloaded
+    // 1) debugNoLibrary is true 2) you're loading a non-default version
+    return (!!versions && Object.keys(versions).length !== 0) || Sefaria.downloader._data.debugNoLibrary;
+  },
+  loadOfflineFile: function(ref, context, versions) {
     return new Promise(function(resolve, reject) {
       var fileNameStem = ref.split(":")[0];
       var bookRefStem  = Sefaria.textTitleForRef(ref);
-      var jsonPath     = Sefaria._JSONSourcePath(fileNameStem);
-      var zipPath      = Sefaria._zipSourcePath(bookRefStem);
-
-      //console.log("file name stem",fileNameStem);
-
-      var processFileData = function(data) {
-        // Store data in in memory cache if it's not there already
-        if (!(jsonPath in Sefaria._jsonData)) {
-          Sefaria._jsonData[jsonPath] = data;
-        }
-        if ("content" in data) {
-          var result = data;
-        } else {
-          // If the data file represents multiple sections, pick the appropriate one to return
-          var refUpOne = ref.lastIndexOf(":") !== -1 ? ref.slice(0, ref.lastIndexOf(":")) : ref;
-          if (ref in data.sections) {
-            var result = data.sections[ref];
-          } else if (refUpOne in data.sections) {
-            var result = data.sections[refUpOne];
-          } else {
-            reject("Couldn't find section in depth 3+ text");
-            return;
-          }
-        }
-        // Annotate link objects with useful fields not included in export
-        result.content.forEach(function(segment) {
-          if ("links" in segment) {
-            segment.links.map(function(link) {
-              link.textTitle = Sefaria.textTitleForRef(link.sourceRef);
-              if (!("category" in link)) {
-                link.category = Sefaria.categoryForTitle(link.textTitle);
-              }
-            });
-          }
-        });
-        result.requestedRef   = ref;
-        result.isSectionLevel = (ref === result.sectionRef);
-        Sefaria.cacheCommentatorListBySection(result);
-        Sefaria.cacheVersionInfo(result, true);
-        resolve(result);
-      };
-
-      var processApiData = function(data) {
-        if (!(data.requestedRef in Sefaria.api._textCache)) {
-          Sefaria.api._textCache[data.requestedRef] = data;
-        }
-        Sefaria.cacheCommentatorListBySection(data);
-        Sefaria.cacheVersionInfo(data, true);
-        //console.log(data);
-        resolve(data);
-      };
-
+      //if you want to open a specific version, there is no json file. force an api call instead
+      const shouldLoadFromApi = Sefaria.shouldLoadFromApi(versions);
+      var jsonPath     = shouldLoadFromApi ? "" : Sefaria._JSONSourcePath(fileNameStem);
+      var zipPath      = shouldLoadFromApi ? "" : Sefaria._zipSourcePath(bookRefStem);
       // Pull data from in memory cache if available
       if (jsonPath in Sefaria._jsonData) {
-        processFileData(Sefaria._jsonData[jsonPath]);
+        resolve(Sefaria._jsonData[jsonPath]);
         return;
       }
 
+      const preResolve = data => {
+        if (!(jsonPath in Sefaria._jsonData)) {
+          Sefaria._jsonData[jsonPath] = data;
+        }
+        resolve(data);
+      };
+
       Sefaria._loadJSON(jsonPath)
-        .then(processFileData)
-        .catch(function() {
+        .then(preResolve)
+        .catch(() => {
           // If there was en error, check that we have the zip file downloaded
           RNFS.exists(zipPath)
-            .then(function(exists) {
-              if (exists && !Sefaria.downloader._data.debugNoLibrary) {
+            .then(exists => {
+              if (exists) {
                 Sefaria._unzip(zipPath)
-                  .then(function() {
+                  .then(() => {
                     Sefaria._loadJSON(jsonPath)
-                      .then(processFileData)
-                      .catch(function() {
+                      .then(preResolve)
+                      .catch(() => {
                         // Now that the file is unzipped, if there was an error assume we have a depth 1 text
                         var depth1FilenameStem = fileNameStem.substr(0, fileNameStem.lastIndexOf(" "));
                         var depth1JSONPath = Sefaria._JSONSourcePath(depth1FilenameStem);
                         Sefaria._loadJSON(depth1JSONPath)
-                          .then(processFileData)
-                          .catch(function() {
+                          .then(preResolve)
+                          .catch(() => {
                             console.error("Error loading JSON file: " + jsonPath + " OR " + depth1JSONPath);
                           });
                       });
                   });
               } else {
-                // The zip doesn't exist yet, so make an API call
-                if (ref in Sefaria.api._textCache) {
-                  // Don't check the API cahce until we've checked for a local file, because the API
-                  // cache may be left in a state with text but without links.
-                  processApiData(Sefaria.api._textCache[ref]);
-                  return;
-                }
-                if (isLinkRequest) {
-                  Sefaria.api._request(ref, 'text', false)
-                    .then((data) => {
-                      let en_text = (data.text instanceof Array) ? data.text.join(' ') : data.text;
-                      let he_text = (data.he   instanceof Array) ? data.he.join(' ')   : data.he;
-                      resolve({
-                        "fromAPI": true,
-                        "result": new LinkContent(en_text, he_text, data.sectionRef)
-                      });
-                    })
-                    .catch(() => {
-                      //console.error("Error with API loading link text: ", Sefaria.api._toURL(ref,false,'text',false));
-                    });
-                } else {
-                  Sefaria.api._text(ref)
-                    .then(Sefaria.api._toIOS)
-                    .then(processApiData)
-                    .catch(function(error) {
-                      //console.error("Error with API: ", Sefaria.api._toURL(ref, false, 'text', true));
-                      reject(error);
-                    });
-                }
-                Sefaria.downloader.prioritizeDownload(bookRefStem);
+                reject(ERRORS.NOT_OFFLINE);
               }
             });
         });
+    });
+  },
+  loadFromApi: function(ref, context, versions, bookRefStem) {
+    return new Promise((resolve, reject) => {
+      // The zip doesn't exist yet, so make an API call
+      const cacheValue = Sefaria.api.textCache(ref, context, versions);
+      if (cacheValue) {
+        // Don't check the API cahce until we've checked for a local file, because the API
+        // cache may be left in a state with text but without links.
+        resolve(cacheValue);
+      }
+      Sefaria.api._text(ref, { context, versions })
+        .then(data => {
+          if (context) { resolve(data); }
+          else         { reject({error: ERRORS.NO_CONTEXT, data}); }
+        })
+        .catch(function(error) {
+          //console.error("Error with API: ", Sefaria.api._toURL(ref, false, 'text', true));
+          reject(error);
+      });
+      Sefaria.downloader.prioritizeDownload(bookRefStem);
     });
   },
   _jsonData: {}, // in memory cache for JSON data
@@ -179,8 +212,16 @@ Sefaria = {
   categoryForRef: function(ref) {
     return Sefaria.categoryForTitle(Sefaria.textTitleForRef(ref));
   },
-  getTitle: function(ref, isCommentary, isHe, engTitle) {
-      if (isHe && engTitle) {
+  getTitle: function(ref, heRef, isCommentary, isHe) {
+      const bookTitle = Sefaria.textTitleForRef(ref);
+      const collectiveTitles = Sefaria.collectiveTitlesDict[bookTitle];
+      if (collectiveTitles && isCommentary) {
+        if (isHe) { return collectiveTitles.he; }
+        else      { return collectiveTitles.en; }
+      }
+      if (isHe) {
+        var engTitle = ref; //backwards compatibility for how this function was originally written
+        ref = heRef;
         var engSeg = engTitle.split(":")[1];
         var engFileNameStem = engTitle.split(":")[0];
         var engSec = engFileNameStem.substring(engFileNameStem.lastIndexOf(" ")+1,engFileNameStem.length);
@@ -188,8 +229,6 @@ Sefaria = {
         var heDaf = Sefaria.hebrew.encodeHebrewDaf(engSec,"long");
         if (heDaf != null) {
           var fullHeDaf = heDaf + ":" + Sefaria.hebrew.encodeHebrewNumeral(engSeg);
-        } else {
-
         }
       }
       if (fullHeDaf) {
@@ -210,6 +249,7 @@ Sefaria = {
       return bookRefStem;
   },
   booksDict: {},
+  collectiveTitlesDict: {},
   _index: {}, // Cache for text index records
   index: function(text, index) {
     if (!index) {
@@ -291,6 +331,9 @@ Sefaria = {
       } else {
         Sefaria.index(toc[i].title, toc[i]);
         Sefaria.booksDict[toc[i].title] = 1;
+        if (toc[i].collectiveTitle) {
+          Sefaria.collectiveTitlesDict[toc[i].title] = {en: toc[i].collectiveTitle, he: toc[i].heCollectiveTitle};
+        }
       }
     }
   },
@@ -316,8 +359,7 @@ Sefaria = {
   _versionInfo: {},
   cacheVersionInfo: function(data, isSection) {
     //isSection = true if data has `sectionRef`. false if data has `title`
-    attrs = ['versionTitle','heVersionTitle','versionNotes','heVersionNotes','license','heLicense','versionSource','heVersionSource'];
-
+    attrs = ['versionTitle','heVersionTitle','versionNotes','heVersionNotes','license','heLicense','versionSource','heVersionSource','versionTitleInHebrew','heVersionTitleInHebrew','versionNotesInHebrew','heVersionNotesInHebrew'];
     cacheKey = isSection ? data.sectionRef : data.title;
     Sefaria._versionInfo[cacheKey] = {};
     attrs.map((attr)=>{
@@ -325,19 +367,24 @@ Sefaria = {
     });
     //console.log("SETTING VERSION INFO", cacheKey, isSection,Sefaria._versionInfo[cacheKey]);
   },
-  versionInfo: function(ref, title) {
+  versionInfo: function(ref, title, vlang) {
+    let versionInfo = {};
     let sectionInfo = Sefaria._versionInfo[ref];
     if (!sectionInfo) sectionInfo = {};
     let indexInfo = Sefaria._versionInfo[title];
     if (!indexInfo) indexInfo = {};
-    attrs = ['versionTitle','heVersionTitle','versionNotes','heVersionNotes','license','heLicense','versionSource','heVersionSource'];
+    attrs = ['versionTitle', 'versionTitleInHebrew', 'versionNotes', 'versionNotesInHebrew', 'license', 'versionSource'];
+    let allFieldsUndefined = true;
     attrs.map((attr)=>{
-      if (!sectionInfo[attr]) {
-        sectionInfo[attr] = indexInfo[attr];
-      }
+      //if 'he', prepend 'he' to attr
+      const enAttr = attr;
+      if (vlang === 'hebrew') { attr = 'he' + attr[0].toUpperCase() + attr.substring(1); }
+      versionInfo[enAttr] = !!sectionInfo[attr] ? sectionInfo[attr] : indexInfo[attr];
+      if (!!versionInfo[enAttr]) { allFieldsUndefined = false; }
     });
+    if (allFieldsUndefined) { versionInfo = null; }
 
-    return sectionInfo;
+    return versionInfo;
   },
   commentaryList: function(title) {
     // Returns the list of commentaries for 'title' which are found in Sefaria.toc
@@ -394,18 +441,18 @@ Sefaria = {
   commentatorListBySection: function(ref) {
     return Sefaria._commentatorListBySection[ref];
   },
-  cacheCommentatorListBySection: function(data) {
-    if (data.ref in Sefaria._commentatorListBySection) { return; }
-    var en = new Set();
-    var he = new Set();
-    for (var i = 0; i < data.content.length; i++) {
-      if (!("links" in data.content[i])) { continue; }
-      for (var j =0; j < data.content[i].links.length; j++) {
-        var link = data.content[i].links[j];
+  cacheCommentatorListBySection: function(ref, data) {
+    if (ref in Sefaria._commentatorListBySection) { return; }
+    const en = new Set();
+    const he = new Set();
+    for (let i = 0; i < data.length; i++) {
+      if (!("links" in data[i])) { continue; }
+      for (let j =0; j < data[i].links.length; j++) {
+        const link = data[i].links[j];
         if (link.category === "Commentary") {
-          var title = Sefaria.getTitle(link.sourceRef, true, false);
+          const title = Sefaria.getTitle(link.sourceRef, link.sourceHeRef, true, false);
           en.add(title);
-          he.add(Sefaria.getTitle(link.sourceHeRef, true, true));
+          he.add(Sefaria.getTitle(link.sourceRef, link.sourceHeRef, true, true));
         }
       }
     }
@@ -413,24 +460,27 @@ Sefaria = {
       en: [...en],
       he: [...he]
     }
-    Sefaria._commentatorListBySection[data.ref] = commentators;
+    Sefaria._commentatorListBySection[ref] = commentators;
   },
   _textToc: {},
-  textToc: function(title, callback) {
-    if (title in Sefaria._textToc) {
-      return Sefaria._textToc[title];
-    }
-    var path = Sefaria._JSONSourcePath(title + "_index");
-
-    var resolver = function(data) {
-      data = Sefaria._fixTalmudAltStructAddressTypes(data);
-      Sefaria._textToc[title] = data;
-      Sefaria.cacheVersionInfo(data,false);
-      callback(data);
-    };
-    Sefaria._loadJSON(path).then(resolver)
-    .catch(()=>{Sefaria.api._request(title, 'index').then(resolver)})
-    return null;
+  textToc: function(title) {
+    return new Promise((resolve, reject) => {
+      const resolver = function(data) {
+        data = Sefaria._fixTalmudAltStructAddressTypes(data);
+        Sefaria._textToc[title] = data;
+        Sefaria.cacheVersionInfo(data,false);
+        resolve(data);
+      };
+      if (title in Sefaria._textToc) {
+        resolve(Sefaria._textToc[title]);
+      } else {
+        const path = Sefaria._JSONSourcePath(title + "_index");
+        Sefaria
+        ._loadJSON(path)
+        .then(resolver)
+        .catch(()=>{Sefaria.api._request(title, 'index', {}).then(resolver)});
+      }
+    });
   },
   _fixTalmudAltStructAddressTypes: function(textToc) {
     // This is a bandaid on what may or may not be bad data. For Talmud alt struct "Chapter", we want to display
@@ -510,14 +560,17 @@ Sefaria = {
     return month + '/' + day + '/' + year;
   },
   recent: null,
-  saveRecentItem: function(item) {
+  saveRecentItem: function(item, overwriteVersions) {
     var itemTitle = Sefaria.textTitleForRef(item.ref);
-    //console.log('ITEM TITLE',itemTitle);
     var items = Sefaria.recent || [];
-    items = items.filter(function(existing) {
-      return Sefaria.textTitleForRef(existing.ref) !== itemTitle;
-    });
-    items = [item].concat(items); //.slice(0,4);
+    const existingItemIndex = items.findIndex(existing => Sefaria.textTitleForRef(existing.ref) === itemTitle);
+    if (existingItemIndex !== -1) {
+      if (!overwriteVersions) {
+        item.versions = items[existingItemIndex].versions;
+      }
+      items.splice(existingItemIndex, 1);
+    }
+    items = [item].concat(items);
     Sefaria.recent = items;
     AsyncStorage.setItem("recent", JSON.stringify(items)).catch(function(error) {
       console.error("AsyncStorage failed to save: " + error);
@@ -532,7 +585,7 @@ Sefaria = {
     });
 
     if (items.length > 0) {
-      return items[0].ref;
+      return items[0];
     } else {
       return null;
     }
@@ -604,14 +657,15 @@ Sefaria = {
       let toSegmentNumber = -1;
       let dashIndex = segmentNumber.indexOf("-");
       if (dashIndex !== -1) {
-        toSegmentNumber = segmentNumber.slice(dashIndex+1);
-        segmentNumber = segmentNumber.slice(0, dashIndex);
-      }
+        toSegmentNumber = parseInt(segmentNumber.slice(dashIndex+1));
+        segmentNumber = parseInt(segmentNumber.slice(0, dashIndex));
+      } else { segmentNumber = parseInt(segmentNumber); }
       let enText = "";
       let heText = "";
       for (let i = 0; i < data.content.length; i++) {
         let item = data.content[i];
-        if (item.segmentNumber >= segmentNumber && (toSegmentNumber === -1 || item.segmentNumber <= toSegmentNumber)) {
+        const currSegNum = parseInt(item.segmentNumber);
+        if (currSegNum >= segmentNumber && (toSegmentNumber === -1 || currSegNum <= toSegmentNumber)) {
             if (typeof item.text === "string") enText += item.text + " ";
             if (typeof item.he === "string") heText += item.he + " ";
             if (toSegmentNumber === -1) {
@@ -628,6 +682,62 @@ Sefaria = {
     /* when you switch segments, delete stack and hashtable */
     reset: function() {
       Sefaria.links._linkContentLoadingStack = [];
+    },
+    load: function(ref) {
+      return new Promise((resolve, reject) => {
+        Sefaria.loadOfflineFile(ref, false)
+        .then(data => {
+          // mimic response of links API so that addLinksToText() will work independent of data source
+          const sectionData = Sefaria.getSectionFromJsonData(ref, data);
+          if (!sectionData) { reject(ERRORS.CANT_GET_SECTION_FROM_DATA); }
+          const linkList = (sectionData.content.reduce((accum, segment, segNum) => accum.concat(
+            ("links" in segment) ? segment.links.map(link => {
+              const index_title = Sefaria.textTitleForRef(link.sourceRef);
+              return {
+                sourceRef: link.sourceRef,
+                sourceHeRef: link.sourceHeRef,
+                index_title,
+                category: ("category" in link) ? link.category : Sefaria.categoryForTitle(index_title),
+                anchorRef: `${ref}:${segNum+1}`,
+              }
+            }) : []
+          ), []));
+          resolve(linkList);
+        })
+        .catch(error => {
+          if (error === ERRORS.NOT_OFFLINE) {
+            Sefaria.api.links(ref).then(resolve);
+          } else { reject(error); }
+        })
+      });
+    },
+    addLinksToText: function(text, links) {
+      let link_response = new Array(text.length);
+      //filter out books not in toc
+      links = links.filter((l)=>{
+        return l.index_title in Sefaria.booksDict;
+      });
+      for (let i = 0; i < links.length; i++) {
+        let link = links[i];
+        let linkSegIndex = parseInt(link.anchorRef.substring(link.anchorRef.lastIndexOf(':') + 1)) - 1;
+        if (!link_response[linkSegIndex]) {
+          link_response[linkSegIndex] = [];
+        }
+        link_response[linkSegIndex].push({
+          "category": link.category,
+          "sourceRef": link.sourceRef, //.substring(0,link.sourceRef.lastIndexOf(':')),
+          "sourceHeRef": link.sourceHeRef, //.substring(0,link.sourceHeRef.lastIndexOf(':')),
+          "textTitle": link.index_title,
+          "collectiveTitle": link.collectiveTitle ? link.collectiveTitle.en: null,
+          "heCollectiveTitle": link.collectiveTitle ? link.collectiveTitle.he : null,
+        });
+      }
+      return text.map((seg,i) => ({
+        "segmentNumber": seg.segmentNumber,
+        "he": seg.he,
+        "text": seg.text,
+        "links": link_response[i] ? link_response[i] : []
+      }));
     },
     loadLinkData: function(ref, pos, resolveClosure, rejectClosure, runNow) {
        const parseData = function(data) {
@@ -683,30 +793,34 @@ Sefaria = {
 
         // Process tempLinks if any
         for (let link of links) {
+          if (!link.category) {
+            link.category = 'Other';
+          }
           // Count Category
           if (link.category in summary) {
-            summary[link.category].count += 1
+            //TODO summary[link.category].count += 1
           } else {
             summary[link.category] = {count: 1, books: {}};
           }
-          summary["All"].count += 1;
+          //TODO summary["All"].count += 1;
 
           var category = summary[link.category];
           // Count Book
           if (link.textTitle in category.books) {
-            category.books[link.textTitle].count += 1;
-            category.books[link.textTitle].refList.push(link.sourceRef);
+            category.books[link.textTitle].refSet.add(link.sourceRef);
+            category.books[link.textTitle].heRefSet.add(link.sourceHeRef);
           } else {
             var isCommentary = link.category === "Commentary";
             category.books[link.textTitle] =
             {
                 count:             1,
-                title:             Sefaria.getTitle(link.sourceRef, isCommentary, false),
-                heTitle:           Sefaria.getTitle(link.sourceHeRef, isCommentary, true, link.sourceRef),
+                title:             Sefaria.getTitle(link.sourceRef, link.sourceHeRef, isCommentary, false),
+                heTitle:           Sefaria.getTitle(link.sourceRef, link.sourceHeRef, isCommentary, true),
                 collectiveTitle:   link.collectiveTitle,
                 heCollectiveTitle: link.heCollectiveTitle,
                 category:          link.category,
-                refList:           [link.sourceRef]
+                refSet:            new Set([link.sourceRef]), // make sure refs are unique here
+                heRefSet:          new Set([link.sourceHeRef]),
             };
           }
         }
@@ -714,6 +828,7 @@ Sefaria = {
         //Add zero commentaries
         let commentatorList = Sefaria.commentatorListBySection(sectionRef);
         if (commentatorList) {
+          console.log(commentatorList);
           let commentaryBooks = summary["Commentary"].books;
           let commentaryBookTitles = Object.keys(commentaryBooks).map((book)=>commentaryBooks[book].title);
           for (let i = 0; i < commentatorList.en.length; i++) {
@@ -726,7 +841,8 @@ Sefaria = {
                 title:    commEn,
                 heTitle:  commHe,
                 category: "Commentary",
-                refList:  []
+                refSet:   new Set(),
+                heRefSet: new Set(),
               }
             }
           }
@@ -737,6 +853,7 @@ Sefaria = {
           var categoryData = summary[category];
           categoryData.category = category;
           categoryData.refList = [];
+          categoryData.heRefList = [];
           categoryData.books = Object.keys(categoryData.books).map(function(book) {
             var bookData = categoryData.books[book];
             return bookData;
@@ -761,12 +878,26 @@ Sefaria = {
           return categoryData;
         });
 
-        var allRefs = [];
+        let allRefs = [];
+        let allHeRefs = [];
+        const allBooks = [];
         for (let cat of summaryList) {
           for (let book of cat.books) {
-            cat.refList = cat.refList.concat(book.refList);
-            allRefs = allRefs.concat(book.refList);
+            const bookRefList = Array.from(book.refSet);
+            const bookHeRefList = Array.from(book.heRefSet);
+            delete book.refSet;
+            delete book.heRefSet;
+            book.refList = bookRefList;
+            book.heRefList = bookHeRefList;
+            if (book.refList.length !== book.heRefList.length) { console.log("MAJOR ISSUES!!", book.refList)}
+            book.count = book.refList.length;
+            cat.refList = cat.refList.concat(bookRefList);
+            cat.heRefList = cat.heRefList.concat(bookHeRefList);
+            allRefs = allRefs.concat(bookRefList);
+            allHeRefs = allHeRefs.concat(bookHeRefList);
+            allBooks.push(book);
           }
+          cat.count = cat.refList.length;
         }
 
         // Sort the categories
@@ -786,13 +917,15 @@ Sefaria = {
 
         // Attach data to "All" category in last position
         summaryList[summaryList.length-1].refList = allRefs;
+        summaryList[summaryList.length-1].heRefList = allHeRefs;
+        summaryList[summaryList.length-1].books = allBooks;
+        summaryList[summaryList.length-1].count = allRefs.length;
 
         // Remove "Commentary" section if it is empty or only contains greyed out items
         if (summaryList[0].books.length == 0) { summaryList = summaryList.slice(1); }
 
         // Remove "All" section if it's count is zero
         if (summaryList[summaryList.length-1].count == 0) { summaryList = summaryList.slice(0, -1); }
-
         resolve(summaryList);
       });
 
@@ -1009,6 +1142,24 @@ Sefaria.util = {
       colorString = "0" + colorString;
     }
     return (usePound?"#":"") + colorString;
+  },
+  translateISOLanguageCode(code) {
+    //takes two-letter ISO 639.2 code and returns full language name
+    const codeMap = {
+      "en": "english",
+      "he": "hebrew",
+      "yi": "yiddish",
+      "fi": "finnish",
+      "pt": "portuguese",
+      "es": "spanish",
+      "fr": "french",
+      "de": "german",
+      "ar": "arabic",
+      "it": "italian",
+      "pl": "polish",
+      "ru": "russian",
+    };
+    return codeMap[code.toLowerCase()];
   }
 };
 
@@ -1017,52 +1168,6 @@ Sefaria.downloader = Downloader;
 Sefaria.api = Api;
 
 Sefaria.search = Search;
-
-Sefaria.settings = {
-  _fields: {
-    // List of keys to load on init as well as their default values
-    defaultTextLanguage: strings.getInterfaceLanguage().startsWith("he") ? "hebrew" : "bilingual",
-    textLangaugeByTitle: {},
-    menuLanguage: strings.getInterfaceLanguage().startsWith("he") ? "hebrew" : "english",
-    color: "white",
-    fontSize: iPad ? 25 : 20,
-  },
-  init: function() {
-    // Loads data from each field in `_data` stored in Async storage into local memory for sync access.
-    // Returns a Promise that resolves when all fields are loaded.
-    var promises = [];
-    for (field in this._fields) {
-      if (Sefaria.settings._fields.hasOwnProperty(field)) {
-        var loader = function(field, value) {
-          Sefaria.settings[field] = value ? JSON.parse(value) : Sefaria.settings._fields[field];
-        }.bind(null, field);
-        var promise = AsyncStorage.getItem(field)
-          .then(loader)
-          .catch(function(error) {
-            console.error("AsyncStorage failed to load setting: " + error);
-          });;
-        promises.push(promise);
-      }
-    }
-    return Promise.all(promises);
-  },
-  set: function(field, value) {
-    // Sets `Sefaria.settings[field]` to `value` in local memory and saves it to Async storage
-    this[field] = value;
-    AsyncStorage.setItem(field, JSON.stringify(value));
-  },
-  textLanguage: function(text, language = null) {
-    // Getter/Setter for sticky text language by text title.
-    if (language) {
-      this.textLangaugeByTitle[text] = language;
-      this.set("textLangaugeByTitle", this.textLangaugeByTitle);
-    } else {
-      // Fall back to default if no value has been set
-      return text in this.textLangaugeByTitle ? this.textLangaugeByTitle[text] : this.defaultTextLanguage;
-    }
-  }
-};
-
 
 Sefaria.hebrew = {
   hebrewNumerals: {
@@ -1264,7 +1369,6 @@ Sefaria.hebrewCategory = function(cat) {
   const categories = {
     "Torah": "תורה",
     "Tanakh": 'תנ"ך',
-    "Tanakh": 'תנ"ך',
     "Prophets": "נביאים",
     "Writings": "כתובים",
     "Commentary": "מפרשים",
@@ -1313,7 +1417,8 @@ Sefaria.hebrewCategory = function(cat) {
     "Shulchan Arukh": "שולחן ערוך",
     "Sheets": "דפי מקורות",
     "Notes": "הערות",
-    "Community": "קהילה"
+    "Community": "קהילה",
+    "All": "הכל",
   };
   return cat in categories ? categories[cat] : cat;
 };
@@ -1435,12 +1540,54 @@ Sefaria.palette.categoryColors = {
   "Community":          Sefaria.palette.colors.raspberry,
   "Targum":             Sefaria.palette.colors.lavender,
   "Modern Works":       Sefaria.palette.colors.raspberry,
+  "Modern Commentary":  Sefaria.palette.colors.raspberry,
   "More":               Sefaria.palette.colors.darkblue,
 };
 Sefaria.palette.categoryColor = function(cat) {
   if (cat in Sefaria.palette.categoryColors) {
     return Sefaria.palette.categoryColors[cat];
   }
-  return "transparent";
+  return Sefaria.palette.categoryColors["Other"];
 };
-module.exports = Sefaria;
+
+//for debugging. from https://gist.github.com/zensh/4975495
+Sefaria.memorySizeOf = function (obj) {
+    var bytes = 0;
+
+    function sizeOf(obj) {
+        if(obj !== null && obj !== undefined) {
+            switch(typeof obj) {
+            case 'number':
+                bytes += 8;
+                break;
+            case 'string':
+                bytes += obj.length * 2;
+                break;
+            case 'boolean':
+                bytes += 4;
+                break;
+            case 'object':
+                var objClass = Object.prototype.toString.call(obj).slice(8, -1);
+                if(objClass === 'Object' || objClass === 'Array') {
+                    for(var key in obj) {
+                        if(!obj.hasOwnProperty(key)) continue;
+                        sizeOf(obj[key]);
+                        sizeOf(key);
+                    }
+                } else bytes += obj.toString().length * 2;
+                break;
+            }
+        }
+        return bytes;
+    };
+
+    function formatByteSize(bytes) {
+        if(bytes < 1024) return bytes + " bytes";
+        else if(bytes < 1048576) return(bytes / 1024).toFixed(3) + " KiB";
+        else if(bytes < 1073741824) return(bytes / 1048576).toFixed(3) + " MiB";
+        else return(bytes / 1073741824).toFixed(3) + " GiB";
+    };
+
+    return formatByteSize(sizeOf(obj));
+};
+export default Sefaria;

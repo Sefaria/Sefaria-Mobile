@@ -3,9 +3,14 @@ import {
   StyleSheet,
 } from 'react-native';
 
-const iPad = require('./isIPad');
+import iPad from './isIPad';
+const readerSideMargin = 42;
+const readerSideMarginIpad = 60;
 
-module.exports = StyleSheet.create({
+export default StyleSheet.create({
+  readerSideMargin: {
+    marginHorizontal: iPad ? readerSideMarginIpad : readerSideMargin,
+  },
   safeArea: {
     flex: 1,
     backgroundColor: "#000",
@@ -132,12 +137,12 @@ module.exports = StyleSheet.create({
     marginRight: 12
   },
   directedButtonWithTextEn: {
-    marginLeft: 5,
-    marginRight: 12
+    marginLeft: 0,
+    marginRight: 12,
   },
   directedButtonWithTextHe: {
     marginLeft: 12,
-    marginRight: 5
+    marginRight: 0,
   },
   menuButton: {
     width: 17,
@@ -281,12 +286,10 @@ module.exports = StyleSheet.create({
     borderBottomWidth: 1,
   },
   searchFilterCat: {
+    height: 48,
     flexGrow: 1,
     flexDirection: "row",
     borderTopWidth: 4,
-    margin: 2,
-    paddingVertical: 0,
-    paddingHorizontal: 5,
     justifyContent: "space-between",
     alignItems: "center",
   },
@@ -304,18 +307,28 @@ module.exports = StyleSheet.create({
   },
   textListHeaderSummary: {
     alignItems: "center",
-    justifyContent: "center",
+    justifyContent: "flex-start",
     borderTopWidth: 1,
   },
-  textListHeaderSummaryText: {
-    textAlign: "center",
-  },
   textListSummaryScrollView: {
-    paddingHorizontal: iPad ? 20 : 10,
-    paddingVertical: 20,
+    paddingBottom: 15,
+  },
+  versionsBoxScrollView: {
+    paddingTop: 10,
+    paddingBottom: 35,
+  },
+  aboutBoxScrollView: {
+    paddingTop: 30,
+    paddingBottom: 45,
+    paddingHorizontal: 30,
   },
   textListSummarySection: {
     marginBottom: 22
+  },
+  textListRecentFilterNav: {
+    flex: 1,
+    flexWrap: 'wrap',
+    padding: 10,
   },
   textListContentOuter: {
     flex: 1,
@@ -332,22 +345,22 @@ module.exports = StyleSheet.create({
     alignSelf: "stretch",
     borderTopWidth: 6,
     borderBottomWidth: 1,
-    paddingHorizontal: iPad ? 55 : 25,
+    paddingHorizontal: iPad ? readerSideMarginIpad : readerSideMargin,
     flexDirection: "row",
   },
   textListHeaderScrollView: {
-    alignSelf: "stretch"
+    alignSelf: "stretch",
+
   },
-  textListHeaderItem: {
-    margin: 5,
-    justifyContent: "center",
-    alignItems: "center",
+  connectionsPanelHeaderItem: {
+    paddingHorizontal: 10,
   },
-  textListHeaderItemText: {
+  connectionsPanelHeaderItemText: {
     fontSize: iPad ? 18 : 16,
   },
   textListCitation: {
     marginBottom: 4,
+    fontSize: iPad ? 18 : 16,
   },
   linkContentText: {
     flex: 1,
@@ -362,7 +375,7 @@ module.exports = StyleSheet.create({
     fontStyle: "italic",
     fontFamily: "Amiri",
     textAlign: "center",
-    marginTop: 8
+    marginTop: 16,
   },
   menu: {
     alignSelf: 'stretch',
@@ -468,6 +481,16 @@ module.exports = StyleSheet.create({
     justifyContent: "center",
     flex: 1,
   },
+  textListCat: {
+    flex: 1,
+    flexDirection: "row",
+    borderTopWidth: 4,
+    margin: 2,
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    justifyContent: "flex-start",
+    alignItems: "center",
+  },
   navToggle: {
     fontSize: iPad ? 14 : 10,
     paddingTop: 2
@@ -520,7 +543,7 @@ module.exports = StyleSheet.create({
     fontFamily: "Open Sans",
     fontWeight: '400',
     fontSize: iPad ? 11 : 9,
-    width: iPad ? 60 : 30,
+    width: iPad ? readerSideMarginIpad : readerSideMargin,
   },
   hebrewVerseNumber: {
     fontSize: 11,
@@ -558,7 +581,7 @@ module.exports = StyleSheet.create({
     paddingTop: 7,
     textAlign: 'center',
     fontSize: iPad ? 9 : 7,
-    width: iPad ? 60 : 30,
+    width: iPad ? readerSideMarginIpad : readerSideMargin,
   },
   englishSystemFont: {
     fontFamily: "Open Sans",
@@ -603,7 +626,7 @@ module.exports = StyleSheet.create({
   textSegment: {
     flexDirection: "column",
     flexWrap:"wrap",
-    flex:.93
+    flex:1
   },
   numberSegmentHolderEn: {
     flexDirection: "row",
@@ -644,7 +667,7 @@ module.exports = StyleSheet.create({
   },
   textTocVersionTitle: {
     paddingTop: 25,
-    fontSize: iPad ? 28 : 17,
+    fontSize: iPad ? 20 : 17,
     textAlign: "center"
   },
   textTocVersionNotes: {
@@ -823,7 +846,69 @@ module.exports = StyleSheet.create({
   rtlRow: {
     flexDirection: "row-reverse"
   },
-
+  toolsButton: {
+    borderTopWidth: 1,
+    justifyContent: 'flex-start',
+  },
+  toolsButtonIcon: {
+    width: iPad ? readerSideMarginIpad : readerSideMargin,
+    alignItems: 'center',
+  },
+  toolsButtonText: {
+  },
+  versionsBoxLang: {
+    flex: 1,
+    paddingHorizontal: 25,
+    paddingVertical: 5,
+    marginTop: 15,
+  },
+  versionsBoxLangText: {
+    fontSize: 17,
+    lineHeight: 25,
+  },
+  versionsBoxVersionBlockWrapper: {
+    borderTopWidth: 1,
+    marginBottom: 15,
+  },
+  versionBlockBottomBar: {
+    flexDirection: 'row',
+    flex: 1,
+    paddingTop: 20,
+    paddingBottom: 5,
+    borderTopWidth: 1,
+    marginTop: 10,
+  },
+  versionBoxBottomBarButton: {
+    paddingHorizontal: 10,
+    flex: 1,
+    alignItems: 'center',
+  },
+  aboutHeaderWrapper: {
+    borderBottomWidth: 1,
+  },
+  aboutHeader: {
+    paddingBottom: 13,
+    textAlign: 'left',
+    fontSize: 17,
+    letterSpacing: 1,
+    fontFamily: "Open Sans",
+  },
+  aboutTitle: {
+    fontFamily: "Amiri",
+    fontSize: 20,
+    paddingVertical: 10,
+  },
+  aboutSubtitle: {
+    fontFamily: 'Amiri',
+    fontStyle: 'italic',
+  },
+  aboutDescription: {
+    fontFamily: 'Amiri',
+    paddingTop: 10,
+  },
+  currVersionSection: {
+    paddingTop: 25,
+  },
 //HTML Styles:
   strong: {
     fontWeight: "bold"

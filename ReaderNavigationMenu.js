@@ -10,17 +10,17 @@ import {
   View,
 } from 'react-native';
 
-var {
+import {
   CategoryColorLine,
   CategoryBlockLink,
   TwoBox,
   LanguageToggleButton
-} = require('./Misc.js');
+} from './Misc.js';
 
-var SearchBar = require('./SearchBar');
-var ReaderNavigationCategoryMenu = require('./ReaderNavigationCategoryMenu');
-var styles = require('./Styles.js');
-var strings = require('./LocalizedStrings.js');
+import SearchBar from './SearchBar';
+import ReaderNavigationCategoryMenu from './ReaderNavigationCategoryMenu';
+import styles from './Styles.js';
+import strings from './LocalizedStrings.js';
 
 
 class ReaderNavigationMenu extends React.Component {
@@ -29,7 +29,7 @@ class ReaderNavigationMenu extends React.Component {
     theme:          PropTypes.object.isRequired,
     themeStr:       PropTypes.string.isRequired,
     categories:     PropTypes.array.isRequired,
-    settings:       PropTypes.object.isRequired,
+    menuLanguage:   PropTypes.string.isRequired,
     interfaceLang:  PropTypes.oneOf(["english","hebrew"]).isRequired,
     setCategories:  PropTypes.func.isRequired,
     openRef:        PropTypes.func.isRequired,
@@ -40,12 +40,10 @@ class ReaderNavigationMenu extends React.Component {
     openSettings:   PropTypes.func.isRequired,
     openRecent:     PropTypes.func.isRequired,
     toggleLanguage: PropTypes.func.isRequired,
-    Sefaria:        PropTypes.object.isRequired
   };
 
   constructor(props) {
     super(props);
-    Sefaria = props.Sefaria;
 
     this.state = {
       showMore: false,
@@ -72,13 +70,12 @@ class ReaderNavigationMenu extends React.Component {
                 themeStr={this.props.themeStr}
                 categories={this.props.categories}
                 category={this.props.categories.slice(-1)[0]}
-                settings={this.props.settings}
+                menuLanguage={this.props.menuLanguage}
                 closeNav={this.props.closeNav}
                 setCategories={this.props.setCategories}
                 openRef={this.props.openRef}
                 toggleLanguage={this.props.toggleLanguage}
-                navHome={this.navHome}
-                Sefaria={Sefaria} />);
+                navHome={this.navHome}/>);
     } else {
       // Root Library Menu
       var categories = [
@@ -98,7 +95,6 @@ class ReaderNavigationMenu extends React.Component {
         "Modern Works",
         "Other"
       ];
-      var language = this.props.settings.language == "hebrew" ? "hebrew" : "english";
       categories = categories.map(function(cat) {
         var openCat = function() {
           this.props.setCategories([cat]);
@@ -110,7 +106,7 @@ class ReaderNavigationMenu extends React.Component {
                   category={cat}
                   heCat={heCat}
                   upperCase={true}
-                  language={language}
+                  language={this.props.menuLanguage}
                   onPress={openCat}
                   key={cat} />);
       }.bind(this));
@@ -119,12 +115,12 @@ class ReaderNavigationMenu extends React.Component {
                     category={"More"}
                     heCat={"עוד"}
                     upperCase={true}
-                    language={language}
+                    language={this.props.menuLanguage}
                     onPress={this.showMore}
                     withArrow={true}
                     key={"More"} />);
       categories = this.state.showMore ? categories : categories.slice(0,9).concat(more);
-      categories = (<View style={styles.readerNavCategories}><TwoBox content={categories} language={language}/></View>);
+      categories = (<View style={styles.readerNavCategories}><TwoBox content={categories} language={this.props.menuLanguage}/></View>);
 
 
       return(<View style={[styles.menu, this.props.theme.menu]}>
@@ -138,13 +134,13 @@ class ReaderNavigationMenu extends React.Component {
                 onQueryChange={this.props.openSearch}
                 setIsNewSearch={this.props.setIsNewSearch}
                 toggleLanguage={this.props.toggleLanguage}
-                language={language} />
-              <ScrollView style={styles.menuContent}>
+                language={this.props.menuLanguage} />
+              <ScrollView contentContainerStyle={styles.menuContent}>
 
                 <RecentSection
                   theme={this.props.theme}
                   openRef={this.props.openRef}
-                  language={language}
+                  language={this.props.menuLanguage}
                   interfaceLang={this.props.interfaceLang}
                   openRecent={this.props.openRecent} />
 
@@ -159,7 +155,7 @@ class ReaderNavigationMenu extends React.Component {
                 <CalendarSection
                   theme={this.props.theme}
                   openRef={this.props.openRef}
-                  language={language}
+                  language={this.props.menuLanguage}
                   interfaceLang={this.props.interfaceLang} />
 
 
@@ -204,14 +200,14 @@ class RecentSection extends React.Component {
   render() {
     if (!Sefaria.recent || !Sefaria.recent.length) { return null; }
 
-    var recent = Sefaria.recent.slice(0,3).map(function(item) {
+    let recent = Sefaria.recent.slice(0,3).map(function(item) {
       return (<CategoryBlockLink
                     theme={this.props.theme}
                     category={item.ref}
                     heCat={item.heRef}
                     language={this.props.language}
                     style={{"borderColor": Sefaria.palette.categoryColor(item.category)}}
-                    onPress={this.props.openRef.bind(null, item.ref)}
+                    onPress={()=>{ this.props.openRef(item.ref, item.versions); }}
                     key={item.ref} />);
     }.bind(this));
 
@@ -258,7 +254,7 @@ class CalendarSection extends React.Component {
               heCat={"פרשה"}
               language={this.props.language}
               style={{"borderColor": Sefaria.palette.categoryColor("Tanakh")}}
-              onPress={this.props.openRef.bind(null, parashah.ref)}
+              onPress={() => { this.props.openRef(parashah.ref); }}
               key="parashah" />,
             <CategoryBlockLink
               theme={this.props.theme}
@@ -266,7 +262,7 @@ class CalendarSection extends React.Component {
               heCat={"הפטרה"}
               language={this.props.language}
               style={{"borderColor": Sefaria.palette.categoryColor("Tanakh")}}
-              onPress={this.props.openRef.bind(null, parashah.haftara[0])}
+              onPress={() => { this.props.openRef(parashah.haftara[0]); }}
               key="haftara" />,
             <CategoryBlockLink
               theme={this.props.theme}
@@ -274,7 +270,7 @@ class CalendarSection extends React.Component {
               heCat={"דף יומי"}
               language={this.props.language}
               style={{"borderColor": Sefaria.palette.categoryColor("Talmud")}}
-              onPress={this.props.openRef.bind(null, dafYomi.ref)}
+              onPress={() => { this.props.openRef(dafYomi.ref); }}
               key="dafYomi" />];
 
     var calendarContent = <TwoBox content={calendar} language={this.props.language}/>;
@@ -326,4 +322,4 @@ class ReaderNavigationMenuSection extends React.Component {
 }
 
 
-module.exports = ReaderNavigationMenu;
+export default ReaderNavigationMenu;

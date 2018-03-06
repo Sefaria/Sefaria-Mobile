@@ -1,52 +1,41 @@
-'use strict';
+import React from 'react';
 import PropTypes from 'prop-types';
-import React, { Component } from 'react';
 import {
   View,
-  ScrollView,
   FlatList,
-  Text,
   TouchableOpacity,
-  Dimensions
+  Text,
 } from 'react-native';
-import HTMLView from 'react-native-htmlview';
-const styles         = require('./Styles');
-const strings        = require('./LocalizedStrings');
-const TextListHeader = require('./TextListHeader');
-const LinkFilter     = require('./LinkFilter');
 
-const {
-  CategoryColorLine,
-  TwoBox,
+import {
   LoadingView,
-} = require('./Misc.js');
+} from './Misc.js';
 
-const DEFAULT_LINK_CONTENT = {en: "Loading...", he: "טוען...", sectionRef: ""};
+import HTMLView from 'react-native-htmlview';
+import strings from './LocalizedStrings';
+import styles from './Styles.js';
+
+const DEFAULT_LINK_CONTENT = {en: strings.loading, he: "", sectionRef: ""};
+const NO_CONTENT_LINK_CONTENT = {en: strings.noContent, he: "", sectionRef: ""}
 
 class TextList extends React.Component {
   static propTypes = {
-    settings:        PropTypes.object,
-    openRef:         PropTypes.func.isRequired,
-    openCat:         PropTypes.func.isRequired,
-    closeCat:        PropTypes.func.isRequired,
-    updateCat:       PropTypes.func.isRequired,
-    linkSummary:     PropTypes.array,
-    linkContents:    PropTypes.array,
-    loading:         PropTypes.bool,
-    segmentIndexRef: PropTypes.number,
+    theme:           PropTypes.object.isRequired,
+    themeStr:        PropTypes.string.isRequired,
+    fontSize:        PropTypes.number.isRequired,
+    textLanguage:    PropTypes.oneOf(["english", "hebrew", "bilingual"]),
+    menuLanguage:    PropTypes.oneOf(["english", "hebrew"]).isRequired,
+    recentFilters:   PropTypes.array.isRequired,
     filterIndex:     PropTypes.number,
-    recentFilters:   PropTypes.array, /* of the form [{title,heTitle,refList}...] */
-    textLanguage:    PropTypes.oneOf(["english","hebrew","bilingual"]),
-    onDragStart:     PropTypes.func.isRequired,
-    onDragMove:      PropTypes.func.isRequired,
-    onDragEnd:       PropTypes.func.isRequired
+    listContents:    PropTypes.array,
+    openRef:         PropTypes.func.isRequired,
+    loadContent:     PropTypes.func.isRequired,
   };
 
   constructor(props) {
     super(props);
-    Sefaria = props.Sefaria; //Is this bad practice to use getInitialState() as an init function
-    const dataSource = this.generateDataSource(props);
 
+    const dataSource = this.generateDataSource(props);
     this.state = {
       dataSource,
       isNewSegment: false,
@@ -54,11 +43,12 @@ class TextList extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    if (this.props.segmentIndexRef !== nextProps.segmentIndexRef) {
+    if (this.props.segmentRef !== nextProps.segmentRef) {
       this.setState({isNewSegment:true});
     } else if (this.props.recentFilters !== nextProps.recentFilters ||
+               this.props.connectionsMode !== nextProps.connectionsMode ||
                this.props.filterIndex !== nextProps.filterIndex ||
-               this.props.linkContents !== nextProps.linkContents) {
+               this.props.listContents !== nextProps.listContents) {
       this.setState({dataSource: this.generateDataSource(nextProps)});
     }
   }
@@ -69,211 +59,101 @@ class TextList extends React.Component {
   }
 
   generateDataSource = (props) => {
-    const linkFilter = props.recentFilters[props.filterIndex];
-    if (!linkFilter) {
+    const filter = props.recentFilters[props.filterIndex];
+    if (!filter) {
       return [];
     }
-    const isCommentaryBook = linkFilter.category === "Commentary" && linkFilter.title !== "Commentary"
-    return linkFilter.refList.map((linkRef, index) => {
-      const key = `${props.segmentIndexRef}|${linkRef}`;
-      const loading = props.linkContents[index] == null;
+    const displayRef = filter.displayRef();
+    return filter.refList.map((ref, index) => {
+      const key = filter.listKey(index);
+      const loading = props.listContents[index] === null;
       return {
         key,
-        ref: linkRef,
+        ref,
+        heRef: filter.heRefList[index],
         //changeString: [linkRef, loading, props.settings.fontSize, props.textLanguage].join("|"),
+        versionTitle: filter.versionTitle,
+        versionLanguage: filter.versionLanguage,
         pos: index,
-        isCommentaryBook: isCommentaryBook,
-        content: props.linkContents[index],
+        displayRef,
+        content: props.listContents[index],
       };
     });
   };
 
   renderItem = ({ item }) => {
-    const loading = item.content == null;
-    const linkContentObj = loading ? DEFAULT_LINK_CONTENT : item.content;
-    return (<LinkContent
+    const loading = item.content === null;
+    const noContent = !loading && item.content.he.length === 0 && item.content.en.length === 0;
+    const linkContentObj = loading ? DEFAULT_LINK_CONTENT : (noContent ? NO_CONTENT_LINK_CONTENT : item.content);
+    return (<ListItem
               theme={this.props.theme}
               themeStr={this.props.themeStr}
-              settings={this.props.settings}
+              fontSize={this.props.fontSize}
               openRef={this.props.openRef}
               refStr={item.ref}
+              heRefStr={item.heRef}
+              versionTitle={item.versionTitle}
+              versionLanguage={item.versionLanguage}
               linkContentObj={linkContentObj}
+              menuLanguage={this.props.menuLanguage}
               textLanguage={this.props.textLanguage}
               loading={loading}
-              isCommentaryBook={item.isCommentaryBook}
+              displayRef={item.displayRef}
     />);
   };
 
   onViewableItemsChanged = ({viewableItems, changed}) => {
-    for (let item of viewableItems) {
-      if (item.item.content === null) {
-        this.props.loadLinkContent(item.item.ref, item.item.pos);
+    for (let vItem of viewableItems) {
+      const { item } = vItem;
+      if (item.content === null) {
+        this.props.loadContent(item.ref, item.pos, item.versionTitle, item.versionLanguage);
       }
     }
   };
 
   render() {
-    var isSummaryMode = this.props.filterIndex == null;
-    if (isSummaryMode) {
-
-      var viewList = [];
-      this.props.linkSummary.map((cat)=>{
-        let heCategory = Sefaria.hebrewCategory(this.props.category);
-        let filter = new LinkFilter(cat.category, heCategory, cat.category, heCategory, cat.refList,cat.category);
-
-        var innerViewList = cat.books.map((obook)=>{
-          let filter = new LinkFilter(obook.title, obook.heTitle, obook.collectiveTitle, obook.heCollectiveTitle, obook.refList, cat.category);
-          return (
-          <LinkBook
-            theme={this.props.theme}
-            title={obook.collectiveTitle ? obook.collectiveTitle : obook.title} //NOTE backwards compatibility
-            heTitle={obook.heCollectiveTitle ? obook.heCollectiveTitle : obook.heTitle}
-            count={obook.count}
-            language={this.props.settings.language}
-            onPress={function(filter,title) {
-              this.props.openCat(filter);
-              Sefaria.track.event("Reader","Text Filter Click",title);
-            }.bind(this,filter,obook.title)}
-            key={obook.title} />);
-        });
-
-        viewList.push(
-          <View style={styles.textListSummarySection} key={cat.category+"-container"}>
-            <LinkCategory
-              theme={this.props.theme}
-              category={cat.category}
-              refList={cat.refList}
-              count={cat.count}
-              language={this.props.settings.language}
-              onPress={function(filter,category) {
-                this.props.openCat(filter);
-                Sefaria.track.event("Reader","Category Filter Click",category);
-              }.bind(this,filter,cat.category)}
-              key={cat.category} />
-            <TwoBox content={innerViewList} />
-          </View>);
-
-      });
-      if (viewList.length == 0) { viewList = <EmptyLinksMessage theme={this.props.theme} />; }
-    }
-
-    var textListHeader = (
-      <View
-        onStartShouldSetResponder={(evt)=>this.props.onDragStart(evt)}
-        onResponderMove={(evt)=>this.props.onDragMove(evt)}
-        onResponderRelease={(evt)=>this.props.onDragEnd(evt)}>
-
-        <TextListHeader
-          Sefaria={Sefaria}
-          theme={this.props.theme}
-          themeStr={this.props.themeStr}
-          updateCat={this.props.updateCat}
-          closeCat={this.props.closeCat}
-          category={isSummaryMode ? null : this.props.recentFilters[this.props.filterIndex].category}
-          filterIndex={this.props.filterIndex}
-          recentFilters={this.props.recentFilters}
-          language={this.props.settings.language}
-          isSummaryMode={isSummaryMode} />
-      </View>
-    );
-
-    if (isSummaryMode) {
-      var content = this.props.loading ?
-                      <LoadingView /> :
-                      <ScrollView style={styles.textListSummaryScrollView}>{viewList}</ScrollView>;
-      return (
-        <View style={[styles.textListSummary, this.props.theme.textListSummary]}>
-          {textListHeader}
-          {content}
-        </View>);
-
-    } else if (!this.state.isNewSegment) {
-      // Using Dimensions to adjust marings on text at maximum line width because I can't figure out
-      // how to get flex to center a component with maximum width without allows breaking the stretch
-      // behavior of its contents, result in rows in the list view with small width if their content is small.
-      var listViewStyles = [styles.textListContentListView];
-      return (
-      <View style={[styles.textColumn, this.props.theme.textListContentOuter, {maxWidth: null}]}>
-        {textListHeader}
-        {this.props.linkContents.length == 0 ?
-          <View style={styles.noLinks}><EmptyLinksMessage theme={this.props.theme} /></View> :
-          <FlatList
-
-            data={this.state.dataSource}
-            renderItem={this.renderItem}
-            getItemLayout={this.getItemLayout}
-            contentContainerStyle={{justifyContent: "center"}}
-            onViewableItemsChanged={this.onViewableItemsChanged}
-          />
-        }
-      </View>
-      );
-    } else {
-      return null;
-    }
-  }
-}
-
-class LinkCategory extends React.Component {
-  static propTypes = {
-    theme:    PropTypes.object.isRequired,
-    onPress:  PropTypes.func.isRequired,
-    category: PropTypes.string,
-    language: PropTypes.string,
-    count:    PropTypes.number
-  };
-
-  render() {
-    let countStr = " | " + this.props.count;
-    let style = {"borderColor": Sefaria.palette.categoryColor(this.props.category)};
-    let heCategory = Sefaria.hebrewCategory(this.props.category);
-    let content = this.props.language == "hebrew"?
-      (<Text style={[styles.hebrewText, this.props.theme.text]}>{heCategory + countStr}</Text>) :
-      (<Text style={[styles.englishText, this.props.theme.text]}>{this.props.category.toUpperCase() + countStr}</Text>);
-
-    return (<TouchableOpacity
-              style={[styles.readerNavCategory, this.props.theme.readerNavCategory, style]}
-              onPress={this.props.onPress}>
-              {content}
-            </TouchableOpacity>);
-  }
-}
-
-class LinkBook extends React.Component {
-  static propTypes = {
-    theme:    PropTypes.object.isRequired,
-    onPress:  PropTypes.func.isRequired,
-    title:    PropTypes.string,
-    heTitle:  PropTypes.string,
-    language: PropTypes.string,
-    count:    PropTypes.number
-  };
-
-  render() {
-    let countStr = this.props.count == 0 ? "" : " (" + this.props.count + ")";
-    let textStyle = this.props.count == 0 ? this.props.theme.verseNumber : this.props.theme.text;
+    if (this.state.isNewSegment) { return null; } // hacky way to reset scroll postion
     return (
-      <TouchableOpacity
-        style={[styles.textBlockLink, this.props.theme.textBlockLink]}
-        onPress={this.props.onPress}>
-        { this.props.language == "hebrew" ?
-          <Text style={[styles.hebrewText, styles.centerText, textStyle]}>{this.props.heTitle + countStr}</Text> :
-          <Text style={[styles.englishText, styles.centerText, textStyle]}>{this.props.title + countStr}</Text> }
-      </TouchableOpacity>
+      <FlatList
+        data={this.state.dataSource}
+        renderItem={this.renderItem}
+        contentContainerStyle={{justifyContent: "center"}}
+        onViewableItemsChanged={this.onViewableItemsChanged}
+        ListEmptyComponent={
+          <View style={styles.noLinks}>
+            <EmptyListMessage theme={this.props.theme} />
+          </View>
+        }
+      />
     );
   }
 }
 
-class LinkContent extends React.PureComponent {
+class EmptyListMessage extends React.Component {
+  static propTypes = {
+    theme:         PropTypes.object.isRequired,
+    interfaceLang: PropTypes.string
+  };
+
+  render() {
+    return (<Text style={[styles.emptyLinksMessage, this.props.theme.secondaryText]}>{strings.noConnectionsMessage}</Text>);
+  }
+}
+
+class ListItem extends React.PureComponent {
   static propTypes = {
     theme:             PropTypes.object.isRequired,
-    settings:          PropTypes.object,
+    fontSize:          PropTypes.number.isRequired,
     openRef:           PropTypes.func.isRequired,
     refStr:            PropTypes.string,
+    heRefStr:          PropTypes.string,
+    versionTitle:      PropTypes.string,
+    versionLanguage:   PropTypes.string,
     linkContentObj:    PropTypes.object, /* of the form {en,he} */
     textLanguage:      PropTypes.string,
+    menuLanguage:      PropTypes.string,
     loading:           PropTypes.bool,
-    isCommentaryBook:  PropTypes.bool
+    displayRef:        PropTypes.bool
   };
   constructor(props) {
     super(props);
@@ -284,7 +164,7 @@ class LinkContent extends React.PureComponent {
   }
   componentWillReceiveProps(nextProps) {
     if (this.props.themeStr !== nextProps.themeStr ||
-        this.props.settings.fontSize !== nextProps.settings.fontSize) {
+        this.props.fontSize !== nextProps.fontSize) {
       this.setState({ resetKeyEn: Math.random(), resetKeyHe: Math.random() }); //hacky fix to reset htmlview when theme colors change
     }
   }
@@ -299,7 +179,7 @@ class LinkContent extends React.PureComponent {
                         value={"<hediv>"+lco.he+"</hediv>"}
                         textComponentProps={
                           {
-                            style: [styles.hebrewText, styles.linkContentText, this.props.theme.text, {fontSize: this.props.settings.fontSize, lineHeight: this.props.settings.fontSize * 1.1}],
+                            style: [styles.hebrewText, styles.linkContentText, this.props.theme.text, {fontSize: this.props.fontSize, lineHeight: this.props.fontSize * 1.1}],
                             key: this.props.refStr+"-he"
                           }
                         }
@@ -310,7 +190,7 @@ class LinkContent extends React.PureComponent {
                         value={"<endiv>"+"&#x200E;"+lco.en+"</endiv>"}
                         textComponentProps={
                           {
-                            style: [styles.englishText, styles.linkContentText, this.props.theme.text, {fontSize: 0.8 * this.props.settings.fontSize, lineHeight: this.props.settings.fontSize}],
+                            style: [styles.englishText, styles.linkContentText, this.props.theme.text, {fontSize: 0.8 * this.props.fontSize, lineHeight: this.props.fontSize}],
                             key: this.props.refStr+"-en"
                           }
                         }
@@ -323,25 +203,17 @@ class LinkContent extends React.PureComponent {
       textViews = [englishElem];
     }
 
+    // versionLanguage should only be defined when TextList is in VersionsBox. Otherwise you should open default version for that link
+    const versions = this.props.versionLanguage ? {[this.props.versionLanguage]: this.props.versionTitle} : null;
+    const refTitleStyle = this.props.menuLanguage === 'hebrew' ? styles.he : styles.en;
+    const refStr = this.props.menuLanguage === 'hebrew' ? this.props.heRefStr : this.props.refStr;
     return (
-      <TouchableOpacity style={[styles.searchTextResult, this.props.theme.searchTextResult]} onPress={()=>{this.props.openRef(this.props.refStr, this.props.linkContentObj.sectionRef)}}>
-        {this.props.isCommentaryBook ? null : <Text style={[styles.en, styles.textListCitation, this.props.theme.textListCitation]}>{this.props.refStr}</Text>}
+      <TouchableOpacity style={[styles.searchTextResult, this.props.theme.searchTextResult]} onPress={()=>{this.props.openRef(this.props.refStr, versions)}}>
+        {this.props.displayRef ? null : <Text style={[refTitleStyle, styles.textListCitation, this.props.theme.textListCitation]}>{refStr}</Text>}
         {textViews}
       </TouchableOpacity>
     );
   }
 }
 
-class EmptyLinksMessage extends React.Component {
-  static propTypes = {
-    theme:         PropTypes.object.isRequired,
-    interfaceLang: PropTypes.string
-  };
-
-  render() {
-    return (<Text style={[styles.emptyLinksMessage, this.props.theme.secondaryText]}>{strings.noConnectionsMessage}</Text>);
-  }
-}
-
-
-module.exports = TextList;
+export default TextList;

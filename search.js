@@ -2,9 +2,9 @@ import {
   AlertIOS
 } from 'react-native';
 
-const FilterNode = require('./FilterNode');
-const strings = require('./LocalizedStrings');
-const RNFS       = require('react-native-fs');
+import FilterNode from './FilterNode';
+import strings from './LocalizedStrings';
+import RNFS from 'react-native-fs';
 
 var Search = {
   baseUrl: "https://search.sefaria.org/merged/_search/",
@@ -408,4 +408,4 @@ var Search = {
     },
   };
 
-  module.exports = Search;
+export default Search;
