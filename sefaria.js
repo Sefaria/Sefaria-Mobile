@@ -561,8 +561,8 @@ Sefaria = {
   },
   recent: null,
   saveRecentItem: function(item, overwriteVersions) {
-    var itemTitle = Sefaria.textTitleForRef(item.ref);
-    var items = Sefaria.recent || [];
+    const itemTitle = Sefaria.textTitleForRef(item.ref);
+    let items = Sefaria.recent || [];
     const existingItemIndex = items.findIndex(existing => Sefaria.textTitleForRef(existing.ref) === itemTitle);
     if (existingItemIndex !== -1) {
       if (!overwriteVersions) {

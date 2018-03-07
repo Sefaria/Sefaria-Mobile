@@ -314,6 +314,7 @@ class ReaderApp extends React.Component {
         stateObj.textListVisible = !this.state.textListVisible;
         stateObj.offsetRef = null; //offsetRef is used to highlight. once you open textlist, you should remove the highlight
       }
+      Sefaria.saveRecentItem({ref: segmentRef, heRef: this.state.heRef, category: Sefaria.categoryForRef(segmentRef), versions: this.state.selectedVersions}, this.props.overwriteVersions);
       this.setState(stateObj);
       this.forceUpdate();
   };
@@ -557,7 +558,6 @@ class ReaderApp extends React.Component {
         textReference: ref,
         heRef: heRef
       });
-      Sefaria.saveRecentItem({ref: ref, heRef: heRef, category: Sefaria.categoryForRef(ref), versions: this.state.selectedVersions}, this.props.overwriteVersions);
   };
 
   /*

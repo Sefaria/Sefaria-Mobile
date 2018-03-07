@@ -282,7 +282,7 @@ class TextColumn extends React.Component {
     }
     let currSec;
     for (let seg of viewableItems) {
-      if (seg.index === null) {
+      if (seg.index === null || seg.item.type !== ROW_TYPES.SEGMENT) {
         continue; // apparently segments with null indexes are sections. who knew?
       }
       if (currSec !== seg.section.sectionIndex) {
