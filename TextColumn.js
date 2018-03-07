@@ -245,7 +245,8 @@ class TextColumn extends React.Component {
         this.props.segmentIndexRef !== nextProps.segmentIndexRef ||
         this.props.segmentRef !== nextProps.segmentRef ||
         this.props.themeStr !== nextProps.themeStr ||
-        this.props.linksLoaded !== nextProps.linksLoaded) {
+        this.props.linksLoaded !== nextProps.linksLoaded ||
+        this.props.textToc !== nextProps.textToc) {
       // Only update dataSource when a change has occurred that will result in different data
       //TODO how to optimize this function when fontSize is changing?
       let {dataSource, componentsToMeasure, jumpInfoMap} = this.generateDataSource(nextProps, this.state.jumpState.jumping);
