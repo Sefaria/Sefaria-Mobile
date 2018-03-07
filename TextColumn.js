@@ -9,6 +9,7 @@ import ReactNative, {
   RefreshControl,
   findNodeHandle,
   Dimensions,
+  ViewPropTypes,
 } from 'react-native';
 
 import styles from './Styles.js';
@@ -22,6 +23,8 @@ const COMMENTARY_LINE_THRESHOLD = 150;
 import {
   LoadingView,
 } from './Misc.js';
+
+const ROW_TYPES = {SEGMENT: 1, ALIYA: 2, PARASHA: 3};
 
 class TextColumn extends React.Component {
   static propTypes = {
@@ -41,6 +44,7 @@ class TextColumn extends React.Component {
     heRef:              PropTypes.string,
     textFlow:           PropTypes.oneOf(["segmented","continuous"]),
     textLanguage:       PropTypes.oneOf(["hebrew","english","bilingual"]),
+    menuLanguage:       PropTypes.oneOf(["hebrew","english"]),
     updateData:         PropTypes.func,
     updateTitle:        PropTypes.func,
     textSegmentPressed: PropTypes.func,
@@ -85,6 +89,7 @@ class TextColumn extends React.Component {
     // Returns data representing sections and rows to be passed into ListView.DataSource.cloneWithSectionsAndRows
     // Takes `props` as an argument so it can generate data with `nextProps`.
     const showParsha = !!props.textToc && props.textToc.categories.length === 2 && props.textToc.categories[1] === "Torah";
+    const parashaDict = showParsha ? this._getParashaDict(props.textToc.alts.Parasha.nodes) : {};
     let data = props.data;
     let dataSource = [];
 
@@ -126,6 +131,10 @@ class TextColumn extends React.Component {
         for (var i = 0; i < data[sectionIndex].length; i++) {
           if (i !== 0 && !data[sectionIndex][i].text && !data[sectionIndex][i].he) { continue; } // Skip empty segments
           var rowID = props.sectionArray[sectionIndex] + ":" + data[sectionIndex][i].segmentNumber;
+          if (parashaDict[rowID]) {
+            //insert aliya
+            rows.push(parashaDict[rowID]);
+          }
           var rowData = {
             content: data[sectionIndex][i], // Store data in `content` so that we can manipulate other fields without manipulating the original data
             sectionIndex: sectionIndex,
@@ -134,7 +143,7 @@ class TextColumn extends React.Component {
           };
           // excluding b/c they don't change height: props.themeStr, props.linksLoaded[sectionIndex]
           //rowData.changeString += rowData.highlight ? "|highlight" : "";
-          rows.push({ref: rowID, data: rowData, changeString: rowID});
+          rows.push({ref: rowID, data: rowData, changeString: rowID, type: ROW_TYPES.SEGMENT});
         }
         dataSource.push({ref: props.sectionArray[sectionIndex], heRef: props.sectionHeArray[sectionIndex], data: rows, sectionIndex: sectionIndex, changeString: props.sectionArray[sectionIndex]});
       }
@@ -147,7 +156,8 @@ class TextColumn extends React.Component {
       for (let section of dataSource) {
         componentsToMeasure.push({ref: section.ref, id: section.changeString, generator: this.renderSectionHeader, param: {section: section}})
         for (let segment of section.data) {
-          componentsToMeasure.push({ref: segment.ref, id: segment.changeString, generator: segmentGenerator, param: {item: segment}});
+          const generator = segment.type === ROW_TYPES.SEGMENT ? segmentGenerator : this.renderAliyaMarker;
+          componentsToMeasure.push({ref: segment.ref, id: segment.changeString, generator, param: {item: segment}});
         }
       }
 
@@ -155,6 +165,29 @@ class TextColumn extends React.Component {
 
     return {dataSource, componentsToMeasure, jumpInfoMap};
 
+  };
+
+  _getParashaDict = nodes => {
+    const aliyaNames = [
+      {en: "First", he: "ראשון"},
+      {en: "Second", he: "שני"},
+      {en: "Third", he: "שלישי"},
+      {en: "Fourth", he: "רביעי"},
+      {en: "Fifth", he: "חמישי"},
+      {en: "Sixth", he: "שישי"},
+      {en: "Seventh", he: "שביעי"},
+    ];
+    const parashaDict = {};
+    for (let n of nodes) {
+      for (let i = 0; i < n.refs.length; i++) {
+        const r = n.refs[i];
+        const dashIndex = r.lastIndexOf("-");
+        parashaDict[r.slice(0,dashIndex)] = i === 0 ?
+          {data: {en: n.title, he: n.heTitle}, type: ROW_TYPES.PARASHA, changeString: `${n.title}|parasha`} :
+          {data: aliyaNames[i], type: ROW_TYPES.ALIYA, changeString: `${n.title}|${aliyaNames[i].en}|aliya`};
+      }
+    }
+    return parashaDict;
   };
 
   _standardizeOffsetRef = (ref) => {
@@ -364,7 +397,13 @@ class TextColumn extends React.Component {
   *******************/
 
   renderRow = ({ item }) => {
-    return (this.props.textFlow == 'continuous' && Sefaria.canBeContinuous(this.props.textTitle)) ? this.renderContinuousRow({ item }) : this.renderSegmentedRow({ item });
+    if (item.type === ROW_TYPES.SEGMENT) {
+      return (this.props.textFlow == 'continuous' && Sefaria.canBeContinuous(this.props.textTitle)) ?
+        this.renderContinuousRow({ item }) :
+        this.renderSegmentedRow({ item });
+    } else {
+      return this.renderAliyaMarker({ item });
+    }
   };
 
   renderContinuousRow = ({ item }) => {
@@ -403,20 +442,36 @@ class TextColumn extends React.Component {
     );
   };
 
-  renderSectionHeader = ({section, props}) => {
+  renderSectionHeader = ({ section, props }) => {
     if (!props) {
       props = this.props;
     }
 
     return (
-      <SectionHeader
-        title={props.textLanguage == "hebrew" ?
+      <TextHeader
+        title={props.menuLanguage == "hebrew" ?
                 this.inlineSectionHeader(section.heRef) :
                 this.inlineSectionHeader(section.ref)}
-        isHebrew={props.textLanguage == "hebrew"}
+        isHebrew={props.menuLanguage == "hebrew"}
         theme={props.theme}
-        />
-    )
+        outerStyle={styles.sectionHeaderBorder}
+      />
+    );
+  };
+
+  renderAliyaMarker = ({ item }) => {
+    const isHeb = this.props.menuLanguage == "hebrew";
+    return (
+      <TextHeader
+        title={isHeb ? item.data.he : item.data.en}
+        isHebrew={isHeb}
+        theme={this.props.theme}
+        outerStyle={styles.aliyaHeader}
+        textStyle={item.type === ROW_TYPES.ALIYA ?
+          [isHeb ? styles.hebrewAliyaHeaderText : styles.aliyaHeaderText, this.props.theme.quaternaryText] : null
+        }
+      />
+    );
   };
 
   renderFooter = () => {
@@ -591,17 +646,19 @@ class TextColumn extends React.Component {
 
 }
 
-class SectionHeader extends React.PureComponent {
+class TextHeader extends React.PureComponent {
   static propTypes = {
-    title:    PropTypes.string.isRequired,
-    isHebrew: PropTypes.bool.isRequired,
-    theme:    PropTypes.object.isRequired,
+    title:      PropTypes.string.isRequired,
+    isHebrew:   PropTypes.bool.isRequired,
+    theme:      PropTypes.object.isRequired,
+    outerStyle: PropTypes.oneOfType([ViewPropTypes.style, PropTypes.array]),
+    textStyle:  PropTypes.oneOfType([Text.propTypes.style, PropTypes.array]),
   };
 
   render() {
     return <View style={styles.sectionHeaderBox}>
-            <View style={[styles.sectionHeader, this.props.theme.sectionHeader]}>
-              <Text style={[styles.sectionHeaderText, this.props.isHebrew ? styles.hebrewSectionHeaderText : null, this.props.theme.sectionHeaderText]}>{this.props.title}</Text>
+            <View style={[styles.sectionHeader, this.props.theme.sectionHeader].concat(this.props.outerStyle)}>
+              <Text style={[styles.sectionHeaderText, this.props.isHebrew ? styles.hebrewSectionHeaderText : null, this.props.theme.sectionHeaderText].concat(this.props.textStyle)}>{this.props.title}</Text>
             </View>
           </View>;
   }

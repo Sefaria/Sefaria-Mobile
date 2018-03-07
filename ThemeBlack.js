@@ -8,6 +8,7 @@ var Colors = {
   mainText: "#fff",
   secondaryText: "#ddd",
   tertiaryText: "#bbb",
+  quaternaryText: "#999",
   mainForeground: "black",
   mainForegroundContrast: "white",
   textBackground: "#333331",
@@ -162,6 +163,9 @@ export default StyleSheet.create({
   },
   tertiaryText: {
     color: Colors.tertiaryText,
+  },
+  quaternaryText: {
+    color: Colors.quaternaryText,
   },
   bordered: {
     borderColor: Colors.border,

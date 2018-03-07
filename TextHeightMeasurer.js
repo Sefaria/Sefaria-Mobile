@@ -14,7 +14,6 @@ class TextHeightMeasurer extends React.PureComponent {
       id: PropTypes.string.isRequired,
       generator: PropTypes.func.isRequired,  // function which generates the component
       param: PropTypes.object.isRequired, // parameter for the generator function
-      ref: PropTypes.string.isRequired,
     })).isRequired,
     allHeightsMeasuredCallback: PropTypes.func.isRequired,
     minHeight: PropTypes.number,

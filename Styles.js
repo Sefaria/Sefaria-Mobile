@@ -612,16 +612,28 @@ export default StyleSheet.create({
     marginHorizontal: 30,
   },
   sectionHeader: {
-    marginVertical: 25,
+    marginVertical: iPad ? 25 : 18,
     padding: 5,
+  },
+  aliyaHeader: {
+    marginTop: iPad ? 18 : 12,
+    marginBottom: iPad ? 25 : 18,
+  },
+  aliyaHeaderText: {
+    fontSize: iPad ? 20 : 14,
+  },
+  sectionHeaderBorder: {
     borderBottomWidth: 4,
   },
   sectionHeaderText: {
     textAlign: "center",
-    fontSize: iPad ? 22 : 14,
+    fontSize: iPad ? 22 : 16,
   },
   hebrewSectionHeaderText: {
-    fontSize: iPad ? 26 : 17,
+    fontSize: iPad ? 26 : 19,
+  },
+  hebrewAliyaHeaderText: {
+    fontSize: iPad ? 22 : 16,
   },
   textSegment: {
     flexDirection: "column",

@@ -345,7 +345,6 @@ class ReaderApp extends React.Component {
       }
       // if loadVersion, replace versions here
       Sefaria.data(ref, true, versions).then(function(data) {
-          console.log("section ref", data.sectionRef, "heSectionRef", data.heSectionRef, "heRef", data.heRef, "heTitle", data.heTitle)
           let nextState = {
             data:              [data.content],
             textTitle:         data.indexTitle,
@@ -1190,6 +1189,7 @@ class ReaderApp extends React.Component {
               segmentRef={this.state.segmentRef}
               segmentIndexRef={this.state.segmentIndexRef}
               textFlow={this.state.textFlow}
+              menuLanguage={this.props.menuLanguage}
               textLanguage={this.props.textLanguage}
               updateData={this.updateData}
               updateTitle={this.updateTitle}
