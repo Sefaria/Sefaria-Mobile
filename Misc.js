@@ -373,12 +373,12 @@ class ButtonToggleSet extends React.Component {
   static propTypes = {
     theme:       PropTypes.object.isRequired,
     options:     PropTypes.array.isRequired, // array of object with `name`. `text`, `onPress`
-    contentLang: PropTypes.string.isRequired,
+    lang:        PropTypes.string.isRequired,
     active:      PropTypes.oneOfType([PropTypes.bool, PropTypes.string])
   };
 
   render() {
-    var showHebrew = this.props.contentLang == "hebrew";
+    var showHebrew = this.props.lang == "hebrew";
     var options = this.props.options.map(function(option, i) {
 
       let alignStyle;

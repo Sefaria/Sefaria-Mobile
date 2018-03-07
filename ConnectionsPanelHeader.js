@@ -52,7 +52,7 @@ class ConnectionsPanelHeader extends React.Component {
         // summary
         outerStyles = [styles.textListHeader, styles.textListHeaderSummary, this.props.theme.textListHeader, {flexDirection: isheb ? 'row-reverse' : 'row'}];
         content = (
-          <Text style={[this.props.theme.textListHeaderSummaryText]}>{strings.resources}</Text>
+          <Text style={[isheb ? styles.heInt : styles.enInt, this.props.theme.textListHeaderSummaryText]}>{strings.resources}</Text>
         );
         break;
       case 'version open': // fall-through
@@ -92,7 +92,7 @@ class ConnectionsPanelHeader extends React.Component {
               text={backText}
               themeStr={this.props.themeStr}
               language={this.props.interfaceLang}
-              textStyle={[this.props.theme.textListHeaderSummaryText]}
+              textStyle={[isheb ? styles.heInt : styles.enInt, this.props.theme.textListHeaderSummaryText]}
               imageStyle={[styles.menuButton, backImageStyle]}
               onPress={()=> { this.props.closeCat(); }}
               direction={"back"}

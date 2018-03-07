@@ -1136,6 +1136,7 @@ class ReaderApp extends React.Component {
           <SettingsPage
             {...this.props}
             close={this.openNav}
+            interfaceLang={this.state.interfaceLang}
           />);
         break;
       case ("recent"):

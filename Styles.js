@@ -799,7 +799,7 @@ export default StyleSheet.create({
     paddingTop: 10
   },
   hebrewSystemFont: {
-    fontFamily: "Open Sans Hebrew"
+    fontFamily: "Heebo",
   },
   en: {
     fontFamily: "Amiri",
@@ -814,8 +814,8 @@ export default StyleSheet.create({
     textAlign: 'left'
   },
   heInt: {
-    fontFamily: "Open Sans Hebrew",
-    textAlign: 'right'
+    fontFamily: "Heebo",
+    textAlign: 'right',
   },
   blank: {
     height: 0,

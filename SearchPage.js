@@ -58,13 +58,13 @@ class SearchPage extends React.Component {
             this.props.loadingQuery ? strings.loading
             : this.numberWithCommas(this.props.numResults) + " " + strings.results
           : strings.connectToSearchMessage;
-    var isheb = this.props.interfaceLang === "hebrew" && false; //TODO enable when we properly handle interface hebrew throughout app
+    var isheb = this.props.interfaceLang === "hebrew";
     var langStyle = !isheb ? styles.enInt : styles.heInt;
     var summaryStyle = [styles.searchResultSummary, this.props.theme.searchResultSummary];
-    if (isheb) {
+    if (isheb && false) { //TODO enable when we properly handle interface hebrew throughout app
       summaryStyle.push(styles.searchResultSummaryHe);
     }
-    var forwardImageStyle = isheb ? styles.forwardButtonHe : styles.forwardButtonEn;
+    var forwardImageStyle = isheb && false ? styles.forwardButtonHe : styles.forwardButtonEn;
     var content = null;
 
     switch (this.props.subMenuOpen) {
@@ -72,6 +72,7 @@ class SearchPage extends React.Component {
         content = (
           <View style={[styles.menu, this.props.theme.menu]}>
             <SearchBar
+              interfaceLang={this.props.interfaceLang}
               theme={this.props.theme}
               themeStr={this.props.themeStr}
               openNav={this.props.openNav}
@@ -113,6 +114,7 @@ class SearchPage extends React.Component {
           <SearchFilterPage
             theme={this.props.theme}
             themeStr={this.props.themeStr}
+            interfaceLang={this.props.interfaceLang}
             menuLanguage={this.props.menuLanguage}
             subMenuOpen={this.props.subMenuOpen}
             openSubMenu={this.props.openSubMenu}

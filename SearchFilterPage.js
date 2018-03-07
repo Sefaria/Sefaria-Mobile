@@ -26,7 +26,8 @@ class SearchFilterPage extends React.Component {
   static propTypes = {
     theme:            PropTypes.object.isRequired,
     themeStr:         PropTypes.string.isRequired,
-    menuLanguage:     PropTypes.string.isRequired,
+    interfaceLang:    PropTypes.oneOf(["english", "hebrew"]).isRequired,
+    menuLanguage:     PropTypes.oneOf(["english", "hebrew"]).isRequired,
     subMenuOpen:      PropTypes.string.isRequired,
     updateFilter:     PropTypes.func.isRequired,
     openSubMenu:      PropTypes.func.isRequired,
@@ -74,9 +75,9 @@ class SearchFilterPage extends React.Component {
   };
 
   render() {
-    var isheb = this.props.interfaceLang === "hebrew" && false; //TODO enable when we properly handle interface hebrew throughout app
+    var isheb = this.props.interfaceLang === "hebrew"; //TODO enable when we properly handle interface hebrew throughout app
     var langStyle = !isheb ? styles.enInt : styles.heInt;
-    var backImageStyle = isheb ? styles.directedButtonWithTextHe : styles.directedButtonWithTextEn;
+    var backImageStyle = isheb && false ? styles.directedButtonWithTextHe : styles.directedButtonWithTextEn;
     var loadingMessage = (<Text style={[langStyle, this.props.theme.searchResultSummaryText]}>{strings.loadingFilters}</Text>);
     var content = null;
     var closeSrc = this.props.themeStr == "white" ? require("./img/circle-close.png") : require("./img/circle-close-light.png");
@@ -89,34 +90,32 @@ class SearchFilterPage extends React.Component {
             <Image source={closeSrc}
               resizeMode={Image.resizeMode.contain}
               style={styles.searchFilterClearAll} />
-            {this.interfaceLang === "hebrew" ?
-              <Text style={[styles.heInt, this.props.theme.tertiaryText]}>{string.clearAll}</Text> :
-              <Text style={[styles.enInt, this.props.theme.tertiaryText]}>{strings.clearAll}</Text> }
+            <Text style={[isheb ? styles.heInt : styles.enInt, styles.heInt, this.props.theme.tertiaryText]}>{strings.clearAll}</Text>
 
           </TouchableOpacity>
           <View style={styles.settingsSection}>
             <View>
-              <Text style={[styles.settingsSectionHeader, this.props.theme.tertiaryText]}>{strings.sortBy}</Text>
+              <Text style={[isheb ? styles.heInt : styles.enInt, styles.settingsSectionHeader, this.props.theme.tertiaryText]}>{strings.sortBy}</Text>
             </View>
             <ButtonToggleSet
               theme={this.props.theme}
               options={this.sortOptions}
-              contentLang={"english"}
+              lang={this.props.interfaceLang}
               active={this.props.sort} />
           </View>
           <View style={styles.settingsSection}>
             <View>
-              <Text style={[styles.settingsSectionHeader, this.props.theme.tertiaryText]}>{strings.exactSearch}</Text>
+              <Text style={[isheb ? styles.heInt : styles.enInt, styles.settingsSectionHeader, this.props.theme.tertiaryText]}>{strings.exactSearch}</Text>
             </View>
             <ButtonToggleSet
               theme={this.props.theme}
               options={this.exactOptions}
-              contentLang={"english"}
+              lang={this.props.interfaceLang}
               active={this.props.isExact} />
           </View>
           <View style={styles.settingsSection}>
             <View>
-              <Text style={[styles.settingsSectionHeader, this.props.theme.tertiaryText]}>{strings.filterByText}</Text>
+              <Text style={[isheb ? styles.heInt : styles.enInt, styles.settingsSectionHeader, this.props.theme.tertiaryText]}>{strings.filterByText}</Text>
             </View>
             <View>
               { this.props.filtersValid ?
@@ -174,7 +173,7 @@ class SearchFilterPage extends React.Component {
           text={strings.back}
           direction="back"
           language="english"
-          textStyle={[this.props.theme.searchResultSummaryText, langStyle, {marginTop: -1}]}
+          textStyle={[this.props.theme.searchResultSummaryText, langStyle]}
           imageStyle={[styles.menuButton, backImageStyle]}/>
         <TouchableOpacity onPress={this.applyFilters} style={{marginLeft: 7, marginRight: 7}}>
           <Text style={[this.props.theme.searchResultSummaryText, langStyle, {marginTop: -1}]}>{strings.apply}</Text>

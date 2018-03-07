@@ -31,6 +31,7 @@ class SettingsPage extends React.Component {
     theme:               PropTypes.object.isRequired,
     themeStr:            PropTypes.string.isRequired,
     fontSize:            PropTypes.number.isRequired,
+    interfaceLang:       PropTypes.oneOf(["english", "hebrew"]).isRequired,
     menuLanguage:        PropTypes.string.isRequired,
     defaultTextLanguage: PropTypes.string.isRequired,
     setTheme:            PropTypes.func.isRequired,
@@ -90,7 +91,7 @@ class SettingsPage extends React.Component {
   };
 
   render() {
-
+    const langStyle = this.props.interfaceLang === "hebrew" ? styles.heInt : styles.enInt;
     var nDownloaded = Sefaria.downloader.titlesDownloaded().length;
     var nAvailable  = Sefaria.downloader.titlesAvailable().length;
     var nUpdates    = Sefaria.downloader.updatesAvailable().length;
@@ -99,29 +100,29 @@ class SettingsPage extends React.Component {
               <CategoryColorLine category={"Other"} />
               <View style={[styles.header, this.props.theme.header]}>
                 <CloseButton onPress={this.props.close} theme={this.props.theme} themeStr={this.props.themeStr}/>
-                <Text style={[styles.settingsHeader, this.props.theme.text]}>{strings.settings.toUpperCase()}</Text>
+                <Text style={[langStyle, styles.settingsHeader, this.props.theme.text]}>{strings.settings.toUpperCase()}</Text>
               </View>
 
               <ScrollView contentContainerStyle={styles.menuContent}>
                 <View style={styles.settingsSection}>
                   <View>
-                    <Text style={[styles.settingsSectionHeader, this.props.theme.tertiaryText]}>{strings.menuLanguage}</Text>
+                    <Text style={[langStyle, styles.settingsSectionHeader, this.props.theme.tertiaryText]}>{strings.menuLanguage}</Text>
                   </View>
                   <ButtonToggleSet
                     theme={this.props.theme}
                     options={this.menuLanguageOptions}
-                    contentLang={"english"}
+                    lang={this.props.interfaceLang}
                     active={this.props.menuLanguage} />
                 </View>
 
                 <View style={styles.settingsSection}>
                   <View>
-                    <Text style={[styles.settingsSectionHeader, this.props.theme.tertiaryText]}>{strings.defaultTextLanguage}</Text>
+                    <Text style={[langStyle, styles.settingsSectionHeader, this.props.theme.tertiaryText]}>{strings.defaultTextLanguage}</Text>
                   </View>
                   <ButtonToggleSet
                     theme={this.props.theme}
                     options={this.textLanguageOptions}
-                    contentLang={"english"}
+                    lang={this.props.interfaceLang}
                     active={this.props.defaultTextLanguage} />
                 </View>
 
@@ -130,16 +131,16 @@ class SettingsPage extends React.Component {
 
                 <TouchableWithoutFeedback onPress={this.onDebugNoLibraryTouch}>
                   <View>
-                    <Text style={[styles.settingsSectionHeader, this.props.theme.tertiaryText]}>{strings.offlineAccess}</Text>
+                    <Text style={[langStyle, styles.settingsSectionHeader, this.props.theme.tertiaryText]}>{strings.offlineAccess}</Text>
                   </View>
                 </TouchableWithoutFeedback>
 
                 {Sefaria.downloader._data.debugNoLibrary ?
-                  <Text style={[styles.settingsMessage, this.props.theme.tertiaryText]}>Debug No Library</Text> : null }
-                <Text style={[styles.settingsMessage, this.props.theme.tertiaryText]}>{strings.offlineAccessMessage}</Text>
+                  <Text style={[langStyle, styles.settingsMessage, this.props.theme.tertiaryText]}>Debug No Library</Text> : null }
+                <Text style={[langStyle, styles.settingsMessage, this.props.theme.tertiaryText]}>{strings.offlineAccessMessage}</Text>
                 {Sefaria.downloader._data.shouldDownload ?
                   <View>
-                    <Text style={[styles.settingsMessage, this.props.theme.tertiaryText]}>
+                    <Text style={[langStyle, styles.settingsMessage, this.props.theme.tertiaryText]}>
                        {Sefaria.downloader.downloading ? strings.downloadInProgress + " (" : ""}
                        {nAvailable - nUpdates} / {nAvailable}  {strings.textsDownloaded}
                        {Sefaria.downloader.downloading ? ") " : "."}
@@ -157,33 +158,33 @@ class SettingsPage extends React.Component {
 
                     { !!nUpdates && updatesOnly && !Sefaria.downloader.downloading ?
                       <View>
-                        <Text style={[styles.settingsMessage, this.props.theme.tertiaryText]}>
+                        <Text style={[langStyle, styles.settingsMessage, this.props.theme.tertiaryText]}>
                           {nUpdates} {strings.updatesAvailable}
                         </Text>
                         <TouchableOpacity style={styles.button} onPress={Sefaria.downloader.downloadUpdates}>
-                          <Text style={styles.buttonText}>{strings.downloadUpdates}</Text>
+                          <Text style={[langStyle, styles.buttonText]}>{strings.downloadUpdates}</Text>
                         </TouchableOpacity>
                       </View>
                       : null }
 
                     { !!nUpdates && !updatesOnly && !Sefaria.downloader.downloading ?
                       <TouchableOpacity style={styles.button} onPress={Sefaria.downloader.resumeDownload}>
-                        <Text style={styles.buttonText}>{strings.resumeDownload}</Text>
+                        <Text style={[langStyle, styles.buttonText]}>{strings.resumeDownload}</Text>
                       </TouchableOpacity>
                       : null }
 
                     <TouchableOpacity style={styles.button} onPress={Sefaria.downloader.checkForUpdates}>
-                      <Text style={styles.buttonText}>{strings.checkForUpdates}</Text>
+                      <Text style={[langStyle, styles.buttonText]}>{strings.checkForUpdates}</Text>
                     </TouchableOpacity>
 
                     <TouchableOpacity style={styles.button} onPress={Sefaria.downloader.deleteLibrary}>
-                      <Text style={styles.buttonText}>{strings.deleteLibrary}</Text>
+                      <Text style={[langStyle, styles.buttonText]}>{strings.deleteLibrary}</Text>
                     </TouchableOpacity>
                   </View>
 
                   : <View>
                     <TouchableOpacity style={styles.button} onPress={Sefaria.downloader.downloadLibrary}>
-                      <Text style={styles.buttonText}>{strings.downloadLibrary}</Text>
+                      <Text style={[langStyle, styles.buttonText]}>{strings.downloadLibrary}</Text>
                     </TouchableOpacity>
                   </View>
 
@@ -192,7 +193,7 @@ class SettingsPage extends React.Component {
                 <View style={[styles.readerDisplayOptionsMenuDivider, styles.settingsDivider, this.props.theme.readerDisplayOptionsMenuDivider]}/>
 
                 <View>
-                  <Text style={[styles.settingsSectionHeader, this.props.theme.tertiaryText]}>
+                  <Text style={[langStyle, styles.settingsSectionHeader, this.props.theme.tertiaryText]}>
                     {strings.appVersion}: {VersionNumber.appVersion}
                   </Text>
                 </View>

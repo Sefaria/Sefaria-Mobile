@@ -74,7 +74,7 @@ class ReaderTextTableOfContents extends React.Component {
   render() {
     var enTitle = this.props.title;
     var heTitle = Sefaria.index(this.props.title).heTitle;
-
+    const langStyle = this.props.interfaceLang === "hebrew" ? styles.heInt : styles.enInt;
     var categories  = Sefaria.index(this.props.title).categories;
     var enCatString = categories.join(", ");
     var heCatString = categories.map(Sefaria.hebrewCategory).join(", ");
@@ -84,7 +84,7 @@ class ReaderTextTableOfContents extends React.Component {
         <CategoryColorLine category={Sefaria.categoryForTitle(this.props.title)} />
         <View style={[styles.header, this.props.theme.header]}>
           <CloseButton onPress={this.props.close} theme={this.props.theme} themeStr={this.props.themeStr} />
-          <Text style={[styles.textTocHeaderTitle, styles.textCenter, this.props.theme.text]}>{strings.tableOfContents}</Text>
+          <Text style={[langStyle, styles.textTocHeaderTitle, styles.textCenter, this.props.theme.text]}>{strings.tableOfContents}</Text>
           <LanguageToggleButton theme={this.props.theme} toggleLanguage={this.props.toggleLanguage} language={this.props.contentLang} />
         </View>
 

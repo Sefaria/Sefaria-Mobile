@@ -21,6 +21,7 @@ import strings from './LocalizedStrings';
 
 class SearchBar extends React.Component {
   static propTypes = {
+    interfaceLang:       PropTypes.oneOf(["english", "hebrew"]).isRequired,
     theme:           PropTypes.object.isRequired,
     themeStr:        PropTypes.string.isRequired,
     closeNav:        PropTypes.func.isRequired,
@@ -41,7 +42,7 @@ class SearchBar extends React.Component {
   };
 
   render() {
-    var textInputStyle = [styles.searchInput, this.props.theme.text];
+    var textInputStyle = [styles.searchInput, this.props.interfaceLang === "hebrew" ? styles.hebrewSystemFont : null, this.props.theme.text];
     if (this.state.text == "") {
       //textInputStyle = textInputStyle.concat([styles.searchInputPlaceholder]);
     }

@@ -38,9 +38,9 @@
 	<string></string>
 	<key>UIAppFonts</key>
 	<array>
+		<string>Heebo-Regular.ttf</string>
 		<string>TaameyFrank-taamim-fix.ttf</string>
 		<string>TaameyFrank-taamim-fix-bold.ttf</string>
-		<string>OpenSansHebrew-Regular.ttf</string>
 		<string>OpenSans-Regular.ttf</string>
 		<string>OpenSans-Light.ttf</string>
 		<string>Amiri-Slanted.ttf</string>

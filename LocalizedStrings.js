@@ -117,7 +117,7 @@ export default new LocalizedStrings({
     resources: "קישורים וכלים",
     noConnectionsMessage: "אין קישורים",
     noContent: "(אין טקסט)",
-    search: "חפש",
+    search: "חיפוש",
     loading: "טוען...",
     loadingFilters: "טוען מסננים...",
     results: "תוצאות", // to be combined with a number, e.g. "32 Results"
