@@ -97,6 +97,12 @@ export default new LocalizedStrings({
     currentEnglishVersion: "Current English Version",
     read: "READ",
     compare: "COMPARE",
+    languageYo: "Language",  // WARNING: dont call any keys `language`. apparently that's reserved by LocalizedStrings
+    layout: "Layout",
+    fontSize: "Font Size",
+    aliyot: "Aliyot",
+    vocalization: "Vocalization",
+    color: "Color",
   },
   he: {
     recent: "נצפו לאחרונה",
@@ -194,5 +200,11 @@ export default new LocalizedStrings({
     currentEnglishVersion: "גרסה אנגלית נוכחית",
     read: "קרא",
     compare: "השווה",
+    languageYo: "שפה",
+    layout: "עימוד דו לשוני",
+    fontSize: "גודל גופן",
+    aliyot: "עליות לתורה",
+    vocalization: "טעמים וניקוד",
+    color: "צבע",
   }
 });

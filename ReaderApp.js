@@ -1257,6 +1257,7 @@ class ReaderApp extends React.Component {
               theme={this.props.theme}
               textFlow={this.state.textFlow}
               textReference={this.state.textReference}
+              interfaceLang={this.state.interfaceLang}
               textLanguage={this.props.textLanguage}
               setTextFlow={this.setTextFlow}
               setTextLanguage={this.setTextLanguage}

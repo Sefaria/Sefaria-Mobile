@@ -56,20 +56,31 @@ export default StyleSheet.create({
     right: 0,
     paddingTop: 10,
     paddingBottom: 10,
-    alignItems: 'center',
     alignSelf: 'stretch',
     flexDirection: 'column',
     borderBottomWidth: 1,
+    flex: 1,
   },
-  readerDisplayOptionsMenuRow: {
+  readerDisplayOptionsMenuToggleSet: {
     justifyContent: "center",
     flexDirection: 'row',
     marginTop: 10,
     marginBottom: 10,
     marginHorizontal: iPad ? 20 : 15,
+    flex: 1,
   },
-  readerDisplayOptionMenuRowNotColor: {
+  readerDisplayOptionsMenuToggleSetOuter: {
+    flexDirection: 'column',
+    width: iPad ? 220 : 190,
+  },
+  readerDisplayOptionMenuToggleSetNotColor: {
     borderRadius: 5
+  },
+  readerDisplayOptionsMenuRow: {
+    flex:1,
+    flexDirection: "row",
+    justifyContent: "space-around",
+    marginVertical: 10,
   },
   readerDisplayOptionsMenuItem: {
     flex: 1,
@@ -115,12 +126,6 @@ export default StyleSheet.create({
   readerDisplayOptionsMenuIcon: {
     resizeMode: "contain",
     height: 18,
-  },
-  readerDisplayOptionsMenuDivider: {
-    marginTop: 10,
-    marginBottom: 10,
-    alignSelf: "stretch",
-    height: 1
   },
   headerButton: {
     width: 40,

@@ -11,6 +11,8 @@ import {
 } from 'react-native';
 
 import styles from './Styles.js';
+import strings from './LocalizedStrings';
+
 var a_aleph_icon          = require('./img/a_aleph.png');
 var a_icon                = require('./img/a_icon.png');
 var a_icon_small          = require('./img/a_icon_small.png');
@@ -30,6 +32,7 @@ class ReaderDisplayOptionsMenu extends React.Component {
     theme:                           PropTypes.object,
     textFlow:                        PropTypes.oneOf(['segmented', 'continuous']),
     canBeContinuous:                 PropTypes.bool,
+    interfaceLang:                   PropTypes.oneOf(['hebrew', 'english']).isRequired,
     textLanguage:                    PropTypes.oneOf(['hebrew', 'english', 'bilingual']),
     themeStr:                        PropTypes.oneOf(['white', 'black']),
     setTextFlow:                     PropTypes.func,
@@ -37,111 +40,133 @@ class ReaderDisplayOptionsMenu extends React.Component {
     incrementFont:                   PropTypes.func,
     setTheme:                        PropTypes.func
   };
-
-  render() {
-
-    var options = [
+  constructor(props) {
+    super(props);
+    this.options = [
       {
-        onPress:this.props.setTextLanguage,
-        buttons:["english","bilingual","hebrew"],
-        icons: this.props.themeStr == "white" ? [a_icon,a_aleph_icon,aleph_icon]: [a_icon_light,a_aleph_icon_light,aleph_icon_light],
-        currVal: this.props.textLanguage,
+        label: strings.languageYo,
+        onPress: props.setTextLanguage,
+        buttons: ["english","bilingual","hebrew"],
+        icons: props.themeStr == "white" ? [a_icon,a_aleph_icon,aleph_icon]: [a_icon_light,a_aleph_icon_light,aleph_icon_light],
+        currVal: props.textLanguage,
         parametrized: true
       },
       {
-        divider: "true"
+        condition: props.canBeContinuous,
+        label: strings.layout,
+        onPress: props.setTextFlow,
+        buttons: ["segmented","continuous"],
+        icons: props.themeStr == "white" ? [segmented_icon,continuous_icon]: [segmented_icon_light,continuous_icon_light],
+        currVal: props.textFlow,
+        parametrized: true
       },
       {
-        onPress:this.props.setTheme,
+        label: strings.color,
+        onPress: props.setTheme,
         buttons:["white","black"],
         colors:["#ffffff", "#444444"],
-        currVal: this.props.themeStr,
+        currVal: props.themeStr,
         parametrized: true
       },
       {
-        onPress:this.props.incrementFont,
+        label: strings.aliyot,
+        onPress:()=>{},
+        buttons:["on", "off"],
+        text: [strings.on, strings.off],
+        currVal: "on",
+        parametrized: true,
+      },
+      {
+        label: strings.fontSize,
+        onPress: props.incrementFont,
         buttons:["smaller","larger"],
-        icons:this.props.themeStr == "white" ? [a_icon_small,a_icon]: [a_icon_small_light,a_icon_light],
+        icons: props.themeStr == "white" ? [a_icon_small,a_icon]: [a_icon_small_light,a_icon_light],
         currVal: null,
         parametrized: true
       }
     ];
+  }
+  render() {
 
-    var segcontopt =
-    {
-      onPress:this.props.setTextFlow,
-      buttons:["segmented","continuous"],
-      icons: this.props.themeStr == "white" ? [segmented_icon,continuous_icon]: [segmented_icon_light,continuous_icon_light],
-      currVal: this.props.textFlow,
-      parametrized: true
-    };
+    const alignments = [["left","right"],["left","center","right"]];
+    let toggleSets = []; // two toggle sets per row
+    const rows = [];
+    for (let j = 0; j < this.options.length; j++) {
+      let optionRow = this.options[j];
+      if (typeof optionRow.condition !== 'undefined' && !optionRow.condition) { continue; }
+      let row = [];
+      let isColor = "colors" in optionRow;
 
-    if (this.props.canBeContinuous) { //if can be continuous, add that option
-      options.splice(1,0,segcontopt);
-    }
+      for (let i = 0; i < optionRow.buttons.length; i++) {
+        let option = optionRow.buttons[i];
+        let selected = optionRow.currVal === option;
 
-    var alignments = [["left","right"],["left","center","right"]];
-    var optionViews = [];
-    for (let optionRow of options) {
-      if (optionRow.divider) {
-        optionViews.push(<View key={"options-divider"} style={[styles.readerDisplayOptionsMenuDivider, this.props.theme.readerDisplayOptionsMenuDivider]}/>);
-      } else {
-        let row = [];
-        let isColor = "colors" in optionRow;
-
-        for (let i = 0; i < optionRow.buttons.length; i++) {
-          let option = optionRow.buttons[i];
-          let selected = optionRow.currVal == option;
-
-          if (isColor) {
-            let color = optionRow.colors[i];
-            row.push(
-              <ReaderDisplayOptionsMenuColor
-                key={option}
-                theme={this.props.theme}
-                option={option}
-                onPress={optionRow.onPress}
-                parametrized={optionRow.parametrized}
-                color={color}
-                align={alignments[optionRow.buttons.length-2][i]}
-                selected={selected} />
-            );
-          } else {
-            let icon = optionRow.icons[i];
-            row.push(
-              <ReaderDisplayOptionsMenuItem
-                key={option}
-                theme={this.props.theme}
-                option={option}
-                onPress={optionRow.onPress}
-                parametrized={optionRow.parametrized}
-                icon={icon}
-                align={alignments[optionRow.buttons.length-2][i]}
-                selected={selected} />
-            );
-          }
-
+        if (isColor) {
+          let color = optionRow.colors[i];
+          row.push(
+            <ReaderDisplayOptionsMenuColor
+              key={option}
+              theme={this.props.theme}
+              option={option}
+              onPress={optionRow.onPress}
+              parametrized={optionRow.parametrized}
+              color={color}
+              align={alignments[optionRow.buttons.length-2][i]}
+              selected={selected} />
+          );
+        } else {
+          const icon = !!optionRow.icons ? optionRow.icons[i] : null;
+          const text = !!optionRow.text ? optionRow.text[i] : null;
+          row.push(
+            <ReaderDisplayOptionsMenuItem
+              key={option}
+              theme={this.props.theme}
+              option={option}
+              onPress={optionRow.onPress}
+              parametrized={optionRow.parametrized}
+              icon={icon}
+              text={text}
+              align={alignments[optionRow.buttons.length-2][i]}
+              selected={selected}
+              interfaceLang={this.props.interfaceLang} />
+          );
         }
-        optionViews.push(<ReaderDisplayOptionsMenuRow key={optionRow.buttons[0] + "|row"} content={row} colorRow={isColor} theme={this.props.theme}/>);
-      }
 
+      }
+      toggleSets.push(<ReaderDisplayOptionsMenuToggleSet key={optionRow.label + "|toggleSet"} label={optionRow.label} content={row} colorRow={isColor} theme={this.props.theme} interfaceLang={this.props.interfaceLang}/>);
+      if (toggleSets.length % 2 === 0 || j === this.options.length - 1) {
+        rows.push(<ReaderDisplayOptionsMenuRow key={optionRow.label + "|row"} content={toggleSets.slice(0)} />);
+        toggleSets = [];
+      }
     }
 
     return (
         <View style={[styles.readerDisplayOptionsMenu,this.props.theme.readerDisplayOptionsMenu]}>
-          {optionViews}
+          {rows}
         </View>
     );
   }
 }
 
 class ReaderDisplayOptionsMenuRow extends React.Component {
+    render() {
+      return (<View style={styles.readerDisplayOptionsMenuRow}>
+        {this.props.content}
+      </View>);
+    }
+}
+
+class ReaderDisplayOptionsMenuToggleSet extends React.Component {
   render() {
     //styles.readerDisplayOptionMenuRowNotColor is a hack required to solve the problem of react native / ios display not yet properly rendering borderRadius & borderWidth w/o 'smearing'
-    var tempStyles = this.props.colorRow ? [styles.readerDisplayOptionsMenuRow] : [styles.readerDisplayOptionsMenuRow,styles.readerDisplayOptionMenuRowNotColor,this.props.theme.readerDisplayOptionsMenuDivider];
+    const tempStyles = this.props.colorRow ? [styles.readerDisplayOptionsMenuToggleSet] : [styles.readerDisplayOptionsMenuToggleSet,styles.readerDisplayOptionMenuToggleSetNotColor,this.props.theme.readerDisplayOptionsMenuDivider];
+    const langStyle = this.props.interfaceLang === "hebrew" ? styles.heInt : styles.enInt;
     return (
-      <View style={tempStyles}>
-        {this.props.content}
+      <View style={styles.readerDisplayOptionsMenuToggleSetOuter}>
+        <Text style={[langStyle, {textAlign: "center"}, this.props.theme.secondaryText]}>{this.props.label}</Text>
+        <View style={tempStyles}>
+          {this.props.content}
+        </View>
       </View>
     );
   }
@@ -152,6 +177,7 @@ class ReaderDisplayOptionsMenuItem extends React.Component {
     theme:        PropTypes.object,
     option:       PropTypes.string,
     icon:         PropTypes.number, /*PTP: why are images numbers? */
+    text:         PropTypes.string,
     align:        PropTypes.string,
     onPress:      PropTypes.func.isRequired,
     parametrized: PropTypes.bool, /* should onPress() use option as a paremeter*/
@@ -159,6 +185,7 @@ class ReaderDisplayOptionsMenuItem extends React.Component {
   };
 
   render() {
+    const langStyle = this.props.interfaceLang === "hebrew" ? styles.heInt : styles.enInt;
     let alignStyle;
     if (this.props.align == "right") alignStyle = styles.readerDisplayOptionsMenuItemRight;
     else if (this.props.align == "left") alignStyle = styles.readerDisplayOptionsMenuItemLeft;
@@ -171,7 +198,10 @@ class ReaderDisplayOptionsMenuItem extends React.Component {
     }
     return (
       <TouchableOpacity onPress={onPress} style={tempStyles}>
-        <Image style={[styles.readerDisplayOptionsMenuIcon]} source={this.props.icon}/>
+        {this.props.icon ?
+          <Image style={[styles.readerDisplayOptionsMenuIcon]} source={this.props.icon}/> :
+          <Text style={[langStyle, this.props.theme.secondaryText]}>{this.props.text}</Text>
+        }
       </TouchableOpacity>
     );
   }
