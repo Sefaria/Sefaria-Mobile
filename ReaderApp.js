@@ -334,10 +334,13 @@ class ReaderApp extends React.Component {
           data: [],
           textReference: ref,
           textTitle: Sefaria.textTitleForRef(ref),
+          heTitle: "",
+          heRef: "",
           segmentIndexRef: -1,
           sectionIndexRef: -1,
           selectedVersions: versions, /* if loadVersion, merge with current this.state.selectedVersions */
           currVersions: {en: null, he: null},
+          textToc: null,
       });
 
       if (ref.indexOf("-") != -1) {
@@ -453,7 +456,7 @@ class ReaderApp extends React.Component {
         //add the links into the appropriate section and reload
         this.state.data[iSec] = Sefaria.links.addLinksToText(this.state.data[iSec], linksResponse);
         Sefaria.cacheCommentatorListBySection(ref, this.state.data[iSec]);
-        let tempLinksLoaded = this.state.linksLoaded.slice(0);
+        const tempLinksLoaded = this.state.linksLoaded.slice(0);
         tempLinksLoaded[iSec] = true;
         if (this.state.segmentIndexRef != -1 && this.state.sectionIndexRef != -1) {
           this.updateLinkSummary(this.state.sectionIndexRef, this.state.segmentIndexRef);
@@ -1203,7 +1206,8 @@ class ReaderApp extends React.Component {
               prev={this.state.prev}
               linksLoaded={this.state.linksLoaded}
               loadingTextTail={this.state.loadingTextTail}
-              loadingTextHead={this.state.loadingTextHead} />
+              loadingTextHead={this.state.loadingTextHead}
+              showAliyot={this.props.showAliyot} />
           </View> }
 
           {this.state.textListVisible ?
@@ -1259,11 +1263,14 @@ class ReaderApp extends React.Component {
               textReference={this.state.textReference}
               interfaceLang={this.state.interfaceLang}
               textLanguage={this.props.textLanguage}
+              showAliyot={this.props.showAliyot}
               setTextFlow={this.setTextFlow}
+              setAliyot={this.props.setAliyot}
               setTextLanguage={this.setTextLanguage}
               incrementFont={this.incrementFont}
               setTheme={this.setTheme}
               canBeContinuous={Sefaria.canBeContinuous(this.state.textTitle)}
+              canHaveAliyot={Sefaria.canHaveAliyot(this.state.textTitle)}
               themeStr={this.props.themeStr}/>) : null }
       </View>);
   }
@@ -1298,6 +1305,7 @@ const mapStateToProps = (
     fontSize,
     textLanguage,
     overwriteVersions,
+    showAliyot,
   }) => ({
   theme,
   themeStr,
@@ -1307,6 +1315,7 @@ const mapStateToProps = (
   textLanguageByTitle,
   textLanguage,
   overwriteVersions,
+  showAliyot,
 });
 
 const mapDispatchToProps = dispatch => ({
@@ -1316,6 +1325,7 @@ const mapDispatchToProps = dispatch => ({
   setFontSize: fontSize => { dispatch(ACTION_CREATORS.setFontSize(fontSize)); },
   setDefaultTextLanguage: language => { dispatch(ACTION_CREATORS.setDefaultTextLanguage(language)); },
   setOverwriteVersions: overwrite => { dispatch(ACTION_CREATORS.setOverwriteVersions(overwrite)); },
+  setAliyot: show => { dispatch(ACTION_CREATORS.setAliyot(show)); },
 });
 
 export default connect(

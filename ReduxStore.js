@@ -13,6 +13,7 @@ const REDUX_ACTIONS = {
   setMenuLanguage: "SET_MENU_LANGUAGE",
   setFontSize: "SET_FONT_SIZE",
   setOverwriteVersions: "SET_OVERWRITE_VERSIONS",
+  setAliyot: "SET_ALIYOT",
 };
 
 const ACTION_CREATORS = {
@@ -49,6 +50,10 @@ const ACTION_CREATORS = {
     type: REDUX_ACTIONS.setOverwriteVersions,
     overwrite,
   }),
+  setAliyot: show => ({
+    type: REDUX_ACTIONS.setAliyot,
+    show,
+  }),
 }
 
 const ASYNC_STORAGE_DEFAULTS = {
@@ -72,6 +77,10 @@ const ASYNC_STORAGE_DEFAULTS = {
     default: "white",
     action: ACTION_CREATORS.setTheme,
   },
+  showAliyot: {
+    default: false,
+    action: ACTION_CREATORS.setAliyot,
+  }
 };
 
 const DEFAULT_STATE = {
@@ -81,6 +90,7 @@ const DEFAULT_STATE = {
   menuLanguage: ASYNC_STORAGE_DEFAULTS.menuLanguage.default,
   fontSize: ASYNC_STORAGE_DEFAULTS.fontSize.default,
   overwriteVersions: true,
+  showAliyot: ASYNC_STORAGE_DEFAULTS.showAliyot.default,
 };
 
 const saveFieldToAsync = function (field, value) {
@@ -136,6 +146,13 @@ const reducer = function (state = DEFAULT_STATE, action) {
       return {
         ...state,
         overwriteVersions: action.overwrite,
+      }
+    case REDUX_ACTIONS.setAliyot:
+      console.log("setAliyot", action);
+      if (!action.fromAsync) { saveFieldToAsync('showAliyot', action.show); }
+      return {
+        ...state,
+        showAliyot: action.show,
       }
     default:
       return state;

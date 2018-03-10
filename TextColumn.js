@@ -53,7 +53,8 @@ class TextColumn extends React.Component {
     prev:               PropTypes.string,
     loadingTextTail:    PropTypes.bool,
     loadingTextHead:    PropTypes.bool,
-    linksLoaded:     PropTypes.array,
+    linksLoaded:        PropTypes.array,
+    showAliyot:         PropTypes.bool.isRequired,
   };
 
   constructor(props, context) {
@@ -88,8 +89,9 @@ class TextColumn extends React.Component {
   generateDataSource = (props, gonnaJump) => {
     // Returns data representing sections and rows to be passed into ListView.DataSource.cloneWithSectionsAndRows
     // Takes `props` as an argument so it can generate data with `nextProps`.
-    const showParsha = !!props.textToc && props.textToc.categories.length === 2 && props.textToc.categories[1] === "Torah";
-    const parashaDict = showParsha ? this._getParashaDict(props.textToc.alts.Parasha.nodes) : {};
+    const canHaveAliyot = Sefaria.canHaveAliyot(props.textTitle);
+    const showAliyot = canHaveAliyot && props.showAliyot;
+    const parashaDict = !!props.textToc && canHaveAliyot ? this._getParashaDict(props.textToc.alts.Parasha.nodes) : {};
     let data = props.data;
     let dataSource = [];
 
@@ -131,9 +133,11 @@ class TextColumn extends React.Component {
         for (var i = 0; i < data[sectionIndex].length; i++) {
           if (i !== 0 && !data[sectionIndex][i].text && !data[sectionIndex][i].he) { continue; } // Skip empty segments
           var rowID = props.sectionArray[sectionIndex] + ":" + data[sectionIndex][i].segmentNumber;
-          if (parashaDict[rowID]) {
+          const aliya = parashaDict[rowID];
+          //if (!!aliya && aliya.type === ROW_TYPES.ALIYA) { debugger; }
+          if (!!aliya && (aliya.type !== ROW_TYPES.ALIYA || showAliyot)) {
             //insert aliya
-            rows.push(parashaDict[rowID]);
+            rows.push(aliya);
           }
           var rowData = {
             content: data[sectionIndex][i], // Store data in `content` so that we can manipulate other fields without manipulating the original data
@@ -162,7 +166,7 @@ class TextColumn extends React.Component {
       }
 
     }
-
+    console.log("clah");
     return {dataSource, componentsToMeasure, jumpInfoMap};
 
   };
@@ -246,7 +250,8 @@ class TextColumn extends React.Component {
         this.props.segmentRef !== nextProps.segmentRef ||
         this.props.themeStr !== nextProps.themeStr ||
         this.props.linksLoaded !== nextProps.linksLoaded ||
-        this.props.textToc !== nextProps.textToc) {
+        this.props.textToc !== nextProps.textToc ||
+        this.props.showAliyot !== nextProps.showAliyot) {
       // Only update dataSource when a change has occurred that will result in different data
       //TODO how to optimize this function when fontSize is changing?
       let {dataSource, componentsToMeasure, jumpInfoMap} = this.generateDataSource(nextProps, this.state.jumpState.jumping);
@@ -254,7 +259,7 @@ class TextColumn extends React.Component {
         this.measuringHeights = true;
         this.setState({nextDataSource: dataSource, componentsToMeasure, jumpInfoMap});
       } else {
-        this.setState({dataSource, jumpInfoMap});
+        this.setState({dataSource, jumpInfoMap}, ()=> { if (this.measuringHeights) { this.raceCondition = true; }});
       }
     }
   }
@@ -573,7 +578,12 @@ class TextColumn extends React.Component {
     }
     this.backupItemLayoutList = itemLayoutList;
     this.measuringHeights = false;
-    this.setState({itemLayoutList, jumpInfoMap, dataSource: this.state.nextDataSource},
+
+    // dont update dataSource if its already been updated while measuring heights
+    const nextState = {itemLayoutList, jumpInfoMap};
+    if (!this.raceCondition) { nextState.dataSource = this.state.nextDataSource}
+    this.raceCondition = false;
+    this.setState(nextState,
       ()=>{
         const { jumping, animated, viewPosition, targetRef } = this.state.jumpState;
         if (jumping) {

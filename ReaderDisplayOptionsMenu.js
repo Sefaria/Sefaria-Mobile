@@ -31,68 +31,68 @@ class ReaderDisplayOptionsMenu extends React.Component {
   static propTypes = {
     theme:                           PropTypes.object,
     textFlow:                        PropTypes.oneOf(['segmented', 'continuous']),
-    canBeContinuous:                 PropTypes.bool,
+    canHaveAliyot:                   PropTypes.bool.isRequired,
+    canBeContinuous:                 PropTypes.bool.isRequired,
     interfaceLang:                   PropTypes.oneOf(['hebrew', 'english']).isRequired,
     textLanguage:                    PropTypes.oneOf(['hebrew', 'english', 'bilingual']),
     themeStr:                        PropTypes.oneOf(['white', 'black']),
+    showAliyot:                      PropTypes.bool.isRequired,
     setTextFlow:                     PropTypes.func,
     setTextLanguage:                 PropTypes.func,
+    setAliyot:                       PropTypes.func,
     incrementFont:                   PropTypes.func,
     setTheme:                        PropTypes.func
   };
-  constructor(props) {
-    super(props);
-    this.options = [
+  render() {
+    const options = [
       {
         label: strings.languageYo,
-        onPress: props.setTextLanguage,
+        onPress: this.props.setTextLanguage,
         buttons: ["english","bilingual","hebrew"],
-        icons: props.themeStr == "white" ? [a_icon,a_aleph_icon,aleph_icon]: [a_icon_light,a_aleph_icon_light,aleph_icon_light],
-        currVal: props.textLanguage,
+        icons: this.props.themeStr == "white" ? [a_icon,a_aleph_icon,aleph_icon]: [a_icon_light,a_aleph_icon_light,aleph_icon_light],
+        currVal: this.props.textLanguage,
         parametrized: true
       },
       {
-        condition: props.canBeContinuous,
+        condition: this.props.canBeContinuous,
         label: strings.layout,
-        onPress: props.setTextFlow,
+        onPress: this.props.setTextFlow,
         buttons: ["segmented","continuous"],
-        icons: props.themeStr == "white" ? [segmented_icon,continuous_icon]: [segmented_icon_light,continuous_icon_light],
-        currVal: props.textFlow,
+        icons: this.props.themeStr == "white" ? [segmented_icon,continuous_icon]: [segmented_icon_light,continuous_icon_light],
+        currVal: this.props.textFlow,
         parametrized: true
       },
       {
         label: strings.color,
-        onPress: props.setTheme,
+        onPress: this.props.setTheme,
         buttons:["white","black"],
         colors:["#ffffff", "#444444"],
-        currVal: props.themeStr,
+        currVal: this.props.themeStr,
         parametrized: true
       },
       {
+        condition: this.props.canHaveAliyot,
         label: strings.aliyot,
-        onPress:()=>{},
-        buttons:["on", "off"],
+        onPress: this.props.setAliyot,
+        buttons:[true, false],
         text: [strings.on, strings.off],
-        currVal: "on",
+        currVal: this.props.showAliyot,
         parametrized: true,
       },
       {
         label: strings.fontSize,
-        onPress: props.incrementFont,
+        onPress: this.props.incrementFont,
         buttons:["smaller","larger"],
-        icons: props.themeStr == "white" ? [a_icon_small,a_icon]: [a_icon_small_light,a_icon_light],
+        icons: this.props.themeStr == "white" ? [a_icon_small,a_icon]: [a_icon_small_light,a_icon_light],
         currVal: null,
         parametrized: true
       }
     ];
-  }
-  render() {
-
     const alignments = [["left","right"],["left","center","right"]];
     let toggleSets = []; // two toggle sets per row
     const rows = [];
-    for (let j = 0; j < this.options.length; j++) {
-      let optionRow = this.options[j];
+    for (let j = 0; j < options.length; j++) {
+      let optionRow = options[j];
       if (typeof optionRow.condition !== 'undefined' && !optionRow.condition) { continue; }
       let row = [];
       let isColor = "colors" in optionRow;
@@ -134,7 +134,7 @@ class ReaderDisplayOptionsMenu extends React.Component {
 
       }
       toggleSets.push(<ReaderDisplayOptionsMenuToggleSet key={optionRow.label + "|toggleSet"} label={optionRow.label} content={row} colorRow={isColor} theme={this.props.theme} interfaceLang={this.props.interfaceLang}/>);
-      if (toggleSets.length % 2 === 0 || j === this.options.length - 1) {
+      if (toggleSets.length % 2 === 0 || j === options.length - 1) {
         rows.push(<ReaderDisplayOptionsMenuRow key={optionRow.label + "|row"} content={toggleSets.slice(0)} />);
         toggleSets = [];
       }
@@ -175,7 +175,7 @@ class ReaderDisplayOptionsMenuToggleSet extends React.Component {
 class ReaderDisplayOptionsMenuItem extends React.Component {
   static propTypes = {
     theme:        PropTypes.object,
-    option:       PropTypes.string,
+    option:       PropTypes.oneOfType([PropTypes.string, PropTypes.bool]),
     icon:         PropTypes.number, /*PTP: why are images numbers? */
     text:         PropTypes.string,
     align:        PropTypes.string,

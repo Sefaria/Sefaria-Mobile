@@ -264,9 +264,14 @@ Sefaria = {
     return ['Talmud','Liturgy'].indexOf(index.categories[0]) == -1;
   },
   canBeContinuous: function(text) {
-    let index = Sefaria.index(text);
+    const index = Sefaria.index(text);
     if (!index) { return false; } // default to false
-    return ['Talmud'].indexOf(index.categories[0]) != -1;
+    return ['Talmud'].indexOf(index.categories[0]) != -1
+  },
+  canHaveAliyot: function(text) {
+    const index = Sefaria.index(text);
+    if (!index) { return false; }
+    return index.categories.length === 2 && index.categories[1] === "Torah";
   },
   _loadTOC: function() {
     return new Promise(function(resolve, reject) {
