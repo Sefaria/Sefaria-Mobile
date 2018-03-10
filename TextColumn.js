@@ -474,7 +474,7 @@ class TextColumn extends React.Component {
         theme={this.props.theme}
         outerStyle={styles.aliyaHeader}
         textStyle={item.type === ROW_TYPES.ALIYA ?
-          [isHeb ? styles.hebrewAliyaHeaderText : styles.aliyaHeaderText, this.props.theme.quaternaryText] : null
+          [this.props.theme.quaternaryText].concat(isHeb ? [styles.heInt, styles.hebrewAliyaHeaderText] : [styles.enInt, styles.aliyaHeaderText]) : (isHeb ? styles.heInt : styles.enInt)
         }
       />
     );
