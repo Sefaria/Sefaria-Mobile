@@ -166,7 +166,6 @@ class TextColumn extends React.Component {
       }
 
     }
-    console.log("clah");
     return {dataSource, componentsToMeasure, jumpInfoMap};
 
   };

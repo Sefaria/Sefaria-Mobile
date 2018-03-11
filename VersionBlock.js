@@ -18,7 +18,6 @@ class VersionBlock extends React.Component {
     openVersionInReader:  PropTypes.func,
     isCurrent:            PropTypes.bool,
     center:               PropTypes.bool, /* true for textToc. false for sidebar */
-    margin:               PropTypes.bool, /* true if you want a marginHorizontal */
     interfaceLang:        PropTypes.oneOf(["english", "hebrew"]),
   };
 
@@ -54,9 +53,8 @@ class VersionBlock extends React.Component {
 
     const textAlign = this.props.center ? null : { textAlign: "left" };
     const justifyContent = this.props.center ? null : { justifyContent: "flex-start" };
-    const margin = this.props.margin ? { marginHorizontal: 25 } : null; // TODO a bit hacky
     return (
-      <View style={margin}>
+      <View style={styles.readerSideMargin}>
         {
           versionTitle ?
             (this.props.openVersionInSidebar ?

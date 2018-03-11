@@ -325,7 +325,6 @@ export default StyleSheet.create({
   aboutBoxScrollView: {
     paddingTop: 30,
     paddingBottom: 45,
-    paddingHorizontal: 30,
   },
   textListSummarySection: {
     marginBottom: 22
@@ -366,6 +365,14 @@ export default StyleSheet.create({
   textListCitation: {
     marginBottom: 4,
     fontSize: iPad ? 18 : 16,
+  },
+  textListItem: {
+      flex: 1,
+      marginHorizontal: iPad ? readerSideMarginIpad : readerSideMargin,
+      marginTop: 20,
+      paddingBottom: 20,
+      flexDirection: 'column',
+      borderBottomWidth: 1,
   },
   linkContentText: {
     flex: 1,
@@ -875,7 +882,7 @@ export default StyleSheet.create({
   },
   versionsBoxLang: {
     flex: 1,
-    paddingHorizontal: 25,
+    paddingHorizontal: iPad ? readerSideMarginIpad : readerSideMargin,
     paddingVertical: 5,
     marginTop: 15,
   },

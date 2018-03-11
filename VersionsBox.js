@@ -36,9 +36,6 @@ class VersionsBox extends React.Component {
 
   constructor(props) {
     super(props);
-    this.versionBlockYMap = {};
-    this.langBlockYMap = {};
-    this.scrollViewHeight = 0;
     const initialCurrVersions = {};
     for (let vlang in props.currVersions) {
       const tempV = props.currVersions[vlang];
@@ -92,33 +89,6 @@ class VersionsBox extends React.Component {
     const filter = new VersionFilter(versionTitle, heVersionTitle, versionLanguage, this.props.segmentRef);
     this.props.openFilter(filter, "version");
   };
-  onLayoutScrollView = event => {
-    this.scrollViewHeight = event.nativeEvent.layout.height;
-  };
-  onLayoutLangBlock = (vlang, y) => {
-    this.langBlockYMap[vlang] = y;
-  };
-  onLayoutVersionBlock = (vlang, vtitle, y) => {
-    this.versionBlockYMap[`${vlang}|${vtitle}`] = y;
-  };
-  onPressRead = (vlang, vtitle) => {
-    this.props.loadNewVersion(this.props.segmentRef, { [vlang]: vtitle });
-  }
-  onPressVersionBlock = (vlang, vtitle) => {
-    let newState = `${vlang}|${vtitle}`;
-    let y = this.langBlockYMap[vlang] + this.versionBlockYMap[newState] - this.scrollViewHeight + 100;
-    if (y < 0) { y = 0; }
-    this.scrollViewRef.scrollTo({
-      x:0,
-      y,
-      animated: false,
-    });
-    if (this.state.openVersionBox === newState) { newState = null; } // if already set, toggle off
-    this.setState({ openVersionBox: newState });
-  };
-  _getScrollViewRef = ref => {
-    this.scrollViewRef = ref;
-  }
   render() {
     const {
       currVersions,
@@ -148,42 +118,27 @@ class VersionsBox extends React.Component {
     const textStyle = isheb ? styles.hebrewText : styles.englishText;
     return (
       <ScrollView
-        ref={this._getScrollViewRef}
-        contentContainerStyle={[styles.textListSummaryScrollView, styles.versionsBoxScrollView]}
-        onLayout={this.onLayoutScrollView}>
+        contentContainerStyle={[styles.versionsBoxScrollView]}>
         {
           this.state.versionLangs.map((lang) => (
-            <View key={lang} onLayout={event => { this.onLayoutLangBlock(lang, event.nativeEvent.layout.y); }}>
+            <View key={lang}>
               <View style={[styles.versionsBoxLang]}>
                 <Text style={[textStyle, styles.versionsBoxLangText, theme.text]}>{strings[Sefaria.util.translateISOLanguageCode(lang)].toUpperCase()}<Text>{` (${this.state.versionLangMap[lang].length})`}</Text></Text>
               </View>
               {
                 this.state.versionLangMap[lang].map(v => (
                   <TouchableOpacity
-                    onLayout={event => { this.onLayoutVersionBlock(lang, v.versionTitle, event.nativeEvent.layout.height + event.nativeEvent.layout.y); }}
                     style={[styles.versionsBoxVersionBlockWrapper, theme.bordered]}
                     key={v.versionTitle + lang}
-                    onPress={()=>{ this.onPressVersionBlock(lang, v.versionTitle); }}>
+                    onPress={()=>{ this.openVersionInSidebar(v.versionTitle, v.versionTitleInHebrew, lang); }}>
                     <VersionBlock
                       theme={theme}
                       version={v}
-                      margin={true}
                       currVersions={currVersionTitles}
                       openVersionInReader={()=>{}}
                       isCurrent={(currVersions.en && currVersions.en.versionTitle === v.versionTitle) ||
                                 (currVersions.he && currVersions.he.versionTitle === v.versionTitle)}
                     />
-                  { this.state.openVersionBox === `${lang}|${v.versionTitle}` ?
-                    <View style={[styles.versionBlockBottomBar, theme.bordered]}>
-                      <TouchableOpacity style={styles.versionBoxBottomBarButton} onPress={()=>{ this.onPressRead(v.language, v.versionTitle); }}>
-                        <Text style={theme.text}>{strings.read}</Text>
-                      </TouchableOpacity>
-                      <TouchableOpacity style={styles.versionBoxBottomBarButton} onPress={()=> { this.openVersionInSidebar(v.versionTitle, v.versionTitleInHebrew, v.language); }}>
-                        <Text style={theme.text}>{strings.compare}</Text>
-                      </TouchableOpacity>
-                    </View> :
-                    null
-                  }
                   </TouchableOpacity>
                 ))
               }
