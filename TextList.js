@@ -5,6 +5,7 @@ import {
   FlatList,
   TouchableOpacity,
   Text,
+  ActionSheetIOS,
 } from 'react-native';
 
 import {
@@ -168,6 +169,20 @@ class ListItem extends React.PureComponent {
       this.setState({ resetKeyEn: Math.random(), resetKeyHe: Math.random() }); //hacky fix to reset htmlview when theme colors change
     }
   }
+  openRef = () => {
+    // versionLanguage should only be defined when TextList is in VersionsBox. Otherwise you should open default version for that link
+    const versions = this.props.versionLanguage ? {[this.props.versionLanguage]: this.props.versionTitle} : null;
+    this.props.openRef(this.props.refStr, versions);
+  }
+  openActionSheet = () => {
+    ActionSheetIOS.showActionSheetWithOptions({
+      options: ['Cancel', `Open ${this.props.versionLanguage ? 'Version' : 'Connection'}`],
+      cancelButtonIndex: 0,
+    },
+    (buttonIndex) => {
+      if (buttonIndex === 1) { this.openRef(); }
+    });
+  }
   render() {
     var lco = this.props.linkContentObj;
     var lang = Sefaria.util.getTextLanguageWithContent(this.props.textLanguage,lco.en,lco.he);
@@ -203,12 +218,10 @@ class ListItem extends React.PureComponent {
       textViews = [englishElem];
     }
 
-    // versionLanguage should only be defined when TextList is in VersionsBox. Otherwise you should open default version for that link
-    const versions = this.props.versionLanguage ? {[this.props.versionLanguage]: this.props.versionTitle} : null;
     const refTitleStyle = this.props.menuLanguage === 'hebrew' ? styles.he : styles.en;
     const refStr = this.props.menuLanguage === 'hebrew' ? this.props.heRefStr : this.props.refStr;
     return (
-      <TouchableOpacity style={[styles.textListItem, this.props.theme.searchTextResult]} onPress={()=>{this.props.openRef(this.props.refStr, versions)}}>
+      <TouchableOpacity style={[styles.textListItem, this.props.theme.searchTextResult]} onPress={this.openActionSheet}>
         {this.props.displayRef ? null : <Text style={[refTitleStyle, styles.textListCitation, this.props.theme.textListCitation]}>{refStr}</Text>}
         {textViews}
       </TouchableOpacity>

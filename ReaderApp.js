@@ -587,14 +587,7 @@ class ReaderApp extends React.Component {
       const recentItem = Sefaria.getRecentRefForTitle(title);
       if (!!recentItem) { versions = recentItem.versions; }
     }
-    this.setState({
-      loaded: false,
-      textListVisible: false,
-      textReference: ref
-    }, function() {
-        this.closeMenu(); // Don't close until these values are in state, so we know if we need to load defualt text
-    }.bind(this));
-    this.loadNewText(ref, versions, false, overwriteVersions);
+
 
     switch (calledFrom) {
       case "search":
@@ -615,6 +608,15 @@ class ReaderApp extends React.Component {
       default:
         break;
     }
+    this.setState({
+      loaded: false,
+      textListVisible: false,
+      textReference: ref
+    }, function() {
+        this.closeMenu(); // Don't close until these values are in state, so we know if we need to load defualt text
+    }.bind(this));
+    this.loadNewText(ref, versions, false, overwriteVersions);
+
   };
 
   addBackItem = (page, state) => {
