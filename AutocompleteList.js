@@ -17,6 +17,7 @@ class AutocompleteList extends React.Component {
   static propTypes = {
     query:    PropTypes.string,
     openRef:  PropTypes.func.isRequired,
+    openTextTocDirectly: PropTypes.func.isRequired,
   };
 
   constructor(props) {
@@ -46,19 +47,32 @@ class AutocompleteList extends React.Component {
       this.setState({completions: []})
     }
   };
-
-  openRef = ref => {
-    //TODO if title === ref, open texttoc
-    //if ref is full ref, open it verbatim
-    //if ref is partial ref, complete it to the section level
-    const title = Sefaria.textTitleForRef(ref);
-    let refToOpen = Sefaria.getRecentRefForTitle(title);
-    if (!refToOpen) {
-      const index = Sefaria.index(title);
-      refToOpen = { ref: index.firstSection };
-    }
-    console.log(ref);
-    this.props.openRef(ref);
+  openRef = query => {
+    console.log('before', query);
+    Sefaria.api.name(query).then(d => {
+      // If the query isn't recognized as a ref, but only for reasons of capitalization. Resubmit with recognizable caps.
+      if (Sefaria.api.isACaseVariant(query, d)) {
+        this.openRef(Sefaria.api.repairCaseVariant(query, d));
+        return;
+      }
+      console.log(query, d);
+        //Sefaria.track.event("Search", action, query);
+      if (d["is_book"]) { this.props.openTextTocDirectly(d["book"])}
+      else if (d["is_ref"]) { this.props.openRef(d["ref"])}
+      /*else if (d["type"] == "Person") {
+        Sefaria.track.event("Search", "Search Box Navigation - Person", query);
+        this.closeSearchAutocomplete();
+        this.showPerson(d["key"]);
+      } else if (d["type"] == "TocCategory") {
+        Sefaria.track.event("Search", "Search Box Navigation - Category", query);
+        this.closeSearchAutocomplete();
+        this.showLibrary(d["key"]);  // "key" holds the category path
+      } else {
+        Sefaria.track.event("Search", "Search Box Search", query);
+        this.closeSearchAutocomplete();
+        this.showSearch(query);
+      }*/
+    });
   };
 
   renderItem = ({ item }) => {

@@ -384,11 +384,7 @@ class ReaderApp extends React.Component {
           });
 
           // Preload Text TOC data into memory
-          Sefaria.textToc(data.indexTitle).then((textToc) => {
-            this.setState({textToc});
-            // at this point, both book and section level version info is available
-            this.setCurrVersions(data.sectionRef, data.indexTitle); // not positive if this will combine versions well
-          });
+          this.loadTextTocData(data.indexTitle, data.sectionRef);
           Sefaria.saveRecentItem({ref: ref, heRef: data.heRef, category: Sefaria.categoryForRef(ref), versions: this.state.selectedVersions}, this.props.overwriteVersions);
       }.bind(this)).catch(function(error) {
         console.log(error);
@@ -400,6 +396,16 @@ class ReaderApp extends React.Component {
       }.bind(this));
 
   };
+
+  loadTextTocData = (title, sectionRef) => {
+    this.setState({textToc: null}, () => {
+      Sefaria.textToc(title).then(textToc => {
+        this.setState({textToc});
+        // at this point, both book and section level version info is available
+        this.setCurrVersions(sectionRef, title); // not positive if this will combine versions well
+      });
+    });
+  }
 
   removeDefaultVersions = (ref, versions) => {
     if (!versions) return versions;
@@ -665,6 +671,15 @@ class ReaderApp extends React.Component {
 
   setInitSearchScrollPos = (pos) => {
       this.setState({initSearchScrollPos: pos});
+  };
+
+  openTextTocDirectly = (title) => {
+
+    // used to open text toc witout going throught the reader
+    this.loadTextTocData(title);
+    this.setState({textTitle: title}, () => {  // openTextToc assumes that title is set correctly
+      this.openTextToc();
+    });
   };
 
   openTextToc = () => {
@@ -1096,6 +1111,7 @@ class ReaderApp extends React.Component {
             <AutocompleteList
               query={this.state.searchQuery}
               openRef={this.openRef}
+              openTextTocDirectly={this.openTextTocDirectly}
             />
           </View>)
         );

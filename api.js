@@ -164,6 +164,7 @@ var Api = {
           break;
         case "name":
           url += "api/name/";
+          urlSuffix = '?ref_only=1';
           break;
         default:
           console.error("You passed invalid type: ",apiType," into _toURL()");
@@ -285,6 +286,21 @@ var Api = {
           reject();
         });
     });
+  },
+  isACaseVariant: function(query, data) {
+    // Check if query is just an improper capitalization of something that otherwise would be a ref
+    // query: string
+    // data: dictionary, as returned by /api/name
+    return (!(data["is_ref"]) &&
+          data["completions"] &&
+          data["completions"].length &&
+          data["completions"][0] != query &&
+          data["completions"][0].toLowerCase().replace('״','"') == query.slice(0, data["completions"][0].length).toLowerCase().replace('״','"') &&
+          data["completions"][0] != query.slice(0, data["completions"][0].length))
+  },
+  repairCaseVariant: function(query, data) {
+    // Used when isACaseVariant() is true to prepare the alternative
+    return data["completions"][0] + query.slice(data["completions"][0].length);
   },
 
   versionLanguage: function(versionTitle) {
