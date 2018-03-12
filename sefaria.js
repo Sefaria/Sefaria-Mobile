@@ -483,7 +483,7 @@ Sefaria = {
         Sefaria
         ._loadJSON(path)
         .then(resolver)
-        .catch(()=>{Sefaria.api._request(title, 'index', {}).then(resolver)});
+        .catch(()=>{Sefaria.api._request(title, 'index', true, {}).then(resolver)});
       }
     });
   },

@@ -132,7 +132,7 @@ var Api = {
   apiType: string `oneOf(["text","links","index"])`. passing undefined gets the standard Reader URL.
   context is a required param if apiType == 'text'. o/w it's ignored
   */
-  _toURL: function(ref, useHTTPS, apiType, { context, versions }) {
+  _toURL: function(ref, useHTTPS, apiType, urlify, { context, versions }) {
     let url = '';
     if (useHTTPS) {
       url += 'https://www.sefaria.org/';
@@ -162,20 +162,23 @@ var Api = {
         case "versions":
           url += "api/texts/versions/";
           break;
+        case "name":
+          url += "api/name/";
+          break;
         default:
           console.error("You passed invalid type: ",apiType," into _toURL()");
           break;
       }
     }
-
-    ref = ref.replace(/:/g,'.').replace(/ /g,'_');
+    if (urlify) {
+      ref = ref.replace(/:/g,'.').replace(/ /g,'_');
+    }
     url += ref + urlSuffix;
-    //console.log("URL",url);
     return url;
   },
   _text: function(ref, { context, versions }) {
     return new Promise((resolve, reject)=>{
-      Sefaria.api._request(ref,'text', { context, versions })
+      Sefaria.api._request(ref,'text', true, { context, versions })
       .then(data => {
         if (context) {
           resolve(Sefaria.api._toIOS({"text": data, "links": [], "ref": ref}));
@@ -195,7 +198,7 @@ var Api = {
       if (ref in Sefaria.api._linkCache) {
         resolve(Sefaria.api._linkCache[ref]);
       } else {
-        Sefaria.api._request(ref,'links', {})
+        Sefaria.api._request(ref,'links', true, {})
         .then((response)=>{
           //console.log("Setting API Link Cache for ",ref)
           //console.log(response)
@@ -220,13 +223,13 @@ var Api = {
     var textResponse = null;
     var linksResponse = null;
     return new Promise(function(resolve,reject) {
-      Sefaria.api._request(ref,'text', {context: true})
+      Sefaria.api._request(ref,'text', true, {context: true})
       .then((response)=>{
         numResponses += 1;
         textResponse = response;
         checkResolve(resolve);
       });
-      Sefaria.api._request(ref,'links', {})
+      Sefaria.api._request(ref,'links', true, {})
       .then((response)=>{
         numResponses += 1;
         linksResponse = response;
@@ -246,7 +249,7 @@ var Api = {
     return new Promise((resolve, reject) => {
       const cached = Sefaria.api.getCachedVersions(ref);
       if (!!cached) { resolve(cached); }
-      Sefaria.api._request(ref, 'versions', {}, failSilently)
+      Sefaria.api._request(ref, 'versions', true, {}, failSilently)
         .then(response => {
           const defaultLangsFound = {};
           for (let v of response) {
@@ -270,6 +273,20 @@ var Api = {
         });
     });
   },
+
+  name: function(name) {
+    return new Promise((resolve, reject) => {
+      Sefaria.api._request(name, 'name', false, {}, true)
+        .then(response => {
+          resolve(response);
+        })
+        .catch(error=>{
+          console.log("Name API error:", name, error);
+          reject();
+        });
+    });
+  },
+
   versionLanguage: function(versionTitle) {
     // given a versionTitle, return the language of the version
     return Sefaria.api._translateVersions[versionTitle]["lang"]
@@ -279,8 +296,8 @@ var Api = {
   versions is object with keys { en, he } specifying version titles
   failSilently - if true, dont display a message if api call fails
   */
-  _request: function(ref, apiType, { context, versions }, failSilently) {
-    var url = Sefaria.api._toURL(ref, true, apiType, { context, versions });
+  _request: function(ref, apiType, urlify, { context, versions }, failSilently) {
+    var url = Sefaria.api._toURL(ref, true, apiType, urlify, { context, versions });
     return new Promise(function(resolve, reject) {
       fetch(url)
       .then(function(response) {
@@ -312,7 +329,7 @@ var Api = {
             [
               {text: strings.cancel, onPress: () => { reject("Return to Nav"); }, style: 'cancel' },
               {text: strings.tryAgain, onPress: () => {
-                Sefaria.api._request(ref,apiType, { context, versions },failSilently).then(resolve);
+                Sefaria.api._request(ref,apiType, urlify, { context, versions },failSilently).then(resolve);
               }}
             ]
           );

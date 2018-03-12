@@ -30,6 +30,7 @@ import TextColumn from './TextColumn';
 import ConnectionsPanel from './ConnectionsPanel';
 import SettingsPage from './SettingsPage';
 import RecentPage from './RecentPage';
+import AutocompleteList from './AutocompleteList';
 import {
   LoadingView,
   CategoryColorLine,
@@ -1054,6 +1055,10 @@ class ReaderApp extends React.Component {
     this.setState({searchSort: sort, searchIsExact: isExact}, cb);
   };
 
+  onChangeSearchQuery = query => {
+    this.setState({searchQuery: query});
+  }
+
   clearAllSearchFilters = () => {
     for (let filterNode of this.state.availableSearchFilters) {
       filterNode.setUnselected(true);
@@ -1069,23 +1074,31 @@ class ReaderApp extends React.Component {
         return (
           loading ?
           <LoadingView theme={this.props.theme} /> :
-          <ReaderNavigationMenu
-            categories={this.state.navigationCategories}
-            setCategories={this.setNavigationCategories}
-            openRef={(ref, versions)=>this.openRef(ref,"navigation", versions)}
-            goBack={this.goBack}
-            openNav={this.openNav}
-            closeNav={this.closeMenu}
-            openSearch={this.search}
-            setIsNewSearch={this.setIsNewSearch}
-            toggleLanguage={this.toggleMenuLanguage}
-            menuLanguage={this.props.menuLanguage}
-            openSettings={this.openMenu.bind(null, "settings")}
-            openRecent={this.openMenu.bind(null, "recent")}
-            interfaceLang={this.state.interfaceLang}
-            theme={this.props.theme}
-            themeStr={this.props.themeStr}/>);
-        break;
+          (<View style={{flex:1, flexDirection: 'row'}}>
+            <ReaderNavigationMenu
+              searchQuery={this.state.searchQuery}
+              categories={this.state.navigationCategories}
+              setCategories={this.setNavigationCategories}
+              openRef={(ref, versions)=>this.openRef(ref,"navigation", versions)}
+              goBack={this.goBack}
+              openNav={this.openNav}
+              closeNav={this.closeMenu}
+              openSearch={this.search}
+              setIsNewSearch={this.setIsNewSearch}
+              toggleLanguage={this.toggleMenuLanguage}
+              menuLanguage={this.props.menuLanguage}
+              openSettings={this.openMenu.bind(null, "settings")}
+              openRecent={this.openMenu.bind(null, "recent")}
+              interfaceLang={this.state.interfaceLang}
+              onChangeSearchQuery={this.onChangeSearchQuery}
+              theme={this.props.theme}
+              themeStr={this.props.themeStr}/>
+            <AutocompleteList
+              query={this.state.searchQuery}
+              openRef={this.openRef}
+            />
+          </View>)
+        );
       case ("text toc"):
         return (
           <ReaderTextTableOfContents
@@ -1257,7 +1270,6 @@ class ReaderApp extends React.Component {
                 onDragEnd={this.onTextListDragEnd}
                 textTitle={this.state.textTitle} />
             </View> : null}
-
             {this.state.ReaderDisplayOptionsMenuVisible ?
             (<ReaderDisplayOptionsMenu
               theme={this.props.theme}

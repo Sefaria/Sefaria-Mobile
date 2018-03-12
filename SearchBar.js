@@ -29,23 +29,19 @@ class SearchBar extends React.Component {
     setIsNewSearch:  PropTypes.func.isRequired,
     toggleLanguage:  PropTypes.func,
     language:        PropTypes.string,
-    query:           PropTypes.string
+    query:           PropTypes.string.isRequired,
+    onChange:        PropTypes.func.isRequired,
   };
 
-  state = {text: this.props.query || ""};
-
   submitSearch = () => {
-    if (this.state.text) {
+    if (this.props.query) {
       this.props.setIsNewSearch(true);
-      this.props.onQueryChange(this.state.text, true, false, true);
+      this.props.onQueryChange(this.props.query, true, false, true);
     }
   };
 
   render() {
     var textInputStyle = [styles.searchInput, this.props.interfaceLang === "hebrew" ? styles.hebrewSystemFont : null, this.props.theme.text];
-    if (this.state.text == "") {
-      //textInputStyle = textInputStyle.concat([styles.searchInputPlaceholder]);
-    }
     //TODO sorry for the hard-coded colors. because the prop placeholderTextColor of TextInput doesn't take a style and instead requires an explicit color string, I had to do it this way
     var placeholderTextColor = this.props.themeStr == "black" ? "#BBB" : "#777";
     return (
@@ -62,11 +58,12 @@ class SearchBar extends React.Component {
         <SearchButton onPress={this.submitSearch} theme={this.props.theme} themeStr={this.props.themeStr} />
         <TextInput
           style={textInputStyle}
-          onChangeText={(text) => this.setState({text})}
+          onChangeText={this.props.onChange}
           onSubmitEditing={this.submitSearch}
-          value={this.state.text}
+          value={this.props.query}
           placeholder={strings.search}
-          placeholderTextColor={placeholderTextColor} />
+          placeholderTextColor={placeholderTextColor}
+          autoCorrect={false} />
         {this.props.toggleLanguage ?
           <LanguageToggleButton
             theme={this.props.theme}
