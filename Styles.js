@@ -66,12 +66,12 @@ export default StyleSheet.create({
     flexDirection: 'row',
     marginTop: 10,
     marginBottom: 10,
-    marginHorizontal: iPad ? 20 : 15,
     flex: 1,
+    marginHorizontal: iPad ? 20 : 15,
   },
   readerDisplayOptionsMenuToggleSetOuter: {
     flexDirection: 'column',
-    width: iPad ? 220 : 190,
+    width: iPad ? 350 : 190,
   },
   readerDisplayOptionMenuToggleSetNotColor: {
     borderRadius: 5

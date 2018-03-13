@@ -237,6 +237,11 @@ class ReaderApp extends React.Component {
     this.toggleReaderDisplayOptionsMenu();
   }
 
+  setAliyot = show => {
+    this.props.setAliyot(show);
+    this.toggleReaderDisplayOptionsMenu();
+  }
+
   incrementFont = (increment) => {
     if (increment == "larger") {
       var x = 1.1;
@@ -1295,7 +1300,7 @@ class ReaderApp extends React.Component {
               textLanguage={this.props.textLanguage}
               showAliyot={this.props.showAliyot}
               setTextFlow={this.setTextFlow}
-              setAliyot={this.props.setAliyot}
+              setAliyot={this.setAliyot}
               setTextLanguage={this.setTextLanguage}
               incrementFont={this.incrementFont}
               setTheme={this.setTheme}
