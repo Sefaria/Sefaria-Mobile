@@ -78,23 +78,23 @@ class AboutBox extends React.Component {
       detailSection = (
         <View>
           <View style={[styles.aboutHeaderWrapper, this.props.theme.bordered]}>
-            <Text style={[styles.aboutHeader, styles.readerSideMargin, this.props.theme.secondaryText, hei ? styles.heInt : null]}>{strings.aboutThisText}</Text>
+            <Text style={[styles.aboutHeader, this.props.theme.secondaryText, hei ? styles.heInt : null]}>{strings.aboutThisText}</Text>
           </View>
-          <Text style={[styles.aboutTitle, hei ? styles.he : styles.en, styles.readerSideMargin, this.props.theme.text]}>
+          <Text style={[styles.aboutTitle, hei ? styles.he : styles.en, this.props.theme.text]}>
             { hei ? d.heTitle : d.title }
           </Text>
           { authorsEn && authorsEn.length ?
-            <Text style={[styles.aboutSubtitle, hei ? styles.heInt : styles.enInt, styles.readerSideMargin, this.props.theme.secondaryText]}>
+            <Text style={[styles.aboutSubtitle, hei ? styles.heInt : styles.enInt, this.props.theme.secondaryText]}>
               { hei ? authorsHe : authorsEn}
             </Text> : null
           }
           { !!placeTextEn || !!dateTextEn ?
-            <Text style={[styles.aboutSubtitle, hei ? styles.heInt : styles.enInt, styles.readerSideMargin, this.props.theme.secondaryText]}>
+            <Text style={[styles.aboutSubtitle, hei ? styles.heInt : styles.enInt, this.props.theme.secondaryText]}>
               { hei ? `נוצר/נערך: ${!!placeTextHe ? placeTextHe : ""} ${!!dateTextHe ? dateTextHe : ""}` : `Composed: ${!!placeTextEn ? placeTextEn : ""} ${!!dateTextEn ? dateTextEn : ""}`}
             </Text> : null
           }
-          { hei ? (!!d.heDesc ? <Text style={[styles.aboutDescription, styles.heInt, styles.readerSideMargin, this.props.theme.text]}>{d.heDesc}</Text> : null) :
-                  (!!d.enDesc ? <Text style={[styles.aboutDescription, styles.enInt, styles.readerSideMargin, this.props.theme.text]}>{d.enDesc}</Text> : null)
+          { hei ? (!!d.heDesc ? <Text style={[styles.aboutDescription, styles.heInt, this.props.theme.text]}>{d.heDesc}</Text> : null) :
+                  (!!d.enDesc ? <Text style={[styles.aboutDescription, styles.enInt, this.props.theme.text]}>{d.enDesc}</Text> : null)
           }
         </View>
       );
@@ -102,7 +102,7 @@ class AboutBox extends React.Component {
     const versionSectionHe =
       (!!vh && !vh.disabled ? <View style={styles.currVersionSection}>
         <View style={[styles.aboutHeaderWrapper, this.props.theme.bordered]}>
-          <Text style={[styles.aboutHeader, styles.readerSideMargin, this.props.theme.secondaryText, hei ? styles.heInt : null]}>{ strings.currentHebrewVersion }</Text>
+          <Text style={[styles.aboutHeader, this.props.theme.secondaryText, hei ? styles.heInt : null]}>{ strings.currentHebrewVersion }</Text>
         </View>
         <VersionBlock
           theme={this.props.theme}
@@ -113,7 +113,7 @@ class AboutBox extends React.Component {
     const versionSectionEn =
       (!!ve && !ve.disabled ? <View style={styles.currVersionSection}>
         <View style={[styles.aboutHeaderWrapper, this.props.theme.bordered]}>
-          <Text style={[styles.aboutHeader, styles.readerSideMargin, this.props.theme.secondaryText, hei ? styles.heInt : null]}>{ strings.currentEnglishVersion }</Text>
+          <Text style={[styles.aboutHeader, this.props.theme.secondaryText, hei ? styles.heInt : null]}>{ strings.currentEnglishVersion }</Text>
         </View>
         <VersionBlock
           theme={this.props.theme}
@@ -122,7 +122,7 @@ class AboutBox extends React.Component {
         />
       </View> : null );
     return (
-      <ScrollView contentContainerStyle={[styles.aboutBoxScrollView]}>
+      <ScrollView contentContainerStyle={[styles.aboutBoxScrollView, styles.readerSideMargin]}>
         { detailSection }
         { this.props.mainVersionLanguage === "english" ?
           (<View>{versionSectionEn}{versionSectionHe}</View>) :

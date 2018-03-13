@@ -468,8 +468,8 @@ export default StyleSheet.create({
     flexDirection: "row",
     justifyContent: "center",
   },
-  navBottomLink: {
-    marginHorizontal: 3,
+  navBottomLinkDot: {
+    marginHorizontal: 7,
   },
   category: {
     marginBottom: 10
@@ -680,11 +680,8 @@ export default StyleSheet.create({
   },
   textTocVersionInfo: {
     flexDirection: "row",
-    justifyContent: "center",
-    paddingBottom: 5
-  },
-  textTocVersionInfoItem: {
-    paddingHorizontal: 7,
+    paddingBottom: 10,
+    justifyContent: "flex-start",
   },
   textTocVersionInfoText: {
     fontSize: 12
@@ -882,7 +879,6 @@ export default StyleSheet.create({
   },
   versionsBoxLang: {
     flex: 1,
-    paddingHorizontal: iPad ? readerSideMarginIpad : readerSideMargin,
     paddingVertical: 5,
     marginTop: 15,
   },

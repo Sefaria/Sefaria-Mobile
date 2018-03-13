@@ -97,14 +97,14 @@ class VersionsBox extends React.Component {
     } = this.props;
     if (this.props.versionsApiError) {
       return (
-        <View style={{flex:1}}>
+        <View style={[{flex:1}, styles.readerSideMargin]}>
           <Text style={[styles.emptyLinksMessage, this.props.theme.secondaryText]}>{strings.connectToVersionsMessage}</Text>
         </View>
       );
     }
     if (!this.state.versionLangMap) {
       return (
-        <View>
+        <View style={styles.readerSideMargin}>
           <LoadingView />
         </View>
       );
@@ -118,7 +118,7 @@ class VersionsBox extends React.Component {
     const textStyle = isheb ? styles.hebrewText : styles.englishText;
     return (
       <ScrollView
-        contentContainerStyle={[styles.versionsBoxScrollView]}>
+        contentContainerStyle={[styles.versionsBoxScrollView, styles.readerSideMargin]}>
         {
           this.state.versionLangs.map((lang) => (
             <View key={lang}>

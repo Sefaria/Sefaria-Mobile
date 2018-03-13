@@ -161,19 +161,19 @@ class ReaderNavigationMenu extends React.Component {
 
 
                 <View style={styles.navBottomLinks}>
-                  <TouchableOpacity style={[styles.navBottomLink]} onPress={this.props.openSettings}>
+                  <TouchableOpacity onPress={this.props.openSettings}>
                     <Text style={[isHeb ? styles.heInt : styles.enInt, this.props.theme.tertiaryText]}>{strings.settings}</Text>
                   </TouchableOpacity>
 
-                  <Text style={[styles.navBottomLink, this.props.theme.tertiaryText]}>•</Text>
+                  <Text style={[styles.navBottomLinkDot, this.props.theme.tertiaryText]}>•</Text>
 
-                  <TouchableOpacity style={[styles.navBottomLink]} onPress={() => {Linking.openURL("https://www.sefaria.org/about");}}>
+                  <TouchableOpacity onPress={() => {Linking.openURL("https://www.sefaria.org/about");}}>
                     <Text style={[isHeb ? styles.heInt : styles.enInt, this.props.theme.tertiaryText]}>{strings.about}</Text>
                   </TouchableOpacity>
 
-                  <Text style={[styles.navBottomLink, this.props.theme.tertiaryText]}>•</Text>
+                  <Text style={[styles.navBottomLinkDot, this.props.theme.tertiaryText]}>•</Text>
 
-                  <TouchableOpacity style={[styles.navBottomLink]} onPress={() => {Linking.openURL("mailto:ios@sefaria.org");}}>
+                  <TouchableOpacity onPress={() => {Linking.openURL("mailto:ios@sefaria.org");}}>
                     <Text style={[isHeb ? styles.heInt : styles.enInt, this.props.theme.tertiaryText]}>{strings.feedback}</Text>
                   </TouchableOpacity>
 

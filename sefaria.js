@@ -7,6 +7,7 @@ import Api from './api';
 import Search from './search';
 import LinkContent from './LinkContent';
 import { initAsyncStorage } from './ReduxStore';
+import URL from 'url-parse';
 
 const ERRORS = {
   NOT_OFFLINE: 1,
@@ -1039,10 +1040,9 @@ Sefaria = {
 
 Sefaria.util = {
   parseURLhost: function(url) {
-    //regex source https://stackoverflow.com/questions/27745/getting-parts-of-a-url-regex
-    if (!url) return null;
-    let matches = url.match(/^((http[s]?|ftp):\/)?\/?([^:\/\s]+)((\/\w+)*\/)([\w\-\.]+[^#?\s]+)(.*)?(#[\w\-]+)?$/);
-    return matches ? matches[3] : null; //host name. matches[2] is the stuff after
+    //thanks rvighne! https://stackoverflow.com/questions/736513/how-do-i-parse-a-url-into-hostname-and-path-in-javascript
+    const u = new URL(url);
+    return u.hostname;
   },
   _licenseMap: {
     "Public Domain": "http://en.wikipedia.org/wiki/Public_domain",
