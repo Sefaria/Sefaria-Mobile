@@ -111,6 +111,7 @@ class ConnectionsPanel extends React.Component {
               fontSize={this.props.fontSize}
               textLanguage={this.props.textLanguage}
               menuLanguage={this.props.menuLanguage}
+              interfaceLang={this.props.interfaceLang}
               segmentRef={this.props.segmentRef}
               openRef={this.props.openRef}
               connectionsPanelHeader={connectionsPanelHeader}

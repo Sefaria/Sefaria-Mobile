@@ -17,7 +17,6 @@ class VersionBlock extends React.Component {
     openVersionInSidebar: PropTypes.func,
     openVersionInReader:  PropTypes.func,
     isCurrent:            PropTypes.bool,
-    center:               PropTypes.bool, /* true for textToc. false for sidebar */
     interfaceLang:        PropTypes.oneOf(["english", "hebrew"]),
   };
 
@@ -51,10 +50,10 @@ class VersionBlock extends React.Component {
       versionNotes = versionInfo['versionNotes'];
     }
 
-    const textAlign = this.props.center ? null : { textAlign: "left" };
-    const justifyContent = this.props.center ? null : { justifyContent: "flex-start" };
+    const textAlign = { textAlign: "left" };
+    if (license === "CC-BY") { console.log(versionSource, license)}
     return (
-      <View style={styles.readerSideMargin}>
+      <View>
         {
           versionTitle ?
             (this.props.openVersionInSidebar ?
@@ -68,15 +67,19 @@ class VersionBlock extends React.Component {
               </Text>)
           : null
         }
-        <View style={[styles.textTocVersionInfo, justifyContent]}>
+        <View style={styles.textTocVersionInfo}>
           { versionSource ?
-            <TouchableOpacity style={[styles.navBottomLink, styles.textTocVersionInfoItem]} onPress={() => {Linking.openURL(versionSource);}}>
-              <Text style={[styles.textTocVersionInfoText, this.props.theme.tertiaryText]}>{shortVersionSource}</Text>
+            <TouchableOpacity onPress={() => {Linking.openURL(versionSource);}}>
+              <Text style={[styles.textTocVersionInfoText, this.props.theme.tertiaryText]}>{shortVersionSource || versionSource}</Text>
             </TouchableOpacity>
             : null
           }
+          { versionSource && (license && license !== "unknown") ?
+            <Text style={[styles.navBottomLinkDot, this.props.theme.tertiaryText]}>•</Text>
+            : null
+          }
           { license && license !== "unknown" ?
-            <TouchableOpacity style={[styles.navBottomLink, styles.textTocVersionInfoItem]} onPress={() => licenseURL ? Linking.openURL(licenseURL) : null}>
+            <TouchableOpacity onPress={() => licenseURL ? Linking.openURL(licenseURL) : null}>
               <Text style={[styles.textTocVersionInfoText, this.props.theme.tertiaryText]}>{license}</Text>
             </TouchableOpacity>
             : null

@@ -26,6 +26,7 @@ class TextList extends React.Component {
     fontSize:        PropTypes.number.isRequired,
     textLanguage:    PropTypes.oneOf(["english", "hebrew", "bilingual"]),
     menuLanguage:    PropTypes.oneOf(["english", "hebrew"]).isRequired,
+    interfaceLang:   PropTypes.oneOf(["english", "hebrew"]).isRequired,
     recentFilters:   PropTypes.array.isRequired,
     filterIndex:     PropTypes.number,
     listContents:    PropTypes.array,
@@ -77,6 +78,7 @@ class TextList extends React.Component {
         versionLanguage: filter.versionLanguage,
         pos: index,
         displayRef,
+        category: filter.category,
         content: props.listContents[index],
       };
     });
@@ -93,11 +95,13 @@ class TextList extends React.Component {
               openRef={this.props.openRef}
               refStr={item.ref}
               heRefStr={item.heRef}
+              category={item.category}
               versionTitle={item.versionTitle}
               versionLanguage={item.versionLanguage}
               linkContentObj={linkContentObj}
               menuLanguage={this.props.menuLanguage}
               textLanguage={this.props.textLanguage}
+              interfaceLang={this.props.interfaceLang}
               loading={loading}
               displayRef={item.displayRef}
     />);
@@ -149,10 +153,12 @@ class ListItem extends React.PureComponent {
     refStr:            PropTypes.string,
     heRefStr:          PropTypes.string,
     versionTitle:      PropTypes.string,
+    category:          PropTypes.string,
     versionLanguage:   PropTypes.string,
     linkContentObj:    PropTypes.object, /* of the form {en,he} */
     textLanguage:      PropTypes.string,
     menuLanguage:      PropTypes.string,
+    interfaceLang:     PropTypes.string,
     loading:           PropTypes.bool,
     displayRef:        PropTypes.bool
   };
@@ -176,7 +182,8 @@ class ListItem extends React.PureComponent {
   }
   openActionSheet = () => {
     ActionSheetIOS.showActionSheetWithOptions({
-      options: ['Cancel', `Open ${this.props.versionLanguage ? 'Version' : 'Connection'}`],
+      options: [strings.cancel, `${strings.open} ${this.props.versionLanguage ? strings.version :
+        Sefaria.getTitle(this.props.refStr, this.props.heRefStr, this.props.category === 'Commentary', this.props.interfaceLang === "hebrew")}`],
       cancelButtonIndex: 0,
     },
     (buttonIndex) => {
