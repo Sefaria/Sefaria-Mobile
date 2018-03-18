@@ -532,6 +532,8 @@ class TextColumn extends React.Component {
     } catch (e) {
       if (i < 50) {
         setTimeout(()=>{this.waitForScrollToLocation(i+1)}, 5);
+      } else {
+        this.onScrollToLocation();
       }
       return;
     }
@@ -546,6 +548,8 @@ class TextColumn extends React.Component {
       });*/
     } else if (i < 50) { // if it's running more than 250ms, kill the recursion
       setTimeout(()=>{this.waitForScrollToLocation(i+1)}, 5);
+    } else {
+      this.onScrollToLocation(); // give up
     }
   }
   onScrollToLocation = () => {
