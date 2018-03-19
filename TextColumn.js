@@ -372,6 +372,10 @@ class TextColumn extends React.Component {
   };
 
   onEndReached = () => {
+    if (this.props.loadingTextTail == true) {
+      //already loading tail
+      return;
+    }
     this.props.updateData("next");
   };
 

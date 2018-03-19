@@ -566,6 +566,10 @@ class ReaderApp extends React.Component {
         textReference: ref,
         heRef: heRef
       });
+      if (!this.state.textListVisible) {
+        // otherwise saveRecentItem is called in textListPressed
+        Sefaria.saveRecentItem({ref: ref, heRef: heRef, category: Sefaria.categoryForRef(ref)});
+      }
   };
 
   /*
