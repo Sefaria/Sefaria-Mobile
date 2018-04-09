@@ -81,19 +81,12 @@ class AutocompleteList extends React.Component {
 
   renderItem = ({ item }) => {
     const isHeb = this.state.completionsLang === 'he';
+    console.log(isHeb,'yoyoyo ma');
     return (
       <TouchableOpacity style={{flex:1, flexDirection: 'row'}} onPress={()=>{ this.openRef(item.key); }}>
-        <Text style={[styles.autocompleteItem, {textAlign: isHeb ? 'right' : 'left', fontFamily: isHeb ? 'Heebo' : 'Open Sans'}]}>
+        <Text style={[styles.autocompleteItem, this.props.theme.text, {textAlign: isHeb ? 'right' : 'left', fontFamily: isHeb ? 'Heebo' : 'Open Sans'}]}>
           { item.key }
         </Text>
-        { item.type == "Person" ?
-          <Image
-            source={this.props.themeStr == "white" ? require('./img/externalLink.png'): require('./img/externalLink-light.png') }
-            style={styles.autocompleteItemIcon}
-            resizeMode={Image.resizeMode.contain}
-          /> : null
-        }
-
       </TouchableOpacity>
     )
   };

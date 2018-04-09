@@ -931,9 +931,8 @@ export default StyleSheet.create({
   },
   autocompleteList: {
     maxHeight: 300,
-    minHeight: 100,
-    paddingTop: 10,
-    paddingBottom: 10,
+    paddingTop: 15,
+    paddingBottom: 15,
     flexDirection: 'column',
     borderBottomWidth: 1,
   },
@@ -941,6 +940,7 @@ export default StyleSheet.create({
     fontSize: 20,
     paddingHorizontal: 20,
     paddingVertical: 10,
+    flex: 1,
   },
   autocompleteItemIcon: {
     width: 20,
