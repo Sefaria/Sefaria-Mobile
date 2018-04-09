@@ -12,6 +12,7 @@ var Api = {
   */
   _textCache: {}, //in memory cache for API data
   _linkCache: {},
+  _nameCache: {},
   _versions: {},
   _translateVersions: {},
   _indexDetails: {},
@@ -164,7 +165,7 @@ var Api = {
           break;
         case "name":
           url += "api/name/";
-          urlSuffix = '?ref_only=1';
+          //urlSuffix = '?ref_only=0';
           break;
         default:
           console.error("You passed invalid type: ",apiType," into _toURL()");
@@ -249,7 +250,7 @@ var Api = {
   versions: function(ref, failSilently) {
     return new Promise((resolve, reject) => {
       const cached = Sefaria.api.getCachedVersions(ref);
-      if (!!cached) { resolve(cached); }
+      if (!!cached) { resolve(cached); return; }
       Sefaria.api._request(ref, 'versions', true, {}, failSilently)
         .then(response => {
           const defaultLangsFound = {};
@@ -277,8 +278,11 @@ var Api = {
 
   name: function(name) {
     return new Promise((resolve, reject) => {
+      const cached = Sefaria.api._nameCache[name];
+      if (!!cached) { console.log("cached"); resolve(cached); return; }
       Sefaria.api._request(name, 'name', false, {}, true)
         .then(response => {
+          Sefaria.api._nameCache[name] = response;
           resolve(response);
         })
         .catch(error=>{

@@ -33,6 +33,7 @@ class ReaderNavigationMenu extends React.Component {
     interfaceLang:  PropTypes.oneOf(["english","hebrew"]).isRequired,
     setCategories:  PropTypes.func.isRequired,
     openRef:        PropTypes.func.isRequired,
+    openTextTocDirectly: PropTypes.func.isRequired,
     closeNav:       PropTypes.func.isRequired,
     openNav:        PropTypes.func.isRequired,
     openSearch:     PropTypes.func.isRequired,
@@ -139,7 +140,10 @@ class ReaderNavigationMenu extends React.Component {
                 toggleLanguage={this.props.toggleLanguage}
                 language={this.props.menuLanguage}
                 onChange={this.props.onChangeSearchQuery}
-                query={this.props.searchQuery}/>
+                query={this.props.searchQuery}
+                openRef={this.props.openRef}
+                openTextTocDirectly={this.props.openTextTocDirectly}
+                setCategories={this.props.setCategories}/>
               <ScrollView contentContainerStyle={styles.menuContent}>
 
                 <RecentSection

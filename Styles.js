@@ -929,6 +929,24 @@ export default StyleSheet.create({
   currVersionSection: {
     paddingTop: 25,
   },
+  autocompleteList: {
+    maxHeight: 300,
+    minHeight: 100,
+    paddingTop: 10,
+    paddingBottom: 10,
+    flexDirection: 'column',
+    borderBottomWidth: 1,
+  },
+  autocompleteItem: {
+    fontSize: 20,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+  },
+  autocompleteItemIcon: {
+    width: 20,
+    height: 20,
+    alignSelf: 'center',
+  },
 //HTML Styles:
   strong: {
     fontWeight: "bold"

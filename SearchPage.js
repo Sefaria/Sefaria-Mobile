@@ -46,7 +46,10 @@ class SearchPage extends React.Component {
     loadingQuery:        PropTypes.bool,
     loadingTail:         PropTypes.bool,
     isNewSearch:         PropTypes.bool,
-    numResults:          PropTypes.number
+    numResults:          PropTypes.number,
+    onChangeSearchQuery: PropTypes.func.isRequired,
+    openTextTocDirectly: PropTypes.func.isRequired,
+    setCategories:       PropTypes.func.isRequired,
   };
 
   numberWithCommas = (x) => {
@@ -80,7 +83,11 @@ class SearchPage extends React.Component {
               leftMenuButton="back"
               onQueryChange={this.props.onQueryChange}
               query={this.props.query}
-              setIsNewSearch={this.props.setIsNewSearch}/>
+              setIsNewSearch={this.props.setIsNewSearch}
+              onChange={this.props.onChangeSearchQuery}
+              openRef={this.props.openRef}
+              openTextTocDirectly={this.props.openTextTocDirectly}
+              setCategories={cats => { /* first need to go to nav page */ this.props.openNav(); this.props.setCategories(cats);} }/>
             <View style={summaryStyle}>
               <Text style={[this.props.theme.searchResultSummaryText, langStyle]} >{status}</Text>
               <DirectedButton

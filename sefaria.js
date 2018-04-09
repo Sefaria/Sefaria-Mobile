@@ -1377,6 +1377,7 @@ Sefaria.hebrewCategory = function(cat) {
     "Writings": "כתובים",
     "Commentary": "מפרשים",
     "Quoting Commentary": "פרשנות מצטטת",
+    "Modern Commentary": "פרשנות מודרנית",
     "Targum": "תרגומים",
     "Mishnah": "משנה",
     "Tosefta": "תוספתא",

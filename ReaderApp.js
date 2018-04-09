@@ -30,7 +30,6 @@ import TextColumn from './TextColumn';
 import ConnectionsPanel from './ConnectionsPanel';
 import SettingsPage from './SettingsPage';
 import RecentPage from './RecentPage';
-import AutocompleteList from './AutocompleteList';
 import {
   LoadingView,
   CategoryColorLine,
@@ -1100,6 +1099,7 @@ class ReaderApp extends React.Component {
               categories={this.state.navigationCategories}
               setCategories={this.setNavigationCategories}
               openRef={(ref, versions)=>this.openRef(ref,"navigation", versions)}
+              openTextTocDirectly={this.openTextTocDirectly}
               goBack={this.goBack}
               openNav={this.openNav}
               closeNav={this.closeMenu}
@@ -1113,11 +1113,6 @@ class ReaderApp extends React.Component {
               onChangeSearchQuery={this.onChangeSearchQuery}
               theme={this.props.theme}
               themeStr={this.props.themeStr}/>
-            <AutocompleteList
-              query={this.state.searchQuery}
-              openRef={this.openRef}
-              openTextTocDirectly={this.openTextTocDirectly}
-            />
           </View>)
         );
       case ("text toc"):
@@ -1168,7 +1163,11 @@ class ReaderApp extends React.Component {
             setInitSearchScrollPos={this.setInitSearchScrollPos}
             clearAllFilters={this.clearAllSearchFilters}
             queryResult={this.state.searchQueryResult}
-            numResults={this.state.numSearchResults} />);
+            numResults={this.state.numSearchResults}
+            openTextTocDirectly={this.openTextTocDirectly}
+            onChangeSearchQuery={this.onChangeSearchQuery}
+            setCategories={this.setNavigationCategories}
+          />);
         break;
       case ("settings"):
         return(
