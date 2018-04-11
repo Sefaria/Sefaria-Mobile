@@ -144,7 +144,7 @@ class ReaderNavigationMenu extends React.Component {
                 openRef={this.props.openRef}
                 openTextTocDirectly={this.props.openTextTocDirectly}
                 setCategories={this.props.setCategories}/>
-              <ScrollView contentContainerStyle={styles.menuContent}>
+              <ScrollView style={styles.scrollViewPaddingInOrderToScroll} contentContainerStyle={styles.menuScrollViewContent}>
 
                 <RecentSection
                   theme={this.props.theme}

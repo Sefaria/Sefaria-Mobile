@@ -230,6 +230,7 @@ class ConnectionsPanel extends React.Component {
           }
           content = (
             <ScrollView
+              style={styles.scrollViewPaddingInOrderToScroll}
               key={""+this.props.connectionsMode}
               contentContainerStyle={styles.textListSummaryScrollView}>
                 {viewList}

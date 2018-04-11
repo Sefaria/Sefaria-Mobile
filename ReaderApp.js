@@ -1289,8 +1289,9 @@ class ReaderApp extends React.Component {
                 onDragMove={this.onTextListDragMove}
                 onDragEnd={this.onTextListDragEnd}
                 textTitle={this.state.textTitle} />
-            </View> : null}
-            {this.state.ReaderDisplayOptionsMenuVisible ?
+            </View> : null
+          }
+          {this.state.ReaderDisplayOptionsMenuVisible ?
             (<ReaderDisplayOptionsMenu
               theme={this.props.theme}
               textFlow={this.state.textFlow}
@@ -1305,7 +1306,8 @@ class ReaderApp extends React.Component {
               setTheme={this.setTheme}
               canBeContinuous={Sefaria.canBeContinuous(this.state.textTitle)}
               canHaveAliyot={Sefaria.canHaveAliyot(this.state.textTitle)}
-              themeStr={this.props.themeStr}/>) : null }
+              themeStr={this.props.themeStr}/>) : null
+          }
       </View>);
   }
 

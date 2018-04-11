@@ -76,6 +76,7 @@ class SearchResultList extends React.Component {
     if (this.props.queryResult && !this.props.isNewSearch) {
       return (
         <FlatList
+          style={styles.scrollViewPaddingInOrderToScroll}
           ref={this._setFlatListRef}
           data={this.props.queryResult}
           getItemLayout={this.getItemLayout}

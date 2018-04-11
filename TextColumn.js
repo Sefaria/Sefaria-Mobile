@@ -628,6 +628,7 @@ class TextColumn extends React.Component {
     return (
         <View style={styles.textColumn} >
           <SectionList
+            style={styles.scrollViewPaddingInOrderToScroll}
             ref={this._getSectionListRef}
             sections={this.state.dataSource}
             renderItem={this.renderRow}

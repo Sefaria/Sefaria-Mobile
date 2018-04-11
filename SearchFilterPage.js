@@ -179,7 +179,7 @@ class SearchFilterPage extends React.Component {
           <Text style={[this.props.theme.searchResultSummaryText, langStyle, {marginTop: -1}]}>{strings.apply}</Text>
         </TouchableOpacity>
       </View>
-      <ScrollView key={this.props.subMenuOpen} contentContainerStyle={styles.menuContent}>
+      <ScrollView key={this.props.subMenuOpen} contentContainerStyle={styles.menuContent} style={styles.scrollViewPaddingInOrderToScroll}>
         {content}
       </ScrollView>
     </View>);

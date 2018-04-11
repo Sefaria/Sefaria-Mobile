@@ -396,7 +396,7 @@ export default StyleSheet.create({
   menuContent: {
     paddingHorizontal: iPad ? 20 : 10,
     paddingTop: 20,
-    paddingBottom: 40
+    paddingBottom: 40,
   },
   menuScrollViewContent: {
     paddingBottom: 100,
@@ -946,6 +946,9 @@ export default StyleSheet.create({
     width: 20,
     height: 20,
     alignSelf: 'center',
+  },
+  scrollViewPaddingInOrderToScroll: {
+    paddingHorizontal: 1, // HACK: really unclear why this is necessary. leaving here until I figure it out
   },
 //HTML Styles:
   strong: {
