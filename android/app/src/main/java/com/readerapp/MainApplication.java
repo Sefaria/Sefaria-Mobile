@@ -3,13 +3,11 @@ package com.readerapp;
 import android.app.Application;
 
 import com.facebook.react.ReactApplication;
+import com.rnziparchive.RNZipArchivePackage;
 import com.apsl.versionnumber.RNVersionNumberPackage;
-import com.github.yamill.orientation.OrientationPackage;
 import com.babisoft.ReactNativeLocalization.ReactNativeLocalizationPackage;
 import com.idehub.GoogleAnalyticsBridge.GoogleAnalyticsBridgePackage;
 import com.rnfs.RNFSPackage;
-import com.rnziparchive.RNZipArchivePackage;
-import com.facebook.react.ReactInstanceManager;
 import com.facebook.react.ReactNativeHost;
 import com.facebook.react.ReactPackage;
 import com.facebook.react.shell.MainReactPackage;
@@ -30,12 +28,11 @@ public class MainApplication extends Application implements ReactApplication {
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
+            new RNZipArchivePackage(),
             new RNVersionNumberPackage(),
-            new OrientationPackage(),
             new ReactNativeLocalizationPackage(),
             new GoogleAnalyticsBridgePackage(),
-            new RNFSPackage(),
-            new RNZipArchivePackage()
+            new RNFSPackage()
       );
     }
 
