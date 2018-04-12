@@ -91,7 +91,7 @@ class ReaderTextTableOfContents extends React.Component {
           <LanguageToggleButton theme={this.props.theme} toggleLanguage={this.props.toggleLanguage} language={this.props.contentLang} />
         </View>
 
-        <ScrollView style={styles.scrollViewPaddingInOrderToScroll} contentContainerStyle={styles.menuContent}>
+        <ScrollView style={styles.menuContent} contentContainerStyle={{paddingTop: 20,paddingBottom: 40}}>
           <View style={[styles.textTocTopBox, this.props.theme.bordered]}>
             <CategoryAttribution
               categories={categories}
@@ -110,11 +110,13 @@ class ReaderTextTableOfContents extends React.Component {
             </View>
 
 
-            <View>
-            { this.props.contentLang == "hebrew" ?
-              <Text style={[styles.intHe, styles.textTocSectionString, this.props.theme.textTocSectionString]}>{this.sectionString()}</Text> :
-              <Text style={[styles.intEn, styles.textTocSectionString, this.props.theme.textTocSectionString]}>{this.sectionString()}</Text> }
-            </View>
+            { this.props.currentRef ?
+              <View>
+              { this.props.contentLang == "hebrew" ?
+                <Text style={[styles.intHe, styles.textTocSectionString, this.props.theme.textTocSectionString]}>{this.sectionString()}</Text> :
+                <Text style={[styles.intEn, styles.textTocSectionString, this.props.theme.textTocSectionString]}>{this.sectionString()}</Text> }
+              </View> : null
+            }
           </View>
 
           {this.props.textToc ?

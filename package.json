@@ -7,7 +7,9 @@
     "setup": "sudo npm install -g react-native-cli"
   },
   "dependencies": {
+    "abortcontroller-polyfill": "^1.1.8",
     "babel-preset-react-native": "^4.0.0",
+    "eslint": "^4.19.1",
     "fs-extra": "^3.0.1",
     "inquirer": "^3.2.0",
     "performance-now": "^2.1.0",

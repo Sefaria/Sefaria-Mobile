@@ -930,7 +930,7 @@ export default StyleSheet.create({
     paddingTop: 25,
   },
   autocompleteList: {
-    maxHeight: 300,
+    maxHeight: iPad ? 300 : 200,
     paddingTop: 15,
     paddingBottom: 15,
     flexDirection: 'column',
@@ -948,7 +948,7 @@ export default StyleSheet.create({
     alignSelf: 'center',
   },
   scrollViewPaddingInOrderToScroll: {
-    paddingHorizontal: 1, // HACK: really unclear why this is necessary. leaving here until I figure it out
+    marginHorizontal: 1, // HACK: really unclear why this is necessary. leaving here until I figure it out
   },
 //HTML Styles:
   strong: {

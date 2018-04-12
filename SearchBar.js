@@ -48,10 +48,15 @@ class SearchBar extends React.Component {
     if (this.autocompleteRef) {
       this.autocompleteRef.onQueryChange(this.props.query);
     }
-  }
+  };
+  onBlur = () => {
+    if (this.autocompleteRef) {
+      this.autocompleteRef.close();
+    }
+  };
   _getAutocompleteRef = ref => {
     this.autocompleteRef = ref;
-  }
+  };
 
   render() {
     var textInputStyle = [styles.searchInput, this.props.interfaceLang === "hebrew" ? styles.hebrewSystemFont : null, this.props.theme.text];
@@ -77,6 +82,7 @@ class SearchBar extends React.Component {
             onChangeText={this.props.onChange}
             onSubmitEditing={this.submitSearch}
             onFocus={this.onFocus}
+            onBlur={this.onBlur}
             value={this.props.query}
             placeholder={strings.search}
             placeholderTextColor={placeholderTextColor}

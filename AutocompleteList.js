@@ -34,6 +34,14 @@ class AutocompleteList extends React.Component {
     }
   }
 
+  componentDidMount() {
+    this._isMounted = true;
+  }
+
+  componentWillUnmount() {
+    this._isMounted = false;
+  }
+
   componentWillReceiveProps(nextProps) {
     if (this.props.query !== nextProps.query) {
       this.onQueryChange(nextProps.query);
@@ -44,16 +52,20 @@ class AutocompleteList extends React.Component {
     if (q.length >= 3) {
       Sefaria.api.name(q)
       .then(results => {
-        this.setState({completions: results.completions.map(c => ({key: c})), completionsLang: results.lang})
+        if (this._isMounted) {
+          this.setState({completions: results.completions.map(c => ({key: c})), completionsLang: results.lang})
+        }
       })
       .catch(error => {
-        console.log(error);
-        this.setState({completions: []})
+
       })
     } else {
-      this.setState({completions: []})
+      this.setState({completions: []});
     }
   };
+  close = () => {
+    this.setState({completions: []});
+  }
   openRef = query => {
     Sefaria.api.name(query).then(d => {
       // If the query isn't recognized as a ref, but only for reasons of capitalization. Resubmit with recognizable caps.

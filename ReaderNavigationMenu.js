@@ -14,9 +14,10 @@ import {
   CategoryColorLine,
   CategoryBlockLink,
   TwoBox,
-  LanguageToggleButton
+  LanguageToggleButton,
+  Platform,
 } from './Misc.js';
-
+import VersionNumber from 'react-native-version-number';
 import SearchBar from './SearchBar';
 import ReaderNavigationCategoryMenu from './ReaderNavigationCategoryMenu';
 import styles from './Styles.js';
@@ -63,6 +64,14 @@ class ReaderNavigationMenu extends React.Component {
 
   navHome = () => {
     this.props.setCategories([]);
+  };
+
+  getEmailBody = () => {
+    const nDownloaded = Sefaria.downloader.titlesDownloaded().length;
+    const nAvailable  = Sefaria.downloader.titlesAvailable().length;
+    return `App Version: ${VersionNumber.appVersion}\n
+            Texts Downloaded: ${nDownloaded} / ${nAvailable}\n
+            iOS Version: ${Platform.Version}\n\n\n`;
   };
 
   render() {
@@ -144,7 +153,7 @@ class ReaderNavigationMenu extends React.Component {
                 openRef={this.props.openRef}
                 openTextTocDirectly={this.props.openTextTocDirectly}
                 setCategories={this.props.setCategories}/>
-              <ScrollView style={styles.scrollViewPaddingInOrderToScroll} contentContainerStyle={styles.menuScrollViewContent}>
+              <ScrollView style={styles.menuContent} contentContainerStyle={styles.menuScrollViewContent}>
 
                 <RecentSection
                   theme={this.props.theme}
@@ -181,7 +190,7 @@ class ReaderNavigationMenu extends React.Component {
 
                   <Text style={[styles.navBottomLinkDot, this.props.theme.tertiaryText]}>•</Text>
 
-                  <TouchableOpacity onPress={() => {Linking.openURL("mailto:ios@sefaria.org");}}>
+                  <TouchableOpacity onPress={() => {Linking.openURL(`mailto:ios@sefaria.org?subject=iOS App Feedback&body=${this.getEmailBody()}`);}}>
                     <Text style={[isHeb ? styles.heInt : styles.enInt, this.props.theme.tertiaryText]}>{strings.feedback}</Text>
                   </TouchableOpacity>
 

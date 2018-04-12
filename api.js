@@ -1,6 +1,7 @@
 import {
   AlertIOS
 } from 'react-native';
+import 'abortcontroller-polyfill';
 
 const RNFS    = require('react-native-fs'); //for access to file system -- (https://github.com/johanneslumpe/react-native-fs)
 import strings from './LocalizedStrings';
@@ -16,6 +17,7 @@ var Api = {
   _versions: {},
   _translateVersions: {},
   _indexDetails: {},
+  _currentRequests: {}, // object to remember current request in order to abort. keyed by apiType
   _textCacheKey: function(ref, context, versions) {
     return `${ref}|${context}${(!!versions ? (!!versions.en ? `|en:${versions.en}` : "") + (!!versions.he ? `|he:${versions.he}` : "")  : "")}`;
   },
@@ -277,6 +279,7 @@ var Api = {
   },
 
   name: function(name) {
+    Sefaria.api._abortRequestType('name');
     return new Promise((resolve, reject) => {
       const cached = Sefaria.api._nameCache[name];
       if (!!cached) { console.log("cached"); resolve(cached); return; }
@@ -311,15 +314,26 @@ var Api = {
     // given a versionTitle, return the language of the version
     return Sefaria.api._translateVersions[versionTitle]["lang"]
   },
+
+  _abortRequestType: function(apiType) {
+    const controller = Sefaria.api._currentRequests[apiType];
+    if (controller) {
+      controller.abort();
+      Sefaria.api._currentRequests[apiType] = null;
+    }
+  },
   /*
   context is a required param if apiType == 'text'. o/w it's ignored
   versions is object with keys { en, he } specifying version titles
   failSilently - if true, dont display a message if api call fails
   */
   _request: function(ref, apiType, urlify, { context, versions }, failSilently) {
+    const controller = new AbortController();
+    const signal = controller.signal;
+    Sefaria.api._currentRequests[apiType] = controller;
     var url = Sefaria.api._toURL(ref, true, apiType, urlify, { context, versions });
     return new Promise(function(resolve, reject) {
-      fetch(url)
+      fetch(url, {method: 'GET', signal})
       .then(function(response) {
         //console.log('checking response',response.status);
         if (response.status >= 200 && response.status < 300) {
