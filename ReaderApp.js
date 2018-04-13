@@ -388,11 +388,7 @@ class ReaderApp extends React.Component {
           });
 
           // Preload Text TOC data into memory
-          Sefaria.textToc(data.indexTitle).then((textToc) => {
-            this.setState({textToc});
-            // at this point, both book and section level version info is available
-            this.setCurrVersions(data.sectionRef, data.indexTitle); // not positive if this will combine versions well
-          });
+          this.loadTextTocData(data.indexTitle, data.sectionRef);
           Sefaria.saveRecentItem({ref: ref, heRef: data.heRef, category: Sefaria.categoryForRef(ref), versions: this.state.selectedVersions}, this.props.overwriteVersions);
       }.bind(this)).catch(function(error) {
         console.log(error);
@@ -404,6 +400,16 @@ class ReaderApp extends React.Component {
       }.bind(this));
 
   };
+
+  loadTextTocData = (title, sectionRef) => {
+    this.setState({textToc: null}, () => {
+      Sefaria.textToc(title).then(textToc => {
+        this.setState({textToc});
+        // at this point, both book and section level version info is available
+        this.setCurrVersions(sectionRef, title); // not positive if this will combine versions well
+      });
+    });
+  }
 
   removeDefaultVersions = (ref, versions) => {
     if (!versions) return versions;
@@ -652,7 +658,7 @@ class ReaderApp extends React.Component {
 
   openNav = () => {
       this.clearAllSearchFilters();
-      this.setState({loaded: true, appliedSearchFilters: [], searchFiltersValid: false, textListVisible: false});
+      this.setState({loaded: true, appliedSearchFilters: [], searchFiltersValid: false, textListVisible: false, textReference: '', heRef: ''});
       this.openMenu("navigation");
   };
 
@@ -673,6 +679,15 @@ class ReaderApp extends React.Component {
 
   setInitSearchScrollPos = (pos) => {
       this.setState({initSearchScrollPos: pos});
+  };
+
+  openTextTocDirectly = (title) => {
+
+    // used to open text toc witout going throught the reader
+    this.loadTextTocData(title);
+    this.setState({textTitle: title}, () => {  // openTextToc assumes that title is set correctly
+      this.openTextToc();
+    });
   };
 
   openTextToc = () => {
@@ -1063,6 +1078,10 @@ class ReaderApp extends React.Component {
     this.setState({searchSort: sort, searchIsExact: isExact}, cb);
   };
 
+  onChangeSearchQuery = query => {
+    this.setState({searchQuery: query});
+  }
+
   clearAllSearchFilters = () => {
     for (let filterNode of this.state.availableSearchFilters) {
       filterNode.setUnselected(true);
@@ -1078,23 +1097,28 @@ class ReaderApp extends React.Component {
         return (
           loading ?
           <LoadingView theme={this.props.theme} /> :
-          <ReaderNavigationMenu
-            categories={this.state.navigationCategories}
-            setCategories={this.setNavigationCategories}
-            openRef={(ref, versions)=>this.openRef(ref,"navigation", versions)}
-            goBack={this.goBack}
-            openNav={this.openNav}
-            closeNav={this.closeMenu}
-            openSearch={this.search}
-            setIsNewSearch={this.setIsNewSearch}
-            toggleLanguage={this.toggleMenuLanguage}
-            menuLanguage={this.props.menuLanguage}
-            openSettings={this.openMenu.bind(null, "settings")}
-            openRecent={this.openMenu.bind(null, "recent")}
-            interfaceLang={this.state.interfaceLang}
-            theme={this.props.theme}
-            themeStr={this.props.themeStr}/>);
-        break;
+          (<View style={{flex:1, flexDirection: 'row'}}>
+            <ReaderNavigationMenu
+              searchQuery={this.state.searchQuery}
+              categories={this.state.navigationCategories}
+              setCategories={this.setNavigationCategories}
+              openRef={(ref, versions)=>this.openRef(ref,"navigation", versions)}
+              openTextTocDirectly={this.openTextTocDirectly}
+              goBack={this.goBack}
+              openNav={this.openNav}
+              closeNav={this.closeMenu}
+              openSearch={this.search}
+              setIsNewSearch={this.setIsNewSearch}
+              toggleLanguage={this.toggleMenuLanguage}
+              menuLanguage={this.props.menuLanguage}
+              openSettings={this.openMenu.bind(null, "settings")}
+              openRecent={this.openMenu.bind(null, "recent")}
+              interfaceLang={this.state.interfaceLang}
+              onChangeSearchQuery={this.onChangeSearchQuery}
+              theme={this.props.theme}
+              themeStr={this.props.themeStr}/>
+          </View>)
+        );
       case ("text toc"):
         return (
           <ReaderTextTableOfContents
@@ -1143,7 +1167,11 @@ class ReaderApp extends React.Component {
             setInitSearchScrollPos={this.setInitSearchScrollPos}
             clearAllFilters={this.clearAllSearchFilters}
             queryResult={this.state.searchQueryResult}
-            numResults={this.state.numSearchResults} />);
+            numResults={this.state.numSearchResults}
+            openTextTocDirectly={this.openTextTocDirectly}
+            onChangeSearchQuery={this.onChangeSearchQuery}
+            setCategories={this.setNavigationCategories}
+          />);
         break;
       case ("settings"):
         return(
@@ -1265,9 +1293,9 @@ class ReaderApp extends React.Component {
                 onDragMove={this.onTextListDragMove}
                 onDragEnd={this.onTextListDragEnd}
                 textTitle={this.state.textTitle} />
-            </View> : null}
-
-            {this.state.ReaderDisplayOptionsMenuVisible ?
+            </View> : null
+          }
+          {this.state.ReaderDisplayOptionsMenuVisible ?
             (<ReaderDisplayOptionsMenu
               theme={this.props.theme}
               textFlow={this.state.textFlow}
@@ -1282,7 +1310,8 @@ class ReaderApp extends React.Component {
               setTheme={this.setTheme}
               canBeContinuous={Sefaria.canBeContinuous(this.state.textTitle)}
               canHaveAliyot={Sefaria.canHaveAliyot(this.state.textTitle)}
-              themeStr={this.props.themeStr}/>) : null }
+              themeStr={this.props.themeStr}/>) : null
+          }
       </View>);
   }
 

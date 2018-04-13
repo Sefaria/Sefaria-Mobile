@@ -1,6 +1,7 @@
 import {
   AlertIOS
 } from 'react-native';
+import 'abortcontroller-polyfill';
 
 const RNFS    = require('react-native-fs'); //for access to file system -- (https://github.com/johanneslumpe/react-native-fs)
 import strings from './LocalizedStrings';
@@ -12,9 +13,11 @@ var Api = {
   */
   _textCache: {}, //in memory cache for API data
   _linkCache: {},
+  _nameCache: {},
   _versions: {},
   _translateVersions: {},
   _indexDetails: {},
+  _currentRequests: {}, // object to remember current request in order to abort. keyed by apiType
   _textCacheKey: function(ref, context, versions) {
     return `${ref}|${context}${(!!versions ? (!!versions.en ? `|en:${versions.en}` : "") + (!!versions.he ? `|he:${versions.he}` : "")  : "")}`;
   },
@@ -132,7 +135,7 @@ var Api = {
   apiType: string `oneOf(["text","links","index"])`. passing undefined gets the standard Reader URL.
   context is a required param if apiType == 'text'. o/w it's ignored
   */
-  _toURL: function(ref, useHTTPS, apiType, { context, versions }) {
+  _toURL: function(ref, useHTTPS, apiType, urlify, { context, versions }) {
     let url = '';
     if (useHTTPS) {
       url += 'https://www.sefaria.org/';
@@ -162,20 +165,24 @@ var Api = {
         case "versions":
           url += "api/texts/versions/";
           break;
+        case "name":
+          url += "api/name/";
+          //urlSuffix = '?ref_only=0';
+          break;
         default:
           console.error("You passed invalid type: ",apiType," into _toURL()");
           break;
       }
     }
-
-    ref = ref.replace(/:/g,'.').replace(/ /g,'_');
+    if (urlify) {
+      ref = ref.replace(/:/g,'.').replace(/ /g,'_');
+    }
     url += ref + urlSuffix;
-    //console.log("URL",url);
     return url;
   },
   _text: function(ref, { context, versions }) {
     return new Promise((resolve, reject)=>{
-      Sefaria.api._request(ref,'text', { context, versions })
+      Sefaria.api._request(ref,'text', true, { context, versions })
       .then(data => {
         if (context) {
           resolve(Sefaria.api._toIOS({"text": data, "links": [], "ref": ref}));
@@ -195,7 +202,7 @@ var Api = {
       if (ref in Sefaria.api._linkCache) {
         resolve(Sefaria.api._linkCache[ref]);
       } else {
-        Sefaria.api._request(ref,'links', {})
+        Sefaria.api._request(ref,'links', true, {})
         .then((response)=>{
           //console.log("Setting API Link Cache for ",ref)
           //console.log(response)
@@ -220,13 +227,13 @@ var Api = {
     var textResponse = null;
     var linksResponse = null;
     return new Promise(function(resolve,reject) {
-      Sefaria.api._request(ref,'text', {context: true})
+      Sefaria.api._request(ref,'text', true, {context: true})
       .then((response)=>{
         numResponses += 1;
         textResponse = response;
         checkResolve(resolve);
       });
-      Sefaria.api._request(ref,'links', {})
+      Sefaria.api._request(ref,'links', true, {})
       .then((response)=>{
         numResponses += 1;
         linksResponse = response;
@@ -245,8 +252,8 @@ var Api = {
   versions: function(ref, failSilently) {
     return new Promise((resolve, reject) => {
       const cached = Sefaria.api.getCachedVersions(ref);
-      if (!!cached) { resolve(cached); }
-      Sefaria.api._request(ref, 'versions', {}, failSilently)
+      if (!!cached) { resolve(cached); return; }
+      Sefaria.api._request(ref, 'versions', true, {}, failSilently)
         .then(response => {
           const defaultLangsFound = {};
           for (let v of response) {
@@ -270,19 +277,63 @@ var Api = {
         });
     });
   },
+
+  name: function(name) {
+    Sefaria.api._abortRequestType('name');
+    return new Promise((resolve, reject) => {
+      const cached = Sefaria.api._nameCache[name];
+      if (!!cached) { console.log("cached"); resolve(cached); return; }
+      Sefaria.api._request(name, 'name', false, {}, true)
+        .then(response => {
+          Sefaria.api._nameCache[name] = response;
+          resolve(response);
+        })
+        .catch(error=>{
+          console.log("Name API error:", name, error);
+          reject();
+        });
+    });
+  },
+  isACaseVariant: function(query, data) {
+    // Check if query is just an improper capitalization of something that otherwise would be a ref
+    // query: string
+    // data: dictionary, as returned by /api/name
+    return (!(data["is_ref"]) &&
+          data["completions"] &&
+          data["completions"].length &&
+          data["completions"][0] != query &&
+          data["completions"][0].toLowerCase().replace('״','"') == query.slice(0, data["completions"][0].length).toLowerCase().replace('״','"') &&
+          data["completions"][0] != query.slice(0, data["completions"][0].length))
+  },
+  repairCaseVariant: function(query, data) {
+    // Used when isACaseVariant() is true to prepare the alternative
+    return data["completions"][0] + query.slice(data["completions"][0].length);
+  },
+
   versionLanguage: function(versionTitle) {
     // given a versionTitle, return the language of the version
     return Sefaria.api._translateVersions[versionTitle]["lang"]
+  },
+
+  _abortRequestType: function(apiType) {
+    const controller = Sefaria.api._currentRequests[apiType];
+    if (controller) {
+      controller.abort();
+      Sefaria.api._currentRequests[apiType] = null;
+    }
   },
   /*
   context is a required param if apiType == 'text'. o/w it's ignored
   versions is object with keys { en, he } specifying version titles
   failSilently - if true, dont display a message if api call fails
   */
-  _request: function(ref, apiType, { context, versions }, failSilently) {
-    var url = Sefaria.api._toURL(ref, true, apiType, { context, versions });
+  _request: function(ref, apiType, urlify, { context, versions }, failSilently) {
+    const controller = new AbortController();
+    const signal = controller.signal;
+    Sefaria.api._currentRequests[apiType] = controller;
+    var url = Sefaria.api._toURL(ref, true, apiType, urlify, { context, versions });
     return new Promise(function(resolve, reject) {
-      fetch(url)
+      fetch(url, {method: 'GET', signal})
       .then(function(response) {
         //console.log('checking response',response.status);
         if (response.status >= 200 && response.status < 300) {
@@ -312,7 +363,7 @@ var Api = {
             [
               {text: strings.cancel, onPress: () => { reject("Return to Nav"); }, style: 'cancel' },
               {text: strings.tryAgain, onPress: () => {
-                Sefaria.api._request(ref,apiType, { context, versions },failSilently).then(resolve);
+                Sefaria.api._request(ref,apiType, urlify, { context, versions },failSilently).then(resolve);
               }}
             ]
           );

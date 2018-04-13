@@ -536,6 +536,8 @@ class TextColumn extends React.Component {
     } catch (e) {
       if (i < 50) {
         setTimeout(()=>{this.waitForScrollToLocation(i+1)}, 5);
+      } else {
+        this.onScrollToLocation();
       }
       return;
     }
@@ -550,6 +552,8 @@ class TextColumn extends React.Component {
       });*/
     } else if (i < 50) { // if it's running more than 250ms, kill the recursion
       setTimeout(()=>{this.waitForScrollToLocation(i+1)}, 5);
+    } else {
+      this.onScrollToLocation(); // give up
     }
   }
   onScrollToLocation = () => {
@@ -628,6 +632,7 @@ class TextColumn extends React.Component {
     return (
         <View style={styles.textColumn} >
           <SectionList
+            style={styles.scrollViewPaddingInOrderToScroll}
             ref={this._getSectionListRef}
             sections={this.state.dataSource}
             renderItem={this.renderRow}

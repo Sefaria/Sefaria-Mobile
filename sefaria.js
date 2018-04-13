@@ -484,7 +484,7 @@ Sefaria = {
         Sefaria
         ._loadJSON(path)
         .then(resolver)
-        .catch(()=>{Sefaria.api._request(title, 'index', {}).then(resolver)});
+        .catch(()=>{Sefaria.api._request(title, 'index', true, {}).then(resolver)});
       }
     });
   },
@@ -1377,6 +1377,7 @@ Sefaria.hebrewCategory = function(cat) {
     "Writings": "כתובים",
     "Commentary": "מפרשים",
     "Quoting Commentary": "פרשנות מצטטת",
+    "Modern Commentary": "פרשנות מודרנית",
     "Targum": "תרגומים",
     "Mishnah": "משנה",
     "Tosefta": "תוספתא",

@@ -120,6 +120,7 @@ class TextList extends React.Component {
     if (this.state.isNewSegment) { return null; } // hacky way to reset scroll postion
     return (
       <FlatList
+        style={styles.scrollViewPaddingInOrderToScroll}
         data={this.state.dataSource}
         renderItem={this.renderItem}
         contentContainerStyle={{justifyContent: "center"}}

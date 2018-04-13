@@ -36,8 +36,8 @@ class ReaderTextTableOfContents extends React.Component {
     theme:          PropTypes.object.isRequired,
     themeStr:       PropTypes.string.isRequired,
     title:          PropTypes.string.isRequired,
-    currentRef:     PropTypes.string.isRequired,
-    currentHeRef:   PropTypes.string.isRequired,
+    currentRef:     PropTypes.string,
+    currentHeRef:   PropTypes.string,
     openRef:        PropTypes.func.isRequired,
     close:          PropTypes.func.isRequired,
     textLang:       PropTypes.oneOf(["english","hebrew"]).isRequired,
@@ -56,12 +56,15 @@ class ReaderTextTableOfContents extends React.Component {
                         null;
 
     if (this.props.contentLang == "hebrew") {
+      if (!this.props.currentHeRef) { return "";}
       var trimmer = new RegExp("^(" + textToc.heTitle + "),? ");
       var sectionString = this.props.currentHeRef.replace(trimmer, '');
       if (sectionName) {
         sectionString = Sefaria.hebrewSectionName(sectionName) + " " + sectionString;
       }
     } else {
+      if (!this.props.currentRef) { return "";}
+
       var trimmer = new RegExp("^(" + textToc.title + "),? ");
       var sectionString = this.props.currentRef.replace(trimmer, '');
       if (sectionName) {
@@ -88,7 +91,7 @@ class ReaderTextTableOfContents extends React.Component {
           <LanguageToggleButton theme={this.props.theme} toggleLanguage={this.props.toggleLanguage} language={this.props.contentLang} />
         </View>
 
-        <ScrollView contentContainerStyle={styles.menuContent}>
+        <ScrollView style={styles.menuContent} contentContainerStyle={{paddingTop: 20,paddingBottom: 40}}>
           <View style={[styles.textTocTopBox, this.props.theme.bordered]}>
             <CategoryAttribution
               categories={categories}
@@ -107,11 +110,13 @@ class ReaderTextTableOfContents extends React.Component {
             </View>
 
 
-            <View>
-            { this.props.contentLang == "hebrew" ?
-              <Text style={[styles.intHe, styles.textTocSectionString, this.props.theme.textTocSectionString]}>{this.sectionString()}</Text> :
-              <Text style={[styles.intEn, styles.textTocSectionString, this.props.theme.textTocSectionString]}>{this.sectionString()}</Text> }
-            </View>
+            { this.props.currentRef ?
+              <View>
+              { this.props.contentLang == "hebrew" ?
+                <Text style={[styles.intHe, styles.textTocSectionString, this.props.theme.textTocSectionString]}>{this.sectionString()}</Text> :
+                <Text style={[styles.intEn, styles.textTocSectionString, this.props.theme.textTocSectionString]}>{this.sectionString()}</Text> }
+              </View> : null
+            }
           </View>
 
           {this.props.textToc ?

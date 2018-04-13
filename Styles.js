@@ -396,7 +396,7 @@ export default StyleSheet.create({
   menuContent: {
     paddingHorizontal: iPad ? 20 : 10,
     paddingTop: 20,
-    paddingBottom: 40
+    paddingBottom: 40,
   },
   menuScrollViewContent: {
     paddingBottom: 100,
@@ -928,6 +928,27 @@ export default StyleSheet.create({
   },
   currVersionSection: {
     paddingTop: 25,
+  },
+  autocompleteList: {
+    maxHeight: iPad ? 300 : 200,
+    paddingTop: 15,
+    paddingBottom: 15,
+    flexDirection: 'column',
+    borderBottomWidth: 1,
+  },
+  autocompleteItem: {
+    fontSize: 20,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    flex: 1,
+  },
+  autocompleteItemIcon: {
+    width: 20,
+    height: 20,
+    alignSelf: 'center',
+  },
+  scrollViewPaddingInOrderToScroll: {
+    marginHorizontal: 1, // HACK: really unclear why this is necessary. leaving here until I figure it out
   },
 //HTML Styles:
   strong: {
