@@ -34,14 +34,14 @@ class SwipeableCategoryList extends React.Component {
     toggleLanguage:     PropTypes.func.isRequired,
     openRef:            PropTypes.func.isRequired,
     language:           PropTypes.oneOf(["english","hebrew"]),
+    data:               PropTypes.array.isRequired,
+    onRemove:           PropTypes.func.isRequired,
+    title:              PropTypes.string.isRequired,
   };
 
   constructor(props) {
     super(props);
     this._rowRefs = {};
-    this.state = {
-      historyItems: Sefaria.recent,
-    }
   }
 
   removeItem = (item) => {
@@ -49,11 +49,6 @@ class SwipeableCategoryList extends React.Component {
     if (ref) {
       ref.remove();
     }
-  }
-
-  onRemove = (item) => {
-    Sefaria.removeRecentItem(item);
-    this.setState({ historyItems: Sefaria.recent });
   }
 
   _getRowRef = (ref, item) => {
@@ -71,7 +66,7 @@ class SwipeableCategoryList extends React.Component {
   );
 
   renderRow = ({ item }) => (
-      <AnimatedRow ref={ref => { this._getRowRef(ref, item); }} animationDuration={250} onRemove={() => { this.onRemove(item); }}>
+      <AnimatedRow ref={ref => { this._getRowRef(ref, item); }} animationDuration={250} onRemove={() => { this.props.onRemove(item); }}>
         <CategorySideColorLink
           theme={this.props.theme}
           category={item.category}
@@ -99,7 +94,7 @@ class SwipeableCategoryList extends React.Component {
             imageStyle={[styles.menuButton, styles.directedButton]}
             direction="back"
             language="english"/>
-          <Text style={[styles.textTocHeaderTitle, styles.textCenter, this.props.theme.text]}>{strings.history}</Text>
+          <Text style={[styles.textTocHeaderTitle, styles.textCenter, this.props.theme.text]}>{this.props.title}</Text>
           <LanguageToggleButton
             theme={this.props.theme}
             toggleLanguage={this.props.toggleLanguage}
@@ -109,7 +104,7 @@ class SwipeableCategoryList extends React.Component {
         </View>
 
         <SwipeableFlatList
-          data={this.state.historyItems}
+          data={this.props.data}
           renderItem={this.renderRow}
           keyExtractor={this._keyExtractor}
           bounceFirstRowOnMount={true}

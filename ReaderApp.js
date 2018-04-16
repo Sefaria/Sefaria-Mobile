@@ -54,7 +54,7 @@ class ReaderApp extends React.Component {
           loaded: true,
           defaultSettingsLoaded: true,
         });
-        const mostRecent =  Sefaria.recent.length ? Sefaria.recent[0] : {ref: "Genesis 1"};
+        const mostRecent =  Sefaria.history.length ? Sefaria.history[0] : {ref: "Genesis 1"};
         this.openRef(mostRecent.ref, null, mostRecent.versions);
     });
     Sefaria.track.init();
@@ -319,7 +319,7 @@ class ReaderApp extends React.Component {
         stateObj.textListVisible = !this.state.textListVisible;
         stateObj.offsetRef = null; //offsetRef is used to highlight. once you open textlist, you should remove the highlight
       }
-      Sefaria.saveRecentItem({ref: segmentRef, heRef: this.state.heRef, category: Sefaria.categoryForRef(segmentRef), versions: this.state.selectedVersions}, this.props.overwriteVersions);
+      Sefaria.saveHistoryItem({ref: segmentRef, heRef: this.state.heRef, category: Sefaria.categoryForRef(segmentRef), versions: this.state.selectedVersions}, this.props.overwriteVersions);
       this.setState(stateObj);
       this.forceUpdate();
   };
@@ -389,7 +389,7 @@ class ReaderApp extends React.Component {
 
           // Preload Text TOC data into memory
           this.loadTextTocData(data.indexTitle, data.sectionRef);
-          Sefaria.saveRecentItem({ref: ref, heRef: data.heRef, category: Sefaria.categoryForRef(ref), versions: this.state.selectedVersions}, this.props.overwriteVersions);
+          Sefaria.saveHistoryItem({ref: ref, heRef: data.heRef, category: Sefaria.categoryForRef(ref), versions: this.state.selectedVersions}, this.props.overwriteVersions);
       }.bind(this)).catch(function(error) {
         console.log(error);
         if (error == "Return to Nav") {
@@ -573,8 +573,8 @@ class ReaderApp extends React.Component {
         heRef: heRef
       });
       if (!this.state.textListVisible) {
-        // otherwise saveRecentItem is called in textListPressed
-        Sefaria.saveRecentItem({ref: ref, heRef: heRef, category: Sefaria.categoryForRef(ref)});
+        // otherwise saveHistoryItem is called in textListPressed
+        Sefaria.saveHistoryItem({ref: ref, heRef: heRef, category: Sefaria.categoryForRef(ref)});
       }
   };
 
@@ -599,8 +599,8 @@ class ReaderApp extends React.Component {
     }
     if (!versions && overwriteVersions) {
       //pull up default versions
-      const recentItem = Sefaria.getRecentRefForTitle(title);
-      if (!!recentItem) { versions = recentItem.versions; }
+      const historyItem = Sefaria.getHistoryRefForTitle(title);
+      if (!!historyItem) { versions = historyItem.versions; }
     }
 
 
@@ -1088,6 +1088,7 @@ class ReaderApp extends React.Component {
     }
     this.setState({appliedSearchFilters: this.getAppliedSearchFilters(this.state.availableSearchFilters)});
   };
+
   renderContent() {
     const loading = !this.state.loaded;
     switch(this.state.menuOpen) {
@@ -1112,7 +1113,7 @@ class ReaderApp extends React.Component {
               toggleLanguage={this.toggleMenuLanguage}
               menuLanguage={this.props.menuLanguage}
               openSettings={this.openMenu.bind(null, "settings")}
-              openRecent={this.openMenu.bind(null, "recent")}
+              openHistory={this.openMenu.bind(null, "history")}
               interfaceLang={this.state.interfaceLang}
               onChangeSearchQuery={this.onChangeSearchQuery}
               theme={this.props.theme}
@@ -1181,7 +1182,7 @@ class ReaderApp extends React.Component {
             interfaceLang={this.state.interfaceLang}
           />);
         break;
-      case ("recent"):
+      case ("history"):
         return(
           <SwipeableCategoryList
             close={this.openNav}
@@ -1189,9 +1190,27 @@ class ReaderApp extends React.Component {
             themeStr={this.props.themeStr}
             toggleLanguage={this.toggleMenuLanguage}
             openRef={this.openRef}
-            language={this.props.menuLanguage}/>
+            language={this.props.menuLanguage}
+            data={Sefaria.history}
+            onRemove={Sefaria.removeHistoryItem}
+            title={strings.history}
+          />
         );
         break;
+      case ("saved"):
+        return(
+          <SwipeableCategoryList
+            close={this.openNav}
+            theme={this.props.theme}
+            themeStr={this.props.themeStr}
+            toggleLanguage={this.toggleMenuLanguage}
+            openRef={this.openRef}
+            language={this.props.menuLanguage}
+            data={Sefaria.saved}
+            onRemove={Sefaria.removedSavedItem}
+            title={strings.saved}
+          />
+        );
     }
     let textColumnFlex = this.state.textListVisible ? 1.0 - this.state.textListFlex : 1.0;
     return (

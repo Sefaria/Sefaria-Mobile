@@ -175,7 +175,7 @@ class ReaderNavigationCategoryMenuContents extends React.Component {
           var title   = item.title.replace(/^(Mishneh Torah,|Shulchan Arukh,|Jerusalem Talmud|Mishnah(?! Berurah)|Tosefta) /, "");
           var heTitle = item.heTitle.replace(/^(משנה תורה,|תלמוד ירושלמי|משנה(?! ברורה)|תוספתא) /, "");
 
-          var refToOpen = Sefaria.getRecentRefForTitle(item.title);
+          var refToOpen = Sefaria.getHistoryRefForTitle(item.title);
           if (!refToOpen) {
             refToOpen = { ref: item.firstSection };
           }

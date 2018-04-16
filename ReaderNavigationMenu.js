@@ -40,7 +40,7 @@ class ReaderNavigationMenu extends React.Component {
     openSearch:     PropTypes.func.isRequired,
     setIsNewSearch: PropTypes.func.isRequired,
     openSettings:   PropTypes.func.isRequired,
-    openRecent:     PropTypes.func.isRequired,
+    openHistory:     PropTypes.func.isRequired,
     toggleLanguage: PropTypes.func.isRequired,
     onChangeSearchQuery:PropTypes.func.isRequired,
     searchQuery:    PropTypes.string.isRequired,
@@ -166,7 +166,7 @@ class ReaderNavigationMenu extends React.Component {
                     style={{borderTopWidth: 0, paddingVertical: 12}}
                     isSans={true}
                     icon={isWhite ? require('./img/clock.png') : require('./img/clock-light.png')}
-                    onPress={this.props.openRecent}
+                    onPress={this.props.openHistory}
                   />
                   <CategoryBlockLink
                     theme={this.props.theme}
@@ -176,7 +176,7 @@ class ReaderNavigationMenu extends React.Component {
                     style={{borderTopWidth: 0, paddingVertical: 12}}
                     isSans={true}
                     icon={isWhite ? require('./img/starUnfilled.png') : require('./img/starUnfilled-light.png')}
-                    onPress={this.props.openRecent}
+                    onPress={this.props.openHistory}
                   />
                 </View>
 

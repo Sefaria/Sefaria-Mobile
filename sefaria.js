@@ -21,7 +21,7 @@ Sefaria = {
       Sefaria._loadTOC(),
       Sefaria.search._loadSearchTOC(),
       Sefaria._loadHebrewCategories(),
-      Sefaria._loadRecentItems(),
+      Sefaria._loadHistoryItems(),
       Sefaria._loadCalendar(),
       Sefaria.downloader.init(),
       initAsyncStorage(),
@@ -565,10 +565,10 @@ Sefaria = {
 
     return month + '/' + day + '/' + year;
   },
-  recent: null,
-  saveRecentItem: function(item, overwriteVersions) {
+  history: null,
+  saveHistoryItem: function(item, overwriteVersions) {
     const itemTitle = Sefaria.textTitleForRef(item.ref);
-    let items = Sefaria.recent || [];
+    let items = Sefaria.history || [];
     const existingItemIndex = items.findIndex(existing => Sefaria.textTitleForRef(existing.ref) === itemTitle);
     if (existingItemIndex !== -1) {
       if (!overwriteVersions) {
@@ -577,27 +577,27 @@ Sefaria = {
       items.splice(existingItemIndex, 1);
     }
     items = [item].concat(items);
-    Sefaria.recent = items;
+    Sefaria.history = items;
     AsyncStorage.setItem("recent", JSON.stringify(items)).catch(function(error) {
       console.error("AsyncStorage failed to save: " + error);
     });
   },
-  removeRecentItem: function(item) {
+  removeHistoryItem: function(item) {
     const itemTitle = Sefaria.textTitleForRef(item.ref);
-    let items = Sefaria.recent || [];
+    let items = Sefaria.history || [];
     const existingItemIndex = items.findIndex(existing => Sefaria.textTitleForRef(existing.ref) === itemTitle);
     if (existingItemIndex !== -1) {
       items.splice(existingItemIndex, 1);
     }
-    Sefaria.recent = items;
+    Sefaria.history = items;
     AsyncStorage.setItem("recent", JSON.stringify(items)).catch(function(error) {
       console.error("AsyncStorage failed to save: " + error);
     });
   },
-  getRecentRefForTitle: function(title) {
-    //given an index title, return the ref of that title in Sefaria.recent.
+  getHistoryRefForTitle: function(title) {
+    //given an index title, return the ref of that title in Sefaria.history.
     //if it doesn't exist, return null
-    var items = Sefaria.recent || [];
+    var items = Sefaria.history || [];
     items = items.filter(function(existing) {
       return Sefaria.textTitleForRef(existing.ref) === title;
     });
@@ -609,9 +609,9 @@ Sefaria = {
     }
 
   },
-  _loadRecentItems: function() {
+  _loadHistoryItems: function() {
     return AsyncStorage.getItem("recent").then(function(data) {
-      Sefaria.recent = JSON.parse(data) || [];
+      Sefaria.history = JSON.parse(data) || [];
     });
   },
   _deleteUnzippedFiles: function() {
