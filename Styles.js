@@ -230,6 +230,17 @@ export default StyleSheet.create({
     height: 12,
     paddingRight: 20
   },
+  categoryBlockLinkIconSansEn: {
+    width: 15,
+    height: 15,
+    paddingLeft: 25,
+    marginBottom: 0,
+  },
+  categoryBlockLinkIconSansHe: {
+    width: 15,
+    height: 15,
+    paddingRight: 25,
+  },
   collapseArrowEn: {
     width: 12,
     height: 12,
@@ -942,13 +953,20 @@ export default StyleSheet.create({
     paddingVertical: 10,
     flex: 1,
   },
-  autocompleteItemIcon: {
+  starIcon: {
     width: 20,
     height: 20,
-    alignSelf: 'center',
+    marginHorizontal: 5,
   },
   scrollViewPaddingInOrderToScroll: {
     marginHorizontal: 1, // HACK: really unclear why this is necessary. leaving here until I figure it out
+  },
+  categorySideColorLink: {
+    flex:1,
+    flexDirection: 'row',
+    borderBottomWidth: 1,
+    paddingVertical: 10,
+    paddingHorizontal: 10,
   },
 //HTML Styles:
   strong: {

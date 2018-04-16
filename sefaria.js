@@ -22,6 +22,7 @@ Sefaria = {
       Sefaria.search._loadSearchTOC(),
       Sefaria._loadHebrewCategories(),
       Sefaria._loadHistoryItems(),
+      Sefaria._loadSavedItems(),
       Sefaria._loadCalendar(),
       Sefaria.downloader.init(),
       initAsyncStorage(),
@@ -612,6 +613,39 @@ Sefaria = {
   _loadHistoryItems: function() {
     return AsyncStorage.getItem("recent").then(function(data) {
       Sefaria.history = JSON.parse(data) || [];
+    });
+  },
+  saved: [],
+  _hasSwipeDeleted: false,
+  saveSavedItem: function(item) {
+    items = [item].concat(Sefaria.saved);
+    Sefaria.saved = items;
+    AsyncStorage.setItem("saved", JSON.stringify(items)).catch(function(error) {
+      console.error("AsyncStorage failed to save: " + error);
+    });
+  },
+  removeSavedItem: function(item) {
+    const existingItemIndex = Sefaria.indexOfSaved(item.ref)
+    if (existingItemIndex !== -1) {
+      Sefaria.saved.splice(existingItemIndex, 1);
+    }
+    AsyncStorage.setItem("saved", JSON.stringify(Sefaria.saved)).catch(function(error) {
+      console.error("AsyncStorage failed to save: " + error);
+    });
+    Sefaria._hasSwipeDeleted = true;
+    AsyncStorage.setItem("hasSwipeDeleted", "true").catch(function(error) {
+      console.error("AsyncStorage failed to save: " + error);
+    });
+  },
+  indexOfSaved: function(ref) {
+    return Sefaria.saved.findIndex(existing => ref === existing.ref);
+  },
+  _loadSavedItems: function() {
+    AsyncStorage.getItem("hasSwipeDeleted").then(function(data) {
+      Sefaria._hasSwipeDeleted = JSON.parse(data) || false;
+    });
+    return AsyncStorage.getItem("saved").then(function(data) {
+      Sefaria.saved = JSON.parse(data) || [];
     });
   },
   _deleteUnzippedFiles: function() {

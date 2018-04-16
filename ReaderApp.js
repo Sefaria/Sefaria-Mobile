@@ -1114,6 +1114,7 @@ class ReaderApp extends React.Component {
               menuLanguage={this.props.menuLanguage}
               openSettings={this.openMenu.bind(null, "settings")}
               openHistory={this.openMenu.bind(null, "history")}
+              openSaved={this.openMenu.bind(null, "saved")}
               interfaceLang={this.state.interfaceLang}
               onChangeSearchQuery={this.onChangeSearchQuery}
               theme={this.props.theme}
@@ -1207,7 +1208,7 @@ class ReaderApp extends React.Component {
             openRef={this.openRef}
             language={this.props.menuLanguage}
             data={Sefaria.saved}
-            onRemove={Sefaria.removedSavedItem}
+            onRemove={Sefaria.removeSavedItem}
             title={strings.saved}
           />
         );
@@ -1218,7 +1219,8 @@ class ReaderApp extends React.Component {
           <CategoryColorLine category={Sefaria.categoryForTitle(this.state.textTitle)} />
           <ReaderControls
             theme={this.props.theme}
-            title={this.props.menuLanguage == "hebrew" ? this.state.heRef : this.state.textReference}
+            enRef={this.state.textReference}
+            heRef={this.state.heRef}
             language={this.props.menuLanguage}
             categories={Sefaria.categoriesForTitle(this.state.textTitle)}
             openNav={this.openNav}

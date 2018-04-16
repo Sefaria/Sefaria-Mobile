@@ -69,6 +69,7 @@ class SwipeableCategoryList extends React.Component {
       <AnimatedRow ref={ref => { this._getRowRef(ref, item); }} animationDuration={250} onRemove={() => { this.props.onRemove(item); }}>
         <CategorySideColorLink
           theme={this.props.theme}
+          themeStr={this.props.themeStr}
           category={item.category}
           enText={item.ref}
           heText={item.heRef}
@@ -107,10 +108,11 @@ class SwipeableCategoryList extends React.Component {
           data={this.props.data}
           renderItem={this.renderRow}
           keyExtractor={this._keyExtractor}
-          bounceFirstRowOnMount={true}
+          bounceFirstRowOnMount={!Sefaria._hasSwipeDeleted}
           maxSwipeDistance={90}
           renderQuickActions={this.renderDeleteButton}
           contentContainerStyle={styles.readerNavSectio}
+          language={this.props.language}
         />
       </View>
     );

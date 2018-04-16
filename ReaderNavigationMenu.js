@@ -40,7 +40,8 @@ class ReaderNavigationMenu extends React.Component {
     openSearch:     PropTypes.func.isRequired,
     setIsNewSearch: PropTypes.func.isRequired,
     openSettings:   PropTypes.func.isRequired,
-    openHistory:     PropTypes.func.isRequired,
+    openHistory:    PropTypes.func.isRequired,
+    openSaved:      PropTypes.func.isRequired,
     toggleLanguage: PropTypes.func.isRequired,
     onChangeSearchQuery:PropTypes.func.isRequired,
     searchQuery:    PropTypes.string.isRequired,
@@ -176,7 +177,7 @@ class ReaderNavigationMenu extends React.Component {
                     style={{borderTopWidth: 0, paddingVertical: 12}}
                     isSans={true}
                     icon={isWhite ? require('./img/starUnfilled.png') : require('./img/starUnfilled-light.png')}
-                    onPress={this.props.openHistory}
+                    onPress={this.props.openSaved}
                   />
                 </View>
 

@@ -59,20 +59,21 @@ class CategoryBlockLink extends React.Component {
   };
 
   render() {
+    const isHeb = this.props.language == "hebrew";
     var style  = this.props.style || {"borderColor": Sefaria.palette.categoryColor(this.props.category)};
     var enText = this.props.upperCase ? this.props.category.toUpperCase() : this.props.category;
     var heText = this.props.heCat || Sefaria.hebrewCategory(this.props.category);
     var textStyle  = [styles.centerText, this.props.theme.text, this.props.upperCase ? styles.spacedText : null];
-    var content = this.props.language == "english"?
-      (<Text style={[this.props.isSans ? styles.enInt : styles.englishText].concat(textStyle)}>{enText}</Text>) :
-      (<Text style={[this.props.isSans ? styles.heInt : styles.hebrewText].concat(textStyle)}>{heText}</Text>);
+    var content = isHeb ?
+      (<Text style={[this.props.isSans ? styles.heInt : styles.hebrewText].concat(textStyle)}>{heText}</Text>) :
+      (<Text style={[this.props.isSans ? styles.enInt : styles.englishText].concat(textStyle)}>{enText}</Text>);
     return (<TouchableOpacity onPress={this.props.onPress} style={[styles.readerNavCategory, this.props.theme.readerNavCategory, style]}>
               <Image source={ this.props.withArrow || !this.props.icon ? (this.props.themeStr == "white" ? require('./img/back.png') : require('./img/back-light.png')) : this.props.icon }
-                style={[styles.moreArrowHe, this.props.language === "english" || (!this.props.withArrow && !this.props.icon) ? {opacity: 0} : null]}
+                style={[styles.moreArrowHe, this.props.isSans ? styles.categoryBlockLinkIconSansHe : null, !isHeb || (!this.props.withArrow && !this.props.icon) ? {opacity: 0} : null]}
                 resizeMode={Image.resizeMode.contain} />
               {content}
               <Image source={ this.props.withArrow || !this.props.icon ? (this.props.themeStr == "white" ? require('./img/forward.png'): require('./img/forward-light.png')) : this.props.icon }
-                style={[styles.moreArrowEn, this.props.language === "hebrew" || (!this.props.withArrow && !this.props.icon) ? {opacity: 0} : null]}
+                style={[styles.moreArrowEn, this.props.isSans ? styles.categoryBlockLinkIconSansEn : null, isHeb || (!this.props.withArrow && !this.props.icon) ? {opacity: 0} : null]}
                 resizeMode={Image.resizeMode.contain} />
             </TouchableOpacity>);
   }
@@ -81,6 +82,7 @@ class CategoryBlockLink extends React.Component {
 class CategorySideColorLink extends React.Component {
   static propTypes = {
     theme:      PropTypes.object.isRequired,
+    themeStr:   PropTypes.string.isRequired,
     language:   PropTypes.string.isRequired,
     category:   PropTypes.string.isRequired,
     enText:     PropTypes.string.isRequired,
@@ -89,15 +91,19 @@ class CategorySideColorLink extends React.Component {
   }
 
   render() {
+    const { theme, themeStr } = this.props;
     const isHeb = this.props.language === 'hebrew';
-    const style  = {"borderLeftColor": Sefaria.palette.categoryColor(this.props.category)};
+    const borderSide = isHeb ? "Right" : "Left";
+    const style  = {
+      [`border${borderSide}Color`]: Sefaria.palette.categoryColor(this.props.category),
+      [`border${borderSide}Width`]: 4,
+      justifyContent: isHeb ? 'flex-end' : 'flex-start',
+    };
     const text = isHeb ? (this.props.heText || Sefaria.hebrewCategory(this.props.category)) : this.props.enText;
 
     return (
-      <TouchableHighlight underlayColor={'white'} style={[{flex:1, flexDirection: 'row', borderLeftWidth: 4, borderBottomWidth: 1,
-          paddingVertical: 10,
-          paddingHorizontal: 10, borderBottomColor: '#eee', backgroundColor: '#F9F9F7'}, style]} onPress={this.props.onPress}>
-        <Text style={[isHeb ? styles.hebrewText : styles.englishText, this.props.theme.text]}>{text}</Text>
+      <TouchableHighlight underlayColor={themeStr} style={[styles.categorySideColorLink, style, theme.menu, theme.borderedBottom]} onPress={this.props.onPress}>
+        <Text style={[isHeb ? styles.hebrewText : styles.englishText, theme.text]}>{text}</Text>
       </TouchableHighlight>
     )
   }

@@ -3,6 +3,7 @@ import LocalizedStrings from 'react-native-localization';
 export default new LocalizedStrings({
   en: {
     history: "HISTORY",
+    saved: "SAVED",
     browse: "BROWSE",
     calendar: "CALENDAR",
     settings: "Settings",
@@ -107,6 +108,7 @@ export default new LocalizedStrings({
   },
   he: {
     history: "היסטוריה",
+    saved: "שמורים",
     browse: "טקסטים",
     calendar: "לוח יומי",
     settings: "הגדרות",
