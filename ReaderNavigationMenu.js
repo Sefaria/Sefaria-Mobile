@@ -75,6 +75,8 @@ class ReaderNavigationMenu extends React.Component {
   };
 
   render() {
+    const isWhite = this.props.themeStr === "white";
+
     if (this.props.categories.length) {
       // List of Text in a Category
       return (<ReaderNavigationCategoryMenu
@@ -155,12 +157,28 @@ class ReaderNavigationMenu extends React.Component {
                 setCategories={this.props.setCategories}/>
               <ScrollView style={styles.menuContent} contentContainerStyle={styles.menuScrollViewContent}>
 
-                <RecentSection
-                  theme={this.props.theme}
-                  openRef={this.props.openRef}
-                  language={this.props.menuLanguage}
-                  interfaceLang={this.props.interfaceLang}
-                  openRecent={this.props.openRecent} />
+                <View style={{flex:1, flexDirection: 'row'}}>
+                  <CategoryBlockLink
+                    theme={this.props.theme}
+                    category={"History"}
+                    heCat={"היסטוריה"}
+                    language={this.props.menuLanguage}
+                    style={{borderTopWidth: 0, paddingVertical: 12}}
+                    isSans={true}
+                    icon={isWhite ? require('./img/clock.png') : require('./img/clock-light.png')}
+                    onPress={this.props.openRecent}
+                  />
+                  <CategoryBlockLink
+                    theme={this.props.theme}
+                    category={"Saved"}
+                    heCat={"שמורים"}
+                    language={this.props.menuLanguage}
+                    style={{borderTopWidth: 0, paddingVertical: 12}}
+                    isSans={true}
+                    icon={isWhite ? require('./img/starUnfilled.png') : require('./img/starUnfilled-light.png')}
+                    onPress={this.props.openRecent}
+                  />
+                </View>
 
                 <ReaderNavigationMenuSection
                   theme={this.props.theme}
@@ -206,51 +224,6 @@ class ReaderNavigationMenu extends React.Component {
   }
 }
 
-class RecentSection extends React.Component {
-  static propTypes = {
-    theme:         PropTypes.object.isRequired,
-    openRef:       PropTypes.func.isRequired,
-    interfaceLang: PropTypes.string.isRequired,
-    language:      PropTypes.string.isRequired,
-    openRecent:    PropTypes.func.isRequired,
-  };
-
-  render() {
-    if (!Sefaria.recent || !Sefaria.recent.length) { return null; }
-
-    let recent = Sefaria.recent.slice(0,3).map(function(item) {
-      return (<CategoryBlockLink
-                    theme={this.props.theme}
-                    category={item.ref}
-                    heCat={item.heRef}
-                    language={this.props.language}
-                    style={{"borderColor": Sefaria.palette.categoryColor(item.category)}}
-                    onPress={()=>{ this.props.openRef(item.ref, item.versions); }}
-                    key={item.ref} />);
-    }.bind(this));
-
-    var more = (<CategoryBlockLink
-                  theme={this.props.theme}
-                  category={"More"}
-                  heCat={"עוד"}
-                  upperCase={true}
-                  language={this.props.language}
-                  onPress={this.props.openRecent}
-                  withArrow={true}
-                  key={"More"} />);
-
-    recent = recent.concat(more);
-
-    return (<ReaderNavigationMenuSection
-              hasmore={false}
-              theme={this.props.theme}
-              title={strings.recent}
-              heTitle={strings.recent}
-              content={<TwoBox content={recent} language={this.props.language}/>}
-              interfaceLang={this.props.interfaceLang}
-              moreClick={this.props.openRecent} />);
-  }
-}
 
 class CalendarSection extends React.Component {
   static propTypes = {

@@ -2,7 +2,7 @@ import LocalizedStrings from 'react-native-localization';
 
 export default new LocalizedStrings({
   en: {
-    recent: "RECENT",
+    history: "HISTORY",
     browse: "BROWSE",
     calendar: "CALENDAR",
     settings: "Settings",
@@ -106,7 +106,7 @@ export default new LocalizedStrings({
     color: "Color",
   },
   he: {
-    recent: "נצפו לאחרונה",
+    history: "היסטוריה",
     browse: "טקסטים",
     calendar: "לוח יומי",
     settings: "הגדרות",

@@ -7,11 +7,13 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
+  TouchableHighlight,
   View,
   Image,
   ActivityIndicator,
   ViewPropTypes,
   Linking,
+  Animated,
 } from 'react-native';
 
 import Sefaria from './sefaria';
@@ -46,11 +48,14 @@ class CategoryBlockLink extends React.Component {
   static propTypes = {
     theme:     PropTypes.object.isRequired,
     category:  PropTypes.string,
+    heCat:     PropTypes.string,
     language:  PropTypes.string,
     style:     PropTypes.object,
+    isSans:    PropTypes.bool,
     upperCase: PropTypes.bool,
     withArrow: PropTypes.bool,
     onPress:   PropTypes.func,
+    icon:      PropTypes.number,
   };
 
   render() {
@@ -59,17 +64,96 @@ class CategoryBlockLink extends React.Component {
     var heText = this.props.heCat || Sefaria.hebrewCategory(this.props.category);
     var textStyle  = [styles.centerText, this.props.theme.text, this.props.upperCase ? styles.spacedText : null];
     var content = this.props.language == "english"?
-      (<Text style={[styles.englishText].concat(textStyle)}>{enText}</Text>) :
-      (<Text style={[styles.hebrewText].concat(textStyle)}>{heText}</Text>);
+      (<Text style={[this.props.isSans ? styles.enInt : styles.englishText].concat(textStyle)}>{enText}</Text>) :
+      (<Text style={[this.props.isSans ? styles.heInt : styles.hebrewText].concat(textStyle)}>{heText}</Text>);
     return (<TouchableOpacity onPress={this.props.onPress} style={[styles.readerNavCategory, this.props.theme.readerNavCategory, style]}>
-              <Image source={this.props.themeStr == "white" ? require('./img/back.png'): require('./img/back-light.png') }
-                style={[styles.moreArrowHe, this.props.language === "english" || !this.props.withArrow ? {opacity: 0} : null]}
+              <Image source={ this.props.withArrow || !this.props.icon ? (this.props.themeStr == "white" ? require('./img/back.png') : require('./img/back-light.png')) : this.props.icon }
+                style={[styles.moreArrowHe, this.props.language === "english" || (!this.props.withArrow && !this.props.icon) ? {opacity: 0} : null]}
                 resizeMode={Image.resizeMode.contain} />
               {content}
-              <Image source={this.props.themeStr == "white" ? require('./img/forward.png'): require('./img/forward-light.png') }
-                style={[styles.moreArrowEn, this.props.language === "hebrew" || !this.props.withArrow ? {opacity: 0} : null]}
+              <Image source={ this.props.withArrow || !this.props.icon ? (this.props.themeStr == "white" ? require('./img/forward.png'): require('./img/forward-light.png')) : this.props.icon }
+                style={[styles.moreArrowEn, this.props.language === "hebrew" || (!this.props.withArrow && !this.props.icon) ? {opacity: 0} : null]}
                 resizeMode={Image.resizeMode.contain} />
             </TouchableOpacity>);
+  }
+}
+
+class CategorySideColorLink extends React.Component {
+  static propTypes = {
+    theme:      PropTypes.object.isRequired,
+    language:   PropTypes.string.isRequired,
+    category:   PropTypes.string.isRequired,
+    enText:     PropTypes.string.isRequired,
+    heText:     PropTypes.string,
+    onPress:    PropTypes.func.isRequired,
+  }
+
+  render() {
+    const isHeb = this.props.language === 'hebrew';
+    const style  = {"borderLeftColor": Sefaria.palette.categoryColor(this.props.category)};
+    const text = isHeb ? (this.props.heText || Sefaria.hebrewCategory(this.props.category)) : this.props.enText;
+
+    return (
+      <TouchableHighlight underlayColor={'white'} style={[{flex:1, flexDirection: 'row', borderLeftWidth: 4, borderBottomWidth: 1,
+          paddingVertical: 10,
+          paddingHorizontal: 10, borderBottomColor: '#eee', backgroundColor: '#F9F9F7'}, style]} onPress={this.props.onPress}>
+        <Text style={[isHeb ? styles.hebrewText : styles.englishText, this.props.theme.text]}>{text}</Text>
+      </TouchableHighlight>
+    )
+  }
+}
+
+class AnimatedRow extends React.Component {
+  static propTypes = {
+    children: PropTypes.any.isRequired,
+    animationDuration: PropTypes.number.isRequired,
+    onRemove: PropTypes.func,
+  }
+
+  constructor(props) {
+    super(props);
+    this._position = new Animated.Value(1);
+    this._height = new Animated.Value(1);
+  }
+
+  remove = () => {
+    const { onRemove, animationDuration } = this.props;
+    if (onRemove) {
+      Animated.sequence([
+        Animated.timing(this._position, {
+          toValue: 0,
+          duration: animationDuration,
+        }),
+        Animated.timing(this._height, {
+          toValue: 0,
+          duration: animationDuration,
+        })
+      ]).start(() => onRemove());
+    }
+  }
+
+  render() {
+    const rowStyles = [
+      {
+        height: this._height.interpolate({
+          inputRange: [0, 1],
+          outputRange: [0, 50],
+          extrapolate: 'clamp',
+        }),
+        left: this._position.interpolate({
+          inputRange: [0, 1],
+          outputRange: [-200, 0],
+          extrapolate: 'clamp',
+        }),
+        opacity: this._position,
+      },
+    ];
+
+    return (
+      <Animated.View style={rowStyles}>
+        {this.props.children}
+      </Animated.View>
+    )
   }
 }
 
@@ -457,10 +541,12 @@ class IndeterminateCheckBox extends React.Component {
 }
 
 export {
+  AnimatedRow,
   ButtonToggleSet,
   CategoryBlockLink,
-  CategoryColorLine,
   CategoryAttribution,
+  CategoryColorLine,
+  CategorySideColorLink,
   CloseButton,
   CollapseIcon,
   DirectedArrow,

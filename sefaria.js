@@ -582,6 +582,18 @@ Sefaria = {
       console.error("AsyncStorage failed to save: " + error);
     });
   },
+  removeRecentItem: function(item) {
+    const itemTitle = Sefaria.textTitleForRef(item.ref);
+    let items = Sefaria.recent || [];
+    const existingItemIndex = items.findIndex(existing => Sefaria.textTitleForRef(existing.ref) === itemTitle);
+    if (existingItemIndex !== -1) {
+      items.splice(existingItemIndex, 1);
+    }
+    Sefaria.recent = items;
+    AsyncStorage.setItem("recent", JSON.stringify(items)).catch(function(error) {
+      console.error("AsyncStorage failed to save: " + error);
+    });
+  },
   getRecentRefForTitle: function(title) {
     //given an index title, return the ref of that title in Sefaria.recent.
     //if it doesn't exist, return null

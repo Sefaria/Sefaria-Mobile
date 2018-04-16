@@ -29,7 +29,7 @@ import SearchPage from './SearchPage';
 import TextColumn from './TextColumn';
 import ConnectionsPanel from './ConnectionsPanel';
 import SettingsPage from './SettingsPage';
-import RecentPage from './RecentPage';
+import SwipeableCategoryList from './SwipeableCategoryList';
 import {
   LoadingView,
   CategoryColorLine,
@@ -1183,7 +1183,7 @@ class ReaderApp extends React.Component {
         break;
       case ("recent"):
         return(
-          <RecentPage
+          <SwipeableCategoryList
             close={this.openNav}
             theme={this.props.theme}
             themeStr={this.props.themeStr}
