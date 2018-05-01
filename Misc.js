@@ -96,7 +96,7 @@ class CategorySideColorLink extends React.Component {
     const borderSide = isHeb ? "Right" : "Left";
     const style  = {
       [`border${borderSide}Color`]: Sefaria.palette.categoryColor(this.props.category),
-      [`border${borderSide}Width`]: 4,
+      [`border${borderSide}Width`]: 6,
       justifyContent: isHeb ? 'flex-end' : 'flex-start',
     };
     const text = isHeb ? (this.props.heText || Sefaria.hebrewCategory(this.props.category)) : this.props.enText;

@@ -1085,6 +1085,13 @@ Sefaria = {
 };
 
 Sefaria.util = {
+  getISOCountryCode: function() {
+    return new Promise((resolve, reject) => {
+      fetch('http://ip-api.com/json')
+      .then(result=>result.json())
+      .then(json=>resolve(json.countryCode));
+    });
+  },
   parseURLhost: function(url) {
     //thanks rvighne! https://stackoverflow.com/questions/736513/how-do-i-parse-a-url-into-hostname-and-path-in-javascript
     const u = new URL(url);
