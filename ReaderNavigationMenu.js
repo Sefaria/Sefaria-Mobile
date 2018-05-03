@@ -8,6 +8,7 @@ import {
   Text,
   TouchableOpacity,
   View,
+  Image,
 } from 'react-native';
 
 import {
@@ -134,6 +135,7 @@ class ReaderNavigationMenu extends React.Component {
       categories = this.state.showMore ? categories : categories.slice(0,9).concat(more);
       categories = (<View style={styles.readerNavCategories}><TwoBox content={categories} language={this.props.menuLanguage}/></View>);
       const isHeb = this.props.interfaceLang === "hebrew";
+      const langStyle = !isHeb ? styles.enInt : styles.heInt;
 
       return(<View style={[styles.menu, this.props.theme.menu]}>
               <CategoryColorLine category={"Other"} />
@@ -176,6 +178,15 @@ class ReaderNavigationMenu extends React.Component {
                   language={this.props.menuLanguage}
                   interfaceLang={this.props.interfaceLang} />
 
+                <View style={styles.readerNavSection}>
+                  <Text style={[styles.readerNavSectionTitle, this.props.theme.readerNavSectionTitle, langStyle, {textAlign: "center"}]}>{strings.supportSefaria}</Text>
+                  <TouchableOpacity style={[styles.button, this.props.theme.borderDarker, {flexDirection: isHeb ? "row-reverse" : "row", justifyContent: "center", marginTop: 15}]} onPress={() => {Linking.openURL("https://www.sefaria.org/donate");}}>
+                    <Image source={this.props.themeStr == "white" ? require('./img/heart.png'): require('./img/heart-light.png') }
+                      style={isHeb ? styles.menuButtonMarginedHe : styles.menuButtonMargined}
+                      resizeMode={Image.resizeMode.contain} />
+                    <Text style={[styles.buttonText, langStyle]}>{strings.makeADonation}</Text>
+                  </TouchableOpacity>
+                </View>
 
                 <View style={styles.navBottomLinks}>
                   <TouchableOpacity onPress={this.props.openSettings}>

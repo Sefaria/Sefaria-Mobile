@@ -164,6 +164,9 @@ export default StyleSheet.create({
   bordered: {
     borderColor: Colors.border,
   },
+  borderDarker: {
+    borderColor: Colors.secondaryText,
+  },
   bilingualEnglishText: {
     color: Colors.tertiaryText
   },

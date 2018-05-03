@@ -96,15 +96,6 @@ class SearchBar extends React.Component {
             />
              : null}
         </View>
-        <AutocompleteList
-          theme={this.props.theme}
-          themeStr={this.props.themeStr}
-          ref={this._getAutocompleteRef}
-          query={this.props.query}
-          openRef={this.props.openRef}
-          openTextTocDirectly={this.props.openTextTocDirectly}
-          setCategories={this.props.setCategories}
-        />
       </View>
     );
   }
