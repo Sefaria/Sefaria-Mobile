@@ -153,6 +153,17 @@ export default StyleSheet.create({
     width: 17,
     height: 17,
   },
+  menuButtonMargined: {
+    width: 20,
+    height: 20,
+    marginHorizontal: 10,
+  },
+  menuButtonMarginedHe: {
+    width: 17,
+    height: 17,
+    marginTop: 2,
+    marginHorizontal: 7,
+  },
   rightHeaderButton: {
     marginRight: iPad ? 10 : 0
   },

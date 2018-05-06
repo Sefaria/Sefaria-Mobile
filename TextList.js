@@ -155,7 +155,7 @@ class ListItem extends React.PureComponent {
     heRefStr:          PropTypes.string,
     versionTitle:      PropTypes.string,
     category:          PropTypes.string,
-    versionLanguage:   PropTypes.string,
+    versionLanguage:   PropTypes.oneOf(["en", "he"]),
     linkContentObj:    PropTypes.object, /* of the form {en,he} */
     textLanguage:      PropTypes.string,
     menuLanguage:      PropTypes.string,

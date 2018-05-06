@@ -20,6 +20,8 @@ from local_settings import *
 sys.path.insert(0, SEFARIA_PROJECT_PATH)
 sys.path.insert(0, SEFARIA_PROJECT_PATH + "/sefaria")
 os.environ['DJANGO_SETTINGS_MODULE'] = "settings"
+import django
+django.setup()
 
 import sefaria.model as model
 from sefaria.client.wrapper import get_links

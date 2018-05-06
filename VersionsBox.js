@@ -130,7 +130,7 @@ class VersionsBox extends React.Component {
                   <TouchableOpacity
                     style={[styles.versionsBoxVersionBlockWrapper, theme.bordered]}
                     key={v.versionTitle + lang}
-                    onPress={()=>{ this.openVersionInSidebar(v.versionTitle, v.versionTitleInHebrew, lang); }}>
+                    onPress={()=>{ this.openVersionInSidebar(v.versionTitle, v.versionTitleInHebrew, v.language); }}>
                     <VersionBlock
                       theme={theme}
                       version={v}

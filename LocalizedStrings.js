@@ -105,6 +105,8 @@ export default new LocalizedStrings({
     aliyot: "Aliyot",
     vocalization: "Vocalization",
     color: "Color",
+    supportSefaria: "SUPPORT SEFARIA",
+    makeADonation: "Make a Donation",
   },
   he: {
     history: "היסטוריה",
@@ -210,5 +212,7 @@ export default new LocalizedStrings({
     aliyot: "עליות לתורה",
     vocalization: "טעמים וניקוד",
     color: "צבע",
+    supportSefaria: "תמכו בספריא",
+    makeADonation: "בצעו תרומה",
   }
 });
