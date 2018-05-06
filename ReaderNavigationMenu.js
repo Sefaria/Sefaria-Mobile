@@ -160,27 +160,31 @@ class ReaderNavigationMenu extends React.Component {
                 setCategories={this.props.setCategories}/>
               <ScrollView style={styles.menuContent} contentContainerStyle={styles.menuScrollViewContent}>
 
-                <View style={{flex:1, flexDirection: 'row'}}>
-                  <CategoryBlockLink
-                    theme={this.props.theme}
-                    category={"History"}
-                    heCat={"היסטוריה"}
-                    language={this.props.menuLanguage}
-                    style={{borderTopWidth: 0, paddingVertical: 12}}
-                    isSans={true}
-                    icon={isWhite ? require('./img/clock.png') : require('./img/clock-light.png')}
-                    onPress={this.props.openHistory}
-                  />
-                  <CategoryBlockLink
-                    theme={this.props.theme}
-                    category={"Saved"}
-                    heCat={"שמורים"}
-                    language={this.props.menuLanguage}
-                    style={{borderTopWidth: 0, paddingVertical: 12}}
-                    isSans={true}
-                    icon={isWhite ? require('./img/starUnfilled.png') : require('./img/starUnfilled-light.png')}
-                    onPress={this.props.openSaved}
-                  />
+                <View style={styles.twoBoxRow}>
+                  <View style={styles.twoBoxItem}>
+                    <CategoryBlockLink
+                      theme={this.props.theme}
+                      category={"History"}
+                      heCat={"היסטוריה"}
+                      language={this.props.menuLanguage}
+                      style={{borderTopWidth: 0, paddingVertical: 12}}
+                      isSans={true}
+                      icon={isWhite ? require('./img/clock.png') : require('./img/clock-light.png')}
+                      onPress={this.props.openHistory}
+                    />
+                  </View>
+                  <View style={styles.twoBoxItem}>
+                    <CategoryBlockLink
+                      theme={this.props.theme}
+                      category={"Saved"}
+                      heCat={"שמורים"}
+                      language={this.props.menuLanguage}
+                      style={{borderTopWidth: 0, paddingVertical: 12}}
+                      isSans={true}
+                      icon={isWhite ? require('./img/starUnfilled.png') : require('./img/starUnfilled-light.png')}
+                      onPress={this.props.openSaved}
+                    />
+                  </View>
                 </View>
 
                 <ReaderNavigationMenuSection

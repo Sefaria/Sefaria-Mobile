@@ -12,6 +12,7 @@ import {
   ScrollView,
   Alert,
   SwipeableFlatList,
+  FlatList,
 } from 'react-native';
 import {
   CategoryColorLine,
@@ -56,7 +57,7 @@ class SwipeableCategoryList extends React.Component {
   }
 
   renderDeleteButton = ({ item }) => (
-    <View style={{flex:1, backgroundColor: "#ff3b30"}}>
+    <View style={{flex:1, backgroundColor: Sefaria.palette.categoryColors.Responsa}}>
       <TouchableOpacity onPress={() => { this.removeItem(item); }} style={{alignSelf: 'flex-end', justifyContent: 'center', flex:1, width:90}}>
         <Text style={{textAlign: 'center', color: 'white'}}>
           {"Delete"}
@@ -84,7 +85,7 @@ class SwipeableCategoryList extends React.Component {
   );
 
   render() {
-
+    const FlatListClass = 
     return (
       <View style={[styles.menu, this.props.theme.menu]}>
         <CategoryColorLine category={"Other"} />
