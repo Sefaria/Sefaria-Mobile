@@ -1,4 +1,4 @@
-import { AsyncStorage, AlertIOS } from 'react-native';
+import { AsyncStorage, AlertIOS, Platform } from 'react-native';
 import { GoogleAnalyticsTracker } from 'react-native-google-analytics-bridge'; //https://github.com/idehub/react-native-google-analytics-bridge/blob/master/README.md
 const ZipArchive  = require('react-native-zip-archive'); //for unzipping -- (https://github.com/plrthink/react-native-zip-archive)
 const RNFS        = require('react-native-fs'); //for access to file system -- (https://github.com/johanneslumpe/react-native-fs)
@@ -530,7 +530,12 @@ Sefaria = {
   calendar: null,
   _loadCalendar: function() {
     return new Promise(function(resolve, reject) {
-      var calendarPath = (RNFS.MainBundlePath + "/sources/calendar.json");
+
+      var calendarPath = Platform.select({
+        ios: () => (RNFS.MainBundlePath + "/sources/calendar.json"),
+        android: () => (RNFS.DocumentDirectoryPath + "/sources/calendar.json"),
+      })();
+
       Sefaria._loadJSON(calendarPath).then(function(data) {
         Sefaria.calendar = data;
       });
