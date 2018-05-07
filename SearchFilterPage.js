@@ -30,7 +30,6 @@ class SearchFilterPage extends React.Component {
     menuLanguage:     PropTypes.oneOf(["english", "hebrew"]).isRequired,
     subMenuOpen:      PropTypes.string.isRequired,
     updateFilter:     PropTypes.func.isRequired,
-    openSubMenu:      PropTypes.func.isRequired,
     clearAllFilters:  PropTypes.func.isRequired,
     query:            PropTypes.string,
     sort:             PropTypes.string,
