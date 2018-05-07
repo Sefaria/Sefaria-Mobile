@@ -173,7 +173,4 @@ export default StyleSheet.create({
   bilingualEnglishText: {
     color: Colors.tertiaryText,
   },
-  languageToggleText: {
-    color: Colors.secondaryText
-  }
 });

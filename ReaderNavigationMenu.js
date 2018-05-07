@@ -310,8 +310,7 @@ class CalendarSection extends React.Component {
               title={strings.calendar}
               heTitle={strings.calendar}
               content={calendarContent}
-              interfaceLang={this.props.interfaceLang}
-              hasmore={false} />);
+              interfaceLang={this.props.interfaceLang} />);
   }
 }
 
