@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import sys
 import os
 import csv
@@ -9,12 +11,13 @@ import glob
 import time
 import traceback
 import requests
+import p929
 from shutil import rmtree
 from random import random
 from pprint import pprint
+from datetime import timedelta
 from datetime import datetime
 import dateutil.parser
-
 from local_settings import *
 
 sys.path.insert(0, SEFARIA_PROJECT_PATH)
@@ -28,6 +31,7 @@ from sefaria.client.wrapper import get_links
 from sefaria.model.text import Version
 from sefaria.model.schema import Term
 from sefaria.utils.talmud import section_to_daf
+from sefaria.utils.hebrew import hebrew_parasha_name
 from sefaria.system.exceptions import InputError, BookNameError
 from sefaria.system.exceptions import NoVersionFoundError
 from sefaria.model.history import HistorySet
@@ -47,7 +51,7 @@ or
 any section has a version different than the default version
 """
 
-SCHEMA_VERSION = "3"
+SCHEMA_VERSION = "4"
 EXPORT_PATH = SEFARIA_EXPORT_PATH + "/" + SCHEMA_VERSION
 MINIFY_JSON = True
 
@@ -534,37 +538,91 @@ def export_calendar():
     Writes a JSON file with Parashah and Daf Yomi calendar from today onward.
     """
     calendar = {
-        "parshiot": {},
-        "dafyomi": {}
+        "parasha": {},
+        "dafyomi": {},
+        "mishnah": {},
+        "rambam": {},
+        "929": {}
     }
     date = datetime.now()
     date_format = lambda date : date.strftime(" %m/ %d/%Y").replace(" 0", "").replace(" ", "")
     date_str = date_format(date)
 
+    # DAF -----
     daf_today = db.dafyomi.find_one({"date": date_str})
 
     dafyomi = db.dafyomi.find({"_id": {"$gte": daf_today["_id"]}}).sort([("_id", 1)])
     for yom in dafyomi:
         try:
-            ref = model.Ref(yom["daf"] + "a").normal()
+            ref = model.Ref(yom["daf"] + "a")
+            tref = ref.normal()
+            heTref = ref.he_normal()
+
             calendar["dafyomi"][yom["date"]] = {
-                "name": yom["daf"],
-                "ref": ref
+                "ref": {"en": tref, "he": heTref}
             }
         except InputError, e:
             print "Error parsing '%s': %s" % (yom["daf"], str(e))
 
-    # compare to sefaria/utils/calendar.py. diaspora is duplicated where there is no difference
+    # PARASHA -----
     parshiot = db.parshiot.find({"date": {"$gt": date}}).sort([("date", 1)])
     for parashah in parshiot:
-        calendar["parshiot"][date_format(parashah["date"])] = {
-            "name": parashah["parasha"],
-            "ref": parashah["ref"],
-            "haftara": parashah["haftara"],
+        parshRef = model.Ref(parashah["ref"])
+        parshTref = parshRef.normal()
+        parshHeTref = parshRef.he_normal()
+        haftarot = [{
+            "en": model.Ref(h).normal(), "he": model.Ref(h).he_normal()
+            } for h in parashah["haftara"]]
+        calendar["parasha"][date_format(parashah["date"])] = {
+            "parasha": {"en": parashah["parasha"], "he": hebrew_parasha_name(parashah["parasha"])},
+            "ref": {"en": parshTref, "he": parshHeTref},
+            "haftara": haftarot,
+            "diaspora": parashah["diaspora"]
             # below fields not currently used
             # "aliyot": parashah["aliyot"],
             # "shabbatName": parasha["shabbat_name"],
         }
+
+    # MISHNA -----
+    mishnayot = db.daily_mishnayot.find({"date": {"$gt": date}}).sort([("date", 1)])
+    for mishnah in mishnayot:
+        ref = model.Ref(mishnah["ref"])
+        tref = ref.normal()
+        heTref = ref.he_normal()
+        mish_obj = {"ref": {"en": tref, "he": heTref}}
+        date_key = date_format(mishnah["date"])
+        if not date_key in calendar["mishnah"]:
+            calendar["mishnah"][date_key] = [mish_obj]
+        else:
+            calendar["mishnah"][date_key] += [mish_obj]
+
+    # RAMBAM -----
+    rambamim = db.daily_rambam.find({"date": {"$gt": date}}).sort([("date",1)])
+    for rambam in rambamim:
+        ref = model.Ref(rambam["ref"])
+        tref = ref.normal()
+        heTref = ref.he_normal()
+        display_value_en = tref.replace("Mishneh Torah, ","")
+        display_value_he = heTref.replace(u"משנה תורה, ", u"")
+        calendar["rambam"][date_format(rambam["date"])] = {
+            "ref": {"en": tref, "he": heTref},
+            "displayValue": {"en": display_value_en, "he": display_value_he}
+        }
+
+    # 929 -----
+    end_date = date + timedelta(days=1000)
+    curr_date = date
+    while curr_date < end_date:
+        p = p929.Perek(curr_date.date())
+        ref = model.Ref("{} {}".format(p.book_name, p.book_chapter))
+        tref = ref.normal()
+        heTref = ref.he_normal()
+        calendar["929"][date_format(curr_date)] = {
+            "ref": {"en": tref, "he": heTref}
+        }
+        if p.number == 929:
+            p929.origin = curr_date.date()
+        curr_date += timedelta(days=1)
 
     path = "%s/calendar.json" % (EXPORT_PATH)
     write_doc(calendar, path)
@@ -634,3 +692,5 @@ if __name__ == '__main__':
         purge_cloudflare_cache([])
     elif action == "export_hebrew_categories":
         export_hebrew_categories()
+    elif action == "export_calendar":
+        export_calendar()

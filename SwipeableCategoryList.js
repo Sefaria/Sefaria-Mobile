@@ -85,7 +85,6 @@ class SwipeableCategoryList extends React.Component {
   );
 
   render() {
-    const FlatListClass = 
     return (
       <View style={[styles.menu, this.props.theme.menu]}>
         <CategoryColorLine category={"Other"} />
