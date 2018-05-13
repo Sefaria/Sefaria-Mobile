@@ -554,7 +554,7 @@ def export_calendar():
         except InputError, e:
             print "Error parsing '%s': %s" % (yom["daf"], str(e))
 
-
+    # compare to sefaria/utils/calendar.py. diaspora is duplicated where there is no difference
     parshiot = db.parshiot.find({"date": {"$gt": date}}).sort([("date", 1)])
     for parashah in parshiot:
         calendar["parshiot"][date_format(parashah["date"])] = {
