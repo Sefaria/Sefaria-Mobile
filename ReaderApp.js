@@ -26,6 +26,7 @@ import ReaderDisplayOptionsMenu from './ReaderDisplayOptionsMenu';
 import ReaderNavigationMenu from './ReaderNavigationMenu';
 import ReaderTextTableOfContents from './ReaderTextTableOfContents';
 import SearchPage from './SearchPage';
+import AutocompletePage from './AutocompletePage';
 import TextColumn from './TextColumn';
 import ConnectionsPanel from './ConnectionsPanel';
 import SettingsPage from './SettingsPage';
@@ -698,6 +699,10 @@ class ReaderApp extends React.Component {
       this.openMenu("search");
   };
 
+  openAutocomplete = () => {
+    this.openMenu("autocomplete");
+  }
+
   clearMenuState = () => {
       this.setState({
           navigationCategories: [],
@@ -1104,7 +1109,7 @@ class ReaderApp extends React.Component {
               categories={this.state.navigationCategories}
               setCategories={this.setNavigationCategories}
               openRef={(ref, versions)=>this.openRef(ref,"navigation", versions)}
-              openTextTocDirectly={this.openTextTocDirectly}
+              openAutocomplete={this.openAutocomplete}
               goBack={this.goBack}
               openNav={this.openNav}
               closeNav={this.closeMenu}
@@ -1149,7 +1154,7 @@ class ReaderApp extends React.Component {
             hasInternet={this.state.hasInternet}
             openNav={this.openNav}
             closeNav={this.closeMenu}
-            onQueryChange={this.onQueryChange}
+            search={this.onQueryChange}
             openRef={(ref)=> this.openRef(ref,"search")}
             setLoadTail={this.setLoadQueryTail}
             setIsNewSearch={this.setIsNewSearch}
@@ -1170,9 +1175,26 @@ class ReaderApp extends React.Component {
             clearAllFilters={this.clearAllSearchFilters}
             queryResult={this.state.searchQueryResult}
             numResults={this.state.numSearchResults}
-            openTextTocDirectly={this.openTextTocDirectly}
+            openAutocomplete={this.openAutocomplete}
             onChangeSearchQuery={this.onChangeSearchQuery}
-            setCategories={this.setNavigationCategories}
+          />);
+        break;
+      case ("autocomplete"):
+        return (
+          <AutocompletePage
+            interfaceLang={this.state.interfaceLang}
+            theme={this.props.theme}
+            themeStr={this.props.themeStr}
+            openNav={this.openNav}
+            closeNav={this.closeMenu}
+            search={this.search}
+            setIsNewSearch={this.setIsNewSearch}
+            onChange={this.onChangeSearchQuery}
+            query={this.state.searchQuery}
+            openRef={this.openRef}
+            openTextTocDirectly={this.openTextTocDirectly}
+            setCategories={cats => { /* first need to go to nav page */ this.openNav(); this.setCategories(cats);} }
+            openSearch={this.openSearch}
           />);
         break;
       case ("settings"):

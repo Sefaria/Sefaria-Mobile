@@ -39,7 +39,7 @@ class SearchFilterPage extends React.Component {
     appliedFilters:   PropTypes.array,
     filtersValid:     PropTypes.bool,
     openSubMenu:      PropTypes.func,
-    onQueryChange:    PropTypes.func,
+    search:    PropTypes.func,
     setSearchOptions: PropTypes.func
   };
 
@@ -51,10 +51,10 @@ class SearchFilterPage extends React.Component {
     ];
     this.exactOptions = [
       {name: false, text: strings.off, onPress: () => {
-        this.props.setSearchOptions(this.props.sort, false, ()=>this.props.onQueryChange(this.props.query, true, false, true));
+        this.props.setSearchOptions(this.props.sort, false, ()=>this.props.search(this.props.query, true, false, true));
       }},
       {name: true, text: strings.on, onPress: () => {
-        this.props.setSearchOptions(this.props.sort, true, ()=>this.props.onQueryChange(this.props.query, true, false, true));
+        this.props.setSearchOptions(this.props.sort, true, ()=>this.props.search(this.props.query, true, false, true));
       }}
     ];
   }
@@ -65,13 +65,13 @@ class SearchFilterPage extends React.Component {
     this.props.openSubMenu(backPage);
     if (backPage == null) {
       //TODO consider only firing new query if you actually touched a button on the filter page
-      this.props.onQueryChange(this.props.query, true, false);
+      this.props.search(this.props.query, true, false);
     }
   };
 
   applyFilters = () => {
     this.props.openSubMenu(null);
-    this.props.onQueryChange(this.props.query, true, false);
+    this.props.search(this.props.query, true, false);
   };
 
   render() {

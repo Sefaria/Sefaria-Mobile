@@ -1,6 +1,6 @@
 'use strict';
 import PropTypes from 'prop-types';
-import React, {Component} from 'react';
+import React from 'react';
 
 import {
   TouchableOpacity,
@@ -23,39 +23,32 @@ import strings from './LocalizedStrings';
 
 class SearchBar extends React.Component {
   static propTypes = {
-    interfaceLang:       PropTypes.oneOf(["english", "hebrew"]).isRequired,
+    interfaceLang:   PropTypes.oneOf(["english", "hebrew"]).isRequired,
     theme:           PropTypes.object.isRequired,
     themeStr:        PropTypes.string.isRequired,
     closeNav:        PropTypes.func.isRequired,
-    onQueryChange:   PropTypes.func.isRequired,
+    search:          PropTypes.func.isRequired,
     setIsNewSearch:  PropTypes.func.isRequired,
     toggleLanguage:  PropTypes.func,
     language:        PropTypes.string,
     query:           PropTypes.string.isRequired,
     onChange:        PropTypes.func.isRequired,
-    openRef:         PropTypes.func.isRequired,
-    openTextTocDirectly: PropTypes.func.isRequired,
-    setCategories:   PropTypes.func.isRequired,
+    onFocus:         PropTypes.func,
   };
 
   submitSearch = () => {
     if (this.props.query) {
       this.props.setIsNewSearch(true);
-      this.props.onQueryChange(this.props.query, true, false, true);
+      this.props.search(this.props.query, true, false, true);
     }
   };
-  onFocus = () => {
-    if (this.autocompleteRef) {
-      this.autocompleteRef.onQueryChange(this.props.query);
-    }
+
+  focus = () => {
+    this._textInput.focus();
   };
-  onBlur = () => {
-    if (this.autocompleteRef) {
-      this.autocompleteRef.close();
-    }
-  };
-  _getAutocompleteRef = ref => {
-    this.autocompleteRef = ref;
+
+  _getTextInputRef = ref => {
+    this._textInput = ref;
   };
 
   render() {
@@ -78,11 +71,11 @@ class SearchBar extends React.Component {
           }
           <SearchButton onPress={this.submitSearch} theme={this.props.theme} themeStr={this.props.themeStr} />
           <TextInput
+            ref={this._getTextInputRef}
             style={textInputStyle}
             onChangeText={this.props.onChange}
             onSubmitEditing={this.submitSearch}
-            onFocus={this.onFocus}
-            onBlur={this.onBlur}
+            onFocus={this.props.onFocus}
             value={this.props.query}
             placeholder={strings.search}
             placeholderTextColor={placeholderTextColor}

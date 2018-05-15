@@ -35,7 +35,6 @@ class ReaderNavigationMenu extends React.Component {
     interfaceLang:  PropTypes.oneOf(["english","hebrew"]).isRequired,
     setCategories:  PropTypes.func.isRequired,
     openRef:        PropTypes.func.isRequired,
-    openTextTocDirectly: PropTypes.func.isRequired,
     closeNav:       PropTypes.func.isRequired,
     openNav:        PropTypes.func.isRequired,
     openSearch:     PropTypes.func.isRequired,
@@ -46,6 +45,7 @@ class ReaderNavigationMenu extends React.Component {
     toggleLanguage: PropTypes.func.isRequired,
     onChangeSearchQuery:PropTypes.func.isRequired,
     searchQuery:    PropTypes.string.isRequired,
+    openAutocomplete: PropTypes.func.isRequired,
   };
 
   constructor(props) {
@@ -149,15 +149,13 @@ class ReaderNavigationMenu extends React.Component {
                 openNav={this.props.openNav}
                 closeNav={this.props.closeNav}
                 leftMenuButton="close"
-                onQueryChange={this.props.openSearch}
+                search={this.props.openSearch}
                 setIsNewSearch={this.props.setIsNewSearch}
                 toggleLanguage={this.props.toggleLanguage}
                 language={this.props.menuLanguage}
                 onChange={this.props.onChangeSearchQuery}
                 query={this.props.searchQuery}
-                openRef={this.props.openRef}
-                openTextTocDirectly={this.props.openTextTocDirectly}
-                setCategories={this.props.setCategories}/>
+                onFocus={this.props.openAutocomplete}/>
               <ScrollView style={styles.menuContent} contentContainerStyle={styles.menuScrollViewContent}>
 
                 <View style={styles.twoBoxRow}>

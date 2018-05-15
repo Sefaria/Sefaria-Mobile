@@ -29,7 +29,7 @@ class SearchPage extends React.Component {
     openSubMenu:         PropTypes.func,
     hasInternet:         PropTypes.bool,
     closeNav:            PropTypes.func.isRequired,
-    onQueryChange:       PropTypes.func.isRequired,
+    search:              PropTypes.func.isRequired,
     openRef:             PropTypes.func.isRequired,
     setLoadTail:         PropTypes.func.isRequired,
     setIsNewSearch:      PropTypes.func.isRequired,
@@ -48,13 +48,17 @@ class SearchPage extends React.Component {
     isNewSearch:         PropTypes.bool,
     numResults:          PropTypes.number,
     onChangeSearchQuery: PropTypes.func.isRequired,
-    openTextTocDirectly: PropTypes.func.isRequired,
-    setCategories:       PropTypes.func.isRequired,
+    openAutocomplete:    PropTypes.func.isRequired,
   };
 
   numberWithCommas = (x) => {
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
   };
+
+  backFromAutocomplete = () => {
+    this.props.openSearch();
+    this.props.search(this.props.query, true, false);
+  }
 
   render() {
     var status = this.props.hasInternet ?
@@ -81,13 +85,12 @@ class SearchPage extends React.Component {
               openNav={this.props.openNav}
               closeNav={this.props.closeNav}
               leftMenuButton="back"
-              onQueryChange={this.props.onQueryChange}
+              search={this.props.search}
               query={this.props.query}
               setIsNewSearch={this.props.setIsNewSearch}
               onChange={this.props.onChangeSearchQuery}
-              openRef={this.props.openRef}
-              openTextTocDirectly={this.props.openTextTocDirectly}
-              setCategories={cats => { /* first need to go to nav page */ this.props.openNav(); this.props.setCategories(cats);} }/>
+              onFocus={this.props.openAutocomplete}
+            />
             <View style={summaryStyle}>
               <Text style={[this.props.theme.searchResultSummaryText, langStyle]} >{status}</Text>
               <DirectedButton
@@ -107,7 +110,6 @@ class SearchPage extends React.Component {
               initSearchListSize={this.props.initSearchListSize}
               initSearchScrollPos={this.props.initSearchScrollPos}
               setInitSearchScrollPos={this.props.setInitSearchScrollPos}
-              onQueryChange={this.props.onQueryChange}
               openRef={this.props.openRef}
               setLoadTail={this.props.setLoadTail}
               setIsNewSearch={this.props.setIsNewSearch}
@@ -132,7 +134,7 @@ class SearchPage extends React.Component {
             appliedFilters={this.props.appliedFilters}
             filtersValid={this.props.filtersValid}
             openSubMenu={this.props.openSubMenu}
-            onQueryChange={this.props.onQueryChange}
+            search={this.props.search}
             setSearchOptions={this.props.setSearchOptions}
             updateFilter={this.props.updateFilter}
             clearAllFilters={this.props.clearAllFilters}
