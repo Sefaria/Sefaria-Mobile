@@ -125,6 +125,13 @@ var Downloader = {
     }).promise.then(() => {
       Sefaria._loadTOC();
     });
+    var searchTocPromise = RNFS.downloadFile({
+      fromUrl: HOST_PATH + "search_toc.json",
+      toFile: RNFS.DocumentDirectoryPath + "/library/search_toc.json",
+      background: true,
+    }).promise.then(() => {
+      Sefaria.search._loadSearchTOC();
+    });
     var hebCatPromise = RNFS.downloadFile({
       fromUrl: HOST_PATH + "hebrew_categories.json",
       toFile: RNFS.DocumentDirectoryPath + "/library/hebrew_categories.json",
@@ -132,7 +139,14 @@ var Downloader = {
     }).promise.then(() => {
       Sefaria._loadHebrewCategories();
     });
-    return Promise.all([lastUpdatePromise, tocPromise, hebCatPromise]).then(() => {
+    var peoplePromise = RNFS.downloadFile({
+      fromUrl: HOST_PATH + "people.json",
+      toFile: RNFS.DocumentDirectoryPath + "/library/people.json",
+      background: true,
+    }).promise.then(() => {
+      Sefaria._loadPeople();
+    });
+    return Promise.all([lastUpdatePromise, tocPromise, hebCatPromise, peoplePromise]).then(() => {
       var timestamp = new Date().toJSON();
       Downloader._setData("lastUpdateCheck", timestamp)
       Downloader._setData("lastUpdateSchema", SCHEMA_VERSION)

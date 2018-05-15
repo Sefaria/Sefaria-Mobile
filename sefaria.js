@@ -21,6 +21,7 @@ Sefaria = {
       Sefaria._loadTOC(),
       Sefaria.search._loadSearchTOC(),
       Sefaria._loadHebrewCategories(),
+      Sefaria._loadPeople(),
       Sefaria._loadHistoryItems(),
       Sefaria._loadSavedItems(),
       Sefaria._loadCalendar(),
@@ -302,6 +303,19 @@ Sefaria = {
         });
     });
   },
+  _loadPeople: function() {
+    return new Promise(function(resolve, reject) {
+      RNFS.exists(RNFS.DocumentDirectoryPath + "/library/people.json")
+        .then(function(exists) {
+          const peoplePath = exists ? (RNFS.DocumentDirectoryPath + "/library/people.json") :
+                                      (RNFS.MainBundlePath + "/sources/people.json");
+          Sefaria._loadJSON(peoplePath).then(function(data) {
+            Sefaria.people = data;
+            resolve();
+          });
+        });
+    });
+  },
   //for debugging
   _removeBook: function(toc, book) {
     findCats = function(toc, book, cats) {
@@ -548,7 +562,7 @@ Sefaria = {
       let date = new Date();
       date.setDate(date.getDate() + (6 - 1 - date.getDay() + 7) % 7 + weekOffset);
       dateString = Sefaria._dateString(date);
-      parashah = Sefaria.calendar.parshiot[dateString];
+      parashah = Sefaria.calendar.parasha[dateString];
       weekOffset += 1;
     }
     return Sefaria.calendar ? parashah : null;

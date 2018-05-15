@@ -257,11 +257,11 @@ class CalendarSection extends React.Component {
     var calendar = [
             <CategoryBlockLink
               theme={this.props.theme}
-              category={parashah.name}
-              heCat={"פרשה"}
+              category={parashah.parasha.en}
+              heCat={parashah.parasha.he}
               language={this.props.language}
               style={{"borderColor": Sefaria.palette.categoryColor("Tanakh")}}
-              onPress={() => { this.props.openRef(parashah.ref); }}
+              onPress={() => { this.props.openRef(parashah.ref.en); }}
               key="parashah" />,
             <CategoryBlockLink
               theme={this.props.theme}
@@ -269,7 +269,7 @@ class CalendarSection extends React.Component {
               heCat={"הפטרה"}
               language={this.props.language}
               style={{"borderColor": Sefaria.palette.categoryColor("Tanakh")}}
-              onPress={() => { this.props.openRef(parashah.haftara[0]); }}
+              onPress={() => { this.props.openRef(parashah.haftara[0].en); }}
               key="haftara" />,
             <CategoryBlockLink
               theme={this.props.theme}
@@ -277,7 +277,7 @@ class CalendarSection extends React.Component {
               heCat={"דף יומי"}
               language={this.props.language}
               style={{"borderColor": Sefaria.palette.categoryColor("Talmud")}}
-              onPress={() => { this.props.openRef(dafYomi.ref); }}
+              onPress={() => { this.props.openRef(dafYomi.ref.en); }}
               key="dafYomi" />];
 
     var calendarContent = <TwoBox content={calendar} language={this.props.language}/>;

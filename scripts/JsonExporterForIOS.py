@@ -51,13 +51,15 @@ or
 any section has a version different than the default version
 """
 
-SCHEMA_VERSION = "4"
+SCHEMA_VERSION = "4"  # includes author info and new calendars
 EXPORT_PATH = SEFARIA_EXPORT_PATH + "/" + SCHEMA_VERSION
 MINIFY_JSON = True
 
-TOC_PATH          = EXPORT_PATH + "/toc.json"
-SEARCH_TOC_PATH   = EXPORT_PATH + "/search_toc.json"
-HEB_CATS_PATH     = EXPORT_PATH + "/hebrew_categories.json"
+TOC_PATH          = "/toc.json"
+SEARCH_TOC_PATH   = "/search_toc.json"
+HEB_CATS_PATH     = "/hebrew_categories.json"
+PEOPLE_PATH       = "/people.json"
+CALENDAR_PATH     = "/calendar.json"
 LAST_UPDATED_PATH = EXPORT_PATH + "/last_updated.json"
 
 
@@ -482,7 +484,7 @@ def write_last_updated(titles, update=False):
         purge_cloudflare_cache(titles)
 
 
-def export_hebrew_categories():
+def export_hebrew_categories(for_sources=False):
     """
     Writes translation of all English categories into a single file.
     """
@@ -496,18 +498,18 @@ def export_hebrew_categories():
             print u"Couldn't load term '{}'. Skipping Hebrew category".format(e)
         else:
             hebrew_cats_json[e] = t.titles[1][u'text']
-    write_doc(hebrew_cats_json, HEB_CATS_PATH)
+    write_doc(hebrew_cats_json, (SEFARIA_IOS_SOURCES_PATH if for_sources else EXPORT_PATH) + HEB_CATS_PATH)
 
 
-def export_toc():
+def export_toc(for_sources=False):
     """
     Writes the Table of Contents JSON to a single file.
     """
     print "Export Table of Contents"
     new_toc = model.library.get_toc()
     new_search_toc = model.library.get_search_filter_toc()
-    write_doc(new_toc, TOC_PATH)
-    write_doc(new_search_toc, SEARCH_TOC_PATH)
+    write_doc(new_toc, (SEFARIA_IOS_SOURCES_PATH if for_sources else EXPORT_PATH) + TOC_PATH)
+    write_doc(new_search_toc, (SEFARIA_IOS_SOURCES_PATH if for_sources else EXPORT_PATH) + SEARCH_TOC_PATH)
 
 
 def new_books_since_last_update():
@@ -533,7 +535,7 @@ def new_books_since_last_update():
     return added_books
 
 
-def export_calendar():
+def export_calendar(for_sources=False):
     """
     Writes a JSON file with Parashah and Daf Yomi calendar from today onward.
     """
@@ -624,8 +626,20 @@ def export_calendar():
             p929.origin = curr_date.date()
         curr_date += timedelta(days=1)
 
-    path = "%s/calendar.json" % (EXPORT_PATH)
+    path = (SEFARIA_IOS_SOURCES_PATH if for_sources else EXPORT_PATH) + CALENDAR_PATH
     write_doc(calendar, path)
+
+
+def export_authors(for_sources=False):
+    ps = model.PersonSet()
+    people = {}
+    for person in ps:
+        for name in person.names:
+            if not isinstance(name["text"], basestring):
+                continue
+            people[name["text"]] = 1
+    path = (SEFARIA_IOS_SOURCES_PATH if for_sources else EXPORT_PATH) + PEOPLE_PATH
+    write_doc(people, path)
 
 
 def clear_exports():
@@ -667,6 +681,15 @@ def export_all(skip_existing=False):
     export_texts(skip_existing)
     print("--- %s seconds ---" % round(time.time() - start_time, 2))
 
+def export_base_files_to_sources():
+    """
+    Export the basic files that should be bundled with a new release of the iOS app
+    Run this before every new release
+    """
+    export_toc(for_sources=True)
+    export_hebrew_categories(for_sources=True)
+    export_calendar(for_sources=True)
+    export_authors(for_sources=True)
 
 if __name__ == '__main__':
     action = sys.argv[1] if len(sys.argv) > 1 else None
@@ -694,3 +717,7 @@ if __name__ == '__main__':
         export_hebrew_categories()
     elif action == "export_calendar":
         export_calendar()
+    elif action == "export_authors":
+        export_authors()
+    elif action == "export_base_files_to_sources":
+        export_base_files_to_sources()
