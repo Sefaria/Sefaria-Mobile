@@ -1038,6 +1038,7 @@ class ReaderApp extends React.Component {
       isQueryRunning: true,
       searchFiltersValid: !getFilters,
     });
+    Sefaria.saveRecentQuery(query, "query");
   };
 
   setLoadQueryTail = (isLoading) => {
@@ -1193,7 +1194,7 @@ class ReaderApp extends React.Component {
             query={this.state.searchQuery}
             openRef={this.openRef}
             openTextTocDirectly={this.openTextTocDirectly}
-            setCategories={cats => { /* first need to go to nav page */ this.openNav(); this.setCategories(cats);} }
+            setCategories={cats => { /* first need to go to nav page */ this.openNav(); this.setNavigationCategories(cats);} }
             openSearch={this.openSearch}
           />);
         break;

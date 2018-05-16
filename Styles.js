@@ -952,16 +952,18 @@ export default StyleSheet.create({
     paddingTop: 25,
   },
   autocompleteList: {
-    maxHeight: iPad ? 300 : 200,
-    paddingTop: 15,
-    paddingBottom: 15,
+    flex: 1,
     flexDirection: 'column',
-    borderBottomWidth: 1,
   },
   autocompleteItem: {
-    fontSize: 20,
-    paddingHorizontal: 20,
+    flex:1,
+    alignItems: "center",
+    borderBottomWidth: 1,
     paddingVertical: 10,
+  },
+  autocompleteItemText: {
+    fontSize: 17,
+    paddingHorizontal: 10,
     flex: 1,
   },
   starIcon: {

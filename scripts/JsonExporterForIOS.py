@@ -637,7 +637,7 @@ def export_authors(for_sources=False):
         for name in person.names:
             if not isinstance(name["text"], basestring):
                 continue
-            people[name["text"]] = 1
+            people[name["text"].lower()] = 1
     path = (SEFARIA_IOS_SOURCES_PATH if for_sources else EXPORT_PATH) + PEOPLE_PATH
     write_doc(people, path)
 

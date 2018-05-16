@@ -107,6 +107,7 @@ export default new LocalizedStrings({
     color: "Color",
     supportSefaria: "SUPPORT SEFARIA",
     makeADonation: "Make a Donation",
+    recentSearches: "RECENT SEARCHES",
   },
   he: {
     history: "היסטוריה",
@@ -214,5 +215,6 @@ export default new LocalizedStrings({
     color: "צבע",
     supportSefaria: "תמכו בספריא",
     makeADonation: "בצעו תרומה",
+    recentSearches: "חיפושים אחרונים",
   }
 });

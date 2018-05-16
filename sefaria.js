@@ -24,6 +24,7 @@ Sefaria = {
       Sefaria._loadPeople(),
       Sefaria._loadHistoryItems(),
       Sefaria._loadSavedItems(),
+      Sefaria._loadRecentQueries(),
       Sefaria._loadCalendar(),
       Sefaria.downloader.init(),
       initAsyncStorage(),
@@ -298,6 +299,10 @@ Sefaria = {
                                       (RNFS.MainBundlePath + "/sources/hebrew_categories.json");
           Sefaria._loadJSON(hebCatPath).then(function(data) {
             Sefaria.hebrewCategories = data;
+            Sefaria.englishCategories = {}; // used for classifying cats in autocomplete
+            Object.entries(data).forEach(([key, value]) => {
+              Sefaria.englishCategories[value] = 1;
+            });
             resolve();
           });
         });
@@ -660,6 +665,19 @@ Sefaria = {
     });
     return AsyncStorage.getItem("saved").then(function(data) {
       Sefaria.saved = JSON.parse(data) || [];
+    });
+  },
+  saveRecentQuery: function(query, type) {
+    //type = ["ref", "book", "person", "toc", "query"]
+    Sefaria.recentQueries.unshift({query, type});
+    AsyncStorage.setItem("recentQueries", JSON.stringify(Sefaria.recentQueries)).catch(function(error) {
+      console.error("AsyncStorage failed to save: " + error);
+    });
+  },
+  _loadRecentQueries: function() {
+    //return AsyncStorage.setItem("recentQueries", JSON.stringify([]));
+    return AsyncStorage.getItem("recentQueries").then(function(data) {
+      Sefaria.recentQueries = JSON.parse(data) || [];
     });
   },
   _deleteUnzippedFiles: function() {
