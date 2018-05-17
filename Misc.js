@@ -94,16 +94,16 @@ class CategorySideColorLink extends React.Component {
     const { theme, themeStr } = this.props;
     const isHeb = this.props.language === 'hebrew';
     const borderSide = isHeb ? "Right" : "Left";
-    const style  = {
-      [`border${borderSide}Color`]: Sefaria.palette.categoryColor(this.props.category),
-      [`border${borderSide}Width`]: 6,
-      justifyContent: isHeb ? 'flex-end' : 'flex-start',
-    };
     const text = isHeb ? (this.props.heText || Sefaria.hebrewCategory(this.props.category)) : this.props.enText;
 
     return (
-      <TouchableHighlight underlayColor={themeStr} style={[styles.categorySideColorLink, style, theme.menu, theme.borderedBottom]} onPress={this.props.onPress}>
-        <Text style={[isHeb ? styles.hebrewText : styles.englishText, theme.text]}>{text}</Text>
+      <TouchableHighlight underlayColor={themeStr} style={{flex:1}} onPress={this.props.onPress}>
+        <View style={{flex:1, flexDirection: isHeb ? "row-reverse" : "row"}}>
+          <View style={{width: 6, [`border${borderSide}Color`]: Sefaria.palette.categoryColor(this.props.category), [`border${borderSide}Width`]: 6,}} />
+          <View style={[styles.categorySideColorLink, theme.menu, theme.borderedBottom]}>
+            <Text style={[isHeb ? styles.hebrewText : styles.englishText, theme.text]}>{text}</Text>
+          </View>
+        </View>
       </TouchableHighlight>
     )
   }
@@ -333,7 +333,7 @@ class DirectedButton extends React.Component {
     var actualDirBack = (this.props.language === "hebrew"  && this.props.direction === "forward") || (this.props.language === "english" && this.props.direction === "back")
     return (
       <TouchableOpacity onPress={this.props.onPress}
-        style={{ flexDirection: actualDirBack ? "row-reverse" : "row" }}>
+        style={[{ flexDirection: actualDirBack ? "row-reverse" : "row" }, styles.headerButton, styles.leftHeaderButton]}>
         { this.props.text ? <Text style={this.props.textStyle}>{this.props.text}</Text> : null}
         <DirectedArrow
           themeStr={this.props.themeStr}

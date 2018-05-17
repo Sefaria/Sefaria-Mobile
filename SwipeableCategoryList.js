@@ -38,6 +38,7 @@ class SwipeableCategoryList extends React.Component {
     data:               PropTypes.array.isRequired,
     onRemove:           PropTypes.func.isRequired,
     title:              PropTypes.string.isRequired,
+    menuOpen:           PropTypes.oneOf(["saved", "history"]),
   };
 
   constructor(props) {
@@ -67,7 +68,12 @@ class SwipeableCategoryList extends React.Component {
   );
 
   renderRow = ({ item }) => (
-      <AnimatedRow ref={ref => { this._getRowRef(ref, item); }} animationDuration={250} onRemove={() => { this.props.onRemove(item); }}>
+      <AnimatedRow
+        ref={ref => { this._getRowRef(ref, item); }}
+        animationDuration={250}
+        onRemove={() => { this.props.onRemove(item); }}
+        style={{flex: 1, justifyContent: "center", alignItems: "center"}}
+      >
         <CategorySideColorLink
           theme={this.props.theme}
           themeStr={this.props.themeStr}
@@ -85,6 +91,7 @@ class SwipeableCategoryList extends React.Component {
   );
 
   render() {
+    const FlatListClass = this.props.menuOpen === "history" ? FlatList : SwipeableFlatList;  // disable swiping on history
     return (
       <View style={[styles.menu, this.props.theme.menu]}>
         <CategoryColorLine category={"Other"} />
@@ -95,7 +102,7 @@ class SwipeableCategoryList extends React.Component {
             imageStyle={[styles.menuButton, styles.directedButton]}
             direction="back"
             language="english"/>
-          <Text style={[styles.textTocHeaderTitle, styles.textCenter, this.props.theme.text]}>{this.props.title}</Text>
+          <Text style={[styles.textTocHeaderTitle, styles.noPadding, this.props.theme.text]}>{this.props.title.toUpperCase()}</Text>
           <LanguageToggleButton
             theme={this.props.theme}
             toggleLanguage={this.props.toggleLanguage}
@@ -104,7 +111,7 @@ class SwipeableCategoryList extends React.Component {
           />
         </View>
 
-        <SwipeableFlatList
+        <FlatListClass
           data={this.props.data}
           renderItem={this.renderRow}
           keyExtractor={this._keyExtractor}

@@ -46,6 +46,7 @@ class ConnectionsPanel extends React.Component {
     versionContents:      PropTypes.array,
     loading:              PropTypes.bool,
     segmentRef:           PropTypes.string.isRequired,
+    heSegmentRef:         PropTypes.string.isRequired,
     connectionsMode:      PropTypes.string,
     filterIndex:          PropTypes.number,
     recentFilters:        PropTypes.array.isRequired, /* of the form [{title,heTitle,refList}...] */
@@ -59,6 +60,7 @@ class ConnectionsPanel extends React.Component {
     onDragMove:           PropTypes.func.isRequired,
     onDragEnd:            PropTypes.func.isRequired,
     textTitle:            PropTypes.string.isRequired,
+    categories:           PropTypes.array.isRequired,
   };
 
   render() {
@@ -225,6 +227,9 @@ class ConnectionsPanel extends React.Component {
                 interfaceLang={this.props.interfaceLang}
                 versionsCount={this.props.versions.length}
                 setConnectionsMode={this.props.setConnectionsMode}
+                segmentRef={this.props.segmentRef}
+                heSegmentRef={this.props.heSegmentRef}
+                categories={this.props.categories}
               />
             );
           }
@@ -283,10 +288,14 @@ class ResourcesList extends React.Component {
     interfaceLang:      PropTypes.oneOf(["english", "hebrew"]).isRequired,
     setConnectionsMode: PropTypes.func.isRequired,
     versionsCount:      PropTypes.number.isRequired,
+    segmentRef:         PropTypes.string.isRequired,
+    heSegmentRef:       PropTypes.string.isRequired,
+    categories:         PropTypes.array.isRequired,
   }
 
   render() {
     const isWhite = this.props.themeStr === "white";
+    const isSaved = Sefaria.indexOfSaved(this.props.segmentRef) !== -1;
     return (
       <View>
         <ToolsButton
@@ -303,6 +312,24 @@ class ResourcesList extends React.Component {
           theme={this.props.theme}
           count={this.props.versionsCount}
           onPress={()=>{ this.props.setConnectionsMode("versions"); }}
+        />
+        <ToolsButton
+          interfaceLang={this.props.interfaceLang}
+          text={isSaved ? strings.saved : strings.save}
+          icon={isWhite ?
+                  (isSaved ? require('./img/starFilled.png') : require('./img/starUnfilled.png')) :
+                  (isSaved ? require('./img/starFilled-light.png') : require('./img/starUnfilled-light.png'))}
+          theme={this.props.theme}
+          onPress={
+            () => {
+              if (isSaved) {
+                Sefaria.removeSavedItem({ ref: this.props.segmentRef });
+              } else {
+                Sefaria.saveSavedItem({ ref: this.props.segmentRef, heRef: this.props.heSegmentRef, category: this.props.categories[0] });
+              }
+              this.forceUpdate();
+            }
+          }
         />
       </View>
     );

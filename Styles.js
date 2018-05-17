@@ -150,8 +150,8 @@ export default StyleSheet.create({
     marginRight: 0,
   },
   menuButton: {
-    width: 17,
-    height: 17,
+    width: 16,
+    height: 16,
   },
   menuButtonMargined: {
     width: 20,
@@ -437,13 +437,15 @@ export default StyleSheet.create({
     color: "black",
     backgroundColor: "transparent",
     fontSize: 15,
-    marginTop: -1
+    marginTop: 2,
+    marginLeft: 1,
   },
   languageToggleTextHe: {
     color: "black",
     backgroundColor: "transparent",
     fontSize: 19,
-    marginTop: 5,
+    marginTop: 4,
+    marginRight: 2,
   },
   readerNavSection: {
     marginVertical: 15
@@ -560,6 +562,12 @@ export default StyleSheet.create({
     paddingLeft: 10,
     textAlign: 'center',
     letterSpacing: 1
+  },
+  noPadding: {
+    paddingLeft: 0,
+    paddingRight: 0,
+    paddingTop: 0,
+    paddingBottom: 0,
   },
   mainTextPanel: {
     flexWrap: "nowrap",
@@ -976,10 +984,10 @@ export default StyleSheet.create({
   },
   categorySideColorLink: {
     flex:1,
-    flexDirection: 'row',
     borderBottomWidth: 1,
-    paddingVertical: 10,
-    paddingHorizontal: 10,
+    paddingTop: 14,
+    paddingBottom: 10,
+    paddingHorizontal: iPad ? 48 : 24,
   },
 //HTML Styles:
   strong: {

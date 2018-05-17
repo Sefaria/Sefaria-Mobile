@@ -252,6 +252,19 @@ Sefaria = {
       }
       return bookRefStem;
   },
+  toHeSegmentRef: function(heSectionRef, enSegmentRef) {
+    const enSections = enSegmentRef.substring(enSegmentRef.lastIndexOf(" ")+1).split(":");
+    const heSections = heSectionRef.substring(heSectionRef.lastIndexOf(" ")+1).split(":");
+    if (enSections.length === heSections.length) { return heSectionRef; }  // already segment level
+    else if (heSections.length + 1 === enSections.length) {
+      const segNum = parseInt(enSections[enSections.length-1]);
+      if (!segNum) { return heSectionRef; }
+      return `${heSectionRef}:${Sefaria.hebrew.encodeHebrewNumeral(segNum)}׳`
+    } else {
+      console.log("weirdness", heSectionRef, enSegmentRef);
+      return heSectionRef;
+    }
+  },
   booksDict: {},
   collectiveTitlesDict: {},
   _index: {}, // Cache for text index records

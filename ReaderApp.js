@@ -66,7 +66,7 @@ class ReaderApp extends React.Component {
 
     this.state = {
         offsetRef: null, /* used to jump to specific ref when opening a link*/
-        segmentRef: "", /* only used for highlighting right now */
+        segmentRef: "",
         segmentIndexRef: -1,
         sectionIndexRef: -1,
         textReference: "",
@@ -1218,6 +1218,7 @@ class ReaderApp extends React.Component {
             data={Sefaria.history}
             onRemove={Sefaria.removeHistoryItem}
             title={strings.history}
+            menuOpen={this.state.menuOpen}
           />
         );
         break;
@@ -1233,6 +1234,7 @@ class ReaderApp extends React.Component {
             data={Sefaria.saved}
             onRemove={Sefaria.removeSavedItem}
             title={strings.saved}
+            menuOpen={this.state.menuOpen}
           />
         );
     }
@@ -1310,6 +1312,8 @@ class ReaderApp extends React.Component {
                 themeStr={this.props.themeStr}
                 interfaceLang={this.state.interfaceLang}
                 segmentRef={this.state.segmentRef}
+                heSegmentRef={Sefaria.toHeSegmentRef(this.state.heRef, this.state.segmentRef)}
+                categories={Sefaria.categoriesForTitle(this.state.textTitle)}
                 textFlow={this.state.textFlow}
                 textLanguage={this.props.textLanguage}
                 openRef={(ref, versions)=>this.openRef(ref,"text list", versions)}
