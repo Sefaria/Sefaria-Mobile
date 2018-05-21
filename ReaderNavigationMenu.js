@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   View,
   Image,
+  Platform,
 } from 'react-native';
 
 import {
@@ -16,7 +17,6 @@ import {
   CategoryBlockLink,
   TwoBox,
   LanguageToggleButton,
-  Platform,
 } from './Misc.js';
 import VersionNumber from 'react-native-version-number';
 import SearchBar from './SearchBar';

@@ -152,6 +152,9 @@ export default StyleSheet.create({
   text: {
     color: Colors.mainForegroundContrast
   },
+  contrastText: {
+    color: Colors.mainForeground,
+  },
   secondaryText: {
     color: Colors.secondaryText,
   },
@@ -175,5 +178,8 @@ export default StyleSheet.create({
   },
   languageToggleText: {
     color: Colors.secondaryText
+  },
+  secondaryBackground: {
+    backgroundColor: Colors.secondaryText,
   },
 });

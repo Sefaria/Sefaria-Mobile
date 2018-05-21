@@ -13,6 +13,7 @@ import {
   Alert,
   SwipeableFlatList,
   FlatList,
+  Image,
 } from 'react-native';
 import {
   CategoryColorLine,
@@ -58,10 +59,10 @@ class SwipeableCategoryList extends React.Component {
   }
 
   renderDeleteButton = ({ item }) => (
-    <View style={{flex:1, backgroundColor: Sefaria.palette.categoryColors.Responsa}}>
+    <View style={[{flex:1}, this.props.theme.secondaryBackground]}>
       <TouchableOpacity onPress={() => { this.removeItem(item); }} style={{alignSelf: 'flex-end', justifyContent: 'center', flex:1, width:90}}>
-        <Text style={{textAlign: 'center', color: 'white'}}>
-          {"Delete"}
+        <Text style={[{textAlign: 'center'}, this.props.theme.contrastText]}>
+          {strings.remove}
         </Text>
       </TouchableOpacity>
     </View>
@@ -92,6 +93,7 @@ class SwipeableCategoryList extends React.Component {
 
   render() {
     const FlatListClass = this.props.menuOpen === "history" ? FlatList : SwipeableFlatList;  // disable swiping on history
+    const isWhite = this.props.themeStr === "white";
     return (
       <View style={[styles.menu, this.props.theme.menu]}>
         <CategoryColorLine category={"Other"} />
@@ -102,7 +104,16 @@ class SwipeableCategoryList extends React.Component {
             imageStyle={[styles.menuButton, styles.directedButton]}
             direction="back"
             language="english"/>
-          <Text style={[styles.textTocHeaderTitle, styles.noPadding, this.props.theme.text]}>{this.props.title.toUpperCase()}</Text>
+          <View style={{flex:1, flexDirection: "row", justifyContent: "center"}}>
+            <Image source={this.props.icon}
+              style={[styles.menuButton, styles.directedButton]}
+              resizeMode={Image.resizeMode.contain}
+            />
+            <Text
+              style={[styles.textTocHeaderTitle, {flex:0},styles.noPadding, this.props.theme.text]}>
+              {this.props.title.toUpperCase()}
+            </Text>
+          </View>
           <LanguageToggleButton
             theme={this.props.theme}
             toggleLanguage={this.props.toggleLanguage}

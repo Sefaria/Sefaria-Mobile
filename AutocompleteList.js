@@ -10,6 +10,7 @@ import {
   Linking,
   Image,
   ActionSheetIOS,
+  KeyboardAvoidingView,
 } from 'react-native';
 
 
@@ -64,7 +65,7 @@ class AutocompleteList extends React.Component {
               } else if (!!Sefaria.englishCategories[c] || !!Sefaria.hebrewCategories[c]) {
                 type = "toc";
               }
-              return {query: c, type, loading: true};
+              return {query: c, type, loading: false};
             }),
           completionsLang: results.lang})
         }
@@ -167,7 +168,7 @@ class AutocompleteList extends React.Component {
     const isheb = this.props.interfaceLang === "hebrew";
     const langStyle = !isheb ? styles.enInt : styles.heInt;
     return (
-      <View style={[styles.autocompleteList, this.props.theme.container, this.props.theme.bordered]}>
+      <KeyboardAvoidingView style={[styles.autocompleteList, this.props.theme.container, this.props.theme.bordered]} behavior="padding">
         {!!this.state.completions.length ?
           <FlatList
             keyExtractor={this._keyExtractor}
@@ -190,7 +191,7 @@ class AutocompleteList extends React.Component {
             />
           </View>
         };
-      </View>
+      </KeyboardAvoidingView>
     );
   }
 }

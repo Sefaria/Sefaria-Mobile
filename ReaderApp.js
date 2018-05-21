@@ -961,6 +961,7 @@ class ReaderApp extends React.Component {
     var size = 20;
     if (resetQuery && !fromBackButton) {
       this.setInitSearchScrollPos(0);
+      Sefaria.saveRecentQuery(query, "query");
     }
     if (!resetQuery) {
       newSearchPage = this.state.currSearchPage + 1;
@@ -1038,7 +1039,6 @@ class ReaderApp extends React.Component {
       isQueryRunning: true,
       searchFiltersValid: !getFilters,
     });
-    Sefaria.saveRecentQuery(query, "query");
   };
 
   setLoadQueryTail = (isLoading) => {
@@ -1219,6 +1219,7 @@ class ReaderApp extends React.Component {
             onRemove={Sefaria.removeHistoryItem}
             title={strings.history}
             menuOpen={this.state.menuOpen}
+            icon={this.props.themeStr === "white" ? require('./img/clock.png') : require('./img/clock-light.png')}
           />
         );
         break;
@@ -1235,6 +1236,7 @@ class ReaderApp extends React.Component {
             onRemove={Sefaria.removeSavedItem}
             title={strings.saved}
             menuOpen={this.state.menuOpen}
+            icon={this.props.themeStr === "white" ? require('./img/starUnfilled.png') : require('./img/starUnfilled-light.png')}
           />
         );
     }

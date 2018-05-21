@@ -292,7 +292,7 @@ export default StyleSheet.create({
     fontSize: 16,
     fontStyle: "normal",
     fontFamily: "Amiri",
-    paddingTop: 0,
+    paddingTop: 3,
     paddingRight: 20,
     backgroundColor: "transparent"
   },
@@ -832,7 +832,7 @@ export default StyleSheet.create({
     flex: -1,
     fontSize: iPad ? 22 : 18,
     paddingTop: 10,
-    marginTop: -5,
+    marginTop: -8,
   },
   bilingualEnglishText: {
     paddingTop: 10

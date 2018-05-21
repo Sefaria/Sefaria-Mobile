@@ -333,7 +333,7 @@ class DirectedButton extends React.Component {
     var actualDirBack = (this.props.language === "hebrew"  && this.props.direction === "forward") || (this.props.language === "english" && this.props.direction === "back")
     return (
       <TouchableOpacity onPress={this.props.onPress}
-        style={[{ flexDirection: actualDirBack ? "row-reverse" : "row" }, styles.headerButton, styles.leftHeaderButton]}>
+        style={[{ flexDirection: actualDirBack ? "row-reverse" : "row" }]}>
         { this.props.text ? <Text style={this.props.textStyle}>{this.props.text}</Text> : null}
         <DirectedArrow
           themeStr={this.props.themeStr}
