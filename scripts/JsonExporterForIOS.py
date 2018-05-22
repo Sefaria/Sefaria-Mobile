@@ -123,7 +123,7 @@ def export_texts(skip_existing=False):
     """
     indexes = model.library.all_index_records()
 
-    for index in reversed(indexes):
+    for index in reversed(indexes[:5]):
         if skip_existing and os.path.isfile("%s/%s.zip" % (EXPORT_PATH, index.title)):
             continue
         success = export_text(index)
@@ -176,7 +176,7 @@ def export_updated():
         try:
             updated_indexes += [model.library.get_index(t)]
         except BookNameError:
-            print "Skipping update for non-existent book '{}'".format(title)
+            print "Skipping update for non-existent book '{}'".format(t)
 
     for index, title in zip(updated_indexes, updated_books):
         success = export_text(index)
@@ -196,7 +196,7 @@ def updated_books_list():
     if not os.path.exists(LAST_UPDATED_PATH):
         return None
     last_updated = json.load(open(LAST_UPDATED_PATH, "rb")).get("titles", {})
-    updated_books = map(lambda x: x[0], filter(lambda x: has_updated(x[0], dateutil.parser.parse(x[1])), last_updated.items()))
+    updated_books = map(lambda x: x[0], filter(lambda x: has_updated(x[0], dateutil.parser.parse(x[1]['t'])), last_updated.items()))
     return updated_books
 
 
@@ -464,7 +464,11 @@ def write_last_updated(titles, update=False):
     last_updated = {
         "schema_version": SCHEMA_VERSION,
         "comment":"",
-        "titles": {title: timestamp for title in titles}
+        "titles": {
+            title: {
+                "t":timestamp,
+                "s": (os.path.getsize("{}/{}.zip".format(EXPORT_PATH, title))>>10)+1 if os.path.isfile("{}/{}.zip".format(EXPORT_PATH, title)) else 0  # get size in kb. overestimate by 1kb
+            } for title in titles}
     }
     #last_updated["SCHEMA_VERSION"] = SCHEMA_VERSION
     if update:
@@ -524,7 +528,10 @@ def new_books_since_last_update():
                     child_toc = child_toc["contents"]
                 books.update(get_books(child_toc, set()))
         else:
-            books.add(temp_toc["title"])
+            try:
+                books.add(temp_toc["title"])
+            except KeyError:
+                print "Bad Toc item skipping {}".format(temp_toc)
         return books
 
     last_updated = json.load(open(LAST_UPDATED_PATH, 'rb')) if os.path.exists(LAST_UPDATED_PATH) else {"titles": {}}
