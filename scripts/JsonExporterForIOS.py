@@ -123,7 +123,7 @@ def export_texts(skip_existing=False):
     """
     indexes = model.library.all_index_records()
 
-    for index in reversed(indexes[:5]):
+    for index in reversed(indexes):
         if skip_existing and os.path.isfile("%s/%s.zip" % (EXPORT_PATH, index.title)):
             continue
         success = export_text(index)
