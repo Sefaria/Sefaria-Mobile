@@ -12,6 +12,7 @@ import time
 import traceback
 import requests
 import p929
+import codecs
 from shutil import rmtree
 from random import random
 from pprint import pprint
@@ -53,7 +54,6 @@ any section has a version different than the default version
 
 SCHEMA_VERSION = "4"  # includes author info and new calendars
 EXPORT_PATH = SEFARIA_EXPORT_PATH + "/" + SCHEMA_VERSION
-MINIFY_JSON = True
 
 TOC_PATH          = "/toc.json"
 SEARCH_TOC_PATH   = "/search_toc.json"
@@ -72,26 +72,15 @@ def make_path(doc, format):
     return path
 
 
-def make_json(doc):
-    """
-    Returns JSON of `doc` with export settings.
-    """
-    if MINIFY_JSON:
-        return json.dumps(doc, separators=(',',':'), encoding='utf-8', ensure_ascii=False) #minified
-    else:
-        return json.dumps(doc, indent=4, encoding='utf-8', ensure_ascii=False) #prettified
-
-
 def write_doc(doc, path):
     """
     Takes a dictionary `doc` ready to export and actually writes the file to the filesystem.
     """
 
-    out  = make_json(doc)
     if not os.path.exists(os.path.dirname(path)):
         os.makedirs(os.path.dirname(path))
-    with open(path, "w") as f:
-        f.write(out.encode('utf-8'))
+    with codecs.open(path, "wb", encoding='utf-8') as f:
+        json.dump(doc, f, encoding='utf-8', ensure_ascii=False, indent=(None if MINIFY_JSON else 4), separators=((',',':') if MINIFY_JSON else None))
 
 
 def zip_last_text(title):
@@ -196,7 +185,7 @@ def updated_books_list():
     if not os.path.exists(LAST_UPDATED_PATH):
         return None
     last_updated = json.load(open(LAST_UPDATED_PATH, "rb")).get("titles", {})
-    updated_books = map(lambda x: x[0], filter(lambda x: has_updated(x[0], dateutil.parser.parse(x[1]['t'])), last_updated.items()))
+    updated_books = map(lambda x: x[0], filter(lambda x: has_updated(x[0], dateutil.parser.parse(x[1])), last_updated.items()))
     return updated_books
 
 
@@ -455,20 +444,80 @@ def export_index(index):
         return False
 
 
+def get_indexes_in_category(cats, toc):
+    indexes = []
+    for temp_toc in toc:
+        if u"contents" in temp_toc and (len(cats) == 0 or temp_toc[u"category"] == cats[0]):
+            indexes += get_indexes_in_category(cats[1:], temp_toc[u"contents"])
+        elif u"title" in temp_toc:
+            indexes += [temp_toc[u"title"]]
+    return indexes
+
+
+def get_downloadable_packages():
+    toc = model.library.get_toc()
+    packages = [
+        {
+            u"en": "Tanakh with Rashi",
+            u"he": u"תנ״ך עם רש״י",
+            u"color": "Tanakh",
+            u"categories": [
+                "Tanakh/Torah",
+                "Tanakh/Prophets",
+                "Tanakh/Writings",
+                "Tanakh/Commentary/Rashi"
+            ]
+        },
+        {
+            u"en": "Talmud with Rashi and Tosafot",
+            u"he": u"תלמוד עם רש״י ותוספות",
+            u"color": "Talmud",
+            u"categories": [
+                "Talmud/Bavli/Seder Zeraim",
+                "Talmud/Bavli/Seder Moed",
+                "Talmud/Bavli/Seder Nashim",
+                "Talmud/Bavli/Seder Nezikin",
+                "Talmud/Bavli/Seder Kodashim",
+                "Talmud/Bavli/Seder Tahorot",
+                "Talmud/Bavli/Commentary/Rashi",
+                "Talmud/Bavli/Commentary/Tosafot"
+            ]
+        }
+    ]
+    # Add all top-level categories
+    for cat in toc:
+        packages += [{
+            u"en": cat[u"category"],
+            u"he": cat[u"heCategory"],
+            u"categories": [cat[u"category"]]
+        }]
+    for p in packages:
+        indexes = []
+        for c in p[u"categories"]:
+            indexes += get_indexes_in_category(c.split("/"), toc)
+        size = 0
+        for i in indexes:
+            size += os.path.getsize("{}/{}.zip".format(EXPORT_PATH, i)) if os.path.isfile("{}/{}.zip".format(EXPORT_PATH, i)) else 0  # get size in kb. overestimate by 1kb
+        del p[u"categories"]
+        p[u"indexes"] = indexes
+        p[u"size"] = size
+    return packages
+
 def write_last_updated(titles, update=False):
     """
     Writes to `last_updated.json` the current time stamp for all `titles`.
     :param update: True if you only want to update the file and not overwrite
     """
+
     timestamp = datetime.now().replace(second=0, microsecond=0).isoformat()
     last_updated = {
         "schema_version": SCHEMA_VERSION,
         "comment":"",
+        "packages": get_downloadable_packages(),
         "titles": {
-            title: {
-                "t":timestamp,
-                "s": (os.path.getsize("{}/{}.zip".format(EXPORT_PATH, title))>>10)+1 if os.path.isfile("{}/{}.zip".format(EXPORT_PATH, title)) else 0  # get size in kb. overestimate by 1kb
-            } for title in titles}
+            title: timestamp
+            for title in titles
+        }
     }
     #last_updated["SCHEMA_VERSION"] = SCHEMA_VERSION
     if update:
@@ -728,3 +777,5 @@ if __name__ == '__main__':
         export_authors()
     elif action == "export_base_files_to_sources":
         export_base_files_to_sources()
+    elif action == "write_last_updated":  # for updating package infor
+        write_last_updated([], True)
