@@ -57,6 +57,7 @@ class AutocompleteList extends React.Component {
       Sefaria.api.name(q)
       .then(results => {
         if (this._isMounted) {
+          const typeToValue = { "ref": 3, "person": 1, "toc": 2 }
           this.setState({completions: results.completions.map(c =>
             {
               let type = "ref";
@@ -66,7 +67,8 @@ class AutocompleteList extends React.Component {
                 type = "toc";
               }
               return {query: c, type, loading: false};
-            }),
+            })
+            .stableSort((a,b) => typeToValue[a.type] - typeToValue[b.type]),
           completionsLang: results.lang})
         }
       })
@@ -172,7 +174,7 @@ class AutocompleteList extends React.Component {
         {!!this.state.completions.length ?
           <FlatList
             keyExtractor={this._keyExtractor}
-            contentContainerStyle={{paddingVertical: 20}}
+            contentContainerStyle={{paddingBottom: 20}}
             keyboardShouldPersistTaps={'handled'}
             data={this.state.completions}
             renderItem={this.renderItem}

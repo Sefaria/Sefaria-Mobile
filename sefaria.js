@@ -682,7 +682,12 @@ Sefaria = {
   },
   saveRecentQuery: function(query, type) {
     //type = ["ref", "book", "person", "toc", "query"]
+    const newQuery = {query, type};
+    if (Sefaria.recentQueries.length > 0 && Sefaria.recentQueries[0].query === newQuery.query && Sefaria.recentQueries[0].type === newQuery.type) {
+      return;  // don't add duplicate queries in a row
+    }
     Sefaria.recentQueries.unshift({query, type});
+    Sefaria.recentQueries = Sefaria.recentQueries.slice(0,100);
     AsyncStorage.setItem("recentQueries", JSON.stringify(Sefaria.recentQueries)).catch(function(error) {
       console.error("AsyncStorage failed to save: " + error);
     });
@@ -1652,6 +1657,25 @@ Sefaria.palette.categoryColor = function(cat) {
   }
   return Sefaria.palette.categoryColors["Other"];
 };
+
+Array.prototype.stableSort = function(cmp) {
+  cmp = !!cmp ? cmp : (a, b) => {
+    if (a < b) return -1;
+    if (a > b) return 1;
+    return 0;
+  };
+  let stabilizedThis = this.map((el, index) => [el, index]);
+  let stableCmp = (a, b) => {
+    let order = cmp(a[0], b[0]);
+    if (order != 0) return order;
+    return a[1] - b[1];
+  }
+  stabilizedThis.sort(stableCmp);
+  for (let i=0; i<this.length; i++) {
+    this[i] = stabilizedThis[i][0];
+  }
+  return this;
+}
 
 //for debugging. from https://gist.github.com/zensh/4975495
 Sefaria.memorySizeOf = function (obj) {

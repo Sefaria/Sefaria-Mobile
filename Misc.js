@@ -56,10 +56,12 @@ class CategoryBlockLink extends React.Component {
     withArrow: PropTypes.bool,
     onPress:   PropTypes.func,
     icon:      PropTypes.number,
+    iconSide:  PropTypes.oneOf(["start", "end"])
   };
 
   render() {
     const isHeb = this.props.language == "hebrew";
+    const iconOnLeft = this.props.iconSide ? this.props.iconSide === "start" ^ isHeb : isHeb;
     var style  = this.props.style || {"borderColor": Sefaria.palette.categoryColor(this.props.category)};
     var enText = this.props.upperCase ? this.props.category.toUpperCase() : this.props.category;
     var heText = this.props.heCat || Sefaria.hebrewCategory(this.props.category);
@@ -68,13 +70,13 @@ class CategoryBlockLink extends React.Component {
       (<Text style={[this.props.isSans ? styles.heInt : styles.hebrewText].concat(textStyle)}>{heText}</Text>) :
       (<Text style={[this.props.isSans ? styles.enInt : styles.englishText].concat(textStyle)}>{enText}</Text>);
     return (<TouchableOpacity onPress={this.props.onPress} style={[styles.readerNavCategory, this.props.theme.readerNavCategory, style]}>
-              <Image source={ this.props.withArrow || !this.props.icon ? (this.props.themeStr == "white" ? require('./img/back.png') : require('./img/back-light.png')) : this.props.icon }
-                style={[styles.moreArrowHe, this.props.isSans ? styles.categoryBlockLinkIconSansHe : null, !isHeb || (!this.props.withArrow && !this.props.icon) ? {opacity: 0} : null]}
-                resizeMode={Image.resizeMode.contain} />
+              { iconOnLeft && (this.props.withArrow || this.props.icon) ? <Image source={ this.props.withArrow || !this.props.icon ? (this.props.themeStr == "white" ? require('./img/back.png') : require('./img/back-light.png')) : this.props.icon }
+                style={[styles.moreArrowHe, this.props.isSans ? styles.categoryBlockLinkIconSansHe : null]}
+                resizeMode={Image.resizeMode.contain} /> : null }
               {content}
-              <Image source={ this.props.withArrow || !this.props.icon ? (this.props.themeStr == "white" ? require('./img/forward.png'): require('./img/forward-light.png')) : this.props.icon }
-                style={[styles.moreArrowEn, this.props.isSans ? styles.categoryBlockLinkIconSansEn : null, isHeb || (!this.props.withArrow && !this.props.icon) ? {opacity: 0} : null]}
-                resizeMode={Image.resizeMode.contain} />
+              { !iconOnLeft && (this.props.withArrow || this.props.icon) ? <Image source={ this.props.withArrow || !this.props.icon ? (this.props.themeStr == "white" ? require('./img/forward.png'): require('./img/forward-light.png')) : this.props.icon }
+                style={[styles.moreArrowEn, this.props.isSans ? styles.categoryBlockLinkIconSansEn : null]}
+                resizeMode={Image.resizeMode.contain} /> : null }
             </TouchableOpacity>);
   }
 }

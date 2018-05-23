@@ -149,6 +149,14 @@ export default StyleSheet.create({
     marginLeft: 12,
     marginRight: 0,
   },
+  headerIconWithTextEn: {
+    marginLeft: 0,
+    marginRight: 8,
+  },
+  headerIconWithTextHe: {
+    marginLeft: 8,
+    marginRight: 0,
+  },
   menuButton: {
     width: 16,
     height: 16,

@@ -82,8 +82,8 @@ class SearchPage extends React.Component {
               interfaceLang={this.props.interfaceLang}
               theme={this.props.theme}
               themeStr={this.props.themeStr}
-              openNav={this.props.openNav}
-              closeNav={this.props.closeNav}
+              onBack={this.props.openNav}
+              onClose={this.props.closeNav}
               leftMenuButton="back"
               search={this.props.search}
               query={this.props.query}

@@ -36,6 +36,7 @@ class SwipeableCategoryList extends React.Component {
     toggleLanguage:     PropTypes.func.isRequired,
     openRef:            PropTypes.func.isRequired,
     language:           PropTypes.oneOf(["english","hebrew"]),
+    interfaceLang:      PropTypes.oneOf(["english","hebrew"]),
     data:               PropTypes.array.isRequired,
     onRemove:           PropTypes.func.isRequired,
     title:              PropTypes.string.isRequired,
@@ -94,6 +95,7 @@ class SwipeableCategoryList extends React.Component {
   render() {
     const FlatListClass = this.props.menuOpen === "history" ? FlatList : SwipeableFlatList;  // disable swiping on history
     const isWhite = this.props.themeStr === "white";
+    const isHeb = this.props.interfaceLang === "hebrew";
     return (
       <View style={[styles.menu, this.props.theme.menu]}>
         <CategoryColorLine category={"Other"} />
@@ -106,7 +108,7 @@ class SwipeableCategoryList extends React.Component {
             language="english"/>
           <View style={{flex:1, flexDirection: "row", justifyContent: "center"}}>
             <Image source={this.props.icon}
-              style={[styles.menuButton, styles.directedButton]}
+              style={[styles.menuButton, isHeb ? styles.headerIconWithTextHe : styles.headerIconWithTextEn]}
               resizeMode={Image.resizeMode.contain}
             />
             <Text

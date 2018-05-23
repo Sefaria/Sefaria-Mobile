@@ -146,8 +146,8 @@ class ReaderNavigationMenu extends React.Component {
                 interfaceLang={this.props.interfaceLang}
                 theme={this.props.theme}
                 themeStr={this.props.themeStr}
-                openNav={this.props.openNav}
-                closeNav={this.props.closeNav}
+                onBack={this.props.openNav}
+                onClose={this.props.closeNav}
                 leftMenuButton="close"
                 search={this.props.openSearch}
                 setIsNewSearch={this.props.setIsNewSearch}
@@ -165,10 +165,11 @@ class ReaderNavigationMenu extends React.Component {
                       category={"History"}
                       heCat={"היסטוריה"}
                       language={this.props.menuLanguage}
-                      style={{borderTopWidth: 0, paddingVertical: 12}}
+                      style={{flex:1 , paddingVertical: 12, borderRadius: 5, borderWidth: 1, borderTopWidth: 1, borderColor: "#ccc"}}
                       isSans={true}
                       icon={isWhite ? require('./img/clock.png') : require('./img/clock-light.png')}
                       onPress={this.props.openHistory}
+                      iconSide="start"
                     />
                   </View>
                   <View style={styles.twoBoxItem}>
@@ -177,10 +178,11 @@ class ReaderNavigationMenu extends React.Component {
                       category={"Saved"}
                       heCat={"שמורים"}
                       language={this.props.menuLanguage}
-                      style={{borderTopWidth: 0, paddingVertical: 12}}
+                      style={{flex: 1, paddingVertical: 12, borderRadius: 5, borderWidth: 1, borderTopWidth: 1, borderColor: "#ccc"}}
                       isSans={true}
                       icon={isWhite ? require('./img/starUnfilled.png') : require('./img/starUnfilled-light.png')}
                       onPress={this.props.openSaved}
+                      iconSide="start"
                     />
                   </View>
                 </View>

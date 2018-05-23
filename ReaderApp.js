@@ -609,7 +609,7 @@ class ReaderApp extends React.Component {
       case "search":
         Sefaria.track.event("Search","Search Result Text Click",this.state.searchQuery + ' - ' + ref);
         //this.state.backStack=["SEARCH:"+this.state.searchQuery];
-        this.addBackItem("search", this.state.searchQuery);
+        this.addBackItem("search", this.searchBackFunc.bind(this, {query: this.state.searchQuery}));
         break;
       case "navigation":
         Sefaria.track.event("Reader","Navigation Text Click", ref);
@@ -619,7 +619,7 @@ class ReaderApp extends React.Component {
       case "text list":
         Sefaria.track.event("Reader","Click Text from TextList",ref);
         //this.state.backStack.push(this.state.segmentRef);
-        this.addBackItem("text list", {ref: this.state.segmentRef, versions: this.state.selectedVersions});
+        this.addBackItem("text column", this.textColumnBackFunc.bind(this, {ref: this.state.segmentRef, versions: this.state.selectedVersions}));
         break;
       default:
         break;
@@ -635,13 +635,26 @@ class ReaderApp extends React.Component {
 
   };
 
-  addBackItem = (page, state) => {
-    //page - currently can be either "search", "search filter", or "text list"
-    //state - state object required to rebuild previous state
-    this.state.backStack.push({"page": page, "state": state});
+  addBackItem = (page, stateFunc) => {
+    //page - this.state.menuOpen
+    //stateFunc - func required to rebuild previous state
+    this.state.backStack.push({page, stateFunc});
+  };
+
+  searchBackFunc = state => {
+    this.onQueryChange(state.query,true,true);
+    this.openSearch();
+  };
+
+  textColumnBackFunc = state => {
+    this.openRef(state.ref, null, state.versions);
   };
 
   openMenu = (menu) => {
+    const staleBackPages = ["autocomplete"];  // these are pages that if in the backstack should be removed before navigating to a new page
+    while (this.state.backStack.length > 0 && staleBackPages.indexOf(this.state.backStack[this.state.backStack.length-1].page) !== -1) {
+      this.state.backStack.pop();
+    }
     this.setState({menuOpen: menu});
   };
 
@@ -664,14 +677,8 @@ class ReaderApp extends React.Component {
   };
 
   goBack = () => {
-    if /* last page was search page */((this.state.backStack.slice(-1)[0]).page === "search") {
-      this.onQueryChange((this.state.backStack.pop()).state,true,true);
-      this.openSearch();
-    }
-    else /*is ref*/ {
-      const { state } = this.state.backStack.pop();
-      this.openRef(state.ref, null, state.versions);
-    }
+    const { stateFunc } = this.state.backStack.pop();
+    stateFunc();
   };
 
   setNavigationCategories = (categories) => {
@@ -700,7 +707,9 @@ class ReaderApp extends React.Component {
   };
 
   openAutocomplete = () => {
+    const stateFunc = this.state.menuOpen === "search" ? this.searchBackFunc.bind(this, {query: this.state.searchQuery}) : this.openNav
     this.openMenu("autocomplete");
+    this.addBackItem("autocomplete", stateFunc);
   }
 
   clearMenuState = () => {
@@ -1186,8 +1195,7 @@ class ReaderApp extends React.Component {
             interfaceLang={this.state.interfaceLang}
             theme={this.props.theme}
             themeStr={this.props.themeStr}
-            openNav={this.openNav}
-            closeNav={this.closeMenu}
+            goBack={this.goBack}
             search={this.search}
             setIsNewSearch={this.setIsNewSearch}
             onChange={this.onChangeSearchQuery}
@@ -1215,6 +1223,7 @@ class ReaderApp extends React.Component {
             toggleLanguage={this.toggleMenuLanguage}
             openRef={this.openRef}
             language={this.props.menuLanguage}
+            interfaceLang={this.state.interfaceLang}
             data={Sefaria.history}
             onRemove={Sefaria.removeHistoryItem}
             title={strings.history}
