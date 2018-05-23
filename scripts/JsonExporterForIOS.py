@@ -554,6 +554,24 @@ def export_hebrew_categories(for_sources=False):
     write_doc(hebrew_cats_json, (SEFARIA_IOS_SOURCES_PATH if for_sources else EXPORT_PATH) + HEB_CATS_PATH)
 
 
+def remove_silly_toc_nodes(toc):
+    newToc = []
+    for t in toc:
+        if "contents" in t:
+            new_item = {}
+            for k, v in t.items():
+                if k != "contents":
+                    new_item[k] = v
+            newToc += [new_item]
+            newToc[-1]["contents"] = remove_silly_toc_nodes(t["contents"])
+        elif "title" in t:
+            newToc += [{k: v for k, v in t.items()}]
+        else:
+            print "Goodbye {}".format(t.keys())
+    return newToc
+
+
+
 def export_toc(for_sources=False):
     """
     Writes the Table of Contents JSON to a single file.
@@ -561,8 +579,10 @@ def export_toc(for_sources=False):
     print "Export Table of Contents"
     new_toc = model.library.get_toc()
     new_search_toc = model.library.get_search_filter_toc()
-    write_doc(new_toc, (SEFARIA_IOS_SOURCES_PATH if for_sources else EXPORT_PATH) + TOC_PATH)
-    write_doc(new_search_toc, (SEFARIA_IOS_SOURCES_PATH if for_sources else EXPORT_PATH) + SEARCH_TOC_PATH)
+    new_new_toc = remove_silly_toc_nodes(new_toc)
+    new_new_search_toc = remove_silly_toc_nodes(new_search_toc)
+    write_doc(new_new_toc, (SEFARIA_IOS_SOURCES_PATH if for_sources else EXPORT_PATH) + TOC_PATH)
+    write_doc(new_new_search_toc, (SEFARIA_IOS_SOURCES_PATH if for_sources else EXPORT_PATH) + SEARCH_TOC_PATH)
 
 
 def new_books_since_last_update():
