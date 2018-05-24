@@ -158,34 +158,13 @@ class ReaderNavigationMenu extends React.Component {
                 onFocus={this.props.openAutocomplete}/>
               <ScrollView style={styles.menuContent} contentContainerStyle={styles.menuScrollViewContent}>
 
-                <View style={styles.twoBoxRow}>
-                  <View style={styles.twoBoxItem}>
-                    <CategoryBlockLink
-                      theme={this.props.theme}
-                      category={"History"}
-                      heCat={"היסטוריה"}
-                      language={this.props.menuLanguage}
-                      style={{flex:1 , paddingVertical: 12, borderRadius: 5, borderWidth: 1, borderTopWidth: 1, borderColor: "#ccc"}}
-                      isSans={true}
-                      icon={isWhite ? require('./img/clock.png') : require('./img/clock-light.png')}
-                      onPress={this.props.openHistory}
-                      iconSide="start"
-                    />
-                  </View>
-                  <View style={styles.twoBoxItem}>
-                    <CategoryBlockLink
-                      theme={this.props.theme}
-                      category={"Saved"}
-                      heCat={"שמורים"}
-                      language={this.props.menuLanguage}
-                      style={{flex: 1, paddingVertical: 12, borderRadius: 5, borderWidth: 1, borderTopWidth: 1, borderColor: "#ccc"}}
-                      isSans={true}
-                      icon={isWhite ? require('./img/starUnfilled.png') : require('./img/starUnfilled-light.png')}
-                      onPress={this.props.openSaved}
-                      iconSide="start"
-                    />
-                  </View>
-                </View>
+                <SavedHistorySection
+                  theme={this.props.theme}
+                  isWhite={isWhite}
+                  menuLanguage={this.props.menuLanguage}
+                  openHistory={this.props.openHistory}
+                  openSaved={this.props.openSaved}
+                />
 
                 <ReaderNavigationMenuSection
                   theme={this.props.theme}
@@ -291,6 +270,37 @@ class CalendarSection extends React.Component {
               interfaceLang={this.props.interfaceLang} />);
   }
 }
+
+const SavedHistorySection = ({ theme, isWhite, menuLanguage, openHistory, openSaved }) => (
+  <View style={[styles.twoBoxRow, {marginVertical: 15}]}>
+    <View style={styles.twoBoxItem}>
+      <CategoryBlockLink
+        theme={theme}
+        category={"History"}
+        heCat={"היסטוריה"}
+        language={menuLanguage}
+        style={{flex:1 , paddingVertical: 12, borderRadius: 5, borderWidth: 1, borderTopWidth: 1, borderColor: "#ccc"}}
+        isSans={true}
+        icon={isWhite ? require('./img/clock.png') : require('./img/clock-light.png')}
+        onPress={openHistory}
+        iconSide="start"
+      />
+    </View>
+    <View style={styles.twoBoxItem}>
+      <CategoryBlockLink
+        theme={theme}
+        category={"Saved"}
+        heCat={"שמורים"}
+        language={menuLanguage}
+        style={{flex: 1, paddingVertical: 12, borderRadius: 5, borderWidth: 1, borderTopWidth: 1, borderColor: "#ccc"}}
+        isSans={true}
+        icon={isWhite ? require('./img/starUnfilled.png') : require('./img/starUnfilled-light.png')}
+        onPress={openSaved}
+        iconSide="start"
+      />
+    </View>
+  </View>
+);
 
 class ReaderNavigationMenuSection extends React.Component {
   // A Section on the main navigation which includes a title over a grid of options

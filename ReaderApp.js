@@ -672,7 +672,15 @@ class ReaderApp extends React.Component {
 
   openNav = () => {
       this.clearAllSearchFilters();
-      this.setState({loaded: true, appliedSearchFilters: [], searchFiltersValid: false, textListVisible: false, textReference: '', heRef: ''});
+      this.setState({
+        loaded: true,
+        searchQuery: "",
+        appliedSearchFilters: [],
+        searchFiltersValid: false,
+        textListVisible: false,
+        textReference: '',
+        heRef: ''
+      });
       this.openMenu("navigation");
   };
 
@@ -707,7 +715,7 @@ class ReaderApp extends React.Component {
   };
 
   openAutocomplete = () => {
-    const stateFunc = this.state.menuOpen === "search" ? this.searchBackFunc.bind(this, {query: this.state.searchQuery}) : this.openNav
+    const stateFunc = this.state.menuOpen === "search" ? this.searchBackFunc.bind(this, {query: this.state.searchQuery}) : this.openNav;
     this.openMenu("autocomplete");
     this.addBackItem("autocomplete", stateFunc);
   }

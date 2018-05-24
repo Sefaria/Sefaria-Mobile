@@ -431,6 +431,11 @@ export default StyleSheet.create({
   menuScrollViewContent: {
     paddingBottom: 100,
   },
+  cancelSearchButton: {
+    width: 16,
+    height: 16,
+    marginHorizontal: 20,
+  },
   languageToggle: {
     width: 30,
     height: 30,

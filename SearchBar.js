@@ -6,7 +6,8 @@ import {
   TouchableOpacity,
   Text,
   View,
-  TextInput
+  TextInput,
+  Image,
 } from 'react-native';
 
 import {
@@ -32,6 +33,7 @@ class SearchBar extends React.Component {
     setIsNewSearch:  PropTypes.func.isRequired,
     toggleLanguage:  PropTypes.func,
     language:        PropTypes.string,
+    hideSearchButton:PropTypes.bool,
     query:           PropTypes.string.isRequired,
     onChange:        PropTypes.func.isRequired,
     onFocus:         PropTypes.func,
@@ -48,6 +50,10 @@ class SearchBar extends React.Component {
     this._textInput.focus();
   };
 
+  deleteQuery = () => {
+    this.props.onChange("");
+  };
+
   _getTextInputRef = ref => {
     this._textInput = ref;
   };
@@ -56,7 +62,6 @@ class SearchBar extends React.Component {
     var textInputStyle = [styles.searchInput, this.props.interfaceLang === "hebrew" ? styles.hebrewSystemFont : null, this.props.theme.text];
     //TODO sorry for the hard-coded colors. because the prop placeholderTextColor of TextInput doesn't take a style and instead requires an explicit color string, I had to do it this way
     var placeholderTextColor = this.props.themeStr == "black" ? "#BBB" : "#777";
-
     //TODO make flex dependent on results. animate opening of results
     return (
       <View style={{flexDirection: 'column', flex:0}}>
@@ -70,7 +75,9 @@ class SearchBar extends React.Component {
               language="english"
               direction="back"/>
           }
-          <SearchButton onPress={this.submitSearch} theme={this.props.theme} themeStr={this.props.themeStr} />
+          { this.props.hideSearchButton ? null :
+            <SearchButton onPress={this.submitSearch} theme={this.props.theme} themeStr={this.props.themeStr} />
+          }
           <TextInput
             ref={this._getTextInputRef}
             style={textInputStyle}
@@ -81,6 +88,13 @@ class SearchBar extends React.Component {
             placeholder={strings.search}
             placeholderTextColor={placeholderTextColor}
             autoCorrect={false} />
+          {this.props.query.length ?
+            <CancelButton
+              themeStr={this.props.themeStr}
+              onPress={this.deleteQuery}
+            />
+            : null
+          }
           {this.props.toggleLanguage ?
             <LanguageToggleButton
               theme={this.props.theme}
@@ -94,5 +108,15 @@ class SearchBar extends React.Component {
     );
   }
 }
+
+const CancelButton = ({ themeStr, onPress }) => (
+  <TouchableOpacity onPress={onPress}>
+    <Image
+      source={themeStr === 'white' ? require('./img/circle-close.png') : require('./img/circle-close-light.png')}
+      style={styles.cancelSearchButton}
+      resizeMode={Image.resizeMode.contain}
+    />
+  </TouchableOpacity>
+);
 
 export default SearchBar;

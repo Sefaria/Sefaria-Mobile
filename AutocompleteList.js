@@ -54,7 +54,7 @@ class AutocompleteList extends React.Component {
 
   onQueryChange = q => {
     if (q.length >= 3) {
-      Sefaria.api.name(q)
+      Sefaria.api.name(q, true)
       .then(results => {
         if (this._isMounted) {
           const typeToValue = { "ref": 3, "person": 1, "toc": 2 }
@@ -68,7 +68,8 @@ class AutocompleteList extends React.Component {
               }
               return {query: c, type, loading: false};
             })
-            .stableSort((a,b) => typeToValue[a.type] - typeToValue[b.type]),
+            .stableSort((a,b) => typeToValue[a.type] - typeToValue[b.type])
+            .concat([{query: `Search for: "${this.props.query}"`, type: "searchFor", loading: false}]), // always add a searchFor element at the bottom
           completionsLang: results.lang})
         }
       })
@@ -86,7 +87,7 @@ class AutocompleteList extends React.Component {
     const [currList, currListKey] = this.state.completions[index] ? [this.state.completions, "completions"] : [this.state.recentQueries, "recentQueries"];
     currList[index].loading = true;
     this.setState({[currListKey]: currList});
-    Sefaria.api.name(query).then(d => {
+    Sefaria.api.name(query, false).then(d => {
       currList[index].loading = false;
       this.setState({[currListKey]: currList});
       // If the query isn't recognized as a ref, but only for reasons of capitalization. Resubmit with recognizable caps.
@@ -126,6 +127,7 @@ class AutocompleteList extends React.Component {
     const isHeb = this.state.completionsLang === 'he';
     let src;
     switch (item.type) {
+      case "searchFor":
       case "query":
         src = this.props.themeStr === "white" ? require("./img/search.png") : require("./img/search-light.png");
         break;
@@ -144,6 +146,8 @@ class AutocompleteList extends React.Component {
         onPress={()=>{
           if (item.type === 'query') {
             this.props.search(item.query);
+          } else if (item.type === 'searchFor') {
+            this.props.search(this.props.query);
           } else {
             this.openRef(item.query, index);
           }

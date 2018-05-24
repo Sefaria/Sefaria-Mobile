@@ -72,6 +72,7 @@ class AutocompletePage extends React.Component {
           query={this.props.query}
           setIsNewSearch={this.props.setIsNewSearch}
           onChange={this.props.onChange}
+          hideSearchButton={true}
         />
         <AutocompleteList
           interfaceLang={this.props.interfaceLang}
