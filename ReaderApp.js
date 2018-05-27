@@ -1390,8 +1390,18 @@ class ReaderApp extends React.Component {
     if (cat) {
       style = {backgroundColor: Sefaria.util.lightenDarkenColor(Sefaria.palette.categoryColor(cat), -25)};
     }*/
+    const nAvailable  = Sefaria.downloader.titlesAvailable().length;
+    const nUpdates    = Sefaria.downloader.updatesAvailable().length;
     return (
       <SafeAreaView style={styles.safeArea}>
+        {
+          Sefaria.downloader.downloading ?
+          <SefariaProgressBar
+            theme={this.props.theme}
+            themeStr={this.props.themeStr}
+            progress={(nAvailable - nUpdates) / nAvailable}
+          />
+        }
         <View style={[styles.container, this.props.theme.container]} {...this.gestureResponder}>
             <StatusBar
               barStyle="light-content"
