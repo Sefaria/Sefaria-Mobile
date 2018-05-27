@@ -57,8 +57,8 @@ class AutocompleteList extends React.Component {
       Sefaria.api.name(q, true)
       .then(results => {
         if (this._isMounted) {
-          const typeToValue = { "ref": 3, "person": 1, "toc": 2 }
-          this.setState({completions: results.completions.map(c =>
+          const typeToValue = { "ref": 1, "person": 3, "toc": 2 }
+          this.setState({completions: results.completions.map((c,i) =>
             {
               let type = "ref";
               if (!!Sefaria.people[c.toLowerCase()]) {
@@ -66,6 +66,7 @@ class AutocompleteList extends React.Component {
               } else if (!!Sefaria.englishCategories[c] || !!Sefaria.hebrewCategories[c]) {
                 type = "toc";
               }
+              if (i === 0) {typeToValue[type] = 0;}  // priveledge the first results' type
               return {query: c, type, loading: false};
             })
             .stableSort((a,b) => typeToValue[a.type] - typeToValue[b.type])
