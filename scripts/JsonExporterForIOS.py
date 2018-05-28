@@ -471,7 +471,7 @@ def get_downloadable_packages():
             u"he": "כל הספרייה",
             u"color": "Other",
             u"categories": []
-        }
+        },
         {
             u"en": "TANAKH with Rashi",
             u"he": u"תנ״ך עם רש״י",
