@@ -168,10 +168,11 @@ def export_updated():
         except BookNameError:
             print "Skipping update for non-existent book '{}'".format(t)
 
-    for index, title in zip(updated_indexes, updated_books):
+    updated_books = map(lambda x: x.title, updated_indexes)
+    for index in updated_indexes:
         success = export_text(index)
         if not success:
-            updated_books.remove(title) # don't include books which dont export
+            updated_books.remove(index.title) # don't include books which dont export
 
     export_toc()
     export_hebrew_categories()
