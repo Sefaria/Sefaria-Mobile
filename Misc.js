@@ -230,7 +230,7 @@ class LibraryNavButton extends React.Component {
     theme:           PropTypes.object,
     themeStr:        PropTypes.string,
     menuLanguage:    PropTypes.string.isRequired,
-    isCat:           PropTypes.bool.isRequired,
+    catColor:        PropTypes.string,
     onPress:         PropTypes.func.isRequired,
     onPressCheckBox: PropTypes.func,
     checkBoxSelected:PropTypes.number,
@@ -242,11 +242,9 @@ class LibraryNavButton extends React.Component {
   };
 
   render() {
-    let { theme, themeStr, menuLanguage, isCat, onPress, onPressCheckBox, checkBoxSelected, enText, heText, count, withArrow, buttonStyle } = this.props;
-    let colorCat = Sefaria.palette.categoryColor(enText.replace(" Commentaries", ""));
-    enText = isCat ? enText.toUpperCase() : enText;
-    let colorStyle = isCat ? [{"borderColor": colorCat}] : [theme.searchResultSummary, {"borderTopWidth": 1}];
-    let textStyle  = [isCat ? styles.spacedText : null];
+    let { theme, themeStr, menuLanguage, catColor, onPress, onPressCheckBox, checkBoxSelected, enText, heText, count, withArrow, buttonStyle } = this.props;
+    let colorStyle = catColor ? [{"borderColor": catColor}] : [theme.searchResultSummary, {"borderTopWidth": 1}];
+    let textStyle  = [catColor ? styles.spacedText : null];
     let flexDir = menuLanguage == "english" ? "row" : "row-reverse";
     let textMargin = !!onPressCheckBox ? { marginHorizontal: 0 } : styles.readerSideMargin;
     if (count === 0) { textStyle.push(theme.secondaryText); }

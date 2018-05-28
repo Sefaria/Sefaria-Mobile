@@ -18,6 +18,7 @@ import {
   CategoryColorLine,
   CloseButton,
   ButtonToggleSet,
+  LibraryNavButton,
 } from './Misc.js';
 
 import styles from './Styles';
@@ -193,10 +194,28 @@ class SettingsPage extends React.Component {
 }
 
 class OfflinePackageList extends React.Component {
+  static propTypes = {
+    theme:           PropTypes.object,
+    themeStr:        PropTypes.string,
+    menuLanguage:    PropTypes.string.isRequired,
+    onPress:         PropTypes.func.isRequired,
+    onPressCheckBox: PropTypes.func.isRequired,
+  };
+  /*
+  <LibraryNavButton
+    theme={this.props.theme}
+    themeStr={this.props.themeStr}
+    menuLanguage={this.props.menuLanguage}
+    isCat={false}
+  />
+  */
   render() {
     return (
-      null
-    )
+      Sefaria.packages.map(p=>(
+
+        <Text key={p.en}>{`${p.en} (${p.size >> 20}MB)`}</Text>
+      ))
+    );
   }
 }
 

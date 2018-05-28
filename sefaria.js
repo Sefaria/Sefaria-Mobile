@@ -26,6 +26,7 @@ Sefaria = {
       Sefaria._loadSavedItems(),
       Sefaria._loadRecentQueries(),
       Sefaria._loadCalendar(),
+      Sefaria._loadPackages(),
       Sefaria.downloader.init(),
       initAsyncStorage(),
     ]);
@@ -567,7 +568,17 @@ Sefaria = {
       Sefaria._loadJSON(calendarPath).then(function(data) {
         Sefaria.calendar = data;
       });
-        resolve();
+      resolve();
+    });
+  },
+  packages: null,
+  _loadPackages: function() {
+    return new Promise(function(resolve, reject) {
+      var packagePath = (RNFS.MainBundlePath + "/sources/packages.json");
+      Sefaria._loadJSON(packagePath).then(function(data) {
+        Sefaria.packages = data;
+      });
+      resolve();
     });
   },
   parashah: function() {

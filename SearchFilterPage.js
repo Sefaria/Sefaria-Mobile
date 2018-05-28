@@ -205,22 +205,22 @@ class SearchFilter extends React.Component {
     let isCat = filter.children.length > 0;
     let count = filter.docCount;
 
-    let colorCat = Sefaria.palette.categoryColor(filter.title.replace(" Commentaries", ""));
-    let colorStyle = isCat ? [{"borderColor": colorCat}] : [this.props.theme.searchResultSummary, {"borderTopWidth": 1}];
+    let catColor = Sefaria.palette.categoryColor(filter.title.replace(" Commentaries", ""));
+    let colorStyle = isCat ? [{"borderColor": catColor}] : [this.props.theme.searchResultSummary, {"borderTopWidth": 1}];
     let textStyle  = [isCat ? styles.spacedText : null];
+    let enTitle = isCat ? filter.title.toUpperCase() : filter.title;
     let flexDir = this.props.menuLanguage == "english" ? "row" : "row-reverse";
     return (
       <LibraryNavButton
         theme={this.props.theme}
         themeStr={this.props.themeStr}
         menuLanguage={this.props.menuLanguage}
-        isCat={isCat}
         onPress={()=>{ this.props.openSubMenu ? this.props.openSubMenu(filter.title) : this.clickCheckBox() }}
         onPressCheckBox={this.clickCheckBox}
         checkBoxSelected={this.props.filterNode.selected}
-        enText={filter.title}
+        enText={enTitle}
         heText={filter.heTitle}
-        count={count}
+        catColor={isCat ? catColor : null}
         withArrow={!!this.props.openSubMenu}
         buttonStyle={{ margin: 2, paddingVertical: 0, paddingHorizontal: 5,}} />
     );
