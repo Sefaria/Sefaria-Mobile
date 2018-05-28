@@ -519,7 +519,7 @@ def get_downloadable_packages():
     ]
     # Add all top-level categories
     for cat in toc[:5]:
-        if cat == "Tanakh" or cat == "Talmud":
+        if cat[u"category"] == "Tanakh" or cat[u"category"] == "Talmud":
             continue  # already included above
         packages += [{
             u"en": cat[u"category"],
@@ -528,12 +528,16 @@ def get_downloadable_packages():
         }]
     for p in packages:
         indexes = []
-        for c in p[u"categories"]:
-            indexes += get_indexes_in_category(c.split("/"), toc)
+        hasCats = len(p[u"categories"]) > 0
+        if hasCats:
+            for c in p[u"categories"]:
+                indexes += get_indexes_in_category(c.split("/"), toc)
+        else:
+            indexes += get_indexes_in_category([], toc)
         size = 0
         for i in indexes:
             size += os.path.getsize("{}/{}.zip".format(EXPORT_PATH, i)) if os.path.isfile("{}/{}.zip".format(EXPORT_PATH, i)) else 0  # get size in kb. overestimate by 1kb
-        if (len(p[u"categories"]) > 0):
+        if hasCats:
             # only include indexes if not complete library
             p[u"indexes"] = indexes
         del p[u"categories"]
