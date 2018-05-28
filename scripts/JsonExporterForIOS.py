@@ -468,7 +468,7 @@ def get_downloadable_packages():
     packages = [
         {
             u"en": "COMPLETE LIBRARY",
-            u"he": "כל הספרייה",
+            u"he": u"כל הספרייה",
             u"color": "Other",
             u"categories": []
         },
