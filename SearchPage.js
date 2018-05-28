@@ -90,6 +90,7 @@ class SearchPage extends React.Component {
               setIsNewSearch={this.props.setIsNewSearch}
               onChange={this.props.onChangeSearchQuery}
               onFocus={this.props.openAutocomplete}
+              hideSearchButton={true}
             />
             <View style={summaryStyle}>
               <Text style={[this.props.theme.searchResultSummaryText, langStyle]} >{status}</Text>

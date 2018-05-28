@@ -168,11 +168,10 @@ def export_updated():
         except BookNameError:
             print "Skipping update for non-existent book '{}'".format(t)
 
-    updated_books = map(lambda x: x.title, updated_indexes)
-    for index in updated_indexes:
+    for index, title in zip(updated_indexes, updated_books):
         success = export_text(index)
         if not success:
-            updated_books.remove(index.title) # don't include books which dont export
+            updated_books.remove(title) # don't include books which dont export
 
     export_toc()
     export_hebrew_categories()
@@ -226,7 +225,13 @@ def has_updated(title, last_updated):
 
 def get_default_versions(index):
     vdict = {}
-    versions = index.versionSet().array()
+    versions = []
+    page = 0
+    curr_version_set = []
+    while len(curr_version_set) > 0 or page == 0:
+        curr_version_set = VersionSet({"title": index.title}, limit=1, page=page).array()
+        versions += curr_version_set
+        page += 1
 
     i = 0
     while ('he' not in vdict or 'en' not in vdict) and i < len(versions):
@@ -463,10 +468,10 @@ def get_downloadable_packages():
     packages = [
         {
             u"en": "COMPLETE LIBRARY",
-            u"he": u"כל הספרייה",
+            u"he": "כל הספרייה",
             u"color": "Other",
             u"categories": []
-        },
+        }
         {
             u"en": "TANAKH with Rashi",
             u"he": u"תנ״ך עם רש״י",
@@ -514,7 +519,7 @@ def get_downloadable_packages():
     ]
     # Add all top-level categories
     for cat in toc[:5]:
-        if cat[u"category"] == "Tanakh" or cat[u"category"] == "Talmud":
+        if cat == "Tanakh" or cat == "Talmud":
             continue  # already included above
         packages += [{
             u"en": cat[u"category"],
@@ -523,19 +528,15 @@ def get_downloadable_packages():
         }]
     for p in packages:
         indexes = []
-        hasCats = len(p[u"categories"]) > 0
-        if hasCats:
-            for c in p[u"categories"]:
-                indexes += get_indexes_in_category(c.split("/"), toc)
-        else:
-            indexes += get_indexes_in_category([], toc)
+        for c in p[u"categories"]:
+            indexes += get_indexes_in_category(c.split("/"), toc)
         size = 0
         for i in indexes:
             size += os.path.getsize("{}/{}.zip".format(EXPORT_PATH, i)) if os.path.isfile("{}/{}.zip".format(EXPORT_PATH, i)) else 0  # get size in kb. overestimate by 1kb
-        if hasCats:
+        del p[u"categories"]
+        if (len(p[u"categories"]) > 0):
             # only include indexes if not complete library
             p[u"indexes"] = indexes
-        del p[u"categories"]
         p[u"size"] = size
     return packages
 
