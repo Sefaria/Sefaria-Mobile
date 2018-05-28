@@ -57,6 +57,18 @@ class SettingsPage extends React.Component {
 
   _numPressesDebug = 0;
 
+  componentDidMount() {
+    Sefaria.downloader.onChange = this.onDownloaderChange;
+  }
+
+  componentWillUnmount() {
+    Sefaria.downloader.onChange = null;
+  }
+
+  onDownloaderChange = () => {
+    this.forceUpdate();
+  };
+
   onDebugNoLibraryTouch = () => {
     this._numPressesDebug++;
     if (this._numPressesDebug >= 7) {
@@ -122,9 +134,7 @@ class SettingsPage extends React.Component {
                     <Text style={[langStyle, styles.settingsSectionHeader, this.props.theme.tertiaryText]}>{strings.offlineAccess}</Text>
                   </View>
                 </TouchableWithoutFeedback>
-                <OfflinePackageList
 
-                />
                 {Sefaria.downloader._data.debugNoLibrary ?
                   <Text style={[langStyle, styles.settingsMessage, this.props.theme.tertiaryText]}>Debug No Library</Text> : null }
                 <Text style={[langStyle, styles.settingsMessage, this.props.theme.tertiaryText]}>{strings.offlineAccessMessage}</Text>
@@ -189,14 +199,6 @@ class SettingsPage extends React.Component {
                 </View>
               </ScrollView>
             </View>);
-  }
-}
-
-class OfflinePackageList extends React.Component {
-  render() {
-    return (
-      null
-    )
   }
 }
 
