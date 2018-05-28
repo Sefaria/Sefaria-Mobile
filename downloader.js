@@ -23,7 +23,7 @@ var Downloader = {
     downloadInProgress: [], // List of titles currently downloading
     lastUpdateCheck: null,  // Timestamp of last download of updates list
     lastUpdateSchema: null, // Schema Version of  last update check
-    debugNoLibrary: false   // True if you want to disable library access even if it's downloaded for debugging purposes
+    debugNoLibrary: false   // True if you want to disable library access even if it's downloaded. for debugging purposes
   },
   downloading: false,     // Whether the download is currently active, not stored in _data because we never want to persist value
   onChange: null, // Handler set above called when books in the Library finish downloading, or download mode changes.

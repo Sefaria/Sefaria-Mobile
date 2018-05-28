@@ -59,6 +59,7 @@ TOC_PATH          = "/toc.json"
 SEARCH_TOC_PATH   = "/search_toc.json"
 HEB_CATS_PATH     = "/hebrew_categories.json"
 PEOPLE_PATH       = "/people.json"
+PACK_PATH         = "/packages.json"
 CALENDAR_PATH     = "/calendar.json"
 LAST_UPDATED_PATH = EXPORT_PATH + "/last_updated.json"
 
@@ -174,6 +175,7 @@ def export_updated():
 
     export_toc()
     export_hebrew_categories()
+    export_packages()
     write_last_updated(updated_books, update=True)
 
 
@@ -223,7 +225,14 @@ def has_updated(title, last_updated):
 
 def get_default_versions(index):
     vdict = {}
-    versions = index.versionSet().array()
+    versions = []
+    page = 0
+    curr_version_set = []
+    while len(curr_version_set) > 0 or page == 0:
+        curr_version_set = VersionSet({"title": index.title}, limit=1, page=page).array()
+        versions += curr_version_set
+        page += 1
+
     i = 0
     while ('he' not in vdict or 'en' not in vdict) and i < len(versions):
         v = versions[i]
@@ -458,9 +467,16 @@ def get_downloadable_packages():
     toc = model.library.get_toc()
     packages = [
         {
-            u"en": "Tanakh with Rashi",
+            u"en": "COMPLETE LIBRARY",
+            u"he": "כל הספרייה",
+            u"color": "Other",
+            u"categories": []
+        }
+        {
+            u"en": "TANAKH with Rashi",
             u"he": u"תנ״ך עם רש״י",
             u"color": "Tanakh",
+            u"parent": "TANAKH and all commentaries",
             u"categories": [
                 "Tanakh/Torah",
                 "Tanakh/Prophets",
@@ -469,8 +485,17 @@ def get_downloadable_packages():
             ]
         },
         {
-            u"en": "Talmud with Rashi and Tosafot",
+            u"en": "TANAKH and all commentaries",
+            u"he": u"תנ״ך וכל המפרשים",
+            u"color": "Tanakh",
+            u"categories": [
+                "Tanakh"
+            ]
+        },
+        {
+            u"en": "TALMUD with Rashi and Tosafot",
             u"he": u"תלמוד עם רש״י ותוספות",
+            u"parent": "TALMUD and all commentaries",
             u"color": "Talmud",
             u"categories": [
                 "Talmud/Bavli/Seder Zeraim",
@@ -482,10 +507,20 @@ def get_downloadable_packages():
                 "Talmud/Bavli/Commentary/Rashi",
                 "Talmud/Bavli/Commentary/Tosafot"
             ]
+        },
+        {
+            u"en": "TALMUD and all commentaries",
+            u"he": u"תלמוד וכל המפרשים",
+            u"color": "Talmud",
+            u"categories": [
+                "Talmud"
+            ]
         }
     ]
     # Add all top-level categories
-    for cat in toc:
+    for cat in toc[:5]:
+        if cat == "Tanakh" or cat == "Talmud":
+            continue  # already included above
         packages += [{
             u"en": cat[u"category"],
             u"he": cat[u"heCategory"],
@@ -499,7 +534,9 @@ def get_downloadable_packages():
         for i in indexes:
             size += os.path.getsize("{}/{}.zip".format(EXPORT_PATH, i)) if os.path.isfile("{}/{}.zip".format(EXPORT_PATH, i)) else 0  # get size in kb. overestimate by 1kb
         del p[u"categories"]
-        p[u"indexes"] = indexes
+        if (len(p[u"categories"]) > 0):
+            # only include indexes if not complete library
+            p[u"indexes"] = indexes
         p[u"size"] = size
     return packages
 
@@ -513,7 +550,6 @@ def write_last_updated(titles, update=False):
     last_updated = {
         "schema_version": SCHEMA_VERSION,
         "comment":"",
-        "packages": get_downloadable_packages(),
         "titles": {
             title: timestamp
             for title in titles
@@ -535,6 +571,11 @@ def write_last_updated(titles, update=False):
 
     if USE_CLOUDFLARE:
         purge_cloudflare_cache(titles)
+
+
+def export_packages(for_sources=False):
+    packages = get_downloadable_packages()
+    write_doc(packages, (SEFARIA_IOS_SOURCES_PATH if for_sources else EXPORT_PATH) + PACK_PATH)
 
 
 def export_hebrew_categories(for_sources=False):
@@ -755,6 +796,7 @@ def export_all(skip_existing=False):
     export_calendar()
     export_hebrew_categories()
     export_texts(skip_existing)
+    export_packages()
     print("--- %s seconds ---" % round(time.time() - start_time, 2))
 
 def export_base_files_to_sources():
@@ -766,6 +808,7 @@ def export_base_files_to_sources():
     export_hebrew_categories(for_sources=True)
     export_calendar(for_sources=True)
     export_authors(for_sources=True)
+    export_packages(for_sources=True)  # relies on full dump to be available to measure file sizes
 
 if __name__ == '__main__':
     action = sys.argv[1] if len(sys.argv) > 1 else None
@@ -797,5 +840,7 @@ if __name__ == '__main__':
         export_authors()
     elif action == "export_base_files_to_sources":
         export_base_files_to_sources()
+    elif action == "export_packages":
+        export_packages()
     elif action == "write_last_updated":  # for updating package infor
         write_last_updated([], True)
