@@ -223,7 +223,14 @@ def has_updated(title, last_updated):
 
 def get_default_versions(index):
     vdict = {}
-    versions = index.versionSet().array()
+    versions = []
+    page = 0
+    curr_version_set = []
+    while len(curr_version_set) > 0 or page == 0:
+        curr_version_set = VersionSet({"title": index.title}, limit=1, page=page).array()
+        versions += curr_version_set
+        page += 1
+        
     i = 0
     while ('he' not in vdict or 'en' not in vdict) and i < len(versions):
         v = versions[i]
