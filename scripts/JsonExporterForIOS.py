@@ -533,10 +533,10 @@ def get_downloadable_packages():
         size = 0
         for i in indexes:
             size += os.path.getsize("{}/{}.zip".format(EXPORT_PATH, i)) if os.path.isfile("{}/{}.zip".format(EXPORT_PATH, i)) else 0  # get size in kb. overestimate by 1kb
-        del p[u"categories"]
         if (len(p[u"categories"]) > 0):
             # only include indexes if not complete library
             p[u"indexes"] = indexes
+        del p[u"categories"]
         p[u"size"] = size
     return packages
 
