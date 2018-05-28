@@ -36,7 +36,6 @@ from sefaria.utils.hebrew import hebrew_parasha_name
 from sefaria.system.exceptions import InputError, BookNameError
 from sefaria.system.exceptions import NoVersionFoundError
 from sefaria.model.history import HistorySet
-from sefaria.model.text import VersionSet
 from sefaria.system.database import db
 
 """
@@ -227,14 +226,7 @@ def has_updated(title, last_updated):
 
 def get_default_versions(index):
     vdict = {}
-    versions = []
-    page = 0
-    curr_version_set = []
-    # be careful because some versions are too big for pymongo to handle
-    while len(curr_version_set) > 0 or page == 0:
-        curr_version_set = VersionSet({"title": index.title}, limit=1, page=page).array()
-        versions += curr_version_set
-        page += 1
+    versions = index.versionSet().array()
 
     i = 0
     while ('he' not in vdict or 'en' not in vdict) and i < len(versions):
