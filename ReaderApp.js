@@ -34,6 +34,7 @@ import SwipeableCategoryList from './SwipeableCategoryList';
 import {
   LoadingView,
   CategoryColorLine,
+  SefariaProgressBar,
 } from './Misc.js';
 const ViewPort    = Dimensions.get('window');
 
@@ -127,6 +128,7 @@ class ReaderApp extends React.Component {
       }
     });
     Sefaria.downloader.promptLibraryDownload();
+    Sefaria.downloader.onChange = this.onDownloaderChange;
     Sefaria._deleteUnzippedFiles().then(function() {
 
        }).catch(function(error) {
@@ -166,6 +168,14 @@ class ReaderApp extends React.Component {
       onResponderSingleTapConfirmed: (evt, gestureState) => {},
     });
   }
+
+  componentWillUnmount() {
+    Sefaria.downloader.onChange = null;
+  }
+
+  onDownloaderChange = () => {
+    this.forceUpdate();
+  };
 
   pendingIncrement = 1;
 
@@ -1395,12 +1405,14 @@ class ReaderApp extends React.Component {
     return (
       <SafeAreaView style={styles.safeArea}>
         {
-          Sefaria.downloader.downloading ?
+          Sefaria.downloader.downloading && this.state.menuOpen !== 'settings' ?
           <SefariaProgressBar
             theme={this.props.theme}
             themeStr={this.props.themeStr}
             progress={(nAvailable - nUpdates) / nAvailable}
-          />
+            onPress={()=>{ this.openMenu("settings")}}
+            onClose={Sefaria.downloader.deleteLibrary}
+          /> : null
         }
         <View style={[styles.container, this.props.theme.container]} {...this.gestureResponder}>
             <StatusBar
