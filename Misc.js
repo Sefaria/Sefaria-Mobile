@@ -20,6 +20,27 @@ import Sefaria from './sefaria';
 import styles from './Styles.js';
 
 
+const SefariaProgressBar = ({ theme, themeStr, progress, onPress, onClose }) => (
+  <TouchableOpacity onPress={onPress} style={{height: 50, justifyContent: "center"}}>
+    <View style={{flex: 1, flexDirection: "row"}}>
+      <View style={{flex: progress, backgroundColor: "#fff"}}>
+      </View>
+      <View style={{flex: 1-progress, backgroundColor: "#eee"}}>
+      </View>
+    </View>
+    <View style={{flex:1, flexDirection: "row", position: "absolute", right: 0, left: 0, paddingHorizontal: 10, justifyContent: "space-between"}}>
+      <Text style={{color: "#999"}}>{`DOWNLOADING (${Math.round(progress*1000)/10}%)`}</Text>
+      <TouchableOpacity onPress={onClose}>
+        <Image
+          source={themeStr === 'white' ? require('./img/close.png') : require('./img/close-light.png')}
+          resizeMode={Image.resizeMode.contain}
+          style={{width: 14, height: 14}}
+        />
+      </TouchableOpacity>
+    </View>
+  </TouchableOpacity>
+);
+
 class TwoBox extends React.Component {
   static propTypes = {
       content:  PropTypes.array.isRequired,
@@ -566,6 +587,7 @@ export {
   LoadingView,
   MenuButton,
   SearchButton,
+  SefariaProgressBar,
   ToggleSet,
   TripleDots,
   TwoBox,
