@@ -2,7 +2,9 @@ import LocalizedStrings from 'react-native-localization';
 
 export default new LocalizedStrings({
   en: {
-    recent: "RECENT",
+    history: "History",
+    saved: "Saved",
+    save: "Save",
     browse: "BROWSE",
     calendar: "CALENDAR",
     settings: "Settings",
@@ -106,9 +108,13 @@ export default new LocalizedStrings({
     color: "Color",
     supportSefaria: "SUPPORT SEFARIA",
     makeADonation: "Make a Donation",
+    recentSearches: "RECENT SEARCHES",
+    remove: "Remove",
   },
   he: {
-    recent: "נצפו לאחרונה",
+    history: "היסטוריה",
+    saved: "שמורים",
+    save: "שמור",
     browse: "טקסטים",
     calendar: "לוח יומי",
     settings: "הגדרות",
@@ -212,5 +218,7 @@ export default new LocalizedStrings({
     color: "צבע",
     supportSefaria: "תמכו בספריא",
     makeADonation: "בצעו תרומה",
+    recentSearches: "חיפושים אחרונים",
+    remove: "הסר",
   }
 });

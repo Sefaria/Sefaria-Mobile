@@ -149,9 +149,17 @@ export default StyleSheet.create({
     marginLeft: 12,
     marginRight: 0,
   },
+  headerIconWithTextEn: {
+    marginLeft: 0,
+    marginRight: 8,
+  },
+  headerIconWithTextHe: {
+    marginLeft: 8,
+    marginRight: 0,
+  },
   menuButton: {
-    width: 17,
-    height: 17,
+    width: 16,
+    height: 16,
   },
   menuButtonMargined: {
     width: 20,
@@ -241,6 +249,17 @@ export default StyleSheet.create({
     height: 12,
     paddingRight: 20
   },
+  categoryBlockLinkIconSansEn: {
+    width: 15,
+    height: 15,
+    paddingLeft: 25,
+    marginBottom: 0,
+  },
+  categoryBlockLinkIconSansHe: {
+    width: 15,
+    height: 15,
+    paddingRight: 25,
+  },
   collapseArrowEn: {
     width: 12,
     height: 12,
@@ -281,7 +300,7 @@ export default StyleSheet.create({
     fontSize: 16,
     fontStyle: "normal",
     fontFamily: "Amiri",
-    paddingTop: 0,
+    paddingTop: 3,
     paddingRight: 20,
     backgroundColor: "transparent"
   },
@@ -412,6 +431,11 @@ export default StyleSheet.create({
   menuScrollViewContent: {
     paddingBottom: 100,
   },
+  cancelSearchButton: {
+    width: 16,
+    height: 16,
+    marginHorizontal: 20,
+  },
   languageToggle: {
     width: 30,
     height: 30,
@@ -426,13 +450,15 @@ export default StyleSheet.create({
     color: "black",
     backgroundColor: "transparent",
     fontSize: 15,
-    marginTop: -1
+    marginTop: 2,
+    marginLeft: 1,
   },
   languageToggleTextHe: {
     color: "black",
     backgroundColor: "transparent",
     fontSize: 19,
-    marginTop: 5,
+    marginTop: 4,
+    marginRight: 2,
   },
   readerNavSection: {
     marginVertical: 15
@@ -549,6 +575,12 @@ export default StyleSheet.create({
     paddingLeft: 10,
     textAlign: 'center',
     letterSpacing: 1
+  },
+  noPadding: {
+    paddingLeft: 0,
+    paddingRight: 0,
+    paddingTop: 0,
+    paddingBottom: 0,
   },
   mainTextPanel: {
     flexWrap: "nowrap",
@@ -813,7 +845,7 @@ export default StyleSheet.create({
     flex: -1,
     fontSize: iPad ? 22 : 18,
     paddingTop: 10,
-    marginTop: -5,
+    marginTop: -8,
   },
   bilingualEnglishText: {
     paddingTop: 10
@@ -941,25 +973,34 @@ export default StyleSheet.create({
     paddingTop: 25,
   },
   autocompleteList: {
-    maxHeight: iPad ? 300 : 200,
-    paddingTop: 15,
-    paddingBottom: 15,
+    flex: 1,
     flexDirection: 'column',
-    borderBottomWidth: 1,
   },
   autocompleteItem: {
-    fontSize: 20,
-    paddingHorizontal: 20,
+    flex:1,
+    alignItems: "center",
+    borderBottomWidth: 1,
     paddingVertical: 10,
+  },
+  autocompleteItemText: {
+    fontSize: 17,
+    paddingHorizontal: 10,
     flex: 1,
   },
-  autocompleteItemIcon: {
+  starIcon: {
     width: 20,
     height: 20,
-    alignSelf: 'center',
+    marginHorizontal: 5,
   },
   scrollViewPaddingInOrderToScroll: {
     marginHorizontal: 1, // HACK: really unclear why this is necessary. leaving here until I figure it out
+  },
+  categorySideColorLink: {
+    flex:1,
+    borderBottomWidth: 1,
+    paddingTop: 14,
+    paddingBottom: 10,
+    paddingHorizontal: iPad ? 48 : 24,
   },
 //HTML Styles:
   strong: {

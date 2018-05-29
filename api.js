@@ -278,12 +278,12 @@ var Api = {
     });
   },
 
-  name: function(name) {
+  name: function(name, failSilently) {
     Sefaria.api._abortRequestType('name');
     return new Promise((resolve, reject) => {
       const cached = Sefaria.api._nameCache[name];
       if (!!cached) { console.log("cached"); resolve(cached); return; }
-      Sefaria.api._request(name, 'name', false, {}, true)
+      Sefaria.api._request(name, 'name', false, {}, failSilently)
         .then(response => {
           Sefaria.api._nameCache[name] = response;
           resolve(response);

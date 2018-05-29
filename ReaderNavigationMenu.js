@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   View,
   Image,
+  Platform,
 } from 'react-native';
 
 import {
@@ -16,7 +17,6 @@ import {
   CategoryBlockLink,
   TwoBox,
   LanguageToggleButton,
-  Platform,
 } from './Misc.js';
 import VersionNumber from 'react-native-version-number';
 import SearchBar from './SearchBar';
@@ -35,16 +35,17 @@ class ReaderNavigationMenu extends React.Component {
     interfaceLang:  PropTypes.oneOf(["english","hebrew"]).isRequired,
     setCategories:  PropTypes.func.isRequired,
     openRef:        PropTypes.func.isRequired,
-    openTextTocDirectly: PropTypes.func.isRequired,
     closeNav:       PropTypes.func.isRequired,
     openNav:        PropTypes.func.isRequired,
     openSearch:     PropTypes.func.isRequired,
     setIsNewSearch: PropTypes.func.isRequired,
     openSettings:   PropTypes.func.isRequired,
-    openRecent:     PropTypes.func.isRequired,
+    openHistory:    PropTypes.func.isRequired,
+    openSaved:      PropTypes.func.isRequired,
     toggleLanguage: PropTypes.func.isRequired,
     onChangeSearchQuery:PropTypes.func.isRequired,
     searchQuery:    PropTypes.string.isRequired,
+    openAutocomplete: PropTypes.func.isRequired,
   };
 
   constructor(props) {
@@ -70,12 +71,14 @@ class ReaderNavigationMenu extends React.Component {
   getEmailBody = () => {
     const nDownloaded = Sefaria.downloader.titlesDownloaded().length;
     const nAvailable  = Sefaria.downloader.titlesAvailable().length;
-    return `App Version: ${VersionNumber.appVersion}\n
+    return encodeURIComponent(`App Version: ${VersionNumber.appVersion}\n
             Texts Downloaded: ${nDownloaded} / ${nAvailable}\n
-            iOS Version: ${Platform.Version}\n\n\n`;
+            iOS Version: ${Platform.Version}\n\n\n`);
   };
 
   render() {
+    const isWhite = this.props.themeStr === "white";
+
     if (this.props.categories.length) {
       // List of Text in a Category
       return (<ReaderNavigationCategoryMenu
@@ -143,26 +146,25 @@ class ReaderNavigationMenu extends React.Component {
                 interfaceLang={this.props.interfaceLang}
                 theme={this.props.theme}
                 themeStr={this.props.themeStr}
-                openNav={this.props.openNav}
-                closeNav={this.props.closeNav}
+                onBack={this.props.openNav}
+                onClose={this.props.closeNav}
                 leftMenuButton="close"
-                onQueryChange={this.props.openSearch}
+                search={this.props.openSearch}
                 setIsNewSearch={this.props.setIsNewSearch}
                 toggleLanguage={this.props.toggleLanguage}
                 language={this.props.menuLanguage}
                 onChange={this.props.onChangeSearchQuery}
                 query={this.props.searchQuery}
-                openRef={this.props.openRef}
-                openTextTocDirectly={this.props.openTextTocDirectly}
-                setCategories={this.props.setCategories}/>
+                onFocus={this.props.openAutocomplete}/>
               <ScrollView style={styles.menuContent} contentContainerStyle={styles.menuScrollViewContent}>
 
-                <RecentSection
+                <SavedHistorySection
                   theme={this.props.theme}
-                  openRef={this.props.openRef}
-                  language={this.props.menuLanguage}
-                  interfaceLang={this.props.interfaceLang}
-                  openRecent={this.props.openRecent} />
+                  isWhite={isWhite}
+                  menuLanguage={this.props.menuLanguage}
+                  openHistory={this.props.openHistory}
+                  openSaved={this.props.openSaved}
+                />
 
                 <ReaderNavigationMenuSection
                   theme={this.props.theme}
@@ -201,7 +203,7 @@ class ReaderNavigationMenu extends React.Component {
 
                   <Text style={[styles.navBottomLinkDot, this.props.theme.tertiaryText]}>•</Text>
 
-                  <TouchableOpacity onPress={() => {Linking.openURL(`mailto:ios@sefaria.org?subject=iOS App Feedback&body=${this.getEmailBody()}`);}}>
+                  <TouchableOpacity onPress={() => {Linking.openURL(`mailto:ios@sefaria.org?subject=${encodeURIComponent("iOS App Feedback")}&body=${this.getEmailBody()}`);}}>
                     <Text style={[isHeb ? styles.heInt : styles.enInt, this.props.theme.tertiaryText]}>{strings.feedback}</Text>
                   </TouchableOpacity>
 
@@ -217,51 +219,6 @@ class ReaderNavigationMenu extends React.Component {
   }
 }
 
-class RecentSection extends React.Component {
-  static propTypes = {
-    theme:         PropTypes.object.isRequired,
-    openRef:       PropTypes.func.isRequired,
-    interfaceLang: PropTypes.string.isRequired,
-    language:      PropTypes.string.isRequired,
-    openRecent:    PropTypes.func.isRequired,
-  };
-
-  render() {
-    if (!Sefaria.recent || !Sefaria.recent.length) { return null; }
-
-    let recent = Sefaria.recent.slice(0,3).map(function(item) {
-      return (<CategoryBlockLink
-                    theme={this.props.theme}
-                    category={item.ref}
-                    heCat={item.heRef}
-                    language={this.props.language}
-                    style={{"borderColor": Sefaria.palette.categoryColor(item.category)}}
-                    onPress={()=>{ this.props.openRef(item.ref, item.versions); }}
-                    key={item.ref} />);
-    }.bind(this));
-
-    var more = (<CategoryBlockLink
-                  theme={this.props.theme}
-                  category={"More"}
-                  heCat={"עוד"}
-                  upperCase={true}
-                  language={this.props.language}
-                  onPress={this.props.openRecent}
-                  withArrow={true}
-                  key={"More"} />);
-
-    recent = recent.concat(more);
-
-    return (<ReaderNavigationMenuSection
-              hasmore={false}
-              theme={this.props.theme}
-              title={strings.recent}
-              heTitle={strings.recent}
-              content={<TwoBox content={recent} language={this.props.language}/>}
-              interfaceLang={this.props.interfaceLang}
-              moreClick={this.props.openRecent} />);
-  }
-}
 
 class CalendarSection extends React.Component {
   static propTypes = {
@@ -279,11 +236,11 @@ class CalendarSection extends React.Component {
     var calendar = [
             <CategoryBlockLink
               theme={this.props.theme}
-              category={parashah.name}
-              heCat={"פרשה"}
+              category={parashah.parasha.en}
+              heCat={parashah.parasha.he}
               language={this.props.language}
               style={{"borderColor": Sefaria.palette.categoryColor("Tanakh")}}
-              onPress={() => { this.props.openRef(parashah.ref); }}
+              onPress={() => { this.props.openRef(parashah.ref.en); }}
               key="parashah" />,
             <CategoryBlockLink
               theme={this.props.theme}
@@ -291,7 +248,7 @@ class CalendarSection extends React.Component {
               heCat={"הפטרה"}
               language={this.props.language}
               style={{"borderColor": Sefaria.palette.categoryColor("Tanakh")}}
-              onPress={() => { this.props.openRef(parashah.haftara[0]); }}
+              onPress={() => { this.props.openRef(parashah.haftara[0].en); }}
               key="haftara" />,
             <CategoryBlockLink
               theme={this.props.theme}
@@ -299,7 +256,7 @@ class CalendarSection extends React.Component {
               heCat={"דף יומי"}
               language={this.props.language}
               style={{"borderColor": Sefaria.palette.categoryColor("Talmud")}}
-              onPress={() => { this.props.openRef(dafYomi.ref); }}
+              onPress={() => { this.props.openRef(dafYomi.ref.en); }}
               key="dafYomi" />];
 
     var calendarContent = <TwoBox content={calendar} language={this.props.language}/>;
@@ -313,6 +270,37 @@ class CalendarSection extends React.Component {
               interfaceLang={this.props.interfaceLang} />);
   }
 }
+
+const SavedHistorySection = ({ theme, isWhite, menuLanguage, openHistory, openSaved }) => (
+  <View style={[styles.twoBoxRow, {marginVertical: 15}]}>
+    <View style={styles.twoBoxItem}>
+      <CategoryBlockLink
+        theme={theme}
+        category={"History"}
+        heCat={"היסטוריה"}
+        language={menuLanguage}
+        style={{flex:1 , paddingVertical: 12, borderRadius: 5, borderWidth: 1, borderTopWidth: 1, borderColor: "#ccc"}}
+        isSans={true}
+        icon={isWhite ? require('./img/clock.png') : require('./img/clock-light.png')}
+        onPress={openHistory}
+        iconSide="start"
+      />
+    </View>
+    <View style={styles.twoBoxItem}>
+      <CategoryBlockLink
+        theme={theme}
+        category={"Saved"}
+        heCat={"שמורים"}
+        language={menuLanguage}
+        style={{flex: 1, paddingVertical: 12, borderRadius: 5, borderWidth: 1, borderTopWidth: 1, borderColor: "#ccc"}}
+        isSans={true}
+        icon={isWhite ? require('./img/starUnfilled.png') : require('./img/starUnfilled-light.png')}
+        onPress={openSaved}
+        iconSide="start"
+      />
+    </View>
+  </View>
+);
 
 class ReaderNavigationMenuSection extends React.Component {
   // A Section on the main navigation which includes a title over a grid of options

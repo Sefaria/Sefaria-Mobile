@@ -21,7 +21,10 @@ Sefaria = {
       Sefaria._loadTOC(),
       Sefaria.search._loadSearchTOC(),
       Sefaria._loadHebrewCategories(),
-      Sefaria._loadRecentItems(),
+      Sefaria._loadPeople(),
+      Sefaria._loadHistoryItems(),
+      Sefaria._loadSavedItems(),
+      Sefaria._loadRecentQueries(),
       Sefaria._loadCalendar(),
       Sefaria.downloader.init(),
       initAsyncStorage(),
@@ -249,6 +252,19 @@ Sefaria = {
       }
       return bookRefStem;
   },
+  toHeSegmentRef: function(heSectionRef, enSegmentRef) {
+    const enSections = enSegmentRef.substring(enSegmentRef.lastIndexOf(" ")+1).split(":");
+    const heSections = heSectionRef.substring(heSectionRef.lastIndexOf(" ")+1).split(":");
+    if (enSections.length === heSections.length) { return heSectionRef; }  // already segment level
+    else if (heSections.length + 1 === enSections.length) {
+      const segNum = parseInt(enSections[enSections.length-1]);
+      if (!segNum) { return heSectionRef; }
+      return `${heSectionRef}:${Sefaria.hebrew.encodeHebrewNumeral(segNum)}׳`
+    } else {
+      console.log("weirdness", heSectionRef, enSegmentRef);
+      return heSectionRef;
+    }
+  },
   booksDict: {},
   collectiveTitlesDict: {},
   _index: {}, // Cache for text index records
@@ -296,6 +312,23 @@ Sefaria = {
                                       (RNFS.MainBundlePath + "/sources/hebrew_categories.json");
           Sefaria._loadJSON(hebCatPath).then(function(data) {
             Sefaria.hebrewCategories = data;
+            Sefaria.englishCategories = {}; // used for classifying cats in autocomplete
+            Object.entries(data).forEach(([key, value]) => {
+              Sefaria.englishCategories[value] = 1;
+            });
+            resolve();
+          });
+        });
+    });
+  },
+  _loadPeople: function() {
+    return new Promise(function(resolve, reject) {
+      RNFS.exists(RNFS.DocumentDirectoryPath + "/library/people.json")
+        .then(function(exists) {
+          const peoplePath = exists ? (RNFS.DocumentDirectoryPath + "/library/people.json") :
+                                      (RNFS.MainBundlePath + "/sources/people.json");
+          Sefaria._loadJSON(peoplePath).then(function(data) {
+            Sefaria.people = data;
             resolve();
           });
         });
@@ -552,7 +585,7 @@ Sefaria = {
       let date = new Date();
       date.setDate(date.getDate() + (6 - 1 - date.getDay() + 7) % 7 + weekOffset);
       dateString = Sefaria._dateString(date);
-      parashah = Sefaria.calendar.parshiot[dateString];
+      parashah = Sefaria.calendar.parasha[dateString];
       weekOffset += 1;
     }
     return Sefaria.calendar ? parashah : null;
@@ -570,10 +603,10 @@ Sefaria = {
 
     return month + '/' + day + '/' + year;
   },
-  recent: null,
-  saveRecentItem: function(item, overwriteVersions) {
+  history: null,
+  saveHistoryItem: function(item, overwriteVersions) {
     const itemTitle = Sefaria.textTitleForRef(item.ref);
-    let items = Sefaria.recent || [];
+    let items = Sefaria.history || [];
     const existingItemIndex = items.findIndex(existing => Sefaria.textTitleForRef(existing.ref) === itemTitle);
     if (existingItemIndex !== -1) {
       if (!overwriteVersions) {
@@ -582,15 +615,27 @@ Sefaria = {
       items.splice(existingItemIndex, 1);
     }
     items = [item].concat(items);
-    Sefaria.recent = items;
+    Sefaria.history = items;
     AsyncStorage.setItem("recent", JSON.stringify(items)).catch(function(error) {
       console.error("AsyncStorage failed to save: " + error);
     });
   },
-  getRecentRefForTitle: function(title) {
-    //given an index title, return the ref of that title in Sefaria.recent.
+  removeHistoryItem: function(item) {
+    const itemTitle = Sefaria.textTitleForRef(item.ref);
+    let items = Sefaria.history || [];
+    const existingItemIndex = items.findIndex(existing => Sefaria.textTitleForRef(existing.ref) === itemTitle);
+    if (existingItemIndex !== -1) {
+      items.splice(existingItemIndex, 1);
+    }
+    Sefaria.history = items;
+    AsyncStorage.setItem("recent", JSON.stringify(items)).catch(function(error) {
+      console.error("AsyncStorage failed to save: " + error);
+    });
+  },
+  getHistoryRefForTitle: function(title) {
+    //given an index title, return the ref of that title in Sefaria.history.
     //if it doesn't exist, return null
-    var items = Sefaria.recent || [];
+    var items = Sefaria.history || [];
     items = items.filter(function(existing) {
       return Sefaria.textTitleForRef(existing.ref) === title;
     });
@@ -602,9 +647,60 @@ Sefaria = {
     }
 
   },
-  _loadRecentItems: function() {
+  _loadHistoryItems: function() {
     return AsyncStorage.getItem("recent").then(function(data) {
-      Sefaria.recent = JSON.parse(data) || [];
+      Sefaria.history = JSON.parse(data) || [];
+    });
+  },
+  saved: [],
+  _hasSwipeDeleted: false,
+  saveSavedItem: function(item) {
+    items = [item].concat(Sefaria.saved);
+    Sefaria.saved = items;
+    AsyncStorage.setItem("saved", JSON.stringify(items)).catch(function(error) {
+      console.error("AsyncStorage failed to save: " + error);
+    });
+  },
+  removeSavedItem: function(item) {
+    const existingItemIndex = Sefaria.indexOfSaved(item.ref)
+    if (existingItemIndex !== -1) {
+      Sefaria.saved.splice(existingItemIndex, 1);
+    }
+    AsyncStorage.setItem("saved", JSON.stringify(Sefaria.saved)).catch(function(error) {
+      console.error("AsyncStorage failed to save: " + error);
+    });
+    Sefaria._hasSwipeDeleted = true;
+    AsyncStorage.setItem("hasSwipeDeleted", "true").catch(function(error) {
+      console.error("AsyncStorage failed to save: " + error);
+    });
+  },
+  indexOfSaved: function(ref) {
+    return Sefaria.saved.findIndex(existing => ref === existing.ref);
+  },
+  _loadSavedItems: function() {
+    AsyncStorage.getItem("hasSwipeDeleted").then(function(data) {
+      Sefaria._hasSwipeDeleted = JSON.parse(data) || false;
+    });
+    return AsyncStorage.getItem("saved").then(function(data) {
+      Sefaria.saved = JSON.parse(data) || [];
+    });
+  },
+  saveRecentQuery: function(query, type) {
+    //type = ["ref", "book", "person", "toc", "query"]
+    const newQuery = {query, type};
+    if (Sefaria.recentQueries.length > 0 && Sefaria.recentQueries[0].query === newQuery.query && Sefaria.recentQueries[0].type === newQuery.type) {
+      return;  // don't add duplicate queries in a row
+    }
+    Sefaria.recentQueries.unshift({query, type});
+    Sefaria.recentQueries = Sefaria.recentQueries.slice(0,100);
+    AsyncStorage.setItem("recentQueries", JSON.stringify(Sefaria.recentQueries)).catch(function(error) {
+      console.error("AsyncStorage failed to save: " + error);
+    });
+  },
+  _loadRecentQueries: function() {
+    //return AsyncStorage.setItem("recentQueries", JSON.stringify([]));
+    return AsyncStorage.getItem("recentQueries").then(function(data) {
+      Sefaria.recentQueries = JSON.parse(data) || [];
     });
   },
   _deleteUnzippedFiles: function() {
@@ -1044,6 +1140,13 @@ Sefaria = {
 };
 
 Sefaria.util = {
+  getISOCountryCode: function() {
+    return new Promise((resolve, reject) => {
+      fetch('http://ip-api.com/json')
+      .then(result=>result.json())
+      .then(json=>resolve(json.countryCode));
+    });
+  },
   parseURLhost: function(url) {
     //thanks rvighne! https://stackoverflow.com/questions/736513/how-do-i-parse-a-url-into-hostname-and-path-in-javascript
     const u = new URL(url);
@@ -1559,6 +1662,25 @@ Sefaria.palette.categoryColor = function(cat) {
   }
   return Sefaria.palette.categoryColors["Other"];
 };
+
+Array.prototype.stableSort = function(cmp) {
+  cmp = !!cmp ? cmp : (a, b) => {
+    if (a < b) return -1;
+    if (a > b) return 1;
+    return 0;
+  };
+  let stabilizedThis = this.map((el, index) => [el, index]);
+  let stableCmp = (a, b) => {
+    let order = cmp(a[0], b[0]);
+    if (order != 0) return order;
+    return a[1] - b[1];
+  }
+  stabilizedThis.sort(stableCmp);
+  for (let i=0; i<this.length; i++) {
+    this[i] = stabilizedThis[i][0];
+  }
+  return this;
+}
 
 //for debugging. from https://gist.github.com/zensh/4975495
 Sefaria.memorySizeOf = function (obj) {

@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import sys
 import os
 import csv
@@ -9,12 +11,14 @@ import glob
 import time
 import traceback
 import requests
+import p929
+import codecs
 from shutil import rmtree
 from random import random
 from pprint import pprint
+from datetime import timedelta
 from datetime import datetime
 import dateutil.parser
-
 from local_settings import *
 
 sys.path.insert(0, SEFARIA_PROJECT_PATH)
@@ -28,6 +32,7 @@ from sefaria.client.wrapper import get_links
 from sefaria.model.text import Version
 from sefaria.model.schema import Term
 from sefaria.utils.talmud import section_to_daf
+from sefaria.utils.hebrew import hebrew_parasha_name
 from sefaria.system.exceptions import InputError, BookNameError
 from sefaria.system.exceptions import NoVersionFoundError
 from sefaria.model.history import HistorySet
@@ -47,13 +52,15 @@ or
 any section has a version different than the default version
 """
 
-SCHEMA_VERSION = "3"
+SCHEMA_VERSION = "4"  # includes author info and new calendars
 EXPORT_PATH = SEFARIA_EXPORT_PATH + "/" + SCHEMA_VERSION
-MINIFY_JSON = True
 
-TOC_PATH          = EXPORT_PATH + "/toc.json"
-SEARCH_TOC_PATH   = EXPORT_PATH + "/search_toc.json"
-HEB_CATS_PATH     = EXPORT_PATH + "/hebrew_categories.json"
+TOC_PATH          = "/toc.json"
+SEARCH_TOC_PATH   = "/search_toc.json"
+HEB_CATS_PATH     = "/hebrew_categories.json"
+PEOPLE_PATH       = "/people.json"
+PACK_PATH         = "/packages.json"
+CALENDAR_PATH     = "/calendar.json"
 LAST_UPDATED_PATH = EXPORT_PATH + "/last_updated.json"
 
 
@@ -66,26 +73,15 @@ def make_path(doc, format):
     return path
 
 
-def make_json(doc):
-    """
-    Returns JSON of `doc` with export settings.
-    """
-    if MINIFY_JSON:
-        return json.dumps(doc, separators=(',',':'), encoding='utf-8', ensure_ascii=False) #minified
-    else:
-        return json.dumps(doc, indent=4, encoding='utf-8', ensure_ascii=False) #prettified
-
-
 def write_doc(doc, path):
     """
     Takes a dictionary `doc` ready to export and actually writes the file to the filesystem.
     """
 
-    out  = make_json(doc)
     if not os.path.exists(os.path.dirname(path)):
         os.makedirs(os.path.dirname(path))
-    with open(path, "w") as f:
-        f.write(out.encode('utf-8'))
+    with codecs.open(path, "wb", encoding='utf-8') as f:
+        json.dump(doc, f, encoding='utf-8', ensure_ascii=False, indent=(None if MINIFY_JSON else 4), separators=((',',':') if MINIFY_JSON else None))
 
 
 def zip_last_text(title):
@@ -170,15 +166,17 @@ def export_updated():
         try:
             updated_indexes += [model.library.get_index(t)]
         except BookNameError:
-            print "Skipping update for non-existent book '{}'".format(title)
+            print "Skipping update for non-existent book '{}'".format(t)
 
-    for index, title in zip(updated_indexes, updated_books):
+    updated_books = map(lambda x: x.title, updated_indexes)
+    for index in updated_indexes:
         success = export_text(index)
         if not success:
-            updated_books.remove(title) # don't include books which dont export
+            updated_books.remove(index.title) # don't include books which dont export
 
     export_toc()
     export_hebrew_categories()
+    export_packages()
     write_last_updated(updated_books, update=True)
 
 
@@ -229,6 +227,7 @@ def has_updated(title, last_updated):
 def get_default_versions(index):
     vdict = {}
     versions = index.versionSet().array()
+
     i = 0
     while ('he' not in vdict or 'en' not in vdict) and i < len(versions):
         v = versions[i]
@@ -449,16 +448,111 @@ def export_index(index):
         return False
 
 
+def get_indexes_in_category(cats, toc):
+    indexes = []
+    for temp_toc in toc:
+        if u"contents" in temp_toc and (len(cats) == 0 or temp_toc[u"category"] == cats[0]):
+            indexes += get_indexes_in_category(cats[1:], temp_toc[u"contents"])
+        elif u"title" in temp_toc:
+            indexes += [temp_toc[u"title"]]
+    return indexes
+
+
+def get_downloadable_packages():
+    toc = model.library.get_toc()
+    packages = [
+        {
+            u"en": "COMPLETE LIBRARY",
+            u"he": u"כל הספרייה",
+            u"color": "Other",
+            u"categories": []
+        },
+        {
+            u"en": "TANAKH with Rashi",
+            u"he": u"תנ״ך עם רש״י",
+            u"color": "Tanakh",
+            u"parent": "TANAKH and all commentaries",
+            u"categories": [
+                "Tanakh/Torah",
+                "Tanakh/Prophets",
+                "Tanakh/Writings",
+                "Tanakh/Commentary/Rashi"
+            ]
+        },
+        {
+            u"en": "TANAKH and all commentaries",
+            u"he": u"תנ״ך וכל המפרשים",
+            u"color": "Tanakh",
+            u"categories": [
+                "Tanakh"
+            ]
+        },
+        {
+            u"en": "TALMUD with Rashi and Tosafot",
+            u"he": u"תלמוד עם רש״י ותוספות",
+            u"parent": "TALMUD and all commentaries",
+            u"color": "Talmud",
+            u"categories": [
+                "Talmud/Bavli/Seder Zeraim",
+                "Talmud/Bavli/Seder Moed",
+                "Talmud/Bavli/Seder Nashim",
+                "Talmud/Bavli/Seder Nezikin",
+                "Talmud/Bavli/Seder Kodashim",
+                "Talmud/Bavli/Seder Tahorot",
+                "Talmud/Bavli/Commentary/Rashi",
+                "Talmud/Bavli/Commentary/Tosafot"
+            ]
+        },
+        {
+            u"en": "TALMUD and all commentaries",
+            u"he": u"תלמוד וכל המפרשים",
+            u"color": "Talmud",
+            u"categories": [
+                "Talmud"
+            ]
+        }
+    ]
+    # Add all top-level categories
+    for cat in toc[:5]:
+        if cat[u"category"] == "Tanakh" or cat[u"category"] == "Talmud":
+            continue  # already included above
+        packages += [{
+            u"en": cat[u"category"],
+            u"he": cat[u"heCategory"],
+            u"categories": [cat[u"category"]]
+        }]
+    for p in packages:
+        indexes = []
+        hasCats = len(p[u"categories"]) > 0
+        if hasCats:
+            for c in p[u"categories"]:
+                indexes += get_indexes_in_category(c.split("/"), toc)
+        else:
+            indexes += get_indexes_in_category([], toc)
+        size = 0
+        for i in indexes:
+            size += os.path.getsize("{}/{}.zip".format(EXPORT_PATH, i)) if os.path.isfile("{}/{}.zip".format(EXPORT_PATH, i)) else 0  # get size in kb. overestimate by 1kb
+        if hasCats:
+            # only include indexes if not complete library
+            p[u"indexes"] = indexes
+        del p[u"categories"]
+        p[u"size"] = size
+    return packages
+
 def write_last_updated(titles, update=False):
     """
     Writes to `last_updated.json` the current time stamp for all `titles`.
     :param update: True if you only want to update the file and not overwrite
     """
+
     timestamp = datetime.now().replace(second=0, microsecond=0).isoformat()
     last_updated = {
         "schema_version": SCHEMA_VERSION,
         "comment":"",
-        "titles": {title: timestamp for title in titles}
+        "titles": {
+            title: timestamp
+            for title in titles
+        }
     }
     #last_updated["SCHEMA_VERSION"] = SCHEMA_VERSION
     if update:
@@ -478,7 +572,12 @@ def write_last_updated(titles, update=False):
         purge_cloudflare_cache(titles)
 
 
-def export_hebrew_categories():
+def export_packages(for_sources=False):
+    packages = get_downloadable_packages()
+    write_doc(packages, (SEFARIA_IOS_SOURCES_PATH if for_sources else EXPORT_PATH) + PACK_PATH)
+
+
+def export_hebrew_categories(for_sources=False):
     """
     Writes translation of all English categories into a single file.
     """
@@ -492,18 +591,38 @@ def export_hebrew_categories():
             print u"Couldn't load term '{}'. Skipping Hebrew category".format(e)
         else:
             hebrew_cats_json[e] = t.titles[1][u'text']
-    write_doc(hebrew_cats_json, HEB_CATS_PATH)
+    write_doc(hebrew_cats_json, (SEFARIA_IOS_SOURCES_PATH if for_sources else EXPORT_PATH) + HEB_CATS_PATH)
 
 
-def export_toc():
+def remove_silly_toc_nodes(toc):
+    newToc = []
+    for t in toc:
+        if "contents" in t:
+            new_item = {}
+            for k, v in t.items():
+                if k != "contents":
+                    new_item[k] = v
+            newToc += [new_item]
+            newToc[-1]["contents"] = remove_silly_toc_nodes(t["contents"])
+        elif "title" in t:
+            newToc += [{k: v for k, v in t.items()}]
+        else:
+            print "Goodbye {}".format(t.keys())
+    return newToc
+
+
+
+def export_toc(for_sources=False):
     """
     Writes the Table of Contents JSON to a single file.
     """
     print "Export Table of Contents"
     new_toc = model.library.get_toc()
     new_search_toc = model.library.get_search_filter_toc()
-    write_doc(new_toc, TOC_PATH)
-    write_doc(new_search_toc, SEARCH_TOC_PATH)
+    new_new_toc = remove_silly_toc_nodes(new_toc)
+    new_new_search_toc = remove_silly_toc_nodes(new_search_toc)
+    write_doc(new_new_toc, (SEFARIA_IOS_SOURCES_PATH if for_sources else EXPORT_PATH) + TOC_PATH)
+    write_doc(new_new_search_toc, (SEFARIA_IOS_SOURCES_PATH if for_sources else EXPORT_PATH) + SEARCH_TOC_PATH)
 
 
 def new_books_since_last_update():
@@ -518,7 +637,10 @@ def new_books_since_last_update():
                     child_toc = child_toc["contents"]
                 books.update(get_books(child_toc, set()))
         else:
-            books.add(temp_toc["title"])
+            try:
+                books.add(temp_toc["title"])
+            except KeyError:
+                print "Bad Toc item skipping {}".format(temp_toc)
         return books
 
     last_updated = json.load(open(LAST_UPDATED_PATH, 'rb')) if os.path.exists(LAST_UPDATED_PATH) else {"titles": {}}
@@ -529,45 +651,111 @@ def new_books_since_last_update():
     return added_books
 
 
-def export_calendar():
+def export_calendar(for_sources=False):
     """
     Writes a JSON file with Parashah and Daf Yomi calendar from today onward.
     """
     calendar = {
-        "parshiot": {},
-        "dafyomi": {}
+        "parasha": {},
+        "dafyomi": {},
+        "mishnah": {},
+        "rambam": {},
+        "929": {}
     }
     date = datetime.now()
     date_format = lambda date : date.strftime(" %m/ %d/%Y").replace(" 0", "").replace(" ", "")
     date_str = date_format(date)
 
+    # DAF -----
     daf_today = db.dafyomi.find_one({"date": date_str})
 
     dafyomi = db.dafyomi.find({"_id": {"$gte": daf_today["_id"]}}).sort([("_id", 1)])
     for yom in dafyomi:
         try:
-            ref = model.Ref(yom["daf"] + "a").normal()
+            ref = model.Ref(yom["daf"] + "a")
+            tref = ref.normal()
+            heTref = ref.he_normal()
+
             calendar["dafyomi"][yom["date"]] = {
-                "name": yom["daf"],
-                "ref": ref
+                "ref": {"en": tref, "he": heTref}
             }
         except InputError, e:
             print "Error parsing '%s': %s" % (yom["daf"], str(e))
 
-
+    # PARASHA -----
     parshiot = db.parshiot.find({"date": {"$gt": date}}).sort([("date", 1)])
     for parashah in parshiot:
-        calendar["parshiot"][date_format(parashah["date"])] = {
-            "name": parashah["parasha"],
-            "ref": parashah["ref"],
-            "haftara": parashah["haftara"],
+        parshRef = model.Ref(parashah["ref"])
+        parshTref = parshRef.normal()
+        parshHeTref = parshRef.he_normal()
+        haftarot = [{
+            "en": model.Ref(h).normal(), "he": model.Ref(h).he_normal()
+            } for h in parashah["haftara"]]
+        calendar["parasha"][date_format(parashah["date"])] = {
+            "parasha": {"en": parashah["parasha"], "he": hebrew_parasha_name(parashah["parasha"])},
+            "ref": {"en": parshTref, "he": parshHeTref},
+            "haftara": haftarot,
+            "diaspora": parashah["diaspora"]
             # below fields not currently used
             # "aliyot": parashah["aliyot"],
             # "shabbatName": parasha["shabbat_name"],
         }
 
-    path = "%s/calendar.json" % (EXPORT_PATH)
+    # MISHNA -----
+    mishnayot = db.daily_mishnayot.find({"date": {"$gt": date}}).sort([("date", 1)])
+    for mishnah in mishnayot:
+        ref = model.Ref(mishnah["ref"])
+        tref = ref.normal()
+        heTref = ref.he_normal()
+        mish_obj = {"ref": {"en": tref, "he": heTref}}
+        date_key = date_format(mishnah["date"])
+        if not date_key in calendar["mishnah"]:
+            calendar["mishnah"][date_key] = [mish_obj]
+        else:
+            calendar["mishnah"][date_key] += [mish_obj]
+
+    # RAMBAM -----
+    rambamim = db.daily_rambam.find({"date": {"$gt": date}}).sort([("date",1)])
+    for rambam in rambamim:
+        ref = model.Ref(rambam["ref"])
+        tref = ref.normal()
+        heTref = ref.he_normal()
+        display_value_en = tref.replace("Mishneh Torah, ","")
+        display_value_he = heTref.replace(u"משנה תורה, ", u"")
+        calendar["rambam"][date_format(rambam["date"])] = {
+            "ref": {"en": tref, "he": heTref},
+            "displayValue": {"en": display_value_en, "he": display_value_he}
+        }
+
+    # 929 -----
+    end_date = date + timedelta(days=1000)
+    curr_date = date
+    while curr_date < end_date:
+        p = p929.Perek(curr_date.date())
+        ref = model.Ref("{} {}".format(p.book_name, p.book_chapter))
+        tref = ref.normal()
+        heTref = ref.he_normal()
+        calendar["929"][date_format(curr_date)] = {
+            "ref": {"en": tref, "he": heTref}
+        }
+        if p.number == 929:
+            p929.origin = curr_date.date()
+        curr_date += timedelta(days=1)
+
+    path = (SEFARIA_IOS_SOURCES_PATH if for_sources else EXPORT_PATH) + CALENDAR_PATH
     write_doc(calendar, path)
+
+
+def export_authors(for_sources=False):
+    ps = model.PersonSet()
+    people = {}
+    for person in ps:
+        for name in person.names:
+            if not isinstance(name["text"], basestring):
+                continue
+            people[name["text"].lower()] = 1
+    path = (SEFARIA_IOS_SOURCES_PATH if for_sources else EXPORT_PATH) + PEOPLE_PATH
+    write_doc(people, path)
 
 
 def clear_exports():
@@ -607,8 +795,19 @@ def export_all(skip_existing=False):
     export_calendar()
     export_hebrew_categories()
     export_texts(skip_existing)
+    export_packages()
     print("--- %s seconds ---" % round(time.time() - start_time, 2))
 
+def export_base_files_to_sources():
+    """
+    Export the basic files that should be bundled with a new release of the iOS app
+    Run this before every new release
+    """
+    export_toc(for_sources=True)
+    export_hebrew_categories(for_sources=True)
+    export_calendar(for_sources=True)
+    export_authors(for_sources=True)
+    export_packages(for_sources=True)  # relies on full dump to be available to measure file sizes
 
 if __name__ == '__main__':
     action = sys.argv[1] if len(sys.argv) > 1 else None
@@ -634,3 +833,13 @@ if __name__ == '__main__':
         purge_cloudflare_cache([])
     elif action == "export_hebrew_categories":
         export_hebrew_categories()
+    elif action == "export_calendar":
+        export_calendar()
+    elif action == "export_authors":
+        export_authors()
+    elif action == "export_base_files_to_sources":
+        export_base_files_to_sources()
+    elif action == "export_packages":
+        export_packages()
+    elif action == "write_last_updated":  # for updating package infor
+        write_last_updated([], True)

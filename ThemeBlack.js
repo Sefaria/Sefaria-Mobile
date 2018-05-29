@@ -158,6 +158,9 @@ export default StyleSheet.create({
   text: {
     color: Colors.mainForegroundContrast
   },
+  contrastText: {
+    color: Colors.mainForeground,
+  },
   secondaryText: {
     color: Colors.secondaryText,
   },
@@ -170,7 +173,19 @@ export default StyleSheet.create({
   bordered: {
     borderColor: Colors.border,
   },
+  borderedBottom: {
+    borderBottomColor: Colors.secondaryBorder,
+  },
+  borderDarker: {
+    borderColor: Colors.secondaryText,
+  },
   bilingualEnglishText: {
     color: Colors.tertiaryText,
+  },
+  languageToggleText: {
+    color: Colors.secondaryText
+  },
+  secondaryBackground: {
+    backgroundColor: Colors.secondaryText,
   },
 });

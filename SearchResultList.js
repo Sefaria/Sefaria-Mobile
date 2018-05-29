@@ -18,7 +18,6 @@ class SearchResultList extends React.Component {
     theme:          PropTypes.object.isRequired,
     queryResult:    PropTypes.array,
     loadingTail:    PropTypes.bool,
-    onQueryChange:  PropTypes.func.isRequired,
     openRef:        PropTypes.func.isRequired,
     setLoadTail:    PropTypes.func.isRequired,
     setIsNewSearch: PropTypes.func.isRequired,

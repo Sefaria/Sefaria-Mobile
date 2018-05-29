@@ -26,10 +26,11 @@ import ReaderDisplayOptionsMenu from './ReaderDisplayOptionsMenu';
 import ReaderNavigationMenu from './ReaderNavigationMenu';
 import ReaderTextTableOfContents from './ReaderTextTableOfContents';
 import SearchPage from './SearchPage';
+import AutocompletePage from './AutocompletePage';
 import TextColumn from './TextColumn';
 import ConnectionsPanel from './ConnectionsPanel';
 import SettingsPage from './SettingsPage';
-import RecentPage from './RecentPage';
+import SwipeableCategoryList from './SwipeableCategoryList';
 import {
   LoadingView,
   CategoryColorLine,
@@ -54,7 +55,7 @@ class ReaderApp extends React.Component {
           loaded: true,
           defaultSettingsLoaded: true,
         });
-        const mostRecent =  Sefaria.recent.length ? Sefaria.recent[0] : {ref: "Genesis 1"};
+        const mostRecent =  Sefaria.history.length ? Sefaria.history[0] : {ref: "Genesis 1"};
         this.openRef(mostRecent.ref, null, mostRecent.versions);
     });
     Sefaria.track.init();
@@ -65,7 +66,7 @@ class ReaderApp extends React.Component {
 
     this.state = {
         offsetRef: null, /* used to jump to specific ref when opening a link*/
-        segmentRef: "", /* only used for highlighting right now */
+        segmentRef: "",
         segmentIndexRef: -1,
         sectionIndexRef: -1,
         textReference: "",
@@ -319,7 +320,7 @@ class ReaderApp extends React.Component {
         stateObj.textListVisible = !this.state.textListVisible;
         stateObj.offsetRef = null; //offsetRef is used to highlight. once you open textlist, you should remove the highlight
       }
-      Sefaria.saveRecentItem({ref: segmentRef, heRef: this.state.heRef, category: Sefaria.categoryForRef(segmentRef), versions: this.state.selectedVersions}, this.props.overwriteVersions);
+      Sefaria.saveHistoryItem({ref: segmentRef, heRef: this.state.heRef, category: Sefaria.categoryForRef(segmentRef), versions: this.state.selectedVersions}, this.props.overwriteVersions);
       this.setState(stateObj);
       this.forceUpdate();
   };
@@ -389,7 +390,7 @@ class ReaderApp extends React.Component {
 
           // Preload Text TOC data into memory
           this.loadTextTocData(data.indexTitle, data.sectionRef);
-          Sefaria.saveRecentItem({ref: ref, heRef: data.heRef, category: Sefaria.categoryForRef(ref), versions: this.state.selectedVersions}, this.props.overwriteVersions);
+          Sefaria.saveHistoryItem({ref: ref, heRef: data.heRef, category: Sefaria.categoryForRef(ref), versions: this.state.selectedVersions}, this.props.overwriteVersions);
       }.bind(this)).catch(function(error) {
         console.log(error);
         if (error == "Return to Nav") {
@@ -573,8 +574,8 @@ class ReaderApp extends React.Component {
         heRef: heRef
       });
       if (!this.state.textListVisible) {
-        // otherwise saveRecentItem is called in textListPressed
-        Sefaria.saveRecentItem({ref: ref, heRef: heRef, category: Sefaria.categoryForRef(ref)});
+        // otherwise saveHistoryItem is called in textListPressed
+        Sefaria.saveHistoryItem({ref: ref, heRef: heRef, category: Sefaria.categoryForRef(ref)});
       }
   };
 
@@ -599,8 +600,8 @@ class ReaderApp extends React.Component {
     }
     if (!versions && overwriteVersions) {
       //pull up default versions
-      const recentItem = Sefaria.getRecentRefForTitle(title);
-      if (!!recentItem) { versions = recentItem.versions; }
+      const historyItem = Sefaria.getHistoryRefForTitle(title);
+      if (!!historyItem) { versions = historyItem.versions; }
     }
 
 
@@ -608,7 +609,7 @@ class ReaderApp extends React.Component {
       case "search":
         Sefaria.track.event("Search","Search Result Text Click",this.state.searchQuery + ' - ' + ref);
         //this.state.backStack=["SEARCH:"+this.state.searchQuery];
-        this.addBackItem("search", this.state.searchQuery);
+        this.addBackItem("search", this.searchBackFunc.bind(this, {query: this.state.searchQuery}));
         break;
       case "navigation":
         Sefaria.track.event("Reader","Navigation Text Click", ref);
@@ -618,7 +619,7 @@ class ReaderApp extends React.Component {
       case "text list":
         Sefaria.track.event("Reader","Click Text from TextList",ref);
         //this.state.backStack.push(this.state.segmentRef);
-        this.addBackItem("text list", {ref: this.state.segmentRef, versions: this.state.selectedVersions});
+        this.addBackItem("text column", this.textColumnBackFunc.bind(this, {ref: this.state.segmentRef, versions: this.state.selectedVersions}));
         break;
       default:
         break;
@@ -634,13 +635,26 @@ class ReaderApp extends React.Component {
 
   };
 
-  addBackItem = (page, state) => {
-    //page - currently can be either "search", "search filter", or "text list"
-    //state - state object required to rebuild previous state
-    this.state.backStack.push({"page": page, "state": state});
+  addBackItem = (page, stateFunc) => {
+    //page - this.state.menuOpen
+    //stateFunc - func required to rebuild previous state
+    this.state.backStack.push({page, stateFunc});
+  };
+
+  searchBackFunc = state => {
+    this.onQueryChange(state.query,true,true);
+    this.openSearch();
+  };
+
+  textColumnBackFunc = state => {
+    this.openRef(state.ref, null, state.versions);
   };
 
   openMenu = (menu) => {
+    const staleBackPages = ["autocomplete"];  // these are pages that if in the backstack should be removed before navigating to a new page
+    while (this.state.backStack.length > 0 && staleBackPages.indexOf(this.state.backStack[this.state.backStack.length-1].page) !== -1) {
+      this.state.backStack.pop();
+    }
     this.setState({menuOpen: menu});
   };
 
@@ -658,19 +672,21 @@ class ReaderApp extends React.Component {
 
   openNav = () => {
       this.clearAllSearchFilters();
-      this.setState({loaded: true, appliedSearchFilters: [], searchFiltersValid: false, textListVisible: false, textReference: '', heRef: ''});
+      this.setState({
+        loaded: true,
+        searchQuery: "",
+        appliedSearchFilters: [],
+        searchFiltersValid: false,
+        textListVisible: false,
+        textReference: '',
+        heRef: ''
+      });
       this.openMenu("navigation");
   };
 
   goBack = () => {
-    if /* last page was search page */((this.state.backStack.slice(-1)[0]).page === "search") {
-      this.onQueryChange((this.state.backStack.pop()).state,true,true);
-      this.openSearch();
-    }
-    else /*is ref*/ {
-      const { state } = this.state.backStack.pop();
-      this.openRef(state.ref, null, state.versions);
-    }
+    const { stateFunc } = this.state.backStack.pop();
+    stateFunc();
   };
 
   setNavigationCategories = (categories) => {
@@ -697,6 +713,12 @@ class ReaderApp extends React.Component {
   openSearch = (query) => {
       this.openMenu("search");
   };
+
+  openAutocomplete = () => {
+    const stateFunc = this.state.menuOpen === "search" ? this.searchBackFunc.bind(this, {query: this.state.searchQuery}) : this.openNav;
+    this.openMenu("autocomplete");
+    this.addBackItem("autocomplete", stateFunc);
+  }
 
   clearMenuState = () => {
       this.setState({
@@ -956,6 +978,7 @@ class ReaderApp extends React.Component {
     var size = 20;
     if (resetQuery && !fromBackButton) {
       this.setInitSearchScrollPos(0);
+      Sefaria.saveRecentQuery(query, "query");
     }
     if (!resetQuery) {
       newSearchPage = this.state.currSearchPage + 1;
@@ -1088,6 +1111,7 @@ class ReaderApp extends React.Component {
     }
     this.setState({appliedSearchFilters: this.getAppliedSearchFilters(this.state.availableSearchFilters)});
   };
+
   renderContent() {
     const loading = !this.state.loaded;
     switch(this.state.menuOpen) {
@@ -1103,7 +1127,7 @@ class ReaderApp extends React.Component {
               categories={this.state.navigationCategories}
               setCategories={this.setNavigationCategories}
               openRef={(ref, versions)=>this.openRef(ref,"navigation", versions)}
-              openTextTocDirectly={this.openTextTocDirectly}
+              openAutocomplete={this.openAutocomplete}
               goBack={this.goBack}
               openNav={this.openNav}
               closeNav={this.closeMenu}
@@ -1112,7 +1136,8 @@ class ReaderApp extends React.Component {
               toggleLanguage={this.toggleMenuLanguage}
               menuLanguage={this.props.menuLanguage}
               openSettings={this.openMenu.bind(null, "settings")}
-              openRecent={this.openMenu.bind(null, "recent")}
+              openHistory={this.openMenu.bind(null, "history")}
+              openSaved={this.openMenu.bind(null, "saved")}
               interfaceLang={this.state.interfaceLang}
               onChangeSearchQuery={this.onChangeSearchQuery}
               theme={this.props.theme}
@@ -1147,7 +1172,7 @@ class ReaderApp extends React.Component {
             hasInternet={this.state.hasInternet}
             openNav={this.openNav}
             closeNav={this.closeMenu}
-            onQueryChange={this.onQueryChange}
+            search={this.onQueryChange}
             openRef={(ref)=> this.openRef(ref,"search")}
             setLoadTail={this.setLoadQueryTail}
             setIsNewSearch={this.setIsNewSearch}
@@ -1168,9 +1193,25 @@ class ReaderApp extends React.Component {
             clearAllFilters={this.clearAllSearchFilters}
             queryResult={this.state.searchQueryResult}
             numResults={this.state.numSearchResults}
-            openTextTocDirectly={this.openTextTocDirectly}
+            openAutocomplete={this.openAutocomplete}
             onChangeSearchQuery={this.onChangeSearchQuery}
-            setCategories={this.setNavigationCategories}
+          />);
+        break;
+      case ("autocomplete"):
+        return (
+          <AutocompletePage
+            interfaceLang={this.state.interfaceLang}
+            theme={this.props.theme}
+            themeStr={this.props.themeStr}
+            goBack={this.goBack}
+            search={this.search}
+            setIsNewSearch={this.setIsNewSearch}
+            onChange={this.onChangeSearchQuery}
+            query={this.state.searchQuery}
+            openRef={this.openRef}
+            openTextTocDirectly={this.openTextTocDirectly}
+            setCategories={cats => { /* first need to go to nav page */ this.openNav(); this.setNavigationCategories(cats);} }
+            openSearch={this.openSearch}
           />);
         break;
       case ("settings"):
@@ -1181,17 +1222,40 @@ class ReaderApp extends React.Component {
             interfaceLang={this.state.interfaceLang}
           />);
         break;
-      case ("recent"):
+      case ("history"):
         return(
-          <RecentPage
+          <SwipeableCategoryList
             close={this.openNav}
             theme={this.props.theme}
             themeStr={this.props.themeStr}
             toggleLanguage={this.toggleMenuLanguage}
             openRef={this.openRef}
-            language={this.props.menuLanguage}/>
+            language={this.props.menuLanguage}
+            interfaceLang={this.state.interfaceLang}
+            data={Sefaria.history}
+            onRemove={Sefaria.removeHistoryItem}
+            title={strings.history}
+            menuOpen={this.state.menuOpen}
+            icon={this.props.themeStr === "white" ? require('./img/clock.png') : require('./img/clock-light.png')}
+          />
         );
         break;
+      case ("saved"):
+        return(
+          <SwipeableCategoryList
+            close={this.openNav}
+            theme={this.props.theme}
+            themeStr={this.props.themeStr}
+            toggleLanguage={this.toggleMenuLanguage}
+            openRef={this.openRef}
+            language={this.props.menuLanguage}
+            data={Sefaria.saved}
+            onRemove={Sefaria.removeSavedItem}
+            title={strings.saved}
+            menuOpen={this.state.menuOpen}
+            icon={this.props.themeStr === "white" ? require('./img/starUnfilled.png') : require('./img/starUnfilled-light.png')}
+          />
+        );
     }
     let textColumnFlex = this.state.textListVisible ? 1.0 - this.state.textListFlex : 1.0;
     return (
@@ -1199,7 +1263,8 @@ class ReaderApp extends React.Component {
           <CategoryColorLine category={Sefaria.categoryForTitle(this.state.textTitle)} />
           <ReaderControls
             theme={this.props.theme}
-            title={this.props.menuLanguage == "hebrew" ? this.state.heRef : this.state.textReference}
+            enRef={this.state.textReference}
+            heRef={this.state.heRef}
             language={this.props.menuLanguage}
             categories={Sefaria.categoriesForTitle(this.state.textTitle)}
             openNav={this.openNav}
@@ -1266,6 +1331,8 @@ class ReaderApp extends React.Component {
                 themeStr={this.props.themeStr}
                 interfaceLang={this.state.interfaceLang}
                 segmentRef={this.state.segmentRef}
+                heSegmentRef={Sefaria.toHeSegmentRef(this.state.heRef, this.state.segmentRef)}
+                categories={Sefaria.categoriesForTitle(this.state.textTitle)}
                 textFlow={this.state.textFlow}
                 textLanguage={this.props.textLanguage}
                 openRef={(ref, versions)=>this.openRef(ref,"text list", versions)}
