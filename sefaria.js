@@ -776,6 +776,7 @@ Sefaria = {
     return ZipArchive.unzip(zipSourcePath, RNFS.DocumentDirectoryPath);
   },
   _loadJSON: function(JSONSourcePath) {
+    JSONSourcePath = Platform.OS == "ios" ? JSONSourcePath : "file:///" + JSONSourcePath;
     return fetch(JSONSourcePath).then((response) => response.json());
   },
   _downloadZip: function(title) {
