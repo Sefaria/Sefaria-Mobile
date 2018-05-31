@@ -517,7 +517,7 @@ def get_downloadable_packages():
         if cat[u"category"] == "Tanakh" or cat[u"category"] == "Talmud":
             continue  # already included above
         packages += [{
-            u"en": cat[u"category"],
+            u"en": cat[u"category"].upper(),
             u"he": cat[u"heCategory"],
             u"categories": [cat[u"category"]]
         }]
@@ -607,7 +607,7 @@ def remove_silly_toc_nodes(toc):
         elif "title" in t:
             newToc += [{k: v for k, v in t.items()}]
         else:
-            print "Goodbye {}".format(t.keys())
+            print "Goodbye {}".format(t)
     return newToc
 
 
