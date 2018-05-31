@@ -9,7 +9,8 @@ import {
   TouchableWithoutFeedback,
   View,
   ScrollView,
-  Alert
+  Alert,
+  AlertIOS,
 } from 'react-native';
 import VersionNumber from 'react-native-version-number';
 
@@ -19,6 +20,7 @@ import {
   CloseButton,
   ButtonToggleSet,
   LibraryNavButton,
+  SefariaProgressBar,
 } from './Misc.js';
 
 import styles from './Styles';
@@ -55,7 +57,6 @@ class SettingsPage extends React.Component {
     ];
     this.state = {};
   }
-
   _numPressesDebug = 0;
 
   onDebugNoLibraryTouch = () => {
@@ -123,30 +124,10 @@ class SettingsPage extends React.Component {
                     <Text style={[langStyle, styles.settingsSectionHeader, this.props.theme.tertiaryText]}>{strings.offlineAccess}</Text>
                   </View>
                 </TouchableWithoutFeedback>
-                <OfflinePackageList
-
-                />
                 {Sefaria.downloader._data.debugNoLibrary ?
                   <Text style={[langStyle, styles.settingsMessage, this.props.theme.tertiaryText]}>Debug No Library</Text> : null }
-                <Text style={[langStyle, styles.settingsMessage, this.props.theme.tertiaryText]}>{strings.offlineAccessMessage}</Text>
                 {Sefaria.downloader._data.shouldDownload ?
                   <View>
-                    <Text style={[langStyle, styles.settingsMessage, this.props.theme.tertiaryText]}>
-                       {Sefaria.downloader.downloading ? strings.downloadInProgress + " (" : ""}
-                       {nAvailable - nUpdates} / {nAvailable}  {strings.textsDownloaded}
-                       {Sefaria.downloader.downloading ? ") " : "."}
-                    </Text>
-                    {Sefaria.downloader.downloading ?
-                      <View style={{flex: 1, flexDirection: 'row', justifyContent: 'center'}}>
-                        <ProgressBar
-                          fillStyle={{}}
-                          backgroundStyle={{backgroundColor: '#cccccc', borderRadius: 2}}
-                          style={{marginTop: 0, marginBottom: 10, width: 300}}
-                          progress={(nAvailable - nUpdates) / nAvailable} />
-                      </View>
-                      : null
-                    }
-
                     { !!nUpdates && updatesOnly && !Sefaria.downloader.downloading ?
                       <View>
                         <Text style={[langStyle, styles.settingsMessage, this.props.theme.tertiaryText]}>
@@ -181,7 +162,14 @@ class SettingsPage extends React.Component {
 
                 }
 
+                <OfflinePackageList
+                  theme={this.props.theme}
+                  themeStr={this.props.themeStr}
+                  menuLanguage={this.props.menuLanguage}
+                />
+
                 <View style={[styles.readerDisplayOptionsMenuDivider, styles.settingsDivider, this.props.theme.readerDisplayOptionsMenuDivider]}/>
+
 
                 <View>
                   <Text style={[langStyle, styles.settingsSectionHeader, this.props.theme.tertiaryText]}>
@@ -198,23 +186,92 @@ class OfflinePackageList extends React.Component {
     theme:           PropTypes.object,
     themeStr:        PropTypes.string,
     menuLanguage:    PropTypes.string.isRequired,
-    onPress:         PropTypes.func.isRequired,
-    onPressCheckBox: PropTypes.func.isRequired,
   };
-  /*
-  <LibraryNavButton
-    theme={this.props.theme}
-    themeStr={this.props.themeStr}
-    menuLanguage={this.props.menuLanguage}
-    isCat={false}
-  />
-  */
-  render() {
-    return (
-      Sefaria.packages.map(p=>(
 
-        <Text key={p.en}>{`${p.en} (${p.size >> 20}MB)`}</Text>
-      ))
+  constructor(props) {
+    super(props);
+    this.state = this.getStateBasedOnPkgData();
+  }
+
+  componentDidMount() {
+    this._isMounted = true;
+  }
+
+  componentWillUnmount() {
+    this._isMounted = false;
+  }
+
+  getStateBasedOnPkgData = () => {
+    const onPressFuncs = {};
+    const isDisabledObj = {};
+    for (let pkgObj of Sefaria.packages.available) {
+      const parent = Sefaria.packages.getSelectedParent(pkgObj.en);
+      const onPress = !!parent ? this.onPressDisabled.bind(this, pkgObj.en, parent) : this.onPress.bind(this, pkgObj.en);
+      onPressFuncs[pkgObj.en] = onPress;
+      isDisabledObj[pkgObj.en] = !!parent;
+    }
+    return ({
+      onPressFuncs,
+      isDisabledObj,
+    });
+  }
+
+  onPress = pkgName => {
+    Sefaria.packages.updateSelected(pkgName).then(()=>{
+      if (this._isMounted) {
+        this.setState(this.getStateBasedOnPkgData())
+      };
+    })
+  };
+
+  onPressDisabled = (child, parent) => {
+    AlertIOS.alert(
+      "Package already selected",
+      `"${child}" is included in "${parent}"`,
+      [
+        {text: strings.ok, onPress: () => {}}
+      ]
+    );
+  };
+
+  render() {
+    // num available = all available filtered to p.indexes or unfiltered
+    // nupdates = all updates filtered to p.indexes or unfiltered
+    return (
+      Sefaria.packages.available.map(p => {
+        const isSelected = Sefaria.packages.isSelected(p.en);
+        const isd = Sefaria.downloader.downloading && isSelected;
+        const nAvailable = isd ? Sefaria.downloader.titlesAvailable().filter(t => Sefaria.packages.titleInPackage(t, p.en)).length : 0;
+        const nUpdates   = isd ? Sefaria.downloader.updatesAvailable().filter(t => Sefaria.packages.titleInPackage(t, p.en)).length : 0;
+        console.log(nUpdates, nAvailable);
+        return (
+          <View key={`${p.en}|${this.state.isDisabledObj[p.en]}|parent`}>
+            <LibraryNavButton
+              theme={this.props.theme}
+              themeStr={this.props.themeStr}
+              menuLanguage={this.props.menuLanguage}
+              catColor={Sefaria.palette.categoryColor(p.color)}
+              enText={p.en}
+              heText={p.he}
+              count={`${Math.round(p.size / 1e6)}mb` /* NOTE: iOS uses 1e6 def of mb*/}
+              onPress={this.state.onPressFuncs[p.en]}
+              onPressCheckBox={this.state.onPressFuncs[p.en]}
+              checkBoxSelected={0+isSelected}
+              buttonStyle={{margin: 0, padding: 0, opacity: this.state.isDisabledObj[p.en] ? 0.6 : 1.0}}
+              withArrow={false}
+            />
+            { isd ?
+              <SefariaProgressBar
+                theme={this.props.theme}
+                themeStr={this.props.themeStr}
+                progress={(nAvailable - nUpdates) / (nAvailable)}
+                onPress={()=>{}}
+                onClose={()=>{}}
+              /> : null
+            }
+          </View>
+        );
+      })
     );
   }
 }

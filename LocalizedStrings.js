@@ -34,7 +34,6 @@ export default new LocalizedStrings({
     hebrew: "HEBREW",
     bilingual: "BILINGUAL",
     offlineAccess: "OFFLINE ACCESS",
-    offlineAccessMessage: "Requires ~440MB of storage on your device.",
     downloadInProgress: "Download in progress",
     textsDownloaded: "texts downloaded", // to be combined with a number, e.g. "82 texts downloaded"
     downloadLibrary: "Download Library",
@@ -144,7 +143,6 @@ export default new LocalizedStrings({
     hebrew: "עברית",
     bilingual: "דו-לשוני",
     offlineAccess: "מצב בלתי מקוון",
-    offlineAccessMessage: "הורדת הספריה דורשת ~440MB משטח האחסון של הטלפון שלך",
     downloadInProgress: "הורדה מתבצעת",
     textsDownloaded: "טקסטים הורדו בהצלחה", // to be combined with a number, e.g. "82 texts downloaded"
     downloadLibrary: "הורד את הספריה",

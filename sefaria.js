@@ -4,6 +4,7 @@ const ZipArchive  = require('react-native-zip-archive'); //for unzipping -- (htt
 const RNFS        = require('react-native-fs'); //for access to file system -- (https://github.com/johanneslumpe/react-native-fs)
 import Downloader from './downloader';
 import Api from './api';
+import Packages from './packages';
 import Search from './search';
 import LinkContent from './LinkContent';
 import { initAsyncStorage } from './ReduxStore';
@@ -26,8 +27,7 @@ Sefaria = {
       Sefaria._loadSavedItems(),
       Sefaria._loadRecentQueries(),
       Sefaria._loadCalendar(),
-      Sefaria._loadPackages(),
-      Sefaria.downloader.init(),
+      Sefaria.packages._load().then(Sefaria.downloader.init),  // downloader init is dependent on packages
       initAsyncStorage(),
     ]);
     // Sefaria.calendar is loaded async when ReaderNavigationMenu renders
@@ -567,18 +567,8 @@ Sefaria = {
       var calendarPath = (RNFS.MainBundlePath + "/sources/calendar.json");
       Sefaria._loadJSON(calendarPath).then(function(data) {
         Sefaria.calendar = data;
+        resolve();
       });
-      resolve();
-    });
-  },
-  packages: null,
-  _loadPackages: function() {
-    return new Promise(function(resolve, reject) {
-      var packagePath = (RNFS.MainBundlePath + "/sources/packages.json");
-      Sefaria._loadJSON(packagePath).then(function(data) {
-        Sefaria.packages = data;
-      });
-      resolve();
     });
   },
   parashah: function() {
@@ -587,6 +577,7 @@ Sefaria = {
     let weekOffset = 1;
 
     //See if there's a Parshah this week -- If not return next week's, if not return the week after that... אא"וו
+    if (!Sefaria.calendar) { return null; }
     while (!parashah) {
       let date = new Date();
       date.setDate(date.getDate() + (6 - 1 - date.getDay() + 7) % 7 + weekOffset);
@@ -1284,6 +1275,8 @@ Sefaria.util = {
 Sefaria.downloader = Downloader;
 
 Sefaria.api = Api;
+
+Sefaria.packages = Packages;
 
 Sefaria.search = Search;
 

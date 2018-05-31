@@ -236,7 +236,7 @@ class LibraryNavButton extends React.Component {
     checkBoxSelected:PropTypes.number,
     enText:          PropTypes.string.isRequired,
     heText:          PropTypes.string.isRequired,
-    count:           PropTypes.number,
+    count:           PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     withArrow:       PropTypes.bool.isRequired,
     buttonStyle:     PropTypes.oneOfType([ViewPropTypes.style, PropTypes.array]),
   };

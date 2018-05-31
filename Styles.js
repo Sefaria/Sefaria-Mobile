@@ -61,6 +61,12 @@ export default StyleSheet.create({
     borderBottomWidth: 1,
     flex: 1,
   },
+  readerDisplayOptionsMenuDivider: {
+    marginTop: 10,
+    marginBottom: 10,
+    alignSelf: "stretch",
+    height: 1
+  },
   readerDisplayOptionsMenuToggleSet: {
     justifyContent: "center",
     flexDirection: 'row',

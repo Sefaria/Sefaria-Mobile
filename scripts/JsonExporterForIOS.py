@@ -453,7 +453,7 @@ def get_indexes_in_category(cats, toc):
     for temp_toc in toc:
         if u"contents" in temp_toc and (len(cats) == 0 or temp_toc[u"category"] == cats[0]):
             indexes += get_indexes_in_category(cats[1:], temp_toc[u"contents"])
-        elif u"title" in temp_toc:
+        elif len(cats) == 0 and u"title" in temp_toc:
             indexes += [temp_toc[u"title"]]
     return indexes
 
@@ -519,6 +519,7 @@ def get_downloadable_packages():
         packages += [{
             u"en": cat[u"category"].upper(),
             u"he": cat[u"heCategory"],
+            u"color": cat[u"category"],
             u"categories": [cat[u"category"]]
         }]
     for p in packages:
