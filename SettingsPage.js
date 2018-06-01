@@ -243,7 +243,6 @@ class OfflinePackageList extends React.Component {
         const isd = Sefaria.downloader.downloading && isSelected;
         const nAvailable = isd ? Sefaria.downloader.titlesAvailable().filter(t => Sefaria.packages.titleInPackage(t, p.en)).length : 0;
         const nUpdates   = isd ? Sefaria.downloader.updatesAvailable().filter(t => Sefaria.packages.titleInPackage(t, p.en)).length : 0;
-        console.log(nUpdates, nAvailable);
         return (
           <View key={`${p.en}|${this.state.isDisabledObj[p.en]}|parent`}>
             <LibraryNavButton
