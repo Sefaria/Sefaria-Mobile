@@ -1,6 +1,7 @@
 'use strict'
 import {
   StyleSheet,
+  Platform,
 } from 'react-native';
 
 import iPad from './isIPad';
@@ -1032,7 +1033,7 @@ export default StyleSheet.create({
     flex: -1,
     paddingTop: 15,
     marginTop: -10,
-    textAlign: "justify",
+    textAlign: Platform.OS == "android" ? "right" : "justify",
   },
   endiv: {
     fontFamily: "Amiri",

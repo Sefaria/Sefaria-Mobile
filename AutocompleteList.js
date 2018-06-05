@@ -11,6 +11,7 @@ import {
   Image,
   ActionSheetIOS,
   KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 
 
@@ -175,30 +176,57 @@ class AutocompleteList extends React.Component {
     const isheb = this.props.interfaceLang === "hebrew";
     const langStyle = !isheb ? styles.enInt : styles.heInt;
     return (
-      <KeyboardAvoidingView style={[styles.autocompleteList, this.props.theme.container, this.props.theme.bordered]} behavior="padding">
-        {!!this.state.completions.length ?
-          <FlatList
-            keyExtractor={this._keyExtractor}
-            contentContainerStyle={{paddingBottom: 20}}
-            keyboardShouldPersistTaps={'handled'}
-            data={this.state.completions}
-            renderItem={this.renderItem}
-          />
-          :
-          <View style={{flex:1}}>
-            <View style={[{paddingVertical: 15, paddingHorizontal: 15, borderBottomWidth: 1}, this.props.theme.bordered]}>
-              <Text style={[this.props.theme.searchResultSummaryText, langStyle, this.props.theme.secondaryText]}>{strings.recentSearches}</Text>
-            </View>
-            <FlatList
-              keyExtractor={this._keyExtractor}
-              contentContainerStyle={{paddingBottom: 20}}
-              keyboardShouldPersistTaps={'handled'}
-              data={this.state.recentQueries}
-              renderItem={this.renderItem}
-            />
-          </View>
-        };
-      </KeyboardAvoidingView>
+
+        Platform.OS == "ios" ?
+
+            <KeyboardAvoidingView style={[styles.autocompleteList, this.props.theme.container, this.props.theme.bordered]} behavior="padding">
+              {!!this.state.completions.length ?
+                <FlatList
+                  keyExtractor={this._keyExtractor}
+                  contentContainerStyle={{paddingBottom: 20}}
+                  keyboardShouldPersistTaps={'handled'}
+                  data={this.state.completions}
+                  renderItem={this.renderItem}
+                />
+                :
+                <View style={{flex:1}}>
+                  <View style={[{paddingVertical: 15, paddingHorizontal: 15, borderBottomWidth: 1}, this.props.theme.bordered]}>
+                    <Text style={[this.props.theme.searchResultSummaryText, langStyle, this.props.theme.secondaryText]}>{strings.recentSearches}</Text>
+                  </View>
+                  <FlatList
+                    keyExtractor={this._keyExtractor}
+                    contentContainerStyle={{paddingBottom: 20}}
+                    keyboardShouldPersistTaps={'handled'}
+                    data={this.state.recentQueries}
+                    renderItem={this.renderItem}
+                  />
+                </View>
+              };
+            </KeyboardAvoidingView>
+
+        : !!this.state.completions.length ?
+                <FlatList
+                  keyExtractor={this._keyExtractor}
+                  contentContainerStyle={{paddingBottom: 20}}
+                  keyboardShouldPersistTaps={'handled'}
+                  data={this.state.completions}
+                  renderItem={this.renderItem}
+                />
+                :
+                <View style={{flex:1}}>
+                  <View style={[{paddingVertical: 15, paddingHorizontal: 15, borderBottomWidth: 1}, this.props.theme.bordered]}>
+                    <Text style={[this.props.theme.searchResultSummaryText, langStyle, this.props.theme.secondaryText]}>{strings.recentSearches}</Text>
+                  </View>
+                  <FlatList
+                    keyExtractor={this._keyExtractor}
+                    contentContainerStyle={{paddingBottom: 20}}
+                    keyboardShouldPersistTaps={'handled'}
+                    data={this.state.recentQueries}
+                    renderItem={this.renderItem}
+                  />
+                </View>
+
+
     );
   }
 }
