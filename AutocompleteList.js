@@ -12,6 +12,7 @@ import {
   ActionSheetIOS,
   KeyboardAvoidingView,
   Platform,
+  Alert,
 } from 'react-native';
 
 
@@ -109,13 +110,31 @@ class AutocompleteList extends React.Component {
       }
       else if (d.type == "Person") {
         recentType = "person";
-        ActionSheetIOS.showActionSheetWithOptions({
-          options: [strings.cancel, `View '${d.key}' on Sefaria site`],
-          cancelButtonIndex: 0,
-        },
-        (buttonIndex) => {
-          if (buttonIndex === 1) { Linking.openURL(`https://www.sefaria.org/person/${d.key}`); }
-        });
+        if (Platform.OS == "ios") {
+          ActionSheetIOS.showActionSheetWithOptions({
+                options: [strings.cancel, `View '${d.key}' on Sefaria site`],
+                cancelButtonIndex: 0,
+              },
+              (buttonIndex) => {
+                if (buttonIndex === 1) {
+                  Linking.openURL(`https://www.sefaria.org/person/${d.key}`);
+                }
+              });
+        }
+
+        else {
+          Alert.alert(
+            `${strings.open}`,
+            `View '${d.key}' on Sefaria site`,
+            [
+              {text: strings.cancel, onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
+              {text: strings.ok, onPress: () => Linking.openURL(`https://www.sefaria.org/person/${d.key}`)},
+            ],
+            { cancelable: false }
+          )
+        }
+
+
       } else if (d.type == "TocCategory") {
         this.props.setCategories(d.key);
         recentType = "toc";
