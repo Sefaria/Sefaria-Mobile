@@ -816,6 +816,14 @@ export default StyleSheet.create({
     marginTop: 20,
     marginBottom: 30,
   },
+  underOfflinePackages: {
+    marginTop: 0,
+    marginHorizontal: iPad ? -20 : -10,
+  },
+  settingsOfflinePackages: {
+    marginHorizontal: iPad ? -20 : -10,
+    marginTop: 30,
+  },
   button: {
     borderRadius: 5,
     borderWidth: 1,

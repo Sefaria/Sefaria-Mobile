@@ -109,6 +109,10 @@ export default new LocalizedStrings({
     makeADonation: "Make a Donation",
     recentSearches: "RECENT SEARCHES",
     remove: "Remove",
+    alreadyDownloaded: "Already Downloaded",
+    areIncludedIn: "These texts are included in",
+    areYouSureDeleteDownload: "Are you sure you want to remove this download?",
+    checking: "Checking...",
   },
   he: {
     history: "היסטוריה",
@@ -218,5 +222,9 @@ export default new LocalizedStrings({
     makeADonation: "בצעו תרומה",
     recentSearches: "חיפושים אחרונים",
     remove: "הסר",
+    alreadyDownloaded: "אין צורך להוריד",
+    areIncludedIn: "הטקסטים הללו כבר כלולים באוסף",
+    areYouSureDeleteDownload: "האם אתם בטוחים שברצונכם להסיר את ההורדה הזו?",
+    checking: "בודק...",
   }
 });

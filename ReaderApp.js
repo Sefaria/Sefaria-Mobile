@@ -1400,24 +1400,25 @@ class ReaderApp extends React.Component {
     if (cat) {
       style = {backgroundColor: Sefaria.util.lightenDarkenColor(Sefaria.palette.categoryColor(cat), -25)};
     }*/
-    const nAvailable  = Sefaria.downloader.titlesAvailable().length;
-    const nUpdates    = Sefaria.downloader.updatesAvailable().length;
+    const isD = Sefaria.downloader.downloading;
+    const nAvailable = isD ? Sefaria.downloader.titlesAvailable().filter(t => Sefaria.packages.titleIsSelected(t)).length : 0;
+    const nUpdates = isD ? Sefaria.downloader.updatesAvailable().filter(t => Sefaria.packages.titleIsSelected(t)).length : 0;
     return (
       <SafeAreaView style={styles.safeArea}>
-        {
-          Sefaria.downloader.downloading && this.state.menuOpen !== 'settings' ?
-          <SefariaProgressBar
-            theme={this.props.theme}
-            themeStr={this.props.themeStr}
-            progress={(nAvailable - nUpdates) / nAvailable}
-            onPress={()=>{ this.openMenu("settings")}}
-            onClose={Sefaria.downloader.deleteLibrary}
-          /> : null
-        }
         <View style={[styles.container, this.props.theme.container]} {...this.gestureResponder}>
             <StatusBar
               barStyle="light-content"
             />
+            {
+              Sefaria.downloader.downloading && nUpdates > 0 && this.state.menuOpen !== 'settings' ?
+              <SefariaProgressBar
+                theme={this.props.theme}
+                themeStr={this.props.themeStr}
+                progress={(nAvailable - nUpdates) / nAvailable}
+                onPress={()=>{ this.openMenu("settings")}}
+                onClose={Sefaria.downloader.deleteLibrary}
+              /> : null
+            }
             { this.renderContent() }
         </View>
       </SafeAreaView>

@@ -25,6 +25,7 @@ var Downloader = {
     lastUpdateSchema: null, // Schema Version of  last update check
     debugNoLibrary: false   // True if you want to disable library access even if it's downloaded. for debugging purposes
   },
+  checkingForUpdates: false,
   downloading: false,     // Whether the download is currently active, not stored in _data because we never want to persist value
   onChange: null, // Handler set above called when books in the Library finish downloading, or download mode changes.
   init: function() {
@@ -46,10 +47,11 @@ var Downloader = {
     RNFS.mkdir(RNFS.DocumentDirectoryPath + "/tmp").catch((error)=>{console.log(error)});
     Downloader._setData("shouldDownload", true);
     Downloader.downloadUpdatesList()
-      .then(() => {
-        Downloader._updateDownloadQueue();
-        Downloader._downloadNext();
-     });
+    .then(() => {
+      Downloader._updateDownloadQueue();
+      Downloader._downloadNext();
+     })
+    .catch(Sefaria.downloader._handleDownloadError);
     Downloader.downloading = true;
     Downloader.onChange && Downloader.onChange();
     if (!silent) {
@@ -91,7 +93,17 @@ var Downloader = {
     // Resume working through queue
     if (Downloader._data.shouldDownload) {
       Downloader.downloading = true;
-      Downloader._downloadNext();
+      if (Downloader._data.downloadQueue.length === 0) {
+        // you stopped downloading even before you started
+        Downloader.downloadUpdatesList()
+        .then(() => {
+          Downloader._updateDownloadQueue();
+          Downloader._downloadNext();
+         })
+        .catch(Sefaria.downloader._handleDownloadError);
+      } else {
+        Downloader._downloadNext();
+      }
       Downloader.onChange && Downloader.onChange();
     }
   },
@@ -124,35 +136,45 @@ var Downloader = {
       fromUrl: HOST_PATH + "toc.json",
       toFile: RNFS.DocumentDirectoryPath + "/library/toc.json",
       background: true,
+      discretionary: true,
     }).promise.then(() => {
       Sefaria._loadTOC();
     });
-    var searchTocPromise = RNFS.downloadFile({
-      fromUrl: HOST_PATH + "search_toc.json",
-      toFile: RNFS.DocumentDirectoryPath + "/library/search_toc.json",
-      background: true,
-    }).promise.then(() => {
-      Sefaria.search._loadSearchTOC();
-    });
-    var hebCatPromise = RNFS.downloadFile({
-      fromUrl: HOST_PATH + "hebrew_categories.json",
-      toFile: RNFS.DocumentDirectoryPath + "/library/hebrew_categories.json",
-      background: true,
-    }).promise.then(() => {
-      Sefaria._loadHebrewCategories();
-    });
-    var peoplePromise = RNFS.downloadFile({
-      fromUrl: HOST_PATH + "people.json",
-      toFile: RNFS.DocumentDirectoryPath + "/library/people.json",
-      background: true,
-    }).promise.then(() => {
-      Sefaria._loadPeople();
-    });
-    return Promise.all([lastUpdatePromise, tocPromise, hebCatPromise, peoplePromise]).then(() => {
+    return Promise.all([lastUpdatePromise, tocPromise]).then(() => {
       var timestamp = new Date().toJSON();
       Downloader._setData("lastUpdateCheck", timestamp)
       Downloader._setData("lastUpdateSchema", SCHEMA_VERSION)
       Downloader.onChange && Downloader.onChange();
+      // download these ancillary files after. they shouldn't hold up the update
+      RNFS.downloadFile({
+        fromUrl: HOST_PATH + "search_toc.json",
+        toFile: RNFS.DocumentDirectoryPath + "/library/search_toc.json",
+        background: true,
+        discretionary: true,
+      }).promise.then(() => {
+        console.log("search toc");
+
+        Sefaria.search._loadSearchTOC();
+      });
+      RNFS.downloadFile({
+        fromUrl: HOST_PATH + "hebrew_categories.json",
+        toFile: RNFS.DocumentDirectoryPath + "/library/hebrew_categories.json",
+        background: true,
+        discretionary: true,
+      }).promise.then(() => {
+        console.log("hebcats");
+
+        Sefaria._loadHebrewCategories();
+      });
+      RNFS.downloadFile({
+        fromUrl: HOST_PATH + "people.json",
+        toFile: RNFS.DocumentDirectoryPath + "/library/people.json",
+        background: true,
+        discretionary: true,
+      }).promise.then(() => {
+        console.log("people");
+        Sefaria._loadPeople();
+      });
     });
   },
   downloadUpdates: function() {
@@ -168,12 +190,18 @@ var Downloader = {
     // Downloads the most recent update list then prompts to download updates
     // or notifies the user that the library is up to date.
     Downloader.clearQueue();
+    if (confirmUpToDate) {
+      Downloader.checkingForUpdates = true;
+      Downloader.onChange && Downloader.onChange();
+    }
     return Downloader.downloadUpdatesList().then(() => {
       var updates = Downloader.updatesAvailable();
       if (updates.length) {
         Downloader._updateDownloadQueue();
         Downloader.promptLibraryUpdate();
       } else if (confirmUpToDate) {
+        Downloader.checkingForUpdates = false;
+        Downloader.onChange && Downloader.onChange();
         AlertIOS.alert(
           strings.libraryUpToDate,
           strings.libraryUpToDateMessage,
@@ -341,7 +369,6 @@ var Downloader = {
         {text: strings.tryAgain, onPress: () => { Downloader.resumeDownload(); }},
         {text: strings.pause, onPress: cancelAlert}
       ]);
-    Sefaria.track.event("Downloader", "Download Error", error);
   },
   _downloadZip: function(title) {
     // Downloads `title`, first to /tmp then to /library when complete.
@@ -358,8 +385,10 @@ var Downloader = {
       });
       RNFS.downloadFile({
         fromUrl: HOST_PATH + encodeURIComponent(title) + ".zip",
-        toFile: tempFile
-      }).promise.then(function(downloadResult) {
+        toFile: tempFile,
+        background: true,
+        discretionary: true,
+      }).promise.then(downloadResult => {
         if (downloadResult.statusCode == 200) {
           //console.log("Downloaded " + title + " in " + (new Date() - start));
           RNFS.moveFile(tempFile, toFile)
@@ -375,8 +404,10 @@ var Downloader = {
           reject(downloadResult.statusCode + " - " + title);
           RNFS.unlink(tempFile);
         }
+        RNFS.completeHandlerIOS(downloadResult.jobId);
       })
-    });
+      .catch(Sefaria.downloader._handleDownloadError);
+    })
   },
   _removeFromDownloadQueueBulk: function(titles) {
     for (t of titles) {

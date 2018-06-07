@@ -35,8 +35,8 @@ const Packages = {
       //prompt user about delete
       return new Promise((resolve, reject) => {
         AlertIOS.alert(
-          strings.deleteLibrary,
-          `Are you sure you want to delete "${pkgName}"?`,
+          strings.remove,
+          strings.areYouSureDeleteDownload,
           [
             {text: strings.cancel, style: 'cancel'},
             {text: strings.delete, style: 'destructive', onPress: Sefaria.packages.deletePackage.bind(null, pkgName, resolve)}
@@ -47,16 +47,14 @@ const Packages = {
       for (let pkg of Sefaria.packages.available) {
         if (pkg.parent === pkgName || (Sefaria.packages.isFullLibrary(pkgName) && pkg.en !== pkgName)) {
           delete Sefaria.packages.selected[pkg.en];
-          // in the case of full library, there won't be pkg.indexes. however, this `if` cannot run for full library
-          Sefaria.downloader._removeFromDownloadQueueBulk(pkg.indexes)
         }
       }
       Sefaria.packages.selected[pkgName] = 0;  // value is number of downloaded indexes in pkg
       Sefaria.downloader.downloadLibrary(true);
+      return AsyncStorage.setItem("packagesSelected", JSON.stringify(Sefaria.packages.selected)).catch(function(error) {
+        console.error("AsyncStorage failed to save: " + error);
+      });
     }
-    return AsyncStorage.setItem("packagesSelected", JSON.stringify(Sefaria.packages.selected)).catch(function(error) {
-      console.error("AsyncStorage failed to save: " + error);
-    });
   },
   isSelected: pkgName => {
     return !!Sefaria.packages.selected[pkgName] || Sefaria.packages.selected[pkgName] === 0;
@@ -69,7 +67,7 @@ const Packages = {
     const currPkgObj = Sefaria.packages.available.find(p=>p.en === pkgName);
     for (let tempPkg of Object.keys(Sefaria.packages.selected)) {
       if (currPkgObj.parent === tempPkg || (Sefaria.packages.isFullLibrary(tempPkg) && tempPkg !== currPkgObj.en)) {
-        return tempPkg;
+        return Sefaria.packages.available.find(p=>p.en === tempPkg);
       }
     }
     return false;
@@ -99,11 +97,10 @@ const Packages = {
       dl._setData("lastDownload", {});
       dl._setData("shouldDownload", false);
       dl.clearQueue();
-      Sefaria.downloader.onChange && Sefaria.downloader.onChange();
-      resolve();
+      Sefaria.packages.finishDeletePackage(pkgName, resolve);
     } else {
       const pkgObj = Sefaria.packages.available.find(p=>p.en === pkgName);
-      const reflect = promise => promise.then(v=>1,e=>e);
+      const reflect = promise => promise.then(v=>1,e=>e);  // make sure all promises resolve but remember which ones rejected so that Promise.all() runs
       const promises = pkgObj.indexes.map(i => reflect(RNFS.unlink(`${RNFS.DocumentDirectoryPath}/library/${i}.zip`)));
       Promise.all(promises).then((result) => {
         result.forEach((r,i)=>{
@@ -120,23 +117,19 @@ const Packages = {
         // remove indexes from queue that are in this package
         dl._setData("downloadQueue", dl._data.downloadQueue.filter(q => pkgObj.indexes.indexOf(q) === -1));
         dl._setData("downloadInProgress", dl._data.downloadInProgress.filter(p => pkgObj.indexes.indexOf(p) === -1));
-        delete Sefaria.packages.selected[pkgName];
-        Sefaria.downloader.onChange && Sefaria.downloader.onChange();
-        AsyncStorage.setItem("packagesSelected", JSON.stringify(Sefaria.packages.selected))
-        .then(resolve)
-        .catch(function(error) {
-          console.error("AsyncStorage failed to save: " + error);
-        });
-        AlertIOS.alert(
-          "Finished Deleting",
-          `Donesky`,
-          [
-            {text: strings.ok},
-          ]
-        );
+        Sefaria.packages.finishDeletePackage(pkgName, resolve);
       })
     }
     Sefaria.track.event("Downloader", "Delete Library");
+  },
+  finishDeletePackage(pkgName, resolve) {
+    delete Sefaria.packages.selected[pkgName];
+    Sefaria.downloader.onChange && Sefaria.downloader.onChange();
+    AsyncStorage.setItem("packagesSelected", JSON.stringify(Sefaria.packages.selected))
+    .then(resolve)
+    .catch(function(error) {
+      console.error("AsyncStorage failed to save: " + error);
+    });
   },
 }
 
