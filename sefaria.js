@@ -1,4 +1,4 @@
-import { AsyncStorage, AlertIOS } from 'react-native';
+import { AsyncStorage, AlertIOS, Platform } from 'react-native';
 import { GoogleAnalyticsTracker } from 'react-native-google-analytics-bridge'; //https://github.com/idehub/react-native-google-analytics-bridge/blob/master/README.md
 const ZipArchive  = require('react-native-zip-archive'); //for unzipping -- (https://github.com/plrthink/react-native-zip-archive)
 const RNFS        = require('react-native-fs'); //for access to file system -- (https://github.com/johanneslumpe/react-native-fs)
@@ -294,13 +294,30 @@ Sefaria = {
     return new Promise(function(resolve, reject) {
       RNFS.exists(RNFS.DocumentDirectoryPath + "/library/toc.json")
         .then(function(exists) {
-          var tocPath = exists ? (RNFS.DocumentDirectoryPath + "/library/toc.json") :
-                                 (RNFS.MainBundlePath + "/sources/toc.json");
-          Sefaria._loadJSON(tocPath).then(function(data) {
-            Sefaria.toc = data;
-            Sefaria._cacheIndexFromToc(data);
-            resolve();
-          });
+          if (exists) {
+            Sefaria._loadJSON(RNFS.DocumentDirectoryPath + "/library/toc.json").then(function(data) {
+              Sefaria.toc = data;
+              Sefaria._cacheIndexFromToc(data);
+              resolve();
+            });
+          }
+          else {
+            if (Platform.OS == "ios") {
+              Sefaria._loadJSON(RNFS.MainBundlePath + "/sources/toc.json").then(function(data) {
+                Sefaria.toc = data;
+                Sefaria._cacheIndexFromToc(data);
+                resolve();
+              });
+            }
+            else if (Platform.OS == "android") {
+              RNFS.readFileAssets('sources/toc.json').then((data) => {
+                var data = JSON.parse(data);
+                Sefaria.toc = data;
+                Sefaria._cacheIndexFromToc(data);
+                resolve();
+              })
+            }
+          }
         });
     });
   },
@@ -308,16 +325,39 @@ Sefaria = {
     return new Promise(function(resolve, reject) {
       RNFS.exists(RNFS.DocumentDirectoryPath + "/library/hebrew_categories.json")
         .then(function(exists) {
-          const hebCatPath = exists ? (RNFS.DocumentDirectoryPath + "/library/hebrew_categories.json") :
-                                      (RNFS.MainBundlePath + "/sources/hebrew_categories.json");
-          Sefaria._loadJSON(hebCatPath).then(function(data) {
-            Sefaria.hebrewCategories = data;
-            Sefaria.englishCategories = {}; // used for classifying cats in autocomplete
-            Object.entries(data).forEach(([key, value]) => {
-              Sefaria.englishCategories[value] = 1;
+          if (exists) {
+            Sefaria._loadJSON(RNFS.DocumentDirectoryPath + "/library/hebrew_categories.json").then(function(data) {
+              Sefaria.hebrewCategories = data;
+              Sefaria.englishCategories = {}; // used for classifying cats in autocomplete
+              Object.entries(data).forEach(([key, value]) => {
+                Sefaria.englishCategories[value] = 1;
+              });
+              resolve();
             });
-            resolve();
-          });
+          }
+          else {
+            if (Platform.OS == "ios") {
+              Sefaria._loadJSON(RNFS.MainBundlePath + "/sources/hebrew_categories.json").then(function(data) {
+                Sefaria.hebrewCategories = data;
+                Sefaria.englishCategories = {}; // used for classifying cats in autocomplete
+                Object.entries(data).forEach(([key, value]) => {
+                  Sefaria.englishCategories[value] = 1;
+                });
+                resolve();
+              });
+            }
+            else if (Platform.OS == "android") {
+              RNFS.readFileAssets('sources/hebrew_categories.json').then((data) => {
+                var data = JSON.parse(data);
+                Sefaria.hebrewCategories = data;
+                Sefaria.englishCategories = {}; // used for classifying cats in autocomplete
+                Object.entries(data).forEach(([key, value]) => {
+                  Sefaria.englishCategories[value] = 1;
+                });
+                resolve();
+              })
+            }
+          }
         });
     });
   },
@@ -325,12 +365,27 @@ Sefaria = {
     return new Promise(function(resolve, reject) {
       RNFS.exists(RNFS.DocumentDirectoryPath + "/library/people.json")
         .then(function(exists) {
-          const peoplePath = exists ? (RNFS.DocumentDirectoryPath + "/library/people.json") :
-                                      (RNFS.MainBundlePath + "/sources/people.json");
-          Sefaria._loadJSON(peoplePath).then(function(data) {
-            Sefaria.people = data;
-            resolve();
-          });
+          if (exists) {
+            Sefaria._loadJSON(RNFS.DocumentDirectoryPath + "/library/people.json").then(function(data) {
+              Sefaria.people = data;
+              resolve();
+            });
+          }
+          else {
+            if (Platform.OS == "ios") {
+              Sefaria._loadJSON(RNFS.MainBundlePath + "/sources/people.json").then(function(data) {
+                Sefaria.people = data;
+                resolve();
+              });
+            }
+            else if (Platform.OS == "android") {
+              RNFS.readFileAssets('sources/people.json').then((data) => {
+                var data = JSON.parse(data);
+                Sefaria.people = data;
+                resolve();
+              })
+            }
+          }
         });
     });
   },
@@ -563,10 +618,17 @@ Sefaria = {
   calendar: null,
   _loadCalendar: function() {
     return new Promise(function(resolve, reject) {
-      var calendarPath = (RNFS.MainBundlePath + "/sources/calendar.json");
-      Sefaria._loadJSON(calendarPath).then(function(data) {
-        Sefaria.calendar = data;
-      });
+      if (Platform.OS == "ios") {
+        Sefaria._loadJSON(RNFS.MainBundlePath + "/sources/calendar.json").then(function(data) {
+          Sefaria.calendar = data;
+        });
+      }
+      else if (Platform.OS == "android") {
+        RNFS.readFileAssets('sources/calendar.json').then((data) => {
+          var data = JSON.parse(data);
+          Sefaria.calendar = data;
+        })
+      }
         resolve();
     });
   },
@@ -714,6 +776,7 @@ Sefaria = {
     return ZipArchive.unzip(zipSourcePath, RNFS.DocumentDirectoryPath);
   },
   _loadJSON: function(JSONSourcePath) {
+    JSONSourcePath = Platform.OS == "ios" ? JSONSourcePath : "file:///" + JSONSourcePath;
     return fetch(JSONSourcePath).then((response) => response.json());
   },
   _downloadZip: function(title) {

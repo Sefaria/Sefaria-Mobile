@@ -6,6 +6,8 @@ import {
   TouchableOpacity,
   Text,
   ActionSheetIOS,
+  Alert,
+  Platform,
 } from 'react-native';
 
 import {
@@ -191,6 +193,18 @@ class ListItem extends React.PureComponent {
       if (buttonIndex === 1) { this.openRef(); }
     });
   }
+  openAndroidPopup = () => {
+    Alert.alert(
+      `${strings.open} ${this.props.versionLanguage ? strings.version :
+        Sefaria.getTitle(this.props.refStr, this.props.heRefStr, this.props.category === 'Commentary', this.props.interfaceLang === "hebrew")}`,
+        '',
+      [
+        {text: strings.cancel, onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
+        {text: strings.ok, onPress: () => this.openRef()},
+      ],
+      { cancelable: false }
+    )
+  }
   render() {
     var lco = this.props.linkContentObj;
     var lang = Sefaria.util.getTextLanguageWithContent(this.props.textLanguage,lco.en,lco.he);
@@ -229,7 +243,7 @@ class ListItem extends React.PureComponent {
     const refTitleStyle = this.props.menuLanguage === 'hebrew' ? styles.he : styles.en;
     const refStr = this.props.menuLanguage === 'hebrew' ? this.props.heRefStr : this.props.refStr;
     return (
-      <TouchableOpacity style={[styles.textListItem, this.props.theme.searchTextResult]} onPress={this.openActionSheet}>
+      <TouchableOpacity style={[styles.textListItem, this.props.theme.searchTextResult]} onPress={Platform.OS == "android" ? this.openAndroidPopup : this.openActionSheet}>
         {this.props.displayRef ? null : <Text style={[refTitleStyle, styles.textListCitation, this.props.theme.textListCitation]}>{refStr}</Text>}
         {textViews}
       </TouchableOpacity>
