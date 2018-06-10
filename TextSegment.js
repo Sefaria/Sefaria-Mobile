@@ -23,6 +23,7 @@ class TextSegment extends React.PureComponent {
     textType:           PropTypes.oneOf(["english","hebrew"]),
     bilingual:          PropTypes.bool,
     textSegmentPressed: PropTypes.func.isRequired,
+    onLongPress:        PropTypes.func.isRequired,
     fontSize:           PropTypes.number.isRequired,
   };
 
@@ -39,9 +40,6 @@ class TextSegment extends React.PureComponent {
     this.props.textSegmentPressed(section, segment, this.props.rowRef, true);
   };
 
-  onLongPress = () => {
-    // Do nothing -- need to prevent onPress from firing onLongPress
-  };
   filterOutFootnotes = text => {
     // right now app is not displaying footnotes properly. interim solution is to not display them at all
     //NOTE need to be careful about nested i-tags
@@ -77,14 +75,9 @@ class TextSegment extends React.PureComponent {
                {
                  suppressHighlighting: false,
                  onPress:this.onPressTextSegment,
-                 onLongPress:this.onLongPress,
+                 onLongPress:this.props.onLongPress,
                  key:this.props.segmentKey,
                  style: style,
-               }
-             }
-             nodeComponentProps={
-               {
-                 selectable: true,
                }
              }
            />

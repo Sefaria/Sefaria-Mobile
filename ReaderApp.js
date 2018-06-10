@@ -1416,7 +1416,7 @@ class ReaderApp extends React.Component {
                 themeStr={this.props.themeStr}
                 progress={(nAvailable - nUpdates) / nAvailable}
                 onPress={()=>{ this.openMenu("settings")}}
-                onClose={Sefaria.downloader.deleteLibrary}
+                onClose={Sefaria.packages.deleteActiveDownloads}
               /> : null
             }
             { this.renderContent() }

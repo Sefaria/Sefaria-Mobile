@@ -196,6 +196,10 @@ Sefaria = {
     }
     return null;
   },
+  refToUrl: ref => {
+    const url = `https://www.sefaria.org/${ref.replace(/ /g, '_').replace(/_(?=[0-9:]+$)/,'.').replace(/:/g,'.')}`
+    return url;
+  },
   categoryForTitle: function(title) {
     var index = Sefaria.index(title);
     if (!index) { return null;}

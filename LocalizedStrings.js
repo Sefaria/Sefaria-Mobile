@@ -112,7 +112,12 @@ export default new LocalizedStrings({
     alreadyDownloaded: "Already Downloaded",
     areIncludedIn: "These texts are included in",
     areYouSureDeleteDownload: "Are you sure you want to remove this download?",
+    areYouSureDeleteDownloadProgress: "Are you sure you want to remove all downloads in progress?",
     checking: "Checking...",
+    copy: "Copy",
+    share: "Share",
+    reportError: "Report Error",
+    viewOnSite: "View on Site",
   },
   he: {
     history: "היסטוריה",
@@ -225,6 +230,11 @@ export default new LocalizedStrings({
     alreadyDownloaded: "אין צורך להוריד",
     areIncludedIn: "הטקסטים הללו כבר כלולים באוסף",
     areYouSureDeleteDownload: "האם אתם בטוחים שברצונכם להסיר את ההורדה הזו?",
+    areYouSureDeleteDownloadProgress: "האם אתם בטוחים שברצונכם להסיר את כל ההורדות בתהליך?",
     checking: "בודק...",
+    copy: "עתק",
+    share: "שתף",
+    reportError: "דווח שגיאה",
+    viewOnSite: "לצפות באתר",
   }
 });

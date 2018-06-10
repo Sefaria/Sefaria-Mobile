@@ -247,7 +247,7 @@ class OfflinePackageList extends React.Component {
                   onPress={this.state.onPressFuncs[p.en]}
                   onPressCheckBox={this.state.onPressFuncs[p.en]}
                   checkBoxSelected={0+isSelected}
-                  buttonStyle={{margin: 0, padding: 0, opacity: this.state.isDisabledObj[p.en] ? 0.6 : 1.0}}
+                  buttonStyle={{marginVertical: 2, margin: 0, padding: 0, opacity: this.state.isDisabledObj[p.en] ? 0.6 : 1.0}}
                   withArrow={false}
                 />
               { isD && nUpdates > 0 ?

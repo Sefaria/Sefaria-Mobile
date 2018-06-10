@@ -3,11 +3,17 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import {
   View,
-  Text
+  Text,
+  Clipboard,
+  ActionSheetIOS,
+  Platform,
+  Linking,
+  Share,
 } from 'react-native';
 
 import TextSegment from './TextSegment';
 import styles from './Styles';
+import strings from './LocalizedStrings';
 
 
 class TextRange extends React.PureComponent {
@@ -26,6 +32,50 @@ class TextRange extends React.PureComponent {
   constructor(props) {
     super(props);
   }
+
+  getDisplayedText = () => {
+    const enText = this.props.rowData.content.text || "";
+    const heText = this.props.rowData.content.he || "";
+    const isHeb = this.props.textLanguage !== "english";
+    const isEng = this.props.textLanguage !== "hebrew";
+    return (heText && isHeb ? heText + (enText && isEng ? "\n" : "") : "") + ((enText && isEng) ? enText : "");
+  };
+  copyToClipboard = async () => {
+    await Clipboard.setString(this.getDisplayedText());
+  };
+  reportErrorBody = () => (
+    encodeURIComponent(
+      `Error correction for: ${this.props.segmentRef}
+      What is the error?
+      Source you're basing this correction on:`)
+  )
+  reportError = () => {
+    Linking.openURL(`mailto:corrections@sefaria.org?subject=${encodeURIComponent(`Sefaria Text Correction from ${Platform.OS}`)}&body=${this.reportErrorBody()}`)
+  }
+
+  onLongPress = () => {
+    ActionSheetIOS.showActionSheetWithOptions({
+      options: [
+        strings.cancel,
+        strings.copy,
+        strings.reportError,
+        strings.share,
+        strings.viewOnSite,
+      ],
+      cancelButtonIndex: 0,
+    },
+    (buttonIndex) => {
+      if (buttonIndex === 1) { this.copyToClipboard(); }
+      else if (buttonIndex === 2) { this.reportError(); }
+      else if (buttonIndex === 3) { Share.share({
+          message: this.getDisplayedText(),
+          title: this.props.segmentRef,
+          url: Sefaria.refToUrl(this.props.segmentRef)
+        })
+      }
+      else if (buttonIndex === 4) { Linking.openURL(Sefaria.refToUrl(this.props.segmentRef))}
+    })
+  };
 
   render() {
     let enText = this.props.rowData.content.text || "";
@@ -67,6 +117,7 @@ class TextRange extends React.PureComponent {
         data={heText}
         textType="hebrew"
         textSegmentPressed={ this.props.textSegmentPressed }
+        onLongPress={this.onLongPress}
         fontSize={this.props.fontSize}/>);
     }
 
@@ -81,6 +132,7 @@ class TextRange extends React.PureComponent {
         textType="english"
         bilingual={textLanguage === "bilingual"}
         textSegmentPressed={ this.props.textSegmentPressed }
+        onLongPress={this.onLongPress}
         fontSize={this.props.fontSize} />);
     }
 

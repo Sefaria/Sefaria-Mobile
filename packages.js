@@ -89,6 +89,7 @@ const Packages = {
     return Sefaria.packages.isFullLibrary(pkg) || (!!pkgList && pkgList.indexOf(pkg) !== -1);
   },
   deletePackage: (pkgName, resolve) => {
+    if (!resolve) { resolve = ()=>{} }
     RNFS.unlink(RNFS.DocumentDirectoryPath + "/tmp");
     RNFS.mkdir(RNFS.DocumentDirectoryPath + "/tmp");
     const dl = Sefaria.downloader;
@@ -130,6 +131,25 @@ const Packages = {
     .catch(function(error) {
       console.error("AsyncStorage failed to save: " + error);
     });
+  },
+  deleteActiveDownloads() {
+    AlertIOS.alert(
+      strings.remove,
+      strings.areYouSureDeleteDownloadProgress,
+      [
+        {text: strings.cancel, style: 'cancel'},
+        {text: strings.delete, style: 'destructive', onPress: () => {
+          Sefaria.packages.available.forEach(p => {
+            const isSelected = Sefaria.packages.isSelected(p.en);
+            const isD = Sefaria.downloader.downloading && isSelected;
+            const nUpdates   = isD ? Sefaria.downloader.updatesAvailable().filter(t => Sefaria.packages.titleInPackage(t, p.en)).length : 0;
+            if (isD && nUpdates > 0) {
+              Sefaria.packages.deletePackage(p.en);
+            }
+          });
+        }}
+      ]
+    );
   },
 }
 
