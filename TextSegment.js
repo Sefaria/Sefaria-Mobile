@@ -45,7 +45,12 @@ class TextSegment extends React.PureComponent {
   filterOutFootnotes = text => {
     // right now app is not displaying footnotes properly. interim solution is to not display them at all
     //NOTE need to be careful about nested i-tags
-    return text.replace(/<sup>[^<]*<\/sup> *<i +class=["']footnote["']>(?:[^<]*|(?:[^<]*<i>[^<]*<\/i>[^<]*)+)<\/i>/g, '');
+    try {
+      return text.replace(/<sup>[^<]*<\/sup> *<i +class=["']footnote["']>(?:[^<]*|(?:[^<]*<i>[^<]*<\/i>[^<]*)+)<\/i>/g, '');
+    } catch (e) {
+      //in case segment is not string (which should not happen but does)
+      return text;
+    }
   };
   componentWillReceiveProps(nextProps) {
     if (this.props.themeStr !== nextProps.themeStr ||

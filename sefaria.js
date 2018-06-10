@@ -1214,17 +1214,18 @@ Sefaria.util = {
   getTextLanguageWithContent: function(lang, en, he) {
     // Returns a language that has content in it give strings `en` and `he`, with a preference for `lang`.
     let newLang = lang;
-
+    const hasEn = (typeof en === "string") && en.trim() != "";
+    const hasHe = (typeof he === "string") && he.trim() != "";
     if (newLang == "bilingual") {
-      if (en.trim() != "" && he.trim() == "") {
+      if (hasEn && !hasHe) {
         newLang = "english";
-      } else if (en.trim() == "") newLang  = "hebrew";
+      } else if (!hasEn) newLang  = "hebrew";
     }
 
     if (newLang == "english")
-      newLang = en.trim() != "" ? "english" : "hebrew";
+      newLang = hasEn ? "english" : "hebrew";
     else if (newLang == "hebrew")
-      newLang = he.trim() != "" || en.trim() == "" ? "hebrew" : "english"; //make sure when there's no content it's hebrew
+      newLang = hasHe || !hasEn ? "hebrew" : "english"; //make sure when there's no content it's hebrew
     return newLang;
   },
   regexEscape: function(s) {
