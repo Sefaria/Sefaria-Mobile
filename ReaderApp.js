@@ -688,8 +688,6 @@ class ReaderApp extends React.Component {
         appliedSearchFilters: [],
         searchFiltersValid: false,
         textListVisible: false,
-        textReference: '',
-        heRef: ''
       });
       this.openMenu("navigation");
   };
