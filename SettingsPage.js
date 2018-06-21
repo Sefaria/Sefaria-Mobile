@@ -80,6 +80,12 @@ class SettingsPage extends React.Component {
     }
   };
 
+  deleteLibrary = () => {
+    Sefaria.downloader.deleteLibrary().then(()=>{
+      this._offlinePackageList && this._offlinePackageList.updateStateBasedOnPkgData();
+    });
+  }
+
   render() {
     const langStyle = this.props.interfaceLang === "hebrew" ? styles.heInt : styles.enInt;
     var nDownloaded = Sefaria.downloader.titlesDownloaded().length;
@@ -141,7 +147,7 @@ class SettingsPage extends React.Component {
                       <Text style={[langStyle, styles.buttonText]}>{Sefaria.downloader.checkingForUpdates ? strings.checking : strings.checkForUpdates}</Text>
                     </TouchableOpacity>
 
-                    <TouchableOpacity style={styles.button} onPress={Sefaria.downloader.deleteLibrary}>
+                    <TouchableOpacity style={styles.button} onPress={this.deleteLibrary}>
                       <Text style={[langStyle, styles.buttonText]}>{strings.deleteLibrary}</Text>
                     </TouchableOpacity>
                   </View>
@@ -149,6 +155,7 @@ class SettingsPage extends React.Component {
                 }
 
                 <OfflinePackageList
+                  ref={ ref => { this._offlinePackageList = ref; }}
                   theme={this.props.theme}
                   themeStr={this.props.themeStr}
                   menuLanguage={this.props.menuLanguage}
@@ -205,12 +212,12 @@ class OfflinePackageList extends React.Component {
     });
   }
 
+  updateStateBasedOnPkgData = () => {
+    this._isMounted && this.setState(this.getStateBasedOnPkgData());
+  }
+
   onPress = pkgName => {
-    Sefaria.packages.updateSelected(pkgName).then(()=>{
-      if (this._isMounted) {
-        this.setState(this.getStateBasedOnPkgData())
-      };
-    })
+    Sefaria.packages.updateSelected(pkgName).then(this.updateStateBasedOnPkgData);
   };
 
   onPressDisabled = (child, parent) => {
@@ -247,7 +254,7 @@ class OfflinePackageList extends React.Component {
                   onPress={this.state.onPressFuncs[p.en]}
                   onPressCheckBox={this.state.onPressFuncs[p.en]}
                   checkBoxSelected={0+isSelected}
-                  buttonStyle={{marginVertical: 2, margin: 0, padding: 0, opacity: this.state.isDisabledObj[p.en] ? 0.6 : 1.0}}
+                  buttonStyle={{margin: 0, padding: 0, opacity: this.state.isDisabledObj[p.en] ? 0.6 : 1.0}}
                   withArrow={false}
                 />
               { isD && nUpdates > 0 ?

@@ -447,6 +447,7 @@ Sefaria = {
       var results = [];
       for (var i=0; i < branch.length; i++) {
         if (branch[i].title) {
+          if (branch[i].title.indexOf("Beit Shmuel") !== -1) { debugger; }
           if (isCommentaryRefactor) {
             if (branch[i].dependence === "Commentary" && !!branch[i].base_text_titles && branch[i].base_text_titles.includes(title)) {
               results.push(branch[i]);
@@ -581,6 +582,7 @@ Sefaria = {
     let weekOffset = 1;
 
     //See if there's a Parshah this week -- If not return next week's, if not return the week after that... אא"וו
+    //TODO parasha currently updates on Shabbat. For users who are mchalel shabbat, they will get the wrong parasha. do we care?
     if (!Sefaria.calendar) { return null; }
     while (!parashah) {
       let date = new Date();

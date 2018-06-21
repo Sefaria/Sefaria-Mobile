@@ -326,8 +326,13 @@ export default StyleSheet.create({
     flexDirection: 'column',
     borderBottomWidth: 1,
   },
+  sefariaProgressBar: {
+    height: 50,
+    alignItems: "center",
+    flexDirection: "row"
+  },
   searchFilterCat: {
-    height: 48,
+    height: 50,
     flexGrow: 1,
     flexDirection: "row",
     borderTopWidth: 4,

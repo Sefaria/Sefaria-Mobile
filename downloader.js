@@ -36,6 +36,7 @@ var Downloader = {
               //console.log(Downloader.titlesAvailable().length + " titles available");
               //console.log(Downloader.titlesDownloaded().length + " titles downloaded");
               //console.log("Updates:" , Downloader.updatesAvailable());
+              Sefaria.packages.initCompleteLibrary();
               Downloader.checkForUpdatesIfNeeded();
               if (!Downloader._data.downloadPaused) {
                 Downloader.resumeDownload();
@@ -64,21 +65,18 @@ var Downloader = {
     Sefaria.track.event("Downloader", "Download Library");
   },
   deleteLibrary: function() {
-    AlertIOS.alert(
-      strings.deleteLibrary,
-      strings.confirmDeleteLibraryMessage,
-      [
-        {text: strings.cancel, style: 'cancel'},
-        {text: strings.delete, style: 'destructive', onPress: () => {
-          RNFS.unlink(RNFS.DocumentDirectoryPath + "/library");
-          RNFS.unlink(RNFS.DocumentDirectoryPath + "/tmp");
-          Downloader._setData("lastDownload", {});
-          Downloader._setData("shouldDownload", false);
-          Downloader.clearQueue();
-          Downloader.onChange && Downloader.onChange();
-          Sefaria.track.event("Downloader", "Delete Library");
-        }}
-      ]);
+    return new Promise((resolve, reject) => {
+      AlertIOS.alert(
+        strings.deleteLibrary,
+        strings.confirmDeleteLibraryMessage,
+        [
+          {text: strings.cancel, style: 'cancel', onPress: resolve},
+          {text: strings.delete, style: 'destructive', onPress: () => {
+            Sefaria.packages.deletePackage("COMPLETE LIBRARY", resolve);
+          }}
+        ]
+      );
+    });
   },
   resumeDownload: function() {
     // Resumes the download process if anything is left in progress or in queue.

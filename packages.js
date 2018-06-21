@@ -6,6 +6,7 @@ const Packages = {
   available: null,
   selected: null,
   titleToPackageMap: {},
+  newToPackages: false, // true if you've never used the packages feature yet
   _load: function() {
     return Promise.all([
       new Promise((resolve, reject) => {
@@ -28,9 +29,28 @@ const Packages = {
       AsyncStorage.getItem("packagesSelected").then(function(data) {
         Sefaria.packages.selected = JSON.parse(data) || {};
       }),
+      AsyncStorage.getItem("newToPackages").then(function(data) {
+        Sefaria.packages.newToPackages = !!data ? JSON.parse(data) : true;
+        console.log(Sefaria.packages.newToPackages);
+      }),
     ]);
   },
-  updateSelected: pkgName => {
+  initCompleteLibrary: () => {
+    //in the case the user upgraded from before packages, make sure he retains complete library if he has it
+    if (Sefaria.packages.newToPackages) {
+      const nAvailable = Sefaria.downloader.titlesAvailable().length;
+      const nDownloaded = Sefaria.downloader.titlesDownloaded().length;
+      const percentDownloaded = nDownloaded / nAvailable;
+      console.log(percentDownloaded, nAvailable, nDownloaded);
+      if (percentDownloaded > 0.95) {
+        Sefaria.packages.updateSelected("COMPLETE LIBRARY", false);
+      }
+    }
+  },
+  updateSelected: (pkgName, shouldDownload=true) => {
+    //anytime you select a package, make sure to set `newToPackages`
+    Sefaria.packages.newToPackages = false;
+    AsyncStorage.setItem("newToPackages", JSON.stringify(Sefaria.packages.newToPackages));
     if (Sefaria.packages.isSelected(pkgName)) {
       //prompt user about delete
       return new Promise((resolve, reject) => {
@@ -49,8 +69,10 @@ const Packages = {
           delete Sefaria.packages.selected[pkg.en];
         }
       }
-      Sefaria.packages.selected[pkgName] = 0;  // value is number of downloaded indexes in pkg
-      Sefaria.downloader.downloadLibrary(true);
+      Sefaria.packages.selected[pkgName] = true;
+      if (shouldDownload) {
+        Sefaria.downloader.downloadLibrary(true);
+      }
       return AsyncStorage.setItem("packagesSelected", JSON.stringify(Sefaria.packages.selected)).catch(function(error) {
         console.error("AsyncStorage failed to save: " + error);
       });
@@ -124,7 +146,11 @@ const Packages = {
     Sefaria.track.event("Downloader", "Delete Library");
   },
   finishDeletePackage(pkgName, resolve) {
-    delete Sefaria.packages.selected[pkgName];
+    if (Sefaria.packages.isFullLibrary(pkgName)) {
+      Sefaria.packages.selected = {};
+    } else {
+      delete Sefaria.packages.selected[pkgName];
+    }
     Sefaria.downloader.onChange && Sefaria.downloader.onChange();
     AsyncStorage.setItem("packagesSelected", JSON.stringify(Sefaria.packages.selected))
     .then(resolve)
@@ -134,11 +160,11 @@ const Packages = {
   },
   deleteActiveDownloads() {
     AlertIOS.alert(
-      strings.remove,
+      strings.cancel,
       strings.areYouSureDeleteDownloadProgress,
       [
-        {text: strings.cancel, style: 'cancel'},
-        {text: strings.delete, style: 'destructive', onPress: () => {
+        {text: strings.no, style: 'cancel'},
+        {text: strings.yes, style: 'destructive', onPress: () => {
           Sefaria.packages.available.forEach(p => {
             const isSelected = Sefaria.packages.isSelected(p.en);
             const isD = Sefaria.downloader.downloading && isSelected;

@@ -21,7 +21,7 @@ import styles from './Styles.js';
 
 
 const SefariaProgressBar = ({ theme, themeStr, progress, onPress, onClose }) => (
-  <TouchableOpacity onPress={!!onPress ? onPress : ()=>{}} disabled={!onPress} style={{height: 50, alignItems: "center", flexDirection: "row"}}>
+  <TouchableOpacity onPress={!!onPress ? onPress : ()=>{}} disabled={!onPress} style={styles.sefariaProgressBar}>
     <View style={{flex: 1, flexDirection: "row", height: 50}}>
       <View style={{flex: progress, backgroundColor: "#fff"}}>
       </View>
