@@ -202,7 +202,8 @@ class OfflinePackageList extends React.Component {
     for (let pkgObj of Sefaria.packages.available) {
       const parent = Sefaria.packages.getSelectedParent(pkgObj.en);
       const shortIntLang = this.props.interfaceLang.slice(0,2);
-      const onPress = !!parent ? this.onPressDisabled.bind(this, pkgObj[shortIntLang], parent[shortIntLang]) : this.onPress.bind(this, pkgObj[shortIntLang]);
+      //NOTE: onPressDisabled() takes pkgNames in curr intLang while onPress() takes eng
+      const onPress = !!parent ? this.onPressDisabled.bind(this, pkgObj[shortIntLang], parent[shortIntLang]) : this.onPress.bind(this, pkgObj.en);
       onPressFuncs[pkgObj.en] = onPress;
       isDisabledObj[pkgObj.en] = !!parent;
     }
@@ -259,6 +260,7 @@ class OfflinePackageList extends React.Component {
                 />
               { isD && nUpdates > 0 ?
                   <SefariaProgressBar
+                    interfaceLang={this.props.interfaceLang}
                     theme={this.props.theme}
                     themeStr={this.props.themeStr}
                     progress={(nAvailable - nUpdates) / (nAvailable)}

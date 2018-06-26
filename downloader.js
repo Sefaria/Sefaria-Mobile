@@ -193,13 +193,13 @@ var Downloader = {
       Downloader.onChange && Downloader.onChange();
     }
     return Downloader.downloadUpdatesList().then(() => {
+      Downloader.checkingForUpdates = false;
+      Downloader.onChange && Downloader.onChange();
       var updates = Downloader.updatesAvailable();
       if (updates.length) {
         Downloader._updateDownloadQueue();
         Downloader.promptLibraryUpdate();
       } else if (confirmUpToDate) {
-        Downloader.checkingForUpdates = false;
-        Downloader.onChange && Downloader.onChange();
         AlertIOS.alert(
           strings.libraryUpToDate,
           strings.libraryUpToDateMessage,
@@ -207,6 +207,10 @@ var Downloader = {
             {text: strings.ok},
           ]);
       }
+    })
+    .catch(() => {
+      Downloader.checkingForUpdates = false;
+      Downloader.onChange && Downloader.onChange();
     });
   },
   checkForUpdatesIfNeeded: function() {
