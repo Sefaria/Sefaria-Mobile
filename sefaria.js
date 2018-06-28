@@ -830,6 +830,10 @@ Sefaria = {
       for (let i = 0; i < links.length; i++) {
         let link = links[i];
         let linkSegIndex = parseInt(link.anchorRef.substring(link.anchorRef.lastIndexOf(':') + 1)) - 1;
+        if (!linkSegIndex && linkSegIndex !== 0) {
+          // try again. assume depth-1 text
+          linkSegIndex = parseInt(link.anchorRef.substring(link.anchorRef.lastIndexOf(' ') + 1).trim()) - 1;
+        }
         if (!link_response[linkSegIndex]) {
           link_response[linkSegIndex] = [];
         }

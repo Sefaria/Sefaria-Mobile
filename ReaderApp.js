@@ -886,11 +886,16 @@ class ReaderApp extends React.Component {
 
   onLinkLoad = (pos, data) => {
     // truncate data if it's crazy long (e.g. Smag)
-    if (data.en.length > 1000) {
-      data.en = data.en.slice(0, 1000) + "...";
+    const cutoffLen = 1500
+    if (data.en.length > cutoffLen) {
+      const spaceInd = data.en.indexOf(' ', cutoffLen);
+      if (spaceInd === -1) { spaceInd = cutoffLen; }
+      data.en = data.en.slice(0, spaceInd) + "... <b>(Tap to read more)</b>";
     }
-    if (data.he.length > 1000) {
-      data.he = data.he.slice(0, 1000) + "...";
+    if (data.he.length > cutoffLen) {
+      const spaceInd = data.he.indexOf(' ', cutoffLen);
+      if (spaceInd === -1) { spaceInd = cutoffLen; }
+      data.he = data.he.slice(0, spaceInd) + "... <b>(לחץ לקרוא עוד)</b>";
     }
 
     this.state.linkContents[pos] = data;
