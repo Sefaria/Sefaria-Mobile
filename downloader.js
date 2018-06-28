@@ -98,7 +98,7 @@ var Downloader = {
           Downloader._updateDownloadQueue();
           Downloader._downloadNext();
          })
-        .catch(Sefaria.downloader._handleDownloadError);
+        .catch(e=> { console.log("Download error", e); });
       } else {
         Downloader._downloadNext();
       }
