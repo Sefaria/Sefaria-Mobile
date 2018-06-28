@@ -992,8 +992,7 @@ Sefaria = {
         const allBooks = [];
         for (let cat of summaryList) {
           for (let book of cat.books) {
-            const bookRefList = Array.from(book.refSet);
-            const bookHeRefList = Array.from(book.heRefSet);
+            const [bookRefList, bookHeRefList] = Sefaria.links.sortRefsBySections(Array.from(book.refSet), Array.from(book.heRefSet), book.title);
             delete book.refSet;
             delete book.heRefSet;
             book.refList = bookRefList;
@@ -1038,6 +1037,27 @@ Sefaria = {
         resolve(summaryList);
       });
 
+    },
+    sortRefsBySections(enRefs, heRefs, title) {
+      const zip = rows=>rows[0].map((_,c)=>rows.map(row=>row[c]));
+      const biRefList = zip([enRefs, heRefs]);
+      biRefList.sort((a,b) => {
+        try {
+          const aSections = a[0].substring(title.length+1).trim().split(':');
+          const bSections = b[0].substring(title.length+1).trim().split(':');
+          if (aSections.length !== bSections.length) { return 0; }  // not comparable
+          for (let iSec = 0; iSec < aSections.length; iSec++) {
+            const aInt = parseInt(aSections[iSec]);
+            const bInt = parseInt(bSections[iSec]);
+            if (aInt !== bInt) { return aInt - bInt; }
+          }
+          return 0;
+        } catch (e) {
+          console.log(e);
+          return 0;
+        }
+      });
+      return biRefList.reduce((accum, item) => [accum[0].concat([item[0]]), accum[1].concat([item[1]])], [[],[]]);
     },
   },
   track: {

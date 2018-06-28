@@ -513,7 +513,7 @@ def get_downloadable_packages():
         }
     ]
     # Add all top-level categories
-    for cat in toc[:5]:
+    for cat in toc[:7]:
         if cat[u"category"] == "Tanakh" or cat[u"category"] == "Talmud":
             continue  # already included above
         packages += [{
