@@ -1,5 +1,5 @@
 import {
-    AlertIOS, Platform
+    Alert, Platform
 } from 'react-native';
 
 import FilterNode from './FilterNode';
@@ -80,7 +80,7 @@ var Search = {
         resolve(response.json());
       })
       .catch(()=>{
-        AlertIOS.alert(
+        Alert.alert(
           strings.noInternet,
           strings.noInternetMessage,
           [

@@ -1,5 +1,5 @@
 import {
-  AlertIOS,
+  Alert,
   AsyncStorage,
   NetInfo
 } from 'react-native';
@@ -52,7 +52,7 @@ var Downloader = {
      });
     Downloader.downloading = true;
     Downloader.onChange && Downloader.onChange();
-    AlertIOS.alert(
+    Alert.alert(
       strings.libraryDownloading,
       strings.libraryDownloadingMessage,
       [{text: strings.ok}]
@@ -60,7 +60,7 @@ var Downloader = {
     Sefaria.track.event("Downloader", "Download Library");
   },
   deleteLibrary: function() {
-    AlertIOS.alert(
+    Alert.alert(
       strings.deleteLibrary,
       strings.confirmDeleteLibraryMessage,
       [
@@ -172,7 +172,7 @@ var Downloader = {
         Downloader._updateDownloadQueue();
         Downloader.promptLibraryUpdate();
       } else if (confirmUpToDate) {
-        AlertIOS.alert(
+        Alert.alert(
           strings.libraryUpToDate,
           strings.libraryUpToDateMessage,
           [
@@ -249,7 +249,7 @@ var Downloader = {
           };
           var onCancel = function() {
             AsyncStorage.setItem("libraryDownloadPrompted", "true");
-            AlertIOS.alert(
+            Alert.alert(
               strings.usingOnlineLibrary,
               strings.howToDownloadLibraryMessage,
               [
@@ -257,7 +257,7 @@ var Downloader = {
               ]);
             Sefaria.track.event("Downloader", "Initial Download Prompt", "decline");
           };
-          AlertIOS.alert(
+          Alert.alert(
             strings.welcome,
             strings.downloadLibraryRecommendedMessage,
             [
@@ -283,7 +283,7 @@ var Downloader = {
     };
 
     var onCancel = function() {
-      AlertIOS.alert(
+      Alert.alert(
         strings.updateLater,
         strings.howToUpdateLibraryMessage,
         [
@@ -292,7 +292,7 @@ var Downloader = {
       Downloader._setData("downloadPaused", true);
       Sefaria.track.event("Downloader", "Update Prompt", "decline");
     };
-    AlertIOS.alert(
+    Alert.alert(
       strings.updateLibrary,
       updateFullString,
       [
@@ -333,7 +333,7 @@ var Downloader = {
     Downloader.downloading = false;
     var cancelAlert = function() {
       Downloader._setData("downloadPaused", true);
-      AlertIOS.alert(
+      Alert.alert(
         strings.downloadPaused,
         strings.howToResumeDownloadMessage,
         [
@@ -341,7 +341,7 @@ var Downloader = {
         ]);
       Downloader.onChange && Downloader.onChange();
     };
-    AlertIOS.alert(
+    Alert.alert(
       strings.downloadError,
       strings.downloadErrorMessage,
       [

@@ -21,6 +21,7 @@
     "react-native-google-analytics-bridge": "^5.3.3",
     "react-native-htmlview": "^0.12.1",
     "react-native-localization": "^0.2.1",
+    "react-native-popup-menu": "^0.13.2",
     "react-native-version-number": "^0.3.0",
     "react-native-zip-archive": "^2.0.0",
     "react-redux": "^5.0.7",
