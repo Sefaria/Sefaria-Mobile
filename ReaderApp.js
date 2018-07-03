@@ -496,9 +496,11 @@ class ReaderApp extends React.Component {
 
   loadVersions = (ref) => {
     Sefaria.api.versions(ref, true).then(data=> {
+      console.log("success", data);
       this.setState({ versions: data, versionsApiError: false });
     }).catch(error=>{
-      this.setState({ versionsApiError: true });
+      console.log("error", error);
+      this.setState({ versions: [], versionsApiError: true });
     });
   };
 
