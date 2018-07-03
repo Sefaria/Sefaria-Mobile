@@ -10,21 +10,27 @@ const Packages = {
   _load: function() {
     return Promise.all([
       new Promise((resolve, reject) => {
-        Sefaria._loadJSON(RNFS.MainBundlePath + "/sources/packages.json").then(function(data) {
-          Sefaria.packages.available = data;
-          for (pkgObj of data) {
-            if (!!pkgObj.indexes) {
-              for (i of pkgObj.indexes) {
-                if (!!Sefaria.packages.titleToPackageMap[i]) {
-                  Sefaria.packages.titleToPackageMap[i].push(pkgObj.en);
-                } else {
-                  Sefaria.packages.titleToPackageMap[i] = [pkgObj.en];
+        RNFS.exists(RNFS.DocumentDirectoryPath + "/library/packages.json")
+        .then(exists => {
+          const pkgPath = exists ? (RNFS.DocumentDirectoryPath + "/library/packages.json") :
+                                      (RNFS.MainBundlePath + "/sources/packages.json");
+          console.log(exists, pkgPath);
+          Sefaria._loadJSON(pkgPath).then(function(data) {
+            Sefaria.packages.available = data;
+            for (pkgObj of data) {
+              if (!!pkgObj.indexes) {
+                for (i of pkgObj.indexes) {
+                  if (!!Sefaria.packages.titleToPackageMap[i]) {
+                    Sefaria.packages.titleToPackageMap[i].push(pkgObj.en);
+                  } else {
+                    Sefaria.packages.titleToPackageMap[i] = [pkgObj.en];
+                  }
                 }
               }
             }
-          }
-          resolve();
-        })
+            resolve();
+          });
+        });
       }),
       AsyncStorage.getItem("packagesSelected").then(function(data) {
         Sefaria.packages.selected = JSON.parse(data) || {};

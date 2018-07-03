@@ -173,6 +173,15 @@ var Downloader = {
         console.log("people");
         Sefaria._loadPeople();
       });
+      RNFS.downloadFile({
+        fromUrl: HOST_PATH + "packages.json",
+        toFile: RNFS.DocumentDirectoryPath + "/library/packages.json",
+        background: true,
+        discretionary: true,
+      }).promise.then(() => {
+        console.log("packages");
+        Sefaria.packages._load().then(Sefaria.downloader.init);
+      });
     });
   },
   downloadUpdates: function() {
