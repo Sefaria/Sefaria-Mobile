@@ -331,6 +331,15 @@ export default StyleSheet.create({
     alignItems: "center",
     flexDirection: "row"
   },
+  sefariaProgressBarOverlay: {
+    flex: 1,
+    alignItems: "center",
+    position: "absolute",
+    right: 0,
+    left: 0,
+    paddingHorizontal: iPad ? 20 : 10,
+    justifyContent: "space-between",
+  },
   searchFilterCat: {
     height: 50,
     flexGrow: 1,

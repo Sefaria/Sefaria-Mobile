@@ -30,7 +30,7 @@ const SefariaProgressBar = ({ theme, themeStr, progress, onPress, onClose, inter
       <View style={{flex: 1-progress, backgroundColor: "#eee"}}>
       </View>
     </View>
-    <View style={{flex:1, flexDirection: interfaceLang === "hebrew" ? "row-reverse" : "row", alignItems: "center", position: "absolute", right: 0, left: 0, paddingHorizontal: 10, justifyContent: "space-between"}}>
+    <View style={[{flexDirection: interfaceLang === "hebrew" ? "row-reverse" : "row"}, styles.sefariaProgressBarOverlay]}>
       <Text style={[{color: "#999"}, interfaceLang === "hebrew" ? styles.heInt : styles.enInt]}>{`${strings.downloading} (${Math.round(progress*1000)/10}%)`}</Text>
       {!!onClose ?
         <TouchableOpacity onPress={onClose}>
