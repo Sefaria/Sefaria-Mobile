@@ -4,6 +4,7 @@ const ZipArchive  = require('react-native-zip-archive'); //for unzipping -- (htt
 const RNFS        = require('react-native-fs'); //for access to file system -- (https://github.com/johanneslumpe/react-native-fs)
 import Downloader from './downloader';
 import Api from './api';
+import Packages from './packages';
 import Search from './search';
 import LinkContent from './LinkContent';
 import { initAsyncStorage } from './ReduxStore';
@@ -26,7 +27,7 @@ Sefaria = {
       Sefaria._loadSavedItems(),
       Sefaria._loadRecentQueries(),
       Sefaria._loadCalendar(),
-      Sefaria.downloader.init(),
+      Sefaria.packages._load().then(Sefaria.downloader.init),  // downloader init is dependent on packages
       initAsyncStorage(),
     ]);
     // Sefaria.calendar is loaded async when ReaderNavigationMenu renders
@@ -194,6 +195,10 @@ Sefaria = {
       }
     }
     return null;
+  },
+  refToUrl: ref => {
+    const url = `https://www.sefaria.org/${ref.replace(/ /g, '_').replace(/_(?=[0-9:]+$)/,'.').replace(/:/g,'.')}`
+    return url;
   },
   categoryForTitle: function(title) {
     var index = Sefaria.index(title);
@@ -442,6 +447,7 @@ Sefaria = {
       var results = [];
       for (var i=0; i < branch.length; i++) {
         if (branch[i].title) {
+          if (branch[i].title.indexOf("Beit Shmuel") !== -1) { debugger; }
           if (isCommentaryRefactor) {
             if (branch[i].dependence === "Commentary" && !!branch[i].base_text_titles && branch[i].base_text_titles.includes(title)) {
               results.push(branch[i]);
@@ -566,8 +572,8 @@ Sefaria = {
       var calendarPath = (RNFS.MainBundlePath + "/sources/calendar.json");
       Sefaria._loadJSON(calendarPath).then(function(data) {
         Sefaria.calendar = data;
-      });
         resolve();
+      });
     });
   },
   parashah: function() {
@@ -576,6 +582,8 @@ Sefaria = {
     let weekOffset = 1;
 
     //See if there's a Parshah this week -- If not return next week's, if not return the week after that... אא"וו
+    //TODO parasha currently updates on Shabbat. For users who are mchalel shabbat, they will get the wrong parasha. do we care?
+    if (!Sefaria.calendar) { return null; }
     while (!parashah) {
       let date = new Date();
       date.setDate(date.getDate() + (6 - 1 - date.getDay() + 7) % 7 + weekOffset);
@@ -822,6 +830,10 @@ Sefaria = {
       for (let i = 0; i < links.length; i++) {
         let link = links[i];
         let linkSegIndex = parseInt(link.anchorRef.substring(link.anchorRef.lastIndexOf(':') + 1)) - 1;
+        if (!linkSegIndex && linkSegIndex !== 0) {
+          // try again. assume depth-1 text
+          linkSegIndex = parseInt(link.anchorRef.substring(link.anchorRef.lastIndexOf(' ') + 1).trim()) - 1;
+        }
         if (!link_response[linkSegIndex]) {
           link_response[linkSegIndex] = [];
         }
@@ -984,8 +996,7 @@ Sefaria = {
         const allBooks = [];
         for (let cat of summaryList) {
           for (let book of cat.books) {
-            const bookRefList = Array.from(book.refSet);
-            const bookHeRefList = Array.from(book.heRefSet);
+            const [bookRefList, bookHeRefList] = Sefaria.links.sortRefsBySections(Array.from(book.refSet), Array.from(book.heRefSet), book.title);
             delete book.refSet;
             delete book.heRefSet;
             book.refList = bookRefList;
@@ -1030,6 +1041,27 @@ Sefaria = {
         resolve(summaryList);
       });
 
+    },
+    sortRefsBySections(enRefs, heRefs, title) {
+      const zip = rows=>rows[0].map((_,c)=>rows.map(row=>row[c]));
+      const biRefList = zip([enRefs, heRefs]);
+      biRefList.sort((a,b) => {
+        try {
+          const aSections = a[0].substring(title.length+1).trim().split(':');
+          const bSections = b[0].substring(title.length+1).trim().split(':');
+          if (aSections.length !== bSections.length) { return 0; }  // not comparable
+          for (let iSec = 0; iSec < aSections.length; iSec++) {
+            const aInt = parseInt(aSections[iSec]);
+            const bInt = parseInt(bSections[iSec]);
+            if (aInt !== bInt) { return aInt - bInt; }
+          }
+          return 0;
+        } catch (e) {
+          console.log(e);
+          return 0;
+        }
+      });
+      return biRefList.reduce((accum, item) => [accum[0].concat([item[0]]), accum[1].concat([item[1]])], [[],[]]);
     },
   },
   track: {
@@ -1212,17 +1244,18 @@ Sefaria.util = {
   getTextLanguageWithContent: function(lang, en, he) {
     // Returns a language that has content in it give strings `en` and `he`, with a preference for `lang`.
     let newLang = lang;
-
+    const hasEn = (typeof en === "string") && en.trim() != "";
+    const hasHe = (typeof he === "string") && he.trim() != "";
     if (newLang == "bilingual") {
-      if (en.trim() != "" && he.trim() == "") {
+      if (hasEn && !hasHe) {
         newLang = "english";
-      } else if (en.trim() == "") newLang  = "hebrew";
+      } else if (!hasEn) newLang  = "hebrew";
     }
 
     if (newLang == "english")
-      newLang = en.trim() != "" ? "english" : "hebrew";
+      newLang = hasEn ? "english" : "hebrew";
     else if (newLang == "hebrew")
-      newLang = he.trim() != "" || en.trim() == "" ? "hebrew" : "english"; //make sure when there's no content it's hebrew
+      newLang = hasHe || !hasEn ? "hebrew" : "english"; //make sure when there's no content it's hebrew
     return newLang;
   },
   regexEscape: function(s) {
@@ -1273,6 +1306,8 @@ Sefaria.util = {
 Sefaria.downloader = Downloader;
 
 Sefaria.api = Api;
+
+Sefaria.packages = Packages;
 
 Sefaria.search = Search;
 

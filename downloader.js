@@ -23,58 +23,60 @@ var Downloader = {
     downloadInProgress: [], // List of titles currently downloading
     lastUpdateCheck: null,  // Timestamp of last download of updates list
     lastUpdateSchema: null, // Schema Version of  last update check
-    debugNoLibrary: false   // True if you want to disable library access even if it's downloaded for debugging purposes
+    debugNoLibrary: false   // True if you want to disable library access even if it's downloaded. for debugging purposes
   },
+  checkingForUpdates: false,
   downloading: false,     // Whether the download is currently active, not stored in _data because we never want to persist value
   onChange: null, // Handler set above called when books in the Library finish downloading, or download mode changes.
   init: function() {
-    return this._loadData()
+    return Sefaria.downloader._loadData()
             .then(function() {
               //console.log("Downloader init with data:")
               //console.log(Downloader._data);
               //console.log(Downloader.titlesAvailable().length + " titles available");
               //console.log(Downloader.titlesDownloaded().length + " titles downloaded");
               //console.log("Updates:" , Downloader.updatesAvailable());
+              Sefaria.packages.initCompleteLibrary();
               Downloader.checkForUpdatesIfNeeded();
               if (!Downloader._data.downloadPaused) {
                 Downloader.resumeDownload();
               }
             });
   },
-  downloadLibrary: function() {
-    RNFS.mkdir(RNFS.DocumentDirectoryPath + "/library");
-    RNFS.mkdir(RNFS.DocumentDirectoryPath + "/tmp");
+  downloadLibrary: function(silent=false) {
+    RNFS.mkdir(RNFS.DocumentDirectoryPath + "/library").catch((error)=>{console.log(error)});
+    RNFS.mkdir(RNFS.DocumentDirectoryPath + "/tmp").catch((error)=>{console.log(error)});
     Downloader._setData("shouldDownload", true);
     Downloader.downloadUpdatesList()
-      .then(() => {
-        Downloader._updateDownloadQueue();
-        Downloader._downloadNext();
-     });
+    .then(() => {
+      Downloader._updateDownloadQueue();
+      Downloader._downloadNext();
+     })
+    .catch(Sefaria.downloader._handleDownloadError);
     Downloader.downloading = true;
     Downloader.onChange && Downloader.onChange();
-    AlertIOS.alert(
-      strings.libraryDownloading,
-      strings.libraryDownloadingMessage,
-      [{text: strings.ok}]
-    );
+    if (!silent) {
+      AlertIOS.alert(
+        strings.libraryDownloading,
+        strings.libraryDownloadingMessage,
+        [{text: strings.ok}]
+      );
+    }
     Sefaria.track.event("Downloader", "Download Library");
   },
   deleteLibrary: function() {
-    AlertIOS.alert(
-      strings.deleteLibrary,
-      strings.confirmDeleteLibraryMessage,
-      [
-        {text: strings.cancel, style: 'cancel'},
-        {text: strings.delete, style: 'destructive', onPress: () => {
-          RNFS.unlink(RNFS.DocumentDirectoryPath + "/library");
-          RNFS.unlink(RNFS.DocumentDirectoryPath + "/tmp");
-          Downloader._setData("lastDownload", {});
-          Downloader._setData("shouldDownload", false);
-          Downloader.clearQueue();
-          Downloader.onChange && Downloader.onChange();
-          Sefaria.track.event("Downloader", "Delete Library");
-        }}
-      ]);
+    return new Promise((resolve, reject) => {
+      AlertIOS.alert(
+        strings.deleteLibrary,
+        strings.confirmDeleteLibraryMessage,
+        [
+          {text: strings.cancel, style: 'cancel', onPress: resolve},
+          {text: strings.delete, style: 'destructive', onPress: () => {
+            Sefaria.packages.deletePackage("COMPLETE LIBRARY", resolve);
+          }}
+        ]
+      );
+    });
   },
   resumeDownload: function() {
     // Resumes the download process if anything is left in progress or in queue.
@@ -89,7 +91,17 @@ var Downloader = {
     // Resume working through queue
     if (Downloader._data.shouldDownload) {
       Downloader.downloading = true;
-      Downloader._downloadNext();
+      if (Downloader._data.downloadQueue.length === 0) {
+        // you stopped downloading even before you started
+        Downloader.downloadUpdatesList()
+        .then(() => {
+          Downloader._updateDownloadQueue();
+          Downloader._downloadNext();
+         })
+        .catch(e=> { console.log("Download error", e); });
+      } else {
+        Downloader._downloadNext();
+      }
       Downloader.onChange && Downloader.onChange();
     }
   },
@@ -122,35 +134,54 @@ var Downloader = {
       fromUrl: HOST_PATH + "toc.json",
       toFile: RNFS.DocumentDirectoryPath + "/library/toc.json",
       background: true,
+      discretionary: true,
     }).promise.then(() => {
       Sefaria._loadTOC();
     });
-    var searchTocPromise = RNFS.downloadFile({
-      fromUrl: HOST_PATH + "search_toc.json",
-      toFile: RNFS.DocumentDirectoryPath + "/library/search_toc.json",
-      background: true,
-    }).promise.then(() => {
-      Sefaria.search._loadSearchTOC();
-    });
-    var hebCatPromise = RNFS.downloadFile({
-      fromUrl: HOST_PATH + "hebrew_categories.json",
-      toFile: RNFS.DocumentDirectoryPath + "/library/hebrew_categories.json",
-      background: true,
-    }).promise.then(() => {
-      Sefaria._loadHebrewCategories();
-    });
-    var peoplePromise = RNFS.downloadFile({
-      fromUrl: HOST_PATH + "people.json",
-      toFile: RNFS.DocumentDirectoryPath + "/library/people.json",
-      background: true,
-    }).promise.then(() => {
-      Sefaria._loadPeople();
-    });
-    return Promise.all([lastUpdatePromise, tocPromise, hebCatPromise, peoplePromise]).then(() => {
+    return Promise.all([lastUpdatePromise, tocPromise]).then(() => {
       var timestamp = new Date().toJSON();
       Downloader._setData("lastUpdateCheck", timestamp)
       Downloader._setData("lastUpdateSchema", SCHEMA_VERSION)
       Downloader.onChange && Downloader.onChange();
+      // download these ancillary files after. they shouldn't hold up the update
+      RNFS.downloadFile({
+        fromUrl: HOST_PATH + "search_toc.json",
+        toFile: RNFS.DocumentDirectoryPath + "/library/search_toc.json",
+        background: true,
+        discretionary: true,
+      }).promise.then(() => {
+        console.log("search toc");
+
+        Sefaria.search._loadSearchTOC();
+      });
+      RNFS.downloadFile({
+        fromUrl: HOST_PATH + "hebrew_categories.json",
+        toFile: RNFS.DocumentDirectoryPath + "/library/hebrew_categories.json",
+        background: true,
+        discretionary: true,
+      }).promise.then(() => {
+        console.log("hebcats");
+
+        Sefaria._loadHebrewCategories();
+      });
+      RNFS.downloadFile({
+        fromUrl: HOST_PATH + "people.json",
+        toFile: RNFS.DocumentDirectoryPath + "/library/people.json",
+        background: true,
+        discretionary: true,
+      }).promise.then(() => {
+        console.log("people");
+        Sefaria._loadPeople();
+      });
+      RNFS.downloadFile({
+        fromUrl: HOST_PATH + "packages.json",
+        toFile: RNFS.DocumentDirectoryPath + "/library/packages.json",
+        background: true,
+        discretionary: true,
+      }).promise.then(() => {
+        console.log("packages");
+        Sefaria.packages._load().then(Sefaria.downloader.init);
+      });
     });
   },
   downloadUpdates: function() {
@@ -166,7 +197,13 @@ var Downloader = {
     // Downloads the most recent update list then prompts to download updates
     // or notifies the user that the library is up to date.
     Downloader.clearQueue();
-    Downloader.downloadUpdatesList().then(() => {
+    if (confirmUpToDate) {
+      Downloader.checkingForUpdates = true;
+      Downloader.onChange && Downloader.onChange();
+    }
+    return Downloader.downloadUpdatesList().then(() => {
+      Downloader.checkingForUpdates = false;
+      Downloader.onChange && Downloader.onChange();
       var updates = Downloader.updatesAvailable();
       if (updates.length) {
         Downloader._updateDownloadQueue();
@@ -179,6 +216,10 @@ var Downloader = {
             {text: strings.ok},
           ]);
       }
+    })
+    .catch(() => {
+      Downloader.checkingForUpdates = false;
+      Downloader.onChange && Downloader.onChange();
     });
   },
   checkForUpdatesIfNeeded: function() {
@@ -188,24 +229,24 @@ var Downloader = {
 
       NetInfo.isConnected.fetch().then(isConnected => {
         if (isConnected) {
-          this.checkForUpdates(false);
-        };
+          Sefaria.downloader.checkForUpdates(false);
+        }
       });
     }
   },
   prioritizeDownload: function(title) {
     // Moves `title` to the front of the downloadQueue if it's there
-    var i = this._data.downloadQueue.indexOf(title);
+    var i = Sefaria.downloader._data.downloadQueue.indexOf(title);
     if (i > -1) {
-        this._data.downloadQueue.splice(i, 1);
-        this._setData("downloadQueue", [title].concat(this._data.downloadQueue));
+        Sefaria.downloader._data.downloadQueue.splice(i, 1);
+        Sefaria.downloader._setData("downloadQueue", [title].concat(Sefaria.downloader._data.downloadQueue));
     }
   },
   titlesAvailable: function() {
     // Returns a list of titles that are available for download
     var available = [];
-    for (var title in this._data.availableDownloads) {
-      if (this._data.availableDownloads.hasOwnProperty(title)) {
+    for (var title in Sefaria.downloader._data.availableDownloads) {
+      if (Sefaria.downloader._data.availableDownloads.hasOwnProperty(title)) {
         available.push(title)
       }
     }
@@ -214,9 +255,9 @@ var Downloader = {
   titlesDownloaded: function() {
     // Returns a list of titles that have been downloaded
     var downloaded = [];
-    for (var title in this._data.lastDownload) {
-      if (this._data.lastDownload.hasOwnProperty(title)
-          && this._data.lastDownload[title] !== null) {
+    for (var title in Sefaria.downloader._data.lastDownload) {
+      if (Sefaria.downloader._data.lastDownload.hasOwnProperty(title)
+          && Sefaria.downloader._data.lastDownload[title] !== null) {
         downloaded.push(title)
       }
     }
@@ -224,18 +265,12 @@ var Downloader = {
   },
   updatesAvailable: function() {
     // Returns a list of titles that have updates available to download
-    var updates = [];
-    for (var title in this._data.availableDownloads) {
-      if (this._data.availableDownloads.hasOwnProperty(title) &&
-          this._data.availableDownloads[title] !== this._data.lastDownload[title]) {
-            updates.push(title);
-      }
-    }
-    return updates;
+    return Object.keys(Sefaria.downloader._data.availableDownloads)
+    .filter(title=>Sefaria.downloader._data.availableDownloads[title] !== Sefaria.downloader._data.lastDownload[title] && Sefaria.packages.titleIsSelected(title));
   },
   updateComment: function() {
     //Returns list of update comments, oldest first
-    return this._data.updateComment;
+    return Sefaria.downloader._data.updateComment;
   },
   promptLibraryDownload: function() {
     // If it hasn't been done already, prompt the user to download the library.
@@ -304,29 +339,26 @@ var Downloader = {
     // Examines availableDownloads and adds any title to the downloadQueue that has a newer download available
     // and is not already in queue.
     // Removes anything from downloadQueue that is not in the list of availableDownloads
-    this._data.downloadQueue = this._data.downloadQueue.filter((title) => {
-      return title in this._data.availableDownloads;
+    Sefaria.downloader._data.downloadQueue = Sefaria.downloader._data.downloadQueue.filter((title) => {
+      return title in Sefaria.downloader._data.availableDownloads;
     });
-    var updates = this.updatesAvailable();
-    for (var i = 0; i < updates.length; i++) {
-      var title = updates[i];
-      if (this._data.downloadQueue.indexOf(title) == -1) {
-        this._data.downloadQueue.push(title);
-      }
-    }
-    this._setData("downloadQueue", this._data.downloadQueue);
+    const updates = Sefaria.downloader.updatesAvailable();
+    Sefaria.downloader._data.downloadQueue = Sefaria.downloader._data.downloadQueue.concat(updates.filter(title=>Sefaria.downloader._data.downloadQueue.indexOf(title) === -1));
+
+    Sefaria.downloader._setData("downloadQueue", Sefaria.downloader._data.downloadQueue);
   },
   _downloadNext: function() {
     // Starts download of the next item of the queue, and continues doing so after successful completion.
-    if (!this._data.downloadQueue.length || Downloader._data.downloadPaused) {
-      this.downloading = false;
+    if (!Sefaria.downloader._data.downloadQueue.length || Downloader._data.downloadPaused) {
+      Sefaria.downloader.downloading = false;
       Downloader.onChange && Downloader.onChange();
       return;
     }
-    var nextTitle = this._data.downloadQueue[0];
-    this._downloadZip(nextTitle)
-      .then(() => { Downloader._downloadNext(); })
-      .catch(this._handleDownloadError);
+    const nextTitle = Sefaria.downloader._data.downloadQueue[0];
+    console.log("Downloading", nextTitle);
+    Sefaria.downloader._downloadZip(nextTitle)
+      .then(Downloader._downloadNext)
+      .catch(Sefaria.downloader._handleDownloadError);
   },
   _handleDownloadError: function(error) {
     console.log("Download error: ", error);
@@ -348,7 +380,6 @@ var Downloader = {
         {text: strings.tryAgain, onPress: () => { Downloader.resumeDownload(); }},
         {text: strings.pause, onPress: cancelAlert}
       ]);
-    Sefaria.track.event("Downloader", "Download Error", error);
   },
   _downloadZip: function(title) {
     // Downloads `title`, first to /tmp then to /library when complete.
@@ -357,19 +388,24 @@ var Downloader = {
     var toFile   = RNFS.DocumentDirectoryPath + "/library/" + title + ".zip"
     var start = new Date();
     //console.log("Starting download of " + title);
-    this._removeFromDowloadQueue(title);
-    this._setData("downloadInProgress", [title].concat(this._data.downloadInProgress));
+    Sefaria.downloader._removeFromDownloadQueue(title);
+    Sefaria.downloader._setData("downloadInProgress", [title].concat(Sefaria.downloader._data.downloadInProgress));
     return new Promise(function(resolve, reject) {
       RNFS.exists(toFile).then((exists) => {
         if (exists) { RNFS.unlink(toFile); }
       });
       RNFS.downloadFile({
         fromUrl: HOST_PATH + encodeURIComponent(title) + ".zip",
-        toFile: tempFile
-      }).promise.then(function(downloadResult) {
+        toFile: tempFile,
+        background: true,
+        discretionary: true,
+      }).promise.then(downloadResult => {
         if (downloadResult.statusCode == 200) {
           //console.log("Downloaded " + title + " in " + (new Date() - start));
-          RNFS.moveFile(tempFile, toFile);
+          RNFS.moveFile(tempFile, toFile)
+          .catch((error) => {
+            console.log(error);
+          })
           Downloader._removeFromInProgress(title);
           Downloader._data.lastDownload[title] = Downloader._data.availableDownloads[title];
           Downloader._setData("lastDownload", Downloader._data.lastDownload);
@@ -379,27 +415,41 @@ var Downloader = {
           reject(downloadResult.statusCode + " - " + title);
           RNFS.unlink(tempFile);
         }
+        RNFS.completeHandlerIOS(downloadResult.jobId);
       })
-    });
+      .catch(Sefaria.downloader._handleDownloadError);
+    })
   },
-  _removeFromDowloadQueue: function(title) {
-    var i = this._data.downloadQueue.indexOf(title);
+  _removeFromDownloadQueueBulk: function(titles) {
+    for (t of titles) {
+      let i = Sefaria.downloader._data.downloadQueue.indexOf(t);
+      if (i > -1) { Sefaria.downloader._data.downloadQueue.splice(i, 1); }
+      else {
+        i = Sefaria.downloader._data.downloadInProgress.indexOf(t);
+        if (i > -1) { Sefaria.downloader._data.downloadInProgress.splice(i, 1); }
+      }
+    }
+    Sefaria.downloader._setData("downloadQueue", Sefaria.downloader._data.downloadQueue);
+    Sefaria.downloader._setData("downloadInProgress", Sefaria.downloader._data.downloadInProgress);
+  },
+  _removeFromDownloadQueue: function(title) {
+    var i = Sefaria.downloader._data.downloadQueue.indexOf(title);
     if (i > -1) {
-        this._data.downloadQueue.splice(i, 1);
-        this._setData("downloadQueue", this._data.downloadQueue);
+        Sefaria.downloader._data.downloadQueue.splice(i, 1);
+        Sefaria.downloader._setData("downloadQueue", Sefaria.downloader._data.downloadQueue);
     }
   },
   _removeFromInProgress: function(title) {
-    var i = this._data.downloadInProgress.indexOf(title);
+    var i = Sefaria.downloader._data.downloadInProgress.indexOf(title);
     if (i > -1) {
-        this._data.downloadInProgress.splice(i, 1);
-        this._setData("downloadInProgress", this._data.downloadInProgress);
+        Sefaria.downloader._data.downloadInProgress.splice(i, 1);
+        Sefaria.downloader._setData("downloadInProgress", Sefaria.downloader._data.downloadInProgress);
     }
   },
   _isUpdateCheckNeeded: function() {
     // Returns true if enough time has passed since the last check for updates
-    if (!this._data.lastUpdateCheck) { return true; }
-    var cutoff = new Date(this._data.lastUpdateCheck);
+    if (!Sefaria.downloader._data.lastUpdateCheck) { return true; }
+    var cutoff = new Date(Sefaria.downloader._data.lastUpdateCheck);
     cutoff.setDate(cutoff.getDate() + 7) // One week;
     var now = new Date();
     return now > cutoff;
@@ -408,8 +458,8 @@ var Downloader = {
     // Loads data from each field in `_data` stored in Async storage into local memory for sync access.
     // Returns a Promise that resolves when all fields are loaded.
     var promises = [];
-    for (var field in this._data) {
-      if (this._data.hasOwnProperty(field)) {
+    for (var field in Sefaria.downloader._data) {
+      if (Sefaria.downloader._data.hasOwnProperty(field)) {
         var loader = function(field, value) {
           if (!value) { return; }
           Downloader._data[field] = JSON.parse(value);
@@ -426,7 +476,7 @@ var Downloader = {
   },
   _setData: function(field, value) {
     // Sets `_data[field]` to `value` in local memory and saves it to Async storage
-    this._data[field] = value;
+    Sefaria.downloader._data[field] = value;
     AsyncStorage.setItem(field, JSON.stringify(value));
   },
 };

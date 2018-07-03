@@ -182,9 +182,9 @@ class ConnectionsPanel extends React.Component {
                   theme={this.props.theme}
                   themeStr={this.props.themeStr}
                   menuLanguage={this.props.menuLanguage}
-                  enText={cat.category}
+                  enText={cat.category.toUpperCase()}
                   heText={Sefaria.hebrewCategory(cat.category)}
-                  isCat={true}
+                  catColor={Sefaria.palette.categoryColor(cat.category)}
                   count={cat.count}
                   onPress={function(filter,category) {
                     if (catFilterSelected) {
@@ -206,7 +206,6 @@ class ConnectionsPanel extends React.Component {
                     menuLanguage={this.props.menuLanguage}
                     enText={obook.collectiveTitle ? obook.collectiveTitle : obook.title} //NOTE backwards compatibility
                     heText={obook.heCollectiveTitle ? obook.heCollectiveTitle : obook.heTitle}
-                    isCat={false}
                     count={obook.count}
                     onPress={function(filter,title) {
                       this.props.openFilter(filter, "link");
@@ -260,7 +259,7 @@ class LinkNavButton extends React.Component {
     enText:   PropTypes.string,
     heText:   PropTypes.string,
     count:    PropTypes.number,
-    isCat:    PropTypes.bool.isRequired,
+    catColor: PropTypes.string,
   };
 
   render() {
@@ -269,7 +268,7 @@ class LinkNavButton extends React.Component {
         theme={this.props.theme}
         themeStr={this.props.themeStr}
         menuLanguage={this.props.menuLanguage}
-        isCat={this.props.isCat}
+        catColor={this.props.catColor}
         onPress={this.props.onPress}
         enText={this.props.enText}
         heText={this.props.heText}

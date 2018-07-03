@@ -34,6 +34,7 @@ import SwipeableCategoryList from './SwipeableCategoryList';
 import {
   LoadingView,
   CategoryColorLine,
+  SefariaProgressBar,
 } from './Misc.js';
 const ViewPort    = Dimensions.get('window');
 
@@ -127,6 +128,7 @@ class ReaderApp extends React.Component {
       }
     });
     Sefaria.downloader.promptLibraryDownload();
+    Sefaria.downloader.onChange = this.onDownloaderChange;
     Sefaria._deleteUnzippedFiles().then(function() {
 
        }).catch(function(error) {
@@ -166,6 +168,14 @@ class ReaderApp extends React.Component {
       onResponderSingleTapConfirmed: (evt, gestureState) => {},
     });
   }
+
+  componentWillUnmount() {
+    Sefaria.downloader.onChange = null;
+  }
+
+  onDownloaderChange = () => {
+    this.forceUpdate();
+  };
 
   pendingIncrement = 1;
 
@@ -678,8 +688,6 @@ class ReaderApp extends React.Component {
         appliedSearchFilters: [],
         searchFiltersValid: false,
         textListVisible: false,
-        textReference: '',
-        heRef: ''
       });
       this.openMenu("navigation");
   };
@@ -878,11 +886,16 @@ class ReaderApp extends React.Component {
 
   onLinkLoad = (pos, data) => {
     // truncate data if it's crazy long (e.g. Smag)
-    if (data.en.length > 1000) {
-      data.en = data.en.slice(0, 1000) + "...";
+    const cutoffLen = 1500
+    if (data.en.length > cutoffLen) {
+      const spaceInd = data.en.indexOf(' ', cutoffLen);
+      if (spaceInd === -1) { spaceInd = cutoffLen; }
+      data.en = data.en.slice(0, spaceInd) + "... <b>(Tap to read more)</b>";
     }
-    if (data.he.length > 1000) {
-      data.he = data.he.slice(0, 1000) + "...";
+    if (data.he.length > cutoffLen) {
+      const spaceInd = data.he.indexOf(' ', cutoffLen);
+      if (spaceInd === -1) { spaceInd = cutoffLen; }
+      data.he = data.he.slice(0, spaceInd) + "... <b>(לחץ לקרוא עוד)</b>";
     }
 
     this.state.linkContents[pos] = data;
@@ -1390,12 +1403,26 @@ class ReaderApp extends React.Component {
     if (cat) {
       style = {backgroundColor: Sefaria.util.lightenDarkenColor(Sefaria.palette.categoryColor(cat), -25)};
     }*/
+    const isD = Sefaria.downloader.downloading;
+    const nAvailable = isD ? Sefaria.downloader.titlesAvailable().filter(t => Sefaria.packages.titleIsSelected(t)).length : 0;
+    const nUpdates = isD ? Sefaria.downloader.updatesAvailable().filter(t => Sefaria.packages.titleIsSelected(t)).length : 0;
     return (
       <SafeAreaView style={styles.safeArea}>
         <View style={[styles.container, this.props.theme.container]} {...this.gestureResponder}>
             <StatusBar
               barStyle="light-content"
             />
+            {
+              Sefaria.downloader.downloading && nUpdates > 0 && this.state.menuOpen !== 'settings' ?
+              <SefariaProgressBar
+                theme={this.props.theme}
+                themeStr={this.props.themeStr}
+                progress={(nAvailable - nUpdates) / nAvailable}
+                onPress={()=>{ this.openMenu("settings")}}
+                onClose={Sefaria.packages.deleteActiveDownloads}
+                interfaceLang={this.state.interfaceLang}
+              /> : null
+            }
             { this.renderContent() }
         </View>
       </SafeAreaView>

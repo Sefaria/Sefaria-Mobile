@@ -61,6 +61,12 @@ export default StyleSheet.create({
     borderBottomWidth: 1,
     flex: 1,
   },
+  readerDisplayOptionsMenuDivider: {
+    marginTop: 10,
+    marginBottom: 10,
+    alignSelf: "stretch",
+    height: 1
+  },
   readerDisplayOptionsMenuToggleSet: {
     justifyContent: "center",
     flexDirection: 'row',
@@ -320,8 +326,13 @@ export default StyleSheet.create({
     flexDirection: 'column',
     borderBottomWidth: 1,
   },
+  sefariaProgressBar: {
+    height: 50,
+    alignItems: "center",
+    flexDirection: "row"
+  },
   searchFilterCat: {
-    height: 48,
+    height: 50,
     flexGrow: 1,
     flexDirection: "row",
     borderTopWidth: 4,
@@ -809,6 +820,14 @@ export default StyleSheet.create({
   settingsDivider: {
     marginTop: 20,
     marginBottom: 30,
+  },
+  underOfflinePackages: {
+    marginTop: 0,
+    marginHorizontal: iPad ? -20 : -10,
+  },
+  settingsOfflinePackages: {
+    marginHorizontal: iPad ? -20 : -10,
+    marginTop: 30,
   },
   button: {
     borderRadius: 5,
