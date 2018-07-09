@@ -1283,6 +1283,9 @@ Sefaria.util = {
     }
     return (usePound?"#":"") + colorString;
   },
+  removeHtml: function(str) {
+    return str.replace(/<[^>]+>/g, '');
+  },
   translateISOLanguageCode(code) {
     //takes two-letter ISO 639.2 code and returns full language name
     const codeMap = {

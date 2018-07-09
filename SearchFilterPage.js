@@ -219,6 +219,7 @@ class SearchFilter extends React.Component {
         onPressCheckBox={this.clickCheckBox}
         checkBoxSelected={this.props.filterNode.selected}
         enText={enTitle}
+        count={count}
         heText={filter.heTitle}
         catColor={isCat ? catColor : null}
         withArrow={!!this.props.openSubMenu}

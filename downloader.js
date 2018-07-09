@@ -91,17 +91,7 @@ var Downloader = {
     // Resume working through queue
     if (Downloader._data.shouldDownload) {
       Downloader.downloading = true;
-      if (Downloader._data.downloadQueue.length === 0) {
-        // you stopped downloading even before you started
-        Downloader.downloadUpdatesList()
-        .then(() => {
-          Downloader._updateDownloadQueue();
-          Downloader._downloadNext();
-         })
-        .catch(e=> { console.log("Download error", e); });
-      } else {
-        Downloader._downloadNext();
-      }
+      Downloader._downloadNext();
       Downloader.onChange && Downloader.onChange();
     }
   },

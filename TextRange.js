@@ -34,8 +34,8 @@ class TextRange extends React.PureComponent {
   }
 
   getDisplayedText = () => {
-    const enText = this.props.rowData.content.text || "";
-    const heText = this.props.rowData.content.he || "";
+    const enText = Sefaria.util.removeHtml(this.props.rowData.content.text) || "";
+    const heText = Sefaria.util.removeHtml(this.props.rowData.content.he) || "";
     const isHeb = this.props.textLanguage !== "english";
     const isEng = this.props.textLanguage !== "hebrew";
     return (heText && isHeb ? heText + (enText && isEng ? "\n" : "") : "") + ((enText && isEng) ? enText : "");
