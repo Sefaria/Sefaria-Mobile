@@ -173,7 +173,10 @@ class ReaderApp extends React.Component {
     Sefaria.downloader.onChange = null;
   }
 
-  onDownloaderChange = () => {
+  onDownloaderChange = (openSettings) => {
+    if (openSettings) {
+      this.openMenu("settings");
+    }
     this.forceUpdate();
   };
 

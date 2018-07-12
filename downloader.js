@@ -269,7 +269,7 @@ var Downloader = {
         if (!prompted) {
           var onDownload = function() {
             AsyncStorage.setItem("libraryDownloadPrompted", "true");
-            Downloader.downloadLibrary();
+            Downloader.onChange && Downloader.onChange(true);  // true means open settings page
             Sefaria.track.event("Downloader", "Initial Download Prompt", "accept");
           };
           var onCancel = function() {
@@ -286,7 +286,7 @@ var Downloader = {
             strings.welcome,
             strings.downloadLibraryRecommendedMessage,
             [
-              {text: strings.download, onPress: onDownload},
+              {text: strings.openSettings, onPress: onDownload},
               {text: strings.notNow, onPress: onCancel}
             ]);
         }
