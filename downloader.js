@@ -1,7 +1,7 @@
 import {
-  Alert,
-  AsyncStorage,
-  NetInfo
+    Alert,
+    AsyncStorage,
+    NetInfo, Platform
 } from 'react-native';
 
 const RNFS = require('react-native-fs'); //for access to file system -- (https://github.com/johanneslumpe/react-native-fs)
@@ -405,7 +405,9 @@ var Downloader = {
           reject(downloadResult.statusCode + " - " + title);
           RNFS.unlink(tempFile);
         }
-        RNFS.completeHandlerIOS(downloadResult.jobId);
+        if (Platform.OS == "ios") {
+            RNFS.completeHandlerIOS(downloadResult.jobId);
+        }
       })
       .catch(Sefaria.downloader._handleDownloadError);
     })
