@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 
 import React, { Component } from 'react';
 import {
-  AlertIOS,
+  Alert,
   Animated,
   AppState,
   Dimensions,
@@ -609,7 +609,7 @@ class ReaderApp extends React.Component {
     const title = Sefaria.textTitleForRef(ref);
     const overwriteVersions = calledFrom !== 'search'; // if called from search, use version specified by search (or default if none specified)
     if (!title) {
-      AlertIOS.alert(
+      Alert.alert(
         strings.textUnavailable,
         strings.promptOpenOnWebMessage,
         [

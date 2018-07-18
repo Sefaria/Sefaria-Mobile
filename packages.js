@@ -1,4 +1,4 @@
-import { AsyncStorage, AlertIOS } from 'react-native';
+import {AsyncStorage, Alert, Platform} from 'react-native';
 const RNFS = require('react-native-fs');
 import strings from './LocalizedStrings';
 
@@ -12,24 +12,46 @@ const Packages = {
       new Promise((resolve, reject) => {
         RNFS.exists(RNFS.DocumentDirectoryPath + "/library/packages.json")
         .then(exists => {
-          const pkgPath = exists ? (RNFS.DocumentDirectoryPath + "/library/packages.json") :
-                                      (RNFS.MainBundlePath + "/sources/packages.json");
-          console.log(exists, pkgPath);
-          Sefaria._loadJSON(pkgPath).then(function(data) {
-            Sefaria.packages.available = data;
-            for (pkgObj of data) {
-              if (!!pkgObj.indexes) {
-                for (i of pkgObj.indexes) {
-                  if (!!Sefaria.packages.titleToPackageMap[i]) {
-                    Sefaria.packages.titleToPackageMap[i].push(pkgObj.en);
-                  } else {
-                    Sefaria.packages.titleToPackageMap[i] = [pkgObj.en];
+          if (Platform.OS == "ios" || exists) {
+
+              const pkgPath = exists ? (RNFS.DocumentDirectoryPath + "/library/packages.json") :
+                  (RNFS.MainBundlePath + "/sources/packages.json");
+              console.log(exists, pkgPath);
+              Sefaria._loadJSON(pkgPath).then(function (data) {
+                  Sefaria.packages.available = data;
+                  for (pkgObj of data) {
+                      if (!!pkgObj.indexes) {
+                          for (i of pkgObj.indexes) {
+                              if (!!Sefaria.packages.titleToPackageMap[i]) {
+                                  Sefaria.packages.titleToPackageMap[i].push(pkgObj.en);
+                              } else {
+                                  Sefaria.packages.titleToPackageMap[i] = [pkgObj.en];
+                              }
+                          }
+                      }
                   }
-                }
-              }
-            }
-            resolve();
-          });
+                  resolve();
+              });
+          }
+          else if (Platform.OS == "android") {
+              RNFS.readFileAssets('sources/packages.json').then((data) => {
+                  var data = JSON.parse(data);
+                  Sefaria.packages.available = data;
+                  for (pkgObj of data) {
+                      if (!!pkgObj.indexes) {
+                          for (i of pkgObj.indexes) {
+                              if (!!Sefaria.packages.titleToPackageMap[i]) {
+                                  Sefaria.packages.titleToPackageMap[i].push(pkgObj.en);
+                              } else {
+                                  Sefaria.packages.titleToPackageMap[i] = [pkgObj.en];
+                              }
+                          }
+                      }
+                  }
+                  resolve();
+              });
+
+          }
         });
       }),
       AsyncStorage.getItem("packagesSelected").then(function(data) {
@@ -60,7 +82,7 @@ const Packages = {
     if (Sefaria.packages.isSelected(pkgName)) {
       //prompt user about delete
       return new Promise((resolve, reject) => {
-        AlertIOS.alert(
+        Alert.alert(
           strings.remove,
           strings.areYouSureDeleteDownload,
           [
@@ -165,7 +187,7 @@ const Packages = {
     });
   },
   deleteActiveDownloads() {
-    AlertIOS.alert(
+    Alert.alert(
       strings.cancel,
       strings.areYouSureDeleteDownloadProgress,
       [

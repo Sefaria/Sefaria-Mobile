@@ -134,7 +134,6 @@ class SearchPage extends React.Component {
             availableFilters={this.props.availableFilters}
             appliedFilters={this.props.appliedFilters}
             filtersValid={this.props.filtersValid}
-            openSubMenu={this.props.openSubMenu}
             search={this.props.search}
             setSearchOptions={this.props.setSearchOptions}
             updateFilter={this.props.updateFilter}
