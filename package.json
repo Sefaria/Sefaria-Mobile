@@ -16,6 +16,7 @@
     "prop-types": "^15.5.7",
     "react": "^16.3.1",
     "react-native": "^0.55.2",
+    "react-native-easy-toast": "^1.1.0",
     "react-native-fs": "^2.9.11",
     "react-native-gesture-responder": "^0.1.1",
     "react-native-google-analytics-bridge": "^5.3.3",

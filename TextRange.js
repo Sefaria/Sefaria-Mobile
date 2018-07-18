@@ -18,6 +18,7 @@ import strings from './LocalizedStrings';
 
 class TextRange extends React.PureComponent {
   static propTypes = {
+    showToast:          PropTypes.func.isRequired,
     theme:              PropTypes.object.isRequired,
     themeStr:           PropTypes.string.isRequired,
     fontSize:           PropTypes.number.isRequired,
@@ -34,20 +35,23 @@ class TextRange extends React.PureComponent {
   }
 
   getDisplayedText = () => {
-    const enText = Sefaria.util.removeHtml(this.props.rowData.content.text) || "";
-    const heText = Sefaria.util.removeHtml(this.props.rowData.content.he) || "";
+    const {text, he} = this.props.rowData.content;
+    const enText = Sefaria.util.removeHtml(typeof text === "string" ? text : "") || "";
+    const heText = Sefaria.util.removeHtml(typeof he === "string" ? he : "") || "";
     const isHeb = this.props.textLanguage !== "english";
     const isEng = this.props.textLanguage !== "hebrew";
     return (heText && isHeb ? heText + (enText && isEng ? "\n" : "") : "") + ((enText && isEng) ? enText : "");
   };
-  copyToClipboard = async () => {
-    await Clipboard.setString(this.getDisplayedText());
+  copyToClipboard = () => {
+    Clipboard.setString(this.getDisplayedText());
+    this.props.showToast("Copied to clipboard", 500);
   };
   reportErrorBody = () => (
     encodeURIComponent(
-      `Error correction for: ${this.props.segmentRef}
-      What is the error?
-      Source you're basing this correction on:`)
+      `${this.props.segmentRef}
+      ${Sefaria.refToUrl(this.props.segmentRef)}
+
+      ${this.getDisplayedText()}`)
   )
   reportError = () => {
     Linking.openURL(`mailto:corrections@sefaria.org?subject=${encodeURIComponent(`Sefaria Text Correction from ${Platform.OS}`)}&body=${this.reportErrorBody()}`)
