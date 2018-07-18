@@ -9,11 +9,10 @@ import {
   FlatList,
   Linking,
   Image,
-  ActionSheetIOS,
   KeyboardAvoidingView,
   Platform,
-  Alert,
 } from 'react-native';
+import ActionSheet from '@yfuks/react-native-action-sheet';
 
 
 import styles from './Styles';
@@ -110,8 +109,7 @@ class AutocompleteList extends React.Component {
       }
       else if (d.type == "Person") {
         recentType = "person";
-        if (Platform.OS == "ios") {
-          ActionSheetIOS.showActionSheetWithOptions({
+          ActionSheet.showActionSheetWithOptions({
                 options: [strings.cancel, `View '${d.key}' on Sefaria site`],
                 cancelButtonIndex: 0,
               },
@@ -120,19 +118,8 @@ class AutocompleteList extends React.Component {
                   Linking.openURL(`https://www.sefaria.org/person/${d.key}`);
                 }
               });
-        }
 
-        else {
-          Alert.alert(
-            `${strings.open}`,
-            `View '${d.key}' on Sefaria site`,
-            [
-              {text: strings.cancel, onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
-              {text: strings.ok, onPress: () => Linking.openURL(`https://www.sefaria.org/person/${d.key}`)},
-            ],
-            { cancelable: false }
-          )
-        }
+
 
 
       } else if (d.type == "TocCategory") {

@@ -7,11 +7,13 @@
     "setup": "sudo npm install -g react-native-cli"
   },
   "dependencies": {
+    "@yfuks/react-native-action-sheet": "0.0.5",
     "abortcontroller-polyfill": "^1.1.8",
     "babel-preset-react-native": "^4.0.0",
     "eslint": "^4.19.1",
     "fs-extra": "^3.0.1",
     "inquirer": "^3.2.0",
+    "link": "^0.1.5",
     "performance-now": "^2.1.0",
     "prop-types": "^15.5.7",
     "react": "^16.3.1",

@@ -3,6 +3,7 @@ package com.readerapp;
 import android.app.Application;
 
 import com.facebook.react.ReactApplication;
+import com.actionsheet.ActionSheetPackage;
 import com.rnziparchive.RNZipArchivePackage;
 import com.apsl.versionnumber.RNVersionNumberPackage;
 import com.babisoft.ReactNativeLocalization.ReactNativeLocalizationPackage;
@@ -28,6 +29,7 @@ public class MainApplication extends Application implements ReactApplication {
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
+            new ActionSheetPackage(),
             new RNZipArchivePackage(),
             new RNVersionNumberPackage(),
             new ReactNativeLocalizationPackage(),

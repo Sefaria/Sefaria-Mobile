@@ -137,6 +137,7 @@ android {
 }
 
 dependencies {
+    compile project(':@yfuks/react-native-action-sheet')
     compile project(':react-native-zip-archive')
     compile project(':react-native-version-number')
     compile project(':react-native-localization')

@@ -5,10 +5,9 @@ import {
   FlatList,
   TouchableOpacity,
   Text,
-  ActionSheetIOS,
-  Alert,
   Platform,
 } from 'react-native';
+import ActionSheet from '@yfuks/react-native-action-sheet';
 
 import {
   LoadingView,
@@ -184,7 +183,7 @@ class ListItem extends React.PureComponent {
     this.props.openRef(this.props.refStr, versions);
   }
   openActionSheet = () => {
-    ActionSheetIOS.showActionSheetWithOptions({
+    ActionSheet.showActionSheetWithOptions({
       options: [strings.cancel, `${strings.open} ${this.props.versionLanguage ? strings.version :
         Sefaria.getTitle(this.props.refStr, this.props.heRefStr, this.props.category === 'Commentary', this.props.interfaceLang === "hebrew")}`],
       cancelButtonIndex: 0,
@@ -192,18 +191,6 @@ class ListItem extends React.PureComponent {
     (buttonIndex) => {
       if (buttonIndex === 1) { this.openRef(); }
     });
-  }
-  openAndroidPopup = () => {
-    Alert.alert(
-      `${strings.open} ${this.props.versionLanguage ? strings.version :
-        Sefaria.getTitle(this.props.refStr, this.props.heRefStr, this.props.category === 'Commentary', this.props.interfaceLang === "hebrew")}`,
-        '',
-      [
-        {text: strings.cancel, onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
-        {text: strings.ok, onPress: () => this.openRef()},
-      ],
-      { cancelable: false }
-    )
   }
   render() {
     var lco = this.props.linkContentObj;
@@ -243,7 +230,7 @@ class ListItem extends React.PureComponent {
     const refTitleStyle = this.props.menuLanguage === 'hebrew' ? styles.he : styles.en;
     const refStr = this.props.menuLanguage === 'hebrew' ? this.props.heRefStr : this.props.refStr;
     return (
-      <TouchableOpacity style={[styles.textListItem, this.props.theme.searchTextResult]} onPress={Platform.OS == "android" ? this.openAndroidPopup : this.openActionSheet}>
+      <TouchableOpacity style={[styles.textListItem, this.props.theme.searchTextResult]} onPress={this.openActionSheet}>
         {this.props.displayRef ? null : <Text style={[refTitleStyle, styles.textListCitation, this.props.theme.textListCitation]}>{refStr}</Text>}
         {textViews}
       </TouchableOpacity>
