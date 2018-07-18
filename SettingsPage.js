@@ -10,7 +10,6 @@ import {
   View,
   ScrollView,
   Alert,
-  AlertIOS,
 } from 'react-native';
 import VersionNumber from 'react-native-version-number';
 
@@ -222,7 +221,7 @@ class OfflinePackageList extends React.Component {
   };
 
   onPressDisabled = (child, parent) => {
-    AlertIOS.alert(
+    Alert.alert(
       strings.alreadyDownloaded,
       `${strings.areIncludedIn} "${parent}"`,
       [
