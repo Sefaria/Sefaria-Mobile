@@ -69,11 +69,13 @@ class ReaderNavigationMenu extends React.Component {
   };
 
   getEmailBody = () => {
-    const nDownloaded = Sefaria.downloader.titlesDownloaded().length;
+    let nDownloaded = Sefaria.downloader.titlesDownloaded().length;
     const nAvailable  = Sefaria.downloader.titlesAvailable().length;
-    return encodeURIComponent(`App Version: ${VersionNumber.appVersion}\n
-            Texts Downloaded: ${nDownloaded} / ${nAvailable}\n
-            iOS Version: ${Platform.Version}\n\n\n`);
+    nDownloaded = nDownloaded <= nAvailable ? nDownloaded : nAvailable;
+    return encodeURIComponent(`App Version: ${VersionNumber.appVersion}
+            Texts Downloaded: ${nDownloaded} / ${nAvailable}
+            Packages: ${Object.keys(Sefaria.packages.selected).join(", ")}
+            iOS Version: ${Platform.Version}\n`);
   };
 
   render() {

@@ -18,7 +18,33 @@ import {
 
 import Sefaria from './sefaria';
 import styles from './Styles.js';
+import strings from './LocalizedStrings';
 
+
+
+const SefariaProgressBar = ({ theme, themeStr, progress, onPress, onClose, interfaceLang }) => (
+  <TouchableOpacity onPress={!!onPress ? onPress : ()=>{}} disabled={!onPress} style={styles.sefariaProgressBar}>
+    <View style={{flex: 1, flexDirection: interfaceLang === "hebrew" ? "row-reverse" : "row", height: 50}}>
+      <View style={{flex: progress, backgroundColor: "#fff"}}>
+      </View>
+      <View style={{flex: 1-progress, backgroundColor: "#eee"}}>
+      </View>
+    </View>
+    <View style={[{flexDirection: interfaceLang === "hebrew" ? "row-reverse" : "row"}, styles.sefariaProgressBarOverlay]}>
+      <Text style={[{color: "#999"}, interfaceLang === "hebrew" ? styles.heInt : styles.enInt]}>{`${strings.downloading} (${Math.round(progress*1000)/10}%)`}</Text>
+      {!!onClose ?
+        <TouchableOpacity onPress={onClose}>
+          <Image
+            source={themeStr === 'white' ? require('./img/close.png') : require('./img/close-light.png')}
+            resizeMode={Image.resizeMode.contain}
+            style={{width: 14, height: 14}}
+          />
+        </TouchableOpacity>
+        : null
+      }
+    </View>
+  </TouchableOpacity>
+);
 
 class TwoBox extends React.Component {
   static propTypes = {
@@ -209,23 +235,21 @@ class LibraryNavButton extends React.Component {
     theme:           PropTypes.object,
     themeStr:        PropTypes.string,
     menuLanguage:    PropTypes.string.isRequired,
-    isCat:           PropTypes.bool.isRequired,
+    catColor:        PropTypes.string,
     onPress:         PropTypes.func.isRequired,
     onPressCheckBox: PropTypes.func,
     checkBoxSelected:PropTypes.number,
     enText:          PropTypes.string.isRequired,
     heText:          PropTypes.string.isRequired,
-    count:           PropTypes.number,
+    count:           PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     withArrow:       PropTypes.bool.isRequired,
     buttonStyle:     PropTypes.oneOfType([ViewPropTypes.style, PropTypes.array]),
   };
 
   render() {
-    let { theme, themeStr, menuLanguage, isCat, onPress, onPressCheckBox, checkBoxSelected, enText, heText, count, withArrow, buttonStyle } = this.props;
-    let colorCat = Sefaria.palette.categoryColor(enText.replace(" Commentaries", ""));
-    enText = isCat ? enText.toUpperCase() : enText;
-    let colorStyle = isCat ? [{"borderColor": colorCat}] : [theme.searchResultSummary, {"borderTopWidth": 1}];
-    let textStyle  = [isCat ? styles.spacedText : null];
+    let { theme, themeStr, menuLanguage, catColor, onPress, onPressCheckBox, checkBoxSelected, enText, heText, count, withArrow, buttonStyle } = this.props;
+    let colorStyle = catColor ? [{"borderColor": catColor}] : [theme.searchResultSummary, {"borderTopWidth": 1}];
+    let textStyle  = [catColor ? styles.spacedText : null];
     let flexDir = menuLanguage == "english" ? "row" : "row-reverse";
     let textMargin = !!onPressCheckBox ? { marginHorizontal: 0 } : styles.readerSideMargin;
     if (count === 0) { textStyle.push(theme.secondaryText); }
@@ -566,6 +590,7 @@ export {
   LoadingView,
   MenuButton,
   SearchButton,
+  SefariaProgressBar,
   ToggleSet,
   TripleDots,
   TwoBox,
