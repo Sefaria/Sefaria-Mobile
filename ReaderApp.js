@@ -31,6 +31,9 @@ import TextColumn from './TextColumn';
 import ConnectionsPanel from './ConnectionsPanel';
 import SettingsPage from './SettingsPage';
 import SwipeableCategoryList from './SwipeableCategoryList';
+import Toast, {DURATION} from 'react-native-easy-toast'
+
+
 import {
   LoadingView,
   CategoryColorLine,
@@ -199,6 +202,10 @@ class ReaderApp extends React.Component {
         this.props.themeStr          !== nextState.themeStr) {
           this.trackPageview();
     }
+  }
+
+  showToast = (text, duration, callback) => {
+    this.refs.toast.show(text, duration, callback);
   }
 
   toggleReaderDisplayOptionsMenu = () => {
@@ -1303,6 +1310,7 @@ class ReaderApp extends React.Component {
                 }}
           >
             <TextColumn
+              showToast={this.showToast}
               textToc={this.state.textToc}
               theme={this.props.theme}
               themeStr={this.props.themeStr}
@@ -1430,6 +1438,7 @@ class ReaderApp extends React.Component {
             }
             { this.renderContent() }
         </View>
+        <Toast ref="toast"/>
       </SafeAreaView>
     );
   }
