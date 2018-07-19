@@ -713,7 +713,7 @@ export default StyleSheet.create({
   },
   textSegment: {
     flexDirection: "column",
-    flexWrap:"wrap",
+    flexWrap:"nowrap",
     flex:1
   },
   numberSegmentHolderEn: {
