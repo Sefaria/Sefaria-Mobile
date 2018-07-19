@@ -1065,6 +1065,7 @@ export default StyleSheet.create({
   },
   endiv: {
     fontFamily: "Amiri",
+    fontWeight: "normal",
     textAlign: 'justify',
     paddingTop: 15,
     marginTop: -10,
