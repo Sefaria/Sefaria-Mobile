@@ -697,7 +697,7 @@ def export_calendar(for_sources=False):
         calendar["parasha"][date_format(parashah["date"])] = {
             "parasha": {"en": parashah["parasha"], "he": hebrew_parasha_name(parashah["parasha"])},
             "ref": {"en": parshTref, "he": parshHeTref},
-            "haftara": haftarot,
+            "haftara": [haftarot["ashkenazi"][0], haftarot],  # backwards compatibility. app always reads first element of haftara array
             "diaspora": parashah["diaspora"]
             # below fields not currently used
             # "aliyot": parashah["aliyot"],
