@@ -665,7 +665,7 @@ def export_calendar(for_sources=False):
         "rambam": {},
         "929": {}
     }
-    date = datetime.now()
+    date = datetime.now() - timedelta(1)
     date_format = lambda date : date.strftime(" %m/ %d/%Y").replace(" 0", "").replace(" ", "")
     date_str = date_format(date)
 
@@ -686,7 +686,7 @@ def export_calendar(for_sources=False):
             print "Error parsing '%s': %s" % (yom["daf"], str(e))
 
     # PARASHA -----
-    parshiot = db.parshiot.find({"date": {"$gt": date}}).sort([("date", 1)])
+    parshiot = db.parshiot.find({"date": {"$gte": date}}).sort([("date", 1)])
     for parashah in parshiot:
         parshRef = model.Ref(parashah["ref"])
         parshTref = parshRef.normal()
@@ -705,7 +705,7 @@ def export_calendar(for_sources=False):
         }
 
     # MISHNA -----
-    mishnayot = db.daily_mishnayot.find({"date": {"$gt": date}}).sort([("date", 1)])
+    mishnayot = db.daily_mishnayot.find({"date": {"$gte": date}}).sort([("date", 1)])
     for mishnah in mishnayot:
         ref = model.Ref(mishnah["ref"])
         tref = ref.normal()
@@ -718,7 +718,7 @@ def export_calendar(for_sources=False):
             calendar["mishnah"][date_key] += [mish_obj]
 
     # RAMBAM -----
-    rambamim = db.daily_rambam.find({"date": {"$gt": date}}).sort([("date",1)])
+    rambamim = db.daily_rambam.find({"date": {"$gte": date}}).sort([("date",1)])
     for rambam in rambamim:
         ref = model.Ref(rambam["ref"])
         tref = ref.normal()
