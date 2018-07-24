@@ -237,10 +237,11 @@ class CalendarSection extends React.Component {
     var calendar = [
             !!parasha ? <CategoryBlockLink
               theme={this.props.theme}
-              category={parasha.parasha.en}
-              heCat={parasha.parasha.he}
+              category={"Parashat Hashavua"}
+              heCat={"פרשת השבוע"}
               language={this.props.language}
               style={{"borderColor": Sefaria.palette.categoryColor("Tanakh")}}
+              subtext={parasha.parasha}
               onPress={() => { this.props.openRef(parasha.ref.en); }}
               key="parashah" /> : null,
             !!parasha ? <CategoryBlockLink
@@ -249,6 +250,7 @@ class CalendarSection extends React.Component {
               heCat={"הפטרה"}
               language={this.props.language}
               style={{"borderColor": Sefaria.palette.categoryColor("Tanakh")}}
+              subtext={parasha.haftara[1]["ashkenazi"]}
               onPress={() => { this.props.openRef(parasha.haftara[0].en); }}
               key="haftara" /> : null,
             !!dafYomi ? <CategoryBlockLink
@@ -257,6 +259,7 @@ class CalendarSection extends React.Component {
               heCat={"דף יומי"}
               language={this.props.language}
               style={{"borderColor": Sefaria.palette.categoryColor("Talmud")}}
+              subtext={dafYomi.ref}
               onPress={() => { this.props.openRef(dafYomi.ref.en); }}
               key="dafYomi" /> : null,
             !!p929 ? <CategoryBlockLink
@@ -265,6 +268,7 @@ class CalendarSection extends React.Component {
               heCat={"929"}
               language={this.props.language}
               style={{"borderColor": Sefaria.palette.categoryColor("Tanakh")}}
+              subtext={p929.ref}
               onPress={() => { this.props.openRef(p929.ref.en); }}
               key="929" /> : null,
             !!mishnah ? <CategoryBlockLink
@@ -273,6 +277,7 @@ class CalendarSection extends React.Component {
               heCat={"משנה יומית"}
               language={this.props.language}
               style={{"borderColor": Sefaria.palette.categoryColor("Mishnah")}}
+              subtext={mishnah.map(x => x.ref)}
               onPress={() => { this.props.openRef(mishnah[0].ref.en); }}
               key="mishnah" /> : null,
             !!rambam ? <CategoryBlockLink
@@ -281,6 +286,7 @@ class CalendarSection extends React.Component {
               heCat={"הרמב״ם היומי"}
               language={this.props.language}
               style={{"borderColor": Sefaria.palette.categoryColor("Halakhah")}}
+              subtext={{en: rambam.ref.en.replace("Mishneh Torah, ", ""), he: rambam.ref.he.replace("משנה תורה, ", "")}}
               onPress={() => { this.props.openRef(rambam.ref.en); }}
               key="rambam" /> : null
             ];

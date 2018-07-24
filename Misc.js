@@ -80,6 +80,7 @@ class CategoryBlockLink extends React.Component {
     isSans:    PropTypes.bool,
     upperCase: PropTypes.bool,
     withArrow: PropTypes.bool,
+    subtext:   PropTypes.oneOfType([PropTypes.shape({en: PropTypes.string, he: PropTypes.string}), PropTypes.arrayOf(PropTypes.shape({en: PropTypes.string, he: PropTypes.string}))]),
     onPress:   PropTypes.func,
     icon:      PropTypes.number,
     iconSide:  PropTypes.oneOf(["start", "end"])
@@ -91,18 +92,35 @@ class CategoryBlockLink extends React.Component {
     var style  = this.props.style || {"borderColor": Sefaria.palette.categoryColor(this.props.category)};
     var enText = this.props.upperCase ? this.props.category.toUpperCase() : this.props.category;
     var heText = this.props.heCat || Sefaria.hebrewCategory(this.props.category);
+    const subtext = !!this.props.subtext && !(this.props.subtext instanceof Array) ? [this.props.subtext] : this.props.subtext;
     var textStyle  = [styles.centerText, this.props.theme.text, this.props.upperCase ? styles.spacedText : null];
     var content = isHeb ?
       (<Text style={[this.props.isSans ? styles.heInt : styles.hebrewText].concat(textStyle)}>{heText}</Text>) :
       (<Text style={[this.props.isSans ? styles.enInt : styles.englishText].concat(textStyle)}>{enText}</Text>);
     return (<TouchableOpacity onPress={this.props.onPress} style={[styles.readerNavCategory, this.props.theme.readerNavCategory, style]}>
-              { iconOnLeft && (this.props.withArrow || this.props.icon) ? <Image source={ this.props.withArrow || !this.props.icon ? (this.props.themeStr == "white" ? require('./img/back.png') : require('./img/back-light.png')) : this.props.icon }
-                style={[styles.moreArrowHe, this.props.isSans ? styles.categoryBlockLinkIconSansHe : null]}
-                resizeMode={Image.resizeMode.contain} /> : null }
-              {content}
-              { !iconOnLeft && (this.props.withArrow || this.props.icon) ? <Image source={ this.props.withArrow || !this.props.icon ? (this.props.themeStr == "white" ? require('./img/forward.png'): require('./img/forward-light.png')) : this.props.icon }
-                style={[styles.moreArrowEn, this.props.isSans ? styles.categoryBlockLinkIconSansEn : null]}
-                resizeMode={Image.resizeMode.contain} /> : null }
+              <View style={styles.readerNavCategoryInner}>
+                { iconOnLeft && (this.props.withArrow || this.props.icon) ? <Image source={ this.props.withArrow || !this.props.icon ? (this.props.themeStr == "white" ? require('./img/back.png') : require('./img/back-light.png')) : this.props.icon }
+                  style={[styles.moreArrowHe, this.props.isSans ? styles.categoryBlockLinkIconSansHe : null]}
+                  resizeMode={Image.resizeMode.contain} /> : null }
+                {content}
+                { !iconOnLeft && (this.props.withArrow || this.props.icon) ? <Image source={ this.props.withArrow || !this.props.icon ? (this.props.themeStr == "white" ? require('./img/forward.png'): require('./img/forward-light.png')) : this.props.icon }
+                  style={[styles.moreArrowEn, this.props.isSans ? styles.categoryBlockLinkIconSansEn : null]}
+                  resizeMode={Image.resizeMode.contain} /> : null }
+              </View>
+              {
+                !!subtext ?
+                  <View style={styles.readerNavCategoryInner}>
+                    { subtext.map(x => (
+                      <Text
+                        key={x.en}
+                        style={[isHeb ? styles.hebrewText : styles.englishText, this.props.theme.secondaryText]}
+                      >
+                        {isHeb ? x.he : x.en}
+                      </Text>
+                    )) }
+                  </View>
+                : null
+              }
             </TouchableOpacity>);
   }
 }
