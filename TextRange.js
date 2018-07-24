@@ -5,11 +5,11 @@ import {
   View,
   Text,
   Clipboard,
-  ActionSheetIOS,
   Platform,
   Linking,
   Share,
 } from 'react-native';
+import ActionSheet from '@yfuks/react-native-action-sheet';
 
 import TextSegment from './TextSegment';
 import styles from './Styles';
@@ -58,7 +58,7 @@ class TextRange extends React.PureComponent {
   }
 
   onLongPress = () => {
-    ActionSheetIOS.showActionSheetWithOptions({
+    ActionSheet.showActionSheetWithOptions({
       options: [
         strings.cancel,
         strings.copy,

@@ -75,7 +75,7 @@ class ReaderNavigationMenu extends React.Component {
     return encodeURIComponent(`App Version: ${VersionNumber.appVersion}
             Texts Downloaded: ${nDownloaded} / ${nAvailable}
             Packages: ${Object.keys(Sefaria.packages.selected).join(", ")}
-            iOS Version: ${Platform.Version}\n`);
+            OS Version: ${Platform.OS} ${Platform.Version}\n`);
   };
 
   render() {
@@ -205,7 +205,7 @@ class ReaderNavigationMenu extends React.Component {
 
                   <Text style={[styles.navBottomLinkDot, this.props.theme.tertiaryText]}>•</Text>
 
-                  <TouchableOpacity onPress={() => {Linking.openURL(`mailto:ios@sefaria.org?subject=${encodeURIComponent("iOS App Feedback")}&body=${this.getEmailBody()}`);}}>
+                  <TouchableOpacity onPress={() => {Linking.openURL(`mailto:hello@sefaria.org?subject=${encodeURIComponent(Platform.OS+" App Feedback")}&body=${this.getEmailBody()}`);}}>
                     <Text style={[isHeb ? styles.heInt : styles.enInt, this.props.theme.tertiaryText]}>{strings.feedback}</Text>
                   </TouchableOpacity>
 

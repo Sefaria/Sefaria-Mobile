@@ -1,5 +1,5 @@
 import {
-  AlertIOS
+    Alert, Platform
 } from 'react-native';
 
 import FilterNode from './FilterNode';
@@ -20,12 +20,27 @@ var Search = {
     return new Promise(function(resolve, reject) {
       RNFS.exists(RNFS.DocumentDirectoryPath + "/library/search_toc.json")
         .then(function(exists) {
-          var tocPath = exists ? (RNFS.DocumentDirectoryPath + "/library/search_toc.json") :
-                                 (RNFS.MainBundlePath + "/sources/search_toc.json");
-          Sefaria._loadJSON(tocPath).then(function(data) {
-            Sefaria.search.search_toc = data;
-            resolve();
-          });
+          if (exists) {
+            Sefaria._loadJSON(RNFS.DocumentDirectoryPath + "/library/search_toc.json").then(function(data) {
+              Sefaria.search.search_toc = data;
+              resolve();
+            });
+          }
+          else {
+            if (Platform.OS == "ios") {
+              Sefaria._loadJSON(RNFS.MainBundlePath + "/sources/search_toc.json").then(function(data) {
+                Sefaria.search.search_toc = data;
+                resolve();
+              });
+            }
+            else if (Platform.OS == "android") {
+              RNFS.readFileAssets('sources/search_toc.json').then((data) => {
+                var data = JSON.parse(data);
+                Sefaria.search.search_toc = data;
+                resolve();
+              })
+            }
+          }
         });
     });
   },
@@ -65,7 +80,7 @@ var Search = {
         resolve(response.json());
       })
       .catch(()=>{
-        AlertIOS.alert(
+        Alert.alert(
           strings.noInternet,
           strings.noInternetMessage,
           [

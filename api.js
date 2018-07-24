@@ -1,5 +1,5 @@
 import {
-  AlertIOS
+  Alert
 } from 'react-native';
 import 'abortcontroller-polyfill';
 
@@ -345,7 +345,7 @@ var Api = {
       .then(response => response.json())
       .then(json => {
         if ("error" in json) {
-          AlertIOS.alert(
+          Alert.alert(
             strings.textUnavailable,
             strings.textUnavailableMessage,
             [{text: strings.ok, onPress: () => { reject("Return to Nav"); } }]);
@@ -357,7 +357,7 @@ var Api = {
         if (failSilently) {
           reject("Return to Nav");
         } else {
-          AlertIOS.alert(
+          Alert.alert(
             strings.noInternet,
             strings.noInternetMessage,
             [

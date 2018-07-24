@@ -1,3 +1,6 @@
+import {
+  Platform
+} from 'react-native';
 import LocalizedStrings from 'react-native-localization';
 
 export default new LocalizedStrings({
@@ -69,7 +72,7 @@ export default new LocalizedStrings({
     updatesAvailable: "texts have updates available.", // to be combined with a number, e.g. "14 texts have..."
     updatesAvailableMessage: "texts have updates available. Would you like to download them now?", // to be combined with a number, e.g. "14 texts have..."
     libraryUpToDate: "Library Up To Date",
-    libraryUpToDateMessage: "You have the most current version of the Sefaria Library for iOS.",
+    libraryUpToDateMessage: "You have the most current version of the Sefaria Library for "+Platform.OS,
     checkForUpdates: "Check for Updates",
     downloadUpdates: "Download Updates",
     appVersion: "App Version",
@@ -191,7 +194,7 @@ export default new LocalizedStrings({
     updatesAvailable: "עדכוני טקסט קיימים", // to be combined with a number, e.g. "14 texts have..."
     updatesAvailableMessage: "קיימים עדכונים לטקסטים. האם תרצה להוריד אותם כעת?", // to be combined with a number, e.g. "14 texts have..."
     libraryUpToDate: "הספריה מעודכנת",
-    libraryUpToDateMessage: "הגרסה העדכנית ביותר של הספרייה הבלתי מקוונת ל-iOS מעודכנת במכשירך",
+    libraryUpToDateMessage: "הגרסה העדכנית ביותר של הספרייה הבלתי מקוונת ל-"+Platform.OS+" מעודכנת במכשירך",
     checkForUpdates: "בדוק עדכונים קיימים",
     downloadUpdates: "הורד עדכונים",
     appVersion: "גרסת האפליקציה",

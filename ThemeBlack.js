@@ -96,9 +96,6 @@ export default StyleSheet.create({
   languageToggle: {
     borderColor: Colors.border
   },
-  languageToggleText: {
-    color: Colors.mainText
-  },
   readerNavCategory: {
     backgroundColor: Colors.buttonBackground
   },

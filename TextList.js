@@ -5,8 +5,9 @@ import {
   FlatList,
   TouchableOpacity,
   Text,
-  ActionSheetIOS,
+  Platform,
 } from 'react-native';
+import ActionSheet from '@yfuks/react-native-action-sheet';
 
 import {
   LoadingView,
@@ -182,7 +183,7 @@ class ListItem extends React.PureComponent {
     this.props.openRef(this.props.refStr, versions);
   }
   openActionSheet = () => {
-    ActionSheetIOS.showActionSheetWithOptions({
+    ActionSheet.showActionSheetWithOptions({
       options: [strings.cancel, `${strings.open} ${this.props.versionLanguage ? strings.version :
         Sefaria.getTitle(this.props.refStr, this.props.heRefStr, this.props.category === 'Commentary', this.props.interfaceLang === "hebrew")}`],
       cancelButtonIndex: 0,
