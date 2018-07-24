@@ -774,7 +774,7 @@ def purge_cloudflare_cache(titles):
     Purges the URL for each zip file named in `titles` as well as toc.json, last_updated.json and calendar.json.
     """
     files = ["%s/%s/%s.zip" % (CLOUDFLARE_PATH, SCHEMA_VERSION, title) for title in titles]
-    files += ["%s/%s/%s.json" % (CLOUDFLARE_PATH, SCHEMA_VERSION, title) for title in ("toc", "search_toc", "last_updated", "calendar", "hebrew_categories")]
+    files += ["%s/%s/%s.json" % (CLOUDFLARE_PATH, SCHEMA_VERSION, title) for title in ("toc", "search_toc", "last_updated", "calendar", "hebrew_categories", "people", "packages")]
     url = 'https://api.cloudflare.com/client/v4/zones/%s/purge_cache' % CLOUDFLARE_ZONE
     payload = {"files": files}
     headers = {
@@ -798,6 +798,7 @@ def export_all(skip_existing=False):
     export_calendar()
     export_hebrew_categories()
     export_texts(skip_existing)
+    export_authors()
     export_packages()
     print("--- %s seconds ---" % round(time.time() - start_time, 2))
 

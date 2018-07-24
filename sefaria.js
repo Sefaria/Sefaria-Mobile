@@ -296,102 +296,23 @@ Sefaria = {
     return index.categories.length === 2 && index.categories[1] === "Torah";
   },
   _loadTOC: function() {
-    return new Promise(function(resolve, reject) {
-      RNFS.exists(RNFS.DocumentDirectoryPath + "/library/toc.json")
-        .then(function(exists) {
-          if (exists) {
-            Sefaria._loadJSON(RNFS.DocumentDirectoryPath + "/library/toc.json").then(function(data) {
-              Sefaria.toc = data;
-              Sefaria._cacheIndexFromToc(data);
-              resolve();
-            });
-          }
-          else {
-            if (Platform.OS == "ios") {
-              Sefaria._loadJSON(RNFS.MainBundlePath + "/sources/toc.json").then(function(data) {
-                Sefaria.toc = data;
-                Sefaria._cacheIndexFromToc(data);
-                resolve();
-              });
-            }
-            else if (Platform.OS == "android") {
-              RNFS.readFileAssets('sources/toc.json').then((data) => {
-                var data = JSON.parse(data);
-                Sefaria.toc = data;
-                Sefaria._cacheIndexFromToc(data);
-                resolve();
-              })
-            }
-          }
-        });
+    return Sefaria.util.openFileInSources("toc.json").then(data => {
+      Sefaria.toc = data;
+      Sefaria._cacheIndexFromToc(data);
     });
   },
   _loadHebrewCategories: function() {
-    return new Promise(function(resolve, reject) {
-      RNFS.exists(RNFS.DocumentDirectoryPath + "/library/hebrew_categories.json")
-        .then(function(exists) {
-          if (exists) {
-            Sefaria._loadJSON(RNFS.DocumentDirectoryPath + "/library/hebrew_categories.json").then(function(data) {
-              Sefaria.hebrewCategories = data;
-              Sefaria.englishCategories = {}; // used for classifying cats in autocomplete
-              Object.entries(data).forEach(([key, value]) => {
-                Sefaria.englishCategories[value] = 1;
-              });
-              resolve();
-            });
-          }
-          else {
-            if (Platform.OS == "ios") {
-              Sefaria._loadJSON(RNFS.MainBundlePath + "/sources/hebrew_categories.json").then(function(data) {
-                Sefaria.hebrewCategories = data;
-                Sefaria.englishCategories = {}; // used for classifying cats in autocomplete
-                Object.entries(data).forEach(([key, value]) => {
-                  Sefaria.englishCategories[value] = 1;
-                });
-                resolve();
-              });
-            }
-            else if (Platform.OS == "android") {
-              RNFS.readFileAssets('sources/hebrew_categories.json').then((data) => {
-                var data = JSON.parse(data);
-                Sefaria.hebrewCategories = data;
-                Sefaria.englishCategories = {}; // used for classifying cats in autocomplete
-                Object.entries(data).forEach(([key, value]) => {
-                  Sefaria.englishCategories[value] = 1;
-                });
-                resolve();
-              })
-            }
-          }
-        });
+    return Sefaria.util.openFileInSources("hebrew_categories.json").then(data => {
+      Sefaria.hebrewCategories = data;
+      Sefaria.englishCategories = {}; // used for classifying cats in autocomplete
+      Object.entries(data).forEach(([key, value]) => {
+        Sefaria.englishCategories[value] = 1;
+      });
     });
   },
   _loadPeople: function() {
-    return new Promise(function(resolve, reject) {
-      RNFS.exists(RNFS.DocumentDirectoryPath + "/library/people.json")
-        .then(function(exists) {
-          if (exists) {
-            Sefaria._loadJSON(RNFS.DocumentDirectoryPath + "/library/people.json").then(function(data) {
-              Sefaria.people = data;
-              resolve();
-            });
-          }
-          else {
-            if (Platform.OS == "ios") {
-              Sefaria._loadJSON(RNFS.MainBundlePath + "/sources/people.json").then(function(data) {
-                Sefaria.people = data;
-                resolve();
-              });
-            }
-            else if (Platform.OS == "android") {
-              RNFS.readFileAssets('sources/people.json').then((data) => {
-                var data = JSON.parse(data);
-                Sefaria.people = data;
-                resolve();
-              })
-            }
-          }
-        });
+    return Sefaria.util.openFileInSources("people.json").then(data => {
+      Sefaria.people = data;
     });
   },
   //for debugging
@@ -623,42 +544,45 @@ Sefaria = {
   },
   calendar: null,
   _loadCalendar: function() {
-    return new Promise(function(resolve, reject) {
-      if (Platform.OS == "ios") {
-        Sefaria._loadJSON(RNFS.MainBundlePath + "/sources/calendar.json").then(function(data) {
-          Sefaria.calendar = data;
-          resolve();
-        });
-      }
-      else if (Platform.OS == "android") {
-        RNFS.readFileAssets('sources/calendar.json').then((data) => {
-          var data = JSON.parse(data);
-          Sefaria.calendar = data;
-          resolve();
-        })
-      }
+    return Sefaria.util.openFileInSources("calendar.json").then(data => {
+      Sefaria.calendar = data;
     });
   },
-  parashah: function() {
+  getCalendars: function() {
+    if (!Sefaria.calendar) {
+      return {
+        parasha: null,
+        dafYomi: null,
+        p929: null,
+        rambam: null,
+        mishnah: null,
+      };
+    }
+    const dateString = Sefaria._dateString();
+    return {
+      parasha: Sefaria.parasha(),
+      dafYomi: Sefaria.calendar.dafyomi[dateString],
+      p929:  Sefaria.calendar["929"][dateString],
+      rambam: Sefaria.calendar.rambam[dateString],
+      mishnah: Sefaria.calendar.mishnah[dateString],
+    }
+  },
+  parasha: function() {
     // Returns an object representing this week's Parashah
-    let parashah;
+    let parasha;
     let weekOffset = 1;
 
     //See if there's a Parshah this week -- If not return next week's, if not return the week after that... אא"וו
     //TODO parasha currently updates on Shabbat. For users who are mchalel shabbat, they will get the wrong parasha. do we care?
     if (!Sefaria.calendar) { return null; }
-    while (!parashah) {
+    while (!parasha) {
       let date = new Date();
       date.setDate(date.getDate() + (6 - 1 - date.getDay() + 7) % 7 + weekOffset);
       dateString = Sefaria._dateString(date);
-      parashah = Sefaria.calendar.parasha[dateString];
+      parasha = Sefaria.calendar.parasha[dateString];
       weekOffset += 1;
     }
-    return Sefaria.calendar ? parashah : null;
-  },
-  dafYomi: function() {
-    // Returns an object representing today's Daf Yomi
-    return Sefaria.calendar ? Sefaria.calendar.dafyomi[Sefaria._dateString()] : null;
+    return Sefaria.calendar ? parasha : null;
   },
   _dateString: function(date) {
     // Returns of string in the format "DD/MM/YYYY" for either `date` or today.
@@ -1231,6 +1155,31 @@ Sefaria = {
 };
 
 Sefaria.util = {
+  openFileInSources: function(filename) {
+    return new Promise(function(resolve, reject) {
+      RNFS.exists(RNFS.DocumentDirectoryPath + `/library/${filename}`)
+        .then(function(exists) {
+          if (exists) {
+            Sefaria._loadJSON(RNFS.DocumentDirectoryPath + `/library/${filename}`).then(function(data) {
+              resolve(data);
+            });
+          }
+          else {
+            if (Platform.OS == "ios") {
+              Sefaria._loadJSON(RNFS.MainBundlePath + `/sources/${filename}`).then(function(data) {
+                resolve(data);
+              });
+            }
+            else if (Platform.OS == "android") {
+              RNFS.readFileAssets(`/sources/${filename}`).then((data) => {
+                data = JSON.parse(data);
+                resolve(data);
+              })
+            }
+          }
+        });
+    });
+  },
   getISOCountryCode: function() {
     return new Promise((resolve, reject) => {
       fetch('http://ip-api.com/json')

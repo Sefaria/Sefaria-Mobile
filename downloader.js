@@ -172,6 +172,15 @@ var Downloader = {
         console.log("packages");
         Sefaria.packages._load().then(Sefaria.downloader.init);
       });
+      RNFS.downloadFile({
+        fromUrl: HOST_PATH + "calendar.json",
+        toFile: RNFS.DocumentDirectoryPath + "/library/calendar.json",
+        background: true,
+        discretionary: true,
+      }).promise.then(() => {
+        console.log("calendar");
+        Sefaria._loadCalendar();
+      });
     });
   },
   downloadUpdates: function() {

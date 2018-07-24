@@ -233,33 +233,57 @@ class CalendarSection extends React.Component {
   render() {
     if (!Sefaria.calendar) { return null; }
 
-    var parashah = Sefaria.parashah();
-    var dafYomi  = Sefaria.dafYomi();
+    const { parasha, dafYomi, p929, rambam, mishnah } = Sefaria.getCalendars();
     var calendar = [
-            <CategoryBlockLink
+            !!parasha ? <CategoryBlockLink
               theme={this.props.theme}
-              category={parashah.parasha.en}
-              heCat={parashah.parasha.he}
+              category={parasha.parasha.en}
+              heCat={parasha.parasha.he}
               language={this.props.language}
               style={{"borderColor": Sefaria.palette.categoryColor("Tanakh")}}
-              onPress={() => { this.props.openRef(parashah.ref.en); }}
-              key="parashah" />,
-            <CategoryBlockLink
+              onPress={() => { this.props.openRef(parasha.ref.en); }}
+              key="parashah" /> : null,
+            !!parasha ? <CategoryBlockLink
               theme={this.props.theme}
               category={"Haftara"}
               heCat={"הפטרה"}
               language={this.props.language}
               style={{"borderColor": Sefaria.palette.categoryColor("Tanakh")}}
-              onPress={() => { this.props.openRef(parashah.haftara[0].en); }}
-              key="haftara" />,
-            <CategoryBlockLink
+              onPress={() => { this.props.openRef(parasha.haftara[0].en); }}
+              key="haftara" /> : null,
+            !!dafYomi ? <CategoryBlockLink
               theme={this.props.theme}
               category={"Daf Yomi"}
               heCat={"דף יומי"}
               language={this.props.language}
               style={{"borderColor": Sefaria.palette.categoryColor("Talmud")}}
               onPress={() => { this.props.openRef(dafYomi.ref.en); }}
-              key="dafYomi" />];
+              key="dafYomi" /> : null,
+            !!p929 ? <CategoryBlockLink
+              theme={this.props.theme}
+              category={"929"}
+              heCat={"929"}
+              language={this.props.language}
+              style={{"borderColor": Sefaria.palette.categoryColor("Tanakh")}}
+              onPress={() => { this.props.openRef(p929.ref.en); }}
+              key="929" /> : null,
+            !!mishnah ? <CategoryBlockLink
+              theme={this.props.theme}
+              category={"Daily Mishnah"}
+              heCat={"משנה יומית"}
+              language={this.props.language}
+              style={{"borderColor": Sefaria.palette.categoryColor("Mishnah")}}
+              onPress={() => { this.props.openRef(mishnah[0].ref.en); }}
+              key="mishnah" /> : null,
+            !!rambam ? <CategoryBlockLink
+              theme={this.props.theme}
+              category={"Daily Rambam"}
+              heCat={"הרמב״ם היומי"}
+              language={this.props.language}
+              style={{"borderColor": Sefaria.palette.categoryColor("Halakhah")}}
+              onPress={() => { this.props.openRef(rambam.ref.en); }}
+              key="rambam" /> : null
+            ];
 
     var calendarContent = <TwoBox content={calendar} language={this.props.language}/>;
 
