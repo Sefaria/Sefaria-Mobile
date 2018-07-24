@@ -177,6 +177,8 @@ def export_updated():
     export_toc()
     export_hebrew_categories()
     export_packages()
+    export_calendar()
+    export_authors()
     write_last_updated(updated_books, update=True)
 
 
@@ -689,9 +691,9 @@ def export_calendar(for_sources=False):
         parshRef = model.Ref(parashah["ref"])
         parshTref = parshRef.normal()
         parshHeTref = parshRef.he_normal()
-        haftarot = [{
+        haftarot = {custom: [{
             "en": model.Ref(h).normal(), "he": model.Ref(h).he_normal()
-            } for h in parashah["haftara"]]
+            } for h in haf_list] for custom, haf_list in parashah["haftara"].items() }
         calendar["parasha"][date_format(parashah["date"])] = {
             "parasha": {"en": parashah["parasha"], "he": hebrew_parasha_name(parashah["parasha"])},
             "ref": {"en": parshTref, "he": parshHeTref},
