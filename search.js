@@ -17,31 +17,8 @@ var Search = {
   },
   search_toc: null,
   _loadSearchTOC: function() {
-    return new Promise(function(resolve, reject) {
-      RNFS.exists(RNFS.DocumentDirectoryPath + "/library/search_toc.json")
-        .then(function(exists) {
-          if (exists) {
-            Sefaria._loadJSON(RNFS.DocumentDirectoryPath + "/library/search_toc.json").then(function(data) {
-              Sefaria.search.search_toc = data;
-              resolve();
-            });
-          }
-          else {
-            if (Platform.OS == "ios") {
-              Sefaria._loadJSON(RNFS.MainBundlePath + "/sources/search_toc.json").then(function(data) {
-                Sefaria.search.search_toc = data;
-                resolve();
-              });
-            }
-            else if (Platform.OS == "android") {
-              RNFS.readFileAssets('sources/search_toc.json').then((data) => {
-                var data = JSON.parse(data);
-                Sefaria.search.search_toc = data;
-                resolve();
-              })
-            }
-          }
-        });
+    return Sefaria.util.openFileInSources('search_toc.json').then(data => {
+      Sefaria.search.search_toc = data;
     });
   },
   execute_query: function(args) {

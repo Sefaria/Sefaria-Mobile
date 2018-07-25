@@ -17,6 +17,10 @@ allprojects {
     repositories {
         mavenLocal()
         maven { url 'https://maven.google.com' }
+        maven {
+            // for react-native-custom-tabs
+            url "https://jitpack.io"
+        }
         jcenter()
         maven {
             // All of React Native (JS, Obj-C sources, Android binaries) is installed from npm

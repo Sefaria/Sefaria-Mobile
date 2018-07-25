@@ -94,7 +94,7 @@ def enableSeparateBuildPerCPUArchitecture = false
 def enableProguardInReleaseBuilds = false
 
 android {
-    compileSdkVersion 23
+    compileSdkVersion 25
     buildToolsVersion '27.0.3'
 
     defaultConfig {
@@ -137,7 +137,9 @@ android {
 }
 
 dependencies {
+    compile project(':react-native-check-app-install')
     compile project(':@yfuks/react-native-action-sheet')
+    compile project(':react-native-custom-tabs')
     compile project(':react-native-zip-archive')
     compile project(':react-native-version-number')
     compile project(':react-native-localization')

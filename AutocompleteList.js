@@ -7,7 +7,6 @@ import {
   Text,
   View,
   FlatList,
-  Linking,
   Image,
   KeyboardAvoidingView,
   Platform,
@@ -28,6 +27,7 @@ class AutocompleteList extends React.Component {
     openTextTocDirectly: PropTypes.func.isRequired,
     setCategories: PropTypes.func.isRequired,
     search:   PropTypes.func.isRequired,
+    openUri: PropTypes.func.isRequired,
   };
 
   constructor(props) {
@@ -115,7 +115,7 @@ class AutocompleteList extends React.Component {
               },
               (buttonIndex) => {
                 if (buttonIndex === 1) {
-                  Linking.openURL(`https://www.sefaria.org/person/${d.key}`);
+                  this.props.openUri(`https://www.sefaria.org/person/${d.key}`);
                 }
               });
 

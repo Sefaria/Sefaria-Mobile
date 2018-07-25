@@ -578,6 +578,7 @@ def write_last_updated(titles, update=False):
 def export_packages(for_sources=False):
     packages = get_downloadable_packages()
     write_doc(packages, (SEFARIA_IOS_SOURCES_PATH if for_sources else EXPORT_PATH) + PACK_PATH)
+    write_doc(packages, (SEFARIA_ANDROID_SOURCES_PATH if for_sources else EXPORT_PATH) + PACK_PATH)
 
 
 def export_hebrew_categories(for_sources=False):
@@ -595,6 +596,7 @@ def export_hebrew_categories(for_sources=False):
         else:
             hebrew_cats_json[e] = t.titles[1][u'text']
     write_doc(hebrew_cats_json, (SEFARIA_IOS_SOURCES_PATH if for_sources else EXPORT_PATH) + HEB_CATS_PATH)
+    write_doc(hebrew_cats_json, (SEFARIA_ANDROID_SOURCES_PATH if for_sources else EXPORT_PATH) + HEB_CATS_PATH)
 
 
 def remove_silly_toc_nodes(toc):
@@ -626,6 +628,8 @@ def export_toc(for_sources=False):
     new_new_search_toc = remove_silly_toc_nodes(new_search_toc)
     write_doc(new_new_toc, (SEFARIA_IOS_SOURCES_PATH if for_sources else EXPORT_PATH) + TOC_PATH)
     write_doc(new_new_search_toc, (SEFARIA_IOS_SOURCES_PATH if for_sources else EXPORT_PATH) + SEARCH_TOC_PATH)
+    write_doc(new_new_toc, (SEFARIA_ANDROID_SOURCES_PATH if for_sources else EXPORT_PATH) + TOC_PATH)
+    write_doc(new_new_search_toc, (SEFARIA_ANDROID_SOURCES_PATH if for_sources else EXPORT_PATH) + SEARCH_TOC_PATH)
 
 
 def new_books_since_last_update():
@@ -747,6 +751,7 @@ def export_calendar(for_sources=False):
 
     path = (SEFARIA_IOS_SOURCES_PATH if for_sources else EXPORT_PATH) + CALENDAR_PATH
     write_doc(calendar, path)
+    write_doc(calendar, (SEFARIA_ANDROID_SOURCES_PATH if for_sources else EXPORT_PATH) + CALENDAR_PATH)
 
 
 def export_authors(for_sources=False):
@@ -759,6 +764,7 @@ def export_authors(for_sources=False):
             people[name["text"].lower()] = 1
     path = (SEFARIA_IOS_SOURCES_PATH if for_sources else EXPORT_PATH) + PEOPLE_PATH
     write_doc(people, path)
+    write_doc(people, (SEFARIA_ANDROID_SOURCES_PATH if for_sources else EXPORT_PATH) + PEOPLE_PATH)
 
 
 def clear_exports():

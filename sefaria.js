@@ -10,6 +10,7 @@ import LinkContent from './LinkContent';
 import { initAsyncStorage } from './ReduxStore';
 import URL from 'url-parse';
 
+
 const ERRORS = {
   NOT_OFFLINE: 1,
   NO_CONTEXT: 2,
@@ -20,17 +21,20 @@ Sefaria = {
   init: function() {
     return Promise.all([
       Sefaria._loadTOC(),
-      Sefaria.search._loadSearchTOC(),
-      Sefaria._loadHebrewCategories(),
-      Sefaria._loadPeople(),
       Sefaria._loadHistoryItems(),
-      Sefaria._loadSavedItems(),
-      Sefaria._loadRecentQueries(),
-      Sefaria._loadCalendar(),
-      Sefaria.packages._load().then(Sefaria.downloader.init),  // downloader init is dependent on packages
       initAsyncStorage(),
     ]);
-    // Sefaria.calendar is loaded async when ReaderNavigationMenu renders
+  },
+  postInit: function() {
+    return Promise.all([
+      Sefaria.search._loadSearchTOC(),
+      Sefaria._loadPeople(),
+      Sefaria._loadRecentQueries(),
+      Sefaria._loadCalendar(),
+      Sefaria._loadSavedItems(),
+      Sefaria._loadHebrewCategories(),
+      Sefaria.packages._load().then(Sefaria.downloader.init),  // downloader init is dependent on packages
+    ]);
   },
   /*
   if `context` and you're using API, only return section no matter what. default is true
@@ -640,6 +644,7 @@ Sefaria = {
   _loadHistoryItems: function() {
     return AsyncStorage.getItem("recent").then(function(data) {
       Sefaria.history = JSON.parse(data) || [];
+      console.log('history')
     });
   },
   saved: [],
@@ -673,6 +678,7 @@ Sefaria = {
     });
     return AsyncStorage.getItem("saved").then(function(data) {
       Sefaria.saved = JSON.parse(data) || [];
+      console.log('saved')
     });
   },
   saveRecentQuery: function(query, type) {
@@ -691,6 +697,7 @@ Sefaria = {
     //return AsyncStorage.setItem("recentQueries", JSON.stringify([]));
     return AsyncStorage.getItem("recentQueries").then(function(data) {
       Sefaria.recentQueries = JSON.parse(data) || [];
+      console.log('recentQueries')
     });
   },
   _deleteUnzippedFiles: function() {
@@ -1156,25 +1163,25 @@ Sefaria = {
 
 Sefaria.util = {
   openFileInSources: function(filename) {
-    return new Promise(function(resolve, reject) {
+    return new Promise((resolve, reject) => {
       RNFS.exists(RNFS.DocumentDirectoryPath + `/library/${filename}`)
-        .then(function(exists) {
+        .then(exists => {
           if (exists) {
-            Sefaria._loadJSON(RNFS.DocumentDirectoryPath + `/library/${filename}`).then(function(data) {
+            Sefaria._loadJSON(RNFS.DocumentDirectoryPath + `/library/${filename}`).then(data => {
               resolve(data);
             });
           }
           else {
             if (Platform.OS == "ios") {
-              Sefaria._loadJSON(RNFS.MainBundlePath + `/sources/${filename}`).then(function(data) {
+              Sefaria._loadJSON(RNFS.MainBundlePath + `/sources/${filename}`).then(data => {
                 resolve(data);
               });
             }
             else if (Platform.OS == "android") {
-              RNFS.readFileAssets(`/sources/${filename}`).then((data) => {
-                data = JSON.parse(data);
-                resolve(data);
-              })
+              RNFS.readFileAssets(`sources/${filename}`).then(data => {
+                const yo = JSON.parse(data);
+                resolve(yo);
+              });
             }
           }
         });

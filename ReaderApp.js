@@ -8,14 +8,18 @@ import {
   Animated,
   AppState,
   Dimensions,
-  Linking,
   NetInfo,
   View,
   StatusBar,
   SafeAreaView,
+  Platform,
 } from 'react-native';
 import { connect } from 'react-redux';
 import { createResponder } from 'react-native-gesture-responder';
+import SafariView from "react-native-safari-view";
+import { CustomTabs } from 'react-native-custom-tabs';
+import { AppInstalledChecker } from 'react-native-check-app-install';
+
 import { ACTION_CREATORS } from './ReduxStore';
 import ReaderControls from './ReaderControls';
 import styles from './Styles';
@@ -31,7 +35,8 @@ import TextColumn from './TextColumn';
 import ConnectionsPanel from './ConnectionsPanel';
 import SettingsPage from './SettingsPage';
 import SwipeableCategoryList from './SwipeableCategoryList';
-import Toast, {DURATION} from 'react-native-easy-toast'
+import Toast, {DURATION} from 'react-native-easy-toast';
+import WebViewPage from './WebViewPage';
 
 
 import {
@@ -60,7 +65,9 @@ class ReaderApp extends React.Component {
           defaultSettingsLoaded: true,
         });
         const mostRecent =  Sefaria.history.length ? Sefaria.history[0] : {ref: "Genesis 1"};
+        console.log(mostRecent, 'yoyoo')
         this.openRef(mostRecent.ref, null, mostRecent.versions);
+        Sefaria.postInit();
     });
     Sefaria.track.init();
     NetInfo.isConnected.addEventListener(
@@ -121,6 +128,7 @@ class ReaderApp extends React.Component {
         backStack: [],
         ReaderDisplayOptionsMenuVisible: false,
         overwriteVersions: true, // false when you navigate to a text but dont want the current version to overwrite your sticky version
+        currUri: "",  // used by WebViewPage
     };
   }
 
@@ -615,7 +623,7 @@ class ReaderApp extends React.Component {
         [
           {text: strings.cancel, style: 'cancel'},
           {text: strings.open, onPress: () => {
-            Linking.openURL("https://www.sefaria.org/" + ref.replace(/ /g, "_"));
+            this.openUri(Sefaria.refToUrl(ref));
           }}
         ]);
       return;
@@ -703,6 +711,40 @@ class ReaderApp extends React.Component {
       });
       this.openMenu("navigation");
   };
+
+  openUri = uri => {
+    if (Platform.OS == "ios") {
+      SafariView.isAvailable()
+      .then(SafariView.show({
+        url: uri,
+      }))
+      .catch(error => this.openWebViewPage(uri));
+    } else if (Platform.OS == "android") {
+      AppInstalledChecker.isAppInstalled('chrome')
+      .then(installed => {
+        if (installed) {
+          CustomTabs.openURL(uri, {
+            toolbarColor: Sefaria.palette.system,
+            enableUrlBarHiding: true,
+            showPageTitle: true,
+            enableDefaultShare: true,
+          })
+          .catch (error => this.openWebViewPage(uri));
+        } else {
+          this.openWebViewPage(uri);
+        }
+      });
+    } else {
+      this.openWebViewPage(uri);
+    }
+  };
+
+  openWebViewPage = uri => {
+    this.setState({
+      currUri: uri
+    });
+    this.openMenu("webview");
+  }
 
   goBack = () => {
     const { stateFunc } = this.state.backStack.pop();
@@ -1166,7 +1208,8 @@ class ReaderApp extends React.Component {
               interfaceLang={this.state.interfaceLang}
               onChangeSearchQuery={this.onChangeSearchQuery}
               theme={this.props.theme}
-              themeStr={this.props.themeStr}/>
+              themeStr={this.props.themeStr}
+              openUri={this.openUri}/>
           </View>)
         );
       case ("text toc"):
@@ -1183,7 +1226,8 @@ class ReaderApp extends React.Component {
             interfaceLang={this.state.interfaceLang}
             close={this.closeMenu}
             openRef={(ref)=>this.openRef(ref,"text toc")}
-            toggleLanguage={this.toggleMenuLanguage}/>);
+            toggleLanguage={this.toggleMenuLanguage}
+            openUri={this.openUri}/>);
         break;
       case ("search"):
         return(
@@ -1237,6 +1281,7 @@ class ReaderApp extends React.Component {
             openTextTocDirectly={this.openTextTocDirectly}
             setCategories={cats => { /* first need to go to nav page */ this.openNav(); this.setNavigationCategories(cats);} }
             openSearch={this.openSearch}
+            openUri={this.openUri}
           />);
         break;
       case ("settings"):
@@ -1281,6 +1326,15 @@ class ReaderApp extends React.Component {
             icon={this.props.themeStr === "white" ? require('./img/starUnfilled.png') : require('./img/starUnfilled-light.png')}
           />
         );
+      case ("webview"):
+        return (
+          <WebViewPage
+            close={this.closeMenu}
+            theme={this.props.theme}
+            themeStr={this.props.themeStr}
+            uri={this.state.currUri}
+          />
+        );
     }
     let textColumnFlex = this.state.textListVisible ? 1.0 - this.state.textListFlex : 1.0;
     return (
@@ -1297,7 +1351,8 @@ class ReaderApp extends React.Component {
             goBack={this.goBack}
             openTextToc={this.openTextToc}
             backStack={this.state.backStack}
-            toggleReaderDisplayOptionsMenu={this.toggleReaderDisplayOptionsMenu} />
+            toggleReaderDisplayOptionsMenu={this.toggleReaderDisplayOptionsMenu}
+            openUri={this.openUri}/>
 
           { loading ?
           <LoadingView theme={this.props.theme} style={{flex: textColumnFlex}}/> :
@@ -1337,7 +1392,8 @@ class ReaderApp extends React.Component {
               linksLoaded={this.state.linksLoaded}
               loadingTextTail={this.state.loadingTextTail}
               loadingTextHead={this.state.loadingTextHead}
-              showAliyot={this.props.showAliyot} />
+              showAliyot={this.props.showAliyot}
+              openUri={this.openUri} />
           </View> }
 
           {this.state.textListVisible ?
@@ -1385,7 +1441,8 @@ class ReaderApp extends React.Component {
                 onDragStart={this.onTextListDragStart}
                 onDragMove={this.onTextListDragMove}
                 onDragEnd={this.onTextListDragEnd}
-                textTitle={this.state.textTitle} />
+                textTitle={this.state.textTitle}
+                openUri={this.openUri} />
             </View> : null
           }
           {this.state.ReaderDisplayOptionsMenuVisible ?

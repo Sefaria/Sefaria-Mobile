@@ -1,6 +1,12 @@
 rootProject.name = 'ReaderApp'
+include ':react-native-check-app-install'
+project(':react-native-check-app-install').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-check-app-install/android')
 include ':@yfuks/react-native-action-sheet'
 project(':@yfuks/react-native-action-sheet').projectDir = new File(rootProject.projectDir, '../node_modules/@yfuks/react-native-action-sheet/android')
+include ':react-native-custom-tabs'
+project(':react-native-custom-tabs').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-custom-tabs/android')
+include ':react-native-action-sheet'
+project(':react-native-action-sheet').projectDir = new File(rootProject.projectDir, '../node_modules/@yfuks/react-native-action-sheet/android')
 include ':react-native-zip-archive'
 project(':react-native-zip-archive').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-zip-archive/android')
 include ':react-native-version-number'

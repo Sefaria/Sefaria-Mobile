@@ -25,6 +25,7 @@ class AboutBox extends React.Component {
     interfaceLang:       PropTypes.oneOf(["english", "hebrew"]).isRequired,
     mainVersionLanguage: PropTypes.oneOf(["english", "hebrew", "bilingual"]),
     textTitle:           PropTypes.string.isRequired,
+    openUri:             PropTypes.func.isRequired,
   };
 
   render() {
@@ -108,6 +109,7 @@ class AboutBox extends React.Component {
           theme={this.props.theme}
           version={vh}
           interfaceLang={this.props.interfaceLang}
+          openUri={this.props.openUri}
         />
       </View> : null );
     const versionSectionEn =
@@ -119,6 +121,7 @@ class AboutBox extends React.Component {
           theme={this.props.theme}
           version={ve}
           interfaceLang={this.props.interfaceLang}
+          openUri={this.props.openUri}
         />
       </View> : null );
     return (

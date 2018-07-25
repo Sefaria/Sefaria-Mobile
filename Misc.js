@@ -12,7 +12,6 @@ import {
   Image,
   ActivityIndicator,
   ViewPropTypes,
-  Linking,
   Animated,
 } from 'react-native';
 
@@ -222,6 +221,7 @@ class CategoryAttribution extends React.Component {
     language:   PropTypes.string.isRequired,
     context:    PropTypes.string.isRequired,
     linked:     PropTypes.bool,
+    openUri:    PropTypes.func,
   };
   static defaultProps = {
     linked:     true,
@@ -232,7 +232,7 @@ class CategoryAttribution extends React.Component {
     var attribution = Sefaria.categoryAttribution(this.props.categories);
     if (!attribution) { return null; }
 
-    var openLink = () => {Linking.openURL(attribution.link)};
+    var openLink = () => {this.props.openUri(attribution.link)};
     var boxStyles = [styles.categoryAttribution, styles[this.props.context + "CategoryAttribution" ]];
     var content = this.props.language == "english" ?
                 <Text style={styles[this.props.context + "CategoryAttributionTextEn"]}>{attribution.english}</Text> :

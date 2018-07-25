@@ -32,6 +32,7 @@ class VersionsBox extends React.Component {
     setConnectionsMode:       PropTypes.func.isRequired,
     openFilter:               PropTypes.func.isRequired,
     loadNewVersion:           PropTypes.func.isRequired,
+    openUri:                  PropTypes.func.isRequired,
   };
 
   constructor(props) {
@@ -138,6 +139,7 @@ class VersionsBox extends React.Component {
                       openVersionInReader={()=>{}}
                       isCurrent={(currVersions.en && currVersions.en.versionTitle === v.versionTitle) ||
                                 (currVersions.he && currVersions.he.versionTitle === v.versionTitle)}
+                      openUri={this.props.openUri}
                     />
                   </TouchableOpacity>
                 ))

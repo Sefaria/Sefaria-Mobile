@@ -2,7 +2,6 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import {
-  Linking,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -44,6 +43,7 @@ class ReaderTextTableOfContents extends React.Component {
     contentLang:    PropTypes.oneOf(["english","hebrew"]).isRequired,
     interfaceLang:  PropTypes.oneOf(["english","hebrew"]).isRequired,
     toggleLanguage: PropTypes.func.isRequired,
+    openUri:        PropTypes.func.isRequired,
   };
 
   sectionString = () => {
@@ -96,7 +96,8 @@ class ReaderTextTableOfContents extends React.Component {
             <CategoryAttribution
               categories={categories}
               language={this.props.contentLang}
-              context={"textToc"} />
+              context={"textToc"}
+              openUri={this.props.openUri} />
             <View>
               { this.props.contentLang == "hebrew" ?
                 <Text style={[styles.he, styles.textTocTitle, this.props.theme.text]}>{heTitle}</Text> :

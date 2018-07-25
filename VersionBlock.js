@@ -4,7 +4,6 @@ import {
   View,
   Text,
   TouchableOpacity,
-  Linking,
 } from 'react-native';
 import HTMLView from 'react-native-htmlview'; //to convert html'afied JSON to something react can render (https://github.com/jsdf/react-native-htmlview)
 import styles from './Styles.js';
@@ -18,6 +17,7 @@ class VersionBlock extends React.Component {
     openVersionInReader:  PropTypes.func,
     isCurrent:            PropTypes.bool,
     interfaceLang:        PropTypes.oneOf(["english", "hebrew"]),
+    openUri:              PropTypes.func.isRequired,
   };
 
   onVersionTitleClick = () => {
@@ -69,7 +69,7 @@ class VersionBlock extends React.Component {
         }
         <View style={styles.textTocVersionInfo}>
           { versionSource ?
-            <TouchableOpacity onPress={() => {Linking.openURL(versionSource);}}>
+            <TouchableOpacity onPress={() => {this.props.openUri(versionSource);}}>
               <Text style={[styles.textTocVersionInfoText, this.props.theme.tertiaryText]}>{shortVersionSource || versionSource}</Text>
             </TouchableOpacity>
             : null
@@ -79,7 +79,7 @@ class VersionBlock extends React.Component {
             : null
           }
           { license && license !== "unknown" ?
-            <TouchableOpacity onPress={() => licenseURL ? Linking.openURL(licenseURL) : null}>
+            <TouchableOpacity onPress={() => licenseURL ? this.props.openUri(licenseURL) : null}>
               <Text style={[styles.textTocVersionInfoText, this.props.theme.tertiaryText]}>{license}</Text>
             </TouchableOpacity>
             : null
@@ -88,7 +88,7 @@ class VersionBlock extends React.Component {
         { versionNotes ?
           <HTMLView
             value={"<div>"+versionInfo['versionNotes']+"</div>"}
-            onLinkPress={(url) => Linking.openURL(url) }
+            onLinkPress={(url) => this.props.openUri(url) }
             stylesheet={styles}
             textComponentProps={{style: [styles.textTocVersionNotes, textAlign, this.props.theme.tertiaryText]}}
           />

@@ -2,7 +2,6 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import {
-  Linking,
   ScrollView,
   StyleSheet,
   Text,
@@ -10,6 +9,7 @@ import {
   View,
   Image,
   Platform,
+  Linking,
 } from 'react-native';
 
 import {
@@ -46,6 +46,7 @@ class ReaderNavigationMenu extends React.Component {
     onChangeSearchQuery:PropTypes.func.isRequired,
     searchQuery:    PropTypes.string.isRequired,
     openAutocomplete: PropTypes.func.isRequired,
+    openUri:        PropTypes.func.isRequired,
   };
 
   constructor(props) {
@@ -93,7 +94,8 @@ class ReaderNavigationMenu extends React.Component {
                 setCategories={this.props.setCategories}
                 openRef={this.props.openRef}
                 toggleLanguage={this.props.toggleLanguage}
-                navHome={this.navHome}/>);
+                navHome={this.navHome}
+                openUri={this.props.openUri}/>);
     } else {
       // Root Library Menu
       var categories = [
@@ -184,7 +186,7 @@ class ReaderNavigationMenu extends React.Component {
 
                 <View style={styles.readerNavSection}>
                   <Text style={[styles.readerNavSectionTitle, this.props.theme.readerNavSectionTitle, langStyle, {textAlign: "center"}]}>{strings.supportSefaria}</Text>
-                  <TouchableOpacity style={[styles.button, this.props.theme.borderDarker, this.props.theme.mainTextPanel, {flexDirection: isHeb ? "row-reverse" : "row", justifyContent: "center", marginTop: 15}]} onPress={() => {Linking.openURL("https://www.sefaria.org/donate");}}>
+                  <TouchableOpacity style={[styles.button, this.props.theme.borderDarker, this.props.theme.mainTextPanel, {flexDirection: isHeb ? "row-reverse" : "row", justifyContent: "center", marginTop: 15}]} onPress={() => {this.props.openUri("https://www.sefaria.org/donate");}}>
                     <Image source={this.props.themeStr == "white" ? require('./img/heart.png'): require('./img/heart-light.png') }
                       style={isHeb ? styles.menuButtonMarginedHe : styles.menuButtonMargined}
                       resizeMode={Image.resizeMode.contain} />
@@ -199,7 +201,7 @@ class ReaderNavigationMenu extends React.Component {
 
                   <Text style={[styles.navBottomLinkDot, this.props.theme.tertiaryText]}>•</Text>
 
-                  <TouchableOpacity onPress={() => {Linking.openURL("https://www.sefaria.org/about");}}>
+                  <TouchableOpacity onPress={() => {this.props.openUri("https://www.sefaria.org/about");}}>
                     <Text style={[isHeb ? styles.heInt : styles.enInt, this.props.theme.tertiaryText]}>{strings.about}</Text>
                   </TouchableOpacity>
 
