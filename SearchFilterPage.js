@@ -87,7 +87,7 @@ class SearchFilterPage extends React.Component {
         (<View>
           <TouchableOpacity style={[styles.readerDisplayOptionsMenuItem, styles.button, this.props.theme.readerDisplayOptionsMenuItem]} onPress={this.props.clearAllFilters}>
             <Image source={closeSrc}
-              resizeMode={Image.resizeMode.contain}
+              resizeMode={'contain'}
               style={styles.searchFilterClearAll} />
             <Text style={[isheb ? styles.heInt : styles.enInt, styles.heInt, this.props.theme.tertiaryText]}>{strings.clearAll}</Text>
 

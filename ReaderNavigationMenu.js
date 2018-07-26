@@ -189,7 +189,7 @@ class ReaderNavigationMenu extends React.Component {
                   <TouchableOpacity style={[styles.button, this.props.theme.borderDarker, this.props.theme.mainTextPanel, {flexDirection: isHeb ? "row-reverse" : "row", justifyContent: "center", marginTop: 15}]} onPress={() => {this.props.openUri("https://www.sefaria.org/donate");}}>
                     <Image source={this.props.themeStr == "white" ? require('./img/heart.png'): require('./img/heart-light.png') }
                       style={isHeb ? styles.menuButtonMarginedHe : styles.menuButtonMargined}
-                      resizeMode={Image.resizeMode.contain} />
+                      resizeMode={'contain'} />
                     <Text style={[styles.buttonText, langStyle]}>{strings.makeADonation}</Text>
                   </TouchableOpacity>
                 </View>

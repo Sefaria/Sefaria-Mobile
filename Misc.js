@@ -35,7 +35,7 @@ const SefariaProgressBar = ({ theme, themeStr, progress, onPress, onClose, inter
         <TouchableOpacity onPress={onClose}>
           <Image
             source={themeStr === 'white' ? require('./img/close.png') : require('./img/close-light.png')}
-            resizeMode={Image.resizeMode.contain}
+            resizeMode={'contain'}
             style={{width: 14, height: 14}}
           />
         </TouchableOpacity>
@@ -100,11 +100,11 @@ class CategoryBlockLink extends React.Component {
               <View style={styles.readerNavCategoryInner}>
                 { iconOnLeft && (this.props.withArrow || this.props.icon) ? <Image source={ this.props.withArrow || !this.props.icon ? (this.props.themeStr == "white" ? require('./img/back.png') : require('./img/back-light.png')) : this.props.icon }
                   style={[styles.moreArrowHe, this.props.isSans ? styles.categoryBlockLinkIconSansHe : null]}
-                  resizeMode={Image.resizeMode.contain} /> : null }
+                  resizeMode={'contain'} /> : null }
                 {content}
                 { !iconOnLeft && (this.props.withArrow || this.props.icon) ? <Image source={ this.props.withArrow || !this.props.icon ? (this.props.themeStr == "white" ? require('./img/forward.png'): require('./img/forward-light.png')) : this.props.icon }
                   style={[styles.moreArrowEn, this.props.isSans ? styles.categoryBlockLinkIconSansEn : null]}
-                  resizeMode={Image.resizeMode.contain} /> : null }
+                  resizeMode={'contain'} /> : null }
               </View>
               {
                 !!subtext ?
@@ -356,7 +356,7 @@ class CollapseIcon extends React.Component {
     }
     return (<Image source={src}
              style={(this.props.showHebrew ? styles.collapseArrowHe : styles.collapseArrowEn)}
-             resizeMode={Image.resizeMode.contain} />);
+             resizeMode={'contain'} />);
   }
 }
 
@@ -415,7 +415,7 @@ class DirectedArrow extends React.Component {
       }
     }
     return (
-      <Image source={src} style={this.props.imageStyle} resizeMode={Image.resizeMode.contain}/>
+      <Image source={src} style={this.props.imageStyle} resizeMode={'contain'}/>
     );
   }
 }
@@ -426,7 +426,7 @@ class SearchButton extends React.Component {
                 <Image source={this.props.themeStr == "white" ? require('./img/search.png'): require('./img/search-light.png') }
 
                      style={styles.searchButton}
-                     resizeMode={Image.resizeMode.contain} />
+                     resizeMode={'contain'} />
               </TouchableOpacity>);
   }
 }
@@ -436,7 +436,7 @@ class MenuButton extends React.Component {
     return (<TouchableOpacity style={[styles.headerButton, styles.leftHeaderButton]} onPress={this.props.onPress}>
               <Image source={this.props.themeStr == "white" ? require('./img/menu.png'): require('./img/menu-light.png') }
                      style={styles.menuButton}
-                     resizeMode={Image.resizeMode.contain} />
+                     resizeMode={'contain'} />
             </TouchableOpacity>);
   }
 }
@@ -446,7 +446,7 @@ class CloseButton extends React.Component {
     return (<TouchableOpacity style={[styles.headerButton, styles.leftHeaderButton]} onPress={this.props.onPress}>
               <Image source={this.props.themeStr == "white" ? require('./img/close.png'): require('./img/close-light.png') }
                  style={styles.closeButton}
-                 resizeMode={Image.resizeMode.contain} />
+                 resizeMode={'contain'} />
             </TouchableOpacity>);
   }
 }
@@ -464,7 +464,7 @@ class DisplaySettingsButton extends React.Component {
     return (<TouchableOpacity style={[styles.headerButton, styles.rightHeaderButton]} onPress={this.props.onPress}>
               <Image source={this.props.themeStr == "white" ? require('./img/a-aleph.png'): require('./img/a-aleph-light.png') }
                      style={styles.displaySettingsButton}
-                     resizeMode={Image.resizeMode.contain} />
+                     resizeMode={'contain'} />
             </TouchableOpacity>);
   }
 }
@@ -583,7 +583,7 @@ class IndeterminateCheckBox extends React.Component {
     return (
       <TouchableOpacity onPress={this.props.onPress}>
         <Image source={src}
-          resizeMode={Image.resizeMode.contain}
+          resizeMode={'contain'}
           style={styles.searchFilterCheckBox} />
       </TouchableOpacity>
     );

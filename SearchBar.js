@@ -114,7 +114,7 @@ const CancelButton = ({ themeStr, onPress }) => (
     <Image
       source={themeStr === 'white' ? require('./img/circle-close.png') : require('./img/circle-close-light.png')}
       style={styles.cancelSearchButton}
-      resizeMode={Image.resizeMode.contain}
+      resizeMode={'contain'}
     />
   </TouchableOpacity>
 );

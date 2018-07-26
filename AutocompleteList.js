@@ -162,14 +162,14 @@ class AutocompleteList extends React.Component {
         }}>
         <Image source={src}
           style={[styles.menuButtonMargined]}
-          resizeMode={Image.resizeMode.contain}
+          resizeMode={'contain'}
         />
         <Text style={[styles.autocompleteItemText, this.props.theme.text, {textAlign: isHeb ? 'right' : 'left', fontFamily: isHeb ? 'Heebo' : 'Amiri'}]}>
           { item.type === 'toc' ? item.query.toUpperCase() : item.query }
         </Text>
-        {item.loading ? <Text style={[{paddingHorizontal: 10}, this.props.theme.secondaryText, !isHeb ? styles.enInt : styles.heInt]}>
+        {item.loading ? (<Text style={[{paddingHorizontal: 10}, this.props.theme.secondaryText, !isHeb ? styles.enInt : styles.heInt]}>
           { strings.loading }
-        </Text> : null}
+        </Text>) : null}
       </TouchableOpacity>
     )
   };
@@ -185,7 +185,7 @@ class AutocompleteList extends React.Component {
 
         Platform.OS == "ios" ?
 
-            <KeyboardAvoidingView style={[styles.autocompleteList, this.props.theme.container, this.props.theme.bordered]} behavior="padding">
+            (<KeyboardAvoidingView style={[styles.autocompleteList, this.props.theme.container, this.props.theme.bordered]} behavior="padding">
               {!!this.state.completions.length ?
                 <FlatList
                   keyExtractor={this._keyExtractor}
@@ -207,10 +207,10 @@ class AutocompleteList extends React.Component {
                     renderItem={this.renderItem}
                   />
                 </View>
-              };
-            </KeyboardAvoidingView>
+              }
+            </KeyboardAvoidingView>)
 
-        : !!this.state.completions.length ?
+        : (!!this.state.completions.length ?
                 <FlatList
                   keyExtractor={this._keyExtractor}
                   contentContainerStyle={{paddingBottom: 20}}
@@ -230,7 +230,7 @@ class AutocompleteList extends React.Component {
                     data={this.state.recentQueries}
                     renderItem={this.renderItem}
                   />
-                </View>
+              </View>)
 
 
     );

@@ -109,7 +109,7 @@ class SwipeableCategoryList extends React.Component {
           <View style={{flex:1, flexDirection: "row", justifyContent: "center"}}>
             <Image source={this.props.icon}
               style={[styles.menuButton, isHeb ? styles.headerIconWithTextHe : styles.headerIconWithTextEn]}
-              resizeMode={Image.resizeMode.contain}
+              resizeMode={'contain'}
             />
             <Text
               style={[styles.textTocHeaderTitle, {flex:0},styles.noPadding, this.props.theme.text]}>

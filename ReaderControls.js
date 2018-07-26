@@ -56,20 +56,20 @@ class ReaderControls extends React.Component {
             <Image
               style={styles.starIcon}
               source={require('./img/starUnfilled.png')}
-              resizeMode={Image.resizeMode.contain}
+              resizeMode={'contain'}
             />
           </View>
           <TouchableOpacity style={styles.headerTextTitle} onPress={this.props.openTextToc}>
             <View style={styles.headerTextTitleInner}>
               <Image source={this.props.themeStr == "white" ? require('./img/caret.png'): require('./img/caret-light.png') }
                        style={[styles.downCaret, this.props.language === "hebrew" ? null: {opacity: 0}]}
-                       resizeMode={Image.resizeMode.contain} />
+                       resizeMode={'contain'} />
               <Text style={titleTextStyle} numberOfLines={1} ellipsizeMode={"tail"}>
                 {this.props.language === 'hebrew' ? this.props.heRef : this.props.enRef}
               </Text>
               <Image source={this.props.themeStr == "white" ? require('./img/caret.png'): require('./img/caret-light.png') }
                        style={[styles.downCaret, this.props.language === "hebrew" ? {opacity: 0} : null]}
-                       resizeMode={Image.resizeMode.contain} />
+                       resizeMode={'contain'} />
             </View>
             <CategoryAttribution
               categories={this.props.categories}
@@ -93,7 +93,7 @@ class ReaderControls extends React.Component {
               source={this.props.themeStr == "white" ?
                       (isSaved ? require('./img/starFilled.png') : require('./img/starUnfilled.png')) :
                       (isSaved ? require('./img/starFilled-light.png') : require('./img/starUnfilled-light.png'))}
-              resizeMode={Image.resizeMode.contain}
+              resizeMode={'contain'}
             />
           </TouchableOpacity>
           <DisplaySettingsButton onPress={this.props.toggleReaderDisplayOptionsMenu} themeStr={this.props.themeStr}/>
