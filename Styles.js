@@ -271,7 +271,7 @@ export default StyleSheet.create({
     width: 12,
     height: 12,
     paddingLeft: 20,
-    marginTop: 8
+    marginTop: Platform.OS == "android" ? 18 : 8
   },
   collapseArrowHe: {
     width: 12,
@@ -471,14 +471,14 @@ export default StyleSheet.create({
     color: "black",
     backgroundColor: "transparent",
     fontSize: 15,
-    marginTop: 2,
+    marginTop: Platform.OS == "android" ? -4 : 2,
     marginLeft: 1,
   },
   languageToggleTextHe: {
     color: "black",
     backgroundColor: "transparent",
     fontSize: 19,
-    marginTop: 4,
+    marginTop: Platform.OS == "android" ? 2 :4,
     marginRight: 2,
   },
   readerNavSection: {

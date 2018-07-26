@@ -110,11 +110,11 @@ class AutocompleteList extends React.Component {
       else if (d.type == "Person") {
         recentType = "person";
           ActionSheet.showActionSheetWithOptions({
-                options: [strings.cancel, `View '${d.key}' on Sefaria site`],
-                cancelButtonIndex: 0,
+                options: [`View '${d.key}' on Sefaria site`,strings.cancel],
+                cancelButtonIndex: 1,
               },
               (buttonIndex) => {
-                if (buttonIndex === 1) {
+                if (buttonIndex === 0) {
                   Linking.openURL(`https://www.sefaria.org/person/${d.key}`);
                 }
               });

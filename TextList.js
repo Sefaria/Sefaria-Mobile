@@ -184,12 +184,12 @@ class ListItem extends React.PureComponent {
   }
   openActionSheet = () => {
     ActionSheet.showActionSheetWithOptions({
-      options: [strings.cancel, `${strings.open} ${this.props.versionLanguage ? strings.version :
-        Sefaria.getTitle(this.props.refStr, this.props.heRefStr, this.props.category === 'Commentary', this.props.interfaceLang === "hebrew")}`],
-      cancelButtonIndex: 0,
+      options: [`${strings.open} ${this.props.versionLanguage ? strings.version :
+        Sefaria.getTitle(this.props.refStr, this.props.heRefStr, this.props.category === 'Commentary', this.props.interfaceLang === "hebrew")}`,strings.cancel],
+      cancelButtonIndex: 1,
     },
     (buttonIndex) => {
-      if (buttonIndex === 1) { this.openRef(); }
+      if (buttonIndex === 0) { this.openRef(); }
     });
   }
   render() {

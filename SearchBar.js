@@ -85,6 +85,7 @@ class SearchBar extends React.Component {
             onSubmitEditing={this.submitSearch}
             onFocus={this.props.onFocus}
             value={this.props.query}
+            underlineColorAndroid={"transparent"}
             placeholder={strings.search}
             placeholderTextColor={placeholderTextColor}
             autoCorrect={false} />
