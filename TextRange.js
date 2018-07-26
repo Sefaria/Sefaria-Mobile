@@ -60,24 +60,24 @@ class TextRange extends React.PureComponent {
   onLongPress = () => {
     ActionSheet.showActionSheetWithOptions({
       options: [
-        strings.cancel,
         strings.copy,
         strings.reportError,
         strings.share,
         strings.viewOnSite,
+        strings.cancel,
       ],
-      cancelButtonIndex: 0,
+      cancelButtonIndex: 4,
     },
     (buttonIndex) => {
-      if (buttonIndex === 1) { this.copyToClipboard(); }
-      else if (buttonIndex === 2) { this.reportError(); }
-      else if (buttonIndex === 3) { Share.share({
+      if (buttonIndex === 0) { this.copyToClipboard(); }
+      else if (buttonIndex === 1) { this.reportError(); }
+      else if (buttonIndex === 2) { Share.share({
           message: this.getDisplayedText(),
           title: this.props.segmentRef,
           url: Sefaria.refToUrl(this.props.segmentRef)
         })
       }
-      else if (buttonIndex === 4) { this.props.openUri(Sefaria.refToUrl(this.props.segmentRef))}
+      else if (buttonIndex === 3) { this.props.openUri(Sefaria.refToUrl(this.props.segmentRef))}
     })
   };
 

@@ -5,6 +5,7 @@
 	};
 	objectVersion = 46;
 	objects = {
+
 /* Begin PBXBuildFile section */
 		00C302E51ABCBA2D00DB3ED1 /* libRCTActionSheet.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 00C302AC1ABCB8CE00DB3ED1 /* libRCTActionSheet.a */; };
 		00C302E71ABCBA2D00DB3ED1 /* libRCTGeolocation.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 00C302BA1ABCB90400DB3ED1 /* libRCTGeolocation.a */; };
@@ -27,6 +28,7 @@
 		0761D1C4207F9CDD0011FE47 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 0761D1C3207F9CDD0011FE47 /* LaunchScreen.xib */; };
 		0761D1C6207F9D000011FE47 /* two1536x2048.png in Resources */ = {isa = PBXBuildFile; fileRef = 0761D1C5207F9D000011FE47 /* two1536x2048.png */; };
 		0C4B8833009C47C5BDDBAE7C /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 170E0C757A564F0FA612B77F /* SystemConfiguration.framework */; };
+		11A50DB7CF114C4781471A3A /* libSafariViewManager.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6C49A89224224EBAB4B976FC /* libSafariViewManager.a */; };
 		133E29F31AD74F7200F7D852 /* libRCTLinking.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 78C398B91ACF4ADC00677621 /* libRCTLinking.a */; };
 		139105C61AF99C1200B5F7CC /* libRCTSettings.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 139105C11AF99BAD00B5F7CC /* libRCTSettings.a */; };
 		139FDEF61B0652A700C62182 /* libRCTWebSocket.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 139FDEF41B06529B00C62182 /* libRCTWebSocket.a */; };
@@ -53,13 +55,12 @@
 		5E9157361DD0AC6A00FF2AA8 /* libRCTAnimation.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5E9157331DD0AC6500FF2AA8 /* libRCTAnimation.a */; };
 		7CCAA19968E74A95ADD431B8 /* libRNZipArchive.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 51EBA1AD02DB488D974DC900 /* libRNZipArchive.a */; };
 		832341BD1AAA6AB300B99B32 /* libRCTText.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 832341B51AAA6A8300B99B32 /* libRCTText.a */; };
+		91A58334CB004BEEBE7EC243 /* libDBCustomTabs.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BB2CC56A4F1E41EE9F5BB178 /* libDBCustomTabs.a */; };
 		A973C5ADA953458EACFA84BC /* libRNFS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = DD9D3793AB3841EF88F11B97 /* libRNFS.a */; };
 		ADBDB9381DFEBF1600ED6528 /* libRCTBlob.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ADBDB9271DFEBF0700ED6528 /* libRCTBlob.a */; };
 		D53183707AC1409088502A43 /* libRCTGoogleAnalyticsBridge.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A4FC1972B30744678C7EB7DE /* libRCTGoogleAnalyticsBridge.a */; };
 		DB7A5A43D5FB4576A10AA2AF /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 02893CABBDD1470A9AF4387D /* CoreData.framework */; };
 		DD121F82AFE44E53A46F63CE /* libsqlite3.0.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = AB2D481D262D4E2598CD2031 /* libsqlite3.0.tbd */; };
-		91A58334CB004BEEBE7EC243 /* libDBCustomTabs.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BB2CC56A4F1E41EE9F5BB178 /* libDBCustomTabs.a */; };
-		11A50DB7CF114C4781471A3A /* libSafariViewManager.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6C49A89224224EBAB4B976FC /* libSafariViewManager.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -385,6 +386,20 @@
 			remoteGlobalIDString = 358F4ED71D1E81A9004DF814;
 			remoteInfo = RCTBlob;
 		};
+		E5E09414210973EC00F82D67 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 67C1DC766AFF494B8E15841D /* ReactNativeCustomTabs.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = DA7118681CC9158A0087DF95;
+			remoteInfo = DBCustomTabs;
+		};
+		E5E09417210973EC00F82D67 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 961687DB72EB4DC3B5B7967D /* SafariViewManager.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 134814201AA4EA6300B7C361;
+			remoteInfo = SafariViewManager;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
@@ -429,21 +444,21 @@
 		3B1D4CF499814B94B1FC4787 /* libRNVersionNumber-tvOS.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = "libRNVersionNumber-tvOS.a"; sourceTree = "<group>"; };
 		51EBA1AD02DB488D974DC900 /* libRNZipArchive.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRNZipArchive.a; sourceTree = "<group>"; };
 		5E91572D1DD0AC6500FF2AA8 /* RCTAnimation.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTAnimation.xcodeproj; path = "../node_modules/react-native/Libraries/NativeAnimation/RCTAnimation.xcodeproj"; sourceTree = "<group>"; };
+		67C1DC766AFF494B8E15841D /* ReactNativeCustomTabs.xcodeproj */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "wrapper.pb-project"; name = ReactNativeCustomTabs.xcodeproj; path = "../node_modules/react-native-custom-tabs/ios/ReactNativeCustomTabs.xcodeproj"; sourceTree = "<group>"; };
+		6C49A89224224EBAB4B976FC /* libSafariViewManager.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libSafariViewManager.a; sourceTree = "<group>"; };
 		78C398B01ACF4ADC00677621 /* RCTLinking.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTLinking.xcodeproj; path = "../node_modules/react-native/Libraries/LinkingIOS/RCTLinking.xcodeproj"; sourceTree = "<group>"; };
 		832341B01AAA6A8300B99B32 /* RCTText.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTText.xcodeproj; path = "../node_modules/react-native/Libraries/Text/RCTText.xcodeproj"; sourceTree = "<group>"; };
+		961687DB72EB4DC3B5B7967D /* SafariViewManager.xcodeproj */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "wrapper.pb-project"; name = SafariViewManager.xcodeproj; path = "../node_modules/react-native-safari-view/SafariViewManager.xcodeproj"; sourceTree = "<group>"; };
 		9EECCC23CB674C408FABE850 /* RNZipArchive.xcodeproj */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "wrapper.pb-project"; name = RNZipArchive.xcodeproj; path = "../node_modules/react-native-zip-archive/ios/RNZipArchive.xcodeproj"; sourceTree = "<group>"; };
 		A4FC1972B30744678C7EB7DE /* libRCTGoogleAnalyticsBridge.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRCTGoogleAnalyticsBridge.a; sourceTree = "<group>"; };
 		A9774E4CC34B4D37BE3F09A2 /* libReactNativeLocalization.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libReactNativeLocalization.a; sourceTree = "<group>"; };
 		AB2D481D262D4E2598CD2031 /* libsqlite3.0.tbd */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libsqlite3.0.tbd; path = usr/lib/libsqlite3.0.tbd; sourceTree = SDKROOT; };
 		ADBDB91F1DFEBF0600ED6528 /* RCTBlob.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTBlob.xcodeproj; path = "../node_modules/react-native/Libraries/Blob/RCTBlob.xcodeproj"; sourceTree = "<group>"; };
+		BB2CC56A4F1E41EE9F5BB178 /* libDBCustomTabs.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libDBCustomTabs.a; sourceTree = "<group>"; };
 		C3064F3EC50D4BF08968171A /* libz.tbd */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		C8FC2D6C8C234FF99635297A /* RNVersionNumber.xcodeproj */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "wrapper.pb-project"; name = RNVersionNumber.xcodeproj; path = "../node_modules/react-native-version-number/ios/RNVersionNumber.xcodeproj"; sourceTree = "<group>"; };
 		CFAF12BAD638455885AF6726 /* RCTGoogleAnalyticsBridge.xcodeproj */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "wrapper.pb-project"; name = RCTGoogleAnalyticsBridge.xcodeproj; path = "../node_modules/react-native-google-analytics-bridge/ios/RCTGoogleAnalyticsBridge/RCTGoogleAnalyticsBridge.xcodeproj"; sourceTree = "<group>"; };
 		DD9D3793AB3841EF88F11B97 /* libRNFS.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRNFS.a; sourceTree = "<group>"; };
-		67C1DC766AFF494B8E15841D /* ReactNativeCustomTabs.xcodeproj */ = {isa = PBXFileReference; name = "ReactNativeCustomTabs.xcodeproj"; path = "../node_modules/react-native-custom-tabs/ios/ReactNativeCustomTabs.xcodeproj"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = wrapper.pb-project; explicitFileType = undefined; includeInIndex = 0; };
-		BB2CC56A4F1E41EE9F5BB178 /* libDBCustomTabs.a */ = {isa = PBXFileReference; name = "libDBCustomTabs.a"; path = "libDBCustomTabs.a"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = archive.ar; explicitFileType = undefined; includeInIndex = 0; };
-		961687DB72EB4DC3B5B7967D /* SafariViewManager.xcodeproj */ = {isa = PBXFileReference; name = "SafariViewManager.xcodeproj"; path = "../node_modules/react-native-safari-view/SafariViewManager.xcodeproj"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = wrapper.pb-project; explicitFileType = undefined; includeInIndex = 0; };
-		6C49A89224224EBAB4B976FC /* libSafariViewManager.a */ = {isa = PBXFileReference; name = "libSafariViewManager.a"; path = "libSafariViewManager.a"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = archive.ar; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -590,6 +605,8 @@
 				0A40C3042BD0446DAADC6462 /* libRNVersionNumber.a */,
 				51EBA1AD02DB488D974DC900 /* libRNZipArchive.a */,
 				3B1D4CF499814B94B1FC4787 /* libRNVersionNumber-tvOS.a */,
+				BB2CC56A4F1E41EE9F5BB178 /* libDBCustomTabs.a */,
+				6C49A89224224EBAB4B976FC /* libSafariViewManager.a */,
 			);
 			name = "Recovered References";
 			sourceTree = "<group>";
@@ -795,6 +812,22 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		E5E0940F210973EC00F82D67 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				E5E09415210973EC00F82D67 /* libDBCustomTabs.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		E5E09411210973EC00F82D67 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				E5E09418210973EC00F82D67 /* libSafariViewManager.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -963,6 +996,10 @@
 					ProjectRef = 146833FF1AC3E56700842450 /* React.xcodeproj */;
 				},
 				{
+					ProductGroup = E5E0940F210973EC00F82D67 /* Products */;
+					ProjectRef = 67C1DC766AFF494B8E15841D /* ReactNativeCustomTabs.xcodeproj */;
+				},
+				{
 					ProductGroup = 0761D1A1207CC5EF0011FE47 /* Products */;
 					ProjectRef = 0761D1A0207CC5EF0011FE47 /* ReactNativeLocalization.xcodeproj */;
 				},
@@ -977,6 +1014,10 @@
 				{
 					ProductGroup = 0761D190207CC4D90011FE47 /* Products */;
 					ProjectRef = 9EECCC23CB674C408FABE850 /* RNZipArchive.xcodeproj */;
+				},
+				{
+					ProductGroup = E5E09411210973EC00F82D67 /* Products */;
+					ProjectRef = 961687DB72EB4DC3B5B7967D /* SafariViewManager.xcodeproj */;
 				},
 			);
 			projectRoot = "";
@@ -1296,6 +1337,20 @@
 			fileType = archive.ar;
 			path = libRCTBlob.a;
 			remoteRef = ADBDB9261DFEBF0700ED6528 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		E5E09415210973EC00F82D67 /* libDBCustomTabs.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libDBCustomTabs.a;
+			remoteRef = E5E09414210973EC00F82D67 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		E5E09418210973EC00F82D67 /* libSafariViewManager.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libSafariViewManager.a;
+			remoteRef = E5E09417210973EC00F82D67 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 /* End PBXReferenceProxy section */
