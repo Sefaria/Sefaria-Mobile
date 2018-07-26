@@ -56,6 +56,7 @@ class TextColumn extends React.Component {
     loadingTextHead:    PropTypes.bool,
     linksLoaded:        PropTypes.array,
     showAliyot:         PropTypes.bool.isRequired,
+    openUri:            PropTypes.func.isRequired,
   };
 
   constructor(props, context) {
@@ -449,6 +450,7 @@ class TextColumn extends React.Component {
         showSegmentNumbers={Sefaria.showSegmentNumbers(this.props.textTitle)}
         textSegmentPressed={this.textSegmentPressed}
         setRowRef={(key, ref)=>{this.rowRefs[key]=ref}}
+        openUri={this.props.openUri}
       />
     );
   };

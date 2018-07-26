@@ -31,6 +31,7 @@ class AutocompletePage extends React.Component {
     openTextTocDirectly: PropTypes.func.isRequired,
     setCategories:   PropTypes.func.isRequired,
     openSearch:      PropTypes.func.isRequired,
+    openUri:         PropTypes.func.isRequired,
   };
 
   componentDidMount() {
@@ -75,6 +76,7 @@ class AutocompletePage extends React.Component {
           hideSearchButton={true}
         />
         <AutocompleteList
+          openUri={this.props.openUri}
           interfaceLang={this.props.interfaceLang}
           ref={this._getAutocompleteRef}
           theme={this.props.theme}

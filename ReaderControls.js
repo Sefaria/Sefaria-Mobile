@@ -31,6 +31,7 @@ class ReaderControls extends React.Component {
     themeStr:                        PropTypes.oneOf(["white", "black"]),
     toggleReaderDisplayOptionsMenu:  PropTypes.func,
     backStack:                       PropTypes.array,
+    openUri:                         PropTypes.func.isRequired,
   };
 
   render() {
@@ -74,7 +75,8 @@ class ReaderControls extends React.Component {
               categories={this.props.categories}
               language={this.props.language === "hebrew" ? "hebrew" : "english"}
               context={"header"}
-              linked={false} />
+              linked={false}
+              openUri={this.props.openUri} />
           </TouchableOpacity>
           <TouchableOpacity onPress={
               () => {

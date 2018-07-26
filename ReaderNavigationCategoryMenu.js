@@ -38,6 +38,7 @@ class ReaderNavigationCategoryMenu extends React.Component {
     navHome:        PropTypes.func.isRequired,
     toggleLanguage: PropTypes.func.isRequired,
     menuLanguage:   PropTypes.string.isRequired,
+    openUri:        PropTypes.func.isRequired,
   };
 
   constructor(props) {
@@ -100,7 +101,8 @@ class ReaderNavigationCategoryMenu extends React.Component {
                   <CategoryAttribution
                     categories={categories}
                     language={this.props.menuLanguage}
-                    context={"navigationCategory"} />
+                    context={"navigationCategory"}
+                    openUri={this.props.openUri}/>
                   <ReaderNavigationCategoryMenuContents
                     theme={this.props.theme}
                     contents={catContents}

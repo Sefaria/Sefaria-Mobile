@@ -61,6 +61,7 @@ class ConnectionsPanel extends React.Component {
     onDragEnd:            PropTypes.func.isRequired,
     textTitle:            PropTypes.string.isRequired,
     categories:           PropTypes.array.isRequired,
+    openUri:              PropTypes.func.isRequired,
   };
 
   render() {
@@ -143,6 +144,7 @@ class ConnectionsPanel extends React.Component {
               segmentRef={this.props.segmentRef}
               openFilter={this.props.openFilter}
               loadNewVersion={this.props.loadNewVersion}
+              openUri={this.props.openUri}
             />
           </View>
         );
@@ -158,6 +160,7 @@ class ConnectionsPanel extends React.Component {
               currVersions={this.props.currVersions}
               mainVersionLanguage={this.props.textLanguage}
               textTitle={this.props.textTitle}
+              openUri={this.props.openUri}
             />
           </View>
         );

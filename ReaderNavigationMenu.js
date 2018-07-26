@@ -2,7 +2,6 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import {
-  Linking,
   ScrollView,
   StyleSheet,
   Text,
@@ -10,6 +9,7 @@ import {
   View,
   Image,
   Platform,
+  Linking,
 } from 'react-native';
 
 import {
@@ -46,6 +46,7 @@ class ReaderNavigationMenu extends React.Component {
     onChangeSearchQuery:PropTypes.func.isRequired,
     searchQuery:    PropTypes.string.isRequired,
     openAutocomplete: PropTypes.func.isRequired,
+    openUri:        PropTypes.func.isRequired,
   };
 
   constructor(props) {
@@ -93,7 +94,8 @@ class ReaderNavigationMenu extends React.Component {
                 setCategories={this.props.setCategories}
                 openRef={this.props.openRef}
                 toggleLanguage={this.props.toggleLanguage}
-                navHome={this.navHome}/>);
+                navHome={this.navHome}
+                openUri={this.props.openUri}/>);
     } else {
       // Root Library Menu
       var categories = [
@@ -184,7 +186,7 @@ class ReaderNavigationMenu extends React.Component {
 
                 <View style={styles.readerNavSection}>
                   <Text style={[styles.readerNavSectionTitle, this.props.theme.readerNavSectionTitle, langStyle, {textAlign: "center"}]}>{strings.supportSefaria}</Text>
-                  <TouchableOpacity style={[styles.button, this.props.theme.borderDarker, this.props.theme.mainTextPanel, {flexDirection: isHeb ? "row-reverse" : "row", justifyContent: "center", marginTop: 15}]} onPress={() => {Linking.openURL("https://www.sefaria.org/donate");}}>
+                  <TouchableOpacity style={[styles.button, this.props.theme.borderDarker, this.props.theme.mainTextPanel, {flexDirection: isHeb ? "row-reverse" : "row", justifyContent: "center", marginTop: 15}]} onPress={() => {this.props.openUri("https://www.sefaria.org/donate");}}>
                     <Image source={this.props.themeStr == "white" ? require('./img/heart.png'): require('./img/heart-light.png') }
                       style={isHeb ? styles.menuButtonMarginedHe : styles.menuButtonMargined}
                       resizeMode={Image.resizeMode.contain} />
@@ -199,7 +201,7 @@ class ReaderNavigationMenu extends React.Component {
 
                   <Text style={[styles.navBottomLinkDot, this.props.theme.tertiaryText]}>•</Text>
 
-                  <TouchableOpacity onPress={() => {Linking.openURL("https://www.sefaria.org/about");}}>
+                  <TouchableOpacity onPress={() => {this.props.openUri("https://www.sefaria.org/about");}}>
                     <Text style={[isHeb ? styles.heInt : styles.enInt, this.props.theme.tertiaryText]}>{strings.about}</Text>
                   </TouchableOpacity>
 
@@ -233,33 +235,63 @@ class CalendarSection extends React.Component {
   render() {
     if (!Sefaria.calendar) { return null; }
 
-    var parashah = Sefaria.parashah();
-    var dafYomi  = Sefaria.dafYomi();
+    const { parasha, dafYomi, p929, rambam, mishnah } = Sefaria.getCalendars();
     var calendar = [
-            <CategoryBlockLink
+            !!parasha ? <CategoryBlockLink
               theme={this.props.theme}
-              category={parashah.parasha.en}
-              heCat={parashah.parasha.he}
+              category={"Parashat Hashavua"}
+              heCat={"פרשת השבוע"}
               language={this.props.language}
               style={{"borderColor": Sefaria.palette.categoryColor("Tanakh")}}
-              onPress={() => { this.props.openRef(parashah.ref.en); }}
-              key="parashah" />,
-            <CategoryBlockLink
+              subtext={parasha.parasha}
+              onPress={() => { this.props.openRef(parasha.ref.en); }}
+              key="parashah" /> : null,
+            !!parasha ? <CategoryBlockLink
               theme={this.props.theme}
               category={"Haftara"}
               heCat={"הפטרה"}
               language={this.props.language}
               style={{"borderColor": Sefaria.palette.categoryColor("Tanakh")}}
-              onPress={() => { this.props.openRef(parashah.haftara[0].en); }}
-              key="haftara" />,
-            <CategoryBlockLink
+              subtext={parasha.haftara[1]["ashkenazi"]}
+              onPress={() => { this.props.openRef(parasha.haftara[0].en); }}
+              key="haftara" /> : null,
+            !!dafYomi ? <CategoryBlockLink
               theme={this.props.theme}
               category={"Daf Yomi"}
               heCat={"דף יומי"}
               language={this.props.language}
               style={{"borderColor": Sefaria.palette.categoryColor("Talmud")}}
+              subtext={dafYomi.ref}
               onPress={() => { this.props.openRef(dafYomi.ref.en); }}
-              key="dafYomi" />];
+              key="dafYomi" /> : null,
+            !!p929 ? <CategoryBlockLink
+              theme={this.props.theme}
+              category={"929"}
+              heCat={"929"}
+              language={this.props.language}
+              style={{"borderColor": Sefaria.palette.categoryColor("Tanakh")}}
+              subtext={p929.ref}
+              onPress={() => { this.props.openRef(p929.ref.en); }}
+              key="929" /> : null,
+            !!mishnah ? <CategoryBlockLink
+              theme={this.props.theme}
+              category={"Daily Mishnah"}
+              heCat={"משנה יומית"}
+              language={this.props.language}
+              style={{"borderColor": Sefaria.palette.categoryColor("Mishnah")}}
+              subtext={mishnah.map(x => x.ref)}
+              onPress={() => { this.props.openRef(mishnah[0].ref.en); }}
+              key="mishnah" /> : null,
+            !!rambam ? <CategoryBlockLink
+              theme={this.props.theme}
+              category={"Daily Rambam"}
+              heCat={"הרמב״ם היומי"}
+              language={this.props.language}
+              style={{"borderColor": Sefaria.palette.categoryColor("Halakhah")}}
+              subtext={{en: rambam.ref.en.replace("Mishneh Torah, ", ""), he: rambam.ref.he.replace("משנה תורה, ", "")}}
+              onPress={() => { this.props.openRef(rambam.ref.en); }}
+              key="rambam" /> : null
+            ];
 
     var calendarContent = <TwoBox content={calendar} language={this.props.language}/>;
 

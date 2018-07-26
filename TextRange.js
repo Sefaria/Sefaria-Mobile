@@ -6,8 +6,8 @@ import {
   Text,
   Clipboard,
   Platform,
-  Linking,
   Share,
+  Linking
 } from 'react-native';
 import ActionSheet from '@yfuks/react-native-action-sheet';
 
@@ -77,7 +77,7 @@ class TextRange extends React.PureComponent {
           url: Sefaria.refToUrl(this.props.segmentRef)
         })
       }
-      else if (buttonIndex === 3) { Linking.openURL(Sefaria.refToUrl(this.props.segmentRef))}
+      else if (buttonIndex === 3) { this.props.openUri(Sefaria.refToUrl(this.props.segmentRef))}
     })
   };
 

@@ -486,13 +486,19 @@ export default StyleSheet.create({
   },
   readerNavCategory: {
     flexGrow: 1,
-    flexDirection: "row",
+    flexDirection: "column",
     borderTopWidth: 4,
     margin: 2,
     paddingVertical: 10,
     paddingHorizontal: 2,
     justifyContent: "center",
     alignItems: "center",
+  },
+  readerNavCategoryInner: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    flexGrow: 1,
   },
   readerNavSectionTitle: {
     fontSize: 13,

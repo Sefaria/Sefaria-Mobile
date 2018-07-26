@@ -177,6 +177,8 @@ def export_updated():
     export_toc()
     export_hebrew_categories()
     export_packages()
+    export_calendar()
+    export_authors()
     write_last_updated(updated_books, update=True)
 
 
@@ -576,6 +578,7 @@ def write_last_updated(titles, update=False):
 def export_packages(for_sources=False):
     packages = get_downloadable_packages()
     write_doc(packages, (SEFARIA_IOS_SOURCES_PATH if for_sources else EXPORT_PATH) + PACK_PATH)
+    write_doc(packages, (SEFARIA_ANDROID_SOURCES_PATH if for_sources else EXPORT_PATH) + PACK_PATH)
 
 
 def export_hebrew_categories(for_sources=False):
@@ -593,6 +596,7 @@ def export_hebrew_categories(for_sources=False):
         else:
             hebrew_cats_json[e] = t.titles[1][u'text']
     write_doc(hebrew_cats_json, (SEFARIA_IOS_SOURCES_PATH if for_sources else EXPORT_PATH) + HEB_CATS_PATH)
+    write_doc(hebrew_cats_json, (SEFARIA_ANDROID_SOURCES_PATH if for_sources else EXPORT_PATH) + HEB_CATS_PATH)
 
 
 def remove_silly_toc_nodes(toc):
@@ -624,6 +628,8 @@ def export_toc(for_sources=False):
     new_new_search_toc = remove_silly_toc_nodes(new_search_toc)
     write_doc(new_new_toc, (SEFARIA_IOS_SOURCES_PATH if for_sources else EXPORT_PATH) + TOC_PATH)
     write_doc(new_new_search_toc, (SEFARIA_IOS_SOURCES_PATH if for_sources else EXPORT_PATH) + SEARCH_TOC_PATH)
+    write_doc(new_new_toc, (SEFARIA_ANDROID_SOURCES_PATH if for_sources else EXPORT_PATH) + TOC_PATH)
+    write_doc(new_new_search_toc, (SEFARIA_ANDROID_SOURCES_PATH if for_sources else EXPORT_PATH) + SEARCH_TOC_PATH)
 
 
 def new_books_since_last_update():
@@ -663,7 +669,7 @@ def export_calendar(for_sources=False):
         "rambam": {},
         "929": {}
     }
-    date = datetime.now()
+    date = datetime.now() - timedelta(1)
     date_format = lambda date : date.strftime(" %m/ %d/%Y").replace(" 0", "").replace(" ", "")
     date_str = date_format(date)
 
@@ -684,18 +690,18 @@ def export_calendar(for_sources=False):
             print "Error parsing '%s': %s" % (yom["daf"], str(e))
 
     # PARASHA -----
-    parshiot = db.parshiot.find({"date": {"$gt": date}}).sort([("date", 1)])
+    parshiot = db.parshiot.find({"date": {"$gte": date}}).sort([("date", 1)])
     for parashah in parshiot:
         parshRef = model.Ref(parashah["ref"])
         parshTref = parshRef.normal()
         parshHeTref = parshRef.he_normal()
-        haftarot = [{
+        haftarot = {custom: [{
             "en": model.Ref(h).normal(), "he": model.Ref(h).he_normal()
-            } for h in parashah["haftara"]]
+            } for h in haf_list] for custom, haf_list in parashah["haftara"].items() }
         calendar["parasha"][date_format(parashah["date"])] = {
             "parasha": {"en": parashah["parasha"], "he": hebrew_parasha_name(parashah["parasha"])},
             "ref": {"en": parshTref, "he": parshHeTref},
-            "haftara": haftarot,
+            "haftara": [haftarot["ashkenazi"][0], haftarot],  # backwards compatibility. app always reads first element of haftara array
             "diaspora": parashah["diaspora"]
             # below fields not currently used
             # "aliyot": parashah["aliyot"],
@@ -703,7 +709,7 @@ def export_calendar(for_sources=False):
         }
 
     # MISHNA -----
-    mishnayot = db.daily_mishnayot.find({"date": {"$gt": date}}).sort([("date", 1)])
+    mishnayot = db.daily_mishnayot.find({"date": {"$gte": date}}).sort([("date", 1)])
     for mishnah in mishnayot:
         ref = model.Ref(mishnah["ref"])
         tref = ref.normal()
@@ -716,7 +722,7 @@ def export_calendar(for_sources=False):
             calendar["mishnah"][date_key] += [mish_obj]
 
     # RAMBAM -----
-    rambamim = db.daily_rambam.find({"date": {"$gt": date}}).sort([("date",1)])
+    rambamim = db.daily_rambam.find({"date": {"$gte": date}}).sort([("date",1)])
     for rambam in rambamim:
         ref = model.Ref(rambam["ref"])
         tref = ref.normal()
@@ -745,6 +751,7 @@ def export_calendar(for_sources=False):
 
     path = (SEFARIA_IOS_SOURCES_PATH if for_sources else EXPORT_PATH) + CALENDAR_PATH
     write_doc(calendar, path)
+    write_doc(calendar, (SEFARIA_ANDROID_SOURCES_PATH if for_sources else EXPORT_PATH) + CALENDAR_PATH)
 
 
 def export_authors(for_sources=False):
@@ -757,6 +764,7 @@ def export_authors(for_sources=False):
             people[name["text"].lower()] = 1
     path = (SEFARIA_IOS_SOURCES_PATH if for_sources else EXPORT_PATH) + PEOPLE_PATH
     write_doc(people, path)
+    write_doc(people, (SEFARIA_ANDROID_SOURCES_PATH if for_sources else EXPORT_PATH) + PEOPLE_PATH)
 
 
 def clear_exports():
@@ -772,7 +780,7 @@ def purge_cloudflare_cache(titles):
     Purges the URL for each zip file named in `titles` as well as toc.json, last_updated.json and calendar.json.
     """
     files = ["%s/%s/%s.zip" % (CLOUDFLARE_PATH, SCHEMA_VERSION, title) for title in titles]
-    files += ["%s/%s/%s.json" % (CLOUDFLARE_PATH, SCHEMA_VERSION, title) for title in ("toc", "search_toc", "last_updated", "calendar", "hebrew_categories")]
+    files += ["%s/%s/%s.json" % (CLOUDFLARE_PATH, SCHEMA_VERSION, title) for title in ("toc", "search_toc", "last_updated", "calendar", "hebrew_categories", "people", "packages")]
     url = 'https://api.cloudflare.com/client/v4/zones/%s/purge_cache' % CLOUDFLARE_ZONE
     payload = {"files": files}
     headers = {
@@ -796,6 +804,7 @@ def export_all(skip_existing=False):
     export_calendar()
     export_hebrew_categories()
     export_texts(skip_existing)
+    export_authors()
     export_packages()
     print("--- %s seconds ---" % round(time.time() - start_time, 2))
 

@@ -3,6 +3,9 @@ package com.readerapp;
 import android.app.Application;
 
 import com.facebook.react.ReactApplication;
+import com.rpt.reactnativecheckpackageinstallation.CheckPackageInstallationPackage;
+import com.actionsheet.ActionSheetPackage;
+import com.github.droibit.android.reactnative.customtabs.CustomTabsPackage;
 import com.actionsheet.ActionSheetPackage;
 import com.rnziparchive.RNZipArchivePackage;
 import com.apsl.versionnumber.RNVersionNumberPackage;
@@ -29,7 +32,9 @@ public class MainApplication extends Application implements ReactApplication {
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
+            new CheckPackageInstallationPackage(),
             new ActionSheetPackage(),
+            new CustomTabsPackage(),
             new RNZipArchivePackage(),
             new RNVersionNumberPackage(),
             new ReactNativeLocalizationPackage(),
