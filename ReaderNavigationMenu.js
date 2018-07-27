@@ -10,6 +10,7 @@ import {
   Image,
   Platform,
   Linking,
+  BackHandler,
 } from 'react-native';
 
 import {
@@ -58,8 +59,23 @@ class ReaderNavigationMenu extends React.Component {
   }
 
   componentDidMount() {
-
+    BackHandler.addEventListener('hardwareBackPress', this.handleBackPress);
   }
+
+  componentWillUnmount() {
+    BackHandler.removeEventListener('hardwareBackPress', this.handleBackPress);
+  }
+
+  handleBackPress = () => {
+    if (this.props.categories.length) {
+      this.navHome()
+    }
+    else {
+      this.props.closeNav();
+    }
+    return true;
+  }
+
 
   showMore = () => {
     this.setState({showMore: true});
