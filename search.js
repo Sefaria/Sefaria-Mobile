@@ -7,7 +7,7 @@ import strings from './LocalizedStrings';
 import RNFS from 'react-native-fs';
 
 var Search = {
-  baseUrl: "https://search.sefaria.org/merged/_search/",
+  baseUrl: "https://sefaria.org/api/search/merged/_search/",
   _cache: {},
   cache: function(key, result) {
     if (result !== undefined) {
@@ -132,47 +132,21 @@ var Search = {
           }
         }
       }
-      const has_filters = !!applied_filters && applied_filters.length > 0;
       var inner_query = {};
-      if (get_filters && !has_filters) {
+      if (get_filters) {
         //Initial, unfiltered query.  Get potential filters.
-        if (type) {
-          inner_query = {
-            filtered: {
-              query: core_query,
-              filter: {type: {value: type}}
-            }
-          };
-        } else {
-          inner_query = core_query;
-        }
-
+        inner_query = core_query;
         o['aggs'] = {
           "category": {
             "terms": {
               "field": "path",
-              "size": 0
-            }
-          },
-          "type": {
-            "terms": {
-              "field": "_type",
-              "size": 0
+              "size": 10000
             }
           }
         };
       } else if (!applied_filters || applied_filters.length == 0) {
         // This is identical to above - can be cleaned up into a variable
-        if (type) {
-          inner_query = {
-            filtered: {
-              query: core_query,
-              filter: {type: {value: type}}
-            }
-          };
-        } else {
-          inner_query = core_query;
-        }
+        inner_query = core_query;
       } else {
         //Filtered query.  Add clauses.  Don't re-request potential filters.
         var clauses = [];
@@ -186,50 +160,20 @@ var Search = {
           });
           /* Test for Commentary2 as well as Commentary */
         }
-        if (type) {
-          inner_query = {
-            "filtered": {
-              "query": core_query,
-              "filter": {
-                "bool": {
-                  "must": [
-                    {"or": clauses},
-                    {type: {value: type}}
-                  ]
-                }
+        inner_query = {
+          "bool": {
+            "must": core_query,
+            "filter": {
+              "bool": {
+                "should": clauses
               }
-            }
-          };
-        } else {
-          inner_query = {
-            "filtered": {
-              "query": core_query,
-              "filter": {
-                "or": clauses
-              }
-            }
-          };
-        }
-        o['aggs'] = {
-          "type": {
-            "terms": {
-              "field": "_type",
-              "size": 0
             }
           }
         };
-        if (get_filters) {
-          o['aggs']['category'] = {
-            "terms": {
-              "field": "path",
-              "size": 0
-            }
-          };
-        }
       }
 
       //after that confusing logic, hopefully inner_query is defined properly
-      if (sort_type == "chronological") {
+      if (sort_type == "chronological" || !sort_type) {
         o['query'] = inner_query;
       } else if (sort_type == "relevance") {
         o['query']['function_score']['query'] = inner_query;
