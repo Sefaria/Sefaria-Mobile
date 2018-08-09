@@ -7,7 +7,7 @@ import strings from './LocalizedStrings';
 import RNFS from 'react-native-fs';
 
 var Search = {
-  baseUrl: "https://sefaria.org/api/search/merged/_search/",
+  baseUrl: "https://www.sefaria.org/api/search/merged/_search/",
   _cache: {},
   cache: function(key, result) {
     if (result !== undefined) {
