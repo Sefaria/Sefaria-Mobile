@@ -34,6 +34,7 @@ import AutocompletePage from './AutocompletePage';
 import TextColumn from './TextColumn';
 import ConnectionsPanel from './ConnectionsPanel';
 import SettingsPage from './SettingsPage';
+import InterruptingMessage from './InterruptingMessage';
 import SwipeableCategoryList from './SwipeableCategoryList';
 import Toast, {DURATION} from 'react-native-easy-toast';
 import WebViewPage from './WebViewPage';
@@ -1495,6 +1496,7 @@ class ReaderApp extends React.Component {
             }
             { this.renderContent() }
         </View>
+        <InterruptingMessage />
         <Toast ref="toast"/>
       </SafeAreaView>
     );

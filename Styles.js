@@ -1037,7 +1037,15 @@ export default StyleSheet.create({
     paddingBottom: 10,
     paddingHorizontal: iPad ? 48 : 24,
   },
-//HTML Styles:
+  rainbowBar: {
+    height: 12,
+    alignItems: 'center',
+    alignSelf: 'stretch',
+    flexDirection: 'row',
+    marginTop: 22,
+    backgroundColor: 'black',
+  },
+  //HTML Styles:
   strong: {
     fontWeight: "bold"
   },
