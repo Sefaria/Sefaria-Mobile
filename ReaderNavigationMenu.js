@@ -202,7 +202,8 @@ class ReaderNavigationMenu extends React.Component {
 
                 <View style={styles.readerNavSection}>
                   <Text style={[styles.readerNavSectionTitle, this.props.theme.readerNavSectionTitle, langStyle, {textAlign: "center"}]}>{strings.supportSefaria}</Text>
-                  <TouchableOpacity style={[styles.button, this.props.theme.borderDarker, this.props.theme.mainTextPanel, {flexDirection: isHeb ? "row-reverse" : "row", justifyContent: "center", marginTop: 15}]} onPress={() => {this.props.openUri("https://www.sefaria.org/donate");}}>
+                  <TouchableOpacity style={[styles.button, this.props.theme.borderDarker, this.props.theme.mainTextPanel, {flexDirection: isHeb ? "row-reverse" : "row", justifyContent: "center", marginTop: 15}]} 
+                    onPress={() => {this.props.openUri("https://sefaria.nationbuilder.com/");}}>
                     <Image source={this.props.themeStr == "white" ? require('./img/heart.png'): require('./img/heart-light.png') }
                       style={isHeb ? styles.menuButtonMarginedHe : styles.menuButtonMargined}
                       resizeMode={'contain'} />
