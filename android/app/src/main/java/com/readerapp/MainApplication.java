@@ -4,7 +4,6 @@ import android.app.Application;
 
 import com.facebook.react.ReactApplication;
 import com.rpt.reactnativecheckpackageinstallation.CheckPackageInstallationPackage;
-import com.actionsheet.ActionSheetPackage;
 import com.github.droibit.android.reactnative.customtabs.CustomTabsPackage;
 import com.actionsheet.ActionSheetPackage;
 import com.rnziparchive.RNZipArchivePackage;

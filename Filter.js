@@ -24,6 +24,10 @@ class Filter {
     return this.name === filter.name;
   }
 
+  clone() {
+    return new Filter(this.name, this.heName, Sefaria.util.clone(this.refList), Sefaria.util.clone(this.heRefList));
+  }
+
 }
 
 class LinkFilter extends Filter {
@@ -48,6 +52,18 @@ class LinkFilter extends Filter {
   listKey(i) {
     return `${(typeof i !== 'undefined') ? this.refList[i] : ''}|${this.name}`;
   }
+
+  clone() {
+    return new LinkFilter(
+      this.name,
+      this.heName,
+      this.collectiveTitle,
+      this.heCollectiveTitle,
+      Sefaria.util.clone(this.refList),
+      Sefaria.util.clone(this.heRefList),
+      this.category
+    );
+  }
 }
 
 class VersionFilter extends Filter {
@@ -69,6 +85,15 @@ class VersionFilter extends Filter {
   toString(lang) {
     return lang === "hebrew" && this.heName ? this.heName : this.name;
   }
+
+  clone() {
+    return new VersionFilter(
+      this.name,
+      this.heName,
+      this.versionLanguage,
+      this.refList[0]
+    );
+  }
 }
 
-export { LinkFilter, VersionFilter };
+export { Filter, LinkFilter, VersionFilter };

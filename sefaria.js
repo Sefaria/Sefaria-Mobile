@@ -8,6 +8,7 @@ import Packages from './packages';
 import Search from './search';
 import LinkContent from './LinkContent';
 import { initAsyncStorage } from './ReduxStore';
+import { Filter } from './Filter';
 import URL from 'url-parse';
 
 
@@ -644,7 +645,6 @@ Sefaria = {
   _loadHistoryItems: function() {
     return AsyncStorage.getItem("recent").then(function(data) {
       Sefaria.history = JSON.parse(data) || [];
-      console.log('history')
     });
   },
   saved: [],
@@ -678,7 +678,6 @@ Sefaria = {
     });
     return AsyncStorage.getItem("saved").then(function(data) {
       Sefaria.saved = JSON.parse(data) || [];
-      console.log('saved')
     });
   },
   saveRecentQuery: function(query, type) {
@@ -697,7 +696,6 @@ Sefaria = {
     //return AsyncStorage.setItem("recentQueries", JSON.stringify([]));
     return AsyncStorage.getItem("recentQueries").then(function(data) {
       Sefaria.recentQueries = JSON.parse(data) || [];
-      console.log('recentQueries')
     });
   },
   _deleteUnzippedFiles: function() {
@@ -1215,16 +1213,21 @@ Sefaria.util = {
 
     // Handle Date
     if (obj instanceof Date) {
-      var copy = new Date();
+      const copy = new Date();
       copy.setTime(obj.getTime());
       return copy;
     }
 
+    // Handle VersionFilter
+    if (obj instanceof Filter) {
+      return obj.clone();
+    }
+
     // Handle Array
     if (obj instanceof Array) {
-      var copy = [];
-      var len = obj.length;
-      for (var i = 0; i < len; ++i) {
+      const copy = [];
+      const len = obj.length;
+      for (let i = 0; i < len; ++i) {
         copy[i] = clone(obj[i]);
       }
       return copy;
@@ -1232,8 +1235,8 @@ Sefaria.util = {
 
     // Handle Object
     if (obj instanceof Object) {
-      var copy = {};
-      for (var attr in obj) {
+      const copy = {};
+      for (let attr in obj) {
         if (obj.hasOwnProperty(attr)) copy[attr] = clone(obj[attr]);
       }
       return copy;
