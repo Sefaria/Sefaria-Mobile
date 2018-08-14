@@ -28,7 +28,7 @@ class SearchPage extends React.Component {
     subMenuOpen:         PropTypes.string,
     openSubMenu:         PropTypes.func,
     hasInternet:         PropTypes.bool,
-    closeNav:            PropTypes.func.isRequired,
+    onBack:              PropTypes.func.isRequired,
     search:              PropTypes.func.isRequired,
     openRef:             PropTypes.func.isRequired,
     setLoadTail:         PropTypes.func.isRequired,
@@ -82,8 +82,7 @@ class SearchPage extends React.Component {
               interfaceLang={this.props.interfaceLang}
               theme={this.props.theme}
               themeStr={this.props.themeStr}
-              onBack={this.props.openNav}
-              onClose={this.props.closeNav}
+              onBack={this.props.onBack}
               leftMenuButton="back"
               search={this.props.search}
               query={this.props.query}

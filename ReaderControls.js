@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   View,
   Image,
+  Platform,
 } from 'react-native';
 
 import ReaderDisplayOptionsMenu from './ReaderDisplayOptionsMenu';
@@ -38,7 +39,7 @@ class ReaderControls extends React.Component {
     const isSaved = Sefaria.indexOfSaved(this.props.enRef) !== -1;
     var langStyle = this.props.language === "hebrew" ? [styles.he, {marginTop: 4}] : [styles.en];
     var titleTextStyle = [langStyle, styles.headerTextTitleText, this.props.theme.text];
-    if (this.props.backStack.length == 0) {
+    if (this.props.backStack.length === 0 || Platform.OS == "android") {
       var leftMenuButton = <MenuButton onPress={this.props.openNav} theme={this.props.theme} themeStr={this.props.themeStr}/>
     } else {
       var leftMenuButton =

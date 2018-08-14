@@ -13,6 +13,7 @@ import {
   StatusBar,
   SafeAreaView,
   Platform,
+  BackHandler,
 } from 'react-native';
 import { connect } from 'react-redux';
 import { createResponder } from 'react-native-gesture-responder';
@@ -38,6 +39,7 @@ import InterruptingMessage from './InterruptingMessage';
 import SwipeableCategoryList from './SwipeableCategoryList';
 import Toast, {DURATION} from 'react-native-easy-toast';
 import WebViewPage from './WebViewPage';
+import BackManager from './BackManager';
 
 
 import {
@@ -67,7 +69,7 @@ class ReaderApp extends React.Component {
         });
         const mostRecent =  Sefaria.history.length ? Sefaria.history[0] : {ref: "Genesis 1"};
         console.log(mostRecent, 'yoyoo')
-        this.openRef(mostRecent.ref, null, mostRecent.versions);
+        this.openRef(mostRecent.ref, null, mostRecent.versions, false);  // first call to openRef should not add to backStack
         Sefaria.postInit();
     });
     Sefaria.track.init();
@@ -126,7 +128,6 @@ class ReaderApp extends React.Component {
         initSearchScrollPos: 0,
         numSearchResults: 0,
         searchQueryResult: [],
-        backStack: [],
         ReaderDisplayOptionsMenuVisible: false,
         overwriteVersions: true, // false when you navigate to a text but dont want the current version to overwrite your sticky version
         currUri: "",  // used by WebViewPage
@@ -134,6 +135,7 @@ class ReaderApp extends React.Component {
   }
 
   componentDidMount() {
+    BackHandler.addEventListener('hardwareBackPress', this.manageBack);
     AppState.addEventListener('change', state => {
       if (state == "active") {
         Sefaria.downloader.resumeDownload();
@@ -183,7 +185,23 @@ class ReaderApp extends React.Component {
 
   componentWillUnmount() {
     Sefaria.downloader.onChange = null;
+    BackHandler.removeEventListener('hardwareBackPress', this.manageBack);
   }
+
+  manageBackMain = () => {
+    this.manageBack("main");
+  }
+
+  manageBack = (type) => {
+    const oldState = BackManager.back({ type });
+    if (!!oldState) {
+      this.setState(oldState);
+      return true;
+    } else {
+      // close app
+      return false;
+    }
+  };
 
   onDownloaderChange = (openSettings) => {
     if (openSettings) {
@@ -320,6 +338,7 @@ class ReaderApp extends React.Component {
 
       if (shouldToggle && this.state.textListVisible) {
           this.setState({textListVisible: false});
+          BackManager.back({ type: "secondary" });
           return; // Don't bother with other changes if we are simply closing the TextList
       }
       if (!this.state.data[section][segment]) {
@@ -346,6 +365,7 @@ class ReaderApp extends React.Component {
           loadingLinks: loadingLinks
       };
       if (shouldToggle) {
+        BackManager.forward({ state: {textListVisible: this.state.textListVisible}, type: "secondary" });
         stateObj.textListVisible = !this.state.textListVisible;
         stateObj.offsetRef = null; //offsetRef is used to highlight. once you open textlist, you should remove the highlight
       }
@@ -354,14 +374,15 @@ class ReaderApp extends React.Component {
       this.forceUpdate();
   };
   /*
-    isLoadingVersion - true when you are replacing an already loaded text with a specific version
+    isLoadingVersion - true when you are replacing an already loaded text with a specific version (not currently used)
     overwriteVersions - false when you want to switch versions but not overwrite sticky version (e.g. search)
   */
-  loadNewText = (ref, versions, isLoadingVersion, overwriteVersions=true) => {
+  loadNewText = ({ ref, versions, isLoadingVersion = false, overwriteVersions = true }) => {
       if (!this.state.hasInternet) {
         overwriteVersions = false;
         versions = undefined; // change to default version in case they have offline library they'll still be able to read
       }
+
       this.props.setOverwriteVersions(overwriteVersions);
       versions = this.removeDefaultVersions(ref, versions);
       this.setState({
@@ -456,22 +477,6 @@ class ReaderApp extends React.Component {
     return newVersions;
   };
 
-  loadNewVersion = (ref, versions) => {
-    // consider moving this logic to loadNewText()
-    const newVersions = {
-      ...this.state.selectedVersions,
-      ...versions,
-    }
-
-    // make sure loaded text will show the versions you selected
-    let newTextLang = this.props.textLanguage;
-    if (!!newVersions['en'] && !!newVersions['he']) { newTextLang = "bilingual"; }
-    else if (!!newVersions['en']) { newTextLang = "english"; }
-    else { newTextLang = "hebrew"; }
-    this.setTextLanguage(newTextLang, null, null, true);
-    this.loadNewText(ref, newVersions, true);
-  };
-
   setCurrVersions = (sectionRef, title) => {
     let enVInfo = !sectionRef ? this.state.currVersions.en : Sefaria.versionInfo(sectionRef, title, 'english');
     let heVInfo = !sectionRef ? this.state.currVersions.he : Sefaria.versionInfo(sectionRef, title, 'hebrew');
@@ -515,7 +520,6 @@ class ReaderApp extends React.Component {
 
   loadVersions = (ref) => {
     Sefaria.api.versions(ref, true).then(data=> {
-      console.log("success", data);
       this.setState({ versions: data, versionsApiError: false });
     }).catch(error=>{
       console.log("error", error);
@@ -614,7 +618,7 @@ class ReaderApp extends React.Component {
   calledFrom parameter used for analytics and for back button
   prevScrollPos parameter used for back button
   */
-  openRef = (ref, calledFrom, versions) => {
+  openRef = (ref, calledFrom, versions, addToBackStack=true) => {
     const title = Sefaria.textTitleForRef(ref);
     const overwriteVersions = calledFrom !== 'search'; // if called from search, use version specified by search (or default if none specified)
     if (!title) {
@@ -639,8 +643,6 @@ class ReaderApp extends React.Component {
     switch (calledFrom) {
       case "search":
         Sefaria.track.event("Search","Search Result Text Click",this.state.searchQuery + ' - ' + ref);
-        //this.state.backStack=["SEARCH:"+this.state.searchQuery];
-        this.addBackItem("search", this.searchBackFunc.bind(this, {query: this.state.searchQuery}));
         break;
       case "navigation":
         Sefaria.track.event("Reader","Navigation Text Click", ref);
@@ -649,12 +651,16 @@ class ReaderApp extends React.Component {
         break;
       case "text list":
         Sefaria.track.event("Reader","Click Text from TextList",ref);
-        //this.state.backStack.push(this.state.segmentRef);
-        this.addBackItem("text column", this.textColumnBackFunc.bind(this, {ref: this.state.segmentRef, versions: this.state.selectedVersions}));
         break;
       default:
         break;
     }
+
+    if (addToBackStack) {
+      console.log("openRef")
+      BackManager.forward({ state: this.state });
+    }
+
     this.setState({
       loaded: false,
       textListVisible: false,
@@ -662,35 +668,24 @@ class ReaderApp extends React.Component {
     }, function() {
         this.closeMenu(); // Don't close until these values are in state, so we know if we need to load defualt text
     }.bind(this));
-    this.loadNewText(ref, versions, false, overwriteVersions);
-
-  };
-
-  addBackItem = (page, stateFunc) => {
-    //page - this.state.menuOpen
-    //stateFunc - func required to rebuild previous state
-    this.state.backStack.push({page, stateFunc});
-  };
-
-  searchBackFunc = state => {
-    this.onQueryChange(state.query,true,true);
-    this.openSearch();
-  };
-
-  textColumnBackFunc = state => {
-    this.openRef(state.ref, null, state.versions);
+    this.loadNewText({ ref, versions, overwriteVersions });
   };
 
   openMenu = (menu) => {
-    const staleBackPages = ["autocomplete"];  // these are pages that if in the backstack should be removed before navigating to a new page
-    while (this.state.backStack.length > 0 && staleBackPages.indexOf(this.state.backStack[this.state.backStack.length-1].page) !== -1) {
-      this.state.backStack.pop();
+    const SKIP_MENUS = {autocomplete: true};  // set of `menuOpen` states which you shouldn't be able to go back to
+    if (!SKIP_MENUS[this.state.menuOpen] && !!menu) {
+      BackManager.forward({ state: this.state });
     }
     this.setState({menuOpen: menu});
   };
 
-  openSubMenu = (subMenu) => {
-    this.setState({subMenuOpen: subMenu});
+  openSubMenu = (subMenu, isBack) => {
+    if (isBack) {
+      this.manageBackMain();
+    } else {
+      BackManager.forward({ state: this.state });
+      this.setState({subMenuOpen: subMenu});
+    }
   };
 
   closeMenu = () => {
@@ -753,11 +748,12 @@ class ReaderApp extends React.Component {
   };
 
   setNavigationCategories = (categories) => {
-      this.setState({navigationCategories: categories});
+    BackManager.forward({ state: this.state });
+    this.setState({navigationCategories: categories});
   };
 
   setInitSearchScrollPos = (pos) => {
-      this.setState({initSearchScrollPos: pos});
+    this.setState({initSearchScrollPos: pos});
   };
 
   openTextTocDirectly = (title) => {
@@ -778,9 +774,7 @@ class ReaderApp extends React.Component {
   };
 
   openAutocomplete = () => {
-    const stateFunc = this.state.menuOpen === "search" ? this.searchBackFunc.bind(this, {query: this.state.searchQuery}) : this.openNav;
     this.openMenu("autocomplete");
-    this.addBackItem("autocomplete", stateFunc);
   }
 
   clearMenuState = () => {
@@ -790,7 +784,7 @@ class ReaderApp extends React.Component {
   };
 
   openDefaultText = () => {
-      this.loadNewText("Genesis 1");
+      this.openRef("Genesis 1");
   };
 
   setConnectionsMode = (cat) => {
@@ -1196,9 +1190,7 @@ class ReaderApp extends React.Component {
               setCategories={this.setNavigationCategories}
               openRef={(ref, versions)=>this.openRef(ref,"navigation", versions)}
               openAutocomplete={this.openAutocomplete}
-              goBack={this.goBack}
-              openNav={this.openNav}
-              closeNav={this.closeMenu}
+              onBack={this.manageBackMain}
               openSearch={this.search}
               setIsNewSearch={this.setIsNewSearch}
               toggleLanguage={this.toggleMenuLanguage}
@@ -1225,7 +1217,7 @@ class ReaderApp extends React.Component {
             textLang={this.props.textLanguage == "hebrew" ? "hebrew" : "english"}
             contentLang={this.props.menuLanguage}
             interfaceLang={this.state.interfaceLang}
-            close={this.closeMenu}
+            close={this.manageBackMain}
             openRef={(ref)=>this.openRef(ref,"text toc")}
             toggleLanguage={this.toggleMenuLanguage}
             openUri={this.openUri}/>);
@@ -1240,8 +1232,7 @@ class ReaderApp extends React.Component {
             subMenuOpen={this.state.subMenuOpen}
             openSubMenu={this.openSubMenu}
             hasInternet={this.state.hasInternet}
-            openNav={this.openNav}
-            closeNav={this.closeMenu}
+            onBack={this.manageBackMain}
             search={this.onQueryChange}
             openRef={(ref)=> this.openRef(ref,"search")}
             setLoadTail={this.setLoadQueryTail}
@@ -1273,7 +1264,7 @@ class ReaderApp extends React.Component {
             interfaceLang={this.state.interfaceLang}
             theme={this.props.theme}
             themeStr={this.props.themeStr}
-            goBack={this.goBack}
+            onBack={this.manageBackMain}
             search={this.search}
             setIsNewSearch={this.setIsNewSearch}
             onChange={this.onChangeSearchQuery}
@@ -1330,7 +1321,7 @@ class ReaderApp extends React.Component {
       case ("webview"):
         return (
           <WebViewPage
-            close={this.closeMenu}
+            close={this.manageBackMain}
             theme={this.props.theme}
             themeStr={this.props.themeStr}
             uri={this.state.currUri}
@@ -1339,7 +1330,7 @@ class ReaderApp extends React.Component {
     }
     let textColumnFlex = this.state.textListVisible ? 1.0 - this.state.textListFlex : 1.0;
     return (
-  		<View style={[styles.container, this.props.theme.container]} {...this.gestureResponder}>
+      <View style={[styles.container, this.props.theme.container]} {...this.gestureResponder}>
           <CategoryColorLine category={Sefaria.categoryForTitle(this.state.textTitle)} />
           <ReaderControls
             theme={this.props.theme}
@@ -1349,9 +1340,9 @@ class ReaderApp extends React.Component {
             categories={Sefaria.categoriesForTitle(this.state.textTitle)}
             openNav={this.openNav}
             themeStr={this.props.themeStr}
-            goBack={this.goBack}
+            goBack={this.manageBackMain}
             openTextToc={this.openTextToc}
-            backStack={this.state.backStack}
+            backStack={BackManager.getStack({ type: "main" })}
             toggleReaderDisplayOptionsMenu={this.toggleReaderDisplayOptionsMenu}
             openUri={this.openUri}/>
 
@@ -1429,7 +1420,6 @@ class ReaderApp extends React.Component {
                 linkSummary={this.state.linkSummary}
                 linkContents={this.state.linkContents}
                 versionContents={this.state.versionContents}
-                loadNewVersion={this.loadNewVersion}
                 loading={this.state.loadingLinks}
                 connectionsMode={this.state.connectionsMode}
                 filterIndex={this.state.filterIndex}

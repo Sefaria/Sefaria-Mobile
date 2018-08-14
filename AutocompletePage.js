@@ -22,7 +22,7 @@ class AutocompletePage extends React.Component {
     interfaceLang:   PropTypes.oneOf(["english", "hebrew"]).isRequired,
     theme:           PropTypes.object.isRequired,
     themeStr:        PropTypes.string.isRequired,
-    goBack:          PropTypes.func.isRequired,
+    onBack:          PropTypes.func.isRequired,
     search:          PropTypes.func.isRequired,
     setIsNewSearch:  PropTypes.func.isRequired,
     query:           PropTypes.string.isRequired,
@@ -67,7 +67,7 @@ class AutocompletePage extends React.Component {
           interfaceLang={this.props.interfaceLang}
           theme={this.props.theme}
           themeStr={this.props.themeStr}
-          onBack={this.props.goBack}
+          onBack={this.props.onBack}
           leftMenuButton="back"
           search={this.props.search}
           query={this.props.query}

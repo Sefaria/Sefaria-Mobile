@@ -108,7 +108,7 @@ class CategoryBlockLink extends React.Component {
               </View>
               {
                 !!subtext ?
-                  <View style={styles.readerNavCategoryInner}>
+                  <View style={styles.readerNavCategorySubtext}>
                     { subtext.map(x => (
                       <Text
                         key={x.en}

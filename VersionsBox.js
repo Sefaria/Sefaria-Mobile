@@ -31,7 +31,6 @@ class VersionsBox extends React.Component {
     segmentRef:               PropTypes.string.isRequired,
     setConnectionsMode:       PropTypes.func.isRequired,
     openFilter:               PropTypes.func.isRequired,
-    loadNewVersion:           PropTypes.func.isRequired,
     openUri:                  PropTypes.func.isRequired,
   };
 

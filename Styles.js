@@ -500,6 +500,12 @@ export default StyleSheet.create({
     alignItems: "center",
     flexGrow: 1,
   },
+  readerNavCategorySubtext: {
+    flexDirection: "column",
+    justifyContent: "center",
+    alignItems: "center",
+    flexGrow: 1,
+  },
   readerNavSectionTitle: {
     fontSize: 13,
     letterSpacing: 1

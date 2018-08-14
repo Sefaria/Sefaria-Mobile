@@ -148,7 +148,6 @@ const reducer = function (state = DEFAULT_STATE, action) {
         overwriteVersions: action.overwrite,
       }
     case REDUX_ACTIONS.setAliyot:
-      console.log("setAliyot", action);
       if (!action.fromAsync) { saveFieldToAsync('showAliyot', action.show); }
       return {
         ...state,
@@ -171,7 +170,6 @@ const initAsyncStorage = function () {
       var loader = function(field, value) {
         const actionValue = value ? JSON.parse(value) : ASYNC_STORAGE_DEFAULTS[field].default;
         store.dispatch(ASYNC_STORAGE_DEFAULTS[field].action(actionValue, true));
-        console.log('init asynce storage promise')
       }.bind(null, field);
       var promise = AsyncStorage.getItem(field)
         .then(loader)

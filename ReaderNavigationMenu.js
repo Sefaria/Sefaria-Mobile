@@ -10,7 +10,6 @@ import {
   Image,
   Platform,
   Linking,
-  BackHandler,
 } from 'react-native';
 
 import {
@@ -36,8 +35,7 @@ class ReaderNavigationMenu extends React.Component {
     interfaceLang:  PropTypes.oneOf(["english","hebrew"]).isRequired,
     setCategories:  PropTypes.func.isRequired,
     openRef:        PropTypes.func.isRequired,
-    closeNav:       PropTypes.func.isRequired,
-    openNav:        PropTypes.func.isRequired,
+    onBack:         PropTypes.func.isRequired,
     openSearch:     PropTypes.func.isRequired,
     setIsNewSearch: PropTypes.func.isRequired,
     openSettings:   PropTypes.func.isRequired,
@@ -57,25 +55,6 @@ class ReaderNavigationMenu extends React.Component {
       showMore: false,
     };
   }
-
-  componentDidMount() {
-    BackHandler.addEventListener('hardwareBackPress', this.handleBackPress);
-  }
-
-  componentWillUnmount() {
-    BackHandler.removeEventListener('hardwareBackPress', this.handleBackPress);
-  }
-
-  handleBackPress = () => {
-    if (this.props.categories.length) {
-      this.navHome()
-    }
-    else {
-      this.props.closeNav();
-    }
-    return true;
-  }
-
 
   showMore = () => {
     this.setState({showMore: true});
@@ -106,7 +85,6 @@ class ReaderNavigationMenu extends React.Component {
                 categories={this.props.categories}
                 category={this.props.categories.slice(-1)[0]}
                 menuLanguage={this.props.menuLanguage}
-                closeNav={this.props.closeNav}
                 setCategories={this.props.setCategories}
                 openRef={this.props.openRef}
                 toggleLanguage={this.props.toggleLanguage}
@@ -166,8 +144,7 @@ class ReaderNavigationMenu extends React.Component {
                 interfaceLang={this.props.interfaceLang}
                 theme={this.props.theme}
                 themeStr={this.props.themeStr}
-                onBack={this.props.openNav}
-                onClose={this.props.closeNav}
+                onBack={this.props.onBack}
                 leftMenuButton="close"
                 search={this.props.openSearch}
                 setIsNewSearch={this.props.setIsNewSearch}
@@ -202,7 +179,7 @@ class ReaderNavigationMenu extends React.Component {
 
                 <View style={styles.readerNavSection}>
                   <Text style={[styles.readerNavSectionTitle, this.props.theme.readerNavSectionTitle, langStyle, {textAlign: "center"}]}>{strings.supportSefaria}</Text>
-                  <TouchableOpacity style={[styles.button, this.props.theme.borderDarker, this.props.theme.mainTextPanel, {flexDirection: isHeb ? "row-reverse" : "row", justifyContent: "center", marginTop: 15}]} 
+                  <TouchableOpacity style={[styles.button, this.props.theme.borderDarker, this.props.theme.mainTextPanel, {flexDirection: isHeb ? "row-reverse" : "row", justifyContent: "center", marginTop: 15}]}
                     onPress={() => {this.props.openUri("https://sefaria.nationbuilder.com/");}}>
                     <Image source={this.props.themeStr == "white" ? require('./img/heart.png'): require('./img/heart-light.png') }
                       style={isHeb ? styles.menuButtonMarginedHe : styles.menuButtonMargined}

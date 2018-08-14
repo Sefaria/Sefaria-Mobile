@@ -32,7 +32,6 @@ class ReaderNavigationCategoryMenu extends React.Component {
     themeStr:       PropTypes.string.isRequired,
     category:       PropTypes.string.isRequired,
     categories:     PropTypes.array.isRequired,
-    closeNav:       PropTypes.func.isRequired,
     setCategories:  PropTypes.func.isRequired,
     openRef:        PropTypes.func.isRequired,
     navHome:        PropTypes.func.isRequired,

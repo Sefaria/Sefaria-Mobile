@@ -51,7 +51,9 @@ class TextRange extends React.PureComponent {
       `${this.props.segmentRef}
       ${Sefaria.refToUrl(this.props.segmentRef)}
 
-      ${this.getDisplayedText()}`)
+      ${this.getDisplayedText()}
+
+      Describe the error:`)
   )
   reportError = () => {
     Linking.openURL(`mailto:corrections@sefaria.org?subject=${encodeURIComponent(`Sefaria Text Correction from ${Platform.OS}`)}&body=${this.reportErrorBody()}`)

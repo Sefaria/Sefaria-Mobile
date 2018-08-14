@@ -27,8 +27,7 @@ class SearchBar extends React.Component {
     interfaceLang:   PropTypes.oneOf(["english", "hebrew"]).isRequired,
     theme:           PropTypes.object.isRequired,
     themeStr:        PropTypes.string.isRequired,
-    onClose:         PropTypes.func,
-    onBack:          PropTypes.func,
+    onBack:          PropTypes.func.isRequired,
     search:          PropTypes.func.isRequired,
     setIsNewSearch:  PropTypes.func.isRequired,
     toggleLanguage:  PropTypes.func,
@@ -67,7 +66,7 @@ class SearchBar extends React.Component {
       <View style={{flexDirection: 'column', flex:0}}>
         <View style={[styles.header, this.props.theme.header]}>
           {this.props.leftMenuButton == "close" ?
-            <CloseButton onPress={this.props.onClose} theme={this.props.theme} themeStr={this.props.themeStr} /> :
+            <CloseButton onPress={this.props.onBack} theme={this.props.theme} themeStr={this.props.themeStr} /> :
             <DirectedButton
               onPress={this.props.onBack}
               themeStr={this.props.themeStr}
