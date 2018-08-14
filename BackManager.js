@@ -1,28 +1,26 @@
 class BackManager {
-  static _backStackObj = {
-    main: [],
-    secondary: [],  // for when there are two back buttons visible (e.g. with commentary)
-  }
 
-  static forward({ state, type="main" }) {
+  static _backStack = [];
+
+  static forward({ state, type = "main" }) {
+    //debugger;
     const stateClone = Sefaria.util.clone(state);
-    if (type === "main") {
-      BackManager._backStackObj.secondary = [];  // poison secondary stack
-    }
-    BackManager._backStackObj[type].push(stateClone);
-    console.log("Length", BackManager._backStackObj[type].length, "Type", type);
+    BackManager._backStack.push({ type, state: stateClone });
   }
 
-  static back({ type } = {}) {
-    // type is not required. in case it's not passed, choose appropriate stack with preference for the secondary stack
-    if (!type) {
-      type = !!BackManager._backStackObj.secondary.length ? "secondary" : "main";
+  static back({ type } = { }) {
+    let oldStateObj = BackManager._backStack.pop();
+    if (type === "main") {
+      while (oldStateObj.type !== "main") {
+        oldStateObj = BackManager._backStack.pop();
+      }
     }
-    return BackManager._backStackObj[type].pop();
+    if (!oldStateObj) { return oldStateObj; }
+    return oldStateObj.state;
   }
 
   static getStack({ type }) {
-    return BackManager._backStackObj[type];
+    return BackManager._backStack.filter( s => s.type === type );
   }
 }
 

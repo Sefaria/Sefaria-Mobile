@@ -9,6 +9,7 @@ import Search from './search';
 import LinkContent from './LinkContent';
 import { initAsyncStorage } from './ReduxStore';
 import { Filter } from './Filter';
+import FilterNode from './FilterNode';
 import URL from 'url-parse';
 
 
@@ -1218,8 +1219,13 @@ Sefaria.util = {
       return copy;
     }
 
-    // Handle VersionFilter
+    // Handle Filter
     if (obj instanceof Filter) {
+      return obj.clone();
+    }
+
+    // Handle FilterNode
+    if (obj instanceof FilterNode) {
       return obj.clone();
     }
 

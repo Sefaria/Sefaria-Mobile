@@ -35,8 +35,7 @@ class ReaderNavigationMenu extends React.Component {
     interfaceLang:  PropTypes.oneOf(["english","hebrew"]).isRequired,
     setCategories:  PropTypes.func.isRequired,
     openRef:        PropTypes.func.isRequired,
-    closeNav:       PropTypes.func.isRequired,
-    openNav:        PropTypes.func.isRequired,
+    onBack:         PropTypes.func.isRequired,
     openSearch:     PropTypes.func.isRequired,
     setIsNewSearch: PropTypes.func.isRequired,
     openSettings:   PropTypes.func.isRequired,
@@ -86,7 +85,6 @@ class ReaderNavigationMenu extends React.Component {
                 categories={this.props.categories}
                 category={this.props.categories.slice(-1)[0]}
                 menuLanguage={this.props.menuLanguage}
-                closeNav={this.props.closeNav}
                 setCategories={this.props.setCategories}
                 openRef={this.props.openRef}
                 toggleLanguage={this.props.toggleLanguage}
@@ -146,8 +144,7 @@ class ReaderNavigationMenu extends React.Component {
                 interfaceLang={this.props.interfaceLang}
                 theme={this.props.theme}
                 themeStr={this.props.themeStr}
-                onBack={this.props.openNav}
-                onClose={this.props.closeNav}
+                onBack={this.props.onBack}
                 leftMenuButton="close"
                 search={this.props.openSearch}
                 setIsNewSearch={this.props.setIsNewSearch}

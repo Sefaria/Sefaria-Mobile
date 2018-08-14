@@ -376,7 +376,7 @@ class ReaderApp extends React.Component {
     isLoadingVersion - true when you are replacing an already loaded text with a specific version (not currently used)
     overwriteVersions - false when you want to switch versions but not overwrite sticky version (e.g. search)
   */
-  loadNewText = ({ ref, versions, isLoadingVersion: false, overwriteVersions: true }) => {
+  loadNewText = ({ ref, versions, isLoadingVersion = false, overwriteVersions = true }) => {
       if (!this.state.hasInternet) {
         overwriteVersions = false;
         versions = undefined; // change to default version in case they have offline library they'll still be able to read
@@ -642,8 +642,6 @@ class ReaderApp extends React.Component {
     switch (calledFrom) {
       case "search":
         Sefaria.track.event("Search","Search Result Text Click",this.state.searchQuery + ' - ' + ref);
-        //this.state.backStack=["SEARCH:"+this.state.searchQuery];
-        //this.addBackItem("search", this.searchBackFunc.bind(this, {query: this.state.searchQuery}));
         break;
       case "navigation":
         Sefaria.track.event("Reader","Navigation Text Click", ref);
@@ -652,14 +650,13 @@ class ReaderApp extends React.Component {
         break;
       case "text list":
         Sefaria.track.event("Reader","Click Text from TextList",ref);
-        //this.state.backStack.push(this.state.segmentRef);
-        //this.addBackItem("text column", this.textColumnBackFunc.bind(this, {ref: this.state.segmentRef, versions: this.state.selectedVersions}));
         break;
       default:
         break;
     }
 
     if (addToBackStack) {
+      console.log("openRef")
       BackManager.forward({ state: this.state });
     }
 
@@ -671,22 +668,6 @@ class ReaderApp extends React.Component {
         this.closeMenu(); // Don't close until these values are in state, so we know if we need to load defualt text
     }.bind(this));
     this.loadNewText({ ref, versions, overwriteVersions });
-
-  };
-
-  addBackItem = (page, stateFunc) => {
-    //page - this.state.menuOpen
-    //stateFunc - func required to rebuild previous state
-    this.state.backStack.push({page, stateFunc});
-  };
-
-  searchBackFunc = state => {
-    this.onQueryChange(state.query,true,true);
-    this.openSearch();
-  };
-
-  textColumnBackFunc = state => {
-    this.openRef(state.ref, null, state.versions);
   };
 
   openMenu = (menu) => {
@@ -698,6 +679,7 @@ class ReaderApp extends React.Component {
   };
 
   openSubMenu = (subMenu) => {
+    BackManager.forward({ state: this.state });
     this.setState({subMenuOpen: subMenu});
   };
 
@@ -761,11 +743,12 @@ class ReaderApp extends React.Component {
   };
 
   setNavigationCategories = (categories) => {
-      this.setState({navigationCategories: categories});
+    BackManager.forward({ state: this.state });
+    this.setState({navigationCategories: categories});
   };
 
   setInitSearchScrollPos = (pos) => {
-      this.setState({initSearchScrollPos: pos});
+    this.setState({initSearchScrollPos: pos});
   };
 
   openTextTocDirectly = (title) => {
@@ -786,9 +769,7 @@ class ReaderApp extends React.Component {
   };
 
   openAutocomplete = () => {
-    const stateFunc = this.state.menuOpen === "search" ? this.searchBackFunc.bind(this, {query: this.state.searchQuery}) : this.openNav;
     this.openMenu("autocomplete");
-    this.addBackItem("autocomplete", stateFunc);
   }
 
   clearMenuState = () => {
@@ -1204,9 +1185,7 @@ class ReaderApp extends React.Component {
               setCategories={this.setNavigationCategories}
               openRef={(ref, versions)=>this.openRef(ref,"navigation", versions)}
               openAutocomplete={this.openAutocomplete}
-              goBack={this.goBack}
-              openNav={this.openNav}
-              closeNav={this.closeMenu}
+              onBack={this.manageBackMain}
               openSearch={this.search}
               setIsNewSearch={this.setIsNewSearch}
               toggleLanguage={this.toggleMenuLanguage}
@@ -1233,7 +1212,7 @@ class ReaderApp extends React.Component {
             textLang={this.props.textLanguage == "hebrew" ? "hebrew" : "english"}
             contentLang={this.props.menuLanguage}
             interfaceLang={this.state.interfaceLang}
-            close={this.closeMenu}
+            close={this.manageBackMain}
             openRef={(ref)=>this.openRef(ref,"text toc")}
             toggleLanguage={this.toggleMenuLanguage}
             openUri={this.openUri}/>);
@@ -1248,8 +1227,7 @@ class ReaderApp extends React.Component {
             subMenuOpen={this.state.subMenuOpen}
             openSubMenu={this.openSubMenu}
             hasInternet={this.state.hasInternet}
-            openNav={this.openNav}
-            closeNav={this.closeMenu}
+            onBack={this.manageBackMain}
             search={this.onQueryChange}
             openRef={(ref)=> this.openRef(ref,"search")}
             setLoadTail={this.setLoadQueryTail}
@@ -1281,7 +1259,7 @@ class ReaderApp extends React.Component {
             interfaceLang={this.state.interfaceLang}
             theme={this.props.theme}
             themeStr={this.props.themeStr}
-            goBack={this.goBack}
+            onBack={this.manageBackMain}
             search={this.search}
             setIsNewSearch={this.setIsNewSearch}
             onChange={this.onChangeSearchQuery}
@@ -1338,7 +1316,7 @@ class ReaderApp extends React.Component {
       case ("webview"):
         return (
           <WebViewPage
-            close={this.closeMenu}
+            close={this.manageBackMain}
             theme={this.props.theme}
             themeStr={this.props.themeStr}
             uri={this.state.currUri}
