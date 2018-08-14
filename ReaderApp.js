@@ -678,9 +678,13 @@ class ReaderApp extends React.Component {
     this.setState({menuOpen: menu});
   };
 
-  openSubMenu = (subMenu) => {
-    BackManager.forward({ state: this.state });
-    this.setState({subMenuOpen: subMenu});
+  openSubMenu = (subMenu, isBack) => {
+    if (isBack) {
+      this.manageBackMain();
+    } else {
+      BackManager.forward({ state: this.state });
+      this.setState({subMenuOpen: subMenu});
+    }
   };
 
   closeMenu = () => {

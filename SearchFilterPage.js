@@ -61,11 +61,7 @@ class SearchFilterPage extends React.Component {
 
   backFromFilter = () => {
     let backPage = this.props.subMenuOpen == "filter" ? null : "filter"; // if you're at a category filter page, go back to main filter page
-    this.props.openSubMenu(backPage);
-    if (backPage == null) {
-      //TODO consider only firing new query if you actually touched a button on the filter page
-      this.props.search(this.props.query, true, false);
-    }
+    this.props.openSubMenu(backPage, true);
   };
 
   applyFilters = () => {
