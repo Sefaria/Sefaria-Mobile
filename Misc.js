@@ -608,7 +608,6 @@ class RainbowBar extends React.Component {
       return (
         <View style={{backgroundColor: Sefaria.palette.colors[color], height: 12, flexGrow: 1}} />);
     });
-    console.log(bars);
     return (
       <View style={styles.rainbowBar} >
         {bars}

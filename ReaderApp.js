@@ -1486,7 +1486,9 @@ class ReaderApp extends React.Component {
             }
             { this.renderContent() }
         </View>
-        <InterruptingMessage />
+        <InterruptingMessage 
+          interfaceLang={this.state.interfaceLang}
+          openWebViewPage={this.openWebViewPage} />
         <Toast ref="toast"/>
       </SafeAreaView>
     );
