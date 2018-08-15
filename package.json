@@ -11,7 +11,6 @@
     "abortcontroller-polyfill": "^1.1.9",
     "babel-preset-react-native": "^5.0.0",
     "eslint": "^4.19.1",
-    "fs-extra": "^3.0.1",
     "inquirer": "^3.2.0",
     "link": "^0.1.5",
     "performance-now": "^2.1.0",
@@ -24,7 +23,7 @@
     "react-native-fs": "^2.11.15",
     "react-native-gesture-responder": "^0.1.1",
     "react-native-google-analytics-bridge": "^5.8.0",
-    "react-native-htmlview": "^0.12.1",
+    "react-native-htmlview": "^0.13.0",
     "react-native-localization": "^0.2.3",
     "react-native-safari-view": "^2.1.0",
     "react-native-version-number": "^0.3.4",
@@ -32,7 +31,7 @@
     "react-redux": "^5.0.7",
     "redux": "^3.7.2",
     "simple-plist": "^0.2.1",
-    "url-parse": "^1.4.1"
+    "url-parse": "^1.4.3"
   },
   "devDependencies": {}
 }
