@@ -148,7 +148,7 @@ Sefaria = {
             .then(exists => {
               if (exists) {
                 Sefaria._unzip(zipPath)
-                  .then(() => {
+                  .then(path => {
                     Sefaria._loadJSON(jsonPath)
                       .then(preResolve)
                       .catch(() => {
@@ -644,8 +644,11 @@ Sefaria = {
 
   },
   _loadHistoryItems: function() {
-    return AsyncStorage.getItem("recent").then(function(data) {
-      Sefaria.history = JSON.parse(data) || [];
+    return new Promise((resolve, reject) => {
+      AsyncStorage.getItem("recent").then(data => {
+        Sefaria.history = JSON.parse(data) || [];
+        resolve();
+      });
     });
   },
   saved: [],
@@ -715,8 +718,17 @@ Sefaria = {
     return ZipArchive.unzip(zipSourcePath, RNFS.DocumentDirectoryPath);
   },
   _loadJSON: function(JSONSourcePath) {
-    JSONSourcePath = Platform.OS == "ios" ? JSONSourcePath : "file:///" + JSONSourcePath;
-    return fetch(JSONSourcePath).then((response) => response.json());
+    if (Platform.OS === 'ios') {
+      return fetch(JSONSourcePath).then(result => result.json());
+    } else {
+      return new Promise((resolve, reject) => {
+        RNFS.readFile(JSONSourcePath).then(result => {
+          resolve(JSON.parse(result));
+        }).catch(e => {
+          reject(e);
+        });
+      });
+    }
   },
   _downloadZip: function(title) {
     var toFile = RNFS.DocumentDirectoryPath + "/" + title + ".zip";
@@ -1178,8 +1190,7 @@ Sefaria.util = {
             }
             else if (Platform.OS == "android") {
               RNFS.readFileAssets(`sources/${filename}`).then(data => {
-                const yo = JSON.parse(data);
-                resolve(yo);
+                resolve(JSON.parse(data));
               });
             }
           }
