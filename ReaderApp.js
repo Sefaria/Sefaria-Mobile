@@ -69,7 +69,9 @@ class ReaderApp extends React.Component {
         const mostRecent =  Sefaria.history.length ? Sefaria.history[0] : {ref: "Genesis 1"};
         console.log(mostRecent, 'yoyoo')
         this.openRef(mostRecent.ref, null, mostRecent.versions, false);  // first call to openRef should not add to backStack
-        Sefaria.postInit();
+        Sefaria.postInit().then(() => {
+          Sefaria.downloader.promptLibraryDownload();
+        });
     });
     Sefaria.track.init();
     NetInfo.isConnected.addEventListener(
@@ -140,7 +142,6 @@ class ReaderApp extends React.Component {
         Sefaria.downloader.resumeDownload();
       }
     });
-    Sefaria.downloader.promptLibraryDownload();
     Sefaria.downloader.onChange = this.onDownloaderChange;
     Sefaria._deleteUnzippedFiles().then(function() {
 

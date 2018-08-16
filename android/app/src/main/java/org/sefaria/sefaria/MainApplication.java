@@ -1,4 +1,4 @@
-package com.readerapp;
+package org.sefaria.sefaria;
 
 import android.app.Application;
 

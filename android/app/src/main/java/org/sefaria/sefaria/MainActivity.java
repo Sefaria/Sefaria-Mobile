@@ -1,4 +1,4 @@
-package com.readerapp;
+package org.sefaria.sefaria;
 
 import com.facebook.react.ReactActivity;
 
