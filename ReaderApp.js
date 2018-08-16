@@ -20,6 +20,7 @@ import { createResponder } from 'react-native-gesture-responder';
 import SafariView from "react-native-safari-view";
 import { CustomTabs } from 'react-native-custom-tabs';
 import { AppInstalledChecker } from 'react-native-check-app-install';
+import SplashScreen from 'react-native-splash-screen';
 
 import { ACTION_CREATORS } from './ReduxStore';
 import ReaderControls from './ReaderControls';
@@ -62,6 +63,7 @@ class ReaderApp extends React.Component {
   constructor(props, context) {
     super(props, context);
     Sefaria.init().then(() => {
+        SplashScreen.hide();
         this.setState({
           loaded: true,
           defaultSettingsLoaded: true,
