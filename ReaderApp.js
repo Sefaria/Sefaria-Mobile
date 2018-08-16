@@ -1279,14 +1279,14 @@ class ReaderApp extends React.Component {
         return(
           <SettingsPage
             {...this.props}
-            close={this.openNav}
+            close={this.manageBackMain}
             interfaceLang={this.state.interfaceLang}
           />);
         break;
       case ("history"):
         return(
           <SwipeableCategoryList
-            close={this.openNav}
+            close={this.manageBackMain}
             theme={this.props.theme}
             themeStr={this.props.themeStr}
             toggleLanguage={this.toggleMenuLanguage}
@@ -1304,7 +1304,7 @@ class ReaderApp extends React.Component {
       case ("saved"):
         return(
           <SwipeableCategoryList
-            close={this.openNav}
+            close={this.manageBackMain}
             theme={this.props.theme}
             themeStr={this.props.themeStr}
             toggleLanguage={this.toggleMenuLanguage}
