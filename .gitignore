@@ -57,3 +57,4 @@ buck-out/
 *.pyc
 local_settings.py
 android/kstore.jks
+android/keystore_pass.sh

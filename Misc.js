@@ -292,7 +292,7 @@ class LibraryNavButton extends React.Component {
             <Text style={[styles.hebrewText].concat([theme.tertiaryText, textStyle, {paddingTop:13}, textMargin])}>
               {`${heText} `}
               {
-                !!count ? <Text style={[styles.englishText].concat([theme.secondaryText, textStyle])}>{`(${count})`}</Text> : null
+                !!count ? <Text style={[styles.hebrewText].concat([theme.secondaryText, textStyle])}>{`(${count})`}</Text> : null
               }
             </Text>
           }

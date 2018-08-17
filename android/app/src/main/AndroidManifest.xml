@@ -1,26 +1,43 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.readerapp">
+    xmlns:tools="http://schemas.android.com/tools"
+    package="org.sefaria.sefaria">
 
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" tools:node="remove" />
+
 
     <application
       android:name=".MainApplication"
       android:label="@string/app_name"
       android:icon="@mipmap/ic_launcher"
-      android:allowBackup="false"
+      android:allowBackup="true"
+      android:hardwareAccelerated="true"
       android:theme="@style/AppTheme">
+
+      <uses-library android:name="com.sec.android.app.multiwindow" android:required="false" />
+      <meta-data android:name="com.sec.android.support.multiwindow" android:value="true" />
+        
+      <activity
+          android:name=".SplashActivity"
+          android:theme="@style/SplashTheme"
+          android:label="@string/app_name">
+          <intent-filter>
+              <action android:name="android.intent.action.MAIN" />
+              <category android:name="android.intent.category.LAUNCHER" />
+              <category android:name="android.intent.category.MULTIWINDOW_LAUNCHER" />
+          </intent-filter>
+      </activity>
+
       <activity
         android:name=".MainActivity"
         android:label="@string/app_name"
         android:configChanges="keyboard|keyboardHidden|orientation|screenSize"
-        android:windowSoftInputMode="adjustResize">
-        <intent-filter>
-            <action android:name="android.intent.action.MAIN" />
-            <category android:name="android.intent.category.LAUNCHER" />
-        </intent-filter>
-      </activity>
+        android:windowSoftInputMode="adjustResize"
+        android:exported="true"
+      />
+
       <activity android:name="com.facebook.react.devsupport.DevSettingsActivity" />
+      
     </application>
 
 </manifest>
