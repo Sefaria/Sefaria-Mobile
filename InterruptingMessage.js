@@ -17,13 +17,16 @@ import bstyles from './Styles';
 
 
 var styles = StyleSheet.create({
-  interruptingMessageContainer: {
-
-  },
   interruptingMessageBox: {
     paddingVertical: 20,
     paddingHorizontal: 30,
-    maxWidth: 420,
+    maxWidth: 520,
+    backgroundColor: "white",
+  },
+  interruptingMessageCloseBox: {
+    flex: 0, 
+    alignItems: "flex-end", 
+    height: 26
   },
   interruptingMessageClose: {
     width: 26,
@@ -52,14 +55,18 @@ var styles = StyleSheet.create({
 
 
 // Example JSON below
+//const EN_URL = "https://www.sefaria.org/static/mobile/message-en.json";
+//const HE_URL = "https://www.sefaria.org/static/mobile/message-he.json";
+
 const EN_URL = "file:///Users/blocks-mini/Desktop/test.json";
-const HE_URL = "file://does/not/exist";
+//const EN_URL = "file:///Users/blocks-mini/Desktop/null.json";
 
 class InterruptingMessage extends Component {
   constructor(props, context) {
     super(props, context);
     this.state = {
       modalVisible: false,
+      data: null
     };
     this.checkForMessage();
   }
@@ -71,7 +78,8 @@ class InterruptingMessage extends Component {
 
     const component = this;
     const showModal = function(data) {
-      component.data = data;
+      console.log(data);
+      component.setState({data: data});
       component.showTimeout = setTimeout(() => {
         component.setModalVisible(true);
       }, 1000);
@@ -79,72 +87,96 @@ class InterruptingMessage extends Component {
 
     fetch(URL)
       .then(result=>result.json())
+      //.then(this.clearFlag) // Debug
+      .then(this.hasMessageShown)
       .then(data=> {
-        if (data) { showModal(data); }
+        if (data && !data.hasShown) { showModal(data); }
       })
-      .catch(error=>{
-        console.log("Interrupting Message fetch error:");
-        console.log(error);
-      });
+      .catch(error=>{});
   }
   
   hasMessageShown(data) {
+    return new Promise((resolve, reject) => {
+      if (!data) { reject(); }
+      const flagName = "IntMess:" + data.name;
+      AsyncStorage.getItem(flagName).then(value => {
+        console.log("message has show:", JSON.parse(value));
+        data.hasShown = !!value;        
+        resolve(data);
+      });
+    });
+  }
 
+  clearFlag(data) {
+    // for Debug
+    if (!data) { return new Promise((resolve, reject)=>{resolve(data);}) }
+    const flagName = "IntMess:" + data.name;
+    return new Promise((resolve, reject) => {
+      AsyncStorage.removeItem(flagName).then(value => {    
+        resolve(data);
+      });
+    });  
   }
 
   setModalVisible(visible) {
     this.setState({modalVisible: visible});
   }
 
-  afterClose() {
-    AsyncStorage.setItem(this.data.name+this.data.repetition, 1)
+  close() {
+    const flagName = "IntMess:" + this.state.data.name;
+    console.log("close")
+    AsyncStorage.setItem(flagName, "1")
       .catch(function(error) {
         console.error("AsyncStorage failed to save: " + error);
       });
+    this.setModalVisible(false);
   }
 
   openLink(url) {
-    this.setModalVisible(false);
-    this.props.openWebViewPage(this.data.buttonLink);
-    this.afterClose();
+    this.props.openWebViewPage(this.state.data.buttonLink);
+    this.close();
   }
 
   render() {
-    if (!this.data) { return null; }
-    var textContent = this.data.text.map(text=>(
-      <Text style={styles.interruptingMessageText}>{text}</Text>
+    if (!this.state.data) { return null; }
+    const data = this.state.data;
+    const textContent = data.text.map((text, i)=>(
+      <Text style={styles.interruptingMessageText} key={i}>{text}</Text>
     ));
     return (
       <View >
         <Modal
           animationType="slide"
           transparent={false}
-          visible={this.state.modalVisible}
-          onRequestClose={this.afterClose}>
+          visible={this.state.modalVisible}>
+          
+          <SafeAreaView style={bstyles.safeArea}>
           <RainbowBar />
-          <View style={styles.interruptingMessageContainer}>
+          <View style={bstyles.centeringBox}>
             <View style={styles.interruptingMessageBox}>
-                <View style={{flex: 1, alignItems: "flex-end", height: 26}}>
+                <View style={styles.interruptingMessageCloseBox}>
                   <TouchableHighlight
-                    onPress={()=>{this.setModalVisible(false);}}>
+                    onPress={()=>{this.close();}}>
                     <Image source={require("./img/circle-close.png")}
                       resizeMode={'contain'}
                       style={styles.interruptingMessageClose} />
                   </TouchableHighlight>
                 </View>
-              <Text style={styles.interruptingMessageTitle}>{this.data.title}</Text>
+
+              <Text style={styles.interruptingMessageTitle}>{data.title}</Text>
               
               {textContent}
 
               <View style={bstyles.centeringBox}>
               <View style={[bstyles.blueButton, {marginTop: 12}]}>
-                <TouchableHighlight onPress={()=>{this.openLink(this.data.buttonLink)}}>
-                  <Text style={bstyles.blueButtonText}>{this.data.buttonText}</Text>
+                <TouchableHighlight onPress={()=>{this.openLink(data.buttonLink)}}>
+                  <Text style={bstyles.blueButtonText}>{data.buttonText}</Text>
                 </TouchableHighlight>
               </View>
               </View>
             </View>
           </View>
+          </SafeAreaView>
         </Modal>
 
       </View>
@@ -158,7 +190,7 @@ export default InterruptingMessage;
 /*
 Example JSON 
 - text is an array of strings treated as paragraphs
-- name & repetition together determine if a message has already been shown
+- name determines the flag to check if a message has already been shown. Updating name will case message to show again.
 {
   "title": "Support Sefaria",
   "text": [
@@ -168,7 +200,6 @@ Example JSON
   "buttonLink": "https://sefaria.nationbuilder.com",
   "buttonText": "Make a Donation",
   "name": "holidayDonation-2018",
-  "repetition": 1
 }
 
 
