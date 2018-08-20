@@ -53,13 +53,15 @@ var styles = StyleSheet.create({
   },
 });
 
+// Updates when JSON structure changes
+const SCHEMA_VERSION = 1;
 
 // Example JSON below
-//const EN_URL = "https://www.sefaria.org/static/mobile/message-en.json";
-//const HE_URL = "https://www.sefaria.org/static/mobile/message-he.json";
+const EN_URL = "https://www.sefaria.org/static/mobile/message-en.json";
+const HE_URL = "https://www.sefaria.org/static/mobile/message-he.json";
 
-const EN_URL = "file:///Users/blocks-mini/Desktop/test.json";
-//const EN_URL = "file:///Users/blocks-mini/Desktop/null.json";
+//const EN_URL = "file:///Users/blocks-mini/dev/Sefaria-Project/static/mobile/message-en.json";
+//const HE_URL = "file:///Users/blocks-mini/dev/Sefaria-Project/static/mobile/message-he.json";
 
 class InterruptingMessage extends Component {
   constructor(props, context) {
@@ -78,7 +80,6 @@ class InterruptingMessage extends Component {
 
     const component = this;
     const showModal = function(data) {
-      console.log(data);
       component.setState({data: data});
       component.showTimeout = setTimeout(() => {
         component.setModalVisible(true);
@@ -90,14 +91,19 @@ class InterruptingMessage extends Component {
       //.then(this.clearFlag) // Debug
       .then(this.hasMessageShown)
       .then(data=> {
-        if (data && !data.hasShown) { showModal(data); }
+        console.log("intmess data:", data);
+        if (data && !data.hasShown && data.schemaVersion == SCHEMA_VERSION) { 
+          showModal(data); 
+        }
       })
-      .catch(error=>{});
+      .catch(error=>{
+        console.log(error)
+      });
   }
   
   hasMessageShown(data) {
     return new Promise((resolve, reject) => {
-      if (!data) { reject(); }
+      if (!data) { resolve(null); }
       const flagName = "IntMess:" + data.name;
       AsyncStorage.getItem(flagName).then(value => {
         console.log("message has show:", JSON.parse(value));
@@ -200,6 +206,7 @@ Example JSON
   "buttonLink": "https://sefaria.nationbuilder.com",
   "buttonText": "Make a Donation",
   "name": "holidayDonation-2018",
+  "schemaVersion": 1,
 }
 
 
