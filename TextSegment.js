@@ -76,13 +76,19 @@ class TextSegment extends React.PureComponent {
              key={this.state.resetKey}
              value= {this.props.textType == "hebrew" ? "<hediv>"+data+"</hediv>" : "<endiv>"+data+"</endiv>"}
              stylesheet={{...styles, ...smallSheet}}
+             rootComponentProps={{
+                 hitSlop: {top: 10, bottom: 10, left: 10, right: 10},  // increase hit area of segments
+                 onPress:this.onPressTextSegment,
+                 onLongPress:this.props.onLongPress,
+               }
+             }
+             RootComponent={TouchableOpacity}
              textComponentProps={
                {
                  suppressHighlighting: false,
-                 onPress:this.onPressTextSegment,
-                 onLongPress:this.props.onLongPress,
                  key:this.props.segmentKey,
                  style: style,
+
                }
              }
            />
