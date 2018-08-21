@@ -70,10 +70,9 @@ class ReaderApp extends React.Component {
         });
         const mostRecent =  Sefaria.history.length ? Sefaria.history[0] : {ref: "Genesis 1"};
         console.log(mostRecent, 'yoyoo')
-        this.openRef(mostRecent.ref, null, mostRecent.versions, false);  // first call to openRef should not add to backStack
-        Sefaria.postInit().then(() => {
-          Sefaria.downloader.promptLibraryDownload();
-        });
+        this.openRef(mostRecent.ref, null, mostRecent.versions, false)  // first call to openRef should not add to backStack
+        .then(Sefaria.postInit)
+        .then(Sefaria.downloader.promptLibraryDownload);
     });
     Sefaria.track.init();
     NetInfo.isConnected.addEventListener(
@@ -406,52 +405,55 @@ class ReaderApp extends React.Component {
         ref = ref.split("-")[0];
       }
       // if loadVersion, replace versions here
-      Sefaria.data(ref, true, versions).then(function(data) {
-          let nextState = {
-            data:              [data.content],
-            textTitle:         data.indexTitle,
-            next:              data.next,
-            prev:              data.prev,
-            heTitle:           data.heTitle,
-            heRef:             data.heSectionRef || data.heRef,
-            sectionArray:      [data.sectionRef],
-            sectionHeArray:    [data.heSectionRef || data.heRef], // backwards compatible because offline files are missing `heSectionRef`. we specifically want heSectionRef in case you load a segment ref with context
-            loaded:            true,
-            offsetRef:         !data.isSectionLevel ? data.requestedRef : null,
-          };
-          if (!isLoadingVersion) {
-            // also overwrite sidebar state
-            nextState = {
-              ...nextState,
-              linksLoaded:       [false],
-              connectionsMode:   null, //Reset link state
-              filterIndex:       null,
-              linkRecentFilters: [],
-              versionFilterIndex: null,
-              versionRecentFilters: [],
-              linkSummary:       [],
-              linkContents:      [],
-              loadingLinks:      false,
-              textListVisible:   false,
+      return new Promise((resolve, reject) => {
+        Sefaria.data(ref, true, versions).then(data => {
+            let nextState = {
+              data:              [data.content],
+              textTitle:         data.indexTitle,
+              next:              data.next,
+              prev:              data.prev,
+              heTitle:           data.heTitle,
+              heRef:             data.heSectionRef || data.heRef,
+              sectionArray:      [data.sectionRef],
+              sectionHeArray:    [data.heSectionRef || data.heRef], // backwards compatible because offline files are missing `heSectionRef`. we specifically want heSectionRef in case you load a segment ref with context
+              loaded:            true,
+              offsetRef:         !data.isSectionLevel ? data.requestedRef : null,
             };
-            Sefaria.links.reset();
+            if (!isLoadingVersion) {
+              // also overwrite sidebar state
+              nextState = {
+                ...nextState,
+                linksLoaded:       [false],
+                connectionsMode:   null, //Reset link state
+                filterIndex:       null,
+                linkRecentFilters: [],
+                versionFilterIndex: null,
+                versionRecentFilters: [],
+                linkSummary:       [],
+                linkContents:      [],
+                loadingLinks:      false,
+                textListVisible:   false,
+              };
+              Sefaria.links.reset();
+            }
+            this.setState(nextState, ()=>{
+              this.loadSecondaryData(data.sectionRef);
+            });
+
+            // Preload Text TOC data into memory
+            this.loadTextTocData(data.indexTitle, data.sectionRef);
+            Sefaria.saveHistoryItem({ref: ref, heRef: data.heRef, category: Sefaria.categoryForRef(ref), versions: this.state.selectedVersions}, this.props.overwriteVersions);
+            resolve();
+        }).catch(error => {
+          console.log(error);
+          if (error == "Return to Nav") {
+            this.openNav();
+            return;
           }
-          this.setState(nextState, ()=>{
-            this.loadSecondaryData(data.sectionRef);
-          });
-
-          // Preload Text TOC data into memory
-          this.loadTextTocData(data.indexTitle, data.sectionRef);
-          Sefaria.saveHistoryItem({ref: ref, heRef: data.heRef, category: Sefaria.categoryForRef(ref), versions: this.state.selectedVersions}, this.props.overwriteVersions);
-      }.bind(this)).catch(function(error) {
-        console.log(error);
-        if (error == "Return to Nav") {
-          this.openNav();
-          return;
-        }
-        console.error('Error caught from ReaderApp.loadNewText', error);
-      }.bind(this));
-
+          console.error('Error caught from ReaderApp.loadNewText', error);
+          reject();
+        });
+      });
   };
 
   loadTextTocData = (title, sectionRef) => {
@@ -621,55 +623,58 @@ class ReaderApp extends React.Component {
   prevScrollPos parameter used for back button
   */
   openRef = (ref, calledFrom, versions, addToBackStack=true) => {
-    const title = Sefaria.textTitleForRef(ref);
-    const overwriteVersions = calledFrom !== 'search'; // if called from search, use version specified by search (or default if none specified)
-    if (!title) {
-      Alert.alert(
-        strings.textUnavailable,
-        strings.promptOpenOnWebMessage,
-        [
-          {text: strings.cancel, style: 'cancel'},
-          {text: strings.open, onPress: () => {
-            this.openUri(Sefaria.refToUrl(ref));
-          }}
-        ]);
-      return;
-    }
-    if (!versions && overwriteVersions) {
-      //pull up default versions
-      const historyItem = Sefaria.getHistoryRefForTitle(title);
-      if (!!historyItem) { versions = historyItem.versions; }
-    }
+    return new Promise((resolve, reject) => {
+      const title = Sefaria.textTitleForRef(ref);
+      const overwriteVersions = calledFrom !== 'search'; // if called from search, use version specified by search (or default if none specified)
+      if (!title) {
+        Alert.alert(
+          strings.textUnavailable,
+          strings.promptOpenOnWebMessage,
+          [
+            {text: strings.cancel, style: 'cancel'},
+            {text: strings.open, onPress: () => {
+              this.openUri(Sefaria.refToUrl(ref));
+            }}
+          ]);
+        resolve();
+        return;
+      }
+      if (!versions && overwriteVersions) {
+        //pull up default versions
+        const historyItem = Sefaria.getHistoryRefForTitle(title);
+        if (!!historyItem) { versions = historyItem.versions; }
+      }
 
 
-    switch (calledFrom) {
-      case "search":
-        Sefaria.track.event("Search","Search Result Text Click",this.state.searchQuery + ' - ' + ref);
-        break;
-      case "navigation":
-        Sefaria.track.event("Reader","Navigation Text Click", ref);
-        break;
-      case "text toc":
-        break;
-      case "text list":
-        Sefaria.track.event("Reader","Click Text from TextList",ref);
-        break;
-      default:
-        break;
-    }
+      switch (calledFrom) {
+        case "search":
+          Sefaria.track.event("Search","Search Result Text Click",this.state.searchQuery + ' - ' + ref);
+          break;
+        case "navigation":
+          Sefaria.track.event("Reader","Navigation Text Click", ref);
+          break;
+        case "text toc":
+          break;
+        case "text list":
+          Sefaria.track.event("Reader","Click Text from TextList",ref);
+          break;
+        default:
+          break;
+      }
 
-    if (addToBackStack) {
-      BackManager.forward({ state: this.state, calledFrom });
-    }
+      if (addToBackStack) {
+        BackManager.forward({ state: this.state, calledFrom });
+      }
 
-    this.setState({
-      loaded: false,
-      textListVisible: false,
-      textReference: ref
-    }, function() {
-        this.closeMenu(); // Don't close until these values are in state, so we know if we need to load defualt text
-    }.bind(this));
-    this.loadNewText({ ref, versions, overwriteVersions });
+      this.setState({
+        loaded: false,
+        textListVisible: false,
+        textReference: ref
+      }, () => {
+          this.closeMenu(); // Don't close until these values are in state, so we know if we need to load defualt text
+          this.loadNewText({ ref, versions, overwriteVersions }).then(resolve);
+      });
+    })
   };
 
   openMenu = (menu) => {
