@@ -5,6 +5,8 @@ import {
 } from 'react-native';
 
 import iPad from './isIPad';
+const isIOS = Platform.OS === 'ios';
+const isAndroid = Platform.OS === 'android';
 const readerSideMargin = 42;
 const readerSideMarginIpad = 60;
 
@@ -92,7 +94,7 @@ export default StyleSheet.create({
   readerDisplayOptionsMenuItem: {
     flex: 1,
     flexDirection: "row",
-    height:50,
+    height: 50,
     borderWidth: 1,
     justifyContent: "center",
     alignItems: "center"
@@ -100,18 +102,14 @@ export default StyleSheet.create({
   readerDisplayOptionsMenuItemLeft: {
     borderTopLeftRadius: 5,
     borderBottomLeftRadius: 5,
-    borderRightWidth: 0,
   },
   readerDisplayOptionsMenuItemCenter: {
-    borderRightWidth: 0,
     borderLeftWidth: 0,
-    marginLeft: 1
   },
   readerDisplayOptionsMenuItemRight: {
     borderTopRightRadius: 5,
     borderBottomRightRadius: 5,
     borderLeftWidth: 0,
-    marginLeft: 1
   },
   readerDisplayOptionsMenuColor: {
     flex: 1,
@@ -271,7 +269,7 @@ export default StyleSheet.create({
     width: 12,
     height: 12,
     paddingLeft: 20,
-    marginTop: Platform.OS == "android" ? 18 : 8
+    marginTop: 8,
   },
   collapseArrowHe: {
     width: 12,
@@ -307,7 +305,8 @@ export default StyleSheet.create({
     fontSize: 16,
     fontStyle: "normal",
     fontFamily: "Amiri",
-    paddingTop: 3,
+    paddingTop: 4,
+    paddingBottom: 4,
     paddingRight: 20,
     backgroundColor: "transparent"
   },
@@ -471,14 +470,14 @@ export default StyleSheet.create({
     color: "black",
     backgroundColor: "transparent",
     fontSize: 15,
-    marginTop: Platform.OS == "android" ? -4 : 2,
+    marginTop: isAndroid ? -4 : 2,
     marginLeft: 1,
   },
   languageToggleTextHe: {
     color: "black",
     backgroundColor: "transparent",
     fontSize: 19,
-    marginTop: Platform.OS == "android" ? 2 :4,
+    marginTop: isAndroid ? 2 :4,
     marginRight: 2,
   },
   readerNavSection: {
@@ -803,6 +802,7 @@ export default StyleSheet.create({
     flexWrap: "wrap"
   },
   textTocNamedSection: {
+    flex: 1,
     marginBottom: 15,
     marginHorizontal: 15
   },
@@ -1043,45 +1043,4 @@ export default StyleSheet.create({
     paddingBottom: 10,
     paddingHorizontal: iPad ? 48 : 24,
   },
-//HTML Styles:
-  strong: {
-    fontWeight: "bold"
-  },
-  small: {
-    fontSize: 14
-  },
-  b: {
-    fontWeight: "bold"
-  },
-  i: {
-    fontStyle: "italic"
-  },
-  gemarraregular: {
-    fontWeight: "500",
-
-  },
-  gemarraitalic: {
-    fontStyle: "italic",
-    fontWeight: "500",
-  },
-  a: {
-    fontWeight: "300",
-  },
-  hediv: {
-    fontFamily: "Taamey Frank Taamim Fix",
-    writingDirection: "rtl",
-    flex: -1,
-    paddingTop: 15,
-    marginTop: -10,
-    textAlign: Platform.OS == "android" ? "right" : "justify",
-  },
-  endiv: {
-    fontFamily: "Amiri",
-    fontWeight: "normal",
-    textAlign: 'justify',
-    paddingTop: 15,
-    marginTop: -10,
-  }
-
-
 });

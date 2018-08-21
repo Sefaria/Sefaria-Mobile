@@ -16,7 +16,8 @@ import {
   MenuButton,
   DirectedButton,
   DisplaySettingsButton,
-  CategoryAttribution
+  CategoryAttribution,
+  SText,
 } from './Misc.js';
 
 class ReaderControls extends React.Component {
@@ -35,11 +36,21 @@ class ReaderControls extends React.Component {
     openUri:                         PropTypes.func.isRequired,
   };
 
+  shouldShowHamburger = () => {
+    if (Platform.OS === "android") { return true; }
+    else {
+      // see ReaderApp.openRef()
+      const calledFromDict = { "text list": true, "search": true };
+      const backStack = this.props.backStack.filter(x => calledFromDict[x.calledFrom]);
+      return backStack.length === 0;
+    }
+  }
+
   render() {
     const isSaved = Sefaria.indexOfSaved(this.props.enRef) !== -1;
     var langStyle = this.props.language === "hebrew" ? [styles.he, {marginTop: 4}] : [styles.en];
     var titleTextStyle = [langStyle, styles.headerTextTitleText, this.props.theme.text];
-    if (this.props.backStack.length === 0 || Platform.OS == "android") {
+    if (this.shouldShowHamburger()) {
       var leftMenuButton = <MenuButton onPress={this.props.openNav} theme={this.props.theme} themeStr={this.props.themeStr}/>
     } else {
       var leftMenuButton =
@@ -65,9 +76,9 @@ class ReaderControls extends React.Component {
               <Image source={this.props.themeStr == "white" ? require('./img/caret.png'): require('./img/caret-light.png') }
                        style={[styles.downCaret, this.props.language === "hebrew" ? null: {opacity: 0}]}
                        resizeMode={'contain'} />
-              <Text style={titleTextStyle} numberOfLines={1} ellipsizeMode={"tail"}>
+              <SText lang={this.props.language} style={titleTextStyle} numberOfLines={1} ellipsizeMode={"tail"}>
                 {this.props.language === 'hebrew' ? this.props.heRef : this.props.enRef}
-              </Text>
+              </SText>
               <Image source={this.props.themeStr == "white" ? require('./img/caret.png'): require('./img/caret-light.png') }
                        style={[styles.downCaret, this.props.language === "hebrew" ? {opacity: 0} : null]}
                        resizeMode={'contain'} />

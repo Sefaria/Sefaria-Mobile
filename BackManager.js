@@ -2,10 +2,10 @@ class BackManager {
 
   static _backStack = [];
 
-  static forward({ state, type = "main" }) {
+  static forward({ state, type = "main", calledFrom }) {
     //debugger;
     const stateClone = Sefaria.util.clone(state);
-    BackManager._backStack.push({ type, state: stateClone });
+    BackManager._backStack.push({ type, state: stateClone, calledFrom });
   }
 
   static back({ type } = { }) {

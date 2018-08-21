@@ -13,7 +13,9 @@ import {
 } from 'react-native';
 import ActionSheet from '@yfuks/react-native-action-sheet';
 
-
+import {
+  SText,
+} from './Misc';
 import styles from './Styles';
 import strings from './LocalizedStrings';
 
@@ -164,9 +166,9 @@ class AutocompleteList extends React.Component {
           style={[styles.menuButtonMargined]}
           resizeMode={'contain'}
         />
-        <Text style={[styles.autocompleteItemText, this.props.theme.text, {textAlign: isHeb ? 'right' : 'left', fontFamily: isHeb ? 'Heebo' : 'Amiri'}]}>
+        <SText lang={isHeb ? "hebrew" : "english"} style={[styles.autocompleteItemText, this.props.theme.text, {textAlign: isHeb ? 'right' : 'left', fontFamily: isHeb ? 'Heebo' : 'Amiri'}]}>
           { item.type === 'toc' ? item.query.toUpperCase() : item.query }
-        </Text>
+        </SText>
         {item.loading ? (<Text style={[{paddingHorizontal: 10}, this.props.theme.secondaryText, !isHeb ? styles.enInt : styles.heInt]}>
           { strings.loading }
         </Text>) : null}

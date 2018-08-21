@@ -5,6 +5,10 @@ import {
   Text,
   TouchableOpacity,
 } from 'react-native';
+import {
+  SText,
+} from './Misc';
+
 import HTMLView from 'react-native-htmlview'; //to convert html'afied JSON to something react can render (https://github.com/jsdf/react-native-htmlview)
 import styles from './Styles.js';
 
@@ -62,9 +66,9 @@ class VersionBlock extends React.Component {
                   {versionTitle}
                 </Text>
               </TouchableOpacity> :
-              <Text style={[styles.en, styles.textTocVersionTitle, textAlign, this.props.theme.text]}>
+              <SText lang={"english"} style={[styles.en, styles.textTocVersionTitle, textAlign, this.props.theme.text]}>
                 {versionTitle}
-              </Text>)
+              </SText>)
           : null
         }
         <View style={styles.textTocVersionInfo}>

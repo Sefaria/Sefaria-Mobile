@@ -659,8 +659,7 @@ class ReaderApp extends React.Component {
     }
 
     if (addToBackStack) {
-      console.log("openRef")
-      BackManager.forward({ state: this.state });
+      BackManager.forward({ state: this.state, calledFrom });
     }
 
     this.setState({

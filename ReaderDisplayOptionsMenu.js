@@ -9,7 +9,6 @@ import {
   View,
   Image
 } from 'react-native';
-
 import styles from './Styles.js';
 import strings from './LocalizedStrings';
 
