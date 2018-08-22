@@ -6,6 +6,6 @@
 
     <item
         android:drawable="@mipmap/splash_background"
-        android:gravity="center" />
+        android:gravity="center"/>
 
 </layer-list>
