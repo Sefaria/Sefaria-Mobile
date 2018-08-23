@@ -754,7 +754,12 @@ class ReaderApp extends React.Component {
   };
 
   setNavigationCategories = (categories) => {
-    BackManager.forward({ state: this.state });
+    if (categories.length) {
+      BackManager.forward({ state: this.state, calledFrom: "toc" });
+    } else {
+      // you're navigating home, make sure to delete previous toc entries in the backStack
+      BackManager.back({ calledFrom: "toc" });
+    }
     this.setState({navigationCategories: categories});
   };
 
