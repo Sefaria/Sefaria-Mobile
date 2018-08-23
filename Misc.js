@@ -593,6 +593,32 @@ class IndeterminateCheckBox extends React.Component {
   }
 }
 
+class RainbowBar extends React.Component {
+  render() {
+    const colors = [
+      "darkteal",
+      "lightblue",
+      "yellow",
+      "green",
+      "red",
+      "purple",
+      "darkpink",
+      "lavender",
+      "teal",
+      "darkblue",
+    ]
+    const bars = colors.map(color=>{
+      return (
+        <View style={{backgroundColor: Sefaria.palette.colors[color], height: 12, flexGrow: 1}} key={color}/>);
+    });
+    return (
+      <View style={styles.rainbowBar} >
+        {bars}
+      </View>
+    )
+  }
+}
+
 class SText extends React.Component {
   static propTypes = {
     children: PropTypes.string,
@@ -642,6 +668,7 @@ export {
   LibraryNavButton,
   LoadingView,
   MenuButton,
+  RainbowBar,
   SearchButton,
   SefariaProgressBar,
   SText,

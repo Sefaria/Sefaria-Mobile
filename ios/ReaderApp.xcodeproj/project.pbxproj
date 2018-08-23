@@ -408,6 +408,13 @@
 			remoteGlobalIDString = 134814201AA4EA6300B7C361;
 			remoteInfo = SafariViewManager;
 		};
+		F328C3DB21275D3300756D0F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 10A19833FF79497D98822F8B /* SplashScreen.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 3D7682761D8E76B80014119E;
+			remoteInfo = SplashScreen;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
@@ -845,6 +852,14 @@
 			isa = PBXGroup;
 			children = (
 				E5E09418210973EC00F82D67 /* libSafariViewManager.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F328C3D821275D3300756D0F /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				F328C3DC21275D3300756D0F /* libSplashScreen.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1383,6 +1398,13 @@
 			fileType = archive.ar;
 			path = libSafariViewManager.a;
 			remoteRef = E5E09417210973EC00F82D67 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		F328C3DC21275D3300756D0F /* libSplashScreen.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libSplashScreen.a;
+			remoteRef = F328C3DB21275D3300756D0F /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 /* End PBXReferenceProxy section */

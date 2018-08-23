@@ -20,7 +20,6 @@ import { createResponder } from 'react-native-gesture-responder';
 import SafariView from "react-native-safari-view";
 import { CustomTabs } from 'react-native-custom-tabs';
 import { AppInstalledChecker } from 'react-native-check-app-install';
-import SplashScreen from 'react-native-splash-screen';
 
 import { ACTION_CREATORS } from './ReduxStore';
 import ReaderControls from './ReaderControls';
@@ -36,6 +35,7 @@ import AutocompletePage from './AutocompletePage';
 import TextColumn from './TextColumn';
 import ConnectionsPanel from './ConnectionsPanel';
 import SettingsPage from './SettingsPage';
+import InterruptingMessage from './InterruptingMessage';
 import SwipeableCategoryList from './SwipeableCategoryList';
 import Toast, {DURATION} from 'react-native-easy-toast';
 import WebViewPage from './WebViewPage';
@@ -63,7 +63,6 @@ class ReaderApp extends React.Component {
   constructor(props, context) {
     super(props, context);
     Sefaria.init().then(() => {
-        SplashScreen.hide();
         this.setState({
           loaded: true,
           defaultSettingsLoaded: true,
@@ -143,6 +142,7 @@ class ReaderApp extends React.Component {
         Sefaria.downloader.resumeDownload();
       }
     });
+    Sefaria.downloader.promptLibraryDownload();
     Sefaria.downloader.onChange = this.onDownloaderChange;
     Sefaria._deleteUnzippedFiles().then(function() {
 
@@ -1292,14 +1292,14 @@ class ReaderApp extends React.Component {
         return(
           <SettingsPage
             {...this.props}
-            close={this.manageBackMain}
+            close={this.openNav}
             interfaceLang={this.state.interfaceLang}
           />);
         break;
       case ("history"):
         return(
           <SwipeableCategoryList
-            close={this.manageBackMain}
+            close={this.openNav}
             theme={this.props.theme}
             themeStr={this.props.themeStr}
             toggleLanguage={this.toggleMenuLanguage}
@@ -1317,7 +1317,7 @@ class ReaderApp extends React.Component {
       case ("saved"):
         return(
           <SwipeableCategoryList
-            close={this.manageBackMain}
+            close={this.openNav}
             theme={this.props.theme}
             themeStr={this.props.themeStr}
             toggleLanguage={this.toggleMenuLanguage}
@@ -1498,6 +1498,9 @@ class ReaderApp extends React.Component {
             }
             { this.renderContent() }
         </View>
+        <InterruptingMessage 
+          interfaceLang={this.state.interfaceLang}
+          openWebViewPage={this.openWebViewPage} />
         <Toast ref="toast"/>
       </SafeAreaView>
     );

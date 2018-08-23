@@ -1043,6 +1043,37 @@ export default StyleSheet.create({
     paddingBottom: 10,
     paddingHorizontal: iPad ? 48 : 24,
   },
+  centeringBox: {
+    flex: 1,
+    justifyContent: "center",
+    flexDirection: "row"
+  },
+  blueButton: {
+    alignSelf: 'flex-start',
+    height: 50,
+    paddingHorizontal: 30,
+    borderRadius: 5,
+    backgroundColor: "#18345D",
+    shadowColor: "#000",
+    shadowOffset: {width: 0, height: 1},
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+  },
+  blueButtonText: {
+    color: "white",
+    textAlign: "center",
+    fontSize: 20,
+    lineHeight: 50,
+    letterSpacing: 1,
+  },
+  rainbowBar: {
+    height: 12,
+    alignItems: 'center',
+    alignSelf: 'stretch',
+    flexDirection: 'row',
+    marginTop: 22,
+    backgroundColor: 'black',
+  },
   //HTML Styles:
   strong: {
     fontWeight: "bold"
