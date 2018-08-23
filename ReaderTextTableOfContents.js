@@ -496,7 +496,7 @@ class ArrayMapNode extends React.Component {
   render() {
     var showHebrew = this.props.contentLang == "hebrew";
     if ("refs" in this.props.schema && this.props.schema.refs.length) {
-      var sectionLinks = this.props.schema.refs.map(function(ref, i) {
+      var sectionLinks = this.props.schema.refs.map((ref, i) => {
         i += this.props.schema.offset || 0;
         var open = this.props.openRef.bind(null, ref);
         if (this.props.schema.addressTypes[0] === "Talmud") {
@@ -513,7 +513,7 @@ class ArrayMapNode extends React.Component {
               <Text style={[styles.centerText, this.props.theme.text]}>{section}</Text> }
           </TouchableOpacity>
         );
-      }.bind(this));
+      });
 
       var langStyles = showHebrew ? styles.rtlRow : null;
       return (

@@ -346,8 +346,8 @@ class ReaderApp extends React.Component {
         return;
       }
       let loadingLinks = false;
-      if (segment !== this.state.segmentIndexRef) {
-
+      const justScrolling = !shouldToggle && !this.state.textListVisible;  // true when called while scrolling with text list closed
+      if (segment !== this.state.segmentIndexRef && !justScrolling) {
           loadingLinks = true;
           if (this.state.linksLoaded[section]) {
             this.updateLinkSummary(section, segment);
@@ -356,14 +356,15 @@ class ReaderApp extends React.Component {
       }
       if (this.state.connectionsMode === "versions") {
         //update versions
+        //TODO not sure what this if statement was supposed to do...
       }
       let stateObj = {
-          segmentRef: segmentRef,
+          segmentRef,
           segmentIndexRef: segment,
           sectionIndexRef: section,
           linkStaleRecentFilters: this.state.linkRecentFilters.map(()=>true),
           versionStaleRecentFilters: this.state.versionRecentFilters.map(()=>true),
-          loadingLinks: loadingLinks
+          loadingLinks,
       };
       if (shouldToggle) {
         BackManager.forward({ state: {textListVisible: this.state.textListVisible}, type: "secondary" });
@@ -372,7 +373,7 @@ class ReaderApp extends React.Component {
       }
       Sefaria.saveHistoryItem({ref: segmentRef, heRef: this.state.heRef, category: Sefaria.categoryForRef(segmentRef), versions: this.state.selectedVersions}, this.props.overwriteVersions);
       this.setState(stateObj);
-      this.forceUpdate();
+      //this.forceUpdate();
   };
   /*
     isLoadingVersion - true when you are replacing an already loaded text with a specific version (not currently used)

@@ -28,6 +28,7 @@ class TextRange extends React.PureComponent {
     showSegmentNumbers: PropTypes.bool.isRequired,
     textSegmentPressed: PropTypes.func.isRequired,
     setRowRef:          PropTypes.func.isRequired,
+    setRowRefInitY:     PropTypes.func.isRequired,
   };
 
   constructor(props) {
@@ -160,7 +161,7 @@ class TextRange extends React.PureComponent {
     return (
       <View
         style={styles.verseContainer}
-        ref={(view)=>{this.props.setRowRef(this.props.segmentRef, view)}}
+        ref={view=>{this.props.setRowRef(this.props.segmentRef, view)}}
       >
         {segment}
       </View>
