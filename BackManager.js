@@ -9,15 +9,17 @@ class BackManager {
   }
 
   static back({ type, calledFrom } = { }) {
-    let oldStateObj = BackManager._backStack.pop();
+    const bs = BackManager._backStack;
+    let oldStateObj = bs.pop();
     if (type === "main") {
-      while (oldStateObj.type !== "main" && BackManager._backStack.length > 0) {
-        oldStateObj = BackManager._backStack.pop();
+      while (oldStateObj.type !== "main" && bs.length > 0) {
+        oldStateObj = bs.pop();
       }
     }
     else if (calledFrom === "toc") {
-      while (oldStateObj.calledFrom === "toc" && BackManager._backStack.length > 0 && BackManager._backStack[BackManager._backStack.length - 1].calledFrom === "toc") {
-        oldStateObj = BackManager._backStack.pop();
+      // look ahead one
+      while (oldStateObj.calledFrom === "toc" && bs.length > 0 && bs[bs.length - 1].calledFrom === "toc") {
+        oldStateObj = bs.pop();
       }
     }
     if (!oldStateObj) { return oldStateObj; }
