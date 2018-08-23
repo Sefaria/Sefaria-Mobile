@@ -196,10 +196,19 @@ class ListItem extends React.PureComponent {
     var lco = this.props.linkContentObj;
     var lang = Sefaria.util.getTextLanguageWithContent(this.props.textLanguage,lco.en,lco.he);
     var textViews = [];
-
+    const smallEnSheet = {
+      small: {
+        fontSize: this.props.fontSize * 0.8 * 0.8
+      }
+    };
+    const smallHeSheet = {
+      small: {
+        fontSize: this.props.fontSize * 0.8
+      }
+    };
     var hebrewElem =  <HTMLView
                         key={this.state.resetKeyHe}
-                        stylesheet={styles}
+                        stylesheet={{...styles, ...smallHeSheet}}
                         value={"<hediv>"+lco.he+"</hediv>"}
                         textComponentProps={
                           {
@@ -210,7 +219,7 @@ class ListItem extends React.PureComponent {
                       />;
     var englishElem = <HTMLView
                         key={this.state.resetKeyEn}
-                        stylesheet={styles}
+                        stylesheet={{...styles, ...smallEnSheet}}
                         value={"<endiv>"+"&#x200E;"+lco.en+"</endiv>"}
                         textComponentProps={
                           {

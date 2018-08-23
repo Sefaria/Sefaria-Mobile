@@ -294,7 +294,8 @@ Sefaria = {
   canBeContinuous: function(text) {
     const index = Sefaria.index(text);
     if (!index) { return false; } // default to false
-    return ['Talmud'].indexOf(index.categories[0]) != -1
+    // removing Talmud for now because cts mode is broken
+    return [].indexOf(index.categories[0]) != -1
   },
   canHaveAliyot: function(text) {
     const index = Sefaria.index(text);
@@ -429,7 +430,6 @@ Sefaria = {
       var results = [];
       for (var i=0; i < branch.length; i++) {
         if (branch[i].title) {
-          if (branch[i].title.indexOf("Beit Shmuel") !== -1) { debugger; }
           if (isCommentaryRefactor) {
             if (branch[i].dependence === "Commentary" && !!branch[i].base_text_titles && branch[i].base_text_titles.includes(title)) {
               results.push(branch[i]);

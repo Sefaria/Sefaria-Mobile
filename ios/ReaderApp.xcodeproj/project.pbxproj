@@ -156,6 +156,13 @@
 			remoteGlobalIDString = 7B5D9D0A1B6AD0EA00CF3A83;
 			remoteInfo = ReactNativeLocalization;
 		};
+		07FD125C212D962D005D0488 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 10A19833FF79497D98822F8B /* SplashScreen.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 3D7682761D8E76B80014119E;
+			remoteInfo = SplashScreen;
+		};
 		139105C01AF99BAD00B5F7CC /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 139105B61AF99BAD00B5F7CC /* RCTSettings.xcodeproj */;
@@ -665,6 +672,14 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		07FD1259212D962D005D0488 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				07FD125D212D962D005D0488 /* libSplashScreen.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		139105B71AF99BAD00B5F7CC /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -1041,7 +1056,7 @@
 					ProjectRef = 961687DB72EB4DC3B5B7967D /* SafariViewManager.xcodeproj */;
 				},
 				{
-					ProductGroup = F328C3D821275D3300756D0F /* Products */;
+					ProductGroup = 07FD1259212D962D005D0488 /* Products */;
 					ProjectRef = 10A19833FF79497D98822F8B /* SplashScreen.xcodeproj */;
 				},
 			);
@@ -1138,6 +1153,13 @@
 			fileType = archive.ar;
 			path = libReactNativeLocalization.a;
 			remoteRef = 0761D1A4207CC5EF0011FE47 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		07FD125D212D962D005D0488 /* libSplashScreen.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libSplashScreen.a;
+			remoteRef = 07FD125C212D962D005D0488 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 		139105C11AF99BAD00B5F7CC /* libRCTSettings.a */ = {

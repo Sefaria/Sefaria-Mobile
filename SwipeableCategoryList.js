@@ -22,6 +22,7 @@ import {
   TwoBox,
   LanguageToggleButton,
   AnimatedRow,
+  SText,
 } from './Misc.js';
 
 import styles from './Styles';
@@ -106,15 +107,16 @@ class SwipeableCategoryList extends React.Component {
             imageStyle={[styles.menuButton, styles.directedButton]}
             direction="back"
             language="english"/>
-          <View style={{flex:1, flexDirection: "row", justifyContent: "center"}}>
+          <View style={{flex:1, flexDirection: "row", justifyContent: "center", alignItems: "center"}}>
             <Image source={this.props.icon}
               style={[styles.menuButton, isHeb ? styles.headerIconWithTextHe : styles.headerIconWithTextEn]}
               resizeMode={'contain'}
             />
-            <Text
+            <SText
+              lang={this.props.interfaceLang}
               style={[styles.textTocHeaderTitle, {flex:0},styles.noPadding, this.props.theme.text]}>
               {this.props.title.toUpperCase()}
-            </Text>
+            </SText>
           </View>
           <LanguageToggleButton
             theme={this.props.theme}
@@ -131,7 +133,6 @@ class SwipeableCategoryList extends React.Component {
           bounceFirstRowOnMount={!Sefaria._hasSwipeDeleted}
           maxSwipeDistance={90}
           renderQuickActions={this.renderDeleteButton}
-          contentContainerStyle={styles.readerNavSectio}
           language={this.props.language}
         />
       </View>

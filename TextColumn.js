@@ -531,35 +531,41 @@ class TextColumn extends React.Component {
     return jumpInfoMap;
   }
 
-  waitForScrollToLocation = (i) => {
+  waitForScrollToLocation = (i, offset, animated, shouldJump=true) => {
     if (!this._isMounted) { return; }
 
+    if (shouldJump) {
+      console.log("jumping!");
+      this.sectionListRef._wrapperListRef._listRef.scrollToOffset({
+        offset,
+        animated,
+      });
+    }
     let viewableIndices;
     try {
       viewableIndices = this.sectionListRef._wrapperListRef._listRef._viewabilityTuples[0].viewabilityHelper._viewableIndices;
     } catch (e) {
-      if (i < 50) {
-        setTimeout(()=>{this.waitForScrollToLocation(i+1)}, 5);
-      } else {
-        this.onScrollToLocation();
-      }
+      this.waitForScrollToLocationFail(i, offset, animated);
       return;
     }
 
     if (viewableIndices.indexOf(this.targetScrollIndex) !== -1) {
       this.onScrollToLocation();
-      /*this.sectionListRef.scrollToLocation({
-          animated: false,
-          sectionIndex: 0,
-          itemIndex: this.targetScrollIndex,
-          viewPosition: 0.1,
-      });*/
-    } else if (i < 50) { // if it's running more than 250ms, kill the recursion
-      setTimeout(()=>{this.waitForScrollToLocation(i+1)}, 5);
     } else {
-      this.onScrollToLocation(); // give up
+      this.waitForScrollToLocationFail(i, offset, animated);
     }
   }
+
+  waitForScrollToLocationFail = (i, offset, animated) => {
+    if (i < 50) {
+      const partialTimeout = i >= 10 && i % 10 === 0;
+      setTimeout(()=>{this.waitForScrollToLocation(i+1, offset, animated, partialTimeout)}, 5);
+    } else {
+      // full timeout
+      this.onScrollToLocation();
+    }
+  };
+
   onScrollToLocation = () => {
     this.onTopReaching = false;
     this.setState({itemLayoutList: null});
@@ -600,15 +606,11 @@ class TextColumn extends React.Component {
         if (jumping) {
           const targetIndex = jumpInfoMap.get(targetRef);
           if (targetIndex === undefined || targetIndex === null || targetIndex >= itemLayoutList.length) {
-            console.log("FAILED to find targetIndex", targetRef, targetIndex, jumpInfoMap);
+            console.log("FAILED to find targetIndex", targetRef, targetIndex, jumpInfoMap, this.state.itemLayoutList);
             this.onScrollToLocation();
           } else {
             this.targetScrollIndex = targetIndex-1;
-            this.sectionListRef._wrapperListRef._listRef.scrollToOffset({
-              offset: this.getItemLayout(null, targetIndex).offset - 100,
-              animated,
-            });
-            this.waitForScrollToLocation(0);
+            this.waitForScrollToLocation(0, this.getItemLayout(null, targetIndex).offset - 100, animated);
           }
           this.setState({jumpState: { jumping: false }});
         }

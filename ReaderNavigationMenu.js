@@ -6,6 +6,7 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
+  TouchableNativeFeedback,
   View,
   Image,
   Platform,
@@ -185,13 +186,16 @@ class ReaderNavigationMenu extends React.Component {
                       style={isHeb ? styles.menuButtonMarginedHe : styles.menuButtonMargined}
                       resizeMode={'contain'} />
                     <Text style={[styles.buttonText, langStyle]}>{strings.makeADonation}</Text>
+                    <Image source={this.props.themeStr == "white" ? require('./img/heart.png'): require('./img/heart-light.png') }
+                      style={[isHeb ? styles.menuButtonMarginedHe : styles.menuButtonMargined, {opacity:0}]}
+                      resizeMode={'contain'} />
                   </TouchableOpacity>
                 </View>
 
                 <View style={styles.navBottomLinks}>
-                  <TouchableOpacity onPress={this.props.openSettings}>
+                  <TouchableNativeFeedback onPress={this.props.openSettings} background={TouchableNativeFeedback.Ripple('red', true)} useForeground={true}>
                     <Text style={[isHeb ? styles.heInt : styles.enInt, this.props.theme.tertiaryText]}>{strings.settings}</Text>
-                  </TouchableOpacity>
+                  </TouchableNativeFeedback>
 
                   <Text style={[styles.navBottomLinkDot, this.props.theme.tertiaryText]}>•</Text>
 
@@ -207,9 +211,9 @@ class ReaderNavigationMenu extends React.Component {
 
                 </View>
 
-                <Text style={[styles.dedication, isHeb ? styles.hebrewSystemFont : null, this.props.theme.secondaryText]}>
+                { Platform.OS === 'ios' ? <Text style={[styles.dedication, isHeb ? styles.hebrewSystemFont : null, this.props.theme.secondaryText]}>
                   {strings.dedicated}
-                </Text>
+                </Text> : null }
 
               </ScrollView>
             </View>);

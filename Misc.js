@@ -146,7 +146,7 @@ class CategorySideColorLink extends React.Component {
         <View style={{flex:1, flexDirection: isHeb ? "row-reverse" : "row"}}>
           <View style={{width: 6, [`border${borderSide}Color`]: Sefaria.palette.categoryColor(this.props.category), [`border${borderSide}Width`]: 6,}} />
           <View style={[styles.categorySideColorLink, theme.menu, theme.borderedBottom]}>
-            <Text style={[isHeb ? styles.hebrewText : styles.englishText, theme.text]}>{text}</Text>
+            <Text numberOfLines={1} ellipsizeMode={"middle"} style={[isHeb ? styles.hebrewText : styles.englishText, theme.text]}>{text}</Text>
           </View>
         </View>
       </TouchableHighlight>
@@ -377,8 +377,13 @@ class DirectedButton extends React.Component {
     var actualDirBack = (this.props.language === "hebrew"  && this.props.direction === "forward") || (this.props.language === "english" && this.props.direction === "back")
     return (
       <TouchableOpacity onPress={this.props.onPress}
-        style={[{ flexDirection: actualDirBack ? "row-reverse" : "row" }]}>
-        { this.props.text ? <Text style={this.props.textStyle}>{this.props.text}</Text> : null}
+        style={{ flexDirection: actualDirBack ? "row-reverse" : "row", alignItems: "center" }}>
+        { this.props.text ?
+          <SText lang={this.props.language} style={this.props.textStyle}>
+            {this.props.text}
+          </SText> :
+          null
+        }
         <DirectedArrow
           themeStr={this.props.themeStr}
           imageStyle={this.props.imageStyle}
@@ -532,8 +537,6 @@ class ButtonToggleSet extends React.Component {
     }.bind(this));
 
     return (<View style={[styles.readerDisplayOptionsMenuRow,
-                          styles.readerDisplayOptionMenuRowNotColor,
-                          this.props.theme.readerDisplayOptionsMenuDivider,
                           styles.buttonToggleSet]}>
               {options}
             </View>);
@@ -616,6 +619,38 @@ class RainbowBar extends React.Component {
   }
 }
 
+class SText extends React.Component {
+  static propTypes = {
+    children: PropTypes.string,
+    lang:     PropTypes.oneOf(["hebrew", "english"]),
+    style:    PropTypes.oneOfType([PropTypes.object, PropTypes.array]),
+  }
+
+  fsize2lheight = (fsize, lang) => (
+    lang === "english" ? (fsize * 2) - 4 : (fsize) + 2 // very naive guess at what the function should be (17 == 30, 16 == 28)
+  );
+
+  getFontSize = (style, lang) => {
+    let fsize = 14;  // default font size in rn (i believe)
+    for (let s of style) {
+      if (!!s.fontSize) { fsize = s.fontSize; }
+    }
+    fsize = lang === "hebrew" ? fsize * 1.2 : fsize;
+    return fsize;
+  }
+
+  render() {
+    const { style, lang, children } = this.props;
+    const styleArray = Array.isArray(style) ? style : [style];
+    const fontSize = this.getFontSize(styleArray, lang);
+    return (
+      <Text {...this.props} style={styleArray.concat([{lineHeight: this.fsize2lheight(fontSize, lang)}])}>
+        { children }
+      </Text>
+    );
+  }
+}
+
 export {
   AnimatedRow,
   ButtonToggleSet,
@@ -636,6 +671,7 @@ export {
   RainbowBar,
   SearchButton,
   SefariaProgressBar,
+  SText,
   ToggleSet,
   TripleDots,
   TwoBox,

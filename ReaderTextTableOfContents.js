@@ -19,7 +19,8 @@ import {
   ToggleSet,
   TwoBox,
   LoadingView,
-  CollapseIcon
+  CollapseIcon,
+  SText,
 } from './Misc.js';
 
 import styles from './Styles';
@@ -244,7 +245,7 @@ class TextTableOfContentsNavigation extends React.Component {
     }
 
     return (
-      <View>
+      <View style={{flex: 1}}>
         {toggle}
         {content}
       </View>
@@ -319,8 +320,8 @@ class SchemaNode extends React.Component {
           return (
             <TouchableOpacity style={styles.textTocNamedSection} onPress={open} key={i}>
               {showHebrew ?
-                <Text style={[styles.he, styles.textTocSectionTitle, this.props.theme.text]}>{node.heTitle}</Text> :
-                <Text style={[styles.en, styles.textTocSectionTitle, this.props.theme.text]}>{node.title}</Text> }
+                <SText lang={"hebrew"} style={[styles.he, styles.textTocSectionTitle, this.props.theme.text]}>{node.heTitle}</SText> :
+                <SText lang={"english"} style={[styles.en, styles.textTocSectionTitle, this.props.theme.text]}>{node.title}</SText> }
             </TouchableOpacity>);
         } else {
           let content = (<JaggedArrayNode
@@ -342,7 +343,7 @@ class SchemaNode extends React.Component {
         }
       }.bind(this));
       return (
-        <View>{content}</View>
+        <View style={{flex: 1}}>{content}</View>
       );
     }
   }
@@ -523,8 +524,8 @@ class ArrayMapNode extends React.Component {
       return (
           <TouchableOpacity style={[]} onPress={open} key={i}>
             { showHebrew ?
-              <Text style={[styles.he, styles.textTocSectionTitle, this.props.theme.text]}>{this.props.schema.heTitle}</Text> :
-              <Text style={[styles.en, styles.textTocSectionTitle, this.props.theme.text]}>{this.props.schema.title}</Text> }
+              <SText lang={"hebrew"} style={[styles.he, styles.textTocSectionTitle, this.props.theme.text]}>{this.props.schema.heTitle}</SText> :
+              <SText lang={"english"} style={[styles.en, styles.textTocSectionTitle, this.props.theme.text]}>{this.props.schema.title}</SText> }
           </TouchableOpacity>
       );
     }
@@ -589,14 +590,14 @@ class CollapsibleNode extends React.Component {
     return (
       <View style={styles.textTocNamedSection}>
         {this.props.showHebrew ?
-          <TouchableOpacity onPress={this.toggleVisibility} style={{flexDirection: "row", justifyContent:"flex-end"}}>
+          (this.props.node.heTitle.length > 0 ? <TouchableOpacity onPress={this.toggleVisibility} style={{flex: 1, flexDirection: "row", justifyContent:"flex-end"}}>
             {icon}
-            <Text style={[styles.he, styles.textTocSectionTitle, this.props.theme.text]}>{this.props.node.heTitle}</Text>
-          </TouchableOpacity>:
-          <TouchableOpacity onPress={this.toggleVisibility} style={{flexDirection: "row", justifyContent:"flex-start"}}>
-            <Text style={[styles.en, styles.textTocSectionTitle, this.props.theme.text]}>{this.props.node.title}</Text>
+            <SText lang={"hebrew"} style={[styles.he, styles.textTocSectionTitle, this.props.theme.text]}>{this.props.node.heTitle}</SText>
+          </TouchableOpacity> : null) :
+          ( this.props.node.title.length > 0 ? <TouchableOpacity onPress={this.toggleVisibility} style={{flex: 1, flexDirection: "row", justifyContent:"flex-start"}}>
+            <SText lang={"english"} style={[styles.en, styles.textTocSectionTitle, this.props.theme.text]}>{this.props.node.title}</SText>
             {icon}
-          </TouchableOpacity>}
+          </TouchableOpacity> : null)}
         { this.state.isVisible ? this.props.children : null }
       </View>
 

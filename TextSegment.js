@@ -4,10 +4,10 @@ import PropTypes from 'prop-types';
 
 import React from 'react';
 import {
-  StyleSheet,
   Text,
   TouchableOpacity,
-  View
+  View,
+  Platform,
 } from 'react-native';
 import HTMLView from 'react-native-htmlview'; //to convert html'afied JSON to something react can render (https://github.com/jsdf/react-native-htmlview)
 import styles from './Styles.js';
@@ -66,18 +66,29 @@ class TextSegment extends React.PureComponent {
       style.push(this.props.theme.bilingualEnglishText);
     }
     const data = this.filterOutFootnotes(this.props.data);
+    const smallSheet = {
+      small: {
+        fontSize: this.props.fontSize * 0.8 * (this.props.textType === "hebrew" ? 1 : 0.8)
+      }
+    };
     return (
            <HTMLView
              key={this.state.resetKey}
              value= {this.props.textType == "hebrew" ? "<hediv>"+data+"</hediv>" : "<endiv>"+data+"</endiv>"}
-             stylesheet={styles}
+             stylesheet={{...styles, ...smallSheet}}
+             rootComponentProps={{
+                 hitSlop: {top: 10, bottom: 10, left: 10, right: 10},  // increase hit area of segments
+                 onPress:this.onPressTextSegment,
+                 onLongPress:this.props.onLongPress,
+               }
+             }
+             RootComponent={TouchableOpacity}
              textComponentProps={
                {
                  suppressHighlighting: false,
-                 onPress:this.onPressTextSegment,
-                 onLongPress:this.props.onLongPress,
                  key:this.props.segmentKey,
                  style: style,
+
                }
              }
            />
