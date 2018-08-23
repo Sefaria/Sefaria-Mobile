@@ -671,7 +671,6 @@ class TextColumn extends React.Component {
                 tintColor="#CCCCCC"
                 style={{ backgroundColor: 'transparent' }} />
             }/>
-          <View style={{height: 1, borderColor: "#ff0000", borderWidth: 1, position: "absolute", top: COMMENTARY_LINE_THRESHOLD, left: 0, right: 0}} />
         { this.state.jumpState.jumping ?
           <TextHeightMeasurer
             ref={this._getTextHeightMeasurerRef}
