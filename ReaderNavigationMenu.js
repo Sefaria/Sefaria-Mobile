@@ -193,9 +193,9 @@ class ReaderNavigationMenu extends React.Component {
                 </View>
 
                 <View style={styles.navBottomLinks}>
-                  <TouchableNativeFeedback onPress={this.props.openSettings} background={TouchableNativeFeedback.Ripple('red', true)} useForeground={true}>
+                  <TouchableOpacity onPress={this.props.openSettings}>
                     <Text style={[isHeb ? styles.heInt : styles.enInt, this.props.theme.tertiaryText]}>{strings.settings}</Text>
-                  </TouchableNativeFeedback>
+                  </TouchableOpacity>
 
                   <Text style={[styles.navBottomLinkDot, this.props.theme.tertiaryText]}>•</Text>
 
