@@ -320,6 +320,7 @@ class TextColumn extends React.Component {
         const topStart = y - this.currentY;
         const topEnd = (y + height) - this.currentY;
         const seg = topStart > 0 || topEnd > COMMENTARY_LINE_THRESHOLD || !nextSeg ? topSeg : nextSeg;
+
         this.setHighlight(seg.data.sectionIndex, seg.data.rowIndex, seg.ref);
     } else {
       console.log("secData is zero", secData);
@@ -638,6 +639,10 @@ class TextColumn extends React.Component {
     this.rowYHash[ref] = y;
   }
 
+  _renderCell = ({ ...props }) => (
+    <CellView {...props} onSegmentLayout={this._onSegmentLayout}/>
+  );
+
   render() {
     return (
         <View style={styles.textColumn} >
@@ -656,14 +661,7 @@ class TextColumn extends React.Component {
             onScrollToIndexFailed={this.onScrollToIndexFailed}
             keyExtractor={this._keyExtractor}
             stickySectionHeadersEnabled={false}
-            CellRendererComponent={({children, item, ...props}) => (
-              <CellView
-                children={children}
-                item={item}
-                onSegmentLayout={this._onSegmentLayout}
-                {...props}
-              />
-            )}
+            CellRendererComponent={this._renderCell}
             refreshControl={
               <RefreshControl
                 refreshing={this.props.loadingTextHead || this.onTopReaching}
@@ -702,11 +700,6 @@ class TextHeader extends React.PureComponent {
 }
 
 class CellView extends React.PureComponent {
-  static propTypes = {
-    item:            PropTypes.object.isRequired,
-    children:        PropTypes.any.isRequired,
-    onSegmentLayout: PropTypes.func.isRequired,
-  }
 
   onLayout = event => {
     const { height, width, y, x } = event.nativeEvent.layout;
