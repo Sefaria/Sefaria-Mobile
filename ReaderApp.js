@@ -143,7 +143,6 @@ class ReaderApp extends React.Component {
         Sefaria.downloader.resumeDownload();
       }
     });
-    Sefaria.downloader.promptLibraryDownload();
     Sefaria.downloader.onChange = this.onDownloaderChange;
     Sefaria._deleteUnzippedFiles().then(function() {
 
@@ -1481,29 +1480,32 @@ class ReaderApp extends React.Component {
     const nAvailable = isD ? Sefaria.downloader.titlesAvailable().filter(t => Sefaria.packages.titleIsSelected(t)).length : 0;
     const nUpdates = isD ? Sefaria.downloader.updatesAvailable().filter(t => Sefaria.packages.titleIsSelected(t)).length : 0;
     return (
-      <SafeAreaView style={styles.safeArea}>
-        <View style={[styles.container, this.props.theme.container]} {...this.gestureResponder}>
-            <StatusBar
-              barStyle="light-content"
-            />
-            {
-              Sefaria.downloader.downloading && nUpdates > 0 && this.state.menuOpen !== 'settings' ?
-              <SefariaProgressBar
-                theme={this.props.theme}
-                themeStr={this.props.themeStr}
-                progress={(nAvailable - nUpdates) / nAvailable}
-                onPress={()=>{ this.openMenu("settings")}}
-                onClose={Sefaria.packages.deleteActiveDownloads}
-                interfaceLang={this.state.interfaceLang}
-              /> : null
-            }
-            { this.renderContent() }
-        </View>
+      <View style={{flex:1}}>
+        <SafeAreaView style={styles.safeArea}>
+          <View style={[styles.container, this.props.theme.container]} {...this.gestureResponder}>
+              <StatusBar
+                barStyle="light-content"
+              />
+              {
+                Sefaria.downloader.downloading && nUpdates > 0 && this.state.menuOpen !== 'settings' ?
+                <SefariaProgressBar
+                  theme={this.props.theme}
+                  themeStr={this.props.themeStr}
+                  progress={(nAvailable - nUpdates) / nAvailable}
+                  onPress={()=>{ this.openMenu("settings")}}
+                  onClose={Sefaria.packages.deleteActiveDownloads}
+                  interfaceLang={this.state.interfaceLang}
+                /> : null
+              }
+              { this.renderContent() }
+          </View>
+          <Toast ref="toast"/>
+        </SafeAreaView>
         <InterruptingMessage
           interfaceLang={this.state.interfaceLang}
           openWebViewPage={this.openWebViewPage} />
-        <Toast ref="toast"/>
-      </SafeAreaView>
+      </View>
+
     );
   }
 }

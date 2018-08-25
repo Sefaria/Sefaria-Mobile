@@ -1071,7 +1071,6 @@ export default StyleSheet.create({
     alignItems: 'center',
     alignSelf: 'stretch',
     flexDirection: 'row',
-    marginTop: 22,
     backgroundColor: 'black',
   },
   //HTML Styles:
