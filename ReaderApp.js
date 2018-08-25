@@ -619,12 +619,24 @@ class ReaderApp extends React.Component {
       }
   };
 
+  openRefSearch = ref => {
+    this.openRef(ref, "search");
+  };
+
+  openRefTOC = (ref, enableAliyot) => {
+    this.openRef(ref, "text toc", null, false, enableAliyot);
+  };
+
   /*
   calledFrom parameter used for analytics and for back button
   prevScrollPos parameter used for back button
+  enableAliyot - true when you click on an aliya form ReaderTextTableOfContents
   */
-  openRef = (ref, calledFrom, versions, addToBackStack=true) => {
+  openRef = (ref, calledFrom, versions, addToBackStack=true, enableAliyot=false) => {
     return new Promise((resolve, reject) => {
+      if (enableAliyot) {
+        this.props.setAliyot(true);
+      }
       const title = Sefaria.textTitleForRef(ref);
       const overwriteVersions = calledFrom !== 'search'; // if called from search, use version specified by search (or default if none specified)
       if (!title) {
@@ -1230,7 +1242,7 @@ class ReaderApp extends React.Component {
             contentLang={this.props.menuLanguage}
             interfaceLang={this.state.interfaceLang}
             close={this.manageBackMain}
-            openRef={(ref)=>this.openRef(ref,"text toc")}
+            openRef={this.openRefTOC}
             toggleLanguage={this.toggleMenuLanguage}
             openUri={this.openUri}/>);
         break;
@@ -1246,7 +1258,7 @@ class ReaderApp extends React.Component {
             hasInternet={this.state.hasInternet}
             onBack={this.manageBackMain}
             search={this.onQueryChange}
-            openRef={(ref)=> this.openRef(ref,"search")}
+            openRef={this.openRefSearch}
             setLoadTail={this.setLoadQueryTail}
             setIsNewSearch={this.setIsNewSearch}
             setSearchOptions={this.setSearchOptions}

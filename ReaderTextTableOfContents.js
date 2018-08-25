@@ -220,7 +220,8 @@ class TextTableOfContentsNavigation extends React.Component {
                           addressTypes={this.props.schema.addressTypes}
                           contentLang={this.props.contentLang}
                           refPath={this.props.title}
-                          openRef={this.props.openRef} />
+                          openRef={this.props.openRef}
+                          categories={Sefaria.index(this.props.title).categories} />
                       </View>;
         break;
       case "commentary":
@@ -239,7 +240,8 @@ class TextTableOfContentsNavigation extends React.Component {
                           addressTypes={this.props.schema.addressTypes}
                           contentLang={this.props.contentLang}
                           refPath={this.props.title}
-                          openRef={this.props.openRef} />
+                          openRef={this.props.openRef}
+                          categories={Sefaria.index(this.props.title).categories} />
                       </View>;
         break;
     }
@@ -261,7 +263,8 @@ class SchemaNode extends React.Component {
     schema:      PropTypes.object.isRequired,
     contentLang: PropTypes.string.isRequired,
     refPath:     PropTypes.string.isRequired,
-    openRef:     PropTypes.func.isRequired
+    openRef:     PropTypes.func.isRequired,
+    categories:  PropTypes.array,
   };
 
   render() {
@@ -281,7 +284,8 @@ class SchemaNode extends React.Component {
             theme={this.props.theme}
             schema={this.props.schema}
             contentLang={this.props.contentLang}
-            openRef={this.props.openRef} />
+            openRef={this.props.openRef}
+            categories={this.props.categories} />
         );
       }
 
@@ -295,7 +299,8 @@ class SchemaNode extends React.Component {
                           schema={node}
                           contentLang={this.props.contentLang}
                           refPath={this.props.refPath + ", " + node.title}
-                          openRef={this.props.openRef} />);
+                          openRef={this.props.openRef}
+                          categories={this.props.categories} />);
           return (
               <CollapsibleNode
                 key={i}
@@ -314,7 +319,8 @@ class SchemaNode extends React.Component {
                     schema={node}
                     contentLang={this.props.contentLang}
                     openRef={this.props.openRef}
-                    key={i} />;
+                    key={i}
+                    categories={this.props.categories} />;
         } else if (node.depth == 1) {
           var open = this.props.openRef.bind(null, this.props.refPath + ", " + node.title);
           return (
@@ -491,6 +497,7 @@ class ArrayMapNode extends React.Component {
     schema:      PropTypes.object.isRequired,
     contentLang: PropTypes.string.isRequired,
     openRef:     PropTypes.func.isRequired,
+    categories:  PropTypes.array,
   };
 
   render() {
@@ -498,7 +505,8 @@ class ArrayMapNode extends React.Component {
     if ("refs" in this.props.schema && this.props.schema.refs.length) {
       var sectionLinks = this.props.schema.refs.map((ref, i) => {
         i += this.props.schema.offset || 0;
-        var open = this.props.openRef.bind(null, ref);
+        const enableAliyot = !!this.props.categories && this.props.categories[0] === "Tanakh" && this.props.categories[1] === "Torah";  // enable aliyot in reader when you click on an aliya
+        const open = this.props.openRef.bind(null, ref, enableAliyot);
         if (this.props.schema.addressTypes[0] === "Talmud") {
           var section = Sefaria.hebrew.intToDaf(i);
           var heSection = Sefaria.hebrew.encodeHebrewDaf(section);
