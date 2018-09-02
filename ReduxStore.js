@@ -160,7 +160,7 @@ const reducer = function (state = DEFAULT_STATE, action) {
 
 let store = createStore(reducer);
 
-const initAsyncStorage = function () {
+const initAsyncStorage = () => {
   // Loads data from each field in `_data` stored in Async storage into local memory for sync access.
   // Returns a Promise that resolves when all fields are loaded.
   var promises = [];

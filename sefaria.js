@@ -21,22 +21,20 @@ const ERRORS = {
 
 Sefaria = {
   init: function() {
-    return Promise.all([
-      Sefaria._loadTOC(),
-      Sefaria._loadHistoryItems(),
-      initAsyncStorage(),
-    ]);
+    return Sefaria._loadTOC()
+    .then(Sefaria._loadHistoryItems)
+    .then(initAsyncStorage);
   },
   postInit: function() {
-    return Promise.all([
-      Sefaria.search._loadSearchTOC(),
-      Sefaria._loadPeople(),
-      Sefaria._loadRecentQueries(),
-      Sefaria._loadCalendar(),
-      Sefaria._loadSavedItems(),
-      Sefaria._loadHebrewCategories(),
-      Sefaria.packages._load().then(Sefaria.downloader.init),  // downloader init is dependent on packages
-    ]);
+    return
+      Sefaria.search._loadSearchTOC()
+      .then(Sefaria._loadPeople)
+      .then(Sefaria._loadRecentQueries)
+      .then(Sefaria._loadCalendar)
+      .then(Sefaria._loadSavedItems)
+      .then(Sefaria._loadHebrewCategories)
+      .then(Sefaria.packages._load)
+      .then(Sefaria.downloader.init);  // downloader init is dependent on packages
   },
   /*
   if `context` and you're using API, only return section no matter what. default is true
@@ -718,17 +716,7 @@ Sefaria = {
     return ZipArchive.unzip(zipSourcePath, RNFS.DocumentDirectoryPath);
   },
   _loadJSON: function(JSONSourcePath) {
-    if (Platform.OS === 'ios') {
-      return fetch(JSONSourcePath).then(result => result.json());
-    } else {
-      return new Promise((resolve, reject) => {
-        RNFS.readFile(JSONSourcePath).then(result => {
-          resolve(JSON.parse(result));
-        }).catch(e => {
-          reject(e);
-        });
-      });
-    }
+    return fetch(JSONSourcePath).then(result => result.json());
   },
   _downloadZip: function(title) {
     var toFile = RNFS.DocumentDirectoryPath + "/" + title + ".zip";
