@@ -724,7 +724,17 @@ Sefaria = {
     return ZipArchive.unzip(zipSourcePath, RNFS.DocumentDirectoryPath);
   },
   _loadJSON: function(JSONSourcePath) {
-    return fetch(JSONSourcePath).then(result => result.json());
+    if (Platform.OS === 'ios') {
+      return fetch(JSONSourcePath).then(result => result.json());
+    } else {
+      return new Promise((resolve, reject) => {
+        RNFS.readFile(JSONSourcePath).then(result => {
+          resolve(JSON.parse(result));
+        }).catch(e => {
+          reject(e);
+        });
+      });
+    }
   },
   _downloadZip: function(title) {
     var toFile = RNFS.DocumentDirectoryPath + "/" + title + ".zip";
