@@ -688,11 +688,11 @@ def export_calendar(for_sources=False):
                     ref = model.Ref(daf)
                 tref = ref.normal()
                 heTref = ref.he_normal()
-                if not yom["date"] in calendar["dafyomi"]:
-                    calendar["dafyomi"][yom["date"]] = []
-                calendar["dafyomi"][yom["date"]] += [{
+                #if not yom["date"] in calendar["dafyomi"]:
+                #    calendar["dafyomi"][yom["date"]] = []
+                calendar["dafyomi"][yom["date"]] = {
                     "ref": {"en": tref, "he": heTref}
-                }]
+                }
         except InputError, e:
             print "Error parsing '%s': %s" % (yom["daf"], str(e))
 
