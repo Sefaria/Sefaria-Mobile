@@ -259,8 +259,8 @@ class CalendarSection extends React.Component {
               heCat={"דף יומי"}
               language={this.props.language}
               style={{"borderColor": Sefaria.palette.categoryColor("Talmud")}}
-              subtext={dafYomi.ref}
-              onPress={() => { this.props.openRef(dafYomi.ref.en); }}
+              subtext={Array.isArray(dafYomi) ? dafYomi.map(x => x.ref) : dafYomi.ref}
+              onPress={() => { this.props.openRef(Array.isArray(dafYomi) ? dafYomi[0].ref.en : dafYomi.ref.en); }}
               key="dafYomi" /> : null,
             !!p929 ? <CategoryBlockLink
               theme={this.props.theme}

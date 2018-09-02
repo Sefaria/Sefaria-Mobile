@@ -679,13 +679,20 @@ def export_calendar(for_sources=False):
     dafyomi = db.dafyomi.find({"_id": {"$gte": daf_today["_id"]}}).sort([("_id", 1)])
     for yom in dafyomi:
         try:
-            ref = model.Ref(yom["daf"] + "a")
-            tref = ref.normal()
-            heTref = ref.he_normal()
-
-            calendar["dafyomi"][yom["date"]] = {
-                "ref": {"en": tref, "he": heTref}
-            }
+            daf_list = yom["daf"] if isinstance(yom["daf"], list) else [yom["daf"]]
+            for daf in daf_list:
+                try:
+                    ref = model.Ref(daf + "a")
+                except InputError:
+                    # likely this is a mishna ref at the end of kodshim
+                    ref = model.Ref(daf)
+                tref = ref.normal()
+                heTref = ref.he_normal()
+                if not yom["date"] in calendar["dafyomi"]:
+                    calendar["dafyomi"][yom["date"]] = []
+                calendar["dafyomi"][yom["date"]] += [{
+                    "ref": {"en": tref, "he": heTref}
+                }]
         except InputError, e:
             print "Error parsing '%s': %s" % (yom["daf"], str(e))
 
