@@ -11,6 +11,7 @@ import { initAsyncStorage } from './ReduxStore';
 import { Filter } from './Filter';
 import FilterNode from './FilterNode';
 import URL from 'url-parse';
+import nextFrame from 'next-frame';
 
 
 const ERRORS = {
@@ -26,13 +27,21 @@ Sefaria = {
       .then(initAsyncStorage);
   },
   postInit: function() {
+    // a bit hacky, but basically allows rendering to happen in between each promise
     return Sefaria.search._loadSearchTOC()
+      .then(nextFrame)
       .then(Sefaria._loadPeople)
+      .then(nextFrame)
       .then(Sefaria._loadRecentQueries)
+      .then(nextFrame)
       .then(Sefaria._loadCalendar)
+      .then(nextFrame)
       .then(Sefaria._loadSavedItems)
+      .then(nextFrame)
       .then(Sefaria._loadHebrewCategories)
+      .then(nextFrame)
       .then(Sefaria.packages._load)
+      .then(nextFrame)
       .then(Sefaria.downloader.init);  // downloader init is dependent on packages
   },
   /*

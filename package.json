@@ -13,6 +13,7 @@
     "eslint": "^4.19.1",
     "inquirer": "^3.2.0",
     "link": "^0.1.5",
+    "next-frame": "^0.2.3",
     "performance-now": "^2.1.0",
     "prop-types": "^15.6.2",
     "react": "^16.4.1",
