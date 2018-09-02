@@ -22,12 +22,11 @@ const ERRORS = {
 Sefaria = {
   init: function() {
     return Sefaria._loadTOC()
-    .then(Sefaria._loadHistoryItems)
-    .then(initAsyncStorage);
+      .then(Sefaria._loadHistoryItems)
+      .then(initAsyncStorage);
   },
   postInit: function() {
-    return
-      Sefaria.search._loadSearchTOC()
+    return Sefaria.search._loadSearchTOC()
       .then(Sefaria._loadPeople)
       .then(Sefaria._loadRecentQueries)
       .then(Sefaria._loadCalendar)

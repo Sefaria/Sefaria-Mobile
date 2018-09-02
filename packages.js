@@ -16,7 +16,6 @@ const Packages = {
 
               const pkgPath = exists ? (RNFS.DocumentDirectoryPath + "/library/packages.json") :
                   (RNFS.MainBundlePath + "/sources/packages.json");
-              console.log(exists, pkgPath);
               Sefaria._loadJSON(pkgPath).then(function (data) {
                   Sefaria.packages.available = data;
                   for (pkgObj of data) {
@@ -59,7 +58,6 @@ const Packages = {
       }),
       AsyncStorage.getItem("newToPackages").then(function(data) {
         Sefaria.packages.newToPackages = !!data ? JSON.parse(data) : true;
-        console.log(Sefaria.packages.newToPackages);
       }),
     ]);
   },
@@ -69,7 +67,6 @@ const Packages = {
       const nAvailable = Sefaria.downloader.titlesAvailable().length;
       const nDownloaded = Sefaria.downloader.titlesDownloaded().length;
       const percentDownloaded = nDownloaded / nAvailable;
-      console.log(percentDownloaded, nAvailable, nDownloaded);
       if (percentDownloaded > 0.95) {
         Sefaria.packages.updateSelected("COMPLETE LIBRARY", false);
       }
