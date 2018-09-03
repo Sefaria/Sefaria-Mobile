@@ -53,7 +53,7 @@ class TextSegment extends React.PureComponent {
   componentWillReceiveProps(nextProps) {
     if (this.props.themeStr !== nextProps.themeStr ||
         this.props.fontSize !== nextProps.fontSize) {
-      this.setState({ resetKey: Math.random() }); //hacky fix to reset htmlview when theme colors change
+      this.setState({ resetKey: !this.state.resetKey }); //hacky fix to reset htmlview when theme colors change
     }
   }
   render() {
