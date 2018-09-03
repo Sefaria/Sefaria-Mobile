@@ -700,7 +700,7 @@ class TextHeader extends React.PureComponent {
 }
 
 class CellView extends React.PureComponent {
-  // need to put onLayout method in CellRenderer to capture global y positon of cell 
+  // need to put onLayout method in CellRenderer to capture global y positon of cell
   onLayout = event => {
     const { height, width, y, x } = event.nativeEvent.layout;
     this.props.onSegmentLayout(this.props.item.ref, {y, height});

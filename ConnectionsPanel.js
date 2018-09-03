@@ -84,9 +84,9 @@ class ConnectionsPanel extends React.Component {
     const isSummaryMode = this.props.connectionsMode === null;
     const connectionsPanelHeader = (
       <View
-        onStartShouldSetResponder={(evt)=>this.props.onDragStart(evt)}
-        onResponderMove={(evt)=>this.props.onDragMove(evt)}
-        onResponderRelease={(evt)=>this.props.onDragEnd(evt)}>
+        onStartShouldSetResponder={this.props.onDragStart}
+        onResponderMove={this.props.onDragMove}
+        onResponderRelease={this.props.onDragEnd}>
         <ConnectionsPanelHeader
           theme={this.props.theme}
           themeStr={this.props.themeStr}
