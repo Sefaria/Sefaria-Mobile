@@ -84,6 +84,10 @@ class TextRange extends React.PureComponent {
     })
   };
 
+  _setRef = ref => {
+    this.props.setRowRef(this.props.segmentRef, ref);
+  };
+
   render() {
     let enText = this.props.rowData.content.text || "";
     let heText = this.props.rowData.content.he || "";
@@ -161,7 +165,7 @@ class TextRange extends React.PureComponent {
     return (
       <View
         style={styles.verseContainer}
-        ref={view=>{this.props.setRowRef(this.props.segmentRef, view)}}
+        ref={this._setRef}
       >
         {segment}
       </View>

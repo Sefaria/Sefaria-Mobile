@@ -430,11 +430,15 @@ class TextColumn extends React.Component {
         textLanguage={this.props.textLanguage}
         showSegmentNumbers={Sefaria.showSegmentNumbers(this.props.textTitle)}
         textSegmentPressed={this.textSegmentPressed}
-        setRowRef={(key, ref)=>{this.rowRefs[key]=ref}}
-        setRowRefInitY={(key, y)=>{this.rowYHash[key] = y}}
+        setRowRef={this.setSegmentRowRef}
+        setRowRefInitY={this.setRowRefInitY}
       />
     );
   };
+
+  setSegmentRowRef = (key, ref) => { this.rowRefs[key] = ref; };
+
+  setRowRefInitY = (key, y) => { this.rowYHash[key] = y; };
 
   renderSegmentedRow = ({ item }) => {
     // In segmented case, rowData represents a segments of text
@@ -449,8 +453,8 @@ class TextColumn extends React.Component {
         textLanguage={this.props.textLanguage}
         showSegmentNumbers={Sefaria.showSegmentNumbers(this.props.textTitle)}
         textSegmentPressed={this.textSegmentPressed}
-        setRowRef={(key, ref)=>{this.rowRefs[key]=ref}}
-        setRowRefInitY={(key, y)=>{this.rowYHash[key] = y}}
+        setRowRef={this.setSegmentRowRef}
+        setRowRefInitY={this.setRowRefInitY}
         openUri={this.props.openUri}
       />
     );
@@ -656,6 +660,7 @@ class TextColumn extends React.Component {
             onEndReached={this.onEndReached}
             onEndReachedThreshold={2.0}
             onScroll={this.handleScroll}
+            extraData={this.props.fontSize}
             scrollEventThrottle={100}
             onViewableItemsChanged={this.onViewableItemsChanged}
             onScrollToIndexFailed={this.onScrollToIndexFailed}
