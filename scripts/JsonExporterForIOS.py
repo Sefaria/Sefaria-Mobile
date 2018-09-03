@@ -13,6 +13,7 @@ import traceback
 import requests
 import p929
 import codecs
+from collections import defaultdict
 from shutil import rmtree
 from random import random
 from pprint import pprint
@@ -369,14 +370,24 @@ def section_data(oref, defaultVersions):
 
     en_len = len(text["text"])
     he_len = len(text["he"])
-    for x in xrange (0,max([en_len,he_len])):
+    section_links = get_links(text["ref"], False)
+    anchor_ref_dict = defaultdict(list)
+    for link in section_links:
+        anchor_oref = model.Ref(link["anchorRef"])
+        start_seg_num = anchor_oref.sections[-1]
+        # make sure sections are the same in range
+        # TODO doesn't deal with links that span sections
+        end_seg_num = anchor_oref.toSections[-1] if anchor_oref.sections[0] == anchor_oref.toSections[0] else max(en_len, he_len)
+        if not anchor_oref.is_segment_level():
+            continue  # don't bother with section level links
+        for x in xrange(start_seg_num, end_seg_num+1):
+            anchor_ref_dict[x] += [simple_link(link)]
+    for x in xrange (0,max(en_len,he_len)):
         curContent = {}
         curContent["segmentNumber"] = str(x+1)
-
-        links = get_links(text["ref"] + ":" + curContent["segmentNumber"], False)
-        #print links
+        links = anchor_ref_dict[x+1]
         if len(links) > 0:
-            curContent["links"] = [simple_link(link) for link in links]
+            curContent["links"] = links
 
         if x < en_len: curContent["text"]=text["text"][x]
         if x < he_len: curContent["he"]=text["he"][x]
