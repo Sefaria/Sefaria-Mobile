@@ -35,13 +35,14 @@ class TextRange extends React.PureComponent {
     super(props);
   }
 
-  getDisplayedText = () => {
+  getDisplayedText = (withURL) => {
     const {text, he} = this.props.rowData.content;
     const enText = Sefaria.util.removeHtml(typeof text === "string" ? text : "") || "";
     const heText = Sefaria.util.removeHtml(typeof he === "string" ? he : "") || "";
     const isHeb = this.props.textLanguage !== "english";
     const isEng = this.props.textLanguage !== "hebrew";
-    return (heText && isHeb ? heText + (enText && isEng ? "\n" : "") : "") + ((enText && isEng) ? enText : "");
+    const fullText = (heText && isHeb ? heText + (enText && isEng ? "\n" : "") : "") + ((enText && isEng) ? enText : "");
+    return withURL ? `${fullText}\n\n${Sefaria.refToUrl(this.props.segmentRef)}` : fullText;
   };
   copyToClipboard = () => {
     Clipboard.setString(this.getDisplayedText());
@@ -50,9 +51,8 @@ class TextRange extends React.PureComponent {
   reportErrorBody = () => (
     encodeURIComponent(
       `${this.props.segmentRef}
-      ${Sefaria.refToUrl(this.props.segmentRef)}
 
-      ${this.getDisplayedText()}
+      ${this.getDisplayedText(true)}
 
       Describe the error:`)
   )
@@ -75,7 +75,7 @@ class TextRange extends React.PureComponent {
       if (buttonIndex === 0) { this.copyToClipboard(); }
       else if (buttonIndex === 1) { this.reportError(); }
       else if (buttonIndex === 2) { Share.share({
-          message: this.getDisplayedText(),
+          message: this.getDisplayedText(Platform.OS === 'android'),  // android for some reason doesn't share text with a url attached at the bottom
           title: this.props.segmentRef,
           url: Sefaria.refToUrl(this.props.segmentRef)
         })
