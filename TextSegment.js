@@ -58,8 +58,9 @@ class TextSegment extends React.PureComponent {
   }
   render() {
     // console.log(this.props.segmentKey+": "+typeof(this.props.textRef));
+    const lineHeightMultiplierHe = Platform.OS === 'android' ? 1.3 : 1.2;
     const style = this.props.textType == "hebrew" ?
-                  [styles.hebrewText, this.props.theme.text, styles.justifyText, {fontSize: this.props.fontSize, lineHeight: this.props.fontSize * 1.1},] :
+                  [styles.hebrewText, this.props.theme.text, styles.justifyText, {fontSize: this.props.fontSize, lineHeight: this.props.fontSize * lineHeightMultiplierHe},] :
                   [styles.englishText, this.props.theme.text, styles.justifyText, {fontSize: 0.8 * this.props.fontSize, lineHeight: this.props.fontSize * 1.04 }];
     if (this.props.bilingual && this.props.textType == "english") {
       style.push(styles.bilingualEnglishText);
