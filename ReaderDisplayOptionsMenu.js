@@ -7,7 +7,9 @@ import {
   Text,
   TouchableOpacity,
   View,
-  Image
+  Image,
+  Animated,
+  Platform,
 } from 'react-native';
 import styles from './Styles.js';
 import strings from './LocalizedStrings';
@@ -42,6 +44,25 @@ class ReaderDisplayOptionsMenu extends React.Component {
     incrementFont:                   PropTypes.func,
     setTheme:                        PropTypes.func
   };
+  constructor(props) {
+    super(props);
+    this._position = new Animated.Value(0);
+  }
+
+  show = () => {
+    Animated.timing(this._position, {
+      toValue: 1,
+      duration: 250,
+    }).start();
+  };
+
+  hide = (cb) => {
+    Animated.timing(this._position, {
+      toValue: 0,
+      duration: 250,
+    }).start(cb);
+  };
+
   render() {
     const options = [
       {
@@ -138,11 +159,23 @@ class ReaderDisplayOptionsMenu extends React.Component {
         toggleSets = [];
       }
     }
-
+    const myStyles = [
+      styles.readerDisplayOptionsMenu,
+      this.props.theme.readerDisplayOptionsMenu,
+      {
+        top: this._position.interpolate({
+          inputRange: [0, 1],
+          outputRange: [-250, 0],
+          extrapolate: 'clamp',
+        }),
+      },
+    ];
     return (
-        <View style={[styles.readerDisplayOptionsMenu,this.props.theme.readerDisplayOptionsMenu]}>
-          {rows}
-        </View>
+      <View style={{flex: 1, left: 0, right: 0, top:58, position: 'absolute', backgroundColor: 'transparent', overflow: 'hidden'}}>
+        <Animated.View style={myStyles}>
+            {rows}
+        </Animated.View>
+      </View>
     );
   }
 }

@@ -179,7 +179,7 @@ class AnimatedRow extends React.Component {
           toValue: 0,
           duration: animationDuration,
         })
-      ]).start(() => onRemove());
+      ]).start(onRemove);
     }
   }
 

@@ -52,15 +52,18 @@ export default StyleSheet.create({
     flexDirection: 'row',
     borderBottomWidth: 1
   },
-  readerDisplayOptionsMenu: {
-    position: "absolute",
-    top: 58,
+  readerDisplayOptionsMenuMask: {
+    flex: 1,
     left: 0,
     right: 0,
+    top:58,
+    position: 'absolute',
+    backgroundColor: 'transparent',  // required to give the view height and width of children
+    overflow: 'hidden',  // required on iOS to clip subviews outside of parent for masking
+  },
+  readerDisplayOptionsMenu: {
     paddingTop: 10,
     paddingBottom: 10,
-    alignSelf: 'stretch',
-    flexDirection: 'column',
     borderBottomWidth: 1,
     flex: 1,
   },

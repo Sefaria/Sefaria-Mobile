@@ -238,12 +238,16 @@ class ReaderApp extends React.Component {
 
   toggleReaderDisplayOptionsMenu = () => {
     if (this.state.ReaderDisplayOptionsMenuVisible == false) {
-  	 this.setState({ReaderDisplayOptionsMenuVisible:  true})
-  	} else {
-  	 this.setState({ReaderDisplayOptionsMenuVisible:  false})}
-
-     //console.log(this.state.ReaderDisplayOptionsMenuVisible);
-    this.trackPageview();
+      this.setState({ReaderDisplayOptionsMenuVisible:  true}, () => {
+        // wait for ref to be defined
+        this._readerDisplayOptionsMenuRef && this._readerDisplayOptionsMenuRef.show();
+      });
+    } else {
+      this._readerDisplayOptionsMenuRef && this._readerDisplayOptionsMenuRef.hide(() => {
+        this.setState({ReaderDisplayOptionsMenuVisible:  false});
+      });
+      this.trackPageview();
+    }
   };
 
   toggleMenuLanguage = () => {
@@ -1199,6 +1203,10 @@ class ReaderApp extends React.Component {
     this.setState({appliedSearchFilters: this.getAppliedSearchFilters(this.state.availableSearchFilters)});
   };
 
+  _getReaderDisplayOptionsMenuRef = ref => {
+    this._readerDisplayOptionsMenuRef = ref;
+  }
+
   renderContent() {
     const loading = !this.state.loaded;
     switch(this.state.menuOpen) {
@@ -1463,6 +1471,7 @@ class ReaderApp extends React.Component {
           }
           {this.state.ReaderDisplayOptionsMenuVisible ?
             (<ReaderDisplayOptionsMenu
+              ref={this._getReaderDisplayOptionsMenuRef}
               theme={this.props.theme}
               textFlow={this.state.textFlow}
               textReference={this.state.textReference}
