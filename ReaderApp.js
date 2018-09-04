@@ -1205,7 +1205,14 @@ class ReaderApp extends React.Component {
 
   _getReaderDisplayOptionsMenuRef = ref => {
     this._readerDisplayOptionsMenuRef = ref;
-  }
+  };
+
+  _onStartShouldSetResponderCapture = () => {
+    if (this.state.ReaderDisplayOptionsMenuVisible === true) {
+       this.toggleReaderDisplayOptionsMenu();
+       return true;
+    }
+  };
 
   renderContent() {
     const loading = !this.state.loaded;
@@ -1382,13 +1389,7 @@ class ReaderApp extends React.Component {
           { loading ?
           <LoadingView theme={this.props.theme} style={{flex: textColumnFlex}}/> :
           <View style={[{flex: textColumnFlex}, styles.mainTextPanel, this.props.theme.mainTextPanel]}
-                onStartShouldSetResponderCapture={() => {
-                  if (this.state.ReaderDisplayOptionsMenuVisible == true) {
-                     this.toggleReaderDisplayOptionsMenu();
-                     return true;
-                  }
-                }}
-          >
+                onStartShouldSetResponderCapture={this._onStartShouldSetResponderCapture}>
             <TextColumn
               showToast={this.showToast}
               textToc={this.state.textToc}
@@ -1423,13 +1424,7 @@ class ReaderApp extends React.Component {
 
           {this.state.textListVisible ?
             <View style={[{flex:this.state.textListFlex}, styles.mainTextPanel, this.props.theme.commentaryTextPanel]}
-                onStartShouldSetResponderCapture={() => {
-                  if (this.state.ReaderDisplayOptionsMenuVisible == true) {
-                     this.toggleReaderDisplayOptionsMenu();
-                     return true;
-                  }
-                }}
-            >
+                onStartShouldSetResponderCapture={this._onStartShouldSetResponderCapture}>
               <ConnectionsPanel
                 textToc={this.state.textToc}
                 menuLanguage={this.props.menuLanguage}
