@@ -171,7 +171,7 @@ class ReaderDisplayOptionsMenu extends React.Component {
       },
     ];
     return (
-      <View style={{flex: 1, left: 0, right: 0, top:58, position: 'absolute', backgroundColor: 'transparent', overflow: 'hidden'}}>
+      <View style={styles.readerDisplayOptionsMenuMask}>
         <Animated.View style={myStyles}>
             {rows}
         </Animated.View>
