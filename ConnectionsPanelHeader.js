@@ -62,7 +62,7 @@ class ConnectionsPanelHeader extends React.Component {
         outerStyles = [styles.textListHeader, styles.textListHeaderSummary, this.props.theme.textListHeader];
         content = (
           <View style={{flex: 1, flexDirection: isheb ? 'row-reverse' : 'row', justifyContent: 'flex-start', alignItems: 'center' }}>
-            <TouchableOpacity onPress={() => {this.props.setConnectionsMode(backMode)}}>
+            <TouchableOpacity onPress={() => {this.props.setConnectionsMode(backMode)}} hitSlop={{top: 20, left: 20, right: 20, bottom: 20}}>
               <DirectedArrow
                 imageStyle={backImageStyle}
                 themeStr={this.props.themeStr}
@@ -70,7 +70,11 @@ class ConnectionsPanelHeader extends React.Component {
                 direction={"back"}
               />
             </TouchableOpacity>
-            <ScrollView style={{flexDirection: isheb ? 'row-reverse' : 'row'}} contentContainerStyle={styles.textListHeaderScrollView} horizontal={true}>
+            <ScrollView
+              style={{flexDirection: isheb ? 'row-reverse' : 'row'}}
+              contentContainerStyle={styles.textListHeaderScrollView}
+              horizontal={true}
+              automaticallyAdjustContentInsets={false}>
               <RecentFilterNav
                 theme={this.props.theme}
                 recentFilters={this.props.recentFilters}
@@ -158,6 +162,7 @@ class RecentFilterNavItem extends React.Component {
       // dont disable because that makes it hard to scroll disabled={this.props.selected}
       return (
         <TouchableOpacity
+          hitSlop={{top: 10, left: 10, right: 10, bottom: 10}}
           style={touchStyles}
           onPress={()=>{this.props.updateCat(this.props.filterIndex)}}
         >

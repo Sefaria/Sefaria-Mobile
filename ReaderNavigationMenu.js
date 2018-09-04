@@ -138,7 +138,7 @@ class ReaderNavigationMenu extends React.Component {
       categories = (<View style={styles.readerNavCategories}><TwoBox content={categories} language={this.props.menuLanguage}/></View>);
       const isHeb = this.props.interfaceLang === "hebrew";
       const langStyle = !isHeb ? styles.enInt : styles.heInt;
-
+      const hitSlop = {top: 10, bottom: 10, left: 10, right: 10};
       return(<View style={[styles.menu, this.props.theme.menu]}>
               <CategoryColorLine category={"Other"} />
               <SearchBar
@@ -193,19 +193,19 @@ class ReaderNavigationMenu extends React.Component {
                 </View>
 
                 <View style={styles.navBottomLinks}>
-                  <TouchableOpacity onPress={this.props.openSettings}>
+                  <TouchableOpacity onPress={this.props.openSettings} hitSlop={hitSlop}>
                     <Text style={[isHeb ? styles.heInt : styles.enInt, this.props.theme.tertiaryText]}>{strings.settings}</Text>
                   </TouchableOpacity>
 
                   <Text style={[styles.navBottomLinkDot, this.props.theme.tertiaryText]}>•</Text>
 
-                  <TouchableOpacity onPress={() => {this.props.openUri("https://www.sefaria.org/about");}}>
+                  <TouchableOpacity onPress={() => {this.props.openUri("https://www.sefaria.org/about");}} hitSlop={hitSlop}>
                     <Text style={[isHeb ? styles.heInt : styles.enInt, this.props.theme.tertiaryText]}>{strings.about}</Text>
                   </TouchableOpacity>
 
                   <Text style={[styles.navBottomLinkDot, this.props.theme.tertiaryText]}>•</Text>
 
-                  <TouchableOpacity onPress={() => {Linking.openURL(`mailto:hello@sefaria.org?subject=${encodeURIComponent(Platform.OS+" App Feedback")}&body=${this.getEmailBody()}`);}}>
+                  <TouchableOpacity onPress={() => {Linking.openURL(`mailto:hello@sefaria.org?subject=${encodeURIComponent(Platform.OS+" App Feedback")}&body=${this.getEmailBody()}`);}} hitSlop={hitSlop}>
                     <Text style={[isHeb ? styles.heInt : styles.enInt, this.props.theme.tertiaryText]}>{strings.feedback}</Text>
                   </TouchableOpacity>
 

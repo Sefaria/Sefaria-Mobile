@@ -406,11 +406,14 @@ export default StyleSheet.create({
     flexDirection: "row",
   },
   textListHeaderScrollView: {
-    alignSelf: "stretch",
-
+    alignSelf: "center",
+    alignItems: "center",
   },
   connectionsPanelHeaderItem: {
     paddingHorizontal: 10,
+    height: 45,  // unfortunately hard-coding height of connectionPanelHeader so that this is full height
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   connectionsPanelHeaderItemText: {
     fontSize: iPad ? 18 : 16,
