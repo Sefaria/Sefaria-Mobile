@@ -4,7 +4,7 @@ import {
     NetInfo, Platform
 } from 'react-native';
 
-const RNFS = require('react-native-fs'); //for access to file system -- (https://github.com/johanneslumpe/react-native-fs)
+import RNFB from 'rn-fetch-blob';
 import strings from './LocalizedStrings';
 
 
@@ -44,8 +44,8 @@ var Downloader = {
             });
   },
   downloadLibrary: function(silent=false) {
-    RNFS.mkdir(RNFS.DocumentDirectoryPath + "/library").catch((error)=>{console.log(error)});
-    RNFS.mkdir(RNFS.DocumentDirectoryPath + "/tmp").catch((error)=>{console.log(error)});
+    RNFB.fs.mkdir(RNFB.fs.dirs.DocumentDir + "/library").catch((error)=>{console.log(error)});
+    RNFB.fs.mkdir(RNFB.fs.dirs.DocumentDir + "/tmp").catch((error)=>{console.log(error)});
     Downloader._setData("shouldDownload", true);
     Downloader.downloadUpdatesList()
     .then(() => {
@@ -81,8 +81,8 @@ var Downloader = {
   resumeDownload: function() {
     // Resumes the download process if anything is left in progress or in queue.
     // if titles where left in progress, put them back in the queue
-    RNFS.unlink(RNFS.DocumentDirectoryPath + "/tmp");
-    RNFS.mkdir(RNFS.DocumentDirectoryPath + "/tmp");
+    RNFB.fs.unlink(RNFB.fs.dirs.DocumentDir + "/tmp");
+    RNFB.fs.mkdir(RNFB.fs.dirs.DocumentDir + "/tmp");
     Downloader._setData("downloadPaused", false);
     if (Downloader._data.downloadInProgress.length) {
       Downloader._setData("downloadQueue", Downloader._data.downloadQueue.concat(Downloader._data.downloadInProgress));
@@ -120,12 +120,12 @@ var Downloader = {
         }
         Downloader._setData("lastDownload", Downloader._data.lastDownload);
       });
-    var tocPromise = RNFS.downloadFile({
-      fromUrl: HOST_PATH + "toc.json",
-      toFile: RNFS.DocumentDirectoryPath + "/library/toc.json",
-      background: true,
-      discretionary: true,
-    }).promise.then(() => {
+    var tocPromise =
+    RNFB.config({path: RNFB.fs.dirs.DocumentDir + "/library/toc.json"})
+    .fetch(
+      'GET',
+      HOST_PATH + "toc.json"
+    ).then(() => {
       Sefaria._loadTOC();
     });
     return Promise.all([lastUpdatePromise, tocPromise]).then(() => {
@@ -134,50 +134,44 @@ var Downloader = {
       Downloader._setData("lastUpdateSchema", SCHEMA_VERSION)
       Downloader.onChange && Downloader.onChange();
       // download these ancillary files after. they shouldn't hold up the update
-      RNFS.downloadFile({
-        fromUrl: HOST_PATH + "search_toc.json",
-        toFile: RNFS.DocumentDirectoryPath + "/library/search_toc.json",
-        background: true,
-        discretionary: true,
-      }).promise.then(() => {
+      RNFB.config({path: RNFB.fs.dirs.DocumentDir + "/library/search_toc.json"})
+      .fetch(
+        'GET',
+        HOST_PATH + "search_toc.json"
+      ).then(() => {
         console.log("search toc");
 
         Sefaria.search._loadSearchTOC();
       });
-      RNFS.downloadFile({
-        fromUrl: HOST_PATH + "hebrew_categories.json",
-        toFile: RNFS.DocumentDirectoryPath + "/library/hebrew_categories.json",
-        background: true,
-        discretionary: true,
-      }).promise.then(() => {
+      RNFB.config({path: RNFB.fs.dirs.DocumentDir + "/library/hebrew_categories.json"})
+      .fetch(
+        'GET',
+        HOST_PATH + "hebrew_categories.json"
+      ).then(() => {
         console.log("hebcats");
-
         Sefaria._loadHebrewCategories();
       });
-      RNFS.downloadFile({
-        fromUrl: HOST_PATH + "people.json",
-        toFile: RNFS.DocumentDirectoryPath + "/library/people.json",
-        background: true,
-        discretionary: true,
-      }).promise.then(() => {
+      RNFB.config({path: RNFB.fs.dirs.DocumentDir + "/library/people.json"})
+      .fetch(
+        'GET',
+        HOST_PATH + "people.json"
+      ).then(() => {
         console.log("people");
         Sefaria._loadPeople();
       });
-      RNFS.downloadFile({
-        fromUrl: HOST_PATH + "packages.json",
-        toFile: RNFS.DocumentDirectoryPath + "/library/packages.json",
-        background: true,
-        discretionary: true,
-      }).promise.then(() => {
+      RNFB.config({path: RNFB.fs.dirs.DocumentDir + "/library/packages.json"})
+      .fetch(
+        'GET',
+        HOST_PATH + "packages.json"
+      ).then(() => {
         console.log("packages");
         Sefaria.packages._load().then(Sefaria.downloader.init);
       });
-      RNFS.downloadFile({
-        fromUrl: HOST_PATH + "calendar.json",
-        toFile: RNFS.DocumentDirectoryPath + "/library/calendar.json",
-        background: true,
-        discretionary: true,
-      }).promise.then(() => {
+      RNFB.config({path: RNFB.fs.dirs.DocumentDir + "/library/calendar.json"})
+      .fetch(
+        'GET',
+        HOST_PATH + "calendar.json"
+      ).then(() => {
         console.log("calendar");
         Sefaria._loadCalendar();
       });
@@ -383,26 +377,26 @@ var Downloader = {
   _downloadZip: function(title) {
     // Downloads `title`, first to /tmp then to /library when complete.
     // Manages `title`'s presense in downloadQueue and downloadInProgress.
-    var tempFile = RNFS.DocumentDirectoryPath + "/tmp/" + title + ".zip";
-    var toFile   = RNFS.DocumentDirectoryPath + "/library/" + title + ".zip"
+    var tempFile = RNFB.fs.dirs.DocumentDir + "/tmp/" + title + ".zip";
+    var toFile   = RNFB.fs.dirs.DocumentDir + "/library/" + title + ".zip"
     var start = new Date();
     //console.log("Starting download of " + title);
     Sefaria.downloader._removeFromDownloadQueue(title);
     Sefaria.downloader._setData("downloadInProgress", [title].concat(Sefaria.downloader._data.downloadInProgress));
     return new Promise(function(resolve, reject) {
-      RNFS.exists(toFile).then((exists) => {
-        if (exists) { RNFS.unlink(toFile); }
+      RNFB.fs.exists(toFile).then(exists => {
+        if (exists) { RNFB.fs.unlink(toFile); }
       });
-      RNFS.downloadFile({
-        fromUrl: HOST_PATH + encodeURIComponent(title) + ".zip",
-        toFile: tempFile,
-        background: true,
-        discretionary: true,
-      }).promise.then(downloadResult => {
-        if (downloadResult.statusCode == 200) {
+      RNFB.config({path: tempFile})
+      .fetch(
+        'GET',
+        HOST_PATH + encodeURIComponent(title) + ".zip"
+      ).then(downloadResult => {
+        const status = downloadResult.info().status;
+        if (status == 200) {
           //console.log("Downloaded " + title + " in " + (new Date() - start));
-          RNFS.moveFile(tempFile, toFile)
-          .catch((error) => {
+          RNFB.fs.mv(tempFile, toFile)
+          .catch(error => {
             console.log(error);
           })
           Downloader._removeFromInProgress(title);
@@ -411,12 +405,12 @@ var Downloader = {
           Downloader.onChange && Downloader.onChange();
           resolve();
         } else {
-          reject(downloadResult.statusCode + " - " + title);
-          RNFS.unlink(tempFile);
+          reject(status + " - " + title);
+          RNFB.fs.unlink(tempFile);
         }
-        if (Platform.OS == "ios") {
-            RNFS.completeHandlerIOS(downloadResult.jobId);
-        }
+        // if (Platform.OS == "ios") {
+        //     RNFS.completeHandlerIOS(downloadResult.jobId);
+        // }
       })
       .catch(Sefaria.downloader._handleDownloadError);
     })

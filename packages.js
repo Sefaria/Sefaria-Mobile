@@ -1,6 +1,7 @@
 import {AsyncStorage, Alert, Platform} from 'react-native';
-const RNFS = require('react-native-fs');
 import strings from './LocalizedStrings';
+import RNFB from 'rn-fetch-blob';
+
 
 const Packages = {
   available: null,
@@ -10,12 +11,12 @@ const Packages = {
   _load: function() {
     return Promise.all([
       new Promise((resolve, reject) => {
-        RNFS.exists(RNFS.DocumentDirectoryPath + "/library/packages.json")
+        RNFB.fs.exists(RNFB.fs.dirs.DocumentDir + "/library/packages.json")
         .then(exists => {
           if (Platform.OS == "ios" || exists) {
 
-              const pkgPath = exists ? (RNFS.DocumentDirectoryPath + "/library/packages.json") :
-                  (RNFS.MainBundlePath + "/sources/packages.json");
+              const pkgPath = exists ? (RNFB.fs.dirs.DocumentDir + "/library/packages.json") :
+                  (RNFB.fs.dirs.MainBundleDir + "/sources/packages.json");
               Sefaria._loadJSON(pkgPath).then(function (data) {
                   Sefaria.packages.available = data;
                   for (pkgObj of data) {
@@ -33,8 +34,8 @@ const Packages = {
               });
           }
           else if (Platform.OS == "android") {
-              RNFS.readFileAssets('sources/packages.json').then((data) => {
-                  var data = JSON.parse(data);
+              RNFB.fs.readFile(RNFB.fs.asset('sources/packages.json')).then(data => {
+                  data = JSON.parse(data);
                   Sefaria.packages.available = data;
                   for (pkgObj of data) {
                       if (!!pkgObj.indexes) {
@@ -137,11 +138,11 @@ const Packages = {
   },
   deletePackage: (pkgName, resolve) => {
     if (!resolve) { resolve = ()=>{} }
-    RNFS.unlink(RNFS.DocumentDirectoryPath + "/tmp");
-    RNFS.mkdir(RNFS.DocumentDirectoryPath + "/tmp");
+    RNFB.fs.unlink(RNFB.fs.dirs.DocumentDir + "/tmp");
+    RNFB.fs.mkdir(RNFB.fs.dirs.DocumentDir + "/tmp");
     const dl = Sefaria.downloader;
     if (Sefaria.packages.isFullLibrary(pkgName)) {
-      RNFS.unlink(RNFS.DocumentDirectoryPath + "/library");
+      RNFB.fs.unlink(RNFB.fs.dirs.DocumentDir + "/library");
       dl._setData("lastDownload", {});
       dl._setData("shouldDownload", false);
       dl.clearQueue();
@@ -149,7 +150,7 @@ const Packages = {
     } else {
       const pkgObj = Sefaria.packages.available.find(p=>p.en === pkgName);
       const reflect = promise => promise.then(v=>1,e=>e);  // make sure all promises resolve but remember which ones rejected so that Promise.all() runs
-      const promises = pkgObj.indexes.map(i => reflect(RNFS.unlink(`${RNFS.DocumentDirectoryPath}/library/${i}.zip`)));
+      const promises = pkgObj.indexes.map(i => reflect(RNFB.fs.unlink(`${RNFB.fs.dirs.DocumentDir}/library/${i}.zip`)));
       Promise.all(promises).then((result) => {
         result.forEach((r,i)=>{
           const title = pkgObj.indexes[i]

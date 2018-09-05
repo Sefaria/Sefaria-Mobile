@@ -107,6 +107,9 @@ android {
             abiFilters "armeabi-v7a", "x86"
         }
     }
+    aaptOptions {
+      noCompress "txt", "json"
+    }
     splits {
         abi {
             reset()
@@ -137,6 +140,7 @@ android {
 }
 
 dependencies {
+    compile project(':rn-fetch-blob')
     compile project(':react-native-splash-screen')
     compile project(':react-native-check-app-install')
     compile project(':react-native-action-sheet')

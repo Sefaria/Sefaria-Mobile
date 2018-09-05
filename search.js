@@ -4,7 +4,6 @@ import {
 
 import FilterNode from './FilterNode';
 import strings from './LocalizedStrings';
-import RNFS from 'react-native-fs';
 
 var Search = {
   baseUrl: "https://www.sefaria.org/api/search/merged/_search/",

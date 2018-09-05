@@ -1,7 +1,7 @@
 import { AsyncStorage, Alert, Platform } from 'react-native';
 import { GoogleAnalyticsTracker } from 'react-native-google-analytics-bridge'; //https://github.com/idehub/react-native-google-analytics-bridge/blob/master/README.md
 const ZipArchive  = require('react-native-zip-archive'); //for unzipping -- (https://github.com/plrthink/react-native-zip-archive)
-const RNFS        = require('react-native-fs'); //for access to file system -- (https://github.com/johanneslumpe/react-native-fs)
+import RNFB from 'rn-fetch-blob';
 import Downloader from './downloader';
 import Api from './api';
 import Packages from './packages';
@@ -150,7 +150,7 @@ Sefaria = {
         .then(preResolve)
         .catch(() => {
           // If there was en error, check that we have the zip file downloaded
-          RNFS.exists(zipPath)
+          RNFB.fs.exists(zipPath)
             .then(exists => {
               if (exists) {
                 Sefaria._unzip(zipPath)
@@ -710,10 +710,10 @@ Sefaria = {
   },
   _deleteUnzippedFiles: function() {
     return new Promise(function(resolve, reject) {
-      RNFS.readDir(RNFS.DocumentDirectoryPath).then((result) => {
-        for (var i = 0; i < result.length; i++) {
-          if (result[i].isFile() && result[i].path.endsWith(".json")) {
-            RNFS.unlink(result[i].path);
+      RNFB.fs.lstat(RNFB.fs.dirs.DocumentDir).then(fileList => {
+        for (let f of fileList) {
+          if (f.type === 'file' && f.filename.endsWith(".json")) {
+            RNFB.fs.unlink(f.path + f.filename);
           }
         }
         resolve();
@@ -721,14 +721,14 @@ Sefaria = {
     });
   },
   _unzip: function(zipSourcePath) {
-    return ZipArchive.unzip(zipSourcePath, RNFS.DocumentDirectoryPath);
+    return ZipArchive.unzip(zipSourcePath, RNFB.fs.dirs.DocumentDir);
   },
   _loadJSON: function(JSONSourcePath) {
     if (Platform.OS === 'ios') {
       return fetch(JSONSourcePath).then(result => result.json());
     } else {
       return new Promise((resolve, reject) => {
-        RNFS.readFile(JSONSourcePath).then(result => {
+        RNFB.fs.readFile(JSONSourcePath).then(result => {
           resolve(JSON.parse(result));
         }).catch(e => {
           reject(e);
@@ -737,29 +737,32 @@ Sefaria = {
     }
   },
   _downloadZip: function(title) {
-    var toFile = RNFS.DocumentDirectoryPath + "/" + title + ".zip";
+    var toFile = RNFB.fs.dirs.DocumentDir + "/" + title + ".zip";
     var start = new Date();
     //console.log("Starting download of " + title);
     return new Promise(function(resolve, reject) {
-      RNFS.downloadFile({
-        fromUrl: "http://dev.sefaria.org/static/ios-export/" + encodeURIComponent(title) + ".zip",
-        toFile: toFile
-      }).then(function(downloadResult) {
+      RNFB.config({
+        path: toFile,
+      }).fetch(
+        'GET',
+        "http://dev.sefaria.org/static/ios-export/" + encodeURIComponent(title) + ".zip"
+      ).then(downloadResult => {
         //console.log("Downloaded " + title + " in " + (new Date() - start));
-        if (downloadResult.statusCode == 200) {
+        const status = downloadResult.info().status;
+        if (status == 200) {
           resolve();
         } else {
-          reject(downloadResult.statusCode);
-          RNFS.unlink(toFile);
+          reject(status);
+          RNFB.fs.unlink(toFile);
         }
       })
     });
   },
   _JSONSourcePath: function(fileName) {
-    return (RNFS.DocumentDirectoryPath + "/" + fileName + ".json");
+    return (RNFB.fs.dirs.DocumentDir + "/" + fileName + ".json");
   },
   _zipSourcePath: function(fileName) {
-    return (RNFS.DocumentDirectoryPath + "/library/" + fileName + ".zip");
+    return (RNFB.fs.dirs.DocumentDir + "/library/" + fileName + ".zip");
   },
   textFromRefData: function(data) {
     // Returns a dictionary of the form {en: "", he: "", sectionRef: ""} that includes a single string with
@@ -1181,21 +1184,22 @@ Sefaria = {
 Sefaria.util = {
   openFileInSources: function(filename) {
     return new Promise((resolve, reject) => {
-      RNFS.exists(RNFS.DocumentDirectoryPath + `/library/${filename}`)
+      RNFB.fs.exists(RNFB.fs.dirs.DocumentDir + `/library/${filename}`)
         .then(exists => {
           if (exists) {
-            Sefaria._loadJSON(RNFS.DocumentDirectoryPath + `/library/${filename}`).then(data => {
+            Sefaria._loadJSON(RNFB.fs.dirs.DocumentDir + `/library/${filename}`).then(data => {
               resolve(data);
             });
           }
           else {
             if (Platform.OS == "ios") {
-              Sefaria._loadJSON(RNFS.MainBundlePath + `/sources/${filename}`).then(data => {
+              Sefaria._loadJSON(RNFB.fs.dirs.MainBundleDir + `/sources/${filename}`).then(data => {
                 resolve(data);
               });
             }
             else if (Platform.OS == "android") {
-              RNFS.readFileAssets(`sources/${filename}`).then(data => {
+              const assetFilename = RNFB.fs.asset("sources/" + filename);
+              RNFB.fs.readFile(assetFilename).then(data => {
                 resolve(JSON.parse(data));
               });
             }

@@ -3,7 +3,6 @@ import {
 } from 'react-native';
 import 'abortcontroller-polyfill';
 
-const RNFS    = require('react-native-fs'); //for access to file system -- (https://github.com/johanneslumpe/react-native-fs)
 import strings from './LocalizedStrings';
 import LinkContent from './LinkContent';
 
