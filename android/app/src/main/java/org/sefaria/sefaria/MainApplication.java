@@ -3,6 +3,7 @@ package org.sefaria.sefaria;
 import android.app.Application;
 
 import com.facebook.react.ReactApplication;
+import com.rnfs.RNFSPackage;
 import com.RNFetchBlob.RNFetchBlobPackage;
 import org.devio.rn.splashscreen.SplashScreenReactPackage;
 import com.rpt.reactnativecheckpackageinstallation.CheckPackageInstallationPackage;
@@ -12,7 +13,6 @@ import com.rnziparchive.RNZipArchivePackage;
 import com.apsl.versionnumber.RNVersionNumberPackage;
 import com.babisoft.ReactNativeLocalization.ReactNativeLocalizationPackage;
 import com.idehub.GoogleAnalyticsBridge.GoogleAnalyticsBridgePackage;
-import com.rnfs.RNFSPackage;
 import com.facebook.react.ReactNativeHost;
 import com.facebook.react.ReactPackage;
 import com.facebook.react.shell.MainReactPackage;
@@ -33,6 +33,7 @@ public class MainApplication extends Application implements ReactApplication {
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
+            new RNFSPackage(),
             new RNFetchBlobPackage(),
             new SplashScreenReactPackage(),
             new CheckPackageInstallationPackage(),
@@ -41,8 +42,7 @@ public class MainApplication extends Application implements ReactApplication {
             new RNZipArchivePackage(),
             new RNVersionNumberPackage(),
             new ReactNativeLocalizationPackage(),
-            new GoogleAnalyticsBridgePackage(),
-            new RNFSPackage()
+            new GoogleAnalyticsBridgePackage()
       );
     }
 

@@ -2,6 +2,7 @@ import { AsyncStorage, Alert, Platform } from 'react-native';
 import { GoogleAnalyticsTracker } from 'react-native-google-analytics-bridge'; //https://github.com/idehub/react-native-google-analytics-bridge/blob/master/README.md
 const ZipArchive  = require('react-native-zip-archive'); //for unzipping -- (https://github.com/plrthink/react-native-zip-archive)
 import RNFB from 'rn-fetch-blob';
+import RNFS from 'react-native-fs';
 import Downloader from './downloader';
 import Api from './api';
 import Packages from './packages';
@@ -22,6 +23,13 @@ const ERRORS = {
 
 Sefaria = {
   init: function() {
+    AsyncStorage.getItem("numTimesOpenedApp").then(data => {
+      Sefaria.numTimesOpenedApp = !!data ? parseInt(data) : 0;
+      console.log("numTimesOpenedApp", Sefaria.numTimesOpenedApp);
+      AsyncStorage.setItem("numTimesOpenedApp", JSON.stringify(Sefaria.numTimesOpenedApp + 1)).catch(error => {
+        console.error("AsyncStorage failed to save: " + error);
+      });
+    });
     return Sefaria._loadTOC()
       .then(Sefaria._loadHistoryItems)
       .then(initAsyncStorage);
@@ -735,28 +743,6 @@ Sefaria = {
         });
       });
     }
-  },
-  _downloadZip: function(title) {
-    var toFile = RNFB.fs.dirs.DocumentDir + "/" + title + ".zip";
-    var start = new Date();
-    //console.log("Starting download of " + title);
-    return new Promise(function(resolve, reject) {
-      RNFB.config({
-        path: toFile,
-      }).fetch(
-        'GET',
-        "http://dev.sefaria.org/static/ios-export/" + encodeURIComponent(title) + ".zip"
-      ).then(downloadResult => {
-        //console.log("Downloaded " + title + " in " + (new Date() - start));
-        const status = downloadResult.info().status;
-        if (status == 200) {
-          resolve();
-        } else {
-          reject(status);
-          RNFB.fs.unlink(toFile);
-        }
-      })
-    });
   },
   _JSONSourcePath: function(fileName) {
     return (RNFB.fs.dirs.DocumentDir + "/" + fileName + ".json");

@@ -41,24 +41,18 @@ class TextList extends React.Component {
     const dataSource = this.generateDataSource(props);
     this.state = {
       dataSource,
-      isNewSegment: false,
+      updateScrollPosKey: true,
     };
   }
 
   componentWillReceiveProps(nextProps) {
-    if (this.props.segmentRef !== nextProps.segmentRef) {
-      this.setState({isNewSegment:true});
-    } else if (this.props.recentFilters !== nextProps.recentFilters ||
-               this.props.connectionsMode !== nextProps.connectionsMode ||
-               this.props.filterIndex !== nextProps.filterIndex ||
-               this.props.listContents !== nextProps.listContents) {
-      this.setState({dataSource: this.generateDataSource(nextProps)});
+    if (this.props.segmentRef !== nextProps.segmentRef ||
+        this.props.recentFilters !== nextProps.recentFilters ||
+        this.props.connectionsMode !== nextProps.connectionsMode ||
+        this.props.filterIndex !== nextProps.filterIndex ||
+        this.props.listContents !== nextProps.listContents) {
+      this.setState({dataSource: this.generateDataSource(nextProps), updateScrollPosKey: !this.state.updateScrollPosKey});
     }
-  }
-
-  componentDidUpdate() {
-    if (this.state.isNewSegment)
-      this.setState({isNewSegment:false});
   }
 
   generateDataSource = (props) => {
@@ -74,7 +68,7 @@ class TextList extends React.Component {
         key,
         ref,
         heRef: filter.heRefList[index],
-        //changeString: [linkRef, loading, props.settings.fontSize, props.textLanguage].join("|"),
+        //changeString: [ref, loading, props.fontSize, props.textLanguage].join("|"),
         versionTitle: filter.versionTitle,
         versionLanguage: filter.versionLanguage,
         pos: index,
@@ -118,9 +112,9 @@ class TextList extends React.Component {
   };
 
   render() {
-    if (this.state.isNewSegment) { return null; } // hacky way to reset scroll postion
     return (
       <FlatList
+        key={this.state.updateScrollPosKey}
         style={styles.scrollViewPaddingInOrderToScroll}
         data={this.state.dataSource}
         renderItem={this.renderItem}

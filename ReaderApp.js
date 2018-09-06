@@ -632,6 +632,19 @@ class ReaderApp extends React.Component {
     this.openRef(ref, "text toc", null, false, enableAliyot);
   };
 
+  textUnavailableAlert = ref => {
+    Alert.alert(
+      strings.textUnavailable,
+      strings.promptOpenOnWebMessage,
+      [
+        {text: strings.cancel, style: 'cancel'},
+        {text: strings.open, onPress: () => {
+          this.openUri(Sefaria.refToUrl(ref));
+        }}
+      ]
+    );
+  };
+
   /*
   calledFrom parameter used for analytics and for back button
   prevScrollPos parameter used for back button
@@ -645,15 +658,7 @@ class ReaderApp extends React.Component {
       const title = Sefaria.textTitleForRef(ref);
       const overwriteVersions = calledFrom !== 'search'; // if called from search, use version specified by search (or default if none specified)
       if (!title) {
-        Alert.alert(
-          strings.textUnavailable,
-          strings.promptOpenOnWebMessage,
-          [
-            {text: strings.cancel, style: 'cancel'},
-            {text: strings.open, onPress: () => {
-              this.openUri(Sefaria.refToUrl(ref));
-            }}
-          ]);
+        this.textUnavailableAlert();
         resolve();
         return;
       }
@@ -788,6 +793,10 @@ class ReaderApp extends React.Component {
   openTextTocDirectly = (title) => {
 
     // used to open text toc witout going throught the reader
+    if (!Sefaria.booksDict[title]) {
+      this.textUnavailableAlert(title);
+      return;
+    }
     this.loadTextTocData(title);
     this.setState({textTitle: title}, () => {  // openTextToc assumes that title is set correctly
       this.openTextToc();
@@ -981,11 +990,13 @@ class ReaderApp extends React.Component {
   };
 
   updateVersionCat = (filterIndex, segmentRef) => {
+    console.log('updateVersionCat', this.state.versionFilterIndex, filterIndex, segmentRef);
     if (this.state.versionFilterIndex === filterIndex) return;
     if (!filterIndex && filterIndex !== 0) {
       if (this.state.versionFilterIndex == null) return;
       filterIndex = this.state.versionFilterIndex;
     }
+    console.log('filterIndex', filterIndex);
     if (!segmentRef) { segmentRef = this.state.segmentRef; }
     this.state.versionRecentFilters[filterIndex].refList = [segmentRef];
     const versionContents = [null];
@@ -998,7 +1009,8 @@ class ReaderApp extends React.Component {
   };
 
   loadVersionContent = (ref, pos, versionTitle, versionLanguage) => {
-    Sefaria.data(ref, false, {[versionLanguage]: versionTitle }).then((data) => {
+    console.log('loadVersionContent', ref, pos, versionTitle, versionLanguage);
+    Sefaria.data(ref, false, {[versionLanguage]: versionTitle }).then(data => {
       // only want to show versionLanguage in results
       const removeLang = versionLanguage === "he" ? "en" : "he";
       data.result[removeLang] = "";

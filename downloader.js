@@ -1,7 +1,9 @@
 import {
     Alert,
     AsyncStorage,
-    NetInfo, Platform
+    NetInfo,
+    Platform,
+    PermissionsAndroid,
 } from 'react-native';
 
 import RNFB from 'rn-fetch-blob';
@@ -121,7 +123,7 @@ var Downloader = {
         Downloader._setData("lastDownload", Downloader._data.lastDownload);
       });
     var tocPromise =
-    RNFB.config({path: RNFB.fs.dirs.DocumentDir + "/library/toc.json"})
+    RNFB.config({IOSBackgroundTask: true, indicator: true, path: RNFB.fs.dirs.DocumentDir + "/library/toc.json"})
     .fetch(
       'GET',
       HOST_PATH + "toc.json"
@@ -134,7 +136,7 @@ var Downloader = {
       Downloader._setData("lastUpdateSchema", SCHEMA_VERSION)
       Downloader.onChange && Downloader.onChange();
       // download these ancillary files after. they shouldn't hold up the update
-      RNFB.config({path: RNFB.fs.dirs.DocumentDir + "/library/search_toc.json"})
+      RNFB.config({IOSBackgroundTask: true, indicator: true, path: RNFB.fs.dirs.DocumentDir + "/library/search_toc.json"})
       .fetch(
         'GET',
         HOST_PATH + "search_toc.json"
@@ -143,7 +145,7 @@ var Downloader = {
 
         Sefaria.search._loadSearchTOC();
       });
-      RNFB.config({path: RNFB.fs.dirs.DocumentDir + "/library/hebrew_categories.json"})
+      RNFB.config({IOSBackgroundTask: true, indicator: true, path: RNFB.fs.dirs.DocumentDir + "/library/hebrew_categories.json"})
       .fetch(
         'GET',
         HOST_PATH + "hebrew_categories.json"
@@ -151,7 +153,7 @@ var Downloader = {
         console.log("hebcats");
         Sefaria._loadHebrewCategories();
       });
-      RNFB.config({path: RNFB.fs.dirs.DocumentDir + "/library/people.json"})
+      RNFB.config({IOSBackgroundTask: true, indicator: true, path: RNFB.fs.dirs.DocumentDir + "/library/people.json"})
       .fetch(
         'GET',
         HOST_PATH + "people.json"
@@ -159,7 +161,7 @@ var Downloader = {
         console.log("people");
         Sefaria._loadPeople();
       });
-      RNFB.config({path: RNFB.fs.dirs.DocumentDir + "/library/packages.json"})
+      RNFB.config({IOSBackgroundTask: true, indicator: true, path: RNFB.fs.dirs.DocumentDir + "/library/packages.json"})
       .fetch(
         'GET',
         HOST_PATH + "packages.json"
@@ -167,7 +169,7 @@ var Downloader = {
         console.log("packages");
         Sefaria.packages._load().then(Sefaria.downloader.init);
       });
-      RNFB.config({path: RNFB.fs.dirs.DocumentDir + "/library/calendar.json"})
+      RNFB.config({IOSBackgroundTask: true, indicator: true, path: RNFB.fs.dirs.DocumentDir + "/library/calendar.json"})
       .fetch(
         'GET',
         HOST_PATH + "calendar.json"
@@ -270,12 +272,12 @@ var Downloader = {
     AsyncStorage.getItem("libraryDownloadPrompted")
       .then((prompted) => {
         if (!prompted) {
-          var onDownload = function() {
+          const onDownload = () => {
             AsyncStorage.setItem("libraryDownloadPrompted", "true");
             Downloader.onChange && Downloader.onChange(true);  // true means open settings page
             Sefaria.track.event("Downloader", "Initial Download Prompt", "accept");
           };
-          var onCancel = function() {
+          const onCancel = () => {
             AsyncStorage.setItem("libraryDownloadPrompted", "true");
             Alert.alert(
               strings.usingOnlineLibrary,
@@ -285,13 +287,36 @@ var Downloader = {
               ]);
             Sefaria.track.event("Downloader", "Initial Download Prompt", "decline");
           };
-          Alert.alert(
-            strings.welcome,
-            strings.downloadLibraryRecommendedMessage,
-            [
-              {text: strings.openSettings, onPress: onDownload},
-              {text: strings.notNow, onPress: onCancel}
-            ]);
+          const showWelcomeAlert = () => {
+            Alert.alert(
+              strings.welcome,
+              strings.downloadLibraryRecommendedMessage,
+              [
+                {text: strings.openSettings, onPress: onDownload},
+                {text: strings.notNow, onPress: onCancel}
+              ]
+            );
+          };
+          if (Platform.OS === 'android') {
+            const oldDBPath = RNFS.ExternalDirectoryPath + "/databases";
+            RNFB.fs.exists(oldDBPath).then(exists => {
+              if (exists) {
+                Alert.alert(
+                  "Found old offline library",
+                  "Old offline library is not compatible with this version of the app. Please redownload from settings",
+                  [
+                    {text: strings.openSettings, onPress: onDownload},
+                    {text: strings.notNow, onPress: onCancel}
+                  ]
+                );
+                RNFB.fs.unlink(oldDBPath);
+              } else {
+                showWelcomeAlert();
+              }
+            });
+          } else {
+            showWelcomeAlert();
+          }
         }
       });
   },
@@ -377,42 +402,60 @@ var Downloader = {
   _downloadZip: function(title) {
     // Downloads `title`, first to /tmp then to /library when complete.
     // Manages `title`'s presense in downloadQueue and downloadInProgress.
-    var tempFile = RNFB.fs.dirs.DocumentDir + "/tmp/" + title + ".zip";
     var toFile   = RNFB.fs.dirs.DocumentDir + "/library/" + title + ".zip"
     var start = new Date();
+    const isIOS = Platform.OS === 'ios' || true;
+    const tempFile = isIOS ? RNFB.fs.dirs.DocumentDir + "/tmp/" + title + ".zip" : RNFB.fs.dirs.DownloadDir + title + ".zip";
+
     //console.log("Starting download of " + title);
     Sefaria.downloader._removeFromDownloadQueue(title);
     Sefaria.downloader._setData("downloadInProgress", [title].concat(Sefaria.downloader._data.downloadInProgress));
-    return new Promise(function(resolve, reject) {
-      RNFB.fs.exists(toFile).then(exists => {
-        if (exists) { RNFB.fs.unlink(toFile); }
-      });
-      RNFB.config({path: tempFile})
-      .fetch(
-        'GET',
-        HOST_PATH + encodeURIComponent(title) + ".zip"
-      ).then(downloadResult => {
-        const status = downloadResult.info().status;
-        if (status == 200) {
-          //console.log("Downloaded " + title + " in " + (new Date() - start));
-          RNFB.fs.mv(tempFile, toFile)
-          .catch(error => {
-            console.log(error);
+    return new Promise(async function(resolve, reject) {
+      RNFB.fs.unlink(toFile).catch(()=>{});
+      try {
+        const granted = isIOS ? PermissionsAndroid.RESULTS.GRANTED : await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+        {
+          title: 'gimme gimme',
+          message: 'please!',
+        })
+        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+          RNFB.config({
+            IOSBackgroundTask: isIOS,
+            indicator: isIOS,
+            path: tempFile,
           })
-          Downloader._removeFromInProgress(title);
-          Downloader._data.lastDownload[title] = Downloader._data.availableDownloads[title];
-          Downloader._setData("lastDownload", Downloader._data.lastDownload);
-          Downloader.onChange && Downloader.onChange();
-          resolve();
+          .fetch(
+            'GET',
+            HOST_PATH + encodeURIComponent(title) + ".zip"
+          ).then(downloadResult => {
+            const status = downloadResult.info().status;
+            if (status === 200) {
+              console.log("Downloaded " + title + " in " + (new Date() - start));
+              RNFB.fs.mv(tempFile, toFile)
+              .catch(error => {
+                console.log('mv error', error);
+              })
+              Downloader._removeFromInProgress(title);
+              Downloader._data.lastDownload[title] = Downloader._data.availableDownloads[title];
+              Downloader._setData("lastDownload", Downloader._data.lastDownload);
+              Downloader.onChange && Downloader.onChange();
+              resolve();
+            } else {
+              reject(status + " - " + title);
+              RNFB.fs.unlink(tempFile);
+            }
+            // if (Platform.OS == "ios") {
+            //     RNFS.completeHandlerIOS(downloadResult.jobId);
+            // }
+          })
+          .catch(Sefaria.downloader._handleDownloadError);
         } else {
-          reject(status + " - " + title);
-          RNFB.fs.unlink(tempFile);
+          reject('permission denied!')
         }
-        // if (Platform.OS == "ios") {
-        //     RNFS.completeHandlerIOS(downloadResult.jobId);
-        // }
-      })
-      .catch(Sefaria.downloader._handleDownloadError);
+      } catch (err) {
+        reject(err)
+      }
     })
   },
   _removeFromDownloadQueueBulk: function(titles) {

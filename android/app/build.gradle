@@ -140,6 +140,7 @@ android {
 }
 
 dependencies {
+    compile project(':react-native-fs')
     compile project(':rn-fetch-blob')
     compile project(':react-native-splash-screen')
     compile project(':react-native-check-app-install')
@@ -149,7 +150,6 @@ dependencies {
     compile project(':react-native-version-number')
     compile project(':react-native-localization')
     compile project(':react-native-google-analytics-bridge')
-    compile project(':react-native-fs')
     compile fileTree(dir: "libs", include: ["*.jar"])
     compile "com.android.support:appcompat-v7:${rootProject.ext.supportLibVersion}"
     compile "com.facebook.react:react-native:+"  // From node_modules
