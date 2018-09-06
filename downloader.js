@@ -270,7 +270,9 @@ var Downloader = {
   promptLibraryDownload: function() {
     // If it hasn't been done already, prompt the user to download the library.
     AsyncStorage.getItem("libraryDownloadPrompted")
-      .then((prompted) => {
+      .then(async (prompted) => {
+        // always check for android library
+        const oldLibraryExists = await Downloader.deleteOldAndroidLibrary();
         if (!prompted) {
           const onDownload = () => {
             AsyncStorage.setItem("libraryDownloadPrompted", "true");
@@ -297,28 +299,35 @@ var Downloader = {
               ]
             );
           };
-          if (Platform.OS === 'android') {
-            const oldDBPath = RNFS.ExternalDirectoryPath + "/databases";
-            RNFB.fs.exists(oldDBPath).then(exists => {
-              if (exists) {
-                Alert.alert(
-                  "Found old offline library",
-                  "Old offline library is not compatible with this version of the app. Please redownload from settings",
-                  [
-                    {text: strings.openSettings, onPress: onDownload},
-                    {text: strings.notNow, onPress: onCancel}
-                  ]
-                );
-                RNFB.fs.unlink(oldDBPath);
-              } else {
-                showWelcomeAlert();
-              }
-            });
+
+          if (oldLibraryExists) {
+            Alert.alert(
+              "Found old offline library",
+              "Old offline library is not compatible with this version of the app. Please redownload from settings",
+              [
+                {text: strings.openSettings, onPress: onDownload},
+                {text: strings.notNow, onPress: onCancel}
+              ]
+            );
           } else {
             showWelcomeAlert();
           }
         }
       });
+  },
+  deleteOldAndroidLibrary: () => {
+    return new Promise((resolve, reject) => {
+      if (Platform.OS === 'android') {
+        RNFB.fs.exists(oldDBPath).then(exists => {
+          if (exists) {
+            RNFB.fs.unlink(oldDBPath);
+          }
+          resolve(exists);
+        });
+      } else {
+        resolve(false);
+      }
+    });
   },
   promptLibraryUpdate: function() {
     var updates = Downloader.updatesAvailable();

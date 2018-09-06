@@ -634,6 +634,10 @@ class ReaderApp extends React.Component {
     this.openRef(ref, "text toc", null, false, enableAliyot);
   };
 
+  openRefConnectionsPanel = (ref, versions) => {
+    this.openRef(ref,"text list", versions);
+  };
+
   textUnavailableAlert = ref => {
     Alert.alert(
       strings.textUnavailable,
@@ -1457,7 +1461,7 @@ class ReaderApp extends React.Component {
                 categories={Sefaria.categoriesForTitle(this.state.textTitle)}
                 textFlow={this.state.textFlow}
                 textLanguage={this.props.textLanguage}
-                openRef={(ref, versions)=>this.openRef(ref,"text list", versions)}
+                openRef={this.openRefConnectionsPanel}
                 setConnectionsMode={this.setConnectionsMode}
                 openFilter={this.openFilter}
                 closeCat={this.closeLinkCat}
