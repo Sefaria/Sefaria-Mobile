@@ -58,11 +58,11 @@ const SCHEMA_VERSION = 1;
 const MESSAGE_PREFIX = "IntMessage:";
 const NUM_TIMES_OPENED_APP_THRESHOLD = 15;
 // Example JSON below
-const EN_URL = "https://www.sefaria.org/static/mobile/test/message-en.json";
-const HE_URL = "https://www.sefaria.org/static/mobile/test/message-he.json";
+const EN_URL = "https://www.sefaria.org/static/mobile/message-en.json";
+const HE_URL = "https://www.sefaria.org/static/mobile/message-he.json";
 
-//const EN_URL = "file:///Users/blocks-mini/dev/Sefaria-Project/static/mobile/message-en.json";
-//const HE_URL = "file:///Users/blocks-mini/dev/Sefaria-Project/static/mobile/message-he.json";
+const EN_DEBUG_URL = "https://www.sefaria.org/static/mobile/test/message-en.json";
+const HE_DEBUG_URL = "https://www.sefaria.org/static/mobile/test/message-he.json";
 
 class InterruptingMessage extends React.Component {
   constructor(props) {
@@ -71,14 +71,12 @@ class InterruptingMessage extends React.Component {
       modalVisible: false,
       data: null
     };
-    this.checkForMessage();
   }
 
   checkForMessage = () => {
     if (this.data) { return; }
-
-    const URL = this.props.interfaceLang == "hebrew" ? HE_URL : EN_URL;
-
+    const isHeb = this.props.interfaceLang == "hebrew";
+    const URL = this.props.debugInterruptingMessage ? (isHeb ? HE_DEBUG_URL : EN_DEBUG_URL) : (isHeb ? HE_URL : EN_URL);
     const showModal = data => {
       this.setState({data: data});
       this.showTimeout = setTimeout(() => {
@@ -104,7 +102,7 @@ class InterruptingMessage extends React.Component {
   hasMessageShown = data => {
     return new Promise((resolve, reject) => {
       if (!data) { resolve(null); }
-      const flagName = MESSAGE_PREFIX + data.name;
+      const flagName = `${MESSAGE_PREFIX}${this.props.debugInterruptingMessage ? 'DEBUG:' : ''}${data.name}`;
       AsyncStorage.getItem(flagName).then(value => {
         //console.log("message has show:", JSON.parse(value));
         value = JSON.parse(value);
@@ -121,7 +119,7 @@ class InterruptingMessage extends React.Component {
   clearFlag = data => {
     // for Debug
     if (!data) { return new Promise((resolve, reject)=>{resolve(data);}) }
-    const flagName = MESSAGE_PREFIX + data.name;
+    const flagName = `${MESSAGE_PREFIX}${this.props.debugInterruptingMessage ? 'DEBUG:' : ''}${data.name}`;
     return new Promise((resolve, reject) => {
       AsyncStorage.removeItem(flagName).then(value => {
         resolve(data);

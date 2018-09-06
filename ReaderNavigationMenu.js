@@ -7,10 +7,12 @@ import {
   Text,
   TouchableOpacity,
   TouchableNativeFeedback,
+  TouchableWithoutFeedback,
   View,
   Image,
   Platform,
   Linking,
+  Alert,
 } from 'react-native';
 
 import {
@@ -47,15 +49,31 @@ class ReaderNavigationMenu extends React.Component {
     searchQuery:    PropTypes.string.isRequired,
     openAutocomplete: PropTypes.func.isRequired,
     openUri:        PropTypes.func.isRequired,
+    toggleDebugInterruptingMessage: PropTypes.func.isRequired,
+    debugInterruptingMessage: PropTypes.bool.isRequired,
   };
 
   constructor(props) {
     super(props);
-
+    this._numPressesDebug = 0;
     this.state = {
       showMore: false,
     };
   }
+
+  onDebugSupportPress = () => {
+    this._numPressesDebug++;
+    if (this._numPressesDebug >= 7) {
+      this._numPressesDebug = 0;
+      Alert.alert(
+      'Testing InterruptingMessage Mode',
+      `You've just ${this.props.debugInterruptingMessage ? "disabled" : "enabled"} debugging interrupting message. You can change this by tapping 'SUPPORT SEFARIA' 7 times.`,
+      [
+        {text: 'OK', onPress: ()=>{this.forceUpdate();}},
+      ]);
+      this.props.toggleDebugInterruptingMessage();
+    }
+  };
 
   showMore = () => {
     this.setState({showMore: true});
@@ -179,7 +197,13 @@ class ReaderNavigationMenu extends React.Component {
                   interfaceLang={this.props.interfaceLang} />
 
                 <View style={styles.readerNavSection}>
-                  <Text style={[styles.readerNavSectionTitle, this.props.theme.readerNavSectionTitle, langStyle, {textAlign: "center"}]}>{strings.supportSefaria}</Text>
+                  <TouchableWithoutFeedback onPress={this.onDebugSupportPress}>
+                    <View>
+                      <Text style={[styles.readerNavSectionTitle, this.props.theme.readerNavSectionTitle, langStyle, {textAlign: "center"}]}>
+                        {strings.supportSefaria}
+                      </Text>
+                    </View>
+                  </TouchableWithoutFeedback>
                   <TouchableOpacity style={[styles.button, this.props.theme.borderDarker, this.props.theme.mainTextPanel, {flexDirection: isHeb ? "row-reverse" : "row", justifyContent: "center", marginTop: 15}]}
                     onPress={() => {this.props.openUri("https://sefaria.nationbuilder.com/");}}>
                     <Image source={this.props.themeStr == "white" ? require('./img/heart.png'): require('./img/heart-light.png') }

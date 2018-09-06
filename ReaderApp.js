@@ -69,6 +69,8 @@ class ReaderApp extends React.Component {
           loaded: true,
           defaultSettingsLoaded: true,
         });
+        // wait to check for interrupting message until after asyncstorage is loaded
+        this._interruptingMessageRef && this._interruptingMessageRef.checkForMessage();
         const mostRecent =  Sefaria.history.length ? Sefaria.history[0] : {ref: "Genesis 1"};
         this.openRef(mostRecent.ref, null, mostRecent.versions, false)  // first call to openRef should not add to backStack
         .then(Sefaria.postInit)
@@ -1219,6 +1221,10 @@ class ReaderApp extends React.Component {
     this._readerDisplayOptionsMenuRef = ref;
   };
 
+  _getInterruptingMessageRef = ref => {
+    this._interruptingMessageRef = ref;
+  };
+
   _onStartShouldSetResponderCapture = () => {
     if (this.state.ReaderDisplayOptionsMenuVisible === true) {
        this.toggleReaderDisplayOptionsMenu();
@@ -1254,7 +1260,9 @@ class ReaderApp extends React.Component {
               onChangeSearchQuery={this.onChangeSearchQuery}
               theme={this.props.theme}
               themeStr={this.props.themeStr}
-              openUri={this.openUri}/>
+              openUri={this.openUri}
+              toggleDebugInterruptingMessage={this.props.toggleDebugInterruptingMessage}
+              debugInterruptingMessage={this.props.debugInterruptingMessage}/>
           </View>)
         );
       case ("text toc"):
@@ -1531,8 +1539,10 @@ class ReaderApp extends React.Component {
           <Toast ref="toast"/>
         </SafeAreaView>
         <InterruptingMessage
+          ref={this._getInterruptingMessageRef}
           interfaceLang={this.state.interfaceLang}
-          openWebViewPage={this.openWebViewPage} />
+          openWebViewPage={this.openWebViewPage}
+          debugInterruptingMessage={this.props.debugInterruptingMessage} />
       </View>
 
     );
@@ -1549,6 +1559,7 @@ const mapStateToProps = (
     textLanguage,
     overwriteVersions,
     showAliyot,
+    debugInterruptingMessage,
   }) => ({
   theme,
   themeStr,
@@ -1559,6 +1570,7 @@ const mapStateToProps = (
   textLanguage,
   overwriteVersions,
   showAliyot,
+  debugInterruptingMessage,
 });
 
 const mapDispatchToProps = dispatch => ({
@@ -1569,6 +1581,7 @@ const mapDispatchToProps = dispatch => ({
   setDefaultTextLanguage: language => { dispatch(ACTION_CREATORS.setDefaultTextLanguage(language)); },
   setOverwriteVersions: overwrite => { dispatch(ACTION_CREATORS.setOverwriteVersions(overwrite)); },
   setAliyot: show => { dispatch(ACTION_CREATORS.setAliyot(show)); },
+  toggleDebugInterruptingMessage: () => { dispatch(ACTION_CREATORS.toggleDebugInterruptingMessage()); },
 });
 
 export default connect(

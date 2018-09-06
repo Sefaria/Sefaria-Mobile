@@ -14,6 +14,7 @@ const REDUX_ACTIONS = {
   setFontSize: "SET_FONT_SIZE",
   setOverwriteVersions: "SET_OVERWRITE_VERSIONS",
   setAliyot: "SET_ALIYOT",
+  toggleDebugInterruptingMessage: "TOGGLE_DEBUG_INTERRUPTING_MESSAGE",
 };
 
 const ACTION_CREATORS = {
@@ -54,6 +55,11 @@ const ACTION_CREATORS = {
     type: REDUX_ACTIONS.setAliyot,
     show,
   }),
+  toggleDebugInterruptingMessage: (debug, fromAsync) => ({
+    type: REDUX_ACTIONS.toggleDebugInterruptingMessage,
+    debug,
+    fromAsync,
+  }),
 }
 
 const ASYNC_STORAGE_DEFAULTS = {
@@ -80,7 +86,11 @@ const ASYNC_STORAGE_DEFAULTS = {
   showAliyot: {
     default: false,
     action: ACTION_CREATORS.setAliyot,
-  }
+  },
+  debugInterruptingMessage: {
+    default: false,
+    action: ACTION_CREATORS.toggleDebugInterruptingMessage,
+  },
 };
 
 const DEFAULT_STATE = {
@@ -91,6 +101,7 @@ const DEFAULT_STATE = {
   fontSize: ASYNC_STORAGE_DEFAULTS.fontSize.default,
   overwriteVersions: true,
   showAliyot: ASYNC_STORAGE_DEFAULTS.showAliyot.default,
+  debugInterruptingMessage: ASYNC_STORAGE_DEFAULTS.debugInterruptingMessage.default,
 };
 
 const saveFieldToAsync = function (field, value) {
@@ -152,6 +163,14 @@ const reducer = function (state = DEFAULT_STATE, action) {
       return {
         ...state,
         showAliyot: action.show,
+      }
+    case REDUX_ACTIONS.toggleDebugInterruptingMessage:
+      // toggle if you didn't pass in debug, otherwise you're initializing the value
+      const newDebug = action.debug === undefined ? (!state.debugInterruptingMessage) : action.debug;
+      if (!action.fromAsync) { saveFieldToAsync('debugInterruptingMessage', newDebug); }
+      return {
+        ...state,
+        debugInterruptingMessage: newDebug,
       }
     default:
       return state;
