@@ -55,10 +55,11 @@ var styles = StyleSheet.create({
 
 // Updates when JSON structure changes
 const SCHEMA_VERSION = 1;
-
+const MESSAGE_PREFIX = "IntMessage:";
+const NUM_TIMES_OPENED_APP_THRESHOLD = 15;
 // Example JSON below
-const EN_URL = "https://www.sefaria.org/static/mobile/message-en.json";
-const HE_URL = "https://www.sefaria.org/static/mobile/message-he.json";
+const EN_URL = "https://www.sefaria.org/static/mobile/test/message-en.json";
+const HE_URL = "https://www.sefaria.org/static/mobile/test/message-he.json";
 
 //const EN_URL = "file:///Users/blocks-mini/dev/Sefaria-Project/static/mobile/message-en.json";
 //const HE_URL = "file:///Users/blocks-mini/dev/Sefaria-Project/static/mobile/message-he.json";
@@ -90,8 +91,8 @@ class InterruptingMessage extends React.Component {
       //.then(this.clearFlag) // Debug
       .then(this.hasMessageShown)
       .then(data=> {
-        console.log("intmess data:", data);
-        if (data && !data.hasShown && data.schemaVersion == SCHEMA_VERSION) {
+        //console.log("intmess data:", data);
+        if (data && data.shouldShow && data.schemaVersion == SCHEMA_VERSION) {
           showModal(data);
         }
       })
@@ -103,10 +104,15 @@ class InterruptingMessage extends React.Component {
   hasMessageShown = data => {
     return new Promise((resolve, reject) => {
       if (!data) { resolve(null); }
-      const flagName = "IntMess:" + data.name;
+      const flagName = MESSAGE_PREFIX + data.name;
       AsyncStorage.getItem(flagName).then(value => {
-        console.log("message has show:", JSON.parse(value));
-        data.hasShown = !!value;
+        //console.log("message has show:", JSON.parse(value));
+        value = JSON.parse(value);
+        data.shouldShow = !!value && Sefaria.numTimesOpenedApp > value.numTimesOpenedApp + NUM_TIMES_OPENED_APP_THRESHOLD && !value.hasShown;
+        if (!value || data.shouldShow) {
+          value = {numTimesOpenedApp: Sefaria.numTimesOpenedApp, hasShown: data.shouldShow};
+          AsyncStorage.setItem(flagName,JSON.stringify(value));
+        }
         resolve(data);
       });
     });
@@ -115,7 +121,7 @@ class InterruptingMessage extends React.Component {
   clearFlag = data => {
     // for Debug
     if (!data) { return new Promise((resolve, reject)=>{resolve(data);}) }
-    const flagName = "IntMess:" + data.name;
+    const flagName = MESSAGE_PREFIX + data.name;
     return new Promise((resolve, reject) => {
       AsyncStorage.removeItem(flagName).then(value => {
         resolve(data);
@@ -128,12 +134,6 @@ class InterruptingMessage extends React.Component {
   }
 
   close = () => {
-    const flagName = "IntMess:" + this.state.data.name;
-    console.log("close")
-    AsyncStorage.setItem(flagName, "1")
-      .catch(function(error) {
-        console.error("AsyncStorage failed to save: " + error);
-      });
     this.setModalVisible(false);
   }
 
