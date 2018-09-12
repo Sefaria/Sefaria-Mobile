@@ -6,6 +6,7 @@ import React, { Component } from 'react';
 import {
   Alert,
   Animated,
+  LayoutAnimation,
   AppState,
   Dimensions,
   NetInfo,
@@ -14,6 +15,7 @@ import {
   SafeAreaView,
   Platform,
   BackHandler,
+  UIManager,
 } from 'react-native';
 import { connect } from 'react-redux';
 import { createResponder } from 'react-native-gesture-responder';
@@ -21,6 +23,7 @@ import SafariView from "react-native-safari-view";
 import { CustomTabs } from 'react-native-custom-tabs';
 import { AppInstalledChecker } from 'react-native-check-app-install';
 import SplashScreen from 'react-native-splash-screen';
+import nextFrame from 'next-frame';
 
 import { ACTION_CREATORS } from './ReduxStore';
 import ReaderControls from './ReaderControls';
@@ -49,7 +52,6 @@ import {
   SefariaProgressBar,
 } from './Misc.js';
 const ViewPort    = Dimensions.get('window');
-
 
 class ReaderApp extends React.Component {
 
@@ -82,6 +84,10 @@ class ReaderApp extends React.Component {
       this.networkChangeListener
     );
 
+    if (Platform.OS === 'android') {
+      UIManager.setLayoutAnimationEnabledExperimental && UIManager.setLayoutAnimationEnabledExperimental(true);
+    }
+
     this.state = {
         offsetRef: null, /* used to jump to specific ref when opening a link*/
         segmentRef: "",
@@ -98,7 +104,8 @@ class ReaderApp extends React.Component {
         loadingTextTail: false,
         loadingTextHead: false,
         textListVisible: false,
-        textListFlex: 0.6,
+        textListFlex: 0.0001,
+        textListFlexPreference: 0.6,
         textListAnimating: false,
         data: null,
         linksLoaded: [],  // bool arrary corresponding to data indicating if links have been loaded, which occurs async with API
@@ -344,7 +351,7 @@ class ReaderApp extends React.Component {
       Sefaria.track.event("Reader","Text Segment Click", segmentRef);
 
       if (shouldToggle && this.state.textListVisible) {
-          this.setState({textListVisible: false});
+          this.animateTextList(this.state.textListFlex, 0.0001, 200);
           BackManager.back({ type: "secondary" });
           return; // Don't bother with other changes if we are simply closing the TextList
       }
@@ -377,9 +384,16 @@ class ReaderApp extends React.Component {
         BackManager.forward({ state: {textListVisible: this.state.textListVisible}, type: "secondary" });
         stateObj.textListVisible = !this.state.textListVisible;
         stateObj.offsetRef = null; //offsetRef is used to highlight. once you open textlist, you should remove the highlight
+        this.setState(stateObj, () => {
+          // make sure textlist renders once before using layoutanimation
+          nextFrame().then(() => {
+            this.animateTextList(0.0001, this.state.textListFlexPreference, 200);
+          });
+        });
+      } else {
+        this.setState(stateObj);
       }
       Sefaria.saveHistoryItem({ref: segmentRef, heRef: this.state.heRef, category: Sefaria.categoryForRef(segmentRef), versions: this.state.selectedVersions}, this.props.overwriteVersions);
-      this.setState(stateObj);
       this.forceUpdate();
   };
   /*
@@ -1048,35 +1062,45 @@ class ReaderApp extends React.Component {
     } else if (flex < 0.001) {
       flex = 0.001;
     }
-    //console.log("moving!",evt.nativeEvent.pageY,ViewPort.height,flex);
-    this.setState({textListFlex:flex});
+    this.setState({ textListFlex: flex, textListFlexPreference: flex });
   };
 
-  onTextListDragEnd = (evt) => {
-    var onTextListAnimate = function(animVal,value) {
-      //console.log("updating animation");
-      this.setState({textListFlex:value.value});
-      if (value.value > 0.999 || value.value < 0.001) {
-        animVal.stopAnimation();
-        let tempState = {textListAnimating:false, textListFlex: value.value > 0.999 ? 0.9999 : 0.3}; //important. if closing textlist, make sure to set the final flex to something visible
-        if (value.value < 0.001)
-          tempState.textListVisible = false;
-        this.setState(tempState);
+  onTextListAnimateFinish = () => {
+    const { textListFlex } = this.state;
+    const tempState = { textListAnimating: false };
+    if (textListFlex < 0.001) {
+      tempState.textListVisible = false;
+    }
+    this.setState(tempState);
+  };
+
+  animateTextList = (fromValue, toValue, duration) => {
+    this.setState({ textListAnimating: true, textListFlex: fromValue}, () => {
+      const CustomLayoutLinear = {
+        duration,
+        create: {
+          type: LayoutAnimation.Types.linear,
+          property: LayoutAnimation.Properties.opacity,
+        },
+        update: {
+          type: LayoutAnimation.Types.linear,
+        }
       }
-    };
-    let headerHeight = 75;
-    let flex = 1.0 - (evt.nativeEvent.pageY-headerHeight)/(ViewPort.height-headerHeight) + this._textListDragOffset;
+      const isIOS = Platform.OS === 'ios';
+      LayoutAnimation.configureNext(CustomLayoutLinear, isIOS ? this.onTextListAnimateFinish : undefined);
+      this.setState({ textListFlex: toValue });
+      if (!isIOS) {
+        setTimeout(this.onTextListAnimateFinish, duration + 100);
+      }
+    })
+  };
+
+  onTextListDragEnd = evt => {
+    const headerHeight = 75;
+    const flex = 1.0 - (evt.nativeEvent.pageY-headerHeight)/(ViewPort.height-headerHeight) + this._textListDragOffset;
 
     if (flex > 0.9 || flex < 0.2) {
-      this.setState({textListAnimating:true});
-      let animVal = new Animated.Value(flex);
-      animVal.addListener(onTextListAnimate.bind(this,animVal));
-      Animated.timing(
-        animVal,
-        {toValue: flex > 0.9 ? 0.9999 : 0.0001, duration: 200}
-      ).start();
-      //console.log("STOPPP");
-      return;
+      this.animateTextList(flex, flex > 0.9 ? 0.9999 : 0.0001, 200);
     }
   };
 
@@ -1447,46 +1471,48 @@ class ReaderApp extends React.Component {
           </View> }
 
           {this.state.textListVisible ?
-            <View style={[{flex:this.state.textListFlex}, styles.mainTextPanel, this.props.theme.commentaryTextPanel]}
-                onStartShouldSetResponderCapture={this._onStartShouldSetResponderCapture}>
-              <ConnectionsPanel
-                textToc={this.state.textToc}
-                menuLanguage={this.props.menuLanguage}
-                fontSize={this.props.fontSize}
-                theme={this.props.theme}
-                themeStr={this.props.themeStr}
-                interfaceLang={this.state.interfaceLang}
-                segmentRef={this.state.segmentRef}
-                heSegmentRef={Sefaria.toHeSegmentRef(this.state.heRef, this.state.segmentRef)}
-                categories={Sefaria.categoriesForTitle(this.state.textTitle)}
-                textFlow={this.state.textFlow}
-                textLanguage={this.props.textLanguage}
-                openRef={this.openRefConnectionsPanel}
-                setConnectionsMode={this.setConnectionsMode}
-                openFilter={this.openFilter}
-                closeCat={this.closeLinkCat}
-                updateLinkCat={this.updateLinkCat}
-                updateVersionCat={this.updateVersionCat}
-                loadLinkContent={this.loadLinkContent}
-                loadVersionContent={this.loadVersionContent}
-                linkSummary={this.state.linkSummary}
-                linkContents={this.state.linkContents}
-                versionContents={this.state.versionContents}
-                loading={this.state.loadingLinks}
-                connectionsMode={this.state.connectionsMode}
-                filterIndex={this.state.filterIndex}
-                recentFilters={this.state.linkRecentFilters}
-                versionRecentFilters={this.state.versionRecentFilters}
-                versionFilterIndex={this.state.versionFilterIndex}
-                currVersions={this.state.currVersions}
-                versions={this.state.versions}
-                versionsApiError={this.state.versionsApiError}
-                onDragStart={this.onTextListDragStart}
-                onDragMove={this.onTextListDragMove}
-                onDragEnd={this.onTextListDragEnd}
-                textTitle={this.state.textTitle}
-                openUri={this.openUri} />
-            </View> : null
+            <ConnectionsPanel
+              textListFlex={this.state.textListFlex}
+              textListFlexAnimated={this.state.textListFlexAnimated}
+              animating={this.state.textListAnimating}
+              onStartShouldSetResponderCapture={this._onStartShouldSetResponderCapture}
+              textToc={this.state.textToc}
+              menuLanguage={this.props.menuLanguage}
+              fontSize={this.props.fontSize}
+              theme={this.props.theme}
+              themeStr={this.props.themeStr}
+              interfaceLang={this.state.interfaceLang}
+              segmentRef={this.state.segmentRef}
+              heSegmentRef={Sefaria.toHeSegmentRef(this.state.heRef, this.state.segmentRef)}
+              categories={Sefaria.categoriesForTitle(this.state.textTitle)}
+              textFlow={this.state.textFlow}
+              textLanguage={this.props.textLanguage}
+              openRef={this.openRefConnectionsPanel}
+              setConnectionsMode={this.setConnectionsMode}
+              openFilter={this.openFilter}
+              closeCat={this.closeLinkCat}
+              updateLinkCat={this.updateLinkCat}
+              updateVersionCat={this.updateVersionCat}
+              loadLinkContent={this.loadLinkContent}
+              loadVersionContent={this.loadVersionContent}
+              linkSummary={this.state.linkSummary}
+              linkContents={this.state.linkContents}
+              versionContents={this.state.versionContents}
+              loading={this.state.loadingLinks}
+              connectionsMode={this.state.connectionsMode}
+              filterIndex={this.state.filterIndex}
+              recentFilters={this.state.linkRecentFilters}
+              versionRecentFilters={this.state.versionRecentFilters}
+              versionFilterIndex={this.state.versionFilterIndex}
+              currVersions={this.state.currVersions}
+              versions={this.state.versions}
+              versionsApiError={this.state.versionsApiError}
+              onDragStart={this.onTextListDragStart}
+              onDragMove={this.onTextListDragMove}
+              onDragEnd={this.onTextListDragEnd}
+              textTitle={this.state.textTitle}
+              openUri={this.openUri} />
+             : null
           }
           {this.state.ReaderDisplayOptionsMenuVisible ?
             (<ReaderDisplayOptionsMenu

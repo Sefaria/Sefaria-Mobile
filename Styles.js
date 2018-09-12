@@ -361,7 +361,11 @@ export default StyleSheet.create({
     marginHorizontal: 10
   },
   textListSummary: {
-    flex: 1
+    flex: 1,
+    flexDirection: "column",
+    alignSelf: 'stretch',
+    alignItems: 'stretch',
+
   },
   textListHeaderSummary: {
     alignItems: "center",

@@ -8,7 +8,7 @@ import {
   Text,
   Image,
   TouchableOpacity,
-  Dimensions
+  Dimensions,
 } from 'react-native';
 import styles from './Styles';
 import strings from './LocalizedStrings';
@@ -61,6 +61,8 @@ class ConnectionsPanel extends React.Component {
     textTitle:            PropTypes.string.isRequired,
     categories:           PropTypes.array.isRequired,
     openUri:              PropTypes.func.isRequired,
+    textListFlex:         PropTypes.number.isRequired,
+    onStartShouldSetResponderCapture: PropTypes.func.isRequired,
   };
 
   render() {
@@ -105,7 +107,7 @@ class ConnectionsPanel extends React.Component {
       case 'filter': // fall-through
       case 'version open':
         return (
-          <View style={[styles.textColumn, this.props.theme.textListContentOuter, {maxWidth: null}]}>
+          <View style={[styles.mainTextPanel, styles.textColumn, this.props.theme.textListContentOuter, {maxWidth: null, flex: this.props.textListFlex}]}>
             {connectionsPanelHeader}
             <TextList
               theme={this.props.theme}
@@ -127,7 +129,7 @@ class ConnectionsPanel extends React.Component {
         );
       case 'versions':
         return (
-          <View style={[styles.textColumn, this.props.theme.textListContentOuter, {maxWidth: null}]}>
+          <View style={[styles.mainTextPanel, styles.textColumn, this.props.theme.textListContentOuter, {maxWidth: null, flex: this.props.textListFlex}]}>
             {connectionsPanelHeader}
             <VersionsBox
               interfaceLang={this.props.interfaceLang}
@@ -148,7 +150,7 @@ class ConnectionsPanel extends React.Component {
         );
       case 'about':
         return (
-          <View style={[styles.textColumn, this.props.theme.textListContentOuter, {maxWidth: null}]}>
+          <View style={[styles.mainTextPanel, styles.textColumn, this.props.theme.textListContentOuter, {maxWidth: null, flex: this.props.textListFlex}]}>
             {connectionsPanelHeader}
             <AboutBox
               textToc={this.props.textToc}
@@ -242,8 +244,16 @@ class ConnectionsPanel extends React.Component {
             </ScrollView>
           );
         }
+
         return (
-          <View style={[styles.textListSummary, this.props.theme.textListSummary]}>
+          <View
+            style={[
+              styles.mainTextPanel,
+              styles.textListSummary,
+              this.props.theme.commentaryTextPanel,
+              this.props.theme.textListSummary,
+              {flex: this.props.textListFlex}]}
+            onStartShouldSetResponderCapture={this.props.onStartShouldSetResponderCapture}>
             {connectionsPanelHeader}
             {content}
           </View>);
