@@ -86,7 +86,12 @@ class ReaderApp extends React.Component {
 
     if (Platform.OS === 'android') {
       UIManager.setLayoutAnimationEnabledExperimental && UIManager.setLayoutAnimationEnabledExperimental(true);
+      if (strings.getInterfaceLanguage() === 'iw-IL') {
+        // there seems to be a discrepancy b/w interfaceLanguage and language for LocalizedStrings
+        strings.setLanguage('he');
+      }
     }
+    console.log('lang', strings.getInterfaceLanguage());
     this.state = {
         offsetRef: null, /* used to jump to specific ref when opening a link*/
         segmentRef: "",

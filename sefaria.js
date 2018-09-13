@@ -36,13 +36,13 @@ Sefaria = {
   },
   postInit: function() {
     // a bit hacky, but basically allows rendering to happen in between each promise
-    return Sefaria.search._loadSearchTOC()
+    return Sefaria._loadCalendar()
       .then(nextFrame)
       .then(Sefaria._loadPeople)
       .then(nextFrame)
       .then(Sefaria._loadRecentQueries)
       .then(nextFrame)
-      .then(Sefaria._loadCalendar)
+      .then(Sefaria.search._loadSearchTOC)
       .then(nextFrame)
       .then(Sefaria._loadSavedItems)
       .then(nextFrame)

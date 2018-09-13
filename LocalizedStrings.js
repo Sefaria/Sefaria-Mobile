@@ -3,7 +3,7 @@ import {
 } from 'react-native';
 import LocalizedStrings from 'react-native-localization';
 
-export default new LocalizedStrings({
+let strings = new LocalizedStrings({
   en: {
     history: "History",
     saved: "Saved",
@@ -249,3 +249,5 @@ export default new LocalizedStrings({
     viewOnSite: "לצפות באתר",
   }
 });
+
+export default strings;
