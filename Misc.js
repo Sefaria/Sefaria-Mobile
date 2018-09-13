@@ -610,7 +610,7 @@ class RainbowBar extends React.Component {
     ]
     const bars = colors.map(color=>{
       return (
-        <View style={{backgroundColor: Sefaria.palette.colors[color], height: 12, flexGrow: 1}} key={color}/>);
+        <View style={{backgroundColor: Sefaria.palette.colors[color], height: 8, flexGrow: 1}} key={color}/>);
     });
     return (
       <View style={styles.rainbowBar} >

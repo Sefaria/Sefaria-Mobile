@@ -15,7 +15,6 @@ import {
 } from './Misc.js';
 import bstyles from './Styles';
 
-
 var styles = StyleSheet.create({
   interruptingMessageBox: {
     paddingVertical: 20,
@@ -34,17 +33,20 @@ var styles = StyleSheet.create({
     marginBottom: 32,
   },
   interruptingMessageTitle: {
-    fontFamily: "Amiri",
     fontSize: 36,
     textAlign: 'center',
     letterSpacing: 1,
     marginTop: 30,
     marginBottom: 14,
   },
+  interruptingMessageTitleEn: {
+    fontFamily: "Amiri"
+  },
+  interruptingMessageTitleHe: {
+    fontFamily: "Open Sans"
+  },
   interruptingMessageText: {
-    fontFamily: "Amiri",
-    textAlign: "justify",
-    fontSize: 22,
+    fontSize: 20,
     lineHeight: 26,
     marginTop: -10,
     paddingTop: 15,
@@ -58,8 +60,11 @@ const SCHEMA_VERSION = 1;
 const MESSAGE_PREFIX = "IntMessage:";
 const NUM_TIMES_OPENED_APP_THRESHOLD = 15;
 // Example JSON below
-const EN_URL = "https://www.sefaria.org/static/mobile/message-en.json";
-const HE_URL = "https://www.sefaria.org/static/mobile/message-he.json";
+//const EN_URL = "https://www.sefaria.org/static/mobile/message-en.json";
+//const HE_URL = "https://www.sefaria.org/static/mobile/message-he.json";
+
+const EN_URL = "https://www.sefaria.org/static/mobile/test/message-en.json";
+const HE_URL = "https://www.sefaria.org/static/mobile/test/message-he.json";
 
 const EN_DEBUG_URL = "https://www.sefaria.org/static/mobile/test/message-en.json";
 const HE_DEBUG_URL = "https://www.sefaria.org/static/mobile/test/message-he.json";
@@ -86,7 +91,7 @@ class InterruptingMessage extends React.Component {
 
     fetch(URL)
       .then(result=>result.json())
-      //.then(this.clearFlag) // Debug
+      .then(this.clearFlag) // Debug
       .then(this.hasMessageShown)
       .then(data=> {
         //console.log("intmess data:", data);
@@ -143,8 +148,10 @@ class InterruptingMessage extends React.Component {
   render() {
     if (!this.state.data) { return null; }
     const data = this.state.data;
+    const titleStyle = this.props.interfaceLang == "hebrew" ? styles.interruptingMessageTitleHe : styles.interruptingMessageTitleEn;
+    const textStyle = this.props.interfaceLang == "hebrew" ? bstyles.intHe : bstyles.en;
     const textContent = data.text.map((text, i)=>(
-      <Text style={styles.interruptingMessageText} key={i}>{text}</Text>
+      <Text style={[styles.interruptingMessageText, textStyle]} key={i}>{text}</Text>
     ));
     return (
       <Modal
@@ -166,7 +173,7 @@ class InterruptingMessage extends React.Component {
                   </TouchableHighlight>
                 </View>
 
-              <Text style={styles.interruptingMessageTitle}>{data.title}</Text>
+              <Text style={[styles.interruptingMessageTitle, titleStyle]}>{data.title}</Text>
 
               {textContent}
 

@@ -1077,7 +1077,7 @@ export default StyleSheet.create({
     letterSpacing: 1,
   },
   rainbowBar: {
-    height: 12,
+    height: 8,
     alignItems: 'center',
     alignSelf: 'stretch',
     flexDirection: 'row',
