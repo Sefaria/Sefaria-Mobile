@@ -7,6 +7,7 @@ import {
 } from 'react-native';
 
 import RNFB from 'rn-fetch-blob';
+import RNFS from 'react-native-fs';
 import strings from './LocalizedStrings';
 
 
@@ -316,6 +317,7 @@ var Downloader = {
       });
   },
   deleteOldAndroidLibrary: () => {
+    const oldDBPath = RNFS.ExternalDirectoryPath + "/databases";
     return new Promise((resolve, reject) => {
       if (Platform.OS === 'android') {
         RNFB.fs.exists(oldDBPath).then(exists => {

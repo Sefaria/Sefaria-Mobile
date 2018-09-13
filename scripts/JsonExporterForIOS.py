@@ -713,7 +713,6 @@ def export_calendar(for_sources=False):
         parshRef = model.Ref(parashah["ref"])
         parshTref = parshRef.normal()
         parshHeTref = parshRef.he_normal()
-        print parashah['haftara']
         haftarot = {custom: [{
             "en": model.Ref(h).normal(), "he": model.Ref(h).he_normal()
             } for h in haf_list] for custom, haf_list in parashah["haftara"].items() }

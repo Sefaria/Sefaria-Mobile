@@ -87,7 +87,6 @@ class ReaderApp extends React.Component {
     if (Platform.OS === 'android') {
       UIManager.setLayoutAnimationEnabledExperimental && UIManager.setLayoutAnimationEnabledExperimental(true);
     }
-
     this.state = {
         offsetRef: null, /* used to jump to specific ref when opening a link*/
         segmentRef: "",
