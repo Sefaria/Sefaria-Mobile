@@ -1073,6 +1073,8 @@ class ReaderApp extends React.Component {
     const { textListFlex } = this.state;
     const tempState = { textListAnimating: false };
     if (textListFlex < 0.001) {
+      tempState.textListFlex = 0.3;
+      tempState.textListFlexPreference = 0.3;
       tempState.textListVisible = false;
     }
     this.setState(tempState);
@@ -1102,7 +1104,6 @@ class ReaderApp extends React.Component {
   onTextListDragEnd = evt => {
     const headerHeight = 75;
     const flex = 1.0 - (evt.nativeEvent.pageY-headerHeight)/(ViewPort.height-headerHeight) + this._textListDragOffset;
-
     if (flex > 0.9 || flex < 0.2) {
       this.animateTextList(flex, flex > 0.9 ? 0.9999 : 0.0001, 200);
     }
