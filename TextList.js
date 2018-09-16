@@ -190,6 +190,7 @@ class ListItem extends React.PureComponent {
     var lco = this.props.linkContentObj;
     var lang = Sefaria.util.getTextLanguageWithContent(this.props.textLanguage,lco.en,lco.he);
     var textViews = [];
+    const lineHeightMultiplierHe = Platform.OS === 'android' ? 1.3 : 1.2;
     const smallEnSheet = {
       small: {
         fontSize: this.props.fontSize * 0.8 * 0.8
@@ -206,7 +207,7 @@ class ListItem extends React.PureComponent {
                         value={"<hediv>"+lco.he+"</hediv>"}
                         textComponentProps={
                           {
-                            style: [styles.hebrewText, styles.linkContentText, this.props.theme.text, {fontSize: this.props.fontSize, lineHeight: this.props.fontSize * 1.1}],
+                            style: [styles.hebrewText, styles.linkContentText, this.props.theme.text, {fontSize: this.props.fontSize, lineHeight: this.props.fontSize * lineHeightMultiplierHe}],
                             key: this.props.refStr+"-he"
                           }
                         }
@@ -217,7 +218,7 @@ class ListItem extends React.PureComponent {
                         value={"<endiv>"+"&#x200E;"+lco.en+"</endiv>"}
                         textComponentProps={
                           {
-                            style: [styles.englishText, styles.linkContentText, this.props.theme.text, {fontSize: 0.8 * this.props.fontSize, lineHeight: this.props.fontSize}],
+                            style: [styles.englishText, styles.linkContentText, this.props.theme.text, {fontSize: 0.8 * this.props.fontSize, lineHeight: this.props.fontSize * 1.04}],
                             key: this.props.refStr+"-en"
                           }
                         }
