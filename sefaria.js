@@ -1168,6 +1168,17 @@ Sefaria = {
 };
 
 Sefaria.util = {
+  filterOutItags: function(text) {
+    // right now app is not displaying i-tags properly. interim solution is to not display them at all
+    //NOTE need to be careful about nested i-tags
+    try {
+      text = text.replace(/<sup>[^<]*<\/sup> *<i +class=["']footnote["']>(?:[^<]*|(?:[^<]*<i>[^<]*<\/i>[^<]*)+)<\/i>/g, '');
+      return text.replace(/(?:\s?<i [^<]*><\/i>\s?)+/g, ' ').trim();  // remove rest of i-tags which add unnecessary spaces
+    } catch (e) {
+      //in case segment is not string (which should not happen but does)
+      return text;
+    }
+  },
   openFileInSources: function(filename) {
     return new Promise((resolve, reject) => {
       RNFB.fs.exists(RNFB.fs.dirs.DocumentDir + `/library/${filename}`)

@@ -190,6 +190,8 @@ class ListItem extends React.PureComponent {
     var lco = this.props.linkContentObj;
     var lang = Sefaria.util.getTextLanguageWithContent(this.props.textLanguage,lco.en,lco.he);
     var textViews = [];
+    const he = Sefaria.util.filterOutItags(lco.he);
+    const en = Sefaria.util.filterOutItags(lco.en);
     const lineHeightMultiplierHe = Platform.OS === 'android' ? 1.3 : 1.2;
     const smallEnSheet = {
       small: {
@@ -204,7 +206,7 @@ class ListItem extends React.PureComponent {
     var hebrewElem =  <HTMLView
                         key={this.state.resetKeyHe}
                         stylesheet={{...styles, ...smallHeSheet}}
-                        value={"<hediv>"+lco.he+"</hediv>"}
+                        value={"<hediv>"+he+"</hediv>"}
                         textComponentProps={
                           {
                             style: [styles.hebrewText, styles.linkContentText, this.props.theme.text, {fontSize: this.props.fontSize, lineHeight: this.props.fontSize * lineHeightMultiplierHe}],
@@ -215,7 +217,7 @@ class ListItem extends React.PureComponent {
     var englishElem = <HTMLView
                         key={this.state.resetKeyEn}
                         stylesheet={{...styles, ...smallEnSheet}}
-                        value={"<endiv>"+"&#x200E;"+lco.en+"</endiv>"}
+                        value={"<endiv>"+"&#x200E;"+en+"</endiv>"}
                         textComponentProps={
                           {
                             style: [styles.englishText, styles.linkContentText, this.props.theme.text, {fontSize: 0.8 * this.props.fontSize, lineHeight: this.props.fontSize * 1.04}],

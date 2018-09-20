@@ -40,16 +40,6 @@ class TextSegment extends React.PureComponent {
     this.props.textSegmentPressed(section, segment, this.props.rowRef, true);
   };
 
-  filterOutFootnotes = text => {
-    // right now app is not displaying footnotes properly. interim solution is to not display them at all
-    //NOTE need to be careful about nested i-tags
-    try {
-      return text.replace(/<sup>[^<]*<\/sup> *<i +class=["']footnote["']>(?:[^<]*|(?:[^<]*<i>[^<]*<\/i>[^<]*)+)<\/i>/g, '');
-    } catch (e) {
-      //in case segment is not string (which should not happen but does)
-      return text;
-    }
-  };
   componentWillReceiveProps(nextProps) {
     if (this.props.themeStr !== nextProps.themeStr ||
         this.props.fontSize !== nextProps.fontSize) {
@@ -66,7 +56,7 @@ class TextSegment extends React.PureComponent {
       style.push(styles.bilingualEnglishText);
       style.push(this.props.theme.bilingualEnglishText);
     }
-    const data = this.filterOutFootnotes(this.props.data);
+    const data = Sefaria.util.filterOutItags(this.props.data);
     const smallSheet = {
       small: {
         fontSize: this.props.fontSize * 0.8 * (this.props.textType === "hebrew" ? 1 : 0.8)
