@@ -235,9 +235,9 @@ class ReaderNavigationMenu extends React.Component {
 
                 </View>
 
-                { Platform.OS === 'ios' ? <Text style={[styles.dedication, isHeb ? styles.hebrewSystemFont : null, this.props.theme.secondaryText]}>
-                  {strings.dedicated}
-                </Text> : null }
+                <Text style={[styles.dedication, isHeb ? styles.hebrewSystemFont : null, this.props.theme.secondaryText]}>
+                  { Platform.OS === 'ios' ? strings.dedicatedIOS : strings.dedicatedAndroid }
+                </Text>
 
               </ScrollView>
             </View>);
