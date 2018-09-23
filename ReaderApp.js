@@ -408,7 +408,6 @@ class ReaderApp extends React.Component {
       overwriteVersions = false;
       versions = undefined; // change to default version in case they have offline library they'll still be able to read
     }
-
     this.props.setOverwriteVersions(overwriteVersions);
     versions = this.removeDefaultVersions(ref, versions);
     // Open ranged refs to their first segment (not ideal behavior, but good enough for now)
@@ -686,8 +685,23 @@ class ReaderApp extends React.Component {
       if (!versions && overwriteVersions) {
         //pull up default versions
         const historyItem = Sefaria.getHistoryRefForTitle(title);
-        if (!!historyItem) { versions = historyItem.versions; }
+        if (!!historyItem) { console.log('history'); versions = historyItem.versions; }
       }
+      console.log('versions', versions);
+      console.log('selectedVersions', this.state.selectedVersions);
+      const newVersions = !!versions && {
+        ...this.state.selectedVersions,
+        ...versions,
+      };
+      console.log('newVersions', newVersions);
+
+
+      // make sure loaded text will show the versions you selected
+      let newTextLang = this.props.textLanguage;
+      if (!!newVersions['en'] && !!newVersions['he']) { newTextLang = "bilingual"; }
+      else if (!!newVersions['en']) { newTextLang = "english"; }
+      else { newTextLang = "hebrew"; }
+      this.setTextLanguage(newTextLang, null, null, true);
 
 
       switch (calledFrom) {
@@ -716,7 +730,7 @@ class ReaderApp extends React.Component {
         textReference: ref
       }, () => {
           this.closeMenu(); // Don't close until these values are in state, so we know if we need to load defualt text
-          this.loadNewText({ ref, versions, overwriteVersions }).then(resolve);
+          this.loadNewText({ ref, versions: newVersions, overwriteVersions }).then(resolve);
       });
     })
   };
