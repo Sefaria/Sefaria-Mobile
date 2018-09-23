@@ -79,10 +79,6 @@ class ReaderApp extends React.Component {
         .then(Sefaria.downloader.promptLibraryDownload);
     });
     Sefaria.track.init();
-    NetInfo.isConnected.addEventListener(
-      'connectionChange',
-      this.networkChangeListener
-    );
 
     if (Platform.OS === 'android') {
       UIManager.setLayoutAnimationEnabledExperimental && UIManager.setLayoutAnimationEnabledExperimental(true);
@@ -91,7 +87,6 @@ class ReaderApp extends React.Component {
         strings.setLanguage('he');
       }
     }
-    console.log('lang', strings.getInterfaceLanguage());
     this.state = {
         offsetRef: null, /* used to jump to specific ref when opening a link*/
         segmentRef: "",
@@ -150,6 +145,10 @@ class ReaderApp extends React.Component {
   }
 
   componentDidMount() {
+    NetInfo.isConnected.addEventListener(
+      'connectionChange',
+      this.networkChangeListener
+    );
     BackHandler.addEventListener('hardwareBackPress', this.manageBack);
     AppState.addEventListener('change', state => {
       if (state == "active") {
@@ -405,13 +404,16 @@ class ReaderApp extends React.Component {
     overwriteVersions - false when you want to switch versions but not overwrite sticky version (e.g. search)
   */
   loadNewText = ({ ref, versions, isLoadingVersion = false, overwriteVersions = true }) => {
-      if (!this.state.hasInternet) {
-        overwriteVersions = false;
-        versions = undefined; // change to default version in case they have offline library they'll still be able to read
-      }
+    if (!this.state.hasInternet) {
+      overwriteVersions = false;
+      versions = undefined; // change to default version in case they have offline library they'll still be able to read
+    }
 
-      this.props.setOverwriteVersions(overwriteVersions);
-      versions = this.removeDefaultVersions(ref, versions);
+    this.props.setOverwriteVersions(overwriteVersions);
+    versions = this.removeDefaultVersions(ref, versions);
+    // Open ranged refs to their first segment (not ideal behavior, but good enough for now)
+    ref = ref.indexOf("-") != -1 ? ref.split("-")[0] : ref;
+    return new Promise((resolve, reject) => {
       this.setState({
           loaded: false,
           data: [],
@@ -424,14 +426,8 @@ class ReaderApp extends React.Component {
           selectedVersions: versions, /* if loadVersion, merge with current this.state.selectedVersions */
           currVersions: {en: null, he: null},
           textToc: null,
-      });
-
-      if (ref.indexOf("-") != -1) {
-        // Open ranged refs to their first segment (not ideal behavior, but good enough for now)
-        ref = ref.split("-")[0];
-      }
-      // if loadVersion, replace versions here
-      return new Promise((resolve, reject) => {
+      },
+      () => {
         Sefaria.data(ref, true, versions).then(data => {
             let nextState = {
               data:              [data.content],
@@ -480,6 +476,7 @@ class ReaderApp extends React.Component {
           reject();
         });
       });
+    });
   };
 
   loadTextTocData = (title, sectionRef) => {
