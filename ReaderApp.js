@@ -685,24 +685,23 @@ class ReaderApp extends React.Component {
       if (!versions && overwriteVersions) {
         //pull up default versions
         const historyItem = Sefaria.getHistoryRefForTitle(title);
-        if (!!historyItem) { console.log('history'); versions = historyItem.versions; }
+        if (!!historyItem) { versions = historyItem.versions; }
       }
-      console.log('versions', versions);
-      console.log('selectedVersions', this.state.selectedVersions);
+
       const newVersions = !!versions && {
         ...this.state.selectedVersions,
         ...versions,
       };
-      console.log('newVersions', newVersions);
-
 
       // make sure loaded text will show the versions you selected
       let newTextLang = this.props.textLanguage;
-      if (!!newVersions['en'] && !!newVersions['he']) { newTextLang = "bilingual"; }
-      else if (!!newVersions['en']) { newTextLang = "english"; }
-      else { newTextLang = "hebrew"; }
-      this.setTextLanguage(newTextLang, null, null, true);
-
+      if (newTextLang !== 'bilingual') {
+        // if you're in bilingual, assume you want to stay in that
+        if (!!newVersions['en'] && !!newVersions['he']) { newTextLang = "bilingual"; }
+        else if (!!newVersions['en']) { newTextLang = "english"; }
+        else { newTextLang = "hebrew"; }
+        this.setTextLanguage(newTextLang, null, null, true);
+      }
 
       switch (calledFrom) {
         case "search":
