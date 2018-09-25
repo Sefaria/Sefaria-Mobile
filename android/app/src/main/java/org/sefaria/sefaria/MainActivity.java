@@ -21,4 +21,9 @@ public class MainActivity extends ReactActivity {
         super.onCreate(savedInstanceState);
         SplashScreen.show(this);
     }
+
+    @Override
+    public void invokeDefaultOnBackPressed() {
+        moveTaskToBack(true);
+    }
 }

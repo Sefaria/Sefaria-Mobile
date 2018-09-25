@@ -554,7 +554,7 @@ class TextColumn extends React.Component {
       return;
     }
 
-    if (viewableIndices.indexOf(this.targetScrollIndex) !== -1) {
+    if (viewableIndices[0] === this.targetScrollIndex) {
       this.onScrollToLocation();
     } else {
       this.waitForScrollToLocationFail(i, offset, animated);

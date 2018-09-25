@@ -150,11 +150,7 @@ class ReaderApp extends React.Component {
       this.networkChangeListener
     );
     BackHandler.addEventListener('hardwareBackPress', this.manageBack);
-    AppState.addEventListener('change', state => {
-      if (state == "active") {
-        Sefaria.downloader.resumeDownload();
-      }
-    });
+    AppState.addEventListener('change', this.appStateChangeListener);
     Sefaria.downloader.onChange = this.onDownloaderChange;
     Sefaria._deleteUnzippedFiles().then(function() {
 
@@ -163,8 +159,14 @@ class ReaderApp extends React.Component {
       });
   }
 
-  networkChangeListener = (isConnected) => {
+  networkChangeListener = isConnected => {
     this.setState({hasInternet: isConnected});
+  };
+
+  appStateChangeListener = state => {
+    if (state == "active") {
+      Sefaria.downloader.resumeDownload();
+    }
   };
 
   componentWillMount() {
@@ -199,6 +201,11 @@ class ReaderApp extends React.Component {
   componentWillUnmount() {
     Sefaria.downloader.onChange = null;
     BackHandler.removeEventListener('hardwareBackPress', this.manageBack);
+    NetInfo.isConnected.removeEventListener(
+      'connectionChange',
+      this.networkChangeListener
+    );
+    AppState.removeEventListener('change', this.appStateChangeListener);
   }
 
   manageBackMain = () => {
