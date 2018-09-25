@@ -42,7 +42,6 @@ class ConnectionsPanelHeader extends React.Component {
   }
 
   render() {
-    var style = {"borderTopColor": Sefaria.palette.categoryColor(this.props.category)};
     let content;
     let outerStyles;
     const isheb = this.props.interfaceLang === "hebrew";
@@ -60,6 +59,9 @@ class ConnectionsPanelHeader extends React.Component {
         const selectedFilter = this.props.recentFilters[this.props.filterIndex];
         const backMode = this.props.connectionsMode === 'filter' ? selectedFilter.category : this.previousModes[this.props.connectionsMode];
         outerStyles = [styles.textListHeader, styles.textListHeaderSummary, this.props.theme.textListHeader];
+        if (this.props.connectionsMode === 'filter') {
+          outerStyles.push({borderBottomWidth: 4, borderBottomColor: Sefaria.palette.categoryColor(this.props.category)})
+        }
         content = (
           <View style={{flex: 1, flexDirection: isheb ? 'row-reverse' : 'row', justifyContent: 'flex-start', alignItems: 'center' }}>
             <TouchableOpacity onPress={() => {this.props.setConnectionsMode(backMode)}} hitSlop={{top: 20, left: 20, right: 20, bottom: 20}}>

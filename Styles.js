@@ -404,7 +404,6 @@ export default StyleSheet.create({
   textListHeader: {
     height: 50,
     alignSelf: "stretch",
-    borderTopWidth: 6,
     borderBottomWidth: 1,
     paddingHorizontal: iPad ? readerSideMarginIpad : readerSideMargin,
     flexDirection: "row",

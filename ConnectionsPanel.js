@@ -83,7 +83,6 @@ class ConnectionsPanel extends React.Component {
         updateCat    = this.props.updateVersionCat;
         break;
     }
-    const isSummaryMode = this.props.connectionsMode === null;
     const connectionsPanelHeader = (
       <View
         onStartShouldSetResponder={this.props.onDragStart}
@@ -97,7 +96,7 @@ class ConnectionsPanel extends React.Component {
           setConnectionsMode={this.props.setConnectionsMode}
           closeCat={this.props.closeCat}
           updateCat={updateCat}
-          category={isSummaryMode || true ? null : this.props.recentFilters[this.props.filterIndex].category}
+          category={!recentFilters ? null : recentFilters[filterIndex].category}
           filterIndex={filterIndex}
           recentFilters={recentFilters}
           connectionsMode={this.props.connectionsMode} />
