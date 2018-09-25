@@ -51,7 +51,8 @@ class TextList extends React.Component {
         this.props.connectionsMode !== nextProps.connectionsMode ||
         this.props.filterIndex !== nextProps.filterIndex ||
         this.props.listContents !== nextProps.listContents) {
-      this.setState({dataSource: this.generateDataSource(nextProps), updateScrollPosKey: !this.state.updateScrollPosKey});
+      const updateScrollPosKey = this.props.segmentRef !== nextProps.segmentRef ? !this.state.updateScrollPosKey : this.state.updateScrollPosKey;
+      this.setState({dataSource: this.generateDataSource(nextProps), updateScrollPosKey});
     }
   }
 
