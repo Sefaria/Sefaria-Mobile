@@ -112,7 +112,7 @@ class CategoryBlockLink extends React.Component {
                     { subtext.map(x => (
                       <Text
                         key={x.en}
-                        style={[isHeb ? styles.hebrewText : styles.englishText, this.props.theme.secondaryText]}
+                        style={[isHeb ? styles.hebrewText : styles.englishText, {textAlign: "center"}, this.props.theme.secondaryText]}
                       >
                         {isHeb ? x.he : x.en}
                       </Text>
