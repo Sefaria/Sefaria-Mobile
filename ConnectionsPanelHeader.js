@@ -5,7 +5,8 @@ import {
   View,
   Text,
   TouchableOpacity,
-  ScrollView
+  ScrollView,
+  I18nManager,
 } from 'react-native';
 
 import {
@@ -73,7 +74,7 @@ class ConnectionsPanelHeader extends React.Component {
               />
             </TouchableOpacity>
             <ScrollView
-              style={{flexDirection: isheb ? 'row-reverse' : 'row'}}
+              style={{flexDirection: I18nManager.isRTL && isheb ? 'row-reverse' : 'row'}}
               contentContainerStyle={styles.textListHeaderScrollView}
               horizontal={true}
               automaticallyAdjustContentInsets={false}>
