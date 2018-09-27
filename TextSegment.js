@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import HTMLView from 'react-native-htmlview'; //to convert html'afied JSON to something react can render (https://github.com/jsdf/react-native-htmlview)
 import styles from './Styles.js';
+import iPad from './isIPad';
 
 
 class TextSegment extends React.PureComponent {
@@ -49,12 +50,13 @@ class TextSegment extends React.PureComponent {
   }
   render() {
     // console.log(this.props.segmentKey+": "+typeof(this.props.textRef));
+    const isStacked = this.props.biLayout === 'stacked';
     const lineHeightMultiplierHe = Platform.OS === 'android' ? 1.3 : 1.2;
     const style = this.props.textType == "hebrew" ?
-                  [styles.hebrewText, this.props.theme.text, styles.justifyText, {fontSize: this.props.fontSize, lineHeight: this.props.fontSize * lineHeightMultiplierHe}] :
+                  [styles.hebrewText, this.props.theme.text, isStacked ? styles.justifyText : {textAlign: 'right'}, {fontSize: this.props.fontSize, lineHeight: this.props.fontSize * lineHeightMultiplierHe}] :
                   [styles.englishText, this.props.theme.text, styles.justifyText, {fontSize: 0.8 * this.props.fontSize, lineHeight: this.props.fontSize * 1.04 }];
     if (this.props.bilingual && this.props.textType == "english") {
-      if (this.props.biLayout === 'stacked') {
+      if (isStacked) {
         style.push(styles.bilingualEnglishText);
       }
       style.push(this.props.theme.bilingualEnglishText);
@@ -63,6 +65,9 @@ class TextSegment extends React.PureComponent {
     const smallSheet = {
       small: {
         fontSize: this.props.fontSize * 0.8 * (this.props.textType === "hebrew" ? 1 : 0.8)
+      },
+      hediv: {
+        textAlign: (isStacked || iPad) && Platform.OS !== "android" ? 'justify' : 'right'  // justify looks bad hebrew with small screens in side-by-side layout
       }
     };
     // return (
@@ -92,7 +97,7 @@ class TextSegment extends React.PureComponent {
 
                }
              }
-             style={{flex:1, paddingHorizontal: 10}}
+             style={{flex: this.props.textType == "hebrew" ? 4.5 : 5.5, paddingHorizontal: 10}}
            />
 
     );

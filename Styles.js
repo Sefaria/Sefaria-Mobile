@@ -894,7 +894,6 @@ export default StyleSheet.create({
     fontSize: iPad ? 22 : 18,
     paddingTop: 10,
     marginTop: -8,
-    paddingRight: 20,
   },
   bilingualEnglishText: {
     paddingTop: 10
