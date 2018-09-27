@@ -22,6 +22,7 @@ var segmented_icon        = require('./img/breaks.png');
 var continuous_icon       = require('./img/continuous.png');
 var stacked_icon          = require('./img/stacked.png');
 var side_icon             = require('./img/sidebyside.png');
+var siderev_icon          = require('./img/sidebysiderev.png');
 var a_aleph_icon_light    = require('./img/a_aleph-light.png');
 var a_icon_light          = require('./img/a_icon-light.png');
 var a_icon_small_light    = require('./img/a_icon_small-light.png');
@@ -30,6 +31,7 @@ var segmented_icon_light  = require('./img/breaks-light.png');
 var continuous_icon_light = require('./img/continuous-light.png');
 var stacked_icon_light    = require('./img/stacked-light.png');
 var side_icon_light       = require('./img/sidebyside-light.png');
+var siderev_icon_light    = require('./img/sidebysiderev-light.png');
 
 
 class ReaderDisplayOptionsMenu extends React.Component {
@@ -90,8 +92,8 @@ class ReaderDisplayOptionsMenu extends React.Component {
         condition: this.props.textLanguage === 'bilingual',
         label: strings.bilingualLayout,
         onPress: this.props.setBiLayout,
-        buttons: ["stacked", "sidebyside"],
-        icons: this.props.themeStr == "white" ? [stacked_icon,side_icon] : [stacked_icon_light,side_icon_light],
+        buttons: ["stacked", "sidebyside", "sidebysiderev"],
+        icons: this.props.themeStr == "white" ? [stacked_icon,side_icon,siderev_icon] : [stacked_icon_light,side_icon_light,siderev_icon_light],
         currVal: this.props.biLayout,
         parametrized: true,
         iconLength: 19,

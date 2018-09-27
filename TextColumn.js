@@ -57,7 +57,7 @@ class TextColumn extends React.Component {
     linksLoaded:        PropTypes.array,
     showAliyot:         PropTypes.bool.isRequired,
     openUri:            PropTypes.func.isRequired,
-    biLayout:           PropTypes.oneOf(["stacked", "sidebyside"]),
+    biLayout:           PropTypes.oneOf(["stacked", "sidebyside", "sidebysiderev"]),
   };
 
   constructor(props, context) {

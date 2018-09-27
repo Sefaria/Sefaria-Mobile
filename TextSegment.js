@@ -22,6 +22,7 @@ class TextSegment extends React.PureComponent {
     data:               PropTypes.string,
     textType:           PropTypes.oneOf(["english","hebrew"]),
     bilingual:          PropTypes.bool,
+    biLayout:           PropTypes.oneOf(["stacked", "sidebyside", "sidebysiderev"]),
     textSegmentPressed: PropTypes.func.isRequired,
     onLongPress:        PropTypes.func.isRequired,
     fontSize:           PropTypes.number.isRequired,
@@ -50,10 +51,12 @@ class TextSegment extends React.PureComponent {
     // console.log(this.props.segmentKey+": "+typeof(this.props.textRef));
     const lineHeightMultiplierHe = Platform.OS === 'android' ? 1.3 : 1.2;
     const style = this.props.textType == "hebrew" ?
-                  [styles.hebrewText, this.props.theme.text, styles.justifyText, {fontSize: this.props.fontSize, lineHeight: this.props.fontSize * lineHeightMultiplierHe},] :
+                  [styles.hebrewText, this.props.theme.text, styles.justifyText, {fontSize: this.props.fontSize, lineHeight: this.props.fontSize * lineHeightMultiplierHe}] :
                   [styles.englishText, this.props.theme.text, styles.justifyText, {fontSize: 0.8 * this.props.fontSize, lineHeight: this.props.fontSize * 1.04 }];
     if (this.props.bilingual && this.props.textType == "english") {
-      style.push(styles.bilingualEnglishText);
+      if (this.props.biLayout === 'stacked') {
+        style.push(styles.bilingualEnglishText);
+      }
       style.push(this.props.theme.bilingualEnglishText);
     }
     const data = Sefaria.util.filterOutItags(this.props.data);
@@ -62,6 +65,13 @@ class TextSegment extends React.PureComponent {
         fontSize: this.props.fontSize * 0.8 * (this.props.textType === "hebrew" ? 1 : 0.8)
       }
     };
+    // return (
+    //   <TouchableOpacity style={{flex:1}} onPress={this.onPressTextSegment}>
+    //     <Text suppressHighlighting={false} key={this.props.segmentKey} style={style}>
+    //       { data }
+    //     </Text>
+    //   </TouchableOpacity>
+    // )
     return (
            <HTMLView
              key={this.state.resetKey}
@@ -82,6 +92,7 @@ class TextSegment extends React.PureComponent {
 
                }
              }
+             style={{flex:1, paddingHorizontal: 10}}
            />
 
     );

@@ -885,16 +885,16 @@ export default StyleSheet.create({
     textAlign: 'left',
     fontSize: iPad ? 19 : 15,
     lineHeight: iPad ? 26 : 20,
-    marginTop: 5
+    marginTop: 5,
   },
   hebrewText: {
     fontFamily: "Taamey Frank Taamim Fix",
     writingDirection: "rtl",
     textAlign: 'right',
-    flex: -1,
     fontSize: iPad ? 22 : 18,
     paddingTop: 10,
     marginTop: -8,
+    paddingRight: 20,
   },
   bilingualEnglishText: {
     paddingTop: 10

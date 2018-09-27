@@ -29,7 +29,7 @@ class TextRange extends React.PureComponent {
     textSegmentPressed: PropTypes.func.isRequired,
     setRowRef:          PropTypes.func.isRequired,
     setRowRefInitY:     PropTypes.func.isRequired,
-    biLayout:           PropTypes.oneOf(["stacked", "sidebyside"]),
+    biLayout:           PropTypes.oneOf(["stacked", "sidebyside", "sidebysiderev"]),
   };
 
   constructor(props) {
@@ -116,62 +116,60 @@ class TextRange extends React.PureComponent {
                         {"●"}
                       </Text>);
 
-
-    var segmentText = [];
-
-    if (textLanguage == "hebrew" || textLanguage == "bilingual") {
-      segmentText.push(<TextSegment
-        rowRef={this.props.segmentRef}
-        theme={this.props.theme}
-        themeStr={this.props.themeStr}
-        segmentKey={refSection}
-        key={this.props.segmentRef+"|hebrew"}
-        data={heText}
-        textType="hebrew"
-        textSegmentPressed={ this.props.textSegmentPressed }
-        onLongPress={this.onLongPress}
-        fontSize={this.props.fontSize}/>);
-    }
-
-    if (textLanguage == "english" || textLanguage == "bilingual") {
-      segmentText.push(<TextSegment
-        rowRef={this.props.segmentRef}
-        theme={this.props.theme}
-        themeStr={this.props.themeStr}
-        segmentKey={refSection}
-        key={this.props.segmentRef+"|english"}
-        data={enText}
-        textType="english"
-        bilingual={textLanguage === "bilingual"}
-        textSegmentPressed={ this.props.textSegmentPressed }
-        onLongPress={this.onLongPress}
-        fontSize={this.props.fontSize} />);
-    }
-
     let textStyle = [styles.textSegment];
     if (this.props.rowData.highlight) {
         textStyle.push(this.props.theme.segmentHighlight);
     }
     if (this.props.biLayout === 'sidebyside') {
-      textStyle.push({flexDirection: "row", justifyContent: "center"})
+      textStyle.push({flexDirection: "row"})
+    } else if (this.props.biLayout === 'sidebysiderev') {
+      textStyle.push({flexDirection: "row-reverse"})
     }
-
-    segmentText = <View style={textStyle} key={this.props.segmentRef+"|text-box"}>{segmentText}</View>;
-
-    let completeSeg = this.props.textLanguage == "english" ? [numberMargin, segmentText, bulletMargin] : [bulletMargin, segmentText, numberMargin];
-
-    if (enText || heText) {
-      segment.push(<View style={styles.numberSegmentHolderEn} key={this.props.segmentRef+"|inner-box"}>
-                      {completeSeg}
-                    </View>);
-    }
-
+    const showHe = textLanguage == "hebrew" || textLanguage == "bilingual";
+    const showEn = textLanguage == "english" || textLanguage == "bilingual";
     return (
       <View
         style={styles.verseContainer}
         ref={this._setRef}
       >
-        {segment}
+        <View
+          style={[styles.numberSegmentHolderEn, {flexDirection: this.props.textLanguage === 'english' ? 'row' : 'row-reverse'}]}
+          key={this.props.segmentRef+"|inner-box"}
+        >
+          { numberMargin }
+          <View style={textStyle} key={this.props.segmentRef+"|text-box"}>
+            {
+              showHe ? <TextSegment
+                rowRef={this.props.segmentRef}
+                theme={this.props.theme}
+                themeStr={this.props.themeStr}
+                segmentKey={refSection}
+                key={this.props.segmentRef+"|hebrew"}
+                data={heText}
+                textType="hebrew"
+                biLayout={this.props.biLayout}
+                textSegmentPressed={ this.props.textSegmentPressed }
+                onLongPress={this.onLongPress}
+                fontSize={this.props.fontSize}/> : null
+            }
+            {
+              showEn ? <TextSegment
+                rowRef={this.props.segmentRef}
+                theme={this.props.theme}
+                themeStr={this.props.themeStr}
+                segmentKey={refSection}
+                key={this.props.segmentRef+"|english"}
+                data={enText}
+                textType="english"
+                biLayout={this.props.biLayout}
+                bilingual={textLanguage === "bilingual"}
+                textSegmentPressed={ this.props.textSegmentPressed }
+                onLongPress={this.onLongPress}
+                fontSize={this.props.fontSize} /> : null
+            }
+          </View>
+          { bulletMargin }
+        </View>
       </View>
     );
   }
