@@ -57,6 +57,7 @@ class TextColumn extends React.Component {
     linksLoaded:        PropTypes.array,
     showAliyot:         PropTypes.bool.isRequired,
     openUri:            PropTypes.func.isRequired,
+    biLayout:           PropTypes.oneOf(["stacked", "sidebyside"]),
   };
 
   constructor(props, context) {
@@ -456,6 +457,7 @@ class TextColumn extends React.Component {
         setRowRef={this.setSegmentRowRef}
         setRowRefInitY={this.setRowRefInitY}
         openUri={this.props.openUri}
+        biLayout={this.props.biLayout}
       />
     );
   };

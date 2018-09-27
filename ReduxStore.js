@@ -15,6 +15,7 @@ const REDUX_ACTIONS = {
   setOverwriteVersions: "SET_OVERWRITE_VERSIONS",
   setAliyot: "SET_ALIYOT",
   toggleDebugInterruptingMessage: "TOGGLE_DEBUG_INTERRUPTING_MESSAGE",
+  setBiLayout: "SET_BI_LAYOUT",
 };
 
 const ACTION_CREATORS = {
@@ -60,6 +61,11 @@ const ACTION_CREATORS = {
     debug,
     fromAsync,
   }),
+  setBiLayout: (layout, fromAsync) => ({
+    type: REDUX_ACTIONS.setBiLayout,
+    layout,
+    fromAsync,
+  }),
 }
 
 const ASYNC_STORAGE_DEFAULTS = {
@@ -91,6 +97,10 @@ const ASYNC_STORAGE_DEFAULTS = {
     default: false,
     action: ACTION_CREATORS.toggleDebugInterruptingMessage,
   },
+  biLayout: {
+    default: 'stacked',
+    action: ACTION_CREATORS.setBiLayout,
+  },
 };
 
 const DEFAULT_STATE = {
@@ -102,6 +112,7 @@ const DEFAULT_STATE = {
   overwriteVersions: true,
   showAliyot: ASYNC_STORAGE_DEFAULTS.showAliyot.default,
   debugInterruptingMessage: ASYNC_STORAGE_DEFAULTS.debugInterruptingMessage.default,
+  biLayout: ASYNC_STORAGE_DEFAULTS.biLayout.default,
 };
 
 const saveFieldToAsync = function (field, value) {
@@ -171,6 +182,12 @@ const reducer = function (state = DEFAULT_STATE, action) {
       return {
         ...state,
         debugInterruptingMessage: newDebug,
+      }
+    case REDUX_ACTIONS.setBiLayout:
+      if (!action.fromAsync) { saveFieldToAsync('biLayout', action.layout); }
+      return {
+        ...state,
+        biLayout: action.layout,
       }
     default:
       return state;

@@ -29,6 +29,7 @@ class TextRange extends React.PureComponent {
     textSegmentPressed: PropTypes.func.isRequired,
     setRowRef:          PropTypes.func.isRequired,
     setRowRefInitY:     PropTypes.func.isRequired,
+    biLayout:           PropTypes.oneOf(["stacked", "sidebyside"]),
   };
 
   constructor(props) {
@@ -150,6 +151,9 @@ class TextRange extends React.PureComponent {
     let textStyle = [styles.textSegment];
     if (this.props.rowData.highlight) {
         textStyle.push(this.props.theme.segmentHighlight);
+    }
+    if (this.props.biLayout === 'sidebyside') {
+      textStyle.push({flexDirection: "row", justifyContent: "center"})
     }
 
     segmentText = <View style={textStyle} key={this.props.segmentRef+"|text-box"}>{segmentText}</View>;

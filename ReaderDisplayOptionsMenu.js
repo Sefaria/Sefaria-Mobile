@@ -20,12 +20,16 @@ var a_icon_small          = require('./img/a_icon_small.png');
 var aleph_icon            = require('./img/aleph.png');
 var segmented_icon        = require('./img/breaks.png');
 var continuous_icon       = require('./img/continuous.png');
+var stacked_icon          = require('./img/stacked.png');
+var side_icon             = require('./img/sidebyside.png');
 var a_aleph_icon_light    = require('./img/a_aleph-light.png');
 var a_icon_light          = require('./img/a_icon-light.png');
 var a_icon_small_light    = require('./img/a_icon_small-light.png');
 var aleph_icon_light      = require('./img/aleph-light.png');
 var segmented_icon_light  = require('./img/breaks-light.png');
 var continuous_icon_light = require('./img/continuous-light.png');
+var stacked_icon_light    = require('./img/stacked-light.png');
+var side_icon_light       = require('./img/sidebyside-light.png');
 
 
 class ReaderDisplayOptionsMenu extends React.Component {
@@ -81,6 +85,16 @@ class ReaderDisplayOptionsMenu extends React.Component {
         icons: this.props.themeStr == "white" ? [segmented_icon,continuous_icon]: [segmented_icon_light,continuous_icon_light],
         currVal: this.props.textFlow,
         parametrized: true
+      },
+      {
+        condition: this.props.textLanguage === 'bilingual',
+        label: strings.bilingualLayout,
+        onPress: this.props.setBiLayout,
+        buttons: ["stacked", "sidebyside"],
+        icons: this.props.themeStr == "white" ? [stacked_icon,side_icon] : [stacked_icon_light,side_icon_light],
+        currVal: this.props.biLayout,
+        parametrized: true,
+        iconLength: 19,
       },
       {
         label: strings.color,
@@ -145,6 +159,7 @@ class ReaderDisplayOptionsMenu extends React.Component {
               onPress={optionRow.onPress}
               parametrized={optionRow.parametrized}
               icon={icon}
+              iconLength={optionRow.iconLength}
               text={text}
               align={alignments[optionRow.buttons.length-2][i]}
               selected={selected}
@@ -165,7 +180,7 @@ class ReaderDisplayOptionsMenu extends React.Component {
       {
         top: this._position.interpolate({
           inputRange: [0, 1],
-          outputRange: [-250, 0],
+          outputRange: [-350, 0],
           extrapolate: 'clamp',
         }),
       },
@@ -209,6 +224,7 @@ class ReaderDisplayOptionsMenuItem extends React.Component {
     theme:        PropTypes.object,
     option:       PropTypes.oneOfType([PropTypes.string, PropTypes.bool]),
     icon:         PropTypes.number, /*PTP: why are images numbers? */
+    iconLength:   PropTypes.number,
     text:         PropTypes.string,
     align:        PropTypes.string,
     onPress:      PropTypes.func.isRequired,
@@ -228,10 +244,14 @@ class ReaderDisplayOptionsMenuItem extends React.Component {
     if (this.props.selected) {
       tempStyles.push(this.props.theme.readerDisplayOptionsMenuItemSelected);
     }
+    const iconStyles = [styles.readerDisplayOptionsMenuIcon];
+    if (this.props.iconLength) {
+      iconStyles.push({width: this.props.iconLength, height: this.props.iconLength});
+    }
     return (
       <TouchableOpacity onPress={onPress} style={tempStyles}>
         {this.props.icon ?
-          <Image style={[styles.readerDisplayOptionsMenuIcon]} source={this.props.icon}/> :
+          <Image resizeMode={'contain'} style={iconStyles} source={this.props.icon}/> :
           <Text style={[langStyle, this.props.theme.secondaryText]}>{this.props.text}</Text>
         }
       </TouchableOpacity>

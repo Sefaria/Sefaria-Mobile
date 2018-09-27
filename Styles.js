@@ -132,7 +132,6 @@ export default StyleSheet.create({
     marginLeft: 5
   },
   readerDisplayOptionsMenuIcon: {
-    resizeMode: "contain",
     height: 18,
   },
   headerButton: {

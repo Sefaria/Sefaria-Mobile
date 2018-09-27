@@ -126,6 +126,7 @@ let strings = new LocalizedStrings({
     share: "Share",
     reportError: "Report Error",
     viewOnSite: "View on Site",
+    bilingualLayout: "Bilingual Layout",
   },
   he: {
     history: "היסטוריה",
@@ -249,6 +250,7 @@ let strings = new LocalizedStrings({
     share: "שתף",
     reportError: "דווח שגיאה",
     viewOnSite: "לצפות באתר",
+    bilingualLayout: "עימוד דו לשוני",
   }
 });
 

@@ -59,6 +59,8 @@ class ReaderApp extends React.Component {
     theme:        PropTypes.object.isRequired,
     themeStr:     PropTypes.string.isRequired,
     setTheme:     PropTypes.func.isRequired,
+    setBiLayout:  PropTypes.func.isRequired,
+    biLayout:     PropTypes.string.isRequired,
     textLanguage: PropTypes.string.isRequired,
     overwriteVersions: PropTypes.bool.isRequired,
   };
@@ -284,6 +286,12 @@ class ReaderApp extends React.Component {
     }
     this.toggleReaderDisplayOptionsMenu();
     Sefaria.track.event("Reader","Display Option Click","layout - " + textFlow);
+  };
+
+  setBiLayout = layout => {
+    this.props.setBiLayout(layout);
+    this.toggleReaderDisplayOptionsMenu();
+    Sefaria.track.event("Reader","Display Option Click","layout - " + layout);
   };
 
   getTextByLanguage = title => {
@@ -1489,7 +1497,8 @@ class ReaderApp extends React.Component {
               loadingTextTail={this.state.loadingTextTail}
               loadingTextHead={this.state.loadingTextHead}
               showAliyot={this.props.showAliyot}
-              openUri={this.openUri} />
+              openUri={this.openUri}
+              biLayout={this.props.biLayout} />
           </View> }
 
           {this.state.textListVisible ?
@@ -1541,11 +1550,13 @@ class ReaderApp extends React.Component {
               ref={this._getReaderDisplayOptionsMenuRef}
               theme={this.props.theme}
               textFlow={this.state.textFlow}
+              biLayout={this.props.biLayout}
               textReference={this.state.textReference}
               interfaceLang={this.state.interfaceLang}
               textLanguage={this.props.textLanguage}
               showAliyot={this.props.showAliyot}
               setTextFlow={this.setTextFlow}
+              setBiLayout={this.setBiLayout}
               setAliyot={this.setAliyot}
               setTextLanguage={this.setTextLanguage}
               incrementFont={this.incrementFont}
@@ -1612,6 +1623,7 @@ const mapStateToProps = (
     overwriteVersions,
     showAliyot,
     debugInterruptingMessage,
+    biLayout,
   }) => ({
   theme,
   themeStr,
@@ -1623,6 +1635,7 @@ const mapStateToProps = (
   overwriteVersions,
   showAliyot,
   debugInterruptingMessage,
+  biLayout,
 });
 
 const mapDispatchToProps = dispatch => ({
@@ -1634,6 +1647,7 @@ const mapDispatchToProps = dispatch => ({
   setOverwriteVersions: overwrite => { dispatch(ACTION_CREATORS.setOverwriteVersions(overwrite)); },
   setAliyot: show => { dispatch(ACTION_CREATORS.setAliyot(show)); },
   toggleDebugInterruptingMessage: () => { dispatch(ACTION_CREATORS.toggleDebugInterruptingMessage()); },
+  setBiLayout: layout => { dispatch(ACTION_CREATORS.setBiLayout(layout)); },
 });
 
 export default connect(
