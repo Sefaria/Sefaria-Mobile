@@ -58,7 +58,7 @@ var styles = StyleSheet.create({
 // Updates when JSON structure changes
 const SCHEMA_VERSION = 1;
 const MESSAGE_PREFIX = "IntMessage:";
-const NUM_TIMES_OPENED_APP_THRESHOLD = 15;
+const NUM_TIMES_OPENED_APP_THRESHOLD = 1;
 // Example JSON below
 //const EN_URL = "https://www.sefaria.org/static/mobile/message-en.json";
 //const HE_URL = "https://www.sefaria.org/static/mobile/message-he.json";

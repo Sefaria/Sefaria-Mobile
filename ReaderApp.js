@@ -437,7 +437,7 @@ class ReaderApp extends React.Component {
           heRef: "",
           segmentIndexRef: -1,
           sectionIndexRef: -1,
-          selectedVersions: versions, /* if loadVersion, merge with current this.state.selectedVersions */
+          selectedVersions: versions,
           currVersions: {en: null, he: null},
           textToc: null,
       },
@@ -703,8 +703,9 @@ class ReaderApp extends React.Component {
         if (!!historyItem) { versions = historyItem.versions; }
       }
 
+      const selectedVersions = !!this.state.selectedVersions ? this.state.selectedVersions : {};
       const newVersions = !!versions && {
-        ...this.state.selectedVersions,
+        ...selectedVersions,
         ...versions,
       };
 
