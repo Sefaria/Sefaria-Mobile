@@ -68,7 +68,7 @@ class ReaderApp extends React.Component {
   constructor(props, context) {
     super(props, context);
     Sefaria.init().then(() => {
-        SplashScreen.hide();
+        setTimeout(SplashScreen.hide, 300);
         this.setState({
           loaded: true,
           defaultSettingsLoaded: true,
