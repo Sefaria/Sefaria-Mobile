@@ -951,7 +951,7 @@ class ReaderApp extends React.Component {
   };
 
   updateLinkSummary = (section, segment) => {
-    Sefaria.links.linkSummary(this.state.textReference, this.state.data[section][segment].links).then((data) => {
+    Sefaria.links.linkSummary(this.state.textReference, this.state.data[section][segment].links, this.props.menuLanguage).then((data) => {
       this.setState({linkSummary: data, loadingLinks: false});
       this.updateLinkCat(null, data); // Set up `linkContents` in their initial state as an array of nulls
     });

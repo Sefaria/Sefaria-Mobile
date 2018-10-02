@@ -319,7 +319,7 @@ Sefaria = {
   _loadTOC: function() {
     return Sefaria.util.openFileInSources("toc.json").then(data => {
       Sefaria.toc = data;
-      Sefaria._cacheIndexFromToc(data);
+      Sefaria._cacheIndexFromToc(data, true);
     });
   },
   _loadHebrewCategories: function() {
@@ -364,10 +364,11 @@ Sefaria = {
     tempToc.splice(cats[cats.length-1],1);
     return newToc;
   },
-  _cacheIndexFromToc: function(toc) {
+  _cacheIndexFromToc: function(toc, isTopLevel=false) {
     // Unpacks contents of Sefaria.toc into index cache.
     for (var i = 0; i < toc.length; i++) {
       if ("category" in toc[i]) {
+        if (isTopLevel) { Sefaria.topLevelCategories.push(toc[i].category); }
         Sefaria._cacheIndexFromToc(toc[i].contents)
       } else {
         Sefaria.index(toc[i].title, toc[i]);
@@ -378,6 +379,7 @@ Sefaria = {
       }
     }
   },
+  topLevelCategories: [],  // useful for ordering categories in linkSummary
   toc: null,
   tocItemsByCategories: function(cats) {
     // Returns the TOC items that correspond to the list of categories 'cats'
@@ -899,7 +901,7 @@ Sefaria = {
       }
 
     },
-    linkSummary: function(sectionRef, links=[]) {
+    linkSummary: function(sectionRef, links=[], menuLanguage) {
       // Returns a categories and sorted summary of `links` with `sectionRef` (used to show empty commentators).
       return new Promise(function(resolve, reject) {
         // Returns an ordered array summarizing the link counts by category and text
@@ -976,7 +978,7 @@ Sefaria = {
           categoryData.books.sort(function(a, b) {
             // First sort by predefined "top"
             var topByCategory = {
-              "Commentary": ["Rashi", "Ibn Ezra", "Ramban", "Sforno","Tosafot"]
+              "Commentary": ["Rashi", "Ibn Ezra", "Ramban","Tosafot"]
             };
             var top = topByCategory[categoryData.category] || [];
             var aTop = top.indexOf(a.title);
@@ -987,8 +989,15 @@ Sefaria = {
               return aTop < bTop ? -1 : 1;
             }
             // Then sort alphabetically
-            return a.book > b.book ? 1 : -1;
+            if (menuLanguage === 'english'){
+              return a.title > b.title ? 1 : -1;
+            }
+            // else hebrew
+            return a.heTitle > b.heTitle ? 1 : -1;
           });
+          if (categoryData.category === 'Commentary') {
+            console.log('commentary', categoryData.books);
+          }
           return categoryData;
         });
 
@@ -1014,14 +1023,24 @@ Sefaria = {
         }
 
         // Sort the categories
-        var order = ["Commentary", "byCount", "Modern Works", "All"];
+        const order = ["Commentary", "Targum", "byCatOrder", "All"];
+        const indexByCatOrder = order.indexOf("byCatOrder");
         summaryList.sort(function(a, b) {
-          var indexByCount = order.indexOf("byCount");
-          var indexA = order.indexOf(a.category) != -1 ? order.indexOf(a.category) : indexByCount;
-          var indexB = order.indexOf(b.category) != -1 ? order.indexOf(b.category) : indexByCount;
+          var indexA = order.indexOf(a.category) != -1 ? order.indexOf(a.category) : indexByCatOrder;
+          var indexB = order.indexOf(b.category) != -1 ? order.indexOf(b.category) : indexByCatOrder;
 
-          if (indexA == indexByCount && indexB == indexByCount) {
-            return b.count - a.count
+          if (indexA === indexByCatOrder && indexB === indexByCatOrder) {
+            const aOrder = Sefaria.topLevelCategories.indexOf(a.category);
+            const bOrder = Sefaria.topLevelCategories.indexOf(b.category);
+            if (aOrder === -1 && bOrder === -1) {
+              if (a.category < b.category) { return -1; }
+              if (a.category > b.category) { return  1; }
+              return 0;
+            }
+            if (aOrder === -1) { return 1; }
+            if (bOrder === -1) { return -1; }
+
+            return aOrder - bOrder;
           }
 
           return indexA - indexB;
