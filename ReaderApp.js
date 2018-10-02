@@ -1099,8 +1099,7 @@ class ReaderApp extends React.Component {
     const { textListFlex } = this.state;
     const tempState = { textListAnimating: false };
     if (textListFlex < 0.001) {
-      tempState.textListFlex = 0.3;
-      tempState.textListFlexPreference = 0.3;
+      tempState.textListFlex = 0.0001;
       tempState.textListVisible = false;
     }
     this.setState(tempState);
