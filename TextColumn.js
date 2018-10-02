@@ -542,7 +542,7 @@ class TextColumn extends React.Component {
     if (!this._isMounted) { return; }
 
     if (shouldJump) {
-      console.log("jumping!");
+      console.log("jumping!", offset);
       this.sectionListRef._wrapperListRef._listRef.scrollToOffset({
         offset,
         animated,

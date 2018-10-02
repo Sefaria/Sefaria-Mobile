@@ -214,9 +214,14 @@ class ReaderApp extends React.Component {
     this.manageBack("main");
   }
 
-  manageBack = (type) => {
+  manageBack = type => {
     const oldState = BackManager.back({ type });
     if (!!oldState) {
+      console.log('manageBack', oldState.menuOpen, type, oldState.offsetRef, oldState.segmentRef);
+      if (!oldState.menuOpen) {
+        // you're going back to textcolumn. make sure to jump
+        oldState.offsetRef = oldState.segmentRef;
+      }
       this.setState(oldState);
       return true;
     } else {
