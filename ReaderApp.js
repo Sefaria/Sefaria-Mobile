@@ -1044,13 +1044,11 @@ class ReaderApp extends React.Component {
   };
 
   updateVersionCat = (filterIndex, segmentRef) => {
-    console.log('updateVersionCat', this.state.versionFilterIndex, filterIndex, segmentRef);
     if (this.state.versionFilterIndex === filterIndex) return;
     if (!filterIndex && filterIndex !== 0) {
       if (this.state.versionFilterIndex == null) return;
       filterIndex = this.state.versionFilterIndex;
     }
-    console.log('filterIndex', filterIndex);
     if (!segmentRef) { segmentRef = this.state.segmentRef; }
     this.state.versionRecentFilters[filterIndex].refList = [segmentRef];
     const versionContents = [null];

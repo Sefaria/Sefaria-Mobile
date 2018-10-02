@@ -172,8 +172,12 @@ class ConnectionsPanel extends React.Component {
           // if you're in Modern Commentary, switch to Commentary
           const connectionsMode = this.props.connectionsMode && this.props.connectionsMode.indexOf(" Commentary") !== -1 ? "Commentary" : this.props.connectionsMode;
           let viewList = [];
-          for (let i = 0; i < this.props.linkSummary.length; i++) {
-            const cat = this.props.linkSummary[i];
+          let linkSummary = this.props.linkSummary;
+          if (connectionsMode !== null && !linkSummary.find(cat => cat.category === connectionsMode)) {
+            linkSummary = linkSummary.concat([{category: connectionsMode, count: 0, refList: [], heRefList: [], books: []}]);
+          }
+          for (let i = 0; i < linkSummary.length; i++) {
+            const cat = linkSummary[i];
             const catFilterSelected = (cat.category === connectionsMode || (connectionsMode === "Commentary" && cat.category.indexOf(" Commentary") !== -1));
             if (!catFilterSelected && (cat.category === "Quoting Commentary" || cat.category === "Modern Commentary")) { continue; }  // skip these categories in the main link summary and only include them under Commentary
             if (connectionsMode !== null && !catFilterSelected) { continue; }
@@ -185,7 +189,7 @@ class ConnectionsPanel extends React.Component {
                   themeStr={this.props.themeStr}
                   menuLanguage={this.props.menuLanguage}
                   enText={cat.category.toUpperCase()}
-                  heText={Sefaria.hebrewCategory(cat.category)}
+                  heText={heCategory}
                   catColor={Sefaria.palette.categoryColor(cat.category)}
                   count={cat.count}
                   onPress={function(filter,category) {
