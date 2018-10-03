@@ -81,7 +81,7 @@ class ReaderNavigationCategoryMenu extends React.Component {
     var catContents = Sefaria.tocItemsByCategories(categories);
     var enTitle = this.props.category.toUpperCase();
     var heTitle = Sefaria.hebrewCategory(this.props.category);
-    return (<View style={[styles.menu, this.props.theme.menu]}>
+    return (<View key={this.props.category} style={[styles.menu, this.props.theme.menu]}>
               <CategoryColorLine category={categories[0]} />
               <View style={[styles.header, this.props.theme.header]}>
                 <CategoryColorLine category={categories[0]} />
