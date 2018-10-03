@@ -383,7 +383,7 @@ class ReaderApp extends React.Component {
       let loadingLinks = false;
       const justOpened = shouldToggle && !this.state.textListVisible;
       const justScrolling = !shouldToggle && !this.state.textListVisible;  // true when called while scrolling with text list closed
-      if ((segment !== this.state.segmentIndexRef && !justScrolling) || justOpened) {
+      if (((segment !== this.state.segmentIndexRef || section !== this.state.sectionIndexRef) && !justScrolling) || justOpened) {
           loadingLinks = true;
           if (this.state.linksLoaded[section]) {
             this.updateLinkSummary(section, segment);
