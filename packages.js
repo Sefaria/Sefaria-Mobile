@@ -14,10 +14,10 @@ const Packages = {
         RNFB.fs.exists(RNFB.fs.dirs.DocumentDir + "/library/packages.json")
         .then(exists => {
           if (Platform.OS == "ios" || exists) {
-
               const pkgPath = exists ? (RNFB.fs.dirs.DocumentDir + "/library/packages.json") :
                   (RNFB.fs.dirs.MainBundleDir + "/sources/packages.json");
-              Sefaria._loadJSON(pkgPath).then(function (data) {
+              Sefaria._loadJSON(pkgPath).then(data => {
+                  data = [];
                   Sefaria.packages.available = data;
                   for (pkgObj of data) {
                       if (!!pkgObj.indexes) {
@@ -109,7 +109,9 @@ const Packages = {
   },
   isFullLibrary: pkgName => {
     //full library pkg has no indexes listed
-    return !Sefaria.packages.available.find(p=>p.en === pkgName).indexes;
+    const found = Sefaria.packages.available.find(p=>p.en === pkgName);
+    if (!found) { return false; }
+    return !found.indexes;
   },
   getSelectedParent: pkgName => {
     const currPkgObj = Sefaria.packages.available.find(p=>p.en === pkgName);

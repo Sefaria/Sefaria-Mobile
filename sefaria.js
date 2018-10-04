@@ -735,13 +735,13 @@ Sefaria = {
   },
   _loadJSON: function(JSONSourcePath) {
     if (Platform.OS === 'ios') {
-      return fetch(JSONSourcePath).then(result => result.json());
+      return fetch(JSONSourcePath).then(result => result.json()).catch(e => ({}));
     } else {
       return new Promise((resolve, reject) => {
         RNFB.fs.readFile(JSONSourcePath).then(result => {
           resolve(JSON.parse(result));
         }).catch(e => {
-          reject(e);
+          resolve({});  // if file can't be parsed, fall back to empty object
         });
       });
     }

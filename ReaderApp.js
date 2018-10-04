@@ -792,6 +792,7 @@ class ReaderApp extends React.Component {
   };
 
   openUri = uri => {
+    uri = encodeURI(uri);
     if (Platform.OS == "ios") {
       SafariView.isAvailable()
       .then(SafariView.show({
@@ -802,6 +803,7 @@ class ReaderApp extends React.Component {
       AppInstalledChecker.isAppInstalled('chrome')
       .then(installed => {
         if (installed) {
+          console.log('yoyo', uri);
           CustomTabs.openURL(uri, {
             toolbarColor: Sefaria.palette.system,
             enableUrlBarHiding: true,
@@ -822,6 +824,7 @@ class ReaderApp extends React.Component {
     this.setState({
       currUri: uri
     });
+    console.log('openWebViewPage', uri);
     this.openMenu("webview");
   }
 
