@@ -17,7 +17,8 @@ const Packages = {
               const pkgPath = exists ? (RNFB.fs.dirs.DocumentDir + "/library/packages.json") :
                   (RNFB.fs.dirs.MainBundleDir + "/sources/packages.json");
               Sefaria._loadJSON(pkgPath).then(data => {
-                  data = [];
+                  // special case incase packages.json has a syntax error
+                  if (typeof data === 'object' && !Array.isArray(data) && Object.keys(data).length === 0) { data = []; }
                   Sefaria.packages.available = data;
                   for (pkgObj of data) {
                       if (!!pkgObj.indexes) {
@@ -35,6 +36,8 @@ const Packages = {
           }
           else if (Platform.OS == "android") {
               RNFB.fs.readFile(RNFB.fs.asset('sources/packages.json')).then(data => {
+                  // special case incase packages.json has a syntax error
+                  if (typeof data === 'object' && Object.keys(obj).length === 0) { data = []; }
                   data = JSON.parse(data);
                   Sefaria.packages.available = data;
                   for (pkgObj of data) {

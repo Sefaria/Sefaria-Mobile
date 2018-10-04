@@ -85,6 +85,7 @@ Sefaria = {
     } else {
       // If the data file represents multiple sections, pick the appropriate one to return
       const refUpOne = Sefaria.refUpOne(ref);
+      console.log(ref, data.sections);
       if (ref in data.sections) {
         return data.sections[ref];
       } else if (refUpOne in data.sections) {
@@ -719,11 +720,12 @@ Sefaria = {
     });
   },
   _deleteUnzippedFiles: function() {
-    return new Promise(function(resolve, reject) {
+    return new Promise((resolve, reject) => {
       RNFB.fs.lstat(RNFB.fs.dirs.DocumentDir).then(fileList => {
         for (let f of fileList) {
           if (f.type === 'file' && f.filename.endsWith(".json")) {
-            RNFB.fs.unlink(f.path + f.filename);
+            console.log('deleting', f.path);
+            RNFB.fs.unlink(f.path);
           }
         }
         resolve();
@@ -739,9 +741,14 @@ Sefaria = {
     } else {
       return new Promise((resolve, reject) => {
         RNFB.fs.readFile(JSONSourcePath).then(result => {
+          try {
+            resolve(JSON.parse(result));
+          } catch (e) {
+            resolve({}); // if file can't be parsed, fall back to empty object
+          }
           resolve(JSON.parse(result));
         }).catch(e => {
-          resolve({});  // if file can't be parsed, fall back to empty object
+          reject(e);
         });
       });
     }

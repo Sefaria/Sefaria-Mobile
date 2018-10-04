@@ -67,7 +67,8 @@ class ReaderApp extends React.Component {
 
   constructor(props, context) {
     super(props, context);
-    Sefaria.init().then(() => {
+    Sefaria._deleteUnzippedFiles()
+    .then(Sefaria.init).then(() => {
         setTimeout(SplashScreen.hide, 300);
         this.setState({
           loaded: true,
@@ -154,11 +155,6 @@ class ReaderApp extends React.Component {
     BackHandler.addEventListener('hardwareBackPress', this.manageBack);
     AppState.addEventListener('change', this.appStateChangeListener);
     Sefaria.downloader.onChange = this.onDownloaderChange;
-    Sefaria._deleteUnzippedFiles().then(function() {
-
-       }).catch(function(error) {
-        console.error('Error caught from Sefaria._deleteAllFiles', error);
-      });
   }
 
   networkChangeListener = isConnected => {
