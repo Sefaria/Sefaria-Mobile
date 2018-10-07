@@ -54,7 +54,7 @@ class TextSegment extends React.PureComponent {
     const lineHeightMultiplierHe = Platform.OS === 'android' ? 1.3 : 1.2;
     const style = this.props.textType == "hebrew" ?
                   [styles.hebrewText, this.props.theme.text, isStacked ? styles.justifyText : {textAlign: 'right'}, {fontSize: this.props.fontSize, lineHeight: this.props.fontSize * lineHeightMultiplierHe}] :
-                  [styles.englishText, this.props.theme.text, styles.justifyText, {fontSize: 0.8 * this.props.fontSize, lineHeight: this.props.fontSize * 1.04 }];
+                  [styles.englishText, this.props.theme.text, isStacked ? styles.justifyText : {textAlign: 'left'}, {fontSize: 0.8 * this.props.fontSize, lineHeight: this.props.fontSize * 1.04 }];
     if (this.props.bilingual && this.props.textType == "english") {
       if (isStacked) {
         style.push(styles.bilingualEnglishText);
@@ -67,7 +67,10 @@ class TextSegment extends React.PureComponent {
         fontSize: this.props.fontSize * 0.8 * (this.props.textType === "hebrew" ? 1 : 0.8)
       },
       hediv: {
-        textAlign: (isStacked || iPad) && Platform.OS !== "android" ? 'justify' : 'right'  // justify looks bad hebrew with small screens in side-by-side layout
+        textAlign: isStacked ? 'justify' : 'right'  // justify looks bad hebrew with small screens in side-by-side layout
+      },
+      endiv: {
+        textAlign: isStacked ? 'justify' : 'left'
       }
     };
     // return (
