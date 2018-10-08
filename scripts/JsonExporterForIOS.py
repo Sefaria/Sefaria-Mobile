@@ -838,6 +838,9 @@ def export_base_files_to_sources():
     export_packages(for_sources=True)  # relies on full dump to be available to measure file sizes
 
 if __name__ == '__main__':
+    # we've been experiencing many issues with strange books appearing in the toc. i believe this line should solve that
+    model.library.rebuild_toc()
+    
     action = sys.argv[1] if len(sys.argv) > 1 else None
     index = sys.argv[2] if len(sys.argv) > 2 else None
     if action == "export_all":
