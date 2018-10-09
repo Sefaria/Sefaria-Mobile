@@ -218,7 +218,7 @@ class ListItem extends React.PureComponent {
     var englishElem = <HTMLView
                         key={this.state.resetKeyEn}
                         stylesheet={{...styles, ...smallEnSheet}}
-                        value={"<endiv>"+"&#x200E;"+en+"</endiv>"}
+                        value={"<endiv>&#x200E;"+en+"</endiv>"}
                         textComponentProps={
                           {
                             style: [styles.englishText, styles.linkContentText, this.props.theme.text, {fontSize: 0.8 * this.props.fontSize, lineHeight: this.props.fontSize * 1.04}],

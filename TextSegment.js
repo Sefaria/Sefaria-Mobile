@@ -83,7 +83,7 @@ class TextSegment extends React.PureComponent {
     return (
            <HTMLView
              key={this.state.resetKey}
-             value= {this.props.textType == "hebrew" ? "<hediv>"+data+"</hediv>" : "<endiv>"+data+"</endiv>"}
+             value= {this.props.textType == "hebrew" ? "<hediv>"+data+"</hediv>" : "<endiv>&#x200E;"+data+"</endiv>"}
              stylesheet={{...styles, ...smallSheet}}
              rootComponentProps={{
                  hitSlop: {top: 10, bottom: 10, left: 10, right: 10},  // increase hit area of segments
