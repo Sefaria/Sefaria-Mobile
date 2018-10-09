@@ -221,13 +221,17 @@ class TextColumn extends React.Component {
         }
       } else {
         const targetIndex = this.state.jumpInfoMap.get(segmentRef);
-        if (!targetIndex) { debugger; }
-        this.sectionListRef.scrollToLocation({
-            animated: false,
-            sectionIndex: 0,
-            itemIndex: targetIndex-1,
-            viewPosition: 0.1,
-        });
+        const { startY, endY } = this.getSegScrollPos(segmentRef);
+        if (startY > 0) {
+          if (!targetIndex) { debugger; }
+          this.sectionListRef.scrollToLocation({
+              animated: false,
+              sectionIndex: 0,
+              itemIndex: targetIndex-1,
+              viewPosition: 0.1,
+          });
+        }
+
       }
 
     }
@@ -313,14 +317,19 @@ class TextColumn extends React.Component {
     }
   };
 
+  getSegScrollPos = ref => {
+    const { y, height } = this.rowYHash[ref];
+    const startY = y - this.currentY;
+    const endY = (y + height) - this.currentY;
+    return { startY, endY };
+  }
+
   updateHighlightedSegment = secData => {
     if (secData.sections.length > 0 && secData.sections[0].length > 0) {
         const topSeg = secData.sections[0][0];
         const nextSeg = secData.sections[0].length > 1 ? secData.sections[0][1] : (secData.sections.length > 1 ? secData.sections[1][0] : null);
-        const { y, height } = this.rowYHash[topSeg.ref];
-        const topStart = y - this.currentY;
-        const topEnd = (y + height) - this.currentY;
-        const seg = topStart > 0 || topEnd > COMMENTARY_LINE_THRESHOLD || !nextSeg ? topSeg : nextSeg;
+        const { startY, endY } = this.getSegScrollPos(topSeg.ref);
+        const seg = startY > 0 || endY > COMMENTARY_LINE_THRESHOLD || !nextSeg ? topSeg : nextSeg;
 
         this.setHighlight(seg.data.sectionIndex, seg.data.rowIndex, seg.ref);
     } else {
