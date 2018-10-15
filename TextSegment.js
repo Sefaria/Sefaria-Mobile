@@ -89,6 +89,7 @@ class TextSegment extends React.PureComponent {
                  hitSlop: {top: 10, bottom: 10, left: 10, right: 10},  // increase hit area of segments
                  onPress:this.onPressTextSegment,
                  onLongPress:this.props.onLongPress,
+                 delayPressIn: 200,
                }
              }
              RootComponent={TouchableOpacity}
