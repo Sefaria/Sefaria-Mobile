@@ -1093,7 +1093,7 @@ class ReaderApp extends React.Component {
     } else if (flex < 0.001) {
       flex = 0.001;
     }
-    this.setState({ textListFlex: flex, textListFlexPreference: flex });
+    this.setState({ textListFlex: flex });
   };
 
   onTextListAnimateFinish = () => {
@@ -1132,6 +1132,8 @@ class ReaderApp extends React.Component {
     const flex = 1.0 - (evt.nativeEvent.pageY-headerHeight)/(ViewPort.height-headerHeight) + this._textListDragOffset;
     if (flex > 0.9 || flex < 0.2) {
       this.animateTextList(flex, flex > 0.9 ? 0.9999 : 0.0001, 200);
+    } else {
+      this.setState({ textListFlexPreference: flex });
     }
   };
 
