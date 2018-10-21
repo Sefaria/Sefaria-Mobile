@@ -16,6 +16,7 @@ import {
   Platform,
   BackHandler,
   UIManager,
+  Linking,
 } from 'react-native';
 import { connect } from 'react-redux';
 import { createResponder } from 'react-native-gesture-responder';
@@ -42,7 +43,6 @@ import SettingsPage from './SettingsPage';
 import InterruptingMessage from './InterruptingMessage';
 import SwipeableCategoryList from './SwipeableCategoryList';
 import Toast, {DURATION} from 'react-native-easy-toast';
-import WebViewPage from './WebViewPage';
 import BackManager from './BackManager';
 
 
@@ -143,7 +143,6 @@ class ReaderApp extends React.Component {
         searchQueryResult: [],
         ReaderDisplayOptionsMenuVisible: false,
         overwriteVersions: true, // false when you navigate to a text but dont want the current version to overwrite your sticky version
-        currUri: "",  // used by WebViewPage
     };
   }
 
@@ -794,34 +793,29 @@ class ReaderApp extends React.Component {
       .then(SafariView.show({
         url: uri,
       }))
-      .catch(error => this.openWebViewPage(uri));
+      .catch(error => this.openInDefaultBrowser(uri));
     } else if (Platform.OS == "android") {
       AppInstalledChecker.isAppInstalled('chrome')
       .then(installed => {
         if (installed) {
-          console.log('yoyo', uri);
           CustomTabs.openURL(uri, {
             toolbarColor: Sefaria.palette.system,
             enableUrlBarHiding: true,
             showPageTitle: true,
             enableDefaultShare: true,
           })
-          .catch (error => this.openWebViewPage(uri));
+          .catch (error => this.openInDefaultBrowser(uri));
         } else {
-          this.openWebViewPage(uri);
+          this.openInDefaultBrowser(uri);
         }
       });
     } else {
-      this.openWebViewPage(uri);
+      this.openInDefaultBrowser(uri);
     }
   };
 
-  openWebViewPage = uri => {
-    this.setState({
-      currUri: uri
-    });
-    console.log('openWebViewPage', uri);
-    this.openMenu("webview");
+  openInDefaultBrowser = uri => {
+    Linking.openURL(uri);
   }
 
   goBack = () => {
@@ -1439,15 +1433,6 @@ class ReaderApp extends React.Component {
             icon={this.props.themeStr === "white" ? require('./img/starUnfilled.png') : require('./img/starUnfilled-light.png')}
           />
         );
-      case ("webview"):
-        return (
-          <WebViewPage
-            close={this.manageBackMain}
-            theme={this.props.theme}
-            themeStr={this.props.themeStr}
-            uri={this.state.currUri}
-          />
-        );
     }
     let textColumnFlex = this.state.textListVisible ? 1.0 - this.state.textListFlex : 1.0;
     return (
@@ -1607,7 +1592,7 @@ class ReaderApp extends React.Component {
         <InterruptingMessage
           ref={this._getInterruptingMessageRef}
           interfaceLang={this.state.interfaceLang}
-          openWebViewPage={this.openWebViewPage}
+          openInDefaultBrowser={this.openInDefaultBrowser}
           debugInterruptingMessage={this.props.debugInterruptingMessage} />
       </View>
 

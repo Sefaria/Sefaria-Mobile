@@ -149,7 +149,7 @@ class InterruptingMessage extends React.Component {
   }
 
   openLink = url => {
-    this.props.openWebViewPage(this.state.data.buttonLink);
+    this.props.openInDefaultBrowser(this.state.data.buttonLink);
     this.close();
   }
 
