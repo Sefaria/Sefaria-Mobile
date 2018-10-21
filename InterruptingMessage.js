@@ -4,7 +4,7 @@ import {
   Image,
   Modal,
   Text,
-  TouchableHighlight,
+  TouchableOpacity,
   SafeAreaView,
   StyleSheet,
   View
@@ -58,7 +58,7 @@ var styles = StyleSheet.create({
 // Updates when JSON structure changes
 const SCHEMA_VERSION = 1;
 const MESSAGE_PREFIX = "IntMessage:";
-const NUM_TIMES_OPENED_APP_THRESHOLD = 1;
+const NUM_TIMES_OPENED_APP_THRESHOLD = 0;
 // Example JSON below
 //const EN_URL = "https://www.sefaria.org/static/mobile/message-en.json";
 //const HE_URL = "https://www.sefaria.org/static/mobile/message-he.json";
@@ -77,6 +77,12 @@ class InterruptingMessage extends React.Component {
       data: null
     };
   }
+  componentDidMount() {
+    this._isMounted = true;
+  }
+  componentWillUnmount() {
+    this._isMounted = false;
+  }
 
   checkForMessage = () => {
     if (this.data) { return; }
@@ -85,13 +91,15 @@ class InterruptingMessage extends React.Component {
     const showModal = data => {
       this.setState({data: data});
       this.showTimeout = setTimeout(() => {
-        this.setModalVisible(true);
-      }, 1000);
+        if (this._isMounted) {
+          this.setModalVisible(true);
+        }
+      }, 20 * 1000);
     };
 
     fetch(URL)
       .then(result=>result.json())
-      .then(this.clearFlag) // Debug
+      //.then(this.clearFlag) // Debug
       .then(this.hasMessageShown)
       .then(data=> {
         //console.log("intmess data:", data);
@@ -111,7 +119,7 @@ class InterruptingMessage extends React.Component {
       AsyncStorage.getItem(flagName).then(value => {
         //console.log("message has show:", JSON.parse(value));
         value = JSON.parse(value);
-        data.shouldShow = !!value && Sefaria.numTimesOpenedApp > value.numTimesOpenedApp + NUM_TIMES_OPENED_APP_THRESHOLD && !value.hasShown;
+        data.shouldShow = !value;
         if (!value || data.shouldShow) {
           value = {numTimesOpenedApp: Sefaria.numTimesOpenedApp, hasShown: data.shouldShow};
           AsyncStorage.setItem(flagName,JSON.stringify(value));
@@ -165,12 +173,12 @@ class InterruptingMessage extends React.Component {
           <View style={bstyles.centeringBox}>
             <View style={styles.interruptingMessageBox}>
                 <View style={styles.interruptingMessageCloseBox}>
-                  <TouchableHighlight
-                    onPress={()=>{this.close();}}>
+                  <TouchableOpacity
+                    onPress={this.close}>
                     <Image source={require("./img/circle-close.png")}
                       resizeMode={'contain'}
                       style={styles.interruptingMessageClose} />
-                  </TouchableHighlight>
+                  </TouchableOpacity>
                 </View>
 
               <Text style={[styles.interruptingMessageTitle, titleStyle]}>{data.title}</Text>
@@ -179,9 +187,9 @@ class InterruptingMessage extends React.Component {
 
               <View style={bstyles.centeringBox}>
                 <View style={[bstyles.blueButton, {marginTop: 12}]}>
-                  <TouchableHighlight onPress={()=>{this.openLink(data.buttonLink)}}>
+                  <TouchableOpacity onPress={()=>{this.openLink(data.buttonLink)}}>
                     <Text style={bstyles.blueButtonText}>{data.buttonText}</Text>
-                  </TouchableHighlight>
+                  </TouchableOpacity>
                 </View>
               </View>
             </View>
