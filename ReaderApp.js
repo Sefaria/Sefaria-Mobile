@@ -1020,7 +1020,7 @@ class ReaderApp extends React.Component {
 
   onLinkLoad = (pos, data) => {
     // truncate data if it's crazy long (e.g. Smag)
-    const cutoffLen = 1500
+    const cutoffLen = 3500;
     if (data.en.length > cutoffLen) {
       const spaceInd = data.en.indexOf(' ', cutoffLen);
       if (spaceInd === -1) { spaceInd = cutoffLen; }
