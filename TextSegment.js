@@ -53,7 +53,7 @@ class TextSegment extends React.PureComponent {
     const isStacked = this.props.biLayout === 'stacked';
     const lineHeightMultiplierHe = Platform.OS === 'android' ? 1.3 : 1.2;
     const style = this.props.textType == "hebrew" ?
-                  [styles.hebrewText, this.props.theme.text, isStacked ? styles.justifyText : {textAlign: 'right'}, {fontSize: this.props.fontSize, lineHeight: this.props.fontSize * lineHeightMultiplierHe}] :
+                  [styles.hebrewText, this.props.theme.text, (isStacked && Platform.OS === 'ios') ? styles.justifyText : {textAlign: 'right'}, {fontSize: this.props.fontSize, lineHeight: this.props.fontSize * lineHeightMultiplierHe}] :
                   [styles.englishText, this.props.theme.text, isStacked ? styles.justifyText : {textAlign: 'left'}, {fontSize: 0.8 * this.props.fontSize, lineHeight: this.props.fontSize * 1.04 }];
     if (this.props.bilingual && this.props.textType == "english") {
       if (isStacked) {
