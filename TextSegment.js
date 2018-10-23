@@ -67,7 +67,7 @@ class TextSegment extends React.PureComponent {
         fontSize: this.props.fontSize * 0.8 * (this.props.textType === "hebrew" ? 1 : 0.8)
       },
       hediv: {
-        textAlign: isStacked ? 'justify' : 'right'  // justify looks bad hebrew with small screens in side-by-side layout
+        textAlign: (isStacked && Platform.OS === 'ios') ? 'justify' : 'right'  // justify looks bad hebrew with small screens in side-by-side layout
       },
       endiv: {
         textAlign: isStacked ? 'justify' : 'left'
