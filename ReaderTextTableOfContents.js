@@ -375,6 +375,7 @@ class JaggedArrayNode extends React.Component {
                 sectionNames={this.props.schema.sectionNames.slice(0, -zoom)}
                 addressTypes={this.props.schema.addressTypes.slice(0, -zoom)}
                 contentCounts={this.props.schema.content_counts}
+                contentLang={this.props.contentLang}
                 refPath={this.props.refPath}
                 openRef={this.props.openRef} />);
     }

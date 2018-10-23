@@ -101,8 +101,8 @@ android {
         applicationId "org.sefaria.sefaria"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 418
-        versionName "4.1.8"
+        versionCode 419
+        versionName "4.1.9"
         ndk {
             abiFilters "armeabi-v7a", "x86"
         }
