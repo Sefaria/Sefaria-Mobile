@@ -63,8 +63,8 @@ const NUM_TIMES_OPENED_APP_THRESHOLD = 0;
 //const EN_URL = "https://www.sefaria.org/static/mobile/message-en.json";
 //const HE_URL = "https://www.sefaria.org/static/mobile/message-he.json";
 
-const EN_URL = "https://www.sefaria.org/static/mobile/test/message-en.json";
-const HE_URL = "https://www.sefaria.org/static/mobile/test/message-he.json";
+const EN_URL = "https://www.sefaria.org/static/mobile/message-en.json";
+const HE_URL = "https://www.sefaria.org/static/mobile/message-he.json";
 
 const EN_DEBUG_URL = "https://www.sefaria.org/static/mobile/test/message-en.json";
 const HE_DEBUG_URL = "https://www.sefaria.org/static/mobile/test/message-he.json";
