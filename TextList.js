@@ -237,7 +237,7 @@ class ListItem extends React.PureComponent {
     const refTitleStyle = this.props.menuLanguage === 'hebrew' ? styles.he : styles.en;
     const refStr = this.props.menuLanguage === 'hebrew' ? this.props.heRefStr : this.props.refStr;
     return (
-      <TouchableOpacity style={[styles.textListItem, this.props.theme.searchTextResult]} onPress={this.openActionSheet}>
+      <TouchableOpacity style={[styles.textListItem, this.props.theme.searchTextResult]} onPress={this.openActionSheet} delayPressIn={200}>
         {this.props.displayRef ? null : <Text style={[refTitleStyle, styles.textListCitation, this.props.theme.textListCitation]}>{refStr}</Text>}
         {textViews}
       </TouchableOpacity>
