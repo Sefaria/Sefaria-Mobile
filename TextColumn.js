@@ -293,7 +293,7 @@ class TextColumn extends React.Component {
     }
     let currSec;
     for (let seg of viewableItems) {
-      if (seg.item.type !== ROW_TYPES.SEGMENT && seg.item.type !== undefined) { console.log("continueing"); continue }
+      if (seg.item.type !== ROW_TYPES.SEGMENT && seg.item.type !== undefined) { continue }
       if (seg.item.type === undefined) {
         // apparently segments with item.type === undefined are sections. who knew?
         secData.sectionRefs.push(seg.item.ref);
@@ -660,7 +660,7 @@ class TextColumn extends React.Component {
 
   render() {
     return (
-        <View style={styles.textColumn} >
+        <View style={styles.textColumn}>
           <SectionList
             style={styles.scrollViewPaddingInOrderToScroll}
             ref={this._getSectionListRef}

@@ -214,6 +214,7 @@ class ReaderApp extends React.Component {
     if (!!oldState) {
       if (!oldState.menuOpen) {
         // you're going back to textcolumn. make sure to jump
+        oldState.textColumnKey = oldState.segmentRef;  // manually add a key to TextColumn to make sure it gets regenerated
         oldState.offsetRef = oldState.segmentRef;
       }
       this.setState(oldState);
@@ -1457,6 +1458,7 @@ class ReaderApp extends React.Component {
           <View style={[{flex: textColumnFlex}, styles.mainTextPanel, this.props.theme.mainTextPanel]}
                 onStartShouldSetResponderCapture={this._onStartShouldSetResponderCapture}>
             <TextColumn
+              key={this.state.textColumnKey}
               showToast={this.showToast}
               textToc={this.state.textToc}
               theme={this.props.theme}
