@@ -13,6 +13,8 @@ var Api = {
   _textCache: {}, //in memory cache for API data
   _linkCache: {},
   _nameCache: {},
+  _allTags: {},
+  _trendingTags: {},
   _versions: {},
   _translateVersions: {},
   _indexDetails: {},
@@ -164,6 +166,12 @@ var Api = {
         case "versions":
           url += "api/texts/versions/";
           break;
+        case "trendingTags":
+          url += "api/sheets/trending-tags/";
+          break;
+        case "allTags":
+          url += "api/sheets/tag-list/";
+          break;
         case "name":
           url += "api/name/";
           //urlSuffix = '?ref_only=0';
@@ -293,6 +301,40 @@ var Api = {
         });
     });
   },
+  trendingTags: function(failSilently) {
+    Sefaria.api._abortRequestType('trendingTags');
+    return new Promise((resolve, reject) => {
+      //const cached = Sefaria.api._trendingTags;
+      //if (!!cached) { console.log("cached"); resolve(cached); return; }
+      Sefaria.api._request('', 'trendingTags', false, {}, failSilently)
+        .then(response => {
+          //Sefaria.api._trendingTags = response;
+          resolve(response);
+        })
+        .catch(error=>{
+          console.log("TrendingTags API error:", error);
+          reject();
+        });
+    });
+  },
+
+  allTags: function(sortBy, failSilently) {
+    Sefaria.api._abortRequestType('allTags');
+    return new Promise((resolve, reject) => {
+      const cached = Sefaria.api._allTags[sortBy];
+      //if (!!cached) { console.log("cached"); resolve(cached); return; }
+      Sefaria.api._request(sortBy, 'allTags', false, {}, failSilently)
+        .then(response => {
+          Sefaria.api._allTags[sortBy] = response;
+          resolve(response);
+        })
+        .catch(error=>{
+          console.log("allTags API error:", error);
+          reject();
+        });
+    });
+  },
+
   isACaseVariant: function(query, data) {
     // Check if query is just an improper capitalization of something that otherwise would be a ref
     // query: string
@@ -331,6 +373,23 @@ var Api = {
     const signal = controller.signal;
     Sefaria.api._currentRequests[apiType] = controller;
     var url = Sefaria.api._toURL(ref, true, apiType, urlify, { context, versions });
+
+    console.log(url)
+    console.log(url)
+    console.log(url)
+    console.log(url)
+    console.log(url)
+    console.log(url)
+    console.log(url)
+    console.log(url)
+    console.log(url)
+    console.log(url)
+    console.log(url)
+    console.log(url)
+    console.log(url)
+    console.log(url)
+    console.log(url)
+    console.log(url)
     return new Promise(function(resolve, reject) {
       fetch(url, {method: 'GET', signal})
       .then(function(response) {

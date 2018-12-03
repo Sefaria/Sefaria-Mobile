@@ -51,6 +51,7 @@ import {
   CategoryColorLine,
   SefariaProgressBar,
 } from './Misc.js';
+import ReaderNavigationSheetMenu from "./ReaderNavigationSheetMenu";
 const ViewPort    = Dimensions.get('window');
 
 class ReaderApp extends React.Component {
@@ -1312,6 +1313,7 @@ class ReaderApp extends React.Component {
               openSettings={this.openMenu.bind(null, "settings")}
               openHistory={this.openMenu.bind(null, "history")}
               openSaved={this.openMenu.bind(null, "saved")}
+              openSheets={this.openMenu.bind(null, "sheets")}
               interfaceLang={this.state.interfaceLang}
               onChangeSearchQuery={this.onChangeSearchQuery}
               theme={this.props.theme}
@@ -1434,6 +1436,25 @@ class ReaderApp extends React.Component {
             icon={this.props.themeStr === "white" ? require('./img/starUnfilled.png') : require('./img/starUnfilled-light.png')}
           />
         );
+      case ("sheets"):
+        return(
+           <ReaderNavigationSheetMenu
+            close={this.manageBackMain}
+            theme={this.props.theme}
+            themeStr={this.props.themeStr}
+            toggleLanguage={this.toggleMenuLanguage}
+            openRef={this.openRef}
+            language={this.props.menuLanguage}
+            menuOpen={this.state.menuOpen}
+            icon={require('./img/sheet.png')}
+            menuLanguage={this.props.menuLanguage}
+            interfaceLang={this.state.interfaceLang}
+            openUri={this.openUri}
+           />
+
+        );
+
+
     }
     let textColumnFlex = this.state.textListVisible ? 1.0 - this.state.textListFlex : 1.0;
     return (
