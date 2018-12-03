@@ -120,7 +120,7 @@ class ReaderNavigationSheetMenu extends React.Component {
 
 
     var returnHeaderContent =  (
-        <View style={styles.menuContent}>
+        <View style={styles.menuSheetContentHeader}>
             <View style={styles.category} key="TrendingSourceSheetTags">
               { showHebrew ?
                   <Text style={[styles.heInt, styles.categorySectionTitle, this.props.theme.categorySectionTitle]}>תוויות פופולרי</Text> :
@@ -157,10 +157,11 @@ class ReaderNavigationSheetMenu extends React.Component {
 
 
                 <FlatList
-                  style={styles.menuContent}
+                  style={styles.menuAllSheetTagContent}
                   keyExtractor={this._keyExtractor}
                   data={this.state.allTags}
                   renderItem={this.renderItem}
+                  numColumns={2}
                   ListHeaderComponent={returnHeaderContent}
                 />
 

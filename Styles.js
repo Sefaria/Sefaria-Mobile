@@ -456,6 +456,15 @@ export default StyleSheet.create({
     paddingTop: 20,
     paddingBottom: 40,
   },
+  menuAllSheetTagContent: {
+    paddingHorizontal: iPad ? 20 : 10,
+    paddingTop: 0,
+    paddingBottom: 40,
+  },
+  menuSheetContentHeader: {
+    paddingTop: 20,
+    paddingBottom: 0,
+  },
   menuScrollViewContent: {
     paddingBottom: 100,
   },
