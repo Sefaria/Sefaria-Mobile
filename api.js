@@ -14,6 +14,7 @@ var Api = {
   _linkCache: {},
   _nameCache: {},
   _allTags: {},
+  _sheetsByTag: {},
   _trendingTags: {},
   _versions: {},
   _translateVersions: {},
@@ -171,6 +172,9 @@ var Api = {
           break;
         case "allTags":
           url += "api/sheets/tag-list/";
+          break;
+        case "sheetsByTag":
+          url += "api/sheets/tag/";
           break;
         case "name":
           url += "api/name/";
@@ -335,6 +339,24 @@ var Api = {
     });
   },
 
+  sheetsByTag: function(tag, failSilently) {
+    tag = encodeURIComponent(tag);
+    Sefaria.api._abortRequestType('sheetsByTag');
+    return new Promise((resolve, reject) => {
+      const cached = Sefaria.api._sheetsByTag[tag];
+      //if (!!cached) { console.log("cached"); resolve(cached); return; }
+      Sefaria.api._request(tag, 'sheetsByTag', false, {}, failSilently)
+        .then(response => {
+          Sefaria.api._sheetsByTag[tag] = response;
+          resolve(response);
+        })
+        .catch(error=>{
+          console.log("sheetsByTag API error:", error);
+          reject();
+        });
+    });
+  },
+
   isACaseVariant: function(query, data) {
     // Check if query is just an improper capitalization of something that otherwise would be a ref
     // query: string
@@ -373,23 +395,6 @@ var Api = {
     const signal = controller.signal;
     Sefaria.api._currentRequests[apiType] = controller;
     var url = Sefaria.api._toURL(ref, true, apiType, urlify, { context, versions });
-
-    console.log(url)
-    console.log(url)
-    console.log(url)
-    console.log(url)
-    console.log(url)
-    console.log(url)
-    console.log(url)
-    console.log(url)
-    console.log(url)
-    console.log(url)
-    console.log(url)
-    console.log(url)
-    console.log(url)
-    console.log(url)
-    console.log(url)
-    console.log(url)
     return new Promise(function(resolve, reject) {
       fetch(url, {method: 'GET', signal})
       .then(function(response) {

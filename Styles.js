@@ -1127,5 +1127,10 @@ export default StyleSheet.create({
     textAlign: 'justify',
     paddingTop: 15,
     marginTop: -10,
-  }
+  },
+  userAvatar: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+  },
 });

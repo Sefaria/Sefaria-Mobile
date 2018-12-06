@@ -44,6 +44,8 @@ import InterruptingMessage from './InterruptingMessage';
 import SwipeableCategoryList from './SwipeableCategoryList';
 import Toast, {DURATION} from 'react-native-easy-toast';
 import BackManager from './BackManager';
+import ReaderNavigationSheetMenu from "./ReaderNavigationSheetMenu";
+import ReaderNavigationSheetTagMenu from "./ReaderNavigationSheetTagMenu";
 
 
 import {
@@ -51,7 +53,6 @@ import {
   CategoryColorLine,
   SefariaProgressBar,
 } from './Misc.js';
-import ReaderNavigationSheetMenu from "./ReaderNavigationSheetMenu";
 const ViewPort    = Dimensions.get('window');
 
 class ReaderApp extends React.Component {
@@ -129,6 +130,7 @@ class ReaderApp extends React.Component {
         versionStaleRecentFilters: [],
         versionContents: [],
         searchQuery: '',
+        sheetTag: '',
         searchSort: 'relevance', // relevance or chronological
         availableSearchFilters: [],
         appliedSearchFilters: [],
@@ -864,6 +866,11 @@ class ReaderApp extends React.Component {
     this.openMenu("autocomplete");
   }
 
+  openSheetTag = (tag) => {
+    this.setState({sheetTag: tag});
+    this.openMenu("sheetTag");
+  };
+
   clearMenuState = () => {
       this.setState({
           navigationCategories: [],
@@ -1436,6 +1443,7 @@ class ReaderApp extends React.Component {
             icon={this.props.themeStr === "white" ? require('./img/starUnfilled.png') : require('./img/starUnfilled-light.png')}
           />
         );
+        break;
       case ("sheets"):
         return(
            <ReaderNavigationSheetMenu
@@ -1443,15 +1451,29 @@ class ReaderApp extends React.Component {
             theme={this.props.theme}
             themeStr={this.props.themeStr}
             toggleLanguage={this.toggleMenuLanguage}
-            openRef={this.openRef}
+            hasInternet={this.state.hasInternet}
             language={this.props.menuLanguage}
             menuOpen={this.state.menuOpen}
             icon={require('./img/sheet.png')}
             menuLanguage={this.props.menuLanguage}
             interfaceLang={this.state.interfaceLang}
-            openUri={this.openUri}
+            openSheetTagMenu={this.openSheetTag}
            />
-
+        );
+        break;
+      case ("sheetTag"):
+        return(
+           <ReaderNavigationSheetTagMenu
+            icon={require('./img/sheet.png')}
+            theme={this.props.theme}
+            themeStr={this.props.themeStr}
+            menuLanguage={this.props.menuLanguage}
+            interfaceLang={this.state.interfaceLang}
+            hasInternet={this.state.hasInternet}
+            tag={this.state.sheetTag}
+            onBack={this.manageBackMain}
+            openRef={this.openSheetRef}
+           />
         );
 
 

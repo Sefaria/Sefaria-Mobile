@@ -35,11 +35,9 @@ class ReaderNavigationSheetMenu extends React.Component {
   static propTypes = {
     theme:          PropTypes.object.isRequired,
     themeStr:       PropTypes.string.isRequired,
-    openRef:        PropTypes.func.isRequired,
     close:        PropTypes.func.isRequired,
     toggleLanguage: PropTypes.func.isRequired,
     menuLanguage:   PropTypes.string.isRequired,
-    openUri:        PropTypes.func.isRequired,
   };
 
   constructor(props) {
@@ -82,9 +80,9 @@ class ReaderNavigationSheetMenu extends React.Component {
     var showHebrew = this.props.menuLanguage == "hebrew";
 
       return (
-          <View style={styles.twoBoxItem} key={i}>
+          <View style={styles.twoBoxItem} key={index}>
               <TouchableOpacity style={[styles.textBlockLink, this.props.theme.textBlockLink]}
-                                onPress={() => console.log(item.tag)} key={index}>
+                                onPress={() => this.props.openSheetTagMenu(item.tag)}>
                   {showHebrew ?
                       <Text
                           style={[styles.hebrewText, styles.centerText, this.props.theme.text]}>{item.tag} ({item.count})</Text> :
@@ -109,7 +107,7 @@ class ReaderNavigationSheetMenu extends React.Component {
     var trendingTagContent = this.state.trendingTags.slice(0, 6).map(function(tag, i) {
         return (
 
-                <TouchableOpacity  style={[styles.textBlockLink,this.props.theme.textBlockLink]}  onPress={()=> console.log(tag.tag)} key={i}>
+                <TouchableOpacity  style={[styles.textBlockLink,this.props.theme.textBlockLink]}  onPress={()=> this.props.openSheetTagMenu(tag.tag)} key={i}>
                     { showHebrew ?
                       <Text style={[styles.hebrewText, styles.centerText, this.props.theme.text]}>{tag.tag} ({tag.count})</Text> :
                       <Text style={[styles.englishText, styles.centerText, this.props.theme.text]}>{tag.tag} ({tag.count})</Text> }
@@ -135,10 +133,7 @@ class ReaderNavigationSheetMenu extends React.Component {
                   <Text style={[styles.enInt, styles.categorySectionTitle, this.props.theme.categorySectionTitle]}>All Topics</Text> }
             </View>
         </View>
-
     )
-
-
 
     return (<View style={[styles.menu, this.props.theme.menu]}>
                 <CategoryColorLine category="Sheets" />
@@ -153,13 +148,10 @@ class ReaderNavigationSheetMenu extends React.Component {
                   language={this.props.menuLanguage} />
               </View>
 
-
-
-
                 <FlatList
                   style={styles.menuAllSheetTagContent}
                   keyExtractor={this._keyExtractor}
-                  data={this.state.allTags}
+                  data={this.state.allTags.filter(tag => tag.count > 5)}
                   renderItem={this.renderItem}
                   numColumns={2}
                   ListHeaderComponent={returnHeaderContent}
@@ -168,6 +160,8 @@ class ReaderNavigationSheetMenu extends React.Component {
             </View>);
   }
 }
+
+
 
 
 
