@@ -74,10 +74,14 @@ class ReaderNavigationSheetTagMenu extends React.Component {
                     style={styles.userAvatar}
                     source={{uri: item.ownerImageUrl}}
                 />
-                <View style={{ flexDirection: "column",flex:1}}>
-                  <Text>{item.ownerName}</Text>
-                  <Text>{item.views}</Text>
-                  <Text>{item.title}</Text>
+                <View style={{ flexDirection: "column",flex:1, marginRight: 20, marginLeft: 20}}>
+                  <View style={{flexDirection: "row", flex: 0, justifyContent: "space-between"}}>
+                     <Text style={[{alignSelf: "flex-start", color:"#999"}, styles.enInt]}>{item.ownerName}</Text>
+                     <Text style={[{alignSelf: "flex-end", color:"#999"}, styles.enInt]}>{item.views}</Text>
+                   </View>
+                  <View>
+                    <Text style={styles.sheetListTitle}>{item.title.replace(/\s\s+/g, ' ')}</Text>
+                  </View>
                 </View>
               </View>
 

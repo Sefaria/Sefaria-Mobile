@@ -1133,4 +1133,11 @@ export default StyleSheet.create({
     height: 80,
     borderRadius: 40,
   },
+  sheetListTitle: {
+    fontFamily: "Amiri",
+    fontSize: 20,
+    lineHeight: 22,
+    paddingTop: 11,
+  },
+
 });
