@@ -15,6 +15,7 @@ var Api = {
   _nameCache: {},
   _allTags: {},
   _sheetsByTag: {},
+  _sheets: {},
   _trendingTags: {},
   _versions: {},
   _translateVersions: {},
@@ -175,6 +176,9 @@ var Api = {
           break;
         case "sheetsByTag":
           url += "api/sheets/tag/";
+          break;
+        case "sheets":
+          url += "api/sheets/";
           break;
         case "name":
           url += "api/name/";
@@ -352,6 +356,23 @@ var Api = {
         })
         .catch(error=>{
           console.log("sheetsByTag API error:", error);
+          reject();
+        });
+    });
+  },
+
+  sheets: function(sheetID, failSilently) {
+    Sefaria.api._abortRequestType('sheets');
+    return new Promise((resolve, reject) => {
+      const cached = Sefaria.api._sheets[sheetID];
+      //if (!!cached) { console.log("cached"); resolve(cached); return; }
+      Sefaria.api._request(sheetID, 'sheets', false, {}, failSilently)
+        .then(response => {
+          Sefaria.api._sheets[sheetID] = response;
+          resolve(response);
+        })
+        .catch(error=>{
+          console.log("Sheets API error:", error);
           reject();
         });
     });

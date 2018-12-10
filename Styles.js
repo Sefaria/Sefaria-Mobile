@@ -1139,5 +1139,4 @@ export default StyleSheet.create({
     lineHeight: 22,
     paddingTop: 11,
   },
-
 });

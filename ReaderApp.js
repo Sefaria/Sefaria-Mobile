@@ -666,6 +666,21 @@ class ReaderApp extends React.Component {
     this.openRef(ref, "text toc", null, false, enableAliyot);
   };
 
+  openRefSheet = (ref) => {
+
+
+      Sefaria.api.sheets(ref)
+      .then(result => {
+          console.log(result);
+        })
+
+      .catch(error => {
+        console.log(error)
+      });
+
+
+  };
+
   openRefConnectionsPanel = (ref, versions) => {
     this.openRef(ref,"text list", versions);
   };
@@ -1472,7 +1487,7 @@ class ReaderApp extends React.Component {
             hasInternet={this.state.hasInternet}
             tag={this.state.sheetTag}
             onBack={this.manageBackMain}
-            openRef={this.openSheetRef}
+            openRef={this.openRefSheet}
            />
         );
 
