@@ -65,7 +65,7 @@ class ReaderNavigationSheetTagMenu extends React.Component {
       return (
           <View key={index} style={this.props.theme.menu}>
               <TouchableOpacity style={[styles.textBlockLink, this.props.theme.textBlockLink]}
-                                onPress={() => this.props.openRef(item.id)} >
+                                onPress={() => this.props.openRef(item.id,item)} >
 
               <View style={{ flexDirection: "row",flex:1}}>
 

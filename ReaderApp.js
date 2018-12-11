@@ -46,6 +46,7 @@ import Toast, {DURATION} from 'react-native-easy-toast';
 import BackManager from './BackManager';
 import ReaderNavigationSheetMenu from "./ReaderNavigationSheetMenu";
 import ReaderNavigationSheetTagMenu from "./ReaderNavigationSheetTagMenu";
+import Sheet from "./Sheet.js";
 
 
 import {
@@ -131,6 +132,8 @@ class ReaderApp extends React.Component {
         versionContents: [],
         searchQuery: '',
         sheetTag: '',
+        sheet: null,
+        sheetMeta: null,
         searchSort: 'relevance', // relevance or chronological
         availableSearchFilters: [],
         appliedSearchFilters: [],
@@ -666,12 +669,17 @@ class ReaderApp extends React.Component {
     this.openRef(ref, "text toc", null, false, enableAliyot);
   };
 
-  openRefSheet = (ref) => {
+  openRefSheet = (ref, sheetMeta) => {
 
 
       Sefaria.api.sheets(ref)
       .then(result => {
-          console.log(result);
+          this.setState ({
+              sheet: result,
+              sheetMeta: sheetMeta
+          }, () => {
+          this.closeMenu(); // Don't close until these values are in state, so sheet can load
+      });
         })
 
       .catch(error => {
@@ -1493,6 +1501,34 @@ class ReaderApp extends React.Component {
 
 
     }
+
+    if (this.state.sheet) {
+        return (
+            <View style={[styles.container, this.props.theme.container]} {...this.gestureResponder}>
+            <CategoryColorLine category="Sheet" />
+
+                      <ReaderControls
+            theme={this.props.theme}
+            enRef={this.state.textReference}
+            heRef={this.state.heRef}
+            language={this.props.menuLanguage}
+            categories={Sefaria.categoriesForTitle(this.state.textTitle)}
+            openNav={this.openNav}
+            themeStr={this.props.themeStr}
+            goBack={this.manageBackMain}
+            openTextToc={this.openTextToc}
+            backStack={BackManager.getStack({ type: "main" })}
+            toggleReaderDisplayOptionsMenu={this.toggleReaderDisplayOptionsMenu}
+            openUri={this.openUri}/>
+
+            <Sheet
+            sheet={this.state.sheet}
+            sheetMeta={this.state.sheetMeta}
+        />
+        </View>
+    )
+    }
+
     let textColumnFlex = this.state.textListVisible ? 1.0 - this.state.textListFlex : 1.0;
     return (
       <View style={[styles.container, this.props.theme.container]} {...this.gestureResponder}>
