@@ -1330,6 +1330,9 @@ Sefaria.util = {
   regexEscape: function(s) {
     return s.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
   },
+  stripHtml: function(rawHTML) {
+    return rawHTML.replace(/<\/?[^>]+(>|$)/g, "");
+  },
   lightenDarkenColor: function(col, amt) {
     var usePound = false;
     if (col[0] == "#") {

@@ -56,7 +56,7 @@ class Sheet extends React.Component {
           />
         )
       }
-/*
+
       else if ("comment" in source) {
         return (
           <SheetComment
@@ -76,7 +76,7 @@ class Sheet extends React.Component {
          />
         )
       }
-
+/*
       else if ("outsideBiText" in source) {
         return (
           <SheetOutsideBiText
@@ -182,89 +182,76 @@ class SheetSource extends Component {
 }
 
 class SheetComment extends Component {
-  sheetSourceClick(event) {
-    if(event.target.tagName.toLowerCase() === 'a') {
-      if( !(location.hostname === event.target.hostname || !event.target.hostname.length) ) {
-        window.open(event.target.href, "_blank");
-        event.preventDefault();
-      }
-    }
-
-    else {
-        this.props.onSegmentClick(this.props.source);
-    }
-  }
 
   render() {
-      var lang = Sefaria.hebrew.isHebrew(this.props.source.comment.stripHtml().replace(/\s+/g, ' ')) ? "he" : "en";
-      var containerClasses = classNames("sheetItem",
-          "segment",
-          lang == "he" ? "heOnly" : "enOnly",
-          this.props.highlightedNodes == this.props.source.node ? "highlight" : null,
-          this.props.source.options ? this.props.source.options.indented : null
-      );
+      var lang = Sefaria.hebrew.isHebrew(Sefaria.util.stripHtml(this.props.source.comment).replace(/\s+/g, ' ')) ? "he" : "en";
 
     return (
-      <div className={containerClasses} onClick={this.sheetSourceClick} aria-label={"Click to see " + this.props.linkCount +  " connections to this source"} tabIndex="0" onKeyPress={function(e) {e.charCode == 13 ? this.sheetSourceClick(e):null}.bind(this)} >
-            <div className="segmentNumber sheetSegmentNumber sans">
-              <span className="en"> <span className="segmentNumberInner">{this.props.sheetNumbered == 0 ? null : this.props.sourceNum}</span> </span>
-              <span className="he"> <span
-                className="segmentNumberInner">{this.props.sheetNumbered == 0 ? null : Sefaria.hebrew.encodeHebrewNumeral(this.props.sourceNum)}</span> </span>
-            </div>
-        <div className={lang}>
-            <div className="sourceContentText" dangerouslySetInnerHTML={ {__html: this.props.cleanHTML(this.props.source.comment)} }></div>
-        </div>
-        <div className="clearFix"></div>
-            {this.props.source.addedBy ?
-                <div className="addedBy"><small><em>{Sefaria._("Added by")}: <span dangerouslySetInnerHTML={ {__html: this.props.cleanHTML(this.props.source.userLink)} }></span></em></small></div>
-                : null
-            }
-      </div>
+        <View>
+
+ <HTMLView
+             key={this.props.sourceNum}
+             value= {lang == "en" ? "<endiv>&#x200E;"+this.props.source.comment+"</endiv>" : "<hediv>&#x200E;"+this.props.source.comment+"</hediv>"}
+             stylesheet={{...styles}}
+             rootComponentProps={{
+                 hitSlop: {top: 10, bottom: 10, left: 10, right: 10},  // increase hit area of segments
+                 onPress:this.onPressTextSegment,
+                 onLongPress:this.props.onLongPress,
+                 delayPressIn: 200,
+               }
+             }
+             RootComponent={TouchableOpacity}
+             textComponentProps={
+               {
+                 suppressHighlighting: false,
+                 key:this.props.segmentKey,
+                 style: styles.englishText,
+
+               }
+             }
+             style={{flex: this.props.textType == "hebrew" ? 4.5 : 5.5, paddingHorizontal: 10}}
+           />
+
+
+
+
+        </View>
     )
   }
 }
 
 class SheetOutsideText extends Component {
-  sheetSourceClick(event) {
-    if(event.target.tagName.toLowerCase() === 'a') {
-      if( !(location.hostname === event.target.hostname || !event.target.hostname.length) ) {
-        window.open(event.target.href, "_blank");
-        event.preventDefault();
-      }
-    }
-
-    else {
-        this.props.onSegmentClick(this.props.source);
-    }
-  }
   render() {
-    var lang = Sefaria.hebrew.isHebrew(this.props.source.outsideText.stripHtml().replace(/\s+/g, ' ')) ? "he" : "en";
-
-      var containerClasses = classNames("sheetItem",
-          "segment",
-          lang == "he" ? "heOnly" : "enOnly",
-          this.props.highlightedNodes == this.props.source.node ? "highlight" : null,
-          this.props.source.options ? this.props.source.options.indented : null
-      )
+    var lang = Sefaria.hebrew.isHebrew(Sefaria.util.stripHtml(this.props.source.outsideText).replace(/\s+/g, ' ')) ? "he" : "en";
 
 
     return (
-      <div className={containerClasses} onClick={this.sheetSourceClick} aria-label={"Click to see " + this.props.linkCount +  " connections to this source"} tabIndex="0" onKeyPress={function(e) {e.charCode == 13 ? this.sheetSourceClick(e):null}.bind(this)} >
-            <div className="segmentNumber sheetSegmentNumber sans">
-              <span className="en"> <span className="segmentNumberInner">{this.props.sheetNumbered == 0 ? null : this.props.sourceNum}</span> </span>
-              <span className="he"> <span
-                className="segmentNumberInner">{this.props.sheetNumbered == 0 ? null : Sefaria.hebrew.encodeHebrewNumeral(this.props.sourceNum)}</span> </span>
-            </div>
-        <div className={lang}>
-            <div className="sourceContentText" dangerouslySetInnerHTML={ {__html: this.props.cleanHTML(this.props.source.outsideText)} }></div>
-        </div>
-        <div className="clearFix"></div>
-        {this.props.source.addedBy ?
-            <div className="addedBy"><small><em>{Sefaria._("Added by")}: <span dangerouslySetInnerHTML={ {__html: this.props.cleanHTML(this.props.source.userLink)} }></span></em></small></div>
-            : null
-        }
+        <View>
 
-      </div>
+ <HTMLView
+             key={this.props.sourceNum}
+             value= {lang == "en" ? "<endiv>&#x200E;"+this.props.source.outsideText+"</endiv>" : "<hediv>&#x200E;"+this.props.source.outsideText+"</hediv>"}
+             stylesheet={{...styles}}
+             rootComponentProps={{
+                 hitSlop: {top: 10, bottom: 10, left: 10, right: 10},  // increase hit area of segments
+                 onPress:this.onPressTextSegment,
+                 onLongPress:this.props.onLongPress,
+                 delayPressIn: 200,
+               }
+             }
+             RootComponent={TouchableOpacity}
+             textComponentProps={
+               {
+                 suppressHighlighting: false,
+                 key:this.props.segmentKey,
+                 style: styles.englishText,
+
+               }
+             }
+             style={{flex: this.props.textType == "hebrew" ? 4.5 : 5.5, paddingHorizontal: 10}}
+           />
+
+        </View>
     )
   }
 }
