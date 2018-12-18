@@ -14,6 +14,7 @@ import {
     Platform,
     AppState,
     WebView,
+    Dimensions,
 
 } from 'react-native';
 
@@ -29,6 +30,7 @@ import styles from './Styles.js';
 import strings from "./LocalizedStrings";
 import {DirectedButton} from "./Misc";
 import HTMLView from 'react-native-htmlview'; //to convert html'afied JSON to something react can render (https://github.com/jsdf/react-native-htmlview)
+const ViewPort    = Dimensions.get('window');
 
 
 class Sheet extends React.Component {
@@ -331,26 +333,45 @@ class SheetMedia extends Component {
         var mediaLink;
 
         if (mediaURL.match(/\.(jpeg|jpg|gif|png)$/i) != null) {
-            mediaLink = '<img class="addedMedia" src="' + mediaURL + '" />';
+            mediaLink = (
+                <Image
+                  style={{
+                    flex: 1,
+                    width: null,
+                    height: null,
+                    resizeMode: 'contain'
+                  }}
+                  source={{uri: mediaURL}}
+                />
+            )
         }
 
         else if (mediaURL.toLowerCase().indexOf('youtube') > 0) {
-            mediaLink = (<View style={{ height: 240 }}>
+            mediaLink = (
                             <WebView
                             javaScriptEnabled={true}
                             domStorageEnabled={true}
                             source={{uri: mediaURL}}
                             />
-                        </View>
                         )
         }
 
         else if (mediaURL.toLowerCase().indexOf('soundcloud') > 0) {
-            mediaLink = '<iframe width="100%" height="166" scrolling="no" frameborder="no" src="' + mediaURL + '"></iframe>'
+            var htmlData = '<iframe width="100%" height="166" scrolling="no" frameborder="no" src="' + mediaURL + '"></iframe>';
+            mediaLink =  ( <WebView
+                            originWhitelist={['*']}
+                            source={{ html: htmlData }}
+                           />)
+
+
         }
 
         else if (mediaURL.match(/\.(mp3)$/i) != null) {
-            mediaLink = '<audio src="' + mediaURL + '" type="audio/mpeg" controls>Your browser does not support the audio element.</audio>';
+            var htmlData = '<audio src="' + mediaURL + '" type="audio/mpeg" controls>Your browser does not support the audio element.</audio>';
+            mediaLink =  ( <WebView
+                            originWhitelist={['*']}
+                            source={{ html: htmlData }}
+                           />)
         }
 
         else {
@@ -362,7 +383,7 @@ class SheetMedia extends Component {
 
     render() {
         return (
-            <View>
+            <View style={{width:ViewPort.width-40, height: 200, marginTop:20, marginLeft:20, marginRight: 20}}>
                 {this.makeMediaEmbedLink(this.props.source.media)}
             </View>
         )
