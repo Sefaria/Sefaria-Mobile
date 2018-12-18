@@ -1505,8 +1505,7 @@ class ReaderApp extends React.Component {
     if (this.state.sheet) {
         return (
             <View style={[styles.container, this.props.theme.container]} {...this.gestureResponder}>
-            <CategoryColorLine category="Sheet" />
-
+            <CategoryColorLine category="Sheets" />
                       <ReaderControls
             theme={this.props.theme}
             enRef={this.state.textReference}
@@ -1520,11 +1519,13 @@ class ReaderApp extends React.Component {
             backStack={BackManager.getStack({ type: "main" })}
             toggleReaderDisplayOptionsMenu={this.toggleReaderDisplayOptionsMenu}
             openUri={this.openUri}/>
+          <View style={[{flex: 1}, styles.mainTextPanel, this.props.theme.mainTextPanel]}>
 
             <Sheet
             sheet={this.state.sheet}
             sheetMeta={this.state.sheetMeta}
         />
+              </View>
         </View>
     )
     }
