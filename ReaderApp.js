@@ -768,7 +768,9 @@ class ReaderApp extends React.Component {
       this.setState({
         loaded: false,
         textListVisible: false,
-        textReference: ref
+        textReference: ref,
+        sheet: null,
+        sheetMeta: null,
       }, () => {
           this.closeMenu(); // Don't close until these values are in state, so we know if we need to load defualt text
           this.loadNewText({ ref, versions: newVersions, overwriteVersions }).then(resolve);
