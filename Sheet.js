@@ -110,7 +110,7 @@ class Sheet extends React.Component {
             <View>
                 <Text>{this.props.sheet.id}</Text>
                 <ScrollView>
-                    <Text>{Sefaria.util.stripHtml(this.props.sheet.title).replace(/\s+/g, ' ')}</Text>
+                    <Text>{Sefaria.util.stripHtml(this.props.sheet.title)}</Text>
                     <Text>By: {this.props.sheetMeta.ownerName}</Text>
                     <View>
                         {sources}
@@ -187,7 +187,7 @@ class SheetSource extends Component {
 class SheetComment extends Component {
 
     render() {
-        var lang = Sefaria.hebrew.isHebrew(Sefaria.util.stripHtml(this.props.source.comment).replace(/\s+/g, ' ')) ? "he" : "en";
+        var lang = Sefaria.hebrew.isHebrew(Sefaria.util.stripHtml(this.props.source.comment)) ? "he" : "en";
 
         return (
             <View>
@@ -223,7 +223,7 @@ class SheetComment extends Component {
 
 class SheetOutsideText extends Component {
     render() {
-        var lang = Sefaria.hebrew.isHebrew(Sefaria.util.stripHtml(this.props.source.outsideText).replace(/\s+/g, ' ')) ? "he" : "en";
+        var lang = Sefaria.hebrew.isHebrew(Sefaria.util.stripHtml(this.props.source.outsideText)) ? "he" : "en";
 
 
         return (

@@ -1331,7 +1331,7 @@ Sefaria.util = {
     return s.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
   },
   stripHtml: function(rawHTML) {
-    return rawHTML.replace(/<\/?[^>]+(>|$)/g, "");
+    return rawHTML.replace(/<\/?[^>]+(>|$)/g, "").replace(/\s+/g, ' ');
   },
   lightenDarkenColor: function(col, amt) {
     var usePound = false;

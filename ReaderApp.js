@@ -47,6 +47,8 @@ import BackManager from './BackManager';
 import ReaderNavigationSheetMenu from "./ReaderNavigationSheetMenu";
 import ReaderNavigationSheetTagMenu from "./ReaderNavigationSheetTagMenu";
 import Sheet from "./Sheet.js";
+import SheetMetadata from "./SheetMeta.js";
+
 
 
 import {
@@ -670,13 +672,11 @@ class ReaderApp extends React.Component {
   };
 
   openRefSheet = (ref, sheetMeta) => {
-
-
       Sefaria.api.sheets(ref)
       .then(result => {
           this.setState ({
               sheet: result,
-              sheetMeta: sheetMeta
+              sheetMeta: sheetMeta,
           }, () => {
           this.closeMenu(); // Don't close until these values are in state, so sheet can load
       });
@@ -881,6 +881,10 @@ class ReaderApp extends React.Component {
 
   openTextToc = () => {
       this.openMenu("text toc");
+  };
+
+  openSheetMeta = () => {
+      this.openMenu("sheet meta");
   };
 
   openSearch = (query) => {
@@ -1372,6 +1376,20 @@ class ReaderApp extends React.Component {
             toggleLanguage={this.toggleMenuLanguage}
             openUri={this.openUri}/>);
         break;
+      case ("sheet meta"):
+        return (
+          <SheetMetadata
+            sheet={this.state.sheet}
+            sheetMeta={this.state.sheetMeta}
+            theme={this.props.theme}
+            themeStr={this.props.themeStr}
+            textLang={this.props.textLanguage == "hebrew" ? "hebrew" : "english"}
+            contentLang={this.props.menuLanguage}
+            interfaceLang={this.state.interfaceLang}
+            close={this.manageBackMain}
+            toggleLanguage={this.toggleMenuLanguage}
+          />);
+        break;
       case ("search"):
         return(
           <SearchPage
@@ -1518,6 +1536,9 @@ class ReaderApp extends React.Component {
             themeStr={this.props.themeStr}
             goBack={this.manageBackMain}
             openTextToc={this.openTextToc}
+            openSheetMeta={this.openSheetMeta}
+            sheet={this.state.sheet}
+            sheetMeta={this.state.sheetMeta}
             backStack={BackManager.getStack({ type: "main" })}
             toggleReaderDisplayOptionsMenu={this.toggleReaderDisplayOptionsMenu}
             openUri={this.openUri}/>
