@@ -1387,6 +1387,7 @@ class ReaderApp extends React.Component {
             contentLang={this.props.menuLanguage}
             interfaceLang={this.state.interfaceLang}
             close={this.manageBackMain}
+            openSheetTagMenu={this.openSheetTag}
             toggleLanguage={this.toggleMenuLanguage}
           />);
         break;

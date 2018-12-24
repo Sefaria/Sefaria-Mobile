@@ -1129,9 +1129,9 @@ export default StyleSheet.create({
     marginTop: -10,
   },
   userAvatar: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
   },
   sheetListTitle: {
     fontFamily: "Amiri",
