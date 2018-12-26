@@ -1544,11 +1544,38 @@ class ReaderApp extends React.Component {
             toggleReaderDisplayOptionsMenu={this.toggleReaderDisplayOptionsMenu}
             openUri={this.openUri}/>
           <View style={[{flex: 1}, styles.mainTextPanel, this.props.theme.mainTextPanel]}>
+          { loading ?
+          <LoadingView theme={this.props.theme} style={{flex: textColumnFlex}}/> :
 
             <Sheet
             sheet={this.state.sheet}
             sheetMeta={this.state.sheetMeta}
         />
+
+          }
+
+          {this.state.ReaderDisplayOptionsMenuVisible ?
+            (<ReaderDisplayOptionsMenu
+              ref={this._getReaderDisplayOptionsMenuRef}
+              theme={this.props.theme}
+              textFlow={this.state.textFlow}
+              biLayout={this.props.biLayout}
+              textReference={this.state.textReference}
+              interfaceLang={this.state.interfaceLang}
+              textLanguage={this.props.textLanguage}
+              showAliyot={false}
+              setTextFlow={this.setTextFlow}
+              setBiLayout={this.setBiLayout}
+              setAliyot={this.setAliyot}
+              setTextLanguage={this.setTextLanguage}
+              incrementFont={this.incrementFont}
+              setTheme={this.setTheme}
+              canBeContinuous={false}
+              canHaveAliyot={false}
+              themeStr={this.props.themeStr}/>) : null
+          }
+
+
               </View>
         </View>
     )
