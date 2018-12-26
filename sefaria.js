@@ -85,7 +85,7 @@ Sefaria = {
     } else {
       // If the data file represents multiple sections, pick the appropriate one to return
       const refUpOne = Sefaria.refUpOne(ref);
-      console.log(ref, data.sections);
+      //console.log(ref, data.sections);
       if (ref in data.sections) {
         return data.sections[ref];
       } else if (refUpOne in data.sections) {
@@ -999,7 +999,7 @@ Sefaria = {
             return a.heTitle > b.heTitle ? 1 : -1;
           });
           if (categoryData.category === 'Commentary') {
-            console.log('commentary', categoryData.books);
+            //console.log('commentary', categoryData.books);
           }
           return categoryData;
         });
@@ -1080,6 +1080,7 @@ Sefaria = {
           }
           return 0;
         } catch (e) {
+          console.log('huh')
           console.log(e);
           return 0;
         }

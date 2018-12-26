@@ -29,7 +29,8 @@ import {
 import styles from './Styles.js';
 import strings from "./LocalizedStrings";
 import {DirectedButton} from "./Misc";
-import HTMLView from 'react-native-htmlview'; //to convert html'afied JSON to something react can render (https://github.com/jsdf/react-native-htmlview)
+import HTMLView from 'react-native-htmlview';
+import TextColumn from "./TextColumn"; //to convert html'afied JSON to something react can render (https://github.com/jsdf/react-native-htmlview)
 const ViewPort    = Dimensions.get('window');
 
 
@@ -47,6 +48,13 @@ class Sheet extends React.Component {
     componentDidMount() {
     }
 
+  onPressTextSegment = (ref, key) => {
+    let section = parseInt(ref.split(":")[0]);
+    let segment = parseInt(ref.split(":")[1]);
+    console.log(ref, section, segment, key)
+    this.props.textSegmentPressed(0, 0, "Genesis 1:1", true);
+  };
+
 
     render() {
 
@@ -58,6 +66,7 @@ class Sheet extends React.Component {
                         key={i}
                         source={source}
                         sourceNum={i + 1}
+                        textSegmentPressed={ this.onPressTextSegment}
                     />
                 )
             }
@@ -68,6 +77,7 @@ class Sheet extends React.Component {
                         key={i}
                         sourceNum={i + 1}
                         source={source}
+                        textSegmentPressed={ this.onPressTextSegment }
                     />
                 )
             }
@@ -78,6 +88,7 @@ class Sheet extends React.Component {
                         key={i}
                         sourceNum={i + 1}
                         source={source}
+                        textSegmentPressed={ this.onPressTextSegment }
                     />
                 )
             }
@@ -88,6 +99,7 @@ class Sheet extends React.Component {
              key={i}
              sourceNum={i + 1}
              source={source}
+                        textSegmentPressed={ this.onPressTextSegment }
              />
              )
              }
@@ -99,6 +111,7 @@ class Sheet extends React.Component {
              key={i}
              sourceNum={i + 1}
              source={source}
+                        textSegmentPressed={ this.onPressTextSegment }
              />
              )
              }
@@ -108,10 +121,10 @@ class Sheet extends React.Component {
 
         return (
             <View>
-                <Text>{this.props.sheet.id}</Text>
                 <ScrollView>
                     <Text>{Sefaria.util.stripHtml(this.props.sheet.title)}</Text>
-                    <Text>By: {this.props.sheetMeta.ownerName}</Text>
+                    <Text>{this.props.sheetMeta.ownerName}</Text>
+                    <Text>{this.props.sheet.id}</Text>
                     <View>
                         {sources}
                     </View>
@@ -136,7 +149,7 @@ class SheetSource extends Component {
                         stylesheet={{...styles}}
                         rootComponentProps={{
                  hitSlop: {top: 10, bottom: 10, left: 10, right: 10},  // increase hit area of segments
-                 onPress:this.onPressTextSegment,
+                 onPress:() => this.props.textSegmentPressed(this.props.source.ref, this.props.sourceNum),
                  onLongPress:this.props.onLongPress,
                  delayPressIn: 200,
                }
@@ -160,7 +173,7 @@ class SheetSource extends Component {
                         stylesheet={{...styles}}
                         rootComponentProps={{
                  hitSlop: {top: 10, bottom: 10, left: 10, right: 10},  // increase hit area of segments
-                 onPress:this.onPressTextSegment,
+                 onPress:() => this.props.textSegmentPressed(this.props.source.ref, this.props.sourceNum),
                  onLongPress:this.props.onLongPress,
                  delayPressIn: 200,
                }
@@ -198,7 +211,7 @@ class SheetComment extends Component {
                     stylesheet={{...styles}}
                     rootComponentProps={{
                  hitSlop: {top: 10, bottom: 10, left: 10, right: 10},  // increase hit area of segments
-                 onPress:this.onPressTextSegment,
+                 onPress:() => this.props.textSegmentPressed("Genesis 1:1", this.props.sourceNum),
                  onLongPress:this.props.onLongPress,
                  delayPressIn: 200,
                }
@@ -235,7 +248,7 @@ class SheetOutsideText extends Component {
                     stylesheet={{...styles}}
                     rootComponentProps={{
                  hitSlop: {top: 10, bottom: 10, left: 10, right: 10},  // increase hit area of segments
-                 onPress:this.onPressTextSegment,
+                 onPress:() => this.props.textSegmentPressed("Genesis 1:1", this.props.sourceNum),
                  onLongPress:this.props.onLongPress,
                  delayPressIn: 200,
                }
@@ -271,7 +284,7 @@ class SheetOutsideBiText extends Component {
                         stylesheet={{...styles}}
                         rootComponentProps={{
                  hitSlop: {top: 10, bottom: 10, left: 10, right: 10},  // increase hit area of segments
-                 onPress:this.onPressTextSegment,
+                 onPress:() => this.props.textSegmentPressed("Genesis 1:1", this.props.sourceNum),
                  onLongPress:this.props.onLongPress,
                  delayPressIn: 200,
                }
@@ -295,7 +308,7 @@ class SheetOutsideBiText extends Component {
                         stylesheet={{...styles}}
                         rootComponentProps={{
                  hitSlop: {top: 10, bottom: 10, left: 10, right: 10},  // increase hit area of segments
-                 onPress:this.onPressTextSegment,
+                 onPress:() => this.props.textSegmentPressed("Genesis 1:1", this.props.sourceNum),
                  onLongPress:this.props.onLongPress,
                  delayPressIn: 200,
                }

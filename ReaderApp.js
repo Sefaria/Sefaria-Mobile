@@ -373,7 +373,7 @@ class ReaderApp extends React.Component {
   };
 
   textSegmentPressed = (section, segment, segmentRef, shouldToggle) => {
-      //console.log("textSegmentPressed", section, segment, segmentRef, shouldToggle);
+      console.log("textSegmentPressed", section, segment, segmentRef, shouldToggle);
       Sefaria.track.event("Reader","Text Segment Click", segmentRef);
 
       if (shouldToggle && this.state.textListVisible) {
@@ -387,6 +387,7 @@ class ReaderApp extends React.Component {
       let loadingLinks = false;
       const justOpened = shouldToggle && !this.state.textListVisible;
       const justScrolling = !shouldToggle && !this.state.textListVisible;  // true when called while scrolling with text list closed
+      console.log(this.state.textListVisible)
       if (((segment !== this.state.segmentIndexRef || section !== this.state.sectionIndexRef) && !justScrolling) || justOpened) {
           loadingLinks = true;
           if (this.state.linksLoaded[section]) {
@@ -1524,6 +1525,7 @@ class ReaderApp extends React.Component {
     }
 
     if (this.state.sheet) {
+        let textColumnFlex = this.state.textListVisible ? 1.0 - this.state.textListFlex : 1.0;
         return (
             <View style={[styles.container, this.props.theme.container]} {...this.gestureResponder}>
             <CategoryColorLine category="Sheets" />
@@ -1543,16 +1545,68 @@ class ReaderApp extends React.Component {
             backStack={BackManager.getStack({ type: "main" })}
             toggleReaderDisplayOptionsMenu={this.toggleReaderDisplayOptionsMenu}
             openUri={this.openUri}/>
-          <View style={[{flex: 1}, styles.mainTextPanel, this.props.theme.mainTextPanel]}>
+          <View style={[{flex: textColumnFlex}, styles.mainTextPanel, this.props.theme.mainTextPanel]}
+                onStartShouldSetResponderCapture={this._onStartShouldSetResponderCapture}>
+
           { loading ?
           <LoadingView theme={this.props.theme} style={{flex: textColumnFlex}}/> :
 
             <Sheet
             sheet={this.state.sheet}
             sheetMeta={this.state.sheetMeta}
+            textSegmentPressed={ this.textSegmentPressed }
+
         />
 
           }
+              </View>
+
+          {this.state.textListVisible ?
+            <ConnectionsPanel
+              textListFlex={this.state.textListFlex}
+              textListFlexAnimated={this.state.textListFlexAnimated}
+              animating={this.state.textListAnimating}
+              onStartShouldSetResponderCapture={this._onStartShouldSetResponderCapture}
+              textToc={this.state.textToc}
+              menuLanguage={this.props.menuLanguage}
+              fontSize={this.props.fontSize}
+              theme={this.props.theme}
+              themeStr={this.props.themeStr}
+              interfaceLang={this.state.interfaceLang}
+              segmentRef={this.state.segmentRef}
+              heSegmentRef={Sefaria.toHeSegmentRef(this.state.heRef, this.state.segmentRef)}
+              categories={Sefaria.categoriesForTitle(this.state.textTitle)}
+              textFlow={this.state.textFlow}
+              textLanguage={this.props.textLanguage}
+              openRef={this.openRefConnectionsPanel}
+              setConnectionsMode={this.setConnectionsMode}
+              openFilter={this.openFilter}
+              closeCat={this.closeLinkCat}
+              updateLinkCat={this.updateLinkCat}
+              updateVersionCat={this.updateVersionCat}
+              loadLinkContent={this.loadLinkContent}
+              loadVersionContent={this.loadVersionContent}
+              linkSummary={this.state.linkSummary}
+              linkContents={this.state.linkContents}
+              versionContents={this.state.versionContents}
+              loading={this.state.loadingLinks}
+              connectionsMode={this.state.connectionsMode}
+              filterIndex={this.state.filterIndex}
+              recentFilters={this.state.linkRecentFilters}
+              versionRecentFilters={this.state.versionRecentFilters}
+              versionFilterIndex={this.state.versionFilterIndex}
+              currVersions={this.state.currVersions}
+              versions={this.state.versions}
+              versionsApiError={this.state.versionsApiError}
+              onDragStart={this.onTextListDragStart}
+              onDragMove={this.onTextListDragMove}
+              onDragEnd={this.onTextListDragEnd}
+              textTitle={this.state.textTitle}
+              openUri={this.openUri} />
+             : null
+          }
+
+
 
           {this.state.ReaderDisplayOptionsMenuVisible ?
             (<ReaderDisplayOptionsMenu
@@ -1576,7 +1630,6 @@ class ReaderApp extends React.Component {
           }
 
 
-              </View>
         </View>
     )
     }

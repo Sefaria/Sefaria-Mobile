@@ -41,7 +41,7 @@ class SheetMeta extends React.Component {
     }
 
     componentDidMount() {
-        console.log(this.props.sheetMeta)
+        //console.log(this.props.sheetMeta)
     }
 
 
