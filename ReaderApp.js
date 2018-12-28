@@ -372,6 +372,16 @@ class ReaderApp extends React.Component {
 
   };
 
+  sheetSegmentPressed = (textRef, sheetRef) => {
+      if (textRef) {
+          //console.log(textRef)
+          this.loadTextDataForSheets(textRef)
+      }
+    let section = parseInt(textRef.split(":")[0]);
+    let segment = parseInt(textRef.split(":")[1]);
+    this.textSegmentPressed(0, 0, textRef, true)
+  }
+
   textSegmentPressed = (section, segment, segmentRef, shouldToggle) => {
       console.log("textSegmentPressed", section, segment, segmentRef, shouldToggle);
       Sefaria.track.event("Reader","Text Segment Click", segmentRef);
@@ -381,7 +391,7 @@ class ReaderApp extends React.Component {
           BackManager.back({ type: "secondary" });
           return; // Don't bother with other changes if we are simply closing the TextList
       }
-      if (!this.state.data[section][segment]) {
+      if (!this.state.data[section][segment] && !this.state.sheet) {
         return;
       }
       let loadingLinks = false;
@@ -427,6 +437,10 @@ class ReaderApp extends React.Component {
     isLoadingVersion - true when you are replacing an already loaded text with a specific version (not currently used)
     overwriteVersions - false when you want to switch versions but not overwrite sticky version (e.g. search)
   */
+  loadTextDataForSheets = (ref) => {
+    this.loadLinks(ref)
+  }
+
   loadNewText = ({ ref, versions, isLoadingVersion = false, overwriteVersions = true }) => {
     if (!this.state.hasInternet) {
       overwriteVersions = false;
@@ -545,6 +559,10 @@ class ReaderApp extends React.Component {
   loadLinks = (ref) => {
     // Ensures that links have been loaded for `ref` and stores result in `this.state.linksLoaded` array.
     // Links are not loaded yet in case you're in API mode, or you are reading a non-default version
+
+    //this assumes a situation where the only links you'd want are in the current section -- doesn't work for sheets.
+      console.log(this.state.data)
+
     const iSec = this.state.sectionArray.findIndex(secRef=>secRef===ref);
     if (!iSec && iSec !== 0) { console.log("could not find section ref in sectionArray", ref); return; }
     Sefaria.links.load(ref)
@@ -1554,7 +1572,7 @@ class ReaderApp extends React.Component {
             <Sheet
             sheet={this.state.sheet}
             sheetMeta={this.state.sheetMeta}
-            textSegmentPressed={ this.textSegmentPressed }
+            textSegmentPressed={ this.sheetSegmentPressed }
 
         />
 

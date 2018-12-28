@@ -49,10 +49,7 @@ class Sheet extends React.Component {
     }
 
   onPressTextSegment = (ref, key) => {
-    let section = parseInt(ref.split(":")[0]);
-    let segment = parseInt(ref.split(":")[1]);
-    console.log(ref, section, segment, key)
-    this.props.textSegmentPressed(0, 0, "Genesis 1:1", true);
+    this.props.textSegmentPressed(ref, key);
   };
 
 
@@ -144,7 +141,6 @@ class SheetSource extends Component {
 
                 {this.props.source.text && this.props.source.text.he ?
                     <HTMLView
-                        key={this.props.sourceNum}
                         value={"<hediv>"+this.props.source.text.he+"</hediv>"}
                         stylesheet={{...styles}}
                         rootComponentProps={{
@@ -168,7 +164,6 @@ class SheetSource extends Component {
 
                 {this.props.source.text && this.props.source.text.en ?
                     <HTMLView
-                        key={this.props.sourceNum}
                         value={"<endiv>&#x200E;"+this.props.source.text.en+"</endiv>"}
                         stylesheet={{...styles}}
                         rootComponentProps={{
@@ -206,7 +201,6 @@ class SheetComment extends Component {
             <View>
 
                 <HTMLView
-                    key={this.props.sourceNum}
                     value={lang == "en" ? "<endiv>&#x200E;"+this.props.source.comment+"</endiv>" : "<hediv>&#x200E;"+this.props.source.comment+"</hediv>"}
                     stylesheet={{...styles}}
                     rootComponentProps={{
@@ -243,7 +237,6 @@ class SheetOutsideText extends Component {
             <View>
 
                 <HTMLView
-                    key={this.props.sourceNum}
                     value={lang == "en" ? "<endiv>&#x200E;"+this.props.source.outsideText+"</endiv>" : "<hediv>&#x200E;"+this.props.source.outsideText+"</hediv>"}
                     stylesheet={{...styles}}
                     rootComponentProps={{
@@ -279,7 +272,6 @@ class SheetOutsideBiText extends Component {
 
                 {this.props.source.outsideBiText && this.props.source.outsideBiText.he ?
                     <HTMLView
-                        key={this.props.sourceNum}
                         value={"<hediv>"+this.props.source.outsideBiText.he+"</hediv>"}
                         stylesheet={{...styles}}
                         rootComponentProps={{
@@ -303,7 +295,6 @@ class SheetOutsideBiText extends Component {
 
                 {this.props.source.outsideBiText && this.props.source.outsideBiText.en ?
                     <HTMLView
-                        key={this.props.sourceNum}
                         value={"<endiv>&#x200E;"+this.props.source.outsideBiText.en+"</endiv>"}
                         stylesheet={{...styles}}
                         rootComponentProps={{
