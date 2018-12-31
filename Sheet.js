@@ -140,6 +140,9 @@ class SheetSource extends Component {
             <View>
 
                 {this.props.source.text && this.props.source.text.he ?
+                    <View>
+                    <Text>{this.props.source.heRef}</Text>
+
                     <HTMLView
                         value={"<hediv>"+this.props.source.text.he+"</hediv>"}
                         stylesheet={{...styles}}
@@ -160,9 +163,12 @@ class SheetSource extends Component {
                }
              }
                         style={{flex: this.props.textType == "hebrew" ? 4.5 : 5.5, paddingHorizontal: 10}}
-                    /> : null}
+                    /></View> : null}
+
 
                 {this.props.source.text && this.props.source.text.en ?
+                    <View>
+                    <Text>{this.props.source.ref}</Text>
                     <HTMLView
                         value={"<endiv>&#x200E;"+this.props.source.text.en+"</endiv>"}
                         stylesheet={{...styles}}
@@ -183,7 +189,7 @@ class SheetSource extends Component {
                }
              }
                         style={{flex: this.props.textType == "hebrew" ? 4.5 : 5.5, paddingHorizontal: 10}}
-                    /> : null}
+                    /></View> : null}
 
 
             </View>

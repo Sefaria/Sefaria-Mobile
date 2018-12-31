@@ -373,13 +373,18 @@ class ReaderApp extends React.Component {
   };
 
   sheetSegmentPressed = (textRef, sheetRef) => {
-      if (textRef) {
-          //console.log(textRef)
+      /*if (textRef) {
+          //this should happen once on sheet load
           this.loadTextDataForSheets(textRef)
-      }
+      }*/
+
     let section = parseInt(textRef.split(":")[0]);
+
     let segment = parseInt(textRef.split(":")[1]);
-    this.textSegmentPressed(0, 0, textRef, true)
+    console.log(section)
+    console.log(segment)
+    console.log(this.state.sectionArray)
+    this.textSegmentPressed(1, 0, textRef, true)
   }
 
   textSegmentPressed = (section, segment, segmentRef, shouldToggle) => {
@@ -438,7 +443,35 @@ class ReaderApp extends React.Component {
     overwriteVersions - false when you want to switch versions but not overwrite sticky version (e.g. search)
   */
   loadTextDataForSheets = (ref) => {
-    this.loadLinks(ref)
+
+      //on sheet load:
+      //replace state.data w/ segmentNum and links for each node
+      //replace section array w/ content on sheets
+
+
+
+      console.log(ref)
+
+        this.setState({
+            data: [[{
+                segmentNumber: '1',
+                he: 'בְּרֵאשִׁ֖ית בָּרָ֣א אֱלֹהִ֑ים אֵ֥ת הַשָּׁמַ֖יִם וְאֵ֥ת הָאָֽרֶץ׃',
+                text: 'When God began to create<i></i> heaven and earth—',
+                links:
+                    [{
+                        category: 'Commentary',
+                        sourceRef: 'Rashi on Berakhot 3b:3:2',
+                        sourceHeRef: 'רש\\"י על ברכות ג׳ ב:ג׳:ב׳',
+                        textTitle: 'Rashi on Berakhot',
+                        collectiveTitle: 'Rashi',
+                        heCollectiveTitle: 'רש\\"י'
+                    }
+                    ]
+            }]],
+            sectionArray: ["Rashi on Berakhot 3b:3"]
+        }, () => {this.loadLinks("Rashi on Berakhot 3b:3")})
+
+
   }
 
   loadNewText = ({ ref, versions, isLoadingVersion = false, overwriteVersions = true }) => {
@@ -561,8 +594,6 @@ class ReaderApp extends React.Component {
     // Links are not loaded yet in case you're in API mode, or you are reading a non-default version
 
     //this assumes a situation where the only links you'd want are in the current section -- doesn't work for sheets.
-      console.log(this.state.data)
-
     const iSec = this.state.sectionArray.findIndex(secRef=>secRef===ref);
     if (!iSec && iSec !== 0) { console.log("could not find section ref in sectionArray", ref); return; }
     Sefaria.links.load(ref)
@@ -575,7 +606,6 @@ class ReaderApp extends React.Component {
         if (this.state.segmentIndexRef != -1 && this.state.sectionIndexRef != -1) {
           this.updateLinkSummary(this.state.sectionIndexRef, this.state.segmentIndexRef);
         }
-
         this.setState({data: this.state.data, linksLoaded: tempLinksLoaded});
       })
       .catch(error=>{
@@ -696,14 +726,55 @@ class ReaderApp extends React.Component {
           this.setState ({
               sheet: result,
               sheetMeta: sheetMeta,
+              data: [],
+              sectionArray: [],
           }, () => {
           this.closeMenu(); // Don't close until these values are in state, so sheet can load
-      });
+          var sources = result["sources"].filter(source => typeof(source.ref) === "string")
+          var sourceRefs = sources.map(source => source.ref);
+
+          console.log(sourceRefs)
+
+          var updatedData = [];
+          var updatedSectionArray = [];
+          var getTextPromises = [];
+          var promises = [];
+
+          sourceRefs.forEach(function(source, index) {
+            getTextPromises.push(
+                Sefaria.data(source, true).then(function (data) {
+                          updatedData[index] = data.content;
+                          updatedSectionArray[index] = data.sectionRef;
+
+                      }.bind(this)).catch(function (error) {
+                          console.log('Error caught from ReaderApp.openRefSheet', error);
+                      })
+            );
+
+
+          });
+
+
+        Promise.all(getTextPromises).then( ()=> {
+            updatedSectionArray.forEach(function(section, index) {
+                promises.push(this.loadLinks(section))
+            }.bind(this))
         })
 
+
+        Promise.all(promises).then(() => {
+                this.setState({
+                    data: updatedData,
+                    sectionArray: updatedSectionArray,
+                    loaded: true,
+                })
+            }
+        );
+    })
       .catch(error => {
         console.log(error)
       });
+      })
 
 
   };
