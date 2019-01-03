@@ -373,18 +373,12 @@ class ReaderApp extends React.Component {
   };
 
   sheetSegmentPressed = (textRef, sheetRef) => {
-      /*if (textRef) {
-          //this should happen once on sheet load
-          this.loadTextDataForSheets(textRef)
-      }*/
-
     let section = parseInt(textRef.split(":")[0]);
-
     let segment = parseInt(textRef.split(":")[1]);
     console.log(section)
     console.log(segment)
     console.log(this.state.sectionArray)
-    this.textSegmentPressed(1, 0, textRef, true)
+    this.textSegmentPressed(sheetRef[0], sheetRef[1], textRef, true)
   }
 
   textSegmentPressed = (section, segment, segmentRef, shouldToggle) => {
@@ -732,8 +726,6 @@ class ReaderApp extends React.Component {
           this.closeMenu(); // Don't close until these values are in state, so sheet can load
           var sources = result["sources"].filter(source => typeof(source.ref) === "string")
           var sourceRefs = sources.map(source => source.ref);
-
-          console.log(sourceRefs)
 
           var updatedData = [];
           var updatedSectionArray = [];

@@ -55,14 +55,18 @@ class Sheet extends React.Component {
 
     render() {
 
+        var sourceIndex = -1;
+
         var sources = this.props.sheet.sources.length ? this.props.sheet.sources.map(function (source, i) {
 
             if ("ref" in source) {
+                sourceIndex = sourceIndex + 1; //used to map this source to the data in state.data & state,sectionArray in ReaderApp
                 return (
                     <SheetSource
                         key={i}
                         source={source}
                         sourceNum={i + 1}
+                        sourceIndex = {sourceIndex}
                         textSegmentPressed={ this.onPressTextSegment}
                     />
                 )
@@ -133,8 +137,8 @@ class Sheet extends React.Component {
 }
 
 class SheetSource extends Component {
-
     render() {
+        var segmentIndex = parseInt(this.props.source.ref.match(/\d+$/)[0])-1 //ugly hack to get segment index to properly display links in state.data & state.sectionArray
 
         return (
             <View>
@@ -148,7 +152,7 @@ class SheetSource extends Component {
                         stylesheet={{...styles}}
                         rootComponentProps={{
                  hitSlop: {top: 10, bottom: 10, left: 10, right: 10},  // increase hit area of segments
-                 onPress:() => this.props.textSegmentPressed(this.props.source.ref, this.props.sourceNum),
+                 onPress:() => this.props.textSegmentPressed(this.props.source.ref, [this.props.sourceIndex, segmentIndex]),
                  onLongPress:this.props.onLongPress,
                  delayPressIn: 200,
                }
@@ -174,7 +178,7 @@ class SheetSource extends Component {
                         stylesheet={{...styles}}
                         rootComponentProps={{
                  hitSlop: {top: 10, bottom: 10, left: 10, right: 10},  // increase hit area of segments
-                 onPress:() => this.props.textSegmentPressed(this.props.source.ref, this.props.sourceNum),
+                 onPress:() => this.props.textSegmentPressed(this.props.source.ref, [this.props.sourceIndex,segmentIndex]),
                  onLongPress:this.props.onLongPress,
                  delayPressIn: 200,
                }
