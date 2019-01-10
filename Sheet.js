@@ -55,18 +55,15 @@ class Sheet extends React.Component {
 
     render() {
 
-        var sourceIndex = -1;
-
         var sources = this.props.sheet.sources.length ? this.props.sheet.sources.map(function (source, i) {
 
             if ("ref" in source) {
-                sourceIndex = sourceIndex + 1; //used to map this source to the data in state.data & state,sectionArray in ReaderApp
                 return (
                     <SheetSource
                         key={i}
                         source={source}
                         sourceNum={i + 1}
-                        sourceIndex = {sourceIndex}
+                        sourceIndex = {i}
                         textSegmentPressed={ this.onPressTextSegment}
                     />
                 )
@@ -78,6 +75,7 @@ class Sheet extends React.Component {
                         key={i}
                         sourceNum={i + 1}
                         source={source}
+                        sourceIndex = {i}
                         textSegmentPressed={ this.onPressTextSegment }
                     />
                 )
@@ -89,6 +87,7 @@ class Sheet extends React.Component {
                         key={i}
                         sourceNum={i + 1}
                         source={source}
+                        sourceIndex = {i}
                         textSegmentPressed={ this.onPressTextSegment }
                     />
                 )
@@ -96,24 +95,26 @@ class Sheet extends React.Component {
 
              else if ("outsideBiText" in source) {
              return (
-             <SheetOutsideBiText
-             key={i}
-             sourceNum={i + 1}
-             source={source}
+                    <SheetOutsideBiText
+                        key={i}
+                        sourceNum={i + 1}
+                        source={source}
+                        sourceIndex = {i}
                         textSegmentPressed={ this.onPressTextSegment }
-             />
+                    />
              )
              }
 
 
              else if ("media" in source) {
              return (
-             <SheetMedia
-             key={i}
-             sourceNum={i + 1}
-             source={source}
+                    <SheetMedia
+                        key={i}
+                        sourceNum={i + 1}
+                        source={source}
+                        sourceIndex = {i}
                         textSegmentPressed={ this.onPressTextSegment }
-             />
+                    />
              )
              }
 
@@ -215,7 +216,7 @@ class SheetComment extends Component {
                     stylesheet={{...styles}}
                     rootComponentProps={{
                  hitSlop: {top: 10, bottom: 10, left: 10, right: 10},  // increase hit area of segments
-                 onPress:() => this.props.textSegmentPressed("Genesis 1:1", this.props.sourceNum),
+                 onPress:() => this.props.textSegmentPressed("SheetRef", [this.props.sourceIndex,0]),
                  onLongPress:this.props.onLongPress,
                  delayPressIn: 200,
                }
@@ -251,7 +252,7 @@ class SheetOutsideText extends Component {
                     stylesheet={{...styles}}
                     rootComponentProps={{
                  hitSlop: {top: 10, bottom: 10, left: 10, right: 10},  // increase hit area of segments
-                 onPress:() => this.props.textSegmentPressed("Genesis 1:1", this.props.sourceNum),
+                 onPress:() => this.props.textSegmentPressed("SheetRef", [this.props.sourceIndex,0]),
                  onLongPress:this.props.onLongPress,
                  delayPressIn: 200,
                }
@@ -286,7 +287,7 @@ class SheetOutsideBiText extends Component {
                         stylesheet={{...styles}}
                         rootComponentProps={{
                  hitSlop: {top: 10, bottom: 10, left: 10, right: 10},  // increase hit area of segments
-                 onPress:() => this.props.textSegmentPressed("Genesis 1:1", this.props.sourceNum),
+                 onPress:() => this.props.textSegmentPressed("SheetRef", [this.props.sourceIndex,0]),
                  onLongPress:this.props.onLongPress,
                  delayPressIn: 200,
                }
@@ -309,7 +310,7 @@ class SheetOutsideBiText extends Component {
                         stylesheet={{...styles}}
                         rootComponentProps={{
                  hitSlop: {top: 10, bottom: 10, left: 10, right: 10},  // increase hit area of segments
-                 onPress:() => this.props.textSegmentPressed("Genesis 1:1", this.props.sourceNum),
+                 onPress:() => this.props.textSegmentPressed("SheetRef", [this.props.sourceIndex,0]),
                  onLongPress:this.props.onLongPress,
                  delayPressIn: 200,
                }

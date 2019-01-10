@@ -373,11 +373,6 @@ class ReaderApp extends React.Component {
   };
 
   sheetSegmentPressed = (textRef, sheetRef) => {
-    let section = parseInt(textRef.split(":")[0]);
-    let segment = parseInt(textRef.split(":")[1]);
-    console.log(section)
-    console.log(segment)
-    console.log(this.state.sectionArray)
     this.textSegmentPressed(sheetRef[0], sheetRef[1], textRef, true)
   }
 
@@ -724,32 +719,41 @@ class ReaderApp extends React.Component {
               sectionArray: [],
           }, () => {
           this.closeMenu(); // Don't close until these values are in state, so sheet can load
-          var sources = result["sources"].filter(source => typeof(source.ref) === "string")
+          var sources = result["sources"].filter(source => "ref" in source || "comment" in source || "outsideText" in source || "outsideBiText" in source || "media" in source)
           var sourceRefs = sources.map(source => source.ref);
-
           var updatedData = [];
           var updatedSectionArray = [];
           var getTextPromises = [];
           var promises = [];
 
           sourceRefs.forEach(function(source, index) {
-            getTextPromises.push(
-                Sefaria.data(source, true).then(function (data) {
+              console.log(source)
+
+              if (!source) {
+                updatedData[index] = [{links: []}]
+                updatedSectionArray[index] = "SheetRef"
+              }
+
+              else {
+
+                  getTextPromises.push(
+                      Sefaria.data(source, true).then(function (data) {
                           updatedData[index] = data.content;
                           updatedSectionArray[index] = data.sectionRef;
 
                       }.bind(this)).catch(function (error) {
                           console.log('Error caught from ReaderApp.openRefSheet', error);
                       })
-            );
-
-
+                  );
+              }
           });
 
 
         Promise.all(getTextPromises).then( ()=> {
             updatedSectionArray.forEach(function(section, index) {
-                promises.push(this.loadLinks(section))
+                if (section != "SheetRef") {
+                    promises.push(this.loadLinks(section))
+                }
             }.bind(this))
         })
 
