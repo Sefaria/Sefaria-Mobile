@@ -168,7 +168,7 @@ var Downloader = {
         HOST_PATH + "packages.json"
       ).then(() => {
         console.log("packages");
-        Sefaria.packages._load().then(Sefaria.downloader.init);
+        Sefaria.packages._load();
       });
       RNFB.config({IOSBackgroundTask: true, indicator: true, path: RNFB.fs.dirs.DocumentDir + "/library/calendar.json"})
       .fetch(
