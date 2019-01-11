@@ -431,38 +431,6 @@ class ReaderApp extends React.Component {
     isLoadingVersion - true when you are replacing an already loaded text with a specific version (not currently used)
     overwriteVersions - false when you want to switch versions but not overwrite sticky version (e.g. search)
   */
-  loadTextDataForSheets = (ref) => {
-
-      //on sheet load:
-      //replace state.data w/ segmentNum and links for each node
-      //replace section array w/ content on sheets
-
-
-
-      console.log(ref)
-
-        this.setState({
-            data: [[{
-                segmentNumber: '1',
-                he: 'בְּרֵאשִׁ֖ית בָּרָ֣א אֱלֹהִ֑ים אֵ֥ת הַשָּׁמַ֖יִם וְאֵ֥ת הָאָֽרֶץ׃',
-                text: 'When God began to create<i></i> heaven and earth—',
-                links:
-                    [{
-                        category: 'Commentary',
-                        sourceRef: 'Rashi on Berakhot 3b:3:2',
-                        sourceHeRef: 'רש\\"י על ברכות ג׳ ב:ג׳:ב׳',
-                        textTitle: 'Rashi on Berakhot',
-                        collectiveTitle: 'Rashi',
-                        heCollectiveTitle: 'רש\\"י'
-                    }
-                    ]
-            }]],
-            sectionArray: ["Rashi on Berakhot 3b:3"]
-        }, () => {this.loadLinks("Rashi on Berakhot 3b:3")})
-
-
-  }
-
   loadNewText = ({ ref, versions, isLoadingVersion = false, overwriteVersions = true }) => {
     if (!this.state.hasInternet) {
       overwriteVersions = false;
@@ -710,6 +678,16 @@ class ReaderApp extends React.Component {
   };
 
   openRefSheet = (ref, sheetMeta) => {
+      console.log(ref)
+      this.setState({
+          loaded: false,
+      }, () => {
+          this.loadSheet(ref, sheetMeta);
+      })
+  };
+
+  loadSheet = (ref, sheetMeta) => {
+
       Sefaria.api.sheets(ref)
       .then(result => {
           this.setState ({
@@ -727,15 +705,13 @@ class ReaderApp extends React.Component {
           var promises = [];
 
           sourceRefs.forEach(function(source, index) {
-              console.log(source)
-
               if (!source) {
-                updatedData[index] = [{links: []}]
-                updatedSectionArray[index] = "SheetRef"
+                  //create an empty element in the state.data array so that connections panel still works
+                  updatedData[index] = [{links: []}]
+                  updatedSectionArray[index] = "SheetRef"
               }
 
               else {
-
                   getTextPromises.push(
                       Sefaria.data(source, true).then(function (data) {
                           updatedData[index] = data.content;
@@ -751,7 +727,7 @@ class ReaderApp extends React.Component {
 
         Promise.all(getTextPromises).then( ()=> {
             updatedSectionArray.forEach(function(section, index) {
-                if (section != "SheetRef") {
+                if (section != "SheetRef") { //don't bother looking for links on sheetRef content b/c it doesn't exist
                     promises.push(this.loadLinks(section))
                 }
             }.bind(this))
@@ -1593,6 +1569,8 @@ class ReaderApp extends React.Component {
         break;
       case ("sheetTag"):
         return(
+          loading ?
+          <LoadingView theme={this.props.theme} /> :
            <ReaderNavigationSheetTagMenu
             icon={require('./img/sheet.png')}
             theme={this.props.theme}
@@ -1636,12 +1614,16 @@ class ReaderApp extends React.Component {
           { loading ?
           <LoadingView theme={this.props.theme} style={{flex: textColumnFlex}}/> :
 
-            <Sheet
+          <Sheet
             sheet={this.state.sheet}
             sheetMeta={this.state.sheetMeta}
             textSegmentPressed={ this.sheetSegmentPressed }
+            theme={this.props.theme}
+            textLanguage={this.props.textLanguage}
+            biLayout={this.props.biLayout}
+            fontSize={this.props.fontSize}
 
-        />
+          />
 
           }
               </View>
