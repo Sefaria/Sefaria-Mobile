@@ -319,6 +319,7 @@ Sefaria = {
   },
   _loadTOC: function() {
     return Sefaria.util.openFileInSources("toc.json").then(data => {
+      console.log("loaded successfully");
       Sefaria.toc = data;
       Sefaria._cacheIndexFromToc(data, true);
     });
@@ -724,7 +725,7 @@ Sefaria = {
       RNFB.fs.lstat(RNFB.fs.dirs.DocumentDir).then(fileList => {
         for (let f of fileList) {
           if (f.type === 'file' && f.filename.endsWith(".json")) {
-            console.log('deleting', f.path);
+            //console.log('deleting', f.path);
             RNFB.fs.unlink(f.path);
           }
         }
@@ -998,9 +999,6 @@ Sefaria = {
             // else hebrew
             return a.heTitle > b.heTitle ? 1 : -1;
           });
-          if (categoryData.category === 'Commentary') {
-            console.log('commentary', categoryData.books);
-          }
           return categoryData;
         });
 
