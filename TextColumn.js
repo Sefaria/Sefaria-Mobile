@@ -504,7 +504,7 @@ class TextColumn extends React.Component {
   };
 
   renderFooter = () => {
-    return this.props.next ? <LoadingView theme={this.props.theme} /> : null;
+    return this.props.next ? <LoadingView theme={this.props.theme} category={Sefaria.categoryForTitle(this.props.textTitle)}/> : null;
   };
 
   getItemLayout = (data, index) => {

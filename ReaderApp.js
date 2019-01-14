@@ -1454,7 +1454,7 @@ class ReaderApp extends React.Component {
             openUri={this.openUri}/>
 
           { loading ?
-          <LoadingView theme={this.props.theme} style={{flex: textColumnFlex}}/> :
+          <LoadingView theme={this.props.theme} style={{flex: textColumnFlex}} category={Sefaria.categoryForTitle(this.state.textTitle)}/> :
           <View style={[{flex: textColumnFlex}, styles.mainTextPanel, this.props.theme.mainTextPanel]}
                 onStartShouldSetResponderCapture={this._onStartShouldSetResponderCapture}>
             <TextColumn

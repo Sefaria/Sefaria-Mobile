@@ -550,6 +550,7 @@ class LoadingView extends React.Component {
                 <ActivityIndicator
                   animating={true}
                   style={styles.loadingView}
+                  color={Sefaria.palette.categoryColor(this.props.category)}
                   size="large" />
              </View> );
   }

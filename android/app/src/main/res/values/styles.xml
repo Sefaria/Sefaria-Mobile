@@ -3,7 +3,11 @@
 
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
-        <!-- Customize your theme here. -->
+        <item name="android:colorEdgeEffect">@color/sefaria_blue</item>
+        <item name="android:colorAccent">@color/sefaria_blue</item> <!-- for fun -->
+        <item name="android:colorPrimary">@color/sefaria_blue</item> <!-- affects color of header in app switcher -->
+        <item name="android:textCursorDrawable">@drawable/cursor</item>
+        <item name="android:colorControlActivated">@color/sefaria_blue</item> <!-- color of text selection handles -->
     </style>
 
     <style name="SplashTheme" parent="Theme.AppCompat.NoActionBar">
