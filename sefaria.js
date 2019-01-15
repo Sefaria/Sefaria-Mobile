@@ -1193,11 +1193,23 @@ Sefaria.util = {
     //NOTE need to be careful about nested i-tags
     try {
       text = text.replace(/<sup>[^<]*<\/sup>\s*<i +class=["']footnote["']>(?:[^<]*|(?:[^<]*<i>[^<]*<\/i>[^<]*|[^<]*<br>[^<]*)+)<\/i>/gm, '');
-      return text.replace(/(?:\s?<i [^<]*><\/i>\s?)+/g, ' ').trim();  // remove rest of i-tags which add unnecessary spaces
+      text = text.replace(/(?:\s?<i [^<]*><\/i>\s?)+/g, ' ').trim();  // remove rest of i-tags which add unnecessary spaces
+      return text;
     } catch (e) {
       //in case segment is not string (which should not happen but does)
       return text;
     }
+  },
+  hebrewInEnglish: function(text) {
+    // wrap all Hebrew strings with <hediv> and &rlm;
+    return text.replace(/(\s|^|\[|\]|\(|\)|\.|,|;|:|\*|\?|!|-|"|')((?:[\u0591-\u05c7\u05d0-\u05ea]+[()\[\]\s'"\u05f3\u05f4]{0,2})+)(?=\[|\]|\(|\)|\.|,|;|:|\*|\?|!|-|'|"|\s|$)/g, '<hediv>&#x200E;$1$2</hediv>');
+  },
+  getDisplayableHTML: function(text, lang) {
+    text = Sefaria.util.filterOutItags(text);
+    if (lang === 'english') {
+      return `<endiv>${Sefaria.util.hebrewInEnglish(text)}</endiv>`;
+    }
+    return `<hediv>${text}</hediv>`;
   },
   openFileInSources: function(filename) {
     return new Promise((resolve, reject) => {
