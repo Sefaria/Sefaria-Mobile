@@ -47,8 +47,8 @@ var Downloader = {
             });
   },
   downloadLibrary: function(silent=false) {
-    RNFB.fs.mkdir(RNFB.fs.dirs.DocumentDir + "/library").catch((error)=>{console.log(error)});
-    RNFB.fs.mkdir(RNFB.fs.dirs.DocumentDir + "/tmp").catch((error)=>{console.log(error)});
+    RNFB.fs.mkdir(RNFB.fs.dirs.DocumentDir + "/library").catch(error=>{console.log("error creating library folder: " + error)});
+    RNFB.fs.mkdir(RNFB.fs.dirs.DocumentDir + "/tmp").catch(error=>{console.log("error creating tmp folder: " + error)});
     Downloader._setData("shouldDownload", true);
     Downloader.downloadUpdatesList()
     .then(() => {
@@ -102,7 +102,7 @@ var Downloader = {
     // Downloads the "last_update.json", stores it in _data.availableDownloads
     // and adds any new items to _data.lastDownload with a null value indicating they've never been downlaoded
     // Also downloads latest "toc.json"
-    var lastUpdatePromise = fetch(HOST_PATH + "last_updated.json", {headers: {'Cache-Control': 'no-cache'}})
+    const lastUpdatePromise = fetch(HOST_PATH + "last_updated.json", {headers: {'Cache-Control': 'no-cache'}})
       .then((response) => response.json())
       .then((data) => {
         // Add titles to lastDownload list if they haven't been seen before
@@ -123,61 +123,22 @@ var Downloader = {
         }
         Downloader._setData("lastDownload", Downloader._data.lastDownload);
       });
-    var tocPromise =
-    RNFB.config({IOSBackgroundTask: true, indicator: true, path: RNFB.fs.dirs.DocumentDir + "/library/toc.json"})
-    .fetch(
-      'GET',
-      HOST_PATH + "toc.json"
-    ).then(() => {
-      Sefaria._loadTOC();
-    });
-    return Promise.all([lastUpdatePromise, tocPromise]).then(() => {
+    return Promise.all([
+      lastUpdatePromise,
+      Downloader._downloadFile("toc.json").then(Sefaria._loadTOC)
+    ]).then(() => {
       var timestamp = new Date().toJSON();
       Downloader._setData("lastUpdateCheck", timestamp)
       Downloader._setData("lastUpdateSchema", SCHEMA_VERSION)
       Downloader.onChange && Downloader.onChange();
       // download these ancillary files after. they shouldn't hold up the update
-      RNFB.config({IOSBackgroundTask: true, indicator: true, path: RNFB.fs.dirs.DocumentDir + "/library/search_toc.json"})
-      .fetch(
-        'GET',
-        HOST_PATH + "search_toc.json"
-      ).then(() => {
-        console.log("search toc");
-
-        Sefaria.search._loadSearchTOC();
-      });
-      RNFB.config({IOSBackgroundTask: true, indicator: true, path: RNFB.fs.dirs.DocumentDir + "/library/hebrew_categories.json"})
-      .fetch(
-        'GET',
-        HOST_PATH + "hebrew_categories.json"
-      ).then(() => {
-        console.log("hebcats");
-        Sefaria._loadHebrewCategories();
-      });
-      RNFB.config({IOSBackgroundTask: true, indicator: true, path: RNFB.fs.dirs.DocumentDir + "/library/people.json"})
-      .fetch(
-        'GET',
-        HOST_PATH + "people.json"
-      ).then(() => {
-        console.log("people");
-        Sefaria._loadPeople();
-      });
-      RNFB.config({IOSBackgroundTask: true, indicator: true, path: RNFB.fs.dirs.DocumentDir + "/library/packages.json"})
-      .fetch(
-        'GET',
-        HOST_PATH + "packages.json"
-      ).then(() => {
-        console.log("packages");
-        Sefaria.packages._load().then(Sefaria.downloader.init);
-      });
-      RNFB.config({IOSBackgroundTask: true, indicator: true, path: RNFB.fs.dirs.DocumentDir + "/library/calendar.json"})
-      .fetch(
-        'GET',
-        HOST_PATH + "calendar.json"
-      ).then(() => {
-        console.log("calendar");
-        Sefaria._loadCalendar();
-      });
+      Promise.all([
+        Downloader._downloadFile("search_toc.json").then(Sefaria.search._loadSearchTOC),
+        Downloader._downloadFile("hebrew_categories.json").then(Sefaria._loadHebrewCategories),
+        Downloader._downloadFile("people.json").then(Sefaria._loadPeople),
+        Downloader._downloadFile("packages.json").then(Sefaria.packages._load),
+        Downloader._downloadFile("calendar.json").then(Sefaria._loadCalendar),
+      ]);
     });
   },
   downloadUpdates: function() {
@@ -410,64 +371,45 @@ var Downloader = {
         {text: strings.pause, onPress: cancelAlert}
       ]);
   },
-  _downloadZip: function(title) {
+  _downloadFile: async function(filename) {
+    const toFile = RNFB.fs.dirs.DocumentDir + "/library/" + filename;
+    const start = new Date();
+    const tempFile = RNFB.fs.dirs.DocumentDir + "/tmp/" + filename;
+    try {
+      const downloadResult = await RNFB.config({
+        IOSBackgroundTask: true,
+        indicator: true,
+        path: tempFile,
+      })
+      .fetch(
+        'GET',
+        HOST_PATH + encodeURIComponent(filename)
+      );
+      console.log("Downloaded " + filename + " in " + (new Date() - start));
+      const status = downloadResult.info().status;
+      if (status >= 300 || status < 200) {
+        RNFB.fs.unlink(tempFile);
+        throw new Error(status + " - " + filename);
+      }
+      RNFB.fs.mv(tempFile, toFile)
+      .catch(error => {
+        console.log('mv error', error);
+      });
+    } catch (err) {
+      Sefaria.downloader._handleDownloadError(err);
+    }
+  },
+  _downloadZip: async function(title) {
     // Downloads `title`, first to /tmp then to /library when complete.
     // Manages `title`'s presense in downloadQueue and downloadInProgress.
-    var toFile   = RNFB.fs.dirs.DocumentDir + "/library/" + title + ".zip"
-    var start = new Date();
-    const isIOS = Platform.OS === 'ios' || true;
-    const tempFile = isIOS ? RNFB.fs.dirs.DocumentDir + "/tmp/" + title + ".zip" : RNFB.fs.dirs.DownloadDir + title + ".zip";
-
     //console.log("Starting download of " + title);
     Sefaria.downloader._removeFromDownloadQueue(title);
     Sefaria.downloader._setData("downloadInProgress", [title].concat(Sefaria.downloader._data.downloadInProgress));
-    return new Promise(async function(resolve, reject) {
-      RNFB.fs.unlink(toFile).catch(()=>{});
-      try {
-        const granted = isIOS ? PermissionsAndroid.RESULTS.GRANTED : await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
-        {
-          title: 'gimme gimme',
-          message: 'please!',
-        })
-        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-          RNFB.config({
-            IOSBackgroundTask: isIOS,
-            indicator: isIOS,
-            path: tempFile,
-          })
-          .fetch(
-            'GET',
-            HOST_PATH + encodeURIComponent(title) + ".zip"
-          ).then(downloadResult => {
-            const status = downloadResult.info().status;
-            if (status === 200) {
-              console.log("Downloaded " + title + " in " + (new Date() - start));
-              RNFB.fs.mv(tempFile, toFile)
-              .catch(error => {
-                console.log('mv error', error);
-              })
-              Downloader._removeFromInProgress(title);
-              Downloader._data.lastDownload[title] = Downloader._data.availableDownloads[title];
-              Downloader._setData("lastDownload", Downloader._data.lastDownload);
-              Downloader.onChange && Downloader.onChange();
-              resolve();
-            } else {
-              reject(status + " - " + title);
-              RNFB.fs.unlink(tempFile);
-            }
-            // if (Platform.OS == "ios") {
-            //     RNFS.completeHandlerIOS(downloadResult.jobId);
-            // }
-          })
-          .catch(Sefaria.downloader._handleDownloadError);
-        } else {
-          reject('permission denied!')
-        }
-      } catch (err) {
-        reject(err)
-      }
-    })
+    await Sefaria.downloader._downloadFile(title + ".zip");
+    Downloader._removeFromInProgress(title);
+    Downloader._data.lastDownload[title] = Downloader._data.availableDownloads[title];
+    Downloader._setData("lastDownload", Downloader._data.lastDownload);
+    Downloader.onChange && Downloader.onChange();
   },
   _removeFromDownloadQueueBulk: function(titles) {
     for (t of titles) {

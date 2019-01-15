@@ -61,15 +61,16 @@ class TextSegment extends React.PureComponent {
       }
       style.push(this.props.theme.bilingualEnglishText);
     }
-    const data = Sefaria.util.filterOutItags(this.props.data);
     const smallSheet = {
       small: {
         fontSize: this.props.fontSize * 0.8 * (this.props.textType === "hebrew" ? 1 : 0.8)
       },
       hediv: {
+        ...styles.hediv,
         textAlign: (isStacked && Platform.OS === 'ios') ? 'justify' : 'right'  // justify looks bad hebrew with small screens in side-by-side layout
       },
       endiv: {
+        ...styles.endiv,
         textAlign: isStacked ? 'justify' : 'left'
       }
     };
@@ -83,7 +84,7 @@ class TextSegment extends React.PureComponent {
     return (
            <HTMLView
              key={this.state.resetKey}
-             value= {this.props.textType == "hebrew" ? "<hediv>"+data+"</hediv>" : "<endiv>&#x200E;"+data+"</endiv>"}
+             value= {Sefaria.util.getDisplayableHTML(this.props.data, this.props.textType)}
              stylesheet={{...styles, ...smallSheet}}
              rootComponentProps={{
                  hitSlop: {top: 10, bottom: 10, left: 10, right: 10},  // increase hit area of segments

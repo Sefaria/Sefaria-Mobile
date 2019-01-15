@@ -13,6 +13,7 @@ import {
   ActivityIndicator,
   ViewPropTypes,
   Animated,
+  Platform,
 } from 'react-native';
 
 import Sefaria from './sefaria';
@@ -550,6 +551,7 @@ class LoadingView extends React.Component {
                 <ActivityIndicator
                   animating={true}
                   style={styles.loadingView}
+                  color={Platform.OS === 'android' ? Sefaria.palette.categoryColor(this.props.category) : undefined}
                   size="large" />
              </View> );
   }
