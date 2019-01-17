@@ -32,7 +32,6 @@ import styles from './Styles.js';
 import strings from "./LocalizedStrings";
 import {DirectedButton, SText} from "./Misc";
 import HTMLView from 'react-native-htmlview';
-import TextColumn from "./TextColumn"; //to convert html'afied JSON to something react can render (https://github.com/jsdf/react-native-htmlview)
 const ViewPort    = Dimensions.get('window');
 
 
@@ -93,9 +92,9 @@ class Sheet extends React.Component {
                                 {(this.props.textLanguage == "hebrew" ? Sefaria.hebrew.encodeHebrewNumeral(index+1) :index+1) } </Text>);
 
         let textStyle = [styles.textSegment];
-        /*if (this.props.rowData.highlight) {
+        if (this.props.activeSheetNode == item.node) {
             textStyle.push(this.props.theme.segmentHighlight);
-        }*/
+        }
         if (this.props.biLayout === 'sidebyside') {
           textStyle.push({flexDirection: "row"})
         } else if (this.props.biLayout === 'sidebysiderev') {
@@ -110,6 +109,7 @@ class Sheet extends React.Component {
                     source={item}
                     sourceNum={index + 1}
                     sourceIndex = {index}
+                    currentlyActive = {this.props.activeSheetNode == item.node}
                     textSegmentPressed={ this.onPressTextSegment}
                     theme={this.props.theme}
                     numberMargin={numberMargin}
@@ -118,6 +118,7 @@ class Sheet extends React.Component {
                     textLanguage={this.props.textLanguage}
                     biLayout={this.props.biLayout}
                     fontSize={this.props.fontSize}
+                    segmentIndex={parseInt(item.ref.match(/\d+$/)[0])-1} //ugly hack to get segment index to properly display links in state.data & state.sectionArray
                     textType="english"
                 />
             )
@@ -129,6 +130,7 @@ class Sheet extends React.Component {
                     key={index}
                     sourceNum={index + 1}
                     source={item}
+                    currentlyActive = {this.props.activeSheetNode == item.node}
                     numberMargin={numberMargin}
                     textStyle={textStyle}
                     sourceIndex = {index}
@@ -144,6 +146,7 @@ class Sheet extends React.Component {
                     key={index}
                     sourceNum={index + 1}
                     source={item}
+                    currentlyActive = {this.props.activeSheetNode == item.node}
                     numberMargin={numberMargin}
                     textStyle={textStyle}
                     sourceIndex = {index}
@@ -161,6 +164,7 @@ class Sheet extends React.Component {
                     numberMargin={numberMargin}
                     textStyle={textStyle}
                     source={item}
+                    currentlyActive = {this.props.activeSheetNode == item.node}
                     sourceIndex = {index}
                     textSegmentPressed={ this.onPressTextSegment }
                     cleanSheetHTML={this.cleanSheetHTML}
@@ -176,6 +180,7 @@ class Sheet extends React.Component {
                     numberMargin={numberMargin}
                     textStyle={textStyle}
                     sourceNum={index + 1}
+                    currentlyActive = {this.props.activeSheetNode == item.node}
                     source={item}
                     sourceIndex = {index}
                     textSegmentPressed={ this.onPressTextSegment }
@@ -184,13 +189,25 @@ class Sheet extends React.Component {
          }
   };
 
+  handleScroll = (e) => {
+      console.log(e)
+  };
 
-    _keyExtractor = (item, index) => item.node;
+  onViewableItemsChanged = ({viewableItems, changed}) => {
+      var featuredNode = viewableItems[1] ? viewableItems[1].item.node : viewableItems[0].item.node
+      this.props.updateActiveSheetNode(featuredNode);
+
+  };
+
+
+  _keyExtractor = (item, index) => item.node;
 
     render() {
         return (
             <View style={styles.sheet}>
 
+                <Text>{this.props.sheet.id}</Text>
+                <Text>{this.props.activeSheetNode}</Text>
 
                 <FlatList
                   data={this.props.sheet.sources}
@@ -200,9 +217,9 @@ class Sheet extends React.Component {
                       <View>
                         <Text style={styles.sheetTitle}>{Sefaria.util.stripHtml(this.props.sheet.title)}</Text>
                         <Text style={styles.sheetAuthor}>{this.props.sheetMeta.ownerName}</Text>
-                        <Text>{this.props.sheet.id}</Text>
                       </View>
                   }
+                  onViewableItemsChanged={this.onViewableItemsChanged}
                 />
             </View>
         )
@@ -211,8 +228,16 @@ class Sheet extends React.Component {
 }
 
 class SheetSource extends Component {
+    componentDidUpdate(prevProps, prevState) {
+        if (this.props.currentlyActive && !prevProps.currentlyActive) {
+            this.props.textSegmentPressed(this.props.source.ref, [this.props.sourceIndex, this.props.segmentIndex])
+        }
+    }
+
+
+
     render() {
-        var segmentIndex = parseInt(this.props.source.ref.match(/\d+$/)[0])-1 //ugly hack to get segment index to properly display links in state.data & state.sectionArray
+
 
         var enText = this.props.source.text.en ? this.props.cleanSheetHTML(this.props.source.text.en) : "";
         var heText = this.props.source.text.he ? this.props.cleanSheetHTML(this.props.source.text.he) : "";
@@ -283,7 +308,7 @@ class SheetSource extends Component {
                         stylesheet={{...styles, ...smallSheet}}
                         rootComponentProps={{
                  hitSlop: {top: 10, bottom: 10, left: 10, right: 10},  // increase hit area of segments
-                 onPress:() => this.props.textSegmentPressed(this.props.source.ref, [this.props.sourceIndex, segmentIndex]),
+                 onPress:() => this.props.textSegmentPressed(this.props.source.ref, [this.props.sourceIndex, this.props.segmentIndex]),
                  onLongPress:this.props.onLongPress,
                  delayPressIn: 200,
                }
@@ -309,7 +334,7 @@ class SheetSource extends Component {
                         stylesheet={{...styles, ...smallSheet}}
                         rootComponentProps={{
                  hitSlop: {top: 10, bottom: 10, left: 10, right: 10},  // increase hit area of segments
-                 onPress:() => this.props.textSegmentPressed(this.props.source.ref, [this.props.sourceIndex,segmentIndex]),
+                 onPress:() => this.props.textSegmentPressed(this.props.source.ref, [this.props.sourceIndex,this.props.segmentIndex]),
                  onLongPress:this.props.onLongPress,
                  delayPressIn: 200,
                }

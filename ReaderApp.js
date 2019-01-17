@@ -136,6 +136,7 @@ class ReaderApp extends React.Component {
         sheetTag: '',
         sheet: null,
         sheetMeta: null,
+        activeSheetNode: null,
         searchSort: 'relevance', // relevance or chronological
         availableSearchFilters: [],
         appliedSearchFilters: [],
@@ -685,6 +686,13 @@ class ReaderApp extends React.Component {
           this.loadSheet(ref, sheetMeta);
       })
   };
+
+  updateActiveSheetNode = (node) => {
+    this.setState ({
+      activeSheetNode: node,
+    })
+
+}
 
   loadSheet = (ref, sheetMeta) => {
 
@@ -1616,6 +1624,8 @@ class ReaderApp extends React.Component {
 
           <Sheet
             sheet={this.state.sheet}
+            activeSheetNode={this.state.activeSheetNode}
+            updateActiveSheetNode={this.updateActiveSheetNode}
             sheetMeta={this.state.sheetMeta}
             textSegmentPressed={ this.sheetSegmentPressed }
             theme={this.props.theme}
