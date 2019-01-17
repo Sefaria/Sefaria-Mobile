@@ -49,8 +49,8 @@ class Sheet extends React.Component {
     componentDidMount() {
     }
 
-    onPressTextSegment = (ref, key) => {
-        this.props.textSegmentPressed(ref, key);
+    onPressTextSegment = (ref, key, shouldToggle=true) => {
+        this.props.textSegmentPressed(ref, key, shouldToggle);
     };
 
     cleanSheetHTML(html) {
@@ -92,7 +92,7 @@ class Sheet extends React.Component {
                                 {(this.props.textLanguage == "hebrew" ? Sefaria.hebrew.encodeHebrewNumeral(index+1) :index+1) } </Text>);
 
         let textStyle = [styles.textSegment];
-        if (this.props.activeSheetNode == item.node) {
+        if (this.props.activeSheetNode == item.node && this.props.textListVisible) {
             textStyle.push(this.props.theme.segmentHighlight);
         }
         if (this.props.biLayout === 'sidebyside') {
@@ -230,11 +230,9 @@ class Sheet extends React.Component {
 class SheetSource extends Component {
     componentDidUpdate(prevProps, prevState) {
         if (this.props.currentlyActive && !prevProps.currentlyActive) {
-            this.props.textSegmentPressed(this.props.source.ref, [this.props.sourceIndex, this.props.segmentIndex])
+            this.props.textSegmentPressed(this.props.source.ref, [this.props.sourceIndex, this.props.segmentIndex], false)
         }
     }
-
-
 
     render() {
 
@@ -362,6 +360,11 @@ class SheetSource extends Component {
 }
 
 class SheetComment extends Component {
+    componentDidUpdate(prevProps, prevState) {
+        if (this.props.currentlyActive && !prevProps.currentlyActive) {
+            this.props.textSegmentPressed("SheetRef", [this.props.sourceIndex, 0], false)
+        }
+    }
 
     render() {
         var lang = Sefaria.hebrew.isHebrew(Sefaria.util.stripHtml(this.props.source.comment)) ? "he" : "en";
@@ -406,6 +409,11 @@ class SheetComment extends Component {
 }
 
 class SheetOutsideText extends Component {
+    componentDidUpdate(prevProps, prevState) {
+        if (this.props.currentlyActive && !prevProps.currentlyActive) {
+            this.props.textSegmentPressed("SheetRef", [this.props.sourceIndex, 0], false)
+        }
+    }
     render() {
         var lang = Sefaria.hebrew.isHebrew(Sefaria.util.stripHtml(this.props.source.outsideText)) ? "he" : "en";
 
@@ -450,6 +458,11 @@ class SheetOutsideText extends Component {
 }
 
 class SheetOutsideBiText extends Component {
+    componentDidUpdate(prevProps, prevState) {
+        if (this.props.currentlyActive && !prevProps.currentlyActive) {
+            this.props.textSegmentPressed("SheetRef", [this.props.sourceIndex, 0], false)
+        }
+    }
 
     render() {
         var enText = this.props.source.outsideBiText.en ? this.props.cleanSheetHTML(this.props.source.outsideBiText.en) : "";
@@ -535,6 +548,12 @@ class SheetMedia extends Component {
       _handleAppStateChange = (nextAppState) => {
           this.setState({appState: nextAppState});
       }
+
+    componentDidUpdate(prevProps, prevState) {
+        if (this.props.currentlyActive && !prevProps.currentlyActive) {
+            this.props.textSegmentPressed("SheetRef", [this.props.sourceIndex, 0], false)
+        }
+    }
 
     makeMediaEmbedLink(mediaURL) {
         var mediaLink;

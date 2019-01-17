@@ -373,12 +373,11 @@ class ReaderApp extends React.Component {
 
   };
 
-  sheetSegmentPressed = (textRef, sheetRef) => {
-    this.textSegmentPressed(sheetRef[0], sheetRef[1], textRef, true)
+  sheetSegmentPressed = (textRef, sheetRef, toggle) => {
+    this.textSegmentPressed(sheetRef[0], sheetRef[1], textRef, toggle)
   }
 
   textSegmentPressed = (section, segment, segmentRef, shouldToggle) => {
-      console.log("textSegmentPressed", section, segment, segmentRef, shouldToggle);
       Sefaria.track.event("Reader","Text Segment Click", segmentRef);
 
       if (shouldToggle && this.state.textListVisible) {
@@ -392,7 +391,6 @@ class ReaderApp extends React.Component {
       let loadingLinks = false;
       const justOpened = shouldToggle && !this.state.textListVisible;
       const justScrolling = !shouldToggle && !this.state.textListVisible;  // true when called while scrolling with text list closed
-      console.log(this.state.textListVisible)
       if (((segment !== this.state.segmentIndexRef || section !== this.state.sectionIndexRef) && !justScrolling) || justOpened) {
           loadingLinks = true;
           if (this.state.linksLoaded[section]) {
@@ -695,7 +693,6 @@ class ReaderApp extends React.Component {
 }
 
   loadSheet = (ref, sheetMeta) => {
-
       Sefaria.api.sheets(ref)
       .then(result => {
           this.setState ({
@@ -743,6 +740,8 @@ class ReaderApp extends React.Component {
 
 
         Promise.all(promises).then(() => {
+            console.log(updatedData)
+            console.log(updatedSectionArray)
                 this.setState({
                     data: updatedData,
                     sectionArray: updatedSectionArray,
@@ -1585,6 +1584,7 @@ class ReaderApp extends React.Component {
             themeStr={this.props.themeStr}
             menuLanguage={this.props.menuLanguage}
             interfaceLang={this.state.interfaceLang}
+            toggleLanguage={this.toggleMenuLanguage}
             hasInternet={this.state.hasInternet}
             tag={this.state.sheetTag}
             onBack={this.manageBackMain}
@@ -1629,6 +1629,7 @@ class ReaderApp extends React.Component {
             sheetMeta={this.state.sheetMeta}
             textSegmentPressed={ this.sheetSegmentPressed }
             theme={this.props.theme}
+            textListVisible={this.state.textListVisible}
             textLanguage={this.props.textLanguage}
             biLayout={this.props.biLayout}
             fontSize={this.props.fontSize}
