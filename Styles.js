@@ -711,6 +711,28 @@ export default StyleSheet.create({
     flexDirection: "column",
     alignItems: 'stretch',
   },
+  sheet: {
+    flex: 1,
+    maxWidth: 800,
+    flexDirection: "column",
+    alignItems: 'stretch',
+  },
+  sheetTitle: {
+    fontSize: 20,
+    color: "#000",
+    textAlign: "center",
+    fontFamily: "Amiri",
+    margin:20,
+    marginBottom:5,
+  },
+  sheetAuthor: {
+    fontSize: 16,
+    color: "#666",
+    textAlign: "center",
+    fontFamily: "Amiri",
+    margin:20,
+    marginTop:0,
+  },
   sectionHeaderBox: {
     alignItems: "center",
     marginHorizontal: 30,
