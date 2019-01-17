@@ -227,6 +227,7 @@ class ConnectionsPanel extends React.Component {
             viewList.push(
               <ResourcesList
                 key={"resourcesList"}
+                sheet={this.props.sheet}
                 theme={this.props.theme}
                 themeStr={this.props.themeStr}
                 interfaceLang={this.props.interfaceLang}
@@ -318,14 +319,14 @@ class ResourcesList extends React.Component {
           theme={this.props.theme}
           onPress={()=>{ this.props.setConnectionsMode("about"); }}
         />
-        <ToolsButton
+        {this.props.sheet ? null : <ToolsButton
           interfaceLang={this.props.interfaceLang}
           text={strings.versions}
           icon={isWhite ? require("./img/layers.png") : require("./img/layers-light.png")}
           theme={this.props.theme}
           count={this.props.versionsCount}
           onPress={()=>{ this.props.setConnectionsMode("versions"); }}
-        />
+        /> }
         <ToolsButton
           interfaceLang={this.props.interfaceLang}
           text={isSaved ? strings.saved : strings.save}

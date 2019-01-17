@@ -1588,7 +1588,7 @@ class ReaderApp extends React.Component {
     }
 
     if (this.state.sheet) {
-        let textColumnFlex = this.state.textListVisible ? 1.0 - this.state.textListFlex : 1.0;
+        let sheetColumnFlex = this.state.textListVisible ? 1.0 - this.state.textListFlex : 1.0;
         return (
             <View style={[styles.container, this.props.theme.container]} {...this.gestureResponder}>
             <CategoryColorLine category="Sheets" />
@@ -1608,11 +1608,11 @@ class ReaderApp extends React.Component {
             backStack={BackManager.getStack({ type: "main" })}
             toggleReaderDisplayOptionsMenu={this.toggleReaderDisplayOptionsMenu}
             openUri={this.openUri}/>
-          <View style={[{flex: textColumnFlex}, styles.mainTextPanel, this.props.theme.mainTextPanel]}
+          <View style={[{flex: sheetColumnFlex}, styles.mainTextPanel, this.props.theme.mainTextPanel]}
                 onStartShouldSetResponderCapture={this._onStartShouldSetResponderCapture}>
 
           { loading ?
-          <LoadingView theme={this.props.theme} style={{flex: textColumnFlex}}/> :
+          <LoadingView theme={this.props.theme} style={{flex: sheetColumnFlex}}/> :
 
           <Sheet
             sheet={this.state.sheet}
@@ -1630,6 +1630,7 @@ class ReaderApp extends React.Component {
 
           {this.state.textListVisible ?
             <ConnectionsPanel
+              sheet={this.state.sheet}
               textListFlex={this.state.textListFlex}
               textListFlexAnimated={this.state.textListFlexAnimated}
               animating={this.state.textListAnimating}

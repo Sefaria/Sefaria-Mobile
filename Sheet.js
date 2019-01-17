@@ -30,7 +30,7 @@ import {
 
 import styles from './Styles.js';
 import strings from "./LocalizedStrings";
-import {DirectedButton} from "./Misc";
+import {DirectedButton, SText} from "./Misc";
 import HTMLView from 'react-native-htmlview';
 import TextColumn from "./TextColumn"; //to convert html'afied JSON to something react can render (https://github.com/jsdf/react-native-htmlview)
 const ViewPort    = Dimensions.get('window');
@@ -87,120 +87,123 @@ class Sheet extends React.Component {
     return clean;
     }
 
+    renderSource = ({ item, index }) => {
+
+        let numberMargin = (<Text style={[styles.verseNumber, this.props.textLanguage == "hebrew" ? styles.hebrewVerseNumber : null, this.props.theme.verseNumber]}>
+                                {(this.props.textLanguage == "hebrew" ? Sefaria.hebrew.encodeHebrewNumeral(index+1) :index+1) } </Text>);
+
+        let textStyle = [styles.textSegment];
+        /*if (this.props.rowData.highlight) {
+            textStyle.push(this.props.theme.segmentHighlight);
+        }*/
+        if (this.props.biLayout === 'sidebyside') {
+          textStyle.push({flexDirection: "row"})
+        } else if (this.props.biLayout === 'sidebysiderev') {
+          textStyle.push({flexDirection: "row-reverse"})
+        }
 
 
+        if ("ref" in item) {
+            return (
+                <SheetSource
+                    key={index}
+                    source={item}
+                    sourceNum={index + 1}
+                    sourceIndex = {index}
+                    textSegmentPressed={ this.onPressTextSegment}
+                    theme={this.props.theme}
+                    numberMargin={numberMargin}
+                    textStyle={textStyle}
+                    cleanSheetHTML={this.cleanSheetHTML}
+                    textLanguage={this.props.textLanguage}
+                    biLayout={this.props.biLayout}
+                    fontSize={this.props.fontSize}
+                    textType="english"
+                />
+            )
+        }
+
+        else if ("comment" in item) {
+            return (
+                <SheetComment
+                    key={index}
+                    sourceNum={index + 1}
+                    source={item}
+                    numberMargin={numberMargin}
+                    textStyle={textStyle}
+                    sourceIndex = {index}
+                    textSegmentPressed={ this.onPressTextSegment }
+                    cleanSheetHTML={this.cleanSheetHTML}
+                />
+            )
+        }
+
+        else if ("outsideText" in item) {
+            return (
+                <SheetOutsideText
+                    key={index}
+                    sourceNum={index + 1}
+                    source={item}
+                    numberMargin={numberMargin}
+                    textStyle={textStyle}
+                    sourceIndex = {index}
+                    textSegmentPressed={ this.onPressTextSegment }
+                    cleanSheetHTML={this.cleanSheetHTML}
+                />
+            )
+        }
+
+         else if ("outsideBiText" in item) {
+         return (
+                <SheetOutsideBiText
+                    key={index}
+                    sourceNum={index + 1}
+                    numberMargin={numberMargin}
+                    textStyle={textStyle}
+                    source={item}
+                    sourceIndex = {index}
+                    textSegmentPressed={ this.onPressTextSegment }
+                    cleanSheetHTML={this.cleanSheetHTML}
+                />
+         )
+         }
+
+
+         else if ("media" in item) {
+         return (
+                <SheetMedia
+                    key={index}
+                    numberMargin={numberMargin}
+                    textStyle={textStyle}
+                    sourceNum={index + 1}
+                    source={item}
+                    sourceIndex = {index}
+                    textSegmentPressed={ this.onPressTextSegment }
+                />
+         )
+         }
+  };
+
+
+    _keyExtractor = (item, index) => item.node;
 
     render() {
-
-        var sources = this.props.sheet.sources.length ? this.props.sheet.sources.map(function (source, i) {
-
-            let numberMargin = (<Text style={[styles.verseNumber, this.props.textLanguage == "hebrew" ? styles.hebrewVerseNumber : null, this.props.theme.verseNumber]}>
-                                    {(this.props.textLanguage == "hebrew" ? Sefaria.hebrew.encodeHebrewNumeral(i+1) :i+1) } </Text>);
-
-            let textStyle = [styles.textSegment];
-            /*if (this.props.rowData.highlight) {
-                textStyle.push(this.props.theme.segmentHighlight);
-            }*/
-            if (this.props.biLayout === 'sidebyside') {
-              textStyle.push({flexDirection: "row"})
-            } else if (this.props.biLayout === 'sidebysiderev') {
-              textStyle.push({flexDirection: "row-reverse"})
-            }
-
-
-            if ("ref" in source) {
-                return (
-                    <SheetSource
-                        key={i}
-                        source={source}
-                        sourceNum={i + 1}
-                        sourceIndex = {i}
-                        textSegmentPressed={ this.onPressTextSegment}
-                        theme={this.props.theme}
-                        numberMargin={numberMargin}
-                        textStyle={textStyle}
-                        cleanSheetHTML={this.cleanSheetHTML}
-                        textLanguage={this.props.textLanguage}
-                        biLayout={this.props.biLayout}
-                        fontSize={this.props.fontSize}
-                        textType="english"
-                    />
-                )
-            }
-
-            else if ("comment" in source) {
-                return (
-                    <SheetComment
-                        key={i}
-                        sourceNum={i + 1}
-                        source={source}
-                        numberMargin={numberMargin}
-                        textStyle={textStyle}
-                        sourceIndex = {i}
-                        textSegmentPressed={ this.onPressTextSegment }
-                        cleanSheetHTML={this.cleanSheetHTML}
-                    />
-                )
-            }
-
-            else if ("outsideText" in source) {
-                return (
-                    <SheetOutsideText
-                        key={i}
-                        sourceNum={i + 1}
-                        source={source}
-                        numberMargin={numberMargin}
-                        textStyle={textStyle}
-                        sourceIndex = {i}
-                        textSegmentPressed={ this.onPressTextSegment }
-                        cleanSheetHTML={this.cleanSheetHTML}
-                    />
-                )
-            }
-
-             else if ("outsideBiText" in source) {
-             return (
-                    <SheetOutsideBiText
-                        key={i}
-                        sourceNum={i + 1}
-                        numberMargin={numberMargin}
-                        textStyle={textStyle}
-                        source={source}
-                        sourceIndex = {i}
-                        textSegmentPressed={ this.onPressTextSegment }
-                        cleanSheetHTML={this.cleanSheetHTML}
-                    />
-             )
-             }
-
-
-             else if ("media" in source) {
-             return (
-                    <SheetMedia
-                        key={i}
-                        numberMargin={numberMargin}
-                        textStyle={textStyle}
-                        sourceNum={i + 1}
-                        source={source}
-                        sourceIndex = {i}
-                        textSegmentPressed={ this.onPressTextSegment }
-                    />
-             )
-             }
-
-        }, this) : null;
-
-
         return (
             <View style={styles.sheet}>
-                <ScrollView>
-                    <Text style={styles.sheetTitle}>{Sefaria.util.stripHtml(this.props.sheet.title)}</Text>
-                    <Text style={styles.sheetAuthor}>{this.props.sheetMeta.ownerName}</Text>
-                    <Text>{this.props.sheet.id}</Text>
-                    <View>
-                        {sources}
-                    </View>
-                </ScrollView>
+
+
+                <FlatList
+                  data={this.props.sheet.sources}
+                  renderItem={this.renderSource}
+                  keyExtractor={this._keyExtractor}
+                  ListHeaderComponent={
+                      <View>
+                        <Text style={styles.sheetTitle}>{Sefaria.util.stripHtml(this.props.sheet.title)}</Text>
+                        <Text style={styles.sheetAuthor}>{this.props.sheetMeta.ownerName}</Text>
+                        <Text>{this.props.sheet.id}</Text>
+                      </View>
+                  }
+                />
             </View>
         )
 
