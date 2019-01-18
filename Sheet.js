@@ -88,6 +88,18 @@ class Sheet extends React.Component {
 
     renderSource = ({ item, index }) => {
 
+
+        let numLinks = 0;
+        let bulletOpacity = (numLinks-20) / (70-20);
+        if (numLinks == 0) { bulletOpacity = 0; }
+        else if (bulletOpacity < 0.3) { bulletOpacity = 0.3; }
+        else if (bulletOpacity > 0.8) { bulletOpacity = 0.8; }
+
+        var bulletMargin = (<Text style={[styles.verseBullet, this.props.theme.verseBullet, {opacity:bulletOpacity}]}>
+                            {"●"}
+                          </Text>);
+
+
         let numberMargin = (<Text style={[styles.verseNumber, this.props.textLanguage == "hebrew" ? styles.hebrewVerseNumber : null, this.props.theme.verseNumber]}>
                                 {(this.props.textLanguage == "hebrew" ? Sefaria.hebrew.encodeHebrewNumeral(index+1) :index+1) } </Text>);
 
@@ -113,6 +125,7 @@ class Sheet extends React.Component {
                     textSegmentPressed={ this.onPressTextSegment}
                     theme={this.props.theme}
                     numberMargin={numberMargin}
+                    bulletMargin = {bulletMargin}
                     textStyle={textStyle}
                     cleanSheetHTML={this.cleanSheetHTML}
                     textLanguage={this.props.textLanguage}
@@ -132,6 +145,7 @@ class Sheet extends React.Component {
                     source={item}
                     currentlyActive = {this.props.activeSheetNode == item.node}
                     numberMargin={numberMargin}
+                    bulletMargin = {bulletMargin}
                     textStyle={textStyle}
                     sourceIndex = {index}
                     textSegmentPressed={ this.onPressTextSegment }
@@ -148,6 +162,7 @@ class Sheet extends React.Component {
                     source={item}
                     currentlyActive = {this.props.activeSheetNode == item.node}
                     numberMargin={numberMargin}
+                    bulletMargin = {bulletMargin}
                     textStyle={textStyle}
                     sourceIndex = {index}
                     textSegmentPressed={ this.onPressTextSegment }
@@ -162,6 +177,7 @@ class Sheet extends React.Component {
                     key={index}
                     sourceNum={index + 1}
                     numberMargin={numberMargin}
+                    bulletMargin = {bulletMargin}
                     textStyle={textStyle}
                     source={item}
                     currentlyActive = {this.props.activeSheetNode == item.node}
@@ -178,6 +194,7 @@ class Sheet extends React.Component {
                 <SheetMedia
                     key={index}
                     numberMargin={numberMargin}
+                    bulletMargin = {bulletMargin}
                     textStyle={textStyle}
                     sourceNum={index + 1}
                     currentlyActive = {this.props.activeSheetNode == item.node}
@@ -201,6 +218,10 @@ class Sheet extends React.Component {
 
 
   _keyExtractor = (item, index) => item.node;
+
+  componentDidMount() {
+      //console.log(this.props.textData)
+  }
 
     render() {
         return (
@@ -349,10 +370,9 @@ class SheetSource extends Component {
                         style={{flex: this.props.textType == "hebrew" ? 4.5 : 5.5, paddingHorizontal: 10}}
                     /></View> : null}
 
-                    </View>
-
-
-            </View>
+                   </View>
+            { this.props.bulletMargin }
+        </View>
       </View>
 
         )
@@ -374,9 +394,7 @@ class SheetComment extends Component {
       <View
         style={styles.verseContainer}
       >
-        <View
-          style={[styles.numberSegmentHolderEn, {flexDirection: this.props.textLanguage === 'english' ? 'row' : 'row-reverse'}]}
-        >
+        <View style={[styles.numberSegmentHolderEn, {flexDirection: this.props.textLanguage === 'english' ? 'row' : 'row-reverse'}]}>
           { this.props.numberMargin }
             <View style={this.props.textStyle}>
 
@@ -402,8 +420,10 @@ class SheetComment extends Component {
                     style={{flex: this.props.textType == "hebrew" ? 4.5 : 5.5, paddingHorizontal: 10}}
                 />
 
-            </View></View>
             </View>
+            { this.props.bulletMargin }
+        </View>
+      </View>
         )
     }
 }
@@ -421,12 +441,8 @@ class SheetOutsideText extends Component {
 
 
         return (
-      <View
-        style={styles.verseContainer}
-      >
-        <View
-          style={[styles.numberSegmentHolderEn, {flexDirection: this.props.textLanguage === 'english' ? 'row' : 'row-reverse'}]}
-        >
+      <View style={styles.verseContainer}>
+        <View style={[styles.numberSegmentHolderEn, {flexDirection: this.props.textLanguage === 'english' ? 'row' : 'row-reverse'}]}>
           { this.props.numberMargin }
             <View style={this.props.textStyle}>
 
@@ -452,7 +468,11 @@ class SheetOutsideText extends Component {
                     style={{flex: this.props.textType == "hebrew" ? 4.5 : 5.5, paddingHorizontal: 10}}
                 />
 
-            </View></View></View>
+            </View>
+            { this.props.bulletMargin }
+
+        </View>
+      </View>
         )
     }
 }
@@ -470,12 +490,8 @@ class SheetOutsideBiText extends Component {
 
         return (
 
-      <View
-        style={styles.verseContainer}
-      >
-        <View
-          style={[styles.numberSegmentHolderEn, {flexDirection: this.props.textLanguage === 'english' ? 'row' : 'row-reverse'}]}
-        >
+      <View style={styles.verseContainer}>
+        <View style={[styles.numberSegmentHolderEn, {flexDirection: this.props.textLanguage === 'english' ? 'row' : 'row-reverse'}]}>
           { this.props.numberMargin }
             <View style={this.props.textStyle}>
 
@@ -526,7 +542,10 @@ class SheetOutsideBiText extends Component {
                     /> : null}
 
 
-            </View></View></View>
+            </View>
+            { this.props.bulletMargin }
+        </View>
+      </View>
             )
     }
 
@@ -609,7 +628,8 @@ class SheetMedia extends Component {
 
     render() {
         return (
-            <View style={{width:ViewPort.width-40, height: 200, marginTop:20, marginLeft:20, marginRight: 20}}>
+
+            <View style={{width:ViewPort.width-40, height: 200, marginTop:20}}>
                 {this.makeMediaEmbedLink(this.props.source.media)}
             </View>
         )
