@@ -37,9 +37,6 @@ const ViewPort    = Dimensions.get('window');
 
 class Sheet extends React.Component {
     static propTypes = {
-        theme: PropTypes.object.isRequired,
-        themeStr: PropTypes.string.isRequired,
-        menuLanguage: PropTypes.string.isRequired,
     };
 
     constructor(props) {

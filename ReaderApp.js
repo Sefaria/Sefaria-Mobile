@@ -707,7 +707,6 @@ class ReaderApp extends React.Component {
           var updatedData = [];
           var updatedSectionArray = [];
           var getTextPromises = [];
-          var promises = [];
 
           sourceRefs.forEach(function(source, index) {
               if (!source) {
@@ -731,24 +730,27 @@ class ReaderApp extends React.Component {
 
 
         Promise.all(getTextPromises).then( ()=> {
-            updatedSectionArray.forEach(function(section, index) {
-                if (section != "SheetRef") { //don't bother looking for links on sheetRef content b/c it doesn't exist
-                    promises.push(this.loadLinks(section))
-                }
-            }.bind(this))
+            this.setState({
+                data: updatedData,
+                sectionArray: updatedSectionArray,
+            }, () => {
+                var promises = []
+
+                updatedSectionArray.forEach(function(section, index) {
+                    if (section != "SheetRef") { //don't bother looking for links on sheetRef content b/c it doesn't exist
+                        promises.push(this.loadLinks(section))
+                    }
+
+                    Promise.all(promises).then(() => {
+                            this.setState({
+                                loaded: true,
+                            })
+                        }
+                    );
+
+                }.bind(this))
+            })
         })
-
-
-        Promise.all(promises).then(() => {
-            console.log(updatedData)
-            console.log(updatedSectionArray)
-                this.setState({
-                    data: updatedData,
-                    sectionArray: updatedSectionArray,
-                    loaded: true,
-                })
-            }
-        );
     })
       .catch(error => {
         console.log(error)
@@ -1627,6 +1629,9 @@ class ReaderApp extends React.Component {
             activeSheetNode={this.state.activeSheetNode}
             updateActiveSheetNode={this.updateActiveSheetNode}
             sheetMeta={this.state.sheetMeta}
+            textData={this.state.data}
+            sectionArray={this.state.sectionArray}
+            menuLanguage={this.props.menuLanguage}
             textSegmentPressed={ this.sheetSegmentPressed }
             theme={this.props.theme}
             textListVisible={this.state.textListVisible}
