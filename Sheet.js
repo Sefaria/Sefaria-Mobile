@@ -226,8 +226,8 @@ class Sheet extends React.Component {
 
   _keyExtractor = (item, index) => item.node;
 
-  componentDidMount() {
-      //console.log(this.refs)
+  componentDidUpdate() {
+      console.log(this.props.textLanguage)
   }
 
     render() {
@@ -326,7 +326,7 @@ class SheetSource extends Component {
           { this.props.numberMargin }
             <View style={this.props.textStyle}>
 
-                {heText != "" ?
+                {heText != "" && ['hebrew','bilingual'].includes(this.props.textLanguage) ?
                     <View style={{flex:1}}>
                     <Text>{this.props.source.heRef}</Text>
 
@@ -353,7 +353,7 @@ class SheetSource extends Component {
                     /></View> : null}
 
 
-                {enText !="" ?
+                {enText !="" && ['english','bilingual'].includes(this.props.textLanguage) ?
                     <View style={{flex:1}}>
                     <Text>{this.props.source.ref}</Text>
                     <HTMLView
@@ -452,7 +452,7 @@ class SheetOutsideText extends Component {
       <View style={styles.verseContainer}>
         <View style={[styles.numberSegmentHolderEn, {flexDirection: this.props.textLanguage === 'english' ? 'row' : 'row-reverse'}]}>
           { this.props.numberMargin }
-            <View style={this.props.textStyle}>
+            <View style={[this.props.textStyle,{flex:1}]}>
 
                 <HTMLView
                     value={lang == "en" ? "<endiv>&#x200E;"+outsideText+"</endiv>" : "<hediv>&#x200E;"+outsideText+"</hediv>"}
@@ -503,7 +503,7 @@ class SheetOutsideBiText extends Component {
           { this.props.numberMargin }
             <View style={this.props.textStyle}>
 
-                {heText != "" ?
+                {heText != "" && ['hebrew','bilingual'].includes(this.props.textLanguage) ?
                     <HTMLView
                         value={"<hediv>"+heText+"</hediv>"}
                         stylesheet={{...styles}}
@@ -526,7 +526,7 @@ class SheetOutsideBiText extends Component {
                         style={{flex: this.props.textType == "hebrew" ? 4.5 : 5.5, paddingHorizontal: 10}}
                     /> : null}
 
-                {enText != "" ?
+                {enText != ""&& ['english','bilingual'].includes(this.props.textLanguage) ?
                     <HTMLView
                         value={"<endiv>&#x200E;"+enText+"</endiv>"}
                         stylesheet={{...styles}}
