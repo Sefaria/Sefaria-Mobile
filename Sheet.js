@@ -32,7 +32,6 @@ import styles from './Styles.js';
 import strings from "./LocalizedStrings";
 import {DirectedButton, SText} from "./Misc";
 import HTMLView from 'react-native-htmlview';
-import {SectionList} from "./TextColumn";
 const ViewPort    = Dimensions.get('window');
 
 
@@ -145,6 +144,7 @@ class Sheet extends React.Component {
             return (
                 <SheetComment
                     key={index}
+                    sheetId = {this.props.sheet.id}
                     sourceNum={index + 1}
                     source={item}
                     currentlyActive = {this.props.activeSheetNode == item.node}
@@ -162,6 +162,7 @@ class Sheet extends React.Component {
             return (
                 <SheetOutsideText
                     key={index}
+                    sheetId = {this.props.sheet.id}
                     sourceNum={index + 1}
                     source={item}
                     currentlyActive = {this.props.activeSheetNode == item.node}
@@ -179,6 +180,7 @@ class Sheet extends React.Component {
          return (
                 <SheetOutsideBiText
                     key={index}
+                    sheetId = {this.props.sheet.id}
                     sourceNum={index + 1}
                     numberMargin={numberMargin}
                     bulletMargin = {bulletMargin}
@@ -197,6 +199,7 @@ class Sheet extends React.Component {
          return (
                 <SheetMedia
                     key={index}
+                    sheetId = {this.props.sheet.id}
                     numberMargin={numberMargin}
                     bulletMargin = {bulletMargin}
                     textStyle={textStyle}
@@ -324,7 +327,7 @@ class SheetSource extends Component {
             <View style={this.props.textStyle}>
 
                 {heText != "" ?
-                    <View>
+                    <View style={{flex:1}}>
                     <Text>{this.props.source.heRef}</Text>
 
                     <HTMLView
@@ -351,7 +354,7 @@ class SheetSource extends Component {
 
 
                 {enText !="" ?
-                    <View>
+                    <View style={{flex:1}}>
                     <Text>{this.props.source.ref}</Text>
                     <HTMLView
                         value={"<endiv>&#x200E;"+enText+"</endiv>"}
@@ -387,7 +390,7 @@ class SheetSource extends Component {
 class SheetComment extends Component {
     componentDidUpdate(prevProps, prevState) {
         if (this.props.currentlyActive && !prevProps.currentlyActive) {
-            this.props.textSegmentPressed("SheetRef", this.props.sourceIndex, 0, false)
+            this.props.textSegmentPressed("Sheet "+this.props.sheetId+"."+this.props.source.node, this.props.sourceIndex, 0, false)
         }
     }
 
@@ -408,7 +411,7 @@ class SheetComment extends Component {
                     stylesheet={{...styles}}
                     rootComponentProps={{
                  hitSlop: {top: 10, bottom: 10, left: 10, right: 10},  // increase hit area of segments
-                 onPress:() => this.props.textSegmentPressed("SheetRef",this.props.sourceIndex,0),
+                 onPress:() => this.props.textSegmentPressed("Sheet "+this.props.sheetId+"."+this.props.source.node,this.props.sourceIndex,0),
                  onLongPress:this.props.onLongPress,
                  delayPressIn: 200,
                }
@@ -436,7 +439,7 @@ class SheetComment extends Component {
 class SheetOutsideText extends Component {
     componentDidUpdate(prevProps, prevState) {
         if (this.props.currentlyActive && !prevProps.currentlyActive) {
-            this.props.textSegmentPressed("SheetRef", this.props.sourceIndex, 0, false)
+            this.props.textSegmentPressed("Sheet "+this.props.sheetId+"."+this.props.source.node, this.props.sourceIndex, 0, false)
         }
     }
     render() {
@@ -456,7 +459,7 @@ class SheetOutsideText extends Component {
                     stylesheet={{...styles}}
                     rootComponentProps={{
                  hitSlop: {top: 10, bottom: 10, left: 10, right: 10},  // increase hit area of segments
-                 onPress:() => this.props.textSegmentPressed("SheetRef", this.props.sourceIndex,0),
+                 onPress:() => this.props.textSegmentPressed("Sheet "+this.props.sheetId+"."+this.props.source.node, this.props.sourceIndex,0),
                  onLongPress:this.props.onLongPress,
                  delayPressIn: 200,
                }
@@ -485,7 +488,7 @@ class SheetOutsideText extends Component {
 class SheetOutsideBiText extends Component {
     componentDidUpdate(prevProps, prevState) {
         if (this.props.currentlyActive && !prevProps.currentlyActive) {
-            this.props.textSegmentPressed("SheetRef", this.props.sourceIndex, 0, false)
+            this.props.textSegmentPressed("Sheet "+this.props.sheetId+"."+this.props.source.node, this.props.sourceIndex, 0, false)
         }
     }
 
@@ -506,7 +509,7 @@ class SheetOutsideBiText extends Component {
                         stylesheet={{...styles}}
                         rootComponentProps={{
                  hitSlop: {top: 10, bottom: 10, left: 10, right: 10},  // increase hit area of segments
-                 onPress:() => this.props.textSegmentPressed("SheetRef", this.props.sourceIndex,0),
+                 onPress:() => this.props.textSegmentPressed("Sheet "+this.props.sheetId+"."+this.props.source.node, this.props.sourceIndex,0),
                  onLongPress:this.props.onLongPress,
                  delayPressIn: 200,
                }
@@ -529,7 +532,7 @@ class SheetOutsideBiText extends Component {
                         stylesheet={{...styles}}
                         rootComponentProps={{
                  hitSlop: {top: 10, bottom: 10, left: 10, right: 10},  // increase hit area of segments
-                 onPress:() => this.props.textSegmentPressed("SheetRef", this.props.sourceIndex,0),
+                 onPress:() => this.props.textSegmentPressed("Sheet "+this.props.sheetId+"."+this.props.source.node, this.props.sourceIndex,0),
                  onLongPress:this.props.onLongPress,
                  delayPressIn: 200,
                }
@@ -575,7 +578,7 @@ class SheetMedia extends Component {
 
     componentDidUpdate(prevProps, prevState) {
         if (this.props.currentlyActive && !prevProps.currentlyActive) {
-            this.props.textSegmentPressed("SheetRef", this.props.sourceIndex, 0, false)
+            this.props.textSegmentPressed("Sheet "+this.props.sheetId+"."+this.props.source.node, this.props.sourceIndex, 0, false)
         }
     }
 
