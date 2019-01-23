@@ -546,11 +546,11 @@ class ReaderApp extends React.Component {
   };
 
   loadLinks = (ref) => {
+      console.log(ref)
     // Ensures that links have been loaded for `ref` and stores result in `this.state.linksLoaded` array.
     // Links are not loaded yet in case you're in API mode, or you are reading a non-default version
-
-    //this assumes a situation where the only links you'd want are in the current section -- doesn't work for sheets.
     const iSec = this.state.sectionArray.findIndex(secRef=>secRef===ref);
+      console.log(iSec)
     if (!iSec && iSec !== 0) { console.log("could not find section ref in sectionArray", ref); return; }
     Sefaria.links.load(ref)
       .then(linksResponse => {
@@ -703,16 +703,17 @@ class ReaderApp extends React.Component {
           }, () => {
           this.closeMenu(); // Don't close until these values are in state, so sheet can load
           var sources = result["sources"].filter(source => "ref" in source || "comment" in source || "outsideText" in source || "outsideBiText" in source || "media" in source)
-          var sourceRefs = sources.map(source => source.ref);
+          var sourceRefs = sources.map(source => source.ref || "Sheet " + result.id + ":" + source.node );
           var updatedData = [];
           var updatedSectionArray = [];
           var getTextPromises = [];
 
+
           sourceRefs.forEach(function(source, index) {
-              if (!source) {
+              if (source.startsWith("Sheet")) {
                   //create an empty element in the state.data array so that connections panel still works
                   updatedData[index] = [{links: []}]
-                  updatedSectionArray[index] = "SheetRef"
+                  updatedSectionArray[index] = source
               }
 
               else {
@@ -737,9 +738,7 @@ class ReaderApp extends React.Component {
                 var promises = []
 
                 updatedSectionArray.forEach(function(section, index) {
-                    if (section != "SheetRef") { //don't bother looking for links on sheetRef content b/c it doesn't exist
-                        promises.push(this.loadLinks(section))
-                    }
+                    promises.push(this.loadLinks(section))
 
                     Promise.all(promises).then(() => {
                             this.setState({

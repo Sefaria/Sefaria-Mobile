@@ -227,7 +227,7 @@ class Sheet extends React.Component {
   _keyExtractor = (item, index) => item.node;
 
   componentDidUpdate() {
-      console.log(this.props.textLanguage)
+//      console.log(this.props.textLanguage)
   }
 
     render() {
