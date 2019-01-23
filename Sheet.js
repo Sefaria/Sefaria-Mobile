@@ -235,7 +235,6 @@ class Sheet extends React.Component {
             <View style={styles.sheet}>
 
                 <Text>{this.props.sheet.id}</Text>
-                <Text>{this.props.activeSheetNode}</Text>
 
                 <FlatList
                   ref={this._getSheetListRef}
@@ -328,7 +327,7 @@ class SheetSource extends Component {
 
                 {heText != "" && ['hebrew','bilingual'].includes(this.props.textLanguage) ?
                     <View style={{flex:1}}>
-                    <Text>{this.props.source.heRef}</Text>
+                    <Text style={[styles.hebrewText,styles.sheetRef]}>{this.props.source.heRef}</Text>
 
                     <HTMLView
                         value={"<hediv>"+heText+"</hediv>"}
@@ -355,7 +354,7 @@ class SheetSource extends Component {
 
                 {enText !="" && ['english','bilingual'].includes(this.props.textLanguage) ?
                     <View style={{flex:1}}>
-                    <Text>{this.props.source.ref}</Text>
+                    <Text style={[styles.englishText,styles.sheetRef]}>{this.props.source.ref}</Text>
                     <HTMLView
                         value={"<endiv>&#x200E;"+enText+"</endiv>"}
                         stylesheet={{...styles, ...smallSheet}}

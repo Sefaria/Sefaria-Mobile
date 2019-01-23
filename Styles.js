@@ -725,6 +725,11 @@ export default StyleSheet.create({
     margin:20,
     marginBottom:5,
   },
+  sheetRef: {
+    color: "#999",
+    margin: 10,
+    marginBottom: 0,
+  },
   sheetAuthor: {
     fontSize: 16,
     color: "#666",
