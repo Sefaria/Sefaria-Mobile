@@ -152,6 +152,8 @@ class ConnectionsPanel extends React.Component {
           <View style={[styles.mainTextPanel, styles.textColumn, this.props.theme.textListContentOuter, {maxWidth: null, flex: this.props.textListFlex}]}>
             {connectionsPanelHeader}
             <AboutBox
+              sheet={this.props.sheet}
+              sheetMeta={this.props.sheetMeta}
               textToc={this.props.textToc}
               theme={this.props.theme}
               interfaceLang={this.props.interfaceLang}

@@ -1646,6 +1646,7 @@ class ReaderApp extends React.Component {
           {this.state.textListVisible ?
             <ConnectionsPanel
               sheet={this.state.sheet}
+              sheetMeta={this.state.sheetMeta}
               textListFlex={this.state.textListFlex}
               textListFlexAnimated={this.state.textListFlexAnimated}
               animating={this.state.textListAnimating}
