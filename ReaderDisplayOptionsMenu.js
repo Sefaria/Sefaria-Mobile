@@ -77,7 +77,7 @@ class ReaderDisplayOptionsMenu extends React.Component {
         buttons: ["english","bilingual","hebrew"],
         icons: this.props.themeStr == "white" ? [a_icon,a_aleph_icon,aleph_icon]: [a_icon_light,a_aleph_icon_light,aleph_icon_light],
         currVal: this.props.textLanguage,
-        parametrized: true
+        parameterized: true
       },
       {
         condition: this.props.canBeContinuous,
@@ -86,7 +86,7 @@ class ReaderDisplayOptionsMenu extends React.Component {
         buttons: ["segmented","continuous"],
         icons: this.props.themeStr == "white" ? [segmented_icon,continuous_icon]: [segmented_icon_light,continuous_icon_light],
         currVal: this.props.textFlow,
-        parametrized: true
+        parameterized: true
       },
       {
         condition: this.props.textLanguage === 'bilingual',
@@ -95,7 +95,7 @@ class ReaderDisplayOptionsMenu extends React.Component {
         buttons: ["stacked", "sidebyside", "sidebysiderev"],
         icons: this.props.themeStr == "white" ? [stacked_icon,side_icon,siderev_icon] : [stacked_icon_light,side_icon_light,siderev_icon_light],
         currVal: this.props.biLayout,
-        parametrized: true,
+        parameterized: true,
         iconLength: 19,
       },
       {
@@ -104,7 +104,7 @@ class ReaderDisplayOptionsMenu extends React.Component {
         buttons:["white","black"],
         colors:["#ffffff", "#444444"],
         currVal: this.props.themeStr,
-        parametrized: true
+        parameterized: true
       },
       {
         condition: this.props.canHaveAliyot,
@@ -113,7 +113,7 @@ class ReaderDisplayOptionsMenu extends React.Component {
         buttons:[true, false],
         text: [strings.on, strings.off],
         currVal: this.props.showAliyot,
-        parametrized: true,
+        parameterized: true,
       },
       {
         label: strings.fontSize,
@@ -121,7 +121,7 @@ class ReaderDisplayOptionsMenu extends React.Component {
         buttons:["smaller","larger"],
         icons: this.props.themeStr == "white" ? [a_icon_small,a_icon]: [a_icon_small_light,a_icon_light],
         currVal: null,
-        parametrized: true
+        parameterized: true
       }
     ];
     const alignments = [["left","right"],["left","center","right"]];
@@ -145,7 +145,7 @@ class ReaderDisplayOptionsMenu extends React.Component {
               theme={this.props.theme}
               option={option}
               onPress={optionRow.onPress}
-              parametrized={optionRow.parametrized}
+              parameterized={optionRow.parameterized}
               color={color}
               align={alignments[optionRow.buttons.length-2][i]}
               selected={selected} />
@@ -159,7 +159,7 @@ class ReaderDisplayOptionsMenu extends React.Component {
               theme={this.props.theme}
               option={option}
               onPress={optionRow.onPress}
-              parametrized={optionRow.parametrized}
+              parameterized={optionRow.parameterized}
               icon={icon}
               iconLength={optionRow.iconLength}
               text={text}
@@ -230,7 +230,7 @@ class ReaderDisplayOptionsMenuItem extends React.Component {
     text:         PropTypes.string,
     align:        PropTypes.string,
     onPress:      PropTypes.func.isRequired,
-    parametrized: PropTypes.bool, /* should onPress() use option as a paremeter*/
+    parameterized: PropTypes.bool, /* should onPress() use option as a parameter*/
     selected:     PropTypes.bool
   };
 
@@ -241,7 +241,7 @@ class ReaderDisplayOptionsMenuItem extends React.Component {
     else if (this.props.align == "left") alignStyle = styles.readerDisplayOptionsMenuItemLeft;
     else /*if (this.props.align == "center") */ alignStyle = styles.readerDisplayOptionsMenuItemCenter;
 
-    var onPress = this.props.parametrized ? (()=>this.props.onPress(this.props.option)) : this.props.onPress;
+    var onPress = this.props.parameterized ? (()=>this.props.onPress(this.props.option)) : this.props.onPress;
     var tempStyles = [styles.readerDisplayOptionsMenuItem, this.props.theme.readerDisplayOptionsMenuItem, alignStyle];
     if (this.props.selected) {
       tempStyles.push(this.props.theme.readerDisplayOptionsMenuItemSelected);
@@ -268,7 +268,7 @@ class ReaderDisplayOptionsMenuColor extends React.Component {
     color:        PropTypes.string,
     align:        PropTypes.string,
     onPress:      PropTypes.func.isRequired,
-    parametrized: PropTypes.bool, /* should onPress() use option as a paremeter*/
+    parameterized: PropTypes.bool, /* should onPress() use option as a parameter*/
     selected:     PropTypes.bool
   };
 
@@ -278,7 +278,7 @@ class ReaderDisplayOptionsMenuColor extends React.Component {
     else if (this.props.align == "left") alignStyle = styles.readerDisplayOptionsMenuColorLeft;
     else /*if (this.props.align == "center") */ alignStyle = styles.readerDisplayOptionsMenuColorCenter;
 
-    var onPress = this.props.parametrized ? (()=>this.props.onPress(this.props.option)) : this.props.onPress;
+    var onPress = this.props.parameterized ? (()=>this.props.onPress(this.props.option)) : this.props.onPress;
     var tempStyles = [styles.readerDisplayOptionsMenuColor, this.props.theme.readerDisplayOptionsMenuColor, {"backgroundColor": this.props.color}, alignStyle];
     if (this.props.selected) {
       tempStyles.push(styles.readerDisplayOptionsMenuColorSelected);
