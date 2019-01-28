@@ -110,7 +110,7 @@ class ReaderApp extends React.Component {
         textListFlexPreference: 0.6,
         textListAnimating: false,
         data: null,
-        linksLoaded: [],  // bool arrary corresponding to data indicating if links have been loaded, which occurs async with API
+        linksLoaded: [],  // bool array corresponding to data indicating if links have been loaded, which occurs async with API
         interfaceLang: strings.getLanguage() === "he" ? "hebrew" : "english", // TODO check device settings for Hebrew: ### import {NativeModules} from 'react-native'; console.log(NativeModules.SettingsManager.settings.AppleLocale);
         connectionsMode: null, // null means connections summary
         filterIndex: null, /* index of filters in recentFilters */
