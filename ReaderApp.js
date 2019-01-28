@@ -744,7 +744,7 @@ class ReaderApp extends React.Component {
         textListVisible: false,
         textReference: ref
       }, () => {
-          this.closeMenu(); // Don't close until these values are in state, so we know if we need to load defualt text
+          this.closeMenu(); // Don't close until these values are in state, so we know if we need to load default text
           this.loadNewText({ ref, versions: newVersions, overwriteVersions }).then(resolve);
       });
     })
