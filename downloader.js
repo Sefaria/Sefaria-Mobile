@@ -401,7 +401,7 @@ var Downloader = {
   },
   _downloadZip: async function(title) {
     // Downloads `title`, first to /tmp then to /library when complete.
-    // Manages `title`'s presense in downloadQueue and downloadInProgress.
+    // Manages `title`'s presence in downloadQueue and downloadInProgress.
     //console.log("Starting download of " + title);
     Sefaria.downloader._removeFromDownloadQueue(title);
     Sefaria.downloader._setData("downloadInProgress", [title].concat(Sefaria.downloader._data.downloadInProgress));
