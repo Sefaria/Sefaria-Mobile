@@ -232,7 +232,7 @@ class OfflinePackageList extends React.Component {
 
   render() {
     // num available = all available filtered to p.indexes or unfiltered
-    // nupdates = all updates filtered to p.indexes or unfiltered
+    // nUpdates = all updates filtered to p.indexes or unfiltered
     return (
       <View style={styles.settingsOfflinePackages}>
         {
