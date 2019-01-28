@@ -100,7 +100,7 @@ var Downloader = {
   },
   downloadUpdatesList: function() {
     // Downloads the "last_update.json", stores it in _data.availableDownloads
-    // and adds any new items to _data.lastDownload with a null value indicating they've never been downlaoded
+    // and adds any new items to _data.lastDownload with a null value indicating they've never been downloaded
     // Also downloads latest "toc.json"
     const lastUpdatePromise = fetch(HOST_PATH + "last_updated.json", {headers: {'Cache-Control': 'no-cache'}})
       .then((response) => response.json())
