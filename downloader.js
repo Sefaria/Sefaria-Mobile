@@ -20,7 +20,7 @@ var Downloader = {
     shouldDownload: false,  // Whether or not to download books at all or just stick to API mode
     downloadPaused: false,  // Whether or not the download process has been temporarily paused
     lastDownload: {},       // Map book titles to timestamp of their last downloaded version or null
-    availableDownloads: {}, // Server provided map of titles to ther timestamp of their last update available
+    availableDownloads: {}, // Server provided map of titles to the timestamp of their last update available
     updateComment: "",      // Current update comment. Generally a short note on what's new
     downloadQueue: [],      // Ordered list of title to download
     downloadInProgress: [], // List of titles currently downloading
