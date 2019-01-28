@@ -516,7 +516,7 @@ class TextColumn extends React.Component {
       } else {
         const yo = this.state.itemLayoutList[index];
         if (!yo) {
-          console.log("yo non existant", index, this.state.itemLayoutList);
+          console.log("yo nonexistent", index, this.state.itemLayoutList);
         }
         return yo;
       }
