@@ -840,7 +840,7 @@ class ReaderApp extends React.Component {
 
   openTextTocDirectly = (title) => {
 
-    // used to open text toc witout going throught the reader
+    // used to open text toc witout going through the reader
     if (!Sefaria.booksDict[title]) {
       this.textUnavailableAlert(title);
       return;
