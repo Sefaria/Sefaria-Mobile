@@ -35,34 +35,34 @@ class FilterNode {
   isUnselected = () => {
     return (this.selected == 0);
   }
-  setSelected = (propogateParent, noPropogateChild) => {
-    //default is to propogate children and not parents.
+  setSelected = (propagateParent, noPropagateChild) => {
+    //default is to propagate children and not parents.
     //Calls from front end should use (true, false), or just (true)
     this.selected = 1;
-    if (!(noPropogateChild)) {
+    if (!(noPropagateChild)) {
       for (var i = 0; i < this.children.length; i++) {
         this.children[i].setSelected(false);
       }
     }
-    if(propogateParent) {
+    if(propagateParent) {
       if(this.parent) this.parent._deriveState();
     }
   }
-  setUnselected = (propogateParent, noPropogateChild) => {
-    //default is to propogate children and not parents.
+  setUnselected = (propagateParent, noPropagateChild) => {
+    //default is to propagate children and not parents.
     //Calls from front end should use (true, false), or just (true)
     this.selected = 0;
-    if (!(noPropogateChild)) {
+    if (!(noPropagateChild)) {
       for (var i = 0; i < this.children.length; i++) {
         this.children[i].setUnselected(false);
       }
     }
-    if(propogateParent) {
+    if(propagateParent) {
       if(this.parent) this.parent._deriveState();
     }
   }
   setPartial = () => {
-    //Never propogate to children.  Always propogate to parents
+    //Never propagate to children.  Always propagate to parents
     this.selected = 2;
     if(this.parent) this.parent._deriveState();
   }
