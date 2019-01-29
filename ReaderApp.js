@@ -1242,7 +1242,7 @@ class ReaderApp extends React.Component {
   onQueryChange = (query, resetQuery, fromBackButton, getFilters) => {
     // getFilters should be true if the query has changed or the exactType has changed
     var newSearchPage = 0;
-    var from = 0;
+    var start = 0;
     var size = 20;
     if (resetQuery && !fromBackButton) {
       this.setInitSearchScrollPos(0);
@@ -1250,7 +1250,7 @@ class ReaderApp extends React.Component {
     }
     if (!resetQuery) {
       newSearchPage = this.state.currSearchPage + 1;
-      from = 20 * newSearchPage;
+      start = 20 * newSearchPage;
     }
     if (fromBackButton) {
       size = 20 * (this.state.currSearchPage + 1);
@@ -1260,11 +1260,11 @@ class ReaderApp extends React.Component {
     //var req = JSON.stringify(Sefaria.search.get_query_object(query,false,[],20,20*newSearchPage,"text"));
     var request_filters = this.state.searchFiltersValid && this.state.appliedSearchFilters;
     var queryProps = {
-      query: query,
-      size: size,
-      from: from,
+      query,
+      size,
+      start,
       type: "text",
-      get_filters: getFilters,
+      getFilters,
       applied_filters: request_filters,
       sort_type: this.state.searchSort,
       exact: this.state.searchIsExact

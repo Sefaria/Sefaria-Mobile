@@ -6,7 +6,7 @@ import FilterNode from './FilterNode';
 import strings from './LocalizedStrings';
 
 var Search = {
-  baseUrl: "https://www.sefaria.org/api/search/merged/_search/",
+  baseUrl: "https://www.sefaria.org/api/search-wrapper/",
   _cache: {},
   cache: function(key, result) {
     if (result !== undefined) {
