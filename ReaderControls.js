@@ -18,7 +18,9 @@ import {
   DisplaySettingsButton,
   CategoryAttribution,
   SText,
+  HebrewInEnglishText,
 } from './Misc.js';
+import Sefaria from "./sefaria";
 
 class ReaderControls extends React.Component {
   static propTypes = {

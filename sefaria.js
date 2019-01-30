@@ -1200,14 +1200,20 @@ Sefaria.util = {
       return text;
     }
   },
-  hebrewInEnglish: function(text) {
-    // wrap all Hebrew strings with <hediv> and &rlm;
-    return text.replace(/(\s|^|\[|\]|\(|\)|\.|,|;|:|\*|\?|!|-|"|')((?:[\u0591-\u05c7\u05d0-\u05ea]+[()\[\]\s'"\u05f3\u05f4]{0,2})+)(?=\[|\]|\(|\)|\.|,|;|:|\*|\?|!|-|'|"|\s|$)/g, '<hediv>&#x200E;$1$2</hediv>');
+  hebrewInEnglish: function(text, whatToReturn) {
+    var regEx = /(\s|^|\[|\]|\(|\)|\.|,|;|:|\*|\?|!|-|"|')((?:[\u0591-\u05c7\u05d0-\u05ea]+[()\[\]\s'"\u05f3\u05f4]{0,2})+)(?=\[|\]|\(|\)|\.|,|;|:|\*|\?|!|-|'|"|\s|$)/g
+    if (whatToReturn == "string") {
+      // wrap all Hebrew strings with <hediv> and &rlm;
+      return text.replace(regEx, '<hediv>&#x200E;$1$2</hediv>');
+    }
+    else if (whatToReturn == "list") {
+      return text.split(regEx)
+    }
   },
   getDisplayableHTML: function(text, lang) {
     text = Sefaria.util.filterOutItags(text);
     if (lang === 'english') {
-      return `<endiv>${Sefaria.util.hebrewInEnglish(text)}</endiv>`;
+      return `<endiv>${Sefaria.util.hebrewInEnglish(text, 'string')}</endiv>`;
     }
     return `<hediv>${text}</hediv>`;
   },

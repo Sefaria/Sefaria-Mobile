@@ -21,11 +21,7 @@ import {
 import sanitizeHtml from 'sanitize-html'
 
 import {
-    CategoryColorLine,
-    TwoBox,
-    LanguageToggleButton,
-    MenuButton,
-    LoadingView
+    HebrewInEnglishText,
 } from './Misc.js';
 
 import styles from './Styles.js';
@@ -229,7 +225,6 @@ class Sheet extends React.Component {
   componentDidUpdate() {
 //      console.log(this.props.textLanguage)
   }
-
     render() {
         return (
             <View style={styles.sheet}>
@@ -243,7 +238,7 @@ class Sheet extends React.Component {
                   keyExtractor={this._keyExtractor}
                   ListHeaderComponent={
                       <View>
-                        <Text style={styles.sheetTitle}>{Sefaria.util.stripHtml(this.props.sheet.title)}</Text>
+                        <Text style={styles.sheetTitle}><HebrewInEnglishText text={this.props.sheet.title} stylesHe={[styles.heInEn]} stylesEn={[]}/></Text>
                         <Text style={styles.sheetAuthor}>{this.props.sheetMeta.ownerName}</Text>
                       </View>
                   }

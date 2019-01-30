@@ -26,7 +26,7 @@ import {
 
 import styles from './Styles.js';
 import strings from "./LocalizedStrings";
-import {CategoryAttribution, CloseButton, DirectedButton} from "./Misc";
+import {CategoryAttribution, CloseButton, DirectedButton, HebrewInEnglishText} from "./Misc";
 import HTMLView from 'react-native-htmlview';
 import Sheet from "./Sheet"; //to convert html'afied JSON to something react can render (https://github.com/jsdf/react-native-htmlview)
 const ViewPort = Dimensions.get('window');
@@ -76,7 +76,7 @@ class SheetMeta extends React.Component {
                     <View style={[styles.textTocTopBox, this.props.theme.bordered]}>
                         <View>
                             <Text
-                                style={[styles.en, styles.textTocTitle, this.props.theme.text]}>{Sefaria.util.stripHtml(this.props.sheet.title)}</Text>
+                                style={[styles.en, styles.textTocTitle, this.props.theme.text]}><HebrewInEnglishText text={this.props.sheet.title} stylesHe={[styles.heInEn]} stylesEn={[]}/></Text>
                         </View>
                         <View style={styles.textTocCategoryBox}>
                             {this.props.contentLang == "hebrew" ?
@@ -89,7 +89,7 @@ class SheetMeta extends React.Component {
                         <View style={{flexDirection: "row", flex: 1}}>
 
                             <Image
-                                style={styles.userAvatar}
+                                style={[styles.userAvatarMini]}
                                 source={{uri: this.props.sheetMeta.ownerImageUrl}}
                             />
                             <Text style={[{
@@ -120,7 +120,7 @@ class SheetMeta extends React.Component {
                         <Text style={[{
                                 alignSelf: "flex-end",
                                 color: "#999"
-                            }, styles.enInt]}>{this.props.sheet.summary}</Text>
+                            }, styles.en]}>{this.props.sheet.summary}</Text>
 
 
 

@@ -269,7 +269,7 @@ class ResourcesSection extends React.Component {
 
     return (
 <View>
-                    <View>
+                    <View style={{marginBottom: 10}}>
                       <Text style={[styles.readerNavSectionTitle, this.props.theme.readerNavSectionTitle, langStyle, {textAlign: "center"}]}>
                         {strings.resources}
                       </Text>
@@ -280,7 +280,6 @@ class ResourcesSection extends React.Component {
         category={"Sheets"}
         heCat={"דפי מקורות"}
         language={this.props.language}
-        style={{flex: 1, paddingVertical: 12, borderRadius: 5, borderWidth: 1, borderTopWidth: 1, borderColor: "#ccc"}}
         isSans={true}
         icon={require('./img/sheet.png')}
         onPress={this.props.openSheets}
