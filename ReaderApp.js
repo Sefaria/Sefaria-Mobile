@@ -789,6 +789,10 @@ class ReaderApp extends React.Component {
       const title = Sefaria.textTitleForRef(ref);
       const overwriteVersions = calledFrom !== 'search'; // if called from search, use version specified by search (or default if none specified)
       if (!title) {
+        if (ref.startsWith("Sheet")) { //TODO: Load Sheet data via sheet ref
+            resolve();
+            return;
+        }
         this.textUnavailableAlert();
         resolve();
         return;
