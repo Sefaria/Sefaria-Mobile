@@ -1746,7 +1746,8 @@ Sefaria.palette = {
     lightgreen: "#97b386",
     red: "#802f3e",
     teal: "#00827f",
-    system: "#142b51"
+    system: "#142b51",
+    palegreen: "#B8D4D3"
   }
 };
 Sefaria.palette.categoryColors = {
@@ -1770,10 +1771,10 @@ Sefaria.palette.categoryColors = {
   "Other":              Sefaria.palette.colors.darkblue,
   "Quoting Commentary": Sefaria.palette.colors.orange,
   "Commentary2":        Sefaria.palette.colors.blue,
-  "Sheets":             Sefaria.palette.colors.raspberry,
+  "Sheets":             Sefaria.palette.colors.system,
   "Community":          Sefaria.palette.colors.raspberry,
   "Targum":             Sefaria.palette.colors.lavender,
-  "Modern Works":       Sefaria.palette.colors.raspberry,
+  "Modern Works":       Sefaria.palette.colors.palegreen,
   "Modern Commentary":  Sefaria.palette.colors.raspberry,
   "More":               Sefaria.palette.colors.darkblue,
 };
