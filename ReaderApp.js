@@ -1606,7 +1606,7 @@ class ReaderApp extends React.Component {
             enRef={this.state.textReference}
             heRef={this.state.heRef}
             language={this.props.menuLanguage}
-            categories={Sefaria.categoriesForTitle(this.state.textTitle)}
+            categories={["Sheets"]}
             openNav={this.openNav}
             themeStr={this.props.themeStr}
             goBack={this.manageBackMain}

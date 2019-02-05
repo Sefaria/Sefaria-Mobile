@@ -143,6 +143,8 @@ class Sheet extends React.Component {
                     sheetId = {this.props.sheet.id}
                     sourceNum={index + 1}
                     source={item}
+                    theme={this.props.theme}
+                    fontSize={this.props.fontSize}
                     currentlyActive = {this.props.activeSheetNode == item.node}
                     numberMargin={numberMargin}
                     bulletMargin = {bulletMargin}
@@ -161,6 +163,8 @@ class Sheet extends React.Component {
                     sheetId = {this.props.sheet.id}
                     sourceNum={index + 1}
                     source={item}
+                    theme={this.props.theme}
+                    fontSize={this.props.fontSize}
                     currentlyActive = {this.props.activeSheetNode == item.node}
                     numberMargin={numberMargin}
                     bulletMargin = {bulletMargin}
@@ -180,6 +184,8 @@ class Sheet extends React.Component {
                     sourceNum={index + 1}
                     numberMargin={numberMargin}
                     bulletMargin = {bulletMargin}
+                    theme={this.props.theme}
+                    fontSize={this.props.fontSize}
                     textStyle={textStyle}
                     source={item}
                     currentlyActive = {this.props.activeSheetNode == item.node}
@@ -198,6 +204,7 @@ class Sheet extends React.Component {
                     sheetId = {this.props.sheet.id}
                     numberMargin={numberMargin}
                     bulletMargin = {bulletMargin}
+                    theme={this.props.theme}
                     textStyle={textStyle}
                     sourceNum={index + 1}
                     currentlyActive = {this.props.activeSheetNode == item.node}
@@ -339,7 +346,7 @@ class SheetSource extends Component {
                {
                  suppressHighlighting: false,
                  key:this.props.segmentKey,
-                 style: styles.hebrewText,
+                 style: [styles.hebrewText, this.props.theme.text, styles.justifyText, {fontSize: this.props.fontSize, lineHeight: this.props.fontSize * lineHeightMultiplierHe}]
 
                }
              }
@@ -365,8 +372,7 @@ class SheetSource extends Component {
                {
                  suppressHighlighting: false,
                  key:this.props.segmentKey,
-                 style: styles.englishText,
-
+                 style: [styles.englishText, this.props.theme.text, styles.justifyText, {fontSize: 0.8 * this.props.fontSize, lineHeight: this.props.fontSize * 1.04 }]
                }
              }
                         style={{flex: this.props.textType == "hebrew" ? 4.5 : 5.5, paddingHorizontal: 10}}
@@ -415,7 +421,7 @@ class SheetComment extends Component {
                {
                  suppressHighlighting: false,
                  key:this.props.segmentKey,
-                 style: styles.englishText,
+                 style: [styles.englishText, this.props.theme.text, styles.justifyText, {fontSize: 0.8 * this.props.fontSize, lineHeight: this.props.fontSize * 1.04 }]
 
                }
              }
@@ -463,7 +469,7 @@ class SheetOutsideText extends Component {
                {
                  suppressHighlighting: false,
                  key:this.props.segmentKey,
-                 style: styles.englishText,
+                 style: [styles.englishText, this.props.theme.text, styles.justifyText, {fontSize: 0.8 * this.props.fontSize, lineHeight: this.props.fontSize * 1.04 }]
 
                }
              }
@@ -513,7 +519,7 @@ class SheetOutsideBiText extends Component {
                {
                  suppressHighlighting: false,
                  key:this.props.segmentKey,
-                 style: styles.hebrewText,
+                 style: [styles.hebrewText, this.props.theme.text, styles.justifyText, {fontSize: this.props.fontSize, lineHeight: this.props.fontSize * lineHeightMultiplierHe}]
 
                }
              }
@@ -536,7 +542,7 @@ class SheetOutsideBiText extends Component {
                {
                  suppressHighlighting: false,
                  key:this.props.segmentKey,
-                 style: styles.englishText,
+                 style: [styles.englishText, this.props.theme.text, styles.justifyText, {fontSize: 0.8 * this.props.fontSize, lineHeight: this.props.fontSize * 1.04 }]
 
                }
              }
