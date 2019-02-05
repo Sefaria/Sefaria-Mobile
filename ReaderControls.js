@@ -82,9 +82,11 @@ class ReaderControls extends React.Component {
               <Image source={this.props.themeStr == "white" ? require('./img/caret.png'): require('./img/caret-light.png') }
                        style={[styles.downCaret, this.props.language === "hebrew" ? null: {opacity: 0}]}
                        resizeMode={'contain'} />
-              <SText lang={this.props.language} style={titleTextStyle} numberOfLines={1} ellipsizeMode={"tail"}>
-                {textTitle}
-              </SText>
+
+              {this.props.sheet ?
+                  <Text lang={this.props.language} style={titleTextStyle} numberOfLines={1} ellipsizeMode={"tail"}><HebrewInEnglishText text={this.props.sheet.title} stylesHe={[styles.heInEn]} stylesEn={[]}/></Text> :
+                  <SText lang={this.props.language} style={titleTextStyle} numberOfLines={1} ellipsizeMode={"tail"}>{textTitle}</SText>
+              }
               <Image source={this.props.themeStr == "white" ? require('./img/caret.png'): require('./img/caret-light.png') }
                        style={[styles.downCaret, this.props.language === "hebrew" ? {opacity: 0} : null]}
                        resizeMode={'contain'} />
