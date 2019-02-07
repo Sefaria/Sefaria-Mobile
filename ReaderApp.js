@@ -793,7 +793,7 @@ class ReaderApp extends React.Component {
             resolve();
             return;
         }
-        this.textUnavailableAlert();
+        this.textUnavailableAlert(ref);
         resolve();
         return;
       }
