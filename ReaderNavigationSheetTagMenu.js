@@ -67,16 +67,16 @@ class ReaderNavigationSheetTagMenu extends React.Component {
               <TouchableOpacity style={[styles.textBlockLink, this.props.theme.textBlockLink, {margin:0, borderBottomWidth: 1, borderBottomColor: "#ccc", paddingTop: 13}]}
                                 onPress={() => this.props.openRef(item.id,item)} >
 
-              <View style={{ flexDirection: (this.props.menuLanguage == "hebrew" ? "row-reverse" : "row"),flex:1}}>
+              <View style={{ flexDirection: (this.props.interfaceLang == "hebrew" ? "row-reverse" : "row"),flex:1}}>
 
                 <Image
                     style={styles.userAvatar}
                     source={{uri: item.ownerImageUrl}}
                 />
                 <View style={{ flexDirection: "column",flex:1, marginRight: 20, marginLeft: 20}}>
-                  <View style={{flexDirection: (this.props.menuLanguage == "hebrew" ? "row-reverse" : "row"), flex: 0, justifyContent: "space-between"}}>
+                  <View style={{flexDirection: (this.props.interfaceLang == "hebrew" ? "row-reverse" : "row"), flex: 0, justifyContent: "space-between"}}>
                      <Text style={[styles.enInt, {alignSelf: "flex-start", color:"#666"}]}>{item.ownerName}</Text>
-                     <View style={{flexDirection: (this.props.menuLanguage == "hebrew" ? "row-reverse" : "row"), alignSelf: "flex-end"}}>
+                     <View style={{flexDirection: (this.props.interfaceLang == "hebrew" ? "row-reverse" : "row"), alignSelf: "flex-end"}}>
                         <Text style={[{color:"#999"}, styles.enInt]}>{item.views}</Text>
                         <Image style={{marginTop: 5, marginLeft: 0, width:15, height: 10}} source={require('./img/eye.png')}/>
                      </View>
@@ -95,7 +95,7 @@ class ReaderNavigationSheetTagMenu extends React.Component {
 
 
     render() {
-      var showHebrew = this.props.menuLanguage == "hebrew";
+      var showHebrew = this.props.interfaceLang == "hebrew";
 
       if (this.state.sheets.length == 0) { return (<LoadingView />); }
 
@@ -111,7 +111,7 @@ class ReaderNavigationSheetTagMenu extends React.Component {
                 direction="back"
                 language="english"/>
                 {showHebrew ?
-                  <Text style={[styles.he, styles.categoryTitle, this.props.theme.categoryTitle]}>{this.props.tag}</Text> :
+                  <Text style={[styles.he, styles.categoryTitle, this.props.theme.categoryTitle, {textTransform: "uppercase"}]}>{this.props.tag}</Text> :
                   <Text style={[styles.en, styles.categoryTitle, this.props.theme.categoryTitle, {textTransform: "uppercase"}]}>{this.props.tag}</Text> }
                 <LanguageToggleButton
                   theme={this.props.theme}

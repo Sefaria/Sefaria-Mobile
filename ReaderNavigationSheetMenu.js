@@ -84,7 +84,7 @@ class ReaderNavigationSheetMenu extends React.Component {
   };
 
   renderItem = ({ item, index }) => {
-    var showHebrew = this.props.menuLanguage == "hebrew";
+    var showHebrew = this.props.interfaceLang == "hebrew";
 
       return (
           <View style={styles.twoBoxItem} key={index}>
@@ -107,7 +107,7 @@ class ReaderNavigationSheetMenu extends React.Component {
 
 
     render() {
-    var showHebrew = this.props.menuLanguage == "hebrew";
+    var showHebrew = this.props.interfaceLang == "hebrew";
 
     if (this.state.trendingTags.length == 0 || this.state.allTagsEn.length == 0 || this.state.allTagsHe.length == 0) { return (<LoadingView />); }
 
@@ -132,7 +132,7 @@ class ReaderNavigationSheetMenu extends React.Component {
                   <Text style={[styles.enInt, styles.categorySectionTitle, this.props.theme.categorySectionTitle]}>Trending Topics</Text> }
             </View>
 
-            <TwoBox content={trendingTagContent} language={this.props.menuLanguage} />
+            <TwoBox content={trendingTagContent} language={this.props.interfaceLang} />
 
             <View style={styles.category} key="AllSourceSheetTags">
               { showHebrew ?
@@ -158,7 +158,7 @@ class ReaderNavigationSheetMenu extends React.Component {
                 <FlatList
                   style={styles.menuAllSheetTagContent}
                   keyExtractor={this._keyExtractor}
-                  data={this.props.menuLanguage == "hebrew" ? this.state.allTagsHe : this.state.allTagsEn}
+                      data={this.props.menuLanguage == "hebrew" ? this.state.allTagsHe : this.state.allTagsEn}
                   renderItem={this.renderItem}
                   numColumns={2}
                   ListHeaderComponent={returnHeaderContent}
