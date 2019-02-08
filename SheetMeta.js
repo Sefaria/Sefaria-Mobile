@@ -68,8 +68,7 @@ class SheetMeta extends React.Component {
                     <CloseButton onPress={this.props.close} theme={this.props.theme} themeStr={this.props.themeStr}/>
                     <Text
                         style={[langStyle, styles.textTocHeaderTitle, styles.textCenter, this.props.theme.text]}>{strings.tableOfContents}</Text>
-                    <LanguageToggleButton theme={this.props.theme} toggleLanguage={this.props.toggleLanguage}
-                                          language={this.props.contentLang}/>
+                    <LanguageToggleButton theme={this.props.theme} toggleLanguage={this.props.toggleLanguage} interfaceLang={this.props.interfaceLang} language={this.props.contentLang}/>
                 </View>
 
                 <ScrollView style={styles.menuContent} contentContainerStyle={{paddingTop: 20, paddingBottom: 40}}>

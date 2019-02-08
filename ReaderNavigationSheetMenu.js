@@ -151,6 +151,7 @@ class ReaderNavigationSheetMenu extends React.Component {
                   <Text style={[styles.en, styles.categoryTitle, this.props.theme.categoryTitle]}>SHEETS</Text> }
                 <LanguageToggleButton
                   theme={this.props.theme}
+                  interfaceLang={this.props.interfaceLang}
                   toggleLanguage={this.props.toggleLanguage}
                   language={this.props.menuLanguage} />
               </View>

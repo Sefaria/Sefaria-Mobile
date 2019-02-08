@@ -89,8 +89,9 @@ class ReaderNavigationCategoryMenu extends React.Component {
                 {showHebrew ?
                   <Text style={[styles.he, styles.categoryTitle, this.props.theme.categoryTitle]}>{heTitle}</Text> :
                   <Text style={[styles.en, styles.categoryTitle, this.props.theme.categoryTitle]}>{enTitle}</Text> }
-                <LanguageToggleButton
+                  <LanguageToggleButton
                   theme={this.props.theme}
+                  interfaceLang={this.props.interfaceLang}
                   toggleLanguage={this.props.toggleLanguage}
                   language={this.props.menuLanguage} />
               </View>

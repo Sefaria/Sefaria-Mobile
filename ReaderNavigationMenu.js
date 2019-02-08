@@ -106,6 +106,7 @@ class ReaderNavigationMenu extends React.Component {
                 categories={this.props.categories}
                 category={this.props.categories.slice(-1)[0]}
                 menuLanguage={this.props.menuLanguage}
+                interfaceLang={this.props.interfaceLang}
                 setCategories={this.props.setCategories}
                 openRef={this.props.openRef}
                 toggleLanguage={this.props.toggleLanguage}

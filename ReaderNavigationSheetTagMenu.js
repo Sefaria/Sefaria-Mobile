@@ -115,6 +115,7 @@ class ReaderNavigationSheetTagMenu extends React.Component {
                   <Text style={[styles.en, styles.categoryTitle, this.props.theme.categoryTitle, {textTransform: "uppercase"}]}>{this.props.tag}</Text> }
                 <LanguageToggleButton
                   theme={this.props.theme}
+                  interfaceLang={this.props.interfaceLang}
                   toggleLanguage={this.props.toggleLanguage}
                   language={this.props.menuLanguage} />
               </View>
