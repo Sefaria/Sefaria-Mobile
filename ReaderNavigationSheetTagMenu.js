@@ -82,7 +82,7 @@ class ReaderNavigationSheetTagMenu extends React.Component {
                      </View>
                    </View>
                   <View>
-                    <Text style={[styles.sheetListTitle], {textAlign: this.props.interfaceLang == "hebrew" ? "right" : "left"}}>{item.title.replace(/\s\s+/g, ' ')}</Text>
+                    <Text style={[styles.sheetListTitle, {textAlign: this.props.interfaceLang == "hebrew" ? "right" : "left"}]}>{item.title.replace(/\s\s+/g, ' ')}</Text>
                   </View>
                 </View>
               </View>

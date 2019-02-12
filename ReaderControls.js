@@ -98,6 +98,7 @@ class ReaderControls extends React.Component {
               linked={false}
               openUri={this.props.openUri} />
           </TouchableOpacity>
+            {this.props.sheet ? <View style={{width: 40}}></View> :
           <TouchableOpacity onPress={
               () => {
                 if (isSaved) {
@@ -115,7 +116,7 @@ class ReaderControls extends React.Component {
                       (isSaved ? require('./img/starFilled-light.png') : require('./img/starUnfilled-light.png'))}
               resizeMode={'contain'}
             />
-          </TouchableOpacity>
+          </TouchableOpacity> }
           <DisplaySettingsButton onPress={this.props.toggleReaderDisplayOptionsMenu} themeStr={this.props.themeStr}/>
         </View>
     );

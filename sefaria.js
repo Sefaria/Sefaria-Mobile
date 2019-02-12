@@ -1771,7 +1771,7 @@ Sefaria.palette.categoryColors = {
   "Other":              Sefaria.palette.colors.darkblue,
   "Quoting Commentary": Sefaria.palette.colors.orange,
   "Commentary2":        Sefaria.palette.colors.blue,
-  "Sheets":             Sefaria.palette.colors.system,
+  "Sheets":             Sefaria.palette.colors.darkblue,
   "Community":          Sefaria.palette.colors.raspberry,
   "Targum":             Sefaria.palette.colors.lavender,
   "Modern Works":       Sefaria.palette.colors.palegreen,

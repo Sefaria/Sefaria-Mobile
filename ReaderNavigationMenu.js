@@ -285,7 +285,7 @@ class ResourcesSection extends React.Component {
         icon={require('./img/sheet.png')}
         onPress={this.props.openSheets}
         iconSide="start"
-        style={{height: 49}}
+        style={[{height: 49, borderColor: Sefaria.palette.colors.darkblue}]}
       />
 </View>
 
