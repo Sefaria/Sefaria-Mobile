@@ -82,7 +82,7 @@ class ReaderNavigationSheetTagMenu extends React.Component {
                      </View>
                    </View>
                   <View>
-                    <Text style={styles.sheetListTitle}>{item.title.replace(/\s\s+/g, ' ')}</Text>
+                    <Text style={[styles.sheetListTitle], {textAlign: this.props.interfaceLang == "hebrew" ? "right" : "left"}}>{item.title.replace(/\s\s+/g, ' ')}</Text>
                   </View>
                 </View>
               </View>
@@ -115,7 +115,7 @@ class ReaderNavigationSheetTagMenu extends React.Component {
                   <Text style={[styles.en, styles.categoryTitle, this.props.theme.categoryTitle, {textTransform: "uppercase"}]}>{this.props.tag}</Text> }
                 <LanguageToggleButton
                   theme={this.props.theme}
-                  interfaceLang={this.props.interfaceLang}
+                  interfaceLang={"hebrew"}
                   toggleLanguage={this.props.toggleLanguage}
                   language={this.props.menuLanguage} />
               </View>
