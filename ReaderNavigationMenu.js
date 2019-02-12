@@ -269,8 +269,8 @@ class ResourcesSection extends React.Component {
     var langStyle = !isheb ? styles.enInt : styles.heInt;
 
     return (
-<View>
-                    <View style={{marginBottom: 10}}>
+<View style={{marginVertical: 15}}>
+                    <View style={{marginBottom: 15}}>
                       <Text style={[styles.readerNavSectionTitle, this.props.theme.readerNavSectionTitle, langStyle, {textAlign: "center"}]}>
                         {strings.resources}
                       </Text>
@@ -285,6 +285,7 @@ class ResourcesSection extends React.Component {
         icon={require('./img/sheet.png')}
         onPress={this.props.openSheets}
         iconSide="start"
+        style={{height: 49}}
       />
 </View>
 

@@ -73,12 +73,12 @@ class ReaderNavigationSheetTagMenu extends React.Component {
                     style={styles.userAvatar}
                     source={{uri: item.ownerImageUrl}}
                 />
-                <View style={{ flexDirection: "column",flex:1, marginRight: 20, marginLeft: 20}}>
+                <View style={{ flexDirection: "column",flex:1, marginRight: this.props.interfaceLang == "hebrew" ? 20 : 10, marginLeft: this.props.interfaceLang == "hebrew" ? 10 : 20}}>
                   <View style={{flexDirection: (this.props.interfaceLang == "hebrew" ? "row-reverse" : "row"), flex: 0, justifyContent: "space-between"}}>
                      <Text style={[styles.enInt, {alignSelf: "flex-start", color:"#666"}]}>{item.ownerName}</Text>
                      <View style={{flexDirection: (this.props.interfaceLang == "hebrew" ? "row-reverse" : "row"), alignSelf: "flex-end"}}>
                         <Text style={[{color:"#999"}, styles.enInt]}>{item.views}</Text>
-                        <Image style={{marginTop: 5, marginLeft: 0, width:15, height: 10}} source={require('./img/eye.png')}/>
+                        <Image style={{marginTop: 5, marginLeft: 0, width:15, height: 10}} source={this.props.interfaceLang == "hebrew" ? require('./img/eye-r.png') : require('./img/eye.png')}/>
                      </View>
                    </View>
                   <View>
