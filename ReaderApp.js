@@ -25,6 +25,7 @@ import { CustomTabs } from 'react-native-custom-tabs';
 import { AppInstalledChecker } from 'react-native-check-app-install';
 import SplashScreen from 'react-native-splash-screen';
 import nextFrame from 'next-frame';
+import { SearchState } from '@sefaria/search';
 
 import { ACTION_CREATORS } from './ReduxStore';
 import ReaderControls from './ReaderControls';
@@ -1245,9 +1246,16 @@ class ReaderApp extends React.Component {
 
   onQueryChange = (query, resetQuery, fromBackButton, getFilters) => {
     // getFilters should be true if the query has changed or the exactType has changed
+<<<<<<< Updated upstream
     var newSearchPage = 0;
     var start = 0;
     var size = 20;
+=======
+    const { aggregation_field_array, build_and_apply_filters } = SearchState.metadataByType['text']; //TODO: placeholder
+    let newSearchPage = 0;
+    let start = 0;
+    let size = 20;
+>>>>>>> Stashed changes
     if (resetQuery && !fromBackButton) {
       this.setInitSearchScrollPos(0);
       Sefaria.saveRecentQuery(query, "query");
@@ -1261,34 +1269,42 @@ class ReaderApp extends React.Component {
       newSearchPage = size/20;
     }
 
-    //var req = JSON.stringify(Sefaria.search.get_query_object(query,false,[],20,20*newSearchPage,"text"));
-    var request_filters = this.state.searchFiltersValid && this.state.appliedSearchFilters;
+    var field = this.state.searchIsExact ? "exact" : "naive_lemmatizer"; //TODO: placeholder
+    const justUnapplied = false; //TODO: placeholder
+    const aggregationsToUpdate = this.state.searchFiltersValid && aggregation_field_array.length === 1 ? [] : aggregation_field_array.filter( a => justUnapplied || a !== 'this.lastAppliedAggType[type]');
+    const appliedFilterAggTypes = this.state.appliedSearchFilters.map(f=>null); //TODO: placeholder
     var queryProps = {
       query,
       size,
       start,
       type: "text",
+<<<<<<< Updated upstream
       getFilters,
       applied_filters: request_filters,
+=======
+      field,
+      exact: this.state.searchIsExact,
+      applied_filters: this.state.appliedSearchFilters,
+      appliedFilterAggTypes,
+      aggregationsToUpdate,
+>>>>>>> Stashed changes
       sort_type: this.state.searchSort,
-      exact: this.state.searchIsExact
     };
-    var field = this.state.searchIsExact ? "exact" : "naive_lemmatizer";
+    console.log('query', queryProps);
     Sefaria.search.execute_query(queryProps)
-    .then((responseJson) => {
-      var newResultsArray = responseJson["hits"]["hits"].map(function(r) {
-        return {
+    .then(data => {
+      const newResultsArray = data.hits.hits.map(r => ({
           title: r._source.ref,
           heTitle: r._source.heRef,
           text: r.highlight[field].join(" ... "),
           id: r._id,
           textType: r._id.includes("[he]") ? "hebrew" : "english",
-        }
-      });
+        })
+      );
       var resultArray = resetQuery ? newResultsArray :
         this.state.searchQueryResult.concat(newResultsArray);
 
-      var numResults = responseJson["hits"]["total"];
+      var numResults = data.hits.total;
       this.setState({
         isQueryLoadingTail: false,
         isQueryRunning: false,
@@ -1300,17 +1316,25 @@ class ReaderApp extends React.Component {
       if (resetQuery) {
         Sefaria.track.event("Search","Query: text", query, numResults);
       }
-      if (responseJson.aggregations) {
-        if (responseJson.aggregations.category) {
-          var ftree = Sefaria.search._buildFilterTree(responseJson.aggregations.category.buckets, this.state.appliedSearchFilters);
-          var orphans = Sefaria.search._applyFilters(ftree, this.state.appliedSearchFilters);
-          this.setAvailableSearchFilters(ftree.availableFilters, orphans);
+      if (data.aggregations) {
+        let availableFilters = [];
+        let registry = {};
+        let orphans = [];
+        for (let aggregation of aggregation_field_array) {
+          if (!!data.aggregations[aggregation]) {
+            const { buckets } = data.aggregations[aggregation];
+            const { availableFilters: tempAvailable, registry: tempRegistry, orphans: tempOrphans } = Sefaria.search[build_and_apply_filters](buckets, this.state.appliedSearchFilters, appliedFilterAggTypes, aggregation, Sefaria);
+            availableFilters.push(...tempAvailable);  // array concat
+            registry = {...registry, ...tempRegistry};
+            orphans.push(...tempOrphans);
+            this.setAvailableSearchFilters(availableFilters, orphans);
+          }
         }
       }
     })
     .catch((error) => {
-      console.log(error);
       //TODO: add hasError boolean to state
+      console.log(error);
       this.setState({
         isQueryLoadingTail: false,
         isQueryRunning: false,

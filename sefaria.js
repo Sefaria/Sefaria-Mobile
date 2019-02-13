@@ -3,14 +3,13 @@ import { GoogleAnalyticsTracker } from 'react-native-google-analytics-bridge'; /
 const ZipArchive  = require('react-native-zip-archive'); //for unzipping -- (https://github.com/plrthink/react-native-zip-archive)
 import RNFB from 'rn-fetch-blob';
 import RNFS from 'react-native-fs';
+import { Search } from '@sefaria/search';
 import Downloader from './downloader';
 import Api from './api';
 import Packages from './packages';
-import Search from './search';
 import LinkContent from './LinkContent';
 import { initAsyncStorage } from './ReduxStore';
 import { Filter } from './Filter';
-import FilterNode from './FilterNode';
 import URL from 'url-parse';
 import nextFrame from 'next-frame';
 
@@ -42,7 +41,7 @@ Sefaria = {
       .then(nextFrame)
       .then(Sefaria._loadRecentQueries)
       .then(nextFrame)
-      .then(Sefaria.search._loadSearchTOC)
+      .then(Sefaria._loadSearchTOC)
       .then(nextFrame)
       .then(Sefaria._loadSavedItems)
       .then(nextFrame)
@@ -322,6 +321,12 @@ Sefaria = {
       console.log("loaded successfully");
       Sefaria.toc = data;
       Sefaria._cacheIndexFromToc(data, true);
+    });
+  },
+  search_toc: null,
+  _loadSearchTOC: function() {
+    return Sefaria.util.openFileInSources('search_toc.json').then(data => {
+      Sefaria.search_toc = data;
     });
   },
   _loadHebrewCategories: function() {
@@ -1264,7 +1269,7 @@ Sefaria.util = {
   getLicenseURL: function(license) {
       return Sefaria.util._licenseMap[license];
   },
-  clone: function clone(obj) {
+  clone: function(obj) {
     // Handle the 3 simple types, and null or undefined
     if (null == obj || "object" != typeof obj) return obj;
 
@@ -1274,23 +1279,16 @@ Sefaria.util = {
       copy.setTime(obj.getTime());
       return copy;
     }
-
-    // Handle Filter
-    if (obj instanceof Filter) {
+    if (typeof obj.clone === 'function') {
+      debugger;
       return obj.clone();
     }
-
-    // Handle FilterNode
-    if (obj instanceof FilterNode) {
-      return obj.clone();
-    }
-
     // Handle Array
     if (obj instanceof Array) {
       const copy = [];
       const len = obj.length;
       for (let i = 0; i < len; ++i) {
-        copy[i] = clone(obj[i]);
+        copy[i] = Sefaria.util.clone(obj[i]);
       }
       return copy;
     }
@@ -1299,7 +1297,7 @@ Sefaria.util = {
     if (obj instanceof Object) {
       const copy = {};
       for (let attr in obj) {
-        if (obj.hasOwnProperty(attr)) copy[attr] = clone(obj[attr]);
+        if (obj.hasOwnProperty(attr)) copy[attr] = Sefaria.util.clone(obj[attr]);
       }
       return copy;
     }
@@ -1399,8 +1397,6 @@ Sefaria.downloader = Downloader;
 Sefaria.api = Api;
 
 Sefaria.packages = Packages;
-
-Sefaria.search = Search;
 
 Sefaria.hebrew = {
   hebrewNumerals: {
@@ -1784,6 +1780,7 @@ Sefaria.palette.categoryColor = function(cat) {
   }
   return Sefaria.palette.categoryColors["Other"];
 };
+Sefaria.search = new Search('https://www.sefaria.org', 'text', 'sheet');
 
 Array.prototype.stableSort = function(cmp) {
   cmp = !!cmp ? cmp : (a, b) => {

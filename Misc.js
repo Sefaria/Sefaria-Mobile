@@ -651,7 +651,7 @@ class HebrewInEnglishText extends Component {
 
 class SText extends React.Component {
   static propTypes = {
-    children: PropTypes.string,
+    children: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
     lang:     PropTypes.oneOf(["hebrew", "english"]),
     style:    PropTypes.oneOfType([PropTypes.object, PropTypes.array]),
   }

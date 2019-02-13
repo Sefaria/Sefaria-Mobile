@@ -10,17 +10,15 @@ import {
   Image,
 } from 'react-native';
 
+import { FilterNode, SearchPropTypes } from '@sefaria/search';
 import {
   DirectedButton,
   ButtonToggleSet,
   LibraryNavButton,
 } from './Misc.js';
 
-import FilterNode from './FilterNode';
 import styles from './Styles';
 import strings from './LocalizedStrings';
-
-//console.log("filternaodf", FilterNode.checkPropType({}, 'blah', 'hii'));
 
 class SearchFilterPage extends React.Component {
   static propTypes = {
@@ -185,11 +183,11 @@ class SearchFilterPage extends React.Component {
 class SearchFilter extends React.Component {
   static propTypes = {
     theme:        PropTypes.object,
-      themeStr:     PropTypes.string,
-      menuLanguage: PropTypes.string.isRequired,
-      filterNode:   FilterNode.checkPropType,
-      openSubMenu:  PropTypes.func,
-      updateFilter: PropTypes.func.isRequired,
+    themeStr:     PropTypes.string,
+    menuLanguage: PropTypes.string.isRequired,
+    filterNode:   SearchPropTypes.filterNode,
+    openSubMenu:  PropTypes.func,
+    updateFilter: PropTypes.func.isRequired,
   };
 
   clickCheckBox = () => {
