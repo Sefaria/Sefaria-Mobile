@@ -44,7 +44,8 @@ class ReaderNavigationSheetMenu extends React.Component {
     super(props);
     this.state = {
       trendingTags: [],
-      allTags: [],
+      allTagsEn: [],
+      allTagsHe: [],
     };
   }
 
@@ -60,12 +61,18 @@ class ReaderNavigationSheetMenu extends React.Component {
 
     Sefaria.api.allTags("alpha", true)
       .then(results => {
-          this.setState({allTags: results});
+          this.setState({allTagsEn: results.filter(tag => tag.count > 5)});
+        }).then( () =>
+        Sefaria.api.allTags("alpha-hebrew", true)
+      .then(results => {
+          this.setState({allTagsHe: results.filter(tag => tag.count > 5)});
         })
 
+    )
       .catch(error => {
         console.log(error)
       })
+
 
   }
   componentDidMount() {
@@ -77,7 +84,7 @@ class ReaderNavigationSheetMenu extends React.Component {
   };
 
   renderItem = ({ item, index }) => {
-    var showHebrew = this.props.menuLanguage == "hebrew";
+    var showHebrew = this.props.interfaceLang == "hebrew";
 
       return (
           <View style={styles.twoBoxItem} key={index}>
@@ -100,9 +107,9 @@ class ReaderNavigationSheetMenu extends React.Component {
 
 
     render() {
-    var showHebrew = this.props.menuLanguage == "hebrew";
+    var showHebrew = this.props.interfaceLang == "hebrew";
 
-    if (this.state.trendingTags.length == 0 || this.state.allTags.length == 0) { return (<LoadingView />); }
+    if (this.state.trendingTags.length == 0 || this.state.allTagsEn.length == 0 || this.state.allTagsHe.length == 0) { return (<LoadingView />); }
 
     var trendingTagContent = this.state.trendingTags.slice(0, 6).map(function(tag, i) {
         return (
@@ -125,7 +132,7 @@ class ReaderNavigationSheetMenu extends React.Component {
                   <Text style={[styles.enInt, styles.categorySectionTitle, this.props.theme.categorySectionTitle]}>Trending Topics</Text> }
             </View>
 
-            <TwoBox content={trendingTagContent} language={this.props.menuLanguage} />
+            <TwoBox content={trendingTagContent} language={this.props.interfaceLang} />
 
             <View style={styles.category} key="AllSourceSheetTags">
               { showHebrew ?
@@ -144,6 +151,7 @@ class ReaderNavigationSheetMenu extends React.Component {
                   <Text style={[styles.en, styles.categoryTitle, this.props.theme.categoryTitle]}>SHEETS</Text> }
                 <LanguageToggleButton
                   theme={this.props.theme}
+                  interfaceLang={this.props.interfaceLang}
                   toggleLanguage={this.props.toggleLanguage}
                   language={this.props.menuLanguage} />
               </View>
@@ -151,7 +159,7 @@ class ReaderNavigationSheetMenu extends React.Component {
                 <FlatList
                   style={styles.menuAllSheetTagContent}
                   keyExtractor={this._keyExtractor}
-                  data={this.state.allTags.filter(tag => tag.count > 5)}
+                      data={this.props.menuLanguage == "hebrew" ? this.state.allTagsHe : this.state.allTagsEn}
                   renderItem={this.renderItem}
                   numColumns={2}
                   ListHeaderComponent={returnHeaderContent}

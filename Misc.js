@@ -318,10 +318,15 @@ class LanguageToggleButton extends React.Component {
     var content = this.props.language == "hebrew" ?
         (<Text style={[styles.languageToggleTextEn, this.props.theme.languageToggleText, styles.en]}>A</Text>) :
         (<Text style={[styles.languageToggleTextHe, this.props.theme.languageToggleText, styles.he]}>א</Text>);
-    var style = [styles.languageToggle, this.props.theme.languageToggle];
-    return (<TouchableOpacity style={style} onPress={this.props.toggleLanguage}>
+    var style = [styles.languageToggle, this.props.theme.languageToggle, this.props.interfaceLang === "hebrew" ? {opacity:0} : null];
+
+
+
+    return (<TouchableOpacity style={style} onPress={this.props.interfaceLang === "hebrew" ? null : this.props.toggleLanguage}>
               {content}
             </TouchableOpacity>);
+
+
   }
 }
 
@@ -621,6 +626,28 @@ class RainbowBar extends React.Component {
     )
   }
 }
+class HebrewInEnglishText extends Component {
+  //Use Sefaria.util.hebrewInEnglish for HTML text in a text or sheet segment. This is for other react components
+
+  cleanText(text){
+      var splitText = Sefaria.util.hebrewInEnglish(Sefaria.util.stripHtml(text),"list")
+      var cleanText = []
+      for (let chunk of splitText) {
+          if (Sefaria.hebrew.isHebrew(chunk)) {
+            cleanText.push(<Text style={this.props.stylesHe}>{chunk}</Text>)
+          }
+          else {
+              cleanText.push(<Text style={this.props.stylesEn}>{chunk}</Text>)
+          }
+      }
+      return cleanText
+  }
+
+  render() {
+      return this.cleanText(this.props.text)
+  }
+
+}
 
 class SText extends React.Component {
   static propTypes = {
@@ -675,6 +702,7 @@ export {
   SearchButton,
   SefariaProgressBar,
   SText,
+  HebrewInEnglishText,
   ToggleSet,
   TripleDots,
   TwoBox,

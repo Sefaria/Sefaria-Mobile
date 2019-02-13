@@ -1200,14 +1200,20 @@ Sefaria.util = {
       return text;
     }
   },
-  hebrewInEnglish: function(text) {
-    // wrap all Hebrew strings with <hediv> and &rlm;
-    return text.replace(/(\s|^|\[|\]|\(|\)|\.|,|;|:|\*|\?|!|-|"|')((?:[\u0591-\u05c7\u05d0-\u05ea]+[()\[\]\s'"\u05f3\u05f4]{0,2})+)(?=\[|\]|\(|\)|\.|,|;|:|\*|\?|!|-|'|"|\s|$)/g, '<hediv>&#x200E;$1$2</hediv>');
+  hebrewInEnglish: function(text, whatToReturn) {
+    var regEx = /(\s|^|\[|\]|\(|\)|\.|,|;|:|\*|\?|!|-|"|')((?:[\u0591-\u05c7\u05d0-\u05ea]+[()\[\]\s'"\u05f3\u05f4]{0,2})+)(?=\[|\]|\(|\)|\.|,|;|:|\*|\?|!|-|'|"|\s|$)/g
+    if (whatToReturn == "string") {
+      // wrap all Hebrew strings with <hediv> and &rlm;
+      return text.replace(regEx, '<hediv>&#x200E;$1$2</hediv>');
+    }
+    else if (whatToReturn == "list") {
+      return text.split(regEx)
+    }
   },
   getDisplayableHTML: function(text, lang) {
     text = Sefaria.util.filterOutItags(text);
     if (lang === 'english') {
-      return `<endiv>${Sefaria.util.hebrewInEnglish(text)}</endiv>`;
+      return `<endiv>${Sefaria.util.hebrewInEnglish(text, 'string')}</endiv>`;
     }
     return `<hediv>${text}</hediv>`;
   },
@@ -1740,7 +1746,8 @@ Sefaria.palette = {
     lightgreen: "#97b386",
     red: "#802f3e",
     teal: "#00827f",
-    system: "#142b51"
+    system: "#142b51",
+    palegreen: "#B8D4D3"
   }
 };
 Sefaria.palette.categoryColors = {
@@ -1764,10 +1771,10 @@ Sefaria.palette.categoryColors = {
   "Other":              Sefaria.palette.colors.darkblue,
   "Quoting Commentary": Sefaria.palette.colors.orange,
   "Commentary2":        Sefaria.palette.colors.blue,
-  "Sheets":             Sefaria.palette.colors.raspberry,
+  "Sheets":             Sefaria.palette.colors.darkblue,
   "Community":          Sefaria.palette.colors.raspberry,
   "Targum":             Sefaria.palette.colors.lavender,
-  "Modern Works":       Sefaria.palette.colors.raspberry,
+  "Modern Works":       Sefaria.palette.colors.palegreen,
   "Modern Commentary":  Sefaria.palette.colors.raspberry,
   "More":               Sefaria.palette.colors.darkblue,
 };

@@ -121,6 +121,7 @@ class SwipeableCategoryList extends React.Component {
           <LanguageToggleButton
             theme={this.props.theme}
             toggleLanguage={this.props.toggleLanguage}
+            interfaceLang={this.props.interfaceLang}
             language={this.props.language}
             themeStr={this.props.themeStr}
           />

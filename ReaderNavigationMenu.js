@@ -106,6 +106,7 @@ class ReaderNavigationMenu extends React.Component {
                 categories={this.props.categories}
                 category={this.props.categories.slice(-1)[0]}
                 menuLanguage={this.props.menuLanguage}
+                interfaceLang={this.props.interfaceLang}
                 setCategories={this.props.setCategories}
                 openRef={this.props.openRef}
                 toggleLanguage={this.props.toggleLanguage}
@@ -268,8 +269,8 @@ class ResourcesSection extends React.Component {
     var langStyle = !isheb ? styles.enInt : styles.heInt;
 
     return (
-<View>
-                    <View>
+<View style={{marginVertical: 15}}>
+                    <View style={{marginBottom: 15}}>
                       <Text style={[styles.readerNavSectionTitle, this.props.theme.readerNavSectionTitle, langStyle, {textAlign: "center"}]}>
                         {strings.resources}
                       </Text>
@@ -280,11 +281,11 @@ class ResourcesSection extends React.Component {
         category={"Sheets"}
         heCat={"דפי מקורות"}
         language={this.props.language}
-        style={{flex: 1, paddingVertical: 12, borderRadius: 5, borderWidth: 1, borderTopWidth: 1, borderColor: "#ccc"}}
         isSans={true}
         icon={require('./img/sheet.png')}
         onPress={this.props.openSheets}
         iconSide="start"
+        style={[{height: 49, borderColor: Sefaria.palette.colors.darkblue}]}
       />
 </View>
 

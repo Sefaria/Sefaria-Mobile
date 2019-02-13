@@ -1156,14 +1156,28 @@ export default StyleSheet.create({
     marginTop: -10,
   },
   userAvatar: {
+    marginTop: 4,
     width: 40,
     height: 40,
     borderRadius: 20,
   },
+  userAvatarMini: {
+    marginHorizontal: 6,
+    marginBottom: 2,
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+  },
+
   sheetListTitle: {
     fontFamily: "Amiri",
     fontSize: 20,
     lineHeight: 22,
     paddingTop: 11,
+  },
+  heInEn: {
+    fontFamily: "Taamey Frank Taamim Fix",
+    writingDirection: "rtl",
+    flex: -1,
   },
 });
