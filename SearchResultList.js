@@ -16,21 +16,19 @@ class SearchResultList extends React.Component {
   static propTypes = {
     menuLanguage:   PropTypes.oneOf(["english", "hebrew"]),
     theme:          PropTypes.object.isRequired,
-    queryResult:    PropTypes.array,
-    loadingTail:    PropTypes.bool,
     openRef:        PropTypes.func.isRequired,
     setLoadTail:    PropTypes.func.isRequired,
     setIsNewSearch: PropTypes.func.isRequired,
+    searchState:    PropTypes.object,
     isNewSearch:    PropTypes.bool,
-    isExact:        PropTypes.bool,
   };
 
   onEndReached = () => {
-    if (this.props.loadingTail) {
+    if (this.props.searchState.isLoadingTail) {
       //already loading tail
       return;
     }
-    this.props.setLoadTail(true);
+    this.props.setLoadTail(this.props.searchState.type, true);
   };
 
   renderRow = ({ item }) => {
@@ -53,13 +51,13 @@ class SearchResultList extends React.Component {
 
   scrollToSearchResult = () => {
     this.flatListRef._listRef.scrollToOffset({
-       offset: this.props.initSearchScrollPos || 0,
+       offset: this.props.searchState.initScrollPos || 0,
        animated: false,
     });
   };
 
   setCurScrollPos = () => {
-    this.props.setInitSearchScrollPos(this.flatListRef._listRef._scrollMetrics.offset);
+    this.props.setInitSearchScrollPos(this.props.searchState.type, this.flatListRef._listRef._scrollMetrics.offset);
   };
 
   _setFlatListRef = (ref) => {
@@ -72,12 +70,12 @@ class SearchResultList extends React.Component {
 
   render() {
     //if isNewSearch, temporarily hide the ListView, which apparently resets the scroll position to the top
-    if (this.props.queryResult && !this.props.isNewSearch) {
+    if (this.props.searchState.results && !this.props.isNewSearch) {
       return (
         <FlatList
           style={styles.scrollViewPaddingInOrderToScroll}
           ref={this._setFlatListRef}
-          data={this.props.queryResult}
+          data={this.props.searchState.results}
           getItemLayout={this.getItemLayout}
           renderItem={this.renderRow}
           onLayout={this.scrollToSearchResult}

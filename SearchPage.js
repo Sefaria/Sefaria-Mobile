@@ -35,18 +35,10 @@ class SearchPage extends React.Component {
     setIsNewSearch:      PropTypes.func.isRequired,
     setSearchOptions:    PropTypes.func.isRequired,
     clearAllFilters:     PropTypes.func.isRequired,
-    updateFilter:        PropTypes.func.isRequired,
+    toggleFilter:        PropTypes.func.isRequired,
     query:               PropTypes.string,
-    sort:                PropTypes.string,
-    isExact:             PropTypes.bool,
-    availableFilters:    PropTypes.array,
-    appliedFilters:      PropTypes.array,
-    filtersValid:        PropTypes.bool,
-    queryResult:         PropTypes.array,
-    loadingQuery:        PropTypes.bool,
-    loadingTail:         PropTypes.bool,
+    searchState:         PropTypes.object,
     isNewSearch:         PropTypes.bool,
-    numResults:          PropTypes.number,
     onChangeSearchQuery: PropTypes.func.isRequired,
     openAutocomplete:    PropTypes.func.isRequired,
   };
@@ -62,8 +54,8 @@ class SearchPage extends React.Component {
 
   render() {
     var status = this.props.hasInternet ?
-            this.props.loadingQuery ? strings.loading
-            : this.numberWithCommas(this.props.numResults) + " " + strings.results
+            this.props.searchState.isLoading ? strings.loading
+            : this.numberWithCommas(this.props.searchState.numResults) + " " + strings.results
           : strings.connectToSearchMessage;
     var isheb = this.props.interfaceLang === "hebrew";
     var langStyle = !isheb ? styles.enInt : styles.heInt;
@@ -94,7 +86,7 @@ class SearchPage extends React.Component {
             <View style={summaryStyle}>
               <Text style={[this.props.theme.searchResultSummaryText, langStyle]} >{status}</Text>
               <DirectedButton
-                text={(<Text>{strings.filter} <Text style={this.props.theme.text}>{`(${this.props.appliedFilters.length})`}</Text></Text>)}
+                text={(<Text>{strings.filter} <Text style={this.props.theme.text}>{`(${this.props.searchState.appliedFilters.length})`}</Text></Text>)}
                 direction="forward"
                 language={"english"}
                 themeStr={this.props.themeStr}
@@ -105,16 +97,14 @@ class SearchPage extends React.Component {
             <SearchResultList
               menuLanguage={this.props.menuLanguage}
               theme={this.props.theme}
-              queryResult={this.props.queryResult}
-              loadingTail={this.props.loadingTail}
-              initSearchListSize={this.props.initSearchListSize}
-              initSearchScrollPos={this.props.initSearchScrollPos}
               setInitSearchScrollPos={this.props.setInitSearchScrollPos}
               openRef={this.props.openRef}
               setLoadTail={this.props.setLoadTail}
               setIsNewSearch={this.props.setIsNewSearch}
               isNewSearch={this.props.isNewSearch}
-              isExact={this.props.isExact} />
+              searchState={this.props.searchState}
+              searchType={this.props.searchType}
+            />
             </View>);
         break;
       default:
@@ -128,14 +118,10 @@ class SearchPage extends React.Component {
             subMenuOpen={this.props.subMenuOpen}
             openSubMenu={this.props.openSubMenu}
             query={this.props.query}
-            sort={this.props.sort}
-            isExact={this.props.isExact}
-            availableFilters={this.props.availableFilters}
-            appliedFilters={this.props.appliedFilters}
-            filtersValid={this.props.filtersValid}
             search={this.props.search}
+            searchState={this.props.searchState}
             setSearchOptions={this.props.setSearchOptions}
-            updateFilter={this.props.updateFilter}
+            toggleFilter={this.props.toggleFilter}
             clearAllFilters={this.props.clearAllFilters}
           />
         );
