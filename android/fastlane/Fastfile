@@ -20,7 +20,7 @@ platform :android do
   desc "Builds a release for internal testing deployed via the Google Play Store"
   lane :testrelease do |options|
     gradle(task: "clean")
-
+    increment_android_version_code(path: "app/build.gradle")
     gradle(
       task: "assemble",
       build_type: "Release",
