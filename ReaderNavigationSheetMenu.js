@@ -50,23 +50,30 @@ class ReaderNavigationSheetMenu extends React.Component {
   }
 
   getData() {
+    console.log('loadingtags')
     Sefaria.api.trendingTags(true)
       .then(results => {
+          console.log('loaded trending tags')
           this.setState({trendingTags: results});
         })
-
       .catch(error => {
         console.log(error)
       })
 
     Sefaria.api.allTags("alpha", true)
       .then(results => {
-          this.setState({allTagsEn: results.filter(tag => tag.count > 5)});
-        }).then( () =>
-        Sefaria.api.allTags("alpha-hebrew", true)
-      .then(results => {
-          this.setState({allTagsHe: results.filter(tag => tag.count > 5)});
+          console.log('loaded eng tags')
+          this.setState({allTagsEn: results.filter(tag => tag.count > 5)}, () => console.log('sorted en tags'));
         })
+      .catch(error => {
+        console.log(error)
+      })
+
+    Sefaria.api.allTags("alpha-hebrew", true)
+      .then(results => {
+          console.log('loaded he tags')
+          this.setState({allTagsHe: results.filter(tag => tag.count > 5)}, () => console.log('sorted he tags'));
+        }
 
     )
       .catch(error => {

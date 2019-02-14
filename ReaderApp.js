@@ -546,11 +546,9 @@ class ReaderApp extends React.Component {
   };
 
   loadLinks = (ref) => {
-      console.log(ref)
     // Ensures that links have been loaded for `ref` and stores result in `this.state.linksLoaded` array.
     // Links are not loaded yet in case you're in API mode, or you are reading a non-default version
     const iSec = this.state.sectionArray.findIndex(secRef=>secRef===ref);
-      console.log(iSec)
     if (!iSec && iSec !== 0) { console.log("could not find section ref in sectionArray", ref); return; }
     Sefaria.links.load(ref)
       .then(linksResponse => {
