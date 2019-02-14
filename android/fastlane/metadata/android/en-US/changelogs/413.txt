@@ -1,0 +1,11 @@
+MAJOR UPDATE - Shana Tova!
+
+- Bookmarking
+- More control over offline downloads
+- More powerful search algorithm
+- Better support for alternate versions of texts
+- Show Aliyot and Parsha markers inline with text
+- Better autocomplete which includes authors and alternate titles
+- More calendars including 929, Rambam Yomi and Mishna Yomit
+- Many bug fixes including better support for opening complex books, opening links to the right place
+- More consistent offline library updates

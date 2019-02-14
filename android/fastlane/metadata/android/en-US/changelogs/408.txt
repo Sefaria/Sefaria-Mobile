@@ -1,0 +1,2 @@
+- majorly speed up startup of app
+- major bug fixes that i can't remember anymore

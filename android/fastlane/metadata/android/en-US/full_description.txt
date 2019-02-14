@@ -1,0 +1,17 @@
+Sefaria delivers 3,000 years of Jewish texts (Torah, Tanakh, Mishnah, Talmud, and more) to your smartphone. All texts in the library are available in Hebrew along with a growing body of English translations. Search by keyword or browse the table of contents to explore texts, translations, and commentaries. Plus - the entire library can fit on your phone (500MB) so you can learn while you're offline. 
+
+Sefaria is a non-profit organization that creates open source software and publishes digital texts with open licenses.
+
+FEATURES
+
+• Calendars for reading Parashat HaShavua, Daf Yomi, 929, Rambam Yomi and Mishnah Yomit 
+• Offline access to all texts and connections in Sefaria's library. 
+• Nine Torah commentaries in English: Rashi, Sforno, Or HaChaim, Rabbeinu Bahya, Rashbam, Siftei Chachmim, Chizkuni, Tur HaAroch and Rabbeinu Chananel
+• Over 50 commentaries on Tanakh including Ibn Ezra, Ramban, Abarbanel, Kli Yakar, Alshich, Haamek Davar, Malbim, Shadal, Radak, Ralbag and Gur Aryeh
+• Over 15 Mishnah commentaries including Bartenura, Ikar Tosafot Yom Tov, Rambam, Yachin, Boaz, Gra and Rosh Mishantz
+• Over 30 Talmud Bavli commentaries including Rashi, Tosafot, Ritva, Rashba and Rosh.
+• Other genres include Midrash, Halalkha, Kabbalah, Liturgy, Philosophy, Chasidut, Musar, Responsa, and more. 
+
+LEARN MORE
+
+New texts are being added to the database all the time.  Find out more about the project at: http://www.sefaria.org

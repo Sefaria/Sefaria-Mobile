@@ -1,0 +1,1 @@
+Fix bug caused when opening offline files

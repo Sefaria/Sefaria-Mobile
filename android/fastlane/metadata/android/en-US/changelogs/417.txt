@@ -1,0 +1,2 @@
+Improve user experience when pressing text segment
+Improve user experience while scrolling

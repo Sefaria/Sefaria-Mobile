@@ -1,0 +1,5 @@
+- Side-by-side layout
+- Bug fix for viewing alternate versions
+- Bug fix for loading commentaries in commentary panel
+- Sort links alphabetically
+- Go back to last verse when pressing back
