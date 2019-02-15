@@ -1,0 +1,2 @@
+Improve user experience while scrolling through texts
+Improve user experience when clicking on commentary panel

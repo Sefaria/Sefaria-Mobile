@@ -57,6 +57,8 @@ buck-out/
 *.pyc
 local_settings.py
 android/kstore.jks
+android/app/kstore.jks
 android/keystore_pass.sh
+android/keystores/api-8012316618525581861-622640-95c9f7ad6d32.json
 android/app/src/main/assets/index.android.bundle
 ReaderApp.app.dSYM.zip

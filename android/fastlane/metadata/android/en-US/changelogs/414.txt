@@ -1,0 +1,4 @@
+Side-by-side layout
+Ability to view multiple versions at the same time
+Minor design changes
+Fixed bug with commentaries jumping

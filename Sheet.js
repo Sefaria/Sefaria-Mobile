@@ -235,9 +235,6 @@ class Sheet extends React.Component {
     render() {
         return (
             <View style={styles.sheet}>
-
-                <Text>{this.props.sheet.id}</Text>
-
                 <FlatList
                   ref={this._getSheetListRef}
                   data={this.props.sheet.sources}
@@ -582,6 +579,17 @@ class SheetMedia extends Component {
         }
     }
 
+    onShouldStartLoadWithRequest = (navigator) => {
+        if (navigator.url.indexOf('embed') !== -1
+        ) {
+            return true;
+        } else {
+            this.webview.stopLoading(); //Some reference to your WebView to make it stop loading that URL
+            return false;
+        }
+    }
+
+
     makeMediaEmbedLink(mediaURL) {
         var mediaLink;
 
@@ -602,9 +610,14 @@ class SheetMedia extends Component {
         else if (mediaURL.toLowerCase().indexOf('youtube') > 0) {
             mediaLink = (
                             <WebView
+                            ref={(ref) => { this.webview = ref; }}
+                            scrollEnabled={false}
                             javaScriptEnabled={true}
                             domStorageEnabled={true}
+                            style={{ marginStart: 30, width: 320, height: 230 }}
                             source={{uri: mediaURL}}
+                            onShouldStartLoadWithRequest={this.onShouldStartLoadWithRequest} //for iOS
+                            onNavigationStateChange ={this.onShouldStartLoadWithRequest} //for Android
                             />
                         )
         }
