@@ -7,7 +7,7 @@
     "setup": "sudo npm install -g react-native-cli"
   },
   "dependencies": {
-    "@sefaria/search": "^0.9.3",
+    "@sefaria/search": "^0.9.5",
     "@yfuks/react-native-action-sheet": "0.0.5",
     "abortcontroller-polyfill": "^1.1.9",
     "babel-preset-react-native": "^4.0.1",

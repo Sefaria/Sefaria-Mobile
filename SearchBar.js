@@ -30,6 +30,7 @@ class SearchBar extends React.Component {
     onBack:          PropTypes.func.isRequired,
     search:          PropTypes.func.isRequired,
     setIsNewSearch:  PropTypes.func.isRequired,
+    searchType:      PropTypes.oneOf(['text', 'sheet']).isRequired,
     toggleLanguage:  PropTypes.func,
     language:        PropTypes.string,
     hideSearchButton:PropTypes.bool,
@@ -41,7 +42,7 @@ class SearchBar extends React.Component {
   submitSearch = () => {
     if (this.props.query) {
       this.props.setIsNewSearch(true);
-      this.props.search(this.props.query, true, false, true);
+      this.props.search(this.props.type, this.props.query, true, false, true);
     }
   };
 

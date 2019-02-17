@@ -1280,7 +1280,6 @@ Sefaria.util = {
       return copy;
     }
     if (typeof obj.clone === 'function') {
-      debugger;
       return obj.clone();
     }
     // Handle Array

@@ -49,7 +49,7 @@ class SearchPage extends React.Component {
 
   backFromAutocomplete = () => {
     this.props.openSearch();
-    this.props.search(this.props.query, true, false);
+    this.props.search(this.props.searchState.type, this.props.query, true, false);
   }
 
   render() {
@@ -81,6 +81,7 @@ class SearchPage extends React.Component {
               setIsNewSearch={this.props.setIsNewSearch}
               onChange={this.props.onChangeSearchQuery}
               onFocus={this.props.openAutocomplete}
+              searchType={this.props.searchState.type}
               hideSearchButton={true}
             />
             <View style={summaryStyle}>

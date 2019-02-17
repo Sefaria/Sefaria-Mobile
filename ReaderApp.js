@@ -1252,13 +1252,14 @@ class ReaderApp extends React.Component {
     // getFilters should be true if the query has changed or the exactType has changed
     const searchState = this._getSearchState(type);
     const searchStateName = this._getSearchStateName(type);
+    console.log('serachState', searchState, type);
     const { field, fieldExact, sortType, filtersValid, appliedFilters, appliedFilterAggTypes } = searchState;
     const { aggregation_field_array, build_and_apply_filters } = SearchState.metadataByType[type];
     let newSearchPage = 0;
     let start = 0;
     let size = 20;
     if (resetQuery && !fromBackButton) {
-      this.setInitSearchScrollPos(0);
+      this.setInitSearchScrollPos(type, 0);
       Sefaria.saveRecentQuery(query, "query");
     }
     if (!resetQuery) {
@@ -1403,23 +1404,15 @@ class ReaderApp extends React.Component {
   reapplySearchFilters = type => {
     const searchState = this._getSearchState(type);
     const searchStateName = this._getSearchStateName(type);
-    tempSetState({
+    this.setState({
       [searchStateName]: searchState.update(
-        Search.getAppliedSearchFilters(searchState.availableFilters)
+        Sefaria.search.getAppliedSearchFilters(searchState.availableFilters)
       )
     });
   }
 
-  getAppliedSearchFilters = (availableFilters) => {
-    let results = [];
-    for (let i = 0; i < availableFilters.length; i++) {
-        results = results.concat(availableFilters[i].getAppliedFilters());
-    }
-    return results;
-  };
-
   search = (query) => {
-    this.onQueryChange(query,true,false,true);
+    this.onQueryChange(this.state.searchType, query,true,false,true);
     this.openSearch();
 
     Sefaria.track.event("Search","Search Box Search",query);
@@ -1490,6 +1483,7 @@ class ReaderApp extends React.Component {
               theme={this.props.theme}
               themeStr={this.props.themeStr}
               openUri={this.openUri}
+              searchType={this.state.searchType}
               toggleDebugInterruptingMessage={this.props.toggleDebugInterruptingMessage}
               debugInterruptingMessage={this.props.debugInterruptingMessage}/>
           </View>)
@@ -1567,6 +1561,7 @@ class ReaderApp extends React.Component {
             openTextTocDirectly={this.openTextTocDirectly}
             setCategories={cats => { /* first need to go to nav page */ this.openNav(); this.setNavigationCategories(cats);} }
             openSearch={this.openSearch}
+            searchType={this.state.searchType}
             openUri={this.openUri}
           />);
         break;

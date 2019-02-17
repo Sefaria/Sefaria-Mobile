@@ -76,7 +76,7 @@ class CategoryBlockLink extends React.Component {
     category:  PropTypes.string,
     heCat:     PropTypes.string,
     language:  PropTypes.string,
-    style:     PropTypes.object,
+    style:     PropTypes.oneOfType([PropTypes.object, PropTypes.array]),
     isSans:    PropTypes.bool,
     upperCase: PropTypes.bool,
     withArrow: PropTypes.bool,

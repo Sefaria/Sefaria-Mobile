@@ -45,10 +45,10 @@ class SearchFilterPage extends React.Component {
     ];
     this.exactOptions = [
       {name: false, text: strings.off, onPress: () => {
-        this.props.setSearchOptions(type, this.props.searchState.sortType, this.props.searchState.fieldBroad, ()=>this.props.search(this.props.query, true, false, true));
+        this.props.setSearchOptions(type, this.props.searchState.sortType, this.props.searchState.fieldBroad, ()=>this.props.search(this.props.searchState.type, this.props.query, true, false, true));
       }},
       {name: true, text: strings.on, onPress: () => {
-        this.props.setSearchOptions(type, this.props.searchState.sortType, this.props.searchState.fieldExact, ()=>this.props.search(this.props.query, true, false, true));
+        this.props.setSearchOptions(type, this.props.searchState.sortType, this.props.searchState.fieldExact, ()=>this.props.search(this.props.searchState.type, this.props.query, true, false, true));
       }}
     ];
   }
@@ -61,7 +61,7 @@ class SearchFilterPage extends React.Component {
 
   applyFilters = () => {
     this.props.openSubMenu(null);
-    this.props.search(this.props.query, true, false);
+    this.props.search(this.props.searchState.type, this.props.query, true, false);
   };
 
   clearAllFilters = () => {
@@ -116,7 +116,7 @@ class SearchFilterPage extends React.Component {
               <Text style={[isheb ? styles.heInt : styles.enInt, styles.settingsSectionHeader, this.props.theme.tertiaryText]}>{strings.filterByText}</Text>
             </View>
             <View>
-              { this.props.filtersValid ?
+              { this.props.searchState.filtersValid ?
                 this.props.searchState.availableFilters.map((filter, ifilter)=>{
                   return (
                     <SearchFilter
@@ -147,7 +147,7 @@ class SearchFilterPage extends React.Component {
           />)];
         content =
         (<View>
-          { this.props.filtersValid ?
+          { this.props.searchState.filtersValid ?
             filterList.concat(currFilter.getLeafNodes().map((filter, ifilter)=>{
               return (
                 <SearchFilter

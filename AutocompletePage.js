@@ -32,6 +32,7 @@ class AutocompletePage extends React.Component {
     setCategories:   PropTypes.func.isRequired,
     openSearch:      PropTypes.func.isRequired,
     openUri:         PropTypes.func.isRequired,
+    searchType:      PropTypes.oneOf(['text', 'sheet']),
   };
 
   componentDidMount() {
@@ -71,6 +72,7 @@ class AutocompletePage extends React.Component {
           leftMenuButton="back"
           search={this.props.search}
           query={this.props.query}
+          searchType={this.props.searchType}
           setIsNewSearch={this.props.setIsNewSearch}
           onChange={this.props.onChange}
           hideSearchButton={true}
