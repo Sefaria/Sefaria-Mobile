@@ -963,8 +963,11 @@ class ReaderApp extends React.Component {
       this.openMenu("sheet meta");
   };
 
-  openSearch = (query) => {
-      this.openMenu("search");
+  openSearch = (type, query) => {
+    this.onQueryChange(type, query,true,false,true);
+    this.openMenu("search");
+
+    Sefaria.track.event("Search","Search Box Search",query);
   };
 
   openAutocomplete = () => {
@@ -1250,7 +1253,6 @@ class ReaderApp extends React.Component {
     // getFilters should be true if the query has changed or the exactType has changed
     const searchState = this._getSearchState(type);
     const searchStateName = this._getSearchStateName(type);
-    console.log('serachState', searchState, type);
     const { field, fieldExact, sortType, filtersValid, appliedFilters, appliedFilterAggTypes } = searchState;
     const { aggregation_field_array, build_and_apply_filters } = SearchState.metadataByType[type];
     let newSearchPage = 0;
@@ -1283,7 +1285,6 @@ class ReaderApp extends React.Component {
       aggregationsToUpdate,
       sort_type: sortType,
     };
-    console.log("ON QUERY", searchState.currPage, newSearchPage);
     this.setState({
       searchQuery:query,
       [searchStateName]: searchState.update({
@@ -1413,27 +1414,20 @@ class ReaderApp extends React.Component {
     });
   }
 
-  search = (query) => {
-    this.onQueryChange(this.state.searchType, query,true,false,true);
-    this.openSearch();
-
-    Sefaria.track.event("Search","Search Box Search",query);
-  };
-
-  setSearchOptions = (type, sortType, isExact, cb) => {
+  setSearchOptions = (type, sortType, field, cb) => {
     const searchState = this._getSearchState(type);
     const searchStateName = this._getSearchStateName(type);
     const metaState = SearchState.metadataByType[type];
-    const field = isExact ? metaState.fieldExact : metaState.fieldBroad;
     if (!field) { field = metaState.field; }
+    console.log('setSearchOptions', type, sortType, field, searchState.field);
     const filtersValid = field === searchState.field;
     this.setState({
       [searchStateName]: searchState.update({
         sortType,
         field,
         filtersValid,
-      }), cb
-    });
+      })
+    }, cb);
   };
 
   onChangeSearchQuery = query => {
@@ -1472,7 +1466,7 @@ class ReaderApp extends React.Component {
               openRef={(ref, versions)=>this.openRef(ref,"navigation", versions)}
               openAutocomplete={this.openAutocomplete}
               onBack={this.manageBackMain}
-              openSearch={this.search}
+              openSearch={this.openSearch}
               setIsNewSearch={this.setIsNewSearch}
               toggleLanguage={this.toggleMenuLanguage}
               menuLanguage={this.props.menuLanguage}
@@ -1555,14 +1549,13 @@ class ReaderApp extends React.Component {
             theme={this.props.theme}
             themeStr={this.props.themeStr}
             onBack={this.manageBackMain}
-            search={this.search}
+            openSearch={this.openSearch}
             setIsNewSearch={this.setIsNewSearch}
             onChange={this.onChangeSearchQuery}
             query={this.state.searchQuery}
             openRef={this.openRef}
             openTextTocDirectly={this.openTextTocDirectly}
             setCategories={cats => { /* first need to go to nav page */ this.openNav(); this.setNavigationCategories(cats);} }
-            openSearch={this.openSearch}
             searchType={this.state.searchType}
             openUri={this.openUri}
           />);
