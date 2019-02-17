@@ -1,0 +1,2 @@
+Always display section numbers in Hebrew if your language is Hebrew in table of contents
+Align Hebrew text right

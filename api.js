@@ -327,7 +327,7 @@ var Api = {
   },
 
   allTags: function(sortBy, failSilently) {
-    Sefaria.api._abortRequestType('allTags');
+    Sefaria.api._abortRequestType('allTags-'+sortBy);
     return new Promise((resolve, reject) => {
       const cached = Sefaria.api._allTags[sortBy];
       //if (!!cached) { console.log("cached"); resolve(cached); return; }

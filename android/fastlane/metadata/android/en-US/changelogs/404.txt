@@ -1,0 +1,1 @@
+Fix bug with app where it doesn't start up. Speed up commentary panel
