@@ -1283,63 +1283,7 @@ class ReaderApp extends React.Component {
       aggregationsToUpdate,
       sort_type: sortType,
     };
-    Sefaria.search.execute_query(queryProps)
-    .then(data => {
-      const newResultsArray = data.hits.hits.map(r => ({
-          title: r._source.ref,
-          heTitle: r._source.heRef,
-          text: r.highlight[field].join(" ... "),
-          id: r._id,
-          textType: r._id.includes("[he]") ? "hebrew" : "english",
-        })
-      );
-      const results = resetQuery ? newResultsArray :
-        searchState.results.concat(newResultsArray);
-
-      var numResults = data.hits.total;
-      this.setState({
-        [searchStateName]: searchState.update({
-          isLoadingTail: false,
-          isLoading: false,
-          results,
-          numResults,
-        }),
-      });
-
-      if (resetQuery) {
-        Sefaria.track.event("Search","Query: text", query, numResults);
-      }
-      if (data.aggregations) {
-        let availableFilters = [];
-        let registry = {};
-        let orphans = [];
-        for (let aggregation of aggregation_field_array) {
-          if (!!data.aggregations[aggregation]) {
-            const { buckets } = data.aggregations[aggregation];
-            const { availableFilters: tempAvailable, registry: tempRegistry, orphans: tempOrphans } = Sefaria.search[build_and_apply_filters](buckets, appliedFilters, appliedFilterAggTypes, aggregation, Sefaria);
-            availableFilters.push(...tempAvailable);  // array concat
-            registry = {...registry, ...tempRegistry};
-            orphans.push(...tempOrphans);
-            this.setAvailableSearchFilters(type, availableFilters, orphans);
-          }
-        }
-      }
-    })
-    .catch((error) => {
-      //TODO: add hasError boolean to state
-      console.log(error);
-      this.setState({
-        [searchStateName]: searchState.update({
-          isLoadingTail: false,
-          isLoading: false,
-          filtersValid: false,
-          results: [],
-          numResults: 0,
-          initScrollPos: 0,
-        }),
-      });
-    });
-
+    console.log("ON QUERY", searchState.currPage, newSearchPage);
     this.setState({
       searchQuery:query,
       [searchStateName]: searchState.update({
@@ -1347,6 +1291,66 @@ class ReaderApp extends React.Component {
         isLoading: true,
         filtersValid: !getFilters,
       }),
+    }, () => {
+      // for some reason `searchState` pointed to out of date object here so reset it
+      const searchState = this._getSearchState(type);
+      const searchStateName = this._getSearchStateName(type);
+      Sefaria.search.execute_query(queryProps)
+      .then(data => {
+        const newResultsArray = data.hits.hits.map(r => ({
+            title: r._source.ref,
+            heTitle: r._source.heRef,
+            text: r.highlight[field].join(" ... "),
+            id: r._id,
+            textType: r._id.includes("[he]") ? "hebrew" : "english",
+          })
+        );
+        const results = resetQuery ? newResultsArray :
+          searchState.results.concat(newResultsArray);
+
+        var numResults = data.hits.total;
+        this.setState({
+          [searchStateName]: searchState.update({
+            isLoadingTail: false,
+            isLoading: false,
+            results,
+            numResults,
+          }),
+        }, () => {
+          if (resetQuery) {
+            Sefaria.track.event("Search","Query: text", query, numResults);
+          }
+          if (data.aggregations) {
+            let availableFilters = [];
+            let registry = {};
+            let orphans = [];
+            for (let aggregation of aggregation_field_array) {
+              if (!!data.aggregations[aggregation]) {
+                const { buckets } = data.aggregations[aggregation];
+                const { availableFilters: tempAvailable, registry: tempRegistry, orphans: tempOrphans } = Sefaria.search[build_and_apply_filters](buckets, appliedFilters, appliedFilterAggTypes, aggregation, Sefaria);
+                availableFilters.push(...tempAvailable);  // array concat
+                registry = {...registry, ...tempRegistry};
+                orphans.push(...tempOrphans);
+                this.setAvailableSearchFilters(type, availableFilters, orphans);
+              }
+            }
+          }
+        });
+      })
+      .catch((error) => {
+        //TODO: add hasError boolean to state
+        console.log(error);
+        this.setState({
+          [searchStateName]: searchState.update({
+            isLoadingTail: false,
+            isLoading: false,
+            filtersValid: false,
+            results: [],
+            numResults: 0,
+            initScrollPos: 0,
+          }),
+        });
+      });
     });
   };
 
