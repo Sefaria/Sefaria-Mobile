@@ -698,12 +698,14 @@ class ReaderApp extends React.Component {
               sheetMeta: sheetMeta,
               data: [],
               sectionArray: [],
+              sectionHeArray: [],
           }, () => {
           this.closeMenu(); // Don't close until these values are in state, so sheet can load
           var sources = result["sources"].filter(source => "ref" in source || "comment" in source || "outsideText" in source || "outsideBiText" in source || "media" in source)
           var sourceRefs = sources.map(source => source.ref || "Sheet " + result.id + ":" + source.node );
           var updatedData = [];
           var updatedSectionArray = [];
+          var updatedSectionHeArray = [];
           var getTextPromises = [];
 
 
@@ -712,6 +714,7 @@ class ReaderApp extends React.Component {
                   //create an empty element in the state.data array so that connections panel still works
                   updatedData[index] = [{links: []}]
                   updatedSectionArray[index] = source
+                  updatedSectionHeArray[index] = source
               }
 
               else {
@@ -719,6 +722,7 @@ class ReaderApp extends React.Component {
                       Sefaria.data(source, true).then(function (data) {
                           updatedData[index] = data.content;
                           updatedSectionArray[index] = data.sectionRef;
+                          updatedSectionHeArray[index] = data.heRef;
 
                       }.bind(this)).catch(function (error) {
                           console.log('Error caught from ReaderApp.openRefSheet', error);
@@ -732,6 +736,7 @@ class ReaderApp extends React.Component {
             this.setState({
                 data: updatedData,
                 sectionArray: updatedSectionArray,
+                sectionHeArray: updatedSectionHeArray,
             }, () => {
                 var promises = []
 
