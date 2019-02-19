@@ -354,7 +354,7 @@ class SheetSource extends Component {
 
 
                 {enText !="" && ['english','bilingual'].includes(this.props.textLanguage) ?
-                    <View style={{flex:1}}>
+                    <View style={{flex:1, marginTop: isStacked ? 10:0}}>
                     <Text style={[styles.englishText,styles.sheetRef]}>{this.props.source.ref}</Text>
                     <HTMLView
                         value={"<endiv>&#x200E;"+enText+"</endiv>"}
