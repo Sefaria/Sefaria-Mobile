@@ -55,18 +55,20 @@ class Sheet extends React.Component {
     cleanSheetHTML(html) {
     html = html.replace(/\u00a0/g, ' ').replace(/&nbsp;/g, ' ').replace(/(\r\n|\n|\r)/gm, "");
 
-    var clean = sanitizeHtml(html, {
-            allowedTags: [ 'blockquote', 'p', 'a', 'ul', 'ol',
-              'nl', 'li', 'b', 'i', 'strong', 'em', 'small', 'big', 'span', 'strike', 'hr', 'br', 'div',
-              'table', 'thead', 'caption', 'tbody', 'tr', 'th', 'td', 'pre', 'sup' ],
-            allowedAttributes: {
+    var cleanAttributes = Platform.OS === 'android' ? {} : {
               a: [ 'href', 'name', 'target' ],
               img: [ 'src' ],
               p: ['style'],
               span: ['style'],
               div: ['style'],
               td: ['colspan'],
-            },
+            }
+
+    var clean = sanitizeHtml(html, {
+            allowedTags: [ 'blockquote', 'p', 'a', 'ul', 'ol',
+              'nl', 'li', 'b', 'i', 'strong', 'em', 'small', 'big', 'span', 'strike', 'hr', 'br', 'div',
+              'table', 'thead', 'caption', 'tbody', 'tr', 'th', 'td', 'pre', 'sup' ],
+            allowedAttributes: cleanAttributes,
             allowedClasses: {
              'sup': ['nechama'],
             },
