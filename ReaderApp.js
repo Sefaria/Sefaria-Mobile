@@ -1255,6 +1255,8 @@ class ReaderApp extends React.Component {
   _getSearchStateName = type => ( `${type}SearchState` );
   _getSearchState = type => ( this.state[this._getSearchStateName(type)] );
   onQueryChange = (type, query, resetQuery, fromBackButton, getFilters) => {
+      type = "sheet";
+
     // getFilters should be true if the query has changed or the exactType has changed
     const searchState = this._getSearchState(type);
     const searchStateName = this._getSearchStateName(type);
@@ -1300,12 +1302,13 @@ class ReaderApp extends React.Component {
     }, () => {
       // for some reason `searchState` pointed to out of date object here so reset it
       const searchState = this._getSearchState(type);
+      console.log(searchState)
       const searchStateName = this._getSearchStateName(type);
       Sefaria.search.execute_query(queryProps)
       .then(data => {
         const newResultsArray = data.hits.hits.map(r => ({
-            title: r._source.ref,
-            heTitle: r._source.heRef,
+            title: type == "sheet" ? r._source.title : r._source.ref,
+            heTitle: type == "sheet" ? r._source.title : r._source.heRef,
             text: r.highlight[field].join(" ... "),
             id: r._id,
             textType: r._id.includes("[he]") ? "hebrew" : "english",
@@ -1313,6 +1316,7 @@ class ReaderApp extends React.Component {
         );
         const results = resetQuery ? newResultsArray :
           searchState.results.concat(newResultsArray);
+          console.log(results)
 
         var numResults = data.hits.total;
         this.setState({
