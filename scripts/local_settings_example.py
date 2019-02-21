@@ -7,9 +7,10 @@ Copy this file to `local_settings.py` and import values as needed.
 """
 
 # Where does Sefaria-Project live
-SEFARIA_PROJECT_PATH = "/Users/blocks/Drive/dev/sefaria"
-SEFARIA_EXPORT_PATH = "/Users/blocks/Drive/dev/Sefaria-iOS-export"
-SEFARIA_IOS_SOURCES_PATH = "/Users/nss/Documents/Sefaria-iOS/ios/sources"
+SEFARIA_PROJECT_PATH = "Path to Sefaria Project"
+SEFARIA_EXPORT_PATH = "Path to Sefaria Export"
+SEFARIA_IOS_SOURCES_PATH = "/Users/<USER>/Documents/Sefaria-iOS/ios/sources"
+SEFARIA_ANDROID_SOURCES_PATH = "/Users/<USER>/Documents/Sefaria-iOS/android/app/src/main/assets/sources"
 MINIFY_JSON = False
 USE_CLOUDFLARE = False
 CLOUDFLARE_ZONE = ""

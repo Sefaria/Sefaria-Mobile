@@ -1584,6 +1584,7 @@ Sefaria.hebrew = {
   }
 };
 
+Sefaria.terms = {}; // TODO ideally we include a dump of all terms as offline JSON file. this is a placekeeper
 
 Sefaria.hebrewCategory = function(cat) {
   // Returns a string translating `cat` into Hebrew.

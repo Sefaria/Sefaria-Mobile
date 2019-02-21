@@ -743,6 +743,10 @@
                 "title": "Mechir Yayin on Esther"
             }, 
             {
+                "heTitle": "בית הלוי על התורה", 
+                "title": "Beit HaLevi on Torah"
+            }, 
+            {
                 "heTitle": "תיבת גמא", 
                 "title": "Tevat Gome"
             }, 
@@ -2605,6 +2609,16 @@
                 "category": "Ralbag", 
                 "heCategory": "רלב\"ג", 
                 "contents": [
+                    {
+                        "category": "Torah", 
+                        "heCategory": "תורה", 
+                        "contents": [
+                            {
+                                "heTitle": "רלב\"ג על התורה", 
+                                "title": "Ralbag on Torah"
+                            }
+                        ]
+                    }, 
                     {
                         "category": "Prophets", 
                         "heCategory": "נביאים", 
@@ -6779,6 +6793,16 @@
                 "heCategory": "בבלי", 
                 "contents": [
                     {
+                        "heTitle": "תוספות חד מקמאי על יבמות", 
+                        "order": 13, 
+                        "title": "Tosafot Chad Mikamei on Yevamot"
+                    }, 
+                    {
+                        "heTitle": "הפלאה על כתובות", 
+                        "order": 14, 
+                        "title": "Haflaah on Ketubot"
+                    }, 
+                    {
                         "category": "Rashi", 
                         "heCategory": "רש\"י", 
                         "contents": [
@@ -8469,6 +8493,52 @@
                         ]
                     }, 
                     {
+                        "category": "Penei Yehoshua", 
+                        "heCategory": "פני יהושע", 
+                        "contents": [
+                            {
+                                "heTitle": "פני יהושע על ברכות", 
+                                "order": 1, 
+                                "title": "Penei Yehoshua on Berakhot"
+                            }, 
+                            {
+                                "heTitle": "פני יהושע על ראש השנה", 
+                                "order": 5, 
+                                "title": "Penei Yehoshua on Rosh Hashanah"
+                            }, 
+                            {
+                                "heTitle": "פני יהושע על יומא", 
+                                "order": 6, 
+                                "title": "Penei Yehoshua on Yoma"
+                            }, 
+                            {
+                                "heTitle": "פני יהושע על סוכה", 
+                                "order": 7, 
+                                "title": "Penei Yehoshua on Sukkah"
+                            }, 
+                            {
+                                "heTitle": "פני יהושע על ביצה", 
+                                "order": 8, 
+                                "title": "Penei Yehoshua on Beitzah"
+                            }, 
+                            {
+                                "heTitle": "פני יהושע על מגילה", 
+                                "order": 10, 
+                                "title": "Penei Yehoshua on Megillah"
+                            }, 
+                            {
+                                "heTitle": "פני יהושע על מכות", 
+                                "order": 24, 
+                                "title": "Penei Yehoshua on Makkot"
+                            }, 
+                            {
+                                "heTitle": "פני יהושע על שבועות", 
+                                "order": 25, 
+                                "title": "Penei Yehoshua on Shevuot"
+                            }
+                        ]
+                    }, 
+                    {
                         "category": "Petach Einayim", 
                         "heCategory": "פתח עינים", 
                         "contents": [
@@ -9594,6 +9664,11 @@
                                         "heTitle": "ביאור שטיינזלץ על מנחות", 
                                         "order": 29, 
                                         "title": "Steinsaltz on Menachot"
+                                    }, 
+                                    {
+                                        "heTitle": "ביאור שטיינזלץ על חולין", 
+                                        "order": 30, 
+                                        "title": "Steinsaltz on Chullin"
                                     }
                                 ]
                             }
@@ -9832,7 +9907,7 @@
                             {
                                 "heTitle": "במדבר רבה", 
                                 "order": 4.0, 
-                                "title": "Bemidbar Rabbah"
+                                "title": "Bamidbar Rabbah"
                             }, 
                             {
                                 "heTitle": "דברים רבה", 
@@ -9887,10 +9962,6 @@
                         "title": "Midrash Aggadah"
                     }, 
                     {
-                        "heTitle": "מדרש לקח טוב על רות", 
-                        "title": "Midrash Lekach Tov on Ruth"
-                    }, 
-                    {
                         "heTitle": "מדרש משלי", 
                         "title": "Midrash Mishlei"
                     }, 
@@ -9899,7 +9970,7 @@
                         "title": "Midrash Tanchuma"
                     }, 
                     {
-                        "heTitle": "תנחומא - בובר", 
+                        "heTitle": "תנחומא בובר", 
                         "title": "Midrash Tanchuma Buber"
                     }, 
                     {
@@ -9945,6 +10016,36 @@
                     {
                         "heTitle": "ילקוט שמעוני על התורה", 
                         "title": "Yalkut Shimoni on Torah"
+                    }, 
+                    {
+                        "category": "Midrash Lekach Tov", 
+                        "heCategory": "מדרש לקח טוב", 
+                        "contents": [
+                            {
+                                "heTitle": "מדרש לקח טוב על שיר השירים", 
+                                "order": 30, 
+                                "title": "Midrash Lekach Tov on Song of Songs"
+                            }, 
+                            {
+                                "heTitle": "מדרש לקח טוב על איכה", 
+                                "order": 32, 
+                                "title": "Midrash Lekach Tov on Lamentations"
+                            }, 
+                            {
+                                "heTitle": "מדרש לקח טוב על קהלת", 
+                                "order": 33, 
+                                "title": "Midrash Lekach Tov on Ecclesiastes"
+                            }, 
+                            {
+                                "heTitle": "מדרש לקח טוב על אסתר", 
+                                "order": 34, 
+                                "title": "Midrash Lekach Tov on Esther"
+                            }, 
+                            {
+                                "heTitle": "מדרש לקח טוב על רות", 
+                                "title": "Midrash Lekach Tov on Ruth"
+                            }
+                        ]
                     }
                 ]
             }, 
@@ -9980,6 +10081,60 @@
         "category": "Midrash Commentaries", 
         "heCategory": "פרשנות מדרש", 
         "contents": [
+            {
+                "category": "Aggadic Midrash", 
+                "heCategory": "מדרש אגדה", 
+                "contents": [
+                    {
+                        "category": "Midrash Rabbah", 
+                        "heCategory": "מדרש רבה", 
+                        "contents": [
+                            {
+                                "category": "Etz Yosef", 
+                                "heCategory": "עץ יוסף", 
+                                "contents": [
+                                    {
+                                        "heTitle": "עץ יוסף על בראשית רבה", 
+                                        "order": 1.0, 
+                                        "title": "Etz Yosef on Bereishit Rabbah"
+                                    }, 
+                                    {
+                                        "heTitle": "עץ יוסף על שמות רבה", 
+                                        "order": 2.0, 
+                                        "title": "Etz Yosef on Shemot Rabbah"
+                                    }, 
+                                    {
+                                        "heTitle": "עץ יוסף על ויקרא רבה", 
+                                        "order": 3.0, 
+                                        "title": "Etz Yosef on Vayikra Rabbah"
+                                    }, 
+                                    {
+                                        "heTitle": "עץ יוסף על במדבר רבה", 
+                                        "order": 4.0, 
+                                        "title": "Etz Yosef on Bamidbar Rabbah"
+                                    }, 
+                                    {
+                                        "heTitle": "עץ יוסף על דברים רבה", 
+                                        "order": 5.0, 
+                                        "title": "Etz Yosef on Devarim Rabbah"
+                                    }
+                                ]
+                            }
+                        ]
+                    }, 
+                    {
+                        "category": "Midrash Lekach Tov", 
+                        "heCategory": "מדרש לקח טוב", 
+                        "contents": [
+                            {
+                                "heTitle": "הערות ותיקונים על מדרש לקח טוב על אסתר", 
+                                "order": 34, 
+                                "title": "Notes and Corrections on Midrash Lekach Tov on Esther"
+                            }
+                        ]
+                    }
+                ]
+            }, 
             {
                 "category": "Buber footnotes", 
                 "heCategory": "הערות בובר", 
@@ -10644,7 +10799,7 @@
             }, 
             {
                 "heTitle": "ערוך השולחן", 
-                "title": "Aruch HaShulchan"
+                "title": "Arukh HaShulchan"
             }, 
             {
                 "heTitle": "עבודת הקדש", 
@@ -10699,6 +10854,10 @@
                 "title": "Keset HaSofer"
             }, 
             {
+                "heTitle": "קיצור ספר חרדים", 
+                "title": "Kitzur Sefer Haredim of Rabbi Elazar Azcari"
+            }, 
+            {
                 "heTitle": "קיצור שלחן ערוך", 
                 "title": "Kitzur Shulchan Aruch"
             }, 
@@ -10707,12 +10866,12 @@
                 "title": "Kol Bo"
             }, 
             {
-                "heTitle": "קונטרס אחרון על הלכות תלמוד תורה", 
-                "title": "Last Thesis on Hilchos Talmud Torah"
-            }, 
-            {
                 "heTitle": "מעשה רב", 
                 "title": "Maaseh Rav"
+            }, 
+            {
+                "heTitle": "מחזור ויטרי", 
+                "title": "Machzor Vitry"
             }, 
             {
                 "heTitle": "מטה אפרים", 
@@ -10795,10 +10954,6 @@
                 "title": "Shulchan Shel Arba"
             }, 
             {
-                "heTitle": "שפתי כהן", 
-                "title": "Siftei Cohen on Yoreh De'ah"
-            }, 
-            {
                 "heTitle": "שמלה חדשה", 
                 "title": "Simla Chadasha"
             }, 
@@ -10859,6 +11014,805 @@
                 "heCategory": "משנה תורה", 
                 "contents": [
                     {
+                        "category": "Ben Aryeh", 
+                        "heCategory": "בן אריה", 
+                        "contents": [
+                            {
+                                "category": "Sefer Madda", 
+                                "heCategory": "ספר מדע", 
+                                "contents": [
+                                    {
+                                        "heTitle": "בן אריה על משנה תורה, הלכות יסודי התורה", 
+                                        "order": 5, 
+                                        "title": "Ben Aryeh on Mishneh Torah, Foundations of the Torah"
+                                    }, 
+                                    {
+                                        "heTitle": "בן אריה על משנה תורה, הלכות דעות", 
+                                        "order": 6, 
+                                        "title": "Ben Aryeh on Mishneh Torah, Human Dispositions"
+                                    }, 
+                                    {
+                                        "heTitle": "בן אריה על משנה תורה, הלכות תלמוד תורה", 
+                                        "order": 7, 
+                                        "title": "Ben Aryeh on Mishneh Torah, Torah Study"
+                                    }, 
+                                    {
+                                        "heTitle": "בן אריה על משנה תורה, הלכות עבודה זרה וחוקות הגויים", 
+                                        "order": 8, 
+                                        "title": "Ben Aryeh on Mishneh Torah, Foreign Worship and Customs of the Nations"
+                                    }, 
+                                    {
+                                        "heTitle": "בן אריה על משנה תורה, הלכות תשובה", 
+                                        "order": 9, 
+                                        "title": "Ben Aryeh on Mishneh Torah, Repentance"
+                                    }
+                                ]
+                            }, 
+                            {
+                                "category": "Sefer Ahavah", 
+                                "heCategory": "ספר אהבה", 
+                                "contents": [
+                                    {
+                                        "heTitle": "בן אריה על משנה תורה, הלכות קריאת שמע", 
+                                        "order": 10, 
+                                        "title": "Ben Aryeh on Mishneh Torah, Reading the Shema"
+                                    }, 
+                                    {
+                                        "heTitle": "בן אריה על משנה תורה, הלכות תפילה וברכת כהנים", 
+                                        "order": 11, 
+                                        "title": "Ben Aryeh on Mishneh Torah, Prayer and the Priestly Blessing"
+                                    }, 
+                                    {
+                                        "heTitle": "בן אריה על משנה תורה, הלכות תפילין ומזוזה וספר תורה", 
+                                        "order": 12, 
+                                        "title": "Ben Aryeh on Mishneh Torah, Tefillin, Mezuzah and the Torah Scroll"
+                                    }, 
+                                    {
+                                        "heTitle": "בן אריה על משנה תורה, הלכות ציצית", 
+                                        "order": 13, 
+                                        "title": "Ben Aryeh on Mishneh Torah, Fringes"
+                                    }, 
+                                    {
+                                        "heTitle": "בן אריה על משנה תורה, הלכות ברכות", 
+                                        "order": 14, 
+                                        "title": "Ben Aryeh on Mishneh Torah, Blessings"
+                                    }, 
+                                    {
+                                        "heTitle": "בן אריה על משנה תורה, הלכות מילה", 
+                                        "order": 15, 
+                                        "title": "Ben Aryeh on Mishneh Torah, Circumcision"
+                                    }
+                                ]
+                            }, 
+                            {
+                                "category": "Sefer Zemanim", 
+                                "heCategory": "ספר זמנים", 
+                                "contents": [
+                                    {
+                                        "heTitle": "בן אריה על משנה תורה, הלכות שבת", 
+                                        "order": 17, 
+                                        "title": "Ben Aryeh on Mishneh Torah, Sabbath"
+                                    }, 
+                                    {
+                                        "heTitle": "בן אריה על משנה תורה, הלכות עירובין", 
+                                        "order": 18, 
+                                        "title": "Ben Aryeh on Mishneh Torah, Eruvin"
+                                    }, 
+                                    {
+                                        "heTitle": "בן אריה על משנה תורה, הלכות שביתת יום טוב", 
+                                        "order": 20, 
+                                        "title": "Ben Aryeh on Mishneh Torah, Rest on a Holiday"
+                                    }, 
+                                    {
+                                        "heTitle": "בן אריה על משנה תורה, הלכות חמץ ומצה", 
+                                        "order": 21, 
+                                        "title": "Ben Aryeh on Mishneh Torah, Leavened and Unleavened Bread"
+                                    }, 
+                                    {
+                                        "heTitle": "בן אריה על משנה תורה, הלכות שופר וסוכה ולולב", 
+                                        "order": 22, 
+                                        "title": "Ben Aryeh on Mishneh Torah, Shofar, Sukkah and Lulav"
+                                    }, 
+                                    {
+                                        "heTitle": "בן אריה על משנה תורה, הלכות שקלים", 
+                                        "order": 23, 
+                                        "title": "Ben Aryeh on Mishneh Torah, Sheqel Dues"
+                                    }, 
+                                    {
+                                        "heTitle": "בן אריה על משנה תורה, הלכות קידוש החודש", 
+                                        "order": 24, 
+                                        "title": "Ben Aryeh on Mishneh Torah, Sanctification of the New Month"
+                                    }, 
+                                    {
+                                        "heTitle": "בן אריה על משנה תורה, הלכות תעניות", 
+                                        "order": 25, 
+                                        "title": "Ben Aryeh on Mishneh Torah, Fasts"
+                                    }, 
+                                    {
+                                        "heTitle": "בן אריה על משנה תורה, הלכות מגילה וחנוכה", 
+                                        "order": 26, 
+                                        "title": "Ben Aryeh on Mishneh Torah, Scroll of Esther and Hanukkah"
+                                    }
+                                ]
+                            }, 
+                            {
+                                "category": "Sefer Nashim", 
+                                "heCategory": "ספר נשים", 
+                                "contents": [
+                                    {
+                                        "heTitle": "בן אריה על משנה תורה, הלכות אישות", 
+                                        "order": 27, 
+                                        "title": "Ben Aryeh on Mishneh Torah, Marriage"
+                                    }, 
+                                    {
+                                        "heTitle": "בן אריה על משנה תורה, הלכות גירושין", 
+                                        "order": 28, 
+                                        "title": "Ben Aryeh on Mishneh Torah, Divorce"
+                                    }, 
+                                    {
+                                        "heTitle": "בן אריה על משנה תורה, הלכות יבום וחליצה", 
+                                        "order": 29, 
+                                        "title": "Ben Aryeh on Mishneh Torah, Levirate Marriage and Release"
+                                    }, 
+                                    {
+                                        "heTitle": "בן אריה על משנה תורה, הלכות נערה בתולה", 
+                                        "order": 30, 
+                                        "title": "Ben Aryeh on Mishneh Torah, Virgin Maiden"
+                                    }, 
+                                    {
+                                        "heTitle": "בן אריה על משנה תורה, הלכות סוטה", 
+                                        "order": 31, 
+                                        "title": "Ben Aryeh on Mishneh Torah, Woman Suspected of Infidelity"
+                                    }
+                                ]
+                            }, 
+                            {
+                                "category": "Sefer Kedushah", 
+                                "heCategory": "ספר קדושה", 
+                                "contents": [
+                                    {
+                                        "heTitle": "בן אריה על משנה תורה, הלכות איסורי ביאה", 
+                                        "order": 32, 
+                                        "title": "Ben Aryeh on Mishneh Torah, Forbidden Intercourse"
+                                    }, 
+                                    {
+                                        "heTitle": "בן אריה על משנה תורה, הלכות מאכלות אסורות", 
+                                        "order": 33, 
+                                        "title": "Ben Aryeh on Mishneh Torah, Forbidden Foods"
+                                    }, 
+                                    {
+                                        "heTitle": "בן אריה על משנה תורה, הלכות שחיטה", 
+                                        "order": 34, 
+                                        "title": "Ben Aryeh on Mishneh Torah, Ritual Slaughter"
+                                    }
+                                ]
+                            }, 
+                            {
+                                "category": "Sefer Haflaah", 
+                                "heCategory": "ספר הפלאה", 
+                                "contents": [
+                                    {
+                                        "heTitle": "בן אריה על משנה תורה, הלכות שבועות", 
+                                        "order": 35, 
+                                        "title": "Ben Aryeh on Mishneh Torah, Oaths"
+                                    }, 
+                                    {
+                                        "heTitle": "בן אריה על משנה תורה, הלכות נדרים", 
+                                        "order": 36, 
+                                        "title": "Ben Aryeh on Mishneh Torah, Vows"
+                                    }, 
+                                    {
+                                        "heTitle": "בן אריה על משנה תורה, הלכות נזירות", 
+                                        "order": 37, 
+                                        "title": "Ben Aryeh on Mishneh Torah, Nazariteship"
+                                    }, 
+                                    {
+                                        "heTitle": "בן אריה על משנה תורה, הלכות ערכים וחרמין", 
+                                        "order": 38, 
+                                        "title": "Ben Aryeh on Mishneh Torah, Appraisals and Devoted Property"
+                                    }
+                                ]
+                            }, 
+                            {
+                                "category": "Sefer Zeraim", 
+                                "heCategory": "ספר זרעים", 
+                                "contents": [
+                                    {
+                                        "heTitle": "בן אריה על משנה תורה, הלכות כלאים", 
+                                        "order": 39, 
+                                        "title": "Ben Aryeh on Mishneh Torah, Diverse Species"
+                                    }, 
+                                    {
+                                        "heTitle": "בן אריה על משנה תורה, הלכות תרומות", 
+                                        "order": 41, 
+                                        "title": "Ben Aryeh on Mishneh Torah, Heave Offerings"
+                                    }, 
+                                    {
+                                        "heTitle": "בן אריה על משנה תורה, הלכות מעשרות", 
+                                        "order": 42, 
+                                        "title": "Ben Aryeh on Mishneh Torah, Tithes"
+                                    }, 
+                                    {
+                                        "heTitle": "בן אריה על משנה תורה, הלכות מעשר שני ונטע רבעי", 
+                                        "order": 43, 
+                                        "title": "Ben Aryeh on Mishneh Torah, Second Tithes and Fourth Year's Fruit"
+                                    }, 
+                                    {
+                                        "heTitle": "בן אריה על משנה תורה, הלכות ביכורים ושאר מתנות כהונה שבגבולין", 
+                                        "order": 44, 
+                                        "title": "Ben Aryeh on Mishneh Torah, First Fruits and other Gifts to Priests Outside the Sanctuary"
+                                    }, 
+                                    {
+                                        "heTitle": "בן אריה על משנה תורה, הלכות שמיטה ויובל", 
+                                        "order": 45, 
+                                        "title": "Ben Aryeh on Mishneh Torah, Sabbatical Year and the Jubilee"
+                                    }
+                                ]
+                            }, 
+                            {
+                                "category": "Sefer Avodah", 
+                                "heCategory": "ספר עבודה", 
+                                "contents": [
+                                    {
+                                        "heTitle": "בן אריה על משנה תורה, הלכות בית הבחירה", 
+                                        "order": 46, 
+                                        "title": "Ben Aryeh on Mishneh Torah, The Chosen Temple"
+                                    }, 
+                                    {
+                                        "heTitle": "בן אריה על משנה תורה, הלכות כלי המקדש והעובדין בו", 
+                                        "order": 47, 
+                                        "title": "Ben Aryeh on Mishneh Torah, Vessels of the Sanctuary and Those who Serve Therein"
+                                    }, 
+                                    {
+                                        "heTitle": "בן אריה על משנה תורה, הלכות ביאת מקדש", 
+                                        "order": 48, 
+                                        "title": "Ben Aryeh on Mishneh Torah, Admission into the Sanctuary"
+                                    }, 
+                                    {
+                                        "heTitle": "בן אריה על משנה תורה, הלכות איסורי המזבח", 
+                                        "order": 49, 
+                                        "title": "Ben Aryeh on Mishneh Torah, Things Forbidden on the Altar"
+                                    }, 
+                                    {
+                                        "heTitle": "בן אריה על משנה תורה, הלכות מעשה הקרבנות", 
+                                        "order": 50, 
+                                        "title": "Ben Aryeh on Mishneh Torah, Sacrificial Procedure"
+                                    }, 
+                                    {
+                                        "heTitle": "בן אריה על משנה תורה, הלכות תמידים ומוספין", 
+                                        "order": 51, 
+                                        "title": "Ben Aryeh on Mishneh Torah, Daily Offerings and Additional Offerings"
+                                    }, 
+                                    {
+                                        "heTitle": "בן אריה על משנה תורה, הלכות פסולי המוקדשין", 
+                                        "order": 52, 
+                                        "title": "Ben Aryeh on Mishneh Torah, Sacrifices Rendered Unfit"
+                                    }, 
+                                    {
+                                        "heTitle": "בן אריה על משנה תורה, הלכות עבודת יום הכפורים", 
+                                        "order": 53, 
+                                        "title": "Ben Aryeh on Mishneh Torah, Service on the Day of Atonement"
+                                    }, 
+                                    {
+                                        "heTitle": "בן אריה על משנה תורה, הלכות מעילה", 
+                                        "order": 54, 
+                                        "title": "Ben Aryeh on Mishneh Torah, Trespass"
+                                    }
+                                ]
+                            }, 
+                            {
+                                "category": "Sefer Korbanot", 
+                                "heCategory": "ספר קורבנות", 
+                                "contents": [
+                                    {
+                                        "heTitle": "בן אריה על משנה תורה, הלכות קרבן פסח", 
+                                        "order": 55, 
+                                        "title": "Ben Aryeh on Mishneh Torah, Paschal Offering"
+                                    }, 
+                                    {
+                                        "heTitle": "בן אריה על משנה תורה, הלכות חגיגה", 
+                                        "order": 56, 
+                                        "title": "Ben Aryeh on Mishneh Torah, Festival Offering"
+                                    }, 
+                                    {
+                                        "heTitle": "בן אריה על משנה תורה, הלכות בכורות", 
+                                        "order": 57, 
+                                        "title": "Ben Aryeh on Mishneh Torah, Firstlings"
+                                    }, 
+                                    {
+                                        "heTitle": "בן אריה על משנה תורה, הלכות שגגות", 
+                                        "order": 58, 
+                                        "title": "Ben Aryeh on Mishneh Torah, Offerings for Unintentional Transgressions"
+                                    }, 
+                                    {
+                                        "heTitle": "בן אריה על משנה תורה, הלכות מחוסרי כפרה", 
+                                        "order": 59, 
+                                        "title": "Ben Aryeh on Mishneh Torah, Offerings for Those with Incomplete Atonement"
+                                    }, 
+                                    {
+                                        "heTitle": "בן אריה על משנה תורה, הלכות תמורה", 
+                                        "order": 60, 
+                                        "title": "Ben Aryeh on Mishneh Torah, Substitution"
+                                    }
+                                ]
+                            }, 
+                            {
+                                "category": "Sefer Taharah", 
+                                "heCategory": "ספר טהרה", 
+                                "contents": [
+                                    {
+                                        "heTitle": "בן אריה על משנה תורה, הלכות טומאת מת", 
+                                        "order": 61, 
+                                        "title": "Ben Aryeh on Mishneh Torah, Defilement by a Corpse"
+                                    }, 
+                                    {
+                                        "heTitle": "בן אריה על משנה תורה, הלכות פרה אדומה", 
+                                        "order": 62, 
+                                        "title": "Ben Aryeh on Mishneh Torah, Red Heifer"
+                                    }, 
+                                    {
+                                        "heTitle": "בן אריה על משנה תורה, הלכות טומאת צרעת", 
+                                        "order": 63, 
+                                        "title": "Ben Aryeh on Mishneh Torah, Defilement by Leprosy"
+                                    }, 
+                                    {
+                                        "heTitle": "בן אריה על משנה תורה, הלכות מטמאי משכב ומושב", 
+                                        "order": 64, 
+                                        "title": "Ben Aryeh on Mishneh Torah, Those Who Defile Bed or Seat"
+                                    }, 
+                                    {
+                                        "heTitle": "בן אריה על משנה תורה, הלכות שאר אבות הטומאות", 
+                                        "order": 65, 
+                                        "title": "Ben Aryeh on Mishneh Torah, Other Sources of Defilement"
+                                    }, 
+                                    {
+                                        "heTitle": "בן אריה על משנה תורה, הלכות טומאת אוכלים", 
+                                        "order": 66, 
+                                        "title": "Ben Aryeh on Mishneh Torah, Defilement of Foods"
+                                    }, 
+                                    {
+                                        "heTitle": "בן אריה על משנה תורה, הלכות כלים", 
+                                        "order": 67, 
+                                        "title": "Ben Aryeh on Mishneh Torah, Vessels"
+                                    }, 
+                                    {
+                                        "heTitle": "בן אריה על משנה תורה, הלכות מקואות", 
+                                        "order": 68, 
+                                        "title": "Ben Aryeh on Mishneh Torah, Immersion Pools"
+                                    }
+                                ]
+                            }, 
+                            {
+                                "category": "Sefer Nezikim", 
+                                "heCategory": "ספר נזיקין", 
+                                "contents": [
+                                    {
+                                        "heTitle": "בן אריה על משנה תורה, הלכות נזקי ממון", 
+                                        "order": 69, 
+                                        "title": "Ben Aryeh on Mishneh Torah, Damages to Property"
+                                    }, 
+                                    {
+                                        "heTitle": "בן אריה על משנה תורה, הלכות גניבה", 
+                                        "order": 70, 
+                                        "title": "Ben Aryeh on Mishneh Torah, Theft"
+                                    }, 
+                                    {
+                                        "heTitle": "בן אריה על משנה תורה, הלכות גזילה ואבידה", 
+                                        "order": 71, 
+                                        "title": "Ben Aryeh on Mishneh Torah, Robbery and Lost Property"
+                                    }, 
+                                    {
+                                        "heTitle": "בן אריה על משנה תורה, הלכות חובל ומזיק", 
+                                        "order": 72, 
+                                        "title": "Ben Aryeh on Mishneh Torah, One Who Injures a Person or Property"
+                                    }, 
+                                    {
+                                        "heTitle": "בן אריה על משנה תורה, הלכות רוצח ושמירת נפש", 
+                                        "order": 73, 
+                                        "title": "Ben Aryeh on Mishneh Torah, Murderer and the Preservation of Life"
+                                    }
+                                ]
+                            }, 
+                            {
+                                "category": "Sefer Kinyan", 
+                                "heCategory": "ספר קניין", 
+                                "contents": [
+                                    {
+                                        "heTitle": "בן אריה על משנה תורה, הלכות מכירה", 
+                                        "order": 74, 
+                                        "title": "Ben Aryeh on Mishneh Torah, Sales"
+                                    }, 
+                                    {
+                                        "heTitle": "בן אריה על משנה תורה, הלכות זכייה ומתנה", 
+                                        "order": 75, 
+                                        "title": "Ben Aryeh on Mishneh Torah, Ownerless Property and Gifts"
+                                    }, 
+                                    {
+                                        "heTitle": "בן אריה על משנה תורה, הלכות שכנים", 
+                                        "order": 76, 
+                                        "title": "Ben Aryeh on Mishneh Torah, Neighbors"
+                                    }, 
+                                    {
+                                        "heTitle": "בן אריה על משנה תורה, הלכות שלוחין ושותפין", 
+                                        "order": 77, 
+                                        "title": "Ben Aryeh on Mishneh Torah, Agents and Partners"
+                                    }, 
+                                    {
+                                        "heTitle": "בן אריה על משנה תורה, הלכות עבדים", 
+                                        "order": 78, 
+                                        "title": "Ben Aryeh on Mishneh Torah, Slaves"
+                                    }
+                                ]
+                            }, 
+                            {
+                                "category": "Sefer Mishpatim", 
+                                "heCategory": "ספר משפטים", 
+                                "contents": [
+                                    {
+                                        "heTitle": "בן אריה על משנה תורה, הלכות שכירות", 
+                                        "order": 79, 
+                                        "title": "Ben Aryeh on Mishneh Torah, Hiring"
+                                    }, 
+                                    {
+                                        "heTitle": "בן אריה על משנה תורה, הלכות שאלה ופיקדון", 
+                                        "order": 80, 
+                                        "title": "Ben Aryeh on Mishneh Torah, Borrowing and Deposit"
+                                    }, 
+                                    {
+                                        "heTitle": "בן אריה על משנה תורה, הלכות מלווה ולווה", 
+                                        "order": 81, 
+                                        "title": "Ben Aryeh on Mishneh Torah, Creditor and Debtor"
+                                    }, 
+                                    {
+                                        "heTitle": "בן אריה על משנה תורה, הלכות טוען ונטען", 
+                                        "order": 82, 
+                                        "title": "Ben Aryeh on Mishneh Torah, Plaintiff and Defendant"
+                                    }, 
+                                    {
+                                        "heTitle": "בן אריה על משנה תורה, הלכות נחלות", 
+                                        "order": 83, 
+                                        "title": "Ben Aryeh on Mishneh Torah, Inheritances"
+                                    }
+                                ]
+                            }, 
+                            {
+                                "category": "Sefer Shoftim", 
+                                "heCategory": "ספר שופטים", 
+                                "contents": [
+                                    {
+                                        "heTitle": "בן אריה על משנה תורה, הלכות סנהדרין והעונשין המסורין להם", 
+                                        "order": 84, 
+                                        "title": "Ben Aryeh on Mishneh Torah, The Sanhedrin and the Penalties within their Jurisdiction"
+                                    }, 
+                                    {
+                                        "heTitle": "בן אריה על משנה תורה, הלכות עדות", 
+                                        "order": 85, 
+                                        "title": "Ben Aryeh on Mishneh Torah, Testimony"
+                                    }, 
+                                    {
+                                        "heTitle": "בן אריה על משנה תורה, הלכות ממרים", 
+                                        "order": 86, 
+                                        "title": "Ben Aryeh on Mishneh Torah, Rebels"
+                                    }, 
+                                    {
+                                        "heTitle": "בן אריה על משנה תורה, הלכות אבל", 
+                                        "order": 87, 
+                                        "title": "Ben Aryeh on Mishneh Torah, Mourning"
+                                    }, 
+                                    {
+                                        "heTitle": "בן אריה על משנה תורה, הלכות מלכים ומלחמות", 
+                                        "order": 88, 
+                                        "title": "Ben Aryeh on Mishneh Torah, Kings and Wars"
+                                    }
+                                ]
+                            }
+                        ]
+                    }, 
+                    {
+                        "category": "Chidushei Mayim Chayim", 
+                        "heCategory": "חידושי מים חיים", 
+                        "contents": [
+                            {
+                                "category": "Sefer Madda", 
+                                "heCategory": "ספר מדע", 
+                                "contents": [
+                                    {
+                                        "heTitle": "חידושי מים חיים על משנה תורה, הלכות יסודי התורה", 
+                                        "order": 5, 
+                                        "title": "Chidushei Mayim Chayim on Mishneh Torah, Foundations of the Torah"
+                                    }, 
+                                    {
+                                        "heTitle": "חידושי מים חיים על משנה תורה, הלכות דעות", 
+                                        "order": 6, 
+                                        "title": "Chidushei Mayim Chayim on Mishneh Torah, Human Dispositions"
+                                    }, 
+                                    {
+                                        "heTitle": "חידושי מים חיים על משנה תורה, הלכות תלמוד תורה", 
+                                        "order": 7, 
+                                        "title": "Chidushei Mayim Chayim on Mishneh Torah, Torah Study"
+                                    }, 
+                                    {
+                                        "heTitle": "חידושי מים חיים על משנה תורה, הלכות עבודה זרה וחוקות הגויים", 
+                                        "order": 8, 
+                                        "title": "Chidushei Mayim Chayim on Mishneh Torah, Foreign Worship and Customs of the Nations"
+                                    }
+                                ]
+                            }
+                        ]
+                    }, 
+                    {
+                        "category": "Chidushim of Machaneh Ephraim", 
+                        "heCategory": "חידושים מהגאון בעל מחנה אפרים", 
+                        "contents": [
+                            {
+                                "category": "Sefer Zemanim", 
+                                "heCategory": "ספר זמנים", 
+                                "contents": [
+                                    {
+                                        "heTitle": "חידושים מהגאון בעל מחנה אפרים על משנה תורה, הלכות שבת", 
+                                        "order": 17, 
+                                        "title": "Chidushim of Machaneh Ephraim on Mishneh Torah, Sabbath"
+                                    }, 
+                                    {
+                                        "heTitle": "חידושים מהגאון בעל מחנה אפרים על משנה תורה, הלכות שביתת עשור", 
+                                        "order": 19, 
+                                        "title": "Chidushim of Machaneh Ephraim on Mishneh Torah, Rest on the Tenth of Tishrei"
+                                    }, 
+                                    {
+                                        "heTitle": "חידושים מהגאון בעל מחנה אפרים על משנה תורה, הלכות שביתת יום טוב", 
+                                        "order": 20, 
+                                        "title": "Chidushim of Machaneh Ephraim on Mishneh Torah, Rest on a Holiday"
+                                    }, 
+                                    {
+                                        "heTitle": "חידושים מהגאון בעל מחנה אפרים על משנה תורה, הלכות חמץ ומצה", 
+                                        "order": 21, 
+                                        "title": "Chidushim of Machaneh Ephraim on Mishneh Torah, Leavened and Unleavened Bread"
+                                    }
+                                ]
+                            }, 
+                            {
+                                "category": "Sefer Nashim", 
+                                "heCategory": "ספר נשים", 
+                                "contents": [
+                                    {
+                                        "heTitle": "חידושים מהגאון בעל מחנה אפרים על משנה תורה, הלכות אישות", 
+                                        "order": 27, 
+                                        "title": "Chidushim of Machaneh Ephraim on Mishneh Torah, Marriage"
+                                    }, 
+                                    {
+                                        "heTitle": "חידושים מהגאון בעל מחנה אפרים על משנה תורה, הלכות גירושין", 
+                                        "order": 28, 
+                                        "title": "Chidushim of Machaneh Ephraim on Mishneh Torah, Divorce"
+                                    }, 
+                                    {
+                                        "heTitle": "חידושים מהגאון בעל מחנה אפרים על משנה תורה, הלכות יבום וחליצה", 
+                                        "order": 29, 
+                                        "title": "Chidushim of Machaneh Ephraim on Mishneh Torah, Levirate Marriage and Release"
+                                    }, 
+                                    {
+                                        "heTitle": "חידושים מהגאון בעל מחנה אפרים על משנה תורה, הלכות נערה בתולה", 
+                                        "order": 30, 
+                                        "title": "Chidushim of Machaneh Ephraim on Mishneh Torah, Virgin Maiden"
+                                    }, 
+                                    {
+                                        "heTitle": "חידושים מהגאון בעל מחנה אפרים על משנה תורה, הלכות סוטה", 
+                                        "order": 31, 
+                                        "title": "Chidushim of Machaneh Ephraim on Mishneh Torah, Woman Suspected of Infidelity"
+                                    }
+                                ]
+                            }, 
+                            {
+                                "category": "Sefer Kedushah", 
+                                "heCategory": "ספר קדושה", 
+                                "contents": [
+                                    {
+                                        "heTitle": "חידושים מהגאון בעל מחנה אפרים על משנה תורה, הלכות איסורי ביאה", 
+                                        "order": 32, 
+                                        "title": "Chidushim of Machaneh Ephraim on Mishneh Torah, Forbidden Intercourse"
+                                    }, 
+                                    {
+                                        "heTitle": "חידושים מהגאון בעל מחנה אפרים על משנה תורה, הלכות מאכלות אסורות", 
+                                        "order": 33, 
+                                        "title": "Chidushim of Machaneh Ephraim on Mishneh Torah, Forbidden Foods"
+                                    }, 
+                                    {
+                                        "heTitle": "חידושים מהגאון בעל מחנה אפרים על משנה תורה, הלכות שחיטה", 
+                                        "order": 34, 
+                                        "title": "Chidushim of Machaneh Ephraim on Mishneh Torah, Ritual Slaughter"
+                                    }
+                                ]
+                            }, 
+                            {
+                                "category": "Sefer Haflaah", 
+                                "heCategory": "ספר הפלאה", 
+                                "contents": [
+                                    {
+                                        "heTitle": "חידושים מהגאון בעל מחנה אפרים על משנה תורה, הלכות שבועות", 
+                                        "order": 35, 
+                                        "title": "Chidushim of Machaneh Ephraim on Mishneh Torah, Oaths"
+                                    }, 
+                                    {
+                                        "heTitle": "חידושים מהגאון בעל מחנה אפרים על משנה תורה, הלכות נדרים", 
+                                        "order": 36, 
+                                        "title": "Chidushim of Machaneh Ephraim on Mishneh Torah, Vows"
+                                    }, 
+                                    {
+                                        "heTitle": "חידושים מהגאון בעל מחנה אפרים על משנה תורה, הלכות נזירות", 
+                                        "order": 37, 
+                                        "title": "Chidushim of Machaneh Ephraim on Mishneh Torah, Nazariteship"
+                                    }, 
+                                    {
+                                        "heTitle": "חידושים מהגאון בעל מחנה אפרים על משנה תורה, הלכות ערכים וחרמין", 
+                                        "order": 38, 
+                                        "title": "Chidushim of Machaneh Ephraim on Mishneh Torah, Appraisals and Devoted Property"
+                                    }
+                                ]
+                            }, 
+                            {
+                                "category": "Sefer Zeraim", 
+                                "heCategory": "ספר זרעים", 
+                                "contents": [
+                                    {
+                                        "heTitle": "חידושים מהגאון בעל מחנה אפרים על משנה תורה, הלכות כלאים", 
+                                        "order": 39, 
+                                        "title": "Chidushim of Machaneh Ephraim on Mishneh Torah, Diverse Species"
+                                    }, 
+                                    {
+                                        "heTitle": "חידושים מהגאון בעל מחנה אפרים על משנה תורה, הלכות תרומות", 
+                                        "order": 41, 
+                                        "title": "Chidushim of Machaneh Ephraim on Mishneh Torah, Heave Offerings"
+                                    }, 
+                                    {
+                                        "heTitle": "חידושים מהגאון בעל מחנה אפרים על משנה תורה, הלכות מעשרות", 
+                                        "order": 42, 
+                                        "title": "Chidushim of Machaneh Ephraim on Mishneh Torah, Tithes"
+                                    }, 
+                                    {
+                                        "heTitle": "חידושים מהגאון בעל מחנה אפרים על משנה תורה, הלכות מעשר שני ונטע רבעי", 
+                                        "order": 43, 
+                                        "title": "Chidushim of Machaneh Ephraim on Mishneh Torah, Second Tithes and Fourth Year's Fruit"
+                                    }, 
+                                    {
+                                        "heTitle": "חידושים מהגאון בעל מחנה אפרים על משנה תורה, הלכות ביכורים ושאר מתנות כהונה שבגבולין", 
+                                        "order": 44, 
+                                        "title": "Chidushim of Machaneh Ephraim on Mishneh Torah, First Fruits and other Gifts to Priests Outside the Sanctuary"
+                                    }, 
+                                    {
+                                        "heTitle": "חידושים מהגאון בעל מחנה אפרים על משנה תורה, הלכות שמיטה ויובל", 
+                                        "order": 45, 
+                                        "title": "Chidushim of Machaneh Ephraim on Mishneh Torah, Sabbatical Year and the Jubilee"
+                                    }
+                                ]
+                            }, 
+                            {
+                                "category": "Sefer Avodah", 
+                                "heCategory": "ספר עבודה", 
+                                "contents": [
+                                    {
+                                        "heTitle": "חידושים מהגאון בעל מחנה אפרים על משנה תורה, הלכות פסולי המוקדשין", 
+                                        "order": 52, 
+                                        "title": "Chidushim of Machaneh Ephraim on Mishneh Torah, Sacrifices Rendered Unfit"
+                                    }, 
+                                    {
+                                        "heTitle": "חידושים מהגאון בעל מחנה אפרים על משנה תורה, הלכות מעילה", 
+                                        "order": 54, 
+                                        "title": "Chidushim of Machaneh Ephraim on Mishneh Torah, Trespass"
+                                    }
+                                ]
+                            }, 
+                            {
+                                "category": "Sefer Korbanot", 
+                                "heCategory": "ספר קורבנות", 
+                                "contents": [
+                                    {
+                                        "heTitle": "חידושים מהגאון בעל מחנה אפרים על משנה תורה, הלכות קרבן פסח", 
+                                        "order": 55, 
+                                        "title": "Chidushim of Machaneh Ephraim on Mishneh Torah, Paschal Offering"
+                                    }, 
+                                    {
+                                        "heTitle": "חידושים מהגאון בעל מחנה אפרים על משנה תורה, הלכות חגיגה", 
+                                        "order": 56, 
+                                        "title": "Chidushim of Machaneh Ephraim on Mishneh Torah, Festival Offering"
+                                    }, 
+                                    {
+                                        "heTitle": "חידושים מהגאון בעל מחנה אפרים על משנה תורה, הלכות בכורות", 
+                                        "order": 57, 
+                                        "title": "Chidushim of Machaneh Ephraim on Mishneh Torah, Firstlings"
+                                    }, 
+                                    {
+                                        "heTitle": "חידושים מהגאון בעל מחנה אפרים על משנה תורה, הלכות שגגות", 
+                                        "order": 58, 
+                                        "title": "Chidushim of Machaneh Ephraim on Mishneh Torah, Offerings for Unintentional Transgressions"
+                                    }
+                                ]
+                            }, 
+                            {
+                                "category": "Sefer Taharah", 
+                                "heCategory": "ספר טהרה", 
+                                "contents": [
+                                    {
+                                        "heTitle": "חידושים מהגאון בעל מחנה אפרים על משנה תורה, הלכות טומאת מת", 
+                                        "order": 61, 
+                                        "title": "Chidushim of Machaneh Ephraim on Mishneh Torah, Defilement by a Corpse"
+                                    }, 
+                                    {
+                                        "heTitle": "חידושים מהגאון בעל מחנה אפרים על משנה תורה, הלכות שאר אבות הטומאות", 
+                                        "order": 65, 
+                                        "title": "Chidushim of Machaneh Ephraim on Mishneh Torah, Other Sources of Defilement"
+                                    }
+                                ]
+                            }, 
+                            {
+                                "category": "Sefer Kinyan", 
+                                "heCategory": "ספר קניין", 
+                                "contents": [
+                                    {
+                                        "heTitle": "חידושים מהגאון בעל מחנה אפרים על משנה תורה, הלכות עבדים", 
+                                        "order": 78, 
+                                        "title": "Chidushim of Machaneh Ephraim on Mishneh Torah, Slaves"
+                                    }
+                                ]
+                            }, 
+                            {
+                                "category": "Sefer Mishpatim", 
+                                "heCategory": "ספר משפטים", 
+                                "contents": [
+                                    {
+                                        "heTitle": "חידושים מהגאון בעל מחנה אפרים על משנה תורה, הלכות שכירות", 
+                                        "order": 79, 
+                                        "title": "Chidushim of Machaneh Ephraim on Mishneh Torah, Hiring"
+                                    }, 
+                                    {
+                                        "heTitle": "חידושים מהגאון בעל מחנה אפרים על משנה תורה, הלכות שאלה ופיקדון", 
+                                        "order": 80, 
+                                        "title": "Chidushim of Machaneh Ephraim on Mishneh Torah, Borrowing and Deposit"
+                                    }, 
+                                    {
+                                        "heTitle": "חידושים מהגאון בעל מחנה אפרים על משנה תורה, הלכות מלווה ולווה", 
+                                        "order": 81, 
+                                        "title": "Chidushim of Machaneh Ephraim on Mishneh Torah, Creditor and Debtor"
+                                    }, 
+                                    {
+                                        "heTitle": "חידושים מהגאון בעל מחנה אפרים על משנה תורה, הלכות טוען ונטען", 
+                                        "order": 82, 
+                                        "title": "Chidushim of Machaneh Ephraim on Mishneh Torah, Plaintiff and Defendant"
+                                    }, 
+                                    {
+                                        "heTitle": "חידושים מהגאון בעל מחנה אפרים על משנה תורה, הלכות נחלות", 
+                                        "order": 83, 
+                                        "title": "Chidushim of Machaneh Ephraim on Mishneh Torah, Inheritances"
+                                    }
+                                ]
+                            }, 
+                            {
+                                "category": "Sefer Shoftim", 
+                                "heCategory": "ספר שופטים", 
+                                "contents": [
+                                    {
+                                        "heTitle": "חידושים מהגאון בעל מחנה אפרים על משנה תורה, הלכות סנהדרין והעונשין המסורין להם", 
+                                        "order": 84, 
+                                        "title": "Chidushim of Machaneh Ephraim on Mishneh Torah, The Sanhedrin and the Penalties within their Jurisdiction"
+                                    }, 
+                                    {
+                                        "heTitle": "חידושים מהגאון בעל מחנה אפרים על משנה תורה, הלכות עדות", 
+                                        "order": 85, 
+                                        "title": "Chidushim of Machaneh Ephraim on Mishneh Torah, Testimony"
+                                    }, 
+                                    {
+                                        "heTitle": "חידושים מהגאון בעל מחנה אפרים על משנה תורה, הלכות ממרים", 
+                                        "order": 86, 
+                                        "title": "Chidushim of Machaneh Ephraim on Mishneh Torah, Rebels"
+                                    }, 
+                                    {
+                                        "heTitle": "חידושים מהגאון בעל מחנה אפרים על משנה תורה, הלכות אבל", 
+                                        "order": 87, 
+                                        "title": "Chidushim of Machaneh Ephraim on Mishneh Torah, Mourning"
+                                    }
+                                ]
+                            }
+                        ]
+                    }, 
+                    {
                         "category": "Comment", 
                         "heCategory": "פירוש", 
                         "contents": [
@@ -10875,6 +11829,135 @@
                                         "heTitle": "פירוש על משנה תורה, הלכות תשובה", 
                                         "order": 9, 
                                         "title": "Peirush on Mishneh Torah, Repentance"
+                                    }
+                                ]
+                            }
+                        ]
+                    }, 
+                    {
+                        "category": "Divrei Yirmiyahu", 
+                        "heCategory": "דברי ירמיהו", 
+                        "contents": [
+                            {
+                                "category": "Sefer Madda", 
+                                "heCategory": "ספר מדע", 
+                                "contents": [
+                                    {
+                                        "heTitle": "דברי ירמיהו על משנה תורה, הלכות יסודי התורה", 
+                                        "order": 5, 
+                                        "title": "Divrei Yirmiyahu on Mishneh Torah, Foundations of the Torah"
+                                    }, 
+                                    {
+                                        "heTitle": "דברי ירמיהו על משנה תורה, הלכות דעות", 
+                                        "order": 6, 
+                                        "title": "Divrei Yirmiyahu on Mishneh Torah, Human Dispositions"
+                                    }, 
+                                    {
+                                        "heTitle": "דברי ירמיהו על משנה תורה, הלכות תלמוד תורה", 
+                                        "order": 7, 
+                                        "title": "Divrei Yirmiyahu on Mishneh Torah, Torah Study"
+                                    }, 
+                                    {
+                                        "heTitle": "דברי ירמיהו על משנה תורה, הלכות עבודה זרה וחוקות הגויים", 
+                                        "order": 8, 
+                                        "title": "Divrei Yirmiyahu on Mishneh Torah, Foreign Worship and Customs of the Nations"
+                                    }, 
+                                    {
+                                        "heTitle": "דברי ירמיהו על משנה תורה, הלכות תשובה", 
+                                        "order": 9, 
+                                        "title": "Divrei Yirmiyahu on Mishneh Torah, Repentance"
+                                    }
+                                ]
+                            }, 
+                            {
+                                "category": "Sefer Ahavah", 
+                                "heCategory": "ספר אהבה", 
+                                "contents": [
+                                    {
+                                        "heTitle": "דברי ירמיהו על משנה תורה, הלכות קריאת שמע", 
+                                        "order": 10, 
+                                        "title": "Divrei Yirmiyahu on Mishneh Torah, Reading the Shema"
+                                    }, 
+                                    {
+                                        "heTitle": "דברי ירמיהו על משנה תורה, הלכות תפילה וברכת כהנים", 
+                                        "order": 11, 
+                                        "title": "Divrei Yirmiyahu on Mishneh Torah, Prayer and the Priestly Blessing"
+                                    }, 
+                                    {
+                                        "heTitle": "דברי ירמיהו על משנה תורה, הלכות תפילין ומזוזה וספר תורה", 
+                                        "order": 12, 
+                                        "title": "Divrei Yirmiyahu on Mishneh Torah, Tefillin, Mezuzah and the Torah Scroll"
+                                    }, 
+                                    {
+                                        "heTitle": "דברי ירמיהו על משנה תורה, הלכות ציצית", 
+                                        "order": 13, 
+                                        "title": "Divrei Yirmiyahu on Mishneh Torah, Fringes"
+                                    }, 
+                                    {
+                                        "heTitle": "דברי ירמיהו על משנה תורה, הלכות ברכות", 
+                                        "order": 14, 
+                                        "title": "Divrei Yirmiyahu on Mishneh Torah, Blessings"
+                                    }, 
+                                    {
+                                        "heTitle": "דברי ירמיהו על משנה תורה, הלכות מילה", 
+                                        "order": 15, 
+                                        "title": "Divrei Yirmiyahu on Mishneh Torah, Circumcision"
+                                    }
+                                ]
+                            }, 
+                            {
+                                "category": "Sefer Zemanim", 
+                                "heCategory": "ספר זמנים", 
+                                "contents": [
+                                    {
+                                        "heTitle": "דברי ירמיהו על משנה תורה, הלכות שבת", 
+                                        "order": 17, 
+                                        "title": "Divrei Yirmiyahu on Mishneh Torah, Sabbath"
+                                    }, 
+                                    {
+                                        "heTitle": "דברי ירמיהו על משנה תורה, הלכות עירובין", 
+                                        "order": 18, 
+                                        "title": "Divrei Yirmiyahu on Mishneh Torah, Eruvin"
+                                    }, 
+                                    {
+                                        "heTitle": "דברי ירמיהו על משנה תורה, הלכות שביתת עשור", 
+                                        "order": 19, 
+                                        "title": "Divrei Yirmiyahu on Mishneh Torah, Rest on the Tenth of Tishrei"
+                                    }, 
+                                    {
+                                        "heTitle": "דברי ירמיהו על משנה תורה, הלכות שביתת יום טוב", 
+                                        "order": 20, 
+                                        "title": "Divrei Yirmiyahu on Mishneh Torah, Rest on a Holiday"
+                                    }, 
+                                    {
+                                        "heTitle": "דברי ירמיהו על משנה תורה, הלכות חמץ ומצה", 
+                                        "order": 21, 
+                                        "title": "Divrei Yirmiyahu on Mishneh Torah, Leavened and Unleavened Bread"
+                                    }, 
+                                    {
+                                        "heTitle": "דברי ירמיהו על משנה תורה, הלכות שופר וסוכה ולולב", 
+                                        "order": 22, 
+                                        "title": "Divrei Yirmiyahu on Mishneh Torah, Shofar, Sukkah and Lulav"
+                                    }, 
+                                    {
+                                        "heTitle": "דברי ירמיהו על משנה תורה, הלכות שקלים", 
+                                        "order": 23, 
+                                        "title": "Divrei Yirmiyahu on Mishneh Torah, Sheqel Dues"
+                                    }, 
+                                    {
+                                        "heTitle": "דברי ירמיהו על משנה תורה, הלכות קידוש החודש", 
+                                        "order": 24, 
+                                        "title": "Divrei Yirmiyahu on Mishneh Torah, Sanctification of the New Month"
+                                    }, 
+                                    {
+                                        "heTitle": "דברי ירמיהו על משנה תורה, הלכות תעניות", 
+                                        "order": 25, 
+                                        "title": "Divrei Yirmiyahu on Mishneh Torah, Fasts"
+                                    }, 
+                                    {
+                                        "heTitle": "דברי ירמיהו על משנה תורה, הלכות מגילה וחנוכה", 
+                                        "order": 26, 
+                                        "title": "Divrei Yirmiyahu on Mishneh Torah, Scroll of Esther and Hanukkah"
                                     }
                                 ]
                             }
@@ -11548,6 +12631,152 @@
                         ]
                     }, 
                     {
+                        "category": "Lev Shalem", 
+                        "heCategory": "לב שלם", 
+                        "contents": [
+                            {
+                                "category": "Sefer Madda", 
+                                "heCategory": "ספר מדע", 
+                                "contents": [
+                                    {
+                                        "heTitle": "לב שלם על משנה תורה, הלכות יסודי התורה", 
+                                        "order": 5, 
+                                        "title": "Lev Shalem on Mishneh Torah, Foundations of the Torah"
+                                    }, 
+                                    {
+                                        "heTitle": "לב שלם על משנה תורה, הלכות תלמוד תורה", 
+                                        "order": 7, 
+                                        "title": "Lev Shalem on Mishneh Torah, Torah Study"
+                                    }, 
+                                    {
+                                        "heTitle": "לב שלם על משנה תורה, הלכות עבודה זרה וחוקות הגויים", 
+                                        "order": 8, 
+                                        "title": "Lev Shalem on Mishneh Torah, Foreign Worship and Customs of the Nations"
+                                    }, 
+                                    {
+                                        "heTitle": "לב שלם על משנה תורה, הלכות תשובה", 
+                                        "order": 9, 
+                                        "title": "Lev Shalem on Mishneh Torah, Repentance"
+                                    }
+                                ]
+                            }, 
+                            {
+                                "category": "Sefer Ahavah", 
+                                "heCategory": "ספר אהבה", 
+                                "contents": [
+                                    {
+                                        "heTitle": "לב שלם על משנה תורה, הלכות תפילה וברכת כהנים", 
+                                        "order": 11, 
+                                        "title": "Lev Shalem on Mishneh Torah, Prayer and the Priestly Blessing"
+                                    }, 
+                                    {
+                                        "heTitle": "לב שלם על משנה תורה, הלכות ציצית", 
+                                        "order": 13, 
+                                        "title": "Lev Shalem on Mishneh Torah, Fringes"
+                                    }, 
+                                    {
+                                        "heTitle": "לב שלם על משנה תורה, הלכות ברכות", 
+                                        "order": 14, 
+                                        "title": "Lev Shalem on Mishneh Torah, Blessings"
+                                    }
+                                ]
+                            }, 
+                            {
+                                "category": "Sefer Zemanim", 
+                                "heCategory": "ספר זמנים", 
+                                "contents": [
+                                    {
+                                        "heTitle": "לב שלם על משנה תורה, הלכות שבת", 
+                                        "order": 17, 
+                                        "title": "Lev Shalem on Mishneh Torah, Sabbath"
+                                    }, 
+                                    {
+                                        "heTitle": "לב שלם על משנה תורה, הלכות שביתת יום טוב", 
+                                        "order": 20, 
+                                        "title": "Lev Shalem on Mishneh Torah, Rest on a Holiday"
+                                    }, 
+                                    {
+                                        "heTitle": "לב שלם על משנה תורה, הלכות חמץ ומצה", 
+                                        "order": 21, 
+                                        "title": "Lev Shalem on Mishneh Torah, Leavened and Unleavened Bread"
+                                    }, 
+                                    {
+                                        "heTitle": "לב שלם על משנה תורה, הלכות שקלים", 
+                                        "order": 23, 
+                                        "title": "Lev Shalem on Mishneh Torah, Sheqel Dues"
+                                    }, 
+                                    {
+                                        "heTitle": "לב שלם על משנה תורה, הלכות קידוש החודש", 
+                                        "order": 24, 
+                                        "title": "Lev Shalem on Mishneh Torah, Sanctification of the New Month"
+                                    }, 
+                                    {
+                                        "heTitle": "לב שלם על משנה תורה, הלכות תעניות", 
+                                        "order": 25, 
+                                        "title": "Lev Shalem on Mishneh Torah, Fasts"
+                                    }, 
+                                    {
+                                        "heTitle": "לב שלם על משנה תורה, הלכות מגילה וחנוכה", 
+                                        "order": 26, 
+                                        "title": "Lev Shalem on Mishneh Torah, Scroll of Esther and Hanukkah"
+                                    }
+                                ]
+                            }, 
+                            {
+                                "category": "Sefer Nashim", 
+                                "heCategory": "ספר נשים", 
+                                "contents": [
+                                    {
+                                        "heTitle": "לב שלם על משנה תורה, הלכות אישות", 
+                                        "order": 27, 
+                                        "title": "Lev Shalem on Mishneh Torah, Marriage"
+                                    }, 
+                                    {
+                                        "heTitle": "לב שלם על משנה תורה, הלכות גירושין", 
+                                        "order": 28, 
+                                        "title": "Lev Shalem on Mishneh Torah, Divorce"
+                                    }, 
+                                    {
+                                        "heTitle": "לב שלם על משנה תורה, הלכות יבום וחליצה", 
+                                        "order": 29, 
+                                        "title": "Lev Shalem on Mishneh Torah, Levirate Marriage and Release"
+                                    }, 
+                                    {
+                                        "heTitle": "לב שלם על משנה תורה, הלכות נערה בתולה", 
+                                        "order": 30, 
+                                        "title": "Lev Shalem on Mishneh Torah, Virgin Maiden"
+                                    }, 
+                                    {
+                                        "heTitle": "לב שלם על משנה תורה, הלכות סוטה", 
+                                        "order": 31, 
+                                        "title": "Lev Shalem on Mishneh Torah, Woman Suspected of Infidelity"
+                                    }
+                                ]
+                            }, 
+                            {
+                                "category": "Sefer Kedushah", 
+                                "heCategory": "ספר קדושה", 
+                                "contents": [
+                                    {
+                                        "heTitle": "לב שלם על משנה תורה, הלכות איסורי ביאה", 
+                                        "order": 32, 
+                                        "title": "Lev Shalem on Mishneh Torah, Forbidden Intercourse"
+                                    }, 
+                                    {
+                                        "heTitle": "לב שלם על משנה תורה, הלכות מאכלות אסורות", 
+                                        "order": 33, 
+                                        "title": "Lev Shalem on Mishneh Torah, Forbidden Foods"
+                                    }, 
+                                    {
+                                        "heTitle": "לב שלם על משנה תורה, הלכות שחיטה", 
+                                        "order": 34, 
+                                        "title": "Lev Shalem on Mishneh Torah, Ritual Slaughter"
+                                    }
+                                ]
+                            }
+                        ]
+                    }, 
+                    {
                         "category": "Maaseh Rokeach", 
                         "heCategory": "מעשה רקח", 
                         "contents": [
@@ -12141,6 +13370,1009 @@
                                 ]
                             }
                         ]
+                    }, 
+                    {
+                        "category": "Melechet Shlomo", 
+                        "heCategory": "מלאכת שלמה", 
+                        "contents": [
+                            {
+                                "category": "Sefer Madda", 
+                                "heCategory": "ספר מדע", 
+                                "contents": [
+                                    {
+                                        "heTitle": "מלאכת שלמה על משנה תורה, הלכות יסודי התורה", 
+                                        "order": 5, 
+                                        "title": "Melechet Shlomo on Mishneh Torah, Foundations of the Torah"
+                                    }, 
+                                    {
+                                        "heTitle": "מלאכת שלמה על משנה תורה, הלכות תלמוד תורה", 
+                                        "order": 7, 
+                                        "title": "Melechet Shlomo on Mishneh Torah, Torah Study"
+                                    }, 
+                                    {
+                                        "heTitle": "מלאכת שלמה על משנה תורה, הלכות עבודה זרה וחוקות הגויים", 
+                                        "order": 8, 
+                                        "title": "Melechet Shlomo on Mishneh Torah, Foreign Worship and Customs of the Nations"
+                                    }
+                                ]
+                            }, 
+                            {
+                                "category": "Sefer Ahavah", 
+                                "heCategory": "ספר אהבה", 
+                                "contents": [
+                                    {
+                                        "heTitle": "מלאכת שלמה על משנה תורה, הלכות תפילה וברכת כהנים", 
+                                        "order": 11, 
+                                        "title": "Melechet Shlomo on Mishneh Torah, Prayer and the Priestly Blessing"
+                                    }, 
+                                    {
+                                        "heTitle": "מלאכת שלמה על משנה תורה, הלכות תפילין ומזוזה וספר תורה", 
+                                        "order": 12, 
+                                        "title": "Melechet Shlomo on Mishneh Torah, Tefillin, Mezuzah and the Torah Scroll"
+                                    }, 
+                                    {
+                                        "heTitle": "מלאכת שלמה על משנה תורה, הלכות ברכות", 
+                                        "order": 14, 
+                                        "title": "Melechet Shlomo on Mishneh Torah, Blessings"
+                                    }
+                                ]
+                            }, 
+                            {
+                                "category": "Sefer Zemanim", 
+                                "heCategory": "ספר זמנים", 
+                                "contents": [
+                                    {
+                                        "heTitle": "מלאכת שלמה על משנה תורה, הלכות שבת", 
+                                        "order": 17, 
+                                        "title": "Melechet Shlomo on Mishneh Torah, Sabbath"
+                                    }, 
+                                    {
+                                        "heTitle": "מלאכת שלמה על משנה תורה, הלכות עירובין", 
+                                        "order": 18, 
+                                        "title": "Melechet Shlomo on Mishneh Torah, Eruvin"
+                                    }, 
+                                    {
+                                        "heTitle": "מלאכת שלמה על משנה תורה, הלכות שביתת יום טוב", 
+                                        "order": 20, 
+                                        "title": "Melechet Shlomo on Mishneh Torah, Rest on a Holiday"
+                                    }, 
+                                    {
+                                        "heTitle": "מלאכת שלמה על משנה תורה, הלכות חמץ ומצה", 
+                                        "order": 21, 
+                                        "title": "Melechet Shlomo on Mishneh Torah, Leavened and Unleavened Bread"
+                                    }, 
+                                    {
+                                        "heTitle": "מלאכת שלמה על משנה תורה, הלכות שופר וסוכה ולולב", 
+                                        "order": 22, 
+                                        "title": "Melechet Shlomo on Mishneh Torah, Shofar, Sukkah and Lulav"
+                                    }, 
+                                    {
+                                        "heTitle": "מלאכת שלמה על משנה תורה, הלכות שקלים", 
+                                        "order": 23, 
+                                        "title": "Melechet Shlomo on Mishneh Torah, Sheqel Dues"
+                                    }, 
+                                    {
+                                        "heTitle": "מלאכת שלמה על משנה תורה, הלכות תעניות", 
+                                        "order": 25, 
+                                        "title": "Melechet Shlomo on Mishneh Torah, Fasts"
+                                    }
+                                ]
+                            }, 
+                            {
+                                "category": "Sefer Nashim", 
+                                "heCategory": "ספר נשים", 
+                                "contents": [
+                                    {
+                                        "heTitle": "מלאכת שלמה על משנה תורה, הלכות אישות", 
+                                        "order": 27, 
+                                        "title": "Melechet Shlomo on Mishneh Torah, Marriage"
+                                    }, 
+                                    {
+                                        "heTitle": "מלאכת שלמה על משנה תורה, הלכות גירושין", 
+                                        "order": 28, 
+                                        "title": "Melechet Shlomo on Mishneh Torah, Divorce"
+                                    }, 
+                                    {
+                                        "heTitle": "מלאכת שלמה על משנה תורה, הלכות יבום וחליצה", 
+                                        "order": 29, 
+                                        "title": "Melechet Shlomo on Mishneh Torah, Levirate Marriage and Release"
+                                    }, 
+                                    {
+                                        "heTitle": "מלאכת שלמה על משנה תורה, הלכות סוטה", 
+                                        "order": 31, 
+                                        "title": "Melechet Shlomo on Mishneh Torah, Woman Suspected of Infidelity"
+                                    }
+                                ]
+                            }, 
+                            {
+                                "category": "Sefer Kedushah", 
+                                "heCategory": "ספר קדושה", 
+                                "contents": [
+                                    {
+                                        "heTitle": "מלאכת שלמה על משנה תורה, הלכות איסורי ביאה", 
+                                        "order": 32, 
+                                        "title": "Melechet Shlomo on Mishneh Torah, Forbidden Intercourse"
+                                    }, 
+                                    {
+                                        "heTitle": "מלאכת שלמה על משנה תורה, הלכות מאכלות אסורות", 
+                                        "order": 33, 
+                                        "title": "Melechet Shlomo on Mishneh Torah, Forbidden Foods"
+                                    }, 
+                                    {
+                                        "heTitle": "מלאכת שלמה על משנה תורה, הלכות שחיטה", 
+                                        "order": 34, 
+                                        "title": "Melechet Shlomo on Mishneh Torah, Ritual Slaughter"
+                                    }
+                                ]
+                            }, 
+                            {
+                                "category": "Sefer Haflaah", 
+                                "heCategory": "ספר הפלאה", 
+                                "contents": [
+                                    {
+                                        "heTitle": "מלאכת שלמה על משנה תורה, הלכות שבועות", 
+                                        "order": 35, 
+                                        "title": "Melechet Shlomo on Mishneh Torah, Oaths"
+                                    }, 
+                                    {
+                                        "heTitle": "מלאכת שלמה על משנה תורה, הלכות נדרים", 
+                                        "order": 36, 
+                                        "title": "Melechet Shlomo on Mishneh Torah, Vows"
+                                    }, 
+                                    {
+                                        "heTitle": "מלאכת שלמה על משנה תורה, הלכות נזירות", 
+                                        "order": 37, 
+                                        "title": "Melechet Shlomo on Mishneh Torah, Nazariteship"
+                                    }
+                                ]
+                            }, 
+                            {
+                                "category": "Sefer Zeraim", 
+                                "heCategory": "ספר זרעים", 
+                                "contents": [
+                                    {
+                                        "heTitle": "מלאכת שלמה על משנה תורה, הלכות מתנות עניים", 
+                                        "order": 40, 
+                                        "title": "Melechet Shlomo on Mishneh Torah, Gifts to the Poor"
+                                    }, 
+                                    {
+                                        "heTitle": "מלאכת שלמה על משנה תורה, הלכות תרומות", 
+                                        "order": 41, 
+                                        "title": "Melechet Shlomo on Mishneh Torah, Heave Offerings"
+                                    }, 
+                                    {
+                                        "heTitle": "מלאכת שלמה על משנה תורה, הלכות ביכורים ושאר מתנות כהונה שבגבולין", 
+                                        "order": 44, 
+                                        "title": "Melechet Shlomo on Mishneh Torah, First Fruits and other Gifts to Priests Outside the Sanctuary"
+                                    }
+                                ]
+                            }, 
+                            {
+                                "category": "Sefer Avodah", 
+                                "heCategory": "ספר עבודה", 
+                                "contents": [
+                                    {
+                                        "heTitle": "מלאכת שלמה על משנה תורה, הלכות ביאת מקדש", 
+                                        "order": 48, 
+                                        "title": "Melechet Shlomo on Mishneh Torah, Admission into the Sanctuary"
+                                    }, 
+                                    {
+                                        "heTitle": "מלאכת שלמה על משנה תורה, הלכות מעשה הקרבנות", 
+                                        "order": 50, 
+                                        "title": "Melechet Shlomo on Mishneh Torah, Sacrificial Procedure"
+                                    }, 
+                                    {
+                                        "heTitle": "מלאכת שלמה על משנה תורה, הלכות תמידים ומוספין", 
+                                        "order": 51, 
+                                        "title": "Melechet Shlomo on Mishneh Torah, Daily Offerings and Additional Offerings"
+                                    }, 
+                                    {
+                                        "heTitle": "מלאכת שלמה על משנה תורה, הלכות פסולי המוקדשין", 
+                                        "order": 52, 
+                                        "title": "Melechet Shlomo on Mishneh Torah, Sacrifices Rendered Unfit"
+                                    }, 
+                                    {
+                                        "heTitle": "מלאכת שלמה על משנה תורה, הלכות מעילה", 
+                                        "order": 54, 
+                                        "title": "Melechet Shlomo on Mishneh Torah, Trespass"
+                                    }
+                                ]
+                            }, 
+                            {
+                                "category": "Sefer Korbanot", 
+                                "heCategory": "ספר קורבנות", 
+                                "contents": [
+                                    {
+                                        "heTitle": "מלאכת שלמה על משנה תורה, הלכות קרבן פסח", 
+                                        "order": 55, 
+                                        "title": "Melechet Shlomo on Mishneh Torah, Paschal Offering"
+                                    }
+                                ]
+                            }, 
+                            {
+                                "category": "Sefer Taharah", 
+                                "heCategory": "ספר טהרה", 
+                                "contents": [
+                                    {
+                                        "heTitle": "מלאכת שלמה על משנה תורה, הלכות טומאת מת", 
+                                        "order": 61, 
+                                        "title": "Melechet Shlomo on Mishneh Torah, Defilement by a Corpse"
+                                    }, 
+                                    {
+                                        "heTitle": "מלאכת שלמה על משנה תורה, הלכות פרה אדומה", 
+                                        "order": 62, 
+                                        "title": "Melechet Shlomo on Mishneh Torah, Red Heifer"
+                                    }, 
+                                    {
+                                        "heTitle": "מלאכת שלמה על משנה תורה, הלכות טומאת אוכלים", 
+                                        "order": 66, 
+                                        "title": "Melechet Shlomo on Mishneh Torah, Defilement of Foods"
+                                    }
+                                ]
+                            }, 
+                            {
+                                "category": "Sefer Nezikim", 
+                                "heCategory": "ספר נזיקין", 
+                                "contents": [
+                                    {
+                                        "heTitle": "מלאכת שלמה על משנה תורה, הלכות גניבה", 
+                                        "order": 70, 
+                                        "title": "Melechet Shlomo on Mishneh Torah, Theft"
+                                    }, 
+                                    {
+                                        "heTitle": "מלאכת שלמה על משנה תורה, הלכות גזילה ואבידה", 
+                                        "order": 71, 
+                                        "title": "Melechet Shlomo on Mishneh Torah, Robbery and Lost Property"
+                                    }, 
+                                    {
+                                        "heTitle": "מלאכת שלמה על משנה תורה, הלכות חובל ומזיק", 
+                                        "order": 72, 
+                                        "title": "Melechet Shlomo on Mishneh Torah, One Who Injures a Person or Property"
+                                    }, 
+                                    {
+                                        "heTitle": "מלאכת שלמה על משנה תורה, הלכות רוצח ושמירת נפש", 
+                                        "order": 73, 
+                                        "title": "Melechet Shlomo on Mishneh Torah, Murderer and the Preservation of Life"
+                                    }
+                                ]
+                            }, 
+                            {
+                                "category": "Sefer Kinyan", 
+                                "heCategory": "ספר קניין", 
+                                "contents": [
+                                    {
+                                        "heTitle": "מלאכת שלמה על משנה תורה, הלכות מכירה", 
+                                        "order": 74, 
+                                        "title": "Melechet Shlomo on Mishneh Torah, Sales"
+                                    }, 
+                                    {
+                                        "heTitle": "מלאכת שלמה על משנה תורה, הלכות זכייה ומתנה", 
+                                        "order": 75, 
+                                        "title": "Melechet Shlomo on Mishneh Torah, Ownerless Property and Gifts"
+                                    }, 
+                                    {
+                                        "heTitle": "מלאכת שלמה על משנה תורה, הלכות שכנים", 
+                                        "order": 76, 
+                                        "title": "Melechet Shlomo on Mishneh Torah, Neighbors"
+                                    }, 
+                                    {
+                                        "heTitle": "מלאכת שלמה על משנה תורה, הלכות שלוחין ושותפין", 
+                                        "order": 77, 
+                                        "title": "Melechet Shlomo on Mishneh Torah, Agents and Partners"
+                                    }, 
+                                    {
+                                        "heTitle": "מלאכת שלמה על משנה תורה, הלכות עבדים", 
+                                        "order": 78, 
+                                        "title": "Melechet Shlomo on Mishneh Torah, Slaves"
+                                    }
+                                ]
+                            }, 
+                            {
+                                "category": "Sefer Mishpatim", 
+                                "heCategory": "ספר משפטים", 
+                                "contents": [
+                                    {
+                                        "heTitle": "מלאכת שלמה על משנה תורה, הלכות שכירות", 
+                                        "order": 79, 
+                                        "title": "Melechet Shlomo on Mishneh Torah, Hiring"
+                                    }, 
+                                    {
+                                        "heTitle": "מלאכת שלמה על משנה תורה, הלכות שאלה ופיקדון", 
+                                        "order": 80, 
+                                        "title": "Melechet Shlomo on Mishneh Torah, Borrowing and Deposit"
+                                    }, 
+                                    {
+                                        "heTitle": "מלאכת שלמה על משנה תורה, הלכות מלווה ולווה", 
+                                        "order": 81, 
+                                        "title": "Melechet Shlomo on Mishneh Torah, Creditor and Debtor"
+                                    }, 
+                                    {
+                                        "heTitle": "מלאכת שלמה על משנה תורה, הלכות טוען ונטען", 
+                                        "order": 82, 
+                                        "title": "Melechet Shlomo on Mishneh Torah, Plaintiff and Defendant"
+                                    }, 
+                                    {
+                                        "heTitle": "מלאכת שלמה על משנה תורה, הלכות נחלות", 
+                                        "order": 83, 
+                                        "title": "Melechet Shlomo on Mishneh Torah, Inheritances"
+                                    }
+                                ]
+                            }, 
+                            {
+                                "category": "Sefer Shoftim", 
+                                "heCategory": "ספר שופטים", 
+                                "contents": [
+                                    {
+                                        "heTitle": "מלאכת שלמה על משנה תורה, הלכות סנהדרין והעונשין המסורין להם", 
+                                        "order": 84, 
+                                        "title": "Melechet Shlomo on Mishneh Torah, The Sanhedrin and the Penalties within their Jurisdiction"
+                                    }, 
+                                    {
+                                        "heTitle": "מלאכת שלמה על משנה תורה, הלכות עדות", 
+                                        "order": 85, 
+                                        "title": "Melechet Shlomo on Mishneh Torah, Testimony"
+                                    }, 
+                                    {
+                                        "heTitle": "מלאכת שלמה על משנה תורה, הלכות ממרים", 
+                                        "order": 86, 
+                                        "title": "Melechet Shlomo on Mishneh Torah, Rebels"
+                                    }, 
+                                    {
+                                        "heTitle": "מלאכת שלמה על משנה תורה, הלכות אבל", 
+                                        "order": 87, 
+                                        "title": "Melechet Shlomo on Mishneh Torah, Mourning"
+                                    }, 
+                                    {
+                                        "heTitle": "מלאכת שלמה על משנה תורה, הלכות מלכים ומלחמות", 
+                                        "order": 88, 
+                                        "title": "Melechet Shlomo on Mishneh Torah, Kings and Wars"
+                                    }
+                                ]
+                            }
+                        ]
+                    }, 
+                    {
+                        "category": "Nachal Eitan", 
+                        "heCategory": "נחל איתן", 
+                        "contents": [
+                            {
+                                "category": "Sefer Madda", 
+                                "heCategory": "ספר מדע", 
+                                "contents": [
+                                    {
+                                        "heTitle": "נחל איתן על משנה תורה, הלכות יסודי התורה", 
+                                        "order": 5, 
+                                        "title": "Nachal Eitan on Mishneh Torah, Foundations of the Torah"
+                                    }, 
+                                    {
+                                        "heTitle": "נחל איתן על משנה תורה, הלכות דעות", 
+                                        "order": 6, 
+                                        "title": "Nachal Eitan on Mishneh Torah, Human Dispositions"
+                                    }, 
+                                    {
+                                        "heTitle": "נחל איתן על משנה תורה, הלכות תלמוד תורה", 
+                                        "order": 7, 
+                                        "title": "Nachal Eitan on Mishneh Torah, Torah Study"
+                                    }, 
+                                    {
+                                        "heTitle": "נחל איתן על משנה תורה, הלכות עבודה זרה וחוקות הגויים", 
+                                        "order": 8, 
+                                        "title": "Nachal Eitan on Mishneh Torah, Foreign Worship and Customs of the Nations"
+                                    }, 
+                                    {
+                                        "heTitle": "נחל איתן על משנה תורה, הלכות תשובה", 
+                                        "order": 9, 
+                                        "title": "Nachal Eitan on Mishneh Torah, Repentance"
+                                    }
+                                ]
+                            }, 
+                            {
+                                "category": "Sefer Ahavah", 
+                                "heCategory": "ספר אהבה", 
+                                "contents": [
+                                    {
+                                        "heTitle": "נחל איתן על משנה תורה, הלכות קריאת שמע", 
+                                        "order": 10, 
+                                        "title": "Nachal Eitan on Mishneh Torah, Reading the Shema"
+                                    }, 
+                                    {
+                                        "heTitle": "נחל איתן על משנה תורה, הלכות תפילה וברכת כהנים", 
+                                        "order": 11, 
+                                        "title": "Nachal Eitan on Mishneh Torah, Prayer and the Priestly Blessing"
+                                    }, 
+                                    {
+                                        "heTitle": "נחל איתן על משנה תורה, הלכות תפילין ומזוזה וספר תורה", 
+                                        "order": 12, 
+                                        "title": "Nachal Eitan on Mishneh Torah, Tefillin, Mezuzah and the Torah Scroll"
+                                    }, 
+                                    {
+                                        "heTitle": "נחל איתן על משנה תורה, הלכות ציצית", 
+                                        "order": 13, 
+                                        "title": "Nachal Eitan on Mishneh Torah, Fringes"
+                                    }, 
+                                    {
+                                        "heTitle": "נחל איתן על משנה תורה, הלכות ברכות", 
+                                        "order": 14, 
+                                        "title": "Nachal Eitan on Mishneh Torah, Blessings"
+                                    }, 
+                                    {
+                                        "heTitle": "נחל איתן על משנה תורה, הלכות מילה", 
+                                        "order": 15, 
+                                        "title": "Nachal Eitan on Mishneh Torah, Circumcision"
+                                    }
+                                ]
+                            }, 
+                            {
+                                "category": "Sefer Zemanim", 
+                                "heCategory": "ספר זמנים", 
+                                "contents": [
+                                    {
+                                        "heTitle": "נחל איתן על משנה תורה, הלכות שבת", 
+                                        "order": 17, 
+                                        "title": "Nachal Eitan on Mishneh Torah, Sabbath"
+                                    }, 
+                                    {
+                                        "heTitle": "נחל איתן על משנה תורה, הלכות עירובין", 
+                                        "order": 18, 
+                                        "title": "Nachal Eitan on Mishneh Torah, Eruvin"
+                                    }, 
+                                    {
+                                        "heTitle": "נחל איתן על משנה תורה, הלכות שביתת עשור", 
+                                        "order": 19, 
+                                        "title": "Nachal Eitan on Mishneh Torah, Rest on the Tenth of Tishrei"
+                                    }, 
+                                    {
+                                        "heTitle": "נחל איתן על משנה תורה, הלכות שביתת יום טוב", 
+                                        "order": 20, 
+                                        "title": "Nachal Eitan on Mishneh Torah, Rest on a Holiday"
+                                    }, 
+                                    {
+                                        "heTitle": "נחל איתן על משנה תורה, הלכות חמץ ומצה", 
+                                        "order": 21, 
+                                        "title": "Nachal Eitan on Mishneh Torah, Leavened and Unleavened Bread"
+                                    }, 
+                                    {
+                                        "heTitle": "נחל איתן על משנה תורה, הלכות שופר וסוכה ולולב", 
+                                        "order": 22, 
+                                        "title": "Nachal Eitan on Mishneh Torah, Shofar, Sukkah and Lulav"
+                                    }, 
+                                    {
+                                        "heTitle": "נחל איתן על משנה תורה, הלכות קידוש החודש", 
+                                        "order": 24, 
+                                        "title": "Nachal Eitan on Mishneh Torah, Sanctification of the New Month"
+                                    }, 
+                                    {
+                                        "heTitle": "נחל איתן על משנה תורה, הלכות תעניות", 
+                                        "order": 25, 
+                                        "title": "Nachal Eitan on Mishneh Torah, Fasts"
+                                    }, 
+                                    {
+                                        "heTitle": "נחל איתן על משנה תורה, הלכות מגילה וחנוכה", 
+                                        "order": 26, 
+                                        "title": "Nachal Eitan on Mishneh Torah, Scroll of Esther and Hanukkah"
+                                    }
+                                ]
+                            }, 
+                            {
+                                "category": "Sefer Nashim", 
+                                "heCategory": "ספר נשים", 
+                                "contents": [
+                                    {
+                                        "heTitle": "נחל איתן על משנה תורה, הלכות אישות", 
+                                        "order": 27, 
+                                        "title": "Nachal Eitan on Mishneh Torah, Marriage"
+                                    }, 
+                                    {
+                                        "heTitle": "נחל איתן על משנה תורה, הלכות גירושין", 
+                                        "order": 28, 
+                                        "title": "Nachal Eitan on Mishneh Torah, Divorce"
+                                    }, 
+                                    {
+                                        "heTitle": "נחל איתן על משנה תורה, הלכות יבום וחליצה", 
+                                        "order": 29, 
+                                        "title": "Nachal Eitan on Mishneh Torah, Levirate Marriage and Release"
+                                    }, 
+                                    {
+                                        "heTitle": "נחל איתן על משנה תורה, הלכות נערה בתולה", 
+                                        "order": 30, 
+                                        "title": "Nachal Eitan on Mishneh Torah, Virgin Maiden"
+                                    }, 
+                                    {
+                                        "heTitle": "נחל איתן על משנה תורה, הלכות סוטה", 
+                                        "order": 31, 
+                                        "title": "Nachal Eitan on Mishneh Torah, Woman Suspected of Infidelity"
+                                    }
+                                ]
+                            }, 
+                            {
+                                "category": "Sefer Kedushah", 
+                                "heCategory": "ספר קדושה", 
+                                "contents": [
+                                    {
+                                        "heTitle": "נחל איתן על משנה תורה, הלכות איסורי ביאה", 
+                                        "order": 32, 
+                                        "title": "Nachal Eitan on Mishneh Torah, Forbidden Intercourse"
+                                    }, 
+                                    {
+                                        "heTitle": "נחל איתן על משנה תורה, הלכות מאכלות אסורות", 
+                                        "order": 33, 
+                                        "title": "Nachal Eitan on Mishneh Torah, Forbidden Foods"
+                                    }, 
+                                    {
+                                        "heTitle": "נחל איתן על משנה תורה, הלכות שחיטה", 
+                                        "order": 34, 
+                                        "title": "Nachal Eitan on Mishneh Torah, Ritual Slaughter"
+                                    }
+                                ]
+                            }
+                        ]
+                    }, 
+                    {
+                        "category": "Yad Eitan", 
+                        "heCategory": "יד איתן", 
+                        "contents": [
+                            {
+                                "category": "Sefer Madda", 
+                                "heCategory": "ספר מדע", 
+                                "contents": [
+                                    {
+                                        "heTitle": "יד איתן על משנה תורה, הלכות יסודי התורה", 
+                                        "order": 5, 
+                                        "title": "Yad Eitan on Mishneh Torah, Foundations of the Torah"
+                                    }, 
+                                    {
+                                        "heTitle": "יד איתן על משנה תורה, הלכות דעות", 
+                                        "order": 6, 
+                                        "title": "Yad Eitan on Mishneh Torah, Human Dispositions"
+                                    }, 
+                                    {
+                                        "heTitle": "יד איתן על משנה תורה, הלכות תלמוד תורה", 
+                                        "order": 7, 
+                                        "title": "Yad Eitan on Mishneh Torah, Torah Study"
+                                    }, 
+                                    {
+                                        "heTitle": "יד איתן על משנה תורה, הלכות עבודה זרה וחוקות הגויים", 
+                                        "order": 8, 
+                                        "title": "Yad Eitan on Mishneh Torah, Foreign Worship and Customs of the Nations"
+                                    }, 
+                                    {
+                                        "heTitle": "יד איתן על משנה תורה, הלכות תשובה", 
+                                        "order": 9, 
+                                        "title": "Yad Eitan on Mishneh Torah, Repentance"
+                                    }
+                                ]
+                            }, 
+                            {
+                                "category": "Sefer Ahavah", 
+                                "heCategory": "ספר אהבה", 
+                                "contents": [
+                                    {
+                                        "heTitle": "יד איתן על משנה תורה, הלכות תפילה וברכת כהנים", 
+                                        "order": 11, 
+                                        "title": "Yad Eitan on Mishneh Torah, Prayer and the Priestly Blessing"
+                                    }, 
+                                    {
+                                        "heTitle": "יד איתן על משנה תורה, הלכות תפילין ומזוזה וספר תורה", 
+                                        "order": 12, 
+                                        "title": "Yad Eitan on Mishneh Torah, Tefillin, Mezuzah and the Torah Scroll"
+                                    }, 
+                                    {
+                                        "heTitle": "יד איתן על משנה תורה, הלכות ציצית", 
+                                        "order": 13, 
+                                        "title": "Yad Eitan on Mishneh Torah, Fringes"
+                                    }, 
+                                    {
+                                        "heTitle": "יד איתן על משנה תורה, הלכות ברכות", 
+                                        "order": 14, 
+                                        "title": "Yad Eitan on Mishneh Torah, Blessings"
+                                    }, 
+                                    {
+                                        "heTitle": "יד איתן על משנה תורה, הלכות מילה", 
+                                        "order": 15, 
+                                        "title": "Yad Eitan on Mishneh Torah, Circumcision"
+                                    }
+                                ]
+                            }, 
+                            {
+                                "category": "Sefer Zemanim", 
+                                "heCategory": "ספר זמנים", 
+                                "contents": [
+                                    {
+                                        "heTitle": "יד איתן על משנה תורה, הלכות שבת", 
+                                        "order": 17, 
+                                        "title": "Yad Eitan on Mishneh Torah, Sabbath"
+                                    }, 
+                                    {
+                                        "heTitle": "יד איתן על משנה תורה, הלכות עירובין", 
+                                        "order": 18, 
+                                        "title": "Yad Eitan on Mishneh Torah, Eruvin"
+                                    }, 
+                                    {
+                                        "heTitle": "יד איתן על משנה תורה, הלכות שביתת עשור", 
+                                        "order": 19, 
+                                        "title": "Yad Eitan on Mishneh Torah, Rest on the Tenth of Tishrei"
+                                    }, 
+                                    {
+                                        "heTitle": "יד איתן על משנה תורה, הלכות שביתת יום טוב", 
+                                        "order": 20, 
+                                        "title": "Yad Eitan on Mishneh Torah, Rest on a Holiday"
+                                    }, 
+                                    {
+                                        "heTitle": "יד איתן על משנה תורה, הלכות חמץ ומצה", 
+                                        "order": 21, 
+                                        "title": "Yad Eitan on Mishneh Torah, Leavened and Unleavened Bread"
+                                    }, 
+                                    {
+                                        "heTitle": "יד איתן על משנה תורה, הלכות שופר וסוכה ולולב", 
+                                        "order": 22, 
+                                        "title": "Yad Eitan on Mishneh Torah, Shofar, Sukkah and Lulav"
+                                    }, 
+                                    {
+                                        "heTitle": "יד איתן על משנה תורה, הלכות קידוש החודש", 
+                                        "order": 24, 
+                                        "title": "Yad Eitan on Mishneh Torah, Sanctification of the New Month"
+                                    }, 
+                                    {
+                                        "heTitle": "יד איתן על משנה תורה, הלכות תעניות", 
+                                        "order": 25, 
+                                        "title": "Yad Eitan on Mishneh Torah, Fasts"
+                                    }
+                                ]
+                            }, 
+                            {
+                                "category": "Sefer Nashim", 
+                                "heCategory": "ספר נשים", 
+                                "contents": [
+                                    {
+                                        "heTitle": "יד איתן על משנה תורה, הלכות אישות", 
+                                        "order": 27, 
+                                        "title": "Yad Eitan on Mishneh Torah, Marriage"
+                                    }, 
+                                    {
+                                        "heTitle": "יד איתן על משנה תורה, הלכות סוטה", 
+                                        "order": 31, 
+                                        "title": "Yad Eitan on Mishneh Torah, Woman Suspected of Infidelity"
+                                    }
+                                ]
+                            }, 
+                            {
+                                "category": "Sefer Kedushah", 
+                                "heCategory": "ספר קדושה", 
+                                "contents": [
+                                    {
+                                        "heTitle": "יד איתן על משנה תורה, הלכות איסורי ביאה", 
+                                        "order": 32, 
+                                        "title": "Yad Eitan on Mishneh Torah, Forbidden Intercourse"
+                                    }, 
+                                    {
+                                        "heTitle": "יד איתן על משנה תורה, הלכות מאכלות אסורות", 
+                                        "order": 33, 
+                                        "title": "Yad Eitan on Mishneh Torah, Forbidden Foods"
+                                    }, 
+                                    {
+                                        "heTitle": "יד איתן על משנה תורה, הלכות שחיטה", 
+                                        "order": 34, 
+                                        "title": "Yad Eitan on Mishneh Torah, Ritual Slaughter"
+                                    }
+                                ]
+                            }, 
+                            {
+                                "category": "Sefer Haflaah", 
+                                "heCategory": "ספר הפלאה", 
+                                "contents": [
+                                    {
+                                        "heTitle": "יד איתן על משנה תורה, הלכות שבועות", 
+                                        "order": 35, 
+                                        "title": "Yad Eitan on Mishneh Torah, Oaths"
+                                    }, 
+                                    {
+                                        "heTitle": "יד איתן על משנה תורה, הלכות נדרים", 
+                                        "order": 36, 
+                                        "title": "Yad Eitan on Mishneh Torah, Vows"
+                                    }, 
+                                    {
+                                        "heTitle": "יד איתן על משנה תורה, הלכות נזירות", 
+                                        "order": 37, 
+                                        "title": "Yad Eitan on Mishneh Torah, Nazariteship"
+                                    }, 
+                                    {
+                                        "heTitle": "יד איתן על משנה תורה, הלכות ערכים וחרמין", 
+                                        "order": 38, 
+                                        "title": "Yad Eitan on Mishneh Torah, Appraisals and Devoted Property"
+                                    }
+                                ]
+                            }, 
+                            {
+                                "category": "Sefer Zeraim", 
+                                "heCategory": "ספר זרעים", 
+                                "contents": [
+                                    {
+                                        "heTitle": "יד איתן על משנה תורה, הלכות כלאים", 
+                                        "order": 39, 
+                                        "title": "Yad Eitan on Mishneh Torah, Diverse Species"
+                                    }, 
+                                    {
+                                        "heTitle": "יד איתן על משנה תורה, הלכות מתנות עניים", 
+                                        "order": 40, 
+                                        "title": "Yad Eitan on Mishneh Torah, Gifts to the Poor"
+                                    }, 
+                                    {
+                                        "heTitle": "יד איתן על משנה תורה, הלכות תרומות", 
+                                        "order": 41, 
+                                        "title": "Yad Eitan on Mishneh Torah, Heave Offerings"
+                                    }, 
+                                    {
+                                        "heTitle": "יד איתן על משנה תורה, הלכות מעשרות", 
+                                        "order": 42, 
+                                        "title": "Yad Eitan on Mishneh Torah, Tithes"
+                                    }, 
+                                    {
+                                        "heTitle": "יד איתן על משנה תורה, הלכות מעשר שני ונטע רבעי", 
+                                        "order": 43, 
+                                        "title": "Yad Eitan on Mishneh Torah, Second Tithes and Fourth Year's Fruit"
+                                    }, 
+                                    {
+                                        "heTitle": "יד איתן על משנה תורה, הלכות ביכורים ושאר מתנות כהונה שבגבולין", 
+                                        "order": 44, 
+                                        "title": "Yad Eitan on Mishneh Torah, First Fruits and other Gifts to Priests Outside the Sanctuary"
+                                    }, 
+                                    {
+                                        "heTitle": "יד איתן על משנה תורה, הלכות שמיטה ויובל", 
+                                        "order": 45, 
+                                        "title": "Yad Eitan on Mishneh Torah, Sabbatical Year and the Jubilee"
+                                    }
+                                ]
+                            }, 
+                            {
+                                "category": "Sefer Avodah", 
+                                "heCategory": "ספר עבודה", 
+                                "contents": [
+                                    {
+                                        "heTitle": "יד איתן על משנה תורה, הלכות בית הבחירה", 
+                                        "order": 46, 
+                                        "title": "Yad Eitan on Mishneh Torah, The Chosen Temple"
+                                    }, 
+                                    {
+                                        "heTitle": "יד איתן על משנה תורה, הלכות כלי המקדש והעובדין בו", 
+                                        "order": 47, 
+                                        "title": "Yad Eitan on Mishneh Torah, Vessels of the Sanctuary and Those who Serve Therein"
+                                    }, 
+                                    {
+                                        "heTitle": "יד איתן על משנה תורה, הלכות ביאת מקדש", 
+                                        "order": 48, 
+                                        "title": "Yad Eitan on Mishneh Torah, Admission into the Sanctuary"
+                                    }, 
+                                    {
+                                        "heTitle": "יד איתן על משנה תורה, הלכות איסורי המזבח", 
+                                        "order": 49, 
+                                        "title": "Yad Eitan on Mishneh Torah, Things Forbidden on the Altar"
+                                    }, 
+                                    {
+                                        "heTitle": "יד איתן על משנה תורה, הלכות מעשה הקרבנות", 
+                                        "order": 50, 
+                                        "title": "Yad Eitan on Mishneh Torah, Sacrificial Procedure"
+                                    }, 
+                                    {
+                                        "heTitle": "יד איתן על משנה תורה, הלכות תמידים ומוספין", 
+                                        "order": 51, 
+                                        "title": "Yad Eitan on Mishneh Torah, Daily Offerings and Additional Offerings"
+                                    }, 
+                                    {
+                                        "heTitle": "יד איתן על משנה תורה, הלכות פסולי המוקדשין", 
+                                        "order": 52, 
+                                        "title": "Yad Eitan on Mishneh Torah, Sacrifices Rendered Unfit"
+                                    }, 
+                                    {
+                                        "heTitle": "יד איתן על משנה תורה, הלכות עבודת יום הכפורים", 
+                                        "order": 53, 
+                                        "title": "Yad Eitan on Mishneh Torah, Service on the Day of Atonement"
+                                    }, 
+                                    {
+                                        "heTitle": "יד איתן על משנה תורה, הלכות מעילה", 
+                                        "order": 54, 
+                                        "title": "Yad Eitan on Mishneh Torah, Trespass"
+                                    }
+                                ]
+                            }, 
+                            {
+                                "category": "Sefer Korbanot", 
+                                "heCategory": "ספר קורבנות", 
+                                "contents": [
+                                    {
+                                        "heTitle": "יד איתן על משנה תורה, הלכות קרבן פסח", 
+                                        "order": 55, 
+                                        "title": "Yad Eitan on Mishneh Torah, Paschal Offering"
+                                    }, 
+                                    {
+                                        "heTitle": "יד איתן על משנה תורה, הלכות חגיגה", 
+                                        "order": 56, 
+                                        "title": "Yad Eitan on Mishneh Torah, Festival Offering"
+                                    }, 
+                                    {
+                                        "heTitle": "יד איתן על משנה תורה, הלכות בכורות", 
+                                        "order": 57, 
+                                        "title": "Yad Eitan on Mishneh Torah, Firstlings"
+                                    }, 
+                                    {
+                                        "heTitle": "יד איתן על משנה תורה, הלכות שגגות", 
+                                        "order": 58, 
+                                        "title": "Yad Eitan on Mishneh Torah, Offerings for Unintentional Transgressions"
+                                    }, 
+                                    {
+                                        "heTitle": "יד איתן על משנה תורה, הלכות תמורה", 
+                                        "order": 60, 
+                                        "title": "Yad Eitan on Mishneh Torah, Substitution"
+                                    }
+                                ]
+                            }, 
+                            {
+                                "category": "Sefer Taharah", 
+                                "heCategory": "ספר טהרה", 
+                                "contents": [
+                                    {
+                                        "heTitle": "יד איתן על משנה תורה, הלכות טומאת מת", 
+                                        "order": 61, 
+                                        "title": "Yad Eitan on Mishneh Torah, Defilement by a Corpse"
+                                    }, 
+                                    {
+                                        "heTitle": "יד איתן על משנה תורה, הלכות פרה אדומה", 
+                                        "order": 62, 
+                                        "title": "Yad Eitan on Mishneh Torah, Red Heifer"
+                                    }, 
+                                    {
+                                        "heTitle": "יד איתן על משנה תורה, הלכות טומאת צרעת", 
+                                        "order": 63, 
+                                        "title": "Yad Eitan on Mishneh Torah, Defilement by Leprosy"
+                                    }, 
+                                    {
+                                        "heTitle": "יד איתן על משנה תורה, הלכות מטמאי משכב ומושב", 
+                                        "order": 64, 
+                                        "title": "Yad Eitan on Mishneh Torah, Those Who Defile Bed or Seat"
+                                    }, 
+                                    {
+                                        "heTitle": "יד איתן על משנה תורה, הלכות שאר אבות הטומאות", 
+                                        "order": 65, 
+                                        "title": "Yad Eitan on Mishneh Torah, Other Sources of Defilement"
+                                    }, 
+                                    {
+                                        "heTitle": "יד איתן על משנה תורה, הלכות טומאת אוכלים", 
+                                        "order": 66, 
+                                        "title": "Yad Eitan on Mishneh Torah, Defilement of Foods"
+                                    }, 
+                                    {
+                                        "heTitle": "יד איתן על משנה תורה, הלכות כלים", 
+                                        "order": 67, 
+                                        "title": "Yad Eitan on Mishneh Torah, Vessels"
+                                    }, 
+                                    {
+                                        "heTitle": "יד איתן על משנה תורה, הלכות מקואות", 
+                                        "order": 68, 
+                                        "title": "Yad Eitan on Mishneh Torah, Immersion Pools"
+                                    }
+                                ]
+                            }, 
+                            {
+                                "category": "Sefer Nezikim", 
+                                "heCategory": "ספר נזיקין", 
+                                "contents": [
+                                    {
+                                        "heTitle": "יד איתן על משנה תורה, הלכות נזקי ממון", 
+                                        "order": 69, 
+                                        "title": "Yad Eitan on Mishneh Torah, Damages to Property"
+                                    }, 
+                                    {
+                                        "heTitle": "יד איתן על משנה תורה, הלכות גניבה", 
+                                        "order": 70, 
+                                        "title": "Yad Eitan on Mishneh Torah, Theft"
+                                    }, 
+                                    {
+                                        "heTitle": "יד איתן על משנה תורה, הלכות גזילה ואבידה", 
+                                        "order": 71, 
+                                        "title": "Yad Eitan on Mishneh Torah, Robbery and Lost Property"
+                                    }, 
+                                    {
+                                        "heTitle": "יד איתן על משנה תורה, הלכות חובל ומזיק", 
+                                        "order": 72, 
+                                        "title": "Yad Eitan on Mishneh Torah, One Who Injures a Person or Property"
+                                    }, 
+                                    {
+                                        "heTitle": "יד איתן על משנה תורה, הלכות רוצח ושמירת נפש", 
+                                        "order": 73, 
+                                        "title": "Yad Eitan on Mishneh Torah, Murderer and the Preservation of Life"
+                                    }
+                                ]
+                            }, 
+                            {
+                                "category": "Sefer Kinyan", 
+                                "heCategory": "ספר קניין", 
+                                "contents": [
+                                    {
+                                        "heTitle": "יד איתן על משנה תורה, הלכות מכירה", 
+                                        "order": 74, 
+                                        "title": "Yad Eitan on Mishneh Torah, Sales"
+                                    }, 
+                                    {
+                                        "heTitle": "יד איתן על משנה תורה, הלכות זכייה ומתנה", 
+                                        "order": 75, 
+                                        "title": "Yad Eitan on Mishneh Torah, Ownerless Property and Gifts"
+                                    }, 
+                                    {
+                                        "heTitle": "יד איתן על משנה תורה, הלכות עבדים", 
+                                        "order": 78, 
+                                        "title": "Yad Eitan on Mishneh Torah, Slaves"
+                                    }
+                                ]
+                            }, 
+                            {
+                                "category": "Sefer Mishpatim", 
+                                "heCategory": "ספר משפטים", 
+                                "contents": [
+                                    {
+                                        "heTitle": "יד איתן על משנה תורה, הלכות שכירות", 
+                                        "order": 79, 
+                                        "title": "Yad Eitan on Mishneh Torah, Hiring"
+                                    }, 
+                                    {
+                                        "heTitle": "יד איתן על משנה תורה, הלכות מלווה ולווה", 
+                                        "order": 81, 
+                                        "title": "Yad Eitan on Mishneh Torah, Creditor and Debtor"
+                                    }
+                                ]
+                            }, 
+                            {
+                                "category": "Sefer Shoftim", 
+                                "heCategory": "ספר שופטים", 
+                                "contents": [
+                                    {
+                                        "heTitle": "יד איתן על משנה תורה, הלכות סנהדרין והעונשין המסורין להם", 
+                                        "order": 84, 
+                                        "title": "Yad Eitan on Mishneh Torah, The Sanhedrin and the Penalties within their Jurisdiction"
+                                    }, 
+                                    {
+                                        "heTitle": "יד איתן על משנה תורה, הלכות עדות", 
+                                        "order": 85, 
+                                        "title": "Yad Eitan on Mishneh Torah, Testimony"
+                                    }, 
+                                    {
+                                        "heTitle": "יד איתן על משנה תורה, הלכות ממרים", 
+                                        "order": 86, 
+                                        "title": "Yad Eitan on Mishneh Torah, Rebels"
+                                    }, 
+                                    {
+                                        "heTitle": "יד איתן על משנה תורה, הלכות אבל", 
+                                        "order": 87, 
+                                        "title": "Yad Eitan on Mishneh Torah, Mourning"
+                                    }, 
+                                    {
+                                        "heTitle": "יד איתן על משנה תורה, הלכות מלכים ומלחמות", 
+                                        "order": 88, 
+                                        "title": "Yad Eitan on Mishneh Torah, Kings and Wars"
+                                    }
+                                ]
+                            }
+                        ]
+                    }, 
+                    {
+                        "category": "Yekar Tiferet", 
+                        "heCategory": "יקר תפארת", 
+                        "contents": [
+                            {
+                                "category": "Sefer Kinyan", 
+                                "heCategory": "ספר קניין", 
+                                "contents": [
+                                    {
+                                        "heTitle": "יקר תפארת על משנה תורה, הלכות שלוחין ושותפין", 
+                                        "order": 77, 
+                                        "title": "Yekar Tiferet on Mishneh Torah, Agents and Partners"
+                                    }, 
+                                    {
+                                        "heTitle": "יקר תפארת על משנה תורה, הלכות עבדים", 
+                                        "order": 78, 
+                                        "title": "Yekar Tiferet on Mishneh Torah, Slaves"
+                                    }
+                                ]
+                            }
+                        ]
                     }
                 ]
             }, 
@@ -12231,6 +14463,11 @@
                         "category": "Beur HaGra", 
                         "heCategory": "ביאור הגר\"א", 
                         "contents": [
+                            {
+                                "heTitle": "ביאור הגר\"א על שולחן ערוך אורך חיים", 
+                                "order": 1, 
+                                "title": "Beur HaGra on Shulchan Arukh, Orach Chayim"
+                            }, 
                             {
                                 "heTitle": "ביאור הגר\"א על שולחן ערוך יורה דעה", 
                                 "order": 2, 
@@ -12325,6 +14562,17 @@
                         ]
                     }, 
                     {
+                        "category": "Machatzit HaShekel", 
+                        "heCategory": "מחצית השקל", 
+                        "contents": [
+                            {
+                                "heTitle": "מחצית השקל על אורח חיים", 
+                                "order": 1, 
+                                "title": "Machatzit HaShekel on Orach Chayim"
+                            }
+                        ]
+                    }, 
+                    {
                         "category": "Magen Avraham", 
                         "heCategory": "מגן אברהם", 
                         "contents": [
@@ -12362,7 +14610,7 @@
                         "heCategory": "נקודת הכסף", 
                         "contents": [
                             {
-                                "heTitle": "נקודת הכסף על שולחן ערוך יורה דעה", 
+                                "heTitle": "נקודות הכסף על שולחן ערוך יורה דעה", 
                                 "order": 2, 
                                 "title": "Nekudat HaKesef on Shulchan Arukh, Yoreh De'ah"
                             }
@@ -12408,6 +14656,17 @@
                                 "heTitle": "פתחי תשובה על שולחן ערוך חושן משפט", 
                                 "order": 4, 
                                 "title": "Pithei Teshuva on Shulchan Arukh, Choshen Mishpat"
+                            }
+                        ]
+                    }, 
+                    {
+                        "category": "Pri Megadim", 
+                        "heCategory": "פרי מגדים", 
+                        "contents": [
+                            {
+                                "heTitle": "פרי מגדים על יורה דעה", 
+                                "order": 2, 
+                                "title": "Pri Megadim on Yoreh De'ah"
                             }
                         ]
                     }, 
@@ -12467,6 +14726,22 @@
                                 "heTitle": "טורי זהב על שולחן ערוך אבן העזר", 
                                 "order": 3, 
                                 "title": "Turei Zahav on Shulchan Arukh, Even HaEzer"
+                            }
+                        ]
+                    }, 
+                    {
+                        "category": "Urim VeTumim", 
+                        "heCategory": "אורים ותומים", 
+                        "contents": [
+                            {
+                                "heTitle": "אורים ותומים, אורים", 
+                                "order": 4, 
+                                "title": "Urim VeTumim, Urim"
+                            }, 
+                            {
+                                "heTitle": "אורים ותומים, תומים", 
+                                "order": 4, 
+                                "title": "Urim VeTumim, Tumim"
                             }
                         ]
                     }
@@ -13148,6 +15423,10 @@
                 "title": "Avodat HaKodesh (Gabbai)"
             }, 
             {
+                "heTitle": "הקדמות לחכמת האמת - ספר הזוהר", 
+                "title": "Baal HaSulam's Introduction to Zohar"
+            }, 
+            {
                 "heTitle": "ביאור עשר ספירות", 
                 "title": "Be'ur Eser S'firot"
             }, 
@@ -13158,10 +15437,6 @@
             {
                 "heTitle": "דעת תבונות", 
                 "title": "Da'at Tevunoth"
-            }, 
-            {
-                "heTitle": "הקדמה לספר הזוהר", 
-                "title": "Hakdamah Lesefer HaZohar"
             }, 
             {
                 "heTitle": "היכלות רבתי", 
@@ -13194,6 +15469,10 @@
             {
                 "heTitle": "פרי עץ חיים", 
                 "title": "Pri Etz Chaim"
+            }, 
+            {
+                "heTitle": "פרי עץ הדר", 
+                "title": "Pri Etz Hadar"
             }, 
             {
                 "heTitle": "עץ חיים", 
@@ -13402,6 +15681,10 @@
                 "title": "Kabbolos Shabbos"
             }, 
             {
+                "heTitle": "כתר מלכות", 
+                "title": "Keter Malkhut"
+            }, 
+            {
                 "heTitle": "טקסט הכתובה", 
                 "title": "Ketubah Text"
             }, 
@@ -13460,6 +15743,22 @@
             {
                 "heTitle": "יזכור", 
                 "title": "Yizkor"
+            }, 
+            {
+                "category": "Commentary", 
+                "heCategory": "מפרשים", 
+                "contents": [
+                    {
+                        "category": "Olat Reiyah", 
+                        "heCategory": "עולת ראיה", 
+                        "contents": [
+                            {
+                                "heTitle": "עולת ראיה", 
+                                "title": "Olat Reiyah"
+                            }
+                        ]
+                    }
+                ]
             }
         ]
     }, 
@@ -13590,6 +15889,10 @@
             {
                 "heTitle": "מאמר על ישמעאל", 
                 "title": "Ma'amar al Yishmael"
+            }, 
+            {
+                "heTitle": "מאמר הדור", 
+                "title": "Maamar Hador"
             }, 
             {
                 "heTitle": "מדבר שור", 
@@ -14151,12 +16454,20 @@
                         "title": "Tractate Kallah Rabbati"
                     }, 
                     {
+                        "heTitle": "מסכת כותים", 
+                        "title": "Tractate Kutim"
+                    }, 
+                    {
                         "heTitle": "מסכת מזוזה", 
                         "title": "Tractate Mezuzah"
                     }, 
                     {
                         "heTitle": "מסכת ספר תורה", 
                         "title": "Tractate Sefer Torah"
+                    }, 
+                    {
+                        "heTitle": "מסכת שמחות", 
+                        "title": "Tractate Semachot"
                     }, 
                     {
                         "heTitle": "מסכת סופרים", 
@@ -14235,6 +16546,10 @@
                                 "title": "Gra's Nuschah on Tractate Kallah"
                             }, 
                             {
+                                "heTitle": "נוסחת הגר״א על מסכת שמחות", 
+                                "title": "Gra's Nuschah on Tractate Semachot"
+                            }, 
+                            {
                                 "heTitle": "נוסחת הגר״א על מסכת סופרים", 
                                 "title": "Gra's Nuschah on Tractate Soferim"
                             }
@@ -14253,6 +16568,10 @@
                             {
                                 "heTitle": "הגהות על מסכת עבדים", 
                                 "title": "Haggahot on Tractate Avadim"
+                            }, 
+                            {
+                                "heTitle": "הגהות על מסכת כותים", 
+                                "title": "Haggahot on Tractate Kutim"
                             }, 
                             {
                                 "heTitle": "הגהות על מסכת מזוזה", 
@@ -14299,6 +16618,10 @@
                                 "title": "Haggahot R' Yeshaya Berlin on Tractate Kallah"
                             }, 
                             {
+                                "heTitle": "הגהות הגרי״ב על מסכת שמחות", 
+                                "title": "Haggahot R' Yeshaya Berlin on Tractate Semachot"
+                            }, 
+                            {
                                 "heTitle": "הגהות הגרי״ב על מסכת סופרים", 
                                 "title": "Haggahot R' Yeshaya Berlin on Tractate Soferim"
                             }
@@ -14325,6 +16648,10 @@
                             {
                                 "heTitle": "הגהות מהריעב״ץ על מסכת דרך ארץ זוטא", 
                                 "title": "Haggahot Ya'avetz on Tractate Derekh Eretz Zuta"
+                            }, 
+                            {
+                                "heTitle": "הגהות מהריעב״ץ על מסכת שמחות", 
+                                "title": "Haggahot Ya'avetz on Tractate Semachot"
                             }, 
                             {
                                 "heTitle": "הגהות מהריעב״ץ על מסכת סופרים", 
@@ -14375,6 +16702,22 @@
                 ]
             }, 
             {
+                "category": "Lev Hakhamim", 
+                "heCategory": "לב חכמים", 
+                "contents": [
+                    {
+                        "category": "Minor Tractates", 
+                        "heCategory": "מסכתות קטנות", 
+                        "contents": [
+                            {
+                                "heTitle": "לב חכמים על מסכת שמחות", 
+                                "title": "Lev Hakhamim on Tractate Semachot"
+                            }
+                        ]
+                    }
+                ]
+            }, 
+            {
                 "category": "Mesorat HaShas", 
                 "heCategory": "מסורת הש״ס", 
                 "contents": [
@@ -14385,6 +16728,10 @@
                             {
                                 "heTitle": "מסורת הש״ס על מסכת עבדים", 
                                 "title": "Mesorat HaShas on Tractate Avadim"
+                            }, 
+                            {
+                                "heTitle": "מסורת הש״ס על מסכת כותים", 
+                                "title": "Mesorat HaShas on Tractate Kutim"
                             }, 
                             {
                                 "heTitle": "מסורת הש״ס על מסכת מזוזה", 
@@ -14445,6 +16792,10 @@
                             {
                                 "heTitle": "נחלת יעקב על מסכת כלה", 
                                 "title": "Nahalat Yaakov on Tractate Kallah"
+                            }, 
+                            {
+                                "heTitle": "נחלת יעקב על מסכת שמחות", 
+                                "title": "Nahalat Yaakov on Tractate Semachot"
                             }, 
                             {
                                 "heTitle": "נחלת יעקב על מסכת סופרים", 
@@ -14532,10 +16883,6 @@
                 "category": "Early Works", 
                 "heCategory": "ספרי ראשית", 
                 "contents": [
-                    {
-                        "heTitle": "בני יששכר", 
-                        "title": "Bnei Yissaschar"
-                    }, 
                     {
                         "heTitle": "קדושת לוי", 
                         "title": "Kedushat Levi"
@@ -14683,8 +17030,16 @@
                 "title": "Beit Aharon"
             }, 
             {
+                "heTitle": "בני יששכר", 
+                "title": "Bnei Yissaschar"
+            }, 
+            {
                 "heTitle": "חידושי הרי\"מ על התורה", 
                 "title": "Chiddushei HaRim on Torah"
+            }, 
+            {
+                "heTitle": "חובת התלמידים", 
+                "title": "Chovat HaTalmidim"
             }, 
             {
                 "heTitle": "דרכי ישרים", 
@@ -14705,6 +17060,10 @@
             {
                 "heTitle": "כתר שם טוב", 
                 "title": "Keter Shem Tov"
+            }, 
+            {
+                "heTitle": "מאור ושמש", 
+                "title": "Maor VaShemesh"
             }, 
             {
                 "heTitle": "מאור עינים", 
@@ -14729,6 +17088,10 @@
             {
                 "heTitle": "שער האמונה ויסוד החסידות", 
                 "title": "Shaar HaEmunah Ve'Yesod HaChassidut"
+            }, 
+            {
+                "heTitle": "שם משמואל", 
+                "title": "Shem MiShmuel"
             }, 
             {
                 "heTitle": "שבחי הבעש\"ט", 
@@ -14764,6 +17127,10 @@
         "heCategory": "ספרי מוסר", 
         "contents": [
             {
+                "heTitle": "בחינת עולם", 
+                "title": "Bechinat Olam"
+            }, 
+            {
                 "heTitle": "אגרת הגר\"א", 
                 "title": "Iggeret HaGra"
             }, 
@@ -14780,12 +17147,12 @@
                 "title": "Kav HaYashar"
             }, 
             {
-                "heTitle": "קיצור ספר חרדים", 
-                "title": "Kitzur Sefer Haredim of Rabbi Elazar Azcari"
-            }, 
-            {
                 "heTitle": "אגרת הרמב\"ן לבנו", 
                 "title": "Letter from Ramban to his Son"
+            }, 
+            {
+                "heTitle": "מאמר מזכה הרבים", 
+                "title": "Maamar Mezake HaRabim"
             }, 
             {
                 "heTitle": "מסילת ישרים", 
@@ -14850,6 +17217,10 @@
             {
                 "heTitle": "שיחות עבודת לוי", 
                 "title": "Sichot Avodat Levi"
+            }, 
+            {
+                "heTitle": "תקון מדות הנפש", 
+                "title": "The Improvement of the Moral Qualities"
             }, 
             {
                 "heTitle": "תורת הבית", 
@@ -14936,6 +17307,10 @@
             {
                 "heTitle": "שו\"ת במראה הבזק חלק רביעי", 
                 "title": "B'Mareh HaBazak  Volume IV"
+            }, 
+            {
+                "heTitle": "שו\"ת במראה הבזק חלק ראשון", 
+                "title": "B'Mareh HaBazak Volume I"
             }, 
             {
                 "heTitle": "שו\"ת במראה הבזק חלק שלישי", 
@@ -15218,6 +17593,14 @@
             {
                 "heTitle": "ספר שושנה", 
                 "title": "The Book of Susanna"
+            }, 
+            {
+                "heTitle": "צוואות השבטים", 
+                "title": "The Testaments of the Twelve Patriarchs"
+            }, 
+            {
+                "heTitle": "חכמת שלמה", 
+                "title": "The Wisdom of Solomon"
             }
         ]
     }, 
@@ -15318,6 +17701,377 @@
             {
                 "heTitle": "הערות לקהלת מאת ברוס הייטלר", 
                 "title": "Footnotes to Kohelet by Bruce Heitler"
+            }, 
+            {
+                "category": "English Explanation of Mishnah", 
+                "heCategory": "ביאור אנגלי על המשנה", 
+                "contents": [
+                    {
+                        "category": "Seder Zeraim", 
+                        "heCategory": "סדר זרעים", 
+                        "contents": [
+                            {
+                                "heTitle": "ביאור אנגלי על משנה ברכות", 
+                                "order": 1, 
+                                "title": "English Explanation of Mishnah Berakhot"
+                            }, 
+                            {
+                                "heTitle": "ביאור אנגלי על משנה פאה", 
+                                "order": 2, 
+                                "title": "English Explanation of Mishnah Peah"
+                            }, 
+                            {
+                                "heTitle": "ביאור אנגלי על משנה דמאי", 
+                                "order": 3, 
+                                "title": "English Explanation of Mishnah Demai"
+                            }, 
+                            {
+                                "heTitle": "ביאור אנגלי על משנה כלאים", 
+                                "order": 4, 
+                                "title": "English Explanation of Mishnah Kilayim"
+                            }, 
+                            {
+                                "heTitle": "ביאור אנגלי על משנה שביעית", 
+                                "order": 5, 
+                                "title": "English Explanation of Mishnah Sheviit"
+                            }, 
+                            {
+                                "heTitle": "ביאור אנגלי על משנה תרומות", 
+                                "order": 6, 
+                                "title": "English Explanation of Mishnah Terumot"
+                            }, 
+                            {
+                                "heTitle": "ביאור אנגלי על משנה מעשרות", 
+                                "order": 7, 
+                                "title": "English Explanation of Mishnah Maasrot"
+                            }, 
+                            {
+                                "heTitle": "ביאור אנגלי על משנה מעשר שני", 
+                                "order": 8, 
+                                "title": "English Explanation of Mishnah Maaser Sheni"
+                            }, 
+                            {
+                                "heTitle": "ביאור אנגלי על משנה חלה", 
+                                "order": 9, 
+                                "title": "English Explanation of Mishnah Challah"
+                            }, 
+                            {
+                                "heTitle": "ביאור אנגלי על משנה ערלה", 
+                                "order": 10, 
+                                "title": "English Explanation of Mishnah Orlah"
+                            }, 
+                            {
+                                "heTitle": "ביאור אנגלי על משנה ביכורים", 
+                                "order": 11, 
+                                "title": "English Explanation of Mishnah Bikkurim"
+                            }
+                        ]
+                    }, 
+                    {
+                        "category": "Seder Moed", 
+                        "heCategory": "סדר מועד", 
+                        "contents": [
+                            {
+                                "heTitle": "ביאור אנגלי על משנה שבת", 
+                                "order": 12, 
+                                "title": "English Explanation of Mishnah Shabbat"
+                            }, 
+                            {
+                                "heTitle": "ביאור אנגלי על משנה עירובין", 
+                                "order": 13, 
+                                "title": "English Explanation of Mishnah Eruvin"
+                            }, 
+                            {
+                                "heTitle": "ביאור אנגלי על משנה פסחים", 
+                                "order": 14, 
+                                "title": "English Explanation of Mishnah Pesachim"
+                            }, 
+                            {
+                                "heTitle": "ביאור אנגלי על משנה שקלים", 
+                                "order": 15, 
+                                "title": "English Explanation of Mishnah Shekalim"
+                            }, 
+                            {
+                                "heTitle": "ביאור אנגלי על משנה יומא", 
+                                "order": 16, 
+                                "title": "English Explanation of Mishnah Yoma"
+                            }, 
+                            {
+                                "heTitle": "ביאור אנגלי על משנה סוכה", 
+                                "order": 17, 
+                                "title": "English Explanation of Mishnah Sukkah"
+                            }, 
+                            {
+                                "heTitle": "ביאור אנגלי על משנה ביצה", 
+                                "order": 18, 
+                                "title": "English Explanation of Mishnah Beitzah"
+                            }, 
+                            {
+                                "heTitle": "ביאור אנגלי על משנה ראש השנה", 
+                                "order": 19, 
+                                "title": "English Explanation of Mishnah Rosh Hashanah"
+                            }, 
+                            {
+                                "heTitle": "ביאור אנגלי על משנה תענית", 
+                                "order": 20, 
+                                "title": "English Explanation of Mishnah Taanit"
+                            }, 
+                            {
+                                "heTitle": "ביאור אנגלי על משנה מגילה", 
+                                "order": 21, 
+                                "title": "English Explanation of Mishnah Megillah"
+                            }, 
+                            {
+                                "heTitle": "ביאור אנגלי על משנה מועד קטן", 
+                                "order": 22, 
+                                "title": "English Explanation of Mishnah Moed Katan"
+                            }, 
+                            {
+                                "heTitle": "ביאור אנגלי על משנה חגיגה", 
+                                "order": 23, 
+                                "title": "English Explanation of Mishnah Chagigah"
+                            }
+                        ]
+                    }, 
+                    {
+                        "category": "Seder Nashim", 
+                        "heCategory": "סדר נשים", 
+                        "contents": [
+                            {
+                                "heTitle": "ביאור אנגלי על משנה יבמות", 
+                                "order": 24, 
+                                "title": "English Explanation of Mishnah Yevamot"
+                            }, 
+                            {
+                                "heTitle": "ביאור אנגלי על משנה כתובות", 
+                                "order": 25, 
+                                "title": "English Explanation of Mishnah Ketubot"
+                            }, 
+                            {
+                                "heTitle": "ביאור אנגלי על משנה נדרים", 
+                                "order": 26, 
+                                "title": "English Explanation of Mishnah Nedarim"
+                            }, 
+                            {
+                                "heTitle": "ביאור אנגלי על משנה נזיר", 
+                                "order": 27, 
+                                "title": "English Explanation of Mishnah Nazir"
+                            }, 
+                            {
+                                "heTitle": "ביאור אנגלי על משנה סוטה", 
+                                "order": 28, 
+                                "title": "English Explanation of Mishnah Sotah"
+                            }, 
+                            {
+                                "heTitle": "ביאור אנגלי על משנה גיטין", 
+                                "order": 29, 
+                                "title": "English Explanation of Mishnah Gittin"
+                            }, 
+                            {
+                                "heTitle": "ביאור אנגלי על משנה קידושין", 
+                                "order": 30, 
+                                "title": "English Explanation of Mishnah Kiddushin"
+                            }
+                        ]
+                    }, 
+                    {
+                        "category": "Seder Nezikin", 
+                        "heCategory": "סדר נזיקין", 
+                        "contents": [
+                            {
+                                "heTitle": "ביאור אנגלי על משנה בבא קמא", 
+                                "order": 31, 
+                                "title": "English Explanation of Mishnah Bava Kamma"
+                            }, 
+                            {
+                                "heTitle": "ביאור אנגלי על משנה בבא מציעא", 
+                                "order": 32, 
+                                "title": "English Explanation of Mishnah Bava Metzia"
+                            }, 
+                            {
+                                "heTitle": "ביאור אנגלי על משנה בבא בתרא", 
+                                "order": 33, 
+                                "title": "English Explanation of Mishnah Bava Batra"
+                            }, 
+                            {
+                                "heTitle": "ביאור אנגלי על משנה סנהדרין", 
+                                "order": 34, 
+                                "title": "English Explanation of Mishnah Sanhedrin"
+                            }, 
+                            {
+                                "heTitle": "ביאור אנגלי על משנה מכות", 
+                                "order": 35, 
+                                "title": "English Explanation of Mishnah Makkot"
+                            }, 
+                            {
+                                "heTitle": "ביאור אנגלי על משנה שבועות", 
+                                "order": 36, 
+                                "title": "English Explanation of Mishnah Shevuot"
+                            }, 
+                            {
+                                "heTitle": "ביאור אנגלי על משנה עדיות", 
+                                "order": 37, 
+                                "title": "English Explanation of Mishnah Eduyot"
+                            }, 
+                            {
+                                "heTitle": "ביאור אנגלי על משנה עבודה זרה", 
+                                "order": 38, 
+                                "title": "English Explanation of Mishnah Avodah Zarah"
+                            }, 
+                            {
+                                "heTitle": "ביאור אנגלי על משנה אבות", 
+                                "order": 39, 
+                                "title": "English Explanation of Pirkei Avot"
+                            }, 
+                            {
+                                "heTitle": "ביאור אנגלי על משנה הוריות", 
+                                "order": 40, 
+                                "title": "English Explanation of Mishnah Horayot"
+                            }
+                        ]
+                    }, 
+                    {
+                        "category": "Seder Kodashim", 
+                        "heCategory": "סדר קדשים", 
+                        "contents": [
+                            {
+                                "heTitle": "ביאור אנגלי על משנה זבחים", 
+                                "order": 41, 
+                                "title": "English Explanation of Mishnah Zevachim"
+                            }, 
+                            {
+                                "heTitle": "ביאור אנגלי על משנה מנחות", 
+                                "order": 42, 
+                                "title": "English Explanation of Mishnah Menachot"
+                            }, 
+                            {
+                                "heTitle": "ביאור אנגלי על משנה חולין", 
+                                "order": 43, 
+                                "title": "English Explanation of Mishnah Chullin"
+                            }, 
+                            {
+                                "heTitle": "ביאור אנגלי על משנה בכורות", 
+                                "order": 44, 
+                                "title": "English Explanation of Mishnah Bekhorot"
+                            }, 
+                            {
+                                "heTitle": "ביאור אנגלי על משנה ערכין", 
+                                "order": 45, 
+                                "title": "English Explanation of Mishnah Arakhin"
+                            }, 
+                            {
+                                "heTitle": "ביאור אנגלי על משנה תמורה", 
+                                "order": 46, 
+                                "title": "English Explanation of Mishnah Temurah"
+                            }, 
+                            {
+                                "heTitle": "ביאור אנגלי על משנה כריתות", 
+                                "order": 47, 
+                                "title": "English Explanation of Mishnah Keritot"
+                            }, 
+                            {
+                                "heTitle": "ביאור אנגלי על משנה מעילה", 
+                                "order": 48, 
+                                "title": "English Explanation of Mishnah Meilah"
+                            }, 
+                            {
+                                "heTitle": "ביאור אנגלי על משנה תמיד", 
+                                "order": 49, 
+                                "title": "English Explanation of Mishnah Tamid"
+                            }, 
+                            {
+                                "heTitle": "ביאור אנגלי על משנה מדות", 
+                                "order": 50, 
+                                "title": "English Explanation of Mishnah Middot"
+                            }, 
+                            {
+                                "heTitle": "ביאור אנגלי על משנה קינים", 
+                                "order": 51, 
+                                "title": "English Explanation of Mishnah Kinnim"
+                            }
+                        ]
+                    }, 
+                    {
+                        "category": "Seder Tahorot", 
+                        "heCategory": "סדר טהרות", 
+                        "contents": [
+                            {
+                                "heTitle": "ביאור אנגלי על משנה כלים", 
+                                "order": 52, 
+                                "title": "English Explanation of Mishnah Kelim"
+                            }, 
+                            {
+                                "heTitle": "ביאור אנגלי על משנה אהלות", 
+                                "order": 53, 
+                                "title": "English Explanation of Mishnah Oholot"
+                            }, 
+                            {
+                                "heTitle": "ביאור אנגלי על משנה נגעים", 
+                                "order": 54, 
+                                "title": "English Explanation of Mishnah Negaim"
+                            }, 
+                            {
+                                "heTitle": "ביאור אנגלי על משנה פרה", 
+                                "order": 55, 
+                                "title": "English Explanation of Mishnah Parah"
+                            }, 
+                            {
+                                "heTitle": "ביאור אנגלי על משנה טהרות", 
+                                "order": 56, 
+                                "title": "English Explanation of Mishnah Tahorot"
+                            }, 
+                            {
+                                "heTitle": "ביאור אנגלי על משנה מקואות", 
+                                "order": 57, 
+                                "title": "English Explanation of Mishnah Mikvaot"
+                            }, 
+                            {
+                                "heTitle": "ביאור אנגלי על משנה נדה", 
+                                "order": 58, 
+                                "title": "English Explanation of Mishnah Niddah"
+                            }, 
+                            {
+                                "heTitle": "ביאור אנגלי על משנה מכשירין", 
+                                "order": 59, 
+                                "title": "English Explanation of Mishnah Makhshirin"
+                            }, 
+                            {
+                                "heTitle": "ביאור אנגלי על משנה זבים", 
+                                "order": 60, 
+                                "title": "English Explanation of Mishnah Zavim"
+                            }, 
+                            {
+                                "heTitle": "ביאור אנגלי על משנה טבול יום", 
+                                "order": 61, 
+                                "title": "English Explanation of Mishnah Tevul Yom"
+                            }, 
+                            {
+                                "heTitle": "ביאור אנגלי על משנה ידים", 
+                                "order": 62, 
+                                "title": "English Explanation of Mishnah Yadayim"
+                            }, 
+                            {
+                                "heTitle": "ביאור אנגלי על משנה עוקצים", 
+                                "order": 63, 
+                                "title": "English Explanation of Mishnah Oktzin"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }, 
+    {
+        "category": "Reference", 
+        "heCategory": "עיון", 
+        "contents": [
+            {
+                "heTitle": "יסטרוב", 
+                "title": "Jastrow"
+            }, 
+            {
+                "heTitle": "מילון קליין", 
+                "title": "Klein Dictionary"
             }
         ]
     }, 
@@ -15332,6 +18086,14 @@
             {
                 "heTitle": "דרוש חדושי הלבנה", 
                 "title": "Derush Chidushei HaLevana"
+            }, 
+            {
+                "heTitle": "אורות התורה", 
+                "title": "Orot HaTorah"
+            }, 
+            {
+                "heTitle": "קדמוניות היהודים", 
+                "title": "The Antiquities of the Jews"
             }, 
             {
                 "heTitle": "מדרשי פילון", 
