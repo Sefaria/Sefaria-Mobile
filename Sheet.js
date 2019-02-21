@@ -257,66 +257,65 @@ class Sheet extends React.Component {
 }
 
 class SheetSource extends Component {
-    componentDidUpdate(prevProps, prevState) {
-        if (this.props.currentlyActive && !prevProps.currentlyActive) {
-            this.props.textSegmentPressed(this.props.source.ref, this.props.sourceIndex, this.props.segmentIndex, false)
-        }
+  componentDidUpdate(prevProps, prevState) {
+    if (this.props.currentlyActive && !prevProps.currentlyActive) {
+      this.onPress(false);
     }
+  }
 
-    render() {
+  onPress = (toggle=true) => {
+    this.props.textSegmentPressed(this.props.source.ref, this.props.sourceIndex, this.props.segmentIndex, toggle)
+  }
 
+  render() {
+    var enText = this.props.source.text.en ? this.props.cleanSheetHTML(this.props.source.text.en) : "";
+    var heText = this.props.source.text.he ? this.props.cleanSheetHTML(this.props.source.text.he) : "";
 
-        var enText = this.props.source.text.en ? this.props.cleanSheetHTML(this.props.source.text.en) : "";
-        var heText = this.props.source.text.he ? this.props.cleanSheetHTML(this.props.source.text.he) : "";
+    //let numLinks = this.props.rowData.content.links ? this.props.rowData.content.links.length : 0;
+    let numLinks = 40
 
-        //let numLinks = this.props.rowData.content.links ? this.props.rowData.content.links.length : 0;
-        let numLinks = 40
+    let segment = [];
+    let textLanguage = Sefaria.util.getTextLanguageWithContent(this.props.textLanguage, enText, heText);
 
-        let segment = [];
-        let textLanguage = Sefaria.util.getTextLanguageWithContent(this.props.textLanguage, enText, heText);
+    let bulletOpacity = (numLinks-20) / (70-20);
+    if (numLinks == 0) { bulletOpacity = 0; }
+    else if (bulletOpacity < 0.3) { bulletOpacity = 0.3; }
+    else if (bulletOpacity > 0.8) { bulletOpacity = 0.8; }
 
-        let bulletOpacity = (numLinks-20) / (70-20);
-        if (numLinks == 0) { bulletOpacity = 0; }
-        else if (bulletOpacity < 0.3) { bulletOpacity = 0.3; }
-        else if (bulletOpacity > 0.8) { bulletOpacity = 0.8; }
+    var bulletMargin = (<Text ref={this.props.source.ref}
+                                   style={[styles.verseBullet, this.props.theme.verseBullet, {opacity:bulletOpacity}]}
+                                   key={this.props.source.ref + "|segment-dot"}>
+                        {"●"}
+                      </Text>);
 
-        var bulletMargin = (<Text ref={this.props.source.ref}
-                                       style={[styles.verseBullet, this.props.theme.verseBullet, {opacity:bulletOpacity}]}
-                                       key={this.props.source.ref + "|segment-dot"}>
-                            {"●"}
-                          </Text>);
-
-        const showHe = textLanguage == "hebrew" || textLanguage == "bilingual";
-        const showEn = textLanguage == "english" || textLanguage == "bilingual";
-
-
-        const isStacked = this.props.biLayout === 'stacked';
-        const lineHeightMultiplierHe = Platform.OS === 'android' ? 1.3 : 1.2;
-        const style = this.props.textType == "hebrew" ?
-                      [styles.hebrewText, this.props.theme.text, (isStacked && Platform.OS === 'ios') ? styles.justifyText : {textAlign: 'right'}, {fontSize: this.props.fontSize, lineHeight: this.props.fontSize * lineHeightMultiplierHe}] :
-                      [styles.englishText, this.props.theme.text, isStacked ? styles.justifyText : {textAlign: 'left'}, {fontSize: 0.8 * this.props.fontSize, lineHeight: this.props.fontSize * 1.04 }];
-        if (this.props.bilingual && this.props.textType == "english") {
-          if (isStacked) {
-            style.push(styles.bilingualEnglishText);
-          }
-          style.push(this.props.theme.bilingualEnglishText);
-        }
-        const smallSheet = {
-          small: {
-            fontSize: this.props.fontSize * 0.8 * (this.props.textType === "hebrew" ? 1 : 0.8)
-          },
-          hediv: {
-            textAlign: (isStacked && Platform.OS === 'ios') ? 'justify' : 'right'  // justify looks bad hebrew with small screens in side-by-side layout
-          },
-          endiv: {
-            textAlign: isStacked ? 'justify' : 'left'
-          }
-        };
+    const showHe = textLanguage == "hebrew" || textLanguage == "bilingual";
+    const showEn = textLanguage == "english" || textLanguage == "bilingual";
 
 
+    const isStacked = this.props.biLayout === 'stacked';
+    const lineHeightMultiplierHe = Platform.OS === 'android' ? 1.3 : 1.2;
+    const style = this.props.textType == "hebrew" ?
+                  [styles.hebrewText, this.props.theme.text, (isStacked && Platform.OS === 'ios') ? styles.justifyText : {textAlign: 'right'}, {fontSize: this.props.fontSize, lineHeight: this.props.fontSize * lineHeightMultiplierHe}] :
+                  [styles.englishText, this.props.theme.text, isStacked ? styles.justifyText : {textAlign: 'left'}, {fontSize: 0.8 * this.props.fontSize, lineHeight: this.props.fontSize * 1.04 }];
+    if (this.props.bilingual && this.props.textType == "english") {
+      if (isStacked) {
+        style.push(styles.bilingualEnglishText);
+      }
+      style.push(this.props.theme.bilingualEnglishText);
+    }
+    const smallSheet = {
+      small: {
+        fontSize: this.props.fontSize * 0.8 * (this.props.textType === "hebrew" ? 1 : 0.8)
+      },
+      hediv: {
+        textAlign: (isStacked && Platform.OS === 'ios') ? 'justify' : 'right'  // justify looks bad hebrew with small screens in side-by-side layout
+      },
+      endiv: {
+        textAlign: isStacked ? 'justify' : 'left'
+      }
+    };
 
-
-        return (
+    return (
       <View
         style={styles.verseContainer}
       >
@@ -324,237 +323,211 @@ class SheetSource extends Component {
           style={[styles.numberSegmentHolderEn, {flexDirection: this.props.textLanguage === 'english' ? 'row' : 'row-reverse'}]}
         >
           { this.props.numberMargin }
-            <View style={this.props.textStyle}>
-
-                {heText != "" && ['hebrew','bilingual'].includes(this.props.textLanguage) ?
-                    <View style={{flex:1}}>
-                    <Text style={[styles.hebrewText,styles.sheetRef]}>{this.props.source.heRef}</Text>
-
-                    <HTMLView
-                        value={"<hediv>"+heText+"</hediv>"}
-                        stylesheet={{...styles, ...smallSheet}}
-                        rootComponentProps={{
-                 hitSlop: {top: 10, bottom: 10, left: 10, right: 10},  // increase hit area of segments
-                 onPress:() => this.props.textSegmentPressed(this.props.source.ref, this.props.sourceIndex, this.props.segmentIndex),
-                 onLongPress:this.props.onLongPress,
-                 delayPressIn: 200,
-               }
-             }
-                        RootComponent={TouchableOpacity}
-                        textComponentProps={
-               {
-                 suppressHighlighting: false,
-                 key:this.props.segmentKey,
-                 style: [styles.hebrewText, this.props.theme.text, styles.justifyText, {fontSize: this.props.fontSize, lineHeight: this.props.fontSize * lineHeightMultiplierHe}]
-
-               }
-             }
-                        style={{flex: this.props.textType == "hebrew" ? 4.5 : 5.5, paddingHorizontal: 10}}
-                    /></View> : null}
-
-
-                {enText !="" && ['english','bilingual'].includes(this.props.textLanguage) ?
-                    <View style={{flex:1}}>
-                    <Text style={[styles.englishText,styles.sheetRef]}>{this.props.source.ref}</Text>
-                    <HTMLView
-                        value={"<endiv>&#x200E;"+enText+"</endiv>"}
-                        stylesheet={{...styles, ...smallSheet}}
-                        rootComponentProps={{
-                 hitSlop: {top: 10, bottom: 10, left: 10, right: 10},  // increase hit area of segments
-                 onPress:() => this.props.textSegmentPressed(this.props.source.ref, this.props.sourceIndex,this.props.segmentIndex),
-                 onLongPress:this.props.onLongPress,
-                 delayPressIn: 200,
-               }
-             }
-                        RootComponent={TouchableOpacity}
-                        textComponentProps={
-               {
-                 suppressHighlighting: false,
-                 key:this.props.segmentKey,
-                 style: [styles.englishText, this.props.theme.text, styles.justifyText, {fontSize: 0.8 * this.props.fontSize, lineHeight: this.props.fontSize * 1.04 }]
-               }
-             }
-                        style={{flex: this.props.textType == "hebrew" ? 4.5 : 5.5, paddingHorizontal: 10}}
-                    /></View> : null}
-
-                   </View>
-            { this.props.bulletMargin }
+          <View style={this.props.textStyle}>
+            {heText != "" && ['hebrew','bilingual'].includes(this.props.textLanguage) ?
+              <View style={{flex:1}}>
+                <Text style={[styles.hebrewText,styles.sheetRef]}>{this.props.source.heRef}</Text>
+                <HTMLView
+                  value={"<hediv>"+heText+"</hediv>"}
+                  stylesheet={{...styles, ...smallSheet}}
+                  rootComponentProps={{
+                    hitSlop: {top: 10, bottom: 10, left: 10, right: 10},  // increase hit area of segments
+                    onPress: this.onPress,
+                    onLongPress:this.props.onLongPress,
+                    delayPressIn: 200,
+                  }}
+                  RootComponent={TouchableOpacity}
+                  textComponentProps={{
+                    suppressHighlighting: false,
+                    key:this.props.segmentKey,
+                    style: [styles.hebrewText, this.props.theme.text, styles.justifyText, {fontSize: this.props.fontSize, lineHeight: this.props.fontSize * lineHeightMultiplierHe}]
+                  }}
+                  style={{flex: this.props.textType == "hebrew" ? 4.5 : 5.5, paddingHorizontal: 10}}
+                />
+              </View> :
+            null}
+            {enText !="" && ['english','bilingual'].includes(this.props.textLanguage) ?
+              <View style={{flex:1}}>
+                <Text style={[styles.englishText,styles.sheetRef]}>{this.props.source.ref}</Text>
+                <HTMLView
+                    value={"<endiv>&#x200E;"+enText+"</endiv>"}
+                    stylesheet={{...styles, ...smallSheet}}
+                    rootComponentProps={{
+                      hitSlop: {top: 10, bottom: 10, left: 10, right: 10},  // increase hit area of segments
+                      onPress: this.onPress,
+                      onLongPress:this.props.onLongPress,
+                      delayPressIn: 200,
+                    }}
+                    RootComponent={TouchableOpacity}
+                    textComponentProps={{
+                      suppressHighlighting: false,
+                      key:this.props.segmentKey,
+                      style: [styles.englishText, this.props.theme.text, styles.justifyText, {fontSize: 0.8 * this.props.fontSize, lineHeight: this.props.fontSize * 1.04 }]
+                    }}
+                    style={{flex: this.props.textType == "hebrew" ? 4.5 : 5.5, paddingHorizontal: 10}}
+                />
+              </View> :
+            null}
+          </View>
+          { this.props.bulletMargin }
         </View>
       </View>
-
-        )
-    }
+    )
+  }
 }
 
 class SheetComment extends Component {
-    componentDidUpdate(prevProps, prevState) {
-        if (this.props.currentlyActive && !prevProps.currentlyActive) {
-            this.props.textSegmentPressed("Sheet "+this.props.sheetId+"."+this.props.source.node, this.props.sourceIndex, 0, false)
-        }
+  componentDidUpdate(prevProps, prevState) {
+    if (this.props.currentlyActive && !prevProps.currentlyActive) {
+      this.onPress(false);
     }
+  }
+  onPress = (toggle=true) => {
+    this.props.textSegmentPressed("Sheet "+this.props.sheetId+"."+this.props.source.node, this.props.sourceIndex, 0, toggle);
+  }
+  render() {
+    var lang = Sefaria.hebrew.isHebrew(Sefaria.util.stripHtml(this.props.source.comment)) ? "he" : "en";
+    var comment = this.props.cleanSheetHTML(this.props.source.comment);
 
-    render() {
-        var lang = Sefaria.hebrew.isHebrew(Sefaria.util.stripHtml(this.props.source.comment)) ? "he" : "en";
-        var comment = this.props.cleanSheetHTML(this.props.source.comment);
-
-        return (
+    return (
       <View
         style={styles.verseContainer}
       >
         <View style={[styles.numberSegmentHolderEn, {flexDirection: this.props.textLanguage === 'english' ? 'row' : 'row-reverse'}]}>
           { this.props.numberMargin }
             <View style={this.props.textStyle}>
-
-                <HTMLView
-                    value={lang == "en" ? "<endiv>&#x200E;"+comment+"</endiv>" : "<hediv>&#x200E;"+comment+"</hediv>"}
-                    stylesheet={{...styles}}
-                    rootComponentProps={{
-                 hitSlop: {top: 10, bottom: 10, left: 10, right: 10},  // increase hit area of segments
-                 onPress:() => this.props.textSegmentPressed("Sheet "+this.props.sheetId+"."+this.props.source.node,this.props.sourceIndex,0),
-                 onLongPress:this.props.onLongPress,
-                 delayPressIn: 200,
-               }
-             }
-                    RootComponent={TouchableOpacity}
-                    textComponentProps={
-               {
-                 suppressHighlighting: false,
-                 key:this.props.segmentKey,
-                 style: [styles.englishText, this.props.theme.text, styles.justifyText, {fontSize: 0.8 * this.props.fontSize, lineHeight: this.props.fontSize * 1.04 }]
-
-               }
-             }
-                    style={{flex: this.props.textType == "hebrew" ? 4.5 : 5.5, paddingHorizontal: 10}}
-                />
-
+              <HTMLView
+                value={lang == "en" ? "<endiv>&#x200E;"+comment+"</endiv>" : "<hediv>&#x200E;"+comment+"</hediv>"}
+                stylesheet={{...styles}}
+                rootComponentProps={{
+                  hitSlop: {top: 10, bottom: 10, left: 10, right: 10},  // increase hit area of segments
+                  onPress: this.onPress,
+                  onLongPress:this.props.onLongPress,
+                  delayPressIn: 200,
+                }}
+                RootComponent={TouchableOpacity}
+                textComponentProps={{
+                  suppressHighlighting: false,
+                  key:this.props.segmentKey,
+                  style: [styles.englishText, this.props.theme.text, styles.justifyText, {fontSize: 0.8 * this.props.fontSize, lineHeight: this.props.fontSize * 1.04 }]
+                }}
+                style={{flex: this.props.textType == "hebrew" ? 4.5 : 5.5, paddingHorizontal: 10}}
+              />
             </View>
             { this.props.bulletMargin }
         </View>
       </View>
-        )
-    }
+    )
+  }
 }
 
 class SheetOutsideText extends Component {
-    componentDidUpdate(prevProps, prevState) {
-        if (this.props.currentlyActive && !prevProps.currentlyActive) {
-            this.props.textSegmentPressed("Sheet "+this.props.sheetId+"."+this.props.source.node, this.props.sourceIndex, 0, false)
-        }
+  componentDidUpdate(prevProps, prevState) {
+    if (this.props.currentlyActive && !prevProps.currentlyActive) {
+      this.onPress(false);
     }
-    render() {
-        var lang = Sefaria.hebrew.isHebrew(Sefaria.util.stripHtml(this.props.source.outsideText)) ? "he" : "en";
+  }
+  onPress = (toggle=true) => {
+    this.props.textSegmentPressed("Sheet "+this.props.sheetId+"."+this.props.source.node, this.props.sourceIndex, 0, toggle);
+  }
+  render() {
+    var lang = Sefaria.hebrew.isHebrew(Sefaria.util.stripHtml(this.props.source.outsideText)) ? "he" : "en";
+    var outsideText = this.props.cleanSheetHTML(this.props.source.outsideText);
 
-        var outsideText = this.props.cleanSheetHTML(this.props.source.outsideText);
-
-
-        return (
+    return (
       <View style={styles.verseContainer}>
         <View style={[styles.numberSegmentHolderEn, {flexDirection: this.props.textLanguage === 'english' ? 'row' : 'row-reverse'}]}>
           { this.props.numberMargin }
-            <View style={[this.props.textStyle,{flex:1}]}>
-
-                <HTMLView
-                    value={lang == "en" ? "<endiv>&#x200E;"+outsideText+"</endiv>" : "<hediv>&#x200E;"+outsideText+"</hediv>"}
-                    stylesheet={{...styles}}
-                    rootComponentProps={{
-                 hitSlop: {top: 10, bottom: 10, left: 10, right: 10},  // increase hit area of segments
-                 onPress:() => this.props.textSegmentPressed("Sheet "+this.props.sheetId+"."+this.props.source.node, this.props.sourceIndex,0),
-                 onLongPress:this.props.onLongPress,
-                 delayPressIn: 200,
-               }
-             }
-                    RootComponent={TouchableOpacity}
-                    textComponentProps={
-               {
-                 suppressHighlighting: false,
-                 key:this.props.segmentKey,
-                 style: [styles.englishText, this.props.theme.text, styles.justifyText, {fontSize: 0.8 * this.props.fontSize, lineHeight: this.props.fontSize * 1.04 }]
-
-               }
-             }
-                    style={{flex: this.props.textType == "hebrew" ? 4.5 : 5.5, paddingHorizontal: 10}}
-                />
-
-            </View>
-            { this.props.bulletMargin }
-
+          <View style={[this.props.textStyle,{flex:1}]}>
+            <HTMLView
+              value={lang == "en" ? "<endiv>&#x200E;"+outsideText+"</endiv>" : "<hediv>&#x200E;"+outsideText+"</hediv>"}
+              stylesheet={{...styles}}
+              rootComponentProps={{
+                hitSlop: {top: 10, bottom: 10, left: 10, right: 10},  // increase hit area of segments
+                onPress: this.onPress,
+                onLongPress:this.props.onLongPress,
+                delayPressIn: 200,
+              }}
+              RootComponent={TouchableOpacity}
+              textComponentProps={{
+                suppressHighlighting: false,
+                key:this.props.segmentKey,
+                style: [styles.englishText, this.props.theme.text, styles.justifyText, {fontSize: 0.8 * this.props.fontSize, lineHeight: this.props.fontSize * 1.04 }]
+              }}
+              style={{flex: this.props.textType == "hebrew" ? 4.5 : 5.5, paddingHorizontal: 10}}
+            />
+          </View>
+          { this.props.bulletMargin }
         </View>
       </View>
-        )
-    }
+    )
+  }
 }
 
 class SheetOutsideBiText extends Component {
-    componentDidUpdate(prevProps, prevState) {
-        if (this.props.currentlyActive && !prevProps.currentlyActive) {
-            this.props.textSegmentPressed("Sheet "+this.props.sheetId+"."+this.props.source.node, this.props.sourceIndex, 0, false)
-        }
+  componentDidUpdate(prevProps, prevState) {
+    if (this.props.currentlyActive && !prevProps.currentlyActive) {
+      this.onPress(false);
     }
+  }
 
-    render() {
-        var enText = this.props.source.outsideBiText.en ? this.props.cleanSheetHTML(this.props.source.outsideBiText.en) : "";
-        var heText = this.props.source.outsideBiText.he ? this.props.cleanSheetHTML(this.props.source.outsideBiText.he) : "";
+  onPress = (toggle=true) => {
+    this.props.textSegmentPressed("Sheet "+this.props.sheetId+"."+this.props.source.node, this.props.sourceIndex, 0, toggle);
+  }
 
-        return (
+  render() {
+    var enText = this.props.source.outsideBiText.en ? this.props.cleanSheetHTML(this.props.source.outsideBiText.en) : "";
+    var heText = this.props.source.outsideBiText.he ? this.props.cleanSheetHTML(this.props.source.outsideBiText.he) : "";
 
+    return (
       <View style={styles.verseContainer}>
         <View style={[styles.numberSegmentHolderEn, {flexDirection: this.props.textLanguage === 'english' ? 'row' : 'row-reverse'}]}>
           { this.props.numberMargin }
-            <View style={this.props.textStyle}>
-
-                {heText != "" && ['hebrew','bilingual'].includes(this.props.textLanguage) ?
-                    <HTMLView
-                        value={"<hediv>"+heText+"</hediv>"}
-                        stylesheet={{...styles}}
-                        rootComponentProps={{
-                 hitSlop: {top: 10, bottom: 10, left: 10, right: 10},  // increase hit area of segments
-                 onPress:() => this.props.textSegmentPressed("Sheet "+this.props.sheetId+"."+this.props.source.node, this.props.sourceIndex,0),
-                 onLongPress:this.props.onLongPress,
-                 delayPressIn: 200,
-               }
-             }
-                        RootComponent={TouchableOpacity}
-                        textComponentProps={
-               {
-                 suppressHighlighting: false,
-                 key:this.props.segmentKey,
-                 style: [styles.hebrewText, this.props.theme.text, styles.justifyText, {fontSize: this.props.fontSize, lineHeight: this.props.fontSize * lineHeightMultiplierHe}]
-
-               }
-             }
-                        style={{flex: this.props.textType == "hebrew" ? 4.5 : 5.5, paddingHorizontal: 10}}
-                    /> : null}
-
-                {enText != ""&& ['english','bilingual'].includes(this.props.textLanguage) ?
-                    <HTMLView
-                        value={"<endiv>&#x200E;"+enText+"</endiv>"}
-                        stylesheet={{...styles}}
-                        rootComponentProps={{
-                 hitSlop: {top: 10, bottom: 10, left: 10, right: 10},  // increase hit area of segments
-                 onPress:() => this.props.textSegmentPressed("Sheet "+this.props.sheetId+"."+this.props.source.node, this.props.sourceIndex,0),
-                 onLongPress:this.props.onLongPress,
-                 delayPressIn: 200,
-               }
-             }
-                        RootComponent={TouchableOpacity}
-                        textComponentProps={
-               {
-                 suppressHighlighting: false,
-                 key:this.props.segmentKey,
-                 style: [styles.englishText, this.props.theme.text, styles.justifyText, {fontSize: 0.8 * this.props.fontSize, lineHeight: this.props.fontSize * 1.04 }]
-
-               }
-             }
-                        style={{flex: this.props.textType == "hebrew" ? 4.5 : 5.5, paddingHorizontal: 10}}
-                    /> : null}
-
-
-            </View>
-            { this.props.bulletMargin }
+          <View style={this.props.textStyle}>
+            {heText != "" && ['hebrew','bilingual'].includes(this.props.textLanguage) ?
+              <HTMLView
+                value={"<hediv>"+heText+"</hediv>"}
+                stylesheet={{...styles}}
+                rootComponentProps={{
+                  hitSlop: {top: 10, bottom: 10, left: 10, right: 10},  // increase hit area of segments
+                  onPress: this.onPress,
+                  onLongPress:this.props.onLongPress,
+                  delayPressIn: 200,
+                }}
+                RootComponent={TouchableOpacity}
+                textComponentProps={{
+                  suppressHighlighting: false,
+                  key:this.props.segmentKey,
+                  style: [styles.hebrewText, this.props.theme.text, styles.justifyText, {fontSize: this.props.fontSize, lineHeight: this.props.fontSize * lineHeightMultiplierHe}]
+                }}
+                style={{flex: this.props.textType == "hebrew" ? 4.5 : 5.5, paddingHorizontal: 10}}
+              /> :
+            null}
+            {enText != ""&& ['english','bilingual'].includes(this.props.textLanguage) ?
+              <HTMLView
+                value={"<endiv>&#x200E;"+enText+"</endiv>"}
+                stylesheet={{...styles}}
+                rootComponentProps={{
+                  hitSlop: {top: 10, bottom: 10, left: 10, right: 10},  // increase hit area of segments
+                  onPress: this.onPress,
+                  onLongPress:this.props.onLongPress,
+                  delayPressIn: 200,
+                }}
+                RootComponent={TouchableOpacity}
+                textComponentProps={{
+                  suppressHighlighting: false,
+                  key:this.props.segmentKey,
+                  style: [styles.englishText, this.props.theme.text, styles.justifyText, {fontSize: 0.8 * this.props.fontSize, lineHeight: this.props.fontSize * 1.04 }]
+                }}
+                style={{flex: this.props.textType == "hebrew" ? 4.5 : 5.5, paddingHorizontal: 10}}
+              /> :
+            null}
+          </View>
+          { this.props.bulletMargin }
         </View>
       </View>
-            )
-    }
+    )
+  }
 
 }
 
@@ -591,7 +564,9 @@ class SheetMedia extends Component {
         }
     }
 
-
+    _getWebViewRef = ref => {
+      this.webview = ref;
+    }
     makeMediaEmbedLink(mediaURL) {
         var mediaLink;
 
@@ -612,7 +587,7 @@ class SheetMedia extends Component {
         else if (mediaURL.toLowerCase().indexOf('youtube') > 0) {
             mediaLink = (
                             <WebView
-                            ref={(ref) => { this.webview = ref; }}
+                            ref={this._getWebViewRef}
                             scrollEnabled={false}
                             javaScriptEnabled={true}
                             domStorageEnabled={true}

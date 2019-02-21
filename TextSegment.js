@@ -84,7 +84,7 @@ class TextSegment extends React.PureComponent {
     return (
            <HTMLView
              key={this.state.resetKey}
-             value= {Sefaria.util.getDisplayableHTML(this.props.data, this.props.textType)}
+             value={Sefaria.util.getDisplayableHTML(this.props.data, this.props.textType)}
              stylesheet={{...styles, ...smallSheet}}
              rootComponentProps={{
                  hitSlop: {top: 10, bottom: 10, left: 10, right: 10},  // increase hit area of segments
