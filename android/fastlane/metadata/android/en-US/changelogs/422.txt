@@ -1,0 +1,1 @@
+Fix issue when going back to text that sometimes doesn't return you to the right place

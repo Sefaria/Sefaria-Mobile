@@ -18,7 +18,9 @@ import {
   DisplaySettingsButton,
   CategoryAttribution,
   SText,
+  HebrewInEnglishText,
 } from './Misc.js';
+import Sefaria from "./sefaria";
 
 class ReaderControls extends React.Component {
   static propTypes = {
@@ -61,6 +63,10 @@ class ReaderControls extends React.Component {
           language="english"
           direction="back"/>
     }
+      var textTitle = this.props.language === 'hebrew' ? this.props.heRef : this.props.enRef;
+      if (this.props.sheet) {
+        textTitle = Sefaria.util.stripHtml(this.props.sheet.title);
+      }
     return (
         <View style={[styles.header, this.props.theme.header]}>
           {leftMenuButton}
@@ -71,14 +77,16 @@ class ReaderControls extends React.Component {
               resizeMode={'contain'}
             />
           </View>
-          <TouchableOpacity style={styles.headerTextTitle} onPress={this.props.openTextToc}>
+          <TouchableOpacity style={styles.headerTextTitle} onPress={this.props.sheet ? this.props.openSheetMeta : this.props.openTextToc }>
             <View style={styles.headerTextTitleInner}>
               <Image source={this.props.themeStr == "white" ? require('./img/caret.png'): require('./img/caret-light.png') }
                        style={[styles.downCaret, this.props.language === "hebrew" ? null: {opacity: 0}]}
                        resizeMode={'contain'} />
-              <SText lang={this.props.language} style={titleTextStyle} numberOfLines={1} ellipsizeMode={"tail"}>
-                {this.props.language === 'hebrew' ? this.props.heRef : this.props.enRef}
-              </SText>
+
+              {this.props.sheet ?
+                  <Text lang={this.props.language} style={titleTextStyle} numberOfLines={1} ellipsizeMode={"tail"}><HebrewInEnglishText text={this.props.sheet.title} stylesHe={[styles.heInEn]} stylesEn={[]}/></Text> :
+                  <SText lang={this.props.language} style={titleTextStyle} numberOfLines={1} ellipsizeMode={"tail"}>{textTitle}</SText>
+              }
               <Image source={this.props.themeStr == "white" ? require('./img/caret.png'): require('./img/caret-light.png') }
                        style={[styles.downCaret, this.props.language === "hebrew" ? {opacity: 0} : null]}
                        resizeMode={'contain'} />
@@ -90,6 +98,7 @@ class ReaderControls extends React.Component {
               linked={false}
               openUri={this.props.openUri} />
           </TouchableOpacity>
+            {this.props.sheet ? <View style={{width: 40}}></View> :
           <TouchableOpacity onPress={
               () => {
                 if (isSaved) {
@@ -107,7 +116,7 @@ class ReaderControls extends React.Component {
                       (isSaved ? require('./img/starFilled-light.png') : require('./img/starUnfilled-light.png'))}
               resizeMode={'contain'}
             />
-          </TouchableOpacity>
+          </TouchableOpacity> }
           <DisplaySettingsButton onPress={this.props.toggleReaderDisplayOptionsMenu} themeStr={this.props.themeStr}/>
         </View>
     );

@@ -13,6 +13,10 @@ var Api = {
   _textCache: {}, //in memory cache for API data
   _linkCache: {},
   _nameCache: {},
+  _allTags: {},
+  _sheetsByTag: {},
+  _sheets: {},
+  _trendingTags: {},
   _versions: {},
   _translateVersions: {},
   _indexDetails: {},
@@ -164,6 +168,18 @@ var Api = {
         case "versions":
           url += "api/texts/versions/";
           break;
+        case "trendingTags":
+          url += "api/sheets/trending-tags/";
+          break;
+        case "allTags":
+          url += "api/sheets/tag-list/";
+          break;
+        case "sheetsByTag":
+          url += "api/sheets/tag/";
+          break;
+        case "sheets":
+          url += "api/sheets/";
+          break;
         case "name":
           url += "api/name/";
           //urlSuffix = '?ref_only=0';
@@ -293,6 +309,75 @@ var Api = {
         });
     });
   },
+  trendingTags: function(failSilently) {
+    Sefaria.api._abortRequestType('trendingTags');
+    return new Promise((resolve, reject) => {
+      //const cached = Sefaria.api._trendingTags;
+      //if (!!cached) { console.log("cached"); resolve(cached); return; }
+      Sefaria.api._request('', 'trendingTags', false, {}, failSilently)
+        .then(response => {
+          //Sefaria.api._trendingTags = response;
+          resolve(response);
+        })
+        .catch(error=>{
+          console.log("TrendingTags API error:", error);
+          reject();
+        });
+    });
+  },
+
+  allTags: function(sortBy, failSilently) {
+    Sefaria.api._abortRequestType('allTags-'+sortBy);
+    return new Promise((resolve, reject) => {
+      const cached = Sefaria.api._allTags[sortBy];
+      //if (!!cached) { console.log("cached"); resolve(cached); return; }
+      Sefaria.api._request(sortBy, 'allTags', false, {}, failSilently)
+        .then(response => {
+          Sefaria.api._allTags[sortBy] = response;
+          resolve(response);
+        })
+        .catch(error=>{
+          console.log("allTags API error:", error);
+          reject();
+        });
+    });
+  },
+
+  sheetsByTag: function(tag, failSilently) {
+    tag = encodeURIComponent(tag);
+    Sefaria.api._abortRequestType('sheetsByTag');
+    return new Promise((resolve, reject) => {
+      const cached = Sefaria.api._sheetsByTag[tag];
+      //if (!!cached) { console.log("cached"); resolve(cached); return; }
+      Sefaria.api._request(tag, 'sheetsByTag', false, {}, failSilently)
+        .then(response => {
+          Sefaria.api._sheetsByTag[tag] = response;
+          resolve(response);
+        })
+        .catch(error=>{
+          console.log("sheetsByTag API error:", error);
+          reject();
+        });
+    });
+  },
+
+  sheets: function(sheetID, failSilently) {
+    Sefaria.api._abortRequestType('sheets');
+    return new Promise((resolve, reject) => {
+      const cached = Sefaria.api._sheets[sheetID];
+      //if (!!cached) { console.log("cached"); resolve(cached); return; }
+      Sefaria.api._request(sheetID, 'sheets', false, {}, failSilently)
+        .then(response => {
+          Sefaria.api._sheets[sheetID] = response;
+          resolve(response);
+        })
+        .catch(error=>{
+          console.log("Sheets API error:", error);
+          reject();
+        });
+    });
+  },
+
   isACaseVariant: function(query, data) {
     // Check if query is just an improper capitalization of something that otherwise would be a ref
     // query: string

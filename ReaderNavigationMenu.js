@@ -24,6 +24,7 @@ import {
 import VersionNumber from 'react-native-version-number';
 import SearchBar from './SearchBar';
 import ReaderNavigationCategoryMenu from './ReaderNavigationCategoryMenu';
+import ReaderNavigationSheetMenu from './ReaderNavigationSheetMenu';
 import styles from './Styles.js';
 import strings from './LocalizedStrings.js';
 
@@ -44,6 +45,7 @@ class ReaderNavigationMenu extends React.Component {
     openSettings:   PropTypes.func.isRequired,
     openHistory:    PropTypes.func.isRequired,
     openSaved:      PropTypes.func.isRequired,
+    openSheets:      PropTypes.func.isRequired,
     toggleLanguage: PropTypes.func.isRequired,
     onChangeSearchQuery:PropTypes.func.isRequired,
     searchQuery:    PropTypes.string.isRequired,
@@ -104,6 +106,7 @@ class ReaderNavigationMenu extends React.Component {
                 categories={this.props.categories}
                 category={this.props.categories.slice(-1)[0]}
                 menuLanguage={this.props.menuLanguage}
+                interfaceLang={this.props.interfaceLang}
                 setCategories={this.props.setCategories}
                 openRef={this.props.openRef}
                 toggleLanguage={this.props.toggleLanguage}
@@ -190,13 +193,20 @@ class ReaderNavigationMenu extends React.Component {
                   interfaceLang={this.props.interfaceLang}
                   hasmore={false} />
 
+                <ResourcesSection
+                  theme={this.props.theme}
+                  openRef={this.props.openRef}
+                  language={this.props.menuLanguage}
+                  interfaceLang={this.props.interfaceLang}
+                  openSheets={this.props.openSheets} />
+
                 <CalendarSection
                   theme={this.props.theme}
                   openRef={this.props.openRef}
                   language={this.props.menuLanguage}
                   interfaceLang={this.props.interfaceLang} />
 
-                <View style={styles.readerNavSection}>
+                  <View style={styles.readerNavSection}>
                   <TouchableWithoutFeedback onPress={this.onDebugSupportPress}>
                     <View>
                       <Text style={[styles.readerNavSectionTitle, this.props.theme.readerNavSectionTitle, langStyle, {textAlign: "center"}]}>
@@ -244,6 +254,45 @@ class ReaderNavigationMenu extends React.Component {
     }
   }
 }
+
+class ResourcesSection extends React.Component {
+
+  static propTypes = {
+    theme:         PropTypes.object.isRequired,
+    openRef:       PropTypes.func.isRequired,
+    interfaceLang: PropTypes.string.isRequired,
+    language:      PropTypes.string.isRequired
+  };
+
+  render() {
+    var isheb = this.props.interfaceLang === "hebrew";
+    var langStyle = !isheb ? styles.enInt : styles.heInt;
+
+    return (
+<View style={{marginVertical: 15}}>
+                    <View style={{marginBottom: 15}}>
+                      <Text style={[styles.readerNavSectionTitle, this.props.theme.readerNavSectionTitle, langStyle, {textAlign: "center"}]}>
+                        {strings.resources}
+                      </Text>
+                    </View>
+
+             <CategoryBlockLink
+        theme={this.props.theme}
+        category={"Sheets"}
+        heCat={"דפי מקורות"}
+        language={this.props.language}
+        isSans={true}
+        icon={require('./img/sheet.png')}
+        onPress={this.props.openSheets}
+        iconSide="start"
+        style={[{height: 49, borderColor: Sefaria.palette.colors.darkblue}]}
+      />
+</View>
+
+    );
+  }
+}
+
 
 
 class CalendarSection extends React.Component {

@@ -456,6 +456,15 @@ export default StyleSheet.create({
     paddingTop: 20,
     paddingBottom: 40,
   },
+  menuAllSheetTagContent: {
+    paddingHorizontal: iPad ? 20 : 10,
+    paddingTop: 0,
+    paddingBottom: 40,
+  },
+  menuSheetContentHeader: {
+    paddingTop: 20,
+    paddingBottom: 0,
+  },
   menuScrollViewContent: {
     paddingBottom: 100,
   },
@@ -701,6 +710,33 @@ export default StyleSheet.create({
     maxWidth: 800,
     flexDirection: "column",
     alignItems: 'stretch',
+  },
+  sheet: {
+    flex: 1,
+    maxWidth: 800,
+    flexDirection: "column",
+    alignItems: 'stretch',
+  },
+  sheetTitle: {
+    fontSize: 20,
+    color: "#000",
+    textAlign: "center",
+    fontFamily: "Amiri",
+    margin:20,
+    marginBottom:5,
+  },
+  sheetRef: {
+    color: "#999",
+    margin: 10,
+    marginBottom: 0,
+  },
+  sheetAuthor: {
+    fontSize: 16,
+    color: "#666",
+    textAlign: "center",
+    fontFamily: "Amiri",
+    margin:20,
+    marginTop:0,
   },
   sectionHeaderBox: {
     alignItems: "center",
@@ -1118,5 +1154,30 @@ export default StyleSheet.create({
     textAlign: 'justify',
     paddingTop: 15,
     marginTop: -10,
-  }
+  },
+  userAvatar: {
+    marginTop: 4,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+  },
+  userAvatarMini: {
+    marginHorizontal: 6,
+    marginBottom: 2,
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+  },
+
+  sheetListTitle: {
+    fontFamily: "Amiri",
+    fontSize: 20,
+    lineHeight: 22,
+    paddingTop: 11,
+  },
+  heInEn: {
+    fontFamily: "Taamey Frank Taamim Fix",
+    writingDirection: "rtl",
+    flex: -1,
+  },
 });

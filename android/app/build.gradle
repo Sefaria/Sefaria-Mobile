@@ -1,3 +1,8 @@
+def VERSION_BUILD=426
+def VERSION_MAJOR=5
+def VERSION_MINOR=0
+def VERSION_PATCH=0
+
 apply plugin: "com.android.application"
 
 import com.android.build.OutputFile
@@ -101,8 +106,8 @@ android {
         applicationId "org.sefaria.sefaria"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 422
-        versionName "4.1.12"
+        versionCode VERSION_BUILD
+        versionName VERSION_MAJOR + "." + VERSION_MINOR + "." + VERSION_PATCH
         ndk {
             abiFilters "armeabi-v7a", "x86"
         }

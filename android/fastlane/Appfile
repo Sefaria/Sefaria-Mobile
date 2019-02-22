@@ -1,0 +1,2 @@
+json_key_file("./keystores/api-8012316618525581861-622640-95c9f7ad6d32.json") # Path to the json secret file - Follow https://docs.fastlane.tools/actions/supply/#setup to get one
+package_name("org.sefaria.sefaria") # e.g. com.krausefx.app

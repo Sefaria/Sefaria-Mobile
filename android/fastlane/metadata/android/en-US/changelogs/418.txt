@@ -1,0 +1,2 @@
+Improve user experience when tapping a text segment
+Improve user experience scrolling and dragging commentary panel

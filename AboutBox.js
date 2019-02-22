@@ -14,6 +14,7 @@ import HTMLView from 'react-native-htmlview';
 import strings from './LocalizedStrings';
 import styles from './Styles';
 import VersionBlock from './VersionBlock';
+var moment = require("moment");
 
 
 class AboutBox extends React.Component {
@@ -29,10 +30,41 @@ class AboutBox extends React.Component {
   };
 
   render() {
+
+
+
     const d = this.props.textToc;
     const vh = this.props.currVersions.he;
     const ve = this.props.currVersions.en;
     const hei = this.props.interfaceLang === "hebrew";
+
+
+    if (this.props.sheet) {
+          return (
+      <ScrollView contentContainerStyle={[styles.aboutBoxScrollView, styles.readerSideMargin]}>
+        <View>
+          <View style={[styles.aboutHeaderWrapper, this.props.theme.bordered]}>
+            <Text style={[styles.aboutHeader, this.props.theme.secondaryText, hei ? styles.heInt : null]}>{strings.aboutThisText}</Text>
+          </View>
+          <Text style={[styles.aboutTitle, hei ? styles.he : styles.en, this.props.theme.text]}>
+            { Sefaria.util.stripHtml(this.props.sheet.title) }
+          </Text>
+            <Text style={[styles.aboutSubtitle, hei ? styles.heInt : styles.enInt, this.props.theme.secondaryText]}>
+              {this.props.sheetMeta.ownerName}
+            </Text>
+
+
+            <Text style={[styles.aboutSubtitle, hei ? styles.heInt : styles.enInt, this.props.theme.secondaryText]}>
+              Created {moment(this.props.sheet.dateCreated, "YYYY-MM-DDTHH:mm:ss.SSS").fromNow()}
+            </Text>
+          <Text style={[styles.aboutDescription, styles.enInt, this.props.theme.text]}>{this.props.sheet.summary}</Text>
+
+        </View>
+      </ScrollView>
+    );
+
+    }
+
     let detailSection = null;
     if (d) {
       let authorsEn, authorsHe;

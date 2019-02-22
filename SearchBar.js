@@ -98,6 +98,7 @@ class SearchBar extends React.Component {
           {this.props.toggleLanguage ?
             <LanguageToggleButton
               theme={this.props.theme}
+              interfaceLang={this.props.interfaceLang}
               toggleLanguage={this.props.toggleLanguage}
               language={this.props.language}
               themeStr={this.props.themeStr}
