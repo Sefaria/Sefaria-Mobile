@@ -25,6 +25,8 @@ import { CustomTabs } from 'react-native-custom-tabs';
 import { AppInstalledChecker } from 'react-native-check-app-install';
 import SplashScreen from 'react-native-splash-screen';
 import nextFrame from 'next-frame';
+import RNShake from 'react-native-shake';
+import Sound from 'react-native-sound';
 
 import { ACTION_CREATORS } from './ReduxStore';
 import ReaderControls from './ReaderControls';
@@ -160,9 +162,11 @@ class ReaderApp extends React.Component {
       'connectionChange',
       this.networkChangeListener
     );
+
     BackHandler.addEventListener('hardwareBackPress', this.manageBack);
     AppState.addEventListener('change', this.appStateChangeListener);
     Sefaria.downloader.onChange = this.onDownloaderChange;
+    this.groggerSound = new Sound('grogger.mp3', Sound.MAIN_BUNDLE, (error) => {});
   }
 
   networkChangeListener = isConnected => {
@@ -202,6 +206,9 @@ class ReaderApp extends React.Component {
       onResponderTerminate: (evt, gestureState) => {},
       onResponderSingleTapConfirmed: (evt, gestureState) => {},
     });
+    RNShake.addEventListener('ShakeEvent', () => {
+      this.groggerSound.play();
+    });
   }
 
   componentWillUnmount() {
@@ -212,6 +219,7 @@ class ReaderApp extends React.Component {
       this.networkChangeListener
     );
     AppState.removeEventListener('change', this.appStateChangeListener);
+    RNShake.removeEventListener('ShakeEvent');
   }
 
   manageBackMain = () => {
