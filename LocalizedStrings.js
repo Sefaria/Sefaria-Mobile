@@ -70,8 +70,8 @@ let strings = new LocalizedStrings({
     updateLater: "Update Later",
     howToUpdateLibraryMessage: "You can update your library in the future from the Settings screen.",
     updateLibrary: "Library Updates",
-    updatesAvailable: "texts have updates available.", // to be combined with a number, e.g. "14 texts have..."
-    updatesAvailableMessage: "texts have updates available. Would you like to download them now?", // to be combined with a number, e.g. "14 texts have..."
+    newBooksAvailable: "new book(s)", // to be combined with a number, e.g. "2 new books"
+    updatesAvailableMessage: "update(s) available.\nWould you like to download now?", // to be combined with a number, e.g. "14 updates..."
     libraryUpToDate: "Library Up To Date",
     libraryUpToDateMessage: "You have the most current version of the Sefaria Library for "+Platform.OS,
     checkForUpdates: "Check for Updates",
@@ -196,8 +196,8 @@ let strings = new LocalizedStrings({
     updateLater: "עדכן אחר כך",
     howToUpdateLibraryMessage: "תוכל לעדכן את הספריה הבלתי מקוונת בעתיד ממסך ההגדרות",
     updateLibrary: "עדכונים לספריה הבלתי מקוונת",
-    updatesAvailable: "עדכוני טקסט קיימים", // to be combined with a number, e.g. "14 texts have..."
-    updatesAvailableMessage: "קיימים עדכונים לטקסטים. האם תרצה להוריד אותם כעת?", // to be combined with a number, e.g. "14 texts have..."
+    newBooksAvailable: "ספר(ים) חדש(ים)", // to be combined with a number, e.g. "2 new books"
+    updatesAvailableMessage: "עדכונ(ים) לטקסט(ים).\nהאם תרצה להוריד כעת?", // to be combined with a number, e.g. "14 texts have..."
     libraryUpToDate: "הספריה מעודכנת",
     libraryUpToDateMessage: "הגרסה העדכנית ביותר של הספרייה הבלתי מקוונת ל-"+Platform.OS+" מעודכנת במכשירך",
     checkForUpdates: "בדוק עדכונים קיימים",
