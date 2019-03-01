@@ -69,7 +69,7 @@ class AutocompleteList extends React.Component {
               } else if (!!Sefaria.englishCategories[c] || !!Sefaria.hebrewCategories[c]) {
                 type = "toc";
               }
-              if (i === 0) {typeToValue[type] = 0;}  // priveledge the first results' type
+              if (i === 0) {typeToValue[type] = 0;}  // privilege the first results' type
               return {query: c, type, loading: false};
             })
             .stableSort((a,b) => typeToValue[a.type] - typeToValue[b.type])

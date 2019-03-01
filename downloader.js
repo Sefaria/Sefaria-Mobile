@@ -20,7 +20,7 @@ var Downloader = {
     shouldDownload: false,  // Whether or not to download books at all or just stick to API mode
     downloadPaused: false,  // Whether or not the download process has been temporarily paused
     lastDownload: {},       // Map book titles to timestamp of their last downloaded version or null
-    availableDownloads: {}, // Server provided map of titles to ther timestamp of their last update available
+    availableDownloads: {}, // Server provided map of titles to the timestamp of their last update available
     updateComment: "",      // Current update comment. Generally a short note on what's new
     downloadQueue: [],      // Ordered list of title to download
     downloadInProgress: [], // List of titles currently downloading
@@ -100,7 +100,7 @@ var Downloader = {
   },
   downloadUpdatesList: function() {
     // Downloads the "last_update.json", stores it in _data.availableDownloads
-    // and adds any new items to _data.lastDownload with a null value indicating they've never been downlaoded
+    // and adds any new items to _data.lastDownload with a null value indicating they've never been downloaded
     // Also downloads latest "toc.json"
     const lastUpdatePromise = fetch(HOST_PATH + "last_updated.json", {headers: {'Cache-Control': 'no-cache'}})
       .then((response) => response.json())
@@ -407,7 +407,7 @@ var Downloader = {
   },
   _downloadZip: async function(title) {
     // Downloads `title`, first to /tmp then to /library when complete.
-    // Manages `title`'s presense in downloadQueue and downloadInProgress.
+    // Manages `title`'s presence in downloadQueue and downloadInProgress.
     //console.log("Starting download of " + title);
     Sefaria.downloader._removeFromDownloadQueue(title);
     Sefaria.downloader._setData("downloadInProgress", [title].concat(Sefaria.downloader._data.downloadInProgress));

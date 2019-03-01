@@ -117,7 +117,7 @@ class ReaderApp extends React.Component {
         textListFlexPreference: 0.6,
         textListAnimating: false,
         data: null,
-        linksLoaded: [],  // bool arrary corresponding to data indicating if links have been loaded, which occurs async with API
+        linksLoaded: [],  // bool array corresponding to data indicating if links have been loaded, which occurs async with API
         interfaceLang: strings.getLanguage() === "he" ? "hebrew" : "english", // TODO check device settings for Hebrew: ### import {NativeModules} from 'react-native'; console.log(NativeModules.SettingsManager.settings.AppleLocale);
         connectionsMode: null, // null means connections summary
         filterIndex: null, /* index of filters in recentFilters */
@@ -857,7 +857,7 @@ class ReaderApp extends React.Component {
         sheet: null,
         sheetMeta: null,
       }, () => {
-          this.closeMenu(); // Don't close until these values are in state, so we know if we need to load defualt text
+          this.closeMenu(); // Don't close until these values are in state, so we know if we need to load default text
           this.loadNewText({ ref, versions: newVersions, overwriteVersions }).then(resolve);
       });
     })
@@ -953,7 +953,7 @@ class ReaderApp extends React.Component {
 
   openTextTocDirectly = (title) => {
 
-    // used to open text toc witout going throught the reader
+    // used to open text toc without going through the reader
     if (!Sefaria.booksDict[title]) {
       this.textUnavailableAlert(title);
       return;

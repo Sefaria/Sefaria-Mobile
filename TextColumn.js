@@ -516,7 +516,7 @@ class TextColumn extends React.Component {
       } else {
         const yo = this.state.itemLayoutList[index];
         if (!yo) {
-          console.log("yo non existant", index, this.state.itemLayoutList);
+          console.log("yo nonexistent", index, this.state.itemLayoutList);
         }
         return yo;
       }
@@ -716,7 +716,7 @@ class TextHeader extends React.PureComponent {
 }
 
 class CellView extends React.PureComponent {
-  // need to put onLayout method in CellRenderer to capture global y positon of cell
+  // need to put onLayout method in CellRenderer to capture global y position of cell
   onLayout = event => {
     const { height, width, y, x } = event.nativeEvent.layout;
     this.props.onSegmentLayout(this.props.item.ref, {y, height});
