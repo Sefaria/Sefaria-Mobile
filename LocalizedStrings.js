@@ -71,7 +71,7 @@ let strings = new LocalizedStrings({
     howToUpdateLibraryMessage: "You can update your library in the future from the Settings screen.",
     updateLibrary: "Library Updates",
     newBooksAvailable: "new book(s)", // to be combined with a number, e.g. "2 new books"
-    updatesAvailableMessage: "update(s) available.\nWould you like to download now?", // to be combined with a number, e.g. "14 updates..."
+    updatesAvailableMessage: "text update(s).\nWould you like to download now?", // to be combined with a number, e.g. "14 updates..."
     libraryUpToDate: "Library Up To Date",
     libraryUpToDateMessage: "You have the most current version of the Sefaria Library for "+Platform.OS,
     checkForUpdates: "Check for Updates",
