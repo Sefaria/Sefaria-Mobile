@@ -1866,7 +1866,9 @@ class ReaderApp extends React.Component {
     }*/
     const isD = Sefaria.downloader.downloading;
     const nAvailable = isD ? Sefaria.downloader.titlesAvailable().filter(t => Sefaria.packages.titleIsSelected(t)).length : 0;
-    const nUpdates = isD ? Sefaria.downloader.updatesAvailable().filter(t => Sefaria.packages.titleIsSelected(t)).length : 0;
+    const { newBooks, updates } = Sefaria.downloader.updatesAvailable();
+    const allUpdates = newBooks.concat(updates);
+    const nUpdates = isD ? allUpdates.filter(t => Sefaria.packages.titleIsSelected(t)).length : 0;
     return (
       <View style={{flex:1}}>
         <SafeAreaView style={styles.safeArea}>

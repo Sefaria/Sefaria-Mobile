@@ -230,6 +230,11 @@ var Downloader = {
       newBooks: keys.filter(title=>avail[title] !== last[title] && !last[title] && Sefaria.packages.titleIsSelected(title)),
     };
   },
+  numUpdatesAvailable: function () {
+    const { newBooks, updates } = Sefaria.downloader.updatesAvailable();
+    const allUpdates = newBooks.concat(updates);
+    return allUpdates.filter(t => Sefaria.packages.titleIsSelected(t)).length;
+  },
   updateComment: function() {
     //Returns list of update comments, oldest first
     return Sefaria.downloader._data.updateComment;
