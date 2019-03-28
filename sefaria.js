@@ -792,7 +792,18 @@ Sefaria = {
       }
       return new LinkContent(enText, heText, data.sectionRef);
     }
-
+  },
+  isGettinToBePurimTime: function() {
+    const msInDay = 1000*60*60*24;
+    const purimsOfTheFuture = ['Mar 10 2020', 'Feb 26 2021', 'Mar 17 2022', 'Mar 7 2023', 'Mar 24 2024', 'Mar 14 2025', 'Mar 4 2026', 'Mar 24 2027', 'Mar 12 2028', 'Mar 2 2029'];
+    const now = new Date();
+    for (let potnetialPurim of purimsOfTheFuture) {
+      const daysLeft = ((new Date(potnetialPurim)) - now)/msInDay;
+      if (daysLeft < 7 && daysLeft > -3) {
+        return true;
+      }
+    }
+    return false;
   },
   links: {
     _linkContentLoadingStack: [],

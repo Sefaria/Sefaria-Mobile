@@ -207,7 +207,9 @@ class ReaderApp extends React.Component {
       onResponderSingleTapConfirmed: (evt, gestureState) => {},
     });
     RNShake.addEventListener('ShakeEvent', () => {
-      this.groggerSound.play();
+      if (Sefaria.isGettinToBePurimTime()) {
+        this.groggerSound.play();
+      }
     });
   }
 
