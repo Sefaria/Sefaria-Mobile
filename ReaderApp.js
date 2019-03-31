@@ -162,7 +162,7 @@ class ReaderApp extends React.Component {
       'connectionChange',
       this.networkChangeListener
     );
-
+    Linking.addEventListener('url', this.handleOpenURL);
     BackHandler.addEventListener('hardwareBackPress', this.manageBack);
     AppState.addEventListener('change', this.appStateChangeListener);
     Sefaria.downloader.onChange = this.onDownloaderChange;
@@ -220,6 +220,7 @@ class ReaderApp extends React.Component {
       'connectionChange',
       this.networkChangeListener
     );
+    Linking.removeEventListener('url', this.handleOpenURL);
     AppState.removeEventListener('change', this.appStateChangeListener);
     RNShake.removeEventListener('ShakeEvent');
   }
@@ -242,6 +243,10 @@ class ReaderApp extends React.Component {
       // close app
       return false;
     }
+  };
+
+  handleOpenURL = event => {
+    console.log(event.url);
   };
 
   onDownloaderChange = (openSettings) => {
