@@ -2,8 +2,8 @@
 
 buildscript {
     repositories {
-        jcenter()
         google()
+        jcenter()
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:3.1.4'
@@ -16,6 +16,7 @@ buildscript {
 allprojects {
     repositories {
         mavenLocal()
+        google()
         maven { url 'https://maven.google.com' }
         maven {
             // for react-native-custom-tabs
@@ -26,7 +27,6 @@ allprojects {
             // All of React Native (JS, Obj-C sources, Android binaries) is installed from npm
             url "$rootDir/../node_modules/react-native/android"
         }
-        google()
     }
 }
 
