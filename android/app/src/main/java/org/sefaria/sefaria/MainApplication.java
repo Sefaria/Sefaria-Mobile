@@ -3,6 +3,7 @@ package org.sefaria.sefaria;
 import android.app.Application;
 
 import com.facebook.react.ReactApplication;
+import com.actionsheet.ActionSheetPackage;
 import com.RNFetchBlob.RNFetchBlobPackage;
 import com.rnziparchive.RNZipArchivePackage;
 import com.apsl.versionnumber.RNVersionNumberPackage;
@@ -14,19 +15,6 @@ import com.idehub.GoogleAnalyticsBridge.GoogleAnalyticsBridgePackage;
 import com.rnfs.RNFSPackage;
 import com.github.droibit.android.reactnative.customtabs.CustomTabsPackage;
 import com.rpt.reactnativecheckpackageinstallation.CheckPackageInstallationPackage;
-import com.actionsheet.ActionSheetPackage;
-import com.zmxv.RNSound.RNSoundPackage;
-import com.clipsub.RNShake.RNShakeEventPackage;
-import com.rnfs.RNFSPackage;
-import com.RNFetchBlob.RNFetchBlobPackage;
-import org.devio.rn.splashscreen.SplashScreenReactPackage;
-import com.rpt.reactnativecheckpackageinstallation.CheckPackageInstallationPackage;
-import com.github.droibit.android.reactnative.customtabs.CustomTabsPackage;
-import com.actionsheet.ActionSheetPackage;
-import com.rnziparchive.RNZipArchivePackage;
-import com.apsl.versionnumber.RNVersionNumberPackage;
-import com.babisoft.ReactNativeLocalization.ReactNativeLocalizationPackage;
-import com.idehub.GoogleAnalyticsBridge.GoogleAnalyticsBridgePackage;
 import com.facebook.react.ReactNativeHost;
 import com.facebook.react.ReactPackage;
 import com.facebook.react.shell.MainReactPackage;
@@ -49,6 +37,7 @@ public class MainApplication extends Application implements ReactApplication {
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
+            new ActionSheetPackage(),
             new RNFetchBlobPackage(),
             new RNZipArchivePackage(),
             new RNVersionNumberPackage(),
@@ -59,20 +48,7 @@ public class MainApplication extends Application implements ReactApplication {
             new GoogleAnalyticsBridgePackage(),
             new RNFSPackage(),
             new CustomTabsPackage(),
-            new CheckPackageInstallationPackage(),
-            new ActionSheetPackage(),
-            new RNSoundPackage(),
-            new RNShakeEventPackage(),
-            new RNFSPackage(),
-            new RNFetchBlobPackage(),
-            new SplashScreenReactPackage(),
-            new CheckPackageInstallationPackage(),
-            new ActionSheetPackage(),
-            new CustomTabsPackage(),
-            new RNZipArchivePackage(),
-            new RNVersionNumberPackage(),
-            new ReactNativeLocalizationPackage(),
-            new GoogleAnalyticsBridgePackage()
+            new CheckPackageInstallationPackage()
       );
     }
 

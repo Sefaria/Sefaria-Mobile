@@ -142,6 +142,7 @@ android {
 }
 
 dependencies {
+    implementation project(':react-native-action-sheet')
     implementation project(':rn-fetch-blob')
     implementation project(':react-native-zip-archive')
     implementation project(':react-native-version-number')
@@ -153,14 +154,12 @@ dependencies {
     implementation project(':react-native-fs')
     implementation project(':react-native-custom-tabs')
     implementation project(':react-native-check-app-install')
-    implementation project(':@yfuks_react-native-action-sheet')
     compile project(':react-native-sound')
     compile project(':react-native-shake')
     compile project(':react-native-fs')
     compile project(':rn-fetch-blob')
     compile project(':react-native-splash-screen')
     compile project(':react-native-check-app-install')
-    compile project(':react-native-action-sheet')
     compile project(':react-native-custom-tabs')
     compile project(':react-native-zip-archive')
     compile project(':react-native-version-number')

@@ -7,7 +7,6 @@
     "setup": "sudo npm install -g react-native-cli"
   },
   "dependencies": {
-    "@yfuks/react-native-action-sheet": "0.0.5",
     "abortcontroller-polyfill": "^1.1.9",
     "babel-preset-react-native": "^4.0.1",
     "buffer": "^5.2.1",
@@ -22,7 +21,8 @@
     "performance-now": "^2.1.0",
     "prop-types": "^15.6.2",
     "react": "^16.6.3",
-    "react-native": "^0.58.0",
+    "react-native": "^0.58.6",
+    "react-native-action-sheet": "^2.2.0",
     "react-native-check-app-install": "0.0.4",
     "react-native-custom-tabs": "^0.1.7",
     "react-native-easy-toast": "^1.1.0",
