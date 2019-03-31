@@ -3,6 +3,18 @@ package org.sefaria.sefaria;
 import android.app.Application;
 
 import com.facebook.react.ReactApplication;
+import com.RNFetchBlob.RNFetchBlobPackage;
+import com.rnziparchive.RNZipArchivePackage;
+import com.apsl.versionnumber.RNVersionNumberPackage;
+import org.devio.rn.splashscreen.SplashScreenReactPackage;
+import com.zmxv.RNSound.RNSoundPackage;
+import com.clipsub.RNShake.RNShakeEventPackage;
+import com.babisoft.ReactNativeLocalization.ReactNativeLocalizationPackage;
+import com.idehub.GoogleAnalyticsBridge.GoogleAnalyticsBridgePackage;
+import com.rnfs.RNFSPackage;
+import com.github.droibit.android.reactnative.customtabs.CustomTabsPackage;
+import com.rpt.reactnativecheckpackageinstallation.CheckPackageInstallationPackage;
+import com.actionsheet.ActionSheetPackage;
 import com.zmxv.RNSound.RNSoundPackage;
 import com.clipsub.RNShake.RNShakeEventPackage;
 import com.rnfs.RNFSPackage;
@@ -37,6 +49,18 @@ public class MainApplication extends Application implements ReactApplication {
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
+            new RNFetchBlobPackage(),
+            new RNZipArchivePackage(),
+            new RNVersionNumberPackage(),
+            new SplashScreenReactPackage(),
+            new RNSoundPackage(),
+            new RNShakeEventPackage(),
+            new ReactNativeLocalizationPackage(),
+            new GoogleAnalyticsBridgePackage(),
+            new RNFSPackage(),
+            new CustomTabsPackage(),
+            new CheckPackageInstallationPackage(),
+            new ActionSheetPackage(),
             new RNSoundPackage(),
             new RNShakeEventPackage(),
             new RNFSPackage(),

@@ -108,9 +108,6 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode VERSION_BUILD
         versionName VERSION_MAJOR + "." + VERSION_MINOR + "." + VERSION_PATCH
-        ndk {
-            abiFilters "armeabi-v7a", "x86"
-        }
     }
     aaptOptions {
       noCompress "txt", "json"
@@ -120,7 +117,7 @@ android {
             reset()
             enable enableSeparateBuildPerCPUArchitecture
             universalApk false  // If true, also generate a universal APK
-            include "armeabi-v7a", "x86"
+            include "armeabi-v7a", "x86", "arm64-v8a"
         }
     }
     buildTypes {
@@ -134,7 +131,7 @@ android {
         variant.outputs.each { output ->
             // For each separate APK per architecture, set a unique version code as described here:
             // http://tools.android.com/tech-docs/new-build-system/user-guide/apk-splits
-            def versionCodes = ["armeabi-v7a":1, "x86":2]
+            def versionCodes = ["armeabi-v7a":1, "x86":2, "arm64-v8a": 3]
             def abi = output.getFilter(OutputFile.ABI)
             if (abi != null) {  // null for the universal-debug, universal-release variants
                 output.versionCodeOverride =
@@ -145,6 +142,18 @@ android {
 }
 
 dependencies {
+    implementation project(':rn-fetch-blob')
+    implementation project(':react-native-zip-archive')
+    implementation project(':react-native-version-number')
+    implementation project(':react-native-splash-screen')
+    implementation project(':react-native-sound')
+    implementation project(':react-native-shake')
+    implementation project(':react-native-localization')
+    implementation project(':react-native-google-analytics-bridge')
+    implementation project(':react-native-fs')
+    implementation project(':react-native-custom-tabs')
+    implementation project(':react-native-check-app-install')
+    implementation project(':@yfuks_react-native-action-sheet')
     compile project(':react-native-sound')
     compile project(':react-native-shake')
     compile project(':react-native-fs')
