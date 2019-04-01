@@ -9,7 +9,6 @@ import {
   LayoutAnimation,
   AppState,
   Dimensions,
-  NetInfo,
   View,
   StatusBar,
   SafeAreaView,
@@ -18,6 +17,7 @@ import {
   UIManager,
   Linking,
 } from 'react-native';
+import NetInfo from "@react-native-community/netinfo";
 import { connect } from 'react-redux';
 import { createResponder } from 'react-native-gesture-responder';
 import SafariView from "react-native-safari-view";
