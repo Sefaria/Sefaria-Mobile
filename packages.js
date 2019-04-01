@@ -199,7 +199,9 @@ const Packages = {
           Sefaria.packages.available.forEach(p => {
             const isSelected = Sefaria.packages.isSelected(p.en);
             const isD = Sefaria.downloader.downloading && isSelected;
-            const nUpdates   = isD ? Sefaria.downloader.updatesAvailable().filter(t => Sefaria.packages.titleInPackage(t, p.en)).length : 0;
+            const { newBooks, updates } = Sefaria.downloader.updatesAvailable();
+            const allUpdates = newBooks.concat(updates);
+            const nUpdates   = isD ? allUpdates.filter(t => Sefaria.packages.titleInPackage(t, p.en)).length : 0;
             if (isD && nUpdates > 0) {
               Sefaria.packages.deletePackage(p.en);
             }

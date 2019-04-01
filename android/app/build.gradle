@@ -1,7 +1,7 @@
-def VERSION_BUILD=425
+def VERSION_BUILD=432
 def VERSION_MAJOR=5
 def VERSION_MINOR=0
-def VERSION_PATCH=0
+def VERSION_PATCH=2
 
 apply plugin: "com.android.application"
 
@@ -145,6 +145,8 @@ android {
 }
 
 dependencies {
+    compile project(':react-native-sound')
+    compile project(':react-native-shake')
     compile project(':react-native-fs')
     compile project(':rn-fetch-blob')
     compile project(':react-native-splash-screen')

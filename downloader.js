@@ -161,8 +161,8 @@ var Downloader = {
     return Downloader.downloadUpdatesList().then(() => {
       Downloader.checkingForUpdates = false;
       Downloader.onChange && Downloader.onChange();
-      var updates = Downloader.updatesAvailable();
-      if (updates.length) {
+      const { newBooks, updates } = Downloader.updatesAvailable();
+      if (updates.length || newBooks.length) {
         Downloader._updateDownloadQueue();
         Downloader.promptLibraryUpdate();
       } else if (confirmUpToDate) {
@@ -222,8 +222,18 @@ var Downloader = {
   },
   updatesAvailable: function() {
     // Returns a list of titles that have updates available to download
-    return Object.keys(Sefaria.downloader._data.availableDownloads)
-    .filter(title=>Sefaria.downloader._data.availableDownloads[title] !== Sefaria.downloader._data.lastDownload[title] && Sefaria.packages.titleIsSelected(title));
+    const avail = Sefaria.downloader._data.availableDownloads;
+    const last = Sefaria.downloader._data.lastDownload;
+    const keys = Object.keys(avail);
+    return {
+      updates: keys.filter(title=>avail[title] !== last[title] && !!last[title] && Sefaria.packages.titleIsSelected(title)),
+      newBooks: keys.filter(title=>avail[title] !== last[title] && !last[title] && Sefaria.packages.titleIsSelected(title)),
+    };
+  },
+  numUpdatesAvailable: function () {
+    const { newBooks, updates } = Sefaria.downloader.updatesAvailable();
+    const allUpdates = newBooks.concat(updates);
+    return allUpdates.filter(t => Sefaria.packages.titleIsSelected(t)).length;
   },
   updateComment: function() {
     //Returns list of update comments, oldest first
@@ -293,14 +303,14 @@ var Downloader = {
     });
   },
   promptLibraryUpdate: function() {
-    var updates = Downloader.updatesAvailable();
+    const { updates, newBooks } = Downloader.updatesAvailable();
     var updateComment = Downloader.updateComment();
-    var updateFullString = updates.length + " " + strings.updatesAvailableMessage;
+    var updateFullString = `${newBooks.length} ${strings.newBooksAvailable}\n${updates.length} ${strings.updatesAvailableMessage}`;
     if (updateComment.length > 0) {
       updateFullString += ". " + updateComment;
     }
 
-    if (updates.length == 0) { return; }
+    if (updates.length == 0 && newBooks.length == 0) { return; }
 
     var onDownload = function() {
       Downloader.downloadUpdates();
@@ -332,8 +342,9 @@ var Downloader = {
     Sefaria.downloader._data.downloadQueue = Sefaria.downloader._data.downloadQueue.filter((title) => {
       return title in Sefaria.downloader._data.availableDownloads;
     });
-    const updates = Sefaria.downloader.updatesAvailable();
-    Sefaria.downloader._data.downloadQueue = Sefaria.downloader._data.downloadQueue.concat(updates.filter(title=>Sefaria.downloader._data.downloadQueue.indexOf(title) === -1));
+    const { newBooks, updates } = Sefaria.downloader.updatesAvailable();
+    const allUpdates = newBooks.concat(updates);
+    Sefaria.downloader._data.downloadQueue = Sefaria.downloader._data.downloadQueue.concat(allUpdates.filter(title=>Sefaria.downloader._data.downloadQueue.indexOf(title) === -1));
 
     Sefaria.downloader._setData("downloadQueue", Sefaria.downloader._data.downloadQueue);
   },

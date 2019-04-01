@@ -240,6 +240,7 @@ def get_default_versions(index):
 
     return vdict
 
+
 def export_text_json(index):
     """
     Takes a single document from the `texts` collection exports it, by chopping it up
@@ -472,7 +473,7 @@ def get_indexes_in_category(cats, toc):
 
 
 def get_downloadable_packages():
-    toc = model.library.get_toc()
+    toc = clean_toc_nodes(model.library.get_toc())
     packages = [
         {
             u"en": "COMPLETE LIBRARY",
@@ -553,6 +554,7 @@ def get_downloadable_packages():
         p[u"size"] = size
     return packages
 
+
 def write_last_updated(titles, update=False):
     """
     Writes to `last_updated.json` the current time stamp for all `titles`.
@@ -610,7 +612,10 @@ def export_hebrew_categories(for_sources=False):
     write_doc(hebrew_cats_json, (SEFARIA_ANDROID_SOURCES_PATH if for_sources else EXPORT_PATH) + HEB_CATS_PATH)
 
 
-def remove_silly_toc_nodes(toc):
+def clean_toc_nodes(toc):
+    """
+    Removes any nodes in TOC that we can't handle. 
+    """
     newToc = []
     for t in toc:
         if "contents" in t:
@@ -619,7 +624,9 @@ def remove_silly_toc_nodes(toc):
                 if k != "contents":
                     new_item[k] = v
             newToc += [new_item]
-            newToc[-1]["contents"] = remove_silly_toc_nodes(t["contents"])
+            newToc[-1]["contents"] = clean_toc_nodes(t["contents"])
+        elif "isGroup" in t:
+            continue # Not currently handling sheets in TOC
         elif "title" in t:
             newToc += [{k: v for k, v in t.items()}]
         else:
@@ -635,8 +642,8 @@ def export_toc(for_sources=False):
     print "Export Table of Contents"
     new_toc = model.library.get_toc()
     new_search_toc = model.library.get_search_filter_toc()
-    new_new_toc = remove_silly_toc_nodes(new_toc)
-    new_new_search_toc = remove_silly_toc_nodes(new_search_toc)
+    new_new_toc = clean_toc_nodes(new_toc)
+    new_new_search_toc = clean_toc_nodes(new_search_toc)
     write_doc(new_new_toc, (SEFARIA_IOS_SOURCES_PATH if for_sources else EXPORT_PATH) + TOC_PATH)
     write_doc(new_new_search_toc, (SEFARIA_IOS_SOURCES_PATH if for_sources else EXPORT_PATH) + SEARCH_TOC_PATH)
     write_doc(new_new_toc, (SEFARIA_ANDROID_SOURCES_PATH if for_sources else EXPORT_PATH) + TOC_PATH)
@@ -647,7 +654,7 @@ def new_books_since_last_update():
     """
     Returns a list of books that have been added to the library since the last update.
     """
-    new_toc = model.library.get_toc()
+    new_toc = clean_toc_nodes(model.library.get_toc())
     def get_books(temp_toc, books):
         if isinstance(temp_toc, list):
             for child_toc in temp_toc:
@@ -826,6 +833,7 @@ def export_all(skip_existing=False):
     export_packages()
     print("--- %s seconds ---" % round(time.time() - start_time, 2))
 
+
 def export_base_files_to_sources():
     """
     Export the basic files that should be bundled with a new release of the iOS app
@@ -836,6 +844,8 @@ def export_base_files_to_sources():
     export_calendar(for_sources=True)
     export_authors(for_sources=True)
     export_packages(for_sources=True)  # relies on full dump to be available to measure file sizes
+
+
 
 if __name__ == '__main__':
     # we've been experiencing many issues with strange books appearing in the toc. i believe this line should solve that

@@ -25,6 +25,8 @@ import { CustomTabs } from 'react-native-custom-tabs';
 import { AppInstalledChecker } from 'react-native-check-app-install';
 import SplashScreen from 'react-native-splash-screen';
 import nextFrame from 'next-frame';
+import RNShake from 'react-native-shake';
+import Sound from 'react-native-sound';
 import { Search, SearchState } from '@sefaria/search';
 
 import { ACTION_CREATORS } from './ReduxStore';
@@ -156,9 +158,11 @@ class ReaderApp extends React.Component {
       'connectionChange',
       this.networkChangeListener
     );
+
     BackHandler.addEventListener('hardwareBackPress', this.manageBack);
     AppState.addEventListener('change', this.appStateChangeListener);
     Sefaria.downloader.onChange = this.onDownloaderChange;
+    this.groggerSound = new Sound('grogger.mp3', Sound.MAIN_BUNDLE, (error) => {});
   }
 
   networkChangeListener = isConnected => {
@@ -198,6 +202,11 @@ class ReaderApp extends React.Component {
       onResponderTerminate: (evt, gestureState) => {},
       onResponderSingleTapConfirmed: (evt, gestureState) => {},
     });
+    RNShake.addEventListener('ShakeEvent', () => {
+      if (Sefaria.isGettinToBePurimTime()) {
+        this.groggerSound.play();
+      }
+    });
   }
 
   componentWillUnmount() {
@@ -208,6 +217,7 @@ class ReaderApp extends React.Component {
       this.networkChangeListener
     );
     AppState.removeEventListener('change', this.appStateChangeListener);
+    RNShake.removeEventListener('ShakeEvent');
   }
 
   manageBackMain = () => {
@@ -1905,7 +1915,9 @@ class ReaderApp extends React.Component {
     }*/
     const isD = Sefaria.downloader.downloading;
     const nAvailable = isD ? Sefaria.downloader.titlesAvailable().filter(t => Sefaria.packages.titleIsSelected(t)).length : 0;
-    const nUpdates = isD ? Sefaria.downloader.updatesAvailable().filter(t => Sefaria.packages.titleIsSelected(t)).length : 0;
+    const { newBooks, updates } = Sefaria.downloader.updatesAvailable();
+    const allUpdates = newBooks.concat(updates);
+    const nUpdates = isD ? allUpdates.filter(t => Sefaria.packages.titleIsSelected(t)).length : 0;
     return (
       <View style={{flex:1}}>
         <SafeAreaView style={styles.safeArea}>
