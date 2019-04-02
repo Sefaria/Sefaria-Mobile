@@ -179,6 +179,7 @@ var Api = {
           break;
         case "sheets":
           url += "api/sheets/";
+          urlSuffix = `?more_data=1`
           break;
         case "name":
           url += "api/name/";

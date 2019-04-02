@@ -43,7 +43,8 @@ class SearchBar extends React.Component {
     if (this.props.query) {
       this.props.setIsNewSearch(true);
       console.log('submitSearch', this.props.query);
-      this.props.search(this.props.searchType, this.props.query, true, false, true);
+      this.props.search('text', this.props.query, true, false, true);
+      this.props.search('sheet', this.props.query, true, false, true);
     }
   };
 

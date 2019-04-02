@@ -5,7 +5,8 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import {
   View,
-  Text
+  Text,
+  TouchableOpacity,
 } from 'react-native';
 
 import SearchBar from './SearchBar';
@@ -53,10 +54,23 @@ class SearchPage extends React.Component {
   }
 
   render() {
+
+
     var status = this.props.hasInternet ?
-            this.props.searchState.isLoading ? strings.loading
-            : this.numberWithCommas(this.props.searchState.numResults) + " " + strings.results
+            this.props.textSearchState.isLoading || this.props.sheetSearchState.isLoading ? strings.loading
+                :       "Texts: " + this.numberWithCommas(this.props.textSearchState.numResults) + " " +
+      "Sheets: " + this.numberWithCommas(this.props.sheetSearchState.numResults)
           : strings.connectToSearchMessage;
+
+
+    var sheetStatus = this.props.sheetSearchState.isLoading ? strings.loading : "Sheets: " + this.numberWithCommas(this.props.sheetSearchState.numResults)
+    var textStatus = this.props.textSearchState.isLoading ? strings.loading : "Texts: " + this.numberWithCommas(this.props.textSearchState.numResults)
+
+
+      var sheetToggle = <TouchableOpacity onPress={() => this.props.setSearchTypeState('sheet')}><Text>{sheetStatus}</Text></TouchableOpacity>
+      var textToggle = <TouchableOpacity onPress={() => this.props.setSearchTypeState('text')}><Text>{textStatus}</Text></TouchableOpacity>
+
+
     var isheb = this.props.interfaceLang === "hebrew";
     var langStyle = !isheb ? styles.enInt : styles.heInt;
     var summaryStyle = [styles.searchResultSummary, this.props.theme.searchResultSummary];
@@ -85,7 +99,7 @@ class SearchPage extends React.Component {
               hideSearchButton={true}
             />
             <View style={summaryStyle}>
-              <Text style={[this.props.theme.searchResultSummaryText, langStyle]} >{status}</Text>
+                <View style={[this.props.theme.searchResultSummaryText, langStyle]} >{sheetToggle}<Text> - </Text>{textToggle}</View>
               <DirectedButton
                 text={(<Text>{strings.filter} <Text style={this.props.theme.text}>{`(${this.props.searchState.appliedFilters.length})`}</Text></Text>)}
                 direction="forward"

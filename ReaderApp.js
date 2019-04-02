@@ -168,6 +168,10 @@ class ReaderApp extends React.Component {
   networkChangeListener = isConnected => {
     this.setState({hasInternet: isConnected});
   };
+  setSearchTypeState = type => {
+    this.setState({searchType: type});
+    console.log(type)
+  };
 
   appStateChangeListener = state => {
     if (state == "active") {
@@ -791,6 +795,10 @@ class ReaderApp extends React.Component {
   enableAliyot - true when you click on an aliya form ReaderTextTableOfContents
   */
   openRef = (ref, calledFrom, versions, addToBackStack=true, enableAliyot=false) => {
+    if (ref.startsWith("Sheet")){
+        this.openRefSheet(ref.match(/\d+/)[0]) //open ref sheet expects just the sheet ID
+    }
+
     return new Promise((resolve, reject) => {
       if (enableAliyot) {
         this.props.setAliyot(true);
@@ -1265,8 +1273,6 @@ class ReaderApp extends React.Component {
   _getSearchStateName = type => ( `${type}SearchState` );
   _getSearchState = type => ( this.state[this._getSearchStateName(type)] );
   onQueryChange = (type, query, resetQuery, fromBackButton, getFilters) => {
-      type = "sheet";
-
     // getFilters should be true if the query has changed or the exactType has changed
     const searchState = this._getSearchState(type);
     const searchStateName = this._getSearchStateName(type);
@@ -1550,9 +1556,13 @@ class ReaderApp extends React.Component {
             openRef={this.openRefSearch}
             setLoadTail={this.setLoadQueryTail}
             setIsNewSearch={this.setIsNewSearch}
+            setSearchTypeState={this.setSearchTypeState}
             setSearchOptions={this.setSearchOptions}
             query={this.state.searchQuery}
             searchState={this._getSearchState(this.state.searchType)}
+            searchType={this.state.searchType}
+            sheetSearchState={this._getSearchState('sheet')}
+            textSearchState={this._getSearchState('text')}
             toggleFilter={this.toggleSearchFilter}
             isNewSearch={this.state.isNewSearch}
             setInitSearchScrollPos={this.setInitSearchScrollPos}

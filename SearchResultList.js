@@ -32,6 +32,7 @@ class SearchResultList extends React.Component {
   };
 
   renderRow = ({ item }) => {
+    var refToOpen = this.props.searchType == "sheet" ? "Sheet "+ item.id : item.title
     return (
       <SearchTextResult
         menuLanguage={this.props.menuLanguage}
@@ -40,7 +41,7 @@ class SearchResultList extends React.Component {
         title={item.title}
         heTitle={item.heTitle}
         text={item.text}
-        onPress={this.props.openRef.bind(null,item.title)} />
+        onPress={this.props.openRef.bind(null,refToOpen)} />
     );
   };
 
