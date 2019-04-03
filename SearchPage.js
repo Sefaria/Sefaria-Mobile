@@ -80,7 +80,7 @@ class SearchPage extends React.Component {
     var sheetToggle = (
         <TouchableOpacity onPress={() => this.props.setSearchTypeState('sheet')} style={isheb ? styles.searchOptionButtonTextHe : styles.searchOptionButtonTextEn}>
           <Image source={this.props.searchState.type == "sheet" ? require('./img/sheet.png') : require('./img/sheet-light.png')}
-            style={[styles.menuButton, isheb ? styles.headerIconWithTextHe : styles.headerIconWithTextEn] ]}
+            style={[styles.menuButton, isheb ? styles.headerIconWithTextHe : styles.headerIconWithTextEn]}
             resizeMode={'contain'}
           />
           <Text style={[this.props.theme.searchResultSummaryText, langStyle, this.props.searchState.type == "sheet" ? {color: '#999'} : {color: '#ccc'}]}>{sheetStatus}</Text>

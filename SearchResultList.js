@@ -11,6 +11,7 @@ import {
 
 import styles from './Styles';
 import SearchTextResult from './SearchTextResult';
+import SearchSheetResult from './SearchSheetResult';
 
 class SearchResultList extends React.Component {
   static propTypes = {
@@ -32,17 +33,36 @@ class SearchResultList extends React.Component {
   };
 
   renderRow = ({ item }) => {
-    var refToOpen = this.props.searchType == "sheet" ? "Sheet "+ item.id : item.title
-    return (
-      <SearchTextResult
-        menuLanguage={this.props.menuLanguage}
-        theme={this.props.theme}
-        textType={item.textType}
-        title={item.title}
-        heTitle={item.heTitle}
-        text={item.text}
-        onPress={this.props.openRef.bind(null,refToOpen)} />
-    );
+
+    if (this.props.searchType == "sheet") {
+    var refToOpen = "Sheet "+ item.id
+      return (
+        <SearchSheetResult
+          menuLanguage={this.props.menuLanguage}
+          theme={this.props.theme}
+          textType={item.textType}
+          title={item.title}
+          heTitle={item.heTitle}
+          text={item.text}
+          ownerImageUrl={item.metadata.ownerImageUrl}
+          ownerName={item.metadata.ownerName}
+          views={item.metadata.views}
+          onPress={this.props.openRef.bind(null,refToOpen)} />
+      );
+    }
+    else
+      {
+          return (
+              <SearchTextResult
+                  menuLanguage={this.props.menuLanguage}
+                  theme={this.props.theme}
+                  textType={item.textType}
+                  title={item.title}
+                  heTitle={item.heTitle}
+                  text={item.text}
+                  onPress={this.props.openRef.bind(null, item.title)}/>
+          );
+      }
   };
 
   componentDidUpdate() {
