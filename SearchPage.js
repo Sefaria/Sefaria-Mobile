@@ -50,7 +50,8 @@ class SearchPage extends React.Component {
 
   backFromAutocomplete = () => {
     this.props.openSearch();
-    this.props.search(this.props.searchState.type, this.props.query, true, false);
+    this.props.search('text', this.props.query, true, false);
+    this.props.search('sheet', this.props.query, true, false);
   }
 
   render() {

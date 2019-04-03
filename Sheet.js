@@ -245,7 +245,7 @@ class Sheet extends React.Component {
                   ListHeaderComponent={
                       <View>
                         <Text style={styles.sheetTitle}><HebrewInEnglishText text={this.props.sheet.title} stylesHe={[styles.heInEn]} stylesEn={[]}/></Text>
-                        <Text style={styles.sheetAuthor}>{this.props.sheetMeta.ownerName}</Text>
+                        <Text style={styles.sheetAuthor}>{this.props.sheet.ownerName}</Text>
                       </View>
                   }
                   onViewableItemsChanged={this.onViewableItemsChanged}

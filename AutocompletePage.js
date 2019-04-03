@@ -50,7 +50,8 @@ class AutocompletePage extends React.Component {
   };
 
   search = query => {
-    this.props.openSearch(this.props.searchType, query);
+    this.props.openSearch('text', query);
+    this.props.openSearch('sheet', query);
   };
 
   _getSearchBarRef = ref => {

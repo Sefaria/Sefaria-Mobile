@@ -89,12 +89,12 @@ class SheetMeta extends React.Component {
 
                             <Image
                                 style={[styles.userAvatarMini]}
-                                source={{uri: this.props.sheetMeta.ownerImageUrl}}
+                                source={{uri: this.props.sheet.ownerImageUrl}}
                             />
                             <Text style={[{
                                 alignSelf: "flex-start",
                                 color: "#999"
-                            }, styles.enInt]}>by {this.props.sheetMeta.ownerName}</Text>
+                            }, styles.enInt]}>by {this.props.sheet.ownerName}</Text>
                         </View>
 
                         <View style={{flexDirection: "row", flex: 1}}>
@@ -105,7 +105,7 @@ class SheetMeta extends React.Component {
                                 alignSelf: "flex-end",
                                 color: "#999",
                                 margin: 5,
-                            }, styles.enInt]}>{this.props.sheetMeta.views} Views</Text>
+                            }, styles.enInt]}>{this.props.sheet.views} Views</Text>
 
 
                             <Text style={[{
