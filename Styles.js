@@ -199,6 +199,23 @@ export default StyleSheet.create({
     width: 17,
     height: 17,
   },
+  searchOptionButton: {
+    height: 16,
+  },
+  searchOptionButtonTextHe: {
+    marginLeft: 12,
+    marginRight: 0,
+    marginTop: 6,
+    flexDirection: 'row-reverse',
+
+  },
+  searchOptionButtonTextEn: {
+    marginLeft: 0,
+    marginRight: 8,
+    marginTop: 6,
+    flexDirection: 'row',
+  },
+
   tripleDotsContainer: {
     width: 22,
     marginLeft: 5,

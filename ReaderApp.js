@@ -1318,7 +1318,6 @@ class ReaderApp extends React.Component {
     }, () => {
       // for some reason `searchState` pointed to out of date object here so reset it
       const searchState = this._getSearchState(type);
-      console.log(searchState)
       const searchStateName = this._getSearchStateName(type);
       Sefaria.search.execute_query(queryProps)
       .then(data => {
@@ -1332,7 +1331,6 @@ class ReaderApp extends React.Component {
         );
         const results = resetQuery ? newResultsArray :
           searchState.results.concat(newResultsArray);
-          console.log(results)
 
         var numResults = data.hits.total;
         this.setState({

@@ -7,6 +7,7 @@ import {
   View,
   Text,
   TouchableOpacity,
+  Image,
 } from 'react-native';
 
 import SearchBar from './SearchBar';
@@ -64,13 +65,8 @@ class SearchPage extends React.Component {
           : strings.connectToSearchMessage;
 
 
-    var sheetStatus = this.props.sheetSearchState.isLoading ? strings.loading : "Sheets: " + this.numberWithCommas(this.props.sheetSearchState.numResults)
-    var textStatus = this.props.textSearchState.isLoading ? strings.loading : "Texts: " + this.numberWithCommas(this.props.textSearchState.numResults)
-
-
-      var sheetToggle = <TouchableOpacity onPress={() => this.props.setSearchTypeState('sheet')}><Text>{sheetStatus}</Text></TouchableOpacity>
-      var textToggle = <TouchableOpacity onPress={() => this.props.setSearchTypeState('text')}><Text>{textStatus}</Text></TouchableOpacity>
-
+    var sheetStatus = this.props.sheetSearchState.isLoading ? strings.loading : this.numberWithCommas(this.props.sheetSearchState.numResults)
+    var textStatus = this.props.textSearchState.isLoading ? strings.loading : this.numberWithCommas(this.props.textSearchState.numResults)
 
     var isheb = this.props.interfaceLang === "hebrew";
     var langStyle = !isheb ? styles.enInt : styles.heInt;
@@ -80,6 +76,28 @@ class SearchPage extends React.Component {
     }
     var forwardImageStyle = isheb && false ? styles.forwardButtonHe : styles.forwardButtonEn;
     var content = null;
+
+    var sheetToggle = (
+        <TouchableOpacity onPress={() => this.props.setSearchTypeState('sheet')} style={isheb ? styles.searchOptionButtonTextHe : styles.searchOptionButtonTextEn}>
+          <Image source={this.props.searchState.type == "sheet" ? require('./img/sheet.png') : require('./img/sheet-light.png')}
+            style={[styles.menuButton, isheb ? styles.headerIconWithTextHe : styles.headerIconWithTextEn] ]}
+            resizeMode={'contain'}
+          />
+          <Text style={[this.props.theme.searchResultSummaryText, langStyle, this.props.searchState.type == "sheet" ? {color: '#999'} : {color: '#ccc'}]}>{sheetStatus}</Text>
+        </TouchableOpacity>
+    );
+
+    var textToggle = (
+        <TouchableOpacity onPress={() => this.props.setSearchTypeState('text')} style={isheb ? styles.searchOptionButtonTextHe : styles.searchOptionButtonTextEn}>
+          <Image source={this.props.searchState.type == "text" ? require('./img/book.png') : require('./img/book-light.png')}
+            style={[styles.searchOptionButton, isheb ? styles.headerIconWithTextHe : styles.headerIconWithTextEn]}
+            resizeMode={'contain'}
+          />
+          <Text style={[this.props.theme.searchResultSummaryText, langStyle, this.props.searchState.type == "text" ? {color: '#999'} : {color: '#ccc'} ]}>{textStatus}</Text>
+        </TouchableOpacity>
+    );
+
+
 
     switch (this.props.subMenuOpen) {
       case (null):
@@ -100,7 +118,8 @@ class SearchPage extends React.Component {
               hideSearchButton={true}
             />
             <View style={summaryStyle}>
-                <View style={[this.props.theme.searchResultSummaryText, langStyle]} >{sheetToggle}<Text> - </Text>{textToggle}</View>
+                <View style={{flexDirection: 'row'}}>{textToggle}<Text> </Text>{sheetToggle}</View>
+              {this.props.searchState.type == "text" ?
               <DirectedButton
                 text={(<Text>{strings.filter} <Text style={this.props.theme.text}>{`(${this.props.searchState.appliedFilters.length})`}</Text></Text>)}
                 direction="forward"
@@ -108,7 +127,7 @@ class SearchPage extends React.Component {
                 themeStr={this.props.themeStr}
                 textStyle={[this.props.theme.searchResultSummaryText, langStyle]}
                 imageStyle={forwardImageStyle}
-                onPress={()=>this.props.openSubMenu("filter")}/>
+                onPress={()=>this.props.openSubMenu("filter")}/> : null }
             </View>
             <SearchResultList
               menuLanguage={this.props.menuLanguage}
