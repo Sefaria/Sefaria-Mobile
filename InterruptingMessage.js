@@ -1,6 +1,5 @@
 import React from 'react';
 import {
-  AsyncStorage,
   Image,
   Modal,
   Text,
@@ -9,6 +8,7 @@ import {
   StyleSheet,
   View
 } from 'react-native';
+import AsyncStorage from '@react-native-community/async-storage';
 import HTMLView from 'react-native-htmlview';
 import {
   RainbowBar,

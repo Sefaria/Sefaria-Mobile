@@ -1,5 +1,5 @@
 import { combineReducers, createStore } from 'redux';
-import { AsyncStorage } from 'react-native';
+import AsyncStorage from '@react-native-community/async-storage';
 import iPad from './isIPad';
 import themeWhite from './ThemeWhite';
 import themeBlack from './ThemeBlack';

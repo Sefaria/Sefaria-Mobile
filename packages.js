@@ -1,4 +1,5 @@
-import {AsyncStorage, Alert, Platform} from 'react-native';
+import {Alert, Platform} from 'react-native';
+import AsyncStorage from '@react-native-community/async-storage';
 import strings from './LocalizedStrings';
 import RNFB from 'rn-fetch-blob';
 

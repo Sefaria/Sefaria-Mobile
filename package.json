@@ -4,11 +4,14 @@
   "private": true,
   "scripts": {
     "start": "react-native start",
-    "setup": "sudo npm install -g react-native-cli"
+    "setup": "sudo npm install -g react-native-cli",
+    "postinstall": "node ./android-release-gradle-fix.js"
   },
   "dependencies": {
     "@sefaria/search": "^0.9.5",
     "@yfuks/react-native-action-sheet": "0.0.5",
+    "@react-native-community/async-storage": "^1.2.2",
+    "@react-native-community/netinfo": "^1.4.1",
     "abortcontroller-polyfill": "^1.1.9",
     "babel-preset-react-native": "^4.0.1",
     "buffer": "^5.2.1",
@@ -21,8 +24,9 @@
     "path": "^0.12.7",
     "performance-now": "^2.1.0",
     "prop-types": "^15.6.2",
-    "react": "^16.5.0",
-    "react-native": "^0.57.0",
+    "react": "^16.8.3",
+    "react-native": "^0.59.0",
+    "react-native-action-sheet": "^2.2.0",
     "react-native-check-app-install": "0.0.4",
     "react-native-custom-tabs": "^0.1.7",
     "react-native-easy-toast": "^1.1.0",
@@ -39,7 +43,7 @@
     "react-native-zip-archive": "^2.2.6",
     "react-redux": "^5.0.7",
     "redux": "^3.7.2",
-    "rn-fetch-blob": "^0.10.13",
+    "rn-fetch-blob": "^0.10.15",
     "sanitize-html": "^1.20.0",
     "simple-plist": "^0.2.1",
     "stream": "0.0.2",
@@ -47,5 +51,9 @@
     "url-parse": "^1.4.3",
     "utils": "^0.3.1"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "@babel/core": "^7.4.0",
+    "@babel/runtime": "^7.4.2",
+    "metro-react-native-babel-preset": "^0.53.1"
+  }
 }

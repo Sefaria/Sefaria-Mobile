@@ -1,11 +1,10 @@
 import {
     Alert,
-    AsyncStorage,
-    NetInfo,
     Platform,
     PermissionsAndroid,
 } from 'react-native';
-
+import NetInfo from "@react-native-community/netinfo";
+import AsyncStorage from '@react-native-community/async-storage';
 import RNFB from 'rn-fetch-blob';
 import RNFS from 'react-native-fs';
 import strings from './LocalizedStrings';
