@@ -102,7 +102,8 @@ class ReaderNavigationCategoryMenu extends React.Component {
                     categories={categories}
                     language={this.props.menuLanguage}
                     context={"navigationCategory"}
-                    openUri={this.props.openUri}/>
+                    openUri={this.props.openUri}
+                    theme={this.props.theme}/>
                   <ReaderNavigationCategoryMenuContents
                     theme={this.props.theme}
                     contents={catContents}
