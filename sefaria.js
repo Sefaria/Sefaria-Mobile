@@ -1,6 +1,7 @@
-import { AsyncStorage, Alert, Platform } from 'react-native';
+import { Alert, Platform } from 'react-native';
 import { GoogleAnalyticsTracker } from 'react-native-google-analytics-bridge'; //https://github.com/idehub/react-native-google-analytics-bridge/blob/master/README.md
 const ZipArchive  = require('react-native-zip-archive'); //for unzipping -- (https://github.com/plrthink/react-native-zip-archive)
+import AsyncStorage from '@react-native-community/async-storage';
 import RNFB from 'rn-fetch-blob';
 import RNFS from 'react-native-fs';
 import Downloader from './downloader';

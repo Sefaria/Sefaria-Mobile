@@ -1,6 +1,6 @@
-def VERSION_BUILD=432
+def VERSION_BUILD=436
 def VERSION_MAJOR=5
-def VERSION_MINOR=0
+def VERSION_MINOR=1
 def VERSION_PATCH=2
 
 apply plugin: "com.android.application"
@@ -91,7 +91,7 @@ apply from: "../../node_modules/react-native/react.gradle"
  * Upload all the APKs to the Play Store and people will download
  * the correct one based on the CPU architecture of their device.
  */
-def enableSeparateBuildPerCPUArchitecture = false
+def enableSeparateBuildPerCPUArchitecture = true
 
 /**
  * Run Proguard to shrink the Java bytecode in release builds.
@@ -100,7 +100,10 @@ def enableProguardInReleaseBuilds = false
 
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
-    buildToolsVersion rootProject.ext.buildToolsVersion
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
 
     defaultConfig {
         applicationId "org.sefaria.sefaria"
@@ -108,9 +111,6 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode VERSION_BUILD
         versionName VERSION_MAJOR + "." + VERSION_MINOR + "." + VERSION_PATCH
-        ndk {
-            abiFilters "armeabi-v7a", "x86"
-        }
     }
     aaptOptions {
       noCompress "txt", "json"
@@ -120,7 +120,7 @@ android {
             reset()
             enable enableSeparateBuildPerCPUArchitecture
             universalApk false  // If true, also generate a universal APK
-            include "armeabi-v7a", "x86"
+            include "armeabi-v7a", "x86", "arm64-v8a", "x86_64"
         }
     }
     buildTypes {
@@ -134,7 +134,7 @@ android {
         variant.outputs.each { output ->
             // For each separate APK per architecture, set a unique version code as described here:
             // http://tools.android.com/tech-docs/new-build-system/user-guide/apk-splits
-            def versionCodes = ["armeabi-v7a":1, "x86":2]
+            def versionCodes = ["armeabi-v7a":1, "x86":2, "arm64-v8a": 3, "x86_64": 4]
             def abi = output.getFilter(OutputFile.ABI)
             if (abi != null) {  // null for the universal-debug, universal-release variants
                 output.versionCodeOverride =
@@ -145,13 +145,26 @@ android {
 }
 
 dependencies {
+    implementation project(':@react-native-community_async-storage')
+    implementation project(':@react-native-community_netinfo')
+    implementation project(':react-native-action-sheet')
+    implementation project(':rn-fetch-blob')
+    implementation project(':react-native-zip-archive')
+    implementation project(':react-native-version-number')
+    implementation project(':react-native-splash-screen')
+    implementation project(':react-native-sound')
+    implementation project(':react-native-shake')
+    implementation project(':react-native-localization')
+    implementation project(':react-native-google-analytics-bridge')
+    implementation project(':react-native-fs')
+    implementation project(':react-native-custom-tabs')
+    implementation project(':react-native-check-app-install')
     compile project(':react-native-sound')
     compile project(':react-native-shake')
     compile project(':react-native-fs')
     compile project(':rn-fetch-blob')
     compile project(':react-native-splash-screen')
     compile project(':react-native-check-app-install')
-    compile project(':react-native-action-sheet')
     compile project(':react-native-custom-tabs')
     compile project(':react-native-zip-archive')
     compile project(':react-native-version-number')

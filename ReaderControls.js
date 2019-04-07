@@ -96,7 +96,8 @@ class ReaderControls extends React.Component {
               language={this.props.language === "hebrew" ? "hebrew" : "english"}
               context={"header"}
               linked={false}
-              openUri={this.props.openUri} />
+              openUri={this.props.openUri}
+              theme={this.props.theme} />
           </TouchableOpacity>
             {this.props.sheet ? <View style={{width: 40}}></View> :
           <TouchableOpacity onPress={
