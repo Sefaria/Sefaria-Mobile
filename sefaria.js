@@ -742,6 +742,7 @@ Sefaria = {
       RNFB.fs.readFile(JSONSourcePath).then(result => {
         try {
           resolve(JSON.parse(result));
+          return;
         } catch (e) {
           resolve({}); // if file can't be parsed, fall back to empty object
         }

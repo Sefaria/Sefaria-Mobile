@@ -158,10 +158,14 @@ class ReaderApp extends React.Component {
   }
 
   componentDidMount() {
+    console.log("MOUNTAIN");
     NetInfo.isConnected.addEventListener(
       'connectionChange',
       this.networkChangeListener
     );
+    Linking.getInitialURL().then(this.handleOpenURL).catch(err => {
+        console.warn('An error occurred', err);
+    });
     Linking.addEventListener('url', this.handleOpenURL);
     BackHandler.addEventListener('hardwareBackPress', this.manageBack);
     AppState.addEventListener('change', this.appStateChangeListener);
@@ -220,6 +224,7 @@ class ReaderApp extends React.Component {
       'connectionChange',
       this.networkChangeListener
     );
+    console.log('removing events');
     Linking.removeEventListener('url', this.handleOpenURL);
     AppState.removeEventListener('change', this.appStateChangeListener);
     RNShake.removeEventListener('ShakeEvent');
@@ -246,7 +251,10 @@ class ReaderApp extends React.Component {
   };
 
   handleOpenURL = event => {
-    console.log(event.url);
+    console.log("DEEP DIVE!", event);
+    if (event) {
+      console.log("DEEP DIVE", event.url);
+    }
   };
 
   onDownloaderChange = (openSettings) => {
