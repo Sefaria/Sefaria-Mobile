@@ -236,8 +236,8 @@ class CategoryAttribution extends React.Component {
     var openLink = () => {this.props.openUri(attribution.link)};
     var boxStyles = [styles.categoryAttribution, styles[this.props.context + "CategoryAttribution" ]];
     var content = this.props.language == "english" ?
-                <Text style={styles[this.props.context + "CategoryAttributionTextEn"]}>{attribution.english}</Text> :
-                <Text style={styles[this.props.context + "CategoryAttributionTextHe"]}>{attribution.hebrew}</Text>;
+                <Text style={[styles[this.props.context + "CategoryAttributionTextEn"], this.props.theme.tertiaryText]}>{attribution.english}</Text> :
+                <Text style={[styles[this.props.context + "CategoryAttributionTextHe"], this.props.theme.tertiaryText]}>{attribution.hebrew}</Text>;
 
     return this.props.linked ?
             <TouchableOpacity style={boxStyles} onPress={openLink}>

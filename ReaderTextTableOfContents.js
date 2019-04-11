@@ -82,7 +82,6 @@ class ReaderTextTableOfContents extends React.Component {
     var categories  = Sefaria.index(this.props.title).categories;
     var enCatString = categories.join(", ");
     var heCatString = categories.map(Sefaria.hebrewCategory).join(", ");
-
     return (
       <View style={[styles.menu,this.props.theme.menu]}>
         <CategoryColorLine category={Sefaria.categoryForTitle(this.props.title)} />
@@ -94,23 +93,31 @@ class ReaderTextTableOfContents extends React.Component {
 
         <ScrollView style={styles.menuContent} contentContainerStyle={{paddingTop: 20,paddingBottom: 40}}>
           <View style={[styles.textTocTopBox, this.props.theme.bordered]}>
-            <CategoryAttribution
-              categories={categories}
-              language={this.props.contentLang}
-              context={"textToc"}
-              openUri={this.props.openUri} />
-            <View>
-              { this.props.contentLang == "hebrew" ?
-                <Text style={[styles.he, styles.textTocTitle, this.props.theme.text]}>{heTitle}</Text> :
-                <Text style={[styles.en, styles.textTocTitle, this.props.theme.text]}>{enTitle}</Text> }
-            </View>
-
             <View style={styles.textTocCategoryBox}>
             { this.props.contentLang == "hebrew" ?
               <Text style={[styles.he, styles.textTocCategory, this.props.theme.secondaryText]}>{heCatString}</Text> :
               <Text style={[styles.en, styles.textTocCategory, this.props.theme.secondaryText]}>{enCatString}</Text> }
             </View>
 
+            <View>
+              { this.props.contentLang == "hebrew" ?
+                <Text style={[styles.he, styles.textTocTitle, this.props.theme.text]}>{heTitle}</Text> :
+                <Text style={[styles.en, styles.textTocTitle, this.props.theme.text]}>{enTitle}</Text> }
+            </View>
+
+            <CategoryAttribution
+              categories={categories}
+              language={this.props.contentLang}
+              context={"textToc"}
+              openUri={this.props.openUri}
+              theme={this.props.theme}/>
+
+            {this.props.textToc && "dedication" in this.props.textToc ?
+            (<View>
+              { this.props.contentLang == "hebrew" ?
+                <Text style={[styles.he, styles.textTocCategoryAttributionTextHe, this.props.theme.tertiaryText]}>{this.props.textToc.dedication.he}</Text> :
+                <Text style={[styles.en, styles.textTocCategoryAttributionTextEn, this.props.theme.tertiaryText]}>{this.props.textToc.dedication.en}</Text> }
+            </View>): null }
 
             { this.props.currentRef ?
               <View>

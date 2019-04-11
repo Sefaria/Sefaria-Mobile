@@ -802,15 +802,13 @@ export default StyleSheet.create({
     marginBottom: 20,
   },
   textTocCategoryAttributionTextEn: {
-    fontSize: 22,
-    color: "#666",
+    fontSize: 16,
     fontStyle: "italic",
     textAlign: "center",
     fontFamily: "Amiri",
   },
   textTocCategoryAttributionTextHe: {
-    fontSize: 20,
-    color: "#666",
+    fontSize: 16,
     textAlign: "center",
     fontFamily: "Taamey Frank Taamim Fix",
   },
