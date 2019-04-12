@@ -1327,7 +1327,7 @@ class ReaderApp extends React.Component {
             text: r.highlight[field].join(" ... "),
             id: r._id,
             textType: r._id.includes("[he]") ? "hebrew" : "english",
-            metadata: type == "sheet" ? {"ownerImageUrl": r._source.owner_image, "ownerName": r._source.owner_name, "views": r._source.views} : null
+            metadata: type == "sheet" ? {"ownerImageUrl": r._source.owner_image, "ownerName": r._source.owner_name, "views": r._source.views, "tags": r._source.tags} : null
           })
         );
         const results = resetQuery ? newResultsArray :

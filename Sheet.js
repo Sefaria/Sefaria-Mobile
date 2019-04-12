@@ -216,6 +216,10 @@ class Sheet extends React.Component {
                 />
          )
          }
+
+         else {
+             return null
+        }
   };
 
   handleScroll = (e) => {

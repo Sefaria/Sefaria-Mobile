@@ -25,7 +25,7 @@ import {
 import styles from './Styles.js';
 import strings from "./LocalizedStrings";
 import {DirectedButton} from "./Misc";
-import SearchSheetResult from "./SearchSheetResult";
+import SheetResult from "./SheetResult";
 
 
 class ReaderNavigationSheetTagMenu extends React.Component {
@@ -66,7 +66,7 @@ class ReaderNavigationSheetTagMenu extends React.Component {
       var refToOpen = "Sheet "+ item.id
       return (
           <View key={index} style={[this.props.theme.menu]}>
-                <SearchSheetResult
+                <SheetResult
                   menuLanguage={this.props.menuLanguage}
                   theme={this.props.theme}
                   title={item.title}

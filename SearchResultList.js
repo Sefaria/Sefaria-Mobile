@@ -47,6 +47,7 @@ class SearchResultList extends React.Component {
           ownerImageUrl={item.metadata.ownerImageUrl}
           ownerName={item.metadata.ownerName}
           views={item.metadata.views}
+          tags={item.metadata.tags}
           onPress={this.props.openRef.bind(null,refToOpen)} />
       );
     }

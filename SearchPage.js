@@ -79,21 +79,21 @@ class SearchPage extends React.Component {
 
     var sheetToggle = (
         <TouchableOpacity onPress={() => this.props.setSearchTypeState('sheet')} style={isheb ? styles.searchOptionButtonTextHe : styles.searchOptionButtonTextEn}>
-          <Image source={this.props.searchState.type == "sheet" ? require('./img/sheet.png') : require('./img/sheet-light.png')}
+          <Image source={this.props.searchState.type == "sheet" ? require('./img/sheet-dark.png') : require('./img/sheet.png')}
             style={[styles.menuButton, isheb ? styles.headerIconWithTextHe : styles.headerIconWithTextEn]}
             resizeMode={'contain'}
           />
-          <Text style={[this.props.theme.searchResultSummaryText, langStyle, this.props.searchState.type == "sheet" ? {color: '#999'} : {color: '#ccc'}]}>{sheetStatus}</Text>
+          <Text style={[this.props.theme.searchResultSummaryText, langStyle, this.props.searchState.type == "sheet" ? {color: '#000'} : {color: '#999'},  {marginTop: -2} ]}>{sheetStatus}</Text>
         </TouchableOpacity>
     );
 
     var textToggle = (
         <TouchableOpacity onPress={() => this.props.setSearchTypeState('text')} style={isheb ? styles.searchOptionButtonTextHe : styles.searchOptionButtonTextEn}>
-          <Image source={this.props.searchState.type == "text" ? require('./img/book.png') : require('./img/book-light.png')}
+          <Image source={this.props.searchState.type == "text" ? require('./img/book-dark.png') : require('./img/book.png')}
             style={[styles.searchOptionButton, isheb ? styles.headerIconWithTextHe : styles.headerIconWithTextEn]}
             resizeMode={'contain'}
           />
-          <Text style={[this.props.theme.searchResultSummaryText, langStyle, this.props.searchState.type == "text" ? {color: '#999'} : {color: '#ccc'} ]}>{textStatus}</Text>
+          <Text style={[this.props.theme.searchResultSummaryText, langStyle, this.props.searchState.type == "text" ? {color: '#000'} : {color: '#999'}, {marginTop: -2} ]}>{textStatus}</Text>
         </TouchableOpacity>
     );
 
