@@ -24,7 +24,6 @@ class SearchSheetResult extends React.Component {
   };
 
   render() {
-      console.log(this.props.text)
     const refTitleStyle = this.props.interfaceLang === "hebrew" ? styles.he : styles.en;
 
     return (

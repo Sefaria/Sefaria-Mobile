@@ -684,12 +684,11 @@ class ReaderApp extends React.Component {
     this.openRef(ref, "text toc", null, false, enableAliyot);
   };
 
-  openRefSheet = (ref, sheetMeta) => {
-      console.log(ref)
+  openRefSheet = (ref, sheetMeta, addToBackStack=false, calledFrom) => {
       this.setState({
           loaded: false,
       }, () => {
-          this.loadSheet(ref, sheetMeta);
+          this.loadSheet(ref, sheetMeta,addToBackStack, calledFrom);
       })
   };
 
@@ -700,7 +699,7 @@ class ReaderApp extends React.Component {
 
 }
 
-  loadSheet = (ref, sheetMeta) => {
+  loadSheet = (ref, sheetMeta, addToBackStack=false, calledFrom="search") => {
       Sefaria.api.sheets(ref)
       .then(result => {
           this.setState ({
@@ -757,12 +756,19 @@ class ReaderApp extends React.Component {
                             this.setState({
                                 loaded: true,
                             })
+
+
                         }
                     );
 
                 }.bind(this))
             })
         })
+
+      if (addToBackStack) {
+        BackManager.forward({ state: this.state, calledFrom });
+      }
+
     })
       .catch(error => {
         console.log(error)
@@ -796,7 +802,7 @@ class ReaderApp extends React.Component {
   */
   openRef = (ref, calledFrom, versions, addToBackStack=true, enableAliyot=false) => {
     if (ref.startsWith("Sheet")){
-        this.openRefSheet(ref.match(/\d+/)[0]) //open ref sheet expects just the sheet ID
+        this.openRefSheet(ref.match(/\d+/)[0], null, addToBackStack, calledFrom) //open ref sheet expects just the sheet ID
     }
 
     return new Promise((resolve, reject) => {
