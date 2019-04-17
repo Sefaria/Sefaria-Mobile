@@ -1,7 +1,7 @@
-def VERSION_BUILD=445
+def VERSION_BUILD=447
 def VERSION_MAJOR=5
 def VERSION_MINOR=1
-def VERSION_PATCH=5
+def VERSION_PATCH=6
 
 apply plugin: "com.android.application"
 
