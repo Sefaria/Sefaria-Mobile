@@ -163,7 +163,7 @@ class ReaderApp extends React.Component {
       'connectionChange',
       this.networkChangeListener
     );
-    Linking.getInitialURL().then(this.handleOpenURL).catch(err => {
+    Linking.getInitialURL().then(url => { this.handleOpenURL({ url }); }).catch(err => {
         console.warn('An error occurred', err);
     });
     Linking.addEventListener('url', this.handleOpenURL);
@@ -250,10 +250,9 @@ class ReaderApp extends React.Component {
     }
   };
 
-  handleOpenURL = event => {
-    console.log("DEEP DIVE!", event);
-    if (event) {
-      console.log("DEEP DIVE", event.url);
+  handleOpenURL = ({ url } = {}) => {
+    if (url) {
+      console.log("DEEP DIVE", url);
     }
   };
 
