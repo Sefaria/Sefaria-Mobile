@@ -50,6 +50,7 @@ import ReaderNavigationSheetMenu from "./ReaderNavigationSheetMenu";
 import ReaderNavigationSheetTagMenu from "./ReaderNavigationSheetTagMenu";
 import Sheet from "./Sheet.js";
 import SheetMetadata from "./SheetMeta.js";
+import DeepLinkRouter from "./DeepLinkRouter.js";
 
 
 
@@ -253,6 +254,7 @@ class ReaderApp extends React.Component {
   handleOpenURL = ({ url } = {}) => {
     if (url) {
       console.log("DEEP DIVE", url);
+      this._deepLinkRouterRef.route(url);
     }
   };
 
@@ -1417,6 +1419,10 @@ class ReaderApp extends React.Component {
     this._interruptingMessageRef = ref;
   };
 
+  _getDeepLinkRouterRef = ref => {
+    this._deepLinkRouterRef = ref;
+  };
+
   _onStartShouldSetResponderCapture = () => {
     if (this.state.ReaderDisplayOptionsMenuVisible === true) {
        this.toggleReaderDisplayOptionsMenu();
@@ -1909,7 +1915,12 @@ class ReaderApp extends React.Component {
           ref={this._getInterruptingMessageRef}
           interfaceLang={this.state.interfaceLang}
           openInDefaultBrowser={this.openInDefaultBrowser}
-          debugInterruptingMessage={this.props.debugInterruptingMessage} />
+          debugInterruptingMessage={this.props.debugInterruptingMessage}
+        />
+        <DeepLinkRouter
+          ref={this._getDeepLinkRouterRef}
+          openNav={this.openNav}
+        />
       </View>
 
     );
