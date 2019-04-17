@@ -924,7 +924,7 @@ export default StyleSheet.create({
   hebrewText: {
     fontFamily: "Taamey Frank Taamim Fix",
     writingDirection: "rtl",
-    textAlign: 'right',
+    textAlign: Platform.OS === 'ios' ? 'right' : 'left',  // android already aligns right with rtl
     fontSize: iPad ? 22 : 18,
     paddingTop: 10,
     marginTop: -8,
@@ -1144,7 +1144,7 @@ export default StyleSheet.create({
     flex: -1,
     paddingTop: 15,
     marginTop: -10,
-    textAlign: Platform.OS == "android" ? "right" : "justify",
+    textAlign: Platform.OS == "android" ? "left" : "justify",
   },
   endiv: {
     fontFamily: "Amiri",

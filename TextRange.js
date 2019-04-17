@@ -90,8 +90,11 @@ class TextRange extends React.PureComponent {
   };
 
   render() {
+
     let enText = this.props.rowData.content.text || "";
     let heText = this.props.rowData.content.he || "";
+    enText = Sefaria.util.getDisplayableHTML(enText, 'english');
+    heText = Sefaria.util.getDisplayableHTML(heText, 'hebrew');
     let numLinks = this.props.rowData.content.links ? this.props.rowData.content.links.length : 0;
 
     let segment = [];
