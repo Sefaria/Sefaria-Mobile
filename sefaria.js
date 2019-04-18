@@ -211,7 +211,7 @@ Sefaria = {
   _apiData: {},  // in memory cache for API data
   textTitleForRef: function(ref) {
     // Returns the book title named in `ref` by examining the list of known book titles.
-    for (i = ref.length; i >= 0; i--) {
+    for (let i = ref.length; i >= 0; i--) {
       book = ref.slice(0, i);
       if (book in Sefaria.booksDict) {
         return book;
@@ -222,6 +222,15 @@ Sefaria = {
   refToUrl: ref => {
     const url = `https://www.sefaria.org/${ref.replace(/ /g, '_').replace(/_(?=[0-9:]+$)/,'.').replace(/:/g,'.')}`
     return url;
+  },
+  urlToRef: url => {
+    // url: tref as it would appear in a url
+    url = url.replace(/_/g, ' ');
+    const title = Sefaria.textTitleForRef(url);
+    if (!title) { return null; }
+    // regexp to replace the dot immediately following the title
+    const spaceReplacer = new RegExp("^" + Sefaria.util.regexEscape(`${title}.`));
+    return url.replace(spaceReplacer, `${title} `).replace(/\./g, ':');
   },
   categoryForTitle: function(title) {
     var index = Sefaria.index(title);

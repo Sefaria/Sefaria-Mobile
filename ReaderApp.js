@@ -814,7 +814,7 @@ class ReaderApp extends React.Component {
         this.props.setAliyot(true);
       }
       const title = Sefaria.textTitleForRef(ref);
-      const overwriteVersions = calledFrom !== 'search'; // if called from search, use version specified by search (or default if none specified)
+      const overwriteVersions = calledFrom !== 'search' || calledFrom !== 'deep link' ; // if called from search or deeplink, use version specified by search (or default if none specified)
       if (!title) {
         if (ref.startsWith("Sheet")) { //TODO: Load Sheet data via sheet ref
             resolve();
@@ -854,6 +854,9 @@ class ReaderApp extends React.Component {
           Sefaria.track.event("Reader","Navigation Text Click", ref);
           break;
         case "text toc":
+          break;
+        case "deep link":
+          Sefaria.track.event("Reader", "Deep Link", ref);
           break;
         case "text list":
           Sefaria.track.event("Reader","Click Text from TextList",ref);
@@ -1920,6 +1923,8 @@ class ReaderApp extends React.Component {
         <DeepLinkRouter
           ref={this._getDeepLinkRouterRef}
           openNav={this.openNav}
+          openRef={this.openRef}
+          setTextLanguage={this.setTextLanguage}
         />
       </View>
 
