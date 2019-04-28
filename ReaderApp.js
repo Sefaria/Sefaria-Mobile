@@ -75,6 +75,7 @@ class ReaderApp extends React.Component {
 
   constructor(props, context) {
     super(props, context);
+    this._initThroughDeepLink = false;
     Sefaria._deleteUnzippedFiles()
     .then(Sefaria.init).then(() => {
         setTimeout(SplashScreen.hide, 300);
@@ -84,10 +85,14 @@ class ReaderApp extends React.Component {
         });
         // wait to check for interrupting message until after asyncstorage is loaded
         this._interruptingMessageRef && this._interruptingMessageRef.checkForMessage();
-        const mostRecent =  Sefaria.history.length ? Sefaria.history[0] : {ref: "Genesis 1"};
-        this.openRef(mostRecent.ref, null, mostRecent.versions, false)  // first call to openRef should not add to backStack
-        .then(Sefaria.postInit)
-        .then(Sefaria.downloader.promptLibraryDownload);
+        if (!this._initThroughDeepLink) {
+          const mostRecent =  Sefaria.history.length ? Sefaria.history[0] : {ref: "Genesis 1"};
+          this.openRef(mostRecent.ref, null, mostRecent.versions, false)  // first call to openRef should not add to backStack
+          .then(Sefaria.postInit)
+          .then(Sefaria.downloader.promptLibraryDownload);
+        } else {
+          Sefaria.postInit().then(Sefaria.downloader.promptLibraryDownload);
+        }
     });
     Sefaria.track.init();
 
@@ -159,7 +164,6 @@ class ReaderApp extends React.Component {
   }
 
   componentDidMount() {
-    console.log("MOUNTAIN");
     NetInfo.isConnected.addEventListener(
       'connectionChange',
       this.networkChangeListener
@@ -253,6 +257,7 @@ class ReaderApp extends React.Component {
 
   handleOpenURL = ({ url } = {}) => {
     if (url) {
+      this._initThroughDeepLink = true; // TODO this var is not working properly. race condition
       console.log("DEEP DIVE", url);
       this._deepLinkRouterRef.route(url);
     }
@@ -1923,8 +1928,12 @@ class ReaderApp extends React.Component {
         <DeepLinkRouter
           ref={this._getDeepLinkRouterRef}
           openNav={this.openNav}
+          openMenu={this.openMenu}
           openRef={this.openRef}
+          openSheetTag={this.openSheetTag}
+          openTextTocDirectly={this.openTextTocDirectly}
           setTextLanguage={this.setTextLanguage}
+          setNavigationCategories={this.setNavigationCategories}
         />
       </View>
 

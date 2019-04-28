@@ -227,10 +227,11 @@ Sefaria = {
     // url: tref as it would appear in a url
     url = url.replace(/_/g, ' ');
     const title = Sefaria.textTitleForRef(url);
-    if (!title) { return null; }
+    if (!title) { return { ref: url, title }; }
     // regexp to replace the dot immediately following the title
     const spaceReplacer = new RegExp("^" + Sefaria.util.regexEscape(`${title}.`));
-    return url.replace(spaceReplacer, `${title} `).replace(/\./g, ':');
+    const ref = url.replace(spaceReplacer, `${title} `).replace(/\./g, ':');
+    return { ref, title };
   },
   categoryForTitle: function(title) {
     var index = Sefaria.index(title);
