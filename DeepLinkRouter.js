@@ -12,6 +12,7 @@ class DeepLinkRouter extends React.PureComponent {
     openSheetTag:            PropTypes.func.isRequired,
     openTextTocDirectly:     PropTypes.func.isRequired,
     search:                  PropTypes.func.isRequired,
+    setSearchOptions:        PropTypes.func.isRequired,
     setTextLanguage:         PropTypes.func.isRequired,
     setNavigationCategories: PropTypes.func.isRequired,
   };
@@ -66,7 +67,9 @@ class DeepLinkRouter extends React.PureComponent {
     }
   };
   search = ({ q, tab, tvar, tsort, svar, ssort }) => {
-    this.props.search(q);
+    // TODO: implement tab, svar and ssort
+    const isExact = !!tvar && tvar.length > 0 && tvar === '0';
+    this.props.setSearchOptions(tsort, isExact, () => { this.props.search(q); });
   };
   route = url => {
     const u = new URL(url, true);  // true means parse query string

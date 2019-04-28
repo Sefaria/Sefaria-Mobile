@@ -76,7 +76,7 @@ class ReaderApp extends React.Component {
   constructor(props, context) {
     super(props, context);
     this._initDeepLinkURL = null;  // if you init the app thru a deep link, need to make sure the URL is applied during componentDidMount()
-
+    this._completedInit = false;
     if (Platform.OS === 'android') {
       UIManager.setLayoutAnimationEnabledExperimental && UIManager.setLayoutAnimationEnabledExperimental(true);
       if (strings.getInterfaceLanguage() === 'iw-IL') {
@@ -232,7 +232,8 @@ class ReaderApp extends React.Component {
           this.openRef(mostRecent.ref, null, mostRecent.versions, false)  // first call to openRef should not add to backStack
           .then(Sefaria.postInitSearch)
           .then(Sefaria.postInit)
-          .then(Sefaria.downloader.promptLibraryDownload);
+          .then(Sefaria.downloader.promptLibraryDownload)
+          .then(() => { this._completedInit = true; });
         } else {
           // apply deep link here to make sure it applies correctly
           // load search files before deep link incase deep link is to search
@@ -242,6 +243,7 @@ class ReaderApp extends React.Component {
           })
           .then(Sefaria.postInit)
           .then(Sefaria.downloader.promptLibraryDownload)
+          .then(() => { this._completedInit = true; });
         }
     });
   }
@@ -268,8 +270,12 @@ class ReaderApp extends React.Component {
 
   handleOpenURL = ({ url } = {}) => {
     if (url) {
-      this._initDeepLinkURL = url;
-      this._deepLinkRouterRef.route(url);
+      if (this._completedInit) {
+        this._deepLinkRouterRef.route(url);
+      } else {
+        // save URL. it will be applied when componentDidMount finishes
+        this._initDeepLinkURL = url;
+      }
     }
   };
 
@@ -1942,6 +1948,7 @@ class ReaderApp extends React.Component {
           openRef={this.openRef}
           openSheetTag={this.openSheetTag}
           search={this.search}
+          setSearchOptions={this.setSearchOptions}
           openTextTocDirectly={this.openTextTocDirectly}
           setTextLanguage={this.setTextLanguage}
           setNavigationCategories={this.setNavigationCategories}
