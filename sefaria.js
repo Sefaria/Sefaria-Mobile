@@ -235,21 +235,21 @@ Sefaria = {
     const ref = url.replace(spaceReplacer, `${title} `).replace(/\./g, ':');
     return { ref, title };
   },
-  categoryForTitle: function(title) {
-    var index = Sefaria.index(title);
-    if (!index) { return null;}
-
-    let cat = index.categories[0];
-    if (index.categories.includes("Commentary")) {
+  categoryForTitle: function(title, isSheet) {
+    const cats = Sefaria.categoriesForTitle(title, isSheet);
+    if (!cats) { return null; }
+    let cat = cats[0];
+    if (cats.includes("Commentary")) {
       cat = "Commentary";
-    } else if (index.categories.includes("Targum")) {
+    } else if (cats.includes("Targum")) {
       cat = "Targum";
     }
     // Kept for backwards compatibility of pre-commentary refactor downloaded data
     return cat == "Commentary2" ? "Commentary" : cat;
   },
-  categoriesForTitle: function(title) {
-    var index = Sefaria.index(title);
+  categoriesForTitle: function(title, isSheet) {
+    if (isSheet) { return ["Sheets"]; }
+    const index = Sefaria.index(title);
     if (!index) { return null;}
     return index.categories;
   },
