@@ -75,26 +75,7 @@ class ReaderApp extends React.Component {
 
   constructor(props, context) {
     super(props, context);
-    this._initThroughDeepLink = false;
-    Sefaria._deleteUnzippedFiles()
-    .then(Sefaria.init).then(() => {
-        setTimeout(SplashScreen.hide, 300);
-        this.setState({
-          loaded: true,
-          defaultSettingsLoaded: true,
-        });
-        // wait to check for interrupting message until after asyncstorage is loaded
-        this._interruptingMessageRef && this._interruptingMessageRef.checkForMessage();
-        if (!this._initThroughDeepLink) {
-          const mostRecent =  Sefaria.history.length ? Sefaria.history[0] : {ref: "Genesis 1"};
-          this.openRef(mostRecent.ref, null, mostRecent.versions, false)  // first call to openRef should not add to backStack
-          .then(Sefaria.postInit)
-          .then(Sefaria.downloader.promptLibraryDownload);
-        } else {
-          Sefaria.postInit().then(Sefaria.downloader.promptLibraryDownload);
-        }
-    });
-    Sefaria.track.init();
+    this._initDeepLinkURL = null;  // if you init the app thru a deep link, need to make sure the URL is applied during componentDidMount()
 
     if (Platform.OS === 'android') {
       UIManager.setLayoutAnimationEnabledExperimental && UIManager.setLayoutAnimationEnabledExperimental(true);
@@ -164,6 +145,8 @@ class ReaderApp extends React.Component {
   }
 
   componentDidMount() {
+    this.initFiles();
+    Sefaria.track.init();
     NetInfo.isConnected.addEventListener(
       'connectionChange',
       this.networkChangeListener
@@ -235,6 +218,30 @@ class ReaderApp extends React.Component {
     RNShake.removeEventListener('ShakeEvent');
   }
 
+  initFiles = () => {
+    Sefaria._deleteUnzippedFiles()
+    .then(Sefaria.init).then(() => {
+        setTimeout(SplashScreen.hide, 300);
+        this.setState({
+          loaded: true,
+          defaultSettingsLoaded: true,
+        });
+        // wait to check for interrupting message until after asyncstorage is loaded
+        this._interruptingMessageRef && this._interruptingMessageRef.checkForMessage();
+        console.log('ready to init');
+        if (!this._initDeepLinkURL) {
+          const mostRecent =  Sefaria.history.length ? Sefaria.history[0] : {ref: "Genesis 1"};
+          this.openRef(mostRecent.ref, null, mostRecent.versions, false)  // first call to openRef should not add to backStack
+          .then(Sefaria.postInit)
+          .then(Sefaria.downloader.promptLibraryDownload);
+        } else {
+          // apply deep link here to make sure it applies correctly
+          this._deepLinkRouterRef.route(this._initDeepLinkURL);
+          Sefaria.postInit().then(Sefaria.downloader.promptLibraryDownload);
+        }
+    });
+  }
+
   manageBackMain = () => {
     this.manageBack("main");
   }
@@ -257,7 +264,7 @@ class ReaderApp extends React.Component {
 
   handleOpenURL = ({ url } = {}) => {
     if (url) {
-      this._initThroughDeepLink = true; // TODO this var is not working properly. race condition
+      this._initDeepLinkURL = url;
       console.log("DEEP DIVE", url);
       this._deepLinkRouterRef.route(url);
     }
