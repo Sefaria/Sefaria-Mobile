@@ -212,7 +212,6 @@ class ReaderApp extends React.Component {
       'connectionChange',
       this.networkChangeListener
     );
-    console.log('removing events');
     Linking.removeEventListener('url', this.handleOpenURL);
     AppState.removeEventListener('change', this.appStateChangeListener);
     RNShake.removeEventListener('ShakeEvent');
@@ -228,16 +227,21 @@ class ReaderApp extends React.Component {
         });
         // wait to check for interrupting message until after asyncstorage is loaded
         this._interruptingMessageRef && this._interruptingMessageRef.checkForMessage();
-        console.log('ready to init');
         if (!this._initDeepLinkURL) {
           const mostRecent =  Sefaria.history.length ? Sefaria.history[0] : {ref: "Genesis 1"};
           this.openRef(mostRecent.ref, null, mostRecent.versions, false)  // first call to openRef should not add to backStack
+          .then(Sefaria.postInitSearch)
           .then(Sefaria.postInit)
           .then(Sefaria.downloader.promptLibraryDownload);
         } else {
           // apply deep link here to make sure it applies correctly
-          this._deepLinkRouterRef.route(this._initDeepLinkURL);
-          Sefaria.postInit().then(Sefaria.downloader.promptLibraryDownload);
+          // load search files before deep link incase deep link is to search
+          Sefaria.postInitSearch()
+          .then(() => {
+            this._deepLinkRouterRef.route(this._initDeepLinkURL);
+          })
+          .then(Sefaria.postInit)
+          .then(Sefaria.downloader.promptLibraryDownload)
         }
     });
   }
@@ -265,7 +269,6 @@ class ReaderApp extends React.Component {
   handleOpenURL = ({ url } = {}) => {
     if (url) {
       this._initDeepLinkURL = url;
-      console.log("DEEP DIVE", url);
       this._deepLinkRouterRef.route(url);
     }
   };
@@ -1938,6 +1941,7 @@ class ReaderApp extends React.Component {
           openMenu={this.openMenu}
           openRef={this.openRef}
           openSheetTag={this.openSheetTag}
+          search={this.search}
           openTextTocDirectly={this.openTextTocDirectly}
           setTextLanguage={this.setTextLanguage}
           setNavigationCategories={this.setNavigationCategories}

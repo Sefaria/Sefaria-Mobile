@@ -11,6 +11,7 @@ class DeepLinkRouter extends React.PureComponent {
     openRef:                 PropTypes.func.isRequired,
     openSheetTag:            PropTypes.func.isRequired,
     openTextTocDirectly:     PropTypes.func.isRequired,
+    search:                  PropTypes.func.isRequired,
     setTextLanguage:         PropTypes.func.isRequired,
     setNavigationCategories: PropTypes.func.isRequired,
   };
@@ -21,7 +22,7 @@ class DeepLinkRouter extends React.PureComponent {
       ['^texts/(?<menu>saved)$', this.openMenu],
       ['^texts/(?<menu>history)$', this.openMenu],
       ['^texts/(?<cats>.+)?$', this.openCats],
-      ['^search$', null],
+      ['^search$', this.search],
       ['^(?<menu>sheets)$', this.openMenu],
       ['^(?<menu>sheets)/tags$', this.openMenu],
       ['^sheets/tags/(?<tag>.+)$', this.openSheetTag],
@@ -64,9 +65,11 @@ class DeepLinkRouter extends React.PureComponent {
       this.props.openRef(ref, 'deep link', versions, true, enableAliyot);
     }
   };
+  search = ({ q, tab, tvar, tsort, svar, ssort }) => {
+    this.props.search(q);
+  };
   route = url => {
     const u = new URL(url, true);  // true means parse query string
-    console.log('query', url, u.query);
     let { pathname, query } = u;
     pathname = decodeURIComponent(pathname);
     pathname = pathname.replace(/[\/\?]$/, '');  // remove trailing ? or /
@@ -86,10 +89,8 @@ class Route {
     this.func = func;
   }
   apply = ({ pathname, query }) => {
-    console.log("query after", query);
     const m = pathname.match(this.regex);
     if (m) {
-      console.log('routed', pathname);
       const groups = m.groups || {};
       this.func({...groups, ...query});
       return true;
