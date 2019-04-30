@@ -52,9 +52,12 @@ class TextSegment extends React.PureComponent {
     // console.log(this.props.segmentKey+": "+typeof(this.props.textRef));
     const isStacked = this.props.biLayout === 'stacked';
     const lineHeightMultiplierHe = Platform.OS === 'android' ? 1.3 : 1.2;
+    // see this issue: https://github.com/facebook/react-native/issues/24267
+    // textAlign: right doesn't work as expected for Android RTL text
+    const justifyStyle = {textAlign: (isStacked && Platform.OS === 'ios') ? 'justify' : ((Platform.OS === 'ios' && this.props.textType === 'hebrew') ? 'right' : 'left')};
     const style = this.props.textType == "hebrew" ?
-                  [styles.hebrewText, this.props.theme.text, (isStacked && Platform.OS === 'ios') ? styles.justifyText : {textAlign: 'right'}, {fontSize: this.props.fontSize, lineHeight: this.props.fontSize * lineHeightMultiplierHe}] :
-                  [styles.englishText, this.props.theme.text, isStacked ? styles.justifyText : {textAlign: 'left'}, {fontSize: 0.8 * this.props.fontSize, lineHeight: this.props.fontSize * 1.04 }];
+                  [styles.hebrewText, this.props.theme.text, justifyStyle, {fontSize: this.props.fontSize, lineHeight: this.props.fontSize * lineHeightMultiplierHe}] :
+                  [styles.englishText, this.props.theme.text, justifyStyle, {fontSize: 0.8 * this.props.fontSize, lineHeight: this.props.fontSize * 1.04 }];
     if (this.props.bilingual && this.props.textType == "english") {
       if (isStacked) {
         style.push(styles.bilingualEnglishText);
@@ -67,11 +70,11 @@ class TextSegment extends React.PureComponent {
       },
       hediv: {
         ...styles.hediv,
-        textAlign: (isStacked && Platform.OS === 'ios') ? 'justify' : 'right'  // justify looks bad hebrew with small screens in side-by-side layout
+        ...justifyStyle,
       },
       endiv: {
         ...styles.endiv,
-        textAlign: isStacked ? 'justify' : 'left'
+        ...justifyStyle,
       }
     };
     // return (
@@ -84,7 +87,7 @@ class TextSegment extends React.PureComponent {
     return (
            <HTMLView
              key={this.state.resetKey}
-             value={Sefaria.util.getDisplayableHTML(this.props.data, this.props.textType)}
+             value={this.props.data}
              stylesheet={{...styles, ...smallSheet}}
              rootComponentProps={{
                  hitSlop: {top: 10, bottom: 10, left: 10, right: 10},  // increase hit area of segments
