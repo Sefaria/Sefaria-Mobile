@@ -345,6 +345,13 @@ export default StyleSheet.create({
     flexDirection: 'column',
     borderBottomWidth: 1,
   },
+  searchSheetResult: {
+    margin:0,
+    borderBottomWidth: 1,
+    borderBottomColor: "#ccc",
+    flexDirection: "column",
+    flex:1
+  },
   sefariaProgressBar: {
     height: 50,
     alignItems: "center",

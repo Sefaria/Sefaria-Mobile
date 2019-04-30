@@ -29,19 +29,19 @@ class SearchSheetResult extends React.Component {
     return (
 
 
-      <TouchableOpacity style={[styles.textBlockLink, this.props.theme.textBlockLink, {margin:0, borderBottomWidth: 1, borderBottomColor: "#ccc", paddingTop: 13}]}
+      <TouchableOpacity style={[styles.searchTextResult, this.props.theme.searchTextResult]}
                         onPress={this.props.onPress} >
 
-      <View style={{ flexDirection: "column",flex:1, marginRight: this.props.interfaceLang == "hebrew" ? 20 : 10, marginLeft: this.props.interfaceLang == "hebrew" ? 10 : 20}}>
+      <View style={[this.props.searchSheetResult, ]}>
           <View>
-            <Text style={[refTitleStyle, styles.textListCitation, this.props.theme.textListCitation]}>{this.props.title.replace(/\s\s+/g, ' ')}</Text>
+            <Text style={[refTitleStyle, styles.textListCitation, this.props.theme.text]}>{this.props.title.replace(/\s\s+/g, ' ')}</Text>
           </View>
 
           {this.props.text ?
           <HTMLView
             value= {this.props.textType == "hebrew" ? "<hediv>"+this.props.text.replace(/(\r\n|\n|\r)/gm, "").substring(0, 124)+"...</hediv>" : "<endiv>"+this.props.text.replace(/(\r\n|\n|\r)/gm, "").substring(0, 124)+"...</endiv>"}
             stylesheet={styles}
-            textComponentProps={{style: [this.props.textType == "hebrew" ? styles.hebrewText : styles.englishText,this.props.theme.text]}}
+            textComponentProps={{style: [this.props.textType == "hebrew" ? styles.hebrewText : styles.englishText, this.props.theme.searchResultSummaryText]}}
           /> : null }
 
 
@@ -54,7 +54,7 @@ class SearchSheetResult extends React.Component {
 
           <View style={{flexDirection: "column", flex: 1, justifyContent: "space-between", marginHorizontal: 10}}>
              <Text style={[styles.enInt, {alignSelf: "flex-start", color:"#666"}]}>{this.props.ownerName}</Text>
-             <Text style={[{color:"#999"}, styles.enInt]}>{this.props.views} Views · {this.props.tags.join(", ")}</Text>
+             <Text style={[{color:"#999"}, styles.enInt]}>{this.props.views} Views {this.props.tags.length > 0 ? "· " + this.props.tags.join(", ") : null}</Text>
            </View>
 
         </View>
