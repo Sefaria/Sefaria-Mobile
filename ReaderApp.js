@@ -228,7 +228,6 @@ class ReaderApp extends React.Component {
         // wait to check for interrupting message until after asyncstorage is loaded
         this._interruptingMessageRef && this._interruptingMessageRef.checkForMessage();
         if (!this._initDeepLinkURL) {
-          console.log('NORMAL INIT');
           const mostRecent =  Sefaria.history.length ? Sefaria.history[0] : {ref: "Genesis 1"};
           this.openRef(mostRecent.ref, null, mostRecent.versions, false)  // first call to openRef should not add to backStack
           .then(Sefaria.postInitSearch)
@@ -236,7 +235,6 @@ class ReaderApp extends React.Component {
           .then(() => { this._completedInit = true; })
           .then(Sefaria.downloader.promptLibraryDownload);
         } else {
-          console.log('DEEP INIT');
           // apply deep link here to make sure it applies correctly
           // load search files before deep link incase deep link is to search
           Sefaria.postInitSearch()
@@ -271,7 +269,6 @@ class ReaderApp extends React.Component {
   };
 
   handleOpenURL = ({ url } = {}) => {
-    console.log('deep', url, this._completedInit);
     if (url) {
       if (this._completedInit) {
         this._deepLinkRouterRef.route(url);
@@ -749,7 +746,6 @@ class ReaderApp extends React.Component {
               views: result.views,
             };
           }
-          console.log('meta', sheetMeta);
           this.setState ({
               sheet: result,
               sheetMeta,
@@ -1229,7 +1225,6 @@ class ReaderApp extends React.Component {
   };
 
   loadVersionContent = (ref, pos, versionTitle, versionLanguage) => {
-    console.log('loadVersionContent', ref, pos, versionTitle, versionLanguage);
     Sefaria.data(ref, false, {[versionLanguage]: versionTitle }).then(data => {
       // only want to show versionLanguage in results
       const removeLang = versionLanguage === "he" ? "en" : "he";
@@ -1857,6 +1852,7 @@ class ReaderApp extends React.Component {
           openNav={this.openNav}
           openMenu={this.openMenu}
           openRef={this.openRef}
+          openUri={this.openUri}
           openRefSheet={this.openRefSheet}
           openSheetTag={this.openSheetTag}
           search={this.search}

@@ -9,6 +9,7 @@ class DeepLinkRouter extends React.PureComponent {
     openNav:                 PropTypes.func.isRequired,
     openMenu:                PropTypes.func.isRequired,
     openRef:                 PropTypes.func.isRequired,
+    openUri:                 PropTypes.func.isRequired,
     openRefSheet:            PropTypes.func.isRequired,
     openSheetTag:            PropTypes.func.isRequired,
     openTextTocDirectly:     PropTypes.func.isRequired,
@@ -31,6 +32,7 @@ class DeepLinkRouter extends React.PureComponent {
       ['^sheets/tags/(?<tag>.+)$', this.openSheetTag],
       ['^sheets/(?<sheetid>[0-9.]+)$', this.openRefSheet],
       ['^(?<tref>[^/]+)$', this.openRef],
+      ['^.*$', this.catchAll],
     ];
     this._routes = routes.map(r => new Route(r[0], r[1]));
   }
@@ -39,7 +41,6 @@ class DeepLinkRouter extends React.PureComponent {
   };
   openRefSheet = ({ sheetid }) => {
     sheetid = sheetid.split(".")[0];  // throw away node number
-    console.log("SHEET", sheetid);
     this.props.openRefSheet(sheetid);
   };
   openSheetTag = ({ tag }) => {
@@ -50,11 +51,11 @@ class DeepLinkRouter extends React.PureComponent {
     this.props.openNav();
     this.props.setNavigationCategories(cats);
   };
-  openRef = ({ tref, ven, vhe, aliyot, lang }) => {
+  openRef = ({ tref, ven, vhe, aliyot, lang, url }) => {
     // wrapper for openRef to convert url params to function params
     // TODO handle sheet ref case
     const { ref, title } = Sefaria.urlToRef(tref);
-    if (!title) { return; /* open site */}
+    if (!title) { this.catchAll(url); return; /* open site */}
     else if (ref === title) {
       // book table of contents
       this.props.openTextTocDirectly(title);
@@ -78,6 +79,10 @@ class DeepLinkRouter extends React.PureComponent {
     const isExact = !!tvar && tvar.length > 0 && tvar === '0';
     this.props.setSearchOptions(tsort, isExact, () => { this.props.search(q); });
   };
+  catchAll = url => {
+    // runs in case no route can handle this url
+    this.props.openUri(url);
+  };
   route = url => {
     const u = new URL(url, true);  // true means parse query string
     let { pathname, query } = u;
@@ -87,7 +92,7 @@ class DeepLinkRouter extends React.PureComponent {
     // es6 dict comprehension to decode query values
     query = Object.entries(query).reduce((obj, [k, v]) => { obj[k] = decodeURIComponent(v); return obj; }, {});
     for (let r of this._routes) {
-      if (r.apply({ pathname, query })) { break; }
+      if (r.apply({ pathname, query, url })) { break; }
     }
   };
   render() { return null; }
@@ -98,11 +103,11 @@ class Route {
     this.regex = regex;
     this.func = func;
   }
-  apply = ({ pathname, query }) => {
+  apply = ({ pathname, query, url }) => {
     const m = pathname.match(this.regex);
     if (m) {
       const groups = m.groups || {};
-      this.func({...groups, ...query});
+      this.func({ ...groups, ...query, url });
       return true;
     }
     return false;
