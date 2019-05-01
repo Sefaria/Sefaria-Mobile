@@ -138,7 +138,7 @@ var Api = {
   apiType: string `oneOf(["text","links","index"])`. passing undefined gets the standard Reader URL.
   context is a required param if apiType == 'text'. o/w it's ignored
   */
-  _toURL: function(ref, useHTTPS, apiType, urlify, { context, versions }) {
+  _toURL: function(ref, useHTTPS, apiType, urlify, { context, versions, more_data }) {
     let url = '';
     if (useHTTPS) {
       url += 'https://www.sefaria.org/';
@@ -179,6 +179,7 @@ var Api = {
           break;
         case "sheets":
           url += "api/sheets/";
+          urlSuffix = `?more_data=${more_data === true ? 1 : 0}`;
           break;
         case "name":
           url += "api/name/";
@@ -361,12 +362,12 @@ var Api = {
     });
   },
 
-  sheets: function(sheetID, failSilently) {
+  sheets: function(sheetID, more_data) {
     Sefaria.api._abortRequestType('sheets');
     return new Promise((resolve, reject) => {
       const cached = Sefaria.api._sheets[sheetID];
       //if (!!cached) { console.log("cached"); resolve(cached); return; }
-      Sefaria.api._request(sheetID, 'sheets', false, {}, failSilently)
+      Sefaria.api._request(sheetID, 'sheets', false, { more_data })
         .then(response => {
           Sefaria.api._sheets[sheetID] = response;
           resolve(response);
@@ -411,11 +412,11 @@ var Api = {
   versions is object with keys { en, he } specifying version titles
   failSilently - if true, dont display a message if api call fails
   */
-  _request: function(ref, apiType, urlify, { context, versions }, failSilently) {
+  _request: function(ref, apiType, urlify, { context, versions, more_data }, failSilently) {
     const controller = new AbortController();
     const signal = controller.signal;
     Sefaria.api._currentRequests[apiType] = controller;
-    var url = Sefaria.api._toURL(ref, true, apiType, urlify, { context, versions });
+    var url = Sefaria.api._toURL(ref, true, apiType, urlify, { context, versions, more_data });
     return new Promise(function(resolve, reject) {
       fetch(url, {method: 'GET', signal})
       .then(function(response) {
@@ -447,7 +448,7 @@ var Api = {
             [
               {text: strings.cancel, onPress: () => { reject("Return to Nav"); }, style: 'cancel' },
               {text: strings.tryAgain, onPress: () => {
-                Sefaria.api._request(ref,apiType, urlify, { context, versions },failSilently).then(resolve);
+                Sefaria.api._request(ref,apiType, urlify, { context, versions, more_data },failSilently).then(resolve);
               }}
             ]
           );

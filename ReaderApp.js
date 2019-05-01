@@ -228,13 +228,15 @@ class ReaderApp extends React.Component {
         // wait to check for interrupting message until after asyncstorage is loaded
         this._interruptingMessageRef && this._interruptingMessageRef.checkForMessage();
         if (!this._initDeepLinkURL) {
+          console.log('NORMAL INIT');
           const mostRecent =  Sefaria.history.length ? Sefaria.history[0] : {ref: "Genesis 1"};
           this.openRef(mostRecent.ref, null, mostRecent.versions, false)  // first call to openRef should not add to backStack
           .then(Sefaria.postInitSearch)
           .then(Sefaria.postInit)
-          .then(Sefaria.downloader.promptLibraryDownload)
-          .then(() => { this._completedInit = true; });
+          .then(() => { this._completedInit = true; })
+          .then(Sefaria.downloader.promptLibraryDownload);
         } else {
+          console.log('DEEP INIT');
           // apply deep link here to make sure it applies correctly
           // load search files before deep link incase deep link is to search
           Sefaria.postInitSearch()
@@ -242,8 +244,8 @@ class ReaderApp extends React.Component {
             this._deepLinkRouterRef.route(this._initDeepLinkURL);
           })
           .then(Sefaria.postInit)
-          .then(Sefaria.downloader.promptLibraryDownload)
-          .then(() => { this._completedInit = true; });
+          .then(() => { this._completedInit = true; })
+          .then(Sefaria.downloader.promptLibraryDownload);
         }
     });
   }
@@ -269,6 +271,7 @@ class ReaderApp extends React.Component {
   };
 
   handleOpenURL = ({ url } = {}) => {
+    console.log('deep', url, this._completedInit);
     if (url) {
       if (this._completedInit) {
         this._deepLinkRouterRef.route(url);
@@ -719,13 +722,12 @@ class ReaderApp extends React.Component {
     this.openRef(ref, "text toc", null, false, enableAliyot);
   };
 
-  openRefSheet = (ref, sheetMeta) => {
-      console.log(ref)
-      this.setState({
-          loaded: false,
-      }, () => {
-          this.loadSheet(ref, sheetMeta);
-      })
+  openRefSheet = (sheetID, sheetMeta) => {
+    this.setState({
+      loaded: false,
+    }, () => {
+      this.loadSheet(sheetID, sheetMeta);
+    });
   };
 
   updateActiveSheetNode = (node) => {
@@ -735,12 +737,22 @@ class ReaderApp extends React.Component {
 
 }
 
-  loadSheet = (ref, sheetMeta) => {
-      Sefaria.api.sheets(ref)
+  loadSheet = (sheetID, sheetMeta) => {
+      const more_data = !sheetMeta  // # if sheetMeta is null, need to request more data from api call
+      Sefaria.api.sheets(sheetID, more_data)
       .then(result => {
+          if (more_data) {
+            // extract sheetMeta from result
+            sheetMeta = {
+              ownerName: result.ownerName,
+              ownerImageUrl: result.ownerImageUrl,
+              views: result.views,
+            };
+          }
+          console.log('meta', sheetMeta);
           this.setState ({
               sheet: result,
-              sheetMeta: sheetMeta,
+              sheetMeta,
               data: [],
               sectionArray: [],
               sectionHeArray: [],
@@ -923,7 +935,7 @@ class ReaderApp extends React.Component {
   closeMenu = () => {
       this.clearMenuState();
       this.openMenu(null);
-      if (!this.state.textReference) {
+      if (!this.state.textReference && !this.state.sheet) {
           this.openDefaultText();
       }
   };
@@ -1671,7 +1683,6 @@ class ReaderApp extends React.Component {
             openTextToc={this.openTextToc}
             openSheetMeta={this.openSheetMeta}
             sheet={this.state.sheet}
-            sheetMeta={this.state.sheetMeta}
             backStack={BackManager.getStack({ type: "main" })}
             toggleReaderDisplayOptionsMenu={this.toggleReaderDisplayOptionsMenu}
             openUri={this.openUri}/>
@@ -1846,6 +1857,7 @@ class ReaderApp extends React.Component {
           openNav={this.openNav}
           openMenu={this.openMenu}
           openRef={this.openRef}
+          openRefSheet={this.openRefSheet}
           openSheetTag={this.openSheetTag}
           search={this.search}
           setSearchOptions={this.setSearchOptions}

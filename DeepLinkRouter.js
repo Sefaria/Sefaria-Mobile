@@ -9,6 +9,7 @@ class DeepLinkRouter extends React.PureComponent {
     openNav:                 PropTypes.func.isRequired,
     openMenu:                PropTypes.func.isRequired,
     openRef:                 PropTypes.func.isRequired,
+    openRefSheet:            PropTypes.func.isRequired,
     openSheetTag:            PropTypes.func.isRequired,
     openTextTocDirectly:     PropTypes.func.isRequired,
     search:                  PropTypes.func.isRequired,
@@ -19,6 +20,7 @@ class DeepLinkRouter extends React.PureComponent {
   constructor(props) {
     super(props);
     const routes = [
+      ['^$', props.openNav],
       ['^texts$', props.openNav],
       ['^texts/(?<menu>saved)$', this.openMenu],
       ['^texts/(?<menu>history)$', this.openMenu],
@@ -27,13 +29,18 @@ class DeepLinkRouter extends React.PureComponent {
       ['^(?<menu>sheets)$', this.openMenu],
       ['^(?<menu>sheets)/tags$', this.openMenu],
       ['^sheets/tags/(?<tag>.+)$', this.openSheetTag],
-      ['^sheets/(?<tref>[\d.]+)$', null],
+      ['^sheets/(?<sheetid>[0-9.]+)$', this.openRefSheet],
       ['^(?<tref>[^/]+)$', this.openRef],
     ];
     this._routes = routes.map(r => new Route(r[0], r[1]));
   }
   openMenu = ({ menu }) => {
     this.props.openMenu(menu);
+  };
+  openRefSheet = ({ sheetid }) => {
+    sheetid = sheetid.split(".")[0];  // throw away node number
+    console.log("SHEET", sheetid);
+    this.props.openRefSheet(sheetid);
   };
   openSheetTag = ({ tag }) => {
     this.props.openSheetTag(tag);
