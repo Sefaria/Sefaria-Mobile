@@ -132,7 +132,7 @@ var Downloader = {
       Downloader.onChange && Downloader.onChange();
       // download these ancillary files after. they shouldn't hold up the update
       Promise.all([
-        Downloader._downloadFile("search_toc.json").then(Sefaria.search._loadSearchTOC),
+        Downloader._downloadFile("search_toc.json").then(Sefaria._loadSearchTOC),
         Downloader._downloadFile("hebrew_categories.json").then(Sefaria._loadHebrewCategories),
         Downloader._downloadFile("people.json").then(Sefaria._loadPeople),
         Downloader._downloadFile("packages.json").then(Sefaria.packages._load),

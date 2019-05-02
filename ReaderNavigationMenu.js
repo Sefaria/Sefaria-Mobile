@@ -51,6 +51,7 @@ class ReaderNavigationMenu extends React.Component {
     searchQuery:    PropTypes.string.isRequired,
     openAutocomplete: PropTypes.func.isRequired,
     openUri:        PropTypes.func.isRequired,
+    searchType:     PropTypes.oneOf(['text', 'sheet']).isRequired,
     toggleDebugInterruptingMessage: PropTypes.func.isRequired,
     debugInterruptingMessage: PropTypes.bool.isRequired,
   };
@@ -174,6 +175,7 @@ class ReaderNavigationMenu extends React.Component {
                 language={this.props.menuLanguage}
                 onChange={this.props.onChangeSearchQuery}
                 query={this.props.searchQuery}
+                searchType={this.props.searchType}
                 onFocus={this.props.openAutocomplete}/>
               <ScrollView style={styles.menuContent} contentContainerStyle={styles.menuScrollViewContent}>
 

@@ -76,7 +76,7 @@ class CategoryBlockLink extends React.Component {
     category:  PropTypes.string,
     heCat:     PropTypes.string,
     language:  PropTypes.string,
-    style:     PropTypes.object,
+    style:     PropTypes.oneOfType([PropTypes.object, PropTypes.array]),
     isSans:    PropTypes.bool,
     upperCase: PropTypes.bool,
     withArrow: PropTypes.bool,
@@ -651,7 +651,7 @@ class HebrewInEnglishText extends Component {
 
 class SText extends React.Component {
   static propTypes = {
-    children: PropTypes.string,
+    children: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
     lang:     PropTypes.oneOf(["hebrew", "english"]),
     style:    PropTypes.oneOfType([PropTypes.object, PropTypes.array]),
   }

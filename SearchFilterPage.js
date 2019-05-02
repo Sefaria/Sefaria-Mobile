@@ -10,17 +10,15 @@ import {
   Image,
 } from 'react-native';
 
+import { FilterNode, SearchPropTypes } from '@sefaria/search';
 import {
   DirectedButton,
   ButtonToggleSet,
   LibraryNavButton,
 } from './Misc.js';
 
-import FilterNode from './FilterNode';
 import styles from './Styles';
 import strings from './LocalizedStrings';
-
-//console.log("filternaodf", FilterNode.checkPropType({}, 'blah', 'hii'));
 
 class SearchFilterPage extends React.Component {
   static propTypes = {
@@ -29,31 +27,28 @@ class SearchFilterPage extends React.Component {
     interfaceLang:    PropTypes.oneOf(["english", "hebrew"]).isRequired,
     menuLanguage:     PropTypes.oneOf(["english", "hebrew"]).isRequired,
     subMenuOpen:      PropTypes.string.isRequired,
-    updateFilter:     PropTypes.func.isRequired,
+    toggleFilter:     PropTypes.func.isRequired,
     clearAllFilters:  PropTypes.func.isRequired,
     query:            PropTypes.string,
-    sort:             PropTypes.string,
-    isExact:          PropTypes.bool,
-    availableFilters: PropTypes.array,
-    appliedFilters:   PropTypes.array,
-    filtersValid:     PropTypes.bool,
     openSubMenu:      PropTypes.func,
-    search:    PropTypes.func,
-    setSearchOptions: PropTypes.func
+    search:           PropTypes.func,
+    setSearchOptions: PropTypes.func,
+    searchState:      PropTypes.object,
   };
 
   constructor(props) {
     super(props);
+    const { type } = props.searchState;
     this.sortOptions = [
-      {name: "chronological", text: strings.chronological, onPress: () => { this.props.setSearchOptions("chronological", this.props.isExact); }},
-      {name: "relevance", text: strings.relevance, onPress: () => { this.props.setSearchOptions("relevance", this.props.isExact); }}
+      {name: "chronological", text: strings.chronological, onPress: () => { this.props.setSearchOptions(type, "chronological", this.props.searchState.field); }},
+      {name: "relevance", text: strings.relevance, onPress: () => { this.props.setSearchOptions(type, "relevance", this.props.searchState.field); }}
     ];
     this.exactOptions = [
       {name: false, text: strings.off, onPress: () => {
-        this.props.setSearchOptions(this.props.sort, false, ()=>this.props.search(this.props.query, true, false, true));
+        this.props.setSearchOptions(type, this.props.searchState.sortType, this.props.searchState.fieldBroad, ()=>this.props.search(this.props.searchState.type, this.props.query, true, false, true));
       }},
       {name: true, text: strings.on, onPress: () => {
-        this.props.setSearchOptions(this.props.sort, true, ()=>this.props.search(this.props.query, true, false, true));
+        this.props.setSearchOptions(type, this.props.searchState.sortType, this.props.searchState.fieldExact, ()=>this.props.search(this.props.searchState.type, this.props.query, true, false, true));
       }}
     ];
   }
@@ -66,7 +61,15 @@ class SearchFilterPage extends React.Component {
 
   applyFilters = () => {
     this.props.openSubMenu(null);
-    this.props.search(this.props.query, true, false);
+    this.props.search(this.props.searchState.type, this.props.query, true, false);
+  };
+
+  clearAllFilters = () => {
+    this.props.clearAllFilters(this.props.searchState.type);
+  };
+
+  toggleFilter = filter => {
+    this.props.toggleFilter(this.props.searchState.type, filter);
   };
 
   render() {
@@ -81,7 +84,7 @@ class SearchFilterPage extends React.Component {
       case "filter":
         content =
         (<View>
-          <TouchableOpacity style={[styles.readerDisplayOptionsMenuItem, styles.button, this.props.theme.readerDisplayOptionsMenuItem]} onPress={this.props.clearAllFilters}>
+          <TouchableOpacity style={[styles.readerDisplayOptionsMenuItem, styles.button, this.props.theme.readerDisplayOptionsMenuItem]} onPress={this.clearAllFilters}>
             <Image source={closeSrc}
               resizeMode={'contain'}
               style={styles.searchFilterClearAll} />
@@ -96,7 +99,7 @@ class SearchFilterPage extends React.Component {
               theme={this.props.theme}
               options={this.sortOptions}
               lang={this.props.interfaceLang}
-              active={this.props.sort} />
+              active={this.props.searchState.sortType} />
           </View>
           <View style={styles.settingsSection}>
             <View>
@@ -106,15 +109,15 @@ class SearchFilterPage extends React.Component {
               theme={this.props.theme}
               options={this.exactOptions}
               lang={this.props.interfaceLang}
-              active={this.props.isExact} />
+              active={this.props.searchState.field === this.props.searchState.fieldExact} />
           </View>
           <View style={styles.settingsSection}>
             <View>
               <Text style={[isheb ? styles.heInt : styles.enInt, styles.settingsSectionHeader, this.props.theme.tertiaryText]}>{strings.filterByText}</Text>
             </View>
             <View>
-              { this.props.filtersValid ?
-                this.props.availableFilters.map((filter, ifilter)=>{
+              { this.props.searchState.filtersValid ?
+                this.props.searchState.availableFilters.map((filter, ifilter)=>{
                   return (
                     <SearchFilter
                       key={ifilter}
@@ -123,7 +126,7 @@ class SearchFilterPage extends React.Component {
                       menuLanguage={this.props.menuLanguage}
                       filterNode={filter}
                       openSubMenu={this.props.openSubMenu}
-                      updateFilter={this.props.updateFilter}
+                      toggleFilter={this.toggleFilter}
                     />);
                 }) : loadingMessage
               }
@@ -132,7 +135,7 @@ class SearchFilterPage extends React.Component {
         </View>);
         break;
       default:
-        var currFilter = FilterNode.findFilterInList(this.props.availableFilters, this.props.subMenuOpen);
+        var currFilter = FilterNode.findFilterInList(this.props.searchState.availableFilters, this.props.subMenuOpen);
         var filterList =
         [(<SearchFilter
           key={0}
@@ -140,11 +143,11 @@ class SearchFilterPage extends React.Component {
           themeStr={this.props.themeStr}
           menuLanguage={this.props.menuLanguage}
           filterNode={currFilter}
-          updateFilter={this.props.updateFilter}
+          toggleFilter={this.toggleFilter}
           />)];
         content =
         (<View>
-          { this.props.filtersValid ?
+          { this.props.searchState.filtersValid ?
             filterList.concat(currFilter.getLeafNodes().map((filter, ifilter)=>{
               return (
                 <SearchFilter
@@ -153,7 +156,7 @@ class SearchFilterPage extends React.Component {
                   themeStr={this.props.themeStr}
                   menuLanguage={this.props.menuLanguage}
                   filterNode={filter}
-                  updateFilter={this.props.updateFilter}
+                  toggleFilter={this.toggleFilter}
                 />);
             })) : loadingMessage
           }
@@ -185,15 +188,15 @@ class SearchFilterPage extends React.Component {
 class SearchFilter extends React.Component {
   static propTypes = {
     theme:        PropTypes.object,
-      themeStr:     PropTypes.string,
-      menuLanguage: PropTypes.string.isRequired,
-      filterNode:   FilterNode.checkPropType,
-      openSubMenu:  PropTypes.func,
-      updateFilter: PropTypes.func.isRequired,
+    themeStr:     PropTypes.string,
+    menuLanguage: PropTypes.string.isRequired,
+    filterNode:   SearchPropTypes.filterNode,
+    openSubMenu:  PropTypes.func,
+    toggleFilter: PropTypes.func.isRequired,
   };
 
   clickCheckBox = () => {
-    this.props.updateFilter(this.props.filterNode);
+    this.props.toggleFilter(this.props.filterNode);
   }
 ///^[^_]*$
   render() {

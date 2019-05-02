@@ -23,15 +23,15 @@ class AutocompletePage extends React.Component {
     theme:           PropTypes.object.isRequired,
     themeStr:        PropTypes.string.isRequired,
     onBack:          PropTypes.func.isRequired,
-    search:          PropTypes.func.isRequired,
+    openSearch:      PropTypes.func.isRequired,
     setIsNewSearch:  PropTypes.func.isRequired,
     query:           PropTypes.string.isRequired,
     onChange:        PropTypes.func.isRequired,
     openRef:         PropTypes.func.isRequired,
     openTextTocDirectly: PropTypes.func.isRequired,
     setCategories:   PropTypes.func.isRequired,
-    openSearch:      PropTypes.func.isRequired,
     openUri:         PropTypes.func.isRequired,
+    searchType:      PropTypes.oneOf(['text', 'sheet']).isRequired,
   };
 
   componentDidMount() {
@@ -45,9 +45,13 @@ class AutocompletePage extends React.Component {
     if (!q) {
       this.props.openNav();
     } else {
-      this.props.search(q, true, false);
-      this.props.openSearch();
+      this.search(q);
     }
+  };
+
+  search = query => {
+    this.props.openSearch('text', query);
+    this.props.openSearch('sheet', query);
   };
 
   _getSearchBarRef = ref => {
@@ -69,8 +73,9 @@ class AutocompletePage extends React.Component {
           themeStr={this.props.themeStr}
           onBack={this.props.onBack}
           leftMenuButton="back"
-          search={this.props.search}
+          search={this.props.openSearch}
           query={this.props.query}
+          searchType={this.props.searchType}
           setIsNewSearch={this.props.setIsNewSearch}
           onChange={this.props.onChange}
           hideSearchButton={true}
@@ -85,7 +90,7 @@ class AutocompletePage extends React.Component {
           openRef={this.props.openRef}
           openTextTocDirectly={this.props.openTextTocDirectly}
           setCategories={this.props.setCategories}
-          search={this.props.search}
+          search={this.search}
         />
       </View>
     );

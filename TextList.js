@@ -208,23 +208,19 @@ class ListItem extends React.PureComponent {
                         key={this.state.resetKeyHe}
                         stylesheet={{...styles, ...smallHeSheet}}
                         value={he}
-                        textComponentProps={
-                          {
-                            style: [styles.hebrewText, styles.linkContentText, this.props.theme.text, {fontSize: this.props.fontSize, lineHeight: this.props.fontSize * lineHeightMultiplierHe}],
-                            key: this.props.refStr+"-he"
-                          }
-                        }
+                        textComponentProps={{
+                          style: [styles.hebrewText, styles.linkContentText, this.props.theme.text, {fontSize: this.props.fontSize, lineHeight: this.props.fontSize * lineHeightMultiplierHe}],
+                          key: this.props.refStr+"-he"
+                        }}
                       />;
     var englishElem = <HTMLView
                         key={this.state.resetKeyEn}
                         stylesheet={{...styles, ...smallEnSheet}}
                         value={en}
-                        textComponentProps={
-                          {
-                            style: [styles.englishText, styles.linkContentText, this.props.theme.text, {fontSize: 0.8 * this.props.fontSize, lineHeight: this.props.fontSize * 1.04}],
-                            key: this.props.refStr+"-en"
-                          }
-                        }
+                        textComponentProps={{
+                          style: [styles.englishText, styles.linkContentText, this.props.theme.text, {fontSize: 0.8 * this.props.fontSize, lineHeight: this.props.fontSize * 1.04}],
+                          key: this.props.refStr+"-en"
+                        }}
                       />;
     if (lang == "bilingual") {
       textViews = [hebrewElem, englishElem];
