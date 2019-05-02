@@ -109,24 +109,28 @@ class AutocompleteList extends React.Component {
         this.props.openRef(d.ref);
         recentType = "ref";
       }
-      else if (d.type == "Person") {
-        recentType = "person";
-          ActionSheet.showActionSheetWithOptions({
-                options: [`View '${d.key}' on Sefaria site`,strings.cancel],
-                cancelButtonIndex: 1,
-              },
-              (buttonIndex) => {
-                if (buttonIndex === 0) {
-                  this.props.openUri(`https://www.sefaria.org/person/${d.key}`);
-                }
-              });
-
-
-
-
+      else if (d.type == "Person" || d.type == "Group") {
+        recentType = d.type.toLowerCase;
+        ActionSheet.showActionSheetWithOptions(
+          {
+            options: [`View '${d.key}' on Sefaria site`,strings.cancel],
+            cancelButtonIndex: 1,
+          },
+          (buttonIndex) => {
+            if (buttonIndex === 0) {
+              if (d.type == "Person") {
+                this.props.openUri(`https://www.sefaria.org/person/${d.key}`);
+              } else if (d.type == "Group") {
+                this.props.openUri(`https://www.sefaria.org/groups/${d.key.split(' ').join('-')}`);
+              }
+            }
+          }
+        );
       } else if (d.type == "TocCategory") {
         this.props.setCategories(d.key);
         recentType = "toc";
+      } else if (d.type == "Group") {
+        recentType = "group"
       }
       Sefaria.saveRecentQuery(query, recentType);
     });
