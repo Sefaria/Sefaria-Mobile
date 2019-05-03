@@ -50,6 +50,7 @@ Sefaria = {
       .then(Sefaria._loadHebrewCategories)
       .then(nextFrame)
       .then(Sefaria.packages._load)
+      .then(Sefaria.getGalusStatus)
       .then(nextFrame)
       .then(Sefaria.downloader.init);  // downloader init is dependent on packages
   },
@@ -579,6 +580,22 @@ Sefaria = {
       Sefaria.calendar = data;
     });
   },
+  galusOrIsrael: null,
+  getGalusStatus: function() {
+    return fetch('https://www.geoip-db.com/json')
+      .then(res => res.json())
+      .then(data => {
+        if (data.country_code == "IL") {
+          Sefaria.galusOrIsrael = "israel"
+        }
+        else {
+          Sefaria.galusOrIsrael = "diaspora"
+        }
+      })
+        .catch(()=> {return "diaspora"})
+  },
+
+
   getCalendars: function() {
     if (!Sefaria.calendar) {
       return {
@@ -610,7 +627,7 @@ Sefaria = {
       let date = new Date();
       date.setDate(date.getDate() + (6 - 1 - date.getDay() + 7) % 7 + weekOffset);
       dateString = Sefaria._dateString(date);
-      parasha = Sefaria.calendar.parasha[dateString];
+      parasha = Sefaria.calendar.parasha[dateString][Sefaria.galusOrIsrael];
       weekOffset += 1;
     }
     return Sefaria.calendar ? parasha : null;

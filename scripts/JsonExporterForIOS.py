@@ -723,12 +723,17 @@ def export_calendar(for_sources=False):
         haftarot = {custom: [{
             "en": model.Ref(h).normal(), "he": model.Ref(h).he_normal()
             } for h in haf_list] for custom, haf_list in parashah["haftara"].items() }
-        calendar["parasha"][date_format(parashah["date"])] = {
+
+        location = "diaspora" if parashah["diaspora"] else "israel"
+
+        calendar["parasha"].setdefault(date_format(parashah["date"]), {"israel": {}, "diaspora": {}})
+
+
+        calendar["parasha"][date_format(parashah["date"])][location] = {
             "parasha": {"en": parashah["parasha"], "he": hebrew_parasha_name(parashah["parasha"])},
             "ref": {"en": parshTref, "he": parshHeTref},
             "haftara": [haftarot["ashkenazi"][0], haftarot],  # backwards compatibility. app always reads first element of haftara array
-            "diaspora": parashah["diaspora"]
-            # below fields not currently used
+                # below fields not currently used
             # "aliyot": parashah["aliyot"],
             # "shabbatName": parasha["shabbat_name"],
         }
