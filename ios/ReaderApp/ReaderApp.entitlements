@@ -6,6 +6,8 @@
 	<array>
 		<string>applinks:sefaria.org</string>
 		<string>applinks:www.sefaria.org</string>
+		<string>applinks:sefaria.org.il</string>
+		<string>applinks:www.sefaria.org.il</string>
 	</array>
 </dict>
 </plist>
