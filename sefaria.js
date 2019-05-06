@@ -37,7 +37,9 @@ Sefaria = {
   },
   postInit: function() {
     // a bit hacky, but basically allows rendering to happen in between each promise
-    return Sefaria._loadCalendar()
+    return Sefaria.getGalusStatus()
+      .then(nextFrame)
+      .then(Sefaria._loadCalendar)
       .then(nextFrame)
       .then(Sefaria._loadPeople)
       .then(nextFrame)
@@ -50,7 +52,6 @@ Sefaria = {
       .then(Sefaria._loadHebrewCategories)
       .then(nextFrame)
       .then(Sefaria.packages._load)
-      .then(Sefaria.getGalusStatus)
       .then(nextFrame)
       .then(Sefaria.downloader.init);  // downloader init is dependent on packages
   },
