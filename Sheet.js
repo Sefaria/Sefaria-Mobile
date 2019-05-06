@@ -14,7 +14,7 @@ import {
     Platform,
     AppState,
     WebView,
-    Dimensions,
+    Dimensions, Share, Clipboard,
 
 } from 'react-native';
 
@@ -26,6 +26,8 @@ import styles from './Styles.js';
 import strings from "./LocalizedStrings";
 import {DirectedButton, SText} from "./Misc";
 import HTMLView from 'react-native-htmlview';
+import ActionSheet from "react-native-action-sheet";
+import Sefaria from './sefaria';
 const ViewPort    = Dimensions.get('window');
 
 
@@ -49,6 +51,37 @@ class Sheet extends React.Component {
         if (shouldToggle == true) { this.sheetListRef.scrollToIndex({animated: true, index: sourceIndex, viewPosition: 0})}
         this.props.textSegmentPressed(ref, key, shouldToggle);
     };
+  copyToClipboard = (text) => {
+    Clipboard.setString(this.cleanDisplayedText(text));
+    this.props.showToast("Copied to clipboard", 500);
+  };
+  cleanDisplayedText = (text, withURL) => {
+    var cleanedText = Sefaria.util.removeHtml(text)
+    return withURL ? `${cleanedText}\n\n${Sefaria.refToUrl(this.props.segmentRef)}` : cleanedText;
+  };
+
+      onLongPress = (text) => {
+        ActionSheet.showActionSheetWithOptions({
+          options: [
+            strings.copy,
+            strings.share,
+            strings.viewOnSite,
+            strings.cancel,
+          ],
+          cancelButtonIndex: 4,
+        },
+        (buttonIndex) => {
+          if (buttonIndex === 0) { this.copyToClipboard(text); }
+          else if (buttonIndex === 1) { Share.share({
+              message: this.cleanDisplayedText(text, Platform.OS === 'android'),  // android for some reason doesn't share text with a url attached at the bottom
+              title: this.props.segmentRef,
+              url: Sefaria.refToUrl("Sheet "+this.props.sheet.id+"."+this.props.activeSheetNode)
+            })
+          }
+          else if (buttonIndex === 2) { this.props.openUri(Sefaria.refToUrl("Sheet "+this.props.sheet.id+"."+this.props.activeSheetNode))}
+        })
+      };
+
 
     renderSource = ({ item, index }) => {
 
@@ -84,6 +117,7 @@ class Sheet extends React.Component {
                     key={index}
                     source={item}
                     sourceNum={index + 1}
+                    onLongPress={this.onLongPress}
                     sourceIndex = {index}
                     currentlyActive = {this.props.activeSheetNode == item.node}
                     textSegmentPressed={ this.onPressTextSegment}
@@ -106,6 +140,7 @@ class Sheet extends React.Component {
                     key={index}
                     sheetId = {this.props.sheet.id}
                     sourceNum={index + 1}
+                    onLongPress={this.onLongPress}
                     source={item}
                     theme={this.props.theme}
                     fontSize={this.props.fontSize}
@@ -125,6 +160,7 @@ class Sheet extends React.Component {
                     key={index}
                     sheetId = {this.props.sheet.id}
                     sourceNum={index + 1}
+                    onLongPress={this.onLongPress}
                     source={item}
                     theme={this.props.theme}
                     fontSize={this.props.fontSize}
@@ -144,6 +180,7 @@ class Sheet extends React.Component {
                     key={index}
                     sheetId = {this.props.sheet.id}
                     sourceNum={index + 1}
+                    onLongPress={this.onLongPress}
                     numberMargin={numberMargin}
                     bulletMargin = {bulletMargin}
                     theme={this.props.theme}
@@ -168,6 +205,7 @@ class Sheet extends React.Component {
                     theme={this.props.theme}
                     textStyle={textStyle}
                     sourceNum={index + 1}
+                    onLongPress={this.onLongPress}
                     currentlyActive = {this.props.activeSheetNode == item.node}
                     source={item}
                     sourceIndex = {index}
@@ -303,7 +341,7 @@ class SheetSource extends Component {
                         rootComponentProps={{
                  hitSlop: {top: 10, bottom: 10, left: 10, right: 10},  // increase hit area of segments
                  onPress:() => this.props.textSegmentPressed(this.props.source.ref, this.props.sourceIndex, this.props.segmentIndex),
-                 onLongPress:this.props.onLongPress,
+                 onLongPress: () => this.props.onLongPress(heText),
                  delayPressIn: 200,
                }
              }
@@ -328,7 +366,7 @@ class SheetSource extends Component {
                         rootComponentProps={{
                  hitSlop: {top: 10, bottom: 10, left: 10, right: 10},  // increase hit area of segments
                  onPress:() => this.props.textSegmentPressed(this.props.source.ref, this.props.sourceIndex,this.props.segmentIndex),
-                 onLongPress:this.props.onLongPress,
+                 onLongPress: () => this.props.onLongPress(enText),
                  delayPressIn: 200,
                }
              }
@@ -375,7 +413,7 @@ class SheetComment extends Component {
                 rootComponentProps={{
                   hitSlop: {top: 10, bottom: 10, left: 10, right: 10},  // increase hit area of segments
                   onPress: this.onPress,
-                  onLongPress:this.props.onLongPress,
+                  onLongPress: () => this.props.onLongPress(comment),
                   delayPressIn: 200,
                 }}
                 RootComponent={TouchableOpacity}
@@ -416,7 +454,7 @@ class SheetOutsideText extends Component {
               rootComponentProps={{
                 hitSlop: {top: 10, bottom: 10, left: 10, right: 10},  // increase hit area of segments
                 onPress: this.onPress,
-                onLongPress:this.props.onLongPress,
+                onLongPress: () => this.props.onLongPress(outsideText),
                 delayPressIn: 200,
               }}
               RootComponent={TouchableOpacity}
@@ -462,7 +500,7 @@ class SheetOutsideBiText extends Component {
                 rootComponentProps={{
                   hitSlop: {top: 10, bottom: 10, left: 10, right: 10},  // increase hit area of segments
                   onPress: this.onPress,
-                  onLongPress:this.props.onLongPress,
+                  onLongPress: () => this.props.onLongPress(heText),
                   delayPressIn: 200,
                 }}
                 RootComponent={TouchableOpacity}
@@ -481,7 +519,7 @@ class SheetOutsideBiText extends Component {
                 rootComponentProps={{
                   hitSlop: {top: 10, bottom: 10, left: 10, right: 10},  // increase hit area of segments
                   onPress: this.onPress,
-                  onLongPress:this.props.onLongPress,
+                  onLongPress: () => this.props.onLongPress(enText),
                   delayPressIn: 200,
                 }}
                 RootComponent={TouchableOpacity}

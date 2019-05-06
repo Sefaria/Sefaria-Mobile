@@ -1710,13 +1710,14 @@ class ReaderApp extends React.Component {
             textData={this.state.data}
             sectionArray={this.state.sectionArray}
             menuLanguage={this.props.menuLanguage}
+            showToast={this.showToast}
             textSegmentPressed={ this.sheetSegmentPressed }
             theme={this.props.theme}
             textListVisible={this.state.textListVisible}
             textLanguage={this.props.textLanguage}
             biLayout={this.props.biLayout}
             fontSize={this.props.fontSize}
-
+            openUri={this.openUri}
           />
 
           }
