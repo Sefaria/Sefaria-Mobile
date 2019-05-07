@@ -10,7 +10,7 @@ import RNFS from 'react-native-fs';
 import strings from './LocalizedStrings';
 
 
-const SCHEMA_VERSION = "4";
+const SCHEMA_VERSION = "5";
 const HOST_PATH = "https://readonly.sefaria.org/static/ios-export/" + SCHEMA_VERSION + "/";
 //const HOST_PATH = "file:///Users/nss/Documents/Sefaria-Export/ios/" + SCHEMA_VERSION + "/";
 
