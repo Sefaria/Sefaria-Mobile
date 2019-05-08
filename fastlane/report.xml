@@ -1,33 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <testsuites>
   <testsuite name="fastlane.lanes">
-    
-    
-    
-      
+
+
+
+
       <testcase classname="fastlane.lanes" name="0: default_platform" time="0.010758">
-        
+
       </testcase>
-    
-      
+
+
       <testcase classname="fastlane.lanes" name="1: ../scripts/update_sources.sh" time="30.903461">
-        
+
       </testcase>
-    
-      
+
+
       <testcase classname="fastlane.lanes" name="2: increment_build_number" time="2.389909">
-        
+
       </testcase>
-    
-      
+
+
       <testcase classname="fastlane.lanes" name="3: gym" time="240.777659">
-        
+
       </testcase>
-    
-      
+
+
       <testcase classname="fastlane.lanes" name="4: upload_to_testflight" time="392.312335">
-        
+
       </testcase>
-    
+
   </testsuite>
 </testsuites>
