@@ -199,6 +199,23 @@ export default StyleSheet.create({
     width: 17,
     height: 17,
   },
+  searchOptionButton: {
+    height: 16,
+  },
+  searchOptionButtonTextHe: {
+    marginLeft: 12,
+    marginRight: 0,
+    marginTop: 6,
+    flexDirection: 'row-reverse',
+
+  },
+  searchOptionButtonTextEn: {
+    marginLeft: 0,
+    marginRight: 8,
+    marginTop: 6,
+    flexDirection: 'row',
+  },
+
   tripleDotsContainer: {
     width: 22,
     marginLeft: 5,
@@ -327,6 +344,13 @@ export default StyleSheet.create({
     paddingBottom: 20,
     flexDirection: 'column',
     borderBottomWidth: 1,
+  },
+  searchSheetResult: {
+    margin:0,
+    borderBottomWidth: 1,
+    borderBottomColor: "#ccc",
+    flexDirection: "column",
+    flex:1
   },
   sefariaProgressBar: {
     height: 50,

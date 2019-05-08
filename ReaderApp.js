@@ -27,6 +27,7 @@ import SplashScreen from 'react-native-splash-screen';
 import nextFrame from 'next-frame';
 import RNShake from 'react-native-shake';
 import Sound from 'react-native-sound';
+import { Search, SearchState } from '@sefaria/search';
 
 import { ACTION_CREATORS } from './ReduxStore';
 import ReaderControls from './ReaderControls';
@@ -121,24 +122,19 @@ class ReaderApp extends React.Component {
         versionsApiError: false,
         versionStaleRecentFilters: [],
         versionContents: [],
+        textSearchState: new SearchState({
+          type: 'text'
+        }),
+        sheetSearchState: new SearchState({
+          type: 'sheet'
+        }),
+        searchType: 'text',
         searchQuery: '',
         sheetTag: '',
         sheet: null,
         sheetMeta: null,
         activeSheetNode: null,
-        searchSort: 'relevance', // relevance or chronological
-        availableSearchFilters: [],
-        appliedSearchFilters: [],
-        orphanSearchFilters: [],
-        searchFiltersValid: false,
-        searchIsExact: false,
-        isQueryRunning: false,
-        isQueryLoadingTail: false,
         isNewSearch: false,
-        currSearchPage: 0,
-        initSearchScrollPos: 0,
-        numSearchResults: 0,
-        searchQueryResult: [],
         ReaderDisplayOptionsMenuVisible: false,
         overwriteVersions: true, // false when you navigate to a text but dont want the current version to overwrite your sticky version
     };
@@ -163,6 +159,10 @@ class ReaderApp extends React.Component {
 
   networkChangeListener = isConnected => {
     this.setState({hasInternet: isConnected});
+  };
+  setSearchTypeState = type => {
+    this.setState({searchType: type});
+    console.log(type)
   };
 
   appStateChangeListener = state => {
@@ -719,12 +719,21 @@ class ReaderApp extends React.Component {
     this.openRef(ref, "text toc", null, false, enableAliyot);
   };
 
+<<<<<<< HEAD
   openRefSheet = (sheetID, sheetMeta) => {
     this.setState({
       loaded: false,
     }, () => {
       this.loadSheet(sheetID, sheetMeta);
     });
+=======
+  openRefSheet = (ref, sheetMeta, addToBackStack=false, calledFrom) => {
+      this.setState({
+          loaded: false,
+      }, () => {
+          this.loadSheet(ref, sheetMeta,addToBackStack, calledFrom);
+      })
+>>>>>>> master
   };
 
   updateActiveSheetNode = (node) => {
@@ -734,9 +743,14 @@ class ReaderApp extends React.Component {
 
 }
 
+<<<<<<< HEAD
   loadSheet = (sheetID, sheetMeta) => {
       const more_data = !sheetMeta  // # if sheetMeta is null, need to request more data from api call
       Sefaria.api.sheets(sheetID, more_data)
+=======
+  loadSheet = (ref, sheetMeta, addToBackStack=false, calledFrom="search") => {
+      Sefaria.api.sheets(ref)
+>>>>>>> master
       .then(result => {
           if (more_data) {
             // extract sheetMeta from result
@@ -800,12 +814,19 @@ class ReaderApp extends React.Component {
                             this.setState({
                                 loaded: true,
                             })
+
+
                         }
                     );
 
                 }.bind(this))
             })
         })
+
+      if (addToBackStack) {
+        BackManager.forward({ state: this.state, calledFrom });
+      }
+
     })
       .catch(error => {
         console.log(error)
@@ -838,6 +859,10 @@ class ReaderApp extends React.Component {
   enableAliyot - true when you click on an aliya form ReaderTextTableOfContents
   */
   openRef = (ref, calledFrom, versions, addToBackStack=true, enableAliyot=false) => {
+    if (ref.startsWith("Sheet")){
+        this.openRefSheet(ref.match(/\d+/)[0], null, addToBackStack, calledFrom) //open ref sheet expects just the sheet ID
+    }
+
     return new Promise((resolve, reject) => {
       if (enableAliyot) {
         this.props.setAliyot(true);
@@ -937,12 +962,13 @@ class ReaderApp extends React.Component {
   };
 
   openNav = () => {
-      this.clearAllSearchFilters();
+      this.clearAllSearchFilters('text');
+      this.clearAllSearchFilters('sheet');
       this.setState({
         loaded: true,
         searchQuery: "",
-        appliedSearchFilters: [],
-        searchFiltersValid: false,
+        textSearchState: new SearchState({type: 'text'}),
+        sheetSearchState: new SearchState({type: 'sheet'}),
         textListVisible: false,
       });
       this.openMenu("navigation");
@@ -995,8 +1021,15 @@ class ReaderApp extends React.Component {
     this.setState({navigationCategories: categories});
   };
 
-  setInitSearchScrollPos = (pos) => {
-    this.setState({initSearchScrollPos: pos});
+  setInitSearchScrollPos = (type, initScrollPos) => {
+    const searchState = this._getSearchState(type);
+    const searchStateName = this._getSearchStateName(type);
+    this.setState({
+      [searchStateName]:
+        searchState.update({
+          initScrollPos,
+        })
+    });
   };
 
   openTextTocDirectly = (title) => {
@@ -1020,8 +1053,11 @@ class ReaderApp extends React.Component {
       this.openMenu("sheet meta");
   };
 
-  openSearch = (query) => {
-      this.openMenu("search");
+  openSearch = (type, query) => {
+    this.onQueryChange(type, query,true,false,true);
+    this.openMenu("search");
+
+    Sefaria.track.event("Search","Search Box Search",query);
   };
 
   openAutocomplete = () => {
@@ -1300,98 +1336,126 @@ class ReaderApp extends React.Component {
       this.setState({ textListFlexPreference: flex });
     }
   };
-
-  onQueryChange = (query, resetQuery, fromBackButton, getFilters) => {
+  _getSearchStateName = type => ( `${type}SearchState` );
+  _getSearchState = type => ( this.state[this._getSearchStateName(type)] );
+  onQueryChange = (type, query, resetQuery, fromBackButton, getFilters) => {
     // getFilters should be true if the query has changed or the exactType has changed
-    var newSearchPage = 0;
-    var from = 0;
-    var size = 20;
+    const searchState = this._getSearchState(type);
+    const searchStateName = this._getSearchStateName(type);
+    const { field, fieldExact, sortType, filtersValid, appliedFilters, appliedFilterAggTypes } = searchState;
+    const { aggregation_field_array, build_and_apply_filters } = SearchState.metadataByType[type];
+    let newSearchPage = 0;
+    let start = 0;
+    let size = 20;
     if (resetQuery && !fromBackButton) {
-      this.setInitSearchScrollPos(0);
+      this.setInitSearchScrollPos(type, 0);
       Sefaria.saveRecentQuery(query, "query");
     }
     if (!resetQuery) {
-      newSearchPage = this.state.currSearchPage + 1;
-      from = 20 * newSearchPage;
+      newSearchPage = searchState.currPage + 1;
+      start = 20 * newSearchPage;
     }
     if (fromBackButton) {
-      size = 20 * (this.state.currSearchPage + 1);
+      size = 20 * (searchState.currPage + 1);
       newSearchPage = size/20;
     }
 
-    //var req = JSON.stringify(Sefaria.search.get_query_object(query,false,[],20,20*newSearchPage,"text"));
-    var request_filters = this.state.searchFiltersValid && this.state.appliedSearchFilters;
+    const justUnapplied = false; //TODO: placeholder
+    const aggregationsToUpdate = filtersValid && aggregation_field_array.length === 1 ? [] : aggregation_field_array.filter( a => justUnapplied || a !== 'this.lastAppliedAggType[type]'); //TODO: placeholder
     var queryProps = {
-      query: query,
-      size: size,
-      from: from,
-      type: "text",
-      get_filters: getFilters,
-      applied_filters: request_filters,
-      sort_type: this.state.searchSort,
-      exact: this.state.searchIsExact
+      query,
+      size,
+      start,
+      type,
+      field,
+      exact: fieldExact === field,
+      applied_filters: appliedFilters,
+      appliedFilterAggTypes,
+      aggregationsToUpdate,
+      sort_type: sortType,
     };
-    var field = this.state.searchIsExact ? "exact" : "naive_lemmatizer";
-    Sefaria.search.execute_query(queryProps)
-    .then((responseJson) => {
-      var newResultsArray = responseJson["hits"]["hits"].map(function(r) {
-        return {
-          title: r._source.ref,
-          heTitle: r._source.heRef,
-          text: r.highlight[field].join(" ... "),
-          id: r._id,
-          textType: r._id.includes("[he]") ? "hebrew" : "english",
-        }
-      });
-      var resultArray = resetQuery ? newResultsArray :
-        this.state.searchQueryResult.concat(newResultsArray);
-
-      var numResults = responseJson["hits"]["total"];
-      this.setState({
-        isQueryLoadingTail: false,
-        isQueryRunning: false,
-        searchQueryResult: resultArray,
-        numSearchResults: numResults,
-        initSearchListSize: size
-      });
-
-      if (resetQuery) {
-        Sefaria.track.event("Search","Query: text", query, numResults);
-      }
-      if (responseJson.aggregations) {
-        if (responseJson.aggregations.category) {
-          var ftree = Sefaria.search._buildFilterTree(responseJson.aggregations.category.buckets, this.state.appliedSearchFilters);
-          var orphans = Sefaria.search._applyFilters(ftree, this.state.appliedSearchFilters);
-          this.setAvailableSearchFilters(ftree.availableFilters, orphans);
-        }
-      }
-    })
-    .catch((error) => {
-      console.log(error);
-      //TODO: add hasError boolean to state
-      this.setState({
-        isQueryLoadingTail: false,
-        isQueryRunning: false,
-        searchFiltersValid: false,
-        searchQueryResult:[],
-        numSearchResults: 0,
-        initSearchListSize: 20,
-        initSearchScrollPos: 0
-      });
-    });
-
     this.setState({
       searchQuery:query,
-      currSearchPage: newSearchPage,
-      isQueryRunning: true,
-      searchFiltersValid: !getFilters,
+      [searchStateName]: searchState.update({
+        currPage: newSearchPage,
+        isLoading: true,
+        filtersValid: !getFilters,
+      }),
+    }, () => {
+      // for some reason `searchState` pointed to out of date object here so reset it
+      const searchState = this._getSearchState(type);
+      const searchStateName = this._getSearchStateName(type);
+      Sefaria.search.execute_query(queryProps)
+      .then(data => {
+        const newResultsArray = data.hits.hits.map(r => ({
+            title: type == "sheet" ? r._source.title : r._source.ref,
+            heTitle: type == "sheet" ? r._source.title : r._source.heRef,
+            text: r.highlight[field].join(" ... "),
+            id: r._id,
+            textType: r._id.includes("[he]") ? "hebrew" : "english",
+            metadata: type == "sheet" ? {"ownerImageUrl": r._source.owner_image, "ownerName": r._source.owner_name, "views": r._source.views, "tags": r._source.tags} : null
+          })
+        );
+        const results = resetQuery ? newResultsArray :
+          searchState.results.concat(newResultsArray);
+
+        var numResults = data.hits.total;
+        this.setState({
+          [searchStateName]: searchState.update({
+            isLoadingTail: false,
+            isLoading: false,
+            results,
+            numResults,
+          }),
+        }, () => {
+          if (resetQuery) {
+            Sefaria.track.event("Search","Query: text", query, numResults);
+          }
+          if (data.aggregations) {
+            let availableFilters = [];
+            let registry = {};
+            let orphans = [];
+            for (let aggregation of aggregation_field_array) {
+              if (!!data.aggregations[aggregation]) {
+                const { buckets } = data.aggregations[aggregation];
+                const { availableFilters: tempAvailable, registry: tempRegistry, orphans: tempOrphans } = Sefaria.search[build_and_apply_filters](buckets, appliedFilters, appliedFilterAggTypes, aggregation, Sefaria);
+                availableFilters.push(...tempAvailable);  // array concat
+                registry = {...registry, ...tempRegistry};
+                orphans.push(...tempOrphans);
+                this.setAvailableSearchFilters(type, availableFilters, orphans);
+              }
+            }
+          }
+        });
+      })
+      .catch((error) => {
+        //TODO: add hasError boolean to state
+        console.log(error);
+        this.setState({
+          [searchStateName]: searchState.update({
+            isLoadingTail: false,
+            isLoading: false,
+            filtersValid: false,
+            results: [],
+            numResults: 0,
+            initScrollPos: 0,
+          }),
+        });
+      });
     });
   };
 
-  setLoadQueryTail = (isLoading) => {
-    this.setState({isQueryLoadingTail: isLoading});
+  setLoadQueryTail = (type, isLoading) => {
+    const searchState = this._getSearchState(type);
+    const searchStateName = this._getSearchStateName(type);
+    this.setState({
+      [searchStateName]:
+        searchState.update({
+          isLoading,
+        }),
+    });
     if (isLoading) {
-      this.onQueryChange(this.state.searchQuery,false);
+      this.onQueryChange(type, this.state.searchQuery, false);
     }
   };
 
@@ -1399,48 +1463,66 @@ class ReaderApp extends React.Component {
     this.setState({isNewSearch: isNewSearch});
   };
 
-  setAvailableSearchFilters = (availableFilters, orphans) => {
-    this.setState({availableSearchFilters: availableFilters, orphanSearchFilters: orphans, searchFiltersValid: true});
+  setAvailableSearchFilters = (type, availableFilters, orphanFilters) => {
+    const searchState = this._getSearchState(type);
+    const searchStateName = this._getSearchStateName(type);
+    this.setState({
+      [searchStateName]:
+        searchState.update({
+          availableFilters,
+          orphanFilters,
+          filtersValid: true,
+          //aggregationsToUpdate, TODO: placeholder
+        })
+    });
   };
 
-  updateSearchFilter = (filterNode) => {
+  toggleSearchFilter = (type, filterNode) => {
     if (filterNode.isUnselected()) {
       filterNode.setSelected(true);
     } else {
       filterNode.setUnselected(true);
     }
-    this.setState({appliedSearchFilters: this.getAppliedSearchFilters(this.state.availableSearchFilters)});
+    this.reapplySearchFilters(type);
   };
 
-  getAppliedSearchFilters = (availableFilters) => {
-    var results = [];
-    for (var i = 0; i < availableFilters.length; i++) {
-        results = results.concat(availableFilters[i].getAppliedFilters());
+  clearAllSearchFilters = type => {
+    const searchState = this._getSearchState(type);
+    for (let filterNode of searchState.availableFilters) {
+      filterNode.setUnselected(true);
     }
-    return results;
+    this.reapplySearchFilters(type);
   };
 
-  search = (query) => {
-    this.onQueryChange(query,true,false,true);
-    this.openSearch();
+  reapplySearchFilters = type => {
+    const searchState = this._getSearchState(type);
+    const searchStateName = this._getSearchStateName(type);
+    this.setState({
+      [searchStateName]: searchState.update(
+        Sefaria.search.getAppliedSearchFilters(searchState.availableFilters)
+      )
+    });
+  }
 
-    Sefaria.track.event("Search","Search Box Search",query);
-  };
-
-  setSearchOptions = (sort, isExact, cb) => {
-    this.setState({searchSort: sort, searchIsExact: isExact}, cb);
+  setSearchOptions = (type, sortType, field, cb) => {
+    const searchState = this._getSearchState(type);
+    const searchStateName = this._getSearchStateName(type);
+    const metaState = SearchState.metadataByType[type];
+    if (!field) { field = metaState.field; }
+    console.log('setSearchOptions', type, sortType, field, searchState.field);
+    const filtersValid = field === searchState.field;
+    this.setState({
+      [searchStateName]: searchState.update({
+        sortType,
+        field,
+        filtersValid,
+      })
+    }, cb);
   };
 
   onChangeSearchQuery = query => {
     this.setState({searchQuery: query});
   }
-
-  clearAllSearchFilters = () => {
-    for (let filterNode of this.state.availableSearchFilters) {
-      filterNode.setUnselected(true);
-    }
-    this.setState({appliedSearchFilters: this.getAppliedSearchFilters(this.state.availableSearchFilters)});
-  };
 
   _getReaderDisplayOptionsMenuRef = ref => {
     this._readerDisplayOptionsMenuRef = ref;
@@ -1478,7 +1560,7 @@ class ReaderApp extends React.Component {
               openRef={(ref, versions)=>this.openRef(ref,"navigation", versions)}
               openAutocomplete={this.openAutocomplete}
               onBack={this.manageBackMain}
-              openSearch={this.search}
+              openSearch={this.openSearch}
               setIsNewSearch={this.setIsNewSearch}
               toggleLanguage={this.toggleMenuLanguage}
               menuLanguage={this.props.menuLanguage}
@@ -1491,6 +1573,7 @@ class ReaderApp extends React.Component {
               theme={this.props.theme}
               themeStr={this.props.themeStr}
               openUri={this.openUri}
+              searchType={this.state.searchType}
               toggleDebugInterruptingMessage={this.props.toggleDebugInterruptingMessage}
               debugInterruptingMessage={this.props.debugInterruptingMessage}/>
           </View>)
@@ -1542,23 +1625,17 @@ class ReaderApp extends React.Component {
             openRef={this.openRefSearch}
             setLoadTail={this.setLoadQueryTail}
             setIsNewSearch={this.setIsNewSearch}
+            setSearchTypeState={this.setSearchTypeState}
             setSearchOptions={this.setSearchOptions}
             query={this.state.searchQuery}
-            sort={this.state.searchSort}
-            isExact={this.state.searchIsExact}
-            availableFilters={this.state.availableSearchFilters}
-            appliedFilters={this.state.appliedSearchFilters}
-            updateFilter={this.updateSearchFilter}
-            filtersValid={this.state.searchFiltersValid}
-            loadingQuery={this.state.isQueryRunning}
+            searchState={this._getSearchState(this.state.searchType)}
+            searchType={this.state.searchType}
+            sheetSearchState={this._getSearchState('sheet')}
+            textSearchState={this._getSearchState('text')}
+            toggleFilter={this.toggleSearchFilter}
             isNewSearch={this.state.isNewSearch}
-            loadingTail={this.state.isQueryLoadingTail}
-            initSearchListSize={this.state.initSearchListSize}
-            initSearchScrollPos={this.state.initSearchScrollPos}
             setInitSearchScrollPos={this.setInitSearchScrollPos}
             clearAllFilters={this.clearAllSearchFilters}
-            queryResult={this.state.searchQueryResult}
-            numResults={this.state.numSearchResults}
             openAutocomplete={this.openAutocomplete}
             onChangeSearchQuery={this.onChangeSearchQuery}
           />);
@@ -1570,14 +1647,14 @@ class ReaderApp extends React.Component {
             theme={this.props.theme}
             themeStr={this.props.themeStr}
             onBack={this.manageBackMain}
-            search={this.search}
+            openSearch={this.openSearch}
             setIsNewSearch={this.setIsNewSearch}
             onChange={this.onChangeSearchQuery}
             query={this.state.searchQuery}
             openRef={this.openRef}
             openTextTocDirectly={this.openTextTocDirectly}
             setCategories={cats => { /* first need to go to nav page */ this.openNav(); this.setNavigationCategories(cats);} }
-            openSearch={this.openSearch}
+            searchType={this.state.searchType}
             openUri={this.openUri}
           />);
         break;

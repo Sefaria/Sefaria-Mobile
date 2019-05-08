@@ -4,15 +4,14 @@ const ZipArchive  = require('react-native-zip-archive'); //for unzipping -- (htt
 import AsyncStorage from '@react-native-community/async-storage';
 import RNFB from 'rn-fetch-blob';
 import RNFS from 'react-native-fs';
+import { Search } from '@sefaria/search';
 import sanitizeHtml from 'sanitize-html'
 import Downloader from './downloader';
 import Api from './api';
 import Packages from './packages';
-import Search from './search';
 import LinkContent from './LinkContent';
 import { initAsyncStorage } from './ReduxStore';
 import { Filter } from './Filter';
-import FilterNode from './FilterNode';
 import URL from 'url-parse';
 
 const ERRORS = {
@@ -39,8 +38,8 @@ Sefaria = {
       .then(Sefaria.search._loadSearchTOC);
   },
   postInit: function() {
-    // a bit hacky, but basically allows rendering to happen in between each promise
-    return Sefaria._loadCalendar()
+    return Sefaria.getGalusStatus()
+      .then(Sefaria._loadCalendar)
       .then(Sefaria._loadPeople)
       .then(Sefaria._loadSavedItems)
       .then(Sefaria._loadHebrewCategories)
@@ -329,6 +328,12 @@ Sefaria = {
       Sefaria._cacheIndexFromToc(data, true);
     });
   },
+  search_toc: null,
+  _loadSearchTOC: function() {
+    return Sefaria.util.openFileInSources('search_toc.json').then(data => {
+      Sefaria.search_toc = data;
+    });
+  },
   _loadHebrewCategories: function() {
     return Sefaria.util.openFileInSources("hebrew_categories.json").then(data => {
       Sefaria.hebrewCategories = data;
@@ -577,6 +582,22 @@ Sefaria = {
       Sefaria.calendar = data;
     });
   },
+  galusOrIsrael: null,
+  getGalusStatus: function() {
+    return fetch('https://www.geoip-db.com/json')
+      .then(res => res.json())
+      .then(data => {
+        if (data.country_code == "IL") {
+          Sefaria.galusOrIsrael = "israel"
+        }
+        else {
+          Sefaria.galusOrIsrael = "diaspora"
+        }
+      })
+        .catch(()=> {return "diaspora"})
+  },
+
+
   getCalendars: function() {
     if (!Sefaria.calendar) {
       return {
@@ -608,7 +629,7 @@ Sefaria = {
       let date = new Date();
       date.setDate(date.getDate() + (6 - 1 - date.getDay() + 7) % 7 + weekOffset);
       dateString = Sefaria._dateString(date);
-      parasha = Sefaria.calendar.parasha[dateString];
+      parasha = Sefaria.calendar.parasha[dateString][Sefaria.galusOrIsrael];
       weekOffset += 1;
     }
     return Sefaria.calendar ? parasha : null;
@@ -1314,7 +1335,7 @@ Sefaria.util = {
   getLicenseURL: function(license) {
       return Sefaria.util._licenseMap[license];
   },
-  clone: function clone(obj) {
+  clone: function(obj) {
     // Handle the 3 simple types, and null or undefined
     if (null == obj || "object" != typeof obj) return obj;
 
@@ -1324,23 +1345,15 @@ Sefaria.util = {
       copy.setTime(obj.getTime());
       return copy;
     }
-
-    // Handle Filter
-    if (obj instanceof Filter) {
+    if (typeof obj.clone === 'function') {
       return obj.clone();
     }
-
-    // Handle FilterNode
-    if (obj instanceof FilterNode) {
-      return obj.clone();
-    }
-
     // Handle Array
     if (obj instanceof Array) {
       const copy = [];
       const len = obj.length;
       for (let i = 0; i < len; ++i) {
-        copy[i] = clone(obj[i]);
+        copy[i] = Sefaria.util.clone(obj[i]);
       }
       return copy;
     }
@@ -1349,7 +1362,7 @@ Sefaria.util = {
     if (obj instanceof Object) {
       const copy = {};
       for (let attr in obj) {
-        if (obj.hasOwnProperty(attr)) copy[attr] = clone(obj[attr]);
+        if (obj.hasOwnProperty(attr)) copy[attr] = Sefaria.util.clone(obj[attr]);
       }
       return copy;
     }
@@ -1449,8 +1462,6 @@ Sefaria.downloader = Downloader;
 Sefaria.api = Api;
 
 Sefaria.packages = Packages;
-
-Sefaria.search = Search;
 
 Sefaria.hebrew = {
   hebrewNumerals: {
@@ -1639,6 +1650,7 @@ Sefaria.hebrew = {
   }
 };
 
+Sefaria.terms = {}; // TODO ideally we include a dump of all terms as offline JSON file. this is a placekeeper
 
 Sefaria.hebrewCategory = function(cat) {
   // Returns a string translating `cat` into Hebrew.
@@ -1834,6 +1846,7 @@ Sefaria.palette.categoryColor = function(cat) {
   }
   return Sefaria.palette.categoryColors["Other"];
 };
+Sefaria.search = new Search('https://www.sefaria.org', 'text', 'sheet');
 
 Array.prototype.stableSort = function(cmp) {
   cmp = !!cmp ? cmp : (a, b) => {

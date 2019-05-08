@@ -10,7 +10,7 @@ import RNFS from 'react-native-fs';
 import strings from './LocalizedStrings';
 
 
-const SCHEMA_VERSION = "4";
+const SCHEMA_VERSION = "5";
 const HOST_PATH = "https://readonly.sefaria.org/static/ios-export/" + SCHEMA_VERSION + "/";
 //const HOST_PATH = "file:///Users/nss/Documents/Sefaria-Export/ios/" + SCHEMA_VERSION + "/";
 
@@ -132,7 +132,7 @@ var Downloader = {
       Downloader.onChange && Downloader.onChange();
       // download these ancillary files after. they shouldn't hold up the update
       Promise.all([
-        Downloader._downloadFile("search_toc.json").then(Sefaria.search._loadSearchTOC),
+        Downloader._downloadFile("search_toc.json").then(Sefaria._loadSearchTOC),
         Downloader._downloadFile("hebrew_categories.json").then(Sefaria._loadHebrewCategories),
         Downloader._downloadFile("people.json").then(Sefaria._loadPeople),
         Downloader._downloadFile("packages.json").then(Sefaria.packages._load),

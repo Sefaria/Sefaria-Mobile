@@ -5,7 +5,9 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import {
   View,
-  Text
+  Text,
+  TouchableOpacity,
+  Image,
 } from 'react-native';
 
 import SearchBar from './SearchBar';
@@ -35,18 +37,10 @@ class SearchPage extends React.Component {
     setIsNewSearch:      PropTypes.func.isRequired,
     setSearchOptions:    PropTypes.func.isRequired,
     clearAllFilters:     PropTypes.func.isRequired,
-    updateFilter:        PropTypes.func.isRequired,
+    toggleFilter:        PropTypes.func.isRequired,
     query:               PropTypes.string,
-    sort:                PropTypes.string,
-    isExact:             PropTypes.bool,
-    availableFilters:    PropTypes.array,
-    appliedFilters:      PropTypes.array,
-    filtersValid:        PropTypes.bool,
-    queryResult:         PropTypes.array,
-    loadingQuery:        PropTypes.bool,
-    loadingTail:         PropTypes.bool,
+    searchState:         PropTypes.object,
     isNewSearch:         PropTypes.bool,
-    numResults:          PropTypes.number,
     onChangeSearchQuery: PropTypes.func.isRequired,
     openAutocomplete:    PropTypes.func.isRequired,
   };
@@ -57,14 +51,23 @@ class SearchPage extends React.Component {
 
   backFromAutocomplete = () => {
     this.props.openSearch();
-    this.props.search(this.props.query, true, false);
+    this.props.search('text', this.props.query, true, false);
+    this.props.search('sheet', this.props.query, true, false);
   }
 
   render() {
+
+
     var status = this.props.hasInternet ?
-            this.props.loadingQuery ? strings.loading
-            : this.numberWithCommas(this.props.numResults) + " " + strings.results
+            this.props.textSearchState.isLoading || this.props.sheetSearchState.isLoading ? strings.loading
+                :       "Texts: " + this.numberWithCommas(this.props.textSearchState.numResults) + " " +
+      "Sheets: " + this.numberWithCommas(this.props.sheetSearchState.numResults)
           : strings.connectToSearchMessage;
+
+
+    var sheetStatus = this.props.sheetSearchState.isLoading ? strings.loading : this.numberWithCommas(this.props.sheetSearchState.numResults)
+    var textStatus = this.props.textSearchState.isLoading ? strings.loading : this.numberWithCommas(this.props.textSearchState.numResults)
+
     var isheb = this.props.interfaceLang === "hebrew";
     var langStyle = !isheb ? styles.enInt : styles.heInt;
     var summaryStyle = [styles.searchResultSummary, this.props.theme.searchResultSummary];
@@ -73,6 +76,28 @@ class SearchPage extends React.Component {
     }
     var forwardImageStyle = isheb && false ? styles.forwardButtonHe : styles.forwardButtonEn;
     var content = null;
+
+    var sheetToggle = (
+        <TouchableOpacity onPress={() => this.props.setSearchTypeState('sheet')} style={isheb ? styles.searchOptionButtonTextHe : styles.searchOptionButtonTextEn}>
+          <Image source={this.props.searchState.type == "sheet" ? require('./img/sheet-dark.png') : require('./img/sheet.png')}
+            style={[styles.menuButton, isheb ? styles.headerIconWithTextHe : styles.headerIconWithTextEn]}
+            resizeMode={'contain'}
+          />
+          <Text style={[this.props.theme.searchResultSummaryText, langStyle, this.props.searchState.type == "sheet" ? {color: '#000'} : {color: '#999'},  {marginTop: -2} ]}>{sheetStatus}</Text>
+        </TouchableOpacity>
+    );
+
+    var textToggle = (
+        <TouchableOpacity onPress={() => this.props.setSearchTypeState('text')} style={isheb ? styles.searchOptionButtonTextHe : styles.searchOptionButtonTextEn}>
+          <Image source={this.props.searchState.type == "text" ? require('./img/book-dark.png') : require('./img/book.png')}
+            style={[styles.searchOptionButton, isheb ? styles.headerIconWithTextHe : styles.headerIconWithTextEn]}
+            resizeMode={'contain'}
+          />
+          <Text style={[this.props.theme.searchResultSummaryText, langStyle, this.props.searchState.type == "text" ? {color: '#000'} : {color: '#999'}, {marginTop: -2} ]}>{textStatus}</Text>
+        </TouchableOpacity>
+    );
+
+
 
     switch (this.props.subMenuOpen) {
       case (null):
@@ -89,32 +114,32 @@ class SearchPage extends React.Component {
               setIsNewSearch={this.props.setIsNewSearch}
               onChange={this.props.onChangeSearchQuery}
               onFocus={this.props.openAutocomplete}
+              searchType={this.props.searchState.type}
               hideSearchButton={true}
             />
             <View style={summaryStyle}>
-              <Text style={[this.props.theme.searchResultSummaryText, langStyle]} >{status}</Text>
+                <View style={{flexDirection: 'row'}}>{textToggle}<Text> </Text>{sheetToggle}</View>
+              {this.props.searchState.type == "text" ?
               <DirectedButton
-                text={(<Text>{strings.filter} <Text style={this.props.theme.text}>{`(${this.props.appliedFilters.length})`}</Text></Text>)}
+                text={(<Text>{strings.filter} <Text style={this.props.theme.text}>{`(${this.props.searchState.appliedFilters.length})`}</Text></Text>)}
                 direction="forward"
                 language={"english"}
                 themeStr={this.props.themeStr}
                 textStyle={[this.props.theme.searchResultSummaryText, langStyle]}
                 imageStyle={forwardImageStyle}
-                onPress={()=>this.props.openSubMenu("filter")}/>
+                onPress={()=>this.props.openSubMenu("filter")}/> : null }
             </View>
             <SearchResultList
               menuLanguage={this.props.menuLanguage}
               theme={this.props.theme}
-              queryResult={this.props.queryResult}
-              loadingTail={this.props.loadingTail}
-              initSearchListSize={this.props.initSearchListSize}
-              initSearchScrollPos={this.props.initSearchScrollPos}
               setInitSearchScrollPos={this.props.setInitSearchScrollPos}
               openRef={this.props.openRef}
               setLoadTail={this.props.setLoadTail}
               setIsNewSearch={this.props.setIsNewSearch}
               isNewSearch={this.props.isNewSearch}
-              isExact={this.props.isExact} />
+              searchState={this.props.searchState}
+              searchType={this.props.searchType}
+            />
             </View>);
         break;
       default:
@@ -128,14 +153,10 @@ class SearchPage extends React.Component {
             subMenuOpen={this.props.subMenuOpen}
             openSubMenu={this.props.openSubMenu}
             query={this.props.query}
-            sort={this.props.sort}
-            isExact={this.props.isExact}
-            availableFilters={this.props.availableFilters}
-            appliedFilters={this.props.appliedFilters}
-            filtersValid={this.props.filtersValid}
             search={this.props.search}
+            searchState={this.props.searchState}
             setSearchOptions={this.props.setSearchOptions}
-            updateFilter={this.props.updateFilter}
+            toggleFilter={this.props.toggleFilter}
             clearAllFilters={this.props.clearAllFilters}
           />
         );

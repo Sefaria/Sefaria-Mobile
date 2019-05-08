@@ -53,7 +53,7 @@ or
 any section has a version different than the default version
 """
 
-SCHEMA_VERSION = "4"  # includes author info and new calendars
+SCHEMA_VERSION = "5"  # includes author info and new calendars
 EXPORT_PATH = SEFARIA_EXPORT_PATH + "/" + SCHEMA_VERSION
 
 TOC_PATH          = "/toc.json"
@@ -614,7 +614,7 @@ def export_hebrew_categories(for_sources=False):
 
 def clean_toc_nodes(toc):
     """
-    Removes any nodes in TOC that we can't handle. 
+    Removes any nodes in TOC that we can't handle.
     """
     newToc = []
     for t in toc:
@@ -723,12 +723,17 @@ def export_calendar(for_sources=False):
         haftarot = {custom: [{
             "en": model.Ref(h).normal(), "he": model.Ref(h).he_normal()
             } for h in haf_list] for custom, haf_list in parashah["haftara"].items() }
-        calendar["parasha"][date_format(parashah["date"])] = {
+
+        location = "diaspora" if parashah["diaspora"] else "israel"
+
+        calendar["parasha"].setdefault(date_format(parashah["date"]), {"israel": {}, "diaspora": {}})
+
+
+        calendar["parasha"][date_format(parashah["date"])][location] = {
             "parasha": {"en": parashah["parasha"], "he": hebrew_parasha_name(parashah["parasha"])},
             "ref": {"en": parshTref, "he": parshHeTref},
             "haftara": [haftarot["ashkenazi"][0], haftarot],  # backwards compatibility. app always reads first element of haftara array
-            "diaspora": parashah["diaspora"]
-            # below fields not currently used
+                # below fields not currently used
             # "aliyot": parashah["aliyot"],
             # "shabbatName": parasha["shabbat_name"],
         }
@@ -850,7 +855,7 @@ def export_base_files_to_sources():
 if __name__ == '__main__':
     # we've been experiencing many issues with strange books appearing in the toc. i believe this line should solve that
     model.library.rebuild_toc()
-    
+
     action = sys.argv[1] if len(sys.argv) > 1 else None
     index = sys.argv[2] if len(sys.argv) > 2 else None
     if action == "export_all":

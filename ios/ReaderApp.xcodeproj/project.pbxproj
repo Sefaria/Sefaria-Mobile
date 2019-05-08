@@ -1808,7 +1808,7 @@
 				CODE_SIGN_ENTITLEMENTS = ReaderApp/ReaderApp.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 27;
+				CURRENT_PROJECT_VERSION = 33;
 				DEAD_CODE_STRIPPING = NO;
 				DEVELOPMENT_TEAM = 2626EW4BML;
 				HEADER_SEARCH_PATHS = (
@@ -1850,7 +1850,7 @@
 				CODE_SIGN_ENTITLEMENTS = ReaderApp/ReaderApp.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 27;
+				CURRENT_PROJECT_VERSION = 33;
 				DEVELOPMENT_TEAM = 2626EW4BML;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
