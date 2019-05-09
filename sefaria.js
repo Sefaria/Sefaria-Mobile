@@ -579,6 +579,12 @@ Sefaria = {
   _loadCalendar: function() {
     return Sefaria.util.openFileInSources("calendar.json").then(data => {
       Sefaria.calendar = data;
+    }).catch(error => {
+      // assume user has a bad version of calendar downloaded and should delete it
+      RNFB.fs.unlink(RNFB.fs.dirs.DocumentDir + "/library/calendar.json")
+      .then(() => { Sefaria.util.openFileInSources("calendar.json").then(data => {
+        Sefaria.calendar = data;
+      }); });
     });
   },
   galusOrIsrael: null,
