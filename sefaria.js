@@ -2,6 +2,7 @@ import { Alert, Platform } from 'react-native';
 import { GoogleAnalyticsTracker } from 'react-native-google-analytics-bridge'; //https://github.com/idehub/react-native-google-analytics-bridge/blob/master/README.md
 const ZipArchive  = require('react-native-zip-archive'); //for unzipping -- (https://github.com/plrthink/react-native-zip-archive)
 import AsyncStorage from '@react-native-community/async-storage';
+import VersionNumber from 'react-native-version-number';
 import RNFB from 'rn-fetch-blob';
 import RNFS from 'react-native-fs';
 import { Search } from '@sefaria/search';
@@ -23,17 +24,15 @@ const ERRORS = {
 };
 
 Sefaria = {
-  init: function() {
-    AsyncStorage.getItem("numTimesOpenedApp").then(data => {
-      Sefaria.numTimesOpenedApp = !!data ? parseInt(data) : 0;
-      console.log("numTimesOpenedApp", Sefaria.numTimesOpenedApp);
-      AsyncStorage.setItem("numTimesOpenedApp", JSON.stringify(Sefaria.numTimesOpenedApp + 1)).catch(error => {
-        console.error("AsyncStorage failed to save: " + error);
-      });
-    });
-    return Sefaria._loadTOC()
-      .then(Sefaria._loadHistoryItems)
-      .then(initAsyncStorage);
+  init: async function() {
+    // numTimesOpenedApp
+    const numTimesOpenedApp = await AsyncStorage.getItem("numTimesOpenedApp");
+    Sefaria.numTimesOpenedApp = !!numTimesOpenedApp ? parseInt(numTimesOpenedApp) : 0;
+    AsyncStorage.setItem("numTimesOpenedApp", JSON.stringify(Sefaria.numTimesOpenedApp + 1));
+    Sefaria.lastAppUpdateTime = await Sefaria.getLastAppUpdateTime();
+    await Sefaria._loadTOC();
+    await Sefaria._loadHistoryItems();
+    await initAsyncStorage();
   },
   postInit: function() {
     // a bit hacky, but basically allows rendering to happen in between each promise
@@ -54,6 +53,23 @@ Sefaria = {
       .then(Sefaria.packages._load)
       .then(nextFrame)
       .then(Sefaria.downloader.init);  // downloader init is dependent on packages
+  },
+  getLastAppUpdateTime: async function() {
+    // returns epoch time of last time the app was updated. used to compare if sources files are newer than downloaded files
+    const lastAppVersionString = await AsyncStorage.getItem("lastAppVersionString");
+    const currAppVersionString = VersionNumber.appVersion;
+    let lastAppUpdateTime;
+    if (lastAppVersionString !== currAppVersionString) {
+      // app has updated
+      lastAppUpdateTime = (new Date).getTime();
+      AsyncStorage.setItem("lastAppUpdateTime", JSON.stringify(Sefaria.lastAppUpdateTime));
+      AsyncStorage.setItem("lastAppVersionString", VersionNumber.appVersion);
+    } else {
+      // get stored time
+      lastAppUpdateTime = await AsyncStorage.getItem("lastAppUpdateTime");
+      lastAppUpdateTime = !!lastAppUpdateTime ? parseInt(lastAppUpdateTime) : 0;
+    }
+    return lastAppUpdateTime;
   },
   /*
   if `context` and you're using API, only return section no matter what. default is true
@@ -579,12 +595,6 @@ Sefaria = {
   _loadCalendar: function() {
     return Sefaria.util.openFileInSources("calendar.json").then(data => {
       Sefaria.calendar = data;
-    }).catch(error => {
-      // assume user has a bad version of calendar downloaded and should delete it
-      RNFB.fs.unlink(RNFB.fs.dirs.DocumentDir + "/library/calendar.json")
-      .then(() => { Sefaria.util.openFileInSources("calendar.json").then(data => {
-        Sefaria.calendar = data;
-      }); });
     });
   },
   galusOrIsrael: null,
@@ -1292,30 +1302,29 @@ Sefaria.util = {
     }
     return `<hediv>${text}</hediv>`;
   },
-  openFileInSources: function(filename) {
-    return new Promise((resolve, reject) => {
-      RNFB.fs.exists(RNFB.fs.dirs.DocumentDir + `/library/${filename}`)
-        .then(exists => {
-          if (exists) {
-            Sefaria._loadJSON(RNFB.fs.dirs.DocumentDir + `/library/${filename}`).then(data => {
-              resolve(data);
-            });
-          }
-          else {
-            if (Platform.OS == "ios") {
-              Sefaria._loadJSON(RNFB.fs.dirs.MainBundleDir + `/sources/${filename}`).then(data => {
-                resolve(data);
-              });
-            }
-            else if (Platform.OS == "android") {
-              const assetFilename = RNFB.fs.asset("sources/" + filename);
-              RNFB.fs.readFile(assetFilename).then(data => {
-                resolve(JSON.parse(data));
-              });
-            }
-          }
-        });
-    });
+  openFileInSources: async function(filename) {
+    const isIOS = Platform.OS === 'ios';
+    let fileData;
+    let useLib = false;
+    const libPath = `${RNFB.fs.dirs.DocumentDir}/library/${filename}`;
+    const sourcePath = isIOS ? `${RNFB.fs.dirs.MainBundleDir}/sources/${filename}` : RNFB.fs.asset("sources/" + filename);
+    const libExists = await RNFB.fs.exists(libPath);
+    if (libExists) {
+      // check date of each file and choose latest
+      const libStats = await RNFB.fs.stat(libPath);
+      useLib = libStats.lastModified > Sefaria.lastAppUpdateTime;
+      console.log(filename, 'stats', libStats.lastModified, Sefaria.lastAppUpdateTime, useLib)
+    }
+    if (useLib) {
+      fileData = await Sefaria._loadJSON(libPath);
+    } else if (isIOS) {
+      fileData = await Sefaria._loadJSON(sourcePath);
+    } else {
+      // android
+      fileData = await RNFB.fs.readFile(sourcePath);
+      fileData = JSON.parse(fileData);
+    }
+    return fileData;
   },
   getISOCountryCode: function() {
     return new Promise((resolve, reject) => {
