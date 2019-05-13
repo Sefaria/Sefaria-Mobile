@@ -62,7 +62,7 @@ Sefaria = {
     if (lastAppVersionString !== currAppVersionString) {
       // app has updated
       lastAppUpdateTime = (new Date).getTime();
-      AsyncStorage.setItem("lastAppUpdateTime", JSON.stringify(Sefaria.lastAppUpdateTime));
+      AsyncStorage.setItem("lastAppUpdateTime", JSON.stringify(lastAppUpdateTime));
       AsyncStorage.setItem("lastAppVersionString", VersionNumber.appVersion);
     } else {
       // get stored time
