@@ -719,38 +719,23 @@ class ReaderApp extends React.Component {
     this.openRef(ref, "text toc", null, false, enableAliyot);
   };
 
-<<<<<<< HEAD
-  openRefSheet = (sheetID, sheetMeta) => {
-    this.setState({
-      loaded: false,
-    }, () => {
-      this.loadSheet(sheetID, sheetMeta);
-    });
-=======
-  openRefSheet = (ref, sheetMeta, addToBackStack=false, calledFrom) => {
+  openRefSheet = (sheetID, sheetMeta, addToBackStack=false, calledFrom) => {
       this.setState({
           loaded: false,
       }, () => {
-          this.loadSheet(ref, sheetMeta,addToBackStack, calledFrom);
-      })
->>>>>>> master
+          this.loadSheet(sheetID, sheetMeta,addToBackStack, calledFrom);
+      });
   };
 
   updateActiveSheetNode = (node) => {
     this.setState ({
       activeSheetNode: node,
-    })
+    });
+  };
 
-}
-
-<<<<<<< HEAD
-  loadSheet = (sheetID, sheetMeta) => {
+  loadSheet = (sheetID, sheetMeta, addToBackStack=false, calledFrom="search") => {
       const more_data = !sheetMeta  // # if sheetMeta is null, need to request more data from api call
       Sefaria.api.sheets(sheetID, more_data)
-=======
-  loadSheet = (ref, sheetMeta, addToBackStack=false, calledFrom="search") => {
-      Sefaria.api.sheets(ref)
->>>>>>> master
       .then(result => {
           if (more_data) {
             // extract sheetMeta from result
