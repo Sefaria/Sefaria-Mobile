@@ -610,7 +610,7 @@ Sefaria = {
           Sefaria.galusOrIsrael = "diaspora"
         }
       })
-        .catch(()=> {return "diaspora"})
+        .catch(()=> {Sefaria.galusOrIsrael = "diaspora";})
   },
 
 
