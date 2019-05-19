@@ -776,7 +776,7 @@ def export_calendar(for_sources=False):
             "ref": {"en": tref, "he": heTref}
         }
         if p.number == 929:
-            p929.origin = curr_date.date()
+            p929.origins += [curr_date.date()]
         curr_date += timedelta(days=1)
 
     path = (SEFARIA_IOS_SOURCES_PATH if for_sources else EXPORT_PATH) + CALENDAR_PATH
