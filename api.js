@@ -20,6 +20,7 @@ var Api = {
   _versions: {},
   _translateVersions: {},
   _indexDetails: {},
+  _tagCategory: {},
   _currentRequests: {}, // object to remember current request in order to abort. keyed by apiType
   _textCacheKey: function(ref, context, versions) {
     return `${ref}|${context}${(!!versions ? (!!versions.en ? `|en:${versions.en}` : "") + (!!versions.he ? `|he:${versions.he}` : "")  : "")}`;
@@ -185,6 +186,10 @@ var Api = {
           url += "api/name/";
           //urlSuffix = '?ref_only=0';
           break;
+        case "tagCategory":
+          url += "api/tag-category/";
+          //urlSuffix = '?ref_only=0';
+          break;
         default:
           console.error("You passed invalid type: ",apiType," into _toURL()");
           break;
@@ -343,6 +348,26 @@ var Api = {
         });
     });
   },
+
+
+  tagCategory: function(category, failSilently) {
+    tag = encodeURIComponent(category);
+    Sefaria.api._abortRequestType('tagCategory');
+    return new Promise((resolve, reject) => {
+      const cached = Sefaria.api._tagCategory[category];
+      //if (!!cached) { console.log("cached"); resolve(cached); return; }
+      Sefaria.api._request(category, 'tagCategory', false, {}, failSilently)
+        .then(response => {
+          Sefaria.api._sheetsByTag[category] = response;
+          resolve(response);
+        })
+        .catch(error=>{
+          console.log("sheetsByTag API error:", error);
+          reject();
+        });
+    });
+  },
+
 
   sheetsByTag: function(tag, failSilently) {
     tag = encodeURIComponent(tag);

@@ -49,6 +49,7 @@ import Toast, {DURATION} from 'react-native-easy-toast';
 import BackManager from './BackManager';
 import ReaderNavigationSheetMenu from "./ReaderNavigationSheetMenu";
 import ReaderNavigationSheetTagMenu from "./ReaderNavigationSheetTagMenu";
+import ReaderNavigationSheetCategoryMenu from "./ReaderNavigationSheetCategoryMenu";
 import Sheet from "./Sheet.js";
 import SheetMetadata from "./SheetMeta.js";
 
@@ -144,6 +145,7 @@ class ReaderApp extends React.Component {
         searchType: 'text',
         searchQuery: '',
         sheetTag: '',
+        sheetCategory: '',
         sheet: null,
         sheetMeta: null,
         activeSheetNode: null,
@@ -1008,6 +1010,11 @@ class ReaderApp extends React.Component {
     this.openMenu("sheetTag");
   };
 
+  openSheetCategory = (category) => {
+    this.setState({sheetCategory: category});
+    this.openMenu("sheetCategory");
+  };
+
   clearMenuState = () => {
       this.setState({
           navigationCategories: [],
@@ -1651,9 +1658,32 @@ class ReaderApp extends React.Component {
             menuLanguage={this.props.menuLanguage}
             interfaceLang={this.state.interfaceLang}
             openSheetTagMenu={this.openSheetTag}
+            openSheetCategoryMenu={this.openSheetCategory}
            />
         );
         break;
+
+      case ("sheetCategory"):
+        return(
+          loading ?
+          <LoadingView theme={this.props.theme} /> :
+           <ReaderNavigationSheetCategoryMenu
+            icon={require('./img/sheet.png')}
+            theme={this.props.theme}
+            themeStr={this.props.themeStr}
+            menuLanguage={this.props.menuLanguage}
+            interfaceLang={this.state.interfaceLang}
+            toggleLanguage={this.toggleMenuLanguage}
+            hasInternet={this.state.hasInternet}
+            category={this.state.sheetCategory}
+            onBack={this.manageBackMain}
+            openSheetTagMenu={this.openSheetTag}
+            openRef={this.openRefSheet}
+           />
+        );
+
+
+
       case ("sheetTag"):
         return(
           loading ?
