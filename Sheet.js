@@ -297,10 +297,9 @@ class SheetSource extends Component {
 
         const isStacked = this.props.biLayout === 'stacked';
         const lineHeightMultiplierHe = Platform.OS === 'android' ? 1.3 : 1.2;
-        const justifyStyle = {textAlign: (isStacked && Platform.OS === 'ios') ? 'justify' : ((Platform.OS === 'ios' && this.props.textType === 'hebrew') ? 'right' : 'left')};
         const style = this.props.textType == "hebrew" ?
-                      [styles.hebrewText, this.props.theme.text, justifyStyle, {fontSize: this.props.fontSize, lineHeight: this.props.fontSize * lineHeightMultiplierHe}] :
-                      [styles.englishText, this.props.theme.text, justifyStyle, {fontSize: 0.8 * this.props.fontSize, lineHeight: this.props.fontSize * 1.04 }];
+          [styles.hebrewText, this.props.theme.text, (isStacked && Platform.OS === 'ios') ? styles.justifyText : {textAlign: 'right'}, {fontSize: this.props.fontSize, lineHeight: this.props.fontSize * lineHeightMultiplierHe}] :
+          [styles.englishText, this.props.theme.text, isStacked ? styles.justifyText : {textAlign: 'left'}, {fontSize: 0.8 * this.props.fontSize, lineHeight: this.props.fontSize * 1.04 }];
         if (this.props.bilingual && this.props.textType == "english") {
           if (isStacked) {
             style.push(styles.bilingualEnglishText);
@@ -313,11 +312,11 @@ class SheetSource extends Component {
           },
           hediv: {
             ...styles.hediv,
-            ...justifyStyle,
+            textAlign: (isStacked && Platform.OS === 'ios') ? 'justify' : 'right',
           },
           endiv: {
             ...styles.endiv,
-            ...justifyStyle,
+            textAlign: isStacked ? 'justify' : 'left',
           }
         };
 
@@ -350,7 +349,7 @@ class SheetSource extends Component {
                {
                  suppressHighlighting: false,
                  key:this.props.segmentKey,
-                 style: style
+                 style: [styles.hebrewText, this.props.theme.text, styles.justifyText, {fontSize: this.props.fontSize, lineHeight: this.props.fontSize * lineHeightMultiplierHe}]
                }
              }
                         style={{flex: this.props.textType == "hebrew" ? 4.5 : 5.5, paddingHorizontal: 10}}
@@ -375,7 +374,7 @@ class SheetSource extends Component {
                {
                  suppressHighlighting: false,
                  key:this.props.segmentKey,
-                 style: style
+                 style: [styles.englishText, this.props.theme.text, styles.justifyText, {fontSize: 0.8 * this.props.fontSize, lineHeight: this.props.fontSize * 1.04 }]
                }
              }
                         style={{flex: this.props.textType == "hebrew" ? 4.5 : 5.5, paddingHorizontal: 10}}
