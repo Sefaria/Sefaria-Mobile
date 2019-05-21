@@ -224,6 +224,7 @@ class ReaderNavigationCategoryMenu extends React.PureComponent {
           renderItem={this.renderRow}
           renderSectionHeader={this.renderSectionHeader}
           sections={this.state.sections}
+          extraData={this.props.menuLanguage}
           numColumns={2}
           keyExtractor={this.extractKey}
           scrollEventThrottle={100}
