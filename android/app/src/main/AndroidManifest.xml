@@ -28,6 +28,27 @@
               <category android:name="android.intent.category.LAUNCHER" />
               <category android:name="android.intent.category.MULTIWINDOW_LAUNCHER" />
           </intent-filter>
+          <intent-filter>
+              <action android:name="android.intent.action.VIEW" />
+              <category android:name="android.intent.category.DEFAULT" />
+              <category android:name="android.intent.category.BROWSABLE" />
+              <data
+                  android:host="sefaria.org"
+                  android:scheme="http" />
+              <data
+                  android:host="www.sefaria.org"
+                  android:scheme="http" />
+              <data
+                  android:host="sefaria.org.il"
+                  android:scheme="http" />
+              <data
+                  android:host="www.sefaria.org.il"
+                  android:scheme="http" />
+              <data
+                  android:host="sefaria.org"
+                  android:scheme="https" />
+
+          </intent-filter>
       </activity>
 
       <activity

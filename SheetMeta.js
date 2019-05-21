@@ -48,7 +48,8 @@ class SheetMeta extends React.Component {
     render() {
         const langStyle = this.props.interfaceLang === "hebrew" ? styles.heInt : styles.enInt;
         var showHebrew = false;
-        var sheetTags = this.props.sheet.tags.map(function(tag, i) {
+        const tags = this.props.sheet.tags || [];
+        var sheetTags = tags.map(function(tag, i) {
             return (
 
                     <TouchableOpacity  style={[styles.textBlockLink,this.props.theme.textBlockLink]}  onPress={()=> this.props.openSheetTagMenu(tag)} key={i}>

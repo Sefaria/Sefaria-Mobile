@@ -51,6 +51,7 @@ import ReaderNavigationSheetMenu from "./ReaderNavigationSheetMenu";
 import ReaderNavigationSheetTagMenu from "./ReaderNavigationSheetTagMenu";
 import Sheet from "./Sheet.js";
 import SheetMetadata from "./SheetMeta.js";
+import DeepLinkRouter from "./DeepLinkRouter.js";
 
 
 
@@ -75,22 +76,8 @@ class ReaderApp extends React.Component {
 
   constructor(props, context) {
     super(props, context);
-    Sefaria._deleteUnzippedFiles()
-    .then(Sefaria.init).then(() => {
-        setTimeout(SplashScreen.hide, 300);
-        this.setState({
-          loaded: true,
-          defaultSettingsLoaded: true,
-        });
-        // wait to check for interrupting message until after asyncstorage is loaded
-        this._interruptingMessageRef && this._interruptingMessageRef.checkForMessage();
-        const mostRecent =  Sefaria.history.length ? Sefaria.history[0] : {ref: "Genesis 1"};
-        this.openRef(mostRecent.ref, null, mostRecent.versions, false)  // first call to openRef should not add to backStack
-        .then(Sefaria.postInit)
-        .then(Sefaria.downloader.promptLibraryDownload);
-    });
-    Sefaria.track.init();
-
+    this._initDeepLinkURL = null;  // if you init the app thru a deep link, need to make sure the URL is applied during componentDidMount()
+    this._completedInit = false;
     if (Platform.OS === 'android') {
       UIManager.setLayoutAnimationEnabledExperimental && UIManager.setLayoutAnimationEnabledExperimental(true);
       if (strings.getInterfaceLanguage() === 'iw-IL') {
@@ -154,11 +141,16 @@ class ReaderApp extends React.Component {
   }
 
   componentDidMount() {
+    this.initFiles();
+    Sefaria.track.init();
     NetInfo.isConnected.addEventListener(
       'connectionChange',
       this.networkChangeListener
     );
-
+    Linking.getInitialURL().then(url => { this.handleOpenURL({ url }); }).catch(err => {
+        console.warn('An error occurred', err);
+    });
+    Linking.addEventListener('url', this.handleOpenURL);
     BackHandler.addEventListener('hardwareBackPress', this.manageBack);
     AppState.addEventListener('change', this.appStateChangeListener);
     Sefaria.downloader.onChange = this.onDownloaderChange;
@@ -220,8 +212,40 @@ class ReaderApp extends React.Component {
       'connectionChange',
       this.networkChangeListener
     );
+    Linking.removeEventListener('url', this.handleOpenURL);
     AppState.removeEventListener('change', this.appStateChangeListener);
     RNShake.removeEventListener('ShakeEvent');
+  }
+
+  initFiles = () => {
+    Sefaria._deleteUnzippedFiles()
+    .then(Sefaria.init).then(() => {
+        setTimeout(SplashScreen.hide, 300);
+        this.setState({
+          loaded: true,
+          defaultSettingsLoaded: true,
+        });
+        // wait to check for interrupting message until after asyncstorage is loaded
+        this._interruptingMessageRef && this._interruptingMessageRef.checkForMessage();
+        if (!this._initDeepLinkURL) {
+          const mostRecent =  Sefaria.history.length ? Sefaria.history[0] : {ref: "Genesis 1"};
+          this.openRef(mostRecent.ref, null, mostRecent.versions, false)  // first call to openRef should not add to backStack
+          .then(Sefaria.postInitSearch)
+          .then(Sefaria.postInit)
+          .then(() => { this._completedInit = true; })
+          .then(Sefaria.downloader.promptLibraryDownload);
+        } else {
+          // apply deep link here to make sure it applies correctly
+          // load search files before deep link incase deep link is to search
+          Sefaria.postInitSearch()
+          .then(() => {
+            this._deepLinkRouterRef.route(this._initDeepLinkURL);
+          })
+          .then(Sefaria.postInit)
+          .then(() => { this._completedInit = true; })
+          .then(Sefaria.downloader.promptLibraryDownload);
+        }
+    });
   }
 
   manageBackMain = () => {
@@ -241,6 +265,17 @@ class ReaderApp extends React.Component {
     } else {
       // close app
       return false;
+    }
+  };
+
+  handleOpenURL = ({ url } = {}) => {
+    if (url) {
+      if (this._completedInit) {
+        this._deepLinkRouterRef.route(url);
+      } else {
+        // save URL. it will be applied when componentDidMount finishes
+        this._initDeepLinkURL = url;
+      }
     }
   };
 
@@ -684,27 +719,35 @@ class ReaderApp extends React.Component {
     this.openRef(ref, "text toc", null, false, enableAliyot);
   };
 
-  openRefSheet = (ref, sheetMeta, addToBackStack=false, calledFrom) => {
+  openRefSheet = (sheetID, sheetMeta, addToBackStack=false, calledFrom) => {
       this.setState({
           loaded: false,
       }, () => {
-          this.loadSheet(ref, sheetMeta,addToBackStack, calledFrom);
-      })
+          this.loadSheet(sheetID, sheetMeta,addToBackStack, calledFrom);
+      });
   };
 
   updateActiveSheetNode = (node) => {
     this.setState ({
       activeSheetNode: node,
-    })
+    });
+  };
 
-}
-
-  loadSheet = (ref, sheetMeta, addToBackStack=false, calledFrom="search") => {
-      Sefaria.api.sheets(ref)
+  loadSheet = (sheetID, sheetMeta, addToBackStack=false, calledFrom="search") => {
+      const more_data = !sheetMeta  // # if sheetMeta is null, need to request more data from api call
+      Sefaria.api.sheets(sheetID, more_data)
       .then(result => {
+          if (more_data) {
+            // extract sheetMeta from result
+            sheetMeta = {
+              ownerName: result.ownerName,
+              ownerImageUrl: result.ownerImageUrl,
+              views: result.views,
+            };
+          }
           this.setState ({
               sheet: result,
-              sheetMeta: sheetMeta,
+              sheetMeta,
               data: [],
               sectionArray: [],
               sectionHeArray: [],
@@ -810,7 +853,7 @@ class ReaderApp extends React.Component {
         this.props.setAliyot(true);
       }
       const title = Sefaria.textTitleForRef(ref);
-      const overwriteVersions = calledFrom !== 'search'; // if called from search, use version specified by search (or default if none specified)
+      const overwriteVersions = calledFrom !== 'search' || calledFrom !== 'deep link' ; // if called from search or deeplink, use version specified by search (or default if none specified)
       if (!title) {
         if (ref.startsWith("Sheet")) { //TODO: Load Sheet data via sheet ref
             resolve();
@@ -850,6 +893,9 @@ class ReaderApp extends React.Component {
           Sefaria.track.event("Reader","Navigation Text Click", ref);
           break;
         case "text toc":
+          break;
+        case "deep link":
+          Sefaria.track.event("Reader", "Deep Link", ref);
           break;
         case "text list":
           Sefaria.track.event("Reader","Click Text from TextList",ref);
@@ -895,7 +941,7 @@ class ReaderApp extends React.Component {
   closeMenu = () => {
       this.clearMenuState();
       this.openMenu(null);
-      if (!this.state.textReference) {
+      if (!this.state.textReference && !this.state.sheet) {
           this.openDefaultText();
       }
   };
@@ -1200,7 +1246,6 @@ class ReaderApp extends React.Component {
   };
 
   loadVersionContent = (ref, pos, versionTitle, versionLanguage) => {
-    console.log('loadVersionContent', ref, pos, versionTitle, versionLanguage);
     Sefaria.data(ref, false, {[versionLanguage]: versionTitle }).then(data => {
       // only want to show versionLanguage in results
       const removeLang = versionLanguage === "he" ? "en" : "he";
@@ -1472,6 +1517,10 @@ class ReaderApp extends React.Component {
     this._interruptingMessageRef = ref;
   };
 
+  _getDeepLinkRouterRef = ref => {
+    this._deepLinkRouterRef = ref;
+  };
+
   _onStartShouldSetResponderCapture = () => {
     if (this.state.ReaderDisplayOptionsMenuVisible === true) {
        this.toggleReaderDisplayOptionsMenu();
@@ -1674,144 +1723,23 @@ class ReaderApp extends React.Component {
 
 
     }
-
-    if (this.state.sheet) {
-        let sheetColumnFlex = this.state.textListVisible ? 1.0 - this.state.textListFlex : 1.0;
-        return (
-            <View style={[styles.container, this.props.theme.container]} {...this.gestureResponder}>
-            <CategoryColorLine category="Sheets" />
-                      <ReaderControls
+    const isSheet = !!this.state.sheet;
+    let textColumnFlex = this.state.textListVisible ? 1.0 - this.state.textListFlex : 1.0;
+    return (
+      <View style={[styles.container, this.props.theme.container]} {...this.gestureResponder}>
+          <CategoryColorLine category={Sefaria.categoryForTitle(this.state.textTitle, isSheet)} />
+          <ReaderControls
             theme={this.props.theme}
             enRef={this.state.textReference}
             heRef={this.state.heRef}
             language={this.props.menuLanguage}
-            categories={["Sheets"]}
+            categories={Sefaria.categoriesForTitle(this.state.textTitle, isSheet)}
             openNav={this.openNav}
             themeStr={this.props.themeStr}
             goBack={this.manageBackMain}
             openTextToc={this.openTextToc}
             openSheetMeta={this.openSheetMeta}
             sheet={this.state.sheet}
-            sheetMeta={this.state.sheetMeta}
-            backStack={BackManager.getStack({ type: "main" })}
-            toggleReaderDisplayOptionsMenu={this.toggleReaderDisplayOptionsMenu}
-            openUri={this.openUri}/>
-          <View style={[{flex: sheetColumnFlex}, styles.mainTextPanel, this.props.theme.mainTextPanel]}
-                onStartShouldSetResponderCapture={this._onStartShouldSetResponderCapture}>
-
-          { loading ?
-          <LoadingView theme={this.props.theme} style={{flex: sheetColumnFlex}}/> :
-
-          <Sheet
-            sheet={this.state.sheet}
-            activeSheetNode={this.state.activeSheetNode}
-            updateActiveSheetNode={this.updateActiveSheetNode}
-            sheetMeta={this.state.sheetMeta}
-            textData={this.state.data}
-            sectionArray={this.state.sectionArray}
-            menuLanguage={this.props.menuLanguage}
-            showToast={this.showToast}
-            textSegmentPressed={ this.sheetSegmentPressed }
-            theme={this.props.theme}
-            textListVisible={this.state.textListVisible}
-            textLanguage={this.props.textLanguage}
-            biLayout={this.props.biLayout}
-            fontSize={this.props.fontSize}
-            openUri={this.openUri}
-          />
-
-          }
-              </View>
-
-          {this.state.textListVisible ?
-            <ConnectionsPanel
-              sheet={this.state.sheet}
-              sheetMeta={this.state.sheetMeta}
-              textListFlex={this.state.textListFlex}
-              textListFlexAnimated={this.state.textListFlexAnimated}
-              animating={this.state.textListAnimating}
-              onStartShouldSetResponderCapture={this._onStartShouldSetResponderCapture}
-              textToc={this.state.textToc}
-              menuLanguage={this.props.menuLanguage}
-              fontSize={this.props.fontSize}
-              theme={this.props.theme}
-              themeStr={this.props.themeStr}
-              interfaceLang={this.state.interfaceLang}
-              segmentRef={this.state.segmentRef}
-              heSegmentRef={Sefaria.toHeSegmentRef(this.state.heRef, this.state.segmentRef)}
-              categories={Sefaria.categoriesForTitle(this.state.textTitle)}
-              textFlow={this.state.textFlow}
-              textLanguage={this.props.textLanguage}
-              openRef={this.openRefConnectionsPanel}
-              setConnectionsMode={this.setConnectionsMode}
-              openFilter={this.openFilter}
-              closeCat={this.closeLinkCat}
-              updateLinkCat={this.updateLinkCat}
-              updateVersionCat={this.updateVersionCat}
-              loadLinkContent={this.loadLinkContent}
-              loadVersionContent={this.loadVersionContent}
-              linkSummary={this.state.linkSummary}
-              linkContents={this.state.linkContents}
-              versionContents={this.state.versionContents}
-              loading={this.state.loadingLinks}
-              connectionsMode={this.state.connectionsMode}
-              filterIndex={this.state.filterIndex}
-              recentFilters={this.state.linkRecentFilters}
-              versionRecentFilters={this.state.versionRecentFilters}
-              versionFilterIndex={this.state.versionFilterIndex}
-              currVersions={this.state.currVersions}
-              versions={this.state.versions}
-              versionsApiError={this.state.versionsApiError}
-              onDragStart={this.onTextListDragStart}
-              onDragMove={this.onTextListDragMove}
-              onDragEnd={this.onTextListDragEnd}
-              textTitle={this.state.textTitle}
-              openUri={this.openUri} />
-             : null
-          }
-
-
-
-          {this.state.ReaderDisplayOptionsMenuVisible ?
-            (<ReaderDisplayOptionsMenu
-              ref={this._getReaderDisplayOptionsMenuRef}
-              theme={this.props.theme}
-              textFlow={this.state.textFlow}
-              biLayout={this.props.biLayout}
-              textReference={this.state.textReference}
-              interfaceLang={this.state.interfaceLang}
-              textLanguage={this.props.textLanguage}
-              showAliyot={false}
-              setTextFlow={this.setTextFlow}
-              setBiLayout={this.setBiLayout}
-              setAliyot={this.setAliyot}
-              setTextLanguage={this.setTextLanguage}
-              incrementFont={this.incrementFont}
-              setTheme={this.setTheme}
-              canBeContinuous={false}
-              canHaveAliyot={false}
-              themeStr={this.props.themeStr}/>) : null
-          }
-
-
-        </View>
-    )
-    }
-
-    let textColumnFlex = this.state.textListVisible ? 1.0 - this.state.textListFlex : 1.0;
-    return (
-      <View style={[styles.container, this.props.theme.container]} {...this.gestureResponder}>
-          <CategoryColorLine category={Sefaria.categoryForTitle(this.state.textTitle)} />
-          <ReaderControls
-            theme={this.props.theme}
-            enRef={this.state.textReference}
-            heRef={this.state.heRef}
-            language={this.props.menuLanguage}
-            categories={Sefaria.categoriesForTitle(this.state.textTitle)}
-            openNav={this.openNav}
-            themeStr={this.props.themeStr}
-            goBack={this.manageBackMain}
-            openTextToc={this.openTextToc}
             backStack={BackManager.getStack({ type: "main" })}
             toggleReaderDisplayOptionsMenu={this.toggleReaderDisplayOptionsMenu}
             openUri={this.openUri}/>
@@ -1820,42 +1748,61 @@ class ReaderApp extends React.Component {
           <LoadingView theme={this.props.theme} style={{flex: textColumnFlex}} category={Sefaria.categoryForTitle(this.state.textTitle)}/> :
           <View style={[{flex: textColumnFlex}, styles.mainTextPanel, this.props.theme.mainTextPanel]}
                 onStartShouldSetResponderCapture={this._onStartShouldSetResponderCapture}>
-            <TextColumn
-              key={this.state.textColumnKey}
-              showToast={this.showToast}
-              textToc={this.state.textToc}
-              theme={this.props.theme}
-              themeStr={this.props.themeStr}
-              fontSize={this.props.fontSize}
-              data={this.state.data}
-              textReference={this.state.textReference}
-              sectionArray={this.state.sectionArray}
-              sectionHeArray={this.state.sectionHeArray}
-              offsetRef={this.state.offsetRef}
-              segmentRef={this.state.segmentRef}
-              segmentIndexRef={this.state.segmentIndexRef}
-              textFlow={this.state.textFlow}
-              menuLanguage={this.props.menuLanguage}
-              textLanguage={this.props.textLanguage}
-              updateData={this.updateData}
-              updateTitle={this.updateTitle}
-              textTitle={this.state.textTitle}
-              heTitle={this.state.heTitle}
-              heRef={this.state.heRef}
-              textSegmentPressed={ this.textSegmentPressed }
-              textListVisible={this.state.textListVisible}
-              next={this.state.next}
-              prev={this.state.prev}
-              linksLoaded={this.state.linksLoaded}
-              loadingTextTail={this.state.loadingTextTail}
-              loadingTextHead={this.state.loadingTextHead}
-              showAliyot={this.props.showAliyot}
-              openUri={this.openUri}
-              biLayout={this.props.biLayout} />
+            { isSheet ?
+              <Sheet
+                sheet={this.state.sheet}
+                activeSheetNode={this.state.activeSheetNode}
+                updateActiveSheetNode={this.updateActiveSheetNode}
+                sheetMeta={this.state.sheetMeta}
+                textData={this.state.data}
+                sectionArray={this.state.sectionArray}
+                menuLanguage={this.props.menuLanguage}
+                textSegmentPressed={ this.sheetSegmentPressed }
+                theme={this.props.theme}
+                textListVisible={this.state.textListVisible}
+                textLanguage={this.props.textLanguage}
+                biLayout={this.props.biLayout}
+                fontSize={this.props.fontSize}
+              /> :
+              <TextColumn
+                key={this.state.textColumnKey}
+                showToast={this.showToast}
+                textToc={this.state.textToc}
+                theme={this.props.theme}
+                themeStr={this.props.themeStr}
+                fontSize={this.props.fontSize}
+                data={this.state.data}
+                textReference={this.state.textReference}
+                sectionArray={this.state.sectionArray}
+                sectionHeArray={this.state.sectionHeArray}
+                offsetRef={this.state.offsetRef}
+                segmentRef={this.state.segmentRef}
+                segmentIndexRef={this.state.segmentIndexRef}
+                textFlow={this.state.textFlow}
+                menuLanguage={this.props.menuLanguage}
+                textLanguage={this.props.textLanguage}
+                updateData={this.updateData}
+                updateTitle={this.updateTitle}
+                textTitle={this.state.textTitle}
+                heTitle={this.state.heTitle}
+                heRef={this.state.heRef}
+                textSegmentPressed={ this.textSegmentPressed }
+                textListVisible={this.state.textListVisible}
+                next={this.state.next}
+                prev={this.state.prev}
+                linksLoaded={this.state.linksLoaded}
+                loadingTextTail={this.state.loadingTextTail}
+                loadingTextHead={this.state.loadingTextHead}
+                showAliyot={this.props.showAliyot}
+                openUri={this.openUri}
+                biLayout={this.props.biLayout} />
+            }
           </View> }
 
           {this.state.textListVisible ?
             <ConnectionsPanel
+              sheet={this.state.sheet}
+              sheetMeta={this.state.sheetMeta}
               textListFlex={this.state.textListFlex}
               textListFlexAnimated={this.state.textListFlexAnimated}
               animating={this.state.textListAnimating}
@@ -1960,7 +1907,22 @@ class ReaderApp extends React.Component {
           ref={this._getInterruptingMessageRef}
           interfaceLang={this.state.interfaceLang}
           openInDefaultBrowser={this.openInDefaultBrowser}
-          debugInterruptingMessage={this.props.debugInterruptingMessage} />
+          debugInterruptingMessage={this.props.debugInterruptingMessage}
+        />
+        <DeepLinkRouter
+          ref={this._getDeepLinkRouterRef}
+          openNav={this.openNav}
+          openMenu={this.openMenu}
+          openRef={this.openRef}
+          openUri={this.openUri}
+          openRefSheet={this.openRefSheet}
+          openSheetTag={this.openSheetTag}
+          search={this.search}
+          setSearchOptions={this.setSearchOptions}
+          openTextTocDirectly={this.openTextTocDirectly}
+          setTextLanguage={this.setTextLanguage}
+          setNavigationCategories={this.setNavigationCategories}
+        />
       </View>
 
     );

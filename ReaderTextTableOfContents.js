@@ -138,7 +138,7 @@ class ReaderTextTableOfContents extends React.Component {
               defaultStruct={"default_struct" in this.props.textToc && this.props.textToc.default_struct in this.props.textToc.alts ? this.props.textToc.default_struct : "default"}
               contentLang={this.props.contentLang}
               title={this.props.title}
-              openRef={this.props.openRef} /> : <LoadingView /> }
+              openRef={this.props.openRef} /> : <LoadingView theme={this.props.theme} category={Sefaria.categoryForTitle(this.props.title)}/> }
 
         </ScrollView>
 
