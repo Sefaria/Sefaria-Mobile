@@ -139,7 +139,9 @@ class ReaderNavigationSheetMenu extends React.Component {
                   <Text style={[styles.enInt, styles.categorySectionTitle, this.props.theme.categorySectionTitle]}>Trending Topics</Text> }
             </View>
 
-            <TwoBox content={trendingTagContent} language={this.props.interfaceLang} />
+            <TwoBox language={this.props.interfaceLang}>
+              { trendingTagContent }
+            </TwoBox>
 
             <View style={styles.category} key="AllSourceSheetTags">
               { showHebrew ?

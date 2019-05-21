@@ -126,10 +126,9 @@ class SheetMeta extends React.Component {
 
                     </View>
 
-                    <TwoBox content={sheetTags} language={this.props.menuLanguage} />
-
-
-
+                    <TwoBox language={this.props.menuLanguage}>
+                      { sheetTags }
+                    </TwoBox>
                 </ScrollView>
             </View>
 

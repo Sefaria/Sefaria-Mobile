@@ -1,6 +1,6 @@
 'use strict';
 import PropTypes from 'prop-types';
-import React, { Component } from 'react';
+import React from 'react';
 import {
   StyleSheet,
   Text,
@@ -29,7 +29,7 @@ import iPad from './isIPad';
 import VersionBlock from './VersionBlock';
 
 
-class ReaderTextTableOfContents extends React.Component {
+class ReaderTextTableOfContents extends React.PureComponent {
   // The Table of Contents for a single Text
   static propTypes = {
     textToc:        PropTypes.object,
@@ -146,7 +146,7 @@ class ReaderTextTableOfContents extends React.Component {
   }
 }
 
-class TextTableOfContentsNavigation extends React.Component {
+class TextTableOfContentsNavigation extends React.PureComponent {
   static propTypes = {
     theme:           PropTypes.object.isRequired,
     themeStr:        PropTypes.string.isRequired,
@@ -163,17 +163,26 @@ class TextTableOfContentsNavigation extends React.Component {
     tab: this.props.defaultStruct
   };
 
-  setTab = (tab) => {
-    this.setState({tab: tab});
+  setTab = tab => {
+    this.setState({ tab });
+  };
+
+  setDefaultTab = () => {
+    this.setTab("default");
+  };
+
+  setCommentaryTab = () => {
+    this.setTab("commentary");
   };
 
   render() {
+    let toggle = null;
     if (this.props.commentatorList.length || this.props.alts) {
       var options = [{
         name: "default",
         text: "sectionNames" in this.props.schema ? this.props.schema.sectionNames[0] : "Contents",
         heText: "sectionNames" in this.props.schema ? Sefaria.hebrewSectionName(this.props.schema.sectionNames[0]) : "תוכן",
-        onPress: this.setTab.bind(null, "default")
+        onPress: this.setDefaultTab,
       }];
       if (this.props.alts) {
         for (var alt in this.props.alts) {
@@ -192,20 +201,21 @@ class TextTableOfContentsNavigation extends React.Component {
           name: "commentary",
           text: "Commentary",
           heText: "מפרשים",
-          onPress: this.setTab.bind(null, "commentary")
+          onPress: this.setCommentaryTab,
         });
       }
-      options = options.sort(function(a, b) {
-        return a.name == this.props.defaultStruct ? -1 :
-                b.name == this.props.defaultStruct ? 1 : 0;
-      }.bind(this));
-      var toggle = <ToggleSet
-                      theme={this.props.theme}
-                      options={options}
-                      contentLang={this.props.contentLang}
-                      active={this.state.tab} />;
-    } else {
-      var toggle = null;
+      options = options.sort((a, b) => (
+        a.name == this.props.defaultStruct ? -1 :
+          b.name == this.props.defaultStruct ? 1 : 0
+      ));
+      toggle = (
+        <ToggleSet
+          theme={this.props.theme}
+          options={options}
+          contentLang={this.props.contentLang}
+          active={this.state.tab}
+        />
+      );
     }
 
     // Set margins around nav sections dependent on screen width so grid centered no mater how many sections fit per line
@@ -263,337 +273,342 @@ class TextTableOfContentsNavigation extends React.Component {
 }
 
 
-class SchemaNode extends React.Component {
-  static propTypes = {
-    theme:       PropTypes.object.isRequired,
-    themeStr:    PropTypes.string.isRequired,
-    schema:      PropTypes.object.isRequired,
-    contentLang: PropTypes.string.isRequired,
-    refPath:     PropTypes.string.isRequired,
-    openRef:     PropTypes.func.isRequired,
-    categories:  PropTypes.array,
-  };
+const SchemaNode = ({ theme, themeStr, schema, contentLang, refPath, openRef, categories }) => {
+  if (!("nodes" in schema)) {
+    if (schema.nodeType === "JaggedArrayNode") {
+      return (
+        <JaggedArrayNode
+          theme={theme}
+          schema={schema}
+          contentLang={contentLang}
+          refPath={refPath}
+          openRef={openRef} />
+      );
+    } else if (schema.nodeType === "ArrayMapNode") {
+      return (
+        <ArrayMapNode
+          theme={theme}
+          schema={schema}
+          contentLang={contentLang}
+          openRef={openRef}
+          categories={categories} />
+      );
+    }
 
-  render() {
-    if (!("nodes" in this.props.schema)) {
-      if (this.props.schema.nodeType === "JaggedArrayNode") {
+  } else {
+    const showHebrew = contentLang === "hebrew";
+    const content = schema.nodes.map((node, i) => {
+      if ("nodes" in node || "refs" in node && node.refs.length) {
+        const innerContent = (<SchemaNode
+                        theme={theme}
+                        themeStr={themeStr}
+                        schema={node}
+                        contentLang={contentLang}
+                        refPath={refPath + ", " + node.title}
+                        openRef={openRef}
+                        categories={categories} />);
         return (
-          <JaggedArrayNode
-            theme={this.props.theme}
-            schema={this.props.schema}
-            contentLang={this.props.contentLang}
-            refPath={this.props.refPath}
-            openRef={this.props.openRef} />
-        );
-      } else if (this.props.schema.nodeType === "ArrayMapNode") {
-        return (
-          <ArrayMapNode
-            theme={this.props.theme}
-            schema={this.props.schema}
-            contentLang={this.props.contentLang}
-            openRef={this.props.openRef}
-            categories={this.props.categories} />
-        );
-      }
-
-    } else {
-      var showHebrew = this.props.contentLang === "hebrew";
-      var content = this.props.schema.nodes.map(function(node, i) {
-        if ("nodes" in node || "refs" in node && node.refs.length) {
-          let content = (<SchemaNode
-                          theme={this.props.theme}
-                          themeStr={this.props.themeStr}
-                          schema={node}
-                          contentLang={this.props.contentLang}
-                          refPath={this.props.refPath + ", " + node.title}
-                          openRef={this.props.openRef}
-                          categories={this.props.categories} />);
-          return (
-              <CollapsibleNode
-                key={i}
-                theme={this.props.theme}
-                themeStr={this.props.themeStr}
-                showHebrew={showHebrew}
-                en={node.title}
-                he={node.heTitle}
-                children={content}
-                node={node}/>
-              );
-        } else if (node.nodeType == "ArrayMapNode") {
-          // ArrayMapNode with only wholeRef
-          return <ArrayMapNode
-                    theme={this.props.theme}
-                    schema={node}
-                    contentLang={this.props.contentLang}
-                    openRef={this.props.openRef}
-                    key={i}
-                    categories={this.props.categories} />;
-        } else if (node.depth == 1) {
-          var open = this.props.openRef.bind(null, this.props.refPath + ", " + node.title);
-          return (
-            <TouchableOpacity style={styles.textTocNamedSection} onPress={open} key={i}>
-              {showHebrew ?
-                <SText lang={"hebrew"} style={[styles.he, styles.textTocSectionTitle, this.props.theme.text]}>{node.heTitle}</SText> :
-                <SText lang={"english"} style={[styles.en, styles.textTocSectionTitle, this.props.theme.text]}>{node.title}</SText> }
-            </TouchableOpacity>);
-        } else {
-          let content = (<JaggedArrayNode
-            theme={this.props.theme}
-            schema={node}
-            contentLang={this.props.contentLang}
-            refPath={this.props.refPath + (node.default ? "" : ", " + node.title)}
-            openRef={this.props.openRef} />);
-          return (
             <CollapsibleNode
               key={i}
-              theme={this.props.theme}
-              themeStr={this.props.themeStr}
+              theme={theme}
+              themeStr={themeStr}
               showHebrew={showHebrew}
+              defaultInvisible={schema.nodes.length >= 20}
               en={node.title}
               he={node.heTitle}
-              children={content}
-              node={node}/>);
-        }
-      }.bind(this));
-      return (
-        <View style={{flex: 1}}>{content}</View>
-      );
-    }
-  }
-}
-
-class JaggedArrayNode extends React.Component {
-  static propTypes = {
-    theme:       PropTypes.object.isRequired,
-    schema:      PropTypes.object.isRequired,
-    contentLang: PropTypes.string.isRequired,
-    refPath:     PropTypes.string.isRequired,
-    openRef:     PropTypes.func.isRequired,
-  };
-
-  render() {
-    if (this.props.refPath.startsWith("Beit Yosef, ")) { this.props.schema.toc_zoom = 2; }
-
-    if ("toc_zoom" in this.props.schema) {
-      var zoom = this.props.schema.toc_zoom - 1;
-      return (<JaggedArrayNodeSection
-                theme={this.props.theme}
-                depth={this.props.schema.depth - zoom}
-                sectionNames={this.props.schema.sectionNames.slice(0, -zoom)}
-                addressTypes={this.props.schema.addressTypes.slice(0, -zoom)}
-                contentCounts={this.props.schema.content_counts}
-                contentLang={this.props.contentLang}
-                refPath={this.props.refPath}
-                openRef={this.props.openRef} />);
-    }
-    return (<JaggedArrayNodeSection
-              theme={this.props.theme}
-              depth={this.props.schema.depth}
-              sectionNames={this.props.schema.sectionNames}
-              addressTypes={this.props.schema.addressTypes}
-              contentCounts={this.props.schema.content_counts}
-              contentLang={this.props.contentLang}
-              refPath={this.props.refPath}
-              openRef={this.props.openRef} />);
-  }
-}
-
-
-class JaggedArrayNodeSection extends React.Component {
-  static propTypes = {
-    theme:           PropTypes.object.isRequired,
-    depth:           PropTypes.number.isRequired,
-    sectionNames:    PropTypes.array.isRequired,
-    addressTypes:    PropTypes.array.isRequired,
-    contentCounts:   PropTypes.oneOfType([
-                        PropTypes.array,
-                        PropTypes.number
-                      ]),
-    contentLang:     PropTypes.string.isRequired,
-    refPath:         PropTypes.string.isRequired,
-    openRef:         PropTypes.func.isRequired,
-  };
-
-  contentCountIsEmpty = (count) => {
-    // Returns true if count is zero or is an an array (of arrays) of zeros.
-    if (typeof count == "number") { return count == 0; }
-    var innerCounts = count.map(this.contentCountIsEmpty);
-    return innerCounts.every((empty) => {empty});
-  };
-
-  refPathTerminal = (count) => {
-    // Returns a string to be added to the end of a section link depending on a content count
-    // Used in cases of "zoomed" JaggedArrays, where `contentCounts` is deeper than `depth` so that zoomed section
-    // links still point to section level.
-    if (typeof count == "number") { return ""; }
-    var terminal = ":";
-    for (var i = 0; i < count.length; i++) {
-      if (count[i]) {
-        terminal += (i+1) + this.refPathTerminal(count[i]);
-        break;
-      }
-    }
-    return terminal;
-  };
-
-  render() {
-    var showHebrew = this.props.contentLang === "hebrew";
-    if (this.props.depth > 2) {
-      var content = [];
-      for (var i = 0; i < this.props.contentCounts.length; i++) {
-        if (this.contentCountIsEmpty(this.props.contentCounts[i])) { continue; }
-        if (this.props.addressTypes[0] === "Talmud") {
-          var enSection = Sefaria.hebrew.intToDaf(i);
-          var heSection = Sefaria.hebrew.encodeHebrewDaf(enSection);
-        } else {
-          var enSection = i+1;
-          var heSection = Sefaria.hebrew.encodeHebrewNumeral(i+1);
-        }
-        content.push(
-          <View style={styles.textTocNumberedSectionBox} key={i}>
+              children={innerContent}
+              node={node}/>
+            );
+      } else if (node.nodeType == "ArrayMapNode") {
+        // ArrayMapNode with only wholeRef
+        return <ArrayMapNode
+                  theme={theme}
+                  schema={node}
+                  contentLang={contentLang}
+                  openRef={openRef}
+                  key={i}
+                  categories={categories} />;
+      } else if (node.depth == 1) {
+        const open = openRef.bind(null, refPath + ", " + node.title);
+        return (
+          <TouchableOpacity style={styles.textTocNamedSection} onPress={open} key={i}>
             {showHebrew ?
-              <Text style={[styles.he, styles.textTocNumberedSectionTitle, this.props.theme.text]}>{Sefaria.hebrewSectionName(this.props.sectionNames[0]) + " " +heSection}</Text> :
-              <Text style={[styles.en, styles.textTocNumberedSectionTitle, this.props.theme.text]}>{this.props.sectionNames[0] + " " + enSection}</Text> }
-            <JaggedArrayNodeSection
-              theme={this.props.theme}
-              depth={this.props.depth - 1}
-              sectionNames={this.props.sectionNames.slice(1)}
-              addressTypes={this.props.addressTypes.slice(1)}
-              contentCounts={this.props.contentCounts[i]}
-              contentLang={this.props.contentLang}
-              refPath={this.props.refPath + ":" + (i+1)}
-              openRef={this.props.openRef} />
-          </View>);
-      }
-      return ( <View>{content}</View> );
-    }
-
-    var contentCounts = this.props.depth == 1 ? new Array(this.props.contentCounts).fill(1) : this.props.contentCounts;
-    var sectionLinks = [];
-    for (var i = 0; i < contentCounts.length; i++) {
-      if (this.contentCountIsEmpty(contentCounts[i])) { continue; }
-      if (this.props.addressTypes[0] === "Talmud") {
-        var section = Sefaria.hebrew.intToDaf(i);
-        var heSection = Sefaria.hebrew.encodeHebrewDaf(section);
+              <SText lang={"hebrew"} style={[styles.he, styles.textTocSectionTitle, theme.text]}>{node.heTitle}</SText> :
+              <SText lang={"english"} style={[styles.en, styles.textTocSectionTitle, theme.text]}>{node.title}</SText> }
+          </TouchableOpacity>);
       } else {
-        var section = i+1;
-        var heSection = Sefaria.hebrew.encodeHebrewNumeral(i+1);
+        const innerContent = (<JaggedArrayNode
+          theme={theme}
+          schema={node}
+          contentLang={contentLang}
+          refPath={refPath + (node.default ? "" : ", " + node.title)}
+          openRef={openRef} />);
+        return (
+          <CollapsibleNode
+            key={i}
+            theme={theme}
+            themeStr={themeStr}
+            showHebrew={showHebrew}
+            defaultInvisible={schema.nodes.length >= 20 || (node.depth <= 2 && !!node.content_counts && node.content_counts.length >= 20)}
+            en={node.title}
+            he={node.heTitle}
+            children={innerContent}
+            node={node}/>);
       }
-      var ref  = (this.props.refPath + ":" + section).replace(":", " ") + this.refPathTerminal(contentCounts[i]);
-      var open = this.props.openRef.bind(null, ref);
-      var link = (
-        <TouchableOpacity style={[styles.sectionLink,this.props.theme.sectionLink]} onPress={open} key={i}>
-          { showHebrew ?
-            <Text style={[styles.he, styles.centerText, this.props.theme.text]}>{heSection}</Text> :
-            <Text style={[styles.centerText, this.props.theme.text]}>{section}</Text> }
-        </TouchableOpacity>
-      );
-      sectionLinks.push(link);
-    }
-
-    var langStyles = showHebrew ? styles.rtlRow : null;
+    });
     return (
-      <View style={[styles.textTocNumberedSection, langStyles]}>{sectionLinks}</View>
+      <View style={{flex: 1}}>{content}</View>
+    );
+  }
+}
+SchemaNode.propTypes = {
+  theme:       PropTypes.object.isRequired,
+  themeStr:    PropTypes.string.isRequired,
+  schema:      PropTypes.object.isRequired,
+  contentLang: PropTypes.string.isRequired,
+  refPath:     PropTypes.string.isRequired,
+  openRef:     PropTypes.func.isRequired,
+  categories:  PropTypes.array,
+};
+
+const JaggedArrayNode = ({ theme, schema, contentLang, refPath, openRef }) => {
+  if (refPath.startsWith("Beit Yosef, ")) { schema.toc_zoom = 2; }
+
+  if ("toc_zoom" in schema) {
+    const zoom = schema.toc_zoom - 1;
+    return (<JaggedArrayNodeSection
+              theme={theme}
+              depth={schema.depth - zoom}
+              sectionNames={schema.sectionNames.slice(0, -zoom)}
+              addressTypes={schema.addressTypes.slice(0, -zoom)}
+              contentCounts={schema.content_counts}
+              contentLang={contentLang}
+              refPath={refPath}
+              openRef={openRef} />);
+  }
+  return (<JaggedArrayNodeSection
+            theme={theme}
+            depth={schema.depth}
+            sectionNames={schema.sectionNames}
+            addressTypes={schema.addressTypes}
+            contentCounts={schema.content_counts}
+            contentLang={contentLang}
+            refPath={refPath}
+            openRef={openRef} />);
+}
+
+const contentCountIsEmpty = count => {
+  // Returns true if count is zero or is an an array (of arrays) of zeros.
+  if (typeof count == "number") { return count == 0; }
+  var innerCounts = count.map(contentCountIsEmpty);
+  return innerCounts.every((empty) => {empty});
+};
+
+const refPathTerminal = count => {
+  // Returns a string to be added to the end of a section link depending on a content count
+  // Used in cases of "zoomed" JaggedArrays, where `contentCounts` is deeper than `depth` so that zoomed section
+  // links still point to section level.
+  if (typeof count == "number") { return ""; }
+  var terminal = ":";
+  for (var i = 0; i < count.length; i++) {
+    if (count[i]) {
+      terminal += (i+1) + refPathTerminal(count[i]);
+      break;
+    }
+  }
+  return terminal;
+};
+
+const JaggedArrayNodeSection = ({ theme, depth, sectionNames, addressTypes, contentCounts, contentLang, refPath, openRef }) => {
+  const showHebrew = contentLang === "hebrew";
+  if (depth > 2) {
+    const content = [];
+    for (let i = 0; i < contentCounts.length; i++) {
+      if (contentCountIsEmpty(contentCounts[i])) { continue; }
+      let enSection = i+1;
+      let heSection = Sefaria.hebrew.encodeHebrewNumeral(i+1);
+      if (addressTypes[0] === "Talmud") {
+        enSection = Sefaria.hebrew.intToDaf(i);
+        heSection = Sefaria.hebrew.encodeHebrewDaf(enSection);
+      }
+      content.push(
+        <View style={styles.textTocNumberedSectionBox} key={i}>
+          {showHebrew ?
+            <Text style={[styles.he, styles.textTocNumberedSectionTitle, theme.text]}>{`${Sefaria.hebrewSectionName(sectionNames[0])} ${heSection}`}</Text> :
+            <Text style={[styles.en, styles.textTocNumberedSectionTitle, theme.text]}>{sectionNames[0] + " " + enSection}</Text> }
+          <JaggedArrayNodeSection
+            theme={theme}
+            depth={depth - 1}
+            sectionNames={sectionNames.slice(1)}
+            addressTypes={addressTypes.slice(1)}
+            contentCounts={contentCounts[i]}
+            contentLang={contentLang}
+            refPath={refPath + ":" + (i+1)}
+            openRef={openRef} />
+        </View>);
+    }
+    return ( <View>{content}</View> );
+  }
+
+  contentCounts = depth == 1 ? new Array(contentCounts).fill(1) : contentCounts;
+  const sectionLinks = contentCounts.map((contentCount, i) => {
+    if (contentCountIsEmpty(contentCounts[i])) { return null; }
+    let section = i+1;
+    let heSection = Sefaria.hebrew.encodeHebrewNumeral(i+1);
+    if (addressTypes[0] === "Talmud") {
+      section = Sefaria.hebrew.intToDaf(i);
+      heSection = Sefaria.hebrew.encodeHebrewDaf(section);
+    }
+    const ref  = (refPath + ":" + section).replace(":", " ") + refPathTerminal(contentCounts[i]);
+    return (
+      <JaggedArrayNodeSectionBox
+        key={i}
+        showHebrew={showHebrew}
+        title={section}
+        heTitle={heSection}
+        theme={theme}
+        openRef={openRef}
+        tref={ref}
+      />
+    );
+  });
+
+  const langStyles = showHebrew ? styles.rtlRow : null;
+  return (
+    <View style={[styles.textTocNumberedSection, langStyles]}>{sectionLinks}</View>
+  );
+}
+JaggedArrayNodeSection.propTypes = {
+  theme:           PropTypes.object.isRequired,
+  depth:           PropTypes.number.isRequired,
+  sectionNames:    PropTypes.array.isRequired,
+  addressTypes:    PropTypes.array.isRequired,
+  contentCounts:   PropTypes.oneOfType([
+                      PropTypes.array,
+                      PropTypes.number
+                    ]),
+  contentLang:     PropTypes.string.isRequired,
+  refPath:         PropTypes.string.isRequired,
+  openRef:         PropTypes.func.isRequired,
+};
+
+class JaggedArrayNodeSectionBox extends React.PureComponent {
+  openRef = () => {
+    this.props.openRef(this.props.tref, this.props.enableAliyot);
+  };
+  render() {
+    return (
+      <TouchableOpacity style={[styles.sectionLink, this.props.theme.sectionLink]} onPress={this.openRef}>
+        { this.props.showHebrew ?
+          <Text style={[styles.he, styles.centerText, this.props.theme.text]}>{this.props.heTitle}</Text> :
+          <Text style={[styles.centerText, this.props.theme.text]}>{this.props.title}</Text> }
+      </TouchableOpacity>
+    );
+  }
+}
+
+class JaggedArrayNodeSectionTitle extends React.PureComponent {
+  openRef = () => {
+    this.props.openRef(this.props.tref);
+  };
+  render() {
+    return (
+      <TouchableOpacity onPress={this.openRef}>
+        { this.props.showHebrew ?
+          <SText lang={"hebrew"} style={[styles.he, styles.textTocSectionTitle, this.props.theme.text]}>{this.props.heTitle}</SText> :
+          <SText lang={"english"} style={[styles.en, styles.textTocSectionTitle, this.props.theme.text]}>{this.props.title}</SText> }
+      </TouchableOpacity>
     );
   }
 }
 
 
-class ArrayMapNode extends React.Component {
-  static propTypes = {
-    theme:       PropTypes.object.isRequired,
-    schema:      PropTypes.object.isRequired,
-    contentLang: PropTypes.string.isRequired,
-    openRef:     PropTypes.func.isRequired,
-    categories:  PropTypes.array,
-  };
-
-  render() {
-    var showHebrew = this.props.contentLang == "hebrew";
-    if ("refs" in this.props.schema && this.props.schema.refs.length) {
-      var sectionLinks = this.props.schema.refs.map((ref, i) => {
-        i += this.props.schema.offset || 0;
-        const enableAliyot = !!this.props.categories && this.props.categories[0] === "Tanakh" && this.props.categories[1] === "Torah";  // enable aliyot in reader when you click on an aliya
-        const open = this.props.openRef.bind(null, ref, enableAliyot);
-        if (this.props.schema.addressTypes[0] === "Talmud") {
-          var section = Sefaria.hebrew.intToDaf(i);
-          var heSection = Sefaria.hebrew.encodeHebrewDaf(section);
-        } else {
-          var section = i+1;
-          var heSection = Sefaria.hebrew.encodeHebrewNumeral(i+1);
-        }
-        return (
-          <TouchableOpacity style={[styles.sectionLink,this.props.theme.sectionLink]} onPress={open} key={i}>
-            { showHebrew ?
-              <Text style={[styles.he, styles.centerText, this.props.theme.text]}>{heSection}</Text> :
-              <Text style={[styles.centerText, this.props.theme.text]}>{section}</Text> }
-          </TouchableOpacity>
-        );
-      });
-
-      var langStyles = showHebrew ? styles.rtlRow : null;
+const ArrayMapNode = ({ theme, schema, contentLang, openRef, categories }) => {
+  const showHebrew = contentLang == "hebrew";
+  if ("refs" in schema && schema.refs.length) {
+    var sectionLinks = schema.refs.map((ref, i) => {
+      i += schema.offset || 0;
+      const enableAliyot = !!categories && categories[0] === "Tanakh" && categories[1] === "Torah";  // enable aliyot in reader when you click on an aliya
+      let section = i+1;
+      let heSection = Sefaria.hebrew.encodeHebrewNumeral(i+1);
+      if (schema.addressTypes[0] === "Talmud") {
+        section = Sefaria.hebrew.intToDaf(i);
+        heSection = Sefaria.hebrew.encodeHebrewDaf(section);
+      }
       return (
-        <View style={[styles.textTocNumberedSection, langStyles]}>{sectionLinks}</View>
+        <JaggedArrayNodeSectionBox
+          key={i}
+          showHebrew={showHebrew}
+          title={section}
+          heTitle={heSection}
+          theme={theme}
+          openRef={openRef}
+          tref={ref}
+          enableAliyot={enableAliyot}
+        />
       );
-    } else {
-      var open = this.props.openRef.bind(null, this.props.schema.wholeRef.replace(/\./g, " "));
-      return (
-          <TouchableOpacity style={[]} onPress={open} key={i}>
-            { showHebrew ?
-              <SText lang={"hebrew"} style={[styles.he, styles.textTocSectionTitle, this.props.theme.text]}>{this.props.schema.heTitle}</SText> :
-              <SText lang={"english"} style={[styles.en, styles.textTocSectionTitle, this.props.theme.text]}>{this.props.schema.title}</SText> }
-          </TouchableOpacity>
-      );
-    }
+    });
+
+    var langStyles = showHebrew ? styles.rtlRow : null;
+    return (
+      <View style={[styles.textTocNumberedSection, langStyles]}>{sectionLinks}</View>
+    );
+  } else {
+    return (
+      <JaggedArrayNodeSectionTitle
+        tref={schema.wholeRef.replace(/\./g, " ")}
+        openRef={openRef}
+        theme={theme}
+        showHebrew={showHebrew}
+        title={schema.title}
+        heTitle={schema.heTitle}
+      />
+    );
   }
 }
 
 
-class CommentatorList extends React.Component {
-  static propTypes = {
-    theme:           PropTypes.object.isRequired,
-    commentatorList: PropTypes.array.isRequired,
-    contentLang:     PropTypes.string.isRequired,
-    openRef:         PropTypes.func.isRequired,
-  };
+const CommentatorList = ({ theme, commentatorList, contentLang, openRef }) => {
+  const showHebrew = contentLang == "hebrew";
+  const content = commentatorList.map((commentator, i) => {
+    const open = openRef.bind(null, commentator.firstSection);
+    return (<TouchableOpacity onPress={open} style={[styles.textBlockLink, theme.textBlockLink]} key={i}>
+            { showHebrew ?
+              <Text style={[styles.he, styles.centerText, theme.text]}>
+                {commentator.heCollectiveTitle ? commentator.heCollectiveTitle : commentator.heTitle}
+              </Text> :
+              <Text style={[styles.en, styles.centerText, theme.text]}>
+                {commentator.collectiveTitle ? commentator.collectiveTitle : commentator.title}
+              </Text> }
+          </TouchableOpacity>);
+  });
 
-  render() {
-    var showHebrew = this.props.contentLang == "hebrew";
-    var content = this.props.commentatorList.map(function(commentator, i) {
-      var open = this.props.openRef.bind(null, commentator.firstSection);
-      return (<TouchableOpacity onPress={open} style={[styles.textBlockLink, this.props.theme.textBlockLink]} key={i}>
-              { showHebrew ?
-                <Text style={[styles.he, styles.centerText, this.props.theme.text]}>
-                  {commentator.heCollectiveTitle ? commentator.heCollectiveTitle : commentator.heTitle}
-                </Text> :
-                <Text style={[styles.en, styles.centerText, this.props.theme.text]}>
-                  {commentator.collectiveTitle ? commentator.collectiveTitle : commentator.title}
-                </Text> }
-            </TouchableOpacity>);
-    }.bind(this));
-
-    return (<TwoBox content={content} />);
-
-  }
+  return (
+    <TwoBox>
+      { content }
+    </TwoBox>
+  );
 }
 
 
-class CollapsibleNode extends React.Component {
+class CollapsibleNode extends React.PureComponent {
   static propTypes = {
     theme:             PropTypes.object,
     themeStr:          PropTypes.string,
     language:          PropTypes.oneOf(["hebrew", "english"]),
-    defaultVisibility: PropTypes.bool,
+    defaultInvisible:  PropTypes.bool,
     showHebrew:        PropTypes.bool,
     en:                PropTypes.string,
     he:                PropTypes.string,
     children:          PropTypes.object,
     node:              PropTypes.object
   };
-
-  state = {
-    isVisible: this.props.node.includeSections || this.props.node.default,
-  };
+  constructor(props) {
+    super(props);
+    this.state = {
+      isVisible: (props.node.includeSections || props.node.default) && !props.defaultInvisible,
+    };
+  }
 
   toggleVisibility = () => {
     this.setState({isVisible: !this.state.isVisible});
