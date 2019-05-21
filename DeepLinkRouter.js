@@ -13,7 +13,7 @@ class DeepLinkRouter extends React.PureComponent {
     openRefSheet:            PropTypes.func.isRequired,
     openSheetTag:            PropTypes.func.isRequired,
     openTextTocDirectly:     PropTypes.func.isRequired,
-    search:                  PropTypes.func.isRequired,
+    openSearch:              PropTypes.func.isRequired,
     setSearchOptions:        PropTypes.func.isRequired,
     setTextLanguage:         PropTypes.func.isRequired,
     setNavigationCategories: PropTypes.func.isRequired,
@@ -26,7 +26,7 @@ class DeepLinkRouter extends React.PureComponent {
       ['^texts/(?<menu>saved)$', this.openMenu],
       ['^texts/(?<menu>history)$', this.openMenu],
       ['^texts/(?<cats>.+)?$', this.openCats],
-      ['^search$', this.search],
+      ['^search$', this.openSearch],
       ['^(?<menu>sheets)$', this.openMenu],
       ['^(?<menu>sheets)/tags$', this.openMenu],
       ['^sheets/tags/(?<tag>.+)$', this.openSheetTag],
@@ -74,10 +74,10 @@ class DeepLinkRouter extends React.PureComponent {
       this.props.openRef(ref, 'deep link', versions, true, enableAliyot);
     }
   };
-  search = ({ q, tab, tvar, tsort, svar, ssort }) => {
+  openSearch = ({ q, tab, tvar, tsort, svar, ssort }) => {
     // TODO: implement tab, svar and ssort
     const isExact = !!tvar && tvar.length > 0 && tvar === '0';
-    this.props.setSearchOptions(tsort, isExact, () => { this.props.search(q); });
+    this.props.setSearchOptions(tsort, isExact, () => { this.props.openSearch(tab, q); });
   };
   catchAll = url => {
     // runs in case no route can handle this url

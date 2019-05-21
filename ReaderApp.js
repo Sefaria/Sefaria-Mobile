@@ -1917,7 +1917,7 @@ class ReaderApp extends React.Component {
           openUri={this.openUri}
           openRefSheet={this.openRefSheet}
           openSheetTag={this.openSheetTag}
-          search={this.search}
+          openSearch={this.openSearch}
           setSearchOptions={this.setSearchOptions}
           openTextTocDirectly={this.openTextTocDirectly}
           setTextLanguage={this.setTextLanguage}
