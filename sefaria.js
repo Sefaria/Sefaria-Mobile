@@ -34,7 +34,7 @@ Sefaria = {
   },
   postInitSearch: function() {
     return Sefaria._loadRecentQueries()
-      .then(Sefaria.search._loadSearchTOC);
+      .then(Sefaria._loadSearchTOC);
   },
   postInit: function() {
     return Sefaria.getGalusStatus()
