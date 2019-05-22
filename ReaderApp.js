@@ -49,7 +49,6 @@ import Toast, {DURATION} from 'react-native-easy-toast';
 import BackManager from './BackManager';
 import ReaderNavigationSheetMenu from "./ReaderNavigationSheetMenu";
 import ReaderNavigationSheetTagMenu from "./ReaderNavigationSheetTagMenu";
-import Sheet from "./Sheet.js";
 import SheetMetadata from "./SheetMeta.js";
 import DeepLinkRouter from "./DeepLinkRouter.js";
 
@@ -745,6 +744,8 @@ class ReaderApp extends React.Component {
               views: result.views,
             };
           }
+          console.log('more_data', sheetMeta, result);
+
           this.setState ({
               sheet: result,
               sheetMeta,
@@ -1748,7 +1749,7 @@ class ReaderApp extends React.Component {
           <LoadingView theme={this.props.theme} style={{flex: textColumnFlex}} category={Sefaria.categoryForTitle(this.state.textTitle)}/> :
           <View style={[{flex: textColumnFlex}, styles.mainTextPanel, this.props.theme.mainTextPanel]}
                 onStartShouldSetResponderCapture={this._onStartShouldSetResponderCapture}>
-            { isSheet ?
+            { isSheet && false ?
               <Sheet
                 sheet={this.state.sheet}
                 activeSheetNode={this.state.activeSheetNode}
@@ -1771,7 +1772,9 @@ class ReaderApp extends React.Component {
                 theme={this.props.theme}
                 themeStr={this.props.themeStr}
                 fontSize={this.props.fontSize}
-                data={this.state.data}
+                sheetMeta={this.state.sheetMeta}
+                isSheet={isSheet}
+                data={isSheet ? this.state.sheet : this.state.data}
                 textReference={this.state.textReference}
                 sectionArray={this.state.sectionArray}
                 sectionHeArray={this.state.sectionHeArray}

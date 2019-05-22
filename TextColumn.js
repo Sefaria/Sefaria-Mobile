@@ -24,10 +24,19 @@ import {
   LoadingView,
 } from './Misc.js';
 
-const ROW_TYPES = {SEGMENT: 1, ALIYA: 2, PARASHA: 3};
+const ROW_TYPES = {
+  SEGMENT: 1,
+  ALIYA: 2,
+  PARASHA: 3,
+  SHEET_COMMENT: 4,
+  SHEET_OUTSIDE_TEXT: 5,
+  SHEET_OUTSIDE_BI_TEXT: 6,
+  SHEET_MEDIA: 7
+};
 
 class TextColumn extends React.Component {
   static propTypes = {
+    isSheet:            PropTypes.bool,
     showToast:          PropTypes.func,
     textToc:            PropTypes.object,
     theme:              PropTypes.object.isRequired,
@@ -99,7 +108,46 @@ class TextColumn extends React.Component {
 
     let offsetRef = this._standardizeOffsetRef(props.offsetRef);
     let segmentGenerator;
-    if (props.textFlow == 'continuous' && Sefaria.canBeContinuous(props.textTitle)) {
+    if (props.isSheet) {
+      const sheetRef = `Sheet ${props.data.id}`;
+      dataSource.push({
+        ref: sheetRef,
+        heRef: `דף ${props.data.id}`,
+        sectionIndex: 0,
+        data: props.data.sources.map((source, segmentNumber) => {
+          let type = null;
+          const row = {
+            ref: `${sheetRef}:${source.node}`,
+            data: source,
+            changeString: 'blah',
+          };
+          if ('ref' in source) {
+            row.data = {
+              content: {
+                text: source.text.en,
+                he: source.text.he,
+                links: [],
+                segmentNumber,
+                ref: source.ref,
+                heRef: source.heRef,
+              },
+              sectionIndex: 0,
+              rowIndex: source.node,
+              highlight: false,
+            };
+            type = ROW_TYPES.SEGMENT;
+          }
+          else if ('comment' in source)       { type = ROW_TYPES.SHEET_COMMENT; }
+          else if ('outsideText' in source)   { type = ROW_TYPES.SHEET_OUTSIDE_TEXT; }
+          else if ('outsideBiText' in source) { type = ROW_TYPES.SHEET_OUTSIDE_BI_TEXT; }
+          else if ('media' in source)         { type = ROW_TYPES.SHEET_MEDIA; }
+          row.type = type;
+          return row;
+        }),
+        changeString: 'blah',
+      });
+    }
+    else if (props.textFlow == 'continuous' && Sefaria.canBeContinuous(props.textTitle)) {
       let highlight = null;
       for (let sectionIndex = 0; sectionIndex < data.length; sectionIndex++) {
         let rows = [];
@@ -422,6 +470,16 @@ class TextColumn extends React.Component {
       return (this.props.textFlow == 'continuous' && Sefaria.canBeContinuous(this.props.textTitle)) ?
         this.renderContinuousRow({ item }) :
         this.renderSegmentedRow({ item });
+    } else if (item.type === ROW_TYPES.SHEET_COMMENT) {
+      return (<View><Text>{"comment"}</Text></View>);
+    } else if (item.type === ROW_TYPES.SHEET_OUTSIDE_TEXT) {
+      return (<View><Text>{"outside"}</Text></View>);
+
+    } else if (item.type === ROW_TYPES.SHEET_OUTSIDE_BI_TEXT) {
+      return (<View><Text>{"outside bi"}</Text></View>);
+
+    } else if (item.type === ROW_TYPES.SHEET_MEDIA) {
+      return (<View><Text>{"media"}</Text></View>);
     } else {
       return this.renderAliyaMarker({ item });
     }

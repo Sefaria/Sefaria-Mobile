@@ -24,7 +24,6 @@ class SheetResult extends React.Component {
   };
 
   render() {
-      console.log(this.props.text)
     const refTitleStyle = this.props.menuLanguage === "hebrew" ? styles.he : styles.en;
     const refTitle = this.props.menuLanguage === "hebrew" ? this.props.heTitle : this.props.title;
     return (

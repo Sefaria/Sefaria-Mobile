@@ -246,7 +246,7 @@ class Sheet extends React.Component {
                   ListHeaderComponent={
                       <View>
                         <Text style={styles.sheetTitle}><HebrewInEnglishText text={this.props.sheet.title} stylesHe={[styles.heInEn]} stylesEn={[]}/></Text>
-                        <Text style={styles.sheetAuthor}>{this.props.sheet.ownerName}</Text>
+                        <Text style={styles.sheetAuthor}>{this.props.sheetMeta.ownerName}</Text>
                       </View>
                   }
                   onViewableItemsChanged={this.onViewableItemsChanged}
@@ -642,5 +642,9 @@ class SheetMedia extends Component {
     }
 }
 
-
-export default Sheet;
+export {
+  SheetComment,
+  SheetOutsideText,
+  SheetOutsideBiText,
+  SheetMedia,
+};
