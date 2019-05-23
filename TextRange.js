@@ -24,6 +24,7 @@ class TextRange extends React.PureComponent {
     fontSize:           PropTypes.number.isRequired,
     rowData:            PropTypes.object.isRequired,
     segmentRef:         PropTypes.string.isRequired,
+    segmentHeRef:       PropTypes.string,
     textLanguage:       PropTypes.oneOf(["hebrew","english","bilingual"]),
     showSegmentNumbers: PropTypes.bool.isRequired,
     textSegmentPressed: PropTypes.func.isRequired,
@@ -142,33 +143,45 @@ class TextRange extends React.PureComponent {
           { numberMargin }
           <View style={textStyle} key={this.props.segmentRef+"|text-box"}>
             {
-              showHe ? <TextSegment
-                rowRef={this.props.segmentRef}
-                theme={this.props.theme}
-                themeStr={this.props.themeStr}
-                segmentKey={refSection}
-                key={this.props.segmentRef+"|hebrew"}
-                data={heText}
-                textType="hebrew"
-                biLayout={this.props.biLayout}
-                textSegmentPressed={ this.props.textSegmentPressed }
-                onLongPress={this.onLongPress}
-                fontSize={this.props.fontSize}/> : null
+              showHe ? (
+                <View style={{flex: 4.5 , paddingHorizontal: 10}}>
+                  {this.props.displayRef ? <Text style={[styles.he, styles.textListCitation, this.props.theme.textListCitation]}>{this.props.rowData.content.sourceHeRef}</Text> : null}
+                  <TextSegment
+                    rowRef={this.props.segmentRef}
+                    theme={this.props.theme}
+                    themeStr={this.props.themeStr}
+                    segmentKey={refSection}
+                    key={this.props.segmentRef+"|hebrew"}
+                    data={heText}
+                    textType="hebrew"
+                    biLayout={this.props.biLayout}
+                    textSegmentPressed={ this.props.textSegmentPressed }
+                    onLongPress={this.onLongPress}
+                    fontSize={this.props.fontSize}
+                  />
+                </View>
+              ) : null
             }
             {
-              showEn ? <TextSegment
-                rowRef={this.props.segmentRef}
-                theme={this.props.theme}
-                themeStr={this.props.themeStr}
-                segmentKey={refSection}
-                key={this.props.segmentRef+"|english"}
-                data={enText}
-                textType="english"
-                biLayout={this.props.biLayout}
-                bilingual={textLanguage === "bilingual"}
-                textSegmentPressed={ this.props.textSegmentPressed }
-                onLongPress={this.onLongPress}
-                fontSize={this.props.fontSize} /> : null
+              showEn ? (
+                <View style={{flex: 5.5 , paddingHorizontal: 10}}>
+                  {this.props.displayRef ? <Text style={[styles.en, styles.textListCitation, this.props.theme.textListCitation]}>{this.props.rowData.content.sourceRef}</Text> : null}
+                  <TextSegment
+                    rowRef={this.props.segmentRef}
+                    theme={this.props.theme}
+                    themeStr={this.props.themeStr}
+                    segmentKey={refSection}
+                    key={this.props.segmentRef+"|english"}
+                    data={enText}
+                    textType="english"
+                    biLayout={this.props.biLayout}
+                    bilingual={textLanguage === "bilingual"}
+                    textSegmentPressed={ this.props.textSegmentPressed }
+                    onLongPress={this.onLongPress}
+                    fontSize={this.props.fontSize}
+                  />
+                </View>
+              ) : null
             }
           </View>
           { bulletMargin }

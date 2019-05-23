@@ -882,8 +882,8 @@ Sefaria = {
         })
       });
     },
-    addLinksToText: function(text, links) {
-      let link_response = new Array(text.length);
+    organizeLinksBySegment: function(links) {
+      let link_response = [];
       //filter out books not in toc
       links = links.filter((l)=>{
         return l.index_title in Sefaria.booksDict;
@@ -907,11 +907,24 @@ Sefaria = {
           "heCollectiveTitle": link.collectiveTitle ? link.collectiveTitle.he : null,
         });
       }
+      return link_response;
+    },
+    addLinksToSheet: function(sheet, links, sourceRef) {
+      let link_response = Sefaria.links.organizeLinksBySegment(links);
+      // flatten 2d array
+      link_response = link_response.reduce((accum, curr) => accum.concat(curr), []);
+      for (sheetSeg of sheet) {
+        if (sheetSeg.sourceRef === sourceRef) {
+          sheetSeg.links = link_response;
+        }
+      }
+      return sheet;
+    },
+    addLinksToText: function(text, links) {
+      const link_response = Sefaria.links.organizeLinksBySegment(links);
       return text.map((seg,i) => ({
-        "segmentNumber": seg.segmentNumber,
-        "he": seg.he,
-        "text": seg.text,
-        "links": link_response[i] ? link_response[i] : []
+        ...seg,
+        links: link_response[i] ? link_response[i] : [],
       }));
     },
     loadLinkData: function(ref, pos, resolveClosure, rejectClosure, runNow) {

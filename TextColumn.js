@@ -10,6 +10,8 @@ import ReactNative, {
   findNodeHandle,
   Dimensions,
   ViewPropTypes,
+  AppState,
+  WebView,
 } from 'react-native';
 
 import styles from './Styles.js';
@@ -22,6 +24,7 @@ const COMMENTARY_LINE_THRESHOLD = 100;
 
 import {
   LoadingView,
+  HebrewInEnglishText,
 } from './Misc.js';
 
 const ROW_TYPES = {
@@ -42,7 +45,7 @@ class TextColumn extends React.Component {
     theme:              PropTypes.object.isRequired,
     themeStr:           PropTypes.string,
     fontSize:           PropTypes.number.isRequired,
-    data:               PropTypes.array,
+    data:               PropTypes.oneOfType([PropTypes.array, PropTypes.object]),  // can be object in the case of sheets
     textReference:      PropTypes.string,
     sectionArray:       PropTypes.array,
     sectionHeArray:     PropTypes.array,
@@ -109,42 +112,34 @@ class TextColumn extends React.Component {
     let offsetRef = this._standardizeOffsetRef(props.offsetRef);
     let segmentGenerator;
     if (props.isSheet) {
-      const sheetRef = `Sheet ${props.data.id}`;
+      segmentGenerator = () => null;
+      const sheetRef = `Sheet ${props.sheetMeta.sheetID}`;
       dataSource.push({
         ref: sheetRef,
         heRef: `דף ${props.data.id}`,
         sectionIndex: 0,
-        data: props.data.sources.map((source, segmentNumber) => {
+        data: props.data[0].map((source, segmentNumber) => {
           let type = null;
+          const sheetNodeRef = `${sheetRef}:${segmentNumber}`;
           const row = {
-            ref: `${sheetRef}:${source.node}`,
-            data: source,
-            changeString: 'blah',
-          };
-          if ('ref' in source) {
-            row.data = {
-              content: {
-                text: source.text.en,
-                he: source.text.he,
-                links: [],
-                segmentNumber,
-                ref: source.ref,
-                heRef: source.heRef,
-              },
+            ref: sheetNodeRef,
+            data: {
+              content: source,
               sectionIndex: 0,
-              rowIndex: source.node,
-              highlight: false,
-            };
-            type = ROW_TYPES.SEGMENT;
-          }
-          else if ('comment' in source)       { type = ROW_TYPES.SHEET_COMMENT; }
-          else if ('outsideText' in source)   { type = ROW_TYPES.SHEET_OUTSIDE_TEXT; }
-          else if ('outsideBiText' in source) { type = ROW_TYPES.SHEET_OUTSIDE_BI_TEXT; }
-          else if ('media' in source)         { type = ROW_TYPES.SHEET_MEDIA; }
+              rowIndex: segmentNumber,
+              highlight: props.textListVisible && props.segmentRef == sheetNodeRef,
+            },
+            changeString: sheetNodeRef,
+          };
+          if (source.type === 'ref')                { type = ROW_TYPES.SEGMENT; }
+          else if (source.type === 'comment')       { type = ROW_TYPES.SHEET_COMMENT; }
+          else if (source.type === 'outsideText')   { type = ROW_TYPES.SHEET_OUTSIDE_TEXT; }
+          else if (source.type === 'outsideBiText') { type = ROW_TYPES.SHEET_OUTSIDE_BI_TEXT; }
+          else if (source.type === 'media')         { type = ROW_TYPES.SHEET_MEDIA; }
           row.type = type;
           return row;
         }),
-        changeString: 'blah',
+        changeString: sheetRef,
       });
     }
     else if (props.textFlow == 'continuous' && Sefaria.canBeContinuous(props.textTitle)) {
@@ -341,7 +336,7 @@ class TextColumn extends React.Component {
     }
     let currSec;
     for (let seg of viewableItems) {
-      if (seg.item.type !== ROW_TYPES.SEGMENT && seg.item.type !== undefined) { continue }
+      if (seg.item.type === ROW_TYPES.ALIYA || seg.item.type === ROW_TYPES.PARASHA) { continue }
       if (seg.item.type === undefined) {
         // apparently segments with item.type === undefined are sections. who knew?
         secData.sectionRefs.push(seg.item.ref);
@@ -470,16 +465,13 @@ class TextColumn extends React.Component {
       return (this.props.textFlow == 'continuous' && Sefaria.canBeContinuous(this.props.textTitle)) ?
         this.renderContinuousRow({ item }) :
         this.renderSegmentedRow({ item });
-    } else if (item.type === ROW_TYPES.SHEET_COMMENT) {
-      return (<View><Text>{"comment"}</Text></View>);
-    } else if (item.type === ROW_TYPES.SHEET_OUTSIDE_TEXT) {
-      return (<View><Text>{"outside"}</Text></View>);
-
-    } else if (item.type === ROW_TYPES.SHEET_OUTSIDE_BI_TEXT) {
-      return (<View><Text>{"outside bi"}</Text></View>);
-
+    } else if (
+      item.type === ROW_TYPES.SHEET_COMMENT ||
+      item.type === ROW_TYPES.SHEET_OUTSIDE_TEXT ||
+      item.type === ROW_TYPES.SHEET_OUTSIDE_BI_TEXT) {
+      return this.renderPlainText({ item });
     } else if (item.type === ROW_TYPES.SHEET_MEDIA) {
-      return (<View><Text>{"media"}</Text></View>);
+      return this.renderSheetMedia({ item });
     } else {
       return this.renderAliyaMarker({ item });
     }
@@ -512,6 +504,7 @@ class TextColumn extends React.Component {
     // In segmented case, rowData represents a segments of text
     return (
       <TextRange
+        displayRef={this.props.isSheet}
         showToast={this.props.showToast}
         theme={this.props.theme}
         themeStr={this.props.themeStr}
@@ -529,10 +522,40 @@ class TextColumn extends React.Component {
     );
   };
 
+  renderPlainText = ({ item }) => {
+    return (
+      <TextRange
+        showToast={this.props.showToast}
+        theme={this.props.theme}
+        themeStr={this.props.themeStr}
+        fontSize={this.props.fontSize}
+        rowData={item.data}
+        segmentRef={item.ref}
+        textLanguage={this.props.textLanguage}
+        showSegmentNumbers={Sefaria.showSegmentNumbers(this.props.textTitle)}
+        textSegmentPressed={this.textSegmentPressed}
+        setRowRef={this.setSegmentRowRef}
+        setRowRefInitY={this.setRowRefInitY}
+        openUri={this.props.openUri}
+        biLayout={this.props.biLayout}
+      />
+    );
+  };
+
+  renderSheetMedia = ({ item }) => {
+    return (
+      <SheetMedia
+        theme={this.props.theme}
+        url={item.data.content.url}
+      />
+    );
+  };
+
   renderSectionHeader = ({ section, props }) => {
     if (!props) {
       props = this.props;
     }
+    if (props.isSheet) { return null; }
 
     return (
       <TextHeader
@@ -547,6 +570,7 @@ class TextColumn extends React.Component {
   };
 
   renderAliyaMarker = ({ item }) => {
+    if (this.props.isSheet) { return null; }
     const isHeb = this.props.menuLanguage == "hebrew";
     return (
       <TextHeader
@@ -561,7 +585,19 @@ class TextColumn extends React.Component {
     );
   };
 
-  renderFooter = () => {
+  renderListHeader = () => {
+    if (this.props.isSheet) {
+      return (
+        <View>
+          <Text style={styles.sheetTitle}><HebrewInEnglishText text={this.props.sheetMeta.title} stylesHe={[styles.heInEn]} stylesEn={[]}/></Text>
+          <Text style={styles.sheetAuthor}>{this.props.sheetMeta.ownerName}</Text>
+        </View>
+      )
+    }
+    return null;
+  }
+  renderListFooter = () => {
+    if (this.props.isSheet) { return null; }
     return this.props.next ? <LoadingView theme={this.props.theme} category={Sefaria.categoryForTitle(this.props.textTitle)}/> : null;
   };
 
@@ -725,7 +761,8 @@ class TextColumn extends React.Component {
             sections={this.state.dataSource}
             renderItem={this.renderRow}
             renderSectionHeader={this.renderSectionHeader}
-            ListFooterComponent={this.renderFooter}
+            ListHeaderComponent={this.renderListHeader}
+            ListFooterComponent={this.renderListFooter}
             onEndReached={this.onEndReached}
             onEndReachedThreshold={2.0}
             onScroll={this.handleScroll}
@@ -785,6 +822,90 @@ class CellView extends React.PureComponent {
     return (
       <View {...this.props} onLayout={this.onLayout}>
         { this.props.children }
+      </View>
+    );
+  }
+}
+
+class SheetMedia extends React.PureComponent {
+  state = {
+    appState: AppState.currentState
+  }
+
+  componentDidMount() {
+    AppState.addEventListener('change', this._handleAppStateChange);
+  }
+
+  componentWillUnmount() {
+    AppState.removeEventListener('change', this._handleAppStateChange);
+  }
+
+  _handleAppStateChange = (nextAppState) => {
+    this.setState({appState: nextAppState});
+  }
+
+  onShouldStartLoadWithRequest = (navigator) => {
+    if (navigator.url.indexOf('embed') !== -1) { return true; }
+    this.webview.stopLoading(); //Some reference to your WebView to make it stop loading that URL
+    return false;
+  }
+
+  _getWebViewRef = ref => { this.webview = ref; }
+
+  makeMediaEmbedLink(mediaURL) {
+    var mediaLink;
+    if (mediaURL.match(/\.(jpeg|jpg|gif|png)$/i) != null) {
+      mediaLink = (
+        <Image
+          style={{
+            flex: 1,
+            width: null,
+            height: null,
+            resizeMode: 'contain'
+          }}
+          source={{uri: mediaURL}}
+        />
+      );
+    } else if (mediaURL.toLowerCase().indexOf('youtube') > 0) {
+      mediaLink = (
+        <WebView
+          ref={this._getWebViewRef}
+          scrollEnabled={false}
+          javaScriptEnabled={true}
+          domStorageEnabled={true}
+          style={{ marginStart: 30, width: 320, height: 230 }}
+          source={{uri: mediaURL}}
+          onShouldStartLoadWithRequest={this.onShouldStartLoadWithRequest} //for iOS
+          onNavigationStateChange ={this.onShouldStartLoadWithRequest} //for Android
+        />
+      );
+    } else if (mediaURL.toLowerCase().indexOf('soundcloud') > 0) {
+      var htmlData = '<iframe width="100%" height="166" scrolling="no" frameborder="no" src="' + mediaURL + '"></iframe>';
+      mediaLink =  (
+        <WebView
+          originWhitelist={['*']}
+          source={{ html: htmlData }}
+         />
+      );
+    } else if (mediaURL.match(/\.(mp3)$/i) != null) {
+      var htmlData = '<audio src="' + mediaURL + '" type="audio/mpeg" controls>Your browser does not support the audio element.</audio>';
+      mediaLink =  (
+        <WebView
+          originWhitelist={['*']}
+          source={{ html: htmlData }}
+         />
+      );
+    } else {
+      mediaLink = 'Error loading media...';
+    }
+
+    return mediaLink
+  }
+
+  render() {
+    return (
+      <View style={{width:ViewPort.width-40, height: 200, marginTop:20}}>
+        {this.makeMediaEmbedLink(this.props.url)}
       </View>
     );
   }

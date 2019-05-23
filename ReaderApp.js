@@ -422,6 +422,7 @@ class ReaderApp extends React.Component {
   }
 
   textSegmentPressed = (section, segment, segmentRef, shouldToggle) => {
+      const isSheet = !!this.state.sheet;
       Sefaria.track.event("Reader","Text Segment Click", segmentRef);
 
       if (shouldToggle && this.state.textListVisible) {
@@ -429,7 +430,7 @@ class ReaderApp extends React.Component {
           BackManager.back({ type: "secondary" });
           return; // Don't bother with other changes if we are simply closing the TextList
       }
-      if (!this.state.data[section][segment] && !this.state.sheet) {
+      if ((isSheet && !this.state.sheet) || (!isSheet && !this.state.data[section][segment])) {
         return;
       }
       let loadingLinks = false;
@@ -467,7 +468,9 @@ class ReaderApp extends React.Component {
       } else {
         this.setState(stateObj);
       }
-      Sefaria.saveHistoryItem({ref: segmentRef, heRef: this.state.heRef, category: Sefaria.categoryForRef(segmentRef), versions: this.state.selectedVersions}, this.props.overwriteVersions);
+      if (!isSheet) {
+        Sefaria.saveHistoryItem({ref: segmentRef, heRef: this.state.heRef, category: Sefaria.categoryForRef(segmentRef), versions: this.state.selectedVersions}, this.props.overwriteVersions);
+      }
       this.forceUpdate();
   };
   /*
@@ -589,15 +592,20 @@ class ReaderApp extends React.Component {
     this.loadVersions(ref);
   };
 
-  loadLinks = (ref) => {
+  loadLinks = (ref, isSheet) => {
+    // isSheet is true when loading links for individual refs on a sheet
     // Ensures that links have been loaded for `ref` and stores result in `this.state.linksLoaded` array.
     // Links are not loaded yet in case you're in API mode, or you are reading a non-default version
-    const iSec = this.state.sectionArray.findIndex(secRef=>secRef===ref);
+    const iSec = isSheet ? 0 : this.state.sectionArray.findIndex(secRef=>secRef===ref);
     if (!iSec && iSec !== 0) { console.log("could not find section ref in sectionArray", ref); return; }
     Sefaria.links.load(ref)
       .then(linksResponse => {
         //add the links into the appropriate section and reload
-        this.state.data[iSec] = Sefaria.links.addLinksToText(this.state.data[iSec], linksResponse);
+        if (isSheet) {
+          this.state.data[iSec] = Sefaria.links.addLinksToSheet(this.state.data[iSec], linksResponse, ref);
+        } else {
+          this.state.data[iSec] = Sefaria.links.addLinksToText(this.state.data[iSec], linksResponse);
+        }
         Sefaria.cacheCommentatorListBySection(ref, this.state.data[iSec]);
         const tempLinksLoaded = this.state.linksLoaded.slice(0);
         tempLinksLoaded[iSec] = true;
@@ -731,95 +739,75 @@ class ReaderApp extends React.Component {
       activeSheetNode: node,
     });
   };
-
-  loadSheet = (sheetID, sheetMeta, addToBackStack=false, calledFrom="search") => {
-      const more_data = !sheetMeta  // # if sheetMeta is null, need to request more data from api call
-      Sefaria.api.sheets(sheetID, more_data)
-      .then(result => {
-          if (more_data) {
-            // extract sheetMeta from result
-            sheetMeta = {
-              ownerName: result.ownerName,
-              ownerImageUrl: result.ownerImageUrl,
-              views: result.views,
-            };
-          }
-          console.log('more_data', sheetMeta, result);
-
-          this.setState ({
-              sheet: result,
-              sheetMeta,
-              data: [],
-              sectionArray: [],
-              sectionHeArray: [],
-          }, () => {
-          this.closeMenu(); // Don't close until these values are in state, so sheet can load
-          var sources = result["sources"].filter(source => "ref" in source || "comment" in source || "outsideText" in source || "outsideBiText" in source || "media" in source)
-          var sourceRefs = sources.map(source => source.ref || "Sheet " + result.id + ":" + source.node );
-          var updatedData = [];
-          var updatedSectionArray = [];
-          var updatedSectionHeArray = [];
-          var getTextPromises = [];
-
-
-          sourceRefs.forEach(function(source, index) {
-              if (source.startsWith("Sheet")) {
-                  //create an empty element in the state.data array so that connections panel still works
-                  updatedData[index] = [{links: []}]
-                  updatedSectionArray[index] = source
-                  updatedSectionHeArray[index] = source
-              }
-
-              else {
-                  getTextPromises.push(
-                      Sefaria.data(source, true).then(function (data) {
-                          updatedData[index] = data.content;
-                          updatedSectionArray[index] = data.sectionRef;
-                          updatedSectionHeArray[index] = data.heRef;
-
-                      }.bind(this)).catch(function (error) {
-                          console.log('Error caught from ReaderApp.openRefSheet', error);
-                      })
-                  );
-              }
-          });
-
-
-        Promise.all(getTextPromises).then( ()=> {
-            this.setState({
-                data: updatedData,
-                sectionArray: updatedSectionArray,
-                sectionHeArray: updatedSectionHeArray,
-            }, () => {
-                var promises = []
-
-                updatedSectionArray.forEach(function(section, index) {
-                    promises.push(this.loadLinks(section))
-
-                    Promise.all(promises).then(() => {
-                            this.setState({
-                                loaded: true,
-                            })
-
-
-                        }
-                    );
-
-                }.bind(this))
-            })
-        })
-
-      if (addToBackStack) {
-        BackManager.forward({ state: this.state, calledFrom });
+  transformSheetData = sheet => {
+    // transforms sheet into standard jagged-array style `data` rendered in TextColumn
+    const sources = sheet.sources.filter(source => "ref" in source || "comment" in source || "outsideText" in source || "outsideBiText" in source || "media" in source);
+    return [sources.map((source, index) => {
+      let segmentData = {links: [], he: '', text: '', segmentNumber: index+1};
+      if (source.ref) {
+        segmentData = {
+          ...segmentData,
+          he: source.text.he,
+          text: source.text.en,
+          sourceRef: source.ref,
+          sourceHeRef: source.heRef,
+          type: 'ref',
+        };
+      } else if (source.comment) {
+        segmentData.text = 'comment!!';
+        segmentData.type = 'comment';
+      } else if (source.outsideText) {
+        segmentData.text = source.outsideText;
+        segmentData.type = 'outsideText';
+      } else if (source.outsideBiText) {
+        segmentData.text = source.outsideBiText.en;
+        segmentData.he = source.outsideBiText.he;
+        segmentData.type = 'outsideBiText';
+      } else if (source.media) {
+        segmentData = {
+          ...segmentData,
+          he: undefined,
+          text: undefined,
+          url: source.media,
+          type: 'media',
+        };
       }
-
-    })
-      .catch(error => {
-        console.log(error)
+      return segmentData;
+    })];
+  };
+  loadSheet = async (sheetID, sheetMeta, addToBackStack=false, calledFrom="search") => {
+    const more_data = !sheetMeta  // # if sheetMeta is null, need to request more data from api call
+    const sheet = await Sefaria.api.sheets(sheetID, more_data);
+    if (more_data) {
+      // extract sheetMeta from result
+      sheetMeta = {
+        ownerName: sheet.ownerName,
+        ownerImageUrl: sheet.ownerImageUrl,
+        views: sheet.views,
+      };
+    }
+    sheetMeta.title = sheet.title;
+    sheetMeta.sheetID = sheet.id;
+    this.setState ({
+        sheet,
+        sheetMeta,
+        data: [],
+        sectionArray: [],
+        sectionHeArray: [],
+    }, () => {
+      this.closeMenu(); // Don't close until these values are in state, so sheet can load
+      this.setState({
+        data: this.transformSheetData(sheet),
+        sectionArray: [`Sheet ${sheet.id}`],
+        sectionHeArray: [`דף ${sheet.id}`],
+        loaded: true,
+      }, () => {
+        if (addToBackStack) {
+          BackManager.forward({ state: this.state, calledFrom });
+        }
+        sheet.sources.filter(source => 'ref' in source).map(source => this.loadLinks(source.ref, true));
       });
-      })
-
-
+    });
   };
 
   openRefConnectionsPanel = (ref, versions) => {
@@ -1749,22 +1737,6 @@ class ReaderApp extends React.Component {
           <LoadingView theme={this.props.theme} style={{flex: textColumnFlex}} category={Sefaria.categoryForTitle(this.state.textTitle)}/> :
           <View style={[{flex: textColumnFlex}, styles.mainTextPanel, this.props.theme.mainTextPanel]}
                 onStartShouldSetResponderCapture={this._onStartShouldSetResponderCapture}>
-            { isSheet && false ?
-              <Sheet
-                sheet={this.state.sheet}
-                activeSheetNode={this.state.activeSheetNode}
-                updateActiveSheetNode={this.updateActiveSheetNode}
-                sheetMeta={this.state.sheetMeta}
-                textData={this.state.data}
-                sectionArray={this.state.sectionArray}
-                menuLanguage={this.props.menuLanguage}
-                textSegmentPressed={ this.sheetSegmentPressed }
-                theme={this.props.theme}
-                textListVisible={this.state.textListVisible}
-                textLanguage={this.props.textLanguage}
-                biLayout={this.props.biLayout}
-                fontSize={this.props.fontSize}
-              /> :
               <TextColumn
                 key={this.state.textColumnKey}
                 showToast={this.showToast}
@@ -1774,7 +1746,7 @@ class ReaderApp extends React.Component {
                 fontSize={this.props.fontSize}
                 sheetMeta={this.state.sheetMeta}
                 isSheet={isSheet}
-                data={isSheet ? this.state.sheet : this.state.data}
+                data={this.state.data}
                 textReference={this.state.textReference}
                 sectionArray={this.state.sectionArray}
                 sectionHeArray={this.state.sectionHeArray}
@@ -1799,7 +1771,6 @@ class ReaderApp extends React.Component {
                 showAliyot={this.props.showAliyot}
                 openUri={this.openUri}
                 biLayout={this.props.biLayout} />
-            }
           </View> }
 
           {this.state.textListVisible ?
@@ -1818,7 +1789,7 @@ class ReaderApp extends React.Component {
               interfaceLang={this.state.interfaceLang}
               segmentRef={this.state.segmentRef}
               heSegmentRef={Sefaria.toHeSegmentRef(this.state.heRef, this.state.segmentRef)}
-              categories={Sefaria.categoriesForTitle(this.state.textTitle)}
+              categories={Sefaria.categoriesForTitle(this.state.textTitle, isSheet)}
               textFlow={this.state.textFlow}
               textLanguage={this.props.textLanguage}
               openRef={this.openRefConnectionsPanel}

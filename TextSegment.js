@@ -103,7 +103,6 @@ class TextSegment extends React.PureComponent {
 
                }
              }
-             style={{flex: this.props.textType == "hebrew" ? 4.5 : 5.5, paddingHorizontal: 10}}
            />
 
     );
