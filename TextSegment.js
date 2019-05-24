@@ -52,9 +52,7 @@ class TextSegment extends React.PureComponent {
     // console.log(this.props.segmentKey+": "+typeof(this.props.textRef));
     const isStacked = this.props.biLayout === 'stacked';
     const lineHeightMultiplierHe = Platform.OS === 'android' ? 1.3 : 1.2;
-    // see this issue: https://github.com/facebook/react-native/issues/24267
-    // textAlign: right doesn't work as expected for Android RTL text
-    const justifyStyle = {textAlign: (isStacked && Platform.OS === 'ios') ? 'justify' : ((Platform.OS === 'ios' && this.props.textType === 'hebrew') ? 'right' : 'left')};
+    const justifyStyle = {textAlign: (isStacked && Platform.OS === 'ios') ? 'justify' : (this.props.textType === 'hebrew' ? 'right' : 'left')};
     const style = this.props.textType == "hebrew" ?
                   [styles.hebrewText, this.props.theme.text, justifyStyle, {fontSize: this.props.fontSize, lineHeight: this.props.fontSize * lineHeightMultiplierHe}] :
                   [styles.englishText, this.props.theme.text, justifyStyle, {fontSize: 0.8 * this.props.fontSize, lineHeight: this.props.fontSize * 1.04 }];

@@ -14,8 +14,6 @@ import LinkContent from './LinkContent';
 import { initAsyncStorage } from './ReduxStore';
 import { Filter } from './Filter';
 import URL from 'url-parse';
-import nextFrame from 'next-frame';
-
 
 const ERRORS = {
   NOT_OFFLINE: 1,
@@ -34,24 +32,17 @@ Sefaria = {
     await Sefaria._loadHistoryItems();
     await initAsyncStorage();
   },
+  postInitSearch: function() {
+    return Sefaria._loadRecentQueries()
+      .then(Sefaria._loadSearchTOC);
+  },
   postInit: function() {
-    // a bit hacky, but basically allows rendering to happen in between each promise
     return Sefaria.getGalusStatus()
-      .then(nextFrame)
       .then(Sefaria._loadCalendar)
-      .then(nextFrame)
       .then(Sefaria._loadPeople)
-      .then(nextFrame)
-      .then(Sefaria._loadRecentQueries)
-      .then(nextFrame)
-      .then(Sefaria._loadSearchTOC)
-      .then(nextFrame)
       .then(Sefaria._loadSavedItems)
-      .then(nextFrame)
       .then(Sefaria._loadHebrewCategories)
-      .then(nextFrame)
       .then(Sefaria.packages._load)
-      .then(nextFrame)
       .then(Sefaria.downloader.init);  // downloader init is dependent on packages
   },
   getLastAppUpdateTime: async function() {
@@ -228,7 +219,7 @@ Sefaria = {
   _apiData: {},  // in memory cache for API data
   textTitleForRef: function(ref) {
     // Returns the book title named in `ref` by examining the list of known book titles.
-    for (i = ref.length; i >= 0; i--) {
+    for (let i = ref.length; i >= 0; i--) {
       book = ref.slice(0, i);
       if (book in Sefaria.booksDict) {
         return book;
@@ -240,21 +231,31 @@ Sefaria = {
     const url = `https://www.sefaria.org/${ref.replace(/ /g, '_').replace(/_(?=[0-9:]+$)/,'.').replace(/:/g,'.')}`
     return url;
   },
-  categoryForTitle: function(title) {
-    var index = Sefaria.index(title);
-    if (!index) { return null;}
-
-    let cat = index.categories[0];
-    if (index.categories.includes("Commentary")) {
+  urlToRef: url => {
+    // url: tref as it would appear in a url
+    url = url.replace(/_/g, ' ');
+    const title = Sefaria.textTitleForRef(url);
+    if (!title) { return { ref: url, title }; }
+    // regexp to replace the dot immediately following the title
+    const spaceReplacer = new RegExp("^" + Sefaria.util.regexEscape(`${title}.`));
+    const ref = url.replace(spaceReplacer, `${title} `).replace(/\./g, ':');
+    return { ref, title };
+  },
+  categoryForTitle: function(title, isSheet) {
+    const cats = Sefaria.categoriesForTitle(title, isSheet);
+    if (!cats) { return null; }
+    let cat = cats[0];
+    if (cats.includes("Commentary")) {
       cat = "Commentary";
-    } else if (index.categories.includes("Targum")) {
+    } else if (cats.includes("Targum")) {
       cat = "Targum";
     }
     // Kept for backwards compatibility of pre-commentary refactor downloaded data
     return cat == "Commentary2" ? "Commentary" : cat;
   },
-  categoriesForTitle: function(title) {
-    var index = Sefaria.index(title);
+  categoriesForTitle: function(title, isSheet) {
+    if (isSheet) { return ["Sheets"]; }
+    const index = Sefaria.index(title);
     if (!index) { return null;}
     return index.categories;
   },
@@ -782,6 +783,7 @@ Sefaria = {
       RNFB.fs.readFile(JSONSourcePath).then(result => {
         try {
           resolve(JSON.parse(result));
+          return;
         } catch (e) {
           resolve({}); // if file can't be parsed, fall back to empty object
         }

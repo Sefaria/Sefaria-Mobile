@@ -102,6 +102,7 @@ class ReaderNavigationMenu extends React.Component {
     if (this.props.categories.length) {
       // List of Text in a Category
       return (<ReaderNavigationCategoryMenu
+                key={this.props.categories.slice(-1)[0]}
                 theme={this.props.theme}
                 themeStr={this.props.themeStr}
                 categories={this.props.categories}
@@ -157,7 +158,13 @@ class ReaderNavigationMenu extends React.Component {
                     withArrow={true}
                     key={"More"} />);
       categories = this.state.showMore ? categories : categories.slice(0,9).concat(more);
-      categories = (<View style={styles.readerNavCategories}><TwoBox content={categories} language={this.props.menuLanguage}/></View>);
+      categories = (
+        <View style={styles.readerNavCategories}>
+          <TwoBox language={this.props.menuLanguage}>
+            { categories }
+          </TwoBox>
+        </View>
+      );
       const isHeb = this.props.interfaceLang === "hebrew";
       const langStyle = !isHeb ? styles.enInt : styles.heInt;
       const hitSlop = {top: 10, bottom: 10, left: 10, right: 10};
@@ -366,7 +373,11 @@ class CalendarSection extends React.Component {
               key="rambam" /> : null
             ];
 
-    var calendarContent = <TwoBox content={calendar} language={this.props.language}/>;
+    var calendarContent = (
+      <TwoBox language={this.props.language}>
+        { calendar }
+      </TwoBox>
+    );
 
     return (<ReaderNavigationMenuSection
               hasmore={false}

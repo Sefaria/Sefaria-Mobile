@@ -48,25 +48,47 @@ const SefariaProgressBar = ({ theme, themeStr, progress, onPress, onClose, inter
 
 class TwoBox extends React.Component {
   static propTypes = {
-      content:  PropTypes.array.isRequired,
-      language: PropTypes.oneOf(["hebrew","english"]),
+    language: PropTypes.oneOf(["hebrew","english"]),
   };
 
   render() {
-      var content = this.props.content.map(function(item, i) {
-          return (<View style={styles.twoBoxItem} key={i}>{item}</View>);
+      const rows = [];
+      let currRow = [];
+      const numChildren = React.Children.count(this.props.children);
+      React.Children.forEach(this.props.children, (child, index) => {
+        currRow.push(child);
+        if (currRow.length === 2 || index === numChildren - 1) {
+          rows.push(
+            <TwoBoxRow key={index} language={this.props.language}>
+              { currRow }
+            </TwoBoxRow>
+          );
+          currRow = [];
+        }
       });
-      if (content.length % 2 !== 0) {
-        content.push(<View style={styles.twoBoxItem} key={i+1}></View>);
-      }
-      var rows = [];
-      var rowStyle = this.props.language == "hebrew" ? [styles.twoBoxRow, styles.rtlRow] : [styles.twoBoxRow];
-
-      for (var i=0; i < content.length; i += 2) {
-        var items = [content[i], content[i+1]];
-        rows.push(<View style={rowStyle} key={i}>{items}</View>);
-      }
       return (<View style={styles.twoBox}>{rows}</View>);
+  }
+}
+
+class TwoBoxRow extends React.PureComponent {
+  static propTypes = {
+      language: PropTypes.oneOf(["hebrew","english"]),
+  };
+  render() {
+    const { children, language } = this.props;
+    const rowStyle = language == "hebrew" ? [styles.twoBoxRow, styles.rtlRow] : [styles.twoBoxRow];
+    const numChildren = React.Children.count(children);
+    const newChildren = React.Children.map(children, (child, index) => (
+      <View style={styles.twoBoxItem} key={index}>{child}</View>
+    ));
+    if (numChildren < 2) {
+      newChildren.push(<View style={styles.twoBoxItem} key={1}></View>);
+    }
+    return (
+      <View style={rowStyle}>
+        { newChildren }
+      </View>
+    );
   }
 }
 
@@ -706,4 +728,5 @@ export {
   ToggleSet,
   TripleDots,
   TwoBox,
+  TwoBoxRow,
 }
