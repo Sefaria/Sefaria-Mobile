@@ -124,7 +124,7 @@ class ReaderNavigationSheetMenu extends React.Component {
 
                 <TouchableOpacity  style={[styles.textBlockLink,this.props.theme.textBlockLink]}  onPress={()=> this.props.openSheetTagMenu(tag.tag)} key={i}>
                     { showHebrew ?
-                      <Text style={[styles.hebrewText, styles.centerText, this.props.theme.text]}>{tag.tag}</Text> :
+                      <Text style={[styles.hebrewText, styles.centerText, this.props.theme.text]}>{tag.he_tag}</Text> :
                       <Text style={[styles.englishText, styles.centerText, this.props.theme.text]}>{tag.tag}</Text> }
                 </TouchableOpacity>
         )
