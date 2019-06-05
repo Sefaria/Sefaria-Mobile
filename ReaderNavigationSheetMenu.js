@@ -44,8 +44,7 @@ class ReaderNavigationSheetMenu extends React.Component {
     super(props);
     this.state = {
       trendingTags: [],
-      allTagsEn: [],
-      allTagsHe: [],
+      tagCategories: [],
     };
   }
 
@@ -150,7 +149,11 @@ class ReaderNavigationSheetMenu extends React.Component {
                   <Text style={[styles.enInt, styles.categorySectionTitle, this.props.theme.categorySectionTitle]}>Explore by Topic</Text> }
             </View>
         </View>
-    )
+    );
+
+
+    if (this.state.tagCategories.length == 0 || this.state.trendingTags.length == 0) { return (<LoadingView />); }
+
 
     return (<View style={[styles.menu, this.props.theme.menu]}>
                 <CategoryColorLine category="Sheets" />
