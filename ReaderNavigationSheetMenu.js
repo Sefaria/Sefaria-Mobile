@@ -26,7 +26,7 @@ import {
 
 import styles from './Styles.js';
 import {Image} from "./AutocompleteList";
-import {SText} from "./Misc";
+import {CloseButton, SText} from "./Misc";
 import strings from "./LocalizedStrings";
 
 
@@ -94,7 +94,9 @@ class ReaderNavigationSheetMenu extends React.Component {
   renderItem = ({ item, index }) => {
     var showHebrew = this.props.interfaceLang == "hebrew";
       return (
-          <View style={styles.twoBoxItem} key={index}>
+          <View style={[styles.twoBoxItem,
+                        {"flex": this.state.tagCategories.count%2!= 0 && index == this.state.tagCategories.length-1 ? .5 : 1 }
+          ]} key={index}>
               <TouchableOpacity style={[styles.textBlockLink, this.props.theme.textBlockLink]}
                                 onPress={() => this.props.openSheetCategoryMenu(item.tag)}>
                   {showHebrew ?
@@ -144,8 +146,8 @@ class ReaderNavigationSheetMenu extends React.Component {
 
             <View style={styles.category} key="AllSourceSheetTags">
               { showHebrew ?
-                  <Text style={[styles.heInt, styles.categorySectionTitle, this.props.theme.categorySectionTitle]}>כל התוויות</Text> :
-                  <Text style={[styles.enInt, styles.categorySectionTitle, this.props.theme.categorySectionTitle]}>All Topics</Text> }
+                  <Text style={[styles.heInt, styles.categorySectionTitle, this.props.theme.categorySectionTitle]}>חיפוש לפי נושא</Text> :
+                  <Text style={[styles.enInt, styles.categorySectionTitle, this.props.theme.categorySectionTitle]}>Explore by Topic</Text> }
             </View>
         </View>
     )
@@ -155,14 +157,10 @@ class ReaderNavigationSheetMenu extends React.Component {
               <View style={[styles.header, this.props.theme.header]}>
                 <MenuButton onPress={this.props.close} theme={this.props.theme} themeStr={this.props.themeStr}/>
                 {showHebrew ?
-                  <Text style={[styles.he, styles.categoryTitle, this.props.theme.categoryTitle]}>דפי מקורות</Text> :
-                  <Text style={[styles.en, styles.categoryTitle, this.props.theme.categoryTitle]}>SHEETS</Text> }
-                <LanguageToggleButton
-                  theme={this.props.theme}
-                  interfaceLang={this.props.interfaceLang}
-                  toggleLanguage={this.props.toggleLanguage}
-                  language={this.props.menuLanguage} />
+                  <Text style={[styles.he, styles.settingsHeader, this.props.theme.text]}>דפי מקורות</Text> :
+                  <Text style={[styles.en, styles.settingsHeader, this.props.theme.text]}>SHEETS</Text> }
               </View>
+
 
                 <FlatList
                   style={styles.menuAllSheetTagContent}
@@ -171,6 +169,18 @@ class ReaderNavigationSheetMenu extends React.Component {
                   renderItem={this.renderItem}
                   numColumns={2}
                   ListHeaderComponent={returnHeaderContent}
+                  ListFooterComponent={
+                      <View style={styles.twoBoxItem}>
+                          <TouchableOpacity style={[styles.textBlockLink, this.props.theme.textBlockLink]}
+                                            onPress={() => showHebrew ? this.props.openSheetCategoryMenu("כל התוויות") : this.props.openSheetCategoryMenu("All Tags")}>
+                              {showHebrew ?
+                                  <Text
+                                      style={[styles.hebrewText, styles.centerText, this.props.theme.text]}>כל התוויות א-ת</Text> :
+                                  <Text
+                                      style={[styles.englishText, styles.centerText, this.props.theme.text]}>All Topics A-Z</Text>}
+                          </TouchableOpacity>
+                      </View>
+                  }
                 />
 
             </View>);

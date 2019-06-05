@@ -45,13 +45,41 @@ class ReaderNavigationSheetCategoryMenu extends React.Component {
 
   getData() {
 
-    Sefaria.api.tagCategory(this.props.category)
-      .then(results => {
-          this.setState({tagCategories: results}, () => console.log(results));
+    if (this.props.category=="All Tags") {
+        Sefaria.api.allTags("alpha", true)
+          .then(results => {
+              console.log('loaded eng tags')
+              this.setState({tagCategories: results.filter(tag => tag.count > 5)}, () => console.log('sorted en tags'));
+            })
+          .catch(error => {
+            console.log(error)
+          })
+    }
+
+    else if (this.props.category=="כל התוויות") {
+        Sefaria.api.allTags("alpha-hebrew", true)
+          .then(results => {
+              console.log('loaded he tags')
+              this.setState({tagCategories: results.filter(tag => tag.count > 5)}, () => console.log('sorted he tags'));
+            }
+
+        )
+          .catch(error => {
+            console.log(error)
         })
-      .catch(error => {
-        console.log(error)
-      })
+    }
+
+    else {
+
+
+        Sefaria.api.tagCategory(this.props.category)
+          .then(results => {
+              this.setState({tagCategories: results}, () => console.log(results));
+            })
+          .catch(error => {
+            console.log(error)
+          })
+    }
 
   }
   componentDidMount() {
@@ -113,7 +141,7 @@ class ReaderNavigationSheetCategoryMenu extends React.Component {
             </View>
 
                 <FlatList
-                  style={{}}
+                  style={styles.menuAllSheetTagContent}
                   data={this.state.tagCategories}
                   keyExtractor={(item, index) => item.id}
                   renderItem={this.renderItem}
