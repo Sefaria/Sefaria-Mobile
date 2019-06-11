@@ -148,6 +148,19 @@ class ReaderNavigationSheetMenu extends React.Component {
                   <Text style={[styles.heInt, styles.categorySectionTitle, this.props.theme.categorySectionTitle]}>חיפוש לפי נושא</Text> :
                   <Text style={[styles.enInt, styles.categorySectionTitle, this.props.theme.categorySectionTitle]}>Explore by Topic</Text> }
             </View>
+
+
+              <View style={styles.twoBoxItem}>
+                  <TouchableOpacity style={[styles.textBlockLink, this.props.theme.textBlockLink]}
+                                    onPress={() => showHebrew ? this.props.openSheetCategoryMenu("כל התוויות") : this.props.openSheetCategoryMenu("All Tags")}>
+                      {showHebrew ?
+                          <Text
+                              style={[styles.hebrewText, styles.centerText, this.props.theme.text]}>כל התוויות א-ת</Text> :
+                          <Text
+                              style={[styles.englishText, styles.centerText, this.props.theme.text]}>All Topics A-Z</Text>}
+                  </TouchableOpacity>
+              </View>
+
         </View>
     );
 
@@ -172,18 +185,6 @@ class ReaderNavigationSheetMenu extends React.Component {
                   renderItem={this.renderItem}
                   numColumns={2}
                   ListHeaderComponent={returnHeaderContent}
-                  ListFooterComponent={
-                      <View style={styles.twoBoxItem}>
-                          <TouchableOpacity style={[styles.textBlockLink, this.props.theme.textBlockLink]}
-                                            onPress={() => showHebrew ? this.props.openSheetCategoryMenu("כל התוויות") : this.props.openSheetCategoryMenu("All Tags")}>
-                              {showHebrew ?
-                                  <Text
-                                      style={[styles.hebrewText, styles.centerText, this.props.theme.text]}>כל התוויות א-ת</Text> :
-                                  <Text
-                                      style={[styles.englishText, styles.centerText, this.props.theme.text]}>All Topics A-Z</Text>}
-                          </TouchableOpacity>
-                      </View>
-                  }
                 />
 
             </View>);

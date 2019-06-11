@@ -94,7 +94,9 @@ class ReaderNavigationSheetCategoryMenu extends React.Component {
   renderItem = ({ item, index }) => {
       var showHebrew = this.props.interfaceLang == "hebrew";
       return (
-          <View style={styles.twoBoxItem} key={index}>
+          <View style={[styles.twoBoxItem,
+                        {"flex": this.state.tagCategories.count%2!= 0 && index == this.state.tagCategories.length-1 ? .5 : 1 }
+          ]} key={index}>
               <TouchableOpacity style={[styles.textBlockLink, this.props.theme.textBlockLink]}
                                 onPress={() => this.props.openSheetTagMenu(item.tag)}>
                   {showHebrew ?
@@ -134,11 +136,6 @@ class ReaderNavigationSheetCategoryMenu extends React.Component {
                   language={this.props.menuLanguage} />
               </View>
 
-            <View style={styles.category} key="AllSourceSheetTags">
-              { showHebrew ?
-                  <Text style={[styles.heInt, styles.categorySectionTitle, this.props.theme.categorySectionTitle]}>כל התוויות</Text> :
-                  <Text style={[styles.enInt, styles.categorySectionTitle, this.props.theme.categorySectionTitle]}>Explore by Topic</Text> }
-            </View>
 
                 <FlatList
                   style={styles.menuAllSheetTagContent}
@@ -146,6 +143,13 @@ class ReaderNavigationSheetCategoryMenu extends React.Component {
                   keyExtractor={(item, index) => item.id}
                   renderItem={this.renderItem}
                   numColumns={2}
+                  ListHeaderComponent={
+                    <View style={styles.category} key="AllSourceSheetTags">
+                        { showHebrew ?
+                        <Text style={[styles.heInt, styles.categorySectionTitle, this.props.theme.categorySectionTitle]}>חיפוש לפי נושא</Text> :
+                        <Text style={[styles.enInt, styles.categorySectionTitle, this.props.theme.categorySectionTitle]}>Explore by Topic</Text> }
+                    </View>
+                  }
                 />
 
             </View>
