@@ -95,7 +95,7 @@ class ReaderNavigationSheetCategoryMenu extends React.Component {
       var showHebrew = this.props.interfaceLang == "hebrew";
       return (
           <View style={[styles.twoBoxItem,
-                        {"flex": this.state.tagCategories.count%2!= 0 && index == this.state.tagCategories.length-1 ? .5 : 1 }
+                        {"flex": this.state.tagCategories.length%2!= 0 && index == this.state.tagCategories.length-1 ? .5 : 1 }
           ]} key={index}>
               <TouchableOpacity style={[styles.textBlockLink, this.props.theme.textBlockLink]}
                                 onPress={() => this.props.openSheetTagMenu(item.tag)}>
