@@ -142,9 +142,9 @@ var Api = {
   _toURL: function(ref, useHTTPS, apiType, urlify, { context, versions, more_data }) {
     let url = '';
     if (useHTTPS) {
-      url += 'http://tagcats.sandbox.sefaria.org/';
+      url += 'https://www.sefaria.org/';
     } else {
-      url += 'http://tagcats.sandbox.sefaria.org/';
+      url += 'http://www.sefaria.org/';
     }
 
     let urlSuffix = '';
