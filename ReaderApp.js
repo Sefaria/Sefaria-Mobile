@@ -143,16 +143,17 @@ class ReaderApp extends React.Component {
   }
 
   componentDidMount() {
+    // add handleOpenURL listener before running initFiles so that _initDeepLinkURL will be set in time
+    Linking.getInitialURL().then(url => { this.handleOpenURL({ url }); }).catch(err => {
+        console.warn('An error occurred', err);
+    });
+    Linking.addEventListener('url', this.handleOpenURL);
     this.initFiles();
     Sefaria.track.init();
     NetInfo.isConnected.addEventListener(
       'connectionChange',
       this.networkChangeListener
     );
-    Linking.getInitialURL().then(url => { this.handleOpenURL({ url }); }).catch(err => {
-        console.warn('An error occurred', err);
-    });
-    Linking.addEventListener('url', this.handleOpenURL);
     BackHandler.addEventListener('hardwareBackPress', this.manageBack);
     AppState.addEventListener('change', this.appStateChangeListener);
     Sefaria.downloader.onChange = this.onDownloaderChange;
