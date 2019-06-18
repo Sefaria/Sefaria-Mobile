@@ -1,5 +1,5 @@
 import { Alert, Platform } from 'react-native';
-import { GoogleAnalyticsTracker } from 'react-native-google-analytics-bridge'; //https://github.com/idehub/react-native-google-analytics-bridge/blob/master/README.md
+//import { GoogleAnalyticsTracker } from 'react-native-google-analytics-bridge'; //https://github.com/idehub/react-native-google-analytics-bridge/blob/master/README.md
 const ZipArchive  = require('react-native-zip-archive'); //for unzipping -- (https://github.com/plrthink/react-native-zip-archive)
 import AsyncStorage from '@react-native-community/async-storage';
 import VersionNumber from 'react-native-version-number';
@@ -1143,6 +1143,7 @@ Sefaria = {
       // Helper functions for event tracking (with Google Analytics and Mixpanel)
       _tracker: null,
       init: function() {
+        /*
         //GoogleAnalytics.setTrackerId('UA-24447636-4');
         Sefaria.track._tracker = new GoogleAnalyticsTracker('UA-24447636-4',
           {'Panels Open':1,'Book Name':2,'Ref':3,'Version Title':4,'Page Type':5,'Sidebars':6});
@@ -1151,7 +1152,10 @@ Sefaria = {
         //2 = Secondary Category
         //3 = Book Name
         //5 = Content Language
+         */
       },
+
+
       /**
       * category: string
       * action: string
@@ -1161,6 +1165,7 @@ Sefaria = {
       * contentGroups: dict with keys as ints specified in track.init() and values
       **/
       event: function(category, action, label, value, customDimensions, contentGroups) {
+        /*
         if (contentGroups) {
           for (let contGroup of Object.keys(contentGroups)) {
             //Sefaria.track._tracker.trackContentGroup(contGroup, contentGroups.contGroup);
@@ -1174,8 +1179,11 @@ Sefaria = {
         }
 
         // console.log("EVENT",category,action,label,value);
+
+         */
       },
       pageview: function(page, customDimensions, contentGroups) {
+        /*
         //console.log('Page',page);
         //console.log('CustDims',customDimensions);
         //console.log('ContGrou',contentGroups);
@@ -1192,6 +1200,8 @@ Sefaria = {
         }
 
           //TODO make sure this both sets the screen and sends the screen
+
+         */
       },
       /*
       setPrimaryCategory: function(category_name) {
@@ -1235,8 +1245,9 @@ Sefaria = {
           ga('set', 'dimension5', val);
       },
       */
-      sheets: function(action, label) {
+      sheets: function(action, label) { /*
           Sefaria.site.track.event("Sheets", action, label);
+          */
       }
     }
 };

@@ -13,7 +13,6 @@ import org.devio.rn.splashscreen.SplashScreenReactPackage;
 import com.zmxv.RNSound.RNSoundPackage;
 import com.clipsub.RNShake.RNShakeEventPackage;
 import com.babisoft.ReactNativeLocalization.ReactNativeLocalizationPackage;
-import com.idehub.GoogleAnalyticsBridge.GoogleAnalyticsBridgePackage;
 import com.rnfs.RNFSPackage;
 import com.github.droibit.android.reactnative.customtabs.CustomTabsPackage;
 import com.rpt.reactnativecheckpackageinstallation.CheckPackageInstallationPackage;
@@ -49,7 +48,6 @@ public class MainApplication extends Application implements ReactApplication {
             new RNSoundPackage(),
             new RNShakeEventPackage(),
             new ReactNativeLocalizationPackage(),
-            new GoogleAnalyticsBridgePackage(),
             new RNFSPackage(),
             new CustomTabsPackage(),
             new CheckPackageInstallationPackage()

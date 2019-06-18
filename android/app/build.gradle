@@ -1,4 +1,4 @@
-def VERSION_BUILD=470
+def VERSION_BUILD=472
 def VERSION_MAJOR=5
 def VERSION_MINOR=3
 def VERSION_PATCH=3
@@ -155,7 +155,6 @@ dependencies {
     implementation project(':react-native-sound')
     implementation project(':react-native-shake')
     implementation project(':react-native-localization')
-    implementation project(':react-native-google-analytics-bridge')
     implementation project(':react-native-fs')
     implementation project(':react-native-custom-tabs')
     implementation project(':react-native-check-app-install')
@@ -169,7 +168,6 @@ dependencies {
     compile project(':react-native-zip-archive')
     compile project(':react-native-version-number')
     compile project(':react-native-localization')
-    compile project(':react-native-google-analytics-bridge')
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation "com.android.support:appcompat-v7:${rootProject.ext.supportLibVersion}"
     implementation "com.facebook.react:react-native:+"  // From node_modules
