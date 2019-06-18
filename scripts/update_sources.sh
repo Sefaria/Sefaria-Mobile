@@ -19,7 +19,7 @@ else
     read -p "Enter ssh alias for ios files server:" SOURCE_SERVER
     SOURCE_SERVER_VAR=(${!SOURCE_SERVER@})
     read -p "Enter the path for files such as toc.json on the server:" SOURCE_UNIX_PATH
-    SOURCE_UNIX_PATH_VAR=(${!SOURCE_UNIX_PATH@})
+    SOURCE_UNIX_PATH_VAR=(${!SOURCEy c_UNIX_PATH@})
     #echo "#!/usr/bin/env bash" >> envvars.sh
     #echo "" >> envvars.sh
     echo "export "$SOURCE_SERVER_VAR"="$SOURCE_SERVER >> envvars.sh

@@ -21,6 +21,11 @@ import styles from './Styles.js';
 import strings from './LocalizedStrings';
 
 
+/*const Button = ({ children, theme, onPress }) => (
+  <TouchableOpacity onPress={onPress} style={[styles.button]}>
+    { children }
+  </TouchableOpacity>
+);*/
 
 const SefariaProgressBar = ({ theme, themeStr, progress, onPress, onClose, interfaceLang }) => (
   <TouchableOpacity onPress={!!onPress ? onPress : ()=>{}} disabled={!onPress} style={styles.sefariaProgressBar}>

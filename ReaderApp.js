@@ -52,6 +52,7 @@ import ReaderNavigationSheetTagMenu from "./ReaderNavigationSheetTagMenu";
 import Sheet from "./Sheet.js";
 import SheetMetadata from "./SheetMeta.js";
 import DeepLinkRouter from "./DeepLinkRouter.js";
+import AuthPage from "./AuthPage";
 
 
 
@@ -1553,6 +1554,8 @@ class ReaderApp extends React.Component {
               openSettings={this.openMenu.bind(null, "settings")}
               openHistory={this.openMenu.bind(null, "history")}
               openSaved={this.openMenu.bind(null, "saved")}
+              openLogin={this.openMenu.bind(null, "login")}
+              openRegister={this.openMenu.bind(null, "register")}
               openSheets={this.openMenu.bind(null, "sheets")}
               interfaceLang={this.state.interfaceLang}
               onChangeSearchQuery={this.onChangeSearchQuery}
@@ -1686,6 +1689,12 @@ class ReaderApp extends React.Component {
             icon={this.props.themeStr === "white" ? require('./img/starUnfilled.png') : require('./img/starUnfilled-light.png')}
           />
         );
+        break;
+      case("login"):
+        return(<AuthPage/>);
+        break;
+      case("register"):
+        return(<View><Text>This is your life now register</Text></View>);
         break;
       case ("sheets"):
         return(

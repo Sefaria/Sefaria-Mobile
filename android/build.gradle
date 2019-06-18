@@ -1,5 +1,4 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
-
 buildscript {
     repositories {
         google()
@@ -12,7 +11,6 @@ buildscript {
         // in the individual module build.gradle files
     }
 }
-
 allprojects {
     repositories {
         mavenLocal()
@@ -29,9 +27,8 @@ allprojects {
         }
     }
 }
-
 subprojects {
-    afterEvaluate {project ->
+    afterEvaluate { project ->
         if (project.hasProperty("android")) {
             android {
                 compileSdkVersion 28
@@ -40,11 +37,16 @@ subprojects {
         }
     }
 }
-
+task wrapper(type: Wrapper) {
+    gradleVersion = '4.4'
+    distributionUrl = distributionUrl.replace("bin", "all")
+}
 ext {
     buildToolsVersion = "28.0.3"
     minSdkVersion = 16
     compileSdkVersion = 28
     targetSdkVersion = 28
     supportLibVersion = "28.0.0"
+}
+dependencies {
 }

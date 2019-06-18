@@ -13,6 +13,7 @@ import {
   Platform,
   Linking,
   Alert,
+  Button,
 } from 'react-native';
 
 import {
@@ -235,6 +236,8 @@ class ReaderNavigationMenu extends React.Component {
                   </TouchableOpacity>
                 </View>
 
+                <AuthSection theme={this.props.theme} openLogin={this.props.openLogin} openRegister={this.props.openRegister} />
+
                 <View style={styles.navBottomLinks}>
                   <TouchableOpacity onPress={this.props.openSettings} hitSlop={hitSlop}>
                     <Text style={[isHeb ? styles.heInt : styles.enInt, this.props.theme.tertiaryText]}>{strings.settings}</Text>
@@ -264,6 +267,27 @@ class ReaderNavigationMenu extends React.Component {
   }
 }
 
+class AuthSection extends React.Component{
+  static propTypes = {
+    openLogin : PropTypes.func.isRequired,
+    openRegister : PropTypes.func.isRequired
+  }
+  render() {
+    const authButtons = (
+      <View>
+        <Button onPress={this.props.openRegister} title={strings.register}/>
+        <Button onPress={this.props.openLogin} title={strings.login}/>
+      </View>
+    );
+    return (<ReaderNavigationMenuSection
+              hasmore={false}
+              theme={this.props.theme}
+              title={strings.login}
+              heTitle={strings.login}
+              content={authButtons}
+              interfaceLang={this.props.interfaceLang} />);
+  }
+}
 class ResourcesSection extends React.Component {
 
   static propTypes = {

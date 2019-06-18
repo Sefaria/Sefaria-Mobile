@@ -16,6 +16,7 @@ const REDUX_ACTIONS = {
   setAliyot: "SET_ALIYOT",
   toggleDebugInterruptingMessage: "TOGGLE_DEBUG_INTERRUPTING_MESSAGE",
   setBiLayout: "SET_BI_LAYOUT",
+  authSetToken: "AUTH_SET_TOKEN",
 };
 
 const ACTION_CREATORS = {
@@ -66,6 +67,12 @@ const ACTION_CREATORS = {
     layout,
     fromAsync,
   }),
+  authSetToken: (token, expirationDate, refresh) => ({
+      type: REDUX_ACTIONS.authSetToken,
+      token,
+      expirationDate,
+      refresh,
+  }),
 }
 
 const ASYNC_STORAGE_DEFAULTS = {
@@ -100,7 +107,7 @@ const ASYNC_STORAGE_DEFAULTS = {
   biLayout: {
     default: 'stacked',
     action: ACTION_CREATORS.setBiLayout,
-  },
+  }
 };
 
 const DEFAULT_STATE = {
@@ -188,6 +195,13 @@ const reducer = function (state = DEFAULT_STATE, action) {
       return {
         ...state,
         biLayout: action.layout,
+      }
+    case REDUX_ACTIONS.authSetToken:
+      return {
+        ...state,
+        authToken: action.token,
+        authTokenExpirationDate: action.expirationDate,
+        authRefreshToken: action.refresh
       }
     default:
       return state;

@@ -5,11 +5,14 @@ import 'abortcontroller-polyfill';
 
 import strings from './LocalizedStrings';
 import LinkContent from './LinkContent';
+import AsyncStorage from '@react-native-community/async-storage';
+import jwt_decode from 'jwt-decode';
 
 var Api = {
   /*
   takes responses from text and links api and returns json in the format of iOS json
   */
+  _baseHost: 'http://jwt.sandbox.sefaria.org/',
   _textCache: {}, //in memory cache for API data
   _linkCache: {},
   _nameCache: {},
@@ -21,6 +24,7 @@ var Api = {
   _translateVersions: {},
   _indexDetails: {},
   _currentRequests: {}, // object to remember current request in order to abort. keyed by apiType
+  _auth: {},
   _textCacheKey: function(ref, context, versions) {
     return `${ref}|${context}${(!!versions ? (!!versions.en ? `|en:${versions.en}` : "") + (!!versions.he ? `|he:${versions.he}` : "")  : "")}`;
   },
@@ -407,11 +411,171 @@ var Api = {
       Sefaria.api._currentRequests[apiType] = null;
     }
   },
-  /*
-  context is a required param if apiType == 'text'. o/w it's ignored
-  versions is object with keys { en, he } specifying version titles
-  failSilently - if true, dont display a message if api call fails
-  */
+
+  _authenticate: function(authData, authMode = "login") {
+    console.log(Sefaria.api._baseHost);
+    const url = `${Sefaria.api._baseHost + ((authMode === "login") ? "api/login/" : "api/register/")}`;
+    let authBody = {
+      username: authData.email,
+      password: authData.password,
+    };
+    console.log(url);
+    console.log("authenticate auth body: ", authBody );
+    fetch(url, {
+      method: "POST",
+      body: JSON.stringify(authBody),
+      headers: {
+        "Content-Type": "application/json"
+      }
+    })
+    .catch(err => {
+      console.log(err);
+      alert("Authentication failed, please try again!");
+    })
+    .then(res => {console.log(res); return res.json()})
+    .then(parsedRes => {
+      console.log(parsedRes);
+      let decodedAuth = jwt_decode(parsedRes.access);
+      //Math.floor((new Date()).getTime() / 1000)
+      if (!parsedRes.access) {
+        alert("Authentication failed, please try again!");
+      } else {
+            authStoreToken(
+                parsedRes.access,
+                decodedAuth.exp,
+                parsedRes.refresh
+            );
+      }
+    });
+  },
+
+  authStoreToken: function(token, expires, refreshToken) {
+      authSetToken(token, expires);
+      AsyncStorage.setItem("ap:auth:token", token);
+      AsyncStorage.setItem("ap:auth:expires", expires.toString());
+      AsyncStorage.setItem("ap:auth:refreshToken", refreshToken);
+  },
+
+  /*authSetToken: function(token, expiryDate){
+    Sefaria. {
+      type: AUTH_SET_TOKEN,
+      token: token,
+      expiryDate: expiryDate
+    };
+  },
+
+export const authGetToken = () => {
+  return (dispatch, getState) => {
+    const promise = new Promise((resolve, reject) => {
+      const token = getState().auth.token;
+      const expiryDate = getState().auth.expiryDate;
+      if (!token || new Date(expiryDate) <= new Date()) {
+        let fetchedToken;
+        AsyncStorage.getItem("ap:auth:token")
+            .catch(err => reject())
+            .then(tokenFromStorage => {
+              fetchedToken = tokenFromStorage;
+              if (!tokenFromStorage) {
+                reject();
+                return;
+              }
+              return AsyncStorage.getItem("ap:auth:expiryDate");
+            })
+            .then(expiryDate => {
+              const parsedExpiryDate = new Date(parseInt(expiryDate));
+              const now = new Date();
+              if (parsedExpiryDate > now) {
+                dispatch(authSetToken(fetchedToken));
+                resolve(fetchedToken);
+              } else {
+                reject();
+              }
+            })
+            .catch(err => reject());
+      } else {
+        resolve(token);
+      }
+    });
+    return promise
+        .catch(err => {
+          return AsyncStorage.getItem("ap:auth:refreshToken")
+              .then(refreshToken => {
+                return fetch(
+                    "https://securetoken.googleapis.com/v1/token?key=" + API_KEY,
+                    {
+                      method: "POST",
+                      headers: {
+                        "Content-Type": "application/x-www-form-urlencoded"
+                      },
+                      body: "grant_type=refresh_token&refresh_token=" + refreshToken
+                    }
+                );
+              })
+              .then(res => res.json())
+              .then(parsedRes => {
+                if (parsedRes.id_token) {
+                  console.log("Refresh token worked!");
+                  dispatch(
+                      authStoreToken(
+                          parsedRes.id_token,
+                          parsedRes.expires_in,
+                          parsedRes.refresh_token
+                      )
+                  );
+                  return parsedRes.id_token;
+                } else {
+                  dispatch(authClearStorage());
+                }
+              });
+        })
+        .then(token => {
+          if (!token) {
+            throw new Error();
+          } else {
+            return token;
+          }
+        });
+  };
+};
+
+export const authAutoSignIn = () => {
+  return dispatch => {
+    dispatch(authGetToken())
+        .then(token => {
+          startMainTabs();
+        })
+        .catch(err => console.log("Failed to fetch token!"));
+  };
+};
+
+export const authClearStorage = () => {
+  return dispatch => {
+    AsyncStorage.removeItem("ap:auth:token");
+    AsyncStorage.removeItem("ap:auth:expiryDate");
+    return AsyncStorage.removeItem("ap:auth:refreshToken");
+  };
+};
+
+export const authLogout = () => {
+  return dispatch => {
+    dispatch(authClearStorage()).then(() => {
+      App();
+    });
+    dispatch(authRemoveToken());
+  };
+};
+
+export const authRemoveToken = () => {
+  return {
+    type: AUTH_REMOVE_TOKEN
+  };
+};*/
+
+/*
+context is a required param if apiType == 'text'. o/w it's ignored
+versions is object with keys { en, he } specifying version titles
+failSilently - if true, dont display a message if api call fails
+*/
   _request: function(ref, apiType, urlify, { context, versions, more_data }, failSilently) {
     const controller = new AbortController();
     const signal = controller.signal;
@@ -456,6 +620,6 @@ var Api = {
       });
     });
   }
-}
+};
 
 module.exports = Api;

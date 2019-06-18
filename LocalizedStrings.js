@@ -5,6 +5,12 @@ import LocalizedStrings from 'react-native-localization';
 
 let strings = new LocalizedStrings({
   en: {
+    login: "Sign In",
+    register: "Create Your Account",
+    gotoregister: "Don’t have an account? Create an Account.",
+    forgotpassword: "Forgot your password?",
+    email: "Email Address",
+    password: "Password",
     history: "History",
     saved: "Saved",
     save: "Save",
@@ -128,6 +134,12 @@ let strings = new LocalizedStrings({
     bilingualLayout: "Bilingual Layout",
   },
   he: {
+    login: "כניסה לחשבון",
+    register: "יצירת חשבון",
+    linkToRegister: "חדש? צור חשבון משתמש",
+    forgotPassword: "שכחתי את הסיסמא שלי",
+    email: "כתובת אימייל",
+    password: "סיסמא",
     history: "היסטוריה",
     saved: "שמורים",
     save: "שמור",
