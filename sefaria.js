@@ -14,6 +14,8 @@ import LinkContent from './LinkContent';
 import { initAsyncStorage } from './ReduxStore';
 import { Filter } from './Filter';
 import URL from 'url-parse';
+import firebase from 'react-native-firebase';
+
 
 const ERRORS = {
   NOT_OFFLINE: 1,

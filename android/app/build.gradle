@@ -145,6 +145,7 @@ android {
 }
 
 dependencies {
+    implementation project(':react-native-firebase')
     implementation project(':@react-native-community_async-storage')
     implementation project(':@react-native-community_netinfo')
     implementation project(':react-native-action-sheet')
@@ -158,6 +159,7 @@ dependencies {
     implementation project(':react-native-fs')
     implementation project(':react-native-custom-tabs')
     implementation project(':react-native-check-app-install')
+    implementation 'com.google.firebase:firebase-core:16.0.9'
     compile project(':react-native-sound')
     compile project(':react-native-shake')
     compile project(':react-native-fs')
@@ -179,3 +181,5 @@ task copyDownloadableDepsToLibs(type: Copy) {
     from configurations.compile
     into 'libs'
 }
+
+apply plugin: 'com.google.gms.google-services'

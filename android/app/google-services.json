@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "581880202059",
+    "firebase_url": "https://sefaria-mobile-analytics.firebaseio.com",
+    "project_id": "sefaria-mobile-analytics",
+    "storage_bucket": "sefaria-mobile-analytics.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:581880202059:android:40337cd2f8c0d024",
+        "android_client_info": {
+          "package_name": "org.sefaria.sefaria"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "581880202059-7nce9og1eagamf9upsotqsan9gh2kcd7.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAPvvhxyr0CnohLB0QmG4-BbRpiaA2Zl7I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "581880202059-7nce9og1eagamf9upsotqsan9gh2kcd7.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

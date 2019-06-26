@@ -1,0 +1,6 @@
+framework module Pods_ReaderApp {
+  umbrella header "Pods-ReaderApp-umbrella.h"
+
+  export *
+  module * { export * }
+}
