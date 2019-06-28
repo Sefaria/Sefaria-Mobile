@@ -99,7 +99,6 @@ class AutocompleteList extends React.Component {
         this.openRef(Sefaria.api.repairCaseVariant(query, d));
         return;
       }
-        //Sefaria.track.event("Search", action, query);
       let recentType;
       if (d.is_book) {
         this.props.openTextTocDirectly(d.book);

@@ -1143,52 +1143,24 @@ Sefaria = {
   },
   track: {
       // Helper functions for event tracking (with Google Analytics and Mixpanel)
-      _tracker: null,
       init: function() {
-        /*
-        //GoogleAnalytics.setTrackerId('UA-24447636-4');
-        Sefaria.track._tracker = new GoogleAnalyticsTracker('UA-24447636-4',
-          {'Panels Open':1,'Book Name':2,'Ref':3,'Version Title':4,'Page Type':5,'Sidebars':6});
-        //Content Group Map
-        //1 = Primary Category
-        //2 = Secondary Category
-        //3 = Book Name
-        //5 = Content Language
-         */
+        firebase.analytics().setAnalyticsCollectionEnabled(true);
       },
 
-
-      /**
-      * category: string
-      * action: string
-      * label: string
-      * value: int / string
-      * customDimensions: dict with keys specified in track.init() and values
-      * contentGroups: dict with keys as ints specified in track.init() and values
-      **/
-      event: function(category, action, label, value, customDimensions, contentGroups) {
-        /*
-        if (contentGroups) {
-          for (let contGroup of Object.keys(contentGroups)) {
-            //Sefaria.track._tracker.trackContentGroup(contGroup, contentGroups.contGroup);
-          }
-        }
-
-        if (customDimensions) {
-          Sefaria.track._tracker.trackEventWithCustomDimensionValues(category, action, {label: label, value: value}, customDimensions);
-        } else {
-          Sefaria.track._tracker.trackEvent(category, action, {label: label, value: value});
-        }
-
-        // console.log("EVENT",category,action,label,value);
-
-         */
+      setScreen: function(currentScreen, currentScreenClass) {
+        firebase.analytics().setCurrentScreen(currentScreen, currentScreenClass);
       },
+
+      event: function(event, params) {
+        firebase.analytics().logEvent(event, params)
+      },
+
       pageview: function(page, customDimensions, contentGroups) {
+
+        // TODO: This seems to fire every time a new ref comes in or out of view and doesn't seem to give super rich data is this by design?
+
+
         /*
-        //console.log('Page',page);
-        //console.log('CustDims',customDimensions);
-        //console.log('ContGrou',contentGroups);
         if (contentGroups) {
           for (let contGroup of Object.keys(contentGroups)) {
             //Sefaria.track._tracker.trackContentGroup(parseInt(contGroup), contentGroups.contGroup);
@@ -1201,56 +1173,8 @@ Sefaria = {
           Sefaria.track._tracker.trackScreenView(page);
         }
 
-          //TODO make sure this both sets the screen and sends the screen
-
          */
       },
-      /*
-      setPrimaryCategory: function(category_name) {
-          primary cat. for commentaries it's second cat + " Commentary"
-
-
-          Sefaria.track._tracker.trackContentGroup(1,category_name);
-      },
-      setSecondaryCategory: function(category_name) {
-          if it exists, secondary cat
-
-          Sefaria.track._tracker.trackContentGroup(2,category_name);
-      },
-      setContentLanguage: function(language) {
-          hebrew, english, bilingual
-
-          Sefaria.track._tracker.trackContentGroup(5,category_name);
-      },
-      setNumberOfPanels: function(val) {
-          1 if text
-          2 if text and commentary
-
-          ga('set', 'dimension1', val);
-      },
-      setBookName: function(val) {
-          current book name
-
-          ga('set', 'dimension2', val);
-          Sefaria.track._tracker.trackContentGroup(3,category_name);
-          Sefaria.track._tracker.trackEventWithCustomDimensionValues()
-      },
-      setRef: function(val) {
-          current ref you're looking at
-          ga('set', 'dimension3', val);
-      },
-      setVersionTitle: function(val) {
-          ga('set', 'dimension4', val);
-      },
-      setPageType: function(val) {
-          text toc, Text, Text and Connections, navigation, search
-          ga('set', 'dimension5', val);
-      },
-      */
-      sheets: function(action, label) { /*
-          Sefaria.site.track.event("Sheets", action, label);
-          */
-      }
     }
 };
 

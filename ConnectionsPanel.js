@@ -200,7 +200,6 @@ class ConnectionsPanel extends React.Component {
                     } else {
                       this.props.setConnectionsMode(category);
                     }
-                    Sefaria.track.event("Reader","Category Filter Click",category);
                   }.bind(this,filter,cat.category)}
                   key={cat.category} />);
             if (catFilterSelected) {
@@ -217,7 +216,6 @@ class ConnectionsPanel extends React.Component {
                     count={obook.count}
                     onPress={function(filter,title) {
                       this.props.openFilter(filter, "link");
-                      Sefaria.track.event("Reader","Text Filter Click",title);
                     }.bind(this,filter,obook.title)}
                     key={obook.title}
                   />

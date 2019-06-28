@@ -64,7 +64,6 @@ var Downloader = {
         [{text: strings.ok}]
       );
     }
-    Sefaria.track.event("Downloader", "Download Library");
   },
   deleteLibrary: function() {
     return new Promise((resolve, reject) => {
@@ -248,7 +247,6 @@ var Downloader = {
           const onDownload = () => {
             AsyncStorage.setItem("libraryDownloadPrompted", "true");
             Downloader.onChange && Downloader.onChange(true);  // true means open settings page
-            Sefaria.track.event("Downloader", "Initial Download Prompt", "accept");
           };
           const onCancel = () => {
             AsyncStorage.setItem("libraryDownloadPrompted", "true");
@@ -258,7 +256,6 @@ var Downloader = {
               [
                 {text: strings.ok},
               ]);
-            Sefaria.track.event("Downloader", "Initial Download Prompt", "decline");
           };
           const showWelcomeAlert = () => {
             Alert.alert(
@@ -313,7 +310,6 @@ var Downloader = {
 
     var onDownload = function() {
       Downloader.downloadUpdates();
-      Sefaria.track.event("Downloader", "Update Prompt", "accept");
     };
 
     var onCancel = function() {
@@ -324,7 +320,6 @@ var Downloader = {
           {text: strings.ok},
         ]);
       Downloader._setData("downloadPaused", true);
-      Sefaria.track.event("Downloader", "Update Prompt", "decline");
     };
     Alert.alert(
       strings.updateLibrary,

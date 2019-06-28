@@ -238,7 +238,6 @@ class ReaderNavigationCategoryMenu extends React.PureComponent {
 class BookButton extends React.PureComponent {
   openCat = () => {
     this.props.setCategories(this.props.cats);
-    Sefaria.track.event("Reader","Navigation Sub Category Click",this.props.cats.join(" / "));
   };
   openRef = () => {
     this.props.openRef(this.props.tref, this.props.versions);
