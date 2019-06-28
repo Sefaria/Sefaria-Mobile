@@ -5,12 +5,16 @@ import LocalizedStrings from 'react-native-localization';
 
 let strings = new LocalizedStrings({
   en: {
-    login: "Sign In",
-    register: "Create Your Account",
+    sign_in: "Sign In",
+    join_sefaria: "Join Sefaria.",
+    create_your_account: "Create Your Account",
+    create_account: "Create Account",
     gotoregister: "Don’t have an account? Create an Account.",
     forgotpassword: "Forgot your password?",
     email: "Email Address",
     password: "Password",
+    first_name: "First Name",
+    last_name: "Last Name",
     history: "History",
     saved: "Saved",
     save: "Save",

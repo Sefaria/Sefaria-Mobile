@@ -1691,10 +1691,15 @@ class ReaderApp extends React.Component {
         );
         break;
       case("login"):
-        return(<AuthPage/>);
-        break;
       case("register"):
-        return(<View><Text>This is your life now register</Text></View>);
+        return(
+          <AuthPage
+            authMode={this.state.menuOpen}
+            theme={this.props.theme}
+            themeStr={this.props.themeStr}
+            close={this.manageBackMain}
+          />
+        );
         break;
       case ("sheets"):
         return(

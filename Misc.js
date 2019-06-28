@@ -490,6 +490,16 @@ class CloseButton extends React.Component {
   }
 }
 
+class CircleCloseButton extends React.Component {
+  render() {
+    return (<TouchableOpacity style={styles.headerButton} onPress={this.props.onPress}>
+              <Image source={this.props.themeStr == "white" ? require('./img/circle-close.png'): require('./img/circle-close-light.png') }
+                 style={styles.circleCloseButton}
+                 resizeMode={'contain'} />
+            </TouchableOpacity>);
+  }
+}
+
 class TripleDots extends React.Component {
   render() {
     return (<TouchableOpacity style={styles.tripleDotsContainer} onPress={this.props.onPress}>
@@ -642,10 +652,9 @@ class RainbowBar extends React.Component {
       "teal",
       "darkblue",
     ]
-    const bars = colors.map(color=>{
-      return (
-        <View style={{backgroundColor: Sefaria.palette.colors[color], height: 8, flexGrow: 1}} key={color}/>);
-    });
+    const bars = colors.map(color=>(
+        <View style={{backgroundColor: Sefaria.palette.colors[color], height: 8, flexGrow: 1}} key={color}/>)
+    );
     return (
       <View style={styles.rainbowBar} >
         {bars}
@@ -715,6 +724,7 @@ export {
   CategoryAttribution,
   CategoryColorLine,
   CategorySideColorLink,
+  CircleCloseButton,
   CloseButton,
   CollapseIcon,
   DirectedArrow,

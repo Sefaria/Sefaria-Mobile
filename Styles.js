@@ -11,6 +11,26 @@ const readerSideMargin = 42;
 const readerSideMarginIpad = 60;
 
 export default StyleSheet.create({
+  textInput: {
+    fontFamily: 'OpenSans',
+    fontSize: 20,
+    padding: 15,
+    borderRadius: 10,
+    backgroundColor: 'white',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+    elevation: 5
+  },
+  authTextInput: {
+    marginVertical: 7,
+  },
+  pageTitle: {
+    color: 'black',
+    fontSize: 30,
+    fontFamily: 'Amiri',
+  },
   readerSideMargin: {
     marginHorizontal: iPad ? readerSideMarginIpad : readerSideMargin,
   },
@@ -190,6 +210,10 @@ export default StyleSheet.create({
   closeButton: {
     width: 16,
     height: 16,
+  },
+  circleCloseButton: {
+    width: 20,
+    height: 20,
   },
   headerButtonSearch: {
     width: 24,

@@ -275,8 +275,8 @@ class AuthSection extends React.Component{
   render() {
     const authButtons = (
       <View>
-        <Button onPress={this.props.openRegister} title={strings.register}/>
-        <Button onPress={this.props.openLogin} title={strings.login}/>
+        <Button onPress={this.props.openRegister} title={strings.create_your_account}/>
+        <Button onPress={this.props.openLogin} title={strings.sign_in}/>
       </View>
     );
     return (<ReaderNavigationMenuSection

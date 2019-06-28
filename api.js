@@ -12,7 +12,7 @@ var Api = {
   /*
   takes responses from text and links api and returns json in the format of iOS json
   */
-  _baseHost: 'http://jwt.sandbox.sefaria.org/',
+  _baseHost: 'http://localhost:8000/', //'http://jwt.sandbox.sefaria.org/',
   _textCache: {}, //in memory cache for API data
   _linkCache: {},
   _nameCache: {},
@@ -411,165 +411,101 @@ var Api = {
       Sefaria.api._currentRequests[apiType] = null;
     }
   },
-
-  _authenticate: function(authData, authMode = "login") {
-    console.log(Sefaria.api._baseHost);
-    const url = `${Sefaria.api._baseHost + ((authMode === "login") ? "api/login/" : "api/register/")}`;
-    let authBody = {
+  urlFormEncode: function(data) {
+    return Object.entries(data).map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value || '')}`).join('&');
+  },
+  login: function(authData) {
+    const url = `${Sefaria.api._baseHost}api/login/`;
+    const authBody = {
       username: authData.email,
       password: authData.password,
     };
-    console.log(url);
-    console.log("authenticate auth body: ", authBody );
-    fetch(url, {
+    return fetch(url, {
       method: "POST",
       body: JSON.stringify(authBody),
       headers: {
-        "Content-Type": "application/json"
-      }
-    })
-    .catch(err => {
-      console.log(err);
-      alert("Authentication failed, please try again!");
-    })
-    .then(res => {console.log(res); return res.json()})
-    .then(parsedRes => {
-      console.log(parsedRes);
-      let decodedAuth = jwt_decode(parsedRes.access);
-      //Math.floor((new Date()).getTime() / 1000)
-      if (!parsedRes.access) {
-        alert("Authentication failed, please try again!");
-      } else {
-            authStoreToken(
-                parsedRes.access,
-                decodedAuth.exp,
-                parsedRes.refresh
-            );
+        "Content-Type": "application/json;charset=UTF-8"
       }
     });
   },
-
-  authStoreToken: function(token, expires, refreshToken) {
-      authSetToken(token, expires);
-      AsyncStorage.setItem("ap:auth:token", token);
-      AsyncStorage.setItem("ap:auth:expires", expires.toString());
-      AsyncStorage.setItem("ap:auth:refreshToken", refreshToken);
-  },
-
-  /*authSetToken: function(token, expiryDate){
-    Sefaria. {
-      type: AUTH_SET_TOKEN,
-      token: token,
-      expiryDate: expiryDate
+  register: function(authData) {
+    const url = `${Sefaria.api._baseHost}api/register/`;
+    const authBody = {
+      email: authData.email,
+      first_name: authData.first_name,
+      last_name: authData.last_name,
+      password1: authData.password,
+      password2: authData.password,
+      'g-recaptcha-response': authData.g_recaptcha_response,
     };
+    console.log(authBody, Sefaria.api.urlFormEncode(authBody));
+    return fetch(url, {
+      method: "POST",
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+      },
+      body: Sefaria.api.urlFormEncode(authBody)
+    });
   },
-
-export const authGetToken = () => {
-  return (dispatch, getState) => {
-    const promise = new Promise((resolve, reject) => {
-      const token = getState().auth.token;
-      const expiryDate = getState().auth.expiryDate;
-      if (!token || new Date(expiryDate) <= new Date()) {
-        let fetchedToken;
-        AsyncStorage.getItem("ap:auth:token")
-            .catch(err => reject())
-            .then(tokenFromStorage => {
-              fetchedToken = tokenFromStorage;
-              if (!tokenFromStorage) {
-                reject();
-                return;
-              }
-              return AsyncStorage.getItem("ap:auth:expiryDate");
-            })
-            .then(expiryDate => {
-              const parsedExpiryDate = new Date(parseInt(expiryDate));
-              const now = new Date();
-              if (parsedExpiryDate > now) {
-                dispatch(authSetToken(fetchedToken));
-                resolve(fetchedToken);
-              } else {
-                reject();
-              }
-            })
-            .catch(err => reject());
-      } else {
-        resolve(token);
+  refreshToken: function(refreshToken) {
+    const url = `${Sefaria.api._baseHost}api/login/refresh/`;
+    const authBody = {
+      refresh: refreshToken,
+    };
+    return fetch(url, {
+      method: "POST",
+      body: JSON.stringify(authBody),
+      headers: {
+        "Content-Type": "application/json;charset=UTF-8"
       }
     });
-    return promise
-        .catch(err => {
-          return AsyncStorage.getItem("ap:auth:refreshToken")
-              .then(refreshToken => {
-                return fetch(
-                    "https://securetoken.googleapis.com/v1/token?key=" + API_KEY,
-                    {
-                      method: "POST",
-                      headers: {
-                        "Content-Type": "application/x-www-form-urlencoded"
-                      },
-                      body: "grant_type=refresh_token&refresh_token=" + refreshToken
-                    }
-                );
-              })
-              .then(res => res.json())
-              .then(parsedRes => {
-                if (parsedRes.id_token) {
-                  console.log("Refresh token worked!");
-                  dispatch(
-                      authStoreToken(
-                          parsedRes.id_token,
-                          parsedRes.expires_in,
-                          parsedRes.refresh_token
-                      )
-                  );
-                  return parsedRes.id_token;
-                } else {
-                  dispatch(authClearStorage());
-                }
-              });
-        })
-        .then(token => {
-          if (!token) {
-            throw new Error();
-          } else {
-            return token;
-          }
-        });
-  };
-};
+  },
+  authenticate: async function(authData, authMode = "login") {
+    const parsedRes = await (authMode === 'login' ? Sefaria.api.login(authData) : Sefaria.api.register(authData)).then(res => res.json());
+    console.log(parsedRes);
+    if (!parsedRes.access) {
+      alert("Authentication failed, please try again!");
+      return parsedRes;  // return errors
+    } else {
+      alert("Authentication successful, please don't try again!");
+      Sefaria.api.storeAuthToken(parsedRes);
+    }
+  },
 
-export const authAutoSignIn = () => {
-  return dispatch => {
-    dispatch(authGetToken())
-        .then(token => {
-          startMainTabs();
-        })
-        .catch(err => console.log("Failed to fetch token!"));
-  };
-};
+  storeAuthToken: function({ access, refresh }) {
+    const decodedToken = jwt_decode(access);
+    console.log('decoded', decodedToken);
+    Sefaria._auth = {
+      token: access,
+      expires: decodedToken.exp,
+      uid: decodedToken.user_id,
+      refreshToken: refresh,
+    };
+    AsyncStorage.setItem("auth", JSON.stringify(Sefaria._auth));
+  },
 
-export const authClearStorage = () => {
-  return dispatch => {
-    AsyncStorage.removeItem("ap:auth:token");
-    AsyncStorage.removeItem("ap:auth:expiryDate");
-    return AsyncStorage.removeItem("ap:auth:refreshToken");
-  };
-};
-
-export const authLogout = () => {
-  return dispatch => {
-    dispatch(authClearStorage()).then(() => {
-      App();
-    });
-    dispatch(authRemoveToken());
-  };
-};
-
-export const authRemoveToken = () => {
-  return {
-    type: AUTH_REMOVE_TOKEN
-  };
-};*/
+  getAuthToken: async function() {
+    const currTime = Math.floor((new Date()).getTime() / 1000);
+    if (!Sefaria._auth.token || Sefaria._auth.expires <= currTime) {
+      const tempAuth = await AsyncStorage.get("auth");
+      Sefaria._auth = JSON.parse(tempAuth);
+      try {
+        if (Sefaria._auth.expires <= currTime) { throw new Error("expired token"); }
+        return;  // token is valid
+      } catch (error) {
+        // use refreshToken to get new authToken
+        const parsedRes = await Sefaria.api.refreshToken(Sefaria._auth.refreshToken).then(res => res.json());
+        if (!newAuthToken.access) {
+          Sefaria.api.clearAuthStorage();
+          throw new Error("expired refresh token");
+        }
+        Sefaria.api.storeAuthToken(parsedRes);
+      }
+    }
+  },
+  clearAuthStorage: function() {
+    AsyncStorage.removeItem('auth');
+  },
 
 /*
 context is a required param if apiType == 'text'. o/w it's ignored
