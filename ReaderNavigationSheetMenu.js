@@ -10,6 +10,7 @@ import {
   View,
   ScrollView,
   FlatList,
+  Button,
 
 } from 'react-native';
 
@@ -21,7 +22,7 @@ import {
   MenuButton,
   DisplaySettingsButton,
   ToggleSet,
-  LoadingView
+  LoadingView,
 } from './Misc.js';
 
 import styles from './Styles.js';
@@ -38,6 +39,8 @@ class ReaderNavigationSheetMenu extends React.Component {
     close:        PropTypes.func.isRequired,
     toggleLanguage: PropTypes.func.isRequired,
     menuLanguage:   PropTypes.string.isRequired,
+    isLoggedIn:     PropTypes.bool.isRequired,
+    openMySheets:   PropTypes.func.isRequired,
   };
 
   constructor(props) {
@@ -115,9 +118,9 @@ class ReaderNavigationSheetMenu extends React.Component {
 
     render() {
     var showHebrew = this.props.interfaceLang == "hebrew";
-
+      /*
     if (this.state.trendingTags.length == 0 || this.state.allTagsEn.length == 0 || this.state.allTagsHe.length == 0) { return (<LoadingView />); }
-
+    */
     var trendingTagContent = this.state.trendingTags.slice(0, 6).map(function(tag, i) {
         return (
 
@@ -133,6 +136,7 @@ class ReaderNavigationSheetMenu extends React.Component {
 
     var returnHeaderContent =  (
         <View style={styles.menuSheetContentHeader}>
+          { this.props.isLoggedIn ? <Button onPress={this.props.openMySheets} title={strings.mySheets} /> : null}
             <View style={styles.category} key="TrendingSourceSheetTags">
               { showHebrew ?
                   <Text style={[styles.heInt, styles.categorySectionTitle, this.props.theme.categorySectionTitle]}>תוויות פופולרי</Text> :

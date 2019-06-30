@@ -28,30 +28,34 @@ import {DirectedButton} from "./Misc";
 import SheetResult from "./SheetResult";
 
 
-class ReaderNavigationSheetTagMenu extends React.Component {
+class ReaderNavigationSheetList extends React.Component {
   static propTypes = {
     theme:          PropTypes.object.isRequired,
     themeStr:       PropTypes.string.isRequired,
     menuLanguage:   PropTypes.string.isRequired,
+    menuOpen:       PropTypes.oneOf(["mySheets", "sheetTag"]),
   };
 
   constructor(props) {
     super(props);
     this.state = {
       sheets: [],
-
     };
   }
 
-  getData() {
-    Sefaria.api.sheetsByTag(this.props.tag)
-      .then(results => {
-          this.setState({sheets: results.sheets});
-        })
-
-      .catch(error => {
-        console.log(error)
-      })
+  async getData() {
+    const { menuOpen, tag } = this.props;
+    try {
+      let sheets;
+      if (menuOpen === 'sheetTag') {
+        sheets = await Sefaria.api.sheetsByTag(tag);
+      } else if (menuOpen === 'mySheets') {
+        sheets = await Sefaria.api.mySheets();
+      }
+      this.setState({ sheets });
+    } catch (error) {
+      console.log(error);
+    }
   }
   componentDidMount() {
     this.getData();
@@ -63,26 +67,27 @@ class ReaderNavigationSheetTagMenu extends React.Component {
 
 
   renderItem = ({ item, index }) => {
-      var refToOpen = "Sheet "+ item.id
-      return (
-          <View key={index} style={[this.props.theme.menu]}>
-                <SheetResult
-                  menuLanguage={this.props.menuLanguage}
-                  theme={this.props.theme}
-                  title={item.title}
-                  heTitle={item.title}
-                  text={null}
-                  ownerImageUrl={item.ownerImageUrl}
-                  ownerName={item.ownerName}
-                  views={item.views}
-                  onPress={() => this.props.openRef(item.id,item)} />
-          </View>
-      )
+    const refToOpen = "Sheet "+ item.id
+    return (
+      <View key={index} style={[this.props.theme.menu]}>
+        <SheetResult
+          menuLanguage={this.props.menuLanguage}
+          theme={this.props.theme}
+          title={item.title}
+          heTitle={item.title}
+          text={null}
+          ownerImageUrl={item.ownerImageUrl}
+          ownerName={item.ownerName}
+          views={item.views}
+          onPress={() => this.props.openRef(item.id,item)} />
+      </View>
+    );
   }
 
 
     render() {
-      var showHebrew = this.props.interfaceLang == "hebrew";
+      const showHebrew = this.props.interfaceLang == "hebrew";
+      const title = this.props.menuOpen === 'sheetTag' ? this.props.tag : strings.mySheets;
 
       if (this.state.sheets.length == 0) { return (<LoadingView />); }
 
@@ -98,23 +103,20 @@ class ReaderNavigationSheetTagMenu extends React.Component {
                 direction="back"
                 language="english"/>
                 {showHebrew ?
-                  <Text style={[styles.he, styles.categoryTitle, this.props.theme.categoryTitle, {textTransform: "uppercase"}]}>{this.props.tag}</Text> :
-                  <Text style={[styles.en, styles.categoryTitle, this.props.theme.categoryTitle, {textTransform: "uppercase"}]}>{this.props.tag}</Text> }
+                  <Text style={[styles.he, styles.categoryTitle, this.props.theme.categoryTitle, {textTransform: "uppercase"}]}>{title}</Text> :
+                  <Text style={[styles.en, styles.categoryTitle, this.props.theme.categoryTitle, {textTransform: "uppercase"}]}>{title}</Text> }
                 <LanguageToggleButton
                   theme={this.props.theme}
                   interfaceLang={"hebrew"}
                   toggleLanguage={this.props.toggleLanguage}
                   language={this.props.menuLanguage} />
               </View>
-
                 <FlatList
                   style={{}}
                   data={this.state.sheets}
                   keyExtractor={(item, index) => item.id}
                   renderItem={this.renderItem}
                 />
-
-
             </View>
       )
 
@@ -125,4 +127,4 @@ class ReaderNavigationSheetTagMenu extends React.Component {
 
 
 
-export default ReaderNavigationSheetTagMenu;
+export default ReaderNavigationSheetList;

@@ -16,7 +16,7 @@ const REDUX_ACTIONS = {
   setAliyot: "SET_ALIYOT",
   toggleDebugInterruptingMessage: "TOGGLE_DEBUG_INTERRUPTING_MESSAGE",
   setBiLayout: "SET_BI_LAYOUT",
-  authSetToken: "AUTH_SET_TOKEN",
+  setIsLoggedIn: "SET_IS_LOGGED_IN",
 };
 
 const ACTION_CREATORS = {
@@ -67,11 +67,9 @@ const ACTION_CREATORS = {
     layout,
     fromAsync,
   }),
-  authSetToken: (token, expirationDate, refresh) => ({
-      type: REDUX_ACTIONS.authSetToken,
-      token,
-      expirationDate,
-      refresh,
+  setIsLoggedIn: isLoggedIn => ({
+    type: REDUX_ACTIONS.setIsLoggedIn,
+    isLoggedIn,
   }),
 }
 
@@ -107,7 +105,11 @@ const ASYNC_STORAGE_DEFAULTS = {
   biLayout: {
     default: 'stacked',
     action: ACTION_CREATORS.setBiLayout,
-  }
+  },
+  auth: {
+    default: false,
+    action: ACTION_CREATORS.setIsLoggedIn,
+  },
 };
 
 const DEFAULT_STATE = {
@@ -120,6 +122,7 @@ const DEFAULT_STATE = {
   showAliyot: ASYNC_STORAGE_DEFAULTS.showAliyot.default,
   debugInterruptingMessage: ASYNC_STORAGE_DEFAULTS.debugInterruptingMessage.default,
   biLayout: ASYNC_STORAGE_DEFAULTS.biLayout.default,
+  isLoggedIn: ASYNC_STORAGE_DEFAULTS.auth.default,
 };
 
 const saveFieldToAsync = function (field, value) {
@@ -196,12 +199,13 @@ const reducer = function (state = DEFAULT_STATE, action) {
         ...state,
         biLayout: action.layout,
       }
-    case REDUX_ACTIONS.authSetToken:
+    case REDUX_ACTIONS.setIsLoggedIn:
+      // action can be passed either object or bool
+      const isLoggedIn = !!action.isLoggedIn;
+      console.log("redux isLoggedIn", isLoggedIn);
       return {
         ...state,
-        authToken: action.token,
-        authTokenExpirationDate: action.expirationDate,
-        authRefreshToken: action.refresh
+        isLoggedIn,
       }
     default:
       return state;
@@ -217,11 +221,11 @@ const initAsyncStorage = () => {
   let asyncData = {};
   for (field in ASYNC_STORAGE_DEFAULTS) {
     if (ASYNC_STORAGE_DEFAULTS.hasOwnProperty(field)) {
-      var loader = function(field, value) {
+      const loader = function (field, value) {
         const actionValue = value ? JSON.parse(value) : ASYNC_STORAGE_DEFAULTS[field].default;
         store.dispatch(ASYNC_STORAGE_DEFAULTS[field].action(actionValue, true));
       }.bind(null, field);
-      var promise = AsyncStorage.getItem(field)
+      const promise = AsyncStorage.getItem(field)
         .then(loader)
         .catch(function(error) {
           console.error("AsyncStorage failed to load setting: " + error);

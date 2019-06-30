@@ -26,6 +26,8 @@ class AuthPage extends React.Component {
     theme:    PropTypes.object.isRequired,
     themeStr: PropTypes.string.isRequired,
     close:    PropTypes.func.isRequired,
+    showToast:PropTypes.func.isRequired,
+    setIsLoggedIn: PropTypes.func.isRequired,
   }
   state = {
     email: null,
@@ -46,6 +48,11 @@ class AuthPage extends React.Component {
     let errors = await Sefaria.api.authenticate(this.state, this.props.authMode);
     if (!errors) { errors = {}; }
     this.setState({ errors });
+    if (Object.keys(errors).length === 0 && Sefaria._auth.uid) {
+      this.props.setIsLoggedIn(true);
+      this.props.close();
+      this.props.showToast(strings.loginSuccessful);
+    }
   };
 
   onRecaptchaSuccess = recaptchaKey => {

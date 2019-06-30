@@ -55,6 +55,8 @@ class ReaderNavigationMenu extends React.Component {
     searchType:     PropTypes.oneOf(['text', 'sheet']).isRequired,
     toggleDebugInterruptingMessage: PropTypes.func.isRequired,
     debugInterruptingMessage: PropTypes.bool.isRequired,
+    isLoggedIn:     PropTypes.bool.isRequired,
+    logout:         PropTypes.func.isRequired,
   };
 
   constructor(props) {
@@ -236,7 +238,14 @@ class ReaderNavigationMenu extends React.Component {
                   </TouchableOpacity>
                 </View>
 
-                <AuthSection theme={this.props.theme} openLogin={this.props.openLogin} openRegister={this.props.openRegister} />
+                <AuthSection
+                  theme={this.props.theme}
+                  openLogin={this.props.openLogin}
+                  openRegister={this.props.openRegister}
+                  isLoggedIn={this.props.isLoggedIn}
+                  logout={this.props.logout}
+                  interfaceLang={this.props.interfaceLang}
+                />
 
                 <View style={styles.navBottomLinks}>
                   <TouchableOpacity onPress={this.props.openSettings} hitSlop={hitSlop}>
@@ -269,21 +278,29 @@ class ReaderNavigationMenu extends React.Component {
 
 class AuthSection extends React.Component{
   static propTypes = {
-    openLogin : PropTypes.func.isRequired,
-    openRegister : PropTypes.func.isRequired
+    openLogin: PropTypes.func.isRequired,
+    openRegister: PropTypes.func.isRequired,
+    logout: PropTypes.func.isRequired,
+    isLoggedIn: PropTypes.bool.isRequired,
+    theme:      PropTypes.object.isRequired,
+    interfaceLang: PropTypes.string.isRequired,
   }
   render() {
-    const authButtons = (
+    const authButtons = this.props.isLoggedIn ? (
       <View>
-        <Button onPress={this.props.openRegister} title={strings.create_your_account}/>
-        <Button onPress={this.props.openLogin} title={strings.sign_in}/>
+        <Button onPress={this.props.logout} title={strings.logout} />
+      </View>
+    ) : (
+      <View>
+        <Button onPress={this.props.openRegister} title={strings.create_your_account} />
+        <Button onPress={this.props.openLogin} title={strings.sign_in} />
       </View>
     );
     return (<ReaderNavigationMenuSection
               hasmore={false}
               theme={this.props.theme}
-              title={strings.login}
-              heTitle={strings.login}
+              title={strings.sign_in}
+              heTitle={strings.sign_in}
               content={authButtons}
               interfaceLang={this.props.interfaceLang} />);
   }

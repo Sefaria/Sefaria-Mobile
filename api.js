@@ -24,7 +24,6 @@ var Api = {
   _translateVersions: {},
   _indexDetails: {},
   _currentRequests: {}, // object to remember current request in order to abort. keyed by apiType
-  _auth: {},
   _textCacheKey: function(ref, context, versions) {
     return `${ref}|${context}${(!!versions ? (!!versions.en ? `|en:${versions.en}` : "") + (!!versions.he ? `|he:${versions.he}` : "")  : "")}`;
   },
@@ -142,13 +141,8 @@ var Api = {
   apiType: string `oneOf(["text","links","index"])`. passing undefined gets the standard Reader URL.
   context is a required param if apiType == 'text'. o/w it's ignored
   */
-  _toURL: function(ref, useHTTPS, apiType, urlify, { context, versions, more_data }) {
-    let url = '';
-    if (useHTTPS) {
-      url += 'https://www.sefaria.org/';
-    } else {
-      url += 'http://www.sefaria.org/';
-    }
+  _toURL: function(ref, useHTTPS, apiType, urlify, { context, versions, more_data, uid }) {
+    let url = Sefaria.api._baseHost;
 
     let urlSuffix = '';
     if (apiType) {
@@ -188,6 +182,9 @@ var Api = {
         case "name":
           url += "api/name/";
           //urlSuffix = '?ref_only=0';
+          break;
+        case "userSheets":
+          url += `api/sheets/user/${uid}`;
           break;
         default:
           console.error("You passed invalid type: ",apiType," into _toURL()");
@@ -383,6 +380,18 @@ var Api = {
     });
   },
 
+  mySheets: async function() {
+    await Sefaria.api.getAuthToken();
+    if (!Sefaria._auth.uid) { alert("Not signed in"); return; }
+    const response = await Sefaria.api.userSheets(Sefaria._auth.uid);
+    return response.sheets;
+  },
+
+  userSheets: async function(uid) {
+    const response = await Sefaria.api._request('', 'userSheets', false, { uid }, false, true);
+    return response;
+  },
+
   isACaseVariant: function(query, data) {
     // Check if query is just an improper capitalization of something that otherwise would be a ref
     // query: string
@@ -464,15 +473,13 @@ var Api = {
     const parsedRes = await (authMode === 'login' ? Sefaria.api.login(authData) : Sefaria.api.register(authData)).then(res => res.json());
     console.log(parsedRes);
     if (!parsedRes.access) {
-      alert("Authentication failed, please try again!");
       return parsedRes;  // return errors
     } else {
-      alert("Authentication successful, please don't try again!");
-      Sefaria.api.storeAuthToken(parsedRes);
+      await Sefaria.api.storeAuthToken(parsedRes);
     }
   },
 
-  storeAuthToken: function({ access, refresh }) {
+  storeAuthToken: async function({ access, refresh }) {
     const decodedToken = jwt_decode(access);
     console.log('decoded', decodedToken);
     Sefaria._auth = {
@@ -481,13 +488,13 @@ var Api = {
       uid: decodedToken.user_id,
       refreshToken: refresh,
     };
-    AsyncStorage.setItem("auth", JSON.stringify(Sefaria._auth));
+    await AsyncStorage.setItem("auth", JSON.stringify(Sefaria._auth));
   },
 
   getAuthToken: async function() {
     const currTime = Math.floor((new Date()).getTime() / 1000);
     if (!Sefaria._auth.token || Sefaria._auth.expires <= currTime) {
-      const tempAuth = await AsyncStorage.get("auth");
+      const tempAuth = await AsyncStorage.getItem("auth");
       Sefaria._auth = JSON.parse(tempAuth);
       try {
         if (Sefaria._auth.expires <= currTime) { throw new Error("expired token"); }
@@ -495,10 +502,11 @@ var Api = {
       } catch (error) {
         // use refreshToken to get new authToken
         const parsedRes = await Sefaria.api.refreshToken(Sefaria._auth.refreshToken).then(res => res.json());
-        if (!newAuthToken.access) {
+        if (!parsedRes.access) {
           Sefaria.api.clearAuthStorage();
           throw new Error("expired refresh token");
         }
+        console.log("successfully refreshed token");
         Sefaria.api.storeAuthToken(parsedRes);
       }
     }
@@ -512,18 +520,21 @@ context is a required param if apiType == 'text'. o/w it's ignored
 versions is object with keys { en, he } specifying version titles
 failSilently - if true, dont display a message if api call fails
 */
-  _request: function(ref, apiType, urlify, { context, versions, more_data }, failSilently) {
+  _request: async function(ref, apiType, urlify, { context, versions, more_data, uid }, failSilently, isPrivate) {
     const controller = new AbortController();
     const signal = controller.signal;
+    if (isPrivate) { await Sefaria.api.getAuthToken(); }
+    const headers = isPrivate ? {'Authorization': `Bearer ${Sefaria._auth.token}`} : {};
     Sefaria.api._currentRequests[apiType] = controller;
-    var url = Sefaria.api._toURL(ref, true, apiType, urlify, { context, versions, more_data });
+    const url = Sefaria.api._toURL(ref, true, apiType, urlify, { context, versions, more_data, uid });
     return new Promise(function(resolve, reject) {
-      fetch(url, {method: 'GET', signal})
+      fetch(url, {method: 'GET', signal, headers })
       .then(function(response) {
         //console.log('checking response',response.status);
         if (response.status >= 200 && response.status < 300) {
           return response;
         } else {
+          console.log('response code error', response);
           reject(response.statusText);
         }
       })

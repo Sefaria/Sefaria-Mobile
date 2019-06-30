@@ -22,6 +22,7 @@ const ERRORS = {
 };
 
 Sefaria = {
+  _auth: {},
   init: async function() {
     // numTimesOpenedApp
     const numTimesOpenedApp = await AsyncStorage.getItem("numTimesOpenedApp");

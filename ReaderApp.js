@@ -48,7 +48,7 @@ import SwipeableCategoryList from './SwipeableCategoryList';
 import Toast, {DURATION} from 'react-native-easy-toast';
 import BackManager from './BackManager';
 import ReaderNavigationSheetMenu from "./ReaderNavigationSheetMenu";
-import ReaderNavigationSheetTagMenu from "./ReaderNavigationSheetTagMenu";
+import ReaderNavigationSheetList from "./ReaderNavigationSheetList";
 import Sheet from "./Sheet.js";
 import SheetMetadata from "./SheetMeta.js";
 import DeepLinkRouter from "./DeepLinkRouter.js";
@@ -73,6 +73,8 @@ class ReaderApp extends React.Component {
     biLayout:     PropTypes.string.isRequired,
     textLanguage: PropTypes.string.isRequired,
     overwriteVersions: PropTypes.bool.isRequired,
+    isLoggedIn:   PropTypes.bool.isRequired,
+    setIsLoggedIn:PropTypes.func.isRequired,
   };
 
   constructor(props, context) {
@@ -158,6 +160,11 @@ class ReaderApp extends React.Component {
     Sefaria.downloader.onChange = this.onDownloaderChange;
     this.groggerSound = new Sound('grogger.mp3', Sound.MAIN_BUNDLE, (error) => {});
   }
+
+  logout = () => {
+    Sefaria.api.clearAuthStorage();
+    this.props.setIsLoggedIn(false);
+  };
 
   networkChangeListener = isConnected => {
     this.setState({hasInternet: isConnected});
@@ -1056,6 +1063,10 @@ class ReaderApp extends React.Component {
     this.openMenu("sheetTag");
   };
 
+  openMySheets = () => {
+    this.openMenu("mySheets");
+  };
+
   clearMenuState = () => {
       this.setState({
           navigationCategories: [],
@@ -1564,7 +1575,10 @@ class ReaderApp extends React.Component {
               openUri={this.openUri}
               searchType={this.state.searchType}
               toggleDebugInterruptingMessage={this.props.toggleDebugInterruptingMessage}
-              debugInterruptingMessage={this.props.debugInterruptingMessage}/>
+              debugInterruptingMessage={this.props.debugInterruptingMessage}
+              isLoggedIn={this.props.isLoggedIn}
+              logout={this.logout}
+            />
           </View>)
         );
       case ("text toc"):
@@ -1698,6 +1712,8 @@ class ReaderApp extends React.Component {
             theme={this.props.theme}
             themeStr={this.props.themeStr}
             close={this.manageBackMain}
+            showToast={this.showToast}
+            setIsLoggedIn={this.props.setIsLoggedIn}
           />
         );
         break;
@@ -1715,28 +1731,28 @@ class ReaderApp extends React.Component {
             menuLanguage={this.props.menuLanguage}
             interfaceLang={this.state.interfaceLang}
             openSheetTagMenu={this.openSheetTag}
+            isLoggedIn={this.props.isLoggedIn}
+            openMySheets={this.openMySheets}
            />
         );
         break;
       case ("sheetTag"):
+      case ("mySheets"):
         return(
           loading ?
           <LoadingView theme={this.props.theme} /> :
-           <ReaderNavigationSheetTagMenu
-            icon={require('./img/sheet.png')}
+           <ReaderNavigationSheetList
             theme={this.props.theme}
             themeStr={this.props.themeStr}
             menuLanguage={this.props.menuLanguage}
             interfaceLang={this.state.interfaceLang}
             toggleLanguage={this.toggleMenuLanguage}
-            hasInternet={this.state.hasInternet}
             tag={this.state.sheetTag}
+            menuOpen={this.state.menuOpen}
             onBack={this.manageBackMain}
             openRef={this.openRefSheet}
            />
         );
-
-
     }
     const isSheet = !!this.state.sheet;
     let textColumnFlex = this.state.textListVisible ? 1.0 - this.state.textListFlex : 1.0;
@@ -1956,6 +1972,7 @@ const mapStateToProps = (
     showAliyot,
     debugInterruptingMessage,
     biLayout,
+    isLoggedIn,
   }) => ({
   theme,
   themeStr,
@@ -1968,6 +1985,7 @@ const mapStateToProps = (
   showAliyot,
   debugInterruptingMessage,
   biLayout,
+  isLoggedIn,
 });
 
 const mapDispatchToProps = dispatch => ({
@@ -1980,6 +1998,7 @@ const mapDispatchToProps = dispatch => ({
   setAliyot: show => { dispatch(ACTION_CREATORS.setAliyot(show)); },
   toggleDebugInterruptingMessage: () => { dispatch(ACTION_CREATORS.toggleDebugInterruptingMessage()); },
   setBiLayout: layout => { dispatch(ACTION_CREATORS.setBiLayout(layout)); },
+  setIsLoggedIn: isLoggedIn => { dispatch(ACTION_CREATORS.setIsLoggedIn(isLoggedIn)); },
 });
 
 export default connect(
