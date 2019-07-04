@@ -180,7 +180,7 @@ var Api = {
           break;
         case "sheets":
           url += "api/sheets/";
-          urlSuffix = `?more_data=${more_data === true ? 1 : 0}`;
+          urlSuffix = `?more_data=${more_data === true ? 1 : 1}`;
           break;
         case "name":
           url += "api/name/";
