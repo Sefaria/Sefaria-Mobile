@@ -492,7 +492,7 @@ var Api = {
   },
 
   getAuthToken: async function() {
-    const currTime = Math.floor((new Date()).getTime() / 1000);
+    const currTime = Sefaria.util.epoch_time();
     if (!Sefaria._auth.token || Sefaria._auth.expires <= currTime) {
       const tempAuth = await AsyncStorage.getItem("auth");
       Sefaria._auth = JSON.parse(tempAuth);

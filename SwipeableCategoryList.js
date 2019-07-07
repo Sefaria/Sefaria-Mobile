@@ -23,6 +23,7 @@ import {
   LanguageToggleButton,
   AnimatedRow,
   SText,
+  LoadingView,
 } from './Misc.js';
 
 import styles from './Styles';
@@ -38,14 +39,21 @@ class SwipeableCategoryList extends React.Component {
     openRef:            PropTypes.func.isRequired,
     language:           PropTypes.oneOf(["english","hebrew"]),
     interfaceLang:      PropTypes.oneOf(["english","hebrew"]),
-    data:               PropTypes.array.isRequired,
     onRemove:           PropTypes.func.isRequired,
     title:              PropTypes.string.isRequired,
+    loadData:           PropTypes.func.isRequired,
     menuOpen:           PropTypes.oneOf(["saved", "history"]),
   };
 
   constructor(props) {
     super(props);
+    this.state = {
+      data: null,
+    };
+    props.loadData().then(data => {
+      console.log(data);
+      this.setState({ data });
+    });
     this._rowRefs = {};
   }
 
@@ -80,9 +88,9 @@ class SwipeableCategoryList extends React.Component {
         <CategorySideColorLink
           theme={this.props.theme}
           themeStr={this.props.themeStr}
-          category={item.category}
+          category={Sefaria.categoryForTitle(item.book)}
           enText={item.ref}
-          heText={item.heRef}
+          heText={item.he_ref}
           language={this.props.language}
           onPress={this.props.openRef.bind(null, item.ref, null, item.versions)}
         />
@@ -127,15 +135,18 @@ class SwipeableCategoryList extends React.Component {
           />
         </View>
 
-        <FlatListClass
-          data={this.props.data}
-          renderItem={this.renderRow}
-          keyExtractor={this._keyExtractor}
-          bounceFirstRowOnMount={!Sefaria._hasSwipeDeleted}
-          maxSwipeDistance={90}
-          renderQuickActions={this.renderDeleteButton}
-          language={this.props.language}
-        />
+        {!!this.state.data ?
+          <FlatListClass
+            data={this.state.data}
+            renderItem={this.renderRow}
+            keyExtractor={this._keyExtractor}
+            bounceFirstRowOnMount={!Sefaria._hasSwipeDeleted}
+            maxSwipeDistance={90}
+            renderQuickActions={this.renderDeleteButton}
+            language={this.props.language}
+          />
+         : <LoadingView theme={this.props.theme}/>
+        }
       </View>
     );
   }

@@ -9,6 +9,7 @@ import { Search } from '@sefaria/search';
 import sanitizeHtml from 'sanitize-html'
 import Downloader from './downloader';
 import Api from './api';
+import History from './history';
 import Packages from './packages';
 import LinkContent from './LinkContent';
 import { initAsyncStorage } from './ReduxStore';
@@ -27,10 +28,13 @@ Sefaria = {
     // numTimesOpenedApp
     const numTimesOpenedApp = await AsyncStorage.getItem("numTimesOpenedApp");
     Sefaria.numTimesOpenedApp = !!numTimesOpenedApp ? parseInt(numTimesOpenedApp) : 0;
+    if (Sefaria.numTimesOpenedApp === 0) {
+      AsyncStorage.setItem('lastSyncTime', Sefaria.util.epoch_time());
+    }
     AsyncStorage.setItem("numTimesOpenedApp", JSON.stringify(Sefaria.numTimesOpenedApp + 1));
     Sefaria.lastAppUpdateTime = await Sefaria.getLastAppUpdateTime();
     await Sefaria._loadTOC();
-    await Sefaria._loadHistoryItems();
+    await Sefaria.history._loadHistoryItems();
     await initAsyncStorage();
   },
   postInitSearch: function() {
@@ -41,7 +45,7 @@ Sefaria = {
     return Sefaria.getGalusStatus()
       .then(Sefaria._loadCalendar)
       .then(Sefaria._loadPeople)
-      .then(Sefaria._loadSavedItems)
+      .then(Sefaria.history._loadSavedItems)
       .then(Sefaria._loadHebrewCategories)
       .then(Sefaria.packages._load)
       .then(Sefaria.downloader.init);  // downloader init is dependent on packages
@@ -300,6 +304,28 @@ Sefaria = {
       return bookRefStem;
   },
   toHeSegmentRef: function(heSectionRef, enSegmentRef) {
+    if (!heSectionRef) {
+      try {
+        // try to convert with some heuristics
+        const enTitle = Sefaria.textTitleForRef(enSegmentRef);
+        if (!enTitle) { return enSegmentRef; }
+        const enSectionStr = enSegmentRef.replace(enTitle + ' ', '');
+        const heTitle = Sefaria.index(enTitle).heTitle;
+        if (enSectionStr.match(/(?:\d+:)*\d+(?:\-(?:\d+:)*\d)?$/)) {
+          // simple text
+          const heStartSections = enSectionStr.split('-')[0].split(':').map(s => Sefaria.hebrew.encodeHebrewNumeral(parseInt(s))).join(':');
+          let heEndSections = '';
+          if (enSectionStr.indexOf('-') !== -1) {
+            heEndSections = '-' + enSectionStr.split('-')[1].split(':').map(s => Sefaria.hebrew.encodeHebrewNumeral(parseInt(s))).join(':');
+          }
+          console.log(`${heTitle} ${heStartSections}-${heEndSections}`);
+          return `${heTitle} ${heStartSections}${heEndSections}`;
+        }
+        return enSegmentRef;
+      } catch (e) {
+        return enSegmentRef;
+      }
+    }
     const enSections = enSegmentRef.substring(enSegmentRef.lastIndexOf(" ")+1).split(":");
     const heSections = heSectionRef.substring(heSectionRef.lastIndexOf(" ")+1).split(":");
     if (enSections.length === heSections.length) { return heSectionRef; }  // already segment level
@@ -659,91 +685,6 @@ Sefaria = {
     var year = date.getFullYear();
 
     return month + '/' + day + '/' + year;
-  },
-  history: null,
-  saveHistoryItem: function(item, overwriteVersions) {
-    const itemTitle = Sefaria.textTitleForRef(item.ref);
-    let items = Sefaria.history || [];
-    const existingItemIndex = items.findIndex(existing => Sefaria.textTitleForRef(existing.ref) === itemTitle);
-    if (existingItemIndex !== -1) {
-      if (!overwriteVersions) {
-        item.versions = items[existingItemIndex].versions;
-      }
-      items.splice(existingItemIndex, 1);
-    }
-    items = [item].concat(items);
-    Sefaria.history = items;
-    AsyncStorage.setItem("recent", JSON.stringify(items)).catch(function(error) {
-      console.error("AsyncStorage failed to save: " + error);
-    });
-  },
-  removeHistoryItem: function(item) {
-    const itemTitle = Sefaria.textTitleForRef(item.ref);
-    let items = Sefaria.history || [];
-    const existingItemIndex = items.findIndex(existing => Sefaria.textTitleForRef(existing.ref) === itemTitle);
-    if (existingItemIndex !== -1) {
-      items.splice(existingItemIndex, 1);
-    }
-    Sefaria.history = items;
-    AsyncStorage.setItem("recent", JSON.stringify(items)).catch(function(error) {
-      console.error("AsyncStorage failed to save: " + error);
-    });
-  },
-  getHistoryRefForTitle: function(title) {
-    //given an index title, return the ref of that title in Sefaria.history.
-    //if it doesn't exist, return null
-    var items = Sefaria.history || [];
-    items = items.filter(function(existing) {
-      return Sefaria.textTitleForRef(existing.ref) === title;
-    });
-
-    if (items.length > 0) {
-      return items[0];
-    } else {
-      return null;
-    }
-
-  },
-  _loadHistoryItems: function() {
-    return new Promise((resolve, reject) => {
-      AsyncStorage.getItem("recent").then(data => {
-        Sefaria.history = JSON.parse(data) || [];
-        resolve();
-      });
-    });
-  },
-  saved: [],
-  _hasSwipeDeleted: false,
-  saveSavedItem: function(item) {
-    items = [item].concat(Sefaria.saved);
-    Sefaria.saved = items;
-    AsyncStorage.setItem("saved", JSON.stringify(items)).catch(function(error) {
-      console.error("AsyncStorage failed to save: " + error);
-    });
-  },
-  removeSavedItem: function(item) {
-    const existingItemIndex = Sefaria.indexOfSaved(item.ref)
-    if (existingItemIndex !== -1) {
-      Sefaria.saved.splice(existingItemIndex, 1);
-    }
-    AsyncStorage.setItem("saved", JSON.stringify(Sefaria.saved)).catch(function(error) {
-      console.error("AsyncStorage failed to save: " + error);
-    });
-    Sefaria._hasSwipeDeleted = true;
-    AsyncStorage.setItem("hasSwipeDeleted", "true").catch(function(error) {
-      console.error("AsyncStorage failed to save: " + error);
-    });
-  },
-  indexOfSaved: function(ref) {
-    return Sefaria.saved.findIndex(existing => ref === existing.ref);
-  },
-  _loadSavedItems: function() {
-    AsyncStorage.getItem("hasSwipeDeleted").then(function(data) {
-      Sefaria._hasSwipeDeleted = JSON.parse(data) || false;
-    });
-    return AsyncStorage.getItem("saved").then(function(data) {
-      Sefaria.saved = JSON.parse(data) || [];
-    });
   },
   saveRecentQuery: function(query, type) {
     //type = ["ref", "book", "person", "toc", "query"]
@@ -1243,6 +1184,18 @@ Sefaria = {
 };
 
 Sefaria.util = {
+  timeoutPromise: function(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  },
+  epoch_time() {
+    // get current epoch time in UTC
+    // silly but thus is JS
+    // see: https://stackoverflow.com/a/6777470/4246723
+    const now = new Date();
+    const nowUTC =  Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(),
+                             now.getUTCHours(), now.getUTCMinutes(), now.getUTCSeconds());
+    return Math.round(nowUTC/1000);
+  },
   cleanSheetHTML(html) {
     html = html.replace(/\u00a0/g, ' ').replace(/&nbsp;/g, ' ').replace(/(\r\n|\n|\r)/gm, "");
     const cleanAttributes = Platform.OS === 'android' ? {} : {
@@ -1476,6 +1429,8 @@ Sefaria.util = {
 Sefaria.downloader = Downloader;
 
 Sefaria.api = Api;
+
+Sefaria.history = History;
 
 Sefaria.packages = Packages;
 

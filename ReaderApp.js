@@ -92,7 +92,7 @@ class ReaderApp extends React.Component {
         offsetRef: null, /* used to jump to specific ref when opening a link*/
         segmentRef: "",
         segmentIndexRef: -1,
-        sectionIndexRef: -1,
+        sectionIndexRef: 0,
         textReference: "",
         textTitle: "",
         loaded: false,
@@ -237,7 +237,7 @@ class ReaderApp extends React.Component {
         // wait to check for interrupting message until after asyncstorage is loaded
         this._interruptingMessageRef && this._interruptingMessageRef.checkForMessage();
         if (!this._initDeepLinkURL) {
-          const mostRecent =  Sefaria.history.length ? Sefaria.history[0] : {ref: "Genesis 1"};
+          const mostRecent =  Sefaria.history.lastPlace.length ? Sefaria.history.lastPlace[0] : {ref: "Genesis 1"};
           this.openRef(mostRecent.ref, null, mostRecent.versions, false)  // first call to openRef should not add to backStack
           .then(Sefaria.postInitSearch)
           .then(Sefaria.postInit)
@@ -473,11 +473,13 @@ class ReaderApp extends React.Component {
           nextFrame().then(() => {
             this.animateTextList(0.0001, this.state.textListFlexPreference, 200);
           });
+          Sefaria.history.saveHistoryItem(this.state, this.props.textLanguage, true);
         });
       } else {
-        this.setState(stateObj);
+        this.setState(stateObj, () => {
+          Sefaria.history.saveHistoryItem(this.state, this.props.textLanguage, true);
+        });
       }
-      Sefaria.saveHistoryItem({ref: segmentRef, heRef: this.state.heRef, category: Sefaria.categoryForRef(segmentRef), versions: this.state.selectedVersions}, this.props.overwriteVersions);
       this.forceUpdate();
   };
   /*
@@ -502,7 +504,7 @@ class ReaderApp extends React.Component {
           heTitle: "",
           heRef: "",
           segmentIndexRef: -1,
-          sectionIndexRef: -1,
+          sectionIndexRef: 0,
           selectedVersions: versions,
           currVersions: {en: null, he: null},
           textToc: null,
@@ -540,11 +542,11 @@ class ReaderApp extends React.Component {
             }
             this.setState(nextState, ()=>{
               this.loadSecondaryData(data.sectionRef);
+              Sefaria.history.saveHistoryItem(this.state, this.props.textLanguage);
             });
 
             // Preload Text TOC data into memory
             this.loadTextTocData(data.indexTitle, data.sectionRef);
-            Sefaria.saveHistoryItem({ref: ref, heRef: data.heRef, category: Sefaria.categoryForRef(ref), versions: this.state.selectedVersions}, this.props.overwriteVersions);
             resolve();
         }).catch(error => {
           console.log(error);
@@ -708,16 +710,18 @@ class ReaderApp extends React.Component {
       });
   };
 
-  updateTitle = (ref, heRef) => {
+  updateTitle = (ref, heRef, sectionIndexRef) => {
       //console.log("updateTitle");
       this.setState({
         textReference: ref,
-        heRef: heRef
+        heRef,
+        sectionIndexRef,
+      }, () => {
+        if (!this.state.textListVisible) {
+          // otherwise saveHistoryItem is called in textListPressed
+          Sefaria.history.saveHistoryItem(this.state, this.props.textLanguage, true);
+        }
       });
-      if (!this.state.textListVisible) {
-        // otherwise saveHistoryItem is called in textListPressed
-        Sefaria.saveHistoryItem({ref: ref, heRef: heRef, category: Sefaria.categoryForRef(ref)});
-      }
   };
 
   openRefSearch = ref => {
@@ -874,7 +878,7 @@ class ReaderApp extends React.Component {
       }
       if (!versions && overwriteVersions) {
         //pull up default versions
-        const historyItem = Sefaria.getHistoryRefForTitle(title);
+        const historyItem = Sefaria.history.getHistoryRefForTitle(title);
         if (!!historyItem) { versions = historyItem.versions; }
       }
 
@@ -1679,11 +1683,11 @@ class ReaderApp extends React.Component {
             openRef={this.openRef}
             language={this.props.menuLanguage}
             interfaceLang={this.state.interfaceLang}
-            data={Sefaria.history}
-            onRemove={Sefaria.removeHistoryItem}
+            onRemove={null}
             title={strings.history}
             menuOpen={this.state.menuOpen}
             icon={this.props.themeStr === "white" ? require('./img/clock.png') : require('./img/clock-light.png')}
+            loadData={Sefaria.history.syncHistory}
           />
         );
         break;
@@ -1696,11 +1700,11 @@ class ReaderApp extends React.Component {
             toggleLanguage={this.toggleMenuLanguage}
             openRef={this.openRef}
             language={this.props.menuLanguage}
-            data={Sefaria.saved}
             onRemove={Sefaria.removeSavedItem}
             title={strings.saved}
             menuOpen={this.state.menuOpen}
             icon={this.props.themeStr === "white" ? require('./img/starUnfilled.png') : require('./img/starUnfilled-light.png')}
+            loadData={() => Sefaria.saved}
           />
         );
         break;

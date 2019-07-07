@@ -49,7 +49,7 @@ class ReaderControls extends React.Component {
   }
 
   render() {
-    const isSaved = Sefaria.indexOfSaved(this.props.enRef) !== -1;
+    const isSaved = Sefaria.history.indexOfSaved(this.props.enRef) !== -1;
     var langStyle = this.props.language === "hebrew" ? [styles.he, {marginTop: 4}] : [styles.en];
     var titleTextStyle = [langStyle, styles.headerTextTitleText, this.props.theme.text];
     if (this.shouldShowHamburger()) {
@@ -103,9 +103,9 @@ class ReaderControls extends React.Component {
           <TouchableOpacity onPress={
               () => {
                 if (isSaved) {
-                  Sefaria.removeSavedItem({ ref: this.props.enRef });
+                  Sefaria.history.removeSavedItem({ ref: this.props.enRef });
                 } else {
-                  Sefaria.saveSavedItem({ ref: this.props.enRef, heRef: this.props.heRef, category: this.props.categories[0] });
+                  Sefaria.history.saveSavedItem({ ref: this.props.enRef, heRef: this.props.heRef, category: this.props.categories[0] });
                 }
                 this.forceUpdate();
               }

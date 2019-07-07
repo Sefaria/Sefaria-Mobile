@@ -79,7 +79,7 @@ class ReaderNavigationCategoryMenu extends React.PureComponent {
         // add book
         let oref;
         if (!isCat) {
-          oref = Sefaria.getHistoryRefForTitle(item.title);
+          oref = Sefaria.history.getHistoryRefForTitle(item.title);
           if (!oref) {
             oref = { ref: item.firstSection };
           }
