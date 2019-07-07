@@ -58,7 +58,7 @@
 		</dict>
 	</dict>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string></string>
+	<string>Sefaria does not use your location.</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>Heebo-Regular.ttf</string>
@@ -98,5 +98,7 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>Sefaria does not use your location.</string>
 </dict>
 </plist>
