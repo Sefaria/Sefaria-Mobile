@@ -347,7 +347,7 @@ class TextColumn extends React.Component {
     let heTitle = this.props.sectionHeArray[biggerSection];
 
     if (enTitle !== this.props.textReference) {
-      this.props.updateTitle(enTitle, heTitle);
+      this.props.updateTitle(enTitle, heTitle, biggerSection);
     }
   };
 
