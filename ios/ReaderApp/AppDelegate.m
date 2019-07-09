@@ -12,12 +12,13 @@
 #import <React/RCTRootView.h>
 #import <RNFSManager.h>
 #import <React/RCTLinkingManager.h>
-
+@import Firebase;
 
 @implementation AppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
+  [FIRApp configure];
   [NSThread sleepForTimeInterval:1.4];
   RCTBridge *bridge = [[RCTBridge alloc] initWithDelegate:self launchOptions:launchOptions];
   RCTRootView *rootView = [[RCTRootView alloc] initWithBridge:bridge

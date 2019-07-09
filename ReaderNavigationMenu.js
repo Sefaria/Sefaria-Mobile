@@ -139,7 +139,6 @@ class ReaderNavigationMenu extends React.Component {
       categories = categories.map(function(cat) {
         var openCat = function() {
           this.props.setCategories([cat]);
-          Sefaria.track.event("Reader","Navigation Sub Category Click",cat);
         }.bind(this);
         var heCat   = Sefaria.hebrewCategory(cat);
         return (<CategoryBlockLink

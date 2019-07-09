@@ -4,6 +4,8 @@ import android.app.Application;
 
 import com.facebook.react.ReactApplication;
 import com.reactnativecommunity.webview.RNCWebViewPackage;
+import io.invertase.firebase.RNFirebasePackage;
+import io.invertase.firebase.analytics.RNFirebaseAnalyticsPackage;
 import com.reactnativecommunity.asyncstorage.AsyncStoragePackage;
 import com.reactnativecommunity.netinfo.NetInfoPackage;
 import com.actionsheet.ActionSheetPackage;
@@ -14,7 +16,6 @@ import org.devio.rn.splashscreen.SplashScreenReactPackage;
 import com.zmxv.RNSound.RNSoundPackage;
 import com.clipsub.RNShake.RNShakeEventPackage;
 import com.babisoft.ReactNativeLocalization.ReactNativeLocalizationPackage;
-import com.idehub.GoogleAnalyticsBridge.GoogleAnalyticsBridgePackage;
 import com.rnfs.RNFSPackage;
 import com.github.droibit.android.reactnative.customtabs.CustomTabsPackage;
 import com.rpt.reactnativecheckpackageinstallation.CheckPackageInstallationPackage;
@@ -41,6 +42,8 @@ public class MainApplication extends Application implements ReactApplication {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
             new RNCWebViewPackage(),
+            new RNFirebasePackage(),
+            new RNFirebaseAnalyticsPackage(),
             new AsyncStoragePackage(),
             new NetInfoPackage(),
             new ActionSheetPackage(),
@@ -51,7 +54,6 @@ public class MainApplication extends Application implements ReactApplication {
             new RNSoundPackage(),
             new RNShakeEventPackage(),
             new ReactNativeLocalizationPackage(),
-            new GoogleAnalyticsBridgePackage(),
             new RNFSPackage(),
             new CustomTabsPackage(),
             new CheckPackageInstallationPackage()

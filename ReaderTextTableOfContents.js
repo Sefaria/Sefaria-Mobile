@@ -349,7 +349,7 @@ const SchemaNode = ({ theme, themeStr, schema, contentLang, refPath, openRef, ca
             theme={theme}
             themeStr={themeStr}
             showHebrew={showHebrew}
-            defaultInvisible={schema.nodes.length >= 20 || (node.depth <= 2 && !!node.content_counts && node.content_counts.length >= 20)}
+            defaultInvisible={!node.default && (schema.nodes.length >= 20 || (node.depth <= 2 && !!node.content_counts && node.content_counts.length >= 20))}
             en={node.title}
             he={node.heTitle}
             children={innerContent}

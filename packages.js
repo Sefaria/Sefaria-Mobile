@@ -175,7 +175,6 @@ const Packages = {
         Sefaria.packages.finishDeletePackage(pkgName, resolve);
       })
     }
-    Sefaria.track.event("Downloader", "Delete Library");
   },
   finishDeletePackage(pkgName, resolve) {
     if (Sefaria.packages.isFullLibrary(pkgName)) {

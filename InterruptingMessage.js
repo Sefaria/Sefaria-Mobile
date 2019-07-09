@@ -188,7 +188,6 @@ class InterruptingMessage extends React.Component {
               <View style={bstyles.centeringBox}>
                 <View style={[bstyles.blueButton, {marginTop: 12}]}>
                   <TouchableOpacity onPress={()=>{
-                      Sefaria.track.event("Donation", "interrupting modal click", data.name);
                       this.openLink(data.buttonLink);
                     }}>
                     <Text style={bstyles.blueButtonText}>{data.buttonText}</Text>

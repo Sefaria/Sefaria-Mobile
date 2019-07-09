@@ -49,6 +49,7 @@ import Toast, {DURATION} from 'react-native-easy-toast';
 import BackManager from './BackManager';
 import ReaderNavigationSheetMenu from "./ReaderNavigationSheetMenu";
 import ReaderNavigationSheetList from "./ReaderNavigationSheetList";
+import ReaderNavigationSheetCategoryMenu from "./ReaderNavigationSheetCategoryMenu";
 import Sheet from "./Sheet.js";
 import SheetMetadata from "./SheetMeta.js";
 import DeepLinkRouter from "./DeepLinkRouter.js";
@@ -134,6 +135,7 @@ class ReaderApp extends React.Component {
         searchType: 'text',
         searchQuery: '',
         sheetTag: '',
+        sheetCategory: '',
         sheet: null,
         sheetMeta: null,
         activeSheetNode: null,
@@ -337,7 +339,6 @@ class ReaderApp extends React.Component {
   toggleMenuLanguage = () => {
     // Toggle current menu language between english/hebrew only
     const newMenuLanguage = this.props.menuLanguage !== "hebrew" ? "hebrew" : "english";
-    Sefaria.track.event("Reader","Change Language", newMenuLanguage);
     this.props.setMenuLanguage(newMenuLanguage);
   };
 
@@ -348,13 +349,11 @@ class ReaderApp extends React.Component {
       this.setTextLanguage("hebrew");
     }
     this.toggleReaderDisplayOptionsMenu();
-    Sefaria.track.event("Reader","Display Option Click","layout - " + textFlow);
   };
 
   setBiLayout = layout => {
     this.props.setBiLayout(layout);
     this.toggleReaderDisplayOptionsMenu();
-    Sefaria.track.event("Reader","Display Option Click","layout - " + layout);
   };
 
   getTextByLanguage = title => {
@@ -371,7 +370,6 @@ class ReaderApp extends React.Component {
       this.setTextFlow("segmented");
     }
     if (!dontToggle) { this.toggleReaderDisplayOptionsMenu(); }
-    Sefaria.track.event("Reader", "Display Option Click", "language - " + textLanguage);
   };
 
   setTheme = themeStr => {
@@ -398,7 +396,6 @@ class ReaderApp extends React.Component {
     newFontSize = newFontSize < 18 ? 18 : newFontSize; // Min size
     newFontSize = parseFloat(newFontSize.toFixed(2));
     this.props.setFontSize(newFontSize);
-    Sefaria.track.event("Reader","Display Option Click","fontSize - " + increment);
   };
 
   /*
@@ -432,8 +429,6 @@ class ReaderApp extends React.Component {
   }
 
   textSegmentPressed = (section, segment, segmentRef, shouldToggle) => {
-      Sefaria.track.event("Reader","Text Segment Click", segmentRef);
-
       if (shouldToggle && this.state.textListVisible) {
           this.animateTextList(this.state.textListFlex, 0.0001, 200);
           BackManager.back({ type: "secondary" });
@@ -640,10 +635,8 @@ class ReaderApp extends React.Component {
       // shouldCull: bool, if True, remove either first or last section (depending on `direction`)
       if (direction === "next" && this.state.next) {
           this.updateDataNext();
-          Sefaria.track.event("Reader","Infinite Scroll","Down");
       } else if (direction == "prev" && this.state.prev) {
           this.updateDataPrev();
-          Sefaria.track.event("Reader","Infinite Scroll","Up");
       }
   };
 
@@ -900,18 +893,14 @@ class ReaderApp extends React.Component {
 
       switch (calledFrom) {
         case "search":
-          Sefaria.track.event("Search","Search Result Text Click",this.state.searchQuery + ' - ' + ref);
           break;
         case "navigation":
-          Sefaria.track.event("Reader","Navigation Text Click", ref);
           break;
         case "text toc":
           break;
         case "deep link":
-          Sefaria.track.event("Reader", "Deep Link", ref);
           break;
         case "text list":
-          Sefaria.track.event("Reader","Click Text from TextList",ref);
           break;
         default:
           break;
@@ -1054,8 +1043,6 @@ class ReaderApp extends React.Component {
   openSearch = (type, query) => {
     this.onQueryChange(type, query,true,false,true);
     this.openMenu("search");
-
-    Sefaria.track.event("Search","Search Box Search",query);
   };
 
   openAutocomplete = () => {
@@ -1069,6 +1056,11 @@ class ReaderApp extends React.Component {
 
   openMySheets = () => {
     this.openMenu("mySheets");
+  };
+
+  openSheetCategory = (category) => {
+    this.setState({sheetCategory: category});
+    this.openMenu("sheetCategory");
   };
 
   clearMenuState = () => {
@@ -1149,7 +1141,6 @@ class ReaderApp extends React.Component {
 
   closeLinkCat = () => {
     this.setState({connectionsMode: null});
-    Sefaria.track.event("Reader","Show All Filters Click","1");
   };
 
   updateLinkSummary = (section, segment) => {
@@ -1341,6 +1332,7 @@ class ReaderApp extends React.Component {
   _getSearchStateName = type => ( `${type}SearchState` );
   _getSearchState = type => ( this.state[this._getSearchStateName(type)] );
   onQueryChange = (type, query, resetQuery, fromBackButton, getFilters) => {
+    Sefaria.track.event("Search", {query_type: type, query: query});
     // getFilters should be true if the query has changed or the exactType has changed
     const searchState = this._getSearchState(type);
     const searchStateName = this._getSearchStateName(type);
@@ -1410,9 +1402,6 @@ class ReaderApp extends React.Component {
             numResults,
           }),
         }, () => {
-          if (resetQuery) {
-            Sefaria.track.event("Search","Query: text", query, numResults);
-          }
           if (data.aggregations) {
             let availableFilters = [];
             let registry = {};
@@ -1551,6 +1540,7 @@ class ReaderApp extends React.Component {
       case (null):
         break;
       case ("navigation"):
+          Sefaria.track.setScreen("toc", "navigation")
         return (
           loading ?
           <LoadingView theme={this.props.theme} /> :
@@ -1586,6 +1576,7 @@ class ReaderApp extends React.Component {
           </View>)
         );
       case ("text toc"):
+        Sefaria.track.setScreen("text toc", "menu")
         return (
           <ReaderTextTableOfContents
             textToc={this.state.textToc}
@@ -1603,6 +1594,7 @@ class ReaderApp extends React.Component {
             openUri={this.openUri}/>);
         break;
       case ("sheet meta"):
+        Sefaria.track.setScreen("sheet meta", "menu")
         return (
           <SheetMetadata
             sheet={this.state.sheet}
@@ -1618,6 +1610,7 @@ class ReaderApp extends React.Component {
           />);
         break;
       case ("search"):
+        Sefaria.track.setScreen("search results", "search")
         return(
           <SearchPage
             theme={this.props.theme}
@@ -1648,6 +1641,7 @@ class ReaderApp extends React.Component {
           />);
         break;
       case ("autocomplete"):
+        Sefaria.track.setScreen("autocomplete", "search")
         return (
           <AutocompletePage
             interfaceLang={this.state.interfaceLang}
@@ -1666,6 +1660,7 @@ class ReaderApp extends React.Component {
           />);
         break;
       case ("settings"):
+        Sefaria.track.setScreen("settings", "menu")
         return(
           <SettingsPage
             {...this.props}
@@ -1674,6 +1669,7 @@ class ReaderApp extends React.Component {
           />);
         break;
       case ("history"):
+        Sefaria.track.setScreen("history", "menu")
         return(
           <SwipeableCategoryList
             close={this.manageBackMain}
@@ -1692,6 +1688,7 @@ class ReaderApp extends React.Component {
         );
         break;
       case ("saved"):
+        Sefaria.track.setScreen("saved", "menu")
         return(
           <SwipeableCategoryList
             close={this.manageBackMain}
@@ -1722,6 +1719,7 @@ class ReaderApp extends React.Component {
         );
         break;
       case ("sheets"):
+        Sefaria.track.setScreen("sheets nav", "navigation")
         return(
            <ReaderNavigationSheetMenu
             close={this.manageBackMain}
@@ -1737,11 +1735,36 @@ class ReaderApp extends React.Component {
             openSheetTagMenu={this.openSheetTag}
             isLoggedIn={this.props.isLoggedIn}
             openMySheets={this.openMySheets}
+            openSheetCategoryMenu={this.openSheetCategory}
            />
         );
         break;
+
+      case ("sheetCategory"):
+        Sefaria.track.setScreen("sheets sub category nav", "navigation")
+        return(
+          loading ?
+          <LoadingView theme={this.props.theme} /> :
+           <ReaderNavigationSheetCategoryMenu
+            icon={require('./img/sheet.png')}
+            theme={this.props.theme}
+            themeStr={this.props.themeStr}
+            menuLanguage={this.props.menuLanguage}
+            interfaceLang={this.state.interfaceLang}
+            toggleLanguage={this.toggleMenuLanguage}
+            hasInternet={this.state.hasInternet}
+            category={this.state.sheetCategory}
+            onBack={this.manageBackMain}
+            openSheetTagMenu={this.openSheetTag}
+            openRef={this.openRefSheet}
+           />
+        );
+
+
+
       case ("sheetTag"):
       case ("mySheets"):
+        Sefaria.track.setScreen(this.state.menuOpen === 'sheetTage' ? "sheet tag page" : "my sheets page", "navigation")
         return(
           loading ?
           <LoadingView theme={this.props.theme} /> :
@@ -1759,6 +1782,13 @@ class ReaderApp extends React.Component {
         );
     }
     const isSheet = !!this.state.sheet;
+
+    if (isSheet) {
+        Sefaria.track.setScreen("Sheet " + this.state.sheet.id, "reader")
+    }
+    else {
+        Sefaria.track.setScreen(this.state.textTitle, "reader")
+    }
     let textColumnFlex = this.state.textListVisible ? 1.0 - this.state.textListFlex : 1.0;
     return (
       <View style={[styles.container, this.props.theme.container]} {...this.gestureResponder}>
