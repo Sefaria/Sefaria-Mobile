@@ -3,7 +3,6 @@ import { Alert, Platform } from 'react-native';
 const ZipArchive  = require('react-native-zip-archive'); //for unzipping -- (https://github.com/plrthink/react-native-zip-archive)
 import AsyncStorage from '@react-native-community/async-storage';
 import VersionNumber from 'react-native-version-number';
-import RNFB from 'rn-fetch-blob';
 import RNFS from 'react-native-fs';
 import { Search } from '@sefaria/search';
 import sanitizeHtml from 'sanitize-html'
@@ -171,7 +170,7 @@ Sefaria = {
         .then(preResolve)
         .catch(() => {
           // If there was en error, check that we have the zip file downloaded
-          RNFB.fs.exists(zipPath)
+          RNFS.exists(zipPath)
             .then(exists => {
               if (exists) {
                 Sefaria._unzip(zipPath)
@@ -341,7 +340,6 @@ Sefaria = {
   },
   _loadTOC: function() {
     return Sefaria.util.openFileInSources("toc.json").then(data => {
-      console.log("loaded successfully");
       Sefaria.toc = data;
       Sefaria._cacheIndexFromToc(data, true);
     });
@@ -766,11 +764,11 @@ Sefaria = {
   },
   _deleteUnzippedFiles: function() {
     return new Promise((resolve, reject) => {
-      RNFB.fs.lstat(RNFB.fs.dirs.DocumentDir).then(fileList => {
+      RNFS.readDir(RNFS.DocumentDirectoryPath).then(fileList => {
         for (let f of fileList) {
-          if (f.type === 'file' && f.filename.endsWith(".json")) {
+          if (f.isFile() && f.name.endsWith(".json")) {
             //console.log('deleting', f.path);
-            RNFB.fs.unlink(f.path);
+            RNFS.unlink(f.path);
           }
         }
         resolve();
@@ -778,11 +776,11 @@ Sefaria = {
     });
   },
   _unzip: function(zipSourcePath) {
-    return ZipArchive.unzip(zipSourcePath, RNFB.fs.dirs.DocumentDir);
+    return ZipArchive.unzip(zipSourcePath, RNFS.DocumentDirectoryPath);
   },
   _loadJSON: function(JSONSourcePath) {
     return new Promise((resolve, reject) => {
-      RNFB.fs.readFile(JSONSourcePath).then(result => {
+      RNFS.readFile(JSONSourcePath).then(result => {
         try {
           resolve(JSON.parse(result));
           return;
@@ -796,10 +794,10 @@ Sefaria = {
     });
   },
   _JSONSourcePath: function(fileName) {
-    return (RNFB.fs.dirs.DocumentDir + "/" + fileName + ".json");
+    return (RNFS.DocumentDirectoryPath + "/" + fileName + ".json");
   },
   _zipSourcePath: function(fileName) {
-    return (RNFB.fs.dirs.DocumentDir + "/library/" + fileName + ".zip");
+    return (RNFS.DocumentDirectoryPath + "/library/" + fileName + ".zip");
   },
   textFromRefData: function(data) {
     // Returns a dictionary of the form {en: "", he: "", sectionRef: ""} that includes a single string with
@@ -1245,22 +1243,21 @@ Sefaria.util = {
     const isIOS = Platform.OS === 'ios';
     let fileData;
     let useLib = false;
-    const libPath = `${RNFB.fs.dirs.DocumentDir}/library/${filename}`;
-    const sourcePath = isIOS ? `${RNFB.fs.dirs.MainBundleDir}/sources/${filename}` : RNFB.fs.asset("sources/" + filename);
-    const libExists = await RNFB.fs.exists(libPath);
+    const libPath = `${RNFS.DocumentDirectoryPath}/library/${filename}`;
+    const libExists = await RNFS.exists(libPath);
     if (libExists) {
       // check date of each file and choose latest
-      const libStats = await RNFB.fs.stat(libPath);
-      useLib = libStats.lastModified > Sefaria.lastAppUpdateTime;
-      console.log(filename, 'stats', libStats.lastModified, Sefaria.lastAppUpdateTime, useLib)
+      const libStats = await RNFS.stat(libPath);
+      useLib = libStats.mtime.getTime() > Sefaria.lastAppUpdateTime;
+      console.log(filename, 'stats', libStats.mtime.getTime(), Sefaria.lastAppUpdateTime, useLib)
     }
     if (useLib) {
       fileData = await Sefaria._loadJSON(libPath);
     } else if (isIOS) {
-      fileData = await Sefaria._loadJSON(sourcePath);
+      fileData = await Sefaria._loadJSON(`${RNFS.MainBundlePath}/sources/${filename}`);
     } else {
       // android
-      fileData = await RNFB.fs.readFile(sourcePath);
+      fileData = await RNFS.readFileAssets(`sources/${filename}`);
       fileData = JSON.parse(fileData);
     }
     return fileData;

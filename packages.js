@@ -1,7 +1,7 @@
 import {Alert, Platform} from 'react-native';
 import AsyncStorage from '@react-native-community/async-storage';
 import strings from './LocalizedStrings';
-import RNFB from 'rn-fetch-blob';
+import RNFS from 'react-native-fs';
 
 
 const Packages = {
@@ -12,11 +12,11 @@ const Packages = {
   _load: function() {
     return Promise.all([
       new Promise((resolve, reject) => {
-        RNFB.fs.exists(RNFB.fs.dirs.DocumentDir + "/library/packages.json")
+        RNFS.exists(RNFS.DocumentDirectoryPath + "/library/packages.json")
         .then(exists => {
           if (Platform.OS == "ios" || exists) {
-              const pkgPath = exists ? (RNFB.fs.dirs.DocumentDir + "/library/packages.json") :
-                  (RNFB.fs.dirs.MainBundleDir + "/sources/packages.json");
+              const pkgPath = exists ? (RNFS.DocumentDirectoryPath + "/library/packages.json") :
+                  (RNFS.MainBundlePath + "/sources/packages.json");
               Sefaria._loadJSON(pkgPath).then(data => {
                   // special case incase packages.json has a syntax error
                   if (typeof data === 'object' && !Array.isArray(data) && Object.keys(data).length === 0) { data = []; }
@@ -36,7 +36,7 @@ const Packages = {
               });
           }
           else if (Platform.OS == "android") {
-              RNFB.fs.readFile(RNFB.fs.asset('sources/packages.json')).then(data => {
+              RNFS.readFileAssets('sources/packages.json').then(data => {
                   // special case incase packages.json has a syntax error
                   if (typeof data === 'object' && Object.keys(obj).length === 0) { data = []; }
                   data = JSON.parse(data);
@@ -144,11 +144,11 @@ const Packages = {
   },
   deletePackage: (pkgName, resolve) => {
     if (!resolve) { resolve = ()=>{} }
-    RNFB.fs.unlink(RNFB.fs.dirs.DocumentDir + "/tmp");
-    RNFB.fs.mkdir(RNFB.fs.dirs.DocumentDir + "/tmp");
+    RNFS.unlink(RNFS.DocumentDirectoryPath + "/tmp").catch(e => console.log('error deleting tmp folder' + e));
+    RNFS.mkdir(RNFS.DocumentDirectoryPath + "/tmp");
     const dl = Sefaria.downloader;
     if (Sefaria.packages.isFullLibrary(pkgName)) {
-      RNFB.fs.unlink(RNFB.fs.dirs.DocumentDir + "/library");
+      RNFS.unlink(RNFS.DocumentDirectoryPath + "/library").catch(e => console.log('error deleting library folder' + e));
       dl._setData("lastDownload", {});
       dl._setData("shouldDownload", false);
       dl.clearQueue();
@@ -156,7 +156,7 @@ const Packages = {
     } else {
       const pkgObj = Sefaria.packages.available.find(p=>p.en === pkgName);
       const reflect = promise => promise.then(v=>1,e=>e);  // make sure all promises resolve but remember which ones rejected so that Promise.all() runs
-      const promises = pkgObj.indexes.map(i => reflect(RNFB.fs.unlink(`${RNFB.fs.dirs.DocumentDir}/library/${i}.zip`)));
+      const promises = pkgObj.indexes.map(i => reflect(RNFS.unlink(`${RNFS.DocumentDirectoryPath}/library/${i}.zip`)));
       Promise.all(promises).then((result) => {
         result.forEach((r,i)=>{
           const title = pkgObj.indexes[i]

@@ -5,7 +5,6 @@ import {
 } from 'react-native';
 import NetInfo from "@react-native-community/netinfo";
 import AsyncStorage from '@react-native-community/async-storage';
-import RNFB from 'rn-fetch-blob';
 import RNFS from 'react-native-fs';
 import strings from './LocalizedStrings';
 
@@ -46,8 +45,8 @@ var Downloader = {
             });
   },
   downloadLibrary: function(silent=false) {
-    RNFB.fs.mkdir(RNFB.fs.dirs.DocumentDir + "/library").catch(error=>{console.log("error creating library folder: " + error)});
-    RNFB.fs.mkdir(RNFB.fs.dirs.DocumentDir + "/tmp").catch(error=>{console.log("error creating tmp folder: " + error)});
+    RNFS.mkdir(RNFS.DocumentDirectoryPath + "/library").catch(error=>{console.log("error creating library folder: " + error)});
+    RNFS.mkdir(RNFS.DocumentDirectoryPath + "/tmp").catch(error=>{console.log("error creating tmp folder: " + error)});
     Downloader._setData("shouldDownload", true);
     Downloader.downloadUpdatesList()
     .then(() => {
@@ -82,8 +81,8 @@ var Downloader = {
   resumeDownload: function() {
     // Resumes the download process if anything is left in progress or in queue.
     // if titles where left in progress, put them back in the queue
-    RNFB.fs.unlink(RNFB.fs.dirs.DocumentDir + "/tmp");
-    RNFB.fs.mkdir(RNFB.fs.dirs.DocumentDir + "/tmp");
+    RNFS.unlink(RNFS.DocumentDirectoryPath + "/tmp").catch(e => console.log('error deleting tmp folder' + e));
+    RNFS.mkdir(RNFS.DocumentDirectoryPath + "/tmp");
     Downloader._setData("downloadPaused", false);
     if (Downloader._data.downloadInProgress.length) {
       Downloader._setData("downloadQueue", Downloader._data.downloadQueue.concat(Downloader._data.downloadInProgress));
@@ -287,9 +286,9 @@ var Downloader = {
     const oldDBPath = RNFS.ExternalDirectoryPath + "/databases";
     return new Promise((resolve, reject) => {
       if (Platform.OS === 'android') {
-        RNFB.fs.exists(oldDBPath).then(exists => {
+        RNFS.exists(oldDBPath).then(exists => {
           if (exists) {
-            RNFB.fs.unlink(oldDBPath);
+            RNFS.unlink(oldDBPath).catch(e => console.log('error deleting old db' + e));
           }
           resolve(exists);
         });
@@ -377,26 +376,26 @@ var Downloader = {
       ]);
   },
   _downloadFile: async function(filename) {
-    const toFile = RNFB.fs.dirs.DocumentDir + "/library/" + filename;
+    const toFile = RNFS.DocumentDirectoryPath + "/library/" + filename;
     const start = new Date();
-    const tempFile = RNFB.fs.dirs.DocumentDir + "/tmp/" + filename;
+    const tempFile = RNFS.DocumentDirectoryPath + "/tmp/" + filename;
     try {
-      const downloadResult = await RNFB.config({
-        IOSBackgroundTask: true,
-        indicator: true,
-        path: tempFile,
-      })
-      .fetch(
-        'GET',
-        HOST_PATH + encodeURIComponent(filename)
-      );
+      const downloadResult = await RNFS.downloadFile({
+        background: true,
+        toFile: tempFile,
+        fromUrl: HOST_PATH + encodeURIComponent(filename)
+      }).promise;
       console.log("Downloaded " + filename + " in " + (new Date() - start));
-      const status = downloadResult.info().status;
+      const status = downloadResult.statusCode;
       if (status >= 300 || status < 200) {
-        RNFB.fs.unlink(tempFile);
+        RNFS.unlink(tempFile).catch(e => console.log('error deleting tempFile' + e));
         throw new Error(status + " - " + filename);
       }
-      RNFB.fs.mv(tempFile, toFile)
+      RNFS.unlink(toFile)
+      .catch(error => {
+        console.log('preemptive deletion of ' + toFile + ' failed ');
+      });
+      RNFS.moveFile(tempFile, toFile)
       .catch(error => {
         console.log('mv error', error);
       });
