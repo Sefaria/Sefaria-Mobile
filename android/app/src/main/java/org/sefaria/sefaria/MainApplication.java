@@ -8,7 +8,6 @@ import io.invertase.firebase.analytics.RNFirebaseAnalyticsPackage;
 import com.reactnativecommunity.asyncstorage.AsyncStoragePackage;
 import com.reactnativecommunity.netinfo.NetInfoPackage;
 import com.actionsheet.ActionSheetPackage;
-import com.RNFetchBlob.RNFetchBlobPackage;
 import com.rnziparchive.RNZipArchivePackage;
 import com.apsl.versionnumber.RNVersionNumberPackage;
 import org.devio.rn.splashscreen.SplashScreenReactPackage;
@@ -45,7 +44,6 @@ public class MainApplication extends Application implements ReactApplication {
             new AsyncStoragePackage(),
             new NetInfoPackage(),
             new ActionSheetPackage(),
-            new RNFetchBlobPackage(),
             new RNZipArchivePackage(),
             new RNVersionNumberPackage(),
             new SplashScreenReactPackage(),
