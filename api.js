@@ -12,7 +12,7 @@ var Api = {
   /*
   takes responses from text and links api and returns json in the format of iOS json
   */
-  _baseHost: 'http://localhost:8000/', //'http://jwt.sandbox.sefaria.org/',
+  _baseHost: 'http://jwt.sandbox.sefaria.org/',
   _textCache: {}, //in memory cache for API data
   _linkCache: {},
   _nameCache: {},
@@ -520,7 +520,7 @@ var Api = {
     const currTime = Sefaria.util.epoch_time();
     if (!Sefaria._auth.token || Sefaria._auth.expires <= currTime) {
       const tempAuth = await AsyncStorage.getItem("auth");
-      Sefaria._auth = JSON.parse(tempAuth);
+      Sefaria._auth = JSON.parse(tempAuth) || {};
       try {
         if (Sefaria._auth.expires <= currTime) { throw new Error("expired token"); }
         return;  // token is valid

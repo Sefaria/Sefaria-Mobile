@@ -39,7 +39,7 @@ class SwipeableCategoryList extends React.Component {
     openRef:            PropTypes.func.isRequired,
     language:           PropTypes.oneOf(["english","hebrew"]),
     interfaceLang:      PropTypes.oneOf(["english","hebrew"]),
-    onRemove:           PropTypes.func.isRequired,
+    onRemove:           PropTypes.func,
     title:              PropTypes.string.isRequired,
     loadData:           PropTypes.func.isRequired,
     menuOpen:           PropTypes.oneOf(["saved", "history"]),
@@ -98,7 +98,7 @@ class SwipeableCategoryList extends React.Component {
   );
 
   _keyExtractor = (item, index) => (
-    item.ref
+    `${item.ref}|${item.time_stamp}`
   );
 
   render() {

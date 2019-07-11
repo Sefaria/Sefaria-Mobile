@@ -309,7 +309,7 @@ class ResourcesList extends React.Component {
 
   render() {
     const isWhite = this.props.themeStr === "white";
-    const isSaved = Sefaria.indexOfSaved(this.props.segmentRef) !== -1;
+    const isSaved = Sefaria.history.indexOfSaved(this.props.segmentRef) !== -1;
     return (
       <View>
         <ToolsButton

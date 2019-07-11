@@ -66,20 +66,25 @@ const History = {
       sheet_title,
     };
   },
-  saveHistoryItem: async function(state, textLanguage, withIntent) {
+  saveHistoryItem: async function(getState, textLanguage, withIntent) {
     // history_item contains:
     // - ref, book, versions. optionally: secondary, he_ref, language
-    const history_item = Sefaria.history.getHistoryObject(state, textLanguage);
+    const history_item = Sefaria.history.getHistoryObject(getState(), textLanguage);
     if (withIntent) {
-      await Sefaria.util.timeoutPromise(3000);
-      const new_history_item = Sefaria.history.getHistoryObject(state, textLanguage);
-      if (new_history_item.ref !== history_item.ref) { return; /* didn't spend enough time reading */ }
+      console.log('start', getState().segmentRef);
+      await Sefaria.util.timeoutPromise(9000);
+      console.log('end', getState().segmentRef);
+      const new_history_item = Sefaria.history.getHistoryObject(getState(), textLanguage);
+      console.log('yoyo', new_history_item.ref, history_item.ref);
+      if (new_history_item.ref !== history_item.ref) { console.log('rejected!'); return; /* didn't spend enough time reading */ }
     }
-    const history_item_array = Array.isArray(history_item) ? history_item : [history_item];
-    for (let h of history_item_array) {
-      h.time_stamp = Sefaria.util.epoch_time();
-    }
-    Sefaria.history.lastSync = history_item_array.concat(Sefaria.history.lastSync);
+    let history_item_array = Array.isArray(history_item) ? history_item : [history_item];
+    for (let h of history_item_array) { h.time_stamp = Sefaria.util.epoch_time(); }
+    const lSync = Sefaria.history.lastSync;
+    // remove items that are the same and saved recently
+    history_item_array = history_item_array.filter(h => lSync.length === 0 || h.ref !== lSync[0].ref || (h.time_stamp - lSync[0].time_stamp > 60));
+    if (history_item_array.length === 0) { console.log('empty update'); return; }
+    Sefaria.history.lastSync = history_item_array.concat(lSync);
     Sefaria.history.lastPlace = Sefaria.history.historyToLastPlace(history_item_array.concat(Sefaria.history.lastPlace));
     AsyncStorage.setItem("lastSyncItems", JSON.stringify(Sefaria.history.lastSync));
     AsyncStorage.setItem("lastPlace", JSON.stringify(Sefaria.history.lastPlace));
@@ -102,11 +107,11 @@ const History = {
   syncHistory: async function() {
     // TODO: sync user settings
     const currHistoryStr = await AsyncStorage.getItem('history');
+    const lastSyncStr = await AsyncStorage.getItem('lastSyncItems');
     let currHistory = JSON.parse(currHistoryStr) || [];
     await Sefaria.api.getAuthToken();
-    if (Sefaria._auth.uid) {
+    if (Sefaria._auth.uid && false) {
       try {
-        const lastSyncStr = await AsyncStorage.getItem('lastSyncItems');
         const lastSyncTime = await AsyncStorage.getItem('lastSyncTime');
         if (!lastSyncStr) { /* nothing to sync */ return currHistory; }
         const url = Sefaria.api._baseHost + "api/profile/sync";
@@ -131,6 +136,11 @@ const History = {
         console.log('sync error', e);
         // try again later
       }
+    } else {
+      // sync failed, merge local history items as a fallback
+      const lastSyncItems = JSON.parse(lastSyncStr) || [];
+      currHistory = lastSyncItems.concat(currHistory);
+      console.log(currHistory);
     }
     return currHistory;
   },
