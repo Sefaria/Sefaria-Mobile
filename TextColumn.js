@@ -220,14 +220,14 @@ class TextColumn extends React.Component {
           console.log("target Y is no good :(", segmentRef);
         }
       } else {
-        const targetIndex = this.state.jumpInfoMap.get(segmentRef);
+        const itemIndex = this.state.jumpInfoMap.get(segmentRef);
         const { startY, endY } = this.getSegScrollPos(segmentRef);
         if (startY > 0) {
-          if (!targetIndex) { debugger; }
+          if (!itemIndex) { debugger; }
           this.sectionListRef.scrollToLocation({
               animated: false,
               sectionIndex: 0,
-              itemIndex: targetIndex-1,
+              itemIndex,
               viewPosition: 0.1,
           });
         }

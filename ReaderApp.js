@@ -428,6 +428,10 @@ class ReaderApp extends React.Component {
     this.textSegmentPressed(sheetRef[0], sheetRef[1], textRef, toggle)
   }
 
+  getHistoryObject = () => {
+    return Sefaria.history.getHistoryObject(this.state, this.props.textLanguage);
+  };
+
   textSegmentPressed = (section, segment, segmentRef, shouldToggle) => {
       if (shouldToggle && this.state.textListVisible) {
           this.animateTextList(this.state.textListFlex, 0.0001, 200);
@@ -468,11 +472,11 @@ class ReaderApp extends React.Component {
           nextFrame().then(() => {
             this.animateTextList(0.0001, this.state.textListFlexPreference, 200);
           });
-          Sefaria.history.saveHistoryItem(() => this.state, this.props.textLanguage, true);
+          Sefaria.history.saveHistoryItem(this.getHistoryObject, true);
         });
       } else {
         this.setState(stateObj, () => {
-          Sefaria.history.saveHistoryItem(() => this.state, this.props.textLanguage, true);
+          Sefaria.history.saveHistoryItem(this.getHistoryObject, true);
         });
       }
       this.forceUpdate();
@@ -537,7 +541,7 @@ class ReaderApp extends React.Component {
             }
             this.setState(nextState, ()=>{
               this.loadSecondaryData(data.sectionRef);
-              Sefaria.history.saveHistoryItem(() => this.state, this.props.textLanguage);
+              Sefaria.history.saveHistoryItem(this.getHistoryObject);
             });
 
             // Preload Text TOC data into memory
@@ -712,7 +716,7 @@ class ReaderApp extends React.Component {
       }, () => {
         if (!this.state.textListVisible) {
           // otherwise saveHistoryItem is called in textListPressed
-          Sefaria.history.saveHistoryItem(() => this.state, this.props.textLanguage, true);
+          Sefaria.history.saveHistoryItem(this.getHistoryObject, true);
         }
       });
   };

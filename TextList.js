@@ -37,13 +37,15 @@ class TextList extends React.Component {
 
   constructor(props) {
     super(props);
-
     const dataSource = this.generateDataSource(props);
+    this._savedHistorySegments = new Set();
+    this._visibleSegments = [];
     this.state = {
       dataSource,
       updateScrollPosKey: true,
     };
   }
+
 
   componentWillReceiveProps(nextProps) {
     if (this.props.segmentRef !== nextProps.segmentRef ||
@@ -51,7 +53,13 @@ class TextList extends React.Component {
         this.props.connectionsMode !== nextProps.connectionsMode ||
         this.props.filterIndex !== nextProps.filterIndex ||
         this.props.listContents !== nextProps.listContents) {
-      const updateScrollPosKey = this.props.segmentRef !== nextProps.segmentRef ? !this.state.updateScrollPosKey : this.state.updateScrollPosKey;
+      let updateScrollPosKey = this.state.updateScrollPosKey;
+      if (this.props.segmentRef !== nextProps.segmentRef) {
+        // changed segments
+        updateScrollPosKey = !this.state.updateScrollPosKey;
+        this._visibleSegments = [];
+        this._savedHistorySegments = new Set();
+      }
       this.setState({dataSource: this.generateDataSource(nextProps), updateScrollPosKey});
     }
   }
@@ -84,6 +92,11 @@ class TextList extends React.Component {
     const loading = item.content === null;
     const noContent = !loading && item.content.he.length === 0 && item.content.en.length === 0;
     const linkContentObj = loading ? DEFAULT_LINK_CONTENT : (noContent ? NO_CONTENT_LINK_CONTENT : item.content);
+    const visibleSeg = this._visibleSegments.find(seg => seg.item.ref === item.ref);
+    if (!!visibleSeg && !loading) {
+      visibleSeg.loaded = !loading;
+      Sefaria.history.saveHistoryItem(this.getHistoryObject.bind(this, visibleSeg), true, this.onHistorySave);
+    }
     return (<ListItem
               theme={this.props.theme}
               themeStr={this.props.themeStr}
@@ -110,6 +123,44 @@ class TextList extends React.Component {
         this.props.loadContent(item.ref, item.pos, item.versionTitle, item.versionLanguage);
       }
     }
+    for (let cItem of changed) {
+      const ind = this._visibleSegments.findIndex(i => cItem.item.ref === i.item.ref);
+      if (!cItem.isViewable) {
+        if (ind !== -1) { this._visibleSegments.splice(ind, 1); }
+        continue;
+      }
+      const loaded = cItem.item.content !== null;
+      let visibleSeg = this._visibleSegments[ind];
+      if (!visibleSeg) {
+        visibleSeg = { item: cItem.item, loaded };
+        this._visibleSegments.push(visibleSeg);
+      } else {
+        visibleSeg.loaded = loaded;
+      }
+      if (loaded) {
+        Sefaria.history.saveHistoryItem(this.getHistoryObject.bind(this, visibleSeg), true, this.onHistorySave);
+      }
+    }
+  };
+
+  getHistoryObject = visibleSeg => {
+    const { item, loaded } = visibleSeg;
+    if (!loaded) { return {}; }
+    if (this._savedHistorySegments.has(item.ref)) { return {}; }
+    if (!this._visibleSegments.find(seg => seg.item.ref === item.ref)) { return {}; }
+    return {
+      book: Sefaria.textTitleForRef(item.ref),
+      ref: item.ref,
+      he_ref: item.heRef,
+      versions: { [item.versionLanguage]: item.versionTitle },
+      language: this.props.textLanguage,
+      secondary: true,
+    };
+  };
+
+  onHistorySave = history_item => {
+    console.log('saved', history_item.ref);
+    this._savedHistorySegments.add(history_item.ref);
   };
 
   render() {

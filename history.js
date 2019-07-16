@@ -39,6 +39,7 @@ const History = {
     sheet,
     activeSheetNode,
     segmentRef,
+    heSegmentRef,
     sectionIndexRef,
     sectionArray,
     sectionHeArray,
@@ -52,9 +53,8 @@ const History = {
       sheet_owner = sheet.ownerName;
       sheet_title = sheet.title;
     } else {
-      const heSectionRef = sectionHeArray[sectionIndexRef];
       ref = (textListVisible && segmentRef) ? segmentRef : sectionArray[sectionIndexRef];
-      he_ref = (textListVisible && segmentRef) ? Sefaria.toHeSegmentRef(heSectionRef, segmentRef) : heSectionRef;
+      he_ref = (textListVisible && segmentRef) ? (heSegmentRef || Sefaria.toHeSegmentRef(sectionHeArray[sectionIndexRef], segmentRef)) : sectionHeArray[sectionIndexRef];
     }
     return {
       ref,
@@ -66,28 +66,32 @@ const History = {
       sheet_title,
     };
   },
-  saveHistoryItem: async function(getState, textLanguage, withIntent) {
-    // history_item contains:
-    // - ref, book, versions. optionally: secondary, he_ref, language
-    const history_item = Sefaria.history.getHistoryObject(getState(), textLanguage);
+  saveHistoryItem: async function(getHistoryObject, withIntent, onSave) {
+    // getHistoryObject: dependent on state of whatever component called this func
+    // onSave: optional function which is called with the list of history items to actually save
+    let history_item = getHistoryObject();
+    if (!history_item.ref) { return; }
     if (withIntent) {
-      console.log('start', getState().segmentRef);
-      await Sefaria.util.timeoutPromise(9000);
-      console.log('end', getState().segmentRef);
-      const new_history_item = Sefaria.history.getHistoryObject(getState(), textLanguage);
-      console.log('yoyo', new_history_item.ref, history_item.ref);
-      if (new_history_item.ref !== history_item.ref) { console.log('rejected!'); return; /* didn't spend enough time reading */ }
+      await Sefaria.util.timeoutPromise(3000);
+      const new_history_item = getHistoryObject();
+      if (history_item.ref !== new_history_item.ref) { return; /* didn't spend enough time reading */ }
     }
-    let history_item_array = Array.isArray(history_item) ? history_item : [history_item];
-    for (let h of history_item_array) { h.time_stamp = Sefaria.util.epoch_time(); }
+    history_item.time_stamp = Sefaria.util.epoch_time();
     const lSync = Sefaria.history.lastSync;
     // remove items that are the same and saved recently
-    history_item_array = history_item_array.filter(h => lSync.length === 0 || h.ref !== lSync[0].ref || (h.time_stamp - lSync[0].time_stamp > 60));
-    if (history_item_array.length === 0) { console.log('empty update'); return; }
-    Sefaria.history.lastSync = history_item_array.concat(lSync);
-    Sefaria.history.lastPlace = Sefaria.history.historyToLastPlace(history_item_array.concat(Sefaria.history.lastPlace));
+    if (
+      lSync.length > 0 &&
+      history_item.ref === lSync[0].ref &&
+      history_item.time_stamp - lSync[0].time_stamp <= 60
+    ) { return; }
+    if (onSave) { onSave(history_item); }
+    Sefaria.history.lastSync = [history_item].concat(lSync);
     AsyncStorage.setItem("lastSyncItems", JSON.stringify(Sefaria.history.lastSync));
-    AsyncStorage.setItem("lastPlace", JSON.stringify(Sefaria.history.lastPlace));
+    if (!history_item.secondary) {
+      // secondary items should not be saved in lastPlace
+      Sefaria.history.lastPlace = Sefaria.history.historyToLastPlace([history_item].concat(Sefaria.history.lastPlace));
+      AsyncStorage.setItem("lastPlace", JSON.stringify(Sefaria.history.lastPlace));
+    }
   },
   getHistoryRefForTitle: function(title) {
     //given an index title, return the ref of that title in Sefaria.history.
@@ -140,7 +144,6 @@ const History = {
       // sync failed, merge local history items as a fallback
       const lastSyncItems = JSON.parse(lastSyncStr) || [];
       currHistory = lastSyncItems.concat(currHistory);
-      console.log(currHistory);
     }
     return currHistory;
   },
