@@ -396,6 +396,7 @@ var Downloader = {
         RNFB.fs.unlink(tempFile);
         throw new Error(status + " - " + filename);
       }
+      RNFB.fs.unlink(toFile);
       RNFB.fs.mv(tempFile, toFile)
       .catch(error => {
         console.log('mv error', error);

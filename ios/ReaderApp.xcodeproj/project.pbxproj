@@ -60,8 +60,10 @@
 		3F6B2E27FCE04D1599EB3F3D /* libRNVersionNumber.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0A40C3042BD0446DAADC6462 /* libRNVersionNumber.a */; };
 		53EF7D4430FC4EA28F9E1CD4 /* libRNFS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 03F366047F58481F88784914 /* libRNFS.a */; };
 		5E9157361DD0AC6A00FF2AA8 /* libRCTAnimation.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5E9157331DD0AC6500FF2AA8 /* libRCTAnimation.a */; };
+		6EA494CAAAF84F5DAB483C25 /* TSBackgroundFetch.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D1C1FB7CD4B143559CA00D23 /* TSBackgroundFetch.framework */; };
 		7CCAA19968E74A95ADD431B8 /* libRNZipArchive.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 51EBA1AD02DB488D974DC900 /* libRNZipArchive.a */; };
 		832341BD1AAA6AB300B99B32 /* libRCTText.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 832341B51AAA6A8300B99B32 /* libRCTText.a */; };
+		8B7EC843095442C88706A207 /* RNBackgroundFetch+AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 515995C120FD4F31A66E84FC /* RNBackgroundFetch+AppDelegate.m */; };
 		90B8FF0AFA204C869A449C82 /* libRNCNetInfo.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 08E8BEBC135D4D5485A8ABFA /* libRNCNetInfo.a */; };
 		91A58334CB004BEEBE7EC243 /* libDBCustomTabs.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BB2CC56A4F1E41EE9F5BB178 /* libDBCustomTabs.a */; };
 		ADBDB9381DFEBF1600ED6528 /* libRCTBlob.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ADBDB9271DFEBF0700ED6528 /* libRCTBlob.a */; };
@@ -538,6 +540,7 @@
 		45CDC4D8A3D74BBFBB3784CC /* RNFirebase.xcodeproj */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "wrapper.pb-project"; name = RNFirebase.xcodeproj; path = "../node_modules/react-native-firebase/ios/RNFirebase.xcodeproj"; sourceTree = "<group>"; };
 		4B23F15A775349EE905B2980 /* libRNCNetInfo-tvOS.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = "libRNCNetInfo-tvOS.a"; sourceTree = "<group>"; };
 		4DC05C24B13BE6221723A3B3 /* Pods-ReaderApp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ReaderApp.release.xcconfig"; path = "Target Support Files/Pods-ReaderApp/Pods-ReaderApp.release.xcconfig"; sourceTree = "<group>"; };
+		515995C120FD4F31A66E84FC /* RNBackgroundFetch+AppDelegate.m */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.c.objc; name = "RNBackgroundFetch+AppDelegate.m"; path = "../node_modules/react-native-background-fetch/ios/RNBackgroundFetch/RNBackgroundFetch+AppDelegate.m"; sourceTree = "<group>"; };
 		51EBA1AD02DB488D974DC900 /* libRNZipArchive.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRNZipArchive.a; sourceTree = "<group>"; };
 		56F99148496346EEABF4DAD3 /* RNFetchBlob.xcodeproj */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "wrapper.pb-project"; name = RNFetchBlob.xcodeproj; path = "../node_modules/rn-fetch-blob/ios/RNFetchBlob.xcodeproj"; sourceTree = "<group>"; };
 		5E91572D1DD0AC6500FF2AA8 /* RCTAnimation.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTAnimation.xcodeproj; path = "../node_modules/react-native/Libraries/NativeAnimation/RCTAnimation.xcodeproj"; sourceTree = "<group>"; };
@@ -561,6 +564,7 @@
 		C3064F3EC50D4BF08968171A /* libz.tbd */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		C8FC2D6C8C234FF99635297A /* RNVersionNumber.xcodeproj */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "wrapper.pb-project"; name = RNVersionNumber.xcodeproj; path = "../node_modules/react-native-version-number/ios/RNVersionNumber.xcodeproj"; sourceTree = "<group>"; };
 		CFAF12BAD638455885AF6726 /* RCTGoogleAnalyticsBridge.xcodeproj */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "wrapper.pb-project"; name = RCTGoogleAnalyticsBridge.xcodeproj; path = "../node_modules/react-native-google-analytics-bridge/ios/RCTGoogleAnalyticsBridge/RCTGoogleAnalyticsBridge.xcodeproj"; sourceTree = "<group>"; };
+		D1C1FB7CD4B143559CA00D23 /* TSBackgroundFetch.framework */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = wrapper.framework; name = TSBackgroundFetch.framework; path = "../node_modules/react-native-background-fetch/ios/RNBackgroundFetch/TSBackgroundFetch.framework"; sourceTree = SDKROOT; };
 		E5401A0C22C6CFCB00B2FAE8 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		E5D001A622C3DA8800758381 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
@@ -617,6 +621,7 @@
 				AF2D95EB552D4F46A2FBF282 /* libRNCWebView.a in Frameworks */,
 				340A93CB8C23430A9E4EEA5E /* libRNFirebase.a in Frameworks */,
 				CFAA7E3C3345F9AF49A4536B /* libPods-ReaderApp.a in Frameworks */,
+				6EA494CAAAF84F5DAB483C25 /* TSBackgroundFetch.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -873,6 +878,7 @@
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				13B07FB71A68108700A75B9A /* main.m */,
 				E5D001A622C3DA8800758381 /* GoogleService-Info.plist */,
+				515995C120FD4F31A66E84FC /* RNBackgroundFetch+AppDelegate.m */,
 			);
 			name = ReaderApp;
 			sourceTree = "<group>";
@@ -912,6 +918,7 @@
 				AB2D481D262D4E2598CD2031 /* libsqlite3.0.tbd */,
 				069685FF876368056872A204 /* libPods-ReaderApp.a */,
 				9B4D62BF2791AF8D8D4DEA7B /* libPods-ReaderAppTests.a */,
+				D1C1FB7CD4B143559CA00D23 /* TSBackgroundFetch.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -1145,6 +1152,9 @@
 						DevelopmentTeam = 2626EW4BML;
 						ProvisioningStyle = Automatic;
 						SystemCapabilities = {
+							com.apple.BackgroundModes = {
+								enabled = true;
+							};
 							com.apple.SafariKeychain = {
 								enabled = 1;
 							};
@@ -1819,6 +1829,7 @@
 			files = (
 				13B07FBC1A68108700A75B9A /* AppDelegate.m in Sources */,
 				13B07FC11A68108700A75B9A /* main.m in Sources */,
+				8B7EC843095442C88706A207 /* RNBackgroundFetch+AppDelegate.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1963,6 +1974,12 @@
 				CURRENT_PROJECT_VERSION = 57;
 				DEAD_CODE_STRIPPING = NO;
 				DEVELOPMENT_TEAM = 2626EW4BML;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"${PODS_ROOT}/FirebaseAnalytics/Frameworks\"",
+					"\"${PODS_ROOT}/GoogleAppMeasurement/Frameworks\"",
+					"$(PROJECT_DIR)/../node_modules/react-native-background-fetch/ios/**",
+				);
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/../node_modules/react-native-google-analytics-bridge/ios/RCTGoogleAnalyticsBridge/**",
@@ -2007,6 +2024,12 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 57;
 				DEVELOPMENT_TEAM = 2626EW4BML;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"${PODS_ROOT}/FirebaseAnalytics/Frameworks\"",
+					"\"${PODS_ROOT}/GoogleAppMeasurement/Frameworks\"",
+					"$(PROJECT_DIR)/../node_modules/react-native-background-fetch/ios/**",
+				);
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/../node_modules/react-native-google-analytics-bridge/ios/RCTGoogleAnalyticsBridge/**",
