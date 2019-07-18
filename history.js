@@ -122,7 +122,7 @@ const History = {
     let currHistory = JSON.parse(currHistoryStr) || [];
     currHistory = lastSyncItems.concat(currHistory);
     await Sefaria.api.getAuthToken();
-    if (Sefaria._auth.uid && !!lastSyncStr) {
+    if (Sefaria._auth.uid) {
       try {
         const lastSyncTime = await AsyncStorage.getItem('lastSyncTime') || '0';
         const url = Sefaria.api._baseHost + "api/profile/sync";
