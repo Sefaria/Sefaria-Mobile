@@ -4,7 +4,7 @@ const History = {
   saved: [],
   _hasSwipeDeleted: false,
   migrateFromOldRecents: async function() {
-    const recent = await AsyncStorage.getItem("history");
+    const recent = await AsyncStorage.getItem("recent");
     if (!!recent) {
       json = JSON.parse(recent);
       const history = json.map(r => ({
@@ -59,7 +59,7 @@ const History = {
     return {
       ref,
       he_ref,
-      versions: selectedVersions,
+      versions: selectedVersions || {},
       book: Sefaria.textTitleForRef(ref),
       language: textLanguage,
       sheet_owner,
@@ -102,6 +102,12 @@ const History = {
     return null;
   },
   _loadHistoryItems: async function() {
+    /*
+    await AsyncStorage.removeItem('lastPlace');
+    await AsyncStorage.removeItem('lastSyncItems');
+    await AsyncStorage.removeItem('lastSyncTime');
+    await AsyncStorage.removeItem('history');
+    */
     await Sefaria.history.migrateFromOldRecents();
     const lastPlace = await AsyncStorage.getItem('lastPlace');
     const lastSync = await AsyncStorage.getItem('lastSyncItems');
@@ -112,14 +118,14 @@ const History = {
     // TODO: sync user settings
     const currHistoryStr = await AsyncStorage.getItem('history');
     const lastSyncStr = await AsyncStorage.getItem('lastSyncItems');
+    const lastSyncItems = JSON.parse(lastSyncStr) || [];
     let currHistory = JSON.parse(currHistoryStr) || [];
+    currHistory = lastSyncItems.concat(currHistory);
     await Sefaria.api.getAuthToken();
-    if (Sefaria._auth.uid && false) {
+    if (Sefaria._auth.uid && !!lastSyncStr) {
       try {
-        const lastSyncTime = await AsyncStorage.getItem('lastSyncTime');
-        if (!lastSyncStr) { /* nothing to sync */ return currHistory; }
+        const lastSyncTime = await AsyncStorage.getItem('lastSyncTime') || '0';
         const url = Sefaria.api._baseHost + "api/profile/sync";
-        console.log('lastSyncTime', lastSyncTime);
         const body = Sefaria.api.urlFormEncode({user_history: lastSyncStr, last_sync: lastSyncTime});
         const response = await fetch(url, {
           method: "POST",
@@ -128,26 +134,24 @@ const History = {
             'Authorization': `Bearer ${Sefaria._auth.token}`,
             'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
           },
-        }).then(res => res.json());
-        console.log('response', response);
-        await AsyncStorage.removeItem('lastSyncItems');
+        }).then(res => {
+          if (res.status < 200 || res.status >= 300) { throw new Error("Bad Response Code " + res.status); }
+          return res.json();
+        });
         await AsyncStorage.setItem('lastSyncTime', response.last_sync);
+        await AsyncStorage.removeItem('lastSyncItems');
         currHistory = Sefaria.history.mergeHistory(currHistory, response.user_history);
 
-        await AsyncStorage.setItem('lastPlace', Sefaria.history.historyToLastPlace(currHistory));
-        await AsyncStorage.setItem('history', currHistory);
+        await AsyncStorage.setItem('lastPlace', JSON.stringify(Sefaria.history.historyToLastPlace(currHistory)));
+        await AsyncStorage.setItem('history', JSON.stringify(currHistory));
       } catch (e) {
-        console.log('sync error', e);
         // try again later
+        console.log('sync error', e);
       }
-    } else {
-      // sync failed, merge local history items as a fallback
-      const lastSyncItems = JSON.parse(lastSyncStr) || [];
-      currHistory = lastSyncItems.concat(currHistory);
     }
     return currHistory;
   },
-  mergeHistory: async function(currHistory, newHistory) {
+  mergeHistory: function(currHistory, newHistory) {
     return newHistory.concat(currHistory).sort((a, b) => b.time_stamp - a.time_stamp);
   },
   saveSavedItem: function(item) {

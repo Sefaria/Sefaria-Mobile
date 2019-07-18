@@ -320,7 +320,6 @@ Sefaria = {
           if (enSectionStr.indexOf('-') !== -1) {
             heEndSections = '-' + enSectionStr.split('-')[1].split(':').map(s => Sefaria.hebrew.encodeHebrewNumeral(parseInt(s))).join(':');
           }
-          console.log(`${heTitle} ${heStartSections}-${heEndSections}`);
           return `${heTitle} ${heStartSections}${heEndSections}`;
         }
         return enSegmentRef;
