@@ -28,6 +28,7 @@
     "react": "16.8.3",
     "react-native": "^0.59.10",
     "react-native-action-sheet": "^2.2.0",
+    "react-native-background-fetch": "^2.6.1",
     "react-native-check-app-install": "0.0.4",
     "react-native-custom-tabs": "^0.1.7",
     "react-native-easy-toast": "^1.2.0",
