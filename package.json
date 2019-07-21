@@ -5,7 +5,11 @@
   "scripts": {
     "start": "react-native start",
     "setup": "sudo npm install -g react-native-cli",
-    "postinstall": "node ./android-release-gradle-fix.js"
+    "postinstall": "node ./android-release-gradle-fix.js",
+    "test": "jest"
+  },
+  "jest": {
+    "preset": "react-native"
   },
   "dependencies": {
     "@react-native-community/async-storage": "^1.4.0",
