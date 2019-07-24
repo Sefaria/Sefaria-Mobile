@@ -21,11 +21,33 @@ import styles from './Styles.js';
 import strings from './LocalizedStrings';
 
 
-/*const Button = ({ children, theme, onPress }) => (
-  <TouchableOpacity onPress={onPress} style={[styles.button]}>
-    { children }
+const SystemButton = ({ theme, onPress, text, img, isHeb, isBlue }) => (
+  <TouchableOpacity onPress={onPress} style={[styles.systemButton, styles.boxShadow, (isBlue ? styles.systemButtonBlue : null)]}>
+    { !!img ?
+      <Image
+        source={img}
+        style={isHeb ? styles.menuButtonMarginedHe : styles.menuButtonMargined}
+        resizeMode={'contain'}
+      /> : null
+    }
+    <Text
+      style={[
+        styles.systemButtonText,
+        (isBlue ? styles.systemButtonTextBlue : null),
+        (isHeb ? styles.heInt : styles.enInt)
+      ]}
+    >
+      { text }
+    </Text>
+    { !!img ?
+      <Image
+        source={img}
+        style={[(isHeb ? styles.menuButtonMarginedHe : styles.menuButtonMargined), { opacity: 0 }]}
+        resizeMode={'contain'}
+      /> : null
+    }
   </TouchableOpacity>
-);*/
+);
 
 const SefariaProgressBar = ({ theme, themeStr, progress, onPress, onClose, interfaceLang }) => (
   <TouchableOpacity onPress={!!onPress ? onPress : ()=>{}} disabled={!onPress} style={styles.sefariaProgressBar}>
@@ -730,6 +752,7 @@ export {
   DirectedArrow,
   DirectedButton,
   DisplaySettingsButton,
+  HebrewInEnglishText,
   IndeterminateCheckBox,
   LanguageToggleButton,
   LibraryNavButton,
@@ -739,7 +762,7 @@ export {
   SearchButton,
   SefariaProgressBar,
   SText,
-  HebrewInEnglishText,
+  SystemButton,
   ToggleSet,
   TripleDots,
   TwoBox,

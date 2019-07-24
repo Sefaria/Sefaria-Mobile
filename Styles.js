@@ -11,17 +11,38 @@ const readerSideMargin = 42;
 const readerSideMarginIpad = 60;
 
 export default StyleSheet.create({
+  boxShadow: {
+    shadowColor: 'black',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+    elevation: 5,
+  },
   textInput: {
     fontFamily: 'OpenSans',
     fontSize: 20,
     padding: 15,
     borderRadius: 10,
     backgroundColor: 'white',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.2,
-    shadowRadius: 3,
-    elevation: 5
+  },
+  systemButton: {
+    borderRadius: 5,
+    paddingVertical: 14,
+    marginVertical: 5,
+    backgroundColor: 'white',
+    flexDirection: 'row',
+    justifyContent: 'center',
+  },
+  systemButtonBlue: {
+    backgroundColor: '#18345D',
+  },
+  systemButtonText: {
+    textAlign: "center",
+    fontFamily: 'OpenSans',
+    color: '#000',
+  },
+  systemButtonTextBlue: {
+    color: 'white'
   },
   authTextInput: {
     marginVertical: 7,

@@ -13,7 +13,6 @@ import {
   Platform,
   Linking,
   Alert,
-  Button,
 } from 'react-native';
 
 import {
@@ -21,6 +20,7 @@ import {
   CategoryBlockLink,
   TwoBox,
   LanguageToggleButton,
+  SystemButton,
 } from './Misc.js';
 import VersionNumber from 'react-native-version-number';
 import SearchBar from './SearchBar';
@@ -87,16 +87,6 @@ class ReaderNavigationMenu extends React.Component {
 
   navHome = () => {
     this.props.setCategories([]);
-  };
-
-  getEmailBody = () => {
-    let nDownloaded = Sefaria.downloader.titlesDownloaded().length;
-    const nAvailable  = Sefaria.downloader.titlesAvailable().length;
-    nDownloaded = nDownloaded <= nAvailable ? nDownloaded : nAvailable;
-    return encodeURIComponent(`App Version: ${VersionNumber.appVersion}
-            Texts Downloaded: ${nDownloaded} / ${nAvailable}
-            Packages: ${Object.keys(Sefaria.packages.selected).join(", ")}
-            OS Version: ${Platform.OS} ${Platform.Version}\n`);
   };
 
   render() {
@@ -169,7 +159,6 @@ class ReaderNavigationMenu extends React.Component {
       );
       const isHeb = this.props.interfaceLang === "hebrew";
       const langStyle = !isHeb ? styles.enInt : styles.heInt;
-      const hitSlop = {top: 10, bottom: 10, left: 10, right: 10};
       return(<View style={[styles.menu, this.props.theme.menu]}>
               <CategoryColorLine category={"Other"} />
               <SearchBar
@@ -217,25 +206,13 @@ class ReaderNavigationMenu extends React.Component {
                   language={this.props.menuLanguage}
                   interfaceLang={this.props.interfaceLang} />
 
-                  <View style={styles.readerNavSection}>
-                  <TouchableWithoutFeedback onPress={this.onDebugSupportPress}>
-                    <View>
-                      <Text style={[styles.readerNavSectionTitle, this.props.theme.readerNavSectionTitle, langStyle, {textAlign: "center"}]}>
-                        {strings.supportSefaria}
-                      </Text>
-                    </View>
-                  </TouchableWithoutFeedback>
-                  <TouchableOpacity style={[styles.button, this.props.theme.borderDarker, this.props.theme.mainTextPanel, {flexDirection: isHeb ? "row-reverse" : "row", justifyContent: "center", marginTop: 15}]}
-                    onPress={() => {this.props.openUri("https://sefaria.nationbuilder.com/");}}>
-                    <Image source={this.props.themeStr == "white" ? require('./img/heart.png'): require('./img/heart-light.png') }
-                      style={isHeb ? styles.menuButtonMarginedHe : styles.menuButtonMargined}
-                      resizeMode={'contain'} />
-                    <Text style={[styles.buttonText, langStyle]}>{strings.makeADonation}</Text>
-                    <Image source={this.props.themeStr == "white" ? require('./img/heart.png'): require('./img/heart-light.png') }
-                      style={[isHeb ? styles.menuButtonMarginedHe : styles.menuButtonMargined, {opacity:0}]}
-                      resizeMode={'contain'} />
-                  </TouchableOpacity>
-                </View>
+                <MoreSection
+                  theme={this.props.theme}
+                  themeStr={this.props.themeStr}
+                  isHeb={isHeb}
+                  openUri={this.props.openUri}
+                  openSettings={this.props.openSettings}
+                />
 
                 <AuthSection
                   theme={this.props.theme}
@@ -245,25 +222,6 @@ class ReaderNavigationMenu extends React.Component {
                   logout={this.props.logout}
                   interfaceLang={this.props.interfaceLang}
                 />
-
-                <View style={styles.navBottomLinks}>
-                  <TouchableOpacity onPress={this.props.openSettings} hitSlop={hitSlop}>
-                    <Text style={[isHeb ? styles.heInt : styles.enInt, this.props.theme.tertiaryText]}>{strings.settings}</Text>
-                  </TouchableOpacity>
-
-                  <Text style={[styles.navBottomLinkDot, this.props.theme.tertiaryText]}>•</Text>
-
-                  <TouchableOpacity onPress={() => {this.props.openUri("https://www.sefaria.org/about");}} hitSlop={hitSlop}>
-                    <Text style={[isHeb ? styles.heInt : styles.enInt, this.props.theme.tertiaryText]}>{strings.about}</Text>
-                  </TouchableOpacity>
-
-                  <Text style={[styles.navBottomLinkDot, this.props.theme.tertiaryText]}>•</Text>
-
-                  <TouchableOpacity onPress={() => {Linking.openURL(`mailto:hello@sefaria.org?subject=${encodeURIComponent(Platform.OS+" App Feedback")}&body=${this.getEmailBody()}`);}} hitSlop={hitSlop}>
-                    <Text style={[isHeb ? styles.heInt : styles.enInt, this.props.theme.tertiaryText]}>{strings.feedback}</Text>
-                  </TouchableOpacity>
-
-                </View>
 
                 <Text style={[styles.dedication, isHeb ? styles.hebrewSystemFont : null, this.props.theme.secondaryText]}>
                   { Platform.OS === 'ios' ? strings.dedicatedIOS : strings.dedicatedAndroid }
@@ -287,23 +245,108 @@ class AuthSection extends React.Component{
   render() {
     const authButtons = this.props.isLoggedIn ? (
       <View>
-        <Button onPress={this.props.logout} title={strings.logout} />
+        <SystemButton
+          theme={this.props.theme}
+          onPress={this.props.logout}
+          text={strings.logout}
+        />
       </View>
     ) : (
       <View>
-        <Button onPress={this.props.openRegister} title={strings.create_your_account} />
-        <Button onPress={this.props.openLogin} title={strings.sign_in} />
+        <SystemButton
+          theme={this.props.theme}
+          onPress={this.props.openRegister}
+          text={strings.create_your_account}
+          isBlue={true}
+        />
+        <SystemButton
+          theme={this.props.theme}
+          onPress={this.props.openLogin}
+          text={strings.sign_in}
+        />
       </View>
     );
     return (<ReaderNavigationMenuSection
               hasmore={false}
               theme={this.props.theme}
-              title={strings.sign_in}
+              title={strings.sign_in.toUpperCase()}
               heTitle={strings.sign_in}
               content={authButtons}
               interfaceLang={this.props.interfaceLang} />);
   }
 }
+
+class MoreSection extends React.Component {
+  static propTypes = {
+    theme:         PropTypes.object.isRequired,
+    themeStr:      PropTypes.string.isRequired,
+    isHeb:         PropTypes.bool.isRequired,
+    openUri:       PropTypes.func.isRequired,
+    openSettings:  PropTypes.func.isRequired,
+  };
+  getEmailBody = () => {
+    let nDownloaded = Sefaria.downloader.titlesDownloaded().length;
+    const nAvailable  = Sefaria.downloader.titlesAvailable().length;
+    nDownloaded = nDownloaded <= nAvailable ? nDownloaded : nAvailable;
+    return encodeURIComponent(`App Version: ${VersionNumber.appVersion}
+            Texts Downloaded: ${nDownloaded} / ${nAvailable}
+            Packages: ${Object.keys(Sefaria.packages.selected).join(", ")}
+            OS Version: ${Platform.OS} ${Platform.Version}\n`);
+  };
+  onDonate = () => {
+    this.props.openUri("https://sefaria.nationbuilder.com/");
+  };
+  onAbout = () => {
+    this.props.openUri("https://www.sefaria.org/about");
+  };
+  onFeedback = () => {
+    Linking.openURL(`mailto:hello@sefaria.org?subject=${encodeURIComponent(Platform.OS+" App Feedback")}&body=${this.getEmailBody()}`);
+  };
+  render() {
+    return (
+      <View style={styles.readerNavSection}>
+        <TouchableWithoutFeedback onPress={this.onDebugSupportPress}>
+          <View>
+            <Text style={[styles.readerNavSectionTitle, this.props.theme.readerNavSectionTitle, (this.props.isHeb ? styles.heInt : styles.enInt), {textAlign: "center"}]}>
+              {strings.supportSefaria}
+            </Text>
+          </View>
+        </TouchableWithoutFeedback>
+        <TwoBox>
+          <SystemButton
+            theme={this.props.theme}
+            text={strings.donate}
+            img={this.props.themeStr == "white" ? require('./img/heart.png'): require('./img/heart-light.png')}
+            onPress={this.onDonate}
+            isHeb={this.props.isHeb}
+          />
+          <SystemButton
+            theme={this.props.theme}
+            text={strings.settings}
+            img={this.props.themeStr == "white" ? require('./img/settings.png'): require('./img/settings-light.png')}
+            onPress={this.props.openSettings}
+            isHeb={this.props.isHeb}
+          />
+          <SystemButton
+            theme={this.props.theme}
+            text={strings.about}
+            img={this.props.themeStr == "white" ? require('./img/info.png'): require('./img/info-light.png')}
+            onPress={this.onAbout}
+            isHeb={this.props.isHeb}
+          />
+          <SystemButton
+            theme={this.props.theme}
+            text={strings.feedback}
+            img={this.props.themeStr == "white" ? require('./img/feedback.png'): require('./img/feedback-light.png')}
+            onPress={this.onFeedback}
+            isHeb={this.props.isHeb}
+          />
+        </TwoBox>
+      </View>
+    );
+  }
+}
+
 class ResourcesSection extends React.Component {
 
   static propTypes = {

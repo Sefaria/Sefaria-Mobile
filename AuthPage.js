@@ -142,7 +142,7 @@ const AuthTextInput = ({
 }) => (
   <View>
     <TextInput
-      style={[styles.textInput, styles.authTextInput]}
+      style={[styles.textInput, styles.boxShadow, styles.authTextInput]}
       placeholder={placeholder}
       placeholderTextColor={placeholderTextColor}
       secureTextEntry={isPW}
