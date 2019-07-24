@@ -6,10 +6,12 @@
     "start": "react-native start",
     "setup": "sudo npm install -g react-native-cli",
     "postinstall": "node ./android-release-gradle-fix.js",
-    "test": "jest"
+    "test": "jest --watchAll --notify"
   },
   "jest": {
-    "preset": "react-native"
+    "preset": "react-native",
+    "setupFiles": ["<rootDir>/jest.setup.js"],
+    "setupFilesAfterEnv": ["./__mocks__/mockFirebase.js", "./__mocks__/mockRNFS.js", "./__mocks__/mockRNFetchBlob.js"]
   },
   "dependencies": {
     "@react-native-community/async-storage": "^1.4.0",
