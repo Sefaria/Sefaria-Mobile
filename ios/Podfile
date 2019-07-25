@@ -39,6 +39,8 @@ target 'ReaderApp' do
 
   pod 'RNBackgroundFetch', :path => '../node_modules/react-native-background-fetch'
 
+  pod 'ReactNativeLocalization', :path => '../node_modules/react-native-localization'
+
   target 'ReaderAppTests' do
     inherit! :search_paths
     # Pods for testing

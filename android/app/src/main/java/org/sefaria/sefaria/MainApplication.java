@@ -16,8 +16,8 @@ import com.apsl.versionnumber.RNVersionNumberPackage;
 import org.devio.rn.splashscreen.SplashScreenReactPackage;
 import com.zmxv.RNSound.RNSoundPackage;
 import com.clipsub.RNShake.RNShakeEventPackage;
-import com.babisoft.ReactNativeLocalization.ReactNativeLocalizationPackage;
 import com.rnfs.RNFSPackage;
+import com.babisoft.ReactNativeLocalization.ReactNativeLocalizationPackage;
 import com.github.droibit.android.reactnative.customtabs.CustomTabsPackage;
 import com.rpt.reactnativecheckpackageinstallation.CheckPackageInstallationPackage;
 import com.facebook.react.ReactNativeHost;
@@ -55,10 +55,10 @@ public class MainApplication extends Application implements ReactApplication {
             new SplashScreenReactPackage(),
             new RNSoundPackage(),
             new RNShakeEventPackage(),
-            new ReactNativeLocalizationPackage(),
             new RNFSPackage(),
             new CustomTabsPackage(),
-            new CheckPackageInstallationPackage()
+            new CheckPackageInstallationPackage(),
+            new ReactNativeLocalizationPackage()
       );
     }
 
