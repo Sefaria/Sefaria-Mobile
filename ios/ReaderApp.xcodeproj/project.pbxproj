@@ -27,7 +27,6 @@
 		0761D1C4207F9CDD0011FE47 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 0761D1C3207F9CDD0011FE47 /* LaunchScreen.xib */; };
 		0761D1C6207F9D000011FE47 /* two1536x2048.png in Resources */ = {isa = PBXBuildFile; fileRef = 0761D1C5207F9D000011FE47 /* two1536x2048.png */; };
 		07CD920A2845417193744906 /* libSplashScreen.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 67F57592B5ED45B983FEFCF1 /* libSplashScreen.a */; };
-		0C4B8833009C47C5BDDBAE7C /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 170E0C757A564F0FA612B77F /* SystemConfiguration.framework */; };
 		11A50DB7CF114C4781471A3A /* libSafariViewManager.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6C49A89224224EBAB4B976FC /* libSafariViewManager.a */; };
 		133E29F31AD74F7200F7D852 /* libRCTLinking.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 78C398B91ACF4ADC00677621 /* libRCTLinking.a */; };
 		139105C61AF99C1200B5F7CC /* libRCTSettings.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 139105C11AF99BAD00B5F7CC /* libRCTSettings.a */; };
@@ -67,12 +66,8 @@
 		ADBDB9381DFEBF1600ED6528 /* libRCTBlob.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ADBDB9271DFEBF0700ED6528 /* libRCTBlob.a */; };
 		AF2D95EB552D4F46A2FBF282 /* libRNCWebView.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 020D5B1D2A2348BAB8FEA84A /* libRNCWebView.a */; };
 		C3D2B1B4F99F49AEB9EDB094 /* libRNShakeEvent.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 168713B3594C4DC9BC08442E /* libRNShakeEvent.a */; };
-		C94526F3D07E4A06ADB8958A /* libRNFetchBlob.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 74CF96A0119744E4A6CAE5A0 /* libRNFetchBlob.a */; };
 		CFAA7E3C3345F9AF49A4536B /* libPods-ReaderApp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 069685FF876368056872A204 /* libPods-ReaderApp.a */; };
-		D53183707AC1409088502A43 /* libRCTGoogleAnalyticsBridge.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A4FC1972B30744678C7EB7DE /* libRCTGoogleAnalyticsBridge.a */; };
-		DB7A5A43D5FB4576A10AA2AF /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 02893CABBDD1470A9AF4387D /* CoreData.framework */; };
 		DBC5F3222AF2426093E4F8E3 /* libRNCNetInfo-tvOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4B23F15A775349EE905B2980 /* libRNCNetInfo-tvOS.a */; };
-		DD121F82AFE44E53A46F63CE /* libsqlite3.0.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = AB2D481D262D4E2598CD2031 /* libsqlite3.0.tbd */; };
 		E5401A0D22C6CFCC00B2FAE8 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = E5401A0C22C6CFCB00B2FAE8 /* GoogleService-Info.plist */; };
 		E5D001A722C3DA8800758381 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = E5D001A622C3DA8800758381 /* GoogleService-Info.plist */; };
 		ED297163215061F000B7C4FE /* JavaScriptCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ED297162215061F000B7C4FE /* JavaScriptCore.framework */; };
@@ -150,13 +145,6 @@
 			remoteGlobalIDString = 2858ECD01F8B91B400610575;
 			remoteInfo = "RNVersionNumber-tvOS";
 		};
-		0761D193207CC4D90011FE47 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = CFAF12BAD638455885AF6726 /* RCTGoogleAnalyticsBridge.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = A79185C61C30694E001236A6;
-			remoteInfo = RCTGoogleAnalyticsBridge;
-		};
 		0761D196207CC4D90011FE47 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 9EECCC23CB674C408FABE850 /* RNZipArchive.xcodeproj */;
@@ -177,13 +165,6 @@
 			proxyType = 2;
 			remoteGlobalIDString = 7B5D9D0A1B6AD0EA00CF3A83;
 			remoteInfo = ReactNativeLocalization;
-		};
-		07B45548215A6321005D17DC /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 56F99148496346EEABF4DAD3 /* RNFetchBlob.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = A15C300E1CD25C330074CB35;
-			remoteInfo = RNFetchBlob;
 		};
 		07B4554E215A6321005D17DC /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -492,7 +473,6 @@
 		00E356F11AD99517003FC87E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		00E356F21AD99517003FC87E /* ReaderAppTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ReaderAppTests.m; sourceTree = "<group>"; };
 		020D5B1D2A2348BAB8FEA84A /* libRNCWebView.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRNCWebView.a; sourceTree = "<group>"; };
-		02893CABBDD1470A9AF4387D /* CoreData.framework */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
 		03F366047F58481F88784914 /* libRNFS.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRNFS.a; sourceTree = "<group>"; };
 		05F839C54C86462694E5E2F6 /* RNCWebView.xcodeproj */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "wrapper.pb-project"; name = RNCWebView.xcodeproj; path = "../node_modules/react-native-webview/ios/RNCWebView.xcodeproj"; sourceTree = "<group>"; };
 		069685FF876368056872A204 /* libPods-ReaderApp.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-ReaderApp.a"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -526,7 +506,6 @@
 		146A89EA21AF40868F0161F3 /* RNCNetInfo.xcodeproj */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "wrapper.pb-project"; name = RNCNetInfo.xcodeproj; path = "../node_modules/@react-native-community/netinfo/ios/RNCNetInfo.xcodeproj"; sourceTree = "<group>"; };
 		1482291FCEE142B5AD2810A5 /* libRNSound.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRNSound.a; sourceTree = "<group>"; };
 		168713B3594C4DC9BC08442E /* libRNShakeEvent.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRNShakeEvent.a; sourceTree = "<group>"; };
-		170E0C757A564F0FA612B77F /* SystemConfiguration.framework */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		1B2A2B87E7BA413386BC471C /* RNShakeEvent.xcodeproj */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "wrapper.pb-project"; name = RNShakeEvent.xcodeproj; path = "../node_modules/react-native-shake/ios/RNShakeEvent.xcodeproj"; sourceTree = "<group>"; };
 		21A4979659B8BD96AD7AF128 /* Pods-ReaderAppTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ReaderAppTests.debug.xcconfig"; path = "Target Support Files/Pods-ReaderAppTests/Pods-ReaderAppTests.debug.xcconfig"; sourceTree = "<group>"; };
 		2C8FB7BF8C514F3ABB0A6C77 /* libRNCAsyncStorage.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRNCAsyncStorage.a; sourceTree = "<group>"; };
@@ -540,27 +519,22 @@
 		4DC05C24B13BE6221723A3B3 /* Pods-ReaderApp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ReaderApp.release.xcconfig"; path = "Target Support Files/Pods-ReaderApp/Pods-ReaderApp.release.xcconfig"; sourceTree = "<group>"; };
 		515995C120FD4F31A66E84FC /* RNBackgroundFetch+AppDelegate.m */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.c.objc; name = "RNBackgroundFetch+AppDelegate.m"; path = "../node_modules/react-native-background-fetch/ios/RNBackgroundFetch/RNBackgroundFetch+AppDelegate.m"; sourceTree = "<group>"; };
 		51EBA1AD02DB488D974DC900 /* libRNZipArchive.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRNZipArchive.a; sourceTree = "<group>"; };
-		56F99148496346EEABF4DAD3 /* RNFetchBlob.xcodeproj */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "wrapper.pb-project"; name = RNFetchBlob.xcodeproj; path = "../node_modules/rn-fetch-blob/ios/RNFetchBlob.xcodeproj"; sourceTree = "<group>"; };
 		5E91572D1DD0AC6500FF2AA8 /* RCTAnimation.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTAnimation.xcodeproj; path = "../node_modules/react-native/Libraries/NativeAnimation/RCTAnimation.xcodeproj"; sourceTree = "<group>"; };
 		67C1DC766AFF494B8E15841D /* ReactNativeCustomTabs.xcodeproj */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "wrapper.pb-project"; name = ReactNativeCustomTabs.xcodeproj; path = "../node_modules/react-native-custom-tabs/ios/ReactNativeCustomTabs.xcodeproj"; sourceTree = "<group>"; };
 		67F57592B5ED45B983FEFCF1 /* libSplashScreen.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libSplashScreen.a; sourceTree = "<group>"; };
 		6C49A89224224EBAB4B976FC /* libSafariViewManager.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libSafariViewManager.a; sourceTree = "<group>"; };
-		74CF96A0119744E4A6CAE5A0 /* libRNFetchBlob.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRNFetchBlob.a; sourceTree = "<group>"; };
 		78C398B01ACF4ADC00677621 /* RCTLinking.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTLinking.xcodeproj; path = "../node_modules/react-native/Libraries/LinkingIOS/RCTLinking.xcodeproj"; sourceTree = "<group>"; };
 		7E1DB48EB6B2433BA752F880 /* RNFS.xcodeproj */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "wrapper.pb-project"; name = RNFS.xcodeproj; path = "../node_modules/react-native-fs/RNFS.xcodeproj"; sourceTree = "<group>"; };
 		832341B01AAA6A8300B99B32 /* RCTText.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTText.xcodeproj; path = "../node_modules/react-native/Libraries/Text/RCTText.xcodeproj"; sourceTree = "<group>"; };
 		961687DB72EB4DC3B5B7967D /* SafariViewManager.xcodeproj */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "wrapper.pb-project"; name = SafariViewManager.xcodeproj; path = "../node_modules/react-native-safari-view/SafariViewManager.xcodeproj"; sourceTree = "<group>"; };
 		9B4D62BF2791AF8D8D4DEA7B /* libPods-ReaderAppTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-ReaderAppTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		9EECCC23CB674C408FABE850 /* RNZipArchive.xcodeproj */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "wrapper.pb-project"; name = RNZipArchive.xcodeproj; path = "../node_modules/react-native-zip-archive/ios/RNZipArchive.xcodeproj"; sourceTree = "<group>"; };
-		A4FC1972B30744678C7EB7DE /* libRCTGoogleAnalyticsBridge.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRCTGoogleAnalyticsBridge.a; sourceTree = "<group>"; };
-		AB2D481D262D4E2598CD2031 /* libsqlite3.0.tbd */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libsqlite3.0.tbd; path = usr/lib/libsqlite3.0.tbd; sourceTree = SDKROOT; };
 		ADBDB91F1DFEBF0600ED6528 /* RCTBlob.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTBlob.xcodeproj; path = "../node_modules/react-native/Libraries/Blob/RCTBlob.xcodeproj"; sourceTree = "<group>"; };
 		ADD05612FAB63641BE8C03BD /* Pods-ReaderApp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ReaderApp.debug.xcconfig"; path = "Target Support Files/Pods-ReaderApp/Pods-ReaderApp.debug.xcconfig"; sourceTree = "<group>"; };
 		BB2CC56A4F1E41EE9F5BB178 /* libDBCustomTabs.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libDBCustomTabs.a; sourceTree = "<group>"; };
 		C1C17E8444D6472EABD6C996 /* libRNFirebase.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRNFirebase.a; sourceTree = "<group>"; };
 		C3064F3EC50D4BF08968171A /* libz.tbd */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		C8FC2D6C8C234FF99635297A /* RNVersionNumber.xcodeproj */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "wrapper.pb-project"; name = RNVersionNumber.xcodeproj; path = "../node_modules/react-native-version-number/ios/RNVersionNumber.xcodeproj"; sourceTree = "<group>"; };
-		CFAF12BAD638455885AF6726 /* RCTGoogleAnalyticsBridge.xcodeproj */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "wrapper.pb-project"; name = RCTGoogleAnalyticsBridge.xcodeproj; path = "../node_modules/react-native-google-analytics-bridge/ios/RCTGoogleAnalyticsBridge/RCTGoogleAnalyticsBridge.xcodeproj"; sourceTree = "<group>"; };
 		D1C1FB7CD4B143559CA00D23 /* TSBackgroundFetch.framework */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = wrapper.framework; name = TSBackgroundFetch.framework; path = "../node_modules/react-native-background-fetch/ios/RNBackgroundFetch/TSBackgroundFetch.framework"; sourceTree = SDKROOT; };
 		E5401A0C22C6CFCB00B2FAE8 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		E5D001A622C3DA8800758381 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
@@ -598,17 +572,12 @@
 				832341BD1AAA6AB300B99B32 /* libRCTText.a in Frameworks */,
 				00C302EA1ABCBA2D00DB3ED1 /* libRCTVibration.a in Frameworks */,
 				139FDEF61B0652A700C62182 /* libRCTWebSocket.a in Frameworks */,
-				D53183707AC1409088502A43 /* libRCTGoogleAnalyticsBridge.a in Frameworks */,
-				DB7A5A43D5FB4576A10AA2AF /* CoreData.framework in Frameworks */,
-				0C4B8833009C47C5BDDBAE7C /* SystemConfiguration.framework in Frameworks */,
 				01FBEA414611491585EDA840 /* libz.tbd in Frameworks */,
-				DD121F82AFE44E53A46F63CE /* libsqlite3.0.tbd in Frameworks */,
 				3F6B2E27FCE04D1599EB3F3D /* libRNVersionNumber.a in Frameworks */,
 				7CCAA19968E74A95ADD431B8 /* libRNZipArchive.a in Frameworks */,
 				91A58334CB004BEEBE7EC243 /* libDBCustomTabs.a in Frameworks */,
 				11A50DB7CF114C4781471A3A /* libSafariViewManager.a in Frameworks */,
 				07CD920A2845417193744906 /* libSplashScreen.a in Frameworks */,
-				C94526F3D07E4A06ADB8958A /* libRNFetchBlob.a in Frameworks */,
 				53EF7D4430FC4EA28F9E1CD4 /* libRNFS.a in Frameworks */,
 				C3D2B1B4F99F49AEB9EDB094 /* libRNShakeEvent.a in Frameworks */,
 				2CF1C5D7CC894C63A14F8365 /* libRNSound.a in Frameworks */,
@@ -767,14 +736,6 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		0761D18E207CC4D90011FE47 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				0761D194207CC4D90011FE47 /* libRCTGoogleAnalyticsBridge.a */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
 		0761D190207CC4D90011FE47 /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -795,14 +756,6 @@
 			isa = PBXGroup;
 			children = (
 				07AB7E7B22E87B130079131A /* libReactNativeLocalization.a */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		07B45545215A6321005D17DC /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				07B45549215A6321005D17DC /* libRNFetchBlob.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -908,10 +861,7 @@
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
 				ED2971642150620600B7C4FE /* JavaScriptCore.framework */,
 				2D16E6891FA4F8E400B85C8A /* libReact.a */,
-				02893CABBDD1470A9AF4387D /* CoreData.framework */,
-				170E0C757A564F0FA612B77F /* SystemConfiguration.framework */,
 				C3064F3EC50D4BF08968171A /* libz.tbd */,
-				AB2D481D262D4E2598CD2031 /* libsqlite3.0.tbd */,
 				069685FF876368056872A204 /* libPods-ReaderApp.a */,
 				9B4D62BF2791AF8D8D4DEA7B /* libPods-ReaderAppTests.a */,
 				D1C1FB7CD4B143559CA00D23 /* TSBackgroundFetch.framework */,
@@ -952,13 +902,11 @@
 				832341B01AAA6A8300B99B32 /* RCTText.xcodeproj */,
 				00C302DF1ABCB9EE00DB3ED1 /* RCTVibration.xcodeproj */,
 				139FDEE61B06529A00C62182 /* RCTWebSocket.xcodeproj */,
-				CFAF12BAD638455885AF6726 /* RCTGoogleAnalyticsBridge.xcodeproj */,
 				C8FC2D6C8C234FF99635297A /* RNVersionNumber.xcodeproj */,
 				9EECCC23CB674C408FABE850 /* RNZipArchive.xcodeproj */,
 				67C1DC766AFF494B8E15841D /* ReactNativeCustomTabs.xcodeproj */,
 				961687DB72EB4DC3B5B7967D /* SafariViewManager.xcodeproj */,
 				10A19833FF79497D98822F8B /* SplashScreen.xcodeproj */,
-				56F99148496346EEABF4DAD3 /* RNFetchBlob.xcodeproj */,
 				7E1DB48EB6B2433BA752F880 /* RNFS.xcodeproj */,
 				1B2A2B87E7BA413386BC471C /* RNShakeEvent.xcodeproj */,
 				42158E4B7333430BAF145045 /* RNSound.xcodeproj */,
@@ -1196,10 +1144,6 @@
 					ProjectRef = 00C302B51ABCB90400DB3ED1 /* RCTGeolocation.xcodeproj */;
 				},
 				{
-					ProductGroup = 0761D18E207CC4D90011FE47 /* Products */;
-					ProjectRef = CFAF12BAD638455885AF6726 /* RCTGoogleAnalyticsBridge.xcodeproj */;
-				},
-				{
 					ProductGroup = 00C302BC1ABCB91800DB3ED1 /* Products */;
 					ProjectRef = 00C302BB1ABCB91800DB3ED1 /* RCTImage.xcodeproj */;
 				},
@@ -1250,10 +1194,6 @@
 				{
 					ProductGroup = 079007F522D538A80089668D /* Products */;
 					ProjectRef = 05F839C54C86462694E5E2F6 /* RNCWebView.xcodeproj */;
-				},
-				{
-					ProductGroup = 07B45545215A6321005D17DC /* Products */;
-					ProjectRef = 56F99148496346EEABF4DAD3 /* RNFetchBlob.xcodeproj */;
 				},
 				{
 					ProductGroup = E5D001A122C3DA0100758381 /* Products */;
@@ -1362,13 +1302,6 @@
 			remoteRef = 0761D18C207CC4D90011FE47 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		0761D194207CC4D90011FE47 /* libRCTGoogleAnalyticsBridge.a */ = {
-			isa = PBXReferenceProxy;
-			fileType = archive.ar;
-			path = libRCTGoogleAnalyticsBridge.a;
-			remoteRef = 0761D193207CC4D90011FE47 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
 		0761D197207CC4D90011FE47 /* libRNZipArchive.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
@@ -1381,13 +1314,6 @@
 			fileType = archive.ar;
 			path = libRNCWebView.a;
 			remoteRef = 079007F822D538A80089668D /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		07B45549215A6321005D17DC /* libRNFetchBlob.a */ = {
-			isa = PBXReferenceProxy;
-			fileType = archive.ar;
-			path = libRNFetchBlob.a;
-			remoteRef = 07B45548215A6321005D17DC /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 		07B4554F215A6321005D17DC /* libRNFS.a */ = {
@@ -1865,14 +1791,12 @@
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(SRCROOT)/../node_modules/react-native-google-analytics-bridge/ios/RCTGoogleAnalyticsBridge/**",
 					"$(SRCROOT)/../node_modules/react-native-localization",
 					"$(SRCROOT)/../node_modules/react-native-version-number/ios",
 					"$(SRCROOT)/../node_modules/react-native-zip-archive/ios/**",
 					"$(SRCROOT)/../node_modules/react-native-custom-tabs/ios/ReactNativeCustomTabs",
 					"$(SRCROOT)/../node_modules/react-native-safari-view",
 					"$(SRCROOT)/../node_modules/react-native-splash-screen/ios",
-					"$(SRCROOT)/../node_modules/rn-fetch-blob/ios/**",
 					"$(SRCROOT)/../node_modules/react-native-fs/**",
 					"$(SRCROOT)/../node_modules/react-native-shake/ios",
 					"$(SRCROOT)/../node_modules/react-native-sound/RNSound",
@@ -1905,14 +1829,12 @@
 				COPY_PHASE_STRIP = NO;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(SRCROOT)/../node_modules/react-native-google-analytics-bridge/ios/RCTGoogleAnalyticsBridge/**",
 					"$(SRCROOT)/../node_modules/react-native-localization",
 					"$(SRCROOT)/../node_modules/react-native-version-number/ios",
 					"$(SRCROOT)/../node_modules/react-native-zip-archive/ios/**",
 					"$(SRCROOT)/../node_modules/react-native-custom-tabs/ios/ReactNativeCustomTabs",
 					"$(SRCROOT)/../node_modules/react-native-safari-view",
 					"$(SRCROOT)/../node_modules/react-native-splash-screen/ios",
-					"$(SRCROOT)/../node_modules/rn-fetch-blob/ios/**",
 					"$(SRCROOT)/../node_modules/react-native-fs/**",
 					"$(SRCROOT)/../node_modules/react-native-shake/ios",
 					"$(SRCROOT)/../node_modules/react-native-sound/RNSound",
@@ -1945,7 +1867,7 @@
 				CODE_SIGN_ENTITLEMENTS = ReaderApp/ReaderApp.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 62;
+				CURRENT_PROJECT_VERSION = 63;
 				DEAD_CODE_STRIPPING = NO;
 				DEVELOPMENT_TEAM = 2626EW4BML;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -1956,14 +1878,12 @@
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(SRCROOT)/../node_modules/react-native-google-analytics-bridge/ios/RCTGoogleAnalyticsBridge/**",
 					"$(SRCROOT)/../node_modules/react-native-localization",
 					"$(SRCROOT)/../node_modules/react-native-version-number/ios",
 					"$(SRCROOT)/../node_modules/react-native-zip-archive/ios/**",
 					"$(SRCROOT)/../node_modules/react-native-custom-tabs/ios/ReactNativeCustomTabs",
 					"$(SRCROOT)/../node_modules/react-native-safari-view",
 					"$(SRCROOT)/../node_modules/react-native-splash-screen/ios",
-					"$(SRCROOT)/../node_modules/rn-fetch-blob/ios/**",
 					"$(SRCROOT)/../node_modules/react-native-fs/**",
 					"$(SRCROOT)/../node_modules/react-native-shake/ios",
 					"$(SRCROOT)/../node_modules/react-native-sound/RNSound",
@@ -1996,7 +1916,7 @@
 				CODE_SIGN_ENTITLEMENTS = ReaderApp/ReaderApp.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 62;
+				CURRENT_PROJECT_VERSION = 63;
 				DEVELOPMENT_TEAM = 2626EW4BML;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -2006,14 +1926,12 @@
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(SRCROOT)/../node_modules/react-native-google-analytics-bridge/ios/RCTGoogleAnalyticsBridge/**",
 					"$(SRCROOT)/../node_modules/react-native-localization",
 					"$(SRCROOT)/../node_modules/react-native-version-number/ios",
 					"$(SRCROOT)/../node_modules/react-native-zip-archive/ios/**",
 					"$(SRCROOT)/../node_modules/react-native-custom-tabs/ios/ReactNativeCustomTabs",
 					"$(SRCROOT)/../node_modules/react-native-safari-view",
 					"$(SRCROOT)/../node_modules/react-native-splash-screen/ios",
-					"$(SRCROOT)/../node_modules/rn-fetch-blob/ios/**",
 					"$(SRCROOT)/../node_modules/react-native-fs/**",
 					"$(SRCROOT)/../node_modules/react-native-shake/ios",
 					"$(SRCROOT)/../node_modules/react-native-sound/RNSound",
@@ -2052,14 +1970,12 @@
 				GCC_NO_COMMON_BLOCKS = YES;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(SRCROOT)/../node_modules/react-native-google-analytics-bridge/ios/RCTGoogleAnalyticsBridge/**",
 					"$(SRCROOT)/../node_modules/react-native-localization",
 					"$(SRCROOT)/../node_modules/react-native-version-number/ios",
 					"$(SRCROOT)/../node_modules/react-native-zip-archive/ios/**",
 					"$(SRCROOT)/../node_modules/react-native-custom-tabs/ios/ReactNativeCustomTabs",
 					"$(SRCROOT)/../node_modules/react-native-safari-view",
 					"$(SRCROOT)/../node_modules/react-native-splash-screen/ios",
-					"$(SRCROOT)/../node_modules/rn-fetch-blob/ios/**",
 					"$(SRCROOT)/../node_modules/react-native-fs/**",
 					"$(SRCROOT)/../node_modules/react-native-shake/ios",
 					"$(SRCROOT)/../node_modules/react-native-sound/RNSound",
@@ -2099,14 +2015,12 @@
 				GCC_NO_COMMON_BLOCKS = YES;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(SRCROOT)/../node_modules/react-native-google-analytics-bridge/ios/RCTGoogleAnalyticsBridge/**",
 					"$(SRCROOT)/../node_modules/react-native-localization",
 					"$(SRCROOT)/../node_modules/react-native-version-number/ios",
 					"$(SRCROOT)/../node_modules/react-native-zip-archive/ios/**",
 					"$(SRCROOT)/../node_modules/react-native-custom-tabs/ios/ReactNativeCustomTabs",
 					"$(SRCROOT)/../node_modules/react-native-safari-view",
 					"$(SRCROOT)/../node_modules/react-native-splash-screen/ios",
-					"$(SRCROOT)/../node_modules/rn-fetch-blob/ios/**",
 					"$(SRCROOT)/../node_modules/react-native-fs/**",
 					"$(SRCROOT)/../node_modules/react-native-shake/ios",
 					"$(SRCROOT)/../node_modules/react-native-sound/RNSound",
@@ -2145,14 +2059,12 @@
 				GCC_NO_COMMON_BLOCKS = YES;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(SRCROOT)/../node_modules/react-native-google-analytics-bridge/ios/RCTGoogleAnalyticsBridge/**",
 					"$(SRCROOT)/../node_modules/react-native-localization",
 					"$(SRCROOT)/../node_modules/react-native-version-number/ios",
 					"$(SRCROOT)/../node_modules/react-native-zip-archive/ios/**",
 					"$(SRCROOT)/../node_modules/react-native-custom-tabs/ios/ReactNativeCustomTabs",
 					"$(SRCROOT)/../node_modules/react-native-safari-view",
 					"$(SRCROOT)/../node_modules/react-native-splash-screen/ios",
-					"$(SRCROOT)/../node_modules/rn-fetch-blob/ios/**",
 					"$(SRCROOT)/../node_modules/react-native-fs/**",
 					"$(SRCROOT)/../node_modules/react-native-shake/ios",
 					"$(SRCROOT)/../node_modules/react-native-sound/RNSound",
@@ -2191,14 +2103,12 @@
 				GCC_NO_COMMON_BLOCKS = YES;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(SRCROOT)/../node_modules/react-native-google-analytics-bridge/ios/RCTGoogleAnalyticsBridge/**",
 					"$(SRCROOT)/../node_modules/react-native-localization",
 					"$(SRCROOT)/../node_modules/react-native-version-number/ios",
 					"$(SRCROOT)/../node_modules/react-native-zip-archive/ios/**",
 					"$(SRCROOT)/../node_modules/react-native-custom-tabs/ios/ReactNativeCustomTabs",
 					"$(SRCROOT)/../node_modules/react-native-safari-view",
 					"$(SRCROOT)/../node_modules/react-native-splash-screen/ios",
-					"$(SRCROOT)/../node_modules/rn-fetch-blob/ios/**",
 					"$(SRCROOT)/../node_modules/react-native-fs/**",
 					"$(SRCROOT)/../node_modules/react-native-shake/ios",
 					"$(SRCROOT)/../node_modules/react-native-sound/RNSound",
