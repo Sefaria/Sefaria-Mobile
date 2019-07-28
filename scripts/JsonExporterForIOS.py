@@ -375,12 +375,12 @@ def section_data(oref, defaultVersions):
     anchor_ref_dict = defaultdict(list)
     for link in section_links:
         anchor_oref = model.Ref(link["anchorRef"])
+        if not anchor_oref.is_segment_level() or len(anchor_oref.sections) == 0:
+            continue  # don't bother with section level links
         start_seg_num = anchor_oref.sections[-1]
         # make sure sections are the same in range
         # TODO doesn't deal with links that span sections
         end_seg_num = anchor_oref.toSections[-1] if anchor_oref.sections[0] == anchor_oref.toSections[0] else max(en_len, he_len)
-        if not anchor_oref.is_segment_level():
-            continue  # don't bother with section level links
         for x in xrange(start_seg_num, end_seg_num+1):
             anchor_ref_dict[x] += [simple_link(link)]
     for x in xrange (0,max(en_len,he_len)):
