@@ -103,3 +103,178 @@ test('getHistoryObject', () => {
     
   };
 });
+
+test('saveHistoryItemUnchanged', async () => {
+  const historyItem = {
+    ref: "Genesis 1:5",
+    he_ref: "בראשית א:א",
+    versions: {},
+    book: "Genesis",
+    language: "english",
+  };
+  const getHistoryObject = jest.fn()
+    .mockReturnValueOnce(historyItem)
+    .mockReturnValueOnce(historyItem);
+  Sefaria.history.lastPlace = [];
+  Sefaria.history.lastSync = [];
+  await AsyncStorage.setItem('lastSyncItems', '');
+  await Sefaria.history.saveHistoryItem(getHistoryObject, true, null, 1);
+  expect((await AsyncStorage.getItem('lastSyncItems'))).toBe(JSON.stringify([historyItem]));
+  expect((await AsyncStorage.getItem('lastPlace'))).toBe(JSON.stringify([historyItem]));
+});
+
+test('saveHistoryItemDuplicate', async () => {
+  const historyItem = {
+    ref: "Genesis 1:5",
+    he_ref: "בראשית א:א",
+    versions: {},
+    book: "Genesis",
+    language: "english",
+  };
+  let getHistoryObject = jest.fn()
+    .mockReturnValueOnce(historyItem)
+    .mockReturnValueOnce(historyItem);
+  Sefaria.history.lastPlace = [];
+  Sefaria.history.lastSync = [{...historyItem, time_stamp: Sefaria.util.epoch_time()}];
+  await AsyncStorage.setItem('lastSyncItems', '');
+  await Sefaria.history.saveHistoryItem(getHistoryObject, true, null, 1);
+  expect((await AsyncStorage.getItem('lastSyncItems'))).toBeNull();
+
+  // test that if the item is old enough it will save
+  getHistoryObject = jest.fn()
+    .mockReturnValueOnce(historyItem)
+    .mockReturnValueOnce(historyItem);
+  Sefaria.history.lastPlace = [];
+  const oldHistoryItem = {...historyItem, time_stamp: Sefaria.util.epoch_time() - 61};
+  Sefaria.history.lastSync = [oldHistoryItem];
+  await AsyncStorage.setItem('lastSyncItems', '');
+  await Sefaria.history.saveHistoryItem(getHistoryObject, true, null, 1);
+  expect((await AsyncStorage.getItem('lastSyncItems'))).toBe(JSON.stringify([historyItem, oldHistoryItem]));
+});
+
+test('saveHistoryItemChanged', async () => {
+  const historyItem = {
+    ref: "Genesis 1:5",
+    he_ref: "בראשית א:א",
+    versions: {},
+    book: "Genesis",
+    language: "english",
+  };
+  const historyItem2 = {...historyItem, ref: "Genesis 1:6", he_ref: "Genesis 1:7"};
+  const getHistoryObject = jest.fn()
+    .mockReturnValueOnce(historyItem)
+    .mockReturnValueOnce(historyItem2);
+  Sefaria.history.lastPlace = [];
+  Sefaria.history.lastSync = [];
+  await AsyncStorage.setItem('lastSyncItems', '');
+  await Sefaria.history.saveHistoryItem(getHistoryObject, true, null, 1);
+  expect((await AsyncStorage.getItem('lastSyncItems'))).toBeNull();
+});
+
+test('saveHistoryItemVersionChanged', async () => {
+  const historyItem = {
+    ref: "Genesis 1:5",
+    he_ref: "בראשית א:א",
+    versions: {},
+    book: "Genesis",
+    language: "english",
+  };
+  const historyItem2 = {...historyItem, versions: {en: "Version Yo"}};
+  const getHistoryObject = jest.fn()
+    .mockReturnValueOnce(historyItem)
+    .mockReturnValueOnce(historyItem2);
+  Sefaria.history.lastPlace = [];
+  Sefaria.history.lastSync = [];
+  await AsyncStorage.setItem('lastSyncItems', '');
+  await Sefaria.history.saveHistoryItem(getHistoryObject, true, null, 1);
+  expect((await AsyncStorage.getItem('lastSyncItems'))).toBeNull();
+});
+
+test('saveHistorySecondary', async () => {
+  const historyItem = {
+    ref: "Genesis 1:5",
+    he_ref: "בראשית א:א",
+    versions: {},
+    book: "Genesis",
+    language: "english",
+    secondary: true,
+  };
+  const getHistoryObject = jest.fn()
+    .mockReturnValueOnce(historyItem)
+    .mockReturnValueOnce(historyItem);
+  Sefaria.history.lastPlace = [];
+  Sefaria.history.lastSync = [];
+  await AsyncStorage.setItem('lastSyncItems', '');
+  await AsyncStorage.setItem('lastPlace', '');
+  await Sefaria.history.saveHistoryItem(getHistoryObject, true, null, 1);
+  expect((await AsyncStorage.getItem('lastSyncItems'))).toBe(JSON.stringify([historyItem]));
+  expect((await AsyncStorage.getItem('lastPlace'))).toBeNull();
+});
+
+test('getHistoryRefForTitle', async () => {
+  Sefaria.history.lastPlace = [
+    {
+      ref: "Genesis 1:5",
+      he_ref: "בראשית א:ה",
+      versions: {},
+      book: "Genesis",
+      language: "english",
+    },
+    {
+      ref: "Exodus 1:5",
+      he_ref: "שמות א:ה",
+      versions: {},
+      book: "Exodus",
+      language: "english",
+    },
+    {
+      ref: "Genesis 1:6",
+      he_ref: "בראשית א:ו",
+      versions: {},
+      book: "Genesis",
+      language: "english",
+    },
+  ];
+  Sefaria.textTitleForRef = jest.fn()
+    .mockReturnValueOnce("Genesis")
+    .mockReturnValueOnce("Genesis")
+    .mockReturnValueOnce("Exodus");
+  expect(Sefaria.history.getHistoryRefForTitle("Genesis")).toEqual(Sefaria.history.lastPlace[0]);
+  expect(Sefaria.history.getHistoryRefForTitle("Exodus")).toEqual(Sefaria.history.lastPlace[1]);
+});
+
+test('_loadHistoryItems', async () => {
+  // empty
+  await AsyncStorage.removeItem('recent');
+  await AsyncStorage.removeItem('lastPlace');
+  await AsyncStorage.removeItem('lastSyncItems');
+  await Sefaria.history._loadHistoryItems();
+  expect(Sefaria.history.lastPlace).toEqual([]);
+  expect(Sefaria.history.lastSync).toEqual([]);
+
+  // with an item
+  const historyItem = {
+    ref: "Genesis 1:5",
+    he_ref: "בראשית א:א",
+    versions: {},
+    book: "Genesis",
+    language: "english",
+    secondary: true,
+  };
+  await AsyncStorage.setItem('lastPlace', JSON.stringify([historyItem]));
+  await Sefaria.history._loadHistoryItems();
+  expect(Sefaria.history.lastPlace).toEqual([historyItem]);
+
+  // with an error
+  await AsyncStorage.setItem('lastPlace', "ERROR");
+  await Sefaria.history._loadHistoryItems();
+  expect(Sefaria.history.lastPlace).toEqual([]);
+});
+
+test('syncEmpty', async () => {
+  await AsyncStorage.removeItem('history');
+  await AsyncStorage.removeItem('lastSyncItems');
+  await AsyncStorage.removeItem('lastSyncTime');
+  Sefaria.api.authToken = jest.fn().mockReturnValueOnce({uid: 1, token: 1});
+
+});

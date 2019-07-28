@@ -19,7 +19,7 @@ const History = {
         AsyncStorage.removeItem("recent"),
         AsyncStorage.setItem("history", historyStr),
         AsyncStorage.setItem("lastSyncItems", historyStr),
-        AsyncStorage.setItem("lastSyncTime", Math.floor((new Date(2017, 11, 1)).getTime()/1000)),  // Dec 1, 2017 approx date of launch of old recent items
+        AsyncStorage.setItem("lastSyncTime", '' + Math.floor((new Date(2017, 11, 1)).getTime()/1000)),  // Dec 1, 2017 approx date of launch of old recent items
         AsyncStorage.setItem("lastPlace", JSON.stringify(Sefaria.history.historyToLastPlace(history))),
       ]);
     }
@@ -66,15 +66,15 @@ const History = {
       sheet_title,
     };
   },
-  saveHistoryItem: async function(getHistoryObject, withIntent, onSave) {
+  saveHistoryItem: async function(getHistoryObject, withIntent, onSave, intentTime=3000) {
     // getHistoryObject: dependent on state of whatever component called this func
     // onSave: optional function which is called with the list of history items to actually save
     let history_item = getHistoryObject();
     if (!history_item.ref) { return; }
     if (withIntent) {
-      await Sefaria.util.timeoutPromise(3000);
+      await Sefaria.util.timeoutPromise(intentTime);
       const new_history_item = getHistoryObject();
-      if (history_item.ref !== new_history_item.ref) { return; /* didn't spend enough time reading */ }
+      if (history_item.ref !== new_history_item.ref || !Sefaria.util.object_equals(history_item.versions, new_history_item.versions)) { return; /* didn't spend enough time reading */ }
     }
     history_item.time_stamp = Sefaria.util.epoch_time();
     const lSync = Sefaria.history.lastSync;
@@ -111,8 +111,10 @@ const History = {
     await Sefaria.history.migrateFromOldRecents();
     const lastPlace = await AsyncStorage.getItem('lastPlace');
     const lastSync = await AsyncStorage.getItem('lastSyncItems');
-    Sefaria.history.lastPlace = JSON.parse(lastPlace) || [];
-    Sefaria.history.lastSync = JSON.parse(lastSync) || [];
+    try { Sefaria.history.lastPlace = JSON.parse(lastPlace) || []; }
+    catch(e) { Sefaria.history.lastPlace = []; }
+    try { Sefaria.history.lastSync = JSON.parse(lastSync) || []; }
+    catch(e) { Sefaria.history.lastSync = []; }
   },
   syncHistory: async function() {
     // TODO: sync user settings
@@ -138,7 +140,8 @@ const History = {
           if (res.status < 200 || res.status >= 300) { throw new Error("Bad Response Code " + res.status); }
           return res.json();
         });
-        await AsyncStorage.setItem('lastSyncTime', response.last_sync);
+        console.log('resp', response);
+        await AsyncStorage.setItem('lastSyncTime', '' + response.last_sync);
         await AsyncStorage.removeItem('lastSyncItems');
         currHistory = Sefaria.history.mergeHistory(currHistory, response.user_history);
 

@@ -20,7 +20,7 @@ import {
 import NetInfo from "@react-native-community/netinfo";
 import { connect } from 'react-redux';
 import { createResponder } from 'react-native-gesture-responder';
-import BackgroundFetch from "react-native-background-fetch";
+//import BackgroundFetch from "react-native-background-fetch";
 import SafariView from "react-native-safari-view";
 import { CustomTabs } from 'react-native-custom-tabs';
 import { AppInstalledChecker } from 'react-native-check-app-install';
@@ -152,12 +152,13 @@ class ReaderApp extends React.Component {
         console.warn('An error occurred', err);
     });
     Linking.addEventListener('url', this.handleOpenURL);
-    BackgroundFetch.configure({
+    /*BackgroundFetch.configure({
       minimumFetchInterval: 15,
       stopOnTerminate: false,
       startOnBoot: true,
       requiredNetworkType: BackgroundFetch.NETWORK_TYPE_ANY,
     }, this.onBackgroundSync, error => console.log('error starting BackgroundFetch'));
+    */
     this.initFiles();
     Sefaria.track.init();
     NetInfo.isConnected.addEventListener(

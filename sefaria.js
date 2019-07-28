@@ -27,6 +27,7 @@ const ERRORS = {
 Sefaria = {
   _auth: {},
   init: async function() {
+    console.log("YO");
     // numTimesOpenedApp
     const numTimesOpenedApp = await AsyncStorage.getItem("numTimesOpenedApp");
     Sefaria.numTimesOpenedApp = !!numTimesOpenedApp ? parseInt(numTimesOpenedApp) : 0;
@@ -1120,6 +1121,20 @@ Sefaria = {
 };
 
 Sefaria.util = {
+  object_equals: function(a, b) {
+    // simple object equality assuming values are primitive. see here
+    // http://adripofjavascript.com/blog/drips/object-equality-in-javascript.html
+    if ((typeof a) !== (typeof b))      { return false; }
+    if ((a === null && b !== null) || (a !== null && b === null))
+                                        { return false; }
+    const aProps = Object.getOwnPropertyNames(a);
+    const bProps = Object.getOwnPropertyNames(b);
+    if (aProps.length != bProps.length) { return false; }
+    for (let propName of aProps) {
+      if (a[propName] !== b[propName])  { return false; }
+    }
+    return true;
+  },
   timeoutPromise: function(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
   },
