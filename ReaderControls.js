@@ -102,11 +102,7 @@ class ReaderControls extends React.Component {
             {this.props.sheet ? <View style={{width: 40}}></View> :
           <TouchableOpacity onPress={
               () => {
-                if (isSaved) {
-                  Sefaria.history.removeSavedItem({ ref: this.props.enRef });
-                } else {
-                  Sefaria.history.saveSavedItem({ ref: this.props.enRef, heRef: this.props.heRef, category: this.props.categories[0] });
-                }
+                Sefaria.history.saveSavedItem({ ref: this.props.enRef, heRef: this.props.heRef, book: Sefaria.textTitleForRef(this.props.enRef), saved: isSaved }, 'add_saved');
                 this.forceUpdate();
               }
             }>

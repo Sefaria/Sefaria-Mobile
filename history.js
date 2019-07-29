@@ -154,24 +154,26 @@ const History = {
     }
     return currHistory;
   },
+  syncHistoryGetSaved: async () => {
+    const history = await Sefaria.history.syncHistory();
+    return history.filter(h => h.saved);
+  },
   mergeHistory: function(currHistory, newHistory) {
     return newHistory.concat(currHistory).sort((a, b) => b.time_stamp - a.time_stamp);
   },
-  saveSavedItem: function(item) {
-    items = [item].concat(Sefaria.history.saved);
-    Sefaria.history.saved = items;
-    AsyncStorage.setItem("saved", JSON.stringify(items));
-  },
-  removeSavedItem: function(item) {
-    const existingItemIndex = Sefaria.history.indexOfSaved(item.ref)
-    if (existingItemIndex !== -1) {
-      Sefaria.history.saved.splice(existingItemIndex, 1);
-    }
-    AsyncStorage.setItem("saved", JSON.stringify(Sefaria.history.saved));
-    Sefaria.history._hasSwipeDeleted = true;
-    AsyncStorage.setItem("hasSwipeDeleted", "true");
+  saveSavedItem: function(item, action) {
+    /* action: can be either 'add_saved' or 'delete_saved'
+     */
+    item = {
+      ...item,
+      action,
+      time_stamp: Sefaria.util.epoch_time(),
+    };
+    Sefaria.history.last_sync = [item].concat(Sefaria.history.last_sync);
+    AsyncStorage.setItem("lastSyncItems", JSON.stringify(Sefaria.history.lastSync));
   },
   indexOfSaved: function(ref) {
+    // create saved in memory
     return Sefaria.history.saved.findIndex(existing => ref === existing.ref);
   },
   _loadSavedItems: async function() {
