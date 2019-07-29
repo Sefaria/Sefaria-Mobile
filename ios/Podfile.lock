@@ -115,6 +115,8 @@ PODS:
     - React/RCTBlob
   - ReactNativeLocalization (2.1.4):
     - React
+  - rn-fetch-blob (0.10.6):
+    - React/Core
   - RNBackgroundFetch (2.6.1):
     - React
   - yoga (0.59.10.React)
@@ -138,6 +140,7 @@ DEPENDENCIES:
   - React/RCTVibration (from `../node_modules/react-native`)
   - React/RCTWebSocket (from `../node_modules/react-native`)
   - ReactNativeLocalization (from `../node_modules/react-native-localization`)
+  - rn-fetch-blob (from `../node_modules/rn-fetch-blob`)
   - RNBackgroundFetch (from `../node_modules/react-native-background-fetch`)
   - yoga (from `../node_modules/react-native/ReactCommon/yoga/yoga.podspec`)
 
@@ -163,6 +166,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native"
   ReactNativeLocalization:
     :path: "../node_modules/react-native-localization"
+  rn-fetch-blob:
+    :path: "../node_modules/rn-fetch-blob"
   RNBackgroundFetch:
     :path: "../node_modules/react-native-background-fetch"
   yoga:
@@ -182,9 +187,10 @@ SPEC CHECKSUMS:
   nanopb: 2901f78ea1b7b4015c860c2fdd1ea2fee1a18d48
   React: 36d0768f9e93be2473b37e7fa64f92c1d5341eef
   ReactNativeLocalization: 1aceead90112c1944e52fb2acec7c09aced25d6f
+  rn-fetch-blob: 766f85cabd2992300dfa1be2bc9e4e258abc6f04
   RNBackgroundFetch: b7a6da09d9e557d02b6f71891fe9cdba70ea0b51
   yoga: 684513b14b03201579ba3cee20218c9d1298b0cc
 
-PODFILE CHECKSUM: 99d148f213bd8c58f275b37a59508239df337e31
+PODFILE CHECKSUM: b1f771f2ecf63309f739ad3d6909153bebc90806
 
 COCOAPODS: 1.7.4
