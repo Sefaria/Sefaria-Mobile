@@ -336,11 +336,17 @@ class ResourcesList extends React.Component {
           theme={this.props.theme}
           onPress={
             () => {
-              if (isSaved) {
-                Sefaria.removeSavedItem({ ref: this.props.segmentRef });
-              } else {
-                Sefaria.saveSavedItem({ ref: this.props.segmentRef, heRef: this.props.heSegmentRef, category: this.props.categories[0] });
-              }
+              const willBeSaved = !isSaved; // this func will toggle isSaved
+              Sefaria.history.saveSavedItem(
+                {
+                  ref: this.props.segmentRef,
+                  he_ref: this.props.heSegmentRef,
+                  language: this.props.textLanguage,
+                  book: Sefaria.textTitleForRef(this.props.segmentRef),
+                  saved: willBeSaved,
+                  versions: {},
+                }, willBeSaved ? 'add_saved' : 'delete_saved'
+              );
               this.forceUpdate();
             }
           }

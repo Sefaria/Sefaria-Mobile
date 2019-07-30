@@ -27,7 +27,6 @@ const ERRORS = {
 Sefaria = {
   _auth: {},
   init: async function() {
-    console.log("YO");
     // numTimesOpenedApp
     const numTimesOpenedApp = await AsyncStorage.getItem("numTimesOpenedApp");
     Sefaria.numTimesOpenedApp = !!numTimesOpenedApp ? parseInt(numTimesOpenedApp) : 0;
@@ -48,7 +47,6 @@ Sefaria = {
     return Sefaria.getGalusStatus()
       .then(Sefaria._loadCalendar)
       .then(Sefaria._loadPeople)
-      .then(Sefaria.history._loadSavedItems)
       .then(Sefaria._loadHebrewCategories)
       .then(Sefaria.packages._load)
       .then(Sefaria.downloader.init);  // downloader init is dependent on packages

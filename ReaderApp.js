@@ -439,9 +439,38 @@ class ReaderApp extends React.Component {
   sheetSegmentPressed = (textRef, sheetRef, toggle) => {
     this.textSegmentPressed(sheetRef[0], sheetRef[1], textRef, toggle)
   }
-
   getHistoryObject = () => {
-    return Sefaria.history.getHistoryObject(this.state, this.props.textLanguage);
+    // get ref to send to /api/profile/user_history
+    const {
+      sheet,
+      activeSheetNode,
+      segmentRef,
+      heSegmentRef,
+      sectionIndexRef,
+      sectionArray,
+      sectionHeArray,
+      selectedVersions,
+      textListVisible,
+    } = this.state;
+    const { textLanguage } = this.props;
+    let ref, he_ref, sheet_owner, sheet_title;
+    if (!!sheet) {
+      ref = `Sheet ${sheet.id}${activeSheetNode ? `:${activeSheetNode}`: ''}`;
+      sheet_owner = sheet.ownerName;
+      sheet_title = sheet.title;
+    } else {
+      ref = (textListVisible && segmentRef) ? segmentRef : sectionArray[sectionIndexRef];
+      he_ref = (textListVisible && segmentRef) ? (heSegmentRef || Sefaria.toHeSegmentRef(sectionHeArray[sectionIndexRef], segmentRef)) : sectionHeArray[sectionIndexRef];
+    }
+    return {
+      ref,
+      he_ref,
+      versions: selectedVersions || {},
+      book: Sefaria.textTitleForRef(ref),
+      language: textLanguage,
+      sheet_owner,
+      sheet_title,
+    };
   };
 
   textSegmentPressed = (section, segment, segmentRef, shouldToggle) => {
@@ -1252,6 +1281,12 @@ class ReaderApp extends React.Component {
     this.setState({linkContents: this.state.linkContents.slice(0)});
   };
 
+  removeSavedItem = async (item) => {
+    Sefaria.history._hasSwipeDeleted = true;
+    await AsyncStorage.setItem('hasSwipeDeleted', JSON.stringify(true));
+    Sefaria.history.saveSavedItem(item, 'delete_saved');
+  };
+
   updateVersionCat = (filterIndex, segmentRef) => {
     if (this.state.versionFilterIndex === filterIndex) return;
     if (!filterIndex && filterIndex !== 0) {
@@ -1713,7 +1748,7 @@ class ReaderApp extends React.Component {
             toggleLanguage={this.toggleMenuLanguage}
             openRef={this.openRef}
             language={this.props.menuLanguage}
-            onRemove={Sefaria.removeSavedItem}
+            onRemove={this.removeSavedItem}
             title={strings.saved}
             menuOpen={this.state.menuOpen}
             icon={this.props.themeStr === "white" ? require('./img/starUnfilled.png') : require('./img/starUnfilled-light.png')}
@@ -1813,7 +1848,8 @@ class ReaderApp extends React.Component {
             theme={this.props.theme}
             enRef={this.state.textReference}
             heRef={this.state.heRef}
-            language={this.props.menuLanguage}
+            menuLanguage={this.props.menuLanguage}
+            textLanguage={this.props.textLanguage}
             categories={Sefaria.categoriesForTitle(this.state.textTitle, isSheet)}
             openNav={this.openNav}
             themeStr={this.props.themeStr}

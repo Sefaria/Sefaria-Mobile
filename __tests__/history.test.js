@@ -43,7 +43,7 @@ test('migrateFromOldRecents', async () => {
       book: "Genesis"
     }
   ]);
-  const lastSyncTime = Math.floor((new Date(2017, 11, 1)).getTime()/1000);
+  const lastSyncTime = '' + Math.floor((new Date(2017, 11, 1)).getTime()/1000);
   const lastPlace = JSON.stringify(Sefaria.history.historyToLastPlace(JSON.parse(historyItems)));
   Sefaria.textTitleForRef = jest.fn(() => "Genesis");
   AsyncStorage.setItem('recent', recentItems);
@@ -51,7 +51,7 @@ test('migrateFromOldRecents', async () => {
 
   // matchers
   expect((await AsyncStorage.getItem('recent'))).toBeNull();
-  expect((await AsyncStorage.getItem('history'))).toBe(historyItems);
+  expect((await AsyncStorage.getItem('history'))).toBeNull();
   expect((await AsyncStorage.getItem('lastSyncItems'))).toBe(historyItems);
   expect((await AsyncStorage.getItem('lastSyncTime'))).toBe(lastSyncTime);
   expect((await AsyncStorage.getItem('lastPlace'))).toBe(lastPlace);

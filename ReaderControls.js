@@ -27,7 +27,8 @@ class ReaderControls extends React.Component {
     theme:                           PropTypes.object,
     enRef:                           PropTypes.string,
     heRef:                           PropTypes.string,
-    language:                        PropTypes.string,
+    menuLanguage:                    PropTypes.string,
+    textLanguage:                    PropTypes.string,
     categories:                      PropTypes.array,
     openNav:                         PropTypes.func,
     openTextToc:                     PropTypes.func,
@@ -50,7 +51,7 @@ class ReaderControls extends React.Component {
 
   render() {
     const isSaved = Sefaria.history.indexOfSaved(this.props.enRef) !== -1;
-    var langStyle = this.props.language === "hebrew" ? [styles.he, {marginTop: 4}] : [styles.en];
+    var langStyle = this.props.menuLanguage === "hebrew" ? [styles.he, {marginTop: 4}] : [styles.en];
     var titleTextStyle = [langStyle, styles.headerTextTitleText, this.props.theme.text];
     if (this.shouldShowHamburger()) {
       var leftMenuButton = <MenuButton onPress={this.props.openNav} theme={this.props.theme} themeStr={this.props.themeStr}/>
@@ -63,7 +64,7 @@ class ReaderControls extends React.Component {
           language="english"
           direction="back"/>
     }
-      var textTitle = this.props.language === 'hebrew' ? this.props.heRef : this.props.enRef;
+      var textTitle = this.props.menuLanguage === 'hebrew' ? this.props.heRef : this.props.enRef;
       if (this.props.sheet) {
         textTitle = Sefaria.util.stripHtml(this.props.sheet.title);
       }
@@ -80,20 +81,20 @@ class ReaderControls extends React.Component {
           <TouchableOpacity style={styles.headerTextTitle} onPress={this.props.sheet ? this.props.openSheetMeta : this.props.openTextToc }>
             <View style={styles.headerTextTitleInner}>
               <Image source={this.props.themeStr == "white" ? require('./img/caret.png'): require('./img/caret-light.png') }
-                       style={[styles.downCaret, this.props.language === "hebrew" ? null: {opacity: 0}]}
+                       style={[styles.downCaret, this.props.menuLanguage === "hebrew" ? null: {opacity: 0}]}
                        resizeMode={'contain'} />
 
               {this.props.sheet ?
-                  <Text lang={this.props.language} style={titleTextStyle} numberOfLines={1} ellipsizeMode={"tail"}><HebrewInEnglishText text={this.props.sheet.title} stylesHe={[styles.heInEn]} stylesEn={[]}/></Text> :
-                  <SText lang={this.props.language} style={titleTextStyle} numberOfLines={1} ellipsizeMode={"tail"}>{textTitle}</SText>
+                  <Text lang={this.props.menuLanguage} style={titleTextStyle} numberOfLines={1} ellipsizeMode={"tail"}><HebrewInEnglishText text={this.props.sheet.title} stylesHe={[styles.heInEn]} stylesEn={[]}/></Text> :
+                  <SText lang={this.props.menuLanguage} style={titleTextStyle} numberOfLines={1} ellipsizeMode={"tail"}>{textTitle}</SText>
               }
               <Image source={this.props.themeStr == "white" ? require('./img/caret.png'): require('./img/caret-light.png') }
-                       style={[styles.downCaret, this.props.language === "hebrew" ? {opacity: 0} : null]}
+                       style={[styles.downCaret, this.props.menuLanguage === "hebrew" ? {opacity: 0} : null]}
                        resizeMode={'contain'} />
             </View>
             <CategoryAttribution
               categories={this.props.categories}
-              language={this.props.language === "hebrew" ? "hebrew" : "english"}
+              language={this.props.menuLanguage === "hebrew" ? "hebrew" : "english"}
               context={"header"}
               linked={false}
               openUri={this.props.openUri}
@@ -102,7 +103,18 @@ class ReaderControls extends React.Component {
             {this.props.sheet ? <View style={{width: 40}}></View> :
           <TouchableOpacity onPress={
               () => {
-                Sefaria.history.saveSavedItem({ ref: this.props.enRef, heRef: this.props.heRef, book: Sefaria.textTitleForRef(this.props.enRef), saved: isSaved }, 'add_saved');
+                const willBeSaved = !isSaved;
+                Sefaria.history.saveSavedItem(
+                  {
+                    ref: this.props.enRef,
+                    heRef: this.props.heRef,
+                    language: this.props.textLanguage,
+                    book: Sefaria.textTitleForRef(this.props.enRef),
+                    saved: willBeSaved,
+                    versions: {},
+                  },
+                  willBeSaved ? 'add_saved' : 'delete_saved'
+                );
                 this.forceUpdate();
               }
             }>
