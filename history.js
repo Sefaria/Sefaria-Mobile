@@ -44,6 +44,9 @@ const History = {
     }
     return lastPlace;
   },
+  historyToSaved: function(history_item_array) {
+    return history_item_array.filter(h => h.saved);
+  },
   saveHistoryItem: async function(getHistoryObject, withIntent, onSave, intentTime=3000) {
     // getHistoryObject: dependent on state of whatever component called this func
     // onSave: optional function which is called with the list of history items to actually save
@@ -80,13 +83,13 @@ const History = {
     return null;
   },
   _loadHistoryItems: async function() {
-
+    /*
     await AsyncStorage.removeItem('lastPlace');
     await AsyncStorage.removeItem('savedItems');
     await AsyncStorage.removeItem('lastSyncItems');
     await AsyncStorage.removeItem('lastSyncTime');
     await AsyncStorage.removeItem('history');
-
+    */
     await Sefaria.history.migrateFromOldRecents();
     const lastPlace = await AsyncStorage.getItem('lastPlace');
     const lastSync = await AsyncStorage.getItem('lastSyncItems');
@@ -106,7 +109,7 @@ const History = {
     const lastSyncStr = await AsyncStorage.getItem('lastSyncItems') || '[]';
     const lastSyncItems = JSON.parse(lastSyncStr);
     let currHistory = JSON.parse(currHistoryStr);
-    currHistory = lastSyncItems.concat(currHistory);
+    currHistory = lastSyncItems.filter(h => !h.action).concat(currHistory);
     await Sefaria.api.getAuthToken();
     if (Sefaria._auth.uid) {
       try {
@@ -130,9 +133,10 @@ const History = {
         console.log('resp', response);
         await AsyncStorage.setItem('lastSyncTime', '' + response.last_sync);
         await AsyncStorage.removeItem('lastSyncItems');
+
         currHistory = Sefaria.history.mergeHistory(currHistory, response.user_history);
         Sefaria.history.lastPlace = Sefaria.history.historyToLastPlace(currHistory);
-        Sefaria.history.saved = currHistory.filter(h => h.saved);
+        Sefaria.history.saved = Sefaria.history.historyToSaved(currHistory);
         await AsyncStorage.setItem('savedItems', JSON.stringify(Sefaria.history.saved));
         await AsyncStorage.setItem('lastPlace', JSON.stringify(Sefaria.history.lastPlace));
         await AsyncStorage.setItem('history', JSON.stringify(currHistory));
@@ -148,7 +152,16 @@ const History = {
     return Sefaria.history.saved;
   },
   mergeHistory: function(currHistory, newHistory) {
-    return newHistory.concat(currHistory).sort((a, b) => b.time_stamp - a.time_stamp);
+    const delete_saved_set = new Set();
+    return newHistory
+    .map(h => {
+      // see https://codeburst.io/use-es2015-object-rest-operator-to-omit-properties-38a3ecffe90
+      const { delete_saved, ...rest } = h;
+      if (delete_saved) { delete_saved_set.add(h.ref); }
+      return h;
+    })
+    .concat(currHistory.map(h => delete_saved_set.has(h.ref) ? {...h, saved: false} : h))
+    .sort((a, b) => b.time_stamp - a.time_stamp);
   },
   saveSavedItem: function(item, action) {
     /* action: can be either 'add_saved' or 'delete_saved'
