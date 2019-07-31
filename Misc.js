@@ -190,7 +190,6 @@ class CategorySideColorLink extends React.Component {
     const isHeb = this.props.language === 'hebrew';
     const borderSide = isHeb ? "Right" : "Left";
     const text = isHeb ? (this.props.heText || Sefaria.hebrewCategory(this.props.category)) : this.props.enText;
-
     return (
       <TouchableHighlight underlayColor={themeStr} style={{flex:1}} onPress={this.props.onPress}>
         <View style={{flex:1, flexDirection: isHeb ? "row-reverse" : "row"}}>
@@ -721,7 +720,7 @@ class SText extends React.Component {
   getFontSize = (style, lang) => {
     let fsize = 14;  // default font size in rn (i believe)
     for (let s of style) {
-      if (!!s.fontSize) { fsize = s.fontSize; }
+      if (!!s && !!s.fontSize) { fsize = s.fontSize; }
     }
     fsize = lang === "hebrew" ? fsize * 1.2 : fsize;
     return fsize;

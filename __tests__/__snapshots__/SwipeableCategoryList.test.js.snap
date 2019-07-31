@@ -1,0 +1,700 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`SwipeableCategoryList basic render 1`] = `
+<View
+  style={
+    Array [
+      Object {
+        "alignSelf": "stretch",
+        "flex": 1,
+      },
+      undefined,
+    ]
+  }
+>
+  <View
+    style={
+      Array [
+        Object {
+          "alignSelf": "stretch",
+          "height": 8,
+        },
+        Object {
+          "backgroundColor": "#073570",
+        },
+      ]
+    }
+  />
+  <View
+    style={
+      Array [
+        Object {
+          "alignItems": "center",
+          "alignSelf": "stretch",
+          "borderBottomWidth": 1,
+          "flexDirection": "row",
+          "height": 50,
+        },
+        undefined,
+      ]
+    }
+  >
+    <View
+      accessible={true}
+      hitSlop={
+        Object {
+          "bottom": 20,
+          "left": 10,
+          "right": 10,
+          "top": 20,
+        }
+      }
+      isTVSelectable={true}
+      onResponderGrant={[Function]}
+      onResponderMove={[Function]}
+      onResponderRelease={[Function]}
+      onResponderTerminate={[Function]}
+      onResponderTerminationRequest={[Function]}
+      onStartShouldSetResponder={[Function]}
+      style={
+        Object {
+          "alignItems": "center",
+          "flexDirection": "row-reverse",
+          "opacity": 1,
+        }
+      }
+    >
+      <Image
+        resizeMode="contain"
+        source={1}
+        style={
+          Array [
+            Object {
+              "height": 16,
+              "width": 16,
+            },
+            Object {
+              "marginLeft": 12,
+              "marginRight": 12,
+            },
+          ]
+        }
+      />
+    </View>
+    <View
+      style={
+        Object {
+          "alignItems": "center",
+          "flex": 1,
+          "flexDirection": "row",
+          "justifyContent": "center",
+        }
+      }
+    >
+      <Image
+        resizeMode="contain"
+        source={1}
+        style={
+          Array [
+            Object {
+              "height": 16,
+              "width": 16,
+            },
+            Object {
+              "marginLeft": 0,
+              "marginRight": 8,
+            },
+          ]
+        }
+      />
+      <Text
+        lang="english"
+        style={
+          Array [
+            Object {
+              "flex": 1,
+              "letterSpacing": 1,
+              "paddingLeft": 10,
+              "textAlign": "center",
+            },
+            Object {
+              "flex": 0,
+            },
+            Object {
+              "paddingBottom": 0,
+              "paddingLeft": 0,
+              "paddingRight": 0,
+              "paddingTop": 0,
+            },
+            undefined,
+            Object {
+              "lineHeight": 24,
+            },
+          ]
+        }
+      >
+        HISTORY
+      </Text>
+    </View>
+    <View
+      accessible={true}
+      isTVSelectable={true}
+      onResponderGrant={[Function]}
+      onResponderMove={[Function]}
+      onResponderRelease={[Function]}
+      onResponderTerminate={[Function]}
+      onResponderTerminationRequest={[Function]}
+      onStartShouldSetResponder={[Function]}
+      style={
+        Object {
+          "alignItems": "center",
+          "borderRadius": 4,
+          "borderWidth": 1,
+          "flexDirection": "row",
+          "height": 30,
+          "justifyContent": "center",
+          "marginRight": 20,
+          "opacity": 1,
+          "width": 30,
+        }
+      }
+    >
+      <Text
+        style={
+          Array [
+            Object {
+              "backgroundColor": "transparent",
+              "color": "black",
+              "fontSize": 19,
+              "marginRight": 2,
+              "marginTop": 4,
+            },
+            undefined,
+            Object {
+              "fontFamily": "Taamey Frank Taamim Fix",
+              "textAlign": "right",
+            },
+          ]
+        }
+      >
+        א
+      </Text>
+    </View>
+  </View>
+  <View
+    style={
+      Array [
+        Object {
+          "alignItems": "center",
+          "alignSelf": "stretch",
+          "flex": 1,
+          "justifyContent": "center",
+        },
+        undefined,
+      ]
+    }
+  >
+    <ActivityIndicator
+      animating={true}
+      color="#999999"
+      hidesWhenStopped={true}
+      size="large"
+      style={
+        Object {
+          "backgroundColor": "transparent",
+          "height": 80,
+        }
+      }
+    />
+  </View>
+</View>
+`;
+
+exports[`SwipeableCategoryList render with data 1`] = `
+<View
+  style={
+    Array [
+      Object {
+        "alignSelf": "stretch",
+        "flex": 1,
+      },
+      undefined,
+    ]
+  }
+>
+  <View
+    style={
+      Array [
+        Object {
+          "alignSelf": "stretch",
+          "height": 8,
+        },
+        Object {
+          "backgroundColor": "#073570",
+        },
+      ]
+    }
+  />
+  <View
+    style={
+      Array [
+        Object {
+          "alignItems": "center",
+          "alignSelf": "stretch",
+          "borderBottomWidth": 1,
+          "flexDirection": "row",
+          "height": 50,
+        },
+        undefined,
+      ]
+    }
+  >
+    <View
+      accessible={true}
+      hitSlop={
+        Object {
+          "bottom": 20,
+          "left": 10,
+          "right": 10,
+          "top": 20,
+        }
+      }
+      isTVSelectable={true}
+      onResponderGrant={[Function]}
+      onResponderMove={[Function]}
+      onResponderRelease={[Function]}
+      onResponderTerminate={[Function]}
+      onResponderTerminationRequest={[Function]}
+      onStartShouldSetResponder={[Function]}
+      style={
+        Object {
+          "alignItems": "center",
+          "flexDirection": "row-reverse",
+          "opacity": 1,
+        }
+      }
+    >
+      <Image
+        resizeMode="contain"
+        source={1}
+        style={
+          Array [
+            Object {
+              "height": 16,
+              "width": 16,
+            },
+            Object {
+              "marginLeft": 12,
+              "marginRight": 12,
+            },
+          ]
+        }
+      />
+    </View>
+    <View
+      style={
+        Object {
+          "alignItems": "center",
+          "flex": 1,
+          "flexDirection": "row",
+          "justifyContent": "center",
+        }
+      }
+    >
+      <Image
+        resizeMode="contain"
+        source={1}
+        style={
+          Array [
+            Object {
+              "height": 16,
+              "width": 16,
+            },
+            Object {
+              "marginLeft": 0,
+              "marginRight": 8,
+            },
+          ]
+        }
+      />
+      <Text
+        lang="english"
+        style={
+          Array [
+            Object {
+              "flex": 1,
+              "letterSpacing": 1,
+              "paddingLeft": 10,
+              "textAlign": "center",
+            },
+            Object {
+              "flex": 0,
+            },
+            Object {
+              "paddingBottom": 0,
+              "paddingLeft": 0,
+              "paddingRight": 0,
+              "paddingTop": 0,
+            },
+            undefined,
+            Object {
+              "lineHeight": 24,
+            },
+          ]
+        }
+      >
+        HISTORY
+      </Text>
+    </View>
+    <View
+      accessible={true}
+      isTVSelectable={true}
+      onResponderGrant={[Function]}
+      onResponderMove={[Function]}
+      onResponderRelease={[Function]}
+      onResponderTerminate={[Function]}
+      onResponderTerminationRequest={[Function]}
+      onStartShouldSetResponder={[Function]}
+      style={
+        Object {
+          "alignItems": "center",
+          "borderRadius": 4,
+          "borderWidth": 1,
+          "flexDirection": "row",
+          "height": 30,
+          "justifyContent": "center",
+          "marginRight": 20,
+          "opacity": 1,
+          "width": 30,
+        }
+      }
+    >
+      <Text
+        style={
+          Array [
+            Object {
+              "backgroundColor": "transparent",
+              "color": "black",
+              "fontSize": 19,
+              "marginRight": 2,
+              "marginTop": 4,
+            },
+            undefined,
+            Object {
+              "fontFamily": "Taamey Frank Taamim Fix",
+              "textAlign": "right",
+            },
+          ]
+        }
+      >
+        א
+      </Text>
+    </View>
+  </View>
+  <RCTScrollView
+    bounceFirstRowOnMount={true}
+    data={
+      Array [
+        Object {
+          "book": "Genesis",
+          "he_ref": "בראשית א:א",
+          "ref": "Genesis 1:1",
+          "versions": Object {
+            "en": "enVersion",
+            "he": "heVersion",
+          },
+        },
+        Object {
+          "book": "Genesis",
+          "he_ref": "בראשית א:ב",
+          "ref": "Genesis 1:2",
+          "versions": Object {},
+        },
+        Object {
+          "book": "Tanakh",
+          "he_ref": "בראשית א",
+          "ref": "Genesis 1",
+          "versions": Object {},
+        },
+      ]
+    }
+    disableVirtualization={false}
+    getItem={[Function]}
+    getItemCount={[Function]}
+    horizontal={false}
+    initialNumToRender={10}
+    keyExtractor={[Function]}
+    language="english"
+    maxSwipeDistance={90}
+    maxToRenderPerBatch={10}
+    numColumns={1}
+    onContentSizeChange={[Function]}
+    onEndReachedThreshold={2}
+    onLayout={[Function]}
+    onMomentumScrollEnd={[Function]}
+    onScroll={[Function]}
+    onScrollBeginDrag={[Function]}
+    onScrollEndDrag={[Function]}
+    removeClippedSubviews={false}
+    renderItem={[Function]}
+    renderQuickActions={[Function]}
+    scrollEventThrottle={50}
+    stickyHeaderIndices={Array []}
+    updateCellsBatchingPeriod={50}
+    viewabilityConfigCallbackPairs={Array []}
+    windowSize={21}
+  >
+    <View>
+      <View
+        onLayout={[Function]}
+        style={null}
+      >
+        <View
+          style={
+            Object {
+              "height": 50,
+              "left": 0,
+              "opacity": 1,
+            }
+          }
+        >
+          <View
+            accessible={true}
+            isTVSelectable={true}
+            onResponderGrant={[Function]}
+            onResponderMove={[Function]}
+            onResponderRelease={[Function]}
+            onResponderTerminate={[Function]}
+            onResponderTerminationRequest={[Function]}
+            onStartShouldSetResponder={[Function]}
+            style={
+              Object {
+                "flex": 1,
+              }
+            }
+          >
+            <View
+              style={
+                Object {
+                  "flex": 1,
+                  "flexDirection": "row",
+                }
+              }
+            >
+              <View
+                style={
+                  Object {
+                    "borderLeftColor": "#004e5f",
+                    "borderLeftWidth": 6,
+                    "width": 6,
+                  }
+                }
+              />
+              <View
+                style={
+                  Array [
+                    Object {
+                      "borderBottomWidth": 1,
+                      "flex": 1,
+                      "paddingBottom": 10,
+                      "paddingHorizontal": 48,
+                      "paddingTop": 14,
+                    },
+                    undefined,
+                    undefined,
+                  ]
+                }
+              >
+                <Text
+                  ellipsizeMode="middle"
+                  numberOfLines={1}
+                  style={
+                    Array [
+                      Object {
+                        "fontFamily": "Amiri",
+                        "fontSize": 19,
+                        "lineHeight": 26,
+                        "marginTop": 5,
+                        "textAlign": "left",
+                      },
+                      undefined,
+                    ]
+                  }
+                >
+                  Genesis 1:1
+                </Text>
+              </View>
+            </View>
+          </View>
+        </View>
+      </View>
+      <View
+        onLayout={[Function]}
+        style={null}
+      >
+        <View
+          style={
+            Object {
+              "height": 50,
+              "left": 0,
+              "opacity": 1,
+            }
+          }
+        >
+          <View
+            accessible={true}
+            isTVSelectable={true}
+            onResponderGrant={[Function]}
+            onResponderMove={[Function]}
+            onResponderRelease={[Function]}
+            onResponderTerminate={[Function]}
+            onResponderTerminationRequest={[Function]}
+            onStartShouldSetResponder={[Function]}
+            style={
+              Object {
+                "flex": 1,
+              }
+            }
+          >
+            <View
+              style={
+                Object {
+                  "flex": 1,
+                  "flexDirection": "row",
+                }
+              }
+            >
+              <View
+                style={
+                  Object {
+                    "borderLeftColor": "#004e5f",
+                    "borderLeftWidth": 6,
+                    "width": 6,
+                  }
+                }
+              />
+              <View
+                style={
+                  Array [
+                    Object {
+                      "borderBottomWidth": 1,
+                      "flex": 1,
+                      "paddingBottom": 10,
+                      "paddingHorizontal": 48,
+                      "paddingTop": 14,
+                    },
+                    undefined,
+                    undefined,
+                  ]
+                }
+              >
+                <Text
+                  ellipsizeMode="middle"
+                  numberOfLines={1}
+                  style={
+                    Array [
+                      Object {
+                        "fontFamily": "Amiri",
+                        "fontSize": 19,
+                        "lineHeight": 26,
+                        "marginTop": 5,
+                        "textAlign": "left",
+                      },
+                      undefined,
+                    ]
+                  }
+                >
+                  Genesis 1:2
+                </Text>
+              </View>
+            </View>
+          </View>
+        </View>
+      </View>
+      <View
+        onLayout={[Function]}
+        style={null}
+      >
+        <View
+          style={
+            Object {
+              "height": 50,
+              "left": 0,
+              "opacity": 1,
+            }
+          }
+        >
+          <View
+            accessible={true}
+            isTVSelectable={true}
+            onResponderGrant={[Function]}
+            onResponderMove={[Function]}
+            onResponderRelease={[Function]}
+            onResponderTerminate={[Function]}
+            onResponderTerminationRequest={[Function]}
+            onStartShouldSetResponder={[Function]}
+            style={
+              Object {
+                "flex": 1,
+              }
+            }
+          >
+            <View
+              style={
+                Object {
+                  "flex": 1,
+                  "flexDirection": "row",
+                }
+              }
+            >
+              <View
+                style={
+                  Object {
+                    "borderLeftColor": "#004e5f",
+                    "borderLeftWidth": 6,
+                    "width": 6,
+                  }
+                }
+              />
+              <View
+                style={
+                  Array [
+                    Object {
+                      "borderBottomWidth": 1,
+                      "flex": 1,
+                      "paddingBottom": 10,
+                      "paddingHorizontal": 48,
+                      "paddingTop": 14,
+                    },
+                    undefined,
+                    undefined,
+                  ]
+                }
+              >
+                <Text
+                  ellipsizeMode="middle"
+                  numberOfLines={1}
+                  style={
+                    Array [
+                      Object {
+                        "fontFamily": "Amiri",
+                        "fontSize": 19,
+                        "lineHeight": 26,
+                        "marginTop": 5,
+                        "textAlign": "left",
+                      },
+                      undefined,
+                    ]
+                  }
+                >
+                  Genesis 1
+                </Text>
+              </View>
+            </View>
+          </View>
+        </View>
+      </View>
+    </View>
+  </RCTScrollView>
+</View>
+`;

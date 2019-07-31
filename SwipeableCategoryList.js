@@ -42,6 +42,7 @@ class SwipeableCategoryList extends React.Component {
     onRemove:           PropTypes.func,
     title:              PropTypes.string.isRequired,
     loadData:           PropTypes.func.isRequired,
+    icon:               PropTypes.number.isRequired,
     menuOpen:           PropTypes.oneOf(["saved", "history"]),
   };
 
@@ -53,6 +54,7 @@ class SwipeableCategoryList extends React.Component {
     props.loadData().then(data => {
       // reduce consecutive history items with the same ref
       data = data.reduce((accum, curr, index) => ((!accum.length || curr.ref !== accum[accum.length-1].ref) ? accum.concat([curr]) : accum), []).filter(h => !h.secondary);
+
       this.setState({ data });
     });
     this._rowRefs = {};

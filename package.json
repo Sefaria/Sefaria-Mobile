@@ -17,7 +17,11 @@
       "./__mocks__/mockFirebase.js",
       "./__mocks__/mockRNFS.js",
       "./__mocks__/mockRNFetchBlob.js"
-    ]
+    ],
+    "moduleNameMapper": {
+       "\\.(jpg|ico|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$": "<rootDir>/__mocks__/mockFile.js",
+       "\\.(css|less)$": "<rootDir>/__mocks__/mockFile.js"
+     }
   },
   "dependencies": {
     "@react-native-community/async-storage": "^1.4.0",
@@ -57,6 +61,7 @@
     "react-native-webview": "^5.12.0",
     "react-native-zip-archive": "^2.2.6",
     "react-redux": "^5.1.1",
+    "react-test-renderer": "^16.8.6",
     "redux": "^3.7.2",
     "rn-fetch-blob": "0.10.15",
     "sanitize-html": "^1.20.1",
