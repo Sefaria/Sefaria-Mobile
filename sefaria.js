@@ -12,7 +12,7 @@ import Api from './api';
 import History from './history';
 import Packages from './packages';
 import LinkContent from './LinkContent';
-import { initAsyncStorage } from './ReduxStore';
+import { initAsyncStorage } from './StateManager';
 import { Filter } from './Filter';
 import URL from 'url-parse';
 import firebase from 'react-native-firebase';
