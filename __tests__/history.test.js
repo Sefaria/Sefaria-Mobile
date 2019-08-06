@@ -272,11 +272,182 @@ describe('history', () => {
     expect(Sefaria.history.lastPlace).toEqual([]);
   });
 
+  test('sync mobile history', async () => {
+    const lastSyncItems = [
+      {
+        ref: "Genesis 1:6",
+        he_ref: "בראשית א:ו",
+        versions: {},
+        book: "Genesis",
+        language: "english",
+        time_stamp: 1,
+      },
+      {
+        ref: "Genesis 1:5",
+        he_ref: "בראשית א:ה",
+        versions: {},
+        book: "Genesis",
+        language: "english",
+        time_stamp: 0,
+      }
+    ];
+    await AsyncStorage.removeItem('history');
+    await AsyncStorage.setItem('lastSyncItems', JSON.stringify(lastSyncItems));
+    await AsyncStorage.removeItem('lastSyncTime');
+    const auth = { uid: 1, token: 2 };
+    Sefaria.api.getAuthToken = jest.fn(() => {
+      Sefaria._auth = auth;
+    });
+    fetch = jest.fn(() => Promise.resolve({
+      status: 200,
+      json() {
+        return Promise.resolve({
+          user_history: [],
+          last_sync: 11,
+        })
+      }
+    }));
+    await Sefaria.history.syncHistory();
+    expect(fetch.mock.calls.length).toBe(1);
+    expect(fetch.mock.calls[0][1].method).toBe("POST");
+    expect(fetch.mock.calls[0][1].headers.Authorization).toBe(`Bearer ${auth.token}`);
+    expect(fetch.mock.calls[0][1].headers['Content-Type']).toBe('application/x-www-form-urlencoded;charset=UTF-8');
+
+    expect((await AsyncStorage.getItem('lastSyncTime'))).toBe('11');
+    expect((await AsyncStorage.getItem('savedItems'))).toBe('[]');
+    expect((await AsyncStorage.getItem('lastPlace'))).toBe(JSON.stringify([lastSyncItems[0]]));
+    expect((await AsyncStorage.getItem('history'))).toBe(JSON.stringify(lastSyncItems));
+    expect((await AsyncStorage.removeItem('lastSyncItems'))).toBeNull();
+  });
+
+  test('sync web history', async () => {
+    const webHistory = [
+      {
+        ref: "Genesis 1:6",
+        he_ref: "בראשית א:ו",
+        versions: {},
+        book: "Genesis",
+        language: "english",
+        time_stamp: 1,
+      },
+      {
+        ref: "Genesis 1:5",
+        he_ref: "בראשית א:ה",
+        versions: {},
+        book: "Genesis",
+        language: "english",
+        time_stamp: 0,
+        saved: true,
+      }
+    ];
+    await AsyncStorage.removeItem('history');
+    await AsyncStorage.removeItem('lastSyncItems');
+    await AsyncStorage.removeItem('savedItems');
+    await AsyncStorage.removeItem('lastSyncTime');
+    const auth = { uid: 1, token: 2 };
+    Sefaria.api.getAuthToken = jest.fn(() => {
+      Sefaria._auth = auth;
+    });
+    fetch = jest.fn(() => Promise.resolve({
+      status: 200,
+      json() {
+        return Promise.resolve({
+          user_history: webHistory,
+          last_sync: 11,
+        })
+      }
+    }));
+    await Sefaria.history.syncHistory();
+    expect(fetch.mock.calls.length).toBe(1);
+    expect(fetch.mock.calls[0][1].method).toBe("POST");
+    expect(fetch.mock.calls[0][1].headers.Authorization).toBe(`Bearer ${auth.token}`);
+    expect(fetch.mock.calls[0][1].headers['Content-Type']).toBe('application/x-www-form-urlencoded;charset=UTF-8');
+
+    expect((await AsyncStorage.getItem('lastSyncTime'))).toBe('11');
+    expect((await AsyncStorage.getItem('savedItems'))).toBe(JSON.stringify([webHistory[1]]));
+    expect((await AsyncStorage.getItem('lastPlace'))).toBe(JSON.stringify([webHistory[0]]));
+    expect((await AsyncStorage.getItem('history'))).toBe(JSON.stringify(webHistory));
+    expect((await AsyncStorage.removeItem('lastSyncItems'))).toBeNull();
+  });
+
+  test('sync both web and mobile history', async () => {
+    const webHistory = [
+      {
+        ref: "Genesis 1:6",
+        he_ref: "בראשית א:ו",
+        versions: {},
+        book: "Genesis",
+        language: "english",
+        time_stamp: 1,
+      },
+      {
+        ref: "Genesis 1:5",
+        he_ref: "בראשית א:ה",
+        versions: {},
+        book: "Genesis",
+        language: "english",
+        time_stamp: 0,
+        saved: true,
+      }
+    ];
+    await AsyncStorage.removeItem('history');
+    await AsyncStorage.removeItem('lastSyncItems');
+    await AsyncStorage.removeItem('savedItems');
+    await AsyncStorage.removeItem('lastSyncTime');
+    const auth = { uid: 1, token: 2 };
+    Sefaria.api.getAuthToken = jest.fn(() => {
+      Sefaria._auth = auth;
+    });
+    fetch = jest.fn(() => Promise.resolve({
+      status: 200,
+      json() {
+        return Promise.resolve({
+          user_history: webHistory,
+          last_sync: 11,
+        })
+      }
+    }));
+    await Sefaria.history.syncHistory();
+    expect(fetch.mock.calls.length).toBe(1);
+    expect(fetch.mock.calls[0][1].method).toBe("POST");
+    expect(fetch.mock.calls[0][1].headers.Authorization).toBe(`Bearer ${auth.token}`);
+    expect(fetch.mock.calls[0][1].headers['Content-Type']).toBe('application/x-www-form-urlencoded;charset=UTF-8');
+
+    expect((await AsyncStorage.getItem('lastSyncTime'))).toBe('11');
+    expect((await AsyncStorage.getItem('savedItems'))).toBe(JSON.stringify([webHistory[1]]));
+    expect((await AsyncStorage.getItem('lastPlace'))).toBe(JSON.stringify([webHistory[0]]));
+    expect((await AsyncStorage.getItem('history'))).toBe(JSON.stringify(webHistory));
+    expect((await AsyncStorage.removeItem('lastSyncItems'))).toBeNull();
+  });
+
   test('syncEmpty', async () => {
     await AsyncStorage.removeItem('history');
     await AsyncStorage.removeItem('lastSyncItems');
+    await AsyncStorage.removeItem('savedItems');
     await AsyncStorage.removeItem('lastSyncTime');
-    Sefaria.api.authToken = jest.fn().mockReturnValueOnce({uid: 1, token: 1});
+    const auth = { uid: 1, token: 2 };
+    Sefaria.api.getAuthToken = jest.fn(() => {
+      Sefaria._auth = auth;
+    });
+    fetch = jest.fn(() => Promise.resolve({
+      status: 200,
+      json() {
+        return Promise.resolve({
+          user_history: [],
+          last_sync: 11,
+        })
+      }
+    }));
+    await Sefaria.history.syncHistory();
+    expect(fetch.mock.calls.length).toBe(1);
+    expect(fetch.mock.calls[0][1].method).toBe("POST");
+    expect(fetch.mock.calls[0][1].headers.Authorization).toBe(`Bearer ${auth.token}`);
+    expect(fetch.mock.calls[0][1].headers['Content-Type']).toBe('application/x-www-form-urlencoded;charset=UTF-8');
+
+    expect((await AsyncStorage.getItem('lastSyncTime'))).toBe('11');
+    expect((await AsyncStorage.getItem('savedItems'))).toBe('[]');
+    expect((await AsyncStorage.getItem('lastPlace'))).toBe('[]');
+    expect((await AsyncStorage.getItem('history'))).toBe('[]');
 
   });
 });
