@@ -133,13 +133,13 @@ const History = {
         console.log('resp', response);
         await AsyncStorage.setItem('lastSyncTime', '' + response.last_sync);
         await AsyncStorage.removeItem('lastSyncItems');
-
-        currHistory = Sefaria.history.mergeHistory(currHistory, response.user_history);
-        Sefaria.history.lastPlace = Sefaria.history.historyToLastPlace(currHistory);
-        Sefaria.history.saved = Sefaria.history.historyToSaved(currHistory);
+        const currSaved = JSON.parse(await AsyncStorage.getItem('savedItems') || '[]');
+        const { mergedHistory, mergedSaved } = Sefaria.history.mergeHistory(currHistory, currSaved, response.user_history);
+        Sefaria.history.lastPlace = Sefaria.history.historyToLastPlace(mergedHistory);
+        Sefaria.history.saved = mergedSaved;
         await AsyncStorage.setItem('savedItems', JSON.stringify(Sefaria.history.saved));
         await AsyncStorage.setItem('lastPlace', JSON.stringify(Sefaria.history.lastPlace));
-        await AsyncStorage.setItem('history', JSON.stringify(currHistory));
+        await AsyncStorage.setItem('history', JSON.stringify(mergedHistory));
       } catch (e) {
         // try again later
         console.log('sync error', e);
@@ -151,17 +151,29 @@ const History = {
     await Sefaria.history.syncHistory();
     return Sefaria.history.saved;
   },
-  mergeHistory: function(currHistory, newHistory) {
+  mergeHistory: function(currHistory, currSaved, newHistory) {
     const delete_saved_set = new Set();
-    return newHistory
+    const newSaved = [];
+    const mergedHistory = newHistory
     .map(h => {
       // see https://codeburst.io/use-es2015-object-rest-operator-to-omit-properties-38a3ecffe90
-      const { delete_saved, ...rest } = h;
+      const { delete_saved, saved, ...rest } = h;
       if (delete_saved) { delete_saved_set.add(h.ref); }
+      if (saved) { newSaved.push(h); }
       return h;
     })
-    .concat(currHistory.map(h => delete_saved_set.has(h.ref) ? {...h, saved: false} : h))
+    .concat(currHistory)
     .sort((a, b) => b.time_stamp - a.time_stamp);
+
+    const mergedSaved = newSaved
+    .concat(currSaved)
+    .filter(s => !delete_saved_set.has(s.ref))
+    .sort((a, b) => b.time_stamp - a.time_stamp);
+
+    return {
+      mergedHistory,
+      mergedSaved,
+    };
   },
   saveSavedItem: function(item, action) {
     /* action: can be either 'add_saved' or 'delete_saved'
@@ -176,9 +188,7 @@ const History = {
     if (action === 'add_saved') {
       Sefaria.history.saved = [item].concat(Sefaria.history.saved);
     } else {
-      const i = Sefaria.history.indexOfSaved(item.ref);
-      console.log('save delete', i, Sefaria.history.saved);
-      if (i !== -1) { Sefaria.history.saved.splice(i, 1); }
+      Sefaria.history.saved = Sefaria.history.saved.filter(s => s.ref !== item.ref);
     }
     AsyncStorage.setItem("lastSyncItems", JSON.stringify(Sefaria.history.lastSync));
     AsyncStorage.setItem("savedItems", JSON.stringify(Sefaria.history.saved));
