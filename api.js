@@ -12,7 +12,7 @@ var Api = {
   /*
   takes responses from text and links api and returns json in the format of iOS json
   */
-  _baseHost: 'http://localhost:8000/', //'http://jwt.sandbox.sefaria.org/',
+  _baseHost: 'http://jwt.sandbox.sefaria.org/',
   _textCache: {}, //in memory cache for API data
   _linkCache: {},
   _nameCache: {},
@@ -536,8 +536,14 @@ var Api = {
       }
     }
   },
-  clearAuthStorage: function() {
-    AsyncStorage.removeItem('auth');
+  clearAuthStorage: async function() {
+    // TODO: make sure user synced at least once
+    await AsyncStorage.removeItem('auth');
+    await AsyncStorage.removeItem('lastPlace');
+    await AsyncStorage.removeItem('savedItems');
+    await AsyncStorage.removeItem('lastSyncItems');
+    await AsyncStorage.removeItem('lastSyncTime');
+    await AsyncStorage.removeItem('history');
   },
 
 /*
