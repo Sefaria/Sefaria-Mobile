@@ -1,6 +1,6 @@
 'use strict';
 import PropTypes from 'prop-types';
-import React from 'react';
+import React, { useContext } from 'react';
 import {
   View,
   Text,
@@ -16,52 +16,45 @@ import styles from './Styles';
 import strings from './LocalizedStrings';
 
 
-class TextRange extends React.PureComponent {
-  static propTypes = {
-    showToast:          PropTypes.func.isRequired,
-    theme:              PropTypes.object.isRequired,
-    themeStr:           PropTypes.string.isRequired,
-    fontSize:           PropTypes.number.isRequired,
-    rowData:            PropTypes.object.isRequired,
-    segmentRef:         PropTypes.string.isRequired,
-    textLanguage:       PropTypes.oneOf(["hebrew","english","bilingual"]),
-    showSegmentNumbers: PropTypes.bool.isRequired,
-    textSegmentPressed: PropTypes.func.isRequired,
-    setRowRef:          PropTypes.func.isRequired,
-    setRowRefInitY:     PropTypes.func.isRequired,
-    biLayout:           PropTypes.oneOf(["stacked", "sidebyside", "sidebysiderev"]),
-  };
+const TextRange = ({
+  showToast,
+  rowData,
+  segmentRef,
+  showSegmentNumbers,
+  textSegmentPressed,
+  setRowRef,
+  setRowRefInitY,
+}) => {
+  const { theme, textLanguage, biLayout, fontSize, themeStr } = useContext(GlobalStateContext);
 
-  constructor(props) {
-    super(props);
-  }
-
-  getDisplayedText = (withURL) => {
-    const {text, he} = this.props.rowData.content;
+  const getDisplayedText = withURL => {
+    const {text, he} = rowData.content;
     const enText = Sefaria.util.removeHtml(typeof text === "string" ? text : "") || "";
     const heText = Sefaria.util.removeHtml(typeof he === "string" ? he : "") || "";
-    const isHeb = this.props.textLanguage !== "english";
-    const isEng = this.props.textLanguage !== "hebrew";
+    const isHeb = textLanguage !== "english";
+    const isEng = textLanguage !== "hebrew";
     const fullText = (heText && isHeb ? heText + (enText && isEng ? "\n" : "") : "") + ((enText && isEng) ? enText : "");
-    return withURL ? `${fullText}\n\n${Sefaria.refToUrl(this.props.segmentRef)}` : fullText;
+    return withURL ? `${fullText}\n\n${Sefaria.refToUrl(segmentRef)}` : fullText;
   };
-  copyToClipboard = () => {
-    Clipboard.setString(this.getDisplayedText());
-    this.props.showToast("Copied to clipboard", 500);
-  };
-  reportErrorBody = () => (
-    encodeURIComponent(
-      `${this.props.segmentRef}
 
-      ${this.getDisplayedText(true)}
+  const copyToClipboard = () => {
+    Clipboard.setString(getDisplayedText());
+    showToast("Copied to clipboard", 500);
+  };
+  const reportErrorBody = () => (
+    encodeURIComponent(
+      `${segmentRef}
+
+      ${getDisplayedText(true)}
 
       Describe the error:`)
-  )
-  reportError = () => {
-    Linking.openURL(`mailto:corrections@sefaria.org?subject=${encodeURIComponent(`Sefaria Text Correction from ${Platform.OS}`)}&body=${this.reportErrorBody()}`)
-  }
+  );
 
-  onLongPress = () => {
+  const reportError = () => {
+    Linking.openURL(`mailto:corrections@sefaria.org?subject=${encodeURIComponent(`Sefaria Text Correction from ${Platform.OS}`)}&body=${reportErrorBody()}`)
+  };
+
+  const onLongPress = () => {
     ActionSheet.showActionSheetWithOptions({
       options: [
         strings.copy,
@@ -73,109 +66,114 @@ class TextRange extends React.PureComponent {
       cancelButtonIndex: 4,
     },
     (buttonIndex) => {
-      if (buttonIndex === 0) { this.copyToClipboard(); }
-      else if (buttonIndex === 1) { this.reportError(); }
+      if (buttonIndex === 0) { copyToClipboard(); }
+      else if (buttonIndex === 1) { reportError(); }
       else if (buttonIndex === 2) { Share.share({
-          message: this.getDisplayedText(Platform.OS === 'android'),  // android for some reason doesn't share text with a url attached at the bottom
-          title: this.props.segmentRef,
-          url: Sefaria.refToUrl(this.props.segmentRef)
+          message: getDisplayedText(Platform.OS === 'android'),  // android for some reason doesn't share text with a url attached at the bottom
+          title: segmentRef,
+          url: Sefaria.refToUrl(segmentRef)
         })
       }
-      else if (buttonIndex === 3) { this.props.openUri(Sefaria.refToUrl(this.props.segmentRef))}
+      else if (buttonIndex === 3) { openUri(Sefaria.refToUrl(segmentRef))}
     })
   };
 
-  _setRef = ref => {
-    this.props.setRowRef(this.props.segmentRef, ref);
+  const _setRef = ref => {
+    setRowRef(segmentRef, ref);
   };
 
-  render() {
+  let enText = rowData.content.text || "";
+  let heText = rowData.content.he || "";
+  enText = Sefaria.util.getDisplayableHTML(enText, 'english');
+  heText = Sefaria.util.getDisplayableHTML(heText, 'hebrew');
+  let numLinks = rowData.content.links ? rowData.content.links.length : 0;
 
-    let enText = this.props.rowData.content.text || "";
-    let heText = this.props.rowData.content.he || "";
-    enText = Sefaria.util.getDisplayableHTML(enText, 'english');
-    heText = Sefaria.util.getDisplayableHTML(heText, 'hebrew');
-    let numLinks = this.props.rowData.content.links ? this.props.rowData.content.links.length : 0;
+  let segment = [];
+  textLanguage = Sefaria.util.getTextLanguageWithContent(textLanguage, enText, heText);
+  let refSection = rowData.sectionIndex + ":" + rowData.rowIndex;
+  let numberMargin = (<Text
+                        style={[styles.verseNumber, textLanguage == "hebrew" ? styles.hebrewVerseNumber : null, theme.verseNumber]}
+                        key={segmentRef + "|segment-number"}>
+                      {showSegmentNumbers ? (textLanguage == "hebrew" ?
+                       Sefaria.hebrew.encodeHebrewNumeral(rowData.content.segmentNumber) :
+                       rowData.content.segmentNumber) : ""}
+                    </Text>);
 
-    let segment = [];
-    let textLanguage = Sefaria.util.getTextLanguageWithContent(this.props.textLanguage, enText, heText);
-    let refSection = this.props.rowData.sectionIndex + ":" + this.props.rowData.rowIndex;
-    let numberMargin = (<Text ref={this.props.segmentRef}
-                                   style={[styles.verseNumber, this.props.textLanguage == "hebrew" ? styles.hebrewVerseNumber : null, this.props.theme.verseNumber]}
-                                   key={this.props.segmentRef + "|segment-number"}>
-                        {this.props.showSegmentNumbers ? (this.props.textLanguage == "hebrew" ?
-                         Sefaria.hebrew.encodeHebrewNumeral(this.props.rowData.content.segmentNumber) :
-                         this.props.rowData.content.segmentNumber) : ""}
-                      </Text>);
+  let bulletOpacity = (numLinks-20) / (70-20);
+  if (numLinks == 0) { bulletOpacity = 0; }
+  else if (bulletOpacity < 0.3) { bulletOpacity = 0.3; }
+  else if (bulletOpacity > 0.8) { bulletOpacity = 0.8; }
 
-    let bulletOpacity = (numLinks-20) / (70-20);
-    if (numLinks == 0) { bulletOpacity = 0; }
-    else if (bulletOpacity < 0.3) { bulletOpacity = 0.3; }
-    else if (bulletOpacity > 0.8) { bulletOpacity = 0.8; }
+  var bulletMargin = (<Text
+                        style={[styles.verseBullet, theme.verseBullet, {opacity:bulletOpacity}]}
+                        key={segmentRef + "|segment-dot"}>
+                      {"●"}
+                    </Text>);
 
-    var bulletMargin = (<Text ref={this.props.segmentRef}
-                                   style={[styles.verseBullet, this.props.theme.verseBullet, {opacity:bulletOpacity}]}
-                                   key={this.props.segmentRef + "|segment-dot"}>
-                        {"●"}
-                      </Text>);
-
-    let textStyle = [styles.textSegment];
-    if (this.props.rowData.highlight) {
-        textStyle.push(this.props.theme.segmentHighlight);
-    }
-    if (this.props.biLayout === 'sidebyside') {
-      textStyle.push({flexDirection: "row"})
-    } else if (this.props.biLayout === 'sidebysiderev') {
-      textStyle.push({flexDirection: "row-reverse"})
-    }
-    const showHe = textLanguage == "hebrew" || textLanguage == "bilingual";
-    const showEn = textLanguage == "english" || textLanguage == "bilingual";
-    return (
-      <View
-        style={styles.verseContainer}
-        ref={this._setRef}
-      >
-        <View
-          style={[styles.numberSegmentHolderEn, {flexDirection: this.props.textLanguage === 'english' ? 'row' : 'row-reverse'}]}
-          key={this.props.segmentRef+"|inner-box"}
-        >
-          { numberMargin }
-          <View style={textStyle} key={this.props.segmentRef+"|text-box"}>
-            {
-              showHe ? <TextSegment
-                rowRef={this.props.segmentRef}
-                theme={this.props.theme}
-                themeStr={this.props.themeStr}
-                segmentKey={refSection}
-                key={this.props.segmentRef+"|hebrew"}
-                data={heText}
-                textType="hebrew"
-                biLayout={this.props.biLayout}
-                textSegmentPressed={ this.props.textSegmentPressed }
-                onLongPress={this.onLongPress}
-                fontSize={this.props.fontSize}/> : null
-            }
-            {
-              showEn ? <TextSegment
-                rowRef={this.props.segmentRef}
-                theme={this.props.theme}
-                themeStr={this.props.themeStr}
-                segmentKey={refSection}
-                key={this.props.segmentRef+"|english"}
-                data={enText}
-                textType="english"
-                biLayout={this.props.biLayout}
-                bilingual={textLanguage === "bilingual"}
-                textSegmentPressed={ this.props.textSegmentPressed }
-                onLongPress={this.onLongPress}
-                fontSize={this.props.fontSize} /> : null
-            }
-          </View>
-          { bulletMargin }
-        </View>
-      </View>
-    );
+  let textStyle = [styles.textSegment];
+  if (rowData.highlight) {
+      textStyle.push(theme.segmentHighlight);
   }
+  if (biLayout === 'sidebyside') {
+    textStyle.push({flexDirection: "row"})
+  } else if (biLayout === 'sidebysiderev') {
+    textStyle.push({flexDirection: "row-reverse"})
+  }
+  const showHe = textLanguage == "hebrew" || textLanguage == "bilingual";
+  const showEn = textLanguage == "english" || textLanguage == "bilingual";
+  return (
+    <View
+      style={styles.verseContainer}
+      ref={_setRef}
+    >
+      <View
+        style={[styles.numberSegmentHolderEn, {flexDirection: textLanguage === 'english' ? 'row' : 'row-reverse'}]}
+        key={segmentRef+"|inner-box"}
+      >
+        { numberMargin }
+        <View style={textStyle} key={segmentRef+"|text-box"}>
+          {
+            showHe ? (
+              <TextSegment
+              fontSize={fontSize}
+              themeStr={themeStr}
+              rowRef={segmentRef}
+              segmentKey={refSection}
+              key={segmentRef+"|hebrew"}
+              data={heText}
+              textType="hebrew"
+              textSegmentPressed={ textSegmentPressed }
+              onLongPress={onLongPress}
+            />) : null
+          }
+          {
+            showEn ? (<TextSegment
+              fontSize={fontSize}
+              themeStr={themeStr}
+              rowRef={segmentRef}
+              segmentKey={refSection}
+              key={segmentRef+"|english"}
+              data={enText}
+              textType="english"
+              bilingual={textLanguage === "bilingual"}
+              textSegmentPressed={ textSegmentPressed }
+              onLongPress={onLongPress}
+            />) : null
+          }
+        </View>
+        { bulletMargin }
+      </View>
+    </View>
+  );
 }
+TextRange.propTypes = {
+  showToast:          PropTypes.func.isRequired,
+  rowData:            PropTypes.object.isRequired,
+  segmentRef:         PropTypes.string.isRequired,
+  showSegmentNumbers: PropTypes.bool.isRequired,
+  textSegmentPressed: PropTypes.func.isRequired,
+  setRowRef:          PropTypes.func.isRequired,
+  setRowRefInitY:     PropTypes.func.isRequired,
+};
 
 export default TextRange;
