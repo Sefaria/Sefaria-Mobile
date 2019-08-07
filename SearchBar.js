@@ -16,95 +16,72 @@ import {
   SearchButton,
   LanguageToggleButton,
 } from './Misc.js';
-
+import { GlobalStateContext } from './StateManager';
 import AutocompleteList from './AutocompleteList';
 
 import styles from './Styles';
 import strings from './LocalizedStrings';
 
-class SearchBar extends React.Component {
-  static propTypes = {
-    interfaceLang:   PropTypes.oneOf(["english", "hebrew"]).isRequired,
-    theme:           PropTypes.object.isRequired,
-    themeStr:        PropTypes.string.isRequired,
-    onBack:          PropTypes.func.isRequired,
-    search:          PropTypes.func.isRequired,
-    setIsNewSearch:  PropTypes.func.isRequired,
-    searchType:      PropTypes.oneOf(['text', 'sheet']).isRequired,
-    toggleLanguage:  PropTypes.func,
-    language:        PropTypes.string,
-    hideSearchButton:PropTypes.bool,
-    query:           PropTypes.string.isRequired,
-    onChange:        PropTypes.func.isRequired,
-    onFocus:         PropTypes.func,
-  };
+const SearchBar = ({
+  onBack,
+  search,
+  setIsNewSearch,
+  searchType,
+  toggleLanguage,
+  language,
+  hideSearchButton,
+  query,
+  onChange,
+  onFocus,
+}) {
 
-  submitSearch = () => {
-    if (this.props.query) {
-      this.props.setIsNewSearch(true);
-      console.log('submitSearch', this.props.query);
-      this.props.search('text', this.props.query, true, false, true);
-      this.props.search('sheet', this.props.query, true, false, true);
+  const submitSearch = () => {
+    if (query) {
+      setIsNewSearch(true);
+      console.log('submitSearch', query);
+      search('text', query, true, false, true);
+      search('sheet', query, true, false, true);
     }
   };
 
-  focus = () => {
-    this._textInput.focus();
-  };
-
-  deleteQuery = () => {
-    this.props.onChange("");
-  };
-
-  _getTextInputRef = ref => {
-    this._textInput = ref;
-  };
-
   render() {
-    var textInputStyle = [styles.searchInput, this.props.interfaceLang === "hebrew" ? styles.hebrewSystemFont : null, this.props.theme.text];
+    const { theme, themeStr, interfaceLang, menuLanguage } = useContext(GlobalStateContext);
+    var textInputStyle = [styles.searchInput, interfaceLanguage === "hebrew" ? styles.hebrewSystemFont : null, theme.text];
     //TODO sorry for the hard-coded colors. because the prop placeholderTextColor of TextInput doesn't take a style and instead requires an explicit color string, I had to do it this way
-    var placeholderTextColor = this.props.themeStr == "black" ? "#BBB" : "#777";
+    var placeholderTextColor = themeStr == "black" ? "#BBB" : "#777";
     //TODO make flex dependent on results. animate opening of results
     return (
       <View style={{flexDirection: 'column', flex:0}}>
-        <View style={[styles.header, this.props.theme.header]}>
+        <View style={[styles.header, theme.header]}>
           {this.props.leftMenuButton == "close" ?
-            <CloseButton onPress={this.props.onBack} theme={this.props.theme} themeStr={this.props.themeStr} /> :
+            <CloseButton onPress={onBack} /> :
             <DirectedButton
-              onPress={this.props.onBack}
-              themeStr={this.props.themeStr}
+              onPress={onBack}
               imageStyle={[styles.menuButton, styles.directedButton]}
               language="english"
               direction="back"/>
           }
           { this.props.hideSearchButton ? null :
-            <SearchButton onPress={this.submitSearch} theme={this.props.theme} themeStr={this.props.themeStr} />
+            <SearchButton onPress={submitSearch} />
           }
           <TextInput
-            ref={this._getTextInputRef}
             style={textInputStyle}
-            onChangeText={this.props.onChange}
-            onSubmitEditing={this.submitSearch}
-            onFocus={this.props.onFocus}
-            value={this.props.query}
+            onChangeText={onChange}
+            onSubmitEditing={submitSearch}
+            onFocus={onFocus}
+            value={query}
             underlineColorAndroid={"transparent"}
             placeholder={strings.search}
             placeholderTextColor={placeholderTextColor}
             autoCorrect={false} />
-          {this.props.query.length ?
-            <CancelButton
-              themeStr={this.props.themeStr}
-              onPress={this.deleteQuery}
-            />
+          {query.length ?
+            <CancelButton onPress={() => { onChange(""); }} />
             : null
           }
           {this.props.toggleLanguage ?
             <LanguageToggleButton
-              theme={this.props.theme}
-              interfaceLang={this.props.interfaceLang}
-              toggleLanguage={this.props.toggleLanguage}
-              language={this.props.language}
-              themeStr={this.props.themeStr}
+              toggleLanguage={toggleLanguage}
+              language={menuLanguage}
             />
              : null}
         </View>
@@ -112,15 +89,31 @@ class SearchBar extends React.Component {
     );
   }
 }
+SearchBar.propTypes = {
+  onBack:          PropTypes.func.isRequired,
+  search:          PropTypes.func.isRequired,
+  setIsNewSearch:  PropTypes.func.isRequired,
+  searchType:      PropTypes.oneOf(['text', 'sheet']).isRequired,
+  toggleLanguage:  PropTypes.func,
+  language:        PropTypes.string,
+  hideSearchButton:PropTypes.bool,
+  query:           PropTypes.string.isRequired,
+  onChange:        PropTypes.func.isRequired,
+  onFocus:         PropTypes.func,
+};
 
-const CancelButton = ({ themeStr, onPress }) => (
-  <TouchableOpacity onPress={onPress}>
-    <Image
-      source={themeStr === 'white' ? require('./img/circle-close.png') : require('./img/circle-close-light.png')}
-      style={styles.cancelSearchButton}
-      resizeMode={'contain'}
-    />
-  </TouchableOpacity>
+const CancelButton = ({ onPress }) => (
+  <GlobalStateContext.Consumer>
+    { ({ themeStr }) => (
+      <TouchableOpacity onPress={onPress}>
+        <Image
+          source={themeStr === 'white' ? require('./img/circle-close.png') : require('./img/circle-close-light.png')}
+          style={styles.cancelSearchButton}
+          resizeMode={'contain'}
+        />
+      </TouchableOpacity>
+    )}
+  </GlobalStateContext.Consumer>
 );
 
 export default SearchBar;
