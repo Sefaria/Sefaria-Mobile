@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useContext } from 'react';
 import PropTypes from 'prop-types';
 import {
   View,
@@ -13,114 +13,127 @@ import {
   RainbowBar,
   CircleCloseButton,
 } from './Misc';
-
+import { GlobalStateContext, DispatchContext, STATE_ACTIONS } from './StateManager';
 import Sefaria from './sefaria';
 import strings from './LocalizedStrings';
 import styles from './Styles';
 
-
-
-class AuthPage extends React.Component {
-  static propTypes = {
-    authMode: PropTypes.string.isRequired,
-    theme:    PropTypes.object.isRequired,
-    themeStr: PropTypes.string.isRequired,
-    close:    PropTypes.func.isRequired,
-    showToast:PropTypes.func.isRequired,
-    setIsLoggedIn: PropTypes.func.isRequired,
+const onSubmit = (formState, authMode, setErrors, onLoginSuccess) => {
+  let errors = await Sefaria.api.authenticate(formState, authMode);
+  if (!errors) { errors = {}; }
+  setErrors(errors);
+  if (Object.keys(errors).length === 0 && Sefaria._auth.uid) {
+    onLoginSuccess();
   }
-  state = {
-    email: null,
-    password: null,
-    first_name: null,
-    last_name: null,
-    errors: {},
-    g_recaptcha_response: null,
+};
+
+const useAuthForm = (authMode, onLoginSuccess) => {
+  const [first_name, setFirstName] = useState(null);
+  const [last_name, setLastName] = useState(null);
+  const [email, setEmail] = useState(null);
+  const [password, setPassword] = useState(null);
+  const [errors, setErrors] = useState({});
+  const [g_recaptcha_response, setRecaptchaResponse] = useState(null);
+  const formState = {
+    first_name,
+    last_name,
+    email,
+    password,
+    g_recaptcha_response,
   };
-
-  _handleMultiInput = (name) => {
-    return (text) => {
-      this.setState({ [name]:text })
-    }
-  };
-
-  handleSubmit = async (event) => {
-    let errors = await Sefaria.api.authenticate(this.state, this.props.authMode);
-    if (!errors) { errors = {}; }
-    this.setState({ errors });
-    if (Object.keys(errors).length === 0 && Sefaria._auth.uid) {
-      this.props.setIsLoggedIn(true);
-      this.props.close();
-      this.props.showToast(strings.loginSuccessful);
-    }
-  };
-
-  onRecaptchaSuccess = recaptchaKey => {
-    this.setState({ g_recaptcha_response: recaptchaKey });
-  }
-
-  render() {
-    const { authMode, theme, close, themeStr } = this.props;
-    const { errors } = this.state;
-    isLogin = authMode === 'login';
-    const placeholderTextColor = themeStr == "black" ? "#BBB" : "#777";
-    return(
-      <ScrollView style={{flex:1, alignSelf: "stretch" }} contentContainerStyle={{alignItems: "center"}}>
-        <RainbowBar />
-        <View style={{ flex: 1, alignSelf: "stretch", alignItems: "flex-end", marginHorizontal: 10}}>
-          <CircleCloseButton onPress={close} theme={theme} themeStr={themeStr} />
-        </View>
-        <Text style={styles.pageTitle}>{isLogin ? strings.sign_in : strings.join_sefaria}</Text>
-        <View style={{flex: 1, alignSelf: "stretch",  marginHorizontal: 37}}>
-          { isLogin ? null :
-            <AuthTextInput
-              placeholder={strings.first_name}
-              placeholderTextColor={placeholderTextColor}
-              error={errors.first_name}
-              errorText={errors.first_name}
-              onChangeText={this._handleMultiInput("first_name")}
-            />
-          }
-          { isLogin ? null :
-            <AuthTextInput
-              placeholder={strings.last_name}
-              placeholderTextColor={placeholderTextColor}
-              error={errors.last_name}
-              errorText={errors.last_name}
-              onChangeText={this._handleMultiInput("last_name")}
-            />
-          }
-          <AuthTextInput
-            placeholder={strings.email}
-            autoCapitalize={'none'}
-            placeholderTextColor={placeholderTextColor}
-            error={errors.username || errors.email}
-            errorText={errors.username || errors.email}
-            onChangeText={this._handleMultiInput("email")}
-          />
-          <AuthTextInput
-            placeholder={strings.password}
-            placeholderTextColor={placeholderTextColor}
-            isPW={true}
-            error={errors.password || errors.password1}
-            errorText={errors.password || errors.password1}
-            onChangeText={this._handleMultiInput("password")}
-          />
-          <ErrorText error={errors.non_field_errors} errorDisplayText={errors.non_field_errors} />
-          <ErrorText error={errors.captcha} errorDisplayText={errors.captcha} />
-          <Button onPress={this.handleSubmit} title={isLogin ? strings.sign_in : strings.create_account}/>
-          <TouchableOpacity>
-            <Text>{strings.linkToRegister}</Text>
-          </TouchableOpacity>
-          <TouchableOpacity>
-            <Text>{strings.forgotPassword}</Text>
-          </TouchableOpacity>
-        </View>
-        { isLogin ? null : <ReCaptchaView onSuccess={this.onRecaptchaSuccess} />}
-      </ScrollView>
-    )
+  return {
+    errors,
+    setFirstName,
+    setLastName,
+    setEmail,
+    setPassword,
+    setRecaptchaResponse,
+    onSubmit: () => { onSubmit(formState, authMode, setErrors, onLoginSuccess) },
   }
 }
+
+const AuthPage = ({ authMode, close, showToast }) => {
+  const dispatch = useContext(DispatchContext);
+  const { theme, themeStr } = useContext(GlobalStateContext);
+  const {
+    errors,
+    setFirstName,
+    setLastName,
+    setEmail,
+    setPassword,
+    setRecaptchaResponse,
+    onSubmit,
+  } = useAuthForm(authMode, () => {
+    dispatch({
+      type: STATE_ACTIONS.setIsLoggedIn,
+      isLoggedIn: true,
+    });
+    close();
+    showToast(strings.loginSuccessful);
+  });
+  isLogin = authMode === 'login';
+  const placeholderTextColor = themeStr == "black" ? "#BBB" : "#777";
+  return(
+    <ScrollView style={{flex:1, alignSelf: "stretch" }} contentContainerStyle={{alignItems: "center"}}>
+      <RainbowBar />
+      <View style={{ flex: 1, alignSelf: "stretch", alignItems: "flex-end", marginHorizontal: 10}}>
+        <CircleCloseButton onPress={close} />
+      </View>
+      <Text style={styles.pageTitle}>{isLogin ? strings.sign_in : strings.join_sefaria}</Text>
+      <View style={{flex: 1, alignSelf: "stretch",  marginHorizontal: 37}}>
+        { isLogin ? null :
+          <AuthTextInput
+            placeholder={strings.first_name}
+            placeholderTextColor={placeholderTextColor}
+            error={errors.first_name}
+            errorText={errors.first_name}
+            onChangeText={setFirstName}
+          />
+        }
+        { isLogin ? null :
+          <AuthTextInput
+            placeholder={strings.last_name}
+            placeholderTextColor={placeholderTextColor}
+            error={errors.last_name}
+            errorText={errors.last_name}
+            onChangeText={setLastName}
+          />
+        }
+        <AuthTextInput
+          placeholder={strings.email}
+          autoCapitalize={'none'}
+          placeholderTextColor={placeholderTextColor}
+          error={errors.username || errors.email}
+          errorText={errors.username || errors.email}
+          onChangeText={setEmail}
+        />
+        <AuthTextInput
+          placeholder={strings.password}
+          placeholderTextColor={placeholderTextColor}
+          isPW={true}
+          error={errors.password || errors.password1}
+          errorText={errors.password || errors.password1}
+          onChangeText={setPassword}
+        />
+        <ErrorText error={errors.non_field_errors} errorDisplayText={errors.non_field_errors} />
+        <ErrorText error={errors.captcha} errorDisplayText={errors.captcha} />
+        <Button onPress={onSubmit} title={isLogin ? strings.sign_in : strings.create_account}/>
+        <TouchableOpacity>
+          <Text>{strings.linkToRegister}</Text>
+        </TouchableOpacity>
+        <TouchableOpacity>
+          <Text>{strings.forgotPassword}</Text>
+        </TouchableOpacity>
+      </View>
+      { isLogin ? null : <ReCaptchaView onSuccess={setRecaptchaResponse} />}
+    </ScrollView>
+  )
+}
+AuthPage.propTypes = {
+  authMode: PropTypes.string.isRequired,
+  close:    PropTypes.func.isRequired,
+  showToast:PropTypes.func.isRequired,
+};
 
 const ErrorText = ({ error, errorText }) => (
   error ?
@@ -134,24 +147,26 @@ const ErrorText = ({ error, errorText }) => (
 const AuthTextInput = ({
   isPW,
   placeholder,
-  onChangeText,
   placeholderTextColor,
   autoCapitalize,
   error,
   errorText,
-}) => (
-  <View>
-    <TextInput
-      style={[styles.textInput, styles.boxShadow, styles.authTextInput]}
-      placeholder={placeholder}
-      placeholderTextColor={placeholderTextColor}
-      secureTextEntry={isPW}
-      autoCapitalize={autoCapitalize}
-      onChangeText={onChangeText}
-    />
-  <ErrorText error={error} errorText={errorText} />
-  </View>
-);
+}) => {
+  const [value, onChange] = useState('');
+  return (
+    <View>
+      <TextInput
+        style={[styles.textInput, styles.boxShadow, styles.authTextInput]}
+        placeholder={placeholder}
+        placeholderTextColor={placeholderTextColor}
+        secureTextEntry={isPW}
+        autoCapitalize={autoCapitalize}
+        onChangeText={onChange}
+      />
+      <ErrorText error={error} errorText={errorText} />
+    </View>
+  );
+};
 
 class ReCaptchaView extends React.Component {
   static propTypes = {
