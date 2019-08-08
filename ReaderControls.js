@@ -1,7 +1,7 @@
 'use strict';
 
 import PropTypes from 'prop-types';
-import React from 'react';
+import React, { useContext, useReducer } from 'react';
 import {
   Text,
   TouchableOpacity,
@@ -22,114 +22,116 @@ import {
 } from './Misc.js';
 import Sefaria from "./sefaria";
 
-class ReaderControls extends React.Component {
-  static propTypes = {
-    theme:                           PropTypes.object,
-    enRef:                           PropTypes.string,
-    heRef:                           PropTypes.string,
-    menuLanguage:                    PropTypes.string,
-    textLanguage:                    PropTypes.string,
-    categories:                      PropTypes.array,
-    openNav:                         PropTypes.func,
-    openTextToc:                     PropTypes.func,
-    goBack:                          PropTypes.func,
-    themeStr:                        PropTypes.oneOf(["white", "black"]),
-    toggleReaderDisplayOptionsMenu:  PropTypes.func,
-    backStack:                       PropTypes.array,
-    openUri:                         PropTypes.func.isRequired,
-  };
-
-  shouldShowHamburger = () => {
+const ReaderControls = ({
+  enRef,
+  heRef,
+  categories,
+  openNav,
+  openTextToc,
+  goBack,
+  toggleReaderDisplayOptionsMenu,
+  backStack,
+  openUri,
+}) => {
+  const { theme, themeStr, menuLanguage } = useContext(GlobalStateContext);
+  const [, forceUpdate] = useReducer(x => x + 1, 0);  // HACK
+  const shouldShowHamburger = () => {
     if (Platform.OS === "android") { return true; }
     else {
       // see ReaderApp.openRef()
       const calledFromDict = { "text list": true, "search": true };
-      const backStack = this.props.backStack.filter(x => calledFromDict[x.calledFrom]);
+      const backStack = backStack.filter(x => calledFromDict[x.calledFrom]);
       return backStack.length === 0;
     }
+  };
+  const isSaved = Sefaria.history.indexOfSaved(enRef) !== -1;
+  var langStyle = menuLanguage === "hebrew" ? [styles.he, {marginTop: 4}] : [styles.en];
+  var titleTextStyle = [langStyle, styles.headerTextTitleText, theme.text];
+  if (shouldShowHamburger()) {
+    var leftMenuButton = <MenuButton onPress={props.openNav} />
+  } else {
+    var leftMenuButton =
+      <DirectedButton
+        onPress={goBack}
+        imageStyle={[styles.menuButton, styles.directedButton]}
+        language="english"
+        direction="back"/>
   }
-
-  render() {
-    const isSaved = Sefaria.history.indexOfSaved(this.props.enRef) !== -1;
-    var langStyle = this.props.menuLanguage === "hebrew" ? [styles.he, {marginTop: 4}] : [styles.en];
-    var titleTextStyle = [langStyle, styles.headerTextTitleText, this.props.theme.text];
-    if (this.shouldShowHamburger()) {
-      var leftMenuButton = <MenuButton onPress={this.props.openNav} theme={this.props.theme} themeStr={this.props.themeStr}/>
-    } else {
-      var leftMenuButton =
-        <DirectedButton
-          onPress={this.props.goBack}
-          themeStr={this.props.themeStr}
-          imageStyle={[styles.menuButton, styles.directedButton]}
-          language="english"
-          direction="back"/>
+    var textTitle = menuLanguage === 'hebrew' ? heRef : enRef;
+    if (sheet) {
+      textTitle = Sefaria.util.stripHtml(sheet.title);
     }
-      var textTitle = this.props.menuLanguage === 'hebrew' ? this.props.heRef : this.props.enRef;
-      if (this.props.sheet) {
-        textTitle = Sefaria.util.stripHtml(this.props.sheet.title);
-      }
-    return (
-        <View style={[styles.header, this.props.theme.header]}>
-          {leftMenuButton}
-          <View style={styles.readerNavSectionMoreInvisible}>
-            <Image
-              style={styles.starIcon}
-              source={require('./img/starUnfilled.png')}
-              resizeMode={'contain'}
-            />
-          </View>
-          <TouchableOpacity style={styles.headerTextTitle} onPress={this.props.sheet ? this.props.openSheetMeta : this.props.openTextToc }>
-            <View style={styles.headerTextTitleInner}>
-              <Image source={this.props.themeStr == "white" ? require('./img/caret.png'): require('./img/caret-light.png') }
-                       style={[styles.downCaret, this.props.menuLanguage === "hebrew" ? null: {opacity: 0}]}
-                       resizeMode={'contain'} />
-
-              {this.props.sheet ?
-                  <Text lang={this.props.menuLanguage} style={titleTextStyle} numberOfLines={1} ellipsizeMode={"tail"}><HebrewInEnglishText text={this.props.sheet.title} stylesHe={[styles.heInEn]} stylesEn={[]}/></Text> :
-                  <SText lang={this.props.menuLanguage} style={titleTextStyle} numberOfLines={1} ellipsizeMode={"tail"}>{textTitle}</SText>
-              }
-              <Image source={this.props.themeStr == "white" ? require('./img/caret.png'): require('./img/caret-light.png') }
-                       style={[styles.downCaret, this.props.menuLanguage === "hebrew" ? {opacity: 0} : null]}
-                       resizeMode={'contain'} />
-            </View>
-            <CategoryAttribution
-              categories={this.props.categories}
-              language={this.props.menuLanguage === "hebrew" ? "hebrew" : "english"}
-              context={"header"}
-              linked={false}
-              openUri={this.props.openUri}
-              theme={this.props.theme} />
-          </TouchableOpacity>
-            {this.props.sheet ? <View style={{width: 40}}></View> :
-          <TouchableOpacity onPress={
-              () => {
-                const willBeSaved = !isSaved;
-                Sefaria.history.saveSavedItem(
-                  {
-                    ref: this.props.enRef,
-                    heRef: this.props.heRef,
-                    language: this.props.textLanguage,
-                    book: Sefaria.textTitleForRef(this.props.enRef),
-                    saved: willBeSaved,
-                    versions: {},
-                  },
-                  willBeSaved ? 'add_saved' : 'delete_saved'
-                );
-                this.forceUpdate();
-              }
-            }>
-            <Image
-              style={styles.starIcon}
-              source={this.props.themeStr == "white" ?
-                      (isSaved ? require('./img/starFilled.png') : require('./img/starUnfilled.png')) :
-                      (isSaved ? require('./img/starFilled-light.png') : require('./img/starUnfilled-light.png'))}
-              resizeMode={'contain'}
-            />
-          </TouchableOpacity> }
-          <DisplaySettingsButton onPress={this.props.toggleReaderDisplayOptionsMenu} themeStr={this.props.themeStr}/>
+  return (
+      <View style={[styles.header, theme.header]}>
+        {leftMenuButton}
+        <View style={styles.readerNavSectionMoreInvisible}>
+          <Image
+            style={styles.starIcon}
+            source={require('./img/starUnfilled.png')}
+            resizeMode={'contain'}
+          />
         </View>
-    );
-  }
+        <TouchableOpacity style={styles.headerTextTitle} onPress={sheet ? openSheetMeta : openTextToc }>
+          <View style={styles.headerTextTitleInner}>
+            <Image source={themeStr == "white" ? require('./img/caret.png'): require('./img/caret-light.png') }
+                     style={[styles.downCaret, menuLanguage === "hebrew" ? null: {opacity: 0}]}
+                     resizeMode={'contain'} />
+
+            {sheet ?
+                <Text lang={menuLanguage} style={titleTextStyle} numberOfLines={1} ellipsizeMode={"tail"}><HebrewInEnglishText text={sheet.title} stylesHe={[styles.heInEn]} stylesEn={[]}/></Text> :
+                <SText lang={menuLanguage} style={titleTextStyle} numberOfLines={1} ellipsizeMode={"tail"}>{textTitle}</SText>
+            }
+            <Image source={themeStr == "white" ? require('./img/caret.png'): require('./img/caret-light.png') }
+                     style={[styles.downCaret, menuLanguage === "hebrew" ? {opacity: 0} : null]}
+                     resizeMode={'contain'} />
+          </View>
+          <CategoryAttribution
+            categories={categories}
+            context={"header"}
+            linked={false}
+            openUri={openUri}
+          />
+        </TouchableOpacity>
+          {sheet ? <View style={{width: 40}}></View> :
+        <TouchableOpacity onPress={
+            () => {
+              const willBeSaved = !isSaved;
+              Sefaria.history.saveSavedItem(
+                {
+                  ref: enRef,
+                  heRef,
+                  language: textLanguage,
+                  book: Sefaria.textTitleForRef(enRef),
+                  saved: willBeSaved,
+                  versions: {},
+                },
+                willBeSaved ? 'add_saved' : 'delete_saved'
+              );
+              forceUpdate();
+            }
+          }>
+          <Image
+            style={styles.starIcon}
+            source={themeStr == "white" ?
+                    (isSaved ? require('./img/starFilled.png') : require('./img/starUnfilled.png')) :
+                    (isSaved ? require('./img/starFilled-light.png') : require('./img/starUnfilled-light.png'))}
+            resizeMode={'contain'}
+          />
+        </TouchableOpacity> }
+        <DisplaySettingsButton onPress={toggleReaderDisplayOptionsMenu} />
+      </View>
+  );
 }
+ReaderControls.propTypes = {
+  enRef:                           PropTypes.string,
+  heRef:                           PropTypes.string,
+  categories:                      PropTypes.array,
+  openNav:                         PropTypes.func,
+  openTextToc:                     PropTypes.func,
+  goBack:                          PropTypes.func,
+  toggleReaderDisplayOptionsMenu:  PropTypes.func,
+  backStack:                       PropTypes.array,
+  openUri:                         PropTypes.func.isRequired,
+};
 
 export default ReaderControls;
