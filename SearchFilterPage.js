@@ -1,7 +1,7 @@
 'use strict';
 
 import PropTypes from 'prop-types';
-import React, { Component } from 'react';
+import React, { useContext } from 'react';
 import {
   View,
   Text,
@@ -16,215 +16,191 @@ import {
   ButtonToggleSet,
   LibraryNavButton,
 } from './Misc.js';
-
+import { GlobalStateContext } from './StateManager';
 import styles from './Styles';
 import strings from './LocalizedStrings';
 
-class SearchFilterPage extends React.Component {
-  static propTypes = {
-    theme:            PropTypes.object.isRequired,
-    themeStr:         PropTypes.string.isRequired,
-    interfaceLang:    PropTypes.oneOf(["english", "hebrew"]).isRequired,
-    menuLanguage:     PropTypes.oneOf(["english", "hebrew"]).isRequired,
-    subMenuOpen:      PropTypes.string.isRequired,
-    toggleFilter:     PropTypes.func.isRequired,
-    clearAllFilters:  PropTypes.func.isRequired,
-    query:            PropTypes.string,
-    openSubMenu:      PropTypes.func,
-    search:           PropTypes.func,
-    setSearchOptions: PropTypes.func,
-    searchState:      PropTypes.object,
+const SearchFilterPage = ({
+  subMenuOpen,
+  toggleFilter,
+  clearAllFilters,
+  query,
+  openSubMenu,
+  search,
+  setSearchOptions,
+  searchState,
+}) => {
+  const { interfaceLanguage, theme, themeStr } = useContext(GlobalStateContext);
+  const { type } = searchState;
+  const sortOptions = [
+    {name: "chronological", text: strings.chronological, onPress: () => { setSearchOptions(type, "chronological", searchState.field); }},
+    {name: "relevance", text: strings.relevance, onPress: () => { setSearchOptions(type, "relevance", searchState.field); }}
+  ];
+  const exactOptions = [
+    {name: false, text: strings.off, onPress: () => {
+      setSearchOptions(type, searchState.sortType, searchState.fieldBroad, ()=>search(type, query, true, false, true));
+    }},
+    {name: true, text: strings.on, onPress: () => {
+      setSearchOptions(type, searchState.sortType, searchState.fieldExact, ()=>search(type, query, true, false, true));
+    }}
+  ];
+
+
+  const backFromFilter = () => {
+    const backPage = subMenuOpen == "filter" ? null : "filter"; // if you're at a category filter page, go back to main filter page
+    openSubMenu(backPage, true);
   };
 
-  constructor(props) {
-    super(props);
-    const { type } = props.searchState;
-    this.sortOptions = [
-      {name: "chronological", text: strings.chronological, onPress: () => { this.props.setSearchOptions(type, "chronological", this.props.searchState.field); }},
-      {name: "relevance", text: strings.relevance, onPress: () => { this.props.setSearchOptions(type, "relevance", this.props.searchState.field); }}
-    ];
-    this.exactOptions = [
-      {name: false, text: strings.off, onPress: () => {
-        this.props.setSearchOptions(type, this.props.searchState.sortType, this.props.searchState.fieldBroad, ()=>this.props.search(this.props.searchState.type, this.props.query, true, false, true));
-      }},
-      {name: true, text: strings.on, onPress: () => {
-        this.props.setSearchOptions(type, this.props.searchState.sortType, this.props.searchState.fieldExact, ()=>this.props.search(this.props.searchState.type, this.props.query, true, false, true));
-      }}
-    ];
-  }
-
-
-  backFromFilter = () => {
-    let backPage = this.props.subMenuOpen == "filter" ? null : "filter"; // if you're at a category filter page, go back to main filter page
-    this.props.openSubMenu(backPage, true);
+  const applyFilters = () => {
+    openSubMenu(null);
+    search(type, query, true, false);
   };
 
-  applyFilters = () => {
-    this.props.openSubMenu(null);
-    this.props.search(this.props.searchState.type, this.props.query, true, false);
+  const clearAllFilters = () => {
+    clearAllFilters(type);
   };
 
-  clearAllFilters = () => {
-    this.props.clearAllFilters(this.props.searchState.type);
+  const toggleFilter = filter => {
+    toggleFilter(type, filter);
   };
 
-  toggleFilter = filter => {
-    this.props.toggleFilter(this.props.searchState.type, filter);
-  };
+  var isheb = interfaceLanguage === "hebrew"; //TODO enable when we properly handle interface hebrew throughout app
+  var langStyle = !isheb ? styles.enInt : styles.heInt;
+  var backImageStyle = isheb && false ? styles.directedButtonWithTextHe : styles.directedButtonWithTextEn;
+  var loadingMessage = (<Text style={[langStyle, theme.searchResultSummaryText]}>{strings.loadingFilters}</Text>);
+  var content = null;
+  var closeSrc = themeStr == "white" ? require("./img/circle-close.png") : require("./img/circle-close-light.png");
+  var flexDir = { flexDirection: interfaceLanguage === "hebrew" ? "row-reverse" : "row" };
+  switch (subMenuOpen) {
+    case "filter":
+      content =
+      (<View>
+        <TouchableOpacity style={[styles.readerDisplayOptionsMenuItem, styles.button, theme.readerDisplayOptionsMenuItem]} onPress={clearAllFilters}>
+          <Image source={closeSrc}
+            resizeMode={'contain'}
+            style={styles.searchFilterClearAll} />
+          <Text style={[isheb ? styles.heInt : styles.enInt, styles.heInt, theme.tertiaryText]}>{strings.clearAll}</Text>
 
-  render() {
-    var isheb = this.props.interfaceLang === "hebrew"; //TODO enable when we properly handle interface hebrew throughout app
-    var langStyle = !isheb ? styles.enInt : styles.heInt;
-    var backImageStyle = isheb && false ? styles.directedButtonWithTextHe : styles.directedButtonWithTextEn;
-    var loadingMessage = (<Text style={[langStyle, this.props.theme.searchResultSummaryText]}>{strings.loadingFilters}</Text>);
-    var content = null;
-    var closeSrc = this.props.themeStr == "white" ? require("./img/circle-close.png") : require("./img/circle-close-light.png");
-    var flexDir = { flexDirection: this.props.interfaceLang === "hebrew" ? "row-reverse" : "row" };
-    switch (this.props.subMenuOpen) {
-      case "filter":
-        content =
-        (<View>
-          <TouchableOpacity style={[styles.readerDisplayOptionsMenuItem, styles.button, this.props.theme.readerDisplayOptionsMenuItem]} onPress={this.clearAllFilters}>
-            <Image source={closeSrc}
-              resizeMode={'contain'}
-              style={styles.searchFilterClearAll} />
-            <Text style={[isheb ? styles.heInt : styles.enInt, styles.heInt, this.props.theme.tertiaryText]}>{strings.clearAll}</Text>
-
-          </TouchableOpacity>
-          <View style={styles.settingsSection}>
-            <View>
-              <Text style={[isheb ? styles.heInt : styles.enInt, styles.settingsSectionHeader, this.props.theme.tertiaryText]}>{strings.sortBy}</Text>
-            </View>
-            <ButtonToggleSet
-              theme={this.props.theme}
-              options={this.sortOptions}
-              lang={this.props.interfaceLang}
-              active={this.props.searchState.sortType} />
-          </View>
-          <View style={styles.settingsSection}>
-            <View>
-              <Text style={[isheb ? styles.heInt : styles.enInt, styles.settingsSectionHeader, this.props.theme.tertiaryText]}>{strings.exactSearch}</Text>
-            </View>
-            <ButtonToggleSet
-              theme={this.props.theme}
-              options={this.exactOptions}
-              lang={this.props.interfaceLang}
-              active={this.props.searchState.field === this.props.searchState.fieldExact} />
-          </View>
-          <View style={styles.settingsSection}>
-            <View>
-              <Text style={[isheb ? styles.heInt : styles.enInt, styles.settingsSectionHeader, this.props.theme.tertiaryText]}>{strings.filterByText}</Text>
-            </View>
-            <View>
-              { this.props.searchState.filtersValid ?
-                this.props.searchState.availableFilters.map((filter, ifilter)=>{
-                  return (
-                    <SearchFilter
-                      key={ifilter}
-                      theme={this.props.theme}
-                      themeStr={this.props.themeStr}
-                      menuLanguage={this.props.menuLanguage}
-                      filterNode={filter}
-                      openSubMenu={this.props.openSubMenu}
-                      toggleFilter={this.toggleFilter}
-                    />);
-                }) : loadingMessage
-              }
-            </View>
-          </View>
-        </View>);
-        break;
-      default:
-        var currFilter = FilterNode.findFilterInList(this.props.searchState.availableFilters, this.props.subMenuOpen);
-        var filterList =
-        [(<SearchFilter
-          key={0}
-          theme={this.props.theme}
-          themeStr={this.props.themeStr}
-          menuLanguage={this.props.menuLanguage}
-          filterNode={currFilter}
-          toggleFilter={this.toggleFilter}
-          />)];
-        content =
-        (<View>
-          { this.props.searchState.filtersValid ?
-            filterList.concat(currFilter.getLeafNodes().map((filter, ifilter)=>{
-              return (
-                <SearchFilter
-                  key={ifilter+1}
-                  theme={this.props.theme}
-                  themeStr={this.props.themeStr}
-                  menuLanguage={this.props.menuLanguage}
-                  filterNode={filter}
-                  toggleFilter={this.toggleFilter}
-                />);
-            })) : loadingMessage
-          }
-        </View>);
-    }
-    return (<View style={{flex:1}}>
-      <View style={[styles.header, this.props.theme.header, {justifyContent: "space-between", paddingHorizontal: 12}]}>
-        <DirectedButton
-          onPress={this.backFromFilter}
-          theme={this.props.theme}
-          themeStr={this.props.themeStr}
-          text={strings.back}
-          direction="back"
-          language="english"
-          textStyle={[this.props.theme.searchResultSummaryText, langStyle]}
-          imageStyle={[styles.menuButton, backImageStyle]}/>
-        <TouchableOpacity onPress={this.applyFilters} style={{marginLeft: 7, marginRight: 7}}>
-          <Text style={[this.props.theme.searchResultSummaryText, langStyle, {marginTop: -1}]}>{strings.apply}</Text>
         </TouchableOpacity>
-      </View>
-      <ScrollView key={this.props.subMenuOpen} contentContainerStyle={styles.menuContent} style={styles.scrollViewPaddingInOrderToScroll}>
-        {content}
-      </ScrollView>
-    </View>);
+        <View style={styles.settingsSection}>
+          <View>
+            <Text style={[isheb ? styles.heInt : styles.enInt, styles.settingsSectionHeader, theme.tertiaryText]}>{strings.sortBy}</Text>
+          </View>
+          <ButtonToggleSet
+            options={sortOptions}
+            lang={interfaceLanguage}
+            active={searchState.sortType} />
+        </View>
+        <View style={styles.settingsSection}>
+          <View>
+            <Text style={[isheb ? styles.heInt : styles.enInt, styles.settingsSectionHeader, theme.tertiaryText]}>{strings.exactSearch}</Text>
+          </View>
+          <ButtonToggleSet
+            options={exactOptions}
+            lang={interfaceLanguage}
+            active={searchState.field === searchState.fieldExact} />
+        </View>
+        <View style={styles.settingsSection}>
+          <View>
+            <Text style={[isheb ? styles.heInt : styles.enInt, styles.settingsSectionHeader, theme.tertiaryText]}>{strings.filterByText}</Text>
+          </View>
+          <View>
+            { searchState.filtersValid ?
+              searchState.availableFilters.map((filter, ifilter)=>{
+                return (
+                  <SearchFilter
+                    key={ifilter}
+                    filterNode={filter}
+                    openSubMenu={openSubMenu}
+                    toggleFilter={toggleFilter}
+                  />);
+              }) : loadingMessage
+            }
+          </View>
+        </View>
+      </View>);
+      break;
+    default:
+      var currFilter = FilterNode.findFilterInList(searchState.availableFilters, subMenuOpen);
+      var filterList =
+      [(<SearchFilter
+        key={0}
+        filterNode={currFilter}
+        toggleFilter={toggleFilter}
+        />)];
+      content =
+      (<View>
+        { searchState.filtersValid ?
+          filterList.concat(currFilter.getLeafNodes().map((filter, ifilter)=>{
+            return (
+              <SearchFilter
+                key={ifilter+1}
+                filterNode={filter}
+                toggleFilter={toggleFilter}
+              />);
+          })) : loadingMessage
+        }
+      </View>);
   }
+  return (<View style={{flex:1}}>
+    <View style={[styles.header, theme.header, {justifyContent: "space-between", paddingHorizontal: 12}]}>
+      <DirectedButton
+        onPress={backFromFilter}
+        text={strings.back}
+        direction="back"
+        language="english"
+        textStyle={[theme.searchResultSummaryText, langStyle]}
+        imageStyle={[styles.menuButton, backImageStyle]}/>
+      <TouchableOpacity onPress={applyFilters} style={{marginLeft: 7, marginRight: 7}}>
+        <Text style={[theme.searchResultSummaryText, langStyle, {marginTop: -1}]}>{strings.apply}</Text>
+      </TouchableOpacity>
+    </View>
+    <ScrollView key={subMenuOpen} contentContainerStyle={styles.menuContent} style={styles.scrollViewPaddingInOrderToScroll}>
+      {content}
+    </ScrollView>
+  </View>);
 }
+SearchFilterPage.propTypes = {
+  subMenuOpen:      PropTypes.string.isRequired,
+  toggleFilter:     PropTypes.func.isRequired,
+  clearAllFilters:  PropTypes.func.isRequired,
+  query:            PropTypes.string,
+  openSubMenu:      PropTypes.func,
+  search:           PropTypes.func,
+  setSearchOptions: PropTypes.func,
+  searchState:      PropTypes.object,
+};
 
 
-class SearchFilter extends React.Component {
-  static propTypes = {
-    theme:        PropTypes.object,
-    themeStr:     PropTypes.string,
-    menuLanguage: PropTypes.string.isRequired,
-    filterNode:   SearchPropTypes.filterNode,
-    openSubMenu:  PropTypes.func,
-    toggleFilter: PropTypes.func.isRequired,
-  };
+const SearchFilter = ({ filterNode, openSubMenu, toggleFilter }) => {
+  const { menuLanguage } = useContext(GlobalStateContext);
+  const clickCheckBox = () => { toggleFilter(filterNode); }
+  const onPress = () => { openSubMenu ? openSubMenu(title) : clickCheckBox() }
+  const { title, heTitle, selected, children, docCount } = filterNode;
+  let isCat = children.length > 0;
 
-  clickCheckBox = () => {
-    this.props.toggleFilter(this.props.filterNode);
-  }
-///^[^_]*$
-  render() {
-    let filter = this.props.filterNode;
-    let isCat = filter.children.length > 0;
-    let count = filter.docCount;
-
-    let catColor = Sefaria.palette.categoryColor(filter.title.replace(" Commentaries", ""));
-    let colorStyle = isCat ? [{"borderColor": catColor}] : [this.props.theme.searchResultSummary, {"borderTopWidth": 1}];
-    let textStyle  = [isCat ? styles.spacedText : null];
-    let enTitle = isCat ? filter.title.toUpperCase() : filter.title;
-    let flexDir = this.props.menuLanguage == "english" ? "row" : "row-reverse";
-    return (
-      <LibraryNavButton
-        theme={this.props.theme}
-        themeStr={this.props.themeStr}
-        menuLanguage={this.props.menuLanguage}
-        onPress={()=>{ this.props.openSubMenu ? this.props.openSubMenu(filter.title) : this.clickCheckBox() }}
-        onPressCheckBox={this.clickCheckBox}
-        checkBoxSelected={this.props.filterNode.selected}
-        enText={enTitle}
-        count={count}
-        heText={filter.heTitle}
-        catColor={isCat ? catColor : null}
-        withArrow={!!this.props.openSubMenu}
-        buttonStyle={{ margin: 2, paddingVertical: 0, paddingHorizontal: 5,}} />
-    );
-  }
+  let catColor = Sefaria.palette.categoryColor(title.replace(" Commentaries", ""));
+  let colorStyle = isCat ? [{"borderColor": catColor}] : [theme.searchResultSummary, {"borderTopWidth": 1}];
+  let textStyle  = [isCat ? styles.spacedText : null];
+  let enTitle = isCat ? title.toUpperCase() : title;
+  let flexDir = menuLanguage == "english" ? "row" : "row-reverse";
+  return (
+    <LibraryNavButton
+      onPress={onPress}
+      onPressCheckBox={clickCheckBox}
+      checkBoxSelected={selected}
+      enText={enTitle}
+      count={docCount}
+      heText={heTitle}
+      catColor={isCat ? catColor : null}
+      withArrow={!!openSubMenu}
+      buttonStyle={{ margin: 2, paddingVertical: 0, paddingHorizontal: 5,}} />
+  );
 }
+SearchFilter.propTypes = {
+  filterNode:   SearchPropTypes.filterNode,
+  openSubMenu:  PropTypes.func,
+  toggleFilter: PropTypes.func.isRequired,
+};
 
 export default SearchFilterPage;
