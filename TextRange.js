@@ -1,6 +1,6 @@
 'use strict';
 import PropTypes from 'prop-types';
-import React, { useContext } from 'react';
+import React, { useContext, useCallback } from 'react';
 import {
   View,
   Text,
@@ -26,8 +26,7 @@ const TextRange = ({
   setRowRefInitY,
 }) => {
   const { theme, textLanguage, biLayout, fontSize, themeStr } = useContext(GlobalStateContext);
-
-  const getDisplayedText = withURL => {
+  const getDisplayedText = useCallback(withURL => {
     const {text, he} = rowData.content;
     const enText = Sefaria.util.removeHtml(typeof text === "string" ? text : "") || "";
     const heText = Sefaria.util.removeHtml(typeof he === "string" ? he : "") || "";
@@ -35,12 +34,13 @@ const TextRange = ({
     const isEng = textLanguage !== "hebrew";
     const fullText = (heText && isHeb ? heText + (enText && isEng ? "\n" : "") : "") + ((enText && isEng) ? enText : "");
     return withURL ? `${fullText}\n\n${Sefaria.refToUrl(segmentRef)}` : fullText;
-  };
+  }, [rowData, textLanguage, segmentRef]);
 
   const copyToClipboard = () => {
     Clipboard.setString(getDisplayedText());
     showToast("Copied to clipboard", 500);
   };
+
   const reportErrorBody = () => (
     encodeURIComponent(
       `${segmentRef}
