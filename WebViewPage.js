@@ -1,6 +1,6 @@
 'use strict';
 import PropTypes from 'prop-types';
-import React, { Component } from 'react';
+import React, { useContext } from 'react';
 import {
   Text,
   TouchableOpacity,
@@ -14,39 +14,29 @@ import {
   CloseButton,
   LoadingView,
 } from './Misc.js';
+import { GlobalStateContext } from './StateManager';
 import styles from './Styles';
 
-class WebViewPage extends React.Component {
-  static propTypes = {
-    theme: PropTypes.object.isRequired,
-    themeStr: PropTypes.string.isRequired,
-    close: PropTypes.func.isRequired,
-    uri:      PropTypes.string.isRequired,
-  }
-  constructor(props) {
-    super(props);
-  }
-
-  renderLoading = () => (
-    <LoadingView theme={this.props.theme} />
-  );
-
-  render() {
-    return (
-      <View style={{flex:1, flexDirection: "column", alignSelf: 'stretch'}}>
-        <CategoryColorLine category={"Other"} />
-        <View style={[styles.header, this.props.theme.header]}>
-          <CloseButton onPress={this.props.close} theme={this.props.theme} themeStr={this.props.themeStr} />
-          <Text>{"sefaria.org"}</Text>
-        </View>
-        <WebView
-          source={{uri: this.props.uri}}
-          renderLoading={this.renderLoading}
-          startInLoadingState={true}
-        />
+const WebViewPage = ({ close, uri }) => {
+  const { theme } = useContext(GlobalStateContext);
+  return (
+    <View style={{flex:1, flexDirection: "column", alignSelf: 'stretch'}}>
+      <CategoryColorLine category={"Other"} />
+      <View style={[styles.header, theme.header]}>
+        <CloseButton onPress={close} />
+        <Text>{"sefaria.org"}</Text>
       </View>
-    );
-  }
+      <WebView
+        source={{ uri }}
+        renderLoading={() => (<LoadingView />)}
+        startInLoadingState={true}
+      />
+    </View>
+  );
 }
+WebViewPage.propTypes = {
+  close: PropTypes.func.isRequired,
+  uri:      PropTypes.string.isRequired,
+};
 
 export default WebViewPage;
