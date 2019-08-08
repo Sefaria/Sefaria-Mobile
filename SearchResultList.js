@@ -2,7 +2,7 @@
 
 import PropTypes from 'prop-types';
 
-import React, { Component } from 'react';
+import React from 'react';
 import {
   Text,
   FlatList,
@@ -15,8 +15,6 @@ import SearchSheetResult from './SearchSheetResult';
 
 class SearchResultList extends React.Component {
   static propTypes = {
-    menuLanguage:   PropTypes.oneOf(["english", "hebrew"]),
-    theme:          PropTypes.object.isRequired,
     openRef:        PropTypes.func.isRequired,
     setLoadTail:    PropTypes.func.isRequired,
     setIsNewSearch: PropTypes.func.isRequired,
@@ -38,8 +36,6 @@ class SearchResultList extends React.Component {
     var refToOpen = "Sheet "+ item.id
       return (
         <SearchSheetResult
-          menuLanguage={this.props.menuLanguage}
-          theme={this.props.theme}
           textType={item.textType}
           title={item.title}
           heTitle={item.heTitle}
@@ -55,8 +51,6 @@ class SearchResultList extends React.Component {
       {
           return (
               <SearchTextResult
-                  menuLanguage={this.props.menuLanguage}
-                  theme={this.props.theme}
                   textType={item.textType}
                   title={item.title}
                   heTitle={item.heTitle}
