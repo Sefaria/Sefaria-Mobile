@@ -1,6 +1,6 @@
 'use strict';
 import PropTypes from 'prop-types';
-import React, { Component } from 'react';
+import React, { useContext } from 'react';
 import {
   StyleSheet,
   Text,
@@ -9,65 +9,51 @@ import {
   Image
 } from 'react-native';
 import HTMLView from 'react-native-htmlview'; //to convert html'afied JSON to something react can render (https://github.com/jsdf/react-native-htmlview)
-
+import { GlobalStateContext } from './StateManager';
 import styles from './Styles.js';
 
-class SearchSheetResult extends React.Component {
-  static propTypes = {
-    theme:    PropTypes.object.isRequired,
-    text:     PropTypes.string,
-    title:    PropTypes.string,
-    heTitle:  PropTypes.string,
-    menuLanguage: PropTypes.oneOf(["english", "hebrew"]),
-    textType: PropTypes.oneOf(["english","hebrew"]),
-    onPress:  PropTypes.func.isRequired
-  };
+const SearchSheetResult = ({ text, title, heTitle, textType, onPress }) => {
+  const { interfaceLanguage, theme } = useContext(GlobalStateContext);
+  const refTitleStyle = interfaceLanguage === "hebrew" ? styles.he : styles.en;
 
-  render() {
-    const refTitleStyle = this.props.interfaceLang === "hebrew" ? styles.he : styles.en;
-
-    return (
-
-
-      <TouchableOpacity style={[styles.searchTextResult, this.props.theme.searchTextResult]}
-                        onPress={this.props.onPress} >
-
-      <View style={[this.props.searchSheetResult, ]}>
-          <View>
-            <Text style={[refTitleStyle, styles.textListCitation, this.props.theme.text]}>{this.props.title.replace(/\s\s+/g, ' ')}</Text>
-          </View>
-
-          {this.props.text ?
-          <HTMLView
-            value= {this.props.textType == "hebrew" ? "<hediv>"+this.props.text.replace(/(\r\n|\n|\r)/gm, "").substring(0, 124)+"...</hediv>" : "<endiv>"+this.props.text.replace(/(\r\n|\n|\r)/gm, "").substring(0, 124)+"...</endiv>"}
+  return (
+    <TouchableOpacity
+      style={[styles.searchTextResult, theme.searchTextResult]}
+      onPress={onPress}
+    >
+      <View style={searchSheetResult}>
+        <View>
+          <Text style={[refTitleStyle, styles.textListCitation, theme.text]}>{title.replace(/\s\s+/g, ' ')}</Text>
+        </View>
+        {text ?
+          (<HTMLView
+            value= {textType == "hebrew" ? "<hediv>"+text.replace(/(\r\n|\n|\r)/gm, "").substring(0, 124)+"...</hediv>" : "<endiv>"+text.replace(/(\r\n|\n|\r)/gm, "").substring(0, 124)+"...</endiv>"}
             stylesheet={styles}
-            textComponentProps={{style: [this.props.textType == "hebrew" ? styles.hebrewText : styles.englishText, this.props.theme.searchResultSummaryText]}}
-          /> : null }
+            textComponentProps={{style: [textType == "hebrew" ? styles.hebrewText : styles.englishText, theme.searchResultSummaryText]}}
+          />) : null
+        }
 
 
-        <View style={{ flexDirection: (this.props.interfaceLang == "hebrew" ? "row-reverse" : "row"), flex:1, marginTop: 10}}>
-
+        <View style={{ flexDirection: (interfaceLanguage == "hebrew" ? "row-reverse" : "row"), flex:1, marginTop: 10}}>
           <Image
               style={styles.userAvatar}
-              source={{uri: this.props.ownerImageUrl}}
+              source={{uri: ownerImageUrl}}
           />
-
           <View style={{flexDirection: "column", flex: 1, justifyContent: "space-between", marginHorizontal: 10}}>
-             <Text style={[styles.enInt, {alignSelf: "flex-start", color:"#666"}]}>{this.props.ownerName}</Text>
-             <Text style={[{color:"#999"}, styles.enInt]}>{this.props.views} Views {this.props.tags.length > 0 ? "· " + this.props.tags.join(", ") : null}</Text>
+             <Text style={[styles.enInt, {alignSelf: "flex-start", color:"#666"}]}>{ownerName}</Text>
+             <Text style={[{color:"#999"}, styles.enInt]}>{views} Views {tags.length > 0 ? "· " + tags.join(", ") : null}</Text>
            </View>
-
-        </View>
-
-      </View>
-
-
-      </TouchableOpacity>
-
-
-
-    );
+         </View>
+       </View>
+    </TouchableOpacity>
+  );
 }
-}
+SearchSheetResult.propTypes = {
+  text:     PropTypes.string,
+  title:    PropTypes.string,
+  heTitle:  PropTypes.string,
+  textType: PropTypes.oneOf(["english","hebrew"]),
+  onPress:  PropTypes.func.isRequired
+};
 
 export default SearchSheetResult;
