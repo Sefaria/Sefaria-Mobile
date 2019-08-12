@@ -21,7 +21,7 @@ import strings from './LocalizedStrings';
 
 class AutocompleteList extends React.Component {
   static propTypes = {
-    interfaceLang:   PropTypes.oneOf(["english", "hebrew"]).isRequired,
+    interfaceLanguage:   PropTypes.oneOf(["english", "hebrew"]).isRequired,
     theme:    PropTypes.object.isRequired,
     themeStr: PropTypes.string.isRequired,
     query:    PropTypes.string,
@@ -184,7 +184,7 @@ class AutocompleteList extends React.Component {
   };
 
   render() {
-    const isheb = this.props.interfaceLang === "hebrew";
+    const isheb = this.props.interfaceLanguage === "hebrew";
     const langStyle = !isheb ? styles.enInt : styles.heInt;
     return (
 

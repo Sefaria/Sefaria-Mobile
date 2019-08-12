@@ -19,7 +19,7 @@ import strings from './LocalizedStrings';
 
 class AutocompletePage extends React.Component {
   static propTypes = {
-    interfaceLang:   PropTypes.oneOf(["english", "hebrew"]).isRequired,
+    interfaceLanguage:   PropTypes.oneOf(["english", "hebrew"]).isRequired,
     theme:           PropTypes.object.isRequired,
     themeStr:        PropTypes.string.isRequired,
     onBack:          PropTypes.func.isRequired,
@@ -79,7 +79,7 @@ class AutocompletePage extends React.Component {
         />
         <AutocompleteList
           openUri={this.props.openUri}
-          interfaceLang={this.props.interfaceLang}
+          interfaceLanguage={this.props.interfaceLanguage}
           ref={this._getAutocompleteRef}
           theme={this.props.theme}
           themeStr={this.props.themeStr}
