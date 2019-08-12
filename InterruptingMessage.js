@@ -86,7 +86,7 @@ class InterruptingMessage extends React.Component {
 
   checkForMessage = () => {
     if (this.data) { return; }
-    const isHeb = this.props.interfaceLang == "hebrew";
+    const isHeb = this.props.interfaceLanguage == "hebrew";
     const URL = this.props.debugInterruptingMessage ? (isHeb ? HE_DEBUG_URL : EN_DEBUG_URL) : (isHeb ? HE_URL : EN_URL);
     const showModal = data => {
       this.setState({data: data});
@@ -156,8 +156,8 @@ class InterruptingMessage extends React.Component {
   render() {
     if (!this.state.data) { return null; }
     const data = this.state.data;
-    const titleStyle = this.props.interfaceLang == "hebrew" ? styles.interruptingMessageTitleHe : styles.interruptingMessageTitleEn;
-    const textStyle = this.props.interfaceLang == "hebrew" ? bstyles.intHe : bstyles.en;
+    const titleStyle = this.props.interfaceLanguage == "hebrew" ? styles.interruptingMessageTitleHe : styles.interruptingMessageTitleEn;
+    const textStyle = this.props.interfaceLanguage == "hebrew" ? bstyles.intHe : bstyles.en;
     const textContent = data.text.map((text, i)=>(
       <Text style={[styles.interruptingMessageText, textStyle]} key={i}>{text}</Text>
     ));
