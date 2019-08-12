@@ -455,18 +455,13 @@ class TextColumn extends React.Component {
     return (
       <TextRange
         showToast={this.props.showToast}
-        theme={this.props.theme}
-        themeStr={this.props.themeStr}
-        fontSize={this.props.fontSize}
         rowData={item.data}
         segmentRef={item.ref}
-        textLanguage={this.props.textLanguage}
         showSegmentNumbers={Sefaria.showSegmentNumbers(this.props.textTitle)}
         textSegmentPressed={this.textSegmentPressed}
         setRowRef={this.setSegmentRowRef}
         setRowRefInitY={this.setRowRefInitY}
         openUri={this.props.openUri}
-        biLayout={this.props.biLayout}
       />
     );
   };
@@ -504,7 +499,7 @@ class TextColumn extends React.Component {
   };
 
   renderFooter = () => {
-    return this.props.next ? <LoadingView theme={this.props.theme} category={Sefaria.categoryForTitle(this.props.textTitle)}/> : null;
+    return this.props.next ? <LoadingView category={Sefaria.categoryForTitle(this.props.textTitle)}/> : null;
   };
 
   getItemLayout = (data, index) => {

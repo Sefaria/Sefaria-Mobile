@@ -23,7 +23,7 @@ import {
     MenuButton,
     LoadingView
 } from './Misc.js';
-
+import { GlobalStateContext } from './StateManager';
 import styles from './Styles.js';
 import strings from "./LocalizedStrings";
 import {CategoryAttribution, CloseButton, DirectedButton, HebrewInEnglishText} from "./Misc";
@@ -46,16 +46,17 @@ class SheetMeta extends React.Component {
 
 
     render() {
-        const langStyle = this.props.interfaceLang === "hebrew" ? styles.heInt : styles.enInt;
+        const { interfaceLanguage, menuLanguage } = React.useContext(GlobalStateContext);
+        const langStyle = interfaceLanguage === "hebrew" ? styles.heInt : styles.enInt;
         var showHebrew = false;
         const tags = this.props.sheet.tags || [];
         var sheetTags = tags.map(function(tag, i) {
             return (
 
-                    <TouchableOpacity  style={[styles.textBlockLink,this.props.theme.textBlockLink]}  onPress={()=> this.props.openSheetTagMenu(tag)} key={i}>
+                    <TouchableOpacity  style={[styles.textBlockLink,theme.textBlockLink]}  onPress={()=> this.props.openSheetTagMenu(tag)} key={i}>
                         { showHebrew ?
-                          <Text style={[styles.hebrewText, styles.centerText, this.props.theme.text]}>{tag}</Text> :
-                          <Text style={[styles.englishText, styles.centerText, this.props.theme.text]}>{tag}</Text> }
+                          <Text style={[styles.hebrewText, styles.centerText, theme.text]}>{tag}</Text> :
+                          <Text style={[styles.englishText, styles.centerText, theme.text]}>{tag}</Text> }
                     </TouchableOpacity>
             )
 
@@ -63,27 +64,27 @@ class SheetMeta extends React.Component {
 
 
         return (
-            <View style={[styles.menu, this.props.theme.menu]}>
+            <View style={[styles.menu, theme.menu]}>
                 <CategoryColorLine category="Sheets"/>
-                <View style={[styles.header, this.props.theme.header]}>
-                    <CloseButton onPress={this.props.close} theme={this.props.theme} themeStr={this.props.themeStr}/>
+                <View style={[styles.header, theme.header]}>
+                    <CloseButton onPress={this.props.close} />
                     <Text
-                        style={[langStyle, styles.textTocHeaderTitle, styles.textCenter, this.props.theme.text]}>{strings.tableOfContents}</Text>
-                    <LanguageToggleButton theme={this.props.theme} toggleLanguage={this.props.toggleLanguage} interfaceLang={this.props.interfaceLang} language={this.props.contentLang}/>
+                        style={[langStyle, styles.textTocHeaderTitle, styles.textCenter, theme.text]}>{strings.tableOfContents}</Text>
+                      <LanguageToggleButton toggleLanguage={this.props.toggleLanguage} language={menuLanguage}/>
                 </View>
 
                 <ScrollView style={styles.menuContent} contentContainerStyle={{paddingTop: 20, paddingBottom: 40}}>
-                    <View style={[styles.textTocTopBox, this.props.theme.bordered]}>
+                    <View style={[styles.textTocTopBox, theme.bordered]}>
                         <View>
                             <Text
-                                style={[styles.en, styles.textTocTitle, this.props.theme.text]}><HebrewInEnglishText text={this.props.sheet.title} stylesHe={[styles.heInEn]} stylesEn={[]}/></Text>
+                                style={[styles.en, styles.textTocTitle, theme.text]}><HebrewInEnglishText text={this.props.sheet.title} stylesHe={[styles.heInEn]} stylesEn={[]}/></Text>
                         </View>
                         <View style={styles.textTocCategoryBox}>
-                            {this.props.contentLang == "hebrew" ?
+                            {menuLanguage == "hebrew" ?
                                 <Text
-                                    style={[styles.he, styles.textTocCategory, this.props.theme.secondaryText]}>דף</Text> :
+                                    style={[styles.he, styles.textTocCategory, theme.secondaryText]}>דף</Text> :
                                 <Text
-                                    style={[styles.en, styles.textTocCategory, this.props.theme.secondaryText]}>Sheet</Text>}
+                                    style={[styles.en, styles.textTocCategory, theme.secondaryText]}>Sheet</Text>}
                         </View>
 
                         <View style={{flexDirection: "row", flex: 1}}>
@@ -126,7 +127,7 @@ class SheetMeta extends React.Component {
 
                     </View>
 
-                    <TwoBox language={this.props.menuLanguage}>
+                    <TwoBox language={menuLanguage}>
                       { sheetTags }
                     </TwoBox>
                 </ScrollView>

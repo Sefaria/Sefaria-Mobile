@@ -12,7 +12,7 @@ import ActionSheet from 'react-native-action-sheet';
 import {
   LoadingView,
 } from './Misc.js';
-
+import { GlobalStateContext } from './StateManager';
 import HTMLView from 'react-native-htmlview';
 import strings from './LocalizedStrings';
 import styles from './Styles.js';
@@ -22,12 +22,6 @@ const NO_CONTENT_LINK_CONTENT = {en: strings.noContent, he: "", sectionRef: ""}
 
 class TextList extends React.Component {
   static propTypes = {
-    theme:           PropTypes.object.isRequired,
-    themeStr:        PropTypes.string.isRequired,
-    fontSize:        PropTypes.number.isRequired,
-    textLanguage:    PropTypes.oneOf(["english", "hebrew", "bilingual"]),
-    menuLanguage:    PropTypes.oneOf(["english", "hebrew"]).isRequired,
-    interfaceLang:   PropTypes.oneOf(["english", "hebrew"]).isRequired,
     recentFilters:   PropTypes.array.isRequired,
     filterIndex:     PropTypes.number,
     listContents:    PropTypes.array,
@@ -97,23 +91,19 @@ class TextList extends React.Component {
       visibleSeg.loaded = !loading;
       Sefaria.history.saveHistoryItem(this.getHistoryObject.bind(this, visibleSeg), true, this.onHistorySave);
     }
-    return (<ListItem
-              theme={this.props.theme}
-              themeStr={this.props.themeStr}
-              fontSize={this.props.fontSize}
-              openRef={this.props.openRef}
-              refStr={item.ref}
-              heRefStr={item.heRef}
-              category={item.category}
-              versionTitle={item.versionTitle}
-              versionLanguage={item.versionLanguage}
-              linkContentObj={linkContentObj}
-              menuLanguage={this.props.menuLanguage}
-              textLanguage={this.props.textLanguage}
-              interfaceLang={this.props.interfaceLang}
-              loading={loading}
-              displayRef={item.displayRef}
-    />);
+    return (
+      <ListItem
+        openRef={this.props.openRef}
+        refStr={item.ref}
+        heRefStr={item.heRef}
+        category={item.category}
+        versionTitle={item.versionTitle}
+        versionLanguage={item.versionLanguage}
+        linkContentObj={linkContentObj}
+        loading={loading}
+        displayRef={item.displayRef}
+      />
+    );
   };
 
   onViewableItemsChanged = ({viewableItems, changed}) => {
@@ -144,6 +134,7 @@ class TextList extends React.Component {
   };
 
   getHistoryObject = visibleSeg => {
+    const { textLanguage } = React.useContext(GlobalStateContext);
     const { item, loaded } = visibleSeg;
     if (!loaded) { return {}; }
     if (this._savedHistorySegments.has(item.ref)) { return {}; }
@@ -153,7 +144,7 @@ class TextList extends React.Component {
       ref: item.ref,
       he_ref: item.heRef,
       versions: { [item.versionLanguage]: item.versionTitle },
-      language: this.props.textLanguage,
+      language: textLanguage,
       secondary: true,
     };
   };
@@ -164,17 +155,19 @@ class TextList extends React.Component {
   };
 
   render() {
+    const { themeStr, fontSize } = React.useContext(GlobalStateContext);
     return (
       <FlatList
         key={this.state.updateScrollPosKey}
         style={styles.scrollViewPaddingInOrderToScroll}
         data={this.state.dataSource}
+        extraData={`${fontSize}|${themeStr}`}
         renderItem={this.renderItem}
         contentContainerStyle={{justifyContent: "center"}}
         onViewableItemsChanged={this.onViewableItemsChanged}
         ListEmptyComponent={
           <View style={styles.noLinks}>
-            <EmptyListMessage theme={this.props.theme} />
+            <EmptyListMessage />
           </View>
         }
       />
@@ -182,21 +175,21 @@ class TextList extends React.Component {
   }
 }
 
-class EmptyListMessage extends React.Component {
-  static propTypes = {
-    theme:         PropTypes.object.isRequired,
-    interfaceLang: PropTypes.string
-  };
+const EmptyListMessage = () => (
+  <GlobalStateContext.Consumer>
+    {({ theme }) => (
+      <Text
+        style={[styles.emptyLinksMessage, theme.secondaryText]}
+      >
+        {strings.noConnectionsMessage}
+      </Text>
+    )}
+  </GlobalStateContext.Consumer>
+);
 
-  render() {
-    return (<Text style={[styles.emptyLinksMessage, this.props.theme.secondaryText]}>{strings.noConnectionsMessage}</Text>);
-  }
-}
 
 class ListItem extends React.PureComponent {
   static propTypes = {
-    theme:             PropTypes.object.isRequired,
-    fontSize:          PropTypes.number.isRequired,
     openRef:           PropTypes.func.isRequired,
     refStr:            PropTypes.string,
     heRefStr:          PropTypes.string,
@@ -204,34 +197,19 @@ class ListItem extends React.PureComponent {
     category:          PropTypes.string,
     versionLanguage:   PropTypes.oneOf(["en", "he"]),
     linkContentObj:    PropTypes.object, /* of the form {en,he} */
-    textLanguage:      PropTypes.string,
-    menuLanguage:      PropTypes.string,
-    interfaceLang:     PropTypes.string,
     loading:           PropTypes.bool,
     displayRef:        PropTypes.bool
   };
-  constructor(props) {
-    super(props);
-    this.state = {
-      resetKeyEn: 0,
-      resetKeyHe: 1,
-    };
-  }
-  componentWillReceiveProps(nextProps) {
-    if (this.props.themeStr !== nextProps.themeStr ||
-        this.props.fontSize !== nextProps.fontSize) {
-      this.setState({ resetKeyEn: Math.random(), resetKeyHe: Math.random() }); //hacky fix to reset htmlview when theme colors change
-    }
-  }
   openRef = () => {
     // versionLanguage should only be defined when TextList is in VersionsBox. Otherwise you should open default version for that link
     const versions = this.props.versionLanguage ? {[this.props.versionLanguage]: this.props.versionTitle} : null;
     this.props.openRef(this.props.refStr, versions);
   }
   openActionSheet = () => {
+    const { interfaceLanguage } = React.useContext(GlobalStateContext);
     ActionSheet.showActionSheetWithOptions({
       options: [`${strings.open} ${this.props.versionLanguage ? strings.version :
-        Sefaria.getTitle(this.props.refStr, this.props.heRefStr, this.props.category === 'Commentary', this.props.interfaceLang === "hebrew")}`,strings.cancel],
+        Sefaria.getTitle(this.props.refStr, this.props.heRefStr, this.props.category === 'Commentary', interfaceLanguage === "hebrew")}`,strings.cancel],
       cancelButtonIndex: 1,
     },
     (buttonIndex) => {
@@ -239,37 +217,36 @@ class ListItem extends React.PureComponent {
     });
   }
   render() {
+    const { theme, fontSize, menuLanguage, textLanguage } = React.useContext(GlobalStateContext);
     var lco = this.props.linkContentObj;
-    var lang = Sefaria.util.getTextLanguageWithContent(this.props.textLanguage,lco.en,lco.he);
+    var lang = Sefaria.util.getTextLanguageWithContent(textLanguage,lco.en,lco.he);
     var textViews = [];
     const he = Sefaria.util.getDisplayableHTML(lco.he, "hebrew");
     const en = Sefaria.util.getDisplayableHTML(lco.en, "english");
     const lineHeightMultiplierHe = Platform.OS === 'android' ? 1.3 : 1.2;
     const smallEnSheet = {
       small: {
-        fontSize: this.props.fontSize * 0.8 * 0.8
+        fontSize: fontSize * 0.8 * 0.8
       }
     };
     const smallHeSheet = {
       small: {
-        fontSize: this.props.fontSize * 0.8
+        fontSize: fontSize * 0.8
       }
     };
     var hebrewElem =  <HTMLView
-                        key={this.state.resetKeyHe}
                         stylesheet={{...styles, ...smallHeSheet}}
                         value={he}
                         textComponentProps={{
-                          style: [styles.hebrewText, styles.linkContentText, this.props.theme.text, {fontSize: this.props.fontSize, lineHeight: this.props.fontSize * lineHeightMultiplierHe}],
+                          style: [styles.hebrewText, styles.linkContentText, theme.text, {fontSize, lineHeight: fontSize * lineHeightMultiplierHe}],
                           key: this.props.refStr+"-he"
                         }}
                       />;
     var englishElem = <HTMLView
-                        key={this.state.resetKeyEn}
                         stylesheet={{...styles, ...smallEnSheet}}
                         value={en}
                         textComponentProps={{
-                          style: [styles.englishText, styles.linkContentText, this.props.theme.text, {fontSize: 0.8 * this.props.fontSize, lineHeight: this.props.fontSize * 1.04}],
+                          style: [styles.englishText, styles.linkContentText, theme.text, {fontSize: 0.8 * fontSize, lineHeight: fontSize * 1.04}],
                           key: this.props.refStr+"-en"
                         }}
                       />;
@@ -281,11 +258,11 @@ class ListItem extends React.PureComponent {
       textViews = [englishElem];
     }
 
-    const refTitleStyle = this.props.menuLanguage === 'hebrew' ? styles.he : styles.en;
-    const refStr = this.props.menuLanguage === 'hebrew' ? this.props.heRefStr : this.props.refStr;
+    const refTitleStyle = menuLanguage === 'hebrew' ? styles.he : styles.en;
+    const refStr = menuLanguage === 'hebrew' ? this.props.heRefStr : this.props.refStr;
     return (
-      <TouchableOpacity style={[styles.textListItem, this.props.theme.searchTextResult]} onPress={this.openActionSheet} delayPressIn={200}>
-        {this.props.displayRef ? null : <Text style={[refTitleStyle, styles.textListCitation, this.props.theme.textListCitation]}>{refStr}</Text>}
+      <TouchableOpacity style={[styles.textListItem, theme.searchTextResult]} onPress={this.openActionSheet} delayPressIn={200}>
+        {this.props.displayRef ? null : <Text style={[refTitleStyle, styles.textListCitation, theme.textListCitation]}>{refStr}</Text>}
         {textViews}
       </TouchableOpacity>
     );

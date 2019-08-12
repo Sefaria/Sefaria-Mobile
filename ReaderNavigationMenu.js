@@ -166,7 +166,6 @@ ReaderNavigationMenu.propTypes = {
   openAutocomplete: PropTypes.func.isRequired,
   openUri:        PropTypes.func.isRequired,
   searchType:     PropTypes.oneOf(['text', 'sheet']).isRequired,
-  debugInterruptingMessage: PropTypes.bool.isRequired,
   logout:         PropTypes.func.isRequired,
 };
 

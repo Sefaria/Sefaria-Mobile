@@ -5,18 +5,14 @@ import {
   View,
   Text
 } from 'react-native';
-
+import { GlobalStateContext } from './StateManager';
 import TextSegment from './TextSegment';
 import styles from './Styles';
 
 
 class TextRangeContinuous extends React.PureComponent {
   static propTypes = {
-    fontSize:           PropTypes.number.isRequired,
-    theme:              PropTypes.object.isRequired,
-    themeStr:           PropTypes.string.isRequired,
     rowData:            PropTypes.object.isRequired,
-    textLanguage:       PropTypes.oneOf(["hebrew","english","bilingual"]),
     sectionRef:         PropTypes.string.isRequired,
     setRowRef:          PropTypes.func.isRequired,
     setRowRefInitY:     PropTypes.func.isRequired,
@@ -29,16 +25,17 @@ class TextRangeContinuous extends React.PureComponent {
   }
 
   renderSegmentForContinuousRow = (currSegData) => {
+      const { textLanguage, theme, themeStr, fontSize } = React.useContext(GlobalStateContext);
       const segmentText = [];
       currSegData.text = currSegData.content.text || "";
       currSegData.he = currSegData.content.he || "";
-      const textLanguage = Sefaria.util.getTextLanguageWithContent(this.props.textLanguage, currSegData.text, currSegData.he);
+      textLanguage = Sefaria.util.getTextLanguageWithContent(textLanguage, currSegData.text, currSegData.he);
       const segmentRef = currSegData.ref;
       const refSection = `${this.props.rowData.sectionIndex}:${currSegData.segmentNumber}`
       var style = [styles.continuousVerseNumber,
-                   this.props.textLanguage == "hebrew" ? styles.continuousHebrewVerseNumber : null,
-                   this.props.theme.verseNumber,
-                   currSegData.highlight ? this.props.theme.segmentHighlight : null];
+                   textLanguage == "hebrew" ? styles.continuousHebrewVerseNumber : null,
+                   theme.verseNumber,
+                   currSegData.highlight ? theme.segmentHighlight : null];
       const onSegmentLayout = (event) => {
        let {x, y, width, height} = event.nativeEvent.layout;
        this.props.setRowRefInitY(segmentRef, y);
@@ -49,7 +46,7 @@ class TextRangeContinuous extends React.PureComponent {
          onLayout={onSegmentLayout}
          key={segmentRef+"|segment-number"} >
           <Text style={style}>
-            {this.props.showSegmentNumbers ? (this.props.textLanguage == "hebrew" ?
+            {this.props.showSegmentNumbers ? (textLanguage == "hebrew" ?
               Sefaria.hebrew.encodeHebrewNumeral(currSegData.segmentNumber) :
               currSegData.segmentNumber) : ""}
           </Text>
@@ -59,23 +56,22 @@ class TextRangeContinuous extends React.PureComponent {
       if (textLanguage == "hebrew" || textLanguage == "bilingual") {
         segmentText.push(
           <TextSegment
-            theme={this.props.theme}
-            themeStr={this.props.themeStr}
+            fontSize={fontSize}
+            themeStr={themeStr}
             rowRef={segmentRef}
             segmentKey={refSection}
             key={segmentRef+"-he"}
             data={currSegData.he}
             textType="hebrew"
             textSegmentPressed={ this.props.textSegmentPressed }
-            fontSize={this.props.fontSize}
           />
         );
       }
 
       if (textLanguage == "english" || textLanguage == "bilingual") {
         segmentText.push(<TextSegment
-          theme={this.props.theme}
-          themeStr={this.props.themeStr}
+          fontSize={fontSize}
+          themeStr={themeStr}
           segmentIndexRef={this.props.segmentIndexRef}
           rowRef={segmentRef}
           segmentKey={refSection}
@@ -83,7 +79,7 @@ class TextRangeContinuous extends React.PureComponent {
           data={currSegData.text}
           textType="english"
           textSegmentPressed={ this.props.textSegmentPressed }
-          fontSize={this.props.fontSize}/>);
+        />);
       }
 
       segmentText.push(<Text key={segmentRef+"-emptytext"}> </Text>);
@@ -91,11 +87,12 @@ class TextRangeContinuous extends React.PureComponent {
   };
 
   render() {
+    const { textLanguage } = React.useContext(GlobalStateContext);
     const segments = [];
     for (var i = 0; i < this.props.rowData.segmentData.length; i++) {
       segments.push(this.renderSegmentForContinuousRow(this.props.rowData.segmentData[i]));
     }
-    var textStyle = this.props.textLanguage == "hebrew" ? styles.hebrewText : styles.englishText;
+    var textStyle = textLanguage == "hebrew" ? styles.hebrewText : styles.englishText;
     return (<View style={[styles.verseContainer, styles.continuousRowHolder]} key={this.props.sectionRef}>
               <Text style={[textStyle, styles.continuousSectionRow]}>{segments}</Text>
            </View>);

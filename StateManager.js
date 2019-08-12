@@ -1,16 +1,18 @@
-import { combineReducers, createStore } from 'redux';
+import React from 'react';
 import AsyncStorage from '@react-native-community/async-storage';
 import iPad from './isIPad';
 import themeWhite from './ThemeWhite';
 import themeBlack from './ThemeBlack';
 import strings from './LocalizedStrings';
 
-const REDUX_ACTIONS = {
+const STATE_ACTIONS = {
   setTheme: "SET_THEME",
   setDefaultTextLanguage: "SET_DEFAULT_TEXT_LANGUAGE",
+  setInterfaceLanguage: "SET_INTERFACE_LANGUAGE",
+  setEmailFrequency: "SET_EMAIL_FREQUENCY",
+  setPreferredCustom: "SET_PREFERRED_CUSTOM",
   initTextLanguageByTitle: "INIT_TEXT_LANGUAGE_BY_TITLE",
   setTextLanguageByTitle: "SET_TEXT_LANGUAGE_BY_TITLE",
-  setMenuLanguage: "SET_MENU_LANGUAGE",
   setFontSize: "SET_FONT_SIZE",
   setOverwriteVersions: "SET_OVERWRITE_VERSIONS",
   setAliyot: "SET_ALIYOT",
@@ -21,70 +23,88 @@ const REDUX_ACTIONS = {
 
 const ACTION_CREATORS = {
   setTheme: (themeStr, fromAsync) => ({
-    type: REDUX_ACTIONS.setTheme,
+    type: STATE_ACTIONS.setTheme,
     themeStr,
     fromAsync,
   }),
   setDefaultTextLanguage: (language, fromAsync) => ({
-    type: REDUX_ACTIONS.setDefaultTextLanguage,
+    type: STATE_ACTIONS.setDefaultTextLanguage,
     language,
     fromAsync,
   }),
   initTextLanguageByTitle: (textLanguageByTitle) => ({
-    type: REDUX_ACTIONS.initTextLanguageByTitle,
+    type: STATE_ACTIONS.initTextLanguageByTitle,
     textLanguageByTitle,
   }),
   setTextLanguageByTitle: (title, language) => ({
-    type: REDUX_ACTIONS.setTextLanguageByTitle,
+    type: STATE_ACTIONS.setTextLanguageByTitle,
     title,
     language,
   }),
-  setMenuLanguage: (language, fromAsync) => ({
-    type: REDUX_ACTIONS.setMenuLanguage,
+  setInterfaceLanguage: (language, fromAsync) => ({
+    type: STATE_ACTIONS.setInterfaceLanguage,
     language,
     fromAsync,
   }),
+  setEmailFrequency: (freq, fromAsync) => ({
+    type: STATE_ACTIONS.setEmailFrequency,
+    freq,
+    fromAsync,
+  }),
+  setPreferredCustom: (custom, fromAsync) => ({
+    type: STATE_ACTIONS.setPreferredCustom,
+    custom,
+    fromAsync,
+  }),
   setFontSize: (fontSize, fromAsync) => ({
-    type: REDUX_ACTIONS.setFontSize,
+    type: STATE_ACTIONS.setFontSize,
     fontSize,
     fromAsync,
   }),
   setOverwriteVersions: overwrite => ({
-    type: REDUX_ACTIONS.setOverwriteVersions,
+    type: STATE_ACTIONS.setOverwriteVersions,
     overwrite,
   }),
   setAliyot: show => ({
-    type: REDUX_ACTIONS.setAliyot,
+    type: STATE_ACTIONS.setAliyot,
     show,
   }),
   toggleDebugInterruptingMessage: (debug, fromAsync) => ({
-    type: REDUX_ACTIONS.toggleDebugInterruptingMessage,
+    type: STATE_ACTIONS.toggleDebugInterruptingMessage,
     debug,
     fromAsync,
   }),
   setBiLayout: (layout, fromAsync) => ({
-    type: REDUX_ACTIONS.setBiLayout,
+    type: STATE_ACTIONS.setBiLayout,
     layout,
     fromAsync,
   }),
   setIsLoggedIn: isLoggedIn => ({
-    type: REDUX_ACTIONS.setIsLoggedIn,
+    type: STATE_ACTIONS.setIsLoggedIn,
     isLoggedIn,
   }),
 }
 
 const ASYNC_STORAGE_DEFAULTS = {
   defaultTextLanguage: {
-    default: strings.getInterfaceLanguage().startsWith("he") ? "hebrew" : "bilingual",
+    default: strings.getInterfaceLanguage().match(/^(?:he|iw)/) ? "hebrew" : "bilingual",
     action: ACTION_CREATORS.setDefaultTextLanguage,
   },
   textLangaugeByTitle: { /* misspelled on purpose because this is the way the field is called in AsyncStorage */
     default: {},
     action: ACTION_CREATORS.initTextLanguageByTitle,
   },
-  menuLanguage: {
-    default: strings.getInterfaceLanguage().startsWith("he") ? "hebrew" : "english",
-    action: ACTION_CREATORS.setMenuLanguage,
+  interfaceLanguage: {
+    default: strings.getInterfaceLanguage().match(/^(?:he|iw)/) ? "hebrew" : "english",
+    action: ACTION_CREATORS.setInterfaceLanguage,
+  },
+  emailFrequency: {
+    default: 'daily',
+    action: ACTION_CREATORS.setEmailFrequency,
+  },
+  preferredCustom: {
+    default: 'sephardi',
+    action: ACTION_CREATORS.setPreferredCustom,
   },
   fontSize: {
     default: iPad ? 25 : 20,
@@ -116,7 +136,9 @@ const DEFAULT_STATE = {
   theme: themeWhite,
   themeStr: ASYNC_STORAGE_DEFAULTS.color.default,
   textLanguage: ASYNC_STORAGE_DEFAULTS.defaultTextLanguage.default,
-  menuLanguage: ASYNC_STORAGE_DEFAULTS.menuLanguage.default,
+  interfaceLanguage: ASYNC_STORAGE_DEFAULTS.interfaceLanguage.default,
+  emailFrequency: ASYNC_STORAGE_DEFAULTS.emailFrequency.default,
+  preferredCustom: ASYNC_STORAGE_DEFAULTS.preferredCustom.default,
   fontSize: ASYNC_STORAGE_DEFAULTS.fontSize.default,
   overwriteVersions: true,
   showAliyot: ASYNC_STORAGE_DEFAULTS.showAliyot.default,
@@ -129,9 +151,9 @@ const saveFieldToAsync = function (field, value) {
   AsyncStorage.setItem(field, JSON.stringify(value));
 };
 
-const reducer = function (state = DEFAULT_STATE, action) {
+const reducer = function (state, action) {
   switch (action.type) {
-    case REDUX_ACTIONS.setTheme:
+    case STATE_ACTIONS.setTheme:
       const theme = action.themeStr === "white" ? themeWhite : themeBlack;
       //no need to save value in async if that's where it is coming from
       if (!action.fromAsync) { saveFieldToAsync('color', action.themeStr); }
@@ -140,18 +162,18 @@ const reducer = function (state = DEFAULT_STATE, action) {
         theme,
         themeStr: action.themeStr,
       };
-    case REDUX_ACTIONS.setDefaultTextLanguage:
+    case STATE_ACTIONS.setDefaultTextLanguage:
       if (!action.fromAsync) { saveFieldToAsync('defaultTextLanguage', action.language); }
       return {
         ...state,
         defaultTextLanguage: action.language,
       };
-    case REDUX_ACTIONS.initTextLanguageByTitle:
+    case STATE_ACTIONS.initTextLanguageByTitle:
       return {
         ...state,
         textLanguageByTitle: action.textLanguageByTitle,
       }
-    case REDUX_ACTIONS.setTextLanguageByTitle:
+    case STATE_ACTIONS.setTextLanguageByTitle:
       const newState = {
         ...state,
         textLanguageByTitle: {
@@ -162,30 +184,42 @@ const reducer = function (state = DEFAULT_STATE, action) {
       };
       saveFieldToAsync('textLangaugeByTitle', newState.textLanguageByTitle);
       return newState;
-    case REDUX_ACTIONS.setMenuLanguage:
-      if (!action.fromAsync) { saveFieldToAsync('menuLanguage', action.language); }
+    case STATE_ACTIONS.setInterfaceLanguage:
+      if (!action.fromAsync) { saveFieldToAsync('interfaceLanguage', action.language); }
       return {
         ...state,
-        menuLanguage: action.language,
+        interfaceLanguage: action.language,
       }
-    case REDUX_ACTIONS.setFontSize:
+    case STATE_ACTIONS.setEmailFrequency:
+      if (!action.fromAsync) { saveFieldToAsync('emailFrequency', action.freq); }
+      return {
+        ...state,
+        emailFrequency: action.freq,
+      }
+    case STATE_ACTIONS.setPreferredCustom:
+      if (!action.fromAsync) { saveFieldToAsync('preferredCustom', action.custom); }
+      return {
+        ...state,
+        preferredCustom: action.custom,
+      }
+    case STATE_ACTIONS.setFontSize:
       if (!action.fromAsync) { saveFieldToAsync('fontSize', action.fontSize); }
       return {
         ...state,
         fontSize: action.fontSize,
       }
-    case REDUX_ACTIONS.setOverwriteVersions:
+    case STATE_ACTIONS.setOverwriteVersions:
       return {
         ...state,
         overwriteVersions: action.overwrite,
       }
-    case REDUX_ACTIONS.setAliyot:
+    case STATE_ACTIONS.setAliyot:
       if (!action.fromAsync) { saveFieldToAsync('showAliyot', action.show); }
       return {
         ...state,
         showAliyot: action.show,
       }
-    case REDUX_ACTIONS.toggleDebugInterruptingMessage:
+    case STATE_ACTIONS.toggleDebugInterruptingMessage:
       // toggle if you didn't pass in debug, otherwise you're initializing the value
       const newDebug = action.debug === undefined ? (!state.debugInterruptingMessage) : action.debug;
       if (!action.fromAsync) { saveFieldToAsync('debugInterruptingMessage', newDebug); }
@@ -193,13 +227,13 @@ const reducer = function (state = DEFAULT_STATE, action) {
         ...state,
         debugInterruptingMessage: newDebug,
       }
-    case REDUX_ACTIONS.setBiLayout:
+    case STATE_ACTIONS.setBiLayout:
       if (!action.fromAsync) { saveFieldToAsync('biLayout', action.layout); }
       return {
         ...state,
         biLayout: action.layout,
       }
-    case REDUX_ACTIONS.setIsLoggedIn:
+    case STATE_ACTIONS.setIsLoggedIn:
       // action can be passed either object or bool
       const isLoggedIn = !!action.isLoggedIn;
       console.log("redux isLoggedIn", isLoggedIn);
@@ -212,7 +246,18 @@ const reducer = function (state = DEFAULT_STATE, action) {
   }
 };
 
-let store = createStore(reducer);
+const createSetters = dispatch => ({
+//  setTheme: themeStr => { dispatch(ACTION_CREATORS.setTheme(themeStr)); },
+//  setMenuLanguage: language => { dispatch(ACTION_CREATORS.setMenuLanguage(language)); },
+//  setTextLanguageByTitle: (title, language) => { dispatch(ACTION_CREATORS.setTextLanguageByTitle(title, language)); },
+//  setFontSize: fontSize => { dispatch(ACTION_CREATORS.setFontSize(fontSize)); },
+//  setDefaultTextLanguage: language => { dispatch(ACTION_CREATORS.setDefaultTextLanguage(language)); },
+//  setOverwriteVersions: overwrite => { dispatch(ACTION_CREATORS.setOverwriteVersions(overwrite)); },
+//  setAliyot: show => { dispatch(ACTION_CREATORS.setAliyot(show)); },
+//  toggleDebugInterruptingMessage: () => { dispatch(ACTION_CREATORS.toggleDebugInterruptingMessage()); },
+//  setBiLayout: layout => { dispatch(ACTION_CREATORS.setBiLayout(layout)); },
+  setIsLoggedIn: isLoggedIn => { dispatch(ACTION_CREATORS.setIsLoggedIn(isLoggedIn)); },
+});
 
 const initAsyncStorage = () => {
   // Loads data from each field in `_data` stored in Async storage into local memory for sync access.
@@ -236,4 +281,14 @@ const initAsyncStorage = () => {
   return Promise.all(promises);
 };
 
-export { ACTION_CREATORS, store, initAsyncStorage };
+const GlobalStateContext = React.createContext(null);
+const DispatchContext = React.createContext(null);
+
+export {
+  DEFAULT_STATE,
+  STATE_ACTIONS,
+  reducer,
+  initAsyncStorage,
+  GlobalStateContext,
+  DispatchContext,
+};

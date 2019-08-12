@@ -37,8 +37,8 @@ class SwipeableCategoryList extends React.Component {
     themeStr:           PropTypes.string.isRequired,
     toggleLanguage:     PropTypes.func.isRequired,
     openRef:            PropTypes.func.isRequired,
-    language:           PropTypes.oneOf(["english","hebrew"]),
-    interfaceLang:      PropTypes.oneOf(["english","hebrew"]),
+    menuLanguage:           PropTypes.oneOf(["english","hebrew"]),
+    interfaceLanguage:      PropTypes.oneOf(["english","hebrew"]),
     onRemove:           PropTypes.func,
     title:              PropTypes.string.isRequired,
     loadData:           PropTypes.func.isRequired,
@@ -89,12 +89,10 @@ class SwipeableCategoryList extends React.Component {
         style={{flex: 1, justifyContent: "center", alignItems: "center"}}
       >
         <CategorySideColorLink
-          theme={this.props.theme}
-          themeStr={this.props.themeStr}
           category={Sefaria.categoryForTitle(item.book)}
           enText={item.ref}
           heText={item.he_ref}
-          language={this.props.language}
+          language={this.props.menuLanguage}
           onPress={this.props.openRef.bind(null, item.ref, null, item.versions)}
         />
       </AnimatedRow>
@@ -107,14 +105,13 @@ class SwipeableCategoryList extends React.Component {
   render() {
     const FlatListClass = this.props.menuOpen === "history" ? FlatList : SwipeableFlatList;  // disable swiping on history
     const isWhite = this.props.themeStr === "white";
-    const isHeb = this.props.interfaceLang === "hebrew";
+    const isHeb = this.props.interfaceLanguage === "hebrew";
     return (
       <View style={[styles.menu, this.props.theme.menu]}>
         <CategoryColorLine category={"Other"} />
         <View style={[styles.header, this.props.theme.header]}>
           <DirectedButton
             onPress={this.props.close}
-            themeStr={this.props.themeStr}
             imageStyle={[styles.menuButton, styles.directedButton]}
             direction="back"
             language="english"/>
@@ -124,17 +121,14 @@ class SwipeableCategoryList extends React.Component {
               resizeMode={'contain'}
             />
             <SText
-              lang={this.props.interfaceLang}
+              lang={this.props.interfaceLanguage}
               style={[styles.textTocHeaderTitle, {flex:0},styles.noPadding, this.props.theme.text]}>
               {this.props.title.toUpperCase()}
             </SText>
           </View>
           <LanguageToggleButton
-            theme={this.props.theme}
             toggleLanguage={this.props.toggleLanguage}
-            interfaceLang={this.props.interfaceLang}
-            language={this.props.language}
-            themeStr={this.props.themeStr}
+            language={this.props.menuLanguage}
           />
         </View>
 
@@ -146,9 +140,9 @@ class SwipeableCategoryList extends React.Component {
             bounceFirstRowOnMount={!Sefaria._hasSwipeDeleted}
             maxSwipeDistance={90}
             renderQuickActions={this.renderDeleteButton}
-            language={this.props.language}
+            language={this.props.menuLanguage}
           />
-         : <LoadingView theme={this.props.theme}/>
+         : <LoadingView />
         }
       </View>
     );

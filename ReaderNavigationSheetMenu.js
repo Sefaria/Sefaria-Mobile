@@ -35,10 +35,8 @@ class ReaderNavigationSheetMenu extends React.Component {
   // Navigation Menu for a single category of texts (e.g., "Tanakh", "Bavli")
   static propTypes = {
     theme:          PropTypes.object.isRequired,
-    themeStr:       PropTypes.string.isRequired,
     close:        PropTypes.func.isRequired,
     toggleLanguage: PropTypes.func.isRequired,
-    menuLanguage:   PropTypes.string.isRequired,
     isLoggedIn:     PropTypes.bool.isRequired,
     openMySheets:   PropTypes.func.isRequired,
   };
@@ -95,7 +93,7 @@ class ReaderNavigationSheetMenu extends React.Component {
   }
 
   renderItem = ({ item, index }) => {
-    var showHebrew = this.props.interfaceLang == "hebrew";
+    var showHebrew = this.props.interfaceLanguage == "hebrew";
       return (
           <View style={[styles.twoBoxItem,
                         {"flex": this.state.tagCategories.length%2!= 0 && index == this.state.tagCategories.length-1 ? .5 : 1 }
@@ -119,7 +117,7 @@ class ReaderNavigationSheetMenu extends React.Component {
 
 
     render() {
-    var showHebrew = this.props.interfaceLang == "hebrew";
+    var showHebrew = this.props.interfaceLanguage == "hebrew";
 
 
     var trendingTagContent = this.state.trendingTags.slice(0, 6).map(function(tag, i) {
@@ -144,7 +142,7 @@ class ReaderNavigationSheetMenu extends React.Component {
                   <Text style={[styles.enInt, styles.categorySectionTitle, this.props.theme.categorySectionTitle]}>Trending Topics</Text> }
             </View>
 
-            <TwoBox language={this.props.interfaceLang}>
+            <TwoBox language={this.props.interfaceLanguage}>
               { trendingTagContent }
             </TwoBox>
 
@@ -176,7 +174,7 @@ class ReaderNavigationSheetMenu extends React.Component {
     return (<View style={[styles.menu, this.props.theme.menu]}>
                 <CategoryColorLine category="Sheets" />
               <View style={[styles.header, this.props.theme.header]}>
-                <MenuButton onPress={this.props.close} theme={this.props.theme} themeStr={this.props.themeStr}/>
+                <MenuButton onPress={this.props.close} />
                 {showHebrew ?
                   <Text style={[styles.he, styles.settingsHeader, this.props.theme.text]}>דפי מקורות</Text> :
                   <Text style={[styles.en, styles.settingsHeader, this.props.theme.text]}>SHEETS</Text> }

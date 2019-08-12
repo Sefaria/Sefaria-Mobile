@@ -92,7 +92,7 @@ class ReaderNavigationSheetCategoryMenu extends React.Component {
 
 
   renderItem = ({ item, index }) => {
-      var showHebrew = this.props.interfaceLang == "hebrew";
+      var showHebrew = this.props.interfaceLanguage == "hebrew";
       return (
           <View style={[styles.twoBoxItem,
                         {"flex": this.state.tagCategories.length%2!= 0 && index == this.state.tagCategories.length-1 ? .5 : 1 }
@@ -111,7 +111,7 @@ class ReaderNavigationSheetCategoryMenu extends React.Component {
 
 
     render() {
-      var showHebrew = this.props.interfaceLang == "hebrew";
+      var showHebrew = this.props.interfaceLanguage == "hebrew";
 
       if (this.state.tagCategories.length == 0) { return (<LoadingView />); }
 
@@ -130,8 +130,6 @@ class ReaderNavigationSheetCategoryMenu extends React.Component {
                   <Text style={[styles.he, styles.categoryTitle, this.props.theme.categoryTitle, {textTransform: "uppercase"}]}>{this.props.category}</Text> :
                   <Text style={[styles.en, styles.categoryTitle, this.props.theme.categoryTitle, {textTransform: "uppercase"}]}>{this.props.category}</Text> }
                 <LanguageToggleButton
-                  theme={this.props.theme}
-                  interfaceLang={"hebrew"}
                   toggleLanguage={this.props.toggleLanguage}
                   language={this.props.menuLanguage} />
               </View>
