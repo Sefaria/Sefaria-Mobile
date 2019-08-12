@@ -132,7 +132,6 @@ const CategoryBlockLink = ({
   category,
   heCat,
   style,
-  language,
   icon,
   iconSide,
   subtext,
@@ -142,8 +141,8 @@ const CategoryBlockLink = ({
   isSans,
   onPress,
 }) => {
-    const { theme, themeStr } = useContext(GlobalStateContext);
-    const isHeb = language == "hebrew";
+    const { theme, themeStr, menuLanguage } = useContext(GlobalStateContext);
+    const isHeb = menuLanguage == "hebrew";
     const iconOnLeft = iconSide ? iconSide === "start" ^ isHeb : isHeb;
     var style  = style || {"borderColor": Sefaria.palette.categoryColor(category)};
     var enText = upperCase ? category.toUpperCase() : category;
