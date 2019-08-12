@@ -2,7 +2,7 @@
 
 import PropTypes from 'prop-types';
 
-import React, { Component } from 'react';
+import React from 'react';
 import {
   Alert,
   Animated,
@@ -30,7 +30,7 @@ import RNShake from 'react-native-shake';
 import Sound from 'react-native-sound';
 import { Search, SearchState } from '@sefaria/search';
 
-import { ACTION_CREATORS } from './ReduxStore';
+import { STATE_ACTIONS } from './StateManager';
 import ReaderControls from './ReaderControls';
 import styles from './Styles';
 import strings from './LocalizedStrings';
@@ -66,17 +66,14 @@ import {
 const ViewPort    = Dimensions.get('window');
 
 class ReaderApp extends React.Component {
-
   static propTypes = {
-    theme:        PropTypes.object.isRequired,
-    themeStr:     PropTypes.string.isRequired,
-    setTheme:     PropTypes.func.isRequired,
-    setBiLayout:  PropTypes.func.isRequired,
-    biLayout:     PropTypes.string.isRequired,
-    textLanguage: PropTypes.string.isRequired,
-    overwriteVersions: PropTypes.bool.isRequired,
-    isLoggedIn:   PropTypes.bool.isRequired,
-    setIsLoggedIn:PropTypes.func.isRequired,
+    theme:            PropTypes.object.isRequired,
+    themeStr:         PropTypes.string.isRequired,
+    biLayout:         PropTypes.string.isRequired,
+    textLanguage:     PropTypes.string.isRequired,
+    overwriteVersions:PropTypes.bool.isRequired,
+    isLoggedIn:       PropTypes.bool.isRequired,
+    dispatch:         PropTypes.func.isRequired,
   };
 
   constructor(props, context) {
@@ -172,7 +169,10 @@ class ReaderApp extends React.Component {
 
   logout = () => {
     Sefaria.api.clearAuthStorage();
-    this.props.setIsLoggedIn(false);
+    this.props.dispatch({
+      type: STATE_ACTIONS.setIsLoggedIn,
+      isLoggedIn: false,
+    });
   };
 
   networkChangeListener = isConnected => {
@@ -351,12 +351,14 @@ class ReaderApp extends React.Component {
   toggleMenuLanguage = () => {
     // Toggle current menu language between english/hebrew only
     const newMenuLanguage = this.props.menuLanguage !== "hebrew" ? "hebrew" : "english";
-    this.props.setMenuLanguage(newMenuLanguage);
+    this.props.dispatch({
+      type: STATE_ACTIONS.setInterfaceLanguage,
+      language: newMenuLanguage,
+    });
   };
 
   setTextFlow = textFlow => {
-    this.setState({textFlow: textFlow});
-
+    this.setState({ textFlow });
     if (textFlow == "continuous" && this.props.textLanguage == "bilingual") {
       this.setTextLanguage("hebrew");
     }
@@ -364,7 +366,10 @@ class ReaderApp extends React.Component {
   };
 
   setBiLayout = layout => {
-    this.props.setBiLayout(layout);
+    this.props.dispatch({
+      type: STATE_ACTIONS.setBiLayout,
+      layout,
+    });
     this.toggleReaderDisplayOptionsMenu();
   };
 
@@ -374,9 +379,14 @@ class ReaderApp extends React.Component {
 
   setTextLanguage = (textLanguage, textTitle, textFlow, dontToggle) => {
     // try to be less dependent on state in this func because it is called in componentWillUpdate
+
     textTitle = textTitle || this.state.textTitle;
     textFlow = textFlow || this.state.textFlow;
-    this.props.setTextLanguageByTitle(textTitle, textLanguage);
+    this.props.dispatch({
+      type: STATE_ACTIONS.setTextLanguageByTitle,
+      title: textTitle,
+      language: textLanguage,
+    });
     this.setCurrVersions(); // update curr versions based on language
     if (textLanguage == "bilingual" && textFlow == "continuous") {
       this.setTextFlow("segmented");
@@ -385,12 +395,18 @@ class ReaderApp extends React.Component {
   };
 
   setTheme = themeStr => {
-    this.props.setTheme(themeStr);
+    this.props.dispatch({
+      type: STATE_ACTIONS.setTheme,
+      themeStr,
+    });
     this.toggleReaderDisplayOptionsMenu();
   }
 
   setAliyot = show => {
-    this.props.setAliyot(show);
+    this.props.dispatch({
+      type: STATE_ACTIONS.setAliyot,
+      show,
+    })
     this.toggleReaderDisplayOptionsMenu();
   }
 
@@ -407,7 +423,10 @@ class ReaderApp extends React.Component {
     newFontSize = newFontSize > 60 ? 60 : newFontSize; // Max size
     newFontSize = newFontSize < 18 ? 18 : newFontSize; // Min size
     newFontSize = parseFloat(newFontSize.toFixed(2));
-    this.props.setFontSize(newFontSize);
+    this.props.dispatch({
+      type: STATE_ACTIONS.setFontSize,
+      fontSize: newFontSize,
+    });
   };
 
   /*
@@ -531,7 +550,10 @@ class ReaderApp extends React.Component {
       overwriteVersions = false;
       versions = undefined; // change to default version in case they have offline library they'll still be able to read
     }
-    this.props.setOverwriteVersions(overwriteVersions);
+    this.props.dispatch({
+      type: STATE_ACTIONS.setOverwriteVersions,
+      overwrite: overwriteVersions,
+    });
     versions = this.removeDefaultVersions(ref, versions);
     // Open ranged refs to their first segment (not ideal behavior, but good enough for now)
     ref = ref.indexOf("-") != -1 ? ref.split("-")[0] : ref;
@@ -1594,7 +1616,7 @@ class ReaderApp extends React.Component {
           Sefaria.track.setScreen("toc", "navigation")
         return (
           loading ?
-          <LoadingView theme={this.props.theme} /> :
+          <LoadingView /> :
           (<View style={{flex:1, flexDirection: 'row'}}>
             <ReaderNavigationMenu
               searchQuery={this.state.searchQuery}
@@ -1606,22 +1628,15 @@ class ReaderApp extends React.Component {
               openSearch={this.openSearch}
               setIsNewSearch={this.setIsNewSearch}
               toggleLanguage={this.toggleMenuLanguage}
-              menuLanguage={this.props.menuLanguage}
               openSettings={this.openMenu.bind(null, "settings")}
               openHistory={this.openMenu.bind(null, "history")}
               openSaved={this.openMenu.bind(null, "saved")}
               openLogin={this.openMenu.bind(null, "login")}
               openRegister={this.openMenu.bind(null, "register")}
               openSheets={this.openMenu.bind(null, "sheets")}
-              interfaceLang={this.state.interfaceLang}
               onChangeSearchQuery={this.onChangeSearchQuery}
-              theme={this.props.theme}
-              themeStr={this.props.themeStr}
               openUri={this.openUri}
               searchType={this.state.searchType}
-              toggleDebugInterruptingMessage={this.props.toggleDebugInterruptingMessage}
-              debugInterruptingMessage={this.props.debugInterruptingMessage}
-              isLoggedIn={this.props.isLoggedIn}
               logout={this.logout}
             />
           </View>)
@@ -1631,14 +1646,9 @@ class ReaderApp extends React.Component {
         return (
           <ReaderTextTableOfContents
             textToc={this.state.textToc}
-            theme={this.props.theme}
-            themeStr={this.props.themeStr}
             title={this.state.textTitle}
             currentRef={this.state.textReference}
             currentHeRef={this.state.heRef}
-            textLang={this.props.textLanguage == "hebrew" ? "hebrew" : "english"}
-            contentLang={this.props.menuLanguage}
-            interfaceLang={this.state.interfaceLang}
             close={this.manageBackMain}
             openRef={this.openRefTOC}
             toggleLanguage={this.toggleMenuLanguage}
@@ -1652,9 +1662,8 @@ class ReaderApp extends React.Component {
             sheetMeta={this.state.sheetMeta}
             theme={this.props.theme}
             themeStr={this.props.themeStr}
-            textLang={this.props.textLanguage == "hebrew" ? "hebrew" : "english"}
-            contentLang={this.props.menuLanguage}
-            interfaceLang={this.state.interfaceLang}
+            menuLanguage={this.props.menuLanguage}
+            interfaceLanguage={this.props.interfaceLanguage}
             close={this.manageBackMain}
             openSheetTagMenu={this.openSheetTag}
             toggleLanguage={this.toggleMenuLanguage}
@@ -1664,10 +1673,6 @@ class ReaderApp extends React.Component {
         Sefaria.track.setScreen("search results", "search")
         return(
           <SearchPage
-            theme={this.props.theme}
-            themeStr={this.props.themeStr}
-            menuLanguage={this.props.menuLanguage}
-            interfaceLang={this.state.interfaceLang}
             subMenuOpen={this.state.subMenuOpen}
             openSubMenu={this.openSubMenu}
             hasInternet={this.state.hasInternet}
@@ -1695,7 +1700,7 @@ class ReaderApp extends React.Component {
         Sefaria.track.setScreen("autocomplete", "search")
         return (
           <AutocompletePage
-            interfaceLang={this.state.interfaceLang}
+            interfaceLanguage={this.props.interfaceLanguage}
             theme={this.props.theme}
             themeStr={this.props.themeStr}
             onBack={this.manageBackMain}
@@ -1712,13 +1717,7 @@ class ReaderApp extends React.Component {
         break;
       case ("settings"):
         Sefaria.track.setScreen("settings", "menu")
-        return(
-          <SettingsPage
-            {...this.props}
-            close={this.manageBackMain}
-            interfaceLang={this.state.interfaceLang}
-          />);
-        break;
+        return(<SettingsPage close={this.manageBackMain} />);
       case ("history"):
         Sefaria.track.setScreen("history", "menu")
         return(
@@ -1728,8 +1727,8 @@ class ReaderApp extends React.Component {
             themeStr={this.props.themeStr}
             toggleLanguage={this.toggleMenuLanguage}
             openRef={this.openRef}
-            language={this.props.menuLanguage}
-            interfaceLang={this.state.interfaceLang}
+            menuLanguage={this.props.menuLanguage}
+            interfaceLanguage={this.props.interfaceLanguage}
             onRemove={null}
             title={strings.history}
             menuOpen={this.state.menuOpen}
@@ -1743,15 +1742,12 @@ class ReaderApp extends React.Component {
         return(
           <SwipeableCategoryList
             close={this.manageBackMain}
-            theme={this.props.theme}
-            themeStr={this.props.themeStr}
             toggleLanguage={this.toggleMenuLanguage}
             openRef={this.openRef}
-            language={this.props.menuLanguage}
             onRemove={this.removeSavedItem}
             title={strings.saved}
             menuOpen={this.state.menuOpen}
-            icon={this.props.themeStr === "white" ? require('./img/starUnfilled.png') : require('./img/starUnfilled-light.png')}
+            icon={themeStr === "white" ? require('./img/starUnfilled.png') : require('./img/starUnfilled-light.png')}
             loadData={Sefaria.history.syncHistoryGetSaved}
           />
         );
@@ -1761,11 +1757,8 @@ class ReaderApp extends React.Component {
         return(
           <AuthPage
             authMode={this.state.menuOpen}
-            theme={this.props.theme}
-            themeStr={this.props.themeStr}
             close={this.manageBackMain}
             showToast={this.showToast}
-            setIsLoggedIn={this.props.setIsLoggedIn}
           />
         );
         break;
@@ -1775,14 +1768,11 @@ class ReaderApp extends React.Component {
            <ReaderNavigationSheetMenu
             close={this.manageBackMain}
             theme={this.props.theme}
-            themeStr={this.props.themeStr}
             toggleLanguage={this.toggleMenuLanguage}
             hasInternet={this.state.hasInternet}
-            language={this.props.menuLanguage}
             menuOpen={this.state.menuOpen}
             icon={require('./img/sheet.png')}
-            menuLanguage={this.props.menuLanguage}
-            interfaceLang={this.state.interfaceLang}
+            interfaceLanguage={this.props.interfaceLanguage}
             openSheetTagMenu={this.openSheetTag}
             isLoggedIn={this.props.isLoggedIn}
             openMySheets={this.openMySheets}
@@ -1795,13 +1785,13 @@ class ReaderApp extends React.Component {
         Sefaria.track.setScreen("sheets sub category nav", "navigation")
         return(
           loading ?
-          <LoadingView theme={this.props.theme} /> :
+          <LoadingView /> :
            <ReaderNavigationSheetCategoryMenu
             icon={require('./img/sheet.png')}
             theme={this.props.theme}
             themeStr={this.props.themeStr}
             menuLanguage={this.props.menuLanguage}
-            interfaceLang={this.state.interfaceLang}
+            interfaceLanguage={this.props.interfaceLanguage}
             toggleLanguage={this.toggleMenuLanguage}
             hasInternet={this.state.hasInternet}
             category={this.state.sheetCategory}
@@ -1811,19 +1801,13 @@ class ReaderApp extends React.Component {
            />
         );
 
-
-
       case ("sheetTag"):
       case ("mySheets"):
         Sefaria.track.setScreen(this.state.menuOpen === 'sheetTage' ? "sheet tag page" : "my sheets page", "navigation")
         return(
           loading ?
-          <LoadingView theme={this.props.theme} /> :
+          <LoadingView /> :
            <ReaderNavigationSheetList
-            theme={this.props.theme}
-            themeStr={this.props.themeStr}
-            menuLanguage={this.props.menuLanguage}
-            interfaceLang={this.state.interfaceLang}
             toggleLanguage={this.toggleMenuLanguage}
             tag={this.state.sheetTag}
             menuOpen={this.state.menuOpen}
@@ -1845,14 +1829,10 @@ class ReaderApp extends React.Component {
       <View style={[styles.container, this.props.theme.container]} {...this.gestureResponder}>
           <CategoryColorLine category={Sefaria.categoryForTitle(this.state.textTitle, isSheet)} />
           <ReaderControls
-            theme={this.props.theme}
             enRef={this.state.textReference}
             heRef={this.state.heRef}
-            menuLanguage={this.props.menuLanguage}
-            textLanguage={this.props.textLanguage}
             categories={Sefaria.categoriesForTitle(this.state.textTitle, isSheet)}
             openNav={this.openNav}
-            themeStr={this.props.themeStr}
             goBack={this.manageBackMain}
             openTextToc={this.openTextToc}
             openSheetMeta={this.openSheetMeta}
@@ -1862,7 +1842,7 @@ class ReaderApp extends React.Component {
             openUri={this.openUri}/>
 
           { loading ?
-          <LoadingView theme={this.props.theme} style={{flex: textColumnFlex}} category={Sefaria.categoryForTitle(this.state.textTitle)}/> :
+          <LoadingView style={{flex: textColumnFlex}} category={Sefaria.categoryForTitle(this.state.textTitle)}/> :
           <View style={[{flex: textColumnFlex}, styles.mainTextPanel, this.props.theme.mainTextPanel]}
                 onStartShouldSetResponderCapture={this._onStartShouldSetResponderCapture}>
             { isSheet ?
@@ -1882,12 +1862,16 @@ class ReaderApp extends React.Component {
                 fontSize={this.props.fontSize}
               /> :
               <TextColumn
-                key={this.state.textColumnKey}
-                showToast={this.showToast}
-                textToc={this.state.textToc}
+                textLanguage={this.props.textLanguage}
+                showAliyot={this.props.showAliyot}
                 theme={this.props.theme}
                 themeStr={this.props.themeStr}
                 fontSize={this.props.fontSize}
+                menuLanguage={this.props.menuLanguage}
+                biLayout={this.props.biLayout}
+                key={this.state.textColumnKey}
+                showToast={this.showToast}
+                textToc={this.state.textToc}
                 data={this.state.data}
                 textReference={this.state.textReference}
                 sectionArray={this.state.sectionArray}
@@ -1896,8 +1880,6 @@ class ReaderApp extends React.Component {
                 segmentRef={this.state.segmentRef}
                 segmentIndexRef={this.state.segmentIndexRef}
                 textFlow={this.state.textFlow}
-                menuLanguage={this.props.menuLanguage}
-                textLanguage={this.props.textLanguage}
                 updateData={this.updateData}
                 updateTitle={this.updateTitle}
                 textTitle={this.state.textTitle}
@@ -1910,9 +1892,8 @@ class ReaderApp extends React.Component {
                 linksLoaded={this.state.linksLoaded}
                 loadingTextTail={this.state.loadingTextTail}
                 loadingTextHead={this.state.loadingTextHead}
-                showAliyot={this.props.showAliyot}
                 openUri={this.openUri}
-                biLayout={this.props.biLayout} />
+              />
             }
           </View> }
 
@@ -1925,16 +1906,10 @@ class ReaderApp extends React.Component {
               animating={this.state.textListAnimating}
               onStartShouldSetResponderCapture={this._onStartShouldSetResponderCapture}
               textToc={this.state.textToc}
-              menuLanguage={this.props.menuLanguage}
-              fontSize={this.props.fontSize}
-              theme={this.props.theme}
-              themeStr={this.props.themeStr}
-              interfaceLang={this.state.interfaceLang}
               segmentRef={this.state.segmentRef}
               heSegmentRef={Sefaria.toHeSegmentRef(this.state.heRef, this.state.segmentRef)}
               categories={Sefaria.categoriesForTitle(this.state.textTitle)}
               textFlow={this.state.textFlow}
-              textLanguage={this.props.textLanguage}
               openRef={this.openRefConnectionsPanel}
               setConnectionsMode={this.setConnectionsMode}
               openFilter={this.openFilter}
@@ -1969,7 +1944,7 @@ class ReaderApp extends React.Component {
               textFlow={this.state.textFlow}
               biLayout={this.props.biLayout}
               textReference={this.state.textReference}
-              interfaceLang={this.state.interfaceLang}
+              interfaceLanguage={this.props.interfaceLanguage}
               textLanguage={this.props.textLanguage}
               showAliyot={this.props.showAliyot}
               setTextFlow={this.setTextFlow}
@@ -1980,7 +1955,8 @@ class ReaderApp extends React.Component {
               setTheme={this.setTheme}
               canBeContinuous={Sefaria.canBeContinuous(this.state.textTitle)}
               canHaveAliyot={Sefaria.canHaveAliyot(this.state.textTitle)}
-              themeStr={this.props.themeStr}/>) : null
+              themeStr={this.props.themeStr}
+            />) : null
           }
       </View>);
   }
@@ -2008,12 +1984,9 @@ class ReaderApp extends React.Component {
               {
                 Sefaria.downloader.downloading && nUpdates > 0 && this.state.menuOpen !== 'settings' ?
                 <SefariaProgressBar
-                  theme={this.props.theme}
-                  themeStr={this.props.themeStr}
                   progress={(nAvailable - nUpdates) / nAvailable}
                   onPress={()=>{ this.openMenu("settings")}}
                   onClose={Sefaria.packages.deleteActiveDownloads}
-                  interfaceLang={this.state.interfaceLang}
                 /> : null
               }
               { this.renderContent() }
@@ -2022,7 +1995,7 @@ class ReaderApp extends React.Component {
         </SafeAreaView>
         <InterruptingMessage
           ref={this._getInterruptingMessageRef}
-          interfaceLang={this.state.interfaceLang}
+          interfaceLanguage={this.props.interfaceLanguage}
           openInDefaultBrowser={this.openInDefaultBrowser}
           debugInterruptingMessage={this.props.debugInterruptingMessage}
         />
@@ -2046,48 +2019,4 @@ class ReaderApp extends React.Component {
   }
 }
 
-const mapStateToProps = (
-  { theme,
-    themeStr,
-    textLanguageByTitle,
-    defaultTextLanguage,
-    menuLanguage,
-    fontSize,
-    textLanguage,
-    overwriteVersions,
-    showAliyot,
-    debugInterruptingMessage,
-    biLayout,
-    isLoggedIn,
-  }) => ({
-  theme,
-  themeStr,
-  defaultTextLanguage,
-  menuLanguage,
-  fontSize,
-  textLanguageByTitle,
-  textLanguage,
-  overwriteVersions,
-  showAliyot,
-  debugInterruptingMessage,
-  biLayout,
-  isLoggedIn,
-});
-
-const mapDispatchToProps = dispatch => ({
-  setTheme: themeStr => { dispatch(ACTION_CREATORS.setTheme(themeStr)); },
-  setMenuLanguage: language => { dispatch(ACTION_CREATORS.setMenuLanguage(language)); },
-  setTextLanguageByTitle: (title, language) => { dispatch(ACTION_CREATORS.setTextLanguageByTitle(title, language)); },
-  setFontSize: fontSize => { dispatch(ACTION_CREATORS.setFontSize(fontSize)); },
-  setDefaultTextLanguage: language => { dispatch(ACTION_CREATORS.setDefaultTextLanguage(language)); },
-  setOverwriteVersions: overwrite => { dispatch(ACTION_CREATORS.setOverwriteVersions(overwrite)); },
-  setAliyot: show => { dispatch(ACTION_CREATORS.setAliyot(show)); },
-  toggleDebugInterruptingMessage: () => { dispatch(ACTION_CREATORS.toggleDebugInterruptingMessage()); },
-  setBiLayout: layout => { dispatch(ACTION_CREATORS.setBiLayout(layout)); },
-  setIsLoggedIn: isLoggedIn => { dispatch(ACTION_CREATORS.setIsLoggedIn(isLoggedIn)); },
-});
-
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(ReaderApp);
+export default ReaderApp;
