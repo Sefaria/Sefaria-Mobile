@@ -40,7 +40,7 @@ class ReaderDisplayOptionsMenu extends React.Component {
     textFlow:                        PropTypes.oneOf(['segmented', 'continuous']),
     canHaveAliyot:                   PropTypes.bool.isRequired,
     canBeContinuous:                 PropTypes.bool.isRequired,
-    interfaceLang:                   PropTypes.oneOf(['hebrew', 'english']).isRequired,
+    interfaceLanguage:               PropTypes.oneOf(['hebrew', 'english']).isRequired,
     textLanguage:                    PropTypes.oneOf(['hebrew', 'english', 'bilingual']),
     themeStr:                        PropTypes.oneOf(['white', 'black']),
     showAliyot:                      PropTypes.bool.isRequired,
@@ -165,12 +165,12 @@ class ReaderDisplayOptionsMenu extends React.Component {
               text={text}
               align={alignments[optionRow.buttons.length-2][i]}
               selected={selected}
-              interfaceLang={this.props.interfaceLang} />
+              interfaceLanguage={this.props.interfaceLanguage} />
           );
         }
 
       }
-      toggleSets.push(<ReaderDisplayOptionsMenuToggleSet key={optionRow.label + "|toggleSet"} label={optionRow.label} content={row} colorRow={isColor} theme={this.props.theme} interfaceLang={this.props.interfaceLang}/>);
+      toggleSets.push(<ReaderDisplayOptionsMenuToggleSet key={optionRow.label + "|toggleSet"} label={optionRow.label} content={row} colorRow={isColor} theme={this.props.theme} interfaceLanguage={this.props.interfaceLanguage}/>);
       if (toggleSets.length % 2 === 0 || j === options.length - 1) {
         rows.push(<ReaderDisplayOptionsMenuRow key={optionRow.label + "|row"} content={toggleSets.slice(0)} />);
         toggleSets = [];
@@ -209,7 +209,7 @@ class ReaderDisplayOptionsMenuToggleSet extends React.Component {
   render() {
     //styles.readerDisplayOptionMenuRowNotColor is a hack required to solve the problem of react native / ios display not yet properly rendering borderRadius & borderWidth w/o 'smearing'
     const tempStyles = this.props.colorRow ? [styles.readerDisplayOptionsMenuToggleSet] : [styles.readerDisplayOptionsMenuToggleSet,styles.readerDisplayOptionMenuToggleSetNotColor,this.props.theme.readerDisplayOptionsMenuDivider];
-    const langStyle = this.props.interfaceLang === "hebrew" ? styles.heInt : styles.enInt;
+    const langStyle = this.props.interfaceLanguage === "hebrew" ? styles.heInt : styles.enInt;
     return (
       <View style={styles.readerDisplayOptionsMenuToggleSetOuter}>
         <Text style={[langStyle, {textAlign: "center"}, this.props.theme.secondaryText]}>{this.props.label}</Text>
@@ -235,7 +235,7 @@ class ReaderDisplayOptionsMenuItem extends React.Component {
   };
 
   render() {
-    const langStyle = this.props.interfaceLang === "hebrew" ? styles.heInt : styles.enInt;
+    const langStyle = this.props.interfaceLanguage === "hebrew" ? styles.heInt : styles.enInt;
     let alignStyle;
     if (this.props.align == "right") alignStyle = styles.readerDisplayOptionsMenuItemRight;
     else if (this.props.align == "left") alignStyle = styles.readerDisplayOptionsMenuItemLeft;
