@@ -86,7 +86,7 @@ class ReaderNavigationSheetList extends React.Component {
 
 
     render() {
-      const showHebrew = this.props.interfaceLang == "hebrew";
+      const showHebrew = this.props.interfaceLanguage == "hebrew";
       const title = this.props.menuOpen === 'sheetTag' ? this.props.tag : strings.mySheets;
 
       if (this.state.sheets.length == 0) { return (<LoadingView />); }

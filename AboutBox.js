@@ -22,7 +22,7 @@ const AboutBox = ({ textToc, currVersions, textTitle, sheet, openUri }) => {
   const d = textToc;
   const vh = currVersions.he;
   const ve = currVersions.en;
-  const hei = interfaceLang === "hebrew";
+  const hei = interfaceLanguage === "hebrew";
 
 
   if (sheet) {

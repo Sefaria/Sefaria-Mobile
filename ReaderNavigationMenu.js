@@ -94,7 +94,7 @@ const ReaderNavigationMenu = props => {
         </TwoBox>
       </View>
     );
-    const isHeb = interfaceLang === "hebrew";
+    const isHeb = interfaceLanguage === "hebrew";
     const langStyle = !isHeb ? styles.enInt : styles.heInt;
     return(<View style={[styles.menu, theme.menu]}>
             <CategoryColorLine category={"Other"} />
@@ -423,7 +423,7 @@ const ReaderNavigationMenuSection = ({ title, heTitle, content, hasmore, moreCli
   const { theme, interfaceLanguage } = useContext(GlobalStateContext);
   if (!content) { return null; }
 
-  var isheb = interfaceLang === "hebrew";
+  var isheb = interfaceLanguage === "hebrew";
   var title = !isheb ? title : heTitle;
   var langStyle = !isheb ? styles.enInt : styles.heInt;
   var moreHeStyle = !isheb || !hasmore ? [styles.readerNavSectionMoreInvisible, styles.readerNavSectionMoreHe] : [styles.readerNavSectionMoreHe];

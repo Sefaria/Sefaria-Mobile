@@ -44,7 +44,7 @@ const SearchBar = ({
   };
 
   render() {
-    const { theme, themeStr, interfaceLang, menuLanguage } = useContext(GlobalStateContext);
+    const { theme, themeStr, interfaceLanguage, menuLanguage } = useContext(GlobalStateContext);
     var textInputStyle = [styles.searchInput, interfaceLanguage === "hebrew" ? styles.hebrewSystemFont : null, theme.text];
     //TODO sorry for the hard-coded colors. because the prop placeholderTextColor of TextInput doesn't take a style and instead requires an explicit color string, I had to do it this way
     var placeholderTextColor = themeStr == "black" ? "#BBB" : "#777";
