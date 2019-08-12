@@ -68,9 +68,6 @@ class AutocompletePage extends React.Component {
         <CategoryColorLine category={"Other"} />
         <SearchBar
           ref={this._getSearchBarRef}
-          interfaceLang={this.props.interfaceLang}
-          theme={this.props.theme}
-          themeStr={this.props.themeStr}
           onBack={this.props.onBack}
           leftMenuButton="back"
           search={this.props.openSearch}
