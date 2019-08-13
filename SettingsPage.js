@@ -25,7 +25,7 @@ import { GlobalStateContext, DispatchContext, STATE_ACTIONS } from './StateManag
 import styles from './Styles';
 import strings from './LocalizedStrings';
 
-generateOptions = (options, onPress) => options.map(o => ({
+const generateOptions = (options, onPress) => options.map(o => ({
   name: o,
   text: strings[o],
   onPress: () => { onPress(o); },
@@ -73,7 +73,7 @@ const SettingsPage = ({ close }) => {
       <ScrollView contentContainerStyle={styles.menuContent}>
 
         <ButtonToggleSection
-
+          langStyle={langStyle}
         />
 
         <View style={[styles.readerDisplayOptionsMenuDivider, styles.settingsDivider, theme.readerDisplayOptionsMenuDivider]}/>
@@ -122,7 +122,7 @@ SettingsPage.propTypes = {
   close: PropTypes.func.isRequired,
 };
 
-const ButtonToggleSection = () => {
+const ButtonToggleSection = ({ langStyle }) => {
   const dispatch = useContext(DispatchContext);
   const globalState = useContext(GlobalStateContext);
   const setInterfaceLanguage = language => {
@@ -163,12 +163,12 @@ const ButtonToggleSection = () => {
     ['defaultTextLanguage', 'interfaceLanguage', 'emailFrequency', 'preferredCustom'].map(s => (
       <View style={styles.settingsSection}>
         <View>
-          <Text style={[langStyle, styles.settingsSectionHeader, context.theme.tertiaryText]}>{strings[s]}</Text>
+          <Text style={[langStyle, styles.settingsSectionHeader, globalState.theme.tertiaryText]}>{strings[s]}</Text>
         </View>
         <ButtonToggleSet
           options={options[`${s}Options`]}
-          lang={context.interfaceLanguage}
-          active={context[s]} />
+          lang={globalState.interfaceLanguage}
+          active={globalState[s]} />
       </View>
     ))
   );
@@ -184,9 +184,14 @@ const onPressDisabled = (child, parent) => {
   );
 };
 
-const useGetPkgState = onPress => {
+const usePkgState = () => {
   const { interfaceLanguage } = useContext(GlobalStateContext);
-  const getStateBasedOnPkgData = () => {
+  const [pkgState, setPkgState] = useState(getStateBasedOnPkgData());
+  const onPress = async (pkgName) => {
+    await Sefaria.packages.updateSelected(pkgName);
+    setPkgState(getStateBasedOnPkgData());
+  };
+  function getStateBasedOnPkgData() {
     const onPressFuncs = {};
     const isDisabledObj = {};
     for (let pkgObj of Sefaria.packages.available) {
@@ -201,15 +206,7 @@ const useGetPkgState = onPress => {
       onPressFuncs,
       isDisabledObj,
     });
-  };
-  return getStateBasedOnPkgData;
-}
-const usePkgState = () => {
-  const [pkgState, setPkgState] = useState(getStateBasedOnPkgData());
-  const onPress = async (pkgName) => {
-    await Sefaria.packages.updateSelected(pkgName);
-    setPkgState(getStateBasedOnPkgData());
-  };
+  }
   return {
     pkgState,
     onPress,
@@ -222,7 +219,6 @@ const OfflinePackageList = () => {
     pkgState,
     onPress,
   } = usePkgState();
-  const getStateBasedOnPkgData = useGetPkgState(onPress);
   // num available = all available filtered to p.indexes or unfiltered
   // nupdates = all updates filtered to p.indexes or unfiltered
   return (

@@ -108,7 +108,6 @@ class ReaderApp extends React.Component {
         textListAnimating: false,
         data: null,
         linksLoaded: [],  // bool arrary corresponding to data indicating if links have been loaded, which occurs async with API
-        interfaceLang: strings.getLanguage() === "he" ? "hebrew" : "english", // TODO check device settings for Hebrew: ### import {NativeModules} from 'react-native'; console.log(NativeModules.SettingsManager.settings.AppleLocale);
         connectionsMode: null, // null means connections summary
         filterIndex: null, /* index of filters in recentFilters */
         linkSummary: [],
@@ -237,7 +236,7 @@ class ReaderApp extends React.Component {
 
   initFiles = () => {
     Sefaria._deleteUnzippedFiles()
-    .then(Sefaria.init).then(() => {
+    .then(() => Sefaria.init(this.props.dispatch)).then(() => {
         setTimeout(SplashScreen.hide, 300);
         this.setState({
           loaded: true,

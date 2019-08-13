@@ -20,6 +20,7 @@ import {
   SText,
   HebrewInEnglishText,
 } from './Misc.js';
+import { GlobalStateContext } from './StateManager';
 import Sefaria from "./sefaria";
 
 const ReaderControls = ({
@@ -32,6 +33,7 @@ const ReaderControls = ({
   toggleReaderDisplayOptionsMenu,
   backStack,
   openUri,
+  sheet,
 }) => {
   const { theme, themeStr, menuLanguage } = useContext(GlobalStateContext);
   const [, forceUpdate] = useReducer(x => x + 1, 0);  // HACK
@@ -40,15 +42,14 @@ const ReaderControls = ({
     else {
       // see ReaderApp.openRef()
       const calledFromDict = { "text list": true, "search": true };
-      const backStack = backStack.filter(x => calledFromDict[x.calledFrom]);
-      return backStack.length === 0;
+      return backStack.filter(x => calledFromDict[x.calledFrom]).length === 0;
     }
   };
   const isSaved = Sefaria.history.indexOfSaved(enRef) !== -1;
   var langStyle = menuLanguage === "hebrew" ? [styles.he, {marginTop: 4}] : [styles.en];
   var titleTextStyle = [langStyle, styles.headerTextTitleText, theme.text];
   if (shouldShowHamburger()) {
-    var leftMenuButton = <MenuButton onPress={props.openNav} />
+    var leftMenuButton = <MenuButton onPress={openNav} />
   } else {
     var leftMenuButton =
       <DirectedButton

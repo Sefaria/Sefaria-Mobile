@@ -25,7 +25,7 @@ const TextSegment = ({
   onLongPress,
 }) => {
   const [resetKey, setResetKey] = useState(0);
-  const { themeStr, fontSize, biLayout } = useContext(GlobalStateContext);
+  const { theme, themeStr, fontSize, biLayout } = useContext(GlobalStateContext);
   useEffect(() => {
     setResetKey(resetKey+1);  // hacky fix to reset htmlview when theme colors change
     return () => {};

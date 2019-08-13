@@ -18,7 +18,7 @@ import Sefaria from './sefaria';
 import strings from './LocalizedStrings';
 import styles from './Styles';
 
-const onSubmit = (formState, authMode, setErrors, onLoginSuccess) => {
+const onSubmit = async (formState, authMode, setErrors, onLoginSuccess) => {
   let errors = await Sefaria.api.authenticate(formState, authMode);
   if (!errors) { errors = {}; }
   setErrors(errors);

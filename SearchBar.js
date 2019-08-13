@@ -1,6 +1,6 @@
 'use strict';
 import PropTypes from 'prop-types';
-import React from 'react';
+import React, { useContext } from 'react';
 
 import {
   TouchableOpacity,
@@ -32,7 +32,9 @@ const SearchBar = ({
   query,
   onChange,
   onFocus,
-}) {
+  leftMenuButton,
+}) => {
+  const { theme, themeStr, interfaceLanguage, menuLanguage } = useContext(GlobalStateContext);
 
   const submitSearch = () => {
     if (query) {
@@ -42,51 +44,47 @@ const SearchBar = ({
       search('sheet', query, true, false, true);
     }
   };
-
-  render() {
-    const { theme, themeStr, interfaceLanguage, menuLanguage } = useContext(GlobalStateContext);
-    var textInputStyle = [styles.searchInput, interfaceLanguage === "hebrew" ? styles.hebrewSystemFont : null, theme.text];
-    //TODO sorry for the hard-coded colors. because the prop placeholderTextColor of TextInput doesn't take a style and instead requires an explicit color string, I had to do it this way
-    var placeholderTextColor = themeStr == "black" ? "#BBB" : "#777";
-    //TODO make flex dependent on results. animate opening of results
-    return (
-      <View style={{flexDirection: 'column', flex:0}}>
-        <View style={[styles.header, theme.header]}>
-          {this.props.leftMenuButton == "close" ?
-            <CloseButton onPress={onBack} /> :
-            <DirectedButton
-              onPress={onBack}
-              imageStyle={[styles.menuButton, styles.directedButton]}
-              language="english"
-              direction="back"/>
-          }
-          { this.props.hideSearchButton ? null :
-            <SearchButton onPress={submitSearch} />
-          }
-          <TextInput
-            style={textInputStyle}
-            onChangeText={onChange}
-            onSubmitEditing={submitSearch}
-            onFocus={onFocus}
-            value={query}
-            underlineColorAndroid={"transparent"}
-            placeholder={strings.search}
-            placeholderTextColor={placeholderTextColor}
-            autoCorrect={false} />
-          {query.length ?
-            <CancelButton onPress={() => { onChange(""); }} />
-            : null
-          }
-          {this.props.toggleLanguage ?
-            <LanguageToggleButton
-              toggleLanguage={toggleLanguage}
-              language={menuLanguage}
-            />
-             : null}
-        </View>
+  var textInputStyle = [styles.searchInput, interfaceLanguage === "hebrew" ? styles.hebrewSystemFont : null, theme.text];
+  //TODO sorry for the hard-coded colors. because the prop placeholderTextColor of TextInput doesn't take a style and instead requires an explicit color string, I had to do it this way
+  var placeholderTextColor = themeStr == "black" ? "#BBB" : "#777";
+  //TODO make flex dependent on results. animate opening of results
+  return (
+    <View style={{flexDirection: 'column', flex:0}}>
+      <View style={[styles.header, theme.header]}>
+        {leftMenuButton == "close" ?
+          <CloseButton onPress={onBack} /> :
+          <DirectedButton
+            onPress={onBack}
+            imageStyle={[styles.menuButton, styles.directedButton]}
+            language="english"
+            direction="back"/>
+        }
+        { hideSearchButton ? null :
+          <SearchButton onPress={submitSearch} />
+        }
+        <TextInput
+          style={textInputStyle}
+          onChangeText={onChange}
+          onSubmitEditing={submitSearch}
+          onFocus={onFocus}
+          value={query}
+          underlineColorAndroid={"transparent"}
+          placeholder={strings.search}
+          placeholderTextColor={placeholderTextColor}
+          autoCorrect={false} />
+        {query.length ?
+          <CancelButton onPress={() => { onChange(""); }} />
+          : null
+        }
+        {toggleLanguage ?
+          <LanguageToggleButton
+            toggleLanguage={toggleLanguage}
+            language={menuLanguage}
+          />
+           : null}
       </View>
-    );
-  }
+    </View>
+  );
 }
 SearchBar.propTypes = {
   onBack:          PropTypes.func.isRequired,

@@ -246,20 +246,7 @@ const reducer = function (state, action) {
   }
 };
 
-const createSetters = dispatch => ({
-//  setTheme: themeStr => { dispatch(ACTION_CREATORS.setTheme(themeStr)); },
-//  setMenuLanguage: language => { dispatch(ACTION_CREATORS.setMenuLanguage(language)); },
-//  setTextLanguageByTitle: (title, language) => { dispatch(ACTION_CREATORS.setTextLanguageByTitle(title, language)); },
-//  setFontSize: fontSize => { dispatch(ACTION_CREATORS.setFontSize(fontSize)); },
-//  setDefaultTextLanguage: language => { dispatch(ACTION_CREATORS.setDefaultTextLanguage(language)); },
-//  setOverwriteVersions: overwrite => { dispatch(ACTION_CREATORS.setOverwriteVersions(overwrite)); },
-//  setAliyot: show => { dispatch(ACTION_CREATORS.setAliyot(show)); },
-//  toggleDebugInterruptingMessage: () => { dispatch(ACTION_CREATORS.toggleDebugInterruptingMessage()); },
-//  setBiLayout: layout => { dispatch(ACTION_CREATORS.setBiLayout(layout)); },
-  setIsLoggedIn: isLoggedIn => { dispatch(ACTION_CREATORS.setIsLoggedIn(isLoggedIn)); },
-});
-
-const initAsyncStorage = () => {
+const initAsyncStorage = dispatch => {
   // Loads data from each field in `_data` stored in Async storage into local memory for sync access.
   // Returns a Promise that resolves when all fields are loaded.
   var promises = [];
@@ -268,7 +255,7 @@ const initAsyncStorage = () => {
     if (ASYNC_STORAGE_DEFAULTS.hasOwnProperty(field)) {
       const loader = function (field, value) {
         const actionValue = value ? JSON.parse(value) : ASYNC_STORAGE_DEFAULTS[field].default;
-        store.dispatch(ASYNC_STORAGE_DEFAULTS[field].action(actionValue, true));
+        dispatch(ASYNC_STORAGE_DEFAULTS[field].action(actionValue, true));
       }.bind(null, field);
       const promise = AsyncStorage.getItem(field)
         .then(loader)

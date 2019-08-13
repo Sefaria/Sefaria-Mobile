@@ -26,7 +26,7 @@ const ERRORS = {
 
 Sefaria = {
   _auth: {},
-  init: async function() {
+  init: async function(dispatch) {
     // numTimesOpenedApp
     const numTimesOpenedApp = await AsyncStorage.getItem("numTimesOpenedApp");
     Sefaria.numTimesOpenedApp = !!numTimesOpenedApp ? parseInt(numTimesOpenedApp) : 0;
@@ -37,7 +37,7 @@ Sefaria = {
     Sefaria.lastAppUpdateTime = await Sefaria.getLastAppUpdateTime();
     await Sefaria._loadTOC();
     await Sefaria.history._loadHistoryItems();
-    await initAsyncStorage();
+    await initAsyncStorage(dispatch);
   },
   postInitSearch: function() {
     return Sefaria._loadRecentQueries()

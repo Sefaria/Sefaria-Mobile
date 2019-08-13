@@ -10,7 +10,7 @@ import {
   Linking
 } from 'react-native';
 import ActionSheet from 'react-native-action-sheet';
-
+import { GlobalStateContext } from './StateManager';
 import TextSegment from './TextSegment';
 import styles from './Styles';
 import strings from './LocalizedStrings';
@@ -89,12 +89,12 @@ const TextRange = ({
   let numLinks = rowData.content.links ? rowData.content.links.length : 0;
 
   let segment = [];
-  textLanguage = Sefaria.util.getTextLanguageWithContent(textLanguage, enText, heText);
+  const textLanguageWithContent = Sefaria.util.getTextLanguageWithContent(textLanguage, enText, heText);
   let refSection = rowData.sectionIndex + ":" + rowData.rowIndex;
   let numberMargin = (<Text
-                        style={[styles.verseNumber, textLanguage == "hebrew" ? styles.hebrewVerseNumber : null, theme.verseNumber]}
+                        style={[styles.verseNumber, textLanguageWithContent == "hebrew" ? styles.hebrewVerseNumber : null, theme.verseNumber]}
                         key={segmentRef + "|segment-number"}>
-                      {showSegmentNumbers ? (textLanguage == "hebrew" ?
+                      {showSegmentNumbers ? (textLanguageWithContent == "hebrew" ?
                        Sefaria.hebrew.encodeHebrewNumeral(rowData.content.segmentNumber) :
                        rowData.content.segmentNumber) : ""}
                     </Text>);
@@ -119,15 +119,15 @@ const TextRange = ({
   } else if (biLayout === 'sidebysiderev') {
     textStyle.push({flexDirection: "row-reverse"})
   }
-  const showHe = textLanguage == "hebrew" || textLanguage == "bilingual";
-  const showEn = textLanguage == "english" || textLanguage == "bilingual";
+  const showHe = textLanguageWithContent == "hebrew" || textLanguageWithContent == "bilingual";
+  const showEn = textLanguageWithContent == "english" || textLanguageWithContent == "bilingual";
   return (
     <View
       style={styles.verseContainer}
       ref={_setRef}
     >
       <View
-        style={[styles.numberSegmentHolderEn, {flexDirection: textLanguage === 'english' ? 'row' : 'row-reverse'}]}
+        style={[styles.numberSegmentHolderEn, {flexDirection: textLanguageWithContent === 'english' ? 'row' : 'row-reverse'}]}
         key={segmentRef+"|inner-box"}
       >
         { numberMargin }
@@ -155,7 +155,7 @@ const TextRange = ({
               key={segmentRef+"|english"}
               data={enText}
               textType="english"
-              bilingual={textLanguage === "bilingual"}
+              bilingual={textLanguageWithContent === "bilingual"}
               textSegmentPressed={ textSegmentPressed }
               onLongPress={onLongPress}
             />) : null

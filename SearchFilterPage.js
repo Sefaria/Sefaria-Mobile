@@ -56,11 +56,11 @@ const SearchFilterPage = ({
     search(type, query, true, false);
   };
 
-  const clearAllFilters = () => {
+  clearAllFilters = () => {
     clearAllFilters(type);
   };
 
-  const toggleFilter = filter => {
+  toggleFilter = filter => {
     toggleFilter(type, filter);
   };
 

@@ -19,7 +19,7 @@ import { GlobalStateContext } from './StateManager';
 import styles from './Styles';
 import strings from './LocalizedStrings';
 
-PREVIOUS_MODES = { // mapping from modes to previous modes
+const PREVIOUS_MODES = { // mapping from modes to previous modes
   "version open": "versions",
 };
 

@@ -1,6 +1,6 @@
 'use strict';
 import PropTypes from 'prop-types';
-import React, { useContext } from 'react';
+import React, { useContext, useState, useReducer } from 'react';
 import {
   ScrollView,
   StyleSheet,
@@ -122,7 +122,7 @@ const ReaderNavigationMenu = props => {
                 hasmore={false} />
 
               <ResourcesSection
-                openSheets={this.props.openSheets}
+                openSheets={props.openSheets}
               />
 
               <CalendarSection
@@ -384,11 +384,11 @@ const CalendarSection = ({ openRef }) => {
       title={strings.calendar}
       heTitle={strings.calendar}
       content={calendarContent}
-    >
+    />
   );
 }
 CalendarSection.propTypes = {
-  openRef:       PropTypes.func.isRequired,
+  openRef: PropTypes.func.isRequired,
 };
 
 const SavedHistorySection = ({ isWhite, openHistory, openSaved }) => (
@@ -424,7 +424,7 @@ const ReaderNavigationMenuSection = ({ title, heTitle, content, hasmore, moreCli
   if (!content) { return null; }
 
   var isheb = interfaceLanguage === "hebrew";
-  var title = !isheb ? title : heTitle;
+  title = !isheb ? title : heTitle;
   var langStyle = !isheb ? styles.enInt : styles.heInt;
   var moreHeStyle = !isheb || !hasmore ? [styles.readerNavSectionMoreInvisible, styles.readerNavSectionMoreHe] : [styles.readerNavSectionMoreHe];
   var moreEnStyle = isheb || !hasmore ? [styles.readerNavSectionMoreInvisible, styles.readerNavSectionMoreEn] : [styles.readerNavSectionMoreEn];
@@ -438,7 +438,7 @@ const ReaderNavigationMenuSection = ({ title, heTitle, content, hasmore, moreCli
                 <Text style={moreEnStyle}> MORE &gt;</Text>
               </TouchableOpacity>
             </View>
-            {this.props.content}
+            { content }
           </View>);
 }
 ReaderNavigationMenuSection.propTypes = {

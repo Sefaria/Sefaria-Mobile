@@ -109,11 +109,11 @@ const ReaderTextTableOfContents = ({
               <Text style={[styles.en, styles.textTocCategoryAttributionTextEn, theme.tertiaryText]}>{textToc.dedication.en}</Text> }
           </View>): null }
 
-          { this.props.currentRef ?
+          { currentRef ?
             <View>
             { menuLanguage == "hebrew" ?
-              <Text style={[styles.intHe, styles.textTocSectionString, theme.textTocSectionString]}>{this.sectionString(menuLanguage, textToc, currentRef, currentHeRef)}</Text> :
-              <Text style={[styles.intEn, styles.textTocSectionString, theme.textTocSectionString]}>{this.sectionString(menuLanguage, textToc, currentRef, currentHeRef)}</Text> }
+              <Text style={[styles.intHe, styles.textTocSectionString, theme.textTocSectionString]}>{sectionString(menuLanguage, textToc, currentRef, currentHeRef)}</Text> :
+              <Text style={[styles.intEn, styles.textTocSectionString, theme.textTocSectionString]}>{sectionString(menuLanguage, textToc, currentRef, currentHeRef)}</Text> }
             </View> : null
           }
         </View>
@@ -435,9 +435,11 @@ JaggedArrayNodeSection.propTypes = {
 
 const JaggedArrayNodeSectionBox = ({ tref, enableAliyot, openRef, title, heTitle, showHebrew }) => {
   const { theme } = useContext(GlobalStateContext);
-  const openRef = () => { openRef(tref, enableAliyot); };
   return (
-    <TouchableOpacity style={[styles.sectionLink, theme.sectionLink]} onPress={openRef}>
+    <TouchableOpacity
+      style={[styles.sectionLink, theme.sectionLink]}
+      onPress={() => { openRef(tref, enableAliyot); }}
+    >
       { showHebrew ?
         <Text style={[styles.he, styles.centerText, theme.text]}>{heTitle}</Text> :
         <Text style={[styles.centerText, theme.text]}>{title}</Text> }
@@ -445,11 +447,11 @@ const JaggedArrayNodeSectionBox = ({ tref, enableAliyot, openRef, title, heTitle
   );
 }
 
-const JaggedArrayNodeSectionTitle = ({ openRef, tref, title, heTitle }) => {
+const JaggedArrayNodeSectionTitle = ({ openRef, tref, title, heTitle, showHebrew }) => {
   const { theme } = useContext(GlobalStateContext);
   return (
     <TouchableOpacity onPress={() => { openRef(tref); }}>
-      { this.props.showHebrew ?
+      { showHebrew ?
         <SText lang={"hebrew"} style={[styles.he, styles.textTocSectionTitle, theme.text]}>{heTitle}</SText> :
         <SText lang={"english"} style={[styles.en, styles.textTocSectionTitle, theme.text]}>{title}</SText> }
     </TouchableOpacity>
@@ -551,7 +553,7 @@ const CollapsibleNode = ({
           <SText lang={"english"} style={[styles.en, styles.textTocSectionTitle, theme.text]}>{node.title}</SText>
           {icon}
         </TouchableOpacity> : null)}
-      { this.state.isVisible ? children : null }
+      { isVisible ? children : null }
     </View>
   );
 }

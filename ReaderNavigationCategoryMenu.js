@@ -266,18 +266,16 @@ const BookButton = ({
   openCat,
 }) => {
   const { theme } = useContext(GlobalStateContext);
-  const openCat = () => { setCategories(cats); };
-  const openRef = () => { openRef(tref, versions); };
+  openCat = () => { setCategories(cats); };
+  openRef = () => { openRef(tref, versions); };
   const onPress = () => { !!cats ? openCat() : openRef(); };
-  render() {
-    return (
-      <TouchableOpacity onPress={onPress} style={[styles.textBlockLink, theme.textBlockLink]}>
-        { showHebrew ?
-          <Text style={[styles.hebrewText, styles.centerText, theme.text]}>{heTitle}</Text> :
-          <Text style={[styles.englishText, styles.centerText, theme.text]}>{title}</Text> }
-      </TouchableOpacity>
-    );
-  }
+  return (
+    <TouchableOpacity onPress={onPress} style={[styles.textBlockLink, theme.textBlockLink]}>
+      { showHebrew ?
+        <Text style={[styles.hebrewText, styles.centerText, theme.text]}>{heTitle}</Text> :
+        <Text style={[styles.englishText, styles.centerText, theme.text]}>{title}</Text> }
+    </TouchableOpacity>
+  );
 }
 
 

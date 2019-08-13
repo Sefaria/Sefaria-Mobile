@@ -80,7 +80,7 @@ const VersionsBox = ({
 }) => {
   const { theme, interfaceLanguage, textLanguage } = useContext(GlobalStateContext);
   const {
-    { versionLangs, versionLangMap },
+    vLangState,
     setVLangState
   } = useVLangState(currVersions, versions);
   useEffect(() => {
@@ -97,7 +97,7 @@ const VersionsBox = ({
       </View>
     );
   }
-  if (!versionLangMap) {
+  if (!vLangState.versionLangMap) {
     return (
       <View style={styles.readerSideMargin}>
         <LoadingView />
@@ -115,13 +115,13 @@ const VersionsBox = ({
     <ScrollView
       contentContainerStyle={[styles.versionsBoxScrollView, styles.readerSideMargin]}>
       {
-        versionLangs.map((lang) => (
+        vLangState.versionLangs.map((lang) => (
           <View key={lang}>
             <View style={[styles.versionsBoxLang]}>
-              <Text style={[textStyle, styles.versionsBoxLangText, theme.text]}>{strings[Sefaria.util.translateISOLanguageCode(lang)].toUpperCase()}<Text>{` (${versionLangMap[lang].length})`}</Text></Text>
+              <Text style={[textStyle, styles.versionsBoxLangText, theme.text]}>{strings[Sefaria.util.translateISOLanguageCode(lang)].toUpperCase()}<Text>{` (${vLangState.versionLangMap[lang].length})`}</Text></Text>
             </View>
             {
-              versionLangMap[lang].map(v => (
+              vLangState.versionLangMap[lang].map(v => (
                 <TouchableOpacity
                   style={[styles.versionsBoxVersionBlockWrapper, theme.bordered]}
                   key={v.versionTitle + lang}

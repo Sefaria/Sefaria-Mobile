@@ -137,49 +137,47 @@ const CategoryBlockLink = ({
   subtext,
   upperCase,
   withArrow,
-  style,
   isSans,
   onPress,
 }) => {
-    const { theme, themeStr, menuLanguage } = useContext(GlobalStateContext);
-    const isHeb = menuLanguage == "hebrew";
-    const iconOnLeft = iconSide ? iconSide === "start" ^ isHeb : isHeb;
-    var style  = style || {"borderColor": Sefaria.palette.categoryColor(category)};
-    var enText = upperCase ? category.toUpperCase() : category;
-    var heText = heCat || Sefaria.hebrewCategory(category);
-    const subtext = !!subtext && !(subtext instanceof Array) ? [subtext] : subtext;
-    var textStyle  = [styles.centerText, theme.text, upperCase ? styles.spacedText : null];
-    var content = isHeb ?
-      (<Text style={[isSans ? styles.heInt : styles.hebrewText].concat(textStyle)}>{heText}</Text>) :
-      (<Text style={[isSans ? styles.enInt : styles.englishText].concat(textStyle)}>{enText}</Text>);
-    return (
-      <TouchableOpacity onPress={onPress} style={[styles.readerNavCategory, theme.readerNavCategory, style]}>
-        <View style={styles.readerNavCategoryInner}>
-          { iconOnLeft && (withArrow || icon) ? <Image source={withArrow || !icon ? (themeStr == "white" ? require('./img/back.png') : require('./img/back-light.png')) : icon }
-            style={[styles.moreArrowHe, isSans ? styles.categoryBlockLinkIconSansHe : null]}
-            resizeMode={'contain'} /> : null }
-          {content}
-          { !iconOnLeft && (withArrow || icon) ? <Image source={ withArrow || !icon ? (themeStr == "white" ? require('./img/forward.png'): require('./img/forward-light.png')) : icon }
-            style={[styles.moreArrowEn, isSans ? styles.categoryBlockLinkIconSansEn : null]}
-            resizeMode={'contain'} /> : null }
-        </View>
-        {
-          !!subtext ?
-            <View style={styles.readerNavCategorySubtext}>
-              { subtext.map(x => (
-                <Text
-                  key={x.en}
-                  style={[isHeb ? styles.hebrewText : styles.englishText, {textAlign: "center"}, theme.secondaryText]}
-                >
-                  {isHeb ? x.he : x.en}
-                </Text>
-              )) }
-            </View>
-          : null
-        }
-      </TouchableOpacity>
-    );
-  }
+  const { theme, themeStr, menuLanguage } = useContext(GlobalStateContext);
+  const isHeb = menuLanguage == "hebrew";
+  const iconOnLeft = iconSide ? iconSide === "start" ^ isHeb : isHeb;
+  style  = style || {"borderColor": Sefaria.palette.categoryColor(category)};
+  var enText = upperCase ? category.toUpperCase() : category;
+  var heText = heCat || Sefaria.hebrewCategory(category);
+  subtext = !!subtext && !(subtext instanceof Array) ? [subtext] : subtext;
+  var textStyle  = [styles.centerText, theme.text, upperCase ? styles.spacedText : null];
+  var content = isHeb ?
+    (<Text style={[isSans ? styles.heInt : styles.hebrewText].concat(textStyle)}>{heText}</Text>) :
+    (<Text style={[isSans ? styles.enInt : styles.englishText].concat(textStyle)}>{enText}</Text>);
+  return (
+    <TouchableOpacity onPress={onPress} style={[styles.readerNavCategory, theme.readerNavCategory, style]}>
+      <View style={styles.readerNavCategoryInner}>
+        { iconOnLeft && (withArrow || icon) ? <Image source={withArrow || !icon ? (themeStr == "white" ? require('./img/back.png') : require('./img/back-light.png')) : icon }
+          style={[styles.moreArrowHe, isSans ? styles.categoryBlockLinkIconSansHe : null]}
+          resizeMode={'contain'} /> : null }
+        {content}
+        { !iconOnLeft && (withArrow || icon) ? <Image source={ withArrow || !icon ? (themeStr == "white" ? require('./img/forward.png'): require('./img/forward-light.png')) : icon }
+          style={[styles.moreArrowEn, isSans ? styles.categoryBlockLinkIconSansEn : null]}
+          resizeMode={'contain'} /> : null }
+      </View>
+      {
+        !!subtext ?
+          <View style={styles.readerNavCategorySubtext}>
+            { subtext.map(x => (
+              <Text
+                key={x.en}
+                style={[isHeb ? styles.hebrewText : styles.englishText, {textAlign: "center"}, theme.secondaryText]}
+              >
+                {isHeb ? x.he : x.en}
+              </Text>
+            )) }
+          </View>
+        : null
+      }
+    </TouchableOpacity>
+  );
 }
 CategoryBlockLink.propTypes = {
   category:  PropTypes.string,
@@ -318,7 +316,7 @@ const LibraryNavButton = ({
   count,
   withArrow,
   buttonStyle,
-}) {
+}) => {
   const { theme, themeStr, menuLanguage } = useContext(GlobalStateContext);
   let colorStyle = catColor ? [{"borderColor": catColor}] : [theme.searchResultSummary, {"borderTopWidth": 1}];
   let textStyle  = [catColor ? styles.spacedText : null];
@@ -387,7 +385,7 @@ LanguageToggleButton.propTypes = {
   toggleLanguage: PropTypes.func.isRequired,
 };
 
-const CollapseIcon = ({ showHebre, isVisible }) => {
+const CollapseIcon = ({ showHebrew, isVisible }) => {
   const { themeStr } = useContext(GlobalStateContext);
   var src;
   if (themeStr == "white") {
@@ -571,7 +569,7 @@ const DisplaySettingsButton = ({ onPress }) => {
 const ToggleSet = ({ options, active }) => {
   const { theme, menuLanguage } = useContext(GlobalStateContext);
   const showHebrew = menuLanguage == "hebrew";
-  const options = options.map((option, i) => {
+  options = options.map((option, i) => {
     var style = [styles.navToggle, theme.navToggle].concat(active === option.name ? [styles.navToggleActive, theme.navToggleActive] : []);
     return (
       <TouchableOpacity onPress={option.onPress} key={i} >
@@ -603,7 +601,7 @@ ToggleSet.propTypes = {
 const ButtonToggleSet = ({ options, active }) => {
   const { theme, interfaceLanguage } = useContext(GlobalStateContext);
   var showHebrew = interfaceLanguage == "hebrew";
-  var options = options.map((option, i) => {
+  options = options.map((option, i) => {
 
     let alignStyle;
     if (i == options.length -1) { alignStyle = styles.readerDisplayOptionsMenuItemRight; }
