@@ -32,7 +32,6 @@ class ReaderNavigationSheetCategoryMenu extends React.Component {
   static propTypes = {
     theme:          PropTypes.object.isRequired,
     themeStr:       PropTypes.string.isRequired,
-    menuLanguage:   PropTypes.string.isRequired,
   };
 
   constructor(props) {
@@ -129,9 +128,7 @@ class ReaderNavigationSheetCategoryMenu extends React.Component {
                 {showHebrew ?
                   <Text style={[styles.he, styles.categoryTitle, this.props.theme.categoryTitle, {textTransform: "uppercase"}]}>{this.props.category}</Text> :
                   <Text style={[styles.en, styles.categoryTitle, this.props.theme.categoryTitle, {textTransform: "uppercase"}]}>{this.props.category}</Text> }
-                <LanguageToggleButton
-                  toggleLanguage={this.props.toggleLanguage}
-                  language={this.props.menuLanguage} />
+                <LanguageToggleButton />
               </View>
 
 

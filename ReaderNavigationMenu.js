@@ -33,7 +33,7 @@ import strings from './LocalizedStrings.js';
 
 const ReaderNavigationMenu = props => {
   // The Navigation menu for browsing and searching texts
-  const { theme, themeStr, interfaceLanguage, menuLanguage } = useContext(GlobalStateContext);
+  const { theme, themeStr, interfaceLanguage, defaultTextLanguage } = useContext(GlobalStateContext);
   const [showMore, setShowMore] = useState(false);
   const isWhite = themeStr === "white";
 
@@ -45,7 +45,6 @@ const ReaderNavigationMenu = props => {
               category={props.categories.slice(-1)[0]}
               setCategories={props.setCategories}
               openRef={props.openRef}
-              toggleLanguage={props.toggleLanguage}
               navHome={() => { props.setCategories([]); }}
               openUri={props.openUri}/>);
   } else {
@@ -89,7 +88,7 @@ const ReaderNavigationMenu = props => {
     categories = showMore ? categories : categories.slice(0,9).concat(more);
     categories = (
       <View style={styles.readerNavCategories}>
-        <TwoBox language={menuLanguage}>
+        <TwoBox language={defaultTextLanguage}>
           { categories }
         </TwoBox>
       </View>
@@ -103,7 +102,7 @@ const ReaderNavigationMenu = props => {
               leftMenuButton="close"
               search={props.openSearch}
               setIsNewSearch={props.setIsNewSearch}
-              toggleLanguage={props.toggleLanguage}
+              hasLangToggle={true}
               onChange={props.onChangeSearchQuery}
               query={props.searchQuery}
               searchType={props.searchType}
@@ -160,7 +159,6 @@ ReaderNavigationMenu.propTypes = {
   openHistory:    PropTypes.func.isRequired,
   openSaved:      PropTypes.func.isRequired,
   openSheets:      PropTypes.func.isRequired,
-  toggleLanguage: PropTypes.func.isRequired,
   onChangeSearchQuery:PropTypes.func.isRequired,
   searchQuery:    PropTypes.string.isRequired,
   openAutocomplete: PropTypes.func.isRequired,
@@ -324,7 +322,7 @@ ResourcesSection.propTypes = {
 
 
 const CalendarSection = ({ openRef }) => {
-  const { menuLanguage } = useContext(GlobalStateContext);
+  const { defaultTextLanguage } = useContext(GlobalStateContext);
   if (!Sefaria.calendar) { return null; }
   const { parasha, dafYomi, p929, rambam, mishnah } = Sefaria.getCalendars();
   const calendar = [
@@ -373,7 +371,7 @@ const CalendarSection = ({ openRef }) => {
           ];
 
   var calendarContent = (
-    <TwoBox language={menuLanguage}>
+    <TwoBox language={defaultTextLanguage}>
       { calendar }
     </TwoBox>
   );

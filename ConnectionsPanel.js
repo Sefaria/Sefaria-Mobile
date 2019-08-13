@@ -26,7 +26,7 @@ import {
 import { GlobalStateContext } from './StateManager';
 
 const ConnectionsPanel = props => {
-  const { theme, textLanguage } = useContext(GlobalStateContext);
+  const { theme, themeStr, textLanguage, fontSize } = useContext(GlobalStateContext);
   let recentFilters, filterIndex, listContents, loadContent, updateCat;
   switch (props.connectionsMode) {
     case 'filter':
@@ -74,6 +74,9 @@ const ConnectionsPanel = props => {
             recentFilters={recentFilters}
             filterIndex={filterIndex}
             listContents={listContents}
+            textLanguage={textLanguage}
+            themeStr={themeStr}
+            fontSize={fontSize}
           />
         </View>
       );
@@ -234,7 +237,7 @@ ConnectionsPanel.propTypes = {
 
 const LinkNavButton = ({ onPress, enText, heText, count, catColor }) => (
   <LibraryNavButton
-    catColor={props.catColor}
+    catColor={catColor}
     onPress={onPress}
     enText={enText}
     heText={heText}

@@ -23,7 +23,6 @@ import {
     MenuButton,
     LoadingView
 } from './Misc.js';
-import { GlobalStateContext } from './StateManager';
 import styles from './Styles.js';
 import strings from "./LocalizedStrings";
 import {CategoryAttribution, CloseButton, DirectedButton, HebrewInEnglishText} from "./Misc";
@@ -46,7 +45,7 @@ class SheetMeta extends React.Component {
 
 
     render() {
-        const { interfaceLanguage, menuLanguage } = React.useContext(GlobalStateContext);
+        const { interfaceLanguage, defaultTextLanguage } = this.props;
         const langStyle = interfaceLanguage === "hebrew" ? styles.heInt : styles.enInt;
         var showHebrew = false;
         const tags = this.props.sheet.tags || [];
@@ -70,7 +69,7 @@ class SheetMeta extends React.Component {
                     <CloseButton onPress={this.props.close} />
                     <Text
                         style={[langStyle, styles.textTocHeaderTitle, styles.textCenter, theme.text]}>{strings.tableOfContents}</Text>
-                      <LanguageToggleButton toggleLanguage={this.props.toggleLanguage} language={menuLanguage}/>
+                      <LanguageToggleButton />
                 </View>
 
                 <ScrollView style={styles.menuContent} contentContainerStyle={{paddingTop: 20, paddingBottom: 40}}>
@@ -80,7 +79,7 @@ class SheetMeta extends React.Component {
                                 style={[styles.en, styles.textTocTitle, theme.text]}><HebrewInEnglishText text={this.props.sheet.title} stylesHe={[styles.heInEn]} stylesEn={[]}/></Text>
                         </View>
                         <View style={styles.textTocCategoryBox}>
-                            {menuLanguage == "hebrew" ?
+                            {interfaceLanguage == "hebrew" ?
                                 <Text
                                     style={[styles.he, styles.textTocCategory, theme.secondaryText]}>דף</Text> :
                                 <Text
@@ -127,7 +126,7 @@ class SheetMeta extends React.Component {
 
                     </View>
 
-                    <TwoBox language={menuLanguage}>
+                    <TwoBox language={defaultTextLanguage}>
                       { sheetTags }
                     </TwoBox>
                 </ScrollView>

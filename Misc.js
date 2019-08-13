@@ -15,7 +15,7 @@ import {
   Animated,
   Platform,
 } from 'react-native';
-import { GlobalStateContext } from './StateManager';
+import { GlobalStateContext, DispatchContext, STATE_ACTIONS } from './StateManager';
 import Sefaria from './sefaria';
 import styles from './Styles.js';
 import strings from './LocalizedStrings';
@@ -84,7 +84,7 @@ const SefariaProgressBar = ({ progress, onPress, onClose }) => (
 
 class TwoBox extends React.Component {
   static propTypes = {
-    language: PropTypes.oneOf(["hebrew","english"]),
+    language: PropTypes.oneOf(["hebrew", "bilingual", "english"]),
   };
 
   render() {
@@ -108,7 +108,7 @@ class TwoBox extends React.Component {
 
 class TwoBoxRow extends React.PureComponent {
   static propTypes = {
-    language: PropTypes.oneOf(["hebrew","english"]),
+    language: PropTypes.oneOf(["hebrew","bilingual", "english"]),
   };
   render() {
     const { children, language } = this.props;
@@ -140,8 +140,8 @@ const CategoryBlockLink = ({
   isSans,
   onPress,
 }) => {
-  const { theme, themeStr, menuLanguage } = useContext(GlobalStateContext);
-  const isHeb = menuLanguage == "hebrew";
+  const { theme, themeStr, defaultTextLanguage } = useContext(GlobalStateContext);
+  const isHeb = defaultTextLanguage == "hebrew";
   const iconOnLeft = iconSide ? iconSide === "start" ^ isHeb : isHeb;
   style  = style || {"borderColor": Sefaria.palette.categoryColor(category)};
   var enText = upperCase ? category.toUpperCase() : category;
@@ -280,14 +280,16 @@ class CategoryColorLine extends React.Component {
 }
 
 const CategoryAttribution = ({ categories, context, linked=true, openUri }) => {
-  const { theme, menuLanguage } = useContext(GlobalStateContext);
+  const { theme, defaultTextLanguage, textLanguage } = useContext(GlobalStateContext);
+  // language settings in TextColumn should be governed by textLanguage. Everything else should be governed by defaultTextLanguage
+  const language = context === 'header' ? textLanguage : defaultTextLanguage;
   if (!categories) { return null; }
   var attribution = Sefaria.categoryAttribution(categories);
   if (!attribution) { return null; }
 
   var openLink = () => {openUri(attribution.link)};
   var boxStyles = [styles.categoryAttribution, styles[context + "CategoryAttribution" ]];
-  var content = menuLanguage == "english" ?
+  var content = language !== "hebrew" ?
               <Text style={[styles[context + "CategoryAttributionTextEn"], theme.tertiaryText]}>{attribution.english}</Text> :
               <Text style={[styles[context + "CategoryAttributionTextHe"], theme.tertiaryText]}>{attribution.hebrew}</Text>;
 
@@ -317,10 +319,10 @@ const LibraryNavButton = ({
   withArrow,
   buttonStyle,
 }) => {
-  const { theme, themeStr, menuLanguage } = useContext(GlobalStateContext);
+  const { theme, themeStr, defaultTextLanguage } = useContext(GlobalStateContext);
   let colorStyle = catColor ? [{"borderColor": catColor}] : [theme.searchResultSummary, {"borderTopWidth": 1}];
   let textStyle  = [catColor ? styles.spacedText : null];
-  let flexDir = menuLanguage == "english" ? "row" : "row-reverse";
+  let flexDir = defaultTextLanguage !== "hebrew" ? "row" : "row-reverse";
   let textMargin = !!onPressCheckBox ? { marginHorizontal: 0 } : styles.readerSideMargin;
   if (count === 0) { textStyle.push(theme.secondaryText); }
   return (
@@ -333,7 +335,7 @@ const LibraryNavButton = ({
             <IndeterminateCheckBox themeStr={themeStr} state={checkBoxSelected} onPress={onPressCheckBox} />
           </TouchableOpacity> : null
         }
-        { menuLanguage == "english" ?
+        { defaultTextLanguage !== "hebrew" ?
           <Text style={[styles.englishText].concat([theme.tertiaryText, textStyle, {paddingTop:3}, textMargin])}>
             {`${enText} `}
             {
@@ -350,7 +352,7 @@ const LibraryNavButton = ({
         }
       </View>
       { withArrow ?
-        <DirectedArrow themeStr={themeStr} imageStyle={{opacity: 0.5}} language={menuLanguage} direction={"forward"} />
+        <DirectedArrow themeStr={themeStr} imageStyle={{opacity: 0.5}} language={defaultTextLanguage} direction={"forward"} />
         : null
       }
    </TouchableOpacity>
@@ -368,22 +370,28 @@ LibraryNavButton.propTypes = {
   buttonStyle:     PropTypes.oneOfType([ViewPropTypes.style, PropTypes.array]),
 };
 
-const LanguageToggleButton = ({ language, toggleLanguage }) => {
-  const { theme, interfaceLanguage } = useContext(GlobalStateContext);
-  const content = language == "hebrew" ?
+const LanguageToggleButton = () => {
+  // button for toggling b/w he and en for menu and text lang (both controlled by `defaultTextLanguage`)
+  const { theme, interfaceLanguage, defaultTextLanguage } = useContext(GlobalStateContext);
+  const dispatch = useContext(DispatchContext);
+  const toggle = () => {
+    const language = defaultTextLanguage !== "hebrew" ? "hebrew" : 'english';
+    dispatch({
+      type: STATE_ACTIONS.setDefaultTextLanguage,
+      language,
+    });
+  };
+
+  const content = defaultTextLanguage == "hebrew" ?
       (<Text style={[styles.languageToggleTextEn, theme.languageToggleText, styles.en]}>A</Text>) :
       (<Text style={[styles.languageToggleTextHe, theme.languageToggleText, styles.he]}>א</Text>);
   const style = [styles.languageToggle, theme.languageToggle, interfaceLanguage === "hebrew" ? {opacity:0} : null];
   return (
-    <TouchableOpacity style={style} onPress={interfaceLanguage === "hebrew" ? null : toggleLanguage}>
+    <TouchableOpacity style={style} onPress={interfaceLanguage === "hebrew" ? null : toggle}>
       {content}
     </TouchableOpacity>
   );
 }
-LanguageToggleButton.propTypes = {
-  language:       PropTypes.string.isRequired,
-  toggleLanguage: PropTypes.func.isRequired,
-};
 
 const CollapseIcon = ({ showHebrew, isVisible }) => {
   const { themeStr } = useContext(GlobalStateContext);
@@ -457,7 +465,8 @@ class DirectedButton extends React.Component {
 
 const DirectedArrow = ({ imageStyle, language, direction }) => {
   const { themeStr } = useContext(GlobalStateContext);
-  var actualDirBack = (language === "hebrew"  && direction === "forward") || (language === "english" && direction === "back")
+  const isheb = language === 'hebrew';
+  var actualDirBack = (isheb  && direction === "forward") || (!isheb && direction === "back");
   //I wish there was a way to reduce these if statements, but there's a limitation that require statements can't have variables in them
   var src;
   if (actualDirBack) {
@@ -479,7 +488,7 @@ const DirectedArrow = ({ imageStyle, language, direction }) => {
 }
 DirectedArrow.propTypes = {
   imageStyle:   PropTypes.oneOfType([ViewPropTypes.style, PropTypes.array]),
-  language:     PropTypes.oneOf(["hebrew", "english"]).isRequired,
+  language:     PropTypes.oneOf(["hebrew", "bilingual", "english"]).isRequired,
   direction:  PropTypes.oneOf(["forward", "back"]).isRequired,
 };
 
@@ -567,8 +576,8 @@ const DisplaySettingsButton = ({ onPress }) => {
 }
 
 const ToggleSet = ({ options, active }) => {
-  const { theme, menuLanguage } = useContext(GlobalStateContext);
-  const showHebrew = menuLanguage == "hebrew";
+  const { theme, defaultTextLanguage } = useContext(GlobalStateContext);
+  const showHebrew = defaultTextLanguage == "hebrew";
   options = options.map((option, i) => {
     var style = [styles.navToggle, theme.navToggle].concat(active === option.name ? [styles.navToggleActive, theme.navToggleActive] : []);
     return (
@@ -727,12 +736,12 @@ class HebrewInEnglishText extends React.Component {
 class SText extends React.Component {
   static propTypes = {
     children: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
-    lang:     PropTypes.oneOf(["hebrew", "english"]),
+    lang:     PropTypes.oneOf(["hebrew", "bilingual", "english"]),
     style:    PropTypes.oneOfType([PropTypes.object, PropTypes.array]),
   }
 
   fsize2lheight = (fsize, lang) => (
-    lang === "english" ? (fsize * 2) - 4 : (fsize) + 2 // very naive guess at what the function should be (17 == 30, 16 == 28)
+    lang !== "hebrew" ? (fsize * 2) - 4 : (fsize) + 2 // very naive guess at what the function should be (17 == 30, 16 == 28)
   );
 
   getFontSize = (style, lang) => {

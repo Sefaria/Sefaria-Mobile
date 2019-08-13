@@ -27,14 +27,14 @@ const SearchBar = ({
   search,
   setIsNewSearch,
   searchType,
-  toggleLanguage,
+  hasLangToggle,
   hideSearchButton,
   query,
   onChange,
   onFocus,
   leftMenuButton,
 }) => {
-  const { theme, themeStr, interfaceLanguage, menuLanguage } = useContext(GlobalStateContext);
+  const { theme, themeStr, interfaceLanguage } = useContext(GlobalStateContext);
 
   const submitSearch = () => {
     if (query) {
@@ -76,11 +76,8 @@ const SearchBar = ({
           <CancelButton onPress={() => { onChange(""); }} />
           : null
         }
-        {toggleLanguage ?
-          <LanguageToggleButton
-            toggleLanguage={toggleLanguage}
-            language={menuLanguage}
-          />
+        {hasLangToggle ?
+          <LanguageToggleButton />
            : null}
       </View>
     </View>
@@ -91,8 +88,8 @@ SearchBar.propTypes = {
   search:          PropTypes.func.isRequired,
   setIsNewSearch:  PropTypes.func.isRequired,
   searchType:      PropTypes.oneOf(['text', 'sheet']).isRequired,
-  toggleLanguage:  PropTypes.func,
   hideSearchButton:PropTypes.bool,
+  hasLangToggle:   PropTypes.bool,
   query:           PropTypes.string.isRequired,
   onChange:        PropTypes.func.isRequired,
   onFocus:         PropTypes.func,

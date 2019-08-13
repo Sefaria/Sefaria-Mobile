@@ -173,7 +173,7 @@ SearchFilterPage.propTypes = {
 
 
 const SearchFilter = ({ filterNode, openSubMenu, toggleFilter }) => {
-  const { menuLanguage } = useContext(GlobalStateContext);
+  const { defaultTextLanguage } = useContext(GlobalStateContext);
   const clickCheckBox = () => { toggleFilter(filterNode); }
   const onPress = () => { openSubMenu ? openSubMenu(title) : clickCheckBox() }
   const { title, heTitle, selected, children, docCount } = filterNode;
@@ -183,7 +183,7 @@ const SearchFilter = ({ filterNode, openSubMenu, toggleFilter }) => {
   let colorStyle = isCat ? [{"borderColor": catColor}] : [theme.searchResultSummary, {"borderTopWidth": 1}];
   let textStyle  = [isCat ? styles.spacedText : null];
   let enTitle = isCat ? title.toUpperCase() : title;
-  let flexDir = menuLanguage == "english" ? "row" : "row-reverse";
+  let flexDir = defaultTextLanguage !== "hebrew" ? "row" : "row-reverse";
   return (
     <LibraryNavButton
       onPress={onPress}

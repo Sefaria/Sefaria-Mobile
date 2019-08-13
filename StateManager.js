@@ -255,6 +255,13 @@ const initAsyncStorage = dispatch => {
     if (ASYNC_STORAGE_DEFAULTS.hasOwnProperty(field)) {
       const loader = function (field, value) {
         const actionValue = value ? JSON.parse(value) : ASYNC_STORAGE_DEFAULTS[field].default;
+        if (field === 'interfaceLanguage') {
+          console.log('int', value, actionValue);
+          return;
+        }
+        if (field === 'defaultTextLanguage') {
+          console.log('def', value, actionValue);
+        }
         dispatch(ASYNC_STORAGE_DEFAULTS[field].action(actionValue, true));
       }.bind(null, field);
       const promise = AsyncStorage.getItem(field)

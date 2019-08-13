@@ -32,7 +32,6 @@ class ReaderNavigationSheetList extends React.Component {
   static propTypes = {
     theme:          PropTypes.object.isRequired,
     themeStr:       PropTypes.string.isRequired,
-    menuLanguage:   PropTypes.string.isRequired,
     menuOpen:       PropTypes.oneOf(["mySheets", "sheetTag"]),
   };
 
@@ -71,7 +70,6 @@ class ReaderNavigationSheetList extends React.Component {
     return (
       <View key={index} style={[this.props.theme.menu]}>
         <SheetResult
-          menuLanguage={this.props.menuLanguage}
           theme={this.props.theme}
           title={item.title}
           heTitle={item.title}
@@ -105,11 +103,6 @@ class ReaderNavigationSheetList extends React.Component {
                 {showHebrew ?
                   <Text style={[styles.he, styles.categoryTitle, this.props.theme.categoryTitle, {textTransform: "uppercase"}]}>{title}</Text> :
                   <Text style={[styles.en, styles.categoryTitle, this.props.theme.categoryTitle, {textTransform: "uppercase"}]}>{title}</Text> }
-                <LanguageToggleButton
-                  theme={this.props.theme}
-                  interfaceLang={"hebrew"}
-                  toggleLanguage={this.props.toggleLanguage}
-                  language={this.props.menuLanguage} />
               </View>
                 <FlatList
                   style={{}}

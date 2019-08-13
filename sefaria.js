@@ -901,7 +901,7 @@ Sefaria = {
       }
 
     },
-    linkSummary: function(sectionRef, links=[], menuLanguage) {
+    linkSummary: function(sectionRef, links=[], defaultTextLanguage) {
       // Returns a categories and sorted summary of `links` with `sectionRef` (used to show empty commentators).
       return new Promise(function(resolve, reject) {
         // Returns an ordered array summarizing the link counts by category and text
@@ -989,7 +989,7 @@ Sefaria = {
               return aTop < bTop ? -1 : 1;
             }
             // Then sort alphabetically
-            if (menuLanguage === 'english'){
+            if (defaultTextLanguage !== 'hebrew'){
               return a.title > b.title ? 1 : -1;
             }
             // else hebrew

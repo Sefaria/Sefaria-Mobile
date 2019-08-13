@@ -347,15 +347,6 @@ class ReaderApp extends React.Component {
     }
   };
 
-  toggleMenuLanguage = () => {
-    // Toggle current menu language between english/hebrew only
-    const newMenuLanguage = this.props.menuLanguage !== "hebrew" ? "hebrew" : "english";
-    this.props.dispatch({
-      type: STATE_ACTIONS.setInterfaceLanguage,
-      language: newMenuLanguage,
-    });
-  };
-
   setTextFlow = textFlow => {
     this.setState({ textFlow });
     if (textFlow == "continuous" && this.props.textLanguage == "bilingual") {
@@ -443,7 +434,7 @@ class ReaderApp extends React.Component {
     let secoCat   = cats ? ((cats[0] === "Commentary")?
         ((cats.length > 2) ? cats[2] : ""):
         ((cats.length > 1) ? cats[1] : "")) : "";
-    let contLang  = this.props.menuLanguage; // TODO why is this var called contLang? is this accessing the wrong variable?
+    let contLang  = this.props.textLanguage;
     let sideBar   = this.state.linkRecentFilters.length > 0 ? this.state.linkRecentFilters.map(filt => filt.title).join('+') : 'all';
     let versTit   = ''; //we don't support this yet
 
@@ -1210,7 +1201,7 @@ class ReaderApp extends React.Component {
   };
 
   updateLinkSummary = (section, segment) => {
-    Sefaria.links.linkSummary(this.state.textReference, this.state.data[section][segment].links, this.props.menuLanguage).then((data) => {
+    Sefaria.links.linkSummary(this.state.textReference, this.state.data[section][segment].links, this.props.defaultTextLanguage).then((data) => {
       this.setState({linkSummary: data, loadingLinks: false});
       this.updateLinkCat(null, data); // Set up `linkContents` in their initial state as an array of nulls
     });
@@ -1626,7 +1617,6 @@ class ReaderApp extends React.Component {
               onBack={this.manageBackMain}
               openSearch={this.openSearch}
               setIsNewSearch={this.setIsNewSearch}
-              toggleLanguage={this.toggleMenuLanguage}
               openSettings={this.openMenu.bind(null, "settings")}
               openHistory={this.openMenu.bind(null, "history")}
               openSaved={this.openMenu.bind(null, "saved")}
@@ -1650,7 +1640,6 @@ class ReaderApp extends React.Component {
             currentHeRef={this.state.heRef}
             close={this.manageBackMain}
             openRef={this.openRefTOC}
-            toggleLanguage={this.toggleMenuLanguage}
             openUri={this.openUri}/>);
         break;
       case ("sheet meta"):
@@ -1661,11 +1650,10 @@ class ReaderApp extends React.Component {
             sheetMeta={this.state.sheetMeta}
             theme={this.props.theme}
             themeStr={this.props.themeStr}
-            menuLanguage={this.props.menuLanguage}
+            defaultTextLanguage={this.props.defaultTextLanguage}
             interfaceLanguage={this.props.interfaceLanguage}
             close={this.manageBackMain}
             openSheetTagMenu={this.openSheetTag}
-            toggleLanguage={this.toggleMenuLanguage}
           />);
         break;
       case ("search"):
@@ -1724,9 +1712,8 @@ class ReaderApp extends React.Component {
             close={this.manageBackMain}
             theme={this.props.theme}
             themeStr={this.props.themeStr}
-            toggleLanguage={this.toggleMenuLanguage}
             openRef={this.openRef}
-            menuLanguage={this.props.menuLanguage}
+            defaultTextLanguage={this.props.defaultTextLanguage}
             interfaceLanguage={this.props.interfaceLanguage}
             onRemove={null}
             title={strings.history}
@@ -1741,7 +1728,6 @@ class ReaderApp extends React.Component {
         return(
           <SwipeableCategoryList
             close={this.manageBackMain}
-            toggleLanguage={this.toggleMenuLanguage}
             openRef={this.openRef}
             onRemove={this.removeSavedItem}
             title={strings.saved}
@@ -1767,7 +1753,6 @@ class ReaderApp extends React.Component {
            <ReaderNavigationSheetMenu
             close={this.manageBackMain}
             theme={this.props.theme}
-            toggleLanguage={this.toggleMenuLanguage}
             hasInternet={this.state.hasInternet}
             menuOpen={this.state.menuOpen}
             icon={require('./img/sheet.png')}
@@ -1789,9 +1774,7 @@ class ReaderApp extends React.Component {
             icon={require('./img/sheet.png')}
             theme={this.props.theme}
             themeStr={this.props.themeStr}
-            menuLanguage={this.props.menuLanguage}
             interfaceLanguage={this.props.interfaceLanguage}
-            toggleLanguage={this.toggleMenuLanguage}
             hasInternet={this.state.hasInternet}
             category={this.state.sheetCategory}
             onBack={this.manageBackMain}
@@ -1807,7 +1790,6 @@ class ReaderApp extends React.Component {
           loading ?
           <LoadingView /> :
            <ReaderNavigationSheetList
-            toggleLanguage={this.toggleMenuLanguage}
             tag={this.state.sheetTag}
             menuOpen={this.state.menuOpen}
             onBack={this.manageBackMain}
@@ -1852,7 +1834,6 @@ class ReaderApp extends React.Component {
                 sheetMeta={this.state.sheetMeta}
                 textData={this.state.data}
                 sectionArray={this.state.sectionArray}
-                menuLanguage={this.props.menuLanguage}
                 textSegmentPressed={ this.sheetSegmentPressed }
                 theme={this.props.theme}
                 textListVisible={this.state.textListVisible}
@@ -1866,7 +1847,6 @@ class ReaderApp extends React.Component {
                 theme={this.props.theme}
                 themeStr={this.props.themeStr}
                 fontSize={this.props.fontSize}
-                menuLanguage={this.props.menuLanguage}
                 biLayout={this.props.biLayout}
                 key={this.state.textColumnKey}
                 showToast={this.showToast}

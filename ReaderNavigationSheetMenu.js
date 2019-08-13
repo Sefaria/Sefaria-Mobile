@@ -36,7 +36,6 @@ class ReaderNavigationSheetMenu extends React.Component {
   static propTypes = {
     theme:          PropTypes.object.isRequired,
     close:        PropTypes.func.isRequired,
-    toggleLanguage: PropTypes.func.isRequired,
     isLoggedIn:     PropTypes.bool.isRequired,
     openMySheets:   PropTypes.func.isRequired,
   };

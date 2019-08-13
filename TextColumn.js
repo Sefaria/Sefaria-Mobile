@@ -45,7 +45,6 @@ class TextColumn extends React.Component {
     heRef:              PropTypes.string,
     textFlow:           PropTypes.oneOf(["segmented","continuous"]),
     textLanguage:       PropTypes.oneOf(["hebrew","english","bilingual"]),
-    menuLanguage:       PropTypes.oneOf(["hebrew","english"]),
     updateData:         PropTypes.func,
     updateTitle:        PropTypes.func,
     textSegmentPressed: PropTypes.func,
@@ -473,10 +472,10 @@ class TextColumn extends React.Component {
 
     return (
       <TextHeader
-        title={props.menuLanguage == "hebrew" ?
+        title={props.textLanguage == "hebrew" ?
                 this.inlineSectionHeader(section.heRef) :
                 this.inlineSectionHeader(section.ref)}
-        isHebrew={props.menuLanguage == "hebrew"}
+        isHebrew={props.textLanguage == "hebrew"}
         theme={props.theme}
         outerStyle={styles.sectionHeaderBorder}
       />
@@ -484,7 +483,7 @@ class TextColumn extends React.Component {
   };
 
   renderAliyaMarker = ({ item }) => {
-    const isHeb = this.props.menuLanguage == "hebrew";
+    const isHeb = this.props.textLanguage == "hebrew";
     return (
       <TextHeader
         title={isHeb ? item.data.he : item.data.en}

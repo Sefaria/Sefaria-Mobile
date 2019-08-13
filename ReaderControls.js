@@ -35,7 +35,7 @@ const ReaderControls = ({
   openUri,
   sheet,
 }) => {
-  const { theme, themeStr, menuLanguage } = useContext(GlobalStateContext);
+  const { theme, themeStr, textLanguage } = useContext(GlobalStateContext);
   const [, forceUpdate] = useReducer(x => x + 1, 0);  // HACK
   const shouldShowHamburger = () => {
     if (Platform.OS === "android") { return true; }
@@ -46,7 +46,7 @@ const ReaderControls = ({
     }
   };
   const isSaved = Sefaria.history.indexOfSaved(enRef) !== -1;
-  var langStyle = menuLanguage === "hebrew" ? [styles.he, {marginTop: 4}] : [styles.en];
+  var langStyle = textLanguage === "hebrew" ? [styles.he, {marginTop: 4}] : [styles.en];
   var titleTextStyle = [langStyle, styles.headerTextTitleText, theme.text];
   if (shouldShowHamburger()) {
     var leftMenuButton = <MenuButton onPress={openNav} />
@@ -58,7 +58,7 @@ const ReaderControls = ({
         language="english"
         direction="back"/>
   }
-    var textTitle = menuLanguage === 'hebrew' ? heRef : enRef;
+    var textTitle = textLanguage === 'hebrew' ? heRef : enRef;
     if (sheet) {
       textTitle = Sefaria.util.stripHtml(sheet.title);
     }
@@ -75,15 +75,15 @@ const ReaderControls = ({
         <TouchableOpacity style={styles.headerTextTitle} onPress={sheet ? openSheetMeta : openTextToc }>
           <View style={styles.headerTextTitleInner}>
             <Image source={themeStr == "white" ? require('./img/caret.png'): require('./img/caret-light.png') }
-                     style={[styles.downCaret, menuLanguage === "hebrew" ? null: {opacity: 0}]}
+                     style={[styles.downCaret, textLanguage === "hebrew" ? null: {opacity: 0}]}
                      resizeMode={'contain'} />
 
             {sheet ?
-                <Text lang={menuLanguage} style={titleTextStyle} numberOfLines={1} ellipsizeMode={"tail"}><HebrewInEnglishText text={sheet.title} stylesHe={[styles.heInEn]} stylesEn={[]}/></Text> :
-                <SText lang={menuLanguage} style={titleTextStyle} numberOfLines={1} ellipsizeMode={"tail"}>{textTitle}</SText>
+                <Text lang={textLanguage} style={titleTextStyle} numberOfLines={1} ellipsizeMode={"tail"}><HebrewInEnglishText text={sheet.title} stylesHe={[styles.heInEn]} stylesEn={[]}/></Text> :
+                <SText lang={textLanguage} style={titleTextStyle} numberOfLines={1} ellipsizeMode={"tail"}>{textTitle}</SText>
             }
             <Image source={themeStr == "white" ? require('./img/caret.png'): require('./img/caret-light.png') }
-                     style={[styles.downCaret, menuLanguage === "hebrew" ? {opacity: 0} : null]}
+                     style={[styles.downCaret, textLanguage === "hebrew" ? {opacity: 0} : null]}
                      resizeMode={'contain'} />
           </View>
           <CategoryAttribution

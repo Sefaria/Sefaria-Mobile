@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import {
   View,
@@ -27,6 +27,9 @@ class TextList extends React.Component {
     listContents:    PropTypes.array,
     openRef:         PropTypes.func.isRequired,
     loadContent:     PropTypes.func.isRequired,
+    textLanguage:    PropTypes.oneOf(['english', 'bilingual', 'hebrew']).isRequired,
+    themeStr:        PropTypes.string.isRequired,
+    fontSize:        PropTypes.number.isRequired,
   };
 
   constructor(props) {
@@ -134,7 +137,6 @@ class TextList extends React.Component {
   };
 
   getHistoryObject = visibleSeg => {
-    const { textLanguage } = React.useContext(GlobalStateContext);
     const { item, loaded } = visibleSeg;
     if (!loaded) { return {}; }
     if (this._savedHistorySegments.has(item.ref)) { return {}; }
@@ -144,7 +146,7 @@ class TextList extends React.Component {
       ref: item.ref,
       he_ref: item.heRef,
       versions: { [item.versionLanguage]: item.versionTitle },
-      language: textLanguage,
+      language: this.props.textLanguage,
       secondary: true,
     };
   };
@@ -155,13 +157,12 @@ class TextList extends React.Component {
   };
 
   render() {
-    const { themeStr, fontSize } = React.useContext(GlobalStateContext);
     return (
       <FlatList
         key={this.state.updateScrollPosKey}
         style={styles.scrollViewPaddingInOrderToScroll}
         data={this.state.dataSource}
-        extraData={`${fontSize}|${themeStr}`}
+        extraData={`${this.props.fontSize}|${this.props.themeStr}`}
         renderItem={this.renderItem}
         contentContainerStyle={{justifyContent: "center"}}
         onViewableItemsChanged={this.onViewableItemsChanged}
@@ -188,85 +189,92 @@ const EmptyListMessage = () => (
 );
 
 
-class ListItem extends React.PureComponent {
-  static propTypes = {
-    openRef:           PropTypes.func.isRequired,
-    refStr:            PropTypes.string,
-    heRefStr:          PropTypes.string,
-    versionTitle:      PropTypes.string,
-    category:          PropTypes.string,
-    versionLanguage:   PropTypes.oneOf(["en", "he"]),
-    linkContentObj:    PropTypes.object, /* of the form {en,he} */
-    loading:           PropTypes.bool,
-    displayRef:        PropTypes.bool
-  };
-  openRef = () => {
+const ListItem = ({
+  openRef,
+  refStr,
+  heRefStr,
+  versionTitle,
+  category,
+  versionLanguage,
+  linkContentObj,
+  loading,
+  displayRef,
+}) => {
+  const { theme, fontSize, interfaceLanguage, textLanguage } = useContext(GlobalStateContext);
+  const tempOpenRef = () => {
     // versionLanguage should only be defined when TextList is in VersionsBox. Otherwise you should open default version for that link
-    const versions = this.props.versionLanguage ? {[this.props.versionLanguage]: this.props.versionTitle} : null;
-    this.props.openRef(this.props.refStr, versions);
+    const versions = versionLanguage ? {[versionLanguage]: versionTitle} : null;
+    openRef(refStr, versions);
   }
-  openActionSheet = () => {
-    const { interfaceLanguage } = React.useContext(GlobalStateContext);
+  const openActionSheet = () => {
     ActionSheet.showActionSheetWithOptions({
-      options: [`${strings.open} ${this.props.versionLanguage ? strings.version :
-        Sefaria.getTitle(this.props.refStr, this.props.heRefStr, this.props.category === 'Commentary', interfaceLanguage === "hebrew")}`,strings.cancel],
+      options: [`${strings.open} ${versionLanguage ? strings.version :
+        Sefaria.getTitle(refStr, heRefStr, category === 'Commentary', interfaceLanguage === "hebrew")}`,strings.cancel],
       cancelButtonIndex: 1,
     },
     (buttonIndex) => {
-      if (buttonIndex === 0) { this.openRef(); }
+      if (buttonIndex === 0) { tempOpenRef(); }
     });
   }
-  render() {
-    const { theme, fontSize, menuLanguage, textLanguage } = React.useContext(GlobalStateContext);
-    var lco = this.props.linkContentObj;
-    var lang = Sefaria.util.getTextLanguageWithContent(textLanguage,lco.en,lco.he);
-    var textViews = [];
-    const he = Sefaria.util.getDisplayableHTML(lco.he, "hebrew");
-    const en = Sefaria.util.getDisplayableHTML(lco.en, "english");
-    const lineHeightMultiplierHe = Platform.OS === 'android' ? 1.3 : 1.2;
-    const smallEnSheet = {
-      small: {
-        fontSize: fontSize * 0.8 * 0.8
-      }
-    };
-    const smallHeSheet = {
-      small: {
-        fontSize: fontSize * 0.8
-      }
-    };
-    var hebrewElem =  <HTMLView
-                        stylesheet={{...styles, ...smallHeSheet}}
-                        value={he}
-                        textComponentProps={{
-                          style: [styles.hebrewText, styles.linkContentText, theme.text, {fontSize, lineHeight: fontSize * lineHeightMultiplierHe}],
-                          key: this.props.refStr+"-he"
-                        }}
-                      />;
-    var englishElem = <HTMLView
-                        stylesheet={{...styles, ...smallEnSheet}}
-                        value={en}
-                        textComponentProps={{
-                          style: [styles.englishText, styles.linkContentText, theme.text, {fontSize: 0.8 * fontSize, lineHeight: fontSize * 1.04}],
-                          key: this.props.refStr+"-en"
-                        }}
-                      />;
-    if (lang == "bilingual") {
-      textViews = [hebrewElem, englishElem];
-    } else if (lang == "hebrew") {
-      textViews = [hebrewElem];
-    } else if (lang == "english") {
-      textViews = [englishElem];
+  var lco = linkContentObj;
+  var lang = Sefaria.util.getTextLanguageWithContent(textLanguage,lco.en,lco.he);
+  var textViews = [];
+  const he = Sefaria.util.getDisplayableHTML(lco.he, "hebrew");
+  const en = Sefaria.util.getDisplayableHTML(lco.en, "english");
+  const lineHeightMultiplierHe = Platform.OS === 'android' ? 1.3 : 1.2;
+  const smallEnSheet = {
+    small: {
+      fontSize: fontSize * 0.8 * 0.8
     }
-
-    const refTitleStyle = menuLanguage === 'hebrew' ? styles.he : styles.en;
-    const refStr = menuLanguage === 'hebrew' ? this.props.heRefStr : this.props.refStr;
-    return (
-      <TouchableOpacity style={[styles.textListItem, theme.searchTextResult]} onPress={this.openActionSheet} delayPressIn={200}>
-        {this.props.displayRef ? null : <Text style={[refTitleStyle, styles.textListCitation, theme.textListCitation]}>{refStr}</Text>}
-        {textViews}
-      </TouchableOpacity>
-    );
+  };
+  const smallHeSheet = {
+    small: {
+      fontSize: fontSize * 0.8
+    }
+  };
+  var hebrewElem =  <HTMLView
+                      stylesheet={{...styles, ...smallHeSheet}}
+                      value={he}
+                      textComponentProps={{
+                        style: [styles.hebrewText, styles.linkContentText, theme.text, {fontSize, lineHeight: fontSize * lineHeightMultiplierHe}],
+                        key: refStr+"-he"
+                      }}
+                    />;
+  var englishElem = <HTMLView
+                      stylesheet={{...styles, ...smallEnSheet}}
+                      value={en}
+                      textComponentProps={{
+                        style: [styles.englishText, styles.linkContentText, theme.text, {fontSize: 0.8 * fontSize, lineHeight: fontSize * 1.04}],
+                        key: refStr+"-en"
+                      }}
+                    />;
+  if (lang == "bilingual") {
+    textViews = [hebrewElem, englishElem];
+  } else if (lang == "hebrew") {
+    textViews = [hebrewElem];
+  } else if (lang == "english") {
+    textViews = [englishElem];
   }
+
+  const refTitleStyle = textLanguage === 'hebrew' ? styles.he : styles.en;
+  const tempRefStr = textLanguage === 'hebrew' ? heRefStr : refStr;
+  return (
+    <TouchableOpacity style={[styles.textListItem, theme.searchTextResult]} onPress={openActionSheet} delayPressIn={200}>
+      {displayRef ? null : <Text style={[refTitleStyle, styles.textListCitation, theme.textListCitation]}>{tempRefStr}</Text>}
+      {textViews}
+    </TouchableOpacity>
+  );
 }
+ListItem.propTypes = {
+  openRef:           PropTypes.func.isRequired,
+  refStr:            PropTypes.string,
+  heRefStr:          PropTypes.string,
+  versionTitle:      PropTypes.string,
+  category:          PropTypes.string,
+  versionLanguage:   PropTypes.oneOf(["en", "he"]),
+  linkContentObj:    PropTypes.object, /* of the form {en,he} */
+  loading:           PropTypes.bool,
+  displayRef:        PropTypes.bool
+};
 
 export default TextList;

@@ -35,10 +35,9 @@ class SwipeableCategoryList extends React.Component {
     close:              PropTypes.func.isRequired,
     theme:              PropTypes.object.isRequired,
     themeStr:           PropTypes.string.isRequired,
-    toggleLanguage:     PropTypes.func.isRequired,
     openRef:            PropTypes.func.isRequired,
-    menuLanguage:           PropTypes.oneOf(["english","hebrew"]),
-    interfaceLanguage:      PropTypes.oneOf(["english","hebrew"]),
+    defaultTextLanguage:PropTypes.oneOf(["english","bilingual", "hebrew"]),
+    interfaceLanguage:  PropTypes.oneOf(["english","hebrew"]),
     onRemove:           PropTypes.func,
     title:              PropTypes.string.isRequired,
     loadData:           PropTypes.func.isRequired,
@@ -92,7 +91,7 @@ class SwipeableCategoryList extends React.Component {
           category={Sefaria.categoryForTitle(item.book)}
           enText={item.ref}
           heText={item.he_ref}
-          language={this.props.menuLanguage}
+          language={this.props.defaultTextLanguage}
           onPress={this.props.openRef.bind(null, item.ref, null, item.versions)}
         />
       </AnimatedRow>
@@ -126,10 +125,7 @@ class SwipeableCategoryList extends React.Component {
               {this.props.title.toUpperCase()}
             </SText>
           </View>
-          <LanguageToggleButton
-            toggleLanguage={this.props.toggleLanguage}
-            language={this.props.menuLanguage}
-          />
+          <LanguageToggleButton />
         </View>
 
         {!!this.state.data ?
@@ -140,7 +136,7 @@ class SwipeableCategoryList extends React.Component {
             bounceFirstRowOnMount={!Sefaria._hasSwipeDeleted}
             maxSwipeDistance={90}
             renderQuickActions={this.renderDeleteButton}
-            language={this.props.menuLanguage}
+            language={this.props.defaultTextLanguage}
           />
          : <LoadingView />
         }

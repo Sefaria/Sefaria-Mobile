@@ -12,9 +12,9 @@ import { GlobalStateContext } from './StateManager';
 import styles from './Styles.js';
 
 const SearchTextResult = ({ text, title, heTitle, textType, onPress }) => {
-  const { menuLanguage, theme } = useContext(GlobalStateContext);
-  const refTitleStyle = menuLanguage === "hebrew" ? styles.he : styles.en;
-  const refTitle = menuLanguage === "hebrew" ? heTitle : title;
+  const { defaultTextLanguage, theme } = useContext(GlobalStateContext);
+  const refTitleStyle = defaultTextLanguage === "hebrew" ? styles.he : styles.en;
+  const refTitle = defaultTextLanguage === "hebrew" ? heTitle : title;
   return (
     <TouchableOpacity style={[styles.searchTextResult, theme.searchTextResult]} onPress={onPress}>
       <Text style={[refTitleStyle, styles.textListCitation, theme.textListCitation]}>{refTitle}</Text>

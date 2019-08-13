@@ -28,7 +28,7 @@ import strings from './LocalizedStrings';
 import iPad from './isIPad';
 import VersionBlock from './VersionBlock';
 
-const sectionString = (menuLanguage, textToc, currentRef, currentHeRef) => {
+const sectionString = (defaultTextLanguage, textToc, currentRef, currentHeRef) => {
   // Returns a string expressing just the section we're currently looking including section name when possible
   // e.g. "Genesis 1" -> "Chapter 1"
   if (!textToc) { return "";}
@@ -36,7 +36,7 @@ const sectionString = (menuLanguage, textToc, currentRef, currentHeRef) => {
                       textToc.sectionNames[textToc.sectionNames.length > 1 ? textToc.sectionNames.length-2 : 0] :
                       null;
 
-  if (menuLanguage == "hebrew") {
+  if (defaultTextLanguage == "hebrew") {
     if (!currentHeRef) { return "";}
     var trimmer = new RegExp("^(" + textToc.heTitle + "),? ");
     var sectionString = currentHeRef.replace(trimmer, '');
@@ -62,11 +62,10 @@ const ReaderTextTableOfContents = ({
   currentHeRef,
   openRef,
   close,
-  toggleLanguage,
   openUri,
 }) => {
   // The Table of Contents for a single Text
-  const { theme, interfaceLanguage, menuLanguage } = useContext(GlobalStateContext);
+  const { theme, interfaceLanguage, defaultTextLanguage } = useContext(GlobalStateContext);
   var enTitle = title;
   var heTitle = Sefaria.index(title).heTitle;
   const langStyle = interfaceLanguage === "hebrew" ? styles.heInt : styles.enInt;
@@ -79,19 +78,19 @@ const ReaderTextTableOfContents = ({
       <View style={[styles.header, theme.header]}>
         <CloseButton onPress={close} />
         <Text style={[langStyle, styles.textTocHeaderTitle, styles.textCenter, theme.text]}>{strings.tableOfContents}</Text>
-        <LanguageToggleButton toggleLanguage={toggleLanguage} language={menuLanguage} />
+        <LanguageToggleButton />
       </View>
 
       <ScrollView style={styles.menuContent} contentContainerStyle={{paddingTop: 20,paddingBottom: 40}}>
         <View style={[styles.textTocTopBox, theme.bordered]}>
           <View style={styles.textTocCategoryBox}>
-          { menuLanguage == "hebrew" ?
+          { defaultTextLanguage == "hebrew" ?
             <Text style={[styles.he, styles.textTocCategory, theme.secondaryText]}>{heCatString}</Text> :
             <Text style={[styles.en, styles.textTocCategory, theme.secondaryText]}>{enCatString}</Text> }
           </View>
 
           <View>
-            { menuLanguage == "hebrew" ?
+            { defaultTextLanguage == "hebrew" ?
               <Text style={[styles.he, styles.textTocTitle, theme.text]}>{heTitle}</Text> :
               <Text style={[styles.en, styles.textTocTitle, theme.text]}>{enTitle}</Text> }
           </View>
@@ -104,16 +103,16 @@ const ReaderTextTableOfContents = ({
 
           { textToc && "dedication" in textToc ?
           (<View>
-            { menuLanguage == "hebrew" ?
+            { defaultTextLanguage == "hebrew" ?
               <Text style={[styles.he, styles.textTocCategoryAttributionTextHe, theme.tertiaryText]}>{textToc.dedication.he}</Text> :
               <Text style={[styles.en, styles.textTocCategoryAttributionTextEn, theme.tertiaryText]}>{textToc.dedication.en}</Text> }
           </View>): null }
 
           { currentRef ?
             <View>
-            { menuLanguage == "hebrew" ?
-              <Text style={[styles.intHe, styles.textTocSectionString, theme.textTocSectionString]}>{sectionString(menuLanguage, textToc, currentRef, currentHeRef)}</Text> :
-              <Text style={[styles.intEn, styles.textTocSectionString, theme.textTocSectionString]}>{sectionString(menuLanguage, textToc, currentRef, currentHeRef)}</Text> }
+            { defaultTextLanguage == "hebrew" ?
+              <Text style={[styles.intHe, styles.textTocSectionString, theme.textTocSectionString]}>{sectionString(defaultTextLanguage, textToc, currentRef, currentHeRef)}</Text> :
+              <Text style={[styles.intEn, styles.textTocSectionString, theme.textTocSectionString]}>{sectionString(defaultTextLanguage, textToc, currentRef, currentHeRef)}</Text> }
             </View> : null
           }
         </View>
@@ -139,7 +138,6 @@ ReaderTextTableOfContents.propTypes = {
   currentHeRef:   PropTypes.string,
   openRef:        PropTypes.func.isRequired,
   close:          PropTypes.func.isRequired,
-  toggleLanguage: PropTypes.func.isRequired,
   openUri:        PropTypes.func.isRequired,
 };
 
@@ -240,7 +238,7 @@ TextTableOfContentsNavigation.propTypes = {
 
 
 const SchemaNode = ({ schema, refPath, openRef, categories }) => {
-  const { menuLanguage } = useContext(GlobalStateContext);
+  const { defaultTextLanguage } = useContext(GlobalStateContext);
   if (!("nodes" in schema)) {
     if (schema.nodeType === "JaggedArrayNode") {
       return (
@@ -259,7 +257,7 @@ const SchemaNode = ({ schema, refPath, openRef, categories }) => {
     }
 
   } else {
-    const showHebrew = menuLanguage === "hebrew";
+    const showHebrew = textLangauge === "hebrew";
     const content = schema.nodes.map((node, i) => {
       if ("nodes" in node || "refs" in node && node.refs.length) {
         const innerContent = (<SchemaNode
@@ -365,8 +363,8 @@ const refPathTerminal = count => {
 };
 
 const JaggedArrayNodeSection = ({ depth, sectionNames, addressTypes, contentCounts, refPath, openRef }) => {
-  const { menuLanguage } = useContext(GlobalStateContext);
-  const showHebrew = menuLanguage === "hebrew";
+  const { defaultTextLanguage } = useContext(GlobalStateContext);
+  const showHebrew = defaultTextLanguage === "hebrew";
   if (depth > 2) {
     const content = [];
     for (let i = 0; i < contentCounts.length; i++) {
@@ -460,8 +458,8 @@ const JaggedArrayNodeSectionTitle = ({ openRef, tref, title, heTitle, showHebrew
 
 
 const ArrayMapNode = ({ schema, openRef, categories }) => {
-  const { menuLanguage } = useContext(GlobalStateContext);
-  const showHebrew = menuLanguage == "hebrew";
+  const { defaultTextLanguage } = useContext(GlobalStateContext);
+  const showHebrew = defaultTextLanguage == "hebrew";
   if ("refs" in schema && schema.refs.length) {
     var sectionLinks = schema.refs.map((ref, i) => {
       i += schema.offset || 0;
@@ -504,8 +502,8 @@ const ArrayMapNode = ({ schema, openRef, categories }) => {
 
 
 const CommentatorList = ({ commentatorList, openRef }) => {
-  const { theme, menuLanguage } = useContext(GlobalStateContext);
-  const showHebrew = menuLanguage == "hebrew";
+  const { theme, defaultTextLanguage } = useContext(GlobalStateContext);
+  const showHebrew = defaultTextLanguage == "hebrew";
   const content = commentatorList.map((commentator, i) => {
     const open = openRef.bind(null, commentator.firstSection);
     return (<TouchableOpacity onPress={open} style={[styles.textBlockLink, theme.textBlockLink]} key={i}>

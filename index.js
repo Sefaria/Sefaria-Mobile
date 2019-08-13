@@ -24,7 +24,6 @@ const Root = () => {
         <ReaderApp
           { ...globalState }
           dispatch={dispatch}
-          interfaceLanguage={strings.getLanguage() === "he" ? "hebrew" : "english"}
         />
       </GlobalStateContext.Provider>
     </DispatchContext.Provider>
