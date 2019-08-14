@@ -31,15 +31,56 @@ const generateOptions = (options, onPress) => options.map(o => ({
   onPress: () => { onPress(o); },
 }));
 
+const getIsDisabledObj = () => {
+  const isDisabledObj = {};
+  for (let pkgObj of Sefaria.packages.available) {
+    const parent = Sefaria.packages.getSelectedParent(pkgObj.en);
+    isDisabledObj[pkgObj.en] = !!parent;
+  }
+  return isDisabledObj;
+};
+
+const onPressDisabled = (child, parent) => {
+  Alert.alert(
+    strings.alreadyDownloaded,
+    `${strings.areIncludedIn} "${parent}"`,
+    [
+      {text: strings.ok, onPress: () => {}}
+    ]
+  );
+};
+
+const usePkgState = () => {
+  const { interfaceLanguage } = useContext(GlobalStateContext);
+  const [isDisabledObj, setIsDisabledObj] = useState(getIsDisabledObj());
+
+  const onPackagePress = (pkgObj) => {
+    const onPressActive = async (pkgName) => {
+      await Sefaria.packages.updateSelected(pkgName);
+      setIsDisabledObj(getIsDisabledObj());
+    };
+    const parent = Sefaria.packages.getSelectedParent(pkgObj.en);
+    const shortIntLang = interfaceLanguage.slice(0,2);
+    //NOTE: onPressDisabled() takes pkgNames in curr intLang while onPress() takes eng
+    if (!!parent) { onPressDisabled(pkgObj[shortIntLang], parent[shortIntLang]); }
+    else { onPressActive(pkgObj.en); }
+  };
+
+  return {
+    isDisabledObj,
+    setIsDisabledObj,
+    onPackagePress,
+  };
+}
 
 const SettingsPage = ({ close }) => {
-  const offlinePackageListRef = useRef(null);
   const [numPressesDebug, setNumPressesDebug] = useState(0);
   const { theme, interfaceLanguage } = useContext(GlobalStateContext);
+  const { isDisabledObj, setIsDisabledObj, onPackagePress } = usePkgState();
 
   const deleteLibrary = async () => {
-    await Sefaria.downloader.deleteLibrary()
-    offlinePackageListRef && offlinePackageListRef.updateStateBasedOnPkgData();
+    await Sefaria.downloader.deleteLibrary();
+    setIsDisabledObj(getIsDisabledObj);
   };
 
   const onDebugNoLibraryTouch = () => {
@@ -107,7 +148,7 @@ const SettingsPage = ({ close }) => {
           </View>
           : null
         }
-        <OfflinePackageList ref={offlinePackageListRef} />
+        <OfflinePackageList isDisabledObj={isDisabledObj} onPackagePress={onPackagePress} />
         <View style={[styles.readerDisplayOptionsMenuDivider, styles.settingsDivider, styles.underOfflinePackages, theme.readerDisplayOptionsMenuDivider]}/>
         <View>
           <Text style={[langStyle, styles.settingsSectionHeader, theme.tertiaryText]}>
@@ -132,21 +173,18 @@ const ButtonToggleSection = ({ langStyle }) => {
     });
   };
   const setDefaultTextLanguage = language => {
-    const dispatch = useContext(DispatchContext);
     dispatch({
       type: STATE_ACTIONS.setDefaultTextLanguage,
       language,
     })
   };
   const setEmailFrequency = freq => {
-    const dispatch = useContext(DispatchContext);
     dispatch({
       type: STATE_ACTIONS.setEmailFrequency,
       freq,
     });
   };
   const setPreferredCustom = custom => {
-    const dispatch = useContext(DispatchContext);
     dispatch({
       type: STATE_ACTIONS.setPreferredCustom,
       custom,
@@ -161,7 +199,7 @@ const ButtonToggleSection = ({ langStyle }) => {
 
   return (
     ['defaultTextLanguage', 'interfaceLanguage', 'emailFrequency', 'preferredCustom'].map(s => (
-      <View style={styles.settingsSection}>
+      <View style={styles.settingsSection} key={s}>
         <View>
           <Text style={[langStyle, styles.settingsSectionHeader, globalState.theme.tertiaryText]}>{strings[s]}</Text>
         </View>
@@ -174,57 +212,15 @@ const ButtonToggleSection = ({ langStyle }) => {
   );
 };
 
-const onPressDisabled = (child, parent) => {
-  Alert.alert(
-    strings.alreadyDownloaded,
-    `${strings.areIncludedIn} "${parent}"`,
-    [
-      {text: strings.ok, onPress: () => {}}
-    ]
-  );
-};
+const OfflinePackageList = ({ isDisabledObj, onPackagePress }) => {
 
-const usePkgState = () => {
-  const { interfaceLanguage } = useContext(GlobalStateContext);
-  const [pkgState, setPkgState] = useState(getStateBasedOnPkgData());
-  const onPress = async (pkgName) => {
-    await Sefaria.packages.updateSelected(pkgName);
-    setPkgState(getStateBasedOnPkgData());
-  };
-  function getStateBasedOnPkgData() {
-    const onPressFuncs = {};
-    const isDisabledObj = {};
-    for (let pkgObj of Sefaria.packages.available) {
-      const parent = Sefaria.packages.getSelectedParent(pkgObj.en);
-      const shortIntLang = interfaceLanguage.slice(0,2);
-      //NOTE: onPressDisabled() takes pkgNames in curr intLang while onPress() takes eng
-      const onPress = !!parent ? onPressDisabled.bind(null, pkgObj[shortIntLang], parent[shortIntLang]) : onPress.bind(null, pkgObj.en);
-      onPressFuncs[pkgObj.en] = onPress;
-      isDisabledObj[pkgObj.en] = !!parent;
-    }
-    return ({
-      onPressFuncs,
-      isDisabledObj,
-    });
-  }
-  return {
-    pkgState,
-    onPress,
-  };
-}
-
-
-const OfflinePackageList = () => {
-  const {
-    pkgState,
-    onPress,
-  } = usePkgState();
   // num available = all available filtered to p.indexes or unfiltered
   // nupdates = all updates filtered to p.indexes or unfiltered
   return (
     <View style={styles.settingsOfflinePackages}>
       {
         Sefaria.packages.available.map(p => {
+          const onPress = () => { onPackagePress(p); };
           const isSelected = Sefaria.packages.isSelected(p.en);
           const isD = Sefaria.downloader.downloading && isSelected;
           const nAvailable = isD ? Sefaria.downloader.titlesAvailable().filter(t => Sefaria.packages.titleInPackage(t, p.en)).length : 0;
@@ -232,16 +228,16 @@ const OfflinePackageList = () => {
           const allUpdates = newBooks.concat(updates);
           const nUpdates   = isD ? allUpdates.filter(t => Sefaria.packages.titleInPackage(t, p.en)).length : 0;
           return (
-            <View key={`${p.en}|${pkgState.isDisabledObj[p.en]}|parent`}>
+            <View key={`${p.en}|${isDisabledObj[p.en]}|parent`}>
               <LibraryNavButton
                 catColor={Sefaria.palette.categoryColor(p.color)}
                 enText={p.en}
                 heText={p.he}
                 count={`${Math.round(p.size / 1e6)}mb` /* NOTE: iOS uses 1e6 def of mb*/}
-                onPress={pkgState.onPressFuncs[p.en]}
-                onPressCheckBox={pkgState.onPressFuncs[p.en]}
+                onPress={onPress}
+                onPressCheckBox={onPress}
                 checkBoxSelected={0+isSelected}
-                buttonStyle={{margin: 0, padding: 0, opacity: pkgState.isDisabledObj[p.en] ? 0.6 : 1.0}}
+                buttonStyle={{margin: 0, padding: 0, opacity: isDisabledObj[p.en] ? 0.6 : 1.0}}
                 withArrow={false}
               />
             { isD && nUpdates > 0 ?

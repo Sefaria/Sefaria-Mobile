@@ -185,7 +185,10 @@ const reducer = function (state, action) {
       saveFieldToAsync('textLangaugeByTitle', newState.textLanguageByTitle);
       return newState;
     case STATE_ACTIONS.setInterfaceLanguage:
-      if (!action.fromAsync) { saveFieldToAsync('interfaceLanguage', action.language); }
+      const { language } = action;
+      if (!action.fromAsync) { saveFieldToAsync('interfaceLanguage', language); }
+      if (language == 'hebrew') { strings.setLanguage('he'); }
+      else if (language == 'english') { strings.setLanguage('en'); }
       return {
         ...state,
         interfaceLanguage: action.language,
