@@ -285,8 +285,14 @@ class ReaderApp extends React.Component {
     }
   };
 
+  getSettingsObject = () => ({
+    email_notifications: this.props.email_notifications,
+    interface_language: this.props.interfaceLanguage,
+    textual_custom: this.props.preferredCustom,
+  });
+
   onBackgroundSync = async () => {
-    await Sefaria.history.syncHistory();
+    await Sefaria.history.syncHistory(this.getSettingsObject());
     BackgroundFetch.finish(BackgroundFetch.FETCH_RESULT_NEW_DATA);
   };
 
@@ -1719,7 +1725,7 @@ class ReaderApp extends React.Component {
             title={strings.history}
             menuOpen={this.state.menuOpen}
             icon={this.props.themeStr === "white" ? require('./img/clock.png') : require('./img/clock-light.png')}
-            loadData={Sefaria.history.syncHistory}
+            loadData={() => { Sefaria.history.syncHistory(this.getSettingsObject()); }}
           />
         );
         break;
@@ -1733,7 +1739,7 @@ class ReaderApp extends React.Component {
             title={strings.saved}
             menuOpen={this.state.menuOpen}
             icon={themeStr === "white" ? require('./img/starUnfilled.png') : require('./img/starUnfilled-light.png')}
-            loadData={Sefaria.history.syncHistoryGetSaved}
+            loadData={() => { Sefaria.history.syncHistoryGetSaved(this.getSettingsObject()); }}
           />
         );
         break;

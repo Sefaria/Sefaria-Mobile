@@ -21,6 +21,12 @@ const STATE_ACTIONS = {
   setIsLoggedIn: "SET_IS_LOGGED_IN",
 };
 
+const UPDATE_SETTINGS_ACTIONS = {
+  STATE_ACTIONS.setInterfaceLanguage: true,
+  STATE_ACTIONS.setEmailFrequency: true,
+  STATE_ACTIONS.setPreferredCustom: true,
+};
+
 const ACTION_CREATORS = {
   setTheme: (themeStr, fromAsync) => ({
     type: STATE_ACTIONS.setTheme,
@@ -152,6 +158,9 @@ const saveFieldToAsync = function (field, value) {
 };
 
 const reducer = function (state, action) {
+  if (UPDATE_SETTINGS_ACTIONS[action.type] && !action.fromAsync) {
+    AsyncStorage.setItem('lastSettingsUpdateTime', JSON.stringify(action.time));
+  }
   switch (action.type) {
     case STATE_ACTIONS.setTheme:
       const theme = action.themeStr === "white" ? themeWhite : themeBlack;

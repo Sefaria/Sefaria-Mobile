@@ -103,8 +103,15 @@ const History = {
     catch(e) { Sefaria.history.saved = []; }
     Sefaria.history._hasSwipeDeleted = JSON.parse(hasSwipeDeleted) || false;
   },
-  syncHistory: async function() {
-    // TODO: sync user settings
+  syncHistory: async function(settings) {
+    /*
+    settings is of the form
+    {
+      email_notifications: oneOf('daily', 'weekly', 'never'),
+      interface_language: oneOf('english', 'hebrew'),
+      textual_custom: oneOf('sephardi', 'ashkenazi')
+    }
+    */
     const currHistoryStr = await AsyncStorage.getItem('history') || '[]';
     const lastSyncStr = await AsyncStorage.getItem('lastSyncItems') || '[]';
     const lastSyncItems = JSON.parse(lastSyncStr);
@@ -115,7 +122,7 @@ const History = {
       try {
         const lastSyncTime = await AsyncStorage.getItem('lastSyncTime') || '0';
         const url = Sefaria.api._baseHost + "api/profile/sync";
-        const body = Sefaria.api.urlFormEncode({user_history: lastSyncStr, last_sync: lastSyncTime});
+        const body = Sefaria.api.urlFormEncode({user_history: lastSyncStr, last_sync: lastSyncTime, settings});
         const response = await fetch(url, {
           method: "POST",
           body,
@@ -147,8 +154,8 @@ const History = {
     }
     return currHistory;
   },
-  syncHistoryGetSaved: async () => {
-    await Sefaria.history.syncHistory();
+  syncHistoryGetSaved: async (settings) => {
+    await Sefaria.history.syncHistory(settings);
     return Sefaria.history.saved;
   },
   mergeHistory: function(currHistory, currSaved, newHistory) {
