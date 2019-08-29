@@ -108,7 +108,6 @@ exports[`SwipeableCategoryList basic render 1`] = `
         }
       />
       <Text
-        lang="english"
         style={
           Array [
             Object {
@@ -318,7 +317,6 @@ exports[`SwipeableCategoryList render with data 1`] = `
         }
       />
       <Text
-        lang="english"
         style={
           Array [
             Object {

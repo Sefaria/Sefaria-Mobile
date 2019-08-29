@@ -22,9 +22,9 @@ const STATE_ACTIONS = {
 };
 
 const UPDATE_SETTINGS_ACTIONS = {
-  STATE_ACTIONS.setInterfaceLanguage: true,
-  STATE_ACTIONS.setEmailFrequency: true,
-  STATE_ACTIONS.setPreferredCustom: true,
+  [STATE_ACTIONS.setInterfaceLanguage]: true,
+  [STATE_ACTIONS.setEmailFrequency]: true,
+  [STATE_ACTIONS.setPreferredCustom]: true,
 };
 
 const ACTION_CREATORS = {

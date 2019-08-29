@@ -1725,7 +1725,7 @@ class ReaderApp extends React.Component {
             title={strings.history}
             menuOpen={this.state.menuOpen}
             icon={this.props.themeStr === "white" ? require('./img/clock.png') : require('./img/clock-light.png')}
-            loadData={() => { Sefaria.history.syncHistory(this.getSettingsObject()); }}
+            loadData={Sefaria.history.syncHistory.bind(null, this.getSettingsObject())}
           />
         );
         break;
@@ -1739,7 +1739,7 @@ class ReaderApp extends React.Component {
             title={strings.saved}
             menuOpen={this.state.menuOpen}
             icon={themeStr === "white" ? require('./img/starUnfilled.png') : require('./img/starUnfilled-light.png')}
-            loadData={() => { Sefaria.history.syncHistoryGetSaved(this.getSettingsObject()); }}
+            loadData={Sefaria.history.syncHistoryGetSaved.bind(null, this.getSettingsObject())}
           />
         );
         break;

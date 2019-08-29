@@ -36,7 +36,7 @@ class SwipeableCategoryList extends React.Component {
     theme:              PropTypes.object.isRequired,
     themeStr:           PropTypes.string.isRequired,
     openRef:            PropTypes.func.isRequired,
-    defaultTextLanguage:PropTypes.oneOf(["english","bilingual", "hebrew"]),
+    defaultTextLanguage:PropTypes.oneOf(["english","bilingual", "hebrew"]).isRequired,
     interfaceLanguage:  PropTypes.oneOf(["english","hebrew"]),
     onRemove:           PropTypes.func,
     title:              PropTypes.string.isRequired,
