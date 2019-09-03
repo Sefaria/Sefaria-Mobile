@@ -141,6 +141,7 @@ const ASYNC_STORAGE_DEFAULTS = {
 const DEFAULT_STATE = {
   theme: themeWhite,
   themeStr: ASYNC_STORAGE_DEFAULTS.color.default,
+  defaultTextLanguage: ASYNC_STORAGE_DEFAULTS.defaultTextLanguage.default,
   textLanguage: ASYNC_STORAGE_DEFAULTS.defaultTextLanguage.default,
   interfaceLanguage: ASYNC_STORAGE_DEFAULTS.interfaceLanguage.default,
   emailFrequency: ASYNC_STORAGE_DEFAULTS.emailFrequency.default,

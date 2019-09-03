@@ -1,4 +1,4 @@
-jest.mock('react-native-firebase', () => ({
+export default {
   messaging: jest.fn(() => ({
     hasPermission: jest.fn(() => Promise.resolve(true)),
     subscribeToTopic: jest.fn(),
@@ -12,5 +12,7 @@ jest.mock('react-native-firebase', () => ({
   })),
   analytics: jest.fn(() => ({
     logEvent: jest.fn(),
+    setCurrentScreen: jest.fn(),
+    setAnalyticsCollectionEnabled: jest.fn(),
   })),
-}));
+};

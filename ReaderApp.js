@@ -286,7 +286,7 @@ class ReaderApp extends React.Component {
   };
 
   getSettingsObject = () => ({
-    email_notifications: this.props.email_notifications,
+    email_notifications: this.props.emailFrequency,
     interface_language: this.props.interfaceLanguage,
     textual_custom: this.props.preferredCustom,
   });

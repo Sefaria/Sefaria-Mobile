@@ -173,6 +173,7 @@ const ButtonToggleSection = ({ langStyle }) => {
       time: Sefaria.util.epoch_time(),
     });
   };
+  // not synced with web settings
   const setDefaultTextLanguage = language => {
     dispatch({
       type: STATE_ACTIONS.setDefaultTextLanguage,
@@ -199,10 +200,9 @@ const ButtonToggleSection = ({ langStyle }) => {
     emailFrequencyOptions: generateOptions(['daily', 'weekly', 'never'], setEmailFrequency),
     preferredCustomOptions: generateOptions(['sephardi', 'ashkenazi'], setPreferredCustom),
   };
-
   return (
     ['defaultTextLanguage', 'interfaceLanguage', 'emailFrequency', 'preferredCustom'].map(s => (
-      <View style={styles.settingsSection} key={s}>
+      <View style={styles.settingsSection} key={s} stateKey={s}>  /* stateKey prop is used for testing */
         <View>
           <Text style={[langStyle, styles.settingsSectionHeader, globalState.theme.tertiaryText]}>{strings[s]}</Text>
         </View>
