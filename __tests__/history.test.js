@@ -307,12 +307,22 @@ describe('history', () => {
         })
       }
     }));
-    await Sefaria.history.syncHistory();
+    const settings = {
+      setting1: 'string',
+      setting2: 12,
+      setting3: 'another string',
+    };
+    await Sefaria.history.syncHistory(settings);
     expect(fetch.mock.calls.length).toBe(1);
-    expect(fetch.mock.calls[0][1].method).toBe("POST");
-    expect(fetch.mock.calls[0][1].headers.Authorization).toBe(`Bearer ${auth.token}`);
-    expect(fetch.mock.calls[0][1].headers['Content-Type']).toBe('application/x-www-form-urlencoded;charset=UTF-8');
-
+    const fetchParams = fetch.mock.calls[0];
+    expect(fetchParams[1].method).toBe("POST");
+    expect(fetchParams[1].headers.Authorization).toBe(`Bearer ${auth.token}`);
+    expect(fetchParams[1].headers['Content-Type']).toBe('application/x-www-form-urlencoded;charset=UTF-8');
+    expect(Sefaria.api.urlFormDecode(fetchParams[1].body)).toEqual({
+      user_history: JSON.stringify(lastSyncItems),
+      last_sync: '0',
+      settings: JSON.stringify(settings),
+    });
     expect((await AsyncStorage.getItem('lastSyncTime'))).toBe('11');
     expect((await AsyncStorage.getItem('savedItems'))).toBe('[]');
     expect((await AsyncStorage.getItem('lastPlace'))).toBe(JSON.stringify([lastSyncItems[0]]));

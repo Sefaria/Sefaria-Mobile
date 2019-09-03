@@ -18,6 +18,7 @@ import {
   Linking,
 } from 'react-native';
 import NetInfo from "@react-native-community/netinfo";
+import AsyncStorage from '@react-native-community/async-storage';
 import { connect } from 'react-redux';
 import { createResponder } from 'react-native-gesture-responder';
 import BackgroundFetch from "react-native-background-fetch";
@@ -54,7 +55,7 @@ import ReaderNavigationSheetCategoryMenu from "./ReaderNavigationSheetCategoryMe
 import Sheet from "./Sheet.js";
 import SheetMetadata from "./SheetMeta.js";
 import DeepLinkRouter from "./DeepLinkRouter.js";
-import AuthPage from "./AuthPage";
+import { AuthPage } from "./AuthPage";
 
 
 
@@ -285,14 +286,15 @@ class ReaderApp extends React.Component {
     }
   };
 
-  getSettingsObject = () => ({
+  getSettingsObject = async () => ({
     email_notifications: this.props.emailFrequency,
     interface_language: this.props.interfaceLanguage,
     textual_custom: this.props.preferredCustom,
+    time_stamp: await AsyncStorage.getItem('lastSettingsUpdateTime'),
   });
 
   onBackgroundSync = async () => {
-    await Sefaria.history.syncHistory(this.getSettingsObject());
+    await Sefaria.history.syncHistory(await this.getSettingsObject());
     BackgroundFetch.finish(BackgroundFetch.FETCH_RESULT_NEW_DATA);
   };
 
@@ -1725,7 +1727,7 @@ class ReaderApp extends React.Component {
             title={strings.history}
             menuOpen={this.state.menuOpen}
             icon={this.props.themeStr === "white" ? require('./img/clock.png') : require('./img/clock-light.png')}
-            loadData={Sefaria.history.syncHistory.bind(null, this.getSettingsObject())}
+            loadData={async () => Sefaria.history.syncHistory(await this.getSettingsObject())}
           />
         );
         break;
@@ -1739,7 +1741,7 @@ class ReaderApp extends React.Component {
             title={strings.saved}
             menuOpen={this.state.menuOpen}
             icon={themeStr === "white" ? require('./img/starUnfilled.png') : require('./img/starUnfilled-light.png')}
-            loadData={Sefaria.history.syncHistoryGetSaved.bind(null, this.getSettingsObject())}
+            loadData={async () => Sefaria.history.syncHistoryGetSaved(await this.getSettingsObject())}
           />
         );
         break;

@@ -12,7 +12,7 @@ var Api = {
   /*
   takes responses from text and links api and returns json in the format of iOS json
   */
-  _baseHost: 'http://jwt.sandbox.sefaria.org/',
+  _baseHost: 'http://localhost:8000/', //'http://jwt.sandbox.sefaria.org/',
   _textCache: {}, //in memory cache for API data
   _linkCache: {},
   _nameCache: {},
@@ -447,6 +447,13 @@ var Api = {
   },
   urlFormEncode: function(data) {
     return Object.entries(data).map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value || '')}`).join('&');
+  },
+  urlFormDecode: function(data) {
+    return data.split('&').reduce((obj, entry) => {
+      [key, value] = entry.split('=').map(decodeURIComponent);
+      obj[key] = value;
+      return obj;
+    }, {});
   },
   login: function(authData) {
     const url = `${Sefaria.api._baseHost}api/login/`;

@@ -89,6 +89,7 @@ const History = {
     await AsyncStorage.removeItem('lastSyncItems');
     await AsyncStorage.removeItem('lastSyncTime');
     await AsyncStorage.removeItem('history');
+    await AsyncStorage.removeItem('lastSettingsUpdateTime');
     */
     await Sefaria.history.migrateFromOldRecents();
     const lastPlace = await AsyncStorage.getItem('lastPlace');
@@ -112,8 +113,10 @@ const History = {
       textual_custom: oneOf('sephardi', 'ashkenazi')
     }
     */
+    console.log('SETTINGS', settings);
     const currHistoryStr = await AsyncStorage.getItem('history') || '[]';
     const lastSyncStr = await AsyncStorage.getItem('lastSyncItems') || '[]';
+    const settingsStr = JSON.stringify(settings);
     const lastSyncItems = JSON.parse(lastSyncStr);
     let currHistory = JSON.parse(currHistoryStr);
     currHistory = lastSyncItems.filter(h => !h.action).concat(currHistory);
@@ -122,7 +125,7 @@ const History = {
       try {
         const lastSyncTime = await AsyncStorage.getItem('lastSyncTime') || '0';
         const url = Sefaria.api._baseHost + "api/profile/sync";
-        const body = Sefaria.api.urlFormEncode({user_history: lastSyncStr, last_sync: lastSyncTime, settings});
+        const body = Sefaria.api.urlFormEncode({user_history: lastSyncStr, last_sync: lastSyncTime, settings: settingsStr});
         const response = await fetch(url, {
           method: "POST",
           body,
