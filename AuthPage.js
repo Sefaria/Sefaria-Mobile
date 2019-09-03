@@ -41,6 +41,7 @@ const useAuthForm = (authMode, onLoginSuccess) => {
     password,
     g_recaptcha_response,
   };
+  console.log('FORM STATE', formState);
   return {
     errors,
     setFirstName,
@@ -151,8 +152,8 @@ const AuthTextInput = ({
   autoCapitalize,
   error,
   errorText,
+  onChangeText,
 }) => {
-  const [value, onChange] = useState('');
   return (
     <View>
       <TextInput
@@ -161,7 +162,7 @@ const AuthTextInput = ({
         placeholderTextColor={placeholderTextColor}
         secureTextEntry={isPW}
         autoCapitalize={autoCapitalize}
-        onChangeText={onChange}
+        onChangeText={onChangeText}
       />
       <ErrorText error={error} errorText={errorText} />
     </View>
@@ -228,4 +229,7 @@ class ReCaptchaView extends React.Component {
 }
 
 
-export default AuthPage;
+export {
+  AuthPage,
+  AuthTextInput,
+};
