@@ -113,7 +113,6 @@ const History = {
       textual_custom: oneOf('sephardi', 'ashkenazi')
     }
     */
-    console.log('SETTINGS', settings);
     const currHistoryStr = await AsyncStorage.getItem('history') || '[]';
     const lastSyncStr = await AsyncStorage.getItem('lastSyncItems') || '[]';
     const settingsStr = JSON.stringify(settings);

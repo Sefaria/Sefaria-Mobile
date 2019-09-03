@@ -41,7 +41,6 @@ const useAuthForm = (authMode, onLoginSuccess) => {
     password,
     g_recaptcha_response,
   };
-  console.log('FORM STATE', formState);
   return {
     errors,
     setFirstName,

@@ -126,7 +126,7 @@ const SettingsPage = ({ close }) => {
         </TouchableWithoutFeedback>
 
         { Sefaria.downloader._data.debugNoLibrary ?
-          <Text style={[langStyle, styles.settingsMessage, theme.tertiaryText]}>Debug No Library</Text>
+          <Text style={[langStyle, styles.settingsMessage, theme.tertiaryText]}>{"Debug No Library"}</Text>
           : null
         }
 
@@ -152,7 +152,7 @@ const SettingsPage = ({ close }) => {
         <View style={[styles.readerDisplayOptionsMenuDivider, styles.settingsDivider, styles.underOfflinePackages, theme.readerDisplayOptionsMenuDivider]}/>
         <View>
           <Text style={[langStyle, styles.settingsSectionHeader, theme.tertiaryText]}>
-            {strings.appVersion}: {VersionNumber.appVersion}
+            {`${strings.appVersion}: ${VersionNumber.appVersion}`}
           </Text>
         </View>
       </ScrollView>
@@ -200,18 +200,21 @@ const ButtonToggleSection = ({ langStyle }) => {
     emailFrequencyOptions: generateOptions(['daily', 'weekly', 'never'], setEmailFrequency),
     preferredCustomOptions: generateOptions(['sephardi', 'ashkenazi'], setPreferredCustom),
   };
+  /* stateKey prop is used for testing */
   return (
-    ['defaultTextLanguage', 'interfaceLanguage', 'emailFrequency', 'preferredCustom'].map(s => (
-      <View style={styles.settingsSection} key={s} stateKey={s}>  /* stateKey prop is used for testing */
-        <View>
-          <Text style={[langStyle, styles.settingsSectionHeader, globalState.theme.tertiaryText]}>{strings[s]}</Text>
+    <View>
+      {['defaultTextLanguage', 'interfaceLanguage', 'emailFrequency', 'preferredCustom'].map(s => (
+        <View style={styles.settingsSection} key={s} stateKey={s}>
+          <View>
+            <Text style={[langStyle, styles.settingsSectionHeader, globalState.theme.tertiaryText]}>{strings[s]}</Text>
+          </View>
+          <ButtonToggleSet
+            options={options[`${s}Options`]}
+            lang={globalState.interfaceLanguage}
+            active={globalState[s]} />
         </View>
-        <ButtonToggleSet
-          options={options[`${s}Options`]}
-          lang={globalState.interfaceLanguage}
-          active={globalState[s]} />
-      </View>
-    ))
+      ))}
+    </View>
   );
 };
 

@@ -610,7 +610,7 @@ ToggleSet.propTypes = {
 const ButtonToggleSet = ({ options, active }) => {
   const { theme, interfaceLanguage } = useContext(GlobalStateContext);
   var showHebrew = interfaceLanguage == "hebrew";
-  options = options.map((option, i) => {
+  const optionComponents = options.map((option, i) => {
 
     let alignStyle;
     if (i == options.length -1) { alignStyle = styles.readerDisplayOptionsMenuItemRight; }
@@ -620,7 +620,7 @@ const ButtonToggleSet = ({ options, active }) => {
     var itemStyles = [styles.readerDisplayOptionsMenuItem, theme.readerDisplayOptionsMenuItem, alignStyle];
     itemStyles = itemStyles.concat(active === option.name ? [theme.readerDisplayOptionsMenuItemSelected] : []);
     return (
-      <TouchableOpacity onPress={option.onPress} key={i} style={itemStyles} >
+      <TouchableOpacity onPress={option.onPress} key={i} style={itemStyles}>
         {showHebrew ?
           <Text style={[styles.heInt, theme.tertiaryText]}>{option.text}</Text> :
           <Text style={[styles.enInt, theme.tertiaryText]}>{option.text}</Text> }
@@ -630,7 +630,7 @@ const ButtonToggleSet = ({ options, active }) => {
 
   return (
     <View style={[styles.readerDisplayOptionsMenuRow, styles.buttonToggleSet]}>
-      {options}
+      {optionComponents}
     </View>
   );
 }
