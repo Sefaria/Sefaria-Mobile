@@ -30,17 +30,17 @@ const UPDATE_SETTINGS_ACTIONS = {
 const ACTION_CREATORS = {
   setTheme: (themeStr, fromAsync) => ({
     type: STATE_ACTIONS.setTheme,
-    themeStr,
+    value: themeStr,
     fromAsync,
   }),
   setDefaultTextLanguage: (language, fromAsync) => ({
     type: STATE_ACTIONS.setDefaultTextLanguage,
-    language,
+    value: language,
     fromAsync,
   }),
   initTextLanguageByTitle: (textLanguageByTitle) => ({
     type: STATE_ACTIONS.initTextLanguageByTitle,
-    textLanguageByTitle,
+    value: textLanguageByTitle,
   }),
   setTextLanguageByTitle: (title, language) => ({
     type: STATE_ACTIONS.setTextLanguageByTitle,
@@ -49,45 +49,45 @@ const ACTION_CREATORS = {
   }),
   setInterfaceLanguage: (language, fromAsync) => ({
     type: STATE_ACTIONS.setInterfaceLanguage,
-    language,
+    value: language,
     fromAsync,
   }),
   setEmailFrequency: (freq, fromAsync) => ({
     type: STATE_ACTIONS.setEmailFrequency,
-    freq,
+    value: freq,
     fromAsync,
   }),
   setPreferredCustom: (custom, fromAsync) => ({
     type: STATE_ACTIONS.setPreferredCustom,
-    custom,
+    value: custom,
     fromAsync,
   }),
   setFontSize: (fontSize, fromAsync) => ({
     type: STATE_ACTIONS.setFontSize,
-    fontSize,
+    vale: fontSize,
     fromAsync,
   }),
   setOverwriteVersions: overwrite => ({
     type: STATE_ACTIONS.setOverwriteVersions,
-    overwrite,
+    value: overwrite,
   }),
   setAliyot: show => ({
     type: STATE_ACTIONS.setAliyot,
-    show,
+    value: show,
   }),
   toggleDebugInterruptingMessage: (debug, fromAsync) => ({
     type: STATE_ACTIONS.toggleDebugInterruptingMessage,
-    debug,
+    value: debug,
     fromAsync,
   }),
   setBiLayout: (layout, fromAsync) => ({
     type: STATE_ACTIONS.setBiLayout,
-    layout,
+    value: layout,
     fromAsync,
   }),
   setIsLoggedIn: isLoggedIn => ({
     type: STATE_ACTIONS.setIsLoggedIn,
-    isLoggedIn,
+    value: isLoggedIn,
   }),
 }
 
@@ -164,25 +164,25 @@ const reducer = function (state, action) {
   }
   switch (action.type) {
     case STATE_ACTIONS.setTheme:
-      const theme = action.themeStr === "white" ? themeWhite : themeBlack;
+      const theme = action.value === "white" ? themeWhite : themeBlack;
       //no need to save value in async if that's where it is coming from
-      if (!action.fromAsync) { saveFieldToAsync('color', action.themeStr); }
+      if (!action.fromAsync) { saveFieldToAsync('color', action.value); }
       return {
         ...state,
         theme,
-        themeStr: action.themeStr,
+        themeStr: action.value,
       };
     case STATE_ACTIONS.setDefaultTextLanguage:
-      if (!action.fromAsync) { saveFieldToAsync('defaultTextLanguage', action.language); }
+      if (!action.fromAsync) { saveFieldToAsync('defaultTextLanguage', action.value); }
       return {
         ...state,
-        defaultTextLanguage: action.language,
+        defaultTextLanguage: action.value,
       };
     case STATE_ACTIONS.initTextLanguageByTitle:
       return {
         ...state,
-        textLanguageByTitle: action.textLanguageByTitle,
-      }
+        textLanguageByTitle: action.value,
+      };
     case STATE_ACTIONS.setTextLanguageByTitle:
       const newState = {
         ...state,
@@ -195,60 +195,59 @@ const reducer = function (state, action) {
       saveFieldToAsync('textLangaugeByTitle', newState.textLanguageByTitle);
       return newState;
     case STATE_ACTIONS.setInterfaceLanguage:
-      const { language } = action;
-      if (!action.fromAsync) { saveFieldToAsync('interfaceLanguage', language); }
-      if (language == 'hebrew') { strings.setLanguage('he'); }
-      else if (language == 'english') { strings.setLanguage('en'); }
+      if (!action.fromAsync) { saveFieldToAsync('interfaceLanguage', action.value); }
+      if (action.value == 'hebrew') { strings.setLanguage('he'); }
+      else if (action.value == 'english') { strings.setLanguage('en'); }
       return {
         ...state,
-        interfaceLanguage: action.language,
+        interfaceLanguage: action.value,
       }
     case STATE_ACTIONS.setEmailFrequency:
-      if (!action.fromAsync) { saveFieldToAsync('emailFrequency', action.freq); }
+      if (!action.fromAsync) { saveFieldToAsync('emailFrequency', action.value); }
       return {
         ...state,
-        emailFrequency: action.freq,
+        emailFrequency: action.value,
       }
     case STATE_ACTIONS.setPreferredCustom:
-      if (!action.fromAsync) { saveFieldToAsync('preferredCustom', action.custom); }
+      if (!action.fromAsync) { saveFieldToAsync('preferredCustom', action.value); }
       return {
         ...state,
-        preferredCustom: action.custom,
+        preferredCustom: action.value,
       }
     case STATE_ACTIONS.setFontSize:
-      if (!action.fromAsync) { saveFieldToAsync('fontSize', action.fontSize); }
+      if (!action.fromAsync) { saveFieldToAsync('fontSize', action.value); }
       return {
         ...state,
-        fontSize: action.fontSize,
+        fontSize: action.value,
       }
     case STATE_ACTIONS.setOverwriteVersions:
       return {
         ...state,
-        overwriteVersions: action.overwrite,
+        overwriteVersions: action.value,
       }
     case STATE_ACTIONS.setAliyot:
-      if (!action.fromAsync) { saveFieldToAsync('showAliyot', action.show); }
+      if (!action.fromAsync) { saveFieldToAsync('showAliyot', action.value); }
       return {
         ...state,
-        showAliyot: action.show,
+        showAliyot: action.value,
       }
     case STATE_ACTIONS.toggleDebugInterruptingMessage:
       // toggle if you didn't pass in debug, otherwise you're initializing the value
-      const newDebug = action.debug === undefined ? (!state.debugInterruptingMessage) : action.debug;
+      const newDebug = action.value === undefined ? (!state.debugInterruptingMessage) : action.value;
       if (!action.fromAsync) { saveFieldToAsync('debugInterruptingMessage', newDebug); }
       return {
         ...state,
         debugInterruptingMessage: newDebug,
       }
     case STATE_ACTIONS.setBiLayout:
-      if (!action.fromAsync) { saveFieldToAsync('biLayout', action.layout); }
+      if (!action.fromAsync) { saveFieldToAsync('biLayout', action.value); }
       return {
         ...state,
-        biLayout: action.layout,
+        biLayout: action.value,
       }
     case STATE_ACTIONS.setIsLoggedIn:
       // action can be passed either object or bool
-      const isLoggedIn = !!action.isLoggedIn;
+      const isLoggedIn = !!action.value;
       console.log("redux isLoggedIn", isLoggedIn);
       return {
         ...state,

@@ -378,7 +378,7 @@ const LanguageToggleButton = () => {
     const language = defaultTextLanguage !== "hebrew" ? "hebrew" : 'english';
     dispatch({
       type: STATE_ACTIONS.setDefaultTextLanguage,
-      language,
+      value: language,
     });
   };
 

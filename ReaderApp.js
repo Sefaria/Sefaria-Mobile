@@ -171,7 +171,7 @@ class ReaderApp extends React.Component {
     Sefaria.api.clearAuthStorage();
     this.props.dispatch({
       type: STATE_ACTIONS.setIsLoggedIn,
-      isLoggedIn: false,
+      value: false,
     });
   };
 
@@ -366,7 +366,7 @@ class ReaderApp extends React.Component {
   setBiLayout = layout => {
     this.props.dispatch({
       type: STATE_ACTIONS.setBiLayout,
-      layout,
+      value: layout,
     });
     this.toggleReaderDisplayOptionsMenu();
   };
@@ -395,7 +395,7 @@ class ReaderApp extends React.Component {
   setTheme = themeStr => {
     this.props.dispatch({
       type: STATE_ACTIONS.setTheme,
-      themeStr,
+      value: themeStr,
     });
     this.toggleReaderDisplayOptionsMenu();
   }
@@ -403,7 +403,7 @@ class ReaderApp extends React.Component {
   setAliyot = show => {
     this.props.dispatch({
       type: STATE_ACTIONS.setAliyot,
-      show,
+      value: show,
     })
     this.toggleReaderDisplayOptionsMenu();
   }
@@ -423,7 +423,7 @@ class ReaderApp extends React.Component {
     newFontSize = parseFloat(newFontSize.toFixed(2));
     this.props.dispatch({
       type: STATE_ACTIONS.setFontSize,
-      fontSize: newFontSize,
+      value: newFontSize,
     });
   };
 
@@ -550,7 +550,7 @@ class ReaderApp extends React.Component {
     }
     this.props.dispatch({
       type: STATE_ACTIONS.setOverwriteVersions,
-      overwrite: overwriteVersions,
+      value: overwriteVersions,
     });
     versions = this.removeDefaultVersions(ref, versions);
     // Open ranged refs to their first segment (not ideal behavior, but good enough for now)

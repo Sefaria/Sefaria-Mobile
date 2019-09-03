@@ -169,7 +169,7 @@ const ButtonToggleSection = ({ langStyle }) => {
   const setInterfaceLanguage = language => {
     dispatch({
       type: STATE_ACTIONS.setInterfaceLanguage,
-      language,
+      value: language,
       time: Sefaria.util.epoch_time(),
     });
   };
@@ -177,20 +177,20 @@ const ButtonToggleSection = ({ langStyle }) => {
   const setDefaultTextLanguage = language => {
     dispatch({
       type: STATE_ACTIONS.setDefaultTextLanguage,
-      language,
+      value: language,
     })
   };
   const setEmailFrequency = freq => {
     dispatch({
       type: STATE_ACTIONS.setEmailFrequency,
-      freq,
+      value: freq,
       time: Sefaria.util.epoch_time(),
     });
   };
   const setPreferredCustom = custom => {
     dispatch({
       type: STATE_ACTIONS.setPreferredCustom,
-      custom,
+      value: custom,
       time: Sefaria.util.epoch_time(),
     });
   };

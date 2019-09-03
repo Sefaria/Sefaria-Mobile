@@ -66,7 +66,7 @@ const AuthPage = ({ authMode, close, showToast }) => {
   } = useAuthForm(authMode, () => {
     dispatch({
       type: STATE_ACTIONS.setIsLoggedIn,
-      isLoggedIn: true,
+      value: true,
     });
     close();
     showToast(strings.loginSuccessful);
