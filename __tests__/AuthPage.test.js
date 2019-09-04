@@ -21,7 +21,7 @@ describe('login', () => {
     const inputs = inst.root.findAllByType(AuthTextInput);
     expect(inputs.length).toBe(2);
   });
-  test('fields sent onSubmit', () => {
+  test('fields sent onSubmit', async () => {
     Sefaria.api.authenticate = jest.fn();
     const inst = renderer.create(<AuthPageWrapper authMode={'login'} />);
     const inputs = inst.root.findAllByType(AuthTextInput);

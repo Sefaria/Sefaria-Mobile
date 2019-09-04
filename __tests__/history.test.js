@@ -304,6 +304,9 @@ describe('history', () => {
         return Promise.resolve({
           user_history: [],
           last_sync: 11,
+          settings: {
+            time_stamp: 11,
+          },
         })
       }
     }));
@@ -312,7 +315,7 @@ describe('history', () => {
       setting2: 12,
       setting3: 'another string',
     };
-    await Sefaria.history.syncHistory(settings);
+    await Sefaria.history.syncHistory(()=>{}, settings);
     expect(fetch.mock.calls.length).toBe(1);
     const fetchParams = fetch.mock.calls[0];
     expect(fetchParams[1].method).toBe("POST");
@@ -364,10 +367,13 @@ describe('history', () => {
         return Promise.resolve({
           user_history: webHistory,
           last_sync: 11,
+          settings: {
+            time_stamp: 11,
+          },
         })
       }
     }));
-    await Sefaria.history.syncHistory();
+    await Sefaria.history.syncHistory(()=>{}, {});
     expect(fetch.mock.calls.length).toBe(1);
     expect(fetch.mock.calls[0][1].method).toBe("POST");
     expect(fetch.mock.calls[0][1].headers.Authorization).toBe(`Bearer ${auth.token}`);
@@ -414,10 +420,13 @@ describe('history', () => {
         return Promise.resolve({
           user_history: webHistory,
           last_sync: 11,
+          settings: {
+            time_stamp: 11,
+          },
         })
       }
     }));
-    await Sefaria.history.syncHistory();
+    await Sefaria.history.syncHistory(()=>{}, {});
     expect(fetch.mock.calls.length).toBe(1);
     expect(fetch.mock.calls[0][1].method).toBe("POST");
     expect(fetch.mock.calls[0][1].headers.Authorization).toBe(`Bearer ${auth.token}`);
@@ -445,10 +454,13 @@ describe('history', () => {
         return Promise.resolve({
           user_history: [],
           last_sync: 11,
+          settings: {
+            time_stamp: 11,
+          },
         })
       }
     }));
-    await Sefaria.history.syncHistory();
+    await Sefaria.history.syncHistory(()=>{}, {});
     expect(fetch.mock.calls.length).toBe(1);
     expect(fetch.mock.calls[0][1].method).toBe("POST");
     expect(fetch.mock.calls[0][1].headers.Authorization).toBe(`Bearer ${auth.token}`);

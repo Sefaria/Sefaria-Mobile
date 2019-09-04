@@ -29,7 +29,7 @@ describe('ReaderApp history', () => {
     const inst = renderer.create(<TestContextWrapper passContextToChildren child={ReaderApp} />);
     const readerApp = inst.root.findByType(ReaderApp);
     await readerApp.instance.onBackgroundSync();
-    expect(Sefaria.history.syncHistory).toBeCalledWith(expect.objectContaining(settingsObject));
+    expect(Sefaria.history.syncHistory.mock.calls[0][1]).toEqual(settingsObject);
     expect(BackgroundFetch.finish).toBeCalledWith(BackgroundFetch.FETCH_RESULT_NEW_DATA);
   });
 });
