@@ -5,6 +5,7 @@
 	};
 	objectVersion = 46;
 	objects = {
+
 /* Begin PBXBuildFile section */
 		00C302E51ABCBA2D00DB3ED1 /* libRCTActionSheet.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 00C302AC1ABCB8CE00DB3ED1 /* libRCTActionSheet.a */; };
 		00C302E71ABCBA2D00DB3ED1 /* libRCTGeolocation.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 00C302BA1ABCB90400DB3ED1 /* libRCTGeolocation.a */; };
@@ -131,6 +132,13 @@
 			remoteGlobalIDString = 19825A1E1BD4A89800EE0337;
 			remoteInfo = RNSound;
 		};
+		07575288231FBCB90054309B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 07AB7E4F22E87B130079131A /* ReactNativeLocalization.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 7B5D9D0A1B6AD0EA00CF3A83;
+			remoteInfo = ReactNativeLocalization;
+		};
 		0761D18A207CC4D90011FE47 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = C8FC2D6C8C234FF99635297A /* RNVersionNumber.xcodeproj */;
@@ -158,13 +166,6 @@
 			proxyType = 2;
 			remoteGlobalIDString = 134814201AA4EA6300B7C361;
 			remoteInfo = RNCWebView;
-		};
-		07AB7E7A22E87B130079131A /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 07AB7E4F22E87B130079131A /* ReactNativeLocalization.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 7B5D9D0A1B6AD0EA00CF3A83;
-			remoteInfo = ReactNativeLocalization;
 		};
 		07B4554E215A6321005D17DC /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -706,15 +707,12 @@
 				0761D1B5207DD6200011FE47 /* OpenSans-Regular.ttf */,
 				0761D1B3207DD6200011FE47 /* TaameyFrank-taamim-fix-bold.ttf */,
 				0761D1A9207DD61F0011FE47 /* TaameyFrank-taamim-fix.ttf */,
-				A4FC1972B30744678C7EB7DE /* libRCTGoogleAnalyticsBridge.a */,
-				A9774E4CC34B4D37BE3F09A2 /* libReactNativeLocalization.a */,
 				0A40C3042BD0446DAADC6462 /* libRNVersionNumber.a */,
 				51EBA1AD02DB488D974DC900 /* libRNZipArchive.a */,
 				3B1D4CF499814B94B1FC4787 /* libRNVersionNumber-tvOS.a */,
 				BB2CC56A4F1E41EE9F5BB178 /* libDBCustomTabs.a */,
 				6C49A89224224EBAB4B976FC /* libSafariViewManager.a */,
 				67F57592B5ED45B983FEFCF1 /* libSplashScreen.a */,
-				74CF96A0119744E4A6CAE5A0 /* libRNFetchBlob.a */,
 				03F366047F58481F88784914 /* libRNFS.a */,
 				168713B3594C4DC9BC08442E /* libRNShakeEvent.a */,
 				1482291FCEE142B5AD2810A5 /* libRNSound.a */,
@@ -755,7 +753,7 @@
 		07AB7E5022E87B130079131A /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				07AB7E7B22E87B130079131A /* libReactNativeLocalization.a */,
+				07575289231FBCB90054309B /* libReactNativeLocalization.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1288,6 +1286,13 @@
 			remoteRef = 0707A7562226BB3800258667 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
+		07575289231FBCB90054309B /* libReactNativeLocalization.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libReactNativeLocalization.a;
+			remoteRef = 07575288231FBCB90054309B /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
 		0761D18B207CC4D90011FE47 /* libRNVersionNumber.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
@@ -1808,9 +1813,7 @@
 				INFOPLIST_FILE = ReaderAppTests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 11.4;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-				);
+				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				OTHER_LDFLAGS = (
 					"-ObjC",
 					"-lc++",
@@ -1846,9 +1849,7 @@
 				INFOPLIST_FILE = ReaderAppTests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 11.4;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-				);
+				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				OTHER_LDFLAGS = (
 					"-ObjC",
 					"-lc++",
@@ -1986,9 +1987,7 @@
 				);
 				INFOPLIST_FILE = "ReaderApp-tvOS/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-				);
+				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				OTHER_LDFLAGS = (
 					"-ObjC",
 					"-lc++",
@@ -2031,9 +2030,7 @@
 				);
 				INFOPLIST_FILE = "ReaderApp-tvOS/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-				);
+				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				OTHER_LDFLAGS = (
 					"-ObjC",
 					"-lc++",
@@ -2075,9 +2072,7 @@
 				);
 				INFOPLIST_FILE = "ReaderApp-tvOSTests/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-				);
+				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				OTHER_LDFLAGS = (
 					"-ObjC",
 					"-lc++",
@@ -2119,9 +2114,7 @@
 				);
 				INFOPLIST_FILE = "ReaderApp-tvOSTests/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-				);
+				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				OTHER_LDFLAGS = (
 					"-ObjC",
 					"-lc++",
