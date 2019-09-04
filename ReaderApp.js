@@ -294,7 +294,7 @@ class ReaderApp extends React.Component {
   });
 
   onBackgroundSync = async () => {
-    await Sefaria.history.syncHistory(await this.getSettingsObject());
+    await Sefaria.history.syncHistory(this.props.dispatch, await this.getSettingsObject());
     BackgroundFetch.finish(BackgroundFetch.FETCH_RESULT_NEW_DATA);
   };
 
@@ -1727,7 +1727,7 @@ class ReaderApp extends React.Component {
             title={strings.history}
             menuOpen={this.state.menuOpen}
             icon={this.props.themeStr === "white" ? require('./img/clock.png') : require('./img/clock-light.png')}
-            loadData={async () => Sefaria.history.syncHistory(await this.getSettingsObject())}
+            loadData={async () => Sefaria.history.syncHistory(this.props.dispatch, await this.getSettingsObject())}
           />
         );
         break;
@@ -1741,7 +1741,7 @@ class ReaderApp extends React.Component {
             title={strings.saved}
             menuOpen={this.state.menuOpen}
             icon={themeStr === "white" ? require('./img/starUnfilled.png') : require('./img/starUnfilled-light.png')}
-            loadData={async () => Sefaria.history.syncHistoryGetSaved(await this.getSettingsObject())}
+            loadData={async () => Sefaria.history.syncHistoryGetSaved(this.props.dispatch, await this.getSettingsObject())}
           />
         );
         break;

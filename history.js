@@ -1,4 +1,5 @@
 import AsyncStorage from '@react-native-community/async-storage';
+import { STATE_ACTIONS } from './StateManager';
 
 const History = {
   saved: [],
@@ -104,7 +105,7 @@ const History = {
     catch(e) { Sefaria.history.saved = []; }
     Sefaria.history._hasSwipeDeleted = JSON.parse(hasSwipeDeleted) || false;
   },
-  syncHistory: async function(settings) {
+  syncHistory: async function(dispatch, settings) {
     /*
     settings is of the form
     {
@@ -149,6 +150,7 @@ const History = {
         await AsyncStorage.setItem('savedItems', JSON.stringify(Sefaria.history.saved));
         await AsyncStorage.setItem('lastPlace', JSON.stringify(Sefaria.history.lastPlace));
         await AsyncStorage.setItem('history', JSON.stringify(mergedHistory));
+        Sefaria.history.updateSettingsAfterSync(dispatch, response.settings);
       } catch (e) {
         // try again later
         console.log('sync error', e);
@@ -156,9 +158,24 @@ const History = {
     }
     return currHistory;
   },
-  syncHistoryGetSaved: async (settings) => {
-    await Sefaria.history.syncHistory(settings);
+  syncHistoryGetSaved: async (dispatch, settings) => {
+    await Sefaria.history.syncHistory(dispatch, settings);
     return Sefaria.history.saved;
+  },
+  updateSettingsAfterSync: function(dispatch, newSettings) {
+    const fieldToActionMap = {
+      email_notifications: STATE_ACTIONS.setEmailFrequency,
+      interface_language: STATE_ACTIONS.setInterfaceLanguage,
+      textual_custom: STATE_ACTIONS.setPreferredCustom,
+    };
+    Object.entries(newSettings).map(([key, value]) => {
+      if (!fieldToActionMap[key]) { return; }
+      dispatch({
+        type: fieldToActionMap[key],
+        value,
+        time: newSettings.time_stamp,
+      });
+    });
   },
   mergeHistory: function(currHistory, currSaved, newHistory) {
     const delete_saved_set = new Set();
