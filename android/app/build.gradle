@@ -162,6 +162,7 @@ dependencies {
     implementation project(':react-native-custom-tabs')
     implementation project(':react-native-check-app-install')
     implementation 'com.google.firebase:firebase-core:16.0.9'
+    implementation "com.google.firebase:firebase-config:17.0.0"
     compile project(':react-native-sound')
     compile project(':react-native-shake')
     compile project(':react-native-fs')

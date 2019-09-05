@@ -9,6 +9,8 @@ import {
   Button,
 } from 'react-native';
 import { WebView } from 'react-native-webview';
+import firebase from 'react-native-firebase';
+
 import {
   RainbowBar,
   CircleCloseButton,
@@ -19,6 +21,8 @@ import strings from './LocalizedStrings';
 import styles from './Styles';
 
 const onSubmit = async (formState, authMode, setErrors, onLoginSuccess) => {
+  const mobileAppKey = await getMobileAppKey();
+  formState.mobile_app_key = mobileAppKey;
   let errors = await Sefaria.api.authenticate(formState, authMode);
   if (!errors) { errors = {}; }
   setErrors(errors);
@@ -27,19 +31,26 @@ const onSubmit = async (formState, authMode, setErrors, onLoginSuccess) => {
   }
 };
 
+const getMobileAppKey = async () => {
+  firebase.config().setDefaults({ mobile_app_key: '' });
+  await firebase.config().fetch(0);
+  const activated = await firebase.config().activateFetched();
+  if (!activated) { console.log('Fetch data not activated'); }
+  const snapshot = await firebase.config().getValue('mobile_app_key');
+  return snapshot.val();
+};
+
 const useAuthForm = (authMode, onLoginSuccess) => {
   const [first_name, setFirstName] = useState(null);
   const [last_name, setLastName] = useState(null);
   const [email, setEmail] = useState(null);
   const [password, setPassword] = useState(null);
   const [errors, setErrors] = useState({});
-  const [g_recaptcha_response, setRecaptchaResponse] = useState(null);
   const formState = {
     first_name,
     last_name,
     email,
     password,
-    g_recaptcha_response,
   };
   return {
     errors,
@@ -47,7 +58,6 @@ const useAuthForm = (authMode, onLoginSuccess) => {
     setLastName,
     setEmail,
     setPassword,
-    setRecaptchaResponse,
     onSubmit: () => { onSubmit(formState, authMode, setErrors, onLoginSuccess) },
   }
 }
@@ -61,7 +71,6 @@ const AuthPage = ({ authMode, close, showToast }) => {
     setLastName,
     setEmail,
     setPassword,
-    setRecaptchaResponse,
     onSubmit,
   } = useAuthForm(authMode, () => {
     dispatch({
@@ -125,7 +134,6 @@ const AuthPage = ({ authMode, close, showToast }) => {
           <Text>{strings.forgotPassword}</Text>
         </TouchableOpacity>
       </View>
-      { isLogin ? null : <ReCaptchaView onSuccess={setRecaptchaResponse} />}
     </ScrollView>
   )
 }
@@ -167,66 +175,6 @@ const AuthTextInput = ({
     </View>
   );
 };
-
-class ReCaptchaView extends React.Component {
-  static propTypes = {
-    onSuccess: PropTypes.func.isRequired,
-  };
-  getWebviewContent = () => {
-    const originalForm = `
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <meta name="viewport" content="width=device-width, initial-scale=1" />
-          <script src="https://www.google.com/recaptcha/api.js"></script>
-          <style>
-            body {
-              display: flex;
-              flex-direction: column;
-              align-items: center;
-            }
-          </style>
-        </head>
-        <body>
-          <div class="g-recaptcha" data-size="normal" data-callback="[CALLBACK]" data-sitekey="[KEY]"></div>
-        </body>
-      </html>`;
-    const tmp =  originalForm
-      .replace("[CALLBACK]", 'recaptchaCallback')  // defined in getJS()
-      .replace("[KEY]", '6LetNA8TAAAAALOniTMS0Cwz-ynl9b7bDmVxVfR7');
-
-    return tmp;
-  };
-
-  getJS = () => {
-    return `var recaptchaCallback = function(data) {
-      window.ReactNativeWebView.postMessage(data);
-    }`;
-  }
-
-  onMessage = e => {
-    this.props.onSuccess(e.nativeEvent.data);
-  };
-
-  render() {
-    return (
-      <View style={{flex:1, alignSelf: "stretch"}}>
-        <WebView
-          javaScriptEnabled={true}
-          mixedContentMode={'always'}
-          style={{ height: 400, backgroundColor: 'transparent'}}
-          onMessage={this.onMessage}
-          injectedJavaScript={this.getJS()}
-          source={{
-            html: this.getWebviewContent(),
-            baseUrl: Sefaria.api._baseHost,
-          }}
-        />
-      </View>
-    );
-  }
-}
-
 
 export {
   AuthPage,

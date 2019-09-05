@@ -477,7 +477,7 @@ var Api = {
       last_name: authData.last_name,
       password1: authData.password,
       password2: authData.password,
-      'g-recaptcha-response': authData.g_recaptcha_response,
+      mobile_app_key: authData.mobile_app_key,
     };
     console.log(authBody, Sefaria.api.urlFormEncode(authBody));
     return fetch(url, {
