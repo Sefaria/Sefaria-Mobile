@@ -1,3 +1,5 @@
+'use strict';
+
 import {
   Alert
 } from 'react-native';
@@ -529,6 +531,7 @@ var Api = {
       const tempAuth = await AsyncStorage.getItem("auth");
       Sefaria._auth = JSON.parse(tempAuth) || {};
       try {
+        if (!Sefaria._auth.token) { throw new Error("no token!"); }
         if (Sefaria._auth.expires <= currTime) { throw new Error("expired token"); }
         return;  // token is valid
       } catch (error) {
@@ -551,6 +554,12 @@ var Api = {
     await AsyncStorage.removeItem('lastSyncItems');
     await AsyncStorage.removeItem('lastSyncTime');
     await AsyncStorage.removeItem('history');
+    await AsyncStorage.removeItem('lastSettingsUpdateTime');
+    Sefaria.history.saved = [];
+    Sefaria.history.lastPlace = [];
+    Sefaria.history.lastSync = [];
+    Sefaria._auth = {};
+    console.log("DELETED");
   },
 
 /*
@@ -561,7 +570,9 @@ failSilently - if true, dont display a message if api call fails
   _request: async function(ref, apiType, urlify, { context, versions, more_data, uid }, failSilently, isPrivate) {
     const controller = new AbortController();
     const signal = controller.signal;
-    if (isPrivate) { await Sefaria.api.getAuthToken(); }
+    if (isPrivate) {
+      await Sefaria.api.getAuthToken();
+    }
     const headers = isPrivate ? {'Authorization': `Bearer ${Sefaria._auth.token}`} : {};
     Sefaria.api._currentRequests[apiType] = controller;
     const url = Sefaria.api._toURL(ref, true, apiType, urlify, { context, versions, more_data, uid });

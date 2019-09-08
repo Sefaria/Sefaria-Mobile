@@ -1,3 +1,5 @@
+'use strict';
+
 class BackManager {
 
   static _backStack = [];

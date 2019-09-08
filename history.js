@@ -1,3 +1,5 @@
+'use strict';
+
 import AsyncStorage from '@react-native-community/async-storage';
 import { STATE_ACTIONS } from './StateManager';
 

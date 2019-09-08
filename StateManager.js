@@ -1,3 +1,5 @@
+'use strict';
+
 import React from 'react';
 import AsyncStorage from '@react-native-community/async-storage';
 import iPad from './isIPad';
@@ -263,7 +265,7 @@ const initAsyncStorage = dispatch => {
   // Returns a Promise that resolves when all fields are loaded.
   var promises = [];
   let asyncData = {};
-  for (field in ASYNC_STORAGE_DEFAULTS) {
+  for (let field in ASYNC_STORAGE_DEFAULTS) {
     if (ASYNC_STORAGE_DEFAULTS.hasOwnProperty(field)) {
       const loader = function (field, value) {
         const actionValue = value ? JSON.parse(value) : ASYNC_STORAGE_DEFAULTS[field].default;
