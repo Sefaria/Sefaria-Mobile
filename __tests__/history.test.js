@@ -315,7 +315,7 @@ describe('history', () => {
       setting2: 12,
       setting3: 'another string',
     };
-    await Sefaria.history.syncHistory(()=>{}, settings);
+    const currHistory = await Sefaria.history.syncHistory(()=>{}, settings);
     expect(fetch.mock.calls.length).toBe(1);
     const fetchParams = fetch.mock.calls[0];
     expect(fetchParams[1].method).toBe("POST");
@@ -330,6 +330,7 @@ describe('history', () => {
     expect((await AsyncStorage.getItem('savedItems'))).toBe('[]');
     expect((await AsyncStorage.getItem('lastPlace'))).toBe(JSON.stringify([lastSyncItems[0]]));
     expect((await AsyncStorage.getItem('history'))).toBe(JSON.stringify(lastSyncItems));
+    expect(currHistory).toEqual(lastSyncItems);
     expect((await AsyncStorage.removeItem('lastSyncItems'))).toBeNull();
   });
 
@@ -373,7 +374,7 @@ describe('history', () => {
         })
       }
     }));
-    await Sefaria.history.syncHistory(()=>{}, {});
+    const currHistory = await Sefaria.history.syncHistory(()=>{}, {});
     expect(fetch.mock.calls.length).toBe(1);
     expect(fetch.mock.calls[0][1].method).toBe("POST");
     expect(fetch.mock.calls[0][1].headers.Authorization).toBe(`Bearer ${auth.token}`);
@@ -383,6 +384,7 @@ describe('history', () => {
     expect((await AsyncStorage.getItem('savedItems'))).toBe(JSON.stringify([webHistory[1]]));
     expect((await AsyncStorage.getItem('lastPlace'))).toBe(JSON.stringify([webHistory[0]]));
     expect((await AsyncStorage.getItem('history'))).toBe(JSON.stringify(webHistory));
+    expect(currHistory).toEqual(webHistory);
     expect((await AsyncStorage.removeItem('lastSyncItems'))).toBeNull();
   });
 
@@ -394,7 +396,7 @@ describe('history', () => {
         versions: {},
         book: "Genesis",
         language: "english",
-        time_stamp: 1,
+        time_stamp: 2,
       },
       {
         ref: "Genesis 1:5",
@@ -406,9 +408,30 @@ describe('history', () => {
         saved: true,
       }
     ];
+    const lastSyncItems = [
+      {
+        ref: "Genesis 1:7",
+        he_ref: "בראשית א:ו",
+        versions: {},
+        book: "Genesis",
+        language: "english",
+        time_stamp: 3,
+        saved: true,
+      },
+      {
+        ref: "Genesis 1:8",
+        he_ref: "בראשית א:ה",
+        versions: {},
+        book: "Genesis",
+        language: "english",
+        time_stamp: 1,
+      }
+    ];
+
+    const finalHistory = [lastSyncItems[0], webHistory[0], lastSyncItems[1], webHistory[1]];
+    await AsyncStorage.setItem('lastSyncItems', JSON.stringify(lastSyncItems));
     await AsyncStorage.removeItem('history');
-    await AsyncStorage.removeItem('lastSyncItems');
-    await AsyncStorage.removeItem('savedItems');
+    await AsyncStorage.setItem('savedItems', JSON.stringify([lastSyncItems[0]]));
     await AsyncStorage.removeItem('lastSyncTime');
     const auth = { uid: 1, token: 2 };
     Sefaria.api.getAuthToken = jest.fn(() => {
@@ -426,16 +449,17 @@ describe('history', () => {
         })
       }
     }));
-    await Sefaria.history.syncHistory(()=>{}, {});
+    const currHistory = await Sefaria.history.syncHistory(()=>{}, {});
     expect(fetch.mock.calls.length).toBe(1);
     expect(fetch.mock.calls[0][1].method).toBe("POST");
     expect(fetch.mock.calls[0][1].headers.Authorization).toBe(`Bearer ${auth.token}`);
     expect(fetch.mock.calls[0][1].headers['Content-Type']).toBe('application/x-www-form-urlencoded;charset=UTF-8');
 
     expect((await AsyncStorage.getItem('lastSyncTime'))).toBe('11');
-    expect((await AsyncStorage.getItem('savedItems'))).toBe(JSON.stringify([webHistory[1]]));
-    expect((await AsyncStorage.getItem('lastPlace'))).toBe(JSON.stringify([webHistory[0]]));
-    expect((await AsyncStorage.getItem('history'))).toBe(JSON.stringify(webHistory));
+    expect((await AsyncStorage.getItem('savedItems'))).toBe(JSON.stringify([lastSyncItems[0], webHistory[1]]));
+    expect((await AsyncStorage.getItem('lastPlace'))).toBe(JSON.stringify([lastSyncItems[0]]));
+    expect((await AsyncStorage.getItem('history'))).toBe(JSON.stringify(finalHistory));
+    expect(currHistory).toEqual(finalHistory);
     expect((await AsyncStorage.removeItem('lastSyncItems'))).toBeNull();
   });
 

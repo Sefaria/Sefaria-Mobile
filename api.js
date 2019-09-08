@@ -452,7 +452,7 @@ var Api = {
   },
   urlFormDecode: function(data) {
     return data.split('&').reduce((obj, entry) => {
-      [key, value] = entry.split('=').map(decodeURIComponent);
+      const [key, value] = entry.split('=').map(decodeURIComponent);
       obj[key] = value;
       return obj;
     }, {});
@@ -539,7 +539,7 @@ var Api = {
         const parsedRes = await Sefaria.api.refreshToken(Sefaria._auth.refreshToken).then(res => res.json());
         if (!parsedRes.access) {
           Sefaria.api.clearAuthStorage();
-          throw new Error("expired refresh token");
+          console.log("expired refresh token");
         }
         console.log("successfully refreshed token");
         Sefaria.api.storeAuthToken(parsedRes);
@@ -572,6 +572,7 @@ failSilently - if true, dont display a message if api call fails
     const signal = controller.signal;
     if (isPrivate) {
       await Sefaria.api.getAuthToken();
+      if (!Sefaria._auth.uid && failSilently) { return Promise.resolve(); }
     }
     const headers = isPrivate ? {'Authorization': `Bearer ${Sefaria._auth.token}`} : {};
     Sefaria.api._currentRequests[apiType] = controller;

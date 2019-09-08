@@ -29,6 +29,7 @@ const ReaderControls = ({
   categories,
   openNav,
   openTextToc,
+  openSheetMeta,
   goBack,
   toggleReaderDisplayOptionsMenu,
   backStack,

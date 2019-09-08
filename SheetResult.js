@@ -19,39 +19,42 @@ const SheetResult = ({
   heTitle,
   textType,
   onPress,
+  ownerImageUrl,
+  ownerName,
+  views,
 }) => {
   const { theme, defaultTextLanguage, interfaceLanguage } = useContext(GlobalStateContext);
   const refTitleStyle = defaultTextLanguage === "hebrew" ? styles.he : styles.en;
-  const refTitle = defaultTextLanguage === "hebrew" ? this.props.heTitle : this.props.title;
+  const refTitle = defaultTextLanguage === "hebrew" ? heTitle : title;
   return (
 
 
     <TouchableOpacity style={[styles.textBlockLink, theme.textBlockLink, {margin:0, borderBottomWidth: 1, borderBottomColor: "#ccc", paddingTop: 13}]}
-                      onPress={this.props.onPress} >
+                      onPress={onPress} >
 
     <View style={{ flexDirection: (interfaceLanguage == "hebrew" ? "row-reverse" : "row"),flex:1}}>
 
       <Image
           style={styles.userAvatar}
-          source={{uri: this.props.ownerImageUrl}}
+          source={{uri: ownerImageUrl}}
       />
     <View style={{ flexDirection: "column",flex:1, marginRight: interfaceLanguage == "hebrew" ? 20 : 10, marginLeft: interfaceLanguage == "hebrew" ? 10 : 20}}>
         <View style={{flexDirection: (interfaceLanguage == "hebrew" ? "row-reverse" : "row"), flex: 0, justifyContent: "space-between"}}>
-           <Text style={[styles.enInt, {alignSelf: "flex-start", color:"#666"}]}>{this.props.ownerName}</Text>
+           <Text style={[styles.enInt, {alignSelf: "flex-start", color:"#666"}]}>{ownerName}</Text>
            <View style={{flexDirection: (interfaceLanguage == "hebrew" ? "row-reverse" : "row"), alignSelf: "flex-end"}}>
-              <Text style={[{color:"#999"}, styles.enInt]}>{this.props.views}</Text>
+              <Text style={[{color:"#999"}, styles.enInt]}>{views}</Text>
               <Image style={{marginTop: 5, marginLeft: 0, width:15, height: 10}} source={interfaceLanguage == "hebrew" ? require('./img/eye-r.png') : require('./img/eye.png')}/>
            </View>
          </View>
         <View>
-          <Text style={[styles.sheetListTitle, {textAlign: interfaceLanguage == "hebrew" ? "right" : "left"}]}>{this.props.title.replace(/\s\s+/g, ' ')}</Text>
+          <Text style={[styles.sheetListTitle, {textAlign: interfaceLanguage == "hebrew" ? "right" : "left"}]}>{title.replace(/\s\s+/g, ' ')}</Text>
         </View>
 
-        {this.props.text ?
+        {text ?
         <HTMLView
-          value= {this.props.textType == "hebrew" ? "<hediv>"+this.props.text.replace(/(\r\n|\n|\r)/gm, "").substring(0, 124)+"...</hediv>" : "<endiv>"+this.props.text.replace(/(\r\n|\n|\r)/gm, "").substring(0, 124)+"...</endiv>"}
+          value= {textType == "hebrew" ? "<hediv>"+text.replace(/(\r\n|\n|\r)/gm, "").substring(0, 124)+"...</hediv>" : "<endiv>"+text.replace(/(\r\n|\n|\r)/gm, "").substring(0, 124)+"...</endiv>"}
           stylesheet={styles}
-          textComponentProps={{style: [this.props.textType == "hebrew" ? styles.hebrewText : styles.englishText, theme.text]}}
+          textComponentProps={{style: [textType == "hebrew" ? styles.hebrewText : styles.englishText, theme.text]}}
         /> : null }
 
       </View>

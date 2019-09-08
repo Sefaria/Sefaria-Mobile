@@ -37,7 +37,7 @@ const getMobileAppKey = async () => {
   firebase.config().setDefaults({ mobile_app_key: '' });
   await firebase.config().fetch(0);
   const activated = await firebase.config().activateFetched();
-  if (!activated) { console.log('Fetch data not activated'); }
+  if (!activated) { console.log('Fetch data not activated'); return ''; }
   const snapshot = await firebase.config().getValue('mobile_app_key');
   return snapshot.val();
 };
@@ -82,7 +82,7 @@ const AuthPage = ({ authMode, close, showToast }) => {
     close();
     showToast(strings.loginSuccessful);
   });
-  isLogin = authMode === 'login';
+  const isLogin = authMode === 'login';
   const placeholderTextColor = themeStr == "black" ? "#BBB" : "#777";
   return(
     <ScrollView style={{flex:1, alignSelf: "stretch" }} contentContainerStyle={{alignItems: "center"}}>

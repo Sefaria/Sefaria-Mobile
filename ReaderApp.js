@@ -167,8 +167,8 @@ class ReaderApp extends React.Component {
     this.groggerSound = new Sound('grogger.mp3', Sound.MAIN_BUNDLE, (error) => {});
   }
 
-  logout = () => {
-    Sefaria.api.clearAuthStorage();
+  logout = async () => {
+    await Sefaria.api.clearAuthStorage();
     this.props.dispatch({
       type: STATE_ACTIONS.setIsLoggedIn,
       value: false,
@@ -1736,11 +1736,15 @@ class ReaderApp extends React.Component {
         return(
           <SwipeableCategoryList
             close={this.manageBackMain}
+            theme={this.props.theme}
+            themeStr={this.props.themeStr}
             openRef={this.openRef}
+            defaultTextLanguage={this.props.defaultTextLanguage}
+            interfaceLanguage={this.props.interfaceLanguage}
             onRemove={this.removeSavedItem}
             title={strings.saved}
             menuOpen={this.state.menuOpen}
-            icon={themeStr === "white" ? require('./img/starUnfilled.png') : require('./img/starUnfilled-light.png')}
+            icon={this.props.themeStr === "white" ? require('./img/starUnfilled.png') : require('./img/starUnfilled-light.png')}
             loadData={async () => Sefaria.history.syncHistoryGetSaved(this.props.dispatch, await this.getSettingsObject())}
           />
         );
@@ -1802,6 +1806,8 @@ class ReaderApp extends React.Component {
             menuOpen={this.state.menuOpen}
             onBack={this.manageBackMain}
             openRef={this.openRefSheet}
+            theme={this.props.theme}
+            themeStr={this.props.themeStr}
            />
         );
     }

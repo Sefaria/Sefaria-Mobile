@@ -68,7 +68,7 @@ class ReaderNavigationSheetList extends React.Component {
   renderItem = ({ item, index }) => {
     const refToOpen = "Sheet "+ item.id
     return (
-      <View key={index} style={[this.props.theme.menu]}>
+      <View style={[this.props.theme.menu]}>
         <SheetResult
           theme={this.props.theme}
           title={item.title}
@@ -107,7 +107,7 @@ class ReaderNavigationSheetList extends React.Component {
                 <FlatList
                   style={{}}
                   data={this.state.sheets}
-                  keyExtractor={(item, index) => item.id}
+                  keyExtractor={(item, index) => ''+item.id}
                   renderItem={this.renderItem}
                 />
             </View>

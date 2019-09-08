@@ -5,13 +5,15 @@ import { STATE_ACTIONS } from './StateManager';
 
 const History = {
   saved: [],
+  lastPlace: [],
+  lastSync: [],
   _hasSwipeDeleted: false,
   migrateFromOldRecents: async function() {
     const recentStr = await AsyncStorage.getItem("recent");
     const savedStr = await AsyncStorage.getItem("saved");
     if (!!recentStr || !!savedStr) {
-      recent = JSON.parse(recentStr) || [];
-      saved = JSON.parse(savedStr) || [];
+      const recent = JSON.parse(recentStr) || [];
+      const saved = JSON.parse(savedStr) || [];
       const history = recent.map(r => ({
         ref: r.ref,
         he_ref: Sefaria.toHeSegmentRef(r.heRef, r.ref),
@@ -149,6 +151,7 @@ const History = {
         const { mergedHistory, mergedSaved } = Sefaria.history.mergeHistory(currHistory, currSaved, response.user_history);
         Sefaria.history.lastPlace = Sefaria.history.historyToLastPlace(mergedHistory);
         Sefaria.history.saved = mergedSaved;
+        currHistory = mergedHistory;
         await AsyncStorage.setItem('savedItems', JSON.stringify(Sefaria.history.saved));
         await AsyncStorage.setItem('lastPlace', JSON.stringify(Sefaria.history.lastPlace));
         await AsyncStorage.setItem('history', JSON.stringify(mergedHistory));

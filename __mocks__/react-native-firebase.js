@@ -15,4 +15,10 @@ export default {
     setCurrentScreen: jest.fn(),
     setAnalyticsCollectionEnabled: jest.fn(),
   })),
+  config: jest.fn(() => ({
+    setDefaults: jest.fn(),
+    fetch: jest.fn(),
+    activateFetched: jest.fn(),
+    getValue: jest.fn(),
+  })),
 };
