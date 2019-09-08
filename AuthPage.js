@@ -8,14 +8,14 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  Button,
+  Image,
 } from 'react-native';
-import { WebView } from 'react-native-webview';
 import firebase from 'react-native-firebase';
 
 import {
   RainbowBar,
   CircleCloseButton,
+  SystemButton,
 } from './Misc';
 import { GlobalStateContext, DispatchContext, STATE_ACTIONS } from './StateManager';
 import Sefaria from './sefaria';
@@ -66,7 +66,7 @@ const useAuthForm = (authMode, onLoginSuccess) => {
 
 const AuthPage = ({ authMode, close, showToast }) => {
   const dispatch = useContext(DispatchContext);
-  const { theme, themeStr } = useContext(GlobalStateContext);
+  const { theme, themeStr, interfaceLanguage } = useContext(GlobalStateContext);
   const {
     errors,
     setFirstName,
@@ -92,6 +92,19 @@ const AuthPage = ({ authMode, close, showToast }) => {
       </View>
       <Text style={styles.pageTitle}>{isLogin ? strings.sign_in : strings.join_sefaria}</Text>
       <View style={{flex: 1, alignSelf: "stretch",  marginHorizontal: 37}}>
+        { isLogin ?
+          <View>
+            {
+              [
+                {iconStr: 'star', text: strings.saveTexts},
+                {iconStr: 'sync', text: strings.syncYourReading},
+                {iconStr: 'sheet', text: strings.readYourSheets},
+                {iconStr: 'mail', text: strings.getUpdates},
+              ].map(x => (<LogInMotivator key={x.iconStr} { ...x } />))
+            }
+          </View>
+          : null
+        }
         { isLogin ? null :
           <AuthTextInput
             placeholder={strings.first_name}
@@ -128,7 +141,12 @@ const AuthPage = ({ authMode, close, showToast }) => {
         />
         <ErrorText error={errors.non_field_errors} errorDisplayText={errors.non_field_errors} />
         <ErrorText error={errors.captcha} errorDisplayText={errors.captcha} />
-        <Button onPress={onSubmit} title={isLogin ? strings.sign_in : strings.create_account}/>
+        <SystemButton
+          onPress={onSubmit}
+          text={isLogin ? strings.sign_in : strings.create_account}
+          isHeb={interfaceLanguage === 'hebrew'}
+          isBlue
+        />
         <TouchableOpacity>
           <Text>{strings.linkToRegister}</Text>
         </TouchableOpacity>
@@ -162,21 +180,48 @@ const AuthTextInput = ({
   error,
   errorText,
   onChangeText,
+}) => (
+  <View>
+    <TextInput
+      style={[styles.textInput, styles.boxShadow, styles.authTextInput]}
+      placeholder={placeholder}
+      placeholderTextColor={placeholderTextColor}
+      secureTextEntry={isPW}
+      autoCapitalize={autoCapitalize}
+      onChangeText={onChangeText}
+    />
+    <ErrorText error={error} errorText={errorText} />
+  </View>
+);
+
+const LogInMotivator = ({
+  iconStr,
+  text
 }) => {
+  const { themeStr } = useContext(GlobalStateContext);
+  let icon;
+  if (themeStr === 'white') {
+    if (iconStr === 'star')  { icon = require('./img/starUnfilled.png'); }
+    if (iconStr === 'sync')  { icon = require('./img/sync.png'); }
+    if (iconStr === 'sheet') { icon = require('./img/sheet.png'); }
+    if (iconStr === 'mail')  { icon = require('./img/mail.png'); }
+  } else {
+    if (iconStr === 'star')  { icon = require('./img/starUnfilled-light.png'); }
+    if (iconStr === 'sync')  { icon = require('./img/sync-light.png'); }
+    if (iconStr === 'sheet') { icon = require('./img/sheet-light.png'); }
+    if (iconStr === 'mail')  { icon = require('./img/mail-light.png'); }
+  }
   return (
-    <View>
-      <TextInput
-        style={[styles.textInput, styles.boxShadow, styles.authTextInput]}
-        placeholder={placeholder}
-        placeholderTextColor={placeholderTextColor}
-        secureTextEntry={isPW}
-        autoCapitalize={autoCapitalize}
-        onChangeText={onChangeText}
-      />
-      <ErrorText error={error} errorText={errorText} />
+    <View style={{
+        flexDirection: 'row',
+        marginBottom: 20,
+      }}
+    >
+      <Image style={{height: 20, width: 20}} source={icon} resizeMode={'contain'} />
+      <Text style={[{marginHorizontal: 20}, styles.enInt]}>{ text }</Text>
     </View>
   );
-};
+}
 
 export {
   AuthPage,

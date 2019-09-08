@@ -148,6 +148,10 @@ let strings = new LocalizedStrings({
     bilingualLayout: "Bilingual Layout",
     wantToSync: "Want to sync your reading history?",
     logIn: "Log in",
+    saveTexts: "Save texts",
+    syncYourReading: "Sync your reading history",
+    readYourSheets: "Read your sheets on mobile",
+    getUpdates: "Get updates",
   },
   he: {
     login: "כניסה לחשבון",
@@ -286,6 +290,10 @@ let strings = new LocalizedStrings({
     bilingualLayout: "עימוד דו לשוני",
     wantToSync: "Want to sync your reading history?",
     logIn: "Log in",
+    saveTexts: "Save texts",
+    syncYourReading: "Sync your reading history",
+    readYourSheets: "Read your sheets on mobile",
+    getUpdates: "Get updates",
   }
 });
 
