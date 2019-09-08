@@ -21,6 +21,7 @@ const STATE_ACTIONS = {
   toggleDebugInterruptingMessage: "TOGGLE_DEBUG_INTERRUPTING_MESSAGE",
   setBiLayout: "SET_BI_LAYOUT",
   setIsLoggedIn: "SET_IS_LOGGED_IN",
+  setHasDismissedSyncModal: "SET_HAS_DISMISSED_SYNC_MODAL",
 };
 
 const UPDATE_SETTINGS_ACTIONS = {
@@ -91,6 +92,10 @@ const ACTION_CREATORS = {
     type: STATE_ACTIONS.setIsLoggedIn,
     value: isLoggedIn,
   }),
+  setHasDismissedSyncModal: (hasDismissed, fromAsync) => ({
+    type: STATE_ACTIONS.setHasDismissedSyncModal,
+    value: hasDismissed,
+  }),
 }
 
 const ASYNC_STORAGE_DEFAULTS = {
@@ -138,6 +143,10 @@ const ASYNC_STORAGE_DEFAULTS = {
     default: false,
     action: ACTION_CREATORS.setIsLoggedIn,
   },
+  hasDismissedSyncModal: {
+    default: false,
+    action: ACTION_CREATORS.setHasDismissedSyncModal,
+  },
 };
 
 const DEFAULT_STATE = {
@@ -154,6 +163,7 @@ const DEFAULT_STATE = {
   debugInterruptingMessage: ASYNC_STORAGE_DEFAULTS.debugInterruptingMessage.default,
   biLayout: ASYNC_STORAGE_DEFAULTS.biLayout.default,
   isLoggedIn: ASYNC_STORAGE_DEFAULTS.auth.default,
+  hasDismissedSyncModal: ASYNC_STORAGE_DEFAULTS.hasDismissedSyncModal.default,
 };
 
 const saveFieldToAsync = function (field, value) {
@@ -254,6 +264,12 @@ const reducer = function (state, action) {
       return {
         ...state,
         isLoggedIn,
+      }
+    case STATE_ACTIONS.setHasDismissedSyncModal:
+      if (!action.fromAsync) { saveFieldToAsync('hasDismissedSyncModal', action.value); }
+      return {
+        ...state,
+        hasDismissedSyncModal: action.value,
       }
     default:
       return state;

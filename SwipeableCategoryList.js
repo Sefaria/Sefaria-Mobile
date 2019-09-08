@@ -25,7 +25,7 @@ import {
   SText,
   LoadingView,
 } from './Misc.js';
-
+import { STATE_ACTIONS } from './StateManager';
 import styles from './Styles';
 import strings from './LocalizedStrings';
 
@@ -43,6 +43,10 @@ class SwipeableCategoryList extends React.Component {
     loadData:           PropTypes.func.isRequired,
     icon:               PropTypes.number.isRequired,
     menuOpen:           PropTypes.oneOf(["saved", "history"]),
+    openLogin:          PropTypes.func.isRequired,
+    isLoggedIn:         PropTypes.bool.isRequired,
+    hasDismissedSyncModal: PropTypes.bool.isRequired,
+    dispatch:           PropTypes.func.isRequired,
   };
 
   constructor(props) {
@@ -127,7 +131,36 @@ class SwipeableCategoryList extends React.Component {
           </View>
           <LanguageToggleButton />
         </View>
+        {this.props.isLoggedIn || this.props.hasDismissedSyncModal ? null :
+          <TouchableOpacity style={{
+              backgroundColor: "#18345D",
+              paddingVertical: 20,
+              paddingHorizontal: 15,
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+            }}
+            onPress={this.props.openLogin}
+          >
+            <Text style={[ styles.systemButtonText, styles.systemButtonTextBlue, styles.enInt]}>
+              { `${strings.wantToSync} ` }
+              <Text style={[{ textDecorationLine: 'underline'}]}>{ strings.logIn }</Text>
+            </Text>
 
+            <TouchableOpacity onPress={() => {
+                this.props.dispatch({
+                  type: STATE_ACTIONS.setHasDismissedSyncModal,
+                  value: true,
+                });
+              }}>
+              <Image
+                source={require('./img/close-light.png')}
+                resizeMode={'contain'}
+                style={{width: 14, height: 14}}
+              />
+            </TouchableOpacity>
+          </TouchableOpacity>
+        }
         {!!this.state.data ?
           <FlatListClass
             data={this.state.data}

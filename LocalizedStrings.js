@@ -146,6 +146,8 @@ let strings = new LocalizedStrings({
     reportError: "Report Error",
     viewOnSite: "View on Site",
     bilingualLayout: "Bilingual Layout",
+    wantToSync: "Want to sync your reading history?",
+    logIn: "Log in",
   },
   he: {
     login: "כניסה לחשבון",
@@ -282,6 +284,8 @@ let strings = new LocalizedStrings({
     reportError: "דווח שגיאה",
     viewOnSite: "לצפות באתר",
     bilingualLayout: "עימוד דו לשוני",
+    wantToSync: "Want to sync your reading history?",
+    logIn: "Log in",
   }
 });
 

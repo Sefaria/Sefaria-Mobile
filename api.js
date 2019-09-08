@@ -526,6 +526,7 @@ var Api = {
   },
 
   getAuthToken: async function() {
+    if (!Object.keys(Sefaria._auth).length) { return; /* logged out */ }
     const currTime = Sefaria.util.epoch_time();
     if (!Sefaria._auth.token || Sefaria._auth.expires <= currTime) {
       const tempAuth = await AsyncStorage.getItem("auth");
@@ -540,9 +541,10 @@ var Api = {
         if (!parsedRes.access) {
           Sefaria.api.clearAuthStorage();
           console.log("expired refresh token");
+        } else {
+          console.log("successfully refreshed token");
+          Sefaria.api.storeAuthToken(parsedRes);
         }
-        console.log("successfully refreshed token");
-        Sefaria.api.storeAuthToken(parsedRes);
       }
     }
   },
@@ -555,6 +557,7 @@ var Api = {
     await AsyncStorage.removeItem('lastSyncTime');
     await AsyncStorage.removeItem('history');
     await AsyncStorage.removeItem('lastSettingsUpdateTime');
+    await AsyncStorage.removeItem('hasDismissedSyncModal');
     Sefaria.history.saved = [];
     Sefaria.history.lastPlace = [];
     Sefaria.history.lastSync = [];

@@ -1728,6 +1728,10 @@ class ReaderApp extends React.Component {
             menuOpen={this.state.menuOpen}
             icon={this.props.themeStr === "white" ? require('./img/clock.png') : require('./img/clock-light.png')}
             loadData={async () => Sefaria.history.syncHistory(this.props.dispatch, await this.getSettingsObject())}
+            openLogin={this.openMenu.bind(null, "login")}
+            isLoggedIn={this.props.isLoggedIn}
+            hasDismissedSyncModal={this.props.hasDismissedSyncModal}
+            dispatch={this.props.dispatch}
           />
         );
         break;
@@ -1746,6 +1750,10 @@ class ReaderApp extends React.Component {
             menuOpen={this.state.menuOpen}
             icon={this.props.themeStr === "white" ? require('./img/starUnfilled.png') : require('./img/starUnfilled-light.png')}
             loadData={async () => Sefaria.history.syncHistoryGetSaved(this.props.dispatch, await this.getSettingsObject())}
+            openLogin={this.openMenu.bind(null, "login")}
+            isLoggedIn={this.props.isLoggedIn}
+            hasDismissedSyncModal={this.props.hasDismissedSyncModal}
+            dispatch={this.props.dispatch}
           />
         );
         break;
