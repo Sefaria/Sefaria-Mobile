@@ -375,12 +375,12 @@ def section_data(oref, defaultVersions):
     anchor_ref_dict = defaultdict(list)
     for link in section_links:
         anchor_oref = model.Ref(link["anchorRef"])
+        if not anchor_oref.is_segment_level() or len(anchor_oref.sections) == 0:
+            continue  # don't bother with section level links
         start_seg_num = anchor_oref.sections[-1]
         # make sure sections are the same in range
         # TODO doesn't deal with links that span sections
         end_seg_num = anchor_oref.toSections[-1] if anchor_oref.sections[0] == anchor_oref.toSections[0] else max(en_len, he_len)
-        if not anchor_oref.is_segment_level():
-            continue  # don't bother with section level links
         for x in xrange(start_seg_num, end_seg_num+1):
             anchor_ref_dict[x] += [simple_link(link)]
     for x in xrange (0,max(en_len,he_len)):
@@ -711,73 +711,95 @@ def export_calendar(for_sources=False):
                 calendar["dafyomi"][yom["date"]] = {
                     "ref": {"en": tref, "he": heTref}
                 }
+        except KeyError as e:
+            continue
         except InputError, e:
             print "Error parsing '%s': %s" % (yom["daf"], str(e))
 
     # PARASHA -----
     parshiot = db.parshiot.find({"date": {"$gte": date}}).sort([("date", 1)])
     for parashah in parshiot:
-        parshRef = model.Ref(parashah["ref"])
-        parshTref = parshRef.normal()
-        parshHeTref = parshRef.he_normal()
-        haftarot = {custom: [{
-            "en": model.Ref(h).normal(), "he": model.Ref(h).he_normal()
-            } for h in haf_list] for custom, haf_list in parashah["haftara"].items() }
+        try:
+            parshRef = model.Ref(parashah["ref"])
+            parshTref = parshRef.normal()
+            parshHeTref = parshRef.he_normal()
+            haftarot = {custom: [{
+                "en": model.Ref(h).normal(), "he": model.Ref(h).he_normal()
+                } for h in haf_list] for custom, haf_list in parashah["haftara"].items() }
 
-        location = "diaspora" if parashah["diaspora"] else "israel"
+            location = "diaspora" if parashah["diaspora"] else "israel"
 
-        calendar["parasha"].setdefault(date_format(parashah["date"]), {"israel": {}, "diaspora": {}})
+            calendar["parasha"].setdefault(date_format(parashah["date"]), {"israel": {}, "diaspora": {}})
 
 
-        calendar["parasha"][date_format(parashah["date"])][location] = {
-            "parasha": {"en": parashah["parasha"], "he": hebrew_parasha_name(parashah["parasha"])},
-            "ref": {"en": parshTref, "he": parshHeTref},
-            "haftara": [haftarot["ashkenazi"][0], haftarot],  # backwards compatibility. app always reads first element of haftara array
-                # below fields not currently used
-            # "aliyot": parashah["aliyot"],
-            # "shabbatName": parasha["shabbat_name"],
-        }
+            calendar["parasha"][date_format(parashah["date"])][location] = {
+                "parasha": {"en": parashah["parasha"], "he": hebrew_parasha_name(parashah["parasha"])},
+                "ref": {"en": parshTref, "he": parshHeTref},
+                "haftara": [haftarot["ashkenazi"][0], haftarot],  # backwards compatibility. app always reads first element of haftara array
+                    # below fields not currently used
+                # "aliyot": parashah["aliyot"],
+                # "shabbatName": parasha["shabbat_name"],
+            }
+        except KeyError as e:
+            continue
+        except InputError as e:
+            continue
 
     # MISHNA -----
     mishnayot = db.daily_mishnayot.find({"date": {"$gte": date}}).sort([("date", 1)])
     for mishnah in mishnayot:
-        ref = model.Ref(mishnah["ref"])
-        tref = ref.normal()
-        heTref = ref.he_normal()
-        mish_obj = {"ref": {"en": tref, "he": heTref}}
-        date_key = date_format(mishnah["date"])
-        if not date_key in calendar["mishnah"]:
-            calendar["mishnah"][date_key] = [mish_obj]
-        else:
-            calendar["mishnah"][date_key] += [mish_obj]
+        try:
+            ref = model.Ref(mishnah["ref"])
+            tref = ref.normal()
+            heTref = ref.he_normal()
+            mish_obj = {"ref": {"en": tref, "he": heTref}}
+            date_key = date_format(mishnah["date"])
+            if not date_key in calendar["mishnah"]:
+                calendar["mishnah"][date_key] = [mish_obj]
+            else:
+                calendar["mishnah"][date_key] += [mish_obj]
+        except KeyError as e:
+            continue
+        except InputError as e:
+            continue
 
     # RAMBAM -----
     rambamim = db.daily_rambam.find({"date": {"$gte": date}}).sort([("date",1)])
     for rambam in rambamim:
-        ref = model.Ref(rambam["ref"])
-        tref = ref.normal()
-        heTref = ref.he_normal()
-        display_value_en = tref.replace("Mishneh Torah, ","")
-        display_value_he = heTref.replace(u"משנה תורה, ", u"")
-        calendar["rambam"][date_format(rambam["date"])] = {
-            "ref": {"en": tref, "he": heTref},
-            "displayValue": {"en": display_value_en, "he": display_value_he}
-        }
+        try:
+            ref = model.Ref(rambam["ref"])
+            tref = ref.normal()
+            heTref = ref.he_normal()
+            display_value_en = tref.replace("Mishneh Torah, ","")
+            display_value_he = heTref.replace(u"משנה תורה, ", u"")
+            calendar["rambam"][date_format(rambam["date"])] = {
+                "ref": {"en": tref, "he": heTref},
+                "displayValue": {"en": display_value_en, "he": display_value_he}
+            }
+        except KeyError as e:
+            continue
+        except InputError as e:
+            continue
 
     # 929 -----
     end_date = date + timedelta(days=1000)
     curr_date = date
     while curr_date < end_date:
-        p = p929.Perek(curr_date.date())
-        ref = model.Ref("{} {}".format(p.book_name, p.book_chapter))
-        tref = ref.normal()
-        heTref = ref.he_normal()
-        calendar["929"][date_format(curr_date)] = {
-            "ref": {"en": tref, "he": heTref}
-        }
-        if p.number == 929:
-            p929.origins += [curr_date.date()]
-        curr_date += timedelta(days=1)
+        try:
+            p = p929.Perek(curr_date.date())
+            ref = model.Ref("{} {}".format(p.book_name, p.book_chapter))
+            tref = ref.normal()
+            heTref = ref.he_normal()
+            calendar["929"][date_format(curr_date)] = {
+                "ref": {"en": tref, "he": heTref}
+            }
+            if p.number == 929:
+                p929.origins += [curr_date.date()]
+            curr_date += timedelta(days=1)
+        except KeyError as e:
+            continue
+        except InputError as e:
+            continue
 
     path = (SEFARIA_IOS_SOURCES_PATH if for_sources else EXPORT_PATH) + CALENDAR_PATH
     write_doc(calendar, path)
