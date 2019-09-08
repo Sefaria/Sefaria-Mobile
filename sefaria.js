@@ -31,7 +31,7 @@ Sefaria = {
     const numTimesOpenedApp = await AsyncStorage.getItem("numTimesOpenedApp");
     Sefaria.numTimesOpenedApp = !!numTimesOpenedApp ? parseInt(numTimesOpenedApp) : 0;
     if (Sefaria.numTimesOpenedApp === 0) {
-      AsyncStorage.setItem('lastSyncTime', Sefaria.util.epoch_time());
+      AsyncStorage.setItem('lastSyncTime', '' + Sefaria.util.epoch_time());
     }
     AsyncStorage.setItem("numTimesOpenedApp", JSON.stringify(Sefaria.numTimesOpenedApp + 1));
     Sefaria.lastAppUpdateTime = await Sefaria.getLastAppUpdateTime();
