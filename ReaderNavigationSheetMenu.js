@@ -10,8 +10,6 @@ import {
   View,
   ScrollView,
   FlatList,
-  Button,
-
 } from 'react-native';
 
 import {
@@ -23,6 +21,7 @@ import {
   DisplaySettingsButton,
   ToggleSet,
   LoadingView,
+  SystemButton
 } from './Misc.js';
 
 import styles from './Styles.js';
@@ -134,7 +133,7 @@ class ReaderNavigationSheetMenu extends React.Component {
 
     var returnHeaderContent =  (
         <View style={styles.menuSheetContentHeader}>
-          { this.props.isLoggedIn ? <Button onPress={this.props.openMySheets} title={strings.mySheets} /> : null}
+          { this.props.isLoggedIn ? <SystemButton onPress={this.props.openMySheets} text={strings.mySheets} isBlue /> : null}
             <View style={styles.category} key="TrendingSourceSheetTags">
               { showHebrew ?
                   <Text style={[styles.heInt, styles.categorySectionTitle, this.props.theme.categorySectionTitle]}>תוויות פופולרי</Text> :
