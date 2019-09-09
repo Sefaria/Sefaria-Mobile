@@ -1764,6 +1764,9 @@ class ReaderApp extends React.Component {
             authMode={this.state.menuOpen}
             close={this.manageBackMain}
             showToast={this.showToast}
+            openLogin={this.openMenu.bind(null, 'login')}
+            openRegister={this.openMenu.bind(null, 'register')}
+            openUri={this.openUri}
           />
         );
         break;

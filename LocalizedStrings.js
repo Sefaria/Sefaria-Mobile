@@ -9,8 +9,9 @@ let strings = new LocalizedStrings({
     join_sefaria: "Join Sefaria.",
     create_your_account: "Create Your Account",
     create_account: "Create Account",
-    gotoregister: "Don’t have an account? Create an Account.",
-    forgotpassword: "Forgot your password?",
+    dontHaveAnAccount: "Don’t have an account?",
+    createAnAccount: "Create an Account.",
+    forgotPassword: "Forgot your password?",
     email: "Email Address",
     password: "Password",
     first_name: "First Name",
@@ -154,11 +155,13 @@ let strings = new LocalizedStrings({
     getUpdates: "Get updates",
     system: "System",
     termsAndPrivacy: "Terms & Privacy",
+    alreadyHaveAnAccount: "Already have an account?",
   },
   he: {
-    login: "כניסה לחשבון",
-    register: "יצירת חשבון",
-    linkToRegister: "חדש? צור חשבון משתמש",
+    sign_in: "כניסה לחשבון",
+    join_sefaria: "יצירת חשבון",
+    dontHaveAnAccount: "חדש?",
+    createAnAccount: "צור חשבון משתמש",
     forgotPassword: "שכחתי את הסיסמא שלי",
     email: "כתובת אימייל",
     password: "סיסמא",
@@ -298,6 +301,7 @@ let strings = new LocalizedStrings({
     getUpdates: "Get updates",
     system: "System",
     termsAndPrivacy: "Terms & Privacy",
+    alreadyHaveAnAccount: "Already have an account?",
   }
 });
 

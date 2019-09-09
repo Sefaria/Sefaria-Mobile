@@ -69,7 +69,7 @@ const useAuthForm = (authMode, onLoginSuccess) => {
   }
 }
 
-const AuthPage = ({ authMode, close, showToast }) => {
+const AuthPage = ({ authMode, close, showToast, openLogin, openRegister, openUri }) => {
   const dispatch = useContext(DispatchContext);
   const { theme, themeStr, interfaceLanguage } = useContext(GlobalStateContext);
   const {
@@ -90,6 +90,7 @@ const AuthPage = ({ authMode, close, showToast }) => {
   });
   const isLogin = authMode === 'login';
   const placeholderTextColor = themeStr == "black" ? "#BBB" : "#777";
+  const isHeb = interfaceLanguage === 'hebrew';
   return(
     <ScrollView style={{flex:1, alignSelf: "stretch" }} contentContainerStyle={{alignItems: "center"}}>
       <RainbowBar />
@@ -150,15 +151,31 @@ const AuthPage = ({ authMode, close, showToast }) => {
           isLoading={isLoading}
           onPress={onSubmit}
           text={isLogin ? strings.sign_in : strings.create_account}
-          isHeb={interfaceLanguage === 'hebrew'}
+          isHeb={isHeb}
           isBlue
         />
-        <TouchableOpacity>
-          <Text>{strings.linkToRegister}</Text>
-        </TouchableOpacity>
-        <TouchableOpacity>
-          <Text>{strings.forgotPassword}</Text>
-        </TouchableOpacity>
+        {
+          isLogin ?
+            <View style={{alignItems: 'center'}}>
+              <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                <Text style={[{color: '#999'}, isHeb ? styles.heInt : styles.enInt]}>{strings.dontHaveAnAccount}</Text>
+                <TouchableOpacity onPress={openRegister}>
+                  <Text>{` ${strings.createAnAccount}`}</Text>
+                </TouchableOpacity>
+              </View>
+
+              <TouchableOpacity onPress={() => { openUri('https://www.sefaria.org/password/reset')}}>
+                <Text style={isHeb ? styles.heInt : styles.enInt}>{strings.forgotPassword}</Text>
+              </TouchableOpacity>
+            </View>
+          :
+            <View style={{flexDirection: 'row', justifyContent: 'center'}}>
+              <Text style={[{color: '#999'}, isHeb ? styles.heInt : styles.enInt]}>{strings.alreadyHaveAnAccount}</Text>
+              <TouchableOpacity onPress={openLogin}>
+                <Text style={isHeb ? styles.heInt : styles.enInt}>{` ${strings.sign_in}.`}</Text>
+              </TouchableOpacity>
+            </View>
+        }
       </View>
     </ScrollView>
   )
@@ -167,6 +184,9 @@ AuthPage.propTypes = {
   authMode: PropTypes.string.isRequired,
   close:    PropTypes.func.isRequired,
   showToast:PropTypes.func.isRequired,
+  openLogin: PropTypes.func.isRequired,
+  openRegister: PropTypes.func.isRequired,
+  openUri: PropTypes.func.isRequired,
 };
 
 const ErrorText = ({ error, errorText }) => (
