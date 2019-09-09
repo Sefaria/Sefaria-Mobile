@@ -16,7 +16,7 @@ let strings = new LocalizedStrings({
     first_name: "First Name",
     last_name: "Last Name",
     loginSuccessful: "Login successful",
-    logout: "Logout",
+    logout: "Log Out",
     mySheets: "My Sheets",
     history: "History",
     saved: "Saved",
@@ -152,6 +152,8 @@ let strings = new LocalizedStrings({
     syncYourReading: "Sync your reading history",
     readYourSheets: "Read your sheets on mobile",
     getUpdates: "Get updates",
+    system: "System",
+    termsAndPrivacy: "Terms & Privacy",
   },
   he: {
     login: "כניסה לחשבון",
@@ -294,6 +296,8 @@ let strings = new LocalizedStrings({
     syncYourReading: "Sync your reading history",
     readYourSheets: "Read your sheets on mobile",
     getUpdates: "Get updates",
+    system: "System",
+    termsAndPrivacy: "Terms & Privacy",
   }
 });
 

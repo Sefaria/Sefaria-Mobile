@@ -20,6 +20,7 @@ import {
   ButtonToggleSet,
   LibraryNavButton,
   SefariaProgressBar,
+  SystemButton,
 } from './Misc.js';
 import { GlobalStateContext, DispatchContext, STATE_ACTIONS } from './StateManager';
 import styles from './Styles';
@@ -73,9 +74,9 @@ const usePkgState = () => {
   };
 }
 
-const SettingsPage = ({ close }) => {
+const SettingsPage = ({ close, logout, openUri }) => {
   const [numPressesDebug, setNumPressesDebug] = useState(0);
-  const { theme, interfaceLanguage } = useContext(GlobalStateContext);
+  const { theme, interfaceLanguage, isLoggedIn } = useContext(GlobalStateContext);
   const { isDisabledObj, setIsDisabledObj, onPackagePress } = usePkgState();
 
   const deleteLibrary = async () => {
@@ -151,6 +152,14 @@ const SettingsPage = ({ close }) => {
         <OfflinePackageList isDisabledObj={isDisabledObj} onPackagePress={onPackagePress} />
         <View style={[styles.readerDisplayOptionsMenuDivider, styles.settingsDivider, styles.underOfflinePackages, theme.readerDisplayOptionsMenuDivider]}/>
         <View>
+          <Text style={[langStyle, styles.settingsSectionHeader, theme.tertiaryText]}>{strings.system}</Text>
+        </View>
+        { isLoggedIn ?
+          <SystemButton onPress={logout} text={strings.logout} isHeb={interfaceLanguage === "hebrew"} />
+          : null
+        }
+        <SystemButton onPress={()=>{ openUri('https://www.sefaria.org/terms'); }} text={strings.termsAndPrivacy} isHeb={interfaceLanguage === "hebrew"} />
+        <View>
           <Text style={[langStyle, styles.settingsSectionHeader, theme.tertiaryText]}>
             {`${strings.appVersion}: ${VersionNumber.appVersion}`}
           </Text>
@@ -160,7 +169,9 @@ const SettingsPage = ({ close }) => {
   );
 }
 SettingsPage.propTypes = {
-  close: PropTypes.func.isRequired,
+  close:   PropTypes.func.isRequired,
+  logout:  PropTypes.func.isRequired,
+  openUri: PropTypes.func.isRequired,
 };
 
 const ButtonToggleSection = ({ langStyle }) => {

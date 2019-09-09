@@ -1712,7 +1712,7 @@ class ReaderApp extends React.Component {
         break;
       case ("settings"):
         Sefaria.track.setScreen("settings", "menu")
-        return(<SettingsPage close={this.manageBackMain} />);
+        return(<SettingsPage close={this.manageBackMain} logout={this.logout} openUri={this.openUri} />);
       case ("history"):
         Sefaria.track.setScreen("history", "menu")
         return(
