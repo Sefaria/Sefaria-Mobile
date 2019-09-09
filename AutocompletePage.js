@@ -36,7 +36,6 @@ class AutocompletePage extends React.Component {
 
   componentDidMount() {
     this._originalQuery = this.props.query;
-    this._searchBar.focus();
     this._autocomplete.onQueryChange(this.props.query);
   }
 
@@ -54,10 +53,6 @@ class AutocompletePage extends React.Component {
     this.props.openSearch('sheet', query);
   };
 
-  _getSearchBarRef = ref => {
-    this._searchBar = ref;
-  };
-
   _getAutocompleteRef = ref => {
     this._autocomplete = ref;
   }
@@ -67,7 +62,7 @@ class AutocompletePage extends React.Component {
       <View style={[styles.menu, this.props.theme.menu]}>
         <CategoryColorLine category={"Other"} />
         <SearchBar
-          ref={this._getSearchBarRef}
+          autoFocus
           onBack={this.props.onBack}
           leftMenuButton="back"
           search={this.props.openSearch}

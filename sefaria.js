@@ -584,8 +584,7 @@ Sefaria = {
     if (textToc.categories.length == 3 &&
         textToc.categories[0] == "Talmud" &&
         textToc.categories[1] == "Bavli" &&
-        textToc.categories[2] != "Guides") {
-
+        textToc.categories[2].indexOf("Seder ") != -1) {
       for (var i = 0; i < textToc.alts.Chapters.nodes.length; i++) {
         textToc.alts.Chapters.nodes[i].addressTypes = ["Talmud"];
       }

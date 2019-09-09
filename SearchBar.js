@@ -33,6 +33,7 @@ const SearchBar = ({
   onChange,
   onFocus,
   leftMenuButton,
+  autoFocus,
 }) => {
   const { theme, themeStr, interfaceLanguage } = useContext(GlobalStateContext);
 
@@ -63,6 +64,7 @@ const SearchBar = ({
           <SearchButton onPress={submitSearch} />
         }
         <TextInput
+          autoFocus={autoFocus}
           style={textInputStyle}
           onChangeText={onChange}
           onSubmitEditing={submitSearch}

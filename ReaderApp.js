@@ -921,7 +921,7 @@ class ReaderApp extends React.Component {
 
     return new Promise((resolve, reject) => {
       if (enableAliyot) {
-        this.props.setAliyot(true);
+        this.setAliyot(true);
       }
       const title = Sefaria.textTitleForRef(ref);
       const overwriteVersions = calledFrom !== 'search' || calledFrom !== 'deep link' ; // if called from search or deeplink, use version specified by search (or default if none specified)

@@ -12,7 +12,17 @@ import HTMLView from 'react-native-htmlview'; //to convert html'afied JSON to so
 import { GlobalStateContext } from './StateManager';
 import styles from './Styles.js';
 
-const SearchSheetResult = ({ text, title, heTitle, textType, onPress }) => {
+const SearchSheetResult = ({
+  text,
+  title,
+  heTitle,
+  textType,
+  onPress,
+  ownerImageUrl,
+  ownerName,
+  tags,
+  views,
+}) => {
   const { interfaceLanguage, theme } = useContext(GlobalStateContext);
   const refTitleStyle = interfaceLanguage === "hebrew" ? styles.he : styles.en;
 
@@ -21,7 +31,7 @@ const SearchSheetResult = ({ text, title, heTitle, textType, onPress }) => {
       style={[styles.searchTextResult, theme.searchTextResult]}
       onPress={onPress}
     >
-      <View style={searchSheetResult}>
+      <View>
         <View>
           <Text style={[refTitleStyle, styles.textListCitation, theme.text]}>{title.replace(/\s\s+/g, ' ')}</Text>
         </View>

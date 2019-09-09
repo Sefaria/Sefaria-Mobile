@@ -81,6 +81,7 @@ var Api = {
       }));
 
       //check merged version title
+      let isFirst, sourceSet;
       if (!text_response.versionTitle && text_response.sources) {
         text_response.versionTitle = "Merged from ";
         sourceSet = new Set(text_response.sources);

@@ -238,7 +238,7 @@ TextTableOfContentsNavigation.propTypes = {
 
 
 const SchemaNode = ({ schema, refPath, openRef, categories }) => {
-  const { defaultTextLanguage } = useContext(GlobalStateContext);
+  const { defaultTextLanguage, theme } = useContext(GlobalStateContext);
   if (!("nodes" in schema)) {
     if (schema.nodeType === "JaggedArrayNode") {
       return (
@@ -257,7 +257,7 @@ const SchemaNode = ({ schema, refPath, openRef, categories }) => {
     }
 
   } else {
-    const showHebrew = textLangauge === "hebrew";
+    const showHebrew = defaultTextLanguage === "hebrew";
     const content = schema.nodes.map((node, i) => {
       if ("nodes" in node || "refs" in node && node.refs.length) {
         const innerContent = (<SchemaNode
