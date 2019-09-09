@@ -56,13 +56,7 @@ const SearchFilterPage = ({
     search(type, query, true, false);
   };
 
-  clearAllFilters = () => {
-    clearAllFilters(type);
-  };
-
-  toggleFilter = filter => {
-    toggleFilter(type, filter);
-  };
+  const toggleFilterBound = filter => { toggleFilter(type, filter); };
 
   var isheb = interfaceLanguage === "hebrew"; //TODO enable when we properly handle interface hebrew throughout app
   var langStyle = !isheb ? styles.enInt : styles.heInt;
@@ -75,7 +69,7 @@ const SearchFilterPage = ({
     case "filter":
       content =
       (<View>
-        <TouchableOpacity style={[styles.readerDisplayOptionsMenuItem, styles.button, theme.readerDisplayOptionsMenuItem]} onPress={clearAllFilters}>
+        <TouchableOpacity style={[styles.readerDisplayOptionsMenuItem, styles.button, theme.readerDisplayOptionsMenuItem]} onPress={() => { clearAllFilters(type); }}>
           <Image source={closeSrc}
             resizeMode={'contain'}
             style={styles.searchFilterClearAll} />
@@ -112,7 +106,7 @@ const SearchFilterPage = ({
                     key={ifilter}
                     filterNode={filter}
                     openSubMenu={openSubMenu}
-                    toggleFilter={toggleFilter}
+                    toggleFilter={toggleFilterBound}
                   />);
               }) : loadingMessage
             }
@@ -126,7 +120,7 @@ const SearchFilterPage = ({
       [(<SearchFilter
         key={0}
         filterNode={currFilter}
-        toggleFilter={toggleFilter}
+        toggleFilter={toggleFilterBound}
         />)];
       content =
       (<View>
@@ -136,7 +130,7 @@ const SearchFilterPage = ({
               <SearchFilter
                 key={ifilter+1}
                 filterNode={filter}
-                toggleFilter={toggleFilter}
+                toggleFilter={toggleFilterBound}
               />);
           })) : loadingMessage
         }
@@ -173,7 +167,7 @@ SearchFilterPage.propTypes = {
 
 
 const SearchFilter = ({ filterNode, openSubMenu, toggleFilter }) => {
-  const { defaultTextLanguage } = useContext(GlobalStateContext);
+  const { defaultTextLanguage, theme } = useContext(GlobalStateContext);
   const clickCheckBox = () => { toggleFilter(filterNode); }
   const onPress = () => { openSubMenu ? openSubMenu(title) : clickCheckBox() }
   const { title, heTitle, selected, children, docCount } = filterNode;
