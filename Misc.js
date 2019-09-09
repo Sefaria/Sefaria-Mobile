@@ -21,37 +21,41 @@ import styles from './Styles.js';
 import strings from './LocalizedStrings';
 
 
-const SystemButton = ({ onPress, text, img, isHeb, isBlue }) => (
+const SystemButton = ({ onPress, text, img, isHeb, isBlue, isLoading }) => (
   <GlobalStateContext.Consumer>
     { ({ theme }) => (
-      <TouchableOpacity onPress={onPress} style={[styles.systemButton, styles.boxShadow, (isBlue ? styles.systemButtonBlue : null)]}>
-        { !!img ?
-          <Image
-            source={img}
-            style={isHeb ? styles.menuButtonMarginedHe : styles.menuButtonMargined}
-            resizeMode={'contain'}
-          /> : null
-        }
-        <Text
-          style={[
-            styles.systemButtonText,
-            (isBlue ? styles.systemButtonTextBlue : null),
-            (isHeb ? styles.heInt : styles.enInt)
-          ]}
-        >
-          { text }
-        </Text>
-        { !!img ?
-          <Image
-            source={img}
-            style={[(isHeb ? styles.menuButtonMarginedHe : styles.menuButtonMargined), { opacity: 0 }]}
-            resizeMode={'contain'}
-          /> : null
+      <TouchableOpacity disabled={isLoading} onPress={onPress} style={[styles.systemButton, styles.boxShadow, (isBlue ? styles.systemButtonBlue : null)]}>
+        { isLoading ?
+          (<LoadingView size={'small'} height={20} />) :
+          (<View style={styles.systemButtonInner}>
+            { !!img ?
+              <Image
+                source={img}
+                style={isHeb ? styles.menuButtonMarginedHe : styles.menuButtonMargined}
+                resizeMode={'contain'}
+              /> : null
+            }
+            <Text
+              style={[
+                styles.systemButtonText,
+                (isBlue ? styles.systemButtonTextBlue : null),
+                (isHeb ? styles.heInt : styles.enInt)
+              ]}
+            >
+              { text }
+            </Text>
+            { !!img ?
+              <Image
+                source={img}
+                style={[(isHeb ? styles.menuButtonMarginedHe : styles.menuButtonMargined), { opacity: 0 }]}
+                resizeMode={'contain'}
+              /> : null
+            }
+          </View>)
         }
       </TouchableOpacity>
     )}
   </GlobalStateContext.Consumer>
-
 );
 
 const SefariaProgressBar = ({ progress, onPress, onClose }) => (
@@ -639,13 +643,13 @@ ButtonToggleSet.propTypes = {
   active:      PropTypes.oneOfType([PropTypes.bool, PropTypes.string])
 };
 
-const LoadingView = ({ style, category }) => (
+const LoadingView = ({ style, category, size, height }) => (
   <View style={[styles.loadingViewBox, style]}>
     <ActivityIndicator
       animating={true}
-      style={styles.loadingView}
+      style={[styles.loadingView, !!height ? { height } : null]}
       color={Platform.OS === 'android' ? Sefaria.palette.categoryColor(category) : undefined}
-      size="large"
+      size={size || 'large'}
     />
   </View>
 );

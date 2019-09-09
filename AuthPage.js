@@ -22,15 +22,18 @@ import Sefaria from './sefaria';
 import strings from './LocalizedStrings';
 import styles from './Styles';
 
-const onSubmit = async (formState, authMode, setErrors, onLoginSuccess) => {
+const onSubmit = async (formState, authMode, setErrors, onLoginSuccess, setIsLoading) => {
+  setIsLoading(true);
   const mobileAppKey = await getMobileAppKey();
   formState.mobile_app_key = mobileAppKey;
   let errors = await Sefaria.api.authenticate(formState, authMode);
   if (!errors) { errors = {}; }
   setErrors(errors);
+  setIsLoading(false);
   if (Object.keys(errors).length === 0 && Sefaria._auth.uid) {
     onLoginSuccess();
   }
+
 };
 
 const getMobileAppKey = async () => {
@@ -48,6 +51,7 @@ const useAuthForm = (authMode, onLoginSuccess) => {
   const [email, setEmail] = useState(null);
   const [password, setPassword] = useState(null);
   const [errors, setErrors] = useState({});
+  const [isLoading, setIsLoading] = useState(false);
   const formState = {
     first_name,
     last_name,
@@ -60,7 +64,8 @@ const useAuthForm = (authMode, onLoginSuccess) => {
     setLastName,
     setEmail,
     setPassword,
-    onSubmit: () => { onSubmit(formState, authMode, setErrors, onLoginSuccess) },
+    isLoading,
+    onSubmit: () => { onSubmit(formState, authMode, setErrors, onLoginSuccess, setIsLoading) },
   }
 }
 
@@ -73,6 +78,7 @@ const AuthPage = ({ authMode, close, showToast }) => {
     setLastName,
     setEmail,
     setPassword,
+    isLoading,
     onSubmit,
   } = useAuthForm(authMode, () => {
     dispatch({
@@ -139,9 +145,9 @@ const AuthPage = ({ authMode, close, showToast }) => {
           errorText={errors.password || errors.password1}
           onChangeText={setPassword}
         />
-        <ErrorText error={errors.non_field_errors} errorDisplayText={errors.non_field_errors} />
-        <ErrorText error={errors.captcha} errorDisplayText={errors.captcha} />
+        <ErrorText error={errors.non_field_errors} errorText={errors.non_field_errors} />
         <SystemButton
+          isLoading={isLoading}
           onPress={onSubmit}
           text={isLogin ? strings.sign_in : strings.create_account}
           isHeb={interfaceLanguage === 'hebrew'}

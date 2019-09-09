@@ -30,6 +30,8 @@ export default StyleSheet.create({
     paddingVertical: 14,
     marginVertical: 5,
     backgroundColor: 'white',
+  },
+  systemButtonInner: {
     flexDirection: 'row',
     justifyContent: 'center',
   },
