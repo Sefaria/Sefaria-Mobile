@@ -260,6 +260,7 @@ const reducer = function (state, action) {
     case STATE_ACTIONS.setIsLoggedIn:
       // action can be passed either object or bool
       const isLoggedIn = !!action.value;
+      if (isLoggedIn && !!action.value.uid) { Sefaria._auth = action.value; }
       console.log("redux isLoggedIn", isLoggedIn);
       return {
         ...state,

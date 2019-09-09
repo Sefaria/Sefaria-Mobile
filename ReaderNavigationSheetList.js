@@ -26,6 +26,7 @@ import styles from './Styles.js';
 import strings from "./LocalizedStrings";
 import {DirectedButton} from "./Misc";
 import SheetResult from "./SheetResult";
+import MySheetResult from "./MySheetResult";
 
 
 class ReaderNavigationSheetList extends React.Component {
@@ -51,6 +52,7 @@ class ReaderNavigationSheetList extends React.Component {
       } else if (menuOpen === 'mySheets') {
         sheets = await Sefaria.api.mySheets();
       }
+      console.log('mySheets', sheets);
       this.setState({ sheets });
     } catch (error) {
       console.log(error);
@@ -69,15 +71,28 @@ class ReaderNavigationSheetList extends React.Component {
     const refToOpen = "Sheet "+ item.id
     return (
       <View style={[this.props.theme.menu]}>
-        <SheetResult
-          theme={this.props.theme}
-          title={item.title}
-          heTitle={item.title}
-          text={null}
-          ownerImageUrl={item.ownerImageUrl}
-          ownerName={item.ownerName}
-          views={item.views}
-          onPress={() => this.props.openRef(item.id,item)} />
+        {
+          this.props.menuOpen === 'mySheets' ? (
+            <MySheetResult
+              title={item.title}
+              heTitle={item.title}
+              views={item.views}
+              tags={item.tags}
+              created={item.created}
+              isPrivate={item.status === 'unlisted'}
+              onPress={() => this.props.openRef(item.id,item)}
+            />
+          ) : (
+            <SheetResult
+              title={item.title}
+              heTitle={item.title}
+              ownerImageUrl={item.ownerImageUrl}
+              ownerName={item.ownerName}
+              views={item.views}
+              onPress={() => this.props.openRef(item.id,item)}
+            />
+          )
+        }
       </View>
     );
   }
@@ -94,22 +109,31 @@ class ReaderNavigationSheetList extends React.Component {
             <View style={[styles.menu, this.props.theme.menu]}>
                 <CategoryColorLine category="Sheets" />
               <View style={[styles.header, this.props.theme.header]}>
-              <DirectedButton
-                onPress={this.props.onBack}
-                themeStr={this.props.themeStr}
-                imageStyle={[styles.menuButton, styles.directedButton]}
-                direction="back"
-                language="english"/>
+                <DirectedButton
+                  onPress={this.props.onBack}
+                  themeStr={this.props.themeStr}
+                  imageStyle={[styles.menuButton, styles.directedButton]}
+                  direction="back"
+                  language="english"
+                />
                 {showHebrew ?
                   <Text style={[styles.he, styles.categoryTitle, this.props.theme.categoryTitle, {textTransform: "uppercase"}]}>{title}</Text> :
-                  <Text style={[styles.en, styles.categoryTitle, this.props.theme.categoryTitle, {textTransform: "uppercase"}]}>{title}</Text> }
-              </View>
-                <FlatList
-                  style={{}}
-                  data={this.state.sheets}
-                  keyExtractor={(item, index) => ''+item.id}
-                  renderItem={this.renderItem}
+                  <Text style={[styles.en, styles.categoryTitle, this.props.theme.categoryTitle, {textTransform: "uppercase"}]}>{title}</Text>
+                }
+                <DirectedButton
+                  onPress={this.props.onBack}
+                  themeStr={this.props.themeStr}
+                  imageStyle={[styles.menuButton, styles.directedButton, {opacity: 0}]}
+                  direction="back"
+                  language="english"
                 />
+              </View>
+              <FlatList
+                style={{}}
+                data={this.state.sheets}
+                keyExtractor={(item, index) => ''+item.id}
+                renderItem={this.renderItem}
+              />
             </View>
       )
 

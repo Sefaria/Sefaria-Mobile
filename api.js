@@ -410,7 +410,7 @@ var Api = {
 
   mySheets: async function() {
     await Sefaria.api.getAuthToken();
-    if (!Sefaria._auth.uid) { alert("Not signed in"); return; }
+    if (!Sefaria._auth.uid) { console.log("Not signed in"); return []; }
     const response = await Sefaria.api.userSheets(Sefaria._auth.uid);
     return response.sheets;
   },
@@ -506,7 +506,6 @@ var Api = {
   },
   authenticate: async function(authData, authMode = "login") {
     const parsedRes = await (authMode === 'login' ? Sefaria.api.login(authData) : Sefaria.api.register(authData)).then(res => res.json());
-    console.log(parsedRes);
     if (!parsedRes.access) {
       return parsedRes;  // return errors
     } else {
@@ -516,7 +515,6 @@ var Api = {
 
   storeAuthToken: async function({ access, refresh }) {
     const decodedToken = jwt_decode(access);
-    console.log('decoded', decodedToken);
     Sefaria._auth = {
       token: access,
       expires: decodedToken.exp,
@@ -541,9 +539,7 @@ var Api = {
         const parsedRes = await Sefaria.api.refreshToken(Sefaria._auth.refreshToken).then(res => res.json());
         if (!parsedRes.access) {
           Sefaria.api.clearAuthStorage();
-          console.log("expired refresh token");
         } else {
-          console.log("successfully refreshed token");
           Sefaria.api.storeAuthToken(parsedRes);
         }
       }
@@ -563,7 +559,6 @@ var Api = {
     Sefaria.history.lastPlace = [];
     Sefaria.history.lastSync = [];
     Sefaria._auth = {};
-    console.log("DELETED");
   },
 
 /*

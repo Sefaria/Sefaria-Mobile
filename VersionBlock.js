@@ -77,7 +77,7 @@ const VersionBlock = ({
           : null
         }
         { versionSource && (license && license !== "unknown") ?
-          <Text style={[styles.navBottomLinkDot, theme.tertiaryText]}>•</Text>
+          <Text style={[styles.dot, theme.tertiaryText]}>•</Text>
           : null
         }
         { license && license !== "unknown" ?

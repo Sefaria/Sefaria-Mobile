@@ -156,6 +156,7 @@ let strings = new LocalizedStrings({
     system: "System",
     termsAndPrivacy: "Terms & Privacy",
     alreadyHaveAnAccount: "Already have an account?",
+    views: "Views",
   },
   he: {
     sign_in: "כניסה לחשבון",
@@ -302,6 +303,7 @@ let strings = new LocalizedStrings({
     system: "System",
     termsAndPrivacy: "Terms & Privacy",
     alreadyHaveAnAccount: "Already have an account?",
+    views: "Views",
   }
 });
 
