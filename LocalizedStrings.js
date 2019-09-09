@@ -57,7 +57,7 @@ let strings = new LocalizedStrings({
     never: "Never",
     sephardi: "Sephardi",
     ashkenazi: "Ashkenazi",
-    bilingual: "BILINGUAL",
+    bilingual: "Bilingual",
     offlineAccess: "OFFLINE ACCESS",
     downloadInProgress: "Download in progress",
     textsDownloaded: "texts downloaded", // to be combined with a number, e.g. "82 texts downloaded"

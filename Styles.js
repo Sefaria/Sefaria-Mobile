@@ -177,6 +177,19 @@ export default StyleSheet.create({
   readerDisplayOptionsMenuIcon: {
     height: 18,
   },
+  buttonToggle: {
+    flex: 1,
+    alignSelf: 'stretch',
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  buttonToggleActive: {
+    backgroundColor: '#18345D',
+    borderRadius: 5,
+  },
+  buttonToggleActiveText: {
+    color: 'white',
+  },
   headerButton: {
     width: 40,
     height: 50,

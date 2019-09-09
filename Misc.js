@@ -643,6 +643,21 @@ ButtonToggleSet.propTypes = {
   active:      PropTypes.oneOfType([PropTypes.bool, PropTypes.string])
 };
 
+const ButtonToggleSetNew = ({ options, active }) => {
+  /* based on new styles guide */
+  return (
+    <View style={[styles.readerDisplayOptionsMenuRow, styles.boxShadow, {borderRadius: 5, backgroundColor: 'white', height: 50 }]}>
+      {
+        options.map(option => (
+          <TouchableOpacity key={option.name} onPress={option.onPress} style={[styles.buttonToggle, active === option.name ? styles.buttonToggleActive : null]}>
+            <Text  style={[active === option.name ? styles.buttonToggleActiveText : null, styles.enInt]}>{ option.text }</Text>
+          </TouchableOpacity>
+        ))
+      }
+    </View>
+  );
+}
+
 const LoadingView = ({ style, category, size, height }) => (
   <View style={[styles.loadingViewBox, style]}>
     <ActivityIndicator
@@ -772,6 +787,7 @@ class SText extends React.Component {
 export {
   AnimatedRow,
   ButtonToggleSet,
+  ButtonToggleSetNew,
   CategoryBlockLink,
   CategoryAttribution,
   CategoryColorLine,

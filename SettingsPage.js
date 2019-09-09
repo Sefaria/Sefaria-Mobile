@@ -17,7 +17,7 @@ import ProgressBar from './ProgressBar';
 import {
   CategoryColorLine,
   CloseButton,
-  ButtonToggleSet,
+  ButtonToggleSetNew,
   LibraryNavButton,
   SefariaProgressBar,
   SystemButton,
@@ -219,7 +219,7 @@ const ButtonToggleSection = ({ langStyle }) => {
           <View>
             <Text style={[langStyle, styles.settingsSectionHeader, globalState.theme.tertiaryText]}>{strings[s]}</Text>
           </View>
-          <ButtonToggleSet
+          <ButtonToggleSetNew
             options={options[`${s}Options`]}
             lang={globalState.interfaceLanguage}
             active={globalState[s]} />
