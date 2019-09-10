@@ -56,8 +56,15 @@ class SwipeableCategoryList extends React.Component {
     };
     props.loadData().then(data => {
       // reduce consecutive history items with the same ref
-      data = data.reduce((accum, curr, index) => ((!accum.length || curr.ref !== accum[accum.length-1].ref) ? accum.concat([curr]) : accum), []).filter(h => !h.secondary);
-
+      // filter items that are marked `secondary`
+      data = data.reduce(
+        (accum, curr, index) => (
+          (!accum.length || curr.ref !== accum[accum.length-1].ref) ?
+            accum.concat([curr]) :
+            accum
+        ), []
+      ).filter(h => !h.secondary);
+      console.log('DATAYOYOHOOHOHO', data);
       this.setState({ data });
     });
     this._rowRefs = {};
