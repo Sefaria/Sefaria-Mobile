@@ -989,7 +989,8 @@ class ReaderApp extends React.Component {
   };
 
   openMenu = (menu) => {
-    const SKIP_MENUS = {autocomplete: true};  // set of `menuOpen` states which you shouldn't be able to go back to
+    // set of `menuOpen` states which you shouldn't be able to go back to
+    const SKIP_MENUS = { autocomplete: true, register: true, login: true };
     if (!SKIP_MENUS[this.state.menuOpen] && !!menu) {
       BackManager.forward({ state: this.state });
     }
