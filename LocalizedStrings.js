@@ -156,6 +156,8 @@ let strings = new LocalizedStrings({
     termsAndPrivacy: "Terms & Privacy",
     alreadyHaveAnAccount: "Already have an account?",
     views: "Views",
+    byClickingSignUp: "By clicking 'sign up', you agree to our",
+    termsOfUseAndPrivacyPolicy: "Terms of Use and Privacy Policy",
   },
   he: {
     sign_in: "כניסה לחשבון",
@@ -304,6 +306,8 @@ let strings = new LocalizedStrings({
     termsAndPrivacy: "Terms & Privacy",
     alreadyHaveAnAccount: "Already have an account?",
     views: "Views",
+    byClickingSignUp: "By clicking 'sign up', you agree to our",
+    termsOfUseAndPrivacyPolicy: "Terms of Use and Privacy Policy",
   }
 });
 

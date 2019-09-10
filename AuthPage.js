@@ -152,7 +152,7 @@ const AuthPage = ({ authMode, close, showToast, openLogin, openRegister, openUri
         <SystemButton
           isLoading={isLoading}
           onPress={onSubmit}
-          text={isLogin ? strings.sign_in : strings.create_account}
+          text={isLogin ? strings.sign_in : strings.sign_up}
           isHeb={isHeb}
           isBlue
         />
@@ -171,11 +171,20 @@ const AuthPage = ({ authMode, close, showToast, openLogin, openRegister, openUri
               </TouchableOpacity>
             </View>
           :
-            <View style={{flexDirection: 'row', justifyContent: 'center'}}>
-              <Text style={[{color: '#999'}, isHeb ? styles.heInt : styles.enInt]}>{strings.alreadyHaveAnAccount}</Text>
-              <TouchableOpacity onPress={openLogin}>
-                <Text style={isHeb ? styles.heInt : styles.enInt}>{` ${strings.sign_in}.`}</Text>
-              </TouchableOpacity>
+            <View style={{alignItems: 'center'}}>
+              <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                <Text style={[{color: '#999'}, isHeb ? styles.heInt : styles.enInt]}>{strings.alreadyHaveAnAccount}</Text>
+                <TouchableOpacity onPress={openLogin}>
+                  <Text style={isHeb ? styles.heInt : styles.enInt}>{` ${strings.sign_in}.`}</Text>
+                </TouchableOpacity>
+              </View>
+
+              <View style={{alignItems: 'center'}}>
+                <Text style={[{color: '#999'}, isHeb ? styles.heInt : styles.enInt]}>{strings.byClickingSignUp}</Text>
+                <TouchableOpacity onPress={() => { openUri('https://www.sefaria.org/terms')}}>
+                  <Text style={isHeb ? styles.heInt : styles.enInt}>{` ${strings.termsOfUseAndPrivacyPolicy}.`}</Text>
+                </TouchableOpacity>
+              </View>
             </View>
         }
       </View>
