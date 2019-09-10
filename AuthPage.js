@@ -69,7 +69,7 @@ const useAuthForm = (authMode, onLoginSuccess) => {
   }
 }
 
-const AuthPage = ({ authMode, close, showToast, openLogin, openRegister, openUri }) => {
+const AuthPage = ({ authMode, close, showToast, openLogin, openRegister, openUri, syncHistory }) => {
   const dispatch = useContext(DispatchContext);
   const { theme, themeStr, interfaceLanguage } = useContext(GlobalStateContext);
   const {
@@ -80,11 +80,13 @@ const AuthPage = ({ authMode, close, showToast, openLogin, openRegister, openUri
     setPassword,
     isLoading,
     onSubmit,
-  } = useAuthForm(authMode, () => {
+  } = useAuthForm(authMode, async () => {
     dispatch({
       type: STATE_ACTIONS.setIsLoggedIn,
       value: true,
     });
+    // try to sync immediately after login
+    syncHistory();
     close();
     showToast(strings.loginSuccessful);
   });
@@ -97,7 +99,7 @@ const AuthPage = ({ authMode, close, showToast, openLogin, openRegister, openUri
       <View style={{ flex: 1, alignSelf: "stretch", alignItems: "flex-end", marginHorizontal: 10}}>
         <CircleCloseButton onPress={close} />
       </View>
-      <Text style={styles.pageTitle}>{isLogin ? strings.sign_in : strings.join_sefaria}</Text>
+      <Text style={styles.pageTitle}>{isLogin ? strings.log_in : strings.sign_up}</Text>
       <View style={{flex: 1, alignSelf: "stretch",  marginHorizontal: 37}}>
         { isLogin ?
           <View>

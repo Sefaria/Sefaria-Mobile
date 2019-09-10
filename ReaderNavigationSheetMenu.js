@@ -37,6 +37,7 @@ class ReaderNavigationSheetMenu extends React.Component {
     close:        PropTypes.func.isRequired,
     isLoggedIn:     PropTypes.bool.isRequired,
     openMySheets:   PropTypes.func.isRequired,
+    openLogin:      PropTypes.func.isRequired,
   };
 
   constructor(props) {
@@ -133,7 +134,11 @@ class ReaderNavigationSheetMenu extends React.Component {
 
     var returnHeaderContent =  (
         <View style={styles.menuSheetContentHeader}>
-          { this.props.isLoggedIn ? <SystemButton onPress={this.props.openMySheets} text={strings.mySheets} isBlue /> : null}
+            <SystemButton
+              onPress={this.props.isLoggedIn ? this.props.openMySheets : this.props.openLogin}
+              text={strings.mySheets}
+              isBlue
+            />
             <View style={styles.category} key="TrendingSourceSheetTags">
               { showHebrew ?
                   <Text style={[styles.heInt, styles.categorySectionTitle, this.props.theme.categorySectionTitle]}>תוויות פופולרי</Text> :

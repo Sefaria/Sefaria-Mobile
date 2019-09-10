@@ -286,6 +286,7 @@ class ReaderApp extends React.Component {
     }
   };
 
+  syncHistoryBound = async () => Sefaria.history.syncHistory(this.props.dispatch, await this.getSettingsObject());
   getSettingsObject = async () => ({
     email_notifications: this.props.emailFrequency,
     interface_language: this.props.interfaceLanguage,
@@ -294,7 +295,7 @@ class ReaderApp extends React.Component {
   });
 
   onBackgroundSync = async () => {
-    await Sefaria.history.syncHistory(this.props.dispatch, await this.getSettingsObject());
+    await this.syncHistoryBound();
     BackgroundFetch.finish(BackgroundFetch.FETCH_RESULT_NEW_DATA);
   };
 
@@ -1728,7 +1729,7 @@ class ReaderApp extends React.Component {
             title={strings.history}
             menuOpen={this.state.menuOpen}
             icon={this.props.themeStr === "white" ? require('./img/clock.png') : require('./img/clock-light.png')}
-            loadData={async () => Sefaria.history.syncHistory(this.props.dispatch, await this.getSettingsObject())}
+            loadData={this.syncHistoryBound}
             openLogin={this.openMenu.bind(null, "login")}
             isLoggedIn={this.props.isLoggedIn}
             hasDismissedSyncModal={this.props.hasDismissedSyncModal}
@@ -1768,6 +1769,7 @@ class ReaderApp extends React.Component {
             openLogin={this.openMenu.bind(null, 'login')}
             openRegister={this.openMenu.bind(null, 'register')}
             openUri={this.openUri}
+            syncHistory={this.syncHistoryBound}
           />
         );
         break;
@@ -1784,6 +1786,7 @@ class ReaderApp extends React.Component {
             openSheetTagMenu={this.openSheetTag}
             isLoggedIn={this.props.isLoggedIn}
             openMySheets={this.openMySheets}
+            openLogin={this.openMenu.bind(null, 'login')}
             openSheetCategoryMenu={this.openSheetCategory}
            />
         );

@@ -11,7 +11,7 @@ import {
   ScrollView,
   FlatList,
   Image,
-
+  RefreshControl,
 } from 'react-native';
 
 import {
@@ -19,7 +19,6 @@ import {
   TwoBox,
   LanguageToggleButton,
   MenuButton,
-  LoadingView
 } from './Misc.js';
 
 import styles from './Styles.js';
@@ -40,10 +39,13 @@ class ReaderNavigationSheetList extends React.Component {
     super(props);
     this.state = {
       sheets: [],
+      refreshing: true,
     };
   }
 
-  async getData() {
+  componentDidMount() { this.loadData(); }
+
+  loadData = async () => {
     const { menuOpen, tag } = this.props;
     try {
       let sheets;
@@ -53,14 +55,14 @@ class ReaderNavigationSheetList extends React.Component {
         sheets = await Sefaria.api.mySheets();
       }
       console.log('mySheets', sheets);
-      this.setState({ sheets });
+      this.setState({ sheets, refreshing: false });
     } catch (error) {
+      this.setState({ refreshing: false });
       console.log(error);
     }
   }
-  componentDidMount() {
-    this.getData();
-   }
+
+  onRefresh = () => { this.setState({ refreshing: true }, this.loadData); }
 
   _keyExtractor = (sheet, pos) => {
     return sheet.id + "|" + pos;
@@ -102,9 +104,6 @@ class ReaderNavigationSheetList extends React.Component {
       const showHebrew = this.props.interfaceLanguage == "hebrew";
       const title = this.props.menuOpen === 'sheetTag' ? this.props.tag : strings.mySheets;
 
-      if (this.state.sheets.length == 0) { return (<LoadingView />); }
-
-
       return(
             <View style={[styles.menu, this.props.theme.menu]}>
                 <CategoryColorLine category="Sheets" />
@@ -133,6 +132,13 @@ class ReaderNavigationSheetList extends React.Component {
                 data={this.state.sheets}
                 keyExtractor={(item, index) => ''+item.id}
                 renderItem={this.renderItem}
+                refreshControl={
+                  <RefreshControl
+                    refreshing={this.state.refreshing}
+                    onRefresh={this.onRefresh}
+                    tintColor="#CCCCCC"
+                    style={{ backgroundColor: 'transparent' }} />
+                }
               />
             </View>
       )

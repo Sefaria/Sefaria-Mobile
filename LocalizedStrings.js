@@ -6,9 +6,8 @@ import LocalizedStrings from 'react-native-localization';
 let strings = new LocalizedStrings({
   en: {
     sign_in: "Sign In",
-    join_sefaria: "Join Sefaria.",
-    create_your_account: "Create Your Account",
-    create_account: "Create Account",
+    log_in: "Log In",
+    sign_up: "Sign Up",
     dontHaveAnAccount: "Don’t have an account?",
     createAnAccount: "Create an Account.",
     forgotPassword: "Forgot your password?",
@@ -160,7 +159,8 @@ let strings = new LocalizedStrings({
   },
   he: {
     sign_in: "כניסה לחשבון",
-    join_sefaria: "יצירת חשבון",
+    log_in: "Log In",
+    sign_up: "יצירת חשבון",
     dontHaveAnAccount: "חדש?",
     createAnAccount: "צור חשבון משתמש",
     forgotPassword: "שכחתי את הסיסמא שלי",

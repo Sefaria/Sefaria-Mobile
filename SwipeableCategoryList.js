@@ -14,6 +14,7 @@ import {
   SwipeableFlatList,
   FlatList,
   Image,
+  RefreshControl,
 } from 'react-native';
 import {
   CategoryColorLine,
@@ -23,7 +24,6 @@ import {
   LanguageToggleButton,
   AnimatedRow,
   SText,
-  LoadingView,
 } from './Misc.js';
 import { STATE_ACTIONS } from './StateManager';
 import styles from './Styles';
@@ -52,21 +52,26 @@ class SwipeableCategoryList extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      data: null,
+      data: [],
+      refreshing: true,
     };
-    props.loadData().then(data => {
-      // reduce consecutive history items with the same ref
-      // filter items that are marked `secondary`
-      data = data.reduce(
-        (accum, curr, index) => (
-          (!accum.length || curr.ref !== accum[accum.length-1].ref) ?
-            accum.concat([curr]) :
-            accum
-        ), []
-      ).filter(h => !h.secondary);
-      this.setState({ data });
-    });
     this._rowRefs = {};
+  }
+
+  componentDidMount() { this.loadData(); }
+
+  loadData = async () => {
+    let data = await this.props.loadData();
+    // reduce consecutive history items with the same ref
+    // filter items that are marked `secondary`
+    data = data.reduce(
+      (accum, curr, index) => (
+        (!accum.length || curr.ref !== accum[accum.length-1].ref) ?
+          accum.concat([curr]) :
+          accum
+      ), []
+    ).filter(h => !h.secondary);
+    this.setState({ data, refreshing: false });
   }
 
   removeItem = (item) => {
@@ -75,6 +80,8 @@ class SwipeableCategoryList extends React.Component {
       ref.remove();
     }
   }
+
+  onRefresh = () => { this.setState({ refreshing: true }, this.loadData); }
 
   _getRowRef = (ref, item) => {
     this._rowRefs[item.ref] = ref;
@@ -167,18 +174,22 @@ class SwipeableCategoryList extends React.Component {
             </TouchableOpacity>
           </TouchableOpacity>
         }
-        {!!this.state.data ?
-          <FlatListClass
-            data={this.state.data}
-            renderItem={this.renderRow}
-            keyExtractor={this._keyExtractor}
-            bounceFirstRowOnMount={!Sefaria._hasSwipeDeleted}
-            maxSwipeDistance={90}
-            renderQuickActions={this.renderDeleteButton}
-            language={this.props.defaultTextLanguage}
-          />
-         : <LoadingView />
-        }
+        <FlatListClass
+          data={this.state.data}
+          renderItem={this.renderRow}
+          keyExtractor={this._keyExtractor}
+          bounceFirstRowOnMount={!Sefaria._hasSwipeDeleted}
+          maxSwipeDistance={90}
+          renderQuickActions={this.renderDeleteButton}
+          language={this.props.defaultTextLanguage}
+          refreshControl={
+            <RefreshControl
+              refreshing={this.state.refreshing}
+              onRefresh={this.onRefresh}
+              tintColor="#CCCCCC"
+              style={{ backgroundColor: 'transparent' }} />
+          }
+        />
       </View>
     );
   }

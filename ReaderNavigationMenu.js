@@ -180,7 +180,7 @@ const AuthSection = ({ openLogin, openRegister, logout, }) => {
     <View>
       <SystemButton
         onPress={openRegister}
-        text={strings.create_your_account}
+        text={strings.sign_up}
         isBlue={true}
       />
       <SystemButton
