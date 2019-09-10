@@ -546,19 +546,25 @@ var Api = {
     }
   },
   clearAuthStorage: async function() {
-    // TODO: make sure user synced at least once
     await AsyncStorage.removeItem('auth');
+    await AsyncStorage.removeItem('lastSyncTime');
+    await AsyncStorage.removeItem('lastSettingsUpdateTime');
+    await AsyncStorage.removeItem('hasDismissedSyncModal');
+    await AsyncStorage.removeItem('hasSyncedOnce');
+    await AsyncStorage.removeItem('hasSwipeDeleted');
+    Sefaria._auth = {};
+    Sefaria.history._hasSwipeDeleted = false;
+    const hasSyncedOnce = Sefaria.history._hasSyncedOnce;
+    Sefaria.history._hasSyncedOnce = false;
+    if (!hasSyncedOnce) { return; /* dont fully delete data if not backed up */}
+
     await AsyncStorage.removeItem('lastPlace');
     await AsyncStorage.removeItem('savedItems');
     await AsyncStorage.removeItem('lastSyncItems');
-    await AsyncStorage.removeItem('lastSyncTime');
     await AsyncStorage.removeItem('history');
-    await AsyncStorage.removeItem('lastSettingsUpdateTime');
-    await AsyncStorage.removeItem('hasDismissedSyncModal');
     Sefaria.history.saved = [];
     Sefaria.history.lastPlace = [];
     Sefaria.history.lastSync = [];
-    Sefaria._auth = {};
   },
 
 /*

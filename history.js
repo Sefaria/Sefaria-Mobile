@@ -8,6 +8,7 @@ const History = {
   lastPlace: [],
   lastSync: [],
   _hasSwipeDeleted: false,
+  _hasSyncedOnce: false,
   migrateFromOldRecents: async function() {
     const recentStr = await AsyncStorage.getItem("recent");
     const savedStr = await AsyncStorage.getItem("saved");
@@ -88,19 +89,12 @@ const History = {
     return null;
   },
   _loadHistoryItems: async function() {
-    /*
-    await AsyncStorage.removeItem('lastPlace');
-    await AsyncStorage.removeItem('savedItems');
-    await AsyncStorage.removeItem('lastSyncItems');
-    await AsyncStorage.removeItem('lastSyncTime');
-    await AsyncStorage.removeItem('history');
-    await AsyncStorage.removeItem('lastSettingsUpdateTime');
-    */
     await Sefaria.history.migrateFromOldRecents();
     const lastPlace = await AsyncStorage.getItem('lastPlace');
     const lastSync = await AsyncStorage.getItem('lastSyncItems');
     const saved = await AsyncStorage.getItem('savedItems');
     const hasSwipeDeleted = await AsyncStorage.getItem("hasSwipeDeleted");
+    const hasSyncedOnce = await AsyncStorage.getItem('hasSyncedOnce');
     try { Sefaria.history.lastPlace = JSON.parse(lastPlace) || []; }
     catch(e) { Sefaria.history.lastPlace = []; }
     try { Sefaria.history.lastSync = JSON.parse(lastSync) || []; }
@@ -108,6 +102,7 @@ const History = {
     try { Sefaria.history.saved = JSON.parse(saved) || []; }
     catch(e) { Sefaria.history.saved = []; }
     Sefaria.history._hasSwipeDeleted = JSON.parse(hasSwipeDeleted) || false;
+    Sefaria.history._hasSyncedOnce = JSON.parse(hasSyncedOnce) || false;
   },
   syncHistory: async function(dispatch, settings) {
     /*
@@ -156,6 +151,10 @@ const History = {
         await AsyncStorage.setItem('lastPlace', JSON.stringify(Sefaria.history.lastPlace));
         await AsyncStorage.setItem('history', JSON.stringify(mergedHistory));
         Sefaria.history.updateSettingsAfterSync(dispatch, response.settings);
+        if (!Sefaria.history._hasSyncedOnce) {
+          Sefaria.history._hasSyncedOnce = true;
+          await AsyncStorage.setItem('hasSyncedOnce', 'true');
+        }
       } catch (e) {
         // try again later
         console.log('sync error', e);
