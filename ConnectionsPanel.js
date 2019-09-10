@@ -137,7 +137,7 @@ const ConnectionsPanel = props => {
                 enText={cat.category.toUpperCase()}
                 heText={heCategory}
                 catColor={Sefaria.palette.categoryColor(cat.category)}
-                count={cat.count}
+                count={!catFilterSelected && cat.totalCount || cat.count}
                 onPress={function(filter,category) {
                   if (catFilterSelected) {
                     props.openFilter(filter, "link");

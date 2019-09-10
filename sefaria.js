@@ -995,9 +995,12 @@ Sefaria = {
           return categoryData;
         });
 
+        // Count all refs in each book and cat
         let allRefs = [];
         let allHeRefs = [];
         const allBooks = [];
+        let otherCommentaryCount = 0;
+        let commentaryCat;
         for (let cat of summaryList) {
           for (let book of cat.books) {
             const [bookRefList, bookHeRefList] = Sefaria.links.sortRefsBySections(Array.from(book.refSet), Array.from(book.heRefSet), book.title);
@@ -1014,7 +1017,13 @@ Sefaria = {
             allBooks.push(book);
           }
           cat.count = cat.refList.length;
+          if (['Quoting Commentary', 'Modern Commentary'].indexOf(cat.category) !== -1) {
+            otherCommentaryCount += cat.count;
+          }
+          if (cat.category === 'Commentary') { commentaryCat = cat; }
         }
+        // aggregate total count of quoting + modern + normal commentary
+        commentaryCat.totalCount = commentaryCat.count + otherCommentaryCount;
 
         // Sort the categories
         const order = ["Commentary", "Targum", "byCatOrder", "All"];
@@ -1754,7 +1763,7 @@ Sefaria.palette.categoryColors = {
   "Community":          Sefaria.palette.colors.raspberry,
   "Targum":             Sefaria.palette.colors.lavender,
   "Modern Works":       Sefaria.palette.colors.palegreen,
-  "Modern Commentary":  Sefaria.palette.colors.raspberry,
+  "Modern Commentary":  Sefaria.palette.colors.palegreen,
   "More":               Sefaria.palette.colors.darkblue,
 };
 Sefaria.palette.categoryColor = function(cat) {
