@@ -262,9 +262,8 @@ const ResourcesList = ({
   heSegmentRef,
   categories
 }) => {
-  const { themeStr } = useContext(GlobalStateContext);
+  const { themeStr, textLanguage } = useContext(GlobalStateContext);
   const [, forceUpdate] = useReducer(x => x + 1, 0);  // HACK
-
   const isWhite = themeStr === "white";
   const isSaved = Sefaria.history.indexOfSaved(segmentRef) !== -1;
   return (

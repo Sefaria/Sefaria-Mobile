@@ -49,8 +49,6 @@ class ReaderNavigationSheetMenu extends React.Component {
   }
 
   getData() {
-    console.log('loadingtags')
-      /*
     Sefaria.api.trendingTags(true)
       .then(results => {
           console.log('loaded trending tags')
@@ -69,7 +67,6 @@ class ReaderNavigationSheetMenu extends React.Component {
       .catch(error => {
         console.log(error)
       })
-   */
 
   }
   componentDidMount() {
@@ -171,7 +168,7 @@ class ReaderNavigationSheetMenu extends React.Component {
     );
 
 
-      //if (this.state.tagCategories.length == 0 || this.state.trendingTags.length == 0) { return (<LoadingView />); }
+      if (this.state.tagCategories.length == 0 || this.state.trendingTags.length == 0) { return (<LoadingView />); }
 
 
     return (<View style={[styles.menu, this.props.theme.menu]}>

@@ -58,7 +58,7 @@ const VersionBlock = ({
     <View>
       {
         versionTitle ?
-          (this.props.openVersionInSidebar ?
+          (openVersionInSidebar ?
             <TouchableOpacity onPress={onVersionTitleClick}>
               <Text style={[styles.en, styles.textTocVersionTitle, textAlign, theme.text]}>
                 {versionTitle}

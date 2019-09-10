@@ -47,21 +47,21 @@ const getVLangState = (initialCurrVersions, initialMainVersionLanguage, versions
 
 const useVLangState = (currVersions, versions) => {
   const { textLanguage } = useContext(GlobalStateContext);
-  const [initialCurrVersions,] = useState(currVersions.reduce(
-    (obj, lang) => {
-      obj[lang] = !!currVersions[lang] ? currVersions[lang].versionTitle : null;
+  const [initialCurrVersions,] = useState(Object.entries(currVersions).reduce(
+    (obj, [lang, val]) => {
+      obj[lang] = !!val ? val.versionTitle : null;
       return obj;
     }, {}
   ));
-  const getVLangState = versions => {
-    getVLangState(initialCurrVersions, initialMainVersionLanguage, versions);
-  };
+  const getVLangStateBound = versions => (
+    getVLangState(initialCurrVersions, initialMainVersionLanguage, versions)
+  );
   const [initialMainVersionLanguage,] = useState(textLanguage === "bilingual" ? "hebrew" : textLanguage);
-  const [vLangState, setVLangState] = useState(getVLangState(versions));
+  const [vLangState, setVLangState] = useState(getVLangStateBound(versions));
   return {
     vLangState,
     setVLangState: versions => {
-      setVLangState(getVLangState(versions));
+      setVLangState(getVLangStateBound(versions));
     },
   };
 }
@@ -125,7 +125,7 @@ const VersionsBox = ({
                 <TouchableOpacity
                   style={[styles.versionsBoxVersionBlockWrapper, theme.bordered]}
                   key={v.versionTitle + lang}
-                  onPress={()=>{ this.openVersionInSidebar(v.versionTitle, v.versionTitleInHebrew, v.language); }}>
+                  onPress={()=>{ openVersionInSidebar(v.versionTitle, v.versionTitleInHebrew, v.language); }}>
                   <VersionBlock
                     theme={theme}
                     version={v}
@@ -133,7 +133,7 @@ const VersionsBox = ({
                     openVersionInReader={()=>{}}
                     isCurrent={(currVersions.en && currVersions.en.versionTitle === v.versionTitle) ||
                               (currVersions.he && currVersions.he.versionTitle === v.versionTitle)}
-                    openUri={this.props.openUri}
+                    openUri={openUri}
                   />
                 </TouchableOpacity>
               ))

@@ -233,6 +233,7 @@ const ListItem = ({
     }
   };
   var hebrewElem =  <HTMLView
+                      key={"he"}
                       stylesheet={{...styles, ...smallHeSheet}}
                       value={he}
                       textComponentProps={{
@@ -241,6 +242,7 @@ const ListItem = ({
                       }}
                     />;
   var englishElem = <HTMLView
+                      key={"en"}
                       stylesheet={{...styles, ...smallEnSheet}}
                       value={en}
                       textComponentProps={{

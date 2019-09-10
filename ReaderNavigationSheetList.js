@@ -50,7 +50,7 @@ class ReaderNavigationSheetList extends React.Component {
     try {
       let sheets;
       if (menuOpen === 'sheetTag') {
-        sheets = await Sefaria.api.sheetsByTag(tag);
+        sheets = (await Sefaria.api.sheetsByTag(tag)).sheets;
       } else if (menuOpen === 'mySheets') {
         sheets = await Sefaria.api.mySheets();
       }

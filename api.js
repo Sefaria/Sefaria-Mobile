@@ -14,7 +14,7 @@ var Api = {
   /*
   takes responses from text and links api and returns json in the format of iOS json
   */
-  _baseHost: 'http://jwt.sandbox.sefaria.org/',
+  _baseHost: 'https://www.sefaria.org/',
   _textCache: {}, //in memory cache for API data
   _linkCache: {},
   _nameCache: {},
@@ -355,7 +355,6 @@ var Api = {
 
 
   tagCategory: function(category, failSilently) {
-    tag = encodeURIComponent(category);
     Sefaria.api._abortRequestType('tagCategory');
     return new Promise((resolve, reject) => {
       const cached = Sefaria.api._tagCategory[category];
