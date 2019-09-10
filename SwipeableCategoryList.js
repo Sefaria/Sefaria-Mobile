@@ -64,7 +64,6 @@ class SwipeableCategoryList extends React.Component {
             accum
         ), []
       ).filter(h => !h.secondary);
-      console.log('DATAYOYOHOOHOHO', data);
       this.setState({ data });
     });
     this._rowRefs = {};
