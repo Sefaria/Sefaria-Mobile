@@ -160,29 +160,29 @@ const AuthPage = ({ authMode, close, showToast, openLogin, openRegister, openUri
           isLogin ?
             <View style={{alignItems: 'center'}}>
               <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                <Text style={[{color: '#999'}, isHeb ? styles.heInt : styles.enInt]}>{strings.dontHaveAnAccount}</Text>
+                <Text style={[theme.secondaryText, isHeb ? styles.heInt : styles.enInt]}>{strings.dontHaveAnAccount}</Text>
                 <TouchableOpacity onPress={openRegister}>
                   <Text>{` ${strings.createAnAccount}`}</Text>
                 </TouchableOpacity>
               </View>
 
               <TouchableOpacity onPress={() => { openUri('https://www.sefaria.org/password/reset')}}>
-                <Text style={isHeb ? styles.heInt : styles.enInt}>{strings.forgotPassword}</Text>
+                <Text style={[theme.text, isHeb ? styles.heInt : styles.enInt]}>{strings.forgotPassword}</Text>
               </TouchableOpacity>
             </View>
           :
             <View style={{alignItems: 'center'}}>
               <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                <Text style={[{color: '#999'}, isHeb ? styles.heInt : styles.enInt]}>{strings.alreadyHaveAnAccount}</Text>
+                <Text style={[theme.secondaryText, isHeb ? styles.heInt : styles.enInt]}>{strings.alreadyHaveAnAccount}</Text>
                 <TouchableOpacity onPress={openLogin}>
-                  <Text style={isHeb ? styles.heInt : styles.enInt}>{` ${strings.sign_in}.`}</Text>
+                  <Text style={[theme.text, isHeb ? styles.heInt : styles.enInt]}>{` ${strings.sign_in}.`}</Text>
                 </TouchableOpacity>
               </View>
 
               <View style={{alignItems: 'center'}}>
-                <Text style={[{color: '#999'}, isHeb ? styles.heInt : styles.enInt]}>{strings.byClickingSignUp}</Text>
+                <Text style={[theme.secondaryText, isHeb ? styles.heInt : styles.enInt]}>{strings.byClickingSignUp}</Text>
                 <TouchableOpacity onPress={() => { openUri('https://www.sefaria.org/terms')}}>
-                  <Text style={isHeb ? styles.heInt : styles.enInt}>{` ${strings.termsOfUseAndPrivacyPolicy}.`}</Text>
+                  <Text style={[theme.text, isHeb ? styles.heInt : styles.enInt]}>{` ${strings.termsOfUseAndPrivacyPolicy}.`}</Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -235,7 +235,8 @@ const LogInMotivator = ({
   iconStr,
   text
 }) => {
-  const { themeStr } = useContext(GlobalStateContext);
+  const { theme, themeStr, interfaceLanguage } = useContext(GlobalStateContext);
+  const isHeb = interfaceLanguage === 'hebrew';
   let icon;
   if (themeStr === 'white') {
     if (iconStr === 'star')  { icon = require('./img/starUnfilled.png'); }
@@ -255,7 +256,7 @@ const LogInMotivator = ({
       }}
     >
       <Image style={{height: 20, width: 20}} source={icon} resizeMode={'contain'} />
-      <Text style={[{marginHorizontal: 20}, styles.enInt]}>{ text }</Text>
+      <Text style={[{marginHorizontal: 20}, isHeb ? styles.heInt : styles.enInt, theme.text]}>{ text }</Text>
     </View>
   );
 }
