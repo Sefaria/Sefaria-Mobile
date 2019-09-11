@@ -29,7 +29,7 @@ export default StyleSheet.create({
     borderRadius: 5,
     paddingVertical: 14,
     marginVertical: 5,
-    backgroundColor: 'white',
+    marginHorizontal: 5,
   },
   systemButtonInner: {
     flexDirection: 'row',
@@ -41,7 +41,6 @@ export default StyleSheet.create({
   systemButtonText: {
     textAlign: "center",
     fontFamily: 'OpenSans',
-    color: '#000',
   },
   systemButtonTextBlue: {
     color: 'white'
@@ -956,6 +955,10 @@ export default StyleSheet.create({
   settingsSection: {
     marginTop: 15,
     marginBottom: 5,
+  },
+  buttonToggleSetNew: {
+    borderRadius: 5,
+    height: 50,
   },
   buttonToggleSet: {
     marginRight: 0,

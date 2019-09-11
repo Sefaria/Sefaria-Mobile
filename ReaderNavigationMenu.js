@@ -19,8 +19,8 @@ import {
   CategoryColorLine,
   CategoryBlockLink,
   TwoBox,
-  LanguageToggleButton,
   SystemButton,
+  LoadingView,
 } from './Misc.js';
 import { STATE_ACTIONS, DispatchContext, GlobalStateContext } from './StateManager';
 import VersionNumber from 'react-native-version-number';
@@ -110,6 +110,7 @@ const ReaderNavigationMenu = props => {
             <ScrollView style={styles.menuContent} contentContainerStyle={styles.menuScrollViewContent}>
               <SavedHistorySection
                 isWhite={isWhite}
+                isHeb={isHeb}
                 openHistory={props.openHistory}
                 openSaved={props.openSaved}
               />
@@ -323,7 +324,7 @@ ResourcesSection.propTypes = {
 
 const CalendarSection = ({ openRef }) => {
   const { defaultTextLanguage } = useContext(GlobalStateContext);
-  if (!Sefaria.calendar) { return null; }
+  if (!Sefaria.calendar) { return (<LoadingView />); }
   const { parasha, dafYomi, p929, rambam, mishnah } = Sefaria.getCalendars();
   const calendar = [
           !!parasha ? <CategoryBlockLink
@@ -389,31 +390,21 @@ CalendarSection.propTypes = {
   openRef: PropTypes.func.isRequired,
 };
 
-const SavedHistorySection = ({ isWhite, openHistory, openSaved }) => (
-  <View style={[styles.twoBoxRow, {marginVertical: 15}]}>
-    <View style={styles.twoBoxItem}>
-      <CategoryBlockLink
-        category={"History"}
-        heCat={"היסטוריה"}
-        style={{flex:1 , paddingVertical: 12, borderRadius: 5, borderWidth: 1, borderTopWidth: 1, borderColor: "#ccc"}}
-        isSans={true}
-        icon={isWhite ? require('./img/clock.png') : require('./img/clock-light.png')}
-        onPress={openHistory}
-        iconSide="start"
-      />
-    </View>
-    <View style={styles.twoBoxItem}>
-      <CategoryBlockLink
-        category={"Saved"}
-        heCat={"שמורים"}
-        style={{flex: 1, paddingVertical: 12, borderRadius: 5, borderWidth: 1, borderTopWidth: 1, borderColor: "#ccc"}}
-        isSans={true}
-        icon={isWhite ? require('./img/starUnfilled.png') : require('./img/starUnfilled-light.png')}
-        onPress={openSaved}
-        iconSide="start"
-      />
-    </View>
-  </View>
+const SavedHistorySection = ({ isWhite, isHeb, openHistory, openSaved }) => (
+  <TwoBox>
+    <SystemButton
+      text={strings.history}
+      img={isWhite ? require('./img/clock.png'): require('./img/clock-light.png')}
+      onPress={openHistory}
+      isHeb={isHeb}
+    />
+    <SystemButton
+      text={strings.saved}
+      img={isWhite ? require('./img/starUnfilled.png'): require('./img/starUnfilled-light.png')}
+      onPress={openSaved}
+      isHeb={isHeb}
+    />
+  </TwoBox>
 );
 
 const ReaderNavigationMenuSection = ({ title, heTitle, content, hasmore, moreClick }) => {

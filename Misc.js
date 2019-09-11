@@ -24,7 +24,7 @@ import strings from './LocalizedStrings';
 const SystemButton = ({ onPress, text, img, isHeb, isBlue, isLoading }) => (
   <GlobalStateContext.Consumer>
     { ({ theme }) => (
-      <TouchableOpacity disabled={isLoading} onPress={onPress} style={[styles.systemButton, styles.boxShadow, (isBlue ? styles.systemButtonBlue : null)]}>
+      <TouchableOpacity disabled={isLoading} onPress={onPress} style={[styles.systemButton, theme.mainTextPanel, styles.boxShadow, (isBlue ? styles.systemButtonBlue : null)]}>
         { isLoading ?
           (<LoadingView size={'small'} height={20} color={isBlue ? '#ffffff' : undefined} />) :
           (<View style={styles.systemButtonInner}>
@@ -38,6 +38,7 @@ const SystemButton = ({ onPress, text, img, isHeb, isBlue, isLoading }) => (
             <Text
               style={[
                 styles.systemButtonText,
+                theme.text,
                 (isBlue ? styles.systemButtonTextBlue : null),
                 (isHeb ? styles.heInt : styles.enInt)
               ]}
@@ -645,12 +646,14 @@ ButtonToggleSet.propTypes = {
 
 const ButtonToggleSetNew = ({ options, active }) => {
   /* based on new styles guide */
+  const { theme, interfaceLanguage } = useContext(GlobalStateContext);
+  const isHeb = interfaceLanguage === 'hebrew';
   return (
-    <View style={[styles.readerDisplayOptionsMenuRow, styles.boxShadow, {borderRadius: 5, backgroundColor: 'white', height: 50 }]}>
+    <View style={[styles.readerDisplayOptionsMenuRow, styles.boxShadow, styles.buttonToggleSetNew, theme.mainTextPanel]}>
       {
         options.map(option => (
           <TouchableOpacity key={option.name} onPress={option.onPress} style={[styles.buttonToggle, active === option.name ? styles.buttonToggleActive : null]}>
-            <Text  style={[active === option.name ? styles.buttonToggleActiveText : null, styles.enInt]}>{ option.text }</Text>
+            <Text  style={[theme.text, active === option.name ? styles.buttonToggleActiveText : null, isHeb? styles.heInt : styles.enInt]}>{ option.text }</Text>
           </TouchableOpacity>
         ))
       }

@@ -99,7 +99,7 @@ const AuthPage = ({ authMode, close, showToast, openLogin, openRegister, openUri
       <View style={{ flex: 1, alignSelf: "stretch", alignItems: "flex-end", marginHorizontal: 10}}>
         <CircleCloseButton onPress={close} />
       </View>
-      <Text style={styles.pageTitle}>{isLogin ? strings.log_in : strings.sign_up}</Text>
+      <Text style={[styles.pageTitle, theme.text]}>{isLogin ? strings.log_in : strings.sign_up}</Text>
       <View style={{flex: 1, alignSelf: "stretch",  marginHorizontal: 37}}>
         { isLogin ?
           <View>
@@ -162,7 +162,7 @@ const AuthPage = ({ authMode, close, showToast, openLogin, openRegister, openUri
               <View style={{flexDirection: 'row', alignItems: 'center'}}>
                 <Text style={[theme.secondaryText, isHeb ? styles.heInt : styles.enInt]}>{strings.dontHaveAnAccount}</Text>
                 <TouchableOpacity onPress={openRegister}>
-                  <Text>{` ${strings.createAnAccount}`}</Text>
+                  <Text style={[theme.text, isHeb ? styles.heInt : styles.enInt]}>{` ${strings.createAnAccount}`}</Text>
                 </TouchableOpacity>
               </View>
 
@@ -218,17 +218,23 @@ const AuthTextInput = ({
   errorText,
   onChangeText,
 }) => (
-  <View>
-    <TextInput
-      style={[styles.textInput, styles.boxShadow, styles.authTextInput]}
-      placeholder={placeholder}
-      placeholderTextColor={placeholderTextColor}
-      secureTextEntry={isPW}
-      autoCapitalize={autoCapitalize}
-      onChangeText={onChangeText}
-    />
-    <ErrorText error={error} errorText={errorText} />
-  </View>
+  <GlobalStateContext.Consumer>
+    {
+      ({ theme }) => (
+        <View>
+          <TextInput
+            style={[styles.textInput, styles.boxShadow, styles.authTextInput, theme.mainTextPanel]}
+            placeholder={placeholder}
+            placeholderTextColor={placeholderTextColor}
+            secureTextEntry={isPW}
+            autoCapitalize={autoCapitalize}
+            onChangeText={onChangeText}
+          />
+          <ErrorText error={error} errorText={errorText} />
+        </View>
+      )
+    }
+  </GlobalStateContext.Consumer>
 );
 
 const LogInMotivator = ({

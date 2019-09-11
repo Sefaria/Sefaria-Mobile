@@ -131,7 +131,7 @@ class SwipeableCategoryList extends React.Component {
             imageStyle={[styles.menuButton, styles.directedButton]}
             direction="back"
             language="english"/>
-          <View style={{flex:1, flexDirection: "row", justifyContent: "center", alignItems: "center"}}>
+          <View style={{flex:1, flexDirection: isHeb ? "row-reverse" : "row", justifyContent: "center", alignItems: "center"}}>
             <Image source={this.props.icon}
               style={[styles.menuButton, isHeb ? styles.headerIconWithTextHe : styles.headerIconWithTextEn]}
               resizeMode={'contain'}

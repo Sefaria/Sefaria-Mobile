@@ -5,7 +5,6 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import {
   Alert,
-  Animated,
   LayoutAnimation,
   AppState,
   Dimensions,
@@ -1910,7 +1909,6 @@ class ReaderApp extends React.Component {
               sheet={this.state.sheet}
               sheetMeta={this.state.sheetMeta}
               textListFlex={this.state.textListFlex}
-              textListFlexAnimated={this.state.textListFlexAnimated}
               animating={this.state.textListAnimating}
               onStartShouldSetResponderCapture={this._onStartShouldSetResponderCapture}
               textToc={this.state.textToc}
