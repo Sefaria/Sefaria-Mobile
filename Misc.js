@@ -26,7 +26,7 @@ const SystemButton = ({ onPress, text, img, isHeb, isBlue, isLoading }) => (
     { ({ theme }) => (
       <TouchableOpacity disabled={isLoading} onPress={onPress} style={[styles.systemButton, styles.boxShadow, (isBlue ? styles.systemButtonBlue : null)]}>
         { isLoading ?
-          (<LoadingView size={'small'} height={20} />) :
+          (<LoadingView size={'small'} height={20} color={isBlue ? '#ffffff' : undefined} />) :
           (<View style={styles.systemButtonInner}>
             { !!img ?
               <Image
@@ -658,12 +658,12 @@ const ButtonToggleSetNew = ({ options, active }) => {
   );
 }
 
-const LoadingView = ({ style, category, size, height }) => (
+const LoadingView = ({ style, category, size, height, color }) => (
   <View style={[styles.loadingViewBox, style]}>
     <ActivityIndicator
       animating={true}
       style={[styles.loadingView, !!height ? { height } : null]}
-      color={Platform.OS === 'android' ? Sefaria.palette.categoryColor(category) : undefined}
+      color={Platform.OS === 'android' ? (category ? Sefaria.palette.categoryColor(category) : color) : undefined}
       size={size || 'large'}
     />
   </View>
