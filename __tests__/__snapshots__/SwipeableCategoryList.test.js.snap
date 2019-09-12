@@ -181,31 +181,127 @@ exports[`SwipeableCategoryList basic render 1`] = `
     </View>
   </View>
   <View
+    accessible={true}
+    isTVSelectable={true}
+    onResponderGrant={[Function]}
+    onResponderMove={[Function]}
+    onResponderRelease={[Function]}
+    onResponderTerminate={[Function]}
+    onResponderTerminationRequest={[Function]}
+    onStartShouldSetResponder={[Function]}
     style={
-      Array [
-        Object {
-          "alignItems": "center",
-          "alignSelf": "stretch",
-          "flex": 1,
-          "justifyContent": "center",
-        },
-        undefined,
-      ]
+      Object {
+        "alignItems": "center",
+        "backgroundColor": "#18345D",
+        "flexDirection": "row",
+        "justifyContent": "space-between",
+        "opacity": 1,
+        "paddingHorizontal": 15,
+        "paddingVertical": 20,
+      }
     }
   >
-    <ActivityIndicator
-      animating={true}
-      color="#999999"
-      hidesWhenStopped={true}
-      size="large"
+    <Text
+      style={
+        Array [
+          Object {
+            "fontFamily": "OpenSans",
+            "textAlign": "center",
+          },
+          Object {
+            "color": "white",
+          },
+          Object {
+            "fontFamily": "Open Sans",
+            "textAlign": "left",
+          },
+        ]
+      }
+    >
+      Want to sync your reading history? 
+      <Text
+        style={
+          Array [
+            Object {
+              "textDecorationLine": "underline",
+            },
+          ]
+        }
+      >
+        Log in
+      </Text>
+    </Text>
+    <View
+      accessible={true}
+      isTVSelectable={true}
+      onResponderGrant={[Function]}
+      onResponderMove={[Function]}
+      onResponderRelease={[Function]}
+      onResponderTerminate={[Function]}
+      onResponderTerminationRequest={[Function]}
+      onStartShouldSetResponder={[Function]}
       style={
         Object {
-          "backgroundColor": "transparent",
-          "height": 80,
+          "opacity": 1,
         }
       }
-    />
+    >
+      <Image
+        resizeMode="contain"
+        source={1}
+        style={
+          Object {
+            "height": 14,
+            "width": 14,
+          }
+        }
+      />
+    </View>
   </View>
+  <RCTScrollView
+    bounceFirstRowOnMount={true}
+    data={Array []}
+    disableVirtualization={false}
+    getItem={[Function]}
+    getItemCount={[Function]}
+    horizontal={false}
+    initialNumToRender={10}
+    keyExtractor={[Function]}
+    language="english"
+    maxSwipeDistance={90}
+    maxToRenderPerBatch={10}
+    numColumns={1}
+    onContentSizeChange={[Function]}
+    onEndReachedThreshold={2}
+    onLayout={[Function]}
+    onMomentumScrollEnd={[Function]}
+    onScroll={[Function]}
+    onScrollBeginDrag={[Function]}
+    onScrollEndDrag={[Function]}
+    refreshControl={
+      <RefreshControlMock
+        onRefresh={[Function]}
+        refreshing={true}
+        style={
+          Object {
+            "backgroundColor": "transparent",
+          }
+        }
+        tintColor="#CCCCCC"
+      />
+    }
+    removeClippedSubviews={false}
+    renderItem={[Function]}
+    renderQuickActions={[Function]}
+    scrollEventThrottle={50}
+    stickyHeaderIndices={Array []}
+    updateCellsBatchingPeriod={50}
+    viewabilityConfigCallbackPairs={Array []}
+    windowSize={21}
+  >
+    <RCTRefreshControl />
+    <View />
+  </RCTScrollView>
 </View>
 `;
 
@@ -389,6 +485,84 @@ exports[`SwipeableCategoryList render with data 1`] = `
       </Text>
     </View>
   </View>
+  <View
+    accessible={true}
+    isTVSelectable={true}
+    onResponderGrant={[Function]}
+    onResponderMove={[Function]}
+    onResponderRelease={[Function]}
+    onResponderTerminate={[Function]}
+    onResponderTerminationRequest={[Function]}
+    onStartShouldSetResponder={[Function]}
+    style={
+      Object {
+        "alignItems": "center",
+        "backgroundColor": "#18345D",
+        "flexDirection": "row",
+        "justifyContent": "space-between",
+        "opacity": 1,
+        "paddingHorizontal": 15,
+        "paddingVertical": 20,
+      }
+    }
+  >
+    <Text
+      style={
+        Array [
+          Object {
+            "fontFamily": "OpenSans",
+            "textAlign": "center",
+          },
+          Object {
+            "color": "white",
+          },
+          Object {
+            "fontFamily": "Open Sans",
+            "textAlign": "left",
+          },
+        ]
+      }
+    >
+      Want to sync your reading history? 
+      <Text
+        style={
+          Array [
+            Object {
+              "textDecorationLine": "underline",
+            },
+          ]
+        }
+      >
+        Log in
+      </Text>
+    </Text>
+    <View
+      accessible={true}
+      isTVSelectable={true}
+      onResponderGrant={[Function]}
+      onResponderMove={[Function]}
+      onResponderRelease={[Function]}
+      onResponderTerminate={[Function]}
+      onResponderTerminationRequest={[Function]}
+      onStartShouldSetResponder={[Function]}
+      style={
+        Object {
+          "opacity": 1,
+        }
+      }
+    >
+      <Image
+        resizeMode="contain"
+        source={1}
+        style={
+          Object {
+            "height": 14,
+            "width": 14,
+          }
+        }
+      />
+    </View>
+  </View>
   <RCTScrollView
     bounceFirstRowOnMount={true}
     data={
@@ -433,6 +607,18 @@ exports[`SwipeableCategoryList render with data 1`] = `
     onScroll={[Function]}
     onScrollBeginDrag={[Function]}
     onScrollEndDrag={[Function]}
+    refreshControl={
+      <RefreshControlMock
+        onRefresh={[Function]}
+        refreshing={false}
+        style={
+          Object {
+            "backgroundColor": "transparent",
+          }
+        }
+        tintColor="#CCCCCC"
+      />
+    }
     removeClippedSubviews={false}
     renderItem={[Function]}
     renderQuickActions={[Function]}
@@ -442,6 +628,7 @@ exports[`SwipeableCategoryList render with data 1`] = `
     viewabilityConfigCallbackPairs={Array []}
     windowSize={21}
   >
+    <RCTRefreshControl />
     <View>
       <View
         onLayout={[Function]}
@@ -520,6 +707,13 @@ exports[`SwipeableCategoryList render with data 1`] = `
                   }
                 >
                   Genesis 1:1
+                  <Text
+                    style={
+                      Object {
+                        "fontStyle": "italic",
+                      }
+                    }
+                  />
                 </Text>
               </View>
             </View>
@@ -603,6 +797,13 @@ exports[`SwipeableCategoryList render with data 1`] = `
                   }
                 >
                   Genesis 1:2
+                  <Text
+                    style={
+                      Object {
+                        "fontStyle": "italic",
+                      }
+                    }
+                  />
                 </Text>
               </View>
             </View>
@@ -686,12 +887,26 @@ exports[`SwipeableCategoryList render with data 1`] = `
                   }
                 >
                   Genesis 1
+                  <Text
+                    style={
+                      Object {
+                        "fontStyle": "italic",
+                      }
+                    }
+                  />
                 </Text>
               </View>
             </View>
           </View>
         </View>
       </View>
+      <View
+        style={
+          Object {
+            "height": 0,
+          }
+        }
+      />
     </View>
   </RCTScrollView>
 </View>

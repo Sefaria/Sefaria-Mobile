@@ -1,6 +1,6 @@
 import React from 'react';
-import { Button } from 'react-native';
 import renderer, { act } from 'react-test-renderer';
+import { SystemButton } from '../Misc';
 import TestContextWrapper from '../TestContextWrapper';
 import { AuthPage, AuthTextInput } from '../AuthPage';
 import strings from '../LocalizedStrings';
@@ -34,7 +34,7 @@ describe('login', () => {
         i.props.onChangeText(fields[i.props.placeholder]);
       });
     }
-    const button = inst.root.findByType(Button);
+    const button = inst.root.findByType(SystemButton);
     act(button.props.onPress);
     // NOTE: this test won't pass until act can run async
     // expect(Sefaria.api.authenticate.mock.calls.length).toBe(1);

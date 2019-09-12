@@ -6,7 +6,7 @@ import { AnimatedRow } from '../Misc';
 
 describe('SwipeableCategoryList', () => {
   test('basic render', async () => {
-    const tree = renderer.create(
+    const inst = renderer.create(
       <GlobalStateContext.Provider value={{
           themeStr: 'white',
           theme: {},
@@ -24,12 +24,16 @@ describe('SwipeableCategoryList', () => {
           title={'History'}
           loadData={() => Promise.resolve([])}
           menuOpen={'history'}
+          openLogin={() => {}}
+          isLoggedIn={false}
+          hasDismissedSyncModal={false}
+          dispatch={() => {}}
           icon={require('./img/clock.png')}
         />
       </GlobalStateContext.Provider>
 
-    ).toJSON();
-    expect(tree).toMatchSnapshot();
+    );
+    expect(inst.toJSON()).toMatchSnapshot();
   });
   test('render with data', async () => {
     Sefaria.categoryForTitle = jest.fn(() => "Tanakh");
@@ -83,11 +87,15 @@ describe('SwipeableCategoryList', () => {
             }
           ])}
           menuOpen={'history'}
+          openLogin={() => {}}
+          isLoggedIn={false}
+          hasDismissedSyncModal={false}
+          dispatch={()=>{}}
           icon={require('./img/clock.png')}
         />
       </GlobalStateContext.Provider>
     );
-    await setTimeout(()=>{}, 10);  // wait for SwipeableFlatList to fully render
+    await setTimeout(()=>{}, 100);  // wait for SwipeableFlatList to fully render
     const yo = inst.root.findAllByType(AnimatedRow);
     expect(yo.length).toBe(3);
     expect(inst.toJSON()).toMatchSnapshot();

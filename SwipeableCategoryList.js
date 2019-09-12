@@ -99,7 +99,7 @@ class SwipeableCategoryList extends React.Component {
 
   renderRow = ({ item }) => {
     let { ref, he_ref, is_sheet, sheet_title, sheet_owner, versions } = item;
-    sheet_title = Sefaria.util.stripHtml(sheet_title);
+    sheet_title = Sefaria.util.stripHtml(sheet_title || '');
     return (
       <AnimatedRow
         ref={rref => { this._getRowRef(rref, item); }}

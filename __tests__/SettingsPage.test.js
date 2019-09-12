@@ -5,7 +5,7 @@ import {
   DEFAULT_STATE,
 } from '../StateManager';
 import SettingsPage from '../SettingsPage';
-import { ButtonToggleSet } from '../Misc';
+import { ButtonToggleSetNew } from '../Misc';
 import TestContextWrapper from '../TestContextWrapper';
 
 test('settings buttons', async () => {
@@ -16,10 +16,14 @@ test('settings buttons', async () => {
     .mockReturnValueOnce(3)
     .mockReturnValueOnce(4);
   const inst = renderer.create(
-    <TestContextWrapper child={SettingsPage} childProps={{ close: () => {}}} />
+    <TestContextWrapper child={SettingsPage} childProps={{
+        close: () => {},
+        logout: () => {},
+        openUri: () => {},
+      }}
+    />
   );
-  const {_globa} = inst.root.children[0].props._globalState;
-  const yo = inst.root.findAllByType(ButtonToggleSet);
+  const yo = inst.root.findAllByType(ButtonToggleSetNew);
   expect(yo.length).toBe(4);
 
   let counter = 1;
