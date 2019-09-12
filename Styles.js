@@ -1258,6 +1258,9 @@ export default StyleSheet.create({
     lineHeight: 22,
     paddingTop: 11,
   },
+  mySheetListTitle: {
+    fontSize: 20,
+  },
   heInEn: {
     fontFamily: "Taamey Frank Taamim Fix",
     writingDirection: "rtl",
