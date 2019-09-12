@@ -199,7 +199,7 @@ CategoryBlockLink.propTypes = {
 };
 
 
-const CategorySideColorLink = ({ language, category, enText, heText, onPress }) => {
+const CategorySideColorLink = ({ language, category, enText, heText, sheetOwner, onPress }) => {
   const { theme, themeStr } = useContext(GlobalStateContext);
   const isHeb = language === 'hebrew';
   const borderSide = isHeb ? "Right" : "Left";
@@ -209,7 +209,12 @@ const CategorySideColorLink = ({ language, category, enText, heText, onPress }) 
       <View style={{flex:1, flexDirection: isHeb ? "row-reverse" : "row"}}>
         <View style={{width: 6, [`border${borderSide}Color`]: Sefaria.palette.categoryColor(category), [`border${borderSide}Width`]: 6,}} />
         <View style={[styles.categorySideColorLink, theme.menu, theme.borderedBottom]}>
-          <Text numberOfLines={1} ellipsizeMode={"middle"} style={[isHeb ? styles.hebrewText : styles.englishText, theme.text]}>{text}</Text>
+          <Text numberOfLines={1} ellipsizeMode={"middle"} style={[isHeb ? styles.hebrewText : styles.englishText, theme.text]}>
+            {text}
+            <Text style={isHeb ? {fontWeight: 'bold'} : {fontStyle: 'italic'}}>
+              {sheetOwner}
+            </Text>
+          </Text>
         </View>
       </View>
     </TouchableHighlight>

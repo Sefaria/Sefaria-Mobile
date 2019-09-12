@@ -97,23 +97,27 @@ class SwipeableCategoryList extends React.Component {
     </View>
   );
 
-  renderRow = ({ item }) => (
+  renderRow = ({ item }) => {
+    let { ref, he_ref, is_sheet, sheet_title, sheet_owner, versions } = item;
+    sheet_title = Sefaria.util.stripHtml(sheet_title);
+    return (
       <AnimatedRow
-        ref={ref => { this._getRowRef(ref, item); }}
+        ref={rref => { this._getRowRef(rref, item); }}
         animationDuration={250}
         onRemove={() => { this.props.onRemove(item); }}
         style={{flex: 1, justifyContent: "center", alignItems: "center"}}
       >
         <CategorySideColorLink
           category={Sefaria.categoryForTitle(item.book)}
-          enText={items.is_sheet ? item.sheet_title : item.ref}
-          heText={items.is_sheet ? item.sheet_title : item.he_ref}
-          sheetAuthor={item.sheet_owner}
+          enText={is_sheet ? sheet_title : ref}
+          heText={is_sheet ? sheet_title : he_ref}
+          sheetOwner={sheet_owner}
           language={this.props.defaultTextLanguage}
-          onPress={this.props.openRef.bind(null, item.ref, null, item.versions)}
+          onPress={this.props.openRef.bind(null, ref, null, versions)}
         />
       </AnimatedRow>
-  );
+    );
+  }
 
   _keyExtractor = (item, index) => (
     `${item.ref}|${item.time_stamp}`
