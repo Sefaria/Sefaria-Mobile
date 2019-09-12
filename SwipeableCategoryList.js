@@ -106,8 +106,9 @@ class SwipeableCategoryList extends React.Component {
       >
         <CategorySideColorLink
           category={Sefaria.categoryForTitle(item.book)}
-          enText={item.ref}
-          heText={item.he_ref}
+          enText={items.is_sheet ? item.sheet_title : item.ref}
+          heText={items.is_sheet ? item.sheet_title : item.he_ref}
+          sheetAuthor={item.sheet_owner}
           language={this.props.defaultTextLanguage}
           onPress={this.props.openRef.bind(null, item.ref, null, item.versions)}
         />

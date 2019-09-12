@@ -220,10 +220,17 @@ const AuthTextInput = ({
 }) => (
   <GlobalStateContext.Consumer>
     {
-      ({ theme }) => (
+      ({ theme, interfaceLanguage }) => (
         <View>
           <TextInput
-            style={[styles.textInput, styles.boxShadow, styles.authTextInput, theme.mainTextPanel]}
+            style={[
+              styles.textInput,
+              styles.boxShadow,
+              styles.authTextInput,
+              interfaceLanguage === 'hebrew' ? styles.heInt : styles.enInt,
+              theme.text,
+              theme.mainTextPanel
+            ]}
             placeholder={placeholder}
             placeholderTextColor={placeholderTextColor}
             secureTextEntry={isPW}

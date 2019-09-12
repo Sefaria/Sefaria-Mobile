@@ -19,11 +19,9 @@ export default StyleSheet.create({
     elevation: 5,
   },
   textInput: {
-    fontFamily: 'OpenSans',
     fontSize: 20,
     padding: 15,
     borderRadius: 10,
-    backgroundColor: 'white',
   },
   systemButton: {
     borderRadius: 5,
