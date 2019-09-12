@@ -227,7 +227,7 @@ class TextColumn extends React.Component {
               animated: false,
               sectionIndex: 0,
               itemIndex: targetIndex - 1,
-              viewPosition: 0.1,
+              viewPosition: 0.1,  // trying to use viewOffset for more exact positioning leads to different results on iOS vs Android. -50 works well for iOS and 50 works well for Android
           });
         }
 
