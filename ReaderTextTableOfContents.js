@@ -55,6 +55,28 @@ const sectionString = (defaultTextLanguage, textToc, currentRef, currentHeRef) =
   return sectionString;
 };
 
+class TocErrorBoundary extends React.Component {
+
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false };
+  }
+  static getDerivedStateFromError(error) {
+    return { hasError: true };
+  }
+  componentDidCatch(error, errorInfo) {
+    this.props.textUnavailableAlert(this.props.title)
+  }
+
+
+
+  render() {
+    return this.state.hasError ? null : (
+        this.props.children
+    );
+  }
+}
+
 const ReaderTextTableOfContents = ({
   textToc,
   title,
@@ -63,6 +85,7 @@ const ReaderTextTableOfContents = ({
   openRef,
   close,
   openUri,
+  textUnavailableAlert,
 }) => {
   // The Table of Contents for a single Text
   const { theme, interfaceLanguage, defaultTextLanguage } = useContext(GlobalStateContext);
@@ -81,53 +104,55 @@ const ReaderTextTableOfContents = ({
         <LanguageToggleButton />
       </View>
 
-      <ScrollView style={styles.menuContent} contentContainerStyle={{paddingTop: 20,paddingBottom: 40}}>
-        <View style={[styles.textTocTopBox, theme.bordered]}>
-          <View style={styles.textTocCategoryBox}>
-          { defaultTextLanguage == "hebrew" ?
-            <Text style={[styles.he, styles.textTocCategory, theme.secondaryText]}>{heCatString}</Text> :
-            <Text style={[styles.en, styles.textTocCategory, theme.secondaryText]}>{enCatString}</Text> }
-          </View>
-
-          <View>
+      <TocErrorBoundary textUnavailableAlert={textUnavailableAlert} title={title}>
+        <ScrollView style={styles.menuContent} contentContainerStyle={{paddingTop: 20,paddingBottom: 40}}>
+          <View style={[styles.textTocTopBox, theme.bordered]}>
+            <View style={styles.textTocCategoryBox}>
             { defaultTextLanguage == "hebrew" ?
-              <Text style={[styles.he, styles.textTocTitle, theme.text]}>{heTitle}</Text> :
-              <Text style={[styles.en, styles.textTocTitle, theme.text]}>{enTitle}</Text> }
-          </View>
+              <Text style={[styles.he, styles.textTocCategory, theme.secondaryText]}>{heCatString}</Text> :
+              <Text style={[styles.en, styles.textTocCategory, theme.secondaryText]}>{enCatString}</Text> }
+            </View>
 
-          <CategoryAttribution
-            categories={categories}
-            context={"textToc"}
-            openUri={openUri}
-          />
-
-          { textToc && "dedication" in textToc ?
-          (<View>
-            { defaultTextLanguage == "hebrew" ?
-              <Text style={[styles.he, styles.textTocCategoryAttributionTextHe, theme.tertiaryText]}>{textToc.dedication.he}</Text> :
-              <Text style={[styles.en, styles.textTocCategoryAttributionTextEn, theme.tertiaryText]}>{textToc.dedication.en}</Text> }
-          </View>): null }
-
-          { currentRef ?
             <View>
-            { defaultTextLanguage == "hebrew" ?
-              <Text style={[styles.intHe, styles.textTocSectionString, theme.textTocSectionString]}>{sectionString(defaultTextLanguage, textToc, currentRef, currentHeRef)}</Text> :
-              <Text style={[styles.intEn, styles.textTocSectionString, theme.textTocSectionString]}>{sectionString(defaultTextLanguage, textToc, currentRef, currentHeRef)}</Text> }
-            </View> : null
-          }
-        </View>
+              { defaultTextLanguage == "hebrew" ?
+                <Text style={[styles.he, styles.textTocTitle, theme.text]}>{heTitle}</Text> :
+                <Text style={[styles.en, styles.textTocTitle, theme.text]}>{enTitle}</Text> }
+            </View>
 
-        {textToc ?
-          <TextTableOfContentsNavigation
-            schema={textToc.schema}
-            commentatorList={Sefaria.commentaryList(title)}
-            alts={textToc.alts || null}
-            defaultStruct={"default_struct" in textToc && textToc.default_struct in textToc.alts ? textToc.default_struct : "default"}
-            title={title}
-            openRef={openRef} /> : <LoadingView category={Sefaria.categoryForTitle(title)}/> }
+            <CategoryAttribution
+              categories={categories}
+              context={"textToc"}
+              openUri={openUri}
+            />
 
-      </ScrollView>
+            { textToc && "dedication" in textToc ?
+            (<View>
+              { defaultTextLanguage == "hebrew" ?
+                <Text style={[styles.he, styles.textTocCategoryAttributionTextHe, theme.tertiaryText]}>{textToc.dedication.he}</Text> :
+                <Text style={[styles.en, styles.textTocCategoryAttributionTextEn, theme.tertiaryText]}>{textToc.dedication.en}</Text> }
+            </View>): null }
 
+            { currentRef ?
+              <View>
+              { defaultTextLanguage == "hebrew" ?
+                <Text style={[styles.intHe, styles.textTocSectionString, theme.textTocSectionString]}>{sectionString(defaultTextLanguage, textToc, currentRef, currentHeRef)}</Text> :
+                <Text style={[styles.intEn, styles.textTocSectionString, theme.textTocSectionString]}>{sectionString(defaultTextLanguage, textToc, currentRef, currentHeRef)}</Text> }
+              </View> : null
+            }
+          </View>
+
+          {textToc ?
+            <TextTableOfContentsNavigation
+              schema={textToc.schema}
+              commentatorList={Sefaria.commentaryList(title)}
+              alts={textToc.alts || null}
+              defaultStruct={"default_struct" in textToc && textToc.default_struct in textToc.alts ? textToc.default_struct : "default"}
+              title={title}
+              openRef={openRef} /> : <LoadingView category={Sefaria.categoryForTitle(title)}/> }
+
+        </ScrollView>
+
+      </TocErrorBoundary>
     </View>
   );
 }
@@ -139,6 +164,7 @@ ReaderTextTableOfContents.propTypes = {
   openRef:        PropTypes.func.isRequired,
   close:          PropTypes.func.isRequired,
   openUri:        PropTypes.func.isRequired,
+  textUnavailableAlert: PropTypes.func.isRequired,
 };
 
 const TextTableOfContentsNavigation = ({ schema, commentatorList, alts, defaultStruct, title, openRef }) => {

@@ -1643,6 +1643,7 @@ class ReaderApp extends React.Component {
         Sefaria.track.setScreen("text toc", "menu")
         return (
           <ReaderTextTableOfContents
+            textUnavailableAlert={this.textUnavailableAlert}
             textToc={this.state.textToc}
             title={this.state.textTitle}
             currentRef={this.state.textReference}
