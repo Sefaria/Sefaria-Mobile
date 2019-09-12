@@ -1387,7 +1387,7 @@ class ReaderApp extends React.Component {
       LayoutAnimation.configureNext(CustomLayoutLinear, isIOS ? this.onTextListAnimateFinish : undefined);
       this.setState({ textListFlex: toValue });
       if (!isIOS) {
-        setTimeout(this.onTextListAnimateFinish, duration + 100);
+        setTimeout(this.onTextListAnimateFinish, 10);
       }
     })
   };

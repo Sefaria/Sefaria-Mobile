@@ -115,7 +115,7 @@ const ConnectionsPanel = props => {
     default:
       // either `null` or equal to a top-level category
       let content;
-      if (props.loading) {
+      if (props.loading || props.animating) {
         content = (<LoadingView />);
       } else {
         // if you're in Modern Commentary, switch to Commentary
