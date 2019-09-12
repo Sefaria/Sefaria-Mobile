@@ -6,7 +6,8 @@
     "start": "react-native start",
     "setup": "sudo npm install -g react-native-cli",
     "postinstall": "node ./android-release-gradle-fix.js",
-    "test": "jest --watchAll --notify"
+    "test": "jest --watchAll --notify",
+    "test-ci": "jest"
   },
   "jest": {
     "preset": "react-native",
