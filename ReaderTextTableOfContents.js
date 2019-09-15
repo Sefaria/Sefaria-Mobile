@@ -27,6 +27,7 @@ import styles from './Styles';
 import strings from './LocalizedStrings';
 import iPad from './isIPad';
 import VersionBlock from './VersionBlock';
+import TextErrorBoundary from './TextErrorBoundary';
 
 const sectionString = (textLanguage, textToc, currentRef, currentHeRef) => {
   // Returns a string expressing just the section we're currently looking including section name when possible
@@ -55,28 +56,6 @@ const sectionString = (textLanguage, textToc, currentRef, currentHeRef) => {
   return sectionString;
 };
 
-class TocErrorBoundary extends React.Component {
-
-  constructor(props) {
-    super(props);
-    this.state = { hasError: false };
-  }
-  static getDerivedStateFromError(error) {
-    return { hasError: true };
-  }
-  componentDidCatch(error, errorInfo) {
-    this.props.textUnavailableAlert(this.props.title)
-  }
-
-
-
-  render() {
-    return this.state.hasError ? null : (
-        this.props.children
-    );
-  }
-}
-
 const ReaderTextTableOfContents = ({
   textToc,
   title,
@@ -104,7 +83,7 @@ const ReaderTextTableOfContents = ({
         <LanguageToggleButton />
       </View>
 
-      <TocErrorBoundary textUnavailableAlert={textUnavailableAlert} title={title}>
+      <TextErrorBoundary textUnavailableAlert={textUnavailableAlert} title={title}>
         <ScrollView style={styles.menuContent} contentContainerStyle={{paddingTop: 20,paddingBottom: 40}}>
           <View style={[styles.textTocTopBox, theme.bordered]}>
             <View style={styles.textTocCategoryBox}>
@@ -152,7 +131,7 @@ const ReaderTextTableOfContents = ({
 
         </ScrollView>
 
-      </TocErrorBoundary>
+      </TextErrorBoundary>
     </View>
   );
 }

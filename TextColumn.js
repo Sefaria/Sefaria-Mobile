@@ -16,6 +16,7 @@ import styles from './Styles.js';
 import TextRange from './TextRange';
 import TextRangeContinuous from './TextRangeContinuous';
 import TextHeightMeasurer from './TextHeightMeasurer';
+import TextErrorBoundary from './TextErrorBoundary';
 import queryLayoutByID from 'queryLayoutByID';
 const ViewPort  = Dimensions.get('window');
 const COMMENTARY_LINE_THRESHOLD = 100;
@@ -57,6 +58,7 @@ class TextColumn extends React.Component {
     showAliyot:         PropTypes.bool.isRequired,
     openUri:            PropTypes.func.isRequired,
     biLayout:           PropTypes.oneOf(["stacked", "sidebyside", "sidebysiderev"]),
+    textUnavailableAlert: PropTypes.func.isRequired,
   };
 
   constructor(props, context) {
@@ -655,36 +657,38 @@ class TextColumn extends React.Component {
   render() {
     return (
         <View style={styles.textColumn}>
-          <SectionList
-            style={styles.scrollViewPaddingInOrderToScroll}
-            ref={this._getSectionListRef}
-            sections={this.state.dataSource}
-            renderItem={this.renderRow}
-            renderSectionHeader={this.renderSectionHeader}
-            ListFooterComponent={this.renderFooter}
-            onEndReached={this.onEndReached}
-            onEndReachedThreshold={2.0}
-            onScroll={this.handleScroll}
-            extraData={this.props.fontSize}
-            scrollEventThrottle={100}
-            onViewableItemsChanged={this.onViewableItemsChanged}
-            onScrollToIndexFailed={this.onScrollToIndexFailed}
-            keyExtractor={this._keyExtractor}
-            stickySectionHeadersEnabled={false}
-            CellRendererComponent={this._renderCell}
-            refreshControl={
-              <RefreshControl
-                refreshing={this.props.loadingTextHead || this.onTopReaching}
-                onRefresh={this.onTopReached}
-                tintColor="#CCCCCC"
-                style={{ backgroundColor: 'transparent' }} />
-            }/>
-        { this.state.jumpState.jumping ?
-          <TextHeightMeasurer
-            ref={this._getTextHeightMeasurerRef}
-            componentsToMeasure={this.state.componentsToMeasure}
-            allHeightsMeasuredCallback={this.allHeightsMeasured}/> : null
-        }
+          <TextErrorBoundary textUnavailableAlert={this.props.textUnavailableAlert} title={this.props.textTitle}>
+            <SectionList
+              style={styles.scrollViewPaddingInOrderToScroll}
+              ref={this._getSectionListRef}
+              sections={this.state.dataSource}
+              renderItem={this.renderRow}
+              renderSectionHeader={this.renderSectionHeader}
+              ListFooterComponent={this.renderFooter}
+              onEndReached={this.onEndReached}
+              onEndReachedThreshold={2.0}
+              onScroll={this.handleScroll}
+              extraData={this.props.fontSize}
+              scrollEventThrottle={100}
+              onViewableItemsChanged={this.onViewableItemsChanged}
+              onScrollToIndexFailed={this.onScrollToIndexFailed}
+              keyExtractor={this._keyExtractor}
+              stickySectionHeadersEnabled={false}
+              CellRendererComponent={this._renderCell}
+              refreshControl={
+                <RefreshControl
+                  refreshing={this.props.loadingTextHead || this.onTopReaching}
+                  onRefresh={this.onTopReached}
+                  tintColor="#CCCCCC"
+                  style={{ backgroundColor: 'transparent' }} />
+              }/>
+            { this.state.jumpState.jumping ?
+              <TextHeightMeasurer
+                ref={this._getTextHeightMeasurerRef}
+                componentsToMeasure={this.state.componentsToMeasure}
+                allHeightsMeasuredCallback={this.allHeightsMeasured}/> : null
+            }
+          </TextErrorBoundary>
         </View>
     );
   }

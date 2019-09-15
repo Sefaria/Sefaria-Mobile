@@ -1890,6 +1890,7 @@ class ReaderApp extends React.Component {
                 loadingTextTail={this.state.loadingTextTail}
                 loadingTextHead={this.state.loadingTextHead}
                 openUri={this.openUri}
+                textUnavailableAlert={this.textUnavailableAlert}
               />
             }
           </View> }
