@@ -21,10 +21,10 @@ import styles from './Styles.js';
 import strings from './LocalizedStrings';
 
 
-const SystemButton = ({ onPress, text, img, isHeb, isBlue, isLoading }) => (
+const SystemButton = ({ onPress, text, img, isHeb, isBlue, isLoading, extraStyles=[] }) => (
   <GlobalStateContext.Consumer>
     { ({ theme }) => (
-      <TouchableOpacity disabled={isLoading} onPress={onPress} style={[styles.systemButton, theme.mainTextPanel, styles.boxShadow, (isBlue ? styles.systemButtonBlue : null)]}>
+      <TouchableOpacity disabled={isLoading} onPress={onPress} style={[styles.systemButton, theme.mainTextPanel, styles.boxShadow, (isBlue ? styles.systemButtonBlue : null)].concat(extraStyles)}>
         { isLoading ?
           (<LoadingView size={'small'} height={20} color={isBlue ? '#ffffff' : undefined} />) :
           (<View style={styles.systemButtonInner}>

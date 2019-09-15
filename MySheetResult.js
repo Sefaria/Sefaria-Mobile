@@ -25,7 +25,7 @@ const MySheetResult = ({ title, heTitle, onPress, views, tags, created, isPrivat
       style={[
         styles.textBlockLink,
         theme.textBlockLink,
-        {margin:0, borderBottomWidth: 1, borderBottomColor: "#ccc", paddingTop: 13, alignItems: 'flex-start'}
+        {margin:0, borderBottomWidth: 1, borderBottomColor: "#ccc", paddingVertical: 13, alignItems: isHeb ? 'flex-end' : 'flex-start'}
       ]}
       onPress={onPress}
     >
@@ -38,7 +38,7 @@ const MySheetResult = ({ title, heTitle, onPress, views, tags, created, isPrivat
         }
       </View>
       <View style={{flex: 1, flexDirection: (isHeb ? "row-reverse" : "row")}}>
-        <Text style={[theme.tertiaryText]}>
+        <Text style={[theme.tertiaryText, isHeb ? styles.heInt : styles.enInt, isHeb ? { writingDirection: 'rtl'} : null]}>
           {`${views} ${strings.views} • ${date}`}
           { !!tags.length ? ` • ${tags.join(', ')}` : null }
         </Text>

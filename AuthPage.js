@@ -101,19 +101,16 @@ const AuthPage = ({ authMode, close, showToast, openLogin, openRegister, openUri
       </View>
       <Text style={[styles.pageTitle, theme.text]}>{isLogin ? strings.log_in : strings.sign_up}</Text>
       <View style={{flex: 1, alignSelf: "stretch",  marginHorizontal: 37}}>
-        { isLogin ?
-          <View>
-            {
-              [
-                {iconStr: 'star', text: strings.saveTexts},
-                {iconStr: 'sync', text: strings.syncYourReading},
-                {iconStr: 'sheet', text: strings.readYourSheets},
-                {iconStr: 'mail', text: strings.getUpdates},
-              ].map(x => (<LogInMotivator key={x.iconStr} { ...x } />))
-            }
-          </View>
-          : null
-        }
+        <View style={styles.logInMotivator}>
+          {
+            [
+              {iconStr: 'star', text: strings.saveTexts},
+              {iconStr: 'sync', text: strings.syncYourReading},
+              {iconStr: 'sheet', text: strings.readYourSheets},
+              {iconStr: 'mail', text: strings.getUpdates},
+            ].map(x => (<LogInMotivator key={x.iconStr} { ...x } />))
+          }
+        </View>
         { isLogin ? null :
           <AuthTextInput
             placeholder={strings.first_name}
@@ -158,7 +155,7 @@ const AuthPage = ({ authMode, close, showToast, openLogin, openRegister, openUri
         />
         {
           isLogin ?
-            <View style={{alignItems: 'center'}}>
+            <View style={{ alignItems: 'center', marginTop: 15 }}>
               <View style={{flexDirection: 'row', alignItems: 'center'}}>
                 <Text style={[theme.secondaryText, isHeb ? styles.heInt : styles.enInt]}>{strings.dontHaveAnAccount}</Text>
                 <TouchableOpacity onPress={openRegister}>
@@ -171,7 +168,7 @@ const AuthPage = ({ authMode, close, showToast, openLogin, openRegister, openUri
               </TouchableOpacity>
             </View>
           :
-            <View style={{alignItems: 'center'}}>
+            <View style={{alignItems: 'center', marginTop: 15}}>
               <View style={{flexDirection: 'row', alignItems: 'center'}}>
                 <Text style={[theme.secondaryText, isHeb ? styles.heInt : styles.enInt]}>{strings.alreadyHaveAnAccount}</Text>
                 <TouchableOpacity onPress={openLogin}>
@@ -225,6 +222,7 @@ const AuthTextInput = ({
           <TextInput
             style={[
               styles.textInput,
+              styles.systemButton,
               styles.boxShadow,
               styles.authTextInput,
               interfaceLanguage === 'hebrew' ? styles.heInt : styles.enInt,
@@ -269,7 +267,7 @@ const LogInMotivator = ({
       }}
     >
       <Image style={{height: 20, width: 20}} source={icon} resizeMode={'contain'} />
-      <Text style={[{marginHorizontal: 20}, isHeb ? styles.heInt : styles.enInt, theme.text]}>{ text }</Text>
+      <Text style={[{marginHorizontal: 20, fontSize: 16}, isHeb ? styles.heInt : styles.enInt, theme.text]}>{ text }</Text>
     </View>
   );
 }

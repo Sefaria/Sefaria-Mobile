@@ -193,8 +193,8 @@ const AuthSection = ({ openLogin, openRegister, logout, }) => {
   return (
     <ReaderNavigationMenuSection
       hasmore={false}
-      title={strings.sign_in.toUpperCase()}
-      heTitle={strings.sign_in}
+      title={strings.account.toUpperCase()}
+      heTitle={strings.account}
       content={authButtons}
     />
   );
@@ -252,8 +252,8 @@ const MoreSection = ({ isHeb, openUri, openSettings }) => {
     <View style={styles.readerNavSection}>
       <TouchableWithoutFeedback onPress={onDebugSupportPress}>
         <View>
-          <Text style={[styles.readerNavSectionTitle, theme.readerNavSectionTitle, (isHeb ? styles.heInt : styles.enInt), {textAlign: "center"}]}>
-            {strings.supportSefaria}
+          <Text style={[styles.readerNavSectionTitleOuter, styles.readerNavSectionTitle, theme.readerNavSectionTitle, (isHeb ? styles.heInt : styles.enInt), {textAlign: "center"}]}>
+            {strings.more.toUpperCase()}
           </Text>
         </View>
       </TouchableWithoutFeedback>
@@ -262,24 +262,28 @@ const MoreSection = ({ isHeb, openUri, openSettings }) => {
           text={strings.donate}
           img={themeStr == "white" ? require('./img/heart.png'): require('./img/heart-light.png')}
           onPress={onDonate}
+          extraStyles={[styles.systemButtonTwoBox]}
           isHeb={isHeb}
         />
         <SystemButton
           text={strings.settings}
           img={themeStr == "white" ? require('./img/settings.png'): require('./img/settings-light.png')}
           onPress={openSettings}
+          extraStyles={[styles.systemButtonTwoBox]}
           isHeb={isHeb}
         />
         <SystemButton
           text={strings.about}
           img={themeStr == "white" ? require('./img/info.png'): require('./img/info-light.png')}
           onPress={onAbout}
+          extraStyles={[styles.systemButtonTwoBox]}
           isHeb={isHeb}
         />
         <SystemButton
           text={strings.feedback}
           img={themeStr == "white" ? require('./img/feedback.png'): require('./img/feedback-light.png')}
           onPress={onFeedback}
+          extraStyles={[styles.systemButtonTwoBox]}
           isHeb={isHeb}
         />
       </TwoBox>
@@ -397,12 +401,14 @@ const SavedHistorySection = ({ isWhite, isHeb, openHistory, openSaved }) => (
       img={isWhite ? require('./img/clock.png'): require('./img/clock-light.png')}
       onPress={openHistory}
       isHeb={isHeb}
+      extraStyles={[styles.systemButtonTwoBox]}
     />
     <SystemButton
       text={strings.saved}
       img={isWhite ? require('./img/starUnfilled.png'): require('./img/starUnfilled-light.png')}
       onPress={openSaved}
       isHeb={isHeb}
+      extraStyles={[styles.systemButtonTwoBox]}
     />
   </TwoBox>
 );

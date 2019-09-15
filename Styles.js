@@ -20,13 +20,13 @@ export default StyleSheet.create({
   },
   textInput: {
     fontSize: 20,
-    padding: 15,
-    borderRadius: 10,
   },
   systemButton: {
     borderRadius: 5,
-    paddingVertical: 14,
+    padding: 14,
     marginVertical: 5,
+  },
+  systemButtonTwoBox: {
     marginHorizontal: 5,
   },
   systemButtonInner: {
@@ -637,6 +637,9 @@ export default StyleSheet.create({
   },
   dot: {
     marginHorizontal: 7,
+  },
+  logInMotivator: {
+    marginVertical: 15,
   },
   category: {
     marginBottom: 10
