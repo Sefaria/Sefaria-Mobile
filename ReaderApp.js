@@ -447,36 +447,41 @@ class ReaderApp extends React.Component {
   }
   getHistoryObject = () => {
     // get ref to send to /api/profile/user_history
-    const {
-      sheet,
-      activeSheetNode,
-      segmentRef,
-      heSegmentRef,
-      sectionIndexRef,
-      sectionArray,
-      sectionHeArray,
-      selectedVersions,
-      textListVisible,
-    } = this.state;
-    const { textLanguage } = this.props;
-    let ref, he_ref, sheet_owner, sheet_title;
-    if (!!sheet) {
-      ref = `Sheet ${sheet.id}${activeSheetNode ? `:${activeSheetNode}`: ''}`;
-      sheet_owner = sheet.ownerName;
-      sheet_title = sheet.title;
-    } else {
-      ref = (textListVisible && segmentRef) ? segmentRef : sectionArray[sectionIndexRef];
-      he_ref = (textListVisible && segmentRef) ? (heSegmentRef || Sefaria.toHeSegmentRef(sectionHeArray[sectionIndexRef], segmentRef)) : sectionHeArray[sectionIndexRef];
+    try {
+      const {
+        sheet,
+        activeSheetNode,
+        segmentRef,
+        heSegmentRef,
+        sectionIndexRef,
+        sectionArray,
+        sectionHeArray,
+        selectedVersions,
+        textListVisible,
+      } = this.state;
+      const { textLanguage } = this.props;
+      let ref, he_ref, sheet_owner, sheet_title;
+      if (!!sheet) {
+        ref = `Sheet ${sheet.id}${activeSheetNode && textListVisible ? `:${activeSheetNode}`: ''}`;
+        sheet_owner = sheet.ownerName;
+        sheet_title = sheet.title;
+      } else {
+        ref = (textListVisible && segmentRef) ? segmentRef : sectionArray[sectionIndexRef];
+        he_ref = (textListVisible && segmentRef) ? (heSegmentRef || Sefaria.toHeSegmentRef(sectionHeArray[sectionIndexRef], segmentRef)) : sectionHeArray[sectionIndexRef];
+      }
+      return {
+        ref,
+        he_ref,
+        versions: selectedVersions || {},
+        book: Sefaria.textTitleForRef(ref),
+        language: textLanguage,
+        sheet_owner,
+        sheet_title,
+        is_sheet: !!sheet,
+      };
+    } catch (e) {
+      return {};
     }
-    return {
-      ref,
-      he_ref,
-      versions: selectedVersions || {},
-      book: Sefaria.textTitleForRef(ref),
-      language: textLanguage,
-      sheet_owner,
-      sheet_title,
-    };
   };
 
   textSegmentPressed = (section, segment, segmentRef, shouldToggle) => {
@@ -1838,7 +1843,10 @@ class ReaderApp extends React.Component {
             sheet={this.state.sheet}
             backStack={BackManager.getStack({ type: "main" })}
             toggleReaderDisplayOptionsMenu={this.toggleReaderDisplayOptionsMenu}
-            openUri={this.openUri}/>
+            openUri={this.openUri}
+            getHistoryObject={this.getHistoryObject}
+            showToast={this.showToast}
+          />
 
           { loading ?
           <LoadingView style={{flex: textColumnFlex}} category={Sefaria.categoryForTitle(this.state.textTitle)}/> :

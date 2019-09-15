@@ -171,8 +171,6 @@ const ConnectionsPanel = props => {
               sheet={props.sheet}
               versionsCount={props.versions.length}
               setConnectionsMode={props.setConnectionsMode}
-              segmentRef={props.segmentRef}
-              heSegmentRef={props.heSegmentRef}
               categories={props.categories}
             />
           );
@@ -258,14 +256,11 @@ const ResourcesList = ({
   sheet,
   setConnectionsMode,
   versionsCount,
-  segmentRef,
   heSegmentRef,
   categories
 }) => {
   const { themeStr, textLanguage } = useContext(GlobalStateContext);
-  const [, forceUpdate] = useReducer(x => x + 1, 0);  // HACK
   const isWhite = themeStr === "white";
-  const isSaved = Sefaria.history.indexOfSaved(segmentRef) !== -1;
   return (
     <View>
       <ToolsButton
@@ -279,28 +274,6 @@ const ResourcesList = ({
         count={versionsCount}
         onPress={()=>{ setConnectionsMode("versions"); }}
       /> }
-      <ToolsButton
-        text={isSaved ? strings.saved : strings.save}
-        icon={isWhite ?
-                (isSaved ? require('./img/starFilled.png') : require('./img/starUnfilled.png')) :
-                (isSaved ? require('./img/starFilled-light.png') : require('./img/starUnfilled-light.png'))}
-        onPress={
-          () => {
-            const willBeSaved = !isSaved; // this func will toggle isSaved
-            Sefaria.history.saveSavedItem(
-              {
-                ref: segmentRef,
-                he_ref: heSegmentRef,
-                language: textLanguage,
-                book: Sefaria.textTitleForRef(segmentRef),
-                saved: willBeSaved,
-                versions: {},
-              }, willBeSaved ? 'add_saved' : 'delete_saved'
-            );
-            forceUpdate();
-          }
-        }
-      />
     </View>
   );
 }
@@ -308,8 +281,6 @@ ResourcesList.propTypes = {
   sheet:              PropTypes.object,
   setConnectionsMode: PropTypes.func.isRequired,
   versionsCount:      PropTypes.number.isRequired,
-  segmentRef:         PropTypes.string.isRequired,
-  heSegmentRef:       PropTypes.string.isRequired,
   categories:         PropTypes.array.isRequired,
 };
 

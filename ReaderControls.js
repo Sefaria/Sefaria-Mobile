@@ -21,6 +21,7 @@ import {
   HebrewInEnglishText,
 } from './Misc.js';
 import { GlobalStateContext } from './StateManager';
+import strings from './LocalizedStrings';
 import Sefaria from "./sefaria";
 
 const ReaderControls = ({
@@ -35,6 +36,8 @@ const ReaderControls = ({
   backStack,
   openUri,
   sheet,
+  getHistoryObject,
+  showToast,
 }) => {
   const { theme, themeStr, textLanguage } = useContext(GlobalStateContext);
   const [, forceUpdate] = useReducer(x => x + 1, 0);  // HACK
@@ -46,7 +49,8 @@ const ReaderControls = ({
       return backStack.filter(x => calledFromDict[x.calledFrom]).length === 0;
     }
   };
-  const isSaved = Sefaria.history.indexOfSaved(enRef) !== -1;
+  const historyItem = getHistoryObject();
+  const isSaved = Sefaria.history.indexOfSaved(historyItem.ref) !== -1;
   var langStyle = textLanguage === "hebrew" ? [styles.he, {marginTop: 4}] : [styles.en];
   var titleTextStyle = [langStyle, styles.headerTextTitleText, theme.text];
   if (shouldShowHamburger()) {
@@ -94,21 +98,17 @@ const ReaderControls = ({
             openUri={openUri}
           />
         </TouchableOpacity>
-          {sheet ? <View style={{width: 40}}></View> :
         <TouchableOpacity onPress={
             () => {
               const willBeSaved = !isSaved;
+              const newHistoryItem = {...historyItem, saved: willBeSaved};
               Sefaria.history.saveSavedItem(
-                {
-                  ref: enRef,
-                  heRef,
-                  language: textLanguage,
-                  book: Sefaria.textTitleForRef(enRef),
-                  saved: willBeSaved,
-                  versions: {},
-                },
+                newHistoryItem,
                 willBeSaved ? 'add_saved' : 'delete_saved'
               );
+              const { is_sheet, sheet_title, ref, he_ref } = newHistoryItem;
+              const title = is_sheet ? sheet_title : (textLanguage === "hebrew" ? he_ref : ref);
+              showToast(`${willBeSaved ? strings.saved2 : strings.removed} ${title}`);
               forceUpdate();
             }
           }>
@@ -119,7 +119,7 @@ const ReaderControls = ({
                     (isSaved ? require('./img/starFilled-light.png') : require('./img/starUnfilled-light.png'))}
             resizeMode={'contain'}
           />
-        </TouchableOpacity> }
+        </TouchableOpacity>
         <DisplaySettingsButton onPress={toggleReaderDisplayOptionsMenu} />
       </View>
   );
@@ -134,6 +134,8 @@ ReaderControls.propTypes = {
   toggleReaderDisplayOptionsMenu:  PropTypes.func,
   backStack:                       PropTypes.array,
   openUri:                         PropTypes.func.isRequired,
+  getHistoryObject:                PropTypes.func.isRequired,
+  showToast:                       PropTypes.func.isRequired,
 };
 
 export default ReaderControls;
