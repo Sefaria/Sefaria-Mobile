@@ -9,12 +9,10 @@ import strings from './LocalizedStrings';
 
 const STATE_ACTIONS = {
   setTheme: "SET_THEME",
-  setDefaultTextLanguage: "SET_DEFAULT_TEXT_LANGUAGE",
+  setTextLanguage: "SET_TEXT_LANGUAGE",
   setInterfaceLanguage: "SET_INTERFACE_LANGUAGE",
   setEmailFrequency: "SET_EMAIL_FREQUENCY",
   setPreferredCustom: "SET_PREFERRED_CUSTOM",
-  initTextLanguageByTitle: "INIT_TEXT_LANGUAGE_BY_TITLE",
-  setTextLanguageByTitle: "SET_TEXT_LANGUAGE_BY_TITLE",
   setFontSize: "SET_FONT_SIZE",
   setOverwriteVersions: "SET_OVERWRITE_VERSIONS",
   setAliyot: "SET_ALIYOT",
@@ -36,19 +34,10 @@ const ACTION_CREATORS = {
     value: themeStr,
     fromAsync,
   }),
-  setDefaultTextLanguage: (language, fromAsync) => ({
-    type: STATE_ACTIONS.setDefaultTextLanguage,
+  setTextLanguage: (language, fromAsync) => ({
+    type: STATE_ACTIONS.setTextLanguage,
     value: language,
     fromAsync,
-  }),
-  initTextLanguageByTitle: (textLanguageByTitle) => ({
-    type: STATE_ACTIONS.initTextLanguageByTitle,
-    value: textLanguageByTitle,
-  }),
-  setTextLanguageByTitle: (title, language) => ({
-    type: STATE_ACTIONS.setTextLanguageByTitle,
-    title,
-    language,
   }),
   setInterfaceLanguage: (language, fromAsync) => ({
     type: STATE_ACTIONS.setInterfaceLanguage,
@@ -99,13 +88,9 @@ const ACTION_CREATORS = {
 }
 
 const ASYNC_STORAGE_DEFAULTS = {
-  defaultTextLanguage: {
+  textLanguage: {
     default: strings.getInterfaceLanguage().match(/^(?:he|iw)/) ? "hebrew" : "bilingual",
-    action: ACTION_CREATORS.setDefaultTextLanguage,
-  },
-  textLangaugeByTitle: { /* misspelled on purpose because this is the way the field is called in AsyncStorage */
-    default: {},
-    action: ACTION_CREATORS.initTextLanguageByTitle,
+    action: ACTION_CREATORS.setTextLanguage,
   },
   interfaceLanguage: {
     default: strings.getInterfaceLanguage().match(/^(?:he|iw)/) ? "hebrew" : "english",
@@ -152,8 +137,7 @@ const ASYNC_STORAGE_DEFAULTS = {
 const DEFAULT_STATE = {
   theme: themeWhite,
   themeStr: ASYNC_STORAGE_DEFAULTS.color.default,
-  defaultTextLanguage: ASYNC_STORAGE_DEFAULTS.defaultTextLanguage.default,
-  textLanguage: ASYNC_STORAGE_DEFAULTS.defaultTextLanguage.default,
+  textLanguage: ASYNC_STORAGE_DEFAULTS.textLanguage.default,
   interfaceLanguage: ASYNC_STORAGE_DEFAULTS.interfaceLanguage.default,
   emailFrequency: ASYNC_STORAGE_DEFAULTS.emailFrequency.default,
   preferredCustom: ASYNC_STORAGE_DEFAULTS.preferredCustom.default,
@@ -184,28 +168,12 @@ const reducer = function (state, action) {
         theme,
         themeStr: action.value,
       };
-    case STATE_ACTIONS.setDefaultTextLanguage:
-      if (!action.fromAsync) { saveFieldToAsync('defaultTextLanguage', action.value); }
+    case STATE_ACTIONS.setTextLanguage:
+      if (!action.fromAsync) { saveFieldToAsync('textLanguage', action.value); }
       return {
         ...state,
-        defaultTextLanguage: action.value,
+        textLanguage: action.value,
       };
-    case STATE_ACTIONS.initTextLanguageByTitle:
-      return {
-        ...state,
-        textLanguageByTitle: action.value,
-      };
-    case STATE_ACTIONS.setTextLanguageByTitle:
-      const newState = {
-        ...state,
-        textLanguageByTitle: {
-          ...state.textLanguageByTitle,
-          [action.title]: action.language,
-        },
-        textLanguage: action.language, // also set the language for the current book
-      };
-      saveFieldToAsync('textLangaugeByTitle', newState.textLanguageByTitle);
-      return newState;
     case STATE_ACTIONS.setInterfaceLanguage:
       if (!action.fromAsync) { saveFieldToAsync('interfaceLanguage', action.value); }
       if (action.value == 'hebrew') { strings.setLanguage('he'); }

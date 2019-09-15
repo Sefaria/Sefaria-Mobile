@@ -145,8 +145,8 @@ const CategoryBlockLink = ({
   isSans,
   onPress,
 }) => {
-  const { theme, themeStr, defaultTextLanguage } = useContext(GlobalStateContext);
-  const isHeb = defaultTextLanguage == "hebrew";
+  const { theme, themeStr, textLanguage } = useContext(GlobalStateContext);
+  const isHeb = textLanguage == "hebrew";
   const iconOnLeft = iconSide ? iconSide === "start" ^ isHeb : isHeb;
   style  = style || {"borderColor": Sefaria.palette.categoryColor(category)};
   var enText = upperCase ? category.toUpperCase() : category;
@@ -290,16 +290,15 @@ class CategoryColorLine extends React.Component {
 }
 
 const CategoryAttribution = ({ categories, context, linked=true, openUri }) => {
-  const { theme, defaultTextLanguage, textLanguage } = useContext(GlobalStateContext);
-  // language settings in TextColumn should be governed by textLanguage. Everything else should be governed by defaultTextLanguage
-  const language = context === 'header' ? textLanguage : defaultTextLanguage;
+  const { theme, textLanguage } = useContext(GlobalStateContext);
+  // language settings in TextColumn should be governed by textLanguage. Everything else should be governed by textLanguage
   if (!categories) { return null; }
   var attribution = Sefaria.categoryAttribution(categories);
   if (!attribution) { return null; }
 
   var openLink = () => {openUri(attribution.link)};
   var boxStyles = [styles.categoryAttribution, styles[context + "CategoryAttribution" ]];
-  var content = language !== "hebrew" ?
+  var content = textLanguage !== "hebrew" ?
               <Text style={[styles[context + "CategoryAttributionTextEn"], theme.tertiaryText]}>{attribution.english}</Text> :
               <Text style={[styles[context + "CategoryAttributionTextHe"], theme.tertiaryText]}>{attribution.hebrew}</Text>;
 
@@ -329,10 +328,10 @@ const LibraryNavButton = ({
   withArrow,
   buttonStyle,
 }) => {
-  const { theme, themeStr, defaultTextLanguage } = useContext(GlobalStateContext);
+  const { theme, themeStr, textLanguage } = useContext(GlobalStateContext);
   let colorStyle = catColor ? [{"borderColor": catColor}] : [theme.searchResultSummary, {"borderTopWidth": 1}];
   let textStyle  = [catColor ? styles.spacedText : null];
-  let flexDir = defaultTextLanguage !== "hebrew" ? "row" : "row-reverse";
+  let flexDir = textLanguage !== "hebrew" ? "row" : "row-reverse";
   let textMargin = !!onPressCheckBox ? { marginHorizontal: 0 } : styles.readerSideMargin;
   if (count === 0) { textStyle.push(theme.secondaryText); }
   return (
@@ -345,7 +344,7 @@ const LibraryNavButton = ({
             <IndeterminateCheckBox themeStr={themeStr} state={checkBoxSelected} onPress={onPressCheckBox} />
           </TouchableOpacity> : null
         }
-        { defaultTextLanguage !== "hebrew" ?
+        { textLanguage !== "hebrew" ?
           <Text style={[styles.englishText].concat([theme.tertiaryText, textStyle, {paddingTop:3}, textMargin])}>
             {`${enText} `}
             {
@@ -362,7 +361,7 @@ const LibraryNavButton = ({
         }
       </View>
       { withArrow ?
-        <DirectedArrow themeStr={themeStr} imageStyle={{opacity: 0.5}} language={defaultTextLanguage} direction={"forward"} />
+        <DirectedArrow themeStr={themeStr} imageStyle={{opacity: 0.5}} language={textLanguage} direction={"forward"} />
         : null
       }
    </TouchableOpacity>
@@ -381,18 +380,18 @@ LibraryNavButton.propTypes = {
 };
 
 const LanguageToggleButton = () => {
-  // button for toggling b/w he and en for menu and text lang (both controlled by `defaultTextLanguage`)
-  const { theme, interfaceLanguage, defaultTextLanguage } = useContext(GlobalStateContext);
+  // button for toggling b/w he and en for menu and text lang (both controlled by `textLanguage`)
+  const { theme, interfaceLanguage, textLanguage } = useContext(GlobalStateContext);
   const dispatch = useContext(DispatchContext);
   const toggle = () => {
-    const language = defaultTextLanguage !== "hebrew" ? "hebrew" : 'english';
+    const language = textLanguage !== "hebrew" ? "hebrew" : 'english';
     dispatch({
-      type: STATE_ACTIONS.setDefaultTextLanguage,
+      type: STATE_ACTIONS.setTextLanguage,
       value: language,
     });
   };
 
-  const content = defaultTextLanguage == "hebrew" ?
+  const content = textLanguage == "hebrew" ?
       (<Text style={[styles.languageToggleTextEn, theme.languageToggleText, styles.en]}>A</Text>) :
       (<Text style={[styles.languageToggleTextHe, theme.languageToggleText, styles.he]}>א</Text>);
   const style = [styles.languageToggle, theme.languageToggle, interfaceLanguage === "hebrew" ? {opacity:0} : null];
@@ -586,8 +585,8 @@ const DisplaySettingsButton = ({ onPress }) => {
 }
 
 const ToggleSet = ({ options, active }) => {
-  const { theme, defaultTextLanguage } = useContext(GlobalStateContext);
-  const showHebrew = defaultTextLanguage == "hebrew";
+  const { theme, textLanguage } = useContext(GlobalStateContext);
+  const showHebrew = textLanguage == "hebrew";
   options = options.map((option, i) => {
     var style = [styles.navToggle, theme.navToggle].concat(active === option.name ? [styles.navToggleActive, theme.navToggleActive] : []);
     return (

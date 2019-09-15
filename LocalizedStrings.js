@@ -47,7 +47,7 @@ let strings = new LocalizedStrings({
     results: "Results", // to be combined with a number, e.g. "32 Results"
     connectToSearchMessage: "Connect to the internet to search.",
     connectToVersionsMessage: "Connect to the internet to read other versions.",
-    defaultTextLanguage: "Default Text Language",
+    textLanguage: "Text Language",
     interfaceLanguage: "App Language",
     emailFrequency: "Email Frequency",
     preferredCustom: "Preferred Custom",
@@ -205,7 +205,6 @@ let strings = new LocalizedStrings({
     connectToSearchMessage: "התחבר לאינטרנט כדי לבצע חיפוש",
     connectToVersionsMessage: "התחבר לאינטרנט כדי לקרוא עוד גרסאות",
     textLanguage: "שפת טקסט",
-    defaultTextLanguage: "Default Text Language (HE)",
     interfaceLanguage: "שפת ממשק",
     emailFrequency: "תדירות שליחת אימייל (מקסימלית)",
     preferredCustom: "מנהג מועדף (להפטרות)",

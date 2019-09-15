@@ -45,7 +45,7 @@ class SheetMeta extends React.Component {
 
 
     render() {
-        const { interfaceLanguage, defaultTextLanguage } = this.props;
+        const { interfaceLanguage, textLanguage } = this.props;
         const langStyle = interfaceLanguage === "hebrew" ? styles.heInt : styles.enInt;
         var showHebrew = false;
         const tags = this.props.sheet.tags || [];
@@ -126,7 +126,7 @@ class SheetMeta extends React.Component {
 
                     </View>
 
-                    <TwoBox language={defaultTextLanguage}>
+                    <TwoBox language={textLanguage}>
                       { sheetTags }
                     </TwoBox>
                 </ScrollView>

@@ -69,7 +69,7 @@ class DeepLinkRouter extends React.PureComponent {
         'bi': 'bilingual',
       };
       if (langMapper[lang]) {
-        this.props.setTextLanguage(langMapper[lang], null, null, true);
+        this.props.setTextLanguage(langMapper[lang], null, true);
       }
       this.props.openRef(ref, 'deep link', versions, true, enableAliyot);
     }

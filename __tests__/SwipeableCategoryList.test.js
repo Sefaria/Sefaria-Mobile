@@ -18,7 +18,7 @@ describe('SwipeableCategoryList', () => {
           themeStr={'white'}
           toggleLanguage={() => {}}
           openRef={() => {}}
-          defaultTextLanguage={'english'}
+          textLanguage={'english'}
           interfaceLang={'english'}
           onRemove={() => {}}
           title={'History'}
@@ -49,7 +49,7 @@ describe('SwipeableCategoryList', () => {
           themeStr={'white'}
           toggleLanguage={() => {}}
           openRef={() => {}}
-          defaultTextLanguage={'english'}
+          textLanguage={'english'}
           interfaceLang={'english'}
           onRemove={() => {}}
           title={'History'}

@@ -185,9 +185,9 @@ const ButtonToggleSection = ({ langStyle }) => {
     });
   };
   // not synced with web settings
-  const setDefaultTextLanguage = language => {
+  const setTextLanguage = language => {
     dispatch({
-      type: STATE_ACTIONS.setDefaultTextLanguage,
+      type: STATE_ACTIONS.setTextLanguage,
       value: language,
     })
   };
@@ -207,14 +207,14 @@ const ButtonToggleSection = ({ langStyle }) => {
   };
   const options = {
     interfaceLanguageOptions: generateOptions(['english', 'hebrew'], setInterfaceLanguage),
-    defaultTextLanguageOptions: generateOptions(['english', 'bilingual', 'hebrew'], setDefaultTextLanguage),
+    textLanguageOptions: generateOptions(['english', 'bilingual', 'hebrew'], setTextLanguage),
     emailFrequencyOptions: generateOptions(['daily', 'weekly', 'never'], setEmailFrequency),
     preferredCustomOptions: generateOptions(['sephardi', 'ashkenazi'], setPreferredCustom),
   };
   /* stateKey prop is used for testing */
   return (
     <View>
-      {['defaultTextLanguage', 'interfaceLanguage', 'emailFrequency', 'preferredCustom'].map(s => (
+      {['textLanguage', 'interfaceLanguage', 'emailFrequency', 'preferredCustom'].map(s => (
         <View style={styles.settingsSection} key={s} stateKey={s}>
           <View>
             <Text style={[langStyle, styles.settingsSectionHeader, globalState.theme.tertiaryText]}>{strings[s]}</Text>

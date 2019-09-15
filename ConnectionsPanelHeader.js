@@ -112,8 +112,8 @@ ConnectionsPanelHeader.propTypes = {
 
 const RecentFilterNav = ({ updateCat, recentFilters, filterIndex }) => (
   <GlobalStateContext.Consumer>
-    { ({ defaultTextLanguage }) => (
-      <View style={{flexDirection: defaultTextLanguage === "hebrew" ? 'row-reverse' : 'row', justifyContent: 'flex-start'}}>
+    { ({ textLanguage }) => (
+      <View style={{flexDirection: textLanguage === "hebrew" ? 'row-reverse' : 'row', justifyContent: 'flex-start'}}>
         { recentFilters.map((filter, i) =>
           <RecentFilterNavItem
             updateCat={updateCat}
@@ -134,10 +134,10 @@ RecentFilterNav.propTypes = {
 };
 
 const RecentFilterNavItem = ({ filter, updateCat, filterIndex, selected }) => {
-  const { theme, defaultTextLanguage } = useContext(GlobalStateContext);
-  const filterStr = filter.toString(defaultTextLanguage);
+  const { theme, textLanguage } = useContext(GlobalStateContext);
+  const filterStr = filter.toString(textLanguage);
   const touchStyles = [styles.connectionsPanelHeaderItem];
-  var textStyles = [styles.connectionsPanelHeaderItemText, theme.connectionsPanelHeaderItemText, defaultTextLanguage == "hebrew" ? styles.hebrewText : styles.englishText];
+  var textStyles = [styles.connectionsPanelHeaderItemText, theme.connectionsPanelHeaderItemText, textLanguage == "hebrew" ? styles.hebrewText : styles.englishText];
   if (selected) {
     textStyles.push(theme.connectionsPanelHeaderItemTextSelected);
   }

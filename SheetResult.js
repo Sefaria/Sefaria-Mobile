@@ -23,9 +23,9 @@ const SheetResult = ({
   ownerName,
   views,
 }) => {
-  const { theme, defaultTextLanguage, interfaceLanguage } = useContext(GlobalStateContext);
-  const refTitleStyle = defaultTextLanguage === "hebrew" ? styles.he : styles.en;
-  const refTitle = defaultTextLanguage === "hebrew" ? heTitle : title;
+  const { theme, textLanguage, interfaceLanguage } = useContext(GlobalStateContext);
+  const refTitleStyle = textLanguage === "hebrew" ? styles.he : styles.en;
+  const refTitle = textLanguage === "hebrew" ? heTitle : title;
   return (
 
 

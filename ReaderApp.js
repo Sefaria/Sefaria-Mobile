@@ -95,7 +95,6 @@ class ReaderApp extends React.Component {
         textReference: "",
         textTitle: "",
         loaded: false,
-        defaultSettingsLoaded: false,
         menuOpen: "navigation",
         textFlow: "segmented",
         subMenuOpen: null, // currently only used to define subpages in search
@@ -240,7 +239,6 @@ class ReaderApp extends React.Component {
         setTimeout(SplashScreen.hide, 300);
         this.setState({
           loaded: true,
-          defaultSettingsLoaded: true,
         });
         // wait to check for interrupting message until after asyncstorage is loaded
         this._interruptingMessageRef && this._interruptingMessageRef.checkForMessage();
@@ -319,10 +317,6 @@ class ReaderApp extends React.Component {
   pendingIncrement = 1;
 
   componentWillUpdate(nextProps, nextState) {
-    if (nextState.defaultSettingsLoaded && this.state.textTitle !== nextState.textTitle) {
-      this.setTextLanguage(this.getTextByLanguage(nextState.textTitle), nextState.textTitle, nextState.textFlow, true);
-    }
-
     // Should track pageview? TODO account for infinite
     if (this.state.menuOpen          !== nextState.menuOpen          ||
         this.state.textTitle         !== nextState.textTitle         ||
@@ -371,19 +365,12 @@ class ReaderApp extends React.Component {
     this.toggleReaderDisplayOptionsMenu();
   };
 
-  getTextByLanguage = title => {
-    return this.props.textLanguageByTitle[title] || this.props.defaultTextLanguage;
-  };
-
-  setTextLanguage = (textLanguage, textTitle, textFlow, dontToggle) => {
+  setTextLanguage = (textLanguage, textFlow, dontToggle) => {
     // try to be less dependent on state in this func because it is called in componentWillUpdate
-
-    textTitle = textTitle || this.state.textTitle;
     textFlow = textFlow || this.state.textFlow;
     this.props.dispatch({
-      type: STATE_ACTIONS.setTextLanguageByTitle,
-      title: textTitle,
-      language: textLanguage,
+      type: STATE_ACTIONS.setTextLanguage,
+      value: textLanguage,
     });
     this.setCurrVersions(); // update curr versions based on language
     if (textLanguage == "bilingual" && textFlow == "continuous") {
@@ -953,7 +940,7 @@ class ReaderApp extends React.Component {
         if (!!newVersions['en'] && !!newVersions['he']) { newTextLang = "bilingual"; }
         else if (!!newVersions['en']) { newTextLang = "english"; }
         else { newTextLang = "hebrew"; }
-        this.setTextLanguage(newTextLang, null, null, true);
+        this.setTextLanguage(newTextLang, null, true);
       }
 
       switch (calledFrom) {
@@ -1210,7 +1197,7 @@ class ReaderApp extends React.Component {
   };
 
   updateLinkSummary = (section, segment) => {
-    Sefaria.links.linkSummary(this.state.textReference, this.state.data[section][segment].links, this.props.defaultTextLanguage).then((data) => {
+    Sefaria.links.linkSummary(this.state.textReference, this.state.data[section][segment].links, this.props.textLanguage).then((data) => {
       this.setState({linkSummary: data, loadingLinks: false});
       this.updateLinkCat(null, data); // Set up `linkContents` in their initial state as an array of nulls
     });
@@ -1660,7 +1647,7 @@ class ReaderApp extends React.Component {
             sheetMeta={this.state.sheetMeta}
             theme={this.props.theme}
             themeStr={this.props.themeStr}
-            defaultTextLanguage={this.props.defaultTextLanguage}
+            textLanguage={this.props.textLanguage}
             interfaceLanguage={this.props.interfaceLanguage}
             close={this.manageBackMain}
             openSheetTagMenu={this.openSheetTag}
@@ -1723,7 +1710,7 @@ class ReaderApp extends React.Component {
             theme={this.props.theme}
             themeStr={this.props.themeStr}
             openRef={this.openRef}
-            defaultTextLanguage={this.props.defaultTextLanguage}
+            textLanguage={this.props.textLanguage}
             interfaceLanguage={this.props.interfaceLanguage}
             onRemove={null}
             title={strings.history}
@@ -1745,7 +1732,7 @@ class ReaderApp extends React.Component {
             theme={this.props.theme}
             themeStr={this.props.themeStr}
             openRef={this.openRef}
-            defaultTextLanguage={this.props.defaultTextLanguage}
+            textLanguage={this.props.textLanguage}
             interfaceLanguage={this.props.interfaceLanguage}
             onRemove={this.removeSavedItem}
             title={strings.saved}

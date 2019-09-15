@@ -33,7 +33,7 @@ import strings from './LocalizedStrings.js';
 
 const ReaderNavigationMenu = props => {
   // The Navigation menu for browsing and searching texts
-  const { theme, themeStr, interfaceLanguage, defaultTextLanguage } = useContext(GlobalStateContext);
+  const { theme, themeStr, interfaceLanguage, textLanguage } = useContext(GlobalStateContext);
   const [showMore, setShowMore] = useState(false);
   const isWhite = themeStr === "white";
 
@@ -88,7 +88,7 @@ const ReaderNavigationMenu = props => {
     categories = showMore ? categories : categories.slice(0,9).concat(more);
     categories = (
       <View style={styles.readerNavCategories}>
-        <TwoBox language={defaultTextLanguage}>
+        <TwoBox language={textLanguage}>
           { categories }
         </TwoBox>
       </View>
@@ -327,7 +327,7 @@ ResourcesSection.propTypes = {
 
 
 const CalendarSection = ({ openRef }) => {
-  const { defaultTextLanguage } = useContext(GlobalStateContext);
+  const { textLanguage } = useContext(GlobalStateContext);
   if (!Sefaria.calendar) { return (<LoadingView />); }
   const { parasha, dafYomi, p929, rambam, mishnah } = Sefaria.getCalendars();
   const calendar = [
@@ -376,7 +376,7 @@ const CalendarSection = ({ openRef }) => {
           ];
 
   var calendarContent = (
-    <TwoBox language={defaultTextLanguage}>
+    <TwoBox language={textLanguage}>
       { calendar }
     </TwoBox>
   );

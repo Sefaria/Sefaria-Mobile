@@ -29,7 +29,7 @@ test('settings buttons', async () => {
   let counter = 1;
   for (let y of yo) {
     const stateKey = y.parent.props.stateKey;
-    if (stateKey === 'defaultTextLanguage') { continue; }
+    if (stateKey === 'textLanguage') { continue; }
     for (let o of y.props.options) {
       if (o.name !== y.props.active) {
         expect(inst.root.children[0].props._globalState[stateKey]).toBe(DEFAULT_STATE[stateKey]);

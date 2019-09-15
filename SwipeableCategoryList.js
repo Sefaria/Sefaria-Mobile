@@ -36,7 +36,7 @@ class SwipeableCategoryList extends React.Component {
     theme:              PropTypes.object.isRequired,
     themeStr:           PropTypes.string.isRequired,
     openRef:            PropTypes.func.isRequired,
-    defaultTextLanguage:PropTypes.oneOf(["english","bilingual", "hebrew"]).isRequired,
+    textLanguage:       PropTypes.oneOf(["english","bilingual", "hebrew"]).isRequired,
     interfaceLanguage:  PropTypes.oneOf(["english","hebrew"]),
     onRemove:           PropTypes.func,
     title:              PropTypes.string.isRequired,
@@ -112,7 +112,7 @@ class SwipeableCategoryList extends React.Component {
           enText={is_sheet ? sheet_title : ref}
           heText={is_sheet ? sheet_title : he_ref}
           sheetOwner={sheet_owner}
-          language={this.props.defaultTextLanguage}
+          language={this.props.textLanguage}
           onPress={this.props.openRef.bind(null, ref, null, versions)}
         />
       </AnimatedRow>
@@ -186,7 +186,7 @@ class SwipeableCategoryList extends React.Component {
           bounceFirstRowOnMount={!Sefaria._hasSwipeDeleted}
           maxSwipeDistance={90}
           renderQuickActions={this.renderDeleteButton}
-          language={this.props.defaultTextLanguage}
+          language={this.props.textLanguage}
           refreshControl={
             <RefreshControl
               refreshing={this.state.refreshing}
