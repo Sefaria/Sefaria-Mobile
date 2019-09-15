@@ -162,7 +162,6 @@ class ReaderApp extends React.Component {
     BackHandler.addEventListener('hardwareBackPress', this.manageBack);
     AppState.addEventListener('change', this.appStateChangeListener);
     Sefaria.downloader.onChange = this.onDownloaderChange;
-    this.groggerSound = new Sound('grogger.mp3', Sound.MAIN_BUNDLE, (error) => {});
   }
 
   logout = async () => {
@@ -216,6 +215,9 @@ class ReaderApp extends React.Component {
     });
     RNShake.addEventListener('ShakeEvent', () => {
       if (Sefaria.isGettinToBePurimTime()) {
+        if (!this.groggerSound) {
+          this.groggerSound = new Sound('grogger.mp3', Sound.MAIN_BUNDLE, (error) => {});
+        }
         this.groggerSound.play();
       }
     });
