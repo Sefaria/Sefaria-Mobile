@@ -107,7 +107,7 @@ const ReaderControls = ({
                 willBeSaved ? 'add_saved' : 'delete_saved'
               );
               const { is_sheet, sheet_title, ref, he_ref } = newHistoryItem;
-              const title = is_sheet ? sheet_title : (textLanguage === "hebrew" ? he_ref : ref);
+              const title = is_sheet ? Sefaria.util.stripHtml(sheet_title || '') : (textLanguage === "hebrew" ? he_ref : ref);
               showToast(`${willBeSaved ? strings.saved2 : strings.removed} ${title}`);
               forceUpdate();
             }
