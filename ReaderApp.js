@@ -1087,7 +1087,11 @@ class ReaderApp extends React.Component {
       return;
     }
     this.loadTextTocData(title);
-    this.setState({textTitle: title}, () => {  // openTextToc assumes that title is set correctly
+    this.setState({
+      textTitle: title,
+      textReference: '',
+      heRef: '',
+    }, () => {  // openTextToc assumes that title is set correctly
       this.openTextToc();
     });
   };
