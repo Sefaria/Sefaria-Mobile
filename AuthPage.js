@@ -149,7 +149,7 @@ const AuthPage = ({ authMode, close, showToast, openLogin, openRegister, openUri
         <SystemButton
           isLoading={isLoading}
           onPress={onSubmit}
-          text={isLogin ? strings.sign_in : strings.sign_up}
+          text={isLogin ? strings.log_in : strings.sign_up}
           isHeb={isHeb}
           isBlue
         />
@@ -172,7 +172,7 @@ const AuthPage = ({ authMode, close, showToast, openLogin, openRegister, openUri
               <View style={{flexDirection: 'row', alignItems: 'center'}}>
                 <Text style={[theme.secondaryText, isHeb ? styles.heInt : styles.enInt]}>{strings.alreadyHaveAnAccount}</Text>
                 <TouchableOpacity onPress={openLogin}>
-                  <Text style={[theme.text, isHeb ? styles.heInt : styles.enInt]}>{` ${strings.sign_in}.`}</Text>
+                  <Text style={[theme.text, isHeb ? styles.heInt : styles.enInt]}>{` ${strings.log_in}.`}</Text>
                 </TouchableOpacity>
               </View>
 
