@@ -186,7 +186,7 @@ const AuthSection = ({ openLogin, openRegister, logout, }) => {
       />
       <SystemButton
         onPress={openLogin}
-        text={strings.sign_in}
+        text={strings.log_in}
       />
     </View>
   );
