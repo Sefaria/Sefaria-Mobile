@@ -45,13 +45,6 @@ const SystemButton = ({ onPress, text, img, isHeb, isBlue, isLoading, extraStyle
             >
               { text }
             </Text>
-            { !!img ?
-              <Image
-                source={img}
-                style={[(isHeb ? styles.menuButtonMarginedHe : styles.menuButtonMargined), { opacity: 0 }]}
-                resizeMode={'contain'}
-              /> : null
-            }
           </View>)
         }
       </TouchableOpacity>
