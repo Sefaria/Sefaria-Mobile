@@ -13,6 +13,7 @@ const History = {
     const recentStr = await AsyncStorage.getItem("recent");
     const savedStr = await AsyncStorage.getItem("saved");
     if (!!recentStr || !!savedStr) {
+      const sefariaEpoch = Math.floor((new Date(2017, 11, 1)).getTime()/1000);  // Dec 1, 2017 approx date of launch of old recent items
       const recent = JSON.parse(recentStr) || [];
       const saved = JSON.parse(savedStr) || [];
       const history = recent.map(r => ({
@@ -20,6 +21,7 @@ const History = {
         he_ref: Sefaria.toHeSegmentRef(r.heRef, r.ref),
         versions: r.versions || {},
         book: Sefaria.textTitleForRef(r.ref),
+        time_stamp: sefariaEpoch,
       }));
       const savedHistory = saved.map(r => ({
         action: 'add_saved',
@@ -27,14 +29,14 @@ const History = {
         he_ref: Sefaria.toHeSegmentRef(r.heRef, r.ref),
         versions: {},  // saved didn't keep track of version
         book: Sefaria.textTitleForRef(r.ref),
+        time_stamp: sefariaEpoch,
       }));
       const historyStr = JSON.stringify(savedHistory.concat(history));
-      // 2017 12 1
       return Promise.all([
         AsyncStorage.removeItem("recent"),
         AsyncStorage.removeItem("saved"),
         AsyncStorage.setItem("lastSyncItems", historyStr),
-        AsyncStorage.setItem("lastSyncTime", '' + Math.floor((new Date(2017, 11, 1)).getTime()/1000)),  // Dec 1, 2017 approx date of launch of old recent items
+        AsyncStorage.setItem("lastSyncTime", '' + sefariaEpoch),
         AsyncStorage.setItem("lastPlace", JSON.stringify(Sefaria.history.historyToLastPlace(history))),
       ]);
     }

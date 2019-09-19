@@ -24,27 +24,31 @@ describe('history', () => {
         category: "Tanakh"
       }
     ]);
+    const sefariaEpoch = Math.floor((new Date(2017, 11, 1)).getTime()/1000);
     const historyItems = JSON.stringify([
       {
         ref: "Genesis 1:1",
         he_ref: "בראשית א:א׳",
         versions: { en: "enVersion", he: "heVersion" },
-        book: "Genesis"
+        book: "Genesis",
+        time_stamp: sefariaEpoch,
       },
       {
         ref: "Genesis 1:2",
         he_ref: "בראשית א:ב׳",
         versions: {},
-        book: "Genesis"
+        book: "Genesis",
+        time_stamp: sefariaEpoch,
       },
       {
         ref: "Genesis 1",
         he_ref: "בראשית א",
         versions: {},
-        book: "Genesis"
+        book: "Genesis",
+        time_stamp: sefariaEpoch,
       }
     ]);
-    const lastSyncTime = '' + Math.floor((new Date(2017, 11, 1)).getTime()/1000);
+    const lastSyncTime = '' + sefariaEpoch;
     const lastPlace = JSON.stringify(Sefaria.history.historyToLastPlace(JSON.parse(historyItems)));
     Sefaria.textTitleForRef = jest.fn(() => "Genesis");
     AsyncStorage.setItem('recent', recentItems);
