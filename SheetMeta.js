@@ -45,7 +45,7 @@ class SheetMeta extends React.Component {
 
 
     render() {
-        const { interfaceLanguage, textLanguage } = this.props;
+        const { interfaceLanguage, textLanguage, theme } = this.props;
         const langStyle = interfaceLanguage === "hebrew" ? styles.heInt : styles.enInt;
         var showHebrew = false;
         const tags = this.props.sheet.tags || [];

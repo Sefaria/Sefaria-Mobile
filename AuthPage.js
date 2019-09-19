@@ -156,7 +156,7 @@ const AuthPage = ({ authMode, close, showToast, openLogin, openRegister, openUri
         {
           isLogin ?
             <View style={{ alignItems: 'center', marginTop: 15 }}>
-              <View style={{flexDirection: 'row', alignItems: 'center'}}>
+              <View style={{direction: isHeb ? 'rtl' : 'ltr', flexDirection: 'row', alignItems: 'center'}}>
                 <Text style={[theme.secondaryText, isHeb ? styles.heInt : styles.enInt]}>{strings.dontHaveAnAccount}</Text>
                 <TouchableOpacity onPress={openRegister}>
                   <Text style={[theme.text, isHeb ? styles.heInt : styles.enInt]}>{` ${strings.createAnAccount}`}</Text>
