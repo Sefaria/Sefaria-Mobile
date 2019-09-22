@@ -37,10 +37,11 @@ const getSections = (categories, contents, recurseLevel=0) => {
     specialCaseCats = specialCaseCats.concat(contents.map(item=>item.category ? item.category : item.title));
   }
   for (let i = 0; i < contents.length; i++) {
-    const item = contents[i];
-    const isCat = !!item.category;
-    const newCats = isCat ? cats.concat(item.category) : undefined;
+    let item = contents[i];
+    let isCat = !!item.category;
+    let newCats = isCat ? cats.concat(item.category) : undefined;
     if (isCat && recurseLevel === 0 && Sefaria.util.inArray(item.category, specialCaseCats) === -1) {
+      // pretty sure this if doesn't do anything...
       if (item.category == "Commentary") {
         specialCaseCats.push(item)
       }
@@ -53,6 +54,12 @@ const getSections = (categories, contents, recurseLevel=0) => {
       });
     } else {
       // add book
+      if (isCat && item.contents.length === 1 && !item.contents[0].category) {
+        // has one book in category. short-circuit to skip useless category
+        item = item.contents[0];
+        isCat = false;
+        newCats = undefined;
+      }
       let oref;
       if (!isCat) {
         oref = Sefaria.history.getHistoryRefForTitle(item.title);
