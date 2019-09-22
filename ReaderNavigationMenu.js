@@ -127,6 +127,7 @@ const ReaderNavigationMenu = props => {
 
               <CalendarSection
                 openRef={props.openRef}
+                _completedInit={props._completedInit}
               />
 
               <MoreSection
@@ -150,6 +151,7 @@ const ReaderNavigationMenu = props => {
   }
 }
 ReaderNavigationMenu.propTypes = {
+  _completedInit: PropTypes.bool.isRequired,
   categories:     PropTypes.array.isRequired,
   setCategories:  PropTypes.func.isRequired,
   openRef:        PropTypes.func.isRequired,
@@ -326,9 +328,9 @@ ResourcesSection.propTypes = {
 
 
 
-const CalendarSection = ({ openRef }) => {
+const CalendarSection = ({ openRef, _completedInit }) => {
   const { textLanguage } = useContext(GlobalStateContext);
-  if (!Sefaria.calendar) { return (<LoadingView />); }
+  if (!_completedInit) { return (<LoadingView />); }
   const { parasha, dafYomi, p929, rambam, mishnah } = Sefaria.getCalendars();
   const calendar = [
           !!parasha ? <CategoryBlockLink
@@ -392,6 +394,7 @@ const CalendarSection = ({ openRef }) => {
 }
 CalendarSection.propTypes = {
   openRef: PropTypes.func.isRequired,
+  _completedInit: PropTypes.bool.isRequired,
 };
 
 const SavedHistorySection = ({ isWhite, isHeb, openHistory, openSaved }) => (

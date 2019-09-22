@@ -619,10 +619,9 @@ Sefaria = {
     return attribution;
   },
   calendar: null,
-  _loadCalendar: function() {
-    return Sefaria.util.openFileInSources("calendar.json").then(data => {
-      Sefaria.calendar = data;
-    });
+  _loadCalendar: async function() {
+    const data = await Sefaria.util.openFileInSources("calendar.json");
+    Sefaria.calendar = data;
   },
   galusOrIsrael: null,
   getGalusStatus: function() {

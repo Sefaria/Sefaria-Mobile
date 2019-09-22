@@ -79,7 +79,6 @@ class ReaderApp extends React.Component {
   constructor(props, context) {
     super(props, context);
     this._initDeepLinkURL = null;  // if you init the app thru a deep link, need to make sure the URL is applied during componentDidMount()
-    this._completedInit = false;
     if (Platform.OS === 'android') {
       UIManager.setLayoutAnimationEnabledExperimental && UIManager.setLayoutAnimationEnabledExperimental(true);
       if (strings.getInterfaceLanguage() === 'iw-IL') {
@@ -88,6 +87,7 @@ class ReaderApp extends React.Component {
       }
     }
     this.state = {
+        _completedInit: false,
         offsetRef: null, /* used to jump to specific ref when opening a link*/
         segmentRef: "",
         segmentIndexRef: -1,
@@ -249,7 +249,7 @@ class ReaderApp extends React.Component {
           this.openRef(mostRecent.ref, null, mostRecent.versions, false)  // first call to openRef should not add to backStack
           .then(Sefaria.postInitSearch)
           .then(Sefaria.postInit)
-          .then(() => { this._completedInit = true; })
+          .then(() => { this.setState({_completedInit: true}); })
           .then(Sefaria.downloader.promptLibraryDownload);
         } else {
           // apply deep link here to make sure it applies correctly
@@ -259,7 +259,7 @@ class ReaderApp extends React.Component {
             this._deepLinkRouterRef.route(this._initDeepLinkURL);
           })
           .then(Sefaria.postInit)
-          .then(() => { this._completedInit = true; })
+          .then(() => { this.setState({_completedInit: true}); })
           .then(Sefaria.downloader.promptLibraryDownload);
         }
     });
@@ -300,7 +300,7 @@ class ReaderApp extends React.Component {
 
   handleOpenURL = ({ url } = {}) => {
     if (url) {
-      if (this._completedInit) {
+      if (this.state._completedInit) {
         this._deepLinkRouterRef.route(url);
       } else {
         // save URL. it will be applied when componentDidMount finishes
@@ -1385,7 +1385,7 @@ class ReaderApp extends React.Component {
       LayoutAnimation.configureNext(CustomLayoutLinear, isIOS ? this.onTextListAnimateFinish : undefined);
       this.setState({ textListFlex: toValue });
       if (!isIOS) {
-        setTimeout(this.onTextListAnimateFinish, 10);
+        setTimeout(this.onTextListAnimateFinish, duration + 100);
       }
     })
   };
@@ -1616,6 +1616,7 @@ class ReaderApp extends React.Component {
           <LoadingView /> :
           (<View style={{flex:1, flexDirection: 'row'}}>
             <ReaderNavigationMenu
+              _completedInit={this.state._completedInit}
               searchQuery={this.state.searchQuery}
               categories={this.state.navigationCategories}
               setCategories={this.setNavigationCategories}
@@ -1909,6 +1910,11 @@ class ReaderApp extends React.Component {
 
           {this.state.textListVisible ?
             <ConnectionsPanel
+              theme={this.props.theme}
+              themeStr={this.props.themeStr}
+              interfaceLanguage={this.props.interfaceLanguage}
+              fontSize={this.props.fontSize}
+              textLanguage={this.props.textLanguage}
               sheet={this.state.sheet}
               sheetMeta={this.state.sheetMeta}
               textListFlex={this.state.textListFlex}
