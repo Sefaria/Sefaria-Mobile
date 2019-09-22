@@ -3,6 +3,8 @@
 
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="android:textColor">#000000</item>
         <item name="android:colorEdgeEffect">@color/sefaria_blue</item>
         <item name="android:colorAccent">@color/sefaria_blue</item> <!-- for fun -->
         <item name="android:colorPrimary">@color/sefaria_blue</item> <!-- affects color of header in app switcher -->
