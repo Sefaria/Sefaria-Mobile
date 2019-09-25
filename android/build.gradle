@@ -6,7 +6,7 @@ buildscript {
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:3.4.2'
-        classpath 'com.google.gms:google-services:4.2.0'
+        classpath 'com.google.gms:google-services:4.3.2'
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
     }
@@ -28,6 +28,10 @@ allprojects {
             // All of React Native (JS, Obj-C sources, Android binaries) is installed from npm
             url "$rootDir/../node_modules/react-native/android"
         }
+        maven {
+            // Android JSC is installed from npm
+            url "$rootDir/../node_modules/jsc-android/dist"
+        }
     }
 }
 subprojects {
@@ -35,7 +39,7 @@ subprojects {
         if (project.hasProperty("android")) {
             android {
                 compileSdkVersion 28
-                buildToolsVersion "28.0.0"
+                buildToolsVersion "28.0.3"
             }
         }
     }
@@ -49,7 +53,7 @@ ext {
     minSdkVersion = 16
     compileSdkVersion = 28
     targetSdkVersion = 28
-    supportLibVersion = "28.0.0"
+    supportLibVersion = "28.0.3"
 }
 dependencies {
 }

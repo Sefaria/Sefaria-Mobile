@@ -19,11 +19,9 @@ import {
 import NetInfo from "@react-native-community/netinfo";
 import AsyncStorage from '@react-native-community/async-storage';
 import { connect } from 'react-redux';
-import { createResponder } from 'react-native-gesture-responder';
+//import --- from 'react-native-gesture-handler';
 import BackgroundFetch from "react-native-background-fetch";
-import SafariView from "react-native-safari-view";
-import { CustomTabs } from 'react-native-custom-tabs';
-import { AppInstalledChecker } from 'react-native-check-app-install';
+import { InAppBrowser } from "@matt-block/react-native-in-app-browser";
 import SplashScreen from 'react-native-splash-screen';
 import nextFrame from 'next-frame';
 import RNShake from 'react-native-shake';
@@ -187,32 +185,32 @@ class ReaderApp extends React.Component {
   };
 
   componentWillMount() {
-    this.gestureResponder = createResponder({
-      onStartShouldSetResponder: (evt, gestureState) => { return gestureState.pinch; },
-      onStartShouldSetResponderCapture: (evt, gestureState) => { return gestureState.pinch; },
-      onMoveShouldSetResponder: (evt, gestureState) => { return gestureState.pinch; },
-      onMoveShouldSetResponderCapture: (evt, gestureState) => { return gestureState.pinch; },
-
-      onResponderGrant: (evt, gestureState) => {},
-      onResponderMove: (evt, gestureState) => {
-        if (gestureState.pinch && gestureState.previousPinch) {
-          this.pendingIncrement *= gestureState.pinch / gestureState.previousPinch
-          if (!this.incrementTimer) {
-            const numSegments = this.state.data.reduce((prevVal, elem) => prevVal + elem.length, 0);
-            const timeout = Math.min(50 + Math.floor(numSegments/50)*25, 200); // range of timeout is [50,200] or in FPS [20,5]
-            this.incrementTimer = setTimeout(() => {
-              this.incrementFont(this.pendingIncrement);
-              this.pendingIncrement = 1;
-              this.incrementTimer = null;
-            }, timeout);
-          }
-        }
-      },
-      onResponderTerminationRequest: (evt, gestureState) => true,
-      onResponderRelease: (evt, gestureState) => {},
-      onResponderTerminate: (evt, gestureState) => {},
-      onResponderSingleTapConfirmed: (evt, gestureState) => {},
-    });
+    // this.gestureResponder = createResponder({
+    //   onStartShouldSetResponder: (evt, gestureState) => { return gestureState.pinch; },
+    //   onStartShouldSetResponderCapture: (evt, gestureState) => { return gestureState.pinch; },
+    //   onMoveShouldSetResponder: (evt, gestureState) => { return gestureState.pinch; },
+    //   onMoveShouldSetResponderCapture: (evt, gestureState) => { return gestureState.pinch; },
+    //
+    //   onResponderGrant: (evt, gestureState) => {},
+    //   onResponderMove: (evt, gestureState) => {
+    //     if (gestureState.pinch && gestureState.previousPinch) {
+    //       this.pendingIncrement *= gestureState.pinch / gestureState.previousPinch
+    //       if (!this.incrementTimer) {
+    //         const numSegments = this.state.data.reduce((prevVal, elem) => prevVal + elem.length, 0);
+    //         const timeout = Math.min(50 + Math.floor(numSegments/50)*25, 200); // range of timeout is [50,200] or in FPS [20,5]
+    //         this.incrementTimer = setTimeout(() => {
+    //           this.incrementFont(this.pendingIncrement);
+    //           this.pendingIncrement = 1;
+    //           this.incrementTimer = null;
+    //         }, timeout);
+    //       }
+    //     }
+    //   },
+    //   onResponderTerminationRequest: (evt, gestureState) => true,
+    //   onResponderRelease: (evt, gestureState) => {},
+    //   onResponderTerminate: (evt, gestureState) => {},
+    //   onResponderSingleTapConfirmed: (evt, gestureState) => {},
+    // });
     RNShake.addEventListener('ShakeEvent', () => {
       if (Sefaria.isGettinToBePurimTime()) {
         if (!this.groggerSound) {
@@ -1023,30 +1021,17 @@ class ReaderApp extends React.Component {
 
   openUri = uri => {
     uri = encodeURI(uri);
-    if (Platform.OS == "ios") {
-      SafariView.isAvailable()
-      .then(SafariView.show({
-        url: uri,
-      }))
-      .catch(error => this.openInDefaultBrowser(uri));
-    } else if (Platform.OS == "android") {
-      AppInstalledChecker.isAppInstalled('chrome')
-      .then(installed => {
-        if (installed) {
-          CustomTabs.openURL(uri, {
-            toolbarColor: Sefaria.palette.system,
-            enableUrlBarHiding: true,
-            showPageTitle: true,
-            enableDefaultShare: true,
-          })
-          .catch (error => this.openInDefaultBrowser(uri));
-        } else {
-          this.openInDefaultBrowser(uri);
-        }
-      });
-    } else {
-      this.openInDefaultBrowser(uri);
-    }
+    InAppBrowser.open(uri, {
+      android: {
+        toolbarColor: Sefaria.palette.system,
+        showTitle: true,
+        addDefaultShareMenu: true,
+      },
+      ios: {
+        preferredBarTintColor: Sefaria.palette.system,
+        preferredControlTintColor: 'white',
+      }
+    }).catch(error => { this.openInDefaultBrowser(uri); })
   };
 
   openInDefaultBrowser = uri => {

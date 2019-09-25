@@ -4,23 +4,12 @@ import android.app.Application;
 
 import com.facebook.react.ReactApplication;
 import com.actionsheet.ActionSheetPackage;
-import com.transistorsoft.rnbackgroundfetch.RNBackgroundFetchPackage;
 import com.reactnativecommunity.webview.RNCWebViewPackage;
-import io.invertase.firebase.RNFirebasePackage;
 import io.invertase.firebase.analytics.RNFirebaseAnalyticsPackage;
 import io.invertase.firebase.config.RNFirebaseRemoteConfigPackage;
-import com.reactnativecommunity.asyncstorage.AsyncStoragePackage;
-import com.reactnativecommunity.netinfo.NetInfoPackage;
-import com.rnziparchive.RNZipArchivePackage;
-import com.apsl.versionnumber.RNVersionNumberPackage;
-import org.devio.rn.splashscreen.SplashScreenReactPackage;
-import com.zmxv.RNSound.RNSoundPackage;
-import com.clipsub.RNShake.RNShakeEventPackage;
-import com.rnfs.RNFSPackage;
 import com.babisoft.ReactNativeLocalization.ReactNativeLocalizationPackage;
 import com.github.droibit.android.reactnative.customtabs.CustomTabsPackage;
 import com.rpt.reactnativecheckpackageinstallation.CheckPackageInstallationPackage;
-import com.RNFetchBlob.RNFetchBlobPackage;
 import com.facebook.react.ReactNativeHost;
 import com.facebook.react.ReactPackage;
 import com.facebook.react.shell.MainReactPackage;
@@ -44,23 +33,12 @@ public class MainApplication extends Application implements ReactApplication {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
             new ActionSheetPackage(),
-            new RNBackgroundFetchPackage(),
             new RNCWebViewPackage(),
-            new RNFirebasePackage(),
             new RNFirebaseAnalyticsPackage(),
             new RNFirebaseRemoteConfigPackage(),
-            new AsyncStoragePackage(),
-            new NetInfoPackage(),
-            new RNZipArchivePackage(),
-            new RNVersionNumberPackage(),
-            new SplashScreenReactPackage(),
-            new RNSoundPackage(),
-            new RNShakeEventPackage(),
-            new RNFSPackage(),
             new CustomTabsPackage(),
             new CheckPackageInstallationPackage(),
-            new ReactNativeLocalizationPackage(),
-            new RNFetchBlobPackage()
+            new ReactNativeLocalizationPackage()
       );
     }
 

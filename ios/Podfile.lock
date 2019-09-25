@@ -54,6 +54,11 @@ PODS:
   - Folly (2018.10.22.00):
     - boost-for-react-native
     - DoubleConversion
+    - Folly/Default (= 2018.10.22.00)
+    - glog
+  - Folly/Default (2018.10.22.00):
+    - boost-for-react-native
+    - DoubleConversion
     - glog
   - glog (0.3.5)
   - GoogleAppMeasurement (6.1.1):
@@ -136,17 +141,15 @@ PODS:
     - React-cxxreact (= 0.60.0)
     - React-jsi (= 0.60.0)
   - React-jsinspector (0.60.0)
-  - react-native-netinfo (1.4.1):
+  - react-native-in-app-browser (3.1.1):
     - React
-  - react-native-safari-view (1.0.0):
+  - react-native-netinfo (4.2.2):
     - React
   - react-native-shake (3.3.1):
     - React
   - react-native-splash-screen (3.2.0):
     - React
   - react-native-version-number (0.3.6):
-    - React
-  - react-native-webview (5.12.1):
     - React
   - React-RCTActionSheet (0.60.0):
     - React-Core (= 0.60.0)
@@ -172,38 +175,40 @@ PODS:
   - React-RCTWebSocket (0.60.0):
     - React-Core (= 0.60.0)
     - React-fishhook (= 0.60.0)
-  - ReactNativeLocalization (2.1.4):
+  - ReactNativeLocalization (2.1.6):
     - React
   - rn-fetch-blob (0.10.16):
     - React-Core
-  - RNBackgroundFetch (2.6.1):
+  - RNBackgroundFetch (2.7.0):
     - React
-  - RNCAsyncStorage (1.5.1):
+  - RNCAsyncStorage (1.6.1):
     - React
-  - RNFirebase (5.5.5):
+  - RNFirebase (5.5.6):
     - Firebase/Core
     - React
-    - RNFirebase/Crashlytics (= 5.5.5)
-  - RNFirebase/Crashlytics (5.5.5):
+    - RNFirebase/Crashlytics (= 5.5.6)
+  - RNFirebase/Crashlytics (5.5.6):
     - Crashlytics
     - Fabric
     - Firebase/Core
     - React
-  - RNFS (2.13.3):
+  - RNFS (2.14.1):
+    - React
+  - RNGestureHandler (1.4.1):
     - React
   - RNSound (0.11.0):
     - React
     - RNSound/Core (= 0.11.0)
   - RNSound/Core (0.11.0):
     - React
-  - RNZipArchive (2.2.6):
+  - RNZipArchive (5.0.0):
     - React
-    - RNZipArchive/Core (= 2.2.6)
-    - RNZipArchive/RNZASSZipArchive (= 2.2.6)
-  - RNZipArchive/Core (2.2.6):
+    - RNZipArchive/Core (= 5.0.0)
+    - SSZipArchive (= 2.2.2)
+  - RNZipArchive/Core (5.0.0):
     - React
-  - RNZipArchive/RNZASSZipArchive (2.2.6):
-    - React
+    - SSZipArchive (= 2.2.2)
+  - SSZipArchive (2.2.2)
   - yoga (0.60.0.React)
 
 DEPENDENCIES:
@@ -220,12 +225,11 @@ DEPENDENCIES:
   - React-jsi (from `../node_modules/react-native/ReactCommon/jsi`)
   - React-jsiexecutor (from `../node_modules/react-native/ReactCommon/jsiexecutor`)
   - React-jsinspector (from `../node_modules/react-native/ReactCommon/jsinspector`)
+  - "react-native-in-app-browser (from `../node_modules/@matt-block/react-native-in-app-browser/ios`)"
   - "react-native-netinfo (from `../node_modules/@react-native-community/netinfo`)"
-  - react-native-safari-view (from `../node_modules/react-native-safari-view`)
   - react-native-shake (from `../node_modules/react-native-shake`)
   - react-native-splash-screen (from `../node_modules/react-native-splash-screen`)
   - react-native-version-number (from `../node_modules/react-native-version-number`)
-  - react-native-webview (from `../node_modules/react-native-webview`)
   - React-RCTActionSheet (from `../node_modules/react-native/Libraries/ActionSheetIOS`)
   - React-RCTAnimation (from `../node_modules/react-native/Libraries/NativeAnimation`)
   - React-RCTBlob (from `../node_modules/react-native/Libraries/Blob`)
@@ -242,6 +246,7 @@ DEPENDENCIES:
   - "RNCAsyncStorage (from `../node_modules/@react-native-community/async-storage`)"
   - RNFirebase (from `../node_modules/react-native-firebase/ios`)
   - RNFS (from `../node_modules/react-native-fs`)
+  - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
   - RNSound (from `../node_modules/react-native-sound`)
   - RNZipArchive (from `../node_modules/react-native-zip-archive`)
   - yoga (from `../node_modules/react-native/ReactCommon/yoga`)
@@ -266,6 +271,7 @@ SPEC REPOS:
     - GoogleUtilities
     - nanopb
     - Protobuf
+    - SSZipArchive
 
 EXTERNAL SOURCES:
   DoubleConversion:
@@ -290,18 +296,16 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/jsiexecutor"
   React-jsinspector:
     :path: "../node_modules/react-native/ReactCommon/jsinspector"
+  react-native-in-app-browser:
+    :path: "../node_modules/@matt-block/react-native-in-app-browser/ios"
   react-native-netinfo:
     :path: "../node_modules/@react-native-community/netinfo"
-  react-native-safari-view:
-    :path: "../node_modules/react-native-safari-view"
   react-native-shake:
     :path: "../node_modules/react-native-shake"
   react-native-splash-screen:
     :path: "../node_modules/react-native-splash-screen"
   react-native-version-number:
     :path: "../node_modules/react-native-version-number"
-  react-native-webview:
-    :path: "../node_modules/react-native-webview"
   React-RCTActionSheet:
     :path: "../node_modules/react-native/Libraries/ActionSheetIOS"
   React-RCTAnimation:
@@ -334,6 +338,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-firebase/ios"
   RNFS:
     :path: "../node_modules/react-native-fs"
+  RNGestureHandler:
+    :path: "../node_modules/react-native-gesture-handler"
   RNSound:
     :path: "../node_modules/react-native-sound"
   RNZipArchive:
@@ -344,7 +350,7 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   boost-for-react-native: 39c7adb57c4e60d6c5479dd8623128eb5b3f0f2c
   Crashlytics: 2dfd686bcb918dc10ee0e76f7f853fe42c7bd552
-  DoubleConversion: bb338842f62ab1d708ceb63ec3d999f0f3d98ecd
+  DoubleConversion: 5805e889d232975c086db112ece9ed034df7a0b2
   Fabric: 706c8b8098fff96c33c0db69cbf81f9c551d0d74
   Firebase: 291d7b0a7b393f252358083b5d224884126fa46d
   FirebaseABTesting: a0622113a60c4dce068765e16a77e20c3331c44a
@@ -355,8 +361,8 @@ SPEC CHECKSUMS:
   FirebaseCoreDiagnosticsInterop: 6829da2b8d1fc795ff1bd99df751d3788035d2cb
   FirebaseInstanceID: 8b42755db950682e7de0d167bc6fb26a57b244af
   FirebaseRemoteConfig: 938b338e9e56f73b4e3880213cc01287b8582468
-  Folly: de497beb10f102453a1afa9edbf8cf8a251890de
-  glog: aefd1eb5dda2ab95ba0938556f34b98e2da3a60d
+  Folly: 30e7936e1c45c08d884aa59369ed951a8e68cf51
+  glog: 1f3da668190260b06b429bb211bfbee5cd790c28
   GoogleAppMeasurement: 86a82f0e1f20b8eedf8e20326530138fd71409de
   GoogleDataTransport: 91e682bd60a49d3f8f69f2e909a66efaed5a1e7a
   GoogleDataTransportCCTSupport: 6b545f7149111180763dc18c6f372c963de4a310
@@ -371,12 +377,11 @@ SPEC CHECKSUMS:
   React-jsi: 8e128c4d0d8febc2977ef617d1c09bb54326069c
   React-jsiexecutor: 7a3554f703a58963ec80b860144ea0f0e9b910e1
   React-jsinspector: d4ed52225912efe0019bb7f1a225aec20f23049a
-  react-native-netinfo: 45a7a76415a38c8c227c961e835cd1fff31f7c4d
-  react-native-safari-view: 955d7160d159241b8e9395d12d10ea0ef863dcdd
+  react-native-in-app-browser: 609052fc76b53bd21526d129396e095311d24426
+  react-native-netinfo: 0edde14215abf6352ea5c8f9440e777e12ad6a0f
   react-native-shake: 1dfc728d7208be26032c0c2d745e994facbf6a70
   react-native-splash-screen: 200d11d188e2e78cea3ad319964f6142b6384865
   react-native-version-number: 15563dc4145a94aabfc1faab2a9af10174a4204e
-  react-native-webview: 21c396687cb983fadc6ccc0751cc74f554131f3f
   React-RCTActionSheet: b27ff3cf3a68f917c46d2b94abf938b625b96570
   React-RCTAnimation: 9e4708e5bd65fca8285ce7c0aa076f3f4fa5c2f8
   React-RCTBlob: 6eafcc3a24f33785692a7be24918ade607bc8719
@@ -387,16 +392,18 @@ SPEC CHECKSUMS:
   React-RCTText: 685fca2e13b024271048e7e247ef24476f28a41e
   React-RCTVibration: 4ee1cf208ab17a50fafb1c16ffe28fe594a64e4f
   React-RCTWebSocket: fca087d583724aa0e5fef7d911f0f2a28d0f2736
-  ReactNativeLocalization: 1aceead90112c1944e52fb2acec7c09aced25d6f
+  ReactNativeLocalization: 9abfb1717d6c6f2e3a4e444c4402d52acbf784cc
   rn-fetch-blob: 651b8d076b43d0d7aa294a3d9ec16c00aab8bef9
-  RNBackgroundFetch: b7a6da09d9e557d02b6f71891fe9cdba70ea0b51
-  RNCAsyncStorage: 2808c378f6a70f22f66eeb6c11a8d69f326dd795
-  RNFirebase: b627e5991bb10bf34cea84806819f98f95f39f8b
-  RNFS: c9bbde46b0d59619f8e7b735991c60e0f73d22c1
+  RNBackgroundFetch: ca9c8740e944913474262b63022d95a2be5e003a
+  RNCAsyncStorage: 621bad7a889b5bf1583a52547f2dcd3a4d1ff15e
+  RNFirebase: ac0de8b24c6f91ae9459575491ed6a77327619c6
+  RNFS: a8fbe7060fa49157d819466404794ad9c58e58cf
+  RNGestureHandler: 4cb47a93019c1a201df2644413a0a1569a51c8aa
   RNSound: c980916b596cc15c8dcd2f6ecd3b13c4881dbe20
-  RNZipArchive: cf189e1d064dc8c0daebd90857de747212ee6d65
+  RNZipArchive: 5ec612981549e645d2dc11a6b79ca3806299b479
+  SSZipArchive: fa16b8cc4cdeceb698e5e5d9f67e9558532fbf23
   yoga: 616fde658be980aa60a2158835170f3f9c2d04b4
 
-PODFILE CHECKSUM: b28906176cfde26964d447fe2db0da324751f260
+PODFILE CHECKSUM: 21a72a80fc9462f22404b53c3f47d727b1ba98f0
 
 COCOAPODS: 1.7.4

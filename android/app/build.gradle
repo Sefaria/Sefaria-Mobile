@@ -145,35 +145,24 @@ android {
 }
 
 dependencies {
-    implementation project(':react-native-background-fetch')
     implementation project(':react-native-webview')
-    implementation project(':react-native-firebase')
-    implementation project(':@react-native-community_async-storage')
-    implementation project(':@react-native-community_netinfo')
     implementation project(':react-native-action-sheet')
-    implementation project(':rn-fetch-blob')
-    implementation project(':react-native-zip-archive')
-    implementation project(':react-native-version-number')
-    implementation project(':react-native-splash-screen')
-    implementation project(':react-native-sound')
-    implementation project(':react-native-shake')
     implementation project(':react-native-localization')
-    implementation project(':react-native-fs')
     implementation project(':react-native-custom-tabs')
     implementation project(':react-native-check-app-install')
     implementation 'com.google.firebase:firebase-core:16.0.9'
     implementation "com.google.firebase:firebase-config:17.0.0"
-    compile project(':react-native-sound')
-    compile project(':react-native-shake')
-    compile project(':react-native-fs')
-    compile project(':react-native-splash-screen')
-    compile project(':react-native-check-app-install')
-    compile project(':react-native-custom-tabs')
-    compile project(':react-native-zip-archive')
-    compile project(':react-native-version-number')
-    compile project(':react-native-localization')
+    implementation project(':react-native-sound')
+    implementation project(':react-native-shake')
+    implementation project(':react-native-fs')
+    implementation project(':react-native-splash-screen')
+    implementation project(':react-native-check-app-install')
+    implementation project(':react-native-custom-tabs')
+    implementation project(':react-native-zip-archive')
+    implementation project(':react-native-version-number')
+    implementation project(':react-native-localization')
     implementation fileTree(dir: "libs", include: ["*.jar"])
-    implementation "com.android.support:appcompat-v7:${rootProject.ext.supportLibVersion}"
+    implementation 'androidx.appcompat:appcompat:1.1.0'
     implementation "com.facebook.react:react-native:+"  // From node_modules
 }
 
