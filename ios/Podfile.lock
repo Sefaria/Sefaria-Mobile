@@ -190,8 +190,6 @@ PODS:
     - Fabric
     - Firebase/Core
     - React
-  - RNFS (2.14.1):
-    - React
   - RNGestureHandler (1.4.1):
     - React
   - RNSoundPlayer (0.10.1):
@@ -239,7 +237,6 @@ DEPENDENCIES:
   - RNBackgroundFetch (from `../node_modules/react-native-background-fetch`)
   - "RNCAsyncStorage (from `../node_modules/@react-native-community/async-storage`)"
   - RNFirebase (from `../node_modules/react-native-firebase/ios`)
-  - RNFS (from `../node_modules/react-native-fs`)
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
   - RNSoundPlayer (from `../node_modules/react-native-sound-player`)
   - RNZipArchive (from `../node_modules/react-native-zip-archive`)
@@ -328,8 +325,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@react-native-community/async-storage"
   RNFirebase:
     :path: "../node_modules/react-native-firebase/ios"
-  RNFS:
-    :path: "../node_modules/react-native-fs"
   RNGestureHandler:
     :path: "../node_modules/react-native-gesture-handler"
   RNSoundPlayer:
@@ -388,13 +383,12 @@ SPEC CHECKSUMS:
   RNBackgroundFetch: ca9c8740e944913474262b63022d95a2be5e003a
   RNCAsyncStorage: 621bad7a889b5bf1583a52547f2dcd3a4d1ff15e
   RNFirebase: ac0de8b24c6f91ae9459575491ed6a77327619c6
-  RNFS: a8fbe7060fa49157d819466404794ad9c58e58cf
   RNGestureHandler: 4cb47a93019c1a201df2644413a0a1569a51c8aa
   RNSoundPlayer: bbe1f7b0ce43c2cf0fdf710890ace93693e88836
   RNZipArchive: 5ec612981549e645d2dc11a6b79ca3806299b479
   SSZipArchive: fa16b8cc4cdeceb698e5e5d9f67e9558532fbf23
   yoga: 5079887aa3e4c62142d6bcee493022643ee4d730
 
-PODFILE CHECKSUM: d5fdcbeb668df2f0fbe58d644f18027c6f75d5d2
+PODFILE CHECKSUM: 981f01dc8d9b6dbdc6125335d3d20b650fcb9db3
 
 COCOAPODS: 1.7.4

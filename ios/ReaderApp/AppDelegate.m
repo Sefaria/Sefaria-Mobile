@@ -10,7 +10,6 @@
 #import <React/RCTBridge.h>
 #import <React/RCTBundleURLProvider.h>
 #import <React/RCTRootView.h>
-#import <RNFSManager.h>
 #import <React/RCTLinkingManager.h>
 @import Firebase;
 
@@ -32,11 +31,6 @@
   self.window.rootViewController = rootViewController;
   [self.window makeKeyAndVisible];
   return YES;
-}
-
-- (void)application:(UIApplication *)application handleEventsForBackgroundURLSession:(NSString *)identifier completionHandler:(void (^)())completionHandler
-{
-  [RNFSManager setCompletionHandlerForIdentifier:identifier completionHandler:completionHandler];
 }
 
 - (NSURL *)sourceURLForBridge:(RCTBridge *)bridge

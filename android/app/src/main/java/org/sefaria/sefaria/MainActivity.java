@@ -23,6 +23,12 @@ public class MainActivity extends ReactActivity {
     }
 
     @Override
+    protected void onPause() {
+        SplashScreen.hide(this);
+        super.onPause();
+    }
+
+    @Override
     public void invokeDefaultOnBackPressed() {
         moveTaskToBack(true);
     }

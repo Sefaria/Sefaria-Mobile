@@ -1,10 +1,9 @@
 import { Alert, Platform } from 'react-native';
 //import { GoogleAnalyticsTracker } from 'react-native-google-analytics-bridge'; //https://github.com/idehub/react-native-google-analytics-bridge/blob/master/README.md
-const ZipArchive  = require('react-native-zip-archive'); //for unzipping -- (https://github.com/plrthink/react-native-zip-archive)
+import { unzip } from 'react-native-zip-archive'; //for unzipping -- (https://github.com/plrthink/react-native-zip-archive)
 import AsyncStorage from '@react-native-community/async-storage';
 import VersionNumber from 'react-native-version-number';
 import RNFB from 'rn-fetch-blob';
-import RNFS from 'react-native-fs';
 import { Search } from '@sefaria/search';
 import sanitizeHtml from 'sanitize-html'
 import Downloader from './downloader';
@@ -716,7 +715,7 @@ Sefaria = {
     });
   },
   _unzip: function(zipSourcePath) {
-    return ZipArchive.unzip(zipSourcePath, RNFB.fs.dirs.DocumentDir);
+    return unzip(zipSourcePath, RNFB.fs.dirs.DocumentDir);
   },
   _loadJSON: function(JSONSourcePath) {
     return new Promise((resolve, reject) => {

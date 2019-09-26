@@ -3,6 +3,12 @@ package org.sefaria.sefaria;
 import android.app.Application;
 
 import com.facebook.react.ReactApplication;
+import com.transistorsoft.rnbackgroundfetch.RNBackgroundFetchPackage;
+import io.invertase.firebase.RNFirebasePackage;
+import io.invertase.firebase.analytics.RNFirebaseAnalyticsPackage;
+import com.RNFetchBlob.RNFetchBlobPackage;
+import org.devio.rn.splashscreen.SplashScreenReactPackage;
+import com.reactnativecommunity.netinfo.NetInfoPackage;
 import com.reactnativecommunity.asyncstorage.AsyncStoragePackage;
 import com.actionsheet.ActionSheetPackage;
 import com.babisoft.ReactNativeLocalization.ReactNativeLocalizationPackage;
@@ -11,6 +17,7 @@ import com.facebook.react.ReactPackage;
 import com.facebook.react.shell.MainReactPackage;
 import com.facebook.soloader.SoLoader;
 import com.facebook.react.modules.i18nmanager.I18nUtil;
+import com.rnziparchive.RNZipArchivePackage;
 
 
 import java.util.Arrays;
@@ -28,9 +35,16 @@ public class MainApplication extends Application implements ReactApplication {
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
+            new RNBackgroundFetchPackage(),
+            new RNFirebasePackage(),
+            new RNFirebaseAnalyticsPackage(),
+            new RNFetchBlobPackage(),
+            new NetInfoPackage(),
             new AsyncStoragePackage(),
             new ActionSheetPackage(),
-            new ReactNativeLocalizationPackage()
+            new ReactNativeLocalizationPackage(),
+            new SplashScreenReactPackage(),
+            new RNZipArchivePackage()
       );
     }
 

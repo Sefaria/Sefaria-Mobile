@@ -8,7 +8,6 @@ import {
 import NetInfo from "@react-native-community/netinfo";
 import AsyncStorage from '@react-native-community/async-storage';
 import RNFB from 'rn-fetch-blob';
-import RNFS from 'react-native-fs';
 import strings from './LocalizedStrings';
 
 
@@ -243,8 +242,6 @@ var Downloader = {
     // If it hasn't been done already, prompt the user to download the library.
     AsyncStorage.getItem("libraryDownloadPrompted")
       .then(async (prompted) => {
-        // always check for android library
-        const oldLibraryExists = await Downloader.deleteOldAndroidLibrary();
         if (!prompted) {
           const onDownload = () => {
             AsyncStorage.setItem("libraryDownloadPrompted", "true");
@@ -269,36 +266,9 @@ var Downloader = {
               ]
             );
           };
-
-          if (oldLibraryExists) {
-            Alert.alert(
-              "Found old offline library",
-              "Old offline library is not compatible with this version of the app. Please redownload from settings",
-              [
-                {text: strings.openSettings, onPress: onDownload},
-                {text: strings.notNow, onPress: onCancel}
-              ]
-            );
-          } else {
-            showWelcomeAlert();
-          }
+          showWelcomeAlert();
         }
       });
-  },
-  deleteOldAndroidLibrary: () => {
-    const oldDBPath = RNFS.ExternalDirectoryPath + "/databases";
-    return new Promise((resolve, reject) => {
-      if (Platform.OS === 'android') {
-        RNFB.fs.exists(oldDBPath).then(exists => {
-          if (exists) {
-            RNFB.fs.unlink(oldDBPath);
-          }
-          resolve(exists);
-        });
-      } else {
-        resolve(false);
-      }
-    });
   },
   promptLibraryUpdate: function() {
     const { updates, newBooks } = Downloader.updatesAvailable();
