@@ -38,7 +38,7 @@
     "performance-now": "^2.1.0",
     "prop-types": "^15.7.2",
     "react": "16.8.6",
-    "react-native": "0.60.0",
+    "react-native": "0.60.1",
     "react-native-action-sheet": "^2.2.0",
     "react-native-background-fetch": "^2.7.0",
     "react-native-easy-toast": "^1.2.0",

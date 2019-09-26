@@ -95,52 +95,52 @@ PODS:
   - nanopb/decode (0.3.901)
   - nanopb/encode (0.3.901)
   - Protobuf (3.9.0)
-  - React (0.60.0):
-    - React-Core (= 0.60.0)
-    - React-DevSupport (= 0.60.0)
-    - React-RCTActionSheet (= 0.60.0)
-    - React-RCTAnimation (= 0.60.0)
-    - React-RCTBlob (= 0.60.0)
-    - React-RCTImage (= 0.60.0)
-    - React-RCTLinking (= 0.60.0)
-    - React-RCTNetwork (= 0.60.0)
-    - React-RCTSettings (= 0.60.0)
-    - React-RCTText (= 0.60.0)
-    - React-RCTVibration (= 0.60.0)
-    - React-RCTWebSocket (= 0.60.0)
-  - React-Core (0.60.0):
+  - React (0.60.1):
+    - React-Core (= 0.60.1)
+    - React-DevSupport (= 0.60.1)
+    - React-RCTActionSheet (= 0.60.1)
+    - React-RCTAnimation (= 0.60.1)
+    - React-RCTBlob (= 0.60.1)
+    - React-RCTImage (= 0.60.1)
+    - React-RCTLinking (= 0.60.1)
+    - React-RCTNetwork (= 0.60.1)
+    - React-RCTSettings (= 0.60.1)
+    - React-RCTText (= 0.60.1)
+    - React-RCTVibration (= 0.60.1)
+    - React-RCTWebSocket (= 0.60.1)
+  - React-Core (0.60.1):
     - Folly (= 2018.10.22.00)
-    - React-cxxreact (= 0.60.0)
-    - React-jsiexecutor (= 0.60.0)
-    - yoga (= 0.60.0.React)
-  - React-cxxreact (0.60.0):
+    - React-cxxreact (= 0.60.1)
+    - React-jsiexecutor (= 0.60.1)
+    - yoga (= 0.60.1.React)
+  - React-cxxreact (0.60.1):
     - boost-for-react-native (= 1.63.0)
     - DoubleConversion
     - Folly (= 2018.10.22.00)
     - glog
-    - React-jsinspector (= 0.60.0)
-  - React-DevSupport (0.60.0):
-    - React-Core (= 0.60.0)
-    - React-RCTWebSocket (= 0.60.0)
-  - React-fishhook (0.60.0)
-  - React-jsi (0.60.0):
+    - React-jsinspector (= 0.60.1)
+  - React-DevSupport (0.60.1):
+    - React-Core (= 0.60.1)
+    - React-RCTWebSocket (= 0.60.1)
+  - React-fishhook (0.60.1)
+  - React-jsi (0.60.1):
     - boost-for-react-native (= 1.63.0)
     - DoubleConversion
     - Folly (= 2018.10.22.00)
     - glog
-    - React-jsi/Default (= 0.60.0)
-  - React-jsi/Default (0.60.0):
+    - React-jsi/Default (= 0.60.1)
+  - React-jsi/Default (0.60.1):
     - boost-for-react-native (= 1.63.0)
     - DoubleConversion
     - Folly (= 2018.10.22.00)
     - glog
-  - React-jsiexecutor (0.60.0):
+  - React-jsiexecutor (0.60.1):
     - DoubleConversion
     - Folly (= 2018.10.22.00)
     - glog
-    - React-cxxreact (= 0.60.0)
-    - React-jsi (= 0.60.0)
-  - React-jsinspector (0.60.0)
+    - React-cxxreact (= 0.60.1)
+    - React-jsi (= 0.60.1)
+  - React-jsinspector (0.60.1)
   - react-native-in-app-browser (3.1.1):
     - React
   - react-native-netinfo (4.2.2):
@@ -151,30 +151,30 @@ PODS:
     - React
   - react-native-version-number (0.3.6):
     - React
-  - React-RCTActionSheet (0.60.0):
-    - React-Core (= 0.60.0)
-  - React-RCTAnimation (0.60.0):
-    - React-Core (= 0.60.0)
-  - React-RCTBlob (0.60.0):
-    - React-Core (= 0.60.0)
-    - React-RCTNetwork (= 0.60.0)
-    - React-RCTWebSocket (= 0.60.0)
-  - React-RCTImage (0.60.0):
-    - React-Core (= 0.60.0)
-    - React-RCTNetwork (= 0.60.0)
-  - React-RCTLinking (0.60.0):
-    - React-Core (= 0.60.0)
-  - React-RCTNetwork (0.60.0):
-    - React-Core (= 0.60.0)
-  - React-RCTSettings (0.60.0):
-    - React-Core (= 0.60.0)
-  - React-RCTText (0.60.0):
-    - React-Core (= 0.60.0)
-  - React-RCTVibration (0.60.0):
-    - React-Core (= 0.60.0)
-  - React-RCTWebSocket (0.60.0):
-    - React-Core (= 0.60.0)
-    - React-fishhook (= 0.60.0)
+  - React-RCTActionSheet (0.60.1):
+    - React-Core (= 0.60.1)
+  - React-RCTAnimation (0.60.1):
+    - React-Core (= 0.60.1)
+  - React-RCTBlob (0.60.1):
+    - React-Core (= 0.60.1)
+    - React-RCTNetwork (= 0.60.1)
+    - React-RCTWebSocket (= 0.60.1)
+  - React-RCTImage (0.60.1):
+    - React-Core (= 0.60.1)
+    - React-RCTNetwork (= 0.60.1)
+  - React-RCTLinking (0.60.1):
+    - React-Core (= 0.60.1)
+  - React-RCTNetwork (0.60.1):
+    - React-Core (= 0.60.1)
+  - React-RCTSettings (0.60.1):
+    - React-Core (= 0.60.1)
+  - React-RCTText (0.60.1):
+    - React-Core (= 0.60.1)
+  - React-RCTVibration (0.60.1):
+    - React-Core (= 0.60.1)
+  - React-RCTWebSocket (0.60.1):
+    - React-Core (= 0.60.1)
+    - React-fishhook (= 0.60.1)
   - ReactNativeLocalization (2.1.6):
     - React
   - rn-fetch-blob (0.10.16):
@@ -196,10 +196,7 @@ PODS:
     - React
   - RNGestureHandler (1.4.1):
     - React
-  - RNSound (0.11.0):
-    - React
-    - RNSound/Core (= 0.11.0)
-  - RNSound/Core (0.11.0):
+  - RNSoundPlayer (0.10.1):
     - React
   - RNZipArchive (5.0.0):
     - React
@@ -209,7 +206,7 @@ PODS:
     - React
     - SSZipArchive (= 2.2.2)
   - SSZipArchive (2.2.2)
-  - yoga (0.60.0.React)
+  - yoga (0.60.1.React)
 
 DEPENDENCIES:
   - DoubleConversion (from `../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec`)
@@ -247,7 +244,7 @@ DEPENDENCIES:
   - RNFirebase (from `../node_modules/react-native-firebase/ios`)
   - RNFS (from `../node_modules/react-native-fs`)
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
-  - RNSound (from `../node_modules/react-native-sound`)
+  - RNSoundPlayer (from `../node_modules/react-native-sound-player`)
   - RNZipArchive (from `../node_modules/react-native-zip-archive`)
   - yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
@@ -340,8 +337,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-fs"
   RNGestureHandler:
     :path: "../node_modules/react-native-gesture-handler"
-  RNSound:
-    :path: "../node_modules/react-native-sound"
+  RNSoundPlayer:
+    :path: "../node_modules/react-native-sound-player"
   RNZipArchive:
     :path: "../node_modules/react-native-zip-archive"
   yoga:
@@ -369,29 +366,29 @@ SPEC CHECKSUMS:
   GoogleUtilities: e7dc37039b19df7fe543479d3e4a02ac8d11bb69
   nanopb: 2901f78ea1b7b4015c860c2fdd1ea2fee1a18d48
   Protobuf: 1097ca58584c8d9be81bfbf2c5ff5975648dd87a
-  React: 4b3c068e793e96672dcd186a2b572fac43e4b031
-  React-Core: 3dc86b22920597f813c62a96db3165950b64826b
-  React-cxxreact: 0dacb291e59b81e7c3f22a2118bee853ba8a60d2
-  React-DevSupport: 4eb4135386acd10c2586cc9c759bf96b4dac035e
-  React-fishhook: 86ca737527bb9d860efbb943c11c729a5b69aa3d
-  React-jsi: 8e128c4d0d8febc2977ef617d1c09bb54326069c
-  React-jsiexecutor: 7a3554f703a58963ec80b860144ea0f0e9b910e1
-  React-jsinspector: d4ed52225912efe0019bb7f1a225aec20f23049a
+  React: cfd4d1d6708d52a2856d36a609bf7bae223ce668
+  React-Core: 9ee0cf29a823f191af34fa1a19caaf13d4cd6e5c
+  React-cxxreact: 79cb8ad6045d0110521e80b94b4b50fc67e2508e
+  React-DevSupport: a24cc0ef01525d613f0897e4d3b8286d00c75d5b
+  React-fishhook: 4cd054235de1f71041de9c20cadfa4844eabd9bc
+  React-jsi: 0ed990a802b70b99bdf3e5d34c3a6a450a715480
+  React-jsiexecutor: 83b961c34e9726072167a97d554c22d5665bf8fe
+  React-jsinspector: befc5a0c8399135e644571cc50f31f1ca1f7b4d9
   react-native-in-app-browser: 609052fc76b53bd21526d129396e095311d24426
   react-native-netinfo: 0edde14215abf6352ea5c8f9440e777e12ad6a0f
   react-native-shake: 1dfc728d7208be26032c0c2d745e994facbf6a70
   react-native-splash-screen: 200d11d188e2e78cea3ad319964f6142b6384865
   react-native-version-number: 15563dc4145a94aabfc1faab2a9af10174a4204e
-  React-RCTActionSheet: b27ff3cf3a68f917c46d2b94abf938b625b96570
-  React-RCTAnimation: 9e4708e5bd65fca8285ce7c0aa076f3f4fa5c2f8
-  React-RCTBlob: 6eafcc3a24f33785692a7be24918ade607bc8719
-  React-RCTImage: 46b965d7225b428ea11580ead08a4318aef1d6be
-  React-RCTLinking: d65b9f56cf0b8e171575a86764df7bb019ac28d6
-  React-RCTNetwork: 783ee2f430740e58f724e46adc79fe7feff64202
-  React-RCTSettings: aa28315aadfbfaf94206d865673ae509f1e97c07
-  React-RCTText: 685fca2e13b024271048e7e247ef24476f28a41e
-  React-RCTVibration: 4ee1cf208ab17a50fafb1c16ffe28fe594a64e4f
-  React-RCTWebSocket: fca087d583724aa0e5fef7d911f0f2a28d0f2736
+  React-RCTActionSheet: 27cd741a8f7926cbc25b2c35f19320cc210ab576
+  React-RCTAnimation: 82e452c8030f5c97e111b97fb69513e31ad2f68f
+  React-RCTBlob: e0aafd64336bd87926242ec0c78a46f3505679d1
+  React-RCTImage: 2303257623b319878a4139d26224d24c434e1bcb
+  React-RCTLinking: 281a46aa21682f3dba6f66b36c60c9997c3f449d
+  React-RCTNetwork: 522cc1ac9ac58e152140508c4cacf8fef0cd4708
+  React-RCTSettings: aa49c9e7e16c61241c107bb9c16803ef6d992c01
+  React-RCTText: a2b206cab0a303585fe616935a15ce4b7d25ad7c
+  React-RCTVibration: 9d02c5f53d9e24ff2028a9a3b7ba475042696c10
+  React-RCTWebSocket: a19b8033372f1bfe4774fd8bec17ec18e0c0db8e
   ReactNativeLocalization: 9abfb1717d6c6f2e3a4e444c4402d52acbf784cc
   rn-fetch-blob: 651b8d076b43d0d7aa294a3d9ec16c00aab8bef9
   RNBackgroundFetch: ca9c8740e944913474262b63022d95a2be5e003a
@@ -399,11 +396,11 @@ SPEC CHECKSUMS:
   RNFirebase: ac0de8b24c6f91ae9459575491ed6a77327619c6
   RNFS: a8fbe7060fa49157d819466404794ad9c58e58cf
   RNGestureHandler: 4cb47a93019c1a201df2644413a0a1569a51c8aa
-  RNSound: c980916b596cc15c8dcd2f6ecd3b13c4881dbe20
+  RNSoundPlayer: bbe1f7b0ce43c2cf0fdf710890ace93693e88836
   RNZipArchive: 5ec612981549e645d2dc11a6b79ca3806299b479
   SSZipArchive: fa16b8cc4cdeceb698e5e5d9f67e9558532fbf23
-  yoga: 616fde658be980aa60a2158835170f3f9c2d04b4
+  yoga: 98408ffdd58721c1f4c984c97be2a83bb0109d49
 
-PODFILE CHECKSUM: 21a72a80fc9462f22404b53c3f47d727b1ba98f0
+PODFILE CHECKSUM: 0a64f2bcc6bf265d6eb32990f0f5b48ac5c3b9bc
 
 COCOAPODS: 1.7.4
