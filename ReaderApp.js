@@ -25,7 +25,7 @@ import { InAppBrowser } from "@matt-block/react-native-in-app-browser";
 import SplashScreen from 'react-native-splash-screen';
 import nextFrame from 'next-frame';
 import RNShake from 'react-native-shake';
-import Sound from 'react-native-sound';
+import SoundPlayer from 'react-native-sound-player'
 import { Search, SearchState } from '@sefaria/search';
 
 import { STATE_ACTIONS } from './StateManager';
@@ -213,10 +213,7 @@ class ReaderApp extends React.Component {
     // });
     RNShake.addEventListener('ShakeEvent', () => {
       if (Sefaria.isGettinToBePurimTime()) {
-        if (!this.groggerSound) {
-          this.groggerSound = new Sound('grogger.mp3', Sound.MAIN_BUNDLE, (error) => {});
-        }
-        this.groggerSound.play();
+        SoundPlayer.playSoundFile('grogger', 'mp3');
       }
     });
   }

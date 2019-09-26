@@ -3,13 +3,9 @@ package org.sefaria.sefaria;
 import android.app.Application;
 
 import com.facebook.react.ReactApplication;
+import com.reactnativecommunity.asyncstorage.AsyncStoragePackage;
 import com.actionsheet.ActionSheetPackage;
-import com.reactnativecommunity.webview.RNCWebViewPackage;
-import io.invertase.firebase.analytics.RNFirebaseAnalyticsPackage;
-import io.invertase.firebase.config.RNFirebaseRemoteConfigPackage;
 import com.babisoft.ReactNativeLocalization.ReactNativeLocalizationPackage;
-import com.github.droibit.android.reactnative.customtabs.CustomTabsPackage;
-import com.rpt.reactnativecheckpackageinstallation.CheckPackageInstallationPackage;
 import com.facebook.react.ReactNativeHost;
 import com.facebook.react.ReactPackage;
 import com.facebook.react.shell.MainReactPackage;
@@ -32,12 +28,8 @@ public class MainApplication extends Application implements ReactApplication {
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
+            new AsyncStoragePackage(),
             new ActionSheetPackage(),
-            new RNCWebViewPackage(),
-            new RNFirebaseAnalyticsPackage(),
-            new RNFirebaseRemoteConfigPackage(),
-            new CustomTabsPackage(),
-            new CheckPackageInstallationPackage(),
             new ReactNativeLocalizationPackage()
       );
     }

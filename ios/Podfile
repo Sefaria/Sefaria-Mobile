@@ -36,6 +36,10 @@ target 'ReaderApp' do
 
 
 
+  pod 'react-native-shake', :path => '../node_modules/react-native-shake'
+
+  pod 'RNCAsyncStorage', :path => '../node_modules/@react-native-community/async-storage'
+
   target 'ReaderAppTests' do
     inherit! :search_paths
     # Pods for testing

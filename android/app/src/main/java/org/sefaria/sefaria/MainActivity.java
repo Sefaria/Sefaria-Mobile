@@ -3,7 +3,7 @@ package org.sefaria.sefaria;
 import com.facebook.react.ReactActivity;
 import org.devio.rn.splashscreen.SplashScreen;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 
 public class MainActivity extends ReactActivity {
 
