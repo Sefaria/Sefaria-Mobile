@@ -162,10 +162,10 @@ class TextColumn extends React.PureComponent {
     const componentsToMeasure = [];
     if (gonnaJump) {
       for (let section of dataSource) {
-        componentsToMeasure.push({ref: section.ref, id: section.changeString, generator: this.renderSectionHeader, param: {section: section}})
+        componentsToMeasure.push({ref: section.ref, id: section.ref, generator: this.renderSectionHeader, param: {section: section}})
         for (let segment of section.data) {
           const generator = segment.type === ROW_TYPES.SEGMENT ? segmentGenerator : this.renderAliyaMarker;
-          componentsToMeasure.push({ref: segment.ref, id: segment.changeString, generator, param: {item: segment}});
+          componentsToMeasure.push({ref: segment.ref, id: segment.ref, generator, param: {item: segment}});
         }
       }
 
@@ -190,8 +190,8 @@ class TextColumn extends React.PureComponent {
         const r = n.refs[i];
         const dashIndex = r.lastIndexOf("-");
         parashaDict[r.slice(0,dashIndex)] = i === 0 ?
-          {data: {en: n.title, he: n.heTitle}, type: ROW_TYPES.PARASHA, changeString: `${n.title}|parasha|${this.props.themeStr}|${this.props.fontSize}`} :
-          {data: aliyaNames[i], type: ROW_TYPES.ALIYA, changeString: `${n.title}|${aliyaNames[i].en}|aliya|${this.props.themeStr}|${this.props.fontSize}`};
+          {data: {en: n.title, he: n.heTitle}, ref: `${n.title}|parasha`, type: ROW_TYPES.PARASHA, changeString: `${n.title}|parasha|${this.props.themeStr}|${this.props.fontSize}`} :
+          {data: aliyaNames[i], ref: `${n.title}|${aliyaNames[i].en}|aliya`,type: ROW_TYPES.ALIYA, changeString: `${n.title}|${aliyaNames[i].en}|aliya|${this.props.themeStr}|${this.props.fontSize}`};
       }
     }
     return parashaDict;
@@ -591,13 +591,13 @@ class TextColumn extends React.PureComponent {
     let jumpInfoMap = new Map();
     let currIndex = 0;
     for (let section of this.state.nextDataSource) {
-      let currHeight = textToHeightMap.get(section.changeString);
+      let currHeight = textToHeightMap.get(section.ref);
       itemLayoutList[currIndex] = {index: currIndex, length: currHeight, offset: currOffset};
       jumpInfoMap.set(section.ref, currIndex);
       currOffset += currHeight;
       currIndex++; //sections are counted in the index count
       for (let segment of section.data) {
-        let currHeight = textToHeightMap.get(segment.changeString);
+        let currHeight = textToHeightMap.get(segment.ref);
         itemLayoutList[currIndex] = {index: currIndex, length: currHeight, offset: currOffset};
         jumpInfoMap.set(segment.ref, currIndex);
         currOffset += currHeight;
@@ -644,7 +644,7 @@ class TextColumn extends React.PureComponent {
   }
 
   _keyExtractor = (item, index) => {
-    return item.changeString;
+    return item.ref;
   }
 
   _onSegmentLayout = (ref, y) => {
@@ -653,7 +653,7 @@ class TextColumn extends React.PureComponent {
 
   _renderCell = React.memo(props => (
     <CellView {...props} onSegmentLayout={this._onSegmentLayout}/>
-  ), (oldp, newp) => (oldp.item.changeString === newp.item.changeString));
+  ), (prevProps, newProps) => (prevProps.item.changeString === newProps.item.changeString));
 
   render() {
     return (
