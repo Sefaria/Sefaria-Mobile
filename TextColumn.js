@@ -247,22 +247,22 @@ class TextColumn extends React.PureComponent {
     return ref.replace(trimmer, '');
   };
 
-  componentWillReceiveProps(nextProps) {
+  componentDidUpdate(prevProps, prevState) {
 
-    if (this.props.data.length !== nextProps.data.length ||
-        this.props.textFlow !== nextProps.textFlow ||
-        this.props.textLanguage !== nextProps.textLanguage ||
-        this.props.textListVisible !== nextProps.textListVisible ||
-        this.props.segmentIndexRef !== nextProps.segmentIndexRef ||
-        this.props.segmentRef !== nextProps.segmentRef ||
-        this.props.themeStr !== nextProps.themeStr ||
-        this.props.linksLoaded !== nextProps.linksLoaded ||
-        this.props.textToc !== nextProps.textToc ||
-        this.props.showAliyot !== nextProps.showAliyot) {
+    if (this.props.data.length !== prevProps.data.length ||
+        this.props.textFlow !== prevProps.textFlow ||
+        this.props.textLanguage !== prevProps.textLanguage ||
+        this.props.textListVisible !== prevProps.textListVisible ||
+        this.props.segmentIndexRef !== prevProps.segmentIndexRef ||
+        this.props.segmentRef !== prevProps.segmentRef ||
+        this.props.themeStr !== prevProps.themeStr ||
+        this.props.linksLoaded !== prevProps.linksLoaded ||
+        this.props.textToc !== prevProps.textToc ||
+        this.props.showAliyot !== prevProps.showAliyot) {
       // Only update dataSource when a change has occurred that will result in different data
       //TODO how to optimize this function when fontSize is changing?
-      let {dataSource, componentsToMeasure, jumpInfoMap} = this.generateDataSource(nextProps, this.state.jumpState.jumping);
-      if (this.props.data.length !== nextProps.data.length && this.state.jumpState.jumping) {
+      let {dataSource, componentsToMeasure, jumpInfoMap} = this.generateDataSource(this.props, this.state.jumpState.jumping);
+      if (this.props.data.length !== prevProps.data.length && this.state.jumpState.jumping) {
         this.measuringHeights = true;
         this.setState({nextDataSource: dataSource, componentsToMeasure, jumpInfoMap});
       } else {

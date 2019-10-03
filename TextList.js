@@ -45,20 +45,20 @@ class TextList extends React.Component {
   }
 
 
-  componentWillReceiveProps(nextProps) {
-    if (this.props.segmentRef !== nextProps.segmentRef ||
-        this.props.recentFilters !== nextProps.recentFilters ||
-        this.props.connectionsMode !== nextProps.connectionsMode ||
-        this.props.filterIndex !== nextProps.filterIndex ||
-        this.props.listContents !== nextProps.listContents) {
+  componentDidUpdate(prevProps, prevState) {
+    if (this.props.segmentRef !== prevProps.segmentRef ||
+        this.props.recentFilters !== prevProps.recentFilters ||
+        this.props.connectionsMode !== prevProps.connectionsMode ||
+        this.props.filterIndex !== prevProps.filterIndex ||
+        this.props.listContents !== prevProps.listContents) {
       let updateScrollPosKey = this.state.updateScrollPosKey;
-      if (this.props.segmentRef !== nextProps.segmentRef) {
+      if (this.props.segmentRef !== prevProps.segmentRef) {
         // changed segments
         updateScrollPosKey = !this.state.updateScrollPosKey;
         this._visibleSegments = [];
         this._savedHistorySegments = new Set();
       }
-      this.setState({dataSource: this.generateDataSource(nextProps), updateScrollPosKey});
+      this.setState({dataSource: this.generateDataSource(this.props), updateScrollPosKey});
     }
   }
 

@@ -49,9 +49,9 @@ class AutocompleteList extends React.Component {
     this._isMounted = false;
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (this.props.query !== nextProps.query) {
-      this.onQueryChange(nextProps.query);
+  componentDidUpdate(prevProps, prevState) {
+    if (this.props.query !== prevProps.query) {
+      this.onQueryChange(this.props.query);
     }
   }
 

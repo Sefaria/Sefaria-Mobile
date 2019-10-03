@@ -38,9 +38,9 @@ class TextHeightMeasurer extends React.PureComponent {
     this.resetInternalState(this.props.componentsToMeasure);
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.componentsToMeasure !== this.props.componentsToMeasure) {
-      this.resetInternalState(nextProps.componentsToMeasure);
+  componentDidUpdate(prevProps, prevState) {
+    if (prevProps.componentsToMeasure !== this.props.componentsToMeasure) {
+      this.resetInternalState(this.props.componentsToMeasure);
     }
   }
 

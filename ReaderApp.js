@@ -162,6 +162,12 @@ class ReaderApp extends React.PureComponent {
     BackHandler.addEventListener('hardwareBackPress', this.manageBack);
     AppState.addEventListener('change', this.appStateChangeListener);
     Sefaria.downloader.onChange = this.onDownloaderChange;
+
+    RNShake.addEventListener('ShakeEvent', () => {
+      if (Sefaria.isGettinToBePurimTime()) {
+        SoundPlayer.playSoundFile('grogger', 'mp3');
+      }
+    });
   }
 
   logout = async () => {
@@ -185,40 +191,6 @@ class ReaderApp extends React.PureComponent {
       Sefaria.downloader.resumeDownload();
     }
   };
-
-  componentWillMount() {
-    // this.gestureResponder = createResponder({
-    //   onStartShouldSetResponder: (evt, gestureState) => { return gestureState.pinch; },
-    //   onStartShouldSetResponderCapture: (evt, gestureState) => { return gestureState.pinch; },
-    //   onMoveShouldSetResponder: (evt, gestureState) => { return gestureState.pinch; },
-    //   onMoveShouldSetResponderCapture: (evt, gestureState) => { return gestureState.pinch; },
-    //
-    //   onResponderGrant: (evt, gestureState) => {},
-    //   onResponderMove: (evt, gestureState) => {
-    //     if (gestureState.pinch && gestureState.previousPinch) {
-    //       this.pendingIncrement *= gestureState.pinch / gestureState.previousPinch
-    //       if (!this.incrementTimer) {
-    //         const numSegments = this.state.data.reduce((prevVal, elem) => prevVal + elem.length, 0);
-    //         const timeout = Math.min(50 + Math.floor(numSegments/50)*25, 200); // range of timeout is [50,200] or in FPS [20,5]
-    //         this.incrementTimer = setTimeout(() => {
-    //           this.incrementFont(this.pendingIncrement);
-    //           this.pendingIncrement = 1;
-    //           this.incrementTimer = null;
-    //         }, timeout);
-    //       }
-    //     }
-    //   },
-    //   onResponderTerminationRequest: (evt, gestureState) => true,
-    //   onResponderRelease: (evt, gestureState) => {},
-    //   onResponderTerminate: (evt, gestureState) => {},
-    //   onResponderSingleTapConfirmed: (evt, gestureState) => {},
-    // });
-    RNShake.addEventListener('ShakeEvent', () => {
-      if (Sefaria.isGettinToBePurimTime()) {
-        SoundPlayer.playSoundFile('grogger', 'mp3');
-      }
-    });
-  }
 
   componentWillUnmount() {
     Sefaria.downloader.onChange = null;
@@ -316,17 +288,17 @@ class ReaderApp extends React.PureComponent {
 
   pendingIncrement = 1;
 
-  componentWillUpdate(nextProps, nextState) {
+  componentDidUpdate(prevProps, prevState) {
     // Should track pageview? TODO account for infinite
-    if (this.state.menuOpen          !== nextState.menuOpen          ||
-        this.state.textTitle         !== nextState.textTitle         ||
-        this.state.textFlow          !== nextState.textFlow          ||
-        this.props.textLanguage      !== nextProps.textLanguage      || // note this var is coming from props
-        this.state.textListVisible   !== nextState.textListVisible   ||
-        this.state.segmentIndexRef   !== nextState.segmentIndexRef   ||
-        this.state.segmentRef        !== nextState.segmentRef        ||
-        this.state.linkRecentFilters !== nextState.linkRecentFilters ||
-        this.props.themeStr          !== nextState.themeStr) {
+    if (this.state.menuOpen          !== prevState.menuOpen          ||
+        this.state.textTitle         !== prevState.textTitle         ||
+        this.state.textFlow          !== prevState.textFlow          ||
+        this.props.textLanguage      !== prevProps.textLanguage      || // note this var is coming from props
+        this.state.textListVisible   !== prevState.textListVisible   ||
+        this.state.segmentIndexRef   !== prevState.segmentIndexRef   ||
+        this.state.segmentRef        !== prevState.segmentRef        ||
+        this.state.linkRecentFilters !== prevState.linkRecentFilters ||
+        this.props.themeStr          !== prevProps.themeStr) {
           this.trackPageview();
     }
   }
