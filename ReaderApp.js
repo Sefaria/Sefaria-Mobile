@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 
 import React from 'react';
 import {
+  Animated,
   Alert,
   LayoutAnimation,
   AppState,
@@ -19,6 +20,7 @@ import {
 import NetInfo from "@react-native-community/netinfo";
 import AsyncStorage from '@react-native-community/async-storage';
 import { connect } from 'react-redux';
+import { PinchGestureHandler, State } from 'react-native-gesture-handler';
 //import --- from 'react-native-gesture-handler';
 import BackgroundFetch from "react-native-background-fetch";
 import { InAppBrowser } from "@matt-block/react-native-in-app-browser";
@@ -366,6 +368,35 @@ class ReaderApp extends React.PureComponent {
     })
     this.toggleReaderDisplayOptionsMenu();
   }
+
+  _baseFontScale = new Animated.Value(1);
+  _pinchFontScale = new Animated.Value(1);
+  _fontScale = Animated.multiply(this._baseFontScale, this._pinchFontScale);
+  _lastFontScale = 1;
+
+  _onPinchGestureEvent = event => {
+    let newFontSize = this.props.fontSize * event.nativeEvent.scale * this._lastFontScale;
+    newFontSize = newFontSize > 60 ? 60 : newFontSize; // Max size
+    newFontSize = newFontSize < 18 ? 18 : newFontSize; // Min size
+    this._pinchFontScale.setValue(newFontSize/this.props.fontSize/this._lastFontScale);
+  };
+
+  _onPinchHandlerStateChange = event => {
+    if (event.nativeEvent.oldState === State.ACTIVE) {
+      this._lastFontScale *= event.nativeEvent.scale;
+      let newFontSize = this.props.fontSize * this._lastFontScale;
+      newFontSize = newFontSize > 60 ? 30 : newFontSize; // Max size
+      newFontSize = newFontSize < 18 ? 18 : newFontSize; // Min size
+      newFontSize = parseFloat(newFontSize.toFixed(2));
+      this.props.dispatch({
+        type: STATE_ACTIONS.setFontSize,
+        value: newFontSize,
+      });
+      this._lastFontScale = newFontSize/this.props.fontSize;
+      this._baseFontScale.setValue(newFontSize/this.props.fontSize);
+      this._pinchFontScale.setValue(1);
+    }
+  };
 
   incrementFont = (increment) => {
     if (increment == "larger") {
@@ -1792,145 +1823,152 @@ class ReaderApp extends React.PureComponent {
     }
     let textColumnFlex = this.state.textListVisible ? 1.0 - this.state.textListFlex : 1.0;
     return (
-      <View style={[styles.container, this.props.theme.container]} {...this.gestureResponder}>
-          <CategoryColorLine category={Sefaria.categoryForTitle(this.state.textTitle, isSheet)} />
-          <ReaderControls
-            enRef={this.state.textReference}
-            heRef={this.state.heRef}
-            categories={Sefaria.categoriesForTitle(this.state.textTitle, isSheet)}
-            openNav={this.openNav}
-            goBack={this.manageBackMain}
-            openTextToc={this.openTextToc}
-            openSheetMeta={this.openSheetMeta}
-            sheet={this.state.sheet}
-            backStack={BackManager.getStack({ type: "main" })}
-            toggleReaderDisplayOptionsMenu={this.toggleReaderDisplayOptionsMenu}
-            openUri={this.openUri}
-            getHistoryObject={this.getHistoryObject}
-            showToast={this.showToast}
-          />
+      <PinchGestureHandler
+        onGestureEvent={this._onPinchGestureEvent}
+        onHandlerStateChange={this._onPinchHandlerStateChange}
+      >
+        <Animated.View style={[styles.container, this.props.theme.container]}>
+            <CategoryColorLine category={Sefaria.categoryForTitle(this.state.textTitle, isSheet)} />
+            <ReaderControls
+              enRef={this.state.textReference}
+              heRef={this.state.heRef}
+              categories={Sefaria.categoriesForTitle(this.state.textTitle, isSheet)}
+              openNav={this.openNav}
+              goBack={this.manageBackMain}
+              openTextToc={this.openTextToc}
+              openSheetMeta={this.openSheetMeta}
+              sheet={this.state.sheet}
+              backStack={BackManager.getStack({ type: "main" })}
+              toggleReaderDisplayOptionsMenu={this.toggleReaderDisplayOptionsMenu}
+              openUri={this.openUri}
+              getHistoryObject={this.getHistoryObject}
+              showToast={this.showToast}
+            />
 
-          { loading ?
-          <LoadingView style={{flex: textColumnFlex}} category={Sefaria.categoryForTitle(this.state.textTitle)}/> :
-          <View style={[{flex: textColumnFlex}, styles.mainTextPanel, this.props.theme.mainTextPanel]}
-                onStartShouldSetResponderCapture={this._onStartShouldSetResponderCapture}>
-            { isSheet ?
-              <Sheet
-                sheet={this.state.sheet}
-                activeSheetNode={this.state.activeSheetNode}
-                updateActiveSheetNode={this.updateActiveSheetNode}
-                sheetMeta={this.state.sheetMeta}
-                textData={this.state.data}
-                sectionArray={this.state.sectionArray}
-                textSegmentPressed={ this.sheetSegmentPressed }
-                theme={this.props.theme}
-                textListVisible={this.state.textListVisible}
-                textLanguage={this.props.textLanguage}
-                biLayout={this.props.biLayout}
-                fontSize={this.props.fontSize}
-              /> :
-              <TextColumn
-                textLanguage={this.props.textLanguage}
-                showAliyot={this.props.showAliyot}
+            { loading ?
+            <LoadingView style={{flex: textColumnFlex}} category={Sefaria.categoryForTitle(this.state.textTitle)}/> :
+            <View style={[{flex: textColumnFlex}, styles.mainTextPanel, this.props.theme.mainTextPanel]}
+                  onStartShouldSetResponderCapture={this._onStartShouldSetResponderCapture}>
+              { isSheet ?
+                <Sheet
+                  sheet={this.state.sheet}
+                  activeSheetNode={this.state.activeSheetNode}
+                  updateActiveSheetNode={this.updateActiveSheetNode}
+                  sheetMeta={this.state.sheetMeta}
+                  textData={this.state.data}
+                  sectionArray={this.state.sectionArray}
+                  textSegmentPressed={ this.sheetSegmentPressed }
+                  theme={this.props.theme}
+                  textListVisible={this.state.textListVisible}
+                  textLanguage={this.props.textLanguage}
+                  biLayout={this.props.biLayout}
+                  fontSize={this.props.fontSize}
+                /> :
+                <TextColumn
+                  fontScale={this._fontScale}
+                  textLanguage={this.props.textLanguage}
+                  showAliyot={this.props.showAliyot}
+                  theme={this.props.theme}
+                  themeStr={this.props.themeStr}
+                  fontSize={this.props.fontSize}
+                  biLayout={this.props.biLayout}
+                  key={this.state.textColumnKey}
+                  showToast={this.showToast}
+                  textToc={this.state.textToc}
+                  data={this.state.data}
+                  textReference={this.state.textReference}
+                  sectionArray={this.state.sectionArray}
+                  sectionHeArray={this.state.sectionHeArray}
+                  offsetRef={this.state.offsetRef}
+                  segmentRef={this.state.segmentRef}
+                  segmentIndexRef={this.state.segmentIndexRef}
+                  textFlow={this.state.textFlow}
+                  updateData={this.updateData}
+                  updateTitle={this.updateTitle}
+                  textTitle={this.state.textTitle}
+                  heTitle={this.state.heTitle}
+                  heRef={this.state.heRef}
+                  textSegmentPressed={ this.textSegmentPressed }
+                  textListVisible={this.state.textListVisible}
+                  next={this.state.next}
+                  prev={this.state.prev}
+                  linksLoaded={this.state.linksLoaded}
+                  loadingTextTail={this.state.loadingTextTail}
+                  loadingTextHead={this.state.loadingTextHead}
+                  openUri={this.openUri}
+                  textUnavailableAlert={this.textUnavailableAlert}
+                />
+              }
+            </View> }
+
+            {this.state.textListVisible ?
+              <ConnectionsPanel
                 theme={this.props.theme}
                 themeStr={this.props.themeStr}
+                interfaceLanguage={this.props.interfaceLanguage}
                 fontSize={this.props.fontSize}
-                biLayout={this.props.biLayout}
-                key={this.state.textColumnKey}
-                showToast={this.showToast}
+                textLanguage={this.props.textLanguage}
+                sheet={this.state.sheet}
+                sheetMeta={this.state.sheetMeta}
+                textListFlex={this.state.textListFlex}
+                animating={this.state.textListAnimating}
+                onStartShouldSetResponderCapture={this._onStartShouldSetResponderCapture}
                 textToc={this.state.textToc}
-                data={this.state.data}
-                textReference={this.state.textReference}
-                sectionArray={this.state.sectionArray}
-                sectionHeArray={this.state.sectionHeArray}
-                offsetRef={this.state.offsetRef}
                 segmentRef={this.state.segmentRef}
-                segmentIndexRef={this.state.segmentIndexRef}
+                heSegmentRef={Sefaria.toHeSegmentRef(this.state.heRef, this.state.segmentRef)}
+                categories={Sefaria.categoriesForTitle(this.state.textTitle)}
                 textFlow={this.state.textFlow}
-                updateData={this.updateData}
-                updateTitle={this.updateTitle}
+                openRef={this.openRefConnectionsPanel}
+                setConnectionsMode={this.setConnectionsMode}
+                openFilter={this.openFilter}
+                closeCat={this.closeLinkCat}
+                updateLinkCat={this.updateLinkCat}
+                updateVersionCat={this.updateVersionCat}
+                loadLinkContent={this.loadLinkContent}
+                loadVersionContent={this.loadVersionContent}
+                linkSummary={this.state.linkSummary}
+                linkContents={this.state.linkContents}
+                versionContents={this.state.versionContents}
+                loading={this.state.loadingLinks}
+                connectionsMode={this.state.connectionsMode}
+                filterIndex={this.state.filterIndex}
+                recentFilters={this.state.linkRecentFilters}
+                versionRecentFilters={this.state.versionRecentFilters}
+                versionFilterIndex={this.state.versionFilterIndex}
+                currVersions={this.state.currVersions}
+                versions={this.state.versions}
+                versionsApiError={this.state.versionsApiError}
+                onDragStart={this.onTextListDragStart}
+                onDragMove={this.onTextListDragMove}
+                onDragEnd={this.onTextListDragEnd}
                 textTitle={this.state.textTitle}
-                heTitle={this.state.heTitle}
-                heRef={this.state.heRef}
-                textSegmentPressed={ this.textSegmentPressed }
-                textListVisible={this.state.textListVisible}
-                next={this.state.next}
-                prev={this.state.prev}
-                linksLoaded={this.state.linksLoaded}
-                loadingTextTail={this.state.loadingTextTail}
-                loadingTextHead={this.state.loadingTextHead}
-                openUri={this.openUri}
-                textUnavailableAlert={this.textUnavailableAlert}
-              />
+                openUri={this.openUri} />
+               : null
             }
-          </View> }
-
-          {this.state.textListVisible ?
-            <ConnectionsPanel
-              theme={this.props.theme}
-              themeStr={this.props.themeStr}
-              interfaceLanguage={this.props.interfaceLanguage}
-              fontSize={this.props.fontSize}
-              textLanguage={this.props.textLanguage}
-              sheet={this.state.sheet}
-              sheetMeta={this.state.sheetMeta}
-              textListFlex={this.state.textListFlex}
-              animating={this.state.textListAnimating}
-              onStartShouldSetResponderCapture={this._onStartShouldSetResponderCapture}
-              textToc={this.state.textToc}
-              segmentRef={this.state.segmentRef}
-              heSegmentRef={Sefaria.toHeSegmentRef(this.state.heRef, this.state.segmentRef)}
-              categories={Sefaria.categoriesForTitle(this.state.textTitle)}
-              textFlow={this.state.textFlow}
-              openRef={this.openRefConnectionsPanel}
-              setConnectionsMode={this.setConnectionsMode}
-              openFilter={this.openFilter}
-              closeCat={this.closeLinkCat}
-              updateLinkCat={this.updateLinkCat}
-              updateVersionCat={this.updateVersionCat}
-              loadLinkContent={this.loadLinkContent}
-              loadVersionContent={this.loadVersionContent}
-              linkSummary={this.state.linkSummary}
-              linkContents={this.state.linkContents}
-              versionContents={this.state.versionContents}
-              loading={this.state.loadingLinks}
-              connectionsMode={this.state.connectionsMode}
-              filterIndex={this.state.filterIndex}
-              recentFilters={this.state.linkRecentFilters}
-              versionRecentFilters={this.state.versionRecentFilters}
-              versionFilterIndex={this.state.versionFilterIndex}
-              currVersions={this.state.currVersions}
-              versions={this.state.versions}
-              versionsApiError={this.state.versionsApiError}
-              onDragStart={this.onTextListDragStart}
-              onDragMove={this.onTextListDragMove}
-              onDragEnd={this.onTextListDragEnd}
-              textTitle={this.state.textTitle}
-              openUri={this.openUri} />
-             : null
-          }
-          {this.state.ReaderDisplayOptionsMenuVisible ?
-            (<ReaderDisplayOptionsMenu
-              ref={this._getReaderDisplayOptionsMenuRef}
-              theme={this.props.theme}
-              textFlow={this.state.textFlow}
-              biLayout={this.props.biLayout}
-              textReference={this.state.textReference}
-              interfaceLanguage={this.props.interfaceLanguage}
-              textLanguage={this.props.textLanguage}
-              showAliyot={this.props.showAliyot}
-              setTextFlow={this.setTextFlow}
-              setBiLayout={this.setBiLayout}
-              setAliyot={this.setAliyot}
-              setTextLanguage={this.setTextLanguage}
-              incrementFont={this.incrementFont}
-              setTheme={this.setTheme}
-              canBeContinuous={Sefaria.canBeContinuous(this.state.textTitle)}
-              canHaveAliyot={Sefaria.canHaveAliyot(this.state.textTitle)}
-              themeStr={this.props.themeStr}
-            />) : null
-          }
-      </View>);
+            {this.state.ReaderDisplayOptionsMenuVisible ?
+              (<ReaderDisplayOptionsMenu
+                ref={this._getReaderDisplayOptionsMenuRef}
+                theme={this.props.theme}
+                textFlow={this.state.textFlow}
+                biLayout={this.props.biLayout}
+                textReference={this.state.textReference}
+                interfaceLanguage={this.props.interfaceLanguage}
+                textLanguage={this.props.textLanguage}
+                showAliyot={this.props.showAliyot}
+                setTextFlow={this.setTextFlow}
+                setBiLayout={this.setBiLayout}
+                setAliyot={this.setAliyot}
+                setTextLanguage={this.setTextLanguage}
+                incrementFont={this.incrementFont}
+                setTheme={this.setTheme}
+                canBeContinuous={Sefaria.canBeContinuous(this.state.textTitle)}
+                canHaveAliyot={Sefaria.canHaveAliyot(this.state.textTitle)}
+                themeStr={this.props.themeStr}
+              />) : null
+            }
+        </Animated.View>
+      </PinchGestureHandler>
+    );
   }
 
   render() {
@@ -1949,7 +1987,7 @@ class ReaderApp extends React.PureComponent {
     return (
       <View style={{flex:1}}>
         <SafeAreaView style={styles.safeArea}>
-          <View style={[styles.container, this.props.theme.container]} {...this.gestureResponder}>
+          <View style={[styles.container, this.props.theme.container]}>
               <StatusBar
                 barStyle="light-content"
               />

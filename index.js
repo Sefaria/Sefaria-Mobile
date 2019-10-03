@@ -7,6 +7,7 @@ import {
   View,
 } from 'react-native';
 import React, { useReducer } from 'react';
+import { gestureHandlerRootHOC } from 'react-native-gesture-handler';
 import {
   GlobalStateContext,
   DispatchContext,
@@ -24,6 +25,7 @@ if (process.env.NODE_ENV !== "production") {
   });
 }
 
+//const ReaderAppGesturified = gestureHandlerRootHOC(ReaderApp);
 const Root = () => {
   const [ globalState, dispatch ] = useReducer(reducer, DEFAULT_STATE);
   const theme = getTheme(globalState.themeStr);

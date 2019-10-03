@@ -30,6 +30,7 @@ const ROW_TYPES = {SEGMENT: 1, ALIYA: 2, PARASHA: 3};
 class TextColumn extends React.PureComponent {
   static whyDidYouRender = true;
   static propTypes = {
+    fontScale:          PropTypes.object,
     showToast:          PropTypes.func,
     textToc:            PropTypes.object,
     theme:              PropTypes.object.isRequired,
@@ -456,6 +457,7 @@ class TextColumn extends React.PureComponent {
     // In segmented case, rowData represents a segments of text
     return (
       <TextRange
+        fontScale={this.props.fontScale}
         showToast={this.props.showToast}
         rowData={item.data}
         segmentRef={item.ref}

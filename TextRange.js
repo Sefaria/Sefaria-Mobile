@@ -24,6 +24,7 @@ const TextRange = React.memo(({
   textSegmentPressed,
   setRowRef,
   setRowRefInitY,
+  fontScale,
 }) => {
   const { themeStr, textLanguage, biLayout, fontSize } = useContext(GlobalStateContext);
   const getDisplayedText = useCallback(withURL => {
@@ -58,7 +59,7 @@ const TextRange = React.memo(({
       }
       else if (buttonIndex === 3) { openUri(Sefaria.refToUrl(segmentRef))}
     })
-  }, [rowData, textLanguage, segmentRef]);
+  }, [textLanguage, segmentRef]);
 
   const copyToClipboard = () => {
     Clipboard.setString(getDisplayedText());
@@ -135,6 +136,7 @@ const TextRange = React.memo(({
           {
             showHe ? (
               <TextSegment
+              fontScale={fontScale}
               fontSize={fontSize}
               themeStr={themeStr}
               rowRef={segmentRef}
@@ -148,6 +150,7 @@ const TextRange = React.memo(({
           }
           {
             showEn ? (<TextSegment
+              fontScale={fontScale}
               fontSize={fontSize}
               themeStr={themeStr}
               rowRef={segmentRef}
@@ -175,6 +178,7 @@ TextRange.propTypes = {
   textSegmentPressed: PropTypes.func.isRequired,
   setRowRef:          PropTypes.func.isRequired,
   setRowRefInitY:     PropTypes.func.isRequired,
+  fontScale:          PropTypes.object,
 };
 
 export default TextRange;
