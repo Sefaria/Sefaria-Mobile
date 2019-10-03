@@ -10,6 +10,7 @@ import ReactNative, {
   findNodeHandle,
   Dimensions,
   ViewPropTypes,
+  queryLayoutByID,
 } from 'react-native';
 
 import styles from './Styles.js';
@@ -17,7 +18,6 @@ import TextRange from './TextRange';
 import TextRangeContinuous from './TextRangeContinuous';
 import TextHeightMeasurer from './TextHeightMeasurer';
 import TextErrorBoundary from './TextErrorBoundary';
-import queryLayoutByID from 'queryLayoutByID';
 const ViewPort  = Dimensions.get('window');
 const COMMENTARY_LINE_THRESHOLD = 100;
 

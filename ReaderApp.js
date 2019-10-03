@@ -623,7 +623,7 @@ class ReaderApp extends React.PureComponent {
     });
   }
 
-  isHermes = () => global;
+  isHermes = () => global.HermesInternal != null;
 
   removeDefaultVersions = (ref, versions) => {
     if (!versions) return versions;
@@ -1964,7 +1964,7 @@ class ReaderApp extends React.PureComponent {
   }
 
   render() {
-    console.log("HERMYYYSS", this.isHermes());
+    console.log("HERMES", this.isHermes());
     /*
     // make the SafeAreaView background based on the category color
     const cat = this.state.menuOpen ? (this.state.navigationCategories.length ? this.state.navigationCategories[0] : "Other") : Sefaria.categoryForTitle(this.state.textTitle);

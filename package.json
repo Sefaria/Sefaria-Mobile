@@ -22,6 +22,7 @@
   "dependencies": {
     "@matt-block/react-native-in-app-browser": "^3.1.1",
     "@react-native-community/async-storage": "^1.6.1",
+    "@react-native-community/cli-platform-android": "^2.9.0",
     "@react-native-community/netinfo": "^4.2.2",
     "@sefaria/search": "^0.9.5",
     "@welldone-software/why-did-you-render": "^3.3.5",
@@ -39,7 +40,7 @@
     "performance-now": "^2.1.0",
     "prop-types": "^15.7.2",
     "react": "16.9.0",
-    "react-native": "0.61.0",
+    "react-native": "0.61.2",
     "react-native-action-sheet": "^2.2.0",
     "react-native-background-fetch": "^2.7.0",
     "react-native-easy-toast": "^1.2.0",
