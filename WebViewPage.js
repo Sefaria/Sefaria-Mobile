@@ -14,11 +14,12 @@ import {
   CloseButton,
   LoadingView,
 } from './Misc.js';
-import { GlobalStateContext } from './StateManager';
+import { GlobalStateContext, getTheme } from './StateManager';
 import styles from './Styles';
 
 const WebViewPage = ({ close, uri }) => {
-  const { theme } = useContext(GlobalStateContext);
+  const { themeStr } = useContext(GlobalStateContext);
+  const theme = getTheme(themeStr);
   return (
     <View style={{flex:1, flexDirection: "column", alignSelf: 'stretch'}}>
       <CategoryColorLine category={"Other"} />

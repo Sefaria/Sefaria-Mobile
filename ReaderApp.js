@@ -63,7 +63,9 @@ import {
 } from './Misc.js';
 const ViewPort    = Dimensions.get('window');
 
-class ReaderApp extends React.Component {
+
+class ReaderApp extends React.PureComponent {
+  static whyDidYouRender = true;
   static propTypes = {
     theme:            PropTypes.object.isRequired,
     themeStr:         PropTypes.string.isRequired,
@@ -620,6 +622,8 @@ class ReaderApp extends React.Component {
       });
     });
   }
+
+  isHermes = () => global;
 
   removeDefaultVersions = (ref, versions) => {
     if (!versions) return versions;
@@ -1278,9 +1282,9 @@ class ReaderApp extends React.Component {
       if (spaceInd === -1) { spaceInd = cutoffLen; }
       data.he = data.he.slice(0, spaceInd) + "... <b>(לחץ לקרוא עוד)</b>";
     }
-
-    this.state.linkContents[pos] = data;
-    this.setState({linkContents: this.state.linkContents.slice(0)});
+    const newLinkContents = [...this.state.linkContents];
+    newLinkContents[pos] = data;
+    this.setState({linkContents: newLinkContents});
   };
 
   removeSavedItem = async (item) => {
@@ -1960,6 +1964,7 @@ class ReaderApp extends React.Component {
   }
 
   render() {
+    console.log("HERMYYYSS", this.isHermes());
     /*
     // make the SafeAreaView background based on the category color
     const cat = this.state.menuOpen ? (this.state.navigationCategories.length ? this.state.navigationCategories[0] : "Other") : Sefaria.categoryForTitle(this.state.textTitle);

@@ -20,7 +20,7 @@ import {
   SText,
   HebrewInEnglishText,
 } from './Misc.js';
-import { GlobalStateContext } from './StateManager';
+import { GlobalStateContext, getTheme } from './StateManager';
 import strings from './LocalizedStrings';
 import Sefaria from "./sefaria";
 
@@ -39,8 +39,9 @@ const ReaderControls = ({
   getHistoryObject,
   showToast,
 }) => {
-  const { theme, themeStr, textLanguage } = useContext(GlobalStateContext);
+  const { themeStr, textLanguage } = useContext(GlobalStateContext);
   const [, forceUpdate] = useReducer(x => x + 1, 0);  // HACK
+  const theme = getTheme(themeStr);
   const shouldShowHamburger = () => {
     if (Platform.OS === "android") { return true; }
     else {

@@ -16,7 +16,7 @@ import {
   SearchButton,
   LanguageToggleButton,
 } from './Misc.js';
-import { GlobalStateContext } from './StateManager';
+import { GlobalStateContext, getTheme } from './StateManager';
 import AutocompleteList from './AutocompleteList';
 
 import styles from './Styles';
@@ -35,7 +35,8 @@ const SearchBar = ({
   leftMenuButton,
   autoFocus,
 }) => {
-  const { theme, themeStr, interfaceLanguage } = useContext(GlobalStateContext);
+  const { themeStr, interfaceLanguage } = useContext(GlobalStateContext);
+  const theme = getTheme(themeStr);
 
   const submitSearch = () => {
     if (query) {

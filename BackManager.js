@@ -3,11 +3,13 @@
 class BackManager {
 
   static _backStack = [];
+  static _backStackMain = [];
 
   static forward({ state, type = "main", calledFrom }) {
     //debugger;
     const stateClone = Sefaria.util.clone(state);
     BackManager._backStack.push({ type, state: stateClone, calledFrom });
+    BackManager._updateMainBackStack();
   }
 
   static back({ type, calledFrom } = { }) {
@@ -24,12 +26,17 @@ class BackManager {
         oldStateObj = bs.pop();
       }
     }
+    BackManager._updateMainBackStack();
     if (!oldStateObj) { return oldStateObj; }
     return oldStateObj.state;
   }
 
+  static _updateMainBackStack() {
+    BackManager._backStackMain = BackManager._backStack.filter( s => s.type === 'main' );
+  }
+
   static getStack({ type }) {
-    return BackManager._backStack.filter( s => s.type === type );
+    return BackManager._backStackMain;
   }
 }
 

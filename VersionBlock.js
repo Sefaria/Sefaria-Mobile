@@ -8,7 +8,7 @@ import {
 import {
   SText,
 } from './Misc';
-import { GlobalStateContext } from './StateManager';
+import { GlobalStateContext, getTheme } from './StateManager';
 
 import HTMLView from 'react-native-htmlview'; //to convert html'afied JSON to something react can render (https://github.com/jsdf/react-native-htmlview)
 import styles from './Styles.js';
@@ -21,7 +21,8 @@ const VersionBlock = ({
   isCurrent,
   openUri,
 }) => {
-  const { theme, textLanguage } = useContext(GlobalStateContext);
+  const { themeStr, textLanguage } = useContext(GlobalStateContext);
+  const theme = getTheme(themeStr);
 
   const onVersionTitleClick = useCallback(() => {
     const action = openVersionInSidebar ? openVersionInSidebar : openVersionInReader;

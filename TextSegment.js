@@ -10,7 +10,7 @@ import {
   Platform,
 } from 'react-native';
 import HTMLView from 'react-native-htmlview'; //to convert html'afied JSON to something react can render (https://github.com/jsdf/react-native-htmlview)
-import { GlobalStateContext } from './StateManager';
+import { GlobalStateContext, getTheme } from './StateManager';
 import styles from './Styles.js';
 import iPad from './isIPad';
 
@@ -25,11 +25,12 @@ const TextSegment = ({
   onLongPress,
 }) => {
   const [resetKey, setResetKey] = useState(0);
-  const { theme, themeStr, fontSize, biLayout } = useContext(GlobalStateContext);
+  const { themeStr, fontSize, biLayout } = useContext(GlobalStateContext);
   useEffect(() => {
     setResetKey(resetKey+1);  // hacky fix to reset htmlview when theme colors change
     return () => {};
   }, [themeStr, fontSize]);
+  const theme = getTheme(themeStr);
 
   const onPress = () => {
     let key = segmentKey;
@@ -89,6 +90,7 @@ const TextSegment = ({
 
   );
 }
+TextSegment.whyDidYouRender = true;
 TextSegment.propTypes = {
   rowRef:             PropTypes.string.isRequired, /* this ref keys into TextColumn.rowRefs */
   segmentKey:         PropTypes.string,

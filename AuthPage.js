@@ -17,7 +17,7 @@ import {
   CircleCloseButton,
   SystemButton,
 } from './Misc';
-import { GlobalStateContext, DispatchContext, STATE_ACTIONS } from './StateManager';
+import { GlobalStateContext, DispatchContext, STATE_ACTIONS, getTheme } from './StateManager';
 import Sefaria from './sefaria';
 import strings from './LocalizedStrings';
 import styles from './Styles';
@@ -71,7 +71,7 @@ const useAuthForm = (authMode, onLoginSuccess) => {
 
 const AuthPage = ({ authMode, close, showToast, openLogin, openRegister, openUri, syncHistory }) => {
   const dispatch = useContext(DispatchContext);
-  const { theme, themeStr, interfaceLanguage } = useContext(GlobalStateContext);
+  const { themeStr, interfaceLanguage } = useContext(GlobalStateContext);
   const {
     errors,
     setFirstName,
@@ -90,6 +90,7 @@ const AuthPage = ({ authMode, close, showToast, openLogin, openRegister, openUri
     close();
     showToast(strings.loginSuccessful);
   });
+  const theme = getTheme(themeStr);
   const isLogin = authMode === 'login';
   const placeholderTextColor = themeStr == "black" ? "#BBB" : "#777";
   const isHeb = interfaceLanguage === 'hebrew';
@@ -217,7 +218,7 @@ const AuthTextInput = ({
 }) => (
   <GlobalStateContext.Consumer>
     {
-      ({ theme, interfaceLanguage }) => (
+      ({ themeStr, interfaceLanguage }) => (
         <View>
           <TextInput
             style={[
@@ -226,8 +227,8 @@ const AuthTextInput = ({
               styles.boxShadow,
               styles.authTextInput,
               interfaceLanguage === 'hebrew' ? styles.heInt : styles.enInt,
-              theme.text,
-              theme.mainTextPanel
+              getTheme(themeStr).text,
+              getTheme(themeStr).mainTextPanel
             ]}
             placeholder={placeholder}
             placeholderTextColor={placeholderTextColor}
@@ -246,7 +247,8 @@ const LogInMotivator = ({
   iconStr,
   text
 }) => {
-  const { theme, themeStr, interfaceLanguage } = useContext(GlobalStateContext);
+  const { themeStr, interfaceLanguage } = useContext(GlobalStateContext);
+  const theme = getTheme(themeStr);
   const isHeb = interfaceLanguage === 'hebrew';
   let icon;
   if (themeStr === 'white') {

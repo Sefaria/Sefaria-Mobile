@@ -9,7 +9,7 @@ import {
   Image
 } from 'react-native';
 import HTMLView from 'react-native-htmlview'; //to convert html'afied JSON to something react can render (https://github.com/jsdf/react-native-htmlview)
-import { GlobalStateContext } from './StateManager';
+import { GlobalStateContext, getTheme } from './StateManager';
 import styles from './Styles.js';
 
 const SearchSheetResult = ({
@@ -23,7 +23,8 @@ const SearchSheetResult = ({
   tags,
   views,
 }) => {
-  const { interfaceLanguage, theme } = useContext(GlobalStateContext);
+  const { interfaceLanguage, themeStr } = useContext(GlobalStateContext);
+  const theme = getTheme(themeStr);
   const refTitleStyle = interfaceLanguage === "hebrew" ? styles.he : styles.en;
 
   return (

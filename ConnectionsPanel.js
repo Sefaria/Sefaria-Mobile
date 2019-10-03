@@ -24,7 +24,8 @@ const {
   LibraryNavButton,
 } = require('./Misc.js');
 
-class ConnectionsPanel extends React.Component {
+class ConnectionsPanel extends React.PureComponent {
+  static whyDidYouRender = true;
   static propTypes = {
     textToc:              PropTypes.object,
     theme:                PropTypes.object.isRequired,
@@ -257,7 +258,8 @@ class ConnectionsPanel extends React.Component {
 }
 
 
-class ResourcesList extends React.Component {
+class ResourcesList extends React.PureComponent {
+  static whyDidYouRender = true;
   static propTypes = {
     theme:              PropTypes.object.isRequired,
     themeStr:           PropTypes.string.isRequired,
@@ -295,6 +297,7 @@ class ResourcesList extends React.Component {
 }
 
 class ToolsButton extends React.Component {
+  static whyDidYouRender = true;
   static propTypes = {
     interfaceLanguage: PropTypes.oneOf(["english", "hebrew"]).isRequired,
     theme:         PropTypes.object.isRequired,

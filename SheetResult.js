@@ -8,7 +8,7 @@ import {
   View,
   Image
 } from 'react-native';
-import { GlobalStateContext } from './StateManager';
+import { GlobalStateContext, getTheme } from './StateManager';
 import HTMLView from 'react-native-htmlview'; //to convert html'afied JSON to something react can render (https://github.com/jsdf/react-native-htmlview)
 
 import styles from './Styles.js';
@@ -23,7 +23,8 @@ const SheetResult = ({
   ownerName,
   views,
 }) => {
-  const { theme, textLanguage, interfaceLanguage } = useContext(GlobalStateContext);
+  const { themeStr, textLanguage, interfaceLanguage } = useContext(GlobalStateContext);
+  const theme = getTheme(themeStr);
   const refTitleStyle = textLanguage === "hebrew" ? styles.he : styles.en;
   const refTitle = textLanguage === "hebrew" ? heTitle : title;
   return (

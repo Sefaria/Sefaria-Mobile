@@ -135,7 +135,7 @@ const ASYNC_STORAGE_DEFAULTS = {
 };
 
 const DEFAULT_STATE = {
-  theme: themeWhite,
+  //theme: themeWhite,
   themeStr: ASYNC_STORAGE_DEFAULTS.color.default,
   textLanguage: ASYNC_STORAGE_DEFAULTS.textLanguage.default,
   interfaceLanguage: ASYNC_STORAGE_DEFAULTS.interfaceLanguage.default,
@@ -160,12 +160,12 @@ const reducer = function (state, action) {
   }
   switch (action.type) {
     case STATE_ACTIONS.setTheme:
-      const theme = action.value === "white" ? themeWhite : themeBlack;
+      //const theme = action.value === "white" ? themeWhite : themeBlack;
       //no need to save value in async if that's where it is coming from
       if (!action.fromAsync) { saveFieldToAsync('color', action.value); }
       return {
         ...state,
-        theme,
+        //theme,
         themeStr: action.value,
       };
     case STATE_ACTIONS.setTextLanguage:
@@ -269,6 +269,7 @@ const initAsyncStorage = dispatch => {
 
 const GlobalStateContext = React.createContext(null);
 const DispatchContext = React.createContext(null);
+const getTheme = themeStr => (themeStr === 'white' ? themeWhite : themeBlack);
 
 export {
   DEFAULT_STATE,
@@ -277,4 +278,5 @@ export {
   initAsyncStorage,
   GlobalStateContext,
   DispatchContext,
+  getTheme,
 };

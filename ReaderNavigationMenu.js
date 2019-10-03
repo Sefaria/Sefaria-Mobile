@@ -22,7 +22,7 @@ import {
   SystemButton,
   LoadingView,
 } from './Misc.js';
-import { STATE_ACTIONS, DispatchContext, GlobalStateContext } from './StateManager';
+import { STATE_ACTIONS, DispatchContext, GlobalStateContext, getTheme } from './StateManager';
 import VersionNumber from 'react-native-version-number';
 import SearchBar from './SearchBar';
 import ReaderNavigationCategoryMenu from './ReaderNavigationCategoryMenu';
@@ -33,8 +33,9 @@ import strings from './LocalizedStrings.js';
 
 const ReaderNavigationMenu = props => {
   // The Navigation menu for browsing and searching texts
-  const { theme, themeStr, interfaceLanguage, textLanguage } = useContext(GlobalStateContext);
+  const { themeStr, interfaceLanguage, textLanguage } = useContext(GlobalStateContext);
   const [showMore, setShowMore] = useState(false);
+  const theme = getTheme(themeStr);
   const isWhite = themeStr === "white";
 
   if (props.categories.length) {
@@ -218,9 +219,10 @@ const getEmailBody = () => {
 };
 
 const MoreSection = ({ isHeb, openUri, openSettings }) => {
-  const { theme, themeStr, debugInterruptingMessage } = useContext(GlobalStateContext);
+  const { themeStr, debugInterruptingMessage } = useContext(GlobalStateContext);
   const dispatch = useContext(DispatchContext);
   const [, forceUpdate] = useReducer(x => x + 1, 0);  // HACK
+  const theme = getTheme(themeStr);
 
   const [numPressesDebug, setNumPressesDebug] = useState(0);
 
@@ -299,7 +301,8 @@ MoreSection.propTypes = {
 };
 
 const ResourcesSection = ({ openSheets }) => {
-  const { theme, interfaceLanguage } = useContext(GlobalStateContext);
+  const { themeStr, interfaceLanguage } = useContext(GlobalStateContext);
+  const theme = getTheme(themeStr);
   const isheb = interfaceLanguage === "hebrew";
   const langStyle = !isheb ? styles.enInt : styles.heInt;
 
@@ -418,7 +421,8 @@ const SavedHistorySection = ({ isWhite, isHeb, openHistory, openSaved }) => (
 
 const ReaderNavigationMenuSection = ({ title, heTitle, content, hasmore, moreClick }) => {
   // A Section on the main navigation which includes a title over a grid of options
-  const { theme, interfaceLanguage } = useContext(GlobalStateContext);
+  const { themeStr, interfaceLanguage } = useContext(GlobalStateContext);
+  const theme = getTheme(themeStr);
   if (!content) { return null; }
 
   var isheb = interfaceLanguage === "hebrew";

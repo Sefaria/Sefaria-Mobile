@@ -10,7 +10,7 @@ import {
 import {
   LoadingView,
 } from './Misc.js';
-import { GlobalStateContext } from './StateManager';
+import { GlobalStateContext, getTheme } from './StateManager';
 import VersionBlock from './VersionBlock';
 import strings from './LocalizedStrings';
 import styles from'./Styles.js';
@@ -78,7 +78,7 @@ const VersionsBox = ({
   openFilter,
   openUri,
 }) => {
-  const { theme, interfaceLanguage, textLanguage } = useContext(GlobalStateContext);
+  const { themeStr, interfaceLanguage, textLanguage } = useContext(GlobalStateContext);
   const {
     vLangState,
     setVLangState
@@ -86,6 +86,8 @@ const VersionsBox = ({
   useEffect(() => {
     setVLangState(versions);
   }, [versions]);
+  const theme = getTheme(themeStr);
+
   const openVersionInSidebar = (versionTitle, heVersionTitle, versionLanguage) => {
     const filter = new VersionFilter(versionTitle, heVersionTitle, versionLanguage, segmentRef);
     openFilter(filter, "version");

@@ -7,13 +7,14 @@ import {
   View,
   Image,
 } from 'react-native';
-import { GlobalStateContext } from './StateManager';
+import { GlobalStateContext, getTheme } from './StateManager';
 import strings from './LocalizedStrings';
 
 import styles from './Styles.js';
 
 const MySheetResult = ({ title, heTitle, onPress, views, tags, created, isPrivate }) => {
-  const { theme, interfaceLanguage } = useContext(GlobalStateContext);
+  const { themeStr, interfaceLanguage } = useContext(GlobalStateContext);
+  const theme = getTheme(themeStr);
   const isHeb = interfaceLanguage === 'hebrew';
   title = title.replace(/\s\s+/g, ' ');
   const isTitleHeb = Sefaria.hebrew.isHebrew(title);

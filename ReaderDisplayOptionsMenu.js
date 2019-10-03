@@ -35,6 +35,7 @@ var siderev_icon_light    = require('./img/sidebysiderev-light.png');
 
 
 class ReaderDisplayOptionsMenu extends React.Component {
+  static whyDidYouRender = true;
   static propTypes = {
     theme:                           PropTypes.object,
     textFlow:                        PropTypes.oneOf(['segmented', 'continuous']),

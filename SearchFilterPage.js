@@ -16,7 +16,7 @@ import {
   ButtonToggleSet,
   LibraryNavButton,
 } from './Misc.js';
-import { GlobalStateContext } from './StateManager';
+import { GlobalStateContext, getTheme } from './StateManager';
 import styles from './Styles';
 import strings from './LocalizedStrings';
 
@@ -30,7 +30,8 @@ const SearchFilterPage = ({
   setSearchOptions,
   searchState,
 }) => {
-  const { interfaceLanguage, theme, themeStr } = useContext(GlobalStateContext);
+  const { interfaceLanguage, themeStr } = useContext(GlobalStateContext);
+  const theme = getTheme(themeStr);
   const { type } = searchState;
   const sortOptions = [
     {name: "chronological", text: strings.chronological, onPress: () => { setSearchOptions(type, "chronological", searchState.field); }},
@@ -167,7 +168,8 @@ SearchFilterPage.propTypes = {
 
 
 const SearchFilter = ({ filterNode, openSubMenu, toggleFilter }) => {
-  const { textLanguage, theme } = useContext(GlobalStateContext);
+  const { textLanguage, themeStr } = useContext(GlobalStateContext);
+  const theme = getTheme(themeStr);
   const clickCheckBox = () => { toggleFilter(filterNode); }
   const onPress = () => { openSubMenu ? openSubMenu(title) : clickCheckBox() }
   const { title, heTitle, selected, children, docCount } = filterNode;

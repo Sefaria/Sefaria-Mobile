@@ -8,11 +8,12 @@ import {
   View
 } from 'react-native';
 import HTMLView from 'react-native-htmlview'; //to convert html'afied JSON to something react can render (https://github.com/jsdf/react-native-htmlview)
-import { GlobalStateContext } from './StateManager';
+import { GlobalStateContext, getTheme } from './StateManager';
 import styles from './Styles.js';
 
 const SearchTextResult = ({ text, title, heTitle, textType, onPress }) => {
-  const { textLanguage, theme } = useContext(GlobalStateContext);
+  const { textLanguage, themeStr } = useContext(GlobalStateContext);
+  const theme = getTheme(themeStr);
   const refTitleStyle = textLanguage === "hebrew" ? styles.he : styles.en;
   const refTitle = textLanguage === "hebrew" ? heTitle : title;
   return (

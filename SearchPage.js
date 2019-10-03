@@ -20,14 +20,15 @@ import {
   CategoryColorLine,
   DirectedButton
 } from './Misc.js';
-import { GlobalStateContext } from './StateManager';
+import { GlobalStateContext, getTheme } from './StateManager';
 
 const numberWithCommas = x => {
   return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 };
 
 const SearchPage = props => {
-  const { interfaceLanguage, theme } = useContext(GlobalStateContext);
+  const { interfaceLanguage, themeStr } = useContext(GlobalStateContext);
+  const theme = getTheme(themeStr);
 
   const backFromAutocomplete = () => {
     props.openSearch();

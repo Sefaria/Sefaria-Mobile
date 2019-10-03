@@ -22,7 +22,7 @@ import {
   SefariaProgressBar,
   SystemButton,
 } from './Misc.js';
-import { GlobalStateContext, DispatchContext, STATE_ACTIONS } from './StateManager';
+import { GlobalStateContext, DispatchContext, STATE_ACTIONS, getTheme } from './StateManager';
 import styles from './Styles';
 import strings from './LocalizedStrings';
 
@@ -76,8 +76,9 @@ const usePkgState = () => {
 
 const SettingsPage = ({ close, logout, openUri }) => {
   const [numPressesDebug, setNumPressesDebug] = useState(0);
-  const { theme, interfaceLanguage, isLoggedIn } = useContext(GlobalStateContext);
+  const { themeStr, interfaceLanguage, isLoggedIn } = useContext(GlobalStateContext);
   const { isDisabledObj, setIsDisabledObj, onPackagePress } = usePkgState();
+  const theme = getTheme(themeStr);
 
   const deleteLibrary = async () => {
     await Sefaria.downloader.deleteLibrary();

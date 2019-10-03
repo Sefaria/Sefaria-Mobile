@@ -22,7 +22,7 @@ import {
   ToggleSet,
   LoadingView
 } from './Misc.js';
-import { GlobalStateContext } from './StateManager';
+import { GlobalStateContext, getTheme } from './StateManager';
 import styles from './Styles.js';
 
 const getSections = (categories, contents, recurseLevel=0) => {
@@ -100,7 +100,8 @@ const ReaderNavigationCategoryMenu = ({
   openUri,
 }) => {
   // Navigation Menu for a single category of texts (e.g., "Tanakh", "Bavli")
-  const { theme, textLanguage } = useContext(GlobalStateContext);
+  const { themeStr, textLanguage } = useContext(GlobalStateContext);
+  const theme = getTheme(themeStr);
   const showTalmudToggle = categories[0] === "Talmud" && categories.length <= 2;
   categories = categories[0] === "Talmud" && categories.length == 1 ? ["Talmud", "Bavli"] : categories;
   const sections = getSections(categories, Sefaria.tocItemsByCategories(categories));
@@ -200,7 +201,8 @@ const ListHeader = ({ showTalmudToggle, setCategories, categories, openUri }) =>
 }
 
 const SectionHeader = ({ section }) => {
-  const { theme, textLanguage } = useContext(GlobalStateContext);
+  const { themeStr, textLanguage } = useContext(GlobalStateContext);
+  const theme = getTheme(themeStr);
   const showHebrew = textLanguage == "hebrew";
   if (!section.title) { return null; }
   return (
@@ -268,7 +270,8 @@ const BookButton = ({
   openRef,
   openCat,
 }) => {
-  const { theme } = useContext(GlobalStateContext);
+  const { themeStr } = useContext(GlobalStateContext);
+  const theme = getTheme(themeStr);
   const onPress = () => {
     !!cats ? setCategories(cats) : openRef(tref, versions);
   };

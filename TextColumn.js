@@ -27,7 +27,8 @@ import {
 
 const ROW_TYPES = {SEGMENT: 1, ALIYA: 2, PARASHA: 3};
 
-class TextColumn extends React.Component {
+class TextColumn extends React.PureComponent {
+  static whyDidYouRender = true;
   static propTypes = {
     showToast:          PropTypes.func,
     textToc:            PropTypes.object,
@@ -150,9 +151,9 @@ class TextColumn extends React.Component {
           };
           // excluding b/c they don't change height: props.themeStr, props.linksLoaded[sectionIndex]
           //rowData.changeString += rowData.highlight ? "|highlight" : "";
-          rows.push({ref: rowID, data: rowData, changeString: rowID, type: ROW_TYPES.SEGMENT});
+          rows.push({ref: rowID, data: rowData, changeString: `${rowID}|${rowData.content.links.length}|${rowData.highlight}|${this.props.themeStr}|${this.props.fontSize}`, type: ROW_TYPES.SEGMENT});
         }
-        dataSource.push({ref: props.sectionArray[sectionIndex], heRef: props.sectionHeArray[sectionIndex], data: rows, sectionIndex: sectionIndex, changeString: props.sectionArray[sectionIndex]});
+        dataSource.push({ref: props.sectionArray[sectionIndex], heRef: props.sectionHeArray[sectionIndex], data: rows, sectionIndex: sectionIndex, changeString: `${props.sectionArray[sectionIndex]}|${this.props.themeStr}|${this.props.fontSize}`});
       }
       segmentGenerator = this.renderSegmentedRow;
     }
@@ -189,8 +190,8 @@ class TextColumn extends React.Component {
         const r = n.refs[i];
         const dashIndex = r.lastIndexOf("-");
         parashaDict[r.slice(0,dashIndex)] = i === 0 ?
-          {data: {en: n.title, he: n.heTitle}, type: ROW_TYPES.PARASHA, changeString: `${n.title}|parasha`} :
-          {data: aliyaNames[i], type: ROW_TYPES.ALIYA, changeString: `${n.title}|${aliyaNames[i].en}|aliya`};
+          {data: {en: n.title, he: n.heTitle}, type: ROW_TYPES.PARASHA, changeString: `${n.title}|parasha|${this.props.themeStr}|${this.props.fontSize}`} :
+          {data: aliyaNames[i], type: ROW_TYPES.ALIYA, changeString: `${n.title}|${aliyaNames[i].en}|aliya|${this.props.themeStr}|${this.props.fontSize}`};
       }
     }
     return parashaDict;
@@ -650,9 +651,9 @@ class TextColumn extends React.Component {
     this.rowYHash[ref] = y;
   }
 
-  _renderCell = ({ ...props }) => (
+  _renderCell = React.memo(props => (
     <CellView {...props} onSegmentLayout={this._onSegmentLayout}/>
-  );
+  ), (oldp, newp) => (oldp.item.changeString === newp.item.changeString));
 
   render() {
     return (
@@ -696,6 +697,7 @@ class TextColumn extends React.Component {
 }
 
 class TextHeader extends React.PureComponent {
+  static whyDidYouRender = true;
   static propTypes = {
     title:      PropTypes.string.isRequired,
     isHebrew:   PropTypes.bool.isRequired,
@@ -714,8 +716,10 @@ class TextHeader extends React.PureComponent {
 }
 
 class CellView extends React.PureComponent {
+  static whyDidYouRender = true;
+
   // need to put onLayout method in CellRenderer to capture global y positon of cell
-  onLayout = event => {
+  onLayoutOuter = event => {
     const { height, width, y, x } = event.nativeEvent.layout;
     this.props.onSegmentLayout(this.props.item.ref, {y, height});
     this.props.onLayout(event);
@@ -723,7 +727,7 @@ class CellView extends React.PureComponent {
 
   render() {
     return (
-      <View {...this.props} onLayout={this.onLayout}>
+      <View {...this.props} onLayout={this.onLayoutOuter}>
         { this.props.children }
       </View>
     );

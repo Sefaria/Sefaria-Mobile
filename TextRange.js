@@ -10,13 +10,13 @@ import {
   Linking
 } from 'react-native';
 import ActionSheet from 'react-native-action-sheet';
-import { GlobalStateContext } from './StateManager';
+import { GlobalStateContext, getTheme } from './StateManager';
 import TextSegment from './TextSegment';
 import styles from './Styles';
 import strings from './LocalizedStrings';
 
 
-const TextRange = ({
+const TextRange = React.memo(({
   showToast,
   rowData,
   segmentRef,
@@ -25,7 +25,7 @@ const TextRange = ({
   setRowRef,
   setRowRefInitY,
 }) => {
-  const { theme, textLanguage, biLayout, fontSize, themeStr } = useContext(GlobalStateContext);
+  const { themeStr, textLanguage, biLayout, fontSize } = useContext(GlobalStateContext);
   const getDisplayedText = useCallback(withURL => {
     const {text, he} = rowData.content;
     const enText = Sefaria.util.removeHtml(typeof text === "string" ? text : "") || "";
@@ -35,26 +35,8 @@ const TextRange = ({
     const fullText = (heText && isHeb ? heText + (enText && isEng ? "\n" : "") : "") + ((enText && isEng) ? enText : "");
     return withURL ? `${fullText}\n\n${Sefaria.refToUrl(segmentRef)}` : fullText;
   }, [rowData, textLanguage, segmentRef]);
-
-  const copyToClipboard = () => {
-    Clipboard.setString(getDisplayedText());
-    showToast("Copied to clipboard", 500);
-  };
-
-  const reportErrorBody = () => (
-    encodeURIComponent(
-      `${segmentRef}
-
-      ${getDisplayedText(true)}
-
-      Describe the error:`)
-  );
-
-  const reportError = () => {
-    Linking.openURL(`mailto:corrections@sefaria.org?subject=${encodeURIComponent(`Sefaria Text Correction from ${Platform.OS}`)}&body=${reportErrorBody()}`)
-  };
-
-  const onLongPress = () => {
+  const theme = getTheme(themeStr);
+  const onLongPress = useCallback(() => {
     ActionSheet.showActionSheetWithOptions({
       options: [
         strings.copy,
@@ -76,6 +58,24 @@ const TextRange = ({
       }
       else if (buttonIndex === 3) { openUri(Sefaria.refToUrl(segmentRef))}
     })
+  }, [rowData, textLanguage, segmentRef]);
+
+  const copyToClipboard = () => {
+    Clipboard.setString(getDisplayedText());
+    showToast("Copied to clipboard", 500);
+  };
+
+  const reportErrorBody = () => (
+    encodeURIComponent(
+      `${segmentRef}
+
+      ${getDisplayedText(true)}
+
+      Describe the error:`)
+  );
+
+  const reportError = () => {
+    Linking.openURL(`mailto:corrections@sefaria.org?subject=${encodeURIComponent(`Sefaria Text Correction from ${Platform.OS}`)}&body=${reportErrorBody()}`)
   };
 
   const _setRef = ref => {
@@ -165,7 +165,8 @@ const TextRange = ({
       </View>
     </View>
   );
-}
+});
+TextRange.whyDidYouRender = true;
 TextRange.propTypes = {
   showToast:          PropTypes.func.isRequired,
   rowData:            PropTypes.object.isRequired,

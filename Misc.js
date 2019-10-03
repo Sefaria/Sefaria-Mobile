@@ -15,7 +15,7 @@ import {
   Animated,
   Platform,
 } from 'react-native';
-import { GlobalStateContext, DispatchContext, STATE_ACTIONS } from './StateManager';
+import { GlobalStateContext, DispatchContext, STATE_ACTIONS, themeStr, getTheme } from './StateManager';
 import Sefaria from './sefaria';
 import styles from './Styles.js';
 import strings from './LocalizedStrings';
@@ -23,8 +23,8 @@ import strings from './LocalizedStrings';
 
 const SystemButton = ({ onPress, text, img, isHeb, isBlue, isLoading, extraStyles=[] }) => (
   <GlobalStateContext.Consumer>
-    { ({ theme }) => (
-      <TouchableOpacity disabled={isLoading} onPress={onPress} style={[styles.systemButton, theme.mainTextPanel, styles.boxShadow, (isBlue ? styles.systemButtonBlue : null)].concat(extraStyles)}>
+    { ({ themeStr }) => (
+      <TouchableOpacity disabled={isLoading} onPress={onPress} style={[styles.systemButton, getTheme(themeStr).mainTextPanel, styles.boxShadow, (isBlue ? styles.systemButtonBlue : null)].concat(extraStyles)}>
         { isLoading ?
           (<LoadingView size={'small'} height={20} color={isBlue ? '#ffffff' : undefined} />) :
           (<View style={styles.systemButtonInner}>
@@ -38,7 +38,7 @@ const SystemButton = ({ onPress, text, img, isHeb, isBlue, isLoading, extraStyle
             <Text
               style={[
                 styles.systemButtonText,
-                theme.text,
+                getTheme(themeStr).text,
                 (isBlue ? styles.systemButtonTextBlue : null),
                 (isHeb ? styles.heInt : styles.enInt)
               ]}
@@ -54,7 +54,7 @@ const SystemButton = ({ onPress, text, img, isHeb, isBlue, isLoading, extraStyle
 
 const SefariaProgressBar = ({ progress, onPress, onClose }) => (
   <GlobalStateContext.Consumer>
-    { ({ theme, themeStr, interfaceLanguage }) => (
+    { ({ themeStr, interfaceLanguage }) => (
       <TouchableOpacity onPress={!!onPress ? onPress : ()=>{}} disabled={!onPress} style={styles.sefariaProgressBar}>
         <View style={{flex: 1, flexDirection: interfaceLanguage === "hebrew" ? "row-reverse" : "row", height: 50}}>
           <View style={{flex: progress, backgroundColor: "#fff"}}>
@@ -138,7 +138,8 @@ const CategoryBlockLink = ({
   isSans,
   onPress,
 }) => {
-  const { theme, themeStr, textLanguage } = useContext(GlobalStateContext);
+  const { themeStr, textLanguage } = useContext(GlobalStateContext);
+  const theme = getTheme(themeStr);
   const isHeb = textLanguage == "hebrew";
   const iconOnLeft = iconSide ? iconSide === "start" ^ isHeb : isHeb;
   style  = style || {"borderColor": Sefaria.palette.categoryColor(category)};
@@ -193,7 +194,8 @@ CategoryBlockLink.propTypes = {
 
 
 const CategorySideColorLink = ({ language, category, enText, heText, sheetOwner, onPress }) => {
-  const { theme, themeStr } = useContext(GlobalStateContext);
+  const { themeStr } = useContext(GlobalStateContext);
+  const theme = getTheme(themeStr);
   const isHeb = language === 'hebrew';
   const borderSide = isHeb ? "Right" : "Left";
   const text = isHeb ? (heText || Sefaria.hebrewCategory(category)) : enText;
@@ -283,7 +285,8 @@ class CategoryColorLine extends React.Component {
 }
 
 const CategoryAttribution = ({ categories, context, linked=true, openUri }) => {
-  const { theme, textLanguage } = useContext(GlobalStateContext);
+  const { themeStr, textLanguage } = useContext(GlobalStateContext);
+  const theme = getTheme(themeStr);
   // language settings in TextColumn should be governed by textLanguage. Everything else should be governed by textLanguage
   if (!categories) { return null; }
   var attribution = Sefaria.categoryAttribution(categories);
@@ -321,7 +324,8 @@ const LibraryNavButton = ({
   withArrow,
   buttonStyle,
 }) => {
-  const { theme, themeStr, textLanguage } = useContext(GlobalStateContext);
+  const { themeStr, textLanguage } = useContext(GlobalStateContext);
+  const theme = getTheme(themeStr);
   let colorStyle = catColor ? [{"borderColor": catColor}] : [theme.searchResultSummary, {"borderTopWidth": 1}];
   let textStyle  = [catColor ? styles.spacedText : null];
   let flexDir = textLanguage !== "hebrew" ? "row" : "row-reverse";
@@ -374,7 +378,8 @@ LibraryNavButton.propTypes = {
 
 const LanguageToggleButton = () => {
   // button for toggling b/w he and en for menu and text lang (both controlled by `textLanguage`)
-  const { theme, interfaceLanguage, textLanguage } = useContext(GlobalStateContext);
+  const { themeStr, interfaceLanguage, textLanguage } = useContext(GlobalStateContext);
+  const theme = getTheme(themeStr);
   const dispatch = useContext(DispatchContext);
   const toggle = () => {
     const language = textLanguage !== "hebrew" ? "hebrew" : 'english';
@@ -578,7 +583,8 @@ const DisplaySettingsButton = ({ onPress }) => {
 }
 
 const ToggleSet = ({ options, active }) => {
-  const { theme, textLanguage } = useContext(GlobalStateContext);
+  const { themeStr, textLanguage } = useContext(GlobalStateContext);
+  const theme = getTheme(themeStr);
   const showHebrew = textLanguage == "hebrew";
   options = options.map((option, i) => {
     var style = [styles.navToggle, theme.navToggle].concat(active === option.name ? [styles.navToggleActive, theme.navToggleActive] : []);
@@ -610,7 +616,8 @@ ToggleSet.propTypes = {
 };
 
 const ButtonToggleSet = ({ options, active }) => {
-  const { theme, interfaceLanguage } = useContext(GlobalStateContext);
+  const { themeStr, interfaceLanguage } = useContext(GlobalStateContext);
+  const theme = getTheme(themeStr);
   var showHebrew = interfaceLanguage == "hebrew";
   const optionComponents = options.map((option, i) => {
 
@@ -643,7 +650,8 @@ ButtonToggleSet.propTypes = {
 
 const ButtonToggleSetNew = ({ options, active }) => {
   /* based on new styles guide */
-  const { theme, interfaceLanguage } = useContext(GlobalStateContext);
+  const { themeStr, interfaceLanguage } = useContext(GlobalStateContext);
+  const theme = getTheme(themeStr);
   const isHeb = interfaceLanguage === 'hebrew';
   return (
     <View style={[styles.readerDisplayOptionsMenuRow, styles.boxShadow, styles.buttonToggleSetNew, theme.mainTextPanel]}>

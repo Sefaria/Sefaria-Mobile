@@ -12,7 +12,7 @@ import ActionSheet from 'react-native-action-sheet';
 import {
   LoadingView,
 } from './Misc.js';
-import { GlobalStateContext } from './StateManager';
+import { GlobalStateContext, getTheme } from './StateManager';
 import HTMLView from 'react-native-htmlview';
 import strings from './LocalizedStrings';
 import styles from './Styles.js';
@@ -21,6 +21,7 @@ const DEFAULT_LINK_CONTENT = {en: strings.loading, he: "", sectionRef: ""};
 const NO_CONTENT_LINK_CONTENT = {en: strings.noContent, he: "", sectionRef: ""}
 
 class TextList extends React.Component {
+  static whyDidYouRender = true;
   static propTypes = {
     recentFilters:   PropTypes.array.isRequired,
     filterIndex:     PropTypes.number,
@@ -152,7 +153,6 @@ class TextList extends React.Component {
   };
 
   onHistorySave = history_item => {
-    console.log('saved', history_item.ref);
     this._savedHistorySegments.add(history_item.ref);
   };
 
@@ -178,9 +178,9 @@ class TextList extends React.Component {
 
 const EmptyListMessage = () => (
   <GlobalStateContext.Consumer>
-    {({ theme }) => (
+    {({ themeStr }) => (
       <Text
-        style={[styles.emptyLinksMessage, theme.secondaryText]}
+        style={[styles.emptyLinksMessage, getTheme(themeStr).secondaryText]}
       >
         {strings.noConnectionsMessage}
       </Text>
@@ -200,7 +200,8 @@ const ListItem = ({
   loading,
   displayRef,
 }) => {
-  const { theme, fontSize, interfaceLanguage, textLanguage } = useContext(GlobalStateContext);
+  const { themeStr, fontSize, interfaceLanguage, textLanguage } = useContext(GlobalStateContext);
+  const theme = getTheme(themeStr);
   const tempOpenRef = () => {
     // versionLanguage should only be defined when TextList is in VersionsBox. Otherwise you should open default version for that link
     const versions = versionLanguage ? {[versionLanguage]: versionTitle} : null;

@@ -22,7 +22,7 @@ import {
   CollapseIcon,
   SText,
 } from './Misc.js';
-import { GlobalStateContext } from './StateManager';
+import { GlobalStateContext, getTheme } from './StateManager';
 import styles from './Styles';
 import strings from './LocalizedStrings';
 import iPad from './isIPad';
@@ -67,7 +67,8 @@ const ReaderTextTableOfContents = ({
   textUnavailableAlert,
 }) => {
   // The Table of Contents for a single Text
-  const { theme, interfaceLanguage, textLanguage } = useContext(GlobalStateContext);
+  const { themeStr, interfaceLanguage, textLanguage } = useContext(GlobalStateContext);
+  const theme = getTheme(themeStr);
   var enTitle = title;
   var heTitle = Sefaria.index(title).heTitle;
   const langStyle = interfaceLanguage === "hebrew" ? styles.heInt : styles.enInt;
@@ -243,7 +244,8 @@ TextTableOfContentsNavigation.propTypes = {
 
 
 const SchemaNode = ({ schema, refPath, openRef, categories }) => {
-  const { textLanguage, theme } = useContext(GlobalStateContext);
+  const { textLanguage, themeStr } = useContext(GlobalStateContext);
+  const theme = getTheme(themeStr);
   if (!("nodes" in schema)) {
     if (schema.nodeType === "JaggedArrayNode") {
       return (
@@ -437,7 +439,8 @@ JaggedArrayNodeSection.propTypes = {
 };
 
 const JaggedArrayNodeSectionBox = ({ tref, enableAliyot, openRef, title, heTitle, showHebrew }) => {
-  const { theme } = useContext(GlobalStateContext);
+  const { themeStr } = useContext(GlobalStateContext);
+  const theme = getTheme(themeStr);
   return (
     <TouchableOpacity
       style={[styles.sectionLink, theme.sectionLink]}
@@ -451,7 +454,8 @@ const JaggedArrayNodeSectionBox = ({ tref, enableAliyot, openRef, title, heTitle
 }
 
 const JaggedArrayNodeSectionTitle = ({ openRef, tref, title, heTitle, showHebrew }) => {
-  const { theme } = useContext(GlobalStateContext);
+  const { themeStr } = useContext(GlobalStateContext);
+  const theme = getTheme(themeStr);
   return (
     <TouchableOpacity onPress={() => { openRef(tref); }}>
       { showHebrew ?
@@ -507,7 +511,8 @@ const ArrayMapNode = ({ schema, openRef, categories }) => {
 
 
 const CommentatorList = ({ commentatorList, openRef }) => {
-  const { theme, textLanguage } = useContext(GlobalStateContext);
+  const { themeStr, textLanguage } = useContext(GlobalStateContext);
+  const theme = getTheme(themeStr);
   const showHebrew = textLanguage == "hebrew";
   const content = commentatorList.map((commentator, i) => {
     const open = openRef.bind(null, commentator.firstSection);
@@ -539,7 +544,8 @@ const CollapsibleNode = ({
   children,
   node,
 }) => {
-  const { theme } = useContext(GlobalStateContext);
+  const { themeStr } = useContext(GlobalStateContext);
+  const theme = getTheme(themeStr);
   const [isVisible, setIsVisible] = useState((node.includeSections || node.default) && !defaultInvisible);
   const toggleVisibility = () => { setIsVisible(!isVisible); };
   let icon = !node.default ?

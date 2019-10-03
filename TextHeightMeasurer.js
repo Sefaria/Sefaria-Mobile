@@ -8,6 +8,7 @@ import { Text, View, StyleSheet } from 'react-native';
 const measureBatchSize = 50;
 
 class TextHeightMeasurer extends React.PureComponent {
+  static whyDidYouRender = true;
 
   static propTypes = {
     componentsToMeasure: PropTypes.arrayOf(PropTypes.shape({
