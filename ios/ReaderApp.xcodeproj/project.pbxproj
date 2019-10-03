@@ -25,14 +25,12 @@
 		07779F25233A749400196F02 /* JavaScriptCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ED297162215061F000B7C4FE /* JavaScriptCore.framework */; };
 		07779F32233A759400196F02 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = C3064F3EC50D4BF08968171A /* libz.tbd */; };
 		07779F34233A75BD00196F02 /* libRNZipArchive.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 07779F33233A75BD00196F02 /* libRNZipArchive.a */; };
-		07779F38233A75EE00196F02 /* libRNSound.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 07779F37233A75EE00196F02 /* libRNSound.a */; };
 		07779F3A233A760000196F02 /* libRNCAsyncStorage.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 07779F39233A760000196F02 /* libRNCAsyncStorage.a */; };
 		07779F3C233A761500196F02 /* libRNFirebase.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 07779F3B233A761500196F02 /* libRNFirebase.a */; };
 		10A4E5B969CAC69A266180FA /* libPods-ReaderApp-tvOSTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9EC8B9DF5E7CCBC9628D8B40 /* libPods-ReaderApp-tvOSTests.a */; };
 		13B07FBC1A68108700A75B9A /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.m */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
-		140ED2AC1D01E1AD002B40FF /* libReact.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 146834041AC3E56700842450 /* libReact.a */; };
 		2D02E4BC1E0B4A80006451C7 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.m */; };
 		2D02E4BD1E0B4A84006451C7 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		2D02E4BF1E0B4AB3006451C7 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
@@ -390,7 +388,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				140ED2AC1D01E1AD002B40FF /* libReact.a in Frameworks */,
 				B1A38FF55BC5B8CCD0658D62 /* libPods-ReaderAppTests.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -401,7 +398,6 @@
 			files = (
 				07779F3C233A761500196F02 /* libRNFirebase.a in Frameworks */,
 				07779F3A233A760000196F02 /* libRNCAsyncStorage.a in Frameworks */,
-				07779F38233A75EE00196F02 /* libRNSound.a in Frameworks */,
 				07779F34233A75BD00196F02 /* libRNZipArchive.a in Frameworks */,
 				07779F32233A759400196F02 /* libz.tbd in Frameworks */,
 				07779F25233A749400196F02 /* JavaScriptCore.framework in Frameworks */,
