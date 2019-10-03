@@ -178,6 +178,7 @@ SettingsPage.propTypes = {
 const ButtonToggleSection = ({ langStyle }) => {
   const dispatch = useContext(DispatchContext);
   const globalState = useContext(GlobalStateContext);
+  const theme = getTheme(globalState.themeStr);
   const setInterfaceLanguage = language => {
     dispatch({
       type: STATE_ACTIONS.setInterfaceLanguage,
@@ -218,7 +219,7 @@ const ButtonToggleSection = ({ langStyle }) => {
       {['textLanguage', 'interfaceLanguage', 'emailFrequency', 'preferredCustom'].map(s => (
         <View style={styles.settingsSection} key={s} stateKey={s}>
           <View>
-            <Text style={[langStyle, styles.settingsSectionHeader, globalState.theme.tertiaryText]}>{strings[s]}</Text>
+            <Text style={[langStyle, styles.settingsSectionHeader, theme.tertiaryText]}>{strings[s]}</Text>
           </View>
           <ButtonToggleSetNew
             options={options[`${s}Options`]}

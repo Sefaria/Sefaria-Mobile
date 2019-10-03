@@ -9,7 +9,7 @@ import {
 import {
   LoadingView,
 } from './Misc.js';
-import { GlobalStateContext } from './StateManager';
+import { GlobalStateContext, getTheme } from './StateManager';
 import HTMLView from 'react-native-htmlview';
 import strings from './LocalizedStrings';
 import styles from './Styles';
@@ -18,7 +18,8 @@ var moment = require("moment");
 
 
 const AboutBox = ({ textToc, currVersions, textTitle, sheet, openUri }) => {
-  const { theme, interfaceLanguage, textLanguage } = React.useContext(GlobalStateContext);
+  const { themeStr, interfaceLanguage, textLanguage } = React.useContext(GlobalStateContext);
+  const theme = getTheme(themeStr);
   const d = textToc;
   const vh = currVersions.he;
   const ve = currVersions.en;

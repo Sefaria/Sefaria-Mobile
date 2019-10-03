@@ -116,7 +116,6 @@ class ConnectionsPanel extends React.PureComponent {
               interfaceLanguage={this.props.interfaceLanguage}
               segmentRef={this.props.segmentRef}
               openRef={this.props.openRef}
-              connectionsPanelHeader={connectionsPanelHeader}
               connectionsMode={this.props.connectionsMode}
               loadContent={loadContent}
               recentFilters={recentFilters}
