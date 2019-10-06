@@ -25,14 +25,14 @@ if (process.env.NODE_ENV !== "production") {
   });
 }
 
-//const ReaderAppGesturified = gestureHandlerRootHOC(ReaderApp);
+const ReaderAppGesturified = gestureHandlerRootHOC(ReaderApp);
 const Root = () => {
   const [ globalState, dispatch ] = useReducer(reducer, DEFAULT_STATE);
   const theme = getTheme(globalState.themeStr);
   return (
     <DispatchContext.Provider value={dispatch}>
       <GlobalStateContext.Provider value={globalState}>
-        <ReaderApp
+        <ReaderAppGesturified
           { ...globalState }
           theme={theme}
           dispatch={dispatch}

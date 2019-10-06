@@ -375,15 +375,23 @@ class ReaderApp extends React.PureComponent {
   _lastFontScale = 1;
 
   _onPinchGestureEvent = event => {
-    let newFontSize = this.props.fontSize * event.nativeEvent.scale * this._lastFontScale;
+    let newFontSize = this.props.fontSize * (event.nativeEvent.scale*0.9) * this._lastFontScale;
     newFontSize = newFontSize > 60 ? 60 : newFontSize; // Max size
     newFontSize = newFontSize < 18 ? 18 : newFontSize; // Min size
-    this._pinchFontScale.setValue(newFontSize/this.props.fontSize/this._lastFontScale);
+    if (!this.incrementTimer) {
+      this.pendingIncrement = newFontSize/this.props.fontSize/this._lastFontScale;
+      //const numSegments = this.state.data.reduce((prevVal, elem) => prevVal + elem.length, 0);
+      //const timeout = Math.min(50 + Math.floor(numSegments/50)*25, 200); // range of timeout is [50,200] or in FPS [20,5]
+      this.incrementTimer = setTimeout(() => {
+        this._pinchFontScale.setValue(this.pendingIncrement);
+        this.incrementTimer = null;
+      }, 10);
+    }
   };
 
   _onPinchHandlerStateChange = event => {
     if (event.nativeEvent.oldState === State.ACTIVE) {
-      this._lastFontScale *= event.nativeEvent.scale;
+      this._lastFontScale *= (event.nativeEvent.scale*0.9);
       let newFontSize = this.props.fontSize * this._lastFontScale;
       newFontSize = newFontSize > 60 ? 30 : newFontSize; // Max size
       newFontSize = newFontSize < 18 ? 18 : newFontSize; // Min size
@@ -396,6 +404,10 @@ class ReaderApp extends React.PureComponent {
       this._baseFontScale.setValue(newFontSize/this.props.fontSize);
       this._pinchFontScale.setValue(1);
     }
+  };
+
+  _shouldPinchHandlerCapture = event => {
+    return event.nativeEvent.touches.length === 2;
   };
 
   incrementFont = (increment) => {
@@ -1827,7 +1839,10 @@ class ReaderApp extends React.PureComponent {
         onGestureEvent={this._onPinchGestureEvent}
         onHandlerStateChange={this._onPinchHandlerStateChange}
       >
-        <Animated.View style={[styles.container, this.props.theme.container]}>
+        <Animated.View
+          style={[styles.container, this.props.theme.container]}
+          onStartShouldSetResponderCapture={this._shouldPinchHandlerCapture}
+        >
             <CategoryColorLine category={Sefaria.categoryForTitle(this.state.textTitle, isSheet)} />
             <ReaderControls
               enRef={this.state.textReference}
