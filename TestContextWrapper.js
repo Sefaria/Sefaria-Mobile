@@ -10,7 +10,7 @@ import {
 // To be used as a wrapper component for components which need context in tests
 const TestContextWrapper = ({ child, childProps, passContextToChildren }) => {
   const [ globalState, dispatch ] = React.useReducer(reducer, DEFAULT_STATE);
-
+  globalState.theme = {};
   return (
     <DispatchContext.Provider value={dispatch}>
       <GlobalStateContext.Provider value={globalState}>

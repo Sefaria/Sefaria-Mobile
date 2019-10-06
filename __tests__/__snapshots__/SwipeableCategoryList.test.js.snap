@@ -41,6 +41,7 @@ exports[`SwipeableCategoryList basic render 1`] = `
   >
     <View
       accessible={true}
+      focusable={true}
       hitSlop={
         Object {
           "bottom": 20,
@@ -50,6 +51,7 @@ exports[`SwipeableCategoryList basic render 1`] = `
         }
       }
       isTVSelectable={true}
+      onClick={[Function]}
       onResponderGrant={[Function]}
       onResponderMove={[Function]}
       onResponderRelease={[Function]}
@@ -137,7 +139,9 @@ exports[`SwipeableCategoryList basic render 1`] = `
     </View>
     <View
       accessible={true}
+      focusable={true}
       isTVSelectable={true}
+      onClick={[Function]}
       onResponderGrant={[Function]}
       onResponderMove={[Function]}
       onResponderRelease={[Function]}
@@ -147,6 +151,7 @@ exports[`SwipeableCategoryList basic render 1`] = `
       style={
         Object {
           "alignItems": "center",
+          "borderColor": "#d5d5d4",
           "borderRadius": 4,
           "borderWidth": 1,
           "flexDirection": "row",
@@ -168,7 +173,9 @@ exports[`SwipeableCategoryList basic render 1`] = `
               "marginRight": 2,
               "marginTop": 4,
             },
-            undefined,
+            Object {
+              "color": "#999",
+            },
             Object {
               "fontFamily": "Taamey Frank Taamim Fix",
               "textAlign": "right",
@@ -182,7 +189,9 @@ exports[`SwipeableCategoryList basic render 1`] = `
   </View>
   <View
     accessible={true}
+    focusable={true}
     isTVSelectable={true}
+    onClick={[Function]}
     onResponderGrant={[Function]}
     onResponderMove={[Function]}
     onResponderRelease={[Function]}
@@ -233,7 +242,9 @@ exports[`SwipeableCategoryList basic render 1`] = `
     </Text>
     <View
       accessible={true}
+      focusable={true}
       isTVSelectable={true}
+      onClick={[Function]}
       onResponderGrant={[Function]}
       onResponderMove={[Function]}
       onResponderRelease={[Function]}
@@ -346,6 +357,7 @@ exports[`SwipeableCategoryList render with data 1`] = `
   >
     <View
       accessible={true}
+      focusable={true}
       hitSlop={
         Object {
           "bottom": 20,
@@ -355,6 +367,7 @@ exports[`SwipeableCategoryList render with data 1`] = `
         }
       }
       isTVSelectable={true}
+      onClick={[Function]}
       onResponderGrant={[Function]}
       onResponderMove={[Function]}
       onResponderRelease={[Function]}
@@ -442,7 +455,9 @@ exports[`SwipeableCategoryList render with data 1`] = `
     </View>
     <View
       accessible={true}
+      focusable={true}
       isTVSelectable={true}
+      onClick={[Function]}
       onResponderGrant={[Function]}
       onResponderMove={[Function]}
       onResponderRelease={[Function]}
@@ -452,6 +467,7 @@ exports[`SwipeableCategoryList render with data 1`] = `
       style={
         Object {
           "alignItems": "center",
+          "borderColor": "#d5d5d4",
           "borderRadius": 4,
           "borderWidth": 1,
           "flexDirection": "row",
@@ -473,7 +489,9 @@ exports[`SwipeableCategoryList render with data 1`] = `
               "marginRight": 2,
               "marginTop": 4,
             },
-            undefined,
+            Object {
+              "color": "#999",
+            },
             Object {
               "fontFamily": "Taamey Frank Taamim Fix",
               "textAlign": "right",
@@ -487,7 +505,9 @@ exports[`SwipeableCategoryList render with data 1`] = `
   </View>
   <View
     accessible={true}
+    focusable={true}
     isTVSelectable={true}
+    onClick={[Function]}
     onResponderGrant={[Function]}
     onResponderMove={[Function]}
     onResponderRelease={[Function]}
@@ -538,7 +558,9 @@ exports[`SwipeableCategoryList render with data 1`] = `
     </Text>
     <View
       accessible={true}
+      focusable={true}
       isTVSelectable={true}
+      onClick={[Function]}
       onResponderGrant={[Function]}
       onResponderMove={[Function]}
       onResponderRelease={[Function]}
@@ -645,7 +667,9 @@ exports[`SwipeableCategoryList render with data 1`] = `
         >
           <View
             accessible={true}
+            focusable={true}
             isTVSelectable={true}
+            onClick={[Function]}
             onResponderGrant={[Function]}
             onResponderMove={[Function]}
             onResponderRelease={[Function]}
@@ -685,8 +709,12 @@ exports[`SwipeableCategoryList render with data 1`] = `
                       "paddingHorizontal": 48,
                       "paddingTop": 14,
                     },
-                    undefined,
-                    undefined,
+                    Object {
+                      "backgroundColor": "#F9F9F7",
+                    },
+                    Object {
+                      "borderBottomColor": "#eee",
+                    },
                   ]
                 }
               >
@@ -702,7 +730,9 @@ exports[`SwipeableCategoryList render with data 1`] = `
                         "marginTop": 5,
                         "textAlign": "left",
                       },
-                      undefined,
+                      Object {
+                        "color": "black",
+                      },
                     ]
                   }
                 >
@@ -735,7 +765,9 @@ exports[`SwipeableCategoryList render with data 1`] = `
         >
           <View
             accessible={true}
+            focusable={true}
             isTVSelectable={true}
+            onClick={[Function]}
             onResponderGrant={[Function]}
             onResponderMove={[Function]}
             onResponderRelease={[Function]}
@@ -775,8 +807,12 @@ exports[`SwipeableCategoryList render with data 1`] = `
                       "paddingHorizontal": 48,
                       "paddingTop": 14,
                     },
-                    undefined,
-                    undefined,
+                    Object {
+                      "backgroundColor": "#F9F9F7",
+                    },
+                    Object {
+                      "borderBottomColor": "#eee",
+                    },
                   ]
                 }
               >
@@ -792,7 +828,9 @@ exports[`SwipeableCategoryList render with data 1`] = `
                         "marginTop": 5,
                         "textAlign": "left",
                       },
-                      undefined,
+                      Object {
+                        "color": "black",
+                      },
                     ]
                   }
                 >
@@ -825,7 +863,9 @@ exports[`SwipeableCategoryList render with data 1`] = `
         >
           <View
             accessible={true}
+            focusable={true}
             isTVSelectable={true}
+            onClick={[Function]}
             onResponderGrant={[Function]}
             onResponderMove={[Function]}
             onResponderRelease={[Function]}
@@ -865,8 +905,12 @@ exports[`SwipeableCategoryList render with data 1`] = `
                       "paddingHorizontal": 48,
                       "paddingTop": 14,
                     },
-                    undefined,
-                    undefined,
+                    Object {
+                      "backgroundColor": "#F9F9F7",
+                    },
+                    Object {
+                      "borderBottomColor": "#eee",
+                    },
                   ]
                 }
               >
@@ -882,7 +926,9 @@ exports[`SwipeableCategoryList render with data 1`] = `
                         "marginTop": 5,
                         "textAlign": "left",
                       },
-                      undefined,
+                      Object {
+                        "color": "black",
+                      },
                     ]
                   }
                 >
