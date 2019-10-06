@@ -59,7 +59,7 @@ const TextRange = React.memo(({
       }
       else if (buttonIndex === 3) { openUri(Sefaria.refToUrl(segmentRef))}
     })
-  }, [textLanguage, segmentRef]);
+  }, [segmentRef]);
 
   const copyToClipboard = () => {
     Clipboard.setString(getDisplayedText());
