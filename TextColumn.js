@@ -152,9 +152,9 @@ class TextColumn extends React.PureComponent {
           };
           // excluding b/c they don't change height: props.themeStr, props.linksLoaded[sectionIndex]
           //rowData.changeString += rowData.highlight ? "|highlight" : "";
-          rows.push({ref: rowID, data: rowData, changeString: `${rowID}|${rowData.content.links.length}|${rowData.highlight}|${this.props.themeStr}|${this.props.fontSize}`, type: ROW_TYPES.SEGMENT});
+          rows.push({ref: rowID, data: rowData, changeString: `${rowID}|${rowData.content.links.length}|${rowData.highlight}|${this.props.fontSize}`, type: ROW_TYPES.SEGMENT});
         }
-        dataSource.push({ref: props.sectionArray[sectionIndex], heRef: props.sectionHeArray[sectionIndex], data: rows, sectionIndex: sectionIndex, changeString: `${props.sectionArray[sectionIndex]}|${this.props.themeStr}|${this.props.fontSize}`});
+        dataSource.push({ref: props.sectionArray[sectionIndex], heRef: props.sectionHeArray[sectionIndex], data: rows, sectionIndex: sectionIndex, changeString: `${props.sectionArray[sectionIndex]}|${this.props.fontSize}`});
       }
       segmentGenerator = this.renderSegmentedRow;
     }
@@ -191,8 +191,8 @@ class TextColumn extends React.PureComponent {
         const r = n.refs[i];
         const dashIndex = r.lastIndexOf("-");
         parashaDict[r.slice(0,dashIndex)] = i === 0 ?
-          {data: {en: n.title, he: n.heTitle}, ref: `${n.title}|parasha`, type: ROW_TYPES.PARASHA, changeString: `${n.title}|parasha|${this.props.themeStr}|${this.props.fontSize}`} :
-          {data: aliyaNames[i], ref: `${n.title}|${aliyaNames[i].en}|aliya`,type: ROW_TYPES.ALIYA, changeString: `${n.title}|${aliyaNames[i].en}|aliya|${this.props.themeStr}|${this.props.fontSize}`};
+          {data: {en: n.title, he: n.heTitle}, ref: `${n.title}|parasha`, type: ROW_TYPES.PARASHA, changeString: `${n.title}|parasha|${this.props.fontSize}`} :
+          {data: aliyaNames[i], ref: `${n.title}|${aliyaNames[i].en}|aliya`,type: ROW_TYPES.ALIYA, changeString: `${n.title}|${aliyaNames[i].en}|aliya|${this.props.fontSize}`};
       }
     }
     return parashaDict;
@@ -231,7 +231,7 @@ class TextColumn extends React.PureComponent {
               animated: false,
               sectionIndex: 0,
               itemIndex: targetIndex - 1,
-              viewPosition: 0.1,  // trying to use viewOffset for more exact positioning leads to different results on iOS vs Android. -50 works well for iOS and 50 works well for Android
+              viewOffset: -50,  // trying to use viewOffset for more exact positioning leads to different results on iOS vs Android. -50 works well for iOS and 50 works well for Android
           });
         }
 
@@ -256,7 +256,7 @@ class TextColumn extends React.PureComponent {
         this.props.textListVisible !== prevProps.textListVisible ||
         this.props.segmentIndexRef !== prevProps.segmentIndexRef ||
         this.props.segmentRef !== prevProps.segmentRef ||
-        this.props.themeStr !== prevProps.themeStr ||
+        //this.props.themeStr !== prevProps.themeStr ||
         this.props.linksLoaded !== prevProps.linksLoaded ||
         this.props.textToc !== prevProps.textToc ||
         this.props.showAliyot !== prevProps.showAliyot) {
