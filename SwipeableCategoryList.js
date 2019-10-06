@@ -11,7 +11,6 @@ import {
   View,
   ScrollView,
   Alert,
-  SwipeableFlatList,
   FlatList,
   Image,
   RefreshControl,
@@ -26,6 +25,7 @@ import {
   SText,
 } from './Misc.js';
 import { STATE_ACTIONS } from './StateManager';
+import SwipeableFlatList from './SwipeableFlatList';
 import styles from './Styles';
 import strings from './LocalizedStrings';
 
@@ -55,6 +55,7 @@ class SwipeableCategoryList extends React.Component {
       data: [],
       refreshing: true,
     };
+    console.log('SwipeableFlatList', SwipeableFlatList);
     this._rowRefs = {};
   }
 
