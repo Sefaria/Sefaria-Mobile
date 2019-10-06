@@ -25,6 +25,7 @@ const TextRange = React.memo(({
   setRowRef,
   setRowRefInitY,
   fontScale,
+  openUri,
 }) => {
   const { themeStr, textLanguage, biLayout, fontSize } = useContext(GlobalStateContext);
   const getDisplayedText = useCallback(withURL => {
