@@ -16,7 +16,7 @@ import styles from './Styles.js';
 import iPad from './isIPad';
 
 
-const TextSegment = ({
+const TextSegment = React.memo(({
   rowRef,
   segmentKey,
   data,
@@ -91,7 +91,7 @@ const TextSegment = ({
      />
 
   );
-}
+});
 TextSegment.whyDidYouRender = true;
 TextSegment.propTypes = {
   rowRef:             PropTypes.string.isRequired, /* this ref keys into TextColumn.rowRefs */
