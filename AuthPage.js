@@ -95,7 +95,7 @@ const AuthPage = ({ authMode, close, showToast, openLogin, openRegister, openUri
   const placeholderTextColor = themeStr == "black" ? "#BBB" : "#777";
   const isHeb = interfaceLanguage === 'hebrew';
   return(
-    <ScrollView style={{flex:1, alignSelf: "stretch"}} contentContainerStyle={{alignItems: "center", paddingBottom: 50}}>
+    <ScrollView style={{flex:1, alignSelf: "stretch"}} contentContainerStyle={{alignItems: "center", paddingBottom: 50}} keyboardShouldPersistTaps='handled'>
       <RainbowBar />
       <View style={{ flex: 1, alignSelf: "stretch", alignItems: "flex-end", marginHorizontal: 10}}>
         <CircleCloseButton onPress={close} />
