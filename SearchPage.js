@@ -26,6 +26,27 @@ const numberWithCommas = x => {
   return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 };
 
+const SearchToggleIcon = ({ type, setSearchTypeState, searchStateType, langStyle, status }) => {
+  const { interfaceLanguage, themeStr } = useContext(GlobalStateContext);
+  const theme = getTheme(themeStr);
+  const isheb = interfaceLanguage === "hebrew";
+  let icon;
+  if (type === 'sheet') {
+    icon = searchStateType == type ? require('./img/sheet-dark.png') : require('./img/sheet.png');
+  } else {
+    icon = searchStateType == type ? require('./img/book-dark.png') : require('./img/book.png');
+  }
+  return (
+    <TouchableOpacity onPress={() => setSearchTypeState(type)} style={isheb ? styles.searchOptionButtonTextHe : styles.searchOptionButtonTextEn}>
+      <Image source={icon}
+        style={[styles.menuButton, isheb ? styles.headerIconWithTextHe : styles.headerIconWithTextEn]}
+        resizeMode={'contain'}
+      />
+    <Text style={[theme.searchResultSummaryText, langStyle, searchStateType == type ? {color: '#000'} : {color: '#999'},  {marginTop: -2} ]}>{status}</Text>
+    </TouchableOpacity>
+  );
+}
+
 const SearchPage = props => {
   const { interfaceLanguage, themeStr } = useContext(GlobalStateContext);
   const theme = getTheme(themeStr);
@@ -55,28 +76,6 @@ const SearchPage = props => {
   var forwardImageStyle = isheb && false ? styles.forwardButtonHe : styles.forwardButtonEn;
   var content = null;
 
-  var sheetToggle = (
-      <TouchableOpacity onPress={() => props.setSearchTypeState('sheet')} style={isheb ? styles.searchOptionButtonTextHe : styles.searchOptionButtonTextEn}>
-        <Image source={props.searchState.type == "sheet" ? require('./img/sheet-dark.png') : require('./img/sheet.png')}
-          style={[styles.menuButton, isheb ? styles.headerIconWithTextHe : styles.headerIconWithTextEn]}
-          resizeMode={'contain'}
-        />
-        <Text style={[theme.searchResultSummaryText, langStyle, props.searchState.type == "sheet" ? {color: '#000'} : {color: '#999'},  {marginTop: -2} ]}>{sheetStatus}</Text>
-      </TouchableOpacity>
-  );
-
-  var textToggle = (
-      <TouchableOpacity onPress={() => props.setSearchTypeState('text')} style={isheb ? styles.searchOptionButtonTextHe : styles.searchOptionButtonTextEn}>
-        <Image source={props.searchState.type == "text" ? require('./img/book-dark.png') : require('./img/book.png')}
-          style={[styles.searchOptionButton, isheb ? styles.headerIconWithTextHe : styles.headerIconWithTextEn]}
-          resizeMode={'contain'}
-        />
-        <Text style={[theme.searchResultSummaryText, langStyle, props.searchState.type == "text" ? {color: '#000'} : {color: '#999'}, {marginTop: -2} ]}>{textStatus}</Text>
-      </TouchableOpacity>
-  );
-
-
-
   switch (props.subMenuOpen) {
     case (null):
       content = (
@@ -93,7 +92,24 @@ const SearchPage = props => {
             hideSearchButton={true}
           />
           <View style={summaryStyle}>
-              <View style={{flexDirection: 'row'}}>{textToggle}<Text> </Text>{sheetToggle}</View>
+              <View style={{flexDirection: 'row'}}>
+                <SearchToggleIcon
+                  type="text"
+                  setSearchTypeState={props.setSearchTypeState}
+                  searchStateType={props.searchState.type}
+                  langStyle={langStyle}
+                  status={textStatus}
+                />
+                <Text>
+                </Text>
+                <SearchToggleIcon
+                  type="sheet"
+                  setSearchTypeState={props.setSearchTypeState}
+                  searchStateType={props.searchState.type}
+                  langStyle={langStyle}
+                  status={sheetStatus}
+                />
+              </View>
             {props.searchState.type == "text" ?
             <DirectedButton
               text={(<Text>{strings.filter} <Text style={theme.text}>{`(${props.searchState.appliedFilters.length})`}</Text></Text>)}
