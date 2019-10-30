@@ -223,15 +223,15 @@ class TextColumn extends React.PureComponent {
           console.log("target Y is no good :(", segmentRef);
         }
       } else {
-        const targetIndex = this.state.jumpInfoMap.get(segmentRef);
+        const itemIndex = this.state.jumpInfoMap.get(segmentRef);
         const { startY, endY } = this.getSegScrollPos(segmentRef);
         if (startY > 0) {
-          if (!targetIndex) { debugger; }
+          if (!itemIndex) { debugger; }
           this.sectionListRef.scrollToLocation({
               animated: false,
               sectionIndex: 0,
-              itemIndex: targetIndex - 1,
-              viewOffset: -50,  // trying to use viewOffset for more exact positioning leads to different results on iOS vs Android. -50 works well for iOS and 50 works well for Android
+              itemIndex,
+              viewPosition: 0,
           });
         }
 
