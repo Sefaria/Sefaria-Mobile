@@ -152,7 +152,7 @@ class TextColumn extends React.PureComponent {
           };
           // excluding b/c they don't change height: props.themeStr, props.linksLoaded[sectionIndex]
           //rowData.changeString += rowData.highlight ? "|highlight" : "";
-          rows.push({ref: rowID, data: rowData, changeString: `${rowID}|${rowData.content.links.length}|${rowData.highlight}|${this.props.fontSize}`, type: ROW_TYPES.SEGMENT});
+          rows.push({ref: rowID, data: rowData, changeString: `${rowID}|${!!rowData.content.links && rowData.content.links.length}|${rowData.highlight}|${this.props.fontSize}`, type: ROW_TYPES.SEGMENT});
         }
         dataSource.push({ref: props.sectionArray[sectionIndex], heRef: props.sectionHeArray[sectionIndex], data: rows, sectionIndex: sectionIndex, changeString: `${props.sectionArray[sectionIndex]}|${this.props.fontSize}`});
       }

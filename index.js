@@ -18,7 +18,7 @@ import {
 import strings from './LocalizedStrings';
 import ReaderApp from './ReaderApp';
 
-if (process.env.NODE_ENV !== "production") {
+if (process.env.NODE_ENV !== "production" && false) {
   const whyDidYouRender = require("@welldone-software/why-did-you-render");
   whyDidYouRender(React, {
     collapseGroups: true,

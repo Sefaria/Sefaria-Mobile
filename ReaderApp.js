@@ -207,7 +207,6 @@ class ReaderApp extends React.PureComponent {
   }
 
   initFiles = () => {
-    console.log("YO HO HO merry rosh hashonoh!!");
     Sefaria._deleteUnzippedFiles()
     .then(() => Sefaria.init(this.props.dispatch)).then(() => {
         setTimeout(SplashScreen.hide, 300);

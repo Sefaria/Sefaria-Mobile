@@ -147,57 +147,53 @@ Sefaria = {
   shouldLoadFromApi: function(versions) {
     // there are currently two cases where we load from API even if the index is downloaded
     // 1) debugNoLibrary is true 2) you're loading a non-default version
-    return (!!versions && Object.keys(versions).length !== 0) || Sefaria.downloader._data.debugNoLibrary;
+    return (!!versions && Object.keys(versions).length !== 0 && Object.values(versions).reduce((accum, curr) => accum || !!curr, false)) || Sefaria.downloader._data.debugNoLibrary;
   },
-  loadOfflineFile: function(ref, context, versions) {
-    return new Promise(function(resolve, reject) {
-      var fileNameStem = ref.split(":")[0];
-      var bookRefStem  = Sefaria.textTitleForRef(ref);
-      //if you want to open a specific version, there is no json file. force an api call instead
-      const shouldLoadFromApi = Sefaria.shouldLoadFromApi(versions);
-      var jsonPath     = shouldLoadFromApi ? "" : Sefaria._JSONSourcePath(fileNameStem);
-      var zipPath      = shouldLoadFromApi ? "" : Sefaria._zipSourcePath(bookRefStem);
-      // Pull data from in memory cache if available
-      if (jsonPath in Sefaria._jsonData) {
-        resolve(Sefaria._jsonData[jsonPath]);
-        return;
+  loadOfflineFile: async function(ref, context, versions) {
+    var fileNameStem = ref.split(":")[0];
+    var bookRefStem  = Sefaria.textTitleForRef(ref);
+    //if you want to open a specific version, there is no json file. force an api call instead
+    const shouldLoadFromApi = Sefaria.shouldLoadFromApi(versions);
+    var jsonPath     = shouldLoadFromApi ? "" : Sefaria._JSONSourcePath(fileNameStem);
+    var zipPath      = shouldLoadFromApi ? "" : Sefaria._zipSourcePath(bookRefStem);
+    // Pull data from in memory cache if available
+    if (jsonPath in Sefaria._jsonData) {
+      return Sefaria._jsonData[jsonPath];
+    }
+
+    const preResolve = data => {
+      if (!(jsonPath in Sefaria._jsonData)) {
+        Sefaria._jsonData[jsonPath] = data;
       }
-
-      const preResolve = data => {
-        if (!(jsonPath in Sefaria._jsonData)) {
-          Sefaria._jsonData[jsonPath] = data;
+      return data;
+    };
+    let data;
+    try {
+      data = await Sefaria._loadJSON(jsonPath);
+      return preResolve(data);
+    } catch (e) {
+      const exists = await RNFB.fs.exists(zipPath);
+      if (exists) {
+        const path = await Sefaria._unzip(zipPath);
+        try {
+          data = await Sefaria._loadJSON(jsonPath);
+          return preResolve(data);
+        } catch (e2) {
+          // Now that the file is unzipped, if there was an error assume we have a depth 1 text
+          // NOAH 10/30/2019 not sure if this path is ever reached
+          var depth1FilenameStem = fileNameStem.substr(0, fileNameStem.lastIndexOf(" "));
+          var depth1JSONPath = Sefaria._JSONSourcePath(depth1FilenameStem);
+          try {
+            data = await Sefaria._loadJSON(depth1JSONPath);
+            return preResolve(data);
+          } catch (e3) {
+            console.error("Error loading JSON file: " + jsonPath + " OR " + depth1JSONPath);
+          }
         }
-        resolve(data);
-      };
-
-      Sefaria._loadJSON(jsonPath)
-        .then(preResolve)
-        .catch(() => {
-          // If there was en error, check that we have the zip file downloaded
-          RNFB.fs.exists(zipPath)
-            .then(exists => {
-              if (exists) {
-                Sefaria._unzip(zipPath)
-                  .then(path => {
-                    Sefaria._loadJSON(jsonPath)
-                      .then(preResolve)
-                      .catch(() => {
-                        // Now that the file is unzipped, if there was an error assume we have a depth 1 text
-                        var depth1FilenameStem = fileNameStem.substr(0, fileNameStem.lastIndexOf(" "));
-                        var depth1JSONPath = Sefaria._JSONSourcePath(depth1FilenameStem);
-                        Sefaria._loadJSON(depth1JSONPath)
-                          .then(preResolve)
-                          .catch(() => {
-                            console.error("Error loading JSON file: " + jsonPath + " OR " + depth1JSONPath);
-                          });
-                      });
-                  });
-              } else {
-                reject(ERRORS.NOT_OFFLINE);
-              }
-            });
-        });
-    });
+      } else {
+        throw ERRORS.NOT_OFFLINE;
+      }
+    }
   },
   loadFromApi: function(ref, context, versions, bookRefStem) {
     return new Promise((resolve, reject) => {
