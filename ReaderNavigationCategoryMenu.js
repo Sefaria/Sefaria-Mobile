@@ -100,7 +100,7 @@ const ReaderNavigationCategoryMenu = ({
   openUri,
 }) => {
   // Navigation Menu for a single category of texts (e.g., "Tanakh", "Bavli")
-  const { themeStr, textLanguage } = useContext(GlobalStateContext);
+  const { themeStr, textLanguage, interfaceLanguage } = useContext(GlobalStateContext);
   const theme = getTheme(themeStr);
   const showTalmudToggle = categories[0] === "Talmud" && categories.length <= 2;
   categories = categories[0] === "Talmud" && categories.length == 1 ? ["Talmud", "Bavli"] : categories;
@@ -124,7 +124,7 @@ const ReaderNavigationCategoryMenu = ({
     />
   );
   const extractKey = (item, index) => (`${item.title}|${index}`);
-  const showHebrew = textLanguage == "hebrew";
+  const showHebrew = Sefaria.util.get_menu_language(interfaceLanguage, textLanguage) == "hebrew";
   if (!Sefaria.toc) { return (<LoadingView />); }
   const enTitle = category.toUpperCase();
   const heTitle = Sefaria.hebrewCategory(category);
@@ -201,9 +201,9 @@ const ListHeader = ({ showTalmudToggle, setCategories, categories, openUri }) =>
 }
 
 const SectionHeader = ({ section }) => {
-  const { themeStr, textLanguage } = useContext(GlobalStateContext);
+  const { themeStr, textLanguage, interfaceLanguage } = useContext(GlobalStateContext);
   const theme = getTheme(themeStr);
-  const showHebrew = textLanguage == "hebrew";
+  const showHebrew = Sefaria.util.get_menu_language(interfaceLanguage, textLanguage) == "hebrew";
   if (!section.title) { return null; }
   return (
     <View style={styles.category} key={`category|${section.title}`}>
@@ -215,8 +215,8 @@ const SectionHeader = ({ section }) => {
 };
 
 const NavItem = ({ item, setCategories, openRef }) => {
-  const { textLanguage } = useContext(GlobalStateContext);
-  const showHebrew = textLanguage == "hebrew";
+  const { textLanguage, interfaceLanguage } = useContext(GlobalStateContext);
+  const showHebrew = Sefaria.util.get_menu_language(interfaceLanguage, textLanguage) == "hebrew";
   const { ref, versions } = item.oref || {};
   return (
     <BookButton
@@ -235,7 +235,7 @@ const NavItem = ({ item, setCategories, openRef }) => {
 const NavRow = ({ section, index, setCategories, openRef }) => {
   // play a couple of tricks to get SectionList to render rows
   // see: https://stackoverflow.com/questions/47833581/react-native-sectionlist-numcolumns-support
-  const { textLanguage } = useContext(GlobalStateContext);
+  const { textLanguage, interfaceLanguage } = useContext(GlobalStateContext);
   const numColumns = 2;
   if (index % numColumns !== 0) return null;
   const children = [];
@@ -253,7 +253,7 @@ const NavRow = ({ section, index, setCategories, openRef }) => {
     );
   }
   return (
-    <TwoBoxRow language={textLanguage}>
+    <TwoBoxRow language={Sefaria.util.get_menu_language(interfaceLanguage, textLanguage)}>
       { children }
     </TwoBoxRow>
   );

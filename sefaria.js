@@ -1121,6 +1121,11 @@ Sefaria = {
 };
 
 Sefaria.util = {
+  get_menu_language: function(interfaceLanguage, textLanguage) {
+    //menu language is no longer set explicitly
+    //Instead, it is set like this
+    return interfaceLanguage == 'hebrew' || textLanguage == 'hebrew' ? 'hebrew' : 'english';
+  },
   object_equals: function(a, b) {
     // simple object equality assuming values are primitive. see here
     // http://adripofjavascript.com/blog/drips/object-equality-in-javascript.html

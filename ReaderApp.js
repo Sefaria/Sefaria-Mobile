@@ -341,6 +341,7 @@ class ReaderApp extends React.PureComponent {
   setTextLanguage = (textLanguage, textFlow, dontToggle) => {
     // try to be less dependent on state in this func because it is called in componentWillUpdate
     textFlow = textFlow || this.state.textFlow;
+    console.log("SET TEXT LANG", textLanguage, textFlow, dontToggle);
     this.props.dispatch({
       type: STATE_ACTIONS.setTextLanguage,
       value: textLanguage,
@@ -958,7 +959,7 @@ class ReaderApp extends React.PureComponent {
         // if you're in bilingual, assume you want to stay in that
         if (!!newVersions['en'] && !!newVersions['he']) { newTextLang = "bilingual"; }
         else if (!!newVersions['en']) { newTextLang = "english"; }
-        else { newTextLang = "hebrew"; }
+        else if (!!newVersions['he']){ newTextLang = "hebrew"; }
         this.setTextLanguage(newTextLang, null, true);
       }
 
@@ -1207,7 +1208,8 @@ class ReaderApp extends React.PureComponent {
   };
 
   updateLinkSummary = (section, segment) => {
-    Sefaria.links.linkSummary(this.state.textReference, this.state.data[section][segment].links, this.props.textLanguage).then((data) => {
+    const menuLanguage = Sefaria.util.get_menu_language(this.props.interfaceLanguage, this.props.textLanguage);
+    Sefaria.links.linkSummary(this.state.textReference, this.state.data[section][segment].links, menuLanguage).then((data) => {
       this.setState({linkSummary: data, loadingLinks: false});
       this.updateLinkCat(null, data); // Set up `linkContents` in their initial state as an array of nulls
     });
@@ -1880,6 +1882,7 @@ class ReaderApp extends React.PureComponent {
                 /> :
                 <TextColumn
                   fontScale={this._fontScale}
+                  interfaceLanguage={this.props.interfaceLanguage}
                   textLanguage={this.props.textLanguage}
                   showAliyot={this.props.showAliyot}
                   theme={this.props.theme}

@@ -48,6 +48,7 @@ class TextColumn extends React.PureComponent {
     heRef:              PropTypes.string,
     textFlow:           PropTypes.oneOf(["segmented","continuous"]),
     textLanguage:       PropTypes.oneOf(["hebrew","english","bilingual"]),
+    interfaceLanguage:  PropTypes.oneOf(["hebrew","english"]),
     updateData:         PropTypes.func,
     updateTitle:        PropTypes.func,
     textSegmentPressed: PropTypes.func,
@@ -154,7 +155,7 @@ class TextColumn extends React.PureComponent {
           //rowData.changeString += rowData.highlight ? "|highlight" : "";
           rows.push({ref: rowID, data: rowData, changeString: `${rowID}|${!!rowData.content.links && rowData.content.links.length}|${rowData.highlight}|${this.props.fontSize}`, type: ROW_TYPES.SEGMENT});
         }
-        dataSource.push({ref: props.sectionArray[sectionIndex], heRef: props.sectionHeArray[sectionIndex], data: rows, sectionIndex: sectionIndex, changeString: `${props.sectionArray[sectionIndex]}|${this.props.fontSize}`});
+        dataSource.push({ref: props.sectionArray[sectionIndex], heRef: props.sectionHeArray[sectionIndex], data: rows, sectionIndex: sectionIndex, changeString: `${props.sectionArray[sectionIndex]}|${this.props.fontSize}|${this.props.textLanguage}`});
       }
       segmentGenerator = this.renderSegmentedRow;
     }
@@ -191,8 +192,8 @@ class TextColumn extends React.PureComponent {
         const r = n.refs[i];
         const dashIndex = r.lastIndexOf("-");
         parashaDict[r.slice(0,dashIndex)] = i === 0 ?
-          {data: {en: n.title, he: n.heTitle}, ref: `${n.title}|parasha`, type: ROW_TYPES.PARASHA, changeString: `${n.title}|parasha|${this.props.fontSize}`} :
-          {data: aliyaNames[i], ref: `${n.title}|${aliyaNames[i].en}|aliya`,type: ROW_TYPES.ALIYA, changeString: `${n.title}|${aliyaNames[i].en}|aliya|${this.props.fontSize}`};
+          {data: {en: n.title, he: n.heTitle}, ref: `${n.title}|parasha`, type: ROW_TYPES.PARASHA, changeString: `${n.title}|parasha|${this.props.fontSize}|${this.props.textLanguage}`} :
+          {data: aliyaNames[i], ref: `${n.title}|${aliyaNames[i].en}|aliya`,type: ROW_TYPES.ALIYA, changeString: `${n.title}|${aliyaNames[i].en}|aliya|${this.props.fontSize}|${this.props.textLanguage}`};
       }
     }
     return parashaDict;
@@ -474,13 +475,13 @@ class TextColumn extends React.PureComponent {
     if (!props) {
       props = this.props;
     }
-
+    const isHeb = Sefaria.util.get_menu_language(props.interfaceLanguage, props.textLanguage) == "hebrew";
     return (
       <TextHeader
-        title={props.textLanguage == "hebrew" ?
+        title={isHeb ?
                 this.inlineSectionHeader(section.heRef) :
                 this.inlineSectionHeader(section.ref)}
-        isHebrew={props.textLanguage == "hebrew"}
+        isHebrew={isHeb}
         theme={props.theme}
         outerStyle={styles.sectionHeaderBorder}
       />
@@ -488,7 +489,7 @@ class TextColumn extends React.PureComponent {
   };
 
   renderAliyaMarker = ({ item }) => {
-    const isHeb = this.props.textLanguage == "hebrew";
+    const isHeb = Sefaria.util.get_menu_language(this.props.interfaceLanguage, this.props.textLanguage) == "hebrew";
     return (
       <TextHeader
         title={isHeb ? item.data.he : item.data.en}

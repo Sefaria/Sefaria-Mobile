@@ -83,7 +83,7 @@ class ConnectionsPanelHeader extends React.Component {
                 recentFilters={this.props.recentFilters}
                 filterIndex={this.props.filterIndex}
                 updateCat={this.props.updateCat}
-                language={this.props.textLanguage}
+                language={Sefaria.util.get_menu_language(this.props.interfaceLanguage, this.props.textLanguage)}
               />
             </ScrollView>
           </View>

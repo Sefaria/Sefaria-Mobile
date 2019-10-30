@@ -138,9 +138,9 @@ const CategoryBlockLink = ({
   isSans,
   onPress,
 }) => {
-  const { themeStr, textLanguage } = useContext(GlobalStateContext);
+  const { themeStr, textLanguage, interfaceLanguage } = useContext(GlobalStateContext);
   const theme = getTheme(themeStr);
-  const isHeb = textLanguage == "hebrew";
+  const isHeb = Sefaria.util.get_menu_language(interfaceLanguage, textLanguage) == 'hebrew';
   const iconOnLeft = iconSide ? iconSide === "start" ^ isHeb : isHeb;
   style  = style || {"borderColor": Sefaria.palette.categoryColor(category)};
   var enText = upperCase ? category.toUpperCase() : category;
@@ -285,7 +285,7 @@ class CategoryColorLine extends React.Component {
 }
 
 const CategoryAttribution = ({ categories, context, linked=true, openUri }) => {
-  const { themeStr, textLanguage } = useContext(GlobalStateContext);
+  const { themeStr, textLanguage, interfaceLanguage } = useContext(GlobalStateContext);
   const theme = getTheme(themeStr);
   // language settings in TextColumn should be governed by textLanguage. Everything else should be governed by textLanguage
   if (!categories) { return null; }
@@ -294,9 +294,9 @@ const CategoryAttribution = ({ categories, context, linked=true, openUri }) => {
 
   var openLink = () => {openUri(attribution.link)};
   var boxStyles = [styles.categoryAttribution, styles[context + "CategoryAttribution" ]];
-  var content = textLanguage !== "hebrew" ?
-              <Text style={[styles[context + "CategoryAttributionTextEn"], theme.tertiaryText]}>{attribution.english}</Text> :
-              <Text style={[styles[context + "CategoryAttributionTextHe"], theme.tertiaryText]}>{attribution.hebrew}</Text>;
+  var content = Sefaria.util.get_menu_language(interfaceLanguage, textLanguage) == "hebrew" ?
+              <Text style={[styles[context + "CategoryAttributionTextHe"], theme.tertiaryText]}>{attribution.hebrew}</Text> :
+              <Text style={[styles[context + "CategoryAttributionTextEn"], theme.tertiaryText]}>{attribution.english}</Text>;
 
   return linked ?
     (<TouchableOpacity style={boxStyles} onPress={openLink}>
@@ -324,11 +324,12 @@ const LibraryNavButton = ({
   withArrow,
   buttonStyle,
 }) => {
-  const { themeStr, textLanguage } = useContext(GlobalStateContext);
+  const { themeStr, textLanguage, interfaceLanguage } = useContext(GlobalStateContext);
   const theme = getTheme(themeStr);
   let colorStyle = catColor ? [{"borderColor": catColor}] : [theme.searchResultSummary, {"borderTopWidth": 1}];
   let textStyle  = [catColor ? styles.spacedText : null];
-  let flexDir = textLanguage !== "hebrew" ? "row" : "row-reverse";
+  const isHeb = Sefaria.util.get_menu_language(interfaceLanguage, textLanguage) == "hebrew";
+  let flexDir = isHeb ? "row-reverse" : "row";
   let textMargin = !!onPressCheckBox ? { marginHorizontal: 0 } : styles.readerSideMargin;
   if (count === 0) { textStyle.push(theme.secondaryText); }
   return (
@@ -341,7 +342,7 @@ const LibraryNavButton = ({
             <IndeterminateCheckBox themeStr={themeStr} state={checkBoxSelected} onPress={onPressCheckBox} />
           </TouchableOpacity> : null
         }
-        { textLanguage !== "hebrew" ?
+        { !isHeb ?
           <Text style={[styles.englishText].concat([theme.tertiaryText, textStyle, {paddingTop:3}, textMargin])}>
             {`${enText} `}
             {
@@ -381,15 +382,17 @@ const LanguageToggleButton = () => {
   const { themeStr, interfaceLanguage, textLanguage } = useContext(GlobalStateContext);
   const theme = getTheme(themeStr);
   const dispatch = useContext(DispatchContext);
+  const isHeb = Sefaria.util.get_menu_language(interfaceLanguage, textLanguage) == 'hebrew';
+
   const toggle = () => {
-    const language = textLanguage !== "hebrew" ? "hebrew" : 'english';
+    const language = !isHeb ? "hebrew" : 'english';
     dispatch({
       type: STATE_ACTIONS.setTextLanguage,
       value: language,
     });
   };
 
-  const content = textLanguage == "hebrew" ?
+  const content = isHeb ?
       (<Text style={[styles.languageToggleTextEn, theme.languageToggleText, styles.en]}>A</Text>) :
       (<Text style={[styles.languageToggleTextHe, theme.languageToggleText, styles.he]}>א</Text>);
   const style = [styles.languageToggle, theme.languageToggle, interfaceLanguage === "hebrew" ? {opacity:0} : null];
@@ -583,14 +586,14 @@ const DisplaySettingsButton = ({ onPress }) => {
 }
 
 const ToggleSet = ({ options, active }) => {
-  const { themeStr, textLanguage } = useContext(GlobalStateContext);
+  const { themeStr, textLanguage, interfaceLanguage } = useContext(GlobalStateContext);
   const theme = getTheme(themeStr);
-  const showHebrew = textLanguage == "hebrew";
+  const isHeb = Sefaria.util.get_menu_language(interfaceLanguage, textLanguage) == 'hebrew';
   options = options.map((option, i) => {
     var style = [styles.navToggle, theme.navToggle].concat(active === option.name ? [styles.navToggleActive, theme.navToggleActive] : []);
     return (
       <TouchableOpacity onPress={option.onPress} key={i} >
-        {showHebrew ?
+        {isHeb ?
           <Text style={[style, styles.heInt]}>{option.heText}</Text> :
           <Text style={[style, styles.enInt]}>{option.text}</Text> }
       </TouchableOpacity>

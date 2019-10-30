@@ -258,9 +258,9 @@ const ListItem = ({
   } else if (lang == "english") {
     textViews = [englishElem];
   }
-
-  const refTitleStyle = textLanguage === 'hebrew' ? styles.he : styles.en;
-  const tempRefStr = textLanguage === 'hebrew' ? heRefStr : refStr;
+  const isHeb = Sefaria.util.get_menu_language(interfaceLanguage, textLanguage) == "hebrew";
+  const refTitleStyle = isHeb ? styles.he : styles.en;
+  const tempRefStr = isHeb ? heRefStr : refStr;
   return (
     <TouchableOpacity style={[styles.textListItem, theme.searchTextResult]} onPress={openActionSheet} delayPressIn={200}>
       {displayRef ? null : <Text style={[refTitleStyle, styles.textListCitation, theme.textListCitation]}>{tempRefStr}</Text>}

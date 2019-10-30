@@ -168,7 +168,7 @@ SearchFilterPage.propTypes = {
 
 
 const SearchFilter = ({ filterNode, openSubMenu, toggleFilter }) => {
-  const { textLanguage, themeStr } = useContext(GlobalStateContext);
+  const { textLanguage, interfaceLanguage, themeStr } = useContext(GlobalStateContext);
   const theme = getTheme(themeStr);
   const clickCheckBox = () => { toggleFilter(filterNode); }
   const onPress = () => { openSubMenu ? openSubMenu(title) : clickCheckBox() }
@@ -179,7 +179,7 @@ const SearchFilter = ({ filterNode, openSubMenu, toggleFilter }) => {
   let colorStyle = isCat ? [{"borderColor": catColor}] : [theme.searchResultSummary, {"borderTopWidth": 1}];
   let textStyle  = [isCat ? styles.spacedText : null];
   let enTitle = isCat ? title.toUpperCase() : title;
-  let flexDir = textLanguage !== "hebrew" ? "row" : "row-reverse";
+  let flexDir = Sefaria.util.get_menu_language(interfaceLanguage, textLanguage) == "hebrew" ? "row-reverse" : "row";
   return (
     <LibraryNavButton
       onPress={onPress}

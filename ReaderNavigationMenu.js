@@ -89,7 +89,7 @@ const ReaderNavigationMenu = props => {
     categories = showMore ? categories : categories.slice(0,9).concat(more);
     categories = (
       <View style={styles.readerNavCategories}>
-        <TwoBox language={textLanguage}>
+        <TwoBox language={Sefaria.util.get_menu_language(interfaceLanguage, textLanguage)}>
           { categories }
         </TwoBox>
       </View>
@@ -332,7 +332,7 @@ ResourcesSection.propTypes = {
 
 
 const CalendarSection = ({ openRef, _completedInit }) => {
-  const { textLanguage } = useContext(GlobalStateContext);
+  const { textLanguage, interfaceLanguage } = useContext(GlobalStateContext);
   if (!_completedInit) { return (<LoadingView />); }
   const { parasha, dafYomi, p929, rambam, mishnah } = Sefaria.getCalendars();
   const calendar = [
@@ -381,7 +381,7 @@ const CalendarSection = ({ openRef, _completedInit }) => {
           ];
 
   var calendarContent = (
-    <TwoBox language={textLanguage}>
+    <TwoBox language={Sefaria.util.get_menu_language(interfaceLanguage, textLanguage)}>
       { calendar }
     </TwoBox>
   );

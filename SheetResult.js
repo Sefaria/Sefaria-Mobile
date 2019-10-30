@@ -23,10 +23,8 @@ const SheetResult = ({
   ownerName,
   views,
 }) => {
-  const { themeStr, textLanguage, interfaceLanguage } = useContext(GlobalStateContext);
+  const { themeStr, interfaceLanguage } = useContext(GlobalStateContext);
   const theme = getTheme(themeStr);
-  const refTitleStyle = textLanguage === "hebrew" ? styles.he : styles.en;
-  const refTitle = textLanguage === "hebrew" ? heTitle : title;
   return (
 
 

@@ -39,7 +39,7 @@ const ReaderControls = ({
   getHistoryObject,
   showToast,
 }) => {
-  const { themeStr, textLanguage } = useContext(GlobalStateContext);
+  const { themeStr, textLanguage, interfaceLanguage } = useContext(GlobalStateContext);
   const [, forceUpdate] = useReducer(x => x + 1, 0);  // HACK
   const theme = getTheme(themeStr);
   const shouldShowHamburger = () => {
@@ -52,7 +52,8 @@ const ReaderControls = ({
   };
   const historyItem = getHistoryObject();
   const isSaved = Sefaria.history.indexOfSaved(historyItem.ref) !== -1;
-  var langStyle = textLanguage === "hebrew" ? [styles.he, {marginTop: 4}] : [styles.en];
+  const isHeb = Sefaria.util.get_menu_language(interfaceLanguage, textLanguage) == "hebrew";
+  var langStyle = isHeb ? [styles.he, {marginTop: 4}] : [styles.en];
   var titleTextStyle = [langStyle, styles.headerTextTitleText, theme.text];
   if (shouldShowHamburger()) {
     var leftMenuButton = <MenuButton onPress={openNav} />
@@ -64,7 +65,7 @@ const ReaderControls = ({
         language="english"
         direction="back"/>
   }
-    var textTitle = textLanguage === 'hebrew' ? heRef : enRef;
+    var textTitle = isHeb ? heRef : enRef;
     if (sheet) {
       textTitle = Sefaria.util.stripHtml(sheet.title);
     }
@@ -81,7 +82,7 @@ const ReaderControls = ({
         <TouchableOpacity style={styles.headerTextTitle} onPress={sheet ? openSheetMeta : openTextToc }>
           <View style={styles.headerTextTitleInner}>
             <Image source={themeStr == "white" ? require('./img/caret.png'): require('./img/caret-light.png') }
-                     style={[styles.downCaret, textLanguage === "hebrew" ? null: {opacity: 0}]}
+                     style={[styles.downCaret, isHeb ? null: {opacity: 0}]}
                      resizeMode={'contain'} />
 
             {sheet ?
@@ -89,7 +90,7 @@ const ReaderControls = ({
                 <SText lang={textLanguage} style={titleTextStyle} numberOfLines={1} ellipsizeMode={"tail"}>{textTitle}</SText>
             }
             <Image source={themeStr == "white" ? require('./img/caret.png'): require('./img/caret-light.png') }
-                     style={[styles.downCaret, textLanguage === "hebrew" ? {opacity: 0} : null]}
+                     style={[styles.downCaret, isHeb ? {opacity: 0} : null]}
                      resizeMode={'contain'} />
           </View>
           <CategoryAttribution
@@ -108,7 +109,7 @@ const ReaderControls = ({
                 willBeSaved ? 'add_saved' : 'delete_saved'
               );
               const { is_sheet, sheet_title, ref, he_ref } = newHistoryItem;
-              const title = is_sheet ? Sefaria.util.stripHtml(sheet_title || '') : (textLanguage === "hebrew" ? he_ref : ref);
+              const title = is_sheet ? Sefaria.util.stripHtml(sheet_title || '') : (isHeb ? he_ref : ref);
               showToast(`${willBeSaved ? strings.saved2 : strings.removed} ${title}`);
               forceUpdate();
             }

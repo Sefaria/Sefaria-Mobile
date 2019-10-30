@@ -29,7 +29,7 @@ import iPad from './isIPad';
 import VersionBlock from './VersionBlock';
 import TextErrorBoundary from './TextErrorBoundary';
 
-const sectionString = (textLanguage, textToc, currentRef, currentHeRef) => {
+const sectionString = (isHeb, textToc, currentRef, currentHeRef) => {
   // Returns a string expressing just the section we're currently looking including section name when possible
   // e.g. "Genesis 1" -> "Chapter 1"
   if (!textToc) { return "";}
@@ -37,7 +37,7 @@ const sectionString = (textLanguage, textToc, currentRef, currentHeRef) => {
                       textToc.sectionNames[textToc.sectionNames.length > 1 ? textToc.sectionNames.length-2 : 0] :
                       null;
 
-  if (textLanguage == "hebrew") {
+  if (isHeb) {
     if (!currentHeRef) { return "";}
     var trimmer = new RegExp("^(" + textToc.heTitle + "),? ");
     var sectionString = currentHeRef.replace(trimmer, '');
@@ -71,6 +71,7 @@ const ReaderTextTableOfContents = ({
   const theme = getTheme(themeStr);
   var enTitle = title;
   var heTitle = Sefaria.index(title).heTitle;
+  const isHeb = Sefaria.util.get_menu_language(interfaceLanguage, textLanguage) == "hebrew";
   const langStyle = interfaceLanguage === "hebrew" ? styles.heInt : styles.enInt;
   var categories  = Sefaria.index(title).categories;
   var enCatString = categories.join(", ");
@@ -88,13 +89,13 @@ const ReaderTextTableOfContents = ({
         <ScrollView style={styles.menuContent} contentContainerStyle={{paddingTop: 20,paddingBottom: 40}}>
           <View style={[styles.textTocTopBox, theme.bordered]}>
             <View style={styles.textTocCategoryBox}>
-            { textLanguage == "hebrew" ?
+            { isHeb ?
               <Text style={[styles.he, styles.textTocCategory, theme.secondaryText]}>{heCatString}</Text> :
               <Text style={[styles.en, styles.textTocCategory, theme.secondaryText]}>{enCatString}</Text> }
             </View>
 
             <View>
-              { textLanguage == "hebrew" ?
+              { isHeb ?
                 <Text style={[styles.he, styles.textTocTitle, theme.text]}>{heTitle}</Text> :
                 <Text style={[styles.en, styles.textTocTitle, theme.text]}>{enTitle}</Text> }
             </View>
@@ -107,16 +108,16 @@ const ReaderTextTableOfContents = ({
 
             { textToc && "dedication" in textToc ?
             (<View>
-              { textLanguage == "hebrew" ?
+              { isHeb ?
                 <Text style={[styles.he, styles.textTocCategoryAttributionTextHe, theme.tertiaryText]}>{textToc.dedication.he}</Text> :
                 <Text style={[styles.en, styles.textTocCategoryAttributionTextEn, theme.tertiaryText]}>{textToc.dedication.en}</Text> }
             </View>): null }
 
             { currentRef ?
               <View>
-              { textLanguage == "hebrew" ?
-                <Text style={[styles.intHe, styles.textTocSectionString, theme.textTocSectionString]}>{sectionString(textLanguage, textToc, currentRef, currentHeRef)}</Text> :
-                <Text style={[styles.intEn, styles.textTocSectionString, theme.textTocSectionString]}>{sectionString(textLanguage, textToc, currentRef, currentHeRef)}</Text> }
+              { isHeb ?
+                <Text style={[styles.intHe, styles.textTocSectionString, theme.textTocSectionString]}>{sectionString(isHeb, textToc, currentRef, currentHeRef)}</Text> :
+                <Text style={[styles.intEn, styles.textTocSectionString, theme.textTocSectionString]}>{sectionString(isHeb, textToc, currentRef, currentHeRef)}</Text> }
               </View> : null
             }
           </View>
@@ -244,7 +245,7 @@ TextTableOfContentsNavigation.propTypes = {
 
 
 const SchemaNode = ({ schema, refPath, openRef, categories }) => {
-  const { textLanguage, themeStr } = useContext(GlobalStateContext);
+  const { textLanguage, interfaceLanguage, themeStr } = useContext(GlobalStateContext);
   const theme = getTheme(themeStr);
   if (!("nodes" in schema)) {
     if (schema.nodeType === "JaggedArrayNode") {
@@ -264,7 +265,7 @@ const SchemaNode = ({ schema, refPath, openRef, categories }) => {
     }
 
   } else {
-    const showHebrew = textLanguage === "hebrew";
+    const showHebrew = Sefaria.util.get_menu_language(interfaceLanguage, textLanguage) == "hebrew";
     const content = schema.nodes.map((node, i) => {
       if ("nodes" in node || "refs" in node && node.refs.length) {
         const innerContent = (<SchemaNode
@@ -370,8 +371,8 @@ const refPathTerminal = count => {
 };
 
 const JaggedArrayNodeSection = ({ depth, sectionNames, addressTypes, contentCounts, refPath, openRef }) => {
-  const { textLanguage } = useContext(GlobalStateContext);
-  const showHebrew = textLanguage === "hebrew";
+  const { textLanguage, interfaceLanguage } = useContext(GlobalStateContext);
+  const showHebrew = Sefaria.util.get_menu_language(interfaceLanguage, textLanguage) == "hebrew";
   if (depth > 2) {
     const content = [];
     for (let i = 0; i < contentCounts.length; i++) {
@@ -467,8 +468,8 @@ const JaggedArrayNodeSectionTitle = ({ openRef, tref, title, heTitle, showHebrew
 
 
 const ArrayMapNode = ({ schema, openRef, categories }) => {
-  const { textLanguage } = useContext(GlobalStateContext);
-  const showHebrew = textLanguage == "hebrew";
+  const { textLanguage, interfaceLanguage } = useContext(GlobalStateContext);
+  const showHebrew = Sefaria.util.get_menu_language(interfaceLanguage, textLanguage) == "hebrew";
   if ("refs" in schema && schema.refs.length) {
     var sectionLinks = schema.refs.map((ref, i) => {
       i += schema.offset || 0;
@@ -511,9 +512,9 @@ const ArrayMapNode = ({ schema, openRef, categories }) => {
 
 
 const CommentatorList = ({ commentatorList, openRef }) => {
-  const { themeStr, textLanguage } = useContext(GlobalStateContext);
+  const { themeStr, textLanguage, interfaceLanguage } = useContext(GlobalStateContext);
   const theme = getTheme(themeStr);
-  const showHebrew = textLanguage == "hebrew";
+  const showHebrew = Sefaria.util.get_menu_language(interfaceLanguage, textLanguage) == "hebrew";
   const content = commentatorList.map((commentator, i) => {
     const open = openRef.bind(null, commentator.firstSection);
     return (<TouchableOpacity onPress={open} style={[styles.textBlockLink, theme.textBlockLink]} key={i}>

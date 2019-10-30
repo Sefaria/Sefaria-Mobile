@@ -113,7 +113,7 @@ class SwipeableCategoryList extends React.Component {
           enText={is_sheet ? sheet_title : ref}
           heText={is_sheet ? sheet_title : he_ref}
           sheetOwner={sheet_owner}
-          language={this.props.textLanguage}
+          language={Sefaria.util.get_menu_language(this.props.interfaceLanguage, this.props.textLanguage)}
           onPress={this.props.openRef.bind(null, ref, null, versions)}
         />
       </AnimatedRow>

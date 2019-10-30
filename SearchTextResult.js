@@ -12,10 +12,11 @@ import { GlobalStateContext, getTheme } from './StateManager';
 import styles from './Styles.js';
 
 const SearchTextResult = ({ text, title, heTitle, textType, onPress }) => {
-  const { textLanguage, themeStr } = useContext(GlobalStateContext);
+  const { textLanguage, interfaceLanguage, themeStr } = useContext(GlobalStateContext);
   const theme = getTheme(themeStr);
-  const refTitleStyle = textLanguage === "hebrew" ? styles.he : styles.en;
-  const refTitle = textLanguage === "hebrew" ? heTitle : title;
+  const isHeb = Sefaria.util.get_menu_language(interfaceLanguage, textLanguage) == "hebrew";
+  const refTitleStyle = isHeb ? styles.he : styles.en;
+  const refTitle = isHeb ? heTitle : title;
   return (
     <TouchableOpacity style={[styles.searchTextResult, theme.searchTextResult]} onPress={onPress}>
       <Text style={[refTitleStyle, styles.textListCitation, theme.textListCitation]}>{refTitle}</Text>

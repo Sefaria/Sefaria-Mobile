@@ -78,7 +78,7 @@ const VersionsBox = ({
   openFilter,
   openUri,
 }) => {
-  const { themeStr, interfaceLanguage, textLanguage } = useContext(GlobalStateContext);
+  const { themeStr, interfaceLanguage } = useContext(GlobalStateContext);
   const {
     vLangState,
     setVLangState

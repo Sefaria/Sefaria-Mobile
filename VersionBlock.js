@@ -21,7 +21,7 @@ const VersionBlock = ({
   isCurrent,
   openUri,
 }) => {
-  const { themeStr, textLanguage } = useContext(GlobalStateContext);
+  const { themeStr, textLanguage, interfaceLanguage } = useContext(GlobalStateContext);
   const theme = getTheme(themeStr);
 
   const onVersionTitleClick = useCallback(() => {
@@ -37,7 +37,7 @@ const VersionBlock = ({
   }, [version]);
 
   let versionTitle, versionSource, shortVersionSource, license, licenseURL, versionNotes;
-  if (textLanguage == "hebrew") {
+  if (Sefaria.util.get_menu_language(interfaceLanguage, textLanguage) == "hebrew") {
     versionTitle = version['heVersionTitle'];
     versionSource = version['heVersionSource'];
     shortVersionSource = Sefaria.util.parseURLhost(versionSource);
