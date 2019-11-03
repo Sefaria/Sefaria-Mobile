@@ -38,12 +38,12 @@ const VersionBlock = ({
 
   let versionTitle, versionSource, shortVersionSource, license, licenseURL, versionNotes;
   if (Sefaria.util.get_menu_language(interfaceLanguage, textLanguage) == "hebrew") {
-    versionTitle = version['heVersionTitle'];
-    versionSource = version['heVersionSource'];
+    versionTitle = version['versionTitleInHebrew'] || version['versionTitle'];
+    versionSource = version['versionSource'];
     shortVersionSource = Sefaria.util.parseURLhost(versionSource);
-    license = version['heLicense'];
+    license = version['license'];
     licenseURL = Sefaria.util.getLicenseURL(license);
-    versionNotes = version['heVersionNotes'];
+    versionNotes = version['versionNotesInHebrew'] || version['versionNotes'];
   } else {
     versionTitle = version['versionTitle'];
     versionSource = version['versionSource'];
