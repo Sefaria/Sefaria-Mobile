@@ -371,7 +371,8 @@ const refPathTerminal = count => {
 };
 
 const JaggedArrayNodeSection = ({ depth, sectionNames, addressTypes, contentCounts, refPath, openRef }) => {
-  const { textLanguage, interfaceLanguage } = useContext(GlobalStateContext);
+  const { textLanguage, interfaceLanguage, themeStr } = useContext(GlobalStateContext);
+  const theme = getTheme(themeStr);
   const showHebrew = Sefaria.util.get_menu_language(interfaceLanguage, textLanguage) == "hebrew";
   if (depth > 2) {
     const content = [];
