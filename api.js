@@ -138,7 +138,8 @@ var Api = {
         "indexTitle": text_response.indexTitle,
         "heIndexTitle": text_response.heIndexTitle,
         "alts": text_response.alts,
-        "order": text_response.order
+        "order": text_response.order,
+        "nonExistantVersions": text_response.nonExistantVersions,
       };
   },
   /*

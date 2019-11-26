@@ -469,7 +469,7 @@ class ReaderApp extends React.PureComponent {
         sectionIndexRef,
         sectionArray,
         sectionHeArray,
-        selectedVersions,
+        currVersions,
         textListVisible,
       } = this.state;
       const { textLanguage } = this.props;
@@ -482,10 +482,14 @@ class ReaderApp extends React.PureComponent {
         ref = (textListVisible && segmentRef) ? segmentRef : sectionArray[sectionIndexRef];
         he_ref = (textListVisible && segmentRef) ? (heSegmentRef || Sefaria.toHeSegmentRef(sectionHeArray[sectionIndexRef], segmentRef)) : sectionHeArray[sectionIndexRef];
       }
+      const versions = !!currVersions ? {
+        en: !!currVersions.en ? currVersions.en.versionTitle : null,
+        he: !!currVersions.he ? currVersions.he.versionTitle : null
+      } : {};
       return {
         ref,
         he_ref,
-        versions: selectedVersions || {},
+        versions,
         book: Sefaria.textTitleForRef(ref),
         language: textLanguage,
         sheet_owner,
@@ -550,7 +554,7 @@ class ReaderApp extends React.PureComponent {
     isLoadingVersion - true when you are replacing an already loaded text with a specific version (not currently used)
     overwriteVersions - false when you want to switch versions but not overwrite sticky version (e.g. search)
   */
-  loadNewText = ({ ref, versions, isLoadingVersion = false, overwriteVersions = true }) => {
+  loadNewText = ({ ref, versions, isLoadingVersion = false, overwriteVersions = true, numTries = 0 }) => {
     if (!this.state.hasInternet) {
       overwriteVersions = false;
       versions = undefined; // change to default version in case they have offline library they'll still be able to read
@@ -578,6 +582,11 @@ class ReaderApp extends React.PureComponent {
       },
       () => {
         Sefaria.data(ref, true, versions).then(data => {
+            if (data.nonExistantVersions) {
+              if (numTries >= 4) { throw "Return to Nav"; }
+              this.loadNewText({ ref, isLoadingVersion, overwriteVersions, numTries: numTries + 1 }).then(resolve);
+              return;
+            }
             let nextState = {
               data:              [data.content],
               textTitle:         data.indexTitle,
@@ -609,11 +618,15 @@ class ReaderApp extends React.PureComponent {
             }
             this.setState(nextState, ()=>{
               this.loadSecondaryData(data.sectionRef);
-              Sefaria.history.saveHistoryItem(this.getHistoryObject);
+
+              // Preload Text TOC data into memory
+              this.loadTextTocData(data.indexTitle, data.sectionRef).then(() => {
+                // dependent on nextState and currVersions
+                Sefaria.history.saveHistoryItem(this.getHistoryObject);
+              });
             });
 
-            // Preload Text TOC data into memory
-            this.loadTextTocData(data.indexTitle, data.sectionRef);
+
             resolve();
         }).catch(error => {
           console.log(error);
@@ -630,11 +643,14 @@ class ReaderApp extends React.PureComponent {
   };
 
   loadTextTocData = (title, sectionRef) => {
-    this.setState({textToc: null}, () => {
-      Sefaria.textToc(title).then(textToc => {
-        this.setState({textToc});
-        // at this point, both book and section level version info is available
-        this.setCurrVersions(sectionRef, title); // not positive if this will combine versions well
+    return new Promise((resolve, reject) => {
+      this.setState({textToc: null}, () => {
+        Sefaria.textToc(title).then(textToc => {
+          this.setState({textToc}, () => {
+            // at this point, both book and section level version info is available
+            this.setCurrVersions(sectionRef, title).then(resolve); // not positive if this will combine versions well
+          });
+        });
       });
     });
   }
@@ -655,11 +671,13 @@ class ReaderApp extends React.PureComponent {
   };
 
   setCurrVersions = (sectionRef, title) => {
-    let enVInfo = !sectionRef ? this.state.currVersions.en : Sefaria.versionInfo(sectionRef, title, 'english');
-    let heVInfo = !sectionRef ? this.state.currVersions.he : Sefaria.versionInfo(sectionRef, title, 'hebrew');
-    if (enVInfo) { enVInfo.disabled = this.props.textLanguage ===  'hebrew'; } // not currently viewing this version
-    if (heVInfo) { heVInfo.disabled = this.props.textLanguage === 'english'; }
-    this.setState({ currVersions: { en: enVInfo, he: heVInfo } });
+    return new Promise((resolve, reject) => {
+      let enVInfo = !sectionRef ? this.state.currVersions.en : Sefaria.versionInfo(sectionRef, title, 'english');
+      let heVInfo = !sectionRef ? this.state.currVersions.he : Sefaria.versionInfo(sectionRef, title, 'hebrew');
+      if (enVInfo) { enVInfo.disabled = this.props.textLanguage ===  'hebrew'; } // not currently viewing this version
+      if (heVInfo) { heVInfo.disabled = this.props.textLanguage === 'english'; }
+      this.setState({ currVersions: { en: enVInfo, he: heVInfo } }, resolve);
+    });
   };
 
   loadSecondaryData = (ref) => {
@@ -806,6 +824,10 @@ class ReaderApp extends React.PureComponent {
       });
   };
 
+  openRefConnectionsPanel = (ref, versions) => {
+    this.openRef(ref,"text list", versions);
+  };
+
   updateActiveSheetNode = (node) => {
     this.setState ({
       activeSheetNode: node,
@@ -900,10 +922,6 @@ class ReaderApp extends React.PureComponent {
 
   };
 
-  openRefConnectionsPanel = (ref, versions) => {
-    this.openRef(ref,"text list", versions);
-  };
-
   textUnavailableAlert = ref => {
     Alert.alert(
       strings.textUnavailable,
@@ -948,7 +966,9 @@ class ReaderApp extends React.PureComponent {
         if (!!historyItem) { versions = historyItem.versions; }
       }
 
-      const selectedVersions = !!this.state.selectedVersions ? this.state.selectedVersions : {};
+      // only consider selectedVersions when opening same book (so that you can open 2 non-default versions)
+      const sameBook = title === this.state.textTitle;
+      const selectedVersions = (sameBook && !!this.state.selectedVersions) ? this.state.selectedVersions : {};
       const newVersions = !!versions && {
         ...selectedVersions,
         ...versions,
