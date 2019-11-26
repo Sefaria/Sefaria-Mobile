@@ -46,16 +46,17 @@ var Downloader = {
               }
             });
   },
-  downloadLibrary: function(silent=false) {
+  downloadLibrary: async function(silent=false) {
     RNFB.fs.mkdir(RNFB.fs.dirs.DocumentDir + "/library").catch(error=>{console.log("error creating library folder: " + error)});
     RNFB.fs.mkdir(RNFB.fs.dirs.DocumentDir + "/tmp").catch(error=>{console.log("error creating tmp folder: " + error)});
-    Downloader._setData("shouldDownload", true);
-    Downloader.downloadUpdatesList()
-    .then(() => {
-      Downloader._updateDownloadQueue();
+    await Downloader._setData("shouldDownload", true);
+    try {
+      await Downloader.downloadUpdatesList();
+      await Downloader._updateDownloadQueue();
       Downloader._downloadNext();
-     })
-    .catch(Sefaria.downloader._handleDownloadError);
+    } catch (e) {
+      Sefaria.downloader._handleDownloadError(e);
+    }
     Downloader.downloading = true;
     Downloader.onChange && Downloader.onChange();
     if (!silent) {
@@ -80,15 +81,15 @@ var Downloader = {
       );
     });
   },
-  resumeDownload: function() {
+  resumeDownload: async function() {
     // Resumes the download process if anything is left in progress or in queue.
     // if titles where left in progress, put them back in the queue
     RNFB.fs.unlink(RNFB.fs.dirs.DocumentDir + "/tmp");
     RNFB.fs.mkdir(RNFB.fs.dirs.DocumentDir + "/tmp");
-    Downloader._setData("downloadPaused", false);
+    await Downloader._setData("downloadPaused", false);
     if (Downloader._data.downloadInProgress.length) {
-      Downloader._setData("downloadQueue", Downloader._data.downloadQueue.concat(Downloader._data.downloadInProgress));
-      Downloader._setData("downloadInProgress", []);
+      await Downloader._setData("downloadQueue", Downloader._data.downloadQueue.concat(Downloader._data.downloadInProgress));
+      await Downloader._setData("downloadInProgress", []);
     }
     // Resume working through queue
     if (Downloader._data.shouldDownload) {
@@ -103,7 +104,7 @@ var Downloader = {
     // Also downloads latest "toc.json"
     const lastUpdatePromise = fetch(HOST_PATH + "last_updated.json", {headers: {'Cache-Control': 'no-cache'}})
       .then((response) => response.json())
-      .then((data) => {
+      .then(async (data) => {
         // Add titles to lastDownload list if they haven't been seen before
         var titles;
         if (!!data.titles) {
@@ -111,24 +112,24 @@ var Downloader = {
         } else {
           titles = data; //NOTE backwards compatibility
         }
-        Downloader._setData("availableDownloads", titles);
+        await Downloader._setData("availableDownloads", titles);
         if (data.comment) {
-          Downloader._setData("updateComment", data.comment);
+          await Downloader._setData("updateComment", data.comment);
         }
         for (var title in titles) {
           if (titles.hasOwnProperty(title) && !(title in Downloader._data.lastDownload)) {
             Downloader._data.lastDownload[title] = null;
           }
         }
-        Downloader._setData("lastDownload", Downloader._data.lastDownload);
+        await Downloader._setData("lastDownload", Downloader._data.lastDownload);
       });
     return Promise.all([
       lastUpdatePromise,
       Downloader._downloadFile("toc.json").then(Sefaria._loadTOC)
-    ]).then(() => {
+    ]).then(async () => {
       var timestamp = new Date().toJSON();
-      Downloader._setData("lastUpdateCheck", timestamp)
-      Downloader._setData("lastUpdateSchema", SCHEMA_VERSION)
+      await Downloader._setData("lastUpdateCheck", timestamp)
+      await Downloader._setData("lastUpdateSchema", SCHEMA_VERSION)
       Downloader.onChange && Downloader.onChange();
       // download these ancillary files after. they shouldn't hold up the update
       Promise.all([
@@ -140,29 +141,29 @@ var Downloader = {
       ]);
     });
   },
-  downloadUpdates: function() {
+  downloadUpdates: async function() {
     // Starts download of any known updates
-    Downloader._updateDownloadQueue();
+    await Downloader._updateDownloadQueue();
     Downloader.resumeDownload();
   },
-  clearQueue: function() {
-    Downloader._setData("downloadQueue", []);
-    Downloader._setData("downloadInProgress", []);
+  clearQueue: async function() {
+    await Downloader._setData("downloadQueue", []);
+    await Downloader._setData("downloadInProgress", []);
   },
-  checkForUpdates: function(confirmUpToDate = true) {
+  checkForUpdates: async function(confirmUpToDate = true) {
     // Downloads the most recent update list then prompts to download updates
     // or notifies the user that the library is up to date.
-    Downloader.clearQueue();
+    await Downloader.clearQueue();
     if (confirmUpToDate) {
       Downloader.checkingForUpdates = true;
       Downloader.onChange && Downloader.onChange();
     }
-    return Downloader.downloadUpdatesList().then(() => {
+    return Downloader.downloadUpdatesList().then(async () => {
       Downloader.checkingForUpdates = false;
       Downloader.onChange && Downloader.onChange();
       const { newBooks, updates } = Downloader.updatesAvailable();
       if (updates.length || newBooks.length) {
-        Downloader._updateDownloadQueue();
+        await Downloader._updateDownloadQueue();
         Downloader.promptLibraryUpdate();
       } else if (confirmUpToDate) {
         Alert.alert(
@@ -190,12 +191,12 @@ var Downloader = {
       });
     }
   },
-  prioritizeDownload: function(title) {
+  prioritizeDownload: async function(title) {
     // Moves `title` to the front of the downloadQueue if it's there
     var i = Sefaria.downloader._data.downloadQueue.indexOf(title);
     if (i > -1) {
         Sefaria.downloader._data.downloadQueue.splice(i, 1);
-        Sefaria.downloader._setData("downloadQueue", [title].concat(Sefaria.downloader._data.downloadQueue));
+        await Sefaria.downloader._setData("downloadQueue", [title].concat(Sefaria.downloader._data.downloadQueue));
     }
   },
   titlesAvailable: function() {
@@ -284,14 +285,14 @@ var Downloader = {
       Downloader.downloadUpdates();
     };
 
-    var onCancel = function() {
+    var onCancel = async function() {
       Alert.alert(
         strings.updateLater,
         strings.howToUpdateLibraryMessage,
         [
           {text: strings.ok},
         ]);
-      Downloader._setData("downloadPaused", true);
+      await Downloader._setData("downloadPaused", true);
     };
     Alert.alert(
       strings.updateLibrary,
@@ -301,7 +302,7 @@ var Downloader = {
         {text: strings.notNow, onPress: onCancel}
       ]);
   },
-  _updateDownloadQueue: function() {
+  _updateDownloadQueue: async function() {
     // Examines availableDownloads and adds any title to the downloadQueue that has a newer download available
     // and is not already in queue.
     // Removes anything from downloadQueue that is not in the list of availableDownloads
@@ -312,7 +313,7 @@ var Downloader = {
     const allUpdates = newBooks.concat(updates);
     Sefaria.downloader._data.downloadQueue = Sefaria.downloader._data.downloadQueue.concat(allUpdates.filter(title=>Sefaria.downloader._data.downloadQueue.indexOf(title) === -1));
 
-    Sefaria.downloader._setData("downloadQueue", Sefaria.downloader._data.downloadQueue);
+    await Sefaria.downloader._setData("downloadQueue", Sefaria.downloader._data.downloadQueue);
   },
   _downloadNext: function() {
     // Starts download of the next item of the queue, and continues doing so after successful completion.
@@ -330,8 +331,8 @@ var Downloader = {
   _handleDownloadError: function(error) {
     console.log("Download error: ", error);
     Downloader.downloading = false;
-    var cancelAlert = function() {
-      Downloader._setData("downloadPaused", true);
+    var cancelAlert = async function() {
+      await Downloader._setData("downloadPaused", true);
       Alert.alert(
         strings.downloadPaused,
         strings.howToResumeDownloadMessage,
@@ -381,15 +382,15 @@ var Downloader = {
     // Downloads `title`, first to /tmp then to /library when complete.
     // Manages `title`'s presense in downloadQueue and downloadInProgress.
     //console.log("Starting download of " + title);
-    Sefaria.downloader._removeFromDownloadQueue(title);
-    Sefaria.downloader._setData("downloadInProgress", [title].concat(Sefaria.downloader._data.downloadInProgress));
+    await Sefaria.downloader._removeFromDownloadQueue(title);
+    await Sefaria.downloader._setData("downloadInProgress", [title].concat(Sefaria.downloader._data.downloadInProgress));
     await Sefaria.downloader._downloadFile(title + ".zip");
-    Downloader._removeFromInProgress(title);
+    await Downloader._removeFromInProgress(title);
     Downloader._data.lastDownload[title] = Downloader._data.availableDownloads[title];
-    Downloader._setData("lastDownload", Downloader._data.lastDownload);
+    await Downloader._setData("lastDownload", Downloader._data.lastDownload);
     Downloader.onChange && Downloader.onChange();
   },
-  _removeFromDownloadQueueBulk: function(titles) {
+  _removeFromDownloadQueueBulk: async function(titles) {
     for (t of titles) {
       let i = Sefaria.downloader._data.downloadQueue.indexOf(t);
       if (i > -1) { Sefaria.downloader._data.downloadQueue.splice(i, 1); }
@@ -398,21 +399,21 @@ var Downloader = {
         if (i > -1) { Sefaria.downloader._data.downloadInProgress.splice(i, 1); }
       }
     }
-    Sefaria.downloader._setData("downloadQueue", Sefaria.downloader._data.downloadQueue);
-    Sefaria.downloader._setData("downloadInProgress", Sefaria.downloader._data.downloadInProgress);
+    await Sefaria.downloader._setData("downloadQueue", Sefaria.downloader._data.downloadQueue);
+    await Sefaria.downloader._setData("downloadInProgress", Sefaria.downloader._data.downloadInProgress);
   },
-  _removeFromDownloadQueue: function(title) {
+  _removeFromDownloadQueue: async function(title) {
     var i = Sefaria.downloader._data.downloadQueue.indexOf(title);
     if (i > -1) {
         Sefaria.downloader._data.downloadQueue.splice(i, 1);
-        Sefaria.downloader._setData("downloadQueue", Sefaria.downloader._data.downloadQueue);
+        await Sefaria.downloader._setData("downloadQueue", Sefaria.downloader._data.downloadQueue);
     }
   },
-  _removeFromInProgress: function(title) {
+  _removeFromInProgress: async function(title) {
     var i = Sefaria.downloader._data.downloadInProgress.indexOf(title);
     if (i > -1) {
         Sefaria.downloader._data.downloadInProgress.splice(i, 1);
-        Sefaria.downloader._setData("downloadInProgress", Sefaria.downloader._data.downloadInProgress);
+        await Sefaria.downloader._setData("downloadInProgress", Sefaria.downloader._data.downloadInProgress);
     }
   },
   _isUpdateCheckNeeded: function() {
@@ -443,10 +444,10 @@ var Downloader = {
     }
     return Promise.all(promises);
   },
-  _setData: function(field, value) {
+  _setData: async function(field, value) {
     // Sets `_data[field]` to `value` in local memory and saves it to Async storage
     Sefaria.downloader._data[field] = value;
-    AsyncStorage.setItem(field, JSON.stringify(value));
+    await AsyncStorage.setItem(field, JSON.stringify(value));
   },
 };
 

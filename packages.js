@@ -142,22 +142,22 @@ const Packages = {
     const pkgList = Sefaria.packages.titleToPackageMap[title];
     return Sefaria.packages.isFullLibrary(pkg) || (!!pkgList && pkgList.indexOf(pkg) !== -1);
   },
-  deletePackage: (pkgName, resolve) => {
+  deletePackage: async (pkgName, resolve) => {
     if (!resolve) { resolve = ()=>{} }
-    RNFB.fs.unlink(RNFB.fs.dirs.DocumentDir + "/tmp");
-    RNFB.fs.mkdir(RNFB.fs.dirs.DocumentDir + "/tmp");
+    await RNFB.fs.unlink(RNFB.fs.dirs.DocumentDir + "/tmp");
+    await RNFB.fs.mkdir(RNFB.fs.dirs.DocumentDir + "/tmp");
     const dl = Sefaria.downloader;
     if (Sefaria.packages.isFullLibrary(pkgName)) {
-      RNFB.fs.unlink(RNFB.fs.dirs.DocumentDir + "/library");
-      dl._setData("lastDownload", {});
-      dl._setData("shouldDownload", false);
-      dl.clearQueue();
-      Sefaria.packages.finishDeletePackage(pkgName, resolve);
+      await RNFB.fs.unlink(RNFB.fs.dirs.DocumentDir + "/library");
+      await dl._setData("lastDownload", {});
+      await dl._setData("shouldDownload", false);
+      await dl.clearQueue();
+      await Sefaria.packages.finishDeletePackage(pkgName, resolve);
     } else {
       const pkgObj = Sefaria.packages.available.find(p=>p.en === pkgName);
       const reflect = promise => promise.then(v=>1,e=>e);  // make sure all promises resolve but remember which ones rejected so that Promise.all() runs
       const promises = pkgObj.indexes.map(i => reflect(RNFB.fs.unlink(`${RNFB.fs.dirs.DocumentDir}/library/${i}.zip`)));
-      Promise.all(promises).then((result) => {
+      return Promise.all(promises).then(async (result) => {
         result.forEach((r,i)=>{
           const title = pkgObj.indexes[i]
           if (r !== 1) { console.log("Failed to delete:", title, r); }
@@ -165,15 +165,15 @@ const Packages = {
             delete dl._data.lastDownload[title];
           }
         });
-        dl._setData("lastDownload", dl._data.lastDownload);
+        await dl._setData("lastDownload", dl._data.lastDownload);
         if (Object.keys(dl._data.lastDownload).length === 0) {
-          dl._setData("shouldDownload", false);
+          await dl._setData("shouldDownload", false);
         }
         // remove indexes from queue that are in this package
-        dl._setData("downloadQueue", dl._data.downloadQueue.filter(q => pkgObj.indexes.indexOf(q) === -1));
-        dl._setData("downloadInProgress", dl._data.downloadInProgress.filter(p => pkgObj.indexes.indexOf(p) === -1));
-        Sefaria.packages.finishDeletePackage(pkgName, resolve);
-      })
+        await dl._setData("downloadQueue", dl._data.downloadQueue.filter(q => pkgObj.indexes.indexOf(q) === -1));
+        await dl._setData("downloadInProgress", dl._data.downloadInProgress.filter(p => pkgObj.indexes.indexOf(p) === -1));
+        await Sefaria.packages.finishDeletePackage(pkgName, resolve);
+      });
     }
   },
   finishDeletePackage(pkgName, resolve) {
@@ -183,7 +183,7 @@ const Packages = {
       delete Sefaria.packages.selected[pkgName];
     }
     Sefaria.downloader.onChange && Sefaria.downloader.onChange();
-    AsyncStorage.setItem("packagesSelected", JSON.stringify(Sefaria.packages.selected))
+    return AsyncStorage.setItem("packagesSelected", JSON.stringify(Sefaria.packages.selected))
     .then(resolve)
     .catch(function(error) {
       console.error("AsyncStorage failed to save: " + error);
@@ -195,17 +195,17 @@ const Packages = {
       strings.areYouSureDeleteDownloadProgress,
       [
         {text: strings.no, style: 'cancel'},
-        {text: strings.yes, style: 'destructive', onPress: () => {
-          Sefaria.packages.available.forEach(p => {
+        {text: strings.yes, style: 'destructive', onPress: async () => {
+          for (let p of Sefaria.packages.available) {
             const isSelected = Sefaria.packages.isSelected(p.en);
             const isD = Sefaria.downloader.downloading && isSelected;
             const { newBooks, updates } = Sefaria.downloader.updatesAvailable();
             const allUpdates = newBooks.concat(updates);
             const nUpdates   = isD ? allUpdates.filter(t => Sefaria.packages.titleInPackage(t, p.en)).length : 0;
             if (isD && nUpdates > 0) {
-              Sefaria.packages.deletePackage(p.en);
+              await Sefaria.packages.deletePackage(p.en);
             }
-          });
+          }
         }}
       ]
     );
