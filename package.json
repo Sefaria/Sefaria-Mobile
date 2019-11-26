@@ -54,7 +54,7 @@
     "react-native-version-number": "^0.3.6",
     "react-native-zip-archive": "^5.0.0",
     "react-redux": "^5.1.1",
-    "react-test-renderer": "^16.8.6",
+    "react-test-renderer": "^16.12.0",
     "redux": "^3.7.2",
     "rn-fetch-blob": "^0.10.16",
     "sanitize-html": "^1.20.1",
@@ -67,7 +67,7 @@
   "devDependencies": {
     "@babel/core": "^7.4.4",
     "@babel/runtime": "^7.4.4",
-    "jest": "^24.8.0",
+    "jest": "^24.9.0",
     "jetifier": "^1.6.4",
     "metro-react-native-babel-preset": "^0.53.1",
     "patch-package": "^6.2.0",

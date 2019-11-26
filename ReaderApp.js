@@ -619,6 +619,7 @@ class ReaderApp extends React.PureComponent {
           console.log(error);
           if (error == "Return to Nav") {
             this.openNav();
+            resolve();
             return;
           }
           console.error('Error caught from ReaderApp.loadNewText', error);
