@@ -23,18 +23,18 @@ class DeepLinkRouter extends React.PureComponent {
     const routes = [
       ['^$', props.openNav],
       ['^texts$', props.openNav],
-      ['^texts/(?<menu>saved)$', this.openMenu],
-      ['^texts/(?<menu>history)$', this.openMenu],
-      ['^texts/(?<cats>.+)?$', this.openCats],
+      ['^texts/(saved)$', this.openMenu, ['saved']],
+      ['^texts/(history)$', this.openMenu, ['menu']],
+      ['^texts/(.+)?$', this.openCats, ['cats']],
       ['^search$', this.openSearch],
-      ['^(?<menu>sheets)$', this.openMenu],
-      ['^(?<menu>sheets)/tags$', this.openMenu],
-      ['^sheets/tags/(?<tag>.+)$', this.openSheetTag],
-      ['^sheets/(?<sheetid>[0-9.]+)$', this.openRefSheet],
-      ['^(?<tref>[^/]+)$', this.openRef],
+      ['^(sheets)$', this.openMenu, ['menu']],
+      ['^(sheets)/tags$', this.openMenu, ['menu']],
+      ['^sheets/tags/(.+)$', this.openSheetTag, ['tag']],
+      ['^sheets/([0-9.]+)$', this.openRefSheet, ['sheetid']],
+      ['^([^/]+)$', this.openRef, ['tref']],
       ['^.*$', this.catchAll],
     ];
-    this._routes = routes.map(r => new Route(r[0], r[1]));
+    this._routes = routes.map(([ regex, func, namedCaptureGroups ]) => new Route({regex, func, namedCaptureGroups}));
   }
   openMenu = ({ menu }) => {
     this.props.openMenu(menu);
@@ -79,7 +79,7 @@ class DeepLinkRouter extends React.PureComponent {
     const isExact = !!tvar && tvar.length > 0 && tvar === '0';
     this.props.setSearchOptions(tsort, isExact, () => { this.props.openSearch(tab, q); });
   };
-  catchAll = url => {
+  catchAll = ({ url }) => {
     // runs in case no route can handle this url
     this.props.openUri(url);
   };
@@ -99,14 +99,25 @@ class DeepLinkRouter extends React.PureComponent {
 }
 
 class Route {
-  constructor(regex, func) {
+  constructor({ regex, func, namedCaptureGroups }) {
     this.regex = regex;
     this.func = func;
+    this.namedCaptureGroups = namedCaptureGroups || [];
   }
+  getNamedCaptureGroups = match => {
+    const groups = {};
+    for (let groupNum = 0; groupNum < this.namedCaptureGroups.length; groupNum++) {
+      if (!!match[groupNum+1]) {
+        const groupName = this.namedCaptureGroups[groupNum];
+        groups[groupName] = match[groupNum+1];
+      }
+    }
+    return groups;
+  };
   apply = ({ pathname, query, url }) => {
     const m = pathname.match(this.regex);
     if (m) {
-      const groups = m.groups || {};
+      const groups = this.getNamedCaptureGroups(m);
       this.func({ ...groups, ...query, url });
       return true;
     }
