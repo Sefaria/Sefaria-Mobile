@@ -226,7 +226,7 @@ class TextColumn extends React.PureComponent {
       } else {
         const itemIndex = this.state.jumpInfoMap.get(segmentRef);
         const { startY, endY } = this.getSegScrollPos(segmentRef);
-        if (startY > 0) {
+        if (startY > 0) {  // only scroll when segment top is visible on screen
           if (!itemIndex) { debugger; }
           this.sectionListRef.scrollToLocation({
               animated: false,
@@ -333,7 +333,7 @@ class TextColumn extends React.PureComponent {
         const topSeg = secData.sections[0][0];
         const nextSeg = secData.sections[0].length > 1 ? secData.sections[0][1] : (secData.sections.length > 1 ? secData.sections[1][0] : null);
         const { startY, endY } = this.getSegScrollPos(topSeg.ref);
-        const seg = startY > 0 || endY > COMMENTARY_LINE_THRESHOLD || !nextSeg ? topSeg : nextSeg;
+        const seg = (startY > 0 || endY > COMMENTARY_LINE_THRESHOLD || !nextSeg) ? topSeg : nextSeg;
 
         this.setHighlight(seg.data.sectionIndex, seg.data.rowIndex, seg.ref);
     } else {
@@ -654,9 +654,12 @@ class TextColumn extends React.PureComponent {
     this.rowYHash[ref] = y;
   }
 
+  // _renderCell = React.memo(props => (
+  //   <CellView {...props} onSegmentLayout={this._onSegmentLayout}/>
+  // ), (prevProps, newProps) => (prevProps.item.changeString === newProps.item.changeString));
   _renderCell = React.memo(props => (
     <CellView {...props} onSegmentLayout={this._onSegmentLayout}/>
-  ), (prevProps, newProps) => (prevProps.item.changeString === newProps.item.changeString));
+  ));
 
   render() {
     return (
