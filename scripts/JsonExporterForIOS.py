@@ -33,6 +33,7 @@ from sefaria.client.wrapper import get_links
 from sefaria.model.text import Version
 from sefaria.model.schema import Term
 from sefaria.utils.talmud import section_to_daf
+from sefaria.utils.calendars import get_all_calendar_items
 from sefaria.utils.hebrew import hebrew_parasha_name
 from sefaria.system.exceptions import InputError, BookNameError
 from sefaria.system.exceptions import NoVersionFoundError
@@ -53,7 +54,7 @@ or
 any section has a version different than the default version
 """
 
-SCHEMA_VERSION = "5"  # includes author info and new calendars
+SCHEMA_VERSION = "6"  # remove itags from text, make calendars future-proof
 EXPORT_PATH = SEFARIA_EXPORT_PATH + "/" + SCHEMA_VERSION
 
 TOC_PATH          = "/toc.json"
@@ -291,7 +292,7 @@ def section_data(oref, defaultVersions):
     :param defaultVersions dict: {'en': Version, 'he': Version}
     Returns a dictionary with all the data we care about for section level `oref`.
     """
-    tf = model.TextFamily(oref, version=None, lang=None, commentary=0, context=0, pad=0, alts=False)
+    tf = model.TextFamily(oref, version=None, lang=None, commentary=0, context=0, pad=0, alts=False, stripItags=True)
     text = tf.contents()
     data = {
         "ref": text["ref"],
@@ -679,127 +680,56 @@ def new_books_since_last_update():
 def export_calendar(for_sources=False):
     """
     Writes a JSON file with Parashah and Daf Yomi calendar from today onward.
-    """
-    calendar = {
-        "parasha": {},
-        "dafyomi": {},
-        "mishnah": {},
-        "rambam": {},
-        "929": {}
+    {"d/a/t/e": {
+        "default": [
+            { parsha },
+            ...
+        ],
+        "ashki|True":
     }
-    date = datetime.now() - timedelta(1)
-    date_format = lambda date : date.strftime(" %m/ %d/%Y").replace(" 0", "").replace(" ", "")
-    date_str = date_format(date)
-
-    # DAF -----
-    daf_today = db.dafyomi.find_one({"date": date_str})
-
-    dafyomi = db.dafyomi.find({"_id": {"$gte": daf_today["_id"]}}).sort([("_id", 1)])
-    for yom in dafyomi:
-        try:
-            daf_list = yom["daf"] if isinstance(yom["daf"], list) else [yom["daf"]]
-            for daf in daf_list:
-                try:
-                    ref = model.Ref(daf + "a")
-                except InputError:
-                    # likely this is a mishna ref at the end of kodshim
-                    ref = model.Ref(daf)
-                tref = ref.normal()
-                heTref = ref.he_normal()
-                #if not yom["date"] in calendar["dafyomi"]:
-                #    calendar["dafyomi"][yom["date"]] = []
-                calendar["dafyomi"][yom["date"]] = {
-                    "ref": {"en": tref, "he": heTref}
-                }
-        except KeyError as e:
-            continue
-        except InputError, e:
-            print "Error parsing '%s': %s" % (yom["daf"], str(e))
-
-    # PARASHA -----
-    parshiot = db.parshiot.find({"date": {"$gte": date}}).sort([("date", 1)])
-    for parashah in parshiot:
-        try:
-            parshRef = model.Ref(parashah["ref"])
-            parshTref = parshRef.normal()
-            parshHeTref = parshRef.he_normal()
-            haftarot = {custom: [{
-                "en": model.Ref(h).normal(), "he": model.Ref(h).he_normal()
-                } for h in haf_list] for custom, haf_list in parashah["haftara"].items() }
-
-            location = "diaspora" if parashah["diaspora"] else "israel"
-
-            calendar["parasha"].setdefault(date_format(parashah["date"]), {"israel": {}, "diaspora": {}})
 
 
-            calendar["parasha"][date_format(parashah["date"])][location] = {
-                "parasha": {"en": parashah["parasha"], "he": hebrew_parasha_name(parashah["parasha"])},
-                "ref": {"en": parshTref, "he": parshHeTref},
-                "haftara": [haftarot["ashkenazi"][0], haftarot],  # backwards compatibility. app always reads first element of haftara array
-                    # below fields not currently used
-                # "aliyot": parashah["aliyot"],
-                # "shabbatName": parasha["shabbat_name"],
-            }
-        except KeyError as e:
-            continue
-        except InputError as e:
-            continue
+    }
+    """
+    calendar = {}
+    base = datetime.today()
+    date_list = [base - timedelta(days=x) for x in range(365)]
+    for dt in date_list:
+        curr_cal = defaultdict(list)
+        all_possibilities = defaultdict(lambda: defaultdict(list))
+        for diaspora in (True, False):
+            for custom in ('ashkenazi', 'sephardi'):
+                cal_items = get_all_calendar_items(dt, diaspora=diaspora, custom=custom)
+                # aggregate by type to combine refs
+                cal_items_dict = {}
+                for c in cal_items:
+                    ckey = c['title']['en']
+                    if ckey in cal_items_dict:
+                        cal_items_dict[ckey]['refs'] += [c['ref']]
+                    else:
+                        ref = c['ref']
+                        del c['ref']
+                        del c['url']
+                        c['refs'] = [ref]
+                        cal_items_dict[ckey] = c
+                for ckey, c in cal_items_dict.items():
+                    c['custom'] = custom
+                    c['diaspora'] = diaspora
+                    all_possibilities[ckey][c['refs'][0]] += [c]
+        for key, title_dict in all_possibilities.items():
+            for i, (tref, poss_list) in enumerate(title_dict.items()):
+                if i == 0:
+                    del poss_list[0]['custom']
+                    del poss_list[0]['diaspora']
+                    curr_cal['d'] += [poss_list[0]]
+                else:
+                    for p in poss_list:
+                        pkey = '{}|{}'.format(1 if p['diaspora'] else 0, p['custom'][0])
+                        del p['custom']
+                        del p['diaspora']
+                        curr_cal[pkey] += [p]
+        calendar[dt.date().isoformat()] = curr_cal
 
-    # MISHNA -----
-    mishnayot = db.daily_mishnayot.find({"date": {"$gte": date}}).sort([("date", 1)])
-    for mishnah in mishnayot:
-        try:
-            ref = model.Ref(mishnah["ref"])
-            tref = ref.normal()
-            heTref = ref.he_normal()
-            mish_obj = {"ref": {"en": tref, "he": heTref}}
-            date_key = date_format(mishnah["date"])
-            if not date_key in calendar["mishnah"]:
-                calendar["mishnah"][date_key] = [mish_obj]
-            else:
-                calendar["mishnah"][date_key] += [mish_obj]
-        except KeyError as e:
-            continue
-        except InputError as e:
-            continue
-
-    # RAMBAM -----
-    rambamim = db.daily_rambam.find({"date": {"$gte": date}}).sort([("date",1)])
-    for rambam in rambamim:
-        try:
-            ref = model.Ref(rambam["ref"])
-            tref = ref.normal()
-            heTref = ref.he_normal()
-            display_value_en = tref.replace("Mishneh Torah, ","")
-            display_value_he = heTref.replace(u"משנה תורה, ", u"")
-            calendar["rambam"][date_format(rambam["date"])] = {
-                "ref": {"en": tref, "he": heTref},
-                "displayValue": {"en": display_value_en, "he": display_value_he}
-            }
-        except KeyError as e:
-            continue
-        except InputError as e:
-            continue
-
-    # 929 -----
-    end_date = date + timedelta(days=1000)
-    curr_date = date
-    while curr_date < end_date:
-        try:
-            p = p929.Perek(curr_date.date())
-            ref = model.Ref("{} {}".format(p.book_name, p.book_chapter))
-            tref = ref.normal()
-            heTref = ref.he_normal()
-            calendar["929"][date_format(curr_date)] = {
-                "ref": {"en": tref, "he": heTref}
-            }
-            if p.number == 929:
-                p929.origins += [curr_date.date()]
-            curr_date += timedelta(days=1)
-        except KeyError as e:
-            continue
-        except InputError as e:
-            continue
 
     path = (SEFARIA_IOS_SOURCES_PATH if for_sources else EXPORT_PATH) + CALENDAR_PATH
     write_doc(calendar, path)
