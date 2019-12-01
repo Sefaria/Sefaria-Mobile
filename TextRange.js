@@ -123,7 +123,6 @@ const TextRange = React.memo(({
   }
   const showHe = textLanguageWithContent == "hebrew" || textLanguageWithContent == "bilingual";
   const showEn = textLanguageWithContent == "english" || textLanguageWithContent == "bilingual";
-  console.log('Show he ne', showHe, showEn, textLanguageWithContent, textLanguage);
   return (
     <View
       style={styles.verseContainer}
