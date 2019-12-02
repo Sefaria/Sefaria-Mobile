@@ -9,7 +9,7 @@ We're using React-Native, so much of the app is written in JavaScript. This is u
 brew install node
 brew install watchman
 git clone https://github.com/Sefaria/Sefaria-iOS/
-cd Sefaria-iOS/ReaderApp                            
+cd Sefaria-iOS                          
 npm install
 npm run setup
 ```
