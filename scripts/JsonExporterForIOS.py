@@ -679,17 +679,7 @@ def new_books_since_last_update():
 
 def export_calendar(for_sources=False):
     """
-    Writes a JSON file with Parashah and Daf Yomi calendar from today onward.
-    {"d/a/t/e": {
-        "default": [
-            { parsha },
-            ...
-        ],
-        "ashki|True":
-    }
-
-
-    }
+    Writes a JSON file with all calendars from `get_all_calendar_items` for the next 365 days
     """
     calendar = {}
     base = datetime.today()
@@ -703,14 +693,18 @@ def export_calendar(for_sources=False):
                 # aggregate by type to combine refs
                 cal_items_dict = {}
                 for c in cal_items:
-                    ckey = c['title']['en']
+                    ckey = c['order']
                     if ckey in cal_items_dict:
                         cal_items_dict[ckey]['refs'] += [c['ref']]
+                        cal_items_dict[ckey]['subs'] += [c['displayValue']]
                     else:
                         ref = c['ref']
+                        displayValue = c['displayValue']
                         del c['ref']
                         del c['url']
+                        del c['displayValue']
                         c['refs'] = [ref]
+                        c['subs'] = [displayValue]
                         cal_items_dict[ckey] = c
                 for ckey, c in cal_items_dict.items():
                     c['custom'] = custom

@@ -24,6 +24,7 @@ import {
 } from './Misc.js';
 import { STATE_ACTIONS, DispatchContext, GlobalStateContext, getTheme } from './StateManager';
 import VersionNumber from 'react-native-version-number';
+import ActionSheet from 'react-native-action-sheet';
 import SearchBar from './SearchBar';
 import ReaderNavigationCategoryMenu from './ReaderNavigationCategoryMenu';
 import ReaderNavigationSheetMenu from './ReaderNavigationSheetMenu';
@@ -332,66 +333,41 @@ ResourcesSection.propTypes = {
 
 
 const CalendarSection = ({ openRef, _completedInit }) => {
-  const { textLanguage, interfaceLanguage } = useContext(GlobalStateContext);
+  const { textLanguage, interfaceLanguage, preferredCustom } = useContext(GlobalStateContext);
   if (!_completedInit) { return (<LoadingView />); }
-  const { parasha, dafYomi, p929, rambam, mishnah } = Sefaria.getCalendars();
-  const calendar = [
-          !!parasha ? <CategoryBlockLink
-            category={"Parashat Hashavua"}
-            heCat={"פרשת השבוע"}
-            style={{"borderColor": Sefaria.palette.categoryColor("Tanakh")}}
-            subtext={parasha.parasha}
-            onPress={() => { openRef(parasha.ref.en); }}
-            key="parashah" /> : null,
-          !!parasha ? <CategoryBlockLink
-            category={"Haftara"}
-            heCat={"הפטרה"}
-            style={{"borderColor": Sefaria.palette.categoryColor("Tanakh")}}
-            subtext={parasha.haftara[1]["ashkenazi"]}
-            onPress={() => { openRef(parasha.haftara[0].en); }}
-            key="haftara" /> : null,
-          !!dafYomi ? <CategoryBlockLink
-            category={"Daf Yomi"}
-            heCat={"דף יומי"}
-            style={{"borderColor": Sefaria.palette.categoryColor("Talmud")}}
-            subtext={Array.isArray(dafYomi) ? dafYomi.map(x => x.ref) : dafYomi.ref}
-            onPress={() => { openRef(Array.isArray(dafYomi) ? dafYomi[0].ref.en : dafYomi.ref.en); }}
-            key="dafYomi" /> : null,
-          !!p929 ? <CategoryBlockLink
-            category={"929"}
-            heCat={"929"}
-            style={{"borderColor": Sefaria.palette.categoryColor("Tanakh")}}
-            subtext={p929.ref}
-            onPress={() => { openRef(p929.ref.en); }}
-            key="929" /> : null,
-          !!mishnah ? <CategoryBlockLink
-            category={"Daily Mishnah"}
-            heCat={"משנה יומית"}
-            style={{"borderColor": Sefaria.palette.categoryColor("Mishnah")}}
-            subtext={mishnah.map(x => x.ref)}
-            onPress={() => { openRef(mishnah[0].ref.en); }}
-            key="mishnah" /> : null,
-          !!rambam ? <CategoryBlockLink
-            category={"Daily Rambam"}
-            heCat={"הרמב״ם היומי"}
-            style={{"borderColor": Sefaria.palette.categoryColor("Halakhah")}}
-            subtext={{en: rambam.ref.en.replace("Mishneh Torah, ", ""), he: rambam.ref.he.replace("משנה תורה, ", "")}}
-            onPress={() => { openRef(rambam.ref.en); }}
-            key="rambam" /> : null
-          ];
-
-  var calendarContent = (
-    <TwoBox language={Sefaria.util.get_menu_language(interfaceLanguage, textLanguage)}>
-      { calendar }
-    </TwoBox>
-  );
-
+  const calItems = Sefaria.getCalendars(preferredCustom, Sefaria.galusOrIsrael === 'diaspora');
+  const isHeb = Sefaria.util.get_menu_language(interfaceLanguage, textLanguage) == 'hebrew';
   return (
     <ReaderNavigationMenuSection
       hasmore={false}
       title={strings.calendar}
       heTitle={strings.calendar}
-      content={calendarContent}
+      content={
+        <TwoBox language={Sefaria.util.get_menu_language(interfaceLanguage, textLanguage)}>
+          { calItems.map(c => (
+            <TouchableWithoutFeedback key={c.order} onLongPress={()=>{console.log("YOHOHO!")}}>
+              <CategoryBlockLink
+                category={c.title.en}
+                heCat={c.title.he}
+                style={{"borderColor": Sefaria.palette.categoryColor(c.category)}}
+                subtext={c.subs}
+                allRefs={c.refs}
+                onLongPress={() => {
+                  ActionSheet.showActionSheetWithOptions({
+                    options: c.subs.map(x => isHeb ? x.he : x.en).concat([strings.cancel]),
+                    cancelButtonIndex: c.subs.length,
+                  },
+                  (buttonIndex) => {
+                    if (buttonIndex >= c.subs.length) { return; }  // cancel button
+                    openRef(c.refs[buttonIndex]);
+                  })
+                }}
+                onPress={() => { openRef(c.refs[0]); }}
+              />
+            </TouchableWithoutFeedback>
+          ))}
+        </TwoBox>
+      }
     />
   );
 }

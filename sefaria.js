@@ -147,7 +147,7 @@ Sefaria = {
   shouldLoadFromApi: function(versions) {
     // there are currently two cases where we load from API even if the index is downloaded
     // 1) debugNoLibrary is true 2) you're loading a non-default version
-    return (!!versions && Object.keys(versions).length !== 0 && Object.values(versions).reduce((accum, curr) => accum || !!curr, false)) || Sefaria.downloader._data.debugNoLibrary;
+    return Sefaria.util.objectHasNonNullValues(versions) || Sefaria.downloader._data.debugNoLibrary;
   },
   loadOfflineFile: async function(ref, context, versions) {
     var fileNameStem = ref.split(":")[0];
@@ -634,50 +634,29 @@ Sefaria = {
   },
 
 
-  getCalendars: function() {
-    if (!Sefaria.calendar) {
-      return {
-        parasha: null,
-        dafYomi: null,
-        p929: null,
-        rambam: null,
-        mishnah: null,
-      };
-    }
+  getCalendars: function(custom, diaspora) {
+    if (!Sefaria.calendar) { return []; }
     const dateString = Sefaria._dateString();
-    return {
-      parasha: Sefaria.parasha(),
-      dafYomi: Sefaria.calendar.dafyomi[dateString],
-      p929:  Sefaria.calendar["929"][dateString],
-      rambam: Sefaria.calendar.rambam[dateString],
-      mishnah: Sefaria.calendar.mishnah[dateString],
+    const cal_obj = Sefaria.calendar[dateString];
+    if (!cal_obj) { return []; }
+    const preference_key = `${diaspora ? 1 : 0}|${custom[0]}`;
+    const cal_items = cal_obj[preference_key] || [];
+    const existing_items = new Set(cal_items.map(c => c.title.en));
+    for (let c of cal_obj.d) {
+      if (!existing_items.has(c.title.en)) {
+        cal_items.push(c);
+      }
     }
-  },
-  parasha: function() {
-    // Returns an object representing this week's Parashah
-    let parasha;
-    let weekOffset = 1;
-
-    //See if there's a Parshah this week -- If not return next week's, if not return the week after that... אא"וו
-    //TODO parasha currently updates on Shabbat. For users who are mchalel shabbat, they will get the wrong parasha. do we care?
-    if (!Sefaria.calendar) { return null; }
-    while (!parasha) {
-      let date = new Date();
-      date.setDate(date.getDate() + (6 - 1 - date.getDay() + 7) % 7 + weekOffset);
-      dateString = Sefaria._dateString(date);
-      parasha = Sefaria.calendar.parasha[dateString][Sefaria.galusOrIsrael];
-      weekOffset += 1;
-    }
-    return Sefaria.calendar ? parasha : null;
+    return cal_items.sort((a, b) => a.order - b.order);
   },
   _dateString: function(date) {
     // Returns of string in the format "DD/MM/YYYY" for either `date` or today.
     var date = typeof date === 'undefined' ? new Date() : date;
-    var day = date.getDate();
-    var month = date.getMonth()+1; //January is 0!
+    var day = ('0' + date.getDate()).slice(-2);
+    var month = ('0' + (date.getMonth()+1)).slice(-2); //January is 0!
     var year = date.getFullYear();
 
-    return month + '/' + day + '/' + year;
+    return `${year}-${month}-${day}`;
   },
   saveRecentQuery: function(query, type) {
     //type = ["ref", "book", "person", "toc", "query"]
@@ -1125,6 +1104,9 @@ Sefaria.util = {
     //menu language is no longer set explicitly
     //Instead, it is set like this
     return interfaceLanguage == 'hebrew' || textLanguage == 'hebrew' ? 'hebrew' : 'english';
+  },
+  objectHasNonNullValues: function(obj) {
+    return !!obj && Object.keys(obj).length !== 0 && Object.values(obj).reduce((accum, curr) => accum || !!curr, false);
   },
   object_equals: function(a, b) {
     // simple object equality assuming values are primitive. see here

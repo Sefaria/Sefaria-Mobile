@@ -137,6 +137,7 @@ const CategoryBlockLink = ({
   withArrow,
   isSans,
   onPress,
+  onLongPress,
 }) => {
   const { themeStr, textLanguage, interfaceLanguage } = useContext(GlobalStateContext);
   const theme = getTheme(themeStr);
@@ -151,7 +152,7 @@ const CategoryBlockLink = ({
     (<Text style={[isSans ? styles.heInt : styles.hebrewText].concat(textStyle)}>{heText}</Text>) :
     (<Text style={[isSans ? styles.enInt : styles.englishText].concat(textStyle)}>{enText}</Text>);
   return (
-    <TouchableOpacity onPress={onPress} style={[styles.readerNavCategory, theme.readerNavCategory, style]}>
+    <TouchableOpacity onLongPress={onLongPress} onPress={onPress} style={[styles.readerNavCategory, theme.readerNavCategory, style]}>
       <View style={styles.readerNavCategoryInner}>
         { iconOnLeft && (withArrow || icon) ? <Image source={withArrow || !icon ? (themeStr == "white" ? require('./img/back.png') : require('./img/back-light.png')) : icon }
           style={[styles.moreArrowHe, isSans ? styles.categoryBlockLinkIconSansHe : null]}
