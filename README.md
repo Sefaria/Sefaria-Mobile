@@ -12,6 +12,8 @@ git clone https://github.com/Sefaria/Sefaria-iOS/
 cd Sefaria-iOS                          
 npm install
 npm run setup
+gem install cocoapods
+pod install
 ```
 
 With these dependencies installed, you can open `/ios/ReaderApp.xcworkspace` and hit run to start the simulator.
