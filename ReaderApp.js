@@ -582,7 +582,7 @@ class ReaderApp extends React.PureComponent {
       },
       () => {
         Sefaria.data(ref, true, versions).then(data => {
-            if (data.nonExistantVersions) {
+            if (Sefaria.util.objectHasNonNullValues(data.nonExistantVersions)) {
               if (numTries >= 4) { throw "Return to Nav"; }
               this.loadNewText({ ref, isLoadingVersion, overwriteVersions, numTries: numTries + 1 }).then(resolve);
               return;
