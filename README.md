@@ -9,9 +9,19 @@ We're using React-Native, so much of the app is written in JavaScript. This is u
 brew install node
 brew install watchman
 git clone https://github.com/Sefaria/Sefaria-iOS/
-cd Sefaria-iOS/ReaderApp                            
+cd Sefaria-iOS                          
 npm install
 npm run setup
+gem install cocoapods
+cd ios
+pod install
 ```
+Put `GoogleService-Info.plist` in the `ios` directory.  It's available from the Firebase console (or your friendly co-worker.) 
 
-With these dependencies installed, you can open `/ReaderApp/ReadApp.xcodeprog` and hit run to start the simulator.
+To build and start the simulator:
+
+From the root of the repo, run `react-native start`.  
+From another terminal, run `react-native run-ios`
+
+Alternatively, you can open `/ios/ReaderApp.xcworkspace` and hit run.
+
