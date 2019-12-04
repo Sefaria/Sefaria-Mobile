@@ -13,7 +13,6 @@ cd Sefaria-iOS
 npm install
 npm run setup
 gem install cocoapods
-
 cd ios
 pod install
 ```
