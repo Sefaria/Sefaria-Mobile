@@ -82,8 +82,8 @@ def write_doc(doc, path):
 
     if not os.path.exists(os.path.dirname(path)):
         os.makedirs(os.path.dirname(path))
-    with codecs.open(path, "wb", encoding='utf-8') as f:
-        json.dump(doc, f, encoding='utf-8', ensure_ascii=False, indent=(None if MINIFY_JSON else 4), separators=((',',':') if MINIFY_JSON else None))
+    with open(path, "w") as f:
+        json.dump(doc, f, ensure_ascii=False, indent=(None if MINIFY_JSON else 4), separators=((',',':') if MINIFY_JSON else None))
 
 
 def zip_last_text(title):
@@ -155,22 +155,22 @@ def export_updated():
         export_all()
         return
 
-    print "Generating updated books list."
+    print("Generating updated books list.")
     updated_books = updated_books_list()
-    print "{} books updated.".format(len(updated_books))
+    print("{} books updated.".format(len(updated_books)))
     new_books = new_books_since_last_update()
-    print "{} books added.".format(len(new_books))
+    print("{} books added.".format(len(new_books)))
     updated_books += new_books
 
-    print "Updating {} books\n{}".format(len(updated_books), "\n\t".join(updated_books))
+    print("Updating {} books\n{}".format(len(updated_books), "\n\t".join(updated_books)))
     updated_indexes = []
     for t in updated_books:
         try:
             updated_indexes += [model.library.get_index(t)]
         except BookNameError:
-            print "Skipping update for non-existent book '{}'".format(t)
+            print("Skipping update for non-existent book '{}'".format(t))
 
-    updated_books = map(lambda x: x.title, updated_indexes)
+    updated_books = [x.title for x in updated_indexes]
     for index in updated_indexes:
         success = export_text(index)
         if not success:
@@ -192,7 +192,7 @@ def updated_books_list():
     if not os.path.exists(LAST_UPDATED_PATH):
         return None
     last_updated = json.load(open(LAST_UPDATED_PATH, "rb")).get("titles", {})
-    updated_books = map(lambda x: x[0], filter(lambda x: has_updated(x[0], dateutil.parser.parse(x[1])), last_updated.items()))
+    updated_books = [x[0] for x in [x for x in list(last_updated.items()) if has_updated(x[0], dateutil.parser.parse(x[1]))]]
     return updated_books
 
 
@@ -249,7 +249,7 @@ def export_text_json(index):
 
     returns True if export was successful
     """
-    print index.title
+    print(index.title)
     defaultVersions = get_default_versions(index)
     try:
         for oref in index.all_top_section_refs():
@@ -268,9 +268,9 @@ def export_text_json(index):
             write_doc(doc, path)
         return True
 
-    except Exception, e:
-        print "Error exporting %s: %s" % (index.title, e)
-        print traceback.format_exc()
+    except Exception as e:
+        print("Error exporting %s: %s" % (index.title, e))
+        print(traceback.format_exc())
         return False
 
 
@@ -338,7 +338,7 @@ def section_data(oref, defaultVersions):
             #merged
             #print "MERGED SECTION {} ({})".format(oref, chunk.lang)
             all_versions = set(chunk.sources)
-            merged_version = u'Merged from {}'.format(u', '.join(all_versions))
+            merged_version = 'Merged from {}'.format(', '.join(all_versions))
             return merged_version, None, None, None, None, None
 
     en_vtitle, en_vnotes, en_vlicense, en_vsource, en_vtitle_he, en_vnotes_he = get_version_title(tf._chunks['en'])
@@ -382,9 +382,9 @@ def section_data(oref, defaultVersions):
         # make sure sections are the same in range
         # TODO doesn't deal with links that span sections
         end_seg_num = anchor_oref.toSections[-1] if anchor_oref.sections[0] == anchor_oref.toSections[0] else max(en_len, he_len)
-        for x in xrange(start_seg_num, end_seg_num+1):
+        for x in range(start_seg_num, end_seg_num+1):
             anchor_ref_dict[x] += [simple_link(link)]
-    for x in xrange (0,max(en_len,he_len)):
+    for x in range (0,max(en_len,he_len)):
         curContent = {}
         curContent["segmentNumber"] = str(x+1)
         links = anchor_ref_dict[x+1]
@@ -456,9 +456,9 @@ def export_index(index):
         write_doc(index_counts, path)
 
         return True
-    except Exception, e:
-        print "Error exporting Index for %s: %s" % (index.title, e)
-        print traceback.format_exc()
+    except Exception as e:
+        print("Error exporting Index for %s: %s" % (index.title, e))
+        print(traceback.format_exc())
 
         return False
 
@@ -466,10 +466,10 @@ def export_index(index):
 def get_indexes_in_category(cats, toc):
     indexes = []
     for temp_toc in toc:
-        if u"contents" in temp_toc and (len(cats) == 0 or temp_toc[u"category"] == cats[0]):
-            indexes += get_indexes_in_category(cats[1:], temp_toc[u"contents"])
-        elif len(cats) == 0 and u"title" in temp_toc:
-            indexes += [temp_toc[u"title"]]
+        if "contents" in temp_toc and (len(cats) == 0 or temp_toc["category"] == cats[0]):
+            indexes += get_indexes_in_category(cats[1:], temp_toc["contents"])
+        elif len(cats) == 0 and "title" in temp_toc:
+            indexes += [temp_toc["title"]]
     return indexes
 
 
@@ -477,17 +477,17 @@ def get_downloadable_packages():
     toc = clean_toc_nodes(model.library.get_toc())
     packages = [
         {
-            u"en": "COMPLETE LIBRARY",
-            u"he": u"כל הספרייה",
-            u"color": "Other",
-            u"categories": []
+            "en": "COMPLETE LIBRARY",
+            "he": "כל הספרייה",
+            "color": "Other",
+            "categories": []
         },
         {
-            u"en": "TANAKH with Rashi",
-            u"he": u"תנ״ך עם רש״י",
-            u"color": "Tanakh",
-            u"parent": "TANAKH and all commentaries",
-            u"categories": [
+            "en": "TANAKH with Rashi",
+            "he": "תנ״ך עם רש״י",
+            "color": "Tanakh",
+            "parent": "TANAKH and all commentaries",
+            "categories": [
                 "Tanakh/Torah",
                 "Tanakh/Prophets",
                 "Tanakh/Writings",
@@ -495,19 +495,19 @@ def get_downloadable_packages():
             ]
         },
         {
-            u"en": "TANAKH and all commentaries",
-            u"he": u"תנ״ך וכל המפרשים",
-            u"color": "Tanakh",
-            u"categories": [
+            "en": "TANAKH and all commentaries",
+            "he": "תנ״ך וכל המפרשים",
+            "color": "Tanakh",
+            "categories": [
                 "Tanakh"
             ]
         },
         {
-            u"en": "TALMUD with Rashi and Tosafot",
-            u"he": u"תלמוד עם רש״י ותוספות",
-            u"parent": "TALMUD and all commentaries",
-            u"color": "Talmud",
-            u"categories": [
+            "en": "TALMUD with Rashi and Tosafot",
+            "he": "תלמוד עם רש״י ותוספות",
+            "parent": "TALMUD and all commentaries",
+            "color": "Talmud",
+            "categories": [
                 "Talmud/Bavli/Seder Zeraim",
                 "Talmud/Bavli/Seder Moed",
                 "Talmud/Bavli/Seder Nashim",
@@ -519,29 +519,29 @@ def get_downloadable_packages():
             ]
         },
         {
-            u"en": "TALMUD and all commentaries",
-            u"he": u"תלמוד וכל המפרשים",
-            u"color": "Talmud",
-            u"categories": [
+            "en": "TALMUD and all commentaries",
+            "he": "תלמוד וכל המפרשים",
+            "color": "Talmud",
+            "categories": [
                 "Talmud"
             ]
         }
     ]
     # Add all top-level categories
     for cat in toc[:7]:
-        if cat[u"category"] == "Tanakh" or cat[u"category"] == "Talmud":
+        if cat["category"] == "Tanakh" or cat["category"] == "Talmud":
             continue  # already included above
         packages += [{
-            u"en": cat[u"category"].upper(),
-            u"he": cat[u"heCategory"],
-            u"color": cat[u"category"],
-            u"categories": [cat[u"category"]]
+            "en": cat["category"].upper(),
+            "he": cat["heCategory"],
+            "color": cat["category"],
+            "categories": [cat["category"]]
         }]
     for p in packages:
         indexes = []
-        hasCats = len(p[u"categories"]) > 0
+        hasCats = len(p["categories"]) > 0
         if hasCats:
-            for c in p[u"categories"]:
+            for c in p["categories"]:
                 indexes += get_indexes_in_category(c.split("/"), toc)
         else:
             indexes += get_indexes_in_category([], toc)
@@ -550,9 +550,9 @@ def get_downloadable_packages():
             size += os.path.getsize("{}/{}.zip".format(EXPORT_PATH, i)) if os.path.isfile("{}/{}.zip".format(EXPORT_PATH, i)) else 0  # get size in kb. overestimate by 1kb
         if hasCats:
             # only include indexes if not complete library
-            p[u"indexes"] = indexes
-        del p[u"categories"]
-        p[u"size"] = size
+            p["indexes"] = indexes
+        del p["categories"]
+        p["size"] = size
     return packages
 
 
@@ -599,16 +599,16 @@ def export_hebrew_categories(for_sources=False):
     """
     Writes translation of all English categories into a single file.
     """
-    print "Export Hebrew Categories"
+    print("Export Hebrew Categories")
     term = Term()
     eng_cats = model.library.get_text_categories()
     hebrew_cats_json = {}
     for e in eng_cats:
         t = term.load_by_title(e)
         if not t:
-            print u"Couldn't load term '{}'. Skipping Hebrew category".format(e)
+            print("Couldn't load term '{}'. Skipping Hebrew category".format(e))
         else:
-            hebrew_cats_json[e] = t.titles[1][u'text']
+            hebrew_cats_json[e] = t.titles[1]['text']
     write_doc(hebrew_cats_json, (SEFARIA_IOS_SOURCES_PATH if for_sources else EXPORT_PATH) + HEB_CATS_PATH)
     write_doc(hebrew_cats_json, (SEFARIA_ANDROID_SOURCES_PATH if for_sources else EXPORT_PATH) + HEB_CATS_PATH)
 
@@ -621,7 +621,7 @@ def clean_toc_nodes(toc):
     for t in toc:
         if "contents" in t:
             new_item = {}
-            for k, v in t.items():
+            for k, v in list(t.items()):
                 if k != "contents":
                     new_item[k] = v
             newToc += [new_item]
@@ -629,9 +629,9 @@ def clean_toc_nodes(toc):
         elif "isGroup" in t:
             continue # Not currently handling sheets in TOC
         elif "title" in t:
-            newToc += [{k: v for k, v in t.items()}]
+            newToc += [{k: v for k, v in list(t.items())}]
         else:
-            print "Goodbye {}".format(t)
+            print("Goodbye {}".format(t))
     return newToc
 
 
@@ -640,7 +640,7 @@ def export_toc(for_sources=False):
     """
     Writes the Table of Contents JSON to a single file.
     """
-    print "Export Table of Contents"
+    print("Export Table of Contents")
     new_toc = model.library.get_toc()
     new_search_toc = model.library.get_search_filter_toc()
     new_new_toc = clean_toc_nodes(new_toc)
@@ -666,11 +666,11 @@ def new_books_since_last_update():
             try:
                 books.add(temp_toc["title"])
             except KeyError:
-                print "Bad Toc item skipping {}".format(temp_toc)
+                print("Bad Toc item skipping {}".format(temp_toc))
         return books
 
     last_updated = json.load(open(LAST_UPDATED_PATH, 'rb')) if os.path.exists(LAST_UPDATED_PATH) else {"titles": {}}
-    old_books = last_updated["titles"].keys()
+    old_books = list(last_updated["titles"].keys())
     new_books = get_books(new_toc, set())
 
     added_books = [book for book in new_books if book not in old_books]
@@ -706,11 +706,11 @@ def export_calendar(for_sources=False):
                         c['refs'] = [ref]
                         c['subs'] = [displayValue]
                         cal_items_dict[ckey] = c
-                for ckey, c in cal_items_dict.items():
+                for ckey, c in list(cal_items_dict.items()):
                     c['custom'] = custom
                     c['diaspora'] = diaspora
                     all_possibilities[ckey][c['refs'][0]] += [c]
-        for key, title_dict in all_possibilities.items():
+        for key, title_dict in list(all_possibilities.items()):
             for i, (tref, poss_list) in enumerate(title_dict.items()):
                 if i == 0:
                     del poss_list[0]['custom']
@@ -735,7 +735,7 @@ def export_authors(for_sources=False):
     people = {}
     for person in ps:
         for name in person.names:
-            if not isinstance(name["text"], basestring):
+            if not isinstance(name["text"], str):
                 continue
             people[name["text"].lower()] = 1
     path = (SEFARIA_IOS_SOURCES_PATH if for_sources else EXPORT_PATH) + PEOPLE_PATH
@@ -765,7 +765,7 @@ def purge_cloudflare_cache(titles):
         "Content-Type": "application/json",
     }
     r = requests.delete(url, data=json.dumps(payload), headers=headers)
-    print  "Purged {} files from Cloudflare".format(len(files))
+    print("Purged {} files from Cloudflare".format(len(files)))
 
     return r
 
@@ -782,7 +782,7 @@ def export_all(skip_existing=False):
     export_texts(skip_existing)
     export_authors()
     export_packages()
-    print("--- %s seconds ---" % round(time.time() - start_time, 2))
+    print(("--- %s seconds ---" % round(time.time() - start_time, 2)))
 
 
 def export_base_files_to_sources():
@@ -810,7 +810,7 @@ if __name__ == '__main__':
         export_all(skip_existing=True)
     elif action == "export_text":
         if not index:
-            print "To export_index, please provide index title"
+            print("To export_index, please provide index title")
         else:
             export_text(index, update=True)
     elif action == "export_updated":
@@ -819,7 +819,7 @@ if __name__ == '__main__':
         if USE_CLOUDFLARE:
             purge_cloudflare_cache([])
         else:
-            print "not using cloudflare"
+            print("not using cloudflare")
     elif action == "export_toc":
         export_toc()
         purge_cloudflare_cache([])
