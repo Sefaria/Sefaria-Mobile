@@ -13,8 +13,16 @@ cd Sefaria-iOS
 npm install
 npm run setup
 gem install cocoapods
+
+cd ios
 pod install
 ```
+Put `GoogleService-Info.plist` in the `ios` directory.  It's available from the Firebase console (or your friendly co-worker.) 
 
-With these dependencies installed, you can open `/ios/ReaderApp.xcworkspace` and hit run to start the simulator.
+To build and start the simulator:
+
+From the root of the repo, run `react-native start`.  
+From another terminal, run `react-native run-ios`
+
+Alternatively, you can open `/ios/ReaderApp.xcworkspace` and hit run.
 
