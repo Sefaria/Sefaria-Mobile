@@ -204,9 +204,13 @@ const ListItem = ({
   const theme = getTheme(themeStr);
   const tempOpenRef = () => {
     // versionLanguage should only be defined when TextList is in VersionsBox. Otherwise you should open default version for that link
-    const versions = versionLanguage ? {[versionLanguage]: versionTitle} : null;
-    openRef(refStr, versions);
-  }
+    let versions = null, loadNewVersions = false;
+    if (!!versionLanguage) {
+      versions = {[versionLanguage]: versionTitle};
+      loadNewVersions = true;
+    }
+    openRef(refStr, versions, {loadNewVersions});
+  };
   const openActionSheet = () => {
     ActionSheet.showActionSheetWithOptions({
       options: [`${strings.open} ${versionLanguage ? strings.version :

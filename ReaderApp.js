@@ -824,8 +824,8 @@ class ReaderApp extends React.PureComponent {
       });
   };
 
-  openRefConnectionsPanel = (ref, versions) => {
-    this.openRef(ref,"text list", versions);
+  openRefConnectionsPanel = (ref, versions, loadNewVersions=false) => {
+    this.openRef(ref,"text list", versions, undefined, undefined, loadNewVersions);
   };
 
   updateActiveSheetNode = (node) => {
@@ -940,7 +940,7 @@ class ReaderApp extends React.PureComponent {
   prevScrollPos parameter used for back button
   enableAliyot - true when you click on an aliya form ReaderTextTableOfContents
   */
-  openRef = (ref, calledFrom, versions, addToBackStack=true, enableAliyot=false) => {
+  openRef = (ref, calledFrom, versions, addToBackStack=true, enableAliyot=false, loadNewVersions=false) => {
     if (ref.startsWith("Sheet")){
         this.openRefSheet(ref.match(/\d+/)[0], null, addToBackStack, calledFrom) //open ref sheet expects just the sheet ID
     }
@@ -976,7 +976,7 @@ class ReaderApp extends React.PureComponent {
 
       // make sure loaded text will show the versions you selected
       let newTextLang = this.props.textLanguage;
-      if (newTextLang !== 'bilingual') {
+      if (newTextLang !== 'bilingual' && loadNewVersions) {
         // if you're in bilingual, assume you want to stay in that
         if (!!newVersions['en'] && !!newVersions['he']) { newTextLang = "bilingual"; }
         else if (!!newVersions['en']) { newTextLang = "english"; }
