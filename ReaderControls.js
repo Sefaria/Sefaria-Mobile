@@ -86,8 +86,8 @@ const ReaderControls = ({
                      resizeMode={'contain'} />
 
             {sheet ?
-                <Text lang={textLanguage} style={titleTextStyle} numberOfLines={1} ellipsizeMode={"tail"}><HebrewInEnglishText text={sheet.title} stylesHe={[styles.heInEn]} stylesEn={[]}/></Text> :
-                <SText lang={textLanguage} style={titleTextStyle} numberOfLines={1} ellipsizeMode={"tail"}>{textTitle}</SText>
+                <Text lang={textLanguage} style={titleTextStyle} numberOfLines={1} ellipsizeMode={"middle"}><HebrewInEnglishText text={sheet.title} stylesHe={[styles.heInEn]} stylesEn={[]}/></Text> :
+                <SText lang={textLanguage} style={titleTextStyle} numberOfLines={1} ellipsizeMode={"middle"}>{textTitle}</SText>
             }
             <Image source={themeStr == "white" ? require('./img/caret.png'): require('./img/caret-light.png') }
                      style={[styles.downCaret, isHeb ? {opacity: 0} : null]}
