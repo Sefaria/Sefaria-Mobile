@@ -1051,7 +1051,7 @@ Sefaria = {
           for (let iSec = 0; iSec < aSections.length; iSec++) {
             const aInt = parseInt(aSections[iSec]);
             const bInt = parseInt(bSections[iSec]);
-            if (aInt !== bInt) { return aInt - bInt; }
+            if (!isNaN(aInt) && !isNaN(bInt) && aInt !== bInt) { return aInt - bInt; }
           }
           return 0;
         } catch (e) {
