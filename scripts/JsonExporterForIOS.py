@@ -683,7 +683,7 @@ def export_calendar(for_sources=False):
     """
     calendar = {}
     base = datetime.today()
-    date_list = [base - timedelta(days=x) for x in range(365)]
+    date_list = [base + timedelta(days=x) for x in range(-2, 365)]
     for dt in date_list:
         curr_cal = defaultdict(list)
         all_possibilities = defaultdict(lambda: defaultdict(list))
