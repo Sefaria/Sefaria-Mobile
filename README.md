@@ -27,7 +27,7 @@ Alternatively, you can open `/ios/ReaderApp.xcworkspace` and hit run.
 
 
 ## Local Development
-It's quite natural to want to test the app against a local instance of Sefaria-Project. This can be done in X simple steps:
+It's quite natural to want to test the app against a local instance of Sefaria-Project. This can be done in 2 simple steps:
 
 1. Set `Api._baseHost` to the ip address that your local server is serving from (this has to be the actual ip address displayed by django, not `localhost`).
 2. From your home directory, navigate to `Android/Sdk/platform-tools` (or add to `PATH`). Then execute `./adb reverse tcp:8000 tcp:8000`
