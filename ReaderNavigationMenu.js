@@ -220,7 +220,7 @@ const getEmailBody = () => {
 };
 
 const MoreSection = ({ isHeb, openUri, openSettings }) => {
-  const { themeStr, debugInterruptingMessage } = useContext(GlobalStateContext);
+  const { themeStr, debugInterruptingMessage, interfaceLanguage } = useContext(GlobalStateContext);
   const dispatch = useContext(DispatchContext);
   const [, forceUpdate] = useReducer(x => x + 1, 0);  // HACK
   const theme = getTheme(themeStr);
@@ -245,7 +245,11 @@ const MoreSection = ({ isHeb, openUri, openSettings }) => {
     }
   };
   const onDonate = () => {
-    openUri("https://sefaria.nationbuilder.com/");
+    if (interfaceLanguage === 'hebrew') {
+      openUri("https://sefaria.nationbuilder.com/il_mobile?utm_source=Sefaria&utm_medium=App&utm_campaign=ILSupport");
+    } else {
+      openUri("https://sefaria.nationbuilder.com/give?utm_source=Sefaria&utm_medium=App&utm_campaign=Support");
+    }
   };
   const onAbout = () => {
     openUri("https://www.sefaria.org/about");
