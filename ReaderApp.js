@@ -55,6 +55,7 @@ import Sheet from "./Sheet.js";
 import SheetMetadata from "./SheetMeta.js";
 import DeepLinkRouter from "./DeepLinkRouter.js";
 import { AuthPage } from "./AuthPage";
+import Dedication from  "./Dedication"
 
 
 
@@ -1656,6 +1657,8 @@ class ReaderApp extends React.PureComponent {
               openLogin={this.openMenu.bind(null, "login")}
               openRegister={this.openMenu.bind(null, "register")}
               openSheets={this.openMenu.bind(null, "sheets")}
+              openDedication={this.openMenu.bind(null, "dedication")}
+
               onChangeSearchQuery={this.onChangeSearchQuery}
               openUri={this.openUri}
               searchType={this.state.searchType}
@@ -1849,6 +1852,8 @@ class ReaderApp extends React.PureComponent {
             themeStr={this.props.themeStr}
            />
         );
+        case('dedication'):
+            return <Dedication />
     }
     const isSheet = !!this.state.sheet;
 

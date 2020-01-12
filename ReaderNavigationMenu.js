@@ -144,7 +144,8 @@ const ReaderNavigationMenu = props => {
                 logout={props.logout}
               />
 
-              <Text style={[styles.dedication, isHeb ? styles.hebrewSystemFont : null, theme.secondaryText]}>
+              <Text style={[styles.dedication, isHeb ? styles.hebrewSystemFont : null, theme.secondaryText]}
+                  onPress={props.openDedication}>
                 { Platform.OS === 'ios' ? strings.dedicatedIOS : strings.dedicatedAndroid }
               </Text>
 
@@ -164,6 +165,7 @@ ReaderNavigationMenu.propTypes = {
   openHistory:    PropTypes.func.isRequired,
   openSaved:      PropTypes.func.isRequired,
   openSheets:      PropTypes.func.isRequired,
+  openDedication: PropTypes.func.isRequired,
   onChangeSearchQuery:PropTypes.func.isRequired,
   searchQuery:    PropTypes.string.isRequired,
   openAutocomplete: PropTypes.func.isRequired,
