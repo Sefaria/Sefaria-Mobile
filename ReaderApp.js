@@ -1854,7 +1854,7 @@ class ReaderApp extends React.PureComponent {
         );
         case('dedication'):
             return <Dedication
-              close={this.openNav}
+              close={this.manageBackMain}
             />
     }
     const isSheet = !!this.state.sheet;
