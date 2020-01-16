@@ -1069,7 +1069,7 @@ class ReaderApp extends React.PureComponent {
       },
       ios: {
         preferredBarTintColor: Sefaria.palette.system,
-        preferredControlTintColor: 'white',
+        preferredControlTintColor: Sefaria.palette.system,
       }
     }).catch(error => { this.openInDefaultBrowser(uri); })
   };
