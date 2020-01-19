@@ -11,6 +11,51 @@ const readerSideMargin = 42;
 const readerSideMarginIpad = 60;
 
 export default StyleSheet.create({
+  // Sefaria Design System - Content H2 English
+  ContentH2En: {
+    fontFamily: 'Amiri',
+    fontSize: 30,
+    lineHeight: 36,
+    color: '#000000',
+  },
+  // Sefaria Design System - System H2 Hebrew
+  SystemH2He: {
+    fontFamily: 'Taamey Frank Taamim Fix',
+    fontStyle: 'normal',
+    fontWeight: '500',
+    fontSize: 30,
+    lineHeight: 44,
+    textAlign: 'right',
+    color: '#000000'
+  },
+  // Sefaria Design System - Content Body English
+  ContentBodyEn: {
+    fontFamily: 'Amiri',
+    fontSize: 10,
+    lineHeight: 22,
+    color: '#000000'
+  },
+  // Sefaria Design System - Content Body Hebrew
+  ContentBodyHe: {
+    fontFamily: 'Taamey Frank Taamim Fix',
+    fontSize: 22,
+    lineHeight: 29,
+    textAlign: 'right',
+    color: '#000000'
+  },
+  // Sefaria Design System - System Body English
+  SystemBodyEn: {
+    fontFamily: 'OpenSans',
+    fontStyle: 'normal',
+    fontWeight: 'normal',
+    fontSize: 16,
+    lineHeight: 19,
+    color: '#000000'
+  },
+  // Sefaria Design System - System Body Hebrew
+  SystemBodyHe: {
+
+  },
   boxShadow: {
     shadowColor: 'black',
     shadowOffset: { width: 0, height: 1 },
