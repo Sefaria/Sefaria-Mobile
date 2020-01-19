@@ -20,8 +20,9 @@ const Dedication = function(props) {
   const { interfaceLanguage, themeStr } = useContext(GlobalStateContext);
   const theme = getTheme(themeStr);
   const isHeb = interfaceLanguage === 'hebrew';
-  const justifyStyle = {textAlign: (Platform.OS === 'ios') ? 'justify' : 'center'};
   const flexDirection = isHeb ? 'row-reverse' : 'row';
+  const justifyStyle = {textAlign: (Platform.OS === 'ios') ? 'justify' : 'center', writingDirection: isHeb ? "rtl" : "ltr"};
+
   return <View style={[theme.menu,]}>
     <RainbowBar/>
     <ScrollView contentContainerStyle={{paddingHorizontal: 50, textAlign: 'center'}}>
