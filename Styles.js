@@ -31,7 +31,7 @@ export default StyleSheet.create({
   // Sefaria Design System - Content Body English
   ContentBodyEn: {
     fontFamily: 'Amiri',
-    fontSize: 10,
+    fontSize: 18,
     lineHeight: 22,
     color: '#000000'
   },
