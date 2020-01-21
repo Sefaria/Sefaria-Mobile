@@ -45,7 +45,7 @@ export default StyleSheet.create({
   },
   // Sefaria Design System - System Body English
   SystemBodyEn: {
-    fontFamily: 'Amiri',
+    fontFamily: 'OpenSans',
     fontStyle: 'normal',
     fontWeight: 'normal',
     fontSize: 16,

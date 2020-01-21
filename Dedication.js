@@ -30,7 +30,7 @@ const Dedication = function(props) {
         <CircleCloseButton onPress={props.close}/>
       </View>
       <Text style={[isHeb ? styles.SystemH2He : styles.ContentH2En, {textAlign: 'center', paddingTop: 10}, theme.text]}>{isHeb ? 'האפליקציה של ספריא עבור אנדרואיד ו-iOS' : 'Sefaria App for iOS and Android'}</Text>
-      <Text style={[isHeb ? styles.ContentBodyHe : styles.SystemBodyEn, {fontStyle: isHeb ? 'normal' : 'italic', textAlign: 'center', paddingTop: 20}, theme.text]}>{isHeb ? "מוקדש " +
+      <Text style={[isHeb ? styles.SystemBodyHe : styles.SystemBodyEn, {fontStyle: isHeb ? 'normal' : 'italic', textAlign: 'center', paddingTop: 20}, theme.text]}>{isHeb ? "מוקדש " +
         "לכבודם של הנרי וג'וליה קושיצקי ע''י ילדיהם" : 'Dedicated in honor of Henry and Julia Koschitzky ' +
         'by their children'}</Text>
       <Text style={[isHeb ? styles.SystemBodyHe : styles.SystemBodyEn, justifyStyle, theme.text, {paddingTop: 40}]}>{isHeb ? "בהשראת הערכים של צדקה וחובה קהילתי, יהודי ולאפשר רווחה חברתית הנרי וג'וליה הקדישו את חייהם לחזק חינוך לקהילות בקנדה, ארה''ב, וישראל. ספריא מתכבדת להשיק את האפליקציות שלנו לכבודם."
