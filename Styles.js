@@ -20,7 +20,7 @@ export default StyleSheet.create({
   },
   // Sefaria Design System - System H2 Hebrew
   SystemH2He: {
-    fontFamily: 'Taamey Frank Taamim Fix',
+    fontFamily: 'Heebo',
     fontStyle: 'normal',
     fontWeight: '500',
     fontSize: 30,
@@ -45,7 +45,7 @@ export default StyleSheet.create({
   },
   // Sefaria Design System - System Body English
   SystemBodyEn: {
-    fontFamily: 'OpenSans',
+    fontFamily: 'Amiri',
     fontStyle: 'normal',
     fontWeight: 'normal',
     fontSize: 16,
@@ -54,7 +54,13 @@ export default StyleSheet.create({
   },
   // Sefaria Design System - System Body Hebrew
   SystemBodyHe: {
-
+    fontFamily: 'Heebo',
+    fontStyle: 'normal',
+    fontWeight: 'normal',
+    fontSize: 16,
+    lineHeight: 23,
+    textAlign: 'right',
+    color: '#000000'
   },
   boxShadow: {
     shadowColor: 'black',
