@@ -84,6 +84,8 @@ var Downloader = {
   resumeDownload: async function() {
     // Resumes the download process if anything is left in progress or in queue.
     // if titles where left in progress, put them back in the queue
+    // if download is paused, stop trying to download
+    if (Downloader._data.downloadPaused) return;
     RNFB.fs.unlink(RNFB.fs.dirs.DocumentDir + "/tmp");
     RNFB.fs.mkdir(RNFB.fs.dirs.DocumentDir + "/tmp");
     await Downloader._setData("downloadPaused", false);
@@ -128,8 +130,8 @@ var Downloader = {
       Downloader._downloadFile("toc.json").then(Sefaria._loadTOC)
     ]).then(async () => {
       var timestamp = new Date().toJSON();
-      await Downloader._setData("lastUpdateCheck", timestamp)
-      await Downloader._setData("lastUpdateSchema", SCHEMA_VERSION)
+      await Downloader._setData("lastUpdateCheck", timestamp);
+      await Downloader._setData("lastUpdateSchema", SCHEMA_VERSION);
       Downloader.onChange && Downloader.onChange();
       // download these ancillary files after. they shouldn't hold up the update
       Promise.all([
@@ -144,7 +146,7 @@ var Downloader = {
   downloadUpdates: async function() {
     // Starts download of any known updates
     await Downloader._updateDownloadQueue();
-    Downloader.resumeDownload();
+    await Downloader.resumeDownload();
   },
   clearQueue: async function() {
     await Downloader._setData("downloadQueue", []);
@@ -282,6 +284,7 @@ var Downloader = {
     if (updates.length == 0 && newBooks.length == 0) { return; }
 
     var onDownload = function() {
+      Downloader._setData("downloadPaused", false);
       Downloader.downloadUpdates();
     };
 
@@ -420,7 +423,7 @@ var Downloader = {
     // Returns true if enough time has passed since the last check for updates
     if (!Sefaria.downloader._data.lastUpdateCheck) { return true; }
     var cutoff = new Date(Sefaria.downloader._data.lastUpdateCheck);
-    cutoff.setDate(cutoff.getDate() + 7) // One week;
+    cutoff.setDate(cutoff.getDate() + 7); // One week;
     var now = new Date();
     return now > cutoff;
   },
@@ -438,7 +441,7 @@ var Downloader = {
           .then(loader)
           .catch(function(error) {
             console.error("AsyncStorage failed to load libraryData: " + error);
-          });;
+          });
         promises.push(promise);
       }
     }
