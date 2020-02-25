@@ -47,6 +47,7 @@ var Downloader = {
             });
   },
   downloadLibrary: async function(silent=false) {
+    Downloader._setData("downloadPaused", false);
     RNFB.fs.mkdir(RNFB.fs.dirs.DocumentDir + "/library").catch(error=>{console.log("error creating library folder: " + error)});
     RNFB.fs.mkdir(RNFB.fs.dirs.DocumentDir + "/tmp").catch(error=>{console.log("error creating tmp folder: " + error)});
     await Downloader._setData("shouldDownload", true);
@@ -334,8 +335,8 @@ var Downloader = {
   _handleDownloadError: function(error) {
     console.log("Download error: ", error);
     Downloader.downloading = false;
+    Downloader._setData("downloadPaused", true);
     var cancelAlert = async function() {
-      await Downloader._setData("downloadPaused", true);
       Alert.alert(
         strings.downloadPaused,
         strings.howToResumeDownloadMessage,
@@ -348,7 +349,10 @@ var Downloader = {
       strings.downloadError,
       strings.downloadErrorMessage,
       [
-        {text: strings.tryAgain, onPress: () => { Downloader.resumeDownload(); }},
+        {text: strings.tryAgain, onPress: () => {
+          Downloader._setData("downloadPaused", false);
+          Downloader.resumeDownload();
+        }},
         {text: strings.pause, onPress: cancelAlert}
       ]);
   },

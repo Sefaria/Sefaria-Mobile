@@ -159,9 +159,10 @@ const Packages = {
       const promises = pkgObj.indexes.map(i => reflect(RNFB.fs.unlink(`${RNFB.fs.dirs.DocumentDir}/library/${i}.zip`)));
       return Promise.all(promises).then(async (result) => {
         result.forEach((r,i)=>{
-          const title = pkgObj.indexes[i]
+          const title = pkgObj.indexes[i];
           if (r !== 1) { console.log("Failed to delete:", title, r); }
           else {
+            // debugger;
             delete dl._data.lastDownload[title];
           }
         });

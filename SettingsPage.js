@@ -135,7 +135,12 @@ const SettingsPage = ({ close, logout, openUri }) => {
         {Sefaria.downloader._data.shouldDownload ?
           <View>
             { !!nUpdates && !updatesOnly && !Sefaria.downloader.downloading ?
-              <TouchableOpacity style={styles.button} onPress={Sefaria.downloader.resumeDownload}>
+              <TouchableOpacity style={styles.button} onPress={
+                async () => {
+                  await Sefaria.downloader._setData({downloadPaused: false});
+                  await Sefaria.downloader.resumeDownload();
+                }
+              }>
                 <Text style={[langStyle, styles.buttonText]}>{strings.resumeDownload}</Text>
               </TouchableOpacity>
               : null }
