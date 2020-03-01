@@ -12,29 +12,48 @@ jest.mock('rn-fetch-blob', () =>{
         DocumentDir: "foo"
       }
     },
-    config: (x => {
+    config: jest.fn().mockImplementation(() => {
       return {
-        fetch: jest.fn(x => {
-          return Promise.resolve({
-            info: () => {
-              return {status: 200}
-            }
-          })
-        })
+        fetch: jest.fn().mockResolvedValue(Promise.resolve({
+          info: () => {
+            return {status: 200}
+          }
+        }))
       }
-    })
+    }),
   }
 });
 
-
-
-
-
-
-test('mockfetch', () => {
+test('Succesful download', () => {
   return downloadBundle(['books']).then(response => {
     expect(response.info()).toEqual({status: 200});
   })
+});
+
+test ('Bad download status', () => {
+  RNFB.config.mockImplementationOnce(() => {
+    return {
+      fetch: jest.fn().mockResolvedValue(Promise.resolve({
+        info: () => {
+          return {status: 404}
+        }
+      }))
+    }
+  });
+  expect.assertions(1);
+  return downloadBundle(['books']).catch(e => expect(e).toMatch("Bad status"));
+});
+
+test ('total download failure', () => {
+  RNFB.config.mockImplementationOnce(() => {
+    return {
+      fetch: () => {
+        return Promise.reject('error')
+        }
+      }
+    }
+  );
+  return downloadBundle(['books']).catch(e => expect(e).toMatch("error"));
 });
 
 test('testLog', () => {
