@@ -165,7 +165,6 @@ class ReaderApp extends React.PureComponent {
     BackHandler.addEventListener('hardwareBackPress', this.manageBack);
     AppState.addEventListener('change', this.appStateChangeListener);
     Sefaria.downloader.onChange = this.onDownloaderChange;
-
     RNShake.addEventListener('ShakeEvent', () => {
       if (Sefaria.isGettinToBePurimTime()) {
         SoundPlayer.playSoundFile('grogger', 'mp3');
