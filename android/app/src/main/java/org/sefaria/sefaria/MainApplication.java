@@ -5,6 +5,7 @@ import android.content.Context;
 
 import com.facebook.react.PackageList;
 import com.facebook.react.ReactApplication;
+import com.reactnativecommunity.webview.RNCWebViewPackage;
 import io.invertase.firebase.RNFirebasePackage;
 import io.invertase.firebase.analytics.RNFirebaseAnalyticsPackage;
 import io.invertase.firebase.config.RNFirebaseRemoteConfigPackage;
@@ -38,6 +39,7 @@ public class MainApplication extends Application implements ReactApplication {
         return packages;
         // return Arrays.<ReactPackage>asList(
         //     new MainReactPackage(),
+            new RNCWebViewPackage(),
         //     new RNBackgroundFetchPackage(),
         //     new RNFirebasePackage(),
         //     new RNFirebaseAnalyticsPackage(),
