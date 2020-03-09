@@ -257,12 +257,16 @@ class ReaderApp extends React.PureComponent {
   };
 
   syncHistoryBound = async () => Sefaria.history.syncHistory(this.props.dispatch, await this.getSettingsObject());
-  getSettingsObject = async () => ({
-    email_notifications: this.props.emailFrequency,
-    interface_language: this.props.interfaceLanguage,
-    textual_custom: this.props.preferredCustom,
-    time_stamp: await AsyncStorage.getItem('lastSettingsUpdateTime'),
-  });
+  getSettingsObject = async () => {
+    const time_stamp = parseInt(await AsyncStorage.getItem('lastSettingsUpdateTime'));
+    if (!time_stamp) { time_stamp = 0; }
+    return ({
+      email_notifications: this.props.emailFrequency,
+      interface_language: this.props.interfaceLanguage,
+      textual_custom: this.props.preferredCustom,
+      time_stamp,
+    });
+  };
 
   onBackgroundSync = async () => {
     await this.syncHistoryBound();
