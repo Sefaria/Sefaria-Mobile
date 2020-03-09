@@ -37,7 +37,7 @@ const AboutBox = ({ textToc, currVersions, textTitle, sheet, openUri }) => {
           { Sefaria.util.stripHtml(sheet.title) }
         </Text>
           <Text style={[styles.aboutSubtitle, hei ? styles.heInt : styles.enInt, theme.secondaryText]}>
-            {sheetMeta.ownerName}
+            {sheet.ownerName}
           </Text>
 
 
