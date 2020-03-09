@@ -10,7 +10,7 @@ const settingsObject = {
   interface_language: DEFAULT_STATE.interfaceLanguage,
   email_notifications: DEFAULT_STATE.emailFrequency,
   textual_custom: DEFAULT_STATE.preferredCustom,
-  time_stamp: '613',
+  time_stamp: 613,
 };
 describe('ReaderApp history', () => {
   test('loadNewText addHistory', () => {
