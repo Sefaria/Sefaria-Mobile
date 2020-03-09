@@ -11,7 +11,6 @@ import {
     Image,
     Platform,
     AppState,
-    WebView,
     Dimensions,
 
 } from 'react-native';

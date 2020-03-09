@@ -6,8 +6,8 @@ import {
   TouchableOpacity,
   View,
   Image,
-  WebView,
 } from 'react-native';
+import { WebView } from 'react-native-webview';
 
 import {
   CategoryColorLine,

@@ -52,6 +52,7 @@
     "react-native-sound-player": "^0.10.1",
     "react-native-splash-screen": "^3.2.0",
     "react-native-version-number": "^0.3.6",
+    "react-native-webview": "^8.1.2",
     "react-native-zip-archive": "^5.0.0",
     "react-redux": "^5.1.1",
     "react-test-renderer": "^16.12.0",
