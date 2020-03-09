@@ -24,7 +24,7 @@ from local_settings import *
 
 sys.path.insert(0, SEFARIA_PROJECT_PATH)
 sys.path.insert(0, SEFARIA_PROJECT_PATH + "/sefaria")
-os.environ['DJANGO_SETTINGS_MODULE'] = "settings"
+os.environ['DJANGO_SETTINGS_MODULE'] = "sefaria.settings"
 import django
 django.setup()
 
@@ -251,10 +251,12 @@ def export_text_json(index):
     """
     print(index.title)
     defaultVersions = get_default_versions(index)
+    index_text = IndexText(index)
+
     try:
         for oref in index.all_top_section_refs():
             if oref.is_section_level():
-                doc = section_data(oref, defaultVersions)
+                doc = index_text.section_data(oref, defaultVersions)
             else:
                 sections = oref.all_subrefs()
                 doc = {
@@ -262,7 +264,7 @@ def export_text_json(index):
                     "sections": {}
                 }
                 for section in sections:
-                    doc["sections"][section.normal()] = section_data(section, defaultVersions)
+                    doc["sections"][section.normal()] = index_text.section_data(section, defaultVersions)
 
             path = make_path(doc, "json")
             write_doc(doc, path)
@@ -287,116 +289,154 @@ def simple_link(link):
     return simple
 
 
-def section_data(oref, defaultVersions):
-    """
-    :param defaultVersions dict: {'en': Version, 'he': Version}
-    Returns a dictionary with all the data we care about for section level `oref`.
-    """
-    tf = model.TextFamily(oref, version=None, lang=None, commentary=0, context=0, pad=0, alts=False, stripItags=True)
-    text = tf.contents()
-    data = {
-        "ref": text["ref"],
-        "heRef": text["heRef"],
-        "indexTitle": text["indexTitle"],
-        "heTitle": text["heTitle"],
-        "sectionRef": text["sectionRef"],
-        "next":    oref.next_section_ref().normal() if oref.next_section_ref() else None,
-        "prev": oref.prev_section_ref().normal() if oref.prev_section_ref() else None,
-        "content": [],
-    }
+"""
+For each index:
+Load all leaf nodes.
+For each leaf node, load a jaggedArray. Map full node title to jaggedArray
+for oref in index.all_top_section_refs():
+    node_title = r.index_node.full_title()
+    the specific piece of the jaggedArray can be obtained with ja.get_element(oref.sections)
+"""
 
-    def get_version_title(chunk):
-        if not chunk.is_merged:
-            version = chunk.version()
-            if version and version.language in defaultVersions and version.versionTitle != defaultVersions[version.language].versionTitle:
-                #print "VERSION NOT DEFAULT {} ({})".format(oref, chunk.lang)
-                try:
-                    vnotes = version.versionNotes
-                except AttributeError:
-                    vnotes = None
-                try:
-                    vlicense = version.license
-                except AttributeError:
-                    vlicense = None
-                try:
-                    vsource = version.versionSource
-                except AttributeError:
-                    vsource = None
-                try:
-                    vnotesInHebrew = version.versionNotesInHebrew
-                except AttributeError:
-                    vnotesInHebrew = None
-                try:
-                    versionTitleInHebrew = version.versionTitleInHebrew
-                except AttributeError:
-                    versionTitleInHebrew = None
 
-                return version.versionTitle, vnotes, vlicense, vsource, versionTitleInHebrew, vnotesInHebrew
+class IndexText:
+
+    def __init__(self, index_obj: model.Index):
+        self._text_map = {}
+        leaf_nodes = index_obj.nodes.get_leaf_nodes()
+        for leaf in leaf_nodes:
+            oref = leaf.ref()
+            en_chunk, he_chunk = oref.text('en'), oref.text('he')
+            self._text_map[leaf.full_title()] = {
+                'en_chunk': en_chunk,
+                'he_chunk': he_chunk,
+                'en_ja': en_chunk.ja(),
+                'he_ja': he_chunk.ja()
+            }
+
+    def section_data(self, oref: model.Ref, default_versions: dict) -> dict:
+        """
+        :param oref: section level Ref instance
+        :param default_versions: {'en': Version, 'he': Version}
+        Returns a dictionary with all the data we care about for section level `oref`.
+        """
+        # tf = model.TextFamily(oref, version=None, lang=None, commentary=0, context=0, pad=0, alts=False, stripItags=True)
+        # text = tf.contents()
+        data = {
+            "ref": oref.normal(),
+            "heRef": oref.he_normal(),
+            "indexTitle": oref.index.title,
+            "heTitle": oref.he_normal(),
+            "sectionRef": oref.normal(),
+            "next":    oref.next_section_ref().normal() if oref.next_section_ref() else None,
+            "prev": oref.prev_section_ref().normal() if oref.prev_section_ref() else None,
+            "content": [],
+        }
+
+        def get_version_title(chunk):
+            if not chunk.is_merged:
+                version = chunk.version()
+                if version and version.language in default_versions and version.versionTitle != default_versions[version.language].versionTitle:
+                    #print "VERSION NOT DEFAULT {} ({})".format(oref, chunk.lang)
+                    try:
+                        vnotes = version.versionNotes
+                    except AttributeError:
+                        vnotes = None
+                    try:
+                        vlicense = version.license
+                    except AttributeError:
+                        vlicense = None
+                    try:
+                        vsource = version.versionSource
+                    except AttributeError:
+                        vsource = None
+                    try:
+                        vnotesInHebrew = version.versionNotesInHebrew
+                    except AttributeError:
+                        vnotesInHebrew = None
+                    try:
+                        versionTitleInHebrew = version.versionTitleInHebrew
+                    except AttributeError:
+                        versionTitleInHebrew = None
+
+                    return version.versionTitle, vnotes, vlicense, vsource, versionTitleInHebrew, vnotesInHebrew
+                else:
+                    return None, None, None, None, None, None # default version
             else:
-                return None, None, None, None, None, None # default version
-        else:
-            #merged
-            #print "MERGED SECTION {} ({})".format(oref, chunk.lang)
-            all_versions = set(chunk.sources)
-            merged_version = 'Merged from {}'.format(', '.join(all_versions))
-            return merged_version, None, None, None, None, None
+                #merged
+                #print "MERGED SECTION {} ({})".format(oref, chunk.lang)
+                all_versions = set(chunk.sources)
+                merged_version = 'Merged from {}'.format(', '.join(all_versions))
+                return merged_version, None, None, None, None, None
 
-    en_vtitle, en_vnotes, en_vlicense, en_vsource, en_vtitle_he, en_vnotes_he = get_version_title(tf._chunks['en'])
-    he_vtitle, he_vnotes, he_vlicense, he_vsource, he_vtitle_he, he_vnotes_he = get_version_title(tf._chunks['he'])
+        node_title = oref.index_node.full_title()
+        en_chunk, he_chunk = self._text_map[node_title]['en_chunk'], self._text_map[node_title]['en_chunk']
+        en_vtitle, en_vnotes, en_vlicense, en_vsource, en_vtitle_he, en_vnotes_he = get_version_title(en_chunk)
+        he_vtitle, he_vnotes, he_vlicense, he_vsource, he_vtitle_he, he_vnotes_he = get_version_title(he_chunk)
 
-    if en_vtitle:
-        data['versionTitle'] = en_vtitle
-    if he_vtitle:
-        data['heVersionTitle'] = he_vtitle
-    if en_vnotes:
-        data['versionNotes'] = en_vnotes
-    if he_vnotes:
-        data['heVersionNotes'] = he_vnotes
-    if en_vlicense:
-        data['license'] = en_vlicense
-    if he_vlicense:
-        data['heLicense'] = he_vlicense
-    if en_vsource:
-        data['versionSource'] = en_vsource
-    if he_vsource:
-        data['heVersionSource'] = he_vsource
-    if en_vtitle_he:
-        data['versionTitleInHebrew'] = en_vtitle_he
-    if he_vtitle_he:
-        data['heVersionTitleInHebrew'] = he_vtitle_he
-    if en_vnotes_he:
-        data['versionNotesInHebrew'] = en_vnotes_he
-    if he_vnotes_he:
-        data['heVersionNotesInHebrew'] = he_vnotes_he
+        if en_vtitle:
+            data['versionTitle'] = en_vtitle
+        if he_vtitle:
+            data['heVersionTitle'] = he_vtitle
+        if en_vnotes:
+            data['versionNotes'] = en_vnotes
+        if he_vnotes:
+            data['heVersionNotes'] = he_vnotes
+        if en_vlicense:
+            data['license'] = en_vlicense
+        if he_vlicense:
+            data['heLicense'] = he_vlicense
+        if en_vsource:
+            data['versionSource'] = en_vsource
+        if he_vsource:
+            data['heVersionSource'] = he_vsource
+        if en_vtitle_he:
+            data['versionTitleInHebrew'] = en_vtitle_he
+        if he_vtitle_he:
+            data['heVersionTitleInHebrew'] = he_vtitle_he
+        if en_vnotes_he:
+            data['versionNotesInHebrew'] = en_vnotes_he
+        if he_vnotes_he:
+            data['heVersionNotesInHebrew'] = he_vnotes_he
 
+        try:
+            en_text = self._text_map[node_title]['en_ja'].get_element([j-1 for j in oref.sections])
+        except IndexError:
+            en_text = []
+        try:
+            he_text = self._text_map[node_title]['he_ja'].get_element([j-1 for j in oref.sections])
+        except IndexError:
+            he_text = []
 
-    en_len = len(text["text"])
-    he_len = len(text["he"])
-    section_links = get_links(text["ref"], False)
-    anchor_ref_dict = defaultdict(list)
-    for link in section_links:
-        anchor_oref = model.Ref(link["anchorRef"])
-        if not anchor_oref.is_segment_level() or len(anchor_oref.sections) == 0:
-            continue  # don't bother with section level links
-        start_seg_num = anchor_oref.sections[-1]
-        # make sure sections are the same in range
-        # TODO doesn't deal with links that span sections
-        end_seg_num = anchor_oref.toSections[-1] if anchor_oref.sections[0] == anchor_oref.toSections[0] else max(en_len, he_len)
-        for x in range(start_seg_num, end_seg_num+1):
-            anchor_ref_dict[x] += [simple_link(link)]
-    for x in range (0,max(en_len,he_len)):
-        curContent = {}
-        curContent["segmentNumber"] = str(x+1)
-        links = anchor_ref_dict[x+1]
-        if len(links) > 0:
-            curContent["links"] = links
+        en_len = len(en_text)
+        he_len = len(he_text)
+        section_links = get_links(oref.normal(), False)
+        anchor_ref_dict = defaultdict(list)
+        for link in section_links:
+            anchor_oref = model.Ref(link["anchorRef"])
+            if not anchor_oref.is_segment_level() or len(anchor_oref.sections) == 0:
+                continue  # don't bother with section level links
+            start_seg_num = anchor_oref.sections[-1]
+            # make sure sections are the same in range
+            # TODO doesn't deal with links that span sections
+            end_seg_num = anchor_oref.toSections[-1] if anchor_oref.sections[0] == anchor_oref.toSections[0] else max(en_len, he_len)
+            for x in range(start_seg_num, end_seg_num+1):
+                anchor_ref_dict[x] += [simple_link(link)]
+        for x in range (0,max(en_len,he_len)):
+            curContent = {}
+            curContent["segmentNumber"] = str(x+1)
+            links = anchor_ref_dict[x+1]
+            if len(links) > 0:
+                curContent["links"] = links
 
-        if x < en_len: curContent["text"]=text["text"][x]
-        if x < he_len: curContent["he"]=text["he"][x]
+            if x < en_len:
+                curContent["text"] = en_text[x]
+            if x < he_len:
+                curContent["he"] = he_text[x]
 
-        data["content"] += [curContent]
+            data["content"] += [curContent]
 
-    return data
+        return data
 
 
 def export_index(index):
@@ -801,7 +841,10 @@ def export_base_files_to_sources():
 if __name__ == '__main__':
     # we've been experiencing many issues with strange books appearing in the toc. i believe this line should solve that
     model.library.rebuild_toc()
-
+    i = model.library.get_index("Rashi on Shabbat")
+    export_text(i)
+    import sys
+    sys.exit(0)
     action = sys.argv[1] if len(sys.argv) > 1 else None
     index = sys.argv[2] if len(sys.argv) > 2 else None
     if action == "export_all":
