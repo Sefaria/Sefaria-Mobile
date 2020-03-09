@@ -39,7 +39,7 @@ public class MainApplication extends Application implements ReactApplication {
         return packages;
         // return Arrays.<ReactPackage>asList(
         //     new MainReactPackage(),
-            new RNCWebViewPackage(),
+        //     new RNCWebViewPackage(),
         //     new RNBackgroundFetchPackage(),
         //     new RNFirebasePackage(),
         //     new RNFirebaseAnalyticsPackage(),
