@@ -11,6 +11,31 @@ const BUNDLE_LOCATION = RNFB.fs.dirs.DocumentDir + "/tmp/bundle.zip";
 let BooksState = {};
 let PackagesState = {};
 
+class DownloadTracker {
+  constructor() {
+    this.currentDownload = null;
+  }
+  addDownload(downloadState) {
+    this.currentDownload = downloadState;
+  }
+  removeDownload() {
+    this.currentDownload = false;
+  }
+  downloadInProgress() {
+    return (!!this.currentDownload);
+  }
+  cancelDownload() {
+    if (!!this.currentDownload) {
+      this.currentDownload.cancel();
+    }
+    else {
+      throw "No download to cancel"
+    }
+  }
+}
+
+const Tracker = new DownloadTracker();
+
 class Package {
   constructor(name, clicked, containedBooks, children) {
     this.name = name;
@@ -113,35 +138,25 @@ function deleteBooks(bookList) {
   })
 }
 
-async function downloadBooks(bookList) {
-  const tempFile = RNFB.fs.dirs.DocumentDir + "/tmp/bundle.zip";
-  try {
-    const downloadResult = await RNFB.config({
-      IOSBackgroundTask: true,
-      indicator: true,
-      path: tempFile,
-    }).fetch(HOST_PATH + "/api/bundle", {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({'bookList': bookList})
-      }
-    );
-    const status = downloadResult.info().status;
-    if (status >= 300 || status < 200) {
-      await RNFB.fs.unlink(tempFile);
-      return;
-    }
-    console.log('foo');
-  } catch(err) {
-    handleDownloadError(err);
+async function downloadAndUnzipBooks(bookList) {
+  if (Tracker.downloadInProgress()) {
+    throw "Another Download is in Progress";
   }
+
+  try {
+    await downloadBundle(bookList);
+  }
+  catch (error) {
+    return await handleDownloadError(error);
+  }
+  await setLocalBooksChecksums(bookList);
+  await RNFB.fs.unlink(BUNDLE_LOCATION);
+  return null
 }
 
-function downloadBundle(bookList) {
+function downloadBundle(bookList, handler) {
   return new Promise((resolve, reject) => {
-    RNFB.config({
+    const downloadState = RNFB.config({
       IOSBackgroundTask: true,
       indicator: true,
       path: BUNDLE_LOCATION,
@@ -152,7 +167,11 @@ function downloadBundle(bookList) {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({'bookList': bookList})
-    }).then(downloadResult => {
+    });
+    Tracker.addDownload(downloadState);
+    downloadState.progress({count: 20, interval: 250}, handler);
+    downloadState.then(downloadResult => {
+      Tracker.removeDownload();
       const status = downloadResult.info().status;
       if (status >= 300 || status < 200) {
         reject("Bad status");
@@ -195,7 +214,9 @@ function calculateBooksToDelete(booksState) {
 }
 
 function handleDownloadError(error) {
-  console.log(error);
+  return new Promise((resolve, reject) => {
+    RNFB.fs.unlink(BUNDLE_LOCATION).then(reject(error))
+  })
 }
 
 export {downloadBundle};
