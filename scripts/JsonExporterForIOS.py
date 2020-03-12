@@ -3,7 +3,10 @@
 import sys
 import os
 import csv
-import re
+try:
+    import re2 as re
+except ImportError:
+    import re
 import json
 import zipfile
 import logging
@@ -20,7 +23,7 @@ from pprint import pprint
 from datetime import timedelta
 from datetime import datetime
 import dateutil.parser
-from local_settings import *
+from scripts.local_settings import *
 
 sys.path.insert(0, SEFARIA_PROJECT_PATH)
 sys.path.insert(0, SEFARIA_PROJECT_PATH + "/sefaria")
@@ -114,8 +117,8 @@ def export_texts(skip_existing=False):
     TODO -- check history and last_updated to only export texts with changes
     """
     indexes = model.library.all_index_records()
-
-    for index in reversed(indexes):
+    import tqdm
+    for index in tqdm.tqdm(reversed(indexes), total=len(indexes)):
         if skip_existing and os.path.isfile("%s/%s.zip" % (EXPORT_PATH, index.title)):
             continue
         success = export_text(index)
@@ -249,11 +252,11 @@ def export_text_json(index):
 
     returns True if export was successful
     """
-    print(index.title)
+    # print(index.title)
     defaultVersions = get_default_versions(index)
-    index_text = IndexText(index)
 
     try:
+        index_text = TextAndLinksForIndex(index)
         for oref in index.all_top_section_refs():
             if oref.is_section_level():
                 doc = index_text.section_data(oref, defaultVersions)
@@ -299,10 +302,46 @@ for oref in index.all_top_section_refs():
 """
 
 
-class IndexText:
+class SortedLinks:
+    def __init__(self, index_obj: model.Index):
+        self.index_obj = index_obj
+        self.node_numbers = {node.full_title(): j for j, node in enumerate(index_obj.nodes.get_leaf_nodes())}
+        self.link_iter = iter(self.get_sorted_links())
+        self._next_link = self.safe_next(self.link_iter)
+
+    def sort_key(self, tref):
+        oref = model.Ref(tref)
+        return [self.node_numbers[oref.index_node.full_title()]] + oref.sections
+
+    def get_sorted_links(self):
+        return sorted(get_links(self.index_obj.title, False, False), key=lambda x: self.sort_key(x['anchorRef']))
+
+    def get_matching_links(self, tref: str) -> list:
+        if self._next_link is None:
+            return []
+
+        oref = model.Ref(tref)
+        reg = re.compile(oref.regex())
+        link_list = []
+        while self._next_link and reg.match(self._next_link['anchorRef']):
+            link_list.append(self._next_link)
+            self._next_link = self.safe_next(self.link_iter)
+
+        return link_list
+
+    @staticmethod
+    def safe_next(iterator):
+        try:
+            return next(iterator)
+        except StopIteration:
+            return None
+
+
+class TextAndLinksForIndex:
 
     def __init__(self, index_obj: model.Index):
         self._text_map = {}
+        self.version_state = index_obj.versionState()
         leaf_nodes = index_obj.nodes.get_leaf_nodes()
         for leaf in leaf_nodes:
             oref = leaf.ref()
@@ -313,23 +352,26 @@ class IndexText:
                 'en_ja': en_chunk.ja(),
                 'he_ja': he_chunk.ja()
             }
+        self.sorted_links = SortedLinks(index_obj)
 
     def section_data(self, oref: model.Ref, default_versions: dict) -> dict:
         """
         :param oref: section level Ref instance
         :param default_versions: {'en': Version, 'he': Version}
+        :param prev_next: tuple, with the oref before oref and after oref (or None if this is the first/last ref)
         Returns a dictionary with all the data we care about for section level `oref`.
         """
-        # tf = model.TextFamily(oref, version=None, lang=None, commentary=0, context=0, pad=0, alts=False, stripItags=True)
-        # text = tf.contents()
+        prev, next_ref = oref.prev_section_ref(vstate=self.version_state),\
+                         oref.next_section_ref(vstate=self.version_state)
+
         data = {
             "ref": oref.normal(),
             "heRef": oref.he_normal(),
             "indexTitle": oref.index.title,
             "heTitle": oref.he_normal(),
             "sectionRef": oref.normal(),
-            "next":    oref.next_section_ref().normal() if oref.next_section_ref() else None,
-            "prev": oref.prev_section_ref().normal() if oref.prev_section_ref() else None,
+            "next":    next_ref.normal() if next_ref else None,
+            "prev": prev.normal() if prev else None,
             "content": [],
         }
 
@@ -410,7 +452,7 @@ class IndexText:
 
         en_len = len(en_text)
         he_len = len(he_text)
-        section_links = get_links(oref.normal(), False)
+        section_links = self.sorted_links.get_matching_links(oref.normal())
         anchor_ref_dict = defaultdict(list)
         for link in section_links:
             anchor_oref = model.Ref(link["anchorRef"])
@@ -837,14 +879,9 @@ def export_base_files_to_sources():
     export_packages(for_sources=True)  # relies on full dump to be available to measure file sizes
 
 
-
 if __name__ == '__main__':
     # we've been experiencing many issues with strange books appearing in the toc. i believe this line should solve that
     model.library.rebuild_toc()
-    i = model.library.get_index("Rashi on Shabbat")
-    export_text(i)
-    import sys
-    sys.exit(0)
     action = sys.argv[1] if len(sys.argv) > 1 else None
     index = sys.argv[2] if len(sys.argv) > 2 else None
     if action == "export_all":
