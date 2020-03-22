@@ -6,9 +6,6 @@ import android.content.Context;
 import com.facebook.react.PackageList;
 import com.facebook.react.ReactApplication;
 import com.reactnativecommunity.webview.RNCWebViewPackage;
-import io.invertase.firebase.RNFirebasePackage;
-import io.invertase.firebase.analytics.RNFirebaseAnalyticsPackage;
-import io.invertase.firebase.config.RNFirebaseRemoteConfigPackage;
 import org.devio.rn.splashscreen.SplashScreenReactPackage;
 import com.facebook.react.ReactNativeHost;
 import com.facebook.react.ReactPackage;
@@ -33,8 +30,6 @@ public class MainApplication extends Application implements ReactApplication {
       @Override
       protected List<ReactPackage> getPackages() {
         List<ReactPackage> packages = new PackageList(this).getPackages();
-        packages.add(new RNFirebaseAnalyticsPackage());
-        packages.add(new RNFirebaseRemoteConfigPackage());
         packages.add(new SplashScreenReactPackage());
         return packages;
         // return Arrays.<ReactPackage>asList(

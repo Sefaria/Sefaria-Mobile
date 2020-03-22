@@ -1,6 +1,6 @@
 {
   "name": "RNBackgroundFetch",
-  "version": "2.7.0",
+  "version": "2.8.0",
   "summary": "iOS & Android BackgroundFetch API implementation for React Native",
   "description": "iOS BackgroundFetch API Implementation",
   "homepage": "https://transistorsoft.github.io/react-native-background-fetch",
@@ -11,7 +11,7 @@
   },
   "source": {
     "git": "https://github.com/transistorsoft/react-native-background-fetch.git",
-    "tag": "2.7.0"
+    "tag": "2.8.0"
   },
   "requires_arc": true,
   "platforms": {
