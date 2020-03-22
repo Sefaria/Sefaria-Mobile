@@ -1,6 +1,7 @@
 'use strict';
 
 import PropTypes from 'prop-types';
+import crashlytics from '@react-native-firebase/crashlytics';  // to setup up generic crashlytics reports
 
 import React from 'react';
 import {
@@ -490,6 +491,9 @@ class ReaderApp extends React.PureComponent {
         en: !!currVersions.en ? currVersions.en.versionTitle : null,
         he: !!currVersions.he ? currVersions.he.versionTitle : null
       } : {};
+      if (!ref) {
+        crashlytics().recordError(new Error(`Ref is null. textListVisible: '${textListVisible}'. segmentRef: '${segmentRef}. sectionArray: '${sectionArray}'. sectionIndexRef: '${sectionIndexRef}'`));
+      }
       return {
         ref,
         he_ref,
