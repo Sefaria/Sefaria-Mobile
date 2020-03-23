@@ -1,6 +1,6 @@
 package org.sefaria.sefaria;
 
-import android.app.Application;
+import androidx.multidex.MultiDexApplication;
 import android.content.Context;
 
 import com.facebook.react.PackageList;
@@ -17,7 +17,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.List;
 
-public class MainApplication extends Application implements ReactApplication {
+public class MainApplication extends MultiDexApplication implements ReactApplication {
 
   private final ReactNativeHost mReactNativeHost =
 

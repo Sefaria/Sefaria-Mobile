@@ -4,7 +4,7 @@ def VERSION_MINOR=5
 def VERSION_PATCH=1
 
 apply plugin: "com.android.application"
-
+apply plugin: 'io.fabric'
 import com.android.build.OutputFile
 
 /**
@@ -125,6 +125,7 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode VERSION_BUILD
         versionName VERSION_MAJOR + "." + VERSION_MINOR + "." + VERSION_PATCH
+        multiDexEnabled true
     }
     aaptOptions {
       noCompress "txt", "json"
@@ -167,7 +168,7 @@ dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation 'androidx.appcompat:appcompat:1.1.0'
     implementation "com.facebook.react:react-native:+"  // From node_modules
-
+    implementation 'com.android.support:multidex:1.0.3'
     if (enableHermes) {
         def hermesPath = "../../node_modules/hermes-engine/android/";
         debugImplementation files(hermesPath + "hermes-debug.aar")
