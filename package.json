@@ -20,7 +20,7 @@
     }
   },
   "dependencies": {
-    "@matt-block/react-native-in-app-browser": "^3.1.1",
+    "@matt-block/react-native-in-app-browser": "^3.2.0",
     "@react-native-community/async-storage": "^1.6.1",
     "@react-native-community/cli-platform-android": "^2.9.0",
     "@react-native-community/netinfo": "^4.2.2",
