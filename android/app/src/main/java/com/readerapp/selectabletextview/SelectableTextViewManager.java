@@ -3,14 +3,15 @@
 package com.readerapp.selectabletextview;
 
 import android.view.View;
+import android.widget.TextView;
 
 import com.facebook.react.uimanager.SimpleViewManager;
 import com.facebook.react.uimanager.ThemedReactContext;
 
 import com.facebook.react.uimanager.annotations.ReactProp;
 
-public class SelectableTextViewManager extends SimpleViewManager<View> {
-    public static final String REACT_CLASS = "SelectableTextView";
+public class SelectableTextViewManager extends SimpleViewManager<TextView> {
+    public static final String REACT_CLASS = "RCTSelectableTextView";
 
     @Override
     public String getName() {
@@ -20,14 +21,15 @@ public class SelectableTextViewManager extends SimpleViewManager<View> {
     }
 
     @Override
-    public View createViewInstance(ThemedReactContext context){
+    public TextView createViewInstance(ThemedReactContext context){
         // Create a view here
         // https://facebook.github.io/react-native/docs/native-components-android.html#2-implement-method-createviewinstance
-        return new View(context);
+        return new TextView(context);
     }
 
     @ReactProp(name = "exampleProp")
-    public void setExampleProp(View view, String prop) {
+    public void setExampleProp(TextView view, String prop) {
+        view.setText("YOYOYOYOYOYOYOYOYOYOYO" + prop);
         // Set properties from React onto your native component via a setter method
         // https://facebook.github.io/react-native/docs/native-components-android.html#3-expose-view-property-setters-using-reactprop-or-reactpropgroup-annotation
     }

@@ -1,9 +1,7 @@
 //  Created by react-native-create-bridge
 
 package com.readerapp.selectabletextview;
-
-import android.support.annotation.Nullable;
-
+import androidx.annotation.Nullable;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
@@ -37,7 +35,7 @@ public class SelectableTextViewModule extends ReactContextBaseJavaModule {
         // Export any constants to be used in your native module
         // https://facebook.github.io/react-native/docs/native-modules-android.html#the-toast-module
         final Map<String, Object> constants = new HashMap<>();
-        constants.put("EXAMPLE_CONSTANT", "example");
+        constants.put("EXAMPLE_CONSTANT", "example1");
 
         return constants;
     }

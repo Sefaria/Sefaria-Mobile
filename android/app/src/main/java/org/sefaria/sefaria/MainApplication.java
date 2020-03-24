@@ -15,6 +15,7 @@ import com.facebook.react.ReactPackage;
 import com.facebook.react.shell.MainReactPackage;
 import com.facebook.soloader.SoLoader;
 import com.facebook.react.modules.i18nmanager.I18nUtil;
+import com.readerapp.selectabletextview.SelectableTextViewPackage;
 import java.lang.reflect.InvocationTargetException;
 
 import java.util.Arrays;
@@ -36,6 +37,7 @@ public class MainApplication extends Application implements ReactApplication {
         packages.add(new RNFirebaseAnalyticsPackage());
         packages.add(new RNFirebaseRemoteConfigPackage());
         packages.add(new SplashScreenReactPackage());
+        packages.add(new SelectableTextViewPackage());
         return packages;
         // return Arrays.<ReactPackage>asList(
         //     new MainReactPackage(),

@@ -29,7 +29,8 @@ import nextFrame from 'next-frame';
 import RNShake from 'react-native-shake';
 import SoundPlayer from 'react-native-sound-player'
 import { Search, SearchState } from '@sefaria/search';
-
+import SelectableTextView from './NativeModules/SelectableTextView';
+import { EXAMPLE_CONSTANT } from './NativeModules/SelectableTextViewModule';
 import { STATE_ACTIONS } from './StateManager';
 import ReaderControls from './ReaderControls';
 import styles from './Styles';
@@ -2026,6 +2027,10 @@ class ReaderApp extends React.PureComponent {
     if (cat) {
       style = {backgroundColor: Sefaria.util.lightenDarkenColor(Sefaria.palette.categoryColor(cat), -25)};
     }*/
+    console.log('EXAMPle', EXAMPLE_CONSTANT);
+    return (
+      <SelectableTextView exampleProp="HELOYOYOYyoyoyo"/>
+    );
     const isD = Sefaria.downloader.downloading;
     const nAvailable = isD ? Sefaria.downloader.titlesAvailable().filter(t => Sefaria.packages.titleIsSelected(t)).length : 0;
     const { newBooks, updates } = Sefaria.downloader.updatesAvailable();
