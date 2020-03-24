@@ -23,7 +23,7 @@ import { connect } from 'react-redux';
 import { PinchGestureHandler, State } from 'react-native-gesture-handler';
 //import --- from 'react-native-gesture-handler';
 import BackgroundFetch from "react-native-background-fetch";
-import { InAppBrowser } from "@matt-block/react-native-in-app-browser";
+import InAppBrowser from 'react-native-inappbrowser-reborn'
 import SplashScreen from 'react-native-splash-screen';
 import nextFrame from 'next-frame';
 import RNShake from 'react-native-shake';
@@ -1065,15 +1065,11 @@ class ReaderApp extends React.PureComponent {
   openUri = uri => {
     uri = encodeURI(uri);
     InAppBrowser.open(uri, {
-      android: {
-        toolbarColor: Sefaria.palette.system,
-        showTitle: true,
-        addDefaultShareMenu: true,
-      },
-      ios: {
-        preferredBarTintColor: Sefaria.palette.system,
-        preferredControlTintColor: Sefaria.palette.system,
-      }
+      toolbarColor: Sefaria.palette.system,
+      showTitle: true,
+      enableDefaultShare: true,
+      preferredBarTintColor: Sefaria.palette.system,
+      preferredControlTintColor: Sefaria.palette.system,
     }).catch(error => { this.openInDefaultBrowser(uri); })
   };
 
