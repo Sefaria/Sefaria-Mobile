@@ -72,6 +72,7 @@
     "jetifier": "^1.6.4",
     "metro-react-native-babel-preset": "^0.53.1",
     "patch-package": "^6.2.0",
-    "react-native-clean-project": "^3.2.4"
+    "react-native-clean-project": "^3.2.4",
+    "react-native-create-bridge": "^2.0.1"
   }
 }
