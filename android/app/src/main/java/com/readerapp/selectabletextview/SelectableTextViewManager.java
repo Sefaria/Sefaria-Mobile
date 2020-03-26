@@ -40,7 +40,9 @@ public class SelectableTextViewManager extends SimpleViewManager<SelectableTextV
     public SelectableTextView createViewInstance(ThemedReactContext context){
         // Create a view here
         // https://facebook.github.io/react-native/docs/native-components-android.html#2-implement-method-createviewinstance
-        return new SelectableTextView(context);
+        SelectableTextView view = new SelectableTextView(context);
+        view.setTextIsSelectable(true);
+        return view;
     }
 
     @ReactProp(name = "text")

@@ -13,7 +13,7 @@ class SelectableTextView extends Component {
     }) => {
      onSelection && onSelection({ content, eventType, selectionStart, selectionEnd })
     };
-    return (<RCTSelectableTextView {...this.props} selectable onSelection={onSelectionNative}/>);
+    return (<RCTSelectableTextView {...this.props} onSelection={onSelectionNative}/>);
   }
 }
 
