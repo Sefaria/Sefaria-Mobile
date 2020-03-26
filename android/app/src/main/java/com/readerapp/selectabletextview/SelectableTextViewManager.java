@@ -10,7 +10,7 @@ import com.facebook.react.uimanager.ThemedReactContext;
 
 import com.facebook.react.uimanager.annotations.ReactProp;
 
-public class SelectableTextViewManager extends SimpleViewManager<TextView> {
+public class SelectableTextViewManager extends SimpleViewManager<SelectableTextView> {
     public static final String REACT_CLASS = "RCTSelectableTextView";
 
     @Override
@@ -21,14 +21,14 @@ public class SelectableTextViewManager extends SimpleViewManager<TextView> {
     }
 
     @Override
-    public TextView createViewInstance(ThemedReactContext context){
+    public SelectableTextView createViewInstance(ThemedReactContext context){
         // Create a view here
         // https://facebook.github.io/react-native/docs/native-components-android.html#2-implement-method-createviewinstance
-        return new TextView(context);
+        return new SelectableTextView(context);
     }
 
     @ReactProp(name = "exampleProp")
-    public void setExampleProp(TextView view, String prop) {
+    public void setExampleProp(SelectableTextView view, String prop) {
         view.setText("YOYOYOYOYOYOYOYOYOYOYO" + prop);
         // Set properties from React onto your native component via a setter method
         // https://facebook.github.io/react-native/docs/native-components-android.html#3-expose-view-property-setters-using-reactprop-or-reactpropgroup-annotation
