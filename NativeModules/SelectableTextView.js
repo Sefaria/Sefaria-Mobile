@@ -5,8 +5,15 @@ import PropTypes from 'prop-types';
 import { NativeModules, requireNativeComponent } from 'react-native';
 
 class SelectableTextView extends Component {
+
   render () {
-    return (<RCTSelectableTextView {...this.props} />);
+    const { onSelection } = this.props;
+    const onSelectionNative = ({
+     nativeEvent: { content, eventType, selectionStart, selectionEnd },
+    }) => {
+     onSelection && onSelection({ content, eventType, selectionStart, selectionEnd })
+    };
+    return (<RCTSelectableTextView {...this.props} selectable onSelection={onSelectionNative}/>);
   }
 }
 
