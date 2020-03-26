@@ -1,5 +1,3 @@
-//  Created by react-native-create-bridge
-
 package com.readerapp.selectabletextview;
 
 import android.os.Build;
@@ -8,8 +6,6 @@ import android.text.Spanned;
 import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.TextView;
 
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.ReactContext;
@@ -31,15 +27,11 @@ public class SelectableTextViewManager extends SimpleViewManager<SelectableTextV
 
     @Override
     public String getName() {
-        // Tell React the name of the module
-        // https://facebook.github.io/react-native/docs/native-components-android.html#1-create-the-viewmanager-subclass
         return REACT_CLASS;
     }
 
     @Override
     public SelectableTextView createViewInstance(ThemedReactContext context){
-        // Create a view here
-        // https://facebook.github.io/react-native/docs/native-components-android.html#2-implement-method-createviewinstance
         SelectableTextView view = new SelectableTextView(context);
         view.setTextIsSelectable(true);
         return view;
@@ -54,8 +46,6 @@ public class SelectableTextViewManager extends SimpleViewManager<SelectableTextV
             spanned = Html.fromHtml(text);
         }
         view.setText(spanned);
-        // Set properties from React onto your native component via a setter method
-        // https://facebook.github.io/react-native/docs/native-components-android.html#3-expose-view-property-setters-using-reactprop-or-reactpropgroup-annotation
     }
 
     @ReactProp(name = "menuItems")
