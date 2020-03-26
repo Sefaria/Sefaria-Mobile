@@ -2029,7 +2029,7 @@ class ReaderApp extends React.PureComponent {
     }*/
     console.log('EXAMPle', EXAMPLE_CONSTANT);
     return (
-      <SelectableTextView exampleProp="HELOYOYOYyoyoyo"/>
+      <SelectableTextView style={{height: 300,width: 300}} text="HELOYOYOYyoyoyo from the <i>other</i> <b>side</b>"/>
     );
     const isD = Sefaria.downloader.downloading;
     const nAvailable = isD ? Sefaria.downloader.titlesAvailable().filter(t => Sefaria.packages.titleIsSelected(t)).length : 0;

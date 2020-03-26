@@ -2,6 +2,9 @@
 
 package com.readerapp.selectabletextview;
 
+import android.os.Build;
+import android.text.Html;
+import android.text.Spanned;
 import android.view.View;
 import android.widget.TextView;
 
@@ -27,9 +30,15 @@ public class SelectableTextViewManager extends SimpleViewManager<SelectableTextV
         return new SelectableTextView(context);
     }
 
-    @ReactProp(name = "exampleProp")
-    public void setExampleProp(SelectableTextView view, String prop) {
-        view.setText("YOYOYOYOYOYOYOYOYOYOYO" + prop);
+    @ReactProp(name = "text")
+    public void setText(SelectableTextView view, String text) {
+        Spanned spanned;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            spanned = Html.fromHtml(text, Html.FROM_HTML_MODE_COMPACT);
+        } else {
+            spanned = Html.fromHtml(text);
+        }
+        view.setText(spanned);
         // Set properties from React onto your native component via a setter method
         // https://facebook.github.io/react-native/docs/native-components-android.html#3-expose-view-property-setters-using-reactprop-or-reactpropgroup-annotation
     }
