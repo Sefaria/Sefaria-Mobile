@@ -1,7 +1,7 @@
 def VERSION_BUILD=519
 def VERSION_MAJOR=5
 def VERSION_MINOR=5
-def VERSION_PATCH=0
+def VERSION_PATCH=1
 
 apply plugin: "com.android.application"
 
@@ -162,6 +162,7 @@ android {
 }
 
 dependencies {
+    implementation project(':react-native-webview')
     implementation project(':react-native-firebase')
     implementation 'com.google.firebase:firebase-core:16.0.9'
     implementation "com.google.firebase:firebase-config:17.0.0"

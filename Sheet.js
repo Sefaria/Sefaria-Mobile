@@ -13,10 +13,10 @@ import {
     Image,
     Platform,
     AppState,
-    WebView,
     Dimensions, Share, Clipboard,
 
 } from 'react-native';
+import { WebView } from 'react-native-webview';
 
 import {
     HebrewInEnglishText,

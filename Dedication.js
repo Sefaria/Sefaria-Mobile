@@ -4,7 +4,7 @@ import {
   View,
   ScrollView,
   Text,
-  StyleSheet, Platform
+  StyleSheet, Platform, TouchableOpacity,
 } from 'react-native';
 
 import {
@@ -33,10 +33,10 @@ const Dedication = function(props) {
       <Text style={[isHeb ? styles.SystemBodyHe : styles.ContentBodyEn, {fontStyle: isHeb ? 'normal' : 'italic', textAlign: 'center', paddingTop: 20}, theme.text]}>{isHeb ? "מוקדש " +
         "לכבודם של הנרי וג'וליה קושיצקי ע''י ילדיהם" : 'Dedicated in honor of Henry and Julia Koschitzky ' +
         'by their children'}</Text>
-      <Text style={[isHeb ? styles.SystemBodyHe : styles.SystemBodyEn, justifyStyle, theme.text, {paddingTop: 40}]}>{isHeb ? "בהשראת הערכים של צדקה וחובה קהילתי, יהודי ולאפשר רווחה חברתית הנרי וג'וליה הקדישו את חייהם לחזק חינוך לקהילות בקנדה, ארה''ב, וישראל. ספריא מתכבדת להשיק את האפליקציות שלנו לכבודם."
+      <TouchableOpacity onPress={() => console.log("YO")}><Text selectable style={[isHeb ? styles.SystemBodyHe : styles.SystemBodyEn, justifyStyle, theme.text, {paddingTop: 40}]}>{isHeb ? "בהשראת הערכים של צדקה וחובה קהילתי, יהודי ולאפשר רווחה חברתית הנרי וג'וליה הקדישו את חייהם לחזק חינוך לקהילות בקנדה, ארה''ב, וישראל. ספריא מתכבדת להשיק את האפליקציות שלנו לכבודם."
         : 'Inspired by the values of tzedaka and communal obligation, Henry and Julia have devoted their lives to' +
         ' strengthening Jewish education and ensuring basic social welfare in Canada, the US, and Israel. It is' +
-        ' a privilege to release these apps in their honor.'}</Text>
+        ' a privilege to release these apps in their honor.'}</Text></TouchableOpacity>
       <Text style={[isHeb ? styles.SystemBodyHe : styles.SystemBodyEn, justifyStyle, theme.text, {paddingTop: 20}]}>{isHeb ? "האפליקציות מנגישות את העושר של הספרייה הדיגיטלית וחינמית שלנו " +
         "לכל העולם, עם ההקשה של אצבע אחת בלבד. האפליקציות משקפות " +
         "את אתר האינטרנט שלנו במלואו, גם מבחינת היופי וגם הפשטות שלו, ומכילות את אותם משאבים " +
