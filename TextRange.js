@@ -73,7 +73,7 @@ const TextRange = React.memo(({
 
       ${getDisplayedText(true)}
 
-      Describe the error:`)
+      Describe the error:`.replace("\n", "<br>")
   );
 
   const reportError = () => {
