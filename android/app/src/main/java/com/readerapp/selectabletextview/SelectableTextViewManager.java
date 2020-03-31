@@ -1,8 +1,11 @@
 package com.readerapp.selectabletextview;
 
+import android.content.Context;
+import android.graphics.Typeface;
 import android.os.Build;
 import android.text.Html;
 import android.text.Spanned;
+import android.util.Log;
 import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -10,6 +13,7 @@ import android.view.MenuItem;
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.bridge.ReadableArray;
+import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.common.MapBuilder;
 import com.facebook.react.uimanager.SimpleViewManager;
@@ -17,14 +21,17 @@ import com.facebook.react.uimanager.ThemedReactContext;
 
 import com.facebook.react.uimanager.annotations.ReactProp;
 import com.facebook.react.uimanager.events.RCTEventEmitter;
+import com.facebook.yoga.YogaMeasureMode;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class SelectableTextViewManager extends SimpleViewManager<SelectableTextView> {
     public static final String REACT_CLASS = "RCTSelectableTextView";
-
+    public static final String[] FONTS = {"Taamey Frank Taamim Fix", "Amiri", "Heebo", "Open Sans", "Open Sans Hebrew"};
+    public HashMap<String, Typeface> fontMap;
     @Override
     public String getName() {
         return REACT_CLASS;
@@ -34,6 +41,10 @@ public class SelectableTextViewManager extends SimpleViewManager<SelectableTextV
     public SelectableTextView createViewInstance(ThemedReactContext context){
         SelectableTextView view = new SelectableTextView(context);
         view.setTextIsSelectable(true);
+        fontMap = new HashMap<>();
+        for (String font : FONTS) {
+            fontMap.put(font, Typeface.createFromAsset(context.getAssets(),"fonts/" + font + ".ttf"));
+        }
         return view;
     }
 
@@ -46,6 +57,13 @@ public class SelectableTextViewManager extends SimpleViewManager<SelectableTextV
             spanned = Html.fromHtml(text);
         }
         view.setText(spanned);
+    }
+
+    @ReactProp(name = "font")
+    public void setFont(SelectableTextView view, String font) {
+        Typeface tf = fontMap.get(font);
+        if (tf == null) { return; }
+        view.setTypeface(tf);
     }
 
     @ReactProp(name = "menuItems")

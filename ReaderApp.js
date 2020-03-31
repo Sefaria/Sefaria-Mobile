@@ -16,6 +16,7 @@ import {
   BackHandler,
   UIManager,
   Linking,
+  Text,
 } from 'react-native';
 import NetInfo from "@react-native-community/netinfo";
 import AsyncStorage from '@react-native-community/async-storage';
@@ -29,8 +30,6 @@ import nextFrame from 'next-frame';
 import RNShake from 'react-native-shake';
 import SoundPlayer from 'react-native-sound-player'
 import { Search, SearchState } from '@sefaria/search';
-import SelectableTextView from './NativeModules/SelectableTextView';
-import { EXAMPLE_CONSTANT } from './NativeModules/SelectableTextViewModule';
 import { STATE_ACTIONS } from './StateManager';
 import ReaderControls from './ReaderControls';
 import styles from './Styles';
@@ -57,6 +56,8 @@ import SheetMetadata from "./SheetMeta.js";
 import DeepLinkRouter from "./DeepLinkRouter.js";
 import { AuthPage } from "./AuthPage";
 import Dedication from  "./Dedication"
+
+import SelectableTextView from './NativeModules/SelectableTextView';
 
 
 
@@ -2027,15 +2028,24 @@ class ReaderApp extends React.PureComponent {
     if (cat) {
       style = {backgroundColor: Sefaria.util.lightenDarkenColor(Sefaria.palette.categoryColor(cat), -25)};
     }*/
-    console.log('EXAMPle', EXAMPLE_CONSTANT);
-    return (
-      <SelectableTextView style={{height: 300,width: 300}} text="HELOYOYOYyoyoyo from the <i>other</i> <b>side</b>"/>
-    );
     const isD = Sefaria.downloader.downloading;
     const nAvailable = isD ? Sefaria.downloader.titlesAvailable().filter(t => Sefaria.packages.titleIsSelected(t)).length : 0;
     const { newBooks, updates } = Sefaria.downloader.updatesAvailable();
     const allUpdates = newBooks.concat(updates);
     const nUpdates = isD ? allUpdates.filter(t => Sefaria.packages.titleIsSelected(t)).length : 0;
+    /*
+    <SelectableTextView
+      style={{
+        alignSelf: 'stretch',
+      }}
+      menuItems={["Foo", "Bar"]}
+      onSelection={({eventType, content, selectionStart, selectionEnd}) => {
+        Alert.alert(`Event: ${eventType}`, `Selection: ${content}`);
+      }}
+      text={"Where I have a parent view with 2 children, Image and Text, aligned vertically to the left. What I want is the parent view to cover only the width of its children. But instead what I get is this"}
+    />
+  <Text>{'TEST'}</Text>
+    */
     return (
       <View style={{flex:1}}>
         <SafeAreaView style={styles.safeArea}>

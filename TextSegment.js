@@ -9,8 +9,9 @@ import {
   TouchableOpacity,
   View,
   Platform,
+  Alert,
 } from 'react-native';
-import HTMLView from 'react-native-htmlview'; //to convert html'afied JSON to something react can render (https://github.com/jsdf/react-native-htmlview)
+import SelectableTextView from './NativeModules/SelectableTextView';
 import { GlobalStateContext, getTheme } from './StateManager';
 import styles from './Styles.js';
 import iPad from './isIPad';
@@ -65,31 +66,55 @@ const TextSegment = React.memo(({
       ...justifyStyle,
     }
   };
+
+  /*
+  <HTMLView
+    key={resetKey}
+    value={data}
+    stylesheet={{...styles, ...smallSheet}}
+    rootComponentProps={{
+        hitSlop: {top: 10, bottom: 10, left: 10, right: 10},  // increase hit area of segments
+        onPress,
+        onLongPress,
+        delayPressIn: 200,
+      }
+    }
+    RootComponent={TouchableOpacity}
+    TextComponent={Animated.Text}
+    textComponentProps={
+      {
+        suppressHighlighting: false,
+        key: segmentKey,
+        style: style,
+
+      }
+    }
+    style={{flex: textType == "hebrew" ? 4.5 : 5.5, paddingHorizontal: 10}}
+  />
+  */
+  const yostyle = (textType == 'hebrew') ? [styles.hebrewText] : [styles.englishText, styles.bilingualEnglishText];
+  yostyle.push({
+
+  })
   return (
-     <HTMLView
-       key={resetKey}
-       value={data}
-       stylesheet={{...styles, ...smallSheet}}
-       rootComponentProps={{
-           hitSlop: {top: 10, bottom: 10, left: 10, right: 10},  // increase hit area of segments
-           onPress,
-           onLongPress,
-           delayPressIn: 200,
-         }
-       }
-       RootComponent={TouchableOpacity}
-       TextComponent={Animated.Text}
-       textComponentProps={
-         {
-           suppressHighlighting: false,
-           key: segmentKey,
-           style: style,
-
-         }
-       }
-       style={{flex: textType == "hebrew" ? 4.5 : 5.5, paddingHorizontal: 10}}
-     />
-
+    <TouchableOpacity
+      hitSlop={{top: 10, bottom: 10, left: 10, right: 10}}
+      onPress={onPress}
+      delayPressIn={200}
+    >
+      <SelectableTextView
+        style={{
+          height: 50,
+          color: "#666"
+        }}
+        menuItems={["Thing", "Stuff"]}
+        font={textType == 'hebrew' ? "Taamey Frank Taamim Fix" : "Amiri"}
+        onSelection={({eventType, content, selectionStart, selectionEnd}) => {
+          Alert.alert(`Event: ${eventType}`, `Selection: ${content}`);
+        }}
+        text={data}
+      />
+    </TouchableOpacity>
   );
 });
 TextSegment.whyDidYouRender = true;
