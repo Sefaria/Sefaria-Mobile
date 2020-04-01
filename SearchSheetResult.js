@@ -31,6 +31,7 @@ const SearchSheetResult = ({
     <TouchableOpacity
       style={[styles.searchTextResult, theme.searchTextResult]}
       onPress={onPress}
+      delayPressIn={200}
     >
       <View>
         <View>

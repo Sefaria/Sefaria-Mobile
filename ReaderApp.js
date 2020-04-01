@@ -248,6 +248,9 @@ class ReaderApp extends React.PureComponent {
         // you're going back to textcolumn. make sure to jump
         oldState.textColumnKey = oldState.segmentRef;  // manually add a key to TextColumn to make sure it gets regenerated
         oldState.offsetRef = oldState.segmentRef;
+      } else if (oldState.menuOpen === 'search') {
+        this.onQueryChange('sheet', oldState.searchQuery, true, true, true);
+        this.onQueryChange('text', oldState.searchQuery, true, true, true);
       }
       this.setState(oldState);
       return true;
@@ -492,7 +495,7 @@ class ReaderApp extends React.PureComponent {
         he: !!currVersions.he ? currVersions.he.versionTitle : null
       } : {};
       if (!ref) {
-        crashlytics().recordError(new Error(`Ref is null. textListVisible: '${textListVisible}'. segmentRef: '${segmentRef}. sectionArray: '${sectionArray}'. sectionIndexRef: '${sectionIndexRef}'`));
+        crashlytics().recordError(new Error(`Ref is null. textListVisible: '${String(textListVisible)}'. segmentRef: '${segmentRef}. sectionArray: '${String(sectionArray)}'. sectionIndexRef: '${String(sectionIndexRef)}'`));
       }
       return {
         ref,
@@ -1011,6 +1014,13 @@ class ReaderApp extends React.PureComponent {
       }
 
       if (addToBackStack) {
+        if (calledFrom == 'search') {
+          // only pass small state variables to forward() (eg avoid passing `results`) because cloning large variables takes too long.
+          let { appliedFilters, appliedFilterAggTypes, currPage, initScrollPos } = this.state.textSearchState;
+          this.state.textSearchState = new SearchState({type: 'text', appliedFilters, appliedFilterAggTypes});
+          ({ appliedFilters, appliedFilterAggTypes, currPage, initScrollPos } = this.state.sheetSearchState);
+          this.state.sheetSearchState = new SearchState({type: 'sheet', appliedFilters, appliedFilterAggTypes, currPage, initScrollPos});
+        }
         BackManager.forward({ state: this.state, calledFrom });
       }
 

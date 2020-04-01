@@ -18,7 +18,7 @@ const SearchTextResult = ({ text, title, heTitle, textType, version, onPress }) 
   const refTitleStyle = isHeb ? styles.he : styles.en;
   const refTitle = isHeb ? heTitle : title;
   return (
-    <TouchableOpacity style={[styles.searchTextResult, theme.searchTextResult]} onPress={onPress}>
+    <TouchableOpacity style={[styles.searchTextResult, theme.searchTextResult]} onPress={onPress} delayPressIn={200}>
       <Text style={[refTitleStyle, styles.textListCitation, theme.textListCitation]}>{refTitle}</Text>
       <HTMLView
         value={textType == "hebrew" ? "<hediv>"+text+"</hediv>" : "<endiv>"+text+"</endiv>"}

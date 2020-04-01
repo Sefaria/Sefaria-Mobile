@@ -41,7 +41,6 @@ const SearchBar = ({
   const submitSearch = () => {
     if (query) {
       setIsNewSearch(true);
-      console.log('submitSearch', query);
       search('text', query, true, false, true);
       search('sheet', query, true, false, true);
     }
