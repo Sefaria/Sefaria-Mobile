@@ -1484,18 +1484,18 @@ class ReaderApp extends React.PureComponent {
       const searchStateName = this._getSearchStateName(type);
       Sefaria.search.execute_query(queryProps)
       .then(data => {
-        const newResultsArray = data.hits.hits.map(r => ({
+        const newResultsArray = (type == "sheet" ? data.hits.hits : Sefaria.search.process_text_hits(data.hits.hits)).map(r => ({
             title: type == "sheet" ? r._source.title : r._source.ref,
             heTitle: type == "sheet" ? r._source.title : r._source.heRef,
             text: r.highlight[field].join(" ... "),
             id: r._id,
             textType: r._id.includes("[he]") ? "hebrew" : "english",
+            version: r._source.version,
             metadata: type == "sheet" ? {"ownerImageUrl": r._source.owner_image, "ownerName": r._source.owner_name, "views": r._source.views, "tags": r._source.tags} : null
           })
         );
         const results = resetQuery ? newResultsArray :
           searchState.results.concat(newResultsArray);
-
         var numResults = data.hits.total;
         this.setState({
           [searchStateName]: searchState.update({

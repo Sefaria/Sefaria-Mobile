@@ -55,6 +55,7 @@ class SearchResultList extends React.Component {
                   title={item.title}
                   heTitle={item.heTitle}
                   text={item.text}
+                  version={item.version}
                   onPress={this.props.openRef.bind(null, item.title)}/>
           );
       }

@@ -11,7 +11,7 @@ import HTMLView from 'react-native-htmlview'; //to convert html'afied JSON to so
 import { GlobalStateContext, getTheme } from './StateManager';
 import styles from './Styles.js';
 
-const SearchTextResult = ({ text, title, heTitle, textType, onPress }) => {
+const SearchTextResult = ({ text, title, heTitle, textType, version, onPress }) => {
   const { textLanguage, interfaceLanguage, themeStr } = useContext(GlobalStateContext);
   const theme = getTheme(themeStr);
   const isHeb = Sefaria.util.get_menu_language(interfaceLanguage, textLanguage) == "hebrew";
@@ -25,6 +25,7 @@ const SearchTextResult = ({ text, title, heTitle, textType, onPress }) => {
         stylesheet={styles}
         textComponentProps={{style: [textType == "hebrew" ? styles.hebrewText : styles.englishText, theme.text]}}
       />
+    {!!version ? <Text style={[styles.enInt, {fontSize: 12, marginTop: 4}, theme.textListCitation]}>{version}</Text> : null}
     </TouchableOpacity>
   );
 }

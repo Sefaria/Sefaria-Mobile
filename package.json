@@ -28,7 +28,7 @@
     "@react-native-firebase/app": "^6.3.4",
     "@react-native-firebase/crashlytics": "^6.3.4",
     "@react-native-firebase/remote-config": "^6.3.4",
-    "@sefaria/search": "^0.9.5",
+    "@sefaria/search": "^0.9.7",
     "@welldone-software/why-did-you-render": "^3.3.5",
     "abortcontroller-polyfill": "^1.3.0",
     "babel-preset-react-native": "^4.0.1",
