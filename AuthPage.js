@@ -10,7 +10,7 @@ import {
   TouchableOpacity,
   Image,
 } from 'react-native';
-import firebase from 'react-native-firebase';
+import remoteConfig from '@react-native-firebase/remote-config';
 
 import {
   RainbowBar,
@@ -37,12 +37,12 @@ const onSubmit = async (formState, authMode, setErrors, onLoginSuccess, setIsLoa
 };
 
 const getMobileAppKey = async () => {
-  firebase.config().setDefaults({ mobile_app_key: '' });
-  await firebase.config().fetch(0);
-  const activated = await firebase.config().activateFetched();
+  remoteConfig().setDefaults({ mobile_app_key: '' });
+  await remoteConfig().fetch(0);
+  const activated = await remoteConfig().activate();
   if (!activated) { console.log('Fetch data not activated'); return ''; }
-  const snapshot = await firebase.config().getValue('mobile_app_key');
-  return snapshot.val();
+  const snapshot = await remoteConfig().getValue('mobile_app_key');
+  return snapshot.value;
 };
 
 const useAuthForm = (authMode, onLoginSuccess) => {

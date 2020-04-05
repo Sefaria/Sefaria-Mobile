@@ -14,8 +14,7 @@ import LinkContent from './LinkContent';
 import { initAsyncStorage } from './StateManager';
 import { Filter } from './Filter';
 import URL from 'url-parse';
-import firebase from 'react-native-firebase';
-
+import analytics from '@react-native-firebase/analytics';
 
 const ERRORS = {
   NOT_OFFLINE: 1,
@@ -1066,15 +1065,15 @@ Sefaria = {
   track: {
       // Helper functions for event tracking (with Google Analytics and Mixpanel)
       init: function() {
-        firebase.analytics().setAnalyticsCollectionEnabled(true);
+        analytics().setAnalyticsCollectionEnabled(true);
       },
 
       setScreen: function(currentScreen, currentScreenClass) {
-        firebase.analytics().setCurrentScreen(currentScreen, currentScreenClass);
+        analytics().setCurrentScreen(currentScreen, currentScreenClass);
       },
 
       event: function(event, params) {
-        firebase.analytics().logEvent(event, params)
+        analytics().logEvent(event, params)
       },
 
       pageview: function(page, customDimensions, contentGroups) {

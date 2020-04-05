@@ -1,6 +1,7 @@
 'use strict';
 
 import PropTypes from 'prop-types';
+import crashlytics from '@react-native-firebase/crashlytics';  // to setup up generic crashlytics reports
 
 import React from 'react';
 import {
@@ -247,6 +248,9 @@ class ReaderApp extends React.PureComponent {
         // you're going back to textcolumn. make sure to jump
         oldState.textColumnKey = oldState.segmentRef;  // manually add a key to TextColumn to make sure it gets regenerated
         oldState.offsetRef = oldState.segmentRef;
+      } else if (oldState.menuOpen === 'search') {
+        this.onQueryChange('sheet', oldState.searchQuery, true, true, true);
+        this.onQueryChange('text', oldState.searchQuery, true, true, true);
       }
       this.setState(oldState);
       return true;
@@ -490,6 +494,9 @@ class ReaderApp extends React.PureComponent {
         en: !!currVersions.en ? currVersions.en.versionTitle : null,
         he: !!currVersions.he ? currVersions.he.versionTitle : null
       } : {};
+      if (!ref) {
+        crashlytics().recordError(new Error(`Ref is null. textListVisible: '${String(textListVisible)}'. segmentRef: '${segmentRef}. sectionArray: '${String(sectionArray)}'. sectionIndexRef: '${String(sectionIndexRef)}'`));
+      }
       return {
         ref,
         he_ref,
@@ -1007,6 +1014,13 @@ class ReaderApp extends React.PureComponent {
       }
 
       if (addToBackStack) {
+        if (calledFrom == 'search') {
+          // only pass small state variables to forward() (eg avoid passing `results`) because cloning large variables takes too long.
+          let { appliedFilters, appliedFilterAggTypes, currPage, initScrollPos } = this.state.textSearchState;
+          this.state.textSearchState = new SearchState({type: 'text', appliedFilters, appliedFilterAggTypes});
+          ({ appliedFilters, appliedFilterAggTypes, currPage, initScrollPos } = this.state.sheetSearchState);
+          this.state.sheetSearchState = new SearchState({type: 'sheet', appliedFilters, appliedFilterAggTypes, currPage, initScrollPos});
+        }
         BackManager.forward({ state: this.state, calledFrom });
       }
 
@@ -1480,18 +1494,18 @@ class ReaderApp extends React.PureComponent {
       const searchStateName = this._getSearchStateName(type);
       Sefaria.search.execute_query(queryProps)
       .then(data => {
-        const newResultsArray = data.hits.hits.map(r => ({
+        const newResultsArray = (type == "sheet" ? data.hits.hits : Sefaria.search.process_text_hits(data.hits.hits)).map(r => ({
             title: type == "sheet" ? r._source.title : r._source.ref,
             heTitle: type == "sheet" ? r._source.title : r._source.heRef,
             text: r.highlight[field].join(" ... "),
             id: r._id,
             textType: r._id.includes("[he]") ? "hebrew" : "english",
+            version: r._source.version,
             metadata: type == "sheet" ? {"ownerImageUrl": r._source.owner_image, "ownerName": r._source.owner_name, "views": r._source.views, "tags": r._source.tags} : null
           })
         );
         const results = resetQuery ? newResultsArray :
           searchState.results.concat(newResultsArray);
-
         var numResults = data.hits.total;
         this.setState({
           [searchStateName]: searchState.update({
