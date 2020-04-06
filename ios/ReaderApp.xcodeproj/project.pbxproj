@@ -1436,7 +1436,7 @@
 				CODE_SIGN_ENTITLEMENTS = ReaderApp/ReaderApp.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 70;
+				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = NO;
 				DEVELOPMENT_TEAM = 2626EW4BML;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -1504,7 +1504,7 @@
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/rn-fetch-blob\"",
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/yoga\"",
 				);
-				MARKETING_VERSION = 5.5.1;
+				MARKETING_VERSION = 5.5.5;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -1530,7 +1530,7 @@
 				CODE_SIGN_ENTITLEMENTS = ReaderApp/ReaderApp.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 70;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 2626EW4BML;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1597,7 +1597,7 @@
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/rn-fetch-blob\"",
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/yoga\"",
 				);
-				MARKETING_VERSION = 5.5.1;
+				MARKETING_VERSION = 5.5.5;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
