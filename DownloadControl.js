@@ -2,6 +2,8 @@
 
 import RNFB from 'rn-fetch-blob';
 import { unzip } from 'react-native-zip-archive'; //for unzipping -- (https://github.com/plrthink/react-native-zip-archive)
+import {Alert, Platform} from 'react-native';
+import AsyncStorage from "@react-native-community/async-storage";
 
 const SCHEMA_VERSION = "6";
 const HOST_PATH = "https://readonly.sefaria.org/static/ios-export/" + SCHEMA_VERSION + "/";
@@ -37,11 +39,42 @@ class DownloadTracker {
 const Tracker = new DownloadTracker();
 
 class Package {
-  constructor(name, clicked, containedBooks, children) {
-    this.name = name;
-    this.clicked = clicked;
-    this.containedBooks = containedBooks;
-    this.children = children;
+  constructor(jsonData) {
+    this.name = jsonData['en'];
+    this.jsonData = jsonData;
+    this.children = [];
+    this.disabled = false;  // a Package is disabled if its parent was clicked
+    this.clicked = false;
+    this.parent = this.getParent();
+  }
+  addChild = function (child) {
+    this.children.push(child);
+  };
+  getParent = function () {
+    if (this.name === 'COMPLETE LIBRARY') {
+      return null;
+    }
+    else if (!!this.jsonData['parent']) {
+      return 'COMPLETE LIBRARY'
+    }
+    else return this.jsonData['parent']
+  };
+  markAsClicked = function (disabled=false) {
+    /*
+     * we want to correct for bad data. If both a parent and a child are marked as clicked, we need to make sure the
+     * child is disabled. In the event that a child was marked before it's parent, the `disabled` parameter will trickle
+     * down when the parent is marked. In case the parent was already marked, we'll will look up the parent in
+     * PackagesState.
+     */
+    this.clicked = true;
+    if (disabled) {
+      this.disabled = disabled;
+    }
+    else {
+      let parent = PackagesState[this.parent];
+      this.disabled = !!parent.clicked;
+    }
+    this.children.forEach(child => PackagesState[child].markAsClicked(true));
   }
 }
 
@@ -49,13 +82,73 @@ class Book {
   constructor(title, desired, checkSum) {
     this.title = title;
     this.desired = desired;
-    this.checkSum = checkSum;
+    this.checkSum = checkSum;  // todo: replace with a date
   }
 }
 
+
+function populatePackageState(pkgStateData) {
+  PackagesState = {};
+  pkgStateData.forEach(pkgData => {
+    PackagesState[pkgData['en']] = new Package(pkgData);
+  });
+
+  // children are not defined in package.json. Each package points to a parent and we can now use that to set children
+  let parentPackage;
+  for (let [packageTitle, packObj] of Object.entries(PackagesState)) {
+    if (packageTitle === 'COMPLETE LIBRARY') {
+      continue
+    }
+    else {
+      parentPackage = packObj.parent;
+      PackagesState[parentPackage].addChild(packageTitle);
+    }
+  }
+  return Promise.resolve(PackagesState)
+}
+
+
+function setupPackages() {
+  function platform() {
+    RNFB.fs.exists(RNFB.fs.dirs.DocumentDir + "/library/packages.json")
+      .then(exists => {
+        if (Platform.OS === "ios" || exists) {
+          const pkgPath = exists ? (`${RNFB.fs.dirs.DocumentDir}/library/packages.json`) :
+            `${RNFB.fs.dirs.MainBundleDir}/sources/packages.json`;
+          return Sefaria._loadJSON(pkgPath)
+        }
+        // bundled packages.json lives in a different place on android
+        else return RNFB.fs.readFile(RNFB.fs.asset('sources/packages.json'))
+      })
+  }
+  return new Promise ((resolve, reject) => {
+    Promise.all([
+      platform().then(pkgStateData => populatePackageState),
+      AsyncStorage.getItem("packagesSelected")
+    ]).then(appState => {
+      const [packageData, packagesSelected] = appState;
+      let falseSelections = [];
+      for (let [packName, clickStatus] of Object.entries(packagesSelected)) {
+        !!clickStatus ? packageData[packName].markAsClicked() : falseSelections.push(packName)
+      }
+      for (let packName of Object.keys(packagesSelected)) {
+        if (!!packageData[packName].disabled) {
+          falseSelections.push(packName);
+        }
+      }
+      falseSelections.map(x => delete packagesSelected[x]);
+      AsyncStorage.setItem('packagesSelected', JSON.stringify(packagesSelected)).then(resolve()).catch(error => {
+        console.error(`AsyncStorage failed to save: ${error}`);
+        reject();
+      })
+    })
+  })
+}
+
+
 function setDesiredBooks(packageList) {
   packageList.forEach(packageObj => {
-    packageObj.containedBooks.forEach(book => {
+    packageObj.jsonData.containedBooks.forEach(book => {
       if (book in BooksState) {
         BooksState[book].desired = packageObj.clicked;
       }
@@ -66,7 +159,7 @@ function setDesiredBooks(packageList) {
   })
 }
 
-function setLocalBooksChecksums(bookTitleList) {
+function setLocalBooksChecksums(bookTitleList) {  // todo: we are not using checksums
   return Promise.all(bookTitleList.map(bookTitle => {
     return new Promise((resolve, reject) => {
       const filepath = `${RNFB.fs.dirs.DocumentDir}/library/${bookTitle}.zip`;
@@ -181,7 +274,7 @@ function downloadBundle(bookList, handler) {
   });
 }
 
-function calculateBooksToDownload(booksState, remoteBookCheckSums) {
+function calculateBooksToDownload(booksState, remoteBookCheckSums) { // todo: use timestamps and not checksums
   let booksToDownload = [];
   for (const bookTitle in booksState) {
     if (booksState.hasOwnProperty(bookTitle)){
@@ -200,7 +293,7 @@ function calculateBooksToDownload(booksState, remoteBookCheckSums) {
 
 }
 
-function calculateBooksToDelete(booksState) {
+function calculateBooksToDelete(booksState) { // todo use timestamps and not checksums
   let booksToDelete = [];
   for (const bookTitle in booksState) {
     if (booksState.hasOwnProperty(bookTitle)) {

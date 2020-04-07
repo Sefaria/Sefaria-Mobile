@@ -60,6 +60,7 @@ const usePkgState = () => {
       await Sefaria.packages.updateSelected(pkgName);
       setIsDisabledObj(getIsDisabledObj());
     };
+    // todo: disabled and parent is directly on the package object. Simplify this logic
     const parent = Sefaria.packages.getSelectedParent(pkgObj.en);
     const shortIntLang = interfaceLanguage.slice(0,2);
     //NOTE: onPressDisabled() takes pkgNames in curr intLang while onPress() takes eng
