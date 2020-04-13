@@ -272,9 +272,9 @@ class ReaderApp extends React.PureComponent {
     });
   };
 
-  onBackgroundSync = async () => {
+  onBackgroundSync = async (taskId) => {
     await this.syncHistoryBound();
-    BackgroundFetch.finish(BackgroundFetch.FETCH_RESULT_NEW_DATA);
+    BackgroundFetch.finish(taskId);
   };
 
   handleOpenURL = ({ url } = {}) => {
@@ -494,8 +494,9 @@ class ReaderApp extends React.PureComponent {
         en: !!currVersions.en ? currVersions.en.versionTitle : null,
         he: !!currVersions.he ? currVersions.he.versionTitle : null
       } : {};
+      ref = null;
       if (!ref) {
-        crashlytics().recordError(new Error(`Ref is null. textListVisible: '${String(textListVisible)}'. segmentRef: '${segmentRef}. sectionArray: '${String(sectionArray)}'. sectionIndexRef: '${String(sectionIndexRef)}'`));
+        crashlytics().recordError(new Error(`Ref is null. textListVisible: '${String(textListVisible)}'. segmentRef: '${String(segmentRef)}. sectionArray: '${String(sectionArray)}'. sectionIndexRef: '${String(sectionIndexRef)}'`));
       }
       return {
         ref,
