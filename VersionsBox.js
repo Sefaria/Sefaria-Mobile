@@ -117,7 +117,7 @@ const VersionsBox = ({
     <ScrollView
       contentContainerStyle={[styles.versionsBoxScrollView, styles.readerSideMargin]}>
       {
-        vLangState.versionLangs.map((lang) => {(
+        vLangState.versionLangs.map((lang) => (
           <View key={lang}>
             <View style={[styles.versionsBoxLang]}>
               <Text style={[textStyle, styles.versionsBoxLangText, theme.text]}>{(strings[Sefaria.util.translateISOLanguageCode(lang)] || lang).toUpperCase()}<Text>{` (${vLangState.versionLangMap[lang].length})`}</Text></Text>
@@ -141,7 +141,7 @@ const VersionsBox = ({
               ))
             }
           </View>
-        )})
+        ))
       }
     </ScrollView>
   );
