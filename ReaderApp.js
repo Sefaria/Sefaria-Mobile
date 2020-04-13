@@ -928,10 +928,9 @@ class ReaderApp extends React.PureComponent {
       }
 
     })
-      .catch(error => {
-        console.log(error)
-      });
-      })
+      })      .catch(error => {
+              console.log(error)
+            });
 
 
   };
