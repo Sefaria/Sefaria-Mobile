@@ -1919,6 +1919,7 @@ class ReaderApp extends React.PureComponent {
                   updateActiveSheetNode={this.updateActiveSheetNode}
                   sheetMeta={this.state.sheetMeta}
                   textData={this.state.data}
+                  openUri={this.openUri}
                   sectionArray={this.state.sectionArray}
                   textSegmentPressed={ this.sheetSegmentPressed }
                   theme={this.props.theme}
