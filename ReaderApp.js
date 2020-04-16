@@ -518,7 +518,7 @@ class ReaderApp extends React.PureComponent {
           BackManager.back({ type: "secondary" });
           return; // Don't bother with other changes if we are simply closing the TextList
       }
-      if (!this.state.data[section][segment] && !this.state.sheet) {
+      if ((!this.state.data || !this.state.data[section] || !this.state.data[section][segment]) && !this.state.sheet) {
         return;
       }
       let loadingLinks = false;
