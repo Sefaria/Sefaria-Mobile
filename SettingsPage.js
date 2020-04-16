@@ -25,6 +25,7 @@ import {
 import { GlobalStateContext, DispatchContext, STATE_ACTIONS, getTheme } from './StateManager';
 import styles from './Styles';
 import strings from './LocalizedStrings';
+import { PackagesState } from './DownloadControl';
 
 const generateOptions = (options, onPress) => options.map(o => ({
   name: o,
@@ -32,11 +33,10 @@ const generateOptions = (options, onPress) => options.map(o => ({
   onPress: () => { onPress(o); },
 }));
 
-const getIsDisabledObj = () => {
+const getIsDisabledObj = () => {  // a Package object has a disabled field
   const isDisabledObj = {};
-  for (let pkgObj of Sefaria.packages.available) {
-    const parent = Sefaria.packages.getSelectedParent(pkgObj.en);
-    isDisabledObj[pkgObj.en] = !!parent;
+  for (let [pkgName, pkgObj] of Object.entries(PackagesState)) {
+    isDisabledObj[pkgName] = !!pkgObj.disabled;
   }
   return isDisabledObj;
 };
@@ -53,11 +53,11 @@ const onPressDisabled = (child, parent) => {
 
 const usePkgState = () => {
   const { interfaceLanguage } = useContext(GlobalStateContext);
-  const [isDisabledObj, setIsDisabledObj] = useState(getIsDisabledObj());
+  const [isDisabledObj, setIsDisabledObj] = useState(getIsDisabledObj());  // React Hook
 
   const onPackagePress = (pkgObj) => {
     const onPressActive = async (pkgName) => {
-      await Sefaria.packages.updateSelected(pkgName);
+      await Sefaria.packages.updateSelected(pkgName);  // todo: implement updateSelected
       setIsDisabledObj(getIsDisabledObj());
     };
     // todo: disabled and parent is directly on the package object. Simplify this logic
@@ -73,7 +73,7 @@ const usePkgState = () => {
     setIsDisabledObj,
     onPackagePress,
   };
-}
+};
 
 const SettingsPage = ({ close, logout, openUri }) => {
   const [numPressesDebug, setNumPressesDebug] = useState(0);
@@ -82,11 +82,11 @@ const SettingsPage = ({ close, logout, openUri }) => {
   const theme = getTheme(themeStr);
 
   const deleteLibrary = async () => {
-    await Sefaria.downloader.deleteLibrary();
+    await Sefaria.downloader.deleteLibrary();  // todo: implement this logic
     setIsDisabledObj(getIsDisabledObj);
   };
 
-  const onDebugNoLibraryTouch = () => {
+  const onDebugNoLibraryTouch = () => { // todo: check if we can remove this method
     setNumPressesDebug(numPressesDebug+1);
     if (numPressesDebug >= 7) {
       setNumPressesDebug(0);
@@ -102,10 +102,11 @@ const SettingsPage = ({ close, logout, openUri }) => {
   };
 
   const langStyle = interfaceLanguage === "hebrew" ? styles.heInt : styles.enInt;
+  // Todo: make sure this is implemented
   var nDownloaded = Sefaria.downloader.titlesDownloaded().length;
   var nAvailable  = Sefaria.downloader.titlesAvailable().length;
   var nUpdates    = Sefaria.downloader.updatesAvailable().length;
-  var updatesOnly = !!nUpdates && nDownloaded == nAvailable
+  var updatesOnly = !!nUpdates && nDownloaded == nAvailable;
   return (
     <View style={[styles.menu, theme.menu]}>
       <CategoryColorLine category={"Other"} />
@@ -122,6 +123,7 @@ const SettingsPage = ({ close, logout, openUri }) => {
 
         <View style={[styles.readerDisplayOptionsMenuDivider, styles.settingsDivider, theme.readerDisplayOptionsMenuDivider]}/>
 
+        // todo: I believe we can get rid of this component
         <TouchableWithoutFeedback onPress={onDebugNoLibraryTouch}>
           <View>
             <Text style={[langStyle, styles.settingsSectionHeader, theme.tertiaryText]}>{strings.offlineAccess}</Text>
@@ -261,7 +263,7 @@ const OfflinePackageList = ({ isDisabledObj, onPackagePress }) => {
                 withArrow={false}
               />
             { isD && nUpdates > 0 ?
-                <SefariaProgressBar
+                <SefariaProgressBar  // todo: I believe we can hook this into RNFB
                   progress={(nAvailable - nUpdates) / (nAvailable)}
                 /> : null
               }
@@ -271,6 +273,6 @@ const OfflinePackageList = ({ isDisabledObj, onPackagePress }) => {
     }
   </View>
   );
-}
+};
 
 export default SettingsPage;
