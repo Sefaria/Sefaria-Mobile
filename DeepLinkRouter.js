@@ -55,7 +55,7 @@ class DeepLinkRouter extends React.PureComponent {
     // wrapper for openRef to convert url params to function params
     // TODO handle sheet ref case
     const { ref, title } = Sefaria.urlToRef(tref);
-    if (!title) { this.catchAll(url); return; /* open site */}
+    if (!title) { this.catchAll({ url }); return; /* open site */}
     else if (ref === title) {
       // book table of contents
       this.props.openTextTocDirectly(title);

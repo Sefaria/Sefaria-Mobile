@@ -1,7 +1,7 @@
-def VERSION_BUILD=519
+def VERSION_BUILD=563
 def VERSION_MAJOR=5
 def VERSION_MINOR=5
-def VERSION_PATCH=1
+def VERSION_PATCH=8
 
 apply plugin: "com.android.application"
 apply plugin: 'io.fabric'

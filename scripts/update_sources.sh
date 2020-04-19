@@ -29,7 +29,9 @@ fi
 declare -a filesarr=(packages.json people.json toc.json search_toc.json hebrew_categories.json calendar.json)
 for filename in "${filesarr[@]}"
 do
-    scp $SOURCE_SERVER:$SOURCE_UNIX_PATH$EXPORT_VERSION/$filename $IOS_SOURCES;
+    # scp $SOURCE_SERVER:$SOURCE_UNIX_PATH$EXPORT_VERSION/$filename $IOS_SOURCES;
+    # curl $SOURCE_SERVER$SOURCE_UNIX_PATH$EXPORT_VERSION/$filename > $IOS_SOURCES$filename;
+    kubectl cp mobile-download-server-testing-868d7d7c5-jjgh2:$SOURCE_UNIX_PATH$EXPORT_VERSION/$filename $IOS_SOURCES$filename;
     cp $IOS_SOURCES/$filename $ANDROID_SOURCES;
 done
 

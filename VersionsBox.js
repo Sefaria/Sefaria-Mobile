@@ -120,7 +120,7 @@ const VersionsBox = ({
         vLangState.versionLangs.map((lang) => (
           <View key={lang}>
             <View style={[styles.versionsBoxLang]}>
-              <Text style={[textStyle, styles.versionsBoxLangText, theme.text]}>{strings[Sefaria.util.translateISOLanguageCode(lang)].toUpperCase()}<Text>{` (${vLangState.versionLangMap[lang].length})`}</Text></Text>
+              <Text style={[textStyle, styles.versionsBoxLangText, theme.text]}>{(strings[Sefaria.util.translateISOLanguageCode(lang)] || lang).toUpperCase()}<Text>{` (${vLangState.versionLangMap[lang].length})`}</Text></Text>
             </View>
             {
               vLangState.versionLangMap[lang].map(v => (

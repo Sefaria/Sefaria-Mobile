@@ -273,9 +273,9 @@ class ReaderApp extends React.PureComponent {
     });
   };
 
-  onBackgroundSync = async () => {
+  onBackgroundSync = async (taskId) => {
     await this.syncHistoryBound();
-    BackgroundFetch.finish(BackgroundFetch.FETCH_RESULT_NEW_DATA);
+    BackgroundFetch.finish(taskId);
   };
 
   handleOpenURL = ({ url } = {}) => {
@@ -496,7 +496,7 @@ class ReaderApp extends React.PureComponent {
         he: !!currVersions.he ? currVersions.he.versionTitle : null
       } : {};
       if (!ref) {
-        crashlytics().recordError(new Error(`Ref is null. textListVisible: '${String(textListVisible)}'. segmentRef: '${segmentRef}. sectionArray: '${String(sectionArray)}'. sectionIndexRef: '${String(sectionIndexRef)}'`));
+        crashlytics().recordError(new Error(`Ref is null. textListVisible: '${String(textListVisible)}'. segmentRef: '${String(segmentRef)}. sectionArray: '${String(sectionArray)}'. sectionIndexRef: '${String(sectionIndexRef)}'`));
       }
       return {
         ref,
@@ -519,7 +519,7 @@ class ReaderApp extends React.PureComponent {
           BackManager.back({ type: "secondary" });
           return; // Don't bother with other changes if we are simply closing the TextList
       }
-      if (!this.state.data[section][segment] && !this.state.sheet) {
+      if ((!this.state.data || !this.state.data[section] || !this.state.data[section][segment]) && !this.state.sheet) {
         return;
       }
       let loadingLinks = false;
@@ -929,10 +929,9 @@ class ReaderApp extends React.PureComponent {
       }
 
     })
-      .catch(error => {
-        console.log(error)
-      });
-      })
+      })      .catch(error => {
+              console.log(error)
+            });
 
 
   };
@@ -1921,6 +1920,7 @@ class ReaderApp extends React.PureComponent {
                   updateActiveSheetNode={this.updateActiveSheetNode}
                   sheetMeta={this.state.sheetMeta}
                   textData={this.state.data}
+                  openUri={this.openUri}
                   sectionArray={this.state.sectionArray}
                   textSegmentPressed={ this.sheetSegmentPressed }
                   theme={this.props.theme}
