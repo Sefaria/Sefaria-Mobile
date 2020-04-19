@@ -2,7 +2,7 @@
 
 import PropTypes from 'prop-types';
 
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import {
   StyleSheet,
   Text,
@@ -52,18 +52,23 @@ const SystemButton = ({ onPress, text, img, isHeb, isBlue, isLoading, extraStyle
   </GlobalStateContext.Consumer>
 );
 
-const SefariaProgressBar = ({ progress, onPress, onClose }) => (
-  <GlobalStateContext.Consumer>
-    { ({ themeStr, interfaceLanguage }) => (
-      <TouchableOpacity onPress={!!onPress ? onPress : ()=>{}} disabled={!onPress} style={styles.sefariaProgressBar}>
+const SefariaProgressBar = ({ onPress, onClose, download }) => {
+  const { progress, setProgress } = useState(0);
+  download.attachProgressTracker(setProgress);
+  return <GlobalStateContext.Consumer>
+    {({themeStr, interfaceLanguage}) => (
+      <TouchableOpacity onPress={!!onPress ? onPress : () => {
+      }} disabled={!onPress} style={styles.sefariaProgressBar}>
         <View style={{flex: 1, flexDirection: interfaceLanguage === "hebrew" ? "row-reverse" : "row", height: 50}}>
           <View style={{flex: progress, backgroundColor: "#fff"}}>
           </View>
-          <View style={{flex: 1-progress, backgroundColor: "#eee"}}>
+          <View style={{flex: 1 - progress, backgroundColor: "#eee"}}>
           </View>
         </View>
-        <View style={[{flexDirection: interfaceLanguage === "hebrew" ? "row-reverse" : "row"}, styles.sefariaProgressBarOverlay]}>
-          <Text style={[{color: "#999"}, interfaceLanguage === "hebrew" ? styles.heInt : styles.enInt]}>{`${strings.downloading} (${Math.round(progress*1000)/10}%)`}</Text>
+        <View
+          style={[{flexDirection: interfaceLanguage === "hebrew" ? "row-reverse" : "row"}, styles.sefariaProgressBarOverlay]}>
+          <Text
+            style={[{color: "#999"}, interfaceLanguage === "hebrew" ? styles.heInt : styles.enInt]}>{`${strings.downloading} (${Math.round(progress * 1000) / 10}%)`}</Text>
           {!!onClose ?
             <TouchableOpacity onPress={onClose}>
               <Image
@@ -78,7 +83,7 @@ const SefariaProgressBar = ({ progress, onPress, onClose }) => (
       </TouchableOpacity>
     )}
   </GlobalStateContext.Consumer>
-);
+};
 
 class TwoBox extends React.Component {
   static propTypes = {

@@ -15,6 +15,7 @@ import { initAsyncStorage } from './StateManager';
 import { Filter } from './Filter';
 import URL from 'url-parse';
 import analytics from '@react-native-firebase/analytics';
+import {setupPackages} from './DownloadControl'
 
 const ERRORS = {
   NOT_OFFLINE: 1,
@@ -46,8 +47,8 @@ Sefaria = {
       .then(Sefaria._loadCalendar)
       .then(Sefaria._loadPeople)
       .then(Sefaria._loadHebrewCategories)
-      .then(Sefaria.packages._load)
-      .then(Sefaria.downloader.init);  // downloader init is dependent on packages
+      .then(setupPackages())
+      .then(Sefaria.downloader.init);  // downloader init is dependent on packages todo: trigger a download event
   },
   getLastAppUpdateTime: async function() {
     // returns epoch time of last time the app was updated. used to compare if sources files are newer than downloaded files
@@ -146,7 +147,7 @@ Sefaria = {
   shouldLoadFromApi: function(versions) {
     // there are currently two cases where we load from API even if the index is downloaded
     // 1) debugNoLibrary is true 2) you're loading a non-default version
-    return Sefaria.util.objectHasNonNullValues(versions) || Sefaria.downloader._data.debugNoLibrary;
+    return Sefaria.util.objectHasNonNullValues(versions);
   },
   loadOfflineFile: async function(ref, context, versions) {
     var fileNameStem = ref.split(":")[0];

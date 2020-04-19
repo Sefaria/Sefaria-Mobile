@@ -34,18 +34,24 @@ class DownloadTracker {
       throw "No download to cancel"
     }
   }
+  attachProgressTracker(progressTracker) {
+    if (this.downloadInProgress()) {
+      this.currentDownload.progress({count: 20, interval: 250}, progressTracker);
+    }
+  }
 }
 
 const Tracker = new DownloadTracker();
 
 class Package {
-  constructor(jsonData) {
+  constructor(jsonData, order=0) {
     this.name = jsonData['en'];
     this.jsonData = jsonData;
     this.children = [];
     this.disabled = false;  // a Package is disabled if its parent was clicked
     this.clicked = false;
     this.parent = this.getParent();
+    this.order = order;
   }
   addChild = function (child) {
     this.children.push(child);
@@ -59,7 +65,7 @@ class Package {
     }
     else return this.jsonData['parent']
   };
-  markAsClicked = function (disabled=false) {
+  markAsClicked = async function (disabled=false) {
     /*
      * we want to correct for bad data. If both a parent and a child are marked as clicked, we need to make sure the
      * child is disabled. In the event that a child was marked before it's parent, the `disabled` parameter will trickle
@@ -75,6 +81,12 @@ class Package {
       this.disabled = !!parent.clicked;
     }
     this.children.forEach(child => PackagesState[child].markAsClicked(true));
+
+    // at the end of the recursion we need to save the result to disk. The package actually clicked will have
+    // disabled = false
+    if (!disabled) {
+      await AsyncStorage.setItem('packagesSelected', JSON.stringify(PackagesState))
+    }
   }
 }
 
@@ -89,8 +101,8 @@ class Book {
 
 function populatePackageState(pkgStateData) {
   PackagesState = {};
-  pkgStateData.forEach(pkgData => {
-    PackagesState[pkgData['en']] = new Package(pkgData);
+  pkgStateData.forEach((pkgData, index) => {
+    PackagesState[pkgData['en']] = new Package(pkgData, index);
   });
 
   // children are not defined in package.json. Each package points to a parent and we can now use that to set children
@@ -105,6 +117,11 @@ function populatePackageState(pkgStateData) {
     }
   }
   return Promise.resolve(PackagesState)
+}
+
+
+async function runDownload(downloadIsRunningHandler, downloadProgressHandler) {
+
 }
 
 
@@ -148,7 +165,7 @@ function setupPackages() {
 
 function setDesiredBooks(packageList) {
   packageList.forEach(packageObj => {
-    packageObj.jsonData.containedBooks.forEach(book => {
+    packageObj.jsonData['containedBooks'].forEach(book => {
       if (book in BooksState) {
         BooksState[book].desired = packageObj.clicked;
       }
@@ -312,4 +329,4 @@ function handleDownloadError(error) {
   })
 }
 
-export {downloadBundle};
+export {downloadBundle, setupPackages, PackagesState, runDownload, Tracker};

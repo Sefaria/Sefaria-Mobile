@@ -57,6 +57,7 @@ import SheetMetadata from "./SheetMeta.js";
 import DeepLinkRouter from "./DeepLinkRouter.js";
 import { AuthPage } from "./AuthPage";
 import Dedication from  "./Dedication"
+import { Tracker as DownloadTracker } from "./DownloadControl.js"
 
 
 
@@ -165,7 +166,7 @@ class ReaderApp extends React.PureComponent {
     );
     BackHandler.addEventListener('hardwareBackPress', this.manageBack);
     AppState.addEventListener('change', this.appStateChangeListener);
-    Sefaria.downloader.onChange = this.onDownloaderChange;
+    Sefaria.downloader.onChange = this.onDownloaderChange;  // todo downloadRefactor: what is this doing?
     RNShake.addEventListener('ShakeEvent', () => {
       if (Sefaria.isGettinToBePurimTime()) {
         SoundPlayer.playSoundFile('grogger', 'mp3');
@@ -2057,11 +2058,12 @@ class ReaderApp extends React.PureComponent {
                 barStyle="light-content"
               />
               {
-                Sefaria.downloader.downloading && nUpdates > 0 && this.state.menuOpen !== 'settings' ?
+                DownloadTracker.downloadInProgress() && this.state.menuOpen !== 'settings' ?
                 <SefariaProgressBar
-                  progress={(nAvailable - nUpdates) / nAvailable}
+                   // todo: Hook into RNFB
                   onPress={()=>{ this.openMenu("settings")}}
-                  onClose={Sefaria.packages.deleteActiveDownloads}
+                  onClose={DownloadTracker.cancelDownload}  // todo: download refactor -> delete download here
+                  download={DownloadTracker}
                 /> : null
               }
               { this.renderContent() }

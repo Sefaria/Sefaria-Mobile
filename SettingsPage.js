@@ -25,7 +25,7 @@ import {
 import { GlobalStateContext, DispatchContext, STATE_ACTIONS, getTheme } from './StateManager';
 import styles from './Styles';
 import strings from './LocalizedStrings';
-import { PackagesState } from './DownloadControl';
+import { PackagesState, runDownload, Tracker as DownloadTracker } from './DownloadControl';
 
 const generateOptions = (options, onPress) => options.map(o => ({
   name: o,
@@ -56,16 +56,16 @@ const usePkgState = () => {
   const [isDisabledObj, setIsDisabledObj] = useState(getIsDisabledObj());  // React Hook
 
   const onPackagePress = (pkgObj) => {
-    const onPressActive = async (pkgName) => {
-      await Sefaria.packages.updateSelected(pkgName);  // todo: implement updateSelected
+    const onPressActive = async (pkgName, activeDownloadHandler=null) => {
+      await PackagesState[pkgName].markAsClicked();
       setIsDisabledObj(getIsDisabledObj());
+      await runDownload(activeDownloadHandler)
     };
-    // todo: disabled and parent is directly on the package object. Simplify this logic
-    const parent = Sefaria.packages.getSelectedParent(pkgObj.en);
+    const parent = pkgObj.parent;
     const shortIntLang = interfaceLanguage.slice(0,2);
     //NOTE: onPressDisabled() takes pkgNames in curr intLang while onPress() takes eng
-    if (!!parent) { onPressDisabled(pkgObj[shortIntLang], parent[shortIntLang]); }
-    else { onPressActive(pkgObj.en); }
+    if (pkgObj.disabled) { onPressDisabled(pkgObj[shortIntLang], parent[shortIntLang]); }
+    else { onPressActive(pkgObj.name); }
   };
 
   return {
@@ -102,7 +102,7 @@ const SettingsPage = ({ close, logout, openUri }) => {
   };
 
   const langStyle = interfaceLanguage === "hebrew" ? styles.heInt : styles.enInt;
-  // Todo: make sure this is implemented
+  // Todo: is this logic necessary?
   var nDownloaded = Sefaria.downloader.titlesDownloaded().length;
   var nAvailable  = Sefaria.downloader.titlesAvailable().length;
   var nUpdates    = Sefaria.downloader.updatesAvailable().length;
@@ -171,7 +171,7 @@ const SettingsPage = ({ close, logout, openUri }) => {
       </ScrollView>
     </View>
   );
-}
+};
 SettingsPage.propTypes = {
   close:   PropTypes.func.isRequired,
   logout:  PropTypes.func.isRequired,
@@ -241,14 +241,11 @@ const OfflinePackageList = ({ isDisabledObj, onPackagePress }) => {
   return (
     <View style={styles.settingsOfflinePackages}>
       {
-        Sefaria.packages.available.map(p => {
-          const onPress = () => { onPackagePress(p); };
-          const isSelected = Sefaria.packages.isSelected(p.en);
-          const isD = Sefaria.downloader.downloading && isSelected;
-          const nAvailable = isD ? Sefaria.downloader.titlesAvailable().filter(t => Sefaria.packages.titleInPackage(t, p.en)).length : 0;
-          const { newBooks, updates } = Sefaria.downloader.updatesAvailable();
-          const allUpdates = newBooks.concat(updates);
-          const nUpdates   = isD ? allUpdates.filter(t => Sefaria.packages.titleInPackage(t, p.en)).length : 0;
+        Object.values(PackagesState).sort((a, b) => b.order - a.order).map(p => {
+          const isSelected = p.clicked;
+          const {isD, setDownload} = useState(false);
+           const onPress = () => { onPackagePress(p, setDownload); };  // Todo: download refactor -> trigger the download here
+
           return (
             <View key={`${p.en}|${isDisabledObj[p.en]}|parent`}>
               <LibraryNavButton
@@ -262,9 +259,9 @@ const OfflinePackageList = ({ isDisabledObj, onPackagePress }) => {
                 buttonStyle={{margin: 0, padding: 0, opacity: isDisabledObj[p.en] ? 0.6 : 1.0}}
                 withArrow={false}
               />
-            { isD && nUpdates > 0 ?
+            { isD ?
                 <SefariaProgressBar  // todo: I believe we can hook this into RNFB
-                  progress={(nAvailable - nUpdates) / (nAvailable)}
+                  download={DownloadTracker}
                 /> : null
               }
             </View>
