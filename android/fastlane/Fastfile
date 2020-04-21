@@ -35,4 +35,20 @@ platform :android do
 
     upload_to_play_store(track: 'internal')
   end
+
+  lane :bitrise do |options|
+    sh("../../scripts/update_sources.sh")
+    gradle(task: "clean")
+    increment_android_version_code(path: "app/build.gradle")
+    gradle(
+      task: "assemble",
+      build_type: "Release",
+      properties: {
+        "android.injected.signing.store.file" => "kstore.jks",
+        "android.injected.signing.store.password" => options[:storepass],
+        "android.injected.signing.key.alias" => "kstore",
+        "android.injected.signing.key.password" => options[:storepass],
+      }
+    )
+  end
 end
