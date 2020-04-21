@@ -34,9 +34,9 @@ class DownloadTracker {
       throw "No download to cancel"
     }
   }
-  attachProgressTracker(progressTracker) {
+  attachProgressTracker(progressTracker, config) {
     if (this.downloadInProgress()) {
-      this.currentDownload.progress({count: 20, interval: 250}, progressTracker);
+      this.currentDownload.progress(config, progressTracker);
     }
   }
 }
@@ -91,10 +91,11 @@ class Package {
 }
 
 class Book {
-  constructor(title, desired, checkSum) {
+  constructor(title, desired, localLastUpdated=0, remoteLastUpdated=0) {
     this.title = title;
     this.desired = desired;
-    this.checkSum = checkSum;  // todo: replace with a date
+    this.localLastUpdated = new Date(localLastUpdated);
+    this.remoteLastUpdated = new Date(remoteLastUpdated);
   }
 }
 
@@ -163,38 +164,53 @@ function setupPackages() {
 }
 
 
-function setDesiredBooks(packageList) {
-  packageList.forEach(packageObj => {
-    packageObj.jsonData['containedBooks'].forEach(book => {
-      if (book in BooksState) {
-        BooksState[book].desired = packageObj.clicked;
-      }
-      else {
-        BooksState[book] = new Book(book, packageObj.clicked, null);
-      }
+function setDesiredBooks() {
+  if (PackagesState['COMPLETE LIBRARY'].clicked) {
+    Object.keys(BooksState).forEach(b => BooksState[b].desired = true)
+  }
+  else {
+    Object.values(PackagesState).filter(x => {
+      /*
+       * All books in packages marked desired should be flagged as desired. COMPLETE LIBRARY is a special case and
+       * was dealt with above. Disabled packages are redundant (these are packages that are wholly contained within
+       * a larger package that was already selected).
+       */
+      return x.name !== 'COMPLETE LIBRARY' && x.clicked && !x.disabled
+    }).map(packageList => {
+      packageList.forEach(packageObj => {
+        packageObj.jsonData['containedBooks'].forEach(book => {
+          if (book in BooksState) {
+            BooksState[book].desired = packageObj.clicked;
+          }
+          else {  // edge case, new books should not be added here
+            BooksState[book] = new Book(book, packageObj.clicked, null);
+            }
+          })
+      })
     })
-  })
+  }
+
 }
 
-function setLocalBooksChecksums(bookTitleList) {  // todo: we are not using checksums
+function setLocalBookTimestamps(bookTitleList) {
   return Promise.all(bookTitleList.map(bookTitle => {
     return new Promise((resolve, reject) => {
       const filepath = `${RNFB.fs.dirs.DocumentDir}/library/${bookTitle}.zip`;
       RNFB.fs.exists(filepath)
         .then(exists => {
           if (exists) {
-            RNFB.fs.hash(filepath, 'sha1').then(hash => resolve(hash));
+            RNFB.fs.stat(filepath).then(timestamp => resolve(timestamp));
           }
           else resolve(null);
         })
     })
-  })).then((hashList) => hashList.map((hash, i) => {
+  })).then((timestampList) => timestampList.map((timestamp, i) => {
     const bookTitle = bookTitleList[i];
     if (bookTitle in BooksState) {
-      BooksState[bookTitle].checkSum = hash;
+      BooksState[bookTitle].lastUpdated = new Date(timestamp);
     }
     else {
-      BooksState[bookTitle] = new Book(bookTitle, false, hash);
+      BooksState[bookTitle] = new Book(bookTitle, false, timestamp);
     }
   }))
 }
@@ -223,11 +239,11 @@ async function repopulateBooksState() {
   let packages = Object.values(PackagesState);
   setDesiredBooks(packages);
   let localBooks = await getLocalBookList();
-  await setLocalBooksChecksums(localBooks);
+  await setLocalBookTimestamps(localBooks);
   return BooksState
 }
 
-async function getRemoteBookChecksums(bookTitleList) {
+async function getRemoteBookTimeStamps(bookTitleList) {
 
 }
 
@@ -264,7 +280,7 @@ async function downloadAndUnzipBooks(bookList) {
   return null
 }
 
-function downloadBundle(bookList, handler) {
+function downloadBundle(bookList) {  // todo: We need two requests: POST to create the bundle and receive the zip url, and a GET to actually download the bundle
   return new Promise((resolve, reject) => {
     const downloadState = RNFB.config({
       IOSBackgroundTask: true,
@@ -279,7 +295,6 @@ function downloadBundle(bookList, handler) {
       body: JSON.stringify({'bookList': bookList})
     });
     Tracker.addDownload(downloadState);
-    downloadState.progress({count: 20, interval: 250}, handler);
     downloadState.then(downloadResult => {
       Tracker.removeDownload();
       const status = downloadResult.info().status;

@@ -53,8 +53,19 @@ const SystemButton = ({ onPress, text, img, isHeb, isBlue, isLoading, extraStyle
 );
 
 const SefariaProgressBar = ({ onPress, onClose, download }) => {
+  /*
+   * note on configuration: an object with keys {count, interval}. Count is the max number of times the progress bar
+   * will update, interval is the minimum elapsed time (ms) between updates. Hardcoding now, but we can turn this into a
+   * prop if needed.
+   * Configuration is supported by rn-fetch-blob. As the progressBar is designed to listen to the state of an ongoing
+   * process, I imagine this will generally be listening to libraries that support Stateful Promises. This can be
+   * revisited if reuseability becomes a problem.
+   */
+  const config = {count: 20, interval: 250};
   const { progress, setProgress } = useState(0);
-  download.attachProgressTracker(setProgress);
+  const calculateProgress = (received, total) => !!(received) ? setProgress(received / total) : setProgress(0.0);
+
+  download.attachProgressTracker(calculateProgress, config);
   return <GlobalStateContext.Consumer>
     {({themeStr, interfaceLanguage}) => (
       <TouchableOpacity onPress={!!onPress ? onPress : () => {
