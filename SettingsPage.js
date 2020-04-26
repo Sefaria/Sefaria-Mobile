@@ -25,7 +25,7 @@ import {
 import { GlobalStateContext, DispatchContext, STATE_ACTIONS, getTheme } from './StateManager';
 import styles from './Styles';
 import strings from './LocalizedStrings';
-import { PackagesState, runDownload, Tracker as DownloadTracker } from './DownloadControl';
+import { PackagesState, runDownload, booksWereDownloaded, Tracker as DownloadTracker, checkUpdates } from './DownloadControl';
 
 const generateOptions = (options, onPress) => options.map(o => ({
   name: o,
@@ -59,7 +59,7 @@ const usePkgState = () => {
     const onPressActive = async (pkgName, activeDownloadHandler=null) => {
       await PackagesState[pkgName].markAsClicked();
       setIsDisabledObj(getIsDisabledObj());
-      await runDownload(activeDownloadHandler)
+      await runDownload(activeDownloadHandler)  // todo: Download Refactor -> we got rid of the method runDownload
     };
     const parent = pkgObj.parent;
     const shortIntLang = interfaceLanguage.slice(0,2);
@@ -75,11 +75,26 @@ const usePkgState = () => {
   };
 };
 
+function abstractUpdateChecker(disableUpdateComponent) {
+  async function f() {
+    // todo: download refactor: Move all UI elements here. No UI elements should be within DownloadControl.js
+    disableUpdateComponent(true);
+    try {
+      await checkUpdates();
+    } finally {
+      disableUpdateComponent(false);
+    }
+  }
+  return f
+}
+
 const SettingsPage = ({ close, logout, openUri }) => {
   const [numPressesDebug, setNumPressesDebug] = useState(0);
   const { themeStr, interfaceLanguage, isLoggedIn } = useContext(GlobalStateContext);
   const { isDisabledObj, setIsDisabledObj, onPackagePress } = usePkgState();
   const theme = getTheme(themeStr);
+  const [updatesDisabled, setUpdatesDisabled] = useState(false);
+  const checkUpdates = abstractUpdateChecker(setUpdatesDisabled);
 
   const deleteLibrary = async () => {
     await Sefaria.downloader.deleteLibrary();  // todo: implement this logic
@@ -123,28 +138,10 @@ const SettingsPage = ({ close, logout, openUri }) => {
 
         <View style={[styles.readerDisplayOptionsMenuDivider, styles.settingsDivider, theme.readerDisplayOptionsMenuDivider]}/>
 
-        // todo: I believe we can get rid of this component
-        <TouchableWithoutFeedback onPress={onDebugNoLibraryTouch}>
+        {booksWereDownloaded() ?
           <View>
-            <Text style={[langStyle, styles.settingsSectionHeader, theme.tertiaryText]}>{strings.offlineAccess}</Text>
-          </View>
-        </TouchableWithoutFeedback>
-
-        { Sefaria.downloader._data.debugNoLibrary ?
-          <Text style={[langStyle, styles.settingsMessage, theme.tertiaryText]}>{"Debug No Library"}</Text>
-          : null
-        }
-
-        {Sefaria.downloader._data.shouldDownload ?
-          <View>
-            { !!nUpdates && !updatesOnly && !Sefaria.downloader.downloading ?
-              <TouchableOpacity style={styles.button} onPress={Sefaria.downloader.resumeDownload}>
-                <Text style={[langStyle, styles.buttonText]}>{strings.resumeDownload}</Text>
-              </TouchableOpacity>
-              : null }
-
-            <TouchableOpacity style={styles.button} disabled={Sefaria.downloader.checkingForUpdates} onPress={Sefaria.downloader.checkForUpdates}>
-              <Text style={[langStyle, styles.buttonText]}>{Sefaria.downloader.checkingForUpdates ? strings.checking : strings.checkForUpdates}</Text>
+            <TouchableOpacity style={styles.button} disabled={updatesDisabled} onPress={checkUpdates}>
+              <Text style={[langStyle, styles.buttonText]}>{updatesDisabled ? strings.checking : strings.checkForUpdates}</Text>
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.button} onPress={deleteLibrary}>

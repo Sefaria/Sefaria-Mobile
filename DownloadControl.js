@@ -2,11 +2,13 @@
 
 import RNFB from 'rn-fetch-blob';
 import { unzip } from 'react-native-zip-archive'; //for unzipping -- (https://github.com/plrthink/react-native-zip-archive)
+import strings from './LocalizedStrings'
 import {Alert, Platform} from 'react-native';
 import AsyncStorage from "@react-native-community/async-storage";
 
 const SCHEMA_VERSION = "6";
-const HOST_PATH = "https://readonly.sefaria.org/static/ios-export/" + SCHEMA_VERSION + "/";
+const DOWNLOAD_SERVER = "https://readonly.sefaria.org";
+const HOST_PATH = `${DOWNLOAD_SERVER}/static/ios-export/${SCHEMA_VERSION}/bundles`;
 const BUNDLE_LOCATION = RNFB.fs.dirs.DocumentDir + "/tmp/bundle.zip";
 
 
@@ -18,6 +20,9 @@ class DownloadTracker {
     this.currentDownload = null;
   }
   addDownload(downloadState) {
+    if (this.downloadInProgress()) {
+      throw "Another download is in Progress!"
+    }
     this.currentDownload = downloadState;
   }
   removeDownload() {
@@ -83,19 +88,38 @@ class Package {
     this.children.forEach(child => PackagesState[child].markAsClicked(true));
 
     // at the end of the recursion we need to save the result to disk. The package actually clicked will have
-    // disabled = false
+    // disabled = false (disabled is marked as true when a parent was clicked).
     if (!disabled) {
       await AsyncStorage.setItem('packagesSelected', JSON.stringify(PackagesState))
+      await downloadPackage(this.name)
+    }
+  };
+  unclick = async function (activePackage=true) {
+    /*
+     * Set this package as desired = false. In addition to cleaning up this package, we will also use the opportunity to
+     * delete any books that may be downloaded but not desired by the user but may reside outside the package.
+     *
+     * activePackage: set to true when this is the package clicked. Will be set to false when recursing over children
+     */
+    if (!!activePackage && !!this.disabled ) {
+      throw "A disabled package cannot be active"
+    }
+
+    [this.clicked, this.disabled] = [false, false];
+    this.children.forEach(p => p.unclick(activePackage=false));
+    if (activePackage) {
+      await AsyncStorage.setItem('packagesSelected', JSON.stringify(PackagesState));
+      setDesiredBooks();
+      await deleteBooks(calculateBooksToDelete(BooksState));
     }
   }
 }
 
 class Book {
-  constructor(title, desired, localLastUpdated=0, remoteLastUpdated=0) {
+  constructor(title, desired, localLastUpdated=0) {
     this.title = title;
     this.desired = desired;
     this.localLastUpdated = new Date(localLastUpdated);
-    this.remoteLastUpdated = new Date(remoteLastUpdated);
   }
 }
 
@@ -121,27 +145,26 @@ function populatePackageState(pkgStateData) {
 }
 
 
-async function runDownload(downloadIsRunningHandler, downloadProgressHandler) {
-
-}
-
-
-function setupPackages() {
-  function platform() {
-    RNFB.fs.exists(RNFB.fs.dirs.DocumentDir + "/library/packages.json")
+function loadPlatformFile(filename) {
+    RNFB.fs.exists(RNFB.fs.dirs.DocumentDir + "/library/" + filename)
       .then(exists => {
         if (Platform.OS === "ios" || exists) {
-          const pkgPath = exists ? (`${RNFB.fs.dirs.DocumentDir}/library/packages.json`) :
-            `${RNFB.fs.dirs.MainBundleDir}/sources/packages.json`;
+          const pkgPath = exists ? (`${RNFB.fs.dirs.DocumentDir}/library/${filename}`) :
+            `${RNFB.fs.dirs.MainBundleDir}/sources/${filename}`;
           return Sefaria._loadJSON(pkgPath)
         }
         // bundled packages.json lives in a different place on android
-        else return RNFB.fs.readFile(RNFB.fs.asset('sources/packages.json'))
+        else return RNFB.fs.readFile(RNFB.fs.asset(`sources/${filename}`))
       })
   }
+
+
+
+function setupPackages() {
+
   return new Promise ((resolve, reject) => {
     Promise.all([
-      platform().then(pkgStateData => populatePackageState),
+      loadPlatformFile('packages.json').then(pkgStateData => populatePackageState),
       AsyncStorage.getItem("packagesSelected")
     ]).then(appState => {
       const [packageData, packagesSelected] = appState;
@@ -236,15 +259,10 @@ function getLocalBookList() {
 
 async function repopulateBooksState() {
   BooksState = {};
-  let packages = Object.values(PackagesState);
-  setDesiredBooks(packages);
+  setDesiredBooks();
   let localBooks = await getLocalBookList();
   await setLocalBookTimestamps(localBooks);
   return BooksState
-}
-
-async function getRemoteBookTimeStamps(bookTitleList) {
-
 }
 
 function deleteBooks(bookList) {
@@ -264,58 +282,61 @@ function deleteBooks(bookList) {
   })
 }
 
-async function downloadAndUnzipBooks(bookList) {
-  if (Tracker.downloadInProgress()) {
-    throw "Another Download is in Progress";
+async function unzipBundle() {
+  const unzipLocation = `${RNFB.fs.dirs.DocumentDir}/library`;
+  const dirExists = await RNFB.fs.isDir(unzipLocation);
+  if (!dirExists) {
+    try {
+      await RNFB.fs.mkdir(unzipLocation);
+    } catch (e) {
+      console.log(`error creating library folder: ${e}`)
+    }
   }
-
-  try {
-    await downloadBundle(bookList);
-  }
-  catch (error) {
-    return await handleDownloadError(error);
-  }
-  await setLocalBooksChecksums(bookList);
-  await RNFB.fs.unlink(BUNDLE_LOCATION);
+  await unzip(BUNDLE_LOCATION, `${RNFB.fs.dirs.DocumentDir}/library`);
   return null
 }
 
-function downloadBundle(bookList) {  // todo: We need two requests: POST to create the bundle and receive the zip url, and a GET to actually download the bundle
+function makeNewBundle(bookList) {
   return new Promise((resolve, reject) => {
-    const downloadState = RNFB.config({
-      IOSBackgroundTask: true,
-      indicator: true,
-      path: BUNDLE_LOCATION,
-      overwrite: true,
-    }).fetch(HOST_PATH + "/api/bundle", {
+    fetch(`${DOWNLOAD_SERVER}/makeBundle`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({'bookList': bookList})
-    });
-    Tracker.addDownload(downloadState);
-    downloadState.then(downloadResult => {
-      Tracker.removeDownload();
-      const status = downloadResult.info().status;
-      if (status >= 300 || status < 200) {
-        reject("Bad status");
-      }
-     resolve(downloadResult);
-    }).catch(err => reject(err));
-  });
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({books: bookList})
+    }).then(x => x.json()).then(x => resolve(x.bundle)).catch(err => reject(err))
+  })
 }
 
-function calculateBooksToDownload(booksState, remoteBookCheckSums) { // todo: use timestamps and not checksums
+async function downloadBundle(bundleName) {
+  const downloadState = RNFB.config({
+    IOSBackgroundTask: true,
+    indicator: true,
+    path: BUNDLE_LOCATION,
+    overwrite: true
+  }).fetch(`${HOST_PATH}/${bundleName}`);
+  try {
+    Tracker.addDownload(downloadState);
+  } catch (e) {
+    console.log(e)
+  }
+  const downloadResult = await downloadState;
+  Tracker.removeDownload();
+  const status = downloadResult.info().status;
+  if (status >= 300 || status < 200) {
+    throw "Bad download status"
+  }
+}
+
+async function calculateBooksToDownload(booksState) {
+  const remoteBookUpdates = await loadPlatformFile('last_updated.json');
   let booksToDownload = [];
   for (const bookTitle in booksState) {
     if (booksState.hasOwnProperty(bookTitle)){
       const bookObj = booksState[bookTitle];
       if (bookObj.desired) {
-        if (!(bookObj.checkSum)) {
+        if (!(bookObj.localLastUpdated)) {
           booksToDownload.push(bookTitle);
         }
-        else if (booksState[bookTitle].checkSum !== remoteBookCheckSums[bookTitle]) {
+        else if (booksState[bookTitle].localLastUpdated < remoteBookUpdates[bookTitle]) {
           booksToDownload.push(bookTitle);
         }
       }
@@ -325,12 +346,12 @@ function calculateBooksToDownload(booksState, remoteBookCheckSums) { // todo: us
 
 }
 
-function calculateBooksToDelete(booksState) { // todo use timestamps and not checksums
+function calculateBooksToDelete(booksState) {
   let booksToDelete = [];
   for (const bookTitle in booksState) {
     if (booksState.hasOwnProperty(bookTitle)) {
       const bookObj = booksState[bookTitle];
-      if (!bookObj.desired && !!(bookObj.checkSum)) {
+      if (!bookObj.desired && !!(bookObj.localLastUpdated)) {
         booksToDelete.push(bookTitle);
       }
     }
@@ -338,10 +359,74 @@ function calculateBooksToDelete(booksState) { // todo use timestamps and not che
   return booksToDelete;
 }
 
-function handleDownloadError(error) {
-  return new Promise((resolve, reject) => {
-    RNFB.fs.unlink(BUNDLE_LOCATION).then(reject(error))
-  })
+async function _executeDownload(bundleName) {
+  try {
+    await downloadBundle(bundleName);
+    await unzipBundle();
+  } catch (e) {
+    console.log(e)
+  } finally {
+    await RNFB.fs.unlink(BUNDLE_LOCATION);
+  }
+  // update our local book list
+  await repopulateBooksState()
 }
 
-export {downloadBundle, setupPackages, PackagesState, runDownload, Tracker};
+async function downloadPackage(packageName) {
+  await _executeDownload(`${packageName}.zip`)
+}
+
+async function downloadUpdate() {
+  const booksToDownload = await calculateBooksToDownload(BooksState);
+  const bundleName = await makeNewBundle(booksToDownload);
+  await _executeDownload(bundleName);
+
+  // we're going to use the update as an opportunity to do some cleanup
+  const booksToDelete = calculateBooksToDelete(BooksState);
+  await deleteBooks(booksToDelete);
+}
+
+
+function booksWereDownloaded() {
+  return Object.values(PackagesState).some(x => !!x.clicked)
+}
+
+async function deleteLibrary() {
+  const localBooks = await getLocalBookList()
+}
+
+async function checkUpdates() {
+  // todo: what did I want to do here?!
+}
+
+function promptLibraryUpdate(totalDownloads, newBooks) {
+  /*
+   * This is one of the few places we have UI components in this module. This is a point of control where the user
+   * can interact directly with the update logic. This interaction is not unique to any one page on the app. Conversely,
+   * any communication or UI logic that is unique to a particular app page or component should be written as part of
+   * that component.
+   */
+  const updates = totalDownloads - newBooks;
+  const updateString = `${newBooks} ${strings.newBooksAvailable}\n${updates} ${strings.updatesAvailableMessage}`;
+
+  const onCancel = function () {
+    Alert.alert(
+      strings.updateLater,
+      strings.howToUpdateLibraryMessage,
+      [
+        {text: strings.ok}
+      ])
+  };
+  Alert.alert(
+    strings.updateLibrary,
+    updateString,
+    [
+      {text: strings.download, onPress: downloadUpdate},
+      {text: strings.notNow, onPress: onCancel}
+    ]
+  )
+
+}
+
+
+export {downloadBundle, setupPackages, PackagesState, Tracker, booksWereDownloaded, checkUpdates};
