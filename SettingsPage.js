@@ -25,7 +25,15 @@ import {
 import { GlobalStateContext, DispatchContext, STATE_ACTIONS, getTheme } from './StateManager';
 import styles from './Styles';
 import strings from './LocalizedStrings';
-import { PackagesState, runDownload, booksWereDownloaded, Tracker as DownloadTracker, checkUpdates } from './DownloadControl';
+import {
+  PackagesState,
+  booksWereDownloaded,
+  Tracker as DownloadTracker,
+  checkUpdatesFromServer,
+  promptLibraryUpdate,
+  downloadPackage,
+  deleteLibrary as deleteLibraryControl
+} from './DownloadControl';
 
 const generateOptions = (options, onPress) => options.map(o => ({
   name: o,
@@ -56,10 +64,17 @@ const usePkgState = () => {
   const [isDisabledObj, setIsDisabledObj] = useState(getIsDisabledObj());  // React Hook
 
   const onPackagePress = (pkgObj) => {
-    const onPressActive = async (pkgName, activeDownloadHandler=null) => {
-      await PackagesState[pkgName].markAsClicked();
-      setIsDisabledObj(getIsDisabledObj());
-      await runDownload(activeDownloadHandler)  // todo: Download Refactor -> we got rid of the method runDownload
+    // todo: this needs to handle clicking and unclicking
+    const onPressActive = async (pkgName) => {
+      if (!!PackagesState[pkgName].clicked) { // if pressed when clicked, we are removing the package
+        await PackagesState[pkgName].unclick();
+        setIsDisabledObj(getIsDisabledObj())
+      }
+      else {
+        await PackagesState[pkgName].markAsClicked();
+        setIsDisabledObj(getIsDisabledObj());
+        await downloadPackage(pkgName);
+      }
     };
     const parent = pkgObj.parent;
     const shortIntLang = interfaceLanguage.slice(0,2);
@@ -77,11 +92,23 @@ const usePkgState = () => {
 
 function abstractUpdateChecker(disableUpdateComponent) {
   async function f() {
-    // todo: download refactor: Move all UI elements here. No UI elements should be within DownloadControl.js
     disableUpdateComponent(true);
     try {
-      await checkUpdates();
-    } finally {
+      const [totalDownloads, newBooks] = await checkUpdatesFromServer();
+      if (totalDownloads > 0) {
+        promptLibraryUpdate(totalDownloads, newBooks);
+      }
+      else {
+        Alert.alert(
+          strings.libraryUpToDate,
+          strings.libraryUpToDateMessage,
+          [
+            {text: strings.ok}
+          ])}
+    } catch (e) {
+      console.log(e);  // todo: proper error handling
+    }
+    finally {
       disableUpdateComponent(false);
     }
   }
@@ -94,34 +121,14 @@ const SettingsPage = ({ close, logout, openUri }) => {
   const { isDisabledObj, setIsDisabledObj, onPackagePress } = usePkgState();
   const theme = getTheme(themeStr);
   const [updatesDisabled, setUpdatesDisabled] = useState(false);
-  const checkUpdates = abstractUpdateChecker(setUpdatesDisabled);
+  const checkUpdatesForSettings = abstractUpdateChecker(setUpdatesDisabled);
 
   const deleteLibrary = async () => {
-    await Sefaria.downloader.deleteLibrary();  // todo: implement this logic
+    await deleteLibraryControl();
     setIsDisabledObj(getIsDisabledObj);
   };
 
-  const onDebugNoLibraryTouch = () => { // todo: check if we can remove this method
-    setNumPressesDebug(numPressesDebug+1);
-    if (numPressesDebug >= 7) {
-      setNumPressesDebug(0);
-      Sefaria.downloader._setData("debugNoLibrary",!Sefaria.downloader._data.debugNoLibrary);
-      Alert.alert(
-        'Testing Library Mode',
-        `You\'ve just ${Sefaria.downloader._data.debugNoLibrary ? "disabled" : "enabled"} library access. You can change this setting by tapping "OFFLINE ACCESS" seven times.`,
-        [
-          {text: 'OK', onPress: ()=>{}},
-        ]
-      );
-    }
-  };
-
   const langStyle = interfaceLanguage === "hebrew" ? styles.heInt : styles.enInt;
-  // Todo: is this logic necessary?
-  var nDownloaded = Sefaria.downloader.titlesDownloaded().length;
-  var nAvailable  = Sefaria.downloader.titlesAvailable().length;
-  var nUpdates    = Sefaria.downloader.updatesAvailable().length;
-  var updatesOnly = !!nUpdates && nDownloaded == nAvailable;
   return (
     <View style={[styles.menu, theme.menu]}>
       <CategoryColorLine category={"Other"} />
@@ -140,7 +147,7 @@ const SettingsPage = ({ close, logout, openUri }) => {
 
         {booksWereDownloaded() ?
           <View>
-            <TouchableOpacity style={styles.button} disabled={updatesDisabled} onPress={checkUpdates}>
+            <TouchableOpacity style={styles.button} disabled={updatesDisabled} onPress={checkUpdatesForSettings}>
               <Text style={[langStyle, styles.buttonText]}>{updatesDisabled ? strings.checking : strings.checkForUpdates}</Text>
             </TouchableOpacity>
 
@@ -241,7 +248,7 @@ const OfflinePackageList = ({ isDisabledObj, onPackagePress }) => {
         Object.values(PackagesState).sort((a, b) => b.order - a.order).map(p => {
           const isSelected = p.clicked;
           const {isD, setDownload} = useState(false);
-           const onPress = () => { onPackagePress(p, setDownload); };  // Todo: download refactor -> trigger the download here
+           const onPress = () => { onPackagePress(p, setDownload); };
 
           return (
             <View key={`${p.en}|${isDisabledObj[p.en]}|parent`}>
@@ -257,7 +264,7 @@ const OfflinePackageList = ({ isDisabledObj, onPackagePress }) => {
                 withArrow={false}
               />
             { isD ?
-                <SefariaProgressBar  // todo: I believe we can hook this into RNFB
+                <SefariaProgressBar
                   download={DownloadTracker}
                 /> : null
               }

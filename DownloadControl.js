@@ -8,7 +8,8 @@ import AsyncStorage from "@react-native-community/async-storage";
 
 const SCHEMA_VERSION = "6";
 const DOWNLOAD_SERVER = "https://readonly.sefaria.org";
-const HOST_PATH = `${DOWNLOAD_SERVER}/static/ios-export/${SCHEMA_VERSION}/bundles`;
+const HOST_PATH = `${DOWNLOAD_SERVER}/static/ios-export/${SCHEMA_VERSION}`;
+const HOST_BUNDLE_URL = `${HOST_PATH}/bundles`;
 const BUNDLE_LOCATION = RNFB.fs.dirs.DocumentDir + "/tmp/bundle.zip";
 
 
@@ -76,6 +77,10 @@ class Package {
      * child is disabled. In the event that a child was marked before it's parent, the `disabled` parameter will trickle
      * down when the parent is marked. In case the parent was already marked, we'll will look up the parent in
      * PackagesState.
+     *
+     * We've separated the concerns of marking which packages were clicked and actually downloading packages. Keeping
+     * this distinction is important both for usability (we can run UI logic between the click and when the download
+     * starts) and for maintainability.
      */
     this.clicked = true;
     if (disabled) {
@@ -90,8 +95,7 @@ class Package {
     // at the end of the recursion we need to save the result to disk. The package actually clicked will have
     // disabled = false (disabled is marked as true when a parent was clicked).
     if (!disabled) {
-      await AsyncStorage.setItem('packagesSelected', JSON.stringify(PackagesState))
-      await downloadPackage(this.name)
+      await AsyncStorage.setItem('packagesSelected', JSON.stringify(PackagesState));
     }
   };
   unclick = async function (activePackage=true) {
@@ -110,17 +114,32 @@ class Package {
     if (activePackage) {
       await AsyncStorage.setItem('packagesSelected', JSON.stringify(PackagesState));
       setDesiredBooks();
+
+      // do we want to separate the concerns here? Less of an issue as there is not a network dependency
       await deleteBooks(calculateBooksToDelete(BooksState));
     }
   }
 }
 
 class Book {
-  constructor(title, desired, localLastUpdated=0) {
+  constructor(title, desired, localLastUpdated=null) {
     this.title = title;
     this.desired = desired;
-    this.localLastUpdated = new Date(localLastUpdated);
+    if (!!localLastUpdated)
+      this.localLastUpdated = new Date(localLastUpdated);
+    else
+      this.localLastUpdated = null;
   }
+}
+
+
+function downloadFilePromise(fileUrl, filepath) {
+  return RNFB.config({
+    IOSBackgroundTask: true,
+    indicator: true,
+    path: filepath,
+    overwrite: true
+  }).fetch(encodeURIComponent(fileUrl))
 }
 
 
@@ -151,7 +170,7 @@ function loadPlatformFile(filename) {
         if (Platform.OS === "ios" || exists) {
           const pkgPath = exists ? (`${RNFB.fs.dirs.DocumentDir}/library/${filename}`) :
             `${RNFB.fs.dirs.MainBundleDir}/sources/${filename}`;
-          return Sefaria._loadJSON(pkgPath)
+          return Sefaria._loadJSON(pkgPath)  // todo: we want to remove the Sefaria dependency
         }
         // bundled packages.json lives in a different place on android
         else return RNFB.fs.readFile(RNFB.fs.asset(`sources/${filename}`))
@@ -192,6 +211,9 @@ function setDesiredBooks() {
     Object.keys(BooksState).forEach(b => BooksState[b].desired = true)
   }
   else {
+    // mark all books as not desired as a starting point
+    Object.values(BooksState).map(x => x.desired=false);
+
     Object.values(PackagesState).filter(x => {
       /*
        * All books in packages marked desired should be flagged as desired. COMPLETE LIBRARY is a special case and
@@ -307,12 +329,7 @@ function makeNewBundle(bookList) {
 }
 
 async function downloadBundle(bundleName) {
-  const downloadState = RNFB.config({
-    IOSBackgroundTask: true,
-    indicator: true,
-    path: BUNDLE_LOCATION,
-    overwrite: true
-  }).fetch(`${HOST_PATH}/${bundleName}`);
+  const downloadState = downloadFilePromise(`${HOST_BUNDLE_URL}/${encodeURIComponent(bundleName)}`);
   try {
     Tracker.addDownload(downloadState);
   } catch (e) {
@@ -376,8 +393,10 @@ async function downloadPackage(packageName) {
   await _executeDownload(`${packageName}.zip`)
 }
 
-async function downloadUpdate() {
-  const booksToDownload = await calculateBooksToDownload(BooksState);
+async function downloadUpdate(booksToDownload=null) {
+  if (!!booksToDownload){
+    booksToDownload = await calculateBooksToDownload(BooksState);
+  }
   const bundleName = await makeNewBundle(booksToDownload);
   await _executeDownload(bundleName);
 
@@ -391,12 +410,43 @@ function booksWereDownloaded() {
   return Object.values(PackagesState).some(x => !!x.clicked)
 }
 
-async function deleteLibrary() {
-  const localBooks = await getLocalBookList()
+function booksNotDownloaded(bookList) {
+  /*
+   * check a list of book titles against the BooksState to see which books in the list were not downloaded.
+   * !IMPORTANT! Book data should only be derived from the files saved on disk. This method should be used only for
+   * telegraphing information to the user, state should not be changed based on the results of this method.
+   */
+  return bookList.filter(x => !(x in BooksState) || !(BooksState[x].localLastUpdated))
 }
 
-async function checkUpdates() {
-  // todo: what did I want to do here?!
+async function deleteLibrary() {
+  await PackagesState['COMPLETE LIBRARY'].unclick()
+}
+
+async function downloadCoreFile(filename) {
+  const tmpFolder = `${RNFB.fs.DocumentDir}/tmp`;
+  const exists = await RNFB.fs.exists(tmpFolder);
+  if (!exists) {
+    await RNFB.fs.mkdir()
+  }
+  const [fileUrl, tempPath] = [`${HOST_PATH}/${filename}`, `${RNFB.fs.DocumentDir}/tmp/${filename}`];
+  const downloadResp = await downloadFilePromise(fileUrl, tempPath);
+  const status = downloadResp.info().status;
+  if (status >= 300 || status < 200) {
+    await RNFB.fs.unlink(tempPath);
+    throw new Error(`bad download status; got : ${status}`);
+  }
+  await RNFB.mv(tempPath, `${RNFB.fs.DocumentDir}/library/${filename}`);
+}
+
+async function checkUpdatesFromServer() {
+  try {
+    await downloadCoreFile('last_updated.json');
+  } catch (e) {
+    console.log(e)
+  }
+  const allBooksToDownload = await calculateBooksToDownload(BooksState);
+  return [allBooksToDownload, booksNotDownloaded(allBooksToDownload)]
 }
 
 function promptLibraryUpdate(totalDownloads, newBooks) {
@@ -406,8 +456,8 @@ function promptLibraryUpdate(totalDownloads, newBooks) {
    * any communication or UI logic that is unique to a particular app page or component should be written as part of
    * that component.
    */
-  const updates = totalDownloads - newBooks;
-  const updateString = `${newBooks} ${strings.newBooksAvailable}\n${updates} ${strings.updatesAvailableMessage}`;
+  const updates = totalDownloads.length - newBooks.length;
+  const updateString = `${newBooks.length} ${strings.newBooksAvailable}\n${updates} ${strings.updatesAvailableMessage}`;
 
   const onCancel = function () {
     Alert.alert(
@@ -421,7 +471,7 @@ function promptLibraryUpdate(totalDownloads, newBooks) {
     strings.updateLibrary,
     updateString,
     [
-      {text: strings.download, onPress: downloadUpdate},
+      {text: strings.download, onPress: () => downloadUpdate(totalDownloads)},
       {text: strings.notNow, onPress: onCancel}
     ]
   )
@@ -429,4 +479,14 @@ function promptLibraryUpdate(totalDownloads, newBooks) {
 }
 
 
-export {downloadBundle, setupPackages, PackagesState, Tracker, booksWereDownloaded, checkUpdates};
+export {
+  downloadBundle,
+  setupPackages,
+  PackagesState,
+  Tracker,
+  booksWereDownloaded,
+  checkUpdatesFromServer,
+  promptLibraryUpdate,
+  downloadPackage,
+  deleteLibrary
+};
