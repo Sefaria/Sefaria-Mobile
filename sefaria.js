@@ -1449,15 +1449,12 @@ Sefaria.hebrew = {
   },
   encodeHebrewNumeral: function(n) {
     // Takes an integer and returns a string encoding it as a Hebrew numeral.
-    if (n >= 900) {
+    n = parseInt(n);
+    if (n >= 1300) {
       return n;
     }
 
     var values = Sefaria.hebrew.hebrewNumerals;
-
-    if (n == 15 || n == 16) {
-      return values[n];
-    }
 
     var heb = "";
     if (n >= 100) {
@@ -1465,26 +1462,30 @@ Sefaria.hebrew = {
       heb += values[hundreds];
       n -= hundreds;
     }
-    if (n >= 10) {
-      var tens = n - (n % 10);
-      heb += values[tens];
-      n -= tens;
-    }
-
-    if (n > 0) {
+    if (n === 15 || n === 16) {
+      // Catch 15/16 no matter what the hundreds column says
       heb += values[n];
+    } else {
+      if (n >= 10) {
+        var tens = n - (n % 10);
+        heb += values[tens];
+        n -= tens;
+      }
+      if (n > 0) {
+        if (!values[n]) {
+            return undefined
+        }
+        heb += values[n];
+      }
     }
 
     return heb;
   },
   encodeHebrewDaf: function(daf, form) {
     // Ruturns Hebrew daf strings from "32b"
-    //if not in form of 32b, returns null
     var form = form || "short"
     var n = parseInt(daf.slice(0,-1));
     var a = daf.slice(-1);
-    if (a != 'a' && a != 'b')
-      return null; //ERROR
     if (form === "short") {
       a = {a: ".", b: ":"}[a];
       return Sefaria.hebrew.encodeHebrewNumeral(n) + a;
