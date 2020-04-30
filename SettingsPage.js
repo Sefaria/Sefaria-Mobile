@@ -27,7 +27,7 @@ import styles from './Styles';
 import strings from './LocalizedStrings';
 import {
   PackagesState,
-  booksWereDownloaded,
+  wereBooksDownloaded,
   Tracker as DownloadTracker,
   checkUpdatesFromServer,
   promptLibraryUpdate,
@@ -145,7 +145,7 @@ const SettingsPage = ({ close, logout, openUri }) => {
 
         <View style={[styles.readerDisplayOptionsMenuDivider, styles.settingsDivider, theme.readerDisplayOptionsMenuDivider]}/>
 
-        {booksWereDownloaded() ?
+        {wereBooksDownloaded() ?
           <View>
             <TouchableOpacity style={styles.button} disabled={updatesDisabled} onPress={checkUpdatesForSettings}>
               <Text style={[langStyle, styles.buttonText]}>{updatesDisabled ? strings.checking : strings.checkForUpdates}</Text>

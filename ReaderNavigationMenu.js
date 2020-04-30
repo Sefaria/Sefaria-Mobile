@@ -30,6 +30,10 @@ import ReaderNavigationCategoryMenu from './ReaderNavigationCategoryMenu';
 import ReaderNavigationSheetMenu from './ReaderNavigationSheetMenu';
 import styles from './Styles.js';
 import strings from './LocalizedStrings.js';
+import {
+  getLocalBookList,
+  getFullBookList
+} from './DownloadControl'
 
 
 const ReaderNavigationMenu = props => {
@@ -211,9 +215,7 @@ AuthSection.propTypes = {
   logout: PropTypes.func.isRequired,
 };
 
-const getEmailBody = () => {
-  let nDownloaded = Sefaria.downloader.titlesDownloaded().length;
-  const nAvailable  = Sefaria.downloader.titlesAvailable().length;
+const getEmailBody = (nDownloaded, nAvailable) => {
   nDownloaded = nDownloaded <= nAvailable ? nDownloaded : nAvailable;
   return encodeURIComponent(`App Version: ${VersionNumber.appVersion}
           Texts Downloaded: ${nDownloaded} / ${nAvailable}
@@ -257,7 +259,8 @@ const MoreSection = ({ isHeb, openUri, openSettings }) => {
     openUri("https://www.sefaria.org/about");
   };
   const onFeedback = () => {
-    Linking.openURL(`mailto:hello@sefaria.org?subject=${encodeURIComponent(Platform.OS+" App Feedback")}&body=${getEmailBody()}`);
+    Promise.all([getLocalBookList(), getFullBookList()]).then(x =>
+    Linking.openURL(`mailto:hello@sefaria.org?subject=${encodeURIComponent(Platform.OS+" App Feedback")}&body=${getEmailBody(...x)}`));
   };
   return (
     <View style={styles.readerNavSection}>

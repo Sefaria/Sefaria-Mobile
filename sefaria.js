@@ -15,7 +15,10 @@ import { initAsyncStorage } from './StateManager';
 import { Filter } from './Filter';
 import URL from 'url-parse';
 import analytics from '@react-native-firebase/analytics';
-import {setupPackages} from './DownloadControl'
+import {
+  setupPackages,
+  loadJSONFile
+} from './DownloadControl'
 
 const ERRORS = {
   NOT_OFFLINE: 1,
@@ -213,7 +216,6 @@ Sefaria = {
           //console.error("Error with API: ", Sefaria.api._toURL(ref, false, 'text', true));
           reject(error);
       });
-      Sefaria.downloader.prioritizeDownload(bookRefStem);
     });
   },
   _jsonData: {}, // in memory cache for JSON data
@@ -221,7 +223,7 @@ Sefaria = {
   textTitleForRef: function(ref) {
     // Returns the book title named in `ref` by examining the list of known book titles.
     for (let i = ref.length; i >= 0; i--) {
-      book = ref.slice(0, i);
+      let book = ref.slice(0, i);
       if (book in Sefaria.booksDict) {
         return book;
       }
@@ -693,19 +695,7 @@ Sefaria = {
     return unzip(zipSourcePath, RNFB.fs.dirs.DocumentDir);
   },
   _loadJSON: function(JSONSourcePath) {
-    return new Promise((resolve, reject) => {
-      RNFB.fs.readFile(JSONSourcePath).then(result => {
-        try {
-          resolve(JSON.parse(result));
-          return;
-        } catch (e) {
-          resolve({}); // if file can't be parsed, fall back to empty object
-        }
-        resolve(JSON.parse(result));
-      }).catch(e => {
-        reject(e);
-      });
-    });
+    return loadJSONFile(JSONSourcePath)
   },
   _JSONSourcePath: function(fileName) {
     return (RNFB.fs.dirs.DocumentDir + "/" + fileName + ".json");

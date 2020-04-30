@@ -19,22 +19,26 @@ let PackagesState = {};
 class DownloadTracker {
   constructor() {
     this.currentDownload = null;
+    this.subscriptions = {};
   }
   addDownload(downloadState) {
+    this.notify(true);
     if (this.downloadInProgress()) {
       throw "Another download is in Progress!"
     }
     this.currentDownload = downloadState;
+    this.currentDownload.finally(() => this.removeDownload())
   }
   removeDownload() {
     this.currentDownload = false;
+    this.notify(false)
   }
   downloadInProgress() {
     return (!!this.currentDownload);
   }
   cancelDownload() {
     if (!!this.currentDownload) {
-      this.currentDownload.cancel();
+      this.currentDownload.cancel().then(this.removeDownload());
     }
     else {
       throw "No download to cancel"
@@ -44,6 +48,20 @@ class DownloadTracker {
     if (this.downloadInProgress()) {
       this.currentDownload.progress(config, progressTracker);
     }
+  }
+  subscribe(listenerName, listenerFunc) {
+    /*
+     * add a function that will be updated when downloads begin and finish. Function should accept a boolean. A
+     * name must be supplied as well. This will avoid a single method subscribing multiple times, as well as allowing
+     * for unsubscribing.
+     */
+    this.subscriptions[listenerName] = listenerFunc;
+  }
+  unsubscribe(listenerName) {
+    delete this.subscriptions[listenerName];
+  }
+  notify(value) {
+    Object.values(this.subscriptions).map(x => x(value))
   }
 }
 
@@ -163,27 +181,48 @@ function populatePackageState(pkgStateData) {
   return Promise.resolve(PackagesState)
 }
 
+function loadJSONFile(JSONSourcePath) {
+  return new Promise((resolve, reject) => {
+    RNFB.fs.readFile(JSONSourcePath).then(result => {
+      try {
+        resolve(JSON.parse(result));
+        return;
+      } catch (e) {
+        resolve({}); // if file can't be parsed, fall back to empty object
+      }
+      resolve(JSON.parse(result));
+    }).catch(e => {
+      reject(e);
+    });
+  })
+}
 
-function loadPlatformFile(filename) {
-    RNFB.fs.exists(RNFB.fs.dirs.DocumentDir + "/library/" + filename)
-      .then(exists => {
-        if (Platform.OS === "ios" || exists) {
-          const pkgPath = exists ? (`${RNFB.fs.dirs.DocumentDir}/library/${filename}`) :
-            `${RNFB.fs.dirs.MainBundleDir}/sources/${filename}`;
-          return Sefaria._loadJSON(pkgPath)  // todo: we want to remove the Sefaria dependency
-        }
-        // bundled packages.json lives in a different place on android
-        else return RNFB.fs.readFile(RNFB.fs.asset(`sources/${filename}`))
-      })
-  }
+function loadCoreFile(filename) {
+  RNFB.fs.exists(RNFB.fs.dirs.DocumentDir + "/library/" + filename)
+  .then(exists => {
+    if (Platform.OS === "ios" || exists) {
+      const pkgPath = exists ? (`${RNFB.fs.dirs.DocumentDir}/library/${filename}`) :
+        `${RNFB.fs.dirs.MainBundleDir}/sources/${filename}`;
+      return loadJSONFile(pkgPath)
+    }
+    // bundled packages.json lives in a different place on android
+    else return RNFB.fs.readFile(RNFB.fs.asset(`sources/${filename}`).then(x => JSON.parse(x)))
+  })
+}
 
-
+function getFullBookList() {
+  // load books as defined in last_updated.json. Does not download a new file
+  return new Promise((resolve, reject) => {
+    loadCoreFile('last_updated.json').then(x => {
+      resolve(Object.keys(x.titles))
+    }).catch(e => reject(e))
+  })
+}
 
 function setupPackages() {
-
   return new Promise ((resolve, reject) => {
     Promise.all([
-      loadPlatformFile('packages.json').then(pkgStateData => populatePackageState),
+      loadCoreFile('packages.json').then(pkgStateData => populatePackageState(pkgStateData)),
       AsyncStorage.getItem("packagesSelected")
     ]).then(appState => {
       const [packageData, packagesSelected] = appState;
@@ -208,7 +247,7 @@ function setupPackages() {
 
 function setDesiredBooks() {
   if (PackagesState['COMPLETE LIBRARY'].clicked) {
-    Object.keys(BooksState).forEach(b => BooksState[b].desired = true)
+    Object.keys(BooksState).forEach(b => BooksState[b].desired = true)  // todo: BooksState doesn't contain every book
   }
   else {
     // mark all books as not desired as a starting point
@@ -344,7 +383,7 @@ async function downloadBundle(bundleName) {
 }
 
 async function calculateBooksToDownload(booksState) {
-  const remoteBookUpdates = await loadPlatformFile('last_updated.json');
+  const remoteBookUpdates = await loadCoreFile('last_updated.json');
   let booksToDownload = [];
   for (const bookTitle in booksState) {
     if (booksState.hasOwnProperty(bookTitle)){
@@ -406,7 +445,7 @@ async function downloadUpdate(booksToDownload=null) {
 }
 
 
-function booksWereDownloaded() {
+function wereBooksDownloaded() {
   return Object.values(PackagesState).some(x => !!x.clicked)
 }
 
@@ -484,9 +523,12 @@ export {
   setupPackages,
   PackagesState,
   Tracker,
-  booksWereDownloaded,
+  wereBooksDownloaded,
   checkUpdatesFromServer,
   promptLibraryUpdate,
   downloadPackage,
-  deleteLibrary
+  deleteLibrary,
+  loadJSONFile,
+  getLocalBookList,
+  getFullBookList
 };

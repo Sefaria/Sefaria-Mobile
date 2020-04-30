@@ -143,6 +143,7 @@ class ReaderApp extends React.PureComponent {
         isNewSearch: false,
         ReaderDisplayOptionsMenuVisible: false,
         overwriteVersions: true, // false when you navigate to a text but dont want the current version to overwrite your sticky version
+        activeDownload: false, // true when downloading a package / update.
     };
   }
 
@@ -172,6 +173,7 @@ class ReaderApp extends React.PureComponent {
         SoundPlayer.playSoundFile('grogger', 'mp3');
       }
     });
+    DownloadTracker.subscribe('ReaderApp', this.changeDownloadState)
   }
 
   logout = async () => {
@@ -206,6 +208,7 @@ class ReaderApp extends React.PureComponent {
     Linking.removeEventListener('url', this.handleOpenURL);
     AppState.removeEventListener('change', this.appStateChangeListener);
     RNShake.removeEventListener('ShakeEvent');
+    DownloadTracker.unsubscribe('ReaderApp')
   }
 
   initFiles = () => {
@@ -2036,6 +2039,11 @@ class ReaderApp extends React.PureComponent {
       </PinchGestureHandler>
     );
   }
+  changeDownloadState(value) {
+    this.setState({
+      activeDownload: value
+    })
+  }
 
   render() {
     /*
@@ -2045,11 +2053,7 @@ class ReaderApp extends React.PureComponent {
     if (cat) {
       style = {backgroundColor: Sefaria.util.lightenDarkenColor(Sefaria.palette.categoryColor(cat), -25)};
     }*/
-    const isD = Sefaria.downloader.downloading;
-    const nAvailable = isD ? Sefaria.downloader.titlesAvailable().filter(t => Sefaria.packages.titleIsSelected(t)).length : 0;
-    const { newBooks, updates } = Sefaria.downloader.updatesAvailable();
-    const allUpdates = newBooks.concat(updates);
-    const nUpdates = isD ? allUpdates.filter(t => Sefaria.packages.titleIsSelected(t)).length : 0;
+    const isD = this.state.activeDownload;
     return (
       <View style={{flex:1}}>
         <SafeAreaView style={styles.safeArea}>
@@ -2058,7 +2062,7 @@ class ReaderApp extends React.PureComponent {
                 barStyle="light-content"
               />
               {
-                DownloadTracker.downloadInProgress() && this.state.menuOpen !== 'settings' ?
+                isD && this.state.menuOpen !== 'settings' ?
                 <SefariaProgressBar
                    // todo: Hook into RNFB
                   onPress={()=>{ this.openMenu("settings")}}
