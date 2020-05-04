@@ -57,7 +57,10 @@ import SheetMetadata from "./SheetMeta.js";
 import DeepLinkRouter from "./DeepLinkRouter.js";
 import { AuthPage } from "./AuthPage";
 import Dedication from  "./Dedication"
-import { Tracker as DownloadTracker } from "./DownloadControl.js"
+import {
+  Tracker as DownloadTracker,
+  promptLibraryUpdate
+} from "./DownloadControl.js"
 
 
 
@@ -166,8 +169,6 @@ class ReaderApp extends React.PureComponent {
       this.networkChangeListener
     );
     BackHandler.addEventListener('hardwareBackPress', this.manageBack);
-    AppState.addEventListener('change', this.appStateChangeListener);
-    Sefaria.downloader.onChange = this.onDownloaderChange;  // todo downloadRefactor: what is this doing?
     RNShake.addEventListener('ShakeEvent', () => {
       if (Sefaria.isGettinToBePurimTime()) {
         SoundPlayer.playSoundFile('grogger', 'mp3');
@@ -192,23 +193,47 @@ class ReaderApp extends React.PureComponent {
     console.log(type)
   };
 
-  appStateChangeListener = state => {
-    if (state == "active") {
-      Sefaria.downloader.resumeDownload();
-    }
-  };
-
   componentWillUnmount() {
-    Sefaria.downloader.onChange = null;
     BackHandler.removeEventListener('hardwareBackPress', this.manageBack);
     NetInfo.isConnected.removeEventListener(
       'connectionChange',
       this.networkChangeListener
     );
     Linking.removeEventListener('url', this.handleOpenURL);
-    AppState.removeEventListener('change', this.appStateChangeListener);
     RNShake.removeEventListener('ShakeEvent');
     DownloadTracker.unsubscribe('ReaderApp')
+  }
+
+  promptLibraryDownload() {
+    AsyncStorage.getItem("libraryDownloadPrompted").
+    then(async (prompted) => {
+      await AsyncStorage.setItem("libraryDownloadPrompted", "true");
+      if (!prompted) {
+        const onDownload = () => {
+
+          this.openMenu("settings")
+        };
+        const onCancel = () => {
+          Alert.alert(
+            strings.usingOnlineLibrary,
+            strings.howToDownloadLibraryMessage,
+            [
+              {text: strings.ok}
+            ]);
+        };
+        const showWelcomeAlert = () => {
+          Alert.alert(
+            strings.welcome,
+            strings.downloadLibraryRecommendedMessage,
+            [
+              {text: strings.openSettings, onPress: onDownload},
+              {text: strings.notNow, onPress: onCancel}
+            ]
+          );
+        };
+        showWelcomeAlert();
+      }
+    });
   }
 
   initFiles = () => {
@@ -226,7 +251,7 @@ class ReaderApp extends React.PureComponent {
           .then(Sefaria.postInitSearch)
           .then(Sefaria.postInit)
           .then(() => { this.setState({_completedInit: true}); })
-          .then(Sefaria.downloader.promptLibraryDownload);
+          .then(this.promptLibraryDownload);
         } else {
           // apply deep link here to make sure it applies correctly
           // load search files before deep link incase deep link is to search
@@ -236,7 +261,7 @@ class ReaderApp extends React.PureComponent {
           })
           .then(Sefaria.postInit)
           .then(() => { this.setState({_completedInit: true}); })
-          .then(Sefaria.downloader.promptLibraryDownload);
+          .then(this.promptLibraryDownload);
         }
     });
   }
@@ -2066,7 +2091,7 @@ class ReaderApp extends React.PureComponent {
                 <SefariaProgressBar
                    // todo: Hook into RNFB
                   onPress={()=>{ this.openMenu("settings")}}
-                  onClose={DownloadTracker.cancelDownload}  // todo: download refactor -> delete download here
+                  onClose={DownloadTracker.cancelDownload}
                   download={DownloadTracker}
                 /> : null
               }

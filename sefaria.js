@@ -1356,13 +1356,9 @@ Sefaria.util = {
   }
 };
 
-Sefaria.downloader = Downloader;
-
 Sefaria.api = Api;
 
 Sefaria.history = History;
-
-Sefaria.packages = Packages;
 
 Sefaria.hebrew = {
   hebrewNumerals: {

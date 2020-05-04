@@ -9,7 +9,7 @@ import { ButtonToggleSetNew } from '../Misc';
 import TestContextWrapper from '../TestContextWrapper';
 
 test('settings buttons', async () => {
-  Sefaria.packages.available = [];
+  // Sefaria.packages.available = [];  // todo: download refactor check how this is used and adapt
   Sefaria.util.epoch_time = jest.fn()
     .mockReturnValueOnce(1)
     .mockReturnValueOnce(2)

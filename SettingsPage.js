@@ -1,7 +1,7 @@
 'use strict';
 
 import PropTypes from 'prop-types';
-import React, { useContext, useState, useRef } from 'react';
+import React, { useContext, useState, useRef, useEffect } from 'react';
 import {
   StyleSheet,
   Text,
@@ -41,7 +41,7 @@ const generateOptions = (options, onPress) => options.map(o => ({
   onPress: () => { onPress(o); },
 }));
 
-const getIsDisabledObj = () => {  // a Package object has a disabled field
+const getIsDisabledObj = () => {
   const isDisabledObj = {};
   for (let [pkgName, pkgObj] of Object.entries(PackagesState)) {
     isDisabledObj[pkgName] = !!pkgObj.disabled;
@@ -63,14 +63,14 @@ const usePkgState = () => {
   const { interfaceLanguage } = useContext(GlobalStateContext);
   const [isDisabledObj, setIsDisabledObj] = useState(getIsDisabledObj());  // React Hook
 
-  const onPackagePress = (pkgObj) => {
-    // todo: this needs to handle clicking and unclicking
+  const onPackagePress = (pkgObj, setDownloadFunction) => {
     const onPressActive = async (pkgName) => {
       if (!!PackagesState[pkgName].clicked) { // if pressed when clicked, we are removing the package
         await PackagesState[pkgName].unclick();
         setIsDisabledObj(getIsDisabledObj())
       }
       else {
+        DownloadTracker.subscribe('settingsPagePackageDownload', setDownloadFunction);
         await PackagesState[pkgName].markAsClicked();
         setIsDisabledObj(getIsDisabledObj());
         await downloadPackage(pkgName);
@@ -240,8 +240,12 @@ const ButtonToggleSection = ({ langStyle }) => {
 
 const OfflinePackageList = ({ isDisabledObj, onPackagePress }) => {
 
-  // num available = all available filtered to p.indexes or unfiltered
-  // nupdates = all updates filtered to p.indexes or unfiltered
+  // We set up a subscription to the download tracker when a package is clicked. We need to make sure this is cleaned up
+  useEffect(() => {
+    return () => {
+      DownloadTracker.unsubscribe('settingsPagePackageDownload');
+    }  // we can use the isDisabledObj prop to limit when we unsubscribe. Unclear if this is necessary at this point.
+  });
   return (
     <View style={styles.settingsOfflinePackages}>
       {

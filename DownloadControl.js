@@ -16,6 +16,20 @@ const BUNDLE_LOCATION = RNFB.fs.dirs.DocumentDir + "/tmp/bundle.zip";
 let BooksState = {};
 let PackagesState = {};
 
+/*
+ * A note on package tracking:
+ * The PackagesState object contains detailed data on packages. This object is a combination of the file packages.json
+ * and the data stored in AsyncStorage under the key packagesSelected.
+ * packagesSelected is a simple mapping of packageName -> bool
+ */
+function selectedPackages() {
+  let selections = {};
+  for (let [packageTitle, packObj] of Object.entries(PackagesState)) {
+    selections[packageTitle] = packObj.clicked &! packObj.disabled;
+  }
+  return selections
+}
+
 class DownloadTracker {
   constructor() {
     this.currentDownload = null;
@@ -113,7 +127,7 @@ class Package {
     // at the end of the recursion we need to save the result to disk. The package actually clicked will have
     // disabled = false (disabled is marked as true when a parent was clicked).
     if (!disabled) {
-      await AsyncStorage.setItem('packagesSelected', JSON.stringify(PackagesState));
+      await AsyncStorage.setItem('packagesSelected', JSON.stringify(selectedPackages()));
     }
   };
   unclick = async function (activePackage=true) {
@@ -130,7 +144,7 @@ class Package {
     [this.clicked, this.disabled] = [false, false];
     this.children.forEach(p => p.unclick(activePackage=false));
     if (activePackage) {
-      await AsyncStorage.setItem('packagesSelected', JSON.stringify(PackagesState));
+      await AsyncStorage.setItem('packagesSelected', JSON.stringify(selectedPackages()));
       setDesiredBooks();
 
       // do we want to separate the concerns here? Less of an issue as there is not a network dependency
@@ -162,6 +176,7 @@ function downloadFilePromise(fileUrl, filepath) {
 
 
 function populatePackageState(pkgStateData) {
+  // pkgStateData is packages.json
   PackagesState = {};
   pkgStateData.forEach((pkgData, index) => {
     PackagesState[pkgData['en']] = new Package(pkgData, index);
@@ -238,7 +253,7 @@ function setupPackages() {
       falseSelections.map(x => delete packagesSelected[x]);
       AsyncStorage.setItem('packagesSelected', JSON.stringify(packagesSelected)).then(resolve()).catch(error => {
         console.error(`AsyncStorage failed to save: ${error}`);
-        reject();
+        reject(error);
       })
     })
   })
@@ -479,6 +494,9 @@ async function downloadCoreFile(filename) {
 }
 
 async function checkUpdatesFromServer() {
+  let timestamp = new Date().toJSON();
+  await AsyncStorage.setItem('lastUpdateCheck', timestamp);
+  await AsyncStorage.setItem('lastUpdateSchema', SCHEMA_VERSION);
   try {
     await downloadCoreFile('last_updated.json');
   } catch (e) {
@@ -515,6 +533,15 @@ function promptLibraryUpdate(totalDownloads, newBooks) {
     ]
   )
 
+}
+
+async function schemaCheck() {
+  // checks if there was a schema change. If so, delete the library
+  const lastUpdateSchema = AsyncStorage.getItem("lastUpdateSchema");
+  if (lastUpdateSchema !== SCHEMA_VERSION) {
+    // Do we want to trigger some sort of alert here?
+    await deleteLibrary()
+  }
 }
 
 
