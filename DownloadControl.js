@@ -175,9 +175,9 @@ function downloadFilePromise(fileUrl, filepath) {
 }
 
 
-function populatePackageState(pkgStateData) {
-  // pkgStateData is packages.json
-  PackagesState = {};
+async function populateDownloadState(pkgStateData) {
+  // pkgStateData is the contents of packages.json
+  [PackagesState, BooksState] = [{}, {}];
   pkgStateData.forEach((pkgData, index) => {
     PackagesState[pkgData['en']] = new Package(pkgData, index);
   });
@@ -192,6 +192,11 @@ function populatePackageState(pkgStateData) {
       parentPackage = packObj.parent;
       PackagesState[parentPackage].addChild(packageTitle);
     }
+  }
+  try {
+    await repopulateBooksState();
+  } catch (e) {
+    console.log(e)
   }
   return Promise.resolve(PackagesState)
 }
@@ -213,16 +218,20 @@ function loadJSONFile(JSONSourcePath) {
 }
 
 function loadCoreFile(filename) {
-  RNFB.fs.exists(RNFB.fs.dirs.DocumentDir + "/library/" + filename)
-  .then(exists => {
-    if (Platform.OS === "ios" || exists) {
-      const pkgPath = exists ? (`${RNFB.fs.dirs.DocumentDir}/library/${filename}`) :
-        `${RNFB.fs.dirs.MainBundleDir}/sources/${filename}`;
-      return loadJSONFile(pkgPath)
+  return new Promise((resolve, reject) => {
+    RNFB.fs.exists(RNFB.fs.dirs.DocumentDir + "/library/" + filename)
+      .then(exists => {
+        if (Platform.OS === "ios" || exists) {
+          const pkgPath = exists ? (`${RNFB.fs.dirs.DocumentDir}/library/${filename}`) :
+            `${RNFB.fs.dirs.MainBundleDir}/sources/${filename}`;
+      loadJSONFile(pkgPath).then(x => resolve(x)).catch(e => reject(e))
     }
     // bundled packages.json lives in a different place on android
-    else return RNFB.fs.readFile(RNFB.fs.asset(`sources/${filename}`).then(x => JSON.parse(x)))
-  })
+    else RNFB.fs.readFile(RNFB.fs.asset(`sources/${filename}`)).then(x => resolve(JSON.parse(x)))
+          .catch(e => reject(e))
+    })
+  });
+
 }
 
 function getFullBookList() {
@@ -234,10 +243,10 @@ function getFullBookList() {
   })
 }
 
-function setupPackages() {
+function packageSetupProtocol() {
   return new Promise ((resolve, reject) => {
     Promise.all([
-      loadCoreFile('packages.json').then(pkgStateData => populatePackageState(pkgStateData)),
+      loadCoreFile('packages.json').then(pkgStateData => populateDownloadState(pkgStateData)),
       AsyncStorage.getItem("packagesSelected")
     ]).then(appState => {
       const [packageData, packagesSelected] = appState;
@@ -262,7 +271,7 @@ function setupPackages() {
 
 function setDesiredBooks() {
   if (PackagesState['COMPLETE LIBRARY'].clicked) {
-    Object.keys(BooksState).forEach(b => BooksState[b].desired = true)  // todo: BooksState doesn't contain every book
+    Object.keys(BooksState).forEach(b => BooksState[b].desired = true)
   }
   else {
     // mark all books as not desired as a starting point
@@ -283,8 +292,8 @@ function setDesiredBooks() {
           }
           else {  // edge case, new books should not be added here
             BooksState[book] = new Book(book, packageObj.clicked, null);
-            }
-          })
+          }
+        })
       })
     })
   }
@@ -335,6 +344,8 @@ function getLocalBookList() {
 
 async function repopulateBooksState() {
   BooksState = {};
+  const allBooks = await getFullBookList();
+  await setLocalBookTimestamps(allBooks);
   setDesiredBooks();
   let localBooks = await getLocalBookList();
   await setLocalBookTimestamps(localBooks);
@@ -351,7 +362,7 @@ function deleteBooks(bookList) {
   return Promise.all(results).then(bookTitles => {
     bookTitles.forEach(bookTitle => {
       if (bookTitle in BooksState) {
-        BooksState[bookTitle].checkSum = null;
+        BooksState[bookTitle].localLastUpdated = null;
         BooksState.desired = false;
       }
     })
@@ -372,7 +383,7 @@ async function unzipBundle() {
   return null
 }
 
-function makeNewBundle(bookList) {
+function requestNewBundle(bookList) {
   return new Promise((resolve, reject) => {
     fetch(`${DOWNLOAD_SERVER}/makeBundle`, {
       method: 'POST',
@@ -451,7 +462,7 @@ async function downloadUpdate(booksToDownload=null) {
   if (!!booksToDownload){
     booksToDownload = await calculateBooksToDownload(BooksState);
   }
-  const bundleName = await makeNewBundle(booksToDownload);
+  const bundleName = await requestNewBundle(booksToDownload);
   await _executeDownload(bundleName);
 
   // we're going to use the update as an opportunity to do some cleanup
@@ -502,8 +513,17 @@ async function checkUpdatesFromServer() {
   } catch (e) {
     console.log(e)
   }
+  await repopulateBooksState();
   const allBooksToDownload = await calculateBooksToDownload(BooksState);
   return [allBooksToDownload, booksNotDownloaded(allBooksToDownload)]
+}
+
+function autoUpdateCheck() {
+  /*
+   * The mobile downloads are updated every 7 days. We want to prompt the user to update if they haven't checked the
+   * server
+   */
+
 }
 
 function promptLibraryUpdate(totalDownloads, newBooks) {
@@ -535,19 +555,21 @@ function promptLibraryUpdate(totalDownloads, newBooks) {
 
 }
 
-async function schemaCheck() {
+async function schemaCheckAndPurge() {
   // checks if there was a schema change. If so, delete the library
   const lastUpdateSchema = AsyncStorage.getItem("lastUpdateSchema");
   if (lastUpdateSchema !== SCHEMA_VERSION) {
-    // Do we want to trigger some sort of alert here?
-    await deleteLibrary()
+    // We want to delete the library but keep the package selections
+    const bookList = await getFullBookList();
+    await deleteBooks(bookList);
+    setDesiredBooks()
   }
 }
 
 
 export {
   downloadBundle,
-  setupPackages,
+  packageSetupProtocol,
   PackagesState,
   Tracker,
   wereBooksDownloaded,

@@ -16,7 +16,7 @@ import { Filter } from './Filter';
 import URL from 'url-parse';
 import analytics from '@react-native-firebase/analytics';
 import {
-  setupPackages,
+  packageSetupProtocol,
   loadJSONFile
 } from './DownloadControl'
 
@@ -50,7 +50,7 @@ Sefaria = {
       .then(Sefaria._loadCalendar)
       .then(Sefaria._loadPeople)
       .then(Sefaria._loadHebrewCategories)
-      .then(setupPackages())
+      .then(packageSetupProtocol())
       .then(Sefaria.downloader.init);  // downloader init is dependent on packages todo: trigger a download event
   },
   getLastAppUpdateTime: async function() {
