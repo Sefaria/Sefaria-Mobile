@@ -6,10 +6,8 @@ import VersionNumber from 'react-native-version-number';
 import RNFB from 'rn-fetch-blob';
 import { Search } from '@sefaria/search';
 import sanitizeHtml from 'sanitize-html'
-import Downloader from './downloader';
 import Api from './api';
 import History from './history';
-import Packages from './packages';
 import LinkContent from './LinkContent';
 import { initAsyncStorage } from './StateManager';
 import { Filter } from './Filter';
@@ -17,7 +15,9 @@ import URL from 'url-parse';
 import analytics from '@react-native-firebase/analytics';
 import {
   packageSetupProtocol,
-  loadJSONFile
+  loadJSONFile,
+  autoUpdateCheck,
+  downloadUpdate
 } from './DownloadControl'
 
 const ERRORS = {
@@ -51,7 +51,9 @@ Sefaria = {
       .then(Sefaria._loadPeople)
       .then(Sefaria._loadHebrewCategories)
       .then(packageSetupProtocol())
-      .then(Sefaria.downloader.init);  // downloader init is dependent on packages todo: trigger a download event
+      .then(autoUpdateCheck().then(shouldUpdate => {
+        shouldUpdate ? downloadUpdate() : null
+      }));
   },
   getLastAppUpdateTime: async function() {
     // returns epoch time of last time the app was updated. used to compare if sources files are newer than downloaded files

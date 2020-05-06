@@ -7,7 +7,8 @@ import {Alert, Platform} from 'react-native';
 import AsyncStorage from "@react-native-community/async-storage";
 
 const SCHEMA_VERSION = "6";
-const DOWNLOAD_SERVER = "https://readonly.sefaria.org";
+// const DOWNLOAD_SERVER = "https://readonly.sefaria.org";
+const DOWNLOAD_SERVER = "http://35.237.217.25";
 const HOST_PATH = `${DOWNLOAD_SERVER}/static/ios-export/${SCHEMA_VERSION}`;
 const HOST_BUNDLE_URL = `${HOST_PATH}/bundles`;
 const BUNDLE_LOCATION = RNFB.fs.dirs.DocumentDir + "/tmp/bundle.zip";
@@ -23,6 +24,7 @@ let PackagesState = {};
  * packagesSelected is a simple mapping of packageName -> bool
  */
 function selectedPackages() {
+  // Test with Jest
   let selections = {};
   for (let [packageTitle, packObj] of Object.entries(PackagesState)) {
     selections[packageTitle] = packObj.clicked &! packObj.disabled;
@@ -31,6 +33,7 @@ function selectedPackages() {
 }
 
 class DownloadTracker {
+  // Test with Jest
   constructor() {
     this.currentDownload = null;
     this.subscriptions = {};
@@ -82,6 +85,7 @@ class DownloadTracker {
 const Tracker = new DownloadTracker();
 
 class Package {
+  // Test with Jest
   constructor(jsonData, order=0) {
     this.name = jsonData['en'];
     this.jsonData = jsonData;
@@ -166,6 +170,7 @@ class Book {
 
 
 function downloadFilePromise(fileUrl, filepath) {
+  // Test with Appium
   return RNFB.config({
     IOSBackgroundTask: true,
     indicator: true,
@@ -176,6 +181,7 @@ function downloadFilePromise(fileUrl, filepath) {
 
 
 async function populateDownloadState(pkgStateData) {
+  // Test with both Appium an Jest
   // pkgStateData is the contents of packages.json
   [PackagesState, BooksState] = [{}, {}];
   pkgStateData.forEach((pkgData, index) => {
@@ -202,6 +208,7 @@ async function populateDownloadState(pkgStateData) {
 }
 
 function loadJSONFile(JSONSourcePath) {
+  // Test with Appium
   return new Promise((resolve, reject) => {
     RNFB.fs.readFile(JSONSourcePath).then(result => {
       try {
@@ -218,6 +225,7 @@ function loadJSONFile(JSONSourcePath) {
 }
 
 function loadCoreFile(filename) {
+  // Test with Appium
   return new Promise((resolve, reject) => {
     RNFB.fs.exists(RNFB.fs.dirs.DocumentDir + "/library/" + filename)
       .then(exists => {
@@ -235,6 +243,7 @@ function loadCoreFile(filename) {
 }
 
 function getFullBookList() {
+  // Test with Jest
   // load books as defined in last_updated.json. Does not download a new file
   return new Promise((resolve, reject) => {
     loadCoreFile('last_updated.json').then(x => {
@@ -244,6 +253,7 @@ function getFullBookList() {
 }
 
 function packageSetupProtocol() {
+  // Test with Jest and Appium
   return new Promise ((resolve, reject) => {
     Promise.all([
       loadCoreFile('packages.json').then(pkgStateData => populateDownloadState(pkgStateData)),
@@ -260,6 +270,7 @@ function packageSetupProtocol() {
         }
       }
       falseSelections.map(x => delete packagesSelected[x]);
+
       AsyncStorage.setItem('packagesSelected', JSON.stringify(packagesSelected)).then(resolve()).catch(error => {
         console.error(`AsyncStorage failed to save: ${error}`);
         reject(error);
@@ -270,6 +281,7 @@ function packageSetupProtocol() {
 
 
 function setDesiredBooks() {
+  // Test with Jest
   if (PackagesState['COMPLETE LIBRARY'].clicked) {
     Object.keys(BooksState).forEach(b => BooksState[b].desired = true)
   }
@@ -301,21 +313,26 @@ function setDesiredBooks() {
 }
 
 function setLocalBookTimestamps(bookTitleList) {
+  // Test with both Appium and Jest
   return Promise.all(bookTitleList.map(bookTitle => {
     return new Promise((resolve, reject) => {
       const filepath = `${RNFB.fs.dirs.DocumentDir}/library/${bookTitle}.zip`;
       RNFB.fs.exists(filepath)
         .then(exists => {
           if (exists) {
-            RNFB.fs.stat(filepath).then(timestamp => resolve(timestamp));
+            RNFB.fs.stat(filepath).then(timestamp => resolve(timestamp)).catch(e => {
+              console.log(e);
+              resolve(null);
+            });
           }
           else resolve(null);
         })
     })
   })).then((timestampList) => timestampList.map((timestamp, i) => {
     const bookTitle = bookTitleList[i];
+    timestamp = !!timestamp ? new Date(timestamp) : null;
     if (bookTitle in BooksState) {
-      BooksState[bookTitle].lastUpdated = new Date(timestamp);
+      BooksState[bookTitle].lastUpdated = timestamp;
     }
     else {
       BooksState[bookTitle] = new Book(bookTitle, false, timestamp);
@@ -324,6 +341,7 @@ function setLocalBookTimestamps(bookTitleList) {
 }
 
 function getLocalBookList() {
+  // Test with Appium
   /*
    * This method is for getting the books that are stored on disk
    * Returns a Promise which resolves on a list of books
@@ -347,12 +365,11 @@ async function repopulateBooksState() {
   const allBooks = await getFullBookList();
   await setLocalBookTimestamps(allBooks);
   setDesiredBooks();
-  let localBooks = await getLocalBookList();
-  await setLocalBookTimestamps(localBooks);
   return BooksState
 }
 
 function deleteBooks(bookList) {
+  // Test with Appium
   const results = bookList.map(bookTitle => {
     return new Promise((resolve, reject) => {
       const filepath = `${RNFB.fs.dirs.DocumentDir}/library/${bookTitle}.zip`;
@@ -370,6 +387,7 @@ function deleteBooks(bookList) {
 }
 
 async function unzipBundle() {
+  // Test with Appium
   const unzipLocation = `${RNFB.fs.dirs.DocumentDir}/library`;
   const dirExists = await RNFB.fs.isDir(unzipLocation);
   if (!dirExists) {
@@ -384,6 +402,7 @@ async function unzipBundle() {
 }
 
 function requestNewBundle(bookList) {
+  // Test with Appium
   return new Promise((resolve, reject) => {
     fetch(`${DOWNLOAD_SERVER}/makeBundle`, {
       method: 'POST',
@@ -394,6 +413,7 @@ function requestNewBundle(bookList) {
 }
 
 async function downloadBundle(bundleName) {
+  // Test with Appium
   const downloadState = downloadFilePromise(`${HOST_BUNDLE_URL}/${encodeURIComponent(bundleName)}`);
   try {
     Tracker.addDownload(downloadState);
@@ -409,6 +429,7 @@ async function downloadBundle(bundleName) {
 }
 
 async function calculateBooksToDownload(booksState) {
+  // Test with Jest
   const remoteBookUpdates = await loadCoreFile('last_updated.json');
   let booksToDownload = [];
   for (const bookTitle in booksState) {
@@ -429,6 +450,7 @@ async function calculateBooksToDownload(booksState) {
 }
 
 function calculateBooksToDelete(booksState) {
+  // Test with Jest
   let booksToDelete = [];
   for (const bookTitle in booksState) {
     if (booksState.hasOwnProperty(bookTitle)) {
@@ -442,6 +464,7 @@ function calculateBooksToDelete(booksState) {
 }
 
 async function _executeDownload(bundleName) {
+  // Test with Appium
   try {
     await downloadBundle(bundleName);
     await unzipBundle();
@@ -459,6 +482,7 @@ async function downloadPackage(packageName) {
 }
 
 async function downloadUpdate(booksToDownload=null) {
+  // Test with Appium
   if (!!booksToDownload){
     booksToDownload = await calculateBooksToDownload(BooksState);
   }
@@ -472,10 +496,12 @@ async function downloadUpdate(booksToDownload=null) {
 
 
 function wereBooksDownloaded() {
+  // Test with Jest
   return Object.values(PackagesState).some(x => !!x.clicked)
 }
 
 function booksNotDownloaded(bookList) {
+  // Test with Jest
   /*
    * check a list of book titles against the BooksState to see which books in the list were not downloaded.
    * !IMPORTANT! Book data should only be derived from the files saved on disk. This method should be used only for
@@ -485,10 +511,12 @@ function booksNotDownloaded(bookList) {
 }
 
 async function deleteLibrary() {
+  // Test with Appium
   await PackagesState['COMPLETE LIBRARY'].unclick()
 }
 
 async function downloadCoreFile(filename) {
+  // Test with Appium
   const tmpFolder = `${RNFB.fs.DocumentDir}/tmp`;
   const exists = await RNFB.fs.exists(tmpFolder);
   if (!exists) {
@@ -505,6 +533,8 @@ async function downloadCoreFile(filename) {
 }
 
 async function checkUpdatesFromServer() {
+  // Test with Appium. Also worth timing this method to ensure it is responsive
+  await schemaCheckAndPurge();
   let timestamp = new Date().toJSON();
   await AsyncStorage.setItem('lastUpdateCheck', timestamp);
   await AsyncStorage.setItem('lastUpdateSchema', SCHEMA_VERSION);
@@ -513,6 +543,15 @@ async function checkUpdatesFromServer() {
   } catch (e) {
     console.log(e)
   }
+
+  await Promise.all([
+    downloadCoreFile('toc.json').then(Sefaria._loadTOC),
+    downloadCoreFile('search_toc.json').then(Sefaria._loadSearchTOC),
+    downloadCoreFile('hebrew_categories.json').then(Sefaria._loadHebrewCategories),
+    downloadCoreFile('people.json').then(Sefaria._loadPeople),
+    downloadCoreFile('packages.json').then(packageSetupProtocol),
+    downloadCoreFile('calendar.json').then(Sefaria._loadCalendar)
+  ]);
   await repopulateBooksState();
   const allBooksToDownload = await calculateBooksToDownload(BooksState);
   return [allBooksToDownload, booksNotDownloaded(allBooksToDownload)]
@@ -523,10 +562,19 @@ function autoUpdateCheck() {
    * The mobile downloads are updated every 7 days. We want to prompt the user to update if they haven't checked the
    * server
    */
+  return new Promise((resolve, reject) => {
+    AsyncStorage.getItem('lastUpdateCheck').then(lastUpdateCheck => {
+      const cutoff = new Date(lastUpdateCheck);
+      cutoff.setDate(cutoff.getDate() + 7);
+      const now = new Date();
+      resolve(now > cutoff)
+    }).catch(e => reject(e))
+  })
 
 }
 
 function promptLibraryUpdate(totalDownloads, newBooks) {
+  // Test with Jest
   /*
    * This is one of the few places we have UI components in this module. This is a point of control where the user
    * can interact directly with the update logic. This interaction is not unique to any one page on the app. Conversely,
@@ -556,6 +604,7 @@ function promptLibraryUpdate(totalDownloads, newBooks) {
 }
 
 async function schemaCheckAndPurge() {
+  // Test with Jest
   // checks if there was a schema change. If so, delete the library
   const lastUpdateSchema = AsyncStorage.getItem("lastUpdateSchema");
   if (lastUpdateSchema !== SCHEMA_VERSION) {
@@ -579,5 +628,7 @@ export {
   deleteLibrary,
   loadJSONFile,
   getLocalBookList,
-  getFullBookList
+  getFullBookList,
+  autoUpdateCheck,
+  downloadUpdate
 };
