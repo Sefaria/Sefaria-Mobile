@@ -1,5 +1,5 @@
 import RNFB from 'rn-fetch-blob';
-import {downloadBundle} from '../DownloadControl'
+import {downloadBundle, Tracker} from '../DownloadControl'
 import AsyncStorage from '@react-native-community/async-storage';
 
 const fetch = jest.fn(x => {
@@ -26,7 +26,7 @@ jest.mock('rn-fetch-blob', () =>{
 });
 
 describe('downloadBundle_tests', () => {
-  test('Succesful download', () => {
+  test('Successful download', () => {
     return downloadBundle(['books']).then(response => {
       expect(response.info()).toEqual({status: 200});
     })
@@ -43,7 +43,7 @@ describe('downloadBundle_tests', () => {
       }
     });
     expect.assertions(1);
-    return downloadBundle(['books']).catch(e => expect(e).toMatch("Bad status"));
+    return downloadBundle(['books']).catch(e => expect(e).toMatch("Bad download status"));
   });
 
   test ('total download failure', () => {

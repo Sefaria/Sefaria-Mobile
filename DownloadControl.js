@@ -426,6 +426,7 @@ async function downloadBundle(bundleName) {
   if (status >= 300 || status < 200) {
     throw "Bad download status"
   }
+  return downloadResult
 }
 
 async function calculateBooksToDownload(booksState) {
