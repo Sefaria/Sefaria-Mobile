@@ -28,9 +28,10 @@ describe('ReaderApp history', () => {
     Sefaria.history.syncHistory = jest.fn();
     const inst = renderer.create(<TestContextWrapper passContextToChildren child={ReaderApp} />);
     const readerApp = inst.root.findByType(ReaderApp);
-    await readerApp.instance.onBackgroundSync();
+    const taskId = "stam-id";
+    await readerApp.instance.onBackgroundSync(taskId);
     expect(Sefaria.history.syncHistory.mock.calls[0][1]).toEqual(settingsObject);
-    expect(BackgroundFetch.finish).toBeCalledWith(BackgroundFetch.FETCH_RESULT_NEW_DATA);
+    expect(BackgroundFetch.finish).toBeCalledWith(taskId);
   });
 });
 
