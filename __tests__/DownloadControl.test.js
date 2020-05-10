@@ -1,5 +1,5 @@
 import RNFB from 'rn-fetch-blob';
-import {downloadBundle, Tracker} from '../DownloadControl'
+import {PackagesState, Tracker, BooksState, ExportedFunctions} from '../DownloadControl'
 import AsyncStorage from '@react-native-community/async-storage';
 
 const fetch = jest.fn(x => {
@@ -27,7 +27,7 @@ jest.mock('rn-fetch-blob', () =>{
 
 describe('downloadBundle_tests', () => {
   test('Successful download', () => {
-    return downloadBundle(['books']).then(response => {
+    return ExportedFunctions.downloadBundle(['books']).then(response => {
       expect(response.info()).toEqual({status: 200});
     })
   });
@@ -43,7 +43,7 @@ describe('downloadBundle_tests', () => {
       }
     });
     expect.assertions(1);
-    return downloadBundle(['books']).catch(e => expect(e).toMatch("Bad download status"));
+    return ExportedFunctions.downloadBundle(['books']).catch(e => expect(e).toMatch("Bad download status"));
   });
 
   test ('total download failure', () => {
@@ -55,15 +55,19 @@ describe('downloadBundle_tests', () => {
         }
       }
     );
-    return downloadBundle(['books']).catch(e => expect(e).toMatch("error"));
+    return ExportedFunctions.downloadBundle(['books']).catch(e => expect(e).toMatch("error"));
   });
 
 
 });
 
-test('testLog', () => {
-  console.log('testing');
-  return expect(2 + 2).toBe(4);
-  }
+describe('InitializationTests', () => {
+  test('PackageInitialization', () => {
 
-);
+  });
+});
+
+/*
+ * TEST LIST:
+ * 1.
+ */

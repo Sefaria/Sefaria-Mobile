@@ -14,10 +14,7 @@ import { Filter } from './Filter';
 import URL from 'url-parse';
 import analytics from '@react-native-firebase/analytics';
 import {
-  packageSetupProtocol,
-  loadJSONFile,
-  autoUpdateCheck,
-  downloadUpdate
+  ExportedFunctions as DownloadControlFunctions,
 } from './DownloadControl'
 
 const ERRORS = {
@@ -50,9 +47,9 @@ Sefaria = {
       .then(Sefaria._loadCalendar)
       .then(Sefaria._loadPeople)
       .then(Sefaria._loadHebrewCategories)
-      .then(packageSetupProtocol())
-      .then(autoUpdateCheck().then(shouldUpdate => {
-        shouldUpdate ? downloadUpdate() : null
+      .then(DownloadControlFunctions.packageSetupProtocol())
+      .then(DownloadControlFunctions.autoUpdateCheck().then(shouldUpdate => {
+        shouldUpdate ? DownloadControlFunctions.downloadUpdate() : null
       }));
   },
   getLastAppUpdateTime: async function() {
@@ -697,7 +694,7 @@ Sefaria = {
     return unzip(zipSourcePath, RNFB.fs.dirs.DocumentDir);
   },
   _loadJSON: function(JSONSourcePath) {
-    return loadJSONFile(JSONSourcePath)
+    return DownloadControlFunctions.loadJSONFile(JSONSourcePath)
   },
   _JSONSourcePath: function(fileName) {
     return (RNFB.fs.dirs.DocumentDir + "/" + fileName + ".json");

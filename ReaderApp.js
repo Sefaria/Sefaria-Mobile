@@ -207,9 +207,11 @@ class ReaderApp extends React.PureComponent {
   promptLibraryDownload() {
     AsyncStorage.getItem("libraryDownloadPrompted").
     then(async (prompted) => {
+      prompted = JSON.parse(prompted);
       await AsyncStorage.setItem("libraryDownloadPrompted", "true");
       if (!prompted) {
         const onDownload = () => {
+
 
           this.openMenu("settings")
         };
@@ -251,7 +253,7 @@ class ReaderApp extends React.PureComponent {
           .then(Sefaria.postInitSearch)
           .then(Sefaria.postInit)
           .then(() => { this.setState({_completedInit: true}); })
-          .then(this.promptLibraryDownload);
+          .then(this.promptLibraryDownload.bind(this));
         } else {
           // apply deep link here to make sure it applies correctly
           // load search files before deep link incase deep link is to search
@@ -261,7 +263,7 @@ class ReaderApp extends React.PureComponent {
           })
           .then(Sefaria.postInit)
           .then(() => { this.setState({_completedInit: true}); })
-          .then(this.promptLibraryDownload);
+          .then(this.promptLibraryDownload.bind(this));
         }
     });
   }

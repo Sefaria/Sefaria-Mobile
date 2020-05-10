@@ -102,7 +102,7 @@ class Package {
     if (this.name === 'COMPLETE LIBRARY') {
       return null;
     }
-    else if (!!this.jsonData['parent']) {
+    else if (!this.jsonData['parent']) {
       return 'COMPLETE LIBRARY'
     }
     else return this.jsonData['parent']
@@ -176,7 +176,7 @@ function downloadFilePromise(fileUrl, filepath) {
     indicator: true,
     path: filepath,
     overwrite: true
-  }).fetch(encodeURIComponent(fileUrl))
+  }).fetch(fileUrl)
 }
 
 
@@ -191,9 +191,7 @@ async function populateDownloadState(pkgStateData) {
   // children are not defined in package.json. Each package points to a parent and we can now use that to set children
   let parentPackage;
   for (let [packageTitle, packObj] of Object.entries(PackagesState)) {
-    if (packageTitle === 'COMPLETE LIBRARY') {
-      continue
-    }
+    if (packageTitle === 'COMPLETE LIBRARY') {}
     else {
       parentPackage = packObj.parent;
       PackagesState[parentPackage].addChild(packageTitle);
@@ -242,11 +240,31 @@ function loadCoreFile(filename) {
 
 }
 
+async function lastUpdated() {
+  const exists = await RNFB.fs.exists(`${RNFB.fs.dirs.DocumentDir}/library/last_updated.json`);
+  if (!exists)
+    await downloadCoreFile('last_updated.json');
+  try {
+    return await loadCoreFile('last_updated.json')
+  } catch (e) {
+    console.log(e);
+    /*
+     * In the event the user never downloaded last_updated.json, we're going to throw out some placeholder values. There
+     * might be a better way of dealing with this issue.
+     */
+    return {
+      schema_version: SCHEMA_VERSION,
+      titles: []
+    };
+  }
+
+}
+
 function getFullBookList() {
   // Test with Jest
   // load books as defined in last_updated.json. Does not download a new file
   return new Promise((resolve, reject) => {
-    loadCoreFile('last_updated.json').then(x => {
+    lastUpdated().then(x => {
       resolve(Object.keys(x.titles))
     }).catch(e => reject(e))
   })
@@ -257,7 +275,7 @@ function packageSetupProtocol() {
   return new Promise ((resolve, reject) => {
     Promise.all([
       loadCoreFile('packages.json').then(pkgStateData => populateDownloadState(pkgStateData)),
-      AsyncStorage.getItem("packagesSelected")
+      AsyncStorage.getItem("packagesSelected").then(x => !!x ? JSON.parse(x) : {})
     ]).then(appState => {
       const [packageData, packagesSelected] = appState;
       let falseSelections = [];
@@ -356,7 +374,7 @@ function getLocalBookList() {
         }
       });
       resolve(books)
-    })
+    }).catch(err=>reject(err))
   })
 }
 
@@ -373,7 +391,7 @@ function deleteBooks(bookList) {
   const results = bookList.map(bookTitle => {
     return new Promise((resolve, reject) => {
       const filepath = `${RNFB.fs.dirs.DocumentDir}/library/${bookTitle}.zip`;
-      RNFB.fs.unlink(filepath).then(resolve(bookTitle));
+      RNFB.fs.unlink(filepath).then(resolve(bookTitle)).catch(err => reject(err));
     });
   });
   return Promise.all(results).then(bookTitles => {
@@ -431,7 +449,7 @@ async function downloadBundle(bundleName) {
 
 async function calculateBooksToDownload(booksState) {
   // Test with Jest
-  const remoteBookUpdates = await loadCoreFile('last_updated.json');
+  const remoteBookUpdates = await lastUpdated();
   let booksToDownload = [];
   for (const bookTitle in booksState) {
     if (booksState.hasOwnProperty(bookTitle)){
@@ -518,19 +536,25 @@ async function deleteLibrary() {
 
 async function downloadCoreFile(filename) {
   // Test with Appium
-  const tmpFolder = `${RNFB.fs.DocumentDir}/tmp`;
+  const tmpFolder = `${RNFB.fs.dirs.DocumentDir}/tmp`;
   const exists = await RNFB.fs.exists(tmpFolder);
   if (!exists) {
-    await RNFB.fs.mkdir()
+    try{
+      await RNFB.fs.mkdir(tmpFolder);
+    } catch (e) {
+      console.log(e);
+      throw new Error("Failed to create tmp directory")
+    }
+
   }
-  const [fileUrl, tempPath] = [`${HOST_PATH}/${filename}`, `${RNFB.fs.DocumentDir}/tmp/${filename}`];
+  const [fileUrl, tempPath] = [`${HOST_PATH}/${encodeURIComponent(filename)}`, `${RNFB.fs.dirs.DocumentDir}/tmp/${filename}`];
   const downloadResp = await downloadFilePromise(fileUrl, tempPath);
   const status = downloadResp.info().status;
   if (status >= 300 || status < 200) {
     await RNFB.fs.unlink(tempPath);
     throw new Error(`bad download status; got : ${status}`);
   }
-  await RNFB.mv(tempPath, `${RNFB.fs.DocumentDir}/library/${filename}`);
+  await RNFB.mv(tempPath, `${RNFB.fs.dirs.DocumentDir}/library/${filename}`);
 }
 
 async function checkUpdatesFromServer() {
@@ -616,12 +640,9 @@ async function schemaCheckAndPurge() {
   }
 }
 
-
-export {
+const ExportedFunctions = {
   downloadBundle,
   packageSetupProtocol,
-  PackagesState,
-  Tracker,
   wereBooksDownloaded,
   checkUpdatesFromServer,
   promptLibraryUpdate,
@@ -631,5 +652,13 @@ export {
   getLocalBookList,
   getFullBookList,
   autoUpdateCheck,
-  downloadUpdate
+  downloadUpdate,
+};
+
+
+export {
+  PackagesState,
+  BooksState,
+  Tracker,
+  ExportedFunctions,
 };

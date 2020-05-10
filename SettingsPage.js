@@ -27,12 +27,8 @@ import styles from './Styles';
 import strings from './LocalizedStrings';
 import {
   PackagesState,
-  wereBooksDownloaded,
+  ExportedFunctions as DownloadControlFunctions,
   Tracker as DownloadTracker,
-  checkUpdatesFromServer,
-  promptLibraryUpdate,
-  downloadPackage,
-  deleteLibrary as deleteLibraryControl
 } from './DownloadControl';
 
 const generateOptions = (options, onPress) => options.map(o => ({
@@ -73,7 +69,7 @@ const usePkgState = () => {
         DownloadTracker.subscribe('settingsPagePackageDownload', setDownloadFunction);
         await PackagesState[pkgName].markAsClicked();
         setIsDisabledObj(getIsDisabledObj());
-        await downloadPackage(pkgName);
+        await DownloadControlFunctions.downloadPackage(pkgName);
       }
     };
     const parent = pkgObj.parent;
@@ -94,9 +90,9 @@ function abstractUpdateChecker(disableUpdateComponent) {
   async function f() {
     disableUpdateComponent(true);
     try {
-      const [totalDownloads, newBooks] = await checkUpdatesFromServer();
+      const [totalDownloads, newBooks] = await DownloadControlFunctions.checkUpdatesFromServer();
       if (totalDownloads > 0) {
-        promptLibraryUpdate(totalDownloads, newBooks);
+        DownloadControlFunctions.promptLibraryUpdate(totalDownloads, newBooks);
       }
       else {
         Alert.alert(
@@ -124,7 +120,7 @@ const SettingsPage = ({ close, logout, openUri }) => {
   const checkUpdatesForSettings = abstractUpdateChecker(setUpdatesDisabled);
 
   const deleteLibrary = async () => {
-    await deleteLibraryControl();
+    await DownloadControlFunctions.deleteLibrary();
     setIsDisabledObj(getIsDisabledObj);
   };
 
@@ -145,7 +141,7 @@ const SettingsPage = ({ close, logout, openUri }) => {
 
         <View style={[styles.readerDisplayOptionsMenuDivider, styles.settingsDivider, theme.readerDisplayOptionsMenuDivider]}/>
 
-        {wereBooksDownloaded() ?
+        {DownloadControlFunctions.wereBooksDownloaded() ?
           <View>
             <TouchableOpacity style={styles.button} disabled={updatesDisabled} onPress={checkUpdatesForSettings}>
               <Text style={[langStyle, styles.buttonText]}>{updatesDisabled ? strings.checking : strings.checkForUpdates}</Text>
@@ -249,18 +245,18 @@ const OfflinePackageList = ({ isDisabledObj, onPackagePress }) => {
   return (
     <View style={styles.settingsOfflinePackages}>
       {
-        Object.values(PackagesState).sort((a, b) => b.order - a.order).map(p => {
+        Object.values(PackagesState).sort((a, b) => a.order - b.order).map(p => {
           const isSelected = p.clicked;
           const {isD, setDownload} = useState(false);
            const onPress = () => { onPackagePress(p, setDownload); };
 
           return (
-            <View key={`${p.en}|${isDisabledObj[p.en]}|parent`}>
+            <View key={`${p.name}|${isDisabledObj[p.name]}|parent`}>
               <LibraryNavButton
                 catColor={Sefaria.palette.categoryColor(p.color)}
-                enText={p.en}
-                heText={p.he}
-                count={`${Math.round(p.size / 1e6)}mb` /* NOTE: iOS uses 1e6 def of mb*/}
+                enText={p.name}
+                heText={p.jsonData['he']}
+                count={`${Math.round(p.jsonData['size'] / 1e6)}mb` /* NOTE: iOS uses 1e6 def of mb*/}
                 onPress={onPress}
                 onPressCheckBox={onPress}
                 checkBoxSelected={0+isSelected}
