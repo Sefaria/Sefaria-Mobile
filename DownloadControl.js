@@ -198,7 +198,7 @@ async function populateDownloadState(pkgStateData) {
     }
   }
   try {
-    await repopulateBooksState();
+    await ExportedFunctions.repopulateBooksState();  // this is helpful for writing unit tests
   } catch (e) {
     console.log(e)
   }
@@ -653,6 +653,8 @@ const ExportedFunctions = {
   getFullBookList,
   autoUpdateCheck,
   downloadUpdate,
+  repopulateBooksState,
+  populateDownloadState
 };
 
 
@@ -661,4 +663,5 @@ export {
   BooksState,
   Tracker,
   ExportedFunctions,
+  Package
 };

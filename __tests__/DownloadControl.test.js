@@ -1,5 +1,5 @@
 import RNFB from 'rn-fetch-blob';
-import {PackagesState, Tracker, BooksState, ExportedFunctions} from '../DownloadControl'
+import {PackagesState, Tracker, BooksState, ExportedFunctions, Package} from '../DownloadControl'
 import AsyncStorage from '@react-native-community/async-storage';
 
 const fetch = jest.fn(x => {
@@ -62,8 +62,52 @@ describe('downloadBundle_tests', () => {
 });
 
 describe('InitializationTests', () => {
-  test('PackageInitialization', () => {
+  test('PackageInitialization', async () => {
+    const orig = ExportedFunctions.repopulateBooksState;
+    ExportedFunctions.repopulateBooksState = jest.fn(() => {return {}});
 
+    const packageData = [
+      {
+        en: "COMPLETE LIBRARY",
+        he: "כל הספרייה",
+        color: "Other",
+        size: 10
+      },
+      {
+        en: "Gen with Rashi",
+        he: 'בראשית עם רש"י',
+        color: "Blue",
+        parent: "Torah with Rashi",
+        indexes: [
+          "Genesis",
+          "Rashi on Genesis",
+        ],
+        size: 2
+      },
+      {
+        en: "Torah with Rashi",
+        he: 'תורה עם רש"י',
+        color: "Blue",
+        indexes: [
+          "Genesis",
+          "Exodus",
+          "Leviticus",
+          "Rashi on Genesis",
+          "Rashi on Exodus",
+          "Rashi on Leviticus"
+        ],
+        size: 5
+      }
+    ];
+    await ExportedFunctions.populateDownloadState(packageData);
+    expect(Object.values(PackagesState)).toHaveLength(3);
+    Object.values(PackagesState).forEach(p => {
+      expect(p).toBeInstanceOf(Package)
+    });
+    expect(PackagesState).toHaveProperty("Torah with Rashi");
+    expect(PackagesState["Torah with Rashi"].parent).toEqual("COMPLETE LIBRARY");
+
+    ExportedFunctions.repopulateBooksState = orig;
   });
 });
 
