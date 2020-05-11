@@ -171,12 +171,14 @@ class Book {
 
 function downloadFilePromise(fileUrl, filepath) {
   // Test with Appium
-  return RNFB.config({
-    IOSBackgroundTask: true,
-    indicator: true,
-    path: filepath,
-    overwrite: true
-  }).fetch(fileUrl)
+  return new Promise((resolve, reject) => {
+    RNFB.config({
+      IOSBackgroundTask: true,
+      indicator: true,
+      path: filepath,
+      overwrite: true
+    }).fetch('GET', fileUrl).then(x => resolve(x)).catch(e => reject(e))
+  });
 }
 
 
@@ -209,13 +211,13 @@ function loadJSONFile(JSONSourcePath) {
   // Test with Appium
   return new Promise((resolve, reject) => {
     RNFB.fs.readFile(JSONSourcePath).then(result => {
+      let parsedResult;
       try {
-        resolve(JSON.parse(result));
-        return;
+        parsedResult = JSON.parse(result);
       } catch (e) {
-        resolve({}); // if file can't be parsed, fall back to empty object
+        parsedResult = {}; // if file can't be parsed, fall back to empty object
       }
-      resolve(JSON.parse(result));
+      resolve(parsedResult);
     }).catch(e => {
       reject(e);
     });
@@ -241,23 +243,32 @@ function loadCoreFile(filename) {
 }
 
 async function lastUpdated() {
-  const exists = await RNFB.fs.exists(`${RNFB.fs.dirs.DocumentDir}/library/last_updated.json`);
-  if (!exists)
-    await downloadCoreFile('last_updated.json');
-  try {
-    return await loadCoreFile('last_updated.json')
-  } catch (e) {
-    console.log(e);
-    /*
-     * In the event the user never downloaded last_updated.json, we're going to throw out some placeholder values. There
-     * might be a better way of dealing with this issue.
-     */
-    return {
-      schema_version: SCHEMA_VERSION,
-      titles: []
-    };
+  const lastUpdatedSource = `${RNFB.fs.dirs.DocumentDir}/library/last_updated.json`;
+  const exists = await RNFB.fs.exists(lastUpdatedSource);
+  let success = exists;
+  if (!exists) {
+    try {
+      await downloadCoreFile(`last_updated.json`);
+      success = true;
+    } catch (e) {
+      console.log(e);
+    }
   }
-
+  if (success){
+    try {
+      return await loadJSONFile(lastUpdatedSource)
+  } catch (e) {
+      console.log(`Handling caught error: ${e}`);
+    }
+  }
+    /*
+     * In the event the user never downloaded last_updated.json and the download failed we're going to throw out some
+     * placeholder values. There might be a better way of dealing with this issue.
+     */
+  return {
+    schema_version: SCHEMA_VERSION,
+    titles: []
+  };
 }
 
 function getFullBookList() {
@@ -534,27 +545,48 @@ async function deleteLibrary() {
   await PackagesState['COMPLETE LIBRARY'].unclick()
 }
 
+async function addDir(path) {
+  const exists = await RNFB.fs.exists(path);
+  if (!exists) {
+    try {
+      await RNFB.fs.mkdir(path)
+    } catch(e) {
+      console.log(`Could not create directory at ${path}; ${e}`)
+    }
+  }
+}
+
 async function downloadCoreFile(filename) {
   // Test with Appium
-  const tmpFolder = `${RNFB.fs.dirs.DocumentDir}/tmp`;
-  const exists = await RNFB.fs.exists(tmpFolder);
-  if (!exists) {
-    try{
-      await RNFB.fs.mkdir(tmpFolder);
-    } catch (e) {
-      console.log(e);
-      throw new Error("Failed to create tmp directory")
-    }
+  console.log(`downloading ${filename}`);
+  const [appDir, tempDir] = [`${RNFB.fs.dirs.DocumentDir}/library`, `${RNFB.fs.dirs.DocumentDir}/tmp`];
+  await Promise.all([
+    addDir(tempDir),
+    addDir(appDir),
+  ]);
 
+  const [fileUrl, tempPath] = [`${HOST_PATH}/${encodeURIComponent(filename)}`, `${tempDir}/${filename}`];
+  let downloadResp = null;
+  try{
+    downloadResp = await downloadFilePromise(fileUrl, tempPath);
+  } catch (e) {
+    console.log(e);
+    return
   }
-  const [fileUrl, tempPath] = [`${HOST_PATH}/${encodeURIComponent(filename)}`, `${RNFB.fs.dirs.DocumentDir}/tmp/${filename}`];
-  const downloadResp = await downloadFilePromise(fileUrl, tempPath);
-  const status = downloadResp.info().status;
-  if (status >= 300 || status < 200) {
+  const status = !!downloadResp ? downloadResp.info().status : 'total failure';
+  if ((status >= 300 || status < 200) && (status !== 'total failure')) {
     await RNFB.fs.unlink(tempPath);
     throw new Error(`bad download status; got : ${status}`);
   }
-  await RNFB.mv(tempPath, `${RNFB.fs.dirs.DocumentDir}/library/${filename}`);
+  else {
+    console.log(`successfully downloaded ${filename} to ${tempPath} with status ${status}`);
+  }
+  try {
+    await RNFB.fs.mv(tempPath, `${RNFB.fs.dirs.DocumentDir}/library/${filename}`);
+  } catch(e) {
+    console.log(`failed to move file at ${tempPath} to app storage: ${e}`);
+    await RNFB.fs.unlink(tempPath);
+  }
 }
 
 async function checkUpdatesFromServer() {
@@ -564,7 +596,7 @@ async function checkUpdatesFromServer() {
   await AsyncStorage.setItem('lastUpdateCheck', timestamp);
   await AsyncStorage.setItem('lastUpdateSchema', SCHEMA_VERSION);
   try {
-    await downloadCoreFile('last_updated.json');
+    await loadJSONFile(`${RNFB.fs.dirs.DocumentDir}/library/last_updated.json`);
   } catch (e) {
     console.log(e)
   }
