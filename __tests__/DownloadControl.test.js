@@ -6,24 +6,24 @@ const fetch = jest.fn(x => {
   return {status: 200}
 });
 
-jest.mock('rn-fetch-blob', () =>{
-  return {
-    fs: {
-      dirs: {
-        DocumentDir: "foo"
-      }
-    },
-    config: jest.fn().mockImplementation(() => {
-      return {
-        fetch: jest.fn().mockResolvedValue(Promise.resolve({
-          info: () => {
-            return {status: 200}
-          }
-        }))
-      }
-    }),
-  }
-});
+// jest.mock('rn-fetch-blob', () =>{
+//   return {
+//     fs: {
+//       dirs: {
+//         DocumentDir: "foo"
+//       }
+//     },
+//     config: jest.fn().mockImplementation(() => {
+//       return {
+//         fetch: jest.fn().mockResolvedValue(Promise.resolve({
+//           info: () => {
+//             return {status: 200}
+//           }
+//         }))
+//       }
+//     }),
+//   }
+// });
 
 describe('downloadBundle_tests', () => {
   test('Successful download', () => {
@@ -108,6 +108,14 @@ describe('InitializationTests', () => {
     expect(PackagesState["Torah with Rashi"].parent).toEqual("COMPLETE LIBRARY");
 
     ExportedFunctions.repopulateBooksState = orig;
+  });
+});
+
+describe('testMocking', () => {
+  test('readWrite', async () => {
+    await RNFB.fs.writeFile('foo/bar', 'some random stuff');
+    const result = await RNFB.fs.readFile('foo/bar');
+    expect(result).toBe('some random stuff')
   });
 });
 

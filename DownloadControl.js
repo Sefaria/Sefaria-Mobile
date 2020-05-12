@@ -349,7 +349,7 @@ function setLocalBookTimestamps(bookTitleList) {
       RNFB.fs.exists(filepath)
         .then(exists => {
           if (exists) {
-            RNFB.fs.stat(filepath).then(timestamp => resolve(timestamp)).catch(e => {
+            RNFB.fs.stat(filepath).then(fileStats => resolve(fileStats['lastModified'])).catch(e => {
               console.log(e);
               resolve(null);
             });
