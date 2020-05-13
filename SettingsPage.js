@@ -27,8 +27,12 @@ import styles from './Styles';
 import strings from './LocalizedStrings';
 import {
   PackagesState,
-  ExportedFunctions as DownloadControlFunctions,
   Tracker as DownloadTracker,
+  downloadPackage,
+  checkUpdatesFromServer,
+  promptLibraryUpdate,
+  wereBooksDownloaded,
+  deleteLibrary as downloaderDeleteLibrary,
 } from './DownloadControl';
 
 const generateOptions = (options, onPress) => options.map(o => ({
@@ -69,7 +73,7 @@ const usePkgState = () => {
         DownloadTracker.subscribe('settingsPagePackageDownload', setDownloadFunction);
         await PackagesState[pkgName].markAsClicked();
         setIsDisabledObj(getIsDisabledObj());
-        await DownloadControlFunctions.downloadPackage(pkgName);
+        await downloadPackage(pkgName);
       }
     };
     const parent = pkgObj.parent;
@@ -90,9 +94,9 @@ function abstractUpdateChecker(disableUpdateComponent) {
   async function f() {
     disableUpdateComponent(true);
     try {
-      const [totalDownloads, newBooks] = await DownloadControlFunctions.checkUpdatesFromServer();
+      const [totalDownloads, newBooks] = await checkUpdatesFromServer();
       if (totalDownloads > 0) {
-        DownloadControlFunctions.promptLibraryUpdate(totalDownloads, newBooks);
+        promptLibraryUpdate(totalDownloads, newBooks);
       }
       else {
         Alert.alert(
@@ -120,7 +124,7 @@ const SettingsPage = ({ close, logout, openUri }) => {
   const checkUpdatesForSettings = abstractUpdateChecker(setUpdatesDisabled);
 
   const deleteLibrary = async () => {
-    await DownloadControlFunctions.deleteLibrary();
+    await downloaderDeleteLibrary();
     setIsDisabledObj(getIsDisabledObj);
   };
 
@@ -141,7 +145,7 @@ const SettingsPage = ({ close, logout, openUri }) => {
 
         <View style={[styles.readerDisplayOptionsMenuDivider, styles.settingsDivider, theme.readerDisplayOptionsMenuDivider]}/>
 
-        {DownloadControlFunctions.wereBooksDownloaded() ?
+        {wereBooksDownloaded() ?
           <View>
             <TouchableOpacity style={styles.button} disabled={updatesDisabled} onPress={checkUpdatesForSettings}>
               <Text style={[langStyle, styles.buttonText]}>{updatesDisabled ? strings.checking : strings.checkForUpdates}</Text>

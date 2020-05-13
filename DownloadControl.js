@@ -27,7 +27,7 @@ function selectedPackages() {
   // Test with Jest
   let selections = {};
   for (let [packageTitle, packObj] of Object.entries(PackagesState)) {
-    selections[packageTitle] = packObj.clicked &! packObj.disabled;
+    selections[packageTitle] = packObj.clicked && !packObj.disabled;
   }
   return selections
 }
@@ -44,18 +44,18 @@ class DownloadTracker {
       throw "Another download is in Progress!"
     }
     this.currentDownload = downloadState;
-    this.currentDownload.finally(() => this.removeDownload())
+    this.currentDownload.finally(this.removeDownload())
   }
   removeDownload() {
-    this.currentDownload = false;
+    this.currentDownload = null;
     this.notify(false)
   }
   downloadInProgress() {
     return (!!this.currentDownload);
   }
   cancelDownload() {
-    if (!!this.currentDownload) {
-      this.currentDownload.cancel().then(this.removeDownload());
+    if (!this.downloadInProgress()) {
+      this.currentDownload.cancel().then(this.removeDownload);
     }
     else {
       throw "No download to cancel"
@@ -64,7 +64,7 @@ class DownloadTracker {
   attachProgressTracker(progressTracker, config) {
     if (this.downloadInProgress()) {
       this.currentDownload.progress(config, progressTracker);
-    }
+    } // todo: else throw error
   }
   subscribe(listenerName, listenerFunc) {
     /*
@@ -90,7 +90,7 @@ class Package {
     this.name = jsonData['en'];
     this.jsonData = jsonData;
     this.children = [];
-    this.disabled = false;  // a Package is disabled if its parent was clicked
+    this.disabled = false;  // a Package is disabled if its parent was clicked todo: rename to superseded by parent
     this.clicked = false;
     this.parent = this.getParent();
     this.order = order;
@@ -107,11 +107,18 @@ class Package {
     }
     else return this.jsonData['parent']
   };
-  markAsClicked = async function (disabled=false) {
+  _propagateClick(clicked) {
+    this.children.forEach(child => {
+      child = PackagesState[child];
+      [child.clicked, child.disabled] = [clicked, clicked];
+      child._propagateClick(clicked);
+    })
+  }
+  markAsClicked = async function () {
     /*
      * we want to correct for bad data. If both a parent and a child are marked as clicked, we need to make sure the
      * child is disabled. In the event that a child was marked before it's parent, the `disabled` parameter will trickle
-     * down when the parent is marked. In case the parent was already marked, we'll will look up the parent in
+     * down when the parent is marked. In case the parent was already marked, we'll look up the parent in
      * PackagesState.
      *
      * We've separated the concerns of marking which packages were clicked and actually downloading packages. Keeping
@@ -119,41 +126,30 @@ class Package {
      * starts) and for maintainability.
      */
     this.clicked = true;
-    if (disabled) {
-      this.disabled = disabled;
-    }
-    else {
-      let parent = PackagesState[this.parent];
-      this.disabled = !!parent.clicked;
-    }
-    this.children.forEach(child => PackagesState[child].markAsClicked(true));
 
-    // at the end of the recursion we need to save the result to disk. The package actually clicked will have
-    // disabled = false (disabled is marked as true when a parent was clicked).
-    if (!disabled) {
-      await AsyncStorage.setItem('packagesSelected', JSON.stringify(selectedPackages()));
-    }
+    this._propagateClick(true);
+    await AsyncStorage.setItem('packagesSelected', JSON.stringify(selectedPackages()));
+
   };
-  unclick = async function (activePackage=true) {
+  unclick = async function (e) {
     /*
      * Set this package as desired = false. In addition to cleaning up this package, we will also use the opportunity to
      * delete any books that may be downloaded but not desired by the user but may reside outside the package.
      *
      * activePackage: set to true when this is the package clicked. Will be set to false when recursing over children
      */
-    if (!!activePackage && !!this.disabled ) {
-      throw "A disabled package cannot be active"
+    if (this.disabled) {
+      throw "A disabled package cannot be unclicked"
     }
 
-    [this.clicked, this.disabled] = [false, false];
-    this.children.forEach(p => p.unclick(activePackage=false));
-    if (activePackage) {
-      await AsyncStorage.setItem('packagesSelected', JSON.stringify(selectedPackages()));
-      setDesiredBooks();
+    this.clicked = false;
+    this._propagateClick(false);
+    await AsyncStorage.setItem('packagesSelected', JSON.stringify(selectedPackages()));
 
-      // do we want to separate the concerns here? Less of an issue as there is not a network dependency
-      await deleteBooks(calculateBooksToDelete(BooksState));
-    }
+
+    // do we want to separate the concerns here? Less of an issue as there is not a network dependency
+    setDesiredBooks();
+    await deleteBooks(calculateBooksToDelete(BooksState));
   }
 }
 
@@ -182,29 +178,25 @@ function downloadFilePromise(fileUrl, filepath) {
 }
 
 
-async function populateDownloadState(pkgStateData) {
+function populateDownloadState(pkgStateData) {
   // Test with both Appium an Jest
   // pkgStateData is the contents of packages.json
-  [PackagesState, BooksState] = [{}, {}];
+  const packageResult = {};
   pkgStateData.forEach((pkgData, index) => {
-    PackagesState[pkgData['en']] = new Package(pkgData, index);
+    packageResult[pkgData['en']] = new Package(pkgData, index);
   });
 
   // children are not defined in package.json. Each package points to a parent and we can now use that to set children
   let parentPackage;
-  for (let [packageTitle, packObj] of Object.entries(PackagesState)) {
+  for (let [packageTitle, packObj] of Object.entries(packageResult)) {
     if (packageTitle === 'COMPLETE LIBRARY') {}
     else {
       parentPackage = packObj.parent;
-      PackagesState[parentPackage].addChild(packageTitle);
+      packageResult[parentPackage].addChild(packageTitle);
     }
   }
-  try {
-    await ExportedFunctions.repopulateBooksState();  // this is helpful for writing unit tests
-  } catch (e) {
-    console.log(e)
-  }
-  return Promise.resolve(PackagesState)
+
+  return packageResult
 }
 
 function loadJSONFile(JSONSourcePath) {
@@ -224,7 +216,7 @@ function loadJSONFile(JSONSourcePath) {
   })
 }
 
-function loadCoreFile(filename) {
+function loadCoreFile(filename) {  // todo: this might be simpler refactored as an async method
   // Test with Appium
   return new Promise((resolve, reject) => {
     RNFB.fs.exists(RNFB.fs.dirs.DocumentDir + "/library/" + filename)
@@ -281,37 +273,67 @@ function getFullBookList() {
   })
 }
 
-function packageSetupProtocol() {
-  // Test with Jest and Appium
-  return new Promise ((resolve, reject) => {
-    Promise.all([
-      loadCoreFile('packages.json').then(pkgStateData => populateDownloadState(pkgStateData)),
-      AsyncStorage.getItem("packagesSelected").then(x => !!x ? JSON.parse(x) : {})
-    ]).then(appState => {
-      const [packageData, packagesSelected] = appState;
-      let falseSelections = [];
-      for (let [packName, clickStatus] of Object.entries(packagesSelected)) {
-        !!clickStatus ? packageData[packName].markAsClicked() : falseSelections.push(packName)
-      }
-      for (let packName of Object.keys(packagesSelected)) {
-        if (!!packageData[packName].disabled) {
-          falseSelections.push(packName);
-        }
-      }
-      falseSelections.map(x => delete packagesSelected[x]);
+async function packageSetupProtocol() {
+  const [packageData, packagesSelected] = await Promise.all([
+    loadCoreFile('packages.json').then(pkgStateData => populateDownloadState(pkgStateData)),
+    AsyncStorage.getItem('packagesSelected').then(x => !!x ? JSON.parse(x) : {})
+  ]);
 
-      AsyncStorage.setItem('packagesSelected', JSON.stringify(packagesSelected)).then(resolve()).catch(error => {
-        console.error(`AsyncStorage failed to save: ${error}`);
-        reject(error);
-      })
-    })
-  })
+  let falseSelections = [];
+  for (let [packName, clickStatus] of Object.entries(packagesSelected)) {
+    !!clickStatus ? packageData[packName].markAsClicked() : falseSelections.push(packName)
+  }
+
+  for (let packName of Object.keys(packagesSelected)) {
+    if (!!packageData[packName].disabled) {
+      falseSelections.push(packName)
+    }
+  }
+  if (falseSelections.length) {
+    falseSelections.map(x => delete packagesSelected[x]);
+    try {
+      // this is here for cleaning up falseSelections on disk
+      await AsyncStorage.setItem('packagesSelected', JSON.stringify(packagesSelected))
+    } catch (e) {
+      throw new Error(`AsyncStorage failed to save: ${error}`);
+    }
+  }
+  PackagesState = packageData;
+  await repopulateBooksState()
 }
+
+// function packageSetupProtocol() {  // todo: refactor as async
+//   // Test with Jest and Appium
+//   return new Promise ((resolve, reject) => {
+//     Promise.all([
+//       loadCoreFile('packages.json').then(pkgStateData => populateDownloadState(pkgStateData)),
+//       AsyncStorage.getItem("packagesSelected").then(x => !!x ? JSON.parse(x) : {})
+//     ]).then(appState => {
+//       const [packageData, packagesSelected] = appState;
+//       let falseSelections = [];
+//       for (let [packName, clickStatus] of Object.entries(packagesSelected)) {
+//         !!clickStatus ? packageData[packName].markAsClicked() : falseSelections.push(packName)
+//       }
+//       for (let packName of Object.keys(packagesSelected)) {
+//         if (!!packageData[packName].disabled) {
+//           falseSelections.push(packName);
+//         }
+//       }
+//       falseSelections.map(x => delete packagesSelected[x]);
+//
+//       AsyncStorage.setItem('packagesSelected', JSON.stringify(packagesSelected)).then(resolve).catch(error => {
+//         console.error(`AsyncStorage failed to save: ${error}`);
+//         reject(error);
+//       })
+//     })
+//   })
+// }
 
 
 function setDesiredBooks() {
   // Test with Jest
   if (PackagesState['COMPLETE LIBRARY'].clicked) {
+    console.log('foo');
     Object.keys(BooksState).forEach(b => BooksState[b].desired = true)
   }
   else {
@@ -325,23 +347,21 @@ function setDesiredBooks() {
        * a larger package that was already selected).
        */
       return x.name !== 'COMPLETE LIBRARY' && x.clicked && !x.disabled
-    }).map(packageList => {
-      packageList.forEach(packageObj => {
-        packageObj.jsonData['containedBooks'].forEach(book => {
-          if (book in BooksState) {
-            BooksState[book].desired = packageObj.clicked;
-          }
-          else {  // edge case, new books should not be added here
-            BooksState[book] = new Book(book, packageObj.clicked, null);
-          }
-        })
+    }).forEach(packageObj => {
+      packageObj.jsonData['indexes'].forEach(book => {
+        if (book in BooksState) {
+          BooksState[book].desired = true;
+        }
+        else {  // edge case, new books should not be added here todo: add to crashlytics (look at ReaderApp 529)
+          BooksState[book] = new Book(book, packageObj.clicked, null);
+        }
       })
     })
   }
 
 }
 
-function setLocalBookTimestamps(bookTitleList) {
+function setLocalBookTimestamps(bookTitleList) { // todo: refactor as async
   // Test with both Appium and Jest
   return Promise.all(bookTitleList.map(bookTitle => {
     return new Promise((resolve, reject) => {
@@ -359,7 +379,7 @@ function setLocalBookTimestamps(bookTitleList) {
     })
   })).then((timestampList) => timestampList.map((timestamp, i) => {
     const bookTitle = bookTitleList[i];
-    timestamp = !!timestamp ? new Date(timestamp) : null;
+    timestamp = timestamp && new Date(timestamp);
     if (bookTitle in BooksState) {
       BooksState[bookTitle].lastUpdated = timestamp;
     }
@@ -672,7 +692,7 @@ async function schemaCheckAndPurge() {
   }
 }
 
-const ExportedFunctions = {
+export {
   downloadBundle,
   packageSetupProtocol,
   wereBooksDownloaded,
@@ -686,14 +706,9 @@ const ExportedFunctions = {
   autoUpdateCheck,
   downloadUpdate,
   repopulateBooksState,
-  populateDownloadState
-};
-
-
-export {
+  populateDownloadState,
   PackagesState,
   BooksState,
-  Tracker,
-  ExportedFunctions,
-  Package
+  Package,
+  Tracker
 };

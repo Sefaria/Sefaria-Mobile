@@ -1,6 +1,19 @@
 
 const testCache = {};
 
+// using this seems more "correct", but much more difficult to implement correctly. Unclear at this time if worth the effort
+function getPath(path) {
+  let curdir = testCache;
+  let pathList = path.split('/').slice(1);  // get rid of the leading slash
+  for (let p in pathList) {
+    if (curdir instanceof Object && p in curdir)
+      curdir = curdir[p];
+    else
+      throw new Error(`Path ${path} does not exist`);
+  }
+  return curdir
+}
+
 
 export default {
   fs: {
@@ -13,8 +26,6 @@ export default {
         if (x in testCache) {
           resolve(testCache[x])
         }
-        else reject(`File ${x} does not exist`)
-
       })
     }),
     exists: jest.fn(x => Promise.resolve((x in testCache))
@@ -38,10 +49,20 @@ export default {
       })
     }),
     writeFile: jest.fn((path, content) => {
-        testCache[path] = content;
+        testCache[path] = JSON.stringify(content);
         return Promise.resolve()
+    }),
+    clear: jest.fn(() => {
+      for (let member in testCache) {
+        if (testCache.hasOwnProperty(member))
+          delete testCache[member]
+      }
     })
   },
+  /*
+   * Testing tip: Use RNFB.fs.writeFile in test setup to populate disk with data that would have been downloaded
+   * from a server
+   */
   config: jest.fn(x => {
     return {
       fetch: jest.fn(x => Promise.resolve({

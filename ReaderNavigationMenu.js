@@ -31,8 +31,8 @@ import ReaderNavigationSheetMenu from './ReaderNavigationSheetMenu';
 import styles from './Styles.js';
 import strings from './LocalizedStrings.js';
 import {
-  ExportedFunctions as DownloadControlFunctions,
   getFullBookList,
+  getLocalBookList,
   PackagesState
 } from './DownloadControl'
 
@@ -260,7 +260,7 @@ const MoreSection = ({ isHeb, openUri, openSettings }) => {
     openUri("https://www.sefaria.org/about");
   };
   const onFeedback = () => {
-    Promise.all([DownloadControlFunctions.getLocalBookList(), DownloadControlFunctions.getFullBookList()]).then(x =>
+    Promise.all([getLocalBookList(), getFullBookList()]).then(x =>
     Linking.openURL(`mailto:hello@sefaria.org?subject=${encodeURIComponent(Platform.OS+" App Feedback")}&body=${getEmailBody(...x)}`));
   };
   return (
