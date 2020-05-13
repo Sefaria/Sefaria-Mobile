@@ -14,7 +14,9 @@ import { Filter } from './Filter';
 import URL from 'url-parse';
 import analytics from '@react-native-firebase/analytics';
 import {
-  ExportedFunctions as DownloadControlFunctions,
+  packageSetupProtocol,
+  downloadUpdate,
+  autoUpdateCheck,
 } from './DownloadControl'
 
 const ERRORS = {
@@ -47,10 +49,10 @@ Sefaria = {
       .then(Sefaria._loadCalendar)
       .then(Sefaria._loadPeople)
       .then(Sefaria._loadHebrewCategories)
-      .then(DownloadControlFunctions.packageSetupProtocol())
-      .then(DownloadControlFunctions.autoUpdateCheck().then(shouldUpdate => {
-        shouldUpdate ? DownloadControlFunctions.downloadUpdate() : null
-      }));
+      .then(packageSetupProtocol)
+      .then(autoUpdateCheck).then(shouldUpdate => {
+        shouldUpdate ? downloadUpdate() : null
+      });
   },
   getLastAppUpdateTime: async function() {
     // returns epoch time of last time the app was updated. used to compare if sources files are newer than downloaded files

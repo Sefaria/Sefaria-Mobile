@@ -44,7 +44,7 @@ const generateOptions = (options, onPress) => options.map(o => ({
 const getIsDisabledObj = () => {
   const isDisabledObj = {};
   for (let [pkgName, pkgObj] of Object.entries(PackagesState)) {
-    isDisabledObj[pkgName] = !!pkgObj.disabled;
+    isDisabledObj[pkgName] = !!pkgObj.supersededByParent;
   }
   return isDisabledObj;
 };
@@ -79,7 +79,7 @@ const usePkgState = () => {
     const parent = pkgObj.parent;
     const shortIntLang = interfaceLanguage.slice(0,2);
     //NOTE: onPressDisabled() takes pkgNames in curr intLang while onPress() takes eng
-    if (pkgObj.disabled) { onPressDisabled(pkgObj[shortIntLang], parent[shortIntLang]); }
+    if (pkgObj.supersededByParent) { onPressDisabled(pkgObj[shortIntLang], parent[shortIntLang]); }
     else { onPressActive(pkgObj.name); }
   };
 
@@ -249,7 +249,7 @@ const OfflinePackageList = ({ isDisabledObj, onPackagePress }) => {
   return (
     <View style={styles.settingsOfflinePackages}>
       {
-        Object.values(PackagesState).sort((a, b) => a.order - b.order).map(p => {
+        Object.values(PackagesState).sort((a, b) => a.order - b.order).map(p => {  // todo: make these explicit components
           const isSelected = p.clicked;
           const {isD, setDownload} = useState(false);
            const onPress = () => { onPackagePress(p, setDownload); };

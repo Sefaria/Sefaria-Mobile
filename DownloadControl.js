@@ -12,6 +12,7 @@ const DOWNLOAD_SERVER = "http://35.237.217.25";
 const HOST_PATH = `${DOWNLOAD_SERVER}/static/ios-export/${SCHEMA_VERSION}`;
 const HOST_BUNDLE_URL = `${HOST_PATH}/bundles`;
 const BUNDLE_LOCATION = RNFB.fs.dirs.DocumentDir + "/tmp/bundle.zip";
+const [FILE_DIRECTORY, TMP_DIRECTORY] = [`${RNFB.fs.dirs.DocumentDir}/library`, `${RNFB.fs.dirs.DocumentDir}/tmp`];
 
 
 let BooksState = {};
@@ -27,7 +28,7 @@ function selectedPackages() {
   // Test with Jest
   let selections = {};
   for (let [packageTitle, packObj] of Object.entries(PackagesState)) {
-    selections[packageTitle] = packObj.clicked && !packObj.disabled;
+    selections[packageTitle] = packObj.wasSelectedByUser();
   }
   return selections
 }
@@ -64,7 +65,8 @@ class DownloadTracker {
   attachProgressTracker(progressTracker, config) {
     if (this.downloadInProgress()) {
       this.currentDownload.progress(config, progressTracker);
-    } // todo: else throw error
+    } else
+      throw new Error("No download to track");
   }
   subscribe(listenerName, listenerFunc) {
     /*
@@ -90,7 +92,7 @@ class Package {
     this.name = jsonData['en'];
     this.jsonData = jsonData;
     this.children = [];
-    this.disabled = false;  // a Package is disabled if its parent was clicked todo: rename to superseded by parent
+    this.supersededByParent = false;
     this.clicked = false;
     this.parent = this.getParent();
     this.order = order;
@@ -110,7 +112,7 @@ class Package {
   _propagateClick(clicked) {
     this.children.forEach(child => {
       child = PackagesState[child];
-      [child.clicked, child.disabled] = [clicked, clicked];
+      [child.clicked, child.supersededByParent] = [clicked, clicked];
       child._propagateClick(clicked);
     })
   }
@@ -138,7 +140,7 @@ class Package {
      *
      * activePackage: set to true when this is the package clicked. Will be set to false when recursing over children
      */
-    if (this.disabled) {
+    if (this.supersededByParent) {
       throw "A disabled package cannot be unclicked"
     }
 
@@ -150,6 +152,9 @@ class Package {
     // do we want to separate the concerns here? Less of an issue as there is not a network dependency
     setDesiredBooks();
     await deleteBooks(calculateBooksToDelete(BooksState));
+  }
+  wasSelectedByUser = function () {
+    return this.clicked && !this.supersededByParent
   }
 }
 
@@ -178,8 +183,8 @@ function downloadFilePromise(fileUrl, filepath) {
 }
 
 
-function populateDownloadState(pkgStateData) {
-  // Test with both Appium an Jest
+function deriveDownloadState(pkgStateData) {
+  // Test with Jest
   // pkgStateData is the contents of packages.json
   const packageResult = {};
   pkgStateData.forEach((pkgData, index) => {
@@ -216,25 +221,21 @@ function loadJSONFile(JSONSourcePath) {
   })
 }
 
-function loadCoreFile(filename) {  // todo: this might be simpler refactored as an async method
-  // Test with Appium
-  return new Promise((resolve, reject) => {
-    RNFB.fs.exists(RNFB.fs.dirs.DocumentDir + "/library/" + filename)
-      .then(exists => {
-        if (Platform.OS === "ios" || exists) {
-          const pkgPath = exists ? (`${RNFB.fs.dirs.DocumentDir}/library/${filename}`) :
-            `${RNFB.fs.dirs.MainBundleDir}/sources/${filename}`;
-      loadJSONFile(pkgPath).then(x => resolve(x)).catch(e => reject(e))
-    }
-    // bundled packages.json lives in a different place on android
-    else RNFB.fs.readFile(RNFB.fs.asset(`sources/${filename}`)).then(x => resolve(JSON.parse(x)))
-          .catch(e => reject(e))
-    })
-  });
+async function loadCoreFile(filename) {
+  // Test explicitly with Appium. Platform dependencies are not modeled well with Jest
+  const exists = await RNFB.fs.exists(`${FILE_DIRECTORY}/${filename}`);
 
+  if (exists || Platform.OS === "ios") {
+    const pkgPath = exists ? `${FILE_DIRECTORY}/${filename}` : `${RNFB.fs.dirs.MainBundleDir}/sources/${filename}`;
+    return await loadJSONFile(pkgPath);
+  }
+  else {
+    const j = await RNFB.fs.readFile(RNFB.fs.asset(`sources/${filename}`));
+    return JSON.parse(j);
+  }
 }
 
-async function lastUpdated() {
+async function lastUpdated() {  // todo: rethink how this is used. We should not need to be going over the network unless an update was requested
   const lastUpdatedSource = `${RNFB.fs.dirs.DocumentDir}/library/last_updated.json`;
   const exists = await RNFB.fs.exists(lastUpdatedSource);
   let success = exists;
@@ -263,7 +264,7 @@ async function lastUpdated() {
   };
 }
 
-function getFullBookList() {
+function getFullBookList() { // todo: look at using Sefaria instance (Sefaria.booksDict). Use Sefaria.cacheIndexFromToc to initialize
   // Test with Jest
   // load books as defined in last_updated.json. Does not download a new file
   return new Promise((resolve, reject) => {
@@ -275,7 +276,7 @@ function getFullBookList() {
 
 async function packageSetupProtocol() {
   const [packageData, packagesSelected] = await Promise.all([
-    loadCoreFile('packages.json').then(pkgStateData => populateDownloadState(pkgStateData)),
+    loadCoreFile('packages.json').then(pkgStateData => deriveDownloadState(pkgStateData)),
     AsyncStorage.getItem('packagesSelected').then(x => !!x ? JSON.parse(x) : {})
   ]);
 
@@ -285,7 +286,7 @@ async function packageSetupProtocol() {
   }
 
   for (let packName of Object.keys(packagesSelected)) {
-    if (!!packageData[packName].disabled) {
+    if (!!packageData[packName].supersededByParent) {
       falseSelections.push(packName)
     }
   }
@@ -302,38 +303,9 @@ async function packageSetupProtocol() {
   await repopulateBooksState()
 }
 
-// function packageSetupProtocol() {  // todo: refactor as async
-//   // Test with Jest and Appium
-//   return new Promise ((resolve, reject) => {
-//     Promise.all([
-//       loadCoreFile('packages.json').then(pkgStateData => populateDownloadState(pkgStateData)),
-//       AsyncStorage.getItem("packagesSelected").then(x => !!x ? JSON.parse(x) : {})
-//     ]).then(appState => {
-//       const [packageData, packagesSelected] = appState;
-//       let falseSelections = [];
-//       for (let [packName, clickStatus] of Object.entries(packagesSelected)) {
-//         !!clickStatus ? packageData[packName].markAsClicked() : falseSelections.push(packName)
-//       }
-//       for (let packName of Object.keys(packagesSelected)) {
-//         if (!!packageData[packName].disabled) {
-//           falseSelections.push(packName);
-//         }
-//       }
-//       falseSelections.map(x => delete packagesSelected[x]);
-//
-//       AsyncStorage.setItem('packagesSelected', JSON.stringify(packagesSelected)).then(resolve).catch(error => {
-//         console.error(`AsyncStorage failed to save: ${error}`);
-//         reject(error);
-//       })
-//     })
-//   })
-// }
-
-
 function setDesiredBooks() {
   // Test with Jest
   if (PackagesState['COMPLETE LIBRARY'].clicked) {
-    console.log('foo');
     Object.keys(BooksState).forEach(b => BooksState[b].desired = true)
   }
   else {
@@ -346,7 +318,7 @@ function setDesiredBooks() {
        * was dealt with above. Disabled packages are redundant (these are packages that are wholly contained within
        * a larger package that was already selected).
        */
-      return x.name !== 'COMPLETE LIBRARY' && x.clicked && !x.disabled
+      return x.name !== 'COMPLETE LIBRARY' && x.wasSelectedByUser()
     }).forEach(packageObj => {
       packageObj.jsonData['indexes'].forEach(book => {
         if (book in BooksState) {
@@ -361,36 +333,31 @@ function setDesiredBooks() {
 
 }
 
-function setLocalBookTimestamps(bookTitleList) { // todo: refactor as async
-  // Test with both Appium and Jest
-  return Promise.all(bookTitleList.map(bookTitle => {
-    return new Promise((resolve, reject) => {
-      const filepath = `${RNFB.fs.dirs.DocumentDir}/library/${bookTitle}.zip`;
-      RNFB.fs.exists(filepath)
-        .then(exists => {
-          if (exists) {
-            RNFB.fs.stat(filepath).then(fileStats => resolve(fileStats['lastModified'])).catch(e => {
-              console.log(e);
-              resolve(null);
-            });
-          }
-          else resolve(null);
-        })
-    })
-  })).then((timestampList) => timestampList.map((timestamp, i) => {
-    const bookTitle = bookTitleList[i];
-    timestamp = timestamp && new Date(timestamp);
-    if (bookTitle in BooksState) {
-      BooksState[bookTitle].lastUpdated = timestamp;
-    }
-    else {
-      BooksState[bookTitle] = new Book(bookTitle, false, timestamp);
-    }
-  }))
+async function setLocalBookTimestamps(bookTitleList) {
+  // Test with Jest. Requires a local mock of RNFB.fs.stat for a proper test
+  const getFileTimestamp = async (bookTitle) => {
+    const filepath = `${RNFB.fs.dirs.DocumentDir}/library/${bookTitle}.zip`;
+    const exists = await RNFB.fs.exists(filepath);
+    let timestamp;
+    if (exists) {
+      const fileStats = await RNFB.fs.stat(filepath);
+      timestamp = !!fileStats['lastModified'] ? new Date(fileStats['lastModified']) : null
+    } else
+      timestamp = null;
+    return {title: bookTitle, timestamp: timestamp}
+  };
+
+  const timestampList = await Promise.all(bookTitleList.map(getFileTimestamp));
+  timestampList.map(bookTime => {
+    if (bookTime.title in BooksState)
+      BooksState[bookTime.title] = bookTime.timestamp;
+    else
+      BooksState[bookTime.title] = new Book(bookTime.title, false, bookTime.timestamp)
+  })
 }
 
 function getLocalBookList() {
-  // Test with Appium
+  // Test with Appium?
   /*
    * This method is for getting the books that are stored on disk
    * Returns a Promise which resolves on a list of books
@@ -398,8 +365,8 @@ function getLocalBookList() {
   return new Promise((resolve, reject) => {
     RNFB.fs.ls(`${RNFB.fs.dirs.DocumentDir}/library`).then(fileList => {
       const books = [];
-      const reg = /([^/]+).zip$/g;
-      fileList.forEach(fileName => {
+      const reg = /([^/]+).zip$/;
+      fileList.forEach(fileName => { // todo: filter and map. Would be easier with async
         if (fileName.endsWith(".zip")) {
           books.push(reg.exec(fileName)[1]);
         }
@@ -421,7 +388,7 @@ function deleteBooks(bookList) {
   // Test with Appium
   const results = bookList.map(bookTitle => {
     return new Promise((resolve, reject) => {
-      const filepath = `${RNFB.fs.dirs.DocumentDir}/library/${bookTitle}.zip`;
+      const filepath = `${RNFB.fs.dirs.DocumentDir}/library/${bookTitle}.zip`; // todo: make library location (and tmp) variable
       RNFB.fs.unlink(filepath).then(resolve(bookTitle)).catch(err => reject(err));
     });
   });
@@ -447,7 +414,6 @@ async function unzipBundle() {
     }
   }
   await unzip(BUNDLE_LOCATION, `${RNFB.fs.dirs.DocumentDir}/library`);
-  return null
 }
 
 function requestNewBundle(bookList) {
@@ -469,6 +435,7 @@ async function downloadBundle(bundleName) {
   } catch (e) {
     console.log(e)
   }
+  // todo
   const downloadResult = await downloadState;
   Tracker.removeDownload();
   const status = downloadResult.info().status;
@@ -482,11 +449,11 @@ async function calculateBooksToDownload(booksState) {
   // Test with Jest
   const remoteBookUpdates = await lastUpdated();
   let booksToDownload = [];
-  for (const bookTitle in booksState) {
+  for (const bookTitle in booksState) {  // todo: cleaner to user Object.entries() and the filter() and map()
     if (booksState.hasOwnProperty(bookTitle)){
       const bookObj = booksState[bookTitle];
       if (bookObj.desired) {
-        if (!(bookObj.localLastUpdated)) {
+        if (!bookObj.localLastUpdated) {
           booksToDownload.push(bookTitle);
         }
         else if (booksState[bookTitle].localLastUpdated < remoteBookUpdates[bookTitle]) {
@@ -502,10 +469,10 @@ async function calculateBooksToDownload(booksState) {
 function calculateBooksToDelete(booksState) {
   // Test with Jest
   let booksToDelete = [];
-  for (const bookTitle in booksState) {
+  for (const bookTitle in booksState) {  // todo: Object.entries with filter & map
     if (booksState.hasOwnProperty(bookTitle)) {
       const bookObj = booksState[bookTitle];
-      if (!bookObj.desired && !!(bookObj.localLastUpdated)) {
+      if (!bookObj.desired && !!(bookObj.localLastUpdated)) {  // a book is on disk if localLastUpdated is set
         booksToDelete.push(bookTitle);
       }
     }
@@ -515,6 +482,8 @@ function calculateBooksToDelete(booksState) {
 
 async function _executeDownload(bundleName) {
   // Test with Appium
+  // todo: make sure network is checked
+  // todo: handle download interruption differently than download failure
   try {
     await downloadBundle(bundleName);
     await unzipBundle();
@@ -531,9 +500,9 @@ async function downloadPackage(packageName) {
   await _executeDownload(`${packageName}.zip`)
 }
 
-async function downloadUpdate(booksToDownload=null) {
+async function downloadUpdate(booksToDownload=null) {  // todo: get rid of null
   // Test with Appium
-  if (!!booksToDownload){
+  if (!!booksToDownload){  // todo: review. Isn't this redundant. should it be !bookToDownload
     booksToDownload = await calculateBooksToDownload(BooksState);
   }
   const bundleName = await requestNewBundle(booksToDownload);
@@ -594,7 +563,7 @@ async function downloadCoreFile(filename) {
     return
   }
   const status = !!downloadResp ? downloadResp.info().status : 'total failure';
-  if ((status >= 300 || status < 200) && (status !== 'total failure')) {
+  if ((status >= 300 || status < 200) || (status === 'total failure')) {
     await RNFB.fs.unlink(tempPath);
     throw new Error(`bad download status; got : ${status}`);
   }
@@ -616,7 +585,7 @@ async function checkUpdatesFromServer() {
   await AsyncStorage.setItem('lastUpdateCheck', timestamp);
   await AsyncStorage.setItem('lastUpdateSchema', SCHEMA_VERSION);
   try {
-    await loadJSONFile(`${RNFB.fs.dirs.DocumentDir}/library/last_updated.json`);
+    await loadJSONFile(`${RNFB.fs.dirs.DocumentDir}/library/last_updated.json`);  // todo: download a new file
   } catch (e) {
     console.log(e)
   }
@@ -706,7 +675,6 @@ export {
   autoUpdateCheck,
   downloadUpdate,
   repopulateBooksState,
-  populateDownloadState,
   PackagesState,
   BooksState,
   Package,

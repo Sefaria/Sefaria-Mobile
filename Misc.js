@@ -65,6 +65,7 @@ const SefariaProgressBar = ({ onPress, onClose, download }) => {
   const { progress, setProgress } = useState(0);
   const calculateProgress = (received, total) => !!(received) ? setProgress(received / total) : setProgress(0.0);
 
+  // todo: we need to use useEffect with an empty array to prevent this from running every render
   download.attachProgressTracker(calculateProgress, config);
   return <GlobalStateContext.Consumer>
     {({themeStr, interfaceLanguage}) => (

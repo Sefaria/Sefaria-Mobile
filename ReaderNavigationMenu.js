@@ -220,7 +220,7 @@ const getEmailBody = (nDownloaded, nAvailable) => {
   nDownloaded = nDownloaded <= nAvailable ? nDownloaded : nAvailable;
   return encodeURIComponent(`App Version: ${VersionNumber.appVersion}
           Texts Downloaded: ${nDownloaded} / ${nAvailable}
-          Packages: ${Object.values(PackagesState).filter(p => p.clicked && !p.disabled).map(p => p.name).join(", ")}
+          Packages: ${Object.values(PackagesState).filter(p => p.wasSelectedByUser()).map(p => p.name).join(", ")}
           OS Version: ${Platform.OS} ${Platform.Version}\n`);
 };
 

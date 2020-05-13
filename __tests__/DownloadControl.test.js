@@ -60,7 +60,8 @@ describe('InitializationTests', () => {
       Leviticus: 0,
       "Rashi on Genesis": 0,
       "Rashi on Exodus": 0,
-      "Rashi on Leviticus": 0
+      "Rashi on Leviticus": 0,
+      "Weird Random Book" : 0,
     }
   };
   const packageData = [
@@ -100,6 +101,10 @@ describe('InitializationTests', () => {
     await RNFB.fs.writeFile(`${RNFB.fs.dirs.DocumentDir}/library/last_updated.json`, lastUpdated);
     await RNFB.fs.writeFile(`${RNFB.fs.dirs.DocumentDir}/library/packages.json`, packageData);
   });
+  afterAll(async () => {
+    await RNFB.fs.clear();
+    await AsyncStorage.clean();
+  });
 
   test('NoPackagesSelected', async () => {
     await packageSetupProtocol();
@@ -117,10 +122,24 @@ describe('InitializationTests', () => {
       "Gen with Rashi": true
     }));
     await packageSetupProtocol();
-    await PackagesState['Gen with Rashi'].markAsClicked();
     expect(BooksState.Genesis.desired).toBe(true);
-    expect(BooksState.Exodus.desired).toBe(false)
-  })
+    expect(BooksState.Exodus.desired).toBe(false);
+    expect(BooksState['Weird Random Book'].desired).toBe(false);
+  });
+
+  test('CompleteLibraryTest', async () => {
+    await AsyncStorage.setItem('packagesSelected', JSON.stringify({
+      'COMPLETE LIBRARY': true
+    }));
+    await packageSetupProtocol();
+    expect(BooksState.Genesis.desired).toBe(true);
+    expect(BooksState.Exodus.desired).toBe(true);
+    expect(BooksState["Weird Random Book"].desired).toBe(true);
+    expect(PackagesState["COMPLETE LIBRARY"].clicked).toBe(true);
+    expect(PackagesState["COMPLETE LIBRARY"].supersededByParent).toBe(false);
+    console.log(PackagesState["Torah with Rashi"]);
+    expect(PackagesState["Torah with Rashi"].supersededByParent).toBe(true);  // todo: this is failing
+  });
 });
 
 describe('testMocking', () => {

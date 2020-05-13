@@ -207,7 +207,7 @@ class ReaderApp extends React.PureComponent {
   promptLibraryDownload() {
     AsyncStorage.getItem("libraryDownloadPrompted").
     then(async (prompted) => {
-      prompted = JSON.parse(prompted);
+      prompted = JSON.parse(prompted); // todo: if (prompted) return and move the Asynctorage down
       await AsyncStorage.setItem("libraryDownloadPrompted", "true");
       if (!prompted) {
         const onDownload = () => {
