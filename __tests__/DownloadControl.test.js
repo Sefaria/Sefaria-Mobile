@@ -105,6 +105,9 @@ describe('InitializationTests', () => {
     await RNFB.fs.clear();
     await AsyncStorage.clean();
   });
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
 
   test('NoPackagesSelected', async () => {
     await packageSetupProtocol();
@@ -140,6 +143,25 @@ describe('InitializationTests', () => {
     console.log(PackagesState["Torah with Rashi"]);
     expect(PackagesState["Torah with Rashi"].supersededByParent).toBe(true);  // todo: this is failing
   });
+  test('Package Selections Stable', async () => {
+    const selection = {"Gen with Rashi": true};
+    await AsyncStorage.setItem('packagesSelected', JSON.stringify(selection));
+    await packageSetupProtocol();
+    expect(AsyncStorage.setItem).toHaveBeenCalledTimes(1);  // should only be called here
+    const retrievedSelection = await AsyncStorage.getItem('packagesSelected');
+    expect(JSON.parse(retrievedSelection)).toEqual(selection);
+  });
+  test('Bad Data Correction', async () => {
+    const selection = {
+      "Torah with Rashi": true,
+      "Gen with Rashi": true,  // child of Torah with Rashi, should be purged
+    };
+    await AsyncStorage.setItem('packagesSelected', JSON.stringify(selection));
+    await packageSetupProtocol();
+    expect(AsyncStorage.setItem).toHaveBeenCalledTimes(2);
+    const retrievedSelection = await AsyncStorage.getItem('packagesSelected');
+    expect(JSON.parse(retrievedSelection)).toEqual({"Torah with Rashi": true});
+  })
 });
 
 describe('testMocking', () => {

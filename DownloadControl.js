@@ -28,7 +28,8 @@ function selectedPackages() {
   // Test with Jest
   let selections = {};
   for (let [packageTitle, packObj] of Object.entries(PackagesState)) {
-    selections[packageTitle] = packObj.wasSelectedByUser();
+    if (packObj.wasSelectedByUser())
+      selections[packageTitle] = true;
   }
   return selections
 }
@@ -116,7 +117,7 @@ class Package {
       child._propagateClick(clicked);
     })
   }
-  markAsClicked = async function () {
+  markAsClicked = async function (writeToDisk=true) {
     /*
      * we want to correct for bad data. If both a parent and a child are marked as clicked, we need to make sure the
      * child is disabled. In the event that a child was marked before it's parent, the `disabled` parameter will trickle
@@ -128,9 +129,13 @@ class Package {
      * starts) and for maintainability.
      */
     this.clicked = true;
+    const parent = PackagesState[this.parent];
+    const supersededByParent = parent && parent.clicked;
+    this.supersededByParent = Boolean(supersededByParent);
 
     this._propagateClick(true);
-    await AsyncStorage.setItem('packagesSelected', JSON.stringify(selectedPackages()));
+    if (writeToDisk)
+      await AsyncStorage.setItem('packagesSelected', JSON.stringify(selectedPackages()));
 
   };
   unclick = async function (e) {
@@ -279,10 +284,11 @@ async function packageSetupProtocol() {
     loadCoreFile('packages.json').then(pkgStateData => deriveDownloadState(pkgStateData)),
     AsyncStorage.getItem('packagesSelected').then(x => !!x ? JSON.parse(x) : {})
   ]);
+  PackagesState = packageData;
 
   let falseSelections = [];
-  for (let [packName, clickStatus] of Object.entries(packagesSelected)) {
-    !!clickStatus ? packageData[packName].markAsClicked() : falseSelections.push(packName)
+  for (let packName of Object.keys(packagesSelected)) {
+    packageData[packName].markAsClicked(false)
   }
 
   for (let packName of Object.keys(packagesSelected)) {
@@ -292,6 +298,7 @@ async function packageSetupProtocol() {
   }
   if (falseSelections.length) {
     falseSelections.map(x => delete packagesSelected[x]);
+    console.log(packagesSelected);
     try {
       // this is here for cleaning up falseSelections on disk
       await AsyncStorage.setItem('packagesSelected', JSON.stringify(packagesSelected))
@@ -299,7 +306,6 @@ async function packageSetupProtocol() {
       throw new Error(`AsyncStorage failed to save: ${error}`);
     }
   }
-  PackagesState = packageData;
   await repopulateBooksState()
 }
 
