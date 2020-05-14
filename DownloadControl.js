@@ -138,7 +138,7 @@ class Package {
       await AsyncStorage.setItem('packagesSelected', JSON.stringify(selectedPackages()));
 
   };
-  unclick = async function (e) {
+  unclick = async function () {
     /*
      * Set this package as desired = false. In addition to cleaning up this package, we will also use the opportunity to
      * delete any books that may be downloaded but not desired by the user but may reside outside the package.
@@ -340,25 +340,20 @@ function setDesiredBooks() {
 }
 
 async function setLocalBookTimestamps(bookTitleList) {
-  // Test with Jest. Requires a local mock of RNFB.fs.stat for a proper test
-  const getFileTimestamp = async (bookTitle) => {
-    const filepath = `${RNFB.fs.dirs.DocumentDir}/library/${bookTitle}.zip`;
-    const exists = await RNFB.fs.exists(filepath);
-    let timestamp;
-    if (exists) {
-      const fileStats = await RNFB.fs.stat(filepath);
-      timestamp = !!fileStats['lastModified'] ? new Date(fileStats['lastModified']) : null
-    } else
-      timestamp = null;
-    return {title: bookTitle, timestamp: timestamp}
-  };
+  let fileData = await RNFB.fs.lstat(FILE_DIRECTORY);
+  fileData = fileData.filter(x => x['filename'].endsWith('.zip'));
+  const stamps = {};
+  fileData.forEach(f => {
+    const bookName = f['filename'].slice(0, -4);
+    stamps[bookName] = new Date(f['lastModified'])
+  });
 
-  const timestampList = await Promise.all(bookTitleList.map(getFileTimestamp));
-  timestampList.map(bookTime => {
-    if (bookTime.title in BooksState)
-      BooksState[bookTime.title] = bookTime.timestamp;
+  bookTitleList.map(title => {
+    const timestamp = (title in stamps) ? new Date(stamps[title]) : null
+    if (title in BooksState)
+      BooksState[title].localLastUpdated = timestamp;
     else
-      BooksState[bookTime.title] = new Book(bookTime.title, false, bookTime.timestamp)
+      BooksState[title] = new Book(title, false, timestamp);
   })
 }
 
