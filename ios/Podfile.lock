@@ -269,6 +269,8 @@ PODS:
     - React
   - react-native-netinfo (4.7.0):
     - React
+  - react-native-selectable-text (1.4.0):
+    - React
   - react-native-shake (3.4.0):
     - React
   - react-native-splash-screen (3.2.0):
@@ -371,6 +373,7 @@ DEPENDENCIES:
   - React-jsinspector (from `../node_modules/react-native/ReactCommon/jsinspector`)
   - "react-native-in-app-browser (from `../node_modules/@matt-block/react-native-in-app-browser/ios`)"
   - "react-native-netinfo (from `../node_modules/@react-native-community/netinfo`)"
+  - "react-native-selectable-text (from `../node_modules/@astrocoders/react-native-selectable-text`)"
   - react-native-shake (from `../node_modules/react-native-shake`)
   - react-native-splash-screen (from `../node_modules/react-native-splash-screen`)
   - react-native-version-number (from `../node_modules/react-native-version-number`)
@@ -454,6 +457,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@matt-block/react-native-in-app-browser/ios"
   react-native-netinfo:
     :path: "../node_modules/@react-native-community/netinfo"
+  react-native-selectable-text:
+    :path: "../node_modules/@astrocoders/react-native-selectable-text"
   react-native-shake:
     :path: "../node_modules/react-native-shake"
   react-native-splash-screen:
@@ -542,6 +547,7 @@ SPEC CHECKSUMS:
   React-jsinspector: 111d7d342b07a904c400592e02a2b958f1098b60
   react-native-in-app-browser: ae3db0fc352f14d39d39256ed695197059fd0882
   react-native-netinfo: 3dd993921571d01b78a8f91f1caaffcab7a1e1c7
+  react-native-selectable-text: 11f981efb0faa3f4a8377d3c386e958de54d71d5
   react-native-shake: 4ce03b12439f4b9fdf0acd40c5b0f476b8105f9f
   react-native-splash-screen: 200d11d188e2e78cea3ad319964f6142b6384865
   react-native-version-number: 15563dc4145a94aabfc1faab2a9af10174a4204e

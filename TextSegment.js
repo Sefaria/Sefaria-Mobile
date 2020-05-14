@@ -11,10 +11,17 @@ import {
   Platform,
 } from 'react-native';
 import HTMLView from 'react-native-htmlview'; //to convert html'afied JSON to something react can render (https://github.com/jsdf/react-native-htmlview)
+import { SelectableText } from "@astrocoders/react-native-selectable-text";
 import { GlobalStateContext, getTheme } from './StateManager';
 import styles from './Styles.js';
 import iPad from './isIPad';
 
+const SelectableTextWrapped = (props) => (
+  <SelectableText
+    {...props}
+    value={props.children}
+  />
+);
 
 const TextSegment = React.memo(({
   rowRef,
@@ -66,31 +73,33 @@ const TextSegment = React.memo(({
     }
   };
   return (
-     <HTMLView
-       key={resetKey}
-       value={data}
-       stylesheet={{...styles, ...smallSheet}}
-       rootComponentProps={{
-           hitSlop: {top: 10, bottom: 10, left: 10, right: 10},  // increase hit area of segments
-           onPress,
-           onLongPress,
-           delayPressIn: 200,
-         }
-       }
-       RootComponent={TouchableOpacity}
-       TextComponent={Animated.Text}
-       textComponentProps={
-         {
-           suppressHighlighting: false,
-           key: segmentKey,
-           style: style,
-
-         }
-       }
-       style={{flex: textType == "hebrew" ? 4.5 : 5.5, paddingHorizontal: 10}}
-     />
-
-  );
+    <SelectableText menuItems={["Yo", 'Sup']} style={style} onSelection={({ eventType, content, selectionStart, selectionEnd }) => { console.log("SELECT", content)}} value={data} />
+  )
+  // return (
+  //    <HTMLView
+  //      key={resetKey}
+  //      value={data}
+  //      stylesheet={{...styles, ...smallSheet}}
+  //      rootComponentProps={{
+  //          //hitSlop: {top: 10, bottom: 10, left: 10, right: 10},  // increase hit area of segments
+  //          //onPress,
+  //          //delayPressIn: 200,
+  //        }
+  //      }
+  //      TextComponent={SelectableTextWrapped}
+  //      textComponentProps={
+  //        {
+  //          menuItems: ["Yo", "Sup"],
+  //          //suppressHighlighting: false,
+  //          key: segmentKey,
+  //          //style: style,
+  //          onSelection: ({ eventType, content, selectionStart, selectionEnd }) => { console.log("SELECT", content)}
+  //        }
+  //      }
+  //      style={{flex: textType == "hebrew" ? 4.5 : 5.5, paddingHorizontal: 10}}
+  //    />
+  //
+  // );
 });
 TextSegment.whyDidYouRender = true;
 TextSegment.propTypes = {
