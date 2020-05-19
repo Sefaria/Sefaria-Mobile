@@ -73,7 +73,7 @@ const TextSegment = React.memo(({
     }
   };
   return (
-    <SelectableText menuItems={["Yo", 'Sup']} style={style} onSelection={({ eventType, content, selectionStart, selectionEnd }) => { console.log("SELECT", content)}} value={data} />
+    <SelectableText menuItems={["Yo", 'Sup']} onSelection={({ eventType, content, selectionStart, selectionEnd }) => { console.log("SELECT", content)}} value={data} />
   )
   // return (
   //    <HTMLView

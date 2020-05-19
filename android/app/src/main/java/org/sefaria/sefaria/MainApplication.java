@@ -7,6 +7,7 @@ import com.facebook.react.PackageList;
 import com.facebook.react.ReactApplication;
 import com.reactnativecommunity.webview.RNCWebViewPackage;
 import org.devio.rn.splashscreen.SplashScreenReactPackage;
+import com.astrocoders.selectabletext.RNSelectableTextPackage;
 import com.facebook.react.ReactNativeHost;
 import com.facebook.react.ReactPackage;
 import com.facebook.react.shell.MainReactPackage;
@@ -31,6 +32,7 @@ public class MainApplication extends MultiDexApplication implements ReactApplica
       protected List<ReactPackage> getPackages() {
         List<ReactPackage> packages = new PackageList(this).getPackages();
         packages.add(new SplashScreenReactPackage());
+        packages.add(new RNSelectableTextPackage());
         return packages;
         // return Arrays.<ReactPackage>asList(
         //     new MainReactPackage(),
