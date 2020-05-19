@@ -5,14 +5,14 @@ import { unzip } from 'react-native-zip-archive'; //for unzipping -- (https://gi
 import strings from './LocalizedStrings'
 import {Alert, Platform} from 'react-native';
 import AsyncStorage from "@react-native-community/async-storage";
-
+import Sefaria from "./sefaria";
 const SCHEMA_VERSION = "6";
 // const DOWNLOAD_SERVER = "https://readonly.sefaria.org";
 const DOWNLOAD_SERVER = "http://35.237.217.25";
 const HOST_PATH = `${DOWNLOAD_SERVER}/static/ios-export/${SCHEMA_VERSION}`;
 const HOST_BUNDLE_URL = `${HOST_PATH}/bundles`;
 const BUNDLE_LOCATION = RNFB.fs.dirs.DocumentDir + "/tmp/bundle.zip";
-const [FILE_DIRECTORY, TMP_DIRECTORY] = [`${RNFB.fs.dirs.DocumentDir}/library`, `${RNFB.fs.dirs.DocumentDir}/tmp`];
+const [FILE_DIRECTORY, TMP_DIRECTORY] = [`${RNFB.fs.dirs.DocumentDir}/library`, `${RNFB.fs.dirs.DocumentDir}/tmp`];  //todo: make sure these are used
 
 
 let BooksState = {};
@@ -157,7 +157,7 @@ class Package {
     // do we want to separate the concerns here? Less of an issue as there is not a network dependency
     setDesiredBooks();
     await deleteBooks(calculateBooksToDelete(BooksState));
-  }
+  };
   wasSelectedByUser = function () {
     return this.clicked && !this.supersededByParent
   }
@@ -240,46 +240,31 @@ async function loadCoreFile(filename) {
   }
 }
 
-async function lastUpdated() {  // todo: rethink how this is used. We should not need to be going over the network unless an update was requested
-  const lastUpdatedSource = `${RNFB.fs.dirs.DocumentDir}/library/last_updated.json`;
-  const exists = await RNFB.fs.exists(lastUpdatedSource);
-  let success = exists;
-  if (!exists) {
-    try {
-      await downloadCoreFile(`last_updated.json`);
-      success = true;
-    } catch (e) {
-      console.log(e);
+async function lastUpdated() {
+  const lastUpdatedSource = `${FILE_DIRECTORY}/last_updated.json`;
+  let exists = await RNFB.fs.exists(lastUpdatedSource);
+  if (!exists)
+    {
+      return null;
     }
-  }
-  if (success){
-    try {
-      return await loadJSONFile(lastUpdatedSource)
-  } catch (e) {
-      console.log(`Handling caught error: ${e}`);
-    }
-  }
+  return await loadJSONFile(lastUpdatedSource);
     /*
      * In the event the user never downloaded last_updated.json and the download failed we're going to throw out some
      * placeholder values. There might be a better way of dealing with this issue.
      */
-  return {
-    schema_version: SCHEMA_VERSION,
-    titles: []
-  };
+  // return {  // todo: should we return with this object?
+  //   schema_version: SCHEMA_VERSION,
+  //   titles: []
+  // };
 }
 
 function getFullBookList() { // todo: look at using Sefaria instance (Sefaria.booksDict). Use Sefaria.cacheIndexFromToc to initialize
   // Test with Jest
-  // load books as defined in last_updated.json. Does not download a new file
-  return new Promise((resolve, reject) => {
-    lastUpdated().then(x => {
-      resolve(Object.keys(x.titles))
-    }).catch(e => reject(e))
-  })
+  return Sefaria.booksDict.map(x => Object.keys(x)[0]);
 }
 
 async function packageSetupProtocol() {
+
   const [packageData, packagesSelected] = await Promise.all([
     loadCoreFile('packages.json').then(pkgStateData => deriveDownloadState(pkgStateData)),
     AsyncStorage.getItem('packagesSelected').then(x => !!x ? JSON.parse(x) : {})
@@ -288,7 +273,7 @@ async function packageSetupProtocol() {
 
   let falseSelections = [];
   for (let packName of Object.keys(packagesSelected)) {
-    packageData[packName].markAsClicked(false)
+    packageData[packName].markAsClicked(false)  // todo: markAsClicke is an async function
   }
 
   for (let packName of Object.keys(packagesSelected)) {
@@ -298,7 +283,6 @@ async function packageSetupProtocol() {
   }
   if (falseSelections.length) {
     falseSelections.map(x => delete packagesSelected[x]);
-    console.log(packagesSelected);
     try {
       // this is here for cleaning up falseSelections on disk
       await AsyncStorage.setItem('packagesSelected', JSON.stringify(packagesSelected))
@@ -349,7 +333,7 @@ async function setLocalBookTimestamps(bookTitleList) {
   });
 
   bookTitleList.map(title => {
-    const timestamp = (title in stamps) ? new Date(stamps[title]) : null
+    const timestamp = (title in stamps) ? new Date(stamps[title]) : null;
     if (title in BooksState)
       BooksState[title].localLastUpdated = timestamp;
     else
@@ -379,7 +363,7 @@ function getLocalBookList() {
 
 async function repopulateBooksState() {
   BooksState = {};
-  const allBooks = await getFullBookList();
+  const allBooks = getFullBookList();
   await setLocalBookTimestamps(allBooks);
   setDesiredBooks();
   return BooksState
@@ -448,7 +432,11 @@ async function downloadBundle(bundleName) {
 
 async function calculateBooksToDownload(booksState) {
   // Test with Jest
+  console.log(booksState);
   const remoteBookUpdates = await lastUpdated();
+  if (remoteBookUpdates === null)
+    console.log('no last_updated.json');
+    return [];
   let booksToDownload = [];
   for (const bookTitle in booksState) {  // todo: cleaner to user Object.entries() and the filter() and map()
     if (booksState.hasOwnProperty(bookTitle)){
@@ -656,7 +644,7 @@ async function schemaCheckAndPurge() {
   const lastUpdateSchema = AsyncStorage.getItem("lastUpdateSchema");
   if (lastUpdateSchema !== SCHEMA_VERSION) {
     // We want to delete the library but keep the package selections
-    const bookList = await getFullBookList();
+    const bookList = getFullBookList();
     await deleteBooks(bookList);
     setDesiredBooks()
   }
@@ -679,5 +667,8 @@ export {
   PackagesState,
   BooksState,
   Package,
-  Tracker
+  Tracker,
+  FILE_DIRECTORY,
+  calculateBooksToDownload,
+  calculateBooksToDelete
 };

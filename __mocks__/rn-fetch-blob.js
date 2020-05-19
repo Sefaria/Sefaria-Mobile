@@ -1,5 +1,6 @@
 
 const testCache = {};
+const timeStamps = {};
 
 // using this seems more "correct", but much more difficult to implement correctly. Unclear at this time if worth the effort
 function getPath(path) {
@@ -12,6 +13,19 @@ function getPath(path) {
       throw new Error(`Path ${path} does not exist`);
   }
   return curdir
+}
+
+function stat(path) {
+if (!(path in testCache))
+  return Promise.reject(new Error(`File ${path} not found`));
+let timestamp = (path in timeStamps) ? timeStamps[path] : new Date();
+return Promise.resolve({
+  filename: path,
+  path: path,
+  size: 1,
+  type: 'file',
+  lastModified: timestamp.valueOf()
+})
 }
 
 
@@ -31,8 +45,16 @@ export default {
     exists: jest.fn(x => Promise.resolve((x in testCache))
     ),
     asset: jest.fn(x => Promise.reject("Asset not implemented.")),
-    stat: jest.fn(x => Promise.resolve({})),
-    ls: jest.fn(x => Promise.resolve([])),
+    stat: jest.fn(path => {
+      return stat(path);
+    }),
+    lstat: jest.fn(async path => {
+      const pathFiles = Object.keys(testCache).filter(x => x.startsWith(path));
+      const statData = pathFiles.map(p => stat(p));
+      const result = await Promise.all(statData);
+      return result;
+    }),
+    ls: jest.fn(x => Promise.resolve(Object.keys(testCache).filter(k => k.startsWith(x)))),
     unlink: jest.fn(x => {
       delete testCache[x];
       return Promise.resolve('')
@@ -57,7 +79,14 @@ export default {
         if (testCache.hasOwnProperty(member))
           delete testCache[member]
       }
-    })
+    }),
+    setTimestamp: jest.fn((filename, timestamp) => {
+      timeStamps[filename] = timestamp;
+    }),
+    clearTimestamp(filename) {
+      if (filename in timeStamps)
+        delete timeStamps[filename];
+    }
   },
   /*
    * Testing tip: Use RNFB.fs.writeFile in test setup to populate disk with data that would have been downloaded
