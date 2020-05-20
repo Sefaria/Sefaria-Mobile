@@ -16,12 +16,19 @@ import { GlobalStateContext, getTheme } from './StateManager';
 import styles from './Styles.js';
 import iPad from './isIPad';
 
-const SelectableTextWrapped = (props) => (
-  <SelectableText
-    {...props}
-    value={props.children}
-  />
-);
+// const SelectableTextWrapped = (props) => {
+//   return (
+//   <SelectableText
+//     menuItems={props.menuItems}
+//     onSelection={props.onSelection}
+//     value={props.children}
+//   />
+// );}
+const SelectableTextWrapped = (props) => {
+  return (
+    <Text onPress={props.onSelection}>{props.children}</Text>
+)}
+
 
 const TextSegment = React.memo(({
   rowRef,
@@ -72,34 +79,34 @@ const TextSegment = React.memo(({
       ...justifyStyle,
     }
   };
-  return (
-    <SelectableText menuItems={["Yo", 'Sup']} onSelection={({ eventType, content, selectionStart, selectionEnd }) => { console.log("SELECT", content)}} value={data} />
-  )
   // return (
-  //    <HTMLView
-  //      key={resetKey}
-  //      value={data}
-  //      stylesheet={{...styles, ...smallSheet}}
-  //      rootComponentProps={{
-  //          //hitSlop: {top: 10, bottom: 10, left: 10, right: 10},  // increase hit area of segments
-  //          //onPress,
-  //          //delayPressIn: 200,
-  //        }
-  //      }
-  //      TextComponent={SelectableTextWrapped}
-  //      textComponentProps={
-  //        {
-  //          menuItems: ["Yo", "Sup"],
-  //          //suppressHighlighting: false,
-  //          key: segmentKey,
-  //          //style: style,
-  //          onSelection: ({ eventType, content, selectionStart, selectionEnd }) => { console.log("SELECT", content)}
-  //        }
-  //      }
-  //      style={{flex: textType == "hebrew" ? 4.5 : 5.5, paddingHorizontal: 10}}
-  //    />
-  //
-  // );
+  //   <SelectableText menuItems={["Yo", 'Sup']} onSelection={({ eventType, content, selectionStart, selectionEnd }) => { console.log("SELECT", content)}} value={data} />
+  // )
+  return (
+     <HTMLView
+       key={resetKey}
+       value={data}
+       stylesheet={{...styles, ...smallSheet}}
+       TextComponent={SelectableTextWrapped}
+       RootComponent={TouchableOpacity}
+       rootComponentProps={
+         {
+           onPress: ()=> {console.log("YOY!")}
+         }
+       }
+       textComponentProps={
+         {
+           menuItems: ["Yo", "Sup"],
+           //suppressHighlighting: false,
+           key: segmentKey,
+           //style: style,
+           onSelection: ({ eventType, content, selectionStart, selectionEnd }) => { console.log("SELECT", content)}
+         }
+       }
+       style={{flex: textType == "hebrew" ? 4.5 : 5.5, paddingHorizontal: 10}}
+     />
+
+  );
 });
 TextSegment.whyDidYouRender = true;
 TextSegment.propTypes = {
