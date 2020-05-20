@@ -2,7 +2,7 @@
 
 import PropTypes from 'prop-types';
 
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import {
   StyleSheet,
   Text,
@@ -65,8 +65,10 @@ const SefariaProgressBar = ({ onPress, onClose, download }) => {
   const { progress, setProgress } = useState(0);
   const calculateProgress = (received, total) => !!(received) ? setProgress(received / total) : setProgress(0.0);
 
-  // todo: we need to use useEffect with an empty array to prevent this from running every render
-  download.attachProgressTracker(calculateProgress, config);
+  useEffect(() => {
+    download.attachProgressTracker(calculateProgress, config);
+  }, [download]);  // we only want to resubscribe if the downloader object changes. This shouldn't happen, but the condition is here for completeness sake
+
   return <GlobalStateContext.Consumer>
     {({themeStr, interfaceLanguage}) => (
       <TouchableOpacity onPress={!!onPress ? onPress : () => {

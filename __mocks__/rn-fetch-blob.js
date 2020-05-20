@@ -20,7 +20,7 @@ if (!(path in testCache))
   return Promise.reject(new Error(`File ${path} not found`));
 let timestamp = (path in timeStamps) ? timeStamps[path] : new Date();
 return Promise.resolve({
-  filename: path,
+  filename: path.split('/').pop(),
   path: path,
   size: 1,
   type: 'file',
@@ -51,12 +51,14 @@ export default {
     lstat: jest.fn(async path => {
       const pathFiles = Object.keys(testCache).filter(x => x.startsWith(path));
       const statData = pathFiles.map(p => stat(p));
-      const result = await Promise.all(statData);
-      return result;
+      return await Promise.all(statData);
     }),
     ls: jest.fn(x => Promise.resolve(Object.keys(testCache).filter(k => k.startsWith(x)))),
     unlink: jest.fn(x => {
       delete testCache[x];
+      if (x in timeStamps) {
+        delete timeStamps[x]
+      }
       return Promise.resolve('')
     }),
     isDir: jest.fn(x => Promise.resolve(true)),
@@ -79,6 +81,9 @@ export default {
         if (testCache.hasOwnProperty(member))
           delete testCache[member]
       }
+      Object.keys(timeStamps).forEach(x => {
+        delete timeStamps[x];
+      })
     }),
     setTimestamp: jest.fn((filename, timestamp) => {
       timeStamps[filename] = timestamp;

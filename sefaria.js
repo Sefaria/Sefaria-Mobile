@@ -17,6 +17,7 @@ import {
   packageSetupProtocol,
   downloadUpdate,
   autoUpdateCheck,
+  loadJSONFile
 } from './DownloadControl'
 
 const ERRORS = {
@@ -696,7 +697,7 @@ Sefaria = {
     return unzip(zipSourcePath, RNFB.fs.dirs.DocumentDir);
   },
   _loadJSON: function(JSONSourcePath) {
-    return DownloadControlFunctions.loadJSONFile(JSONSourcePath)
+    return loadJSONFile(JSONSourcePath)
   },
   _JSONSourcePath: function(fileName) {
     return (RNFB.fs.dirs.DocumentDir + "/" + fileName + ".json");

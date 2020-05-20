@@ -302,14 +302,15 @@ function setDesiredBooks() {
     // mark all books as not desired as a starting point
     Object.values(BooksState).map(x => x.desired=false);
 
-    Object.values(PackagesState).filter(x => {
+    const selectedPackages = Object.values(PackagesState).filter(x => {
       /*
        * All books in packages marked desired should be flagged as desired. COMPLETE LIBRARY is a special case and
        * was dealt with above. Disabled packages are redundant (these are packages that are wholly contained within
        * a larger package that was already selected).
        */
       return x.name !== 'COMPLETE LIBRARY' && x.wasSelectedByUser()
-    }).forEach(packageObj => {
+    });
+    selectedPackages.forEach(packageObj => {
       packageObj.jsonData['indexes'].forEach(book => {
         if (book in BooksState) {
           BooksState[book].desired = true;
@@ -432,11 +433,12 @@ async function downloadBundle(bundleName) {
 
 async function calculateBooksToDownload(booksState) {
   // Test with Jest
-  console.log(booksState);
   const remoteBookUpdates = await lastUpdated();
   if (remoteBookUpdates === null)
-    console.log('no last_updated.json');
-    return [];
+    {
+      console.log('no last_updated.json');
+      return [];
+    }
   let booksToDownload = [];
   for (const bookTitle in booksState) {  // todo: cleaner to user Object.entries() and the filter() and map()
     if (booksState.hasOwnProperty(bookTitle)){
@@ -444,16 +446,20 @@ async function calculateBooksToDownload(booksState) {
       if (bookObj.desired) {
         if (!bookObj.localLastUpdated) {
           booksToDownload.push(bookTitle);
-        }
-        else if (booksState[bookTitle].localLastUpdated < remoteBookUpdates[bookTitle]) {
-          booksToDownload.push(bookTitle);
+        } else {
+          const [localUpdate, remoteUpdate] = [booksState[bookTitle].localLastUpdated, new Date(remoteBookUpdates.titles[bookTitle])];
+          if (localUpdate < remoteUpdate) {
+            booksToDownload.push(bookTitle)
+          }
         }
       }
     }
   }
   return booksToDownload
-
 }
+
+
+
 
 function calculateBooksToDelete(booksState) {
   // Test with Jest

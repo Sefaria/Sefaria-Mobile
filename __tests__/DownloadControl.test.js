@@ -33,16 +33,19 @@ const tocJson = [
 const lastUpdated = {
   schema_version: 6,
   comment: "",
-  titles: {
-    Genesis: 0,
-    Exodus: 0,
-    Leviticus: 0,
-    "Rashi on Genesis": 0,
-    "Rashi on Exodus": 0,
-    "Rashi on Leviticus": 0,
-    "Weird Random Book" : 0,
-  }
+  titles: {}
 };
+let yesterday = new Date();
+yesterday.setDate(yesterday.getDate() - 1);
+[  // set the dates to yesterday
+    "Genesis",
+    "Exodus",
+    "Leviticus",
+    "Rashi on Genesis",
+    "Rashi on Exodus",
+    "Rashi on Leviticus",
+    "Weird Random Book",
+  ].map(x => lastUpdated.titles[x] = yesterday.toISOString());
 const packageData = [
   {
     en: "COMPLETE LIBRARY",
@@ -200,11 +203,23 @@ describe('InitializationTests', () => {
 });
 
 describe('UpdateTests', () => {
+  async function fileSetup(packageName) {
+    // Selects the package and write the file to disk
+    await AsyncStorage.setItem('packagesSelected', JSON.stringify({
+      [packageName]: true
+    }));
+    const relevantPackage = packageData.find(p => p['en'] === packageName);
+    const bookPromises = relevantPackage.indexes.map(x => {
+      RNFB.fs.writeFile(`${FILE_DIRECTORY}/${x}.zip`, 'foo')
+    });
+    await Promise.all(bookPromises);
+  }
   async function basicTest(expectedDownloads, expectedDeletes) {
-    // todo: make sure lstat is not throwing out default data; add a timestamp method to RNFB mock to set custom timestamps for test purposes.
-    const preFiles =  await RNFB.fs.ls(FILE_DIRECTORY);
-    // sanity check that our mock is not throwing out a default value. package.json at minimum should be on disk before every test
+    // sanity check that our mock is not throwing out a default value. package.json should be on disk before every test
+    const [preFiles, preStat] =  await Promise.all([RNFB.fs.ls(FILE_DIRECTORY), RNFB.fs.lstat(FILE_DIRECTORY)]);
     expect(preFiles.length).toBeGreaterThan(0);
+    expect(preStat.length).toBeGreaterThan(0);
+
     await packageSetupProtocol();
     const [toDownload, toDelete] = await Promise.all([calculateBooksToDownload(BooksState), calculateBooksToDelete(BooksState)]);
     const postFiles = await RNFB.fs.ls(FILE_DIRECTORY);
@@ -224,40 +239,51 @@ describe('UpdateTests', () => {
     await basicTest(0, 0);
   });
   test("noUpdates", async () => {
-    await AsyncStorage.setItem('packagesSelected', JSON.stringify({
-      "Gen with Rashi": true
-    }));
-    const relevantPackage = packageData.find(p => p['en'] === "Gen with Rashi");
-    const bookPromises = relevantPackage.indexes.map(async x => {
-      await RNFB.fs.writeFile(`${FILE_DIRECTORY}/${x}.zip`, 'foo')
-    });
-    await Promise.all(bookPromises);
+    await fileSetup("Gen with Rashi");
     await basicTest(0, 0);
   });
   test('missingBook', async () => {
-    await AsyncStorage.setItem('packagesSelected', JSON.stringify({
-      "Gen with Rashi": true
-    }));
-    await RNFB.fs.writeFile(`${FILE_DIRECTORY}/Genesis.zip`, 'foo');
+    await fileSetup("Gen with Rashi");
+    await RNFB.fs.unlink(`${FILE_DIRECTORY}/Genesis.zip`);
     await basicTest(1, 0)
   });
   test('bookOutOfDate', async () => {
-    // calculateBooksToDownload will return the out-of-date book
-    // calculateBooksToDelete returns nothing
-    // disk stays the same
+    await fileSetup("Gen with Rashi");
+    const lastWeek = new Date();
+    lastWeek.setDate(lastWeek.getDate() - 7);
+    RNFB.fs.setTimestamp(`${FILE_DIRECTORY}/Genesis.zip`, lastWeek.toUTCString());
+    await basicTest(1, 0)
   });
   test('bookToDelete', async () => {
     await RNFB.fs.writeFile(`${FILE_DIRECTORY}/Genesis.zip`, 'foo');
     await basicTest(0, 1)
-    // calculateBooksToDownload returns nothing
-    // calculateBooksToDelete returns book to be deleted
-    // disk stays the same
   });
-  test('deleteUpdateMissing', () => {
-    // calculateBooksToDownload returns missing and out-of-date
-    // calculateBooksToDelete returns book to be deleted
-    // disk the same
+  test('deleteUpdateMissing', async () => {
+    await fileSetup("Torah with Rashi");
+    const lastWeek = new Date();
+    lastWeek.setDate(lastWeek.getDate() - 7);
+    RNFB.fs.setTimestamp(`${FILE_DIRECTORY}/Genesis.zip`, lastWeek.toUTCString());
+    await RNFB.fs.unlink(`${FILE_DIRECTORY}/Exodus.zip`);
+    await RNFB.fs.writeFile(`${FILE_DIRECTORY}/Weird Random Book.zip`);
+    await basicTest(2, 1)
   });
+  test('MissingCompleteLibrary', async () => {
+    await AsyncStorage.setItem('packagesSelected', JSON.stringify({
+      'COMPLETE LIBRARY': true
+    }));
+    await basicTest(7, 0);
+  });
+  test('CompleteLibraryMissingUpdate', async () => {
+    await AsyncStorage.setItem('packagesSelected', JSON.stringify({
+      'COMPLETE LIBRARY': true
+    }));
+    await RNFB.fs.writeFile(`${FILE_DIRECTORY}/Genesis.zip`, 'foo');
+    await RNFB.fs.writeFile(`${FILE_DIRECTORY}/Exodus.zip`, 'foo');
+    const lastWeek = new Date();
+    lastWeek.setDate(lastWeek.getDate() - 7);
+    RNFB.fs.setTimestamp(`${FILE_DIRECTORY}/Exodus.zip`, lastWeek.toUTCString());
+    await basicTest(6, 0);
+  })
 });
 
 describe('noLastUpdated', () => {});

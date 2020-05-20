@@ -32,7 +32,7 @@ import {
   checkUpdatesFromServer,
   promptLibraryUpdate,
   wereBooksDownloaded,
-  deleteLibrary as downloaderDeleteLibrary,
+  deleteLibrary as downloaderDeleteLibrary, Package,
 } from './DownloadControl';
 
 const generateOptions = (options, onPress) => options.map(o => ({
@@ -275,9 +275,41 @@ const OfflinePackageList = ({ isDisabledObj, onPackagePress }) => {
             </View>
           );
         })
-    }
+      }
+
   </View>
   );
+};
+
+const PackageComponent = ({ packageObj, onPackagePress }) => {
+  const isSelected = packageObj.clicked;
+  const {isD, setDownload} = useState(false);
+  const onPress = () => { onPackagePress(packageObj, setDownload); };
+
+  return (
+    <View key={packageObj.name}>
+      <LibraryNavButton
+        catColor={Sefaria.palette.categoryColor(packageObj.color)}
+        enText={packageObj.name}
+        heText={packageObj.jsonData['he']}
+        count={`${Math.round(p.jsonData['size'] / 1e6)}mb`  /* NOTE: iOS uses 1e6 def of mb*/ }
+        onPress={onPress}
+        onPressCheckBox={onPress}
+        checkBoxSelected={0+isSelected}
+        buttonStyle={{margin: 0, padding: 0, opacity: isDisabledObj[p.en] ? 0.6 : 1.0}}
+        withArrow={false}
+      />
+      {
+        isD ?
+          <SefariaProgressBar download={DownloadTracker} />
+          : null
+      }
+    </View>
+  )
+};
+PackageComponent.propTypes = {
+  packageObj: PropTypes.instanceOf(Package).isRequired,
+  onPackagePress: PropTypes.func.isRequired,
 };
 
 export default SettingsPage;
