@@ -80,43 +80,34 @@ const TextSegment = React.memo(({
     }
   };
   return (
+    <TouchableOpacity
+      hitSlop= {{top: 10, bottom: 10, left: 10, right: 10}}
+      onPress={onPress}
+      onLongPress={() => { console.log("LOOOONG")}}
+      delayLongPress={200}
+      delayPressIn={200}
+      style={{flex: textType == "hebrew" ? 4.5 : 5.5, paddingHorizontal: 10}}
+    >
       <SelectableText
-        menuItems={["Yo", 'Sup']}
+        menuItems={['Copy', 'Share', 'Lookup']}
         onSelection={({ eventType, content, selectionStart, selectionEnd }) => { console.log("SELECT", content)}}
         value={data}
         textValueProp={'value'}
         TextComponent={HTMLView}
         textComponentProps={{
           stylesheet: {...styles, ...smallSheet},
-          RootComponent:
+          RootComponent: React.Fragment,
+          style: undefined,
+          TextComponent: Animated.Text,
+          textComponentProps: {
+            suppressHighlighting: false,
+            key: segmentKey,
+            style: style,
+          },
         }}
       />
-  )
-  // return (
-  //    <HTMLView
-  //      key={resetKey}
-  //      value={data}
-  //      stylesheet={{...styles, ...smallSheet}}
-  //      TextComponent={SelectableTextWrapped}
-  //      RootComponent={TouchableOpacity}
-  //      rootComponentProps={
-  //        {
-  //          onPress: ()=> {console.log("YOY!")}
-  //        }
-  //      }
-  //      textComponentProps={
-  //        {
-  //          menuItems: ["Yo", "Sup"],
-  //          //suppressHighlighting: false,
-  //          key: segmentKey,
-  //          //style: style,
-  //          onSelection: ({ eventType, content, selectionStart, selectionEnd }) => { console.log("SELECT", content)}
-  //        }
-  //      }
-  //      style={{flex: textType == "hebrew" ? 4.5 : 5.5, paddingHorizontal: 10}}
-  //    />
-  //
-  // );
+    </TouchableOpacity>
+  );
 });
 TextSegment.whyDidYouRender = true;
 TextSegment.propTypes = {
