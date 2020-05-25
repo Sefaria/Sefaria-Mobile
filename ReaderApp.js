@@ -174,7 +174,7 @@ class ReaderApp extends React.PureComponent {
         SoundPlayer.playSoundFile('grogger', 'mp3');
       }
     });
-    DownloadTracker.subscribe('ReaderApp', this.changeDownloadState)
+    DownloadTracker.subscribe('ReaderApp', this.changeDownloadState.bind(this))
   }
 
   logout = async () => {

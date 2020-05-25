@@ -62,11 +62,17 @@ const SefariaProgressBar = ({ onPress, onClose, download }) => {
    * revisited if reuseability becomes a problem.
    */
   const config = {count: 20, interval: 250};
-  const { progress, setProgress } = useState(0);
+  const [ progress, setProgress ] = useState(0);
   const calculateProgress = (received, total) => !!(received) ? setProgress(received / total) : setProgress(0.0);
 
   useEffect(() => {
+    console.log('attaching Progress Tracker');
     download.attachProgressTracker(calculateProgress, config);
+    return function cleanup() {
+      console.log('attaching dummy Progress Tracker');
+      download.attachProgressTracker(() => {}, config)
+
+    };
   }, [download]);  // we only want to resubscribe if the downloader object changes. This shouldn't happen, but the condition is here for completeness sake
 
   return <GlobalStateContext.Consumer>

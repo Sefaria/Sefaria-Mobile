@@ -39,16 +39,18 @@ class DownloadTracker {
   constructor() {
     this.currentDownload = null;
     this.subscriptions = {};
+    this.progressTracker = null;
   }
   addDownload(downloadState) {
-    this.notify(true);
     if (this.downloadInProgress()) {
       throw "Another download is in Progress!"
     }
     this.currentDownload = downloadState;
-    this.currentDownload.finally(this.removeDownload())
+    if (!!this.progressTracker) {this.attachProgressTracker(...this.progressTracker)}
+    this.currentDownload.finally(this.removeDownload.bind(this));
   }
   removeDownload() {
+    console.log('removing download');
     this.currentDownload = null;
     this.notify(false)
   }
@@ -66,8 +68,9 @@ class DownloadTracker {
   attachProgressTracker(progressTracker, config) {
     if (this.downloadInProgress()) {
       this.currentDownload.progress(config, progressTracker);
+      this.currentDownload = null;
     } else
-      throw new Error("No download to track");
+      this.progressTracker = [progressTracker, config];
   }
   subscribe(listenerName, listenerFunc) {
     /*
@@ -81,7 +84,21 @@ class DownloadTracker {
     delete this.subscriptions[listenerName];
   }
   notify(value) {
-    Object.values(this.subscriptions).map(x => x(value))
+    /*
+     * At the start of a download we should notify via the method that initiated the download. This should happen from a
+     * UI component. This allows the UI component to send whatever messages it needs to down to all the components
+     * listening.
+     *
+     * At the end of a download we'll call notify(false) from the DownloadTracker. This is because only the DownloadTracker
+     * can know when a download has completed
+     */
+    Object.values(this.subscriptions).map(x => {
+      try{
+        x(value);
+      } catch (e) {
+        console.log(`notification error: ${e}`)
+      }
+    })
   }
 }
 
@@ -176,15 +193,14 @@ class Book {
 
 
 function downloadFilePromise(fileUrl, filepath) {
+  console.log(`Downloading from ${fileUrl}`);
   // Test with Appium
-  return new Promise((resolve, reject) => {
-    RNFB.config({
-      IOSBackgroundTask: true,
-      indicator: true,
-      path: filepath,
-      overwrite: true
-    }).fetch('GET', fileUrl).then(x => resolve(x)).catch(e => reject(e))
-  });
+  return RNFB.config({
+    IOSBackgroundTask: true,
+    indicator: true,
+    path: filepath,
+    overwrite: true
+  }).fetch('GET', fileUrl)
 }
 
 
@@ -235,8 +251,13 @@ async function loadCoreFile(filename) {
     return await loadJSONFile(pkgPath);
   }
   else {
-    const j = await RNFB.fs.readFile(RNFB.fs.asset(`sources/${filename}`));
-    return JSON.parse(j);
+    try {
+      const j = await RNFB.fs.readFile(RNFB.fs.asset(`sources/${filename}`));
+      return JSON.parse(j)
+    } catch (e) {
+      console.log(`Error loading Android asset ${filename}: ${e}`);
+      throw e
+    }
   }
 }
 
@@ -260,15 +281,17 @@ async function lastUpdated() {
 
 function getFullBookList() { // todo: look at using Sefaria instance (Sefaria.booksDict). Use Sefaria.cacheIndexFromToc to initialize
   // Test with Jest
-  return Sefaria.booksDict.map(x => Object.keys(x)[0]);
+  return Object.keys(Sefaria.booksDict);
 }
 
 async function packageSetupProtocol() {
+  // addDir adds a directory if it does not exist. We'll set up the app directory here
+  await addDir(FILE_DIRECTORY);
 
   const [packageData, packagesSelected] = await Promise.all([
     loadCoreFile('packages.json').then(pkgStateData => deriveDownloadState(pkgStateData)),
     AsyncStorage.getItem('packagesSelected').then(x => !!x ? JSON.parse(x) : {})
-  ]);
+  ]).catch(e => console.log(`failed in packageSetupProtocol: ${e}`));
   PackagesState = packageData;
 
   let falseSelections = [];
@@ -374,7 +397,7 @@ function deleteBooks(bookList) {
   // Test with Appium
   const results = bookList.map(bookTitle => {
     return new Promise((resolve, reject) => {
-      const filepath = `${RNFB.fs.dirs.DocumentDir}/library/${bookTitle}.zip`; // todo: make library location (and tmp) variable
+      const filepath = `${FILE_DIRECTORY}/${bookTitle}.zip`;
       RNFB.fs.unlink(filepath).then(resolve(bookTitle)).catch(err => reject(err));
     });
   });
@@ -415,13 +438,13 @@ function requestNewBundle(bookList) {
 
 async function downloadBundle(bundleName) {
   // Test with Appium
-  const downloadState = downloadFilePromise(`${HOST_BUNDLE_URL}/${encodeURIComponent(bundleName)}`);
+  const downloadState = downloadFilePromise(`${HOST_BUNDLE_URL}/${encodeURIComponent(bundleName)}`, BUNDLE_LOCATION);
   try {
     Tracker.addDownload(downloadState);
   } catch (e) {
     console.log(e)
   }
-  // todo
+  // todo: network failure, wifi only etc.
   const downloadResult = await downloadState;
   Tracker.removeDownload();
   const status = downloadResult.info().status;
@@ -483,7 +506,7 @@ async function _executeDownload(bundleName) {
     await downloadBundle(bundleName);
     await unzipBundle();
   } catch (e) {
-    console.log(e)
+    console.log(`Handling error: ${e}`)
   } finally {
     await RNFB.fs.unlink(BUNDLE_LOCATION);
   }
@@ -543,13 +566,13 @@ async function addDir(path) {
 async function downloadCoreFile(filename) {
   // Test with Appium
   console.log(`downloading ${filename}`);
-  const [appDir, tempDir] = [`${RNFB.fs.dirs.DocumentDir}/library`, `${RNFB.fs.dirs.DocumentDir}/tmp`];
+  const [appDir, tempDir] = [`${RNFB.fs.dirs.DocumentDir}/library`, TMP_DIRECTORY];
   await Promise.all([
-    addDir(tempDir),
-    addDir(appDir),
+    addDir(TMP_DIRECTORY),
+    addDir(FILE_DIRECTORY),
   ]);
 
-  const [fileUrl, tempPath] = [`${HOST_PATH}/${encodeURIComponent(filename)}`, `${tempDir}/${filename}`];
+  const [fileUrl, tempPath] = [`${HOST_PATH}/${encodeURIComponent(filename)}`, `${TMP_DIRECTORY}/${filename}`];
   let downloadResp = null;
   try{
     downloadResp = await downloadFilePromise(fileUrl, tempPath);

@@ -63,16 +63,21 @@ const usePkgState = () => {
   const { interfaceLanguage } = useContext(GlobalStateContext);
   const [isDisabledObj, setIsDisabledObj] = useState(getIsDisabledObj());  // React Hook
 
-  const onPackagePress = (pkgObj, setDownloadFunction) => {
+  const onPackagePress = async (pkgObj, setDownloadFunction) => {
+    console.log(`onPackagePress running for package ${pkgObj.name}`);
     const onPressActive = async (pkgName) => {
-      if (!!PackagesState[pkgName].clicked) { // if pressed when clicked, we are removing the package
+      if (PackagesState[pkgName].clicked) { // if pressed when clicked, we are removing the package
+        if (DownloadTracker.downloadInProgress()) {
+          DownloadTracker.cancelDownload(`Canceling Download of ${pkgName}`, 'foo');
+        }
         await PackagesState[pkgName].unclick();
-        setIsDisabledObj(getIsDisabledObj())
+        setIsDisabledObj(getIsDisabledObj());
       }
       else {
-        DownloadTracker.subscribe('settingsPagePackageDownload', setDownloadFunction);
+        DownloadTracker.notify(pkgName);
         await PackagesState[pkgName].markAsClicked();
         setIsDisabledObj(getIsDisabledObj());
+
         await downloadPackage(pkgName);
       }
     };
@@ -80,7 +85,9 @@ const usePkgState = () => {
     const shortIntLang = interfaceLanguage.slice(0,2);
     //NOTE: onPressDisabled() takes pkgNames in curr intLang while onPress() takes eng
     if (pkgObj.supersededByParent) { onPressDisabled(pkgObj[shortIntLang], parent[shortIntLang]); }
-    else { onPressActive(pkgObj.name); }
+    else {
+     await onPressActive(pkgObj.name);
+    }
   };
 
   return {
@@ -241,39 +248,21 @@ const ButtonToggleSection = ({ langStyle }) => {
 const OfflinePackageList = ({ isDisabledObj, onPackagePress }) => {
 
   // We set up a subscription to the download tracker when a package is clicked. We need to make sure this is cleaned up
-  useEffect(() => {
-    return () => {
-      DownloadTracker.unsubscribe('settingsPagePackageDownload');
-    }  // we can use the isDisabledObj prop to limit when we unsubscribe. Unclear if this is necessary at this point.
-  });
+  // useEffect(() => {
+  //   return function cleanup() {
+  //     console.log('unsubscribing OfflinePackageList');
+  //     DownloadTracker.unsubscribe('settingsPagePackageDownload');
+  //   }  // we can use the isDisabledObj prop to limit when we unsubscribe. Unclear if this is necessary at this point.
+  // });
   return (
     <View style={styles.settingsOfflinePackages}>
       {
-        Object.values(PackagesState).sort((a, b) => a.order - b.order).map(p => {  // todo: make these explicit components
-          const isSelected = p.clicked;
-          const {isD, setDownload} = useState(false);
-           const onPress = () => { onPackagePress(p, setDownload); };
-
+        Object.values(PackagesState).sort((a, b) => a.order - b.order).map(p => {
           return (
-            <View key={`${p.name}|${isDisabledObj[p.name]}|parent`}>
-              <LibraryNavButton
-                catColor={Sefaria.palette.categoryColor(p.color)}
-                enText={p.name}
-                heText={p.jsonData['he']}
-                count={`${Math.round(p.jsonData['size'] / 1e6)}mb` /* NOTE: iOS uses 1e6 def of mb*/}
-                onPress={onPress}
-                onPressCheckBox={onPress}
-                checkBoxSelected={0+isSelected}
-                buttonStyle={{margin: 0, padding: 0, opacity: isDisabledObj[p.en] ? 0.6 : 1.0}}
-                withArrow={false}
-              />
-            { isD ?
-                <SefariaProgressBar
-                  download={DownloadTracker}
-                /> : null
-              }
+            <View key={p.name}>
+              <PackageComponent onPackagePress={onPackagePress} packageObj={p} isDisabledObj={isDisabledObj}/>
             </View>
-          );
+          )
         })
       }
 
@@ -281,10 +270,21 @@ const OfflinePackageList = ({ isDisabledObj, onPackagePress }) => {
   );
 };
 
-const PackageComponent = ({ packageObj, onPackagePress }) => {
+const PackageComponent = ({ packageObj, onPackagePress, isDisabledObj }) => {
   const isSelected = packageObj.clicked;
-  const {isD, setDownload} = useState(false);
-  const onPress = () => { onPackagePress(packageObj, setDownload); };
+  const [isD, setDownload] = useState(false);
+  useEffect(() => {
+    const listener = `PackageComponent${packageObj.name}`;
+    DownloadTracker.subscribe(listener, setDownload);
+    return function cleanup() {
+      DownloadTracker.unsubscribe(listener);
+    }
+  }, [packageObj]);
+
+  const onPress = async () => {
+    console.log('onPress running');
+    await onPackagePress(packageObj, setDownload);
+  };
 
   return (
     <View key={packageObj.name}>
@@ -292,15 +292,15 @@ const PackageComponent = ({ packageObj, onPackagePress }) => {
         catColor={Sefaria.palette.categoryColor(packageObj.color)}
         enText={packageObj.name}
         heText={packageObj.jsonData['he']}
-        count={`${Math.round(p.jsonData['size'] / 1e6)}mb`  /* NOTE: iOS uses 1e6 def of mb*/ }
+        count={`${Math.round(packageObj.jsonData['size'] / 1e6)}mb`  /* NOTE: iOS uses 1e6 def of mb*/ }
         onPress={onPress}
         onPressCheckBox={onPress}
         checkBoxSelected={0+isSelected}
-        buttonStyle={{margin: 0, padding: 0, opacity: isDisabledObj[p.en] ? 0.6 : 1.0}}
+        buttonStyle={{margin: 0, padding: 0, opacity: isDisabledObj[packageObj.en] ? 0.6 : 1.0}}
         withArrow={false}
       />
       {
-        isD ?
+        (isD  && isD === packageObj.name) ?
           <SefariaProgressBar download={DownloadTracker} />
           : null
       }
@@ -310,6 +310,7 @@ const PackageComponent = ({ packageObj, onPackagePress }) => {
 PackageComponent.propTypes = {
   packageObj: PropTypes.instanceOf(Package).isRequired,
   onPackagePress: PropTypes.func.isRequired,
+  isDisabledObj: PropTypes.object
 };
 
 export default SettingsPage;

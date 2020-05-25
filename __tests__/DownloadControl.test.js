@@ -87,7 +87,8 @@ fetch = jest.fn(x => {
 beforeEach(async () => {
   await RNFB.fs.writeFile(`${FILE_DIRECTORY}/toc.json`, tocJson);
   // await Sefaria._loadTOC();
-  Sefaria.booksDict = [
+  Sefaria.booksDict = {};
+  [
     'Genesis',
     'Exodus',
     'Leviticus',
@@ -95,9 +96,7 @@ beforeEach(async () => {
     'Rashi on Exodus',
     'Rashi on Leviticus',
     'Weird Random Book'
-    ].map(x => {
-      return {[x]: 1}
-    });
+    ].map(x => Sefaria.booksDict[x] = 1);
   await RNFB.fs.writeFile(`${FILE_DIRECTORY}/packages.json`, packageData);
 });
 
