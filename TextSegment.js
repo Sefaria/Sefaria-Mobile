@@ -2,7 +2,7 @@
 
 import PropTypes from 'prop-types';
 
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, Fragment } from 'react';
 import {
   Animated,
   Text,
@@ -24,10 +24,10 @@ import iPad from './isIPad';
 //     value={props.children}
 //   />
 // );}
-const SelectableTextWrapped = (props) => {
-  return (
-    <Text onPress={props.onSelection}>{props.children}</Text>
-)}
+// const SelectableTextWrapped = (props) => {
+//   return (
+//     <Text onPress={props.onSelection}>{props.children}</Text>
+// )}
 
 
 const TextSegment = React.memo(({
@@ -79,34 +79,44 @@ const TextSegment = React.memo(({
       ...justifyStyle,
     }
   };
-  // return (
-  //   <SelectableText menuItems={["Yo", 'Sup']} onSelection={({ eventType, content, selectionStart, selectionEnd }) => { console.log("SELECT", content)}} value={data} />
-  // )
   return (
-     <HTMLView
-       key={resetKey}
-       value={data}
-       stylesheet={{...styles, ...smallSheet}}
-       TextComponent={SelectableTextWrapped}
-       RootComponent={TouchableOpacity}
-       rootComponentProps={
-         {
-           onPress: ()=> {console.log("YOY!")}
-         }
-       }
-       textComponentProps={
-         {
-           menuItems: ["Yo", "Sup"],
-           //suppressHighlighting: false,
-           key: segmentKey,
-           //style: style,
-           onSelection: ({ eventType, content, selectionStart, selectionEnd }) => { console.log("SELECT", content)}
-         }
-       }
-       style={{flex: textType == "hebrew" ? 4.5 : 5.5, paddingHorizontal: 10}}
-     />
-
-  );
+      <SelectableText
+        menuItems={["Yo", 'Sup']}
+        onSelection={({ eventType, content, selectionStart, selectionEnd }) => { console.log("SELECT", content)}}
+        value={data}
+        textValueProp={'value'}
+        TextComponent={HTMLView}
+        textComponentProps={{
+          stylesheet: {...styles, ...smallSheet},
+          RootComponent:
+        }}
+      />
+  )
+  // return (
+  //    <HTMLView
+  //      key={resetKey}
+  //      value={data}
+  //      stylesheet={{...styles, ...smallSheet}}
+  //      TextComponent={SelectableTextWrapped}
+  //      RootComponent={TouchableOpacity}
+  //      rootComponentProps={
+  //        {
+  //          onPress: ()=> {console.log("YOY!")}
+  //        }
+  //      }
+  //      textComponentProps={
+  //        {
+  //          menuItems: ["Yo", "Sup"],
+  //          //suppressHighlighting: false,
+  //          key: segmentKey,
+  //          //style: style,
+  //          onSelection: ({ eventType, content, selectionStart, selectionEnd }) => { console.log("SELECT", content)}
+  //        }
+  //      }
+  //      style={{flex: textType == "hebrew" ? 4.5 : 5.5, paddingHorizontal: 10}}
+  //    />
+  //
+  // );
 });
 TextSegment.whyDidYouRender = true;
 TextSegment.propTypes = {
