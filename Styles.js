@@ -1253,45 +1253,6 @@ export default StyleSheet.create({
     flexDirection: 'row',
     backgroundColor: 'black',
   },
-  //HTML Styles:
-  strong: {
-    fontWeight: "bold"
-  },
-  small: {
-    fontSize: 14
-  },
-  b: {
-    fontWeight: "bold"
-  },
-  i: {
-    fontStyle: "italic"
-  },
-  gemarraregular: {
-    fontWeight: "500",
-
-  },
-  gemarraitalic: {
-    fontStyle: "italic",
-    fontWeight: "500",
-  },
-  a: {
-    fontWeight: "300",
-  },
-  hediv: {
-    fontFamily: "Taamey Frank Taamim Fix",
-    writingDirection: "rtl",
-    flex: -1,
-    paddingTop: 15,
-    marginTop: -10,
-    textAlign: Platform.OS == "android" ? "right" : "justify",
-  },
-  endiv: {
-    fontFamily: "Amiri",
-    fontWeight: "normal",
-    textAlign: 'justify',
-    paddingTop: 15,
-    marginTop: -10,
-  },
   userAvatar: {
     marginTop: 4,
     width: 40,

@@ -52,6 +52,7 @@
     "react-native-gesture-handler": "^1.4.1",
     "react-native-htmlview": "^0.15.0",
     "react-native-localization": "^2.1.6",
+    "react-native-render-html": "^4.2.0",
     "react-native-shake": "^3.3.1",
     "react-native-sound-player": "^0.10.1",
     "react-native-splash-screen": "^3.2.0",

@@ -10,25 +10,11 @@ import {
   View,
   Platform,
 } from 'react-native';
-import HTMLView from 'react-native-htmlview'; //to convert html'afied JSON to something react can render (https://github.com/jsdf/react-native-htmlview)
+import HTML from 'react-native-render-html';
 import { SelectableText } from "@astrocoders/react-native-selectable-text";
 import { GlobalStateContext, getTheme } from './StateManager';
 import styles from './Styles.js';
 import iPad from './isIPad';
-
-// const SelectableTextWrapped = (props) => {
-//   return (
-//   <SelectableText
-//     menuItems={props.menuItems}
-//     onSelection={props.onSelection}
-//     value={props.children}
-//   />
-// );}
-// const SelectableTextWrapped = (props) => {
-//   return (
-//     <Text onPress={props.onSelection}>{props.children}</Text>
-// )}
-
 
 const TextSegment = React.memo(({
   rowRef,
@@ -58,8 +44,8 @@ const TextSegment = React.memo(({
   const lineHeightMultiplierHe = Platform.OS === 'android' ? 1.3 : 1.2;
   const justifyStyle = {textAlign: (isStacked && Platform.OS === 'ios') ? 'justify' : (textType === 'hebrew' ? 'right' : 'left')};
   const style = textType == "hebrew" ?
-                [styles.hebrewText, theme.text, justifyStyle, {lineHeight: Animated.multiply(fontSize * lineHeightMultiplierHe, fontScale), fontSize: Animated.multiply(fontSize, fontScale)}] :
-                [styles.englishText, theme.text, justifyStyle, {fontSize: Animated.multiply(0.8*fontSize, fontScale), lineHeight: Animated.multiply(fontSize * 1.04, fontScale) }];
+                [styles.hebrewText, theme.text, styles.hediv, justifyStyle, {lineHeight: Animated.multiply(fontSize * lineHeightMultiplierHe, fontScale), fontSize: Animated.multiply(fontSize, fontScale)}] :
+                [styles.englishText, theme.text, styles.endiv, justifyStyle, {fontSize: Animated.multiply(0.8*fontSize, fontScale), lineHeight: Animated.multiply(fontSize * 1.04, fontScale) }];
   if (bilingual && textType == "english") {
     if (isStacked) {
       style.push(styles.bilingualEnglishText);
@@ -79,6 +65,46 @@ const TextSegment = React.memo(({
       ...justifyStyle,
     }
   };
+  const htmlStyles = {
+    strong: {
+      fontWeight: "bold"
+    },
+    small: {
+      fontSize: 14
+    },
+    b: {
+      fontWeight: "bold"
+    },
+    i: {
+      fontStyle: "italic"
+    },
+    gemarraregular: {
+      fontWeight: "500",
+
+    },
+    gemarraitalic: {
+      fontStyle: "italic",
+      fontWeight: "500",
+    },
+    a: {
+      fontWeight: "300",
+    },
+    hediv: {
+      fontFamily: "Taamey Frank Taamim Fix",
+      writingDirection: "rtl",
+      flex: -1,
+      paddingTop: 15,
+      marginTop: -10,
+      textAlign: Platform.OS == "android" ? "right" : "justify",
+    },
+    endiv: {
+      fontFamily: "Amiri",
+      fontWeight: "normal",
+      textAlign: 'justify',
+      paddingTop: 15,
+      marginTop: -10,
+    },
+  }
   return (
     <TouchableOpacity
       hitSlop= {{top: 10, bottom: 10, left: 10, right: 10}}
@@ -92,18 +118,10 @@ const TextSegment = React.memo(({
         menuItems={['Copy', 'Share', 'Lookup']}
         onSelection={({ eventType, content, selectionStart, selectionEnd }) => { console.log("SELECT", content)}}
         value={data}
-        textValueProp={'value'}
-        TextComponent={HTMLView}
+        textValueProp={'html'}
+        TextComponent={HTML}
         textComponentProps={{
-          stylesheet: {...styles, ...smallSheet},
-          RootComponent: React.Fragment,
-          style: undefined,
-          TextComponent: Animated.Text,
-          textComponentProps: {
-            suppressHighlighting: false,
-            key: segmentKey,
-            style: style,
-          },
+          customWrapper: children => <Animated.Text style={style}>{children}</Animated.Text>,
         }}
       />
     </TouchableOpacity>
