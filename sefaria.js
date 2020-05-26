@@ -1192,9 +1192,9 @@ Sefaria.util = {
     if (isSheet) { text = Sefaria.util.cleanSheetHTML(text); }
     text = Sefaria.util.filterOutItags(text);
     if (lang === 'english') {
-      return Sefaria.util.hebrewInEnglish(text, 'string');
+      return `<endiv>${Sefaria.util.hebrewInEnglish(text, 'string')}</endiv>`;
     }
-    return text;
+    return `<hediv>${text}</hediv>`;
   },
   openFileInSources: async function(filename) {
     const isIOS = Platform.OS === 'ios';
