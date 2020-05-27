@@ -5,6 +5,7 @@ import {
   ScrollView,
   Text,
   View,
+  YellowBox,
 } from 'react-native';
 import React, { useReducer } from 'react';
 import { gestureHandlerRootHOC } from 'react-native-gesture-handler';
@@ -24,6 +25,12 @@ if (process.env.NODE_ENV !== "production" && false) {
     collapseGroups: true,
   });
 }
+
+// Two innocuous warnings based on `TextSegment` 
+YellowBox.ignoreWarnings([
+  'Warning: Invalid prop `"style"` supplied to `React.Fragment`',
+  'Warning: Failed prop type: Invalid prop `RootComponent` of type `symbol`',
+]);
 
 const ReaderAppGesturified = gestureHandlerRootHOC(ReaderApp);
 const Root = () => {
