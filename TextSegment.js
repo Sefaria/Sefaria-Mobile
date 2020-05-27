@@ -5,30 +5,13 @@ import PropTypes from 'prop-types';
 import React, { useState, useEffect, useContext, Fragment } from 'react';
 import {
   Animated,
-  Text,
   TouchableOpacity,
-  View,
   Platform,
 } from 'react-native';
 import HTMLView from 'react-native-htmlview'; //to convert html'afied JSON to something react can render (https://github.com/jsdf/react-native-htmlview)
 import { SelectableText } from "@astrocoders/react-native-selectable-text";
 import { GlobalStateContext, getTheme } from './StateManager';
 import styles from './Styles.js';
-import iPad from './isIPad';
-
-// const SelectableTextWrapped = (props) => {
-//   return (
-//   <SelectableText
-//     menuItems={props.menuItems}
-//     onSelection={props.onSelection}
-//     value={props.children}
-//   />
-// );}
-// const SelectableTextWrapped = (props) => {
-//   return (
-//     <Text onPress={props.onSelection}>{props.children}</Text>
-// )}
-
 
 const TextSegment = React.memo(({
   rowRef,
@@ -37,8 +20,10 @@ const TextSegment = React.memo(({
   textType,
   bilingual,
   textSegmentPressed,
-  onLongPress,
+  copyToClipboard,
+  shareText,
   fontScale,
+  showToast,
 }) => {
   const [resetKey, setResetKey] = useState(0);
   const { themeStr, fontSize, biLayout } = useContext(GlobalStateContext);
@@ -89,8 +74,12 @@ const TextSegment = React.memo(({
       style={{flex: textType == "hebrew" ? 4.5 : 5.5, paddingHorizontal: 10}}
     >
       <SelectableText
-        menuItems={['Copy', 'Share', 'Lookup']}
-        onSelection={({ eventType, content, selectionStart, selectionEnd }) => { console.log("SELECT", content)}}
+        menuItems={['Copy', 'Define', 'Share']}
+        onSelection={({ eventType, content, selectionStart, selectionEnd }) => {
+          if (eventType == 'Copy') { copyToClipboard(content); }
+          else if (eventType == 'Share') { shareText(content); }
+          else { console.log('Please define:', content); }
+        }}
         value={data}
         textValueProp={'value'}
         TextComponent={HTMLView}
@@ -117,7 +106,8 @@ TextSegment.propTypes = {
   textType:           PropTypes.oneOf(["english","hebrew"]),
   bilingual:          PropTypes.bool,
   textSegmentPressed: PropTypes.func.isRequired,
-  onLongPress:        PropTypes.func.isRequired,
+  copyToClipboard:    PropTypes.func.isRequired,
+  shareText:          PropTypes.func.isRequired,
   fontScale:          PropTypes.object,
 };
 
