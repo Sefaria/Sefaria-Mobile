@@ -467,6 +467,7 @@ class TextColumn extends React.PureComponent {
         setRowRef={this.setSegmentRowRef}
         setRowRefInitY={this.setRowRefInitY}
         openUri={this.props.openUri}
+        setDictionaryLookup={this.props.setDictionaryLookup}
       />
     );
   };

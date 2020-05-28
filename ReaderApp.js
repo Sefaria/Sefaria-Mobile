@@ -141,6 +141,7 @@ class ReaderApp extends React.PureComponent {
         activeSheetNode: null,
         isNewSearch: false,
         ReaderDisplayOptionsMenuVisible: false,
+        dictLookup: null,
         overwriteVersions: true, // false when you navigate to a text but dont want the current version to overwrite your sticky version
     };
   }
@@ -553,7 +554,7 @@ class ReaderApp extends React.PureComponent {
             this.animateTextList(0.0001, this.state.textListFlexPreference, 200);
           });
           Sefaria.history.saveHistoryItem(this.getHistoryObject, true);
-        });
+        }); 
       } else {
         this.setState(stateObj, () => {
           Sefaria.history.saveHistoryItem(this.getHistoryObject, true);
@@ -1627,6 +1628,11 @@ class ReaderApp extends React.PureComponent {
     this.setState({searchQuery: query});
   }
 
+  setDictionaryLookup = ({ dictLookup }) => {
+    this.setState({ dictLookup });
+    this.setConnectionsMode('dictionary');
+  }
+
   _getReaderDisplayOptionsMenuRef = ref => {
     this._readerDisplayOptionsMenuRef = ref;
   };
@@ -1962,6 +1968,7 @@ class ReaderApp extends React.PureComponent {
                   loadingTextHead={this.state.loadingTextHead}
                   openUri={this.openUri}
                   textUnavailableAlert={this.textUnavailableAlert}
+                  setDictionaryLookup={this.setDictionaryLookup}
                 />
               }
             </View> }
@@ -2007,7 +2014,9 @@ class ReaderApp extends React.PureComponent {
                 onDragMove={this.onTextListDragMove}
                 onDragEnd={this.onTextListDragEnd}
                 textTitle={this.state.textTitle}
-                openUri={this.openUri} />
+                openUri={this.openUri}
+                dictLookup={this.state.dictLookup}
+              />
                : null
             }
             {this.state.ReaderDisplayOptionsMenuVisible ?

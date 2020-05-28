@@ -17,6 +17,7 @@ import TextList from './TextList';
 import { LinkFilter } from './Filter';
 import VersionsBox from './VersionsBox';
 import AboutBox from './AboutBox';
+import DictionaryBox from './DictionaryBox';
 
 const {
   CategoryColorLine,
@@ -63,6 +64,7 @@ class ConnectionsPanel extends React.PureComponent {
     openUri:              PropTypes.func.isRequired,
     textListFlex:         PropTypes.number.isRequired,
     onStartShouldSetResponderCapture: PropTypes.func.isRequired,
+    dictLookup:           PropTypes.string, 
   };
 
   render() {
@@ -121,6 +123,15 @@ class ConnectionsPanel extends React.PureComponent {
               recentFilters={recentFilters}
               filterIndex={filterIndex}
               listContents={listContents}
+            />
+          </View>
+        );
+      case 'dictionary':
+        return (
+          <View style={[styles.mainTextPanel, styles.textColumn, this.props.theme.textListContentOuter, {maxWidth: null, flex: this.props.textListFlex}]}>
+            {connectionsPanelHeader}
+            <DictionaryBox
+              lookup={this.props.dictLookup}
             />
           </View>
         );

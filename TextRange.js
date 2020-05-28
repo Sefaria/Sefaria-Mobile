@@ -26,6 +26,7 @@ const TextRange = React.memo(({
   setRowRefInitY,
   fontScale,
   openUri,
+  setDictionaryLookup,
 }) => {
   const { themeStr, textLanguage, biLayout, fontSize } = useContext(GlobalStateContext);
   const getDisplayedText = useCallback(() => {
@@ -154,6 +155,7 @@ const TextRange = React.memo(({
               textSegmentPressed={ textSegmentPressed }
               copyToClipboard={copyToClipboard}
               shareText={shareText}
+              setDictionaryLookup={setDictionaryLookup}
             />) : null
           }
           {
@@ -170,6 +172,7 @@ const TextRange = React.memo(({
               textSegmentPressed={ textSegmentPressed }
               copyToClipboard={copyToClipboard}
               shareText={shareText}
+              setDictionaryLookup={setDictionaryLookup}
             />) : null
           }
         </View>

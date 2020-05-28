@@ -23,7 +23,7 @@ const TextSegment = React.memo(({
   copyToClipboard,
   shareText,
   fontScale,
-  showToast,
+  setDictionaryLookup,
 }) => {
   const [resetKey, setResetKey] = useState(0);
   const { themeStr, fontSize, biLayout } = useContext(GlobalStateContext);
@@ -78,7 +78,7 @@ const TextSegment = React.memo(({
         onSelection={({ eventType, content, selectionStart, selectionEnd }) => {
           if (eventType == 'Copy') { copyToClipboard(content); }
           else if (eventType == 'Share') { shareText(content); }
-          else { console.log('Please define:', content); }
+          else { onPress(); setDictionaryLookup({ dictLookup: content }); }
         }}
         value={data}
         textValueProp={'value'}
