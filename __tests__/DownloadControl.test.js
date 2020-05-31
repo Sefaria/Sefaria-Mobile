@@ -250,7 +250,7 @@ describe('UpdateTests', () => {
     await fileSetup("Gen with Rashi");
     const lastWeek = new Date();
     lastWeek.setDate(lastWeek.getDate() - 7);
-    RNFB.fs.setTimestamp(`${FILE_DIRECTORY}/Genesis.zip`, lastWeek.toUTCString());
+    RNFB.fs.setTimestamp(`${FILE_DIRECTORY}/Genesis.zip`, lastWeek.valueOf());
     await basicTest(1, 0)
   });
   test('bookToDelete', async () => {
@@ -261,7 +261,7 @@ describe('UpdateTests', () => {
     await fileSetup("Torah with Rashi");
     const lastWeek = new Date();
     lastWeek.setDate(lastWeek.getDate() - 7);
-    RNFB.fs.setTimestamp(`${FILE_DIRECTORY}/Genesis.zip`, lastWeek.toUTCString());
+    RNFB.fs.setTimestamp(`${FILE_DIRECTORY}/Genesis.zip`, lastWeek.valueOf());
     await RNFB.fs.unlink(`${FILE_DIRECTORY}/Exodus.zip`);
     await RNFB.fs.writeFile(`${FILE_DIRECTORY}/Weird Random Book.zip`);
     await basicTest(2, 1)
@@ -280,7 +280,7 @@ describe('UpdateTests', () => {
     await RNFB.fs.writeFile(`${FILE_DIRECTORY}/Exodus.zip`, 'foo');
     const lastWeek = new Date();
     lastWeek.setDate(lastWeek.getDate() - 7);
-    RNFB.fs.setTimestamp(`${FILE_DIRECTORY}/Exodus.zip`, lastWeek.toUTCString());
+    RNFB.fs.setTimestamp(`${FILE_DIRECTORY}/Exodus.zip`, lastWeek.valueOf());
     await basicTest(6, 0);
   })
 });

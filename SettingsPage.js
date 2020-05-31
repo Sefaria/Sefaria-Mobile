@@ -32,7 +32,9 @@ import {
   checkUpdatesFromServer,
   promptLibraryUpdate,
   wereBooksDownloaded,
-  deleteLibrary as downloaderDeleteLibrary, Package,
+  markLibraryForDeletion,
+  Package,
+  deleteBooks
 } from './DownloadControl';
 
 const generateOptions = (options, onPress) => options.map(o => ({
@@ -70,8 +72,9 @@ const usePkgState = () => {
         if (DownloadTracker.downloadInProgress()) {
           DownloadTracker.cancelDownload(`Canceling Download of ${pkgName}`, 'foo');
         }
-        await PackagesState[pkgName].unclick();
+        const booksToDelete = await PackagesState[pkgName].unclick();
         setIsDisabledObj(getIsDisabledObj());
+        await deleteBooks(booksToDelete);
       }
       else {
         DownloadTracker.notify(pkgName);
@@ -84,7 +87,8 @@ const usePkgState = () => {
     const parent = pkgObj.parent;
     const shortIntLang = interfaceLanguage.slice(0,2);
     //NOTE: onPressDisabled() takes pkgNames in curr intLang while onPress() takes eng
-    if (pkgObj.supersededByParent) { onPressDisabled(pkgObj[shortIntLang], parent[shortIntLang]); }
+    if (pkgObj.supersededByParent) {
+      onPressDisabled(pkgObj[shortIntLang], PackagesState[parent].jsonData[shortIntLang]); }
     else {
      await onPressActive(pkgObj.name);
     }
@@ -102,7 +106,8 @@ function abstractUpdateChecker(disableUpdateComponent) {
     disableUpdateComponent(true);
     try {
       const [totalDownloads, newBooks] = await checkUpdatesFromServer();
-      if (totalDownloads > 0) {
+
+      if (totalDownloads.length > 0) {
         promptLibraryUpdate(totalDownloads, newBooks);
       }
       else {
@@ -131,8 +136,9 @@ const SettingsPage = ({ close, logout, openUri }) => {
   const checkUpdatesForSettings = abstractUpdateChecker(setUpdatesDisabled);
 
   const deleteLibrary = async () => {
-    await downloaderDeleteLibrary();
+    const booksToDelete = await markLibraryForDeletion();
     setIsDisabledObj(getIsDisabledObj);
+    await deleteBooks(booksToDelete);
   };
 
   const langStyle = interfaceLanguage === "hebrew" ? styles.heInt : styles.enInt;
@@ -246,17 +252,18 @@ const ButtonToggleSection = ({ langStyle }) => {
 };
 
 const OfflinePackageList = ({ isDisabledObj, onPackagePress }) => {
-
-  // We set up a subscription to the download tracker when a package is clicked. We need to make sure this is cleaned up
-  // useEffect(() => {
-  //   return function cleanup() {
-  //     console.log('unsubscribing OfflinePackageList');
-  //     DownloadTracker.unsubscribe('settingsPagePackageDownload');
-  //   }  // we can use the isDisabledObj prop to limit when we unsubscribe. Unclear if this is necessary at this point.
-  // });
   return (
     <View style={styles.settingsOfflinePackages}>
       {
+        /*
+        * Note the usage of Global state here. Having a context manager or reducer (useContext or useReducer) might
+        * be a better way to handle this data. Or possibly a Prop on a higher level component.
+        *
+        * This works because after initialization we change state on ReaderApp and force a re-render. Clicking a package
+        * works because we change state on a click to PackageComponent. Essentially the changes to packages are caught
+        * in the re-render. We aren't tuned in to changes to PackagesState or the Package objects directly and are
+        * relying on peripheral changes in order to render the correct result.
+        */
         Object.values(PackagesState).sort((a, b) => a.order - b.order).map(p => {
           return (
             <View key={p.name}>
@@ -283,7 +290,17 @@ const PackageComponent = ({ packageObj, onPackagePress, isDisabledObj }) => {
 
   const onPress = async () => {
     console.log('onPress running');
-    await onPackagePress(packageObj, setDownload);
+    if (DownloadTracker.downloadInProgress()) {
+      Alert.alert(
+        strings.doubleDownload,
+        '',
+        [
+          {text: strings.ok, onPress: () => {}}
+        ]
+      )
+    } else {
+      await onPackagePress(packageObj, setDownload);
+    }
   };
 
   return (

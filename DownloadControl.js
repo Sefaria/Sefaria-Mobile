@@ -7,8 +7,7 @@ import {Alert, Platform} from 'react-native';
 import AsyncStorage from "@react-native-community/async-storage";
 import Sefaria from "./sefaria";
 const SCHEMA_VERSION = "6";
-// const DOWNLOAD_SERVER = "https://readonly.sefaria.org";
-const DOWNLOAD_SERVER = "http://35.237.217.25";
+const DOWNLOAD_SERVER = "https://readonly.sefaria.org";
 const HOST_PATH = `${DOWNLOAD_SERVER}/static/ios-export/${SCHEMA_VERSION}`;
 const HOST_BUNDLE_URL = `${HOST_PATH}/bundles`;
 const BUNDLE_LOCATION = RNFB.fs.dirs.DocumentDir + "/tmp/bundle.zip";
@@ -68,7 +67,6 @@ class DownloadTracker {
   attachProgressTracker(progressTracker, config) {
     if (this.downloadInProgress()) {
       this.currentDownload.progress(config, progressTracker);
-      this.currentDownload = null;
     } else
       this.progressTracker = [progressTracker, config];
   }
@@ -157,10 +155,10 @@ class Package {
   };
   unclick = async function () {
     /*
-     * Set this package as desired = false. In addition to cleaning up this package, we will also use the opportunity to
-     * delete any books that may be downloaded but not desired by the user but may reside outside the package.
+     * Set this package as desired = false.
      *
-     * activePackage: set to true when this is the package clicked. Will be set to false when recursing over children
+     * This method does not actually delete the books. Deleting takes some time. For better responsiveness it is
+     * useful to be call the deleteBooks method explicitly.
      */
     if (this.supersededByParent) {
       throw "A disabled package cannot be unclicked"
@@ -173,7 +171,7 @@ class Package {
 
     // do we want to separate the concerns here? Less of an issue as there is not a network dependency
     setDesiredBooks();
-    await deleteBooks(calculateBooksToDelete(BooksState));
+    return calculateBooksToDelete(BooksState);
   };
   wasSelectedByUser = function () {
     return this.clicked && !this.supersededByParent
@@ -353,11 +351,11 @@ async function setLocalBookTimestamps(bookTitleList) {
   const stamps = {};
   fileData.forEach(f => {
     const bookName = f['filename'].slice(0, -4);
-    stamps[bookName] = new Date(f['lastModified'])
+    stamps[bookName] = new Date(parseInt(f['lastModified']));
   });
 
   bookTitleList.map(title => {
-    const timestamp = (title in stamps) ? new Date(stamps[title]) : null;
+    const timestamp = (title in stamps) ? stamps[title] : null;
     if (title in BooksState)
       BooksState[title].localLastUpdated = timestamp;
     else
@@ -393,22 +391,27 @@ async function repopulateBooksState() {
   return BooksState
 }
 
-function deleteBooks(bookList) {
+async function deleteBooks(bookList) {
   // Test with Appium
-  const results = bookList.map(bookTitle => {
-    return new Promise((resolve, reject) => {
-      const filepath = `${FILE_DIRECTORY}/${bookTitle}.zip`;
-      RNFB.fs.unlink(filepath).then(resolve(bookTitle)).catch(err => reject(err));
-    });
-  });
-  return Promise.all(results).then(bookTitles => {
-    bookTitles.forEach(bookTitle => {
-      if (bookTitle in BooksState) {
-        BooksState[bookTitle].localLastUpdated = null;
-        BooksState.desired = false;
+  const deleteBook = async (bookTitle) => {
+    const filepath = `${FILE_DIRECTORY}/${bookTitle}.zip`;
+    const exists = await RNFB.fs.exists(filepath);
+    if (exists) {
+      try {
+        await RNFB.fs.unlink(filepath);
+      } catch (e) {
+        console.log(`Error deleting file: ${e}`)
       }
-    })
-  })
+    }
+    return bookTitle
+  };
+  await throttlePromiseAll(bookList, deleteBook, 50);
+  bookList.forEach(bookTitle => {
+    if (bookTitle in BooksState) {
+      BooksState[bookTitle].localLastUpdated = null;
+      BooksState[bookTitle].desired = false;
+    }
+  });
 }
 
 async function unzipBundle() {
@@ -446,6 +449,7 @@ async function downloadBundle(bundleName) {
   }
   // todo: network failure, wifi only etc.
   const downloadResult = await downloadState;
+  console.log(downloadResult);
   Tracker.removeDownload();
   const status = downloadResult.info().status;
   if (status >= 300 || status < 200) {
@@ -463,21 +467,19 @@ async function calculateBooksToDownload(booksState) {
       return [];
     }
   let booksToDownload = [];
-  for (const bookTitle in booksState) {  // todo: cleaner to user Object.entries() and the filter() and map()
-    if (booksState.hasOwnProperty(bookTitle)){
-      const bookObj = booksState[bookTitle];
-      if (bookObj.desired) {
-        if (!bookObj.localLastUpdated) {
-          booksToDownload.push(bookTitle);
-        } else {
-          const [localUpdate, remoteUpdate] = [booksState[bookTitle].localLastUpdated, new Date(remoteBookUpdates.titles[bookTitle])];
-          if (localUpdate < remoteUpdate) {
-            booksToDownload.push(bookTitle)
-          }
+  Object.keys(booksState).forEach(bookTitle => {
+    const bookObj = booksState[bookTitle];
+    if (bookObj.desired) {
+      if (!bookObj.localLastUpdated) {
+        booksToDownload.push(bookTitle);
+      } else {
+        const [localUpdate, remoteUpdate] = [booksState[bookTitle].localLastUpdated, new Date(remoteBookUpdates.titles[bookTitle])];
+        if (localUpdate < remoteUpdate) {
+          booksToDownload.push(bookTitle)
         }
       }
     }
-  }
+  });
   return booksToDownload
 }
 
@@ -547,9 +549,9 @@ function booksNotDownloaded(bookList) {
   return bookList.filter(x => !(x in BooksState) || !(BooksState[x].localLastUpdated))
 }
 
-async function deleteLibrary() {
+async function markLibraryForDeletion() {
   // Test with Appium
-  await PackagesState['COMPLETE LIBRARY'].unclick()
+  return await PackagesState['COMPLETE LIBRARY'].unclick()
 }
 
 async function addDir(path) {
@@ -566,7 +568,6 @@ async function addDir(path) {
 async function downloadCoreFile(filename) {
   // Test with Appium
   console.log(`downloading ${filename}`);
-  const [appDir, tempDir] = [`${RNFB.fs.dirs.DocumentDir}/library`, TMP_DIRECTORY];
   await Promise.all([
     addDir(TMP_DIRECTORY),
     addDir(FILE_DIRECTORY),
@@ -602,13 +603,14 @@ async function checkUpdatesFromServer() {
   let timestamp = new Date().toJSON();
   await AsyncStorage.setItem('lastUpdateCheck', timestamp);
   await AsyncStorage.setItem('lastUpdateSchema', SCHEMA_VERSION);
-  try {
-    await loadJSONFile(`${RNFB.fs.dirs.DocumentDir}/library/last_updated.json`);  // todo: download a new file
-  } catch (e) {
-    console.log(e)
-  }
+  // try {
+  //   await downloadCoreFile().then(loadJSONFile(`${RNFB.fs.dirs.DocumentDir}/library/last_updated.json`));
+  // } catch (e) {
+  //   console.log(e)
+  // }
 
   await Promise.all([
+    downloadCoreFile('last_updated.json'),
     downloadCoreFile('toc.json').then(Sefaria._loadTOC),
     downloadCoreFile('search_toc.json').then(Sefaria._loadSearchTOC),
     downloadCoreFile('hebrew_categories.json').then(Sefaria._loadHebrewCategories),
@@ -670,13 +672,29 @@ function promptLibraryUpdate(totalDownloads, newBooks) {
 async function schemaCheckAndPurge() {
   // Test with Jest
   // checks if there was a schema change. If so, delete the library
-  const lastUpdateSchema = AsyncStorage.getItem("lastUpdateSchema");
+  const lastUpdateSchema = await AsyncStorage.getItem("lastUpdateSchema");
   if (lastUpdateSchema !== SCHEMA_VERSION) {
     // We want to delete the library but keep the package selections
     const bookList = getFullBookList();
     await deleteBooks(bookList);
     setDesiredBooks()
   }
+}
+
+async function throttlePromiseAll(argList, promiseCallback, maxWorkers=10) {
+  let [promiseList, result] = [[], []];
+  let resultSubset;
+  for (let i=0; i < argList.length; i++) {
+    if (promiseList.length >= maxWorkers) {
+      resultSubset = await Promise.all(promiseList);
+      result.push(...resultSubset);
+      promiseList = [];
+    }
+    promiseList.push(promiseCallback(argList[i]));
+  }
+  resultSubset = await Promise.all(promiseList);
+  result.push(...resultSubset);
+  return result
 }
 
 export {
@@ -686,7 +704,7 @@ export {
   checkUpdatesFromServer,
   promptLibraryUpdate,
   downloadPackage,
-  deleteLibrary,
+  markLibraryForDeletion,
   loadJSONFile,
   getLocalBookList,
   getFullBookList,
@@ -699,5 +717,6 @@ export {
   Tracker,
   FILE_DIRECTORY,
   calculateBooksToDownload,
-  calculateBooksToDelete
+  calculateBooksToDelete,
+  deleteBooks
 };

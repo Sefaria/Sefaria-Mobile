@@ -161,6 +161,7 @@ let strings = new LocalizedStrings({
     last_name: "Last Name",
     loginSuccessful: "Login successful",
     logout: "Log Out",
+    doubleDownload: "Another Download is in Progress"
   },
   he: {
     mySheets: "דפי המקורות שלי",
@@ -319,6 +320,7 @@ let strings = new LocalizedStrings({
     last_name: "שם משפחה",
     loginSuccessful: "התחברות בוצעה בהצלחה",
     logout: "ניתוק מהחשבון",
+    doubleDownload: "מוריד אוסף אחר, נא להמתין",
   }
 });
 
