@@ -17,6 +17,7 @@ import {
   BackHandler,
   UIManager,
   Linking,
+  Share,
 } from 'react-native';
 import NetInfo from "@react-native-community/netinfo";
 import AsyncStorage from '@react-native-community/async-storage';
@@ -557,7 +558,7 @@ class ReaderApp extends React.PureComponent {
             this.animateTextList(0.0001, this.state.textListFlexPreference, 200);
           });
           Sefaria.history.saveHistoryItem(this.getHistoryObject, true);
-        }); 
+        });
       } else {
         this.setState(stateObj, () => {
           Sefaria.history.saveHistoryItem(this.getHistoryObject, true);
@@ -1636,6 +1637,38 @@ class ReaderApp extends React.PureComponent {
     this.setConnectionsMode('dictionary');
   }
 
+  getDisplayedText = (withUrl) => {
+    const {text, he} = this.state.data[this.state.sectionIndexRef][this.state.segmentIndexRef];
+    const enText = Sefaria.util.removeHtml(typeof text === "string" ? text : "") || "";
+    const heText = Sefaria.util.removeHtml(typeof he === "string" ? he : "") || "";
+    const isHeb = this.props.textLanguage !== "english";
+    const isEng = this.props.textLanguage !== "hebrew";
+    const fullText = (heText && isHeb ? heText + (enText && isEng ? "\n" : "") : "") + ((enText && isEng) ? enText : "");
+    if (withUrl) {
+      return `${fullText}\n\n${Sefaria.refToUrl(this.state.segmentRef)}`;
+    }
+    return fullText;
+  }
+
+  reportError = () => {
+    const body = encodeURIComponent(
+      `${this.state.segmentRef}
+
+      ${this.getDisplayedText(true)}
+
+      Describe the error:`
+    );
+    Linking.openURL(`mailto:corrections@sefaria.org?subject=${encodeURIComponent(`Sefaria Text Correction from ${Platform.OS}`)}&body=${body}`);
+  };
+
+  shareCurrentSegment = () => {
+    Share.share({
+      message: this.getDisplayedText(Platform.OS === 'android'),  // android for some reason doesn't share text with a url attached at the bottom
+      title: this.state.segmentRef,
+      url: Sefaria.refToUrl(this.state.segmentRef)
+    });
+  }
+
   _getReaderDisplayOptionsMenuRef = ref => {
     this._readerDisplayOptionsMenuRef = ref;
   };
@@ -2019,6 +2052,8 @@ class ReaderApp extends React.PureComponent {
                 textTitle={this.state.textTitle}
                 openUri={this.openUri}
                 dictLookup={this.state.dictLookup}
+                shareCurrentSegment={this.shareCurrentSegment}
+                reportError={this.reportError}
               />
                : null
             }

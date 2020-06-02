@@ -7,6 +7,8 @@ import {
   Animated,
   TouchableOpacity,
   Platform,
+  Clipboard,
+  Share,
 } from 'react-native';
 import HTMLView from 'react-native-htmlview'; //to convert html'afied JSON to something react can render (https://github.com/jsdf/react-native-htmlview)
 import { SelectableText } from "@astrocoders/react-native-selectable-text";
@@ -20,10 +22,9 @@ const TextSegment = React.memo(({
   textType,
   bilingual,
   textSegmentPressed,
-  copyToClipboard,
-  shareText,
   fontScale,
   setDictionaryLookup,
+  showToast,
 }) => {
   const [resetKey, setResetKey] = useState(0);
   const { themeStr, fontSize, biLayout } = useContext(GlobalStateContext);
@@ -37,6 +38,20 @@ const TextSegment = React.memo(({
     let section = parseInt(key.split(":")[0]);
     let segment = parseInt(key.split(":")[1]);
     textSegmentPressed(section, segment, rowRef, onlyOpen);
+  };
+  const getTextWithUrl = (text, withUrl) => {
+    return withUrl ? `${text}\n\n${Sefaria.refToUrl(segmentRef)}` : text;
+  };
+  const shareText = (text) => {
+    Share.share({
+      message: getTextWithUrl(text, Platform.OS === 'android'),  // android for some reason doesn't share text with a url attached at the bottom
+      title: segmentRef,
+      url: Sefaria.refToUrl(segmentRef)
+    })
+  };
+  const copyToClipboard = (text) => {
+    Clipboard.setString(text);
+    showToast("Copied to clipboard", 500);
   };
 
   const isStacked = biLayout === 'stacked';
@@ -106,8 +121,7 @@ TextSegment.propTypes = {
   textType:           PropTypes.oneOf(["english","hebrew"]),
   bilingual:          PropTypes.bool,
   textSegmentPressed: PropTypes.func.isRequired,
-  copyToClipboard:    PropTypes.func.isRequired,
-  shareText:          PropTypes.func.isRequired,
+  showToast:          PropTypes.func.isRequired,
   fontScale:          PropTypes.object,
 };
 

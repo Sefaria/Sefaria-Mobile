@@ -64,7 +64,9 @@ class ConnectionsPanel extends React.PureComponent {
     openUri:              PropTypes.func.isRequired,
     textListFlex:         PropTypes.number.isRequired,
     onStartShouldSetResponderCapture: PropTypes.func.isRequired,
-    dictLookup:           PropTypes.string, 
+    dictLookup:           PropTypes.string,
+    shareCurrentSegment:  PropTypes.func.isRequired,
+    reportError:          PropTypes.func.isRequired,
   };
 
   render() {
@@ -243,6 +245,8 @@ class ConnectionsPanel extends React.PureComponent {
                 segmentRef={this.props.segmentRef}
                 heSegmentRef={this.props.heSegmentRef}
                 categories={this.props.categories}
+                shareCurrentSegment={this.props.shareCurrentSegment}
+                reportError={this.props.reportError}
               />
             );
           }
@@ -284,6 +288,8 @@ class ResourcesList extends React.PureComponent {
     segmentRef:         PropTypes.string.isRequired,
     heSegmentRef:       PropTypes.string.isRequired,
     categories:         PropTypes.array.isRequired,
+    shareCurrentSegment:PropTypes.func.isRequired,
+    reportError:        PropTypes.func.isRequired,
   }
 
   render() {
@@ -306,6 +312,20 @@ class ResourcesList extends React.PureComponent {
           count={this.props.versionsCount}
           onPress={()=>{ this.props.setConnectionsMode("versions"); }}
         /> }
+        <ToolsButton
+          interfaceLanguage={this.props.interfaceLanguage}
+          text={strings.share}
+          icon={isWhite ? require("./img/share.png") : require("./img/share-light.png")}
+          theme={this.props.theme}
+          onPress={this.props.shareCurrentSegment}
+        />
+        {this.props.sheet ? null : <ToolsButton
+          interfaceLanguage={this.props.interfaceLanguage}
+          text={strings.reportError}
+          icon={isWhite ? require("./img/bubble.png") : require("./img/bubble-light.png")}
+          theme={this.props.theme}
+          onPress={this.props.reportError}
+        />}
       </View>
     );
   }

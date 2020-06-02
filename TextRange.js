@@ -4,9 +4,7 @@ import React, { useContext, useCallback } from 'react';
 import {
   View,
   Text,
-  Clipboard,
   Platform,
-  Share,
   Linking
 } from 'react-native';
 import ActionSheet from 'react-native-action-sheet';
@@ -29,63 +27,8 @@ const TextRange = React.memo(({
   setDictionaryLookup,
 }) => {
   const { themeStr, textLanguage, biLayout, fontSize } = useContext(GlobalStateContext);
-  const getDisplayedText = useCallback(() => {
-    const {text, he} = rowData.content;
-    const enText = Sefaria.util.removeHtml(typeof text === "string" ? text : "") || "";
-    const heText = Sefaria.util.removeHtml(typeof he === "string" ? he : "") || "";
-    const isHeb = textLanguage !== "english";
-    const isEng = textLanguage !== "hebrew";
-    const fullText = (heText && isHeb ? heText + (enText && isEng ? "\n" : "") : "") + ((enText && isEng) ? enText : "");
-    return fullText
-  }, [rowData, textLanguage, segmentRef]);
-  const getTextWithUrl = (text, withUrl) => {
-    return withUrl ? `${text}\n\n${Sefaria.refToUrl(segmentRef)}` : text;
-  }
+
   const theme = getTheme(themeStr);
-  const onLongPress = useCallback(() => {
-    ActionSheet.showActionSheetWithOptions({
-      options: [
-        strings.copy,
-        strings.reportError,
-        strings.share,
-        strings.viewOnSite,
-        strings.cancel,
-      ],
-      cancelButtonIndex: 4,
-    },
-    (buttonIndex) => {
-      if (buttonIndex === 0) { copyToClipboard(getDisplayedText()); }
-      else if (buttonIndex === 1) { reportError(); }
-      else if (buttonIndex === 2) { shareText(getDisplayedText()); }
-      else if (buttonIndex === 3) { openUri(Sefaria.refToUrl(segmentRef))}
-    })
-  }, [segmentRef]);
-
-  const shareText = (text) => {
-    Share.share({
-      message: getTextWithUrl(text, Platform.OS === 'android'),  // android for some reason doesn't share text with a url attached at the bottom
-      title: segmentRef,
-      url: Sefaria.refToUrl(segmentRef)
-    })
-  }
-  const copyToClipboard = (text) => {
-    Clipboard.setString(text);
-    showToast("Copied to clipboard", 500);
-  };
-
-  const reportErrorBody = () => (
-    encodeURIComponent(
-      `${segmentRef}
-
-      ${getDisplayedText(true)}
-
-      Describe the error:`)
-  );
-
-  const reportError = () => {
-    Linking.openURL(`mailto:corrections@sefaria.org?subject=${encodeURIComponent(`Sefaria Text Correction from ${Platform.OS}`)}&body=${reportErrorBody()}`)
-  };
-
   const _setRef = ref => {
     setRowRef(segmentRef, ref);
   };
@@ -153,8 +96,7 @@ const TextRange = React.memo(({
               data={heText}
               textType="hebrew"
               textSegmentPressed={ textSegmentPressed }
-              copyToClipboard={copyToClipboard}
-              shareText={shareText}
+              showToast={showToast}
               setDictionaryLookup={setDictionaryLookup}
             />) : null
           }
@@ -170,8 +112,7 @@ const TextRange = React.memo(({
               textType="english"
               bilingual={textLanguageWithContent === "bilingual"}
               textSegmentPressed={ textSegmentPressed }
-              copyToClipboard={copyToClipboard}
-              shareText={shareText}
+              showToast={showToast}
               setDictionaryLookup={setDictionaryLookup}
             />) : null
           }
