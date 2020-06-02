@@ -513,10 +513,13 @@ class ReaderApp extends React.PureComponent {
     }
   };
 
-  textSegmentPressed = (section, segment, segmentRef, shouldToggle) => {
+  textSegmentPressed = (section, segment, segmentRef, shouldToggle, onlyOpen) => {
+      console.log("OPEN", onlyOpen, shouldToggle, this.state.textListVisible);
       if (shouldToggle && this.state.textListVisible) {
-          this.animateTextList(this.state.textListFlex, 0.0001, 200);
-          BackManager.back({ type: "secondary" });
+          if (!onlyOpen) {
+            this.animateTextList(this.state.textListFlex, 0.0001, 200);
+            BackManager.back({ type: "secondary" });
+          }
           return; // Don't bother with other changes if we are simply closing the TextList
       }
       if ((!this.state.data || !this.state.data[section] || !this.state.data[section][segment]) && !this.state.sheet) {

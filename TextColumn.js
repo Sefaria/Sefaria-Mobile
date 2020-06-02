@@ -211,7 +211,7 @@ class TextColumn extends React.PureComponent {
     return ref;
   };
 
-  textSegmentPressed = (section, segment, segmentRef, shouldToggle) => {
+  textSegmentPressed = (section, segment, segmentRef, onlyOpen) => {
     if (!this.props.textListVisible) {
       if (this.props.textFlow === 'continuous') {
         const targetY = this.rowYHash[segmentRef] + this.state.itemLayoutList[this.state.jumpInfoMap.get(this.props.sectionArray[section])].offset;
@@ -239,7 +239,7 @@ class TextColumn extends React.PureComponent {
       }
 
     }
-    this.props.textSegmentPressed(section, segment, segmentRef, true);
+    this.props.textSegmentPressed(section, segment, segmentRef, true, onlyOpen);
   };
 
   inlineSectionHeader = (ref) => {

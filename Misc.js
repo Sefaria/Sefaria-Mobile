@@ -20,6 +20,26 @@ import Sefaria from './sefaria';
 import styles from './Styles.js';
 import strings from './LocalizedStrings';
 
+const OrderedList = ({items, renderItem}) => {
+  let arrayOffset = 0;
+  return (
+    <>
+      {
+        items.map((item, index) => {
+          if (Array.isArray(item)) {
+            arrayOffset += 1;
+            return (
+              <View style={{marginLeft: 10}} key={index}>
+                <OrderedList renderItem={renderItem} items={item} />
+              </View>
+            );
+          }
+          return renderItem(item, index-arrayOffset);
+        })
+      }
+    </>
+  );
+}
 
 const SystemButton = ({ onPress, text, img, isHeb, isBlue, isLoading, extraStyles=[] }) => (
   <GlobalStateContext.Consumer>
@@ -816,6 +836,7 @@ export {
   LibraryNavButton,
   LoadingView,
   MenuButton,
+  OrderedList,
   RainbowBar,
   SearchButton,
   SefariaProgressBar,

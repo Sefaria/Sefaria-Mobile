@@ -26,6 +26,7 @@ var Api = {
   _translateVersions: {},
   _indexDetails: {},
   _tagCategory: {},
+  _lexiconCache: {},
   _currentRequests: {}, // object to remember current request in order to abort. keyed by apiType
   _textCacheKey: function(ref, context, versions) {
     return `${ref}|${context}${(!!versions ? (!!versions.en ? `|en:${versions.en}` : "") + (!!versions.he ? `|he:${versions.he}` : "")  : "")}`;
@@ -146,7 +147,7 @@ var Api = {
   apiType: string `oneOf(["text","links","index"])`. passing undefined gets the standard Reader URL.
   context is a required param if apiType == 'text'. o/w it's ignored
   */
-  _toURL: function(ref, useHTTPS, apiType, urlify, { context, versions, more_data, uid }) {
+  _toURL: function(ref, useHTTPS, apiType, urlify, { context, versions, more_data, uid, words }) {
     let url = Sefaria.api._baseHost;
 
     let urlSuffix = '';
@@ -195,6 +196,10 @@ var Api = {
           url += "api/tag-category/";
           //urlSuffix = '?ref_only=0';
           break;
+        case "lexicon":
+          url += `api/words/${encodeURIComponent(words)}?never_split=1`;
+          ref = ref ? `&lookup_ref=${ref}`:""
+          break;
         default:
           console.error("You passed invalid type: ",apiType," into _toURL()");
           break;
@@ -204,6 +209,7 @@ var Api = {
       ref = ref.replace(/:/g,'.').replace(/ /g,'_');
     }
     url += ref + urlSuffix;
+    if (apiType == 'lexicon') { console.log("LEX", url); }
     return url;
   },
   _text: function(ref, { context, versions }) {
@@ -308,7 +314,7 @@ var Api = {
     Sefaria.api._abortRequestType('name');
     return new Promise((resolve, reject) => {
       const cached = Sefaria.api._nameCache[name];
-      if (!!cached) { console.log("cached"); resolve(cached); return; }
+      if (!!cached) { resolve(cached); return; }
       Sefaria.api._request(name, 'name', false, {}, failSilently)
         .then(response => {
           Sefaria.api._nameCache[name] = response;
@@ -319,6 +325,22 @@ var Api = {
           reject();
         });
     });
+  },
+  lexicon: async function(words, ref) {
+    // Returns Promise which resolve to a list of lexicon entries for the given words
+    ref = typeof ref !== "undefined" ? ref : null;
+    words = typeof words !== "undefined" ? words : "";
+    if (words.length <= 0) { return Promise.resolve([]); }
+
+    const key = ref ? words + "|" + ref : words;
+    const cached = Sefaria.api._lexiconCache[key];
+    if (!!cached) { return cached; }
+    try{
+      return await Sefaria.api._request(ref, 'lexicon', true, { words }, true);
+    } catch (error) {
+      console.log("Lexicon API error:", words, ref);
+      throw error;
+    }
   },
   trendingTags: function(failSilently) {
     Sefaria.api._abortRequestType('trendingTags');
@@ -568,11 +590,11 @@ var Api = {
   },
 
 /*
-context is a required param if apiType == 'text'. o/w it's ignored
-versions is object with keys { en, he } specifying version titles
+extra_args.context is a required param if apiType == 'text'. o/w it's ignored
+extra_args.versions is object with keys { en, he } specifying version titles
 failSilently - if true, dont display a message if api call fails
 */
-  _request: async function(ref, apiType, urlify, { context, versions, more_data, uid }, failSilently, isPrivate) {
+  _request: async function(ref, apiType, urlify, extra_args, failSilently, isPrivate) {
     const controller = new AbortController();
     const signal = controller.signal;
     if (isPrivate) {
@@ -581,7 +603,7 @@ failSilently - if true, dont display a message if api call fails
     }
     const headers = isPrivate ? {'Authorization': `Bearer ${Sefaria._auth.token}`} : {};
     Sefaria.api._currentRequests[apiType] = controller;
-    const url = Sefaria.api._toURL(ref, true, apiType, urlify, { context, versions, more_data, uid });
+    const url = Sefaria.api._toURL(ref, true, apiType, urlify, extra_args);
     return new Promise(function(resolve, reject) {
       fetch(url, {method: 'GET', signal, headers })
       .then(function(response) {

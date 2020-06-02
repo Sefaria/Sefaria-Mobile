@@ -32,11 +32,11 @@ const TextSegment = React.memo(({
     return () => {};
   }, [themeStr, fontSize]);
   const theme = getTheme(themeStr);
-  const onPress = () => {
+  const onPress = (onlyOpen) => {
     let key = segmentKey;
     let section = parseInt(key.split(":")[0]);
     let segment = parseInt(key.split(":")[1]);
-    textSegmentPressed(section, segment, rowRef, true);
+    textSegmentPressed(section, segment, rowRef, onlyOpen);
   };
 
   const isStacked = biLayout === 'stacked';
@@ -67,8 +67,8 @@ const TextSegment = React.memo(({
   return (
     <TouchableOpacity
       hitSlop= {{top: 10, bottom: 10, left: 10, right: 10}}
-      onPress={onPress}
-      onLongPress={() => { console.log("LOOOONG")}}
+      onPress={() => onPress()}
+      onLongPress={() => {}}
       delayLongPress={200}
       delayPressIn={200}
       style={{flex: textType == "hebrew" ? 4.5 : 5.5, paddingHorizontal: 10}}
@@ -78,7 +78,7 @@ const TextSegment = React.memo(({
         onSelection={({ eventType, content, selectionStart, selectionEnd }) => {
           if (eventType == 'Copy') { copyToClipboard(content); }
           else if (eventType == 'Share') { shareText(content); }
-          else { onPress(); setDictionaryLookup({ dictLookup: content }); }
+          else { onPress(true); setDictionaryLookup({ dictLookup: content }); }
         }}
         value={data}
         textValueProp={'value'}

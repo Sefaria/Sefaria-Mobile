@@ -17,7 +17,7 @@ import TextList from './TextList';
 import { LinkFilter } from './Filter';
 import VersionsBox from './VersionsBox';
 import AboutBox from './AboutBox';
-import DictionaryBox from './DictionaryBox';
+import LexiconBox from './LexiconBox';
 
 const {
   CategoryColorLine,
@@ -130,8 +130,13 @@ class ConnectionsPanel extends React.PureComponent {
         return (
           <View style={[styles.mainTextPanel, styles.textColumn, this.props.theme.textListContentOuter, {maxWidth: null, flex: this.props.textListFlex}]}>
             {connectionsPanelHeader}
-            <DictionaryBox
-              lookup={this.props.dictLookup}
+            <LexiconBox
+              themeStr={this.props.themeStr}
+              selectedWords={this.props.dictLookup}
+              interfaceLang={this.props.interfaceLanguage}
+              oref={{ref: this.props.segmentRef, categories: Sefaria.categoriesForTitle(Sefaria.textTitleForRef(this.props.segmentRef))}}
+              onEntryClick={()=>{}}
+              onCitationClick={()=>{}}
             />
           </View>
         );
