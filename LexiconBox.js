@@ -9,9 +9,11 @@ import {
 } from 'react-native';
 //const DictionarySearch = require('./DictionarySearch');
 import PropTypes from 'prop-types';
+import HTMLView from 'react-native-htmlview';
 import {
   LoadingView,
   OrderedList,
+  SText,
 } from './Misc';
 import styles from './Styles.js';
 import { GlobalStateContext, getTheme } from './StateManager';
@@ -101,17 +103,12 @@ class LexiconBox extends React.Component {
           content = content.length ? content : <Text>{enEmpty}{heEmpty}</Text>;
       }
     }
-/*
-         <DictionarySearch
-              interfaceLang={this.props.interfaceLang}
-              showWordList={this.searchWord}
-              contextSelector=".lexicon-content"/>
-*/
+
     return (
-        <ScrollView style={{flex: 1}} key={this.props.selectedWords} contentContainerStyle={{marginHorizontal: 10, marginVertical: 20}}>
-          { content }
-        </ScrollView>
-      );
+      <ScrollView style={{flex: 1}} key={this.props.selectedWords} contentContainerStyle={{marginHorizontal: 10, marginVertical: 20}}>
+        { content }
+      </ScrollView>
+    );
   }
 }
 LexiconBox.propTypes = {
@@ -170,53 +167,62 @@ class LexiconEntry extends React.Component {
     );
   }
   render() {
-    var entry = this.props.data;
-    const theme = getTheme(this.props.themeStr);
+    const {data: entry, themeStr} = this.props;
+    const theme = getTheme(themeStr);
 
-    var headwords = [entry['headword']];
+    let headwords = [entry['headword']];
     if ('alt_headwords' in entry) {
       headwords = headwords.concat(entry['alt_headwords']);
     }
+    const fSize = 20;
+    const morphology = ('morphology' in entry['content']) ?  (
+      <SText lang="english" style={[styles.en, {textAlign: 'left', fontSize: fSize}, theme.text]}>
+        {` (${entry['content']['morphology']})`}
+      </SText>
+    ) : null;
 
-    var morphologyHtml = ('morphology' in entry['content']) ?  (<Text>{` (${entry['content']['morphology']})`}</Text>) : null;
-
-    var langHtml = null;
+    let langText = null;
     if ('language_code' in entry || 'language_reference' in entry) {
-      langHtml = (<Text>
-        {('language_code' in entry) ? ` ${entry['language_code']}` : ""}
-        {('language_reference' in entry) ? ` ${entry['language_reference']}` : ""}
-      </Text>);
+      langText = (
+        <SText lang="english" style={[styles.en, {textAlign: 'left', fontSize: fSize}, theme.text]}>
+          {('language_code' in entry) ? ` ${entry['language_code']}` : ""}
+          {('language_reference' in entry) ? ` ${entry['language_reference']}` : ""}
+        </SText>
+      );
     }
 
-    var entryHeadHtml = (<View style={{flexDirection: 'row'}}>
-      {headwords
-          .map((e,i) => <Text style={[styles.he, theme.text]} key={i}>{e}</Text>)
-          .reduce((prev, curr) => [prev, ', ', curr])}
-      {morphologyHtml}
-      {langHtml}
-      </View>);
+    const entryHead = (
+      <View style={{flexDirection: 'row'}}>
+        {headwords
+            .map((e,i) => <SText lang="hebrew" style={[styles.he, {fontSize: fSize}, theme.text]} key={i}>{e}</SText>)
+            .reduce((prev, curr) => [prev, ', ', curr])}
+        {morphology}
+        {langText}
+      </View>
+    );
 
-    // TODO: are these meant to be in ordered list??
-    var endnotes = ('notes' in entry) ? <Text>{ entry['notes']}</Text> : null;
-    var derivatives = ('derivatives' in entry) ? <Text>{entry['derivatives']}></Text> : null;
-
+    const endnotes = ('notes' in entry) ? <Text>{ entry['notes']}</Text> : null;
+    const derivatives = ('derivatives' in entry) ? <Text>{entry['derivatives']}></Text> : null;
     const senses = this.makeSenseTree(entry['content']);
     const attribution = this.renderLexiconAttribution();
     return (
-        <View>
-          <View>{entryHeadHtml}</View>
-          <OrderedList
-            items={senses}
-            renderItem={(item, index) => (
-              <View key={index} style={{flexDirection: 'row'}}>
-                <Text>{`${index+1}. `}</Text>
-                <Text>{item}</Text>
-              </View>
-            )}
-          />
-          <View>{endnotes}{derivatives}</View>
-          <View>{attribution}</View>
-        </View>
+      <View>
+        <View>{entryHead}</View>
+        <OrderedList
+          items={senses}
+          renderItem={(item, index) => (
+            <View key={index} style={{flexDirection: 'row'}}>
+              <Text>{`${index+1}. `}</Text>
+              <HTMLView
+                value={item}
+                stylesheet={styles}
+              />
+            </View>
+          )}
+        />
+        <View>{endnotes}{derivatives}</View>
+        <View>{attribution}</View>
+      </View>
     );
   }
 }
