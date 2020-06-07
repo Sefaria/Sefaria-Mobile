@@ -9,6 +9,7 @@ import {
   Platform,
   Clipboard,
   Share,
+  Text,
 } from 'react-native';
 import HTMLView from 'react-native-htmlview'; //to convert html'afied JSON to something react can render (https://github.com/jsdf/react-native-htmlview)
 import { SelectableText } from "@astrocoders/react-native-selectable-text";
@@ -100,7 +101,7 @@ const TextSegment = React.memo(({
         TextComponent={HTMLView}
         textComponentProps={{
           stylesheet: {...styles, ...smallSheet},
-          RootComponent: React.Fragment,
+          RootComponent: Text,
           style: undefined,
           TextComponent: Animated.Text,
           textComponentProps: {
