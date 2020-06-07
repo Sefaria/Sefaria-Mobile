@@ -1,11 +1,12 @@
 'use strict';
 
-import React from 'react';
+import React, {useContext} from 'react';
 import {
   TouchableOpacity,
   View,
   Text,
   ScrollView,
+  Alert,
 } from 'react-native';
 //const DictionarySearch = require('./DictionarySearch');
 import PropTypes from 'prop-types';
@@ -98,6 +99,7 @@ class LexiconBox extends React.Component {
                     data={entry}
                     onEntryClick={this.props.onEntryClick}
                     onCitationClick={this.props.onCitationClick}
+                    openRef={this.props.openRef}
                     key={i} />)
               }.bind(this));
           content = content.length ? content : <Text>{enEmpty}{heEmpty}</Text>;
@@ -119,6 +121,37 @@ LexiconBox.propTypes = {
   onCitationClick: PropTypes.func
 };
 
+const urlToRef = url => url.replace('/', '').replace('_', ' ').replace(/\.\d+$/, '');
+
+const LexiconText = ({ value, onLinkPress, lang, fSize }) => {
+  const {themeStr} = useContext(GlobalStateContext);
+  const theme = getTheme(themeStr);
+  return (
+    <HTMLView
+      value={value}
+      onLinkPress={onLinkPress}
+      stylesheet={styles}
+      RootComponent={Text}
+      TextComponent={({children, style, textComponentProps, ...props}) => (
+        <HTMLView
+          value={Sefaria.util.getDisplayableHTML(children, lang)}
+          textComponentProps={{...textComponentProps, style: [style].concat(textComponentProps.style)}}
+          {...props}
+        />
+      )}
+      textComponentProps={{
+        stylesheet: styles,
+        RootComponent: Text,
+        TextComponent: SText,
+        textComponentProps: {
+          lang,
+          style: [(lang === 'hebrew' ? styles.he : styles.en), {fontSize: fSize}, theme.text]
+        }
+      }}
+
+    />
+  );
+}
 
 class LexiconEntry extends React.Component {
   makeSenseTree(content) {
@@ -140,40 +173,31 @@ class LexiconEntry extends React.Component {
 
   }
   renderLexiconAttribution () {
-    var entry = this.props.data;
-    var lexicon_dtls = entry['parent_lexicon_details'];
-
-    var sourceContent = <View>
-      <Text>Source: </Text>
-      <Text>מקור:</Text>
-      <Text>{'source' in lexicon_dtls ? lexicon_dtls['source'] : lexicon_dtls['source_url']}</Text>
-    </View>;
-
-    var attributionContent = <View>
-      <Text>Creator: </Text>
-      <Text>יוצר:</Text>
-      <Text>{'attribution' in lexicon_dtls ? lexicon_dtls['attribution'] : lexicon_dtls['attribution_url']}</Text>
-    </View>;
-
+    const {data: entry} = this.props;
+    const lexicon_dtls = entry['parent_lexicon_details'];
+    const sourceContent = `Source: ${lexicon_dtls['source'] || lexicon_dtls['source_url']}`;
+    const attributionContent = `Creator: ${lexicon_dtls['attribution'] || lexicon_dtls['attribution_url']}`;
+    const fullContent = [
+      lexicon_dtls['source_url'] ? `<a href=${lexicon_dtls["source_url"]}>${sourceContent}</a>` : sourceContent,
+      lexicon_dtls['attribution_url'] ? `<a href=${lexicon_dtls['attribution_url']}>${attributionContent}</a>` : attributionContent,
+    ].join('\n');
     return (
-        <View>
-          {('source_url' in lexicon_dtls) ?
-            sourceContent : //<a target="_blank" href={ lexicon_dtls['source_url'] }>{sourceContent}</a> :
-            sourceContent}
-          {('attribution_url' in lexicon_dtls) ?
-            attributionContent : //<a target="_blank" href={ lexicon_dtls['attribution_url'] }>{attributionContent}</a> :
-            attributionContent}
-        </View>
+        <HTMLView
+          value={fullContent}
+          stylesheet={styles}
+          RootComponent={React.Fragment}
+        />
     );
   }
   render() {
-    const {data: entry, themeStr} = this.props;
+    const {data: entry, themeStr, openRef} = this.props;
     const theme = getTheme(themeStr);
 
     let headwords = [entry['headword']];
     if ('alt_headwords' in entry) {
       headwords = headwords.concat(entry['alt_headwords']);
     }
+    const headwordText = headwords.join(', ');
     const fSize = 20;
     const morphology = ('morphology' in entry['content']) ?  (
       <SText lang="english" style={[styles.en, {textAlign: 'left', fontSize: fSize}, theme.text]}>
@@ -183,26 +207,22 @@ class LexiconEntry extends React.Component {
 
     let langText = null;
     if ('language_code' in entry || 'language_reference' in entry) {
-      langText = (
-        <SText lang="english" style={[styles.en, {textAlign: 'left', fontSize: fSize}, theme.text]}>
-          {('language_code' in entry) ? ` ${entry['language_code']}` : ""}
-          {('language_reference' in entry) ? ` ${entry['language_reference']}` : ""}
-        </SText>
-      );
+      let langValue = ('language_code' in entry) ? ` ${entry['language_code']}` : "";
+      langValue += ('language_reference' in entry) ? ` ${entry['language_reference']}` : "";
+      console.log('langText', Sefaria.util.getDisplayableHTML(langValue, 'english'));
+      langText = (<LexiconText lang='english' onLinkPress={url => openRef(urlToRef(url))} fSize={fSize} value={langValue} />);
     }
 
     const entryHead = (
       <View style={{flexDirection: 'row'}}>
-        {headwords
-            .map((e,i) => <SText lang="hebrew" style={[styles.he, {fontSize: fSize}, theme.text]} key={i}>{e}</SText>)
-            .reduce((prev, curr) => [prev, ', ', curr])}
+        <SText lang="hebrew" style={[styles.he, {fontSize: fSize}, theme.text]}>{headwordText}</SText>
         {morphology}
         {langText}
       </View>
     );
 
-    const endnotes = ('notes' in entry) ? <Text>{ entry['notes']}</Text> : null;
-    const derivatives = ('derivatives' in entry) ? <Text>{entry['derivatives']}></Text> : null;
+    const endnotes = ('notes' in entry) ? <LexiconText lang='english' fSize={14} value={entry['notes']}/> : null;
+    const derivatives = ('derivatives' in entry) ? <LexiconText lang='english' fSize={14} value={entry['derivatives']} /> : null;
     const senses = this.makeSenseTree(entry['content']);
     const attribution = this.renderLexiconAttribution();
     return (
@@ -214,6 +234,7 @@ class LexiconEntry extends React.Component {
             <View key={index} style={{flexDirection: 'row'}}>
               <Text>{`${index+1}. `}</Text>
               <HTMLView
+                RootComponent={React.Fragment}
                 value={item}
                 stylesheet={styles}
               />
@@ -229,7 +250,8 @@ class LexiconEntry extends React.Component {
 LexiconEntry.propTypes = {
   data: PropTypes.object.isRequired,
   onEntryClick:  PropTypes.func,
-  onCitationClick: PropTypes.func
+  onCitationClick: PropTypes.func,
+  openRef:      PropTypes.func.isRequired,
 };
 
 

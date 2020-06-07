@@ -29,8 +29,8 @@ const OrderedList = ({items, renderItem}) => {
           if (Array.isArray(item)) {
             arrayOffset += 1;
             return (
-              <View style={{marginLeft: 10}} key={index}>
-                <OrderedList renderItem={renderItem} items={item} />
+              <View style={{marginLeft: 10}} key={`wrapper|${index}`}>
+                <OrderedList renderItem={renderItem} items={item}/>
               </View>
             );
           }
@@ -786,13 +786,16 @@ class HebrewInEnglishText extends React.Component {
 
 class SText extends React.Component {
   static propTypes = {
-    children: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
+    children: PropTypes.oneOfType([PropTypes.string, PropTypes.object, PropTypes.array]),
     lang:     PropTypes.oneOf(["hebrew", "bilingual", "english"]),
     style:    PropTypes.oneOfType([PropTypes.object, PropTypes.array]),
   }
 
   fsize2lheight = (fsize, lang) => (
+    Platform.OS === 'ios' ?
+    (lang !== "hebrew" ? (fsize * 1.6) : ((fsize+1)*1.3)) : // very naive guess at what the function should be (17 == 30, 16 == 28)
     lang !== "hebrew" ? (fsize * 2) : (fsize*1.5) // very naive guess at what the function should be (17 == 30, 16 == 28)
+
   );
 
   getFontSize = (style, lang) => {

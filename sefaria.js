@@ -1179,7 +1179,7 @@ Sefaria.util = {
     }
   },
   hebrewInEnglish: function(text, whatToReturn) {
-    var regEx = /(\s|^|\[|\]|\(|\)|\.|,|;|:|\*|\?|!|-|"|')((?:[\u0591-\u05c7\u05d0-\u05ea]+[()\[\]\s'"\u05f3\u05f4]{0,2})+)(?=\[|\]|\(|\)|\.|,|;|:|\*|\?|!|-|'|"|\s|$)/g
+    var regEx = /(\s|^|\[|\]|\(|\)|\.|,|;|:|\*|\?|!|-|"|')((?:[\u0591-\u05c7\u05d0-\u05ea]+[()\[\]\s'"\u05f3\u05f4]{0,2})+)(?=<|>|\[|\]|\(|\)|\.|,|;|:|\*|\?|!|-|'|"|\s|$)/g
     if (whatToReturn == "string") {
       // wrap all Hebrew strings with <hediv> and &rlm;
       return text.replace(regEx, '<hediv>&#x200E;$1$2</hediv>');

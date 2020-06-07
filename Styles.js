@@ -1276,6 +1276,8 @@ export default StyleSheet.create({
   },
   a: {
     fontWeight: "300",
+    textDecorationLine: "underline",
+    textDecorationStyle: "solid",
   },
   hediv: {
     fontFamily: "Taamey Frank Taamim Fix",
