@@ -107,7 +107,7 @@ class LexiconBox extends React.Component {
     }
 
     return (
-      <ScrollView style={{flex: 1}} key={this.props.selectedWords} contentContainerStyle={{marginHorizontal: 10, marginVertical: 20}}>
+      <ScrollView style={{flex: 1}} key={this.props.selectedWords} contentContainerStyle={{paddingHorizontal: 20, paddingTop: 20, paddingBottom: 40}}>
         { content }
       </ScrollView>
     );
@@ -135,7 +135,7 @@ const LexiconText = ({ value, onLinkPress, lang, fSize }) => {
       TextComponent={({children, style, textComponentProps, ...props}) => (
         <HTMLView
           value={Sefaria.util.getDisplayableHTML(children, lang)}
-          textComponentProps={{...textComponentProps, style: [style].concat(textComponentProps.style)}}
+          textComponentProps={textComponentProps}
           {...props}
         />
       )}
@@ -145,7 +145,7 @@ const LexiconText = ({ value, onLinkPress, lang, fSize }) => {
         TextComponent: SText,
         textComponentProps: {
           lang,
-          style: [(lang === 'hebrew' ? styles.he : styles.en), {fontSize: fSize}, theme.text]
+          style: {...(lang === 'hebrew' ? styles.he : styles.en), fontSize: fSize, ...theme.text},
         }
       }}
 
@@ -234,7 +234,7 @@ class LexiconEntry extends React.Component {
             <View key={index} style={{flexDirection: 'row'}}>
               <Text>{`${index+1}. `}</Text>
               <HTMLView
-                RootComponent={React.Fragment}
+                RootComponent={Text}
                 value={item}
                 stylesheet={styles}
               />
