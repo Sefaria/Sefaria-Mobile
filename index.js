@@ -28,8 +28,10 @@ if (process.env.NODE_ENV !== "production" && false) {
 
 // Two innocuous warnings based on `TextSegment` 
 YellowBox.ignoreWarnings([
-  'Warning: Invalid prop `"style"` supplied to `React.Fragment`',
-  'Warning: Failed prop type: Invalid prop `RootComponent` of type `symbol`',
+  'Invalid prop `style` supplied to `React.Fragment`',
+  'Failed prop type: Invalid prop `RootComponent` of type `object`',
+  'Failed prop type: Invalid prop `RootComponent` of type `symbol`',
+  'Failed prop type: Invalid prop `TextComponent` of type `object`',
 ]);
 
 const ReaderAppGesturified = gestureHandlerRootHOC(ReaderApp);
