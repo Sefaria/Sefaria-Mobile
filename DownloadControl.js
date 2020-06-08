@@ -10,9 +10,11 @@ const SCHEMA_VERSION = "6";
 const DOWNLOAD_SERVER = "https://readonly.sefaria.org";
 const HOST_PATH = `${DOWNLOAD_SERVER}/static/ios-export/${SCHEMA_VERSION}`;
 const HOST_BUNDLE_URL = `${HOST_PATH}/bundles`;
-const BUNDLE_LOCATION = RNFB.fs.dirs.DocumentDir + "/tmp/bundle.zip";
-const [FILE_DIRECTORY, TMP_DIRECTORY] = [`${RNFB.fs.dirs.DocumentDir}/library`, `${RNFB.fs.dirs.DocumentDir}/tmp`];  //todo: make sure these are used
-
+const FILE_DIRECTORY = `${RNFB.fs.dirs.DocumentDir}/library`;  //todo: make sure these are used
+const TMP_DIRECTORY = Platform.OS === "ios" ? `${RNFB.fs.dirs.DocumentDir}/tmp` : `${RNFB.fs.dirs.DownloadDir}/tmp`;
+// const TMP_DIRECTORY = `${RNFB.fs.dirs.DocumentDir}/tmp`;
+console.log(`The tmp directory is: ${TMP_DIRECTORY}`);
+const BUNDLE_LOCATION = `${TMP_DIRECTORY}/bundle.zip`;
 
 let BooksState = {};
 let PackagesState = {};
@@ -191,14 +193,27 @@ class Book {
 
 
 function downloadFilePromise(fileUrl, filepath) {
-  console.log(`Downloading from ${fileUrl}`);
+  console.log(`Downloading from ${fileUrl} to ${filepath}`);
   // Test with Appium
-  return RNFB.config({
-    IOSBackgroundTask: true,
-    indicator: true,
-    path: filepath,
-    overwrite: true
-  }).fetch('GET', fileUrl)
+  let config;
+  if (Platform.OS === "ios") {
+    config = RNFB.config({
+      IOSBackgroundTask: true,
+      indicator: true,
+      path: filepath,
+      overwrite: true,
+    })
+  } else {
+    config = RNFB.config({
+      addAndroidDownloads: {
+        useDownloadManager : true,
+        path: filepath,
+        title: 'Sefaria File Download',
+        notification: true
+      }
+    })
+  }
+  return config.fetch('GET', fileUrl)
 }
 
 
@@ -416,16 +431,8 @@ async function deleteBooks(bookList) {
 
 async function unzipBundle() {
   // Test with Appium
-  const unzipLocation = `${RNFB.fs.dirs.DocumentDir}/library`;
-  const dirExists = await RNFB.fs.isDir(unzipLocation);
-  if (!dirExists) {
-    try {
-      await RNFB.fs.mkdir(unzipLocation);
-    } catch (e) {
-      console.log(`error creating library folder: ${e}`)
-    }
-  }
-  await unzip(BUNDLE_LOCATION, `${RNFB.fs.dirs.DocumentDir}/library`);
+  await addDir(FILE_DIRECTORY);
+  await unzip(BUNDLE_LOCATION, FILE_DIRECTORY);
 }
 
 function requestNewBundle(bookList) {
