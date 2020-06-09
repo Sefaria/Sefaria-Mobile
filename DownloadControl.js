@@ -10,11 +10,10 @@ const SCHEMA_VERSION = "6";
 const DOWNLOAD_SERVER = "https://readonly.sefaria.org";
 const HOST_PATH = `${DOWNLOAD_SERVER}/static/ios-export/${SCHEMA_VERSION}`;
 const HOST_BUNDLE_URL = `${HOST_PATH}/bundles`;
-const FILE_DIRECTORY = `${RNFB.fs.dirs.DocumentDir}/library`;  //todo: make sure these are used
-const TMP_DIRECTORY = Platform.OS === "ios" ? `${RNFB.fs.dirs.DocumentDir}/tmp` : `${RNFB.fs.dirs.DownloadDir}/tmp`;
+const [FILE_DIRECTORY, TMP_DIRECTORY] = [`${RNFB.fs.dirs.DocumentDir}/library`, `${RNFB.fs.dirs.DocumentDir}/tmp`];  //todo: make sure these are used
 // const TMP_DIRECTORY = `${RNFB.fs.dirs.DocumentDir}/tmp`;
 console.log(`The tmp directory is: ${TMP_DIRECTORY}`);
-const BUNDLE_LOCATION = `${TMP_DIRECTORY}/bundle.zip`;
+const BUNDLE_LOCATION = Platform.OS === "ios" ? `${TMP_DIRECTORY}/bundle.zip` : `${RNFB.fs.dirs.DownloadDir}/SefariaDownload.zip`;
 
 let BooksState = {};
 let PackagesState = {};
@@ -192,18 +191,12 @@ class Book {
 }
 
 
-function downloadFilePromise(fileUrl, filepath) {
+function downloadFilePromise(fileUrl, filepath, useDownloadManager=false) {
+  // useDownloadManager is for using the android download manager. Parameter is ignored on ios devices
   console.log(`Downloading from ${fileUrl} to ${filepath}`);
   // Test with Appium
   let config;
-  if (Platform.OS === "ios") {
-    config = RNFB.config({
-      IOSBackgroundTask: true,
-      indicator: true,
-      path: filepath,
-      overwrite: true,
-    })
-  } else {
+  if (Platform.OS === "android" && useDownloadManager) {
     config = RNFB.config({
       addAndroidDownloads: {
         useDownloadManager : true,
@@ -212,8 +205,19 @@ function downloadFilePromise(fileUrl, filepath) {
         notification: true
       }
     })
+  } else {
+    config = RNFB.config({
+      IOSBackgroundTask: true,
+      indicator: true,
+      path: filepath,
+      overwrite: true,
+    })
   }
-  return config.fetch('GET', fileUrl)
+  const filePromise = config.fetch('GET', fileUrl);
+  if (Platform.OS === "ios") {
+    filePromise.expire(postDownload);
+  }
+  return filePromise
 }
 
 
@@ -448,7 +452,9 @@ function requestNewBundle(bookList) {
 
 async function downloadBundle(bundleName) {
   // Test with Appium
-  const downloadState = downloadFilePromise(`${HOST_BUNDLE_URL}/${encodeURIComponent(bundleName)}`, BUNDLE_LOCATION);
+  const downloadState = downloadFilePromise(
+    `${HOST_BUNDLE_URL}/${encodeURIComponent(bundleName)}`, BUNDLE_LOCATION, true
+  );
   try {
     Tracker.addDownload(downloadState);
   } catch (e) {
@@ -511,16 +517,27 @@ async function _executeDownload(bundleName) {
   // Test with Appium
   // todo: make sure network is checked
   // todo: handle download interruption differently than download failure
+  // break into two functions
   try {
     await downloadBundle(bundleName);
-    await unzipBundle();
   } catch (e) {
     console.log(`Handling error: ${e}`)
   } finally {
-    await RNFB.fs.unlink(BUNDLE_LOCATION);
+    await postDownload();
   }
-  // update our local book list
-  await repopulateBooksState()
+}
+
+async function postDownload() {
+  console.log('ran postDownload');
+  const exists = await RNFB.fs.exists(BUNDLE_LOCATION);
+  if (!exists) {
+    console.log('no bundle');
+    return
+  }
+  console.log('unzipping bundle');
+  await unzipBundle();
+  await RNFB.fs.unlink(BUNDLE_LOCATION);
+  await repopulateBooksState();
 }
 
 async function downloadPackage(packageName) {
@@ -725,5 +742,6 @@ export {
   FILE_DIRECTORY,
   calculateBooksToDownload,
   calculateBooksToDelete,
-  deleteBooks
+  deleteBooks,
+  postDownload
 };
