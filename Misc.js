@@ -804,7 +804,6 @@ class SText extends React.Component {
       if (!!s && !!s.fontSize) { fsize = s.fontSize; }
     }
     fsize = lang === "hebrew" ? fsize * 1.2 : fsize;
-    console.log(style, fsize);
     return fsize;
   }
 

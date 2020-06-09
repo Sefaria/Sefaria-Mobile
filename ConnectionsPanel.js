@@ -135,11 +135,10 @@ class ConnectionsPanel extends React.PureComponent {
             <LexiconBox
               themeStr={this.props.themeStr}
               openRef={this.props.openRef}
+              openUri={this.props.openUri}
               selectedWords={this.props.dictLookup}
               interfaceLang={this.props.interfaceLanguage}
               oref={{ref: this.props.segmentRef, categories: Sefaria.categoriesForTitle(Sefaria.textTitleForRef(this.props.segmentRef))}}
-              onEntryClick={()=>{}}
-              onCitationClick={()=>{}}
             />
           </View>
         );

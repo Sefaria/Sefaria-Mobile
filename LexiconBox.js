@@ -2,13 +2,10 @@
 
 import React, {useContext} from 'react';
 import {
-  TouchableOpacity,
   View,
   Text,
   ScrollView,
-  Alert,
 } from 'react-native';
-//const DictionarySearch = require('./DictionarySearch');
 import PropTypes from 'prop-types';
 import HTMLView from 'react-native-htmlview';
 import {
@@ -35,7 +32,6 @@ class LexiconBox extends React.Component {
     }
   }
   componentDidUpdate(prevProps, prevState) {
-    // console.log("component will receive props: ", nextProps.selectedWords);
     if (!this.props.selectedWords) {
       this.clearLookups();
     } else if (this.props.selectedWords !== prevProps.selectedWords) {
@@ -58,7 +54,6 @@ class LexiconBox extends React.Component {
   getLookups(words, oref) {
     if(this.shouldActivate(words)) {
       let ref = oref ? oref.ref : undefined;
-      // console.log('getting data: ', words, oref.ref);
       Sefaria.api.lexicon(words, ref).then(data => {
         this.setState({
           loaded: true,
@@ -81,33 +76,29 @@ class LexiconBox extends React.Component {
   }
   render() {
     const refCats = (this.props.oref && (!this.state.searchedWord)) ? this.props.oref.categories.join(", ") : null; //TODO: the way to filter by categories is very limiting.
-    const enEmpty = 'No definitions found for "' + this.props.selectedWords + '".';
-    const heEmpty = 'לא נמצאו תוצאות "' + this.props.selectedWords + '".';
-    let content = "";
-    if(this.shouldActivate(this.props.selectedWords)) {
+    const activated = this.shouldActivate(this.props.selectedWords);
+    const enEmpty = `No definitions found${activated ? ` for "${this.props.selectedWords}".` : ''}`;
+    const heEmpty = `לא נמצאו תוצאות${activated ? ` "${ this.props.selectedWords}".` : ''}`;
+    let content = (<Text>{enEmpty}</Text>);
+    if(activated) {
       if(!this.state.loaded) {
           content = (<LoadingView />);
-      } else if(this.state.entries.length === 0) {
-          if (this.props.selectedWords.length > 0) {
-          content = (<Text>{enEmpty}{heEmpty}</Text>);
-          }
       } else {
           let entries = this.state.entries;
-          content =  entries.filter(e => (!refCats) || e['parent_lexicon_details']['text_categories'].length === 0 || e['parent_lexicon_details']['text_categories'].indexOf(refCats) > -1).map(function(entry, i) {
+          let tempContent =  entries.filter(e => (!refCats) || e['parent_lexicon_details']['text_categories'].length === 0 || e['parent_lexicon_details']['text_categories'].indexOf(refCats) > -1).map(function(entry, i) {
                 return (<LexiconEntry
                     themeStr={this.props.themeStr}
                     data={entry}
-                    onEntryClick={this.props.onEntryClick}
-                    onCitationClick={this.props.onCitationClick}
                     openRef={this.props.openRef}
+                    openUri={this.props.openUri}
                     key={i} />)
               }.bind(this));
-          content = content.length ? content : <Text>{enEmpty}{heEmpty}</Text>;
+          if (tempContent.length) { content = tempContent; }
       }
     }
 
     return (
-      <ScrollView style={{flex: 1}} key={this.props.selectedWords} contentContainerStyle={{paddingHorizontal: 20, paddingTop: 20, paddingBottom: 40}}>
+      <ScrollView style={{flex: 1}} key={this.props.selectedWords} contentContainerStyle={{paddingLeft: 20, paddingRight: 40, paddingTop: 20, paddingBottom: 40}}>
         { content }
       </ScrollView>
     );
@@ -117,19 +108,21 @@ LexiconBox.propTypes = {
   interfaceLang:    PropTypes.string.isRequired,
   selectedWords: PropTypes.string,
   oref:          PropTypes.object,
-  onEntryClick:  PropTypes.func,
-  onCitationClick: PropTypes.func
+  openRef:       PropTypes.func.isRequired,
+  openUri:       PropTypes.func.isRequired,
 };
 
-const urlToRef = url => url.replace('/', '').replace('_', ' ').replace(/\.\d+$/, '');
-
-const LexiconText = ({ value, onLinkPress, lang, fSize }) => {
+const LexiconText = ({ value, openRef, openUri, lang, fSize, style }) => {
   const {themeStr} = useContext(GlobalStateContext);
   const theme = getTheme(themeStr);
+  style = style || {};
   return (
     <HTMLView
       value={value}
-      onLinkPress={onLinkPress}
+      onLinkPress={url => {
+        const internal = (url.length > 0 && url[0] === '/') || (url.indexOf('sefaria.org/') > -1);
+        internal ? openRef(Sefaria.urlToRef(url.replace('/', '')).ref) : openUri(url);
+      }}
       stylesheet={styles}
       RootComponent={Text}
       TextComponent={({children, style, textComponentProps, ...props}) => (
@@ -145,7 +138,7 @@ const LexiconText = ({ value, onLinkPress, lang, fSize }) => {
         TextComponent: SText,
         textComponentProps: {
           lang,
-          style: {...(lang === 'hebrew' ? styles.he : styles.en), fontSize: fSize, ...theme.text},
+          style: {...(lang === 'hebrew' ? styles.he : styles.en), fontSize: fSize, ...theme.text, ...style},
         }
       }}
 
@@ -185,12 +178,14 @@ class LexiconEntry extends React.Component {
         <HTMLView
           value={fullContent}
           stylesheet={styles}
-          RootComponent={React.Fragment}
+          textComponentProps={{
+            style: {color: "#AAA"}
+          }}
         />
     );
   }
   render() {
-    const {data: entry, themeStr, openRef} = this.props;
+    const {data: entry, themeStr, openRef, openUri} = this.props;
     const theme = getTheme(themeStr);
 
     let headwords = [entry['headword']];
@@ -200,7 +195,7 @@ class LexiconEntry extends React.Component {
     const headwordText = headwords.join(', ');
     const fSize = 20;
     const morphology = ('morphology' in entry['content']) ?  (
-      <SText lang="english" style={[styles.en, {textAlign: 'left', fontSize: fSize}, theme.text]}>
+      <SText lang="english" style={[styles.en, {textAlign: 'left', fontSize: fSize}, theme.secondaryText]}>
         {` (${entry['content']['morphology']})`}
       </SText>
     ) : null;
@@ -209,8 +204,7 @@ class LexiconEntry extends React.Component {
     if ('language_code' in entry || 'language_reference' in entry) {
       let langValue = ('language_code' in entry) ? ` ${entry['language_code']}` : "";
       langValue += ('language_reference' in entry) ? ` ${entry['language_reference']}` : "";
-      console.log('langText', Sefaria.util.getDisplayableHTML(langValue, 'english'));
-      langText = (<LexiconText lang='english' onLinkPress={url => openRef(urlToRef(url))} fSize={fSize} value={langValue} />);
+      langText = (<LexiconText lang='english' openRef={openRef} openUri={openUri} fSize={fSize} value={langValue} />);
     }
 
     const entryHead = (
@@ -221,22 +215,24 @@ class LexiconEntry extends React.Component {
       </View>
     );
 
-    const endnotes = ('notes' in entry) ? <LexiconText lang='english' fSize={14} value={entry['notes']}/> : null;
-    const derivatives = ('derivatives' in entry) ? <LexiconText lang='english' fSize={14} value={entry['derivatives']} /> : null;
+    const endnotes = ('notes' in entry) ? <LexiconText lang='english' openRef={openRef} openUri={openUri} fSize={14} value={entry['notes']}/> : null;
+    const derivatives = ('derivatives' in entry) ? <LexiconText lang='english' openRef={openRef} openUri={openUri} fSize={14} value={entry['derivatives']} /> : null;
     const senses = this.makeSenseTree(entry['content']);
     const attribution = this.renderLexiconAttribution();
     return (
-      <View>
+      <View style={{marginTop: 20}}>
         <View>{entryHead}</View>
         <OrderedList
           items={senses}
           renderItem={(item, index) => (
             <View key={index} style={{flexDirection: 'row'}}>
               <Text>{`${index+1}. `}</Text>
-              <HTMLView
-                RootComponent={Text}
+              <LexiconText
+                lang='english'
+                openRef={openRef}
+                openUri={openUri}
+                fSize={14}
                 value={item}
-                stylesheet={styles}
               />
             </View>
           )}
@@ -249,9 +245,8 @@ class LexiconEntry extends React.Component {
 }
 LexiconEntry.propTypes = {
   data: PropTypes.object.isRequired,
-  onEntryClick:  PropTypes.func,
-  onCitationClick: PropTypes.func,
   openRef:      PropTypes.func.isRequired,
+  openUri:      PropTypes.func.isRequired,
 };
 
 
