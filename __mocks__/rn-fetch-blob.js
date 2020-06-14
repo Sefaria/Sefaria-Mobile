@@ -98,12 +98,15 @@ export default {
    * from a server
    */
   config: jest.fn(x => {
+    console.log('running the mock');
     return {
-      fetch: jest.fn(x => Promise.resolve({
-        info: () => {
-          return {status: 200}
-        }
-      }))
+      fetch: jest.fn(x => Object.assign(
+        Promise.resolve({
+          info: () => {
+            return {status: 200}
+          }
+        }), { expire: jest.fn() }
+      ))
     }
   })
 };

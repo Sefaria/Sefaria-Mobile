@@ -80,9 +80,9 @@ const packageData = [
   }
 ];
 
-fetch = jest.fn(x => {
-  return {status: 200}
-});
+// fetch = jest.fn(x => {
+//   return {status: 200}
+// });
 
 beforeEach(async () => {
   await RNFB.fs.writeFile(`${FILE_DIRECTORY}/toc.json`, tocJson);
@@ -113,13 +113,14 @@ describe('downloadBundle_tests', () => {
   });
 
   test ('Bad download status', () => {
-    RNFB.config.mockImplementationOnce(() => {
+    RNFB.config.mockImplementation(() => {
       return {
-        fetch: jest.fn().mockResolvedValue(Promise.resolve({
-          info: () => {
-            return {status: 404}
-          }
-        }))
+        fetch: () => Object.assign(
+          Promise.resolve({
+            info: () => {
+              return {status: 404}
+            }
+          }), { expire: jest.fn() })
       }
     });
     expect.assertions(1);
@@ -130,7 +131,7 @@ describe('downloadBundle_tests', () => {
     RNFB.config.mockImplementationOnce(() => {
       return {
         fetch: () => {
-          return Promise.reject('error')
+          return Object.assign(Promise.reject('error'), { expire: jest.fn() })
           }
         }
       }

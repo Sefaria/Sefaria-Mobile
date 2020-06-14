@@ -203,7 +203,8 @@ function downloadFilePromise(fileUrl, filepath, useDownloadManager=false) {
         path: filepath,
         title: 'Sefaria File Download',
         notification: true
-      }
+      },
+      IOSBackgroundTask: true,
     })
   } else {
     config = RNFB.config({
@@ -217,6 +218,7 @@ function downloadFilePromise(fileUrl, filepath, useDownloadManager=false) {
   if (Platform.OS === "ios") {
     filePromise.expire(postDownload);
   }
+  console.log(filePromise);
   return filePromise
 }
 
@@ -535,7 +537,12 @@ async function postDownload() {
     return
   }
   console.log('unzipping bundle');
-  await unzipBundle();
+  try {
+    await unzipBundle();
+  } catch (e) {
+    // Take to the settings page and check for updates?
+  }
+
   await RNFB.fs.unlink(BUNDLE_LOCATION);
   await repopulateBooksState();
 }
@@ -721,6 +728,16 @@ async function throttlePromiseAll(argList, promiseCallback, maxWorkers=10) {
   return result
 }
 
+function doubleDownload() {
+  Alert.alert(
+    strings.doubleDownload,
+    '',
+    [
+      {text: strings.ok, onPress: () => {}}
+    ]
+  )
+}
+
 export {
   downloadBundle,
   packageSetupProtocol,
@@ -743,5 +760,6 @@ export {
   calculateBooksToDownload,
   calculateBooksToDelete,
   deleteBooks,
-  postDownload
+  postDownload,
+  doubleDownload,
 };

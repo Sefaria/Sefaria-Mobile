@@ -16,7 +16,9 @@ gem install cocoapods
 cd ios
 pod install
 ```
-Put `GoogleService-Info.plist` in the `ios` directory.  It's available from the Firebase console (or your friendly co-worker.) 
+Put `GoogleService-Info.plist` in the `ios` directory.  It's available from the Firebase console (or your friendly co-worker.)
+_<sub><sup>This step can be skipped if just running for android. Skipping it for ios can get you in trouble though.</sup></sub>_
+
 
 To build and start the simulator:
 
