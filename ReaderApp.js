@@ -871,11 +871,12 @@ class ReaderApp extends React.PureComponent {
         segmentData.text = 'comment!!';
         segmentData.type = 'comment';
       } else if (source.outsideText) {
-        segmentData.text = source.outsideText;
+        const langField = Sefaria.hebrew.isHebrew(Sefaria.util.stripHtml(source.outsideText)) ? "he" : "text";
+        segmentData[langField] =  Sefaria.util.cleanSheetHTML(source.outsideText);
         segmentData.type = 'outsideText';
       } else if (source.outsideBiText) {
-        segmentData.text = source.outsideBiText.en;
-        segmentData.he = source.outsideBiText.he;
+        segmentData.text = Sefaria.util.cleanSheetHTML(source.outsideBiText.en);
+        segmentData.he = Sefaria.util.cleanSheetHTML(source.outsideBiText.he);
         segmentData.type = 'outsideBiText';
       } else if (source.media) {
         segmentData = {
@@ -926,16 +927,16 @@ class ReaderApp extends React.PureComponent {
   };
 
   textUnavailableAlert = ref => {
-    // Alert.alert(
-    //   strings.textUnavailable,
-    //   strings.promptOpenOnWebMessage,
-    //   [
-    //     {text: strings.cancel, style: 'cancel'},
-    //     {text: strings.open, onPress: () => {
-    //       this.openUri(Sefaria.refToUrl(ref));
-    //     }}
-    //   ]
-    // );
+    Alert.alert(
+      strings.textUnavailable,
+      strings.promptOpenOnWebMessage,
+      [
+        {text: strings.cancel, style: 'cancel'},
+        {text: strings.open, onPress: () => {
+          this.openUri(Sefaria.refToUrl(ref));
+        }}
+      ]
+    );
   };
 
   /*

@@ -1148,6 +1148,7 @@ Sefaria.util = {
     return Math.round(nowUTC/1000);
   },
   cleanSheetHTML(html) {
+    if (!html) { return ""; }
     html = html.replace(/\u00a0/g, ' ').replace(/&nbsp;/g, ' ').replace(/(\r\n|\n|\r)/gm, "");
     const cleanAttributes = Platform.OS === 'android' ? {} : {
               a: [ 'href', 'name', 'target' ],
