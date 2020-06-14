@@ -868,7 +868,8 @@ class ReaderApp extends React.PureComponent {
           type: 'ref',
         };
       } else if (source.comment) {
-        segmentData.text = 'comment!!';
+        const langField = Sefaria.hebrew.isHebrew(Sefaria.util.stripHtml(source.comment)) ? "he" : "text";
+        segmentData[langField] = Sefaria.util.cleanSheetHTML(source.comment);
         segmentData.type = 'comment';
       } else if (source.outsideText) {
         const langField = Sefaria.hebrew.isHebrew(Sefaria.util.stripHtml(source.outsideText)) ? "he" : "text";
