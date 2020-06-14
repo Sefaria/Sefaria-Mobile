@@ -87,7 +87,6 @@ const TextSegment = React.memo(({
 
          }
        }
-       style={{flex: textType == "hebrew" ? 4.5 : 5.5, paddingHorizontal: 10}}
      />
 
   );

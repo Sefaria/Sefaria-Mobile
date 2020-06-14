@@ -741,28 +741,15 @@ class RainbowBar extends React.Component {
     )
   }
 }
-class HebrewInEnglishText extends React.Component {
-  //Use Sefaria.util.hebrewInEnglish for HTML text in a text or sheet segment. This is for other react components
 
-  cleanText(text){
-      var splitText = Sefaria.util.hebrewInEnglish(Sefaria.util.stripHtml(text),"list")
-      var cleanText = []
-      for (let chunk of splitText) {
-          if (Sefaria.hebrew.isHebrew(chunk)) {
-            cleanText.push(<Text style={this.props.stylesHe}>{chunk}</Text>)
-          }
-          else {
-              cleanText.push(<Text style={this.props.stylesEn}>{chunk}</Text>)
-          }
-      }
-      return cleanText
-  }
-
-  render() {
-      return this.cleanText(this.props.text)
-  }
-
-}
+const HebrewInEnglishText = ({ text, stylesEn, stylesHe }) => (
+  Sefaria.util.hebrewInEnglish(Sefaria.util.stripHtml(text),"list").map((chunk, index) =>
+    (Sefaria.hebrew.isHebrew(chunk) ?
+      <Text key={index} style={stylesHe}>{chunk}</Text> :
+      <Text key={index} style={stylesEn}>{chunk}</Text>
+    )
+  )
+);
 
 class SText extends React.Component {
   static propTypes = {
