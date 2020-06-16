@@ -226,7 +226,7 @@ class LexiconEntry extends React.Component {
           items={senses}
           renderItem={(item, index) => (
             <View key={index} style={{flexDirection: 'row'}}>
-              <Text>{`${index+1}. `}</Text>
+              <Text style={[styles.en, theme.text]}>{`${index+1}. `}</Text>
               <LexiconText
                 lang='english'
                 openRef={openRef}

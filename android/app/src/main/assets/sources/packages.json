@@ -3,7 +3,7 @@
         "en": "COMPLETE LIBRARY",
         "he": "כל הספרייה",
         "color": "Other",
-        "size": 703162544
+        "size": 777651117
     },
     {
         "en": "TANAKH with Rashi",
@@ -90,7 +90,7 @@
             "Rashi on I Chronicles",
             "Rashi on II Chronicles"
         ],
-        "size": 23793571
+        "size": 24289229
     },
     {
         "en": "TANAKH and all commentaries",
@@ -631,7 +631,7 @@
             "Torah Temimah on Esther",
             "Tzaverei Shalal"
         ],
-        "size": 113863781
+        "size": 120265688
     },
     {
         "en": "TALMUD with Rashi and Tosafot",
@@ -749,7 +749,7 @@
             "Tosafot on Meilah",
             "Tosafot on Niddah"
         ],
-        "size": 63907542
+        "size": 64093477
     },
     {
         "en": "TALMUD and all commentaries",
@@ -935,6 +935,21 @@
             "Ben Yehoyada on Sotah",
             "Ben Yehoyada on Gittin",
             "Ben Yehoyada on Kiddushin",
+            "Ben Yehoyada on Bava Kamma",
+            "Ben Yehoyada on Bava Metzia",
+            "Ben Yehoyada on Bava Batra",
+            "Ben Yehoyada on Sanhedrin",
+            "Ben Yehoyada on Makkot",
+            "Ben Yehoyada on Shevuot",
+            "Ben Yehoyada on Avodah Zarah",
+            "Ben Yehoyada on Horayot",
+            "Ben Yehoyada on Zevachim",
+            "Ben Yehoyada on Menachot",
+            "Ben Yehoyada on Chullin",
+            "Ben Yehoyada on Bekhorot",
+            "Ben Yehoyada on Arakhin",
+            "Ben Yehoyada on Eduyot",
+            "Ben Yehoyada on Niddah",
             "Benayahu on Berakhot",
             "Benayahu on Shabbat",
             "Benayahu on Eruvin",
@@ -1029,6 +1044,7 @@
             "Chokhmat Shlomo on Bava Batra",
             "Chokhmat Shlomo on Sanhedrin",
             "Chokhmat Shlomo on Makkot",
+            "Chokhmat Shlomo on Shevuot",
             "Chokhmat Shlomo on Chullin",
             "Chokhmat Shlomo on Niddah",
             "Commentary of the Rosh on Nedarim",
@@ -1229,6 +1245,9 @@
             "Rav Nissim Gaon on Berakhot",
             "Rav Nissim Gaon on Shabbat",
             "Reshimot Shiurim on Berakhot",
+            "Reshimot Shiurim on Yevamot",
+            "Reshimot Shiurim on Bava Kamma",
+            "Reshimot Shiurim on Bava Metzia",
             "Ritva on Berakhot",
             "Ritva on Eruvin",
             "Ritva on Pesachim",
@@ -1398,7 +1417,7 @@
             "Jerusalem Talmud Horayot",
             "Jerusalem Talmud Niddah"
         ],
-        "size": 165649718
+        "size": 173141007
     },
     {
         "en": "MISHNAH",
@@ -2184,7 +2203,7 @@
             "Yesh Seder LaMishnah Introduction",
             "Zeroa Yamin"
         ],
-        "size": 33034332
+        "size": 35045724
     },
     {
         "en": "MIDRASH",
@@ -2245,7 +2264,6 @@
             "Sifrei Devarim",
             "Mekhilta DeRabbi Shimon Bar Yochai",
             "Mekhilta d'Rabbi Yishmael",
-            "Maharzu commentary on Midrash Rabbah",
             "Seder Olam Zutta",
             "Buber footnotes on Midrash Mishlei",
             "Footnotes on Mekhilta DeRabbi Shimon Bar Yochai",
@@ -2254,7 +2272,7 @@
             "Notes and Corrections on Midrash Aggadah",
             "Yaakov Emden on Seder Olam Rabbah"
         ],
-        "size": 33355232
+        "size": 36882946
     },
     {
         "en": "HALAKHAH",
@@ -3686,6 +3704,44 @@
             "Teshuvah MeYirah on Mishneh Torah, Rebels",
             "Teshuvah MeYirah on Mishneh Torah, Mourning",
             "Teshuvah MeYirah on Mishneh Torah, Kings and Wars",
+            "Tzafnat Pa'neach on Mishneh Torah, Transmission of the Oral Law",
+            "Tzafnat Pa'neach on Mishneh Torah, Positive Mitzvot",
+            "Tzafnat Pa'neach on Mishneh Torah, Foundations of the Torah",
+            "Tzafnat Pa'neach on Mishneh Torah, Human Dispositions",
+            "Tzafnat Pa'neach on Mishneh Torah, Torah Study",
+            "Tzafnat Pa'neach on Mishneh Torah, Foreign Worship and Customs of the Nations",
+            "Tzafnat Pa'neach on Mishneh Torah, Repentance",
+            "Tzafnat Pa'neach on Mishneh Torah, Reading the Shema",
+            "Tzafnat Pa'neach on Mishneh Torah, Prayer and the Priestly Blessing",
+            "Tzafnat Pa'neach on Mishneh Torah, Tefillin, Mezuzah and the Torah Scroll",
+            "Tzafnat Pa'neach on Mishneh Torah, Fringes",
+            "Tzafnat Pa'neach on Mishneh Torah, Blessings",
+            "Tzafnat Pa'neach on Mishneh Torah, Circumcision",
+            "Tzafnat Pa'neach on Mishneh Torah, Sabbath",
+            "Tzafnat Pa'neach on Mishneh Torah, Eruvin",
+            "Tzafnat Pa'neach on Mishneh Torah, Rest on the Tenth of Tishrei",
+            "Tzafnat Pa'neach on Mishneh Torah, Rest on a Holiday",
+            "Tzafnat Pa'neach on Mishneh Torah, Leavened and Unleavened Bread",
+            "Tzafnat Pa'neach on Mishneh Torah, Shofar, Sukkah and Lulav",
+            "Tzafnat Pa'neach on Mishneh Torah, Sheqel Dues",
+            "Tzafnat Pa'neach on Mishneh Torah, Sanctification of the New Month",
+            "Tzafnat Pa'neach on Mishneh Torah, Fasts",
+            "Tzafnat Pa'neach on Mishneh Torah, Scroll of Esther and Hanukkah",
+            "Tzafnat Pa'neach on Mishneh Torah, Marriage",
+            "Tzafnat Pa'neach on Mishneh Torah, Divorce",
+            "Tzafnat Pa'neach on Mishneh Torah, Levirate Marriage and Release",
+            "Tzafnat Pa'neach on Mishneh Torah, Virgin Maiden",
+            "Tzafnat Pa'neach on Mishneh Torah, Woman Suspected of Infidelity",
+            "Tzafnat Pa'neach on Mishneh Torah, Forbidden Intercourse",
+            "Tzafnat Pa'neach on Mishneh Torah, Forbidden Foods",
+            "Tzafnat Pa'neach on Mishneh Torah, Ritual Slaughter",
+            "Tzafnat Pa'neach on Mishneh Torah, Oaths",
+            "Tzafnat Pa'neach on Mishneh Torah, Vows",
+            "Tzafnat Pa'neach on Mishneh Torah, Nazariteship",
+            "Tzafnat Pa'neach on Mishneh Torah, Appraisals and Devoted Property",
+            "Tzafnat Pa'neach on Mishneh Torah, Diverse Species",
+            "Tzafnat Pa'neach on Mishneh Torah, Gifts to the Poor",
+            "Tzafnat Pa'neach on Mishneh Torah, Heave Offerings",
             "Tziunei Maharan on Mishneh Torah, Transmission of the Oral Law",
             "Tziunei Maharan on Mishneh Torah, Foundations of the Torah",
             "Tziunei Maharan on Mishneh Torah, Human Dispositions",
@@ -3960,6 +4016,10 @@
             "Shulchan Arukh, Yoreh De'ah",
             "Shulchan Arukh, Even HaEzer",
             "Shulchan Arukh, Choshen Mishpat",
+            "Yad Avraham on Shulchan Arukh, Yoreh De'ah",
+            "Beit Meir on Shulchan Arukh, Even HaEzer",
+            "Ezer MiKodesh on Shulchan Arukh, Even HaEzer",
+            "Kessef HaKodashim on Shulchan Arukh, Choshen Mishpat",
             "Ateret Zekenim on Shulchan Arukh, Orach Chayim",
             "Ba'er Hetev on Shulchan Arukh, Orach Chayim",
             "Ba'er Hetev on Shulchan Arukh, Yoreh De'ah",
@@ -4000,6 +4060,8 @@
             "Pithei Teshuva on Shulchan Arukh, Even HaEzer",
             "Pithei Teshuva on Shulchan Arukh, Choshen Mishpat",
             "Pri Megadim on Yoreh De'ah",
+            "Rabbi Akiva Eiger on Shulchan Arukh, Yoreh De'ah",
+            "Rabbi Akiva Eiger on Shulchan Arukh, Choshen Mishpat",
             "Rabbi Akiva Eiger on Shulchan Arukh, Even HaEzer",
             "Rabbi Akiva Eiger on Shulchan Arukh, Orach Chayim",
             "Sha'arei Teshuvah on Shulchan Arukh, Orach Chayim",
@@ -4016,6 +4078,7 @@
             "Yad Ephraim on Shulchan Arukh, Orach Chayim",
             "Chofetz Chaim",
             "Kitzur Shulchan Aruch",
+            "Sefer HaChinukh",
             "The Sabbath Epistle",
             "Treasures Hidden in the Sand",
             "Abudarham",
@@ -4048,10 +4111,25 @@
             "Minchat Chinukh",
             "Nehar Misrayim",
             "Ohr Zarua",
+            "Peninei Halakhah, Festivals",
+            "Peninei Halakhah, Pesach",
+            "Peninei Halakhah, Prayer",
+            "Peninei Halakhah, Shabbat",
+            "Peninei Halakhah, Simchat Habayit V'Birchato",
+            "Peninei Halakhah, Women's Prayer",
+            "Peninei Halakhah, Zemanim",
+            "Peninei Halakhah, Berakhot",
+            "Peninei Halakhah, Family",
+            "Peninei Halakhah, High Holidays",
+            "Peninei Halakhah, Kashrut",
+            "Peninei Halakhah, Likkutim I",
+            "Peninei Halakhah, Likkutim II",
+            "Peninei Halakhah, Shmitta and Yovel",
+            "Peninei Halakhah, Sukkot",
+            "Peninei Halakhah, The Nation and the Land",
             "Piskei Challah",
             "Ptil Tekhelet",
             "Sefer Chasidim",
-            "Sefer HaChinukh",
             "Sefer HaMitzvot",
             "Sefer HaMitzvot HaKatzar",
             "Sefer HaParnas",
@@ -4183,7 +4261,7 @@
             "Summary of Taz on Shulchan Arukh, Yoreh De'ah",
             "Toafot Re'em"
         ],
-        "size": 201950754
+        "size": 221182824
     },
     {
         "en": "KABBALAH",
@@ -4228,7 +4306,7 @@
             "Ramban on Sefer Yetzirah",
             "Rasag on Sefer Yetzirah"
         ],
-        "size": 14004226
+        "size": 16542924
     },
     {
         "en": "LITURGY",
@@ -4256,9 +4334,11 @@
             "Geulat Olam on Pesach Haggadah",
             "Minchat Ani on Pesach Haggadah",
             "Peh Echad on Pesach Haggadah",
+            "Peirush Hafla'ah on Pesach Haggadah",
             "Safa Echat on Pesach Haggadah",
             "Simchat HaRegel on Pesach Haggadah",
             "Zeroa Yamin on Pesach Haggadah",
+            "Zevach Pesach on Pesach Haggadah",
             "Machzor Rosh Hashanah Ashkenaz",
             "Machzor Rosh Hashanah Ashkenaz Linear",
             "Machzor Yom Kippur Ashkenaz",
@@ -4283,6 +4363,7 @@
             "Ketubah Text",
             "Kinnot for Tisha B'Av (Ashkenaz)",
             "Lekha Dodi",
+            "Maaneh Lashon Chabad",
             "Seder Ma'amadot",
             "Seder Tisha B'Av (Edot HaMizrach)",
             "Selichot Edot HaMizrach",
@@ -4293,6 +4374,6 @@
             "Tikkun HaKlali",
             "Olat Reiyah"
         ],
-        "size": 5733679
+        "size": 13554907
     }
 ]

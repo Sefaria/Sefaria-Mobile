@@ -7,18 +7,19 @@ import {
   Animated,
   TouchableOpacity,
   Platform,
-  Clipboard,
   Share,
   Text,
 } from 'react-native';
 import HTMLView from 'react-native-htmlview'; //to convert html'afied JSON to something react can render (https://github.com/jsdf/react-native-htmlview)
 import { SelectableText } from "@astrocoders/react-native-selectable-text";
+import Clipboard from "@react-native-community/clipboard";
+
 import { GlobalStateContext, getTheme } from './StateManager';
 import styles from './Styles.js';
 
 // pass correct functions to TextSegment for sheet renderers. probably combine renderers and make it simpler
 const TextSegment = React.memo(({
-  rowRef,
+  segmentRef,
   segmentKey,
   data,
   textType,
@@ -39,7 +40,7 @@ const TextSegment = React.memo(({
     let key = segmentKey;
     let section = parseInt(key.split(":")[0]);
     let segment = parseInt(key.split(":")[1]);
-    textSegmentPressed(section, segment, rowRef, onlyOpen);
+    textSegmentPressed(section, segment, segmentRef, onlyOpen);
   };
   const getTextWithUrl = (text, withUrl) => {
     return withUrl ? `${text}\n\n${Sefaria.refToUrl(segmentRef)}` : text;
@@ -53,7 +54,7 @@ const TextSegment = React.memo(({
   };
   const copyToClipboard = (text) => {
     Clipboard.setString(text);
-    showToast("Copied to clipboard", 500);
+    showToast("Copied to clipboard");
   };
 
   const isStacked = biLayout === 'stacked';
@@ -81,6 +82,10 @@ const TextSegment = React.memo(({
       ...justifyStyle,
     }
   };
+  let menuItems = ['Copy', 'Define', 'Share'];
+  if (textType === 'english') {
+    menuItems.splice(1, 1);
+  }
   return (
     <TouchableOpacity
       hitSlop= {{top: 10, bottom: 10, left: 10, right: 10}}
@@ -91,7 +96,7 @@ const TextSegment = React.memo(({
       style={{flex: textType == "hebrew" ? 4.5 : 5.5, paddingHorizontal: 10}}
     >
       <SelectableText
-        menuItems={['Copy', 'Define', 'Share']}
+        menuItems={menuItems}
         onSelection={({ eventType, content, selectionStart, selectionEnd }) => {
           if (eventType == 'Copy') { copyToClipboard(content); }
           else if (eventType == 'Share') { shareText(content); }
@@ -117,7 +122,7 @@ const TextSegment = React.memo(({
 });
 TextSegment.whyDidYouRender = true;
 TextSegment.propTypes = {
-  rowRef:             PropTypes.string.isRequired, /* this ref keys into TextColumn.rowRefs */
+  segmentRef:         PropTypes.string.isRequired, /* this ref keys into TextColumn.rowRefs */
   segmentKey:         PropTypes.string,
   data:               PropTypes.string,
   textType:           PropTypes.oneOf(["english","hebrew"]),

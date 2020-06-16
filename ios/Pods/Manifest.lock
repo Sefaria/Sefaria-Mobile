@@ -399,6 +399,8 @@ PODS:
     - React
   - RNCAsyncStorage (1.11.0):
     - React
+  - RNCClipboard (1.2.2):
+    - React
   - RNFBAnalytics (6.7.2):
     - Firebase/Analytics (~> 6.13.0)
     - Firebase/Core (~> 6.13.0)
@@ -492,6 +494,7 @@ DEPENDENCIES:
   - rn-fetch-blob (from `../node_modules/rn-fetch-blob`)
   - RNBackgroundFetch (from `../node_modules/react-native-background-fetch`)
   - "RNCAsyncStorage (from `../node_modules/@react-native-community/async-storage`)"
+  - "RNCClipboard (from `../node_modules/@react-native-community/clipboard`)"
   - "RNFBAnalytics (from `../node_modules/@react-native-firebase/analytics`)"
   - "RNFBApp (from `../node_modules/@react-native-firebase/app`)"
   - "RNFBCrashlytics (from `../node_modules/@react-native-firebase/crashlytics`)"
@@ -605,6 +608,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-background-fetch"
   RNCAsyncStorage:
     :path: "../node_modules/@react-native-community/async-storage"
+  RNCClipboard:
+    :path: "../node_modules/@react-native-community/clipboard"
   RNFBAnalytics:
     :path: "../node_modules/@react-native-firebase/analytics"
   RNFBApp:
@@ -686,6 +691,7 @@ SPEC CHECKSUMS:
   rn-fetch-blob: 651b8d076b43d0d7aa294a3d9ec16c00aab8bef9
   RNBackgroundFetch: 9a52e25373791da8cb41a42dbaeab257851f7792
   RNCAsyncStorage: db711e29e5e0500d9bd21aa0c2e397efa45302b1
+  RNCClipboard: a254f6e568bc713b7ef49646e216661369882030
   RNFBAnalytics: 29bc4baf70da8dc04238d2e1c050367264d2f440
   RNFBApp: 7b539bb25520fa73d6a240f5c6ea569e27683645
   RNFBCrashlytics: b34063b906dd0c57a5d286dd743a40c90c8326c7

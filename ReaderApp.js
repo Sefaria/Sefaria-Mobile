@@ -48,7 +48,7 @@ import ConnectionsPanel from './ConnectionsPanel';
 import SettingsPage from './SettingsPage';
 import InterruptingMessage from './InterruptingMessage';
 import SwipeableCategoryList from './SwipeableCategoryList';
-import Toast, {DURATION} from 'react-native-easy-toast';
+import Toast from 'react-native-root-toast';
 import BackManager from './BackManager';
 import ReaderNavigationSheetMenu from "./ReaderNavigationSheetMenu";
 import ReaderNavigationSheetList from "./ReaderNavigationSheetList";
@@ -313,8 +313,8 @@ class ReaderApp extends React.PureComponent {
     }
   }
 
-  showToast = (text, duration, callback) => {
-    this.refs.toast.show(text, duration, callback);
+  showToast = (text, duration, onHidden) => {
+    Toast.show(text, {duration, onHidden});
   }
 
   toggleReaderDisplayOptionsMenu = () => {
@@ -2089,7 +2089,6 @@ class ReaderApp extends React.PureComponent {
               }
               { this.renderContent() }
           </View>
-          <Toast ref="toast"/>
         </SafeAreaView>
         <InterruptingMessage
           ref={this._getInterruptingMessageRef}

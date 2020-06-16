@@ -209,7 +209,6 @@ var Api = {
       ref = ref.replace(/:/g,'.').replace(/ /g,'_');
     }
     url += ref + urlSuffix;
-    if (apiType == 'lexicon') { console.log("LEX", url); }
     return url;
   },
   _text: function(ref, { context, versions }) {
@@ -236,8 +235,6 @@ var Api = {
       } else {
         Sefaria.api._request(ref,'links', true, {}, true)
         .then((response)=>{
-          //console.log("Setting API Link Cache for ",ref)
-          console.log(response)
           Sefaria.api._linkCache[ref] = response;
           resolve(response);
         })

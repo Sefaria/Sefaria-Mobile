@@ -264,10 +264,12 @@ class AnimatedRow extends React.Component {
         Animated.timing(this._position, {
           toValue: 0,
           duration: animationDuration,
+          useNativeDriver: true,
         }),
         Animated.timing(this._height, {
           toValue: 0,
           duration: animationDuration,
+          useNativeDriver: true,
         })
       ]).start(onRemove);
     }

@@ -463,15 +463,15 @@ class TextColumn extends React.PureComponent {
   *******************/
 
   renderRow = ({ item }) => {
-    if (item.type === ROW_TYPES.SEGMENT) {
+    if (
+      item.type === ROW_TYPES.SEGMENT ||
+      item.type === ROW_TYPES.SHEET_COMMENT ||
+      item.type === ROW_TYPES.SHEET_OUTSIDE_TEXT ||
+      item.type === ROW_TYPES.SHEET_OUTSIDE_BI_TEXT
+    ) {
       return (this.props.textFlow == 'continuous' && Sefaria.canBeContinuous(this.props.textTitle)) ?
         this.renderContinuousRow({ item }) :
         this.renderSegmentedRow({ item });
-    } else if (
-      item.type === ROW_TYPES.SHEET_COMMENT ||
-      item.type === ROW_TYPES.SHEET_OUTSIDE_TEXT ||
-      item.type === ROW_TYPES.SHEET_OUTSIDE_BI_TEXT) {
-      return this.renderPlainText({ item });
     } else if (item.type === ROW_TYPES.SHEET_MEDIA) {
       return this.renderSheetMedia({ item });
     } else {
@@ -507,23 +507,7 @@ class TextColumn extends React.PureComponent {
     return (
       <TextRange
         fontScale={this.props.fontScale}
-        displayRef={this.props.isSheet}
-        showToast={this.props.showToast}
-        rowData={item.data}
-        segmentRef={item.ref}
-        showSegmentNumbers={Sefaria.showSegmentNumbers(this.props.textTitle)}
-        textSegmentPressed={this.textSegmentPressed}
-        setRowRef={this.setSegmentRowRef}
-        setRowRefInitY={this.setRowRefInitY}
-        openUri={this.props.openUri}
-      />
-    );
-  };
-
-  renderPlainText = ({ item }) => {
-    return (
-      <TextRange
-        fontScale={this.props.fontScale}
+        displayRef={item.type === ROW_TYPES.SEGMENT && this.props.isSheet}
         showToast={this.props.showToast}
         rowData={item.data}
         segmentRef={item.ref}
@@ -763,7 +747,7 @@ class TextColumn extends React.PureComponent {
               renderItem={this.renderRow}
               renderSectionHeader={this.renderSectionHeader}
               ListHeaderComponent={this.renderListHeader}
-              ListFooterComponent={this.renderListFooter}              
+              ListFooterComponent={this.renderListFooter}
               onEndReached={this.onEndReached}
               onEndReachedThreshold={2.0}
               onScroll={this.handleScroll}

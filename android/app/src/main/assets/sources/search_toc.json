@@ -9238,6 +9238,81 @@
                                 "title": "Ben Yehoyada on Kiddushin",
                                 "heTitle": "בן יהוידע על קידושין",
                                 "order": 19
+                            },
+                            {
+                                "title": "Ben Yehoyada on Bava Kamma",
+                                "heTitle": "בן יהוידע על בבא קמא",
+                                "order": 20
+                            },
+                            {
+                                "title": "Ben Yehoyada on Bava Metzia",
+                                "heTitle": "בן יהוידע על בבא מציעא",
+                                "order": 21
+                            },
+                            {
+                                "title": "Ben Yehoyada on Bava Batra",
+                                "heTitle": "בן יהוידע על בבא בתרא",
+                                "order": 22
+                            },
+                            {
+                                "title": "Ben Yehoyada on Sanhedrin",
+                                "heTitle": "בן יהוידע על סנהדרין",
+                                "order": 23
+                            },
+                            {
+                                "title": "Ben Yehoyada on Makkot",
+                                "heTitle": "בן יהוידע על מכות",
+                                "order": 24
+                            },
+                            {
+                                "title": "Ben Yehoyada on Shevuot",
+                                "heTitle": "בן יהוידע על שבועות",
+                                "order": 25
+                            },
+                            {
+                                "title": "Ben Yehoyada on Avodah Zarah",
+                                "heTitle": "בן יהוידע על עבודה זרה",
+                                "order": 26
+                            },
+                            {
+                                "title": "Ben Yehoyada on Horayot",
+                                "heTitle": "בן יהוידע על הוריות",
+                                "order": 27
+                            },
+                            {
+                                "title": "Ben Yehoyada on Zevachim",
+                                "heTitle": "בן יהוידע על זבחים",
+                                "order": 28
+                            },
+                            {
+                                "title": "Ben Yehoyada on Menachot",
+                                "heTitle": "בן יהוידע על מנחות",
+                                "order": 29
+                            },
+                            {
+                                "title": "Ben Yehoyada on Chullin",
+                                "heTitle": "בן יהוידע על חולין",
+                                "order": 30
+                            },
+                            {
+                                "title": "Ben Yehoyada on Bekhorot",
+                                "heTitle": "בן יהוידע על בכורות",
+                                "order": 31
+                            },
+                            {
+                                "title": "Ben Yehoyada on Arakhin",
+                                "heTitle": "בן יהוידע על ערכין",
+                                "order": 32
+                            },
+                            {
+                                "title": "Ben Yehoyada on Eduyot",
+                                "heTitle": "בן יהוידע על משנה עדיות",
+                                "order": 37
+                            },
+                            {
+                                "title": "Ben Yehoyada on Niddah",
+                                "heTitle": "בן יהוידע על נדה",
+                                "order": 38
                             }
                         ]
                     },
@@ -9826,6 +9901,11 @@
                                         "title": "Chokhmat Shlomo on Makkot",
                                         "heTitle": "חכמת שלמה על מכות",
                                         "order": 24
+                                    },
+                                    {
+                                        "title": "Chokhmat Shlomo on Shevuot",
+                                        "heTitle": "חכמת שלמה על שבועות",
+                                        "order": 25
                                     }
                                 ]
                             },
@@ -11248,6 +11328,33 @@
                                         "order": 1
                                     }
                                 ]
+                            },
+                            {
+                                "category": "Seder Nashim",
+                                "heCategory": "סדר נשים",
+                                "contents": [
+                                    {
+                                        "title": "Reshimot Shiurim on Yevamot",
+                                        "heTitle": "רשימות שיעורים על יבמות",
+                                        "order": 13
+                                    }
+                                ]
+                            },
+                            {
+                                "category": "Seder Nezikin",
+                                "heCategory": "סדר נזיקין",
+                                "contents": [
+                                    {
+                                        "title": "Reshimot Shiurim on Bava Kamma",
+                                        "heTitle": "רשימות שיעורים על בבא קמא",
+                                        "order": 20
+                                    },
+                                    {
+                                        "title": "Reshimot Shiurim on Bava Metzia",
+                                        "heTitle": "רשימות שיעורים על בבא מציעא",
+                                        "order": 21
+                                    }
+                                ]
                             }
                         ]
                     },
@@ -12366,10 +12473,6 @@
                 ]
             },
             {
-                "title": "Maharzu commentary on Midrash Rabbah",
-                "heTitle": "פירוש מהרז\"ו על מדרש רבה"
-            },
-            {
                 "title": "Seder Olam Zutta",
                 "heTitle": "סדר עולם זוטא"
             }
@@ -13352,6 +13455,76 @@
                         "title": "Shomer Yisrael",
                         "heTitle": "שומר ישראל",
                         "order": 7
+                    }
+                ]
+            },
+            {
+                "category": "Peninei Halakhah",
+                "heCategory": "פניני הלכה",
+                "contents": [
+                    {
+                        "title": "Peninei Halakhah, Berakhot",
+                        "heTitle": "פניני הלכה, ברכות"
+                    },
+                    {
+                        "title": "Peninei Halakhah, Family",
+                        "heTitle": "פניני הלכה, משפחה"
+                    },
+                    {
+                        "title": "Peninei Halakhah, Festivals",
+                        "heTitle": "פניני הלכה, מועדים"
+                    },
+                    {
+                        "title": "Peninei Halakhah, High Holidays",
+                        "heTitle": "פניני הלכה, ימים נוראים"
+                    },
+                    {
+                        "title": "Peninei Halakhah, Kashrut",
+                        "heTitle": "פניני הלכה, כשרות"
+                    },
+                    {
+                        "title": "Peninei Halakhah, Likkutim I",
+                        "heTitle": "פניני הלכה, ליקוטים א"
+                    },
+                    {
+                        "title": "Peninei Halakhah, Likkutim II",
+                        "heTitle": "פניני הלכה, ליקוטים ב"
+                    },
+                    {
+                        "title": "Peninei Halakhah, Pesach",
+                        "heTitle": "פניני הלכה, פסח"
+                    },
+                    {
+                        "title": "Peninei Halakhah, Prayer",
+                        "heTitle": "פניני הלכה, תפילה"
+                    },
+                    {
+                        "title": "Peninei Halakhah, Shabbat",
+                        "heTitle": "פניני הלכה, שבת"
+                    },
+                    {
+                        "title": "Peninei Halakhah, Shmitta and Yovel",
+                        "heTitle": "פניני הלכה, שביעית ויובל"
+                    },
+                    {
+                        "title": "Peninei Halakhah, Simchat Habayit V'Birchato",
+                        "heTitle": "פניני הלכה, שמחת הבית וברכתו"
+                    },
+                    {
+                        "title": "Peninei Halakhah, Sukkot",
+                        "heTitle": "פניני הלכה, סוכות"
+                    },
+                    {
+                        "title": "Peninei Halakhah, The Nation and the Land",
+                        "heTitle": "פניני הלכה, העם והארץ"
+                    },
+                    {
+                        "title": "Peninei Halakhah, Women's Prayer",
+                        "heTitle": "פניני הלכה, תפילת נשים"
+                    },
+                    {
+                        "title": "Peninei Halakhah, Zemanim",
+                        "heTitle": "פניני הלכה, זמנים"
                     }
                 ]
             },
@@ -22093,6 +22266,250 @@
                         ]
                     },
                     {
+                        "category": "Tzafnat Pa'neach",
+                        "heCategory": "צפנת פענח",
+                        "contents": [
+                            {
+                                "category": "Introduction",
+                                "heCategory": "הקדמה",
+                                "contents": [
+                                    {
+                                        "title": "Tzafnat Pa'neach on Mishneh Torah, Transmission of the Oral Law",
+                                        "heTitle": "צפנת פענח על משנה תורה, מסירת תורה שבעל פה",
+                                        "order": 1
+                                    },
+                                    {
+                                        "title": "Tzafnat Pa'neach on Mishneh Torah, Positive Mitzvot",
+                                        "heTitle": "צפנת פענח על משנה תורה, מצוות עשה",
+                                        "order": 2
+                                    }
+                                ]
+                            },
+                            {
+                                "category": "Sefer Madda",
+                                "heCategory": "ספר מדע",
+                                "contents": [
+                                    {
+                                        "title": "Tzafnat Pa'neach on Mishneh Torah, Foundations of the Torah",
+                                        "heTitle": "צפנת פענח על משנה תורה, הלכות יסודי התורה",
+                                        "order": 5
+                                    },
+                                    {
+                                        "title": "Tzafnat Pa'neach on Mishneh Torah, Human Dispositions",
+                                        "heTitle": "צפנת פענח על משנה תורה, הלכות דעות",
+                                        "order": 6
+                                    },
+                                    {
+                                        "title": "Tzafnat Pa'neach on Mishneh Torah, Torah Study",
+                                        "heTitle": "צפנת פענח על משנה תורה, הלכות תלמוד תורה",
+                                        "order": 7
+                                    },
+                                    {
+                                        "title": "Tzafnat Pa'neach on Mishneh Torah, Foreign Worship and Customs of the Nations",
+                                        "heTitle": "צפנת פענח על משנה תורה, הלכות עבודה זרה וחוקות הגויים",
+                                        "order": 8
+                                    },
+                                    {
+                                        "title": "Tzafnat Pa'neach on Mishneh Torah, Repentance",
+                                        "heTitle": "צפנת פענח על משנה תורה, הלכות תשובה",
+                                        "order": 9
+                                    }
+                                ]
+                            },
+                            {
+                                "category": "Sefer Ahavah",
+                                "heCategory": "ספר אהבה",
+                                "contents": [
+                                    {
+                                        "title": "Tzafnat Pa'neach on Mishneh Torah, Reading the Shema",
+                                        "heTitle": "צפנת פענח על משנה תורה, הלכות קריאת שמע",
+                                        "order": 10
+                                    },
+                                    {
+                                        "title": "Tzafnat Pa'neach on Mishneh Torah, Prayer and the Priestly Blessing",
+                                        "heTitle": "צפנת פענח על משנה תורה, הלכות תפילה וברכת כהנים",
+                                        "order": 11
+                                    },
+                                    {
+                                        "title": "Tzafnat Pa'neach on Mishneh Torah, Tefillin, Mezuzah and the Torah Scroll",
+                                        "heTitle": "צפנת פענח על משנה תורה, הלכות תפילין ומזוזה וספר תורה",
+                                        "order": 12
+                                    },
+                                    {
+                                        "title": "Tzafnat Pa'neach on Mishneh Torah, Fringes",
+                                        "heTitle": "צפנת פענח על משנה תורה, הלכות ציצית",
+                                        "order": 13
+                                    },
+                                    {
+                                        "title": "Tzafnat Pa'neach on Mishneh Torah, Blessings",
+                                        "heTitle": "צפנת פענח על משנה תורה, הלכות ברכות",
+                                        "order": 14
+                                    },
+                                    {
+                                        "title": "Tzafnat Pa'neach on Mishneh Torah, Circumcision",
+                                        "heTitle": "צפנת פענח על משנה תורה, הלכות מילה",
+                                        "order": 15
+                                    }
+                                ]
+                            },
+                            {
+                                "category": "Sefer Zemanim",
+                                "heCategory": "ספר זמנים",
+                                "contents": [
+                                    {
+                                        "title": "Tzafnat Pa'neach on Mishneh Torah, Sabbath",
+                                        "heTitle": "צפנת פענח על משנה תורה, הלכות שבת",
+                                        "order": 17
+                                    },
+                                    {
+                                        "title": "Tzafnat Pa'neach on Mishneh Torah, Eruvin",
+                                        "heTitle": "צפנת פענח על משנה תורה, הלכות עירובין",
+                                        "order": 18
+                                    },
+                                    {
+                                        "title": "Tzafnat Pa'neach on Mishneh Torah, Rest on the Tenth of Tishrei",
+                                        "heTitle": "צפנת פענח על משנה תורה, הלכות שביתת עשור",
+                                        "order": 19
+                                    },
+                                    {
+                                        "title": "Tzafnat Pa'neach on Mishneh Torah, Rest on a Holiday",
+                                        "heTitle": "צפנת פענח על משנה תורה, הלכות שביתת יום טוב",
+                                        "order": 20
+                                    },
+                                    {
+                                        "title": "Tzafnat Pa'neach on Mishneh Torah, Leavened and Unleavened Bread",
+                                        "heTitle": "צפנת פענח על משנה תורה, הלכות חמץ ומצה",
+                                        "order": 21
+                                    },
+                                    {
+                                        "title": "Tzafnat Pa'neach on Mishneh Torah, Shofar, Sukkah and Lulav",
+                                        "heTitle": "צפנת פענח על משנה תורה, הלכות שופר וסוכה ולולב",
+                                        "order": 22
+                                    },
+                                    {
+                                        "title": "Tzafnat Pa'neach on Mishneh Torah, Sheqel Dues",
+                                        "heTitle": "צפנת פענח על משנה תורה, הלכות שקלים",
+                                        "order": 23
+                                    },
+                                    {
+                                        "title": "Tzafnat Pa'neach on Mishneh Torah, Sanctification of the New Month",
+                                        "heTitle": "צפנת פענח על משנה תורה, הלכות קידוש החודש",
+                                        "order": 24
+                                    },
+                                    {
+                                        "title": "Tzafnat Pa'neach on Mishneh Torah, Fasts",
+                                        "heTitle": "צפנת פענח על משנה תורה, הלכות תעניות",
+                                        "order": 25
+                                    },
+                                    {
+                                        "title": "Tzafnat Pa'neach on Mishneh Torah, Scroll of Esther and Hanukkah",
+                                        "heTitle": "צפנת פענח על משנה תורה, הלכות מגילה וחנוכה",
+                                        "order": 26
+                                    }
+                                ]
+                            },
+                            {
+                                "category": "Sefer Nashim",
+                                "heCategory": "ספר נשים",
+                                "contents": [
+                                    {
+                                        "title": "Tzafnat Pa'neach on Mishneh Torah, Marriage",
+                                        "heTitle": "צפנת פענח על משנה תורה, הלכות אישות",
+                                        "order": 27
+                                    },
+                                    {
+                                        "title": "Tzafnat Pa'neach on Mishneh Torah, Divorce",
+                                        "heTitle": "צפנת פענח על משנה תורה, הלכות גירושין",
+                                        "order": 28
+                                    },
+                                    {
+                                        "title": "Tzafnat Pa'neach on Mishneh Torah, Levirate Marriage and Release",
+                                        "heTitle": "צפנת פענח על משנה תורה, הלכות יבום וחליצה",
+                                        "order": 29
+                                    },
+                                    {
+                                        "title": "Tzafnat Pa'neach on Mishneh Torah, Virgin Maiden",
+                                        "heTitle": "צפנת פענח על משנה תורה, הלכות נערה בתולה",
+                                        "order": 30
+                                    },
+                                    {
+                                        "title": "Tzafnat Pa'neach on Mishneh Torah, Woman Suspected of Infidelity",
+                                        "heTitle": "צפנת פענח על משנה תורה, הלכות סוטה",
+                                        "order": 31
+                                    }
+                                ]
+                            },
+                            {
+                                "category": "Sefer Kedushah",
+                                "heCategory": "ספר קדושה",
+                                "contents": [
+                                    {
+                                        "title": "Tzafnat Pa'neach on Mishneh Torah, Forbidden Intercourse",
+                                        "heTitle": "צפנת פענח על משנה תורה, הלכות איסורי ביאה",
+                                        "order": 32
+                                    },
+                                    {
+                                        "title": "Tzafnat Pa'neach on Mishneh Torah, Forbidden Foods",
+                                        "heTitle": "צפנת פענח על משנה תורה, הלכות מאכלות אסורות",
+                                        "order": 33
+                                    },
+                                    {
+                                        "title": "Tzafnat Pa'neach on Mishneh Torah, Ritual Slaughter",
+                                        "heTitle": "צפנת פענח על משנה תורה, הלכות שחיטה",
+                                        "order": 34
+                                    }
+                                ]
+                            },
+                            {
+                                "category": "Sefer Haflaah",
+                                "heCategory": "ספר הפלאה",
+                                "contents": [
+                                    {
+                                        "title": "Tzafnat Pa'neach on Mishneh Torah, Oaths",
+                                        "heTitle": "צפנת פענח על משנה תורה, הלכות שבועות",
+                                        "order": 35
+                                    },
+                                    {
+                                        "title": "Tzafnat Pa'neach on Mishneh Torah, Vows",
+                                        "heTitle": "צפנת פענח על משנה תורה, הלכות נדרים",
+                                        "order": 36
+                                    },
+                                    {
+                                        "title": "Tzafnat Pa'neach on Mishneh Torah, Nazariteship",
+                                        "heTitle": "צפנת פענח על משנה תורה, הלכות נזירות",
+                                        "order": 37
+                                    },
+                                    {
+                                        "title": "Tzafnat Pa'neach on Mishneh Torah, Appraisals and Devoted Property",
+                                        "heTitle": "צפנת פענח על משנה תורה, הלכות ערכים וחרמין",
+                                        "order": 38
+                                    }
+                                ]
+                            },
+                            {
+                                "category": "Sefer Zeraim",
+                                "heCategory": "ספר זרעים",
+                                "contents": [
+                                    {
+                                        "title": "Tzafnat Pa'neach on Mishneh Torah, Diverse Species",
+                                        "heTitle": "צפנת פענח על משנה תורה, הלכות כלאים",
+                                        "order": 39
+                                    },
+                                    {
+                                        "title": "Tzafnat Pa'neach on Mishneh Torah, Gifts to the Poor",
+                                        "heTitle": "צפנת פענח על משנה תורה, הלכות מתנות עניים",
+                                        "order": 40
+                                    },
+                                    {
+                                        "title": "Tzafnat Pa'neach on Mishneh Torah, Heave Offerings",
+                                        "heTitle": "צפנת פענח על משנה תורה, הלכות תרומות",
+                                        "order": 41
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
                         "category": "Tziunei Maharan",
                         "heCategory": "ציוני מהר\"ן",
                         "contents": [
@@ -23838,6 +24255,26 @@
                         "order": 1
                     },
                     {
+                        "title": "Yad Avraham on Shulchan Arukh, Yoreh De'ah",
+                        "heTitle": "יד אברהם על שולחן ערוך יורה דעה",
+                        "order": 2
+                    },
+                    {
+                        "title": "Beit Meir on Shulchan Arukh, Even HaEzer",
+                        "heTitle": "בית מאיר על שולחן ערוך אבן העזר",
+                        "order": 3
+                    },
+                    {
+                        "title": "Ezer MiKodesh on Shulchan Arukh, Even HaEzer",
+                        "heTitle": "עזר מקודש על שלחן ערוך אבן העזר",
+                        "order": 3
+                    },
+                    {
+                        "title": "Kessef HaKodashim on Shulchan Arukh, Choshen Mishpat",
+                        "heTitle": "כסף הקדשים על שולחן ערוך חושן משפט",
+                        "order": 4
+                    },
+                    {
                         "title": "Yad Ephraim on Shulchan Arukh, Orach Chayim",
                         "heTitle": "יד אפרים על שלחן ערוך אורח חיים"
                     },
@@ -24200,6 +24637,16 @@
                         "category": "Rabbi Akiva Eiger",
                         "heCategory": "הגהות רבי עקיבא איגר",
                         "contents": [
+                            {
+                                "title": "Rabbi Akiva Eiger on Shulchan Arukh, Yoreh De'ah",
+                                "heTitle": "הגהות רבי עקיבא איגר על שלחן ערוך יורה דעה",
+                                "order": 2
+                            },
+                            {
+                                "title": "Rabbi Akiva Eiger on Shulchan Arukh, Choshen Mishpat",
+                                "heTitle": "הגהות רבי עקיבא איגר על שלחן ערוך חושן משפט",
+                                "order": 4
+                            },
                             {
                                 "title": "Rabbi Akiva Eiger on Shulchan Arukh, Even HaEzer",
                                 "heTitle": "הגהות רבי עקיבא איגר על שלחן ערוך אבן העזר"
@@ -25309,6 +25756,10 @@
                 "heTitle": "סליחות ליטא עברי אנגלי"
             },
             {
+                "title": "Maaneh Lashon Chabad",
+                "heTitle": "מענה לשון חב\"ד"
+            },
+            {
                 "title": "Perek Shirah",
                 "heTitle": "פרק שירה"
             },
@@ -25439,6 +25890,10 @@
                         "heTitle": "פה אחד על הגדה של פסח"
                     },
                     {
+                        "title": "Peirush Hafla'ah on Pesach Haggadah",
+                        "heTitle": "פירוש הפלאה על הגדה של פסח"
+                    },
+                    {
                         "title": "Safa Echat on Pesach Haggadah",
                         "heTitle": "שפה אחת על הגדה של פסח"
                     },
@@ -25457,6 +25912,10 @@
                     {
                         "title": "Zeroa Yamin on Pesach Haggadah",
                         "heTitle": "זרוע ימין על הגדה של פסח"
+                    },
+                    {
+                        "title": "Zevach Pesach on Pesach Haggadah",
+                        "heTitle": "זבח פסח על הגדה של פסח"
                     }
                 ]
             }
@@ -25493,6 +25952,10 @@
             {
                 "title": "Ein Ayah",
                 "heTitle": "עין אי\"ה"
+            },
+            {
+                "title": "Essay on Fundamentals",
+                "heTitle": "מאמר העיקרים"
             },
             {
                 "title": "For the Perplexed of the Generation",
@@ -26650,6 +27113,10 @@
                 ]
             },
             {
+                "title": "Agra DeKala",
+                "heTitle": "אגרא דכלה"
+            },
+            {
                 "title": "Arvei Nachal",
                 "heTitle": "ערבי נחל"
             },
@@ -26734,8 +27201,16 @@
                 "heTitle": "שבחי הבעש\"ט"
             },
             {
+                "title": "Sod Yesharim",
+                "heTitle": "סוד ישרים"
+            },
+            {
                 "title": "Tiferet Shlomo",
                 "heTitle": "תפארת שלמה"
+            },
+            {
+                "title": "Tiferet Yosef",
+                "heTitle": "תפארת יוסף"
             },
             {
                 "title": "Yakar MiPaz",
@@ -27831,6 +28306,10 @@
             {
                 "title": "The Antiquities of the Jews",
                 "heTitle": "קדמוניות היהודים"
+            },
+            {
+                "title": "The Jewish Spiritual Heroes",
+                "heTitle": "ענקי הרוח שלנו"
             },
             {
                 "title": "The Midrash of Philo",
