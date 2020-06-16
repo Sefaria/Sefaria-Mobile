@@ -15,6 +15,7 @@ import strings from './LocalizedStrings';
 
 
 const TextRange = React.memo(({
+  displayRef,
   showToast,
   rowData,
   segmentRef,
@@ -85,36 +86,45 @@ const TextRange = React.memo(({
         <View style={textStyle} key={segmentRef+"|text-box"}>
           {
             showHe ? (
-              <TextSegment
-              fontScale={fontScale}
-              fontSize={fontSize}
-              themeStr={themeStr}
-              rowRef={segmentRef}
-              segmentRef={segmentRef}
-              segmentKey={refSection}
-              key={segmentRef+"|hebrew"}
-              data={heText}
-              textType="hebrew"
-              textSegmentPressed={ textSegmentPressed }
-              showToast={showToast}
-              setDictionaryLookup={setDictionaryLookup}
-            />) : null
+              <View style={{flex: 4.5 , paddingHorizontal: 10}}>
+                {displayRef ? <Text style={[styles.he, styles.textListCitation, theme.textListCitation]}>{rowData.content.sourceHeRef}</Text> : null}
+                <TextSegment
+                  fontScale={fontScale}
+                  fontSize={fontSize}
+                  themeStr={themeStr}
+                  rowRef={segmentRef}
+                  segmentRef={segmentRef}
+                  segmentKey={refSection}
+                  key={segmentRef+"|hebrew"}
+                  data={heText}
+                  textType="hebrew"
+                  textSegmentPressed={ textSegmentPressed }
+                  showToast={showToast}
+                  setDictionaryLookup={setDictionaryLookup}
+                />
+              </View>
+            ) : null
           }
           {
-            showEn ? (<TextSegment
-              fontScale={fontScale}
-              fontSize={fontSize}
-              themeStr={themeStr}
-              rowRef={segmentRef}
-              segmentKey={refSection}
-              key={segmentRef+"|english"}
-              data={enText}
-              textType="english"
-              bilingual={textLanguageWithContent === "bilingual"}
-              textSegmentPressed={ textSegmentPressed }
-              showToast={showToast}
-              setDictionaryLookup={setDictionaryLookup}
-            />) : null
+            showEn ? (
+              <View style={{flex: 5.5 , paddingHorizontal: 10}}>
+                {displayRef ? <Text style={[styles.en, styles.textListCitation, theme.textListCitation]}>{rowData.content.sourceRef}</Text> : null}
+                <TextSegment
+                  fontScale={fontScale}
+                  fontSize={fontSize}
+                  themeStr={themeStr}
+                  rowRef={segmentRef}
+                  segmentKey={refSection}
+                  key={segmentRef+"|english"}
+                  data={enText}
+                  textType="english"
+                  bilingual={textLanguageWithContent === "bilingual"}
+                  textSegmentPressed={ textSegmentPressed }
+                  showToast={showToast}
+                  setDictionaryLookup={setDictionaryLookup}
+                />
+              </View>
+            ) : null
           }
         </View>
         { bulletMargin }
@@ -127,6 +137,7 @@ TextRange.propTypes = {
   showToast:          PropTypes.func.isRequired,
   rowData:            PropTypes.object.isRequired,
   segmentRef:         PropTypes.string.isRequired,
+  segmentHeRef:       PropTypes.string,
   showSegmentNumbers: PropTypes.bool.isRequired,
   textSegmentPressed: PropTypes.func.isRequired,
   setRowRef:          PropTypes.func.isRequired,

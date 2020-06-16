@@ -16,6 +16,7 @@ import { SelectableText } from "@astrocoders/react-native-selectable-text";
 import { GlobalStateContext, getTheme } from './StateManager';
 import styles from './Styles.js';
 
+// pass correct functions to TextSegment for sheet renderers. probably combine renderers and make it simpler
 const TextSegment = React.memo(({
   rowRef,
   segmentKey,

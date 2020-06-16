@@ -234,15 +234,15 @@ var Api = {
       if (ref in Sefaria.api._linkCache) {
         resolve(Sefaria.api._linkCache[ref]);
       } else {
-        Sefaria.api._request(ref,'links', true, {})
+        Sefaria.api._request(ref,'links', true, {}, true)
         .then((response)=>{
           //console.log("Setting API Link Cache for ",ref)
-          //console.log(response)
+          console.log(response)
           Sefaria.api._linkCache[ref] = response;
           resolve(response);
         })
-        .catch(()=>{
-          console.error("Links API error:",ref);
+        .catch((error)=>{
+          console.log("Links API error:",ref, error);
         });
       }
     });
@@ -617,7 +617,7 @@ failSilently - if true, dont display a message if api call fails
       })
       .then(response => response.json())
       .then(json => {
-        if ("error" in json) {
+        if ("error" in json && !failSilently) {
           Alert.alert(
             strings.textUnavailable,
             strings.textUnavailableMessage,
