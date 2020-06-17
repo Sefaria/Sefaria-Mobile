@@ -93,11 +93,11 @@ const TextSegment = React.memo(({
       onLongPress={() => {}}
       delayLongPress={200}
       delayPressIn={200}
-      style={{flex: textType == "hebrew" ? 4.5 : 5.5, paddingHorizontal: 10}}
+      style={{paddingHorizontal: 10}}
     >
       <SelectableText
         menuItems={menuItems}
-        onSelection={({ eventType, content, selectionStart, selectionEnd }) => {
+        onSelection={({ eventType, content }) => {
           if (eventType == 'Copy') { copyToClipboard(content); }
           else if (eventType == 'Share') { shareText(content); }
           else { onPress(true); setDictionaryLookup({ dictLookup: content }); }
@@ -108,7 +108,6 @@ const TextSegment = React.memo(({
         textComponentProps={{
           stylesheet: {...styles, ...smallSheet},
           RootComponent: Text,
-          style: undefined,
           TextComponent: Animated.Text,
           textComponentProps: {
             suppressHighlighting: false,

@@ -86,7 +86,7 @@ const TextRange = React.memo(({
         <View style={textStyle} key={segmentRef+"|text-box"}>
           {
             showHe ? (
-              <View style={{flex: 4.5 , paddingHorizontal: 10}}>
+              <View style={{flex: 4.5 , paddingHorizontal: biLayout == 'stacked' ? 10 : 0}}>
                 {displayRef ? <Text style={[styles.he, styles.textListCitation, theme.textListCitation]}>{rowData.content.sourceHeRef}</Text> : null}
                 <TextSegment
                   fontScale={fontScale}
@@ -105,7 +105,7 @@ const TextRange = React.memo(({
           }
           {
             showEn ? (
-              <View style={{flex: 5.5 , paddingHorizontal: 10}}>
+              <View style={{flex: 5.5 , paddingHorizontal: biLayout == 'stacked' ? 10 : 0, paddingTop: showHe ? biLayout == 'stacked' ? 20 : 5 : 0}}>
                 {displayRef ? <Text style={[styles.en, styles.textListCitation, theme.textListCitation]}>{rowData.content.sourceRef}</Text> : null}
                 <TextSegment
                   fontScale={fontScale}
