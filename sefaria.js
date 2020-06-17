@@ -1204,7 +1204,7 @@ Sefaria.util = {
   },
   getDisplayableHTML: function(text, lang, isSheet) {
     if (isSheet) { text = Sefaria.util.cleanSheetHTML(text); }
-    text = Sefaria.util.filterOutItags(text);
+    text = Sefaria.util.filterOutItags(text).trim();
     if (lang === 'english') {
       return `<endiv>${Sefaria.util.hebrewInEnglish(text, 'string')}</endiv>`;
     }
