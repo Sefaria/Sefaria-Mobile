@@ -842,9 +842,8 @@ class SheetMedia extends React.PureComponent {
   _getWebViewRef = ref => { this.webview = ref; }
 
   makeMediaEmbedLink(mediaURL) {
-    var mediaLink;
+    let mediaLink;
     if (mediaURL.match(/\.(jpeg|jpg|gif|png)$/i) != null) {
-      console.log(mediaURL, "IMAGE");
       mediaLink = (
         <Image
           style={{
@@ -857,8 +856,6 @@ class SheetMedia extends React.PureComponent {
         />
       );
     } else if (mediaURL.toLowerCase().indexOf('youtube') > 0) {
-      console.log(mediaURL, "YOUTUBE");
-
       mediaLink = (
         <WebView
           ref={this._getWebViewRef}
@@ -872,29 +869,21 @@ class SheetMedia extends React.PureComponent {
         />
       );
     } else if (mediaURL.toLowerCase().indexOf('soundcloud') > 0) {
-      console.log(mediaURL, "SOUNDCLOUD");
-
-      var htmlData = '<iframe width="100%" height="166" scrolling="no" frameborder="no" src="' + mediaURL + '"></iframe>';
       mediaLink =  (
         <WebView
           originWhitelist={['*']}
-          source={{ html: htmlData }}
+          source={{ html: `<iframe width="100%" height="166" scrolling="no" frameborder="no" src="${mediaURL}"></iframe>` }}
          />
       );
     } else if (mediaURL.match(/\.(mp3)$/i) != null) {
-      console.log(mediaURL, "AUDIO");
-
-      var htmlData = '<audio src="' + mediaURL + '" type="audio/mpeg" controls>Your browser does not support the audio element.</audio>';
       mediaLink =  (
         <WebView
           originWhitelist={['*']}
-          source={{ html: htmlData }}
+          source={{ html: `<audio src="${mediaURL}" type="audio/mpeg" controls>Your browser does not support the audio element.</audio>` }}
          />
       );
     } else {
-      console.log(mediaURL, "NULL");
-
-      mediaLink = null; //'Error loading media...';
+      mediaLink = (<Text>{'Error loading media'}</Text>);
     }
 
     return mediaLink
