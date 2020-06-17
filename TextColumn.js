@@ -891,7 +891,7 @@ class SheetMedia extends React.PureComponent {
 
   render() {
     return (
-      <View style={{height: 200, flex: 1}}>
+      <View style={{height: 200, flex: 1, marginHorizontal: 40}}>
         {this.makeMediaEmbedLink(this.props.url)}
       </View>
     );

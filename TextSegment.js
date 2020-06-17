@@ -93,7 +93,6 @@ const TextSegment = React.memo(({
       onLongPress={() => {}}
       delayLongPress={200}
       delayPressIn={200}
-      style={{paddingHorizontal: 10}}
     >
       <SelectableText
         menuItems={menuItems}

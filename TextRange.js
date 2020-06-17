@@ -86,7 +86,7 @@ const TextRange = React.memo(({
         <View style={textStyle} key={segmentRef+"|text-box"}>
           {
             showHe ? (
-              <View style={{flex: 4.5 , paddingHorizontal: biLayout == 'stacked' ? 10 : 0}}>
+              <View style={{flex: 4.5, paddingRight: biLayout == 'stacked' ? 0 : (biLayout == 'sidebyside' ? 10 : 0), paddingLeft: biLayout == 'stacked' ? 0 : (biLayout == 'sidebysiderev' ? 10 : 0)}}>
                 {displayRef ? <Text style={[styles.he, styles.textListCitation, theme.textListCitation]}>{rowData.content.sourceHeRef}</Text> : null}
                 <TextSegment
                   fontScale={fontScale}
@@ -105,8 +105,8 @@ const TextRange = React.memo(({
           }
           {
             showEn ? (
-              <View style={{flex: 5.5 , paddingHorizontal: biLayout == 'stacked' ? 10 : 0, paddingTop: showHe ? biLayout == 'stacked' ? 20 : 5 : 0}}>
-                {displayRef ? <Text style={[styles.en, styles.textListCitation, theme.textListCitation]}>{rowData.content.sourceRef}</Text> : null}
+              <View style={{flex: 5.5, paddingTop: showHe ? biLayout == 'stacked' ? 20 : 5 : 0, paddingRight: biLayout == 'stacked' ? 0 : (biLayout == 'sidebyside' ? 0 : 10), paddingLeft: biLayout == 'stacked' ? 0 : (biLayout == 'sidebysiderev' ? 0 : 10)}}>
+                {displayRef ? <Text style={[styles.en, styles.textListCitation, {marginTop: -19}, theme.textListCitation]}>{rowData.content.sourceRef}</Text> : null}
                 <TextSegment
                   fontScale={fontScale}
                   fontSize={fontSize}
