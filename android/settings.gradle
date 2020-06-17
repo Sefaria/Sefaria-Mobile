@@ -15,6 +15,8 @@ include ':@react-native-firebase_remote-config'
 project(':@react-native-firebase_remote-config').projectDir = new File(rootProject.projectDir, '../node_modules/@react-native-firebase/remote-config/android')
 include ':rn-fetch-blob'
 project(':rn-fetch-blob').projectDir = new File(rootProject.projectDir, '../node_modules/rn-fetch-blob/android')
+include ':@react-native-community_clipboard'
+project(':@react-native-community_clipboard').projectDir = new File(rootProject.projectDir, '../node_modules/@react-native-community/clipboard/android')
 include ':@react-native-community_netinfo'
 project(':@react-native-community_netinfo').projectDir = new File(rootProject.projectDir, '../node_modules/@react-native-community/netinfo/android')
 include ':@react-native-community_async-storage'
