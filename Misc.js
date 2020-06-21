@@ -780,11 +780,11 @@ class SText extends React.Component {
     style:    PropTypes.oneOfType([PropTypes.object, PropTypes.array]),
   }
 
-  fsize2lheight = (fsize, lang) => (
-    Platform.OS === 'ios' ?
-    (lang !== "hebrew" ? (fsize * 1.6) : ((fsize+1)*1.3)) : // very naive guess at what the function should be
-    lang !== "hebrew" ? (fsize * 1.333) : (fsize) // very naive guess at what the function should be
-
+  // very naive guess at what the function should be
+  fsize2lheight = (fsize, lang, lineMultiplier) => (
+    (lineMultiplier || 1) * (Platform.OS === 'ios' ?
+    (lang !== "hebrew" ? (fsize * 1.2) : fsize) :
+    lang !== "hebrew" ? (fsize * 1.333) : (fsize))
   );
 
   getFontSize = (style, lang) => {
@@ -797,11 +797,11 @@ class SText extends React.Component {
   }
 
   render() {
-    const { style, lang, children } = this.props;
+    const { style, lang, lineMultiplier, children } = this.props;
     const styleArray = Array.isArray(style) ? style : [style];
     const fontSize = this.getFontSize(styleArray, lang);
     return (
-      <Text {...this.props} style={styleArray.concat([{lineHeight: this.fsize2lheight(fontSize, lang)}])}>
+      <Text {...this.props} style={styleArray.concat([{lineHeight: this.fsize2lheight(fontSize, lang, lineMultiplier)}])}>
         { children }
       </Text>
     );
