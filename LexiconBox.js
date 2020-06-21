@@ -41,6 +41,10 @@ const LexiconBox = ({ selectedWords, oref, openRef, openUri }) => {
         setEntries(data);
       });
     }
+    return () => {
+      setLoaded(false);
+      setEntries([]);
+    };
   }, [selectedWords]);
 
   const refCats = oref ? oref.categories.join(", ") : null; //TODO: the way to filter by categories is very limiting.
