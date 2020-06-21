@@ -36,8 +36,8 @@ const TextRange = React.memo(({
 
   let enText = rowData.content.text || "";
   let heText = rowData.content.he || "";
-  enText = Sefaria.util.getDisplayableHTML(enText, 'english');
-  heText = Sefaria.util.getDisplayableHTML(heText, 'hebrew');
+  enText = Sefaria.util.getDisplayableHTML(enText.trim(), 'english');
+  heText = Sefaria.util.getDisplayableHTML(heText.trim(), 'hebrew');
   let numLinks = rowData.content.links ? rowData.content.links.length : 0;
 
   let segment = [];

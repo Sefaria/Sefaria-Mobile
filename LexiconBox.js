@@ -67,7 +67,7 @@ const LexiconBox = ({ selectedWords, oref, openRef, openUri }) => {
   }
 
   return (
-    <ScrollView style={{flex: 1}} key={selectedWords} contentContainerStyle={{paddingLeft: 20, paddingRight: 40, paddingTop: 20, paddingBottom: 40}}>
+    <ScrollView style={{flex: 1}} key={selectedWords} contentContainerStyle={{paddingLeft: 42, paddingRight: 64, paddingTop: 20, paddingBottom: 40}}>
       { content }
     </ScrollView>
   );
@@ -128,11 +128,14 @@ const makeSenseTree = content => {
 }
 
 const LexiconAttribution = ({ entry }) => {
+  const {themeStr, fontSize} = useContext(GlobalStateContext);
+  const theme = getTheme(themeStr);
+
   const lexicon_dtls = entry['parent_lexicon_details'];
   const sourceContent = `Source: ${lexicon_dtls['source'] || lexicon_dtls['source_url']}`.trim();
   const attributionContent = `Creator: ${lexicon_dtls['attribution'] || lexicon_dtls['attribution_url']}`.trim();
   const fullContent = [
-    lexicon_dtls['source_url'] ? `<a href="${lexicon_dtls["source_url"]}">${sourceContent}</a>` : sourceContent,
+    lexicon_dtls['source_url'] ? `<a href="${lexicon_dtls["source_url"]}">${sourceContent}</a>` : `${sourceContent}\n`,
     lexicon_dtls['attribution_url'] ? `<a href="${lexicon_dtls['attribution_url']}">${attributionContent}</a>` : attributionContent,
   ].join('');
   return (
@@ -140,14 +143,14 @@ const LexiconAttribution = ({ entry }) => {
         value={fullContent}
         stylesheet={styles}
         textComponentProps={{
-          style: {color: "#AAA"}
+          style: {fontSize: fontSize, ...theme.quaternaryText}
         }}
       />
   );
 };
 
 const LexiconEntry = ({ entry, openRef, openUri }) => {
-  const {themeStr} = useContext(GlobalStateContext);
+  const {themeStr, fontSize} = useContext(GlobalStateContext);
   const theme = getTheme(themeStr);
 
   let headwords = [entry['headword']];
@@ -155,9 +158,8 @@ const LexiconEntry = ({ entry, openRef, openUri }) => {
     headwords = headwords.concat(entry['alt_headwords']);
   }
   const headwordText = headwords.join(', ');
-  const fSize = 20;
   const morphology = ('morphology' in entry['content']) ?  (
-    <SText lang="english" style={[styles.en, {textAlign: 'left', fontSize: fSize}, theme.secondaryText]}>
+    <SText lang="english" style={[styles.en, {textAlign: 'left', fontSize: fontSize}, theme.secondaryText]}>
       {` (${entry['content']['morphology']})`}
     </SText>
   ) : null;
@@ -166,19 +168,19 @@ const LexiconEntry = ({ entry, openRef, openUri }) => {
   if ('language_code' in entry || 'language_reference' in entry) {
     let langValue = ('language_code' in entry) ? ` ${entry['language_code']}` : "";
     langValue += ('language_reference' in entry) ? ` ${entry['language_reference']}` : "";
-    langText = (<LexiconText lang='english' openRef={openRef} openUri={openUri} fSize={fSize} value={langValue} />);
+    langText = (<LexiconText lang='english' openRef={openRef} openUri={openUri} fSize={fontSize} value={langValue} />);
   }
 
   const entryHead = (
     <View style={{flexDirection: 'row'}}>
-      <SText lang="hebrew" style={[styles.he, {fontSize: fSize}, theme.text]}>{headwordText}</SText>
+      <SText lang="hebrew" style={[styles.he, {fontSize: fontSize}, theme.text]}>{headwordText}</SText>
       {morphology}
       {langText}
     </View>
   );
 
-  const endnotes = ('notes' in entry) ? <LexiconText lang='english' openRef={openRef} openUri={openUri} fSize={14} value={entry['notes']}/> : null;
-  const derivatives = ('derivatives' in entry) ? <LexiconText lang='english' openRef={openRef} openUri={openUri} fSize={14} value={entry['derivatives']} /> : null;
+  const endnotes = ('notes' in entry) ? <LexiconText lang='english' openRef={openRef} openUri={openUri} fSize={fontSize} value={entry['notes']}/> : null;
+  const derivatives = ('derivatives' in entry) ? <LexiconText lang='english' openRef={openRef} openUri={openUri} fSize={fontSize} value={entry['derivatives']} /> : null;
   const senses = makeSenseTree(entry['content']);
   return (
     <View style={{marginTop: 20}}>
@@ -187,12 +189,12 @@ const LexiconEntry = ({ entry, openRef, openUri }) => {
         items={senses}
         renderItem={(item, index) => (
           <View key={index} style={{flexDirection: 'row'}}>
-            <Text style={[styles.en, theme.text]}>{`${index+1}. `}</Text>
+            <SText lang='english' style={[styles.en, {textAlign: 'left', fontSize: fontSize}, theme.text]}>{`${index+1}. `}</SText>
             <LexiconText
               lang='english'
               openRef={openRef}
               openUri={openUri}
-              fSize={14}
+              fSize={fontSize}
               value={item}
             />
           </View>

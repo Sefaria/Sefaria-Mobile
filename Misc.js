@@ -782,8 +782,8 @@ class SText extends React.Component {
 
   fsize2lheight = (fsize, lang) => (
     Platform.OS === 'ios' ?
-    (lang !== "hebrew" ? (fsize * 1.6) : ((fsize+1)*1.3)) : // very naive guess at what the function should be (17 == 30, 16 == 28)
-    lang !== "hebrew" ? (fsize * 2) : (fsize*1.5) // very naive guess at what the function should be (17 == 30, 16 == 28)
+    (lang !== "hebrew" ? (fsize * 1.6) : ((fsize+1)*1.3)) : // very naive guess at what the function should be
+    lang !== "hebrew" ? (fsize * 1.333) : (fsize) // very naive guess at what the function should be
 
   );
 

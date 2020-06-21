@@ -360,7 +360,6 @@ Sefaria = {
   },
   _loadTOC: function() {
     return Sefaria.util.openFileInSources("toc.json").then(data => {
-      console.log("loaded successfully");
       Sefaria.toc = data;
       Sefaria._cacheIndexFromToc(data, true);
     });
@@ -1193,10 +1192,10 @@ Sefaria.util = {
     }
   },
   hebrewInEnglish: function(text, whatToReturn) {
-    var regEx = /(\s|^|\[|\]|\(|\)|\.|,|;|:|\*|\?|!|-|"|')((?:[\u0591-\u05c7\u05d0-\u05ea]+[()\[\]\s'"\u05f3\u05f4]{0,2})+)(?=<|>|\[|\]|\(|\)|\.|,|;|:|\*|\?|!|-|'|"|\s|$)/g
+    const regEx = /(^|[\s\[\]().,;:*?!\-"'])((?:[\u0591-\u05c7\u05d0-\u05ea]+[()\[\]\s'"\u05f3\u05f4]{0,2})+)([<>\[\]().,;:*?!\-'"\s]|$)/g
     if (whatToReturn == "string") {
-      // wrap all Hebrew strings with <hediv> and &rlm;
-      return text.replace(regEx, '<hediv>&#x200E;$1$2</hediv>');
+      // wrap all Hebrew strings with <hediv>
+      return text.replace(regEx, '$1<hediv>$2</hediv>$3');
     }
     else if (whatToReturn == "list") {
       return text.split(regEx)
@@ -1204,7 +1203,7 @@ Sefaria.util = {
   },
   getDisplayableHTML: function(text, lang, isSheet) {
     if (isSheet) { text = Sefaria.util.cleanSheetHTML(text); }
-    text = Sefaria.util.filterOutItags(text).trim();
+    text = Sefaria.util.filterOutItags(text);
     if (lang === 'english') {
       return `<endiv>${Sefaria.util.hebrewInEnglish(text, 'string')}</endiv>`;
     }
@@ -1221,7 +1220,6 @@ Sefaria.util = {
       // check date of each file and choose latest
       const libStats = await RNFB.fs.stat(libPath);
       useLib = libStats.lastModified > Sefaria.lastAppUpdateTime;
-      console.log(filename, 'stats', libStats.lastModified, Sefaria.lastAppUpdateTime, useLib)
     }
     if (useLib) {
       fileData = await Sefaria._loadJSON(libPath);
