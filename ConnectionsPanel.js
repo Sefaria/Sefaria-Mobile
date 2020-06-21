@@ -133,11 +133,9 @@ class ConnectionsPanel extends React.PureComponent {
           <View style={[styles.mainTextPanel, styles.textColumn, this.props.theme.textListContentOuter, {maxWidth: null, flex: this.props.textListFlex}]}>
             {connectionsPanelHeader}
             <LexiconBox
-              themeStr={this.props.themeStr}
               openRef={this.props.openRef}
               openUri={this.props.openUri}
               selectedWords={this.props.dictLookup}
-              interfaceLang={this.props.interfaceLanguage}
               oref={{ref: this.props.segmentRef, categories: Sefaria.categoriesForTitle(Sefaria.textTitleForRef(this.props.segmentRef))}}
             />
           </View>
