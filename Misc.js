@@ -784,7 +784,7 @@ class SText extends React.Component {
   fsize2lheight = (fsize, lang, lineMultiplier) => (
     (lineMultiplier || 1) * (Platform.OS === 'ios' ?
     (lang !== "hebrew" ? (fsize * 1.2) : fsize) :
-    lang !== "hebrew" ? (fsize * 1.333) : (fsize))
+    (lang !== "hebrew" ? (fsize * 1.333) : fsize))
   );
 
   getFontSize = (style, lang) => {

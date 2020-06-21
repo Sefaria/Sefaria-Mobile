@@ -129,6 +129,8 @@ class ConnectionsPanel extends React.PureComponent {
           </View>
         );
       case 'dictionary':
+        const ref = (this.props.sheet && this.props.segmentRefOnSheet) ? this.props.segmentRefOnSheet : this.props.segmentRef;
+        const categories = Sefaria.categoriesForTitle(Sefaria.textTitleForRef(ref));
         return (
           <View style={[styles.mainTextPanel, styles.textColumn, this.props.theme.textListContentOuter, {maxWidth: null, flex: this.props.textListFlex}]}>
             {connectionsPanelHeader}
@@ -136,7 +138,7 @@ class ConnectionsPanel extends React.PureComponent {
               openRef={this.props.openRef}
               openUri={this.props.openUri}
               selectedWords={this.props.dictLookup}
-              oref={{ref: this.props.segmentRef, categories: Sefaria.categoriesForTitle(Sefaria.textTitleForRef(this.props.segmentRef))}}
+              oref={{ref, categories}}
             />
           </View>
         );
@@ -284,6 +286,7 @@ class ResourcesList extends React.PureComponent {
     setConnectionsMode: PropTypes.func.isRequired,
     versionsCount:      PropTypes.number.isRequired,
     segmentRef:         PropTypes.string.isRequired,
+    segmentRefOnSheet:  PropTypes.string,
     heSegmentRef:       PropTypes.string.isRequired,
     categories:         PropTypes.array.isRequired,
     shareCurrentSegment:PropTypes.func.isRequired,

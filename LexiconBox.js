@@ -47,7 +47,7 @@ const LexiconBox = ({ selectedWords, oref, openRef, openUri }) => {
     };
   }, [selectedWords]);
 
-  const refCats = oref ? oref.categories.join(", ") : null; //TODO: the way to filter by categories is very limiting.
+  const refCats = (oref && oref.categories) ? oref.categories.join(", ") : null; //TODO: the way to filter by categories is very limiting.
   const activated = shouldActivate(selectedWords);
   const enEmpty = `No definitions found${activated ? ` for "${ selectedWords }".` : ''}`;
   const heEmpty = `לא נמצאו תוצאות${activated ? ` "${ selectedWords}".` : ''}`;

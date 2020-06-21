@@ -514,7 +514,7 @@ class ReaderApp extends React.PureComponent {
   };
 
   textSegmentPressed = (section, segment, segmentRef, shouldToggle, onlyOpen) => {
-    const isSheet = !!this.state.sheet;
+      const isSheet = !!this.state.sheet;
       if (shouldToggle && this.state.textListVisible) {
           if (!onlyOpen) {
             this.animateTextList(this.state.textListFlex, 0.0001, 200);
@@ -547,6 +547,10 @@ class ReaderApp extends React.PureComponent {
           versionStaleRecentFilters: this.state.versionRecentFilters.map(()=>true),
           loadingLinks,
       };
+      if (isSheet) {
+        // sometimes the quoted segment ref is the data we care about (e.g. for lexicon lookup)
+        stateObj.segmentRefOnSheet = this.state.data[section][segment].sourceRef;
+      }
       if (shouldToggle) {
         BackManager.forward({ state: {textListVisible: this.state.textListVisible}, type: "secondary" });
         stateObj.textListVisible = !this.state.textListVisible;
@@ -1998,6 +2002,7 @@ class ReaderApp extends React.PureComponent {
                 animating={this.state.textListAnimating}
                 onStartShouldSetResponderCapture={this._onStartShouldSetResponderCapture}
                 textToc={this.state.textToc}
+                segmentRefOnSheet={this.state.segmentRefOnSheet}
                 segmentRef={this.state.segmentRef}
                 heSegmentRef={Sefaria.toHeSegmentRef(this.state.heRef, this.state.segmentRef)}
                 categories={Sefaria.categoriesForTitle(this.state.textTitle, isSheet)}
