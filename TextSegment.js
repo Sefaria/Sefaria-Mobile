@@ -91,8 +91,6 @@ const TextSegment = React.memo(({
       hitSlop= {{top: 10, bottom: 10, left: 10, right: 10}}
       onPress={() => onPress()}
       onLongPress={() => {}}
-      delayLongPress={200}
-      delayPressIn={200}
     >
       <SelectableText
         menuItems={menuItems}
