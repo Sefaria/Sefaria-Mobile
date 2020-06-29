@@ -58,7 +58,7 @@ const TextSegment = React.memo(({
   };
 
   const isStacked = biLayout === 'stacked';
-  const lineHeightMultiplierHe = Platform.OS === 'android' ? 1.3 : 1.2;
+  const lineHeightMultiplierHe = Platform.OS === 'android' ? 1.333 : 1.2;
   const justifyStyle = {textAlign: (isStacked && Platform.OS === 'ios') ? 'justify' : (textType === 'hebrew' ? 'right' : 'left')};
   const style = textType == "hebrew" ?
                 [styles.hebrewText, theme.text, justifyStyle, {lineHeight: Animated.multiply(fontSize * lineHeightMultiplierHe, fontScale), fontSize: Animated.multiply(fontSize, fontScale)}] :

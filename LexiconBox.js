@@ -134,7 +134,7 @@ const makeSenseTree = content => {
 const LexiconAttribution = ({ entry }) => {
   const {themeStr, fontSize} = useContext(GlobalStateContext);
   const theme = getTheme(themeStr);
-
+  const englishFontSize = 0.8*fontSize;
   const lexicon_dtls = entry['parent_lexicon_details'];
   const sourceContent = `Source: ${lexicon_dtls['source'] || lexicon_dtls['source_url']}`.trim();
   const attributionContent = `Creator: ${lexicon_dtls['attribution'] || lexicon_dtls['attribution_url']}`.trim();
@@ -147,7 +147,7 @@ const LexiconAttribution = ({ entry }) => {
         value={fullContent}
         stylesheet={styles}
         textComponentProps={{
-          style: {fontSize: fontSize, ...theme.quaternaryText}
+          style: {fontSize: englishFontSize, ...theme.quaternaryText}
         }}
       />
   );
@@ -156,14 +156,14 @@ const LexiconAttribution = ({ entry }) => {
 const LexiconEntry = ({ entry, openRef, openUri }) => {
   const {themeStr, fontSize} = useContext(GlobalStateContext);
   const theme = getTheme(themeStr);
-
+  const englishFontSize = 0.8*fontSize;  // we actually use 0.8x of font size when displaying text in textcolumn. we want to duplicate that size here
   let headwords = [entry['headword']];
   if ('alt_headwords' in entry) {
     headwords = headwords.concat(entry['alt_headwords']);
   }
   const headwordText = headwords.join(', ');
   const morphology = ('morphology' in entry['content']) ?  (
-    <SText lang="english" style={[styles.en, {textAlign: 'left', fontSize: fontSize}, theme.secondaryText]}>
+    <SText lang="english" style={[styles.en, {textAlign: 'left', fontSize: englishFontSize}, theme.secondaryText]}>
       {` (${entry['content']['morphology']})`}
     </SText>
   ) : null;
@@ -172,19 +172,19 @@ const LexiconEntry = ({ entry, openRef, openUri }) => {
   if ('language_code' in entry || 'language_reference' in entry) {
     let langValue = ('language_code' in entry) ? ` ${entry['language_code']}` : "";
     langValue += ('language_reference' in entry) ? ` ${entry['language_reference']}` : "";
-    langText = (<LexiconText lang='english' openRef={openRef} openUri={openUri} fSize={fontSize} value={langValue} />);
+    langText = (<LexiconText lang='english' openRef={openRef} openUri={openUri} fSize={englishFontSize} value={langValue} />);
   }
 
   const entryHead = (
     <View style={{flexDirection: 'row'}}>
-      <SText lang="hebrew" style={[styles.he, {fontSize: fontSize}, theme.text]}>{headwordText}</SText>
+      <SText lang="hebrew" style={[styles.he, {fontSize: englishFontSize}, theme.text]}>{headwordText}</SText>
       {morphology}
       {langText}
     </View>
   );
 
-  const endnotes = ('notes' in entry) ? <LexiconText lang='english' openRef={openRef} openUri={openUri} fSize={fontSize} value={entry['notes']}/> : null;
-  const derivatives = ('derivatives' in entry) ? <LexiconText lang='english' openRef={openRef} openUri={openUri} fSize={fontSize} value={entry['derivatives']} /> : null;
+  const endnotes = ('notes' in entry) ? <LexiconText lang='english' openRef={openRef} openUri={openUri} fSize={englishFontSize} value={entry['notes']}/> : null;
+  const derivatives = ('derivatives' in entry) ? <LexiconText lang='english' openRef={openRef} openUri={openUri} fSize={englishFontSize} value={entry['derivatives']} /> : null;
   const senses = makeSenseTree(entry['content']);
   return (
     <View style={{marginTop: 20}}>
@@ -193,12 +193,12 @@ const LexiconEntry = ({ entry, openRef, openUri }) => {
         items={senses}
         renderItem={(item, index) => (
           <View key={index} style={{flexDirection: 'row'}}>
-            <SText lang='english' style={[styles.en, {textAlign: 'left', fontSize: fontSize}, theme.text]}>{`${index+1}. `}</SText>
+            <SText lang='english' style={[styles.en, {textAlign: 'left', fontSize: englishFontSize, lineHeight: englishFontSize}, theme.text]}>{`${index+1}. `}</SText>
             <LexiconText
               lang='english'
               openRef={openRef}
               openUri={openUri}
-              fSize={fontSize}
+              fSize={englishFontSize}
               value={item}
             />
           </View>
