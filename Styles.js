@@ -358,8 +358,7 @@ export default StyleSheet.create({
     fontSize: 15,
     lineHeight: 18,
     color: "#999",
-    paddingTop: 2,
-    marginTop: -3
+    paddingTop: 5,
   },
   headerCategoryAttributionTextHe: {
     fontFamily: "Taamey Frank Taamim Fix",
@@ -396,7 +395,6 @@ export default StyleSheet.create({
     width: 12,
     height: 12,
     paddingLeft: 20,
-    marginTop: 8,
   },
   collapseArrowHe: {
     width: 12,
