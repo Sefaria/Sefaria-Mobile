@@ -90,7 +90,7 @@ const LexiconText = ({ value, openRef, openUri, lang, fSize, style }) => {
   const heStyleSheet = {
     hediv: {
       ...styles.hediv,
-      fontSize: fSize*1.05,
+      fontSize: fSize*1.2,
     },
   };
   return (
@@ -116,6 +116,7 @@ const LexiconText = ({ value, openRef, openUri, lang, fSize, style }) => {
         textComponentProps: {
           lang,
           style: {...(lang === 'hebrew' ? styles.he : styles.en), fontSize: fSize, ...theme.text, ...style},
+          lineMultiplier: 1.15
         }
       }}
 
@@ -169,9 +170,14 @@ const LexiconEntry = ({ entry, openRef, openUri }) => {
   }
   const headwordText = headwords.join(', ');
   const morphology = ('morphology' in entry['content']) ?  (
-    <SText lang="english" style={[styles.en, {textAlign: 'left', fontSize: englishFontSize}, theme.secondaryText]}>
-      {` (${entry['content']['morphology']})`}
-    </SText>
+    <LexiconText
+      lang="english"
+      openRef={openRef}
+      openUri={openUri}
+      fSize={englishFontSize}
+      value={` (${entry['content']['morphology']})`}
+      style={theme.secondaryText}
+    />
   ) : null;
 
   let langText = null;
@@ -183,7 +189,7 @@ const LexiconEntry = ({ entry, openRef, openUri }) => {
 
   const entryHead = (
     <View style={{flexDirection: 'row'}}>
-      <SText lang="hebrew" style={[styles.he, {fontSize: englishFontSize}, theme.text]}>{headwordText}</SText>
+      <SText lang="english" style={[styles.he, {fontSize: fontSize}, theme.text]} lineMultiplier={0.9}>{headwordText}</SText>
       {morphology}
       {langText}
     </View>
@@ -199,7 +205,7 @@ const LexiconEntry = ({ entry, openRef, openUri }) => {
         items={senses}
         renderItem={(item, index) => (
           <View key={index} style={{flexDirection: 'row'}}>
-            <SText lang='english' style={[styles.en, {textAlign: 'left', fontSize: englishFontSize, lineHeight: englishFontSize}, theme.text]}>{`${index+1}. `}</SText>
+            <SText lang='english' style={[styles.en, {textAlign: 'left', fontSize: englishFontSize}, theme.text]} lineMultiplier={1.15}>{`${index+1}. `}</SText>
             <LexiconText
               lang='english'
               openRef={openRef}
