@@ -87,6 +87,12 @@ const LexiconText = ({ value, openRef, openUri, lang, fSize, style }) => {
   const {themeStr} = useContext(GlobalStateContext);
   const theme = getTheme(themeStr);
   style = style || {};
+  const heStyleSheet = {
+    hediv: {
+      ...styles.hediv,
+      fontSize: fSize*1.05,
+    },
+  };
   return (
     <HTMLView
       value={value}
@@ -104,7 +110,7 @@ const LexiconText = ({ value, openRef, openUri, lang, fSize, style }) => {
         />
       )}
       textComponentProps={{
-        stylesheet: styles,
+        stylesheet: {...styles, ...heStyleSheet},
         RootComponent: Text,
         TextComponent: SText,
         textComponentProps: {
