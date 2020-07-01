@@ -1098,6 +1098,11 @@ class ReaderApp extends React.PureComponent {
     }).catch(error => { this.openInDefaultBrowser(uri); })
   };
 
+  openUriOrRef = uri => {
+    const internal = (uri.length > 0 && uri[0] === '/') || (uri.indexOf('sefaria.org/') > -1);
+    internal ? this.openRef(Sefaria.urlToRef(uri.replace('/', '')).ref) : this.openUri(uri);
+  }
+
   openInDefaultBrowser = uri => {
     Linking.openURL(uri);
   }
@@ -1991,7 +1996,7 @@ class ReaderApp extends React.PureComponent {
                   linksLoaded={this.state.linksLoaded}
                   loadingTextTail={this.state.loadingTextTail}
                   loadingTextHead={this.state.loadingTextHead}
-                  openUri={this.openUri}
+                  openUriOrRef={this.openUriOrRef}
                   textUnavailableAlert={this.textUnavailableAlert}
                   setDictionaryLookup={this.setDictionaryLookup}
                 />
@@ -2040,6 +2045,7 @@ class ReaderApp extends React.PureComponent {
                 onDragEnd={this.onTextListDragEnd}
                 textTitle={this.state.textTitle}
                 openUri={this.openUri}
+                openUriOrRef={this.openUriOrRef}
                 dictLookup={this.state.dictLookup}
                 shareCurrentSegment={this.shareCurrentSegment}
                 reportError={this.reportError}

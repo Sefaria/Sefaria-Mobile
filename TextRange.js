@@ -24,7 +24,7 @@ const TextRange = React.memo(({
   setRowRef,
   setRowRefInitY,
   fontScale,
-  openUri,
+  openUriOrRef,
   setDictionaryLookup,
 }) => {
   const { themeStr, textLanguage, biLayout, fontSize } = useContext(GlobalStateContext);
@@ -99,7 +99,7 @@ const TextRange = React.memo(({
                   textSegmentPressed={ textSegmentPressed }
                   showToast={showToast}
                   setDictionaryLookup={setDictionaryLookup}
-                  openUri={openUri}
+                  openUriOrRef={openUriOrRef}
                 />
               </View>
             ) : null
@@ -120,7 +120,7 @@ const TextRange = React.memo(({
                   textSegmentPressed={ textSegmentPressed }
                   showToast={showToast}
                   setDictionaryLookup={setDictionaryLookup}
-                  openUri={openUri}
+                  openUriOrRef={openUriOrRef}
                 />
               </View>
             ) : null

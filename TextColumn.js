@@ -69,7 +69,7 @@ class TextColumn extends React.PureComponent {
     loadingTextHead:    PropTypes.bool,
     linksLoaded:        PropTypes.array,
     showAliyot:         PropTypes.bool.isRequired,
-    openUri:            PropTypes.func.isRequired,
+    openUriOrRef:       PropTypes.func.isRequired,
     biLayout:           PropTypes.oneOf(["stacked", "sidebyside", "sidebysiderev"]),
     textUnavailableAlert: PropTypes.func.isRequired,
   };
@@ -515,7 +515,7 @@ class TextColumn extends React.PureComponent {
         textSegmentPressed={this.textSegmentPressed}
         setRowRef={this.setSegmentRowRef}
         setRowRefInitY={this.setRowRefInitY}
-        openUri={this.props.openUri}
+        openUriOrRef={this.props.openUriOrRef}
         setDictionaryLookup={this.props.setDictionaryLookup}
       />
     );

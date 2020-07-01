@@ -1149,7 +1149,7 @@ Sefaria.util = {
   cleanSheetHTML(html) {
     if (!html) { return ""; }
     html = html.replace(/\u00a0/g, ' ').replace(/&nbsp;/g, ' ').replace(/(\r\n|\n|\r)/gm, "");
-    const cleanAttributes = Platform.OS === 'android' ? {} : {
+    const cleanAttributes = {  // used to not allow any attributes on Android. Removed because it wasn't clear why we did this although an old commit claims these attributes caused crashing.
               a: [ 'href', 'name', 'target' ],
               img: [ 'src' ],
               p: ['style'],

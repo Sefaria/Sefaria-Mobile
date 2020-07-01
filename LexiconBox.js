@@ -31,7 +31,7 @@ const getLookups = (words, oref) => {
   return Sefaria.api.lexicon(words, ref);
 };
 
-const LexiconBox = ({ selectedWords, oref, openRef, openUri }) => {
+const LexiconBox = ({ selectedWords, oref, openUriOrRef }) => {
   const [loaded, setLoaded] = useState(false);
   const [entries, setEntries] = useState([]);
   useEffect(() => {
@@ -61,8 +61,7 @@ const LexiconBox = ({ selectedWords, oref, openRef, openUri }) => {
           .map((entry, i) => (
             <LexiconEntry
               entry={entry}
-              openRef={openRef}
-              openUri={openUri}
+              openUriOrRef={openUriOrRef}
               key={i}
             />
           ));
@@ -79,8 +78,7 @@ const LexiconBox = ({ selectedWords, oref, openRef, openUri }) => {
 LexiconBox.propTypes = {
   selectedWords: PropTypes.string,
   oref:          PropTypes.object,
-  openRef:       PropTypes.func.isRequired,
-  openUri:       PropTypes.func.isRequired,
+  openUriOrRef:  PropTypes.func.isRequired,
 };
 
 /*
@@ -88,24 +86,12 @@ LexiconBox.propTypes = {
   Needs to render HTML using nested HTMLView in order to distinguish font styles for English and Hebrew
 */
 
-const LexiconText = ({ value, openRef, openUri, lang, fSize, style }) => {
-  const {themeStr} = useContext(GlobalStateContext);
-  const theme = getTheme(themeStr);
+const LexiconText = ({ value, openUriOrRef, lang, fSize, style }) => {
   style = style || {};
-  const heStyleSheet = {
-    hediv: {
-      ...styles.hediv,
-      fontSize: fSize*1.2,
-    },
-  };
-  const onLinkPress = url => {
-    const internal = (url.length > 0 && url[0] === '/') || (url.indexOf('sefaria.org/') > -1);
-    internal ? openRef(Sefaria.urlToRef(url.replace('/', '')).ref) : openUri(url);
-  };
   return (
     <HTMLView
       value={value}
-      onLinkPress={onLinkPress}
+      onLinkPress={openUriOrRef}
       stylesheet={styles}
       RootComponent={Text}
       TextComponent={({children, style, textComponentProps, ...props}) => (
@@ -144,7 +130,7 @@ const makeSenseTree = content => {
   ].filter(x => !!x);
 }
 
-const LexiconAttribution = ({ entry }) => {
+const LexiconAttribution = ({ entry, openUriOrRef }) => {
   const {themeStr, fontSize} = useContext(GlobalStateContext);
   const theme = getTheme(themeStr);
   const englishFontSize = 0.65*fontSize;
@@ -158,7 +144,8 @@ const LexiconAttribution = ({ entry }) => {
   return (
       <HTMLView
         value={fullContent}
-        stylesheet={styles}
+        stylesheet={{...styles, ...{a: theme.quaternaryText}}}
+        onLinkPress={openUriOrRef}
         textComponentProps={{
           style: {fontSize: englishFontSize, ...theme.quaternaryText}
         }}
@@ -166,7 +153,7 @@ const LexiconAttribution = ({ entry }) => {
   );
 };
 
-const LexiconEntry = ({ entry, openRef, openUri }) => {
+const LexiconEntry = ({ entry, openUriOrRef }) => {
   const {themeStr, fontSize} = useContext(GlobalStateContext);
   const theme = getTheme(themeStr);
   const englishFontSize = 0.8*fontSize;  // we actually use 0.8x of font size when displaying text in textcolumn. we want to duplicate that size here
@@ -178,8 +165,7 @@ const LexiconEntry = ({ entry, openRef, openUri }) => {
   const morphology = ('morphology' in entry['content']) ?  (
     <LexiconText
       lang="english"
-      openRef={openRef}
-      openUri={openUri}
+      openUriOrRef={openUriOrRef}
       fSize={englishFontSize}
       value={` (${entry['content']['morphology']})`}
       style={theme.secondaryText}
@@ -190,7 +176,7 @@ const LexiconEntry = ({ entry, openRef, openUri }) => {
   if ('language_code' in entry || 'language_reference' in entry) {
     let langValue = ('language_code' in entry) ? ` ${entry['language_code']}` : "";
     langValue += ('language_reference' in entry) ? ` ${entry['language_reference']}` : "";
-    langText = (<LexiconText lang='english' openRef={openRef} openUri={openUri} fSize={englishFontSize} value={langValue} />);
+    langText = (<LexiconText lang='english' openUriOrRef={openUriOrRef} fSize={englishFontSize} value={langValue} />);
   }
 
   const entryHead = (
@@ -201,8 +187,8 @@ const LexiconEntry = ({ entry, openRef, openUri }) => {
     </View>
   );
 
-  const endnotes = ('notes' in entry) ? <LexiconText lang='english' openRef={openRef} openUri={openUri} fSize={englishFontSize} value={entry['notes']}/> : null;
-  const derivatives = ('derivatives' in entry) ? <LexiconText lang='english' openRef={openRef} openUri={openUri} fSize={englishFontSize} value={entry['derivatives']} /> : null;
+  const endnotes = ('notes' in entry) ? <LexiconText lang='english' openUriOrRef={openUriOrRef} fSize={englishFontSize} value={entry['notes']}/> : null;
+  const derivatives = ('derivatives' in entry) ? <LexiconText lang='english' openUriOrRef={openUriOrRef} fSize={englishFontSize} value={entry['derivatives']} /> : null;
   const senses = makeSenseTree(entry['content']);
   return (
     <View style={{marginTop: 20}}>
@@ -214,8 +200,7 @@ const LexiconEntry = ({ entry, openRef, openUri }) => {
             <SText lang='english' style={[styles.en, {textAlign: 'left', fontSize: englishFontSize}, theme.text]} lineMultiplier={1.15}>{`${index+1}. `}</SText>
             <LexiconText
               lang='english'
-              openRef={openRef}
-              openUri={openUri}
+              openUriOrRef={openUriOrRef}
               fSize={englishFontSize}
               value={item}
             />
@@ -224,15 +209,14 @@ const LexiconEntry = ({ entry, openRef, openUri }) => {
       />
       <View>{endnotes}{derivatives}</View>
       <View style={{marginTop: 15}}>
-        <LexiconAttribution entry={entry} />
+        <LexiconAttribution entry={entry} openUriOrRef={openUriOrRef} />
       </View>
     </View>
   );
 }
 LexiconEntry.propTypes = {
   entry: PropTypes.object.isRequired,
-  openRef:      PropTypes.func.isRequired,
-  openUri:      PropTypes.func.isRequired,
+  openUriOrRef: PropTypes.func.isRequired,
 };
 
 
