@@ -116,7 +116,7 @@ const LexiconText = ({ value, openRef, openUri, lang, fSize, style }) => {
         />
       )}
       textComponentProps={{
-        stylesheet: {...styles, ...heStyleSheet},
+        stylesheet: styles,
         RootComponent: Text,
         TextComponent: SText,
         textComponentProps: {
