@@ -99,6 +99,7 @@ const TextRange = React.memo(({
                   textSegmentPressed={ textSegmentPressed }
                   showToast={showToast}
                   setDictionaryLookup={setDictionaryLookup}
+                  openUri={openUri}
                 />
               </View>
             ) : null
@@ -119,6 +120,7 @@ const TextRange = React.memo(({
                   textSegmentPressed={ textSegmentPressed }
                   showToast={showToast}
                   setDictionaryLookup={setDictionaryLookup}
+                  openUri={openUri}
                 />
               </View>
             ) : null

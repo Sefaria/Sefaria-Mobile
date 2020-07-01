@@ -635,6 +635,7 @@ class ReaderApp extends React.PureComponent {
                 linkContents:      [],
                 loadingLinks:      false,
                 textListVisible:   false,
+                dictLookup:        null,
               };
               Sefaria.links.reset();
             }
@@ -1071,6 +1072,8 @@ class ReaderApp extends React.PureComponent {
         textSearchState: new SearchState({type: 'text'}),
         sheetSearchState: new SearchState({type: 'sheet'}),
         textListVisible: false,
+        connectionsMode: null,
+        dictLookup: null,
       });
       this.openMenu("navigation");
   };

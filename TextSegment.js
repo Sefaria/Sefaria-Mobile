@@ -28,6 +28,7 @@ const TextSegment = React.memo(({
   fontScale,
   setDictionaryLookup,
   showToast,
+  openUri,
 }) => {
   const [resetKey, setResetKey] = useState(0);
   const { themeStr, fontSize, biLayout } = useContext(GlobalStateContext);
@@ -106,6 +107,10 @@ const TextSegment = React.memo(({
           stylesheet: {...styles, ...smallSheet},
           RootComponent: Text,
           TextComponent: Animated.Text,
+          onLinkPress: url => {
+            const internal = false; //(url.length > 0 && url[0] === '/') || (url.indexOf('sefaria.org/') > -1);
+            internal ? openRef(Sefaria.urlToRef(url.replace('/', '')).ref) : openUri(url);
+          },
           textComponentProps: {
             suppressHighlighting: false,
             key: segmentKey,

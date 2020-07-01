@@ -83,6 +83,11 @@ LexiconBox.propTypes = {
   openUri:       PropTypes.func.isRequired,
 };
 
+/*
+  Component that renders HTML content with ability to click on inline refs / external links
+  Needs to render HTML using nested HTMLView in order to distinguish font styles for English and Hebrew
+*/
+
 const LexiconText = ({ value, openRef, openUri, lang, fSize, style }) => {
   const {themeStr} = useContext(GlobalStateContext);
   const theme = getTheme(themeStr);
@@ -93,13 +98,14 @@ const LexiconText = ({ value, openRef, openUri, lang, fSize, style }) => {
       fontSize: fSize*1.2,
     },
   };
+  const onLinkPress = url => {
+    const internal = (url.length > 0 && url[0] === '/') || (url.indexOf('sefaria.org/') > -1);
+    internal ? openRef(Sefaria.urlToRef(url.replace('/', '')).ref) : openUri(url);
+  };
   return (
     <HTMLView
       value={value}
-      onLinkPress={url => {
-        const internal = (url.length > 0 && url[0] === '/') || (url.indexOf('sefaria.org/') > -1);
-        internal ? openRef(Sefaria.urlToRef(url.replace('/', '')).ref) : openUri(url);
-      }}
+      onLinkPress={onLinkPress}
       stylesheet={styles}
       RootComponent={Text}
       TextComponent={({children, style, textComponentProps, ...props}) => (
@@ -115,7 +121,7 @@ const LexiconText = ({ value, openRef, openUri, lang, fSize, style }) => {
         TextComponent: SText,
         textComponentProps: {
           lang,
-          style: {...(lang === 'hebrew' ? styles.he : styles.en), fontSize: fSize, ...theme.text, ...style},
+          style: {...(lang === 'hebrew' ? styles.he : styles.en), fontSize: fSize, ...style},  // note, not including theme.text here because it doesn't work with blue a tags. Decided to forgo theme for blue a tags.
           lineMultiplier: 1.15
         }
       }}
@@ -141,7 +147,7 @@ const makeSenseTree = content => {
 const LexiconAttribution = ({ entry }) => {
   const {themeStr, fontSize} = useContext(GlobalStateContext);
   const theme = getTheme(themeStr);
-  const englishFontSize = 0.8*fontSize;
+  const englishFontSize = 0.65*fontSize;
   const lexicon_dtls = entry['parent_lexicon_details'];
   const sourceContent = `Source: ${lexicon_dtls['source'] || lexicon_dtls['source_url']}`.trim();
   const attributionContent = `Creator: ${lexicon_dtls['attribution'] || lexicon_dtls['attribution_url']}`.trim();

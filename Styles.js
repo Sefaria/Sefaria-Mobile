@@ -1273,7 +1273,7 @@ export default StyleSheet.create({
     fontWeight: "500",
   },
   a: {
-    fontWeight: "500",
+    textDecorationLine: "underline",
     color: "#4b71b7",
   },
   hediv: {
