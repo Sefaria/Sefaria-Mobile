@@ -245,7 +245,8 @@ class ReaderApp extends React.PureComponent {
   manageBack = type => {
     const oldState = BackManager.back({ type });
     if (!!oldState) {
-      if (!oldState.menuOpen) {
+      const isTextColumn = !oldState.menuOpen;
+      if (isTextColumn) {
         // you're going back to textcolumn. make sure to jump
         oldState.textColumnKey = oldState.segmentRef;  // manually add a key to TextColumn to make sure it gets regenerated
         oldState.offsetRef = oldState.segmentRef;
@@ -253,7 +254,11 @@ class ReaderApp extends React.PureComponent {
         this.onQueryChange('sheet', oldState.searchQuery, true, true, true);
         this.onQueryChange('text', oldState.searchQuery, true, true, true);
       }
-      this.setState(oldState);
+      this.setState(oldState, () => {
+        if (isTextColumn) {
+          Sefaria.history.saveHistoryItem(this.getHistoryObject, true);
+        }
+      });
       return true;
     } else {
       // close app
