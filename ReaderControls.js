@@ -53,7 +53,7 @@ const ReaderControls = ({
   const historyItem = getHistoryObject();
   const isSaved = Sefaria.history.indexOfSaved(historyItem.ref) !== -1;
   const isHeb = Sefaria.util.get_menu_language(interfaceLanguage, textLanguage) == "hebrew";
-  var langStyle = isHeb ? [styles.he] : [styles.en, {marginBottom: -5.3}];
+  var langStyle = isHeb ? [styles.he] : [styles.en, sheet ? {lineHeight: 28} : {marginBottom: -5.3}];
   var titleTextStyle = [langStyle, styles.headerTextTitleText, theme.text];
   if (shouldShowHamburger()) {
     var leftMenuButton = <MenuButton onPress={openNav} />
