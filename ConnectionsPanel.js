@@ -351,7 +351,11 @@ class ToolsButton extends React.Component {
     const iconComp = icon ? (<View style={styles.toolsButtonIcon}><Image source={icon} style={styles.menuButton} resizeMode={'contain'}></Image></View>) : null;
     const countComp = !!count || count === 0 ? <Text style={[styles.enInt, theme.secondaryText, styles.spacedText]}>{` (${count}) `}</Text> : null
     return (
-      <TouchableOpacity style={[styles.searchFilterCat, styles.toolsButton, flexDir, theme.bordered]} onPress={this.props.onPress}>
+      <TouchableOpacity
+        style={[styles.searchFilterCat, styles.toolsButton, flexDir, theme.bordered]}
+        onPress={this.props.onPress}
+        delayPressIn={200}
+      >
         { iconComp }
         <Text style={[textStyle, styles.spacedText, styles.toolsButtonText, theme.tertiaryText]}>{this.props.text}</Text>
         { countComp }

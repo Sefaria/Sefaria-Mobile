@@ -358,7 +358,9 @@ const LibraryNavButton = ({
   return (
     <TouchableOpacity
       onPress={onPress}
-      style={[styles.searchFilterCat, {flexDirection: flexDir}, buttonStyle].concat(colorStyle)}>
+      style={[styles.searchFilterCat, {flexDirection: flexDir}, buttonStyle].concat(colorStyle)}
+      delayPressIn={200}
+    >
       <View style={{flexDirection: flexDir, alignItems: "center"}}>
         {
           !!onPressCheckBox ? <TouchableOpacity style={{paddingHorizontal: 10, paddingVertical: 15}} onPress={onPressCheckBox} >

@@ -94,8 +94,11 @@ class ReaderNavigationSheetMenu extends React.Component {
           <View style={[styles.twoBoxItem,
                         {"flex": this.state.tagCategories.length%2!= 0 && index == this.state.tagCategories.length-1 ? .5 : 1 }
           ]} key={index}>
-              <TouchableOpacity style={[styles.textBlockLink, this.props.theme.textBlockLink]}
-                                onPress={() => this.props.openSheetCategoryMenu(item.tag)}>
+              <TouchableOpacity
+                style={[styles.textBlockLink, this.props.theme.textBlockLink]}
+                onPress={() => this.props.openSheetCategoryMenu(item.tag)}
+                delayPressIn={200}
+              >
                   {showHebrew ?
                       <Text
                           style={[styles.hebrewText, styles.centerText, this.props.theme.text]}>{item.heTag}</Text> :
@@ -119,7 +122,11 @@ class ReaderNavigationSheetMenu extends React.Component {
     var trendingTagContent = this.state.trendingTags.slice(0, 6).map(function(tag, i) {
         return (
 
-                <TouchableOpacity  style={[styles.textBlockLink,this.props.theme.textBlockLink]}  onPress={()=> this.props.openSheetTagMenu(tag.tag)} key={i}>
+                <TouchableOpacity 
+                  style={[styles.textBlockLink,this.props.theme.textBlockLink]} 
+                  onPress={()=> this.props.openSheetTagMenu(tag.tag)} key={i}
+                  delayPressIn={200}
+                >
                     { showHebrew ?
                       <Text style={[styles.hebrewText, styles.centerText, this.props.theme.text]}>{tag.he_tag}</Text> :
                       <Text style={[styles.englishText, styles.centerText, this.props.theme.text]}>{tag.tag}</Text> }
