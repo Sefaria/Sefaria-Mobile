@@ -161,7 +161,10 @@ let strings = new LocalizedStrings({
     last_name: "Last Name",
     loginSuccessful: "Login successful",
     logout: "Log Out",
-    doubleDownload: "Another Download is in Progress"
+    doubleDownload: "Another Download is in Progress",
+    wifiOnly: "Wi-Fi Only",
+    mobileNetwork: "Mobile Network",
+    downloadNetworkSetting: "Downloader Network Setting",
   },
   he: {
     mySheets: "דפי המקורות שלי",
@@ -321,6 +324,9 @@ let strings = new LocalizedStrings({
     loginSuccessful: "התחברות בוצעה בהצלחה",
     logout: "ניתוק מהחשבון",
     doubleDownload: "מוריד אוסף אחר, נא להמתין",
+    wifiOnly: "Wi-Fi בלבד",
+    mobileNetwork: "רשת סלולרית",
+    downloadNetworkSetting: "הגדרות רשת עבור הורדות",
   }
 });
 

@@ -18,7 +18,7 @@ import {
   downloadUpdate,
   autoUpdateCheck,
   loadJSONFile,
-  postDownload
+  downloadRecover
 } from './DownloadControl'
 
 const ERRORS = {
@@ -54,7 +54,7 @@ Sefaria = {
       .then(packageSetupProtocol)
       .then(autoUpdateCheck).then(shouldUpdate => {
         shouldUpdate ? downloadUpdate() : null
-      }).then(postDownload);  // Just a check to see if a download completed in the background
+      }).then(downloadRecover);  // Just a check to see if a download completed in the background
   },
   getLastAppUpdateTime: async function() {
     // returns epoch time of last time the app was updated. used to compare if sources files are newer than downloaded files

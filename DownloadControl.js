@@ -1,11 +1,13 @@
 'use strict';
 
 import RNFB from 'rn-fetch-blob';
-import { unzip } from 'react-native-zip-archive'; //for unzipping -- (https://github.com/plrthink/react-native-zip-archive)
+import {unzip} from 'react-native-zip-archive'; //for unzipping -- (https://github.com/plrthink/react-native-zip-archive)
 import strings from './LocalizedStrings'
 import {Alert, Platform} from 'react-native';
 import AsyncStorage from "@react-native-community/async-storage";
+import NetInfo from "@react-native-community/netinfo";
 import Sefaria from "./sefaria";
+
 const SCHEMA_VERSION = "6";
 const DOWNLOAD_SERVER = "https://readonly.sefaria.org";
 const HOST_PATH = `${DOWNLOAD_SERVER}/static/ios-export/${SCHEMA_VERSION}`;
@@ -13,7 +15,8 @@ const HOST_BUNDLE_URL = `${HOST_PATH}/bundles`;
 const [FILE_DIRECTORY, TMP_DIRECTORY] = [`${RNFB.fs.dirs.DocumentDir}/library`, `${RNFB.fs.dirs.DocumentDir}/tmp`];  //todo: make sure these are used
 // const TMP_DIRECTORY = `${RNFB.fs.dirs.DocumentDir}/tmp`;
 console.log(`The tmp directory is: ${TMP_DIRECTORY}`);
-const BUNDLE_LOCATION = Platform.OS === "ios" ? `${TMP_DIRECTORY}/bundle.zip` : `${RNFB.fs.dirs.DownloadDir}/SefariaDownload.zip`;
+// const BUNDLE_LOCATION = Platform.OS === "ios" ? `${TMP_DIRECTORY}/bundle.zip` : `${RNFB.fs.dirs.DownloadDir}/SefariaDownload.zip`;
+const BUNDLE_LOCATION = `${TMP_DIRECTORY}/bundle.zip`;
 
 let BooksState = {};
 let PackagesState = {};
@@ -40,6 +43,7 @@ class DownloadTracker {
     this.currentDownload = null;
     this.subscriptions = {};
     this.progressTracker = null;
+    this.networkEventListener = null;
   }
   addDownload(downloadState) {
     if (this.downloadInProgress()) {
@@ -47,22 +51,38 @@ class DownloadTracker {
     }
     this.currentDownload = downloadState;
     if (!!this.progressTracker) {this.attachProgressTracker(...this.progressTracker)}
-    this.currentDownload.finally(this.removeDownload.bind(this));
+    // this.currentDownload.finally(() => {
+    //   console.log('auto-removing download');
+    //   this.removeDownload.bind(this)
+    // });
   }
   removeDownload() {
     console.log('removing download');
     this.currentDownload = null;
     this.notify(false)
   }
+  removeSpecificDownload(taskId) {
+    if (this.currentDownload && this.currentDownload.taskId === taskId) {
+      this.removeDownload();
+    }
+  }
   downloadInProgress() {
     return (!!this.currentDownload);
   }
-  cancelDownload() {
-    if (!this.downloadInProgress()) {
-      this.currentDownload.cancel().then(this.removeDownload);
+  cancelDownload(cleanup=true) {
+    console.log('canceling download');
+    if (this.downloadInProgress()) {
+      this.currentDownload.catch(e => console.log(`${e.message === 'canceled'}\n${e}`));
+      this.currentDownload.cancel((err, taskId) => console.log(`canceled download ${taskId}; err is ${err}`));
+      this.removeDownload();
+      if (cleanup) {
+        RNFB.fs.ls(TMP_DIRECTORY).then(async (fileList) => {
+          await Promise.all(fileList.map(f => RNFB.fs.unlink(`${TMP_DIRECTORY}/${f}`)));
+        })
+      }
     }
     else {
-      throw "No download to cancel"
+      // throw "No download to cancel"
     }
   }
   attachProgressTracker(progressTracker, config) {
@@ -98,6 +118,27 @@ class DownloadTracker {
         console.log(`notification error: ${e}`)
       }
     })
+  }
+  addEventListener(networkSetting, runEvent=false) {
+    this.removeEventListener();  // keep things clean
+    const allowedToDownload = state => isDownloadAllowed(state, networkSetting);
+    const networkChangeMethod = state => {
+      if (allowedToDownload(state)) {
+        console.log('attempting to recover download');
+        downloadRecover(networkSetting).then(() => {});
+      } else if (Tracker.downloadInProgress()){
+        console.log('canceling active download');
+        Tracker.cancelDownload(false);
+      }
+    };
+    this.networkEventListener = NetInfo.addEventListener(networkChangeMethod);
+    if (runEvent) { NetInfo.fetch().then(networkChangeMethod) }  // simulates an event so we can trigger the worker manually
+  }
+  removeEventListener() {
+    if (!!this.networkEventListener) {
+      this.networkEventListener();  // calling the event listener unsubscribes
+      this.networkEventListener = null;
+    }
   }
 }
 
@@ -191,12 +232,11 @@ class Book {
 }
 
 
-function downloadFilePromise(fileUrl, filepath, useDownloadManager=false) {
+function downloadFilePromise(fileUrl, filepath, useDownloadManager=false, downloadFrom=0) {
   // useDownloadManager is for using the android download manager. Parameter is ignored on ios devices
-  console.log(`Downloading from ${fileUrl} to ${filepath}`);
   // Test with Appium
   let config;
-  if (Platform.OS === "android" && useDownloadManager) {
+  if (Platform.OS === "android" && useDownloadManager && false) {
     config = RNFB.config({
       addAndroidDownloads: {
         useDownloadManager : true,
@@ -214,9 +254,15 @@ function downloadFilePromise(fileUrl, filepath, useDownloadManager=false) {
       overwrite: true,
     })
   }
-  const filePromise = config.fetch('GET', fileUrl);
+  let filePromise;
+  if (!!downloadFrom) {
+    filePromise = config.fetch('GET', fileUrl, { Range: `bytes=${downloadFrom}-` })
+  } else {
+    filePromise = config.fetch('GET', fileUrl);
+  }
+
   if (Platform.OS === "ios") {
-    filePromise.expire(postDownload);
+    filePromise.expire(() => postDownload(filepath));
   }
   console.log(filePromise);
   return filePromise
@@ -452,25 +498,87 @@ function requestNewBundle(bookList) {
   })
 }
 
-async function downloadBundle(bundleName) {
+function isDownloadAllowed(networkState, downloadNetworkSetting) {
+  console.log(`download setting is ${downloadNetworkSetting}`);
+  switch (networkState.type) {
+    case 'none':
+      return false;
+    case 'wifi':
+      return true;
+    default:
+      return downloadNetworkSetting !== 'wifiOnly';
+  }
+}
+
+async function downloadRecover(networkMode='wifiOnly') {
+  console.log('recovering download');
+  if (Tracker.downloadInProgress()) {
+    console.log('another download is in progress, aborting recovery');
+    return
+  } else {
+    console.log('proceeding with download recovery')
+  }
+  const stuff = JSON.parse(await AsyncStorage.getItem('lastDownloadLocation'));
+
+  console.log(`values retrieved from AsyncStorage.lastDownloadLocation: ${stuff}`);
+  const { filename, url } = stuff;
+  if (!(!!(filename) && !!(url))) {
+    console.log('missing asyncStorage values');
+    return
+  }
+  const exists = await RNFB.fs.exists(filename);
+  if (!exists) {
+    console.log('missing file');
+    return
+  }
+  await RNFB.fs.mv(filename, BUNDLE_LOCATION);
+  const size = await RNFB.fs.stat(BUNDLE_LOCATION).size;
+  await downloadBundle(url, networkMode,true, size).then(() => {});
+}
+
+async function downloadBundle(bundleName, networkSetting, recoveryMode=false, downloadFrom=0) {
   // Test with Appium
-  const downloadState = downloadFilePromise(
-    `${HOST_BUNDLE_URL}/${encodeURIComponent(bundleName)}`, BUNDLE_LOCATION, true
-  );
+  console.log(`download ${bundleName} over ${networkSetting}. Recovery? ${recoveryMode}. Starting from ${downloadFrom}`);
+  const getUniqueFilename = () => {  // It's not critical to have a truly unique filename
+    return `${TMP_DIRECTORY}/${String(Math.floor(Math.random()*10000000))}.zip`
+  };
+  const getDownloadUrl = (bundle) => {
+    if (recoveryMode) { return bundleName }
+    return `${HOST_BUNDLE_URL}/${encodeURIComponent(bundle)}`
+  };
+  const [filename, url] = [getUniqueFilename(), getDownloadUrl(bundleName)];
+  try {
+    await AsyncStorage.setItem('lastDownloadLocation', JSON.stringify({filename, url}))
+  } catch (e) {
+    console.log(`Failed to save lastDownloadLocation in AsyncStorage: ${e}`)
+  }
+
+  const downloadState = downloadFilePromise(url, filename, downloadFrom);
+  // todo: schedule network event listeners
+  console.log(downloadState.taskId);
   try {
     Tracker.addDownload(downloadState);
   } catch (e) {
     console.log(e)
   }
+  let downloadResult;
   // todo: network failure, wifi only etc.
-  const downloadResult = await downloadState;
+  Tracker.addEventListener(networkSetting);
+  try {
+    downloadResult = await downloadState;
+  }
+  catch (e) {
+    console.log(`handling error from download failure: ${e}`);
+    return
+  }
   console.log(downloadResult);
   Tracker.removeDownload();
+  Tracker.removeEventListener();
   const status = downloadResult.info().status;
   if (status >= 300 || status < 200) {
     throw "Bad download status"
   }
-  return downloadResult
+  await postDownload(downloadResult.path(), !recoveryMode)
 }
 
 async function calculateBooksToDownload(booksState) {
@@ -521,7 +629,7 @@ async function _executeDownload(bundleName) {
   // todo: handle download interruption differently than download failure
   // break into two functions
   try {
-    await downloadBundle(bundleName);
+    await downloadBundle(bundleName);  // don't worry about this one
   } catch (e) {
     console.log(`Handling error: ${e}`)
   } finally {
@@ -529,12 +637,19 @@ async function _executeDownload(bundleName) {
   }
 }
 
-async function postDownload() {
-  console.log('ran postDownload');
-  const exists = await RNFB.fs.exists(BUNDLE_LOCATION);
-  if (!exists) {
-    console.log('no bundle');
-    return
+async function postDownload(downloadPath, newDownload=true) {
+  const exists = await RNFB.fs.exists(downloadPath);
+  if (!exists) { return }
+
+  if (newDownload) {
+    try {
+      console.log(`moving from ${downloadPath} to ${BUNDLE_LOCATION}`);
+      await RNFB.fs.mv(downloadPath, BUNDLE_LOCATION);
+    } catch (e) {
+      console.log(e);
+    }
+  } else {
+    await RNFB.fs.appendFile(BUNDLE_LOCATION, downloadPath, 'uri');
   }
   console.log('unzipping bundle');
   try {
@@ -542,22 +657,31 @@ async function postDownload() {
   } catch (e) {
     // Take to the settings page and check for updates?
   }
+  const files = await RNFB.fs.ls(TMP_DIRECTORY);
+  await Promise.all(files.map(f => RNFB.fs.unlink(`${TMP_DIRECTORY}/${f}`)));
 
-  await RNFB.fs.unlink(BUNDLE_LOCATION);
+  // await RNFB.fs.unlink(BUNDLE_LOCATION);
   await repopulateBooksState();
 }
 
-async function downloadPackage(packageName) {
-  await _executeDownload(`${packageName}.zip`)
+async function downloadPackage(packageName, networkSetting) {
+  const netState = await NetInfo.fetch();
+  if (isDownloadAllowed(netState, networkSetting)) {
+    console.log('download allowed');
+  } else {
+    console.log('download forbidden');
+    return
+  }
+  await downloadBundle(`${packageName}.zip`, networkSetting)
 }
 
-async function downloadUpdate(booksToDownload=null) {  // todo: get rid of null
+async function downloadUpdate(booksToDownload=null, networkSetting) {  // todo: get rid of null
   // Test with Appium
   if (!!booksToDownload){  // todo: review. Isn't this redundant. should it be !bookToDownload
     booksToDownload = await calculateBooksToDownload(BooksState);
   }
   const bundleName = await requestNewBundle(booksToDownload);
-  await _executeDownload(bundleName);
+  await downloadBundle(bundleName, networkSetting);
 
   // we're going to use the update as an opportunity to do some cleanup
   const booksToDelete = calculateBooksToDelete(BooksState);
@@ -738,6 +862,48 @@ function doubleDownload() {
   )
 }
 
+/*
+Set a path for download. Save in async-storage. Make sure path is unique.
+After download, move to BUNDLE_LOCATION
+unzip from BUNDLE_LOCATION
+clean up contents of temp directory
+
+Download Recovery:
+  check if the file at path of last download exists
+  if so, move to BUNDLE_LOCATION
+  download from (size_of_BUNDLE_LOCATION)
+  append to BUNDLE_LOCATION
+
+Let's stick to downloads over Wi-Fi only by default. I'm going to advocate for an option to allow downloads over a mobile
+connection.
+
+Don't allow download initiation if network is not available  -- why not?
+On download initiation - set an event handler to cancel the download if network changes
+When network comes back up, go for download recovery.
+Advanced - Have Progress bar show "Paused" while download is paused
+
+
+Event listeners are only present when a download is running.
+
+Under network change:
+  if download is allowed:
+    try a new download (this will fail if another download is still running)
+  if download is forbidden:
+    remove the download
+
+Under download failure:
+  remove the download
+
+Upon cancellation:  // to be run explicitly when StatefulPromise.cancel is called
+  remove the download
+  clean up tmp folder
+
+
+issues left to deal with - downloadRecover on startup is throwing an exception
+app checks if download is allowed, but doesn't seem to retry when the network is restored
+when network cuts out in the middle of a download, "cancel" is triggered despite the fact that no download is present
+ */
+
 export {
   downloadBundle,
   packageSetupProtocol,
@@ -760,6 +926,6 @@ export {
   calculateBooksToDownload,
   calculateBooksToDelete,
   deleteBooks,
-  postDownload,
+  downloadRecover,
   doubleDownload,
 };

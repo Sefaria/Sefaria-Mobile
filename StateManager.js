@@ -20,6 +20,7 @@ const STATE_ACTIONS = {
   setBiLayout: "SET_BI_LAYOUT",
   setIsLoggedIn: "SET_IS_LOGGED_IN",
   setHasDismissedSyncModal: "SET_HAS_DISMISSED_SYNC_MODAL",
+  setDownloadNetworkSetting: "SET_DOWNLOAD_NETWORK_MODE",
 };
 
 const UPDATE_SETTINGS_ACTIONS = {
@@ -85,6 +86,11 @@ const ACTION_CREATORS = {
     type: STATE_ACTIONS.setHasDismissedSyncModal,
     value: hasDismissed,
   }),
+  setDownloadNetworkSetting: (networkMode, fromAsync) => ({
+    type: STATE_ACTIONS.setDownloadNetworkSetting,
+    value: networkMode,
+    fromAsync,
+  }),
 }
 
 const ASYNC_STORAGE_DEFAULTS = {
@@ -132,6 +138,10 @@ const ASYNC_STORAGE_DEFAULTS = {
     default: false,
     action: ACTION_CREATORS.setHasDismissedSyncModal,
   },
+  downloadNetworkSetting: {
+    default: 'wifiOnly',
+    action: ACTION_CREATORS.setDownloadNetworkSetting
+  }
 };
 
 const DEFAULT_STATE = {
@@ -148,6 +158,7 @@ const DEFAULT_STATE = {
   biLayout: ASYNC_STORAGE_DEFAULTS.biLayout.default,
   isLoggedIn: ASYNC_STORAGE_DEFAULTS.auth.default,
   hasDismissedSyncModal: ASYNC_STORAGE_DEFAULTS.hasDismissedSyncModal.default,
+  downloadNetworkSetting: ASYNC_STORAGE_DEFAULTS.downloadNetworkSetting.default,
 };
 
 const saveFieldToAsync = function (field, value) {
@@ -240,6 +251,12 @@ const reducer = function (state, action) {
         ...state,
         hasDismissedSyncModal: action.value,
       }
+    case STATE_ACTIONS.setDownloadNetworkSetting:
+      if (!action.fromAsync) { saveFieldToAsync('downloadNetworkSetting', action.value); }
+      return {
+        ...state,
+        downloadNetworkSetting: action.value,
+      };
     default:
       return state;
   }
