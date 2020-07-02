@@ -262,6 +262,13 @@ const SchemaNode = ({ schema, refPath, openRef, categories }) => {
           openRef={openRef}
           categories={categories} />
       );
+    } else if (schema.nodeType === "DictionaryNode") {
+      return (
+        <DictionaryNode
+          schema={schema}
+          openRef={openRef}
+        />
+      );
     }
 
   } else {
@@ -290,6 +297,14 @@ const SchemaNode = ({ schema, refPath, openRef, categories }) => {
                   openRef={openRef}
                   key={i}
                   categories={categories} />;
+      } else if (node.nodeType == "DictionaryNode") {
+        return (
+          <DictionaryNode
+            key={i}
+            schema={node}
+            openRef={openRef}
+          />
+        );
       } else if (node.depth == 1) {
         const open = openRef.bind(null, refPath + ", " + node.title);
         return (
@@ -510,6 +525,31 @@ const ArrayMapNode = ({ schema, openRef, categories }) => {
     );
   }
 }
+
+
+const DictionaryNode = ({ schema, openRef }) => {
+  const { textLanguage, interfaceLanguage } = useContext(GlobalStateContext);
+  const showHebrew = Sefaria.util.get_menu_language(interfaceLanguage, textLanguage) == "hebrew";
+  const langStyles = showHebrew ? styles.rtlRow : null;
+  return (
+    <View style={[styles.textTocNumberedSection, langStyles, {marginBottom: 30}]}>
+      { schema.headwordMap.map(([letter, ref], i) => (
+        <JaggedArrayNodeSectionBox
+          key={i}
+          showHebrew={showHebrew}
+          title={letter}
+          heTitle={letter}
+          openRef={openRef}
+          tref={ref}
+        />
+      ))}
+    </View>
+  );
+}
+DictionaryNode.propTypes = {
+  schema:   PropTypes.object.isRequired,
+  openRef:  PropTypes.func.isRequired,
+};
 
 
 const CommentatorList = ({ commentatorList, openRef }) => {
