@@ -227,6 +227,9 @@ Sefaria = {
     }
     return null;
   },
+  sheetIdToUrl: sheetId => {
+    return `https://www.sefaria.org/sheets/${sheetId}`;
+  },
   refToUrl: ref => {
     const url = `https://www.sefaria.org/${ref.replace(/ /g, '_').replace(/_(?=[0-9:]+$)/,'.').replace(/:/g,'.')}`
     return url;

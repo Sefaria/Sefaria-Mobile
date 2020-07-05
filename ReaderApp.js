@@ -1677,6 +1677,11 @@ class ReaderApp extends React.PureComponent {
     });
   }
 
+  viewOnSite = () => {
+    const uri = this.state.sheet ? Sefaria.sheetIdToUrl(this.state.sheet.id) : Sefaria.refToUrl(this.state.segmentRef);
+    this.openUri(uri);
+  }
+
   _getReaderDisplayOptionsMenuRef = ref => {
     this._readerDisplayOptionsMenuRef = ref;
   };
@@ -2048,6 +2053,7 @@ class ReaderApp extends React.PureComponent {
                 openUriOrRef={this.openUriOrRef}
                 dictLookup={this.state.dictLookup}
                 shareCurrentSegment={this.shareCurrentSegment}
+                viewOnSite={this.viewOnSite}
                 reportError={this.reportError}
               />
                : null
