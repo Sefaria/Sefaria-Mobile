@@ -15,7 +15,6 @@ const HOST_BUNDLE_URL = `${HOST_PATH}/bundles`;
 const [FILE_DIRECTORY, TMP_DIRECTORY] = [`${RNFB.fs.dirs.DocumentDir}/library`, `${RNFB.fs.dirs.DocumentDir}/tmp`];  //todo: make sure these are used
 // const TMP_DIRECTORY = `${RNFB.fs.dirs.DocumentDir}/tmp`;
 console.log(`The tmp directory is: ${TMP_DIRECTORY}`);
-// const BUNDLE_LOCATION = Platform.OS === "ios" ? `${TMP_DIRECTORY}/bundle.zip` : `${RNFB.fs.dirs.DownloadDir}/SefariaDownload.zip`;
 const BUNDLE_LOCATION = `${TMP_DIRECTORY}/bundle.zip`;
 
 let BooksState = {};
@@ -42,8 +41,9 @@ class DownloadTracker {
   constructor() {
     this.currentDownload = null;
     this.subscriptions = {};
-    this.progressTracker = null;
+    this.removeProgressTracker(); // sets default values for the progress event listener
     this.networkEventListener = null;
+    this._currentDownload = null;
   }
   addDownload(downloadState) {
     if (this.downloadInProgress()) {
@@ -59,7 +59,7 @@ class DownloadTracker {
   removeDownload() {
     console.log('removing download');
     this.currentDownload = null;
-    this.notify(false)
+    this.notify(null)
   }
   removeSpecificDownload(taskId) {
     if (this.currentDownload && this.currentDownload.taskId === taskId) {
@@ -75,11 +75,7 @@ class DownloadTracker {
       this.currentDownload.catch(e => console.log(`${e.message === 'canceled'}\n${e}`));
       this.currentDownload.cancel((err, taskId) => console.log(`canceled download ${taskId}; err is ${err}`));
       this.removeDownload();
-      if (cleanup) {
-        RNFB.fs.ls(TMP_DIRECTORY).then(async (fileList) => {
-          await Promise.all(fileList.map(f => RNFB.fs.unlink(`${TMP_DIRECTORY}/${f}`)));
-        })
-      }
+      if (cleanup) { cleanTmpDirectory().then( () => {} ) }
     }
     else {
       // throw "No download to cancel"
@@ -90,6 +86,11 @@ class DownloadTracker {
       this.currentDownload.progress(config, progressTracker);
     } else
       this.progressTracker = [progressTracker, config];
+  }
+  removeProgressTracker() {
+    const config = {count: 20, interval: 250};
+    const logger = (received, total) => !!(received) ? console.log(`downloaded ${received}/${total} bytes, which is ${received / total}`) : console.log(0.0);
+    this.attachProgressTracker(logger, config);
   }
   subscribe(listenerName, listenerFunc) {
     /*
@@ -111,6 +112,7 @@ class DownloadTracker {
      * At the end of a download we'll call notify(false) from the DownloadTracker. This is because only the DownloadTracker
      * can know when a download has completed
      */
+    this._currentDownload = value;
     Object.values(this.subscriptions).map(x => {
       try{
         x(value);
@@ -119,10 +121,14 @@ class DownloadTracker {
       }
     })
   }
+  getDownloadStatus() {
+    return this._currentDownload;
+  }
   addEventListener(networkSetting, runEvent=false) {
     this.removeEventListener();  // keep things clean
     const allowedToDownload = state => isDownloadAllowed(state, networkSetting);
     const networkChangeMethod = state => {
+      console.log(`network state from event listener: ${state.type}`);
       if (allowedToDownload(state)) {
         console.log('attempting to recover download');
         downloadRecover(networkSetting).then(() => {});
@@ -232,28 +238,15 @@ class Book {
 }
 
 
-function downloadFilePromise(fileUrl, filepath, useDownloadManager=false, downloadFrom=0) {
+function downloadFilePromise(fileUrl, filepath, downloadFrom=0) {
   // useDownloadManager is for using the android download manager. Parameter is ignored on ios devices
   // Test with Appium
-  let config;
-  if (Platform.OS === "android" && useDownloadManager && false) {
-    config = RNFB.config({
-      addAndroidDownloads: {
-        useDownloadManager : true,
-        path: filepath,
-        title: 'Sefaria File Download',
-        notification: true
-      },
-      IOSBackgroundTask: true,
-    })
-  } else {
-    config = RNFB.config({
+  const config = RNFB.config({
       IOSBackgroundTask: true,
       indicator: true,
       path: filepath,
       overwrite: true,
-    })
-  }
+    });
   let filePromise;
   if (!!downloadFrom) {
     filePromise = config.fetch('GET', fileUrl, { Range: `bytes=${downloadFrom}-` })
@@ -479,12 +472,15 @@ async function deleteBooks(bookList) {
       BooksState[bookTitle].desired = false;
     }
   });
+
+  // deleting should clean out the tmp directory (this will clear out partially completed downloads)
+  await cleanTmpDirectory();
 }
 
-async function unzipBundle() {
+async function unzipBundle(bundleSessionLocation) {
   // Test with Appium
   await addDir(FILE_DIRECTORY);
-  await unzip(BUNDLE_LOCATION, FILE_DIRECTORY);
+  await unzip(bundleSessionLocation, FILE_DIRECTORY);
 }
 
 function requestNewBundle(bookList) {
@@ -499,7 +495,8 @@ function requestNewBundle(bookList) {
 }
 
 function isDownloadAllowed(networkState, downloadNetworkSetting) {
-  console.log(`download setting is ${downloadNetworkSetting}`);
+  console.log(`download setting is ${downloadNetworkSetting} and network type is ${networkState.type}. connected? ${networkState.isInternetReachable}`);
+  if (!networkState.isInternetReachable) { return false }
   switch (networkState.type) {
     case 'none':
       return false;
@@ -511,6 +508,12 @@ function isDownloadAllowed(networkState, downloadNetworkSetting) {
 }
 
 async function downloadRecover(networkMode='wifiOnly') {
+  const networkState = await NetInfo.fetch();
+  console.log(`networkState from fetch in downloadRecover: ${networkState.type}`);
+  if (!isDownloadAllowed(networkState, networkMode)) {
+    console.log('aborting download recovery: Download forbidden');
+    return
+  }
   console.log('recovering download');
   if (Tracker.downloadInProgress()) {
     console.log('another download is in progress, aborting recovery');
@@ -521,8 +524,9 @@ async function downloadRecover(networkMode='wifiOnly') {
   const stuff = JSON.parse(await AsyncStorage.getItem('lastDownloadLocation'));
 
   console.log(`values retrieved from AsyncStorage.lastDownloadLocation: ${stuff}`);
-  const { filename, url } = stuff;
-  if (!(!!(filename) && !!(url))) {
+  console.log(stuff);
+  const { filename, url, sessionStorageLocation } = stuff ? stuff : [null, null, null];
+  if (!(filename) || !(url) || !(sessionStorageLocation)) {
     console.log('missing asyncStorage values');
     return
   }
@@ -531,9 +535,18 @@ async function downloadRecover(networkMode='wifiOnly') {
     console.log('missing file');
     return
   }
-  await RNFB.fs.mv(filename, BUNDLE_LOCATION);
-  const size = await RNFB.fs.stat(BUNDLE_LOCATION).size;
-  await downloadBundle(url, networkMode,true, size).then(() => {});
+  const sessionStorageExists = await RNFB.fs.exists(sessionStorageLocation);
+  if (sessionStorageExists) {
+    await RNFB.fs.appendFile(sessionStorageLocation, filename, 'uri');
+  } else {
+    await RNFB.fs.mv(filename, sessionStorageLocation);
+  }
+
+  const stat = await RNFB.fs.stat(sessionStorageLocation);
+  console.log(stat);
+  const size = stat.size;
+  const newNetworkState = await NetInfo.fetch();
+  await downloadBundle(url, networkMode,true, size);
 }
 
 async function downloadBundle(bundleName, networkSetting, recoveryMode=false, downloadFrom=0) {
@@ -547,11 +560,26 @@ async function downloadBundle(bundleName, networkSetting, recoveryMode=false, do
     return `${HOST_BUNDLE_URL}/${encodeURIComponent(bundle)}`
   };
   const [filename, url] = [getUniqueFilename(), getDownloadUrl(bundleName)];
+  let sessionStorageLocation;
+  if (recoveryMode) {
+    sessionStorageLocation = JSON.parse(await AsyncStorage.getItem('lastDownloadLocation'))['sessionStorageLocation'];
+    const exists = await RNFB.fs.exists(sessionStorageLocation);
+    if (!exists){
+      console.log('session storage file does not exist');
+      return
+    }
+  } else {
+    sessionStorageLocation = getUniqueFilename();
+  }
+  console.log(`sessionStorageLocation is ${sessionStorageLocation}`);
+
   try {
-    await AsyncStorage.setItem('lastDownloadLocation', JSON.stringify({filename, url}))
+    await AsyncStorage.setItem('lastDownloadLocation', JSON.stringify({filename, url, sessionStorageLocation}))
   } catch (e) {
     console.log(`Failed to save lastDownloadLocation in AsyncStorage: ${e}`)
   }
+  let stuff = await AsyncStorage.getItem('lastDownloadLocation');
+  console.log(stuff);
 
   const downloadState = downloadFilePromise(url, filename, downloadFrom);
   // todo: schedule network event listeners
@@ -562,13 +590,17 @@ async function downloadBundle(bundleName, networkSetting, recoveryMode=false, do
     console.log(e)
   }
   let downloadResult;
-  // todo: network failure, wifi only etc.
   Tracker.addEventListener(networkSetting);
   try {
     downloadResult = await downloadState;
-  }
-  catch (e) {
-    console.log(`handling error from download failure: ${e}`);
+  }  catch (e) {
+    console.log(`handling error from download failure: ${e}; message: ${e.message}`);
+    Tracker.removeDownload();
+    if (e.message === 'canceled') { return }  // don't start again if download "failed" due to user request
+    else {
+      // Try again in a bit if download failed; recover will abort if the failure is due to network
+      setTimeout(async () => await downloadRecover(networkSetting), 250);
+    }
     return
   }
   console.log(downloadResult);
@@ -578,7 +610,7 @@ async function downloadBundle(bundleName, networkSetting, recoveryMode=false, do
   if (status >= 300 || status < 200) {
     throw "Bad download status"
   }
-  await postDownload(downloadResult.path(), !recoveryMode)
+  await postDownload(downloadResult.path(), !recoveryMode, sessionStorageLocation);
 }
 
 async function calculateBooksToDownload(booksState) {
@@ -637,30 +669,34 @@ async function _executeDownload(bundleName) {
   }
 }
 
-async function postDownload(downloadPath, newDownload=true) {
+async function cleanTmpDirectory() {
+  console.log('cleaning tmp directory');
+  const files = await RNFB.fs.ls(TMP_DIRECTORY);
+  await Promise.all(files.map(f => RNFB.fs.unlink(`${TMP_DIRECTORY}/${f}`)));
+}
+
+async function postDownload(downloadPath, newDownload=true, sessionStorageLoc) {
   const exists = await RNFB.fs.exists(downloadPath);
   if (!exists) { return }
 
   if (newDownload) {
     try {
-      console.log(`moving from ${downloadPath} to ${BUNDLE_LOCATION}`);
-      await RNFB.fs.mv(downloadPath, BUNDLE_LOCATION);
+      console.log(`moving from ${downloadPath} to ${sessionStorageLoc}`);
+      await RNFB.fs.mv(downloadPath, sessionStorageLoc);
     } catch (e) {
       console.log(e);
     }
   } else {
-    await RNFB.fs.appendFile(BUNDLE_LOCATION, downloadPath, 'uri');
+    await RNFB.fs.appendFile(sessionStorageLoc, downloadPath, 'uri');
   }
   console.log('unzipping bundle');
   try {
-    await unzipBundle();
+    await unzipBundle(sessionStorageLoc);
   } catch (e) {
     // Take to the settings page and check for updates?
   }
-  const files = await RNFB.fs.ls(TMP_DIRECTORY);
-  await Promise.all(files.map(f => RNFB.fs.unlink(`${TMP_DIRECTORY}/${f}`)));
+  await cleanTmpDirectory();
 
-  // await RNFB.fs.unlink(BUNDLE_LOCATION);
   await repopulateBooksState();
 }
 
@@ -898,10 +934,8 @@ Upon cancellation:  // to be run explicitly when StatefulPromise.cancel is calle
   remove the download
   clean up tmp folder
 
-
-issues left to deal with - downloadRecover on startup is throwing an exception
-app checks if download is allowed, but doesn't seem to retry when the network is restored
-when network cuts out in the middle of a download, "cancel" is triggered despite the fact that no download is present
+seems like there is a situation where a failed download sticks around on the downloadTracker
+something is off with rendering the progress bar for an existing download
  */
 
 export {
