@@ -20,27 +20,6 @@
 	<string>$(MARKETING_VERSION)</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
-	<key>CFBundleURLTypes</key>
-	<array>
-		<dict>
-			<key>CFBundleURLName</key>
-			<string>www.sefaria.org.il</string>
-			<key>CFBundleURLSchemes</key>
-			<array>
-				<string>http</string>
-				<string>https</string>
-			</array>
-		</dict>
-		<dict>
-			<key>CFBundleURLName</key>
-			<string>www.sefaria.org</string>
-			<key>CFBundleURLSchemes</key>
-			<array>
-				<string>http</string>
-				<string>https</string>
-			</array>
-		</dict>
-	</array>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
@@ -73,6 +52,11 @@
 		<string>Amiri-Bold.ttf</string>
 		<string>Amiri-BoldSlanted.ttf</string>
 	</array>
+	<key>UIApplicationSceneManifest</key>
+	<dict>
+		<key>UIApplicationSupportsMultipleScenes</key>
+		<false/>
+	</dict>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>fetch</string>
