@@ -88,6 +88,12 @@ const TextSegment = React.memo(({
     menuItems.splice(1, 1);
   }
   return (
+    <TouchableOpacity
+      hitSlop= {{top: 10, bottom: 10, left: 10, right: 10}}
+      onPress={() => onPress()}
+      onLongPress={() => {}}
+      delayPressIn={200}
+    >
       <SelectableText
         menuItems={menuItems}
         onSelection={({ eventType, content }) => {
@@ -110,6 +116,7 @@ const TextSegment = React.memo(({
           },
         }}
       />
+    </TouchableOpacity>
   );
 });
 TextSegment.whyDidYouRender = true;
