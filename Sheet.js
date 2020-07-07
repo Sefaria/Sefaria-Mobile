@@ -607,6 +607,15 @@ class SheetMedia extends Component {
                         )
         }
 
+        else if (mediaURL.toLowerCase().indexOf('vimeo') > 0) {
+            var htmlData = '<iframe width="320" height="230" scrolling="no" frameborder="no" src="' + mediaURL + '"></iframe>';
+            mediaLink =  ( <WebView
+                            originWhitelist={['*']}
+                            source={{ html: htmlData }}
+                           />)
+        }
+
+
         else if (mediaURL.toLowerCase().indexOf('soundcloud') > 0) {
             var htmlData = '<iframe width="100%" height="166" scrolling="no" frameborder="no" src="' + mediaURL + '"></iframe>';
             mediaLink =  ( <WebView
