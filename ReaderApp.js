@@ -111,6 +111,7 @@ class ReaderApp extends React.PureComponent {
         textListAnimating: false,
         data: null,
         linksLoaded: [],  // bool arrary corresponding to data indicating if links have been loaded, which occurs async with API
+        relatedLoaded: [], // same as linksLoaded but for related API. both are necessary in case offline
         connectionsMode: null, // null means connections summary
         filterIndex: null, /* index of filters in recentFilters */
         linkSummary: [],
@@ -126,6 +127,7 @@ class ReaderApp extends React.PureComponent {
         versionsApiError: false,
         versionStaleRecentFilters: [],
         versionContents: [],
+        sheetsByRef: [],
         textSearchState: new SearchState({
           type: 'text'
         }),
@@ -712,7 +714,7 @@ class ReaderApp extends React.PureComponent {
     //loads secondary data every time a section is loaded
     //this data is not required for initial renderring of the section
     this.loadLinks(ref);
-    this.loadVersions(ref);
+    this.loadRelated(ref);
   };
 
   loadLinks = (ref, isSheet) => {
@@ -738,7 +740,7 @@ class ReaderApp extends React.PureComponent {
         this.setState({data: this.state.data, linksLoaded: tempLinksLoaded});
       })
       .catch(error=>{
-        console.log("FAILED", error);
+        console.log("FAILED", error);  // TODO: deal with error being thrown when not offline
         let tempLinksLoaded = this.state.linksLoaded.slice(0);
         tempLinksLoaded[iSec] = true;
         this.setState({linksLoaded: tempLinksLoaded});
@@ -751,6 +753,29 @@ class ReaderApp extends React.PureComponent {
     }).catch(error=>{
       console.log("error", error);
       this.setState({ versions: [], versionsApiError: true });
+    });
+  };
+
+  loadRelated = (ref, isSheet) => {
+    const iSec = isSheet ? 0 : this.state.sectionArray.findIndex(secRef=>secRef===ref);
+    if (!iSec && iSec !== 0) { console.log("could not find section ref in sectionArray", ref); return; }
+    Sefaria.api.related(ref).then(data => {
+      if (isSheet) {
+        this.state.data[iSec] = Sefaria.links.addRelatedToSheet(this.state.data[iSec], data, ref);
+      } else {
+        this.state.data[iSec] = Sefaria.links.addRelatedToText(this.state.data[iSec], data);
+      }
+      Sefaria.cacheCommentatorListBySection(ref, this.state.data[iSec]);
+      const tempLinksLoaded = this.state.linksLoaded.slice(0);
+      tempLinksLoaded[iSec] = true;
+      if (this.state.segmentIndexRef != -1 && this.state.sectionIndexRef != -1) {
+        // TODO: this probs needs to be generalized for all related api data
+        this.updateLinkSummary(this.state.sectionIndexRef, this.state.segmentIndexRef);
+      }
+      this.setState({data: this.state.data, linksLoaded: tempLinksLoaded});     
+    }).catch(error=>{
+      this.setState({ sheetsByRef: [] });
+      console.log("error", error);
     });
   };
 
@@ -770,12 +795,9 @@ class ReaderApp extends React.PureComponent {
 
         var updatedData = [data.content].concat(this.state.data);
 
-        var newTitleArray = this.state.sectionArray;
-        var newHeTitleArray = this.state.sectionHeArray;
-        var newlinksLoaded = this.state.linksLoaded;
-        newTitleArray.unshift(data.sectionRef);
-        newHeTitleArray.unshift(data.heRef);
-        newlinksLoaded.unshift(false);
+        this.state.sectionArray.unshift(data.sectionRef);
+        this.state.sectionHeArray.unshift(data.heRef);
+        this.state.linksLoaded.unshift(false);
 
         this.setState({
           data: updatedData,
@@ -2045,6 +2067,7 @@ class ReaderApp extends React.PureComponent {
                 currVersions={this.state.currVersions}
                 versions={this.state.versions}
                 versionsApiError={this.state.versionsApiError}
+                sheetsByRef={this.state.sheetsByRef}
                 onDragStart={this.onTextListDragStart}
                 onDragMove={this.onTextListDragMove}
                 onDragEnd={this.onTextListDragEnd}

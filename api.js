@@ -20,6 +20,7 @@ var Api = {
   _nameCache: {},
   _allTags: {},
   _sheetsByTag: {},
+  _related: {},
   _sheets: {},
   _trendingTags: {},
   _versions: {},
@@ -180,6 +181,9 @@ var Api = {
           break;
         case "sheetsByTag":
           url += "api/sheets/tag/";
+          break;
+        case "related":
+          url += "api/related/";
           break;
         case "sheets":
           url += "api/sheets/";
@@ -405,6 +409,23 @@ var Api = {
         })
         .catch(error=>{
           console.log("sheetsByTag API error:", error);
+          reject();
+        });
+    });
+  },
+
+  related: function(ref) {
+    Sefaria.api._abortRequestType('related');
+    return new Promise((resolve, reject) => {
+      const cached = Sefaria.api._related[ref];
+      if (!!cached) { resolve(cached); return; }
+      Sefaria.api._request(ref, 'related', true, {}, true)
+        .then(response => {
+          Sefaria.api.related[ref] = response;
+          resolve(response);
+        })
+        .catch(error=>{
+          console.log("related API error:", error);
           reject();
         });
     });

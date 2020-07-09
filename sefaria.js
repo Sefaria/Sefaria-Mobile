@@ -793,7 +793,7 @@ Sefaria = {
         })
         .catch(error => {
           if (error === ERRORS.NOT_OFFLINE) {
-            Sefaria.api.links(ref).then(resolve);
+            // Sefaria.api.links(ref).then(resolve); Will be loaded in related API
           } else { reject(error); }
         })
       });

@@ -177,6 +177,17 @@ class ConnectionsPanel extends React.PureComponent {
             />
           </View>
         );
+      case 'sheetsByRef':
+        return (
+          <View style={[styles.mainTextPanel, styles.textColumn, this.props.theme.textListContentOuter, {maxWidth: null, flex: this.props.textListFlex}]}>
+            {connectionsPanelHeader}
+            <View style={{flex: 1}}>
+              { this.props.sheetsByRef.map((sheet, i) => {
+                return <Text key={i}>{sheet.title}</Text>
+              })}
+            </View>
+          </View>
+        );
       default:
         // either `null` or equal to a top-level category
         let content;
@@ -242,6 +253,7 @@ class ConnectionsPanel extends React.PureComponent {
                 sheet={this.props.sheet}
                 themeStr={this.props.themeStr}
                 versionsCount={this.props.versions.length}
+                sheetsCount={this.props.sheetsByRef.length}
                 setConnectionsMode={this.props.setConnectionsMode}
                 segmentRef={this.props.segmentRef}
                 heSegmentRef={this.props.heSegmentRef}
@@ -285,6 +297,7 @@ class ResourcesList extends React.PureComponent {
     themeStr:           PropTypes.string.isRequired,
     setConnectionsMode: PropTypes.func.isRequired,
     versionsCount:      PropTypes.number.isRequired,
+    sheetsCount:        PropTypes.number.isRequired,
     segmentRef:         PropTypes.string.isRequired,
     segmentRefOnSheet:  PropTypes.string,
     heSegmentRef:       PropTypes.string.isRequired,
@@ -299,6 +312,13 @@ class ResourcesList extends React.PureComponent {
     const isSaved = Sefaria.history.indexOfSaved(this.props.segmentRef) !== -1;
     return (
       <View>
+        {
+          this.props.sheet ? null : <ToolsButton
+           text={strings.sheets}
+           icon={isWhite ? require("./img/sheet.png") : require("./img/sheet.png")}
+           count={this.props.sheetsCount}
+           onPress={()=>{ this.props.setConnectionsMode("sheetsByRef"); }}
+        /> }
         <ToolsButton
           text={strings.about}
           icon={isWhite ? require("./img/book.png") : require("./img/book-light.png")}
