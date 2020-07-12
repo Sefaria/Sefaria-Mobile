@@ -70,7 +70,7 @@ const SefariaProgressBar = ({ onPress, onClose, download }) => {
     download.attachProgressTracker(calculateProgress, config);
     return function cleanup() {
       console.log('attaching dummy Progress Tracker');
-      download.attachProgressTracker(() => {}, config)
+      download.removeProgressTracker();
 
     };
   }, [download]);  // we only want to resubscribe if the downloader object changes. This shouldn't happen, but the condition is here for completeness sake
@@ -79,7 +79,7 @@ const SefariaProgressBar = ({ onPress, onClose, download }) => {
     {({themeStr, interfaceLanguage}) => (
       <TouchableOpacity onPress={!!onPress ? onPress : () => {
       }} disabled={!onPress} style={styles.sefariaProgressBar}>
-        <View style={{flex: 1, flexDirection: interfaceLanguage === "hebrew" ? "row-reverse" : "row", height: 50}}>
+        <View style={{flex: 1, flexDirection: interfaceLanguage === "hebrew" ? "row-reverse" : "row", height: 50, alignSelf: 'stretch'}}>
           <View style={{flex: progress, backgroundColor: "#fff"}}>
           </View>
           <View style={{flex: 1 - progress, backgroundColor: "#eee"}}>
@@ -103,6 +103,25 @@ const SefariaProgressBar = ({ onPress, onClose, download }) => {
       </TouchableOpacity>
     )}
   </GlobalStateContext.Consumer>
+};
+
+const ConditionalProgressWrapper = ({ conditionMethod, initialValue, downloader, listenerName, children, ...otherProps }) => {
+  console.log(otherProps);
+
+  const enclosedCondition = state => {
+    return conditionMethod(state, otherProps)
+  };
+  const [downloadState, setDownload] = useState(initialValue);
+  useEffect(() => {
+    downloader.subscribe(listenerName, setDownload);
+    return function cleanup() {
+      downloader.unsubscribe(listenerName);
+    }
+  }, []);
+  if(enclosedCondition(downloadState)) {
+    console.log(children);
+    return children
+  } else { return null }
 };
 
 class TwoBox extends React.Component {
@@ -832,6 +851,7 @@ export {
   CircleCloseButton,
   CloseButton,
   CollapseIcon,
+  ConditionalProgressWrapper,
   DirectedArrow,
   DirectedButton,
   DisplaySettingsButton,

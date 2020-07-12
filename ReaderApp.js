@@ -68,6 +68,7 @@ import {
   LoadingView,
   CategoryColorLine,
   SefariaProgressBar,
+  ConditionalProgressWrapper,
 } from './Misc.js';
 const ViewPort    = Dimensions.get('window');
 
@@ -146,7 +147,6 @@ class ReaderApp extends React.PureComponent {
         isNewSearch: false,
         ReaderDisplayOptionsMenuVisible: false,
         overwriteVersions: true, // false when you navigate to a text but dont want the current version to overwrite your sticky version
-        activeDownload: false, // true when downloading a package / update.
     };
   }
 
@@ -174,7 +174,6 @@ class ReaderApp extends React.PureComponent {
         SoundPlayer.playSoundFile('grogger', 'mp3');
       }
     });
-    DownloadTracker.subscribe('ReaderApp', this.changeDownloadState.bind(this))
   }
 
   logout = async () => {
@@ -2066,11 +2065,6 @@ class ReaderApp extends React.PureComponent {
       </PinchGestureHandler>
     );
   }
-  changeDownloadState(value) {
-    this.setState({
-      activeDownload: value
-    })
-  }
 
   render() {
     /*
@@ -2080,7 +2074,6 @@ class ReaderApp extends React.PureComponent {
     if (cat) {
       style = {backgroundColor: Sefaria.util.lightenDarkenColor(Sefaria.palette.categoryColor(cat), -25)};
     }*/
-    const isD = this.state.activeDownload;
     return (
       <View style={{flex:1}}>
         <SafeAreaView style={styles.safeArea}>
@@ -2088,15 +2081,23 @@ class ReaderApp extends React.PureComponent {
               <StatusBar
                 barStyle="light-content"
               />
-              {
-                isD && this.state.menuOpen !== 'settings' ?
-                <SefariaProgressBar
-                   // todo: Hook into RNFB
-                  onPress={()=>{ this.openMenu("settings")}}
-                  onClose={DownloadTracker.cancelDownload}
-                  download={DownloadTracker}
-                /> : null
-              }
+            <ConditionalProgressWrapper
+              conditionMethod={(state, props) => {
+                return state && props.menuOpen !== 'settings';
+              }}
+              initialValue={DownloadTracker.getDownloadStatus()}
+              downloader={DownloadTracker}
+              listenerName={'ReaderAppBar'}
+              menuOpen={this.state.menuOpen}
+            >
+              <SefariaProgressBar
+                onPress={()=>{
+                  this.openMenu("settings")
+                }}
+                onClose={DownloadTracker.cancelDownload}
+                download={DownloadTracker}
+              />
+            </ConditionalProgressWrapper>
               { this.renderContent() }
           </View>
           <Toast ref="toast"/>

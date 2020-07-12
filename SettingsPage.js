@@ -10,12 +10,15 @@ import {
   View,
   ScrollView,
   Alert,
+  Platform,
+  PermissionsAndroid,
 } from 'react-native';
 import VersionNumber from 'react-native-version-number';
 
 import ProgressBar from './ProgressBar';
 import {
   CategoryColorLine,
+  ConditionalProgressWrapper,
   CloseButton,
   ButtonToggleSetNew,
   LibraryNavButton,
@@ -34,7 +37,8 @@ import {
   wereBooksDownloaded,
   markLibraryForDeletion,
   Package,
-  deleteBooks
+  deleteBooks,
+  doubleDownload,
 } from './DownloadControl';
 
 const generateOptions = (options, onPress) => options.map(o => ({
@@ -62,7 +66,8 @@ const onPressDisabled = (child, parent) => {
 };
 
 const usePkgState = () => {
-  const { interfaceLanguage } = useContext(GlobalStateContext);
+  const { interfaceLanguage, downloadNetworkSetting } = useContext(GlobalStateContext);
+  console.log(`checking Network setting from useContext: ${downloadNetworkSetting}`);
   const [isDisabledObj, setIsDisabledObj] = useState(getIsDisabledObj());  // React Hook
 
   const onPackagePress = async (pkgObj, setDownloadFunction) => {
@@ -81,7 +86,11 @@ const usePkgState = () => {
         await PackagesState[pkgName].markAsClicked();
         setIsDisabledObj(getIsDisabledObj());
 
-        await downloadPackage(pkgName);
+        try{
+          await downloadPackage(pkgName, downloadNetworkSetting);
+        } catch (e) {
+          console.log(e);
+        }
       }
     };
     const parent = pkgObj.parent;
@@ -103,6 +112,10 @@ const usePkgState = () => {
 
 function abstractUpdateChecker(disableUpdateComponent) {
   async function f() {
+    if (DownloadTracker.downloadInProgress()) {
+      doubleDownload();
+      return
+    }
     disableUpdateComponent(true);
     try {
       const [totalDownloads, newBooks] = await checkUpdatesFromServer();
@@ -126,6 +139,13 @@ function abstractUpdateChecker(disableUpdateComponent) {
   }
   return f
 }
+
+const RandomComponent = ({ things, otherThings, ...otherProps }) => {
+  console.log(otherProps);
+  if(!!otherProps.children) {
+    return (<View>{otherProps.children}</View>)
+  } else { return null }
+};
 
 const SettingsPage = ({ close, logout, openUri }) => {
   const [numPressesDebug, setNumPressesDebug] = useState(0);
@@ -227,16 +247,24 @@ const ButtonToggleSection = ({ langStyle }) => {
       time: Sefaria.util.epoch_time(),
     });
   };
+  const setDownloadNetworkSetting = wifiOnly => {
+    dispatch({
+      type: STATE_ACTIONS.setDownloadNetworkSetting,
+      value: wifiOnly,
+    })
+  };
   const options = {
     interfaceLanguageOptions: generateOptions(['english', 'hebrew'], setInterfaceLanguage),
     textLanguageOptions: generateOptions(['english', 'bilingual', 'hebrew'], setTextLanguage),
     emailFrequencyOptions: generateOptions(['daily', 'weekly', 'never'], setEmailFrequency),
     preferredCustomOptions: generateOptions(['sephardi', 'ashkenazi'], setPreferredCustom),
+    downloadNetworkSettingOptions: generateOptions(['wifiOnly', 'mobileNetwork'], setDownloadNetworkSetting),
+
   };
   /* stateKey prop is used for testing */
   return (
     <View>
-      {['textLanguage', 'interfaceLanguage', 'emailFrequency', 'preferredCustom'].map(s => (
+      {['textLanguage', 'interfaceLanguage', 'emailFrequency', 'preferredCustom', 'downloadNetworkSetting'].map(s => (
         <View style={styles.settingsSection} key={s} stateKey={s}>
           <View>
             <Text style={[langStyle, styles.settingsSectionHeader, theme.tertiaryText]}>{strings[s]}</Text>
@@ -245,8 +273,7 @@ const ButtonToggleSection = ({ langStyle }) => {
             options={options[`${s}Options`]}
             lang={globalState.interfaceLanguage}
             active={globalState[s]} />
-        </View>
-      ))}
+        </View>))}
     </View>
   );
 };
@@ -279,28 +306,10 @@ const OfflinePackageList = ({ isDisabledObj, onPackagePress }) => {
 
 const PackageComponent = ({ packageObj, onPackagePress, isDisabledObj }) => {
   const isSelected = packageObj.clicked;
-  const [isD, setDownload] = useState(false);
-  useEffect(() => {
-    const listener = `PackageComponent${packageObj.name}`;
-    DownloadTracker.subscribe(listener, setDownload);
-    return function cleanup() {
-      DownloadTracker.unsubscribe(listener);
-    }
-  }, [packageObj]);
 
   const onPress = async () => {
     console.log('onPress running');
-    if (DownloadTracker.downloadInProgress()) {
-      Alert.alert(
-        strings.doubleDownload,
-        '',
-        [
-          {text: strings.ok, onPress: () => {}}
-        ]
-      )
-    } else {
-      await onPackagePress(packageObj, setDownload);
-    }
+    await onPackagePress(packageObj);
   };
 
   return (
@@ -316,11 +325,15 @@ const PackageComponent = ({ packageObj, onPackagePress, isDisabledObj }) => {
         buttonStyle={{margin: 0, padding: 0, opacity: isDisabledObj[packageObj.en] ? 0.6 : 1.0}}
         withArrow={false}
       />
-      {
-        (isD  && isD === packageObj.name) ?
-          <SefariaProgressBar download={DownloadTracker} />
-          : null
-      }
+      <ConditionalProgressWrapper
+        conditionMethod={ (state, props) => state && state === props.packageName}
+        initialValue={DownloadTracker.getDownloadStatus()}
+        downloader={DownloadTracker}
+        listenerName={`PackageComponent${packageObj.name}`}
+        packageName={packageObj.name}
+      >
+        <SefariaProgressBar download={DownloadTracker} />
+      </ConditionalProgressWrapper>
     </View>
   )
 };

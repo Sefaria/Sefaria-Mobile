@@ -43,7 +43,7 @@ class DownloadTracker {
     this.subscriptions = {};
     this.removeProgressTracker(); // sets default values for the progress event listener
     this.networkEventListener = null;
-    this._currentDownload = null;
+    this._currentDownloadNotification = null;
   }
   addDownload(downloadState) {
     if (this.downloadInProgress()) {
@@ -51,10 +51,7 @@ class DownloadTracker {
     }
     this.currentDownload = downloadState;
     if (!!this.progressTracker) {this.attachProgressTracker(...this.progressTracker)}
-    // this.currentDownload.finally(() => {
-    //   console.log('auto-removing download');
-    //   this.removeDownload.bind(this)
-    // });
+    this.notify(this._currentDownloadNotification);
   }
   removeDownload() {
     console.log('removing download');
@@ -112,7 +109,7 @@ class DownloadTracker {
      * At the end of a download we'll call notify(false) from the DownloadTracker. This is because only the DownloadTracker
      * can know when a download has completed
      */
-    this._currentDownload = value;
+    this._currentDownloadNotification = value;
     Object.values(this.subscriptions).map(x => {
       try{
         x(value);
@@ -122,7 +119,7 @@ class DownloadTracker {
     })
   }
   getDownloadStatus() {
-    return this._currentDownload;
+    return this._currentDownloadNotification;
   }
   addEventListener(networkSetting, runEvent=false) {
     this.removeEventListener();  // keep things clean
@@ -598,7 +595,13 @@ async function downloadBundle(bundleName, networkSetting, recoveryMode=false, do
     Tracker.removeDownload();
     if (e.message === 'canceled') { return }  // don't start again if download "failed" due to user request
     else {
-      // Try again in a bit if download failed; recover will abort if the failure is due to network
+      /* Try again if download failed; recover will abort if the failure is due to network
+       *
+       * The NetInfo package is updated asynchronously. If we run immediately into a recovery download as soon as a
+       * call to `fetch` fails, the Promise updating NetInfo won't get a chance to resolve. Because of this, it is
+       * important to schedule the download recovery, rather than running into it directly. Hence the call to setTimeout.
+       * Further investigation recommended.
+       */
       setTimeout(async () => await downloadRecover(networkSetting), 250);
     }
     return
