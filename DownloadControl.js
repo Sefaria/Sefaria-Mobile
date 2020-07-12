@@ -41,6 +41,7 @@ class DownloadTracker {
     this.removeProgressTracker(); // sets default values for the progress event listener
     this.networkEventListener = null;
     this._currentDownloadNotification = null;
+    this._alreadyDownloaded = 0;
   }
   addDownload(downloadState) {
     if (this.downloadInProgress()) {
@@ -76,10 +77,16 @@ class DownloadTracker {
     }
   }
   attachProgressTracker(progressTracker, config) {
+    const enhancedProgressTracker = (received, total) => {
+      // The RNFB fetch method sends strings for progress tracking, not integers...
+      const [trueReceived, trueTotal] = [parseInt(received) + parseInt(this._alreadyDownloaded),
+        parseInt(total) + parseInt(this._alreadyDownloaded)];
+      return progressTracker(trueReceived, trueTotal)
+    };
     if (this.downloadInProgress()) {
-      this.currentDownload.progress(config, progressTracker);
+      this.currentDownload.progress(config, enhancedProgressTracker);
     } else
-      this.progressTracker = [progressTracker, config];
+      this.progressTracker = [enhancedProgressTracker, config];
   }
   removeProgressTracker() {
     const config = {count: 20, interval: 250};
@@ -140,6 +147,9 @@ class DownloadTracker {
       this.networkEventListener();  // calling the event listener unsubscribes
       this.networkEventListener = null;
     }
+  }
+  setAlreadyDownloaded(value) {
+    this._alreadyDownloaded = value;
   }
 }
 
@@ -501,11 +511,14 @@ function isDownloadAllowed(networkState, downloadNetworkSetting) {
 }
 
 async function downloadRecover(networkMode='wifiOnly') {
+  console.log('attempting download recover');
   const networkState = await NetInfo.fetch();
   if (!isDownloadAllowed(networkState, networkMode)) {
+    console.log('aborted due to network');
     return
   }
   if (Tracker.downloadInProgress()) {
+    console.log('aborted: another download is in progress');
     return
   } else {
   }
@@ -515,7 +528,10 @@ async function downloadRecover(networkMode='wifiOnly') {
   if (!(filename) || !(url) || !(sessionStorageLocation)) { return }
 
   const exists = await RNFB.fs.exists(filename);
-  if (!exists) { return }
+  if (!exists) {
+    console.log('aborted: previous download not found');
+    return
+  }
   const sessionStorageExists = await RNFB.fs.exists(sessionStorageLocation);
   if (sessionStorageExists) {
     await RNFB.fs.appendFile(sessionStorageLocation, filename, 'uri');
@@ -529,7 +545,10 @@ async function downloadRecover(networkMode='wifiOnly') {
 }
 
 async function downloadBundle(bundleName, networkSetting, downloadNotification=null, recoveryMode=false, downloadFrom=0) {
+  downloadFrom = parseInt(downloadFrom);
+  console.log(`recovery? ${recoveryMode} starting download from: ${downloadFrom} bytes`);
   // Test with Appium
+  Tracker.setAlreadyDownloaded(downloadFrom);
   const getUniqueFilename = () => {  // It's not critical to have a truly unique filename
     return `${TMP_DIRECTORY}/${String(Math.floor(Math.random()*10000000))}.zip`
   };
