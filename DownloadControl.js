@@ -13,9 +13,6 @@ const DOWNLOAD_SERVER = "https://readonly.sefaria.org";
 const HOST_PATH = `${DOWNLOAD_SERVER}/static/ios-export/${SCHEMA_VERSION}`;
 const HOST_BUNDLE_URL = `${HOST_PATH}/bundles`;
 const [FILE_DIRECTORY, TMP_DIRECTORY] = [`${RNFB.fs.dirs.DocumentDir}/library`, `${RNFB.fs.dirs.DocumentDir}/tmp`];  //todo: make sure these are used
-// const TMP_DIRECTORY = `${RNFB.fs.dirs.DocumentDir}/tmp`;
-console.log(`The tmp directory is: ${TMP_DIRECTORY}`);
-const BUNDLE_LOCATION = `${TMP_DIRECTORY}/bundle.zip`;
 
 let BooksState = {};
 let PackagesState = {};
@@ -51,7 +48,7 @@ class DownloadTracker {
     }
     this.currentDownload = downloadState;
     if (!!this.progressTracker) {this.attachProgressTracker(...this.progressTracker)}
-    this.notify(this._currentDownloadNotification);
+    // this.notify(this._currentDownloadNotification);
   }
   removeDownload() {
     console.log('removing download');
@@ -109,6 +106,7 @@ class DownloadTracker {
      * At the end of a download we'll call notify(false) from the DownloadTracker. This is because only the DownloadTracker
      * can know when a download has completed
      */
+    console.log(`broadcasting notification: ${value}`);
     this._currentDownloadNotification = value;
     Object.values(this.subscriptions).map(x => {
       try{
@@ -252,9 +250,8 @@ function downloadFilePromise(fileUrl, filepath, downloadFrom=0) {
   }
 
   if (Platform.OS === "ios") {
-    filePromise.expire(() => postDownload(filepath));
+    filePromise.expire(() => postDownload(filepath));  // todo: get rid of this?
   }
-  console.log(filePromise);
   return filePromise
 }
 
@@ -310,7 +307,7 @@ async function loadCoreFile(filename) {
       const j = await RNFB.fs.readFile(RNFB.fs.asset(`sources/${filename}`));
       return JSON.parse(j)
     } catch (e) {
-      console.log(`Error loading Android asset ${filename}: ${e}`);
+      console.log(`Error loading Android asset ${filename}: ${e}`);  // todo: send to Firebase
       throw e
     }
   }
@@ -346,12 +343,12 @@ async function packageSetupProtocol() {
   const [packageData, packagesSelected] = await Promise.all([
     loadCoreFile('packages.json').then(pkgStateData => deriveDownloadState(pkgStateData)),
     AsyncStorage.getItem('packagesSelected').then(x => !!x ? JSON.parse(x) : {})
-  ]).catch(e => console.log(`failed in packageSetupProtocol: ${e}`));
+  ]).catch(e => console.log(`failed in packageSetupProtocol: ${e}`));  // todo: send to firebase
   PackagesState = packageData;
 
   let falseSelections = [];
   for (let packName of Object.keys(packagesSelected)) {
-    packageData[packName].markAsClicked(false)  // todo: markAsClicke is an async function
+    packageData[packName].markAsClicked(false)  // todo: markAsClicked is an async function
   }
 
   for (let packName of Object.keys(packagesSelected)) {
@@ -457,7 +454,7 @@ async function deleteBooks(bookList) {
       try {
         await RNFB.fs.unlink(filepath);
       } catch (e) {
-        console.log(`Error deleting file: ${e}`)
+        console.log(`Error deleting file: ${e}`)  // todo: send to firebase
       }
     }
     return bookTitle
@@ -492,7 +489,6 @@ function requestNewBundle(bookList) {
 }
 
 function isDownloadAllowed(networkState, downloadNetworkSetting) {
-  console.log(`download setting is ${downloadNetworkSetting} and network type is ${networkState.type}. connected? ${networkState.isInternetReachable}`);
   if (!networkState.isInternetReachable) { return false }
   switch (networkState.type) {
     case 'none':
@@ -506,32 +502,20 @@ function isDownloadAllowed(networkState, downloadNetworkSetting) {
 
 async function downloadRecover(networkMode='wifiOnly') {
   const networkState = await NetInfo.fetch();
-  console.log(`networkState from fetch in downloadRecover: ${networkState.type}`);
   if (!isDownloadAllowed(networkState, networkMode)) {
-    console.log('aborting download recovery: Download forbidden');
     return
   }
-  console.log('recovering download');
   if (Tracker.downloadInProgress()) {
-    console.log('another download is in progress, aborting recovery');
     return
   } else {
-    console.log('proceeding with download recovery')
   }
-  const stuff = JSON.parse(await AsyncStorage.getItem('lastDownloadLocation'));
+  const lastDownloadData = JSON.parse(await AsyncStorage.getItem('lastDownloadLocation'));
 
-  console.log(`values retrieved from AsyncStorage.lastDownloadLocation: ${stuff}`);
-  console.log(stuff);
-  const { filename, url, sessionStorageLocation } = stuff ? stuff : [null, null, null];
-  if (!(filename) || !(url) || !(sessionStorageLocation)) {
-    console.log('missing asyncStorage values');
-    return
-  }
+  const { filename, url, sessionStorageLocation } = lastDownloadData ? lastDownloadData : [null, null, null];
+  if (!(filename) || !(url) || !(sessionStorageLocation)) { return }
+
   const exists = await RNFB.fs.exists(filename);
-  if (!exists) {
-    console.log('missing file');
-    return
-  }
+  if (!exists) { return }
   const sessionStorageExists = await RNFB.fs.exists(sessionStorageLocation);
   if (sessionStorageExists) {
     await RNFB.fs.appendFile(sessionStorageLocation, filename, 'uri');
@@ -540,15 +524,12 @@ async function downloadRecover(networkMode='wifiOnly') {
   }
 
   const stat = await RNFB.fs.stat(sessionStorageLocation);
-  console.log(stat);
   const size = stat.size;
-  const newNetworkState = await NetInfo.fetch();
-  await downloadBundle(url, networkMode,true, size);
+  await downloadBundle(url, networkMode, null,true, size);
 }
 
-async function downloadBundle(bundleName, networkSetting, recoveryMode=false, downloadFrom=0) {
+async function downloadBundle(bundleName, networkSetting, downloadNotification=null, recoveryMode=false, downloadFrom=0) {
   // Test with Appium
-  console.log(`download ${bundleName} over ${networkSetting}. Recovery? ${recoveryMode}. Starting from ${downloadFrom}`);
   const getUniqueFilename = () => {  // It's not critical to have a truly unique filename
     return `${TMP_DIRECTORY}/${String(Math.floor(Math.random()*10000000))}.zip`
   };
@@ -556,33 +537,33 @@ async function downloadBundle(bundleName, networkSetting, recoveryMode=false, do
     if (recoveryMode) { return bundleName }
     return `${HOST_BUNDLE_URL}/${encodeURIComponent(bundle)}`
   };
+
   const [filename, url] = [getUniqueFilename(), getDownloadUrl(bundleName)];
   let sessionStorageLocation;
   if (recoveryMode) {
-    sessionStorageLocation = JSON.parse(await AsyncStorage.getItem('lastDownloadLocation'))['sessionStorageLocation'];
+    const sessionData = JSON.parse(await AsyncStorage.getItem('lastDownloadLocation'));
+    sessionStorageLocation = sessionData['sessionStorageLocation'];
+    downloadNotification = sessionData['downloadNotification'];
     const exists = await RNFB.fs.exists(sessionStorageLocation);
-    if (!exists){
-      console.log('session storage file does not exist');
-      return
-    }
+    if (!exists){ return }
   } else {
     sessionStorageLocation = getUniqueFilename();
   }
-  console.log(`sessionStorageLocation is ${sessionStorageLocation}`);
 
   try {
-    await AsyncStorage.setItem('lastDownloadLocation', JSON.stringify({filename, url, sessionStorageLocation}))
+    await AsyncStorage.setItem('lastDownloadLocation', JSON.stringify(
+      {filename, url, sessionStorageLocation, downloadNotification}
+      )
+    )
   } catch (e) {
-    console.log(`Failed to save lastDownloadLocation in AsyncStorage: ${e}`)
+    console.log(`Failed to save lastDownloadLocation in AsyncStorage: ${e}`)  // todo: send to firebase
   }
-  let stuff = await AsyncStorage.getItem('lastDownloadLocation');
-  console.log(stuff);
 
   const downloadState = downloadFilePromise(url, filename, downloadFrom);
-  // todo: schedule network event listeners
-  console.log(downloadState.taskId);
+  // todo: review idempotent download removal requirement
   try {
     Tracker.addDownload(downloadState);
+    if(downloadNotification) { Tracker.notify(downloadNotification) }
   } catch (e) {
     console.log(e)
   }
@@ -591,7 +572,6 @@ async function downloadBundle(bundleName, networkSetting, recoveryMode=false, do
   try {
     downloadResult = await downloadState;
   }  catch (e) {
-    console.log(`handling error from download failure: ${e}; message: ${e.message}`);
     Tracker.removeDownload();
     if (e.message === 'canceled') { return }  // don't start again if download "failed" due to user request
     else {
@@ -606,12 +586,11 @@ async function downloadBundle(bundleName, networkSetting, recoveryMode=false, do
     }
     return
   }
-  console.log(downloadResult);
   Tracker.removeDownload();
   Tracker.removeEventListener();
   const status = downloadResult.info().status;
   if (status >= 300 || status < 200) {
-    throw "Bad download status"
+    throw "Bad download status"  // todo: Review: do we want to throw?
   }
   await postDownload(downloadResult.path(), !recoveryMode, sessionStorageLocation);
 }
@@ -621,7 +600,7 @@ async function calculateBooksToDownload(booksState) {
   const remoteBookUpdates = await lastUpdated();
   if (remoteBookUpdates === null)
     {
-      console.log('no last_updated.json');
+      console.log('no last_updated.json');  // todo: send to firebase
       return [];
     }
   let booksToDownload = [];
@@ -658,22 +637,7 @@ function calculateBooksToDelete(booksState) {
   return booksToDelete;
 }
 
-async function _executeDownload(bundleName) {
-  // Test with Appium
-  // todo: make sure network is checked
-  // todo: handle download interruption differently than download failure
-  // break into two functions
-  try {
-    await downloadBundle(bundleName);  // don't worry about this one
-  } catch (e) {
-    console.log(`Handling error: ${e}`)
-  } finally {
-    await postDownload();
-  }
-}
-
 async function cleanTmpDirectory() {
-  console.log('cleaning tmp directory');
   const files = await RNFB.fs.ls(TMP_DIRECTORY);
   await Promise.all(files.map(f => RNFB.fs.unlink(`${TMP_DIRECTORY}/${f}`)));
 }
@@ -684,7 +648,6 @@ async function postDownload(downloadPath, newDownload=true, sessionStorageLoc) {
 
   if (newDownload) {
     try {
-      console.log(`moving from ${downloadPath} to ${sessionStorageLoc}`);
       await RNFB.fs.mv(downloadPath, sessionStorageLoc);
     } catch (e) {
       console.log(e);
@@ -692,7 +655,6 @@ async function postDownload(downloadPath, newDownload=true, sessionStorageLoc) {
   } else {
     await RNFB.fs.appendFile(sessionStorageLoc, downloadPath, 'uri');
   }
-  console.log('unzipping bundle');
   try {
     await unzipBundle(sessionStorageLoc);
   } catch (e) {
@@ -705,22 +667,18 @@ async function postDownload(downloadPath, newDownload=true, sessionStorageLoc) {
 
 async function downloadPackage(packageName, networkSetting) {
   const netState = await NetInfo.fetch();
-  if (isDownloadAllowed(netState, networkSetting)) {
-    console.log('download allowed');
-  } else {
-    console.log('download forbidden');
-    return
-  }
-  await downloadBundle(`${packageName}.zip`, networkSetting)
+  if (!isDownloadAllowed(netState, networkSetting)) { return }  // todo: review: should notification to the user be sent for a forbidden download?
+
+  await downloadBundle(`${packageName}.zip`, networkSetting, packageName)
 }
 
-async function downloadUpdate(booksToDownload=null, networkSetting) {  // todo: get rid of null
+async function downloadUpdate(booksToDownload, networkSetting) {
   // Test with Appium
-  if (!!booksToDownload){  // todo: review. Isn't this redundant. should it be !bookToDownload
+  if (!booksToDownload){  // todo: review. Isn't this redundant? should it be !bookToDownload
     booksToDownload = await calculateBooksToDownload(BooksState);
   }
   const bundleName = await requestNewBundle(booksToDownload);
-  await downloadBundle(bundleName, networkSetting);
+  await downloadBundle(bundleName, networkSetting, 'Update');
 
   // we're going to use the update as an opportunity to do some cleanup
   const booksToDelete = calculateBooksToDelete(BooksState);
@@ -778,15 +736,14 @@ async function downloadCoreFile(filename) {
   const status = !!downloadResp ? downloadResp.info().status : 'total failure';
   if ((status >= 300 || status < 200) || (status === 'total failure')) {
     await RNFB.fs.unlink(tempPath);
-    throw new Error(`bad download status; got : ${status}`);
+    throw new Error(`bad download status; got : ${status}`);  // todo: review. Should we throw an error or just log to firebase?
   }
   else {
-    console.log(`successfully downloaded ${filename} to ${tempPath} with status ${status}`);
   }
   try {
     await RNFB.fs.mv(tempPath, `${RNFB.fs.dirs.DocumentDir}/library/${filename}`);
   } catch(e) {
-    console.log(`failed to move file at ${tempPath} to app storage: ${e}`);
+    console.log(`failed to move file at ${tempPath} to app storage: ${e}`);  // todo: send to firebase
     await RNFB.fs.unlink(tempPath);
   }
 }
@@ -797,11 +754,6 @@ async function checkUpdatesFromServer() {
   let timestamp = new Date().toJSON();
   await AsyncStorage.setItem('lastUpdateCheck', timestamp);
   await AsyncStorage.setItem('lastUpdateSchema', SCHEMA_VERSION);
-  // try {
-  //   await downloadCoreFile().then(loadJSONFile(`${RNFB.fs.dirs.DocumentDir}/library/last_updated.json`));
-  // } catch (e) {
-  //   console.log(e)
-  // }
 
   await Promise.all([
     downloadCoreFile('last_updated.json'),

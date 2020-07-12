@@ -106,8 +106,6 @@ const SefariaProgressBar = ({ onPress, onClose, download }) => {
 };
 
 const ConditionalProgressWrapper = ({ conditionMethod, initialValue, downloader, listenerName, children, ...otherProps }) => {
-  console.log(otherProps);
-
   const enclosedCondition = state => {
     return conditionMethod(state, otherProps)
   };
@@ -119,7 +117,6 @@ const ConditionalProgressWrapper = ({ conditionMethod, initialValue, downloader,
     }
   }, []);
   if(enclosedCondition(downloadState)) {
-    console.log(children);
     return children
   } else { return null }
 };
