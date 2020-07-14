@@ -40,21 +40,28 @@ class DownloadTracker {
     this.subscriptions = {};
     this.removeProgressTracker(); // sets default values for the progress event listener
     this.networkEventListener = null;
-    this._currentDownloadNotification = null;
     this._alreadyDownloaded = 0;
+    this._downloadSession = null;
   }
   addDownload(downloadState) {
     if (this.downloadInProgress()) {
       throw "Another download is in Progress!"
     }
     this.currentDownload = downloadState;
-    if (!!this.progressTracker) {this.attachProgressTracker(...this.progressTracker)}
+    if (!!this.progressTracker) {
+      const [tracker, config] = this.progressTracker;
+      downloadState.progress(config, tracker);
+    }
     // this.notify(this._currentDownloadNotification);
   }
-  removeDownload() {
+  removeDownload(endSession=false) {
     console.log('removing download');
     this.currentDownload = null;
-    this.notify(null)
+    if (endSession) {
+      this.removeDownloadSession().then(() => {})
+    } else {
+      this.updateSession({downloadActive: false})
+    }
   }
   removeSpecificDownload(taskId) {
     if (this.currentDownload && this.currentDownload.taskId === taskId) {
@@ -69,29 +76,34 @@ class DownloadTracker {
     if (this.downloadInProgress()) {
       this.currentDownload.catch(e => console.log(`${e.message === 'canceled'}\n${e}`));
       this.currentDownload.cancel((err, taskId) => console.log(`canceled download ${taskId}; err is ${err}`));
-      this.removeDownload();
-      if (cleanup) { cleanTmpDirectory().then( () => {} ) }
+      if (cleanup) {
+        this.removeDownload(true);
+        cleanTmpDirectory().then( () => {} )
+      } else {
+        this.removeDownload(false)
+      }
     }
     else {
       // throw "No download to cancel"
     }
   }
-  attachProgressTracker(progressTracker, config) {
+  attachProgressTracker(progressTracker, config, identity) {
     const enhancedProgressTracker = (received, total) => {
+      console.log(`posting progress to ${identity}`);
       // The RNFB fetch method sends strings for progress tracking, not integers...
       const [trueReceived, trueTotal] = [parseInt(received) + parseInt(this._alreadyDownloaded),
         parseInt(total) + parseInt(this._alreadyDownloaded)];
       return progressTracker(trueReceived, trueTotal)
     };
+    this.progressTracker = [enhancedProgressTracker, config];
     if (this.downloadInProgress()) {
       this.currentDownload.progress(config, enhancedProgressTracker);
-    } else
-      this.progressTracker = [enhancedProgressTracker, config];
+    }
   }
   removeProgressTracker() {
     const config = {count: 20, interval: 250};
     const logger = (received, total) => !!(received) ? console.log(`downloaded ${received}/${total} bytes, which is ${received / total}`) : console.log(0.0);
-    this.attachProgressTracker(logger, config);
+    this.attachProgressTracker(logger, config, 'dummy');
   }
   subscribe(listenerName, listenerFunc) {
     /*
@@ -104,7 +116,7 @@ class DownloadTracker {
   unsubscribe(listenerName) {
     delete this.subscriptions[listenerName];
   }
-  notify(value) {
+  notify() {
     /*
      * At the start of a download we should notify via the method that initiated the download. This should happen from a
      * UI component. This allows the UI component to send whatever messages it needs to down to all the components
@@ -113,22 +125,23 @@ class DownloadTracker {
      * At the end of a download we'll call notify(false) from the DownloadTracker. This is because only the DownloadTracker
      * can know when a download has completed
      */
-    console.log(`broadcasting notification: ${value}`);
-    this._currentDownloadNotification = value;
+    // console.log(`broadcasting notification: ${value}`);
+    // this._currentDownloadNotification = value;
     Object.values(this.subscriptions).map(x => {
       try{
-        x(value);
+        x(this._downloadSession);
       } catch (e) {
         console.log(`notification error: ${e}`)
       }
     })
   }
   getDownloadStatus() {
-    return this._currentDownloadNotification;
+    return this._downloadSession;
   }
   addEventListener(networkSetting, runEvent=false) {
     this.removeEventListener();  // keep things clean
     const allowedToDownload = state => isDownloadAllowed(state, networkSetting);
+
     const networkChangeMethod = state => {
       console.log(`network state from event listener: ${state.type}`);
       if (allowedToDownload(state)) {
@@ -148,8 +161,30 @@ class DownloadTracker {
       this.networkEventListener = null;
     }
   }
+  hasEventListener() {
+    return !!this.networkEventListener
+  }
   setAlreadyDownloaded(value) {
     this._alreadyDownloaded = value;
+  }
+  async startDownloadSession(downloadContent) {
+    this._downloadSession = {
+      downloadNotification: downloadContent,
+      downloadActive: false
+    };
+    await AsyncStorage.setItem('lastDownloadLocation', JSON.stringify(
+      {filename: null, url: null, sessionStorageLocation: null, downloadNotification: downloadContent}
+    ));
+    this.notify();
+  }
+  async removeDownloadSession() {
+    this._downloadSession = null;
+    await AsyncStorage.removeItem('lastDownloadLocation');
+    this.notify();
+  }
+  updateSession(updates) {
+    Object.assign(this._downloadSession, updates);
+    this.notify();
   }
 }
 
@@ -455,7 +490,7 @@ async function repopulateBooksState() {
   return BooksState
 }
 
-async function deleteBooks(bookList) {
+async function deleteBooks(bookList, shouldCleanTmpDirectory=true) {
   // Test with Appium
   const deleteBook = async (bookTitle) => {
     const filepath = `${FILE_DIRECTORY}/${bookTitle}.zip`;
@@ -477,8 +512,8 @@ async function deleteBooks(bookList) {
     }
   });
 
-  // deleting should clean out the tmp directory (this will clear out partially completed downloads)
-  await cleanTmpDirectory();
+  // deleting should clean out the tmp directory. This will clear out partially completed downloads, so we want to be able to opt out
+  if (shouldCleanTmpDirectory) { await cleanTmpDirectory(); }
 }
 
 async function unzipBundle(bundleSessionLocation) {
@@ -512,6 +547,11 @@ function isDownloadAllowed(networkState, downloadNetworkSetting) {
 
 async function downloadRecover(networkMode='wifiOnly') {
   console.log('attempting download recover');
+  const lastDownloadData = JSON.parse(await AsyncStorage.getItem('lastDownloadLocation'));
+  if (!lastDownloadData) {
+    console.log('no download to recover. Aborting');
+    return
+  }
   const networkState = await NetInfo.fetch();
   if (!isDownloadAllowed(networkState, networkMode)) {
     console.log('aborted due to network');
@@ -522,14 +562,20 @@ async function downloadRecover(networkMode='wifiOnly') {
     return
   } else {
   }
-  const lastDownloadData = JSON.parse(await AsyncStorage.getItem('lastDownloadLocation'));
+
 
   const { filename, url, sessionStorageLocation } = lastDownloadData ? lastDownloadData : [null, null, null];
-  if (!(filename) || !(url) || !(sessionStorageLocation)) { return }
+  if (!(filename) || !(url) || !(sessionStorageLocation)) {
+    console.log('aborted. Download data not stored properly');
+    return
+  }
 
   const exists = await RNFB.fs.exists(filename);
   if (!exists) {
-    console.log('aborted: previous download not found');
+    console.log(`restarted: previous download data not found. Previous download was to be found at ${filename}`);
+    const stat = await RNFB.fs.lstat(TMP_DIRECTORY);
+    console.log(stat);
+    await downloadBundle(url, networkMode);
     return
   }
   const sessionStorageExists = await RNFB.fs.exists(sessionStorageLocation);
@@ -541,10 +587,10 @@ async function downloadRecover(networkMode='wifiOnly') {
 
   const stat = await RNFB.fs.stat(sessionStorageLocation);
   const size = stat.size;
-  await downloadBundle(url, networkMode, null,true, size);
+  await downloadBundle(url, networkMode, true, size);
 }
 
-async function downloadBundle(bundleName, networkSetting, downloadNotification=null, recoveryMode=false, downloadFrom=0) {
+async function downloadBundle(bundleName, networkSetting, recoveryMode=false, downloadFrom=0) {
   downloadFrom = parseInt(downloadFrom);
   console.log(`recovery? ${recoveryMode} starting download from: ${downloadFrom} bytes`);
   // Test with Appium
@@ -558,11 +604,12 @@ async function downloadBundle(bundleName, networkSetting, downloadNotification=n
   };
 
   const [filename, url] = [getUniqueFilename(), getDownloadUrl(bundleName)];
+  console.log(`downloading to ${filename}`);
   let sessionStorageLocation;
   if (recoveryMode) {
     const sessionData = JSON.parse(await AsyncStorage.getItem('lastDownloadLocation'));
+    console.log(sessionData);
     sessionStorageLocation = sessionData['sessionStorageLocation'];
-    downloadNotification = sessionData['downloadNotification'];
     const exists = await RNFB.fs.exists(sessionStorageLocation);
     if (!exists){ return }
   } else {
@@ -571,7 +618,7 @@ async function downloadBundle(bundleName, networkSetting, downloadNotification=n
 
   try {
     await AsyncStorage.setItem('lastDownloadLocation', JSON.stringify(
-      {filename, url, sessionStorageLocation, downloadNotification}
+      {filename, url, sessionStorageLocation}
       )
     )
   } catch (e) {
@@ -582,7 +629,7 @@ async function downloadBundle(bundleName, networkSetting, downloadNotification=n
   // todo: review idempotent download removal requirement
   try {
     Tracker.addDownload(downloadState);
-    if(downloadNotification) { Tracker.notify(downloadNotification) }
+    Tracker.updateSession({downloadActive: true});
   } catch (e) {
     console.log(e)
   }
@@ -605,7 +652,7 @@ async function downloadBundle(bundleName, networkSetting, downloadNotification=n
     }
     return
   }
-  Tracker.removeDownload();
+  Tracker.removeDownload(true);
   Tracker.removeEventListener();
   const status = downloadResult.info().status;
   if (status >= 300 || status < 200) {
@@ -686,14 +733,20 @@ async function postDownload(downloadPath, newDownload=true, sessionStorageLoc) {
 
 async function downloadPackage(packageName, networkSetting) {
   const netState = await NetInfo.fetch();
-  if (!isDownloadAllowed(netState, networkSetting)) { return }  // todo: review: should notification to the user be sent for a forbidden download?
+  if (!isDownloadAllowed(netState, networkSetting)) {
+    Alert.alert(
+      "Download Blocked by Network",
+      `Current network setting forbids download`,
+      [{text: strings.ok}]
+    );
+  }  // todo: review: should notification to the user be sent for a forbidden download?
 
-  await downloadBundle(`${packageName}.zip`, networkSetting, packageName)
+  await downloadBundle(`${packageName}.zip`, networkSetting)
 }
 
 async function downloadUpdate(booksToDownload, networkSetting) {
   // Test with Appium
-  if (!booksToDownload){  // todo: review. Isn't this redundant? should it be !bookToDownload
+  if (!!booksToDownload){  // todo: there is a bug here, or at least in one of the methods calling this method
     booksToDownload = await calculateBooksToDownload(BooksState);
   }
   const bundleName = await requestNewBundle(booksToDownload);
@@ -701,7 +754,7 @@ async function downloadUpdate(booksToDownload, networkSetting) {
 
   // we're going to use the update as an opportunity to do some cleanup
   const booksToDelete = calculateBooksToDelete(BooksState);
-  await deleteBooks(booksToDelete);
+  await deleteBooks(booksToDelete, false);  // tmp directory is cleaned at downloadBundle. Cleaning here can prevent recovering from a failed update.
 }
 
 

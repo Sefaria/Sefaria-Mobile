@@ -2083,7 +2083,7 @@ class ReaderApp extends React.PureComponent {
               />
             <ConditionalProgressWrapper
               conditionMethod={(state, props) => {
-                return state && (props.menuOpen !== 'settings' || state === 'Update');
+                return state && (props.menuOpen !== 'settings' || state.downloadNotification === 'Update');
               }}
               initialValue={DownloadTracker.getDownloadStatus()}
               downloader={DownloadTracker}
@@ -2096,6 +2096,7 @@ class ReaderApp extends React.PureComponent {
                 }}
                 onClose={DownloadTracker.cancelDownload}
                 download={DownloadTracker}
+                identity={'ReaderApp'}
               />
             </ConditionalProgressWrapper>
               { this.renderContent() }

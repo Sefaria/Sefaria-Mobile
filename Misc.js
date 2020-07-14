@@ -2,7 +2,7 @@
 
 import PropTypes from 'prop-types';
 
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useContext, useState, useEffect, cloneElement } from 'react';
 import {
   StyleSheet,
   Text,
@@ -52,7 +52,7 @@ const SystemButton = ({ onPress, text, img, isHeb, isBlue, isLoading, extraStyle
   </GlobalStateContext.Consumer>
 );
 
-const SefariaProgressBar = ({ onPress, onClose, download }) => {
+const SefariaProgressBar = ({ onPress, onClose, download, downloadNotification, identity }) => {
   /*
    * note on configuration: an object with keys {count, interval}. Count is the max number of times the progress bar
    * will update, interval is the minimum elapsed time (ms) between updates. Hardcoding now, but we can turn this into a
@@ -64,17 +64,18 @@ const SefariaProgressBar = ({ onPress, onClose, download }) => {
   const config = {count: 20, interval: 250};
   const [ progress, setProgress ] = useState(0);
   const calculateProgress = (received, total) => !!(received) ? setProgress(received / total) : setProgress(0.0);
+  const downloadActive = !!downloadNotification ? downloadNotification.downloadActive : false;
 
   useEffect(() => {
     console.log('attaching Progress Tracker');
-    download.attachProgressTracker(calculateProgress, config);
+    download.attachProgressTracker(calculateProgress, config, identity);
     return function cleanup() {
       console.log('attaching dummy Progress Tracker');
       download.removeProgressTracker();
 
     };
   }, [download]);  // we only want to resubscribe if the downloader object changes. This shouldn't happen, but the condition is here for completeness sake
-
+  const downloadPercentage = Math.round(progress * 1000) / 10;
   return <GlobalStateContext.Consumer>
     {({themeStr, interfaceLanguage}) => (
       <TouchableOpacity onPress={!!onPress ? onPress : () => {
@@ -88,7 +89,10 @@ const SefariaProgressBar = ({ onPress, onClose, download }) => {
         <View
           style={[{flexDirection: interfaceLanguage === "hebrew" ? "row-reverse" : "row"}, styles.sefariaProgressBarOverlay]}>
           <Text
-            style={[{color: "#999"}, interfaceLanguage === "hebrew" ? styles.heInt : styles.enInt]}>{`${strings.downloading} (${Math.round(progress * 1000) / 10}%)`}</Text>
+            style={[{color: "#999"}, interfaceLanguage === "hebrew" ? styles.heInt : styles.enInt]}>{
+              downloadActive ? `${strings.downloading} (${downloadPercentage}%)`
+                : `Waiting... (${downloadPercentage}%)`
+          }</Text>
           {!!onClose ?
             <TouchableOpacity onPress={onClose}>
               <Image
@@ -117,7 +121,7 @@ const ConditionalProgressWrapper = ({ conditionMethod, initialValue, downloader,
     }
   }, []);
   if(enclosedCondition(downloadState)) {
-    return children
+    return React.cloneElement(children, {downloadNotification: downloadState})
   } else { return null }
 };
 

@@ -38,7 +38,7 @@ import {
   markLibraryForDeletion,
   Package,
   deleteBooks,
-  doubleDownload,
+  doubleDownload, getLocalBookList,
 } from './DownloadControl';
 
 const generateOptions = (options, onPress) => options.map(o => ({
@@ -82,7 +82,7 @@ const usePkgState = () => {
         await deleteBooks(booksToDelete);
       }
       else {
-        DownloadTracker.notify(pkgName);
+        await DownloadTracker.startDownloadSession(pkgName);
         await PackagesState[pkgName].markAsClicked();
         setIsDisabledObj(getIsDisabledObj());
 
@@ -140,13 +140,6 @@ function abstractUpdateChecker(disableUpdateComponent) {
   return f
 }
 
-const RandomComponent = ({ things, otherThings, ...otherProps }) => {
-  console.log(otherProps);
-  if(!!otherProps.children) {
-    return (<View>{otherProps.children}</View>)
-  } else { return null }
-};
-
 const SettingsPage = ({ close, logout, openUri }) => {
   const [numPressesDebug, setNumPressesDebug] = useState(0);
   const { themeStr, interfaceLanguage, isLoggedIn } = useContext(GlobalStateContext);
@@ -186,6 +179,14 @@ const SettingsPage = ({ close, logout, openUri }) => {
 
             <TouchableOpacity style={styles.button} onPress={deleteLibrary}>
               <Text style={[langStyle, styles.buttonText]}>{strings.deleteLibrary}</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.button} onPress={() => {
+              console.log('pressed Mess up Library');
+              getLocalBookList().then(books => {
+                deleteBooks(books).then(() => console.log('finished messing up library'));
+              })
+            }}>
+              <Text style={[langStyle, styles.buttonText]}>Mess up Library</Text>
             </TouchableOpacity>
           </View>
           : null
@@ -251,7 +252,10 @@ const ButtonToggleSection = ({ langStyle }) => {
     dispatch({
       type: STATE_ACTIONS.setDownloadNetworkSetting,
       value: wifiOnly,
-    })
+    });
+    if (DownloadTracker.hasEventListener()) {  // replace the network event listener to accomodate new setting
+      DownloadTracker.addEventListener(wifiOnly, true);
+    }
   };
   const options = {
     interfaceLanguageOptions: generateOptions(['english', 'hebrew'], setInterfaceLanguage),
@@ -326,13 +330,13 @@ const PackageComponent = ({ packageObj, onPackagePress, isDisabledObj }) => {
         withArrow={false}
       />
       <ConditionalProgressWrapper
-        conditionMethod={ (state, props) => state && state === props.packageName}
+        conditionMethod={ (state, props) => state && state.downloadNotification === props.packageName}
         initialValue={DownloadTracker.getDownloadStatus()}
         downloader={DownloadTracker}
         listenerName={`PackageComponent${packageObj.name}`}
         packageName={packageObj.name}
       >
-        <SefariaProgressBar download={DownloadTracker} />
+        <SefariaProgressBar download={DownloadTracker} identity={'SettingsPage'} />
       </ConditionalProgressWrapper>
     </View>
   )
