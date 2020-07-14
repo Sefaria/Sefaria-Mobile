@@ -1508,7 +1508,7 @@
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/rn-fetch-blob\"",
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/yoga\"",
 				);
-				MARKETING_VERSION = 5.5.13;
+				MARKETING_VERSION = 5.5.15;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -1601,7 +1601,7 @@
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/rn-fetch-blob\"",
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/yoga\"",
 				);
-				MARKETING_VERSION = 5.5.13;
+				MARKETING_VERSION = 5.5.15;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
