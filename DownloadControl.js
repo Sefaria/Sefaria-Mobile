@@ -656,6 +656,7 @@ async function downloadBundle(bundleName, networkSetting, recoveryMode=false, do
     return
   }
 
+  Tracker.removeEventListener();
   const status = downloadResult.info().status;
   if (status >= 300 || status < 200) {
     console.log(`Got status ${status} from server. Full info below`);
@@ -664,7 +665,6 @@ async function downloadBundle(bundleName, networkSetting, recoveryMode=false, do
   }
   await postDownload(downloadResult.path(), !recoveryMode, sessionStorageLocation);
   Tracker.removeDownload(true);
-  Tracker.removeEventListener();
 }
 
 async function calculateBooksToDownload(booksState) {
@@ -752,11 +752,12 @@ async function downloadPackage(packageName, networkSetting) {
 
 async function downloadUpdate(booksToDownload, networkSetting) {
   // Test with Appium
+  await Tracker.startDownloadSession('Update');
   if (!!booksToDownload){  // todo: there is a bug here, or at least in one of the methods calling this method
     booksToDownload = await calculateBooksToDownload(BooksState);
   }
   const bundleName = await requestNewBundle(booksToDownload);
-  await downloadBundle(bundleName, networkSetting, 'Update');
+  await downloadBundle(bundleName, networkSetting, false);
 
   // we're going to use the update as an opportunity to do some cleanup
   const booksToDelete = calculateBooksToDelete(BooksState);
