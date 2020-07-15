@@ -641,8 +641,8 @@ async function downloadBundle(bundleName, networkSetting, recoveryMode=false, do
   try {
     downloadResult = await downloadState;
   }  catch (e) {
-    Tracker.removeDownload();
-    if (e.message === 'canceled') { return }  // don't start again if download "failed" due to user request
+    // don't start again if download "failed" due to user request. Download Removal is handled by the cancel method
+    if (e.message === 'canceled') { return }
     else {
       /* Try again if download failed; recover will abort if the failure is due to network
        *
@@ -651,6 +651,7 @@ async function downloadBundle(bundleName, networkSetting, recoveryMode=false, do
        * important to schedule the download recovery, rather than running into it directly. Hence the call to setTimeout.
        * Further investigation recommended.
        */
+      Tracker.removeDownload();
       setTimeout(async () => await downloadRecover(networkSetting), 250);
     }
     return

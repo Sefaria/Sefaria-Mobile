@@ -75,7 +75,7 @@ const usePkgState = () => {
     const onPressActive = async (pkgName) => {
       if (PackagesState[pkgName].clicked) { // if pressed when clicked, we are removing the package
         if (DownloadTracker.downloadInProgress()) {
-          DownloadTracker.cancelDownload(`Canceling Download of ${pkgName}`, 'foo');
+          DownloadTracker.cancelDownload();
         }
         const booksToDelete = await PackagesState[pkgName].unclick();
         setIsDisabledObj(getIsDisabledObj());

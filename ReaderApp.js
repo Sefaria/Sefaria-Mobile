@@ -2094,7 +2094,7 @@ class ReaderApp extends React.PureComponent {
                 onPress={()=>{
                   this.openMenu("settings")
                 }}
-                onClose={DownloadTracker.cancelDownload}
+                onClose={() => DownloadTracker.cancelDownload()}
                 download={DownloadTracker}
                 identity={'ReaderApp'}
               />
