@@ -570,22 +570,25 @@ async function downloadRecover(networkMode='wifiOnly') {
     return
   }
 
-  const exists = await RNFB.fs.exists(filename);
-  if (!exists) {
-    console.log(`restarted: previous download data not found. Previous download was to be found at ${filename}`);
-    const stat = await RNFB.fs.lstat(TMP_DIRECTORY);
-    console.log(stat);
-    await downloadBundle(url, networkMode);
-    return
-  }
-  const sessionStorageExists = await RNFB.fs.exists(sessionStorageLocation);
-  if (sessionStorageExists) {
-    await RNFB.fs.appendFile(sessionStorageLocation, filename, 'uri');
-  } else {
-    await RNFB.fs.mv(filename, sessionStorageLocation);
+  const [cacheFileExists, sessionStorageExists] = await Promise.all([
+    RNFB.fs.exists(filename), RNFB.fs.exists(sessionStorageLocation)
+  ]);
+  // if (!cacheFileExists) {
+  //   console.log(`restarted: previous download data not found. Previous download was to be found at ${filename}`);
+  //   const stat = await RNFB.fs.lstat(TMP_DIRECTORY);
+  //   console.log(stat);
+  //   await downloadBundle(url, networkMode);
+  //   return
+  // }
+  if (cacheFileExists) {
+    if (sessionStorageExists) {
+      await RNFB.fs.appendFile(sessionStorageLocation, filename, 'uri');
+    } else {
+      await RNFB.fs.mv(filename, sessionStorageLocation);
+    }
   }
 
-  const stat = await RNFB.fs.stat(sessionStorageLocation);
+  const stat = (cacheFileExists || sessionStorageLocation) ? await RNFB.fs.stat(sessionStorageLocation) : {size:0};
   const size = stat.size;
   await downloadBundle(url, networkMode, true, size);
 }
@@ -652,13 +655,16 @@ async function downloadBundle(bundleName, networkSetting, recoveryMode=false, do
     }
     return
   }
-  Tracker.removeDownload(true);
-  Tracker.removeEventListener();
+
   const status = downloadResult.info().status;
   if (status >= 300 || status < 200) {
+    console.log(`Got status ${status} from server. Full info below`);
+    console.log(downloadResult.info());
     throw "Bad download status"  // todo: Review: do we want to throw?
   }
   await postDownload(downloadResult.path(), !recoveryMode, sessionStorageLocation);
+  Tracker.removeDownload(true);
+  Tracker.removeEventListener();
 }
 
 async function calculateBooksToDownload(booksState) {
