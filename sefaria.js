@@ -770,7 +770,7 @@ Sefaria = {
     reset: function() {
       Sefaria.links._linkContentLoadingStack = [];
     },
-    load: function(ref) {
+    loadRelated: function(ref) {
       return new Promise((resolve, reject) => {
         Sefaria.loadOfflineFile(ref, false)
         .then(data => {
@@ -789,44 +789,53 @@ Sefaria = {
               }
             }) : []
           ), []));
-          resolve(linkList);
+          resolve({links: linkList});
         })
         .catch(error => {
           if (error === ERRORS.NOT_OFFLINE) {
-            // Sefaria.api.links(ref).then(resolve); Will be loaded in related API
+            Sefaria.api.related(ref).then(resolve);
           } else { reject(error); }
         })
       });
     },
-    organizeLinksBySegment: function(links) {
-      let link_response = [];
-      //filter out books not in toc
-      links = links.filter((l)=>{
-        return l.index_title in Sefaria.booksDict;
-      });
-      for (let i = 0; i < links.length; i++) {
-        let link = links[i];
-        let linkSegIndex = parseInt(link.anchorRef.substring(link.anchorRef.lastIndexOf(':') + 1)) - 1;
-        if (!linkSegIndex && linkSegIndex !== 0) {
-          // try again. assume depth-1 text
-          linkSegIndex = parseInt(link.anchorRef.substring(link.anchorRef.lastIndexOf(' ') + 1).trim()) - 1;
-        }
-        if (!link_response[linkSegIndex]) {
-          link_response[linkSegIndex] = [];
-        }
-        link_response[linkSegIndex].push({
-          "category": link.category,
-          "sourceRef": link.sourceRef, //.substring(0,link.sourceRef.lastIndexOf(':')),
-          "sourceHeRef": link.sourceHeRef, //.substring(0,link.sourceHeRef.lastIndexOf(':')),
-          "textTitle": link.index_title,
-          "collectiveTitle": link.collectiveTitle ? link.collectiveTitle.en: null,
-          "heCollectiveTitle": link.collectiveTitle ? link.collectiveTitle.he : null,
-        });
+    getSegmentIndexFromRef: function(ref) {
+      let index = parseInt(ref.substring(ref.lastIndexOf(':') + 1)) - 1;
+      if (!index && index !== 0) {
+        // try again. assume depth-1 text
+        index = parseInt(ref.substring(ref.lastIndexOf(' ') + 1).trim()) - 1;
       }
-      return link_response;
+      return index;
     },
-    addLinksToSheet: function(sheet, links, sourceRef) {
-      let link_response = Sefaria.links.organizeLinksBySegment(links);
+    organizeRelatedBySegment: function(related) {
+      let output = {};
+      //filter out books not in toc
+      Object.entries(related).map(([key, valueList]) => {
+        if (key == 'links') { valueList = valueList.filter(l=>!!Sefaria.booksDict[l.index_title]); }
+        output[key] = [];
+        for (let value of valueList) {
+          const anchors = value.anchorRefExpanded || [value.anchorRef];  // TODO only use anchorRefExpanded
+          if (anchors.length === 0) { console.log("no anchors found", value); continue; }
+          for (let anchor of anchors) {
+            const refIndex = Sefaria.links.getSegmentIndexFromRef(anchor);
+            if (!output[key][refIndex]) { output[key][refIndex] = []; }
+            if (key == 'links') {
+              value = {
+                "category": value.category,
+                "sourceRef": value.sourceRef,
+                "sourceHeRef": value.sourceHeRef,
+                "textTitle": value.index_title,
+                "collectiveTitle": value.collectiveTitle ? value.collectiveTitle.en: null,
+                "heCollectiveTitle": value.collectiveTitle ? value.collectiveTitle.he : null,
+              };
+            }
+            output[key][refIndex].push(value);
+          }
+        }
+      });
+      return output;
+    },
+    addRelatedToSheet: function(sheet, related, sourceRef) {
+      let link_response = Sefaria.links.organizeRelatedBySegment(related);
       // flatten 2d array
       link_response = link_response.reduce((accum, curr) => accum.concat(curr), []);
       for (sheetSeg of sheet) {
@@ -836,11 +845,14 @@ Sefaria = {
       }
       return sheet;
     },
-    addLinksToText: function(text, links) {
-      const link_response = Sefaria.links.organizeLinksBySegment(links);
+    addRelatedToText: function(text, related) {
+      const related_obj = Sefaria.links.organizeRelatedBySegment(related);
       return text.map((seg,i) => ({
         ...seg,
-        links: link_response[i] ? link_response[i] : [],
+        ...Object.keys(related_obj).reduce((obj, x) => {
+          obj[x] = related_obj[x][i] || [];
+          return obj;
+        }, {}),
       }));
     },
     loadLinkData: function(ref, pos, resolveClosure, rejectClosure, runNow) {
