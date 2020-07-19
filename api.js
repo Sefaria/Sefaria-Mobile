@@ -210,7 +210,7 @@ var Api = {
       }
     }
     if (urlify) {
-      ref = ref.replace(/:/g,'.').replace(/ /g,'_');
+      ref = ref.replace(/:/g,'.').replace(/ (?=[^ ]+$)/, '.').replace(/ /g,'_');
     }
     url += ref + urlSuffix;
     return url;
@@ -625,7 +625,6 @@ failSilently - if true, dont display a message if api call fails
     return new Promise(function(resolve, reject) {
       fetch(url, {method: 'GET', signal, headers })
       .then(function(response) {
-        //console.log('checking response',response.status);
         if (response.status >= 200 && response.status < 300) {
           return response;
         } else {
@@ -635,16 +634,21 @@ failSilently - if true, dont display a message if api call fails
       })
       .then(response => response.json())
       .then(json => {
-        if ("error" in json && !failSilently) {
-          Alert.alert(
-            strings.textUnavailable,
-            strings.textUnavailableMessage,
-            [{text: strings.ok, onPress: () => { reject("Return to Nav"); } }]);
+        if ("error" in json) {
+          if (!failSilently) {
+            Alert.alert(
+              strings.textUnavailable,
+              strings.textUnavailableMessage,
+              [{text: strings.ok, onPress: () => { reject("Return to Nav"); } }]);
+          } else {
+            reject("Return to Nav");
+          }
         } else {
           resolve(json);
         }
       })
       .catch((response)=>{
+        console.log("API ERROR", response, url);
         if (failSilently) {
           reject("Return to Nav");
         } else {

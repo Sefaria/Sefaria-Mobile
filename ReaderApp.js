@@ -721,7 +721,7 @@ class ReaderApp extends React.PureComponent {
     // Links are not loaded yet in case you're in API mode, or you are reading a non-default version
     const iSec = isSheet ? 0 : this.state.sectionArray.findIndex(secRef=>secRef===ref);
     if (!iSec && iSec !== 0) { console.log("could not find section ref in sectionArray", ref); return; }
-    Sefaria.links.loadRelated(ref)
+    return Sefaria.links.loadRelated(ref)
       .then(response => {
         //add the related data into the appropriate section and reload
         if (isSheet) {
@@ -933,7 +933,8 @@ class ReaderApp extends React.PureComponent {
         if (addToBackStack) {
           BackManager.forward({ state: this.state, calledFrom });
         }
-        sheet.sources.filter(source => 'ref' in source).map(source => this.loadRelated(source.ref, true));
+        const sourceRefs = sheet.sources.filter(source => 'ref' in source).map(source => source.ref);
+        Sefaria.util.procuderal_promise_on_array(sourceRefs, this.loadRelated, [true]);
       });
     });
   };

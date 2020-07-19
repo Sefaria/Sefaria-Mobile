@@ -550,7 +550,7 @@ Sefaria = {
         }
       }
     }
-    commentators = {
+    const commentators = {
       en: [...en],
       he: [...he]
     }
@@ -793,7 +793,7 @@ Sefaria = {
         })
         .catch(error => {
           if (error === ERRORS.NOT_OFFLINE) {
-            Sefaria.api.related(ref).then(resolve);
+            Sefaria.api.related(ref).then(resolve).catch(reject);
           } else { reject(error); }
         })
       });
@@ -835,14 +835,17 @@ Sefaria = {
       return output;
     },
     addRelatedToSheet: function(sheet, related, sourceRef) {
-      let link_response = Sefaria.links.organizeRelatedBySegment(related);
-      // flatten 2d array
-      link_response = link_response.reduce((accum, curr) => accum.concat(curr), []);
-      for (sheetSeg of sheet) {
-        if (sheetSeg.sourceRef === sourceRef) {
-          sheetSeg.links = link_response;
-        }
+      const related_obj = Sefaria.links.organizeRelatedBySegment(related);
+      const sheetSegIndexes = [];
+      for (let i = 0; i < sheet.length; i++) {
+        if (sheet[i].sourceRef === sourceRef) { sheetSegIndexes.push(i); }
       }
+      Object.entries(related_obj).map(([key, valueList]) => {
+        const flattenedValues = valueList.reduce((accum, curr) => accum.concat(curr), []);
+        for (let i of sheetSegIndexes) {
+          sheet[i][key] = flattenedValues;
+        }
+      });
       return sheet;
     },
     addRelatedToText: function(text, related) {
@@ -1127,6 +1130,17 @@ Sefaria = {
 };
 
 Sefaria.util = {
+  procuderal_promise_on_array: async function(array, promise, extra_params) {
+    // run `promise` for each item of `array` one-by-one. useful for making multiple API calls that don't trip over each other
+    // extra_params should be passed as an array
+    for (let item of array) {
+      try {
+        await promise(item, ...extra_params);
+      } catch (e) {
+        continue;
+      }
+    }
+  },
   get_menu_language: function(interfaceLanguage, textLanguage) {
     //menu language is no longer set explicitly
     //Instead, it is set like this
