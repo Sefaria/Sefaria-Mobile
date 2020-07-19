@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import React, { useState, useEffect, useContext, Fragment } from 'react';
 import {
   Animated,
-  TouchableOpacity,
+  Pressable,
   Platform,
   Share,
   Text,
@@ -88,6 +88,9 @@ const TextSegment = React.memo(({
     menuItems.splice(1, 1);
   }
   return (
+    <Pressable
+      onPress={()=>onPress()}
+    >
       <SelectableText
         menuItems={menuItems}
         onSelection={({ eventType, content }) => {
@@ -110,6 +113,7 @@ const TextSegment = React.memo(({
           },
         }}
       />
+    </Pressable>
   );
 });
 TextSegment.whyDidYouRender = true;

@@ -14,6 +14,7 @@ import {
   SText,
 } from './Misc';
 import styles from './Styles.js';
+import strings from './LocalizedStrings';
 import { GlobalStateContext, getTheme } from './StateManager';
 
 const shouldActivate = selectedWords => {
@@ -34,6 +35,8 @@ const getLookups = (words, oref) => {
 const LexiconBox = ({ selectedWords, oref, openUriOrRef }) => {
   const [loaded, setLoaded] = useState(false);
   const [entries, setEntries] = useState([]);
+  const {themeStr, fontSize, interfaceLanguage} = useContext(GlobalStateContext);
+  const theme = getTheme(themeStr);
   useEffect(() => {
     if (selectedWords && shouldActivate(selectedWords)) {
       getLookups(selectedWords, oref).then(data => {
@@ -51,7 +54,8 @@ const LexiconBox = ({ selectedWords, oref, openUriOrRef }) => {
   const activated = shouldActivate(selectedWords);
   const enEmpty = `No definitions found${activated ? ` for "${ selectedWords }".` : ''}`;
   const heEmpty = `לא נמצאו תוצאות${activated ? ` "${ selectedWords}".` : ''}`;
-  let content = (<Text>{enEmpty}</Text>);
+  const isHeb = interfaceLanguage === 'hebrew';
+  let content = (<Text style={[isHeb ? styles.heInt : styles.enInt, {paddingTop: 15}, theme.text]}>{isHeb ? heEmpty : enEmpty}</Text>);
   if (activated) {
     if(!loaded) {
         content = (<LoadingView />);
@@ -71,6 +75,10 @@ const LexiconBox = ({ selectedWords, oref, openUriOrRef }) => {
 
   return (
     <ScrollView style={{flex: 1}} key={selectedWords} contentContainerStyle={{paddingLeft: 42, paddingRight: 64, paddingTop: 20, paddingBottom: 40}}>
+      <View style={[{flexDirection: isHeb ? "row-reverse" : "row", borderBottomWidth: 1, paddingBottom: 15}, theme.borderedBottom]}>
+        <Text style={[styles.enInt, theme.tertiaryText, {fontSize: 0.8*fontSize, lineHeight: fontSize*1.3}]}>{`${strings.define}: `}</Text>
+        <Text style={[styles.he, {fontSize}]}>{selectedWords}</Text>
+      </View>
       { content }
     </ScrollView>
   );
