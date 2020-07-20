@@ -9,10 +9,12 @@ import {
   Platform,
   Share,
   Text,
+  View,
 } from 'react-native';
 import HTMLView from 'react-native-htmlview'; //to convert html'afied JSON to something react can render (https://github.com/jsdf/react-native-htmlview)
 import { SelectableText } from "@astrocoders/react-native-selectable-text";
 import Clipboard from "@react-native-community/clipboard";
+import { TapGestureHandler, State } from 'react-native-gesture-handler';
 
 import { GlobalStateContext, getTheme } from './StateManager';
 import styles from './Styles.js';
@@ -88,9 +90,15 @@ const TextSegment = React.memo(({
     menuItems.splice(1, 1);
   }
   return (
-    <Pressable
-      onPress={()=>onPress()}
+    <TapGestureHandler
+      maxDurationMs={370}
+      onHandlerStateChange={({ nativeEvent })=> {
+        if (nativeEvent.state === State.ACTIVE) {
+          onPress();
+        }
+      }}
     >
+      <View>
       <SelectableText
         menuItems={menuItems}
         onSelection={({ eventType, content }) => {
@@ -113,7 +121,8 @@ const TextSegment = React.memo(({
           },
         }}
       />
-    </Pressable>
+      </View>
+    </TapGestureHandler>
   );
 });
 TextSegment.whyDidYouRender = true;
