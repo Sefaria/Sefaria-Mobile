@@ -14,7 +14,6 @@ import {
 import HTMLView from 'react-native-htmlview'; //to convert html'afied JSON to something react can render (https://github.com/jsdf/react-native-htmlview)
 import { SelectableText } from "@astrocoders/react-native-selectable-text";
 import Clipboard from "@react-native-community/clipboard";
-import { TapGestureHandler, State } from 'react-native-gesture-handler';
 
 import { GlobalStateContext, getTheme } from './StateManager';
 import styles from './Styles.js';
@@ -26,11 +25,11 @@ const TextSegment = React.memo(({
   data,
   textType,
   bilingual,
-  textSegmentPressed,
   fontScale,
   setDictionaryLookup,
   showToast,
   openUriOrRef,
+  onPress,
 }) => {
   const [resetKey, setResetKey] = useState(0);
   const { themeStr, fontSize, biLayout } = useContext(GlobalStateContext);
@@ -39,12 +38,6 @@ const TextSegment = React.memo(({
     return () => {};
   }, [themeStr, fontSize]);
   const theme = getTheme(themeStr);
-  const onPress = (onlyOpen) => {
-    let key = segmentKey;
-    let section = parseInt(key.split(":")[0]);
-    let segment = parseInt(key.split(":")[1]);
-    textSegmentPressed(section, segment, segmentRef, onlyOpen);
-  };
   const getTextWithUrl = (text, withUrl) => {
     return withUrl ? `${text}\n\n${Sefaria.refToUrl(segmentRef)}` : text;
   };
@@ -90,39 +83,28 @@ const TextSegment = React.memo(({
     menuItems.splice(1, 1);
   }
   return (
-    <TapGestureHandler
-      maxDurationMs={370}
-      onHandlerStateChange={({ nativeEvent })=> {
-        if (nativeEvent.state === State.ACTIVE) {
-          onPress();
-        }
+    <SelectableText
+      menuItems={menuItems}
+      onSelection={({ eventType, content }) => {
+        if (eventType == 'Copy') { copyToClipboard(content); }
+        else if (eventType == 'Share') { shareText(content); }
+        else { onPress(true); setDictionaryLookup({ dictLookup: content }); }
       }}
-    >
-      <View>
-      <SelectableText
-        menuItems={menuItems}
-        onSelection={({ eventType, content }) => {
-          if (eventType == 'Copy') { copyToClipboard(content); }
-          else if (eventType == 'Share') { shareText(content); }
-          else { onPress(true); setDictionaryLookup({ dictLookup: content }); }
-        }}
-        value={data}
-        textValueProp={'value'}
-        TextComponent={HTMLView}
-        textComponentProps={{
-          stylesheet: {...styles, ...smallSheet},
-          RootComponent: Text,
-          TextComponent: Animated.Text,
-          onLinkPress: openUriOrRef,
-          textComponentProps: {
-            suppressHighlighting: false,
-            key: segmentKey,
-            style: style,
-          },
-        }}
-      />
-      </View>
-    </TapGestureHandler>
+      value={data}
+      textValueProp={'value'}
+      TextComponent={HTMLView}
+      textComponentProps={{
+        stylesheet: {...styles, ...smallSheet},
+        RootComponent: Text,
+        TextComponent: Animated.Text,
+        onLinkPress: openUriOrRef,
+        textComponentProps: {
+          suppressHighlighting: false,
+          key: segmentKey,
+          style: style,
+        },
+      }}
+    />
   );
 });
 TextSegment.whyDidYouRender = true;
