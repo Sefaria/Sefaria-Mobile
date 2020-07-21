@@ -849,6 +849,9 @@ class ReaderApp extends React.PureComponent {
   openRefSheet = (sheetID, sheetMeta, addToBackStack=false, calledFrom) => {
       this.setState({
           loaded: false,
+          textListVisible: false,
+          sheet: null,
+          sheetMeta: null,
       }, () => {
           this.loadSheet(sheetID, sheetMeta,addToBackStack, calledFrom);
       });
@@ -1937,7 +1940,7 @@ class ReaderApp extends React.PureComponent {
     let textColumnFlex = this.state.textListVisible ? 1.0 - this.state.textListFlex : 1.0;
     let relatedData = {};
     try {
-      relatedData = this.state.data[this.state.sectionIndexRef][this.state.segmentIndexRef].relatedWOLinks;
+      relatedData = this.state.data[this.state.sectionIndexRef][this.state.segmentIndexRef].relatedWOLinks || {};
     } catch(e) {}
     return (
       <PinchGestureHandler
@@ -2028,6 +2031,7 @@ class ReaderApp extends React.PureComponent {
                 categories={Sefaria.categoriesForTitle(this.state.textTitle, isSheet)}
                 textFlow={this.state.textFlow}
                 openRef={this.openRefConnectionsPanel}
+                openRefSheet={this.openRefSheet}
                 setConnectionsMode={this.setConnectionsMode}
                 openFilter={this.openFilter}
                 closeCat={this.closeLinkCat}

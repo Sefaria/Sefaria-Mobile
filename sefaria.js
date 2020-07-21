@@ -843,7 +843,12 @@ Sefaria = {
       Object.entries(related_obj).map(([key, valueList]) => {
         const flattenedValues = valueList.reduce((accum, curr) => accum.concat(curr), []);
         for (let i of sheetSegIndexes) {
-          sheet[i][key] = flattenedValues;
+          if (key === 'links') {
+            sheet[i][key] = flattenedValues;
+          } else {
+            if (!sheet[i].relatedWOLinks) { sheet[i].relatedWOLinks = []; }
+            sheet[i].relatedWOLinks[key] = flattenedValues;
+          }
         }
       });
       return sheet;

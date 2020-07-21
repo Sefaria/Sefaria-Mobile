@@ -9,6 +9,7 @@ import {
   Image,
   TouchableOpacity,
   Dimensions,
+  Pressable,
 } from 'react-native';
 import styles from './Styles';
 import strings from './LocalizedStrings';
@@ -181,11 +182,24 @@ class ConnectionsPanel extends React.PureComponent {
         return (
           <View style={[styles.mainTextPanel, styles.textColumn, this.props.theme.textListContentOuter, {maxWidth: null, flex: this.props.textListFlex}]}>
             {connectionsPanelHeader}
-            <View style={{flex: 1}}>
-              { this.props.relatedData.sheets && this.props.relatedData.sheets.map(sheet => (
-                <Text key={sheet.id}>{ sheet.title }</Text>
-              )) }
-            </View>
+            <FlatList
+              data={this.props.relatedData.sheets}
+              renderItem={({ item:sheet }) => (
+                <Pressable onPress={()=> this.props.openRefSheet(sheet.id, sheet)} android_ripple={{color: "#ccc"}} key={sheet.id} style={[{borderBottomWidth: 1, paddingVertical: 13}, this.props.theme.bordered, styles.readerSidePadding]}>
+                  <Text style={[{marginBottom: 7, fontSize: 20, lineHeight: 27}, styles.en, this.props.theme.en]}>{ sheet.title.replace(/\s\s+/g, ' ') }</Text>
+                  <View style={[{flexDirection: "row" }]}>
+                    <Image
+                      style={styles.userAvatar}
+                      source={{uri: sheet.ownerImageUrl}}
+                    />
+                    <View style={[{marginHorizontal: 10}]}>
+                      <Text>{sheet.ownerName}</Text>
+                      <Text>{sheet.topics && sheet.topics.map(topic => topic.asTyped).join(', ')}</Text>
+                    </View>
+                  </View>
+                </Pressable>
+              )}
+            />
           </View>
         );
       default:
@@ -312,13 +326,12 @@ class ResourcesList extends React.PureComponent {
     const isSaved = Sefaria.history.indexOfSaved(this.props.segmentRef) !== -1;
     return (
       <View>
-        {
-          this.props.sheet ? null : <ToolsButton
-           text={strings.sheets}
-           icon={isWhite ? require("./img/sheet.png") : require("./img/sheet.png")}
-           count={this.props.sheetsCount}
-           onPress={()=>{ this.props.setConnectionsMode("sheetsByRef"); }}
-        /> }
+        <ToolsButton
+          text={strings.sheets}
+          icon={isWhite ? require("./img/sheet.png") : require("./img/sheet.png")}
+          count={this.props.sheetsCount}
+          onPress={()=>{ this.props.setConnectionsMode("sheetsByRef"); }}
+        />
         <ToolsButton
           text={strings.about}
           icon={isWhite ? require("./img/book.png") : require("./img/book-light.png")}
@@ -358,15 +371,15 @@ const ToolsButton = ({ text, onPress, icon, count }) => {
   const iconComp = icon ? (<View style={styles.toolsButtonIcon}><Image source={icon} style={styles.menuButton} resizeMode={'contain'}></Image></View>) : null;
   const countComp = !!count || count === 0 ? <Text style={[styles.enInt, theme.secondaryText, styles.spacedText]}>{` (${count}) `}</Text> : null
   return (
-    <TouchableOpacity
+    <Pressable
       style={[styles.searchFilterCat, styles.toolsButton, flexDir, theme.bordered]}
       onPress={onPress}
-      delayPressIn={200}
+      android_ripple={{color: "#ccc"}}
     >
       { iconComp }
       <Text style={[textStyle, styles.spacedText, styles.toolsButtonText, theme.tertiaryText]}>{text}</Text>
       { countComp }
-    </TouchableOpacity>
+    </Pressable>
   );
 };
 ToolsButton.propTypes = {

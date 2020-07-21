@@ -105,6 +105,9 @@ export default StyleSheet.create({
   readerSideMargin: {
     marginHorizontal: iPad ? readerSideMarginIpad : readerSideMargin,
   },
+  readerSidePadding: {
+    paddingHorizontal: iPad ? readerSideMarginIpad : readerSideMargin,
+  },
   safeArea: {
     flex: 1,
     backgroundColor: "#000",
