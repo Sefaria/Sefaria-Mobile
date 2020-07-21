@@ -126,7 +126,6 @@ class ReaderApp extends React.PureComponent {
         versionsApiError: false,
         versionStaleRecentFilters: [],
         versionContents: [],
-        sheetsByRef: [],
         textSearchState: new SearchState({
           type: 'text'
         }),
@@ -713,6 +712,7 @@ class ReaderApp extends React.PureComponent {
     //loads secondary data every time a section is loaded
     //this data is not required for initial renderring of the section
     this.loadRelated(ref);
+    this.loadVersions(ref);
   };
 
   loadRelated = (ref, isSheet) => {
@@ -1935,6 +1935,10 @@ class ReaderApp extends React.PureComponent {
         Sefaria.track.setScreen(this.state.textTitle, "reader")
     }
     let textColumnFlex = this.state.textListVisible ? 1.0 - this.state.textListFlex : 1.0;
+    let relatedData = {};
+    try {
+      relatedData = this.state.data[this.state.sectionIndexRef][this.state.segmentIndexRef].relatedWOLinks;
+    } catch(e) {}
     return (
       <PinchGestureHandler
         onGestureEvent={this._onPinchGestureEvent}
@@ -2043,7 +2047,7 @@ class ReaderApp extends React.PureComponent {
                 currVersions={this.state.currVersions}
                 versions={this.state.versions}
                 versionsApiError={this.state.versionsApiError}
-                sheetsByRef={this.state.sheetsByRef}
+                relatedData={relatedData}
                 onDragStart={this.onTextListDragStart}
                 onDragMove={this.onTextListDragMove}
                 onDragEnd={this.onTextListDragEnd}

@@ -852,10 +852,13 @@ Sefaria = {
       const related_obj = Sefaria.links.organizeRelatedBySegment(related);
       return text.map((seg,i) => ({
         ...seg,
-        ...Object.keys(related_obj).reduce((obj, x) => {
-          obj[x] = related_obj[x][i] || [];
-          return obj;
-        }, {}),
+        links: related_obj.links[i] || [],
+        relatedWOLinks: {
+          ...Object.keys(related_obj).filter(x => x !== 'links').reduce((obj, x) => {
+            obj[x] = related_obj[x][i] || [];
+            return obj;
+          }, {}),
+        },
       }));
     },
     loadLinkData: function(ref, pos, resolveClosure, rejectClosure, runNow) {

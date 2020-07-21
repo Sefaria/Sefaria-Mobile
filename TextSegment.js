@@ -5,10 +5,12 @@ import PropTypes from 'prop-types';
 import React, { useState, useEffect, useContext, Fragment } from 'react';
 import {
   Animated,
-  TouchableOpacity,
+  Pressable,
   Platform,
   Share,
   Text,
+  View,
+  TouchableOpacity,
 } from 'react-native';
 import HTMLView from 'react-native-htmlview'; //to convert html'afied JSON to something react can render (https://github.com/jsdf/react-native-htmlview)
 import { SelectableText } from "@astrocoders/react-native-selectable-text";
@@ -24,11 +26,11 @@ const TextSegment = React.memo(({
   data,
   textType,
   bilingual,
-  textSegmentPressed,
   fontScale,
   setDictionaryLookup,
   showToast,
   openUriOrRef,
+  onPress,
 }) => {
   const [resetKey, setResetKey] = useState(0);
   const { themeStr, fontSize, biLayout } = useContext(GlobalStateContext);
@@ -37,12 +39,6 @@ const TextSegment = React.memo(({
     return () => {};
   }, [themeStr, fontSize]);
   const theme = getTheme(themeStr);
-  const onPress = (onlyOpen) => {
-    let key = segmentKey;
-    let section = parseInt(key.split(":")[0]);
-    let segment = parseInt(key.split(":")[1]);
-    textSegmentPressed(section, segment, segmentRef, onlyOpen);
-  };
   const getTextWithUrl = (text, withUrl) => {
     return withUrl ? `${text}\n\n${Sefaria.refToUrl(segmentRef)}` : text;
   };

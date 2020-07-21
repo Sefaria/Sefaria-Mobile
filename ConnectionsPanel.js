@@ -182,9 +182,9 @@ class ConnectionsPanel extends React.PureComponent {
           <View style={[styles.mainTextPanel, styles.textColumn, this.props.theme.textListContentOuter, {maxWidth: null, flex: this.props.textListFlex}]}>
             {connectionsPanelHeader}
             <View style={{flex: 1}}>
-              { this.props.sheetsByRef.map((sheet, i) => {
-                return <Text key={i}>{sheet.title}</Text>
-              })}
+              { this.props.relatedData.sheets && this.props.relatedData.sheets.map(sheet => (
+                <Text key={sheet.id}>{ sheet.title }</Text>
+              )) }
             </View>
           </View>
         );
@@ -253,7 +253,7 @@ class ConnectionsPanel extends React.PureComponent {
                 sheet={this.props.sheet}
                 themeStr={this.props.themeStr}
                 versionsCount={this.props.versions.length}
-                sheetsCount={this.props.sheetsByRef.length}
+                sheetsCount={this.props.relatedData.sheets ? this.props.relatedData.sheets.length : 0}
                 setConnectionsMode={this.props.setConnectionsMode}
                 segmentRef={this.props.segmentRef}
                 heSegmentRef={this.props.heSegmentRef}
