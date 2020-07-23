@@ -12,7 +12,7 @@ import { GlobalStateContext, getTheme } from './StateManager';
 import TextSegment from './TextSegment';
 import styles from './Styles';
 import strings from './LocalizedStrings';
-import { TapGestureHandler, State, TouchableOpacity } from 'react-native-gesture-handler';
+import { TapGestureHandler, State } from 'react-native-gesture-handler';
 
 
 const TextRange = React.memo(({
@@ -81,8 +81,12 @@ const TextRange = React.memo(({
     textSegmentPressed(section, segment, segmentRef, onlyOpen);
   };
   return (
-    <TouchableOpacity
-      onPress={() => onPress()} 
+    <TapGestureHandler
+      onHandlerStateChange={({ nativeEvent }) => {
+        if (nativeEvent.state === State.ACTIVE) {
+          onPress();
+        }
+      }} 
     >
       <View
         style={styles.verseContainer}
@@ -139,7 +143,7 @@ const TextRange = React.memo(({
           { bulletMargin }
         </View>
       </View>
-    </TouchableOpacity>
+    </TapGestureHandler>
   );
 });
 TextRange.whyDidYouRender = true;
