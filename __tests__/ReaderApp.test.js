@@ -5,6 +5,9 @@ import TestContextWrapper from '../TestContextWrapper';
 import ReaderApp from '../ReaderApp';
 import BackgroundFetch from 'react-native-background-fetch';
 import { DEFAULT_STATE } from '../StateManager';
+// import mockRNCNetInfo from '@react-native-community/netinfo/jest/netinfo-mock.js';
+//
+// jest.mock('@react-native-community/netinfo', () => mockRNCNetInfo);
 
 const settingsObject = {
   interface_language: DEFAULT_STATE.interfaceLanguage,

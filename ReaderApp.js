@@ -148,6 +148,7 @@ class ReaderApp extends React.PureComponent {
         ReaderDisplayOptionsMenuVisible: false,
         overwriteVersions: true, // false when you navigate to a text but dont want the current version to overwrite your sticky version
     };
+    this.NetInfoEventListener = () => {};  // calling the event listener unsubcribes, initialize to a null method
   }
 
   componentDidMount() {
@@ -164,8 +165,7 @@ class ReaderApp extends React.PureComponent {
     }, this.onBackgroundSync, error => console.log('error starting BackgroundFetch'));
     this.initFiles();
     Sefaria.track.init();
-    NetInfo.isConnected.addEventListener(
-      'connectionChange',
+    this.NetInfoEventListener = NetInfo.addEventListener(
       this.networkChangeListener
     );
     BackHandler.addEventListener('hardwareBackPress', this.manageBack);
@@ -184,8 +184,8 @@ class ReaderApp extends React.PureComponent {
     });
   };
 
-  networkChangeListener = isConnected => {
-    this.setState({hasInternet: isConnected});
+  networkChangeListener = netState => {
+    this.setState({hasInternet: netState.isConnected});
   };
   setSearchTypeState = type => {
     this.setState({searchType: type});
@@ -194,10 +194,7 @@ class ReaderApp extends React.PureComponent {
 
   componentWillUnmount() {
     BackHandler.removeEventListener('hardwareBackPress', this.manageBack);
-    NetInfo.isConnected.removeEventListener(
-      'connectionChange',
-      this.networkChangeListener
-    );
+    this.NetInfoEventListener();  // calling the event listener unsubcribes
     Linking.removeEventListener('url', this.handleOpenURL);
     RNShake.removeEventListener('ShakeEvent');
     DownloadTracker.unsubscribe('ReaderApp')

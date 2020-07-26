@@ -14,7 +14,7 @@ import {
   PermissionsAndroid,
 } from 'react-native';
 import VersionNumber from 'react-native-version-number';
-
+import NetInfo from "@react-native-community/netinfo";
 import ProgressBar from './ProgressBar';
 import {
   CategoryColorLine,
@@ -39,7 +39,9 @@ import {
   Package,
   deleteBooks,
   doubleDownload, getLocalBookList,
+  isDownloadAllowed,
 } from './DownloadControl';
+const DEBUG_MODE = false;
 
 const generateOptions = (options, onPress) => options.map(o => ({
   name: o,
@@ -67,11 +69,9 @@ const onPressDisabled = (child, parent) => {
 
 const usePkgState = () => {
   const { interfaceLanguage, downloadNetworkSetting } = useContext(GlobalStateContext);
-  console.log(`checking Network setting from useContext: ${downloadNetworkSetting}`);
   const [isDisabledObj, setIsDisabledObj] = useState(getIsDisabledObj());  // React Hook
 
   const onPackagePress = async (pkgObj, setDownloadFunction) => {
-    console.log(`onPackagePress running for package ${pkgObj.name}`);
     const onPressActive = async (pkgName) => {
       if (PackagesState[pkgName].clicked) { // if pressed when clicked, we are removing the package
         if (DownloadTracker.downloadInProgress()) {
@@ -82,6 +82,15 @@ const usePkgState = () => {
         await deleteBooks(booksToDelete);
       }
       else {
+        const netState = await NetInfo.fetch();
+        if (!isDownloadAllowed(netState, downloadNetworkSetting)) {
+          Alert.alert(
+            "Download Blocked by Network",
+            `Current network setting forbids download. Please change settings or connect to internet and try again.`,
+            [{text: strings.ok}]
+          );
+          return
+        }
         await DownloadTracker.startDownloadSession(pkgName);
         await PackagesState[pkgName].markAsClicked();
         setIsDisabledObj(getIsDisabledObj());
@@ -110,7 +119,7 @@ const usePkgState = () => {
   };
 };
 
-function abstractUpdateChecker(disableUpdateComponent) {
+function abstractUpdateChecker(disableUpdateComponent, networkMode) {
   async function f() {
     if (DownloadTracker.downloadInProgress()) {
       doubleDownload();
@@ -121,7 +130,7 @@ function abstractUpdateChecker(disableUpdateComponent) {
       const [totalDownloads, newBooks] = await checkUpdatesFromServer();
 
       if (totalDownloads.length > 0) {
-        promptLibraryUpdate(totalDownloads, newBooks);
+        promptLibraryUpdate(totalDownloads, newBooks, networkMode);
       }
       else {
         Alert.alert(
@@ -142,11 +151,11 @@ function abstractUpdateChecker(disableUpdateComponent) {
 
 const SettingsPage = ({ close, logout, openUri }) => {
   const [numPressesDebug, setNumPressesDebug] = useState(0);
-  const { themeStr, interfaceLanguage, isLoggedIn } = useContext(GlobalStateContext);
+  const { themeStr, interfaceLanguage, isLoggedIn, downloadNetworkSetting } = useContext(GlobalStateContext);
   const { isDisabledObj, setIsDisabledObj, onPackagePress } = usePkgState();
   const theme = getTheme(themeStr);
   const [updatesDisabled, setUpdatesDisabled] = useState(false);
-  const checkUpdatesForSettings = abstractUpdateChecker(setUpdatesDisabled);
+  const checkUpdatesForSettings = abstractUpdateChecker(setUpdatesDisabled, downloadNetworkSetting);
 
   const deleteLibrary = async () => {
     const booksToDelete = await markLibraryForDeletion();
@@ -180,14 +189,14 @@ const SettingsPage = ({ close, logout, openUri }) => {
             <TouchableOpacity style={styles.button} onPress={deleteLibrary}>
               <Text style={[langStyle, styles.buttonText]}>{strings.deleteLibrary}</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.button} onPress={() => {
+            {DEBUG_MODE ? <TouchableOpacity style={styles.button} onPress={() => {
               console.log('pressed Mess up Library');
               getLocalBookList().then(books => {
                 deleteBooks(books).then(() => console.log('finished messing up library'));
               })
             }}>
               <Text style={[langStyle, styles.buttonText]}>Mess up Library</Text>
-            </TouchableOpacity>
+            </TouchableOpacity> : null}
           </View>
           : null
         }
@@ -253,7 +262,7 @@ const ButtonToggleSection = ({ langStyle }) => {
       type: STATE_ACTIONS.setDownloadNetworkSetting,
       value: wifiOnly,
     });
-    if (DownloadTracker.hasEventListener()) {  // replace the network event listener to accomodate new setting
+    if (DownloadTracker.hasEventListener()) {  // replace the network event listener to accommodate new setting
       DownloadTracker.addEventListener(wifiOnly, true);
     }
   };
@@ -312,7 +321,6 @@ const PackageComponent = ({ packageObj, onPackagePress, isDisabledObj }) => {
   const isSelected = packageObj.clicked;
 
   const onPress = async () => {
-    console.log('onPress running');
     await onPackagePress(packageObj);
   };
 

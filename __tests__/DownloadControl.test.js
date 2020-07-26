@@ -8,7 +8,7 @@ import {
   loadJSONFile,
   downloadBundle,
   getFullBookList,
-  FILE_DIRECTORY, calculateBooksToDownload, calculateBooksToDelete
+  FILE_DIRECTORY, calculateBooksToDownload, calculateBooksToDelete, autoUpdateCheck
 } from '../DownloadControl'
 import AsyncStorage from '@react-native-community/async-storage';
 import Sefaria from '../sefaria'
@@ -103,43 +103,6 @@ beforeEach(async () => {
 afterEach(async () => {
   await RNFB.fs.clear();
   await AsyncStorage.clear();
-});
-
-describe('downloadBundle_tests', () => {
-  test('Successful download', () => {
-    return downloadBundle(['books']).then(response => {
-      expect(response.info()).toEqual({status: 200});
-    })
-  });
-
-  test ('Bad download status', () => {
-    RNFB.config.mockImplementation(() => {
-      return {
-        fetch: () => Object.assign(
-          Promise.resolve({
-            info: () => {
-              return {status: 404}
-            }
-          }), { expire: jest.fn() })
-      }
-    });
-    expect.assertions(1);
-    return downloadBundle(['books']).catch(e => expect(e).toMatch("Bad download status"));
-  });
-
-  test ('total download failure', () => {
-    RNFB.config.mockImplementationOnce(() => {
-      return {
-        fetch: () => {
-          return Object.assign(Promise.reject('error'), { expire: jest.fn() })
-          }
-        }
-      }
-    );
-    return downloadBundle(['books']).catch(e => expect(e).toMatch("error"));
-  });
-
-
 });
 
 describe('InitializationTests', () => {
@@ -286,7 +249,39 @@ describe('UpdateTests', () => {
   })
 });
 
-describe('noLastUpdated', () => {});
+describe('lastUpdated', () => {
+  beforeEach(async () => {
+    await AsyncStorage.clear();
+  });
+  const setDate = async daysAgo => {
+    let d = new Date();
+    d.setDate(d.getDate() - daysAgo);
+    await AsyncStorage.setItem('lastUpdateCheck', d.toJSON());
+  };
+  const setup = async () => {
+    await AsyncStorage.setItem('packagesSelected', JSON.stringify({
+      'COMPLETE LIBRARY': true
+    }));
+    await packageSetupProtocol();
+  };
+  test('noLibrary', async () => {
+    await packageSetupProtocol();
+    const requiresUpdate = await autoUpdateCheck();
+    expect(requiresUpdate).toBe(false);
+  });
+  test('updatedRecently', async () => {
+    await setup();
+    await setDate(1);
+    const requiresUpdate = await autoUpdateCheck();
+    expect(requiresUpdate).toBe(false);
+  });
+  test('updatedALongTimeAgo', async () => {
+    await setup();
+    await setDate(10);
+    const requiresUpdate = await autoUpdateCheck();
+    expect(requiresUpdate).toBe(true);
+  });
+});
 
 describe('testMocking', () => {
   // These tests are sanity checks to make sure the mocks are behaving as intended
@@ -335,7 +330,3 @@ describe('testMocking', () => {
   });
 });
 
-/*
- * TEST LIST:
- * 1.
- */
