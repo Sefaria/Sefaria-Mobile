@@ -20,6 +20,19 @@ import Sefaria from './sefaria';
 import styles from './Styles.js';
 import strings from './LocalizedStrings';
 
+const InterfaceTextWithFallback = ({ en, he, extraStyles=[] }) => {
+  const { interfaceLanguage } = useContext(GlobalStateContext);
+  let langStyle = styles.enInt;
+  let text = en;
+  if ((interfaceLanguage === 'english' && !en) || (interfaceLanguage === 'hebrew' && !!he)) {
+    langStyle = styles.heInt;
+    text = he;
+  }
+  return (
+    <Text style={[langStyle].concat(extraStyles)}>{text}</Text>
+  );
+}
+
 const OrderedList = ({items, renderItem}) => {
   let arrayOffset = 0;
   return (
@@ -826,6 +839,7 @@ export {
   DisplaySettingsButton,
   HebrewInEnglishText,
   IndeterminateCheckBox,
+  InterfaceTextWithFallback,
   LanguageToggleButton,
   LibraryNavButton,
   LoadingView,

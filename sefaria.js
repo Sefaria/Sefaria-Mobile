@@ -813,7 +813,7 @@ Sefaria = {
         if (key == 'links') { valueList = valueList.filter(l=>!!Sefaria.booksDict[l.index_title]); }
         output[key] = [];
         for (let value of valueList) {
-          const anchors = value.anchorRefExpanded || [value.anchorRef];  // TODO only use anchorRefExpanded
+          const anchors = value.anchorRefExpanded || [value.anchorRef];
           if (anchors.length === 0) { console.log("no anchors found", value); continue; }
           for (let anchor of anchors) {
             const refIndex = Sefaria.links.getSegmentIndexFromRef(anchor);

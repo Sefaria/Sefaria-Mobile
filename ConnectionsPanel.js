@@ -18,6 +18,7 @@ import TextList from './TextList';
 import { LinkFilter } from './Filter';
 import VersionsBox from './VersionsBox';
 import AboutBox from './AboutBox';
+import SheetListInConnections from './SheetListInConnections';
 import LexiconBox from './LexiconBox';
 import { GlobalStateContext, getTheme } from './StateManager';
 
@@ -182,23 +183,9 @@ class ConnectionsPanel extends React.PureComponent {
         return (
           <View style={[styles.mainTextPanel, styles.textColumn, this.props.theme.textListContentOuter, {maxWidth: null, flex: this.props.textListFlex}]}>
             {connectionsPanelHeader}
-            <FlatList
-              data={this.props.relatedData.sheets}
-              renderItem={({ item:sheet }) => (
-                <Pressable onPress={()=> this.props.openRefSheet(sheet.id, sheet)} android_ripple={{color: "#ccc"}} key={sheet.id} style={[{borderBottomWidth: 1, paddingVertical: 13}, this.props.theme.bordered, styles.readerSidePadding]}>
-                  <Text style={[{marginBottom: 7, fontSize: 20, lineHeight: 27}, styles.en, this.props.theme.en]}>{ sheet.title.replace(/\s\s+/g, ' ') }</Text>
-                  <View style={[{flexDirection: "row" }]}>
-                    <Image
-                      style={styles.userAvatar}
-                      source={{uri: sheet.ownerImageUrl}}
-                    />
-                    <View style={[{marginHorizontal: 10}]}>
-                      <Text>{sheet.ownerName}</Text>
-                      <Text>{sheet.topics && sheet.topics.map(topic => topic.asTyped).join(', ')}</Text>
-                    </View>
-                  </View>
-                </Pressable>
-              )}
+            <SheetListInConnections
+              sheets={this.props.relatedData.sheets}
+              openRefSheet={this.props.openRefSheet}
             />
           </View>
         );
