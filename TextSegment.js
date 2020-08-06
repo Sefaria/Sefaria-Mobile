@@ -82,8 +82,10 @@ const TextSegment = React.memo(({
   if (textType === 'english') {
     menuItems.splice(1, 1);
   }
+
+  const TempSelectableText = Platform.OS === 'ios' ? SelectableText : DummySelectableText;
   return (
-    <SelectableText
+    <TempSelectableText
       menuItems={menuItems}
       onSelection={({ eventType, content }) => {
         if (eventType == 'Copy') { copyToClipboard(content); }
@@ -119,5 +121,11 @@ TextSegment.propTypes = {
   fontScale:          PropTypes.object,
 };
 
-
+const DummySelectableText = ({ value, TextComponent, textComponentProps, ...props }) => {
+  textComponentProps.value = value;
+  return (
+    <TextComponent
+      { ...textComponentProps}
+    />
+);}
 export default TextSegment;

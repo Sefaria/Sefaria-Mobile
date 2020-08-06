@@ -81,12 +81,9 @@ const TextRange = React.memo(({
     textSegmentPressed(section, segment, segmentRef, onlyOpen);
   };
   return (
-    <TapGestureHandler
-      onHandlerStateChange={({ nativeEvent }) => {
-        if (nativeEvent.state === State.ACTIVE) {
-          onPress();
-        }
-      }} 
+    <TouchableOpacity
+      onPress={() => onPress()} 
+      delayPressIn={200}
     >
       <View
         style={styles.verseContainer}
