@@ -83,6 +83,7 @@ const TextRange = React.memo(({
   return (
     <TouchableOpacity
       onPress={() => onPress()} 
+      delayPressIn={200}
     >
       <View
         style={styles.verseContainer}
