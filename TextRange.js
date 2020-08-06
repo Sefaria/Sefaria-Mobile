@@ -12,7 +12,6 @@ import { GlobalStateContext, getTheme } from './StateManager';
 import TextSegment from './TextSegment';
 import styles from './Styles';
 import strings from './LocalizedStrings';
-import { TapGestureHandler, State } from 'react-native-gesture-handler';
 
 
 const TextRange = React.memo(({
@@ -140,7 +139,7 @@ const TextRange = React.memo(({
           { bulletMargin }
         </View>
       </View>
-    </TapGestureHandler>
+    </TouchableOpacity>
   );
 });
 TextRange.whyDidYouRender = true;
