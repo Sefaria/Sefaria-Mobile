@@ -13,6 +13,7 @@ import {
   Platform,
   PermissionsAndroid,
 } from 'react-native';
+import RNFB from 'rn-fetch-blob';
 import VersionNumber from 'react-native-version-number';
 import NetInfo from "@react-native-community/netinfo";
 import ProgressBar from './ProgressBar';
@@ -40,8 +41,9 @@ import {
   deleteBooks,
   doubleDownload, getLocalBookList,
   isDownloadAllowed,
+  FILE_DIRECTORY
 } from './DownloadControl';
-const DEBUG_MODE = false;
+const DEBUG_MODE = true;
 
 const generateOptions = (options, onPress) => options.map(o => ({
   name: o,
@@ -91,8 +93,8 @@ const usePkgState = () => {
           );
           return
         }
-        await DownloadTracker.startDownloadSession(pkgName);
         await PackagesState[pkgName].markAsClicked();
+        await DownloadTracker.startDownloadSession(pkgName);
         setIsDisabledObj(getIsDisabledObj());
 
         try{
@@ -200,6 +202,17 @@ const SettingsPage = ({ close, logout, openUri }) => {
           </View>
           : null
         }
+        {
+          DEBUG_MODE ?
+            <View>
+              <TouchableOpacity style={styles.button} onPress={() => RNFB.fs.ls(FILE_DIRECTORY).then(x => console.log(
+                `${x.filter(f => f.endsWith('zip')).length} files on disk`
+              ))}>
+                <Text style={[langStyle, styles.buttonText]}>Check Disk</Text>
+              </TouchableOpacity>
+            </View>
+            : null
+        }
         <OfflinePackageList isDisabledObj={isDisabledObj} onPackagePress={onPackagePress} />
         <View style={[styles.readerDisplayOptionsMenuDivider, styles.settingsDivider, styles.underOfflinePackages, theme.readerDisplayOptionsMenuDivider]}/>
         <View>
@@ -262,7 +275,8 @@ const ButtonToggleSection = ({ langStyle }) => {
       type: STATE_ACTIONS.setDownloadNetworkSetting,
       value: wifiOnly,
     });
-    if (DownloadTracker.hasEventListener()) {  // replace the network event listener to accommodate new setting
+    // todo: throw away download if user messed with network settings mid-download. Do a disk scan and start again
+    if (DownloadTracker.hasEventListener()) {
       DownloadTracker.addEventListener(wifiOnly, true);
     }
   };
