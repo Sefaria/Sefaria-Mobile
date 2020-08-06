@@ -5,7 +5,8 @@ import {
   View,
   Text,
   Platform,
-  Linking
+  Linking,
+  TouchableOpacity,
 } from 'react-native';
 import ActionSheet from 'react-native-action-sheet';
 import { GlobalStateContext, getTheme } from './StateManager';
