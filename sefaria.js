@@ -17,6 +17,7 @@ import {
   packageSetupProtocol,
   downloadUpdate,
   autoUpdateCheck,
+  checkUpdatesFromServer,
   loadJSONFile,
   downloadRecover
 } from './DownloadControl'
@@ -46,15 +47,24 @@ Sefaria = {
     return Sefaria._loadRecentQueries()
       .then(Sefaria._loadSearchTOC);
   },
-  postInit: function() {
+  postInit: function() {  // todo: pass network setting from some React component (ReaderApp.componentDidMount likely)
     return Sefaria.getGalusStatus()
       .then(Sefaria._loadCalendar)
       .then(Sefaria._loadPeople)
       .then(Sefaria._loadHebrewCategories)
       .then(packageSetupProtocol)
-      .then(autoUpdateCheck).then(shouldUpdate => {
-        shouldUpdate ? downloadUpdate() : null
-      }).then(downloadRecover);  // Just a check to see if a download completed in the background
+      .then(autoUpdateCheck).then(async checkServer => {
+        if (checkServer) {
+          await checkUpdatesFromServer();
+        }
+
+        try {
+          await downloadUpdate();  // this method compares what the user requested to what is on disk and retrieves anything missing
+        } catch (e) {
+          console.log('postInit download error');
+          console.log(e);
+        }
+      })
   },
   getLastAppUpdateTime: async function() {
     // returns epoch time of last time the app was updated. used to compare if sources files are newer than downloaded files

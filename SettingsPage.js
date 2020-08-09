@@ -41,7 +41,7 @@ import {
   deleteBooks,
   doubleDownload, getLocalBookList,
   isDownloadAllowed,
-  FILE_DIRECTORY
+  FILE_DIRECTORY, downloadUpdate
 } from './DownloadControl';
 const DEBUG_MODE = true;
 
@@ -275,9 +275,11 @@ const ButtonToggleSection = ({ langStyle }) => {
       type: STATE_ACTIONS.setDownloadNetworkSetting,
       value: wifiOnly,
     });
-    // todo: throw away download if user messed with network settings mid-download. Do a disk scan and start again
+    // changing network settings mid-download is problematic. Best is to drop download and request a new one
     if (DownloadTracker.hasEventListener()) {
-      DownloadTracker.addEventListener(wifiOnly, true);
+      DownloadTracker.cancelDownload(true);
+      DownloadTracker.removeEventListener();
+      downloadUpdate(wifiOnly, false).then(() => {})
     }
   };
   const options = {

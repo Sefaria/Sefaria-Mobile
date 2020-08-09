@@ -54,7 +54,8 @@ class DownloadTracker {
       currentDownload: 0,
       totalDownloads: 0,
       downloadAllowed: false
-    }
+    };
+    this.progressListener = null;
   }
   addDownload(downloadState) {
     if (this.downloadInProgress()) {
@@ -105,19 +106,24 @@ class DownloadTracker {
       let [trueReceived, trueTotal] = [parseInt(received) + parseInt(this._alreadyDownloaded),
         parseInt(total) + parseInt(this._alreadyDownloaded)];
       let [numDownloads, totalDownloads] = this.arrayDownloadState
-        ? [this.arrayDownloadState.currentDownload, this.arrayDownloadState.totalDownloads] : [0, 1];
+        ? [this.arrayDownloadState.currentDownload, this.arrayDownloadState.totalDownloads] : [0, 1];  // todo: this might be the problem when restoring a download. Log arrayDownloadState
       totalDownloads = totalDownloads >= 1 ? parseInt(totalDownloads) : 1;
       // the following is just algebraic expansion of an expression which adjust the progress to account for an array of downloads
       return progressTracker((trueReceived + numDownloads * trueTotal) / totalDownloads , trueTotal)
     };
+    this.progressListener = identity;
     this.progressTracker = [enhancedProgressTracker, config];
     if (this.downloadInProgress()) {
       this.currentDownload.progress(config, enhancedProgressTracker);
     }
   }
-  removeProgressTracker() {
+  removeProgressTracker(identity) {
+    if (identity !== this.progressListener) {
+      return
+    }
+    this.progressListener = null;
     const config = {count: 20, interval: 250};
-    const dummyLogger = (received, total) => {};
+    const dummyLogger = (received, total) => { console.log(`downloaded: ${received}/${total}`) };
     this.attachProgressTracker(dummyLogger, config, 'dummy');
   }
   subscribe(listenerName, listenerFunc) {
@@ -467,8 +473,8 @@ function setDesiredBooks() {
 
 async function setLocalBookTimestamps(bookTitleList) {
   let fileData = await RNFB.fs.lstat(FILE_DIRECTORY);
-  console.log('debugging issue in setLocalBookTimestamps:');
-  console.log(fileData);
+  // console.log('debugging issue in setLocalBookTimestamps:');
+  // console.log(fileData);
   fileData = fileData.filter(x => x['filename'].endsWith('.zip'));
   const stamps = {};
   fileData.forEach(f => {
@@ -780,7 +786,12 @@ function calculateBooksToDelete(booksState) {
 }
 
 async function cleanTmpDirectory() {
-  const files = await RNFB.fs.ls(TMP_DIRECTORY);
+  let files;
+  try {
+    files = await RNFB.fs.ls(TMP_DIRECTORY);
+  } catch (e) {  // if for whatever reason TMP_DIRECTORY doesn't exist, we can just exit now
+    return
+  }
   await Promise.all(files.map(f => RNFB.fs.unlink(`${TMP_DIRECTORY}/${f}`)));
 }
 
@@ -891,8 +902,9 @@ async function downloadUpdate(networkSetting, triggeredByUser=true) {
   const booksToDownload = await calculateBooksToDownload(BooksState);
   if (!booksToDownload.length) { return }
   await Tracker.startDownloadSession('Update');
-  const bundleName = await requestNewBundle(booksToDownload);
-  await downloadBundle(bundleName, networkSetting, false);
+  const bundles = await requestNewBundle(booksToDownload);
+  await downloadBundleArray(bundles, Tracker.arrayDownloadState, networkSetting);
+  // await downloadBundle(bundleName, networkSetting, false);
 
   // we're going to use the update as an opportunity to do some cleanup  todo: we're moving this over to the download method
   const booksToDelete = calculateBooksToDelete(BooksState);
