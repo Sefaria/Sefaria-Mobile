@@ -105,8 +105,11 @@ class DownloadTracker {
       // The RNFB fetch method sends strings for progress tracking, not integers...
       let [trueReceived, trueTotal] = [parseInt(received) + parseInt(this._alreadyDownloaded),
         parseInt(total) + parseInt(this._alreadyDownloaded)];
-      let [numDownloads, totalDownloads] = this.arrayDownloadState
-        ? [this.arrayDownloadState.currentDownload, this.arrayDownloadState.totalDownloads] : [0, 1];  // todo: this might be the problem when restoring a download. Log arrayDownloadState
+
+      let [numDownloads, totalDownloads] =
+        this.arrayDownloadState ? [this.arrayDownloadState.currentDownload, this.arrayDownloadState.totalDownloads]
+          : [0, 1];
+
       totalDownloads = totalDownloads >= 1 ? parseInt(totalDownloads) : 1;
       // the following is just algebraic expansion of an expression which adjust the progress to account for an array of downloads
       return progressTracker((trueReceived + numDownloads * trueTotal) / totalDownloads , trueTotal)
@@ -851,7 +854,7 @@ async function downloadBundleArray(bundleArray, downloadData, networkSetting) {
   const buffer = [];
   const bufferGen = buffer[Symbol.iterator]();
   Object.assign(downloadData, {
-    currentDownload: 0,
+    currentDownload: -1,
     totalDownloads: bundleArray.length,
     downloadAllowed: true,
   });
@@ -863,8 +866,8 @@ async function downloadBundleArray(bundleArray, downloadData, networkSetting) {
    */
   for (const b of bundleArray) {
     buffer.push(async () => {
-      await downloadBundle(`${DOWNLOAD_SERVER}/${b}`, networkSetting, bufferGen);
       downloadData.currentDownload += 1;
+      await downloadBundle(`${DOWNLOAD_SERVER}/${b}`, networkSetting, bufferGen);
     });
 
 
