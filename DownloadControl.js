@@ -48,7 +48,7 @@ class DownloadTracker {
     this.removeProgressTracker(); // sets default values for the progress event listener
     this.networkEventListener = null;
     this._alreadyDownloaded = 0;
-    this._downloadSession = null;  // todo: this seems to not get set to an object before assignment
+    this._downloadSession = null;
     this.recoverLock = false;
     this.arrayDownloadState = {
       currentDownload: 0,
@@ -494,24 +494,11 @@ async function setLocalBookTimestamps(bookTitleList) {
   })
 }
 
-function getLocalBookList() {
-  // Test with Appium?
-  /*
-   * This method is for getting the books that are stored on disk
-   * Returns a Promise which resolves on a list of books
-   */
-  return new Promise((resolve, reject) => {
-    RNFB.fs.ls(`${RNFB.fs.dirs.DocumentDir}/library`).then(fileList => {
-      const books = [];
-      const reg = /([^/]+).zip$/;
-      fileList.forEach(fileName => { // todo: filter and map. Would be easier with async
-        if (fileName.endsWith(".zip")) {
-          books.push(reg.exec(fileName)[1]);
-        }
-      });
-      resolve(books)
-    }).catch(err=>reject(err))
-  })
+async function getLocalBookList() {
+  // This method is for getting the books that are stored on disk
+  let books = await RNFB.fs.ls(FILE_DIRECTORY);
+  const reg = /([^/]+).zip$/;
+  return books.filter(filename => filename.endsWith(".zip")).map(fileName => reg.exec(fileName)[1]);
 }
 
 async function repopulateBooksState() {
@@ -556,7 +543,7 @@ async function unzipBundle(bundleSessionLocation) {
   await unzip(bundleSessionLocation, FILE_DIRECTORY);
 }
 
-function requestNewBundle(bookList) {  // todo: refactor for new api
+function requestNewBundle(bookList) {
   // Test with Appium
   return new Promise((resolve, reject) => {
     fetch(`${DOWNLOAD_SERVER}/makeBundle`, {
@@ -677,7 +664,6 @@ async function downloadBundle(bundleName, networkSetting, downloadBuffer, recove
   }
 
   const downloadState = downloadFilePromise(url, filename, downloadFrom);
-  // todo: review idempotent download removal requirement
   try {
     Tracker.addDownload(downloadState);
     Tracker.updateSession({downloadActive: true});
@@ -720,8 +706,8 @@ async function downloadBundle(bundleName, networkSetting, downloadBuffer, recove
   } catch (e) {
     crashlytics().log(e);
     Alert.alert(
-      "Download Error",  // todo: Remove hardcoding; Hebrew
-      "An error occurred processing the download. Click 'Check for Updates' to repair",
+      strings.downloadError,
+      strings.downloadErrorMessage,
       [{text: strings.ok}]
     )
   }
@@ -775,17 +761,9 @@ async function calculateBooksToDownload(booksState) {
 
 
 function calculateBooksToDelete(booksState) {
-  // Test with Jest
-  let booksToDelete = [];
-  for (const bookTitle in booksState) {  // todo: Object.entries with filter & map
-    if (booksState.hasOwnProperty(bookTitle)) {
-      const bookObj = booksState[bookTitle];
-      if (!bookObj.desired && !!(bookObj.localLastUpdated)) {  // a book is on disk if localLastUpdated is set
-        booksToDelete.push(bookTitle);
-      }
-    }
-  }
-  return booksToDelete;
+  return Object.entries(booksState).filter(
+    ([bookTitle, bookObj]) => !bookObj.desired && !!(bookObj.localLastUpdated)
+    ).map(([bookTitle, bookObj]) => bookTitle);
 }
 
 async function cleanTmpDirectory() {
@@ -907,11 +885,6 @@ async function downloadUpdate(networkSetting, triggeredByUser=true) {
   await Tracker.startDownloadSession('Update');
   const bundles = await requestNewBundle(booksToDownload);
   await downloadBundleArray(bundles, Tracker.arrayDownloadState, networkSetting);
-  // await downloadBundle(bundleName, networkSetting, false);
-
-  // we're going to use the update as an opportunity to do some cleanup  todo: we're moving this over to the download method
-  const booksToDelete = calculateBooksToDelete(BooksState);
-  await deleteBooks(booksToDelete, false);  // tmp directory is cleaned at downloadBundle. Cleaning here can prevent recovering from a failed update.
 }
 
 

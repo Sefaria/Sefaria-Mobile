@@ -43,7 +43,7 @@ import {
   isDownloadAllowed,
   FILE_DIRECTORY, downloadUpdate
 } from './DownloadControl';
-const DEBUG_MODE = true;
+const DEBUG_MODE = false;
 
 const generateOptions = (options, onPress) => options.map(o => ({
   name: o,

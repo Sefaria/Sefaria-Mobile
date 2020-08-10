@@ -8,6 +8,7 @@ import {
   loadJSONFile,
   downloadBundle,
   getFullBookList,
+  getLocalBookList,
   FILE_DIRECTORY, calculateBooksToDownload, calculateBooksToDelete, autoUpdateCheck
 } from '../DownloadControl'
 import AsyncStorage from '@react-native-community/async-storage';
@@ -281,6 +282,16 @@ describe('lastUpdated', () => {
     const requiresUpdate = await autoUpdateCheck();
     expect(requiresUpdate).toBe(true);
   });
+});
+
+test('getLocalBookList', async () => {
+  await Promise.all([
+    RNFB.fs.writeFile(`${FILE_DIRECTORY}/Genesis.zip`, '123'),
+    RNFB.fs.writeFile(`${FILE_DIRECTORY}/Berakhot.zip`, '456'),
+    RNFB.fs.writeFile(`${FILE_DIRECTORY}/Midrash Rabbah.zip`, '789')
+  ]);
+  const result = await getLocalBookList();
+  expect(result).toEqual(['Genesis', 'Berakhot', 'Midrash Rabbah']);
 });
 
 describe('testMocking', () => {
