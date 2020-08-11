@@ -10,6 +10,7 @@ import {
   Share,
   Text,
   View,
+  TouchableOpacity,
 } from 'react-native';
 import HTMLView from 'react-native-htmlview'; //to convert html'afied JSON to something react can render (https://github.com/jsdf/react-native-htmlview)
 import { SelectableText } from "@astrocoders/react-native-selectable-text";
@@ -29,7 +30,7 @@ const TextSegment = React.memo(({
   setDictionaryLookup,
   showToast,
   openUriOrRef,
-  onPress,
+  onTextPress,
 }) => {
   const [resetKey, setResetKey] = useState(0);
   const { themeStr, fontSize, biLayout } = useContext(GlobalStateContext);
@@ -85,28 +86,34 @@ const TextSegment = React.memo(({
 
   const TempSelectableText = Platform.OS === 'ios' ? SelectableText : DummySelectableText;
   return (
-    <TempSelectableText
-      menuItems={menuItems}
-      onSelection={({ eventType, content }) => {
-        if (eventType == 'Copy') { copyToClipboard(content); }
-        else if (eventType == 'Share') { shareText(content); }
-        else { onPress(true); setDictionaryLookup({ dictLookup: content }); }
-      }}
-      value={data}
-      textValueProp={'value'}
-      TextComponent={HTMLView}
-      textComponentProps={{
-        stylesheet: {...styles, ...smallSheet},
-        RootComponent: Text,
-        TextComponent: Animated.Text,
-        onLinkPress: openUriOrRef,
-        textComponentProps: {
-          suppressHighlighting: false,
-          key: segmentKey,
-          style: style,
-        },
-      }}
-    />
+    <TouchableOpacity
+      onPress={() => onTextPress()}
+      onLongPress={() => {}}
+      delayPressIn={200}
+    >
+      <TempSelectableText
+        menuItems={menuItems}
+        onSelection={({ eventType, content }) => {
+          if (eventType == 'Copy') { copyToClipboard(content); }
+          else if (eventType == 'Share') { shareText(content); }
+          else { onTextPress(true); setDictionaryLookup({ dictLookup: content }); }
+        }}
+        value={data}
+        textValueProp={'value'}
+        TextComponent={HTMLView}
+        textComponentProps={{
+          stylesheet: {...styles, ...smallSheet},
+          RootComponent: Text,
+          TextComponent: Animated.Text,
+          onLinkPress: openUriOrRef,
+          textComponentProps: {
+            suppressHighlighting: false,
+            key: segmentKey,
+            style: style,
+          },
+        }}
+      />
+    </TouchableOpacity>
   );
 });
 TextSegment.whyDidYouRender = true;
