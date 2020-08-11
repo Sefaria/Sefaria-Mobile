@@ -76,8 +76,8 @@ const LexiconBox = ({ selectedWords, oref, openUriOrRef }) => {
   return (
     <ScrollView style={{flex: 1}} key={selectedWords} contentContainerStyle={{paddingLeft: 42, paddingRight: 64, paddingTop: 20, paddingBottom: 40}}>
       <View style={[{flexDirection: isHeb ? "row-reverse" : "row", borderBottomWidth: 1, paddingBottom: 15}, theme.borderedBottom]}>
-        <Text style={[styles.enInt, theme.tertiaryText, {fontSize: 0.8*fontSize, lineHeight: fontSize*1.3}]}>{`${strings.define}: `}</Text>
-        <Text style={[styles.he, {fontSize}]}>{selectedWords}</Text>
+        <SText lang={"english"} style={[styles.enInt, theme.tertiaryText, {fontSize: 0.8*fontSize}]}>{`${strings.define}: `}</SText>
+        <SText lang={"hebrew"} style={[styles.he, {fontSize}]}>{selectedWords}</SText>
       </View>
       { content }
     </ScrollView>
