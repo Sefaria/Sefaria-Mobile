@@ -2,29 +2,35 @@
 
 import PropTypes from 'prop-types';
 
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, Fragment } from 'react';
 import {
   Animated,
-  Text,
-  TouchableOpacity,
-  View,
+  Pressable,
   Platform,
+  Share,
+  Text,
+  View,
+  TouchableOpacity,
 } from 'react-native';
 import HTMLView from 'react-native-htmlview'; //to convert html'afied JSON to something react can render (https://github.com/jsdf/react-native-htmlview)
+import { SelectableText } from "@astrocoders/react-native-selectable-text";
+import Clipboard from "@react-native-community/clipboard";
+
 import { GlobalStateContext, getTheme } from './StateManager';
 import styles from './Styles.js';
-import iPad from './isIPad';
 
-
+// pass correct functions to TextSegment for sheet renderers. probably combine renderers and make it simpler
 const TextSegment = React.memo(({
-  rowRef,
+  segmentRef,
   segmentKey,
   data,
   textType,
   bilingual,
-  textSegmentPressed,
-  onLongPress,
   fontScale,
+  setDictionaryLookup,
+  showToast,
+  openUriOrRef,
+  onTextPress,
 }) => {
   const [resetKey, setResetKey] = useState(0);
   const { themeStr, fontSize, biLayout } = useContext(GlobalStateContext);
@@ -33,15 +39,23 @@ const TextSegment = React.memo(({
     return () => {};
   }, [themeStr, fontSize]);
   const theme = getTheme(themeStr);
-  const onPress = () => {
-    let key = segmentKey;
-    let section = parseInt(key.split(":")[0]);
-    let segment = parseInt(key.split(":")[1]);
-    textSegmentPressed(section, segment, rowRef, true);
+  const getTextWithUrl = (text, withUrl) => {
+    return withUrl ? `${text}\n\n${Sefaria.refToUrl(segmentRef)}` : text;
+  };
+  const shareText = (text) => {
+    Share.share({
+      message: getTextWithUrl(text, Platform.OS === 'android'),  // android for some reason doesn't share text with a url attached at the bottom
+      title: segmentRef,
+      url: Sefaria.refToUrl(segmentRef)
+    })
+  };
+  const copyToClipboard = (text) => {
+    Clipboard.setString(text);
+    showToast("Copied to clipboard");
   };
 
   const isStacked = biLayout === 'stacked';
-  const lineHeightMultiplierHe = Platform.OS === 'android' ? 1.3 : 1.2;
+  const lineHeightMultiplierHe = Platform.OS === 'android' ? 1.333 : 1.2;
   const justifyStyle = {textAlign: (isStacked && Platform.OS === 'ios') ? 'justify' : (textType === 'hebrew' ? 'right' : 'left')};
   const style = textType == "hebrew" ?
                 [styles.hebrewText, theme.text, justifyStyle, {lineHeight: Animated.multiply(fontSize * lineHeightMultiplierHe, fontScale), fontSize: Animated.multiply(fontSize, fontScale)}] :
@@ -65,44 +79,60 @@ const TextSegment = React.memo(({
       ...justifyStyle,
     }
   };
+  let menuItems = ['Copy', 'Define', 'Share'];
+  if (textType === 'english') {
+    menuItems.splice(1, 1);
+  }
+
+  const TempSelectableText = Platform.OS === 'ios' ? SelectableText : DummySelectableText;
   return (
-     <HTMLView
-       key={resetKey}
-       value={data}
-       stylesheet={{...styles, ...smallSheet}}
-       rootComponentProps={{
-           hitSlop: {top: 10, bottom: 10, left: 10, right: 10},  // increase hit area of segments
-           onPress,
-           onLongPress,
-           delayPressIn: 200,
-         }
-       }
-       RootComponent={TouchableOpacity}
-       TextComponent={Animated.Text}
-       textComponentProps={
-         {
-           suppressHighlighting: false,
-           key: segmentKey,
-           style: style,
-
-         }
-       }
-       style={{flex: textType == "hebrew" ? 4.5 : 5.5, paddingHorizontal: 10}}
-     />
-
+    <TouchableOpacity
+      onPress={() => onTextPress()}
+      onLongPress={() => {}}
+      delayPressIn={200}
+    >
+      <TempSelectableText
+        menuItems={menuItems}
+        onSelection={({ eventType, content }) => {
+          if (eventType == 'Copy') { copyToClipboard(content); }
+          else if (eventType == 'Share') { shareText(content); }
+          else { onTextPress(true); setDictionaryLookup({ dictLookup: content }); }
+        }}
+        value={data}
+        textValueProp={'value'}
+        TextComponent={HTMLView}
+        textComponentProps={{
+          stylesheet: {...styles, ...smallSheet},
+          RootComponent: Text,
+          TextComponent: Animated.Text,
+          onLinkPress: openUriOrRef,
+          textComponentProps: {
+            suppressHighlighting: false,
+            key: segmentKey,
+            style: style,
+          },
+        }}
+      />
+    </TouchableOpacity>
   );
 });
 TextSegment.whyDidYouRender = true;
 TextSegment.propTypes = {
-  rowRef:             PropTypes.string.isRequired, /* this ref keys into TextColumn.rowRefs */
+  segmentRef:         PropTypes.string.isRequired, /* this ref keys into TextColumn.rowRefs */
   segmentKey:         PropTypes.string,
   data:               PropTypes.string,
   textType:           PropTypes.oneOf(["english","hebrew"]),
   bilingual:          PropTypes.bool,
   textSegmentPressed: PropTypes.func.isRequired,
-  onLongPress:        PropTypes.func.isRequired,
+  showToast:          PropTypes.func.isRequired,
   fontScale:          PropTypes.object,
 };
 
-
+const DummySelectableText = ({ value, TextComponent, textComponentProps, ...props }) => {
+  textComponentProps.value = value;
+  return (
+    <TextComponent
+      { ...textComponentProps}
+    />
+);}
 export default TextSegment;
