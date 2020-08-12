@@ -123,7 +123,7 @@ TextSegment.propTypes = {
   data:               PropTypes.string,
   textType:           PropTypes.oneOf(["english","hebrew"]),
   bilingual:          PropTypes.bool,
-  textSegmentPressed: PropTypes.func.isRequired,
+  onTextPress:        PropTypes.func.isRequired,
   showToast:          PropTypes.func.isRequired,
   fontScale:          PropTypes.object,
 };
