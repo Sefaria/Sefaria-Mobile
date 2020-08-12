@@ -699,7 +699,13 @@ async function downloadBundle(bundleName, networkSetting, downloadBuffer, recove
   if (status >= 300 || status < 200) {
     crashlytics().log(`Got status ${status} from download server. Full info below`);
     crashlytics().log(downloadResult.info());
-    throw "Bad download status"  // todo: Review: do we want to throw?
+
+    // we're going to schedule a recover in the hope that the server will come back up at a later point
+    Tracker.removeDownload();
+    setTimeout(async () => {
+      await downloadRecover(networkSetting, downloadBuffer);
+    }, 60*1000);
+    return
   }
   try {
     await postDownload(downloadResult.path(), !recoveryMode, sessionStorageLocation);

@@ -79,7 +79,7 @@
     "jest": "^25.1.0",
     "jetifier": "^1.6.4",
     "metro-react-native-babel-preset": "^0.59.0",
-    "patch-package": "^6.2.0",
+    "patch-package": "^6.2.2",
     "react-native-clean-project": "^3.2.4"
   }
 }
