@@ -1,6 +1,6 @@
 'use strict';
 import PropTypes from 'prop-types';
-import React, { Component } from 'react';
+import React, { useContext } from 'react';
 import {
   View,
   ScrollView,
@@ -17,6 +17,8 @@ import TextList from './TextList';
 import { LinkFilter } from './Filter';
 import VersionsBox from './VersionsBox';
 import AboutBox from './AboutBox';
+import LexiconBox from './LexiconBox';
+import { GlobalStateContext, getTheme } from './StateManager';
 
 const {
   CategoryColorLine,
@@ -61,8 +63,13 @@ class ConnectionsPanel extends React.PureComponent {
     textTitle:            PropTypes.string.isRequired,
     categories:           PropTypes.array.isRequired,
     openUri:              PropTypes.func.isRequired,
+    openUriOrRef:         PropTypes.func.isRequired,
     textListFlex:         PropTypes.number.isRequired,
     onStartShouldSetResponderCapture: PropTypes.func.isRequired,
+    dictLookup:           PropTypes.string,
+    shareCurrentSegment:  PropTypes.func.isRequired,
+    viewOnSite:           PropTypes.func.isRequired,
+    reportError:          PropTypes.func.isRequired,
   };
 
   render() {
@@ -121,6 +128,20 @@ class ConnectionsPanel extends React.PureComponent {
               recentFilters={recentFilters}
               filterIndex={filterIndex}
               listContents={listContents}
+            />
+          </View>
+        );
+      case 'dictionary':
+        const ref = (this.props.sheet && this.props.segmentRefOnSheet) ? this.props.segmentRefOnSheet : this.props.segmentRef;
+        const categories = Sefaria.categoriesForTitle(Sefaria.textTitleForRef(ref));
+        return (
+          <View style={[styles.mainTextPanel, styles.textColumn, this.props.theme.textListContentOuter, {maxWidth: null, flex: this.props.textListFlex}]}>
+            {connectionsPanelHeader}
+            <LexiconBox
+              openRef={this.props.openRef}
+              openUriOrRef={this.props.openUriOrRef}
+              selectedWords={this.props.dictLookup}
+              oref={{ref, categories}}
             />
           </View>
         );
@@ -219,14 +240,15 @@ class ConnectionsPanel extends React.PureComponent {
               <ResourcesList
                 key={"resourcesList"}
                 sheet={this.props.sheet}
-                theme={this.props.theme}
                 themeStr={this.props.themeStr}
-                interfaceLanguage={this.props.interfaceLanguage}
                 versionsCount={this.props.versions.length}
                 setConnectionsMode={this.props.setConnectionsMode}
                 segmentRef={this.props.segmentRef}
                 heSegmentRef={this.props.heSegmentRef}
                 categories={this.props.categories}
+                shareCurrentSegment={this.props.shareCurrentSegment}
+                reportError={this.props.reportError}
+                viewOnSite={this.props.viewOnSite}
               />
             );
           }
@@ -260,14 +282,16 @@ class ConnectionsPanel extends React.PureComponent {
 class ResourcesList extends React.PureComponent {
   static whyDidYouRender = true;
   static propTypes = {
-    theme:              PropTypes.object.isRequired,
     themeStr:           PropTypes.string.isRequired,
-    interfaceLanguage:      PropTypes.oneOf(["english", "hebrew"]).isRequired,
     setConnectionsMode: PropTypes.func.isRequired,
     versionsCount:      PropTypes.number.isRequired,
     segmentRef:         PropTypes.string.isRequired,
+    segmentRefOnSheet:  PropTypes.string,
     heSegmentRef:       PropTypes.string.isRequired,
     categories:         PropTypes.array.isRequired,
+    shareCurrentSegment:PropTypes.func.isRequired,
+    viewOnSite:         PropTypes.func.isRequired,
+    reportError:        PropTypes.func.isRequired,
   }
 
   render() {
@@ -276,50 +300,60 @@ class ResourcesList extends React.PureComponent {
     return (
       <View>
         <ToolsButton
-          interfaceLanguage={this.props.interfaceLanguage}
           text={strings.about}
           icon={isWhite ? require("./img/book.png") : require("./img/book-light.png")}
-          theme={this.props.theme}
           onPress={()=>{ this.props.setConnectionsMode("about"); }}
         />
         {this.props.sheet ? null : <ToolsButton
-          interfaceLanguage={this.props.interfaceLanguage}
           text={strings.versions}
           icon={isWhite ? require("./img/layers.png") : require("./img/layers-light.png")}
-          theme={this.props.theme}
           count={this.props.versionsCount}
           onPress={()=>{ this.props.setConnectionsMode("versions"); }}
         /> }
+        <ToolsButton
+          text={strings.share}
+          icon={isWhite ? require("./img/share.png") : require("./img/share-light.png")}
+          onPress={this.props.shareCurrentSegment}
+        />
+        {this.props.sheet ? null : <ToolsButton
+          text={strings.reportError}
+          icon={isWhite ? require("./img/bubble.png") : require("./img/bubble-light.png")}
+          onPress={this.props.reportError}
+        />}
+        <ToolsButton
+          text={strings.viewOnSite}
+          icon={isWhite ? require("./img/externalLink.png") : require("./img/externalLink-light.png")}
+          onPress={this.props.viewOnSite}
+        />
       </View>
     );
   }
 }
 
-class ToolsButton extends React.Component {
-  static whyDidYouRender = true;
-  static propTypes = {
-    interfaceLanguage: PropTypes.oneOf(["english", "hebrew"]).isRequired,
-    theme:         PropTypes.object.isRequired,
-    text:          PropTypes.string.isRequired,
-    onPress:       PropTypes.func.isRequired,
-    icon:          PropTypes.number,
-    count:         PropTypes.number,
-  }
-
-  render() {
-    const { count, theme, icon, interfaceLanguage } = this.props;
-    const textStyle = interfaceLanguage === "english" ? styles.enInt : styles.heInt;
-    const flexDir = interfaceLanguage === "english" ? null : styles.rtlRow;
-    const iconComp = icon ? (<View style={styles.toolsButtonIcon}><Image source={icon} style={styles.menuButton} resizeMode={'contain'}></Image></View>) : null;
-    const countComp = !!count || count === 0 ? <Text style={[styles.enInt, theme.secondaryText, styles.spacedText]}>{` (${count}) `}</Text> : null
-    return (
-      <TouchableOpacity style={[styles.searchFilterCat, styles.toolsButton, flexDir, theme.bordered]} onPress={this.props.onPress}>
-        { iconComp }
-        <Text style={[textStyle, styles.spacedText, styles.toolsButtonText, theme.tertiaryText]}>{this.props.text}</Text>
-        { countComp }
-      </TouchableOpacity>
-    );
-  }
-}
+const ToolsButton = ({ text, onPress, icon, count }) => {
+  const { themeStr, interfaceLanguage } = useContext(GlobalStateContext);
+  const theme = getTheme(themeStr);
+  const textStyle = interfaceLanguage === "english" ? styles.enInt : styles.heInt;
+  const flexDir = interfaceLanguage === "english" ? null : styles.rtlRow;
+  const iconComp = icon ? (<View style={styles.toolsButtonIcon}><Image source={icon} style={styles.menuButton} resizeMode={'contain'}></Image></View>) : null;
+  const countComp = !!count || count === 0 ? <Text style={[styles.enInt, theme.secondaryText, styles.spacedText]}>{` (${count}) `}</Text> : null
+  return (
+    <TouchableOpacity
+      style={[styles.searchFilterCat, styles.toolsButton, flexDir, theme.bordered]}
+      onPress={onPress}
+      delayPressIn={200}
+    >
+      { iconComp }
+      <Text style={[textStyle, styles.spacedText, styles.toolsButtonText, theme.tertiaryText]}>{text}</Text>
+      { countComp }
+    </TouchableOpacity>
+  );
+};
+ToolsButton.propTypes = {
+  text:          PropTypes.string.isRequired,
+  onPress:       PropTypes.func.isRequired,
+  icon:          PropTypes.number,
+  count:         PropTypes.number,
+};
 
 export default ConnectionsPanel;

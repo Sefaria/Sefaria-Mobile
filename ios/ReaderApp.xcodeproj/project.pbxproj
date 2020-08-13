@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		00E356F31AD99517003FC87E /* ReaderAppTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E356F21AD99517003FC87E /* ReaderAppTests.m */; };
 		0707A7592226BBA300258667 /* grogger.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 0707A7582226BBA300258667 /* grogger.mp3 */; };
+		07204FCB24E13B18009CA4A0 /* Launch Screen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 07204FCA24E13B18009CA4A0 /* Launch Screen.storyboard */; };
 		0761D1A8207DD4F80011FE47 /* sources in Resources */ = {isa = PBXBuildFile; fileRef = 0761D1A7207DD4F80011FE47 /* sources */; };
 		0761D1B6207DD6200011FE47 /* TaameyFrank-taamim-fix.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 0761D1A9207DD61F0011FE47 /* TaameyFrank-taamim-fix.ttf */; };
 		0761D1B7207DD6200011FE47 /* Amiri-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 0761D1AA207DD61F0011FE47 /* Amiri-Bold.ttf */; };
@@ -46,9 +47,9 @@
 		6DF25533F441F2B8A1CF4735 /* libPods-ReaderApp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CDA731AEC535A4A7F11F6CF1 /* libPods-ReaderApp.a */; };
 		8B7EC843095442C88706A207 /* RNBackgroundFetch+AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 515995C120FD4F31A66E84FC /* RNBackgroundFetch+AppDelegate.m */; };
 		AEA8F13B77D727C9E8DDF9F0 /* libPods-ReaderApp-tvOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0F9FB104050FC5E16E8B3104 /* libPods-ReaderApp-tvOS.a */; };
-		B1A38FF55BC5B8CCD0658D62 /* libPods-ReaderAppTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FF36BBC00DBFAF42CE44B0E /* libPods-ReaderAppTests.a */; };
 		E5401A0D22C6CFCC00B2FAE8 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = E5401A0C22C6CFCB00B2FAE8 /* GoogleService-Info.plist */; };
 		E5D001A722C3DA8800758381 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = E5D001A622C3DA8800758381 /* GoogleService-Info.plist */; };
+		E7FCDE44A18CEDDC03ED9248 /* libPods-ReaderApp-ReaderAppTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 08F889EFCC88A5BA169EFF6B /* libPods-ReaderApp-ReaderAppTests.a */; };
 		ED2971652150620600B7C4FE /* JavaScriptCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ED2971642150620600B7C4FE /* JavaScriptCore.framework */; };
 /* End PBXBuildFile section */
 
@@ -324,6 +325,7 @@
 		00E356F11AD99517003FC87E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		00E356F21AD99517003FC87E /* ReaderAppTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ReaderAppTests.m; sourceTree = "<group>"; };
 		0707A7582226BBA300258667 /* grogger.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = grogger.mp3; sourceTree = "<group>"; };
+		07204FCA24E13B18009CA4A0 /* Launch Screen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = "Launch Screen.storyboard"; sourceTree = "<group>"; };
 		0761D1A7207DD4F80011FE47 /* sources */ = {isa = PBXFileReference; lastKnownFileType = folder; path = sources; sourceTree = "<group>"; };
 		0761D1A9207DD61F0011FE47 /* TaameyFrank-taamim-fix.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "TaameyFrank-taamim-fix.ttf"; sourceTree = "<group>"; };
 		0761D1AA207DD61F0011FE47 /* Amiri-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Amiri-Bold.ttf"; sourceTree = "<group>"; };
@@ -345,6 +347,7 @@
 		07779F3B233A761500196F02 /* libRNFirebase.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libRNFirebase.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		07AB7E4F22E87B130079131A /* ReactNativeLocalization.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = ReactNativeLocalization.xcodeproj; path = "../node_modules/react-native-localization/ios/ReactNativeLocalization.xcodeproj"; sourceTree = "<group>"; };
 		07D50AC6227EC64D00A73C52 /* ReaderApp.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = ReaderApp.entitlements; path = ReaderApp/ReaderApp.entitlements; sourceTree = "<group>"; };
+		08F889EFCC88A5BA169EFF6B /* libPods-ReaderApp-ReaderAppTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-ReaderApp-ReaderAppTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		0F9FB104050FC5E16E8B3104 /* libPods-ReaderApp-tvOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-ReaderApp-tvOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		139105B61AF99BAD00B5F7CC /* RCTSettings.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTSettings.xcodeproj; path = "../node_modules/react-native/Libraries/Settings/RCTSettings.xcodeproj"; sourceTree = "<group>"; };
 		139FDEE61B06529A00C62182 /* RCTWebSocket.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTWebSocket.xcodeproj; path = "../node_modules/react-native/Libraries/WebSocket/RCTWebSocket.xcodeproj"; sourceTree = "<group>"; };
@@ -358,13 +361,13 @@
 		2D02E47B1E0B4A5D006451C7 /* ReaderApp-tvOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "ReaderApp-tvOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		2D02E4901E0B4A5D006451C7 /* ReaderApp-tvOSTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "ReaderApp-tvOSTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		2D16E6891FA4F8E400B85C8A /* libReact.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libReact.a; sourceTree = BUILT_PRODUCTS_DIR; };
-		4FF36BBC00DBFAF42CE44B0E /* libPods-ReaderAppTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-ReaderAppTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		515995C120FD4F31A66E84FC /* RNBackgroundFetch+AppDelegate.m */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.c.objc; name = "RNBackgroundFetch+AppDelegate.m"; path = "../node_modules/react-native-background-fetch/ios/RNBackgroundFetch/RNBackgroundFetch+AppDelegate.m"; sourceTree = "<group>"; };
 		5E91572D1DD0AC6500FF2AA8 /* RCTAnimation.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTAnimation.xcodeproj; path = "../node_modules/react-native/Libraries/NativeAnimation/RCTAnimation.xcodeproj"; sourceTree = "<group>"; };
 		78C398B01ACF4ADC00677621 /* RCTLinking.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTLinking.xcodeproj; path = "../node_modules/react-native/Libraries/LinkingIOS/RCTLinking.xcodeproj"; sourceTree = "<group>"; };
 		7B7BAD45AD9AA8775A22CF80 /* Pods-ReaderApp-tvOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ReaderApp-tvOS.release.xcconfig"; path = "Target Support Files/Pods-ReaderApp-tvOS/Pods-ReaderApp-tvOS.release.xcconfig"; sourceTree = "<group>"; };
 		832341B01AAA6A8300B99B32 /* RCTText.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTText.xcodeproj; path = "../node_modules/react-native/Libraries/Text/RCTText.xcodeproj"; sourceTree = "<group>"; };
 		870198AADA995C95F4946510 /* Pods-ReaderAppTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ReaderAppTests.release.xcconfig"; path = "Target Support Files/Pods-ReaderAppTests/Pods-ReaderAppTests.release.xcconfig"; sourceTree = "<group>"; };
+		8FEEB3F9B6C0E1341A8798DA /* Pods-ReaderApp-ReaderAppTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ReaderApp-ReaderAppTests.release.xcconfig"; path = "Target Support Files/Pods-ReaderApp-ReaderAppTests/Pods-ReaderApp-ReaderAppTests.release.xcconfig"; sourceTree = "<group>"; };
 		93F0769FE782B12351244116 /* Pods-ReaderApp-tvOSTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ReaderApp-tvOSTests.release.xcconfig"; path = "Target Support Files/Pods-ReaderApp-tvOSTests/Pods-ReaderApp-tvOSTests.release.xcconfig"; sourceTree = "<group>"; };
 		9B3B8554CE7C79D94A9E482F /* Pods-ReaderApp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ReaderApp.debug.xcconfig"; path = "Target Support Files/Pods-ReaderApp/Pods-ReaderApp.debug.xcconfig"; sourceTree = "<group>"; };
 		9E32DC84F87237A00E1F4BB4 /* Pods-ReaderApp-tvOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ReaderApp-tvOS.debug.xcconfig"; path = "Target Support Files/Pods-ReaderApp-tvOS/Pods-ReaderApp-tvOS.debug.xcconfig"; sourceTree = "<group>"; };
@@ -375,6 +378,7 @@
 		C3064F3EC50D4BF08968171A /* libz.tbd */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		CDA731AEC535A4A7F11F6CF1 /* libPods-ReaderApp.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-ReaderApp.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D1C1FB7CD4B143559CA00D23 /* TSBackgroundFetch.framework */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = wrapper.framework; name = TSBackgroundFetch.framework; path = "../node_modules/react-native-background-fetch/ios/RNBackgroundFetch/TSBackgroundFetch.framework"; sourceTree = SDKROOT; };
+		E0B126876D83B2110C20BDBD /* Pods-ReaderApp-ReaderAppTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ReaderApp-ReaderAppTests.debug.xcconfig"; path = "Target Support Files/Pods-ReaderApp-ReaderAppTests/Pods-ReaderApp-ReaderAppTests.debug.xcconfig"; sourceTree = "<group>"; };
 		E5401A0C22C6CFCB00B2FAE8 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		E5D001A622C3DA8800758381 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
@@ -387,7 +391,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B1A38FF55BC5B8CCD0658D62 /* libPods-ReaderAppTests.a in Frameworks */,
+				E7FCDE44A18CEDDC03ED9248 /* libPods-ReaderApp-ReaderAppTests.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -582,7 +586,7 @@
 				CDA731AEC535A4A7F11F6CF1 /* libPods-ReaderApp.a */,
 				0F9FB104050FC5E16E8B3104 /* libPods-ReaderApp-tvOS.a */,
 				9EC8B9DF5E7CCBC9628D8B40 /* libPods-ReaderApp-tvOSTests.a */,
-				4FF36BBC00DBFAF42CE44B0E /* libPods-ReaderAppTests.a */,
+				08F889EFCC88A5BA169EFF6B /* libPods-ReaderApp-ReaderAppTests.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -635,6 +639,7 @@
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
+				07204FCA24E13B18009CA4A0 /* Launch Screen.storyboard */,
 				07779EE5233A6C4100196F02 /* yo.swift */,
 				E5401A0C22C6CFCB00B2FAE8 /* GoogleService-Info.plist */,
 				0707A7582226BBA300258667 /* grogger.mp3 */,
@@ -684,6 +689,8 @@
 				93F0769FE782B12351244116 /* Pods-ReaderApp-tvOSTests.release.xcconfig */,
 				B00BB92AED74710D4E1B450D /* Pods-ReaderAppTests.debug.xcconfig */,
 				870198AADA995C95F4946510 /* Pods-ReaderAppTests.release.xcconfig */,
+				E0B126876D83B2110C20BDBD /* Pods-ReaderApp-ReaderAppTests.debug.xcconfig */,
+				8FEEB3F9B6C0E1341A8798DA /* Pods-ReaderApp-ReaderAppTests.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -699,6 +706,7 @@
 				00E356EA1AD99517003FC87E /* Sources */,
 				00E356EB1AD99517003FC87E /* Frameworks */,
 				00E356EC1AD99517003FC87E /* Resources */,
+				37F96A892BF6A44D2DD21F57 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -721,6 +729,7 @@
 				07779F24233A745600196F02 /* Frameworks */,
 				B51EA1F0FB52879CF8121E7C /* [CP-User] [RNFB] Core Configuration */,
 				FB21776EC605F2920064D47D /* [CP-User] [RNFB] Crashlytics Configuration */,
+				85E5A96D2784B7334F38E251 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -1140,6 +1149,7 @@
 			files = (
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				0761D1BF207DD6200011FE47 /* Heebo-Regular.ttf in Resources */,
+				07204FCB24E13B18009CA4A0 /* Launch Screen.storyboard in Resources */,
 				E5D001A722C3DA8800758381 /* GoogleService-Info.plist in Resources */,
 				0761D1B8207DD6200011FE47 /* Amiri-Regular.ttf in Resources */,
 				0761D1C2207DD6200011FE47 /* OpenSans-Regular.ttf in Resources */,
@@ -1225,6 +1235,24 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
+		37F96A892BF6A44D2DD21F57 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-ReaderApp-ReaderAppTests/Pods-ReaderApp-ReaderAppTests-resources.sh",
+				"${PODS_CONFIGURATION_BUILD_DIR}/React-Core/AccessibilityResources.bundle",
+			);
+			name = "[CP] Copy Pods Resources";
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/AccessibilityResources.bundle",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-ReaderApp-ReaderAppTests/Pods-ReaderApp-ReaderAppTests-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
 		78D1332DE206CF6D847DB6D1 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -1247,6 +1275,24 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
+		85E5A96D2784B7334F38E251 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-ReaderApp/Pods-ReaderApp-resources.sh",
+				"${PODS_CONFIGURATION_BUILD_DIR}/React-Core/AccessibilityResources.bundle",
+			);
+			name = "[CP] Copy Pods Resources";
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/AccessibilityResources.bundle",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-ReaderApp/Pods-ReaderApp-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
 		8812FBE0B3529ED3EECF5BE9 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -1262,7 +1308,7 @@
 			outputFileListPaths = (
 			);
 			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-ReaderAppTests-checkManifestLockResult.txt",
+				"$(DERIVED_FILE_DIR)/Pods-ReaderApp-ReaderAppTests-checkManifestLockResult.txt",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -1368,7 +1414,7 @@
 /* Begin XCBuildConfiguration section */
 		00E356F61AD99517003FC87E /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = B00BB92AED74710D4E1B450D /* Pods-ReaderAppTests.debug.xcconfig */;
+			baseConfigurationReference = E0B126876D83B2110C20BDBD /* Pods-ReaderApp-ReaderAppTests.debug.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
@@ -1400,7 +1446,7 @@
 		};
 		00E356F71AD99517003FC87E /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 870198AADA995C95F4946510 /* Pods-ReaderAppTests.release.xcconfig */;
+			baseConfigurationReference = 8FEEB3F9B6C0E1341A8798DA /* Pods-ReaderApp-ReaderAppTests.release.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
@@ -1504,7 +1550,7 @@
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/rn-fetch-blob\"",
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/yoga\"",
 				);
-				MARKETING_VERSION = 5.5.9;
+				MARKETING_VERSION = 5.6.1;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -1597,7 +1643,7 @@
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/rn-fetch-blob\"",
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/yoga\"",
 				);
-				MARKETING_VERSION = 5.5.9;
+				MARKETING_VERSION = 5.6.1;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -1793,6 +1839,7 @@
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
 					"$(inherited)",
+					"FB_SONARKIT_ENABLED=1",
 				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;

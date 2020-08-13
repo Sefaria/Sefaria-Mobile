@@ -20,6 +20,26 @@ import Sefaria from './sefaria';
 import styles from './Styles.js';
 import strings from './LocalizedStrings';
 
+const OrderedList = ({items, renderItem}) => {
+  let arrayOffset = 0;
+  return (
+    <>
+      {
+        items.map((item, index) => {
+          if (Array.isArray(item)) {
+            arrayOffset += 1;
+            return (
+              <View style={{marginLeft: 10}} key={`wrapper|${index}`}>
+                <OrderedList renderItem={renderItem} items={item}/>
+              </View>
+            );
+          }
+          return renderItem(item, index-arrayOffset);
+        })
+      }
+    </>
+  );
+}
 
 const SystemButton = ({ onPress, text, img, isHeb, isBlue, isLoading, extraStyles=[] }) => (
   <GlobalStateContext.Consumer>
@@ -244,10 +264,12 @@ class AnimatedRow extends React.Component {
         Animated.timing(this._position, {
           toValue: 0,
           duration: animationDuration,
+          useNativeDriver: true,
         }),
         Animated.timing(this._height, {
           toValue: 0,
           duration: animationDuration,
+          useNativeDriver: true,
         })
       ]).start(onRemove);
     }
@@ -336,7 +358,9 @@ const LibraryNavButton = ({
   return (
     <TouchableOpacity
       onPress={onPress}
-      style={[styles.searchFilterCat, {flexDirection: flexDir}, buttonStyle].concat(colorStyle)}>
+      style={[styles.searchFilterCat, {flexDirection: flexDir}, buttonStyle].concat(colorStyle)}
+      delayPressIn={200}
+    >
       <View style={{flexDirection: flexDir, alignItems: "center"}}>
         {
           !!onPressCheckBox ? <TouchableOpacity style={{paddingHorizontal: 10, paddingVertical: 15}} onPress={onPressCheckBox} >
@@ -741,38 +765,28 @@ class RainbowBar extends React.Component {
     )
   }
 }
-class HebrewInEnglishText extends React.Component {
-  //Use Sefaria.util.hebrewInEnglish for HTML text in a text or sheet segment. This is for other react components
 
-  cleanText(text){
-      var splitText = Sefaria.util.hebrewInEnglish(Sefaria.util.stripHtml(text),"list")
-      var cleanText = []
-      for (let chunk of splitText) {
-          if (Sefaria.hebrew.isHebrew(chunk)) {
-            cleanText.push(<Text style={this.props.stylesHe}>{chunk}</Text>)
-          }
-          else {
-              cleanText.push(<Text style={this.props.stylesEn}>{chunk}</Text>)
-          }
-      }
-      return cleanText
-  }
-
-  render() {
-      return this.cleanText(this.props.text)
-  }
-
-}
+const HebrewInEnglishText = ({ text, stylesEn, stylesHe }) => (
+  Sefaria.util.hebrewInEnglish(Sefaria.util.stripHtml(text),"list").map((chunk, index) =>
+    (Sefaria.hebrew.isHebrew(chunk) ?
+      <Text key={index} style={stylesHe}>{chunk}</Text> :
+      <Text key={index} style={stylesEn}>{chunk}</Text>
+    )
+  )
+);
 
 class SText extends React.Component {
   static propTypes = {
-    children: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
+    children: PropTypes.oneOfType([PropTypes.string, PropTypes.object, PropTypes.array]),
     lang:     PropTypes.oneOf(["hebrew", "bilingual", "english"]),
     style:    PropTypes.oneOfType([PropTypes.object, PropTypes.array]),
   }
 
-  fsize2lheight = (fsize, lang) => (
-    lang !== "hebrew" ? (fsize * 2) - 4 : (fsize) + 2 // very naive guess at what the function should be (17 == 30, 16 == 28)
+  // very naive guess at what the function should be
+  fsize2lheight = (fsize, lang, lineMultiplier) => (
+    (lineMultiplier || 1) * (Platform.OS === 'ios' ?
+    (lang !== "hebrew" ? (fsize * 1.2) : fsize) :
+    (lang !== "hebrew" ? (fsize * 1.333) : fsize))
   );
 
   getFontSize = (style, lang) => {
@@ -780,16 +794,16 @@ class SText extends React.Component {
     for (let s of style) {
       if (!!s && !!s.fontSize) { fsize = s.fontSize; }
     }
-    fsize = lang === "hebrew" ? fsize * 1.2 : fsize;
+    fsize = lang === "hebrew" ? 1.2*fsize : fsize;
     return fsize;
   }
 
   render() {
-    const { style, lang, children } = this.props;
+    const { style, lang, lineMultiplier, children } = this.props;
     const styleArray = Array.isArray(style) ? style : [style];
     const fontSize = this.getFontSize(styleArray, lang);
     return (
-      <Text {...this.props} style={styleArray.concat([{lineHeight: this.fsize2lheight(fontSize, lang)}])}>
+      <Text {...this.props} style={styleArray.concat([{lineHeight: this.fsize2lheight(fontSize, lang, lineMultiplier)}])}>
         { children }
       </Text>
     );
@@ -816,6 +830,7 @@ export {
   LibraryNavButton,
   LoadingView,
   MenuButton,
+  OrderedList,
   RainbowBar,
   SearchButton,
   SefariaProgressBar,

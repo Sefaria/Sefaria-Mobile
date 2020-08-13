@@ -11,8 +11,10 @@ import ReactNative, {
   Dimensions,
   ViewPropTypes,
   queryLayoutByID,
+  AppState,
+  Image,
 } from 'react-native';
-
+import { WebView } from 'react-native-webview';
 import styles from './Styles.js';
 import TextRange from './TextRange';
 import TextRangeContinuous from './TextRangeContinuous';
@@ -23,9 +25,18 @@ const COMMENTARY_LINE_THRESHOLD = 100;
 
 import {
   LoadingView,
+  HebrewInEnglishText,
 } from './Misc.js';
 
-const ROW_TYPES = {SEGMENT: 1, ALIYA: 2, PARASHA: 3};
+const ROW_TYPES = {
+  SEGMENT: 1,
+  ALIYA: 2,
+  PARASHA: 3,
+  SHEET_COMMENT: 4,
+  SHEET_OUTSIDE_TEXT: 5,
+  SHEET_OUTSIDE_BI_TEXT: 6,
+  SHEET_MEDIA: 7
+};
 
 class TextColumn extends React.PureComponent {
   static whyDidYouRender = true;
@@ -36,8 +47,7 @@ class TextColumn extends React.PureComponent {
     theme:              PropTypes.object.isRequired,
     themeStr:           PropTypes.string,
     fontSize:           PropTypes.number.isRequired,
-    data:               PropTypes.array,
-    textReference:      PropTypes.string,
+    data:               PropTypes.oneOfType([PropTypes.array, PropTypes.object]),  // can be object in the case of sheets
     sectionArray:       PropTypes.array,
     sectionHeArray:     PropTypes.array,
     offsetRef:          PropTypes.string,
@@ -59,7 +69,7 @@ class TextColumn extends React.PureComponent {
     loadingTextHead:    PropTypes.bool,
     linksLoaded:        PropTypes.array,
     showAliyot:         PropTypes.bool.isRequired,
-    openUri:            PropTypes.func.isRequired,
+    openUriOrRef:       PropTypes.func.isRequired,
     biLayout:           PropTypes.oneOf(["stacked", "sidebyside", "sidebysiderev"]),
     textUnavailableAlert: PropTypes.func.isRequired,
   };
@@ -103,7 +113,38 @@ class TextColumn extends React.PureComponent {
 
     let offsetRef = this._standardizeOffsetRef(props.offsetRef);
     let segmentGenerator;
-    if (props.textFlow == 'continuous' && Sefaria.canBeContinuous(props.textTitle)) {
+    if (props.isSheet) {
+      segmentGenerator = () => null;
+      const sheetRef = `Sheet ${props.sheetMeta.sheetID}`;
+      dataSource.push({
+        ref: sheetRef,
+        heRef: `דף ${props.data.id}`,
+        sectionIndex: 0,
+        data: props.data[0].map((source, segmentNumber) => {
+          let type = null;
+          const sheetNodeRef = `${sheetRef}:${segmentNumber}`;
+          const row = {
+            ref: sheetNodeRef,
+            data: {
+              content: source,
+              sectionIndex: 0,
+              rowIndex: segmentNumber,
+              highlight: props.textListVisible && props.segmentRef == sheetNodeRef,
+            },
+            changeString: sheetNodeRef,
+          };
+          if (source.type === 'ref')                { type = ROW_TYPES.SEGMENT; }
+          else if (source.type === 'comment')       { type = ROW_TYPES.SHEET_COMMENT; }
+          else if (source.type === 'outsideText')   { type = ROW_TYPES.SHEET_OUTSIDE_TEXT; }
+          else if (source.type === 'outsideBiText') { type = ROW_TYPES.SHEET_OUTSIDE_BI_TEXT; }
+          else if (source.type === 'media')         { type = ROW_TYPES.SHEET_MEDIA; }
+          row.type = type;
+          return row;
+        }),
+        changeString: sheetRef,
+      });
+    }
+    else if (props.textFlow == 'continuous' && Sefaria.canBeContinuous(props.textTitle)) {
       let highlight = null;
       for (let sectionIndex = 0; sectionIndex < data.length; sectionIndex++) {
         let rows = [];
@@ -211,7 +252,7 @@ class TextColumn extends React.PureComponent {
     return ref;
   };
 
-  textSegmentPressed = (section, segment, segmentRef, shouldToggle) => {
+  textSegmentPressed = (section, segment, segmentRef, onlyOpen) => {
     if (!this.props.textListVisible) {
       if (this.props.textFlow === 'continuous') {
         const targetY = this.rowYHash[segmentRef] + this.state.itemLayoutList[this.state.jumpInfoMap.get(this.props.sectionArray[section])].offset;
@@ -239,7 +280,7 @@ class TextColumn extends React.PureComponent {
       }
 
     }
-    this.props.textSegmentPressed(section, segment, segmentRef, true);
+    this.props.textSegmentPressed(section, segment, segmentRef, true, onlyOpen);
   };
 
   inlineSectionHeader = (ref) => {
@@ -297,7 +338,7 @@ class TextColumn extends React.PureComponent {
     }
     let currSec;
     for (let seg of viewableItems) {
-      if (seg.item.type !== ROW_TYPES.SEGMENT && seg.item.type !== undefined) { continue }
+      if (seg.item.type === ROW_TYPES.ALIYA || seg.item.type === ROW_TYPES.PARASHA) { continue }
       if (seg.item.type === undefined) {
         // apparently segments with item.type === undefined are sections. who knew?
         secData.sectionRefs.push(seg.item.ref);
@@ -422,10 +463,17 @@ class TextColumn extends React.PureComponent {
   *******************/
 
   renderRow = ({ item }) => {
-    if (item.type === ROW_TYPES.SEGMENT) {
+    if (
+      item.type === ROW_TYPES.SEGMENT ||
+      item.type === ROW_TYPES.SHEET_COMMENT ||
+      item.type === ROW_TYPES.SHEET_OUTSIDE_TEXT ||
+      item.type === ROW_TYPES.SHEET_OUTSIDE_BI_TEXT
+    ) {
       return (this.props.textFlow == 'continuous' && Sefaria.canBeContinuous(this.props.textTitle)) ?
         this.renderContinuousRow({ item }) :
         this.renderSegmentedRow({ item });
+    } else if (item.type === ROW_TYPES.SHEET_MEDIA) {
+      return this.renderSheetMedia({ item });
     } else {
       return this.renderAliyaMarker({ item });
     }
@@ -459,6 +507,7 @@ class TextColumn extends React.PureComponent {
     return (
       <TextRange
         fontScale={this.props.fontScale}
+        displayRef={item.type === ROW_TYPES.SEGMENT && this.props.isSheet}
         showToast={this.props.showToast}
         rowData={item.data}
         segmentRef={item.ref}
@@ -466,7 +515,17 @@ class TextColumn extends React.PureComponent {
         textSegmentPressed={this.textSegmentPressed}
         setRowRef={this.setSegmentRowRef}
         setRowRefInitY={this.setRowRefInitY}
-        openUri={this.props.openUri}
+        openUriOrRef={this.props.openUriOrRef}
+        setDictionaryLookup={this.props.setDictionaryLookup}
+      />
+    );
+  };
+
+  renderSheetMedia = ({ item }) => {
+    return (
+      <SheetMedia
+        theme={this.props.theme}
+        url={item.data.content.url}
       />
     );
   };
@@ -475,6 +534,8 @@ class TextColumn extends React.PureComponent {
     if (!props) {
       props = this.props;
     }
+    if (props.isSheet) { return null; }
+
     const isHeb = Sefaria.util.get_menu_language(props.interfaceLanguage, props.textLanguage) == "hebrew";
     return (
       <TextHeader
@@ -489,6 +550,7 @@ class TextColumn extends React.PureComponent {
   };
 
   renderAliyaMarker = ({ item }) => {
+    if (this.props.isSheet) { return null; }
     const isHeb = Sefaria.util.get_menu_language(this.props.interfaceLanguage, this.props.textLanguage) == "hebrew";
     return (
       <TextHeader
@@ -503,7 +565,20 @@ class TextColumn extends React.PureComponent {
     );
   };
 
-  renderFooter = () => {
+  renderListHeader = () => {
+    if (this.props.isSheet) {
+      return (
+        <View>
+          <Text style={styles.sheetTitle}><HebrewInEnglishText text={this.props.sheetMeta.title} stylesHe={[styles.heInEn]} stylesEn={[]}/></Text>
+          <Text style={styles.sheetAuthor}>{this.props.sheetMeta.ownerName}</Text>
+        </View>
+      )
+    }
+    return null;
+  }
+
+  renderListFooter = () => {
+    if (this.props.isSheet) { return null; }
     return this.props.next ? <LoadingView category={Sefaria.categoryForTitle(this.props.textTitle)}/> : null;
   };
 
@@ -551,7 +626,6 @@ class TextColumn extends React.PureComponent {
     if (!this._isMounted) { return; }
 
     if (shouldJump) {
-      console.log("jumping!", offset);
       this.sectionListRef._wrapperListRef._listRef.scrollToOffset({
         offset,
         animated,
@@ -671,7 +745,8 @@ class TextColumn extends React.PureComponent {
               sections={this.state.dataSource}
               renderItem={this.renderRow}
               renderSectionHeader={this.renderSectionHeader}
-              ListFooterComponent={this.renderFooter}
+              ListHeaderComponent={this.renderListHeader}
+              ListFooterComponent={this.renderListFooter}
               onEndReached={this.onEndReached}
               onEndReachedThreshold={2.0}
               onScroll={this.handleScroll}
@@ -735,6 +810,95 @@ class CellView extends React.PureComponent {
     return (
       <View {...this.props} onLayout={this.onLayoutOuter}>
         { this.props.children }
+      </View>
+    );
+  }
+}
+
+class SheetMedia extends React.PureComponent {
+  state = {
+    appState: AppState.currentState
+  }
+
+  componentDidMount() {
+    AppState.addEventListener('change', this._handleAppStateChange);
+  }
+
+  componentWillUnmount() {
+    AppState.removeEventListener('change', this._handleAppStateChange);
+  }
+
+  _handleAppStateChange = (nextAppState) => {
+    this.setState({appState: nextAppState});
+  }
+
+  onShouldStartLoadWithRequest = (navigator) => {
+    if (navigator.url.indexOf('embed') !== -1) { return true; }
+    this.webview.stopLoading(); //Some reference to your WebView to make it stop loading that URL
+    return false;
+  }
+
+  _getWebViewRef = ref => { this.webview = ref; }
+
+  makeMediaEmbedLink(mediaURL) {
+    let mediaLink;
+    if (mediaURL.match(/\.(jpeg|jpg|gif|png)$/i) != null) {
+      mediaLink = (
+        <Image
+          style={{
+            flex: 1,
+            width: null,
+            height: null,
+            resizeMode: 'contain'
+          }}
+          source={{uri: mediaURL}}
+        />
+      );
+    } else if (mediaURL.toLowerCase().indexOf('youtube') > 0) {
+      mediaLink = (
+        <WebView
+          ref={this._getWebViewRef}
+          scrollEnabled={false}
+          javaScriptEnabled={true}
+          domStorageEnabled={true}
+          style={{  }}
+          source={{uri: mediaURL}}
+          onShouldStartLoadWithRequest={this.onShouldStartLoadWithRequest} //for iOS
+          onNavigationStateChange ={this.onShouldStartLoadWithRequest} //for Android
+        />
+      );
+    } else if (mediaURL.toLowerCase().indexOf('vimeo') > 0) {
+      mediaLink =  (
+        <WebView
+          originWhitelist={['*']}
+          source={{ html: `<iframe width="320" height="230" scrolling="no" frameborder="no" src="${mediaURL}"></iframe>` }}
+        />
+      );
+    } else if (mediaURL.toLowerCase().indexOf('soundcloud') > 0) {
+      mediaLink =  (
+        <WebView
+          originWhitelist={['*']}
+          source={{ html: `<iframe width="100%" height="166" scrolling="no" frameborder="no" src="${mediaURL}"></iframe>` }}
+         />
+      );
+    } else if (mediaURL.match(/\.(mp3)$/i) != null) {
+      mediaLink =  (
+        <WebView
+          originWhitelist={['*']}
+          source={{ html: `<audio src="${mediaURL}" type="audio/mpeg" controls>Your browser does not support the audio element.</audio>` }}
+         />
+      );
+    } else {
+      mediaLink = (<Text>{'Error loading media'}</Text>);
+    }
+
+    return mediaLink
+  }
+
+  render() {
+    return (
+      <View style={{height: 200, flex: 1, marginHorizontal: 40}}>
+        {this.makeMediaEmbedLink(this.props.url)}
       </View>
     );
   }

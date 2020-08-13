@@ -1,21 +1,8 @@
-diff --git a/node_modules/react-native/ReactAndroid/src/main/java/com/facebook/react/modules/systeminfo/AndroidInfoModule.java b/node_modules/react-native/ReactAndroid/src/main/java/com/facebook/react/modules/systeminfo/AndroidInfoModule.java
-index ef2ae93..2795802 100644
---- a/node_modules/react-native/ReactAndroid/src/main/java/com/facebook/react/modules/systeminfo/AndroidInfoModule.java
-+++ b/node_modules/react-native/ReactAndroid/src/main/java/com/facebook/react/modules/systeminfo/AndroidInfoModule.java
-@@ -92,7 +92,7 @@ public class AndroidInfoModule extends ReactContextBaseJavaModule implements Tur
- 
-   private Boolean isRunningScreenshotTest() {
-     try {
--      Class.forName("android.support.test.rule.ActivityTestRule");
-+      Class.forName("androidx.test.rule.ActivityTestRule");
-       return true;
-     } catch (ClassNotFoundException ignored) {
-       return false;
 diff --git a/node_modules/react-native/react.gradle b/node_modules/react-native/react.gradle
-index 14f0746..dc17f0b 100644
+index d886a9b..8cc215f 100644
 --- a/node_modules/react-native/react.gradle
 +++ b/node_modules/react-native/react.gradle
-@@ -106,6 +106,29 @@ afterEvaluate {
+@@ -133,6 +133,28 @@ afterEvaluate {
                  jsSourceMapsDir.mkdirs()
              }
  
@@ -41,7 +28,6 @@ index 14f0746..dc17f0b 100644
 +                        ant.move(file: originalDir, tofile: destDir);
 +                }
 +            }
-+
              // Set up inputs and outputs so gradle can cache the result
              inputs.files fileTree(dir: reactRoot, excludes: inputExcludes)
              outputs.dir(jsBundleDir)

@@ -40,6 +40,8 @@ buck-out/
 \.buckd/
 *.keystore
 !debug.keystore
+# VSCode
+*.code-workspace
 
 # fastlane
 #
