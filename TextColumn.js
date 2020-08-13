@@ -867,6 +867,13 @@ class SheetMedia extends React.PureComponent {
           onNavigationStateChange ={this.onShouldStartLoadWithRequest} //for Android
         />
       );
+    } else if (mediaURL.toLowerCase().indexOf('vimeo') > 0) {
+      mediaLink =  (
+        <WebView
+          originWhitelist={['*']}
+          source={{ html: `<iframe width="320" height="230" scrolling="no" frameborder="no" src="${mediaURL}"></iframe>` }}
+        />
+      );
     } else if (mediaURL.toLowerCase().indexOf('soundcloud') > 0) {
       mediaLink =  (
         <WebView
