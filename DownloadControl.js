@@ -306,7 +306,6 @@ class Book {
 
 
 function downloadFilePromise(fileUrl, filepath, downloadFrom=0) {
-  // useDownloadManager is for using the android download manager. Parameter is ignored on ios devices
   // Test with Appium
   const config = RNFB.config({
       IOSBackgroundTask: true,
