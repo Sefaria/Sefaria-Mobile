@@ -58,5 +58,7 @@ ext {
     minSdkVersion = 16
     compileSdkVersion = 29
     targetSdkVersion = 29
-    supportLibVersion = "29.0.
+    supportLibVersion = "29.0.2"
+}
+dependencies {
 }
