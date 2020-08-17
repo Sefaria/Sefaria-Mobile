@@ -170,6 +170,7 @@ class DownloadTracker {
         firstRun = false;
         return
       }
+        console.log('running networkChangeMethod');
       if (allowedToDownload(state)) {
         console.log('scheduled download recovery from event listener');
         downloadRecover(networkSetting, downloadBuffer).then(() => {});
@@ -684,6 +685,8 @@ async function downloadBundle(bundleName, networkSetting, downloadBuffer, recove
        * important to schedule the download recovery, rather than running into it directly. Hence the call to setTimeout.
        * Further investigation recommended.
        */
+        console.log('Error when awaiting download Promise:');
+        console.log(e);
       Tracker.removeDownload();
       setTimeout(async () => {
         console.log('scheduled download recovery from downloadBundle');
@@ -750,10 +753,16 @@ async function calculateBooksToDownload(booksState) {
     const bookObj = booksState[bookTitle];
     if (bookObj.desired) {
       if (!bookObj.localLastUpdated) {
+          if (bookTitle === 'Genesis') {
+              console.log('Genesis bookObj had no localLastUpdated');
+          }
         booksToDownload.push(bookTitle);
       } else {
         const [localUpdate, remoteUpdate] = [booksState[bookTitle].localLastUpdated, new Date(remoteBookUpdates.titles[bookTitle])];
         if (localUpdate < remoteUpdate) {
+            if (bookTitle === 'Genesis') {
+                console.log(`Genesis localUpdate: ${localUpdate}; remoteUpdate: ${remoteUpdate}`);
+            }
           booksToDownload.push(bookTitle)
         }
       }
@@ -808,6 +817,15 @@ async function postDownload(downloadPath, newDownload=true, sessionStorageLoc) {
   console.log(`we have ${
     Object.values(BooksState).filter(b => !!b.localLastUpdated).length
   } books on disk`)
+
+  // -- DEBUG CODE --
+  const genesisExists = await RNFB.fs.exists(`${FILE_DIRECTORY}/Genesis.zip`);
+  if (genesisExists) {
+      const s = await RNFB.fs.stat(`${FILE_DIRECTORY}/Genesis.zip`);
+      const genesisAdded = new Date(parseInt(s.lastModified));
+      console.log(`Genesis added at ${genesisAdded}. Raw value: ${s.lastModified}`);
+  } else { console.log('Genesis file does not exist'); }
+ // -- END DEBUG --
 }
 
 const downloadBlockedNotification = () => {
@@ -870,7 +888,8 @@ async function downloadPackage(packageName, networkSetting) {
     downloadBlockedNotification();
     return
   }  // todo: review: should notification to the user be sent for a forbidden download?
-  const bundles = await getPackageUrls(packageName);
+  let bundles = await getPackageUrls(packageName);
+  bundles = bundles.map(u => encodeURIComponent(u));
   console.log(bundles);
   await downloadBundleArray(bundles, Tracker.arrayDownloadState, networkSetting);
   // bundles.map(async b => {await downloadBundle(`${DOWNLOAD_SERVER}/${b}`, networkSetting)});
