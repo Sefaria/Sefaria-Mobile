@@ -43,6 +43,7 @@ import {
   isDownloadAllowed,
   FILE_DIRECTORY, downloadUpdate
 } from './DownloadControl';
+import Sefaria from "./sefaria";
 const DEBUG_MODE = false;
 
 const generateOptions = (options, onPress) => options.map(o => ({
@@ -343,7 +344,7 @@ const PackageComponent = ({ packageObj, onPackagePress, isDisabledObj }) => {
   return (
     <View key={packageObj.name}>
       <LibraryNavButton
-        catColor={Sefaria.palette.categoryColor(packageObj.color)}
+        catColor={Sefaria.palette.categoryColor(packageObj.jsonData.color)}
         enText={packageObj.name}
         heText={packageObj.jsonData['he']}
         count={`${Math.round(packageObj.jsonData['size'] / 1e6)}mb`  /* NOTE: iOS uses 1e6 def of mb*/ }
