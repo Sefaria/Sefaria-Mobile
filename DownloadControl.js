@@ -759,6 +759,8 @@ async function calculateBooksToDownload(booksState) {
         booksToDownload.push(bookTitle);
       } else {
         const [localUpdate, remoteUpdate] = [booksState[bookTitle].localLastUpdated, new Date(remoteBookUpdates.titles[bookTitle])];
+        // file timestamp will come from the server on certain platforms - we pad a bit as these values can be very similar to those on last_updated.json
+        localUpdate.setHours(localUpdate.getHours() + 6);
         if (localUpdate < remoteUpdate) {
             if (bookTitle === 'Genesis') {
                 console.log(`Genesis localUpdate: ${localUpdate}; remoteUpdate: ${remoteUpdate}`);
