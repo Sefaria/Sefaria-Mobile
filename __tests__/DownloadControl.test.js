@@ -8,6 +8,7 @@ import {
   loadJSONFile,
   downloadBundle,
   getFullBookList,
+  requestNewBundle,
   getLocalBookList,
   FILE_DIRECTORY, calculateBooksToDownload, calculateBooksToDelete, autoUpdateCheck
 } from '../DownloadControl'
@@ -81,9 +82,9 @@ const packageData = [
   }
 ];
 
-// fetch = jest.fn(x => {
-//   return {status: 200}
-// });
+fetch = jest.fn(x => {
+  return Promise.resolve({status: 200, ok: true, json: async () => Promise.resolve({})})
+});
 
 beforeEach(async () => {
   await RNFB.fs.writeFile(`${FILE_DIRECTORY}/toc.json`, tocJson);
@@ -247,7 +248,13 @@ describe('UpdateTests', () => {
     lastWeek.setDate(lastWeek.getDate() - 7);
     RNFB.fs.setTimestamp(`${FILE_DIRECTORY}/Exodus.zip`, lastWeek.valueOf());
     await basicTest(6, 0);
-  })
+  });
+  test('requestNewBundle', async () => {
+    // check that the method retries after server failure
+    fetch.mockImplementationOnce(x => Promise.resolve({status: 502, ok: false}));
+    await requestNewBundle(['Genesis', 'Job'], 1);
+    expect(fetch).toHaveBeenCalledTimes(2);
+  });
 });
 
 describe('lastUpdated', () => {
@@ -338,6 +345,16 @@ describe('testMocking', () => {
     RNFB.fs.setTimestamp('/foo/bar', someTime);
     const stat = await RNFB.fs.stat('/foo/bar');
     expect(stat.lastModified).toBe(someTime.valueOf());
+  });
+  test('fetchMocks', async () => {
+    fetch.mockImplementationOnce(x => Promise.resolve({status: 404}));
+    let fetchResponse;
+    fetchResponse = await fetch('foo');
+    expect(fetchResponse.status).toBe(404);
+    fetchResponse = await fetch('foo');
+    expect(fetchResponse.status).toBe(200);
+    const j = await fetchResponse.json();
+    expect(j).toEqual({});
   });
 });
 

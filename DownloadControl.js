@@ -543,15 +543,27 @@ async function unzipBundle(bundleSessionLocation) {
   await unzip(bundleSessionLocation, FILE_DIRECTORY);
 }
 
-function requestNewBundle(bookList) {
-  // Test with Appium
+function timeoutPromise(ms) {
   return new Promise((resolve, reject) => {
-    fetch(`${DOWNLOAD_SERVER}/makeBundle`, {
+    setTimeout(resolve, ms);
+  });
+}
+
+async function requestNewBundle(bookList, badResponseWaitTime=3000) {
+  while (true) {
+    let response = await fetch(`${DOWNLOAD_SERVER}/makeBundle`, {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({books: bookList})
-    }).then(x => x.json()).then(x => resolve(x)).catch(err => reject(err))
-  })
+    });
+    if (response.ok) {
+      return await response.json();
+
+    } else {
+      console.log('bad status from downloadServer - trying bundle request again');
+      await timeoutPromise(badResponseWaitTime);
+    }
+  }
 }
 
 function getPackageUrls(packageName) {
@@ -908,8 +920,13 @@ async function downloadUpdate(networkSetting, triggeredByUser=true) {
   }
   const booksToDownload = await calculateBooksToDownload(BooksState);
   if (!booksToDownload.length) { return }
-  await Tracker.startDownloadSession('Update');
+  console.log('requesting new bundle');
   const bundles = await requestNewBundle(booksToDownload);
+  if (Tracker.downloadInProgress()) {  // before starting the process, double check that another one wasn't triggered
+    return
+  }
+  await Tracker.startDownloadSession('Update');
+  console.log(`recieved bundle: ${bundles}; starting download`);
   await downloadBundleArray(bundles, Tracker.arrayDownloadState, networkSetting);
 }
 
@@ -1157,4 +1174,5 @@ export {
   downloadRecover,
   doubleDownload,
   isDownloadAllowed,
+  requestNewBundle,
 };
