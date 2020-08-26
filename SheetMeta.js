@@ -26,7 +26,6 @@ import styles from './Styles.js';
 import strings from "./LocalizedStrings";
 import {CategoryAttribution, CloseButton, DirectedButton, HebrewInEnglishText} from "./Misc";
 import HTMLView from 'react-native-htmlview';
-import Sheet from "./Sheet"; //to convert html'afied JSON to something react can render (https://github.com/jsdf/react-native-htmlview)
 const ViewPort = Dimensions.get('window');
 var moment = require("moment");
 

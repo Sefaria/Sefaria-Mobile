@@ -60,6 +60,7 @@ class ReaderDisplayOptionsMenu extends React.Component {
     Animated.timing(this._position, {
       toValue: 1,
       duration: 250,
+      useNativeDriver: false,
     }).start();
   };
 
@@ -67,6 +68,7 @@ class ReaderDisplayOptionsMenu extends React.Component {
     Animated.timing(this._position, {
       toValue: 0,
       duration: 250,
+      useNativeDriver: false,
     }).start(cb);
   };
 

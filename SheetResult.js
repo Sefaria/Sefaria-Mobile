@@ -28,8 +28,11 @@ const SheetResult = ({
   return (
 
 
-    <TouchableOpacity style={[styles.textBlockLink, theme.textBlockLink, {margin:0, borderBottomWidth: 1, borderBottomColor: "#ccc", paddingTop: 13}]}
-                      onPress={onPress} >
+    <TouchableOpacity
+      style={[styles.textBlockLink, theme.textBlockLink, {margin:0, borderBottomWidth: 1, borderBottomColor: "#ccc", paddingTop: 13}]}
+      onPress={onPress}
+      delayPressIn={200}
+    >
 
     <View style={{ flexDirection: (interfaceLanguage == "hebrew" ? "row-reverse" : "row"),flex:1}}>
 

@@ -4,10 +4,8 @@ import React, { useContext, useCallback } from 'react';
 import {
   View,
   Text,
-  Clipboard,
   Platform,
-  Share,
-  Linking
+  Linking,
 } from 'react-native';
 import ActionSheet from 'react-native-action-sheet';
 import { GlobalStateContext, getTheme } from './StateManager';
@@ -17,6 +15,7 @@ import strings from './LocalizedStrings';
 
 
 const TextRange = React.memo(({
+  displayRef,
   showToast,
   rowData,
   segmentRef,
@@ -25,69 +24,20 @@ const TextRange = React.memo(({
   setRowRef,
   setRowRefInitY,
   fontScale,
-  openUri,
+  openUriOrRef,
+  setDictionaryLookup,
 }) => {
   const { themeStr, textLanguage, biLayout, fontSize } = useContext(GlobalStateContext);
-  const getDisplayedText = useCallback(withURL => {
-    const {text, he} = rowData.content;
-    const enText = Sefaria.util.removeHtml(typeof text === "string" ? text : "") || "";
-    const heText = Sefaria.util.removeHtml(typeof he === "string" ? he : "") || "";
-    const isHeb = textLanguage !== "english";
-    const isEng = textLanguage !== "hebrew";
-    const fullText = (heText && isHeb ? heText + (enText && isEng ? "\n" : "") : "") + ((enText && isEng) ? enText : "");
-    return withURL ? `${fullText}\n\n${Sefaria.refToUrl(segmentRef)}` : fullText;
-  }, [rowData, textLanguage, segmentRef]);
+
   const theme = getTheme(themeStr);
-  const onLongPress = useCallback(() => {
-    ActionSheet.showActionSheetWithOptions({
-      options: [
-        strings.copy,
-        strings.reportError,
-        strings.share,
-        strings.viewOnSite,
-        strings.cancel,
-      ],
-      cancelButtonIndex: 4,
-    },
-    (buttonIndex) => {
-      if (buttonIndex === 0) { copyToClipboard(); }
-      else if (buttonIndex === 1) { reportError(); }
-      else if (buttonIndex === 2) { Share.share({
-          message: getDisplayedText(Platform.OS === 'android'),  // android for some reason doesn't share text with a url attached at the bottom
-          title: segmentRef,
-          url: Sefaria.refToUrl(segmentRef)
-        })
-      }
-      else if (buttonIndex === 3) { openUri(Sefaria.refToUrl(segmentRef))}
-    })
-  }, [segmentRef]);
-
-  const copyToClipboard = () => {
-    Clipboard.setString(getDisplayedText());
-    showToast("Copied to clipboard", 500);
-  };
-
-  const reportErrorBody = () => (
-    encodeURIComponent(
-      `${segmentRef}
-
-      ${getDisplayedText(true)}
-
-      Describe the error:`)
-  );
-
-  const reportError = () => {
-    Linking.openURL(`mailto:corrections@sefaria.org?subject=${encodeURIComponent(`Sefaria Text Correction from ${Platform.OS}`)}&body=${reportErrorBody()}`)
-  };
-
   const _setRef = ref => {
     setRowRef(segmentRef, ref);
   };
 
   let enText = rowData.content.text || "";
   let heText = rowData.content.he || "";
-  enText = Sefaria.util.getDisplayableHTML(enText, 'english');
-  heText = Sefaria.util.getDisplayableHTML(heText, 'hebrew');
+  enText = Sefaria.util.getDisplayableHTML(enText.trim(), 'english');
+  heText = Sefaria.util.getDisplayableHTML(heText.trim(), 'hebrew');
   let numLinks = rowData.content.links ? rowData.content.links.length : 0;
 
   let segment = [];
@@ -123,6 +73,12 @@ const TextRange = React.memo(({
   }
   const showHe = textLanguageWithContent == "hebrew" || textLanguageWithContent == "bilingual";
   const showEn = textLanguageWithContent == "english" || textLanguageWithContent == "bilingual";
+  const onTextPress = (onlyOpen) => {
+    let key = refSection;
+    let section = parseInt(key.split(":")[0]);
+    let segment = parseInt(key.split(":")[1]);
+    textSegmentPressed(section, segment, segmentRef, onlyOpen);
+  };
   return (
     <View
       style={styles.verseContainer}
@@ -136,33 +92,44 @@ const TextRange = React.memo(({
         <View style={textStyle} key={segmentRef+"|text-box"}>
           {
             showHe ? (
-              <TextSegment
-              fontScale={fontScale}
-              fontSize={fontSize}
-              themeStr={themeStr}
-              rowRef={segmentRef}
-              segmentKey={refSection}
-              key={segmentRef+"|hebrew"}
-              data={heText}
-              textType="hebrew"
-              textSegmentPressed={ textSegmentPressed }
-              onLongPress={onLongPress}
-            />) : null
+              <View style={{flex: 4.5, paddingRight: biLayout == 'stacked' ? 0 : (biLayout == 'sidebyside' ? 10 : 0), paddingLeft: biLayout == 'stacked' ? 0 : (biLayout == 'sidebysiderev' ? 10 : 0)}}>
+                {displayRef ? <Text style={[styles.he, styles.textListCitation, theme.textListCitation]}>{rowData.content.sourceHeRef}</Text> : null}
+                <TextSegment
+                  fontScale={fontScale}
+                  fontSize={fontSize}
+                  themeStr={themeStr}
+                  segmentRef={segmentRef}
+                  segmentKey={refSection}
+                  data={heText}
+                  textType="hebrew"
+                  onTextPress={onTextPress}
+                  showToast={showToast}
+                  setDictionaryLookup={setDictionaryLookup}
+                  openUriOrRef={openUriOrRef}
+                />
+              </View>
+            ) : null
           }
           {
-            showEn ? (<TextSegment
-              fontScale={fontScale}
-              fontSize={fontSize}
-              themeStr={themeStr}
-              rowRef={segmentRef}
-              segmentKey={refSection}
-              key={segmentRef+"|english"}
-              data={enText}
-              textType="english"
-              bilingual={textLanguageWithContent === "bilingual"}
-              textSegmentPressed={ textSegmentPressed }
-              onLongPress={onLongPress}
-            />) : null
+            showEn ? (
+              <View style={{flex: 5.5, paddingTop: showHe ? biLayout == 'stacked' ? 20 : 5 : 0, paddingRight: biLayout == 'stacked' ? 0 : (biLayout == 'sidebyside' ? 0 : 10), paddingLeft: biLayout == 'stacked' ? 0 : (biLayout == 'sidebysiderev' ? 0 : 10)}}>
+                {displayRef ? <Text style={[styles.en, styles.textListCitation, {marginTop: -19}, theme.textListCitation]}>{rowData.content.sourceRef}</Text> : null}
+                <TextSegment
+                  fontScale={fontScale}
+                  fontSize={fontSize}
+                  themeStr={themeStr}
+                  segmentRef={segmentRef}
+                  segmentKey={refSection}
+                  data={enText}
+                  textType="english"
+                  bilingual={textLanguageWithContent === "bilingual"}
+                  onTextPress={onTextPress}
+                  showToast={showToast}
+                  setDictionaryLookup={setDictionaryLookup}
+                  openUriOrRef={openUriOrRef}
+                />
+              </View>
+            ) : null
           }
         </View>
         { bulletMargin }
@@ -175,6 +142,7 @@ TextRange.propTypes = {
   showToast:          PropTypes.func.isRequired,
   rowData:            PropTypes.object.isRequired,
   segmentRef:         PropTypes.string.isRequired,
+  segmentHeRef:       PropTypes.string,
   showSegmentNumbers: PropTypes.bool.isRequired,
   textSegmentPressed: PropTypes.func.isRequired,
   setRowRef:          PropTypes.func.isRequired,
