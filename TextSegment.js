@@ -30,7 +30,7 @@ const TextSegment = React.memo(({
   setDictionaryLookup,
   showToast,
   openUriOrRef,
-  onPress,
+  onTextPress,
 }) => {
   const [resetKey, setResetKey] = useState(0);
   const { themeStr, fontSize, biLayout } = useContext(GlobalStateContext);
@@ -83,19 +83,20 @@ const TextSegment = React.memo(({
   if (textType === 'english') {
     menuItems.splice(1, 1);
   }
+
+  const TempSelectableText = Platform.OS === 'ios' ? SelectableText : DummySelectableText;
   return (
     <TouchableOpacity
-      hitSlop= {{top: 10, bottom: 10, left: 10, right: 10}}
-      onPress={() => onPress()}
+      onPress={() => onTextPress()}
       onLongPress={() => {}}
       delayPressIn={200}
     >
-      <SelectableText
+      <TempSelectableText
         menuItems={menuItems}
         onSelection={({ eventType, content }) => {
           if (eventType == 'Copy') { copyToClipboard(content); }
           else if (eventType == 'Share') { shareText(content); }
-          else { onPress(true); setDictionaryLookup({ dictLookup: content }); }
+          else { onTextPress(true); setDictionaryLookup({ dictLookup: content }); }
         }}
         value={data}
         textValueProp={'value'}
@@ -122,10 +123,16 @@ TextSegment.propTypes = {
   data:               PropTypes.string,
   textType:           PropTypes.oneOf(["english","hebrew"]),
   bilingual:          PropTypes.bool,
-  textSegmentPressed: PropTypes.func.isRequired,
+  onTextPress:        PropTypes.func.isRequired,
   showToast:          PropTypes.func.isRequired,
   fontScale:          PropTypes.object,
 };
 
-
+const DummySelectableText = ({ value, TextComponent, textComponentProps, ...props }) => {
+  textComponentProps.value = value;
+  return (
+    <TextComponent
+      { ...textComponentProps}
+    />
+);}
 export default TextSegment;

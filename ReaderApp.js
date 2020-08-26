@@ -496,13 +496,14 @@ class ReaderApp extends React.PureComponent {
         ref = (textListVisible && segmentRef) ? segmentRef : sectionArray[sectionIndexRef];
         he_ref = (textListVisible && segmentRef) ? (heSegmentRef || Sefaria.toHeSegmentRef(sectionHeArray[sectionIndexRef], segmentRef)) : sectionHeArray[sectionIndexRef];
       }
-      const versions = !!currVersions ? {
+      let versions = !!currVersions ? {
         en: !!currVersions.en ? currVersions.en.versionTitle : null,
         he: !!currVersions.he ? currVersions.he.versionTitle : null
       } : {};
       if (!ref) {
         crashlytics().recordError(new Error(`Ref is null. textListVisible: '${String(textListVisible)}'. segmentRef: '${String(segmentRef)}. sectionArray: '${String(sectionArray)}'. sectionIndexRef: '${String(sectionIndexRef)}'`));
       }
+      versions = this.removeDefaultVersions(ref, versions);
       return {
         ref,
         he_ref,

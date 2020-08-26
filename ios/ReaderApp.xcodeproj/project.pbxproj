@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		00E356F31AD99517003FC87E /* ReaderAppTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E356F21AD99517003FC87E /* ReaderAppTests.m */; };
 		0707A7592226BBA300258667 /* grogger.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 0707A7582226BBA300258667 /* grogger.mp3 */; };
+		07204FCB24E13B18009CA4A0 /* Launch Screen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 07204FCA24E13B18009CA4A0 /* Launch Screen.storyboard */; };
 		0761D1A8207DD4F80011FE47 /* sources in Resources */ = {isa = PBXBuildFile; fileRef = 0761D1A7207DD4F80011FE47 /* sources */; };
 		0761D1B6207DD6200011FE47 /* TaameyFrank-taamim-fix.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 0761D1A9207DD61F0011FE47 /* TaameyFrank-taamim-fix.ttf */; };
 		0761D1B7207DD6200011FE47 /* Amiri-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 0761D1AA207DD61F0011FE47 /* Amiri-Bold.ttf */; };
@@ -324,6 +325,7 @@
 		00E356F11AD99517003FC87E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		00E356F21AD99517003FC87E /* ReaderAppTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ReaderAppTests.m; sourceTree = "<group>"; };
 		0707A7582226BBA300258667 /* grogger.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = grogger.mp3; sourceTree = "<group>"; };
+		07204FCA24E13B18009CA4A0 /* Launch Screen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = "Launch Screen.storyboard"; sourceTree = "<group>"; };
 		0761D1A7207DD4F80011FE47 /* sources */ = {isa = PBXFileReference; lastKnownFileType = folder; path = sources; sourceTree = "<group>"; };
 		0761D1A9207DD61F0011FE47 /* TaameyFrank-taamim-fix.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "TaameyFrank-taamim-fix.ttf"; sourceTree = "<group>"; };
 		0761D1AA207DD61F0011FE47 /* Amiri-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Amiri-Bold.ttf"; sourceTree = "<group>"; };
@@ -637,6 +639,7 @@
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
+				07204FCA24E13B18009CA4A0 /* Launch Screen.storyboard */,
 				07779EE5233A6C4100196F02 /* yo.swift */,
 				E5401A0C22C6CFCB00B2FAE8 /* GoogleService-Info.plist */,
 				0707A7582226BBA300258667 /* grogger.mp3 */,
@@ -703,6 +706,7 @@
 				00E356EA1AD99517003FC87E /* Sources */,
 				00E356EB1AD99517003FC87E /* Frameworks */,
 				00E356EC1AD99517003FC87E /* Resources */,
+				37F96A892BF6A44D2DD21F57 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -725,6 +729,7 @@
 				07779F24233A745600196F02 /* Frameworks */,
 				B51EA1F0FB52879CF8121E7C /* [CP-User] [RNFB] Core Configuration */,
 				FB21776EC605F2920064D47D /* [CP-User] [RNFB] Crashlytics Configuration */,
+				85E5A96D2784B7334F38E251 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -1144,6 +1149,7 @@
 			files = (
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				0761D1BF207DD6200011FE47 /* Heebo-Regular.ttf in Resources */,
+				07204FCB24E13B18009CA4A0 /* Launch Screen.storyboard in Resources */,
 				E5D001A722C3DA8800758381 /* GoogleService-Info.plist in Resources */,
 				0761D1B8207DD6200011FE47 /* Amiri-Regular.ttf in Resources */,
 				0761D1C2207DD6200011FE47 /* OpenSans-Regular.ttf in Resources */,
@@ -1229,6 +1235,24 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
+		37F96A892BF6A44D2DD21F57 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-ReaderApp-ReaderAppTests/Pods-ReaderApp-ReaderAppTests-resources.sh",
+				"${PODS_CONFIGURATION_BUILD_DIR}/React-Core/AccessibilityResources.bundle",
+			);
+			name = "[CP] Copy Pods Resources";
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/AccessibilityResources.bundle",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-ReaderApp-ReaderAppTests/Pods-ReaderApp-ReaderAppTests-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
 		78D1332DE206CF6D847DB6D1 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -1249,6 +1273,24 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		85E5A96D2784B7334F38E251 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-ReaderApp/Pods-ReaderApp-resources.sh",
+				"${PODS_CONFIGURATION_BUILD_DIR}/React-Core/AccessibilityResources.bundle",
+			);
+			name = "[CP] Copy Pods Resources";
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/AccessibilityResources.bundle",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-ReaderApp/Pods-ReaderApp-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		8812FBE0B3529ED3EECF5BE9 /* [CP] Check Pods Manifest.lock */ = {
@@ -1508,7 +1550,7 @@
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/rn-fetch-blob\"",
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/yoga\"",
 				);
-				MARKETING_VERSION = 5.5.13;
+				MARKETING_VERSION = 5.6.1;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -1601,7 +1643,7 @@
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/rn-fetch-blob\"",
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/yoga\"",
 				);
-				MARKETING_VERSION = 5.5.13;
+				MARKETING_VERSION = 5.6.1;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
