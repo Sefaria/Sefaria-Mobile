@@ -770,33 +770,30 @@ Sefaria = {
     reset: function() {
       Sefaria.links._linkContentLoadingStack = [];
     },
-    loadRelated: function(ref) {
-      return new Promise((resolve, reject) => {
-        Sefaria.loadOfflineFile(ref, false)
-        .then(data => {
-          // mimic response of links API so that addLinksToText() will work independent of data source
-          const sectionData = Sefaria.getSectionFromJsonData(ref, data);
-          if (!sectionData) { reject(ERRORS.CANT_GET_SECTION_FROM_DATA); }
-          const linkList = (sectionData.content.reduce((accum, segment, segNum) => accum.concat(
-            ("links" in segment) ? segment.links.map(link => {
-              const index_title = Sefaria.textTitleForRef(link.sourceRef);
-              return {
-                sourceRef: link.sourceRef,
-                sourceHeRef: link.sourceHeRef,
-                index_title,
-                category: ("category" in link) ? link.category : Sefaria.categoryForTitle(index_title),
-                anchorRef: `${ref}:${segNum+1}`,
-              }
-            }) : []
-          ), []));
-          resolve({links: linkList});
-        })
-        .catch(error => {
-          if (error === ERRORS.NOT_OFFLINE) {
-            Sefaria.api.related(ref).then(resolve).catch(reject);
-          } else { reject(error); }
-        })
-      });
+    loadRelated: async function(ref, online) {
+      if (online) {
+        const data = await Sefaria.api.related(ref);
+        console.log("DATA", data);
+        return data;
+      } else {
+        const data = await Sefaria.loadOfflineFile(ref, false);
+        // mimic response of links API so that addLinksToText() will work independent of data source
+        const sectionData = Sefaria.getSectionFromJsonData(ref, data);
+        if (!sectionData) { throw ERRORS.CANT_GET_SECTION_FROM_DATA; }
+        const linkList = (sectionData.content.reduce((accum, segment, segNum) => accum.concat(
+          ("links" in segment) ? segment.links.map(link => {
+            const index_title = Sefaria.textTitleForRef(link.sourceRef);
+            return {
+              sourceRef: link.sourceRef,
+              sourceHeRef: link.sourceHeRef,
+              index_title,
+              category: ("category" in link) ? link.category : Sefaria.categoryForTitle(index_title),
+              anchorRef: `${ref}:${segNum+1}`,
+            }
+          }) : []
+        ), []));
+        return {links: linkList};
+      }
     },
     getSegmentIndexFromRef: function(ref) {
       let index = parseInt(ref.substring(ref.lastIndexOf(':') + 1)) - 1;

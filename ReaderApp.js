@@ -716,13 +716,31 @@ class ReaderApp extends React.PureComponent {
     this.loadVersions(ref);
   };
 
-  loadRelated = (ref, isSheet) => {
+  loadRelated = async (ref, isSheet) => {
+    let hadSuccess = false;
+    for (let isOnline of [false, true]) {
+      try {
+        await this._loadRelatedOnlineAndOffline(ref, isSheet, isOnline);
+        hadSuccess = true;
+      } catch (error) {
+
+      }
+    }
+    if (!hadSuccess) {
+      // make sure links get marked as loaded no matter what
+      let tempLinksLoaded = this.state.linksLoaded.slice(0);
+      tempLinksLoaded[iSec] = true;
+      this.setState({linksLoaded: tempLinksLoaded});
+    }
+  };
+
+  _loadRelatedOnlineAndOffline = (ref, isSheet, online=true) => {
     // isSheet is true when loading links for individual refs on a sheet
     // Ensures that links have been loaded for `ref` and stores result in `this.state.linksLoaded` array.
     // Links are not loaded yet in case you're in API mode, or you are reading a non-default version
     const iSec = isSheet ? 0 : this.state.sectionArray.findIndex(secRef=>secRef===ref);
     if (!iSec && iSec !== 0) { console.log("could not find section ref in sectionArray", ref); return; }
-    return Sefaria.links.loadRelated(ref)
+    return Sefaria.links.loadRelated(ref, online)
       .then(response => {
         //add the related data into the appropriate section and reload
         if (isSheet) {
@@ -737,12 +755,6 @@ class ReaderApp extends React.PureComponent {
           this.updateLinkSummary(this.state.sectionIndexRef, this.state.segmentIndexRef);
         }
         this.setState({data: this.state.data, linksLoaded: tempLinksLoaded});
-      })
-      .catch(error=>{
-        console.log("FAILED", error);  // TODO: deal with error being thrown when not offline
-        let tempLinksLoaded = this.state.linksLoaded.slice(0);
-        tempLinksLoaded[iSec] = true;
-        this.setState({linksLoaded: tempLinksLoaded});
       });
   };
 
