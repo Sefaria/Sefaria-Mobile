@@ -2,6 +2,7 @@
 
 import {
   AppRegistry,
+  LogBox,
 } from 'react-native';
 import React, { useReducer } from 'react';
 import { gestureHandlerRootHOC } from 'react-native-gesture-handler';
@@ -22,14 +23,10 @@ if (process.env.NODE_ENV !== "production" && false) {
   });
 }
 
-
-// Two innocuous warnings based on `TextSegment`
-// YellowBox.ignoreWarnings([
-//   'Invalid prop `style` supplied to `React.Fragment`',
-//   'Failed prop type: Invalid prop `RootComponent` of type `object`',
-//   'Failed prop type: Invalid prop `RootComponent` of type `symbol`',
-//   'Failed prop type: Invalid prop `TextComponent` of type `object`',
-// ]);
+LogBox.ignoreLogs([
+  'Failed prop type: Invalid prop `TextComponent` of type `object` supplied to `HtmlView`',
+  'Failed prop type: Invalid prop `RootComponent` of type `object` supplied to `HtmlView`'
+]);
 
 const ReaderAppGesturified = gestureHandlerRootHOC(ReaderApp);
 const Root = () => {
