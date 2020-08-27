@@ -67,7 +67,6 @@ import {
 } from './Misc.js';
 const ViewPort    = Dimensions.get('window');
 
-
 class ReaderApp extends React.PureComponent {
   static whyDidYouRender = true;
   static propTypes = {

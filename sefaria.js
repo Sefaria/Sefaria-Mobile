@@ -773,7 +773,6 @@ Sefaria = {
     loadRelated: async function(ref, online) {
       if (online) {
         const data = await Sefaria.api.related(ref);
-        console.log("DATA", data);
         return data;
       } else {
         const data = await Sefaria.loadOfflineFile(ref, false);

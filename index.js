@@ -22,7 +22,8 @@ if (process.env.NODE_ENV !== "production" && false) {
   });
 }
 
-// Two innocuous warnings based on `TextSegment` 
+
+// Two innocuous warnings based on `TextSegment`
 // YellowBox.ignoreWarnings([
 //   'Invalid prop `style` supplied to `React.Fragment`',
 //   'Failed prop type: Invalid prop `RootComponent` of type `object`',
