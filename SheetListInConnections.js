@@ -19,7 +19,7 @@ import Sefaria from './sefaria';
 const SheetListInConnections = ({ sheets, openRefSheet }) => {
     const { themeStr, interfaceLanguage } = useContext(GlobalStateContext);
     const theme = getTheme(themeStr);
-    const [sortedSheets, setSortedSheets] = useState(sheets);
+    const [sortedSheets, setSortedSheets] = useState([]);
     useEffect(() => {
         const tempSortedSheets = Object.values(sheets.reduce((obj, curr) => { obj[curr.id] = curr; return obj; }, {}));
         tempSortedSheets.sort((a, b) => {
