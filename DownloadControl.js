@@ -556,11 +556,11 @@ async function requestNewBundle(bookList, badResponseWaitTime=3000) {
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({books: bookList})
     });
-    if (response.ok) {
+    if (response.ok && response.status !== 202) {  // 202 is returned when the download file is still under construction
       return await response.json();
 
     } else {
-      console.log('bad status from downloadServer - trying bundle request again');
+      if (!response.ok) { console.log('bad status from downloadServer - trying bundle request again'); }
       await timeoutPromise(badResponseWaitTime);
     }
   }
