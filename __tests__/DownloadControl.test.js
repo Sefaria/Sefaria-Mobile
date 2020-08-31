@@ -251,7 +251,7 @@ describe('UpdateTests', () => {
   });
   test('requestNewBundle', async () => {
     // check that the method retries after server failure
-    fetch.mockImplementationOnce(x => Promise.resolve({status: 202, ok: false}));
+    fetch.mockImplementationOnce(x => Promise.resolve({status: 202, ok: true}));
     await requestNewBundle(['Genesis', 'Job'], 1);
     expect(fetch).toHaveBeenCalledTimes(2);
   });
