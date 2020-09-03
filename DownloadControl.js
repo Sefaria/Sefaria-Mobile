@@ -491,7 +491,7 @@ async function setLocalBookTimestamps(bookTitleList) {
       BooksState[title].localLastUpdated = timestamp;
     else
       BooksState[title] = new Book(title, false, timestamp);
-  })
+  });
 }
 
 async function getLocalBookList() {
@@ -1068,13 +1068,15 @@ function promptLibraryUpdate(totalDownloads, newBooks, networkMode) {
 async function schemaCheckAndPurge() {
   // Test with Jest
   // checks if there was a schema change. If so, delete the library
-  const lastUpdateSchema = await AsyncStorage.getItem("lastUpdateSchema");
+  let lastUpdateSchema = await AsyncStorage.getItem("lastUpdateSchema");
+  lastUpdateSchema = parseInt(JSON.parse(lastUpdateSchema));
+  const schemaVersion = parseInt(SCHEMA_VERSION);  // gets rid of annoying bugs due to the types of these values
   if (!lastUpdateSchema) {  // value was not set and library was never downloaded
     await AsyncStorage.setItem("lastUpdateSchema", SCHEMA_VERSION);
     return
   } else {
   }
-  if (lastUpdateSchema !== SCHEMA_VERSION) {
+  if (lastUpdateSchema !== schemaVersion) {
     crashlytics().log("a user's library has been purged");  // todo: review: should we notify the user that his Library is about to be purged?
     // We want to delete the library but keep the package selections
     const bookList = getFullBookList();
