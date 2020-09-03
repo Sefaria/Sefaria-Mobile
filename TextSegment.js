@@ -2,7 +2,7 @@
 
 import PropTypes from 'prop-types';
 
-import React, { useState, useEffect, useContext, Fragment } from 'react';
+import React, { useState, useEffect, useContext, Fragment, useCallback } from 'react';
 import {
   Animated,
   Pressable,
@@ -39,21 +39,25 @@ const TextSegment = React.memo(({
     return () => {};
   }, [themeStr, fontSize]);
   const theme = getTheme(themeStr);
-  const getTextWithUrl = (text, withUrl) => {
+  const getTextWithUrl = useCallback((text, withUrl) => {
     return withUrl ? `${text}\n\n${Sefaria.refToUrl(segmentRef)}` : text;
-  };
-  const shareText = (text) => {
+  }, [segmentRef]);
+  const shareText = useCallback((text) => {
     Share.share({
       message: getTextWithUrl(text, Platform.OS === 'android'),  // android for some reason doesn't share text with a url attached at the bottom
       title: segmentRef,
       url: Sefaria.refToUrl(segmentRef)
     })
-  };
-  const copyToClipboard = (text) => {
+  }, [segmentRef]);
+  const copyToClipboard = useCallback((text) => {
     Clipboard.setString(text);
     showToast("Copied to clipboard");
-  };
-
+  }, []);
+  const onSelection = useCallback(({ eventType, content }) => {
+    if (eventType == 'Copy') { copyToClipboard(content); }
+    else if (eventType == 'Share') { shareText(content); }
+    else { onTextPress(true); setDictionaryLookup({ dictLookup: content }); }
+  }, [shareText]);
   const isStacked = biLayout === 'stacked';
   const lineHeightMultiplierHe = Platform.OS === 'android' ? 1.333 : 1.2;
   const justifyStyle = {textAlign: (isStacked && Platform.OS === 'ios') ? 'justify' : (textType === 'hebrew' ? 'right' : 'left')};
@@ -84,20 +88,19 @@ const TextSegment = React.memo(({
     menuItems.splice(1, 1);
   }
 
+  const onLongPress = useCallback(() => {}, []);
+  const onPress = useCallback(() => onTextPress(), [onTextPress]);
+
   const TempSelectableText = Platform.OS === 'ios' ? SelectableText : DummySelectableText;
   return (
     <TouchableOpacity
-      onPress={() => onTextPress()}
-      onLongPress={() => {}}
+      onPress={onPress}
+      onLongPress={onLongPress}
       delayPressIn={200}
     >
       <TempSelectableText
         menuItems={menuItems}
-        onSelection={({ eventType, content }) => {
-          if (eventType == 'Copy') { copyToClipboard(content); }
-          else if (eventType == 'Share') { shareText(content); }
-          else { onTextPress(true); setDictionaryLookup({ dictLookup: content }); }
-        }}
+        onSelection={onSelection}
         value={data}
         textValueProp={'value'}
         TextComponent={HTMLView}
@@ -116,7 +119,7 @@ const TextSegment = React.memo(({
     </TouchableOpacity>
   );
 });
-TextSegment.whyDidYouRender = true;
+TextSegment.whyDidYouRender = {customName: 'TextSegment'};
 TextSegment.propTypes = {
   segmentRef:         PropTypes.string.isRequired, /* this ref keys into TextColumn.rowRefs */
   segmentKey:         PropTypes.string,

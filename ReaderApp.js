@@ -748,12 +748,18 @@ class ReaderApp extends React.PureComponent {
           this.state.data[iSec] = Sefaria.links.addRelatedToText(this.state.data[iSec], response);
         }
         Sefaria.cacheCommentatorListBySection(ref, this.state.data[iSec]);
-        const tempLinksLoaded = this.state.linksLoaded.slice(0);
-        tempLinksLoaded[iSec] = true;
         if (this.state.segmentIndexRef != -1 && this.state.sectionIndexRef != -1) {
           this.updateLinkSummary(this.state.sectionIndexRef, this.state.segmentIndexRef);
         }
-        this.setState({data: this.state.data, linksLoaded: tempLinksLoaded});
+        const tempLinksLoaded = this.state.linksLoaded.slice(0);
+        tempLinksLoaded[iSec] = true;
+        let newLinksLoaded = this.state.linksLoaded;
+        for (let iSec = 0; iSec < tempLinksLoaded.length; iSec++) {
+          if (tempLinksLoaded[iSec] !== this.state.linksLoaded[iSec]) {
+            newLinksLoaded = tempLinksLoaded;
+          }
+        }
+        this.setState({data: this.state.data, linksLoaded: newLinksLoaded});
       });
   };
 
@@ -1695,6 +1701,15 @@ class ReaderApp extends React.PureComponent {
     this.openUri(uri);
   }
 
+  shouldShowHamburger = () => {
+    if (Platform.OS === "android") { return true; }
+    else {
+      // see ReaderApp.openRef()
+      const calledFromDict = { "text list": true, "search": true };
+      return BackManager.getStack({ type: "main" }).filter(x => calledFromDict[x.calledFrom]).length === 0;
+    }
+  };
+
   _getReaderDisplayOptionsMenuRef = ref => {
     this._readerDisplayOptionsMenuRef = ref;
   };
@@ -1973,7 +1988,7 @@ class ReaderApp extends React.PureComponent {
               openTextToc={this.openTextToc}
               openSheetMeta={this.openSheetMeta}
               sheet={this.state.sheet}
-              backStack={BackManager.getStack({ type: "main" })}
+              shouldShowHamburger={this.shouldShowHamburger}
               toggleReaderDisplayOptionsMenu={this.toggleReaderDisplayOptionsMenu}
               openUri={this.openUri}
               getHistoryObject={this.getHistoryObject}

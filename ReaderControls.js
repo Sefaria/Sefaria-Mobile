@@ -33,7 +33,7 @@ const ReaderControls = ({
   openSheetMeta,
   goBack,
   toggleReaderDisplayOptionsMenu,
-  backStack,
+  shouldShowHamburger,
   openUri,
   sheet,
   getHistoryObject,
@@ -42,14 +42,6 @@ const ReaderControls = ({
   const { themeStr, textLanguage, interfaceLanguage } = useContext(GlobalStateContext);
   const [, forceUpdate] = useReducer(x => x + 1, 0);  // HACK
   const theme = getTheme(themeStr);
-  const shouldShowHamburger = () => {
-    if (Platform.OS === "android") { return true; }
-    else {
-      // see ReaderApp.openRef()
-      const calledFromDict = { "text list": true, "search": true };
-      return backStack.filter(x => calledFromDict[x.calledFrom]).length === 0;
-    }
-  };
   const historyItem = getHistoryObject();
   const isSaved = Sefaria.history.indexOfSaved(historyItem.ref) !== -1;
   const isHeb = Sefaria.util.get_menu_language(interfaceLanguage, textLanguage) == "hebrew";
@@ -134,7 +126,7 @@ ReaderControls.propTypes = {
   openTextToc:                     PropTypes.func,
   goBack:                          PropTypes.func,
   toggleReaderDisplayOptionsMenu:  PropTypes.func,
-  backStack:                       PropTypes.array,
+  shouldShowHamburger:             PropTypes.func.isRequired,
   openUri:                         PropTypes.func.isRequired,
   getHistoryObject:                PropTypes.func.isRequired,
   showToast:                       PropTypes.func.isRequired,

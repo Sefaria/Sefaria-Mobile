@@ -1,6 +1,6 @@
 'use strict';
 import PropTypes from 'prop-types';
-import React, { Component } from 'react';
+import React, { Component, useCallback } from 'react';
 import ReactNative, {
   View,
   Text,
@@ -79,6 +79,7 @@ class TextColumn extends React.PureComponent {
     this.currentY = 0; // for measuring scroll speed
     this.rowRefs = {}; //hash table of currently loaded row refs.
     this.rowYHash = {};
+    this.dataSourceHash = {};
     this.backupItemLayoutList = []; // backup for race condition when itemLayoutList is set to null but SectionList still thinks it exists so it tries to call getItemLayout()
     this.onTopReaching = false; // true when measuring heights for infinite scroll up
     let {dataSource, componentsToMeasure, jumpInfoMap} = this.generateDataSource(props, !!props.offsetRef);
@@ -186,15 +187,22 @@ class TextColumn extends React.PureComponent {
             //insert aliya
             rows.push(aliya);
           }
-          var rowData = {
-            content: data[sectionIndex][i], // Store data in `content` so that we can manipulate other fields without manipulating the original data
-            sectionIndex: sectionIndex,
-            rowIndex: i,
-            highlight: offsetRef == rowID || (props.textListVisible && props.segmentRef == rowID),
-          };
+          const rowContent = data[sectionIndex][i];
+          const highlight = offsetRef == rowID || (props.textListVisible && props.segmentRef == rowID);
+          const changeString = `${rowID}|${!!rowContent.links && rowContent.links.length}|${highlight}|${this.props.fontSize}`;
+          let rowData = this.dataSourceHash[changeString];
+          if (!rowData) {
+            rowData = {
+              content: rowContent, // Store data in `content` so that we can manipulate other fields without manipulating the original data
+              sectionIndex: sectionIndex,
+              rowIndex: i,
+              highlight,
+            };
+            this.dataSourceHash[changeString] = rowData;           
+          }
           // excluding b/c they don't change height: props.themeStr, props.linksLoaded[sectionIndex]
           //rowData.changeString += rowData.highlight ? "|highlight" : "";
-          rows.push({ref: rowID, data: rowData, changeString: `${rowID}|${!!rowData.content.links && rowData.content.links.length}|${rowData.highlight}|${this.props.fontSize}`, type: ROW_TYPES.SEGMENT});
+          rows.push({ref: rowID, data: rowData, changeString, type: ROW_TYPES.SEGMENT});
         }
         dataSource.push({ref: props.sectionArray[sectionIndex], heRef: props.sectionHeArray[sectionIndex], data: rows, sectionIndex: sectionIndex, changeString: `${props.sectionArray[sectionIndex]}|${this.props.fontSize}|${this.props.textLanguage}`});
       }
@@ -556,11 +564,10 @@ class TextColumn extends React.PureComponent {
       <TextHeader
         title={isHeb ? item.data.he : item.data.en}
         isHebrew={isHeb}
+        itemType={item.type}
         theme={this.props.theme}
         outerStyle={styles.aliyaHeader}
-        textStyle={item.type === ROW_TYPES.ALIYA ?
-          [this.props.theme.quaternaryText].concat(isHeb ? [styles.heInt, styles.hebrewAliyaHeaderText] : [styles.enInt, styles.aliyaHeaderText]) : (isHeb ? styles.heInt : styles.enInt)
-        }
+        withExtraTextStyle
       />
     );
   };
@@ -727,13 +734,18 @@ class TextColumn extends React.PureComponent {
   _onSegmentLayout = (ref, y) => {
     this.rowYHash[ref] = y;
   }
-
-  // _renderCell = React.memo(props => (
-  //   <CellView {...props} onSegmentLayout={this._onSegmentLayout}/>
-  // ), (prevProps, newProps) => (prevProps.item.changeString === newProps.item.changeString));
-  _renderCell = React.memo(props => (
-    <CellView {...props} onSegmentLayout={this._onSegmentLayout}/>
-  ));
+  _renderCell = props => {
+    const onLayoutOuter = useCallback(event => {
+      const { height, width, y, x } = event.nativeEvent.layout;
+      this._onSegmentLayout(props.item.ref, {y, height});
+      props.onLayout(event);
+    }, [props.onLayout, props.item.ref]);
+    return (
+      <View style={props.style} onLayout={onLayoutOuter}>
+        { props.children }
+      </View>
+    );
+  };
 
   render() {
     return (
@@ -784,34 +796,23 @@ class TextHeader extends React.PureComponent {
     isHebrew:   PropTypes.bool.isRequired,
     theme:      PropTypes.object.isRequired,
     outerStyle: PropTypes.oneOfType([ViewPropTypes.style, PropTypes.array]),
-    textStyle:  PropTypes.oneOfType([Text.propTypes.style, PropTypes.array]),
+    itemType:   PropTypes.oneOf(Object.values(ROW_TYPES)),
+    withExtraTextStyle: PropTypes.bool,
   };
+  constructor(props) {
+    super(props);
+    this.enAliyaStyle = [this.props.theme.quaternaryText, styles.enInt, styles.aliyaHeaderText];
+    this.heAliyaStyle = [this.props.theme.quaternaryText, styles.heInt, styles.aliyaHeaderText];
+  }
 
   render() {
+    const { itemType, withExtraTextStyle, isHebrew } = this.props;
+    const extraTextStyle = withExtraTextStyle ? (itemType === ROW_TYPES.ALIYA ? (isHebrew ? this.heAliyaStyle : this.enAliyaStyle) : (isHebrew ? styles.heInt : styles.enInt)) : null;
     return <View style={styles.sectionHeaderBox}>
             <View style={[styles.sectionHeader, this.props.theme.sectionHeader].concat(this.props.outerStyle)}>
-              <Text style={[styles.sectionHeaderText, this.props.isHebrew ? styles.hebrewSectionHeaderText : null, this.props.theme.sectionHeaderText].concat(this.props.textStyle)}>{this.props.title}</Text>
+              <Text style={[styles.sectionHeaderText, this.props.isHebrew ? styles.hebrewSectionHeaderText : null, this.props.theme.sectionHeaderText].concat(extraTextStyle)}>{this.props.title}</Text>
             </View>
           </View>;
-  }
-}
-
-class CellView extends React.PureComponent {
-  static whyDidYouRender = true;
-
-  // need to put onLayout method in CellRenderer to capture global y positon of cell
-  onLayoutOuter = event => {
-    const { height, width, y, x } = event.nativeEvent.layout;
-    this.props.onSegmentLayout(this.props.item.ref, {y, height});
-    this.props.onLayout(event);
-  }
-
-  render() {
-    return (
-      <View {...this.props} onLayout={this.onLayoutOuter}>
-        { this.props.children }
-      </View>
-    );
   }
 }
 

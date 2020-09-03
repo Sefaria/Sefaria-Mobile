@@ -27,7 +27,6 @@ LogBox.ignoreLogs([
   'Failed prop type: Invalid prop `TextComponent` of type `object` supplied to `HtmlView`',
   'Failed prop type: Invalid prop `RootComponent` of type `object` supplied to `HtmlView`'
 ]);
-
 const ReaderAppGesturified = gestureHandlerRootHOC(ReaderApp);
 const Root = () => {
   const [ globalState, dispatch ] = useReducer(reducer, DEFAULT_STATE);
