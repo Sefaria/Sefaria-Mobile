@@ -956,7 +956,7 @@ class ReaderApp extends React.PureComponent {
         }
         const sourceRefs = sheet.sources.filter(source => 'ref' in source).map(source => source.ref);
         Sefaria.util.procedural_promise_on_array(sourceRefs, async (ref, isSheet) => {
-          if (!this.state.sheet || this.state.sheet.id !== sheetID) {
+          if (!this.state.sheet || this.state.sheet.id !== sheetID || !!this.state.menuOpen) {
             // stop loading related API for this sheet since it's no longer being viewed
             throw Sefaria.util.PROCEDURAL_PROMISE_INTERRUPT;
           }

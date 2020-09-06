@@ -1142,7 +1142,7 @@ Sefaria.util = {
       try {
         await promise(item, ...extra_params);
       } catch (e) {
-        if (e === Sefaria.util.PROCEDURAL_PROMISE_INTERRUPT) { console.log("YESSIR!"); break; }
+        if (e === Sefaria.util.PROCEDURAL_PROMISE_INTERRUPT) { break; }
         continue;
       }
     }
