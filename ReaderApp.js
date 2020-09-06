@@ -721,9 +721,7 @@ class ReaderApp extends React.PureComponent {
       try {
         await this._loadRelatedOnlineAndOffline(ref, isSheet, isOnline);
         hadSuccess = true;
-      } catch (error) {
-
-      }
+      } catch (error) {}
     }
     if (!hadSuccess) {
       // make sure links get marked as loaded no matter what
@@ -751,6 +749,8 @@ class ReaderApp extends React.PureComponent {
         if (this.state.segmentIndexRef != -1 && this.state.sectionIndexRef != -1) {
           this.updateLinkSummary(this.state.sectionIndexRef, this.state.segmentIndexRef);
         }
+
+        // only reset pointer for linksLoaded if it changes
         const tempLinksLoaded = this.state.linksLoaded.slice(0);
         tempLinksLoaded[iSec] = true;
         let newLinksLoaded = this.state.linksLoaded;
@@ -955,7 +955,13 @@ class ReaderApp extends React.PureComponent {
           BackManager.forward({ state: this.state, calledFrom });
         }
         const sourceRefs = sheet.sources.filter(source => 'ref' in source).map(source => source.ref);
-        Sefaria.util.procuderal_promise_on_array(sourceRefs, this.loadRelated, [true]);
+        Sefaria.util.procedural_promise_on_array(sourceRefs, async (ref, isSheet) => {
+          if (!this.state.sheet || this.state.sheet.id !== sheetID) {
+            // stop loading related API for this sheet since it's no longer being viewed
+            throw Sefaria.util.PROCEDURAL_PROMISE_INTERRUPT;
+          }
+          await this.loadRelated(ref, isSheet);
+        }, [true]);
       });
     });
   };

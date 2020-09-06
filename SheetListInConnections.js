@@ -21,6 +21,7 @@ const SheetListInConnections = ({ sheets, openRefSheet }) => {
     const theme = getTheme(themeStr);
     const [sortedSheets, setSortedSheets] = useState([]);
     useEffect(() => {
+        sheets = sheets || [];
         const tempSortedSheets = Object.values(sheets.reduce((obj, curr) => { obj[curr.id] = curr; return obj; }, {}));
         tempSortedSheets.sort((a, b) => {
             const aHe = 0 + Sefaria.hebrew.isHebrew(a.title);

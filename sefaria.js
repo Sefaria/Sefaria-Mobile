@@ -1134,13 +1134,15 @@ Sefaria = {
 };
 
 Sefaria.util = {
-  procuderal_promise_on_array: async function(array, promise, extra_params) {
+  PROCEDURAL_PROMISE_INTERRUPT: "INTERRUPT",
+  procedural_promise_on_array: async function(array, promise, extra_params) {
     // run `promise` for each item of `array` one-by-one. useful for making multiple API calls that don't trip over each other
     // extra_params should be passed as an array
     for (let item of array) {
       try {
         await promise(item, ...extra_params);
       } catch (e) {
+        if (e === Sefaria.util.PROCEDURAL_PROMISE_INTERRUPT) { console.log("YESSIR!"); break; }
         continue;
       }
     }
