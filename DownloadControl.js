@@ -56,6 +56,7 @@ class DownloadTracker {
       downloadAllowed: false
     };
     this.progressListener = null;
+    this.downloadSize = 0;
   }
   addDownload(downloadState) {
     if (this.downloadInProgress()) {
@@ -925,9 +926,10 @@ async function downloadUpdate(networkSetting, triggeredByUser=true) {
   if (Tracker.downloadInProgress()) {  // before starting the process, double check that another one wasn't triggered
     return
   }
+  Tracker.downloadSize = bundles.downloadSize;
   await Tracker.startDownloadSession('Update');
-  console.log(`recieved bundle: ${bundles}; starting download`);
-  await downloadBundleArray(bundles, Tracker.arrayDownloadState, networkSetting);
+  console.log(`received bundle: ${bundles}; starting download`);
+  await downloadBundleArray(bundles['bundleArray'], Tracker.arrayDownloadState, networkSetting);
 }
 
 

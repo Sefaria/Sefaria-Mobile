@@ -72,7 +72,7 @@ const SystemButton = ({ onPress, text, img, isHeb, isBlue, isLoading, extraStyle
   </GlobalStateContext.Consumer>
 );
 
-const SefariaProgressBar = ({ onPress, onClose, download, downloadNotification, identity }) => {
+const SefariaProgressBar = ({ onPress, onClose, download, downloadNotification, identity, downloadSize }) => {
   /*
    * note on configuration: an object with keys {count, interval}. Count is the max number of times the progress bar
    * will update, interval is the minimum elapsed time (ms) between updates. Hardcoding now, but we can turn this into a
@@ -110,7 +110,7 @@ const SefariaProgressBar = ({ onPress, onClose, download, downloadNotification, 
           style={[{flexDirection: interfaceLanguage === "hebrew" ? "row-reverse" : "row"}, styles.sefariaProgressBarOverlay]}>
           <Text
             style={[{color: "#999"}, interfaceLanguage === "hebrew" ? styles.heInt : styles.enInt]}>{
-              downloadActive ? `${strings.downloading} (${downloadPercentage}%)`
+              downloadActive ? `${strings.downloading} (${downloadPercentage}% ${strings.of} ${parseInt(downloadSize/ 1e6)}mb)`
                 : `Waiting... (${downloadPercentage}%)`
           }</Text>
           {!!onClose ?

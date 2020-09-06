@@ -2143,6 +2143,7 @@ class ReaderApp extends React.PureComponent {
                 onClose={() => DownloadTracker.cancelDownload()}
                 download={DownloadTracker}
                 identity={'ReaderApp'}
+                downloadSize={DownloadTracker.downloadSize}
               />
             </ConditionalProgressWrapper>
               { this.renderContent() }

@@ -361,7 +361,7 @@ const PackageComponent = ({ packageObj, onPackagePress, isDisabledObj }) => {
         listenerName={`PackageComponent${packageObj.name}`}
         packageName={packageObj.name}
       >
-        <SefariaProgressBar download={DownloadTracker} identity={'SettingsPage'} />
+        <SefariaProgressBar download={DownloadTracker} identity={'SettingsPage'} downloadSize={packageObj.jsonData.size} />
       </ConditionalProgressWrapper>
     </View>
   )

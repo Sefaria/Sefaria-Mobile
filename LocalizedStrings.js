@@ -166,6 +166,7 @@ let strings = new LocalizedStrings({
     wifiOnly: "Wi-Fi Only",
     mobileNetwork: "Mobile Network",
     downloadNetworkSetting: "Downloader Network Setting",
+    of: "of",
   },
   he: {
     mySheets: "דפי המקורות שלי",
@@ -329,6 +330,7 @@ let strings = new LocalizedStrings({
     wifiOnly: "Wi-Fi בלבד",
     mobileNetwork: "רשת סלולרית",
     downloadNetworkSetting: "הגדרות רשת עבור הורדות",
+    of: "מתוך",
   }
 });
 
