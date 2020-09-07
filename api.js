@@ -210,7 +210,7 @@ var Api = {
       }
     }
     if (urlify) {
-      ref = ref.replace(/:/g,'.').replace(/ (?=[^ ]+$)/, '.').replace(/ /g,'_');
+      ref = ref.replace(/:/g,'.').replace(/ /g,'_');
     }
     url += ref + urlSuffix;
     return url;
