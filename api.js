@@ -210,7 +210,8 @@ var Api = {
       }
     }
     if (urlify) {
-      ref = ref.replace(/:/g,'.').replace(/ /g,'_');
+      ref = Sefaria.refToUrl(ref);
+      console.log("REF", ref);
     }
     url += ref + urlSuffix;
     return url;

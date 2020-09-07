@@ -40,13 +40,13 @@ const TextSegment = React.memo(({
   }, [themeStr, fontSize]);
   const theme = getTheme(themeStr);
   const getTextWithUrl = useCallback((text, withUrl) => {
-    return withUrl ? `${text}\n\n${Sefaria.refToUrl(segmentRef)}` : text;
+    return withUrl ? `${text}\n\n${Sefaria.refToFullUrl(segmentRef)}` : text;
   }, [segmentRef]);
   const shareText = useCallback((text) => {
     Share.share({
       message: getTextWithUrl(text, Platform.OS === 'android'),  // android for some reason doesn't share text with a url attached at the bottom
       title: segmentRef,
-      url: Sefaria.refToUrl(segmentRef)
+      url: Sefaria.refToFullUrl(segmentRef)
     })
   }, [segmentRef]);
   const copyToClipboard = useCallback((text) => {

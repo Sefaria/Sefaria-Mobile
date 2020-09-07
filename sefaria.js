@@ -230,8 +230,22 @@ Sefaria = {
   sheetIdToUrl: sheetId => {
     return `https://www.sefaria.org/sheets/${sheetId}`;
   },
+  refToFullUrl: ref => {
+    return `https://www.sefaria.org/${Sefaria.refToUrl(ref)}`
+  },
   refToUrl: ref => {
-    const url = `https://www.sefaria.org/${ref.replace(/ /g, '_').replace(/_(?=[0-9:]+$)/,'.').replace(/:/g,'.')}`
+    // TODO: ideally should be using Sefaria.makeRef() (from Sefaria-Project) to urlify
+    // this method works, but it doesn't generate identical urls to what the web client sends (last space before sections is a _ instead of .)
+    // this means that it will not hit the same cache as the web client
+    const book = Sefaria.textTitleForRef(ref);
+    let url = ref;
+    if (ref.substr(book.length, 1) === ",") {
+      // if complex, we don't know what the complex nodes are so use naive method which works but makes the last space before sections a _ instead of .
+      url = ref.replace(/:/g,'.').replace(/ /g,'_');
+    } else {
+      // use book list to find last space before sections
+      url = `${book.replace(/ /g, '_')}${ref.substring(book.length).replace(/:/g, '.').replace(/ (?=[^ ]+$)/, '.')}`
+    }
     return url;
   },
   urlToRef: url => {

@@ -956,7 +956,7 @@ class ReaderApp extends React.PureComponent {
         }
         const sourceRefs = sheet.sources.filter(source => 'ref' in source).map(source => source.ref);
         Sefaria.util.procedural_promise_on_array(sourceRefs, async (ref, isSheet) => {
-          if (!this.state.sheet || this.state.sheet.id !== sheetID || !!this.state.menuOpen) {
+          if (!this.state.sheet || (""+this.state.sheet.id) !== sheetID || !!this.state.menuOpen) {
             // stop loading related API for this sheet since it's no longer being viewed
             throw Sefaria.util.PROCEDURAL_PROMISE_INTERRUPT;
           }
@@ -973,7 +973,7 @@ class ReaderApp extends React.PureComponent {
       [
         {text: strings.cancel, style: 'cancel'},
         {text: strings.open, onPress: () => {
-          this.openUri(Sefaria.refToUrl(ref));
+          this.openUri(Sefaria.refToFullUrl(ref));
         }}
       ]
     );
@@ -1678,7 +1678,7 @@ class ReaderApp extends React.PureComponent {
     const isEng = this.props.textLanguage !== "hebrew";
     const fullText = (heText && isHeb ? heText + (enText && isEng ? "\n" : "") : "") + ((enText && isEng) ? enText : "");
     if (withUrl) {
-      return `${fullText}\n\n${Sefaria.refToUrl(this.state.segmentRef)}`;
+      return `${fullText}\n\n${Sefaria.refToFullUrl(this.state.segmentRef)}`;
     }
     return fullText;
   }
@@ -1698,12 +1698,12 @@ class ReaderApp extends React.PureComponent {
     Share.share({
       message: this.getDisplayedText(Platform.OS === 'android'),  // android for some reason doesn't share text with a url attached at the bottom
       title: this.state.segmentRef,
-      url: Sefaria.refToUrl(this.state.segmentRef)
+      url: Sefaria.refToFullUrl(this.state.segmentRef)
     });
   }
 
   viewOnSite = () => {
-    const uri = this.state.sheet ? Sefaria.sheetIdToUrl(this.state.sheet.id) : Sefaria.refToUrl(this.state.segmentRef);
+    const uri = this.state.sheet ? Sefaria.sheetIdToUrl(this.state.sheet.id) : Sefaria.refToFullUrl(this.state.segmentRef);
     this.openUri(uri);
   }
 
