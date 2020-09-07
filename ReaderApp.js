@@ -1741,7 +1741,6 @@ class ReaderApp extends React.PureComponent {
           <LoadingView /> :
           (<View style={{flex:1, flexDirection: 'row'}}>
             <ReaderNavigationMenu
-              _completedInit={this.state._completedInit}
               searchQuery={this.state.searchQuery}
               categories={this.state.navigationCategories}
               setCategories={this.setNavigationCategories}

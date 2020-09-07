@@ -134,7 +134,6 @@ const ReaderNavigationMenu = props => {
 
               <CalendarSection
                 openRef={props.openRef}
-                _completedInit={props._completedInit}
               />
 
               <MoreSection
@@ -159,7 +158,6 @@ const ReaderNavigationMenu = props => {
   }
 }
 ReaderNavigationMenu.propTypes = {
-  _completedInit: PropTypes.bool.isRequired,
   categories:     PropTypes.array.isRequired,
   setCategories:  PropTypes.func.isRequired,
   openRef:        PropTypes.func.isRequired,
@@ -335,16 +333,24 @@ const ResourcesSection = ({ openSheets }) => {
       />
     </View>
   );
-}
+};
 ResourcesSection.propTypes = {
   openSheets:       PropTypes.func.isRequired,
 };
 
 
 
-const CalendarSection = ({ openRef, _completedInit }) => {
+const CalendarSection = ({ openRef }) => {
   const { textLanguage, interfaceLanguage, preferredCustom } = useContext(GlobalStateContext);
-  if (!_completedInit) { return (<LoadingView />); }
+  const [calendarLoaded, loadCalendar] = useState(Sefaria.calendar);
+  const setup = async (loaded) => {
+    if (!loaded) {
+      await Sefaria._loadCalendar();
+      loadCalendar(Sefaria.calendar);
+    }
+  };
+  setup(!!calendarLoaded).then({});
+  if (!calendarLoaded) { return (<LoadingView />); }
   const calItems = Sefaria.getCalendars(preferredCustom, Sefaria.galusOrIsrael === 'diaspora');
   const isHeb = Sefaria.util.get_menu_language(interfaceLanguage, textLanguage) == 'hebrew';
   return (
@@ -380,10 +386,9 @@ const CalendarSection = ({ openRef, _completedInit }) => {
       }
     />
   );
-}
+};
 CalendarSection.propTypes = {
   openRef: PropTypes.func.isRequired,
-  _completedInit: PropTypes.bool.isRequired,
 };
 
 const SavedHistorySection = ({ isWhite, isHeb, openHistory, openSaved }) => (

@@ -49,7 +49,6 @@ Sefaria = {
   },
   postInit: function() {  // todo: pass network setting from some React component (ReaderApp.componentDidMount likely)
     return Sefaria.getGalusStatus()
-      .then(Sefaria._loadCalendar)
       .then(Sefaria._loadPeople)
       .then(Sefaria._loadHebrewCategories)
       .then(packageSetupProtocol)
