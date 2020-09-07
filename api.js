@@ -211,7 +211,6 @@ var Api = {
     }
     if (urlify) {
       ref = Sefaria.refToUrl(ref);
-      console.log("REF", ref);
     }
     url += ref + urlSuffix;
     return url;
