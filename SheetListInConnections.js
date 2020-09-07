@@ -7,6 +7,7 @@ import {
   Text,
   Image,
   Pressable,
+  TouchableOpacity,
 } from 'react-native';
 import styles from './Styles';
 import strings from './LocalizedStrings';
@@ -45,27 +46,27 @@ const SheetListInConnections = ({ sheets, openRefSheet }) => {
                     onPress={()=> openRefSheet(sheet.id, sheet)}
                     android_ripple={{color: "#ccc"}}
                     key={sheet.id}
-                    style={[{borderBottomWidth: 1, paddingVertical: 20}, theme.bordered, styles.readerSidePadding]}
+                    style={[{borderBottomWidth: 1, paddingVertical: 20, paddingRight: 64}, theme.bordered, styles.readerSidePadding]}
                 >
-                    <Text style={[{marginBottom: 7, fontSize: 20, lineHeight: 27}, Sefaria.hebrew.isHebrew(sheet.title) ? styles.he : styles.en, theme.text, {"textAlign": isIntHe ? 'right' : 'left'}]}>{ sheet.title.replace(/\s\s+/g, ' ') }</Text>
+                    <Text style={[{fontSize: 20, lineHeight: 27}, Sefaria.hebrew.isHebrew(sheet.title) ? styles.he : styles.en, theme.text, {"textAlign": isIntHe ? 'right' : 'left'}]}>{ sheet.title.replace(/\s\s+/g, ' ') }</Text>
                     <View style={[{flexDirection: isIntHe ? "row-reverse" : "row" }]}>
-                    <Image
-                        style={styles.userAvatar}
-                        source={{uri: sheet.ownerImageUrl}}
-                    />
-                    <View style={[{marginHorizontal: 10, justifyContent: "space-between"}]}>
-                        <Text style={[theme.tertiaryText, Sefaria.hebrew.isHebrew(sheet.ownerName) ? styles.heInt : styles.enInt, {"textAlign": isIntHe ? 'right' : 'left'}]}>{sheet.ownerName}</Text>
-                        <Text style={[theme.secondaryText, intStyle]}>
-                            {`${sheet.views} ${strings.views}`}
-                            {sheet.topics && sheet.topics.length ? ' • ' : null}
-                            {sheet.topics && sheet.topics.map((t, i) => 
-                                <>
-                                    <InterfaceTextWithFallback key={`${t.slug}|${t.asTyped}`} en={t.en} he={t.he} />
-                                    {i < sheet.topics.length-1 ? <Text>{', '}</Text> : null}
-                                </>
-                            )}
-                        </Text>
-                    </View>
+                        <Image
+                            style={styles.userAvatar}
+                            source={{uri: sheet.ownerImageUrl}}
+                        />
+                        <View style={[{marginHorizontal: 10, justifyContent: "space-between"}]}>
+                            <Text style={[theme.tertiaryText, Sefaria.hebrew.isHebrew(sheet.ownerName) ? styles.heInt : styles.enInt, {"textAlign": isIntHe ? 'right' : 'left'}]}>{sheet.ownerName}</Text>
+                            <Text style={[theme.secondaryText, intStyle]}>
+                                {`${sheet.views} ${strings.views}`}
+                                {sheet.topics && sheet.topics.length ? ' • ' : null}
+                                {sheet.topics && sheet.topics.map((t, i) => 
+                                    <>
+                                        <InterfaceTextWithFallback key={`${t.slug}|${t.asTyped}`} en={t.en} he={t.he} />
+                                        {i < sheet.topics.length-1 ? <Text>{', '}</Text> : null}
+                                    </>
+                                )}
+                            </Text>
+                        </View>
                     </View>
                 </Pressable>
             )}

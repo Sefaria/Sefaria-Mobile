@@ -239,7 +239,7 @@ Sefaria = {
     // this means that it will not hit the same cache as the web client
     const book = Sefaria.textTitleForRef(ref);
     let url = ref;
-    if (ref.substr(book.length, 1) === ",") {
+    if (!book || ref.substr(book.length, 1) === ",") {
       // if complex, we don't know what the complex nodes are so use naive method which works but makes the last space before sections a _ instead of .
       url = ref.replace(/:/g,'.').replace(/ /g,'_');
     } else {

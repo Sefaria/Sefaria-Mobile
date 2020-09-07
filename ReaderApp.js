@@ -864,15 +864,18 @@ class ReaderApp extends React.PureComponent {
     this.openRef(ref, "text toc", null, false, enableAliyot);
   };
 
-  openRefSheet = (sheetID, sheetMeta, addToBackStack=false, calledFrom) => {
-      this.setState({
-          loaded: false,
-          textListVisible: false,
-          sheet: null,
-          sheetMeta: null,
-      }, () => {
-          this.loadSheet(sheetID, sheetMeta,addToBackStack, calledFrom);
-      });
+  openRefSheet = (sheetID, sheetMeta, addToBackStack=true, calledFrom) => {
+    if (addToBackStack) {
+      BackManager.forward({ state: this.state, calledFrom });
+    }
+    this.setState({
+        loaded: false,
+        textListVisible: false,
+        sheet: null,
+        sheetMeta: null,
+    }, () => {
+        this.loadSheet(sheetID, sheetMeta,addToBackStack, calledFrom);
+    });
   };
 
   openRefConnectionsPanel = (ref, versions, loadNewVersions=false) => {
@@ -924,7 +927,7 @@ class ReaderApp extends React.PureComponent {
     })];
   };
 
-  loadSheet = async (sheetID, sheetMeta, addToBackStack=false, calledFrom="search") => {
+  loadSheet = async (sheetID, sheetMeta) => {
     const more_data = !sheetMeta  // # if sheetMeta is null, need to request more data from api call
     const sheet = await Sefaria.api.sheets(sheetID, more_data);
     if (more_data) {
@@ -951,9 +954,6 @@ class ReaderApp extends React.PureComponent {
         sectionHeArray: [`דף ${sheet.id}`],
         loaded: true,
       }, () => {
-        if (addToBackStack) {
-          BackManager.forward({ state: this.state, calledFrom });
-        }
         const sourceRefs = sheet.sources.filter(source => 'ref' in source).map(source => source.ref);
         Sefaria.util.procedural_promise_on_array(sourceRefs, async (ref, isSheet) => {
           if (!this.state.sheet || (""+this.state.sheet.id) !== sheetID || !!this.state.menuOpen) {
