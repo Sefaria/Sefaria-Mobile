@@ -46,7 +46,7 @@ const SheetListInConnections = ({ sheets, openRefSheet }) => {
                     onPress={()=> openRefSheet(sheet.id, sheet)}
                     android_ripple={{color: "#ccc"}}
                     key={sheet.id}
-                    style={[{borderBottomWidth: 1, paddingVertical: 20, paddingRight: 64}, theme.bordered, styles.readerSidePadding]}
+                    style={[{borderBottomWidth: 1, paddingVertical: 20}, theme.bordered, styles.readerSideMargin]}
                 >
                     <Text style={[{fontSize: 20, lineHeight: 27}, Sefaria.hebrew.isHebrew(sheet.title) ? styles.he : styles.en, theme.text, {"textAlign": isIntHe ? 'right' : 'left'}]}>{ sheet.title.replace(/\s\s+/g, ' ') }</Text>
                     <View style={[{flexDirection: isIntHe ? "row-reverse" : "row" }]}>
