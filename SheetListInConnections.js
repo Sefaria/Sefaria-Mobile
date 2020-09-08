@@ -56,17 +56,17 @@ const SheetListInConnections = ({ sheets, openRefSheet }) => {
                         />
                         <View style={[{marginHorizontal: 10, justifyContent: "space-between"}]}>
                             <Text style={[theme.tertiaryText, Sefaria.hebrew.isHebrew(sheet.ownerName) ? styles.heInt : styles.enInt, {"textAlign": isIntHe ? 'right' : 'left'}]}>{sheet.ownerName}</Text>
-                            <Text style={[theme.secondaryText, intStyle]}>
-                                {`${sheet.views} ${strings.views}`}
-                                {sheet.topics && sheet.topics.length ? ' • ' : null}
-                                {sheet.topics && sheet.topics.map((t, i) => 
-                                    <>
-                                        <InterfaceTextWithFallback key={`${t.slug}|${t.asTyped}`} en={t.en} he={t.he} />
-                                        {i < sheet.topics.length-1 ? <Text>{', '}</Text> : null}
-                                    </>
-                                )}
-                            </Text>
+                            <Text style={[theme.secondaryText, intStyle]}>{`${sheet.views} ${strings.views}`}</Text>
                         </View>
+                    </View>
+                    <View style={{flexDirection: "row", flexWrap: "wrap", marginTop: 10, marginLeft: -4}}>
+                        {
+                            sheet.topics && sheet.topics.map((t, i) => 
+                                <Pressable onPress={()=>{}} android_ripple={{color: "#999"}} style={{paddingHorizontal: 5, paddingVertical: 2, backgroundColor: "#eee", borderRadius: 5, marginVertical: 3, marginHorizontal: 4}}>
+                                    <InterfaceTextWithFallback key={`${t.slug}|${t.asTyped}`} en={t.en} he={t.he} />
+                                </Pressable>
+                            )
+                        }    
                     </View>
                 </Pressable>
             )}
