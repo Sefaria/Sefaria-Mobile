@@ -102,7 +102,7 @@ class ReaderNavigationSheetList extends React.Component {
 
     render() {
       const showHebrew = this.props.interfaceLanguage == "hebrew";
-      const title = this.props.menuOpen === 'sheetTag' ? this.props.tag : strings.mySheets;
+      const title = this.props.menuOpen === 'sheetTag' ? this.props.tag.split('-').join(' ').replace(/\d+$/, '') : strings.mySheets;
 
       return(
             <View style={[styles.menu, this.props.theme.menu]}>

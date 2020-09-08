@@ -17,7 +17,7 @@ import {
 } from './Misc';
 import Sefaria from './sefaria';
 
-const SheetListInConnections = ({ sheets, openRefSheet }) => {
+const SheetListInConnections = ({ sheets, openRefSheet, openSheetTag }) => {
     const { themeStr, interfaceLanguage } = useContext(GlobalStateContext);
     const theme = getTheme(themeStr);
     const [sortedSheets, setSortedSheets] = useState([]);
@@ -62,7 +62,7 @@ const SheetListInConnections = ({ sheets, openRefSheet }) => {
                     <View style={{flexDirection: "row", flexWrap: "wrap", marginTop: 10, marginLeft: -4}}>
                         {
                             sheet.topics && sheet.topics.map((t, i) => 
-                                <Pressable onPress={()=>{}} android_ripple={{color: "#999"}} style={{paddingHorizontal: 5, paddingVertical: 2, backgroundColor: "#eee", borderRadius: 5, marginVertical: 3, marginHorizontal: 4}}>
+                                <Pressable onPress={()=>{openSheetTag(t.slug)}} android_ripple={{color: "#999"}} style={{paddingHorizontal: 5, paddingVertical: 2, backgroundColor: "#eee", borderRadius: 5, marginVertical: 3, marginHorizontal: 4}}>
                                     <InterfaceTextWithFallback key={`${t.slug}|${t.asTyped}`} en={t.en} he={t.he} />
                                 </Pressable>
                             )

@@ -72,6 +72,7 @@ class ConnectionsPanel extends React.PureComponent {
     shareCurrentSegment:  PropTypes.func.isRequired,
     viewOnSite:           PropTypes.func.isRequired,
     reportError:          PropTypes.func.isRequired,
+    openSheetTag:         PropTypes.func.isRequired,
   };
 
   render() {
@@ -186,6 +187,7 @@ class ConnectionsPanel extends React.PureComponent {
             <SheetListInConnections
               sheets={this.props.relatedData.sheets}
               openRefSheet={this.props.openRefSheet}
+              openSheetTag={this.props.openSheetTag}
             />
           </View>
         );

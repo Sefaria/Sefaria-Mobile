@@ -2095,6 +2095,7 @@ class ReaderApp extends React.PureComponent {
                 shareCurrentSegment={this.shareCurrentSegment}
                 viewOnSite={this.viewOnSite}
                 reportError={this.reportError}
+                openSheetTag={this.openSheetTag}
               />
                : null
             }
