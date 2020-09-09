@@ -48,8 +48,7 @@ Sefaria = {
       .then(Sefaria._loadSearchTOC);
   },
   postInit: function() {  // todo: pass network setting from some React component (ReaderApp.componentDidMount likely)
-    return Sefaria.getGalusStatus()
-      .then(Sefaria._loadPeople)
+    return Sefaria._loadPeople()
       .then(Sefaria._loadHebrewCategories)
       .then(packageSetupProtocol)
       .then(autoUpdateCheck).then(async checkServer => {

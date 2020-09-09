@@ -441,7 +441,7 @@ async function packageSetupProtocol() {
       throw new Error(`AsyncStorage failed to save: ${error}`);
     }
   }
-  await repopulateBooksState()
+  await repopulateBooksState();
 }
 
 function setDesiredBooks() {
@@ -922,13 +922,13 @@ async function downloadUpdate(networkSetting, triggeredByUser=true) {
   const booksToDownload = await calculateBooksToDownload(BooksState);
   if (!booksToDownload.length) { return }
   console.log('requesting new bundle');
+  await Tracker.startDownloadSession('Update');
   const bundles = await requestNewBundle(booksToDownload);
   if (Tracker.downloadInProgress()) {  // before starting the process, double check that another one wasn't triggered
+    Tracker.cancelDownload(true);  // we'll want to abort everything, this state should be illegal
     return
   }
   Tracker.downloadSize = bundles.downloadSize;
-  await Tracker.startDownloadSession('Update');
-  console.log(`received bundle: ${bundles}; starting download`);
   await downloadBundleArray(bundles['bundleArray'], Tracker.arrayDownloadState, networkSetting);
 }
 

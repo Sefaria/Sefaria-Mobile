@@ -351,7 +351,18 @@ const CalendarSection = ({ openRef }) => {
   };
   setup(!!calendarLoaded).then({});
   if (!calendarLoaded) { return (<LoadingView />); }
-  const calItems = Sefaria.getCalendars(preferredCustom, Sefaria.galusOrIsrael === 'diaspora');
+
+  // checking geolocation takes a long time. Default by looking at interfaceLanguage, then fix the calendar when location resolves
+  const [galusOrIsrael, setGalusOrIsrael] = useState(!!Sefaria.galusOrIsrael ? Sefaria.galusOrIsrael :
+    interfaceLanguage === "hebrew" ? "israel" : "diaspora");
+  const setGeoLocation = async (loaded) => {
+    if (!loaded) {
+      await Sefaria.getGalusStatus();
+      setGalusOrIsrael(Sefaria.galusOrIsrael);
+    }
+  };
+  setGeoLocation(!!Sefaria.galusOrIsrael).then({});
+  const calItems = Sefaria.getCalendars(preferredCustom, galusOrIsrael === 'diaspora');
   const isHeb = Sefaria.util.get_menu_language(interfaceLanguage, textLanguage) == 'hebrew';
   return (
     <ReaderNavigationMenuSection

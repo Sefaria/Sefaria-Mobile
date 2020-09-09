@@ -85,6 +85,7 @@ const SefariaProgressBar = ({ onPress, onClose, download, downloadNotification, 
   const [ progress, setProgress ] = useState(0);
   const calculateProgress = (received, total) => !!(received) ? setProgress(received / total) : setProgress(0.0);
   const downloadActive = !!downloadNotification ? downloadNotification.downloadActive : false;
+  const trueDownloadSize = !!(downloadSize) ? downloadSize : download.downloadSize;
 
   useEffect(() => {
     console.log('attaching Progress Tracker');
@@ -110,7 +111,7 @@ const SefariaProgressBar = ({ onPress, onClose, download, downloadNotification, 
           style={[{flexDirection: interfaceLanguage === "hebrew" ? "row-reverse" : "row"}, styles.sefariaProgressBarOverlay]}>
           <Text
             style={[{color: "#999"}, interfaceLanguage === "hebrew" ? styles.heInt : styles.enInt]}>{
-              downloadActive ? `${strings.downloading} (${downloadPercentage}% ${strings.of} ${parseInt(downloadSize/ 1e6)}mb)`
+              downloadActive ? `${strings.downloading} (${downloadPercentage}% ${strings.of} ${parseInt(trueDownloadSize/ 1e6)}mb)`
                 : `Waiting... (${downloadPercentage}%)`
           }</Text>
           {!!onClose ?
