@@ -414,21 +414,18 @@ var Api = {
     });
   },
 
-  related: function(ref) {
-    Sefaria.api._abortRequestType('related');
-    return new Promise((resolve, reject) => {
-      const cached = Sefaria.api._related[ref];
-      if (!!cached) { resolve(cached); return; }
-      Sefaria.api._request(ref, 'related', true, {}, true)
-        .then(response => {
-          Sefaria.api.related[ref] = response;
-          resolve(response);
-        })
-        .catch(error=>{
-          console.log("related API error:", error);
-          reject();
-        });
-    });
+  related: async function(ref) {
+    await Sefaria.api._abortRequestType('related');
+    const cached = Sefaria.api._related[ref];
+    if (!!cached) { return cached; }
+    try {
+      const response = await Sefaria.api._request(ref, 'related', true, {}, true);
+      Sefaria.api.related[ref] = response;
+      return response;
+    } catch(error) {
+      console.log("related API error:", error, ref);
+      throw error;
+    }
   },
 
   sheets: function(sheetID, more_data) {
@@ -481,11 +478,12 @@ var Api = {
     return Sefaria.api._translateVersions[versionTitle]["lang"]
   },
 
-  _abortRequestType: function(apiType) {
+  _abortRequestType: async function(apiType) {
     const controller = Sefaria.api._currentRequests[apiType];
     if (controller) {
       controller.abort();
       Sefaria.api._currentRequests[apiType] = null;
+      await Sefaria.util.timeoutPromise(100);
     }
   },
   urlFormEncode: function(data) {
@@ -644,6 +642,7 @@ failSilently - if true, dont display a message if api call fails
             reject("Return to Nav");
           }
         } else {
+          Sefaria.api._currentRequests[apiType] = null;
           resolve(json);
         }
       })
