@@ -479,7 +479,7 @@ async function setLocalBookTimestamps(bookTitleList) {
   let fileData = await RNFB.fs.lstat(FILE_DIRECTORY);
   // console.log('debugging issue in setLocalBookTimestamps:');
   // console.log(fileData);
-  fileData = fileData.filter(x => x['filename'].endsWith('.zip'));
+  fileData = fileData.filter(x => !!x && x['filename'].endsWith('.zip'));
   const stamps = {};
   fileData.forEach(f => {
     const bookName = f['filename'].slice(0, -4);
