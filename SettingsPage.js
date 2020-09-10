@@ -170,13 +170,13 @@ function abstractUpdateChecker(disableUpdateComponent, networkMode) {
 const SettingsPage = ({ close, logout, openUri }) => {
   const [numPressesDebug, setNumPressesDebug] = useState(0);
   const { themeStr, interfaceLanguage, isLoggedIn, downloadNetworkSetting } = useContext(GlobalStateContext);
-  console.log('rendering settingsPage?');
   const { isDisabledObj, setIsDisabledObj, onPackagePress } = usePkgState();
   const theme = getTheme(themeStr);
   const [updatesDisabled, setUpdatesDisabled] = useState(false);
   const checkUpdatesForSettings = abstractUpdateChecker(setUpdatesDisabled, downloadNetworkSetting);
 
   const deleteLibrary = async () => {
+    if (DownloadTracker.downloadInProgress()) { DownloadTracker.cancelDownload() }
     const booksToDelete = await markLibraryForDeletion();
     setIsDisabledObj(getIsDisabledObj);
     await deleteBooks(booksToDelete);
