@@ -70,21 +70,24 @@ const onPressDisabled = (child, parent) => {
   );
 };
 
+let packageDownloadLock = {locked: false};
+
 const usePkgState = () => {
   const { interfaceLanguage, downloadNetworkSetting } = useContext(GlobalStateContext);
   const [isDisabledObj, setIsDisabledObj] = useState(getIsDisabledObj());  // React Hook
 
-  const onPackagePress = async (pkgObj, setDownloadFunction) => {
+
+  const onPackagePress = async (pkgObj) => {
     const onPressActive = async (pkgName) => {
-      if (PackagesState[pkgName].clicked) { // if pressed when clicked, we are removing the package
+      const removePackage = async () => {
         if (DownloadTracker.downloadInProgress()) {
           DownloadTracker.cancelDownload();
         }
         const booksToDelete = await PackagesState[pkgName].unclick();
         setIsDisabledObj(getIsDisabledObj());
         await deleteBooks(booksToDelete);
-      }
-      else {
+      };
+      const addPackage = async () => {
         const netState = await NetInfo.fetch();
         if (!isDownloadAllowed(netState, downloadNetworkSetting)) {
           Alert.alert(
@@ -97,11 +100,23 @@ const usePkgState = () => {
         await PackagesState[pkgName].markAsClicked();
         await DownloadTracker.startDownloadSession(pkgName);
         setIsDisabledObj(getIsDisabledObj());
-
-        try{
+        try {
           await downloadPackage(pkgName, downloadNetworkSetting);
         } catch (e) {
-          console.log(e);
+          console.log(e)
+        }
+      };
+      if (PackagesState[pkgName].clicked) { await removePackage()}
+      else {
+        if (packageDownloadLock.locked || DownloadTracker.downloadInProgress()) {
+          doubleDownload();
+          return
+        }
+        packageDownloadLock.locked = true;
+        try {
+          await addPackage();
+        } finally {
+          packageDownloadLock.locked = false;
         }
       }
     };
@@ -155,6 +170,7 @@ function abstractUpdateChecker(disableUpdateComponent, networkMode) {
 const SettingsPage = ({ close, logout, openUri }) => {
   const [numPressesDebug, setNumPressesDebug] = useState(0);
   const { themeStr, interfaceLanguage, isLoggedIn, downloadNetworkSetting } = useContext(GlobalStateContext);
+  console.log('rendering settingsPage?');
   const { isDisabledObj, setIsDisabledObj, onPackagePress } = usePkgState();
   const theme = getTheme(themeStr);
   const [updatesDisabled, setUpdatesDisabled] = useState(false);

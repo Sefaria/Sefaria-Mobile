@@ -636,10 +636,9 @@ async function _downloadRecover(networkMode='wifiOnly', downloadBuffer) {
 
 async function downloadBundle(bundleName, networkSetting, downloadBuffer, recoveryMode=false, downloadFrom=0) {
   // Test with Appium
-  console.log(`downloadBundle invoked with ${bundleName}, ${recoveryMode}`);
-  console.log(`expect to see ${
-    Object.values(BooksState).filter(b => b.desired).length
-  } books after download`);
+  // console.log(`expect to see ${
+  //   Object.values(BooksState).filter(b => b.desired).length
+  // } books after download`);
   downloadFrom = parseInt(downloadFrom);
   Tracker.setAlreadyDownloaded(downloadFrom);
   const getUniqueFilename = () => {  // It's not critical to have a truly unique filename
@@ -652,7 +651,6 @@ async function downloadBundle(bundleName, networkSetting, downloadBuffer, recove
   };
 
   const [filename, url] = [getUniqueFilename(), getDownloadUrl(bundleName)];
-  console.log(`downloading ${filename} from ${url}`);
   let sessionStorageLocation;
   if (recoveryMode) {
     const sessionData = JSON.parse(await AsyncStorage.getItem('lastDownloadLocation'));
@@ -888,7 +886,6 @@ async function downloadBundleArray(bundleArray, downloadData, networkSetting) {
 
 
   }
-  console.log('beginning download chain');
   bufferGen.next().value()
   // Tracker.removeDownload(true);
   // console.log('ending download')
