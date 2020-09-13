@@ -72,6 +72,16 @@ const SystemButton = ({ onPress, text, img, isHeb, isBlue, isLoading, extraStyle
   </GlobalStateContext.Consumer>
 );
 
+const DynamicRepeatingText = ({ displayText, repeatText, maxCount }) => {
+  const [count, setCount] = useState(0);
+  console.log(`count: ${count}`);
+  useEffect(() => {
+    const intervalId = setInterval(() => setCount(count => count + 1), 250);  // todo: this doesn't quite work. try logging timeLeft
+    return () => clearInterval(intervalId);
+  }, []);
+  return <Text>{`${displayText}${repeatText.repeat(Math.abs(count%(maxCount+1)))}`}</Text>
+};
+
 const SefariaProgressBar = ({ onPress, onClose, download, downloadNotification, identity, downloadSize }) => {
   /*
    * note on configuration: an object with keys {count, interval}. Count is the max number of times the progress bar
@@ -112,7 +122,7 @@ const SefariaProgressBar = ({ onPress, onClose, download, downloadNotification, 
           <Text
             style={[{color: "#999"}, interfaceLanguage === "hebrew" ? styles.heInt : styles.enInt]}>{
               downloadActive ? `${strings.downloading} (${downloadPercentage}% ${strings.of} ${parseInt(trueDownloadSize/ 1e6)}mb)`
-                : `Waiting... (${downloadPercentage}%)`
+                :  <DynamicRepeatingText displayText={strings.preparingDownload} repeatText={'.'} maxCount={3} />
           }</Text>
           {!!onClose ?
             <TouchableOpacity onPress={onClose}>
