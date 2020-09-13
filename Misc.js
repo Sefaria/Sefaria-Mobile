@@ -74,9 +74,8 @@ const SystemButton = ({ onPress, text, img, isHeb, isBlue, isLoading, extraStyle
 
 const DynamicRepeatingText = ({ displayText, repeatText, maxCount }) => {
   const [count, setCount] = useState(0);
-  console.log(`count: ${count}`);
   useEffect(() => {
-    const intervalId = setInterval(() => setCount(count => count + 1), 250);  // todo: this doesn't quite work. try logging timeLeft
+    const intervalId = setInterval(() => setCount(count => count + 1), 1000);
     return () => clearInterval(intervalId);
   }, []);
   return <Text>{`${displayText}${repeatText.repeat(Math.abs(count%(maxCount+1)))}`}</Text>
