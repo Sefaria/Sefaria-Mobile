@@ -121,7 +121,7 @@ const SefariaProgressBar = ({ onPress, onClose, download, downloadNotification, 
           <Text
             style={[{color: "#999"}, interfaceLanguage === "hebrew" ? styles.heInt : styles.enInt]}>{
               downloadActive ? `${strings.downloading} (${downloadPercentage}% ${strings.of} ${parseInt(trueDownloadSize/ 1e6)}mb)`
-                :  <DynamicRepeatingText displayText={strings.preparingDownload} repeatText={'.'} maxCount={3} />
+                :  <DynamicRepeatingText displayText={strings.connecting} repeatText={'.'} maxCount={3} />
           }</Text>
           {!!onClose ?
             <TouchableOpacity onPress={onClose}>

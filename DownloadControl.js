@@ -41,10 +41,7 @@ function createCancelMethods() {
   let cancelMethods = [];
   const addCancelMethod = value => cancelMethods.push(value);
   const resetCancelMethods = () => cancelMethods = [];
-  const runCancelMethods = () => {
-    console.log(`running ${cancelMethods.length} cancel methods`);
-    cancelMethods.map(x => x())
-  };
+  const runCancelMethods = () => cancelMethods.map(x => x());
   return {addCancelMethod, resetCancelMethods, runCancelMethods}
 }
 
