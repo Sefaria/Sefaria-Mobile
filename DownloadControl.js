@@ -34,6 +34,22 @@ function selectedPackages() {
   return selections
 }
 
+function createCancelMethods() {
+  /*
+   * These methods are here so that async methods and promises can set up their own cancel method.
+   */
+  let cancelMethods = [];
+  const addCancelMethod = value => cancelMethods.push(value);
+  const resetCancelMethods = () => cancelMethods = [];
+  const runCancelMethods = () => {
+    console.log(`running ${cancelMethods.length} cancel methods`);
+    cancelMethods.map(x => x())
+  };
+  return {addCancelMethod, resetCancelMethods, runCancelMethods}
+}
+
+const {addCancelMethod, resetCancelMethods, runCancelMethods} = createCancelMethods();
+
 /*
  * A word on design - DownloadTracker was originally supposed to implement the Observer pattern (Pub - Sub). As the
  * complexity of the project grew, DownloadTracker got a little over-sized. It is now behaving as a semaphore, keeping
@@ -87,18 +103,18 @@ class DownloadTracker {
     return (!!this.currentDownload);
   }
   cancelDownload(cleanup=true) {
+    // kill any async methods or promises that need to be stopped due to to downloads being canceled.
+    runCancelMethods();
+    resetCancelMethods();
     if (this.downloadInProgress()) {
       this.currentDownload.catch(e => {});
       this.currentDownload.cancel((err, taskId) => {});
-      if (cleanup) {
-        this.removeDownload(true);
-        cleanTmpDirectory().then( () => {} )
-      } else {
-        this.removeDownload(false)
-      }
     }
-    else {
-      // throw "No download to cancel"
+    if (cleanup) {
+      this.removeDownload(true);
+      cleanTmpDirectory().then( () => {} )
+    } else {
+      this.removeDownload(false)
     }
   }
   attachProgressTracker(progressTracker, config, identity) {
@@ -122,6 +138,7 @@ class DownloadTracker {
     }
   }
   removeProgressTracker(identity) {
+    console.log(`removeProgressTracker identity: ${identity}; this.progressListener: ${this.progressListener}`);
     if (identity !== this.progressListener) {
       return
     }
@@ -862,6 +879,8 @@ async function downloadBundleArray(bundleArray, downloadData, networkSetting) {
    *
    * We want to make sure the disk is properly cleaned up before starting a download.
    */
+  const abortDownload = {abort: false};
+  addCancelMethod(() => abortDownload.abort = true);  // allow this method to be cancelled when downloads are cancelled
   const booksToDelete = calculateBooksToDelete(BooksState);
   await deleteBooks(booksToDelete);
 
@@ -883,9 +902,13 @@ async function downloadBundleArray(bundleArray, downloadData, networkSetting) {
       downloadData.currentDownload += 1;
       await downloadBundle(`${DOWNLOAD_SERVER}/${b}`, networkSetting, bufferGen);
     });
-
-
   }
+  // last method will be resetting the cancel methods and turning off the progress bar
+  buffer.push(() => {
+    resetCancelMethods();
+    Tracker.removeDownload(true);
+  });
+  if (abortDownload.abort) { return }
   bufferGen.next().value()
   // Tracker.removeDownload(true);
   // console.log('ending download')
@@ -911,6 +934,8 @@ async function downloadPackage(packageName, networkSetting) {
 
 async function downloadUpdate(networkSetting, triggeredByUser=true) {
   // Test with Appium
+  const aborter = {abort: false};
+  addCancelMethod(() => aborter.abort = true);
   const netState = await NetInfo.fetch();
   if (!isDownloadAllowed(netState, networkSetting)) {
     if (triggeredByUser) { downloadBlockedNotification(); }
@@ -926,6 +951,10 @@ async function downloadUpdate(networkSetting, triggeredByUser=true) {
     return
   }
   Tracker.downloadSize = bundles.downloadSize;
+  if (aborter.abort) {
+    Tracker.cancelDownload(true);
+    return
+  }
   await downloadBundleArray(bundles['bundleArray'], Tracker.arrayDownloadState, networkSetting);
 }
 

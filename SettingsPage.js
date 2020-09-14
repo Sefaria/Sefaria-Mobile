@@ -80,9 +80,7 @@ const usePkgState = () => {
   const onPackagePress = async (pkgObj) => {
     const onPressActive = async (pkgName) => {
       const removePackage = async () => {
-        if (DownloadTracker.downloadInProgress()) {
-          DownloadTracker.cancelDownload();
-        }
+        DownloadTracker.cancelDownload();
         const booksToDelete = await PackagesState[pkgName].unclick();
         setIsDisabledObj(getIsDisabledObj());
         await deleteBooks(booksToDelete);
