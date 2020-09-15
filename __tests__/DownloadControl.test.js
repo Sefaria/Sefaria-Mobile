@@ -329,6 +329,9 @@ describe('testMocking', () => {
     expect(stat).toHaveProperty('filename')
   });
   test('lstat', async () => {
+    // mocking Date.now so to prevent weird off-by-one errors that pop up.
+    const now = Date.now;
+    Date.now = jest.fn(() => 12);
     const filePromises = ['/foo/a', '/foo/b', '/foo/c'].map(x => {
       RNFB.fs.writeFile(`${x}`, 'foo');
     });
@@ -338,6 +341,7 @@ describe('testMocking', () => {
     expect(lstatResults).toBeInstanceOf(Array);
     expect(lstatResults).toHaveLength(3);
     expect(lstatResults[1]).toEqual(fileBStat);
+    Date.now = now;
   });
   test('customTimestamp', async () => {
     await RNFB.fs.writeFile('/foo/bar', 'blablabla');
