@@ -131,5 +131,6 @@ ReaderControls.propTypes = {
   getHistoryObject:                PropTypes.func.isRequired,
   showToast:                       PropTypes.func.isRequired,
 };
+ReaderControls.whyDidYouRender = true;
 
 export default ReaderControls;

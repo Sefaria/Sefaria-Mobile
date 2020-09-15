@@ -84,6 +84,7 @@ const SystemButton = ({ onPress, text, img, isHeb, isBlue, isLoading, extraStyle
     )}
   </GlobalStateContext.Consumer>
 );
+SystemButton.whyDidYouRender = true;
 
 const SefariaProgressBar = ({ progress, onPress, onClose }) => (
   <GlobalStateContext.Consumer>
@@ -225,7 +226,7 @@ CategoryBlockLink.propTypes = {
   icon:      PropTypes.number,
   iconSide:  PropTypes.oneOf(["start", "end"])
 };
-
+CategoryBlockLink.whyDidYouRender = true;
 
 const CategorySideColorLink = ({ language, category, enText, heText, sheetOwner, onPress }) => {
   const { themeStr } = useContext(GlobalStateContext);
