@@ -351,7 +351,15 @@ const OfflinePackageList = ({ isDisabledObj, onPackagePress }) => {
 const PackageComponent = ({ packageObj, onPackagePress, isDisabledObj }) => {
   const isSelected = packageObj.clicked;
 
-  const onPress = async () => {
+  // clicking multiple times in succession causes issues and is likely a mistake. Give a small timeout to prevent double clicks
+  const [doubleTap, setDoubleTap] = useState(false);
+  const preventDoubleTap = () => {
+    setDoubleTap(true);
+    setTimeout(() => setDoubleTap(false), 1500);
+  };
+
+  const onPress = doubleTap ? () => {} : async () => {
+    preventDoubleTap();
     await onPackagePress(packageObj);
   };
 
