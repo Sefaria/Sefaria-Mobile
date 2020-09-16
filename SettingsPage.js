@@ -385,7 +385,6 @@ const PackageComponent = ({ packageObj, onPackagePress, isDisabledObj }) => {
       >
         <SefariaProgressBar
           download={DownloadTracker}
-          onClose={() => DownloadTracker.cancelDownload()}
           identity={'SettingsPage'}
           downloadSize={packageObj.jsonData.size} />
       </ConditionalProgressWrapper>
