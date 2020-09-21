@@ -249,6 +249,7 @@ class ReaderApp extends React.PureComponent {
         // you're going back to textcolumn. make sure to jump
         oldState.textColumnKey = oldState.segmentRef;  // manually add a key to TextColumn to make sure it gets regenerated
         oldState.offsetRef = oldState.segmentRef;
+        oldState.linksLoaded = oldState.linksLoaded.map(() => false);  // manually set linksLoaded to false because links are not stored in oldState
       } else if (oldState.menuOpen === 'search') {
         this.onQueryChange('sheet', oldState.searchQuery, true, true, true);
         this.onQueryChange('text', oldState.searchQuery, true, true, true);
@@ -256,6 +257,12 @@ class ReaderApp extends React.PureComponent {
       this.setState(oldState, () => {
         if (isTextColumn) {
           Sefaria.history.saveHistoryItem(this.getHistoryObject, true);
+          if (!oldState.sheet) {
+            for (let sectionRef of oldState.sectionArray) {
+              this.loadRelated(sectionRef);
+            }
+          }
+          else { this.loadRelatedSheet(oldState.sheet); }
         }
       });
       return true;
@@ -731,6 +738,17 @@ class ReaderApp extends React.PureComponent {
     }
   };
 
+  loadRelatedSheet = (sheet) => {
+    const sourceRefs = sheet.sources.filter(source => 'ref' in source).map(source => source.ref);
+    Sefaria.util.procedural_promise_on_array(sourceRefs, async (ref, isSheet) => {
+      if (!this.state.sheet || this.state.sheet.id !== sheet.id || !!this.state.menuOpen) {
+        // stop loading related API for this sheet since it's no longer being viewed
+        throw Sefaria.util.PROCEDURAL_PROMISE_INTERRUPT;
+      }
+      await this.loadRelated(ref, isSheet);
+    }, [true]);
+  };
+
   _loadRelatedOnlineAndOffline = (ref, isSheet, online=true) => {
     // isSheet is true when loading links for individual refs on a sheet
     // Ensures that links have been loaded for `ref` and stores result in `this.state.linksLoaded` array.
@@ -954,14 +972,7 @@ class ReaderApp extends React.PureComponent {
         sectionHeArray: [`דף ${sheet.id}`],
         loaded: true,
       }, () => {
-        const sourceRefs = sheet.sources.filter(source => 'ref' in source).map(source => source.ref);
-        Sefaria.util.procedural_promise_on_array(sourceRefs, async (ref, isSheet) => {
-          if (!this.state.sheet || (""+this.state.sheet.id) !== sheetID || !!this.state.menuOpen) {
-            // stop loading related API for this sheet since it's no longer being viewed
-            throw Sefaria.util.PROCEDURAL_PROMISE_INTERRUPT;
-          }
-          await this.loadRelated(ref, isSheet);
-        }, [true]);
+        this.loadRelatedSheet(sheet);
       });
     });
   };
@@ -1071,6 +1082,15 @@ class ReaderApp extends React.PureComponent {
     // set of `menuOpen` states which you shouldn't be able to go back to
     const SKIP_MENUS = { autocomplete: true, register: true, login: true };
     if (!SKIP_MENUS[this.state.menuOpen] && !!menu) {
+      if (!this.state.menu) {
+        // text column. remove related data
+        for (let section of this.state.data) {
+          for (let segment of section) {
+            segment.links = [];
+            segment.relatedWOLinks = undefined;
+          }
+        }
+      }
       BackManager.forward({ state: this.state });
     }
     this.setState({menuOpen: menu});

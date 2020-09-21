@@ -784,11 +784,17 @@ Sefaria = {
     reset: function() {
       Sefaria.links._linkContentLoadingStack = [];
     },
+    relatedCacheKey(ref, online) {
+      return `${ref}|${online}`;
+    },
     loadRelated: async function(ref, online) {
       if (online) {
         const data = await Sefaria.api.related(ref);
         return data;
       } else {
+        const cacheKey = Sefaria.links.relatedCacheKey(ref, online);
+        const cached = Sefaria.api._related[cacheKey];
+        if (!!cached) { return cached; }
         const data = await Sefaria.loadOfflineFile(ref, false);
         // mimic response of links API so that addLinksToText() will work independent of data source
         const sectionData = Sefaria.getSectionFromJsonData(ref, data);
@@ -805,7 +811,9 @@ Sefaria = {
             }
           }) : []
         ), []));
-        return {links: linkList};
+        const offlineRelatedData = {links: linkList};
+        Sefaria.api._related[cacheKey] = offlineRelatedData;
+        return offlineRelatedData;
       }
     },
     getSegmentIndexFromRef: function(ref) {
@@ -824,7 +832,7 @@ Sefaria = {
         output[key] = [];
         for (let value of valueList) {
           const anchors = value.anchorRefExpanded || [value.anchorRef];
-          if (anchors.length === 0) { console.log("no anchors found", value); continue; }
+          if (anchors.length === 0) { continue; }
           for (let anchor of anchors) {
             const refIndex = Sefaria.links.getSegmentIndexFromRef(anchor);
             if (!output[key][refIndex]) { output[key][refIndex] = []; }

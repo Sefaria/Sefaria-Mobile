@@ -420,7 +420,7 @@ var Api = {
     if (!!cached) { return cached; }
     try {
       const response = await Sefaria.api._request(ref, 'related', true, {}, true);
-      Sefaria.api.related[ref] = response;
+      Sefaria.api._related[ref] = response;
       return response;
     } catch(error) {
       console.log("related API error:", error, ref);
