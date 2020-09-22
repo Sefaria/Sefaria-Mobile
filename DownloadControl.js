@@ -914,6 +914,13 @@ async function downloadBundleArray(bundleArray, downloadData, networkSetting) {
 
 
 async function downloadPackage(packageName, networkSetting) {
+  let packageSize = 0;
+  try {
+    packageSize = PackagesState[packageName].jsonData.size;
+  } catch (e) {
+    console.log(e);
+  }
+  Tracker.downloadSize = packageSize;
   await schemaCheckAndPurge();  // necessary for maintaining consistency
   const netState = await NetInfo.fetch();
   if (!isDownloadAllowed(netState, networkSetting)) {
@@ -922,7 +929,6 @@ async function downloadPackage(packageName, networkSetting) {
   }  // todo: review: should notification to the user be sent for a forbidden download?
   let bundles = await getPackageUrls(packageName);
   bundles = bundles.map(u => encodeURIComponent(u));
-  console.log(bundles);
   await downloadBundleArray(bundles, Tracker.arrayDownloadState, networkSetting);
   // bundles.map(async b => {await downloadBundle(`${DOWNLOAD_SERVER}/${b}`, networkSetting)});
 
