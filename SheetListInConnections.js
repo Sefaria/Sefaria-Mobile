@@ -61,7 +61,7 @@ const SheetItemInConnections = ({sheet, openRefSheet, openSheetTag}) => {
         >
             <TouchableOpacity onPress={()=> openRefSheet(sheet.id, sheet)}>
                 <Text style={[{fontSize: 20, lineHeight: 27}, Sefaria.hebrew.isHebrew(sheet.title) ? styles.he : styles.en, theme.text, {"textAlign": isIntHe ? 'right' : 'left'}]}>
-                    { sheet.title.replace(/\s\s+/g, ' ') }
+                    { Sefaria.util.stripHtml(sheet.title.replace(/\s\s+/g, ' ')) }
                 </Text>
             </TouchableOpacity>
             <View style={[{flexDirection: isIntHe ? "row-reverse" : "row" }]}>
