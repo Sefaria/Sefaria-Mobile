@@ -131,7 +131,11 @@ class DownloadTracker {
     this.progressListener = identity;
     this.progressTracker = [enhancedProgressTracker, config];
     if (this.downloadInProgress()) {
-      this.currentDownload.progress(config, enhancedProgressTracker);
+      try {
+        this.currentDownload.progress(config, enhancedProgressTracker);
+      } catch (e) {
+        console.log('handling no progress method case');
+      }  // edge case: the progress method is unavailable when the promise resolves
     }
   }
   removeProgressTracker(identity) {

@@ -101,7 +101,7 @@ const SefariaProgressBar = ({ onPress, onClose, download, downloadNotification, 
     download.attachProgressTracker(calculateProgress, config, identity);
     return function cleanup() {
       console.log('attaching dummy Progress Tracker');
-      download.removeProgressTracker();
+      download.removeProgressTracker(identity);
 
     };
   }, [download]);  // we only want to resubscribe if the downloader object changes. This shouldn't happen, but the condition is here for completeness sake
