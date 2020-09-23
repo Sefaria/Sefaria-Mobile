@@ -964,6 +964,7 @@ class ReaderApp extends React.PureComponent {
         data: [],
         sectionArray: [],
         sectionHeArray: [],
+        offsetRef: null,
     }, () => {
       this.closeMenu(); // Don't close until these values are in state, so sheet can load
       this.setState({
