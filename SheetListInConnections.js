@@ -6,7 +6,6 @@ import {
   FlatList,
   Text,
   Image,
-  Pressable,
   TouchableOpacity,
 } from 'react-native';
 import styles from './Styles';
@@ -56,13 +55,15 @@ const SheetItemInConnections = ({sheet, openRefSheet, openSheetTag}) => {
         topics[MORE_THRESH] = {more: true};
     }
     return (
-        <Pressable
-            onPress={()=> openRefSheet(sheet.id, sheet)}
-            android_ripple={{color: "#ccc"}}
+        <View
             key={sheet.id}
             style={[{borderBottomWidth: 1, paddingVertical: 20}, theme.bordered, styles.readerSideMargin]}
         >
-            <Text style={[{fontSize: 20, lineHeight: 27}, Sefaria.hebrew.isHebrew(sheet.title) ? styles.he : styles.en, theme.text, {"textAlign": isIntHe ? 'right' : 'left'}]}>{ sheet.title.replace(/\s\s+/g, ' ') }</Text>
+            <TouchableOpacity onPress={()=> openRefSheet(sheet.id, sheet)}>
+                <Text style={[{fontSize: 20, lineHeight: 27}, Sefaria.hebrew.isHebrew(sheet.title) ? styles.he : styles.en, theme.text, {"textAlign": isIntHe ? 'right' : 'left'}]}>
+                    { sheet.title.replace(/\s\s+/g, ' ') }
+                </Text>
+            </TouchableOpacity>
             <View style={[{flexDirection: isIntHe ? "row-reverse" : "row" }]}>
                 <Image
                     style={styles.userAvatar}
@@ -76,7 +77,7 @@ const SheetItemInConnections = ({sheet, openRefSheet, openSheetTag}) => {
             <View style={{flexDirection: isIntHe ? "row-reverse" : "row", flexWrap: "wrap", marginTop: 10, marginLeft: -4}}>
                 { topics.map(topic => <SheetTopicButton topic={topic} setShowMore={setShowMore} openSheetTag={openSheetTag} key={topic.more ? "MORE" : `${topic.slug}|${topic.asTyped}`}/>) }    
             </View>
-        </Pressable>
+        </View>
     );
 }
 
@@ -85,13 +86,13 @@ const SheetTopicButton = ({ topic, setShowMore, openSheetTag }) => {
     const theme = getTheme(themeStr);
     return (
         topic.more ? (
-            <Pressable onPress={()=>{setShowMore(true)}} android_ripple={{color: "#999"}} style={[styles.sheetTopicButton, theme.readerDisplayOptionsMenuItemSelected]}>
+            <TouchableOpacity onPress={()=>{setShowMore(true)}} style={[styles.sheetTopicButton, theme.readerDisplayOptionsMenuItemSelected]}>
                 <InterfaceTextWithFallback en={strings.more} he={strings.more} extraStyles={theme.tertiaryText} />
-            </Pressable>
+            </TouchableOpacity>
         ) : (
-            <Pressable onPress={()=>{openSheetTag(topic.slug)}} android_ripple={{color: "#999"}} style={[styles.sheetTopicButton, theme.readerDisplayOptionsMenuItemSelected]}>
+            <TouchableOpacity onPress={()=>{openSheetTag(topic.slug)}} style={[styles.sheetTopicButton, theme.readerDisplayOptionsMenuItemSelected]}>
                 <InterfaceTextWithFallback en={topic.en} he={topic.he} extraStyles={theme.tertiaryText} />
-            </Pressable>
+            </TouchableOpacity>
         )
     );
 }
