@@ -965,6 +965,7 @@ class ReaderApp extends React.PureComponent {
         sectionArray: [],
         sectionHeArray: [],
         offsetRef: null,
+        connectionsMode: null,
     }, () => {
       this.closeMenu(); // Don't close until these values are in state, so sheet can load
       this.setState({
@@ -1072,6 +1073,7 @@ class ReaderApp extends React.PureComponent {
         textReference: ref,
         sheet: null,
         sheetMeta: null,
+        connectionsMode: null,
       }, () => {
           this.closeMenu(); // Don't close until these values are in state, so we know if we need to load defualt text
           this.loadNewText({ ref, versions: newVersions, overwriteVersions }).then(resolve);
