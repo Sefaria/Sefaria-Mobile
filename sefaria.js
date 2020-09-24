@@ -362,7 +362,7 @@ Sefaria = {
   showSegmentNumbers: function(text) {
     let index = Sefaria.index(text);
     if (!index) return true; //default to true
-    return ['Talmud','Liturgy'].indexOf(index.categories[0]) == -1;
+    return ['Liturgy'].indexOf(index.categories[0]) == -1;
   },
   canBeContinuous: function(text) {
     const index = Sefaria.index(text);
