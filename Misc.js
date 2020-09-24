@@ -708,7 +708,7 @@ const ButtonToggleSetNew = ({ options, active }) => {
   );
 }
 
-const LoadingView = ({ style, category, size, height, color }) => (
+const LoadingView = ({ style, category, size, height, color=Sefaria.palette.colors.system }) => (
   <View style={[styles.loadingViewBox, style]}>
     <ActivityIndicator
       animating={true}
