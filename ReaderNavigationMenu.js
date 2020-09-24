@@ -176,6 +176,7 @@ ReaderNavigationMenu.propTypes = {
   searchType:     PropTypes.oneOf(['text', 'sheet']).isRequired,
   logout:         PropTypes.func.isRequired,
 };
+ReaderNavigationMenu.whyDidYouRender = true;
 
 const AuthSection = ({ openLogin, openRegister, logout, }) => {
   const { isLoggedIn } = useContext(GlobalStateContext);
@@ -308,6 +309,7 @@ MoreSection.propTypes = {
   openUri:       PropTypes.func.isRequired,
   openSettings:  PropTypes.func.isRequired,
 };
+MoreSection.whyDidYouRender = true;
 
 const ResourcesSection = ({ openSheets }) => {
   const { themeStr, interfaceLanguage } = useContext(GlobalStateContext);
@@ -337,6 +339,7 @@ const ResourcesSection = ({ openSheets }) => {
 ResourcesSection.propTypes = {
   openSheets:       PropTypes.func.isRequired,
 };
+ResourcesSection.whyDidYouRender = true;
 
 
 
@@ -401,6 +404,7 @@ const CalendarSection = ({ openRef }) => {
 CalendarSection.propTypes = {
   openRef: PropTypes.func.isRequired,
 };
+CalendarSection.whyDidYouRender = true;
 
 const SavedHistorySection = ({ isWhite, isHeb, openHistory, openSaved }) => (
   <TwoBox>
@@ -452,6 +456,7 @@ ReaderNavigationMenuSection.propTypes = {
   hasmore:       PropTypes.bool,
   moreClick:     PropTypes.func
 };
+ReaderNavigationMenuSection.whyDidYouRender = true;
 
 
 export default ReaderNavigationMenu;

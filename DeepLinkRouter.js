@@ -31,6 +31,7 @@ class DeepLinkRouter extends React.PureComponent {
       ['^(sheets)/tags$', this.openMenu, ['menu']],
       ['^sheets/tags/(.+)$', this.openSheetTag, ['tag']],
       ['^sheets/([0-9.]+)$', this.openRefSheet, ['sheetid']],
+      ['^(daf-roulette|chavruta|[Nn]echama|login|register|logout|activity|topics|people|groups|wiki|developers|request-a-text|request-a-training|contribute|faq|gala|jfn|about|donate|team|jobs|visualizations|mobile|daf-yomi|dicta-thanks|torah-tab)/?$', this.catchAll],
       ['^([^/]+)$', this.openRef, ['tref']],
       ['^.*$', this.catchAll],
     ];

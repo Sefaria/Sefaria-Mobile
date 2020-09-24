@@ -20,6 +20,19 @@ import Sefaria from './sefaria';
 import styles from './Styles.js';
 import strings from './LocalizedStrings';
 
+const InterfaceTextWithFallback = ({ en, he, extraStyles=[] }) => {
+  const { interfaceLanguage } = useContext(GlobalStateContext);
+  let langStyle = styles.enInt;
+  let text = en;
+  if ((interfaceLanguage === 'english' && !en) || (interfaceLanguage === 'hebrew' && !!he)) {
+    langStyle = styles.heInt;
+    text = he;
+  }
+  return (
+    <Text style={[langStyle].concat(extraStyles)}>{text}</Text>
+  );
+}
+
 const OrderedList = ({items, renderItem}) => {
   let arrayOffset = 0;
   return (
@@ -71,6 +84,7 @@ const SystemButton = ({ onPress, text, img, isHeb, isBlue, isLoading, extraStyle
     )}
   </GlobalStateContext.Consumer>
 );
+SystemButton.whyDidYouRender = true;
 
 const DynamicRepeatingText = ({ displayText, repeatText, maxCount }) => {
   const [count, setCount] = useState(0);
@@ -267,7 +281,7 @@ CategoryBlockLink.propTypes = {
   icon:      PropTypes.number,
   iconSide:  PropTypes.oneOf(["start", "end"])
 };
-
+CategoryBlockLink.whyDidYouRender = true;
 
 const CategorySideColorLink = ({ language, category, enText, heText, sheetOwner, onPress }) => {
   const { themeStr } = useContext(GlobalStateContext);
@@ -749,7 +763,7 @@ const ButtonToggleSetNew = ({ options, active }) => {
   );
 }
 
-const LoadingView = ({ style, category, size, height, color }) => (
+const LoadingView = ({ style, category, size, height, color=Sefaria.palette.colors.system }) => (
   <View style={[styles.loadingViewBox, style]}>
     <ActivityIndicator
       animating={true}
@@ -882,6 +896,7 @@ export {
   DisplaySettingsButton,
   HebrewInEnglishText,
   IndeterminateCheckBox,
+  InterfaceTextWithFallback,
   LanguageToggleButton,
   LibraryNavButton,
   LoadingView,

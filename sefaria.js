@@ -244,8 +244,22 @@ Sefaria = {
   sheetIdToUrl: sheetId => {
     return `https://www.sefaria.org/sheets/${sheetId}`;
   },
+  refToFullUrl: ref => {
+    return `https://www.sefaria.org/${Sefaria.refToUrl(ref)}`
+  },
   refToUrl: ref => {
-    const url = `https://www.sefaria.org/${ref.replace(/ /g, '_').replace(/_(?=[0-9:]+$)/,'.').replace(/:/g,'.')}`
+    // TODO: ideally should be using Sefaria.makeRef() (from Sefaria-Project) to urlify
+    // this method works, but it doesn't generate identical urls to what the web client sends (last space before sections is a _ instead of .)
+    // this means that it will not hit the same cache as the web client
+    const book = Sefaria.textTitleForRef(ref);
+    let url = ref;
+    if (!book || ref.substr(book.length, 1) === ",") {
+      // if complex, we don't know what the complex nodes are so use naive method which works but makes the last space before sections a _ instead of .
+      url = ref.replace(/:/g,'.').replace(/ /g,'_');
+    } else {
+      // use book list to find last space before sections
+      url = `${book.replace(/ /g, '_')}${ref.substring(book.length).replace(/:/g, '.').replace(/ (?=[^ ]+$)/, '.')}`
+    }
     return url;
   },
   urlToRef: url => {
@@ -362,7 +376,7 @@ Sefaria = {
   showSegmentNumbers: function(text) {
     let index = Sefaria.index(text);
     if (!index) return true; //default to true
-    return ['Talmud','Liturgy'].indexOf(index.categories[0]) == -1;
+    return ['Liturgy'].indexOf(index.categories[0]) == -1;
   },
   canBeContinuous: function(text) {
     const index = Sefaria.index(text);
@@ -564,7 +578,7 @@ Sefaria = {
         }
       }
     }
-    commentators = {
+    const commentators = {
       en: [...en],
       he: [...he]
     }
@@ -772,77 +786,104 @@ Sefaria = {
     reset: function() {
       Sefaria.links._linkContentLoadingStack = [];
     },
-    load: function(ref) {
-      return new Promise((resolve, reject) => {
-        Sefaria.loadOfflineFile(ref, false)
-        .then(data => {
-          // mimic response of links API so that addLinksToText() will work independent of data source
-          const sectionData = Sefaria.getSectionFromJsonData(ref, data);
-          if (!sectionData) { reject(ERRORS.CANT_GET_SECTION_FROM_DATA); }
-          const linkList = (sectionData.content.reduce((accum, segment, segNum) => accum.concat(
-            ("links" in segment) ? segment.links.map(link => {
-              const index_title = Sefaria.textTitleForRef(link.sourceRef);
-              return {
-                sourceRef: link.sourceRef,
-                sourceHeRef: link.sourceHeRef,
-                index_title,
-                category: ("category" in link) ? link.category : Sefaria.categoryForTitle(index_title),
-                anchorRef: `${ref}:${segNum+1}`,
-              }
-            }) : []
-          ), []));
-          resolve(linkList);
-        })
-        .catch(error => {
-          if (error === ERRORS.NOT_OFFLINE) {
-            Sefaria.api.links(ref).then(resolve);
-          } else { reject(error); }
-        })
-      });
+    relatedCacheKey(ref, online) {
+      return `${ref}|${online}`;
     },
-    organizeLinksBySegment: function(links) {
-      let link_response = [];
+    loadRelated: async function(ref, online) {
+      if (online) {
+        const data = await Sefaria.api.related(ref);
+        return data;
+      } else {
+        const cacheKey = Sefaria.links.relatedCacheKey(ref, online);
+        const cached = Sefaria.api._related[cacheKey];
+        if (!!cached) { return cached; }
+        const data = await Sefaria.loadOfflineFile(ref, false);
+        // mimic response of links API so that addLinksToText() will work independent of data source
+        const sectionData = Sefaria.getSectionFromJsonData(ref, data);
+        if (!sectionData) { throw ERRORS.CANT_GET_SECTION_FROM_DATA; }
+        const linkList = (sectionData.content.reduce((accum, segment, segNum) => accum.concat(
+          ("links" in segment) ? segment.links.map(link => {
+            const index_title = Sefaria.textTitleForRef(link.sourceRef);
+            return {
+              sourceRef: link.sourceRef,
+              sourceHeRef: link.sourceHeRef,
+              index_title,
+              category: ("category" in link) ? link.category : Sefaria.categoryForTitle(index_title),
+              anchorRef: `${ref}:${segNum+1}`,
+            }
+          }) : []
+        ), []));
+        const offlineRelatedData = {links: linkList};
+        Sefaria.api._related[cacheKey] = offlineRelatedData;
+        return offlineRelatedData;
+      }
+    },
+    getSegmentIndexFromRef: function(ref) {
+      let index = parseInt(ref.substring(ref.lastIndexOf(':') + 1)) - 1;
+      if (!index && index !== 0) {
+        // try again. assume depth-1 text
+        index = parseInt(ref.substring(ref.lastIndexOf(' ') + 1).trim()) - 1;
+      }
+      return index;
+    },
+    organizeRelatedBySegment: function(related) {
+      let output = {};
       //filter out books not in toc
-      links = links.filter((l)=>{
-        return l.index_title in Sefaria.booksDict;
+      Object.entries(related).map(([key, valueList]) => {
+        if (key == 'links') { valueList = valueList.filter(l=>!!Sefaria.booksDict[l.index_title]); }
+        output[key] = [];
+        for (let value of valueList) {
+          const anchors = value.anchorRefExpanded || [value.anchorRef];
+          if (anchors.length === 0) { continue; }
+          for (let anchor of anchors) {
+            const refIndex = Sefaria.links.getSegmentIndexFromRef(anchor);
+            if (!output[key][refIndex]) { output[key][refIndex] = []; }
+            if (key == 'links') {
+              value = {
+                "category": value.category,
+                "sourceRef": value.sourceRef,
+                "sourceHeRef": value.sourceHeRef,
+                "textTitle": value.index_title,
+                "collectiveTitle": value.collectiveTitle ? value.collectiveTitle.en: null,
+                "heCollectiveTitle": value.collectiveTitle ? value.collectiveTitle.he : null,
+              };
+            }
+            output[key][refIndex].push(value);
+          }
+        }
       });
-      for (let i = 0; i < links.length; i++) {
-        let link = links[i];
-        let linkSegIndex = parseInt(link.anchorRef.substring(link.anchorRef.lastIndexOf(':') + 1)) - 1;
-        if (!linkSegIndex && linkSegIndex !== 0) {
-          // try again. assume depth-1 text
-          linkSegIndex = parseInt(link.anchorRef.substring(link.anchorRef.lastIndexOf(' ') + 1).trim()) - 1;
-        }
-        if (!link_response[linkSegIndex]) {
-          link_response[linkSegIndex] = [];
-        }
-        link_response[linkSegIndex].push({
-          "category": link.category,
-          "sourceRef": link.sourceRef, //.substring(0,link.sourceRef.lastIndexOf(':')),
-          "sourceHeRef": link.sourceHeRef, //.substring(0,link.sourceHeRef.lastIndexOf(':')),
-          "textTitle": link.index_title,
-          "collectiveTitle": link.collectiveTitle ? link.collectiveTitle.en: null,
-          "heCollectiveTitle": link.collectiveTitle ? link.collectiveTitle.he : null,
-        });
-      }
-      return link_response;
+      return output;
     },
-    addLinksToSheet: function(sheet, links, sourceRef) {
-      let link_response = Sefaria.links.organizeLinksBySegment(links);
-      // flatten 2d array
-      link_response = link_response.reduce((accum, curr) => accum.concat(curr), []);
-      for (sheetSeg of sheet) {
-        if (sheetSeg.sourceRef === sourceRef) {
-          sheetSeg.links = link_response;
-        }
+    addRelatedToSheet: function(sheet, related, sourceRef) {
+      const related_obj = Sefaria.links.organizeRelatedBySegment(related);
+      const sheetSegIndexes = [];
+      for (let i = 0; i < sheet.length; i++) {
+        if (sheet[i].sourceRef === sourceRef) { sheetSegIndexes.push(i); }
       }
+      Object.entries(related_obj).map(([key, valueList]) => {
+        const flattenedValues = valueList.reduce((accum, curr) => accum.concat(curr), []);
+        for (let i of sheetSegIndexes) {
+          if (key === 'links') {
+            sheet[i][key] = flattenedValues;
+          } else {
+            if (!sheet[i].relatedWOLinks) { sheet[i].relatedWOLinks = []; }
+            sheet[i].relatedWOLinks[key] = flattenedValues;
+          }
+        }
+      });
       return sheet;
     },
-    addLinksToText: function(text, links) {
-      const link_response = Sefaria.links.organizeLinksBySegment(links);
+    addRelatedToText: function(text, related) {
+      const related_obj = Sefaria.links.organizeRelatedBySegment(related);
       return text.map((seg,i) => ({
         ...seg,
-        links: link_response[i] ? link_response[i] : [],
+        links: related_obj.links[i] || [],
+        relatedWOLinks: {
+          ...Object.keys(related_obj).filter(x => x !== 'links').reduce((obj, x) => {
+            obj[x] = related_obj[x][i] || [];
+            return obj;
+          }, {}),
+        },
       }));
     },
     loadLinkData: function(ref, pos, resolveClosure, rejectClosure, runNow) {
@@ -1117,6 +1158,19 @@ Sefaria = {
 };
 
 Sefaria.util = {
+  PROCEDURAL_PROMISE_INTERRUPT: "INTERRUPT",
+  procedural_promise_on_array: async function(array, promise, extra_params) {
+    // run `promise` for each item of `array` one-by-one. useful for making multiple API calls that don't trip over each other
+    // extra_params should be passed as an array
+    for (let item of array) {
+      try {
+        await promise(item, ...extra_params);
+      } catch (e) {
+        if (e === Sefaria.util.PROCEDURAL_PROMISE_INTERRUPT) { break; }
+        continue;
+      }
+    }
+  },
   get_menu_language: function(interfaceLanguage, textLanguage) {
     //menu language is no longer set explicitly
     //Instead, it is set like this

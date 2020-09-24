@@ -9,6 +9,7 @@ import {
   Image,
   TouchableOpacity,
   Dimensions,
+  Pressable,
 } from 'react-native';
 import styles from './Styles';
 import strings from './LocalizedStrings';
@@ -17,6 +18,7 @@ import TextList from './TextList';
 import { LinkFilter } from './Filter';
 import VersionsBox from './VersionsBox';
 import AboutBox from './AboutBox';
+import SheetListInConnections from './SheetListInConnections';
 import LexiconBox from './LexiconBox';
 import { GlobalStateContext, getTheme } from './StateManager';
 
@@ -70,6 +72,7 @@ class ConnectionsPanel extends React.PureComponent {
     shareCurrentSegment:  PropTypes.func.isRequired,
     viewOnSite:           PropTypes.func.isRequired,
     reportError:          PropTypes.func.isRequired,
+    openSheetTag:         PropTypes.func.isRequired,
   };
 
   render() {
@@ -177,6 +180,17 @@ class ConnectionsPanel extends React.PureComponent {
             />
           </View>
         );
+      case 'sheetsByRef':
+        return (
+          <View style={[styles.mainTextPanel, styles.textColumn, this.props.theme.textListContentOuter, {maxWidth: null, flex: this.props.textListFlex}]}>
+            {connectionsPanelHeader}
+            <SheetListInConnections
+              sheets={this.props.relatedData.sheets}
+              openRefSheet={this.props.openRefSheet}
+              openSheetTag={this.props.openSheetTag}
+            />
+          </View>
+        );
       default:
         // either `null` or equal to a top-level category
         let content;
@@ -242,6 +256,7 @@ class ConnectionsPanel extends React.PureComponent {
                 sheet={this.props.sheet}
                 themeStr={this.props.themeStr}
                 versionsCount={this.props.versions.length}
+                sheetsCount={this.props.relatedData.sheets ? this.props.relatedData.sheets.length : 0}
                 setConnectionsMode={this.props.setConnectionsMode}
                 segmentRef={this.props.segmentRef}
                 heSegmentRef={this.props.heSegmentRef}
@@ -285,6 +300,7 @@ class ResourcesList extends React.PureComponent {
     themeStr:           PropTypes.string.isRequired,
     setConnectionsMode: PropTypes.func.isRequired,
     versionsCount:      PropTypes.number.isRequired,
+    sheetsCount:        PropTypes.number.isRequired,
     segmentRef:         PropTypes.string.isRequired,
     segmentRefOnSheet:  PropTypes.string,
     heSegmentRef:       PropTypes.string.isRequired,
@@ -299,6 +315,12 @@ class ResourcesList extends React.PureComponent {
     const isSaved = Sefaria.history.indexOfSaved(this.props.segmentRef) !== -1;
     return (
       <View>
+        <ToolsButton
+          text={strings.sheets}
+          icon={isWhite ? require("./img/sheet.png") : require("./img/sheet.png")}
+          count={this.props.sheetsCount}
+          onPress={()=>{ this.props.setConnectionsMode("sheetsByRef"); }}
+        />
         <ToolsButton
           text={strings.about}
           icon={isWhite ? require("./img/book.png") : require("./img/book-light.png")}
@@ -338,15 +360,15 @@ const ToolsButton = ({ text, onPress, icon, count }) => {
   const iconComp = icon ? (<View style={styles.toolsButtonIcon}><Image source={icon} style={styles.menuButton} resizeMode={'contain'}></Image></View>) : null;
   const countComp = !!count || count === 0 ? <Text style={[styles.enInt, theme.secondaryText, styles.spacedText]}>{` (${count}) `}</Text> : null
   return (
-    <TouchableOpacity
+    <Pressable
       style={[styles.searchFilterCat, styles.toolsButton, flexDir, theme.bordered]}
       onPress={onPress}
-      delayPressIn={200}
+      android_ripple={{color: "#ccc"}}
     >
       { iconComp }
       <Text style={[textStyle, styles.spacedText, styles.toolsButtonText, theme.tertiaryText]}>{text}</Text>
       { countComp }
-    </TouchableOpacity>
+    </Pressable>
   );
 };
 ToolsButton.propTypes = {

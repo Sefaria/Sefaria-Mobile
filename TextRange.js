@@ -40,7 +40,6 @@ const TextRange = React.memo(({
   heText = Sefaria.util.getDisplayableHTML(heText.trim(), 'hebrew');
   let numLinks = rowData.content.links ? rowData.content.links.length : 0;
 
-  let segment = [];
   const textLanguageWithContent = Sefaria.util.getTextLanguageWithContent(textLanguage, enText, heText);
   let refSection = rowData.sectionIndex + ":" + rowData.rowIndex;
   let numberMargin = (<Text
@@ -73,12 +72,12 @@ const TextRange = React.memo(({
   }
   const showHe = textLanguageWithContent == "hebrew" || textLanguageWithContent == "bilingual";
   const showEn = textLanguageWithContent == "english" || textLanguageWithContent == "bilingual";
-  const onTextPress = (onlyOpen) => {
+  const onTextPress = useCallback((onlyOpen) => {
     let key = refSection;
     let section = parseInt(key.split(":")[0]);
     let segment = parseInt(key.split(":")[1]);
     textSegmentPressed(section, segment, segmentRef, onlyOpen);
-  };
+  }, [refSection, segmentRef]);
   return (
     <View
       style={styles.verseContainer}
@@ -137,7 +136,7 @@ const TextRange = React.memo(({
     </View>
   );
 });
-TextRange.whyDidYouRender = true;
+TextRange.whyDidYouRender = {customName: 'TextRange'};
 TextRange.propTypes = {
   showToast:          PropTypes.func.isRequired,
   rowData:            PropTypes.object.isRequired,

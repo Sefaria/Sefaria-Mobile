@@ -20,6 +20,7 @@ var Api = {
   _nameCache: {},
   _allTags: {},
   _sheetsByTag: {},
+  _related: {},
   _sheets: {},
   _trendingTags: {},
   _versions: {},
@@ -181,6 +182,9 @@ var Api = {
         case "sheetsByTag":
           url += "api/sheets/tag/";
           break;
+        case "related":
+          url += "api/related/";
+          break;
         case "sheets":
           url += "api/sheets/";
           urlSuffix = `?more_data=${more_data === true ? 1 : 1}`;
@@ -206,7 +210,7 @@ var Api = {
       }
     }
     if (urlify) {
-      ref = ref.replace(/:/g,'.').replace(/ /g,'_');
+      ref = Sefaria.refToUrl(ref);
     }
     url += ref + urlSuffix;
     return url;
@@ -410,6 +414,20 @@ var Api = {
     });
   },
 
+  related: async function(ref) {
+    await Sefaria.api._abortRequestType('related');
+    const cached = Sefaria.api._related[ref];
+    if (!!cached) { return cached; }
+    try {
+      const response = await Sefaria.api._request(ref, 'related', true, {}, true);
+      Sefaria.api._related[ref] = response;
+      return response;
+    } catch(error) {
+      console.log("related API error:", error, ref);
+      throw error;
+    }
+  },
+
   sheets: function(sheetID, more_data) {
     Sefaria.api._abortRequestType('sheets');
     return new Promise((resolve, reject) => {
@@ -460,11 +478,12 @@ var Api = {
     return Sefaria.api._translateVersions[versionTitle]["lang"]
   },
 
-  _abortRequestType: function(apiType) {
+  _abortRequestType: async function(apiType) {
     const controller = Sefaria.api._currentRequests[apiType];
     if (controller) {
       controller.abort();
       Sefaria.api._currentRequests[apiType] = null;
+      await Sefaria.util.timeoutPromise(100);
     }
   },
   urlFormEncode: function(data) {
@@ -604,7 +623,6 @@ failSilently - if true, dont display a message if api call fails
     return new Promise(function(resolve, reject) {
       fetch(url, {method: 'GET', signal, headers })
       .then(function(response) {
-        //console.log('checking response',response.status);
         if (response.status >= 200 && response.status < 300) {
           return response;
         } else {
@@ -614,16 +632,22 @@ failSilently - if true, dont display a message if api call fails
       })
       .then(response => response.json())
       .then(json => {
-        if ("error" in json && !failSilently) {
-          Alert.alert(
-            strings.textUnavailable,
-            strings.textUnavailableMessage,
-            [{text: strings.ok, onPress: () => { reject("Return to Nav"); } }]);
+        if ("error" in json) {
+          if (!failSilently) {
+            Alert.alert(
+              strings.textUnavailable,
+              strings.textUnavailableMessage,
+              [{text: strings.ok, onPress: () => { reject("Return to Nav"); } }]);
+          } else {
+            reject("Return to Nav");
+          }
         } else {
+          Sefaria.api._currentRequests[apiType] = null;
           resolve(json);
         }
       })
       .catch((response)=>{
+        console.log("API ERROR", response, url);
         if (failSilently) {
           reject("Return to Nav");
         } else {

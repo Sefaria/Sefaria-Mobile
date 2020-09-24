@@ -72,7 +72,6 @@ import {
 } from './Misc.js';
 const ViewPort    = Dimensions.get('window');
 
-
 class ReaderApp extends React.PureComponent {
   static whyDidYouRender = true;
   static propTypes = {
@@ -277,6 +276,7 @@ class ReaderApp extends React.PureComponent {
         // you're going back to textcolumn. make sure to jump
         oldState.textColumnKey = oldState.segmentRef;  // manually add a key to TextColumn to make sure it gets regenerated
         oldState.offsetRef = oldState.segmentRef;
+        oldState.linksLoaded = oldState.linksLoaded.map(() => false);  // manually set linksLoaded to false because links are not stored in oldState
       } else if (oldState.menuOpen === 'search') {
         this.onQueryChange('sheet', oldState.searchQuery, true, true, true);
         this.onQueryChange('text', oldState.searchQuery, true, true, true);
@@ -284,6 +284,12 @@ class ReaderApp extends React.PureComponent {
       this.setState(oldState, () => {
         if (isTextColumn) {
           Sefaria.history.saveHistoryItem(this.getHistoryObject, true);
+          if (!oldState.sheet) {
+            for (let sectionRef of oldState.sectionArray) {
+              this.loadRelated(sectionRef);
+            }
+          }
+          else { this.loadRelatedSheet(oldState.sheet); }
         }
       });
       return true;
@@ -739,37 +745,66 @@ class ReaderApp extends React.PureComponent {
   loadSecondaryData = (ref) => {
     //loads secondary data every time a section is loaded
     //this data is not required for initial renderring of the section
-    this.loadLinks(ref);
+    this.loadRelated(ref);
     this.loadVersions(ref);
   };
 
-  loadLinks = (ref, isSheet) => {
+  loadRelated = async (ref, isSheet) => {
+    let hadSuccess = false;
+    for (let isOnline of [false, true]) {
+      try {
+        await this._loadRelatedOnlineAndOffline(ref, isSheet, isOnline);
+        hadSuccess = true;
+      } catch (error) {}
+    }
+    if (!hadSuccess) {
+      // make sure links get marked as loaded no matter what
+      let tempLinksLoaded = this.state.linksLoaded.slice(0);
+      tempLinksLoaded[iSec] = true;
+      this.setState({linksLoaded: tempLinksLoaded});
+    }
+  };
+
+  loadRelatedSheet = (sheet) => {
+    const sourceRefs = sheet.sources.filter(source => 'ref' in source).map(source => source.ref);
+    Sefaria.util.procedural_promise_on_array(sourceRefs, async (ref, isSheet) => {
+      if (!this.state.sheet || this.state.sheet.id !== sheet.id || !!this.state.menuOpen) {
+        // stop loading related API for this sheet since it's no longer being viewed
+        throw Sefaria.util.PROCEDURAL_PROMISE_INTERRUPT;
+      }
+      await this.loadRelated(ref, isSheet);
+    }, [true]);
+  };
+
+  _loadRelatedOnlineAndOffline = (ref, isSheet, online=true) => {
     // isSheet is true when loading links for individual refs on a sheet
     // Ensures that links have been loaded for `ref` and stores result in `this.state.linksLoaded` array.
     // Links are not loaded yet in case you're in API mode, or you are reading a non-default version
     const iSec = isSheet ? 0 : this.state.sectionArray.findIndex(secRef=>secRef===ref);
     if (!iSec && iSec !== 0) { console.log("could not find section ref in sectionArray", ref); return; }
-    Sefaria.links.load(ref)
-      .then(linksResponse => {
-        //add the links into the appropriate section and reload
+    return Sefaria.links.loadRelated(ref, online)
+      .then(response => {
+        //add the related data into the appropriate section and reload
         if (isSheet) {
-          this.state.data[iSec] = Sefaria.links.addLinksToSheet(this.state.data[iSec], linksResponse, ref);
+          this.state.data[iSec] = Sefaria.links.addRelatedToSheet(this.state.data[iSec], response, ref);
         } else {
-          this.state.data[iSec] = Sefaria.links.addLinksToText(this.state.data[iSec], linksResponse);
+          this.state.data[iSec] = Sefaria.links.addRelatedToText(this.state.data[iSec], response);
         }
         Sefaria.cacheCommentatorListBySection(ref, this.state.data[iSec]);
-        const tempLinksLoaded = this.state.linksLoaded.slice(0);
-        tempLinksLoaded[iSec] = true;
         if (this.state.segmentIndexRef != -1 && this.state.sectionIndexRef != -1) {
           this.updateLinkSummary(this.state.sectionIndexRef, this.state.segmentIndexRef);
         }
-        this.setState({data: this.state.data, linksLoaded: tempLinksLoaded});
-      })
-      .catch(error=>{
-        console.log("FAILED", error);
-        let tempLinksLoaded = this.state.linksLoaded.slice(0);
+
+        // only reset pointer for linksLoaded if it changes
+        const tempLinksLoaded = this.state.linksLoaded.slice(0);
         tempLinksLoaded[iSec] = true;
-        this.setState({linksLoaded: tempLinksLoaded});
+        let newLinksLoaded = this.state.linksLoaded;
+        for (let iSec = 0; iSec < tempLinksLoaded.length; iSec++) {
+          if (tempLinksLoaded[iSec] !== this.state.linksLoaded[iSec]) {
+            newLinksLoaded = tempLinksLoaded;
+          }
+        }
+        this.setState({data: this.state.data, linksLoaded: newLinksLoaded});
       });
   };
 
@@ -798,12 +833,9 @@ class ReaderApp extends React.PureComponent {
 
         var updatedData = [data.content].concat(this.state.data);
 
-        var newTitleArray = this.state.sectionArray;
-        var newHeTitleArray = this.state.sectionHeArray;
-        var newlinksLoaded = this.state.linksLoaded;
-        newTitleArray.unshift(data.sectionRef);
-        newHeTitleArray.unshift(data.heRef);
-        newlinksLoaded.unshift(false);
+        this.state.sectionArray.unshift(data.sectionRef);
+        this.state.sectionHeArray.unshift(data.heRef);
+        this.state.linksLoaded.unshift(false);
 
         this.setState({
           data: updatedData,
@@ -877,12 +909,18 @@ class ReaderApp extends React.PureComponent {
     this.openRef(ref, "text toc", null, false, enableAliyot);
   };
 
-  openRefSheet = (sheetID, sheetMeta, addToBackStack=false, calledFrom) => {
-      this.setState({
-          loaded: false,
-      }, () => {
-          this.loadSheet(sheetID, sheetMeta,addToBackStack, calledFrom);
-      });
+  openRefSheet = (sheetID, sheetMeta, addToBackStack=true, calledFrom) => {
+    if (addToBackStack) {
+      BackManager.forward({ state: this.state, calledFrom });
+    }
+    this.setState({
+        loaded: false,
+        textListVisible: false,
+        sheet: null,
+        sheetMeta: null,
+    }, () => {
+        this.loadSheet(sheetID, sheetMeta,addToBackStack, calledFrom);
+    });
   };
 
   openRefConnectionsPanel = (ref, versions, loadNewVersions=false) => {
@@ -934,7 +972,7 @@ class ReaderApp extends React.PureComponent {
     })];
   };
 
-  loadSheet = async (sheetID, sheetMeta, addToBackStack=false, calledFrom="search") => {
+  loadSheet = async (sheetID, sheetMeta) => {
     const more_data = !sheetMeta  // # if sheetMeta is null, need to request more data from api call
     const sheet = await Sefaria.api.sheets(sheetID, more_data);
     if (more_data) {
@@ -953,6 +991,8 @@ class ReaderApp extends React.PureComponent {
         data: [],
         sectionArray: [],
         sectionHeArray: [],
+        offsetRef: null,
+        connectionsMode: null,
     }, () => {
       this.closeMenu(); // Don't close until these values are in state, so sheet can load
       this.setState({
@@ -961,10 +1001,7 @@ class ReaderApp extends React.PureComponent {
         sectionHeArray: [`דף ${sheet.id}`],
         loaded: true,
       }, () => {
-        if (addToBackStack) {
-          BackManager.forward({ state: this.state, calledFrom });
-        }
-        sheet.sources.filter(source => 'ref' in source).map(source => this.loadLinks(source.ref, true));
+        this.loadRelatedSheet(sheet);
       });
     });
   };
@@ -976,7 +1013,7 @@ class ReaderApp extends React.PureComponent {
       [
         {text: strings.cancel, style: 'cancel'},
         {text: strings.open, onPress: () => {
-          this.openUri(Sefaria.refToUrl(ref));
+          this.openUri(Sefaria.refToFullUrl(ref));
         }}
       ]
     );
@@ -1063,6 +1100,7 @@ class ReaderApp extends React.PureComponent {
         textReference: ref,
         sheet: null,
         sheetMeta: null,
+        connectionsMode: null,
       }, () => {
           this.closeMenu(); // Don't close until these values are in state, so we know if we need to load defualt text
           this.loadNewText({ ref, versions: newVersions, overwriteVersions }).then(resolve);
@@ -1074,6 +1112,15 @@ class ReaderApp extends React.PureComponent {
     // set of `menuOpen` states which you shouldn't be able to go back to
     const SKIP_MENUS = { autocomplete: true, register: true, login: true };
     if (!SKIP_MENUS[this.state.menuOpen] && !!menu) {
+      if (!this.state.menu) {
+        // text column. remove related data
+        for (let section of this.state.data) {
+          for (let segment of section) {
+            segment.links = [];
+            segment.relatedWOLinks = undefined;
+          }
+        }
+      }
       BackManager.forward({ state: this.state });
     }
     this.setState({menuOpen: menu});
@@ -1681,7 +1728,7 @@ class ReaderApp extends React.PureComponent {
     const isEng = this.props.textLanguage !== "hebrew";
     const fullText = (heText && isHeb ? heText + (enText && isEng ? "\n" : "") : "") + ((enText && isEng) ? enText : "");
     if (withUrl) {
-      return `${fullText}\n\n${Sefaria.refToUrl(this.state.segmentRef)}`;
+      return `${fullText}\n\n${Sefaria.refToFullUrl(this.state.segmentRef)}`;
     }
     return fullText;
   }
@@ -1701,14 +1748,23 @@ class ReaderApp extends React.PureComponent {
     Share.share({
       message: this.getDisplayedText(Platform.OS === 'android'),  // android for some reason doesn't share text with a url attached at the bottom
       title: this.state.segmentRef,
-      url: Sefaria.refToUrl(this.state.segmentRef)
+      url: Sefaria.refToFullUrl(this.state.segmentRef)
     });
   }
 
   viewOnSite = () => {
-    const uri = this.state.sheet ? Sefaria.sheetIdToUrl(this.state.sheet.id) : Sefaria.refToUrl(this.state.segmentRef);
+    const uri = this.state.sheet ? Sefaria.sheetIdToUrl(this.state.sheet.id) : Sefaria.refToFullUrl(this.state.segmentRef);
     this.openUri(uri);
   }
+
+  shouldShowHamburger = () => {
+    if (Platform.OS === "android") { return true; }
+    else {
+      // see ReaderApp.openRef()
+      const calledFromDict = { "text list": true, "search": true };
+      return BackManager.getStack({ type: "main" }).filter(x => calledFromDict[x.calledFrom]).length === 0;
+    }
+  };
 
   _getReaderDisplayOptionsMenuRef = ref => {
     this._readerDisplayOptionsMenuRef = ref;
@@ -1964,6 +2020,10 @@ class ReaderApp extends React.PureComponent {
         Sefaria.track.setScreen(this.state.textTitle, "reader")
     }
     let textColumnFlex = this.state.textListVisible ? 1.0 - this.state.textListFlex : 1.0;
+    let relatedData = {};
+    try {
+      relatedData = this.state.data[this.state.sectionIndexRef][this.state.segmentIndexRef].relatedWOLinks || {};
+    } catch(e) {}
     return (
       <PinchGestureHandler
         onGestureEvent={this._onPinchGestureEvent}
@@ -1983,7 +2043,7 @@ class ReaderApp extends React.PureComponent {
               openTextToc={this.openTextToc}
               openSheetMeta={this.openSheetMeta}
               sheet={this.state.sheet}
-              backStack={BackManager.getStack({ type: "main" })}
+              shouldShowHamburger={this.shouldShowHamburger}
               toggleReaderDisplayOptionsMenu={this.toggleReaderDisplayOptionsMenu}
               openUri={this.openUri}
               getHistoryObject={this.getHistoryObject}
@@ -2053,6 +2113,7 @@ class ReaderApp extends React.PureComponent {
                 categories={Sefaria.categoriesForTitle(this.state.textTitle, isSheet)}
                 textFlow={this.state.textFlow}
                 openRef={this.openRefConnectionsPanel}
+                openRefSheet={this.openRefSheet}
                 setConnectionsMode={this.setConnectionsMode}
                 openFilter={this.openFilter}
                 closeCat={this.closeLinkCat}
@@ -2072,6 +2133,7 @@ class ReaderApp extends React.PureComponent {
                 currVersions={this.state.currVersions}
                 versions={this.state.versions}
                 versionsApiError={this.state.versionsApiError}
+                relatedData={relatedData}
                 onDragStart={this.onTextListDragStart}
                 onDragMove={this.onTextListDragMove}
                 onDragEnd={this.onTextListDragEnd}
@@ -2082,6 +2144,7 @@ class ReaderApp extends React.PureComponent {
                 shareCurrentSegment={this.shareCurrentSegment}
                 viewOnSite={this.viewOnSite}
                 reportError={this.reportError}
+                openSheetTag={this.openSheetTag}
               />
                : null
             }
