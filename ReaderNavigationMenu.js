@@ -375,7 +375,7 @@ const CalendarSection = ({ openRef }) => {
       content={
         <TwoBox language={Sefaria.util.get_menu_language(interfaceLanguage, textLanguage)}>
           { calItems.map(c => (
-            <TouchableWithoutFeedback key={c.order} onLongPress={()=>{console.log("YOHOHO!")}}>
+            <View key={c.order}>
               <CategoryBlockLink
                 category={c.title.en}
                 heCat={c.title.he}
@@ -394,7 +394,7 @@ const CalendarSection = ({ openRef }) => {
                 }}
                 onPress={() => { openRef(c.refs[0]); }}
               />
-            </TouchableWithoutFeedback>
+            </View>
           ))}
         </TwoBox>
       }
