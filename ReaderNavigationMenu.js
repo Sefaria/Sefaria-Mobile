@@ -388,7 +388,7 @@ const CalendarSection = ({ openRef }) => {
                     cancelButtonIndex: c.subs.length,
                   },
                   (buttonIndex) => {
-                    if (buttonIndex >= c.subs.length) { return; }  // cancel button
+                    if ((typeof buttonIndex == 'undefined') || buttonIndex >= c.subs.length) { return; }  // cancel button. button can be undefined when prreessing outside the long-press menu
                     openRef(c.refs[buttonIndex]);
                   })
                 }}
