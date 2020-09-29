@@ -210,13 +210,12 @@ const History = {
   saveSavedItem: function(item, action) {
     /* action: can be either 'add_saved' or 'delete_saved'
      */
-    const finalItem = {
+    const lastSyncItem = {
       ...item,
       action,
       time_stamp: Sefaria.util.epoch_time(),
     };
-    console.log('save', finalItem);
-    Sefaria.history.lastSync = [finalItem].concat(Sefaria.history.lastSync);
+    Sefaria.history.lastSync = [lastSyncItem].concat(Sefaria.history.lastSync);
     if (action === 'add_saved') {
       Sefaria.history.saved = [item].concat(Sefaria.history.saved);
     } else {

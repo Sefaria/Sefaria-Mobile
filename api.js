@@ -657,7 +657,7 @@ failSilently - if true, dont display a message if api call fails
             [
               {text: strings.cancel, onPress: () => { reject("Return to Nav"); }, style: 'cancel' },
               {text: strings.tryAgain, onPress: () => {
-                Sefaria.api._request(ref,apiType, urlify, { context, versions, more_data },failSilently).then(resolve);
+                Sefaria.api._request(ref,apiType, urlify, extra_args,failSilently,isPrivate).then(resolve);
               }}
             ]
           );

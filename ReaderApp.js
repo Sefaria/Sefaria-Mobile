@@ -516,7 +516,7 @@ class ReaderApp extends React.PureComponent {
         sectionIndexRef,
         sectionArray,
         sectionHeArray,
-        currVersions,
+        selectedVersions,
         textListVisible,
       } = this.state;
       const { textLanguage } = this.props;
@@ -529,14 +529,10 @@ class ReaderApp extends React.PureComponent {
         ref = (textListVisible && segmentRef) ? segmentRef : sectionArray[sectionIndexRef];
         he_ref = (textListVisible && segmentRef) ? (heSegmentRef || Sefaria.toHeSegmentRef(sectionHeArray[sectionIndexRef], segmentRef)) : sectionHeArray[sectionIndexRef];
       }
-      let versions = !!currVersions ? {
-        en: !!currVersions.en ? currVersions.en.versionTitle : null,
-        he: !!currVersions.he ? currVersions.he.versionTitle : null
-      } : {};
       if (!ref) {
         crashlytics().recordError(new Error(`Ref is null. textListVisible: '${String(textListVisible)}'. segmentRef: '${String(segmentRef)}. sectionArray: '${String(sectionArray)}'. sectionIndexRef: '${String(sectionIndexRef)}'`));
       }
-      versions = this.removeDefaultVersions(ref, versions);
+      versions = this.removeDefaultVersions(ref, selectedVersions);
       return {
         ref,
         he_ref,
@@ -609,7 +605,7 @@ class ReaderApp extends React.PureComponent {
       this.forceUpdate();
   };
   /*
-    isLoadingVersion - true when you are replacing an already loaded text with a specific version (not currently used)
+    isLoadingVersion - true when you are replacing an already loaded text with a specific version
     overwriteVersions - false when you want to switch versions but not overwrite sticky version (e.g. search)
   */
   loadNewText = ({ ref, versions, isLoadingVersion = false, overwriteVersions = true, numTries = 0 }) => {
@@ -721,11 +717,10 @@ class ReaderApp extends React.PureComponent {
     if (!versions) return versions;
     const cachedVersionList = Sefaria.api.getCachedVersions(ref);
     if (!cachedVersionList) return versions;
-
     const newVersions = {};
     for (let [lang, versionTitle] of Object.entries(versions)) {
       const versionObject = cachedVersionList.find(v => v.versionTitle === versionTitle && v.language === lang);
-      if (!versionObject || !versionObject.default) {
+      if (!!versionObject && !versionObject.default) {
         newVersions[lang] = versionTitle;
       } // else you're switching to a default version. dont list this in `versions` so that it can be loaded offline (assuming you have it downloaded)
     }
