@@ -215,10 +215,10 @@ AuthSection.propTypes = {
   logout: PropTypes.func.isRequired,
 };
 
-const getEmailBody = (nDownloaded, nAvailable) => {
-  nDownloaded = nDownloaded <= nAvailable ? nDownloaded : nAvailable;
+const getEmailBody = (downloaded, available) => {
+  const nDownloaded = downloaded.length <= available.length ? downloaded.length : available.length;
   return encodeURIComponent(`App Version: ${VersionNumber.appVersion}
-          Texts Downloaded: ${nDownloaded} / ${nAvailable}
+          Texts Downloaded: ${nDownloaded} / ${available.length}
           Packages: ${Object.values(PackagesState).filter(p => p.wasSelectedByUser()).map(p => p.name).join(", ")}
           OS Version: ${Platform.OS} ${Platform.Version}\n`);
 };
