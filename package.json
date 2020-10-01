@@ -55,6 +55,7 @@
     "react-native-gesture-handler": "^1.6.1",
     "react-native-htmlview": "^0.15.0",
     "react-native-localization": "^2.1.6",
+    "react-native-play-install-referrer": "^1.1.5",
     "react-native-root-toast": "^3.2.1",
     "react-native-shake": "^3.3.1",
     "react-native-sound-player": "^0.10.1",

@@ -31,6 +31,7 @@ import nextFrame from 'next-frame';
 import RNShake from 'react-native-shake';
 import SoundPlayer from 'react-native-sound-player'
 import { Search, SearchState } from '@sefaria/search';
+import { PlayInstallReferrer } from 'react-native-play-install-referrer';
 
 import { STATE_ACTIONS } from './StateManager';
 import ReaderControls from './ReaderControls';
@@ -172,6 +173,20 @@ class ReaderApp extends React.PureComponent {
     RNShake.addEventListener('ShakeEvent', () => {
       if (Sefaria.isGettinToBePurimTime()) {
         SoundPlayer.playSoundFile('grogger', 'mp3');
+      }
+    });
+    PlayInstallReferrer.getInstallReferrerInfo((installReferrerInfo, error) => {
+      if (!error) {
+        Sefaria.track.event("Install", {
+          installReferrer: installReferrerInfo.installReferrer,
+          referrerClickTimestampSeconds: installReferrerInfo.referrerClickTimestampSeconds,
+          installBeginTimestampSeconds: installReferrerInfo.installBeginTimestampSeconds,
+          referrerClickTimestampServerSeconds: installReferrerInfo.referrerClickTimestampServerSeconds,
+          installBeginTimestampServerSeconds: installReferrerInfo.installBeginTimestampServerSeconds,
+          installVersion: installReferrerInfo.installVersion
+        });
+      } else {
+        crashlytics().recordError(new Error(`Install Referrer Track Failed. Response code: ${error.responseCode}. Message: ${error.message}`));
       }
     });
   }
