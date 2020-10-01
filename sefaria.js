@@ -844,6 +844,7 @@ Sefaria = {
                 "sourceRef": value.sourceRef,
                 "sourceHeRef": value.sourceHeRef,
                 "textTitle": value.index_title,
+                "sourceHasEn": value.sourceHasEn,
                 "collectiveTitle": value.collectiveTitle ? value.collectiveTitle.en: null,
                 "heCollectiveTitle": value.collectiveTitle ? value.collectiveTitle.he : null,
               };
@@ -936,7 +937,7 @@ Sefaria = {
       return new Promise(function(resolve, reject) {
         // Returns an ordered array summarizing the link counts by category and text
         // Takes an array of links which are of the form { "category", "sourceHeRef", "sourceRef", "textTitle"}
-        var summary = {"All": {count: 0, books: {}}, "Commentary": {count: 0, books: {}}};
+        var summary = {"All": {count: 0, books: {}, hasEn: false}, "Commentary": {count: 0, books: {}, hasEn: false}};
 
         // Process tempLinks if any
         for (let link of links) {
@@ -956,6 +957,7 @@ Sefaria = {
           if (link.textTitle in category.books) {
             category.books[link.textTitle].refSet.add(link.sourceRef);
             category.books[link.textTitle].heRefSet.add(link.sourceHeRef);
+            category.books[link.textTitle].hasEn = category.books[link.textTitle].hasEn || link.sourceHasEn;
           } else {
             var isCommentary = link.category === "Commentary";
             category.books[link.textTitle] =
@@ -968,6 +970,7 @@ Sefaria = {
                 category:          link.category,
                 refSet:            new Set([link.sourceRef]), // make sure refs are unique here
                 heRefSet:          new Set([link.sourceHeRef]),
+                hasEn:             link.sourceHasEn,
             };
           }
         }
@@ -989,6 +992,7 @@ Sefaria = {
                 category: "Commentary",
                 refSet:   new Set(),
                 heRefSet: new Set(),
+                hasEn:    false,
               }
             }
           }
@@ -1045,6 +1049,7 @@ Sefaria = {
             book.count = book.refList.length;
             cat.refList = cat.refList.concat(bookRefList);
             cat.heRefList = cat.heRefList.concat(bookHeRefList);
+            cat.hasEn = cat.hasEn || book.hasEn;
             allRefs = allRefs.concat(bookRefList);
             allHeRefs = allHeRefs.concat(bookHeRefList);
             allBooks.push(book);

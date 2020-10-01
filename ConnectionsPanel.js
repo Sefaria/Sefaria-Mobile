@@ -217,6 +217,7 @@ class ConnectionsPanel extends React.PureComponent {
                 heText={heCategory}
                 catColor={Sefaria.palette.categoryColor(cat.category)}
                 count={!catFilterSelected && cat.totalCount || cat.count}
+                hasEn={cat.hasEn}
                 onPress={function(filter,category) {
                   if (catFilterSelected) {
                     this.props.openFilter(filter, "link");
@@ -238,6 +239,7 @@ class ConnectionsPanel extends React.PureComponent {
                     enText={obook.collectiveTitle ? obook.collectiveTitle : obook.title} //NOTE backwards compatibility
                     heText={obook.heCollectiveTitle ? obook.heCollectiveTitle : obook.heTitle}
                     count={obook.count}
+                    hasEn={obook.hasEn}
                     onPress={function(filter,title) {
                       this.props.openFilter(filter, "link");
                     }.bind(this,filter,obook.title)}

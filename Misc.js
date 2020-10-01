@@ -413,6 +413,7 @@ const LibraryNavButton = ({
   enText,
   heText,
   count,
+  hasEn,
   withArrow,
   buttonStyle,
 }) => {
@@ -455,6 +456,9 @@ const LibraryNavButton = ({
       { withArrow ?
         <DirectedArrow themeStr={themeStr} imageStyle={{opacity: 0.5}} language={textLanguage} direction={"forward"} />
         : null
+      }
+      {
+        hasEn ? <Text>{"EN"}</Text> : null
       }
    </TouchableOpacity>
  );
