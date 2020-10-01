@@ -549,7 +549,7 @@ class ReaderApp extends React.PureComponent {
       if (!ref) {
         crashlytics().recordError(new Error(`Ref is null. textListVisible: '${String(textListVisible)}'. segmentRef: '${String(segmentRef)}. sectionArray: '${String(sectionArray)}'. sectionIndexRef: '${String(sectionIndexRef)}'`));
       }
-      versions = this.removeDefaultVersions(ref, selectedVersions);
+      const versions = this.removeDefaultVersions(ref, selectedVersions);
       return {
         ref,
         he_ref,
