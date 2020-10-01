@@ -31,9 +31,6 @@ import nextFrame from 'next-frame';
 import RNShake from 'react-native-shake';
 import SoundPlayer from 'react-native-sound-player'
 import { Search, SearchState } from '@sefaria/search';
-if (Platform.OS === 'android') {
-  import { PlayInstallReferrer } from 'react-native-play-install-referrer';
-}
 
 import { STATE_ACTIONS } from './StateManager';
 import ReaderControls from './ReaderControls';
@@ -178,6 +175,7 @@ class ReaderApp extends React.PureComponent {
       }
     });
     if (Platform.OS === 'android') {
+      const { PlayInstallReferrer } = require('react-native-play-install-referrer');
       PlayInstallReferrer.getInstallReferrerInfo((installReferrerInfo, error) => {
         if (!error) {
           Sefaria.track.event("Install", {
