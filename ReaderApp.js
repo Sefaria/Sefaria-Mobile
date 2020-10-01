@@ -175,20 +175,22 @@ class ReaderApp extends React.PureComponent {
         SoundPlayer.playSoundFile('grogger', 'mp3');
       }
     });
-    PlayInstallReferrer.getInstallReferrerInfo((installReferrerInfo, error) => {
-      if (!error) {
-        Sefaria.track.event("Install", {
-          installReferrer: installReferrerInfo.installReferrer,
-          referrerClickTimestampSeconds: installReferrerInfo.referrerClickTimestampSeconds,
-          installBeginTimestampSeconds: installReferrerInfo.installBeginTimestampSeconds,
-          referrerClickTimestampServerSeconds: installReferrerInfo.referrerClickTimestampServerSeconds,
-          installBeginTimestampServerSeconds: installReferrerInfo.installBeginTimestampServerSeconds,
-          installVersion: installReferrerInfo.installVersion
-        });
-      } else {
-        crashlytics().recordError(new Error(`Install Referrer Track Failed. Response code: ${error.responseCode}. Message: ${error.message}`));
-      }
-    });
+    if (Platform.OS === 'android') {
+      PlayInstallReferrer.getInstallReferrerInfo((installReferrerInfo, error) => {
+        if (!error) {
+          Sefaria.track.event("Install", {
+            installReferrer: installReferrerInfo.installReferrer,
+            referrerClickTimestampSeconds: installReferrerInfo.referrerClickTimestampSeconds,
+            installBeginTimestampSeconds: installReferrerInfo.installBeginTimestampSeconds,
+            referrerClickTimestampServerSeconds: installReferrerInfo.referrerClickTimestampServerSeconds,
+            installBeginTimestampServerSeconds: installReferrerInfo.installBeginTimestampServerSeconds,
+            installVersion: installReferrerInfo.installVersion
+          });
+        } else {
+          crashlytics().recordError(new Error(`Install Referrer Track Failed. Response code: ${error.responseCode}. Message: ${error.message}`));
+        }
+      });
+    }
   }
 
   logout = async () => {
