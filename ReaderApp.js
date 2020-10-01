@@ -31,7 +31,9 @@ import nextFrame from 'next-frame';
 import RNShake from 'react-native-shake';
 import SoundPlayer from 'react-native-sound-player'
 import { Search, SearchState } from '@sefaria/search';
-import { PlayInstallReferrer } from 'react-native-play-install-referrer';
+if (Platform.OS === 'android') {
+  import { PlayInstallReferrer } from 'react-native-play-install-referrer';
+}
 
 import { STATE_ACTIONS } from './StateManager';
 import ReaderControls from './ReaderControls';
