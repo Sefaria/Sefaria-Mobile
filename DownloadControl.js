@@ -513,7 +513,13 @@ async function setLocalBookTimestamps(bookTitleList) {
 
 async function getLocalBookList() {
   // This method is for getting the books that are stored on disk
-  let books = await RNFB.fs.ls(FILE_DIRECTORY);
+  let books;
+  try {
+    books = await RNFB.fs.ls(FILE_DIRECTORY);
+  } catch (e) {
+    crashlytics().error(e);
+    books = [];
+  }
   const reg = /([^/]+).zip$/;
   return books.filter(filename => filename.endsWith(".zip")).map(fileName => reg.exec(fileName)[1]);
 }
@@ -810,7 +816,7 @@ function calculateBooksToDelete(booksState) {
 }
 
 async function cleanTmpDirectory() {
-  let files;
+  let files = [];
   try {
     files = await RNFB.fs.ls(TMP_DIRECTORY);
   } catch (e) {  // if for whatever reason TMP_DIRECTORY doesn't exist, we can just exit now
@@ -929,7 +935,11 @@ async function downloadPackage(packageName, networkSetting) {
     downloadBlockedNotification();
     return
   }  // todo: review: should notification to the user be sent for a forbidden download?
-  let bundles = await getPackageUrls(packageName);
+  let bundles;
+  try {
+    bundles = await getPackageUrls(packageName);
+  } catch (e) { return }
+
   bundles = bundles.map(u => encodeURIComponent(u));
   await downloadBundleArray(bundles, Tracker.arrayDownloadState, networkSetting);
   // bundles.map(async b => {await downloadBundle(`${DOWNLOAD_SERVER}/${b}`, networkSetting)});
