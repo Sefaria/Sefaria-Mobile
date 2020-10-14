@@ -836,7 +836,8 @@ async function postDownload(downloadPath, newDownload=true, sessionStorageLoc) {
     try {
       await RNFB.fs.mv(downloadPath, sessionStorageLoc);
     } catch (e) {
-      console.log(e);
+      console.error(e);
+      crashlytics().error(e);
     }
   } else {
     await RNFB.fs.appendFile(sessionStorageLoc, downloadPath, 'uri');
@@ -854,12 +855,12 @@ async function postDownload(downloadPath, newDownload=true, sessionStorageLoc) {
   } books on disk`)
 
   // -- DEBUG CODE --
-  const genesisExists = await RNFB.fs.exists(`${FILE_DIRECTORY}/Genesis.zip`);
-  if (genesisExists) {
-      const s = await RNFB.fs.stat(`${FILE_DIRECTORY}/Genesis.zip`);
-      const genesisAdded = new Date(parseInt(s.lastModified));
-      console.log(`Genesis added at ${genesisAdded}. Raw value: ${s.lastModified}`);
-  } else { console.log('Genesis file does not exist'); }
+  // const genesisExists = await RNFB.fs.exists(`${FILE_DIRECTORY}/Genesis.zip`);
+  // if (genesisExists) {
+  //     const s = await RNFB.fs.stat(`${FILE_DIRECTORY}/Genesis.zip`);
+  //     const genesisAdded = new Date(parseInt(s.lastModified));
+  //     console.log(`Genesis added at ${genesisAdded}. Raw value: ${s.lastModified}`);
+  // } else { console.log('Genesis file does not exist'); }
  // -- END DEBUG --
 }
 
