@@ -513,7 +513,13 @@ async function setLocalBookTimestamps(bookTitleList) {
 
 async function getLocalBookList() {
   // This method is for getting the books that are stored on disk
-  let books = await RNFB.fs.ls(FILE_DIRECTORY);
+  let books;
+  try {
+    books = await RNFB.fs.ls(FILE_DIRECTORY);
+  } catch (e) {
+    crashlytics().error(e);
+    books = [];
+  }
   const reg = /([^/]+).zip$/;
   return books.filter(filename => filename.endsWith(".zip")).map(fileName => reg.exec(fileName)[1]);
 }
@@ -810,7 +816,7 @@ function calculateBooksToDelete(booksState) {
 }
 
 async function cleanTmpDirectory() {
-  let files;
+  let files = [];
   try {
     files = await RNFB.fs.ls(TMP_DIRECTORY);
   } catch (e) {  // if for whatever reason TMP_DIRECTORY doesn't exist, we can just exit now
@@ -830,7 +836,8 @@ async function postDownload(downloadPath, newDownload=true, sessionStorageLoc) {
     try {
       await RNFB.fs.mv(downloadPath, sessionStorageLoc);
     } catch (e) {
-      console.log(e);
+      console.error(e);
+      crashlytics().error(e);
     }
   } else {
     await RNFB.fs.appendFile(sessionStorageLoc, downloadPath, 'uri');
@@ -848,12 +855,12 @@ async function postDownload(downloadPath, newDownload=true, sessionStorageLoc) {
   } books on disk`)
 
   // -- DEBUG CODE --
-  const genesisExists = await RNFB.fs.exists(`${FILE_DIRECTORY}/Genesis.zip`);
-  if (genesisExists) {
-      const s = await RNFB.fs.stat(`${FILE_DIRECTORY}/Genesis.zip`);
-      const genesisAdded = new Date(parseInt(s.lastModified));
-      console.log(`Genesis added at ${genesisAdded}. Raw value: ${s.lastModified}`);
-  } else { console.log('Genesis file does not exist'); }
+  // const genesisExists = await RNFB.fs.exists(`${FILE_DIRECTORY}/Genesis.zip`);
+  // if (genesisExists) {
+  //     const s = await RNFB.fs.stat(`${FILE_DIRECTORY}/Genesis.zip`);
+  //     const genesisAdded = new Date(parseInt(s.lastModified));
+  //     console.log(`Genesis added at ${genesisAdded}. Raw value: ${s.lastModified}`);
+  // } else { console.log('Genesis file does not exist'); }
  // -- END DEBUG --
 }
 
@@ -929,7 +936,11 @@ async function downloadPackage(packageName, networkSetting) {
     downloadBlockedNotification();
     return
   }  // todo: review: should notification to the user be sent for a forbidden download?
-  let bundles = await getPackageUrls(packageName);
+  let bundles;
+  try {
+    bundles = await getPackageUrls(packageName);
+  } catch (e) { return }
+
   bundles = bundles.map(u => encodeURIComponent(u));
   await downloadBundleArray(bundles, Tracker.arrayDownloadState, networkSetting);
   // bundles.map(async b => {await downloadBundle(`${DOWNLOAD_SERVER}/${b}`, networkSetting)});

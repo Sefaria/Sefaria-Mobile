@@ -55,25 +55,7 @@ const ReaderNavigationMenu = props => {
               navHome={() => { props.setCategories([]); }}
               openUri={props.openUri}/>);
   } else {
-    // Root Library Menu
-    var categories = [
-      "Tanakh",
-      "Mishnah",
-      "Talmud",
-      "Midrash",
-      "Halakhah",
-      "Kabbalah",
-      "Liturgy",
-      "Philosophy",
-      "Tanaitic",
-      "Chasidut",
-      "Musar",
-      "Responsa",
-      "Apocrypha",
-      "Modern Works",
-      "Other"
-    ];
-    categories = categories.map(cat => (
+    let categories = Sefaria.topLevelCategories.map(cat => (
       <CategoryBlockLink
         category={cat}
         heCat={Sefaria.hebrewCategory(cat)}
