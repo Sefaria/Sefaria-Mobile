@@ -1638,63 +1638,17 @@ Sefaria.hebrewCategory = function(cat) {
       return Sefaria.hebrewCategories[cat];
     }
   }
-
-  const categories = {
-    "Torah": "תורה",
-    "Tanakh": 'תנ"ך',
-    "Prophets": "נביאים",
-    "Writings": "כתובים",
+  const pseudoCategories = {
     "Commentary": "מפרשים",
     "Quoting Commentary": "פרשנות מצטטת",
     "Modern Commentary": "פרשנות מודרנית",
-    "Targum": "תרגומים",
-    "Mishnah": "משנה",
-    "Tosefta": "תוספתא",
-    "Tanaitic": "ספרות תנאית",
-    "Talmud": "תלמוד",
-    "Bavli": "בבלי",
-    "Yerushalmi": "ירושלמי",
-    "Rif": 'רי"ף',
-    "Kabbalah": "קבלה",
-    "Halakha": "הלכה",
-    "Halakhah": "הלכה",
-    "Midrash": "מדרש",
-    "Aggadic Midrash": "מדרש אגדה",
-    "Halachic Midrash": "מדרש הלכה",
-    "Midrash Rabbah": "מדרש רבה",
-    "Responsa": 'שו"ת',
-    "Rashba": 'רשב"א',
-    "Rambam": 'רמב"ם',
     "Other": "אחר",
-    "Siddur": "סידור",
-    "Liturgy": "תפילה",
-    "Piyutim": "פיוטים",
-    "Musar": "ספרי מוסר",
-    "Chasidut": "חסידות",
-    "Parshanut": "פרשנות",
-    "Philosophy": "מחשבת ישראל",
-    "Apocrypha": "ספרים חיצונים",
-    "Modern Works": "עבודות מודרניות",
-    "Seder Zeraim": "סדר זרעים",
-    "Seder Moed": "סדר מועד",
-    "Seder Nashim": "סדר נשים",
-    "Seder Nezikin": "סדר נזיקין",
-    "Seder Kodashim": "סדר קדשים",
-    "Seder Toharot": "סדר טהרות",
-    "Seder Tahorot": "סדר טהרות",
-    "Dictionary": "מילון",
-    "Early Jewish Thought": "מחשבת ישראל קדומה",
-    "Minor Tractates": "מסכתות קטנות",
-    "Rosh": 'ר"אש',
-    "Maharsha": 'מהרשא',
-    "Mishneh Torah": "משנה תורה",
-    "Shulchan Arukh": "שולחן ערוך",
     "Sheets": "דפי מקורות",
     "Notes": "הערות",
     "Community": "קהילה",
     "All": "הכל",
   };
-  return cat in categories ? categories[cat] : cat;
+  return cat in pseudoCategories ? pseudoCategories[cat] : cat;
 };
 
 Sefaria.hebrewSectionName = function(name) {
