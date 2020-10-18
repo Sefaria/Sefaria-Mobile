@@ -185,4 +185,7 @@ export default StyleSheet.create({
   secondaryBackground: {
     backgroundColor: Colors.secondaryText,
   },
+  enConnectionMarker: {
+    borderColor: "#999",
+  },
 });

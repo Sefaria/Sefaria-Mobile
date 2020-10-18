@@ -431,34 +431,37 @@ const LibraryNavButton = ({
       style={[styles.searchFilterCat, {flexDirection: flexDir}, buttonStyle].concat(colorStyle)}
       delayPressIn={200}
     >
-      <View style={{flexDirection: flexDir, alignItems: "center"}}>
+      <View style={[{flexDirection: flexDir, alignItems: "center", justifyContent: "space-between", flex: 1}, textMargin]}>
+        <View style={{flexDirection: flexDir, alignItems: "center"}}>
+          {
+            !!onPressCheckBox ?
+            <TouchableOpacity style={{paddingHorizontal: 10, paddingVertical: 15}} onPress={onPressCheckBox} >
+              <IndeterminateCheckBox themeStr={themeStr} state={checkBoxSelected} onPress={onPressCheckBox} />
+            </TouchableOpacity> : null
+          }
+          { !isHeb ?
+            <Text style={[styles.englishText].concat([theme.tertiaryText, textStyle, {paddingTop:3}])}>
+              {`${enText} `}
+              {
+                !!count ? <Text style={[styles.englishText].concat([theme.secondaryText, textStyle])}>{`(${count})`}</Text> : null
+              }
+            </Text>
+            :
+            <Text style={[styles.hebrewText].concat([theme.tertiaryText, textStyle, {paddingTop:13}])}>
+              {`${heText} `}
+              {
+                !!count ? <Text style={[styles.hebrewText].concat([theme.secondaryText, textStyle])}>{`(${count})`}</Text> : null
+              }
+            </Text>
+          }
+        </View>
         {
-          !!onPressCheckBox ? <TouchableOpacity style={{paddingHorizontal: 10, paddingVertical: 15}} onPress={onPressCheckBox} >
-            <IndeterminateCheckBox themeStr={themeStr} state={checkBoxSelected} onPress={onPressCheckBox} />
-          </TouchableOpacity> : null
-        }
-        { !isHeb ?
-          <Text style={[styles.englishText].concat([theme.tertiaryText, textStyle, {paddingTop:3}, textMargin])}>
-            {`${enText} `}
-            {
-              !!count ? <Text style={[styles.englishText].concat([theme.secondaryText, textStyle])}>{`(${count})`}</Text> : null
-            }
-          </Text>
-          :
-          <Text style={[styles.hebrewText].concat([theme.tertiaryText, textStyle, {paddingTop:13}, textMargin])}>
-            {`${heText} `}
-            {
-              !!count ? <Text style={[styles.hebrewText].concat([theme.secondaryText, textStyle])}>{`(${count})`}</Text> : null
-            }
-          </Text>
+          (hasEn && !isHeb) ? <Text style={[styles.englishSystemFont, styles.enConnectionMarker, theme.enConnectionMarker, theme.secondaryText]}>{"EN"}</Text> : null
         }
       </View>
       { withArrow ?
         <DirectedArrow themeStr={themeStr} imageStyle={{opacity: 0.5}} language={textLanguage} direction={"forward"} />
         : null
-      }
-      {
-        hasEn ? <Text>{"EN"}</Text> : null
       }
    </TouchableOpacity>
  );
