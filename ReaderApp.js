@@ -773,6 +773,7 @@ class ReaderApp extends React.PureComponent {
     }
     if (!hadSuccess) {
       // make sure links get marked as loaded no matter what
+      const iSec = isSheet ? 0 : this.state.sectionArray.findIndex(secRef=>secRef===ref);
       let tempLinksLoaded = this.state.linksLoaded.slice(0);
       tempLinksLoaded[iSec] = true;
       this.setState({linksLoaded: tempLinksLoaded});
