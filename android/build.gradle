@@ -59,6 +59,9 @@ ext {
     compileSdkVersion = 29
     targetSdkVersion = 29
     supportLibVersion = "29.0.2"
+    react = [
+      extraPackagerArgs: ['--sourcemap-output', file("app/build/generated/index.android.js.map")]
+    ]
 }
 dependencies {
 }

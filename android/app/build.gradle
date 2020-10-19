@@ -1,7 +1,7 @@
-def VERSION_BUILD=612
+def VERSION_BUILD=620
 def VERSION_MAJOR=5
 def VERSION_MINOR=8
-def VERSION_PATCH=3
+def VERSION_PATCH=6
 
 apply plugin: "com.android.application"
 apply plugin: 'io.fabric'
@@ -80,8 +80,7 @@ import com.android.build.OutputFile
  */
 
 project.ext.react = [
-    enableHermes: true,
-    extraPackagerArgs: ['--sourcemap-output', file("$buildDir/outputs/index.android.js.map")]
+    enableHermes: true
 ]
 
 def jscFlavor = 'org.webkit:android-jsc:+'
@@ -185,7 +184,7 @@ dependencies {
     debugImplementation("com.facebook.flipper:flipper-fresco-plugin:${FLIPPER_VERSION}") {
         exclude group:'com.facebook.flipper'
     }
-    
+
     if (enableHermes) {
         def hermesPath = "../../node_modules/hermes-engine/android/";
         debugImplementation files(hermesPath + "hermes-debug.aar")
