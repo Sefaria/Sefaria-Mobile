@@ -301,7 +301,7 @@ class ReaderApp extends React.PureComponent {
         this.onQueryChange('text', oldState.searchQuery, true, true, true);
       }
       this.setState(oldState, () => {
-        if (isTextColumn) {
+        if (isTextColumn && (!!oldState.sectionArray || !!oldState.sheet)) {
           Sefaria.history.saveHistoryItem(this.getHistoryObject, true);
           if (!oldState.sheet) {
             for (let sectionRef of oldState.sectionArray) {
