@@ -430,11 +430,11 @@ PODS:
     - React
   - RNSoundPlayer (0.10.4):
     - React
-  - RNZipArchive (5.0.4):
+  - RNZipArchive (5.0.5):
     - React
-    - RNZipArchive/Core (= 5.0.4)
+    - RNZipArchive/Core (= 5.0.5)
     - SSZipArchive (= 2.2.2)
-  - RNZipArchive/Core (5.0.4):
+  - RNZipArchive/Core (5.0.5):
     - React
     - SSZipArchive (= 2.2.2)
   - SSZipArchive (2.2.2)
@@ -511,7 +511,7 @@ DEPENDENCIES:
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
 SPEC REPOS:
-  trunk:
+  https://github.com/cocoapods/specs.git:
     - boost-for-react-native
     - CocoaAsyncSocket
     - CocoaLibEvent
@@ -709,11 +709,11 @@ SPEC CHECKSUMS:
   RNFBRemoteConfig: 59818c5933149b5a6b7fe5159e3d4df09199e858
   RNGestureHandler: b6b359bb800ae399a9c8b27032bdbf7c18f08a08
   RNSoundPlayer: b55bbb1b4cbf8b3f2c81db622d9db4b305407f5b
-  RNZipArchive: be3009f34009076062b34f1d0f000391ad3ea86a
+  RNZipArchive: 58c6d566a8b2c47ba4ab587134edecd122eea48a
   SSZipArchive: fa16b8cc4cdeceb698e5e5d9f67e9558532fbf23
   Yoga: d5bd05a2b6b94c52323745c2c2b64557c8c66f64
   YogaKit: f782866e155069a2cca2517aafea43200b01fd5a
 
 PODFILE CHECKSUM: 3e693da5e93c3e5192eb9d16541b6be98540f502
 
-COCOAPODS: 1.9.3
+COCOAPODS: 1.7.4
