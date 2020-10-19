@@ -80,7 +80,8 @@ import com.android.build.OutputFile
  */
 
 project.ext.react = [
-    enableHermes: true
+    enableHermes: true,
+    extraPackagerArgs: ['--sourcemap-output', file("$buildDir/outputs/index.android.js.map")]
 ]
 
 def jscFlavor = 'org.webkit:android-jsc:+'
