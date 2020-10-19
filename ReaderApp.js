@@ -293,7 +293,9 @@ class ReaderApp extends React.PureComponent {
         // you're going back to textcolumn. make sure to jump
         oldState.textColumnKey = oldState.segmentRef;  // manually add a key to TextColumn to make sure it gets regenerated
         oldState.offsetRef = oldState.segmentRef;
-        oldState.linksLoaded = oldState.linksLoaded.map(() => false);  // manually set linksLoaded to false because links are not stored in oldState
+        if (!!oldState.linksLoaded) {
+          oldState.linksLoaded = oldState.linksLoaded.map(() => false);  // manually set linksLoaded to false because links are not stored in oldState
+        }
       } else if (oldState.menuOpen === 'search') {
         this.onQueryChange('sheet', oldState.searchQuery, true, true, true);
         this.onQueryChange('text', oldState.searchQuery, true, true, true);
