@@ -293,13 +293,15 @@ class ReaderApp extends React.PureComponent {
         // you're going back to textcolumn. make sure to jump
         oldState.textColumnKey = oldState.segmentRef;  // manually add a key to TextColumn to make sure it gets regenerated
         oldState.offsetRef = oldState.segmentRef;
-        oldState.linksLoaded = oldState.linksLoaded.map(() => false);  // manually set linksLoaded to false because links are not stored in oldState
+        if (!!oldState.linksLoaded) {
+          oldState.linksLoaded = oldState.linksLoaded.map(() => false);  // manually set linksLoaded to false because links are not stored in oldState
+        }
       } else if (oldState.menuOpen === 'search') {
         this.onQueryChange('sheet', oldState.searchQuery, true, true, true);
         this.onQueryChange('text', oldState.searchQuery, true, true, true);
       }
       this.setState(oldState, () => {
-        if (isTextColumn) {
+        if (isTextColumn && (!!oldState.sectionArray || !!oldState.sheet)) {
           Sefaria.history.saveHistoryItem(this.getHistoryObject, true);
           if (!oldState.sheet) {
             for (let sectionRef of oldState.sectionArray) {
@@ -771,6 +773,7 @@ class ReaderApp extends React.PureComponent {
     }
     if (!hadSuccess) {
       // make sure links get marked as loaded no matter what
+      const iSec = isSheet ? 0 : this.state.sectionArray.findIndex(secRef=>secRef===ref);
       let tempLinksLoaded = this.state.linksLoaded.slice(0);
       tempLinksLoaded[iSec] = true;
       this.setState({linksLoaded: tempLinksLoaded});

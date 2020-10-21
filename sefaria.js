@@ -1190,6 +1190,8 @@ Sefaria.util = {
     if ((typeof a) !== (typeof b))      { return false; }
     if ((a === null && b !== null) || (a !== null && b === null))
                                         { return false; }
+    if ((a === null && b === null) || (a === undefined && b === undefined))
+                                        { return true; }
     const aProps = Object.getOwnPropertyNames(a);
     const bProps = Object.getOwnPropertyNames(b);
     if (aProps.length != bProps.length) { return false; }
