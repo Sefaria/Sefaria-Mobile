@@ -456,7 +456,7 @@ const LibraryNavButton = ({
           }
         </View>
         {
-          (hasEn && !isHeb) ? <Text style={[styles.englishSystemFont, styles.enConnectionMarker, theme.enConnectionMarker, theme.secondaryText]}>{"EN"}</Text> : null
+          (hasEn && !isHeb) ? <Text style={[styles.englishSystemFont, styles.enConnectionMarker, theme.enConnectionMarker, theme.secondaryText, Platform.OS === 'android' ? {paddingLeft: 5, paddingTop: 2} : null]}>{"EN"}</Text> : null
         }
       </View>
       { withArrow ?

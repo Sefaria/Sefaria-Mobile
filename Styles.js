@@ -1333,7 +1333,8 @@ export default StyleSheet.create({
   enConnectionMarker: {
     borderWidth: 1,
     borderRadius: 3,
-    paddingHorizontal: 3,
+    paddingRight: 3,
+    paddingLeft: 3,
     fontSize: 12,
     lineHeight: 18,
   }
