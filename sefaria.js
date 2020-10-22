@@ -810,6 +810,7 @@ Sefaria = {
               index_title,
               category: ("category" in link) ? link.category : Sefaria.categoryForTitle(index_title),
               anchorRef: `${ref}:${segNum+1}`,
+              sourceHasEn: link.sourceHasEn,
             }
           }) : []
         ), []));
