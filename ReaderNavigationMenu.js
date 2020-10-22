@@ -296,8 +296,9 @@ MoreSection.whyDidYouRender = true;
 const ResourcesSection = ({ openSheets }) => {
   const { themeStr, interfaceLanguage } = useContext(GlobalStateContext);
   const theme = getTheme(themeStr);
-  const isheb = interfaceLanguage === "hebrew";
-  const langStyle = !isheb ? styles.enInt : styles.heInt;
+  const isWhite = themeStr === "white";
+  const isHeb = interfaceLanguage === "hebrew";
+  const langStyle = !isHeb ? styles.enInt : styles.heInt;
 
   return (
     <View style={{marginVertical: 15}}>
@@ -306,14 +307,11 @@ const ResourcesSection = ({ openSheets }) => {
           {strings.resources}
         </Text>
       </View>
-      <CategoryBlockLink
-        category={"Sheets"}
-        heCat={"דפי מקורות"}
-        isSans={true}
-        icon={require('./img/sheet.png')}
+      <SystemButton
+        text={strings.topics}
+        img={isWhite ? require('./img/hashtag.png'): require('./img/hashtag-light.png')}
         onPress={openSheets}
-        iconSide="start"
-        style={[{height: 49, borderColor: Sefaria.palette.colors.darkblue}]}
+        isHeb={isHeb}
       />
     </View>
   );
