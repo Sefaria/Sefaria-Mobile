@@ -34,7 +34,8 @@ import {
   getFullBookList,
   getLocalBookList,
   PackagesState
-} from './DownloadControl'
+} from './DownloadControl';
+import { useAsyncVariable } from './Hooks';
 
 
 const ReaderNavigationMenu = props => {
@@ -111,7 +112,7 @@ const ReaderNavigationMenu = props => {
                 hasmore={false} />
 
               <ResourcesSection
-                openSheets={props.openSheets}
+                openTopicToc={props.openTopicToc}
               />
 
               <CalendarSection
@@ -149,7 +150,7 @@ ReaderNavigationMenu.propTypes = {
   openSettings:   PropTypes.func.isRequired,
   openHistory:    PropTypes.func.isRequired,
   openSaved:      PropTypes.func.isRequired,
-  openSheets:      PropTypes.func.isRequired,
+  openTopicToc:   PropTypes.func.isRequired,
   openDedication: PropTypes.func.isRequired,
   onChangeSearchQuery:PropTypes.func.isRequired,
   searchQuery:    PropTypes.string.isRequired,
@@ -293,7 +294,7 @@ MoreSection.propTypes = {
 };
 MoreSection.whyDidYouRender = true;
 
-const ResourcesSection = ({ openSheets }) => {
+const ResourcesSection = ({ openTopicToc }) => {
   const { themeStr, interfaceLanguage } = useContext(GlobalStateContext);
   const theme = getTheme(themeStr);
   const isWhite = themeStr === "white";
@@ -310,14 +311,14 @@ const ResourcesSection = ({ openSheets }) => {
       <SystemButton
         text={strings.topics}
         img={isWhite ? require('./img/hashtag.png'): require('./img/hashtag-light.png')}
-        onPress={openSheets}
+        onPress={openTopicToc}
         isHeb={isHeb}
       />
     </View>
   );
 };
 ResourcesSection.propTypes = {
-  openSheets:       PropTypes.func.isRequired,
+  openTopicToc:       PropTypes.func.isRequired,
 };
 ResourcesSection.whyDidYouRender = true;
 
@@ -325,14 +326,7 @@ ResourcesSection.whyDidYouRender = true;
 
 const CalendarSection = ({ openRef }) => {
   const { textLanguage, interfaceLanguage, preferredCustom } = useContext(GlobalStateContext);
-  const [calendarLoaded, loadCalendar] = useState(Sefaria.calendar);
-  const setup = async (loaded) => {
-    if (!loaded) {
-      await Sefaria._loadCalendar();
-      loadCalendar(Sefaria.calendar);
-    }
-  };
-  setup(!!calendarLoaded).then({});
+  const calendarLoaded = useAsyncVariable(!!Sefaria.calendar, Sefaria._loadCalendar);
   if (!calendarLoaded) { return (<LoadingView />); }
 
   // checking geolocation takes a long time. Default by looking at interfaceLanguage, then fix the calendar when location resolves
