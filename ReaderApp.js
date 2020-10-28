@@ -1127,7 +1127,7 @@ class ReaderApp extends React.PureComponent {
     // set of `menuOpen` states which you shouldn't be able to go back to
     const SKIP_MENUS = { autocomplete: true, register: true, login: true };
     if (!SKIP_MENUS[this.state.menuOpen] && !!menu) {
-      if (!this.state.menu) {
+      if (!this.state.menu && !!this.state.data) {
         // text column. remove related data
         for (let section of this.state.data) {
           for (let segment of section) {
