@@ -56,6 +56,7 @@ import ReaderNavigationSheetCategoryMenu from "./ReaderNavigationSheetCategoryMe
 import SheetMetadata from "./SheetMeta.js";
 import DeepLinkRouter from "./DeepLinkRouter.js";
 import { AuthPage } from "./AuthPage";
+import { TopicCategory } from "./TopicPage";
 import Dedication from  "./Dedication"
 import {
   Tracker as DownloadTracker,
@@ -1825,7 +1826,7 @@ class ReaderApp extends React.PureComponent {
               openSaved={this.openMenu.bind(null, "saved")}
               openLogin={this.openMenu.bind(null, "login")}
               openRegister={this.openMenu.bind(null, "register")}
-              openSheets={this.openMenu.bind(null, "sheets")}
+              openTopicToc={this.openMenu.bind(null, "topic toc")}
               openDedication={this.openMenu.bind(null, "dedication")}
 
               onChangeSearchQuery={this.onChangeSearchQuery}
@@ -1969,21 +1970,11 @@ class ReaderApp extends React.PureComponent {
           />
         );
         break;
-      case ("sheets"):
-        Sefaria.track.setScreen("sheets nav", "navigation")
+      case ("topic toc"):
+        Sefaria.track.setScreen("topics nav", "navigation")
         return(
-           <ReaderNavigationSheetMenu
-            close={this.manageBackMain}
-            theme={this.props.theme}
-            hasInternet={this.state.hasInternet}
-            menuOpen={this.state.menuOpen}
-            icon={require('./img/sheet.png')}
-            interfaceLanguage={this.props.interfaceLanguage}
-            openSheetTagMenu={this.openSheetTag}
-            isLoggedIn={this.props.isLoggedIn}
-            openMySheets={this.openMySheets}
-            openLogin={this.openMenu.bind(null, 'login')}
-            openSheetCategoryMenu={this.openSheetCategory}
+           <TopicCategory
+             onBack={this.manageBackMain}
            />
         );
         break;

@@ -20,6 +20,27 @@ import Sefaria from './sefaria';
 import styles from './Styles.js';
 import strings from './LocalizedStrings';
 
+
+const SystemHeader = ({ title, onBack }) => {
+  const { themeStr, interfaceLanguage } = useContext(GlobalStateContext);
+  const theme = getTheme(themeStr);
+
+  return (
+    <View style={[styles.header, styles.boxShadow, {borderBottomWidth: 0}, theme.header]}>
+      <DirectedButton
+        onPress={onBack}
+        imageStyle={[styles.menuButton, styles.directedButton]}
+        direction="back"
+        language="english"
+      />
+      <Text style={[interfaceLanguage === 'hebrew' ? styles.intHe : styles.intEn, styles.categoryTitle, theme.categoryTitle, {textTransform: "uppercase"}]}>
+        {title}
+      </Text>
+      <LanguageToggleButton />
+    </View>
+  );
+};
+
 const InterfaceTextWithFallback = ({ en, he, extraStyles=[] }) => {
   const { interfaceLanguage } = useContext(GlobalStateContext);
   let langStyle = styles.enInt;
@@ -914,6 +935,7 @@ export {
   SefariaProgressBar,
   SText,
   SystemButton,
+  SystemHeader,
   ToggleSet,
   TripleDots,
   TwoBox,

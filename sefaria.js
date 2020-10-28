@@ -647,6 +647,50 @@ Sefaria = {
     const data = await Sefaria.util.openFileInSources("calendar.json");
     Sefaria.calendar = data;
   },
+  topic_toc: null,
+  loadTopicToc: async function () {
+    const data = await Sefaria.util.openFileInSources("topic_toc.json");
+    Sefaria.topic_toc = data;
+    Sefaria._initTopicTocPages();
+  },
+  _topicTocPages: null,
+  _initTopicTocPages: function() {
+    Sefaria._topicTocPages = Sefaria.topic_toc.reduce(Sefaria._initTopicTocReducer, {});
+    Sefaria._topicTocPages[Sefaria._topicTocPageKey()] = Sefaria.topic_toc.map(({children, ...goodstuff}) => goodstuff);
+  },
+  _initTopicTocReducer: function(a,c) {
+    if (!c.children) { return a; }
+    a[Sefaria._topicTocPageKey(c.slug)] = c.children;
+    for (let sub_c of c.children) {
+      Sefaria._initTopicTocReducer(a, sub_c);
+    }
+    return a;
+  },
+  _topicTocCategory: null,
+  _initTopicTocCategory: function() {
+    Sefaria._topicTocCategory = Sefaria.topic_toc.reduce(Sefaria._initTopicTocCategoryReducer, {});
+  },
+  _initTopicTocCategoryReducer: function(a,c) {
+    if (!c.children) {
+      a[c.slug] = c.parent;
+      return a;
+    }
+    for (let sub_c of c.children) {
+      sub_c.parent = { en: c.en, he: c.he, slug: c.slug };
+      Sefaria._initTopicTocCategoryReducer(a, sub_c);
+    }
+    return a;
+  },
+  _topicTocPageKey: slug => "_" + slug,
+  topicTocPage: function(parent) {
+    if (!Sefaria.topic_toc) { return; }
+    const key = Sefaria._topicTocPageKey(parent);
+    return Sefaria._topicTocPages[key];
+  },
+  isTopicTopLevel: function(slug) {
+    // returns true is `slug` is part of the top level of topic toc
+    return Sefaria.topic_toc.filter(x => x.slug == slug).length > 0;
+  },
   galusOrIsrael: null,
   getGalusStatus: function() {
     return fetch('https://www.geoip-db.com/json')
