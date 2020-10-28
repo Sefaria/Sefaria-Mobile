@@ -15,6 +15,7 @@ import {
 import {
   SystemHeader,
   LoadingView,
+  SText,
 } from './Misc';
 import { useAsyncVariable } from './Hooks';
 import { GlobalStateContext, DispatchContext, STATE_ACTIONS, getTheme } from './StateManager';
@@ -45,19 +46,20 @@ const sortTopicCategories = (a, b, interfaceLanguage) => {
   return aDisplayOrder - bDisplayOrder;
 };
 
-const TopicCategory = ({ topic, topicTitle, setTopic, setNavTopic, onBack }) => {
+const TopicCategory = ({ topic, openTopic, onBack }) => {
   const { themeStr, interfaceLanguage } = useContext(GlobalStateContext);
   const theme = getTheme(themeStr);
   const topicTocLoaded = useAsyncVariable(!!Sefaria.topic_toc, Sefaria.loadTopicToc);
-  const getSubtopics = topic => {
-    const subtopics = Sefaria.topicTocPage(topic);
+  const getSubtopics = slug => {
+    const subtopics = Sefaria.topicTocPage(slug);
     if (!subtopics) { return subtopics; }
     return subtopics.filter(t => t.shouldDisplay !== false).sort((a, b) => sortTopicCategories(a, b, interfaceLanguage));
   }
-  const [subtopics, setSubtopics] = useState(getSubtopics(topic));
+  const slug = topic && topic.slug;
+  const [subtopics, setSubtopics] = useState(getSubtopics(slug));
   useEffect(() => {
-    setSubtopics(getSubtopics(topic));
-  }, [topic, topicTocLoaded]);
+    setSubtopics(getSubtopics(slug));
+  }, [slug, topicTocLoaded]);
 
   const headerTopic = topic || {
     en: "Explore by Topic", he: "Explore by Topic",
@@ -66,8 +68,10 @@ const TopicCategory = ({ topic, topicTitle, setTopic, setNavTopic, onBack }) => 
       he: "Selections of texts and user created source sheets about thousands of subjects",
     }
   };
+  
+  const trendingTopics = (!slug && subtopics) ? subtopics.slice(0, 6) : null;
   return (
-    <View style={[styles.menu, theme.menu]}>
+    <View style={[styles.menu, theme.buttonBackground]} key={slug}>
       <SystemHeader
         title={strings.topics}
         onBack={onBack}
@@ -76,15 +80,14 @@ const TopicCategory = ({ topic, topicTitle, setTopic, setNavTopic, onBack }) => 
         (!topicTocLoaded || !subtopics) ? (<LoadingView />) : (
           <FlatList
             data={subtopics}
-            renderItem={({ item:t }) => (
+            renderItem={({ item }) => (
               <TopicCategoryButton
-                {...t}
-                setNavTopic={setNavTopic}
-                setTopic={setTopic}
+                topic={item}
+                openTopic={openTopic}
               />
             )}
             ListHeaderComponent={() => (
-              <TopicCategoryHeader {...headerTopic} trendingTopics={subtopics.slice(0, 6)} />
+              <TopicCategoryHeader {...headerTopic} trendingTopics={trendingTopics} />
             )}
             ItemSeparatorComponent={()=>(
               <View style={{height: 1, backgroundColor: "#ccc", marginHorizontal: 15}} />
@@ -98,41 +101,48 @@ const TopicCategory = ({ topic, topicTitle, setTopic, setNavTopic, onBack }) => 
 };
 
 const TopicCategoryHeader = ({ en, he, description, trendingTopics }) => {
-  const { themeStr, interfaceLanguage } = useContext(GlobalStateContext);
+  const { themeStr, interfaceLanguage, textLanguage } = useContext(GlobalStateContext);
+  const menu_language = Sefaria.util.get_menu_language(interfaceLanguage, textLanguage);
+  const isHeb = menu_language == 'hebrew';
+
   const theme = getTheme(themeStr);
   return (
     <View>
       <View style={{marginHorizontal: 15, marginVertical: 24}}>
         <Text style={[styles.enInt, {fontSize: 22}, theme.tertiaryText]}>{en}</Text>
-        <Text style={[styles.enInt, {fontSize: 13, marginTop: 11}, theme.tertiaryText]}>{description.en}</Text>
+        {description ? <Text style={[styles.enInt, {fontSize: 13, marginTop: 11}, theme.tertiaryText]}>{description.en}</Text> : null}
       </View>
-      <View style={{backgroundColor: "#eee", padding: 15}}>
-        <TextInput
-          style={[styles.enInt, {fontSize: 16, borderBottomWidth: 2, borderBottomColor: "#ccc", paddingBottom: 5}, theme.tertiaryText]}
-          editable={false}
-          value={"Trending Topics"}
-        />
-        <View style={{flexDirection: "row", flexWrap: 'wrap'}}>
-          { trendingTopics.map((t, i) => (
-            <React.Fragment key={t.slug}>
-              { i !== 0 ? <Text style={[styles.en, {fontSize: 18, color: "#ccc"}]}>{" ● "}</Text> : null}
-              <Text style={[styles.en, {fontSize: 18}, theme.text]}>{t.en}</Text>
-            </React.Fragment>
-          ))}
+      { trendingTopics ? (
+        <View style={{backgroundColor: "#fbfbfa", padding: 15}}>
+          <TextInput
+            style={[styles.enInt, {fontSize: 16, borderBottomWidth: 2, borderBottomColor: "#ccc", paddingBottom: 5}, theme.tertiaryText]}
+            editable={false}
+            value={"Trending Topics"}
+          />
+          <View style={{flexDirection: isHeb ? "row-reverse" : "row", flexWrap: 'wrap', marginTop: 5}}>
+            { trendingTopics.map((t, i) => (
+              <React.Fragment key={t.slug}>
+                { i !== 0 ? <SText lang={"english"} style={[styles.en, {fontSize: 13, color: "#ccc", marginTop: 7}]}>{" ● "}</SText> : null}
+                <SText lang={menu_language} style={[isHeb ? styles.he : styles.en, {fontSize: 18, marginTop: 6}, theme.text]}>{isHeb ? t.he : t.en}</SText>
+              </React.Fragment>
+            ))}
+          </View>
         </View>
-      </View>
+      ) : null }
     </View>
   );
 };
 
-const TopicCategoryButton = ({ slug, children, en, he, description, setNavTopic, setTopic }) => {
-  const openTopic = () => {
-    children ? setNavTopic(slug, {en, he}) : setTopic(slug, {en, he});
-  };
+const TopicCategoryButton = ({ topic, openTopic }) => {
+  const { themeStr, interfaceLanguage, textLanguage } = useContext(GlobalStateContext);
+  const menu_language = Sefaria.util.get_menu_language(interfaceLanguage, textLanguage);
+  const theme = getTheme(themeStr);
+  const isHeb = menu_language == 'hebrew';
+  const { slug, en, he, description } = topic;
   return (
-    <TouchableOpacity onPress={()=>{}} style={{paddingHorizontal: 15, paddingVertical: 20}}>
-      <Text style={[styles.en, {fontSize: 24}]}>{en}</Text>
-      {description ? <Text style={[styles.enInt, {fontSize: 13, color: "#666"}]}>{description.en}</Text> : null}
+    <TouchableOpacity onPress={()=>{ openTopic(topic, !!Sefaria.topicTocPage(slug)); }} style={{paddingHorizontal: 15, paddingVertical: 20}}>
+      <SText style={[isHeb ? styles.he : styles.en, {fontSize: 24}, theme.text]}>{isHeb ? he : en}</SText>
+      {description ? <Text style={[isHeb ? styles.heInt : styles.enInt, {marginTop: 10, fontSize: 13, color: "#666"}]}>{isHeb ? description.he : description.en}</Text> : null}
     </TouchableOpacity>
   );
 };

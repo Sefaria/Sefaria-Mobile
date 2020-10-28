@@ -656,7 +656,7 @@ Sefaria = {
   _topicTocPages: null,
   _initTopicTocPages: function() {
     Sefaria._topicTocPages = Sefaria.topic_toc.reduce(Sefaria._initTopicTocReducer, {});
-    Sefaria._topicTocPages[Sefaria._topicTocPageKey()] = Sefaria.topic_toc.map(({children, ...goodstuff}) => goodstuff);
+    Sefaria._topicTocPages[Sefaria._topicTocPageKey(null)] = Sefaria.topic_toc.map(({children, ...goodstuff}) => goodstuff);
   },
   _initTopicTocReducer: function(a,c) {
     if (!c.children) { return a; }

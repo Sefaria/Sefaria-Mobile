@@ -327,6 +327,8 @@ ResourcesSection.whyDidYouRender = true;
 const CalendarSection = ({ openRef }) => {
   const { textLanguage, interfaceLanguage, preferredCustom } = useContext(GlobalStateContext);
   const calendarLoaded = useAsyncVariable(!!Sefaria.calendar, Sefaria._loadCalendar);
+  const [galusOrIsrael, setGalusOrIsrael] = useState(!!Sefaria.galusOrIsrael ? Sefaria.galusOrIsrael :
+    interfaceLanguage === "hebrew" ? "israel" : "diaspora");
   if (!calendarLoaded) { return (<LoadingView />); }
 
   // checking geolocation takes a long time. Default by looking at interfaceLanguage, then fix the calendar when location resolves

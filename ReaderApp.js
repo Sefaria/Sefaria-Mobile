@@ -56,7 +56,7 @@ import ReaderNavigationSheetCategoryMenu from "./ReaderNavigationSheetCategoryMe
 import SheetMetadata from "./SheetMeta.js";
 import DeepLinkRouter from "./DeepLinkRouter.js";
 import { AuthPage } from "./AuthPage";
-import { TopicCategory } from "./TopicPage";
+import { TopicCategory, TopicPage } from "./TopicPage";
 import Dedication from  "./Dedication"
 import {
   Tracker as DownloadTracker,
@@ -108,6 +108,7 @@ class ReaderApp extends React.PureComponent {
         textFlow: "segmented",
         subMenuOpen: null, // currently only used to define subpages in search
         navigationCategories: [],
+        navigationTopic: null,
         loadingTextTail: false,
         loadingTextHead: false,
         textListVisible: false,
@@ -1782,6 +1783,11 @@ class ReaderApp extends React.PureComponent {
     }
   };
 
+  openTopic = (slug, isCategory) => {
+    BackManager.forward({ state: this.state });
+    this.setState({navigationTopic: slug, menuOpen: isCategory ? "topic toc" : "topic"});
+  };
+
   _getReaderDisplayOptionsMenuRef = ref => {
     this._readerDisplayOptionsMenuRef = ref;
   };
@@ -1975,10 +1981,15 @@ class ReaderApp extends React.PureComponent {
         return(
            <TopicCategory
              onBack={this.manageBackMain}
+             openTopic={this.openTopic}
+             topic={this.state.navigationTopic}
            />
         );
-        break;
-
+      case ("topic"):
+        return(
+          <TopicPage
+          />
+        );
       case ("sheetCategory"):
         Sefaria.track.setScreen("sheets sub category nav", "navigation")
         return(
