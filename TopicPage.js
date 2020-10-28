@@ -86,6 +86,9 @@ const TopicCategory = ({ topic, topicTitle, setTopic, setNavTopic, onBack }) => 
             ListHeaderComponent={() => (
               <TopicCategoryHeader {...headerTopic} trendingTopics={subtopics.slice(0, 6)} />
             )}
+            ItemSeparatorComponent={()=>(
+              <View style={{height: 1, backgroundColor: "#ccc", marginHorizontal: 15}} />
+            )}
             keyExtractor={t => t.slug}
           />
         )
@@ -127,9 +130,10 @@ const TopicCategoryButton = ({ slug, children, en, he, description, setNavTopic,
     children ? setNavTopic(slug, {en, he}) : setTopic(slug, {en, he});
   };
   return (
-    <Text>
-      { en || he }
-    </Text>
+    <TouchableOpacity onPress={()=>{}} style={{paddingHorizontal: 15, paddingVertical: 20}}>
+      <Text style={[styles.en, {fontSize: 24}]}>{en}</Text>
+      {description ? <Text style={[styles.enInt, {fontSize: 13, color: "#666"}]}>{description.en}</Text> : null}
+    </TouchableOpacity>
   );
 };
 
