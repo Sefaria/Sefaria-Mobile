@@ -21,7 +21,7 @@ import styles from './Styles.js';
 import strings from './LocalizedStrings';
 
 
-const SystemHeader = ({ title, onBack }) => {
+const SystemHeader = ({ title, onBack, hideLangToggle }) => {
   const { themeStr, interfaceLanguage } = useContext(GlobalStateContext);
   const theme = getTheme(themeStr);
 
@@ -36,7 +36,7 @@ const SystemHeader = ({ title, onBack }) => {
       <Text style={[interfaceLanguage === 'hebrew' ? styles.intHe : styles.intEn, styles.categoryTitle, theme.categoryTitle, {textTransform: "uppercase"}]}>
         {title}
       </Text>
-      <LanguageToggleButton />
+      { hideLangToggle ? null : <LanguageToggleButton /> }
     </View>
   );
 };

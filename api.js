@@ -22,7 +22,7 @@ var Api = {
   _sheetsByTag: {},
   _related: {},
   _sheets: {},
-  _trendingTags: {},
+  _trendingTags: null,
   _versions: {},
   _translateVersions: {},
   _indexDetails: {},
@@ -346,11 +346,11 @@ var Api = {
   trendingTags: function(failSilently) {
     Sefaria.api._abortRequestType('trendingTags');
     return new Promise((resolve, reject) => {
-      //const cached = Sefaria.api._trendingTags;
-      //if (!!cached) { console.log("cached"); resolve(cached); return; }
+      const cached = Sefaria.api._trendingTags;
+      if (!!cached) { resolve(cached); return; }
       Sefaria.api._request('', 'trendingTags', false, {}, failSilently)
         .then(response => {
-          //Sefaria.api._trendingTags = response;
+          Sefaria.api._trendingTags = response;
           resolve(response);
         })
         .catch(error=>{

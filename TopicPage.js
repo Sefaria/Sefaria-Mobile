@@ -48,6 +48,7 @@ const sortTopicCategories = (a, b, interfaceLanguage) => {
 
 const TopicCategory = ({ topic, openTopic, onBack }) => {
   const { themeStr, interfaceLanguage } = useContext(GlobalStateContext);
+
   const theme = getTheme(themeStr);
   const topicTocLoaded = useAsyncVariable(!!Sefaria.topic_toc, Sefaria.loadTopicToc);
   const getSubtopics = slug => {
@@ -60,6 +61,12 @@ const TopicCategory = ({ topic, openTopic, onBack }) => {
   useEffect(() => {
     setSubtopics(getSubtopics(slug));
   }, [slug, topicTocLoaded]);
+  const [trendingTopics, setTrendingTopics] = useState(Sefaria.api._trendingTags);
+  useEffect(() => {
+    // only set trending topics when at topic toc root => slug == null
+    if (!slug) { Sefaria.api.trendingTags(true).then(setTrendingTopics); }
+    else { setTrendingTopics(null); }
+  }, [slug]);
 
   const headerTopic = topic || {
     en: "Explore by Topic", he: "Explore by Topic",
@@ -69,7 +76,6 @@ const TopicCategory = ({ topic, openTopic, onBack }) => {
     }
   };
   
-  const trendingTopics = (!slug && subtopics) ? subtopics.slice(0, 6) : null;
   return (
     <View style={[styles.menu, theme.buttonBackground]} key={slug}>
       <SystemHeader
@@ -87,7 +93,7 @@ const TopicCategory = ({ topic, openTopic, onBack }) => {
               />
             )}
             ListHeaderComponent={() => (
-              <TopicCategoryHeader {...headerTopic} trendingTopics={trendingTopics} />
+              <TopicCategoryHeader {...headerTopic} trendingTopics={trendingTopics} openTopic={openTopic} />
             )}
             ItemSeparatorComponent={()=>(
               <View style={{height: 1, backgroundColor: "#ccc", marginHorizontal: 15}} />
@@ -100,11 +106,10 @@ const TopicCategory = ({ topic, openTopic, onBack }) => {
   );
 };
 
-const TopicCategoryHeader = ({ en, he, description, trendingTopics }) => {
+const TopicCategoryHeader = ({ en, he, description, trendingTopics, openTopic }) => {
   const { themeStr, interfaceLanguage, textLanguage } = useContext(GlobalStateContext);
   const menu_language = Sefaria.util.get_menu_language(interfaceLanguage, textLanguage);
   const isHeb = menu_language == 'hebrew';
-
   const theme = getTheme(themeStr);
   return (
     <View>
@@ -120,10 +125,12 @@ const TopicCategoryHeader = ({ en, he, description, trendingTopics }) => {
             value={"Trending Topics"}
           />
           <View style={{flexDirection: isHeb ? "row-reverse" : "row", flexWrap: 'wrap', marginTop: 5}}>
-            { trendingTopics.map((t, i) => (
+            { trendingTopics.slice(0, 6).map((t, i) => (
               <React.Fragment key={t.slug}>
                 { i !== 0 ? <SText lang={"english"} style={[styles.en, {fontSize: 13, color: "#ccc", marginTop: 7}]}>{" ● "}</SText> : null}
-                <SText lang={menu_language} style={[isHeb ? styles.he : styles.en, {fontSize: 18, marginTop: 6}, theme.text]}>{isHeb ? t.he : t.en}</SText>
+                <TouchableOpacity onPress={()=>openTopic(t, false)}>
+                  <SText lang={menu_language} style={[isHeb ? styles.he : styles.en, {fontSize: 18, marginTop: 6}, theme.text]}>{isHeb ? t.he : t.en}</SText>
+                </TouchableOpacity>
               </React.Fragment>
             ))}
           </View>
@@ -147,11 +154,18 @@ const TopicCategoryButton = ({ topic, openTopic }) => {
   );
 };
 
-const TopicPage = ({}) => {
+const TopicPage = ({ topic, onBack, openTopic }) => {
+  const { themeStr, interfaceLanguage, textLanguage } = useContext(GlobalStateContext);
+  const theme = getTheme(themeStr);
   return (
-    <View>
+    <View style={[styles.menu, theme.buttonBackground]} key={topic.slug}>
+      <SystemHeader
+        title={strings.topics}
+        onBack={onBack}
+        hideLangToggle
+      />
       <Text>
-        { "welcome" }
+        { topic.en }
       </Text>
     </View>
   )
