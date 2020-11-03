@@ -1903,6 +1903,7 @@ class ReaderApp extends React.PureComponent {
             query={this.state.searchQuery}
             openRef={this.openRef}
             openTextTocDirectly={this.openTextTocDirectly}
+            openSheetTag={this.openSheetTag}
             setCategories={cats => { /* first need to go to nav page */ this.openNav(); this.setNavigationCategories(cats);} }
             searchType={this.state.searchType}
             openUri={this.openUri}

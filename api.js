@@ -191,7 +191,6 @@ var Api = {
           break;
         case "name":
           url += "api/name/";
-          //urlSuffix = '?ref_only=0';
           break;
         case "userSheets":
           url += `api/sheets/user/${uid}`;

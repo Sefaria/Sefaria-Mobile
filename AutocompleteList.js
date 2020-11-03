@@ -27,6 +27,7 @@ class AutocompleteList extends React.Component {
     query:    PropTypes.string,
     openRef:  PropTypes.func.isRequired,
     openTextTocDirectly: PropTypes.func.isRequired,
+    openSheetTag:    PropTypes.func.isRequired,
     setCategories: PropTypes.func.isRequired,
     search:   PropTypes.func.isRequired,
     openUri: PropTypes.func.isRequired,
@@ -60,17 +61,14 @@ class AutocompleteList extends React.Component {
       Sefaria.api.name(q, true)
       .then(results => {
         if (this._isMounted) {
-          const typeToValue = { "ref": 1, "person": 3, "toc": 2 }
-          this.setState({completions: results.completions.map((c,i) =>
+          console.log("results", results.completion_objects);
+          const typeToValue = { "ref": 1, "person": 3, "toc": 2, "topic": 4 }
+          this.setState({completions: results.completion_objects.map((c,i) =>
             {
-              let type = "ref";
-              if (!!Sefaria.people[c.toLowerCase()]) {
-                type = "person";
-              } else if (!!Sefaria.englishCategories[c] || !!Sefaria.hebrewCategories[c]) {
-                type = "toc";
-              }
-              if (i === 0) {typeToValue[type] = 0;}  // priveledge the first results' type
-              return {query: c, type, loading: false};
+              c.type = c.type.toLowerCase()
+              if (i === 0) {typeToValue[c.type] = 0;}  // priveledge the first results' type
+              console.log("CCCC", c);
+              return {query: c.title, type: c.type, loading: false};
             })
             .stableSort((a,b) => typeToValue[a.type] - typeToValue[b.type])
             .concat([{query: `Search for: "${this.props.query}"`, type: "searchFor", loading: false}]), // always add a searchFor element at the bottom
@@ -128,8 +126,9 @@ class AutocompleteList extends React.Component {
       } else if (d.type == "TocCategory") {
         this.props.setCategories(d.key);
         recentType = "toc";
-      } else if (d.type == "Group") {
-        recentType = "group"
+      } else if (d.type == "Topic") {
+        recentType = "topic";
+        this.props.openSheetTag(d.key);
       }
       Sefaria.saveRecentQuery(query, recentType);
     });
@@ -151,6 +150,9 @@ class AutocompleteList extends React.Component {
         break;
       case "person":
         src = this.props.themeStr === "white" ? require("./img/user.png") : require("./img/user-light.png");
+        break;
+      case "topic":
+        src = this.props.themeStr === "white" ? require("./img/hashtag.png") : require("./img/hashtag-light.png");
         break;
     }
     return (
