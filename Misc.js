@@ -36,7 +36,15 @@ const SystemHeader = ({ title, onBack, hideLangToggle }) => {
       <Text style={[interfaceLanguage === 'hebrew' ? styles.intHe : styles.intEn, styles.categoryTitle, theme.categoryTitle, {textTransform: "uppercase"}]}>
         {title}
       </Text>
-      { hideLangToggle ? null : <LanguageToggleButton /> }
+      { hideLangToggle ? (
+        <DirectedButton
+          onPress={onBack}
+          imageStyle={[styles.menuButton, styles.directedButton]}
+          direction="back"
+          language="english"
+          placeholder
+        />
+      ) : <LanguageToggleButton /> }
     </View>
   );
 };
@@ -570,7 +578,8 @@ class DirectedButton extends React.Component {
     textStyle:  PropTypes.oneOfType([Text.propTypes.style, PropTypes.array]),
     imageStyle: PropTypes.oneOfType([ViewPropTypes.style, PropTypes.array]),
     onPress:    PropTypes.func.isRequired,
-    direction:  PropTypes.oneOf(["forward", "back"]).isRequired
+    direction:  PropTypes.oneOf(["forward", "back"]).isRequired,
+    placeholder:PropTypes.bool
   };
 
   render() {
@@ -578,7 +587,7 @@ class DirectedButton extends React.Component {
     var actualDirBack = (this.props.language === "hebrew"  && this.props.direction === "forward") || (this.props.language === "english" && this.props.direction === "back")
     return (
       <TouchableOpacity onPress={this.props.onPress}
-        style={{ flexDirection: actualDirBack ? "row-reverse" : "row", alignItems: "center" }}
+        style={{ flexDirection: actualDirBack ? "row-reverse" : "row", alignItems: "center", opacity: this.props.placeholder ? 0 : 1 }}
         hitSlop={{top: 20, bottom: 20, left: 10, right: 10}}>
         { this.props.text ?
           <SText lang={this.props.language} style={this.props.textStyle}>

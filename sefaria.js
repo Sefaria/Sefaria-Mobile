@@ -687,6 +687,11 @@ Sefaria = {
     const key = Sefaria._topicTocPageKey(parent);
     return Sefaria._topicTocPages[key];
   },
+  topicTocCategory: function(slug) {
+    // return category english and hebrew for slug
+    if (!this._topicTocCategory) { this._initTopicTocCategory(); }
+    return this._topicTocCategory[slug];
+  },
   isTopicTopLevel: function(slug) {
     // returns true is `slug` is part of the top level of topic toc
     return Sefaria.topic_toc.filter(x => x.slug == slug).length > 0;

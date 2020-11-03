@@ -9,6 +9,8 @@ import strings from './LocalizedStrings';
 import LinkContent from './LinkContent';
 import AsyncStorage from '@react-native-community/async-storage';
 import jwt_decode from 'jwt-decode';
+import Sefaria from './sefaria';
+import { resolve } from 'path';
 
 var Api = {
   /*
@@ -22,6 +24,7 @@ var Api = {
   _sheetsByTag: {},
   _related: {},
   _sheets: {},
+  _topic: {},
   _trendingTags: null,
   _versions: {},
   _translateVersions: {},
@@ -148,13 +151,14 @@ var Api = {
   apiType: string `oneOf(["text","links","index"])`. passing undefined gets the standard Reader URL.
   context is a required param if apiType == 'text'. o/w it's ignored
   */
-  _toURL: function(ref, useHTTPS, apiType, urlify, { context, versions, more_data, uid, words }) {
+  _toURL: function(ref, useHTTPS, apiType, urlify, extra_args) {
     let url = Sefaria.api._baseHost;
 
     let urlSuffix = '';
     if (apiType) {
       switch (apiType) {
         case "text":
+          const { context, versions } = extra_args;
           url += 'api/texts/';
           urlSuffix = `?context=${context === true ? 1 : 0}&commentary=0`;
           if (versions) {
@@ -186,6 +190,7 @@ var Api = {
           url += "api/related/";
           break;
         case "sheets":
+          const { more_data } = extra_args;
           url += "api/sheets/";
           urlSuffix = `?more_data=${more_data === true ? 1 : 1}`;
           break;
@@ -194,6 +199,7 @@ var Api = {
           //urlSuffix = '?ref_only=0';
           break;
         case "userSheets":
+          const { uid } = extra_args;
           url += `api/sheets/user/${uid}`;
           break;
         case "tagCategory":
@@ -201,8 +207,14 @@ var Api = {
           //urlSuffix = '?ref_only=0';
           break;
         case "lexicon":
+          const { words } = extra_args;
           url += `api/words/${encodeURIComponent(words)}?never_split=1`;
           ref = ref ? `&lookup_ref=${ref}`:""
+          break;
+        case "topic":
+          const { slug, with_refs, annotate_links, group_related, with_links } = extra_args;
+          url += `api/topics/${slug}`;
+          urlSuffix = `?with_links=${0+with_links}&annotate_links=${0+annotate_links}&with_refs=${0+with_refs}&group_related=${0+group_related}`;
           break;
         default:
           console.error("You passed invalid type: ",apiType," into _toURL()");
@@ -414,6 +426,39 @@ var Api = {
     });
   },
 
+  topic: async function(slug, with_links=true, annotate_links=true, with_refs=true, group_related=true) {
+    Sefaria.api._abortRequestType('topic');
+    const cached = Sefaria.api._topic[slug];
+    if (!!cached) { return cached; }
+    let response = await Sefaria.api._request('', 'topic', false, {
+      with_links,
+      annotate_links,
+      with_refs,
+      group_related,
+      slug,
+    }, false);
+    response = Sefaria.api.processTopicsData(response);
+    Sefaria.api._topic[slug] = response;
+    return response;
+  },
+
+  processTopicsData: function(data) {
+    if (!data) { return null; }
+    // Split  `refs` in `sourceRefs` and `sheetRefs`
+    let refMap = {};
+    for (let refObj of data.refs.filter(s => !s.is_sheet)) {
+      refMap[refObj.ref] = {ref: refObj.ref, order: refObj.order, dataSources: refObj.dataSources};
+    }
+    data.textRefs = Object.values(refMap);
+    let sheetMap = {};
+    for (let refObj of data.refs.filter(s => s.is_sheet)) {
+      const sid = refObj.ref.replace('Sheet ', '');
+      sheetMap[sid] = {sid, order: refObj.order};
+    }
+    data.sheetRefs = Object.values(sheetMap);
+    return data;
+  },
+
   related: async function(ref) {
     await Sefaria.api._abortRequestType('related');
     const cached = Sefaria.api._related[ref];
@@ -606,8 +651,6 @@ var Api = {
   },
 
 /*
-extra_args.context is a required param if apiType == 'text'. o/w it's ignored
-extra_args.versions is object with keys { en, he } specifying version titles
 failSilently - if true, dont display a message if api call fails
 */
   _request: async function(ref, apiType, urlify, extra_args, failSilently, isPrivate) {

@@ -46,6 +46,90 @@ const sortTopicCategories = (a, b, interfaceLanguage) => {
   return aDisplayOrder - bDisplayOrder;
 };
 
+const norm_hebrew_ref = tref => tref.replace(/[׳״]/g, '');
+
+
+const fetchBulkText = inRefs =>
+  Sefaria.getBulkText(
+    inRefs.map(x => x.ref),
+    true, 500, 600
+  ).then(outRefs => {
+    for (let tempRef of inRefs) {
+      // annotate outRefs with `order` and `dataSources` from `topicRefs`
+      if (outRefs[tempRef.ref]) {
+        outRefs[tempRef.ref].order = tempRef.order;
+        outRefs[tempRef.ref].dataSources = tempRef.dataSources;
+      }
+    }
+    return Object.entries(outRefs);
+  }
+);
+
+
+const fetchBulkSheet = inSheets =>
+    Sefaria.getBulkSheets(inSheets.map(x => x.sid)).then(outSheets => {
+    for (let tempSheet of inSheets) {
+      if (outSheets[tempSheet.sid]) {
+        outSheets[tempSheet.sid].order = tempSheet.order;
+      }
+    }
+    return Object.values(outSheets);
+  }
+);
+
+
+const refSort = (currSortOption, a, b, { interfaceLang }) => {
+  a = a[1]; b = b[1];
+  if (!a.order && !b.order) { return 0; }
+  if ((0+!!a.order) !== (0+!!b.order)) { return (0+!!b.order) - (0+!!a.order); }
+  if (currSortOption === 'Chronological') {
+    if (a.order.comp_date === b.order.comp_date) {
+      if (a.order.order_id < b.order.order_id) { return -1; }
+      if (b.order.order_id < a.order.order_id) { return 1; }
+      return 0;
+    }
+    return a.order.comp_date - b.order.comp_date;
+  }
+  else {
+    const aAvailLangs = a.order.availableLangs || [];
+    const bAvailLangs = b.order.availableLangs || [];
+    if (interfaceLang === 'english' && aAvailLangs.length !== bAvailLangs.length) {
+      if (aAvailLangs.indexOf('en') > -1) { return -1; }
+      if (bAvailLangs.indexOf('en') > -1) { return 1; }
+      return 0;
+    }
+    else if (a.order.pr !== b.order.pr) { return b.order.pr - a.order.pr; }
+    else { return (b.order.numDatasource * b.order.tfidf) - (a.order.numDatasource * a.order.tfidf); }
+  }
+};
+
+
+const sheetSort = (currSortOption, a, b, { interfaceLang }) => {
+  if (!a.order && !b.order) { return 0; }
+  if ((0+!!a.order) !== (0+!!b.order)) { return (0+!!b.order) - (0+!!a.order); }
+  const aTLangHe = 0 + (a.order.titleLanguage === 'hebrew');
+  const bTLangHe = 0 + (b.order.titleLanguage === 'hebrew');
+  const aLangHe  = 0 + (a.order.language      === 'hebrew');
+  const bLangHe  = 0 + (b.order.language      === 'hebrew');
+  if (interfaceLang === 'hebrew' && (aTLangHe ^ bTLangHe || aLangHe ^ bLangHe)) {
+    if (aTLangHe ^ bTLangHe && aLangHe ^ bLangHe) { return bTLangHe - aTLangHe; }  // title lang takes precedence over content lang
+    return (bTLangHe + bLangHe) - (aTLangHe + aLangHe);
+  } else if (interfaceLang === 'english' && (aTLangHe ^ bTLangHe || aLangHe ^ bLangHe)) {
+    if (aTLangHe ^ bTLangHe && aLangHe ^ bLangHe) { return aTLangHe - bTLangHe; }  // title lang takes precedence over content lang
+    return (aTLangHe + aLangHe) - (bTLangHe + bLangHe);
+  }
+  if (currSortOption === 'Views') {
+    return b.order.views - a.order.views;
+  } else if (currSortOption === 'Newest') {
+    if (b.order.dateCreated < a.order.dateCreated) { return -1; }
+    if (a.order.dateCreated < b.order.dateCreated) { return 1; }
+  } else {
+    // relevance
+    if (b.order.relevance == a.order.relevance) { return b.order.views - a.order.views; }
+    return (Math.log(b.order.views) * b.order.relevance) - (Math.log(a.order.views) * a.order.relevance);
+  }
+};
+
 const TopicCategory = ({ topic, openTopic, onBack }) => {
   const { themeStr, interfaceLanguage } = useContext(GlobalStateContext);
 
@@ -157,6 +241,11 @@ const TopicCategoryButton = ({ topic, openTopic }) => {
 const TopicPage = ({ topic, onBack, openTopic }) => {
   const { themeStr, interfaceLanguage, textLanguage } = useContext(GlobalStateContext);
   const theme = getTheme(themeStr);
+  const category = Sefaria.topicTocCategory(topic.slug) ;
+  const [topicData, setTopicData] = useState(Sefaria.api._topic);
+  useEffect(() => {
+    Sefaria.api.topic(topic.slug).then(setTopicData);
+  }, [topic.slug]);
   return (
     <View style={[styles.menu, theme.buttonBackground]} key={topic.slug}>
       <SystemHeader
@@ -164,11 +253,27 @@ const TopicPage = ({ topic, onBack, openTopic }) => {
         onBack={onBack}
         hideLangToggle
       />
-      <Text>
-        { topic.en }
-      </Text>
+      <FlatList
+        data={topicData && topicData.textRefs}
+        renderItem={({ item }) => <Text>{item.ref}</Text>}
+        keyExtractor={item => item.ref}
+        ListHeaderComponent={() => (
+          <TopicPageHeader {...topic} description={topicData && topicData.description} />
+        )}
+      />
     </View>
   )
+};
+
+const TopicPageHeader = ({ en, he, slug, description }) => {
+  return (
+    <View>
+      <Text>{ en }</Text>
+      { description ? (
+        <Text>{ description.en }</Text>
+      ) : null }
+    </View>
+  );
 };
 
 export {
