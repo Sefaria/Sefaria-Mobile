@@ -27,26 +27,24 @@ const getVLangState = (initialCurrVersions, initialMainVersionLanguage, versions
   }
 
   //sort versions by language so that
-  //- mainVersionLanguage shows up first
-  //- standard_langs show up second
+  //- initialMainVersionLanguage shows up first
+  //- Hebrew shows up last
   //- everything else shows up in alphabetical order
-  const standard_langs = ["en", "he"];
   const versionLangs = Object.keys(versionLangMap).sort(
     (a, b) => {
       if      (a === initialMainVersionLanguage.slice(0,2)) {return -1;}
       else if (b === initialMainVersionLanguage.slice(0,2)) {return  1;}
-      else if (a in standard_langs && !(b in standard_langs))     {return -1;}
-      else if (b in standard_langs && !(a in standard_langs))     {return  1;}
-      else if (a < b)                                             {return -1;}
-      else if (b > a)                                             {return  1;}
-      else                                                        {return  0;}
+      else if (a === 'he' && b !== 'he')                    {return  1;}
+      else if (a !== 'he' && b === 'he')                    {return -1;}
+      else if (a < b)                                       {return -1;}
+      else if (b > a)                                       {return  1;}
+      else                                                  {return  0;}
     }
   );
   return { versionLangMap, versionLangs };
 };
 
 const useVLangState = (currVersions, versions) => {
-  const { textLanguage } = useContext(GlobalStateContext);
   const [initialCurrVersions,] = useState(Object.entries(currVersions).reduce(
     (obj, [lang, val]) => {
       obj[lang] = !!val ? val.versionTitle : null;
@@ -56,7 +54,7 @@ const useVLangState = (currVersions, versions) => {
   const getVLangStateBound = versions => (
     getVLangState(initialCurrVersions, initialMainVersionLanguage, versions)
   );
-  const [initialMainVersionLanguage,] = useState(textLanguage === "bilingual" ? "hebrew" : textLanguage);
+  const initialMainVersionLanguage = "english"; // hardcode to english to prioritize english versions. used to be: useState(textLanguage === "bilingual" ? "hebrew" : textLanguage);
   const [vLangState, setVLangState] = useState(getVLangStateBound(versions));
   return {
     vLangState,

@@ -329,7 +329,7 @@ class ResourcesList extends React.PureComponent {
           onPress={()=>{ this.props.setConnectionsMode("about"); }}
         />
         {this.props.sheet ? null : <ToolsButton
-          text={strings.versions}
+          text={strings.translations}
           icon={isWhite ? require("./img/layers.png") : require("./img/layers-light.png")}
           count={this.props.versionsCount}
           onPress={()=>{ this.props.setConnectionsMode("versions"); }}
