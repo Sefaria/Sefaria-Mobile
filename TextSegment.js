@@ -12,10 +12,11 @@ import {
   View,
   TouchableOpacity,
 } from 'react-native';
+import ActionSheet from 'react-native-action-sheet';
 import HTMLView from 'react-native-htmlview'; //to convert html'afied JSON to something react can render (https://github.com/jsdf/react-native-htmlview)
 import { SelectableText } from "@astrocoders/react-native-selectable-text";
 import Clipboard from "@react-native-community/clipboard";
-
+import strings from './LocalizedStrings';
 import { GlobalStateContext, getTheme } from './StateManager';
 import styles from './Styles.js';
 
@@ -31,6 +32,8 @@ const TextSegment = React.memo(({
   showToast,
   openUriOrRef,
   onTextPress,
+  shareCurrentSegment,
+  getDisplayedText,
 }) => {
   const [resetKey, setResetKey] = useState(0);
   const { themeStr, fontSize, biLayout } = useContext(GlobalStateContext);
@@ -88,7 +91,23 @@ const TextSegment = React.memo(({
     menuItems.splice(1, 1);
   }
 
-  const onLongPress = useCallback(() => {}, []);
+  const onLongPress = useCallback(() => {
+    if (Platform.OS === 'ios') { return; /* no actionsheet for ios, this is handled by text selection */ }
+    ActionSheet.showActionSheetWithOptions({
+      options: [
+        strings.copy,
+        strings.share,
+        strings.cancel,
+      ],
+      cancelButtonIndex: 2,
+    },
+    (buttonIndex) => {
+      const section = parseInt(segmentKey.split(":")[0]);
+      const segment = parseInt(segmentKey.split(":")[1]);
+      if (buttonIndex === 0) { copyToClipboard(getDisplayedText(true, section, segment)); }
+      else if (buttonIndex === 1) { shareCurrentSegment(section, segment); }
+    })
+  }, [segmentRef]);
   const onPress = useCallback(() => onTextPress(), [onTextPress]);
 
   const TempSelectableText = Platform.OS === 'ios' ? SelectableText : DummySelectableText;

@@ -736,13 +736,13 @@ Sefaria = {
 
     return `${year}-${month}-${day}`;
   },
-  saveRecentQuery: function(query, type) {
-    //type = ["ref", "book", "person", "toc", "query"]
-    const newQuery = {query, type};
+  saveRecentQuery: function(query, type, key) {
+    //type = ["ref", "book", "person", "toc", "query", "topic"]
+    const newQuery = {query, type, key};
     if (Sefaria.recentQueries.length > 0 && Sefaria.recentQueries[0].query === newQuery.query && Sefaria.recentQueries[0].type === newQuery.type) {
       return;  // don't add duplicate queries in a row
     }
-    Sefaria.recentQueries.unshift({query, type});
+    Sefaria.recentQueries.unshift(newQuery);
     Sefaria.recentQueries = Sefaria.recentQueries.slice(0,100);
     AsyncStorage.setItem("recentQueries", JSON.stringify(Sefaria.recentQueries)).catch(function(error) {
       console.error("AsyncStorage failed to save: " + error);

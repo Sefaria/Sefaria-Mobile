@@ -7,11 +7,9 @@ import {
   Platform,
   Linking,
 } from 'react-native';
-import ActionSheet from 'react-native-action-sheet';
 import { GlobalStateContext, getTheme } from './StateManager';
 import TextSegment from './TextSegment';
 import styles from './Styles';
-import strings from './LocalizedStrings';
 
 
 const TextRange = React.memo(({
@@ -26,6 +24,8 @@ const TextRange = React.memo(({
   fontScale,
   openUriOrRef,
   setDictionaryLookup,
+  shareCurrentSegment,
+  getDisplayedText,
 }) => {
   const { themeStr, textLanguage, biLayout, fontSize } = useContext(GlobalStateContext);
 
@@ -105,6 +105,8 @@ const TextRange = React.memo(({
                   showToast={showToast}
                   setDictionaryLookup={setDictionaryLookup}
                   openUriOrRef={openUriOrRef}
+                  shareCurrentSegment={shareCurrentSegment}
+                  getDisplayedText={getDisplayedText}
                 />
               </View>
             ) : null
@@ -126,6 +128,8 @@ const TextRange = React.memo(({
                   showToast={showToast}
                   setDictionaryLookup={setDictionaryLookup}
                   openUriOrRef={openUriOrRef}
+                  shareCurrentSegment={shareCurrentSegment}
+                  getDisplayedText={getDisplayedText}
                 />
               </View>
             ) : null
@@ -146,6 +150,8 @@ TextRange.propTypes = {
   textSegmentPressed: PropTypes.func.isRequired,
   setRowRef:          PropTypes.func.isRequired,
   setRowRefInitY:     PropTypes.func.isRequired,
+  shareCurrentSegment:PropTypes.func.isRequired,
+  getDisplayedText:   PropTypes.func.isRequired,
   fontScale:          PropTypes.object,
 };
 

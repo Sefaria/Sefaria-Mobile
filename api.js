@@ -196,7 +196,6 @@ var Api = {
           break;
         case "name":
           url += "api/name/";
-          //urlSuffix = '?ref_only=0';
           break;
         case "userSheets":
           const { uid } = extra_args;

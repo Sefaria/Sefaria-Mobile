@@ -1737,8 +1737,10 @@ class ReaderApp extends React.PureComponent {
     this.setConnectionsMode('dictionary');
   }
 
-  getDisplayedText = (withUrl) => {
-    const {text, he} = this.state.data[this.state.sectionIndexRef][this.state.segmentIndexRef];
+  getDisplayedText = (withUrl, sectionIndex, segmentIndex) => {
+    if (typeof sectionIndex == 'undefined') { sectionIndex = this.state.sectionIndexRef; }
+    if (typeof segmentIndex == 'undefined') { segmentIndex = this.state.segmentIndexRef; }
+    const {text, he} = this.state.data[sectionIndex][segmentIndex];
     const enText = Sefaria.util.removeHtml(typeof text === "string" ? text : "") || "";
     const heText = Sefaria.util.removeHtml(typeof he === "string" ? he : "") || "";
     const isHeb = this.props.textLanguage !== "english";
@@ -1761,9 +1763,9 @@ class ReaderApp extends React.PureComponent {
     Linking.openURL(`mailto:corrections@sefaria.org?subject=${encodeURIComponent(`Sefaria Text Correction from ${Platform.OS}`)}&body=${body}`);
   };
 
-  shareCurrentSegment = () => {
+  shareCurrentSegment = (sectionIndex, segmentIndex) => {
     Share.share({
-      message: this.getDisplayedText(Platform.OS === 'android'),  // android for some reason doesn't share text with a url attached at the bottom
+      message: this.getDisplayedText(Platform.OS === 'android', sectionIndex, segmentIndex),  // android for some reason doesn't share text with a url attached at the bottom
       title: this.state.segmentRef,
       url: Sefaria.refToFullUrl(this.state.segmentRef)
     });
@@ -1910,6 +1912,7 @@ class ReaderApp extends React.PureComponent {
             query={this.state.searchQuery}
             openRef={this.openRef}
             openTextTocDirectly={this.openTextTocDirectly}
+            openSheetTag={this.openSheetTag}
             setCategories={cats => { /* first need to go to nav page */ this.openNav(); this.setNavigationCategories(cats);} }
             searchType={this.state.searchType}
             openUri={this.openUri}
@@ -2111,6 +2114,8 @@ class ReaderApp extends React.PureComponent {
                   openUriOrRef={this.openUriOrRef}
                   textUnavailableAlert={this.textUnavailableAlert}
                   setDictionaryLookup={this.setDictionaryLookup}
+                  shareCurrentSegment={this.shareCurrentSegment}
+                  getDisplayedText={this.getDisplayedText}                  
                 />
             </View> }
 

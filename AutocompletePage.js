@@ -29,6 +29,7 @@ class AutocompletePage extends React.Component {
     onChange:        PropTypes.func.isRequired,
     openRef:         PropTypes.func.isRequired,
     openTextTocDirectly: PropTypes.func.isRequired,
+    openSheetTag:    PropTypes.func.isRequired,
     setCategories:   PropTypes.func.isRequired,
     openUri:         PropTypes.func.isRequired,
     searchType:      PropTypes.oneOf(['text', 'sheet']).isRequired,
@@ -81,6 +82,7 @@ class AutocompletePage extends React.Component {
           query={this.props.query}
           openRef={this.props.openRef}
           openTextTocDirectly={this.props.openTextTocDirectly}
+          openSheetTag={this.props.openSheetTag}
           setCategories={this.props.setCategories}
           search={this.search}
         />

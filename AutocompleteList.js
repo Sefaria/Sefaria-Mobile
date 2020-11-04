@@ -27,6 +27,7 @@ class AutocompleteList extends React.Component {
     query:    PropTypes.string,
     openRef:  PropTypes.func.isRequired,
     openTextTocDirectly: PropTypes.func.isRequired,
+    openSheetTag:    PropTypes.func.isRequired,
     setCategories: PropTypes.func.isRequired,
     search:   PropTypes.func.isRequired,
     openUri: PropTypes.func.isRequired,
@@ -60,20 +61,15 @@ class AutocompleteList extends React.Component {
       Sefaria.api.name(q, true)
       .then(results => {
         if (this._isMounted) {
-          const typeToValue = { "ref": 1, "person": 3, "toc": 2 }
-          this.setState({completions: results.completions.map((c,i) =>
+          const typeToValue = { "ref": 1, "person": 4, "toc": 3, "topic": 2 }
+          this.setState({completions: results.completion_objects.map((c,i) =>
             {
-              let type = "ref";
-              if (!!Sefaria.people[c.toLowerCase()]) {
-                type = "person";
-              } else if (!!Sefaria.englishCategories[c] || !!Sefaria.hebrewCategories[c]) {
-                type = "toc";
-              }
-              if (i === 0) {typeToValue[type] = 0;}  // priveledge the first results' type
-              return {query: c, type, loading: false};
+              c.type = c.type.toLowerCase()
+              if (i === 0) {typeToValue[c.type] = 0;}  // priveledge the first results' type
+              return c;
             })
             .stableSort((a,b) => typeToValue[a.type] - typeToValue[b.type])
-            .concat([{query: `Search for: "${this.props.query}"`, type: "searchFor", loading: false}]), // always add a searchFor element at the bottom
+            .concat([{title: `Search for: "${this.props.query}"`, type: "searchFor"}]), // always add a searchFor element at the bottom
           completionsLang: results.lang})
         }
       })
@@ -87,7 +83,43 @@ class AutocompleteList extends React.Component {
   close = () => {
     this.setState({completions: []});
   }
-  openRef = (query, index) => {
+  openItem = (item) => {
+    let recentType;
+    if (item.type === 'ref' && !!Sefaria.booksDict[item.title]) {
+      this.props.openTextTocDirectly(item.key);
+      recentType = "book";
+    }
+    else if (item.type == 'ref') {
+      this.props.openRef(item.key);
+      recentType = "ref";
+    }
+    else if (item.type == "person" || item.type == "group") {
+      recentType = item.type;
+      ActionSheet.showActionSheetWithOptions(
+        {
+          options: [`View '${item.title}' on Sefaria site`,strings.cancel],
+          cancelButtonIndex: 1,
+        },
+        (buttonIndex) => {
+          if (buttonIndex === 0) {
+            const uri = item.type == 'person' ? `https://www.sefaria.org/person/${item.key}` : `https://www.sefaria.org/groups/${item.key.split(' ').join('-')}`;
+            this.props.openUri(uri);
+          }
+        }
+      );
+    } else if (item.type == "toccategory") {
+      this.props.setCategories(item.key);
+      recentType = "toc";
+    } else if (item.type == "topic") {
+      recentType = "topic";
+      this.props.openSheetTag(item.key);
+    }
+    Sefaria.saveRecentQuery(item.title, recentType, item.key);
+  };
+
+  openItemOLD = (query, index) => {
+    // Older versions of the app only saved query and type for the recent item
+    // this meant that the app needed to make an extra api call to get the key to open the relevant item
     const [currList, currListKey] = this.state.completions[index] ? [this.state.completions, "completions"] : [this.state.recentQueries, "recentQueries"];
     currList[index].loading = true;
     this.setState({[currListKey]: currList});
@@ -130,12 +162,16 @@ class AutocompleteList extends React.Component {
         recentType = "toc";
       } else if (d.type == "Group") {
         recentType = "group"
+      } else if (d.type == "Topic") {
+        recentType = "topic";
+        this.props.openSheetTag(d.key);
       }
-      Sefaria.saveRecentQuery(query, recentType);
+      Sefaria.saveRecentQuery(query, recentType, d.key);
     });
   };
 
   renderItem = ({ item, index }) => {
+    if (item.query) { item.title = item.query; }
     // toc queries get saved as arrays
     const isHeb = this.state.completionsLang === 'he';
     let src;
@@ -146,11 +182,20 @@ class AutocompleteList extends React.Component {
         break;
       case "ref":
       case "book":
-      case "toc":
         src = this.props.themeStr === "white" ? require("./img/book.png") : require("./img/book-light.png");
         break;
+      case "toc":
+      case "toccategory":
+        src = this.props.themeStr === "white" ? require("./img/category.png") : require("./img/category-light.png");
+        break;
+      case "group":
+        src = this.props.themeStr === "white" ? require("./img/group.png") : require("./img/group-light.png");
+        break;        
       case "person":
         src = this.props.themeStr === "white" ? require("./img/user.png") : require("./img/user-light.png");
+        break;
+      case "topic":
+        src = this.props.themeStr === "white" ? require("./img/hashtag.png") : require("./img/hashtag-light.png");
         break;
     }
     return (
@@ -158,19 +203,23 @@ class AutocompleteList extends React.Component {
         style={[{flexDirection: isHeb ? 'row-reverse' : 'row'}, styles.autocompleteItem, this.props.theme.bordered]}
         onPress={()=>{
           if (item.type === 'query') {
-            this.props.search(item.query);
+            this.props.search(item.title || item.query);
           } else if (item.type === 'searchFor') {
             this.props.search(this.props.query);
           } else {
-            this.openRef(item.query, index);
+            if (item.key) { this.openItem(item); }
+            else {
+              // dont have key, need to query for item again
+              this.openItemOLD(item.query, index);
+            }      
           }
         }}>
         <Image source={src}
           style={[styles.menuButtonMargined]}
           resizeMode={'contain'}
         />
-        <SText lang={isHeb ? "hebrew" : "english"} style={[styles.autocompleteItemText, this.props.theme.text, {textAlign: isHeb ? 'right' : 'left', fontFamily: isHeb ? 'Heebo' : 'Amiri'}]}>
-          { item.type === 'toc' ? item.query.toUpperCase() : item.query }
+        <SText lang={isHeb ? "hebrew" : "english"} style={[styles.autocompleteItemText, this.props.theme.text, {textAlign: isHeb ? 'right' : 'left', fontFamily: isHeb ? 'Heebo' : 'Amiri', paddingTop: 5, marginTop: isHeb ? 0 : 5}]}>
+          { (item.type === 'toc' || item.type === 'toccategory') ? item.title.toUpperCase() : item.title }
         </SText>
         {item.loading ? (<Text style={[{paddingHorizontal: 10}, this.props.theme.secondaryText, !isHeb ? styles.enInt : styles.heInt]}>
           { strings.loading }
@@ -180,7 +229,7 @@ class AutocompleteList extends React.Component {
   };
 
   _keyExtractor = (item, pos) => {
-    return item.query + "|" + pos;
+    return (item.title || item.query) + "|" + pos;
   };
 
   render() {
