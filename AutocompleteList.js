@@ -62,15 +62,24 @@ class AutocompleteList extends React.Component {
       .then(results => {
         if (this._isMounted) {
           const typeToValue = { "ref": 1, "person": 4, "toc": 3, "topic": 2 }
-          this.setState({completions: results.completion_objects.map((c,i) =>
-            {
-              c.type = c.type.toLowerCase()
-              if (i === 0) {typeToValue[c.type] = 0;}  // priveledge the first results' type
-              return c;
-            })
-            .stableSort((a,b) => typeToValue[a.type] - typeToValue[b.type])
-            .concat([{title: `Search for: "${this.props.query}"`, type: "searchFor"}]), // always add a searchFor element at the bottom
-          completionsLang: results.lang})
+          const completions = results.completion_objects.map((c,i) =>
+          {
+            c.type = c.type.toLowerCase()
+            if (i === 0) {typeToValue[c.type] = 0;}  // priveledge the first results' type
+            return c;
+          })
+          .stableSort((a,b) => typeToValue[a.type] - typeToValue[b.type])
+          .concat([{title: `Search for: "${this.props.query}"`, type: "searchFor"}]); // always add a searchFor element at the bottom
+          if (results.is_ref && results.ref) {
+            // manually add ref item to list
+            completions.unshift({
+              title: results.ref,
+              key: results.ref,
+              type: 'ref',
+              is_primary: true,
+            });
+          }
+          this.setState({completions, completionsLang: results.lang})
         }
       })
       .catch(error => {
@@ -85,7 +94,8 @@ class AutocompleteList extends React.Component {
   }
   openItem = (item) => {
     let recentType;
-    if (item.type === 'ref' && !!Sefaria.booksDict[item.title]) {
+    if (item.type === 'ref' && !!Sefaria.booksDict[item.key]) {
+      // actually a book ref so open toc
       this.props.openTextTocDirectly(item.key);
       recentType = "book";
     }
