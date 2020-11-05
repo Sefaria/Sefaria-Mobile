@@ -1735,9 +1735,11 @@ class ReaderApp extends React.PureComponent {
     this.setConnectionsMode('dictionary');
   }
 
-  getDisplayedText = (withUrl, sectionIndex, segmentIndex) => {
+  getDisplayedText = (withUrl, sectionIndex, segmentIndex, segmentRef) => {
+    // need to be careful because sectionIndex and segmentIndex can be 0
     if (typeof sectionIndex == 'undefined') { sectionIndex = this.state.sectionIndexRef; }
     if (typeof segmentIndex == 'undefined') { segmentIndex = this.state.segmentIndexRef; }
+    if (typeof segmentRef == 'undefined')   { segmentRef = this.state.segmentRef; }
     const {text, he} = this.state.data[sectionIndex][segmentIndex];
     const enText = Sefaria.util.removeHtml(typeof text === "string" ? text : "") || "";
     const heText = Sefaria.util.removeHtml(typeof he === "string" ? he : "") || "";
@@ -1745,7 +1747,7 @@ class ReaderApp extends React.PureComponent {
     const isEng = this.props.textLanguage !== "hebrew";
     const fullText = (heText && isHeb ? heText + (enText && isEng ? "\n" : "") : "") + ((enText && isEng) ? enText : "");
     if (withUrl) {
-      return `${fullText}\n\n${Sefaria.refToFullUrl(this.state.segmentRef)}`;
+      return `${fullText}\n\n${Sefaria.refToFullUrl(segmentRef)}`;
     }
     return fullText;
   }
@@ -1761,11 +1763,12 @@ class ReaderApp extends React.PureComponent {
     Linking.openURL(`mailto:corrections@sefaria.org?subject=${encodeURIComponent(`Sefaria Text Correction from ${Platform.OS}`)}&body=${body}`);
   };
 
-  shareCurrentSegment = (sectionIndex, segmentIndex) => {
+  shareCurrentSegment = (sectionIndex, segmentIndex, segmentRef) => {
+    segmentRef = segmentRef || this.state.segmentRef;
     Share.share({
-      message: this.getDisplayedText(Platform.OS === 'android', sectionIndex, segmentIndex),  // android for some reason doesn't share text with a url attached at the bottom
-      title: this.state.segmentRef,
-      url: Sefaria.refToFullUrl(this.state.segmentRef)
+      message: this.getDisplayedText(Platform.OS === 'android', sectionIndex, segmentIndex, segmentRef),  // android for some reason doesn't share text with a url attached at the bottom
+      title: segmentRef,
+      url: Sefaria.refToFullUrl(segmentRef)
     });
   }
 
