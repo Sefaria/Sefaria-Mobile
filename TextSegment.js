@@ -104,8 +104,8 @@ const TextSegment = React.memo(({
     (buttonIndex) => {
       const section = parseInt(segmentKey.split(":")[0]);
       const segment = parseInt(segmentKey.split(":")[1]);
-      if (buttonIndex === 0) { copyToClipboard(getDisplayedText(true, section, segment)); }
-      else if (buttonIndex === 1) { shareCurrentSegment(section, segment); }
+      if (buttonIndex === 0) { copyToClipboard(getDisplayedText(true, section, segment, segmentRef)); }
+      else if (buttonIndex === 1) { shareCurrentSegment(section, segment, segmentRef); }
     })
   }, [segmentRef]);
   const onPress = useCallback(() => onTextPress(), [onTextPress]);
