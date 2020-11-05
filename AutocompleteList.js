@@ -94,7 +94,7 @@ class AutocompleteList extends React.Component {
   }
   openItem = (item) => {
     let recentType;
-    if (item.type === 'ref' && !!Sefaria.booksDict[item.key]) {
+    if ((item.type === 'ref' && !!Sefaria.booksDict[item.key]) || item.type == 'book') {
       // actually a book ref so open toc
       this.props.openTextTocDirectly(item.key);
       recentType = "book";
@@ -117,7 +117,7 @@ class AutocompleteList extends React.Component {
           }
         }
       );
-    } else if (item.type == "toccategory") {
+    } else if (item.type == "toccategory" || item.type == 'toc') {
       this.props.setCategories(item.key);
       recentType = "toc";
     } else if (item.type == "topic") {
