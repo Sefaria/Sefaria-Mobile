@@ -15,6 +15,8 @@ class BackManager {
   static back({ type, calledFrom } = { }) {
     const bs = BackManager._backStack;
     let oldStateObj = bs.pop();
+    if (!oldStateObj) { return oldStateObj; }
+
     if (type === "main") {
       while (oldStateObj.type !== "main" && bs.length > 0) {
         oldStateObj = bs.pop();
