@@ -16,6 +16,7 @@ import {
   SystemHeader,
   LoadingView,
   SText,
+  TabView,
 } from './Misc';
 import { useAsyncVariable } from './Hooks';
 import { GlobalStateContext, DispatchContext, STATE_ACTIONS, getTheme } from './StateManager';
@@ -159,7 +160,7 @@ const TopicCategory = ({ topic, openTopic, onBack }) => {
       he: "Selections of texts and user created source sheets about thousands of subjects",
     }
   };
-  
+
   return (
     <View style={[styles.menu, theme.buttonBackground]} key={slug}>
       <SystemHeader
@@ -241,7 +242,6 @@ const TopicCategoryButton = ({ topic, openTopic }) => {
 const TopicPage = ({ topic, onBack, openTopic }) => {
   const { themeStr, interfaceLanguage, textLanguage } = useContext(GlobalStateContext);
   const theme = getTheme(themeStr);
-  const category = Sefaria.topicTocCategory(topic.slug) ;
   const [topicData, setTopicData] = useState(Sefaria.api._topic);
   useEffect(() => {
     Sefaria.api.topic(topic.slug).then(setTopicData);
@@ -266,12 +266,31 @@ const TopicPage = ({ topic, onBack, openTopic }) => {
 };
 
 const TopicPageHeader = ({ en, he, slug, description }) => {
+  const { themeStr, interfaceLanguage, textLanguage } = useContext(GlobalStateContext);
+  const { currTabIndex, setCurrTabIndex } = useState(0);
+  const menu_language = Sefaria.util.get_menu_language(interfaceLanguage, textLanguage);
+  const isHeb = menu_language === 'hebrew';
+  const theme = getTheme(themeStr);
+  const category = Sefaria.topicTocCategory(slug);
   return (
-    <View>
-      <Text>{ en }</Text>
-      { description ? (
-        <Text>{ description.en }</Text>
+    <View style={{marginHorizontal: 15, marginVertical: 20}}>
+      <Text style={[isHeb ? styles.he : styles.en, {fontSize: 30}]}>{ isHeb ? he : en }</Text>
+      { category ? (
+        <Text style={[styles.enInt, {fontSize: 13, marginBottom: 20}, theme.tertiaryText]}>
+          { isHeb ? category.he : category.en.toUpperCase() }
+        </Text>
       ) : null }
+      { description ? (
+        <Text style={[styles.enInt, {fontSize: 13}, theme.tertiaryText]}>
+          { isHeb ? description.he : description.en }
+        </Text>
+      ) : null }
+      <TabView
+        tabs={[{text: "Sources"}, {text: "Sheets"}]}
+        renderTab={(tab) => (<Text>{tab.text}</Text>)}
+        currTabIndex={currTabIndex}
+        setTab={(tabIndex) => setCurrTabIndex(tabIndex)}
+      />
     </View>
   );
 };
