@@ -847,7 +847,6 @@ class ReaderApp extends React.PureComponent {
       Sefaria.data(this.state.prev, true, this.state.selectedVersions).then(function(data) {
 
         var updatedData = [data.content].concat(this.state.data);
-
         this.state.sectionArray.unshift(data.sectionRef);
         this.state.sectionHeArray.unshift(data.heRef);
         this.state.linksLoaded.unshift(false);
@@ -856,9 +855,9 @@ class ReaderApp extends React.PureComponent {
           data: updatedData,
           prev: data.prev,
           next: this.state.next,
-          sectionArray: newTitleArray,
-          sectionHeArray: newHeTitleArray,
-          linksLoaded: newlinksLoaded,
+          sectionArray: this.state.sectionArray,
+          sectionHeArray: this.state.sectionHeArray,
+          linksLoaded: this.state.linksLoaded,
           loaded: true,
           loadingTextHead: false,
         }, ()=>{
@@ -876,20 +875,17 @@ class ReaderApp extends React.PureComponent {
       Sefaria.data(this.state.next, true, this.state.selectedVersions).then(function(data) {
 
         var updatedData = this.state.data.concat([data.content]);
-        var newTitleArray = this.state.sectionArray;
-        var newHeTitleArray = this.state.sectionHeArray;
-        var newlinksLoaded = this.state.linksLoaded;
-        newTitleArray.push(data.sectionRef);
-        newHeTitleArray.push(data.heRef);
-        newlinksLoaded.push(false);
+        this.state.sectionArray.push(data.sectionRef);;
+        this.state.sectionHeArray.push(data.heRef);;
+        this.state.linksLoaded.push(false);;
 
         this.setState({
           data: updatedData,
           prev: this.state.prev,
           next: data.next,
-          sectionArray: newTitleArray,
-          sectionHeArray: newHeTitleArray,
-          linksLoaded: newlinksLoaded,
+          sectionArray: this.state.sectionArray,
+          sectionHeArray: this.state.sectionHeArray,
+          linksLoaded: this.state.linksLoaded,
           loaded: true,
           loadingTextTail: false,
         }, ()=>{
