@@ -834,6 +834,9 @@ Sefaria = {
         if (key == 'links') { valueList = valueList.filter(l=>!!Sefaria.booksDict[l.index_title]); }
         output[key] = [];
         for (let value of valueList) {
+          if (value.expandedRefs) {
+            delete value.expandedRefs;
+          }
           const anchors = value.anchorRefExpanded || [value.anchorRef];
           if (anchors.length === 0) { continue; }
           for (let anchor of anchors) {
@@ -1000,21 +1003,18 @@ Sefaria = {
         }
 
         // Convert object into ordered list
+        const topByCategory = {
+          "Commentary": ["Rashi", "Ibn Ezra", "Ramban","Tosafot"]
+        };
         var summaryList = Object.keys(summary).map(function(category) {
           var categoryData = summary[category];
           categoryData.category = category;
           categoryData.refList = [];
           categoryData.heRefList = [];
-          categoryData.books = Object.keys(categoryData.books).map(function(book) {
-            var bookData = categoryData.books[book];
-            return bookData;
-          });
+          categoryData.books = Object.values(categoryData.books);
           // Sort the books in the category
           categoryData.books.sort(function(a, b) {
             // First sort by predefined "top"
-            var topByCategory = {
-              "Commentary": ["Rashi", "Ibn Ezra", "Ramban","Tosafot"]
-            };
             var top = topByCategory[categoryData.category] || [];
             var aTop = top.indexOf(a.title);
             var bTop = top.indexOf(b.title);
@@ -1105,8 +1105,7 @@ Sefaria = {
 
     },
     sortRefsBySections(enRefs, heRefs, title) {
-      const zip = rows=>rows[0].map((_,c)=>rows.map(row=>row[c]));
-      const biRefList = zip([enRefs, heRefs]);
+      const biRefList = Sefaria.util.zip([enRefs, heRefs]);
       biRefList.sort((a,b) => {
         try {
           const aSections = a[0].substring(title.length+1).trim().split(':');
@@ -1164,6 +1163,8 @@ Sefaria = {
 };
 
 Sefaria.util = {
+  zip: rows=>rows[0].map((_,c)=>rows.map(row=>row[c])),
+
   PROCEDURAL_PROMISE_INTERRUPT: "INTERRUPT",
   procedural_promise_on_array: async function(array, promise, extra_params) {
     // run `promise` for each item of `array` one-by-one. useful for making multiple API calls that don't trip over each other
