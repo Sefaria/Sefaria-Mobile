@@ -1352,6 +1352,10 @@ class ReaderApp extends React.PureComponent {
     Sefaria.links.linkSummary(this.state.textReference, this.state.data[section][segment].links, menuLanguage).then((data) => {
       this.setState({linkSummary: data, loadingLinks: false});
       this.updateLinkCat(null, data); // Set up `linkContents` in their initial state as an array of nulls
+    }).catch(error => {
+      crashlytics().recordError(new Error(`Link summary error: Message: ${error}`));
+      this.setState({linkSummary: [], loadingLinks: false});
+      this.updateLinkCat(null, []); // Set up `linkContents` in their initial state as an array of nulls
     });
   };
   updateLinkCat = (filterIndex, linkSummary) => {

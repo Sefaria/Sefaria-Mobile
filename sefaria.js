@@ -572,9 +572,13 @@ Sefaria = {
       for (let j =0; j < data[i].links.length; j++) {
         const link = data[i].links[j];
         if (link.category === "Commentary") {
-          const title = Sefaria.getTitle(link.sourceRef, link.sourceHeRef, true, false);
-          en.add(title);
-          he.add(Sefaria.getTitle(link.sourceRef, link.sourceHeRef, true, true));
+          const tempIndex = Sefaria.index(link.textTitle);
+          if (!tempIndex) { continue; }
+          const enTitle = link.collectiveTitle || link.textTitle;
+          let heTitle = link.heCollectiveTitle || tempIndex.heTitle;
+          if (!enTitle || !heTitle) { continue; }
+          en.add(enTitle);
+          he.add(heTitle);
         }
       }
     }
@@ -958,17 +962,18 @@ Sefaria = {
 
           var category = summary[link.category];
           // Count Book
-          if (link.textTitle in category.books) {
+          if (!!category.books[link.textTitle]) {
             category.books[link.textTitle].refSet.add(link.sourceRef);
             category.books[link.textTitle].heRefSet.add(link.sourceHeRef);
             category.books[link.textTitle].hasEn = category.books[link.textTitle].hasEn || link.sourceHasEn;
           } else {
-            var isCommentary = link.category === "Commentary";
+            const tempIndex = Sefaria.index(link.textTitle);
+            if (!tempIndex) { continue; }
             category.books[link.textTitle] =
             {
                 count:             1,
-                title:             Sefaria.getTitle(link.sourceRef, link.sourceHeRef, isCommentary, false),
-                heTitle:           Sefaria.getTitle(link.sourceRef, link.sourceHeRef, isCommentary, true),
+                title:             link.collectiveTitle || link.textTitle,
+                heTitle:           link.heCollectiveTitle || tempIndex.heTitle,
                 collectiveTitle:   link.collectiveTitle,
                 heCollectiveTitle: link.heCollectiveTitle,
                 category:          link.category,
@@ -983,11 +988,10 @@ Sefaria = {
         let commentatorList = Sefaria.commentatorListBySection(sectionRef);
         if (commentatorList) {
           let commentaryBooks = summary["Commentary"].books;
-          let commentaryBookTitles = Object.keys(commentaryBooks).map((book)=>commentaryBooks[book].title);
           for (let i = 0; i < commentatorList.en.length; i++) {
             let commEn = commentatorList.en[i];
             let commHe = commentatorList.he[i];
-            if (commentaryBookTitles.indexOf(commEn) == -1) {
+            if (!commentaryBooks[commEn]) {
               commentaryBooks[commEn] =
               {
                 count:    0,
@@ -1006,18 +1010,16 @@ Sefaria = {
         const topByCategory = {
           "Commentary": ["Rashi", "Ibn Ezra", "Ramban","Tosafot"]
         };
-        var summaryList = Object.keys(summary).map(function(category) {
-          var categoryData = summary[category];
+        let summaryList = Object.entries(summary).map(([category, categoryData]) => {
           categoryData.category = category;
           categoryData.refList = [];
           categoryData.heRefList = [];
-          categoryData.books = Object.values(categoryData.books);
           // Sort the books in the category
-          categoryData.books.sort(function(a, b) {
+          categoryData.books = Object.values(categoryData.books).sort((a, b) => {
             // First sort by predefined "top"
-            var top = topByCategory[categoryData.category] || [];
-            var aTop = top.indexOf(a.title);
-            var bTop = top.indexOf(b.title);
+            let top = topByCategory[categoryData.category] || [];
+            let aTop = top.indexOf(a.title);
+            let bTop = top.indexOf(b.title);
             if (aTop !== -1 || bTop !== -1) {
               aTop = aTop === -1 ? 999 : aTop;
               bTop = bTop === -1 ? 999 : bTop;
@@ -1025,10 +1027,10 @@ Sefaria = {
             }
             // Then sort alphabetically
             if (textLanguage !== 'hebrew'){
-              return a.title > b.title ? 1 : -1;
+              return (a.title > b.title) ? 1 : -1;
             }
             // else hebrew
-            return a.heTitle > b.heTitle ? 1 : -1;
+            return (a.heTitle > b.heTitle) ? 1 : -1;
           });
           return categoryData;
         });
