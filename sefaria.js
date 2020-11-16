@@ -294,6 +294,9 @@ Sefaria = {
     return Sefaria.categoryForTitle(Sefaria.textTitleForRef(ref));
   },
   getTitle: function(ref, heRef, isCommentary, isHe) {
+      // This function seems to have been the source of a bug which only presented itself on Android Hermes
+      // Fix was to avoid using this function: https://github.com/Sefaria/Sefaria-iOS/commit/facd85a541e434c6eb6c6e44fa272e5c68735ae3
+      // Try to find an alternative to using this function
       const bookTitle = Sefaria.textTitleForRef(ref);
       const collectiveTitles = Sefaria.collectiveTitlesDict[bookTitle];
       if (collectiveTitles && isCommentary) {
