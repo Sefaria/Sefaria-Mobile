@@ -972,7 +972,7 @@ Sefaria = {
           } else {
             const tempIndex = Sefaria.index(link.textTitle);
             if (!tempIndex) { continue; }
-            category.books[link.textTitle] =
+            category.books[link.collectiveTitle || link.textTitle] =
             {
                 count:             1,
                 title:             link.collectiveTitle || link.textTitle,
