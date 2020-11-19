@@ -811,10 +811,12 @@ Sefaria = {
         const linkList = (sectionData.content.reduce((accum, segment, segNum) => accum.concat(
           ("links" in segment) ? segment.links.map(link => {
             const index_title = Sefaria.textTitleForRef(link.sourceRef);
+            const collectiveTitle = Sefaria.collectiveTitlesDict[index_title];
             return {
               sourceRef: link.sourceRef,
               sourceHeRef: link.sourceHeRef,
               index_title,
+              collectiveTitle,
               category: ("category" in link) ? link.category : Sefaria.categoryForTitle(index_title),
               anchorRef: `${ref}:${segNum+1}`,
               sourceHasEn: link.sourceHasEn,
