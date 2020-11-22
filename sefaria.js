@@ -967,17 +967,18 @@ Sefaria = {
 
           var category = summary[link.category];
           // Count Book
-          if (!!category.books[link.textTitle]) {
-            category.books[link.textTitle].refSet.add(link.sourceRef);
-            category.books[link.textTitle].heRefSet.add(link.sourceHeRef);
-            category.books[link.textTitle].hasEn = category.books[link.textTitle].hasEn || link.sourceHasEn;
+          const title = link.collectiveTitle || link.textTitle;
+          if (!!category.books[title]) {
+            category.books[title].refSet.add(link.sourceRef);
+            category.books[title].heRefSet.add(link.sourceHeRef);
+            category.books[title].hasEn = category.books[title].hasEn || link.sourceHasEn;
           } else {
             const tempIndex = Sefaria.index(link.textTitle);
             if (!tempIndex) { continue; }
-            category.books[link.collectiveTitle || link.textTitle] =
+            category.books[title] =
             {
                 count:             1,
-                title:             link.collectiveTitle || link.textTitle,
+                title:             title,
                 heTitle:           link.heCollectiveTitle || tempIndex.heTitle,
                 collectiveTitle:   link.collectiveTitle,
                 heCollectiveTitle: link.heCollectiveTitle,
