@@ -851,8 +851,9 @@ Sefaria = {
           for (let anchor of anchors) {
             const refIndex = Sefaria.links.getSegmentIndexFromRef(anchor);
             if (!output[key][refIndex]) { output[key][refIndex] = []; }
+            let outputValue = value;
             if (key == 'links') {
-              value = {
+              outputValue = {
                 "category": value.category,
                 "sourceRef": value.sourceRef,
                 "sourceHeRef": value.sourceHeRef,
@@ -862,7 +863,7 @@ Sefaria = {
                 "heCollectiveTitle": value.collectiveTitle ? value.collectiveTitle.he : null,
               };
             }
-            output[key][refIndex].push(value);
+            output[key][refIndex].push(outputValue);
           }
         }
       });
