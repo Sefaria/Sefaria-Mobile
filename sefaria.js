@@ -47,7 +47,7 @@ Sefaria = {
     return Sefaria._loadRecentQueries()
       .then(Sefaria._loadSearchTOC);
   },
-  postInit: function() {  // todo: pass network setting from some React component (ReaderApp.componentDidMount likely)
+  postInit: function(networkSetting='wifiOnly') {
     return Sefaria._loadPeople()
       .then(Sefaria._loadHebrewCategories)
       .then(packageSetupProtocol)
@@ -57,7 +57,7 @@ Sefaria = {
         }
 
         try {
-          await downloadUpdate();  // this method compares what the user requested to what is on disk and retrieves anything missing
+          await downloadUpdate(networkSetting, false);  // this method compares what the user requested to what is on disk and retrieves anything missing
         } catch (e) {
           console.log('postInit download error');
           console.log(e);

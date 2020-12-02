@@ -85,6 +85,7 @@ class ReaderApp extends React.PureComponent {
   };
 
   constructor(props, context) {
+    console.log('ReaderApp Props', props,);
     super(props, context);
     this._initDeepLinkURL = null;  // if you init the app thru a deep link, need to make sure the URL is applied during componentDidMount()
     if (Platform.OS === 'android') {
@@ -264,7 +265,7 @@ class ReaderApp extends React.PureComponent {
           const mostRecent =  Sefaria.history.lastPlace.length ? Sefaria.history.lastPlace[0] : {ref: "Genesis 1"};
           this.openRef(mostRecent.ref, null, mostRecent.versions, false)  // first call to openRef should not add to backStack
           .then(Sefaria.postInitSearch)
-          .then(Sefaria.postInit)
+          .then(() => Sefaria.postInit(this.props.downloadNetworkSetting))
           .then(() => { this.setState({_completedInit: true}); })
           .then(this.promptLibraryDownload.bind(this));
         } else {
@@ -274,7 +275,7 @@ class ReaderApp extends React.PureComponent {
           .then(() => {
             this._deepLinkRouterRef.route(this._initDeepLinkURL);
           })
-          .then(Sefaria.postInit)
+          .then(() => Sefaria.postInit(this.props.downloadNetworkSetting))
           .then(() => { this.setState({_completedInit: true}); })
           .then(this.promptLibraryDownload.bind(this));
         }
