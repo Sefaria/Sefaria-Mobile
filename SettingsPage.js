@@ -104,7 +104,13 @@ const usePkgState = () => {
           console.log(e)
         }
       };
-      if (PackagesState[pkgName].clicked) { await removePackage()}
+      if (PackagesState[pkgName].clicked) {
+        Alert.alert(
+          strings.delete,
+          strings.areYouSureDeletePackage,
+          [{text: strings.yes, onPress: removePackage}, {text: strings.no}]
+        )
+      }
       else {
         if (packageDownloadLock.locked || DownloadTracker.downloadInProgress()) {
           doubleDownload();
@@ -203,7 +209,13 @@ const SettingsPage = ({ close, logout, openUri }) => {
               <Text style={[langStyle, styles.buttonText]}>{updatesDisabled ? strings.checking : strings.checkForUpdates}</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.button} onPress={deleteLibrary}>
+            <TouchableOpacity style={styles.button} onPress={() => {
+              Alert.alert(
+                strings.deleteLibrary,
+                strings.confirmDeleteLibraryMessage,
+                [{text: strings.yes, onPress: deleteLibrary}, {text: strings.no}]
+              )
+            }}>
               <Text style={[langStyle, styles.buttonText]}>{strings.deleteLibrary}</Text>
             </TouchableOpacity>
             {DEBUG_MODE ? <TouchableOpacity style={styles.button} onPress={() => {
