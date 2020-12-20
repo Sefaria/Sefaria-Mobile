@@ -268,8 +268,8 @@ Sefaria = {
     const title = Sefaria.textTitleForRef(url);
     if (!title) { return { ref: url, title }; }
     // regexp to replace the dot immediately following the title
-    const spaceReplacer = new RegExp("^" + Sefaria.util.regexEscape(`${title}.`));
-    const ref = url.replace(spaceReplacer, `${title} `).replace(/\./g, ':');
+    const spaceReplacer = new RegExp("^(" + Sefaria.util.regexEscape(title) + "(?:, [A-Za-z\u05d0-\u05ea]+){0,})\.");
+    const ref = url.replace(spaceReplacer, "$1 ").replace(/\./g, ':');
     return { ref, title };
   },
   categoryForTitle: function(title, isSheet) {
