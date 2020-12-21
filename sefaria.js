@@ -1140,8 +1140,8 @@ Sefaria = {
         analytics().setAnalyticsCollectionEnabled(true);
       },
 
-      setScreen: function(currentScreen, currentScreenClass) {
-        analytics().setCurrentScreen(currentScreen, currentScreenClass);
+      setScreen: function(screen_name, screen_class) {
+        analytics().logScreenView({ screen_class, screen_name });
       },
 
       event: function(event, params) {

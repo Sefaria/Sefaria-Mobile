@@ -42,7 +42,7 @@ const getMobileAppKey = async () => {
   const activated = await remoteConfig().activate();
   if (!activated) { console.log('Fetch data not activated'); return ''; }
   const snapshot = await remoteConfig().getValue('mobile_app_key');
-  return snapshot.value;
+  return snapshot.asString();
 };
 
 const useAuthForm = (authMode, onLoginSuccess) => {
