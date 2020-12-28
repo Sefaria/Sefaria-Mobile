@@ -8,6 +8,7 @@ import 'abortcontroller-polyfill';
 import strings from './LocalizedStrings';
 import LinkContent from './LinkContent';
 import AsyncStorage from '@react-native-community/async-storage';
+import crashlytics from '@react-native-firebase/crashlytics';  // to setup up generic crashlytics reports
 import jwt_decode from 'jwt-decode';
 
 var Api = {
@@ -542,12 +543,20 @@ var Api = {
     });
   },
   authenticate: async function(authData, authMode = "login") {
-    const parsedRes = await (authMode === 'login' ? Sefaria.api.login(authData) : Sefaria.api.register(authData)).then(res => res.json());
-    if (!parsedRes.access) {
-      return parsedRes;  // return errors
-    } else {
-      await Sefaria.api.storeAuthToken(parsedRes);
+    try {
+      const parsedRes = await (authMode === 'login' ? Sefaria.api.login(authData) : Sefaria.api.register(authData)).then(res => res.json());
+      if (!parsedRes.access) {
+        return parsedRes;  // return errors
+      } else {
+        await Sefaria.api.storeAuthToken(parsedRes);
+      }
+    } catch (error) {
+      crashlytics().recordError(error);
+      return {
+        non_field_errors: "Unknown authentication error"
+      };
     }
+
   },
 
   storeAuthToken: async function({ access, refresh }) {
