@@ -1,5 +1,5 @@
 export default () => ({
   logEvent: jest.fn(),
-  setCurrentScreen: jest.fn(),
+  logScreenView: jest.fn(),
   setAnalyticsCollectionEnabled: jest.fn(),
 })
