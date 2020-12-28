@@ -1,1 +1,1 @@
-../../../GoogleUtilities/GoogleUtilities/Reachability/Private/GULReachabilityChecker.h
+../../../GoogleUtilities/GoogleUtilities/Reachability/Public/GoogleUtilities/GULReachabilityChecker.h

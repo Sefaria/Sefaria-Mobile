@@ -1,1 +1,1 @@
-../../../FirebaseCore/Firebase/Core/Public/FIRApp.h
+../../../FirebaseCore/FirebaseCore/Sources/Public/FirebaseCore/FIRApp.h

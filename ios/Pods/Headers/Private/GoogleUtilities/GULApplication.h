@@ -1,1 +1,1 @@
-../../../GoogleUtilities/GoogleUtilities/AppDelegateSwizzler/Private/GULApplication.h
+../../../GoogleUtilities/GoogleUtilities/AppDelegateSwizzler/Public/GoogleUtilities/GULApplication.h
