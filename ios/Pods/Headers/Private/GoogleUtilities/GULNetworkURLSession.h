@@ -1,1 +1,1 @@
-../../../GoogleUtilities/GoogleUtilities/Network/Private/GULNetworkURLSession.h
+../../../GoogleUtilities/GoogleUtilities/Network/Public/GoogleUtilities/GULNetworkURLSession.h
