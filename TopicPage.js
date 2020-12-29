@@ -291,9 +291,8 @@ const TopicPage = ({ topic, onBack, openTopic }) => {
       if (topicData) { topicData.textData = updatedData; } // Persist textData in cache
       return updatedData;
     }),
-    topic
+    topic.slug
   );
-  console.log("TEXT", textData);
   const renderHeader = () => (
     <TopicPageHeader
       {...topic}

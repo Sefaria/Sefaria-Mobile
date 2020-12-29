@@ -437,7 +437,7 @@ var Api = {
   },
 
   topic: async function(slug, with_links=true, annotate_links=true, with_refs=true, group_related=true) {
-    Sefaria.api._abortRequestType('topic');
+    await Sefaria.api._abortRequestType('topic');
     const cached = Sefaria.api._topic[slug];
     if (!!cached) { return cached; }
     let response = await Sefaria.api._request('', 'topic', false, {
