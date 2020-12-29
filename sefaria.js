@@ -47,7 +47,7 @@ Sefaria = {
     return Sefaria._loadRecentQueries()
       .then(Sefaria._loadSearchTOC);
   },
-  postInit: function() {  // todo: pass network setting from some React component (ReaderApp.componentDidMount likely)
+  postInit: function(networkSetting='wifiOnly') {
     return Sefaria._loadPeople()
       .then(Sefaria._loadHebrewCategories)
       .then(packageSetupProtocol)
@@ -57,7 +57,7 @@ Sefaria = {
         }
 
         try {
-          await downloadUpdate();  // this method compares what the user requested to what is on disk and retrieves anything missing
+          await downloadUpdate(networkSetting, false);  // this method compares what the user requested to what is on disk and retrieves anything missing
         } catch (e) {
           console.log('postInit download error');
           console.log(e);
@@ -268,8 +268,8 @@ Sefaria = {
     const title = Sefaria.textTitleForRef(url);
     if (!title) { return { ref: url, title }; }
     // regexp to replace the dot immediately following the title
-    const spaceReplacer = new RegExp("^" + Sefaria.util.regexEscape(`${title}.`));
-    const ref = url.replace(spaceReplacer, `${title} `).replace(/\./g, ':');
+    const spaceReplacer = new RegExp("^(" + Sefaria.util.regexEscape(title) + "(?:, [A-Za-z\u05d0-\u05ea]+){0,})\.");
+    const ref = url.replace(spaceReplacer, "$1 ").replace(/\./g, ':');
     return { ref, title };
   },
   categoryForTitle: function(title, isSheet) {
@@ -294,6 +294,9 @@ Sefaria = {
     return Sefaria.categoryForTitle(Sefaria.textTitleForRef(ref));
   },
   getTitle: function(ref, heRef, isCommentary, isHe) {
+      // This function seems to have been the source of a bug which only presented itself on Android Hermes
+      // Fix was to avoid using this function: https://github.com/Sefaria/Sefaria-iOS/commit/facd85a541e434c6eb6c6e44fa272e5c68735ae3
+      // Try to find an alternative to using this function
       const bookTitle = Sefaria.textTitleForRef(ref);
       const collectiveTitles = Sefaria.collectiveTitlesDict[bookTitle];
       if (collectiveTitles && isCommentary) {
@@ -572,9 +575,13 @@ Sefaria = {
       for (let j =0; j < data[i].links.length; j++) {
         const link = data[i].links[j];
         if (link.category === "Commentary") {
-          const title = Sefaria.getTitle(link.sourceRef, link.sourceHeRef, true, false);
-          en.add(title);
-          he.add(Sefaria.getTitle(link.sourceRef, link.sourceHeRef, true, true));
+          const tempIndex = Sefaria.index(link.textTitle);
+          if (!tempIndex) { continue; }
+          const enTitle = link.collectiveTitle || link.textTitle;
+          let heTitle = link.heCollectiveTitle || tempIndex.heTitle;
+          if (!enTitle || !heTitle) { continue; }
+          en.add(enTitle);
+          he.add(heTitle);
         }
       }
     }
@@ -853,10 +860,12 @@ Sefaria = {
         const linkList = (sectionData.content.reduce((accum, segment, segNum) => accum.concat(
           ("links" in segment) ? segment.links.map(link => {
             const index_title = Sefaria.textTitleForRef(link.sourceRef);
+            const collectiveTitle = Sefaria.collectiveTitlesDict[index_title];
             return {
               sourceRef: link.sourceRef,
               sourceHeRef: link.sourceHeRef,
               index_title,
+              collectiveTitle,
               category: ("category" in link) ? link.category : Sefaria.categoryForTitle(index_title),
               anchorRef: `${ref}:${segNum+1}`,
               sourceHasEn: link.sourceHasEn,
@@ -883,13 +892,17 @@ Sefaria = {
         if (key == 'links') { valueList = valueList.filter(l=>!!Sefaria.booksDict[l.index_title]); }
         output[key] = [];
         for (let value of valueList) {
+          if (value.expandedRefs) {
+            delete value.expandedRefs;
+          }
           const anchors = value.anchorRefExpanded || [value.anchorRef];
           if (anchors.length === 0) { continue; }
           for (let anchor of anchors) {
             const refIndex = Sefaria.links.getSegmentIndexFromRef(anchor);
             if (!output[key][refIndex]) { output[key][refIndex] = []; }
+            let outputValue = value;
             if (key == 'links') {
-              value = {
+              outputValue = {
                 "category": value.category,
                 "sourceRef": value.sourceRef,
                 "sourceHeRef": value.sourceHeRef,
@@ -899,7 +912,7 @@ Sefaria = {
                 "heCollectiveTitle": value.collectiveTitle ? value.collectiveTitle.he : null,
               };
             }
-            output[key][refIndex].push(value);
+            output[key][refIndex].push(outputValue);
           }
         }
       });
@@ -1004,17 +1017,19 @@ Sefaria = {
 
           var category = summary[link.category];
           // Count Book
-          if (link.textTitle in category.books) {
-            category.books[link.textTitle].refSet.add(link.sourceRef);
-            category.books[link.textTitle].heRefSet.add(link.sourceHeRef);
-            category.books[link.textTitle].hasEn = category.books[link.textTitle].hasEn || link.sourceHasEn;
+          const title = link.collectiveTitle || link.textTitle;
+          if (!!category.books[title]) {
+            category.books[title].refSet.add(link.sourceRef);
+            category.books[title].heRefSet.add(link.sourceHeRef);
+            category.books[title].hasEn = category.books[title].hasEn || link.sourceHasEn;
           } else {
-            var isCommentary = link.category === "Commentary";
-            category.books[link.textTitle] =
+            const tempIndex = Sefaria.index(link.textTitle);
+            if (!tempIndex) { continue; }
+            category.books[title] =
             {
                 count:             1,
-                title:             Sefaria.getTitle(link.sourceRef, link.sourceHeRef, isCommentary, false),
-                heTitle:           Sefaria.getTitle(link.sourceRef, link.sourceHeRef, isCommentary, true),
+                title:             title,
+                heTitle:           link.heCollectiveTitle || tempIndex.heTitle,
                 collectiveTitle:   link.collectiveTitle,
                 heCollectiveTitle: link.heCollectiveTitle,
                 category:          link.category,
@@ -1029,11 +1044,10 @@ Sefaria = {
         let commentatorList = Sefaria.commentatorListBySection(sectionRef);
         if (commentatorList) {
           let commentaryBooks = summary["Commentary"].books;
-          let commentaryBookTitles = Object.keys(commentaryBooks).map((book)=>commentaryBooks[book].title);
           for (let i = 0; i < commentatorList.en.length; i++) {
             let commEn = commentatorList.en[i];
             let commHe = commentatorList.he[i];
-            if (commentaryBookTitles.indexOf(commEn) == -1) {
+            if (!commentaryBooks[commEn]) {
               commentaryBooks[commEn] =
               {
                 count:    0,
@@ -1049,24 +1063,19 @@ Sefaria = {
         }
 
         // Convert object into ordered list
-        var summaryList = Object.keys(summary).map(function(category) {
-          var categoryData = summary[category];
+        const topByCategory = {
+          "Commentary": ["Rashi", "Ibn Ezra", "Ramban","Tosafot"]
+        };
+        let summaryList = Object.entries(summary).map(([category, categoryData]) => {
           categoryData.category = category;
           categoryData.refList = [];
           categoryData.heRefList = [];
-          categoryData.books = Object.keys(categoryData.books).map(function(book) {
-            var bookData = categoryData.books[book];
-            return bookData;
-          });
           // Sort the books in the category
-          categoryData.books.sort(function(a, b) {
+          categoryData.books = Object.values(categoryData.books).sort((a, b) => {
             // First sort by predefined "top"
-            var topByCategory = {
-              "Commentary": ["Rashi", "Ibn Ezra", "Ramban","Tosafot"]
-            };
-            var top = topByCategory[categoryData.category] || [];
-            var aTop = top.indexOf(a.title);
-            var bTop = top.indexOf(b.title);
+            let top = topByCategory[categoryData.category] || [];
+            let aTop = top.indexOf(a.title);
+            let bTop = top.indexOf(b.title);
             if (aTop !== -1 || bTop !== -1) {
               aTop = aTop === -1 ? 999 : aTop;
               bTop = bTop === -1 ? 999 : bTop;
@@ -1074,10 +1083,10 @@ Sefaria = {
             }
             // Then sort alphabetically
             if (textLanguage !== 'hebrew'){
-              return a.title > b.title ? 1 : -1;
+              return (a.title > b.title) ? 1 : -1;
             }
             // else hebrew
-            return a.heTitle > b.heTitle ? 1 : -1;
+            return (a.heTitle > b.heTitle) ? 1 : -1;
           });
           return categoryData;
         });
@@ -1154,8 +1163,7 @@ Sefaria = {
 
     },
     sortRefsBySections(enRefs, heRefs, title) {
-      const zip = rows=>rows[0].map((_,c)=>rows.map(row=>row[c]));
-      const biRefList = zip([enRefs, heRefs]);
+      const biRefList = Sefaria.util.zip([enRefs, heRefs]);
       biRefList.sort((a,b) => {
         try {
           const aSections = a[0].substring(title.length+1).trim().split(':');
@@ -1181,8 +1189,8 @@ Sefaria = {
         analytics().setAnalyticsCollectionEnabled(true);
       },
 
-      setScreen: function(currentScreen, currentScreenClass) {
-        analytics().setCurrentScreen(currentScreen, currentScreenClass);
+      setScreen: function(screen_name, screen_class) {
+        analytics().logScreenView({ screen_class, screen_name });
       },
 
       event: function(event, params) {
@@ -1213,6 +1221,8 @@ Sefaria = {
 };
 
 Sefaria.util = {
+  zip: rows=>rows[0].map((_,c)=>rows.map(row=>row[c])),
+
   PROCEDURAL_PROMISE_INTERRUPT: "INTERRUPT",
   procedural_promise_on_array: async function(array, promise, extra_params) {
     // run `promise` for each item of `array` one-by-one. useful for making multiple API calls that don't trip over each other

@@ -87,7 +87,7 @@ class TextList extends React.Component {
   };
 
   renderItem = ({ item }) => {
-    const loading = item.content === null;
+    const loading = item.content == null;  // == b/c seems content is sometimes undefined
     const noContent = !loading && item.content.he.length === 0 && item.content.en.length === 0;
     const linkContentObj = loading ? DEFAULT_LINK_CONTENT : (noContent ? NO_CONTENT_LINK_CONTENT : item.content);
     const visibleSeg = this._visibleSegments.find(seg => seg.item.ref === item.ref);

@@ -1,1 +1,1 @@
-../../../GoogleUtilities/GoogleUtilities/Network/Private/GULNetworkConstants.h
+../../../GoogleUtilities/GoogleUtilities/Network/Public/GoogleUtilities/GULNetworkConstants.h

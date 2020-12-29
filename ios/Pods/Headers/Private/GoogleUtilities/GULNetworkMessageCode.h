@@ -1,1 +1,1 @@
-../../../GoogleUtilities/GoogleUtilities/Network/Private/GULNetworkMessageCode.h
+../../../GoogleUtilities/GoogleUtilities/Network/Public/GoogleUtilities/GULNetworkMessageCode.h

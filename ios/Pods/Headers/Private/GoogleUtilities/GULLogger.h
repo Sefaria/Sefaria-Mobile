@@ -1,1 +1,1 @@
-../../../GoogleUtilities/GoogleUtilities/Logger/Private/GULLogger.h
+../../../GoogleUtilities/GoogleUtilities/Logger/Public/GoogleUtilities/GULLogger.h
