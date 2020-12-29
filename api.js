@@ -20,6 +20,7 @@ var Api = {
   _baseHost: 'https://www.sefaria.org/',
   _textCache: {}, //in memory cache for API data
   _bulkText: {},
+  _bulkSheets: {},
   _parashaNextRead: {},
   _linkCache: {},
   _nameCache: {},
@@ -204,6 +205,9 @@ var Api = {
           const { paramStr } = extra_args;
           url += "api/bulktext/";
           urlSuffix = paramStr;
+          break;
+        case "bulksheets":
+          url += "api/v2/sheets/bulk/";
           break;
         case "parashaNextRead":
           url += "api/calendars/next-read/";
@@ -528,6 +532,21 @@ var Api = {
     });
 
     return Promise.all(promises).then(results => Object.assign({}, ...results));
+  },
+
+  getBulkSheets: async function(sheetIds) {
+    if (sheetIds.length === 0) { return Promise.resolve({}); }
+    const idStr = sheetIds.join("|");
+    const cached = Sefaria.api._bulkSheets[idStr];
+    if (!!cached) { return cached; }
+    try {
+      const response = await Sefaria.api._request(idStr, 'bulksheets', false, {}, true);
+      Sefaria.api._bulkSheets[idStr] = response;
+      return response;
+    } catch(error) {
+      console.log("bulkSheets API error:", error, idStr);
+      throw error;
+    }
   },
 
   sheets: function(sheetID, more_data) {

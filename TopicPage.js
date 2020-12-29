@@ -70,7 +70,7 @@ const fetchBulkText = inRefs =>
 
 
 const fetchBulkSheet = inSheets =>
-    Sefaria.getBulkSheets(inSheets.map(x => x.sid)).then(outSheets => {
+    Sefaria.api.getBulkSheets(inSheets.map(x => x.sid)).then(outSheets => {
     for (let tempSheet of inSheets) {
       if (outSheets[tempSheet.sid]) {
         outSheets[tempSheet.sid].order = tempSheet.order;
@@ -281,6 +281,7 @@ const TopicPage = ({ topic, onBack, openTopic }) => {
       setSheetRefsToFetch(false);
     }
   }, [topic.slug]);
+
   // Fetching textual data in chunks
   useIncrementalLoad(
     fetchBulkText,
@@ -293,6 +294,20 @@ const TopicPage = ({ topic, onBack, openTopic }) => {
     }),
     topic.slug
   );
+
+  // Fetching sheet data in chunks
+  useIncrementalLoad(
+    fetchBulkSheet,
+    sheetRefsToFetch,
+    70,
+    data => setSheetData(prev => {
+      const updatedData = (!prev || data === false) ? data : [...prev, ...data];
+      if (topicData) { topicData.sheetData = updatedData; } // Persist sheetData in cache
+      return updatedData;
+    }),
+    topic
+  );
+
   const renderHeader = () => (
     <TopicPageHeader
       {...topic}
@@ -311,12 +326,24 @@ const TopicPage = ({ topic, onBack, openTopic }) => {
         onBack={onBack}
         hideLangToggle
       />
-      <FlatList
-        data={topicData && textData}
-        renderItem={({ item }) => <Text>{item[1].he}</Text>}
-        keyExtractor={item => item[0]}
-        ListHeaderComponent={renderHeader}
-      />
+      {
+        currTabIndex === 0 ? (
+          <FlatList
+            data={topicData && textData}
+            renderItem={({ item }) => <Text>{item[1].he}</Text>}
+            keyExtractor={item => item[0]}
+            ListHeaderComponent={renderHeader}
+          />
+        ) : (
+          <FlatList
+            data={topicData && sheetData}
+            renderItem={({ item }) => <Text>{item.sheet_title}</Text>}
+            keyExtractor={item => item.sheet_id}
+            ListHeaderComponent={renderHeader}
+          />
+        )
+      }
+
     </View>
   )
 };
