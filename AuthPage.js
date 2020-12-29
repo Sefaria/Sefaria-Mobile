@@ -40,9 +40,9 @@ const getMobileAppKey = async () => {
   remoteConfig().setDefaults({ mobile_app_key: '' });
   await remoteConfig().fetch(0);
   const activated = await remoteConfig().activate();
-  if (!activated) { console.log('Fetch data not activated'); return ''; }
+  //if (!activated) { console.log('Fetch data not activated'); return ''; }  I may have misunderstood what activated meant. but we shouldn't return '' if it's false
   const snapshot = await remoteConfig().getValue('mobile_app_key');
-  return snapshot.value;
+  return snapshot.asString();
 };
 
 const useAuthForm = (authMode, onLoginSuccess) => {

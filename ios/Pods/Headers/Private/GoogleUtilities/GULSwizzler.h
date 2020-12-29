@@ -1,1 +1,1 @@
-../../../GoogleUtilities/GoogleUtilities/MethodSwizzler/Private/GULSwizzler.h
+../../../GoogleUtilities/GoogleUtilities/MethodSwizzler/Public/GoogleUtilities/GULSwizzler.h

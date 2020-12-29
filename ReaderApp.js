@@ -86,6 +86,7 @@ class ReaderApp extends React.PureComponent {
   };
 
   constructor(props, context) {
+    console.log('ReaderApp Props', props,);
     super(props, context);
     this._initDeepLinkURL = null;  // if you init the app thru a deep link, need to make sure the URL is applied during componentDidMount()
     if (Platform.OS === 'android') {
@@ -266,7 +267,7 @@ class ReaderApp extends React.PureComponent {
           const mostRecent =  Sefaria.history.lastPlace.length ? Sefaria.history.lastPlace[0] : {ref: "Genesis 1"};
           this.openRef(mostRecent.ref, null, mostRecent.versions, false)  // first call to openRef should not add to backStack
           .then(Sefaria.postInitSearch)
-          .then(Sefaria.postInit)
+          .then(() => Sefaria.postInit(this.props.downloadNetworkSetting))
           .then(() => { this.setState({_completedInit: true}); })
           .then(this.promptLibraryDownload.bind(this));
         } else {
@@ -276,7 +277,7 @@ class ReaderApp extends React.PureComponent {
           .then(() => {
             this._deepLinkRouterRef.route(this._initDeepLinkURL);
           })
-          .then(Sefaria.postInit)
+          .then(() => Sefaria.postInit(this.props.downloadNetworkSetting))
           .then(() => { this.setState({_completedInit: true}); })
           .then(this.promptLibraryDownload.bind(this));
         }
@@ -849,7 +850,6 @@ class ReaderApp extends React.PureComponent {
       Sefaria.data(this.state.prev, true, this.state.selectedVersions).then(function(data) {
 
         var updatedData = [data.content].concat(this.state.data);
-
         this.state.sectionArray.unshift(data.sectionRef);
         this.state.sectionHeArray.unshift(data.heRef);
         this.state.linksLoaded.unshift(false);
@@ -858,9 +858,9 @@ class ReaderApp extends React.PureComponent {
           data: updatedData,
           prev: data.prev,
           next: this.state.next,
-          sectionArray: newTitleArray,
-          sectionHeArray: newHeTitleArray,
-          linksLoaded: newlinksLoaded,
+          sectionArray: this.state.sectionArray,
+          sectionHeArray: this.state.sectionHeArray,
+          linksLoaded: this.state.linksLoaded,
           loaded: true,
           loadingTextHead: false,
         }, ()=>{
@@ -878,20 +878,17 @@ class ReaderApp extends React.PureComponent {
       Sefaria.data(this.state.next, true, this.state.selectedVersions).then(function(data) {
 
         var updatedData = this.state.data.concat([data.content]);
-        var newTitleArray = this.state.sectionArray;
-        var newHeTitleArray = this.state.sectionHeArray;
-        var newlinksLoaded = this.state.linksLoaded;
-        newTitleArray.push(data.sectionRef);
-        newHeTitleArray.push(data.heRef);
-        newlinksLoaded.push(false);
+        this.state.sectionArray.push(data.sectionRef);;
+        this.state.sectionHeArray.push(data.heRef);;
+        this.state.linksLoaded.push(false);;
 
         this.setState({
           data: updatedData,
           prev: this.state.prev,
           next: data.next,
-          sectionArray: newTitleArray,
-          sectionHeArray: newHeTitleArray,
-          linksLoaded: newlinksLoaded,
+          sectionArray: this.state.sectionArray,
+          sectionHeArray: this.state.sectionHeArray,
+          linksLoaded: this.state.linksLoaded,
           loaded: true,
           loadingTextTail: false,
         }, ()=>{
@@ -1358,6 +1355,10 @@ class ReaderApp extends React.PureComponent {
     Sefaria.links.linkSummary(this.state.textReference, this.state.data[section][segment].links, menuLanguage).then((data) => {
       this.setState({linkSummary: data, loadingLinks: false});
       this.updateLinkCat(null, data); // Set up `linkContents` in their initial state as an array of nulls
+    }).catch(error => {
+      crashlytics().recordError(new Error(`Link summary error: Message: ${error}`));
+      this.setState({linkSummary: [], loadingLinks: false});
+      this.updateLinkCat(null, []); // Set up `linkContents` in their initial state as an array of nulls
     });
   };
   updateLinkCat = (filterIndex, linkSummary) => {

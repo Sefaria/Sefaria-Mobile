@@ -1,1 +1,1 @@
-../../../GoogleUtilities/GoogleUtilities/Network/Private/GULNetworkLoggerProtocol.h
+../../../GoogleUtilities/GoogleUtilities/Network/Public/GoogleUtilities/GULNetworkLoggerProtocol.h

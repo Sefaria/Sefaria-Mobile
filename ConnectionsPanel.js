@@ -337,7 +337,7 @@ class ResourcesList extends React.PureComponent {
         <ToolsButton
           text={strings.share}
           icon={isWhite ? require("./img/share.png") : require("./img/share-light.png")}
-          onPress={this.props.shareCurrentSegment}
+          onPress={() => this.props.shareCurrentSegment()}
         />
         {this.props.sheet ? null : <ToolsButton
           text={strings.reportError}
