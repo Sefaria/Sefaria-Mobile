@@ -13,6 +13,7 @@ var Colors = {
   mainForegroundContrast: "white",
   textBackground: "#333331",
   textSectionTitleBorder: "#666",
+  lighterGrey: "#1d1d1d",
   textSegmentHighlight: "#444",
   textListHeader: "#333",
   button: "#ddd",
@@ -176,6 +177,9 @@ export default StyleSheet.create({
   borderDarker: {
     borderColor: Colors.secondaryText,
   },
+  borderBottomDarker: {
+    borderBottomColor: Colors.secondaryText,
+  },
   bilingualEnglishText: {
     color: Colors.secondaryText,
   },
@@ -187,5 +191,8 @@ export default StyleSheet.create({
   },
   enConnectionMarker: {
     borderColor: "#999",
+  },
+  lighterGreyBorder: {
+    borderColor: Colors.lighterGrey,
   },
 });

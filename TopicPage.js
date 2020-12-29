@@ -17,8 +17,10 @@ import {
   LoadingView,
   SText,
   TabView,
+  TabRowView,
+  LocalSearchBar,
 } from './Misc';
-import { useAsyncVariable } from './Hooks';
+import { useAsyncVariable, useIncrementalLoad } from './Hooks';
 import { GlobalStateContext, DispatchContext, STATE_ACTIONS, getTheme } from './StateManager';
 import Sefaria from './sefaria';
 import strings from './LocalizedStrings';
@@ -51,7 +53,7 @@ const norm_hebrew_ref = tref => tref.replace(/[׳״]/g, '');
 
 
 const fetchBulkText = inRefs =>
-  Sefaria.getBulkText(
+  Sefaria.api.getBulkText(
     inRefs.map(x => x.ref),
     true, 500, 600
   ).then(outRefs => {
@@ -242,32 +244,87 @@ const TopicCategoryButton = ({ topic, openTopic }) => {
 const TopicPage = ({ topic, onBack, openTopic }) => {
   const { themeStr, interfaceLanguage, textLanguage } = useContext(GlobalStateContext);
   const theme = getTheme(themeStr);
-  const [topicData, setTopicData] = useState(Sefaria.api._topic);
+  const defaultTopicData = {primaryTitle: null, textRefs: false, sheetRefs: false, isLoading: true};
+  const [topicData, setTopicData] = useState(Sefaria.api._topic || defaultTopicData);
+  const [sheetData, setSheetData] = useState(topicData ? topicData.sheetData : null);
+  const [textData, setTextData]   = useState(topicData ? topicData.textData : null);
+  const [textRefsToFetch, setTextRefsToFetch] = useState(false);
+  const [sheetRefsToFetch, setSheetRefsToFetch] = useState(false);
+  const [parashaData, setParashaData] = useState(null);
+  const [currTabIndex, setCurrTabIndex] = useState(0);
+  const [query, setQuery] = useState(null);
+  const tabs = [{text: "Sources", id: 'sources'}, {text: "Sheets", id: 'sheets'}];
   useEffect(() => {
     Sefaria.api.topic(topic.slug).then(setTopicData);
   }, [topic.slug]);
+  useEffect(() => {
+    setTopicData(defaultTopicData); // Ensures topicTitle displays while loading
+    const { promise, cancel } = Sefaria.util.makeCancelable((async () => {
+      const d = await Sefaria.api.topic(topic.slug);
+      if (d.parasha) { Sefaria.api.getParashaNextRead(d.parasha).then(setParashaData); }  //TODO
+      setTopicData(d);
+      // Data remaining to fetch that was not already in the cache
+      const textRefsWithoutData = d.textData ? d.textRefs.slice(d.textData.length) : d.textRefs;
+      const sheetRefsWithoutData = d.sheetData ? d.sheetRefs.slice(d.sheetData.length) : d.sheetRefs;
+      if (textRefsWithoutData.length) { setTextRefsToFetch(textRefsWithoutData); }
+      else { setTextData(d.textData); }
+      if (sheetRefsWithoutData.length) { setSheetRefsToFetch(sheetRefsWithoutData); }
+      else { setSheetData(d.sheetData); }
+    })());
+    promise.catch((error) => { if (!error.isCanceled) { console.log('TopicPage Error', error); } });
+    return () => {
+      cancel();
+      setTopicData(false);
+      setTextData(null);
+      setSheetData(null);
+      setTextRefsToFetch(false);
+      setSheetRefsToFetch(false);
+    }
+  }, [topic.slug]);
+  // Fetching textual data in chunks
+  useIncrementalLoad(
+    fetchBulkText,
+    textRefsToFetch,
+    70,
+    data => setTextData(prev => {
+      const updatedData = (!prev || data === false) ? data : [...prev, ...data];
+      if (topicData) { topicData.textData = updatedData; } // Persist textData in cache
+      return updatedData;
+    }),
+    topic
+  );
+  console.log("TEXT", textData);
+  const renderHeader = () => (
+    <TopicPageHeader
+      {...topic}
+      description={topicData && topicData.description}
+      currTabIndex={currTabIndex}
+      setCurrTabIndex={setCurrTabIndex}
+      query={query}
+      setQuery={setQuery}
+      tabs={tabs}
+    />
+  );
   return (
-    <View style={[styles.menu, theme.buttonBackground]} key={topic.slug}>
+    <View style={[styles.menu, theme.mainTextPanel]} key={topic.slug}>
       <SystemHeader
         title={strings.topics}
         onBack={onBack}
         hideLangToggle
       />
       <FlatList
-        data={topicData && topicData.textRefs}
-        renderItem={({ item }) => <Text>{item.ref}</Text>}
-        keyExtractor={item => item.ref}
-        ListHeaderComponent={() => (
-          <TopicPageHeader {...topic} description={topicData && topicData.description} />
-        )}
+        data={topicData && textData}
+        renderItem={({ item }) => <Text>{item[1].he}</Text>}
+        keyExtractor={item => item[0]}
+        ListHeaderComponent={renderHeader}
       />
     </View>
   )
 };
 
-const TopicPageHeader = ({ en, he, slug, description }) => {
+const TopicPageHeader = ({ en, he, slug, description, currTabIndex, setCurrTabIndex, query, setQuery, tabs }) => {
   const { themeStr, interfaceLanguage, textLanguage } = useContext(GlobalStateContext);
-  const { currTabIndex, setCurrTabIndex } = useState(0);
+
   const menu_language = Sefaria.util.get_menu_language(interfaceLanguage, textLanguage);
   const isHeb = menu_language === 'hebrew';
   const theme = getTheme(themeStr);
@@ -285,12 +342,18 @@ const TopicPageHeader = ({ en, he, slug, description }) => {
           { isHeb ? description.he : description.en }
         </Text>
       ) : null }
-      <TabView
-        tabs={[{text: "Sources"}, {text: "Sheets"}]}
-        renderTab={(tab) => (<Text>{tab.text}</Text>)}
+      <TabRowView
+        tabs={tabs}
+        renderTab={(tab, active, index) => <TabView {...tab} active={active} />}
         currTabIndex={currTabIndex}
-        setTab={(tabIndex) => setCurrTabIndex(tabIndex)}
+        setTab={setCurrTabIndex}
       />
+      <View style={{ marginVertical: 10 }}>
+        <LocalSearchBar
+          query={query}
+          onChange={setQuery}
+        />
+      </View>
     </View>
   );
 };

@@ -19,6 +19,8 @@ var Api = {
   */
   _baseHost: 'https://www.sefaria.org/',
   _textCache: {}, //in memory cache for API data
+  _bulkText: {},
+  _parashaNextRead: {},
   _linkCache: {},
   _nameCache: {},
   _allTags: {},
@@ -197,6 +199,14 @@ var Api = {
           break;
         case "name":
           url += "api/name/";
+          break;
+        case "bulktext":
+          const { paramStr } = extra_args;
+          url += "api/bulktext/";
+          urlSuffix = paramStr;
+          break;
+        case "parashaNextRead":
+          url += "api/calendars/next-read/";
           break;
         case "userSheets":
           const { uid } = extra_args;
@@ -471,6 +481,53 @@ var Api = {
       console.log("related API error:", error, ref);
       throw error;
     }
+  },
+
+  getParashaNextRead: async function(parasha) {
+    const cached = Sefaria.api._parashaNextRead[parasha];
+    if (!!cached) { return cached; }
+    try {
+      const response = await Sefaria.api._request(parasha, 'parashaNextRead', false, {}, true);
+      Sefaria.api._parashaNextRead[parasha] = response;
+      return response;
+    } catch(error) {
+      console.log("parashaNextRead API error:", error, parasha);
+      throw error;
+    }
+  },
+
+  getBulkText: function(refs, asSizedString=false, minChar=null, maxChar=null) {
+    if (refs.length === 0) { return Promise.resolve({}); }
+
+    const MAX_URL_LENGTH = 3800;
+    const hostStr = `${Sefaria.api._baseHost}/api/bulktext/`;
+
+    let paramStr = '';
+    for (let [paramKey, paramVal] of Object.entries({asSizedString, minChar, maxChar})) {
+      paramStr = !!paramVal ? paramStr + `&${paramKey}=${paramVal}` : paramStr;
+    }
+    paramStr = paramStr.replace(/&/,'?');
+
+    // Split into multipe requests if URL length goes above limit
+    let refStrs = [""];
+    refs.map(ref => {
+      let last = refStrs[refStrs.length-1];
+      if (encodeURI(`${hostStr}${last}|${ref}${paramStr}`).length > MAX_URL_LENGTH) {
+        refStrs.push(ref)
+      } else {
+        refStrs[refStrs.length-1] += last.length ? `|${ref}` : ref;
+      }
+    });
+
+    let promises = refStrs.map(async (refStr) => {
+      const cached = Sefaria.api._bulkText[refStr+paramStr];
+      if (!!cached) { return cached; }
+      const response = await Sefaria.api._request(refStr, 'bulktext', false, {paramStr}, true);
+      Sefaria.api._bulkText[refStr+paramStr] = response;
+      return response;
+    });
+
+    return Promise.all(promises).then(results => Object.assign({}, ...results));
   },
 
   sheets: function(sheetID, more_data) {

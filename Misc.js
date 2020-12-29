@@ -19,6 +19,7 @@ import { GlobalStateContext, DispatchContext, STATE_ACTIONS, themeStr, getTheme 
 import Sefaria from './sefaria';
 import styles from './Styles.js';
 import strings from './LocalizedStrings';
+import { TextInput } from 'react-native-gesture-handler';
 
 
 const SystemHeader = ({ title, onBack, hideLangToggle }) => {
@@ -633,10 +634,10 @@ DirectedArrow.propTypes = {
   direction:  PropTypes.oneOf(["forward", "back"]).isRequired,
 };
 
-const SearchButton = ({ onPress }) => {
+const SearchButton = ({ onPress, extraStyles }) => {
   const { themeStr } = useContext(GlobalStateContext);
   return (
-    <TouchableOpacity style={[styles.headerButton, styles.headerButtonSearch]} onPress={onPress}>
+    <TouchableOpacity style={[styles.headerButton, styles.headerButtonSearch, extraStyles]} onPress={onPress}>
       <Image
         source={themeStr == "white" ? require('./img/search.png'): require('./img/search-light.png') }
         style={styles.searchButton}
@@ -916,29 +917,68 @@ class SText extends React.Component {
   }
 }
 
-const TabView = ({ tabs, renderTab, currTabIndex, setTab, onClickArray }) => {
+const TabRowView = ({ tabs, renderTab, currTabIndex, setTab, onClickArray }) => {
+  const { themeStr, interfaceLanguage } = useContext(GlobalStateContext);
+  const theme = getTheme(themeStr);
   const onClickTab = (index) => {
     if (onClickArray && onClickArray[index]) {
       onClickArray[index]();
     } else {
-      setTab(tabIndex, tabs);
+      setTab(index);
     }
   };
   const renderTabWrapper = (tab, index) => {
     const active = currTabIndex === index;
     return (
       <TouchableOpacity key={tab.text} onPress={() => onClickTab(index)}>
-        {renderTab(tab, index)}
-        <Text>{active ? "active": "not"}</Text>
+        {renderTab(tab, active, index)}
       </TouchableOpacity>
     );
   };
   return (
-    <View>
+    <View style={[{ flexDirection: "row", borderBottomWidth: 1, marginHorizontal: -15, paddingHorizontal: 15 }, theme.borderedBottom]}>
       {tabs.map(renderTabWrapper)}
     </View>
   );
 }
+
+const TabView = ({ text, active }) => {
+  /*
+  Standard Sefaria Tab to be used in renderTab of TabRowView
+  */
+  const { themeStr, interfaceLanguage } = useContext(GlobalStateContext);
+  const theme = getTheme(themeStr);
+  const activeBorderStyle = [{ borderBottomWidth: 4}, theme.borderBottomDarker]
+  return (
+    <View style={[{ paddingVertical: 10, marginRight: 20 }].concat(active ? activeBorderStyle : [])}>
+      <Text style={[styles.enInt, {fontSize: 22, fontWeight: 'bold'}, active ? theme.tertiaryText : theme.secondaryText]}>{ text }</Text>
+    </View>
+  );
+};
+
+const LocalSearchBar = ({ onChange, query }) => {
+  /*
+  Search bar used for local search on a page. E.g. on topic pages
+  */
+  const { themeStr } = useContext(GlobalStateContext);
+  const theme = getTheme(themeStr);
+  const placeholderTextColor = themeStr == "black" ? "#BBB" : "#777";
+  return (
+    <View style={[{borderRadius: 400, borderWidth: 1, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10}, theme.container, theme.lighterGreyBorder]}>
+      <SearchButton onPress={()=>{}} extraStyles={{height: 40}}/>
+      <TextInput
+        style={[styles.en, { fontSize: 18, paddingVertical: 0, paddingRight: 20, alignSelf: 'stretch', lineHeight: 40 }, theme.text]}
+        onChangeText={onChange}
+        value={query}
+        underlineColorAndroid={"transparent"}
+        placeholder={strings.search}
+        placeholderTextColor={placeholderTextColor}
+        autoCorrect={false}
+      />
+    </View>
+
+  );
+};
 
 export {
   AnimatedRow,
@@ -961,6 +1001,7 @@ export {
   LanguageToggleButton,
   LibraryNavButton,
   LoadingView,
+  LocalSearchBar,
   MenuButton,
   OrderedList,
   RainbowBar,
@@ -969,6 +1010,7 @@ export {
   SText,
   SystemButton,
   SystemHeader,
+  TabRowView,
   TabView,
   ToggleSet,
   TripleDots,
