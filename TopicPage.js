@@ -20,6 +20,17 @@ import {
   TabRowView,
   LocalSearchBar,
 } from './Misc';
+
+import {
+  SheetBlock,
+  SaveLine,
+  StoryTitleBlock,
+  ColorBarBox,
+  StoryBodyBlock,
+  StoryFrame,
+  textPropType
+} from './Story';
+
 import { useAsyncVariable, useIncrementalLoad } from './Hooks';
 import { GlobalStateContext, DispatchContext, STATE_ACTIONS, getTheme } from './StateManager';
 import Sefaria from './sefaria';
@@ -382,6 +393,34 @@ const TopicPageHeader = ({ en, he, slug, description, currTabIndex, setCurrTabIn
       </View>
     </View>
   );
+};
+
+const TextPassage = ({text, toggleSignUpModal, topicTitle, interfaceLang}) => {
+  if (!text.ref) { return null; }
+  const url = "/" + Sefaria.normRef(text.ref);
+  let dataSourceText = '';
+  const langKey = interfaceLang === 'english' ? 'en' : 'he';
+  if (!!text.dataSources && Object.values(text.dataSources).length > 0) {
+    dataSourceText = `${Sefaria._('This source is connected to ')}"${topicTitle && topicTitle[langKey]}" ${Sefaria._('by')} ${Object.values(text.dataSources).map(d => d[langKey]).join(' & ')}.`;
+  }
+  return <StoryFrame cls="textPassageStory">
+      <SaveLine dref={text.ref} toggleSignUpModal={toggleSignUpModal} classes={"storyTitleWrapper"}
+        afterChildren={(
+          <ToolTipped altText={dataSourceText} classes={"saveButton tooltip-toggle three-dots-button"}>
+            <img src="/static/img/three-dots.svg" alt={dataSourceText}/>
+          </ToolTipped>
+        )}
+      >
+          <StoryTitleBlock en={text.ref} he={norm_hebrew_ref(text.heRef)} url={url}/>
+      </SaveLine>
+      <ColorBarBox tref={text.ref}>
+          <StoryBodyBlock en={text.en} he={text.he}/>
+      </ColorBarBox>
+  </StoryFrame>;
+};
+TextPassage.propTypes = {
+  text: textPropType,
+  toggleSignUpModal:  PropTypes.func
 };
 
 export {
