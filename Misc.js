@@ -916,6 +916,30 @@ class SText extends React.Component {
   }
 }
 
+const TabView = ({ tabs, renderTab, currTabIndex, setTab, onClickArray }) => {
+  const onClickTab = (index) => {
+    if (onClickArray && onClickArray[index]) {
+      onClickArray[index]();
+    } else {
+      setTab(tabIndex, tabs);
+    }
+  };
+  const renderTabWrapper = (tab, index) => {
+    const active = currTabIndex === index;
+    return (
+      <TouchableOpacity key={tab.text} onPress={() => onClickTab(index)}>
+        {renderTab(tab, index)}
+        <Text>{active ? "active": "not"}</Text>
+      </TouchableOpacity>
+    );
+  };
+  return (
+    <View>
+      {tabs.map(renderTabWrapper)}
+    </View>
+  );
+}
+
 export {
   AnimatedRow,
   ButtonToggleSet,
@@ -945,6 +969,7 @@ export {
   SText,
   SystemButton,
   SystemHeader,
+  TabView,
   ToggleSet,
   TripleDots,
   TwoBox,
