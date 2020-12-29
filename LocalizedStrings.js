@@ -298,7 +298,7 @@ let strings = new LocalizedStrings({
     areYouSureDeletePackage: "האם אתם בטוחים שברצונכם להסיר את האוסף?",
     areYouSureDeleteDownloadProgress: "האם אתם בטוחים שברצונכם לבטל את כל ההורדות בתהליך?",
     checking: "בודק...",
-    copy: "עתק",
+    copy: "העתק",
     share: "שתף",
     reportError: "דווח שגיאה",
     viewOnSite: "לצפות באתר",
