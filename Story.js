@@ -106,12 +106,13 @@ SheetBlock.propTypes = {sheet: sheetPropType.isRequired};
 
 const SaveLine = (props) => (
     <View style={styles.saveLine}>
-        <View>
-            {props.children}
-        </View>
-        <SaveButton
-            historyItem={props.historyItem || {ref: props.dref, versions: props.versions || {}}}
-        />
+      <View>
+        {props.children}
+      </View>
+      <SaveButton
+        historyItem={props.historyItem || {ref: props.dref, versions: props.versions || {}, book: Sefaria.textTitleForRef(props.dref)}}
+        showToast={props.showToast}
+      />
       { props.afterChildren ? props.afterChildren : null }
     </View>
 );
@@ -119,9 +120,7 @@ const SaveLine = (props) => (
 SaveLine.propTypes = {
   historyItem:        PropTypes.object,   // One or
   dref:                 PropTypes.string,   // the other
-  toggleSignUpModal:    PropTypes.func,
   versions:             PropTypes.object,
-  classes:              PropTypes.string,
   afterChildren:        PropTypes.object,
 };
 

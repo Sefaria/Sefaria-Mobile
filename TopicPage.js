@@ -252,7 +252,7 @@ const TopicCategoryButton = ({ topic, openTopic }) => {
   );
 };
 
-const TopicPage = ({ topic, onBack, openTopic }) => {
+const TopicPage = ({ topic, onBack, openTopic, showToast }) => {
   const { themeStr, interfaceLanguage, textLanguage } = useContext(GlobalStateContext);
   const theme = getTheme(themeStr);
   const defaultTopicData = {primaryTitle: null, textRefs: false, sheetRefs: false, isLoading: true};
@@ -336,6 +336,7 @@ const TopicPage = ({ topic, onBack, openTopic }) => {
         data={textData}
         renderItem={({ item }) =>(
           <TextPassage
+            showToast={showToast}
             key={item[0]}
             text={item[1]}
             topicTitle={topicData && topicData.primaryTitle}
@@ -404,7 +405,7 @@ const TopicPageHeader = ({ en, he, slug, description, currTabIndex, setCurrTabIn
   );
 };
 
-const TextPassage = ({text, topicTitle }) => {
+const TextPassage = ({text, topicTitle, showToast }) => {
   if (!text.ref) { return null; }
   // let dataSourceText = '';
   // const langKey = interfaceLang === 'english' ? 'en' : 'he';
@@ -412,7 +413,7 @@ const TextPassage = ({text, topicTitle }) => {
   //   dataSourceText = `${Sefaria._('This source is connected to ')}"${topicTitle && topicTitle[langKey]}" ${Sefaria._('by')} ${Object.values(text.dataSources).map(d => d[langKey]).join(' & ')}.`;
   // }
   return <StoryFrame extraStyles={{marginHorizontal: 15}}>
-      <SaveLine dref={text.ref}>
+      <SaveLine dref={text.ref} showToast={showToast}>
           <StoryTitleBlock en={text.ref} he={norm_hebrew_ref(text.heRef)} />
       </SaveLine>
       <ColorBarBox tref={text.ref}>
