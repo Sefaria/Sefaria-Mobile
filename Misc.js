@@ -1012,9 +1012,9 @@ const SaveButton = ({ historyItem, showToast }) => {
   );
 }
 
-const SimpleInterfaceBlock = ({en, he, classes}) => (
+const SimpleInterfaceBlock = ({en, he, extraStyles}) => (
   <View>
-    <Text>{en}</Text>
+    <Text style={extraStyles}>{en}</Text>
   </View>
 );
 SimpleInterfaceBlock.propTypes = {
@@ -1023,14 +1023,20 @@ SimpleInterfaceBlock.propTypes = {
   classes: PropTypes.string
 };
 
-const SimpleContentBlock = ({en, he, classes}) => (
-  <View>
-    <HTMLView
-      stylesheet={styles}
-      value={en}
-    />
-  </View>
-);
+const SimpleContentBlock = ({en, he, classes}) => {
+  const { themeStr } = useContext(GlobalStateContext);
+  const theme = getTheme(themeStr);
+  const textType = 'english';
+  return (
+    <View>
+      <HTMLView
+        value={textType == "hebrew" ? "<hediv>"+he+"</hediv>" : "<endiv>"+en+"</endiv>"}
+        stylesheet={styles}
+        textComponentProps={{style: [textType == "hebrew" ? styles.hebrewText : styles.englishText, theme.text]}}
+      />
+    </View>
+  );
+}
 SimpleContentBlock.propTypes = {
   en: PropTypes.string,
   he: PropTypes.string,

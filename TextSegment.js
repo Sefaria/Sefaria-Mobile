@@ -20,6 +20,49 @@ import strings from './LocalizedStrings';
 import { GlobalStateContext, getTheme } from './StateManager';
 import styles from './Styles.js';
 
+const getHTMLViewStyles = (isStacked, bilingual, textType, fontSize, theme, fontScale) => {
+  const isHeb = textType == "hebrew";
+  const lineHeightMultiplier = isHeb ? (Platform.OS === 'android' ? 1.333 : 1.2) : 1.04;
+  const fontSizeMultiplier = isHeb ? 1 : 0.8;
+  const justifyStyle = {textAlign: (isStacked && Platform.OS === 'ios') ? 'justify' : (textType === 'hebrew' ? 'right' : 'left')};
+  const lineHeight = fontScale ? Animated.multiply(fontSize * lineHeightMultiplier, fontScale) : (fontSize * lineHeightMultiplier);
+  const fontSizeScaled = fontScale ? Animated.multiply(fontSize*fontSizeMultiplier, fontScale) : fontSize*fontSizeMultiplier;
+  const textStyle = [
+    isHeb ? styles.hebrewText : styles.englishText,
+    theme.text,
+    justifyStyle,
+    {
+      lineHeight,
+      fontSize: fontSizeScaled,
+    },
+  ];
+  if (bilingual && textType == "english") {
+    if (isStacked) {
+      textStyle.push(styles.bilingualEnglishText);
+    }
+    textStyle.push(theme.bilingualEnglishText);
+  }
+  const styleSheetMods = {
+    small: {
+      fontSize: fontSize * 0.8 * (textType === "hebrew" ? 1 : 0.8)
+    },
+    hediv: {
+      ...styles.hediv,
+      ...justifyStyle,
+    },
+    endiv: {
+      ...styles.endiv,
+      ...justifyStyle,
+    }
+  };
+
+  const htmlStyleSheet = {...styles, ...styleSheetMods};
+  return {
+    htmlStyleSheet,
+    textStyle,
+  }
+};
+
 // pass correct functions to TextSegment for sheet renderers. probably combine renderers and make it simpler
 const TextSegment = React.memo(({
   segmentRef,
@@ -62,30 +105,7 @@ const TextSegment = React.memo(({
     else { onTextPress(true); setDictionaryLookup({ dictLookup: content }); }
   }, [shareText]);
   const isStacked = biLayout === 'stacked';
-  const lineHeightMultiplierHe = Platform.OS === 'android' ? 1.333 : 1.2;
-  const justifyStyle = {textAlign: (isStacked && Platform.OS === 'ios') ? 'justify' : (textType === 'hebrew' ? 'right' : 'left')};
-  const style = textType == "hebrew" ?
-                [styles.hebrewText, theme.text, justifyStyle, {lineHeight: Animated.multiply(fontSize * lineHeightMultiplierHe, fontScale), fontSize: Animated.multiply(fontSize, fontScale)}] :
-                [styles.englishText, theme.text, justifyStyle, {fontSize: Animated.multiply(0.8*fontSize, fontScale), lineHeight: Animated.multiply(fontSize * 1.04, fontScale) }];
-  if (bilingual && textType == "english") {
-    if (isStacked) {
-      style.push(styles.bilingualEnglishText);
-    }
-    style.push(theme.bilingualEnglishText);
-  }
-  const smallSheet = {
-    small: {
-      fontSize: fontSize * 0.8 * (textType === "hebrew" ? 1 : 0.8)
-    },
-    hediv: {
-      ...styles.hediv,
-      ...justifyStyle,
-    },
-    endiv: {
-      ...styles.endiv,
-      ...justifyStyle,
-    }
-  };
+  const { textStyle, htmlStyleSheet } = getHTMLViewStyles(isStacked, bilingual, textType, fontSize, theme, fontScale);
   let menuItems = ['Copy', 'Define', 'Share'];
   if (textType === 'english') {
     menuItems.splice(1, 1);
@@ -124,14 +144,14 @@ const TextSegment = React.memo(({
         textValueProp={'value'}
         TextComponent={HTMLView}
         textComponentProps={{
-          stylesheet: {...styles, ...smallSheet},
+          stylesheet: htmlStyleSheet,
           RootComponent: Text,
           TextComponent: Animated.Text,
           onLinkPress: openUriOrRef,
           textComponentProps: {
             suppressHighlighting: false,
             key: segmentKey,
-            style: style,
+            style: textStyle,
           },
         }}
       />

@@ -411,7 +411,7 @@ const TextPassage = ({text, topicTitle }) => {
   // if (!!text.dataSources && Object.values(text.dataSources).length > 0) {
   //   dataSourceText = `${Sefaria._('This source is connected to ')}"${topicTitle && topicTitle[langKey]}" ${Sefaria._('by')} ${Object.values(text.dataSources).map(d => d[langKey]).join(' & ')}.`;
   // }
-  return <StoryFrame>
+  return <StoryFrame extraStyles={{marginHorizontal: 15}}>
       <SaveLine dref={text.ref}>
           <StoryTitleBlock en={text.ref} he={norm_hebrew_ref(text.heRef)} />
       </SaveLine>

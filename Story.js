@@ -1,6 +1,6 @@
 'use strict';
 
-import React  from 'react';
+import React, { useContext }  from 'react';
 import PropTypes  from 'prop-types';
 import {
   View,
@@ -13,7 +13,8 @@ import {
     SimpleLinkedBlock,
     ProfileListing,
 } from './Misc';
-
+import styles from './Styles';
+import { GlobalStateContext, getTheme } from './StateManager';
 
 const sheetPropType = PropTypes.shape({
             publisher_id: PropTypes.number,
@@ -45,8 +46,8 @@ const bilingualPropType = PropTypes.shape({
  *****************************/
 
 // todo: if we don't want the monopoly card effect, this component isn't needed.    // style={{"borderColor": cardColor || "#18345D"}}>
-const StoryFrame = ({cls, cardColor, children}) => (
-     <View>
+const StoryFrame = ({extraStyles, children}) => (
+     <View style={extraStyles}>
         {children}
      </View>
 );
@@ -56,11 +57,15 @@ StoryFrame.propTypes = {
 };
 
 
-const StoryTitleBlock = ({ he, en, children}) => {
-        return <View>
-            <SimpleInterfaceBlock he={he} en={en}/>
-            {children}
-        </View>;
+const StoryTitleBlock = ({ he, en, children }) => {
+  const { themeStr } = useContext(GlobalStateContext);
+  const theme = getTheme(themeStr);
+  return (
+    <View>
+      <SimpleInterfaceBlock he={he} en={en} extraStyles={[styles.pageTitle, styles.topicSourceTitle, theme.text]} />
+      {children}
+    </View>
+  );
 };
 
 
@@ -96,7 +101,7 @@ SheetBlock.propTypes = {sheet: sheetPropType.isRequired};
 
 
 const SaveLine = (props) => (
-    <View>
+    <View style={styles.saveLine}>
         <View>
             {props.children}
         </View>

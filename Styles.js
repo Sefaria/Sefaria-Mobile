@@ -98,7 +98,7 @@ export default StyleSheet.create({
     marginVertical: 7,
   },
   pageTitle: {
-    color: 'black',
+    color: 'black', // should be removed but not removing right now b/c haven't checked the consequences
     fontSize: 30,
     fontFamily: 'Amiri',
   },
@@ -1337,5 +1337,13 @@ export default StyleSheet.create({
     paddingLeft: 3,
     fontSize: 12,
     lineHeight: 18,
+  },
+  saveLine: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  topicSourceTitle: {
+    fontSize: 24,
   }
 });
