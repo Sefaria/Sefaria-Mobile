@@ -1345,5 +1345,13 @@ export default StyleSheet.create({
   },
   topicSourceTitle: {
     fontSize: 24,
-  }
+  },
+  colorBarBoxEnglish: {
+    borderLeftWidth: 4,
+    paddingLeft: 30,
+  },
+  colorBarBoxHebrew: {
+    borderRightWidth: 4,
+    paddingRight: 30,
+  },
 });

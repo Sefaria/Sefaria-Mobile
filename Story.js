@@ -69,7 +69,11 @@ const StoryTitleBlock = ({ he, en, children }) => {
 };
 
 
-const ColorBarBox = ({tref, children}) =>  <View style={{"borderColor": Sefaria.palette.refColor(tref)}}>{children}</View>;
+const ColorBarBox = ({tref, children}) =>  {
+  const { interfaceLanguage } = useContext(GlobalStateContext);
+  const langStyle = interfaceLanguage == 'hebrew' ? styles.colorBarBoxHebrew : styles.colorBarBoxEnglish;
+  return (<View style={[langStyle, {"borderColor": Sefaria.palette.refColor(tref)}]}>{children}</View>);
+};
 
 
 const StoryBodyBlock = ({en, he}) => <SimpleContentBlock en={en} he={he}/>;
