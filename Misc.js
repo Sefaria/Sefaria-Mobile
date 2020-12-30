@@ -635,10 +635,10 @@ DirectedArrow.propTypes = {
   direction:  PropTypes.oneOf(["forward", "back"]).isRequired,
 };
 
-const SearchButton = ({ onPress, extraStyles }) => {
+const SearchButton = ({ onPress, extraStyles, disabled }) => {
   const { themeStr } = useContext(GlobalStateContext);
   return (
-    <TouchableOpacity style={[styles.headerButton, styles.headerButtonSearch, extraStyles]} onPress={onPress}>
+    <TouchableOpacity style={[styles.headerButton, styles.headerButtonSearch, extraStyles]} onPress={onPress} disabled >
       <Image
         source={themeStr == "white" ? require('./img/search.png'): require('./img/search-light.png') }
         style={styles.searchButton}
@@ -966,7 +966,7 @@ const LocalSearchBar = ({ onChange, query }) => {
   const placeholderTextColor = themeStr == "black" ? "#BBB" : "#777";
   return (
     <View style={[{borderRadius: 400, borderWidth: 1, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10}, theme.container, theme.lighterGreyBorder]}>
-      <SearchButton onPress={()=>{}} extraStyles={{height: 40}}/>
+      <SearchButton onPress={()=>{}} extraStyles={{height: 40}} disabled />
       <TextInput
         style={[styles.en, { fontSize: 18, paddingVertical: 0, paddingRight: 20, alignSelf: 'stretch', lineHeight: 40 }, theme.text]}
         onChangeText={onChange}
