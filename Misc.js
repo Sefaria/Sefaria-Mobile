@@ -1023,17 +1023,31 @@ SimpleInterfaceBlock.propTypes = {
   classes: PropTypes.string
 };
 
-const SimpleContentBlock = ({en, he, classes}) => {
+const SimpleHTMLView = ({text, lang}) => {
   const { themeStr } = useContext(GlobalStateContext);
   const theme = getTheme(themeStr);
-  const textType = 'english';
+  return (
+    <HTMLView
+      value={lang == "hebrew" ? "<hediv>"+text+"</hediv>" : "<endiv>"+text+"</endiv>"}
+      stylesheet={styles}
+      textComponentProps={{style: [lang == "hebrew" ? styles.hebrewText : styles.englishText, theme.text]}}
+    />
+  );
+}
+SimpleHTMLView.propTypes = {
+  text: PropTypes.string.isRequired,
+  lang: PropTypes.oneOf(['english', 'hebrew']),
+};
+
+const SimpleContentBlock = ({en, he, classes}) => {
+  const { themeStr, interfaceLanguage } = useContext(GlobalStateContext);
+  const theme = getTheme(themeStr);
+  const showHebrew = !!he;
+  const showEnglish = !!en && interfaceLanguage == 'english';
   return (
     <View>
-      <HTMLView
-        value={textType == "hebrew" ? "<hediv>"+he+"</hediv>" : "<endiv>"+en+"</endiv>"}
-        stylesheet={styles}
-        textComponentProps={{style: [textType == "hebrew" ? styles.hebrewText : styles.englishText, theme.text]}}
-      />
+      {showHebrew  ? <SimpleHTMLView text={he} lang={'hebrew'} />: null}
+      {showEnglish ? <SimpleHTMLView text={en} lang={'english'} /> : null}
     </View>
   );
 }
@@ -1172,6 +1186,7 @@ export {
   SearchButton,
   SefariaProgressBar,
   SimpleContentBlock,
+  SimpleHTMLView,
   SimpleInterfaceBlock,
   SimpleLinkedBlock,
   SText,
