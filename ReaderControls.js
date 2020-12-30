@@ -19,6 +19,7 @@ import {
   CategoryAttribution,
   SText,
   HebrewInEnglishText,
+  SaveButton,
 } from './Misc.js';
 import { GlobalStateContext, getTheme } from './StateManager';
 import strings from './LocalizedStrings';
@@ -40,10 +41,8 @@ const ReaderControls = ({
   showToast,
 }) => {
   const { themeStr, textLanguage, interfaceLanguage } = useContext(GlobalStateContext);
-  const [, forceUpdate] = useReducer(x => x + 1, 0);  // HACK
   const theme = getTheme(themeStr);
   const historyItem = getHistoryObject();
-  const isSaved = Sefaria.history.indexOfSaved(historyItem.ref) !== -1;
   const isHeb = Sefaria.util.get_menu_language(interfaceLanguage, textLanguage) == "hebrew";
   var langStyle = isHeb ? [styles.he] : [styles.en, sheet ? {lineHeight: 28} : {marginBottom: -5.3}];
   var titleTextStyle = [langStyle, styles.headerTextTitleText, theme.text];
@@ -92,28 +91,10 @@ const ReaderControls = ({
             openUri={openUri}
           />
         </TouchableOpacity>
-        <TouchableOpacity onPress={
-            () => {
-              const willBeSaved = !isSaved;
-              const newHistoryItem = {...historyItem, saved: willBeSaved};
-              Sefaria.history.saveSavedItem(
-                newHistoryItem,
-                willBeSaved ? 'add_saved' : 'delete_saved'
-              );
-              const { is_sheet, sheet_title, ref, he_ref } = newHistoryItem;
-              const title = is_sheet ? Sefaria.util.stripHtml(sheet_title || '') : (isHeb ? he_ref : ref);
-              showToast(`${willBeSaved ? strings.saved2 : strings.removed} ${title}`);
-              forceUpdate();
-            }
-          }>
-          <Image
-            style={styles.starIcon}
-            source={themeStr == "white" ?
-                    (isSaved ? require('./img/starFilled.png') : require('./img/starUnfilled.png')) :
-                    (isSaved ? require('./img/starFilled-light.png') : require('./img/starUnfilled-light.png'))}
-            resizeMode={'contain'}
-          />
-        </TouchableOpacity>
+        <SaveButton
+          historyItem={historyItem}
+          showToast={showToast}
+        />
         <DisplaySettingsButton onPress={toggleReaderDisplayOptionsMenu} />
       </View>
   );

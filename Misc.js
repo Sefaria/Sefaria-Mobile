@@ -2,7 +2,7 @@
 
 import PropTypes from 'prop-types';
 
-import React, { useContext, useState, useEffect, cloneElement } from 'react';
+import React, { useContext, useState, useEffect, useReducer } from 'react';
 import {
   StyleSheet,
   Text,
@@ -14,12 +14,13 @@ import {
   ViewPropTypes,
   Animated,
   Platform,
+  TextInput,
 } from 'react-native';
 import { GlobalStateContext, DispatchContext, STATE_ACTIONS, themeStr, getTheme } from './StateManager';
 import Sefaria from './sefaria';
 import styles from './Styles.js';
 import strings from './LocalizedStrings';
-import { TextInput } from 'react-native-gesture-handler';
+import HTMLView from 'react-native-htmlview';
 
 
 const SystemHeader = ({ title, onBack, hideLangToggle }) => {
@@ -980,6 +981,160 @@ const LocalSearchBar = ({ onChange, query }) => {
   );
 };
 
+const SaveButton = ({ historyItem, showToast }) => {
+  const { themeStr, interfaceLanguage, textLanguage } = useContext(GlobalStateContext);
+  const [, forceUpdate] = useReducer(x => x + 1, 0);  // HACK
+  const isHeb = Sefaria.util.get_menu_language(interfaceLanguage, textLanguage) == "hebrew";
+  const isSaved = Sefaria.history.indexOfSaved(historyItem.ref) !== -1;
+  return (
+    <TouchableOpacity onPress={
+        () => {
+          const willBeSaved = !isSaved;
+          const newHistoryItem = {...historyItem, saved: willBeSaved};
+          Sefaria.history.saveSavedItem(
+            newHistoryItem,
+            willBeSaved ? 'add_saved' : 'delete_saved'
+          );
+          const { is_sheet, sheet_title, ref, he_ref } = newHistoryItem;
+          const title = is_sheet ? Sefaria.util.stripHtml(sheet_title || '') : (isHeb ? he_ref : ref);
+          showToast(`${willBeSaved ? strings.saved2 : strings.removed} ${title}`);
+          forceUpdate();
+        }
+      }>
+      <Image
+        style={styles.starIcon}
+        source={themeStr == "white" ?
+                (isSaved ? require('./img/starFilled.png') : require('./img/starUnfilled.png')) :
+                (isSaved ? require('./img/starFilled-light.png') : require('./img/starUnfilled-light.png'))}
+        resizeMode={'contain'}
+      />
+    </TouchableOpacity>
+  );
+}
+
+const SimpleInterfaceBlock = ({en, he, classes}) => (
+  <View>
+    <Text>{en}</Text>
+  </View>
+);
+SimpleInterfaceBlock.propTypes = {
+  en: PropTypes.string,
+  he: PropTypes.string,
+  classes: PropTypes.string
+};
+
+const SimpleContentBlock = ({en, he, classes}) => (
+  <View>
+    <HTMLView
+      stylesheet={styles}
+      value={en}
+    />
+  </View>
+);
+SimpleContentBlock.propTypes = {
+  en: PropTypes.string,
+  he: PropTypes.string,
+  classes: PropTypes.string
+};
+
+
+const SimpleLinkedBlock = ({en, he, url, children, onClick}) => (
+  <View>
+      <TouchableOpacity onClick={onClick}>
+        <Text>{en}</Text>
+      </TouchableOpacity>
+      {children}
+  </View>
+);
+SimpleLinkedBlock.propTypes = {
+  en: PropTypes.string,
+  he: PropTypes.string,
+  url: PropTypes.string,
+  classes: PropTypes.string,
+  aclasses: PropTypes.string
+};
+
+const ProfileListing = ({ image, name, organization }) => {
+  return (
+    <View>
+      <View>
+        <ProfilePic
+          len={40}
+          url={image}
+          name={name}
+        />
+      </View>
+      <View>
+        {
+          !!organization ? <SimpleInterfaceBlock
+            en={organization}
+            he={organization}
+          />:null
+        }
+      </View>
+    </View>
+  );
+};
+ProfileListing.propTypes = {
+  image:       PropTypes.string.isRequired,
+  name:        PropTypes.string.isRequired,
+};
+
+/* flexible profile picture that overrides the default image of gravatar with text with the user's initials */
+class ProfilePic extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      showDefault: !this.props.url || this.props.url.startsWith("https://www.gravatar"), // We can't know in advance if a gravatar image exists of not, so start with the default beforing trying to load image
+    };
+    this.imgFile = React.createRef();
+  }
+  setShowDefault() { console.log("error"); this.setState({showDefault: true});  }
+  setShowImage() {console.log("load"); this.setState({showDefault: false});  }
+  componentDidMount() {
+    if (this.didImageLoad()) {
+      this.setShowImage();
+    } else {
+      this.setShowDefault();
+    }
+  }
+  didImageLoad(){
+    // When using React Hydrate, the onLoad event of the profile image will return before
+    // react code runs, so we check after mount as well to look replace bad images, or to
+    // swap in a gravatar image that we now know is valid.
+    const img = this.imgFile.current;
+    return (img && img.complete && img.naturalWidth !== 0);
+  }
+  render() {
+    const { name, url, len, hideOnDefault } = this.props;
+    const { showDefault } = this.state;
+    const nameArray = !!name.trim() ? name.trim().split(/\s/) : [];
+    const initials = nameArray.length > 0 ? (nameArray.length === 1 ? nameArray[0][0] : nameArray[0][0] + nameArray[nameArray.length-1][0]) : "";
+    const defaultViz = showDefault ? 'flex' : 'none';
+    const profileViz = showDefault ? 'none' : 'block';
+    const imageSrc = url.replace("profile-default.png", 'profile-default-404.png');  // replace default with non-existant image to force onLoad to fail
+
+    return (
+      <View>
+        <Image
+          style={{display: profileViz, width: len, height: len, fontSize: len/2}}
+          source={imageSrc}
+          ref={this.imgFile}
+          onLoad={this.setShowImage}
+          onError={this.setShowDefault}
+        />
+      </View>
+    );
+  }
+}
+ProfilePic.propTypes = {
+  url:     PropTypes.string,
+  name:    PropTypes.string,
+  len:     PropTypes.number,
+  hideOnDefault: PropTypes.bool,  // hide profile pic if you have are displaying default pic
+  showButtons: PropTypes.bool,  // show profile pic action buttons
+};
+
 export {
   AnimatedRow,
   ButtonToggleSet,
@@ -1004,9 +1159,15 @@ export {
   LocalSearchBar,
   MenuButton,
   OrderedList,
+  ProfileListing,
+  ProfilePic,
   RainbowBar,
+  SaveButton,
   SearchButton,
   SefariaProgressBar,
+  SimpleContentBlock,
+  SimpleInterfaceBlock,
+  SimpleLinkedBlock,
   SText,
   SystemButton,
   SystemHeader,
