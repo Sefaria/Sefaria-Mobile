@@ -330,6 +330,30 @@ const TopicPage = ({ topic, onBack, openTopic }) => {
       tabs={tabs}
     />
   );
+  const ListRendered = (
+    currTabIndex === 0 ? (
+      <FlatList
+        data={textData}
+        renderItem={({ item }) =>(
+          <TextPassage
+            key={item[0]}
+            text={item[1]}
+            topicTitle={topicData && topicData.primaryTitle}
+          />
+        )}
+        keyExtractor={item => item[0]}
+        ListHeaderComponent={TopicPageHeaderRendered}
+      />
+    ) : (
+      <FlatList
+        data={sheetData}
+        renderItem={({ item }) => <Text>{item.sheet_title}</Text>}
+        keyExtractor={item => item.sheet_id}
+        ListHeaderComponent={TopicPageHeaderRendered}
+      />
+    )
+  );
+
   return (
     <View style={[styles.menu, theme.mainTextPanel]} key={topic.slug}>
       <SystemHeader
@@ -338,23 +362,8 @@ const TopicPage = ({ topic, onBack, openTopic }) => {
         hideLangToggle
       />
       {
-        currTabIndex === 0 ? (
-          <FlatList
-            data={topicData && textData}
-            renderItem={({ item }) => <Text>{item[1].he}</Text>}
-            keyExtractor={item => item[0]}
-            ListHeaderComponent={TopicPageHeaderRendered}
-          />
-        ) : (
-          <FlatList
-            data={topicData && sheetData}
-            renderItem={({ item }) => <Text>{item.sheet_title}</Text>}
-            keyExtractor={item => item.sheet_id}
-            ListHeaderComponent={TopicPageHeaderRendered}
-          />
-        )
+        topicData ? ListRendered : null
       }
-
     </View>
   )
 };
@@ -395,23 +404,16 @@ const TopicPageHeader = ({ en, he, slug, description, currTabIndex, setCurrTabIn
   );
 };
 
-const TextPassage = ({text, toggleSignUpModal, topicTitle, interfaceLang}) => {
+const TextPassage = ({text, topicTitle }) => {
   if (!text.ref) { return null; }
-  const url = "/" + Sefaria.normRef(text.ref);
-  let dataSourceText = '';
-  const langKey = interfaceLang === 'english' ? 'en' : 'he';
-  if (!!text.dataSources && Object.values(text.dataSources).length > 0) {
-    dataSourceText = `${Sefaria._('This source is connected to ')}"${topicTitle && topicTitle[langKey]}" ${Sefaria._('by')} ${Object.values(text.dataSources).map(d => d[langKey]).join(' & ')}.`;
-  }
-  return <StoryFrame cls="textPassageStory">
-      <SaveLine dref={text.ref} toggleSignUpModal={toggleSignUpModal} classes={"storyTitleWrapper"}
-        afterChildren={(
-          <ToolTipped altText={dataSourceText} classes={"saveButton tooltip-toggle three-dots-button"}>
-            <img src="/static/img/three-dots.svg" alt={dataSourceText}/>
-          </ToolTipped>
-        )}
-      >
-          <StoryTitleBlock en={text.ref} he={norm_hebrew_ref(text.heRef)} url={url}/>
+  // let dataSourceText = '';
+  // const langKey = interfaceLang === 'english' ? 'en' : 'he';
+  // if (!!text.dataSources && Object.values(text.dataSources).length > 0) {
+  //   dataSourceText = `${Sefaria._('This source is connected to ')}"${topicTitle && topicTitle[langKey]}" ${Sefaria._('by')} ${Object.values(text.dataSources).map(d => d[langKey]).join(' & ')}.`;
+  // }
+  return <StoryFrame>
+      <SaveLine dref={text.ref}>
+          <StoryTitleBlock en={text.ref} he={norm_hebrew_ref(text.heRef)} />
       </SaveLine>
       <ColorBarBox tref={text.ref}>
           <StoryBodyBlock en={text.en} he={text.he}/>
@@ -420,7 +422,6 @@ const TextPassage = ({text, toggleSignUpModal, topicTitle, interfaceLang}) => {
 };
 TextPassage.propTypes = {
   text: textPropType,
-  toggleSignUpModal:  PropTypes.func
 };
 
 export {

@@ -56,10 +56,9 @@ StoryFrame.propTypes = {
 };
 
 
-const StoryTitleBlock = ({url, he, en, children}) => {
-        const SBlock = url ? SimpleLinkedBlock : SimpleInterfaceBlock;
+const StoryTitleBlock = ({ he, en, children}) => {
         return <View>
-            <SBlock classes="storyTitle pageTitle" url={url} he={he} en={en}/>
+            <SimpleInterfaceBlock he={he} en={en}/>
             {children}
         </View>;
 };
@@ -71,13 +70,13 @@ const ColorBarBox = ({tref, children}) =>  <View style={{"borderColor": Sefaria.
 const StoryBodyBlock = ({en, he}) => <SimpleContentBlock en={en} he={he}/>;
 
 
-const SheetBlock = ({sheet, compact, cozy, smallfonts, isTitle, toggleSignUpModal}) => {
-      const historyObject = {ref: "Sheet " + sheet.sheet_id,
+const SheetBlock = ({sheet, compact, cozy, smallfonts, isTitle }) => {
+      const historyItem = {ref: "Sheet " + sheet.sheet_id,
                   sheet_title: sheet.sheet_title,
                   versions: {}};
 
       return (<View>
-        <SaveLine historyObject={historyObject} toggleSignUpModal={toggleSignUpModal}>
+        <SaveLine historyItem={historyItem} >
             <SimpleLinkedBlock en={sheet.sheet_title} he={sheet.sheet_title} url={"/sheets/" + sheet.sheet_id} />
         </SaveLine>
         {(sheet.sheet_summary && !(compact || cozy))?<SimpleInterfaceBlock en={sheet.sheet_summary} he={sheet.sheet_summary}/>:null}
@@ -90,7 +89,6 @@ const SheetBlock = ({sheet, compact, cozy, smallfonts, isTitle, toggleSignUpModa
           smallfonts={smallfonts}
           position={sheet.publisher_position}
           organization={sheet.publisher_organization}
-          toggleSignUpModal={toggleSignUpModal}
         />}
       </View>);
 };
@@ -102,16 +100,15 @@ const SaveLine = (props) => (
         <View>
             {props.children}
         </View>
-        <SaveButton tooltip={true}
-            historyObject={props.historyObject || {ref: props.dref, versions: props.versions || {}}}
-            toggleSignUpModal={props.toggleSignUpModal}
+        <SaveButton
+            historyItem={props.historyItem || {ref: props.dref, versions: props.versions || {}}}
         />
       { props.afterChildren ? props.afterChildren : null }
     </View>
 );
 
 SaveLine.propTypes = {
-  historyObject:        PropTypes.object,   // One or
+  historyItem:        PropTypes.object,   // One or
   dref:                 PropTypes.string,   // the other
   toggleSignUpModal:    PropTypes.func,
   versions:             PropTypes.object,

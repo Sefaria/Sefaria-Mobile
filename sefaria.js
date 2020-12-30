@@ -1860,6 +1860,7 @@ Sefaria.palette.categoryColor = function(cat) {
   }
   return Sefaria.palette.categoryColors["Other"];
 };
+Sefaria.palette.refColor = ref => Sefaria.palette.categoryColor(Sefaria.categoryForRef(ref));
 Sefaria.search = new Search('https://www.sefaria.org', 'text', 'sheet');
 
 Array.prototype.stableSort = function(cmp) {
