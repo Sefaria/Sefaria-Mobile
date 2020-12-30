@@ -16,6 +16,7 @@ import {
   Platform,
   TextInput,
   Pressable,
+  FlatList,
 } from 'react-native';
 import { GlobalStateContext, DispatchContext, STATE_ACTIONS, themeStr, getTheme } from './StateManager';
 import Sefaria from './sefaria';
@@ -1198,6 +1199,20 @@ const DataSourceLine = ({ children, dataSources, topicTitle }) => {
   );
 };
 
+const FilterableFlatList = ({ currFilter, filterFunc, sortFunc, data, ...flatListProps }) => {
+  const [dataToDisplay, setDataToDisplay] = useState(data);
+  useEffect(() => {
+    if (!data) { return; }
+    setDataToDisplay(data.filter(item => filterFunc(currFilter, item)).sort(sortFunc));
+  }, [data, currFilter]);
+  return (
+    <FlatList
+      data={dataToDisplay}
+      {...flatListProps}
+    />
+  );
+};
+
 export {
   AnimatedRow,
   ButtonToggleSet,
@@ -1214,6 +1229,7 @@ export {
   DirectedArrow,
   DirectedButton,
   DisplaySettingsButton,
+  FilterableFlatList,
   HebrewInEnglishText,
   IndeterminateCheckBox,
   InterfaceTextWithFallback,

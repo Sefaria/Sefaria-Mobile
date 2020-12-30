@@ -20,6 +20,7 @@ import {
   TabRowView,
   LocalSearchBar,
   DataSourceLine,
+  FilterableFlatList,
 } from './Misc';
 
 import {
@@ -142,6 +143,23 @@ const sheetSort = (currSortOption, a, b, { interfaceLanguage }) => {
     // relevance
     if (b.order.relevance == a.order.relevance) { return b.order.views - a.order.views; }
     return (Math.log(b.order.views) * b.order.relevance) - (Math.log(a.order.views) * a.order.relevance);
+  }
+};
+
+const refFilter = (currFilter, ref) => {
+  const n = text => !!text ? text.toLowerCase() : '';
+  currFilter = n(currFilter);
+  ref[1].categories = Sefaria.categoriesForRef(ref[1].ref).join(" ");
+  for (let field of ['en', 'he', 'ref', 'categories']) {
+    if (n(ref[1][field]).indexOf(currFilter) > -1) { return true; }
+  }
+};
+
+const sheetFilter = (currFilter, sheet) => {
+  const n = text => !!text ? text.toLowerCase() : '';
+  currFilter = n(currFilter);
+  for (let field of ['sheet_title', 'publisher_name', 'publisher_position', 'publisher_organization']) {
+    if (n(sheet[field]).indexOf(currFilter) > -1) { return true; }
   }
 };
 
@@ -279,7 +297,7 @@ const TopicPage = ({ topic, onBack, openTopic, showToast, openRef }) => {
       const textRefsWithoutData = d.textData ? d.textRefs.slice(d.textData.length) : d.textRefs;
       const sheetRefsWithoutData = d.sheetData ? d.sheetRefs.slice(d.sheetData.length) : d.sheetRefs;
       if (textRefsWithoutData.length) { setTextRefsToFetch(textRefsWithoutData); }
-      else { setTextData(d.textData.sort((a, b) => refSort('Relevance', a, b, { interfaceLanguage }))); }
+      else { setTextData(d.textData); }
       if (sheetRefsWithoutData.length) { setSheetRefsToFetch(sheetRefsWithoutData); }
       else { setSheetData(d.sheetData); }
     })());
@@ -302,7 +320,7 @@ const TopicPage = ({ topic, onBack, openTopic, showToast, openRef }) => {
     data => setTextData(prev => {
       const updatedData = (!prev || data === false) ? data : [...prev, ...data];
       if (topicData) { topicData.textData = updatedData; } // Persist textData in cache
-      return updatedData.sort((a, b) => refSort('Relevance', a, b, { interfaceLanguage }));
+      return updatedData;
     }),
     topic.slug
   );
@@ -333,7 +351,7 @@ const TopicPage = ({ topic, onBack, openTopic, showToast, openRef }) => {
   );
   const ListRendered = (
     currTabIndex === 0 ? (
-      <FlatList
+      <FilterableFlatList
         data={textData}
         renderItem={({ item }) =>(
           <TextPassage
@@ -346,6 +364,9 @@ const TopicPage = ({ topic, onBack, openTopic, showToast, openRef }) => {
         )}
         keyExtractor={item => item[0]}
         ListHeaderComponent={TopicPageHeaderRendered}
+        currFilter={query}
+        filterFunc={refFilter}
+        sortFunc={(a, b) => refSort('Relevance', a, b, { interfaceLanguage })}
       />
     ) : (
       <FlatList
@@ -364,9 +385,7 @@ const TopicPage = ({ topic, onBack, openTopic, showToast, openRef }) => {
         onBack={onBack}
         hideLangToggle
       />
-      {
-        topicData ? ListRendered : null
-      }
+      { topicData ? ListRendered : null }
     </View>
   )
 };
