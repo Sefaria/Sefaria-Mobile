@@ -252,7 +252,7 @@ const TopicCategoryButton = ({ topic, openTopic }) => {
   );
 };
 
-const TopicPage = ({ topic, onBack, openTopic, showToast }) => {
+const TopicPage = ({ topic, onBack, openTopic, showToast, openRef }) => {
   const { themeStr, interfaceLanguage, textLanguage } = useContext(GlobalStateContext);
   const theme = getTheme(themeStr);
   const defaultTopicData = {primaryTitle: null, textRefs: false, sheetRefs: false, isLoading: true};
@@ -336,10 +336,11 @@ const TopicPage = ({ topic, onBack, openTopic, showToast }) => {
         data={textData}
         renderItem={({ item }) =>(
           <TextPassage
-            showToast={showToast}
             key={item[0]}
             text={item[1]}
             topicTitle={topicData && topicData.primaryTitle}
+            showToast={showToast}
+            openRef={openRef}
           />
         )}
         keyExtractor={item => item[0]}
@@ -405,7 +406,7 @@ const TopicPageHeader = ({ en, he, slug, description, currTabIndex, setCurrTabIn
   );
 };
 
-const TextPassage = ({text, topicTitle, showToast }) => {
+const TextPassage = ({text, topicTitle, showToast, openRef }) => {
   if (!text.ref) { return null; }
   // let dataSourceText = '';
   // const langKey = interfaceLang === 'english' ? 'en' : 'he';
@@ -414,7 +415,7 @@ const TextPassage = ({text, topicTitle, showToast }) => {
   // }
   return <StoryFrame extraStyles={{marginHorizontal: 15}}>
       <SaveLine dref={text.ref} showToast={showToast}>
-          <StoryTitleBlock en={text.ref} he={norm_hebrew_ref(text.heRef)} />
+          <StoryTitleBlock en={text.ref} he={norm_hebrew_ref(text.heRef)} onClick={() => openRef(text.ref)} />
       </SaveLine>
       <ColorBarBox tref={text.ref}>
           <StoryBodyBlock en={text.en} he={text.he}/>

@@ -1999,6 +1999,7 @@ class ReaderApp extends React.PureComponent {
             openTopic={this.openTopic}
             topic={this.state.navigationTopic}
             showToast={this.showToast}
+            openRef={this.openRef}
           />
         );
       case ("sheetCategory"):

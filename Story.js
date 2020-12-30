@@ -57,12 +57,13 @@ StoryFrame.propTypes = {
 };
 
 
-const StoryTitleBlock = ({ he, en, children }) => {
+const StoryTitleBlock = ({ he, en, children, onClick }) => {
   const { themeStr } = useContext(GlobalStateContext);
   const theme = getTheme(themeStr);
+  const SBlock = onClick ? SimpleLinkedBlock : SimpleInterfaceBlock;
   return (
     <View>
-      <SimpleInterfaceBlock he={he} en={en} extraStyles={[styles.pageTitle, styles.topicSourceTitle, theme.text]} />
+      <SBlock he={he} en={en} extraStyles={[styles.pageTitle, styles.topicSourceTitle]} onClick={onClick} />
       {children}
     </View>
   );

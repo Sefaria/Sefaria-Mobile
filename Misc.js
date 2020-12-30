@@ -1012,15 +1012,21 @@ const SaveButton = ({ historyItem, showToast }) => {
   );
 }
 
-const SimpleInterfaceBlock = ({en, he, extraStyles}) => (
-  <View>
-    <Text style={extraStyles}>{en}</Text>
-  </View>
-);
+const SimpleInterfaceBlock = ({en, he, extraStyles}) => {
+  const { themeStr, interfaceLanguage } = useContext(GlobalStateContext);
+  const theme = getTheme(themeStr);
+  const isHeb = interfaceLanguage == 'hebrew';
+  const fullStyle = [isHeb ? styles.heInt : styles.enInt, theme.text].concat(extraStyles);
+  return (
+    <View>
+      <Text style={fullStyle}>{isHeb ? he : en}</Text>
+    </View>
+  );
+}
 SimpleInterfaceBlock.propTypes = {
   en: PropTypes.string,
   he: PropTypes.string,
-  classes: PropTypes.string
+  extraStyles: PropTypes.array,
 };
 
 const SimpleHTMLView = ({text, lang}) => {
@@ -1058,20 +1064,25 @@ SimpleContentBlock.propTypes = {
 };
 
 
-const SimpleLinkedBlock = ({en, he, url, children, onClick}) => (
-  <View>
-      <TouchableOpacity onClick={onClick}>
-        <Text>{en}</Text>
+const SimpleLinkedBlock = ({en, he, children, onClick, extraStyles}) => {
+  const { themeStr, interfaceLanguage } = useContext(GlobalStateContext);
+  const theme = getTheme(themeStr);
+  const isHeb = interfaceLanguage == 'hebrew';
+  const fullStyle = [isHeb ? styles.heInt : styles.enInt, theme.text].concat(extraStyles);
+  return (
+    <View>
+      <TouchableOpacity onPress={onClick}>
+        <Text style={fullStyle}>{isHeb ? he : en}</Text>
       </TouchableOpacity>
       {children}
-  </View>
-);
+    </View>
+  );
+}
 SimpleLinkedBlock.propTypes = {
   en: PropTypes.string,
   he: PropTypes.string,
-  url: PropTypes.string,
-  classes: PropTypes.string,
-  aclasses: PropTypes.string
+  extraStyles: PropTypes.array,
+  onClick: PropTypes.func,
 };
 
 const ProfileListing = ({ image, name, organization }) => {
