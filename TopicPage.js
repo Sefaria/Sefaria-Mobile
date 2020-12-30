@@ -93,7 +93,7 @@ const fetchBulkSheet = inSheets =>
 );
 
 
-const refSort = (currSortOption, a, b, { interfaceLang }) => {
+const refSort = (currSortOption, a, b, { interfaceLanguage }) => {
   a = a[1]; b = b[1];
   if (!a.order && !b.order) { return 0; }
   if ((0+!!a.order) !== (0+!!b.order)) { return (0+!!b.order) - (0+!!a.order); }
@@ -108,7 +108,7 @@ const refSort = (currSortOption, a, b, { interfaceLang }) => {
   else {
     const aAvailLangs = a.order.availableLangs || [];
     const bAvailLangs = b.order.availableLangs || [];
-    if (interfaceLang === 'english' && aAvailLangs.length !== bAvailLangs.length) {
+    if (interfaceLanguage === 'english' && aAvailLangs.length !== bAvailLangs.length) {
       if (aAvailLangs.indexOf('en') > -1) { return -1; }
       if (bAvailLangs.indexOf('en') > -1) { return 1; }
       return 0;
@@ -119,17 +119,17 @@ const refSort = (currSortOption, a, b, { interfaceLang }) => {
 };
 
 
-const sheetSort = (currSortOption, a, b, { interfaceLang }) => {
+const sheetSort = (currSortOption, a, b, { interfaceLanguage }) => {
   if (!a.order && !b.order) { return 0; }
   if ((0+!!a.order) !== (0+!!b.order)) { return (0+!!b.order) - (0+!!a.order); }
   const aTLangHe = 0 + (a.order.titleLanguage === 'hebrew');
   const bTLangHe = 0 + (b.order.titleLanguage === 'hebrew');
   const aLangHe  = 0 + (a.order.language      === 'hebrew');
   const bLangHe  = 0 + (b.order.language      === 'hebrew');
-  if (interfaceLang === 'hebrew' && (aTLangHe ^ bTLangHe || aLangHe ^ bLangHe)) {
+  if (interfaceLanguage === 'hebrew' && (aTLangHe ^ bTLangHe || aLangHe ^ bLangHe)) {
     if (aTLangHe ^ bTLangHe && aLangHe ^ bLangHe) { return bTLangHe - aTLangHe; }  // title lang takes precedence over content lang
     return (bTLangHe + bLangHe) - (aTLangHe + aLangHe);
-  } else if (interfaceLang === 'english' && (aTLangHe ^ bTLangHe || aLangHe ^ bLangHe)) {
+  } else if (interfaceLanguage === 'english' && (aTLangHe ^ bTLangHe || aLangHe ^ bLangHe)) {
     if (aTLangHe ^ bTLangHe && aLangHe ^ bLangHe) { return aTLangHe - bTLangHe; }  // title lang takes precedence over content lang
     return (aTLangHe + aLangHe) - (bTLangHe + bLangHe);
   }
@@ -279,7 +279,7 @@ const TopicPage = ({ topic, onBack, openTopic, showToast, openRef }) => {
       const textRefsWithoutData = d.textData ? d.textRefs.slice(d.textData.length) : d.textRefs;
       const sheetRefsWithoutData = d.sheetData ? d.sheetRefs.slice(d.sheetData.length) : d.sheetRefs;
       if (textRefsWithoutData.length) { setTextRefsToFetch(textRefsWithoutData); }
-      else { setTextData(d.textData); }
+      else { setTextData(d.textData.sort((a, b) => refSort('Relevance', a, b, { interfaceLanguage }))); }
       if (sheetRefsWithoutData.length) { setSheetRefsToFetch(sheetRefsWithoutData); }
       else { setSheetData(d.sheetData); }
     })());
@@ -302,7 +302,7 @@ const TopicPage = ({ topic, onBack, openTopic, showToast, openRef }) => {
     data => setTextData(prev => {
       const updatedData = (!prev || data === false) ? data : [...prev, ...data];
       if (topicData) { topicData.textData = updatedData; } // Persist textData in cache
-      return updatedData;
+      return updatedData.sort((a, b) => refSort('Relevance', a, b, { interfaceLanguage }));
     }),
     topic.slug
   );
