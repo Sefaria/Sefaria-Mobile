@@ -195,4 +195,7 @@ export default StyleSheet.create({
   lighterGreyBorder: {
     borderColor: Colors.lighterGrey,
   },
+  lighterGreyBackground: {
+    backgroundColor: Colors.lighterGrey,
+  },
 });

@@ -15,6 +15,7 @@ import {
   Animated,
   Platform,
   TextInput,
+  Pressable,
 } from 'react-native';
 import { GlobalStateContext, DispatchContext, STATE_ACTIONS, themeStr, getTheme } from './StateManager';
 import Sefaria from './sefaria';
@@ -1166,6 +1167,36 @@ ProfilePic.propTypes = {
   showButtons: PropTypes.bool,  // show profile pic action buttons
 };
 
+const DataSourceLine = ({ children }) => {
+  const { themeStr } = useContext(GlobalStateContext);
+  const [displaySource, setDisplaySource] = useState(false);
+  const theme = getTheme(themeStr);
+  let dataSourceText = 'This source is connected to "Aaron" by Aspaklaria & Sheets by Sefaria users';
+  // const langKey = interfaceLang === 'english' ? 'en' : 'he';
+  // if (!!text.dataSources && Object.values(text.dataSources).length > 0) {
+  //   dataSourceText = `${Sefaria._('This source is connected to ')}"${topicTitle && topicTitle[langKey]}" ${Sefaria._('by')} ${Object.values(text.dataSources).map(d => d[langKey]).join(' & ')}.`;
+  // }
+  return (
+    <View>
+      <View style={styles.saveLine}>
+        {children}
+        <Pressable style={[styles.dataSourceButton, theme.lighterGreyBackground]} onPress={()=>setDisplaySource(prev=>!prev)}>
+          <Image
+            source={themeStr == "white" ? require('./img/dots.png'): require('./img/dots-light.png') }
+            style={styles.dataSourceButtonImage}
+            resizeMode={'contain'}
+          />
+        </Pressable>
+      </View>
+      { displaySource ? (
+        <Text style={[{borderRadius: 6, paddingHorizontal: 10, paddingVertical: 8, fontSize: 13}, styles.enInt, theme.tertiaryText, theme.lighterGreyBackground]}>
+          {dataSourceText}
+        </Text>
+      ) : null}
+    </View>
+  );
+};
+
 export {
   AnimatedRow,
   ButtonToggleSet,
@@ -1178,6 +1209,7 @@ export {
   CloseButton,
   CollapseIcon,
   ConditionalProgressWrapper,
+  DataSourceLine,
   DirectedArrow,
   DirectedButton,
   DisplaySettingsButton,

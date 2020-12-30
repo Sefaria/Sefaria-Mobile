@@ -1339,6 +1339,7 @@ export default StyleSheet.create({
     lineHeight: 18,
   },
   saveLine: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -1354,4 +1355,13 @@ export default StyleSheet.create({
     borderRightWidth: 4,
     paddingRight: 30,
   },
+  dataSourceButton: {
+    borderRadius: 500,
+    backgroundColor: 'grey',
+    padding: 6,
+  },
+  dataSourceButtonImage: {
+    width: 9,
+    height: 9,
+  },  
 });

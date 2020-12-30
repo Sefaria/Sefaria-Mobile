@@ -107,14 +107,11 @@ SheetBlock.propTypes = {sheet: sheetPropType.isRequired};
 
 const SaveLine = (props) => (
     <View style={styles.saveLine}>
-      <View>
-        {props.children}
-      </View>
+      {props.children}
       <SaveButton
         historyItem={props.historyItem || {ref: props.dref, versions: props.versions || {}, book: Sefaria.textTitleForRef(props.dref)}}
         showToast={props.showToast}
       />
-      { props.afterChildren ? props.afterChildren : null }
     </View>
 );
 

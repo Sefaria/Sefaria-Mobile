@@ -19,6 +19,7 @@ import {
   TabView,
   TabRowView,
   LocalSearchBar,
+  DataSourceLine,
 } from './Misc';
 
 import {
@@ -408,15 +409,12 @@ const TopicPageHeader = ({ en, he, slug, description, currTabIndex, setCurrTabIn
 
 const TextPassage = ({text, topicTitle, showToast, openRef }) => {
   if (!text.ref) { return null; }
-  // let dataSourceText = '';
-  // const langKey = interfaceLang === 'english' ? 'en' : 'he';
-  // if (!!text.dataSources && Object.values(text.dataSources).length > 0) {
-  //   dataSourceText = `${Sefaria._('This source is connected to ')}"${topicTitle && topicTitle[langKey]}" ${Sefaria._('by')} ${Object.values(text.dataSources).map(d => d[langKey]).join(' & ')}.`;
-  // }
   return <StoryFrame extraStyles={{marginHorizontal: 15}}>
-      <SaveLine dref={text.ref} showToast={showToast}>
-          <StoryTitleBlock en={text.ref} he={norm_hebrew_ref(text.heRef)} onClick={() => openRef(text.ref)} />
-      </SaveLine>
+      <DataSourceLine>
+        <SaveLine dref={text.ref} showToast={showToast}>
+            <StoryTitleBlock en={text.ref} he={norm_hebrew_ref(text.heRef)} onClick={() => openRef(text.ref)} />
+        </SaveLine>
+      </DataSourceLine>
       <ColorBarBox tref={text.ref}>
           <StoryBodyBlock en={text.en} he={text.he}/>
       </ColorBarBox>
