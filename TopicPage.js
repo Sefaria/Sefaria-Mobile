@@ -318,7 +318,18 @@ const TopicPage = ({ topic, onBack, openTopic }) => {
     }),
     topic
   );
-
+  
+  const TopicPageHeaderRendered = (
+    <TopicPageHeader
+      {...topic}
+      description={topicData && topicData.description}
+      currTabIndex={currTabIndex}
+      setCurrTabIndex={setCurrTabIndex}
+      query={query}
+      setQuery={setQuery}
+      tabs={tabs}
+    />
+  );
   return (
     <View style={[styles.menu, theme.mainTextPanel]} key={topic.slug}>
       <SystemHeader
@@ -332,30 +343,14 @@ const TopicPage = ({ topic, onBack, openTopic }) => {
             data={topicData && textData}
             renderItem={({ item }) => <Text>{item[1].he}</Text>}
             keyExtractor={item => item[0]}
-            ListHeaderComponent={<TopicPageHeader
-              {...topic}
-              description={topicData && topicData.description}
-              currTabIndex={currTabIndex}
-              setCurrTabIndex={setCurrTabIndex}
-              query={query}
-              setQuery={setQuery}
-              tabs={tabs}
-            />}
+            ListHeaderComponent={TopicPageHeaderRendered}
           />
         ) : (
           <FlatList
             data={topicData && sheetData}
             renderItem={({ item }) => <Text>{item.sheet_title}</Text>}
             keyExtractor={item => item.sheet_id}
-            ListHeaderComponent={<TopicPageHeader
-              {...topic}
-              description={topicData && topicData.description}
-              currTabIndex={currTabIndex}
-              setCurrTabIndex={setCurrTabIndex}
-              query={query}
-              setQuery={setQuery}
-              tabs={tabs}
-            />}
+            ListHeaderComponent={TopicPageHeaderRendered}
           />
         )
       }
