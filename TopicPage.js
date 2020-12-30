@@ -410,7 +410,7 @@ const TopicPageHeader = ({ en, he, slug, description, currTabIndex, setCurrTabIn
 const TextPassage = ({text, topicTitle, showToast, openRef }) => {
   if (!text.ref) { return null; }
   return <StoryFrame extraStyles={{marginHorizontal: 15}}>
-      <DataSourceLine>
+      <DataSourceLine dataSources={text.dataSources} topicTitle={topicTitle}>
         <SaveLine dref={text.ref} showToast={showToast}>
             <StoryTitleBlock en={text.ref} he={norm_hebrew_ref(text.heRef)} onClick={() => openRef(text.ref)} />
         </SaveLine>

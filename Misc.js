@@ -1167,15 +1167,16 @@ ProfilePic.propTypes = {
   showButtons: PropTypes.bool,  // show profile pic action buttons
 };
 
-const DataSourceLine = ({ children }) => {
-  const { themeStr } = useContext(GlobalStateContext);
+const DataSourceLine = ({ children, dataSources, topicTitle }) => {
+  const { themeStr, interfaceLanguage } = useContext(GlobalStateContext);
   const [displaySource, setDisplaySource] = useState(false);
   const theme = getTheme(themeStr);
-  let dataSourceText = 'This source is connected to "Aaron" by Aspaklaria & Sheets by Sefaria users';
-  // const langKey = interfaceLang === 'english' ? 'en' : 'he';
-  // if (!!text.dataSources && Object.values(text.dataSources).length > 0) {
-  //   dataSourceText = `${Sefaria._('This source is connected to ')}"${topicTitle && topicTitle[langKey]}" ${Sefaria._('by')} ${Object.values(text.dataSources).map(d => d[langKey]).join(' & ')}.`;
-  // }
+  const isHeb = interfaceLanguage == 'hebrew';
+  let dataSourceText = '';
+  const langKey = isHeb ? 'he' : 'en';
+  if (!!dataSources && Object.values(dataSources).length > 0) {
+    dataSourceText = `${strings.thisSourceIsConnectedTo}"${topicTitle && topicTitle[langKey]}" ${strings.by} ${Object.values(dataSources).map(d => d[langKey]).join(' & ')}.`;
+  }
   return (
     <View>
       <View style={styles.saveLine}>
@@ -1189,7 +1190,7 @@ const DataSourceLine = ({ children }) => {
         </Pressable>
       </View>
       { displaySource ? (
-        <Text style={[{borderRadius: 6, paddingHorizontal: 10, paddingVertical: 8, fontSize: 13}, styles.enInt, theme.tertiaryText, theme.lighterGreyBackground]}>
+        <Text style={[{borderRadius: 6, paddingHorizontal: 10, paddingVertical: 8, fontSize: 13}, isHeb ? styles.heInt : styles.enInt, theme.tertiaryText, theme.lighterGreyBackground]}>
           {dataSourceText}
         </Text>
       ) : null}
