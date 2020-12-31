@@ -87,6 +87,17 @@ const OrderedList = ({items, renderItem}) => {
   );
 }
 
+const DotSeparatedList = ({ items, renderItem, keyExtractor }) => {
+  return (
+    items.map((item, i) => (
+      <React.Fragment key={keyExtractor(item)}>
+        { i !== 0 ? <SText lang={"english"} style={[styles.en, {fontSize: 13, color: "#ccc", marginTop: 7}]}>{" ● "}</SText> : null}
+        { renderItem(item, i) }
+      </React.Fragment>
+    ))
+  );
+};
+
 const SystemButton = ({ onPress, text, img, isHeb, isBlue, isLoading, extraStyles=[] }) => (
   <GlobalStateContext.Consumer>
     { ({ themeStr }) => (
@@ -1229,6 +1240,7 @@ export {
   DirectedArrow,
   DirectedButton,
   DisplaySettingsButton,
+  DotSeparatedList,
   FilterableFlatList,
   HebrewInEnglishText,
   IndeterminateCheckBox,

@@ -1222,6 +1222,12 @@ Sefaria = {
 };
 
 Sefaria.util = {
+  localeDate: (dateString, interfaceLanguage) => {
+    // takes dateString (usually generated from Python datetime object) and returns a human readable string depending on interfaceLang
+    const locale = interfaceLanguage === 'english' ? 'en-US' : 'iw-IL';
+    const dateOptions = {year: 'numeric', month: 'short', day: 'numeric'};
+    return (new Date(dateString)).toLocaleDateString(locale, dateOptions).replace(',', '');  // remove comma from english date
+  },
   makeCancelable: (promise) => {
     let hasCanceled_ = false;
 

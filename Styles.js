@@ -1363,5 +1363,9 @@ export default StyleSheet.create({
   dataSourceButtonImage: {
     width: 9,
     height: 9,
-  },  
+  },
+  topicLinkSideList: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+  }
 });
