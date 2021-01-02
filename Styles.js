@@ -33,7 +33,6 @@ export default StyleSheet.create({
     fontFamily: 'Amiri',
     fontSize: 18,
     lineHeight: 22,
-    color: '#000000'
   },
   // Sefaria Design System - Content Body Hebrew
   ContentBodyHe: {
@@ -41,7 +40,6 @@ export default StyleSheet.create({
     fontSize: 22,
     lineHeight: 29,
     textAlign: 'right',
-    color: '#000000'
   },
   // Sefaria Design System - System Body English
   SystemBodyEn: {
@@ -50,7 +48,6 @@ export default StyleSheet.create({
     fontWeight: 'normal',
     fontSize: 16,
     lineHeight: 19,
-    color: '#000000'
   },
   // Sefaria Design System - System Body Hebrew
   SystemBodyHe: {
@@ -60,7 +57,6 @@ export default StyleSheet.create({
     fontSize: 16,
     lineHeight: 23,
     textAlign: 'right',
-    color: '#000000'
   },
   boxShadow: {
     shadowColor: 'black',
@@ -1364,8 +1360,19 @@ export default StyleSheet.create({
     width: 9,
     height: 9,
   },
+  topicLinkSection: {
+    paddingBottom: 30,
+  },
+  topicLinkTypeHeader: {
+    paddingBottom: 10,
+    borderBottomWidth: 1,
+  },
   topicLinkSideList: {
     flexDirection: "row",
     flexWrap: "wrap",
-  }
+    marginTop: 10,
+  },
+  topicLinkSideMore: {
+    marginTop: -15,
+  },
 });

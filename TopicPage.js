@@ -166,6 +166,43 @@ const sheetFilter = (currFilter, sheet) => {
   }
 };
 
+const organizeLinks = (topic, links, title) => {
+  const category = Sefaria.topicTocCategory(topic.slug);
+  const linkTypeArray = links ? (
+    Object.values(links)
+    .filter(linkType => !!linkType && linkType.shouldDisplay && linkType.links.filter(l => l.shouldDisplay !== false).length > 0)
+    .sort((a, b) => {
+      const aInd = a.title.en.indexOf('Related');
+      const bInd = b.title.en.indexOf('Related');
+      if (aInd > -1 && bInd > -1) { return 0; }
+      if (aInd > -1) { return -1; }
+      if (bInd > -1) { return 1; }
+      //alphabetical by en just to keep order consistent
+      return a.title.en.localeCompare(b.title.en);
+    })
+  ) : [];
+  if (linkTypeArray.length === 0) {
+    linkTypeArray.push({
+      title: {
+        en: !category ? 'Explore Topics' : category.en,
+        he: !category ?  'נושאים כלליים' : category.he,
+      },
+      links: Sefaria.topicTocPage(category && category.slug).slice(0, 20).map(({slug, en, he}) => ({
+        topic: slug,
+        title: {en, he},
+        isCategory: !category,
+      })),
+    })
+  } else if (linkTypeArray[0].title.en === 'Related') {
+    // rename
+    linkTypeArray[0].title = {
+      en: `Topics Related to ${topic.en}`,
+      he: `נושאים קשורים ל-${topic.he}`,
+    };
+  }
+  return linkTypeArray;
+};
+
 const TopicCategory = ({ topic, openTopic, onBack }) => {
   const { themeStr, interfaceLanguage } = useContext(GlobalStateContext);
 
@@ -253,9 +290,9 @@ const TopicCategoryHeader = ({ en, he, description, trendingTopics, openTopic })
             <DotSeparatedList
               items={trendingTopics.slice(0, 6)}
               renderItem={t => (
-                <TouchableOpacity onPress={()=>openTopic(t, false)}>
-                  <SText lang={menu_language} style={[isHeb ? styles.he : styles.en, {fontSize: 18, marginTop: 6}, theme.text]}>{isHeb ? t.he : t.en}</SText>
-                </TouchableOpacity>
+                <Pressable onPress={()=>openTopic(t, false)}>
+                  <SText lang={menu_language} style={[isHeb ? styles.ContentBodyHe : styles.ContentBodyEn, {marginTop: 6}, theme.text]}>{isHeb ? t.he : t.en}</SText>
+                </Pressable>
               )}
               keyExtractor={t => t.slug}
             />
@@ -347,7 +384,7 @@ const TopicPage = ({ topic, onBack, openTopic, showToast, openRef }) => {
     topic
   );
   const TopicSideColumnRendered =  topicData ?
-    (<TopicSideColumn key={topic.slug} slug={topic.slug} links={topicData.links}
+    (<TopicSideColumn key={'topicSideColumn'} topic={topic} links={topicData.links}
       setNavTopic={()=>{}} clearAndSetTopic={()=>{}}
       parashaData={parashaData} tref={topicData.ref}
     />)
@@ -368,16 +405,21 @@ const TopicPage = ({ topic, onBack, openTopic, showToast, openRef }) => {
       <FilterableFlatList
         data={textData}
         renderItem={({ item }) =>(
-          <TextPassage
-            key={item[0]}
-            text={item[1]}
-            topicTitle={topicData && topicData.primaryTitle}
-            showToast={showToast}
-            openRef={openRef}
-          />
+          item.isSplice ? (
+            TopicSideColumnRendered
+          ): (
+            <TextPassage
+              key={item[0]}
+              text={item[1]}
+              topicTitle={topicData && topicData.primaryTitle}
+              showToast={showToast}
+              openRef={openRef}
+            />
+          )
         )}
         keyExtractor={item => item[0]}
         ListHeaderComponent={TopicPageHeaderRendered}
+        spliceIndex={1}
         currFilter={query}
         filterFunc={refFilter}
         sortFunc={(a, b) => refSort('Relevance', a, b, { interfaceLanguage })}
@@ -399,8 +441,7 @@ const TopicPage = ({ topic, onBack, openTopic, showToast, openRef }) => {
         onBack={onBack}
         hideLangToggle
       />
-      { TopicSideColumnRendered }
-      { topicData && false ? ListRendered : null }
+      { topicData ? ListRendered : null }
     </View>
   )
 };
@@ -458,28 +499,38 @@ TextPassage.propTypes = {
   text: textPropType,
 };
 
-const TopicLink = ({slug, topicTitle, onClick, isTransliteration, isCategory}) => (
-  <Pressable
-    onPress={onClick.bind(null, slug, topicTitle)} key={slug}
-    title={topicTitle.en}
-  >
-    <InterfaceTextWithFallback
-      en={topicTitle.en}
-      he={topicTitle.he}
-      isItalics={false}
-    />
-  </Pressable>
-);
+const TopicLink = ({slug, topicTitle, onClick, isTransliteration, isCategory}) => {
+  const { themeStr, interfaceLanguage } = useContext(GlobalStateContext);
+  const theme = getTheme(themeStr);
+  let langStyle = styles.ContentBodyEn;
+  const { en, he } = topicTitle;
+  let text = en;
+  if ((interfaceLanguage === 'english' && !en) || (interfaceLanguage === 'hebrew' && !!he)) {
+    langStyle = styles.ContentBodyHe;
+    text = he;
+  }
+  return (
+    <Pressable
+      style={{marginTop: 6}}
+      onPress={onClick.bind(null, slug, topicTitle)} key={slug}
+    >
+      <SText lang={interfaceLanguage} style={[langStyle, theme.text]}>
+        { text }
+      </SText>
+    </Pressable>
+  );
+}
 TopicLink.propTypes = {
-  topic: PropTypes.string.isRequired,
+  slug: PropTypes.string.isRequired,
   isTransliteration: PropTypes.object,
 };
 
 
-const TopicSideColumn = ({ slug, links, clearAndSetTopic, parashaData, tref, setNavTopic }) => {
-  const { interfaceLanguage } = useContext(GlobalStateContext);
-  const [showMoreMap, setShowMoreMap] = useState({});
-  const category = Sefaria.topicTocCategory(slug);
+const TopicSideColumn = ({ topic, links, clearAndSetTopic, parashaData, tref, setNavTopic }) => {
+  const { themeStr, interfaceLanguage } = useContext(GlobalStateContext);
+  const theme = getTheme(themeStr);
+  const [showMore, setShowMore] = useState(false);
+  const linkTypeArray = organizeLinks(topic, links);
   const sortLinks = (a, b) => {
     const shortLang = interfaceLanguage == 'hebrew' ? 'he' : 'en';
     if (!!a.title[shortLang] !== !!b.title[shortLang]) {
@@ -497,67 +548,44 @@ const TopicSideColumn = ({ slug, links, clearAndSetTopic, parashaData, tref, set
       isCategory={l.isCategory}
     />
   );
-  const linkTypeArray = links ? Object.values(links).filter(linkType => !!linkType && linkType.shouldDisplay && linkType.links.filter(l => l.shouldDisplay !== false).length > 0) : [];
-  if (linkTypeArray.length === 0) {
-    linkTypeArray.push({
-      title: {
-        en: !category ? 'Explore Topics' : category.en,
-        he: !category ?  'נושאים כלליים' : category.he,
-      },
-      links: Sefaria.topicTocPage(category && category.slug).slice(0, 20).map(({slug, en, he}) => ({
-        topic: slug,
-        title: {en, he},
-        isCategory: !category,
-      })),
-    })
-  }
   const readingsComponent = (parashaData && tref) ? (
     <ReadingsComponent parashaData={parashaData} tref={tref} />
   ) : null;
   const linksComponent = (
-    links ?
-        linkTypeArray.sort((a, b) => {
-        const aInd = a.title.en.indexOf('Related');
-        const bInd = b.title.en.indexOf('Related');
-        if (aInd > -1 && bInd > -1) { return 0; }
-        if (aInd > -1) { return -1; }
-        if (bInd > -1) { return 1; }
-        //alphabetical by en just to keep order consistent
-        return a.title.en.localeCompare(b.title.en);
-      })
-      .map(({ title, pluralTitle, links }) => (
-        <View key={title.en} style={styles.linkSection}>
+    links ? linkTypeArray.slice(0, !showMore ? 1 : undefined).map(({ title, pluralTitle, links }, iLinkType) => (
+        <View key={title.en} style={styles.topicLinkSection}>
           <InterfaceTextWithFallback
             en={(links.length > 1 && pluralTitle) ? pluralTitle.en : title.en}
             he={(links.length > 1 && pluralTitle) ? pluralTitle.he : title.he}
+            extraStyles={[styles.SystemBodyEn, styles.topicLinkTypeHeader, theme.tertiaryText, theme.lighterGreyBorder]}
           />
           <View style={styles.topicLinkSideList}>
             <DotSeparatedList
-              items={links.filter(l => l.shouldDisplay !== false).sort(sortLinks).slice(0, showMoreMap[title.en] ? undefined : 10)}
+              items={links.filter(l => l.shouldDisplay !== false).sort(sortLinks).slice(0, !showMore && iLinkType === 0 ? 10 : undefined)}
               renderItem={renderLink}
               keyExtractor={l => l.topic}
             />
           </View>
-          {
-            links.filter(l=>l.shouldDisplay !== false).length > 10 ?
-              (<View style={styles.sideColumnMore} onPress={() => {
-                setShowMoreMap({...showMoreMap, [title.en]: !showMoreMap[title.en]});
-              }}>
-                <InterfaceTextWithFallback
-                  en={showMoreMap[title.en] ? "Less" : "More"}
-                  he={showMoreMap[title.en] ? "פחות" : "עוד"}
-                />
-              </View>)
-            : null
-          }
         </View>
       ))
     : null
   );
+  const hasMore = links && (linkTypeArray[0].links.filter(l => l.shouldDisplay !== false) > 10 || linkTypeArray.length > 1);
+  const moreButton = hasMore ?
+    (
+      <Pressable style={styles.topicLinkSideMore} onPress={() => setShowMore(prevShowMore => !prevShowMore)}>
+        <InterfaceTextWithFallback
+          en={showMore ? "See Less" : "See More"}
+          he={showMore ? "ראה פחות" : "ראה עוד"}
+        />
+      </Pressable>
+    )
+    : null;
   return (
-    <View>
+    <View style={[theme.lightestGreyBackground, {padding: 14}]}>
       { readingsComponent }
       { linksComponent }
+      { moreButton }
     </View>
   )
 }

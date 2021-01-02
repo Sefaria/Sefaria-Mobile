@@ -14,6 +14,7 @@ var Colors = {
   textBackground: "#333331",
   textSectionTitleBorder: "#666",
   lighterGrey: "#1d1d1d",
+  lightestGrey: "#2d2d2d",
   textSegmentHighlight: "#444",
   textListHeader: "#333",
   button: "#ddd",
@@ -197,5 +198,8 @@ export default StyleSheet.create({
   },
   lighterGreyBackground: {
     backgroundColor: Colors.lighterGrey,
+  },
+  lightestGreyBackground: {
+    backgroundColor: Colors.lightestGrey,
   },
 });

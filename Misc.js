@@ -1210,11 +1210,15 @@ const DataSourceLine = ({ children, dataSources, topicTitle }) => {
   );
 };
 
-const FilterableFlatList = ({ currFilter, filterFunc, sortFunc, data, ...flatListProps }) => {
+const FilterableFlatList = ({ currFilter, filterFunc, sortFunc, data, spliceIndex, ...flatListProps }) => {
   const [dataToDisplay, setDataToDisplay] = useState(data);
   useEffect(() => {
     if (!data) { return; }
-    setDataToDisplay(data.filter(item => filterFunc(currFilter, item)).sort(sortFunc));
+    const newDataToDisplay = data.filter(item => filterFunc(currFilter, item)).sort(sortFunc);
+    if (spliceIndex !== undefined) {
+      newDataToDisplay.splice(spliceIndex, 0, {isSplice: true});
+    }
+    setDataToDisplay(newDataToDisplay);
   }, [data, currFilter]);
   return (
     <FlatList
