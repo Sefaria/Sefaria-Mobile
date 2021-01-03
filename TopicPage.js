@@ -384,7 +384,7 @@ const TopicPage = ({ topic, onBack, openTopic, showToast, openRef }) => {
     topic
   );
   const TopicSideColumnRendered =  topicData ?
-    (<TopicSideColumn key={'topicSideColumn'} topic={topic} links={topicData.links}
+    (<TopicSideColumn topic={topic} links={topicData.links}
       setNavTopic={()=>{}} clearAndSetTopic={()=>{}}
       parashaData={parashaData} tref={topicData.ref}
     />)
@@ -409,7 +409,6 @@ const TopicPage = ({ topic, onBack, openTopic, showToast, openRef }) => {
             TopicSideColumnRendered
           ): (
             <TextPassage
-              key={item[0]}
               text={item[1]}
               topicTitle={topicData && topicData.primaryTitle}
               showToast={showToast}
@@ -417,7 +416,7 @@ const TopicPage = ({ topic, onBack, openTopic, showToast, openRef }) => {
             />
           )
         )}
-        keyExtractor={item => item[0]}
+        keyExtractor={item => item.isSplice ? 'splice' : item[0]}
         ListHeaderComponent={TopicPageHeaderRendered}
         spliceIndex={1}
         currFilter={query}
@@ -571,12 +570,19 @@ const TopicSideColumn = ({ topic, links, clearAndSetTopic, parashaData, tref, se
     : null
   );
   const hasMore = links && (linkTypeArray[0].links.filter(l => l.shouldDisplay !== false) > 10 || linkTypeArray.length > 1);
+  const moreSource = themeStr === 'white' ? (showMore ? require('./img/up.png') : require('./img/down.png')) : (showMore ? require('./img/up-light.png') : require('./img/down-light.png'))
   const moreButton = hasMore ?
     (
       <Pressable style={styles.topicLinkSideMore} onPress={() => setShowMore(prevShowMore => !prevShowMore)}>
         <InterfaceTextWithFallback
           en={showMore ? "See Less" : "See More"}
           he={showMore ? "ראה פחות" : "ראה עוד"}
+          extraStyles={[theme.secondaryText, {fontSize: 13}]}
+        />
+        <Image
+          source={moreSource}
+          style={{width: 8, height: 8, marginLeft: 5, alignSelf: 'center'}}
+          resizeMode={'contain'}
         />
       </Pressable>
     )

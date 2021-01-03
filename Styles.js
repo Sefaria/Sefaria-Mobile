@@ -1374,5 +1374,7 @@ export default StyleSheet.create({
   },
   topicLinkSideMore: {
     marginTop: -15,
+    flexDirection: 'row',
+    alignContent: 'center',
   },
 });
