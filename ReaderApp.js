@@ -171,7 +171,7 @@ class ReaderApp extends React.PureComponent {
     );
     BackHandler.addEventListener('hardwareBackPress', this.manageBack);
     RNShake.addEventListener('ShakeEvent', () => {
-      if (Sefaria.isGettinToBePurimTime()) {
+      if (this.props.groggerActive === 'on' && Sefaria.isGettinToBePurimTime()) {
         SoundPlayer.playSoundFile('grogger', 'mp3');
       }
     });
