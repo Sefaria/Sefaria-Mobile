@@ -309,18 +309,26 @@ const ButtonToggleSection = ({ langStyle }) => {
       downloadUpdate(wifiOnly, false).then(() => {})
     }
   };
+  const setGroggerActive = isActive => {
+    dispatch({
+      type: STATE_ACTIONS.setGroggerActive,
+      value: isActive,
+    });
+  };
   const options = {
     interfaceLanguageOptions: generateOptions(['english', 'hebrew'], setInterfaceLanguage),
     textLanguageOptions: generateOptions(['english', 'bilingual', 'hebrew'], setTextLanguage),
     emailFrequencyOptions: generateOptions(['daily', 'weekly', 'never'], setEmailFrequency),
     preferredCustomOptions: generateOptions(['sephardi', 'ashkenazi'], setPreferredCustom),
     downloadNetworkSettingOptions: generateOptions(['wifiOnly', 'mobileNetwork'], setDownloadNetworkSetting),
-
+    groggerActiveOptions: generateOptions(['on', 'off'], setGroggerActive),
   };
   /* stateKey prop is used for testing */
+  const toggleButtons = ['textLanguage', 'interfaceLanguage', 'emailFrequency', 'preferredCustom', 'downloadNetworkSetting'];
+  if (Sefaria.isGettinToBePurimTime()) { toggleButtons.push('groggerActive'); }
   return (
     <View>
-      {['textLanguage', 'interfaceLanguage', 'emailFrequency', 'preferredCustom', 'downloadNetworkSetting'].map(s => (
+      {toggleButtons.map(s => (
         <View style={styles.settingsSection} key={s} stateKey={s}>
           <View>
             <Text style={[langStyle, styles.settingsSectionHeader, theme.tertiaryText]}>{strings[s]}</Text>

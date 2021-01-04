@@ -48,6 +48,8 @@ class ConnectionsPanel extends React.PureComponent {
     linkContents:         PropTypes.array,
     versionContents:      PropTypes.array,
     loading:              PropTypes.bool,
+    relatedHasError:      PropTypes.bool,
+    sectionRef:           PropTypes.string.isRequired,
     segmentRef:           PropTypes.string.isRequired,
     heSegmentRef:         PropTypes.string.isRequired,
     connectionsMode:      PropTypes.string,
@@ -73,6 +75,7 @@ class ConnectionsPanel extends React.PureComponent {
     viewOnSite:           PropTypes.func.isRequired,
     reportError:          PropTypes.func.isRequired,
     openSheetTag:         PropTypes.func.isRequired,
+    loadRelated:          PropTypes.func.isRequired,
   };
 
   render() {
@@ -255,6 +258,7 @@ class ConnectionsPanel extends React.PureComponent {
             viewList.push(
               <ResourcesList
                 key={"resourcesList"}
+                relatedHasError={this.props.relatedHasError}
                 sheet={this.props.sheet}
                 themeStr={this.props.themeStr}
                 versionsCount={this.props.versions.length}
@@ -266,6 +270,7 @@ class ConnectionsPanel extends React.PureComponent {
                 shareCurrentSegment={this.props.shareCurrentSegment}
                 reportError={this.props.reportError}
                 viewOnSite={this.props.viewOnSite}
+                reloadRelated={() => this.props.loadRelated(this.props.sectionRef)}
               />
             );
           }
@@ -310,6 +315,8 @@ class ResourcesList extends React.PureComponent {
     shareCurrentSegment:PropTypes.func.isRequired,
     viewOnSite:         PropTypes.func.isRequired,
     reportError:        PropTypes.func.isRequired,
+    relatedHasError:    PropTypes.bool,
+    reloadRelated:      PropTypes.func.isRequired,
   }
 
   render() {
@@ -317,6 +324,14 @@ class ResourcesList extends React.PureComponent {
     const isSaved = Sefaria.history.indexOfSaved(this.props.segmentRef) !== -1;
     return (
       <View>
+        {
+          this.props.relatedHasError ? (
+            <ToolsButton
+            text={"Resources failed to load. Tap to retry."}
+            onPress={this.props.reloadRelated}
+          />
+          ) : null
+        }
         <ToolsButton
           text={strings.sheets}
           icon={isWhite ? require("./img/sheet.png") : require("./img/sheet.png")}
@@ -359,7 +374,9 @@ const ToolsButton = ({ text, onPress, icon, count }) => {
   const theme = getTheme(themeStr);
   const textStyle = interfaceLanguage === "english" ? styles.enInt : styles.heInt;
   const flexDir = interfaceLanguage === "english" ? null : styles.rtlRow;
-  const iconComp = icon ? (<View style={styles.toolsButtonIcon}><Image source={icon} style={styles.menuButton} resizeMode={'contain'}></Image></View>) : null;
+  const hasIcon = !!icon;
+  icon = icon || require("./img/sheet.png");  // default to arbitrary icon that will be invisible if icon wasn't passed
+  const iconComp = (<View style={[styles.toolsButtonIcon, hasIcon ? null : styles.readerNavSectionMoreInvisible]}><Image source={icon} style={styles.menuButton} resizeMode={'contain'}></Image></View>);
   const countComp = !!count || count === 0 ? <Text style={[styles.enInt, theme.secondaryText, styles.spacedText]}>{` (${count}) `}</Text> : null
   return (
     <Pressable
