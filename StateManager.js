@@ -21,6 +21,7 @@ const STATE_ACTIONS = {
   setIsLoggedIn: "SET_IS_LOGGED_IN",
   setHasDismissedSyncModal: "SET_HAS_DISMISSED_SYNC_MODAL",
   setDownloadNetworkSetting: "SET_DOWNLOAD_NETWORK_MODE",
+  setGroggerActive: "SET_GROGGER_ACTIVE",
 };
 
 const UPDATE_SETTINGS_ACTIONS = {
@@ -91,6 +92,11 @@ const ACTION_CREATORS = {
     value: networkMode,
     fromAsync,
   }),
+  setGroggerActive: (isActive, fromAsync) => ({
+    type: STATE_ACTIONS.setGroggerActive,
+    value: isActive,
+    fromAsync,
+  }),
 }
 
 const ASYNC_STORAGE_DEFAULTS = {
@@ -141,7 +147,11 @@ const ASYNC_STORAGE_DEFAULTS = {
   downloadNetworkSetting: {
     default: 'wifiOnly',
     action: ACTION_CREATORS.setDownloadNetworkSetting
-  }
+  },
+  groggerActive: {
+    default: 'on',
+    action: ACTION_CREATORS.setGroggerActive,
+  },
 };
 
 const DEFAULT_STATE = {
@@ -159,6 +169,7 @@ const DEFAULT_STATE = {
   isLoggedIn: ASYNC_STORAGE_DEFAULTS.auth.default,
   hasDismissedSyncModal: ASYNC_STORAGE_DEFAULTS.hasDismissedSyncModal.default,
   downloadNetworkSetting: ASYNC_STORAGE_DEFAULTS.downloadNetworkSetting.default,
+  groggerActive: ASYNC_STORAGE_DEFAULTS.groggerActive.default,
 };
 
 const saveFieldToAsync = function (field, value) {
@@ -256,6 +267,12 @@ const reducer = function (state, action) {
       return {
         ...state,
         downloadNetworkSetting: action.value,
+      };
+    case STATE_ACTIONS.setGroggerActive:
+      if (!action.fromAsync) { saveFieldToAsync('groggerActive', action.value); }
+      return {
+        ...state,
+        groggerActive: action.value,
       };
     default:
       return state;

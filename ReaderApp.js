@@ -173,7 +173,7 @@ class ReaderApp extends React.PureComponent {
     );
     BackHandler.addEventListener('hardwareBackPress', this.manageBack);
     RNShake.addEventListener('ShakeEvent', () => {
-      if (Sefaria.isGettinToBePurimTime()) {
+      if (this.props.groggerActive === 'on' && Sefaria.isGettinToBePurimTime()) {
         SoundPlayer.playSoundFile('grogger', 'mp3');
       }
     });
@@ -765,20 +765,21 @@ class ReaderApp extends React.PureComponent {
     this.loadRelated(ref);
     this.loadVersions(ref);
   };
-
   loadRelated = async (ref, isSheet) => {
     let hadSuccess = false;
     for (let isOnline of [false, true]) {
       try {
         await this._loadRelatedOnlineAndOffline(ref, isSheet, isOnline);
         hadSuccess = true;
-      } catch (error) {}
+      } catch (error) {
+        crashlytics().recordError(new Error(`Related load error: Message: ${error}`));
+      }
     }
     if (!hadSuccess) {
       // make sure links get marked as loaded no matter what
       const iSec = isSheet ? 0 : this.state.sectionArray.findIndex(secRef=>secRef===ref);
       let tempLinksLoaded = this.state.linksLoaded.slice(0);
-      tempLinksLoaded[iSec] = true;
+      tempLinksLoaded[iSec] = 'error';
       this.setState({linksLoaded: tempLinksLoaded});
     }
   };
@@ -2140,6 +2141,7 @@ class ReaderApp extends React.PureComponent {
                 textToc={this.state.textToc}
                 segmentRefOnSheet={this.state.segmentRefOnSheet}
                 segmentRef={this.state.segmentRef}
+                sectionRef={this.state.sectionArray[this.state.sectionIndexRef]}
                 heSegmentRef={Sefaria.toHeSegmentRef(this.state.heRef, this.state.segmentRef)}
                 categories={Sefaria.categoriesForTitle(this.state.textTitle, isSheet)}
                 textFlow={this.state.textFlow}
@@ -2156,6 +2158,8 @@ class ReaderApp extends React.PureComponent {
                 linkContents={this.state.linkContents}
                 versionContents={this.state.versionContents}
                 loading={this.state.loadingLinks}
+                relatedHasError={this.state.linksLoaded && (this.state.linksLoaded[this.state.sectionIndexRef] === 'error')}
+                loadRelated={this.loadRelated}
                 connectionsMode={this.state.connectionsMode}
                 filterIndex={this.state.filterIndex}
                 recentFilters={this.state.linkRecentFilters}

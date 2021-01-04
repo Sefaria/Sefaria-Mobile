@@ -172,6 +172,8 @@ let strings = new LocalizedStrings({
     connecting: "Connecting",
     thisSourceIsConnectedTo: "This source is connected to ",
     by: "by",
+    resourcesFailedToLoad: "Resources failed to load. Tap to retry.",
+    groggerActive: "Grogger",
   },
   he: {
     mySheets: "דפי המקורות שלי",
@@ -341,6 +343,8 @@ let strings = new LocalizedStrings({
     connecting: "מתחבר",
     thisSourceIsConnectedTo: "מקור הזה קשור ל-",
     by: "על ידי",
+    resourcesFailedToLoad: "טעינת הקישורים נכשלה. הקש כדי לנסות שוב.",
+    groggerActive: "רעשן",
   }
 });
 
