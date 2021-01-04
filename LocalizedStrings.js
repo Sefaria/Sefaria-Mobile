@@ -169,6 +169,7 @@ let strings = new LocalizedStrings({
     downloadNetworkSetting: "Downloader Network Setting",
     of: "of",
     connecting: "Connecting",
+    resourcesFailedToLoad: "Resources failed to load. Tap to retry.",
   },
   he: {
     mySheets: "דפי המקורות שלי",
@@ -335,6 +336,7 @@ let strings = new LocalizedStrings({
     downloadNetworkSetting: "הגדרות רשת עבור הורדות",
     of: "מתוך",
     connecting: "מתחבר",
+    resourcesFailedToLoad: "טעינת הקישורים נכשלה. הקש כדי לנסות שוב.",
   }
 });
 
