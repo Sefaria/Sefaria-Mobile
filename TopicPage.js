@@ -290,9 +290,10 @@ const TopicCategoryHeader = ({ en, he, description, trendingTopics, openTopic })
             <DotSeparatedList
               items={trendingTopics.slice(0, 6)}
               renderItem={t => (
-                <Pressable onPress={()=>openTopic(t, false)}>
-                  <SText lang={menu_language} style={[isHeb ? styles.ContentBodyHe : styles.ContentBodyEn, {marginTop: 6}, theme.text]}>{isHeb ? t.he : t.en}</SText>
-                </Pressable>
+                <TopicLink
+                  slug={t.slug} topicTitle={t}
+                  openTopic={openTopic}
+                />
               )}
               keyExtractor={t => t.slug}
             />
@@ -310,10 +311,10 @@ const TopicCategoryButton = ({ topic, openTopic }) => {
   const isHeb = menu_language == 'hebrew';
   const { slug, en, he, description } = topic;
   return (
-    <TouchableOpacity onPress={()=>{ openTopic(topic, !!Sefaria.topicTocPage(slug)); }} style={{paddingHorizontal: 15, paddingVertical: 20}}>
+    <Pressable onPress={()=>{ openTopic(topic, !!Sefaria.topicTocPage(slug)); }} style={{paddingHorizontal: 15, paddingVertical: 20}}>
       <SText style={[isHeb ? styles.he : styles.en, {fontSize: 24}, theme.text]}>{isHeb ? he : en}</SText>
       {description ? <Text style={[isHeb ? styles.heInt : styles.enInt, {marginTop: 10, fontSize: 13, color: "#666"}]}>{isHeb ? description.he : description.en}</Text> : null}
-    </TouchableOpacity>
+    </Pressable>
   );
 };
 
@@ -381,11 +382,11 @@ const TopicPage = ({ topic, onBack, openTopic, showToast, openRef }) => {
       if (topicData) { topicData.sheetData = updatedData; } // Persist sheetData in cache
       return updatedData;
     }),
-    topic
+    topic.slug
   );
   const TopicSideColumnRendered =  topicData ?
     (<TopicSideColumn topic={topic} links={topicData.links}
-      setNavTopic={()=>{}} clearAndSetTopic={()=>{}}
+      openTopic={openTopic}
       parashaData={parashaData} tref={topicData.ref}
     />)
     : null;
@@ -498,7 +499,7 @@ TextPassage.propTypes = {
   text: textPropType,
 };
 
-const TopicLink = ({slug, topicTitle, onClick, isTransliteration, isCategory}) => {
+const TopicLink = ({slug, topicTitle, openTopic, isTransliteration, isCategory}) => {
   const { themeStr, interfaceLanguage } = useContext(GlobalStateContext);
   const theme = getTheme(themeStr);
   let langStyle = styles.ContentBodyEn;
@@ -511,7 +512,7 @@ const TopicLink = ({slug, topicTitle, onClick, isTransliteration, isCategory}) =
   return (
     <Pressable
       style={{marginTop: 6}}
-      onPress={onClick.bind(null, slug, topicTitle)} key={slug}
+      onPress={() => openTopic({slug, en, he}, isCategory)} key={slug}
     >
       <SText lang={interfaceLanguage} style={[langStyle, theme.text]}>
         { text }
@@ -525,7 +526,7 @@ TopicLink.propTypes = {
 };
 
 
-const TopicSideColumn = ({ topic, links, clearAndSetTopic, parashaData, tref, setNavTopic }) => {
+const TopicSideColumn = ({ topic, links, openTopic, parashaData, tref }) => {
   const { themeStr, interfaceLanguage } = useContext(GlobalStateContext);
   const theme = getTheme(themeStr);
   const [showMore, setShowMore] = useState(false);
@@ -542,7 +543,7 @@ const TopicSideColumn = ({ topic, links, clearAndSetTopic, parashaData, tref, se
   const renderLink = l => (
     <TopicLink
       slug={l.topic} topicTitle={l.title}
-      onClick={l.isCategory ? setNavTopic : clearAndSetTopic}
+      openTopic={openTopic}
       isTransliteration={l.titleIsTransliteration}
       isCategory={l.isCategory}
     />
@@ -597,7 +598,6 @@ const TopicSideColumn = ({ topic, links, clearAndSetTopic, parashaData, tref, se
 }
 TopicSideColumn.propTypes = {
   topicData: PropTypes.object,
-  clearAndSetTopic: PropTypes.func.isRequired,
 };
 
 
