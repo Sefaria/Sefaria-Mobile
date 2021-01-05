@@ -12,6 +12,7 @@ import {
     SimpleContentBlock,
     SimpleLinkedBlock,
     ProfileListing,
+    HebrewInEnglishText,
 } from './Misc';
 import styles from './Styles';
 import { GlobalStateContext, getTheme } from './StateManager';
@@ -58,12 +59,13 @@ StoryFrame.propTypes = {
 
 
 const StoryTitleBlock = ({ he, en, children, onClick }) => {
-  const { themeStr } = useContext(GlobalStateContext);
+  const { themeStr, interfaceLanguage } = useContext(GlobalStateContext);
   const theme = getTheme(themeStr);
   const SBlock = onClick ? SimpleLinkedBlock : SimpleInterfaceBlock;
+  const isHeb = interfaceLanguage === 'hebrew';
   return (
     <View style={{flex: 1}}>
-      <SBlock he={he} en={en} extraStyles={[styles.pageTitle, styles.topicSourceTitle]} onClick={onClick} />
+      <SBlock he={he} en={en} extraStyles={[isHeb ? styles.topicSourceTitle : styles.topicSourceTitleHe]} onClick={onClick} />
       {children}
     </View>
   );
@@ -81,21 +83,30 @@ const StoryBodyBlock = ({en, he}) => <SimpleContentBlock en={en} he={he}/>;
 
 
 const SheetBlock = ({sheet, compact, cozy, smallfonts, isTitle, showToast, onClick, extraStyles }) => {
-      const historyItem = {ref: "Sheet " + sheet.sheet_id,
-                  sheet_title: sheet.sheet_title,
-                  versions: {}};
+  const { themeStr, interfaceLanguage } = useContext(GlobalStateContext);
+  const theme = getTheme(themeStr);
+  const historyItem = {ref: "Sheet " + sheet.sheet_id,
+              sheet_title: sheet.sheet_title,
+              versions: {}};
+  const isHeb = interfaceLanguage === 'hebrew';
 
-      return (<View style={extraStyles}>
-        <SaveLine historyItem={historyItem} showToast={showToast}>
-            <StoryTitleBlock en={sheet.sheet_title} he={sheet.sheet_title} onClick={onClick} />
-        </SaveLine>
-        {(sheet.sheet_summary && !(compact || cozy))?<SimpleInterfaceBlock en={sheet.sheet_summary} he={sheet.sheet_summary}/>:null}
-        {cozy?"":<ProfileListing
-          image={sheet.publisher_image}
-          name={sheet.publisher_name}
-          organization={sheet.publisher_organization}
-        />}
-      </View>);
+  return (
+    <View style={extraStyles}>
+      <SaveLine historyItem={historyItem} showToast={showToast}>
+        <HebrewInEnglishText
+          text={sheet.sheet_title}
+          stylesHe={[styles.heInEn, styles.topicSourceTitleHe]}
+          stylesEn={[styles.topicSourceTitle]}
+        />
+      </SaveLine>
+      {(sheet.sheet_summary && !(compact || cozy))?<SimpleInterfaceBlock en={sheet.sheet_summary} he={sheet.sheet_summary}/>:null}
+      {cozy?"":<ProfileListing
+        image={sheet.publisher_image}
+        name={sheet.publisher_name}
+        organization={sheet.publisher_organization}
+      />}
+    </View>
+  );
 };
 SheetBlock.propTypes = {sheet: sheetPropType.isRequired};
 

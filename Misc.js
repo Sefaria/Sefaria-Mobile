@@ -1099,6 +1099,7 @@ SimpleLinkedBlock.propTypes = {
 };
 
 const ProfileListing = ({ image, name, organization }) => {
+  const { themeStr } = useContext(GlobalStateContext);
   return (
     <View style={{flexDirection: 'row'}}>
       <View>
@@ -1106,6 +1107,7 @@ const ProfileListing = ({ image, name, organization }) => {
           len={40}
           url={image}
           name={name}
+          themeStr={themeStr}
         />
       </View>
       <View>
@@ -1162,8 +1164,9 @@ class ProfilePic extends React.Component {
     return (img && img.complete && img.naturalWidth !== 0);
   };
   render() {
-    const { name, url, len, hideOnDefault } = this.props;
+    const { name, url, len, hideOnDefault, themeStr } = this.props;
     const { showDefault } = this.state;
+    const theme = getTheme(themeStr);
     const nameArray = !!name.trim() ? name.trim().split(/\s/) : [];
     const initials = nameArray.length > 0 ? (nameArray.length === 1 ? nameArray[0][0] : nameArray[0][0] + nameArray[nameArray.length-1][0]) : "";
     const defaultViz = showDefault ? 'flex' : 'none';
@@ -1172,6 +1175,9 @@ class ProfilePic extends React.Component {
 
     return (
       <View>
+        <View style={[{display: defaultViz,  width: len, height: len}, styles.profilePic, theme.secondaryBackground]}>
+          <Text style={[{fontSize: len/2}, theme.contrastText]}>{`${initials}` }</Text>
+        </View>
         <Image
           style={[{display: profileViz, width: len, height: len}, styles.profilePic]}
           source={{'uri': imageSrc}}

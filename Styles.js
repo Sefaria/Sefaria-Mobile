@@ -1342,6 +1342,11 @@ export default StyleSheet.create({
   },
   topicSourceTitle: {
     fontSize: 24,
+    fontFamily: 'Amiri',
+  },
+  topicSourceTitleHe: {
+    fontSize: 24,
+    fontFamily: 'Taamey Frank Taamim Fix',
   },
   colorBarBoxEnglish: {
     borderLeftWidth: 4,
@@ -1382,5 +1387,7 @@ export default StyleSheet.create({
   },
   profilePic: {
     borderRadius: 1000,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
