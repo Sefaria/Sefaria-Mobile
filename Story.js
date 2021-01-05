@@ -89,15 +89,11 @@ const SheetBlock = ({sheet, compact, cozy, smallfonts, isTitle, showToast, onCli
               sheet_title: sheet.sheet_title,
               versions: {}};
   const isHeb = interfaceLanguage === 'hebrew';
-
+  const title = Sefaria.util.stripHtml(sheet.sheet_title);
   return (
     <View style={extraStyles}>
       <SaveLine historyItem={historyItem} showToast={showToast}>
-        <HebrewInEnglishText
-          text={sheet.sheet_title}
-          stylesHe={[styles.heInEn, styles.topicSourceTitleHe]}
-          stylesEn={[styles.topicSourceTitle]}
-        />
+        <StoryTitleBlock en={title} he={title} onClick={onClick} />	
       </SaveLine>
       {(sheet.sheet_summary && !(compact || cozy))?<SimpleInterfaceBlock en={sheet.sheet_summary} he={sheet.sheet_summary}/>:null}
       {cozy?"":<ProfileListing
