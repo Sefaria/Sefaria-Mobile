@@ -1100,7 +1100,7 @@ SimpleLinkedBlock.propTypes = {
 
 const ProfileListing = ({ image, name, organization }) => {
   return (
-    <View>
+    <View style={{flexDirection: 'row'}}>
       <View>
         <ProfilePic
           len={40}
@@ -1109,6 +1109,10 @@ const ProfileListing = ({ image, name, organization }) => {
         />
       </View>
       <View>
+        <SimpleInterfaceBlock
+          en={name}
+          he={name}
+        />
         {
           !!organization ? <SimpleInterfaceBlock
             en={organization}
@@ -1169,7 +1173,7 @@ class ProfilePic extends React.Component {
     return (
       <View>
         <Image
-          style={{display: profileViz, width: len, height: len}}
+          style={[{display: profileViz, width: len, height: len}, styles.profilePic]}
           source={{'uri': imageSrc}}
           ref={this.imgFile}
           onLoad={this.setShowImage}

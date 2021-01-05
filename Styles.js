@@ -1380,4 +1380,7 @@ export default StyleSheet.create({
   topicPageHorizontalMargin: {
     marginHorizontal: 15,
   },
+  profilePic: {
+    borderRadius: 1000,
+  },
 });
