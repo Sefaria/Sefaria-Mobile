@@ -1377,4 +1377,7 @@ export default StyleSheet.create({
     flexDirection: 'row',
     alignContent: 'center',
   },
+  topicPageHorizontalMargin: {
+    marginHorizontal: 15,
+  },
 });

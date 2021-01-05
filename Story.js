@@ -62,7 +62,7 @@ const StoryTitleBlock = ({ he, en, children, onClick }) => {
   const theme = getTheme(themeStr);
   const SBlock = onClick ? SimpleLinkedBlock : SimpleInterfaceBlock;
   return (
-    <View>
+    <View style={{flex: 1}}>
       <SBlock he={he} en={en} extraStyles={[styles.pageTitle, styles.topicSourceTitle]} onClick={onClick} />
       {children}
     </View>
@@ -80,14 +80,14 @@ const ColorBarBox = ({tref, children}) =>  {
 const StoryBodyBlock = ({en, he}) => <SimpleContentBlock en={en} he={he}/>;
 
 
-const SheetBlock = ({sheet, compact, cozy, smallfonts, isTitle, showToast, onClick }) => {
+const SheetBlock = ({sheet, compact, cozy, smallfonts, isTitle, showToast, onClick, extraStyles }) => {
       const historyItem = {ref: "Sheet " + sheet.sheet_id,
                   sheet_title: sheet.sheet_title,
                   versions: {}};
 
-      return (<View>
+      return (<View style={extraStyles}>
         <SaveLine historyItem={historyItem} showToast={showToast}>
-            <SimpleLinkedBlock en={sheet.sheet_title} he={sheet.sheet_title} onClick={onClick}/>
+            <StoryTitleBlock en={sheet.sheet_title} he={sheet.sheet_title} onClick={onClick} />
         </SaveLine>
         {(sheet.sheet_summary && !(compact || cozy))?<SimpleInterfaceBlock en={sheet.sheet_summary} he={sheet.sheet_summary}/>:null}
         {cozy?"":<ProfileListing

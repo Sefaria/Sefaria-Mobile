@@ -404,6 +404,7 @@ const TopicPage = ({ topic, onBack, openTopic, showToast, openRef }) => {
   const ListRendered = (
     currTabIndex === 0 ? (
       <FilterableFlatList
+        key="sources"
         data={textData}
         renderItem={({ item }) =>(
           item.isSplice ? (
@@ -425,11 +426,21 @@ const TopicPage = ({ topic, onBack, openTopic, showToast, openRef }) => {
         sortFunc={(a, b) => refSort('Relevance', a, b, { interfaceLanguage })}
       />
     ) : (
-      <FlatList
+      <FilterableFlatList
+        key="sheets"
         data={sheetData}
-        renderItem={({ item }) => <SheetBlock sheet={item} compact showToast={showToast} onClick={()=>{}}/>}
+        renderItem={({ item }) => (
+          <SheetBlock
+            sheet={item} compact showToast={showToast}
+            onClick={()=>{}}
+            extraStyles={styles.topicPageHorizontalMargin}
+          />
+        )}
         keyExtractor={item => ""+item.sheet_id}
         ListHeaderComponent={TopicPageHeaderRendered}
+        currFilter={query}
+        filterFunc={sheetFilter}
+        sortFunc={(a, b) => sheetSort('Relevance', a, b, { interfaceLanguage })}
       />
     )
   );
@@ -484,7 +495,7 @@ const TopicPageHeader = ({ en, he, slug, description, currTabIndex, setCurrTabIn
 
 const TextPassage = ({text, topicTitle, showToast, openRef }) => {
   if (!text.ref) { return null; }
-  return <StoryFrame extraStyles={{marginHorizontal: 15}}>
+  return <StoryFrame extraStyles={styles.topicPageHorizontalMargin}>
       <DataSourceLine dataSources={text.dataSources} topicTitle={topicTitle}>
         <SaveLine dref={text.ref} showToast={showToast}>
             <StoryTitleBlock en={text.ref} he={norm_hebrew_ref(text.heRef)} onClick={() => openRef(text.ref)} />
