@@ -350,6 +350,7 @@ const TopicPage = ({ topic, onBack, openTopic, showToast, openRef, openRefSheet 
     })());
     promise.catch((error) => { if (!error.isCanceled) { console.log('TopicPage Error', error); } });
     return () => {
+      console.log("RESET");
       cancel();
       setTopicData(false);
       setTextData(null);
@@ -360,7 +361,7 @@ const TopicPage = ({ topic, onBack, openTopic, showToast, openRef, openRefSheet 
   }, [topic.slug]);
 
   // Fetching textual data in chunks
-  useIncrementalLoad(
+  const textFinishedLoading = useIncrementalLoad(
     fetchBulkText,
     textRefsToFetch,
     70,
@@ -373,7 +374,7 @@ const TopicPage = ({ topic, onBack, openTopic, showToast, openRef, openRefSheet 
   );
 
   // Fetching sheet data in chunks
-  useIncrementalLoad(
+  const sheetFinishedLoading = useIncrementalLoad(
     fetchBulkSheet,
     sheetRefsToFetch,
     70,
@@ -444,7 +445,8 @@ const TopicPage = ({ topic, onBack, openTopic, showToast, openRef, openRefSheet 
       />
     )
   );
-
+  
+  console.log('STATUS', textFinishedLoading, sheetFinishedLoading);
   return (
     <View style={[styles.menu, theme.mainTextPanel]} key={topic.slug}>
       <SystemHeader
@@ -452,7 +454,7 @@ const TopicPage = ({ topic, onBack, openTopic, showToast, openRef, openRefSheet 
         onBack={onBack}
         hideLangToggle
       />
-      { topicData ? ListRendered : null }
+      { ListRendered }
     </View>
   )
 };

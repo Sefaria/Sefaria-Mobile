@@ -26,6 +26,7 @@ export function usePaginatedLoad(fetchDataByPage, setter, identityElement, numPa
   const [page, setPage] = useState(0);
   const [isCanceled, setCanceled] = useState({});    // dict {idElem: Bool}
   const [valueQueue, setValueQueue] = useState(null);
+  const [finishedLoading, setFinishedLoading] = useState(false);
 
   // When identityElement changes:
   // Set current identityElement to not canceled
@@ -38,6 +39,7 @@ export function usePaginatedLoad(fetchDataByPage, setter, identityElement, numPa
         setCanceled(d => { d[identityElement] = true; return Object.assign({}, d);});
         setter(resetValue);
         setPage(0);
+        setFinishedLoading(false);
   }}, [identityElement]);
 
   const fetchPage = useCallback(() => fetchDataByPage(page), [page, fetchDataByPage]);
@@ -45,10 +47,10 @@ export function usePaginatedLoad(fetchDataByPage, setter, identityElement, numPa
   // make sure value setting callback and page procession get short circuited when id_elem has been canceled
   // clear value queue on success
   const setResult = useCallback((id_elem, val) => {
-            if (isCanceled[id_elem]) { setValueQueue(null); return; }
+            if (isCanceled[id_elem]) { setValueQueue(null); setFinishedLoading(true); return; }
             setter(val);
             setValueQueue(null);
-            if (page === numPages - 1 || numPages === 0) { return; }
+            if (page === numPages - 1 || numPages === 0) { setFinishedLoading(true); return; }
             setPage(prevPage => prevPage + 1);
         }, [isCanceled, setter, numPages, page, identityElement]);
 
@@ -67,6 +69,8 @@ export function usePaginatedLoad(fetchDataByPage, setter, identityElement, numPa
           if (error.error !== 'input not array') { throw error; }
         });
   }, [fetchPage]);
+
+  return finishedLoading;
 }
 
 export function useIncrementalLoad(fetchData, input, pageSize, setter, identityElement, resetValue=false) {
@@ -92,5 +96,5 @@ export function useIncrementalLoad(fetchData, input, pageSize, setter, identityE
     return [fetchDataByPage, numPages];
   }, [input]);
 
-  usePaginatedLoad(fetchDataByPage, setter, identityElement, numPages, resetValue);
+  return usePaginatedLoad(fetchDataByPage, setter, identityElement, numPages, resetValue);
 }

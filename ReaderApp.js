@@ -1791,7 +1791,6 @@ class ReaderApp extends React.PureComponent {
   };
 
   openTopic = (topic, isCategory) => {
-    console.log("TOPIC", topic);
     BackManager.forward({ state: this.state });
     this.setState({navigationTopic: topic, menuOpen: isCategory ? "topic toc" : "topic"});
   };
