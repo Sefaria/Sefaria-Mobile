@@ -76,8 +76,8 @@ class TextColumn extends React.PureComponent {
     textUnavailableAlert: PropTypes.func.isRequired,
   };
 
-  constructor(props, context) {
-    super(props, context);
+  constructor(props) {
+    super(props);
     this.currentY = 0; // for measuring scroll speed
     this.rowRefs = {}; //hash table of currently loaded row refs.
     this.rowYHash = {};

@@ -80,24 +80,19 @@ const ColorBarBox = ({tref, children}) =>  {
 const StoryBodyBlock = ({en, he}) => <SimpleContentBlock en={en} he={he}/>;
 
 
-const SheetBlock = ({sheet, compact, cozy, smallfonts, isTitle }) => {
+const SheetBlock = ({sheet, compact, cozy, smallfonts, isTitle, showToast, onClick }) => {
       const historyItem = {ref: "Sheet " + sheet.sheet_id,
                   sheet_title: sheet.sheet_title,
                   versions: {}};
 
       return (<View>
-        <SaveLine historyItem={historyItem} >
-            <SimpleLinkedBlock en={sheet.sheet_title} he={sheet.sheet_title} url={"/sheets/" + sheet.sheet_id} />
+        <SaveLine historyItem={historyItem} showToast={showToast}>
+            <SimpleLinkedBlock en={sheet.sheet_title} he={sheet.sheet_title} onClick={onClick}/>
         </SaveLine>
         {(sheet.sheet_summary && !(compact || cozy))?<SimpleInterfaceBlock en={sheet.sheet_summary} he={sheet.sheet_summary}/>:null}
         {cozy?"":<ProfileListing
-          uid={sheet.publisher_id}
-          url={sheet.publisher_url}
           image={sheet.publisher_image}
           name={sheet.publisher_name}
-          is_followed={sheet.publisher_followed}
-          smallfonts={smallfonts}
-          position={sheet.publisher_position}
           organization={sheet.publisher_organization}
         />}
       </View>);

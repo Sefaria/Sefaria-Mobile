@@ -1133,36 +1133,44 @@ class ProfilePic extends React.Component {
     };
     this.imgFile = React.createRef();
   }
-  setShowDefault() { console.log("error"); this.setState({showDefault: true});  }
-  setShowImage() {console.log("load"); this.setState({showDefault: false});  }
   componentDidMount() {
+    this._isMounted = true;
     if (this.didImageLoad()) {
       this.setShowImage();
     } else {
       this.setShowDefault();
     }
   }
-  didImageLoad(){
+  componentWillUnmount() { this._isMounted = false; }
+  setShowDefault = () => {
+    if (!this._isMounted) { return; }
+    this.setState({showDefault: true});
+  };
+  setShowImage = () => {
+    if (!this._isMounted) { return; }
+    this.setState({showDefault: false});
+  };
+  didImageLoad = () => {
     // When using React Hydrate, the onLoad event of the profile image will return before
     // react code runs, so we check after mount as well to look replace bad images, or to
     // swap in a gravatar image that we now know is valid.
     const img = this.imgFile.current;
     return (img && img.complete && img.naturalWidth !== 0);
-  }
+  };
   render() {
     const { name, url, len, hideOnDefault } = this.props;
     const { showDefault } = this.state;
     const nameArray = !!name.trim() ? name.trim().split(/\s/) : [];
     const initials = nameArray.length > 0 ? (nameArray.length === 1 ? nameArray[0][0] : nameArray[0][0] + nameArray[nameArray.length-1][0]) : "";
     const defaultViz = showDefault ? 'flex' : 'none';
-    const profileViz = showDefault ? 'none' : 'block';
+    const profileViz = showDefault ? 'none' : 'flex';
     const imageSrc = url.replace("profile-default.png", 'profile-default-404.png');  // replace default with non-existant image to force onLoad to fail
 
     return (
       <View>
         <Image
-          style={{display: profileViz, width: len, height: len, fontSize: len/2}}
-          source={imageSrc}
+          style={{display: profileViz, width: len, height: len}}
+          source={{'uri': imageSrc}}
           ref={this.imgFile}
           onLoad={this.setShowImage}
           onError={this.setShowDefault}

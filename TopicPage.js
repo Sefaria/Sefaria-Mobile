@@ -427,8 +427,8 @@ const TopicPage = ({ topic, onBack, openTopic, showToast, openRef }) => {
     ) : (
       <FlatList
         data={sheetData}
-        renderItem={({ item }) => <Text>{item.sheet_title}</Text>}
-        keyExtractor={item => item.sheet_id}
+        renderItem={({ item }) => <SheetBlock sheet={item} compact showToast={showToast} onClick={()=>{}}/>}
+        keyExtractor={item => ""+item.sheet_id}
         ListHeaderComponent={TopicPageHeaderRendered}
       />
     )
