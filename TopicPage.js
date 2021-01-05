@@ -318,7 +318,7 @@ const TopicCategoryButton = ({ topic, openTopic }) => {
   );
 };
 
-const TopicPage = ({ topic, onBack, openTopic, showToast, openRef }) => {
+const TopicPage = ({ topic, onBack, openTopic, showToast, openRef, openRefSheet }) => {
   const { themeStr, interfaceLanguage, textLanguage } = useContext(GlobalStateContext);
   const theme = getTheme(themeStr);
   const defaultTopicData = {primaryTitle: null, textRefs: false, sheetRefs: false, isLoading: true};
@@ -432,7 +432,7 @@ const TopicPage = ({ topic, onBack, openTopic, showToast, openRef }) => {
         renderItem={({ item }) => (
           <SheetBlock
             sheet={item} compact showToast={showToast}
-            onClick={()=>{}}
+            onClick={()=>{ openRefSheet(item.sheet_id, item); }}
             extraStyles={styles.topicPageHorizontalMargin}
           />
         )}
@@ -455,6 +455,10 @@ const TopicPage = ({ topic, onBack, openTopic, showToast, openRef }) => {
       { topicData ? ListRendered : null }
     </View>
   )
+};
+TopicPage.propTypes = {
+  openRef: PropTypes.func.isRequired,
+  openRefSheet: PropTypes.func.isRequired,
 };
 
 const TopicPageHeader = ({ en, he, slug, description, currTabIndex, setCurrTabIndex, query, setQuery, tabs }) => {

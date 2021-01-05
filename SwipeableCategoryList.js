@@ -109,7 +109,7 @@ class SwipeableCategoryList extends React.Component {
         style={{flex: 1, justifyContent: "center", alignItems: "center"}}
       >
         <CategorySideColorLink
-          category={Sefaria.categoryForTitle(item.book)}
+          category={Sefaria.categoryForTitle(item.book, item.is_sheet)}
           enText={is_sheet ? sheet_title : ref}
           heText={is_sheet ? sheet_title : he_ref}
           sheetOwner={sheet_owner}

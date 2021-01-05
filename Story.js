@@ -85,9 +85,14 @@ const StoryBodyBlock = ({en, he}) => <SimpleContentBlock en={en} he={he}/>;
 const SheetBlock = ({sheet, compact, cozy, smallfonts, isTitle, showToast, onClick, extraStyles }) => {
   const { themeStr, interfaceLanguage } = useContext(GlobalStateContext);
   const theme = getTheme(themeStr);
-  const historyItem = {ref: "Sheet " + sheet.sheet_id,
-              sheet_title: sheet.sheet_title,
-              versions: {}};
+  const historyItem = {
+    ref: "Sheet " + sheet.sheet_id,
+    sheet_title: sheet.sheet_title,
+    sheet_owner: sheet.publisher_name,
+    book: "Sheet",
+    is_sheet: true,
+    versions: {},
+  };
   const isHeb = interfaceLanguage === 'hebrew';
   const title = Sefaria.util.stripHtml(sheet.sheet_title);
   return (
