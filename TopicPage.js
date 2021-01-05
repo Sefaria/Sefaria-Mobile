@@ -433,7 +433,7 @@ const TopicPage = ({ topic, onBack, openTopic, showToast, openRef, openRefSheet 
           <SheetBlock
             sheet={item} compact showToast={showToast}
             onClick={()=>{ openRefSheet(item.sheet_id, item); }}
-            extraStyles={styles.topicPageHorizontalMargin}
+            extraStyles={[styles.topicPageHorizontalMargin, {marginBottom: 30}]}
           />
         )}
         keyExtractor={item => ""+item.sheet_id}

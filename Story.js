@@ -101,11 +101,15 @@ const SheetBlock = ({sheet, compact, cozy, smallfonts, isTitle, showToast, onCli
         <StoryTitleBlock en={title} he={title} onClick={onClick} />	
       </SaveLine>
       {(sheet.sheet_summary && !(compact || cozy))?<SimpleInterfaceBlock en={sheet.sheet_summary} he={sheet.sheet_summary}/>:null}
-      {cozy?"":<ProfileListing
-        image={sheet.publisher_image}
-        name={sheet.publisher_name}
-        organization={sheet.publisher_organization}
-      />}
+      {cozy ? "" : (
+        <View style={{marginTop: 10}}>
+          <ProfileListing
+            image={sheet.publisher_image}
+            name={sheet.publisher_name}
+            organization={sheet.publisher_organization}
+          />
+        </View>
+      )}
     </View>
   );
 };

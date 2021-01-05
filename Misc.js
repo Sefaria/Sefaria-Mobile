@@ -1102,15 +1102,13 @@ const ProfileListing = ({ image, name, organization }) => {
   const { themeStr } = useContext(GlobalStateContext);
   return (
     <View style={{flexDirection: 'row'}}>
-      <View>
-        <ProfilePic
-          len={40}
-          url={image}
-          name={name}
-          themeStr={themeStr}
-        />
-      </View>
-      <View>
+      <ProfilePic
+        len={40}
+        url={image}
+        name={name}
+        themeStr={themeStr}
+      />
+      <View style={{paddingHorizontal: 10, justifyContent: 'space-between', flex: 1}}>
         <SimpleInterfaceBlock
           en={name}
           he={name}
