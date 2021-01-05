@@ -421,6 +421,7 @@ const TopicPage = ({ topic, onBack, openTopic, showToast, openRef, openRefSheet 
         )}
         keyExtractor={item => item.isSplice ? 'splice' : item[0]}
         ListHeaderComponent={TopicPageHeaderRendered}
+        ListFooterComponent={textFinishedLoading ? null : <LoadingView />}
         spliceIndex={1}
         currFilter={query}
         filterFunc={refFilter}
@@ -434,11 +435,12 @@ const TopicPage = ({ topic, onBack, openTopic, showToast, openRef, openRefSheet 
           <SheetBlock
             sheet={item} compact showToast={showToast}
             onClick={()=>{ openRefSheet(item.sheet_id, item); }}
-            extraStyles={[styles.topicPageHorizontalMargin, {marginBottom: 30}]}
+            extraStyles={styles.topicItemMargins}
           />
         )}
         keyExtractor={item => ""+item.sheet_id}
         ListHeaderComponent={TopicPageHeaderRendered}
+        ListFooterComponent={sheetFinishedLoading ? null : <LoadingView />}
         currFilter={query}
         filterFunc={sheetFilter}
         sortFunc={(a, b) => sheetSort('Relevance', a, b, { interfaceLanguage })}
@@ -446,7 +448,6 @@ const TopicPage = ({ topic, onBack, openTopic, showToast, openRef, openRefSheet 
     )
   );
   
-  console.log('STATUS', textFinishedLoading, sheetFinishedLoading);
   return (
     <View style={[styles.menu, theme.mainTextPanel]} key={topic.slug}>
       <SystemHeader
@@ -501,16 +502,18 @@ const TopicPageHeader = ({ en, he, slug, description, currTabIndex, setCurrTabIn
 
 const TextPassage = ({text, topicTitle, showToast, openRef }) => {
   if (!text.ref) { return null; }
-  return <StoryFrame extraStyles={styles.topicPageHorizontalMargin}>
+  return (
+    <StoryFrame extraStyles={styles.topicItemMargins}>
       <DataSourceLine dataSources={text.dataSources} topicTitle={topicTitle}>
         <SaveLine dref={text.ref} showToast={showToast}>
-            <StoryTitleBlock en={text.ref} he={norm_hebrew_ref(text.heRef)} onClick={() => openRef(text.ref)} />
+          <StoryTitleBlock en={text.ref} he={norm_hebrew_ref(text.heRef)} onClick={() => openRef(text.ref)} />
         </SaveLine>
       </DataSourceLine>
       <ColorBarBox tref={text.ref}>
-          <StoryBodyBlock en={text.en} he={text.he}/>
+        <StoryBodyBlock en={text.en} he={text.he}/>
       </ColorBarBox>
-  </StoryFrame>;
+    </StoryFrame>
+  );
 };
 TextPassage.propTypes = {
   text: textPropType,
@@ -606,7 +609,7 @@ const TopicSideColumn = ({ topic, links, openTopic, parashaData, tref }) => {
     )
     : null;
   return (
-    <View style={[theme.lightestGreyBackground, {padding: 14}]}>
+    <View style={[theme.lightestGreyBackground, {padding: 14, marginBottom: 30}]}>
       { readingsComponent }
       { linksComponent }
       { moreButton }

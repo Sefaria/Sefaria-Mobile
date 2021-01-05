@@ -1382,8 +1382,9 @@ export default StyleSheet.create({
     flexDirection: 'row',
     alignContent: 'center',
   },
-  topicPageHorizontalMargin: {
+  topicItemMargins: {
     marginHorizontal: 15,
+    marginBottom: 30,
   },
   profilePic: {
     borderRadius: 1000,
