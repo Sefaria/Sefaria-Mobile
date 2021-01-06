@@ -350,7 +350,6 @@ const TopicPage = ({ topic, onBack, openTopic, showToast, openRef, openRefSheet 
     })());
     promise.catch((error) => { if (!error.isCanceled) { console.log('TopicPage Error', error); } });
     return () => {
-      console.log("RESET");
       cancel();
       setTopicData(false);
       setTextData(null);
