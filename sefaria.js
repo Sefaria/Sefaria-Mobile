@@ -264,12 +264,11 @@ Sefaria = {
   },
   urlToRef: url => {
     // url: tref as it would appear in a url
+    url = url.replace(/\./, ' ');  // first period is guarenteed to be separation between title and sections
     url = url.replace(/_/g, ' ');
     const title = Sefaria.textTitleForRef(url);
     if (!title) { return { ref: url, title }; }
-    // regexp to replace the dot immediately following the title
-    const spaceReplacer = new RegExp("^(" + Sefaria.util.regexEscape(title) + "(?:, [A-Za-z\u05d0-\u05ea]+){0,})\.");
-    const ref = url.replace(spaceReplacer, "$1 ").replace(/\./g, ':');
+    const ref = url.replace(/\./g, ':');
     return { ref, title };
   },
   categoryForTitle: function(title, isSheet) {
