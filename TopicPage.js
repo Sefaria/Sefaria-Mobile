@@ -23,6 +23,7 @@ import {
   DataSourceLine,
   FilterableFlatList,
   InterfaceTextWithFallback,
+  ContentTextWithFallback,
   DotSeparatedList,
 } from './Misc';
 
@@ -386,7 +387,7 @@ const TopicPage = ({ topic, onBack, openTopic, showToast, openRef, openRefSheet 
   );
   const TopicSideColumnRendered =  topicData ?
     (<TopicSideColumn topic={topic} links={topicData.links}
-      openTopic={openTopic}
+      openTopic={openTopic} openRef={openRef}
       parashaData={parashaData} tref={topicData.ref}
     />)
     : null;
@@ -519,23 +520,13 @@ TextPassage.propTypes = {
 };
 
 const TopicLink = ({slug, topicTitle, openTopic, isTransliteration, isCategory}) => {
-  const { themeStr, interfaceLanguage } = useContext(GlobalStateContext);
-  const theme = getTheme(themeStr);
-  let langStyle = styles.ContentBodyEn;
   const { en, he } = topicTitle;
-  let text = en;
-  if ((interfaceLanguage === 'english' && !en) || (interfaceLanguage === 'hebrew' && !!he)) {
-    langStyle = styles.ContentBodyHe;
-    text = he;
-  }
   return (
     <Pressable
       style={{marginTop: 6}}
       onPress={() => openTopic({slug, en, he}, isCategory)} key={slug}
     >
-      <SText lang={interfaceLanguage} style={[langStyle, theme.text]}>
-        { text }
-      </SText>
+      <ContentTextWithFallback en={en} he={he} />
     </Pressable>
   );
 }
@@ -545,7 +536,7 @@ TopicLink.propTypes = {
 };
 
 
-const TopicSideColumn = ({ topic, links, openTopic, parashaData, tref }) => {
+const TopicSideColumn = ({ topic, links, openTopic, openRef, parashaData, tref }) => {
   const { themeStr, interfaceLanguage } = useContext(GlobalStateContext);
   const theme = getTheme(themeStr);
   const [showMore, setShowMore] = useState(false);
@@ -568,7 +559,7 @@ const TopicSideColumn = ({ topic, links, openTopic, parashaData, tref }) => {
     />
   );
   const readingsComponent = (parashaData && tref) ? (
-    <ReadingsComponent parashaData={parashaData} tref={tref} />
+    <ReadingsComponent parashaData={parashaData} tref={tref} openRef={openRef} />
   ) : null;
   const linksComponent = (
     links ? linkTypeArray.slice(0, !showMore ? 1 : undefined).map(({ title, pluralTitle, links }, iLinkType) => (
@@ -620,30 +611,39 @@ TopicSideColumn.propTypes = {
 };
 
 
-const ReadingsComponent = ({ parashaData, tref }) => {
-  const { interfaceLanguage } = useContext(GlobalStateContext);
+const ReadingsComponent = ({ parashaData, tref, openRef }) => {
+  const { themeStr, interfaceLanguage } = useContext(GlobalStateContext);
+  const theme = getTheme(themeStr);
+  const parashaDate = Sefaria.util.localeDate(parashaData.date, interfaceLanguage);
   return (
-    <View style={[styles.readings, styles.linkSection]}>
-      <View>
-        <InterfaceTextWithFallback en={"Readings"} he={"פרשיות והפטרות"} />
+    <View>
+      <View style={[styles.readingsHeader, styles.readingsSection, theme.lighterGreyBorder]}>
+        <InterfaceTextWithFallback en={"Readings"} he={"פרשיות והפטרות"} extraStyles={[styles.SystemBodyEn, styles.topicLinkTypeHeader, theme.tertiaryText, {borderBottomWidth: 0}]}/>
+        <View style={{flexDirection: "row"}}>
+          <InterfaceTextWithFallback en={parashaDate} he={parashaDate} extraStyles={[theme.secondaryText]} />
+          <Text style={styles.separator}> · </Text>
+          <InterfaceTextWithFallback {...parashaData.he_date} extraStyles={[theme.secondaryText]} />
+        </View>
       </View>
-      <View style={[styles.smallText, styles.parashaDate]}>
-        <InterfaceTextWithFallback en={Sefaria.util.localeDate(parashaData.date)} he={Sefaria.util.localeDate(parashaData.date)} />
-        <View style={styles.separator}>·</View>
-        <InterfaceTextWithFallback {...parashaData.he_date} />
+      <View style={styles.readingsSection}>
+        <InterfaceTextWithFallback en={"Torah"} he={"תורה"} extraStyles={[theme.tertiaryText, {marginBottom: 5}]} />
+        <Pressable onPress={()=>{ openRef(tref.en); }} style={{marginTop: 6}}>
+          <ContentTextWithFallback en={tref.en} he={norm_hebrew_ref(tref.he)} />
+        </Pressable>
       </View>
-
-      <View style={styles.sectionTitleText}><InterfaceTextWithFallback en={"Torah"} he={"תורה"} /></View>
-      <Pressable onPress={()=>{}}><InterfaceTextWithFallback en={tref.en} he={norm_hebrew_ref(tref.he)} /></Pressable>
-      <View style={styles.sectionTitleText}><InterfaceTextWithFallback en={"Haftarah"} he={"הפטרה"} /></View>
-      <View style={styles.haftarot}>
-      {
-        parashaData.haftarah.map(h => (
-          <Pressable onPress={()=>{}} key={h.url}>
-            <InterfaceTextWithFallback en={h.displayValue.en} he={norm_hebrew_ref(h.displayValue.he)} />
-          </Pressable>
-        ))
-      }
+      <View style={styles.readingsSection}>
+        <InterfaceTextWithFallback en={"Haftarah"} he={"הפטרה"} extraStyles={[theme.tertiaryText, {marginBottom: 5}]} />
+        <View style={{flexDirection: "row"}}>
+          <DotSeparatedList
+            items={parashaData.haftarah}
+            renderItem={h => (
+              <Pressable onPress={()=>{ openRef(h.displayValue.en); }} style={{marginTop: 6}}>
+                <ContentTextWithFallback en={h.displayValue.en} he={norm_hebrew_ref(h.displayValue.he)} />
+              </Pressable>
+            )}
+            keyExtractor={h => h.url}
+          />
+        </View>
       </View>
     </View>
   );

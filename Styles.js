@@ -1391,4 +1391,12 @@ export default StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  readingsHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    borderBottomWidth: 1,
+  },
+  readingsSection: {
+    marginBottom: 15,
+  },
 });

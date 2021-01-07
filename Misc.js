@@ -66,6 +66,21 @@ const InterfaceTextWithFallback = ({ en, he, extraStyles=[] }) => {
   );
 }
 
+const ContentTextWithFallback = ({ en, he, extraStyles=[] }) => {
+  // default lang still governed by interfaceLanguage, but styles reflect content text styles
+  const { themeStr, interfaceLanguage } = useContext(GlobalStateContext);
+  const theme = getTheme(themeStr);
+  let langStyle = styles.ContentBodyEn;
+  let text = en;
+  if ((interfaceLanguage === 'english' && !en) || (interfaceLanguage === 'hebrew' && !!he)) {
+    langStyle = styles.ContentBodyHe;
+    text = he;
+  }
+  return (
+    <SText lang={interfaceLanguage} style={[langStyle].concat(extraStyles)}>{text}</SText>
+  );
+}
+
 const OrderedList = ({items, renderItem}) => {
   let arrayOffset = 0;
   return (
@@ -1256,6 +1271,7 @@ export {
   CloseButton,
   CollapseIcon,
   ConditionalProgressWrapper,
+  ContentTextWithFallback,
   DataSourceLine,
   DirectedArrow,
   DirectedButton,
