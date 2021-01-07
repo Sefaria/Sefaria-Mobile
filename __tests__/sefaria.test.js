@@ -12,9 +12,17 @@ describe('sefaria url', () => {
     test('urlToRef complex', () => {
         const testTitle = 'Midrash Tanchuma Buber';
         Sefaria.booksDict[testTitle] = 1;
-        const url = "Midrash_Tanchuma_Buber,_Bereshit.11.1"
+        const url = "Midrash_Tanchuma_Buber,_Bereshit.11.1";
         const { ref, title } = Sefaria.urlToRef(url);
         expect(title).toBe(testTitle);
         expect(ref).toBe("Midrash Tanchuma Buber, Bereshit 11:1");
     });
+    test('urlToRef complex number at end', () => {
+        const testTitle = 'Guide for the Perplexed'
+        Sefaria.booksDict[testTitle] = 1;
+        const url = "Guide_for_the_Perplexed,_Part_2.1";
+        const { ref, title } = Sefaria.urlToRef(url);
+        expect(title).toBe(testTitle);
+        expect(ref).toBe("Guide for the Perplexed, Part 2 1");
+    })
 });
