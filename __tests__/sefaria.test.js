@@ -18,6 +18,8 @@ describe('sefaria url', () => {
         expect(ref).toBe("Midrash Tanchuma Buber, Bereshit 11:1");
     });
     test('urlToRef complex number at end', () => {
+        // NOTE: original URL had URL encoded entities (e.g. %2C)
+        // by the time it gets to Sefaria.urlToRef, these have been converted to normal form (e.g. comma)
         const testTitle = 'Guide for the Perplexed'
         Sefaria.booksDict[testTitle] = 1;
         const url = "Guide_for_the_Perplexed,_Part_2.1";
