@@ -113,7 +113,7 @@ const DotSeparatedList = ({ items, renderItem, keyExtractor }) => {
   );
 };
 
-const SystemButton = ({ onPress, text, img, isHeb, isBlue, isLoading, extraStyles=[] }) => (
+const SystemButton = ({ onPress, text, img, isHeb, isBlue, isLoading, extraStyles=[], extraImageStyles=[] }) => (
   <GlobalStateContext.Consumer>
     { ({ themeStr }) => (
       <TouchableOpacity disabled={isLoading} onPress={onPress} style={[styles.systemButton, getTheme(themeStr).mainTextPanel, styles.boxShadow, (isBlue ? styles.systemButtonBlue : null)].concat(extraStyles)}>
@@ -123,7 +123,7 @@ const SystemButton = ({ onPress, text, img, isHeb, isBlue, isLoading, extraStyle
             { !!img ?
               <Image
                 source={img}
-                style={isHeb ? styles.menuButtonMarginedHe : styles.menuButtonMargined}
+                style={[isHeb ? styles.menuButtonMarginedHe : styles.menuButtonMargined].concat(extraImageStyles)}
                 resizeMode={'contain'}
               /> : null
             }

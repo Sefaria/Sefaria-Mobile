@@ -1399,4 +1399,11 @@ export default StyleSheet.create({
   readingsSection: {
     marginBottom: 15,
   },
+  readThePortionButton: {
+    alignSelf: "flex-start",
+    paddingVertical: 10,
+    paddingRight: 15,
+    paddingLeft: 5,
+    marginTop: 22,
+  },
 });

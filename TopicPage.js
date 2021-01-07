@@ -25,6 +25,7 @@ import {
   InterfaceTextWithFallback,
   ContentTextWithFallback,
   DotSeparatedList,
+  SystemButton,
 } from './Misc';
 
 import {
@@ -394,12 +395,15 @@ const TopicPage = ({ topic, onBack, openTopic, showToast, openRef, openRefSheet 
   const TopicPageHeaderRendered = (
     <TopicPageHeader
       {...topic}
+      topicRef={topicData && topicData.ref}
+      parasha={topicData && topicData.parasha}
       description={topicData && topicData.description}
       currTabIndex={currTabIndex}
       setCurrTabIndex={setCurrTabIndex}
       query={query}
       setQuery={setQuery}
       tabs={tabs}
+      openRef={openRef}
     />
   );
   const ListRendered = (
@@ -464,7 +468,7 @@ TopicPage.propTypes = {
   openRefSheet: PropTypes.func.isRequired,
 };
 
-const TopicPageHeader = ({ en, he, slug, description, currTabIndex, setCurrTabIndex, query, setQuery, tabs }) => {
+const TopicPageHeader = ({ en, he, slug, description, currTabIndex, setCurrTabIndex, query, setQuery, tabs, topicRef, parasha, openRef }) => {
   const { themeStr, interfaceLanguage, textLanguage } = useContext(GlobalStateContext);
 
   const menu_language = Sefaria.util.get_menu_language(interfaceLanguage, textLanguage);
@@ -484,6 +488,17 @@ const TopicPageHeader = ({ en, he, slug, description, currTabIndex, setCurrTabIn
           { isHeb ? description.he : description.en }
         </Text>
       ) : null }
+      {topicRef ?
+        (
+          <SystemButton
+            text={parasha ? strings.readThePortion : (isHeb ? norm_hebrew_ref(topicRef.he) : topicRef.en)}
+            img={require('./img/book-dark.png')}
+            extraStyles={[styles.readThePortionButton]}
+            extraImageStyles={[{tintColor: "#fff"}]}
+            onPress={() => { openRef(topicRef.en); }} isHeb={isHeb} isBlue
+          />
+        )
+      : null}
       <TabRowView
         tabs={tabs}
         renderTab={(tab, active, index) => <TabView {...tab} active={active} />}
