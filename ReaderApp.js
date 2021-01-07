@@ -2181,6 +2181,7 @@ class ReaderApp extends React.PureComponent {
                 viewOnSite={this.viewOnSite}
                 reportError={this.reportError}
                 openSheetTag={this.openSheetTag}
+                openTopic={this.openTopic}
               />
                : null
             }

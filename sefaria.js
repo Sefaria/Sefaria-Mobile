@@ -1182,6 +1182,24 @@ Sefaria = {
       });
       return biRefList.reduce((accum, item) => [accum[0].concat([item[0]]), accum[1].concat([item[1]])], [[],[]]);
     },
+    aggregateTopics: function(topics) {
+      const topicsObj = {};
+      if (!topics) { return null; }  // _refTopicLinks will have an empty array for ref if ref's topics were loaded
+      for (let tempTopic of topics) {
+        if (!topicsObj[tempTopic.topic]) {
+          tempTopic.order = tempTopic.order || {};
+          tempTopic.dataSources = {};
+          topicsObj[tempTopic.topic] = tempTopic;
+        }
+        // aggregate dataSources for display in tooltip
+        topicsObj[tempTopic.topic].dataSources[tempTopic.dataSource.slug] = tempTopic.dataSource;
+      }
+      return Object.values(topicsObj).sort((a, b) => b.order.pr - a.order.pr);
+    },
+    topicsCount: function(topics) {
+      const aggregatedTopics = Sefaria.links.aggregateTopics(topics);
+      return aggregatedTopics && aggregatedTopics.length;
+    },
   },
   track: {
       // Helper functions for event tracking (with Google Analytics and Mixpanel)

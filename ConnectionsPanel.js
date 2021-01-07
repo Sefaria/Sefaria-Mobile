@@ -19,6 +19,7 @@ import { LinkFilter } from './Filter';
 import VersionsBox from './VersionsBox';
 import AboutBox from './AboutBox';
 import SheetListInConnections from './SheetListInConnections';
+import TopicList from './TopicList';
 import LexiconBox from './LexiconBox';
 import { GlobalStateContext, getTheme } from './StateManager';
 
@@ -76,6 +77,7 @@ class ConnectionsPanel extends React.PureComponent {
     reportError:          PropTypes.func.isRequired,
     openSheetTag:         PropTypes.func.isRequired,
     loadRelated:          PropTypes.func.isRequired,
+    openTopic:            PropTypes.func.isRequired,
   };
 
   render() {
@@ -194,6 +196,16 @@ class ConnectionsPanel extends React.PureComponent {
             />
           </View>
         );
+      case 'topicsByRef':
+        return (
+          <View style={[styles.mainTextPanel, styles.textColumn, this.props.theme.textListContentOuter, {maxWidth: null, flex: this.props.textListFlex}]}>
+            {connectionsPanelHeader}
+            <TopicList
+              topics={this.props.relatedData.topics}
+              openTopic={this.props.openTopic}
+            />
+          </View>
+        );
       default:
         // either `null` or equal to a top-level category
         let content;
@@ -263,6 +275,7 @@ class ConnectionsPanel extends React.PureComponent {
                 themeStr={this.props.themeStr}
                 versionsCount={this.props.versions.length}
                 sheetsCount={this.props.relatedData.sheets ? this.props.relatedData.sheets.length : 0}
+                topicsCount={this.props.relatedData.topics ? Sefaria.links.topicsCount(this.props.relatedData.topics) : 0}
                 setConnectionsMode={this.props.setConnectionsMode}
                 segmentRef={this.props.segmentRef}
                 heSegmentRef={this.props.heSegmentRef}
@@ -308,6 +321,7 @@ class ResourcesList extends React.PureComponent {
     setConnectionsMode: PropTypes.func.isRequired,
     versionsCount:      PropTypes.number.isRequired,
     sheetsCount:        PropTypes.number.isRequired,
+    topicsCount:        PropTypes.number.isRequired,
     segmentRef:         PropTypes.string.isRequired,
     segmentRefOnSheet:  PropTypes.string,
     heSegmentRef:       PropTypes.string.isRequired,
@@ -338,6 +352,13 @@ class ResourcesList extends React.PureComponent {
           count={this.props.sheetsCount}
           onPress={()=>{ this.props.setConnectionsMode("sheetsByRef"); }}
         />
+        {this.props.topicsCount && this.props.topicsCount > 0 ? (
+          <ToolsButton
+            text={strings.topics} count={this.props.topicsCount}
+            icon={isWhite ? require("./img/hashtag.png") : require("./img/hashtag-light.png")}
+            onPress={() => this.props.setConnectionsMode("topicsByRef")}
+          />) : null
+        }
         <ToolsButton
           text={strings.about}
           icon={isWhite ? require("./img/book.png") : require("./img/book-light.png")}
