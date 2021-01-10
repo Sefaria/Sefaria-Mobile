@@ -1,7 +1,7 @@
 export class Topic {
-    constructor({ slug, en, he }) {
+    constructor({ slug, title, description }) {
         this.slug = slug;
-        this.en = en;
-        this.he = he;
+        this.title = title;
+        this.description = description;
     }
 }

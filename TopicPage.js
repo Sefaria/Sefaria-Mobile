@@ -199,8 +199,8 @@ const organizeLinks = (topic, links, title) => {
   } else if (linkTypeArray[0].title.en === 'Related') {
     // rename
     linkTypeArray[0].title = {
-      en: `Topics Related to ${topic.en}`,
-      he: `נושאים קשורים ל-${topic.he}`,
+      en: `Topics Related to ${topic.title.en}`,
+      he: `נושאים קשורים ל-${topic.title.he}`,
     };
   }
   return linkTypeArray;
@@ -229,7 +229,9 @@ const TopicCategory = ({ topic, openTopic, onBack }) => {
   }, [slug]);
 
   const headerTopic = topic || {
-    en: "Explore by Topic", he: "Explore by Topic",
+    title: {
+      en: "Explore by Topic", he: "Explore by Topic",
+    },
     description: {
       en: "Selections of texts and user created source sheets about thousands of subjects",
       he: "Selections of texts and user created source sheets about thousands of subjects",
@@ -271,7 +273,7 @@ const TopicCategory = ({ topic, openTopic, onBack }) => {
           <SText lang={menu_language} style={[isHeb ? styles.he : styles.en, {fontSize: 18, marginTop: 6}, theme.text]}>{isHeb ? t.he : t.en}</SText>
         </TouchableOpacity>
 */
-const TopicCategoryHeader = ({ en, he, description, trendingTopics, openTopic }) => {
+const TopicCategoryHeader = ({ title, description, trendingTopics, openTopic }) => {
   const { themeStr, interfaceLanguage, textLanguage } = useContext(GlobalStateContext);
   const menu_language = Sefaria.util.get_menu_language(interfaceLanguage, textLanguage);
   const isHeb = menu_language == 'hebrew';
@@ -279,7 +281,7 @@ const TopicCategoryHeader = ({ en, he, description, trendingTopics, openTopic })
   return (
     <View>
       <View style={{marginHorizontal: 15, marginVertical: 24}}>
-        <Text style={[styles.enInt, {fontSize: 22}, theme.tertiaryText]}>{en}</Text>
+        <Text style={[styles.enInt, {fontSize: 22}, theme.tertiaryText]}>{title.en}</Text>
         {description ? <Text style={[styles.enInt, {fontSize: 13, marginTop: 11}, theme.tertiaryText]}>{description.en}</Text> : null}
       </View>
       { trendingTopics ? (
@@ -294,7 +296,7 @@ const TopicCategoryHeader = ({ en, he, description, trendingTopics, openTopic })
               items={trendingTopics.slice(0, 6)}
               renderItem={t => (
                 <TopicLink
-                  slug={t.slug} topicTitle={t}
+                  topic={new Topic({slug: t.slug, title: t})}
                   openTopic={openTopic}
                 />
               )}
@@ -314,7 +316,7 @@ const TopicCategoryButton = ({ topic, openTopic }) => {
   const isHeb = menu_language == 'hebrew';
   const { slug, en, he, description } = topic;
   return (
-    <Pressable onPress={()=>{ openTopic(topic, !!Sefaria.topicTocPage(slug)); }} style={{paddingHorizontal: 15, paddingVertical: 20}}>
+    <Pressable onPress={()=>{ openTopic(new Topic({ slug, title: {en, he}, description}), !!Sefaria.topicTocPage(slug)); }} style={{paddingHorizontal: 15, paddingVertical: 20}}>
       <SText style={[isHeb ? styles.he : styles.en, {fontSize: 24}, theme.text]}>{isHeb ? he : en}</SText>
       {description ? <Text style={[isHeb ? styles.heInt : styles.enInt, {marginTop: 10, fontSize: 13, color: "#666"}]}>{isHeb ? description.he : description.en}</Text> : null}
     </Pressable>
@@ -472,7 +474,7 @@ TopicPage.propTypes = {
   openRefSheet: PropTypes.func.isRequired,
 };
 
-const TopicPageHeader = ({ en, he, slug, description, currTabIndex, setCurrTabIndex, query, setQuery, tabs, topicRef, parasha, openRef }) => {
+const TopicPageHeader = ({ title, slug, description, currTabIndex, setCurrTabIndex, query, setQuery, tabs, topicRef, parasha, openRef }) => {
   const { themeStr, interfaceLanguage, textLanguage } = useContext(GlobalStateContext);
 
   const menu_language = Sefaria.util.get_menu_language(interfaceLanguage, textLanguage);
@@ -481,7 +483,7 @@ const TopicPageHeader = ({ en, he, slug, description, currTabIndex, setCurrTabIn
   const category = Sefaria.topicTocCategory(slug);
   return (
     <View style={{marginHorizontal: 15, marginVertical: 20}}>
-      <Text style={[isHeb ? styles.he : styles.en, {fontSize: 30}]}>{ isHeb ? he : en }</Text>
+      <Text style={[isHeb ? styles.he : styles.en, {fontSize: 30}]}>{ isHeb ? title.he : title.en }</Text>
       { category ? (
         <Text style={[styles.enInt, {fontSize: 13, marginBottom: 20}, theme.tertiaryText]}>
           { isHeb ? category.he : category.en.toUpperCase() }
@@ -538,14 +540,13 @@ TextPassage.propTypes = {
   text: textPropType,
 };
 
-const TopicLink = ({slug, topicTitle, openTopic, isTransliteration, isCategory}) => {
-  const { en, he } = topicTitle;
+const TopicLink = ({topic, openTopic, isTransliteration, isCategory}) => {
   return (
     <Pressable
       style={{marginTop: 6}}
-      onPress={() => openTopic(new Topic({slug, en, he}), isCategory)} key={slug}
+      onPress={() => openTopic(topic, isCategory)} key={topic.slug}
     >
-      <ContentTextWithFallback en={en} he={he} />
+      <ContentTextWithFallback {...topic.title} />
     </Pressable>
   );
 }
@@ -571,7 +572,7 @@ const TopicSideColumn = ({ topic, links, openTopic, openRef, parashaData, tref }
   };
   const renderLink = l => (
     <TopicLink
-      slug={l.topic} topicTitle={l.title}
+      topic={new Topic({slug: l.topic, title: l.title})}
       openTopic={openTopic}
       isTransliteration={l.titleIsTransliteration}
       isCategory={l.isCategory}

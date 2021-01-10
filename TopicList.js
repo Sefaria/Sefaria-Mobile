@@ -68,7 +68,7 @@ const TopicListItem = ({ topic, openTopic }) => {
   const theme = getTheme(themeStr);
   //       
   return (
-    <Pressable onPress={() => { openTopic(new Topic({ slug: topic.topic, en: topic.title.en, he: topic.title.he })); }} style={[{borderBottomWidth: 1, paddingVertical: 20}, theme.bordered, styles.readerSideMargin]}>
+    <Pressable onPress={() => { openTopic(new Topic({ slug: topic.topic, title: topic.title })); }} style={[{borderBottomWidth: 1, paddingVertical: 20}, theme.bordered, styles.readerSideMargin]}>
       <DataSourceLine dataSources={topic.dataSources} topicTitle={topic.title}>
         <ContentTextWithFallback {...topic.title} />
       </DataSourceLine>
