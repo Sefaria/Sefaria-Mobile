@@ -952,7 +952,7 @@ const TabRowView = ({ tabs, renderTab, currTabId, setTab }) => {
   const renderTabWrapper = (tab) => {
     const active = currTabId === tab.id;
     return (
-      <TouchableOpacity key={tab.text} onPress={() => setTab(tab.id)}>
+      <TouchableOpacity key={tab.id} onPress={() => setTab(tab.id)}>
         {renderTab(tab, active)}
       </TouchableOpacity>
     );

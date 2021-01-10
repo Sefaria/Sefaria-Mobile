@@ -340,11 +340,19 @@ const TopicPage = ({ topic, onBack, openTopic, showToast, openRef, openRefSheet,
   const [topicData, setTopicData] = useState(Sefaria.api._topic || defaultTopicData);
   const [sheetData, setSheetData] = useState(topicData ? topicData.sheetData : null);
   const [textData, setTextData]   = useState(topicData ? topicData.textData : null);
+  const [tabs, setTabs]           = useState([]);
   const [textRefsToFetch, setTextRefsToFetch] = useState(false);
   const [sheetRefsToFetch, setSheetRefsToFetch] = useState(false);
   const [parashaData, setParashaData] = useState(null);
   const [query, setQuery] = useState(null);
-  const tabs = [{text: "Sources", id: 'sources'}, {text: "Sheets", id: 'sheets'}];
+  useEffect(() => {
+    const tempTabs = [];
+    if (!!textRefsToFetch.length) { tempTabs.push({text: strings.sources, id: 'sources'}); }
+    if (!!sheetRefsToFetch.length) { tempTabs.push({text: strings.sheets, id: 'sheets'}); }
+    setTabs(tempTabs);
+    if (tempTabs.length && tempTabs[0].id !== topicsTab) { setTopicsTab(tempTabs[0].id); }
+  }, [topic.slug, textRefsToFetch, sheetRefsToFetch]);
+
   useEffect(() => {
     Sefaria.api.topic(topic.slug).then(setTopicData);
   }, [topic.slug]);
