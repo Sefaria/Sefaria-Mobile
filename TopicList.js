@@ -5,7 +5,9 @@ import {
   View,
   Text,
   Pressable,
+  FlatList,
 } from 'react-native';
+import { Topic } from './Topic';
 import {
   DataSourceLine,
 } from './Misc';
@@ -21,7 +23,19 @@ import {
 const TopicList = ({ topics, openTopic }) => {
   const topicsAggregated = Sefaria.links.aggregateTopics(topics);
   return (
-    <View>
+    <FlatList
+      data={topicsAggregated}
+      renderItem={({ item }) => (
+        <TopicListItem
+          topic={item}
+          openTopic={openTopic}
+        />        
+      )}
+      keyExtractor={item => item.topic}
+    />
+  );
+  return (
+    <View style={{backgroundColor: "grey"}}>
       {
         false ? (
           <View style={styles.webpageListEmpty}>
@@ -52,8 +66,9 @@ const TopicListItem = ({ topic, openTopic }) => {
   // TODO generalize DataSourceLine to handle ref text instead of topicTitle
   const {themeStr, interfaceLanguage} = useContext(GlobalStateContext);
   const theme = getTheme(themeStr);
+  //       
   return (
-    <Pressable onPress={() => { openTopic(topic); }}>
+    <Pressable onPress={() => { openTopic(new Topic({ slug: topic.topic, en: topic.title.en, he: topic.title.he })); }} style={[{borderBottomWidth: 1, paddingVertical: 20}, theme.bordered, styles.readerSideMargin]}>
       <DataSourceLine dataSources={topic.dataSources} topicTitle={topic.title}>
         <ContentTextWithFallback {...topic.title} />
       </DataSourceLine>

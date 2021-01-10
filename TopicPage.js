@@ -13,6 +13,7 @@ import {
   Pressable,
 } from 'react-native';
 
+import { Topic } from './Topic';
 import {
   SystemHeader,
   LoadingView,
@@ -323,6 +324,8 @@ const TopicCategoryButton = ({ topic, openTopic }) => {
 const TopicPage = ({ topic, onBack, openTopic, showToast, openRef, openRefSheet }) => {
   const { themeStr, interfaceLanguage, textLanguage } = useContext(GlobalStateContext);
   const theme = getTheme(themeStr);
+  // why doesn't this variable update?
+  const topicTocLoaded = useAsyncVariable(!!Sefaria.topic_toc, Sefaria.loadTopicToc);
   const defaultTopicData = {primaryTitle: null, textRefs: false, sheetRefs: false, isLoading: true};
   const [topicData, setTopicData] = useState(Sefaria.api._topic || defaultTopicData);
   const [sheetData, setSheetData] = useState(topicData ? topicData.sheetData : null);
@@ -386,6 +389,7 @@ const TopicPage = ({ topic, onBack, openTopic, showToast, openRef, openRefSheet 
     }),
     topic.slug
   );
+  if (!topicTocLoaded) { return <LoadingView />; }
   const TopicSideColumnRendered =  topicData ?
     (<TopicSideColumn topic={topic} links={topicData.links}
       openTopic={openTopic} openRef={openRef}
@@ -539,7 +543,7 @@ const TopicLink = ({slug, topicTitle, openTopic, isTransliteration, isCategory})
   return (
     <Pressable
       style={{marginTop: 6}}
-      onPress={() => openTopic({slug, en, he}, isCategory)} key={slug}
+      onPress={() => openTopic(new Topic({slug, en, he}), isCategory)} key={slug}
     >
       <ContentTextWithFallback en={en} he={he} />
     </Pressable>
