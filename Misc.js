@@ -1237,7 +1237,7 @@ const DataSourceLine = ({ children, dataSources, topicTitle }) => {
 const FilterableFlatList = ({ currFilter, filterFunc, sortFunc, data, spliceIndex, ...flatListProps }) => {
   const [dataToDisplay, setDataToDisplay] = useState(data);
   useEffect(() => {
-    if (!data) { return; }
+    if (!data) { setDataToDisplay(data); return; }
     const newDataToDisplay = data.filter(item => filterFunc(currFilter, item)).sort(sortFunc);
     if (spliceIndex !== undefined) {
       newDataToDisplay.splice(spliceIndex, 0, {isSplice: true});

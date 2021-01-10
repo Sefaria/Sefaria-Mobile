@@ -337,7 +337,7 @@ const TopicPage = ({ topic, onBack, openTopic, showToast, openRef, openRefSheet,
   // why doesn't this variable update?
   const topicTocLoaded = useAsyncVariable(!!Sefaria.topic_toc, Sefaria.loadTopicToc);
   const defaultTopicData = {primaryTitle: null, textRefs: false, sheetRefs: false, isLoading: true};
-  const [topicData, setTopicData] = useState(Sefaria.api._topic || defaultTopicData);
+  const [topicData, setTopicData] = useState(Sefaria.api._topic[topic.slug] || defaultTopicData);
   const [sheetData, setSheetData] = useState(topicData ? topicData.sheetData : null);
   const [textData, setTextData]   = useState(topicData ? topicData.textData : null);
   const [tabs, setTabs]           = useState([]);
