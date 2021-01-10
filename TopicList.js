@@ -68,13 +68,17 @@ const TopicListItem = ({ topic, openTopic }) => {
   const theme = getTheme(themeStr);
   //       
   return (
-    <Pressable onPress={() => { openTopic(new Topic({ slug: topic.topic, title: topic.title })); }} style={[{borderBottomWidth: 1, paddingVertical: 20}, theme.bordered, styles.readerSideMargin]}>
+    <Pressable
+      onPress={() => { openTopic(new Topic({ slug: topic.topic, title: topic.title, description: topic.description })); }}
+      style={[{borderBottomWidth: 1, paddingVertical: 20}, theme.bordered, styles.readerSidePadding]}
+      android_ripple={{color: "#ccc"}}
+    >
       <DataSourceLine dataSources={topic.dataSources} topicTitle={topic.title}>
         <ContentTextWithFallback {...topic.title} />
       </DataSourceLine>
       {
         topic.description && (topic.description.en || topic.description.he) ? (
-          <ContentTextWithFallback {...topic.description} />
+          <InterfaceTextWithFallback {...topic.description} extraStyles={[theme.tertiaryText]}/>
         ) : null
       }
     </Pressable>
