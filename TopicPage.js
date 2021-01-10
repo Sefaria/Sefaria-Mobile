@@ -228,7 +228,11 @@ const TopicCategory = ({ topic, openTopic, onBack }) => {
   const [trendingTopics, setTrendingTopics] = useState(Sefaria.api._trendingTags);
   useEffect(() => {
     // only set trending topics when at topic toc root => slug == null
-    if (!slug) { Sefaria.api.trendingTags(true).then(setTrendingTopics); }
+    if (!slug) {
+      Sefaria.api.trendingTags(true).then((trendingTags) => {
+        setTrendingTopics(trendingTags.map(tag => new Topic({ slug: tag.slug, title: {en: tag.en, he: tag.he}})));
+      });
+    }
     else { setTrendingTopics(null); }
   }, [slug]);
 
@@ -300,7 +304,7 @@ const TopicCategoryHeader = ({ title, description, trendingTopics, openTopic }) 
               items={trendingTopics.slice(0, 6)}
               renderItem={t => (
                 <TopicLink
-                  topic={new Topic({slug: t.slug, title: t})}
+                  topic={t}
                   openTopic={openTopic}
                 />
               )}
