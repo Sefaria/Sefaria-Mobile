@@ -169,7 +169,7 @@ const sheetFilter = (currFilter, sheet) => {
   }
 };
 
-const organizeLinks = (topic, links, title) => {
+const organizeLinks = (topic, links) => {
   const category = Sefaria.topicTocCategory(topic.slug);
   const linkTypeArray = links ? (
     Object.values(links)
@@ -183,6 +183,10 @@ const organizeLinks = (topic, links, title) => {
       //alphabetical by en just to keep order consistent
       return a.title.en.localeCompare(b.title.en);
     })
+    .map(linkType => {
+      linkType.links = linkType.links.map(l => new Topic({slug: l.topic, ...l}));
+      return linkType;
+    })
   ) : [];
   if (linkTypeArray.length === 0) {
     linkTypeArray.push({
@@ -190,11 +194,11 @@ const organizeLinks = (topic, links, title) => {
         en: !category ? 'Explore Topics' : category.en,
         he: !category ?  'נושאים כלליים' : category.he,
       },
-      links: Sefaria.topicTocPage(category && category.slug).slice(0, 20).map(({slug, en, he}) => ({
-        topic: slug,
+      links: Sefaria.topicTocPage(category && category.slug).slice(0, 20).map(({slug, en, he}) => (new Topic ({
+        slug,
         title: {en, he},
         isCategory: !category,
-      })),
+      }))),
     })
   } else if (linkTypeArray[0].title.en === 'Related') {
     // rename
@@ -551,7 +555,7 @@ const TopicLink = ({topic, openTopic, isTransliteration, isCategory}) => {
   );
 }
 TopicLink.propTypes = {
-  slug: PropTypes.string.isRequired,
+  topic: PropTypes.object.isRequired,
   isTransliteration: PropTypes.object,
 };
 
@@ -560,7 +564,10 @@ const TopicSideColumn = ({ topic, links, openTopic, openRef, parashaData, tref }
   const { themeStr, interfaceLanguage } = useContext(GlobalStateContext);
   const theme = getTheme(themeStr);
   const [showMore, setShowMore] = useState(false);
-  const linkTypeArray = organizeLinks(topic, links);
+  const [linkTypeArray, setLinkTypeArray] = useState(null);
+  useEffect(() => {
+    setLinkTypeArray(organizeLinks(topic, links));
+  }, [topic.slug, links]);
   const sortLinks = (a, b) => {
     const shortLang = interfaceLanguage == 'hebrew' ? 'he' : 'en';
     if (!!a.title[shortLang] !== !!b.title[shortLang]) {
@@ -572,7 +579,7 @@ const TopicSideColumn = ({ topic, links, openTopic, openRef, parashaData, tref }
   };
   const renderLink = l => (
     <TopicLink
-      topic={new Topic({slug: l.topic, title: l.title})}
+      topic={l}
       openTopic={openTopic}
       isTransliteration={l.titleIsTransliteration}
       isCategory={l.isCategory}
@@ -582,7 +589,7 @@ const TopicSideColumn = ({ topic, links, openTopic, openRef, parashaData, tref }
     <ReadingsComponent parashaData={parashaData} tref={tref} openRef={openRef} />
   ) : null;
   const linksComponent = (
-    links ? linkTypeArray.slice(0, !showMore ? 1 : undefined).map(({ title, pluralTitle, links }, iLinkType) => (
+    linkTypeArray ? linkTypeArray.slice(0, !showMore ? 1 : undefined).map(({ title, pluralTitle, links }, iLinkType) => (
         <View key={title.en} style={styles.topicLinkSection}>
           <InterfaceTextWithFallback
             en={(links.length > 1 && pluralTitle) ? pluralTitle.en : title.en}
@@ -593,14 +600,14 @@ const TopicSideColumn = ({ topic, links, openTopic, openRef, parashaData, tref }
             <DotSeparatedList
               items={links.filter(l => l.shouldDisplay !== false).sort(sortLinks).slice(0, !showMore && iLinkType === 0 ? 10 : undefined)}
               renderItem={renderLink}
-              keyExtractor={l => l.topic}
+              keyExtractor={l => l.slug}
             />
           </View>
         </View>
       ))
     : null
   );
-  const hasMore = links && (linkTypeArray[0].links.filter(l => l.shouldDisplay !== false) > 10 || linkTypeArray.length > 1);
+  const hasMore = linkTypeArray && (linkTypeArray[0].links.filter(l => l.shouldDisplay !== false) > 10 || linkTypeArray.length > 1);
   const moreSource = themeStr === 'white' ? (showMore ? require('./img/up.png') : require('./img/down.png')) : (showMore ? require('./img/up-light.png') : require('./img/down-light.png'))
   const moreButton = hasMore ?
     (
