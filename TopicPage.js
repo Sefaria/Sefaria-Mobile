@@ -331,7 +331,7 @@ const TopicCategoryButton = ({ topic, openTopic }) => {
   );
 };
 
-const TopicPage = ({ topic, onBack, openTopic, showToast, openRef, openRefSheet }) => {
+const TopicPage = ({ topic, onBack, openTopic, showToast, openRef, openRefSheet, setTopicsTab, topicsTab }) => {
   const { themeStr, interfaceLanguage, textLanguage } = useContext(GlobalStateContext);
   const theme = getTheme(themeStr);
   // why doesn't this variable update?
@@ -343,7 +343,6 @@ const TopicPage = ({ topic, onBack, openTopic, showToast, openRef, openRefSheet 
   const [textRefsToFetch, setTextRefsToFetch] = useState(false);
   const [sheetRefsToFetch, setSheetRefsToFetch] = useState(false);
   const [parashaData, setParashaData] = useState(null);
-  const [currTabIndex, setCurrTabIndex] = useState(0);
   const [query, setQuery] = useState(null);
   const tabs = [{text: "Sources", id: 'sources'}, {text: "Sheets", id: 'sheets'}];
   useEffect(() => {
@@ -412,8 +411,8 @@ const TopicPage = ({ topic, onBack, openTopic, showToast, openRef, openRefSheet 
       topicRef={topicData && topicData.ref}
       parasha={topicData && topicData.parasha}
       description={topicData && topicData.description}
-      currTabIndex={currTabIndex}
-      setCurrTabIndex={setCurrTabIndex}
+      topicsTab={topicsTab}
+      setTopicsTab={setTopicsTab}
       query={query}
       setQuery={setQuery}
       tabs={tabs}
@@ -421,7 +420,7 @@ const TopicPage = ({ topic, onBack, openTopic, showToast, openRef, openRefSheet 
     />
   );
   const ListRendered = (
-    currTabIndex === 0 ? (
+    topicsTab === 'sources' ? (
       <FilterableFlatList
         key="sources"
         data={textData}
@@ -482,7 +481,7 @@ TopicPage.propTypes = {
   openRefSheet: PropTypes.func.isRequired,
 };
 
-const TopicPageHeader = ({ title, slug, description, currTabIndex, setCurrTabIndex, query, setQuery, tabs, topicRef, parasha, openRef }) => {
+const TopicPageHeader = ({ title, slug, description, topicsTab, setTopicsTab, query, setQuery, tabs, topicRef, parasha, openRef }) => {
   const { themeStr, interfaceLanguage, textLanguage } = useContext(GlobalStateContext);
 
   const menu_language = Sefaria.util.get_menu_language(interfaceLanguage, textLanguage);
@@ -515,9 +514,9 @@ const TopicPageHeader = ({ title, slug, description, currTabIndex, setCurrTabInd
       : null}
       <TabRowView
         tabs={tabs}
-        renderTab={(tab, active, index) => <TabView {...tab} active={active} />}
-        currTabIndex={currTabIndex}
-        setTab={setCurrTabIndex}
+        renderTab={(tab, active) => <TabView {...tab} active={active} />}
+        currTabId={topicsTab}
+        setTab={setTopicsTab}
       />
       <View style={{ marginVertical: 10 }}>
         <LocalSearchBar

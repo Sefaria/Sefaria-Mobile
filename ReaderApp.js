@@ -110,6 +110,7 @@ class ReaderApp extends React.PureComponent {
         subMenuOpen: null, // currently only used to define subpages in search
         navigationCategories: [],
         navigationTopic: null,
+        topicsTab: 'sources',
         loadingTextTail: false,
         loadingTextHead: false,
         textListVisible: false,
@@ -1795,6 +1796,8 @@ class ReaderApp extends React.PureComponent {
     this.setState({navigationTopic: topic, menuOpen: isCategory ? "topic toc" : "topic"});
   };
 
+  setTopicsTab = topicsTab => { this.setState({topicsTab}); };
+
   _getReaderDisplayOptionsMenuRef = ref => {
     this._readerDisplayOptionsMenuRef = ref;
   };
@@ -1998,6 +2001,8 @@ class ReaderApp extends React.PureComponent {
           <TopicPage
             onBack={this.manageBackMain}
             openTopic={this.openTopic}
+            topicsTab={this.state.topicsTab}
+            setTopicsTab={this.setTopicsTab}
             topic={this.state.navigationTopic}
             showToast={this.showToast}
             openRef={this.openRef}

@@ -946,21 +946,14 @@ class SText extends React.Component {
   }
 }
 
-const TabRowView = ({ tabs, renderTab, currTabIndex, setTab, onClickArray }) => {
-  const { themeStr, interfaceLanguage } = useContext(GlobalStateContext);
+const TabRowView = ({ tabs, renderTab, currTabId, setTab }) => {
+  const { themeStr } = useContext(GlobalStateContext);
   const theme = getTheme(themeStr);
-  const onClickTab = (index) => {
-    if (onClickArray && onClickArray[index]) {
-      onClickArray[index]();
-    } else {
-      setTab(index);
-    }
-  };
-  const renderTabWrapper = (tab, index) => {
-    const active = currTabIndex === index;
+  const renderTabWrapper = (tab) => {
+    const active = currTabId === tab.id;
     return (
-      <TouchableOpacity key={tab.text} onPress={() => onClickTab(index)}>
-        {renderTab(tab, active, index)}
+      <TouchableOpacity key={tab.text} onPress={() => setTab(tab.id)}>
+        {renderTab(tab, active)}
       </TouchableOpacity>
     );
   };
@@ -975,7 +968,7 @@ const TabView = ({ text, active }) => {
   /*
   Standard Sefaria Tab to be used in renderTab of TabRowView
   */
-  const { themeStr, interfaceLanguage } = useContext(GlobalStateContext);
+  const { themeStr } = useContext(GlobalStateContext);
   const theme = getTheme(themeStr);
   const activeBorderStyle = [{ borderBottomWidth: 4}, theme.borderBottomDarker]
   return (
