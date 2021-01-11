@@ -1,6 +1,7 @@
 'use strict';
 
 import RNFB from 'rn-fetch-blob';
+import { FileSystem } from 'react-native-unimodules'
 import {unzip} from 'react-native-zip-archive'; //for unzipping -- (https://github.com/plrthink/react-native-zip-archive)
 import strings from './LocalizedStrings'
 import {Alert, Platform} from 'react-native';
@@ -17,6 +18,12 @@ const [FILE_DIRECTORY, TMP_DIRECTORY] = [`${RNFB.fs.dirs.DocumentDir}/library`, 
 
 let BooksState = {};
 let PackagesState = {};
+
+try {
+  console.log(`new file location is ${FileSystem.documentDirectory}`);
+} catch (e) { console.log(e) }
+
+console.log(`original file location is ${RNFB.fs.dirs.DocumentDir}`);
 
 /*
  * A note on package tracking:
