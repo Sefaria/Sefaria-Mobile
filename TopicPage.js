@@ -1,6 +1,6 @@
 'use strict';
 
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useState, useContext, useEffect, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import {
   View,
@@ -323,9 +323,12 @@ const TopicCategoryButton = ({ topic, openTopic }) => {
   const theme = getTheme(themeStr);
   const isHeb = menu_language == 'hebrew';
   const { slug, en, he, description } = topic;
+  const onPress = useCallback(() => {
+    openTopic(new Topic({ slug, title: {en, he}, description}), !!Sefaria.topicTocPage(slug));
+  }, [slug]);
   return (
-    <Pressable onPress={()=>{ openTopic(new Topic({ slug, title: {en, he}, description}), !!Sefaria.topicTocPage(slug)); }} style={{paddingHorizontal: 15, paddingVertical: 20}}>
-      <SText style={[isHeb ? styles.he : styles.en, {fontSize: 24}, theme.text]}>{isHeb ? he : en}</SText>
+    <Pressable onPress={onPress} style={{paddingHorizontal: 15, paddingVertical: 10}}>
+      <SText lang={menu_language} style={[isHeb ? styles.he : styles.en, {fontSize: 24}, theme.text]} lineMultiplier={1.3}>{isHeb ? he : en}</SText>
       {description ? <Text style={[isHeb ? styles.heInt : styles.enInt, {marginTop: 10, fontSize: 13, color: "#666"}]}>{isHeb ? description.he : description.en}</Text> : null}
     </Pressable>
   );
