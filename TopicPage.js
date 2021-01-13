@@ -345,11 +345,11 @@ const TopicPage = ({ topic, onBack, openTopic, showToast, openRef, openRefSheet,
   const [parashaData, setParashaData] = useState(null);
   const [query, setQuery] = useState(null);
   const tabs = [];
-  if (!!textRefsToFetch.length) { tabs.push({text: strings.sources, id: 'sources'}); }
-  if (!!sheetRefsToFetch.length) { tabs.push({text: strings.sheets, id: 'sheets'}); }
+  if (!!topicData && !!topicData.textRefs.length) { tabs.push({text: strings.sources, id: 'sources'}); }
+  if (!!topicData && !!topicData.sheetRefs.length) { tabs.push({text: strings.sheets, id: 'sheets'}); }
   useEffect(() => {
     if (tabs.length && tabs[0].id !== topicsTab) { setTopicsTab(tabs[0].id); }
-  }, [topic.slug, textRefsToFetch, sheetRefsToFetch]);
+  }, [topic.slug, topicData]);
 
   useEffect(() => {
     Sefaria.api.topic(topic.slug).then(setTopicData);
@@ -358,7 +358,7 @@ const TopicPage = ({ topic, onBack, openTopic, showToast, openRef, openRefSheet,
     setTopicData(defaultTopicData); // Ensures topicTitle displays while loading
     const { promise, cancel } = Sefaria.util.makeCancelable((async () => {
       const d = await Sefaria.api.topic(topic.slug);
-      if (d.parasha) { Sefaria.api.getParashaNextRead(d.parasha).then(setParashaData); }  //TODO
+      if (d.parasha) { Sefaria.api.getParashaNextRead(d.parasha).then(setParashaData); }
       setTopicData(d);
       // Data remaining to fetch that was not already in the cache
       const textRefsWithoutData = d.textData ? d.textRefs.slice(d.textData.length) : d.textRefs;
