@@ -332,7 +332,7 @@ const TopicCategoryButton = ({ topic, openTopic }) => {
 };
 
 const TopicPage = ({ topic, onBack, openTopic, showToast, openRef, openRefSheet, setTopicsTab, topicsTab }) => {
-  const { themeStr, interfaceLanguage, textLanguage } = useContext(GlobalStateContext);
+  const { themeStr, interfaceLanguage } = useContext(GlobalStateContext);
   const theme = getTheme(themeStr);
   // why doesn't this variable update?
   const topicTocLoaded = useAsyncVariable(!!Sefaria.topic_toc, Sefaria.loadTopicToc);
@@ -340,17 +340,15 @@ const TopicPage = ({ topic, onBack, openTopic, showToast, openRef, openRefSheet,
   const [topicData, setTopicData] = useState(Sefaria.api._topic[topic.slug] || defaultTopicData);
   const [sheetData, setSheetData] = useState(topicData ? topicData.sheetData : null);
   const [textData, setTextData]   = useState(topicData ? topicData.textData : null);
-  const [tabs, setTabs]           = useState([]);
   const [textRefsToFetch, setTextRefsToFetch] = useState(false);
   const [sheetRefsToFetch, setSheetRefsToFetch] = useState(false);
   const [parashaData, setParashaData] = useState(null);
   const [query, setQuery] = useState(null);
+  const tabs = [];
+  if (!!textRefsToFetch.length) { tabs.push({text: strings.sources, id: 'sources'}); }
+  if (!!sheetRefsToFetch.length) { tabs.push({text: strings.sheets, id: 'sheets'}); }
   useEffect(() => {
-    const tempTabs = [];
-    if (!!textRefsToFetch.length) { tempTabs.push({text: strings.sources, id: 'sources'}); }
-    if (!!sheetRefsToFetch.length) { tempTabs.push({text: strings.sheets, id: 'sheets'}); }
-    setTabs(tempTabs);
-    if (tempTabs.length && tempTabs[0].id !== topicsTab) { setTopicsTab(tempTabs[0].id); }
+    if (tabs.length && tabs[0].id !== topicsTab) { setTopicsTab(tabs[0].id); }
   }, [topic.slug, textRefsToFetch, sheetRefsToFetch]);
 
   useEffect(() => {

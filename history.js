@@ -141,7 +141,6 @@ const History = {
           }
           return res.json();
         });
-        console.log('resp', response);
         await AsyncStorage.setItem('lastSyncTime', '' + response.last_sync);
         await AsyncStorage.removeItem('lastSyncItems');
         const currSaved = JSON.parse(await AsyncStorage.getItem('savedItems') || '[]');

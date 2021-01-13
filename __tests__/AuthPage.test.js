@@ -11,6 +11,9 @@ const AuthPageWrapper = ({ authMode }) => (
     close: () => {},
     authMode,
     showToast: () => {},
+    openLogin: () => {},
+    openRegister: () => {},
+    openUri: () => {},
   }} />
 )
 
@@ -35,17 +38,17 @@ describe('login', () => {
       });
     }
     const button = inst.root.findByType(SystemButton);
-    act(button.props.onPress);
+    await act(async () => { await button.props.onPress() });
     // NOTE: this test won't pass until act can run async
-    // expect(Sefaria.api.authenticate.mock.calls.length).toBe(1);
-    // expect(Sefaria.api.authenticate.mock.calls[0][0]).toEqual({
-    //   first_name: null,
-    //   last_name: null,
-    //   email: fields[strings.email],
-    //   password: fields[strings.password],
-    //   mobile_app_key: '',
-    // });
-    // expect(Sefaria.api.authenticate.mock.calls[0][1]).toBe('login');
+    expect(Sefaria.api.authenticate.mock.calls.length).toBe(1);
+    expect(Sefaria.api.authenticate.mock.calls[0][0]).toEqual({
+      first_name: null,
+      last_name: null,
+      email: fields[strings.email],
+      password: fields[strings.password],
+      mobile_app_key: '',
+    });
+    expect(Sefaria.api.authenticate.mock.calls[0][1]).toBe('login');
   });
 });
 

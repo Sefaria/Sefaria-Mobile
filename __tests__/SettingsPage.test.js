@@ -29,11 +29,8 @@ test('settings buttons', async () => {
   let counter = 1;
   for (let y of yo) {
     const stateKey = y.parent.props.stateKey;
-    console.log(stateKey);
     if (stateKey === 'textLanguage' || stateKey === 'downloadNetworkSetting') { continue; }
     for (let o of y.props.options) {
-      console.log(o.name);
-      console.log(y.props.active);
       if (o.name !== y.props.active) {
         expect(inst.root.children[0].props._globalState[stateKey]).toBe(DEFAULT_STATE[stateKey]);
         act(o.onPress);

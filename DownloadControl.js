@@ -137,7 +137,6 @@ class DownloadTracker {
     }
   }
   removeProgressTracker(identity) {
-    console.log(`removeProgressTracker identity: ${identity}; this.progressListener: ${this.progressListener}`);
     if (identity !== this.progressListener) {
       return
     }
@@ -786,18 +785,12 @@ async function calculateBooksToDownload(booksState) {
     const bookObj = booksState[bookTitle];
     if (bookObj.desired) {
       if (!bookObj.localLastUpdated) {
-          if (bookTitle === 'Genesis') {
-              console.log('Genesis bookObj had no localLastUpdated');
-          }
         booksToDownload.push(bookTitle);
       } else {
         const [localUpdate, remoteUpdate] = [booksState[bookTitle].localLastUpdated, new Date(remoteBookUpdates.titles[bookTitle])];
         // file timestamp will come from the server on certain platforms - we pad a bit as these values can be very similar to those on last_updated.json
         localUpdate.setHours(localUpdate.getHours() + 6);
         if (localUpdate < remoteUpdate) {
-            if (bookTitle === 'Genesis') {
-                console.log(`Genesis localUpdate: ${localUpdate}; remoteUpdate: ${remoteUpdate}`);
-            }
           booksToDownload.push(bookTitle)
         }
       }

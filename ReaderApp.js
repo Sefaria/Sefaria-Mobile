@@ -86,7 +86,6 @@ class ReaderApp extends React.PureComponent {
   };
 
   constructor(props, context) {
-    console.log('ReaderApp Props', props,);
     super(props, context);
     this._initDeepLinkURL = null;  // if you init the app thru a deep link, need to make sure the URL is applied during componentDidMount()
     if (Platform.OS === 'android') {

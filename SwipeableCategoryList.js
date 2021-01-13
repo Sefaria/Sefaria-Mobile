@@ -55,7 +55,6 @@ class SwipeableCategoryList extends React.Component {
       data: [],
       refreshing: true,
     };
-    console.log('SwipeableFlatList', SwipeableFlatList);
     this._rowRefs = {};
   }
 
