@@ -77,17 +77,17 @@ class DownloadTracker {
     };
     this.progressListener = null;
     this.downloadSize = 0;
+    this.downloadSavable = null;
   }
   addDownload(downloadState) {
     if (this.downloadInProgress()) {
       throw "Another download is in Progress!"
     }
     this.currentDownload = downloadState;
-    if (!!this.progressTracker) {
-      const [tracker, config] = this.progressTracker;
-      downloadState.progress(config, tracker);
-    }
-    // this.notify(this._currentDownloadNotification);
+    // if (!!this.progressTracker) {
+    //   const [tracker, config] = this.progressTracker;
+    //   downloadState.progress(config, tracker);
+    // }
   }
   removeDownload(endSession=false) {
     this.currentDownload = null;
@@ -110,18 +110,24 @@ class DownloadTracker {
     // kill any async methods or promises that need to be stopped due to to downloads being canceled.
     runCancelMethods();
     resetCancelMethods();
-    if (this.downloadInProgress()) {
-      this.currentDownload.catch(e => {});
-      this.currentDownload.cancel((err, taskId) => {});
-    }
+    // if (this.downloadInProgress()) {
+    //   this.currentDownload.catch(e => {});
+    // }
     if (cleanup) {
-      this.removeDownload(true);
-      cleanTmpDirectory().then( () => {} )
+      this.currentDownload.pauseAsync().then(() => {
+        this.downloadSavable = null;
+        this.removeDownload(true);
+        cleanTmpDirectory().then( () => {} )
+      });
     } else {
-      this.removeDownload(false)
+      this.currentDownload.pauseAsync().then(x => {
+        this.downloadSavable = x;
+        this.removeDownload(false);
+      });
     }
   }
-  attachProgressTracker(progressTracker, config, identity) {
+  attachProgressTracker(progressTracker, identity) {
+    // todo rnfb refactor -> config is a thing from rnfb, we can get rid of it. identity is for react components to subscribe / unsubscribe
     const enhancedProgressTracker = (received, total) => {
       // The RNFB fetch method sends strings for progress tracking, not integers...
       let [trueReceived, trueTotal] = [parseInt(received) + parseInt(this._alreadyDownloaded),
@@ -136,12 +142,7 @@ class DownloadTracker {
       return progressTracker((trueReceived + numDownloads * trueTotal) / totalDownloads , trueTotal)
     };
     this.progressListener = identity;
-    this.progressTracker = [enhancedProgressTracker, config];
-    if (this.downloadInProgress()) {
-      try {
-        this.currentDownload.progress(config, enhancedProgressTracker);
-      } catch (e) {}  // edge case: the progress method is unavailable when the promise resolves
-    }
+    this.progressTracker = enhancedProgressTracker;
   }
   removeProgressTracker(identity) {
     console.log(`removeProgressTracker identity: ${identity}; this.progressListener: ${this.progressListener}`);
@@ -149,9 +150,8 @@ class DownloadTracker {
       return
     }
     this.progressListener = null;
-    const config = {count: 20, interval: 250};
     const dummyLogger = (received, total) => { console.log(`downloaded: ${received}/${total}`) };
-    this.attachProgressTracker(dummyLogger, config, 'dummy');
+    this.attachProgressTracker(dummyLogger, 'dummy');
   }
   subscribe(listenerName, listenerFunc) {
     /*
@@ -173,6 +173,7 @@ class DownloadTracker {
      * At the end of a download we'll call notify(false) from the DownloadTracker. This is because only the DownloadTracker
      * can know when a download has completed
      */
+    console.log('notifying: ', this._downloadSession);
     Object.values(this.subscriptions).map(x => {
       try{
         x(this._downloadSession);
@@ -222,9 +223,6 @@ class DownloadTracker {
       downloadNotification: downloadContent,
       downloadActive: false
     };
-    await AsyncStorage.setItem('lastDownloadLocation', JSON.stringify(
-      {filename: null, url: null, sessionStorageLocation: null, downloadNotification: downloadContent}
-    ));
     this.notify();
   }
   async removeDownloadSession() {
@@ -629,49 +627,27 @@ async function _downloadRecover(networkMode='wifiOnly', downloadBuffer) {
    * the event loop (before an `await` or Promise.then is called). This should be used sparingly, as mistakes
    * here can create "deadlocks" where the Tracker gets locked but no recover that can release the lock can be scheduled.
    */
-  const lastDownloadData = JSON.parse(await AsyncStorage.getItem('lastDownloadLocation'));
-  if (!lastDownloadData) {
-    return
-  }
   const networkState = await NetInfo.fetch();
   if (!isDownloadAllowed(networkState, networkMode)) {
     return
   }
-  const { filename, url, sessionStorageLocation } = lastDownloadData ? lastDownloadData : [null, null, null];
-  if (!(filename) || !(url) || !(sessionStorageLocation)) {
+  const downloadSavable = Tracker.downloadSavable;
+  if (!downloadSavable) {
+    console.log('no savable on Tracker');
     return
   }
 
-  const [cacheFileExists, sessionStorageExists] = await Promise.all([
-    RNFB.fs.exists(filename), RNFB.fs.exists(sessionStorageLocation)
-  ]);
-  if (cacheFileExists) {
-    if (sessionStorageExists) {
-      await RNFB.fs.appendFile(sessionStorageLocation, filename, 'uri');
-    } else {
-      try{
-        await RNFB.fs.mv(filename, sessionStorageLocation);
-      } catch (e) {
-        console.log(e);
-      }
-
-    }
-  }
-
-  const stat = (cacheFileExists || sessionStorageExists) ? await RNFB.fs.stat(sessionStorageLocation) : {size:0};
-  const size = stat.size;
-  await downloadBundle(url, networkMode, downloadBuffer, true, size);
+  await downloadBundle(downloadSavable.url, networkMode, downloadBuffer, true, downloadSavable);
 }
 
-async function downloadBundle(bundleName, networkSetting, downloadBuffer, recoveryMode=false, downloadFrom=0) {
+async function downloadBundle(bundleName, networkSetting, downloadBuffer, recoveryMode=false, resumeData='') {
   // Test with Appium
   // console.log(`expect to see ${
   //   Object.values(BooksState).filter(b => b.desired).length
   // } books after download`);
-  downloadFrom = parseInt(downloadFrom);
-  Tracker.setAlreadyDownloaded(downloadFrom);
+  // Tracker.setAlreadyDownloaded(resumeData.length);
   const getUniqueFilename = () => {  // It's not critical to have a truly unique filename
-    return `${TMP_DIRECTORY}/${String(Math.floor(Math.random()*10000000))}.zip`
+    return `${FileSystem.cacheDirectory}/${String(Math.floor(Math.random()*10000000))}.zip`
   };
   const getDownloadUrl = (bundle) => {
     // if (recoveryMode) { return bundleName }
@@ -680,43 +656,31 @@ async function downloadBundle(bundleName, networkSetting, downloadBuffer, recove
   };
 
   const [filename, url] = [getUniqueFilename(), getDownloadUrl(bundleName)];
-  let sessionStorageLocation;
-  if (recoveryMode) {
-    const sessionData = JSON.parse(await AsyncStorage.getItem('lastDownloadLocation'));
-    sessionStorageLocation = sessionData['sessionStorageLocation'];
-    const exists = await RNFB.fs.exists(sessionStorageLocation);
-    if (!exists && downloadFrom > 0){
-      await Tracker.removeDownloadSession();
-      console.log(`exited downloadBundle, no continuation`);
-      return
-    }
-  } else {
-    sessionStorageLocation = getUniqueFilename();
-  }
+  console.log(`downloading ${url}`);
+
+  // const downloadState = downloadFilePromise(url, filename, downloadFrom);
+  const callback = progress => Tracker.progressTracker(progress.totalBytesWritten, progress.totalBytesExpectedToWrite);
+  // todo rnfb refactor -> use all the saveable data to instantiate the downloadResumable
+  const downloadState = recoveryMode ? new FileSystem.createDownloadResumable(
+    resumeData.url, resumeData.fileUri, resumeData.options, callback, resumeData.resumeData)
+    : new FileSystem.createDownloadResumable(url, filename, {}, callback);
 
   try {
-    await AsyncStorage.setItem('lastDownloadLocation', JSON.stringify(
-      {filename, url, sessionStorageLocation}
-      )
-    )
-  } catch (e) {
-    crashlytics().log(`Failed to save lastDownloadLocation in AsyncStorage: ${e}`);
-  }
-
-  const downloadState = downloadFilePromise(url, filename, downloadFrom);
-  try {
-    Tracker.addDownload(downloadState);
+    Tracker.addDownload(downloadState);  // todo rnfb refactor -> check all the places the downloadState is being used, make sure api is compatible with new library
     Tracker.updateSession({downloadActive: true});
   } catch (e) {
+    console.warn(e);
     crashlytics().log(e);
   }
   let downloadResult;
   Tracker.addEventListener(networkSetting, downloadBuffer);
   try {
-    downloadResult = await downloadState;
+    downloadResult = await downloadState.downloadAsync();
   }  catch (e) {
+    console.log('message from failed downloadAsync:')
+    console.warn(e);
     // don't start again if download "failed" due to user request. Download Removal is handled by the cancel method
-    if (e.message === 'canceled') { return }
+    if (e.message === 'canceled') { return }  // todo rnfb refactor -> we need to review our methodology around determining if this was a network failure or maual cancelation
     else {
       /* Try again if download failed; recover will abort if the failure is due to network
        *
@@ -728,6 +692,10 @@ async function downloadBundle(bundleName, networkSetting, downloadBuffer, recove
         console.log('Error when awaiting download Promise:');
         console.log(e);
       Tracker.removeDownload();
+      const saveable = await downloadState.pauseAsync();
+      console.log('saveable: ', saveable);
+      Tracker.downloadSavable = saveable;
+
       setTimeout(async () => {
         console.log('scheduled download recovery from downloadBundle');
         await downloadRecover(networkSetting, downloadBuffer)
@@ -737,10 +705,10 @@ async function downloadBundle(bundleName, networkSetting, downloadBuffer, recove
   }
 
   Tracker.removeEventListener();
-  const status = downloadResult.info().status;
+  const status = downloadResult.status;
   if (status >= 300 || status < 200) {
     crashlytics().log(`Got status ${status} from download server. Full info below`);
-    crashlytics().log(downloadResult.info());
+    // crashlytics().log(downloadResult.info());
 
     // we're going to schedule a recover in the hope that the server will come back up at a later point
     Tracker.removeDownload();
@@ -750,7 +718,7 @@ async function downloadBundle(bundleName, networkSetting, downloadBuffer, recove
     return
   }
   try {
-    await postDownload(downloadResult.path(), !recoveryMode, sessionStorageLocation);
+    await postDownload(downloadResult.uri, !recoveryMode);
   } catch (e) {
     crashlytics().log(e);
     Alert.alert(
@@ -832,31 +800,36 @@ async function cleanTmpDirectory() {
   await Promise.all(files.map(f => RNFB.fs.unlink(`${TMP_DIRECTORY}/${f}`)));
 }
 
-async function postDownload(downloadPath, newDownload=true, sessionStorageLoc) {
+async function postDownload(downloadPath, newDownload=true) {
   const exists = await RNFB.fs.exists(downloadPath);
   if (!exists) {
     console.log(`file at ${downloadPath} missing`);  // todo: we may want to flag a failed download here
     return
   }
 
-  if (newDownload) {
-    try {
-      await RNFB.fs.mv(downloadPath, sessionStorageLoc);
-    } catch (e) {
-      console.error(e);
-      crashlytics().error(e);
-    }
-  } else {
-    await RNFB.fs.appendFile(sessionStorageLoc, downloadPath, 'uri');
-  }
+  // todo rnfb refactor -> remove
+  // if (newDownload) {
+  //   try {
+  //     await RNFB.fs.mv(downloadPath, sessionStorageLoc);
+  //   } catch (e) {
+  //     console.error(e);
+  //     crashlytics().error(e);
+  //   }
+  // } else {
+  //   await RNFB.fs.appendFile(sessionStorageLoc, downloadPath, 'uri');
+  // }
   try {
-    await unzipBundle(sessionStorageLoc);
+    await unzipBundle(downloadPath);
   } catch (e) {
     // Take to the settings page and check for updates?
     crashlytics().log(`Error when unzipping bundle: ${e}`)
   }
+  try {
+    await FileSystem.deleteAsync(downloadPath)
+  } catch (e) { console.warn(e) }
   await cleanTmpDirectory();
   await repopulateBooksState();
+  Tracker.downloadSavable = null;
   console.log(`we have ${
     Object.values(BooksState).filter(b => !!b.localLastUpdated).length
   } books on disk`)

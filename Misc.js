@@ -104,7 +104,6 @@ const SefariaProgressBar = ({ onPress, onClose, download, downloadNotification, 
    * process, I imagine this will generally be listening to libraries that support Stateful Promises. This can be
    * revisited if reuseability becomes a problem.
    */
-  const config = {count: 20, interval: 250};
   const [ progress, setProgress ] = useState(0);
   const calculateProgress = (received, total) => !!(received) ? setProgress(received / total) : setProgress(0.0);
   const downloadActive = !!downloadNotification ? downloadNotification.downloadActive : false;
@@ -112,7 +111,7 @@ const SefariaProgressBar = ({ onPress, onClose, download, downloadNotification, 
 
   useEffect(() => {
     console.log('attaching Progress Tracker');
-    download.attachProgressTracker(calculateProgress, config, identity);
+    download.attachProgressTracker(calculateProgress, identity);
     return function cleanup() {
       console.log('attaching dummy Progress Tracker');
       download.removeProgressTracker(identity);
