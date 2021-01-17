@@ -87,8 +87,12 @@ class DeepLinkRouter extends React.PureComponent {
   };
   route = url => {
     const u = new URL(url, true);  // true means parse query string
-    let { pathname, query } = u;
-    pathname = decodeURIComponent(pathname);
+    let { pathname, query, host, hostname } = u;
+    if (!hostname.match('(?:www\.)?sefaria\.org')) {
+      // this is not a sefaria URL. Route to browser
+      this.catchAll({ url });
+      return;
+    }
     pathname = pathname.replace(/[\/\?]$/, '');  // remove trailing ? or /
     pathname = pathname.replace(/^[\/]/, '');  // remove initial /
     // es6 dict comprehension to decode query values
