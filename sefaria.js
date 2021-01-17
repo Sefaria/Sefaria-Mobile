@@ -1281,7 +1281,7 @@ Sefaria.util = {
     if (isSheet) { text = Sefaria.util.cleanSheetHTML(text); }
     text = Sefaria.util.filterOutItags(text);
     if (lang === 'english') {
-      return `<endiv>${Sefaria.util.hebrewInEnglish(text, 'string')}</endiv>`;
+      return `<endiv>\u2066${Sefaria.util.hebrewInEnglish(text, 'string')}</endiv>`;
     }
     return `<hediv>${text}</hediv>`;
   },
