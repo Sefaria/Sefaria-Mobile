@@ -86,7 +86,7 @@ class DeepLinkRouter extends React.PureComponent {
     this.props.openUri(url);
   };
   route = url => {
-    const u = new URL(url, true);  // true means parse query string
+    const u = new URL(url, Sefaria.api._baseHost);
     let { pathname, query, host, hostname } = u;
     if (!hostname.match('(?:www\.)?sefaria\.org')) {
       // this is not a sefaria URL. Route to browser
