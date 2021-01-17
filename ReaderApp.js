@@ -289,6 +289,7 @@ class ReaderApp extends React.PureComponent {
   manageBack = type => {
     const oldState = BackManager.back({ type });
     if (!!oldState) {
+      oldState._completedInit = this.state._completedInit || oldState._completedInit;  // dont go back to false for this variable. can't undo completedInit!
       const isTextColumn = !oldState.menuOpen;
       if (isTextColumn) {
         // you're going back to textcolumn. make sure to jump
