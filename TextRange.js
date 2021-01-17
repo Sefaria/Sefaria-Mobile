@@ -22,7 +22,7 @@ const TextRange = React.memo(({
   setRowRef,
   setRowRefInitY,
   fontScale,
-  openUriOrRef,
+  handleOpenURL,
   setDictionaryLookup,
   shareCurrentSegment,
   getDisplayedText,
@@ -104,7 +104,7 @@ const TextRange = React.memo(({
                   onTextPress={onTextPress}
                   showToast={showToast}
                   setDictionaryLookup={setDictionaryLookup}
-                  openUriOrRef={openUriOrRef}
+                  handleOpenURL={handleOpenURL}
                   shareCurrentSegment={shareCurrentSegment}
                   getDisplayedText={getDisplayedText}
                 />
@@ -127,7 +127,7 @@ const TextRange = React.memo(({
                   onTextPress={onTextPress}
                   showToast={showToast}
                   setDictionaryLookup={setDictionaryLookup}
-                  openUriOrRef={openUriOrRef}
+                  handleOpenURL={handleOpenURL}
                   shareCurrentSegment={shareCurrentSegment}
                   getDisplayedText={getDisplayedText}
                 />
