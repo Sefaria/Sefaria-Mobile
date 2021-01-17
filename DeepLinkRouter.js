@@ -56,7 +56,6 @@ class DeepLinkRouter extends React.PureComponent {
     // wrapper for openRef to convert url params to function params
     // TODO handle sheet ref case
     const { ref, title } = Sefaria.urlToRef(tref);
-    console.log("router", ref, tref);
     if (!title) { this.catchAll({ url }); return; /* open site */}
     else if (ref === title) {
       // book table of contents
@@ -86,7 +85,7 @@ class DeepLinkRouter extends React.PureComponent {
     this.props.openUri(url);
   };
   route = url => {
-    const u = new URL(url, Sefaria.api._baseHost);
+    const u = new URL(url, Sefaria.api._baseHost, true);
     let { pathname, query, host, hostname } = u;
     if (!hostname.match('(?:www\.)?sefaria\.org')) {
       // this is not a sefaria URL. Route to browser
