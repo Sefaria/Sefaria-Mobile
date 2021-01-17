@@ -8,7 +8,6 @@ import {
   Animated,
   Alert,
   LayoutAnimation,
-  AppState,
   Dimensions,
   View,
   StatusBar,
@@ -21,7 +20,6 @@ import {
 } from 'react-native';
 import NetInfo from "@react-native-community/netinfo";
 import AsyncStorage from '@react-native-community/async-storage';
-import { connect } from 'react-redux';
 import { PinchGestureHandler, State } from 'react-native-gesture-handler';
 //import --- from 'react-native-gesture-handler';
 import BackgroundFetch from "react-native-background-fetch";
@@ -30,7 +28,7 @@ import SplashScreen from 'react-native-splash-screen';
 import nextFrame from 'next-frame';
 import RNShake from 'react-native-shake';
 import SoundPlayer from 'react-native-sound-player'
-import { Search, SearchState } from '@sefaria/search';
+import { SearchState } from '@sefaria/search';
 
 import { STATE_ACTIONS } from './StateManager';
 import ReaderControls from './ReaderControls';
@@ -59,7 +57,6 @@ import { AuthPage } from "./AuthPage";
 import Dedication from  "./Dedication"
 import {
   Tracker as DownloadTracker,
-  promptLibraryUpdate
 } from "./DownloadControl.js"
 
 
