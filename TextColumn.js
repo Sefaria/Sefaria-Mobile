@@ -69,7 +69,7 @@ class TextColumn extends React.PureComponent {
     loadingTextHead:    PropTypes.bool,
     linksLoaded:        PropTypes.array,
     showAliyot:         PropTypes.bool.isRequired,
-    openUriOrRef:       PropTypes.func.isRequired,
+    handleOpenURL:       PropTypes.func.isRequired,
     shareCurrentSegment:PropTypes.func.isRequired,
     getDisplayedText:   PropTypes.func.isRequired,
     biLayout:           PropTypes.oneOf(["stacked", "sidebyside", "sidebysiderev"]),
@@ -101,6 +101,11 @@ class TextColumn extends React.PureComponent {
   }
   componentDidMount() {
     this._isMounted = true;
+    if (this.props.data.length > 0 && this.state.dataSource.length === 0) {
+      // sometimes when going back to textcolumn, constructor isn't run and props.data is not in sync with state.dataSource
+      // manually perform update
+      this.performUpdate(this.props);
+    }
   }
   componentWillUnmount() {
     this._isMounted = false;
@@ -301,7 +306,6 @@ class TextColumn extends React.PureComponent {
   };
 
   componentDidUpdate(prevProps, prevState) {
-
     if (this.props.data.length !== prevProps.data.length ||
         this.props.textFlow !== prevProps.textFlow ||
         this.props.textLanguage !== prevProps.textLanguage ||
@@ -311,16 +315,20 @@ class TextColumn extends React.PureComponent {
         //this.props.themeStr !== prevProps.themeStr ||
         this.props.linksLoaded !== prevProps.linksLoaded ||
         this.props.textToc !== prevProps.textToc ||
+        (this.props.sheet && this.props.sheet.id) !== (prevProps.sheet && prevProps.sheet.id) ||
         this.props.showAliyot !== prevProps.showAliyot) {
       // Only update dataSource when a change has occurred that will result in different data
       //TODO how to optimize this function when fontSize is changing?
-      let {dataSource, componentsToMeasure, jumpInfoMap} = this.generateDataSource(this.props, this.state.jumpState.jumping);
-      if (this.props.data.length !== prevProps.data.length && this.state.jumpState.jumping) {
-        this.measuringHeights = true;
-        this.setState({nextDataSource: dataSource, componentsToMeasure, jumpInfoMap});
-      } else {
-        this.setState({dataSource, jumpInfoMap}, ()=> { if (this.measuringHeights) { this.raceCondition = true; }});
-      }
+      this.performUpdate(prevProps);
+    }
+  }
+  performUpdate(prevProps) {
+    let {dataSource, componentsToMeasure, jumpInfoMap} = this.generateDataSource(this.props, this.state.jumpState.jumping);
+    if (this.props.data.length !== prevProps.data.length && this.state.jumpState.jumping) {
+      this.measuringHeights = true;
+      this.setState({nextDataSource: dataSource, componentsToMeasure, jumpInfoMap});
+    } else {
+      this.setState({dataSource, jumpInfoMap}, ()=> { if (this.measuringHeights) { this.raceCondition = true; }});
     }
   }
   updateHighlightedSegmentContinuous = (secData) => {
@@ -525,7 +533,7 @@ class TextColumn extends React.PureComponent {
         textSegmentPressed={this.textSegmentPressed}
         setRowRef={this.setSegmentRowRef}
         setRowRefInitY={this.setRowRefInitY}
-        openUriOrRef={this.props.openUriOrRef}
+        handleOpenURL={this.props.handleOpenURL}
         setDictionaryLookup={this.props.setDictionaryLookup}
         shareCurrentSegment={this.props.shareCurrentSegment}
         getDisplayedText={this.props.getDisplayedText}

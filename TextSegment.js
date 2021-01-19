@@ -30,7 +30,7 @@ const TextSegment = React.memo(({
   fontScale,
   setDictionaryLookup,
   showToast,
-  openUriOrRef,
+  handleOpenURL,
   onTextPress,
   shareCurrentSegment,
   getDisplayedText,
@@ -127,7 +127,7 @@ const TextSegment = React.memo(({
           stylesheet: {...styles, ...smallSheet},
           RootComponent: Text,
           TextComponent: Animated.Text,
-          onLinkPress: openUriOrRef,
+          onLinkPress: handleOpenURL,
           textComponentProps: {
             suppressHighlighting: false,
             key: segmentKey,

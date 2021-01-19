@@ -154,10 +154,10 @@ class ReaderApp extends React.PureComponent {
 
   componentDidMount() {
     // add handleOpenURL listener before running initFiles so that _initDeepLinkURL will be set in time
-    Linking.getInitialURL().then(url => { this.handleOpenURL({ url }); }).catch(err => {
+    Linking.getInitialURL().then(url => { this.handleOpenURL(url); }).catch(err => {
         console.warn('An error occurred', err);
     });
-    Linking.addEventListener('url', this.handleOpenURL);
+    Linking.addEventListener('url', this.handleOpenURLNamedParam);
     BackgroundFetch.configure({
       minimumFetchInterval: 15,
       stopOnTerminate: false,
@@ -213,7 +213,7 @@ class ReaderApp extends React.PureComponent {
   componentWillUnmount() {
     BackHandler.removeEventListener('hardwareBackPress', this.manageBack);
     this.NetInfoEventListener();  // calling the event listener unsubcribes
-    Linking.removeEventListener('url', this.handleOpenURL);
+    Linking.removeEventListener('url', this.handleOpenURLNamedParam);
     RNShake.removeEventListener('ShakeEvent');
     DownloadTracker.unsubscribe('ReaderApp')
   }
@@ -289,6 +289,7 @@ class ReaderApp extends React.PureComponent {
   manageBack = type => {
     const oldState = BackManager.back({ type });
     if (!!oldState) {
+      oldState._completedInit = this.state._completedInit || oldState._completedInit;  // dont go back to false for this variable. can't undo completedInit!
       const isTextColumn = !oldState.menuOpen;
       if (isTextColumn) {
         // you're going back to textcolumn. make sure to jump
@@ -336,7 +337,8 @@ class ReaderApp extends React.PureComponent {
     BackgroundFetch.finish(taskId);
   };
 
-  handleOpenURL = ({ url } = {}) => {
+  handleOpenURLNamedParam = ({ url } = {}) => {
+    // needs to be named param to be compatible with Linking API
     if (url) {
       if (this.state._completedInit) {
         this._deepLinkRouterRef.route(url);
@@ -345,6 +347,11 @@ class ReaderApp extends React.PureComponent {
         this._initDeepLinkURL = url;
       }
     }
+  };
+
+  handleOpenURL = (url) => {
+    // unnamed parameter func used for HTMLView callback
+    this.handleOpenURLNamedParam({ url });
   };
 
   onDownloaderChange = (openSettings) => {
@@ -1185,11 +1192,6 @@ class ReaderApp extends React.PureComponent {
       }
     }).catch(error => { this.openInDefaultBrowser(uri); })
   };
-
-  openUriOrRef = uri => {
-    const internal = (uri.length > 0 && uri[0] === '/') || (uri.indexOf('sefaria.org/') > -1);
-    internal ? this.openRef(Sefaria.urlToRef(uri.replace('/', '')).ref) : this.openUri(uri);
-  }
 
   openInDefaultBrowser = uri => {
     Linking.openURL(uri);
@@ -2111,7 +2113,7 @@ class ReaderApp extends React.PureComponent {
                   linksLoaded={this.state.linksLoaded}
                   loadingTextTail={this.state.loadingTextTail}
                   loadingTextHead={this.state.loadingTextHead}
-                  openUriOrRef={this.openUriOrRef}
+                  handleOpenURL={this.handleOpenURL}
                   textUnavailableAlert={this.textUnavailableAlert}
                   setDictionaryLookup={this.setDictionaryLookup}
                   shareCurrentSegment={this.shareCurrentSegment}
@@ -2167,7 +2169,7 @@ class ReaderApp extends React.PureComponent {
                 onDragEnd={this.onTextListDragEnd}
                 textTitle={this.state.textTitle}
                 openUri={this.openUri}
-                openUriOrRef={this.openUriOrRef}
+                handleOpenURL={this.handleOpenURL}
                 dictLookup={this.state.dictLookup}
                 shareCurrentSegment={this.shareCurrentSegment}
                 viewOnSite={this.viewOnSite}
