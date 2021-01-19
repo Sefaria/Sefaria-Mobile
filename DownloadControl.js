@@ -1,7 +1,7 @@
 'use strict';
 
 import RNFB from 'rn-fetch-blob';
-import { FileSystem } from 'react-native-unimodules'
+import {FileSystem} from 'react-native-unimodules'
 import {unzip} from 'react-native-zip-archive'; //for unzipping -- (https://github.com/plrthink/react-native-zip-archive)
 import strings from './LocalizedStrings'
 import {Alert, Platform} from 'react-native';
@@ -11,6 +11,7 @@ import Sefaria from "./sefaria";
 import crashlytics from '@react-native-firebase/crashlytics';
 
 const SCHEMA_VERSION = "6";
+// const DOWNLOAD_SERVER = "http://10.0.2.2:5000"  // this ip will allow the android emulator to access a localhost server
 const DOWNLOAD_SERVER = "https://readonly.sefaria.org";
 const HOST_PATH = `${DOWNLOAD_SERVER}/static/ios-export/${SCHEMA_VERSION}`;
 const HOST_BUNDLE_URL = `${HOST_PATH}/bundles`;
@@ -18,12 +19,6 @@ const [FILE_DIRECTORY, TMP_DIRECTORY] = [`${RNFB.fs.dirs.DocumentDir}/library`, 
 
 let BooksState = {};
 let PackagesState = {};
-
-try {
-  console.log(`new file location is ${FileSystem.documentDirectory}`);
-} catch (e) { console.log(e) }
-
-console.log(`original file location is ${RNFB.fs.dirs.DocumentDir}`);
 
 /*
  * A note on package tracking:
@@ -98,11 +93,6 @@ class DownloadTracker {
       this.updateSession({downloadActive: false})
     }
   }
-  removeSpecificDownload(taskId) {
-    if (this.currentDownload && this.currentDownload.taskId === taskId) {
-      this.removeDownload();
-    }
-  }
   downloadInProgress() {
     return (!!this.currentDownload);
   }
@@ -113,6 +103,11 @@ class DownloadTracker {
     // if (this.downloadInProgress()) {
     //   this.currentDownload.catch(e => {});
     // }
+    if (!this.downloadInProgress()) {
+      this.removeDownload(cleanup);
+      if (cleanup) { cleanTmpDirectory().then( () => {} ) }
+      return
+    }
     if (cleanup) {
       this.currentDownload.pauseAsync().then(() => {
         this.downloadSavable = null;
@@ -173,7 +168,6 @@ class DownloadTracker {
      * At the end of a download we'll call notify(false) from the DownloadTracker. This is because only the DownloadTracker
      * can know when a download has completed
      */
-    console.log('notifying: ', this._downloadSession);
     Object.values(this.subscriptions).map(x => {
       try{
         x(this._downloadSession);
@@ -195,9 +189,7 @@ class DownloadTracker {
         firstRun = false;
         return
       }
-        console.log('running networkChangeMethod');
       if (allowedToDownload(state)) {
-        console.log('scheduled download recovery from event listener');
         downloadRecover(networkSetting, downloadBuffer).then(() => {});
       } else if (Tracker.downloadInProgress()){
         Tracker.cancelDownload(false);
@@ -595,10 +587,22 @@ async function requestNewBundle(bookList, badResponseWaitTime=3000) {
 }
 
 function getPackageUrls(packageName) {
-  return new Promise((resolve, reject) => {
-    fetch(`${DOWNLOAD_SERVER}/packageData?package=${packageName}&schema_version=${SCHEMA_VERSION}`)
-      .then(x => x.json()).then(x => resolve(x)).catch(err => reject(err))
-  })
+  const aborter = {abort: false, complete: false}
+  addCancelMethod(() => aborter.abort = true)
+
+  const mainPromise = async pn => {
+    const response = await fetch(`${DOWNLOAD_SERVER}/packageData?package=${pn}&schema_version=${SCHEMA_VERSION}`);
+    const json = await response.json();
+    aborter.complete = true;
+    return json
+  }
+  const rejector = async () => {
+    do {
+      await timeoutPromise(100);
+      if (aborter.abort) { throw 'aborted'}
+    } while (!aborter.complete)
+  }
+  return Promise.race([mainPromise(packageName), rejector()])
 }
 
 function isDownloadAllowed(networkState, downloadNetworkSetting) {
@@ -645,7 +649,6 @@ async function downloadBundle(bundleName, networkSetting, downloadBuffer, recove
   // console.log(`expect to see ${
   //   Object.values(BooksState).filter(b => b.desired).length
   // } books after download`);
-  // Tracker.setAlreadyDownloaded(resumeData.length);
   const getUniqueFilename = () => {  // It's not critical to have a truly unique filename
     return `${FileSystem.cacheDirectory}/${String(Math.floor(Math.random()*10000000))}.zip`
   };
@@ -660,10 +663,13 @@ async function downloadBundle(bundleName, networkSetting, downloadBuffer, recove
 
   // const downloadState = downloadFilePromise(url, filename, downloadFrom);
   const callback = progress => Tracker.progressTracker(progress.totalBytesWritten, progress.totalBytesExpectedToWrite);
-  // todo rnfb refactor -> use all the saveable data to instantiate the downloadResumable
-  const downloadState = recoveryMode ? new FileSystem.createDownloadResumable(
-    resumeData.url, resumeData.fileUri, resumeData.options, callback, resumeData.resumeData)
-    : new FileSystem.createDownloadResumable(url, filename, {}, callback);
+  const downloadState = recoveryMode
+    ? new FileSystem.createDownloadResumable(
+      resumeData.url, resumeData.fileUri, resumeData.options, callback, resumeData.resumeData
+    )
+    : new FileSystem.createDownloadResumable(
+      url, filename, {}, callback
+    );
 
   try {
     Tracker.addDownload(downloadState);  // todo rnfb refactor -> check all the places the downloadState is being used, make sure api is compatible with new library
@@ -677,10 +683,8 @@ async function downloadBundle(bundleName, networkSetting, downloadBuffer, recove
   try {
     downloadResult = await downloadState.downloadAsync();
   }  catch (e) {
-    console.log('message from failed downloadAsync:')
-    console.warn(e);
     // don't start again if download "failed" due to user request. Download Removal is handled by the cancel method
-    if (e.message === 'canceled') { return }  // todo rnfb refactor -> we need to review our methodology around determining if this was a network failure or maual cancelation
+    if (e.message === 'stream was reset: CANCEL') { return }
     else {
       /* Try again if download failed; recover will abort if the failure is due to network
        *
@@ -689,12 +693,10 @@ async function downloadBundle(bundleName, networkSetting, downloadBuffer, recove
        * important to schedule the download recovery, rather than running into it directly. Hence the call to setTimeout.
        * Further investigation recommended.
        */
-        console.log('Error when awaiting download Promise:');
-        console.log(e);
+      console.log('Error when awaiting download Promise:');
+      console.log(e);
       Tracker.removeDownload();
-      const saveable = await downloadState.pauseAsync();
-      console.log('saveable: ', saveable);
-      Tracker.downloadSavable = saveable;
+      Tracker.downloadSavable = await downloadState.pauseAsync();
 
       setTimeout(async () => {
         console.log('scheduled download recovery from downloadBundle');
@@ -807,17 +809,6 @@ async function postDownload(downloadPath, newDownload=true) {
     return
   }
 
-  // todo rnfb refactor -> remove
-  // if (newDownload) {
-  //   try {
-  //     await RNFB.fs.mv(downloadPath, sessionStorageLoc);
-  //   } catch (e) {
-  //     console.error(e);
-  //     crashlytics().error(e);
-  //   }
-  // } else {
-  //   await RNFB.fs.appendFile(sessionStorageLoc, downloadPath, 'uri');
-  // }
   try {
     await unzipBundle(downloadPath);
   } catch (e) {
@@ -886,6 +877,7 @@ async function downloadBundleArray(bundleArray, downloadData, networkSetting) {
   for (const b of bundleArray) {
     buffer.push(async () => {
       downloadData.currentDownload += 1;
+      if (abortDownload.abort) { return }
       await downloadBundle(`${DOWNLOAD_SERVER}/${b}`, networkSetting, bufferGen);
     });
   }
@@ -903,6 +895,8 @@ async function downloadBundleArray(bundleArray, downloadData, networkSetting) {
 
 
 async function downloadPackage(packageName, networkSetting) {
+  const aborter = {abort: false}
+  addCancelMethod(() => aborter.abort=true)
   let packageSize = 0;
   try {
     packageSize = PackagesState[packageName].jsonData.size;
@@ -922,6 +916,7 @@ async function downloadPackage(packageName, networkSetting) {
   } catch (e) { return }
 
   bundles = bundles.map(u => encodeURIComponent(u));
+  if (aborter.abort) { return }
   await downloadBundleArray(bundles, Tracker.arrayDownloadState, networkSetting);
   // bundles.map(async b => {await downloadBundle(`${DOWNLOAD_SERVER}/${b}`, networkSetting)});
 
