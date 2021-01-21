@@ -15,7 +15,7 @@ const SCHEMA_VERSION = "6";
 const DOWNLOAD_SERVER = "https://readonly.sefaria.org";
 const HOST_PATH = `${DOWNLOAD_SERVER}/static/ios-export/${SCHEMA_VERSION}`;
 const HOST_BUNDLE_URL = `${HOST_PATH}/bundles`;
-const [FILE_DIRECTORY, TMP_DIRECTORY] = [`${RNFB.fs.dirs.DocumentDir}/library`, `${RNFB.fs.dirs.DocumentDir}/tmp`];  //todo: make sure these are used
+const [FILE_DIRECTORY, TMP_DIRECTORY] = [`${FileSystem.documentDirectory}/library`, `${FileSystem.cacheDirectory}/tmp`];  //todo: make sure these are used
 
 let BooksState = {};
 let PackagesState = {};
@@ -124,7 +124,6 @@ class DownloadTracker {
   attachProgressTracker(progressTracker, identity) {
     // todo rnfb refactor -> config is a thing from rnfb, we can get rid of it. identity is for react components to subscribe / unsubscribe
     const enhancedProgressTracker = (received, total) => {
-      // The RNFB fetch method sends strings for progress tracking, not integers...
       let [trueReceived, trueTotal] = [parseInt(received) + parseInt(this._alreadyDownloaded),
         parseInt(total) + parseInt(this._alreadyDownloaded)];
 
@@ -319,26 +318,10 @@ class Book {
   }
 }
 
-
-function downloadFilePromise(fileUrl, filepath, downloadFrom=0) {
-  // Test with Appium
-  const config = RNFB.config({
-      IOSBackgroundTask: true,
-      indicator: true,
-      path: filepath,
-      overwrite: true,
-    });
-  let filePromise;
-  if (!!downloadFrom) {
-    filePromise = config.fetch('GET', fileUrl, { Range: `bytes=${downloadFrom}-` })
-  } else {
-    filePromise = config.fetch('GET', fileUrl);
-  }
-
-  // if (Platform.OS === "ios") {
-  //   filePromise.expire(() => postDownload(filepath));
-  // }
-  return filePromise
+async function fileExists(filePath) {
+  // RNFB had an explicit exists method, while Filesystem does not. This is useful for making the refactor simpler
+  const fileInfo = await FileSystem.getInfoAsync(filePath);
+  return fileInfo.exists
 }
 
 
@@ -366,7 +349,7 @@ function deriveDownloadState(pkgStateData) {
 function loadJSONFile(JSONSourcePath) {
   // Test with Appium
   return new Promise((resolve, reject) => {
-    RNFB.fs.readFile(JSONSourcePath).then(result => {
+    FileSystem.readAsStringAsync(JSONSourcePath).then(result => {
       let parsedResult;
       try {
         parsedResult = JSON.parse(result);
@@ -382,9 +365,10 @@ function loadJSONFile(JSONSourcePath) {
 
 async function loadCoreFile(filename) {
   // Test explicitly with Appium. Platform dependencies are not modeled well with Jest
-  const exists = await RNFB.fs.exists(`${FILE_DIRECTORY}/${filename}`);
+  const exists = await fileExists(`${FILE_DIRECTORY}/${filename}`);
 
   if (exists || Platform.OS === "ios") {
+    // todo rnfb refactor -> we need to determine how the bundles are handled on ios through expo
     const pkgPath = exists ? `${FILE_DIRECTORY}/${filename}` : `${RNFB.fs.dirs.MainBundleDir}/sources/${filename}`;
     return await loadJSONFile(pkgPath);
   }
@@ -401,7 +385,7 @@ async function loadCoreFile(filename) {
 
 async function lastUpdated() {
   const lastUpdatedSource = `${FILE_DIRECTORY}/last_updated.json`;
-  let exists = await RNFB.fs.exists(lastUpdatedSource);
+  let exists = await fileExists(lastUpdatedSource);
   if (!exists)
     {
       return null;
@@ -489,14 +473,15 @@ function setDesiredBooks() {
 }
 
 async function setLocalBookTimestamps(bookTitleList) {
-  let fileData = await RNFB.fs.lstat(FILE_DIRECTORY);
-  // console.log('debugging issue in setLocalBookTimestamps:');
-  // console.log(fileData);
-  fileData = fileData.filter(x => !!x && x['filename'].endsWith('.zip'));
+  let fileList = await FileSystem.readDirectoryAsync(FILE_DIRECTORY);
+  fileList = fileList.filter(x => x.endsWith('.zip'));
+  let fileData = await Promise.all(fileList.map(x => FileSystem.getInfoAsync(`${FILE_DIRECTORY}/${x}`, {log: true})));
+  debugger;
+  console.log(fileData);
   const stamps = {};
   fileData.forEach(f => {
-    const bookName = f['filename'].slice(0, -4);
-    stamps[bookName] = new Date(parseInt(f['lastModified']));
+    const bookName = f['uri'].split('/').pop().slice(0, -4);
+    stamps[bookName] = new Date(parseInt(f['modificationTime'] * 1000));  // FileSystem records seconds since the epoch
   });
 
   bookTitleList.map(title => {
@@ -512,7 +497,7 @@ async function getLocalBookList() {
   // This method is for getting the books that are stored on disk
   let books;
   try {
-    books = await RNFB.fs.ls(FILE_DIRECTORY);
+    books = await FileSystem.readDirectoryAsync(FILE_DIRECTORY);
   } catch (e) {
     crashlytics().error(e);
     books = [];
@@ -533,11 +518,10 @@ async function deleteBooks(bookList, shouldCleanTmpDirectory=true) {
   // Test with Appium
   const deleteBook = async (bookTitle) => {
     const filepath = `${FILE_DIRECTORY}/${bookTitle}.zip`;
-    // const exists = await RNFB.fs.exists(filepath);
     const exists = true;
     if (exists) {
       try {
-        await RNFB.fs.unlink(filepath);
+        await FileSystem.deleteAsync(filepath, {idempotent: true});
       } catch (e) {
         crashlytics().log(`Error deleting file: ${e}`);
       }
@@ -795,15 +779,15 @@ function calculateBooksToDelete(booksState) {
 async function cleanTmpDirectory() {
   let files = [];
   try {
-    files = await RNFB.fs.ls(TMP_DIRECTORY);
+    files = await FileSystem.readDirectoryAsync(TMP_DIRECTORY);
   } catch (e) {  // if for whatever reason TMP_DIRECTORY doesn't exist, we can just exit now
     return
   }
-  await Promise.all(files.map(f => RNFB.fs.unlink(`${TMP_DIRECTORY}/${f}`)));
+  await Promise.all(files.map(f => FileSystem.deleteAsync(`${TMP_DIRECTORY}/${f}`)));
 }
 
 async function postDownload(downloadPath, newDownload=true) {
-  const exists = await RNFB.fs.exists(downloadPath);
+  const exists = await fileExists(downloadPath);
   if (!exists) {
     console.log(`file at ${downloadPath} missing`);  // todo: we may want to flag a failed download here
     return
@@ -826,9 +810,9 @@ async function postDownload(downloadPath, newDownload=true) {
   } books on disk`)
 
   // -- DEBUG CODE --
-  // const genesisExists = await RNFB.fs.exists(`${FILE_DIRECTORY}/Genesis.zip`);
+  // const genesisExists = await fileExists(`${FILE_DIRECTORY}/Genesis.zip`);
   // if (genesisExists) {
-  //     const s = await RNFB.fs.stat(`${FILE_DIRECTORY}/Genesis.zip`);
+  //     const s = await FileSystem.getInfoAsync(`${FILE_DIRECTORY}/Genesis.zip`);
   //     const genesisAdded = new Date(parseInt(s.lastModified));
   //     console.log(`Genesis added at ${genesisAdded}. Raw value: ${s.lastModified}`);
   // } else { console.log('Genesis file does not exist'); }
@@ -971,10 +955,10 @@ async function markLibraryForDeletion() {
 }
 
 async function addDir(path) {
-  const exists = await RNFB.fs.exists(path);
+  const exists = await fileExists(path);
   if (!exists) {
     try {
-      await RNFB.fs.mkdir(path)
+      await FileSystem.makeDirectoryAsync(path);
     } catch(e) {
       crashlytics().log(`Could not create directory at ${path}; ${e}`);
     }
@@ -991,14 +975,14 @@ async function downloadCoreFile(filename) {
   const [fileUrl, tempPath] = [`${HOST_PATH}/${encodeURIComponent(filename)}`, `${TMP_DIRECTORY}/${filename}`];
   let downloadResp = null;
   try{
-    downloadResp = await downloadFilePromise(fileUrl, tempPath);
+    downloadResp = await FileSystem.downloadAsync(fileUrl, tempPath);
   } catch (e) {
     crashlytics().log(e);
     return
   }
-  const status = !!downloadResp ? downloadResp.info().status : 'total failure';
+  const status = !!downloadResp ? downloadResp.status : 'total failure';
   if ((status >= 300 || status < 200) || (status === 'total failure')) {
-    await RNFB.fs.unlink(tempPath);
+    await FileSystem.deleteAsync(tempPath);
     const e = new Error(`bad download status; got : ${status}`);
     crashlytics().recordError(e);
     throw e  // todo: review. Should we throw here?
@@ -1006,10 +990,10 @@ async function downloadCoreFile(filename) {
   else {
   }
   try {
-    await RNFB.fs.mv(tempPath, `${RNFB.fs.dirs.DocumentDir}/library/${filename}`);
+    await FileSystem.moveAsync({from: tempPath, to: `${FILE_DIRECTORY}/${filename}`});
   } catch(e) {
     crashlytics().log(`failed to move file at ${tempPath} to app storage: ${e}`);
-    await RNFB.fs.unlink(tempPath);
+    await FileSystem.deleteAsync(tempPath, {idempotent: true});
   }
 }
 

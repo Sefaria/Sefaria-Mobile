@@ -1,4 +1,3 @@
-import RNFB from 'rn-fetch-blob';
 import {
   PackagesState,
   Tracker,
@@ -13,6 +12,7 @@ import {
   FILE_DIRECTORY, calculateBooksToDownload, calculateBooksToDelete, autoUpdateCheck
 } from '../DownloadControl'
 import AsyncStorage from '@react-native-community/async-storage';
+import {FileSystem} from 'react-native-unimodules'
 import Sefaria from '../sefaria'
 
 
@@ -87,7 +87,7 @@ fetch = jest.fn(x => {
 });
 
 beforeEach(async () => {
-  await RNFB.fs.writeFile(`${FILE_DIRECTORY}/toc.json`, tocJson);
+  await FileSystem.writeAsStringAsync(`${FILE_DIRECTORY}/toc.json`, tocJson);
   // await Sefaria._loadTOC();
   Sefaria.booksDict = {};
   [
@@ -99,11 +99,11 @@ beforeEach(async () => {
     'Rashi on Leviticus',
     'Weird Random Book'
     ].map(x => Sefaria.booksDict[x] = 1);
-  await RNFB.fs.writeFile(`${FILE_DIRECTORY}/packages.json`, packageData);
+  await FileSystem.writeAsStringAsync(`${FILE_DIRECTORY}/packages.json`, packageData);
 });
 
 afterEach(async () => {
-  await RNFB.fs.clear();
+  await FileSystem.clear();
   await AsyncStorage.clear();
 });
 
@@ -175,29 +175,28 @@ describe('UpdateTests', () => {
     }));
     const relevantPackage = packageData.find(p => p['en'] === packageName);
     const bookPromises = relevantPackage.indexes.map(x => {
-      RNFB.fs.writeFile(`${FILE_DIRECTORY}/${x}.zip`, 'foo')
+      FileSystem.writeAsStringAsync(`${FILE_DIRECTORY}/${x}.zip`, 'foo')
     });
     await Promise.all(bookPromises);
   }
   async function basicTest(expectedDownloads, expectedDeletes) {
     // sanity check that our mock is not throwing out a default value. package.json should be on disk before every test
-    const [preFiles, preStat] =  await Promise.all([RNFB.fs.ls(FILE_DIRECTORY), RNFB.fs.lstat(FILE_DIRECTORY)]);
+    const preFiles =  await FileSystem.readDirectoryAsync(FILE_DIRECTORY);
     expect(preFiles.length).toBeGreaterThan(0);
-    expect(preStat.length).toBeGreaterThan(0);
 
     await packageSetupProtocol();
     const [toDownload, toDelete] = await Promise.all([calculateBooksToDownload(BooksState), calculateBooksToDelete(BooksState)]);
-    const postFiles = await RNFB.fs.ls(FILE_DIRECTORY);
+    const postFiles = await FileSystem.readDirectoryAsync(FILE_DIRECTORY);
     expect(toDownload).toHaveLength(expectedDownloads);
     expect(toDelete).toHaveLength(expectedDeletes);
     expect(postFiles).toEqual(preFiles);
   }
   beforeEach(async () => {
-    await RNFB.fs.writeFile(`${FILE_DIRECTORY}/last_updated.json`, lastUpdated);
+    await FileSystem.writeAsStringAsync(`${FILE_DIRECTORY}/last_updated.json`, lastUpdated);
   });
   afterEach(async () => {
     AsyncStorage.clear();
-    RNFB.fs.clear();
+    FileSystem.clear();
     jest.clearAllMocks();
   });
   test('noDownloads', async () => {
@@ -209,27 +208,27 @@ describe('UpdateTests', () => {
   });
   test('missingBook', async () => {
     await fileSetup("Gen with Rashi");
-    await RNFB.fs.unlink(`${FILE_DIRECTORY}/Genesis.zip`);
+    await FileSystem.deleteAsync(`${FILE_DIRECTORY}/Genesis.zip`);
     await basicTest(1, 0)
   });
   test('bookOutOfDate', async () => {
     await fileSetup("Gen with Rashi");
     const lastWeek = new Date();
     lastWeek.setDate(lastWeek.getDate() - 7);
-    RNFB.fs.setTimestamp(`${FILE_DIRECTORY}/Genesis.zip`, lastWeek.valueOf());
+    FileSystem.setTimestamp(`${FILE_DIRECTORY}/Genesis.zip`, lastWeek.valueOf());
     await basicTest(1, 0)
   });
   test('bookToDelete', async () => {
-    await RNFB.fs.writeFile(`${FILE_DIRECTORY}/Genesis.zip`, 'foo');
+    await FileSystem.writeAsStringAsync(`${FILE_DIRECTORY}/Genesis.zip`, 'foo');
     await basicTest(0, 1)
   });
   test('deleteUpdateMissing', async () => {
     await fileSetup("Torah with Rashi");
     const lastWeek = new Date();
     lastWeek.setDate(lastWeek.getDate() - 7);
-    RNFB.fs.setTimestamp(`${FILE_DIRECTORY}/Genesis.zip`, lastWeek.valueOf());
-    await RNFB.fs.unlink(`${FILE_DIRECTORY}/Exodus.zip`);
-    await RNFB.fs.writeFile(`${FILE_DIRECTORY}/Weird Random Book.zip`);
+    FileSystem.setTimestamp(`${FILE_DIRECTORY}/Genesis.zip`, lastWeek.valueOf());
+    await FileSystem.deleteAsync(`${FILE_DIRECTORY}/Exodus.zip`);
+    await FileSystem.writeAsStringAsync(`${FILE_DIRECTORY}/Weird Random Book.zip`, 'bar');
     await basicTest(2, 1)
   });
   test('MissingCompleteLibrary', async () => {
@@ -242,11 +241,11 @@ describe('UpdateTests', () => {
     await AsyncStorage.setItem('packagesSelected', JSON.stringify({
       'COMPLETE LIBRARY': true
     }));
-    await RNFB.fs.writeFile(`${FILE_DIRECTORY}/Genesis.zip`, 'foo');
-    await RNFB.fs.writeFile(`${FILE_DIRECTORY}/Exodus.zip`, 'foo');
+    await FileSystem.writeAsStringAsync(`${FILE_DIRECTORY}/Genesis.zip`, 'foo');
+    await FileSystem.writeAsStringAsync(`${FILE_DIRECTORY}/Exodus.zip`, 'foo');
     const lastWeek = new Date();
     lastWeek.setDate(lastWeek.getDate() - 7);
-    RNFB.fs.setTimestamp(`${FILE_DIRECTORY}/Exodus.zip`, lastWeek.valueOf());
+    FileSystem.setTimestamp(`${FILE_DIRECTORY}/Exodus.zip`, lastWeek.valueOf());
     await basicTest(6, 0);
   });
   test('requestNewBundle', async () => {
@@ -293,9 +292,9 @@ describe('lastUpdated', () => {
 
 test('getLocalBookList', async () => {
   await Promise.all([
-    RNFB.fs.writeFile(`${FILE_DIRECTORY}/Genesis.zip`, '123'),
-    RNFB.fs.writeFile(`${FILE_DIRECTORY}/Berakhot.zip`, '456'),
-    RNFB.fs.writeFile(`${FILE_DIRECTORY}/Midrash Rabbah.zip`, '789')
+    FileSystem.writeAsStringAsync(`${FILE_DIRECTORY}/Genesis.zip`, '123'),
+    FileSystem.writeAsStringAsync(`${FILE_DIRECTORY}/Berakhot.zip`, '456'),
+    FileSystem.writeAsStringAsync(`${FILE_DIRECTORY}/Midrash Rabbah.zip`, '789')
   ]);
   const result = await getLocalBookList();
   expect(result).toEqual(['Genesis', 'Berakhot', 'Midrash Rabbah']);
@@ -304,50 +303,48 @@ test('getLocalBookList', async () => {
 describe('testMocking', () => {
   // These tests are sanity checks to make sure the mocks are behaving as intended
   test('readWrite', async () => {
-    await RNFB.fs.writeFile('foo/bar', 'some random stuff');
+    await FileSystem.writeAsStringAsync('foo/bar', 'some random stuff');
     const result = await loadJSONFile('foo/bar');
     expect(result).toBe('some random stuff')
   });
   test('singleMock', async () => {
     // We want to verify we are properly using mockImplementationOnce
-    let result = await RNFB.fs.lstat();
-    const mockResult = [{
-      'Genesis.zip': 'foo'
-    }];
-    expect(result).toEqual([]);
-    RNFB.fs.lstat.mockImplementationOnce(x => Promise.resolve(mockResult));
-    result = await RNFB.fs.lstat();
+    const [realResult, mockResult] = [{exists: false, isDirectory: false}, {exists: true, fakeKey: 'foobar'}];
+    let result = await FileSystem.getInfoAsync('/fakeFile.txt');
+    expect(result).toEqual(realResult);
+    FileSystem.getInfoAsync.mockImplementationOnce(x => Promise.resolve(mockResult));
+    result = await FileSystem.getInfoAsync('/fakeFile.txt');
     expect(result).toBe(mockResult);
-    result = await RNFB.fs.lstat();
-    expect(result).toEqual([]);
+    result = await FileSystem.getInfoAsync('/fakeFile.txt');
+    expect(result).toEqual(realResult);
   });
-  test('stat', async () => {
-    await RNFB.fs.writeFile('/foo', 'bar');
-    const stat = await RNFB.fs.stat('/foo');
+  test('getInfoAsync', async () => {
+    await FileSystem.writeAsStringAsync('/foo', 'bar');
+    const stat = await FileSystem.getInfoAsync('/foo');
     expect(stat).toBeInstanceOf(Object);
-    expect(stat).toHaveProperty('lastModified');
-    expect(stat).toHaveProperty('filename')
+    expect(stat).toHaveProperty('modificationTime');
+    expect(stat).toHaveProperty('uri')
   });
-  test('lstat', async () => {
-    // mocking Date.now so to prevent weird off-by-one errors that pop up.
-    const filePromises = ['/foo/a', '/foo/b', '/foo/c'].map(x => {
-      RNFB.fs.writeFile(`${x}`, 'foo');
+  test('multipleGetInfoAsync', async () => {
+    const fileList = ['/foo/a', '/foo/b', '/foo/c']
+    const filePromises = fileList.map(x => {
+      FileSystem.writeAsStringAsync(`${x}`, 'foo');
     });
     await Promise.all(filePromises);
-    const lstatResults = await RNFB.fs.lstat('/foo');
-    const fileBStat = await RNFB.fs.stat('/foo/b');
+    const lstatResults = await Promise.all(fileList.map(x => FileSystem.getInfoAsync(x)));
+    const fileBStat = await FileSystem.getInfoAsync('/foo/b');
     expect(lstatResults).toBeInstanceOf(Array);
     expect(lstatResults).toHaveLength(3);
-    delete fileBStat['lastModified'];  // these cause annoying off-by-1 errors on occasion
-    delete lstatResults[1]['lastModified'];
+    delete fileBStat['modificationTime'];  // these cause annoying off-by-1 errors on occasion
+    delete lstatResults[1]['modificationTime'];
     expect(lstatResults[1]).toEqual(fileBStat);
   });
   test('customTimestamp', async () => {
-    await RNFB.fs.writeFile('/foo/bar', 'blablabla');
-    const someTime = new Date(123456);
-    RNFB.fs.setTimestamp('/foo/bar', someTime);
-    const stat = await RNFB.fs.stat('/foo/bar');
-    expect(stat.lastModified).toBe(someTime.valueOf());
+    await FileSystem.writeAsStringAsync('/foo/bar', 'blablabla');
+    const someTime = new Date(123000);
+    FileSystem.setTimestamp('/foo/bar', someTime);
+    const fileInfo = await FileSystem.getInfoAsync('/foo/bar');
+    expect(fileInfo.modificationTime * 1000).toBe(someTime.valueOf());
   });
   test('fetchMocks', async () => {
     fetch.mockImplementationOnce(x => Promise.resolve({status: 404}));
