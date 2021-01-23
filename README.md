@@ -14,6 +14,7 @@ npm install
 npm run setup
 gem install cocoapods
 cd ios
+pod update
 pod install
 ```
 Put `GoogleService-Info.plist` in the `ios` directory.  It's available from the Firebase console (or your friendly co-worker.)
