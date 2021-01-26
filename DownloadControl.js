@@ -1,6 +1,6 @@
 'use strict';
 
-import RNFB from 'rn-fetch-blob';
+// import RNFB from 'rn-fetch-blob';
 import {FileSystem} from 'react-native-unimodules'
 import {unzip} from 'react-native-zip-archive'; //for unzipping -- (https://github.com/plrthink/react-native-zip-archive)
 import strings from './LocalizedStrings'
@@ -366,20 +366,13 @@ function loadJSONFile(JSONSourcePath) {
 async function loadCoreFile(filename) {
   // Test explicitly with Appium. Platform dependencies are not modeled well with Jest
   const exists = await fileExists(`${FILE_DIRECTORY}/${filename}`);
-
-  if (exists || Platform.OS === "ios") {
-    // todo rnfb refactor -> we need to determine how the bundles are handled on ios through expo
-    const pkgPath = exists ? `${FILE_DIRECTORY}/${filename}` : `${RNFB.fs.dirs.MainBundleDir}/sources/${filename}`;
+  const pkgPath = exists ? `${FILE_DIRECTORY}/${filename}`
+    : Platform.OS === "ios" ? `${FileSystem.bundleDirectory}/sources/${filename}`
+      : `${FileSystem.bundleDirectory}sources/${filename}`;
+  try {
     return await loadJSONFile(pkgPath);
-  }
-  else {
-    try {
-      const j = await RNFB.fs.readFile(RNFB.fs.asset(`sources/${filename}`));
-      return JSON.parse(j)
-    } catch (e) {
-      crashlytics().log(`Error loading Android asset ${filename}: ${e}`);
-      throw e
-    }
+  } catch (e) {
+    crashlytics().recordError(e);
   }
 }
 
@@ -475,15 +468,13 @@ function setDesiredBooks() {
 async function setLocalBookTimestamps(bookTitleList) {
   let fileList = await FileSystem.readDirectoryAsync(FILE_DIRECTORY);
   fileList = fileList.filter(x => x.endsWith('.zip'));
-  let fileData = await Promise.all(fileList.map(x => FileSystem.getInfoAsync(`${FILE_DIRECTORY}/${x}`, {log: true})));
-  debugger;
-  console.log(fileData);
+  // todo: we desperately need an lstat method here. Not currently known to be supported by FileSystem
+  let fileData = await throttlePromiseAll(fileList, x => FileSystem.getInfoAsync(`${FILE_DIRECTORY}/${x}`), 400);
   const stamps = {};
-  fileData.forEach(f => {
-    const bookName = f['uri'].split('/').pop().slice(0, -4);
+  fileData.forEach((f, i) => {
+    const bookName = fileList[i].slice(0, -4);
     stamps[bookName] = new Date(parseInt(f['modificationTime'] * 1000));  // FileSystem records seconds since the epoch
   });
-
   bookTitleList.map(title => {
     const timestamp = (title in stamps) ? stamps[title] : null;
     if (title in BooksState)
@@ -983,9 +974,9 @@ async function downloadCoreFile(filename) {
   const status = !!downloadResp ? downloadResp.status : 'total failure';
   if ((status >= 300 || status < 200) || (status === 'total failure')) {
     await FileSystem.deleteAsync(tempPath);
-    const e = new Error(`bad download status; got : ${status}`);
+    const e = new Error(`bad download status; got : ${status} from ${fileUrl}`);
     crashlytics().recordError(e);
-    throw e  // todo: review. Should we throw here?
+    throw e  // todo: review. Should we alert the user here?
   }
   else {
   }
@@ -1180,4 +1171,5 @@ export {
   doubleDownload,
   isDownloadAllowed,
   requestNewBundle,
+  fileExists,
 };
