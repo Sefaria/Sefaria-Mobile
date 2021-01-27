@@ -320,6 +320,7 @@ class Book {
 
 async function fileExists(filePath) {
   // RNFB had an explicit exists method, while Filesystem does not. This is useful for making the refactor simpler
+  filePath = Platform.OS === "ios" ? encodeURI(filePath) : filePath;
   const fileInfo = await FileSystem.getInfoAsync(filePath);
   return fileInfo.exists
 }
@@ -348,6 +349,7 @@ function deriveDownloadState(pkgStateData) {
 
 function loadJSONFile(JSONSourcePath) {
   // Test with Appium
+  if (Platform.OS === "ios") {JSONSourcePath = encodeURI(JSONSourcePath)}
   return new Promise((resolve, reject) => {
     FileSystem.readAsStringAsync(JSONSourcePath).then(result => {
       let parsedResult;
@@ -469,7 +471,10 @@ async function setLocalBookTimestamps(bookTitleList) {
   let fileList = await FileSystem.readDirectoryAsync(FILE_DIRECTORY);
   fileList = fileList.filter(x => x.endsWith('.zip'));
   // todo: we desperately need an lstat method here. Not currently known to be supported by FileSystem
-  let fileData = await throttlePromiseAll(fileList, x => FileSystem.getInfoAsync(`${FILE_DIRECTORY}/${x}`), 400);
+  let fileData = await throttlePromiseAll(fileList, x => {
+    if (Platform.OS === "ios") { x = encodeURI(x) }
+    return FileSystem.getInfoAsync(`${FILE_DIRECTORY}/${x}`)
+  }, 400);
   const stamps = {};
   fileData.forEach((f, i) => {
     const bookName = fileList[i].slice(0, -4);

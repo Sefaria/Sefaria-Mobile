@@ -1290,7 +1290,7 @@ Sefaria.util = {
     let fileData;
     let useLib = false;
     const libPath = `${FileSystem.documentDirectory}/library/${filename}`;
-    const sourcePath = isIOS ? `${FileSystem.bundleDirectory}/sources/${filename}` : `${FileSystem.bundleDirectory}sources/${filename}`;
+    const sourcePath = isIOS ? encodeURI(`${FileSystem.bundleDirectory}/sources/${filename}`) : `${FileSystem.bundleDirectory}sources/${filename}`;
     const libExists = await fileExists(libPath);
     if (libExists) {
       // check date of each file and choose latest
@@ -1299,13 +1299,13 @@ Sefaria.util = {
     }
     if (useLib) {
       fileData = await Sefaria._loadJSON(libPath);
-    } else if (isIOS) {
+    } else {  //if (isIOS) {
       fileData = await Sefaria._loadJSON(sourcePath);
-    } else {
+    } //else {
       // android
-      fileData = await FileSystem.readAsStringAsync(sourcePath);
-      fileData = JSON.parse(fileData);
-    }
+      // fileData = await FileSystem.readAsStringAsync(sourcePath);
+      // fileData = JSON.parse(fileData);
+    //}
     return fileData;
   },
   getISOCountryCode: function() {
