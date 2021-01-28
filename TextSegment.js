@@ -118,6 +118,9 @@ const TextSegment = React.memo(({
       delayPressIn={200}
     >
       <TempSelectableText
+          accessible={true}
+          accessibilityRole={"text"}
+          accessibilityLabel={data.replace(/(<([^>]+)>)/ig,'')}
         menuItems={menuItems}
         onSelection={onSelection}
         value={data}
