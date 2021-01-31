@@ -218,7 +218,7 @@ Sefaria = {
         // cache may be left in a state with text but without links.
         resolve(cacheValue);
       }
-      Sefaria.api._text(ref, { context, versions })
+      Sefaria.api._text(ref, { context, versions, stripItags: true })
         .then(data => {
           if (context) { resolve(data); }
           else         { reject({error: ERRORS.NO_CONTEXT, data}); }
