@@ -281,7 +281,7 @@ const TopicCategory = ({ topic, openTopic, onBack }) => {
           <SText lang={menu_language} style={[isHeb ? styles.he : styles.en, {fontSize: 18, marginTop: 6}, theme.text]}>{isHeb ? t.he : t.en}</SText>
         </TouchableOpacity>
 */
-const TopicCategoryHeader = ({ title, description, trendingTopics, openTopic }) => {
+const TopicCategoryHeader = ({ title, description, categoryDescription, trendingTopics, openTopic }) => {
   const { themeStr, interfaceLanguage, textLanguage } = useContext(GlobalStateContext);
   const menu_language = Sefaria.util.get_menu_language(interfaceLanguage, textLanguage);
   const isHeb = menu_language == 'hebrew';
@@ -322,14 +322,15 @@ const TopicCategoryButton = ({ topic, openTopic }) => {
   const menu_language = Sefaria.util.get_menu_language(interfaceLanguage, textLanguage);
   const theme = getTheme(themeStr);
   const isHeb = menu_language == 'hebrew';
-  const { slug, en, he, description } = topic;
+  const { slug, en, he, description, categoryDescription } = topic;
   const onPress = useCallback(() => {
-    openTopic(new Topic({ slug, title: {en, he}, description}), !!Sefaria.topicTocPage(slug));
+    openTopic(new Topic({ slug, title: {en, he}, description, categoryDescription}), !!Sefaria.topicTocPage(slug));
   }, [slug]);
+  const displayDescription = categoryDescription || description;
   return (
     <Pressable onPress={onPress} style={{paddingHorizontal: 15, paddingVertical: 10}}>
       <SText lang={menu_language} style={[isHeb ? styles.he : styles.en, {fontSize: 24}, theme.text]} lineMultiplier={1.3}>{isHeb ? he : en}</SText>
-      {description ? <Text style={[isHeb ? styles.heInt : styles.enInt, {marginTop: 10, fontSize: 13, color: "#666"}]}>{isHeb ? description.he : description.en}</Text> : null}
+      {displayDescription ? <Text style={[isHeb ? styles.heInt : styles.enInt, {marginTop: 10, fontSize: 13, color: "#666"}]}>{isHeb ? displayDescription.he : displayDescription.en}</Text> : null}
     </Pressable>
   );
 };

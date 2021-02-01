@@ -69,7 +69,7 @@ const TopicListItem = ({ topic, openTopic }) => {
   //       
   return (
     <Pressable
-      onPress={() => { openTopic(new Topic({ slug: topic.topic, title: topic.title, description: topic.description })); }}
+      onPress={() => { openTopic(new Topic({ slug: topic.topic, ...topic })); }}
       style={[{borderBottomWidth: 1, paddingVertical: 20}, theme.bordered, styles.readerSidePadding]}
       android_ripple={{color: "#ccc"}}
     >

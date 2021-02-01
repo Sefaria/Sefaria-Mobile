@@ -5,6 +5,10 @@
     "en":"Holidays",
     "he":"\u05d7\u05d2\u05d9\u05dd",
     "displayOrder":0,
+    "categoryDescription":{
+      "en":"Festivals, fast days, holy times and related practices.",
+      "he":"\u05d9\u05de\u05d9 \u05d7\u05d2 \u05d5\u05e6\u05d5\u05dd, \u05d6\u05de\u05e0\u05d9\u05dd \u05de\u05e7\u05d5\u05d3\u05e9\u05d9\u05dd \u05d5\u05d4\u05de\u05e0\u05d4\u05d2\u05d9\u05dd \u05d4\u05e7\u05e9\u05d5\u05e8\u05d9\u05dd \u05d1\u05d4\u05dd."
+    },
     "children":[
       {
         "slug":"shabbat",
@@ -22,7 +26,11 @@
         "shouldDisplay":true,
         "en":"Holidays",
         "he":"\u05d7\u05d2\u05d9\u05dd",
-        "displayOrder":0
+        "displayOrder":0,
+        "categoryDescription":{
+          "en":"Festivals, fast days, holy times and related practices.",
+          "he":"\u05d9\u05de\u05d9 \u05d7\u05d2 \u05d5\u05e6\u05d5\u05dd, \u05d6\u05de\u05e0\u05d9\u05dd \u05de\u05e7\u05d5\u05d3\u05e9\u05d9\u05dd \u05d5\u05d4\u05de\u05e0\u05d4\u05d2\u05d9\u05dd \u05d4\u05e7\u05e9\u05d5\u05e8\u05d9\u05dd \u05d1\u05d4\u05dd."
+        }
       },
       {
         "slug":"rosh-chodesh",
@@ -104,11 +112,11 @@
       {
         "slug":"tu-bshvat",
         "shouldDisplay":true,
-        "en":"Tu B'Shvat",
+        "en":"Tu Bishvat",
         "he":"\u05d8\"\u05d5 \u05d1\u05e9\u05d1\u05d8",
         "displayOrder":8,
         "description":{
-          "en":"Tu B'Shvat, or the 15th of Shvat, is the New Year (or birthday) for trees and planting. It is often celebrated by eating specific fruits.",
+          "en":"Tu Bishvat, or the 15th of Shevat, is the New Year (or birthday) for trees and planting. It is often celebrated by eating specific fruits.",
           "he":"\u05d8\"\u05d5 \u05d1\u05e9\u05d1\u05d8 \u05d4\u05d5\u05d0 \u05e8\u05d0\u05e9 \u05d4\u05e9\u05e0\u05d4 \u05dc\u05d0\u05d9\u05dc\u05e0\u05d5\u05ea \u05d5\u05dc\u05e0\u05d8\u05d9\u05e2\u05d5\u05ea. \u05d4\u05d5\u05d0 \u05e0\u05d7\u05d2\u05d2 \u05dc\u05e8\u05d5\u05d1 \u05e2\u05dc-\u05d9\u05d3\u05d9 \u05d0\u05db\u05d9\u05dc\u05ea \u05de\u05d0\u05db\u05dc\u05d9\u05dd \u05de\u05e1\u05d5\u05d9\u05de\u05d9\u05dd."
         }
       },
@@ -423,6 +431,10 @@
     "description":{
       "en":"The weekly parashah is the portion of the Torah read each week. This weekly division ensures that the entire Torah is read by the end of the year. Each parashah is named after the first meaningful word in the portion.",
       "he":"\u05e4\u05e8\u05e9\u05ea \u05d4\u05e9\u05d1\u05d5\u05e2 \u05d4\u05d9\u05d0 \u05d7\u05dc\u05e7 \u05de\u05d4\u05ea\u05d5\u05e8\u05d4 \u05d0\u05d5\u05ea\u05d5 \u05e7\u05d5\u05e8\u05d0\u05d9\u05dd \u05d1\u05db\u05dc \u05e9\u05d1\u05d5\u05e2. \u05d7\u05dc\u05d5\u05e7\u05d4 \u05e9\u05d1\u05d5\u05e2\u05d9\u05ea \u05db\u05d6\u05d5 \u05de\u05d1\u05d8\u05d9\u05d7\u05d4 \u05e9\u05de\u05e1\u05d9\u05d9\u05de\u05d9\u05dd \u05dc\u05e7\u05e8\u05d5\u05d0 \u05d0\u05ea \u05d4\u05ea\u05d5\u05e8\u05d4 \u05db\u05d5\u05dc\u05d4 \u05e2\u05d3 \u05e1\u05d5\u05e3 \u05d4\u05e9\u05e0\u05d4. \u05db\u05dc \u05e4\u05e8\u05e9\u05d4 \u05e0\u05e7\u05e8\u05d0\u05ea \u05e2\u05dc \u05e9\u05dd \u05d4\u05de\u05d9\u05dc\u05d4 \u05d4\u05de\u05e9\u05de\u05e2\u05d5\u05ea\u05d9\u05ea \u05d4\u05e8\u05d0\u05e9\u05d5\u05e0\u05d4 \u05d1\u05e4\u05e8\u05e9\u05d4."
+    },
+    "categoryDescription":{
+      "en":"The fifty-four weekly Torah readings.",
+      "he":"\u05d0\u05e8\u05d1\u05e2\u05d9\u05dd \u05d5\u05d7\u05de\u05e9 \u05e4\u05e8\u05e9\u05d5\u05ea \u05d4\u05e9\u05d1\u05d5\u05e2 \u2013 \u05e7\u05d8\u05e2\u05d9 \u05d4\u05e7\u05e8\u05d9\u05d0\u05d4 \u05d4\u05e9\u05d1\u05d5\u05e2\u05d9\u05d9\u05dd \u05d1\u05ea\u05d5\u05e8\u05d4."
     },
     "children":[
       {
@@ -1027,6 +1039,10 @@
     "en":"Biblical Figures",
     "he":"\u05d3\u05de\u05d5\u05d9\u05d5\u05ea \u05ea\u05e0\u05db\u05d9\u05d5\u05ea",
     "displayOrder":2,
+    "categoryDescription":{
+      "en":"People in Tanakh, from Aaron to Zechariah.",
+      "he":"\u05d0\u05e0\u05e9\u05d9\u05dd \u05d1\u05ea\u05e0\"\u05da \u2013 \u05de\u05d0\u05d3\u05dd \u05d5\u05e2\u05d3 \u05ea\u05de\u05e8."
+    },
     "children":[
       {
         "slug":"the-patriarchs",
@@ -2617,13 +2633,21 @@
     "en":"Values",
     "he":"\u05e2\u05e8\u05db\u05d9\u05dd",
     "displayOrder":2,
+    "categoryDescription":{
+      "en":"Practices and characteristics valued in the Jewish tradition.",
+      "he":"\u05de\u05d9\u05d3\u05d5\u05ea \u05d5\u05de\u05e2\u05e9\u05d9\u05dd \u05d1\u05e2\u05dc\u05d9 \u05e2\u05e8\u05da \u05d1\u05de\u05e1\u05d5\u05e8\u05ea \u05d4\u05d9\u05d4\u05d5\u05d3\u05d9\u05ea."
+    },
     "children":[
       {
         "slug":"values",
         "shouldDisplay":true,
         "en":"Values",
         "he":"\u05e2\u05e8\u05db\u05d9\u05dd",
-        "displayOrder":2
+        "displayOrder":2,
+        "categoryDescription":{
+          "en":"Practices and characteristics valued in the Jewish tradition.",
+          "he":"\u05de\u05d9\u05d3\u05d5\u05ea \u05d5\u05de\u05e2\u05e9\u05d9\u05dd \u05d1\u05e2\u05dc\u05d9 \u05e2\u05e8\u05da \u05d1\u05de\u05e1\u05d5\u05e8\u05ea \u05d4\u05d9\u05d4\u05d5\u05d3\u05d9\u05ea."
+        }
       },
       {
         "slug":"knowing-god",
@@ -3393,13 +3417,21 @@
     "en":"Prayer",
     "he":"\u05ea\u05e4\u05d9\u05dc\u05d4",
     "displayOrder":3,
+    "categoryDescription":{
+      "en":"Liturgy and modes of Jewish prayer.",
+      "he":"\u05e0\u05d5\u05e1\u05d7\u05d9 \u05ea\u05e4\u05d9\u05dc\u05d4 \u05d5\u05d3\u05e8\u05db\u05d9 \u05ea\u05e4\u05d9\u05dc\u05d4 \u05d9\u05d4\u05d5\u05d3\u05d9\u05ea."
+    },
     "children":[
       {
         "slug":"prayer",
         "shouldDisplay":true,
         "en":"Prayer",
         "he":"\u05ea\u05e4\u05d9\u05dc\u05d4",
-        "displayOrder":3
+        "displayOrder":3,
+        "categoryDescription":{
+          "en":"Liturgy and modes of Jewish prayer.",
+          "he":"\u05e0\u05d5\u05e1\u05d7\u05d9 \u05ea\u05e4\u05d9\u05dc\u05d4 \u05d5\u05d3\u05e8\u05db\u05d9 \u05ea\u05e4\u05d9\u05dc\u05d4 \u05d9\u05d4\u05d5\u05d3\u05d9\u05ea."
+        }
       },
       {
         "slug":"prayer-of-abraham",
@@ -3783,6 +3815,10 @@
     "en":"Social Issues",
     "he":"\u05e1\u05d5\u05d2\u05d9\u05d5\u05ea \u05d1\u05d7\u05d1\u05e8\u05d4 \u05d5\u05e8\u05d5\u05d7",
     "displayOrder":3,
+    "categoryDescription":{
+      "en":"Issues in contemporary society seen through a Torah lens.",
+      "he":"\u05e1\u05d5\u05d2\u05d9\u05d5\u05ea \u05d7\u05d1\u05e8\u05ea\u05d9\u05d5\u05ea \u05e2\u05db\u05e9\u05d5\u05d5\u05d9\u05d5\u05ea \u05d1\u05e8\u05d0\u05d9 \u05d4\u05ea\u05d5\u05e8\u05d4."
+    },
     "children":[
       {
         "slug":"peoplehood",
@@ -4723,6 +4759,10 @@
     "en":"Ritual Objects",
     "he":"\u05de\u05e6\u05d5\u05d4 \u05d5\u05de\u05e0\u05d4\u05d2",
     "displayOrder":5,
+    "categoryDescription":{
+      "en":"Objects with special meaning and purpose.",
+      "he":"\u05d7\u05e4\u05e6\u05d9\u05dd \u05d1\u05e2\u05dc\u05d9 \u05de\u05e9\u05de\u05e2\u05d5\u05ea \u05d0\u05d5 \u05de\u05d8\u05e8\u05d4 \u05d3\u05ea\u05d9\u05ea."
+    },
     "children":[
       {
         "slug":"four-cups",
@@ -5117,6 +5157,10 @@
     "en":"Stories",
     "he":"\u05e1\u05d9\u05e4\u05d5\u05e8\u05d9\u05dd",
     "displayOrder":7,
+    "categoryDescription":{
+      "en":"Narrative moments in Tanakh and Talmud.",
+      "he":"\u05e7\u05d8\u05e2\u05d9 \u05e1\u05d9\u05e4\u05d5\u05e8\u05ea \u05de\u05df \u05d4\u05ea\u05e0\"\u05da \u05d5\u05d4\u05ea\u05dc\u05de\u05d5\u05d3."
+    },
     "children":[
       {
         "slug":"marah",
@@ -6233,6 +6277,10 @@
     "en":"Beliefs",
     "he":"\u05d0\u05de\u05d5\u05e0\u05d5\u05ea",
     "displayOrder":8,
+    "categoryDescription":{
+      "en":"Ideas and concepts important to Jewish thought.",
+      "he":"\u05e8\u05e2\u05d9\u05d5\u05e0\u05d5\u05ea \u05d5\u05de\u05d5\u05e9\u05d2\u05d9 \u05d9\u05e1\u05d5\u05d3 \u05d1\u05d4\u05d2\u05d5\u05ea \u05d4\u05d9\u05d4\u05d5\u05d3\u05d9\u05ea."
+    },
     "children":[
       {
         "slug":"health",
@@ -6240,6 +6288,10 @@
         "en":"Health",
         "he":"\u05d1\u05e8\u05d9\u05d0\u05d5\u05ea",
         "displayOrder":19,
+        "categoryDescription":{
+          "en":"Wellbeing and medical questions.",
+          "he":"\u05e1\u05d5\u05d2\u05d9\u05d5\u05ea \u05d1\u05e8\u05e4\u05d5\u05d0\u05d4 \u05d5\u05d1\u05d0\u05d5\u05e8\u05d7 \u05d7\u05d9\u05d9\u05dd \u05d1\u05e8\u05d9\u05d0."
+        },
         "children":[
           {
             "slug":"bodies",
@@ -6892,13 +6944,21 @@
     "en":"Nature",
     "he":"\u05d8\u05d1\u05e2",
     "displayOrder":9,
+    "categoryDescription":{
+      "en":"Animals, plants, land, and seasons.",
+      "he":"\u05d4\u05d7\u05d9, \u05d4\u05e6\u05d5\u05de\u05d7, \u05d4\u05d3\u05d5\u05de\u05dd \u05d5\u05e2\u05d5\u05e0\u05d5\u05ea \u05d4\u05e9\u05e0\u05d4."
+    },
     "children":[
       {
         "slug":"nature",
         "shouldDisplay":true,
         "en":"Nature",
         "he":"\u05d8\u05d1\u05e2",
-        "displayOrder":9
+        "displayOrder":9,
+        "categoryDescription":{
+          "en":"Animals, plants, land, and seasons.",
+          "he":"\u05d4\u05d7\u05d9, \u05d4\u05e6\u05d5\u05de\u05d7, \u05d4\u05d3\u05d5\u05de\u05dd \u05d5\u05e2\u05d5\u05e0\u05d5\u05ea \u05d4\u05e9\u05e0\u05d4."
+        }
       },
       {
         "slug":"spring",
@@ -7465,6 +7525,10 @@
     "en":"Laws",
     "he":"\u05d7\u05d5\u05e7\u05d9\u05dd",
     "displayOrder":11,
+    "categoryDescription":{
+      "en":"The numerous details of Halakhah, Jewish law.",
+      "he":"\u05d3\u05d9\u05e0\u05d9\u05dd \u05d5\u05e4\u05e8\u05d8\u05d9 \u05d4\u05dc\u05db\u05d4, \u05d4\u05d7\u05d5\u05e7 \u05d4\u05d9\u05d4\u05d5\u05d3\u05d9."
+    },
     "children":[
       {
         "slug":"halachic-principles",
@@ -11363,13 +11427,21 @@
     "en":"Lifecycle",
     "he":"\u05de\u05e2\u05d2\u05dc \u05d4\u05d7\u05d9\u05d9\u05dd",
     "displayOrder":13,
+    "categoryDescription":{
+      "en":"Moments in human life from birth to death.",
+      "he":"\u05e8\u05d2\u05e2\u05d9\u05dd \u05de\u05e9\u05de\u05e2\u05d5\u05ea\u05d9\u05d9\u05dd \u05d1\u05d7\u05d9\u05d9 \u05d4\u05d0\u05d3\u05dd \u05de\u05dc\u05d9\u05d3\u05d4 \u05e2\u05d3 \u05de\u05d5\u05d5\u05ea."
+    },
     "children":[
       {
         "slug":"lifecycle",
         "shouldDisplay":true,
         "en":"Lifecycle",
         "he":"\u05de\u05e2\u05d2\u05dc \u05d4\u05d7\u05d9\u05d9\u05dd",
-        "displayOrder":13
+        "displayOrder":13,
+        "categoryDescription":{
+          "en":"Moments in human life from birth to death.",
+          "he":"\u05e8\u05d2\u05e2\u05d9\u05dd \u05de\u05e9\u05de\u05e2\u05d5\u05ea\u05d9\u05d9\u05dd \u05d1\u05d7\u05d9\u05d9 \u05d4\u05d0\u05d3\u05dd \u05de\u05dc\u05d9\u05d3\u05d4 \u05e2\u05d3 \u05de\u05d5\u05d5\u05ea."
+        }
       },
       {
         "slug":"mourning",
@@ -11537,6 +11609,10 @@
     "en":"Places",
     "he":"\u05de\u05e7\u05d5\u05dd",
     "displayOrder":14,
+    "categoryDescription":{
+      "en":"Specific and general locations mentioned in Torah texts.",
+      "he":"\u05de\u05e7\u05d5\u05de\u05d5\u05ea \u05d5\u05d0\u05d6\u05d5\u05e8\u05d9\u05dd \u05d4\u05de\u05d5\u05d6\u05db\u05e8\u05d9\u05dd \u05d1\u05ea\u05d5\u05e8\u05d4."
+    },
     "children":[
       {
         "slug":"edom",
@@ -12334,13 +12410,21 @@
     "en":"Food",
     "he":"\u05de\u05d6\u05d5\u05df",
     "displayOrder":14,
+    "categoryDescription":{
+      "en":"Important foods and drinks in the Jewish tradition.",
+      "he":"\u05de\u05d0\u05db\u05dc\u05d9\u05dd \u05d5\u05de\u05e9\u05e7\u05d0\u05d5\u05ea \u05d1\u05e2\u05dc\u05d9 \u05de\u05e9\u05de\u05e2\u05d5\u05ea \u05d1\u05de\u05e1\u05d5\u05e8\u05ea \u05d4\u05d9\u05d4\u05d5\u05d3\u05d9\u05ea."
+    },
     "children":[
       {
         "slug":"food",
         "shouldDisplay":true,
         "en":"Food",
         "he":"\u05de\u05d6\u05d5\u05df",
-        "displayOrder":14
+        "displayOrder":14,
+        "categoryDescription":{
+          "en":"Important foods and drinks in the Jewish tradition.",
+          "he":"\u05de\u05d0\u05db\u05dc\u05d9\u05dd \u05d5\u05de\u05e9\u05e7\u05d0\u05d5\u05ea \u05d1\u05e2\u05dc\u05d9 \u05de\u05e9\u05de\u05e2\u05d5\u05ea \u05d1\u05de\u05e1\u05d5\u05e8\u05ea \u05d4\u05d9\u05d4\u05d5\u05d3\u05d9\u05ea."
+        }
       },
       {
         "slug":"eating",
@@ -12625,13 +12709,21 @@
     "en":"Philosophy",
     "he":"\u05e4\u05d9\u05dc\u05d5\u05e1\u05d5\u05e4\u05d9\u05d4",
     "displayOrder":15,
+    "categoryDescription":{
+      "en":"General ideas and concepts through the lens of Torah.",
+      "he":"\u05e8\u05e2\u05d9\u05d5\u05e0\u05d5\u05ea \u05e4\u05d9\u05dc\u05d5\u05e1\u05d5\u05e4\u05d9\u05d9\u05dd \u05d5\u05d4\u05d2\u05d5\u05ea \u05db\u05dc\u05dc\u05d9\u05ea \u05d1\u05e8\u05d0\u05d9 \u05d4\u05ea\u05d5\u05e8\u05d4."
+    },
     "children":[
       {
         "slug":"philosophy",
         "shouldDisplay":true,
         "en":"Philosophy",
         "he":"\u05e4\u05d9\u05dc\u05d5\u05e1\u05d5\u05e4\u05d9\u05d4",
-        "displayOrder":15
+        "displayOrder":15,
+        "categoryDescription":{
+          "en":"General ideas and concepts through the lens of Torah.",
+          "he":"\u05e8\u05e2\u05d9\u05d5\u05e0\u05d5\u05ea \u05e4\u05d9\u05dc\u05d5\u05e1\u05d5\u05e4\u05d9\u05d9\u05dd \u05d5\u05d4\u05d2\u05d5\u05ea \u05db\u05dc\u05dc\u05d9\u05ea \u05d1\u05e8\u05d0\u05d9 \u05d4\u05ea\u05d5\u05e8\u05d4."
+        }
       },
       {
         "slug":"ethics",
@@ -12879,13 +12971,21 @@
     "en":"History",
     "he":"\u05d4\u05d9\u05e1\u05d8\u05d5\u05e8\u05d9\u05d4",
     "displayOrder":16,
+    "categoryDescription":{
+      "en":"Moments in world history.",
+      "he":"\u05d0\u05d9\u05e8\u05d5\u05e2\u05d9\u05dd \u05d1\u05d4\u05d9\u05e1\u05d8\u05d5\u05e8\u05d9\u05d4 \u05d4\u05e2\u05d5\u05dc\u05de\u05d9\u05ea."
+    },
     "children":[
       {
         "slug":"history",
         "shouldDisplay":true,
         "en":"History",
         "he":"\u05d4\u05d9\u05e1\u05d8\u05d5\u05e8\u05d9\u05d4",
-        "displayOrder":16
+        "displayOrder":16,
+        "categoryDescription":{
+          "en":"Moments in world history.",
+          "he":"\u05d0\u05d9\u05e8\u05d5\u05e2\u05d9\u05dd \u05d1\u05d4\u05d9\u05e1\u05d8\u05d5\u05e8\u05d9\u05d4 \u05d4\u05e2\u05d5\u05dc\u05de\u05d9\u05ea."
+        }
       },
       {
         "slug":"alexander",
@@ -13016,13 +13116,21 @@
     "en":"Art",
     "he":"\u05d0\u05b8\u05de\u05bc\u05b8\u05e0\u05d5\u05bc\u05ea",
     "displayOrder":18,
+    "categoryDescription":{
+      "en":"Creative endeavours, artists, and art forms.",
+      "he":"\u05d9\u05e6\u05d9\u05e8\u05d5\u05ea, \u05d0\u05d5\u05de\u05e0\u05d9\u05dd \u05d5\u05e1\u05d2\u05e0\u05d5\u05e0\u05d5\u05ea \u05d0\u05d5\u05de\u05e0\u05d5\u05ea\u05d9\u05d9\u05dd."
+    },
     "children":[
       {
         "slug":"art",
         "shouldDisplay":true,
         "en":"Art",
         "he":"\u05d0\u05b8\u05de\u05bc\u05b8\u05e0\u05d5\u05bc\u05ea",
-        "displayOrder":18
+        "displayOrder":18,
+        "categoryDescription":{
+          "en":"Creative endeavours, artists, and art forms.",
+          "he":"\u05d9\u05e6\u05d9\u05e8\u05d5\u05ea, \u05d0\u05d5\u05de\u05e0\u05d9\u05dd \u05d5\u05e1\u05d2\u05e0\u05d5\u05e0\u05d5\u05ea \u05d0\u05d5\u05de\u05e0\u05d5\u05ea\u05d9\u05d9\u05dd."
+        }
       },
       {
         "slug":"colors",
@@ -13102,6 +13210,10 @@
     "en":"Supernatural",
     "he":"\u05e2\u05dc \u05d8\u05d1\u05e2\u05d9",
     "displayOrder":18,
+    "categoryDescription":{
+      "en":"Demons, witches, monsters and magic.",
+      "he":"\u05e9\u05d3\u05d9\u05dd, \u05de\u05db\u05e9\u05e4\u05d5\u05ea, \u05de\u05e4\u05dc\u05e6\u05d5\u05ea \u05d5\u05db\u05e9\u05e4\u05d9\u05dd."
+    },
     "children":[
       {
         "slug":"folklore",
@@ -13185,6 +13297,10 @@
     "en":"Health",
     "he":"\u05d1\u05e8\u05d9\u05d0\u05d5\u05ea",
     "displayOrder":19,
+    "categoryDescription":{
+      "en":"Wellbeing and medical questions.",
+      "he":"\u05e1\u05d5\u05d2\u05d9\u05d5\u05ea \u05d1\u05e8\u05e4\u05d5\u05d0\u05d4 \u05d5\u05d1\u05d0\u05d5\u05e8\u05d7 \u05d7\u05d9\u05d9\u05dd \u05d1\u05e8\u05d9\u05d0."
+    },
     "children":[
       {
         "slug":"bodies",
