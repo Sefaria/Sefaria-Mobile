@@ -103,13 +103,13 @@ const OrderedList = ({items, renderItem}) => {
   );
 }
 
-const DotSeparatedList = ({ items, renderItem, keyExtractor }) => {
+const DotSeparatedList = ({ items, renderItem, keyExtractor, flexDirection='row' }) => {
   return (
     items.map((item, i) => (
-      <React.Fragment key={keyExtractor(item)}>
-        { i !== 0 ? <SText lang={"english"} style={[styles.en, {fontSize: 13, color: "#ccc", marginTop: 7}]}>{" ● "}</SText> : null}
+      <View key={keyExtractor(item)} style={{flexDirection, alignItems: 'center'}}>
+        { i !== 0 ? <SText lang={"hebrew"} style={[styles.he, {fontSize: 13, color: "#ccc"}]}>{" ● "}</SText> : null}
         { renderItem(item, i) }
-      </React.Fragment>
+      </View>
     ))
   );
 };

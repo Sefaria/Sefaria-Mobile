@@ -314,6 +314,7 @@ const TrendingTopics = ({ trendingTopics, openTopic }) => {
         />
         <View style={{flexDirection: isHeb ? "row-reverse" : "row", flexWrap: 'wrap', marginTop: 5}}>
           <DotSeparatedList
+            flexDirection={isHeb ? 'row-reverse' : 'row'}
             items={trendingTopics.slice(0, 6)}
             renderItem={t => (
               <TopicLink
@@ -624,6 +625,7 @@ const TopicSideColumn = ({ topic, links, openTopic, openRef, parashaData, tref }
           />
           <View style={styles.topicLinkSideList}>
             <DotSeparatedList
+              flexDirection={interfaceLanguage === 'hebrew' ? 'row-reverse' : 'row'}
               items={links.filter(l => l.shouldDisplay !== false).sort(sortLinks).slice(0, !showMore && iLinkType === 0 ? 10 : undefined)}
               renderItem={renderLink}
               keyExtractor={l => l.slug}
@@ -687,6 +689,7 @@ const ReadingsComponent = ({ parashaData, tref, openRef }) => {
         <InterfaceTextWithFallback en={"Haftarah"} he={"הפטרה"} extraStyles={[theme.tertiaryText, {marginBottom: 5}]} />
         <View style={{flexDirection: "row"}}>
           <DotSeparatedList
+            flexDirection={interfaceLanguage === 'hebrew' ? 'row-reverse' : 'row'}
             items={parashaData.haftarah}
             renderItem={h => (
               <Pressable onPress={()=>{ openRef(h.displayValue.en); }} style={{marginTop: 6}}>
