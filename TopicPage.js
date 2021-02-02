@@ -521,14 +521,16 @@ const TopicPageHeader = ({ title, slug, description, topicsTab, setTopicsTab, qu
     <View style={{marginHorizontal: 15, marginVertical: 20}}>
       <Text style={[isHeb ? styles.he : styles.en, {fontSize: 30}]}>{ isHeb ? title.he : title.en }</Text>
       { category ? (
-        <Text style={[styles.enInt, {fontSize: 13, marginBottom: 20}, theme.tertiaryText]}>
-          { isHeb ? category.he : category.en.toUpperCase() }
-        </Text>
+        <InterfaceTextWithFallback
+          extraStyles={[{fontSize: 13, marginBottom: 20}, theme.tertiaryText]}
+          he={category.he} en={category.en.toUpperCase()}
+        />
       ) : null }
       { description ? (
-        <Text style={[styles.enInt, {fontSize: 13}, theme.tertiaryText]}>
-          { isHeb ? description.he : description.en }
-        </Text>
+        <InterfaceTextWithFallback
+          extraStyles={[{fontSize: 13}, theme.tertiaryText]}
+          {...description}
+        />
       ) : null }
       {topicRef ?
         (
