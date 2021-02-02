@@ -317,6 +317,7 @@ const TrendingTopics = ({ trendingTopics, openTopic }) => {
             items={trendingTopics.slice(0, 6)}
             renderItem={t => (
               <TopicLink
+                lang={menuLanguage}
                 topic={t}
                 openTopic={openTopic}
               />
@@ -570,13 +571,13 @@ TextPassage.propTypes = {
   text: textPropType,
 };
 
-const TopicLink = ({topic, openTopic, isTransliteration, isCategory}) => {
+const TopicLink = ({topic, openTopic, isTransliteration, isCategory, lang}) => {
   return (
     <Pressable
       style={{marginTop: 6}}
       onPress={() => openTopic(topic, isCategory)} key={topic.slug}
     >
-      <ContentTextWithFallback {...topic.title} />
+      <ContentTextWithFallback {...topic.title} lang={lang}/>
     </Pressable>
   );
 }

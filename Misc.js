@@ -67,18 +67,18 @@ const InterfaceTextWithFallback = ({ en, he, extraStyles=[], lang }) => {
   );
 }
 
-const ContentTextWithFallback = ({ en, he, extraStyles=[] }) => {
+const ContentTextWithFallback = ({ en, he, extraStyles=[], lang }) => {
   // default lang still governed by interfaceLanguage, but styles reflect content text styles
-  const { themeStr, interfaceLanguage } = useContext(GlobalStateContext);
-  const theme = getTheme(themeStr);
+  const { interfaceLanguage } = useContext(GlobalStateContext);
   let langStyle = styles.ContentBodyEn;
   let text = en;
-  if ((interfaceLanguage === 'english' && !en) || (interfaceLanguage === 'hebrew' && !!he)) {
+  lang = lang || interfaceLanguage
+  if ((lang === 'english' && !en) || (lang === 'hebrew' && !!he)) {
     langStyle = styles.ContentBodyHe;
     text = he;
   }
   return (
-    <SText lang={interfaceLanguage} style={[langStyle].concat(extraStyles)}>{text}</SText>
+    <SText lang={lang} style={[langStyle].concat(extraStyles)}>{text}</SText>
   );
 }
 
