@@ -59,13 +59,12 @@ StoryFrame.propTypes = {
 
 
 const StoryTitleBlock = ({ he, en, children, onClick }) => {
-  const { themeStr, interfaceLanguage } = useContext(GlobalStateContext);
-  const theme = getTheme(themeStr);
+  const { interfaceLanguage } = useContext(GlobalStateContext);
   const SBlock = onClick ? SimpleLinkedBlock : SimpleInterfaceBlock;
   const isHeb = interfaceLanguage === 'hebrew';
   return (
     <View style={{flex: 1}}>
-      <SBlock he={he} en={en} extraStyles={[isHeb ? styles.topicSourceTitle : styles.topicSourceTitleHe]} onClick={onClick} />
+      <SBlock he={he} en={en} extraStyles={[styles.topicSourceTitle, isHeb ? styles.he : styles.en]} onClick={onClick} />
       {children}
     </View>
   );
@@ -116,14 +115,14 @@ const SheetBlock = ({sheet, compact, cozy, smallfonts, isTitle, showToast, onCli
 SheetBlock.propTypes = {sheet: sheetPropType.isRequired};
 
 
-const SaveLine = (props) => (
-    <View style={styles.saveLine}>
-      {props.children}
-      <SaveButton
-        historyItem={props.historyItem || {ref: props.dref, versions: props.versions || {}, book: Sefaria.textTitleForRef(props.dref)}}
-        showToast={props.showToast}
-      />
-    </View>
+const SaveLine = ({ children, historyItem, dref, versions={}, showToast, flexDirection }) => (
+  <View style={[styles.saveLine, {flexDirection}]}>
+    {children}
+    <SaveButton
+      historyItem={historyItem || {ref: dref, versions, book: Sefaria.textTitleForRef(dref)}}
+      showToast={showToast}
+    />
+  </View>
 );
 
 SaveLine.propTypes = {

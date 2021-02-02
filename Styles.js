@@ -1342,11 +1342,6 @@ export default StyleSheet.create({
   },
   topicSourceTitle: {
     fontSize: 24,
-    fontFamily: 'Amiri',
-  },
-  topicSourceTitleHe: {
-    fontSize: 24,
-    fontFamily: 'Taamey Frank Taamim Fix',
   },
   colorBarBoxEnglish: {
     borderLeftWidth: 4,

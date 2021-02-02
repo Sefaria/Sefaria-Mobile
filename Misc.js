@@ -1204,7 +1204,7 @@ ProfilePic.propTypes = {
   showButtons: PropTypes.bool,  // show profile pic action buttons
 };
 
-const DataSourceLine = ({ children, dataSources, topicTitle }) => {
+const DataSourceLine = ({ children, dataSources, topicTitle, flexDirection }) => {
   const { themeStr, interfaceLanguage } = useContext(GlobalStateContext);
   const [displaySource, setDisplaySource] = useState(false);
   const theme = getTheme(themeStr);
@@ -1216,7 +1216,7 @@ const DataSourceLine = ({ children, dataSources, topicTitle }) => {
   }
   return (
     <View>
-      <View style={styles.saveLine}>
+      <View style={[styles.saveLine, {flexDirection}]}>
         {children}
         <Pressable style={[styles.dataSourceButton, theme.lighterGreyBackground]} onPress={()=>setDisplaySource(prev=>!prev)}>
           <Image

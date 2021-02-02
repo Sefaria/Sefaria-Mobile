@@ -558,11 +558,14 @@ const TopicPageHeader = ({ title, slug, description, topicsTab, setTopicsTab, qu
 };
 
 const TextPassage = ({text, topicTitle, showToast, openRef }) => {
+  const { interfaceLanguage } = useGlobalState();
   if (!text.ref) { return null; }
+  const isHeb = interfaceLanguage === 'hebrew';
+  const flexDirection = isHeb ? "row-reverse" : "row";
   return (
     <StoryFrame extraStyles={styles.topicItemMargins}>
-      <DataSourceLine dataSources={text.dataSources} topicTitle={topicTitle}>
-        <SaveLine dref={text.ref} showToast={showToast}>
+      <DataSourceLine dataSources={text.dataSources} topicTitle={topicTitle} flexDirection={flexDirection}>
+        <SaveLine dref={text.ref} showToast={showToast} flexDirection={flexDirection}>
           <StoryTitleBlock en={text.ref} he={norm_hebrew_ref(text.heRef)} onClick={() => openRef(text.ref)} />
         </SaveLine>
       </DataSourceLine>
