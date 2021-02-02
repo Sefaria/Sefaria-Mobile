@@ -19,6 +19,7 @@ import {
   FlatList,
 } from 'react-native';
 import { GlobalStateContext, DispatchContext, STATE_ACTIONS, themeStr, getTheme } from './StateManager';
+import { useGlobalState } from './Hooks';
 import Sefaria from './sefaria';
 import styles from './Styles.js';
 import strings from './LocalizedStrings';
@@ -948,8 +949,7 @@ class SText extends React.Component {
 }
 
 const TabRowView = ({ tabs, renderTab, currTabId, setTab, flexDirection='row' }) => {
-  const { themeStr } = useContext(GlobalStateContext);
-  const theme = getTheme(themeStr);
+  const { theme } = useGlobalState();
   const renderTabWrapper = (tab) => {
     const active = currTabId === tab.id;
     return (
