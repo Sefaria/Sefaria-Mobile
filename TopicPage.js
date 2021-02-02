@@ -339,6 +339,7 @@ const TopicCategoryButton = ({ topic, openTopic }) => {
       {displayDescription ? (
           <InterfaceTextWithFallback
             {...displayDescription}
+            lang={menu_language}
             extraStyles={[{marginTop: 10, fontSize: 13}, theme.tertiaryText]}
           />
         ) : null}

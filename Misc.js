@@ -53,11 +53,12 @@ const SystemHeader = ({ title, onBack, hideLangToggle }) => {
   );
 };
 
-const InterfaceTextWithFallback = ({ en, he, extraStyles=[] }) => {
+const InterfaceTextWithFallback = ({ en, he, extraStyles=[], lang }) => {
   const { interfaceLanguage } = useContext(GlobalStateContext);
   let langStyle = styles.enInt;
   let text = en;
-  if ((interfaceLanguage === 'english' && !en) || (interfaceLanguage === 'hebrew' && !!he)) {
+  lang = lang || interfaceLanguage;
+  if ((lang === 'english' && !en) || (lang === 'hebrew' && !!he)) {
     langStyle = styles.heInt;
     text = he;
   }
