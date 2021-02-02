@@ -491,7 +491,7 @@ const TopicPage = ({ topic, onBack, openTopic, showToast, openRef, openRefSheet,
       />
     )
   );
-  
+
   return (
     <View style={[styles.menu, theme.mainTextPanel]} key={topic.slug}>
       <SystemHeader
@@ -578,7 +578,7 @@ const TopicLink = ({topic, openTopic, isTransliteration, isCategory, lang}) => {
       style={{marginTop: 6}}
       onPress={() => openTopic(topic, isCategory)} key={topic.slug}
     >
-      <ContentTextWithFallback {...topic.title} lang={lang}/>
+      <ContentTextWithFallback {...topic.title} lang={lang} lineMultiplier={1.05} extraStyles={[Platform.OS == 'ios' && lang == 'english' ? {marginBottom: -7} : null]}/>
     </Pressable>
   );
 }

@@ -67,7 +67,7 @@ const InterfaceTextWithFallback = ({ en, he, extraStyles=[], lang }) => {
   );
 }
 
-const ContentTextWithFallback = ({ en, he, extraStyles=[], lang }) => {
+const ContentTextWithFallback = ({ en, he, extraStyles=[], lang, ...stextProps }) => {
   // default lang still governed by interfaceLanguage, but styles reflect content text styles
   const { interfaceLanguage } = useContext(GlobalStateContext);
   let langStyle = styles.ContentBodyEn;
@@ -78,7 +78,7 @@ const ContentTextWithFallback = ({ en, he, extraStyles=[], lang }) => {
     text = he;
   }
   return (
-    <SText lang={lang} style={[langStyle].concat(extraStyles)}>{text}</SText>
+    <SText lang={lang} style={[langStyle].concat(extraStyles)} {...stextProps}>{text}</SText>
   );
 }
 
@@ -107,7 +107,7 @@ const DotSeparatedList = ({ items, renderItem, keyExtractor, flexDirection='row'
   return (
     items.map((item, i) => (
       <View key={keyExtractor(item)} style={{flexDirection, alignItems: 'center'}}>
-        { i !== 0 ? <SText lang={"hebrew"} style={[styles.he, {fontSize: 13, color: "#ccc"}]}>{" ● "}</SText> : null}
+        { i !== 0 ? <SText lang={"hebrew"} style={[styles.he, {fontSize: 13, color: "#ccc", marginHorizontal: 5}]}>{"●"}</SText> : null}
         { renderItem(item, i) }
       </View>
     ))
