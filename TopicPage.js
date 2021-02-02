@@ -335,7 +335,7 @@ const TopicCategoryButton = ({ topic, openTopic }) => {
   const displayDescription = categoryDescription || description;
   return (
     <Pressable onPress={onPress} style={{paddingHorizontal: 15, paddingVertical: 17}}>
-      <SText lang={menu_language} style={[isHeb ? styles.he : styles.en, {fontSize: 24, marginBottom: -10}, theme.text]} lineMultiplier={1}>{isHeb ? he : en}</SText>
+      <SText lang={menu_language} style={[isHeb ? styles.he : styles.en, {fontSize: 24, marginBottom: -10}, theme.text]} lineMultiplier={1.05}>{isHeb ? he : en}</SText>
       {displayDescription ? (
           <InterfaceTextWithFallback
             {...displayDescription}
