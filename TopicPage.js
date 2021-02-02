@@ -286,11 +286,17 @@ const TopicCategoryHeader = ({ title, description, categoryDescription, trending
   const menu_language = Sefaria.util.get_menu_language(interfaceLanguage, textLanguage);
   const isHeb = menu_language == 'hebrew';
   const theme = getTheme(themeStr);
+  const displayDescription = categoryDescription || description;
   return (
     <View>
       <View style={{marginHorizontal: 15, marginVertical: 24}}>
         <Text style={[styles.enInt, {fontSize: 22}, theme.tertiaryText]}>{title.en}</Text>
-        {description ? <Text style={[styles.enInt, {fontSize: 13, marginTop: 11}, theme.tertiaryText]}>{description.en}</Text> : null}
+        {displayDescription ? (
+          <InterfaceTextWithFallback
+            {...displayDescription}
+            extraStyles={[{fontSize: 13, marginTop: 11}, theme.tertiaryText]}
+          />
+        ) : null}
       </View>
       { trendingTopics ? (
         <View style={{backgroundColor: "#fbfbfa", padding: 15}}>
@@ -330,7 +336,12 @@ const TopicCategoryButton = ({ topic, openTopic }) => {
   return (
     <Pressable onPress={onPress} style={{paddingHorizontal: 15, paddingVertical: 10}}>
       <SText lang={menu_language} style={[isHeb ? styles.he : styles.en, {fontSize: 24}, theme.text]} lineMultiplier={1.3}>{isHeb ? he : en}</SText>
-      {displayDescription ? <Text style={[isHeb ? styles.heInt : styles.enInt, {marginTop: 10, fontSize: 13, color: "#666"}]}>{isHeb ? displayDescription.he : displayDescription.en}</Text> : null}
+      {displayDescription ? (
+          <InterfaceTextWithFallback
+            {...displayDescription}
+            extraStyles={[{marginTop: 10, fontSize: 13}, theme.tertiaryText]}
+          />
+        ) : null}
     </Pressable>
   );
 };
