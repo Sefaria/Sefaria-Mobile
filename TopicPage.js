@@ -39,8 +39,7 @@ import {
   textPropType
 } from './Story';
 
-import { useAsyncVariable, useIncrementalLoad } from './Hooks';
-import { GlobalStateContext, DispatchContext, STATE_ACTIONS, getTheme } from './StateManager';
+import { useAsyncVariable, useIncrementalLoad, useGlobalState } from './Hooks';
 import Sefaria from './sefaria';
 import strings from './LocalizedStrings';
 import styles from './Styles';
@@ -211,9 +210,8 @@ const organizeLinks = (topic, links) => {
 };
 
 const TopicCategory = ({ topic, openTopic, onBack }) => {
-  const { themeStr, interfaceLanguage } = useContext(GlobalStateContext);
+  const { theme, interfaceLanguage } = useGlobalState();
 
-  const theme = getTheme(themeStr);
   const topicTocLoaded = useAsyncVariable(!!Sefaria.topic_toc, Sefaria.loadTopicToc);
   const getSubtopics = slug => {
     const subtopics = Sefaria.topicTocPage(slug);
@@ -282,10 +280,7 @@ const TopicCategory = ({ topic, openTopic, onBack }) => {
         </TouchableOpacity>
 */
 const TopicCategoryHeader = ({ title, description, categoryDescription, trendingTopics, openTopic }) => {
-  const { themeStr, interfaceLanguage, textLanguage } = useContext(GlobalStateContext);
-  const menu_language = Sefaria.util.get_menu_language(interfaceLanguage, textLanguage);
-  const isHeb = menu_language == 'hebrew';
-  const theme = getTheme(themeStr);
+  const { theme } = useGlobalState();
   const displayDescription = categoryDescription || description;
   return (
     <View>
@@ -298,36 +293,42 @@ const TopicCategoryHeader = ({ title, description, categoryDescription, trending
           />
         ) : null}
       </View>
-      { trendingTopics ? (
-        <View style={{backgroundColor: "#fbfbfa", padding: 15}}>
-          <TextInput
-            style={[styles.enInt, {fontSize: 16, borderBottomWidth: 2, borderBottomColor: "#ccc", paddingBottom: 5}, theme.tertiaryText]}
-            editable={false}
-            value={"Trending Topics"}
-          />
-          <View style={{flexDirection: isHeb ? "row-reverse" : "row", flexWrap: 'wrap', marginTop: 5}}>
-            <DotSeparatedList
-              items={trendingTopics.slice(0, 6)}
-              renderItem={t => (
-                <TopicLink
-                  topic={t}
-                  openTopic={openTopic}
-                />
-              )}
-              keyExtractor={t => t.slug}
-            />
-          </View>
-        </View>
-      ) : null }
+      <TrendingTopics trendingTopics={trendingTopics} openTopic={openTopic} />
     </View>
   );
 };
 
+const TrendingTopics = ({ trendingTopics, openTopic }) => {
+  const { theme, menuLanguage } = useGlobalState();
+  const isHeb = menuLanguage === 'hebrew';
+  return (
+    trendingTopics ? (
+      <View style={{backgroundColor: "#fbfbfa", padding: 15}}>
+        <TextInput
+          style={[styles.enInt, {fontSize: 16, borderBottomWidth: 2, borderBottomColor: "#ccc", paddingBottom: 5}, theme.tertiaryText]}
+          editable={false}
+          value={"Trending Topics"}
+        />
+        <View style={{flexDirection: isHeb ? "row-reverse" : "row", flexWrap: 'wrap', marginTop: 5}}>
+          <DotSeparatedList
+            items={trendingTopics.slice(0, 6)}
+            renderItem={t => (
+              <TopicLink
+                topic={t}
+                openTopic={openTopic}
+              />
+            )}
+            keyExtractor={t => t.slug}
+          />
+        </View>
+      </View>
+    ) : null
+  );
+}
+
 const TopicCategoryButton = ({ topic, openTopic }) => {
-  const { themeStr, interfaceLanguage, textLanguage } = useContext(GlobalStateContext);
-  const menu_language = Sefaria.util.get_menu_language(interfaceLanguage, textLanguage);
-  const theme = getTheme(themeStr);
-  const isHeb = menu_language == 'hebrew';
+  const { theme, menuLanguage } = useGlobalState();
+  const isHeb = menuLanguage == 'hebrew';
   const { slug, en, he, description, categoryDescription } = topic;
   const onPress = useCallback(() => {
     openTopic(new Topic({ slug, title: {en, he}, description, categoryDescription}), !!Sefaria.topicTocPage(slug));
@@ -335,11 +336,11 @@ const TopicCategoryButton = ({ topic, openTopic }) => {
   const displayDescription = categoryDescription || description;
   return (
     <Pressable onPress={onPress} style={{paddingHorizontal: 15, paddingVertical: 17}}>
-      <SText lang={menu_language} style={[isHeb ? styles.he : styles.en, {fontSize: 24, marginBottom: -10}, theme.text]} lineMultiplier={1.05}>{isHeb ? he : en}</SText>
+      <SText lang={menuLanguage} style={[isHeb ? styles.he : styles.en, {fontSize: 24, marginBottom: -10}, theme.text]} lineMultiplier={1.05}>{isHeb ? he : en}</SText>
       {displayDescription ? (
           <InterfaceTextWithFallback
             {...displayDescription}
-            lang={menu_language}
+            lang={menuLanguage}
             extraStyles={[{marginTop: 10, fontSize: 13}, theme.tertiaryText]}
           />
         ) : null}
@@ -348,8 +349,7 @@ const TopicCategoryButton = ({ topic, openTopic }) => {
 };
 
 const TopicPage = ({ topic, onBack, openTopic, showToast, openRef, openRefSheet, setTopicsTab, topicsTab }) => {
-  const { themeStr, interfaceLanguage } = useContext(GlobalStateContext);
-  const theme = getTheme(themeStr);
+  const { theme, interfaceLanguage } = useGlobalState();
   // why doesn't this variable update?
   const topicTocLoaded = useAsyncVariable(!!Sefaria.topic_toc, Sefaria.loadTopicToc);
   const defaultTopicData = {primaryTitle: null, textRefs: false, sheetRefs: false, isLoading: true};
@@ -504,11 +504,9 @@ TopicPage.propTypes = {
 };
 
 const TopicPageHeader = ({ title, slug, description, topicsTab, setTopicsTab, query, setQuery, tabs, topicRef, parasha, openRef }) => {
-  const { themeStr, interfaceLanguage, textLanguage } = useContext(GlobalStateContext);
+  const { theme, menuLanguage } = useGlobalState();
 
-  const menu_language = Sefaria.util.get_menu_language(interfaceLanguage, textLanguage);
-  const isHeb = menu_language === 'hebrew';
-  const theme = getTheme(themeStr);
+  const isHeb = menuLanguage === 'hebrew';
   const category = Sefaria.topicTocCategory(slug);
   return (
     <View style={{marginHorizontal: 15, marginVertical: 20}}>
@@ -586,8 +584,7 @@ TopicLink.propTypes = {
 
 
 const TopicSideColumn = ({ topic, links, openTopic, openRef, parashaData, tref }) => {
-  const { themeStr, interfaceLanguage } = useContext(GlobalStateContext);
-  const theme = getTheme(themeStr);
+  const { theme, themeStr, interfaceLanguage } = useGlobalState();
   const [showMore, setShowMore] = useState(false);
   const [linkTypeArray, setLinkTypeArray] = useState(null);
   useEffect(() => {
@@ -664,8 +661,7 @@ TopicSideColumn.propTypes = {
 
 
 const ReadingsComponent = ({ parashaData, tref, openRef }) => {
-  const { themeStr, interfaceLanguage } = useContext(GlobalStateContext);
-  const theme = getTheme(themeStr);
+  const { theme, interfaceLanguage } = useGlobalState();
   const parashaDate = Sefaria.util.localeDate(parashaData.date, interfaceLanguage);
   return (
     <View>

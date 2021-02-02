@@ -1,5 +1,7 @@
 'use strict';
-import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useRef, useContext } from 'react';
+import { GlobalStateContext, DispatchContext, STATE_ACTIONS, getTheme } from './StateManager';
+
 
 export const useAsyncVariable = (initIsLoaded, loadVariable, onLoad) => {
   /*
@@ -97,4 +99,18 @@ export function useIncrementalLoad(fetchData, input, pageSize, setter, identityE
   }, [input]);
 
   return usePaginatedLoad(fetchDataByPage, setter, identityElement, numPages, resetValue);
+}
+
+export function useGlobalState() {
+  // exposes global state context along with menu_language and theme which are derived from state
+  const state = useContext(GlobalStateContext);
+  const { interfaceLanguage, textLanguage, themeStr } = state;
+  const menuLanguage = Sefaria.util.get_menu_language(interfaceLanguage, textLanguage);
+  const theme = getTheme(themeStr);
+
+  return {
+    ...state,
+    menuLanguage,
+    theme,
+  };
 }
