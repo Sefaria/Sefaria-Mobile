@@ -39,7 +39,7 @@ import {
   textPropType
 } from './Story';
 
-import { useAsyncVariable, useIncrementalLoad, useGlobalState } from './Hooks';
+import { useAsyncVariable, useIncrementalLoad, useGlobalState, useRtlFlexDir } from './Hooks';
 import Sefaria from './sefaria';
 import strings from './LocalizedStrings';
 import styles from './Styles';
@@ -514,7 +514,7 @@ TopicPage.propTypes = {
 
 const TopicPageHeader = ({ title, slug, description, topicsTab, setTopicsTab, query, setQuery, tabs, topicRef, parasha, openRef }) => {
   const { theme, interfaceLanguage } = useGlobalState();
-
+  const flexDirection = useRtlFlexDir(interfaceLanguage);
   const isHeb = interfaceLanguage === 'hebrew';
   const category = Sefaria.topicTocCategory(slug);
   return (
@@ -546,6 +546,7 @@ const TopicPageHeader = ({ title, slug, description, topicsTab, setTopicsTab, qu
         renderTab={(tab, active) => <TabView {...tab} active={active} />}
         currTabId={topicsTab}
         setTab={setTopicsTab}
+        flexDirection={flexDirection}
       />
       <View style={{ marginVertical: 10 }}>
         <LocalSearchBar

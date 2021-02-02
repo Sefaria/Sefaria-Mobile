@@ -947,7 +947,7 @@ class SText extends React.Component {
   }
 }
 
-const TabRowView = ({ tabs, renderTab, currTabId, setTab }) => {
+const TabRowView = ({ tabs, renderTab, currTabId, setTab, flexDirection='row' }) => {
   const { themeStr } = useContext(GlobalStateContext);
   const theme = getTheme(themeStr);
   const renderTabWrapper = (tab) => {
@@ -959,7 +959,7 @@ const TabRowView = ({ tabs, renderTab, currTabId, setTab }) => {
     );
   };
   return (
-    <View style={[{ flexDirection: "row", borderBottomWidth: 1, marginHorizontal: -15, paddingHorizontal: 15 }, theme.borderedBottom]}>
+    <View style={[{ flexDirection, borderBottomWidth: 1, marginHorizontal: -15, paddingHorizontal: 15 }, theme.borderedBottom]}>
       {tabs.map(renderTabWrapper)}
     </View>
   );
