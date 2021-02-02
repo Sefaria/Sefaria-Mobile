@@ -1107,10 +1107,10 @@ SimpleLinkedBlock.propTypes = {
   onClick: PropTypes.func,
 };
 
-const ProfileListing = ({ image, name, organization }) => {
+const ProfileListing = ({ image, name, organization, flexDirection='row' }) => {
   const { themeStr } = useContext(GlobalStateContext);
   return (
-    <View style={{flexDirection: 'row'}}>
+    <View style={{flexDirection}}>
       <ProfilePic
         len={40}
         url={image}

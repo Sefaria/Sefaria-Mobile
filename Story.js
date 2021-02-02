@@ -16,6 +16,7 @@ import {
 } from './Misc';
 import styles from './Styles';
 import { GlobalStateContext, getTheme } from './StateManager';
+import { useGlobalState, useRtlFlexDir } from './Hooks';
 
 const sheetPropType = PropTypes.shape({
             publisher_id: PropTypes.number,
@@ -82,8 +83,8 @@ const StoryBodyBlock = ({en, he}) => <SimpleContentBlock en={en} he={he}/>;
 
 
 const SheetBlock = ({sheet, compact, cozy, smallfonts, isTitle, showToast, onClick, extraStyles }) => {
-  const { themeStr, interfaceLanguage } = useContext(GlobalStateContext);
-  const theme = getTheme(themeStr);
+  const { theme, interfaceLanguage } = useGlobalState();
+  const flexDirection = useRtlFlexDir(interfaceLanguage);
   const historyItem = {
     ref: "Sheet " + sheet.sheet_id,
     sheet_title: sheet.sheet_title,
@@ -96,7 +97,7 @@ const SheetBlock = ({sheet, compact, cozy, smallfonts, isTitle, showToast, onCli
   const title = Sefaria.util.stripHtml(sheet.sheet_title);
   return (
     <View style={extraStyles}>
-      <SaveLine historyItem={historyItem} showToast={showToast}>
+      <SaveLine historyItem={historyItem} showToast={showToast} flexDirection={flexDirection}>
         <StoryTitleBlock en={title} he={title} onClick={onClick} />	
       </SaveLine>
       {(sheet.sheet_summary && !(compact || cozy))?<SimpleInterfaceBlock en={sheet.sheet_summary} he={sheet.sheet_summary}/>:null}
@@ -106,6 +107,7 @@ const SheetBlock = ({sheet, compact, cozy, smallfonts, isTitle, showToast, onCli
             image={sheet.publisher_image}
             name={sheet.publisher_name}
             organization={sheet.publisher_organization}
+            flexDirection={flexDirection}
           />
         </View>
       )}
