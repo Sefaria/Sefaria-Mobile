@@ -114,3 +114,12 @@ export function useGlobalState() {
     theme,
   };
 }
+
+export function useRtlFlexDir(lang, dir='row', reverse) {
+  // return proper flexDirection depending on if lang is RTL or not
+  // reverse is boolean
+  // dir is either 'column' or 'row'
+  const isRTL = lang === 'hebrew';
+  const langReverse = isRTL ^ reverse;  // rare situation where XOR makes sense
+  return `${dir}${langReverse ? '-reverse' : ''}`;
+}

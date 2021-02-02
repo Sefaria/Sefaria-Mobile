@@ -1360,6 +1360,13 @@ export default StyleSheet.create({
     width: 9,
     height: 9,
   },
+  dataSourceText: {
+    borderRadius: 6,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    fontSize: 13,
+    marginVertical: 10,
+  },
   topicLinkSection: {
     paddingBottom: 30,
   },

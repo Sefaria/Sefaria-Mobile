@@ -115,7 +115,7 @@ const SheetBlock = ({sheet, compact, cozy, smallfonts, isTitle, showToast, onCli
 SheetBlock.propTypes = {sheet: sheetPropType.isRequired};
 
 
-const SaveLine = ({ children, historyItem, dref, versions={}, showToast, flexDirection }) => (
+const SaveLine = ({ children, historyItem, dref, versions={}, showToast, flexDirection="row" }) => (
   <View style={[styles.saveLine, {flexDirection}]}>
     {children}
     <SaveButton

@@ -513,9 +513,9 @@ TopicPage.propTypes = {
 };
 
 const TopicPageHeader = ({ title, slug, description, topicsTab, setTopicsTab, query, setQuery, tabs, topicRef, parasha, openRef }) => {
-  const { theme, menuLanguage } = useGlobalState();
+  const { theme, interfaceLanguage } = useGlobalState();
 
-  const isHeb = menuLanguage === 'hebrew';
+  const isHeb = interfaceLanguage === 'hebrew';
   const category = Sefaria.topicTocCategory(slug);
   return (
     <View style={{marginHorizontal: 15, marginVertical: 20}}>

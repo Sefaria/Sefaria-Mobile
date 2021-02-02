@@ -1204,7 +1204,7 @@ ProfilePic.propTypes = {
   showButtons: PropTypes.bool,  // show profile pic action buttons
 };
 
-const DataSourceLine = ({ children, dataSources, topicTitle, flexDirection }) => {
+const DataSourceLine = ({ children, dataSources, topicTitle, flexDirection="row" }) => {
   const { themeStr, interfaceLanguage } = useContext(GlobalStateContext);
   const [displaySource, setDisplaySource] = useState(false);
   const theme = getTheme(themeStr);
@@ -1227,7 +1227,7 @@ const DataSourceLine = ({ children, dataSources, topicTitle, flexDirection }) =>
         </Pressable>
       </View>
       { displaySource ? (
-        <Text style={[{borderRadius: 6, paddingHorizontal: 10, paddingVertical: 8, fontSize: 13}, isHeb ? styles.heInt : styles.enInt, theme.tertiaryText, theme.lighterGreyBackground]}>
+        <Text style={[styles.dataSourceText, isHeb ? styles.heInt : styles.enInt, theme.tertiaryText, theme.lighterGreyBackground]}>
           {dataSourceText}
         </Text>
       ) : null}

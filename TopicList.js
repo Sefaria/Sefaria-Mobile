@@ -8,12 +8,12 @@ import {
   FlatList,
 } from 'react-native';
 import { Topic } from './Topic';
+import { useGlobalState, useRtlFlexDir } from './Hooks';
 import {
   DataSourceLine,
 } from './Misc';
 import styles from './Styles';
 import strings from './LocalizedStrings';
-import { GlobalStateContext, getTheme } from './StateManager';
 import {
     LoadingView,
     InterfaceTextWithFallback,
@@ -64,21 +64,20 @@ const TopicList = ({ topics, openTopic }) => {
   
 const TopicListItem = ({ topic, openTopic }) => {
   // TODO generalize DataSourceLine to handle ref text instead of topicTitle
-  const {themeStr, interfaceLanguage} = useContext(GlobalStateContext);
-  const theme = getTheme(themeStr);
-  //       
+  const {theme, menuLanguage} = useGlobalState();
+  const flexDirection = useRtlFlexDir(menuLanguage)       
   return (
     <Pressable
       onPress={() => { openTopic(new Topic({ slug: topic.topic, ...topic })); }}
       style={[{borderBottomWidth: 1, paddingVertical: 20}, theme.bordered, styles.readerSidePadding]}
       android_ripple={{color: "#ccc"}}
     >
-      <DataSourceLine dataSources={topic.dataSources} topicTitle={topic.title}>
-        <ContentTextWithFallback {...topic.title} />
+      <DataSourceLine dataSources={topic.dataSources} topicTitle={topic.title} flexDirection={flexDirection}>
+        <ContentTextWithFallback {...topic.title} lang={menuLanguage}/>
       </DataSourceLine>
       {
         topic.description && (topic.description.en || topic.description.he) ? (
-          <InterfaceTextWithFallback {...topic.description} extraStyles={[theme.tertiaryText]}/>
+          <InterfaceTextWithFallback {...topic.description} extraStyles={[theme.tertiaryText]} lang={menuLanguage}/>
         ) : null
       }
     </Pressable>
