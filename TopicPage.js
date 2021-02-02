@@ -287,7 +287,11 @@ const TopicCategoryHeader = ({ title, description, categoryDescription, children
   return (
     <View>
       <View style={{marginHorizontal: 15, marginVertical: 24}}>
-        <Text style={[styles.enInt, {fontSize: 22}, theme.tertiaryText]}>{title.en}</Text>
+        <InterfaceTextWithFallback
+          {...title} 
+          lang={menuLanguage}
+          extraStyles={[{fontSize: 22}, theme.tertiaryText]}
+        />
         {displayDescription ? (
           <InterfaceTextWithFallback
             {...displayDescription}
