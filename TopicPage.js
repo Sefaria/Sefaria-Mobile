@@ -261,7 +261,9 @@ const TopicCategory = ({ topic, openTopic, onBack }) => {
               />
             )}
             ListHeaderComponent={() => (
-              <TopicCategoryHeader {...headerTopic} trendingTopics={trendingTopics} openTopic={openTopic} />
+              <TopicCategoryHeader {...headerTopic}>
+                <TrendingTopics trendingTopics={trendingTopics} openTopic={openTopic} />
+              </TopicCategoryHeader>
             )}
             ItemSeparatorComponent={()=>(
               <View style={{height: 1, backgroundColor: "#ccc", marginHorizontal: 15}} />
@@ -279,8 +281,8 @@ const TopicCategory = ({ topic, openTopic, onBack }) => {
           <SText lang={menu_language} style={[isHeb ? styles.he : styles.en, {fontSize: 18, marginTop: 6}, theme.text]}>{isHeb ? t.he : t.en}</SText>
         </TouchableOpacity>
 */
-const TopicCategoryHeader = ({ title, description, categoryDescription, trendingTopics, openTopic }) => {
-  const { theme } = useGlobalState();
+const TopicCategoryHeader = ({ title, description, categoryDescription, children }) => {
+  const { theme, menuLanguage } = useGlobalState();
   const displayDescription = categoryDescription || description;
   return (
     <View>
@@ -289,11 +291,12 @@ const TopicCategoryHeader = ({ title, description, categoryDescription, trending
         {displayDescription ? (
           <InterfaceTextWithFallback
             {...displayDescription}
+            lang={menuLanguage}
             extraStyles={[{fontSize: 13, marginTop: 11}, theme.tertiaryText]}
           />
         ) : null}
       </View>
-      <TrendingTopics trendingTopics={trendingTopics} openTopic={openTopic} />
+      { children }
     </View>
   );
 };
