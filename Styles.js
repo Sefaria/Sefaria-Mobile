@@ -1375,13 +1375,11 @@ export default StyleSheet.create({
     borderBottomWidth: 1,
   },
   topicLinkSideList: {
-    flexDirection: "row",
     flexWrap: "wrap",
     marginTop: 10,
   },
   topicLinkSideMore: {
     marginTop: -15,
-    flexDirection: 'row',
     alignContent: 'center',
   },
   topicItemMargins: {

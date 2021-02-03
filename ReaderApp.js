@@ -2265,6 +2265,7 @@ class ReaderApp extends React.PureComponent {
           openRefSheet={this.openRefSheet}
           openSheetTag={this.openSheetTag}
           openSearch={this.openSearch}
+          openTopic={this.openTopic}
           setSearchOptions={this.setSearchOptions}
           openTextTocDirectly={this.openTextTocDirectly}
           setTextLanguage={this.setTextLanguage}

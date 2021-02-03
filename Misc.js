@@ -964,15 +964,16 @@ const TabRowView = ({ tabs, renderTab, currTabId, setTab, flexDirection='row' })
   );
 }
 
-const TabView = ({ text, active }) => {
+const TabView = ({ text, active, lang }) => {
   /*
   Standard Sefaria Tab to be used in renderTab of TabRowView
   */
   const { themeStr } = useContext(GlobalStateContext);
   const theme = getTheme(themeStr);
-  const activeBorderStyle = [{ borderBottomWidth: 4}, theme.borderBottomDarker]
+  const activeBorderStyle = [{ borderBottomWidth: 4}, theme.borderBottomDarker];
+  const style = {marginRight: lang === 'hebrew' ? 0 : 20, marginLeft: lang === 'hebrew' ? 20 : 0};
   return (
-    <View style={[{ paddingVertical: 10, marginRight: 20 }].concat(active ? activeBorderStyle : [])}>
+    <View style={[{ paddingVertical: 10 }, style].concat(active ? activeBorderStyle : [])}>
       <Text style={[styles.enInt, {fontSize: 22, fontWeight: 'bold'}, active ? theme.tertiaryText : theme.secondaryText]}>{ text }</Text>
     </View>
   );

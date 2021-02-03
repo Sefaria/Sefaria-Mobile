@@ -14,6 +14,7 @@ class DeepLinkRouter extends React.PureComponent {
     openSheetTag:            PropTypes.func.isRequired,
     openTextTocDirectly:     PropTypes.func.isRequired,
     openSearch:              PropTypes.func.isRequired,
+    openTopic:               PropTypes.func.isRequired,
     setSearchOptions:        PropTypes.func.isRequired,
     setTextLanguage:         PropTypes.func.isRequired,
     setNavigationCategories: PropTypes.func.isRequired,
@@ -30,8 +31,10 @@ class DeepLinkRouter extends React.PureComponent {
       ['^(sheets)$', this.openMenu, ['menu']],
       ['^(sheets)/tags$', this.openMenu, ['menu']],
       ['^sheets/tags/(.+)$', this.openSheetTag, ['tag']],
+      ['^topics/(category)/(.+)$', this.openTopic, ['categoryString','slug']],
+      ['^topics/(.+)$', this.openTopic, ['slug']],
       ['^sheets/([0-9.]+)$', this.openRefSheet, ['sheetid']],
-      ['^(daf-roulette|chavruta|[Nn]echama|login|register|logout|activity|topics|people|groups|wiki|developers|request-a-text|request-a-training|contribute|faq|gala|jfn|about|donate|team|jobs|visualizations|mobile|daf-yomi|dicta-thanks|torah-tab)/?$', this.catchAll],
+      ['^(daf-roulette|chavruta|[Nn]echama|login|register|logout|activity|people|groups|wiki|developers|request-a-text|request-a-training|contribute|faq|gala|jfn|about|donate|team|jobs|visualizations|mobile|daf-yomi|dicta-thanks|torah-tab)/?$', this.catchAll],
       ['^([^/]+)$', this.openRef, ['tref']],
       ['^.*$', this.catchAll],
     ];
@@ -51,6 +54,10 @@ class DeepLinkRouter extends React.PureComponent {
     cats = cats.split('/');
     this.props.openNav();
     this.props.setNavigationCategories(cats);
+  };
+  openTopic = ({ slug, categoryString }) => {
+    const isCategory = !!categoryString;
+    this.props.openTopic({slug}, isCategory);
   };
   openRef = ({ tref, ven, vhe, aliyot, lang, url }) => {
     // wrapper for openRef to convert url params to function params

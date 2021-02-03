@@ -188,12 +188,13 @@ const organizeLinks = (topic, links) => {
     })
   ) : [];
   if (linkTypeArray.length === 0) {
+    const subtopics = Sefaria.topicTocPage(category && category.slug) || [];
     linkTypeArray.push({
       title: {
         en: !category ? 'Explore Topics' : category.en,
         he: !category ?  'נושאים כלליים' : category.he,
       },
-      links: Sefaria.topicTocPage(category && category.slug).slice(0, 20).map(({slug, en, he}) => (new Topic ({
+      links: subtopics.slice(0, 20).map(({slug, en, he}) => (new Topic ({
         slug,
         title: {en, he},
         isCategory: !category,
@@ -201,9 +202,10 @@ const organizeLinks = (topic, links) => {
     })
   } else if (linkTypeArray[0].title.en === 'Related') {
     // rename
+    const title = topic.title || {}
     linkTypeArray[0].title = {
-      en: `Topics Related to ${topic.title.en}`,
-      he: `נושאים קשורים ל-${topic.title.he}`,
+      en: `Topics Related to ${title.en}`,
+      he: `נושאים קשורים ל-${title.he}`,
     };
   }
   return linkTypeArray;
@@ -383,6 +385,7 @@ const TopicPage = ({ topic, onBack, openTopic, showToast, openRef, openRefSheet,
     setTopicData(defaultTopicData); // Ensures topicTitle displays while loading
     const { promise, cancel } = Sefaria.util.makeCancelable((async () => {
       const d = await Sefaria.api.topic(topic.slug);
+      openTopic(new Topic({ slug: d.slug, title: d.primaryTitle, description: d.description }));
       if (d.parasha) { Sefaria.api.getParashaNextRead(d.parasha).then(setParashaData); }
       setTopicData(d);
       // Data remaining to fetch that was not already in the cache
@@ -519,7 +522,7 @@ const TopicPageHeader = ({ title, slug, description, topicsTab, setTopicsTab, qu
   const category = Sefaria.topicTocCategory(slug);
   return (
     <View style={{marginHorizontal: 15, marginVertical: 20}}>
-      <Text style={[isHeb ? styles.he : styles.en, {fontSize: 30}]}>{ isHeb ? title.he : title.en }</Text>
+      {title ? <Text style={[isHeb ? styles.he : styles.en, {fontSize: 30}]}>{ isHeb ? title.he : title.en }</Text> : null}
       { category ? (
         <InterfaceTextWithFallback
           extraStyles={[{fontSize: 13, marginBottom: 20}, theme.tertiaryText]}
@@ -545,7 +548,7 @@ const TopicPageHeader = ({ title, slug, description, topicsTab, setTopicsTab, qu
       : null}
       <TabRowView
         tabs={tabs}
-        renderTab={(tab, active) => <TabView {...tab} active={active} />}
+        renderTab={(tab, active) => <TabView {...tab} active={active} lang={interfaceLanguage} />}
         currTabId={topicsTab}
         setTab={setTopicsTab}
         flexDirection={flexDirection}
@@ -605,8 +608,9 @@ const TopicSideColumn = ({ topic, links, openTopic, openRef, parashaData, tref }
   useEffect(() => {
     setLinkTypeArray(organizeLinks(topic, links));
   }, [topic.slug, links]);
+  const isHeb = interfaceLanguage === 'hebrew';
   const sortLinks = (a, b) => {
-    const shortLang = interfaceLanguage == 'hebrew' ? 'he' : 'en';
+    const shortLang = isHeb ? 'he' : 'en';
     if (!!a.title[shortLang] !== !!b.title[shortLang]) {
       return (0+!!b.title[shortLang]) - (0+!!a.title[shortLang]);
     }
@@ -633,9 +637,9 @@ const TopicSideColumn = ({ topic, links, openTopic, openRef, parashaData, tref }
             he={(links.length > 1 && pluralTitle) ? pluralTitle.he : title.he}
             extraStyles={[styles.SystemBodyEn, styles.topicLinkTypeHeader, theme.tertiaryText, theme.lighterGreyBorder]}
           />
-          <View style={styles.topicLinkSideList}>
+          <View style={[styles.topicLinkSideList, {flexDirection: isHeb ? 'row-reverse' : 'row'}]}>
             <DotSeparatedList
-              flexDirection={interfaceLanguage === 'hebrew' ? 'row-reverse' : 'row'}
+              flexDirection={isHeb ? 'row-reverse' : 'row'}
               items={links.filter(l => l.shouldDisplay !== false).sort(sortLinks).slice(0, !showMore && iLinkType === 0 ? 10 : undefined)}
               renderItem={renderLink}
               keyExtractor={l => l.slug}
@@ -649,7 +653,7 @@ const TopicSideColumn = ({ topic, links, openTopic, openRef, parashaData, tref }
   const moreSource = themeStr === 'white' ? (showMore ? require('./img/up.png') : require('./img/down.png')) : (showMore ? require('./img/up-light.png') : require('./img/down-light.png'))
   const moreButton = hasMore ?
     (
-      <Pressable style={styles.topicLinkSideMore} onPress={() => setShowMore(prevShowMore => !prevShowMore)}>
+      <Pressable style={[styles.topicLinkSideMore, {flexDirection: isHeb ? 'row-reverse': 'row'}]} onPress={() => setShowMore(prevShowMore => !prevShowMore)}>
         <InterfaceTextWithFallback
           en={showMore ? "See Less" : "See More"}
           he={showMore ? "ראה פחות" : "ראה עוד"}
