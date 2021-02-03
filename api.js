@@ -161,12 +161,15 @@ var Api = {
     if (apiType) {
       switch (apiType) {
         case "text":
-          const { context, versions } = extra_args;
+          const { context, versions, stripItags } = extra_args;
           url += 'api/texts/';
           urlSuffix = `?context=${context === true ? 1 : 0}&commentary=0`;
           if (versions) {
             if (versions.en) { urlSuffix += `&ven=${versions.en.replace(/ /g, "_")}`; }
             if (versions.he) { urlSuffix += `&vhe=${versions.he.replace(/ /g, "_")}`; }
+          }
+          if (stripItags) {
+            urlSuffix += `&stripItags=1`;
           }
           break;
         case "links":
@@ -240,11 +243,11 @@ var Api = {
     url += ref + urlSuffix;
     return url;
   },
-  _text: function(ref, { context, versions }) {
+  _text: function(ref, extra_args) {
     return new Promise((resolve, reject)=>{
-      Sefaria.api._request(ref,'text', true, { context, versions })
+      Sefaria.api._request(ref,'text', true, extra_args)
       .then(data => {
-        if (context) {
+        if (extra_args.context) {
           resolve(Sefaria.api._toIOS({"text": data, "links": [], "ref": ref}));
         } else {
           const en_text = (data.text instanceof Array) ? data.text.join(' ') : data.text;

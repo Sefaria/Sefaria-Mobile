@@ -180,7 +180,7 @@ const SettingsPage = ({ close, logout, openUri }) => {
   const checkUpdatesForSettings = abstractUpdateChecker(setUpdatesDisabled, downloadNetworkSetting);
 
   const deleteLibrary = async () => {
-    if (DownloadTracker.downloadInProgress()) { DownloadTracker.cancelDownload() }
+    DownloadTracker.cancelDownload(true);
     const booksToDelete = await markLibraryForDeletion();
     setIsDisabledObj(getIsDisabledObj);
     await deleteBooks(booksToDelete);

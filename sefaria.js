@@ -3,7 +3,6 @@ import { Alert, Platform } from 'react-native';
 import { unzip } from 'react-native-zip-archive'; //for unzipping -- (https://github.com/plrthink/react-native-zip-archive)
 import AsyncStorage from '@react-native-community/async-storage';
 import VersionNumber from 'react-native-version-number';
-import RNFB from 'rn-fetch-blob';
 import { Search } from '@sefaria/search';
 import sanitizeHtml from 'sanitize-html'
 import Api from './api';
@@ -13,13 +12,14 @@ import { initAsyncStorage } from './StateManager';
 import { Filter } from './Filter';
 import URL from 'url-parse';
 import analytics from '@react-native-firebase/analytics';
+import {FileSystem} from 'react-native-unimodules'
 import {
   packageSetupProtocol,
   downloadUpdate,
   autoUpdateCheck,
   checkUpdatesFromServer,
   loadJSONFile,
-  downloadRecover
+  fileExists, FILE_DIRECTORY,
 } from './DownloadControl'
 
 const ERRORS = {
@@ -186,7 +186,7 @@ Sefaria = {
       data = await Sefaria._loadJSON(jsonPath);
       return preResolve(data);
     } catch (e) {
-      const exists = await RNFB.fs.exists(zipPath);
+      const exists = await fileExists(zipPath);
       if (exists) {
         const path = await Sefaria._unzip(zipPath);
         try {
@@ -218,7 +218,7 @@ Sefaria = {
         // cache may be left in a state with text but without links.
         resolve(cacheValue);
       }
-      Sefaria.api._text(ref, { context, versions })
+      Sefaria.api._text(ref, { context, versions, stripItags: true })
         .then(data => {
           if (context) { resolve(data); }
           else         { reject({error: ERRORS.NO_CONTEXT, data}); }
@@ -763,11 +763,11 @@ Sefaria = {
   },
   _deleteUnzippedFiles: function() {
     return new Promise((resolve, reject) => {
-      RNFB.fs.lstat(RNFB.fs.dirs.DocumentDir).then(fileList => {
+      FileSystem.readDirectoryAsync(FileSystem.documentDirectory).then(fileList => {
         for (let f of fileList) {
-          if (f.type === 'file' && f.filename.endsWith(".json")) {
+          if (f.endsWith(".json")) {
             //console.log('deleting', f.path);
-            RNFB.fs.unlink(f.path);
+            FileSystem.deleteAsync(`${FileSystem.documentDirectory}/${f}`).then(() => {});
           }
         }
         resolve();
@@ -775,16 +775,16 @@ Sefaria = {
     });
   },
   _unzip: function(zipSourcePath) {
-    return unzip(zipSourcePath, RNFB.fs.dirs.DocumentDir);
+    return unzip(zipSourcePath, FileSystem.documentDirectory);
   },
   _loadJSON: function(JSONSourcePath) {
     return loadJSONFile(JSONSourcePath)
   },
   _JSONSourcePath: function(fileName) {
-    return (RNFB.fs.dirs.DocumentDir + "/" + fileName + ".json");
+    return (FileSystem.documentDirectory + "/" + fileName + ".json");
   },
   _zipSourcePath: function(fileName) {
-    return (RNFB.fs.dirs.DocumentDir + "/library/" + fileName + ".zip");
+    return (FileSystem.documentDirectory + "/library/" + fileName + ".zip");
   },
   textFromRefData: function(data) {
     // Returns a dictionary of the form {en: "", he: "", sectionRef: ""} that includes a single string with
@@ -1370,7 +1370,7 @@ Sefaria.util = {
     if (isSheet) { text = Sefaria.util.cleanSheetHTML(text); }
     text = Sefaria.util.filterOutItags(text);
     if (lang === 'english') {
-      return `<endiv>${Sefaria.util.hebrewInEnglish(text, 'string')}</endiv>`;
+      return `<endiv>\u2066${Sefaria.util.hebrewInEnglish(text, 'string')}</endiv>`;
     }
     return `<hediv>${text}</hediv>`;
   },
@@ -1378,23 +1378,23 @@ Sefaria.util = {
     const isIOS = Platform.OS === 'ios';
     let fileData;
     let useLib = false;
-    const libPath = `${RNFB.fs.dirs.DocumentDir}/library/${filename}`;
-    const sourcePath = isIOS ? `${RNFB.fs.dirs.MainBundleDir}/sources/${filename}` : RNFB.fs.asset("sources/" + filename);
-    const libExists = await RNFB.fs.exists(libPath);
+    const libPath = `${FileSystem.documentDirectory}/library/${filename}`;
+    const sourcePath = isIOS ? encodeURI(`${FileSystem.bundleDirectory}/sources/${filename}`) : `${FileSystem.bundleDirectory}sources/${filename}`;
+    const libExists = await fileExists(libPath);
     if (libExists) {
       // check date of each file and choose latest
-      const libStats = await RNFB.fs.stat(libPath);
-      useLib = libStats.lastModified > Sefaria.lastAppUpdateTime;
+      const libStats = await FileSystem.getInfoAsync(libPath);
+      useLib = libStats.modificationTime * 1000 > Sefaria.lastAppUpdateTime;
     }
     if (useLib) {
       fileData = await Sefaria._loadJSON(libPath);
-    } else if (isIOS) {
+    } else {  //if (isIOS) {
       fileData = await Sefaria._loadJSON(sourcePath);
-    } else {
+    } //else {
       // android
-      fileData = await RNFB.fs.readFile(sourcePath);
-      fileData = JSON.parse(fileData);
-    }
+      // fileData = await FileSystem.readAsStringAsync(sourcePath);
+      // fileData = JSON.parse(fileData);
+    //}
     return fileData;
   },
   getISOCountryCode: function() {

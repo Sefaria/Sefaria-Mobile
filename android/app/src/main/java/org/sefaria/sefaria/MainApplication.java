@@ -3,6 +3,8 @@ package org.sefaria.sefaria;
 import androidx.multidex.MultiDexApplication;
 import android.content.Context;
 
+import org.sefaria.sefaria.generated.BasePackageList;
+
 import com.facebook.react.PackageList;
 import com.facebook.react.ReactApplication;
 import com.reactnativecommunity.webview.RNCWebViewPackage;
@@ -19,7 +21,13 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.List;
 
+import org.unimodules.adapters.react.ModuleRegistryAdapter;
+import org.unimodules.adapters.react.ReactModuleRegistryProvider;
+import org.unimodules.core.interfaces.SingletonModule;
+
 public class MainApplication extends MultiDexApplication implements ReactApplication {
+  private final ReactModuleRegistryProvider mModuleRegistryProvider = new
+    ReactModuleRegistryProvider(new BasePackageList().getPackageList(), null);
 
   private final ReactNativeHost mReactNativeHost =
 
@@ -34,6 +42,11 @@ public class MainApplication extends MultiDexApplication implements ReactApplica
         List<ReactPackage> packages = new PackageList(this).getPackages();
         packages.add(new SplashScreenReactPackage());
         packages.add(new RNSelectableTextPackage());
+        List<ReactPackage> unimodules = Arrays.<ReactPackage>asList(
+          new ModuleRegistryAdapter(mModuleRegistryProvider)
+          );
+        packages.addAll(unimodules);
+
         return packages;
         // return Arrays.<ReactPackage>asList(
         //     new MainReactPackage(),

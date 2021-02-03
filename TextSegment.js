@@ -73,7 +73,7 @@ const TextSegment = React.memo(({
   fontScale,
   setDictionaryLookup,
   showToast,
-  openUriOrRef,
+  handleOpenURL,
   onTextPress,
   shareCurrentSegment,
   getDisplayedText,
@@ -138,6 +138,9 @@ const TextSegment = React.memo(({
       delayPressIn={200}
     >
       <TempSelectableText
+          accessible={true}
+          accessibilityRole={"text"}
+          accessibilityLabel={data.replace(/(<([^>]+)>)/ig,'')}
         menuItems={menuItems}
         onSelection={onSelection}
         value={data}
@@ -147,7 +150,7 @@ const TextSegment = React.memo(({
           stylesheet: htmlStyleSheet,
           RootComponent: Text,
           TextComponent: Animated.Text,
-          onLinkPress: openUriOrRef,
+          onLinkPress: handleOpenURL,
           textComponentProps: {
             suppressHighlighting: false,
             key: segmentKey,

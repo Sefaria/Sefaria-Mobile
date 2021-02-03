@@ -68,7 +68,7 @@ class ConnectionsPanel extends React.PureComponent {
     textTitle:            PropTypes.string.isRequired,
     categories:           PropTypes.array.isRequired,
     openUri:              PropTypes.func.isRequired,
-    openUriOrRef:         PropTypes.func.isRequired,
+    handleOpenURL:         PropTypes.func.isRequired,
     textListFlex:         PropTypes.number.isRequired,
     onStartShouldSetResponderCapture: PropTypes.func.isRequired,
     dictLookup:           PropTypes.string,
@@ -147,7 +147,7 @@ class ConnectionsPanel extends React.PureComponent {
             {connectionsPanelHeader}
             <LexiconBox
               openRef={this.props.openRef}
-              openUriOrRef={this.props.openUriOrRef}
+              handleOpenURL={this.props.handleOpenURL}
               selectedWords={this.props.dictLookup}
               oref={{ref, categories}}
             />
