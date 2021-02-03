@@ -223,6 +223,12 @@ const TopicCategory = ({ topic, openTopic, onBack }) => {
   const slug = topic && topic.slug;
   const [subtopics, setSubtopics] = useState(getSubtopics(slug));
   useEffect(() => {
+    if (topic) {
+      const newTopic = Sefaria.getTopicTocObject(topic.slug);
+      if (newTopic) {
+        openTopic(yo, true);  // make sure topic is set with all available info if it wasn't set correctly initially (e.g. came from external link)
+      }
+    }
     setSubtopics(getSubtopics(slug));
   }, [slug, topicTocLoaded]);
   const [trendingTopics, setTrendingTopics] = useState(Sefaria.api._trendingTags);
