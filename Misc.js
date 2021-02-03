@@ -26,27 +26,28 @@ import strings from './LocalizedStrings';
 import HTMLView from 'react-native-htmlview';
 
 
-const SystemHeader = ({ title, onBack, hideLangToggle }) => {
+const SystemHeader = ({ title, onBack, openNav, hideLangToggle }) => {
   const { themeStr, interfaceLanguage } = useContext(GlobalStateContext);
   const theme = getTheme(themeStr);
-
+  const showMenu = Platform.OS === 'android';
+  const LeftButtonComponent = showMenu ? MenuButton : DirectedButton;
+  const leftButtonProps = showMenu ? {onPress: openNav} : {
+    onPress: onBack,
+    imageStyle: [styles.menuButton, styles.directedButton],
+    direction: "back",
+    language: "english"
+  };
   return (
     <View style={[styles.header, styles.boxShadow, {borderBottomWidth: 0}, theme.header]}>
-      <DirectedButton
-        onPress={onBack}
-        imageStyle={[styles.menuButton, styles.directedButton]}
-        direction="back"
-        language="english"
+      <LeftButtonComponent
+        {...leftButtonProps}
       />
       <Text style={[interfaceLanguage === 'hebrew' ? styles.intHe : styles.intEn, styles.categoryTitle, theme.categoryTitle, {textTransform: "uppercase"}]}>
         {title}
       </Text>
       { hideLangToggle ? (
-        <DirectedButton
-          onPress={onBack}
-          imageStyle={[styles.menuButton, styles.directedButton]}
-          direction="back"
-          language="english"
+        <LeftButtonComponent
+          {...leftButtonProps}
           placeholder
         />
       ) : <LanguageToggleButton /> }
@@ -677,10 +678,10 @@ const SearchButton = ({ onPress, extraStyles, disabled }) => {
   );
 }
 
-const MenuButton = ({ onPress }) => {
-  const { themeStr } = useContext(GlobalStateContext);
+const MenuButton = ({ onPress, placeholder }) => {
+  const { themeStr } = useGlobalState();
   return (
-    <TouchableOpacity style={[styles.headerButton, styles.leftHeaderButton]} onPress={onPress}>
+    <TouchableOpacity style={[styles.headerButton, styles.leftHeaderButton, {opacity: placeholder ? 0 : 1}]} onPress={onPress}>
       <Image
         source={themeStr == "white" ? require('./img/menu.png'): require('./img/menu-light.png') }
         style={styles.menuButton}

@@ -1789,7 +1789,7 @@ class ReaderApp extends React.PureComponent {
     }
   };
 
-  openTopic = (topic, isCategory) => {
+  openTopic = (topic, isCategory, addToBackStack=true) => {
     BackManager.forward({ state: this.state });
     this.setState({navigationTopic: topic, menuOpen: isCategory ? "topic toc" : "topic"});
   };
@@ -1990,6 +1990,7 @@ class ReaderApp extends React.PureComponent {
         return(
            <TopicCategory
              onBack={this.manageBackMain}
+             openNav={this.openNav}
              openTopic={this.openTopic}
              topic={this.state.navigationTopic}
            />
@@ -1998,6 +1999,7 @@ class ReaderApp extends React.PureComponent {
         return(
           <TopicPage
             onBack={this.manageBackMain}
+            openNav={this.openNav}
             openTopic={this.openTopic}
             topicsTab={this.state.topicsTab}
             setTopicsTab={this.setTopicsTab}

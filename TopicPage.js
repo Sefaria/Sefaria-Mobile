@@ -211,7 +211,7 @@ const organizeLinks = (topic, links) => {
   return linkTypeArray;
 };
 
-const TopicCategory = ({ topic, openTopic, onBack }) => {
+const TopicCategory = ({ topic, openTopic, onBack, openNav }) => {
   const { theme, interfaceLanguage } = useGlobalState();
 
   const topicTocLoaded = useAsyncVariable(!!Sefaria.topic_toc, Sefaria.loadTopicToc);
@@ -226,7 +226,7 @@ const TopicCategory = ({ topic, openTopic, onBack }) => {
     if (topic) {
       const newTopic = Sefaria.getTopicTocObject(topic.slug);
       if (newTopic) {
-        openTopic(yo, true);  // make sure topic is set with all available info if it wasn't set correctly initially (e.g. came from external link)
+        openTopic(newTopic, true, false);  // make sure topic is set with all available info if it wasn't set correctly initially (e.g. came from external link)
       }
     }
     setSubtopics(getSubtopics(slug));
@@ -257,6 +257,7 @@ const TopicCategory = ({ topic, openTopic, onBack }) => {
       <SystemHeader
         title={strings.topics}
         onBack={onBack}
+        openNav={openNav}
       />
       {
         (!topicTocLoaded || !subtopics) ? (<LoadingView />) : (
@@ -365,7 +366,7 @@ const TopicCategoryButton = ({ topic, openTopic }) => {
   );
 };
 
-const TopicPage = ({ topic, onBack, openTopic, showToast, openRef, openRefSheet, setTopicsTab, topicsTab }) => {
+const TopicPage = ({ topic, onBack, openNav, openTopic, showToast, openRef, openRefSheet, setTopicsTab, topicsTab }) => {
   const { theme, interfaceLanguage } = useGlobalState();
   // why doesn't this variable update?
   const topicTocLoaded = useAsyncVariable(!!Sefaria.topic_toc, Sefaria.loadTopicToc);
@@ -391,7 +392,7 @@ const TopicPage = ({ topic, onBack, openTopic, showToast, openRef, openRefSheet,
     setTopicData(defaultTopicData); // Ensures topicTitle displays while loading
     const { promise, cancel } = Sefaria.util.makeCancelable((async () => {
       const d = await Sefaria.api.topic(topic.slug);
-      openTopic(new Topic({ slug: d.slug, title: d.primaryTitle, description: d.description }));
+      openTopic(new Topic({ slug: d.slug, title: d.primaryTitle, description: d.description }), false, false);
       if (d.parasha) { Sefaria.api.getParashaNextRead(d.parasha).then(setParashaData); }
       setTopicData(d);
       // Data remaining to fetch that was not already in the cache
@@ -510,6 +511,7 @@ const TopicPage = ({ topic, onBack, openTopic, showToast, openRef, openRefSheet,
       <SystemHeader
         title={strings.topics}
         onBack={onBack}
+        openNav={openNav}
         hideLangToggle
       />
       { ListRendered }
