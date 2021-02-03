@@ -77,7 +77,6 @@ export default StyleSheet.create({
     marginHorizontal: 5,
   },
   systemButtonInner: {
-    flexDirection: 'row',
     justifyContent: 'center',
   },
   systemButtonBlue: {
@@ -1392,7 +1391,6 @@ export default StyleSheet.create({
     alignItems: 'center',
   },
   readingsHeader: {
-    flexDirection: "row",
     justifyContent: "space-between",
     borderBottomWidth: 1,
   },
@@ -1400,10 +1398,15 @@ export default StyleSheet.create({
     marginBottom: 15,
   },
   readThePortionButton: {
-    alignSelf: "flex-start",
     paddingVertical: 10,
     paddingRight: 15,
     paddingLeft: 5,
     marginTop: 22,
   },
+  readThePortionButtonHe: {
+    paddingVertical: 10,
+    paddingLeft: 15,
+    paddingRight: 5,
+    marginTop: 22,  
+  }
 });

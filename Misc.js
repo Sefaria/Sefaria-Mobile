@@ -116,36 +116,36 @@ const DotSeparatedList = ({ items, renderItem, keyExtractor, flexDirection='row'
   );
 };
 
-const SystemButton = ({ onPress, text, img, isHeb, isBlue, isLoading, extraStyles=[], extraImageStyles=[] }) => (
-  <GlobalStateContext.Consumer>
-    { ({ themeStr }) => (
-      <TouchableOpacity disabled={isLoading} onPress={onPress} style={[styles.systemButton, getTheme(themeStr).mainTextPanel, styles.boxShadow, (isBlue ? styles.systemButtonBlue : null)].concat(extraStyles)}>
-        { isLoading ?
-          (<LoadingView size={'small'} height={20} color={isBlue ? '#ffffff' : undefined} />) :
-          (<View style={styles.systemButtonInner}>
-            { !!img ?
-              <Image
-                source={img}
-                style={[isHeb ? styles.menuButtonMarginedHe : styles.menuButtonMargined].concat(extraImageStyles)}
-                resizeMode={'contain'}
-              /> : null
-            }
-            <Text
-              style={[
-                styles.systemButtonText,
-                getTheme(themeStr).text,
-                (isBlue ? styles.systemButtonTextBlue : null),
-                (isHeb ? styles.heInt : styles.enInt)
-              ]}
-            >
-              { text }
-            </Text>
-          </View>)
-        }
-      </TouchableOpacity>
-    )}
-  </GlobalStateContext.Consumer>
-);
+const SystemButton = ({ onPress, text, img, isHeb, isBlue, isLoading, extraStyles=[], extraImageStyles=[] }) => {
+  const { theme } = useGlobalState();
+  const flexDirection = isHeb ? "row-reverse" : "row";
+  return (
+    <TouchableOpacity disabled={isLoading} onPress={onPress} style={[styles.systemButton, theme.mainTextPanel, styles.boxShadow, (isBlue ? styles.systemButtonBlue : null)].concat(extraStyles)}>
+      { isLoading ?
+        (<LoadingView size={'small'} height={20} color={isBlue ? '#ffffff' : undefined} />) :
+        (<View style={[styles.systemButtonInner, {flexDirection}]}>
+          { !!img ?
+            <Image
+              source={img}
+              style={[isHeb ? styles.menuButtonMarginedHe : styles.menuButtonMargined].concat(extraImageStyles)}
+              resizeMode={'contain'}
+            /> : null
+          }
+          <Text
+            style={[
+              styles.systemButtonText,
+              theme.text,
+              (isBlue ? styles.systemButtonTextBlue : null),
+              (isHeb ? styles.heInt : styles.enInt)
+            ]}
+          >
+            { text }
+          </Text>
+        </View>)
+      }
+    </TouchableOpacity>
+  );
+}
 SystemButton.whyDidYouRender = true;
 
 const DynamicRepeatingText = ({ displayText, repeatText, maxCount }) => {

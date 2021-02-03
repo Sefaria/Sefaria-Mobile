@@ -548,7 +548,7 @@ const TopicPageHeader = ({ title, slug, description, topicsTab, setTopicsTab, qu
           <SystemButton
             text={parasha ? strings.readThePortion : (isHeb ? norm_hebrew_ref(topicRef.he) : topicRef.en)}
             img={require('./img/book-dark.png')}
-            extraStyles={[styles.readThePortionButton]}
+            extraStyles={[isHeb ? styles.readThePortionButtonHe : styles.readThePortionButton, {alignSelf: isHeb ? "flex-end" : "flex-start"}]}
             extraImageStyles={[{tintColor: "#fff"}]}
             onPress={() => { openRef(topicRef.en); }} isHeb={isHeb} isBlue
           />
@@ -690,12 +690,13 @@ TopicSideColumn.propTypes = {
 
 const ReadingsComponent = ({ parashaData, tref, openRef }) => {
   const { theme, interfaceLanguage } = useGlobalState();
+  const flexDirection = useRtlFlexDir(interfaceLanguage);
   const parashaDate = Sefaria.util.localeDate(parashaData.date, interfaceLanguage);
   return (
     <View>
-      <View style={[styles.readingsHeader, styles.readingsSection, theme.lighterGreyBorder]}>
+      <View style={[styles.readingsHeader, styles.readingsSection, theme.lighterGreyBorder, {flexDirection}]}>
         <InterfaceTextWithFallback en={"Readings"} he={"פרשיות והפטרות"} extraStyles={[styles.SystemBodyEn, styles.topicLinkTypeHeader, theme.tertiaryText, {borderBottomWidth: 0}]}/>
-        <View style={{flexDirection: "row"}}>
+        <View style={{flexDirection}}>
           <InterfaceTextWithFallback en={parashaDate} he={parashaDate} extraStyles={[theme.secondaryText]} />
           <Text style={styles.separator}> · </Text>
           <InterfaceTextWithFallback {...parashaData.he_date} extraStyles={[theme.secondaryText]} />
@@ -709,9 +710,9 @@ const ReadingsComponent = ({ parashaData, tref, openRef }) => {
       </View>
       <View style={styles.readingsSection}>
         <InterfaceTextWithFallback en={"Haftarah"} he={"הפטרה"} extraStyles={[theme.tertiaryText, {marginBottom: 5}]} />
-        <View style={{flexDirection: "row"}}>
+        <View style={{flexDirection}}>
           <DotSeparatedList
-            flexDirection={interfaceLanguage === 'hebrew' ? 'row-reverse' : 'row'}
+            flexDirection={flexDirection}
             items={parashaData.haftarah}
             renderItem={h => (
               <Pressable onPress={()=>{ openRef(h.displayValue.en); }} style={{marginTop: 6}}>
