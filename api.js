@@ -149,7 +149,7 @@ var Api = {
   apiType: string `oneOf(["text","links","index"])`. passing undefined gets the standard Reader URL.
   context is a required param if apiType == 'text'. o/w it's ignored
   */
-  _toURL: function(ref, useHTTPS, apiType, urlify, { context, versions, more_data, uid, words }) {
+  _toURL: function(ref, useHTTPS, apiType, urlify, { context, versions, more_data, uid, words, stripItags }) {
     let url = Sefaria.api._baseHost;
 
     let urlSuffix = '';
@@ -161,6 +161,9 @@ var Api = {
           if (versions) {
             if (versions.en) { urlSuffix += `&ven=${versions.en.replace(/ /g, "_")}`; }
             if (versions.he) { urlSuffix += `&vhe=${versions.he.replace(/ /g, "_")}`; }
+          }
+          if (stripItags) {
+            urlSuffix += `&stripItags=1`;
           }
           break;
         case "links":
@@ -215,11 +218,11 @@ var Api = {
     url += ref + urlSuffix;
     return url;
   },
-  _text: function(ref, { context, versions }) {
+  _text: function(ref, extra_args) {
     return new Promise((resolve, reject)=>{
-      Sefaria.api._request(ref,'text', true, { context, versions })
+      Sefaria.api._request(ref,'text', true, extra_args)
       .then(data => {
-        if (context) {
+        if (extra_args.context) {
           resolve(Sefaria.api._toIOS({"text": data, "links": [], "ref": ref}));
         } else {
           const en_text = (data.text instanceof Array) ? data.text.join(' ') : data.text;

@@ -1,16 +1,13 @@
 'use strict';
 import PropTypes from 'prop-types';
-import React, { Component, useCallback } from 'react';
-import ReactNative, {
+import React, { useCallback } from 'react';
+import {
   View,
   Text,
   SectionList,
-  Button,
   RefreshControl,
-  findNodeHandle,
   Dimensions,
   ViewPropTypes,
-  queryLayoutByID,
   AppState,
   Image,
 } from 'react-native';
