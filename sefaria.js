@@ -716,12 +716,12 @@ Sefaria = {
       .then(data => {
         if (data.country_code == "IL") {
           Sefaria.galusOrIsrael = "israel"
-        }
-        else {
+        } else {
           Sefaria.galusOrIsrael = "diaspora"
         }
+        return Sefaria.galusOrIsrael;
       })
-        .catch(()=> {Sefaria.galusOrIsrael = "diaspora";})
+      .catch(()=> {Sefaria.galusOrIsrael = "diaspora";})
   },
 
 

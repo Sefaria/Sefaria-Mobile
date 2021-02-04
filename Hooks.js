@@ -9,15 +9,30 @@ export const useAsyncVariable = (initIsLoaded, loadVariable, onLoad) => {
   Useful for determining when a variable from the Sefaria object is available, e.g. Sefaria.calendar
   */
   const [isLoaded, setIsLoaded] = useState(initIsLoaded);
-  const setup = async (isLoaded) => {
+  const loadWrapper = useCallback(() => {
     if (!isLoaded) {
-      await loadVariable();
-      setIsLoaded(true);
+      return loadVariable();
     }
-  };
-  setup(isLoaded).then(onLoad);
+    return Promise.resolve();
+  }, [isLoaded, loadVariable]);
+
+  const onLoadWrapper = useCallback((data) => {
+    setIsLoaded(true);
+    if (onLoad) { onLoad(data); }
+  }, [onLoad]);
+  useAsync(loadWrapper, onLoadWrapper);
 
   return isLoaded;
+};
+
+export const useAsync = (asyncFn, onSuccess) => {
+  useEffect(() => {
+    let isMounted = true;
+    asyncFn().then(data => {
+      if (isMounted) onSuccess(data);
+    });
+    return () => { isMounted = false };
+  }, [asyncFn, onSuccess]);
 };
 
 export function usePaginatedLoad(fetchDataByPage, setter, identityElement, numPages, resetValue=false) {
