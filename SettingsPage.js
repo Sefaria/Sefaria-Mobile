@@ -13,7 +13,6 @@ import {
   Platform,
   PermissionsAndroid,
 } from 'react-native';
-import RNFB from 'rn-fetch-blob';
 import VersionNumber from 'react-native-version-number';
 import NetInfo from "@react-native-community/netinfo";
 import ProgressBar from './ProgressBar';
@@ -44,6 +43,7 @@ import {
   FILE_DIRECTORY, downloadUpdate
 } from './DownloadControl';
 import Sefaria from "./sefaria";
+import {FileSystem} from "react-native-unimodules";
 const DEBUG_MODE = false;
 
 const generateOptions = (options, onPress) => options.map(o => ({
@@ -232,7 +232,7 @@ const SettingsPage = ({ close, logout, openUri }) => {
         {
           DEBUG_MODE ?
             <View>
-              <TouchableOpacity style={styles.button} onPress={() => RNFB.fs.ls(FILE_DIRECTORY).then(x => console.log(
+              <TouchableOpacity style={styles.button} onPress={() => FileSystem.getInfoAsync(FILE_DIRECTORY).then(x => console.log(
                 `${x.filter(f => f.endsWith('zip')).length} files on disk`
               ))}>
                 <Text style={[langStyle, styles.buttonText]}>Check Disk</Text>
