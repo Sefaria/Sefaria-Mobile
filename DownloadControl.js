@@ -7,7 +7,6 @@ import strings from './LocalizedStrings'
 import {Alert, Platform} from 'react-native';
 import AsyncStorage from "@react-native-community/async-storage";
 import NetInfo from "@react-native-community/netinfo";
-import Sefaria from "./sefaria";
 import crashlytics from '@react-native-firebase/crashlytics';
 
 const SCHEMA_VERSION = "6";
