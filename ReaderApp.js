@@ -48,9 +48,7 @@ import InterruptingMessage from './InterruptingMessage';
 import SwipeableCategoryList from './SwipeableCategoryList';
 import Toast from 'react-native-root-toast';
 import BackManager from './BackManager';
-import ReaderNavigationSheetMenu from "./ReaderNavigationSheetMenu";
 import ReaderNavigationSheetList from "./ReaderNavigationSheetList";
-import ReaderNavigationSheetCategoryMenu from "./ReaderNavigationSheetCategoryMenu";
 import SheetMetadata from "./SheetMeta.js";
 import DeepLinkRouter from "./DeepLinkRouter.js";
 import { AuthPage } from "./AuthPage";
@@ -138,8 +136,6 @@ class ReaderApp extends React.PureComponent {
         }),
         searchType: 'text',
         searchQuery: '',
-        sheetTag: '',
-        sheetCategory: '',
         sheet: null,
         sheetMeta: null,
         activeSheetNode: null,
@@ -1256,18 +1252,8 @@ class ReaderApp extends React.PureComponent {
     this.openMenu("autocomplete");
   }
 
-  openSheetTag = (tag) => {
-    this.setState({sheetTag: tag});
-    this.openMenu("sheetTag");
-  };
-
   openMySheets = () => {
     this.openMenu("mySheets");
-  };
-
-  openSheetCategory = (category) => {
-    this.setState({sheetCategory: category});
-    this.openMenu("sheetCategory");
   };
 
   clearMenuState = () => {
@@ -1874,7 +1860,7 @@ class ReaderApp extends React.PureComponent {
             textLanguage={this.props.textLanguage}
             interfaceLanguage={this.props.interfaceLanguage}
             close={this.manageBackMain}
-            openSheetTagMenu={this.openSheetTag}
+            openTopic={this.openTopic}
           />);
         break;
       case ("search"):
@@ -2009,32 +1995,13 @@ class ReaderApp extends React.PureComponent {
             openRefSheet={this.openRefSheet}
           />
         );
-      case ("sheetCategory"):
-        Sefaria.track.setScreen("sheets sub category nav", "navigation")
-        return(
-          loading ?
-          <LoadingView /> :
-           <ReaderNavigationSheetCategoryMenu
-            icon={require('./img/sheet.png')}
-            theme={this.props.theme}
-            themeStr={this.props.themeStr}
-            interfaceLanguage={this.props.interfaceLanguage}
-            hasInternet={this.state.hasInternet}
-            category={this.state.sheetCategory}
-            onBack={this.manageBackMain}
-            openSheetTagMenu={this.openSheetTag}
-            openRef={this.openRefSheet}
-           />
-        );
 
-      case ("sheetTag"):
       case ("mySheets"):
-        Sefaria.track.setScreen(this.state.menuOpen === 'sheetTage' ? "sheet tag page" : "my sheets page", "navigation")
+        Sefaria.track.setScreen("my sheets page", "navigation")
         return(
           loading ?
           <LoadingView /> :
            <ReaderNavigationSheetList
-            tag={this.state.sheetTag}
             menuOpen={this.state.menuOpen}
             onBack={this.manageBackMain}
             openRef={this.openRefSheet}
@@ -2185,7 +2152,6 @@ class ReaderApp extends React.PureComponent {
                 shareCurrentSegment={this.shareCurrentSegment}
                 viewOnSite={this.viewOnSite}
                 reportError={this.reportError}
-                openSheetTag={this.openSheetTag}
                 openTopic={this.openTopic}
               />
                : null
@@ -2265,7 +2231,6 @@ class ReaderApp extends React.PureComponent {
           openRef={this.openRef}
           openUri={this.openUri}
           openRefSheet={this.openRefSheet}
-          openSheetTag={this.openSheetTag}
           openSearch={this.openSearch}
           openTopic={this.openTopic}
           setSearchOptions={this.setSearchOptions}

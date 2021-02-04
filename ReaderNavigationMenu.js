@@ -27,7 +27,6 @@ import VersionNumber from 'react-native-version-number';
 import ActionSheet from 'react-native-action-sheet';
 import SearchBar from './SearchBar';
 import ReaderNavigationCategoryMenu from './ReaderNavigationCategoryMenu';
-import ReaderNavigationSheetMenu from './ReaderNavigationSheetMenu';
 import styles from './Styles.js';
 import strings from './LocalizedStrings.js';
 import {

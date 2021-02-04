@@ -11,7 +11,6 @@ class DeepLinkRouter extends React.PureComponent {
     openRef:                 PropTypes.func.isRequired,
     openUri:                 PropTypes.func.isRequired,
     openRefSheet:            PropTypes.func.isRequired,
-    openSheetTag:            PropTypes.func.isRequired,
     openTextTocDirectly:     PropTypes.func.isRequired,
     openSearch:              PropTypes.func.isRequired,
     openTopic:               PropTypes.func.isRequired,
@@ -30,7 +29,7 @@ class DeepLinkRouter extends React.PureComponent {
       ['^search$', this.openSearch],
       ['^(sheets)$', this.openMenu, ['menu']],
       ['^(sheets)/tags$', this.openMenu, ['menu']],
-      ['^sheets/tags/(.+)$', this.openSheetTag, ['tag']],
+      ['^sheets/tags/(.+)$', this.openTopicFromTag, ['tag']],
       ['^topics/(category)/(.+)$', this.openTopic, ['categoryString','slug']],
       ['^topics/(.+)$', this.openTopic, ['slug']],
       ['^sheets/([0-9.]+)$', this.openRefSheet, ['sheetid']],
@@ -47,8 +46,9 @@ class DeepLinkRouter extends React.PureComponent {
     sheetid = sheetid.split(".")[0];  // throw away node number
     this.props.openRefSheet(sheetid);
   };
-  openSheetTag = ({ tag }) => {
-    this.props.openSheetTag(tag);
+  openTopicFromTag = ({ tag }) => {
+    const slug = tag.toLowerCase().replace(/ /g, '-');  // approximation at what the slug should be
+    this.openTopic({ slug });
   };
   openCats = ({ cats }) => {
     cats = cats.split('/');

@@ -15,8 +15,9 @@ import {
     InterfaceTextWithFallback
 } from './Misc';
 import Sefaria from './sefaria';
+import { Topic } from './Topic';
 
-const SheetListInConnections = ({ sheets, openRefSheet, openSheetTag }) => {
+const SheetListInConnections = ({ sheets, openRefSheet, openTopic }) => {
     const { interfaceLanguage } = useContext(GlobalStateContext);
     const [sortedSheets, setSortedSheets] = useState([]);
     useEffect(() => {
@@ -37,12 +38,12 @@ const SheetListInConnections = ({ sheets, openRefSheet, openSheetTag }) => {
     return (
         <FlatList
             data={sortedSheets}
-            renderItem={({item}) => <SheetItemInConnections sheet={item} openRefSheet={openRefSheet} openSheetTag={openSheetTag}/>}
+            renderItem={({item}) => <SheetItemInConnections sheet={item} openRefSheet={openRefSheet} openTopic={openTopic}/>}
         />
     );
 }
 
-const SheetItemInConnections = ({sheet, openRefSheet, openSheetTag}) => {
+const SheetItemInConnections = ({sheet, openRefSheet, openTopic}) => {
     const { themeStr, interfaceLanguage } = useContext(GlobalStateContext);
     const theme = getTheme(themeStr);
     const isIntHe = interfaceLanguage === 'hebrew';
@@ -75,13 +76,13 @@ const SheetItemInConnections = ({sheet, openRefSheet, openSheetTag}) => {
                 </View>
             </View>
             <View style={{flexDirection: isIntHe ? "row-reverse" : "row", flexWrap: "wrap", marginTop: 10, marginLeft: -4}}>
-                { topics.map(topic => <SheetTopicButton topic={topic} setShowMore={setShowMore} openSheetTag={openSheetTag} key={topic.more ? "MORE" : `${topic.slug}|${topic.asTyped}`}/>) }    
+                { topics.map(topic => <SheetTopicButton topic={topic} setShowMore={setShowMore} openTopic={openTopic} key={topic.more ? "MORE" : `${topic.slug}|${topic.asTyped}`}/>) }    
             </View>
         </View>
     );
 }
 
-const SheetTopicButton = ({ topic, setShowMore, openSheetTag }) => {
+const SheetTopicButton = ({ topic, setShowMore, openTopic }) => {
     const { themeStr } = useContext(GlobalStateContext);
     const theme = getTheme(themeStr);
     return (
@@ -90,7 +91,7 @@ const SheetTopicButton = ({ topic, setShowMore, openSheetTag }) => {
                 <InterfaceTextWithFallback en={strings.more} he={strings.more} extraStyles={theme.tertiaryText} />
             </TouchableOpacity>
         ) : (
-            <TouchableOpacity onPress={()=>{openSheetTag(topic.slug)}} style={[styles.sheetTopicButton, theme.readerDisplayOptionsMenuItemSelected]}>
+            <TouchableOpacity onPress={()=>{openTopic(new Topic({ slug: topic.slug }))}} style={[styles.sheetTopicButton, theme.readerDisplayOptionsMenuItemSelected]}>
                 <InterfaceTextWithFallback en={topic.en} he={topic.he} extraStyles={theme.tertiaryText} />
             </TouchableOpacity>
         )

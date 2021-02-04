@@ -12,7 +12,7 @@ import strings from './LocalizedStrings';
 
 import styles from './Styles.js';
 
-const MySheetResult = ({ title, heTitle, onPress, views, tags, created, isPrivate }) => {
+const MySheetResult = ({ title, heTitle, onPress, views, topics, created, isPrivate }) => {
   const { themeStr, interfaceLanguage } = useContext(GlobalStateContext);
   const theme = getTheme(themeStr);
   const isHeb = interfaceLanguage === 'hebrew';
@@ -41,7 +41,7 @@ const MySheetResult = ({ title, heTitle, onPress, views, tags, created, isPrivat
       <View style={{flex: 1, flexDirection: (isHeb ? "row-reverse" : "row")}}>
         <Text style={[theme.tertiaryText, isHeb ? styles.heInt : styles.enInt, isHeb ? { writingDirection: 'rtl'} : null]}>
           {`${views} ${strings.views} • ${date}`}
-          { !!tags.length ? ` • ${tags.join(', ')}` : null }
+          { !!topics.length ? ` • ${topics.map(t => t.asTyped).join(', ')}` : null }
         </Text>
       </View>
     </TouchableOpacity>

@@ -2,23 +2,16 @@
 
 import PropTypes from 'prop-types';
 
-import React, { Component } from 'react';
+import React from 'react';
 import {
-  StyleSheet,
   Text,
-  TouchableOpacity,
   View,
-  ScrollView,
   FlatList,
-  Image,
   RefreshControl,
 } from 'react-native';
 
 import {
   CategoryColorLine,
-  TwoBox,
-  LanguageToggleButton,
-  MenuButton,
 } from './Misc.js';
 
 import styles from './Styles.js';
@@ -32,7 +25,7 @@ class ReaderNavigationSheetList extends React.Component {
   static propTypes = {
     theme:          PropTypes.object.isRequired,
     themeStr:       PropTypes.string.isRequired,
-    menuOpen:       PropTypes.oneOf(["mySheets", "sheetTag"]),
+    menuOpen:       PropTypes.oneOf(["mySheets"]),
   };
 
   constructor(props) {
@@ -46,15 +39,12 @@ class ReaderNavigationSheetList extends React.Component {
   componentDidMount() { this.loadData(); }
 
   loadData = async () => {
-    const { menuOpen, tag } = this.props;
+    const { menuOpen } = this.props;
     try {
       let sheets;
-      if (menuOpen === 'sheetTag') {
-        sheets = (await Sefaria.api.sheetsByTag(tag)).sheets;
-      } else if (menuOpen === 'mySheets') {
+      if (menuOpen === 'mySheets') {
         sheets = await Sefaria.api.mySheets();
       }
-      console.log('mySheets', sheets);
       this.setState({ sheets, refreshing: false });
     } catch (error) {
       this.setState({ refreshing: false });
@@ -69,8 +59,7 @@ class ReaderNavigationSheetList extends React.Component {
   };
 
 
-  renderItem = ({ item, index }) => {
-    const refToOpen = "Sheet "+ item.id
+  renderItem = ({ item }) => {
     return (
       <View style={[this.props.theme.menu]}>
         {
@@ -79,7 +68,7 @@ class ReaderNavigationSheetList extends React.Component {
               title={item.title}
               heTitle={item.title}
               views={item.views}
-              tags={item.tags}
+              topics={item.topics}
               created={item.created}
               isPrivate={item.status === 'unlisted'}
               onPress={() => this.props.openRef(item.id,item)}
@@ -102,7 +91,7 @@ class ReaderNavigationSheetList extends React.Component {
 
     render() {
       const showHebrew = this.props.interfaceLanguage == "hebrew";
-      const title = this.props.menuOpen === 'sheetTag' ? this.props.tag.split('-').join(' ').replace(/\d+$/, '') : strings.mySheets;
+      const title = strings.mySheets;
 
       return(
             <View style={[styles.menu, this.props.theme.menu]}>
