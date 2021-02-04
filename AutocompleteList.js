@@ -18,6 +18,7 @@ import {
 } from './Misc';
 import styles from './Styles';
 import strings from './LocalizedStrings';
+import { Topic } from './Topic';
 
 class AutocompleteList extends React.Component {
   static propTypes = {
@@ -27,7 +28,7 @@ class AutocompleteList extends React.Component {
     query:    PropTypes.string,
     openRef:  PropTypes.func.isRequired,
     openTextTocDirectly: PropTypes.func.isRequired,
-    openSheetTag:    PropTypes.func.isRequired,
+    openTopic:     PropTypes.func.isRequired,
     setCategories: PropTypes.func.isRequired,
     search:   PropTypes.func.isRequired,
     openUri: PropTypes.func.isRequired,
@@ -122,7 +123,7 @@ class AutocompleteList extends React.Component {
       recentType = "toc";
     } else if (item.type == "topic") {
       recentType = "topic";
-      this.props.openSheetTag(item.key);
+      this.props.openTopic(new Topic({ slug: item.key }));
     }
     Sefaria.saveRecentQuery(item.title, recentType, item.key);
   };
@@ -174,7 +175,7 @@ class AutocompleteList extends React.Component {
         recentType = "group"
       } else if (d.type == "Topic") {
         recentType = "topic";
-        this.props.openSheetTag(d.key);
+        this.props.openTopic(new Topic({slug: d.key}));
       }
       Sefaria.saveRecentQuery(query, recentType, d.key);
     });
