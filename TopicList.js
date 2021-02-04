@@ -25,6 +25,13 @@ const TopicList = ({ topics, openTopic }) => {
   return (
     <FlatList
       data={topicsAggregated}
+      ListEmptyComponent={<View style={{marginTop: 16, alignItems: "center"}}>
+        <InterfaceTextWithFallback
+          en={"No topics known here."}
+          he={"אין נושאים ידועים."}
+          extraStyles={[{fontStyle: "italic"}]}
+        />
+      </View>}
       renderItem={({ item }) => (
         <TopicListItem
           topic={item}
@@ -33,32 +40,6 @@ const TopicList = ({ topics, openTopic }) => {
       )}
       keyExtractor={item => item.topic}
     />
-  );
-  return (
-    <View style={{backgroundColor: "grey"}}>
-      {
-        false ? (
-          <View style={styles.webpageListEmpty}>
-            <LoadingView />
-          </View>
-        ) : (!topicsAggregated || !topicsAggregated.length) ? (
-          <View style={styles.webpageListEmpty}>
-            <InterfaceTextWithFallback
-              en={"No topics known here."}
-              he={"אין נושאים ידועים."}
-            />
-          </View>
-        ) : topicsAggregated.map(
-          topic => (
-            <TopicListItem
-              key={topic.topic}
-              topic={topic}
-              openTopic={openTopic}
-            />
-          )
-        )
-      }
-    </View>
   );
 }
   
