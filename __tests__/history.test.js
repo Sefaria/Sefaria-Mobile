@@ -1,4 +1,3 @@
-import RNFB from 'rn-fetch-blob';
 import AsyncStorage from '@react-native-community/async-storage';
 import Sefaria from '../sefaria';
 

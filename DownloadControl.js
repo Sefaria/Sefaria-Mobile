@@ -1,6 +1,5 @@
 'use strict';
 
-// import RNFB from 'rn-fetch-blob';
 import {FileSystem} from 'react-native-unimodules'
 import {unzip} from 'react-native-zip-archive'; //for unzipping -- (https://github.com/plrthink/react-native-zip-archive)
 import strings from './LocalizedStrings'
