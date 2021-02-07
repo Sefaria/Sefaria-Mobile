@@ -112,6 +112,8 @@ const ReaderNavigationMenu = props => {
 
               <ResourcesSection
                 openTopicToc={props.openTopicToc}
+                openMySheets={props.openMySheets}
+                openLogin={props.openLogin}
               />
 
               <CalendarSection
@@ -293,8 +295,8 @@ MoreSection.propTypes = {
 };
 MoreSection.whyDidYouRender = true;
 
-const ResourcesSection = ({ openTopicToc }) => {
-  const { themeStr, interfaceLanguage } = useContext(GlobalStateContext);
+const ResourcesSection = ({ openTopicToc, openMySheets, openLogin }) => {
+  const { themeStr, interfaceLanguage, isLoggedIn } = useContext(GlobalStateContext);
   const theme = getTheme(themeStr);
   const isWhite = themeStr === "white";
   const isHeb = interfaceLanguage === "hebrew";
@@ -312,6 +314,11 @@ const ResourcesSection = ({ openTopicToc }) => {
         img={isWhite ? require('./img/hashtag.png'): require('./img/hashtag-light.png')}
         onPress={openTopicToc}
         isHeb={isHeb}
+      />
+      <SystemButton
+        onPress={isLoggedIn ? openMySheets : openLogin}
+        text={strings.mySheets}
+        isBlue
       />
     </View>
   );

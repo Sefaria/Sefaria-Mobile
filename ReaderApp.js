@@ -1833,7 +1833,7 @@ class ReaderApp extends React.PureComponent {
               openRegister={this.openMenu.bind(null, "register")}
               openTopicToc={this.openTopicToc}
               openDedication={this.openMenu.bind(null, "dedication")}
-
+              openMySheets={this.openMySheets}
               onChangeSearchQuery={this.onChangeSearchQuery}
               openUri={this.openUri}
               searchType={this.state.searchType}
