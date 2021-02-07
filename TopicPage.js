@@ -578,7 +578,7 @@ const TextPassage = ({text, topicTitle, showToast, openRef }) => {
   const flexDirection = isHeb ? "row-reverse" : "row";
   return (
     <StoryFrame extraStyles={styles.topicItemMargins}>
-      <DataSourceLine dataSources={text.dataSources} topicTitle={topicTitle} flexDirection={flexDirection}>
+      <DataSourceLine dataSources={text.dataSources} title={topicTitle} flexDirection={flexDirection} prefixText={strings.thisSourceIsConnectedTo}>
         <SaveLine dref={text.ref} showToast={showToast} flexDirection={flexDirection}>
           <StoryTitleBlock en={text.ref} he={norm_hebrew_ref(text.heRef)} onClick={() => openRef(text.ref)} />
         </SaveLine>

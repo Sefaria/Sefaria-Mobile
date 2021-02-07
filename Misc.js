@@ -1205,7 +1205,7 @@ ProfilePic.propTypes = {
   showButtons: PropTypes.bool,  // show profile pic action buttons
 };
 
-const DataSourceLine = ({ children, dataSources, topicTitle, flexDirection="row" }) => {
+const DataSourceLine = ({ children, dataSources, title, flexDirection="row", prefixText }) => {
   const { themeStr, interfaceLanguage } = useContext(GlobalStateContext);
   const [displaySource, setDisplaySource] = useState(false);
   const theme = getTheme(themeStr);
@@ -1213,7 +1213,7 @@ const DataSourceLine = ({ children, dataSources, topicTitle, flexDirection="row"
   let dataSourceText = '';
   const langKey = isHeb ? 'he' : 'en';
   if (!!dataSources && Object.values(dataSources).length > 0) {
-    dataSourceText = `${strings.thisSourceIsConnectedTo}"${topicTitle && topicTitle[langKey]}" ${strings.by} ${Object.values(dataSources).map(d => d[langKey]).join(' & ')}.`;
+    dataSourceText = `${prefixText}"${title && title[langKey]}" ${strings.by} ${Object.values(dataSources).map(d => d[langKey]).join(' & ')}.`;
   }
   return (
     <View>

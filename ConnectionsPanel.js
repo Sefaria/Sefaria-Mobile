@@ -202,6 +202,8 @@ class ConnectionsPanel extends React.PureComponent {
             <TopicList
               topics={this.props.relatedData.topics}
               openTopic={this.props.openTopic}
+              segmentRef={this.props.segmentRef}
+              heSegmentRef={this.props.heSegmentRef}
             />
           </View>
         );

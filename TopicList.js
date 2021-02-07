@@ -20,7 +20,7 @@ import {
     ContentTextWithFallback
 } from './Misc';
 
-const TopicList = ({ topics, openTopic }) => {
+const TopicList = ({ topics, openTopic, segmentRef, heSegmentRef }) => {
   const topicsAggregated = Sefaria.links.aggregateTopics(topics);
   return (
     <FlatList
@@ -36,6 +36,8 @@ const TopicList = ({ topics, openTopic }) => {
         <TopicListItem
           topic={item}
           openTopic={openTopic}
+          segmentRef={segmentRef}
+          heSegmentRef={heSegmentRef}
         />        
       )}
       keyExtractor={item => item.topic}
@@ -43,7 +45,7 @@ const TopicList = ({ topics, openTopic }) => {
   );
 }
   
-const TopicListItem = ({ topic, openTopic }) => {
+const TopicListItem = ({ topic, openTopic, segmentRef, heSegmentRef }) => {
   // TODO generalize DataSourceLine to handle ref text instead of topicTitle
   const {theme, menuLanguage} = useGlobalState();
   const flexDirection = useRtlFlexDir(menuLanguage)       
@@ -53,7 +55,7 @@ const TopicListItem = ({ topic, openTopic }) => {
       style={[{borderBottomWidth: 1, paddingVertical: 20}, theme.bordered, styles.readerSidePadding]}
       android_ripple={{color: "#ccc"}}
     >
-      <DataSourceLine dataSources={topic.dataSources} topicTitle={topic.title} flexDirection={flexDirection}>
+      <DataSourceLine dataSources={topic.dataSources} title={{en: segmentRef, he: heSegmentRef}} flexDirection={flexDirection} prefixText={strings.thisTopicIsConnectedTo}>
         <ContentTextWithFallback {...topic.title} lang={menuLanguage}/>
       </DataSourceLine>
       {
