@@ -995,6 +995,7 @@ async function checkUpdatesFromServer() {
     downloadCoreFile('last_updated.json'),
     downloadCoreFile('toc.json').then(Sefaria._loadTOC),
     downloadCoreFile('search_toc.json').then(Sefaria._loadSearchTOC),
+    downloadCoreFile('topic_toc.json'),  // topic toc doesn't need to be in ram
     downloadCoreFile('hebrew_categories.json').then(Sefaria._loadHebrewCategories),
     downloadCoreFile('people.json').then(Sefaria._loadPeople),
     downloadCoreFile('packages.json').then(packageSetupProtocol),
