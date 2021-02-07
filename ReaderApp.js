@@ -1775,6 +1775,11 @@ class ReaderApp extends React.PureComponent {
     }
   };
 
+  openTopicToc = () => {
+    this.setState({navigationTopic: null});
+    this.openMenu('topic toc');
+  };
+
   openTopic = (topic, isCategory, addToBackStack=true) => {
     BackManager.forward({ state: this.state });
     this.setState({navigationTopic: topic, menuOpen: isCategory ? "topic toc" : "topic"});
@@ -1826,7 +1831,7 @@ class ReaderApp extends React.PureComponent {
               openSaved={this.openMenu.bind(null, "saved")}
               openLogin={this.openMenu.bind(null, "login")}
               openRegister={this.openMenu.bind(null, "register")}
-              openTopicToc={this.openMenu.bind(null, "topic toc")}
+              openTopicToc={this.openTopicToc}
               openDedication={this.openMenu.bind(null, "dedication")}
 
               onChangeSearchQuery={this.onChangeSearchQuery}
