@@ -319,11 +319,11 @@ const TrendingTopics = ({ trendingTopics, openTopic }) => {
   const isHeb = menuLanguage === 'hebrew';
   return (
     trendingTopics ? (
-      <View style={{backgroundColor: "#fbfbfa", padding: 15}}>
+      <View style={[{padding: 15}, theme.lightestGreyBackground]}>
         <TextInput
-          style={[styles.enInt, {fontSize: 16, borderBottomWidth: 2, borderBottomColor: "#ccc", paddingBottom: 5}, theme.tertiaryText]}
+          style={[isHeb ? styles.heInt : styles.enInt, {fontSize: 16, borderBottomWidth: 2, paddingBottom: 5}, theme.lightGreyBorder, theme.tertiaryText]}
           editable={false}
-          value={"Trending Topics"}
+          value={strings.trendingTopics}
         />
         <View style={{flexDirection: isHeb ? "row-reverse" : "row", flexWrap: 'wrap', marginTop: 5}}>
           <DotSeparatedList
@@ -530,7 +530,7 @@ const TopicPageHeader = ({ title, slug, description, topicsTab, setTopicsTab, qu
   const category = Sefaria.topicTocCategory(slug);
   return (
     <View style={{marginHorizontal: 15, marginVertical: 20}}>
-      {title ? <Text style={[isHeb ? styles.he : styles.en, {fontSize: 30}]}>{ isHeb ? title.he : title.en }</Text> : null}
+      {title ? <Text style={[isHeb ? styles.he : styles.en, {fontSize: 30}, theme.text]}>{ isHeb ? title.he : title.en }</Text> : null}
       { category ? (
         <InterfaceTextWithFallback
           extraStyles={[{fontSize: 13, marginBottom: 20}, theme.tertiaryText]}
@@ -594,12 +594,13 @@ TextPassage.propTypes = {
 };
 
 const TopicLink = ({topic, openTopic, isTransliteration, isCategory, lang}) => {
+  const { theme } = useGlobalState();
   return (
     <Pressable
       style={{marginTop: 6}}
       onPress={() => openTopic(topic, isCategory)} key={topic.slug}
     >
-      <ContentTextWithFallback {...topic.title} lang={lang} lineMultiplier={1.05} extraStyles={[Platform.OS == 'ios' && lang == 'english' ? {marginBottom: -7} : null]}/>
+      <ContentTextWithFallback {...topic.title} lang={lang} lineMultiplier={1.05} extraStyles={[Platform.OS == 'ios' && lang == 'english' ? {marginBottom: -7} : null, theme.text]}/>
     </Pressable>
   );
 }
@@ -705,7 +706,7 @@ const ReadingsComponent = ({ parashaData, tref, openRef }) => {
       <View style={styles.readingsSection}>
         <InterfaceTextWithFallback en={"Torah"} he={"תורה"} extraStyles={[theme.tertiaryText, {marginBottom: 5}]} />
         <Pressable onPress={()=>{ openRef(tref.en); }} style={{marginTop: 6}}>
-          <ContentTextWithFallback en={tref.en} he={norm_hebrew_ref(tref.he)} />
+          <ContentTextWithFallback en={tref.en} he={norm_hebrew_ref(tref.he)} extraStyles={[theme.text]}/>
         </Pressable>
       </View>
       <View style={styles.readingsSection}>
@@ -716,7 +717,7 @@ const ReadingsComponent = ({ parashaData, tref, openRef }) => {
             items={parashaData.haftarah}
             renderItem={h => (
               <Pressable onPress={()=>{ openRef(h.displayValue.en); }} style={{marginTop: 6}}>
-                <ContentTextWithFallback en={h.displayValue.en} he={norm_hebrew_ref(h.displayValue.he)} />
+                <ContentTextWithFallback en={h.displayValue.en} he={norm_hebrew_ref(h.displayValue.he)} extraStyles={[theme.text]}/>
               </Pressable>
             )}
             keyExtractor={h => h.url}

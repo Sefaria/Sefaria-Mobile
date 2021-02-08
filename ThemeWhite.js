@@ -13,6 +13,7 @@ var Colors = {
   mainForegroundContrast: "black",
   textBackground: "white",
   textSectionTitleBorder: "#e6e5e6",
+  lightGrey: "#ccc",
   lighterGrey: "#ededec",
   lightestGrey: "#fbfbfa",
   textSegmentHighlight: "#e9e9e7",
@@ -189,6 +190,12 @@ export default StyleSheet.create({
   },
   enConnectionMarker: {
     borderColor: "#ccc",
+  },
+  lightGreyBackground: {
+    backgroundColor: Colors.lightGrey,
+  },
+  lightGreyBorder: {
+    borderColor: Colors.lightGrey,
   },
   lighterGreyBorder: {
     borderColor: Colors.lighterGrey,

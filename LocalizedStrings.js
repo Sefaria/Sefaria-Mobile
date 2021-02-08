@@ -177,6 +177,7 @@ let strings = new LocalizedStrings({
     resourcesFailedToLoad: "Resources failed to load. Tap to retry.",
     groggerActive: "Grogger",
     readThePortion: "Read the Portion",
+    trendingTopics: "Trending Topics",
   },
   he: {
     mySheets: "דפי המקורות שלי",
@@ -351,6 +352,7 @@ let strings = new LocalizedStrings({
     resourcesFailedToLoad: "טעינת הקישורים נכשלה. הקש כדי לנסות שוב.",
     groggerActive: "רעשן",
     readThePortion: "קראו את הפרשה",
+    trendingTopics: "Trending Topics",
   }
 });
 
