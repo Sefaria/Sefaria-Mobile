@@ -318,7 +318,8 @@ const ResourcesSection = ({ openTopicToc, openMySheets, openLogin }) => {
       <SystemButton
         onPress={isLoggedIn ? openMySheets : openLogin}
         text={strings.mySheets}
-        isBlue
+        img={isWhite ? require('./img/sheet.png') : require('./img/sheet-light.png')}
+        isHeb={isHeb}
       />
     </View>
   );

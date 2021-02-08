@@ -141,6 +141,13 @@ const SystemButton = ({ onPress, text, img, isHeb, isBlue, isLoading, extraStyle
           >
             { text }
           </Text>
+          { !!img ?
+            <Image
+              source={img}
+              style={[isHeb ? styles.menuButtonMarginedHe : styles.menuButtonMargined, {opacity: 0}].concat(extraImageStyles)}
+              resizeMode={'contain'}
+            /> : null
+          }
         </View>)
       }
     </TouchableOpacity>
@@ -980,29 +987,46 @@ const TabView = ({ text, active, lang }) => {
   );
 };
 
-const LocalSearchBar = ({ onChange, query }) => {
+const LocalSearchBar = ({ onChange, query, onFocus }) => {
   /*
   Search bar used for local search on a page. E.g. on topic pages
   */
-  const { themeStr } = useContext(GlobalStateContext);
-  const theme = getTheme(themeStr);
+  const { themeStr, theme } = useGlobalState();
   const placeholderTextColor = themeStr == "black" ? "#BBB" : "#777";
   return (
     <View style={[{borderRadius: 400, borderWidth: 1, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10}, theme.container, theme.lighterGreyBorder]}>
       <SearchButton onPress={()=>{}} extraStyles={{height: 40}} disabled />
       <TextInput
-        style={[styles.en, { fontSize: 18, paddingVertical: 0, paddingRight: 20, alignSelf: 'stretch', lineHeight: 40 }, theme.text]}
+        style={[styles.en, { fontSize: 18, paddingVertical: 0, paddingRight: 20, alignSelf: 'stretch', lineHeight: 40, flex: 1 }, theme.text]}
         onChangeText={onChange}
         value={query}
         underlineColorAndroid={"transparent"}
         placeholder={strings.search}
         placeholderTextColor={placeholderTextColor}
         autoCorrect={false}
+        onFocus={onFocus}
       />
+      {query ?
+        <CancelButton onPress={() => { onChange(""); }} extraStyles={[{marginHorizontal: 5}]}/>
+        : null
+      }
     </View>
 
   );
 };
+
+const CancelButton = ({ onPress, extraStyles=[] }) => {
+  const { themeStr } = useGlobalState();
+  return (
+    <TouchableOpacity onPress={onPress}>
+      <Image
+        source={themeStr === 'white' ? require('./img/circle-close.png') : require('./img/circle-close-light.png')}
+        style={[styles.cancelSearchButton].concat(extraStyles)}
+        resizeMode={'contain'}
+      />
+    </TouchableOpacity>
+  );
+}
 
 const SaveButton = ({ historyItem, showToast }) => {
   const { themeStr, interfaceLanguage, textLanguage } = useContext(GlobalStateContext);
@@ -1236,7 +1260,7 @@ const DataSourceLine = ({ children, dataSources, title, flexDirection="row", pre
   );
 };
 
-const FilterableFlatList = ({ currFilter, filterFunc, sortFunc, data, spliceIndex, ...flatListProps }) => {
+const FilterableFlatList = React.forwardRef(({ currFilter, filterFunc, sortFunc, data, spliceIndex, ...flatListProps }, ref) => {
   const [dataToDisplay, setDataToDisplay] = useState(data);
   useEffect(() => {
     if (!data) { setDataToDisplay(data); return; }
@@ -1248,16 +1272,18 @@ const FilterableFlatList = ({ currFilter, filterFunc, sortFunc, data, spliceInde
   }, [data, currFilter]);
   return (
     <FlatList
+      ref={ref}
       data={dataToDisplay}
       {...flatListProps}
     />
   );
-};
+});
 
 export {
   AnimatedRow,
   ButtonToggleSet,
   ButtonToggleSetNew,
+  CancelButton,
   CategoryBlockLink,
   CategoryAttribution,
   CategoryColorLine,

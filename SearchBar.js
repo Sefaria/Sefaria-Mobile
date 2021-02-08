@@ -13,6 +13,7 @@ import {
 import {
   DirectedButton,
   CloseButton,
+  CancelButton,
   SearchButton,
   LanguageToggleButton,
 } from './Misc.js';
@@ -96,19 +97,5 @@ SearchBar.propTypes = {
   onChange:        PropTypes.func.isRequired,
   onFocus:         PropTypes.func,
 };
-
-const CancelButton = ({ onPress }) => (
-  <GlobalStateContext.Consumer>
-    { ({ themeStr }) => (
-      <TouchableOpacity onPress={onPress}>
-        <Image
-          source={themeStr === 'white' ? require('./img/circle-close.png') : require('./img/circle-close-light.png')}
-          style={styles.cancelSearchButton}
-          resizeMode={'contain'}
-        />
-      </TouchableOpacity>
-    )}
-  </GlobalStateContext.Consumer>
-);
 
 export default SearchBar;

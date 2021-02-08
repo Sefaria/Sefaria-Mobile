@@ -1,6 +1,6 @@
 'use strict';
 
-import React, { useState, useContext, useEffect, useCallback } from 'react';
+import React, { useState, useContext, useEffect, useCallback, useRef } from 'react';
 import PropTypes from 'prop-types';
 import {
   View,
@@ -253,7 +253,7 @@ const TopicCategory = ({ topic, openTopic, onBack, openNav }) => {
   };
 
   return (
-    <View style={[styles.menu, theme.buttonBackground]} key={slug}>
+    <View style={[styles.menu, theme.readerNavCategory]} key={slug}>
       <SystemHeader
         title={strings.topics}
         onBack={onBack}
@@ -439,6 +439,13 @@ const TopicPage = ({ topic, onBack, openNav, openTopic, showToast, openRef, open
     }),
     topic.slug
   );
+  const [searchBarY, setSearchBarY] = useState(null);
+  const flatListRef = useRef();
+  const jumpToSearchBar = () => {
+    if (searchBarY !== null && flatListRef) {
+      flatListRef.current.scrollToOffset({offset: searchBarY, animated: true});
+    }
+  };
   if (!topicTocLoaded) { return <LoadingView />; }
   const TopicSideColumnRendered =  topicData ?
     (<TopicSideColumn topic={topic} links={topicData.links}
@@ -458,17 +465,20 @@ const TopicPage = ({ topic, onBack, openNav, openTopic, showToast, openRef, open
       setQuery={setQuery}
       tabs={tabs}
       openRef={openRef}
+      jumpToSearchBar={jumpToSearchBar}
+      setSearchBarY={setSearchBarY}
     />
   );
   const ListRendered = (
     topicsTab === 'sources' ? (
       <FilterableFlatList
+        ref={flatListRef}
         key="sources"
         data={textData}
         renderItem={({ item }) =>(
           item.isSplice ? (
             TopicSideColumnRendered
-          ): (
+          ) : (
             <TextPassage
               text={item[1]}
               topicTitle={topicData && topicData.primaryTitle}
@@ -484,24 +494,32 @@ const TopicPage = ({ topic, onBack, openNav, openTopic, showToast, openRef, open
         currFilter={query}
         filterFunc={refFilter}
         sortFunc={(a, b) => refSort('Relevance', a, b, { interfaceLanguage })}
+        contentContainerStyle={{paddingBottom: 500}}
       />
     ) : (
       <FilterableFlatList
+        ref={flatListRef}
         key="sheets"
         data={sheetData}
         renderItem={({ item }) => (
-          <SheetBlock
-            sheet={item} compact showToast={showToast}
-            onClick={()=>{ openRefSheet(item.sheet_id, item); }}
-            extraStyles={styles.topicItemMargins}
-          />
+          item.isSplice ? (
+            TopicSideColumnRendered
+          ) : (
+            <SheetBlock
+              sheet={item} compact showToast={showToast}
+              onClick={()=>{ openRefSheet(item.sheet_id, item); }}
+              extraStyles={styles.topicItemMargins}
+            />
+          )
         )}
-        keyExtractor={item => ""+item.sheet_id}
+        keyExtractor={item => item.isSplice ? 'splice' : ""+item.sheet_id}
         ListHeaderComponent={TopicPageHeaderRendered}
         ListFooterComponent={sheetFinishedLoading ? null : <LoadingView />}
+        spliceIndex={1}
         currFilter={query}
         filterFunc={sheetFilter}
         sortFunc={(a, b) => sheetSort('Relevance', a, b, { interfaceLanguage })}
+        contentContainerStyle={{paddingBottom: 500}}
       />
     )
   );
@@ -523,7 +541,7 @@ TopicPage.propTypes = {
   openRefSheet: PropTypes.func.isRequired,
 };
 
-const TopicPageHeader = ({ title, slug, description, topicsTab, setTopicsTab, query, setQuery, tabs, topicRef, parasha, openRef }) => {
+const TopicPageHeader = ({ title, slug, description, topicsTab, setTopicsTab, query, setQuery, tabs, topicRef, parasha, openRef, jumpToSearchBar, setSearchBarY }) => {
   const { theme, interfaceLanguage } = useGlobalState();
   const flexDirection = useRtlFlexDir(interfaceLanguage);
   const isHeb = interfaceLanguage === 'hebrew';
@@ -561,8 +579,11 @@ const TopicPageHeader = ({ title, slug, description, topicsTab, setTopicsTab, qu
         setTab={setTopicsTab}
         flexDirection={flexDirection}
       />
-      <View style={{ marginVertical: 10 }}>
+      <View style={{ marginVertical: 10 }} onLayout={event => {
+        setSearchBarY(event.nativeEvent.layout.y);
+      }}>
         <LocalSearchBar
+          onFocus={jumpToSearchBar}
           query={query}
           onChange={setQuery}
         />
