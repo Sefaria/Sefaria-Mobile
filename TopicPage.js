@@ -44,10 +44,9 @@ import Sefaria from './sefaria';
 import strings from './LocalizedStrings';
 import styles from './Styles';
 
-const sortTopicCategories = (a, b, interfaceLanguage) => {
+const sortTopicCategories = (a, b, interfaceLanguage, isRoot) => {
   // Don't use display order intended for top level a category level. Bandaid for unclear semantics on displayOrder.
-  // TODO: I ripped off bandaid :grimacing:
-  const [aDisplayOrder, bDisplayOrder] = [a, b].map(x => x.displayOrder);
+  const [aDisplayOrder, bDisplayOrder] = [a, b].map(x => !isRoot && Sefaria.isTopicTopLevel(x.slug) ? 10000 : x.displayOrder);
   // Sort alphabetically according to interface lang in absense of display order
   if (aDisplayOrder === bDisplayOrder) {
     const stripInitialPunctuation = str => str.replace(/^["#]/, "");
@@ -218,7 +217,7 @@ const TopicCategory = ({ topic, openTopic, onBack, openNav }) => {
   const getSubtopics = slug => {
     const subtopics = Sefaria.topicTocPage(slug);
     if (!subtopics) { return subtopics; }
-    return subtopics.filter(t => t.shouldDisplay !== false).sort((a, b) => sortTopicCategories(a, b, interfaceLanguage));
+    return subtopics.filter(t => t.shouldDisplay !== false).sort((a, b) => sortTopicCategories(a, b, interfaceLanguage, !topic));
   }
   const slug = topic && topic.slug;
   const [subtopics, setSubtopics] = useState(getSubtopics(slug));
