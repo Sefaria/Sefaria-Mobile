@@ -296,7 +296,7 @@ const TopicCategoryHeader = ({ title, description, categoryDescription, children
     <View>
       <View style={{marginHorizontal: 15, marginVertical: 24}}>
         <InterfaceTextWithFallback
-          {...title} 
+          {...title}
           lang={menuLanguage}
           extraStyles={[{fontSize: 22, fontWeight: 'bold'}, theme.tertiaryText]}
         />
@@ -661,12 +661,14 @@ const TopicSideColumn = ({ topic, links, openTopic, openRef, parashaData, tref }
   const linksComponent = (
     linkTypeArray ? linkTypeArray.slice(0, !showMore ? 1 : undefined).map(({ title, pluralTitle, links }, iLinkType) => (
         <View key={title.en} style={styles.topicLinkSection}>
-          <InterfaceTextWithFallback
-            en={(links.length > 1 && pluralTitle) ? pluralTitle.en : title.en}
-            he={(links.length > 1 && pluralTitle) ? pluralTitle.he : title.he}
-            extraStyles={[styles.SystemBodyEn, styles.topicLinkTypeHeader, theme.tertiaryText, theme.lighterGreyBorder]}
-          />
-          <View style={[styles.topicLinkSideList, {flexDirection: isHeb ? 'row-reverse' : 'row'}]}>
+          <View style={[{borderBottomWidth: 1}, theme.lighterGreyBorder]}>
+            <InterfaceTextWithFallback
+              en={(links.length > 1 && pluralTitle) ? pluralTitle.en : title.en}
+              he={(links.length > 1 && pluralTitle) ? pluralTitle.he : title.he}
+              extraStyles={[styles.SystemBodyEn, styles.topicLinkTypeHeader, theme.tertiaryText]}
+            />
+          </View>
+        <View style={[styles.topicLinkSideList, {flexDirection: isHeb ? 'row-reverse' : 'row'}]}>
             <DotSeparatedList
               flexDirection={isHeb ? 'row-reverse' : 'row'}
               items={links.filter(l => l.shouldDisplay !== false).sort(sortLinks).slice(0, !showMore && iLinkType === 0 ? 10 : undefined)}
