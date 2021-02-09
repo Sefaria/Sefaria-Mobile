@@ -274,7 +274,7 @@ const TopicCategory = ({ topic, openTopic, onBack, openNav }) => {
               </TopicCategoryHeader>
             )}
             ItemSeparatorComponent={()=>(
-              <View style={{height: 1, backgroundColor: "#ccc", marginHorizontal: 15}} />
+              <View style={[{height: 1, marginHorizontal: 15}, theme.lighterGreyBackground]} />
             )}
             keyExtractor={t => t.slug}
           />
@@ -298,7 +298,7 @@ const TopicCategoryHeader = ({ title, description, categoryDescription, children
         <InterfaceTextWithFallback
           {...title} 
           lang={menuLanguage}
-          extraStyles={[{fontSize: 22}, theme.tertiaryText]}
+          extraStyles={[{fontSize: 22, fontWeight: 'bold'}, theme.tertiaryText]}
         />
         {displayDescription ? (
           <InterfaceTextWithFallback
@@ -489,7 +489,7 @@ const TopicPage = ({ topic, onBack, openNav, openTopic, showToast, openRef, open
         keyExtractor={item => item.isSplice ? 'splice' : item[0]}
         ListHeaderComponent={TopicPageHeaderRendered}
         ListFooterComponent={textFinishedLoading ? null : <LoadingView />}
-        spliceIndex={1}
+        spliceIndex={2}
         currFilter={query}
         filterFunc={refFilter}
         sortFunc={(a, b) => refSort('Relevance', a, b, { interfaceLanguage })}
@@ -514,7 +514,7 @@ const TopicPage = ({ topic, onBack, openNav, openTopic, showToast, openRef, open
         keyExtractor={item => item.isSplice ? 'splice' : ""+item.sheet_id}
         ListHeaderComponent={TopicPageHeaderRendered}
         ListFooterComponent={sheetFinishedLoading ? null : <LoadingView />}
-        spliceIndex={1}
+        spliceIndex={2}
         currFilter={query}
         filterFunc={sheetFilter}
         sortFunc={(a, b) => sheetSort('Relevance', a, b, { interfaceLanguage })}
