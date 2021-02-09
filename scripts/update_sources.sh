@@ -26,7 +26,7 @@ else
     echo "export "$SOURCE_UNIX_PATH_VAR"="$SOURCE_UNIX_PATH >> envvars.sh
 fi
 
-declare -a filesarr=(packages.json people.json toc.json search_toc.json hebrew_categories.json calendar.json)
+declare -a filesarr=(packages.json people.json toc.json search_toc.json topic_toc.json hebrew_categories.json calendar.json)
 for filename in "${filesarr[@]}"
 do
     # scp $SOURCE_SERVER:$SOURCE_UNIX_PATH$EXPORT_VERSION/$filename $IOS_SOURCES;

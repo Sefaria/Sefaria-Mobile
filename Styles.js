@@ -1361,6 +1361,7 @@ export default StyleSheet.create({
   },
   dataSourceText: {
     borderRadius: 6,
+    overflow: 'hidden',
     paddingHorizontal: 10,
     paddingVertical: 8,
     fontSize: 13,
@@ -1407,6 +1408,6 @@ export default StyleSheet.create({
     paddingVertical: 10,
     paddingLeft: 15,
     paddingRight: 5,
-    marginTop: 22,  
+    marginTop: 22,
   }
 });

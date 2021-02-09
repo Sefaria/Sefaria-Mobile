@@ -42,6 +42,7 @@
 	<string>Sefaria does not use your location.</string>
 	<key>UIAppFonts</key>
 	<array>
+		<string>OpenSans-Semibold.ttf</string>
 		<string>Heebo-Regular.ttf</string>
 		<string>TaameyFrank-taamim-fix.ttf</string>
 		<string>TaameyFrank-taamim-fix-bold.ttf</string>
