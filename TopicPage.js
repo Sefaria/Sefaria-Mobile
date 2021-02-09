@@ -489,7 +489,7 @@ const TopicPage = ({ topic, onBack, openNav, openTopic, showToast, openRef, open
         keyExtractor={item => item.isSplice ? 'splice' : item[0]}
         ListHeaderComponent={TopicPageHeaderRendered}
         ListFooterComponent={textFinishedLoading ? null : <LoadingView />}
-        spliceIndex={2}
+        spliceIndex={query ? undefined : 2}
         currFilter={query}
         filterFunc={refFilter}
         sortFunc={(a, b) => refSort('Relevance', a, b, { interfaceLanguage })}
@@ -514,7 +514,7 @@ const TopicPage = ({ topic, onBack, openNav, openTopic, showToast, openRef, open
         keyExtractor={item => item.isSplice ? 'splice' : ""+item.sheet_id}
         ListHeaderComponent={TopicPageHeaderRendered}
         ListFooterComponent={sheetFinishedLoading ? null : <LoadingView />}
-        spliceIndex={2}
+        spliceIndex={query ? undefined : 2}
         currFilter={query}
         filterFunc={sheetFilter}
         sortFunc={(a, b) => sheetSort('Relevance', a, b, { interfaceLanguage })}
