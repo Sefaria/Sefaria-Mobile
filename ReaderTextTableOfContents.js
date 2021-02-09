@@ -409,7 +409,7 @@ const JaggedArrayNodeSection = ({ depth, sectionNames, addressTypes, contentCoun
             sectionNames={sectionNames.slice(1)}
             addressTypes={addressTypes.slice(1)}
             contentCounts={contentCounts[i]}
-            refPath={refPath + ":" + (i+1)}
+            refPath={`${refPath}:${enSection}`}
             openRef={openRef} />
         </View>);
     }
