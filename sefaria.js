@@ -749,9 +749,9 @@ Sefaria = {
 
     return `${year}-${month}-${day}`;
   },
-  saveRecentQuery: function(query, type, key) {
-    //type = ["ref", "book", "person", "toc", "query", "topic"]
-    const newQuery = {query, type, key};
+  saveRecentQuery: function(query, type, key, pic) {
+    //type = ["ref", "book", "person", "toc", "query", "topic", "user"]
+    const newQuery = {query, type, key, pic};
     if (Sefaria.recentQueries.length > 0 && Sefaria.recentQueries[0].query === newQuery.query && Sefaria.recentQueries[0].type === newQuery.type) {
       return;  // don't add duplicate queries in a row
     }

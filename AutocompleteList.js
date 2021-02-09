@@ -62,7 +62,7 @@ class AutocompleteList extends React.Component {
       Sefaria.api.name(q, true)
       .then(results => {
         if (this._isMounted) {
-          const typeToValue = { "ref": 1, "person": 4, "toc": 3, "topic": 2 }
+          const typeToValue = { "ref": 1, "person": 4, "toc": 3, "topic": 2, "user": 5 };
           const completions = results.completion_objects.map((c,i) =>
           {
             c.type = c.type.toLowerCase()
@@ -124,8 +124,11 @@ class AutocompleteList extends React.Component {
     } else if (item.type == "topic") {
       recentType = "topic";
       this.props.openTopic(new Topic({ slug: item.key }));
+    } else if (item.type == "user") {
+      recentType = "user";
+      this.props.openUri(`https://www.sefaria.org/profile/${item.key}`);
     }
-    Sefaria.saveRecentQuery(item.title, recentType, item.key);
+    Sefaria.saveRecentQuery(item.title, recentType, item.key, item.pic);
   };
 
   openItemOLD = (query, index) => {
@@ -176,12 +179,16 @@ class AutocompleteList extends React.Component {
       } else if (d.type == "Topic") {
         recentType = "topic";
         this.props.openTopic(new Topic({slug: d.key}));
+      } else if (d.type == "User") {
+        recentType = "user";
+        this.props.openUri(`https://www.sefaria.org/profile/${d.key}`);
       }
-      Sefaria.saveRecentQuery(query, recentType, d.key);
+      Sefaria.saveRecentQuery(query, recentType, d.key, d.pic);
     });
   };
 
   renderItem = ({ item, index }) => {
+    console.log("renderItem", item);
     if (item.query) { item.title = item.query; }
     // toc queries get saved as arrays
     const isHeb = this.state.completionsLang === 'he';
@@ -207,6 +214,9 @@ class AutocompleteList extends React.Component {
         break;
       case "topic":
         src = this.props.themeStr === "white" ? require("./img/hashtag.png") : require("./img/hashtag-light.png");
+        break;
+      case "user":
+        src = {uri: item.pic};
         break;
     }
     return (
