@@ -568,6 +568,7 @@ const TopicPageHeader = ({ title, slug, description, topicsTab, setTopicsTab, qu
             extraStyles={[isHeb ? styles.readThePortionButtonHe : styles.readThePortionButton, {alignSelf: isHeb ? "flex-end" : "flex-start"}]}
             extraImageStyles={[{tintColor: "#fff"}]}
             onPress={() => { openRef(topicRef.en); }} isHeb={isHeb} isBlue
+            placeholderImg={false}
           />
         )
       : null}

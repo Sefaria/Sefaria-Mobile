@@ -116,7 +116,7 @@ const DotSeparatedList = ({ items, renderItem, keyExtractor, flexDirection='row'
   );
 };
 
-const SystemButton = ({ onPress, text, img, isHeb, isBlue, isLoading, extraStyles=[], extraImageStyles=[] }) => {
+const SystemButton = ({ onPress, text, img, isHeb, isBlue, isLoading, extraStyles=[], extraImageStyles=[], placeholderImg=true }) => {
   const { theme } = useGlobalState();
   const flexDirection = isHeb ? "row-reverse" : "row";
   return (
@@ -141,7 +141,7 @@ const SystemButton = ({ onPress, text, img, isHeb, isBlue, isLoading, extraStyle
           >
             { text }
           </Text>
-          { !!img ?
+          { !!img && placeholderImg ?
             <Image
               source={img}
               style={[isHeb ? styles.menuButtonMarginedHe : styles.menuButtonMargined, {opacity: 0}].concat(extraImageStyles)}
