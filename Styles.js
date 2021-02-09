@@ -1372,7 +1372,6 @@ export default StyleSheet.create({
   },
   topicLinkTypeHeader: {
     paddingBottom: 10,
-    borderBottomWidth: 1,
   },
   topicLinkSideList: {
     flexWrap: "wrap",
