@@ -109,8 +109,8 @@ const DotSeparatedList = ({ items, renderItem, keyExtractor, flexDirection='row'
   return (
     items.map((item, i) => (
       <View key={keyExtractor(item)} style={{flexDirection, alignItems: 'center'}}>
-        { i !== 0 ? <SText lang={"hebrew"} style={[styles.he, {fontSize: 13, color: "#ccc", marginHorizontal: 5}]}>{"●"}</SText> : null}
         { renderItem(item, i) }
+        { i < (items.length - 1) ? <SText lang={"hebrew"} style={[styles.he, {fontSize: 13, color: "#ccc", marginHorizontal: 5}]}>{"●"}</SText> : null}
       </View>
     ))
   );

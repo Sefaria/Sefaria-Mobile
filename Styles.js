@@ -1408,5 +1408,9 @@ export default StyleSheet.create({
     paddingLeft: 15,
     paddingRight: 5,
     marginTop: 22,
-  }
+  },
+  topicCategoryButtonWrapper: {
+    borderTopWidth: 1,
+    marginHorizontal: 15
+  },
 });

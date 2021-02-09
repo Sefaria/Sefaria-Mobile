@@ -263,18 +263,17 @@ const TopicCategory = ({ topic, openTopic, onBack, openNav }) => {
           <FlatList
             data={subtopics}
             renderItem={({ item }) => (
-              <TopicCategoryButton
-                topic={item}
-                openTopic={openTopic}
-              />
+              <View style={[styles.topicCategoryButtonWrapper, theme.lighterGreyBorder]}>
+                <TopicCategoryButton
+                  topic={item}
+                  openTopic={openTopic}
+                />
+              </View>
             )}
             ListHeaderComponent={() => (
               <TopicCategoryHeader {...headerTopic}>
                 <TrendingTopics trendingTopics={trendingTopics} openTopic={openTopic} />
               </TopicCategoryHeader>
-            )}
-            ItemSeparatorComponent={()=>(
-              <View style={[{height: 1, marginHorizontal: 15}, theme.lighterGreyBackground]} />
             )}
             keyExtractor={t => t.slug}
           />
@@ -351,10 +350,11 @@ const TopicCategoryButton = ({ topic, openTopic }) => {
     openTopic(new Topic({ slug, title: {en, he}, description, categoryDescription}), !!Sefaria.topicTocPage(slug));
   }, [slug]);
   const displayDescription = categoryDescription || description;
+  const descriptionHasContent = !!displayDescription && Object.values(displayDescription).reduce((accum, curr) => accum || !!curr, false);
   return (
-    <Pressable onPress={onPress} style={{paddingHorizontal: 15, paddingVertical: 17}}>
+    <Pressable onPress={onPress} style={{paddingVertical: 17}}>
       <SText lang={menuLanguage} style={[isHeb ? styles.he : styles.en, {fontSize: 24, marginBottom: -10}, theme.text]} lineMultiplier={1.05}>{isHeb ? he : en}</SText>
-      {displayDescription ? (
+      {descriptionHasContent ? (
           <InterfaceTextWithFallback
             {...displayDescription}
             lang={menuLanguage}
