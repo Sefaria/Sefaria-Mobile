@@ -4,7 +4,7 @@ import {FileSystem} from 'react-native-unimodules'
 import {unzip} from 'react-native-zip-archive'; //for unzipping -- (https://github.com/plrthink/react-native-zip-archive)
 import strings from './LocalizedStrings'
 import {Alert, Platform} from 'react-native';
-import AsyncStorage from "@react-native-community/async-storage";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import NetInfo from "@react-native-community/netinfo";
 import Sefaria from "./sefaria";
 import crashlytics from '@react-native-firebase/crashlytics';

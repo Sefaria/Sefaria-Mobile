@@ -19,7 +19,7 @@ import {
   Share,
 } from 'react-native';
 import NetInfo from "@react-native-community/netinfo";
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { PinchGestureHandler, State } from 'react-native-gesture-handler';
 //import --- from 'react-native-gesture-handler';
 import BackgroundFetch from "react-native-background-fetch";
