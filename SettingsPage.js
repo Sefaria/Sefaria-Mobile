@@ -205,19 +205,23 @@ const SettingsPage = ({ close, logout, openUri }) => {
 
         {wereBooksDownloaded() ?
           <View>
-            <TouchableOpacity style={styles.button} disabled={updatesDisabled} onPress={checkUpdatesForSettings}>
-              <Text style={[langStyle, styles.buttonText]}>{updatesDisabled ? strings.checking : strings.checkForUpdates}</Text>
-            </TouchableOpacity>
+            <SystemButton
+              onPress={checkUpdatesForSettings}
+              text={updatesDisabled ? strings.checking : strings.checkForUpdates}
+              isLoading={updatesDisabled}
+            />
 
-            <TouchableOpacity style={styles.button} onPress={() => {
-              Alert.alert(
-                strings.deleteLibrary,
-                strings.confirmDeleteLibraryMessage,
-                [{text: strings.yes, onPress: deleteLibrary}, {text: strings.no}]
-              )
-            }}>
-              <Text style={[langStyle, styles.buttonText]}>{strings.deleteLibrary}</Text>
-            </TouchableOpacity>
+            <SystemButton
+              onPress={() => {
+                Alert.alert(
+                  strings.deleteLibrary,
+                  strings.confirmDeleteLibraryMessage,
+                  [{text: strings.yes, onPress: deleteLibrary}, {text: strings.no}]
+                )
+              }}
+              text={strings.deleteLibrary}
+            />
+
             {DEBUG_MODE ? <TouchableOpacity style={styles.button} onPress={() => {
               console.log('pressed Mess up Library');
               getLocalBookList().then(books => {
@@ -250,7 +254,7 @@ const SettingsPage = ({ close, logout, openUri }) => {
           : null
         }
         <SystemButton onPress={()=>{ openUri('https://www.sefaria.org/terms'); }} text={strings.termsAndPrivacy} isHeb={interfaceLanguage === "hebrew"} />
-        <View>
+        <View style={{marginTop: 10}}>
           <Text style={[langStyle, styles.settingsSectionHeader, theme.tertiaryText]}>
             {`${strings.appVersion}: ${VersionNumber.appVersion}`}
           </Text>

@@ -173,6 +173,7 @@ const SefariaProgressBar = ({ onPress, onClose, download, downloadNotification, 
    * process, I imagine this will generally be listening to libraries that support Stateful Promises. This can be
    * revisited if reuseability becomes a problem.
    */
+  const { theme, interfaceLanguage } = useGlobalState();
   const [ progress, setProgress ] = useState(0);
   const calculateProgress = (received, total) => !!(received) ? setProgress(received / total) : setProgress(0.0);
   const downloadActive = !!downloadNotification ? downloadNotification.downloadActive : false;
@@ -188,14 +189,13 @@ const SefariaProgressBar = ({ onPress, onClose, download, downloadNotification, 
     };
   }, [download]);  // we only want to resubscribe if the downloader object changes. This shouldn't happen, but the condition is here for completeness sake
   const downloadPercentage = Math.round(progress * 1000) / 10;
-  return <GlobalStateContext.Consumer>
-    {({themeStr, interfaceLanguage}) => (
-      <TouchableOpacity onPress={!!onPress ? onPress : () => {
+  return (
+    <TouchableOpacity onPress={!!onPress ? onPress : () => {
       }} disabled={!onPress} style={styles.sefariaProgressBar}>
         <View style={{flex: 1, flexDirection: interfaceLanguage === "hebrew" ? "row-reverse" : "row", height: 50, alignSelf: 'stretch'}}>
-          <View style={{flex: progress, backgroundColor: "#fff"}}>
+          <View style={[{flex: progress}, theme.mainTextPanel]}>
           </View>
-          <View style={{flex: 1 - progress, backgroundColor: "#eee"}}>
+          <View style={[{flex: 1 - progress}, theme.lighterGreyBackground]}>
           </View>
         </View>
         <View
@@ -217,8 +217,7 @@ const SefariaProgressBar = ({ onPress, onClose, download, downloadNotification, 
           }
         </View>
       </TouchableOpacity>
-    )}
-  </GlobalStateContext.Consumer>
+    );
 };
 
 const ConditionalProgressWrapper = ({ conditionMethod, initialValue, downloader, listenerName, children, ...otherProps }) => {
