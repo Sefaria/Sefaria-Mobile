@@ -1,7 +1,7 @@
 import { Alert, Platform } from 'react-native';
 //import { GoogleAnalyticsTracker } from 'react-native-google-analytics-bridge'; //https://github.com/idehub/react-native-google-analytics-bridge/blob/master/README.md
 import { unzip } from 'react-native-zip-archive'; //for unzipping -- (https://github.com/plrthink/react-native-zip-archive)
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import VersionNumber from 'react-native-version-number';
 import { Search } from '@sefaria/search';
 import sanitizeHtml from 'sanitize-html'
