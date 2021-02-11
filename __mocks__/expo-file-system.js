@@ -49,7 +49,7 @@ const getInfoAsync = jest.fn((fileUri, options) => {
 });
 
 const writeAsStringAsync = jest.fn((fileUri, contents, options) => {
-  testCache[fileUri] = JSON.stringify(contents);
+  testCache[fileUri] = contents;
   return Promise.resolve();
 });
 
@@ -58,8 +58,7 @@ const readAsStringAsync = jest.fn((fileUri, options) => {
     if (fileUri in testCache) {
       resolve(testCache[fileUri])
     } else {
-      const e = new Error(`File ${fileUri} does not exist`);
-      reject(e);
+      reject(new Error(`File ${fileUri} does not exist`));
     }
   })
 });
@@ -75,8 +74,7 @@ const deleteAsync = jest.fn((fileUri, options) => {
     } else if (typeof(options) === 'object' && options.idempotent) {
       resolve('');
     } else {
-      const e = new Error('File does not exist');
-      reject(e);
+      reject(new Error('File does not exist'));
     }
   })
 })

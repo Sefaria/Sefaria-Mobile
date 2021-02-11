@@ -87,7 +87,7 @@ fetch = jest.fn(x => {
 });
 
 beforeEach(async () => {
-  await FileSystem.writeAsStringAsync(`${FILE_DIRECTORY}/toc.json`, tocJson);
+  await FileSystem.writeAsStringAsync(`${FILE_DIRECTORY}/toc.json`, JSON.stringify(tocJson));
   // await Sefaria._loadTOC();
   Sefaria.booksDict = {};
   [
@@ -99,7 +99,7 @@ beforeEach(async () => {
     'Rashi on Leviticus',
     'Weird Random Book'
     ].map(x => Sefaria.booksDict[x] = 1);
-  await FileSystem.writeAsStringAsync(`${FILE_DIRECTORY}/packages.json`, packageData);
+  await FileSystem.writeAsStringAsync(`${FILE_DIRECTORY}/packages.json`, JSON.stringify(packageData));
 });
 
 afterEach(async () => {
@@ -192,7 +192,7 @@ describe('UpdateTests', () => {
     expect(postFiles).toEqual(preFiles);
   }
   beforeEach(async () => {
-    await FileSystem.writeAsStringAsync(`${FILE_DIRECTORY}/last_updated.json`, lastUpdated);
+    await FileSystem.writeAsStringAsync(`${FILE_DIRECTORY}/last_updated.json`, JSON.stringify(lastUpdated));
   });
   afterEach(async () => {
     AsyncStorage.clear();
@@ -304,7 +304,7 @@ describe('testMocking', () => {
   // These tests are sanity checks to make sure the mocks are behaving as intended
   test('readWrite', async () => {
     await FileSystem.writeAsStringAsync('foo/bar', 'some random stuff');
-    const result = await loadJSONFile('foo/bar');
+    const result = await FileSystem.readAsStringAsync('foo/bar');
     expect(result).toBe('some random stuff')
   });
   test('singleMock', async () => {
