@@ -359,8 +359,8 @@ PODS:
     - React
   - RNBackgroundFetch (2.8.0):
     - React
-  - RNCAsyncStorage (1.11.0):
-    - React
+  - RNCAsyncStorage (1.13.4):
+    - React-Core
   - RNCClipboard (1.2.3):
     - React
   - RNFBAnalytics (10.3.0):
@@ -450,7 +450,7 @@ DEPENDENCIES:
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
   - ReactNativeLocalization (from `../node_modules/react-native-localization`)
   - RNBackgroundFetch (from `../node_modules/react-native-background-fetch`)
-  - "RNCAsyncStorage (from `../node_modules/@react-native-community/async-storage`)"
+  - "RNCAsyncStorage (from `../node_modules/@react-native-async-storage/async-storage`)"
   - "RNCClipboard (from `../node_modules/@react-native-community/clipboard`)"
   - "RNFBAnalytics (from `../node_modules/@react-native-firebase/analytics`)"
   - "RNFBApp (from `../node_modules/@react-native-firebase/app`)"
@@ -570,7 +570,7 @@ EXTERNAL SOURCES:
   RNBackgroundFetch:
     :path: "../node_modules/react-native-background-fetch"
   RNCAsyncStorage:
-    :path: "../node_modules/@react-native-community/async-storage"
+    :path: "../node_modules/@react-native-async-storage/async-storage"
   RNCClipboard:
     :path: "../node_modules/@react-native-community/clipboard"
   RNFBAnalytics:
@@ -669,7 +669,7 @@ SPEC CHECKSUMS:
   ReactCommon: 73d79c7039f473b76db6ff7c6b159c478acbbb3b
   ReactNativeLocalization: 9abfb1717d6c6f2e3a4e444c4402d52acbf784cc
   RNBackgroundFetch: 9a52e25373791da8cb41a42dbaeab257851f7792
-  RNCAsyncStorage: db711e29e5e0500d9bd21aa0c2e397efa45302b1
+  RNCAsyncStorage: 0701cb7395f06d744184641241888a0eec0e2f2a
   RNCClipboard: 5f3218dcdc28405aa2ae72b78e388f150b826dd3
   RNFBAnalytics: 9f3b7138f2db422f7737673a8980bf7b6393409f
   RNFBApp: d5bc110403b55ba26ac441716259bd514d559cc5
