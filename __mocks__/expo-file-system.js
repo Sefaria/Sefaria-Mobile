@@ -49,12 +49,13 @@ const getInfoAsync = jest.fn((fileUri, options) => {
 });
 
 const writeAsStringAsync = jest.fn((fileUri, contents, options) => {
-  testCache[fileUri] = JSON.stringify(contents);
+  testCache[fileUri] = contents;
   return Promise.resolve();
 });
 
 const readAsStringAsync = jest.fn((fileUri, options) => {
   return new Promise((resolve, reject) => {
+    console.log(testCache)
     if (fileUri in testCache) {
       resolve(testCache[fileUri])
     } else {
