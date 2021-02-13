@@ -1368,17 +1368,18 @@ export default StyleSheet.create({
     marginVertical: 10,
   },
   topicLinkSection: {
-    paddingBottom: 30,
+    paddingTop: 20,
   },
   topicLinkTypeHeader: {
     paddingBottom: 10,
+    fontWeight: "bold",
   },
   topicLinkSideList: {
     flexWrap: "wrap",
     marginTop: 10,
   },
   topicLinkSideMore: {
-    marginTop: -15,
+    marginTop: 10,
     alignContent: 'center',
   },
   topicItemMargins: {
@@ -1413,4 +1414,7 @@ export default StyleSheet.create({
     borderTopWidth: 1,
     marginHorizontal: 15
   },
+  topicCategoryButtonWrapperRoot: {
+    borderTopWidth: 0,  // no border top b/c of trending topics
+  }
 });

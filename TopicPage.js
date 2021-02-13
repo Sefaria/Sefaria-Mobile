@@ -153,7 +153,8 @@ const sheetSort = (currSortOption, a, b, { interfaceLanguage }) => {
 const refFilter = (currFilter, ref) => {
   const n = text => !!text ? text.toLowerCase() : '';
   currFilter = n(currFilter);
-  ref[1].categories = Sefaria.categoriesForRef(ref[1].ref).join(" ");
+  const cats = Sefaria.categoriesForRef(ref[1].ref) || [];
+  ref[1].categories = cats.join(" ");
   for (let field of ['en', 'he', 'ref', 'categories']) {
     if (n(ref[1][field]).indexOf(currFilter) > -1) { return true; }
   }
@@ -243,11 +244,11 @@ const TopicCategory = ({ topic, openTopic, onBack, openNav }) => {
 
   const headerTopic = topic || {
     title: {
-      en: "Explore by Topic", he: "Explore by Topic",
+      en: "Explore by Topic", he: "חיפוש לפי נושאים",
     },
     description: {
       en: "Selections of texts and user created source sheets about thousands of subjects",
-      he: "Selections of texts and user created source sheets about thousands of subjects",
+      he: "מבחר מקורות ודפי מקורות שיצרו המשתמשים באלפי נושאים שונים",
     }
   };
 
@@ -262,8 +263,8 @@ const TopicCategory = ({ topic, openTopic, onBack, openNav }) => {
         (!topicTocLoaded || !subtopics) ? (<LoadingView />) : (
           <FlatList
             data={subtopics}
-            renderItem={({ item }) => (
-              <View style={[styles.topicCategoryButtonWrapper, theme.lighterGreyBorder]}>
+            renderItem={({ item, index }) => (
+              <View style={[styles.topicCategoryButtonWrapper, theme.lighterGreyBorder, (index === 0 && trendingTopics) ? styles.topicCategoryButtonWrapperRoot : null]}>
                 <TopicCategoryButton
                   topic={item}
                   openTopic={openTopic}
@@ -317,9 +318,9 @@ const TrendingTopics = ({ trendingTopics, openTopic }) => {
   const isHeb = menuLanguage === 'hebrew';
   return (
     trendingTopics ? (
-      <View style={[{padding: 15}, theme.lightestGreyBackground]}>
+      <View style={[{padding: 15, marginBottom: 5}, theme.lightestGreyBackground]}>
         <TextInput
-          style={[isHeb ? styles.heInt : styles.enInt, {fontSize: 16, borderBottomWidth: 2, paddingBottom: 5}, theme.lightGreyBorder, theme.tertiaryText]}
+          style={[isHeb ? styles.heInt : styles.enInt, {fontSize: 16, borderBottomWidth: 1, paddingBottom: 5, fontWeight: "bold"}, theme.lightGreyBorder, theme.tertiaryText]}
           editable={false}
           value={strings.trendingTopics}
         />
@@ -579,7 +580,7 @@ const TopicPageHeader = ({ title, slug, description, topicsTab, setTopicsTab, qu
         setTab={setTopicsTab}
         flexDirection={flexDirection}
       />
-      <View style={{ marginVertical: 10 }} onLayout={event => {
+      <View style={{ marginTop: 15, marginBottom: 10 }} onLayout={event => {
         setSearchBarY(event.nativeEvent.layout.y);
       }}>
         <LocalSearchBar
@@ -661,7 +662,7 @@ const TopicSideColumn = ({ topic, links, openTopic, openRef, parashaData, tref }
   ) : null;
   const linksComponent = (
     linkTypeArray ? linkTypeArray.slice(0, !showMore ? 1 : undefined).map(({ title, pluralTitle, links }, iLinkType) => (
-        <View key={title.en} style={styles.topicLinkSection}>
+        <View key={title.en} style={[styles.topicLinkSection, iLinkType === 0 ? {paddingTop: 0} : null]}>
           <View style={[{borderBottomWidth: 1}, theme.lighterGreyBorder]}>
             <InterfaceTextWithFallback
               en={(links.length > 1 && pluralTitle) ? pluralTitle.en : title.en}
@@ -669,13 +670,13 @@ const TopicSideColumn = ({ topic, links, openTopic, openRef, parashaData, tref }
               extraStyles={[styles.SystemBodyEn, styles.topicLinkTypeHeader, theme.tertiaryText]}
             />
           </View>
-        <View style={[styles.topicLinkSideList, {flexDirection: isHeb ? 'row-reverse' : 'row'}]}>
-            <DotSeparatedList
-              flexDirection={isHeb ? 'row-reverse' : 'row'}
-              items={links.filter(l => l.shouldDisplay !== false).sort(sortLinks).slice(0, !showMore && iLinkType === 0 ? 10 : undefined)}
-              renderItem={renderLink}
-              keyExtractor={l => l.slug}
-            />
+          <View style={[styles.topicLinkSideList, {flexDirection: isHeb ? 'row-reverse' : 'row'}]}>
+              <DotSeparatedList
+                flexDirection={isHeb ? 'row-reverse' : 'row'}
+                items={links.filter(l => l.shouldDisplay !== false).sort(sortLinks).slice(0, !showMore && iLinkType === 0 ? 10 : undefined)}
+                renderItem={renderLink}
+                keyExtractor={l => l.slug}
+              />
           </View>
         </View>
       ))

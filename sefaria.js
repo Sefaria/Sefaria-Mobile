@@ -234,6 +234,7 @@ Sefaria = {
   _apiData: {},  // in memory cache for API data
   textTitleForRef: function(ref) {
     // Returns the book title named in `ref` by examining the list of known book titles.
+    if (!ref) { return null; }
     for (let i = ref.length; i >= 0; i--) {
       let book = ref.slice(0, i);
       if (book in Sefaria.booksDict) {
