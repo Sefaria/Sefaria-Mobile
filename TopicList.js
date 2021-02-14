@@ -56,11 +56,11 @@ const TopicListItem = ({ topic, openTopic, segmentRef, heSegmentRef }) => {
       android_ripple={{color: "#ccc"}}
     >
       <DataSourceLine dataSources={topic.dataSources} title={{en: segmentRef, he: heSegmentRef}} flexDirection={flexDirection} prefixText={strings.thisTopicIsConnectedTo}>
-        <ContentTextWithFallback {...topic.title} lang={menuLanguage}/>
+        <ContentTextWithFallback {...topic.title} lang={menuLanguage} lineMultiplier={1.05} extraStyles={[{marginBottom: -10}]} />
       </DataSourceLine>
       {
         topic.description && (topic.description.en || topic.description.he) ? (
-          <InterfaceTextWithFallback {...topic.description} extraStyles={[theme.tertiaryText]} lang={menuLanguage}/>
+          <InterfaceTextWithFallback {...topic.description} extraStyles={[theme.tertiaryText, {marginTop: 10}]} lang={menuLanguage}/>
         ) : null
       }
     </Pressable>
