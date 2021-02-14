@@ -863,6 +863,7 @@ class ReaderApp extends React.PureComponent {
           next: this.state.next,
           sectionArray: this.state.sectionArray,
           sectionHeArray: this.state.sectionHeArray,
+          sectionIndexRef: this.state.sectionIndexRef + 1,  // needs to be shifted
           linksLoaded: this.state.linksLoaded,
           loaded: true,
           loadingTextHead: false,
