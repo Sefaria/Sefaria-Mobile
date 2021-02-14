@@ -49,7 +49,7 @@ import SwipeableCategoryList from './SwipeableCategoryList';
 import Toast from 'react-native-root-toast';
 import BackManager from './BackManager';
 import ReaderNavigationSheetList from "./ReaderNavigationSheetList";
-import SheetMetadata from "./SheetMeta.js";
+import SheetMeta from "./SheetMeta.js";
 import DeepLinkRouter from "./DeepLinkRouter.js";
 import { AuthPage } from "./AuthPage";
 import { TopicCategory, TopicPage } from "./TopicPage";
@@ -1859,13 +1859,8 @@ class ReaderApp extends React.PureComponent {
       case ("sheet meta"):
         Sefaria.track.setScreen("sheet meta", "menu")
         return (
-          <SheetMetadata
+          <SheetMeta
             sheet={this.state.sheet}
-            sheetMeta={this.state.sheetMeta}
-            theme={this.props.theme}
-            themeStr={this.props.themeStr}
-            textLanguage={this.props.textLanguage}
-            interfaceLanguage={this.props.interfaceLanguage}
             close={this.manageBackMain}
             openTopic={this.openTopic}
           />);
