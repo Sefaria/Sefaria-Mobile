@@ -54,7 +54,6 @@ const VersionBlock = ({
   }
 
   const textAlign = { textAlign: "left" };
-  if (license === "CC-BY") { console.log(versionSource, license)}
   return (
     <View>
       {

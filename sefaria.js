@@ -1544,6 +1544,7 @@ Sefaria.util = {
       "pl": "polish",
       "ru": "russian",
       "eo": "esparanto",
+      "fa": "farsi",
     };
     return codeMap[code.toLowerCase()];
   }
