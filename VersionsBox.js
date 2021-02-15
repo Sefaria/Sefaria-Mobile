@@ -28,14 +28,14 @@ const getVLangState = (initialCurrVersions, initialMainVersionLanguage, versions
 
   //sort versions by language so that
   //- initialMainVersionLanguage shows up first
-  //- Hebrew shows up last
+  //- Hebrew shows up second
   //- everything else shows up in alphabetical order
   const versionLangs = Object.keys(versionLangMap).sort(
     (a, b) => {
       if      (a === initialMainVersionLanguage.slice(0,2)) {return -1;}
       else if (b === initialMainVersionLanguage.slice(0,2)) {return  1;}
-      else if (a === 'he' && b !== 'he')                    {return  1;}
-      else if (a !== 'he' && b === 'he')                    {return -1;}
+      else if (a === 'he' && b !== 'he')                    {return  -1;}
+      else if (a !== 'he' && b === 'he')                    {return 1;}
       else if (a < b)                                       {return -1;}
       else if (b > a)                                       {return  1;}
       else                                                  {return  0;}
