@@ -548,7 +548,14 @@ const TopicPageHeader = ({ title, slug, description, topicsTab, setTopicsTab, qu
   const category = Sefaria.topicTocCategory(slug);
   return (
     <View style={{marginHorizontal: 15, marginVertical: 20}}>
-      {title ? <SText style={[isHeb ? styles.he : styles.en, {fontSize: 30}, theme.text]} lang={interfaceLanguage}>{ isHeb ? title.he : title.en }</SText> : null}
+      {title ? (
+        <SText
+          style={[isHeb ? styles.he : styles.en, {fontSize: 30}, theme.text]}
+          lang={interfaceLanguage} lineMultiplier={1.05}
+        >
+          { isHeb ? title.he : title.en }
+        </SText>
+      ) : null}
       { category ? (
         <InterfaceTextWithFallback
           extraStyles={[{fontSize: 13, marginBottom: 20}, theme.tertiaryText]}
