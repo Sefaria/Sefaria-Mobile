@@ -1117,7 +1117,7 @@ const SimpleLinkedBlock = ({en, he, children, onClick, extraStyles}) => {
   return (
     <View>
       <TouchableOpacity onPress={onClick}>
-        <Text style={fullStyle}>{isHeb ? he : en}</Text>
+        <SText style={fullStyle} lang={interfaceLanguage}>{isHeb ? he : en}</SText>
       </TouchableOpacity>
       {children}
     </View>
