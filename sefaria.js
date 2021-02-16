@@ -1388,8 +1388,8 @@ Sefaria.util = {
   getTextLanguageWithContent: function(lang, en, he) {
     // Returns a language that has content in it give strings `en` and `he`, with a preference for `lang`.
     let newLang = lang;
-    const hasEn = (typeof en === "string") && en.replace(/<[^>]+>/g,'').trim() != "";
-    const hasHe = (typeof he === "string") && he.replace(/<[^>]+>/g,'').trim() != "";
+    const hasEn = (typeof en === "string") && en.replace(/<.+?>/g,'').replace(/[\u200e\u2066]/g, '').trim() != "";
+    const hasHe = (typeof he === "string") && he.replace(/<.+?>/g,'').replace(/[\u200e\u2066]/g, '').trim() != "";
     if (newLang == "bilingual") {
       if (hasEn && !hasHe) {
         newLang = "english";
