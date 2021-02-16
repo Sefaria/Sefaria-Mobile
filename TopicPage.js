@@ -629,7 +629,7 @@ const TopicLink = ({topic, openTopic, isTransliteration, isCategory, lang}) => {
       style={{marginTop: 6}}
       onPress={() => openTopic(topic, isCategory)} key={topic.slug}
     >
-      <ContentTextWithFallback {...topic.title} lang={lang} lineMultiplier={1.05} extraStyles={[Platform.OS == 'ios' && lang == 'english' ? {marginBottom: -7} : null, theme.text]}/>
+      <ContentTextWithFallback {...topic.title} lang={lang} extraStyles={[Platform.OS == 'ios' && lang == 'english' ? {marginBottom: -7} : null, theme.text]}/>
     </Pressable>
   );
 }

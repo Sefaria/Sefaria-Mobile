@@ -80,7 +80,7 @@ const ContentTextWithFallback = ({ en, he, extraStyles=[], lang, ...stextProps }
     text = he;
   }
   return (
-    <SText lang={lang} style={[langStyle].concat(extraStyles)} {...stextProps}>{text}</SText>
+    <SText lang={lang} style={[langStyle].concat(extraStyles)} {...stextProps} lineMultiplier={1.05}>{text}</SText>
   );
 }
 
@@ -1117,7 +1117,7 @@ const SimpleLinkedBlock = ({en, he, children, onClick, extraStyles}) => {
   return (
     <View>
       <TouchableOpacity onPress={onClick}>
-        <SText style={fullStyle} lang={interfaceLanguage}>{isHeb ? he : en}</SText>
+        <SText style={fullStyle} lang={interfaceLanguage} lineMultiplier={1.05}>{isHeb ? he : en}</SText>
       </TouchableOpacity>
       {children}
     </View>
@@ -1165,12 +1165,14 @@ class ProfilePic extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      showDefault: !this.props.url || this.props.url.startsWith("https://www.gravatar"), // We can't know in advance if a gravatar image exists of not, so start with the default beforing trying to load image
+      showDefault: !props.url || props.url.startsWith("https://www.gravatar"), // We can't know in advance if a gravatar image exists of not, so start with the default beforing trying to load image
+      url: props.url.replace("profile-default.png", 'profile-default-404.png'),
     };
     this.imgFile = React.createRef();
   }
   componentDidMount() {
     this._isMounted = true;
+    Image.prefetch(this.state.url).then(this.setShowImage).catch(()=>{});
     if (this.didImageLoad()) {
       this.setShowImage();
     } else {
@@ -1199,22 +1201,24 @@ class ProfilePic extends React.Component {
     const theme = getTheme(themeStr);
     const nameArray = !!name.trim() ? name.trim().split(/\s/) : [];
     const initials = nameArray.length > 0 ? (nameArray.length === 1 ? nameArray[0][0] : nameArray[0][0] + nameArray[nameArray.length-1][0]) : "";
-    const defaultViz = showDefault ? 'flex' : 'none';
-    const profileViz = showDefault ? 'none' : 'flex';
     const imageSrc = url.replace("profile-default.png", 'profile-default-404.png');  // replace default with non-existant image to force onLoad to fail
-
     return (
       <View>
-        <View style={[{display: defaultViz,  width: len, height: len}, styles.profilePic, theme.secondaryBackground]}>
-          <Text style={[{fontSize: len/2}, theme.contrastText]}>{`${initials}` }</Text>
-        </View>
-        <Image
-          style={[{display: profileViz, width: len, height: len}, styles.profilePic]}
-          source={{'uri': imageSrc}}
-          ref={this.imgFile}
-          onLoad={this.setShowImage}
-          onError={this.setShowDefault}
-        />
+        {
+          showDefault ? (
+            <View style={[{width: len, height: len}, styles.profilePic, theme.secondaryBackground]}>
+              <Text style={[{fontSize: len/2}, theme.contrastText]}>{`${initials}` }</Text>
+            </View>
+          ) : (
+            <Image
+              style={[{width: len, height: len}, styles.profilePic]}
+              source={{'uri': imageSrc}}
+              ref={this.imgFile}
+              onLoad={this.setShowImage}
+              onError={this.setShowDefault}
+            />
+          )
+        }
       </View>
     );
   }
