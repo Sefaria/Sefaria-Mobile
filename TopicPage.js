@@ -490,6 +490,7 @@ const TopicPage = ({ topic, onBack, openNav, openTopic, showToast, openRef, open
         keyExtractor={item => item.isSplice ? 'splice' : item[0]}
         ListHeaderComponent={TopicPageHeaderRendered}
         ListFooterComponent={textFinishedLoading ? null : <LoadingView />}
+        ListEmptyComponent={<TopicListEmpty query={query} tab={topicsTab} />}
         spliceIndex={query ? undefined : 2}
         currFilter={query}
         filterFunc={refFilter}
@@ -515,6 +516,7 @@ const TopicPage = ({ topic, onBack, openNav, openTopic, showToast, openRef, open
         keyExtractor={item => item.isSplice ? 'splice' : ""+item.sheet_id}
         ListHeaderComponent={TopicPageHeaderRendered}
         ListFooterComponent={sheetFinishedLoading ? null : <LoadingView />}
+        ListEmptyComponent={<TopicListEmpty query={query} tab={topicsTab} />}
         spliceIndex={query ? undefined : 2}
         currFilter={query}
         filterFunc={sheetFilter}
@@ -541,6 +543,19 @@ TopicPage.propTypes = {
   openRefSheet: PropTypes.func.isRequired,
 };
 
+const TopicListEmpty = ({ query, tab }) => {
+  const { theme } = useGlobalState();
+  if (!query) { return null; }
+  return (
+    <View style={{flex: 1, alignItems: "center"}}>
+      <ContentTextWithFallback
+        en={strings.noResults}
+        he={strings.noResults}
+        extraStyles={[{fontStyle: "italic"}, theme.secondaryText]}
+      />
+    </View>
+  );
+};
 const TopicPageHeader = ({ title, slug, description, topicsTab, setTopicsTab, query, setQuery, tabs, topicRef, parasha, openRef, jumpToSearchBar, setSearchBarY }) => {
   const { theme, interfaceLanguage } = useGlobalState();
   const flexDirection = useRtlFlexDir(interfaceLanguage);
