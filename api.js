@@ -215,7 +215,7 @@ var Api = {
           break;
         case "userSheets":
           const { uid } = extra_args;
-          url += `api/sheets/user/${uid}`;
+          url += `api/sheets/user/${uid}/`;
           break;
         case "tagCategory":
           url += "api/tag-category/";
