@@ -490,7 +490,7 @@ const TopicPage = ({ topic, onBack, openNav, openTopic, showToast, openRef, open
         keyExtractor={item => item.isSplice ? 'splice' : item[0]}
         ListHeaderComponent={TopicPageHeaderRendered}
         ListFooterComponent={textFinishedLoading ? null : <LoadingView />}
-        ListEmptyComponent={<TopicListEmpty query={query} tab={topicsTab} />}
+        ListEmptyComponent={<TopicListEmpty query={query} tab={topicsTab} isLoading={textFinishedLoading} />}
         spliceIndex={query ? undefined : 2}
         currFilter={query}
         filterFunc={refFilter}
@@ -516,7 +516,7 @@ const TopicPage = ({ topic, onBack, openNav, openTopic, showToast, openRef, open
         keyExtractor={item => item.isSplice ? 'splice' : ""+item.sheet_id}
         ListHeaderComponent={TopicPageHeaderRendered}
         ListFooterComponent={sheetFinishedLoading ? null : <LoadingView />}
-        ListEmptyComponent={<TopicListEmpty query={query} tab={topicsTab} />}
+        ListEmptyComponent={<TopicListEmpty query={query} tab={topicsTab} isLoading={sheetFinishedLoading} />}
         spliceIndex={query ? undefined : 2}
         currFilter={query}
         filterFunc={sheetFilter}
@@ -543,9 +543,9 @@ TopicPage.propTypes = {
   openRefSheet: PropTypes.func.isRequired,
 };
 
-const TopicListEmpty = ({ query, tab }) => {
+const TopicListEmpty = ({ query, tab, isLoading }) => {
   const { theme } = useGlobalState();
-  if (!query) { return null; }
+  if (!query || isLoading) { return null; }
   const message = `${strings.noResultsContaining} "${query}"`
   return (
     <View style={{flex: 1, alignItems: "center"}}>
