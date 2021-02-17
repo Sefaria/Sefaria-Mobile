@@ -319,11 +319,14 @@ const TrendingTopics = ({ trendingTopics, openTopic }) => {
   return (
     trendingTopics ? (
       <View style={[{padding: 15, marginBottom: 5}, theme.lightestGreyBackground]}>
-        <TextInput
-          style={[isHeb ? styles.heInt : styles.enInt, {fontSize: 16, borderBottomWidth: 1, paddingBottom: 5, fontWeight: "bold"}, theme.lightGreyBorder, theme.tertiaryText]}
-          editable={false}
-          value={strings.trendingTopics}
-        />
+        <View style={[{borderBottomWidth: 1, paddingBottom: 5}, theme.lightGreyBorder]}>
+          <InterfaceTextWithFallback
+            en={strings.trendingTopics}
+            he={strings.trendingTopics}
+            lang={menuLanguage}
+            extraStyles={[{fontSize: 16, fontWeight: "bold"}, theme.tertiaryText]}
+          />
+        </View>
         <View style={{flexDirection: isHeb ? "row-reverse" : "row", flexWrap: 'wrap', marginTop: 5}}>
           <DotSeparatedList
             flexDirection={isHeb ? 'row-reverse' : 'row'}
