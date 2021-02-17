@@ -1292,8 +1292,8 @@ const SefariaPressable = ({ children, extraStyles=[], ...pressableProps }) => {
   return (
     <Pressable
       style={stylesFunc}
-      {...pressableProps}
       android_ripple={{color: "#ccc"}}
+      {...pressableProps}
     >
       { children }
     </Pressable>
