@@ -2,7 +2,7 @@
 
 import PropTypes from 'prop-types';
 
-import React, { useContext, useState, useEffect, useReducer } from 'react';
+import React, { useContext, useState, useEffect, useReducer, useCallback } from 'react';
 import {
   StyleSheet,
   Text,
@@ -1245,13 +1245,13 @@ const DataSourceLine = ({ children, dataSources, title, flexDirection="row", pre
     <View>
       <View style={[styles.saveLine, {flexDirection}]}>
         {children}
-        <Pressable style={[styles.dataSourceButton, theme.lighterGreyBackground]} onPress={()=>setDisplaySource(prev=>!prev)}>
+        <SefariaPressable extraStyles={[styles.dataSourceButton, theme.lighterGreyBackground]} onPress={()=>setDisplaySource(prev=>!prev)}>
           <Image
             source={themeStr == "white" ? require('./img/dots.png'): require('./img/dots-light.png') }
             style={styles.dataSourceButtonImage}
             resizeMode={'contain'}
           />
-        </Pressable>
+        </SefariaPressable>
       </View>
       { displaySource ? (
         <Text style={[styles.dataSourceText, isHeb ? styles.heInt : styles.enInt, theme.tertiaryText, theme.lighterGreyBackground]}>
@@ -1280,6 +1280,25 @@ const FilterableFlatList = React.forwardRef(({ currFilter, filterFunc, sortFunc,
     />
   );
 });
+
+const SefariaPressable = ({ children, extraStyles=[], ...pressableProps }) => {
+  const stylesFunc = useCallback(({ pressed }) => {
+    let styles = extraStyles;
+    if (pressed && Platform.OS === 'ios') {
+      styles = styles.concat([{opacity: 0.2}]);
+    }
+    return styles;
+  }, [extraStyles]);
+  return (
+    <Pressable
+      style={stylesFunc}
+      {...pressableProps}
+      android_ripple={{color: "#ccc"}}
+    >
+      { children }
+    </Pressable>
+  );
+}
 
 export {
   AnimatedRow,
@@ -1315,6 +1334,7 @@ export {
   RainbowBar,
   SaveButton,
   SearchButton,
+  SefariaPressable,
   SefariaProgressBar,
   SimpleContentBlock,
   SimpleHTMLView,

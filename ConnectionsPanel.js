@@ -9,7 +9,6 @@ import {
   Image,
   TouchableOpacity,
   Dimensions,
-  Pressable,
 } from 'react-native';
 import styles from './Styles';
 import strings from './LocalizedStrings';
@@ -27,6 +26,7 @@ const {
   CategoryColorLine,
   LoadingView,
   LibraryNavButton,
+  SefariaPressable,
 } = require('./Misc.js');
 
 class ConnectionsPanel extends React.PureComponent {
@@ -401,15 +401,14 @@ const ToolsButton = ({ text, onPress, icon, count }) => {
   const iconComp = (<View style={[styles.toolsButtonIcon, hasIcon ? null : styles.readerNavSectionMoreInvisible]}><Image source={icon} style={styles.menuButton} resizeMode={'contain'}></Image></View>);
   const countComp = !!count || count === 0 ? <Text style={[styles.enInt, theme.secondaryText, styles.spacedText]}>{` (${count}) `}</Text> : null
   return (
-    <Pressable
-      style={[styles.searchFilterCat, styles.toolsButton, flexDir, theme.bordered]}
+    <SefariaPressable
+      extraStyles={[styles.searchFilterCat, styles.toolsButton, flexDir, theme.bordered]}
       onPress={onPress}
-      android_ripple={{color: "#ccc"}}
     >
       { iconComp }
       <Text style={[textStyle, styles.spacedText, styles.toolsButtonText, theme.tertiaryText]}>{text}</Text>
       { countComp }
-    </Pressable>
+    </SefariaPressable>
   );
 };
 ToolsButton.propTypes = {

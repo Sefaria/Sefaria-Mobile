@@ -4,13 +4,9 @@ import React, { useState, useContext, useEffect, useCallback, useRef } from 'rea
 import PropTypes from 'prop-types';
 import {
   View,
-  ScrollView,
   Text,
-  TextInput,
-  TouchableOpacity,
   Image,
   FlatList,
-  Pressable,
 } from 'react-native';
 
 import { Topic } from './Topic';
@@ -27,6 +23,7 @@ import {
   ContentTextWithFallback,
   DotSeparatedList,
   SystemButton,
+  SefariaPressable,
 } from './Misc';
 
 import {
@@ -356,7 +353,7 @@ const TopicCategoryButton = ({ topic, openTopic }) => {
   const displayDescription = categoryDescription || description;
   const descriptionHasContent = !!displayDescription && Object.values(displayDescription).reduce((accum, curr) => accum || !!curr, false);
   return (
-    <Pressable onPress={onPress} style={{paddingVertical: 17}}>
+    <SefariaPressable onPress={onPress} extraStyles={{paddingVertical: 17}}>
       <SText lang={menuLanguage} style={[isHeb ? styles.he : styles.en, {fontSize: 24, marginBottom: -10}, theme.text]} lineMultiplier={1.05}>{isHeb ? he : en}</SText>
       {descriptionHasContent ? (
           <InterfaceTextWithFallback
@@ -365,7 +362,7 @@ const TopicCategoryButton = ({ topic, openTopic }) => {
             extraStyles={[{marginTop: 10, fontSize: 13}, theme.tertiaryText]}
           />
         ) : null}
-    </Pressable>
+    </SefariaPressable>
   );
 };
 
@@ -628,12 +625,12 @@ TextPassage.propTypes = {
 const TopicLink = ({topic, openTopic, isTransliteration, isCategory, lang}) => {
   const { theme } = useGlobalState();
   return (
-    <Pressable
-      style={{marginTop: 6}}
+    <SefariaPressable
+      extraStyles={{marginTop: 6}}
       onPress={() => openTopic(topic, isCategory)} key={topic.slug}
     >
       <ContentTextWithFallback {...topic.title} lang={lang} extraStyles={[Platform.OS == 'ios' && lang == 'english' ? {marginBottom: -7} : null, theme.text]}/>
-    </Pressable>
+    </SefariaPressable>
   );
 }
 TopicLink.propTypes = {
@@ -696,7 +693,7 @@ const TopicSideColumn = ({ topic, links, openTopic, openRef, parashaData, tref }
   const moreSource = themeStr === 'white' ? (showMore ? require('./img/up.png') : require('./img/down.png')) : (showMore ? require('./img/up-light.png') : require('./img/down-light.png'))
   const moreButton = hasMore ?
     (
-      <Pressable style={[styles.topicLinkSideMore, {flexDirection: isHeb ? 'row-reverse': 'row'}]} onPress={() => setShowMore(prevShowMore => !prevShowMore)}>
+      <SefariaPressable extraStyles={[styles.topicLinkSideMore, {flexDirection: isHeb ? 'row-reverse': 'row'}]} onPress={() => setShowMore(prevShowMore => !prevShowMore)}>
         <InterfaceTextWithFallback
           en={showMore ? "See Less" : "See More"}
           he={showMore ? "ראה פחות" : "ראה עוד"}
@@ -707,7 +704,7 @@ const TopicSideColumn = ({ topic, links, openTopic, openRef, parashaData, tref }
           style={{width: 8, height: 8, marginLeft: 5, alignSelf: 'center'}}
           resizeMode={'contain'}
         />
-      </Pressable>
+      </SefariaPressable>
     )
     : null;
   return (
@@ -739,9 +736,9 @@ const ReadingsComponent = ({ parashaData, tref, openRef }) => {
       </View>
       <View style={styles.readingsSection}>
         <InterfaceTextWithFallback en={"Torah"} he={"תורה"} extraStyles={[theme.tertiaryText, {marginBottom: 5}]} />
-        <Pressable onPress={()=>{ openRef(tref.en); }} style={{marginTop: 6}}>
+        <SefariaPressable onPress={()=>{ openRef(tref.en); }} extraStyles={{marginTop: 6}}>
           <ContentTextWithFallback en={tref.en} he={norm_hebrew_ref(tref.he)} extraStyles={[theme.text]}/>
-        </Pressable>
+        </SefariaPressable>
       </View>
       <View style={styles.readingsSection}>
         <InterfaceTextWithFallback en={"Haftarah"} he={"הפטרה"} extraStyles={[theme.tertiaryText, {marginBottom: 5}]} />
@@ -750,9 +747,9 @@ const ReadingsComponent = ({ parashaData, tref, openRef }) => {
             flexDirection={flexDirection}
             items={parashaData.haftarah}
             renderItem={h => (
-              <Pressable onPress={()=>{ openRef(h.displayValue.en); }} style={{marginTop: 6}}>
+              <SefariaPressable onPress={()=>{ openRef(h.displayValue.en); }} extraStyles={{marginTop: 6}}>
                 <ContentTextWithFallback en={h.displayValue.en} he={norm_hebrew_ref(h.displayValue.he)} extraStyles={[theme.text]}/>
-              </Pressable>
+              </SefariaPressable>
             )}
             keyExtractor={h => h.url}
           />

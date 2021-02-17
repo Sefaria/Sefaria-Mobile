@@ -5,11 +5,9 @@ import PropTypes from 'prop-types';
 import React, { useState, useEffect, useContext, Fragment, useCallback } from 'react';
 import {
   Animated,
-  Pressable,
   Platform,
   Share,
   Text,
-  View,
   TouchableOpacity,
 } from 'react-native';
 import ActionSheet from 'react-native-action-sheet';

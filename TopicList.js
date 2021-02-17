@@ -3,8 +3,6 @@ import PropTypes from 'prop-types';
 import React, { useContext, useEffect, useState } from 'react';
 import {
   View,
-  Text,
-  Pressable,
   FlatList,
 } from 'react-native';
 import { Topic } from './Topic';
@@ -15,9 +13,9 @@ import {
 import styles from './Styles';
 import strings from './LocalizedStrings';
 import {
-    LoadingView,
     InterfaceTextWithFallback,
-    ContentTextWithFallback
+    ContentTextWithFallback,
+    SefariaPressable,
 } from './Misc';
 
 const TopicList = ({ topics, openTopic, segmentRef, heSegmentRef }) => {
@@ -50,10 +48,9 @@ const TopicListItem = ({ topic, openTopic, segmentRef, heSegmentRef }) => {
   const {theme, menuLanguage} = useGlobalState();
   const flexDirection = useRtlFlexDir(menuLanguage)       
   return (
-    <Pressable
+    <SefariaPressable
       onPress={() => { openTopic(new Topic({ slug: topic.topic, ...topic })); }}
-      style={[{borderBottomWidth: 1, paddingVertical: 20}, theme.bordered, styles.readerSidePadding]}
-      android_ripple={{color: "#ccc"}}
+      extraStyles={[{borderBottomWidth: 1, paddingVertical: 20}, theme.bordered, styles.readerSidePadding]}
     >
       <DataSourceLine dataSources={topic.dataSources} title={{en: segmentRef, he: heSegmentRef}} flexDirection={flexDirection} prefixText={strings.thisTopicIsConnectedTo}>
         <ContentTextWithFallback {...topic.title} lang={menuLanguage} lineMultiplier={1.05} extraStyles={[{marginBottom: -10}]} />
@@ -63,7 +60,7 @@ const TopicListItem = ({ topic, openTopic, segmentRef, heSegmentRef }) => {
           <InterfaceTextWithFallback {...topic.description} extraStyles={[theme.tertiaryText, {marginTop: 10}]} lang={menuLanguage}/>
         ) : null
       }
-    </Pressable>
+    </SefariaPressable>
   );
 }
 
