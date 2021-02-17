@@ -9,5 +9,11 @@
 		<string>applinks:sefaria.org.il</string>
 		<string>applinks:www.sefaria.org.il</string>
 	</array>
+	<key>com.apple.security.app-sandbox</key>
+	<true/>
+	<key>com.apple.security.network.client</key>
+	<true/>
+	<key>com.apple.security.personal-information.location</key>
+	<true/>
 </dict>
 </plist>
