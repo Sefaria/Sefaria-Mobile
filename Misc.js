@@ -110,7 +110,7 @@ const DotSeparatedList = ({ items, renderItem, keyExtractor, flexDirection='row'
     items.map((item, i) => (
       <View key={keyExtractor(item)} style={{flexDirection, alignItems: 'center'}}>
         { renderItem(item, i) }
-        { i < (items.length - 1) ? <SText lang={"hebrew"} style={[styles.he, {fontSize: 13, color: "#ccc", marginHorizontal: 5}]}>{"●"}</SText> : null}
+        { i < (items.length - 1) ? <Image source={require('./img/dot.png')} resizeMode={'contain'} style={{marginHorizontal: 5}}/> : null}
       </View>
     ))
   );
