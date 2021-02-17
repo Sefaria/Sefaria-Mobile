@@ -197,7 +197,7 @@ var Api = {
           url += "api/name/";
           break;
         case "userSheets":
-          url += `api/sheets/user/${uid}`;
+          url += `api/sheets/user/${uid}/`;
           break;
         case "tagCategory":
           url += "api/tag-category/";
