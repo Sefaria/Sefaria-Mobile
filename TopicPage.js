@@ -546,11 +546,12 @@ TopicPage.propTypes = {
 const TopicListEmpty = ({ query, tab }) => {
   const { theme } = useGlobalState();
   if (!query) { return null; }
+  const message = `${strings.noResultsContaining} "${query}"`
   return (
     <View style={{flex: 1, alignItems: "center"}}>
       <ContentTextWithFallback
-        en={strings.noResults}
-        he={strings.noResults}
+        en={message}
+        he={message}
         extraStyles={[{fontStyle: "italic"}, theme.secondaryText]}
       />
     </View>
