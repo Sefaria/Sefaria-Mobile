@@ -15,6 +15,8 @@ test('settings buttons', async () => {
     .mockReturnValueOnce(2)
     .mockReturnValueOnce(3)
     .mockReturnValueOnce(4);
+
+  Sefaria.isGettinToBePurimTime = jest.fn(() => false);
   const inst = renderer.create(
     <TestContextWrapper child={SettingsPage} childProps={{
         close: () => {},
@@ -41,4 +43,18 @@ test('settings buttons', async () => {
     }
     counter++;
   }
+});
+
+test('settings buttons with grogger', () => {
+  Sefaria.isGettinToBePurimTime = jest.fn(() => true);
+  const inst = renderer.create(
+    <TestContextWrapper child={SettingsPage} childProps={{
+        close: () => {},
+        logout: () => {},
+        openUri: () => {},
+      }}
+    />
+  );
+  const yo = inst.root.findAllByType(ButtonToggleSetNew);
+  expect(yo.length).toBe(6);
 });

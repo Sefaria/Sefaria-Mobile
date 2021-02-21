@@ -303,8 +303,8 @@ test('getLocalBookList', async () => {
 describe('testMocking', () => {
   // These tests are sanity checks to make sure the mocks are behaving as intended
   test('readWrite', async () => {
-    await FileSystem.writeAsStringAsync('foo/bar', 'some random stuff');
-    const result = await FileSystem.readAsStringAsync('foo/bar');
+    await FileSystem.writeAsStringAsync('foo/bar', JSON.stringify('some random stuff'));
+    const result = await loadJSONFile('foo/bar');
     expect(result).toBe('some random stuff')
   });
   test('singleMock', async () => {
@@ -357,4 +357,3 @@ describe('testMocking', () => {
     expect(j).toEqual({});
   });
 });
-
