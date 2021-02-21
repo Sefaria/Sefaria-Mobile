@@ -1319,6 +1319,7 @@ export default StyleSheet.create({
   },
   mySheetListTitle: {
     fontSize: 20,
+    flexShrink: 1,
   },
   heInEn: {
     fontFamily: "Taamey Frank Taamim Fix",
