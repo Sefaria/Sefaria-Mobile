@@ -994,16 +994,18 @@ const LocalSearchBar = ({ onChange, query, onFocus }) => {
   return (
     <View style={[{borderRadius: 400, borderWidth: 1, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10}, theme.container, theme.lighterGreyBorder]}>
       <SearchButton onPress={()=>{}} extraStyles={{height: 40}} disabled />
-      <TextInput
-        style={[styles.en, { fontSize: 18, paddingVertical: 0, paddingRight: 20, alignSelf: 'stretch', lineHeight: Platform.OS === 'android' ? 40 : null, flex: 1 }, theme.text]}
-        onChangeText={onChange}
-        value={query}
-        underlineColorAndroid={"transparent"}
-        placeholder={strings.search}
-        placeholderTextColor={placeholderTextColor}
-        autoCorrect={false}
-        onFocus={onFocus}
-      />
+      <View style={Platform.OS === 'android' ? {flex: 1, marginTop: 2, marginBottom: -2} : null}>
+        <TextInput
+          style={[styles.en, { fontSize: 18, paddingVertical: 0, paddingRight: 20, lineHeight: Platform.OS === 'android' ? 40 : null, flex: 1 }, theme.text]}
+          onChangeText={onChange}
+          value={query}
+          underlineColorAndroid={"transparent"}
+          placeholder={strings.search}
+          placeholderTextColor={placeholderTextColor}
+          autoCorrect={false}
+          onFocus={onFocus}
+        />
+      </View>
       {query ?
         <CancelButton onPress={() => { onChange(""); }} extraStyles={[{marginHorizontal: 5}]}/>
         : null
@@ -1026,7 +1028,7 @@ const CancelButton = ({ onPress, extraStyles=[] }) => {
   );
 }
 
-const SaveButton = ({ historyItem, showToast }) => {
+const SaveButton = ({ historyItem, showToast, extraStyles=[] }) => {
   const { themeStr, interfaceLanguage, textLanguage } = useContext(GlobalStateContext);
   const [, forceUpdate] = useReducer(x => x + 1, 0);  // HACK
   const isHeb = Sefaria.util.get_menu_language(interfaceLanguage, textLanguage) == "hebrew";
@@ -1047,7 +1049,7 @@ const SaveButton = ({ historyItem, showToast }) => {
         }
       }>
       <Image
-        style={styles.starIcon}
+        style={[styles.starIcon].concat(extraStyles)}
         source={themeStr == "white" ?
                 (isSaved ? require('./img/starFilled.png') : require('./img/starUnfilled.png')) :
                 (isSaved ? require('./img/starFilled-light.png') : require('./img/starUnfilled-light.png'))}
@@ -1231,7 +1233,7 @@ ProfilePic.propTypes = {
   showButtons: PropTypes.bool,  // show profile pic action buttons
 };
 
-const DataSourceLine = ({ children, dataSources, title, flexDirection="row", prefixText }) => {
+const DataSourceLine = ({ children, dataSources, title, flexDirection="row", prefixText, imageStyles=[] }) => {
   const { themeStr, interfaceLanguage } = useContext(GlobalStateContext);
   const [displaySource, setDisplaySource] = useState(false);
   const theme = getTheme(themeStr);
@@ -1245,7 +1247,7 @@ const DataSourceLine = ({ children, dataSources, title, flexDirection="row", pre
     <View>
       <View style={[styles.saveLine, {flexDirection}]}>
         {children}
-        <SefariaPressable extraStyles={[styles.dataSourceButton, theme.lighterGreyBackground]} onPress={()=>setDisplaySource(prev=>!prev)}>
+        <SefariaPressable extraStyles={[styles.dataSourceButton, theme.lighterGreyBackground].concat(imageStyles)} onPress={()=>setDisplaySource(prev=>!prev)}>
           <Image
             source={themeStr == "white" ? require('./img/dots.png'): require('./img/dots-light.png') }
             style={styles.dataSourceButtonImage}

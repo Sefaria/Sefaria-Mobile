@@ -356,7 +356,7 @@ let strings = new LocalizedStrings({
     resourcesFailedToLoad: "טעינת הקישורים נכשלה. הקש כדי לנסות שוב.",
     groggerActive: "רעשן",
     readThePortion: "קראו את הפרשה",
-    trendingTopics: "Trending Topics",
+    trendingTopics: "נושאים נפוצים",
   }
 });
 

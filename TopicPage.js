@@ -287,20 +287,20 @@ const TopicCategory = ({ topic, openTopic, onBack, openNav }) => {
         </TouchableOpacity>
 */
 const TopicCategoryHeader = ({ title, description, categoryDescription, children }) => {
-  const { theme, menuLanguage } = useGlobalState();
+  const { theme, interfaceLanguage } = useGlobalState();
   const displayDescription = categoryDescription || description;
   return (
     <View>
       <View style={{marginHorizontal: 15, marginVertical: 24}}>
         <InterfaceTextWithFallback
           {...title}
-          lang={menuLanguage}
+          lang={interfaceLanguage}
           extraStyles={[{fontSize: 22, fontWeight: 'bold'}, theme.tertiaryText]}
         />
         {displayDescription ? (
           <InterfaceTextWithFallback
             {...displayDescription}
-            lang={menuLanguage}
+            lang={interfaceLanguage}
             extraStyles={[{fontSize: 13, marginTop: 11}, theme.tertiaryText]}
           />
         ) : null}
@@ -623,8 +623,8 @@ const TextPassage = ({text, topicTitle, showToast, openRef }) => {
   const flexDirection = isHeb ? "row-reverse" : "row";
   return (
     <StoryFrame extraStyles={styles.topicItemMargins}>
-      <DataSourceLine dataSources={text.dataSources} title={topicTitle} flexDirection={flexDirection} prefixText={strings.thisSourceIsConnectedTo}>
-        <SaveLine dref={text.ref} showToast={showToast} flexDirection={flexDirection}>
+      <DataSourceLine dataSources={text.dataSources} title={topicTitle} flexDirection={flexDirection} prefixText={strings.thisSourceIsConnectedTo} imageStyles={[{marginTop: -12}]}>
+        <SaveLine dref={text.ref} showToast={showToast} flexDirection={flexDirection} imageStyles={[{marginTop: -12}]}>
           <StoryTitleBlock en={text.ref} he={norm_hebrew_ref(text.heRef)} onClick={() => openRef(text.ref)} />
         </SaveLine>
       </DataSourceLine>

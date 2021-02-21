@@ -97,7 +97,7 @@ const SheetBlock = ({sheet, compact, cozy, smallfonts, isTitle, showToast, onCli
   const title = Sefaria.util.stripHtml(sheet.sheet_title);
   return (
     <View style={extraStyles}>
-      <SaveLine historyItem={historyItem} showToast={showToast} flexDirection={flexDirection}>
+      <SaveLine historyItem={historyItem} showToast={showToast} flexDirection={flexDirection} imageStyles={[{marginTop: -12}]}>
         <StoryTitleBlock en={title} he={title} onClick={onClick} />	
       </SaveLine>
       {(sheet.sheet_summary && !(compact || cozy))?<SimpleInterfaceBlock en={sheet.sheet_summary} he={sheet.sheet_summary}/>:null}
@@ -117,12 +117,13 @@ const SheetBlock = ({sheet, compact, cozy, smallfonts, isTitle, showToast, onCli
 SheetBlock.propTypes = {sheet: sheetPropType.isRequired};
 
 
-const SaveLine = ({ children, historyItem, dref, versions={}, showToast, flexDirection="row" }) => (
+const SaveLine = ({ children, historyItem, dref, versions={}, showToast, flexDirection="row", imageStyles=[] }) => (
   <View style={[styles.saveLine, {flexDirection}]}>
     {children}
     <SaveButton
       historyItem={historyItem || {ref: dref, versions, book: Sefaria.textTitleForRef(dref)}}
       showToast={showToast}
+      extraStyles={imageStyles}
     />
   </View>
 );
