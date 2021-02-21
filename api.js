@@ -214,7 +214,10 @@ var Api = {
           url += "api/calendars/next-read/";
           break;
         case "userSheets":
+<<<<<<< HEAD
           const { uid } = extra_args;
+=======
+>>>>>>> master
           url += `api/sheets/user/${uid}/`;
           break;
         case "tagCategory":
