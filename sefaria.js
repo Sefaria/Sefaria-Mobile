@@ -168,8 +168,9 @@ Sefaria = {
     var bookRefStem  = Sefaria.textTitleForRef(ref);
     //if you want to open a specific version, there is no json file. force an api call instead
     const shouldLoadFromApi = Sefaria.shouldLoadFromApi(versions);
-    var jsonPath     = shouldLoadFromApi ? "" : Sefaria._JSONSourcePath(fileNameStem);
-    var zipPath      = shouldLoadFromApi ? "" : Sefaria._zipSourcePath(bookRefStem);
+    if (shouldLoadFromApi) { throw ERRORS.NOT_OFFLINE; }
+    var jsonPath = Sefaria._JSONSourcePath(fileNameStem);
+    var zipPath  = Sefaria._zipSourcePath(bookRefStem);
     // Pull data from in memory cache if available
     if (jsonPath in Sefaria._jsonData) {
       return Sefaria._jsonData[jsonPath];
