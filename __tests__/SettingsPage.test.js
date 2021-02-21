@@ -15,6 +15,8 @@ test('settings buttons', async () => {
     .mockReturnValueOnce(2)
     .mockReturnValueOnce(3)
     .mockReturnValueOnce(4);
+
+  Sefaria.isGettinToBePurimTime = jest.fn(() => false);
   const inst = renderer.create(
     <TestContextWrapper child={SettingsPage} childProps={{
         close: () => {},
