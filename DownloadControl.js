@@ -10,8 +10,8 @@ import Sefaria from "./sefaria";
 import crashlytics from '@react-native-firebase/crashlytics';
 
 const SCHEMA_VERSION = "6";
-// const DOWNLOAD_SERVER = "http://10.0.2.2:5000"  // this ip will allow the android emulator to access a localhost server
-const DOWNLOAD_SERVER = "https://readonly.sefaria.org";
+const DOWNLOAD_SERVER = "http://10.0.2.2:5000"  // this ip will allow the android emulator to access a localhost server
+// const DOWNLOAD_SERVER = "https://readonly.sefaria.org";
 const HOST_PATH = `${DOWNLOAD_SERVER}/static/ios-export/${SCHEMA_VERSION}`;
 const HOST_BUNDLE_URL = `${HOST_PATH}/bundles`;
 const [FILE_DIRECTORY, TMP_DIRECTORY] = [`${FileSystem.documentDirectory}library`, `${FileSystem.cacheDirectory}tmp`];  //todo: make sure these are used
@@ -21,12 +21,7 @@ let PackagesState = {};
 
 async function simpleDelete(filePath) {
 try{
-  if (Platform.OS === "ios") {
-    await FileSystem.deleteAsync(encodeURI(filePath));
-  } else {
-    await FileSystem.deleteAsync(filePath);
-    return
-  }
+  await FileSystem.deleteAsync(encodeURI(filePath));
   } catch (e) { console.warn(e) }
 }
 
