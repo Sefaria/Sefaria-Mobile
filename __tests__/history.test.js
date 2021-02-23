@@ -1,67 +1,7 @@
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import Sefaria from '../sefaria';
 
 describe('history', () => {
-  test('migrateFromOldRecents', async () => {
-    const recentItems = JSON.stringify([
-      {  // normal case with versions
-        ref: "Genesis 1:1",
-        heRef: "בראשית א",
-        versions: { en: "enVersion", he: "heVersion" },
-        category: "Tanakh"
-      },
-      {  // corrupted versions
-        ref: "Genesis 1:2",
-        heRef: "בראשית א",
-        versions: false,
-        category: "Tanakh"
-      },
-      {  // section ref
-        ref: "Genesis 1",
-        heRef: "בראשית א",
-        versions: {},
-        category: "Tanakh"
-      }
-    ]);
-    const sefariaEpoch = Math.floor((new Date(2017, 11, 1)).getTime()/1000);
-    const historyItems = JSON.stringify([
-      {
-        ref: "Genesis 1:1",
-        he_ref: "בראשית א:א׳",
-        versions: { en: "enVersion", he: "heVersion" },
-        book: "Genesis",
-        time_stamp: sefariaEpoch,
-      },
-      {
-        ref: "Genesis 1:2",
-        he_ref: "בראשית א:ב׳",
-        versions: {},
-        book: "Genesis",
-        time_stamp: sefariaEpoch,
-      },
-      {
-        ref: "Genesis 1",
-        he_ref: "בראשית א",
-        versions: {},
-        book: "Genesis",
-        time_stamp: sefariaEpoch,
-      }
-    ]);
-    const lastSyncTime = '' + sefariaEpoch;
-    const lastPlace = JSON.stringify(Sefaria.history.historyToLastPlace(JSON.parse(historyItems)));
-    Sefaria.textTitleForRef = jest.fn(() => "Genesis");
-    AsyncStorage.setItem('recent', recentItems);
-    await Sefaria.history.migrateFromOldRecents();
-
-    // matchers
-    expect((await AsyncStorage.getItem('recent'))).toBeNull();
-    expect((await AsyncStorage.getItem('history'))).toBeNull();
-    expect((await AsyncStorage.getItem('lastSyncItems'))).toBe(historyItems);
-    expect((await AsyncStorage.getItem('lastSyncTime'))).toBe(lastSyncTime);
-    expect((await AsyncStorage.getItem('lastPlace'))).toBe(lastPlace);
-
-  });
-
   test('historyToLastPlace', () => {
     const history = [
       {
@@ -121,10 +61,10 @@ describe('history', () => {
       .mockReturnValueOnce(historyItem);
     Sefaria.history.lastPlace = [];
     Sefaria.history.lastSync = [];
-    await AsyncStorage.setItem('lastSyncItems', '');
+    await Sefaria.history.setItem('lastSyncItems', '');
     await Sefaria.history.saveHistoryItem(getHistoryObject, true, null, 1);
-    expect((await AsyncStorage.getItem('lastSyncItems'))).toBe(JSON.stringify([historyItem]));
-    expect((await AsyncStorage.getItem('lastPlace'))).toBe(JSON.stringify([historyItem]));
+    expect((await Sefaria.history.getItem('lastSyncItems'))).toBe(JSON.stringify([historyItem]));
+    expect((await Sefaria.history.getItem('lastPlace'))).toBe(JSON.stringify([historyItem]));
   });
 
   test('saveHistoryItemDuplicate', async () => {
@@ -140,9 +80,9 @@ describe('history', () => {
       .mockReturnValueOnce(historyItem);
     Sefaria.history.lastPlace = [];
     Sefaria.history.lastSync = [{...historyItem, time_stamp: Sefaria.util.epoch_time()}];
-    await AsyncStorage.setItem('lastSyncItems', '');
+    await Sefaria.history.setItem('lastSyncItems', '');
     await Sefaria.history.saveHistoryItem(getHistoryObject, true, null, 1);
-    expect((await AsyncStorage.getItem('lastSyncItems'))).toBeNull();
+    expect((await Sefaria.history.getItem('lastSyncItems'))).toBe('');
 
     // test that if the item is old enough it will save
     getHistoryObject = jest.fn()
@@ -151,9 +91,9 @@ describe('history', () => {
     Sefaria.history.lastPlace = [];
     const oldHistoryItem = {...historyItem, time_stamp: Sefaria.util.epoch_time() - 61};
     Sefaria.history.lastSync = [oldHistoryItem];
-    await AsyncStorage.setItem('lastSyncItems', '');
+    await Sefaria.history.setItem('lastSyncItems', '');
     await Sefaria.history.saveHistoryItem(getHistoryObject, true, null, 1);
-    expect((await AsyncStorage.getItem('lastSyncItems'))).toBe(JSON.stringify([historyItem, oldHistoryItem]));
+    expect((await Sefaria.history.getItem('lastSyncItems'))).toBe(JSON.stringify([historyItem, oldHistoryItem]));
   });
 
   test('saveHistoryItemChanged', async () => {
@@ -170,9 +110,9 @@ describe('history', () => {
       .mockReturnValueOnce(historyItem2);
     Sefaria.history.lastPlace = [];
     Sefaria.history.lastSync = [];
-    await AsyncStorage.setItem('lastSyncItems', '');
+    await Sefaria.history.setItem('lastSyncItems', '');
     await Sefaria.history.saveHistoryItem(getHistoryObject, true, null, 1);
-    expect((await AsyncStorage.getItem('lastSyncItems'))).toBeNull();
+    expect((await Sefaria.history.getItem('lastSyncItems'))).toBe('');
   });
 
   test('saveHistoryItemVersionChanged', async () => {
@@ -189,9 +129,9 @@ describe('history', () => {
       .mockReturnValueOnce(historyItem2);
     Sefaria.history.lastPlace = [];
     Sefaria.history.lastSync = [];
-    await AsyncStorage.setItem('lastSyncItems', '');
+    await Sefaria.history.setItem('lastSyncItems', '');
     await Sefaria.history.saveHistoryItem(getHistoryObject, true, null, 1);
-    expect((await AsyncStorage.getItem('lastSyncItems'))).toBeNull();
+    expect((await Sefaria.history.getItem('lastSyncItems'))).toBe('');
   });
 
   test('saveHistorySecondary', async () => {
@@ -208,11 +148,11 @@ describe('history', () => {
       .mockReturnValueOnce(historyItem);
     Sefaria.history.lastPlace = [];
     Sefaria.history.lastSync = [];
-    await AsyncStorage.setItem('lastSyncItems', '');
-    await AsyncStorage.setItem('lastPlace', '');
+    await Sefaria.history.setItem('lastSyncItems', '');
+    await Sefaria.history.setItem('lastPlace', '');
     await Sefaria.history.saveHistoryItem(getHistoryObject, true, null, 1);
-    expect((await AsyncStorage.getItem('lastSyncItems'))).toBe(JSON.stringify([historyItem]));
-    expect((await AsyncStorage.getItem('lastPlace'))).toBeNull();
+    expect((await Sefaria.history.getItem('lastSyncItems'))).toBe(JSON.stringify([historyItem]));
+    expect((await Sefaria.history.getItem('lastPlace'))).toBe('');
   });
 
   test('getHistoryRefForTitle', async () => {
@@ -250,8 +190,8 @@ describe('history', () => {
   test('_loadHistoryItems', async () => {
     // empty
     await AsyncStorage.removeItem('recent');
-    await AsyncStorage.removeItem('lastPlace');
-    await AsyncStorage.removeItem('lastSyncItems');
+    await Sefaria.history.removeItem('lastPlace');
+    await Sefaria.history.removeItem('lastSyncItems');
     await Sefaria.history._loadHistoryItems();
     expect(Sefaria.history.lastPlace).toEqual([]);
     expect(Sefaria.history.lastSync).toEqual([]);
@@ -265,12 +205,12 @@ describe('history', () => {
       language: "english",
       secondary: true,
     };
-    await AsyncStorage.setItem('lastPlace', JSON.stringify([historyItem]));
+    await Sefaria.history.setItem('lastPlace', JSON.stringify([historyItem]));
     await Sefaria.history._loadHistoryItems();
     expect(Sefaria.history.lastPlace).toEqual([historyItem]);
 
     // with an error
-    await AsyncStorage.setItem('lastPlace', "ERROR");
+    await Sefaria.history.setItem('lastPlace', "ERROR");
     await Sefaria.history._loadHistoryItems();
     expect(Sefaria.history.lastPlace).toEqual([]);
   });
@@ -294,8 +234,8 @@ describe('history', () => {
         time_stamp: 0,
       }
     ];
-    await AsyncStorage.removeItem('history');
-    await AsyncStorage.setItem('lastSyncItems', JSON.stringify(lastSyncItems));
+    await Sefaria.history.removeItem('history');
+    await Sefaria.history.setItem('lastSyncItems', JSON.stringify(lastSyncItems));
     await AsyncStorage.removeItem('lastSyncTime');
     const auth = { uid: 1, token: 2 };
     Sefaria.api.getAuthToken = jest.fn(() => {
@@ -330,11 +270,11 @@ describe('history', () => {
       settings: JSON.stringify(settings),
     });
     expect((await AsyncStorage.getItem('lastSyncTime'))).toBe('11');
-    expect((await AsyncStorage.getItem('savedItems'))).toBe('[]');
-    expect((await AsyncStorage.getItem('lastPlace'))).toBe(JSON.stringify([lastSyncItems[0]]));
-    expect((await AsyncStorage.getItem('history'))).toBe(JSON.stringify(lastSyncItems));
+    expect((await Sefaria.history.getItem('savedItems'))).toBe('[]');
+    expect((await Sefaria.history.getItem('lastPlace'))).toBe(JSON.stringify([lastSyncItems[0]]));
+    expect((await Sefaria.history.getItem('history'))).toBe(JSON.stringify(lastSyncItems));
     expect(currHistory).toEqual(lastSyncItems);
-    expect((await AsyncStorage.removeItem('lastSyncItems'))).toBeNull();
+    expect((await Sefaria.history.getItem('lastSyncItems'))).toBeNull();
   });
 
   test('sync web history', async () => {
@@ -357,9 +297,9 @@ describe('history', () => {
         saved: true,
       }
     ];
-    await AsyncStorage.removeItem('history');
-    await AsyncStorage.removeItem('lastSyncItems');
-    await AsyncStorage.removeItem('savedItems');
+    await Sefaria.history.removeItem('history');
+    await Sefaria.history.removeItem('lastSyncItems');
+    await Sefaria.history.removeItem('savedItems');
     await AsyncStorage.removeItem('lastSyncTime');
     const auth = { uid: 1, token: 2 };
     Sefaria.api.getAuthToken = jest.fn(() => {
@@ -384,11 +324,11 @@ describe('history', () => {
     expect(fetch.mock.calls[0][1].headers['Content-Type']).toBe('application/x-www-form-urlencoded;charset=UTF-8');
 
     expect((await AsyncStorage.getItem('lastSyncTime'))).toBe('11');
-    expect((await AsyncStorage.getItem('savedItems'))).toBe(JSON.stringify([webHistory[1]]));
-    expect((await AsyncStorage.getItem('lastPlace'))).toBe(JSON.stringify([webHistory[0]]));
-    expect((await AsyncStorage.getItem('history'))).toBe(JSON.stringify(webHistory));
+    expect((await Sefaria.history.getItem('savedItems'))).toBe(JSON.stringify([webHistory[1]]));
+    expect((await Sefaria.history.getItem('lastPlace'))).toBe(JSON.stringify([webHistory[0]]));
+    expect((await Sefaria.history.getItem('history'))).toBe(JSON.stringify(webHistory));
     expect(currHistory).toEqual(webHistory);
-    expect((await AsyncStorage.removeItem('lastSyncItems'))).toBeNull();
+    expect((await Sefaria.history.getItem('lastSyncItems'))).toBeNull();
   });
 
   test('sync both web and mobile history', async () => {
@@ -432,9 +372,9 @@ describe('history', () => {
     ];
 
     const finalHistory = [lastSyncItems[0], webHistory[0], lastSyncItems[1], webHistory[1]];
-    await AsyncStorage.setItem('lastSyncItems', JSON.stringify(lastSyncItems));
-    await AsyncStorage.removeItem('history');
-    await AsyncStorage.setItem('savedItems', JSON.stringify([lastSyncItems[0]]));
+    await Sefaria.history.setItem('lastSyncItems', JSON.stringify(lastSyncItems));
+    await Sefaria.history.removeItem('history');
+    await Sefaria.history.setItem('savedItems', JSON.stringify([lastSyncItems[0]]));
     await AsyncStorage.removeItem('lastSyncTime');
     const auth = { uid: 1, token: 2 };
     Sefaria.api.getAuthToken = jest.fn(() => {
@@ -459,17 +399,17 @@ describe('history', () => {
     expect(fetch.mock.calls[0][1].headers['Content-Type']).toBe('application/x-www-form-urlencoded;charset=UTF-8');
 
     expect((await AsyncStorage.getItem('lastSyncTime'))).toBe('11');
-    expect((await AsyncStorage.getItem('savedItems'))).toBe(JSON.stringify([lastSyncItems[0], webHistory[1]]));
-    expect((await AsyncStorage.getItem('lastPlace'))).toBe(JSON.stringify([lastSyncItems[0]]));
-    expect((await AsyncStorage.getItem('history'))).toBe(JSON.stringify(finalHistory));
+    expect((await Sefaria.history.getItem('savedItems'))).toBe(JSON.stringify([lastSyncItems[0], webHistory[1]]));
+    expect((await Sefaria.history.getItem('lastPlace'))).toBe(JSON.stringify([lastSyncItems[0]]));
+    expect((await Sefaria.history.getItem('history'))).toBe(JSON.stringify(finalHistory));
     expect(currHistory).toEqual(finalHistory);
-    expect((await AsyncStorage.removeItem('lastSyncItems'))).toBeNull();
+    expect((await Sefaria.history.getItem('lastSyncItems'))).toBeNull();
   });
 
   test('syncEmpty', async () => {
-    await AsyncStorage.removeItem('history');
-    await AsyncStorage.removeItem('lastSyncItems');
-    await AsyncStorage.removeItem('savedItems');
+    await Sefaria.history.removeItem('history');
+    await Sefaria.history.removeItem('lastSyncItems');
+    await Sefaria.history.removeItem('savedItems');
     await AsyncStorage.removeItem('lastSyncTime');
     const auth = { uid: 1, token: 2 };
     Sefaria.api.getAuthToken = jest.fn(() => {
@@ -494,9 +434,9 @@ describe('history', () => {
     expect(fetch.mock.calls[0][1].headers['Content-Type']).toBe('application/x-www-form-urlencoded;charset=UTF-8');
 
     expect((await AsyncStorage.getItem('lastSyncTime'))).toBe('11');
-    expect((await AsyncStorage.getItem('savedItems'))).toBe('[]');
-    expect((await AsyncStorage.getItem('lastPlace'))).toBe('[]');
-    expect((await AsyncStorage.getItem('history'))).toBe('[]');
+    expect((await Sefaria.history.getItem('savedItems'))).toBe('[]');
+    expect((await Sefaria.history.getItem('lastPlace'))).toBe('[]');
+    expect((await Sefaria.history.getItem('history'))).toBe('[]');
 
   });
 });

@@ -1,7 +1,7 @@
 import { Alert, Platform } from 'react-native';
 //import { GoogleAnalyticsTracker } from 'react-native-google-analytics-bridge'; //https://github.com/idehub/react-native-google-analytics-bridge/blob/master/README.md
 import { unzip } from 'react-native-zip-archive'; //for unzipping -- (https://github.com/plrthink/react-native-zip-archive)
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import VersionNumber from 'react-native-version-number';
 import { Search } from '@sefaria/search';
 import sanitizeHtml from 'sanitize-html'
@@ -20,6 +20,7 @@ import {
   checkUpdatesFromServer,
   loadJSONFile,
   fileExists, FILE_DIRECTORY,
+  simpleDelete,
 } from './DownloadControl'
 
 const ERRORS = {
@@ -168,8 +169,9 @@ Sefaria = {
     var bookRefStem  = Sefaria.textTitleForRef(ref);
     //if you want to open a specific version, there is no json file. force an api call instead
     const shouldLoadFromApi = Sefaria.shouldLoadFromApi(versions);
-    var jsonPath     = shouldLoadFromApi ? "" : Sefaria._JSONSourcePath(fileNameStem);
-    var zipPath      = shouldLoadFromApi ? "" : Sefaria._zipSourcePath(bookRefStem);
+    if (shouldLoadFromApi) { throw ERRORS.NOT_OFFLINE; }
+    var jsonPath = Sefaria._JSONSourcePath(fileNameStem);
+    var zipPath  = Sefaria._zipSourcePath(bookRefStem);
     // Pull data from in memory cache if available
     if (jsonPath in Sefaria._jsonData) {
       return Sefaria._jsonData[jsonPath];
@@ -717,7 +719,7 @@ Sefaria = {
         for (let f of fileList) {
           if (f.endsWith(".json")) {
             //console.log('deleting', f.path);
-            FileSystem.deleteAsync(`${FileSystem.documentDirectory}/${f}`).then(() => {});
+            simpleDelete(`${FileSystem.documentDirectory}/${f}`).then(() => {});
           }
         }
         resolve();
@@ -1387,8 +1389,8 @@ Sefaria.util = {
   getTextLanguageWithContent: function(lang, en, he) {
     // Returns a language that has content in it give strings `en` and `he`, with a preference for `lang`.
     let newLang = lang;
-    const hasEn = (typeof en === "string") && en.replace(/<[^>]+>/g,'').trim() != "";
-    const hasHe = (typeof he === "string") && he.replace(/<[^>]+>/g,'').trim() != "";
+    const hasEn = (typeof en === "string") && en.replace(/<.+?>/g,'').replace(/[\u200e\u2066]/g, '').trim() != "";
+    const hasHe = (typeof he === "string") && he.replace(/<.+?>/g,'').replace(/[\u200e\u2066]/g, '').trim() != "";
     if (newLang == "bilingual") {
       if (hasEn && !hasHe) {
         newLang = "english";
@@ -1448,6 +1450,7 @@ Sefaria.util = {
       "pl": "polish",
       "ru": "russian",
       "eo": "esparanto",
+      "fa": "farsi",
     };
     return codeMap[code.toLowerCase()];
   }

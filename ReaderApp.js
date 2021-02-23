@@ -19,7 +19,7 @@ import {
   Share,
 } from 'react-native';
 import NetInfo from "@react-native-community/netinfo";
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { PinchGestureHandler, State } from 'react-native-gesture-handler';
 //import --- from 'react-native-gesture-handler';
 import BackgroundFetch from "react-native-background-fetch";
@@ -82,7 +82,6 @@ class ReaderApp extends React.PureComponent {
   };
 
   constructor(props, context) {
-    console.log('ReaderApp Props', props,);
     super(props, context);
     this._initDeepLinkURL = null;  // if you init the app thru a deep link, need to make sure the URL is applied during componentDidMount()
     if (Platform.OS === 'android') {
@@ -863,6 +862,7 @@ class ReaderApp extends React.PureComponent {
           next: this.state.next,
           sectionArray: this.state.sectionArray,
           sectionHeArray: this.state.sectionHeArray,
+          sectionIndexRef: this.state.sectionIndexRef + 1,  // needs to be shifted
           linksLoaded: this.state.linksLoaded,
           loaded: true,
           loadingTextHead: false,

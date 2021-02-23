@@ -601,7 +601,7 @@ const CollapsibleNode = ({
           <SText lang={"hebrew"} style={[styles.he, styles.textTocSectionTitle, theme.text]}>{node.heTitle}</SText>
         </TouchableOpacity> : null) :
         ( node.title.length > 0 ? <TouchableOpacity onPress={toggleVisibility} style={{flex: 1, flexDirection: "row", justifyContent:"flex-start"}}>
-          <SText lang={"english"} style={[styles.en, styles.textTocSectionTitle, theme.text]}>{node.title}</SText>
+          <SText lang={"english"} style={[styles.en, styles.textTocSectionTitle, theme.text]} lineMultiplier={1.05}>{node.title}</SText>
           {icon}
         </TouchableOpacity> : null)}
       { isVisible ? children : null }

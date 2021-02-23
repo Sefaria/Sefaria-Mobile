@@ -1,6 +1,6 @@
 import React from 'react';
 import renderer, { act } from 'react-test-renderer';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import TestContextWrapper from '../TestContextWrapper';
 import ReaderApp from '../ReaderApp';
 import BackgroundFetch from 'react-native-background-fetch';

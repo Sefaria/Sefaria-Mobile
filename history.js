@@ -1,6 +1,7 @@
 'use strict';
-
-import AsyncStorage from '@react-native-community/async-storage';
+import crashlytics from '@react-native-firebase/crashlytics';
+import {FileSystem} from 'react-native-unimodules'
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { STATE_ACTIONS } from './StateManager';
 
 const History = {
@@ -9,39 +10,48 @@ const History = {
   lastSync: [],
   _hasSwipeDeleted: false,
   _hasSyncedOnce: false,
-  migrateFromOldRecents: async function() {
-    const recentStr = await AsyncStorage.getItem("recent");
-    const savedStr = await AsyncStorage.getItem("saved");
-    if (!!recentStr || !!savedStr) {
-      const sefariaEpoch = Math.floor((new Date(2017, 11, 1)).getTime()/1000);  // Dec 1, 2017 approx date of launch of old recent items
-      const recent = JSON.parse(recentStr) || [];
-      const saved = JSON.parse(savedStr) || [];
-      const history = recent.map(r => ({
-        ref: r.ref,
-        he_ref: Sefaria.toHeSegmentRef(r.heRef, r.ref),
-        versions: r.versions || {},
-        book: Sefaria.textTitleForRef(r.ref),
-        time_stamp: sefariaEpoch,
-      }));
-      const savedHistory = saved.map(r => ({
-        action: 'add_saved',
-        ref: r.ref,
-        he_ref: Sefaria.toHeSegmentRef(r.heRef, r.ref),
-        versions: {},  // saved didn't keep track of version
-        book: Sefaria.textTitleForRef(r.ref),
-        time_stamp: sefariaEpoch,
-      }));
-      const historyStr = JSON.stringify(savedHistory.concat(history));
-      return Promise.all([
-        AsyncStorage.removeItem("recent"),
-        AsyncStorage.removeItem("saved"),
-        AsyncStorage.setItem("lastSyncItems", historyStr),
-        AsyncStorage.setItem("lastSyncTime", '' + sefariaEpoch),
-        AsyncStorage.setItem("lastPlace", JSON.stringify(Sefaria.history.historyToLastPlace(history))),
-      ]);
+  migrateFromAsyncStorageHistory: async function() {
+    const hasMigrated = await AsyncStorage.getItem('hasMigratedToHistoryJSONFiles');
+    if (hasMigrated) { return; }
+    await FileSystem.makeDirectoryAsync(`${FileSystem.documentDirectory}history`);
+    try {
+      const lastPlace = await AsyncStorage.getItem('lastPlace');
+      Sefaria.history.setItem('lastPlace', lastPlace);
+      await AsyncStorage.removeItem('lastPlace');
+    } catch (e) {
+      crashlytics().recordError(new Error("Failed to migrate lastPlace"));
     }
-    return Promise.resolve();
+
+    try {
+      const savedItems = await AsyncStorage.getItem('savedItems');
+      Sefaria.history.setItem('savedItems', savedItems);
+      await AsyncStorage.removeItem('savedItems');
+    } catch (e) {
+      crashlytics().recordError(new Error("Failed to migrate savedItems"));
+    }
+
+    try {
+      const lastSyncItems = await AsyncStorage.getItem('lastSyncItems');
+      Sefaria.history.setItem('lastSyncItems', lastSyncItems);
+      await AsyncStorage.removeItem('lastSyncItems');
+    } catch (e) {
+      crashlytics().recordError(new Error("Failed to migrate lastSyncItems"));
+    }
+
+    try {
+      const history = await AsyncStorage.getItem('history');
+      Sefaria.history.setItem('history', history)
+      await AsyncStorage.removeItem('history');
+    } catch (e) {
+      crashlytics().recordError(new Error("Failed to migrate history"));
+    }
+
+    await AsyncStorage.setItem('hasMigratedToHistoryJSONFiles', 'true');
   },
+  getFilename: key => `${FileSystem.documentDirectory}history/${key}.json`,
+  getItem: key => FileSystem.readAsStringAsync(Sefaria.history.getFilename(key)).catch(e => null),
+  setItem: (key, value) => FileSystem.writeAsStringAsync(Sefaria.history.getFilename(key), value),
+  removeItem: key => FileSystem.deleteAsync(Sefaria.history.getFilename(key)).catch((e)=>{}),
   historyToLastPlace: function(history_item_array) {
     const seenBooks = {};
     const lastPlace = [];
@@ -75,11 +85,11 @@ const History = {
     ) { return; }
     if (onSave) { onSave(history_item); }
     Sefaria.history.lastSync = [history_item].concat(lSync);
-    AsyncStorage.setItem("lastSyncItems", JSON.stringify(Sefaria.history.lastSync));
+    Sefaria.history.setItem("lastSyncItems", JSON.stringify(Sefaria.history.lastSync));
     if (!history_item.secondary) {
       // secondary items should not be saved in lastPlace
       Sefaria.history.lastPlace = Sefaria.history.historyToLastPlace([history_item].concat(Sefaria.history.lastPlace));
-      AsyncStorage.setItem("lastPlace", JSON.stringify(Sefaria.history.lastPlace));
+      Sefaria.history.setItem("lastPlace", JSON.stringify(Sefaria.history.lastPlace));
     }
   },
   getHistoryRefForTitle: function(title) {
@@ -91,10 +101,10 @@ const History = {
     return null;
   },
   _loadHistoryItems: async function() {
-    await Sefaria.history.migrateFromOldRecents();
-    const lastPlace = await AsyncStorage.getItem('lastPlace');
-    const lastSync = await AsyncStorage.getItem('lastSyncItems');
-    const saved = await AsyncStorage.getItem('savedItems');
+    await Sefaria.history.migrateFromAsyncStorageHistory();
+    const lastPlace = await Sefaria.history.getItem('lastPlace');
+    const lastSync = await Sefaria.history.getItem('lastSyncItems');
+    const saved = await Sefaria.history.getItem('savedItems');
     const hasSwipeDeleted = await AsyncStorage.getItem("hasSwipeDeleted");
     const hasSyncedOnce = await AsyncStorage.getItem('hasSyncedOnce');
     try { Sefaria.history.lastPlace = JSON.parse(lastPlace) || []; }
@@ -115,8 +125,8 @@ const History = {
       textual_custom: oneOf('sephardi', 'ashkenazi')
     }
     */
-    const currHistoryStr = await AsyncStorage.getItem('history') || '[]';
-    const lastSyncStr = await AsyncStorage.getItem('lastSyncItems') || '[]';
+    const currHistoryStr = await Sefaria.history.getItem('history') || '[]';
+    const lastSyncStr = await Sefaria.history.getItem('lastSyncItems') || '[]';
     const settingsStr = JSON.stringify(settings);
     const lastSyncItems = JSON.parse(lastSyncStr);
     let currHistory = JSON.parse(currHistoryStr);
@@ -143,15 +153,15 @@ const History = {
         });
         console.log('resp', response);
         await AsyncStorage.setItem('lastSyncTime', '' + response.last_sync);
-        await AsyncStorage.removeItem('lastSyncItems');
-        const currSaved = JSON.parse(await AsyncStorage.getItem('savedItems') || '[]');
+        await Sefaria.history.removeItem('lastSyncItems');
+        const currSaved = JSON.parse(await Sefaria.history.getItem('savedItems') || '[]');
         const { mergedHistory, mergedSaved } = Sefaria.history.mergeHistory(currHistory, currSaved, response.user_history);
         Sefaria.history.lastPlace = Sefaria.history.historyToLastPlace(mergedHistory);
         Sefaria.history.saved = mergedSaved;
         currHistory = mergedHistory;
-        await AsyncStorage.setItem('savedItems', JSON.stringify(Sefaria.history.saved));
-        await AsyncStorage.setItem('lastPlace', JSON.stringify(Sefaria.history.lastPlace));
-        await AsyncStorage.setItem('history', JSON.stringify(mergedHistory));
+        await Sefaria.history.setItem('savedItems', JSON.stringify(Sefaria.history.saved));
+        await Sefaria.history.setItem('lastPlace', JSON.stringify(Sefaria.history.lastPlace));
+        await Sefaria.history.setItem('history', JSON.stringify(mergedHistory));
         Sefaria.history.updateSettingsAfterSync(dispatch, response.settings);
         if (!Sefaria.history._hasSyncedOnce) {
           Sefaria.history._hasSyncedOnce = true;
@@ -221,8 +231,8 @@ const History = {
     } else {
       Sefaria.history.saved = Sefaria.history.saved.filter(s => s.ref !== item.ref);
     }
-    AsyncStorage.setItem("lastSyncItems", JSON.stringify(Sefaria.history.lastSync));
-    AsyncStorage.setItem("savedItems", JSON.stringify(Sefaria.history.saved));
+    Sefaria.history.setItem("lastSyncItems", JSON.stringify(Sefaria.history.lastSync));
+    Sefaria.history.setItem("savedItems", JSON.stringify(Sefaria.history.saved));
   },
   indexOfSaved: function(ref) {
     return Sefaria.history.saved.findIndex(existing => ref === existing.ref);

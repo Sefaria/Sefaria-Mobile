@@ -7,7 +7,7 @@ import 'abortcontroller-polyfill';
 
 import strings from './LocalizedStrings';
 import LinkContent from './LinkContent';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import crashlytics from '@react-native-firebase/crashlytics';  // to setup up generic crashlytics reports
 import jwt_decode from 'jwt-decode';
 
@@ -197,7 +197,7 @@ var Api = {
           url += "api/name/";
           break;
         case "userSheets":
-          url += `api/sheets/user/${uid}`;
+          url += `api/sheets/user/${uid}/`;
           break;
         case "tagCategory":
           url += "api/tag-category/";
@@ -607,10 +607,10 @@ var Api = {
     Sefaria.history._hasSyncedOnce = false;
     if (!hasSyncedOnce) { return; /* dont fully delete data if not backed up */}
 
-    await AsyncStorage.removeItem('lastPlace');
-    await AsyncStorage.removeItem('savedItems');
-    await AsyncStorage.removeItem('lastSyncItems');
-    await AsyncStorage.removeItem('history');
+    await Sefaria.history.removeItem('lastPlace');
+    await Sefaria.history.removeItem('savedItems');
+    await Sefaria.history.removeItem('lastSyncItems');
+    await Sefaria.history.removeItem('history');
     Sefaria.history.saved = [];
     Sefaria.history.lastPlace = [];
     Sefaria.history.lastSync = [];

@@ -11,7 +11,7 @@ import {
   getLocalBookList,
   FILE_DIRECTORY, calculateBooksToDownload, calculateBooksToDelete, autoUpdateCheck
 } from '../DownloadControl'
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {FileSystem} from 'react-native-unimodules'
 import Sefaria from '../sefaria'
 

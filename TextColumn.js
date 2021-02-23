@@ -198,11 +198,15 @@ class TextColumn extends React.PureComponent {
           if (!rowData) {
             rowData = {
               content: rowContent, // Store data in `content` so that we can manipulate other fields without manipulating the original data
-              sectionIndex: sectionIndex,
+              sectionIndex,
               rowIndex: i,
               highlight,
             };
             this.dataSourceHash[changeString] = rowData;           
+          } else {
+            // in the case where you loaded a previous section, this sectionIndex is no longer valid
+            // always update when pulling from cache just in case
+            rowData.sectionIndex = sectionIndex;
           }
           // excluding b/c they don't change height: props.themeStr, props.linksLoaded[sectionIndex]
           //rowData.changeString += rowData.highlight ? "|highlight" : "";

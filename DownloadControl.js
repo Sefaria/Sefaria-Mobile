@@ -4,7 +4,7 @@ import {FileSystem} from 'react-native-unimodules'
 import {unzip} from 'react-native-zip-archive'; //for unzipping -- (https://github.com/plrthink/react-native-zip-archive)
 import strings from './LocalizedStrings'
 import {Alert, Platform} from 'react-native';
-import AsyncStorage from "@react-native-community/async-storage";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import NetInfo from "@react-native-community/netinfo";
 import Sefaria from "./sefaria";
 import crashlytics from '@react-native-firebase/crashlytics';
@@ -14,10 +14,16 @@ const SCHEMA_VERSION = "6";
 const DOWNLOAD_SERVER = "https://readonly.sefaria.org";
 const HOST_PATH = `${DOWNLOAD_SERVER}/static/ios-export/${SCHEMA_VERSION}`;
 const HOST_BUNDLE_URL = `${HOST_PATH}/bundles`;
-const [FILE_DIRECTORY, TMP_DIRECTORY] = [`${FileSystem.documentDirectory}/library`, `${FileSystem.cacheDirectory}/tmp`];  //todo: make sure these are used
+const [FILE_DIRECTORY, TMP_DIRECTORY] = [`${FileSystem.documentDirectory}library`, `${FileSystem.cacheDirectory}tmp`];  //todo: make sure these are used
 
 let BooksState = {};
 let PackagesState = {};
+
+async function simpleDelete(filePath) {
+try{
+  await FileSystem.deleteAsync(encodeURI(filePath));
+  } catch (e) { console.warn(e) }
+}
 
 /*
  * A note on package tracking:
@@ -346,22 +352,16 @@ function deriveDownloadState(pkgStateData) {
   return packageResult
 }
 
-function loadJSONFile(JSONSourcePath) {
-  // Test with Appium
+async function loadJSONFile(JSONSourcePath) {
   if (Platform.OS === "ios") {JSONSourcePath = encodeURI(JSONSourcePath)}
-  return new Promise((resolve, reject) => {
-    FileSystem.readAsStringAsync(JSONSourcePath).then(result => {
-      let parsedResult;
-      try {
-        parsedResult = JSON.parse(result);
-      } catch (e) {
-        parsedResult = {}; // if file can't be parsed, fall back to empty object
-      }
-      resolve(parsedResult);
-    }).catch(e => {
-      reject(e);
-    });
-  })
+  const readResult = await FileSystem.readAsStringAsync(JSONSourcePath);
+  let parsedResult;
+  try {
+    parsedResult = JSON.parse(readResult);
+  } catch (e) {
+    parsedResult = {}; // if file can't be parsed, fall back to empty object
+  }
+  return parsedResult
 }
 
 async function loadCoreFile(filename) {
@@ -473,7 +473,7 @@ async function setLocalBookTimestamps(bookTitleList) {
   let fileData = await throttlePromiseAll(fileList, x => {
     if (Platform.OS === "ios") { x = encodeURI(x) }
     return FileSystem.getInfoAsync(`${FILE_DIRECTORY}/${x}`)
-  }, 400);
+  }, 10);
   const stamps = {};
   fileData.forEach((f, i) => {
     const bookName = fileList[i].slice(0, -4);
@@ -516,8 +516,9 @@ async function deleteBooks(bookList, shouldCleanTmpDirectory=true) {
     const exists = true;
     if (exists) {
       try {
-        await FileSystem.deleteAsync(filepath, {idempotent: true});
+      await simpleDelete(filepath);
       } catch (e) {
+        console.log(`Error deleting file: ${e}`)
         crashlytics().log(`Error deleting file: ${e}`);
       }
     }
@@ -530,7 +531,6 @@ async function deleteBooks(bookList, shouldCleanTmpDirectory=true) {
       BooksState[bookTitle].desired = false;
     }
   });
-  console.log('finished deleting books');
 
   // deleting should clean out the tmp directory. This will clear out partially completed downloads, so we want to be able to opt out
   if (shouldCleanTmpDirectory) { await cleanTmpDirectory(); }
@@ -731,6 +731,14 @@ const downloadRecover = async (networkMode, downloadBuffer) => {
 
 async function calculateBooksToDownload(booksState) {
   // Test with Jest
+  let timeFudge = null;
+  const getTimeFudge = () => {
+    if (!!timeFudge) { return timeFudge }
+    const [now, later] = [new Date(0), new Date(0)];
+    later.setHours(later.getHours() + 6);
+    timeFudge = later - now;
+    return timeFudge
+  }
   const remoteBookUpdates = await lastUpdated();
   if (remoteBookUpdates === null)
     {
@@ -749,8 +757,7 @@ async function calculateBooksToDownload(booksState) {
       } else {
         const [localUpdate, remoteUpdate] = [booksState[bookTitle].localLastUpdated, new Date(remoteBookUpdates.titles[bookTitle])];
         // file timestamp will come from the server on certain platforms - we pad a bit as these values can be very similar to those on last_updated.json
-        localUpdate.setHours(localUpdate.getHours() + 6);
-        if (localUpdate < remoteUpdate) {
+        if ((remoteUpdate - localUpdate) > getTimeFudge()) {
             if (bookTitle === 'Genesis') {
                 console.log(`Genesis localUpdate: ${localUpdate}; remoteUpdate: ${remoteUpdate}`);
             }
@@ -778,7 +785,7 @@ async function cleanTmpDirectory() {
   } catch (e) {  // if for whatever reason TMP_DIRECTORY doesn't exist, we can just exit now
     return
   }
-  await Promise.all(files.map(f => FileSystem.deleteAsync(`${TMP_DIRECTORY}/${f}`)));
+  await Promise.all(files.map(f => simpleDelete(`${TMP_DIRECTORY}/${f}`)));
 }
 
 async function postDownload(downloadPath, newDownload=true) {
@@ -795,7 +802,7 @@ async function postDownload(downloadPath, newDownload=true) {
     crashlytics().log(`Error when unzipping bundle: ${e}`)
   }
   try {
-    await FileSystem.deleteAsync(downloadPath)
+    await simpleDelete(downloadPath)
   } catch (e) { console.warn(e) }
   await cleanTmpDirectory();
   await repopulateBooksState();
@@ -902,7 +909,7 @@ async function downloadPackage(packageName, networkSetting) {
   // await downloadBundle(`${packageName}.zip`, networkSetting)
 }
 
-async function downloadUpdate(networkSetting, triggeredByUser=true) {
+async function downloadUpdate(networkSetting, triggeredByUser=true, booksToDownload=null) {
   // Test with Appium
   const aborter = {abort: false};
   addCancelMethod(() => aborter.abort = true);
@@ -911,7 +918,9 @@ async function downloadUpdate(networkSetting, triggeredByUser=true) {
     if (triggeredByUser) { downloadBlockedNotification(); }
     return
   }
-  const booksToDownload = await calculateBooksToDownload(BooksState);
+  if (!booksToDownload) {
+    booksToDownload = await calculateBooksToDownload(BooksState);
+  }
   if (!booksToDownload.length) { return }
   console.log('requesting new bundle');
   await Tracker.startDownloadSession('Update');
@@ -977,7 +986,7 @@ async function downloadCoreFile(filename) {
   }
   const status = !!downloadResp ? downloadResp.status : 'total failure';
   if ((status >= 300 || status < 200) || (status === 'total failure')) {
-    await FileSystem.deleteAsync(tempPath);
+    await simpleDelete(tempPath);
     const e = new Error(`bad download status; got : ${status} from ${fileUrl}`);
     crashlytics().recordError(e);
     throw e  // todo: review. Should we alert the user here?
@@ -988,7 +997,7 @@ async function downloadCoreFile(filename) {
     await FileSystem.moveAsync({from: tempPath, to: `${FILE_DIRECTORY}/${filename}`});
   } catch(e) {
     crashlytics().log(`failed to move file at ${tempPath} to app storage: ${e}`);
-    await FileSystem.deleteAsync(tempPath, {idempotent: true});
+    await simpleDelete(tempPath, {idempotent: true});
   }
 }
 
@@ -1056,7 +1065,7 @@ function promptLibraryUpdate(totalDownloads, newBooks, networkMode) {
     strings.updateLibrary,
     updateString,
     [
-      {text: strings.download, onPress: () => downloadUpdate(networkMode)},
+      {text: strings.download, onPress: () => downloadUpdate(networkMode, true, totalDownloads)},
       {text: strings.notNow, onPress: onCancel}
     ]
   )
@@ -1176,4 +1185,5 @@ export {
   isDownloadAllowed,
   requestNewBundle,
   fileExists,
+  simpleDelete,
 };
