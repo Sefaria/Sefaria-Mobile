@@ -20,6 +20,7 @@ import {
   checkUpdatesFromServer,
   loadJSONFile,
   fileExists, FILE_DIRECTORY,
+  simpleDelete,
 } from './DownloadControl'
 import { Topic } from './Topic';
 
@@ -775,7 +776,7 @@ Sefaria = {
         for (let f of fileList) {
           if (f.endsWith(".json")) {
             //console.log('deleting', f.path);
-            FileSystem.deleteAsync(`${FileSystem.documentDirectory}/${f}`).then(() => {});
+            simpleDelete(`${FileSystem.documentDirectory}/${f}`).then(() => {});
           }
         }
         resolve();
