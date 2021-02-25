@@ -490,7 +490,7 @@ const TopicPage = ({ topic, onBack, openNav, openTopic, showToast, openRef, open
         keyExtractor={item => item.isSplice ? 'splice' : item[0]}
         ListHeaderComponent={TopicPageHeaderRendered}
         ListFooterComponent={textFinishedLoading ? null : <LoadingView />}
-        ListEmptyComponent={<TopicListEmpty query={query} tab={topicsTab} isLoading={textFinishedLoading} />}
+        ListEmptyComponent={<TopicListEmpty query={query} tab={topicsTab} isLoading={!textFinishedLoading} />}
         spliceIndex={query ? undefined : 2}
         currFilter={query}
         filterFunc={refFilter}
@@ -516,7 +516,7 @@ const TopicPage = ({ topic, onBack, openNav, openTopic, showToast, openRef, open
         keyExtractor={item => item.isSplice ? 'splice' : ""+item.sheet_id}
         ListHeaderComponent={TopicPageHeaderRendered}
         ListFooterComponent={sheetFinishedLoading ? null : <LoadingView />}
-        ListEmptyComponent={<TopicListEmpty query={query} tab={topicsTab} isLoading={sheetFinishedLoading} />}
+        ListEmptyComponent={<TopicListEmpty query={query} tab={topicsTab} isLoading={!sheetFinishedLoading} />}
         spliceIndex={query ? undefined : 2}
         currFilter={query}
         filterFunc={sheetFilter}
