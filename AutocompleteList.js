@@ -210,7 +210,7 @@ class AutocompleteList extends React.Component {
         src = this.props.themeStr === "white" ? require("./img/group.png") : require("./img/group-light.png");
         break;        
       case "person":
-        src = this.props.themeStr === "white" ? require("./img/user.png") : require("./img/user-light.png");
+        src = this.props.themeStr === "white" ? require("./img/quill.png") : require("./img/quill-light.png");
         break;
       case "topic":
         src = this.props.themeStr === "white" ? require("./img/hashtag.png") : require("./img/hashtag-light.png");
