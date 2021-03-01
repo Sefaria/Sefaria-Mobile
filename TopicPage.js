@@ -567,7 +567,7 @@ const TopicPageHeader = ({ title, slug, description, topicsTab, setTopicsTab, qu
       {title ? (
         <SText
           style={[isHeb ? styles.he : styles.en, {fontSize: 30}, theme.text]}
-          lang={interfaceLanguage} lineMultiplier={1.05}
+          lang={interfaceLanguage} lineMultiplier={1.1}
         >
           { isHeb ? title.he : title.en }
         </SText>

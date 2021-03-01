@@ -994,7 +994,7 @@ const LocalSearchBar = ({ onChange, query, onFocus }) => {
   return (
     <View style={[{borderRadius: 400, borderWidth: 1, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10}, theme.container, theme.lighterGreyBorder]}>
       <SearchButton onPress={()=>{}} extraStyles={{height: 40}} disabled />
-      <View style={Platform.OS === 'android' ? {flex: 1, marginTop: 2, marginBottom: -2} : null}>
+      <View style={Platform.OS === 'android' ? {flex: 1, marginTop: 2, marginBottom: -2} : {flex:1}}>
         <TextInput
           style={[styles.en, { fontSize: 18, paddingVertical: 0, paddingRight: 20, lineHeight: Platform.OS === 'android' ? 40 : null, flex: 1 }, theme.text]}
           onChangeText={onChange}
