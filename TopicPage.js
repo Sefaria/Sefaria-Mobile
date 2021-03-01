@@ -495,7 +495,7 @@ const TopicPage = ({ topic, onBack, openNav, openTopic, showToast, openRef, open
         currFilter={query}
         filterFunc={refFilter}
         sortFunc={(a, b) => refSort('Relevance', a, b, { interfaceLanguage })}
-        contentContainerStyle={{paddingBottom: 500}}
+        contentContainerStyle={{minHeight: 700}}
       />
     ) : (
       <FilterableFlatList
@@ -521,7 +521,7 @@ const TopicPage = ({ topic, onBack, openNav, openTopic, showToast, openRef, open
         currFilter={query}
         filterFunc={sheetFilter}
         sortFunc={(a, b) => sheetSort('Relevance', a, b, { interfaceLanguage })}
-        contentContainerStyle={{paddingBottom: 500}}
+        contentContainerStyle={{minHeight: 700}}
       />
     )
   );
