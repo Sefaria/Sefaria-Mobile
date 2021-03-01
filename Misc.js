@@ -80,7 +80,7 @@ const ContentTextWithFallback = ({ en, he, extraStyles=[], lang, ...stextProps }
     text = he;
   }
   return (
-    <SText lang={lang} style={[langStyle].concat(extraStyles)} {...stextProps} lineMultiplier={1.05}>{text}</SText>
+    <SText lang={lang} style={[langStyle].concat(extraStyles)} {...stextProps} lineMultiplier={1.1}>{text}</SText>
   );
 }
 
