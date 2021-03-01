@@ -8,6 +8,8 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
+  KeyboardAvoidingView,
+  Platform,
   Image,
 } from 'react-native';
 import remoteConfig from '@react-native-firebase/remote-config';
@@ -94,7 +96,8 @@ const AuthPage = ({ authMode, close, showToast, openLogin, openRegister, openUri
   const isLogin = authMode === 'login';
   const placeholderTextColor = themeStr == "black" ? "#BBB" : "#777";
   const isHeb = interfaceLanguage === 'hebrew';
-  return(
+
+  const mainContent = (
     <ScrollView style={{flex:1, alignSelf: "stretch"}} contentContainerStyle={{alignItems: "center", paddingBottom: 50}} keyboardShouldPersistTaps='handled'>
       <RainbowBar />
       <View style={{ flex: 1, alignSelf: "stretch", alignItems: "flex-end", marginHorizontal: 10}}>
@@ -187,6 +190,19 @@ const AuthPage = ({ authMode, close, showToast, openLogin, openRegister, openUri
         }
       </View>
     </ScrollView>
+
+  )
+
+
+  return(
+    Platform.OS == "ios" ?
+    <KeyboardAvoidingView style={{flex:1, alignSelf: "stretch"}} contentContainerStyle={{alignItems: "center", paddingBottom: 50}} behavior="padding">
+      {mainContent}
+    </KeyboardAvoidingView>
+    :
+    <View style={{flex:1, alignSelf: "stretch"}} contentContainerStyle={{alignItems: "center", paddingBottom: 50}}>
+      {mainContent}
+    </View>
   )
 }
 AuthPage.propTypes = {
