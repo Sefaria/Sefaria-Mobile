@@ -63,7 +63,7 @@ class AutocompleteList extends React.Component {
       .then(results => {
         if (this._isMounted) {
           const typeToValue = { "ref": 1, "person": 4, "toc": 3, "topic": 2, "user": 5 };
-          const completions = results.completion_objects.map((c,i) =>
+          let completions = results.completion_objects.map((c,i) =>
           {
             c.type = c.type.toLowerCase()
             if (i === 0) {typeToValue[c.type] = 0;}  // priveledge the first results' type
@@ -79,6 +79,15 @@ class AutocompleteList extends React.Component {
               type: 'ref',
               is_primary: true,
             });
+          } else if (results.topic_slug) {
+            // manually add topic item to list
+            completions = completions.filter(c => !(c.key == results.topic_slug && c.type == 'topic'));
+            completions.unshift({
+              title: q.substring(1),
+              key: results.topic_slug,
+              type: 'topic',
+            });
+
           }
           this.setState({completions, completionsLang: results.lang})
         }

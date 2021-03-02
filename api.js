@@ -343,7 +343,7 @@ var Api = {
     return new Promise((resolve, reject) => {
       const cached = Sefaria.api._nameCache[name];
       if (!!cached) { resolve(cached); return; }
-      Sefaria.api._request(name, 'name', false, {}, failSilently)
+      Sefaria.api._request(encodeURIComponent(name), 'name', false, {}, failSilently)
         .then(response => {
           Sefaria.api._nameCache[name] = response;
           resolve(response);
