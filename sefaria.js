@@ -696,6 +696,7 @@ Sefaria = {
   },
   _topicTocPageKey: slug => "_" + slug,
   topicTocPage: function(parent) {
+    // if parent === null, return toc page for root
     if (!Sefaria.topic_toc) { return; }
     const key = Sefaria._topicTocPageKey(parent);
     return Sefaria._topicTocPages[key];
@@ -705,8 +706,9 @@ Sefaria = {
   },
   topicTocCategory: function(slug) {
     // return category english and hebrew for slug
+    // return null if slug has no category (useful for passing result into topicTocPage())
     if (!this._topicTocCategory) { this._initTopicTocCategory(); }
-    return this._topicTocCategory[slug];
+    return this._topicTocCategory[slug] || null;
   },
   isTopicTopLevel: function(slug) {
     // returns true is `slug` is part of the top level of topic toc

@@ -53,7 +53,7 @@ const TopicListItem = ({ topic, openTopic, segmentRef, heSegmentRef }) => {
       extraStyles={[{borderBottomWidth: 1, paddingVertical: 20}, theme.bordered, styles.readerSidePadding]}
     >
       <DataSourceLine dataSources={topic.dataSources} title={{en: segmentRef, he: heSegmentRef}} flexDirection={flexDirection} prefixText={strings.thisTopicIsConnectedTo}>
-        <ContentTextWithFallback {...topic.title} lang={menuLanguage} lineMultiplier={1.05} extraStyles={[{marginBottom: -10}]} />
+        <ContentTextWithFallback {...topic.title} lang={menuLanguage} lineMultiplier={1.05} extraStyles={[{marginBottom: -10}, theme.text]} />
       </DataSourceLine>
       {
         topic.description && (topic.description.en || topic.description.he) ? (
