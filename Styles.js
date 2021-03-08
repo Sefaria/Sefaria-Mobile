@@ -401,7 +401,6 @@ export default StyleSheet.create({
     width: 12,
     height: 12,
     paddingLeft: 20,
-    marginTop: 3,
   },
   collapseArrowHe: {
     width: 12,

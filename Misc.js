@@ -598,7 +598,7 @@ const CollapseIcon = ({ showHebrew, isVisible }) => {
   return (
     <Image
       source={src}
-      style={(showHebrew ? styles.collapseArrowHe : styles.collapseArrowEn)}
+      style={[(showHebrew ? styles.collapseArrowHe : styles.collapseArrowEn), Platform.OS === 'android' ? {marginTop: 3} : null]}
       resizeMode={'contain'}
     />
   );
