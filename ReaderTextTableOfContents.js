@@ -1,8 +1,7 @@
 'use strict';
 import PropTypes from 'prop-types';
-import React, { useContext, useState } from 'react';
+import React, { useState } from 'react';
 import {
-  StyleSheet,
   Text,
   TouchableOpacity,
   View,
@@ -22,12 +21,11 @@ import {
   CollapseIcon,
   SText,
 } from './Misc.js';
-import { GlobalStateContext, getTheme } from './StateManager';
 import styles from './Styles';
 import strings from './LocalizedStrings';
 import iPad from './isIPad';
-import VersionBlock from './VersionBlock';
 import TextErrorBoundary from './TextErrorBoundary';
+import { useGlobalState } from './Hooks.js';
 
 const sectionString = (isHeb, textToc, currentRef, currentHeRef) => {
   // Returns a string expressing just the section we're currently looking including section name when possible
@@ -67,11 +65,10 @@ const ReaderTextTableOfContents = ({
   textUnavailableAlert,
 }) => {
   // The Table of Contents for a single Text
-  const { themeStr, interfaceLanguage, textLanguage } = useContext(GlobalStateContext);
-  const theme = getTheme(themeStr);
+  const { theme, interfaceLanguage, menuLanguage } = useGlobalState();
   var enTitle = title;
   var heTitle = Sefaria.index(title).heTitle;
-  const isHeb = Sefaria.util.get_menu_language(interfaceLanguage, textLanguage) == "hebrew";
+  const isHeb = menuLanguage == "hebrew";
   const langStyle = interfaceLanguage === "hebrew" ? styles.heInt : styles.enInt;
   var categories  = Sefaria.index(title).categories;
   var enCatString = categories.join(", ");
@@ -245,8 +242,7 @@ TextTableOfContentsNavigation.propTypes = {
 
 
 const SchemaNode = ({ schema, refPath, openRef, categories }) => {
-  const { textLanguage, interfaceLanguage, themeStr } = useContext(GlobalStateContext);
-  const theme = getTheme(themeStr);
+  const { theme, menuLanguage } = useGlobalState();
   if (!("nodes" in schema)) {
     if (schema.nodeType === "JaggedArrayNode") {
       return (
@@ -272,7 +268,7 @@ const SchemaNode = ({ schema, refPath, openRef, categories }) => {
     }
 
   } else {
-    const showHebrew = Sefaria.util.get_menu_language(interfaceLanguage, textLanguage) == "hebrew";
+    const showHebrew = menuLanguage == "hebrew";
     const content = schema.nodes.map((node, i) => {
       if ("nodes" in node || "refs" in node && node.refs.length) {
         const innerContent = (<SchemaNode
@@ -281,15 +277,14 @@ const SchemaNode = ({ schema, refPath, openRef, categories }) => {
                         openRef={openRef}
                         categories={categories} />);
         return (
-            <CollapsibleNode
-              key={i}
-              showHebrew={showHebrew}
-              defaultInvisible={schema.nodes.length >= 20}
-              en={node.title}
-              he={node.heTitle}
-              children={innerContent}
-              node={node}/>
-            );
+          <CollapsibleNode
+            key={i}
+            defaultInvisible={schema.nodes.length >= 20}
+            node={node}
+          >
+            {innerContent}
+          </CollapsibleNode>
+        );
       } else if (node.nodeType == "ArrayMapNode") {
         // ArrayMapNode with only wholeRef
         return <ArrayMapNode
@@ -321,12 +316,12 @@ const SchemaNode = ({ schema, refPath, openRef, categories }) => {
         return (
           <CollapsibleNode
             key={i}
-            showHebrew={showHebrew}
             defaultInvisible={!node.default && (schema.nodes.length >= 20 || (node.depth <= 2 && !!node.content_counts && node.content_counts.length >= 20))}
-            en={node.title}
-            he={node.heTitle}
-            children={innerContent}
-            node={node}/>);
+            node={node}
+          >
+            {innerContent}
+          </CollapsibleNode>
+        );
       }
     });
     return (
@@ -386,9 +381,8 @@ const refPathTerminal = count => {
 };
 
 const JaggedArrayNodeSection = ({ depth, sectionNames, addressTypes, contentCounts, refPath, openRef }) => {
-  const { textLanguage, interfaceLanguage, themeStr } = useContext(GlobalStateContext);
-  const theme = getTheme(themeStr);
-  const showHebrew = Sefaria.util.get_menu_language(interfaceLanguage, textLanguage) == "hebrew";
+  const { menuLanguage, theme } = useGlobalState();
+  const showHebrew = menuLanguage == "hebrew";
   if (depth > 2) {
     const content = [];
     for (let i = 0; i < contentCounts.length; i++) {
@@ -429,7 +423,6 @@ const JaggedArrayNodeSection = ({ depth, sectionNames, addressTypes, contentCoun
     return (
       <JaggedArrayNodeSectionBox
         key={i}
-        showHebrew={showHebrew}
         title={section}
         heTitle={heSection}
         openRef={openRef}
@@ -455,9 +448,9 @@ JaggedArrayNodeSection.propTypes = {
   openRef:         PropTypes.func.isRequired,
 };
 
-const JaggedArrayNodeSectionBox = ({ tref, enableAliyot, openRef, title, heTitle, showHebrew }) => {
-  const { themeStr } = useContext(GlobalStateContext);
-  const theme = getTheme(themeStr);
+const JaggedArrayNodeSectionBox = ({ tref, enableAliyot, openRef, title, heTitle }) => {
+  const { theme, menuLanguage } = useGlobalState();
+  const showHebrew = menuLanguage === 'hebrew';
   return (
     <TouchableOpacity
       style={[styles.sectionLink, theme.sectionLink]}
@@ -470,22 +463,21 @@ const JaggedArrayNodeSectionBox = ({ tref, enableAliyot, openRef, title, heTitle
   );
 }
 
-const JaggedArrayNodeSectionTitle = ({ openRef, tref, title, heTitle, showHebrew }) => {
-  const { themeStr } = useContext(GlobalStateContext);
-  const theme = getTheme(themeStr);
+const JaggedArrayNodeSectionTitle = ({ openRef, tref, title, heTitle }) => {
+  const { theme, menuLanguage } = useGlobalState();
+  const showHebrew = menuLanguage === 'hebrew';
   return (
     <TouchableOpacity onPress={() => { openRef(tref); }}>
-      { showHebrew ?
-        <SText lang={"hebrew"} style={[styles.he, styles.textTocSectionTitle, theme.text]}>{heTitle}</SText> :
-        <SText lang={"english"} style={[styles.en, styles.textTocSectionTitle, theme.text]}>{title}</SText> }
+      <SText lang={menuLanguage} style={[showHebrew ? styles.he : styles.en, styles.textTocSectionTitle, theme.text]}>
+        {showHebrew ? heTitle : title}
+      </SText>
     </TouchableOpacity>
   );
 }
 
 
 const ArrayMapNode = ({ schema, openRef, categories }) => {
-  const { textLanguage, interfaceLanguage } = useContext(GlobalStateContext);
-  const showHebrew = Sefaria.util.get_menu_language(interfaceLanguage, textLanguage) == "hebrew";
+  const { menuLanguage } = useGlobalState();
   if ("refs" in schema && schema.refs.length) {
     var sectionLinks = schema.refs.map((ref, i) => {
       i += schema.offset || 0;
@@ -499,7 +491,6 @@ const ArrayMapNode = ({ schema, openRef, categories }) => {
       return (
         <JaggedArrayNodeSectionBox
           key={i}
-          showHebrew={showHebrew}
           title={section}
           heTitle={heSection}
           openRef={openRef}
@@ -509,7 +500,7 @@ const ArrayMapNode = ({ schema, openRef, categories }) => {
       );
     });
 
-    var langStyles = showHebrew ? styles.rtlRow : null;
+    const langStyles = menuLanguage === 'hebrew' ? styles.rtlRow : null;
     return (
       <View style={[styles.textTocNumberedSection, langStyles]}>{sectionLinks}</View>
     );
@@ -518,7 +509,6 @@ const ArrayMapNode = ({ schema, openRef, categories }) => {
       <JaggedArrayNodeSectionTitle
         tref={schema.wholeRef.replace(/\./g, " ")}
         openRef={openRef}
-        showHebrew={showHebrew}
         title={schema.title}
         heTitle={schema.heTitle}
       />
@@ -528,15 +518,13 @@ const ArrayMapNode = ({ schema, openRef, categories }) => {
 
 
 const DictionaryNode = ({ schema, openRef }) => {
-  const { textLanguage, interfaceLanguage } = useContext(GlobalStateContext);
-  const showHebrew = Sefaria.util.get_menu_language(interfaceLanguage, textLanguage) == "hebrew";
-  const langStyles = showHebrew ? styles.rtlRow : null;
+  const { menuLanguage } = useGlobalState();
+  const langStyles = menuLanguage === 'hebrew' ? styles.rtlRow : null;
   return (
     <View style={[styles.textTocNumberedSection, langStyles, {marginBottom: 30}]}>
       { schema.headwordMap.map(([letter, ref], i) => (
         <JaggedArrayNodeSectionBox
           key={i}
-          showHebrew={showHebrew}
           title={letter}
           heTitle={letter}
           openRef={openRef}
@@ -553,20 +541,21 @@ DictionaryNode.propTypes = {
 
 
 const CommentatorList = ({ commentatorList, openRef }) => {
-  const { themeStr, textLanguage, interfaceLanguage } = useContext(GlobalStateContext);
-  const theme = getTheme(themeStr);
-  const showHebrew = Sefaria.util.get_menu_language(interfaceLanguage, textLanguage) == "hebrew";
+  const { theme, menuLanguage } = useGlobalState();
+  const showHebrew = menuLanguage == "hebrew";
   const content = commentatorList.map((commentator, i) => {
     const open = openRef.bind(null, commentator.firstSection);
-    return (<TouchableOpacity onPress={open} style={[styles.textBlockLink, theme.textBlockLink]} key={i}>
-            { showHebrew ?
-              <Text style={[styles.he, styles.centerText, theme.text]}>
-                {commentator.heCollectiveTitle ? commentator.heCollectiveTitle : commentator.heTitle}
-              </Text> :
-              <Text style={[styles.en, styles.centerText, theme.text]}>
-                {commentator.collectiveTitle ? commentator.collectiveTitle : commentator.title}
-              </Text> }
-          </TouchableOpacity>);
+    return (
+      <TouchableOpacity onPress={open} style={[styles.textBlockLink, theme.textBlockLink]} key={i}>
+        { showHebrew ?
+          <Text style={[styles.he, styles.centerText, theme.text]}>
+            {commentator.heCollectiveTitle ? commentator.heCollectiveTitle : commentator.heTitle}
+          </Text> :
+          <Text style={[styles.en, styles.centerText, theme.text]}>
+            {commentator.collectiveTitle ? commentator.collectiveTitle : commentator.title}
+          </Text> }
+      </TouchableOpacity>
+    );
   });
 
   return (
@@ -578,17 +567,13 @@ const CommentatorList = ({ commentatorList, openRef }) => {
 
 
 const CollapsibleNode = ({
-  language,
   defaultInvisible,
-  showHebrew,
-  en,
-  he,
-  children,
   node,
+  children,
 }) => {
-  const { themeStr } = useContext(GlobalStateContext);
-  const theme = getTheme(themeStr);
+  const { theme, menuLanguage } = useGlobalState();
   const [isVisible, setIsVisible] = useState((node.includeSections || node.default) && !defaultInvisible);
+  const showHebrew = menuLanguage === 'hebrew';
   const toggleVisibility = () => { setIsVisible(!isVisible); };
   let icon = !node.default ?
     (<CollapseIcon isVisible={isVisible} showHebrew={showHebrew} />)
