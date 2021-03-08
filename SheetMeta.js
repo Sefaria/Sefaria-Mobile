@@ -32,7 +32,7 @@ const SheetMeta = ({ sheet, close, openTopic }) => {
     <TouchableOpacity  style={[styles.textBlockLink,theme.textBlockLink]}  onPress={()=> openTopic(new Topic({slug:topic.slug}))} key={i}>
       <ContentTextWithFallback
         {...topic}
-        extraStyles={[{marginBottom: -10}]}
+        extraStyles={[{marginBottom: -10}, theme.text]}
         lang={menuLanguage}
       />
     </TouchableOpacity>

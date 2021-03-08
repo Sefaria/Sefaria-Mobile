@@ -565,12 +565,11 @@ const TopicPageHeader = ({ title, slug, description, topicsTab, setTopicsTab, qu
   return (
     <View style={{marginHorizontal: 15, marginVertical: 20}}>
       {title ? (
-        <SText
-          style={[isHeb ? styles.he : styles.en, {fontSize: 30}, theme.text]}
-          lang={interfaceLanguage} lineMultiplier={1.1}
-        >
-          { isHeb ? title.he : title.en }
-        </SText>
+        <ContentTextWithFallback
+          {...title}
+          extraStyles={[{fontSize: 30}, theme.text]}
+          lang={interfaceLanguage}
+        />
       ) : null}
       { category ? (
         <InterfaceTextWithFallback
