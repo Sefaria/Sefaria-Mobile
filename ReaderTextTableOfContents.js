@@ -19,6 +19,7 @@ import {
   LoadingView,
   CollapseIcon,
   SText,
+  ContentTextWithFallback,
 } from './Misc.js';
 import styles from './Styles';
 import strings from './LocalizedStrings';
@@ -303,10 +304,13 @@ const SchemaNode = ({ schema, refPath, openRef, categories }) => {
         const open = openRef.bind(null, refPath + ", " + node.title);
         return (
           <TouchableOpacity style={styles.textTocNamedSection} onPress={open} key={i}>
-            {showHebrew ?
-              <SText lang={"hebrew"} style={[styles.he, styles.textTocSectionTitle, theme.text]}>{node.heTitle}</SText> :
-              <SText lang={"english"} style={[styles.en, styles.textTocSectionTitle, theme.text]}>{node.title}</SText> }
-          </TouchableOpacity>);
+            <ContentTextWithFallback
+              en={node.title} he={node.heTitle}
+              extraStyles={[styles.textTocSectionTitle, theme.text]}
+              lang={menuLanguage}
+            />
+          </TouchableOpacity>
+        );
       } else {
         const innerContent = (<JaggedArrayNode
           schema={node}
@@ -467,9 +471,11 @@ const JaggedArrayNodeSectionTitle = ({ openRef, tref, title, heTitle }) => {
   const showHebrew = menuLanguage === 'hebrew';
   return (
     <TouchableOpacity onPress={() => { openRef(tref); }}>
-      <SText lang={menuLanguage} style={[showHebrew ? styles.he : styles.en, styles.textTocSectionTitle, theme.text]}>
-        {showHebrew ? heTitle : title}
-      </SText>
+      <ContentTextWithFallback
+        en={title} he={heTitle}
+        extraStyles={[styles.textTocSectionTitle, theme.text]}
+        lang={menuLanguage}
+      />
     </TouchableOpacity>
   );
 }
@@ -577,17 +583,19 @@ const CollapsibleNode = ({
   let icon = !node.default ?
     (<CollapseIcon isVisible={isVisible} showHebrew={showHebrew} />)
     : null;
+  const titleEmpty = node[showHebrew ? 'heTitle' : 'title'].length === 0;
   return (
     <View style={styles.textTocNamedSection}>
-      {showHebrew ?
-        (node.heTitle.length > 0 ? <TouchableOpacity onPress={toggleVisibility} style={{flex: 1, flexDirection: "row", justifyContent:"flex-end"}}>
+      {titleEmpty ? null : (
+        <TouchableOpacity onPress={toggleVisibility} style={{flex: 1, flexDirection: showHebrew ? "row-reverse" : "row"}}>
+          <ContentTextWithFallback
+            en={node.title} he={node.heTitle}
+            extraStyles={[styles.textTocSectionTitle, theme.text]}
+            lang={menuLanguage}
+          />
           {icon}
-          <SText lang={"hebrew"} style={[styles.he, styles.textTocSectionTitle, theme.text]}>{node.heTitle}</SText>
-        </TouchableOpacity> : null) :
-        ( node.title.length > 0 ? <TouchableOpacity onPress={toggleVisibility} style={{flex: 1, flexDirection: "row", justifyContent:"flex-start"}}>
-          <SText lang={"english"} style={[styles.en, styles.textTocSectionTitle, theme.text]} lineMultiplier={1.05}>{node.title}</SText>
-          {icon}
-        </TouchableOpacity> : null)}
+        </TouchableOpacity>
+      )}
       { isVisible ? children : null }
     </View>
   );
@@ -595,10 +603,6 @@ const CollapsibleNode = ({
 CollapsibleNode.propTypes = {
   language:          PropTypes.oneOf(["hebrew", "english"]),
   defaultInvisible:  PropTypes.bool,
-  showHebrew:        PropTypes.bool,
-  en:                PropTypes.string,
-  he:                PropTypes.string,
-  children:          PropTypes.object,
   node:              PropTypes.object
 };
 
