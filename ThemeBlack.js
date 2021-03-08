@@ -16,7 +16,7 @@ var Colors = {
   lightGrey: "#3d3d3d",
   lighterGrey: "#1d1d1d",
   lightestGrey: "#2d2d2d",
-  textSegmentHighlight: "#444",
+  textSegmentHighlight: "#343444",
   textListHeader: "#333",
   button: "#ddd",
   buttonBackground: "#333331"
