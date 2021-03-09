@@ -438,6 +438,14 @@ class ReaderApp extends React.PureComponent {
     this.toggleReaderDisplayOptionsMenu();
   }
 
+  setVocalization = value => {
+    this.props.dispatch({
+      type: STATE_ACTIONS.setVocalization,
+      value,
+    })
+    this.toggleReaderDisplayOptionsMenu(); 
+  }
+
   _baseFontScale = new Animated.Value(1);
   _pinchFontScale = new Animated.Value(1);
   _fontScale = Animated.multiply(this._baseFontScale, this._pinchFontScale);
@@ -1732,7 +1740,7 @@ class ReaderApp extends React.PureComponent {
     if (typeof segmentRef == 'undefined')   { segmentRef = this.state.segmentRef; }
     const {text, he} = this.state.data[sectionIndex][segmentIndex];
     const enText = Sefaria.util.removeHtml(typeof text === "string" ? text : "") || "";
-    const heText = Sefaria.util.removeHtml(typeof he === "string" ? he : "") || "";
+    const heText = Sefaria.util.applyVocalizationSettings(Sefaria.util.removeHtml(typeof he === "string" ? he : ""), this.props.vocalization) || "";
     const isHeb = this.props.textLanguage !== "english";
     const isEng = this.props.textLanguage !== "hebrew";
     const fullText = (heText && isHeb ? heText + (enText && isEng ? "\n" : "") : "") + ((enText && isEng) ? enText : "");
@@ -2169,14 +2177,17 @@ class ReaderApp extends React.PureComponent {
                 interfaceLanguage={this.props.interfaceLanguage}
                 textLanguage={this.props.textLanguage}
                 showAliyot={this.props.showAliyot}
+                vocalization={this.props.vocalization}
                 setTextFlow={this.setTextFlow}
                 setBiLayout={this.setBiLayout}
                 setAliyot={this.setAliyot}
                 setTextLanguage={this.setTextLanguage}
+                setVocalization={this.setVocalization}
                 incrementFont={this.incrementFont}
                 setTheme={this.setTheme}
                 canBeContinuous={Sefaria.canBeContinuous(this.state.textTitle)}
                 canHaveAliyot={Sefaria.canHaveAliyot(this.state.textTitle)}
+                vowelToggleAvailable={Sefaria.vowelToggleAvailability(this.state.data[this.state.sectionIndexRef])}
                 themeStr={this.props.themeStr}
               />) : null
             }

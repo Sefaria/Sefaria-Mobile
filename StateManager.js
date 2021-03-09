@@ -16,6 +16,7 @@ const STATE_ACTIONS = {
   setFontSize: "SET_FONT_SIZE",
   setOverwriteVersions: "SET_OVERWRITE_VERSIONS",
   setAliyot: "SET_ALIYOT",
+  setVocalization: "SET_VOCALIZATION",
   toggleDebugInterruptingMessage: "TOGGLE_DEBUG_INTERRUPTING_MESSAGE",
   setBiLayout: "SET_BI_LAYOUT",
   setIsLoggedIn: "SET_IS_LOGGED_IN",
@@ -68,6 +69,10 @@ const ACTION_CREATORS = {
   setAliyot: show => ({
     type: STATE_ACTIONS.setAliyot,
     value: show,
+  }),
+  setVocalization: value => ({
+    type: STATE_ACTIONS.setVocalization,
+    value,
   }),
   toggleDebugInterruptingMessage: (debug, fromAsync) => ({
     type: STATE_ACTIONS.toggleDebugInterruptingMessage,
@@ -128,6 +133,10 @@ const ASYNC_STORAGE_DEFAULTS = {
     default: false,
     action: ACTION_CREATORS.setAliyot,
   },
+  vocalization: {
+    default: 0,
+    action: ACTION_CREATORS.setVocalization,
+  },
   debugInterruptingMessage: {
     default: false,
     action: ACTION_CREATORS.toggleDebugInterruptingMessage,
@@ -164,6 +173,7 @@ const DEFAULT_STATE = {
   fontSize: ASYNC_STORAGE_DEFAULTS.fontSize.default,
   overwriteVersions: true,
   showAliyot: ASYNC_STORAGE_DEFAULTS.showAliyot.default,
+  vocalization: ASYNC_STORAGE_DEFAULTS.vocalization.default,
   debugInterruptingMessage: ASYNC_STORAGE_DEFAULTS.debugInterruptingMessage.default,
   biLayout: ASYNC_STORAGE_DEFAULTS.biLayout.default,
   isLoggedIn: ASYNC_STORAGE_DEFAULTS.auth.default,
@@ -233,6 +243,12 @@ const reducer = function (state, action) {
         ...state,
         showAliyot: action.value,
       }
+    case STATE_ACTIONS.setVocalization:
+      if (!action.fromAsync) { saveFieldToAsync('vocalization', action.value); }
+      return {
+        ...state,
+        vocalization: action.value,
+      }    
     case STATE_ACTIONS.toggleDebugInterruptingMessage:
       // toggle if you didn't pass in debug, otherwise you're initializing the value
       const newDebug = action.value === undefined ? (!state.debugInterruptingMessage) : action.value;

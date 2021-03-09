@@ -396,6 +396,22 @@ Sefaria = {
     if (!index) { return false; }
     return index.categories.length === 2 && index.categories[1] === "Torah";
   },
+  vowelToggleAvailability: function(segmentArray) {
+    if(!segmentArray || segmentArray.length == 0) return 2;
+    const sample = segmentArray[0]['he'];
+    const vowels_re = /[\u05b0-\u05c3\u05c7]/g;
+    const cantillation_re = /[\u0591-\u05af]/g;
+    if (cantillation_re.test(sample)) {
+      console.log("all");
+      return 0;
+    } else if(vowels_re.test(sample)) {
+      console.log("partial");
+      return 1;
+    } else {
+      console.log("none");
+      return 2;
+    }
+  },
   _loadTOC: function() {
     return Sefaria.util.openFileInSources("toc.json").then(data => {
       Sefaria.toc = data;
@@ -1384,6 +1400,15 @@ Sefaria.util = {
       return `<endiv>\u2066${Sefaria.util.hebrewInEnglish(text, 'string')}</endiv>`;
     }
     return `<hediv>${text}</hediv>`;
+  },
+  applyVocalizationSettings: function(text, vocalization) { 
+    const nre = /[\u0591-\u05af\u05bd\u05bf\u05c0\u05c4\u05c5\u200d]/g;
+    const cnre = /[\u0591-\u05bd\u05bf-\u05c5\u05c7\u200d]/g;
+    let strip_text_re = null;
+    if (vocalization !== 0) {
+      strip_text_re = (vocalization == 1) ? nre : cnre;
+    }
+    return strip_text_re ? text.replace(strip_text_re, "") : text;
   },
   openFileInSources: async function(filename) {
     const isIOS = Platform.OS === 'ios';

@@ -180,6 +180,8 @@ let strings = new LocalizedStrings({
     groggerActive: "Grogger",
     readThePortion: "Read the Portion",
     trendingTopics: "Trending Topics",
+    vocalization: "Vocalization",
+    vowels: "Vowels",
   },
   he: {
     mySheets: "דפי המקורות שלי",
@@ -357,6 +359,8 @@ let strings = new LocalizedStrings({
     groggerActive: "רעשן",
     readThePortion: "קראו את הפרשה",
     trendingTopics: "נושאים נפוצים",
+    vocalization: "טעמים וניקוד",
+    vowels: "ניקוד",
   }
 });
 

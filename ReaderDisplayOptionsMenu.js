@@ -41,6 +41,7 @@ class ReaderDisplayOptionsMenu extends React.Component {
     textFlow:                        PropTypes.oneOf(['segmented', 'continuous']),
     canHaveAliyot:                   PropTypes.bool.isRequired,
     canBeContinuous:                 PropTypes.bool.isRequired,
+    vowelToggleAvailable:            PropTypes.oneOf([0, 1, 2]),
     interfaceLanguage:               PropTypes.oneOf(['hebrew', 'english']).isRequired,
     textLanguage:                    PropTypes.oneOf(['hebrew', 'english', 'bilingual']),
     themeStr:                        PropTypes.oneOf(['white', 'black']),
@@ -125,7 +126,17 @@ class ReaderDisplayOptionsMenu extends React.Component {
         icons: this.props.themeStr == "white" ? [a_icon_small,a_icon]: [a_icon_small_light,a_icon_light],
         currVal: null,
         parametrized: true
-      }
+      },
+      {
+        condition: this.props.vowelToggleAvailable < 2,
+        label: this.props.vowelToggleAvailable === 0 ? strings.vocalization : strings.vowels,
+        onPress: this.props.setVocalization,
+        buttons:[0, 1, 2].slice(this.props.vowelToggleAvailable),
+        text: ["אָ֑", "אָ", "א"].slice(this.props.vowelToggleAvailable),
+        textStyle: [styles.he, {fontSize: 26}],
+        currVal: Math.max(this.props.vocalization, this.props.vowelToggleAvailable),
+        parametrized: true,
+      },
     ];
     const alignments = [["left","right"],["left","center","right"]];
     let toggleSets = []; // two toggle sets per row
@@ -166,6 +177,7 @@ class ReaderDisplayOptionsMenu extends React.Component {
               icon={icon}
               iconLength={optionRow.iconLength}
               text={text}
+              textStyle={optionRow.textStyle}
               align={alignments[optionRow.buttons.length-2][i]}
               selected={selected}
               interfaceLanguage={this.props.interfaceLanguage} />
@@ -227,10 +239,11 @@ class ReaderDisplayOptionsMenuToggleSet extends React.Component {
 class ReaderDisplayOptionsMenuItem extends React.Component {
   static propTypes = {
     theme:        PropTypes.object,
-    option:       PropTypes.oneOfType([PropTypes.string, PropTypes.bool]),
+    option:       PropTypes.oneOfType([PropTypes.string, PropTypes.bool, PropTypes.number]),
     icon:         PropTypes.number, /*PTP: why are images numbers? */
     iconLength:   PropTypes.number,
     text:         PropTypes.string,
+    textStyle:    PropTypes.array,
     align:        PropTypes.string,
     onPress:      PropTypes.func.isRequired,
     parametrized: PropTypes.bool, /* should onPress() use option as a paremeter*/
@@ -257,7 +270,7 @@ class ReaderDisplayOptionsMenuItem extends React.Component {
       <TouchableOpacity onPress={onPress} style={tempStyles}>
         {this.props.icon ?
           <Image resizeMode={'contain'} style={iconStyles} source={this.props.icon}/> :
-          <Text style={[langStyle, this.props.theme.secondaryText]}>{this.props.text}</Text>
+          <Text style={[langStyle, this.props.theme.secondaryText].concat(this.props.textStyle)}>{this.props.text}</Text>
         }
       </TouchableOpacity>
     );
