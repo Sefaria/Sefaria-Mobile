@@ -2038,6 +2038,7 @@ class ReaderApp extends React.PureComponent {
     try {
       relatedData = this.state.data[this.state.sectionIndexRef][this.state.segmentIndexRef].relatedWOLinks || {};
     } catch(e) {}
+    const vowelToggleAvailable = Sefaria.vowelToggleAvailability(this.state.data[this.state.sectionIndexRef]);
     return (
       <PinchGestureHandler
         onGestureEvent={this._onPinchGestureEvent}
@@ -2106,7 +2107,8 @@ class ReaderApp extends React.PureComponent {
                   textUnavailableAlert={this.textUnavailableAlert}
                   setDictionaryLookup={this.setDictionaryLookup}
                   shareCurrentSegment={this.shareCurrentSegment}
-                  getDisplayedText={this.getDisplayedText}                  
+                  getDisplayedText={this.getDisplayedText}
+                  vowelToggleAvailable={vowelToggleAvailable}              
                 />
             </View> }
 
@@ -2187,7 +2189,7 @@ class ReaderApp extends React.PureComponent {
                 setTheme={this.setTheme}
                 canBeContinuous={Sefaria.canBeContinuous(this.state.textTitle)}
                 canHaveAliyot={Sefaria.canHaveAliyot(this.state.textTitle)}
-                vowelToggleAvailable={Sefaria.vowelToggleAvailability(this.state.data[this.state.sectionIndexRef])}
+                vowelToggleAvailable={vowelToggleAvailable}
                 themeStr={this.props.themeStr}
               />) : null
             }

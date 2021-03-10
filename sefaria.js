@@ -9,7 +9,7 @@ import Api from './api';
 import History from './history';
 import LinkContent from './LinkContent';
 import { initAsyncStorage } from './StateManager';
-import { Filter } from './Filter';
+import { VOCALIZATION } from './VocalizationEnum';
 import URL from 'url-parse';
 import analytics from '@react-native-firebase/analytics';
 import {FileSystem} from 'react-native-unimodules'
@@ -397,19 +397,16 @@ Sefaria = {
     return index.categories.length === 2 && index.categories[1] === "Torah";
   },
   vowelToggleAvailability: function(segmentArray) {
-    if(!segmentArray || segmentArray.length == 0) return 2;
+    if(!segmentArray || segmentArray.length == 0) return VOCALIZATION.NONE;
     const sample = segmentArray[0]['he'];
     const vowels_re = /[\u05b0-\u05c3\u05c7]/g;
     const cantillation_re = /[\u0591-\u05af]/g;
     if (cantillation_re.test(sample)) {
-      console.log("all");
-      return 0;
+      return VOCALIZATION.TAAMIM_AND_NIKKUD;
     } else if(vowels_re.test(sample)) {
-      console.log("partial");
-      return 1;
+      return VOCALIZATION.NIKKUD;
     } else {
-      console.log("none");
-      return 2;
+      return VOCALIZATION.NONE;
     }
   },
   _loadTOC: function() {
@@ -1401,14 +1398,12 @@ Sefaria.util = {
     }
     return `<hediv>${text}</hediv>`;
   },
-  applyVocalizationSettings: function(text, vocalization) { 
+  applyVocalizationSettings: function(text, vocalization, vowelToggleAvailable) {
+    if (vowelToggleAvailable === VOCALIZATION.NONE || vocalization === VOCALIZATION.TAAMIM_AND_NIKKUD) { return text; } 
     const nre = /[\u0591-\u05af\u05bd\u05bf\u05c0\u05c4\u05c5\u200d]/g;
     const cnre = /[\u0591-\u05bd\u05bf-\u05c5\u05c7\u200d]/g;
-    let strip_text_re = null;
-    if (vocalization !== 0) {
-      strip_text_re = (vocalization == 1) ? nre : cnre;
-    }
-    return strip_text_re ? text.replace(strip_text_re, "") : text;
+    const strip_text_re = (vocalization == VOCALIZATION.NIKKUD) ? nre : cnre;
+    return text.replace(strip_text_re, "");
   },
   openFileInSources: async function(filename) {
     const isIOS = Platform.OS === 'ios';

@@ -17,6 +17,7 @@ import TextRange from './TextRange';
 import TextRangeContinuous from './TextRangeContinuous';
 import TextHeightMeasurer from './TextHeightMeasurer';
 import TextErrorBoundary from './TextErrorBoundary';
+import { VOCALIZATION } from './VocalizationEnum';
 const ViewPort  = Dimensions.get('window');
 const COMMENTARY_LINE_THRESHOLD = 100;
 
@@ -71,6 +72,7 @@ class TextColumn extends React.PureComponent {
     getDisplayedText:   PropTypes.func.isRequired,
     biLayout:           PropTypes.oneOf(["stacked", "sidebyside", "sidebysiderev"]),
     textUnavailableAlert: PropTypes.func.isRequired,
+    vowelToggleAvailable: PropTypes.oneOf([VOCALIZATION.TAAMIM_AND_NIKKUD, VOCALIZATION.NIKKUD, VOCALIZATION.NONE]),
   };
 
   constructor(props) {
@@ -538,6 +540,7 @@ class TextColumn extends React.PureComponent {
         setDictionaryLookup={this.props.setDictionaryLookup}
         shareCurrentSegment={this.props.shareCurrentSegment}
         getDisplayedText={this.props.getDisplayedText}
+        vowelToggleAvailable={this.props.vowelToggleAvailable}
       />
     );
   };

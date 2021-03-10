@@ -26,6 +26,7 @@ const TextRange = React.memo(({
   setDictionaryLookup,
   shareCurrentSegment,
   getDisplayedText,
+  vowelToggleAvailable,
 }) => {
   const { themeStr, textLanguage, biLayout, fontSize, vocalization } = useContext(GlobalStateContext);
 
@@ -35,7 +36,7 @@ const TextRange = React.memo(({
   };
 
   let enText = rowData.content.text || "";
-  let heText = Sefaria.util.applyVocalizationSettings(rowData.content.he, vocalization) || "";
+  let heText = Sefaria.util.applyVocalizationSettings(rowData.content.he, vocalization, vowelToggleAvailable) || "";
   enText = Sefaria.util.getDisplayableHTML(enText.trim(), 'english');
   heText = Sefaria.util.getDisplayableHTML(heText.trim(), 'hebrew');
   let numLinks = rowData.content.links ? rowData.content.links.length : 0;

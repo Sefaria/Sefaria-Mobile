@@ -2,17 +2,17 @@
 
 import PropTypes from 'prop-types';
 
-import React, { Component } from 'react';
+import React from 'react';
 import {
   Text,
   TouchableOpacity,
   View,
   Image,
   Animated,
-  Platform,
 } from 'react-native';
 import styles from './Styles.js';
 import strings from './LocalizedStrings';
+import { VOCALIZATION } from './VocalizationEnum';
 
 var a_aleph_icon          = require('./img/a_aleph.png');
 var a_icon                = require('./img/a_icon.png');
@@ -41,7 +41,7 @@ class ReaderDisplayOptionsMenu extends React.Component {
     textFlow:                        PropTypes.oneOf(['segmented', 'continuous']),
     canHaveAliyot:                   PropTypes.bool.isRequired,
     canBeContinuous:                 PropTypes.bool.isRequired,
-    vowelToggleAvailable:            PropTypes.oneOf([0, 1, 2]),
+    vowelToggleAvailable:            PropTypes.oneOf([VOCALIZATION.TAAMIM_AND_NIKKUD, VOCALIZATION.NIKKUD, VOCALIZATION.NONE]),
     interfaceLanguage:               PropTypes.oneOf(['hebrew', 'english']).isRequired,
     textLanguage:                    PropTypes.oneOf(['hebrew', 'english', 'bilingual']),
     themeStr:                        PropTypes.oneOf(['white', 'black']),
@@ -128,10 +128,10 @@ class ReaderDisplayOptionsMenu extends React.Component {
         parametrized: true
       },
       {
-        condition: this.props.vowelToggleAvailable < 2,
-        label: this.props.vowelToggleAvailable === 0 ? strings.vocalization : strings.vowels,
+        condition: this.props.vowelToggleAvailable < VOCALIZATION.NONE,
+        label: this.props.vowelToggleAvailable === VOCALIZATION.TAAMIM_AND_NIKKUD ? strings.vocalization : strings.vowels,
         onPress: this.props.setVocalization,
-        buttons:[0, 1, 2].slice(this.props.vowelToggleAvailable),
+        buttons:[VOCALIZATION.TAAMIM_AND_NIKKUD, VOCALIZATION.NIKKUD, VOCALIZATION.NONE].slice(this.props.vowelToggleAvailable),
         text: ["אָ֑", "אָ", "א"].slice(this.props.vowelToggleAvailable),
         textStyle: [styles.he, {fontSize: 26}],
         currVal: Math.max(this.props.vocalization, this.props.vowelToggleAvailable),
