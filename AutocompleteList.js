@@ -197,7 +197,6 @@ class AutocompleteList extends React.Component {
   };
 
   renderItem = ({ item, index }) => {
-    console.log("renderItem", item);
     if (item.query) { item.title = item.query; }
     // toc queries get saved as arrays
     const isHeb = this.state.completionsLang === 'he';
