@@ -14,9 +14,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-               BuildableName = "ReaderApp.app"
-               BlueprintName = "ReaderApp"
+               BlueprintIdentifier = "2D02E47A1E0B4A5D006451C7"
+               BuildableName = "ReaderApp-tvOS.app"
+               BlueprintName = "ReaderApp-tvOS"
                ReferencedContainer = "container:ReaderApp.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -32,18 +32,18 @@
             skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "00E356ED1AD99517003FC87E"
-               BuildableName = "ReaderAppTests.xctest"
-               BlueprintName = "ReaderAppTests"
+               BlueprintIdentifier = "2D02E48F1E0B4A5D006451C7"
+               BuildableName = "ReaderApp-tvOSTests.xctest"
+               BlueprintName = "ReaderApp-tvOSTests"
                ReferencedContainer = "container:ReaderApp.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
    </TestAction>
    <LaunchAction
-      buildConfiguration = "Release"
-      selectedDebuggerIdentifier = ""
-      selectedLauncherIdentifier = "Xcode.IDEFoundation.Launcher.PosixSpawn"
+      buildConfiguration = "Debug"
+      selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
+      selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       launchStyle = "0"
       useCustomWorkingDirectory = "NO"
       ignoresPersistentStateOnLaunch = "NO"
@@ -54,9 +54,9 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-            BuildableName = "ReaderApp.app"
-            BlueprintName = "ReaderApp"
+            BlueprintIdentifier = "2D02E47A1E0B4A5D006451C7"
+            BuildableName = "ReaderApp-tvOS.app"
+            BlueprintName = "ReaderApp-tvOS"
             ReferencedContainer = "container:ReaderApp.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
@@ -71,9 +71,9 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-            BuildableName = "ReaderApp.app"
-            BlueprintName = "ReaderApp"
+            BlueprintIdentifier = "2D02E47A1E0B4A5D006451C7"
+            BuildableName = "ReaderApp-tvOS.app"
+            BlueprintName = "ReaderApp-tvOS"
             ReferencedContainer = "container:ReaderApp.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
