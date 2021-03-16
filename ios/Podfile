@@ -7,7 +7,11 @@ platform :ios, '10.0'
 target 'ReaderApp' do
   use_unimodules!
   config = use_native_modules!
-  use_react_native!(:path => config["reactNativePath"])
+  use_react_native!(
+    :path => config[:reactNativePath],
+    # to enable hermes on iOS, change `false` to `true` and then install pods
+    :hermes_enabled => false
+  )
 
   # Pods for ReaderApp
   pod 'react-native-splash-screen', :path => '../node_modules/react-native-splash-screen'
@@ -17,14 +21,9 @@ target 'ReaderApp' do
     inherit! :complete
     # Pods for testing
   end
-end
 
-target 'ReaderApp-tvOS' do
-  # Pods for ReaderApp-tvOS
-
-  target 'ReaderApp-tvOSTests' do
-    inherit! :search_paths
-    # Pods for testing
+  post_install do |installer|
+    react_native_post_install(installer)
   end
 end
 
