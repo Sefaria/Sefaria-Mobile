@@ -1879,7 +1879,9 @@ Sefaria.palette = {
     red: "#802f3e",
     teal: "#00827f",
     system: "#142b51",
-    palegreen: "#B8D4D3"
+    palegreen: "#B8D4D3",
+    lightbg:   "#B8D4D3",
+    tan:       "#D4896C",
   }
 };
 Sefaria.palette.categoryColors = {
@@ -1891,24 +1893,27 @@ Sefaria.palette.categoryColors = {
   "Talmud":             Sefaria.palette.colors.yellow,
   "Halakhah":           Sefaria.palette.colors.red,
   "Kabbalah":           Sefaria.palette.colors.purple,
-  "Philosophy":         Sefaria.palette.colors.lavender,
+  "Philosophy":         Sefaria.palette.colors.lavender,  // to delete
+  "Jewish Thought":     Sefaria.palette.colors.lavender,
   "Liturgy":            Sefaria.palette.colors.darkpink,
   "Tosefta":            Sefaria.palette.colors.teal,
-  "Tanaitic":           Sefaria.palette.colors.teal,
+  "Tanaitic":           Sefaria.palette.colors.teal,  // to delete
   "Parshanut":          Sefaria.palette.colors.paleblue,
   "Chasidut":           Sefaria.palette.colors.lightgreen,
   "Musar":              Sefaria.palette.colors.raspberry,
   "Responsa":           Sefaria.palette.colors.orange,
   "Apocrypha":          Sefaria.palette.colors.lightpink,
+  "Second Temple":      Sefaria.palette.colors.lightpink,   // to delete
   "Other":              Sefaria.palette.colors.darkblue,
   "Quoting Commentary": Sefaria.palette.colors.orange,
-  "Commentary2":        Sefaria.palette.colors.blue,
   "Sheets":             Sefaria.palette.colors.darkblue,
   "Community":          Sefaria.palette.colors.raspberry,
   "Targum":             Sefaria.palette.colors.lavender,
-  "Modern Works":       Sefaria.palette.colors.palegreen,
+  "Modern Works":       Sefaria.palette.colors.palegreen,  // to delete
   "Modern Commentary":  Sefaria.palette.colors.palegreen,
   "More":               Sefaria.palette.colors.darkblue,
+  "Modern Commentary":  Sefaria.palette.colors.lightbg,
+  "Reference":          Sefaria.palette.colors.tan,
 };
 Sefaria.palette.categoryColor = function(cat) {
   if (cat in Sefaria.palette.categoryColors) {
