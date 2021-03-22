@@ -60,7 +60,7 @@ const SheetItemInConnections = ({sheet, openRefSheet, openTopic}) => {
             key={sheet.id}
             style={[{borderBottomWidth: 1, paddingVertical: 20}, theme.bordered, styles.readerSideMargin]}
         >
-            <TouchableOpacity onPress={()=> openRefSheet(sheet.id, sheet)}>
+            <TouchableOpacity onPress={()=> openRefSheet(sheet.id, sheet, true, 'text list')}>
                 <Text style={[{fontSize: 20, lineHeight: 27}, Sefaria.hebrew.isHebrew(sheet.title) ? styles.he : styles.en, theme.text, {"textAlign": isIntHe ? 'right' : 'left'}]}>
                     { Sefaria.util.stripHtml(sheet.title.replace(/\s\s+/g, ' ')) }
                 </Text>

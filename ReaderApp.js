@@ -1779,7 +1779,7 @@ class ReaderApp extends React.PureComponent {
     if (Platform.OS === "android") { return true; }
     else {
       // see ReaderApp.openRef()
-      const calledFromDict = { "text list": true, "search": true };
+      const calledFromDict = { "text list": true, "search": true, "topic": true };
       return BackManager.getStack({ type: "main" }).filter(x => calledFromDict[x.calledFrom]).length === 0;
     }
   };
