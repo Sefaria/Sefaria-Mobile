@@ -508,7 +508,7 @@ const TopicPage = ({ topic, onBack, openNav, openTopic, showToast, openRef, open
           ) : (
             <SheetBlock
               sheet={item} compact showToast={showToast}
-              onClick={()=>{ openRefSheet(item.sheet_id, item); }}
+              onClick={()=>{ openRefSheet(item.sheet_id, item, true, 'topic'); }}
               extraStyles={styles.topicItemMargins}
             />
           )
