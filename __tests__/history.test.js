@@ -258,7 +258,7 @@ describe('history', () => {
       setting2: 12,
       setting3: 'another string',
     };
-    const currHistory = await Sefaria.history.syncHistory(()=>{}, settings);
+    const currHistory = await Sefaria.history.syncProfile(()=>{}, settings);
     expect(fetch.mock.calls.length).toBe(1);
     const fetchParams = fetch.mock.calls[0];
     expect(fetchParams[1].method).toBe("POST");
@@ -317,7 +317,7 @@ describe('history', () => {
         })
       }
     }));
-    const currHistory = await Sefaria.history.syncHistory(()=>{}, {});
+    const currHistory = await Sefaria.history.syncProfile(()=>{}, {});
     expect(fetch.mock.calls.length).toBe(1);
     expect(fetch.mock.calls[0][1].method).toBe("POST");
     expect(fetch.mock.calls[0][1].headers.Authorization).toBe(`Bearer ${auth.token}`);
@@ -392,7 +392,7 @@ describe('history', () => {
         })
       }
     }));
-    const currHistory = await Sefaria.history.syncHistory(()=>{}, {});
+    const currHistory = await Sefaria.history.syncProfile(()=>{}, {});
     expect(fetch.mock.calls.length).toBe(1);
     expect(fetch.mock.calls[0][1].method).toBe("POST");
     expect(fetch.mock.calls[0][1].headers.Authorization).toBe(`Bearer ${auth.token}`);
@@ -427,7 +427,7 @@ describe('history', () => {
         })
       }
     }));
-    await Sefaria.history.syncHistory(()=>{}, {});
+    await Sefaria.history.syncProfile(()=>{}, {});
     expect(fetch.mock.calls.length).toBe(1);
     expect(fetch.mock.calls[0][1].method).toBe("POST");
     expect(fetch.mock.calls[0][1].headers.Authorization).toBe(`Bearer ${auth.token}`);

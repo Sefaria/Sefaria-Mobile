@@ -315,7 +315,7 @@ class ReaderApp extends React.PureComponent {
     }
   };
 
-  syncHistoryBound = async () => Sefaria.history.syncHistory(this.props.dispatch, await this.getSettingsObject());
+  syncProfileBound = async () => Sefaria.history.syncProfile(this.props.dispatch, await this.getSettingsObject());
   getSettingsObject = async () => {
     let time_stamp = parseInt(await AsyncStorage.getItem('lastSettingsUpdateTime'));
     if (!time_stamp) { time_stamp = 0; }
@@ -323,12 +323,13 @@ class ReaderApp extends React.PureComponent {
       email_notifications: this.props.emailFrequency,
       interface_language: this.props.interfaceLanguage,
       textual_custom: this.props.preferredCustom,
+      reading_history: this.props.readingHistory,
       time_stamp,
     });
   };
 
   onBackgroundSync = async (taskId) => {
-    await this.syncHistoryBound();
+    await this.syncProfileBound();
     BackgroundFetch.finish(taskId);
   };
 
@@ -1938,7 +1939,7 @@ class ReaderApp extends React.PureComponent {
             title={strings.history}
             menuOpen={this.state.menuOpen}
             icon={this.props.themeStr === "white" ? require('./img/clock.png') : require('./img/clock-light.png')}
-            loadData={this.syncHistoryBound}
+            loadData={this.syncProfileBound}
             openLogin={this.openMenu.bind(null, "login")}
             isLoggedIn={this.props.isLoggedIn}
             hasDismissedSyncModal={this.props.hasDismissedSyncModal}
@@ -1960,7 +1961,7 @@ class ReaderApp extends React.PureComponent {
             title={strings.saved}
             menuOpen={this.state.menuOpen}
             icon={this.props.themeStr === "white" ? require('./img/starUnfilled.png') : require('./img/starUnfilled-light.png')}
-            loadData={async () => Sefaria.history.syncHistoryGetSaved(this.props.dispatch, await this.getSettingsObject())}
+            loadData={async () => Sefaria.history.syncProfileGetSaved(this.props.dispatch, await this.getSettingsObject())}
             openLogin={this.openMenu.bind(null, "login")}
             isLoggedIn={this.props.isLoggedIn}
             hasDismissedSyncModal={this.props.hasDismissedSyncModal}
@@ -1978,7 +1979,7 @@ class ReaderApp extends React.PureComponent {
             openLogin={this.openMenu.bind(null, 'login')}
             openRegister={this.openMenu.bind(null, 'register')}
             openUri={this.openUri}
-            syncHistory={this.syncHistoryBound}
+            syncProfile={this.syncProfileBound}
           />
         );
         break;

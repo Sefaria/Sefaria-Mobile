@@ -28,12 +28,12 @@ describe('ReaderApp history', () => {
     expect(await readerApp.instance.getSettingsObject()).toEqual(settingsObject);
   });
   test('onBackgroundSync', async () => {
-    Sefaria.history.syncHistory = jest.fn();
+    Sefaria.history.syncProfile = jest.fn();
     const inst = renderer.create(<TestContextWrapper passContextToChildren child={ReaderApp} />);
     const readerApp = inst.root.findByType(ReaderApp);
     const taskId = "stam-id";
     await readerApp.instance.onBackgroundSync(taskId);
-    expect(Sefaria.history.syncHistory.mock.calls[0][1]).toEqual(settingsObject);
+    expect(Sefaria.history.syncProfile.mock.calls[0][1]).toEqual(settingsObject);
     expect(BackgroundFetch.finish).toBeCalledWith(taskId);
   });
 });

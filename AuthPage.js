@@ -71,7 +71,7 @@ const useAuthForm = (authMode, onLoginSuccess) => {
   }
 }
 
-const AuthPage = ({ authMode, close, showToast, openLogin, openRegister, openUri, syncHistory }) => {
+const AuthPage = ({ authMode, close, showToast, openLogin, openRegister, openUri, syncProfile }) => {
   const dispatch = useContext(DispatchContext);
   const { themeStr, interfaceLanguage } = useContext(GlobalStateContext);
   const {
@@ -88,7 +88,7 @@ const AuthPage = ({ authMode, close, showToast, openLogin, openRegister, openUri
       value: true,
     });
     // try to sync immediately after login
-    syncHistory();
+    syncProfile();
     close();
     showToast(strings.loginSuccessful);
   });

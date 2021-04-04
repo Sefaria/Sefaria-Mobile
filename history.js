@@ -68,6 +68,9 @@ const History = {
   saveHistoryItem: async function(getHistoryObject, withIntent, onSave, intentTime=3000) {
     // getHistoryObject: dependent on state of whatever component called this func
     // onSave: optional function which is called with the list of history items to actually save
+    const readingHistory = JSON.parse(await AsyncStorage.getItem('readingHistory'));
+    if (readingHistory === 'off') { return; }
+
     let history_item = getHistoryObject();
     if (!history_item.ref) { return; }
     if (withIntent) {
@@ -116,7 +119,7 @@ const History = {
     Sefaria.history._hasSwipeDeleted = JSON.parse(hasSwipeDeleted) || false;
     Sefaria.history._hasSyncedOnce = JSON.parse(hasSyncedOnce) || false;
   },
-  syncHistory: async function(dispatch, settings) {
+  syncProfile: async function(dispatch, settings) {
     /*
     settings is of the form
     {
@@ -173,8 +176,8 @@ const History = {
     }
     return currHistory;
   },
-  syncHistoryGetSaved: async (dispatch, settings) => {
-    await Sefaria.history.syncHistory(dispatch, settings);
+  syncProfileGetSaved: async (dispatch, settings) => {
+    await Sefaria.history.syncProfile(dispatch, settings);
     return Sefaria.history.saved;
   },
   updateSettingsAfterSync: function(dispatch, newSettings) {
@@ -235,6 +238,23 @@ const History = {
   },
   indexOfSaved: function(ref) {
     return Sefaria.history.saved.findIndex(existing => ref === existing.ref);
+  },
+
+  deleteHistory: async function(deleteSaved) {
+    await Sefaria.history.removeItem('lastPlace');
+    await Sefaria.history.removeItem('history');
+    Sefaria.history.lastPlace = [];
+    if (deleteSaved) {
+      await Sefaria.history.removeItem('savedItems');
+      await Sefaria.history.removeItem('lastSyncItems');
+      Sefaria.history.saved = [];
+      Sefaria.history.lastSync = [];
+    } else {
+      let lastSyncItems = JSON.parse(await Sefaria.history.getItem('lastSyncItems'));
+      lastSyncItems = lastSyncItems.filter(item => typeof item.saved != 'undefined' && item.action)  // want to keep any items that have saved field, even if false to sync
+      Sefaria.history.lastSync = lastSyncItems;
+      await Sefaria.history.setItem('lastSyncItems', JSON.stringify(lastSyncItems));
+    }
   },
 };
 

@@ -22,6 +22,7 @@ const STATE_ACTIONS = {
   setIsLoggedIn: "SET_IS_LOGGED_IN",
   setHasDismissedSyncModal: "SET_HAS_DISMISSED_SYNC_MODAL",
   setDownloadNetworkSetting: "SET_DOWNLOAD_NETWORK_MODE",
+  setReadingHistory: "SET_READING_HISTORY",
   setGroggerActive: "SET_GROGGER_ACTIVE",
 };
 
@@ -29,6 +30,7 @@ const UPDATE_SETTINGS_ACTIONS = {
   [STATE_ACTIONS.setInterfaceLanguage]: true,
   [STATE_ACTIONS.setEmailFrequency]: true,
   [STATE_ACTIONS.setPreferredCustom]: true,
+  [STATE_ACTIONS.setReadingHistory]: true,
 };
 
 const ACTION_CREATORS = {
@@ -50,6 +52,11 @@ const ACTION_CREATORS = {
   setEmailFrequency: (freq, fromAsync) => ({
     type: STATE_ACTIONS.setEmailFrequency,
     value: freq,
+    fromAsync,
+  }),
+  setReadingHistory: (isReadingHistory, fromAsync) => ({
+    type: STATE_ACTIONS.setReadingHistory,
+    value: isReadingHistory,
     fromAsync,
   }),
   setPreferredCustom: (custom, fromAsync) => ({
@@ -117,6 +124,10 @@ const ASYNC_STORAGE_DEFAULTS = {
     default: 'daily',
     action: ACTION_CREATORS.setEmailFrequency,
   },
+  readingHistory: {
+    default: 'on',
+    action: ACTION_CREATORS.setReadingHistory,
+  },
   preferredCustom: {
     default: 'sephardi',
     action: ACTION_CREATORS.setPreferredCustom,
@@ -169,6 +180,7 @@ const DEFAULT_STATE = {
   textLanguage: ASYNC_STORAGE_DEFAULTS.textLanguage.default,
   interfaceLanguage: ASYNC_STORAGE_DEFAULTS.interfaceLanguage.default,
   emailFrequency: ASYNC_STORAGE_DEFAULTS.emailFrequency.default,
+  readingHistory: ASYNC_STORAGE_DEFAULTS.readingHistory.default,
   preferredCustom: ASYNC_STORAGE_DEFAULTS.preferredCustom.default,
   fontSize: ASYNC_STORAGE_DEFAULTS.fontSize.default,
   overwriteVersions: true,
@@ -219,6 +231,15 @@ const reducer = function (state, action) {
       return {
         ...state,
         emailFrequency: action.value,
+      }
+    case STATE_ACTIONS.setReadingHistory:
+      if (!action.fromAsync) {
+        if (action.value === 'off' && state.readingHistory === 'on') { Sefaria.history.deleteHistory(false); }
+        saveFieldToAsync('readingHistory', action.value);
+      }
+      return {
+        ...state,
+        readingHistory: action.value,
       }
     case STATE_ACTIONS.setPreferredCustom:
       if (!action.fromAsync) { saveFieldToAsync('preferredCustom', action.value); }

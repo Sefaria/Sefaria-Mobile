@@ -180,8 +180,8 @@ let strings = new LocalizedStrings({
     groggerActive: "Grogger",
     readThePortion: "Read the Portion",
     trendingTopics: "Trending Topics",
-    vocalization: "Vocalization",
     vowels: "Vowels",
+    readingHistory: "Reading History",
   },
   he: {
     mySheets: "דפי המקורות שלי",
@@ -245,7 +245,7 @@ let strings = new LocalizedStrings({
     libraryDownloading: "קבצי הספריה בהורדה",
     libraryDownloadingMessage: "קבצי הספריה יורדו מהרשת בזמן שהאפליקציה פתוחה. ניתן לבדוק את התקדמות ההורדה במסך ההגדרות.",
     confirmDeleteLibraryMessage: "האם ברצונך למחוק את הספריה מזכרון המכשיר? יידרש חיבור רשת פעיל בכדי להשתמש באפליקציה.",
-    delete: "מחק",
+    delete: "מחיקה",
     usingOnlineLibrary: "האפליקציה במצב מקוון בלבד",
     howToDownloadLibraryMessage: "תוכל להוריד את הספריה הבלתי מקוונת בכל עת ממסך ההגדרות.",
     welcome: "ברוכים הבאים",
@@ -359,8 +359,8 @@ let strings = new LocalizedStrings({
     groggerActive: "רעשן",
     readThePortion: "קראו את הפרשה",
     trendingTopics: "נושאים נפוצים",
-    vocalization: "טעמים וניקוד",
     vowels: "ניקוד",
+    readingHistory: "היסטורית קריאה",
   }
 });
 

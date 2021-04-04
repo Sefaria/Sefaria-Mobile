@@ -313,6 +313,29 @@ const ButtonToggleSection = ({ langStyle }) => {
       downloadUpdate(wifiOnly, false).then(() => {})
     }
   };
+  const setReadingHistory = isReadingHistory => {
+    const dispatcher = () => (
+      dispatch({
+        type: STATE_ACTIONS.setReadingHistory,
+        value: isReadingHistory,
+        time: Sefaria.util.epoch_time(),
+      })
+    );
+    if (isReadingHistory === 'off' && globalState.readingHistory === 'on') {
+      Alert.alert(
+        "WARNING",
+        "Turning this feature off will permanently delete your reading history.",
+        [
+          {text: strings.cancel, onPress: ()=>{}},
+          {
+            text: strings.delete,
+            onPress: dispatcher,
+            style: 'destructive',
+          }
+        ]
+      );
+    } else { dispatcher(); }
+  };
   const setGroggerActive = isActive => {
     dispatch({
       type: STATE_ACTIONS.setGroggerActive,
@@ -325,10 +348,11 @@ const ButtonToggleSection = ({ langStyle }) => {
     emailFrequencyOptions: generateOptions(['daily', 'weekly', 'never'], setEmailFrequency),
     preferredCustomOptions: generateOptions(['sephardi', 'ashkenazi'], setPreferredCustom),
     downloadNetworkSettingOptions: generateOptions(['wifiOnly', 'mobileNetwork'], setDownloadNetworkSetting),
+    readingHistoryOptions: generateOptions(['on', 'off'], setReadingHistory),
     groggerActiveOptions: generateOptions(['on', 'off'], setGroggerActive),
   };
   /* stateKey prop is used for testing */
-  const toggleButtons = ['textLanguage', 'interfaceLanguage', 'emailFrequency', 'preferredCustom', 'downloadNetworkSetting'];
+  const toggleButtons = ['textLanguage', 'interfaceLanguage', 'emailFrequency', 'readingHistory', 'preferredCustom', 'downloadNetworkSetting'];
   if (Sefaria.isGettinToBePurimTime()) { toggleButtons.push('groggerActive'); }
   return (
     <View>
