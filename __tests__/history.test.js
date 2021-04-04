@@ -462,4 +462,93 @@ describe('history', () => {
     expect((await Sefaria.history.getItem('history'))).toBe('[]');
 
   });
+
+  test('deleteHistory deleteSaved true', async () => {
+    const history = [
+      {
+        ref: "Genesis 1:5",
+        he_ref: "בראשית א:ה",
+        versions: {},
+        book: "Genesis",
+        language: "english",
+        time_stamp: 0,
+      }
+    ];
+    const lastSyncItems = [
+      {
+        ref: "Genesis 1:7",
+        he_ref: "בראשית א:ו",
+        versions: {},
+        book: "Genesis",
+        language: "english",
+        time_stamp: 3,
+        saved: false,
+        action: 'delete_saved',
+      },
+    ];
+    await Sefaria.history.setItem('history', JSON.stringify(history));
+    await Sefaria.history.setItem('lastPlace', JSON.stringify(history));
+    await Sefaria.history.setItem('lastSyncItems', JSON.stringify(lastSyncItems));
+    await Sefaria.history.setItem('savedItems', JSON.stringify(lastSyncItems));
+
+    await Sefaria.history.deleteHistory(true);
+    expect((await Sefaria.history.getItem('savedItems'))).toBe(null);
+    expect((await Sefaria.history.getItem('lastPlace'))).toBe(null);
+    expect((await Sefaria.history.getItem('lastSyncItems'))).toBe(null);
+    expect((await Sefaria.history.getItem('history'))).toBe(null);
+  });
+
+  test('deleteHistory deleteSaved false', async () => {
+    const history = [
+      {
+        ref: "Genesis 1:5",
+        he_ref: "בראשית א:ה",
+        versions: {},
+        book: "Genesis",
+        language: "english",
+        time_stamp: 0,
+      }
+    ];
+    const lastSyncItems = [
+      {
+        ref: "Genesis 1:6",
+        he_ref: "בראשית א:ו",
+        versions: {},
+        book: "Genesis",
+        language: "english",
+        time_stamp: 0,
+      },
+      {
+        ref: "Genesis 1:7",
+        he_ref: "בראשית א:ו",
+        versions: {},
+        book: "Genesis",
+        language: "english",
+        time_stamp: 3,
+        saved: false,
+        action: 'delete_saved',
+      },
+      {
+        ref: "Genesis 1:8",
+        he_ref: "בראשית א:ח",
+        versions: {},
+        book: "Genesis",
+        language: "english",
+        time_stamp: 3,
+        saved: true,
+        action: 'add_saved',
+      },
+    ];
+    const savedItems = lastSyncItems.filter(x => !!x.action);
+    await Sefaria.history.setItem('history', JSON.stringify(history));
+    await Sefaria.history.setItem('lastPlace', JSON.stringify(history));
+    await Sefaria.history.setItem('lastSyncItems', JSON.stringify(lastSyncItems));
+    await Sefaria.history.setItem('savedItems', JSON.stringify(savedItems));
+
+    await Sefaria.history.deleteHistory(false);
+    expect((await Sefaria.history.getItem('savedItems'))).toBe(JSON.stringify(savedItems));
+    expect((await Sefaria.history.getItem('lastPlace'))).toBe(null);
+    expect((await Sefaria.history.getItem('lastSyncItems'))).toBe(JSON.stringify(savedItems));
+    expect((await Sefaria.history.getItem('history'))).toBe(null);
+  });
 });
