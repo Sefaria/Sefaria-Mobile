@@ -182,6 +182,7 @@ let strings = new LocalizedStrings({
     trendingTopics: "Trending Topics",
     vowels: "Vowels",
     readingHistory: "Reading History",
+    turningThisFeatureOff: "Turning this feature off will permanently delete your reading history.",
   },
   he: {
     mySheets: "דפי המקורות שלי",
@@ -361,6 +362,7 @@ let strings = new LocalizedStrings({
     trendingTopics: "נושאים נפוצים",
     vowels: "ניקוד",
     readingHistory: "היסטורית קריאה",
+    turningThisFeatureOff: "",
   }
 });
 

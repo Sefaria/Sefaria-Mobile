@@ -323,8 +323,8 @@ const ButtonToggleSection = ({ langStyle }) => {
     );
     if (isReadingHistory === 'off' && globalState.readingHistory === 'on') {
       Alert.alert(
-        "WARNING",
-        "Turning this feature off will permanently delete your reading history.",
+        strings.delete,
+        strings.turningThisFeatureOff,
         [
           {text: strings.cancel, onPress: ()=>{}},
           {
