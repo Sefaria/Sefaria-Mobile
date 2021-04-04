@@ -411,7 +411,6 @@ class ReaderApp extends React.PureComponent {
   setTextLanguage = (textLanguage, textFlow, dontToggle) => {
     // try to be less dependent on state in this func because it is called in componentWillUpdate
     textFlow = textFlow || this.state.textFlow;
-    console.log("SET TEXT LANG", textLanguage, textFlow, dontToggle);
     this.props.dispatch({
       type: STATE_ACTIONS.setTextLanguage,
       value: textLanguage,
@@ -1714,7 +1713,6 @@ class ReaderApp extends React.PureComponent {
     const searchStateName = this._getSearchStateName(type);
     const metaState = SearchState.metadataByType[type];
     if (!field) { field = metaState.field; }
-    console.log('setSearchOptions', type, sortType, field, searchState.field);
     const filtersValid = field === searchState.field;
     this.setState({
       [searchStateName]: searchState.update({

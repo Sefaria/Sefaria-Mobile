@@ -26,12 +26,12 @@ test('settings buttons', async () => {
     />
   );
   const yo = inst.root.findAllByType(ButtonToggleSetNew);
-  expect(yo.length).toBe(5);
+  expect(yo.length).toBe(6);
 
   let counter = 1;
   for (let y of yo) {
     const stateKey = y.parent.props.stateKey;
-    if (stateKey === 'textLanguage' || stateKey === 'downloadNetworkSetting') { continue; }
+    if (stateKey === 'textLanguage' || stateKey === 'downloadNetworkSetting' || stateKey === 'readingHistory') { continue; }
     for (let o of y.props.options) {
       if (o.name !== y.props.active) {
         expect(inst.root.children[0].props._globalState[stateKey]).toBe(DEFAULT_STATE[stateKey]);
@@ -56,5 +56,5 @@ test('settings buttons with grogger', () => {
     />
   );
   const yo = inst.root.findAllByType(ButtonToggleSetNew);
-  expect(yo.length).toBe(6);
+  expect(yo.length).toBe(7);
 });
