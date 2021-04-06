@@ -89,7 +89,7 @@ const AuthPage = ({ authMode, close, showToast, openLogin, openRegister, openUri
     });
     // try to sync immediately after login
     syncHistory();
-    close();
+    close(authMode);
     showToast(strings.loginSuccessful);
   });
   const theme = getTheme(themeStr);

@@ -1148,7 +1148,9 @@ class ReaderApp extends React.PureComponent {
       BackManager.forward({ state: this.state });
     }
     this.setState({menuOpen: menu});
-    Sefaria.track.event("Open Menu", {menu, via});
+    if (via) {
+      Sefaria.track.event("OpenMenu", {menu, via});
+    }
   };
 
   openSubMenu = (subMenu, isBack) => {
@@ -1166,6 +1168,16 @@ class ReaderApp extends React.PureComponent {
       if (!this.state.textReference && !this.state.sheet) {
           this.openDefaultText();
       }
+  };
+
+  closeAuthPage = (authMode) => {
+    let via;
+    const backStack = BackManager.getStack({ type: 'main' });
+    if (backStack.length > 0) {
+      via = backStack[backStack.length-1].state.menuOpen;
+    }
+    Sefaria.track.event("AuthSuccessful", {authMode, via});
+    this.manageBackMain();
   };
 
   openNav = () => {
@@ -1974,7 +1986,7 @@ class ReaderApp extends React.PureComponent {
         return(
           <AuthPage
             authMode={this.state.menuOpen}
-            close={this.manageBackMain}
+            close={this.closeAuthPage}
             showToast={this.showToast}
             openLogin={this.openMenu.bind(null, 'login')}
             openRegister={this.openMenu.bind(null, 'register')}
