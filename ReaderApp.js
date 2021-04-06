@@ -1132,7 +1132,7 @@ class ReaderApp extends React.PureComponent {
     })
   };
 
-  openMenu = (menu) => {
+  openMenu = (menu, via) => {
     // set of `menuOpen` states which you shouldn't be able to go back to
     const SKIP_MENUS = { autocomplete: true, register: true, login: true };
     if (!SKIP_MENUS[this.state.menuOpen] && !!menu) {
@@ -1148,6 +1148,7 @@ class ReaderApp extends React.PureComponent {
       BackManager.forward({ state: this.state });
     }
     this.setState({menuOpen: menu});
+    Sefaria.track.event("Open Menu", {menu, via});
   };
 
   openSubMenu = (subMenu, isBack) => {
@@ -1261,8 +1262,8 @@ class ReaderApp extends React.PureComponent {
     this.openMenu("autocomplete");
   }
 
-  openMySheets = () => {
-    this.openMenu("mySheets");
+  openMySheets = (via) => {
+    this.openMenu("mySheets", via);
   };
 
   clearMenuState = () => {
@@ -1840,11 +1841,11 @@ class ReaderApp extends React.PureComponent {
               openSettings={this.openMenu.bind(null, "settings")}
               openHistory={this.openMenu.bind(null, "history")}
               openSaved={this.openMenu.bind(null, "saved")}
-              openLogin={this.openMenu.bind(null, "login")}
-              openRegister={this.openMenu.bind(null, "register")}
+              openLogin={this.openMenu.bind(null, "login", "toc")}
+              openRegister={this.openMenu.bind(null, "register", "toc")}
               openTopicToc={this.openTopicToc}
               openDedication={this.openMenu.bind(null, "dedication")}
-              openMySheets={this.openMySheets}
+              openMySheets={this.openMySheets.bind(null, "toc")}
               onChangeSearchQuery={this.onChangeSearchQuery}
               openUri={this.openUri}
               searchType={this.state.searchType}
@@ -1939,7 +1940,7 @@ class ReaderApp extends React.PureComponent {
             menuOpen={this.state.menuOpen}
             icon={this.props.themeStr === "white" ? require('./img/clock.png') : require('./img/clock-light.png')}
             loadData={this.syncHistoryBound}
-            openLogin={this.openMenu.bind(null, "login")}
+            openLogin={this.openMenu.bind(null, "login", "history")}
             isLoggedIn={this.props.isLoggedIn}
             hasDismissedSyncModal={this.props.hasDismissedSyncModal}
             dispatch={this.props.dispatch}
@@ -1961,7 +1962,7 @@ class ReaderApp extends React.PureComponent {
             menuOpen={this.state.menuOpen}
             icon={this.props.themeStr === "white" ? require('./img/starUnfilled.png') : require('./img/starUnfilled-light.png')}
             loadData={async () => Sefaria.history.syncHistoryGetSaved(this.props.dispatch, await this.getSettingsObject())}
-            openLogin={this.openMenu.bind(null, "login")}
+            openLogin={this.openMenu.bind(null, "login", "saved")}
             isLoggedIn={this.props.isLoggedIn}
             hasDismissedSyncModal={this.props.hasDismissedSyncModal}
             dispatch={this.props.dispatch}
