@@ -1023,7 +1023,6 @@ async function autoUpdateCheck() {
    * The mobile downloads are updated every 7 days. We want to prompt the user to update if they haven't checked the
    * server
    */
-  if (!wereBooksDownloaded()) { return false }
   let lastUpdateCheck;
   try {
     lastUpdateCheck = await AsyncStorage.getItem('lastUpdateCheck');
