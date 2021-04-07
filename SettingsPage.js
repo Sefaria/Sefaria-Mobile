@@ -46,10 +46,17 @@ import Sefaria from "./sefaria";
 import {FileSystem} from "react-native-unimodules";
 const DEBUG_MODE = false;
 
-const generateOptions = (options, onPress) => options.map(o => ({
+/**
+ * 
+ * @param {array} options 
+ * @param {func} onPress 
+ * @param {array} values. optional list of values that should be passed to onPress if present. should be same length as options 
+ */
+const generateOptions = (options, onPress, values=[]) => Sefaria.util.zip([options, values]).map(([o,v]) => ({
   name: o,
   text: strings[o],
-  onPress: () => { onPress(o); },
+  value: v,
+  onPress: () => { onPress(typeof v == 'undefined' ? o : v); },
 }));
 
 const getIsDisabledObj = () => {
@@ -320,7 +327,7 @@ const ButtonToggleSection = ({ langStyle }) => {
         time: Sefaria.util.epoch_time(),
       })
     );
-    if (isReadingHistory === 'off' && globalState.readingHistory === 'on') {
+    if (!isReadingHistory && globalState.readingHistory) {
       Alert.alert(
         strings.delete,
         strings.turningThisFeatureOff,
@@ -347,7 +354,7 @@ const ButtonToggleSection = ({ langStyle }) => {
     emailFrequencyOptions: generateOptions(['daily', 'weekly', 'never'], setEmailFrequency),
     preferredCustomOptions: generateOptions(['sephardi', 'ashkenazi'], setPreferredCustom),
     downloadNetworkSettingOptions: generateOptions(['wifiOnly', 'mobileNetwork'], setDownloadNetworkSetting),
-    readingHistoryOptions: generateOptions(['on', 'off'], setReadingHistory),
+    readingHistoryOptions: generateOptions(['onFem', 'offFem'], setReadingHistory, [true, false]),
     groggerActiveOptions: generateOptions(['on', 'off'], setGroggerActive),
   };
   /* stateKey prop is used for testing */

@@ -62,7 +62,7 @@ describe('history', () => {
     Sefaria.history.lastPlace = [];
     Sefaria.history.lastSync = [];
     await Sefaria.history.setItem('lastSyncItems', '');
-    await AsyncStorage.setItem('readingHistory', '"on"');
+    await AsyncStorage.setItem('readingHistory', 'true');
     await Sefaria.history.saveHistoryItem(getHistoryObject, true, null, 1);
     expect((await Sefaria.history.getItem('lastSyncItems'))).toBe(JSON.stringify([historyItem]));
     expect((await Sefaria.history.getItem('lastPlace'))).toBe(JSON.stringify([historyItem]));
@@ -77,6 +77,7 @@ describe('history', () => {
       book: "Genesis",
       language: "english",
     };
+    await AsyncStorage.setItem('readingHistory', 'true');
     let getHistoryObject = jest.fn()
       .mockReturnValueOnce(historyItem)
       .mockReturnValueOnce(historyItem);
@@ -171,7 +172,7 @@ describe('history', () => {
     Sefaria.history.lastPlace = [];
     Sefaria.history.lastSync = [];
     await Sefaria.history.setItem('lastSyncItems', '');
-    await AsyncStorage.setItem('readingHistory', '"off"');
+    await AsyncStorage.setItem('readingHistory', 'false');
     await Sefaria.history.saveHistoryItem(getHistoryObject, true, null, 1);
     expect((await Sefaria.history.getItem('lastSyncItems'))).toBe('');
     expect((await Sefaria.history.getItem('lastPlace'))).toBe('');

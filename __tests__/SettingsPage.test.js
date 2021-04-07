@@ -76,7 +76,7 @@ test('press reading history button', async () => {
     />
   );
   const readingHistBtn = inst.root.findAllByType(ButtonToggleSetNew).find(btn => btn.parent.props.stateKey === 'readingHistory');
-  const offOption = readingHistBtn.props.options.find(o => o.name === 'off');
+  const offOption = readingHistBtn.props.options.find(o => o.name === 'offFem');
 
   // press off button to open popup
   offOption.onPress();
@@ -90,7 +90,7 @@ test('press reading history button', async () => {
   act(deleteButton.onPress);
 
   // check that value of globalState is 'off'
-  expect(inst.root.children[0].props._globalState['readingHistory']).toBe('off');
+  expect(inst.root.children[0].props._globalState['readingHistory']).toBe(false);
   expect((await AsyncStorage.getItem('lastSettingsUpdateTime'))).toBe(''+1);
 
   // check that delete historyFunction was called

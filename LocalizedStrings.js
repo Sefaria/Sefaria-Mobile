@@ -95,6 +95,8 @@ let strings = new LocalizedStrings({
     exactSearch: "EXACT SEARCH",
     on: "On",
     off: "Off",
+    onFem: "On",
+    offFem: "Off",
     filterByText: "FILTER BY TEXT",
     english: "English",
     hebrew: "Hebrew",
@@ -281,6 +283,8 @@ let strings = new LocalizedStrings({
     exactSearch: "חיפוש מדויק",
     on: "פעיל",
     off: "כבוי",
+    onFem: "פעילה",
+    offFem: "כבויה",
     filterByText: "סינון לפי טקסט",
     yiddish: "יידיש",
     finnish: "פינית",
@@ -363,7 +367,7 @@ let strings = new LocalizedStrings({
     trendingTopics: "נושאים נפוצים",
     vowels: "ניקוד",
     readingHistory: "היסטורית קריאה",
-    turningThisFeatureOff: "",
+    turningThisFeatureOff: "כיבוי אפשרות זו תמחק לצמיתות את היסטורית הקריאה שלך.",
     readingHistoryIsCurrentlyDisabled: "היסטורית קריאה כבויה כרגע. ניתן להפעילה מחדש במסך",
   }
 });

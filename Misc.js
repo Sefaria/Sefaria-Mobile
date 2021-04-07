@@ -828,11 +828,16 @@ const ButtonToggleSetNew = ({ options, active }) => {
   return (
     <View style={[styles.readerDisplayOptionsMenuRow, styles.boxShadow, styles.buttonToggleSetNew, theme.mainTextPanel]}>
       {
-        options.map(option => (
-          <TouchableOpacity key={option.name} onPress={option.onPress} style={[styles.buttonToggle, active === option.name ? styles.buttonToggleActive : null]}>
-            <Text  style={[theme.text, active === option.name ? styles.buttonToggleActiveText : null, isHeb? styles.heInt : styles.enInt]}>{ option.text }</Text>
-          </TouchableOpacity>
-        ))
+        options.map(option => {
+          const isActive = active === (typeof option.value == 'undefined' ? option.name : option.value);
+          return (
+            <TouchableOpacity key={option.name} onPress={option.onPress} style={[styles.buttonToggle, isActive ? styles.buttonToggleActive : null]}>
+              <Text  style={[theme.text, isActive ? styles.buttonToggleActiveText : null, isHeb? styles.heInt : styles.enInt]}>
+                { option.text }
+              </Text>
+            </TouchableOpacity>
+          );
+        })
       }
     </View>
   );
