@@ -274,7 +274,7 @@ describe('lastUpdated', () => {
   test('noLibrary', async () => {
     await packageSetupProtocol();
     const requiresUpdate = await autoUpdateCheck();
-    expect(requiresUpdate).toBe(false);
+    expect(requiresUpdate).toBe(true);
   });
   test('updatedRecently', async () => {
     await setup();
