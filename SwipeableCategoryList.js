@@ -2,15 +2,11 @@
 
 import PropTypes from 'prop-types';
 
-import React, { Component } from 'react';
+import React, { useContext } from 'react';
 import {
-  StyleSheet,
   Text,
   TouchableOpacity,
-  TouchableWithoutFeedback,
   View,
-  ScrollView,
-  Alert,
   FlatList,
   Image,
   RefreshControl,
@@ -19,15 +15,15 @@ import {
   CategoryColorLine,
   CategorySideColorLink,
   DirectedButton,
-  TwoBox,
   LanguageToggleButton,
   AnimatedRow,
   SText,
 } from './Misc.js';
-import { STATE_ACTIONS } from './StateManager';
+import { DispatchContext, STATE_ACTIONS } from './StateManager';
 import SwipeableFlatList from './SwipeableFlatList';
 import styles from './Styles';
 import strings from './LocalizedStrings';
+import { useGlobalState } from './Hooks.js';
 
 
 class SwipeableCategoryList extends React.Component {
@@ -44,9 +40,10 @@ class SwipeableCategoryList extends React.Component {
     icon:               PropTypes.number.isRequired,
     menuOpen:           PropTypes.oneOf(["saved", "history"]),
     openLogin:          PropTypes.func.isRequired,
+    openSettings:       PropTypes.func.isRequired,
     isLoggedIn:         PropTypes.bool.isRequired,
     hasDismissedSyncModal: PropTypes.bool.isRequired,
-    dispatch:           PropTypes.func.isRequired,
+    readingHistory:     PropTypes.string.isRequired,
   };
 
   constructor(props) {
@@ -150,34 +147,10 @@ class SwipeableCategoryList extends React.Component {
           <LanguageToggleButton />
         </View>
         {this.props.isLoggedIn || this.props.hasDismissedSyncModal ? null :
-          <TouchableOpacity style={{
-              backgroundColor: "#18345D",
-              paddingVertical: 20,
-              paddingHorizontal: 15,
-              flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-            }}
-            onPress={this.props.openLogin}
-          >
-            <Text style={[ styles.systemButtonText, styles.systemButtonTextBlue, styles.enInt]}>
-              { `${strings.wantToSync} ` }
-              <Text style={[{ textDecorationLine: 'underline'}]}>{ strings.logIn }</Text>
-            </Text>
-
-            <TouchableOpacity onPress={() => {
-                this.props.dispatch({
-                  type: STATE_ACTIONS.setHasDismissedSyncModal,
-                  value: true,
-                });
-              }}>
-              <Image
-                source={require('./img/close-light.png')}
-                resizeMode={'contain'}
-                style={{width: 14, height: 14}}
-              />
-            </TouchableOpacity>
-          </TouchableOpacity>
+          <SyncPrompt openLogin={this.props.openLogin} />
+        }
+        {
+          this.props.menuOpen === 'history' && this.props.readingHistory === 'off' ? <ReadingHistoryPrompt openSettings={this.props.openSettings} /> : null
         }
         <FlatListClass
           data={this.state.data}
@@ -198,6 +171,56 @@ class SwipeableCategoryList extends React.Component {
       </View>
     );
   }
+}
+
+const SyncPrompt = ({ openLogin }) => {
+  const dispatch = useContext(DispatchContext);
+  return (
+    <TouchableOpacity style={{
+        backgroundColor: "#18345D",
+        paddingVertical: 20,
+        paddingHorizontal: 15,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+      }}
+      onPress={openLogin}
+    >
+      <Text style={[ styles.systemButtonText, styles.systemButtonTextBlue, styles.enInt]}>
+        { `${strings.wantToSync} ` }
+        <Text style={[{ textDecorationLine: 'underline'}]}>{ strings.logIn }</Text>
+      </Text>
+
+      <TouchableOpacity onPress={() => {
+          dispatch({
+            type: STATE_ACTIONS.setHasDismissedSyncModal,
+            value: true,
+          });
+        }}>
+        <Image
+          source={require('./img/close-light.png')}
+          resizeMode={'contain'}
+          style={{width: 14, height: 14}}
+        />
+      </TouchableOpacity>
+    </TouchableOpacity>
+  );
+}
+
+const ReadingHistoryPrompt = ({ openSettings }) => {
+  const { theme, interfaceLanguage } = useGlobalState();
+  const langStyle = interfaceLanguage === 'he' ? styles.heInt : styles.enInt;
+  return (
+    <View>
+      <Text style={[langStyle, {textAlign: "center", marginTop: 20, paddingHorizontal: 15}, theme.secondaryText]}>
+        {strings.readingHistoryIsCurrentlyDisabled + " "}
+        <Text style={[langStyle, theme.text]} onPress={openSettings}>
+          {strings.settings.toLowerCase()}
+        </Text>
+        {'.'}
+      </Text>
+    </View>
+  );
 }
 
 export default SwipeableCategoryList;

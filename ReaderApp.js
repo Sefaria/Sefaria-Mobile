@@ -1952,9 +1952,10 @@ class ReaderApp extends React.PureComponent {
             icon={this.props.themeStr === "white" ? require('./img/clock.png') : require('./img/clock-light.png')}
             loadData={this.syncProfileBound}
             openLogin={this.openMenu.bind(null, "login", "history")}
+            openSettings={this.openMenu.bind(null, "settings")}
             isLoggedIn={this.props.isLoggedIn}
             hasDismissedSyncModal={this.props.hasDismissedSyncModal}
-            dispatch={this.props.dispatch}
+            readingHistory={this.props.readingHistory}
           />
         );
         break;
@@ -1972,16 +1973,12 @@ class ReaderApp extends React.PureComponent {
             title={strings.saved}
             menuOpen={this.state.menuOpen}
             icon={this.props.themeStr === "white" ? require('./img/starUnfilled.png') : require('./img/starUnfilled-light.png')}
-<<<<<<< HEAD
             loadData={async () => Sefaria.history.syncProfileGetSaved(this.props.dispatch, await this.getSettingsObject())}
-            openLogin={this.openMenu.bind(null, "login")}
-=======
-            loadData={async () => Sefaria.history.syncHistoryGetSaved(this.props.dispatch, await this.getSettingsObject())}
             openLogin={this.openMenu.bind(null, "login", "saved")}
->>>>>>> master
+            openSettings={this.openMenu.bind(null, "settings")}
             isLoggedIn={this.props.isLoggedIn}
             hasDismissedSyncModal={this.props.hasDismissedSyncModal}
-            dispatch={this.props.dispatch}
+            readingHistory={this.props.readingHistory}
           />
         );
         break;
