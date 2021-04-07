@@ -1148,7 +1148,7 @@ class ReaderApp extends React.PureComponent {
       BackManager.forward({ state: this.state });
     }
     this.setState({menuOpen: menu});
-    if (via) {
+    if (via && typeof via === 'string') {
       Sefaria.track.event("OpenMenu", {menu, via});
     }
   };
