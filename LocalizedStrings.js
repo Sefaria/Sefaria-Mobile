@@ -183,6 +183,7 @@ let strings = new LocalizedStrings({
     vowels: "Vowels",
     readingHistory: "Reading History",
     turningThisFeatureOff: "Turning this feature off will permanently delete your reading history.",
+    readingHistoryIsCurrentlyDisabled: "Reading history is currently disabled. You can re-enable this feature in your",
   },
   he: {
     mySheets: "דפי המקורות שלי",
@@ -363,6 +364,7 @@ let strings = new LocalizedStrings({
     vowels: "ניקוד",
     readingHistory: "היסטורית קריאה",
     turningThisFeatureOff: "",
+    readingHistoryIsCurrentlyDisabled: "היסטורית קריאה כבויה כרגע. ניתן להפעילה מחדש במסך",
   }
 });
 

@@ -185,7 +185,6 @@ const SettingsPage = ({ close, logout, openUri }) => {
     setIsDisabledObj(getIsDisabledObj);
     await deleteBooks(booksToDelete);
   };
-
   const langStyle = interfaceLanguage === "hebrew" ? styles.heInt : styles.enInt;
   return (
     <View style={[styles.menu, theme.menu]}>
