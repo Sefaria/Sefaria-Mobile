@@ -43,7 +43,7 @@ class SwipeableCategoryList extends React.Component {
     openSettings:       PropTypes.func.isRequired,
     isLoggedIn:         PropTypes.bool.isRequired,
     hasDismissedSyncModal: PropTypes.bool.isRequired,
-    readingHistory:     PropTypes.string.isRequired,
+    readingHistory:     PropTypes.bool.isRequired,
   };
 
   constructor(props) {
@@ -150,7 +150,7 @@ class SwipeableCategoryList extends React.Component {
           <SyncPrompt openLogin={this.props.openLogin} />
         }
         {
-          this.props.menuOpen === 'history' && this.props.readingHistory === 'off' ? <ReadingHistoryPrompt openSettings={this.props.openSettings} /> : null
+          this.props.menuOpen === 'history' && !this.props.readingHistory ? <ReadingHistoryPrompt openSettings={this.props.openSettings} /> : null
         }
         <FlatListClass
           data={this.state.data}

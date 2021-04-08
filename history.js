@@ -69,7 +69,7 @@ const History = {
     // getHistoryObject: dependent on state of whatever component called this func
     // onSave: optional function which is called with the list of history items to actually save
     const readingHistory = JSON.parse(await AsyncStorage.getItem('readingHistory'));
-    if (readingHistory === 'off') { return; }
+    if (!readingHistory) { return; }
 
     let history_item = getHistoryObject();
     if (!history_item.ref) { return; }
@@ -185,6 +185,7 @@ const History = {
       email_notifications: STATE_ACTIONS.setEmailFrequency,
       interface_language: STATE_ACTIONS.setInterfaceLanguage,
       textual_custom: STATE_ACTIONS.setPreferredCustom,
+      reading_history: STATE_ACTIONS.setReadingHistory,
     };
     Object.entries(newSettings).map(([key, value]) => {
       if (!fieldToActionMap[key]) { return; }

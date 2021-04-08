@@ -10,6 +10,7 @@ describe('SwipeableCategoryList', () => {
       <GlobalStateContext.Provider value={{
           themeStr: 'white',
           theme: {},
+          readingHistory: true,
         }}
       >
         <SwipeableCategoryList
@@ -21,12 +22,14 @@ describe('SwipeableCategoryList', () => {
           textLanguage={'english'}
           interfaceLang={'english'}
           onRemove={() => {}}
+          openSettings={()=>{}}
           title={'History'}
           loadData={() => Promise.resolve([])}
           menuOpen={'history'}
           openLogin={() => {}}
           isLoggedIn={false}
           hasDismissedSyncModal={false}
+          readingHistory={true}
           dispatch={() => {}}
           icon={require('./img/clock.png')}
         />
@@ -41,6 +44,7 @@ describe('SwipeableCategoryList', () => {
       <GlobalStateContext.Provider value={{
           themeStr: 'white',
           theme: {},
+          readingHistory: true,
         }}
       >
         <SwipeableCategoryList
@@ -52,7 +56,9 @@ describe('SwipeableCategoryList', () => {
           textLanguage={'english'}
           interfaceLang={'english'}
           onRemove={() => {}}
+          openSettings={()=>{}}
           title={'History'}
+          readingHistory={true}
           loadData={() => Promise.resolve([
             {  // normal case with versions
               ref: "Genesis 1:1",

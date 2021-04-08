@@ -125,7 +125,7 @@ const ASYNC_STORAGE_DEFAULTS = {
     action: ACTION_CREATORS.setEmailFrequency,
   },
   readingHistory: {
-    default: 'on',
+    default: true,
     action: ACTION_CREATORS.setReadingHistory,
   },
   preferredCustom: {
@@ -234,7 +234,7 @@ const reducer = function (state, action) {
       }
     case STATE_ACTIONS.setReadingHistory:
       if (!action.fromAsync) {
-        if (action.value === 'off' && state.readingHistory === 'on') { Sefaria.history.deleteHistory(false); }
+        if (!action.value && state.readingHistory) { Sefaria.history.deleteHistory(false); }
         saveFieldToAsync('readingHistory', action.value);
       }
       return {
