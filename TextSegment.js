@@ -111,33 +111,43 @@ const TextSegment = React.memo(({
     menuItems.splice(1, 1);
   }
 
+  // const onLongPress = useCallback(() => {
+  //   if (Platform.OS === 'ios') { return; /* no actionsheet for ios, this is handled by text selection */ }
+  //   ActionSheet.showActionSheetWithOptions({
+  //     options: [
+  //       strings.copy,
+  //       strings.share,
+  //       strings.cancel,
+  //     ],
+  //     cancelButtonIndex: 2,
+  //   },
+  //   (buttonIndex) => {
+  //     const section = parseInt(segmentKey.split(":")[0]);
+  //     const segment = parseInt(segmentKey.split(":")[1]);
+  //     if (buttonIndex === 0) { copyToClipboard(getDisplayedText(true, section, segment, segmentRef)); }
+  //     else if (buttonIndex === 1) { shareCurrentSegment(section, segment, segmentRef); }
+  //   })
+  // }, [segmentRef]);
+  
   const onLongPress = useCallback(() => {
-    if (Platform.OS === 'ios') { return; /* no actionsheet for ios, this is handled by text selection */ }
-    ActionSheet.showActionSheetWithOptions({
-      options: [
-        strings.copy,
-        strings.share,
-        strings.cancel,
-      ],
-      cancelButtonIndex: 2,
-    },
-    (buttonIndex) => {
-      const section = parseInt(segmentKey.split(":")[0]);
-      const segment = parseInt(segmentKey.split(":")[1]);
-      if (buttonIndex === 0) { copyToClipboard(getDisplayedText(true, section, segment, segmentRef)); }
-      else if (buttonIndex === 1) { shareCurrentSegment(section, segment, segmentRef); }
-    })
-  }, [segmentRef]);
-  const onPress = useCallback(() => onTextPress(), [onTextPress]);
+    if (textSelectionModeOn) { return; }
+    setTextSelectionMode(true);
+  }, [textSelectionModeOn]);
 
-  const TempSelectableText = Platform.OS === 'ios' ? SelectableText : DummySelectableText;
+  const onPress = useCallback(() => {
+    if (textSelectionModeOn) { return; }
+    onTextPress();
+  }, [onTextPress, textSelectionModeOn]);
+
+  
+  const TextComponent = textSelectionModeOn ? SelectableText : DummySelectableText;
   return (
     <TouchableOpacity
       onPress={onPress}
       onLongPress={onLongPress}
       delayPressIn={200}
     >
-      <TempSelectableText
+      <TextComponent
           accessible={true}
           accessibilityRole={"text"}
           accessibilityLabel={data.replace(/(<([^>]+)>)/ig,'')}

@@ -17,6 +17,7 @@ import {
   UIManager,
   Linking,
   Share,
+  Text,
 } from 'react-native';
 import NetInfo from "@react-native-community/netinfo";
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -62,10 +63,12 @@ import {
 
 import {
   LoadingView,
+  CloseButton,
   CategoryColorLine,
   SefariaProgressBar,
   ConditionalProgressWrapper,
 } from './Misc.js';
+import { useGlobalState } from './Hooks';
 const ViewPort    = Dimensions.get('window');
 
 class ReaderApp extends React.PureComponent {
@@ -1746,7 +1749,7 @@ class ReaderApp extends React.PureComponent {
     this.setConnectionsMode('dictionary');
   }
 
-  setTextSelectionMode = ({ textSelectionModeOn }) => { this.setState({ textSelectionModeOn }); };
+  setTextSelectionMode = (textSelectionModeOn) => { this.setState({ textSelectionModeOn }); };
 
   getDisplayedText = (withUrl, sectionIndex, segmentIndex, segmentRef) => {
     // need to be careful because sectionIndex and segmentIndex can be 0
@@ -2066,21 +2069,25 @@ class ReaderApp extends React.PureComponent {
           onStartShouldSetResponderCapture={this._shouldPinchHandlerCapture}
         >
             <CategoryColorLine category={Sefaria.categoryForTitle(this.state.textTitle, isSheet)} />
-            <ReaderControls
-              enRef={this.state.textReference}
-              heRef={this.state.heRef}
-              categories={Sefaria.categoriesForTitle(this.state.textTitle, isSheet)}
-              openNav={this.openNav}
-              goBack={this.manageBackMain}
-              openTextToc={this.openTextToc}
-              openSheetMeta={this.openSheetMeta}
-              sheet={this.state.sheet}
-              shouldShowHamburger={this.shouldShowHamburger}
-              toggleReaderDisplayOptionsMenu={this.toggleReaderDisplayOptionsMenu}
-              openUri={this.openUri}
-              getHistoryObject={this.getHistoryObject}
-              showToast={this.showToast}
-            />
+            { this.state.textSelectionModeOn ? (
+              <SelectionModeHeader setTextSelectionMode={this.setTextSelectionMode} />
+            ) : (
+              <ReaderControls
+                enRef={this.state.textReference}
+                heRef={this.state.heRef}
+                categories={Sefaria.categoriesForTitle(this.state.textTitle, isSheet)}
+                openNav={this.openNav}
+                goBack={this.manageBackMain}
+                openTextToc={this.openTextToc}
+                openSheetMeta={this.openSheetMeta}
+                sheet={this.state.sheet}
+                shouldShowHamburger={this.shouldShowHamburger}
+                toggleReaderDisplayOptionsMenu={this.toggleReaderDisplayOptionsMenu}
+                openUri={this.openUri}
+                getHistoryObject={this.getHistoryObject}
+                showToast={this.showToast}
+              />
+            )}
 
             { loading ?
             <LoadingView style={{flex: textColumnFlex}} category={Sefaria.categoryForTitle(this.state.textTitle)}/> :
@@ -2277,6 +2284,18 @@ class ReaderApp extends React.PureComponent {
 
     );
   }
+}
+
+const SelectionModeHeader = ({ setTextSelectionMode }) => {
+  const { theme } = useGlobalState();
+  return (
+    <View style={[styles.header, theme.segmentHighlight, theme.bordered]}>
+      <CloseButton onPress={() => setTextSelectionMode(false)} />
+      <Text style={[styles.enInt, {fontSize: 17}, theme.secondaryText]}>
+        {"Select Text"}
+      </Text>
+    </View>
+  );
 }
 
 export default ReaderApp;
