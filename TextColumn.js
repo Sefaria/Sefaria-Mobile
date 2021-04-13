@@ -73,6 +73,8 @@ class TextColumn extends React.PureComponent {
     biLayout:           PropTypes.oneOf(["stacked", "sidebyside", "sidebysiderev"]),
     textUnavailableAlert: PropTypes.func.isRequired,
     vowelToggleAvailable: PropTypes.oneOf([VOCALIZATION.TAAMIM_AND_NIKKUD, VOCALIZATION.NIKKUD, VOCALIZATION.NONE]),
+    textSelectionModeOn:PropTypes.bool.isRequired,
+    setTextSelectionMode:PropTypes.func.isRequired,
   };
 
   constructor(props) {
@@ -514,14 +516,11 @@ class TextColumn extends React.PureComponent {
         showSegmentNumbers={Sefaria.showSegmentNumbers(this.props.textTitle)}
         textSegmentPressed={this.textSegmentPressed}
         setRowRef={this.setSegmentRowRef}
-        setRowRefInitY={this.setRowRefInitY}
       />
     );
   };
 
   setSegmentRowRef = (key, ref) => { this.rowRefs[key] = ref; };
-
-  setRowRefInitY = (key, y) => { this.rowYHash[key] = y; };
 
   renderSegmentedRow = ({ item }) => {
     // In segmented case, rowData represents a segments of text
@@ -535,12 +534,13 @@ class TextColumn extends React.PureComponent {
         showSegmentNumbers={Sefaria.showSegmentNumbers(this.props.textTitle)}
         textSegmentPressed={this.textSegmentPressed}
         setRowRef={this.setSegmentRowRef}
-        setRowRefInitY={this.setRowRefInitY}
         handleOpenURL={this.props.handleOpenURL}
         setDictionaryLookup={this.props.setDictionaryLookup}
         shareCurrentSegment={this.props.shareCurrentSegment}
         getDisplayedText={this.props.getDisplayedText}
         vowelToggleAvailable={this.props.vowelToggleAvailable}
+        textSelectionModeOn={this.props.textSelectionModeOn}
+        setTextSelectionMode={this.props.setTextSelectionMode}
       />
     );
   };

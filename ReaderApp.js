@@ -143,6 +143,7 @@ class ReaderApp extends React.PureComponent {
         ReaderDisplayOptionsMenuVisible: false,
         dictLookup: null,
         overwriteVersions: true, // false when you navigate to a text but dont want the current version to overwrite your sticky version
+        textSelectionModeOn: false,
     };
     this.NetInfoEventListener = () => {};  // calling the event listener unsubcribes, initialize to a null method
   }
@@ -1745,6 +1746,8 @@ class ReaderApp extends React.PureComponent {
     this.setConnectionsMode('dictionary');
   }
 
+  setTextSelectionMode = ({ textSelectionModeOn }) => { this.setState({ textSelectionModeOn }); };
+
   getDisplayedText = (withUrl, sectionIndex, segmentIndex, segmentRef) => {
     // need to be careful because sectionIndex and segmentIndex can be 0
     if (typeof sectionIndex == 'undefined') { sectionIndex = this.state.sectionIndexRef; }
@@ -2122,7 +2125,9 @@ class ReaderApp extends React.PureComponent {
                   setDictionaryLookup={this.setDictionaryLookup}
                   shareCurrentSegment={this.shareCurrentSegment}
                   getDisplayedText={this.getDisplayedText}
-                  vowelToggleAvailable={vowelToggleAvailable}              
+                  vowelToggleAvailable={vowelToggleAvailable}
+                  textSelectionModeOn={this.state.textSelectionModeOn}
+                  setTextSelectionMode={this.setTextSelectionMode}       
                 />
             </View> }
 

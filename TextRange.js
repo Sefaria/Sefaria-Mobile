@@ -20,13 +20,14 @@ const TextRange = React.memo(({
   showSegmentNumbers,
   textSegmentPressed,
   setRowRef,
-  setRowRefInitY,
   fontScale,
   handleOpenURL,
   setDictionaryLookup,
   shareCurrentSegment,
   getDisplayedText,
   vowelToggleAvailable,
+  textSelectionModeOn,
+  setTextSelectionMode,
 }) => {
   const { themeStr, textLanguage, biLayout, fontSize, vocalization } = useContext(GlobalStateContext);
 
@@ -108,6 +109,8 @@ const TextRange = React.memo(({
                   handleOpenURL={handleOpenURL}
                   shareCurrentSegment={shareCurrentSegment}
                   getDisplayedText={getDisplayedText}
+                  textSelectionModeOn={textSelectionModeOn}
+                  setTextSelectionMode={setTextSelectionMode}
                 />
               </View>
             ) : null
@@ -131,6 +134,8 @@ const TextRange = React.memo(({
                   handleOpenURL={handleOpenURL}
                   shareCurrentSegment={shareCurrentSegment}
                   getDisplayedText={getDisplayedText}
+                  textSelectionModeOn={textSelectionModeOn}
+                  setTextSelectionMode={setTextSelectionMode}
                 />
               </View>
             ) : null
@@ -150,10 +155,11 @@ TextRange.propTypes = {
   showSegmentNumbers: PropTypes.bool.isRequired,
   textSegmentPressed: PropTypes.func.isRequired,
   setRowRef:          PropTypes.func.isRequired,
-  setRowRefInitY:     PropTypes.func.isRequired,
   shareCurrentSegment:PropTypes.func.isRequired,
   getDisplayedText:   PropTypes.func.isRequired,
   fontScale:          PropTypes.object,
+  textSelectionModeOn:PropTypes.bool.isRequired,
+  setTextSelectionMode:PropTypes.func.isRequired,
 };
 
 export default TextRange;

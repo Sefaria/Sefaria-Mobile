@@ -75,6 +75,8 @@ const TextSegment = React.memo(({
   onTextPress,
   shareCurrentSegment,
   getDisplayedText,
+  textSelectionModeOn,
+  setTextSelectionMode,
 }) => {
   const [resetKey, setResetKey] = useState(0);
   const { themeStr, fontSize, biLayout } = useContext(GlobalStateContext);
@@ -169,6 +171,8 @@ TextSegment.propTypes = {
   onTextPress:        PropTypes.func.isRequired,
   showToast:          PropTypes.func.isRequired,
   fontScale:          PropTypes.object,
+  textSelectionModeOn:PropTypes.bool.isRequired,
+  setTextSelectionMode:PropTypes.func.isRequired,
 };
 
 const DummySelectableText = ({ value, TextComponent, textComponentProps, ...props }) => {
