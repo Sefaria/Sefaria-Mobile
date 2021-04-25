@@ -205,6 +205,7 @@ Sefaria = {
             return preResolve(data);
           } catch (e3) {
             console.error("Error loading JSON file: " + jsonPath + " OR " + depth1JSONPath);
+            throw ERRORS.NOT_OFFLINE;
           }
         }
       } else {
