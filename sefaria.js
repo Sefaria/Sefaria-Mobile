@@ -1394,8 +1394,8 @@ Sefaria.util = {
   },
   applyVocalizationSettings: function(text, vocalization, vowelToggleAvailable) {
     if (vowelToggleAvailable === VOCALIZATION.NONE || vocalization === VOCALIZATION.TAAMIM_AND_NIKKUD) { return text; } 
-    const nre = /[\u0591-\u05af\u05bd\u05bf\u05c0\u05c4\u05c5\u200d]/g;
-    const cnre = /[\u0591-\u05bd\u05bf-\u05c5\u05c7\u200d]/g;
+    const nre = /(?:[\u0591-\u05af\u05bd\u05bf\u05c4\u05c5\u200d]|\s\u05c0)/g;
+    const cnre = /(?:[\u0591-\u05bd\u05bf\u05c1-\u05c5\u05c7\u200d]|\s\u05c0)/g;
     const strip_text_re = (vocalization == VOCALIZATION.NIKKUD) ? nre : cnre;
     return text.replace(strip_text_re, "");
   },
