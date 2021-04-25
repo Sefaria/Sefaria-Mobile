@@ -1629,7 +1629,11 @@ Sefaria.hebrew = {
     500: "\u05EA\u05E7",
     600: "\u05EA\u05E8",
     700: "\u05EA\u05E9",
-    800: "\u05EA\u05EA"
+    800: "\u05EA\u05EA",
+    900: "\u05EA\u05EA\u05E7",
+    1000: "\u05EA\u05EA\u05E8",
+    1100: "\u05EA\u05EA\u05E9",
+    1200: "\u05EA\u05EA\u05EA"
   },
   decodeHebrewNumeral: function(h) {
     // Takes a string representing a Hebrew numeral and returns it integer value.
