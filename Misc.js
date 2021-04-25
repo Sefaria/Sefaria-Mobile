@@ -188,7 +188,7 @@ const SefariaProgressBar = ({ onPress, onClose, download, downloadNotification, 
 
     };
   }, [download]);  // we only want to resubscribe if the downloader object changes. This shouldn't happen, but the condition is here for completeness sake
-  const downloadPercentage = Math.round(progress * 1000) / 10;
+  const downloadPercentage = (Math.round(progress * 1000) / 10).toFixed(1);
   return (
     <TouchableOpacity onPress={!!onPress ? onPress : () => {
       }} disabled={!onPress} style={styles.sefariaProgressBar}>
