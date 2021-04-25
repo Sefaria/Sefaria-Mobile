@@ -32,6 +32,7 @@ class TextList extends React.Component {
     themeStr:        PropTypes.string.isRequired,
     fontSize:        PropTypes.number.isRequired,
   };
+  static contextType = GlobalStateContext;
 
   constructor(props) {
     super(props);
@@ -139,7 +140,8 @@ class TextList extends React.Component {
 
   getHistoryObject = visibleSeg => {
     const { item, loaded } = visibleSeg;
-    if (!loaded) { return {}; }
+    const { readingHistory } = this.context;
+    if (!readingHistory || !loaded) { return {}; }
     if (this._savedHistorySegments.has(item.ref)) { return {}; }
     if (!this._visibleSegments.find(seg => seg.item.ref === item.ref)) { return {}; }
     return {

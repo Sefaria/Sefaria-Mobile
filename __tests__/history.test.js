@@ -159,16 +159,9 @@ describe('history', () => {
   });
 
   test('saveHistoryItemReadingHistoryOff', async () => {
-    const historyItem = {
-      ref: "Genesis 1:5",
-      he_ref: "בראשית א:א",
-      versions: {},
-      book: "Genesis",
-      language: "english",
-    };
     const getHistoryObject = jest.fn()
-      .mockReturnValueOnce(historyItem)
-      .mockReturnValueOnce(historyItem);
+      .mockReturnValueOnce({})
+      .mockReturnValueOnce({});
     Sefaria.history.lastPlace = [];
     Sefaria.history.lastSync = [];
     await Sefaria.history.setItem('lastSyncItems', '');

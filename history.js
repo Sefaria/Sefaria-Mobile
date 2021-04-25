@@ -66,11 +66,8 @@ const History = {
     return history_item_array.filter(h => h.saved);
   },
   saveHistoryItem: async function(getHistoryObject, withIntent, onSave, intentTime=3000) {
-    // getHistoryObject: dependent on state of whatever component called this func
+    // getHistoryObject: dependent on state of whatever component called this func. it is `getHistoryObject`'s responsibility to return empty object if readingHistory is off
     // onSave: optional function which is called with the list of history items to actually save
-    const readingHistory = JSON.parse(await AsyncStorage.getItem('readingHistory'));
-    if (!readingHistory) { return; }
-
     let history_item = getHistoryObject();
     if (!history_item.ref) { return; }
     if (withIntent) {

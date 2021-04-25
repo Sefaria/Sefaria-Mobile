@@ -549,7 +549,8 @@ class ReaderApp extends React.PureComponent {
         selectedVersions,
         textListVisible,
       } = this.state;
-      const { textLanguage } = this.props;
+      const { textLanguage, readingHistory } = this.props;
+      if (!readingHistory) { return {}; }
       let ref, he_ref, sheet_owner, sheet_title;
       if (!!sheet) {
         ref = `Sheet ${sheet.id}${activeSheetNode && textListVisible ? `:${activeSheetNode}`: ''}`;
