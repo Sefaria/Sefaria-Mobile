@@ -75,7 +75,7 @@ const ReaderTextTableOfContents = ({
   var heCatString = categories.map(Sefaria.hebrewCategory).join(", ");
   return (
     <View style={[styles.menu, theme.menu]}>
-      <CategoryColorLine category={Sefaria.categoryForTitle(title)} />
+      <CategoryColorLine category={Sefaria.primaryCategoryForTitle(title)} />
       <View style={[styles.header, theme.header]}>
         <CloseButton onPress={close} />
         <Text style={[langStyle, styles.textTocHeaderTitle, styles.textCenter, theme.text]}>{strings.tableOfContents}</Text>
@@ -126,7 +126,7 @@ const ReaderTextTableOfContents = ({
               alts={textToc.alts || null}
               defaultStruct={"default_struct" in textToc && textToc.default_struct in textToc.alts ? textToc.default_struct : "default"}
               title={title}
-              openRef={openRef} /> : <LoadingView category={Sefaria.categoryForTitle(title)}/> }
+              openRef={openRef} /> : <LoadingView category={Sefaria.primaryCategoryForTitle(title)}/> }
 
         </ScrollView>
 

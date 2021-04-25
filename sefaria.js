@@ -141,7 +141,7 @@ Sefaria = {
           segment.links.map(link => {
             link.textTitle = Sefaria.textTitleForRef(link.sourceRef);
             if (!("category" in link)) {
-              link.category = Sefaria.categoryForTitle(link.textTitle);
+              link.category = Sefaria.primaryCategoryForTitle(link.textTitle);
             }
           });
         }
@@ -275,17 +275,11 @@ Sefaria = {
     const ref = url.replace(/\./g, ':');
     return { ref, title };
   },
-  categoryForTitle: function(title, isSheet) {
-    const cats = Sefaria.categoriesForTitle(title, isSheet);
-    if (!cats) { return null; }
-    let cat = cats[0];
-    if (cats.includes("Commentary")) {
-      cat = "Commentary";
-    } else if (cats.includes("Targum")) {
-      cat = "Targum";
-    }
-    // Kept for backwards compatibility of pre-commentary refactor downloaded data
-    return cat == "Commentary2" ? "Commentary" : cat;
+  primaryCategoryForTitle: function(title, isSheet) {
+    if (isSheet) { return ["Sheets"]; }
+    const index = Sefaria.index(title);
+    if (!index) { return  null; }
+    return index.primary_category;
   },
   categoriesForTitle: function(title, isSheet) {
     if (isSheet) { return ["Sheets"]; }
@@ -294,7 +288,7 @@ Sefaria = {
     return index.categories;
   },
   categoryForRef: function(ref) {
-    return Sefaria.categoryForTitle(Sefaria.textTitleForRef(ref));
+    return Sefaria.primaryCategoryForTitle(Sefaria.textTitleForRef(ref));
   },
   categoriesForRef: ref => Sefaria.categoriesForTitle(Sefaria.textTitleForRef(ref)),
   getTitle: function(ref, heRef, isCommentary, isHe) {
@@ -890,7 +884,7 @@ Sefaria = {
               sourceHeRef: link.sourceHeRef,
               index_title,
               collectiveTitle,
-              category: ("category" in link) ? link.category : Sefaria.categoryForTitle(index_title),
+              category: ("category" in link) ? link.category : Sefaria.primaryCategoryForTitle(index_title),
               anchorRef: `${ref}:${segNum+1}`,
               sourceHasEn: link.sourceHasEn,
             }

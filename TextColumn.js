@@ -602,7 +602,7 @@ class TextColumn extends React.PureComponent {
 
   renderListFooter = () => {
     if (this.props.isSheet) { return null; }
-    return this.props.next ? <LoadingView category={Sefaria.categoryForTitle(this.props.textTitle)}/> : null;
+    return this.props.next ? <LoadingView category={Sefaria.primaryCategoryForTitle(this.props.textTitle)}/> : null;
   };
 
   getItemLayout = (data, index) => {

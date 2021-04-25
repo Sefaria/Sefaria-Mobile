@@ -2062,7 +2062,7 @@ class ReaderApp extends React.PureComponent {
           style={[styles.container, this.props.theme.container]}
           onStartShouldSetResponderCapture={this._shouldPinchHandlerCapture}
         >
-            <CategoryColorLine category={Sefaria.categoryForTitle(this.state.textTitle, isSheet)} />
+            <CategoryColorLine category={Sefaria.primaryCategoryForTitle(this.state.textTitle, isSheet)} />
             <ReaderControls
               enRef={this.state.textReference}
               heRef={this.state.heRef}
@@ -2080,7 +2080,7 @@ class ReaderApp extends React.PureComponent {
             />
 
             { loading ?
-            <LoadingView style={{flex: textColumnFlex}} category={Sefaria.categoryForTitle(this.state.textTitle)}/> :
+            <LoadingView style={{flex: textColumnFlex}} category={Sefaria.primaryCategoryForTitle(this.state.textTitle)}/> :
             <View style={[{flex: textColumnFlex}, styles.mainTextPanel, this.props.theme.mainTextPanel]}
                   onStartShouldSetResponderCapture={this._onStartShouldSetResponderCapture}>
                 <TextColumn
@@ -2215,7 +2215,7 @@ class ReaderApp extends React.PureComponent {
   render() {
     /*
     // make the SafeAreaView background based on the category color
-    const cat = this.state.menuOpen ? (this.state.navigationCategories.length ? this.state.navigationCategories[0] : "Other") : Sefaria.categoryForTitle(this.state.textTitle);
+    const cat = this.state.menuOpen ? (this.state.navigationCategories.length ? this.state.navigationCategories[0] : "Other") : Sefaria.primaryCategoryForTitle(this.state.textTitle);
     let style = {};
     if (cat) {
       style = {backgroundColor: Sefaria.util.lightenDarkenColor(Sefaria.palette.categoryColor(cat), -25)};

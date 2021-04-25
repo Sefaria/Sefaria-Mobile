@@ -39,7 +39,7 @@ describe('SwipeableCategoryList', () => {
     expect(inst.toJSON()).toMatchSnapshot();
   });
   test('render with data', async () => {
-    Sefaria.categoryForTitle = jest.fn(() => "Tanakh");
+    Sefaria.primaryCategoryForTitle = jest.fn(() => "Tanakh");
     const inst = renderer.create(
       <GlobalStateContext.Provider value={{
           themeStr: 'white',
