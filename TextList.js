@@ -19,6 +19,7 @@ import styles from './Styles.js';
 
 const DEFAULT_LINK_CONTENT = {en: strings.loading, he: "", sectionRef: ""};
 const NO_CONTENT_LINK_CONTENT = {en: strings.noContent, he: "", sectionRef: ""}
+const ERROR_LINK_CONTENT = {en: strings.failedToLoadText, he: "", sectionRef: ""}
 
 class TextList extends React.Component {
   static whyDidYouRender = true;
@@ -90,7 +91,7 @@ class TextList extends React.Component {
   renderItem = ({ item }) => {
     const loading = item.content == null;  // == b/c seems content is sometimes undefined
     const noContent = !loading && item.content.he.length === 0 && item.content.en.length === 0;
-    const linkContentObj = loading ? DEFAULT_LINK_CONTENT : (noContent ? NO_CONTENT_LINK_CONTENT : item.content);
+    const linkContentObj = loading ? DEFAULT_LINK_CONTENT : (item.content.error ? ERROR_LINK_CONTENT : (noContent ? NO_CONTENT_LINK_CONTENT : item.content));
     const visibleSeg = this._visibleSegments.find(seg => seg.item.ref === item.ref);
     if (!!visibleSeg && !loading) {
       visibleSeg.loaded = !loading;

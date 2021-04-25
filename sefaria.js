@@ -2,6 +2,7 @@ import { Alert, Platform } from 'react-native';
 //import { GoogleAnalyticsTracker } from 'react-native-google-analytics-bridge'; //https://github.com/idehub/react-native-google-analytics-bridge/blob/master/README.md
 import { unzip } from 'react-native-zip-archive'; //for unzipping -- (https://github.com/plrthink/react-native-zip-archive)
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import crashlytics from '@react-native-firebase/crashlytics';
 import VersionNumber from 'react-native-version-number';
 import { Search } from '@sefaria/search';
 import sanitizeHtml from 'sanitize-html'
@@ -970,28 +971,27 @@ Sefaria = {
       }));
     },
     loadLinkData: function(ref, pos, resolveClosure, rejectClosure, runNow) {
-       const parseData = function(data) {
-        return new Promise(function(resolve, reject) {
-          if (data.fromAPI) {
-            var result = data.result;
-          } else {
-            var result = Sefaria.textFromRefData(data);
-          }
-          if (result) {
-            resolve(result);
-          } else {
-            reject(result);
-          }
-          let prev = Sefaria.links._linkContentLoadingStack.shift();
-          //delete Sefaria.links._linkContentLoadingHash[prev.ref];
-          //console.log("Removing from queue:",prev.ref,"Length:",Sefaria.links._linkContentLoadingStack.length);
-          if (Sefaria.links._linkContentLoadingStack.length > 0) {
-            let next = Sefaria.links._linkContentLoadingStack[0]; //Sefaria.links._linkContentLoadingStack.length-1
-            Sefaria.links.loadLinkData(next.ref, next.pos, null, null, true)
-                            .then(next.resolveClosure)
-                            .catch(next.rejectClosure);
-          }
-        });
+      const parseData = async function(data) {
+        let result;
+        try {
+          result = data.fromAPI ? data.result : Sefaria.textFromRefData(data);
+        } catch (e) {
+          crashlytics().recordError(new Error(`loadLinkData failed to load ${data.requestedRef}`));
+        }
+        let prev = Sefaria.links._linkContentLoadingStack.shift();
+        //delete Sefaria.links._linkContentLoadingHash[prev.ref];
+        //console.log("Removing from queue:",prev.ref,"Length:",Sefaria.links._linkContentLoadingStack.length);
+        if (Sefaria.links._linkContentLoadingStack.length > 0) {
+          let next = Sefaria.links._linkContentLoadingStack[0]; //Sefaria.links._linkContentLoadingStack.length-1
+          Sefaria.links.loadLinkData(next.ref, next.pos, null, null, true)
+                          .then(next.resolveClosure)
+                          .catch(next.rejectClosure);
+        }
+        if (result) {
+          return result;
+        } else {
+          throw result;
+        }
       };
 
       if (!runNow) {

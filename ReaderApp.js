@@ -1423,7 +1423,7 @@ class ReaderApp extends React.PureComponent {
     let reject = (error) => {
       if (error != 'inQueue') {
         if (isLinkCurrent(ref, pos)) {
-            this.onLinkLoad(pos, {en:JSON.stringify(error), he:JSON.stringify(error), sectionRef: ""});
+            this.onLinkLoad(pos, {error: true, en: "", he: "", sectionRef: ""});
         }
       }
     };
