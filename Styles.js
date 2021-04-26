@@ -113,7 +113,6 @@ export default StyleSheet.create({
   },
   safeArea: {
     flex: 1,
-    backgroundColor: "#000",
   },
   modal: {
     justifyContent: 'center',

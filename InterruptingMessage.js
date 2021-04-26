@@ -8,7 +8,8 @@ import {
   TouchableOpacity,
   SafeAreaView,
   StyleSheet,
-  View
+  View,
+  ScrollView,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import HTMLView from 'react-native-htmlview';
@@ -16,13 +17,13 @@ import {
   RainbowBar,
 } from './Misc.js';
 import bstyles from './Styles';
+import { getTheme, GlobalStateContext } from './StateManager.js';
 
 var styles = StyleSheet.create({
   interruptingMessageBox: {
     paddingVertical: 20,
     paddingHorizontal: 30,
     maxWidth: 520,
-    backgroundColor: "white",
   },
   interruptingMessageCloseBox: {
     flex: 0,
@@ -53,7 +54,6 @@ var styles = StyleSheet.create({
     marginTop: -10,
     paddingTop: 15,
     paddingBottom: 16,
-    color: "#666",
   },
 });
 
@@ -72,6 +72,7 @@ const EN_DEBUG_URL = "https://www.sefaria.org/static/mobile/test/message-en.json
 const HE_DEBUG_URL = "https://www.sefaria.org/static/mobile/test/message-he.json";
 
 class InterruptingMessage extends React.Component {
+  static contextType = GlobalStateContext;
   constructor(props) {
     super(props);
     this.state = {
@@ -96,12 +97,12 @@ class InterruptingMessage extends React.Component {
         if (this._isMounted) {
           this.setModalVisible(true);
         }
-      }, 20 * 1000);
+      }, 2 * 1000);
     };
 
     fetch(URL)
       .then(result=>result.json())
-      //.then(this.clearFlag) // Debug
+      .then(this.clearFlag) // Debug
       .then(this.hasMessageShown)
       .then(data=> {
         //console.log("intmess data:", data);
@@ -157,11 +158,13 @@ class InterruptingMessage extends React.Component {
 
   render() {
     if (!this.state.data) { return null; }
+    const theme = getTheme(this.context.themeStr);
+    const isWhite = this.context.themeStr === 'white';
     const data = this.state.data;
     const titleStyle = this.props.interfaceLanguage == "hebrew" ? styles.interruptingMessageTitleHe : styles.interruptingMessageTitleEn;
     const textStyle = this.props.interfaceLanguage == "hebrew" ? bstyles.intHe : bstyles.en;
     const textContent = data.text.map((text, i)=>(
-      <Text style={[styles.interruptingMessageText, textStyle]} key={i}>{text}</Text>
+      <Text style={[styles.interruptingMessageText, textStyle, theme.secondaryText]} key={i}>{text}</Text>
     ));
     return (
       <Modal
@@ -170,34 +173,36 @@ class InterruptingMessage extends React.Component {
         style={{margin: 0, alignItems: undefined, justifyContent: undefined,}}
         visible={this.state.modalVisible}
         onRequestClose={this.close}>
-        <SafeAreaView style={bstyles.safeArea}>
+        <SafeAreaView style={[bstyles.safeArea, theme.mainTextPanel]}>
           <RainbowBar />
-          <View style={bstyles.centeringBox}>
-            <View style={styles.interruptingMessageBox}>
-                <View style={styles.interruptingMessageCloseBox}>
-                  <TouchableOpacity
-                    onPress={this.close}>
-                    <Image source={require("./img/circle-close.png")}
-                      resizeMode={'contain'}
-                      style={styles.interruptingMessageClose} />
-                  </TouchableOpacity>
-                </View>
+          <ScrollView>
+            <View style={bstyles.centeringBox}>
+              <View style={styles.interruptingMessageBox}>
+                  <View style={styles.interruptingMessageCloseBox}>
+                    <TouchableOpacity
+                      onPress={this.close}>
+                      <Image source={isWhite ? require("./img/circle-close.png") : require("./img/circle-close-light.png")}
+                        resizeMode={'contain'}
+                        style={styles.interruptingMessageClose} />
+                    </TouchableOpacity>
+                  </View>
 
-              <Text style={[styles.interruptingMessageTitle, titleStyle]}>{data.title}</Text>
+                <Text style={[styles.interruptingMessageTitle, titleStyle, theme.text]}>{data.title}</Text>
 
-              {textContent}
+                {textContent}
 
-              <View style={bstyles.centeringBox}>
-                <View style={[bstyles.blueButton, {marginTop: 12}]}>
-                  <TouchableOpacity onPress={()=>{
-                      this.openLink(data.buttonLink);
-                    }}>
-                    <Text style={bstyles.blueButtonText}>{data.buttonText}</Text>
-                  </TouchableOpacity>
+                <View style={bstyles.centeringBox}>
+                  <View style={[bstyles.blueButton, {marginVertical: 12}]}>
+                    <TouchableOpacity onPress={()=>{
+                        this.openLink(data.buttonLink);
+                      }}>
+                      <Text style={bstyles.blueButtonText}>{data.buttonText}</Text>
+                    </TouchableOpacity>
+                  </View>
                 </View>
               </View>
             </View>
-          </View>
+          </ScrollView>
         </SafeAreaView>
       </Modal>
     );
