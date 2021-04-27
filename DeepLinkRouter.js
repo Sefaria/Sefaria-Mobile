@@ -33,8 +33,7 @@ class DeepLinkRouter extends React.PureComponent {
       ['^topics/(category)/(.+)$', this.openTopic, ['categoryString','slug']],
       ['^topics/(.+)$', this.openTopic, ['slug']],
       ['^sheets/([0-9.]+)$', this.openRefSheet, ['sheetid']],
-      ['^(daf-roulette|chavruta|[Nn]echama|login|register|logout|activity|people|groups|wiki|developers|request-a-text|request-a-training|contribute|faq|gala|jfn|about|donate|team|jobs|visualizations|mobile|daf-yomi|dicta-thanks|torah-tab)/?$', this.catchAll],
-      ['^([^/]+)$', this.openRef, ['tref']],
+      ['^([^/]+)$', this.openRef, ['tref']],  // NOTE: if any static page matches a title, it will try to be opened in the app. In this case, we'll need to explicitly list the route above this route.
       ['^.*$', this.catchAll],
     ];
     this._routes = routes.map(([ regex, func, namedCaptureGroups ]) => new Route({regex, func, namedCaptureGroups}));
