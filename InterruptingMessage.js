@@ -97,12 +97,12 @@ class InterruptingMessage extends React.Component {
         if (this._isMounted) {
           this.setModalVisible(true);
         }
-      }, 2 * 1000);
+      }, 20 * 1000);
     };
 
     fetch(URL)
       .then(result=>result.json())
-      .then(this.clearFlag) // Debug
+      //.then(this.clearFlag) // Debug
       .then(this.hasMessageShown)
       .then(data=> {
         //console.log("intmess data:", data);
