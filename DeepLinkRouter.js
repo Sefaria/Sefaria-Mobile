@@ -100,6 +100,7 @@ class DeepLinkRouter extends React.PureComponent {
     }
     pathname = pathname.replace(/[\/\?]$/, '');  // remove trailing ? or /
     pathname = pathname.replace(/^[\/]/, '');  // remove initial /
+    pathname = decodeURIComponent(pathname);
     // es6 dict comprehension to decode query values
     query = Object.entries(query).reduce((obj, [k, v]) => { obj[k] = decodeURIComponent(v); return obj; }, {});
     for (let r of this._routes) {
