@@ -164,7 +164,7 @@ Sefaria = {
   shouldLoadFromApi: function(versions) {
     // there are currently two cases where we load from API even if the index is downloaded
     // 1) debugNoLibrary is true 2) you're loading a non-default version
-    return Sefaria.util.objectHasNonNullValues(versions);
+    return Sefaria.util.objectHasNonNullValues(versions) || Sefaria.debugNoLibrary;
   },
   loadOfflineFile: async function(ref, context, versions) {
     var fileNameStem = ref.split(":")[0];

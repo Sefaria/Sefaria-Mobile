@@ -252,9 +252,22 @@ const SettingsPage = ({ close, logout, openUri }) => {
         }
         <OfflinePackageList isDisabledObj={isDisabledObj} onPackagePress={onPackagePress} />
         <View style={[styles.readerDisplayOptionsMenuDivider, styles.settingsDivider, styles.underOfflinePackages, theme.readerDisplayOptionsMenuDivider]}/>
-        <View>
+        <TouchableWithoutFeedback onPress={() => {
+          if (numPressesDebug < 6) { setNumPressesDebug(prev => prev + 1); }
+          else {
+            Sefaria.debugNoLibrary = !Sefaria.debugNoLibrary;
+            setNumPressesDebug(0);
+            Alert.alert(
+              'Debug No Offline Library Mode',
+              `You've just ${Sefaria.debugNoLibrary ? "enabled" : "disabled"} debugging without the offline library. You can change this by tapping 'System' 7 times.`,
+              [
+                {text: 'OK', onPress: ()=>{}},
+              ]
+            );
+          }
+        }}>
           <Text style={[langStyle, styles.settingsSectionHeader, theme.tertiaryText]}>{strings.system}</Text>
-        </View>
+        </TouchableWithoutFeedback>
         { isLoggedIn ?
           <SystemButton onPress={logout} text={strings.logout} isHeb={interfaceLanguage === "hebrew"} />
           : null
