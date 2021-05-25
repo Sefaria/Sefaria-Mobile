@@ -363,7 +363,7 @@ let strings = new LocalizedStrings({
     thisSourceIsConnectedTo: "מקור הזה קשור ל-",
     thisTopicIsConnectedTo: "נושא הזה קשור ל-",
     by: "על ידי",
-    resourcesFailedToLoad: "טעינת הקישורים נכשלה. הקש כדי לנסות שוב.",
+    resourcesFailedToLoad: "שגיאה בטעינת המקורות. לחצו לניסיון נוסף.",
     groggerActive: "רעשן",
     readThePortion: "קראו את הפרשה",
     trendingTopics: "נושאים נפוצים",

@@ -342,7 +342,7 @@ class ResourcesList extends React.PureComponent {
         {
           this.props.relatedHasError ? (
             <ToolsButton
-            text={"Resources failed to load. Tap to retry."}
+            text={strings.resourcesFailedToLoad}
             onPress={this.props.reloadRelated}
           />
           ) : null
