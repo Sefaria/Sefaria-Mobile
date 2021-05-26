@@ -2221,11 +2221,13 @@ class ReaderApp extends React.PureComponent {
     if (cat) {
       style = {backgroundColor: Sefaria.util.lightenDarkenColor(Sefaria.palette.categoryColor(cat), -25)};
     }*/
+
+    // StatuBar comment: can't figure out how to get barStyle = light-content to be respected on Android
     return (
       <View style={{flex:1}}>
         <SafeAreaView style={[styles.safeArea, {"backgroundColor": 'black'}]}>
           <View style={[styles.container, this.props.theme.container]}>
-              <StatusBar barStyle={'light-content'} backgroundColor={'black'}/>
+              <StatusBar barStyle={'light-content'} backgroundColor={Platform.OS === 'android' ? 'white' : 'black'}/>
             <ConditionalProgressWrapper
               conditionMethod={(state, props) => {
                 return state && (props.menuOpen !== 'settings' || state.downloadNotification === 'Update');
