@@ -15,8 +15,8 @@ const HOST_PATH = `${DOWNLOAD_SERVER}/static/ios-export/${SCHEMA_VERSION}`;
 const HOST_BUNDLE_URL = `${HOST_PATH}/bundles`;
 const [FILE_DIRECTORY, TMP_DIRECTORY] = [`${FileSystem.documentDirectory}library`, `${FileSystem.cacheDirectory}tmp`];  //todo: make sure these are used
 
-let BooksState = {};
-let PackagesState = {};
+let BooksState = {};  // maps titles to Book objects
+let PackagesState = {};  // maps package titles to Package objects
 
 async function simpleDelete(filePath) {
 try{
@@ -182,7 +182,11 @@ class DownloadTracker {
     return this._downloadSession;
   }
   addEventListener(networkSetting, downloadBuffer, runEvent=false) {
-    let firstRun = true;  // we don't want to run the change method just because we scheduled an event listener
+    /* the netinfo package triggers an event as soon as we attach an event listener
+     * but that's not necessary - we only want to trigger the change method if the network status actually changed
+     * we set up a variable so that nothing happens an that initial event
+     */
+    let firstRun = true;
     this.removeEventListener();  // keep things clean
     const allowedToDownload = state => isDownloadAllowed(state, networkSetting);
 
@@ -547,6 +551,11 @@ function timeoutPromise(ms) {
 }
 
 async function requestNewBundle(bookList, badResponseWaitTime=3000) {
+  /*
+   * send a post request to the server. This will cause the server to create a new set of zip files specially
+   * tailored for the specific device.
+   * This method will continually ping the server until the download is ready (and a 200 is received).
+   */
   while (true) {
     let response = await fetch(`${DOWNLOAD_SERVER}/makeBundle`, {
       method: 'POST',
@@ -1069,7 +1078,7 @@ function promptLibraryUpdate(totalDownloads, newBooks, networkMode) {
 
 async function schemaCheckAndPurge() {
   // Test with Jest
-  // checks if there was a schema change. If so, delete the library
+  // checks if there was a schema change. If so, delete the library. The library will be re-downloaded as part of the update process.
   let lastUpdateSchema = await AsyncStorage.getItem("lastUpdateSchema");
   lastUpdateSchema = parseInt(JSON.parse(lastUpdateSchema));
   const schemaVersion = parseInt(SCHEMA_VERSION);  // gets rid of annoying bugs due to the types of these values
