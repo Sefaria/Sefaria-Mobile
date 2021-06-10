@@ -461,6 +461,12 @@ Sefaria = {
   },
   _cacheIndexFromToc: function(toc, isTopLevel=false) {
     // Unpacks contents of Sefaria.toc into index cache.
+    if (isTopLevel) {
+      Sefaria.topLevelCategories = [];
+      Sefaria.booksDict = {};
+      Sefaria.collectiveTitlesDict = {};
+      Sefaria._index = {};
+    }
     for (var i = 0; i < toc.length; i++) {
       if ("category" in toc[i]) {
         if (isTopLevel) { Sefaria.topLevelCategories.push(toc[i].category); }
