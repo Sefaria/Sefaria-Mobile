@@ -9,6 +9,7 @@ import {
   Share,
   Text,
   TouchableOpacity,
+  StyleSheet,
 } from 'react-native';
 import ActionSheet from 'react-native-action-sheet';
 import HTMLView from 'react-native-htmlview'; //to convert html'afied JSON to something react can render (https://github.com/jsdf/react-native-htmlview)
@@ -61,6 +62,13 @@ const getHTMLViewStyles = (isStacked, bilingual, textType, fontSize, theme, font
   }
 };
 
+const inheritedStyle = parent => {
+  if (!parent) return null;
+  const style = StyleSheet.flatten(styles[parent.name]) || {};
+  const parentStyle = inheritedStyle(parent.parent) || {};
+  return {...parentStyle, ...style};
+}
+
 // pass correct functions to TextSegment for sheet renderers. probably combine renderers and make it simpler
 const TextSegment = React.memo(({
   segmentRef,
@@ -77,6 +85,7 @@ const TextSegment = React.memo(({
   getDisplayedText,
 }) => {
   const [resetKey, setResetKey] = useState(0);
+  const [highlightMap, setHighlightMap] = useState({});
   const { themeStr, fontSize, biLayout } = useContext(GlobalStateContext);
   useEffect(() => {
     setResetKey(resetKey+1);  // hacky fix to reset htmlview when theme colors change
@@ -128,32 +137,50 @@ const TextSegment = React.memo(({
   }, [segmentRef]);
   const onPress = useCallback(() => onTextPress(), [onTextPress]);
 
-  const TempSelectableText = Platform.OS === 'ios' ? SelectableText : DummySelectableText;
+  const onWordPress = (highlightKey, event) => {
+    const word = event._targetInst.memoizedProps.children;
+    setHighlightMap({[highlightKey]: true});
+    onTextPress(true);
+    setDictionaryLookup({ dictLookup: word });
+  }
   return (
     <TouchableOpacity
       onPress={onPress}
-      onLongPress={onLongPress}
       delayPressIn={200}
     >
-      <TempSelectableText
-          accessible={true}
-          accessibilityRole={"text"}
-          accessibilityLabel={data.replace(/(<([^>]+)>)/ig,'')}
-        menuItems={menuItems}
-        onSelection={onSelection}
+      <HTMLView
         value={data}
-        textValueProp={'value'}
-        TextComponent={HTMLView}
+        stylesheet={htmlStyleSheet}
+        RootComponent={Text}
+        TextComponent={Animated.Text}
+        onLinkPress={handleOpenURL}
+        renderNode={(node, nodeIndex, siblings, parent, defaultRenderer) => {
+          if (node.type === 'text') {
+            return (
+              <Animated.Text key={nodeIndex} style={[textStyle, inheritedStyle(parent)]}>
+                { node.data.split(' ').map((word, wordIndex) => {
+                  const highlightKey = `${nodeIndex}:${wordIndex}`;
+                  return (
+                    <Text key={wordIndex}>
+                      {wordIndex === 0 ? null : ' '}
+                      <Text
+                        style={{backgroundColor: highlightMap[highlightKey] ? "#d2dcff" : null}}
+                        onLongPress={onWordPress.bind(this, highlightKey)}
+                        onPress={onPress}
+                      >
+                        {word}
+                      </Text>
+                    </Text>
+                  )
+                })}
+              </Animated.Text>
+            );
+          }
+        }}
         textComponentProps={{
-          stylesheet: htmlStyleSheet,
-          RootComponent: Text,
-          TextComponent: Animated.Text,
-          onLinkPress: handleOpenURL,
-          textComponentProps: {
-            suppressHighlighting: false,
-            key: segmentKey,
-            style: textStyle,
-          },
+          suppressHighlighting: false,
+          key: segmentKey,
+          style: textStyle,
         }}
       />
     </TouchableOpacity>
@@ -171,11 +198,4 @@ TextSegment.propTypes = {
   fontScale:          PropTypes.object,
 };
 
-const DummySelectableText = ({ value, TextComponent, textComponentProps, ...props }) => {
-  textComponentProps.value = value;
-  return (
-    <TextComponent
-      { ...textComponentProps}
-    />
-);}
 export default TextSegment;
