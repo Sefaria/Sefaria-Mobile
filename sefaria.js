@@ -1394,6 +1394,7 @@ Sefaria.util = {
   getDisplayableHTML: function(text, lang, isSheet) {
     if (isSheet) { text = Sefaria.util.cleanSheetHTML(text); }
     text = Sefaria.util.filterOutItags(text);
+    text = text.replace(/\u200e/g, '');  // remove invisible LTR mark that can ruin display
     if (lang === 'english') {
       return `<endiv>\u2066${Sefaria.util.hebrewInEnglish(text, 'string')}</endiv>`;
     }
