@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="splash_background">#18345d</color>  <!-- NOTE. Splash background is different in Hebrew because of an inconsistency of colors -->
+    <color name="sefaria_blue">#18345D</color>
+</resources>
