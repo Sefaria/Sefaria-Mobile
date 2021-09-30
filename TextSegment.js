@@ -20,7 +20,7 @@ import styles from './Styles.js';
 
 const getHTMLViewStyles = (isStacked, bilingual, textType, fontSize, theme, fontScale) => {
   const isHeb = textType == "hebrew";
-  const lineHeightMultiplier = isHeb ? (Platform.OS === 'android' ? 1.333 : 1.2) : 1.04;
+  const lineHeightMultiplier = isHeb ? (Platform.OS === 'android' ? 1.333 : 1.2) : 1.15;
   const fontSizeMultiplier = isHeb ? 1 : 0.8;
   const justifyStyle = {textAlign: (isStacked && Platform.OS === 'ios') ? 'justify' : (textType === 'hebrew' ? 'right' : 'left')};
   const lineHeight = fontScale ? Animated.multiply(fontSize * lineHeightMultiplier, fontScale) : (fontSize * lineHeightMultiplier);
