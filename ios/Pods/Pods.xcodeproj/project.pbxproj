@@ -4030,8 +4030,6 @@
 		066597A464C87CED978062325D50586E /* RCTDevSettings.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = RCTDevSettings.h; path = React/CoreModules/RCTDevSettings.h; sourceTree = "<group>"; };
 		069097171B7D170B6B01899A42E048C5 /* FIRCLSUnwind.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = FIRCLSUnwind.h; path = Crashlytics/Crashlytics/Unwind/FIRCLSUnwind.h; sourceTree = "<group>"; };
 		06FC5C9CF96D60C50FCD47D339C91951 /* libnanopb.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libnanopb.a; sourceTree = BUILT_PRODUCTS_DIR; };
-		075C8D592705E3FC0042325D /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
-		075C8DAE2705EA2A0042325D /* he */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = he; path = he.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		07AF71DD23E91A3076E39C8151CC42A3 /* UMFontManagerInterface.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = UMFontManagerInterface.h; path = UMFontInterface/UMFontManagerInterface.h; sourceTree = "<group>"; };
 		07BC2B1148E3D4EF59F41EEF3C2F3698 /* README.md */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		07C1E0102E0D1C63B711C333228B4F89 /* RCTModalHostViewController.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = RCTModalHostViewController.m; sourceTree = "<group>"; };
@@ -9766,7 +9764,6 @@
 		CF1408CF629C7361332E53B88F7BD30C = {
 			isa = PBXGroup;
 			children = (
-				075C8D5A2705E3FC0042325D /* InfoPlist.strings */,
 				9D940727FF8FB9C785EB98E56350EF41 /* Podfile */,
 				7B5D3F118407B894A8F6BB31F670A1FC /* Development Pods */,
 				D89477F20FB1DE18A04690586D7808C4 /* Frameworks */,
@@ -16531,18 +16528,6 @@
 			targetProxy = 75320E547C18B42D38AFAABC2469106A /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
-
-/* Begin PBXVariantGroup section */
-		075C8D5A2705E3FC0042325D /* InfoPlist.strings */ = {
-			isa = PBXVariantGroup;
-			children = (
-				075C8D592705E3FC0042325D /* en */,
-				075C8DAE2705EA2A0042325D /* he */,
-			);
-			name = InfoPlist.strings;
-			sourceTree = "<group>";
-		};
-/* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
 		007263BF9439009156A6DEF8F6C5E387 /* Release */ = {
