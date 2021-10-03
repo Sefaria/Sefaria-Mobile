@@ -291,7 +291,7 @@ describe('history', () => {
     expect((await Sefaria.history.getItem('lastPlace'))).toBe(JSON.stringify([lastSyncItems[0]]));
     expect((await Sefaria.history.getItem('history'))).toBe(JSON.stringify(lastSyncItems));
     expect(currHistory).toEqual(lastSyncItems);
-    expect((await Sefaria.history.getItem('lastSyncItems'))).toBeNull();
+    expect((await Sefaria.history.getItem('lastSyncItems'))).toBe('[]');
   });
 
   test('sync web history', async () => {
@@ -345,7 +345,7 @@ describe('history', () => {
     expect((await Sefaria.history.getItem('lastPlace'))).toBe(JSON.stringify([webHistory[0]]));
     expect((await Sefaria.history.getItem('history'))).toBe(JSON.stringify(webHistory));
     expect(currHistory).toEqual(webHistory);
-    expect((await Sefaria.history.getItem('lastSyncItems'))).toBeNull();
+    expect((await Sefaria.history.getItem('lastSyncItems'))).toBe('[]');
   });
 
   test('sync both web and mobile history', async () => {
@@ -397,20 +397,36 @@ describe('history', () => {
     Sefaria.api.getAuthToken = jest.fn(() => {
       Sefaria._auth = auth;
     });
-    fetch = jest.fn(() => Promise.resolve({
-      status: 200,
-      json() {
-        return Promise.resolve({
-          user_history: webHistory,
-          last_sync: 11,
-          settings: {
-            time_stamp: 11,
-          },
-        })
-      }
-    }));
-    const currHistory = await Sefaria.history.syncProfile(()=>{}, {});
-    expect(fetch.mock.calls.length).toBe(1);
+    fetch = jest.fn().mockReturnValueOnce(
+      Promise.resolve({
+        status: 200,
+        json() {
+          return Promise.resolve({
+            user_history: webHistory,
+            last_sync: 10,
+            settings: {
+              time_stamp: 10,
+            },
+          })
+        }
+      })
+    ).mockReturnValue(
+      Promise.resolve({
+        status: 200,
+        json() {
+          return Promise.resolve({
+            user_history: [],
+            last_sync: 11,
+            settings: {
+              time_stamp: 11,
+            },
+          })
+        }
+      })
+    );
+    let currHistory = await Sefaria.history.syncProfile(()=>{}, {}, 1);
+    currHistory = await Sefaria.history.syncProfile(()=>{}, {}, 1);
+    expect(fetch.mock.calls.length).toBe(2);
     expect(fetch.mock.calls[0][1].method).toBe("POST");
     expect(fetch.mock.calls[0][1].headers.Authorization).toBe(`Bearer ${auth.token}`);
     expect(fetch.mock.calls[0][1].headers['Content-Type']).toBe('application/x-www-form-urlencoded;charset=UTF-8');
@@ -420,7 +436,7 @@ describe('history', () => {
     expect((await Sefaria.history.getItem('lastPlace'))).toBe(JSON.stringify([lastSyncItems[0]]));
     expect((await Sefaria.history.getItem('history'))).toBe(JSON.stringify(finalHistory));
     expect(currHistory).toEqual(finalHistory);
-    expect((await Sefaria.history.getItem('lastSyncItems'))).toBeNull();
+    expect((await Sefaria.history.getItem('lastSyncItems'))).toBe('[]');
   });
 
   test('syncEmpty', async () => {
