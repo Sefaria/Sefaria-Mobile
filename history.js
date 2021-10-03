@@ -4,6 +4,8 @@ import {FileSystem} from 'react-native-unimodules'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { STATE_ACTIONS } from './StateManager';
 
+const MAX_SYNC_HISTORY_LEN = 1000;
+
 const History = {
   saved: [],
   lastPlace: [],
@@ -116,7 +118,7 @@ const History = {
     Sefaria.history._hasSwipeDeleted = JSON.parse(hasSwipeDeleted) || false;
     Sefaria.history._hasSyncedOnce = JSON.parse(hasSyncedOnce) || false;
   },
-  syncProfile: async function(dispatch, settings) {
+  syncProfile: async function(dispatch, settings, max_sync_history_len=MAX_SYNC_HISTORY_LEN) {
     /*
     settings is of the form
     {
@@ -129,14 +131,16 @@ const History = {
     const lastSyncStr = await Sefaria.history.getItem('lastSyncItems') || '[]';
     const settingsStr = JSON.stringify(settings);
     const lastSyncItems = JSON.parse(lastSyncStr);
+    const lastSyncItemsToSend = lastSyncItems.slice(-max_sync_history_len);
+    const nextLastSyncItems = lastSyncItems.slice(0, -max_sync_history_len);
     let currHistory = JSON.parse(currHistoryStr);
-    currHistory = lastSyncItems.filter(h => !h.action).concat(currHistory);
+    currHistory = lastSyncItemsToSend.filter(h => !h.action).concat(currHistory);
     await Sefaria.api.getAuthToken();
     if (Sefaria._auth.uid) {
       try {
         const lastSyncTime = await AsyncStorage.getItem('lastSyncTime') || '0';
         const url = Sefaria.api._baseHost + "api/profile/sync";
-        const body = Sefaria.api.urlFormEncode({user_history: lastSyncStr, last_sync: lastSyncTime, settings: settingsStr});
+        const body = Sefaria.api.urlFormEncode({user_history: JSON.stringify(lastSyncItemsToSend), last_sync: lastSyncTime, settings: settingsStr});
         const response = await fetch(url, {
           method: "POST",
           body,
@@ -152,7 +156,7 @@ const History = {
           return res.json();
         });
         await AsyncStorage.setItem('lastSyncTime', '' + response.last_sync);
-        await Sefaria.history.removeItem('lastSyncItems');
+        await Sefaria.history.setItem('lastSyncItems', JSON.stringify(nextLastSyncItems));
         const currSaved = JSON.parse(await Sefaria.history.getItem('savedItems') || '[]');
         const { mergedHistory, mergedSaved } = Sefaria.history.mergeHistory(currHistory, currSaved, response.user_history);
         Sefaria.history.lastPlace = Sefaria.history.historyToLastPlace(mergedHistory);
@@ -171,7 +175,7 @@ const History = {
         console.log('sync error', e);
       }
     }
-    return currHistory;
+    return nextLastSyncItems.filter(h => !h.action).concat(currHistory);
   },
   syncProfileGetSaved: async (dispatch, settings) => {
     await Sefaria.history.syncProfile(dispatch, settings);
