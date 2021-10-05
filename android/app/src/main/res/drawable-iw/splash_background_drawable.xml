@@ -4,8 +4,4 @@
     <item
         android:drawable="@color/splash_background" />
 
-    <item
-        android:drawable="@mipmap/splash_background"
-        android:gravity="center"/>
-
 </layer-list>
