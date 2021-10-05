@@ -5,7 +5,9 @@
         android:drawable="@color/splash_background" />
 
     <item
+        android:top="50dp"
+        android:bottom="50dp"
         android:drawable="@mipmap/splash_background"
-        android:gravity="center"/>
+        android:scaleType="fitCenter"/>
 
 </layer-list>
