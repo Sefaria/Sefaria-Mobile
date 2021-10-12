@@ -2227,7 +2227,7 @@ class ReaderApp extends React.PureComponent {
       <View style={{flex:1}}>
         <SafeAreaView style={[styles.safeArea, {"backgroundColor": 'black'}]}>
           <View style={[styles.container, this.props.theme.container]}>
-              <StatusBar barStyle={'light-content'} backgroundColor={Platform.OS === 'android' ? 'white' : 'black'}/>
+              <StatusBar barStyle={'light-content'} backgroundColor={'black'}/>
             <ConditionalProgressWrapper
               conditionMethod={(state, props) => {
                 return state && (props.menuOpen !== 'settings' || state.downloadNotification === 'Update');
