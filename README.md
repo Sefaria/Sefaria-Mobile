@@ -12,7 +12,7 @@ git clone https://github.com/Sefaria/Sefaria-iOS/
 cd Sefaria-iOS                          
 npm install
 npm run setup
-gem install cocoapods
+brew install cocoapods
 cd ios
 pod install
 ```
