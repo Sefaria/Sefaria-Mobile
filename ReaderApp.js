@@ -720,7 +720,7 @@ class ReaderApp extends React.PureComponent {
         }).catch(error => {
           console.log(error);
           if (error == "Return to Nav") {
-            this.openNav();
+            this.openTextTocDirectly(Sefaria.textTitleForRef(ref));
             resolve();
             return;
           }
