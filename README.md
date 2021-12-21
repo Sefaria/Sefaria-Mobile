@@ -25,9 +25,9 @@ _<sub><sup>This step can be skipped if just running for android. Skipping it for
 To build and start the simulator:
 
 From the root of the repo, run `react-native start`.  
-From another terminal, run `react-native run-ios`
+From another terminal, run `react-native run-ios` or `react-native run-android`
 
-Alternatively, you can open `/ios/ReaderApp.xcworkspace` and hit run.
+Alternatively for iOS, you can open `/ios/ReaderApp.xcworkspace` and hit run.
 
 
 ## Local Development
