@@ -18,7 +18,7 @@ brew install cocoapods
 cd ios
 pod install
 ```
-Put `GoogleService-Info.plist` in the `ios` directory.  It's available from the Firebase console (or your friendly co-worker.)
+Put `GoogleService-Info.plist` in the `ios` directory.  It's available from the Firebase console [Project Settings](https://console.firebase.google.com/u/0/project/sefaria-mobile-analytics/settings/general/android:org.sefaria.sefaria). If you don't have access to Firebase, please reach out to your friendly coworker :).
 _<sub><sup>This step can be skipped if just running for android. Skipping it for ios can get you in trouble though.</sup></sub>_
 
 
