@@ -7,7 +7,7 @@ If you haven't already done so, install React Native for your development enviro
 
 ### Getting Started
 
-```
+```sh
 brew install node
 brew install watchman
 git clone https://github.com/Sefaria/Sefaria-iOS/
@@ -18,9 +18,26 @@ brew install cocoapods
 cd ios
 pod install
 ```
-Put `GoogleService-Info.plist` in the `ios` directory.  It's available from the Firebase console [Project Settings](https://console.firebase.google.com/u/0/project/sefaria-mobile-analytics/settings/general/android:org.sefaria.sefaria). If you don't have access to Firebase, please reach out to your friendly coworker :).
-_<sub><sup>This step can be skipped if just running for android. Skipping it for ios can get you in trouble though.</sup></sub>_
 
+### JDK
+
+If haven't installed JDK yet, you will need to install it to get Android running.
+On Mac:
+
+```sh
+brew install openjdk@11  # note, latest version of openjdk doesn't seem to work with Android currently
+# follow instructions from brew to symlink JDK directory
+```
+
+
+### Google service file from Firebase
+
+Firebase requires that you download the Google service files for Android and iOS to make Firebase work. These aren't included in the repo since they are private. For Sefaria employees, you can access these files from the Firebase [Project Settings](https://console.firebase.google.com/u/0/project/sefaria-mobile-analytics/settings/general/android:org.sefaria.sefaria). If you don't have access to Firebase, please reach out to your friendly coworker :).
+
+Put `GoogleService-Info.plist` in the `ios` directory.
+Put `google-services.json` in the `android/app` directory.
+
+### Build and run
 
 To build and start the simulator:
 
