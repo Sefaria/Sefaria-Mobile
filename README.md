@@ -3,7 +3,7 @@ This repo contains the source code and export script to generate the content for
 
 We're using React-Native, so much of the app is written in JavaScript and we deploy almost the same code to both Android and iOS. There are minor differences in native packages that we use and a small amount of native code we've written ourselves.
 
-If you haven't already done so, install React Native for your development environment using the _React Native CLI Quickstart_ as outlined here: https://reactnative.dev/docs/environment-setup
+If you haven't already done so, install React Native for your development environment using the [React Native CLI Quickstart](https://reactnative.dev/docs/environment-setup). Follow the instructions on the "React Native CLI Quickstart" tab (not "Expo CLI Quickstart") for your operating system. You should follow the instructions for both iOS and Android. Skip the "Creating a new application" section since you'll be using this repo as the project. 
 
 ### Getting Started
 
@@ -18,17 +18,6 @@ brew install cocoapods
 cd ios
 pod install
 ```
-
-### JDK
-
-If haven't installed JDK yet, you will need to install it to get Android running.
-On Mac:
-
-```sh
-brew install openjdk@11  # note, latest version of openjdk doesn't seem to work with Android currently
-# follow instructions from brew to symlink JDK directory
-```
-
 
 ### Google service file from Firebase
 
