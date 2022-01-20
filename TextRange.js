@@ -10,6 +10,7 @@ import {
 import { GlobalStateContext, getTheme } from './StateManager';
 import TextSegment from './TextSegment';
 import styles from './Styles';
+import iPad from "./isIPad";
 
 
 const TextRange = React.memo(({
@@ -42,9 +43,13 @@ const TextRange = React.memo(({
   let numLinks = rowData.content.links ? rowData.content.links.length : 0;
 
   const textLanguageWithContent = Sefaria.util.getTextLanguageWithContent(textLanguage, enText, heText);
+  const ratiobasedFontSize = (fontSize) => {
+    // The sizes were taken from styles.verseNumber.fontSize/hebrewVerseNumber and StateManager.fontSize
+    return iPad ? 11/25*fontSize : textLanguageWithContent === "hebrew" ? 11/20*fontSize : 9/20*fontSize}
+
   let refSection = rowData.sectionIndex + ":" + rowData.rowIndex;
   let numberMargin = (<Text
-                        style={[styles.verseNumber, textLanguageWithContent == "hebrew" ? styles.hebrewVerseNumber : null, theme.verseNumber]}
+                        style={[styles.verseNumber, theme.verseNumber, {fontSize: ratiobasedFontSize(fontSize)}]}
                         key={segmentRef + "|segment-number"}>
                       {showSegmentNumbers ? (textLanguageWithContent == "hebrew" ?
                        Sefaria.hebrew.encodeHebrewNumeral(rowData.content.segmentNumber) :
