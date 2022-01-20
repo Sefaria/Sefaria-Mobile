@@ -10,6 +10,7 @@ import {
 import { GlobalStateContext, getTheme } from './StateManager';
 import TextSegment from './TextSegment';
 import styles from './Styles';
+import iPad from "./isIPad";
 
 
 const TextRange = React.memo(({
