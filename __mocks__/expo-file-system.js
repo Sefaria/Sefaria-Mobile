@@ -55,7 +55,7 @@ const writeAsStringAsync = jest.fn((fileUri, contents, options) => {
 
 const readAsStringAsync = jest.fn((fileUri, options) => {
   return new Promise((resolve, reject) => {
-    console.log(testCache)
+    // console.log(testCache)
     if (fileUri in testCache) {
       resolve(testCache[fileUri])
     } else {
