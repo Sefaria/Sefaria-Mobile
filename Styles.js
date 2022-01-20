@@ -784,12 +784,12 @@ export default StyleSheet.create({
     textAlign: 'center',
     fontFamily: "Open Sans",
     fontWeight: '400',
-    fontSize: iPad ? 11 : 9,
+    //fontSize: iPad ? 11 : 9,
     width: iPad ? readerSideMarginIpad : readerSideMargin,
   },
-  hebrewVerseNumber: {
-    fontSize: 11,
-  },
+  // hebrewVerseNumber: {
+  //   fontSize: 11,
+  // },
   continuousHebrewVerseNumber: {
     fontSize: 11,
     paddingTop: 0
