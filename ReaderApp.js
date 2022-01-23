@@ -20,7 +20,7 @@ import {
 } from 'react-native';
 import NetInfo from "@react-native-community/netinfo";
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { PinchGestureHandler, State } from 'react-native-gesture-handler';
+import {State } from 'react-native-gesture-handler';
 //import --- from 'react-native-gesture-handler';
 import BackgroundFetch from "react-native-background-fetch";
 import { InAppBrowser } from "@matt-block/react-native-in-app-browser";
@@ -445,47 +445,6 @@ class ReaderApp extends React.PureComponent {
     })
     this.toggleReaderDisplayOptionsMenu(); 
   }
-
-  _baseFontScale = new Animated.Value(1);
-  _pinchFontScale = new Animated.Value(1);
-  _fontScale = Animated.multiply(this._baseFontScale, this._pinchFontScale);
-  _lastFontScale = 1;
-
-  _onPinchGestureEvent = event => {
-    let newFontSize = this.props.fontSize * (event.nativeEvent.scale*0.9) * this._lastFontScale;
-    newFontSize = newFontSize > 60 ? 60 : newFontSize; // Max size
-    newFontSize = newFontSize < 18 ? 18 : newFontSize; // Min size
-    if (!this.incrementTimer) {
-      this.pendingIncrement = newFontSize/this.props.fontSize/this._lastFontScale;
-      //const numSegments = this.state.data.reduce((prevVal, elem) => prevVal + elem.length, 0);
-      //const timeout = Math.min(50 + Math.floor(numSegments/50)*25, 200); // range of timeout is [50,200] or in FPS [20,5]
-      this.incrementTimer = setTimeout(() => {
-        this._pinchFontScale.setValue(this.pendingIncrement);
-        this.incrementTimer = null;
-      }, 10);
-    }
-  };
-
-  _onPinchHandlerStateChange = event => {
-    if (event.nativeEvent.oldState === State.ACTIVE) {
-      this._lastFontScale *= (event.nativeEvent.scale*0.9);
-      let newFontSize = this.props.fontSize * this._lastFontScale;
-      newFontSize = newFontSize > 60 ? 30 : newFontSize; // Max size
-      newFontSize = newFontSize < 18 ? 18 : newFontSize; // Min size
-      newFontSize = parseFloat(newFontSize.toFixed(2));
-      this.props.dispatch({
-        type: STATE_ACTIONS.setFontSize,
-        value: newFontSize,
-      });
-      this._lastFontScale = newFontSize/this.props.fontSize;
-      this._baseFontScale.setValue(newFontSize/this.props.fontSize);
-      this._pinchFontScale.setValue(1);
-    }
-  };
-
-  _shouldPinchHandlerCapture = event => {
-    return event.nativeEvent.touches.length === 2;
-  };
 
   incrementFont = (increment) => {
     if (increment == "larger") {
@@ -2055,13 +2014,8 @@ class ReaderApp extends React.PureComponent {
     } catch(e) {}
     const vowelToggleAvailable = Sefaria.vowelToggleAvailability(this.state.data[this.state.sectionIndexRef]);
     return (
-      <PinchGestureHandler
-        onGestureEvent={this._onPinchGestureEvent}
-        onHandlerStateChange={this._onPinchHandlerStateChange}
-      >
         <Animated.View
           style={[styles.container, this.props.theme.container]}
-          onStartShouldSetResponderCapture={this._shouldPinchHandlerCapture}
         >
             <CategoryColorLine category={Sefaria.primaryCategoryForTitle(this.state.textTitle, isSheet)} />
             <ReaderControls
@@ -2209,7 +2163,6 @@ class ReaderApp extends React.PureComponent {
               />) : null
             }
         </Animated.View>
-      </PinchGestureHandler>
     );
   }
 
