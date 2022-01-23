@@ -192,6 +192,9 @@ const SettingsPage = ({ close, logout, openUri }) => {
     setIsDisabledObj(getIsDisabledObj);
     await deleteBooks(booksToDelete);
   };
+  const deleteAccount = () => {
+    console.log("delete account");
+  }
   const langStyle = interfaceLanguage === "hebrew" ? styles.heInt : styles.enInt;
   return (
     <View style={[styles.menu, theme.menu]}>
@@ -278,6 +281,12 @@ const SettingsPage = ({ close, logout, openUri }) => {
             {`${strings.appVersion}: ${VersionNumber.appVersion}`}
           </Text>
         </View>
+        { isLoggedIn ?
+        <Text style={[{marginTop:30, marginBottom:30}, langStyle, styles.settingsSectionHeader, theme.tertiaryText]} onPress={deleteAccount}>
+                { strings.deleteAccount }
+        </Text>
+          : null
+        }    
       </ScrollView>
     </View>
   );
