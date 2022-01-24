@@ -868,7 +868,7 @@ export default StyleSheet.create({
     margin: 10,
     marginBottom: 0,
   },
-  sheetAuthor: {
+  Author: {
     fontSize: 16,
     color: "#666",
     textAlign: "center",

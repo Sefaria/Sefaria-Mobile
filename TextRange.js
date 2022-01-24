@@ -21,7 +21,6 @@ const TextRange = React.memo(({
   textSegmentPressed,
   setRowRef,
   setRowRefInitY,
-  fontScale,
   handleOpenURL,
   setDictionaryLookup,
   shareCurrentSegment,
@@ -95,7 +94,6 @@ const TextRange = React.memo(({
               <View style={{flex: 4.5, paddingRight: biLayout == 'stacked' ? 0 : (biLayout == 'sidebyside' ? 10 : 0), paddingLeft: biLayout == 'stacked' ? 0 : (biLayout == 'sidebysiderev' ? 10 : 0)}}>
                 {displayRef ? <Text style={[styles.he, styles.textListCitation, theme.textListCitation]}>{rowData.content.sourceHeRef}</Text> : null}
                 <TextSegment
-                  fontScale={fontScale}
                   fontSize={fontSize}
                   themeStr={themeStr}
                   segmentRef={segmentRef}
@@ -117,7 +115,6 @@ const TextRange = React.memo(({
               <View style={{flex: 5.5, paddingTop: showHe ? biLayout == 'stacked' ? 20 : 5 : 0, paddingRight: biLayout == 'stacked' ? 0 : (biLayout == 'sidebyside' ? 0 : 10), paddingLeft: biLayout == 'stacked' ? 0 : (biLayout == 'sidebysiderev' ? 0 : 10)}}>
                 {displayRef ? <Text style={[styles.en, styles.textListCitation, {marginTop: -19}, theme.textListCitation]}>{rowData.content.sourceRef}</Text> : null}
                 <TextSegment
-                  fontScale={fontScale}
                   fontSize={fontSize}
                   themeStr={themeStr}
                   segmentRef={segmentRef}
@@ -153,7 +150,6 @@ TextRange.propTypes = {
   setRowRefInitY:     PropTypes.func.isRequired,
   shareCurrentSegment:PropTypes.func.isRequired,
   getDisplayedText:   PropTypes.func.isRequired,
-  fontScale:          PropTypes.object,
 };
 
 export default TextRange;

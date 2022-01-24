@@ -2039,7 +2039,6 @@ class ReaderApp extends React.PureComponent {
             <View style={[{flex: textColumnFlex}, styles.mainTextPanel, this.props.theme.mainTextPanel]}
                   onStartShouldSetResponderCapture={this._onStartShouldSetResponderCapture}>
                 <TextColumn
-                  fontScale={this._fontScale}
                   interfaceLanguage={this.props.interfaceLanguage}
                   textLanguage={this.props.textLanguage}
                   showAliyot={this.props.showAliyot}
