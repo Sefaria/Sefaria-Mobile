@@ -1,4 +1,5 @@
-import { Alert, Platform } from 'react-native';
+import { Alert, Linking, Platform } from 'react-native';
+import qs from 'qs';
 //import { GoogleAnalyticsTracker } from 'react-native-google-analytics-bridge'; //https://github.com/idehub/react-native-google-analytics-bridge/blob/master/README.md
 import { unzip } from 'react-native-zip-archive'; //for unzipping -- (https://github.com/plrthink/react-native-zip-archive)
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -1573,7 +1574,29 @@ Sefaria.util = {
       "fa": "farsi",
     };
     return codeMap[code.toLowerCase()];
-  }
+  },
+  openComposedEmail: async function(to, subject, body, options = {}) {
+    //From: https://medium.com/plark/react-native-how-to-send-email-86714feaa97c
+    const { cc, bcc } = options;
+    let url = `mailto:${to}`;
+    // Create email link query
+    const query = qs.stringify({
+        subject: subject,
+        body: body,
+        cc: cc,
+        bcc: bcc
+    });
+    if (query.length) {
+        url += `?${query}`;
+    }
+    // check if we can use this link
+    const canOpen = await Linking.canOpenURL(url);
+    if (!canOpen) {
+        throw new Error('Provided URL can not be handled');
+    }
+    return Linking.openURL(url);
+  },
+
 };
 
 Sefaria.api = Api;

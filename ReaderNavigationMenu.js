@@ -20,7 +20,7 @@ import {
   CategoryBlockLink,
   TwoBox,
   SystemButton,
-  LoadingView,
+  LoadingView, SefariaPressable,
 } from './Misc.js';
 import { STATE_ACTIONS, DispatchContext, GlobalStateContext, getTheme } from './StateManager';
 import VersionNumber from 'react-native-version-number';
@@ -29,6 +29,7 @@ import SearchBar from './SearchBar';
 import ReaderNavigationCategoryMenu from './ReaderNavigationCategoryMenu';
 import styles from './Styles.js';
 import strings from './LocalizedStrings.js';
+import Sefaria from './sefaria';
 import {
   getFullBookList,
   getLocalBookList,
@@ -201,10 +202,10 @@ AuthSection.propTypes = {
 
 const getEmailBody = (downloaded, available) => {
   const nDownloaded = downloaded.length <= available.length ? downloaded.length : available.length;
-  return encodeURIComponent(`App Version: ${VersionNumber.appVersion}
+  return `App Version: ${VersionNumber.appVersion}
           Texts Downloaded: ${nDownloaded} / ${available.length}
           Packages: ${Object.values(PackagesState).filter(p => p.wasSelectedByUser()).map(p => p.name).join(", ")}
-          OS Version: ${Platform.OS} ${Platform.Version}\n`);
+          OS Version: ${Platform.OS} ${Platform.Version}\n`;
 };
 
 const MoreSection = ({ isHeb, openUri, openSettings }) => {
@@ -243,8 +244,10 @@ const MoreSection = ({ isHeb, openUri, openSettings }) => {
     openUri("https://www.sefaria.org/about");
   };
   const onFeedback = () => {
-    Promise.all([getLocalBookList(), getFullBookList()]).then(x =>
-    Linking.openURL(`mailto:hello@sefaria.org?subject=${encodeURIComponent(Platform.OS+" App Feedback")}&body=${getEmailBody(...x)}`));
+    Promise.all([getLocalBookList(), getFullBookList()]).then(x => {
+      const emailBody = getEmailBody(...x);
+      Sefaria.util.openComposedEmail("hello@sefaria.org", `${Platform.OS} App Feedback`, emailBody).then(() => {});
+    });
   };
   return (
     <View style={styles.readerNavSection}>
