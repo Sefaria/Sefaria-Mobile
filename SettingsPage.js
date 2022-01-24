@@ -193,7 +193,18 @@ const SettingsPage = ({ close, logout, openUri }) => {
     await deleteBooks(booksToDelete);
   };
   const deleteAccount = () => {
-    console.log("delete account");
+    Alert.alert(
+      strings.deleteAccount,
+      strings.deleteAccountMsg,
+      [
+        {
+          text: strings.cancel,
+          onPress: () => console.log("Cancel Pressed"),
+          style: "cancel"
+        },
+        { text: strings.ok, onPress: () => console.log("OK Pressed") }
+      ], {cancelable: true }
+    );
   }
   const langStyle = interfaceLanguage === "hebrew" ? styles.heInt : styles.enInt;
   return (
