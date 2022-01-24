@@ -37,8 +37,8 @@ const TextRange = React.memo(({
 
   let enText = rowData.content.text || "";
   let heText = Sefaria.util.applyVocalizationSettings(rowData.content.he, vocalization, vowelToggleAvailable) || "";
-  enText = Sefaria.util.getDisplayableHTML(enText.trim(), 'english');
-  heText = Sefaria.util.getDisplayableHTML(heText.trim(), 'hebrew');
+  enText = Sefaria.util.getDisplayableHTML(enText, 'english');
+  heText = Sefaria.util.getDisplayableHTML(heText, 'hebrew');
   let numLinks = rowData.content.links ? rowData.content.links.length : 0;
 
   const textLanguageWithContent = Sefaria.util.getTextLanguageWithContent(textLanguage, enText, heText);
