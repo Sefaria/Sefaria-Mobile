@@ -64,14 +64,14 @@ class DeepLinkRouter extends React.PureComponent {
     let { ref, title } = Sefaria.urlToRef(tref);
     if (!title) {
       Sefaria.api.name(ref, true).then(results => {   // look for alt title in ref
-		  const matches = results.completion_objects.filter(obj => obj.type === 'ref' && ref.includes(obj.title));
-		  if (matches.length > 0) {
-		    ref = ref.replace(matches[0].title, matches[0].key);
-            this.openStandardRef(ref, aliyot, ven, vhe, lang);
-		  }
-          else {
-            this.catchAll({ url }); /* can't find an alt title, so just open site */
-          }
+  		  const matches = results.completion_objects.filter(obj => obj.type === 'ref' && ref.includes(obj.title));
+  		  if (matches.length > 0) {
+          ref = ref.replace(matches[0].title, matches[0].key);
+          this.openStandardRef(ref, aliyot, ven, vhe, lang);
+        }
+        else {
+          this.catchAll({ url }); /* can't find an alt title, so just open site */
+        }
       }).catch(err => {
         this.catchAll({url});
       });
