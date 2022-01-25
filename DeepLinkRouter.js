@@ -61,26 +61,42 @@ class DeepLinkRouter extends React.PureComponent {
   openRef = ({ tref, ven, vhe, aliyot, lang, url }) => {
     // wrapper for openRef to convert url params to function params
     // TODO handle sheet ref case
-    const { ref, title } = Sefaria.urlToRef(tref);
-    if (!title) { this.catchAll({ url }); return; /* open site */}
+    let { ref, title } = Sefaria.urlToRef(tref);
+    if (!title) {
+      Sefaria.api.name(ref, true).then(results => {   // look for alt title in ref
+		  const matches = results.completion_objects.filter(obj => obj.type === 'ref' && ref.includes(obj.title));
+		  if (matches.length > 0) {
+		    ref = ref.replace(matches[0].title, matches[0].key);
+            this.openStandardRef(ref, aliyot, ven, vhe, lang);
+		  }
+          else {
+            this.catchAll({ url }); /* can't find an alt title, so just open site */
+          }
+      }).catch(err => {
+        this.catchAll({url});
+      });
+    }
     else if (ref === title) {
       // book table of contents
       this.props.openTextTocDirectly(title);
     } else {
       // standard ref
-      const enableAliyot = !!aliyot && aliyot.length > 0 && aliyot !== '0';
-      const versions = { en: ven, he: vhe };
-      const langMapper = {
-        'en': 'english',
-        'he': 'hebrew',
-        'bi': 'bilingual',
-      };
-      if (langMapper[lang]) {
-        this.props.setTextLanguage(langMapper[lang], null, true);
-      }
-      this.props.openRef(ref, 'deep link', versions, true, enableAliyot);
+      this.openStandardRef(ref, aliyot, ven, vhe, lang);
     }
   };
+  openStandardRef = (ref, aliyot, ven, vhe, lang) => {
+    const enableAliyot = !!aliyot && aliyot.length > 0 && aliyot !== '0';
+    const versions = { en: ven, he: vhe };
+    const langMapper = {
+      'en': 'english',
+      'he': 'hebrew',
+      'bi': 'bilingual',
+    };
+    if (langMapper[lang]) {
+      this.props.setTextLanguage(langMapper[lang], null, true);
+    }
+    this.props.openRef(ref, 'deep link', versions, true, enableAliyot);
+  }
   openSearch = ({ q, tab, tvar, tsort, svar, ssort }) => {
     // TODO: implement tab, svar and ssort
     const isExact = !!tvar && tvar.length > 0 && tvar === '0';
