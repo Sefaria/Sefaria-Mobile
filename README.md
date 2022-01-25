@@ -37,11 +37,27 @@ Alternatively for iOS, you can open `/ios/ReaderApp.xcworkspace` and hit run.
 
 
 ## Local Development
+
+### Connect Simulator to Local Django Server
+
 It's quite natural to want to test the app against a local instance of Sefaria-Project. This can be done in 2 simple steps:
 
 1. Set `Api._baseHost` to the ip address that your local server is serving from (this has to be the actual ip address displayed by django, not `localhost`).
 2. From your home directory, navigate to `Android/Sdk/platform-tools` (or add to `PATH`). Then execute `./adb reverse tcp:8000 tcp:8000`
 
+### Simulate Deep Linking
+
+To simulate deep linking, use these commands in your terminal
+
+For Android:
+```bash
+adb shell am start -W -a android.intent.action.VIEW -d "<INSERT_URL_HERE>" org.sefaria.sefaria
+```
+
+For iOS:
+```bash
+xcrun simctl openurl booted <INSERT_URL_HERE>
+```
 
 ## License
 [GPL](http://www.gnu.org/copyleft/gpl.html)
