@@ -7,7 +7,7 @@ import {
   ScrollView,
 } from 'react-native';
 import PropTypes from 'prop-types';
-import HTMLView from 'react-native-htmlview';
+import RenderHtml from 'react-native-render-html';
 import {
   LoadingView,
   OrderedList,

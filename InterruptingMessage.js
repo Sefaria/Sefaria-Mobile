@@ -12,7 +12,7 @@ import {
   ScrollView,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import HTMLView from 'react-native-htmlview';
+import RenderHtml from 'react-native-render-html';
 import {
   RainbowBar,
 } from './Misc.js';

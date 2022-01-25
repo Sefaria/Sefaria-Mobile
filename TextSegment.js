@@ -8,14 +8,33 @@ import {
   Share,
   Text,
   TouchableOpacity,
+  useWindowDimensions,
 } from 'react-native';
 import ActionSheet from 'react-native-action-sheet';
-import HTMLView from 'react-native-htmlview'; //to convert html'afied JSON to something react can render (https://github.com/jsdf/react-native-htmlview)
+import RenderHtml, { RenderHTML } from 'react-native-render-html';
 import { SelectableText } from "@astrocoders/react-native-selectable-text";
 import Clipboard from "@react-native-community/clipboard";
 import strings from './LocalizedStrings';
 import { GlobalStateContext, getTheme } from './StateManager';
 import styles from './Styles.js';
+
+const cssClassStyles = {
+  hebrew: {
+    fontFamily: "Taamey Frank Taamim Fix",
+    writingDirection: "rtl",
+    flex: -1,
+    paddingTop: 15,
+    marginTop: -10,
+    textAlign: Platform.OS == "android" ? "right" : "justify",
+  },
+  english: {
+    fontFamily: "Amiri",
+    fontWeight: "normal",
+    textAlign: 'justify',
+    paddingTop: 15,
+    marginTop: -10,
+  },
+};
 
 const getHTMLViewStyles = (isStacked, bilingual, textType, fontSize, theme) => {
   const isHeb = textType == "hebrew";
@@ -39,23 +58,22 @@ const getHTMLViewStyles = (isStacked, bilingual, textType, fontSize, theme) => {
     }
     textStyle.push(theme.bilingualEnglishText);
   }
-  const styleSheetMods = {
+  const tempClassStyles = {
     small: {
       fontSize: fontSize * 0.8 * (textType === "hebrew" ? 1 : 0.8)
     },
-    hediv: {
-      ...styles.hediv,
+    hebrew: {
+      ...cssClassStyles.hebrew,
       ...justifyStyle,
     },
-    endiv: {
-      ...styles.endiv,
+    english: {
+      ...cssClassStyles.english,
       ...justifyStyle,
     }
   };
 
-  const htmlStyleSheet = {...styles, ...styleSheetMods};
   return {
-    htmlStyleSheet,
+    tempClassStyles,
     textStyle,
   }
 };
@@ -76,6 +94,7 @@ const TextSegment = React.memo(({
 }) => {
   const [resetKey, setResetKey] = useState(0);
   const { themeStr, fontSize, biLayout } = useContext(GlobalStateContext);
+  const { width } = useWindowDimensions();
   useEffect(() => {
     setResetKey(resetKey+1);  // hacky fix to reset htmlview when theme colors change
     return () => {};
@@ -101,7 +120,7 @@ const TextSegment = React.memo(({
     else { onTextPress(true); setDictionaryLookup({ dictLookup: content }); }
   }, [shareText]);
   const isStacked = biLayout === 'stacked';
-  const { textStyle, htmlStyleSheet } = getHTMLViewStyles(isStacked, bilingual, textType, fontSize, theme);
+  const { textStyle, tempClassStyles } = getHTMLViewStyles(isStacked, bilingual, textType, fontSize, theme);
   let menuItems = ['Copy', 'Define', 'Share'];
   if (textType === 'english') {
     menuItems.splice(1, 1);
@@ -133,26 +152,12 @@ const TextSegment = React.memo(({
       onLongPress={onLongPress}
       delayPressIn={200}
     >
-      <TempSelectableText
-          accessible={true}
-          accessibilityRole={"text"}
-          accessibilityLabel={data.replace(/(<([^>]+)>)/ig,'')}
-        menuItems={menuItems}
-        onSelection={onSelection}
-        value={data}
-        textValueProp={'value'}
-        TextComponent={HTMLView}
-        textComponentProps={{
-          stylesheet: htmlStyleSheet,
-          RootComponent: Text,
-          TextComponent: Text,
-          onLinkPress: handleOpenURL,
-          textComponentProps: {
-            suppressHighlighting: false,
-            key: segmentKey,
-            style: textStyle,
-          },
-        }}
+      <RenderHTML
+        source={{html: data}}
+        contentWidth={width}
+        defaultTextProps={{style: textStyle}}
+        classesStyles={tempClassStyles}
+        systemFonts={["Taamey Frank Taamim Fix", "Amiri"]}
       />
     </TouchableOpacity>
   );
@@ -176,3 +181,17 @@ const DummySelectableText = ({ value, TextComponent, textComponentProps, ...prop
     />
 );}
 export default TextSegment;
+
+/*
+{
+          stylesheet: htmlStyleSheet,
+          RootComponent: Text,
+          TextComponent: Text,
+          onLinkPress: handleOpenURL,
+          textComponentProps: {
+            suppressHighlighting: false,
+            key: segmentKey,
+            style: textStyle,
+          },
+        }
+*/

@@ -23,7 +23,7 @@ import { useGlobalState } from './Hooks';
 import Sefaria from './sefaria';
 import styles from './Styles.js';
 import strings from './LocalizedStrings';
-import HTMLView from 'react-native-htmlview';
+import RenderHtml from 'react-native-render-html';
 
 
 const SystemHeader = ({ title, onBack, openNav, hideLangToggle }) => {

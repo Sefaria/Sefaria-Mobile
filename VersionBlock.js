@@ -10,7 +10,7 @@ import {
 } from './Misc';
 import { GlobalStateContext, getTheme } from './StateManager';
 
-import HTMLView from 'react-native-htmlview'; //to convert html'afied JSON to something react can render (https://github.com/jsdf/react-native-htmlview)
+import RenderHtml from 'react-native-render-html';
 import styles from './Styles.js';
 
 

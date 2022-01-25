@@ -10,7 +10,7 @@ import {
   LoadingView,
 } from './Misc.js';
 import { GlobalStateContext, getTheme } from './StateManager';
-import HTMLView from 'react-native-htmlview';
+import RenderHtml from 'react-native-render-html';
 import strings from './LocalizedStrings';
 import styles from './Styles';
 import VersionBlock from './VersionBlock';

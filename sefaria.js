@@ -1384,8 +1384,8 @@ Sefaria.util = {
   hebrewInEnglish: function(text, whatToReturn) {
     const regEx = /(^|[\s\[\]().,;:*?!\-"'])((?:[\u0591-\u05c7\u05d0-\u05ea]+[()\[\]\s'"\u05f3\u05f4]{0,2})+)([<>\[\]().,;:*?!\-'"\s]|$)/g
     if (whatToReturn == "string") {
-      // wrap all Hebrew strings with <hediv>
-      return text.replace(regEx, '$1<hediv>$2</hediv>$3');
+      // wrap all Hebrew strings with <span class="hebrew">
+      return text.replace(regEx, '$1<span class="hebrew">$2</span>$3');
     }
     else if (whatToReturn == "list") {
       return text.split(regEx)
@@ -1396,9 +1396,9 @@ Sefaria.util = {
     text = Sefaria.util.filterOutItags(text);
     text = text.replace(/\u200e/g, '');  // remove invisible LTR mark that can ruin display
     if (lang === 'english') {
-      return `<endiv>\u2066${Sefaria.util.hebrewInEnglish(text, 'string')}</endiv>`;
+      return `<span class="english">\u2066${Sefaria.util.hebrewInEnglish(text, 'string')}</span>`;
     }
-    return `<hediv>${text}</hediv>`;
+    return `<span class="hebrew">${text}</span>`;
   },
   applyVocalizationSettings: function(text, vocalization, vowelToggleAvailable) {
     if (vowelToggleAvailable === VOCALIZATION.NONE || vocalization === VOCALIZATION.TAAMIM_AND_NIKKUD) { return text; } 
