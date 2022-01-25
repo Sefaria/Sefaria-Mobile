@@ -525,21 +525,23 @@ class TextColumn extends React.PureComponent {
   renderSegmentedRow = ({ item }) => {
     // In segmented case, rowData represents a segments of text
     return (
-      <TextRange
-        displayRef={item.type === ROW_TYPES.SEGMENT && this.props.isSheet}
-        showToast={this.props.showToast}
-        rowData={item.data}
-        segmentRef={item.ref}
-        showSegmentNumbers={Sefaria.showSegmentNumbers(this.props.textTitle)}
-        textSegmentPressed={this.textSegmentPressed}
-        setRowRef={this.setSegmentRowRef}
-        setRowRefInitY={this.setRowRefInitY}
-        handleOpenURL={this.props.handleOpenURL}
-        setDictionaryLookup={this.props.setDictionaryLookup}
-        shareCurrentSegment={this.props.shareCurrentSegment}
-        getDisplayedText={this.props.getDisplayedText}
-        vowelToggleAvailable={this.props.vowelToggleAvailable}
-      />
+      <View style={{ width: '100%' }}>
+        <TextRange
+          displayRef={item.type === ROW_TYPES.SEGMENT && this.props.isSheet}
+          showToast={this.props.showToast}
+          rowData={item.data}
+          segmentRef={item.ref}
+          showSegmentNumbers={Sefaria.showSegmentNumbers(this.props.textTitle)}
+          textSegmentPressed={this.textSegmentPressed}
+          setRowRef={this.setSegmentRowRef}
+          setRowRefInitY={this.setRowRefInitY}
+          handleOpenURL={this.props.handleOpenURL}
+          setDictionaryLookup={this.props.setDictionaryLookup}
+          shareCurrentSegment={this.props.shareCurrentSegment}
+          getDisplayedText={this.props.getDisplayedText}
+          vowelToggleAvailable={this.props.vowelToggleAvailable}
+        />
+      </View>
     );
   };
 
