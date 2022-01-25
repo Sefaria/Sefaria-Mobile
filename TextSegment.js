@@ -4,7 +4,6 @@ import PropTypes from 'prop-types';
 
 import React, { useState, useEffect, useContext, Fragment, useCallback } from 'react';
 import {
-  Animated,
   Platform,
   Share,
   Text,
@@ -146,7 +145,7 @@ const TextSegment = React.memo(({
         textComponentProps={{
           stylesheet: htmlStyleSheet,
           RootComponent: Text,
-          TextComponent: Animated.Text,
+          TextComponent: Text,
           onLinkPress: handleOpenURL,
           textComponentProps: {
             suppressHighlighting: false,
