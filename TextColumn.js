@@ -39,7 +39,6 @@ const ROW_TYPES = {
 class TextColumn extends React.PureComponent {
   static whyDidYouRender = true;
   static propTypes = {
-    fontScale:          PropTypes.object,
     showToast:          PropTypes.func,
     textToc:            PropTypes.object,
     theme:              PropTypes.object.isRequired,
@@ -528,7 +527,6 @@ class TextColumn extends React.PureComponent {
     return (
       <View style={{ width: '100%' }}>
         <TextRange
-          fontScale={this.props.fontScale}
           displayRef={item.type === ROW_TYPES.SEGMENT && this.props.isSheet}
           showToast={this.props.showToast}
           rowData={item.data}
