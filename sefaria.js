@@ -45,6 +45,7 @@ Sefaria = {
     await Sefaria._loadTOC();
     await Sefaria.history._loadHistoryItems();
     await initAsyncStorage(dispatch);
+    if (this._auth.token) {Sefaria.track.event("ReAuthSuccessful")};
   },
   postInitSearch: function() {
     return Sefaria._loadRecentQueries()
