@@ -83,6 +83,7 @@ const AuthPage = ({ authMode, close, showToast, openLogin, openRegister, openUri
     isLoading,
     onSubmit,
   } = useAuthForm(authMode, async () => {
+    Sefaria.track.event("LoginSuccessful", {authMode});
     dispatch({
       type: STATE_ACTIONS.setIsLoggedIn,
       value: true,

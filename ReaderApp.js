@@ -145,6 +145,7 @@ class ReaderApp extends React.PureComponent {
         overwriteVersions: true, // false when you navigate to a text but dont want the current version to overwrite your sticky version
     };
     this.NetInfoEventListener = () => {};  // calling the event listener unsubcribes, initialize to a null method
+
   }
 
   componentDidMount() {
@@ -1136,7 +1137,6 @@ class ReaderApp extends React.PureComponent {
     if (backStack.length > 0) {
       via = backStack[backStack.length-1].state.menuOpen;
     }
-    Sefaria.track.event("AuthSuccessful", {authMode, via});
     this.manageBackMain();
   };
 
