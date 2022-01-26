@@ -17,7 +17,7 @@ import strings from './LocalizedStrings';
 import ReaderApp from './ReaderApp';
 import '@react-native-firebase/crashlytics';  // to setup up generic crashlytics reports
 
-if (process.env.NODE_ENV !== "production" && false) {
+if (process.env.NODE_ENV !== "production") {
   const whyDidYouRender = require("@welldone-software/why-did-you-render");
   whyDidYouRender(React, {
     collapseGroups: true,

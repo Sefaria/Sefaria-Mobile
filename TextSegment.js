@@ -36,46 +36,60 @@ const cssClassStyles = {
   },
 };
 
-const getHTMLViewStyles = (isStacked, bilingual, textType, fontSize, theme) => {
-  const isHeb = textType == "hebrew";
-  const lineHeightMultiplier = isHeb ? (Platform.OS === 'android' ? 1.333 : 1.2) : 1.15;
-  const fontSizeMultiplier = isHeb ? 1 : 0.8;
-  const justifyStyle = {textAlign: (isStacked && Platform.OS === 'ios') ? 'justify' : (textType === 'hebrew' ? 'right' : 'left')};
-  const lineHeight = fontSize * lineHeightMultiplier;
-  const fontSizeScaled = fontSize * fontSizeMultiplier;
-  const textStyle = [
-    isHeb ? styles.hebrewText : styles.englishText,
-    theme.text,
-    justifyStyle,
-    {
-      lineHeight,
-      fontSize: fontSizeScaled,
-    },
-  ];
-  if (bilingual && textType == "english") {
-    if (isStacked) {
-      textStyle.push(styles.bilingualEnglishText);
-    }
-    textStyle.push(theme.bilingualEnglishText);
-  }
-  const tempClassStyles = {
-    small: {
-      fontSize: fontSize * 0.8 * (textType === "hebrew" ? 1 : 0.8)
-    },
-    hebrew: {
-      ...cssClassStyles.hebrew,
-      ...justifyStyle,
-    },
-    english: {
-      ...cssClassStyles.english,
-      ...justifyStyle,
-    }
-  };
+const systemFonts = ["Taamey Frank Taamim Fix", "Amiri"];
 
-  return {
-    tempClassStyles,
-    textStyle,
-  }
+const useHTMLViewStyles = (isStacked, bilingual, textType, fontSize, theme) => {
+  const getHTMLViewStyles = useCallback((isStacked, bilingual, textType, fontSize, theme) => {
+    const isHeb = textType == "hebrew";
+    const lineHeightMultiplier = isHeb ? (Platform.OS === 'android' ? 1.333 : 1.2) : 1.15;
+    const fontSizeMultiplier = isHeb ? 1 : 0.8;
+    const justifyStyle = {textAlign: (isStacked && Platform.OS === 'ios') ? 'justify' : (textType === 'hebrew' ? 'right' : 'left')};
+    const lineHeight = fontSize * lineHeightMultiplier;
+    const fontSizeScaled = fontSize * fontSizeMultiplier;
+    const textStyle = [
+      isHeb ? styles.hebrewText : styles.englishText,
+      theme.text,
+      justifyStyle,
+      {
+        lineHeight,
+        fontSize: fontSizeScaled,
+      },
+    ];
+    if (bilingual && textType == "english") {
+      if (isStacked) {
+        textStyle.push(styles.bilingualEnglishText);
+      }
+      textStyle.push(theme.bilingualEnglishText);
+    }
+    const tempClassStyles = {
+      small: {
+        fontSize: fontSize * 0.8 * (textType === "hebrew" ? 1 : 0.8)
+      },
+      hebrew: {
+        ...cssClassStyles.hebrew,
+        ...justifyStyle,
+      },
+      english: {
+        ...cssClassStyles.english,
+        ...justifyStyle,
+      }
+    };
+  
+    return {
+      tempClassStyles,
+      textStyle: {style: textStyle},
+    }
+  }, [isStacked, bilingual, textType, fontSize, theme]);
+  return getHTMLViewStyles(isStacked, bilingual, textType, fontSize, theme);
+};
+
+const useSource = (data) => {
+  const [ source, setSource ] = useState({html: data});
+  useEffect(() => {
+    setSource({html: data});
+    return () => {};
+  }, [data]);
+  return source;
 };
 
 // pass correct functions to TextSegment for sheet renderers. probably combine renderers and make it simpler
@@ -92,14 +106,12 @@ const TextSegment = React.memo(({
   shareCurrentSegment,
   getDisplayedText,
 }) => {
-  const [resetKey, setResetKey] = useState(0);
+  const source = useSource(data);
   const { themeStr, fontSize, biLayout } = useContext(GlobalStateContext);
   const { width } = useWindowDimensions();
-  useEffect(() => {
-    setResetKey(resetKey+1);  // hacky fix to reset htmlview when theme colors change
-    return () => {};
-  }, [themeStr, fontSize]);
   const theme = getTheme(themeStr);
+  const isStacked = biLayout === 'stacked';
+  const { textStyle, tempClassStyles } = useHTMLViewStyles(isStacked, bilingual, textType, fontSize, theme);
   const getTextWithUrl = useCallback((text, withUrl) => {
     return withUrl ? `${text}\n\n${Sefaria.refToFullUrl(segmentRef)}` : text;
   }, [segmentRef]);
@@ -114,13 +126,6 @@ const TextSegment = React.memo(({
     Clipboard.setString(text);
     showToast("Copied to clipboard");
   }, []);
-  const onSelection = useCallback(({ eventType, content }) => {
-    if (eventType == 'Copy') { copyToClipboard(content); }
-    else if (eventType == 'Share') { shareText(content); }
-    else { onTextPress(true); setDictionaryLookup({ dictLookup: content }); }
-  }, [shareText]);
-  const isStacked = biLayout === 'stacked';
-  const { textStyle, tempClassStyles } = getHTMLViewStyles(isStacked, bilingual, textType, fontSize, theme);
   let menuItems = ['Copy', 'Define', 'Share'];
   if (textType === 'english') {
     menuItems.splice(1, 1);
@@ -145,7 +150,6 @@ const TextSegment = React.memo(({
   }, [segmentRef]);
   const onPress = useCallback(() => onTextPress(), [onTextPress]);
 
-  const TempSelectableText = Platform.OS === 'ios' ? SelectableText : DummySelectableText;
   return (
     <TouchableOpacity
       onPress={onPress}
@@ -153,11 +157,11 @@ const TextSegment = React.memo(({
       delayPressIn={200}
     >
       <RenderHTML
-        source={{html: data}}
+        source={source}
         contentWidth={width}
-        defaultTextProps={{style: textStyle}}
+        defaultTextProps={textStyle}
         classesStyles={tempClassStyles}
-        systemFonts={["Taamey Frank Taamim Fix", "Amiri"]}
+        systemFonts={systemFonts}
       />
     </TouchableOpacity>
   );
@@ -173,25 +177,4 @@ TextSegment.propTypes = {
   showToast:          PropTypes.func.isRequired,
 };
 
-const DummySelectableText = ({ value, TextComponent, textComponentProps, ...props }) => {
-  textComponentProps.value = value;
-  return (
-    <TextComponent
-      { ...textComponentProps}
-    />
-);}
 export default TextSegment;
-
-/*
-{
-          stylesheet: htmlStyleSheet,
-          RootComponent: Text,
-          TextComponent: Text,
-          onLinkPress: handleOpenURL,
-          textComponentProps: {
-            suppressHighlighting: false,
-            key: segmentKey,
-            style: textStyle,
-          },
-        }
-*/
