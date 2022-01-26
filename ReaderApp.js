@@ -168,6 +168,7 @@ class ReaderApp extends React.PureComponent {
     RNShake.addEventListener('ShakeEvent', () => {
       if (this.props.groggerActive === 'on' && Sefaria.isGettinToBePurimTime()) {
         SoundPlayer.playSoundFile('grogger', 'mp3');
+        SoundPlayer.setVolume(10);
       }
     });
     if (Platform.OS === 'android') {
