@@ -199,17 +199,19 @@ const History = {
   },
   mergeHistory: function(currHistory, currSaved, newHistory) {
     const delete_saved_set = new Set();
-    const newSaved = [];
+    let newSaved = [];
+    const currSavedRefs = currSaved.map(x => x.ref);
     const mergedHistory = newHistory
     .map(h => {
       // see https://codeburst.io/use-es2015-object-rest-operator-to-omit-properties-38a3ecffe90
       const { delete_saved, saved, ...rest } = h;
       if (delete_saved) { delete_saved_set.add(h.ref); }
-      if (saved) { newSaved.push(h); }
-      return h;
+      if (saved && currSavedRefs.indexOf(h.ref) === -1) { newSaved.push(h); }
+       return h;
     })
     .concat(currHistory)
     .sort((a, b) => b.time_stamp - a.time_stamp);
+
 
     const mergedSaved = newSaved
     .concat(currSaved)
