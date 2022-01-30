@@ -24,15 +24,13 @@ const cssClassStyles = {
     writingDirection: "rtl",
     flex: -1,
     paddingTop: 15,
-    marginTop: -10,
     textAlign: Platform.OS == "android" ? "right" : "justify",
   },
   english: {
     fontFamily: "Amiri",
     fontWeight: "normal",
     textAlign: 'justify',
-    paddingTop: 15,
-    marginTop: -10,
+    paddingTop: 0,
   },
 };
 
