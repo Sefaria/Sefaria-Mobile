@@ -19,13 +19,13 @@ import strings from './LocalizedStrings';
 import { GlobalStateContext, getTheme } from './StateManager';
 import styles from './Styles.js';
 
-const getHTMLViewStyles = (isStacked, bilingual, textType, fontSize, theme, fontScale) => {
+const getHTMLViewStyles = (isStacked, bilingual, textType, fontSize, theme) => {
   const isHeb = textType == "hebrew";
   const lineHeightMultiplier = isHeb ? (Platform.OS === 'android' ? 1.333 : 1.2) : 1.15;
   const fontSizeMultiplier = isHeb ? 1 : 0.8;
   const justifyStyle = {textAlign: (isStacked && Platform.OS === 'ios') ? 'justify' : (textType === 'hebrew' ? 'right' : 'left')};
-  const lineHeight = fontScale ? Animated.multiply(fontSize * lineHeightMultiplier, fontScale) : (fontSize * lineHeightMultiplier);
-  const fontSizeScaled = fontScale ? Animated.multiply(fontSize*fontSizeMultiplier, fontScale) : fontSize*fontSizeMultiplier;
+  const lineHeight = fontSize * lineHeightMultiplier;
+  const fontSizeScaled = fontSize * fontSizeMultiplier;
   const textStyle = [
     isHeb ? styles.hebrewText : styles.englishText,
     theme.text,
@@ -69,7 +69,6 @@ const TextSegment = React.memo(({
   data,
   textType,
   bilingual,
-  fontScale,
   setDictionaryLookup,
   showToast,
   handleOpenURL,
@@ -104,7 +103,7 @@ const TextSegment = React.memo(({
     else { onTextPress(true); setDictionaryLookup({ dictLookup: content }); }
   }, [shareText]);
   const isStacked = biLayout === 'stacked';
-  const { textStyle, htmlStyleSheet } = getHTMLViewStyles(isStacked, bilingual, textType, fontSize, theme, fontScale);
+  const { textStyle, htmlStyleSheet } = getHTMLViewStyles(isStacked, bilingual, textType, fontSize, theme);
   let menuItems = ['Copy', 'Define', 'Share'];
   if (textType === 'english') {
     menuItems.splice(1, 1);
@@ -178,7 +177,6 @@ TextSegment.propTypes = {
   bilingual:          PropTypes.bool,
   onTextPress:        PropTypes.func.isRequired,
   showToast:          PropTypes.func.isRequired,
-  fontScale:          PropTypes.object,
 };
 
 const DummySelectableText = ({ value, TextComponent, textComponentProps, ...props }) => {
