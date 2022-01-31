@@ -9,6 +9,7 @@ import {
   Share,
   Text,
   TouchableOpacity,
+  View
 } from 'react-native';
 import ActionSheet from 'react-native-action-sheet';
 import HTMLView from 'react-native-htmlview'; //to convert html'afied JSON to something react can render (https://github.com/jsdf/react-native-htmlview)
@@ -127,6 +128,14 @@ const TextSegment = React.memo(({
   }, [segmentRef]);
   const onPress = useCallback(() => onTextPress(), [onTextPress]);
 
+  const renderMyNode = useCallback((node, index, siblings, parent, defaultRenderer) => {
+    if (node.name === 'hr') {
+      return (
+        <Text numberOfLines={1} style={styles.sheetHorizontalRule}>&nbsp;{"\u000d"}</Text>
+      );
+    }
+  });
+
   const TempSelectableText = Platform.OS === 'ios' ? SelectableText : DummySelectableText;
   return (
     <TouchableOpacity
@@ -148,6 +157,7 @@ const TextSegment = React.memo(({
           RootComponent: Text,
           TextComponent: Animated.Text,
           onLinkPress: handleOpenURL,
+          renderNode: renderMyNode,
           textComponentProps: {
             suppressHighlighting: false,
             key: segmentKey,

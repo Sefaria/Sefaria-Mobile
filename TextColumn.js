@@ -902,7 +902,8 @@ class SheetMedia extends React.PureComponent {
       mediaLink =  (
         <WebView
           originWhitelist={['*']}
-          source={{ html: `<audio src="${mediaURL}" type="audio/mpeg" controls>Your browser does not support the audio element.</audio>` }}
+          style={styles.sheetMediaWebView}
+          source={{ html: `<div style="text-align:center;"><audio preload="auto" name="media" style="width:700px" controls><source src="${mediaURL}" type="audio/mpeg" />Your browser does not support the audio element.</audio></div>` }}
          />
       );
     } else {
@@ -912,9 +913,17 @@ class SheetMedia extends React.PureComponent {
     return mediaLink
   }
 
+  getStyle(mediaUrl) {
+    if (mediaUrl.match(/\.(mp3)$/i) != null) {
+      return styles.sheetMediaMp3;
+    } else {
+      return styles.sheetMediaVideo;
+     } 
+  }
+
   render() {
     return (
-      <View style={{height: 200, flex: 1, marginHorizontal: 40}}>
+      <View style={this.getStyle(this.props.url)}>
         {this.makeMediaEmbedLink(this.props.url)}
       </View>
     );

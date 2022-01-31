@@ -868,6 +868,24 @@ export default StyleSheet.create({
     margin: 10,
     marginBottom: 0,
   },
+  sheetMediaWebView: {
+    flex: 1,
+    justifyContent: "center"
+  },
+  sheetMediaVideo: {
+    height: 200,
+    flex: 1,
+    marginHorizontal: 40
+  },
+  sheetMediaMp3: {
+    height: 50,
+    flex: 1,
+    marginHorizontal: 40
+  },
+  sheetHorizontalRule: {
+    textDecorationLine: 'line-through',
+    borderTopColor: 'black'
+  },
   sheetAuthor: {
     fontSize: 16,
     color: "#666",
