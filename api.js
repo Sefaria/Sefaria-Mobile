@@ -618,6 +618,39 @@ var Api = {
       return obj;
     }, {});
   },
+  deleteUserAccount: async function() {
+    await Sefaria.api.getAuthToken();
+    if (!Sefaria._auth.uid) { console.log("Not signed in"); return; }
+    const url = `${Sefaria.api._baseHost}api/account/delete`;
+    await fetch(url, {
+      method: "POST",
+      headers: {
+        'Authorization': `Bearer ${Sefaria._auth.token}`,
+        "Content-Type": "application/json;charset=UTF-8",
+      },
+    }).then(response => {
+      if (response.status >= 200 && response.status < 300) {
+        return response;
+      } else {
+        console.error('Error in response code', response.text());
+        throw new Error("Bad Response Code " + response.status);
+      }
+    })
+    .then(response => response.json())
+    .then(json => {
+      if ("error" in json) {
+        console.error('Error in response json', json.error);
+        throw new Error("Bad Response " + json.error);
+      }else{
+        return json;
+      }
+    })
+    .catch(e => {
+      console.error('Network Error', e);
+      throw new Error("Network Error " + e);
+    });
+  },
+    
   login: function(authData) {
     const url = `${Sefaria.api._baseHost}api/login/`;
     const authBody = {

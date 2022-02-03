@@ -193,16 +193,25 @@ const SettingsPage = ({ close, logout, openUri }) => {
     await deleteBooks(booksToDelete);
   };
   const deleteAccount = () => {
-    Alert.alert(
+    Alert.alert( //ask for confirmation
       strings.deleteAccount,
       strings.deleteAccountMsg,
       [
         {
-          text: strings.cancel,
-          onPress: () => console.log("Cancel Pressed"),
-          style: "cancel"
+          text: strings.cancel, onPress: () => {console.log("cancel delete")}, style: "cancel"
         },
-        { text: strings.ok, onPress: () => console.log("OK Pressed") }
+        { text: strings.ok, onPress: () => {
+            //Sefaria.track.event("Delete User", {platform: "app"});
+            console.log("Deleting account");
+            Sefaria.api.deleteUserAccount().then(logout).catch(e => {
+              Alert.alert("", strings.deleteAccountError, [{
+                text: strings.ok, onPress: () => {
+                  Sefaria.util.openComposedEmail("hello@sefaria.org", `Delete Account Error`, "").then(() => {});
+                }
+              }]);
+            });
+          } 
+        }
       ], {cancelable: true }
     );
   }
