@@ -203,18 +203,26 @@ const SettingsPage = ({ close, logout, openUri }) => {
         { text: strings.ok, onPress: () => {
             //Sefaria.track.event("Delete User", {platform: "app"});
             console.log("Deleting account");
-            Sefaria.api.deleteUserAccount().then(logout).catch(e => {
-              Alert.alert("", strings.deleteAccountError, [{
-                text: strings.ok, onPress: () => {
-                  Sefaria.util.openComposedEmail("hello@sefaria.org", `Delete Account Error`, "").then(() => {});
-                }
-              }]);
+            Sefaria.api.deleteUserAccount()
+                .then(()=> {
+                   Alert.alert("", strings.deleteAccountOK, [{
+                    text: strings.ok, onPress: () => {
+                      logout();
+                    }
+                  }]);
+                })
+                .catch(e => {
+                  Alert.alert("", strings.deleteAccountError, [{
+                    text: strings.ok, onPress: () => {
+                      Sefaria.util.openComposedEmail("hello@sefaria.org", `Delete Account Error`, "").then(() => {});
+                    }
+                  }]);
             });
           } 
         }
       ], {cancelable: true }
     );
-  }
+  };
   const langStyle = interfaceLanguage === "hebrew" ? styles.heInt : styles.enInt;
   return (
     <View style={[styles.menu, theme.menu]}>
