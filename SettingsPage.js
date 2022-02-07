@@ -207,15 +207,15 @@ const SettingsPage = ({ close, logout, openUri }) => {
             //Sefaria.track.event("Delete User", {platform: "app"});
             console.log("Deleting account");
             Sefaria.api.deleteUserAccount()
-                .then(()=> {
+                .then(()=> { //Inform user account has been deleted
                    Alert.alert("", strings.deleteAccountOK, [{
                     text: strings.ok, onPress: () => {
-                      setIsProcessing(false);
+                      setIsProcessing(false); //do it here so the delete account link doesnt re appear for a moment after deleting account
                       logout();
                     }
                   }]);
                 })
-                .catch(e => {
+                .catch(e => {// If an error occurred, inform user and open an email window to allow sending us an email 
                   setIsProcessing(false);
                   Alert.alert("", strings.deleteAccountError, [{
                     text: strings.ok, onPress: () => {
