@@ -24,6 +24,7 @@ import {
   LibraryNavButton,
   SefariaProgressBar,
   SystemButton,
+  LoadingView,  
 } from './Misc.js';
 import { GlobalStateContext, DispatchContext, STATE_ACTIONS, getTheme } from './StateManager';
 import styles from './Styles';
@@ -185,6 +186,7 @@ const SettingsPage = ({ close, logout, openUri }) => {
   const theme = getTheme(themeStr);
   const [updatesDisabled, setUpdatesDisabled] = useState(false);
   const checkUpdatesForSettings = abstractUpdateChecker(setUpdatesDisabled, downloadNetworkSetting);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const deleteLibrary = async () => {
     DownloadTracker.cancelDownload(true);
@@ -201,17 +203,20 @@ const SettingsPage = ({ close, logout, openUri }) => {
           text: strings.cancel, onPress: () => {console.log("cancel delete")}, style: "cancel"
         },
         { text: strings.ok, onPress: () => {
+            setIsProcessing(true);
             //Sefaria.track.event("Delete User", {platform: "app"});
             console.log("Deleting account");
             Sefaria.api.deleteUserAccount()
                 .then(()=> {
                    Alert.alert("", strings.deleteAccountOK, [{
                     text: strings.ok, onPress: () => {
+                      setIsProcessing(false);
                       logout();
                     }
                   }]);
                 })
                 .catch(e => {
+                  setIsProcessing(false);
                   Alert.alert("", strings.deleteAccountError, [{
                     text: strings.ok, onPress: () => {
                       Sefaria.util.openComposedEmail("hello@sefaria.org", `Delete Account Error`, "").then(() => {});
@@ -310,9 +315,10 @@ const SettingsPage = ({ close, logout, openUri }) => {
           </Text>
         </View>
         { isLoggedIn ?
-        <Text style={[{marginTop:30, marginBottom:30}, langStyle, styles.settingsSectionHeader, theme.tertiaryText]} onPress={deleteAccount}>
-                { strings.deleteAccount }
-        </Text>
+            (isProcessing ? <LoadingView/> :
+            <Text style={[{marginTop:30, marginBottom:30}, langStyle, styles.settingsSectionHeader, theme.tertiaryText]} onPress={deleteAccount}>
+                  { strings.deleteAccount }
+            </Text>)
           : null
         }    
       </ScrollView>
