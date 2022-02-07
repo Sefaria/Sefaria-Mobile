@@ -204,7 +204,7 @@ const SettingsPage = ({ close, logout, openUri }) => {
         },
         { text: strings.ok, onPress: () => {
             setIsProcessing(true);
-            //Sefaria.track.event("Delete User", {platform: "app"});
+            Sefaria.track.event("DeleteUser", {platform: "app"});
             console.log("Deleting account");
             Sefaria.api.deleteUserAccount()
                 .then(()=> { //Inform user account has been deleted
