@@ -6,16 +6,20 @@ import {
   TouchableOpacity,
   Text,
   Platform,
+  useWindowDimensions,
 } from 'react-native';
 import ActionSheet from 'react-native-action-sheet';
 
 import {
   LoadingView,
+  SYSTEM_FONTS,
 } from './Misc.js';
 import { GlobalStateContext, getTheme } from './StateManager';
-import HTMLView from 'react-native-htmlview';
+import { RenderHTML } from 'react-native-render-html';
 import strings from './LocalizedStrings';
 import styles from './Styles.js';
+import { useHTMLViewStyles } from './useHTMLViewStyles';
+
 
 const DEFAULT_LINK_CONTENT = {en: strings.loading, he: "", sectionRef: ""};
 const NO_CONTENT_LINK_CONTENT = {en: strings.noContent, he: "", sectionRef: ""}
@@ -205,6 +209,13 @@ const ListItem = ({
 }) => {
   const { themeStr, fontSize, interfaceLanguage, textLanguage } = useContext(GlobalStateContext);
   const theme = getTheme(themeStr);
+  const { width } = useWindowDimensions();
+  const lco = linkContentObj;
+  const lang = Sefaria.util.getTextLanguageWithContent(textLanguage,lco.en,lco.he);
+  const bilingual = lang === 'bilingual';
+  const { classStyles:enClasses, textStyle:enStyle } = useHTMLViewStyles(bilingual, 'english');
+  const { classStyles:heClasses, textStyle:heStyle } = useHTMLViewStyles(bilingual, 'hebrew');
+
   const tempOpenRef = () => {
     // versionLanguage should only be defined when TextList is in VersionsBox. Otherwise you should open default version for that link
     let versions = null, loadNewVersions = false;
@@ -224,8 +235,6 @@ const ListItem = ({
       if (buttonIndex === 0) { tempOpenRef(); }
     });
   }
-  var lco = linkContentObj;
-  var lang = Sefaria.util.getTextLanguageWithContent(textLanguage,lco.en,lco.he);
   var textViews = [];
   const he = Sefaria.util.getDisplayableHTML(lco.he, "hebrew");
   const en = Sefaria.util.getDisplayableHTML(lco.en, "english");
@@ -240,24 +249,28 @@ const ListItem = ({
       fontSize: fontSize * 0.8
     }
   };
-  var hebrewElem =  <HTMLView
-                      key={"he"}
-                      stylesheet={{...styles, ...smallHeSheet}}
-                      value={he}
-                      textComponentProps={{
-                        style: [styles.hebrewText, styles.linkContentText, theme.text, {fontSize, lineHeight: fontSize * lineHeightMultiplierHe}],
-                        key: refStr+"-he"
-                      }}
-                    />;
-  var englishElem = <HTMLView
-                      key={"en"}
-                      stylesheet={{...styles, ...smallEnSheet}}
-                      value={en}
-                      textComponentProps={{
-                        style: [styles.englishText, styles.linkContentText, theme.text, {fontSize: 0.8 * fontSize, lineHeight: fontSize * 1.04}],
-                        key: refStr+"-en"
-                      }}
-                    />;
+
+  const hebrewElem = (
+    <RenderHTML
+      key={"he"}
+      source={{html: he}}
+      contentWidth={width}
+      defaultTextProps={heStyle}
+      classesStyles={heClasses}
+      systemFonts={SYSTEM_FONTS}
+    />
+  );
+  const englishElem = (
+    <RenderHTML
+      key={"en"}
+      source={{html: en}}
+      contentWidth={width}
+      defaultTextProps={enStyle}
+      classesStyles={enClasses}
+      systemFonts={SYSTEM_FONTS}
+    />
+  );
+
   if (lang == "bilingual") {
     textViews = [hebrewElem, englishElem];
   } else if (lang == "hebrew") {

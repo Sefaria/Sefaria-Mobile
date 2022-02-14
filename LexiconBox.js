@@ -1,4 +1,8 @@
 'use strict';
+/** 
+ * TODO: Haven't refactored HTMLView to RenderHTML yet because lexicon doesn't work with RenderHTML by default
+ * 
+*/
 
 import React, {useContext, useState, useEffect} from 'react';
 import {
@@ -7,7 +11,7 @@ import {
   ScrollView,
 } from 'react-native';
 import PropTypes from 'prop-types';
-import HTMLView from 'react-native-htmlview';
+import RenderHtml from 'react-native-render-html';
 import {
   LoadingView,
   OrderedList,

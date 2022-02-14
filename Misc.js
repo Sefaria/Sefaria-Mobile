@@ -17,14 +17,31 @@ import {
   TextInput,
   Pressable,
   FlatList,
+  useWindowDimensions,
 } from 'react-native';
 import { GlobalStateContext, DispatchContext, STATE_ACTIONS, themeStr, getTheme } from './StateManager';
 import { useGlobalState } from './Hooks';
 import Sefaria from './sefaria';
 import styles from './Styles.js';
 import strings from './LocalizedStrings';
-import HTMLView from 'react-native-htmlview';
+import { RenderHTML } from 'react-native-render-html';
 
+const SYSTEM_FONTS = ["Taamey Frank Taamim Fix", "Amiri", "Heebo", "OpenSans"];  // list of system fonts. needed for RenderHTML
+const CSS_CLASS_STYLES = {
+  hebrew: {
+    fontFamily: "Taamey Frank Taamim Fix",
+    writingDirection: "rtl",
+    flex: -1,
+    paddingTop: 15,
+    textAlign: Platform.OS == "android" ? "right" : "justify",
+  },
+  english: {
+    fontFamily: "Amiri",
+    fontWeight: "normal",
+    textAlign: 'justify',
+    paddingTop: 0,
+  },
+};
 
 const SystemHeader = ({ title, onBack, openNav, hideLangToggle }) => {
   const { themeStr, interfaceLanguage } = useContext(GlobalStateContext);
@@ -1081,14 +1098,20 @@ SimpleInterfaceBlock.propTypes = {
   extraStyles: PropTypes.array,
 };
 
-const SimpleHTMLView = ({text, lang}) => {
+const SimpleHTMLView = ({text, lang, extraStyles=[], ...renderHTMLProps}) => {
   const { themeStr } = useContext(GlobalStateContext);
+  const { width } = useWindowDimensions();
   const theme = getTheme(themeStr);
+  const html = Sefaria.util.getDisplayableHTML(text, lang);
+  const textStyle = [lang == "hebrew" ? styles.hebrewText : styles.englishText, theme.text].concat(extraStyles);
   return (
-    <HTMLView
-      value={lang == "hebrew" ? "<hediv>"+text+"</hediv>" : "<endiv>"+text+"</endiv>"}
-      stylesheet={styles}
-      textComponentProps={{style: [lang == "hebrew" ? styles.hebrewText : styles.englishText, theme.text]}}
+    <RenderHTML
+      source={{ html }}
+      contentWidth={width}
+      defaultTextProps={{ style: textStyle }}
+      classesStyles={CSS_CLASS_STYLES}
+      systemFonts={SYSTEM_FONTS}
+      {...renderHTMLProps}
     />
   );
 }
@@ -1321,6 +1344,7 @@ export {
   CollapseIcon,
   ConditionalProgressWrapper,
   ContentTextWithFallback,
+  CSS_CLASS_STYLES,
   DataSourceLine,
   DirectedArrow,
   DirectedButton,
@@ -1350,6 +1374,7 @@ export {
   SText,
   SystemButton,
   SystemHeader,
+  SYSTEM_FONTS,
   TabRowView,
   TabView,
   ToggleSet,

@@ -11,7 +11,6 @@ import {
   LoadingView,
 } from './Misc.js';
 import { GlobalStateContext, getTheme } from './StateManager';
-import HTMLView from 'react-native-htmlview';
 import strings from './LocalizedStrings';
 import styles from './Styles';
 import { RainbowBar, CircleCloseButton } from './Misc'

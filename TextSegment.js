@@ -4,62 +4,36 @@ import PropTypes from 'prop-types';
 
 import React, { useState, useEffect, useContext, Fragment, useCallback } from 'react';
 import {
-  Animated,
   Platform,
   Share,
   Text,
   TouchableOpacity,
-  View
+  useWindowDimensions,
 } from 'react-native';
 import ActionSheet from 'react-native-action-sheet';
-import HTMLView from 'react-native-htmlview'; //to convert html'afied JSON to something react can render (https://github.com/jsdf/react-native-htmlview)
+import { RenderHTML } from 'react-native-render-html';
 import { SelectableText } from "@astrocoders/react-native-selectable-text";
 import Clipboard from "@react-native-community/clipboard";
 import strings from './LocalizedStrings';
-import { GlobalStateContext, getTheme } from './StateManager';
-import styles from './Styles.js';
+import { SYSTEM_FONTS } from './Misc';
+import { useHTMLViewStyles } from './useHTMLViewStyles';
 
-const getHTMLViewStyles = (isStacked, bilingual, textType, fontSize, theme) => {
-  const isHeb = textType == "hebrew";
-  const lineHeightMultiplier = isHeb ? (Platform.OS === 'android' ? 1.333 : 1.2) : 1.15;
-  const fontSizeMultiplier = isHeb ? 1 : 0.8;
-  const justifyStyle = {textAlign: (isStacked && Platform.OS === 'ios') ? 'justify' : (textType === 'hebrew' ? 'right' : 'left')};
-  const lineHeight = fontSize * lineHeightMultiplier;
-  const fontSizeScaled = fontSize * fontSizeMultiplier;
-  const textStyle = [
-    isHeb ? styles.hebrewText : styles.englishText,
-    theme.text,
-    justifyStyle,
-    {
-      lineHeight,
-      fontSize: fontSizeScaled,
-    },
-  ];
-  if (bilingual && textType == "english") {
-    if (isStacked) {
-      textStyle.push(styles.bilingualEnglishText);
-    }
-    textStyle.push(theme.bilingualEnglishText);
-  }
-  const styleSheetMods = {
-    small: {
-      fontSize: fontSize * 0.8 * (textType === "hebrew" ? 1 : 0.8)
-    },
-    hediv: {
-      ...styles.hediv,
-      ...justifyStyle,
-    },
-    endiv: {
-      ...styles.endiv,
-      ...justifyStyle,
-    }
-  };
+const useSource = (data) => {
+  const [ source, setSource ] = useState({html: data});
+  useEffect(() => {
+    setSource({html: data});
+    return () => {};
+  }, [data]);
+  return source;
+};
 
-  const htmlStyleSheet = {...styles, ...styleSheetMods};
-  return {
-    htmlStyleSheet,
-    textStyle,
-  }
+const useLinkPressProp = (handleOpenURL) => {
+  const [ linkPressProp, setLinkPressProp ] = useState({a: {onPress: (event, url) => handleOpenURL(url)}});
+  useEffect(() => {
+    setLinkPressProp({a: {onPress: (event, url) => handleOpenURL(url)}});
+    return () => {};
+  }, [handleOpenURL]);
+  return linkPressProp;
 };
 
 // pass correct functions to TextSegment for sheet renderers. probably combine renderers and make it simpler
@@ -76,13 +50,10 @@ const TextSegment = React.memo(({
   shareCurrentSegment,
   getDisplayedText,
 }) => {
-  const [resetKey, setResetKey] = useState(0);
-  const { themeStr, fontSize, biLayout } = useContext(GlobalStateContext);
-  useEffect(() => {
-    setResetKey(resetKey+1);  // hacky fix to reset htmlview when theme colors change
-    return () => {};
-  }, [themeStr, fontSize]);
-  const theme = getTheme(themeStr);
+  const source = useSource(data);
+  const linkPressProp = useLinkPressProp(handleOpenURL);
+  const { width } = useWindowDimensions();
+  const { textStyle, classStyles } = useHTMLViewStyles(bilingual, textType);
   const getTextWithUrl = useCallback((text, withUrl) => {
     return withUrl ? `${text}\n\n${Sefaria.refToFullUrl(segmentRef)}` : text;
   }, [segmentRef]);
@@ -97,13 +68,6 @@ const TextSegment = React.memo(({
     Clipboard.setString(text);
     showToast("Copied to clipboard");
   }, []);
-  const onSelection = useCallback(({ eventType, content }) => {
-    if (eventType == 'Copy') { copyToClipboard(content); }
-    else if (eventType == 'Share') { shareText(content); }
-    else { onTextPress(true); setDictionaryLookup({ dictLookup: content }); }
-  }, [shareText]);
-  const isStacked = biLayout === 'stacked';
-  const { textStyle, htmlStyleSheet } = getHTMLViewStyles(isStacked, bilingual, textType, fontSize, theme);
   let menuItems = ['Copy', 'Define', 'Share'];
   if (textType === 'english') {
     menuItems.splice(1, 1);
@@ -136,34 +100,19 @@ const TextSegment = React.memo(({
     }
   });
 
-  const TempSelectableText = Platform.OS === 'ios' ? SelectableText : DummySelectableText;
   return (
     <TouchableOpacity
       onPress={onPress}
       onLongPress={onLongPress}
       delayPressIn={200}
     >
-      <TempSelectableText
-          accessible={true}
-          accessibilityRole={"text"}
-          accessibilityLabel={data.replace(/(<([^>]+)>)/ig,'')}
-        menuItems={menuItems}
-        onSelection={onSelection}
-        value={data}
-        textValueProp={'value'}
-        TextComponent={HTMLView}
-        textComponentProps={{
-          stylesheet: htmlStyleSheet,
-          RootComponent: Text,
-          TextComponent: Animated.Text,
-          onLinkPress: handleOpenURL,
-          renderNode: renderMyNode,
-          textComponentProps: {
-            suppressHighlighting: false,
-            key: segmentKey,
-            style: textStyle,
-          },
-        }}
+      <RenderHTML
+        source={source}
+        contentWidth={width}
+        defaultTextProps={textStyle}
+        classesStyles={classStyles}
+        systemFonts={SYSTEM_FONTS}
+        rendererProps={linkPressProp}
       />
     </TouchableOpacity>
   );
@@ -179,11 +128,4 @@ TextSegment.propTypes = {
   showToast:          PropTypes.func.isRequired,
 };
 
-const DummySelectableText = ({ value, TextComponent, textComponentProps, ...props }) => {
-  textComponentProps.value = value;
-  return (
-    <TextComponent
-      { ...textComponentProps}
-    />
-);}
 export default TextSegment;

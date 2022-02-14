@@ -8,7 +8,7 @@ import {
   View,
   Image
 } from 'react-native';
-import HTMLView from 'react-native-htmlview'; //to convert html'afied JSON to something react can render (https://github.com/jsdf/react-native-htmlview)
+import { SimpleHTMLView } from './Misc';
 import { GlobalStateContext, getTheme } from './StateManager';
 import styles from './Styles.js';
 
@@ -26,6 +26,7 @@ const SearchSheetResult = ({
   const { interfaceLanguage, themeStr } = useContext(GlobalStateContext);
   const theme = getTheme(themeStr);
   const refTitleStyle = interfaceLanguage === "hebrew" ? styles.he : styles.en;
+  text = textType == "hebrew" ? text.replace(/(\r\n|\n|\r)/gm, "").substring(0, 124)+"..." : text.replace(/(\r\n|\n|\r)/gm, "").substring(0, 124)+"...";
 
   return (
     <TouchableOpacity
@@ -38,10 +39,10 @@ const SearchSheetResult = ({
           <Text style={[refTitleStyle, styles.textListCitation, theme.text]}>{title.replace(/\s\s+/g, ' ')}</Text>
         </View>
         {text ?
-          (<HTMLView
-            value= {textType == "hebrew" ? "<hediv>"+text.replace(/(\r\n|\n|\r)/gm, "").substring(0, 124)+"...</hediv>" : "<endiv>"+text.replace(/(\r\n|\n|\r)/gm, "").substring(0, 124)+"...</endiv>"}
-            stylesheet={styles}
-            textComponentProps={{style: [textType == "hebrew" ? styles.hebrewText : styles.englishText, theme.searchResultSummaryText]}}
+          (<SimpleHTMLView
+            text={text}
+            lang={textType}
+            extraStyles={[theme.searchResultSummaryText]}
           />) : null
         }
 
