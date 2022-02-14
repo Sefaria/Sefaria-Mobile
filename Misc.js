@@ -125,7 +125,7 @@ const OrderedList = ({items, renderItem}) => {
 const DotSeparatedList = ({ items, renderItem, keyExtractor, flexDirection='row' }) => {
   return (
     items.map((item, i) => (
-      <View key={keyExtractor(item)} style={{flexDirection, alignItems: 'center'}}>
+      <View key={keyExtractor(item)} style={{flexDirection, alignItems: 'center'}} accessibilityLabel="A horizontal list of items separated by bullets">
         { renderItem(item, i) }
         { i < (items.length - 1) ? <Image source={require('./img/dot.png')} resizeMode={'contain'} style={{marginHorizontal: 5}}/> : null}
       </View>
@@ -223,7 +223,7 @@ const SefariaProgressBar = ({ onPress, onClose, download, downloadNotification, 
                 :  <DynamicRepeatingText displayText={strings.connecting} repeatText={'.'} maxCount={3} />
           }</Text>
           {!!onClose ?
-            <TouchableOpacity onPress={onClose}>
+            <TouchableOpacity onPress={onClose} accessibilityLabel="Close">
               <Image
                 source={themeStr === 'white' ? require('./img/close.png') : require('./img/close-light.png')}
                 resizeMode={'contain'}
@@ -582,7 +582,7 @@ const LanguageToggleButton = () => {
       (<Text style={[styles.languageToggleTextHe, theme.languageToggleText, styles.he]}>א</Text>);
   const style = [styles.languageToggle, theme.languageToggle, interfaceLanguage === "hebrew" ? {opacity:0} : null];
   return (
-    <TouchableOpacity style={style} onPress={interfaceLanguage === "hebrew" ? null : toggle}>
+    <TouchableOpacity style={style} onPress={interfaceLanguage === "hebrew" ? null : toggle} accessibilityLabel={`Change language to ${isHeb ? "English" : "Hebrew"}`}>
       {content}
     </TouchableOpacity>
   );
@@ -643,7 +643,9 @@ class DirectedButton extends React.Component {
     return (
       <TouchableOpacity onPress={this.props.onPress}
         style={{ flexDirection: actualDirBack ? "row-reverse" : "row", alignItems: "center", opacity: this.props.placeholder ? 0 : 1 }}
-        hitSlop={{top: 20, bottom: 20, left: 10, right: 10}}>
+        hitSlop={{top: 20, bottom: 20, left: 10, right: 10}}
+        accessibilityLabel={this.props.text ? this.props.text : this.props.direction }
+      >
         { this.props.text ?
           <SText lang={this.props.language} style={this.props.textStyle}>
             {this.props.text}
@@ -704,7 +706,7 @@ const SearchButton = ({ onPress, extraStyles, disabled }) => {
 const MenuButton = ({ onPress, placeholder }) => {
   const { themeStr } = useGlobalState();
   return (
-    <TouchableOpacity style={[styles.headerButton, styles.leftHeaderButton, {opacity: placeholder ? 0 : 1}]} onPress={onPress}>
+    <TouchableOpacity style={[styles.headerButton, styles.leftHeaderButton, {opacity: placeholder ? 0 : 1}]} onPress={onPress} accessibilityLabel="Open Menu">
       <Image
         source={themeStr == "white" ? require('./img/menu.png'): require('./img/menu-light.png') }
         style={styles.menuButton}
@@ -717,7 +719,7 @@ const MenuButton = ({ onPress, placeholder }) => {
 const CloseButton = ({ onPress }) => {
   const { themeStr } = useContext(GlobalStateContext);
   return (
-    <TouchableOpacity style={[styles.headerButton, styles.leftHeaderButton]} onPress={onPress}>
+    <TouchableOpacity style={[styles.headerButton, styles.leftHeaderButton]} onPress={onPress} accessibilityLabel="Close">
       <Image
         source={themeStr == "white" ? require('./img/close.png'): require('./img/close-light.png') }
         style={styles.closeButton}
@@ -730,7 +732,7 @@ const CloseButton = ({ onPress }) => {
 const CircleCloseButton = ({ onPress }) => {
   const { themeStr } = useContext(GlobalStateContext);
   return (
-    <TouchableOpacity style={styles.headerButton} onPress={onPress}>
+    <TouchableOpacity style={styles.headerButton} onPress={onPress} accessibilityLabel="Close">
       <Image
         source={themeStr == "white" ? require('./img/circle-close.png'): require('./img/circle-close-light.png') }
         style={styles.circleCloseButton}
@@ -761,6 +763,7 @@ const DisplaySettingsButton = ({ onPress }) => {
     <TouchableOpacity
       style={[styles.headerButton, styles.rightHeaderButton]}
       onPress={onPress}
+      accessibilityLabel="Open display settings"
     >
       <Image
         source={themeStr == "white" ? require('./img/a-aleph.png'): require('./img/a-aleph-light.png') }
@@ -1040,7 +1043,7 @@ const LocalSearchBar = ({ onChange, query, onFocus }) => {
 const CancelButton = ({ onPress, extraStyles=[] }) => {
   const { themeStr } = useGlobalState();
   return (
-    <TouchableOpacity onPress={onPress}>
+    <TouchableOpacity onPress={onPress} accessibilityLabel="close">
       <Image
         source={themeStr === 'white' ? require('./img/circle-close.png') : require('./img/circle-close-light.png')}
         style={[styles.cancelSearchButton].concat(extraStyles)}

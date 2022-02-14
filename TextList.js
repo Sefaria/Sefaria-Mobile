@@ -66,6 +66,12 @@ class TextList extends React.Component {
       }
       this.setState({dataSource: this.generateDataSource(this.props), updateScrollPosKey});
     }
+    if (this.props.filterIndex !== prevProps.filterIndex) {
+      const curFilter = this.props.recentFilters[this.props.filterIndex]
+      curFilter.refList.forEach((ref, i) => {
+        this.props.loadContent(ref, i)
+      })
+    }
   }
 
   generateDataSource = (props) => {

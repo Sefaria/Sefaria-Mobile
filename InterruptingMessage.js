@@ -179,7 +179,9 @@ class InterruptingMessage extends React.Component {
               <View style={styles.interruptingMessageBox}>
                   <View style={styles.interruptingMessageCloseBox}>
                     <TouchableOpacity
-                      onPress={this.close}>
+                      onPress={this.close}
+                      accessibilityLabel="Close pop up"
+                    >
                       <Image source={isWhite ? require("./img/circle-close.png") : require("./img/circle-close-light.png")}
                         resizeMode={'contain'}
                         style={styles.interruptingMessageClose} />
