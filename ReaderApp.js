@@ -1771,7 +1771,7 @@ class ReaderApp extends React.PureComponent {
 
       Describe the error:`;
     const subject = `Sefaria Text Correction from ${Platform.OS}`
-    Sefaria.util.openComposedEmail("corrections@sefaria.org", subject, body).then(()=>{});
+    Sefaria.util.openComposedEmail("corrections@sefaria.org", subject, body);
   };
 
   shareCurrentSegment = (sectionIndex, segmentIndex, segmentRef) => {

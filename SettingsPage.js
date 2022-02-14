@@ -219,7 +219,7 @@ const SettingsPage = ({ close, logout, openUri }) => {
                   setIsProcessing(false);
                   Alert.alert("", strings.deleteAccountError, [{
                     text: strings.ok, onPress: () => {
-                      Sefaria.util.openComposedEmail("hello@sefaria.org", `Delete Account Error`, "").then(() => {});
+                      Sefaria.util.openComposedEmail("hello@sefaria.org", `Delete Account Error`, "");
                     }
                   }]);
             });

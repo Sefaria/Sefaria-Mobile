@@ -246,7 +246,7 @@ const MoreSection = ({ isHeb, openUri, openSettings }) => {
   const onFeedback = () => {
     Promise.all([getLocalBookList(), getFullBookList()]).then(x => {
       const emailBody = getEmailBody(...x);
-      Sefaria.util.openComposedEmail("hello@sefaria.org", `${Platform.OS} App Feedback`, emailBody).then(() => {});
+      Sefaria.util.openComposedEmail("hello@sefaria.org", `${Platform.OS} App Feedback`, emailBody);
     });
   };
   return (
