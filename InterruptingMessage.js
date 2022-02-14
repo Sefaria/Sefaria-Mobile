@@ -12,7 +12,6 @@ import {
   ScrollView,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import RenderHtml from 'react-native-render-html';
 import {
   RainbowBar,
 } from './Misc.js';

@@ -9,9 +9,9 @@ import {
   Image
 } from 'react-native';
 import { GlobalStateContext, getTheme } from './StateManager';
-import RenderHtml from 'react-native-render-html';
 
 import styles from './Styles.js';
+import { SimpleHTMLView } from './Misc';
 
 const SheetResult = ({
   text,
@@ -25,9 +25,8 @@ const SheetResult = ({
 }) => {
   const { themeStr, interfaceLanguage } = useContext(GlobalStateContext);
   const theme = getTheme(themeStr);
+  text = textType == "hebrew" ? text.replace(/(\r\n|\n|\r)/gm, "").substring(0, 124)+"..." : text.replace(/(\r\n|\n|\r)/gm, "").substring(0, 124)+"..."
   return (
-
-
     <TouchableOpacity
       style={[styles.textBlockLink, theme.textBlockLink, {margin:0, borderBottomWidth: 1, borderBottomColor: "#ccc", paddingTop: 13}]}
       onPress={onPress}
@@ -52,11 +51,10 @@ const SheetResult = ({
           <Text style={[styles.sheetListTitle, {textAlign: interfaceLanguage == "hebrew" ? "right" : "left"}]}>{title.replace(/\s\s+/g, ' ')}</Text>
         </View>
 
-        {text ?
-        <HTMLView
-          value= {textType == "hebrew" ? "<hediv>"+text.replace(/(\r\n|\n|\r)/gm, "").substring(0, 124)+"...</hediv>" : "<endiv>"+text.replace(/(\r\n|\n|\r)/gm, "").substring(0, 124)+"...</endiv>"}
-          stylesheet={styles}
-          textComponentProps={{style: [textType == "hebrew" ? styles.hebrewText : styles.englishText, theme.text]}}
+        { text ?
+        <SimpleHTMLView
+          text={text}
+          lang={textType}
         /> : null }
 
       </View>

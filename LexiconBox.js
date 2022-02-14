@@ -1,4 +1,8 @@
 'use strict';
+/** 
+ * TODO: Haven't refactored HTMLView to RenderHTML yet because lexicon doesn't work with RenderHTML by default
+ * 
+*/
 
 import React, {useContext, useState, useEffect} from 'react';
 import {

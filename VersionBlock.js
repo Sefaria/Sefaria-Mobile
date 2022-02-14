@@ -6,11 +6,10 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import {
+  SimpleHTMLView,
   SText,
 } from './Misc';
 import { GlobalStateContext, getTheme } from './StateManager';
-
-import RenderHtml from 'react-native-render-html';
 import styles from './Styles.js';
 
 
@@ -88,13 +87,12 @@ const VersionBlock = ({
         }
       </View>
       { versionNotes ?
-        <HTMLView
-          value={"<div>"+version['versionNotes']+"</div>"}
-          onLinkPress={(url) => openUri(url) }
-          stylesheet={styles}
-          textComponentProps={{style: [styles.textTocVersionNotes, textAlign, theme.tertiaryText]}}
-        />
-        : null
+        <SimpleHTMLView
+          text={version['versionNotes']}
+          lang={"english"}
+          rendererProps={{a: {onPress: (event, url) => openUri(url)}}}
+          extraStyles={[theme.tertiaryText]}
+        /> : null
       }
     </View>
   );

@@ -11,75 +11,12 @@ import {
   useWindowDimensions,
 } from 'react-native';
 import ActionSheet from 'react-native-action-sheet';
-import RenderHtml, { RenderHTML } from 'react-native-render-html';
+import { RenderHTML } from 'react-native-render-html';
 import { SelectableText } from "@astrocoders/react-native-selectable-text";
 import Clipboard from "@react-native-community/clipboard";
 import strings from './LocalizedStrings';
-import { GlobalStateContext, getTheme } from './StateManager';
-import styles from './Styles.js';
-
-const cssClassStyles = {
-  hebrew: {
-    fontFamily: "Taamey Frank Taamim Fix",
-    writingDirection: "rtl",
-    flex: -1,
-    paddingTop: 15,
-    textAlign: Platform.OS == "android" ? "right" : "justify",
-  },
-  english: {
-    fontFamily: "Amiri",
-    fontWeight: "normal",
-    textAlign: 'justify',
-    paddingTop: 0,
-  },
-};
-
-const systemFonts = ["Taamey Frank Taamim Fix", "Amiri"];
-
-const useHTMLViewStyles = (isStacked, bilingual, textType, fontSize, theme) => {
-  const getHTMLViewStyles = useCallback((isStacked, bilingual, textType, fontSize, theme) => {
-    const isHeb = textType == "hebrew";
-    const lineHeightMultiplier = isHeb ? (Platform.OS === 'android' ? 1.333 : 1.2) : 1.15;
-    const fontSizeMultiplier = isHeb ? 1 : 0.8;
-    const justifyStyle = {textAlign: (isStacked && Platform.OS === 'ios') ? 'justify' : (textType === 'hebrew' ? 'right' : 'left')};
-    const lineHeight = fontSize * lineHeightMultiplier;
-    const fontSizeScaled = fontSize * fontSizeMultiplier;
-    const textStyle = [
-      isHeb ? styles.hebrewText : styles.englishText,
-      theme.text,
-      justifyStyle,
-      {
-        lineHeight,
-        fontSize: fontSizeScaled,
-      },
-    ];
-    if (bilingual && textType == "english") {
-      if (isStacked) {
-        textStyle.push(styles.bilingualEnglishText);
-      }
-      textStyle.push(theme.bilingualEnglishText);
-    }
-    const tempClassStyles = {
-      small: {
-        fontSize: fontSize * 0.8 * (textType === "hebrew" ? 1 : 0.8)
-      },
-      hebrew: {
-        ...cssClassStyles.hebrew,
-        ...justifyStyle,
-      },
-      english: {
-        ...cssClassStyles.english,
-        ...justifyStyle,
-      }
-    };
-  
-    return {
-      tempClassStyles,
-      textStyle: {style: textStyle},
-    }
-  }, [isStacked, bilingual, textType, fontSize, theme]);
-  return getHTMLViewStyles(isStacked, bilingual, textType, fontSize, theme);
-};
+import { SYSTEM_FONTS } from './Misc';
+import { useHTMLViewStyles } from './useHTMLViewStyles';
 
 const useSource = (data) => {
   const [ source, setSource ] = useState({html: data});
@@ -88,6 +25,15 @@ const useSource = (data) => {
     return () => {};
   }, [data]);
   return source;
+};
+
+const useLinkPressProp = (handleOpenURL) => {
+  const [ linkPressProp, setLinkPressProp ] = useState({a: {onPress: (event, url) => handleOpenURL(url)}});
+  useEffect(() => {
+    setLinkPressProp({a: {onPress: (event, url) => handleOpenURL(url)}});
+    return () => {};
+  }, [handleOpenURL]);
+  return linkPressProp;
 };
 
 // pass correct functions to TextSegment for sheet renderers. probably combine renderers and make it simpler
@@ -105,11 +51,9 @@ const TextSegment = React.memo(({
   getDisplayedText,
 }) => {
   const source = useSource(data);
-  const { themeStr, fontSize, biLayout } = useContext(GlobalStateContext);
+  const linkPressProp = useLinkPressProp(handleOpenURL);
   const { width } = useWindowDimensions();
-  const theme = getTheme(themeStr);
-  const isStacked = biLayout === 'stacked';
-  const { textStyle, tempClassStyles } = useHTMLViewStyles(isStacked, bilingual, textType, fontSize, theme);
+  const { textStyle, classStyles } = useHTMLViewStyles(bilingual, textType);
   const getTextWithUrl = useCallback((text, withUrl) => {
     return withUrl ? `${text}\n\n${Sefaria.refToFullUrl(segmentRef)}` : text;
   }, [segmentRef]);
@@ -158,8 +102,9 @@ const TextSegment = React.memo(({
         source={source}
         contentWidth={width}
         defaultTextProps={textStyle}
-        classesStyles={tempClassStyles}
-        systemFonts={systemFonts}
+        classesStyles={classStyles}
+        systemFonts={SYSTEM_FONTS}
+        rendererProps={linkPressProp}
       />
     </TouchableOpacity>
   );

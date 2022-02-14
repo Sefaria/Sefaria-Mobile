@@ -1396,7 +1396,7 @@ Sefaria.util = {
     text = Sefaria.util.filterOutItags(text);
     text = text.replace(/\u200e/g, '');  // remove invisible LTR mark that can ruin display
     if (lang === 'english') {
-      return `<span class="english">\u2066${Sefaria.util.hebrewInEnglish(text, 'string')}</span>`;
+      return `<span class="english">\u2066${text}</span>`;  // used to use hebrewInEnglish to style Hebrew in English. This doesn't work for RenderHTML for some reason.
     }
     return `<span class="hebrew">${text}</span>`;
   },
