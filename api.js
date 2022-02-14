@@ -622,7 +622,7 @@ var Api = {
     await Sefaria.api.getAuthToken();
     if (!Sefaria._auth.uid) { console.log("Not signed in"); return; }
     const url = `${Sefaria.api._baseHost}api/account/delete`;
-    await fetch(url, {
+    fetch(url, {
       method: "DELETE",
       headers: {
         'Authorization': `Bearer ${Sefaria._auth.token}`,
