@@ -1573,7 +1573,7 @@ Sefaria.util = {
       "it": "italian",
       "pl": "polish",
       "ru": "russian",
-      "eo": "esparanto",
+      "eo": "esperanto",
       "fa": "farsi",
     };
     return codeMap[code.toLowerCase()];
