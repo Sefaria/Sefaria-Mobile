@@ -1723,14 +1723,14 @@ class ReaderApp extends React.PureComponent {
   }
 
   reportError = () => {
-    const body = encodeURIComponent(
+    const body = 
       `${this.state.segmentRef}
 
       ${this.getDisplayedText(true)}
 
-      Describe the error:`
-    );
-    Linking.openURL(`mailto:corrections@sefaria.org?subject=${encodeURIComponent(`Sefaria Text Correction from ${Platform.OS}`)}&body=${body}`);
+      Describe the error:`;
+    const subject = `Sefaria Text Correction from ${Platform.OS}`
+    Sefaria.util.openComposedEmail("corrections@sefaria.org", subject, body);
   };
 
   shareCurrentSegment = (sectionIndex, segmentIndex, segmentRef) => {
