@@ -52,7 +52,7 @@
     "react-native": "0.64.0",
     "react-native-action-sheet": "^2.2.0",
     "react-native-background-fetch": "^2.7.0",
-    "react-native-gesture-handler": "^1.6.1",
+    "react-native-gesture-handler": "^1.10.3",
     "react-native-localization": "^2.1.6",
     "react-native-play-install-referrer": "^1.1.5",
     "react-native-render-html": "^6.3.4",

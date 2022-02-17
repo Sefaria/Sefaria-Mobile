@@ -4,7 +4,7 @@ def VERSION_MINOR=13
 def VERSION_PATCH=0
 
 apply plugin: "com.android.application"
-apply plugin: 'io.fabric'
+// apply plugin: 'io.fabric'
 apply from: '../../node_modules/react-native-unimodules/gradle.groovy'
 import com.android.build.OutputFile
 
