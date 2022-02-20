@@ -2,10 +2,10 @@
 buildscript {
     repositories {
         google()
-        jcenter()
+        mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:4.1.0'
+        classpath 'com.android.tools.build:gradle:4.2.1'
         classpath 'com.google.gms:google-services:4.3.3'
         classpath 'com.google.firebase:firebase-crashlytics-gradle:2.8.1'
         // NOTE: Do not place your application dependencies here; they belong
@@ -17,6 +17,7 @@ allprojects {
 		maven {
 			url "$rootDir/../node_modules/react-native-background-fetch/android/libs"
 		}
+        mavenCentral()
         mavenLocal()
         google()
         maven { url 'https://maven.google.com' }
@@ -24,7 +25,6 @@ allprojects {
             // for react-native-custom-tabs
             url "https://www.jitpack.io"
         }
-        jcenter()
         maven {
             // All of React Native (JS, Obj-C sources, Android binaries) is installed from npm
             url "$rootDir/../node_modules/react-native/android"

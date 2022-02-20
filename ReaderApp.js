@@ -153,7 +153,7 @@ class ReaderApp extends React.PureComponent {
     Linking.getInitialURL().then(url => { this.handleOpenURL(url); }).catch(err => {
         console.warn('An error occurred', err);
     });
-    Linking.addEventListener('url', this.handleOpenURLNamedParam);
+    this.linkingSubscription = Linking.addEventListener('url', this.handleOpenURLNamedParam);
     BackgroundFetch.configure({
       minimumFetchInterval: 15,
       stopOnTerminate: false,
@@ -165,8 +165,8 @@ class ReaderApp extends React.PureComponent {
     this.NetInfoEventListener = NetInfo.addEventListener(
       this.networkChangeListener
     );
-    BackHandler.addEventListener('hardwareBackPress', this.manageBack);
-    RNShake.addEventListener('ShakeEvent', () => {
+    this.backHandlerListener = BackHandler.addEventListener('hardwareBackPress');
+    this.RNShakeSubscription = RNShake.addListener(() => {
       if (this.props.groggerActive === 'on' && Sefaria.isGettinToBePurimTime()) {
         SoundPlayer.playSoundFile('grogger', 'mp3');
       }
@@ -207,10 +207,10 @@ class ReaderApp extends React.PureComponent {
   };
 
   componentWillUnmount() {
-    BackHandler.removeEventListener('hardwareBackPress', this.manageBack);
+    this.backHandlerListener.remove();
     this.NetInfoEventListener();  // calling the event listener unsubcribes
-    Linking.removeEventListener('url', this.handleOpenURLNamedParam);
-    RNShake.removeEventListener('ShakeEvent');
+    this.linkingSubscription.remove();
+    this.RNShakeSubscription.remove();
     DownloadTracker.unsubscribe('ReaderApp')
   }
 
