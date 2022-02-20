@@ -27,7 +27,7 @@ import { InAppBrowser } from "@matt-block/react-native-in-app-browser";
 import SplashScreen from 'react-native-splash-screen';
 import nextFrame from 'next-frame';
 import RNShake from 'react-native-shake';
-import SoundPlayer from 'react-native-sound-player'
+// import SoundPlayer from 'react-native-sound-player'
 import { SearchState } from '@sefaria/search';
 
 import { STATE_ACTIONS } from './StateManager';
@@ -168,7 +168,7 @@ class ReaderApp extends React.PureComponent {
     this.backHandlerListener = BackHandler.addEventListener('hardwareBackPress');
     this.RNShakeSubscription = RNShake.addListener(() => {
       if (this.props.groggerActive === 'on' && Sefaria.isGettinToBePurimTime()) {
-        SoundPlayer.playSoundFile('grogger', 'mp3');
+        //SoundPlayer.playSoundFile('grogger', 'mp3');
       }
     });
     if (Platform.OS === 'android') {
