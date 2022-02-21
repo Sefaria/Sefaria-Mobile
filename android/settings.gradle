@@ -2,8 +2,6 @@ rootProject.name = 'ReaderApp'
 apply from: '../node_modules/react-native-unimodules/gradle.groovy'; includeUnimodulesProjects()
 include ':react-native-play-install-referrer'
 project(':react-native-play-install-referrer').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-play-install-referrer/android')
-include ':@astrocoders_react-native-selectable-text'
-project(':@astrocoders_react-native-selectable-text').projectDir = new File(rootProject.projectDir, '../node_modules/@astrocoders/react-native-selectable-text/android')
 include ':react-native-webview'
 project(':react-native-webview').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-webview/android')
 include ':react-native-background-fetch'
@@ -36,8 +34,8 @@ include ':react-native-version-number'
 project(':react-native-version-number').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-version-number/android')
 include ':react-native-splash-screen'
 project(':react-native-splash-screen').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-splash-screen/android')
-include ':@matt-block_react-native-in-app-browser'
-project(':@matt-block_react-native-in-app-browser').projectDir = new File(rootProject.projectDir, '../node_modules/@matt-block/react-native-in-app-browser/android')
+include ':react-native-inappbrowser-reborn'
+project(':react-native-inappbrowser-reborn').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-inappbrowser-reborn/android')
 include ':react-native-gesture-handler'
 project(':react-native-gesture-handler').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-gesture-handler/android')
 include ':react-native-sound-player'

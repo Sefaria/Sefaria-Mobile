@@ -15,7 +15,6 @@ target 'ReaderApp' do
 
   # Pods for ReaderApp
   pod 'react-native-splash-screen', :path => '../node_modules/react-native-splash-screen'
-  pod 'react-native-webview', :path => '../node_modules/react-native-webview'
 
   target 'ReaderAppTests' do
     inherit! :complete

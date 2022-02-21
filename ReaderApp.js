@@ -23,7 +23,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {State } from 'react-native-gesture-handler';
 //import --- from 'react-native-gesture-handler';
 import BackgroundFetch from "react-native-background-fetch";
-import { InAppBrowser } from "@matt-block/react-native-in-app-browser";
+import { InAppBrowser } from 'react-native-inappbrowser-reborn';
 import SplashScreen from 'react-native-splash-screen';
 import nextFrame from 'next-frame';
 import RNShake from 'react-native-shake';

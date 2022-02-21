@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import ActionSheet from 'react-native-action-sheet';
 import { RenderHTML } from 'react-native-render-html';
-import { SelectableText } from "@astrocoders/react-native-selectable-text";
+// import { SelectableText } from "@astrocoders/react-native-selectable-text";
 import Clipboard from "@react-native-community/clipboard";
 import strings from './LocalizedStrings';
 import { SYSTEM_FONTS } from './Misc';
