@@ -118,6 +118,7 @@ const ReaderNavigationMenu = props => {
 
               <CalendarSection
                 openRef={props.openRef}
+                openUri={props.openUri}
               />
 
               <MoreSection
@@ -331,7 +332,7 @@ ResourcesSection.whyDidYouRender = true;
 
 
 
-const CalendarSection = ({ openRef }) => {
+const CalendarSection = ({ openRef, openUri }) => {
   const { textLanguage, interfaceLanguage, preferredCustom } = useContext(GlobalStateContext);
   const calendarLoaded = useAsyncVariable(!!Sefaria.calendar, Sefaria._loadCalendar);
   // checking geolocation takes a long time. Default by looking at interfaceLanguage, then fix the calendar when location resolves
@@ -363,10 +364,10 @@ const CalendarSection = ({ openRef }) => {
                   },
                   (buttonIndex) => {
                     if ((typeof buttonIndex == 'undefined') || buttonIndex >= c.subs.length) { return; }  // cancel button. button can be undefined when prreessing outside the long-press menu
-                    openRef(c.refs[buttonIndex]);
+                    (typeof c.refs == 'undefined') ? openUri(`${Sefaria.api._baseHost}/${c.url}`) : openRef(c.refs[buttonIndex]);
                   })
                 }}
-                onPress={() => { openRef(c.refs[0]); }}
+                onPress={() => { (typeof c.refs == 'undefined') ? openUri(`${Sefaria.api._baseHost}/${c.url}`) : openRef(c.refs[0]); }}
               />
             </View>
           ))}
