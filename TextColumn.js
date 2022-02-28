@@ -838,11 +838,11 @@ class SheetMedia extends React.PureComponent {
   }
 
   componentDidMount() {
-    AppState.addEventListener('change', this._handleAppStateChange);
+    this.appStateSubscription = AppState.addEventListener('change', this._handleAppStateChange);
   }
 
   componentWillUnmount() {
-    AppState.removeEventListener('change', this._handleAppStateChange);
+    this.appStateSubscription.remove();
   }
 
   _handleAppStateChange = (nextAppState) => {
