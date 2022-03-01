@@ -540,6 +540,7 @@ class TextColumn extends React.PureComponent {
           shareCurrentSegment={this.props.shareCurrentSegment}
           getDisplayedText={this.props.getDisplayedText}
           vowelToggleAvailable={this.props.vowelToggleAvailable}
+          isSheet={this.props.isSheet}
         />
       </View>
     );

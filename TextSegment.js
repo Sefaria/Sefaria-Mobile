@@ -113,6 +113,7 @@ const TextSegment = React.memo(({
         classesStyles={classStyles}
         systemFonts={SYSTEM_FONTS}
         rendererProps={linkPressProp}
+        dangerouslyDisableWhitespaceCollapsing
       />
     </TouchableOpacity>
   );

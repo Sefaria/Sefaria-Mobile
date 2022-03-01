@@ -27,6 +27,7 @@ const TextRange = React.memo(({
   shareCurrentSegment,
   getDisplayedText,
   vowelToggleAvailable,
+  isSheet,
 }) => {
   const { themeStr, textLanguage, biLayout, fontSize, vocalization } = useContext(GlobalStateContext);
 
@@ -37,8 +38,8 @@ const TextRange = React.memo(({
 
   let enText = rowData.content.text || "";
   let heText = Sefaria.util.applyVocalizationSettings(rowData.content.he, vocalization, vowelToggleAvailable) || "";
-  enText = Sefaria.util.getDisplayableHTML(enText, 'english');
-  heText = Sefaria.util.getDisplayableHTML(heText, 'hebrew');
+  enText = Sefaria.util.getDisplayableHTML(enText, 'english', isSheet);
+  heText = Sefaria.util.getDisplayableHTML(heText, 'hebrew', isSheet);
   let numLinks = rowData.content.links ? rowData.content.links.length : 0;
 
   const textLanguageWithContent = Sefaria.util.getTextLanguageWithContent(textLanguage, enText, heText);
@@ -118,7 +119,7 @@ const TextRange = React.memo(({
           {
             showEn ? (
               <View style={{flex: 5.5, paddingTop: showHe ? biLayout == 'stacked' ? 5 : 0 : 0, paddingRight: biLayout == 'stacked' ? 0 : (biLayout == 'sidebyside' ? 0 : 10), paddingLeft: biLayout == 'stacked' ? 0 : (biLayout == 'sidebysiderev' ? 0 : 10)}}>
-                {displayRef ? <Text style={[styles.en, styles.textListCitation, {marginTop: -19}, theme.textListCitation]}>{rowData.content.sourceRef}</Text> : null}
+                {displayRef ? <Text style={[styles.en, styles.textListCitation, theme.textListCitation, {marginBottom: 0}]}>{rowData.content.sourceRef}</Text> : null}
                 <TextSegment
                   fontSize={fontSize}
                   themeStr={themeStr}

@@ -1344,13 +1344,12 @@ Sefaria.util = {
     const cleanAttributes = {  // used to not allow any attributes on Android. Removed because it wasn't clear why we did this although an old commit claims these attributes caused crashing.
               a: [ 'href', 'name', 'target' ],
               img: [ 'src' ],
-              p: ['style'],
               span: ['style'],
               div: ['style'],
               td: ['colspan'],
             };
     const clean = sanitizeHtml(html, {
-            allowedTags: [ 'blockquote', 'p', 'a', 'ul', 'ol',
+            allowedTags: [ 'blockquote', 'a', 'ul', 'ol',
               'nl', 'li', 'b', 'i', 'strong', 'em', 'small', 'big', 'span', 'strike', 'hr', 'br', 'div',
               'table', 'thead', 'caption', 'tbody', 'tr', 'th', 'td', 'pre', 'sup' ],
             allowedAttributes: cleanAttributes,
