@@ -16,7 +16,6 @@ export function useHTMLViewStyles(bilingual, textType) {
       const lineHeight = fontSize * lineHeightMultiplier;
       const fontSizeScaled = fontSize * fontSizeMultiplier;
       const textStyle = [
-        isHeb ? styles.hebrewText : styles.englishText,
         theme.text,
         justifyStyle,
         {
@@ -34,14 +33,7 @@ export function useHTMLViewStyles(bilingual, textType) {
         small: {
           fontSize: fontSize * 0.8 * (textType === "hebrew" ? 1 : 0.8)
         },
-        hebrew: {
-          ...CSS_CLASS_STYLES.hebrew,
-          ...justifyStyle,
-        },
-        english: {
-          ...CSS_CLASS_STYLES.english,
-          ...justifyStyle,
-        }
+        ...CSS_CLASS_STYLES,
       };
     
       return {
