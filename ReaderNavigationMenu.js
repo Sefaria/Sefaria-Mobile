@@ -367,10 +367,10 @@ const CalendarSection = ({ openRef, openUri }) => {
                   },
                   (buttonIndex) => {
                     if ((typeof buttonIndex == 'undefined') || buttonIndex >= c.subs.length) { return; }  // cancel button. button can be undefined when prreessing outside the long-press menu
-                    (typeof c.refs == 'undefined') ? openUri(`${Sefaria.api._baseHost}/${c.url}`) : openRef(c.refs[buttonIndex]);
+                    (typeof c.refs == 'undefined') ? openUri(`${Sefaria.api._baseHost}${c.url}`) : openRef(c.refs[buttonIndex]);
                   })
                 }}
-                onPress={() => { (typeof c.refs == 'undefined') ? openUri(`${Sefaria.api._baseHost}/${c.url}`) : openRef(c.refs[0]); }}
+                onPress={() => { (typeof c.refs == 'undefined') ? openUri(`${Sefaria.api._baseHost}${c.url}`) : openRef(c.refs[0]); }}
               />
             </View>
           ))}
