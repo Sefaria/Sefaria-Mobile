@@ -113,6 +113,7 @@ const SearchPage = props => {
             {props.searchState.type == "text" ?
             <DirectedButton
               text={(<Text>{strings.filter} <Text style={theme.text}>{`(${props.searchState.appliedFilters.length})`}</Text></Text>)}
+              accessibilityText={strings.filter}
               direction="forward"
               language={"english"}
               textStyle={[theme.searchResultSummaryText, langStyle]}

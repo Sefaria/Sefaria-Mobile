@@ -634,7 +634,8 @@ class DirectedButton extends React.Component {
     imageStyle: PropTypes.oneOfType([ViewPropTypes.style, PropTypes.array]),
     onPress:    PropTypes.func.isRequired,
     direction:  PropTypes.oneOf(["forward", "back"]).isRequired,
-    placeholder:PropTypes.bool
+    placeholder:PropTypes.bool,
+    accessibilityText: PropTypes.string,
   };
 
   render() {
@@ -644,7 +645,7 @@ class DirectedButton extends React.Component {
       <TouchableOpacity onPress={this.props.onPress}
         style={{ flexDirection: actualDirBack ? "row-reverse" : "row", alignItems: "center", opacity: this.props.placeholder ? 0 : 1 }}
         hitSlop={{top: 20, bottom: 20, left: 10, right: 10}}
-        accessibilityLabel={this.props.text ? this.props.text : this.props.direction }
+        accessibilityLabel={ this.props.accessibilityText || this.props.text || this.props.direction }
       >
         { this.props.text ?
           <SText lang={this.props.language} style={this.props.textStyle}>
