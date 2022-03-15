@@ -92,14 +92,6 @@ const TextSegment = React.memo(({
   }, [segmentRef]);
   const onPress = useCallback(() => onTextPress(), [onTextPress]);
 
-  const renderMyNode = useCallback((node, index, siblings, parent, defaultRenderer) => {
-    if (node.name === 'hr') {
-      return (
-        <Text numberOfLines={1} style={styles.sheetHorizontalRule}>&nbsp;{"\u000d"}</Text>
-      );
-    }
-  });
-
   return (
     <TouchableOpacity
       onPress={onPress}
