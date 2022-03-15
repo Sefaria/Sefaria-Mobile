@@ -62,7 +62,7 @@ class AutocompleteList extends React.Component {
       Sefaria.api.name(q, true)
       .then(results => {
         if (this._isMounted) {
-          const typeToValue = { "ref": 1, "person": 4, "toc": 3, "topic": 2, "user": 5 };
+          const typeToValue = { "ref": 1, "toc": 3, "topic": 2, "persontopic": 2, "authortopic": 4, "user": 5 };
           let completions = results.completion_objects.map((c,i) =>
           {
             c.type = c.type.toLowerCase()
@@ -130,8 +130,8 @@ class AutocompleteList extends React.Component {
     } else if (item.type == "toccategory" || item.type == 'toc') {
       this.props.setCategories(item.key);
       recentType = "toc";
-    } else if (item.type == "topic") {
-      recentType = "topic";
+    } else if (item.type == "topic" || item.type == "persontopic" || item.type == "authortopic") {
+      recentType = item.type;
       this.props.openTopic(new Topic({ slug: item.key }));
     } else if (item.type == "user") {
       recentType = "user";
@@ -163,7 +163,7 @@ class AutocompleteList extends React.Component {
         this.props.openRef(d.ref);
         recentType = "ref";
       }
-      else if (d.type == "Person" || d.type == "Group") {
+      else if (d.type == "Group") {
         recentType = d.type.toLowerCase;
         ActionSheet.showActionSheetWithOptions(
           {
@@ -172,9 +172,7 @@ class AutocompleteList extends React.Component {
           },
           (buttonIndex) => {
             if (buttonIndex === 0) {
-              if (d.type == "Person") {
-                this.props.openUri(`https://www.sefaria.org/person/${d.key}`);
-              } else if (d.type == "Group") {
+              if (d.type == "Group") {
                 this.props.openUri(`https://www.sefaria.org/groups/${d.key.split(' ').join('-')}`);
               }
             }
@@ -185,8 +183,8 @@ class AutocompleteList extends React.Component {
         recentType = "toc";
       } else if (d.type == "Group") {
         recentType = "group"
-      } else if (d.type == "Topic") {
-        recentType = "topic";
+      } else if (d.type == "Topic" || d.type == "PersonTopic" || d.type == "AuthorTopic") {
+        recentType = d.type.toLowerCase();
         this.props.openTopic(new Topic({slug: d.key}));
       } else if (d.type == "User") {
         recentType = "user";
@@ -217,9 +215,10 @@ class AutocompleteList extends React.Component {
       case "group":
         src = this.props.themeStr === "white" ? require("./img/group.png") : require("./img/group-light.png");
         break;        
-      case "person":
+      case "authortopic":
         src = this.props.themeStr === "white" ? require("./img/quill.png") : require("./img/quill-light.png");
         break;
+      case "persontopic":
       case "topic":
         src = this.props.themeStr === "white" ? require("./img/hashtag.png") : require("./img/hashtag-light.png");
         break;
