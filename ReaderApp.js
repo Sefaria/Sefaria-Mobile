@@ -165,7 +165,7 @@ class ReaderApp extends React.PureComponent {
     this.NetInfoEventListener = NetInfo.addEventListener(
       this.networkChangeListener
     );
-    this.backHandlerListener = BackHandler.addEventListener('hardwareBackPress');
+    this.backHandlerListener = BackHandler.addEventListener('hardwareBackPress', this.manageBack);
     this.RNShakeSubscription = RNShake.addListener(() => {
       if (this.props.groggerActive === 'on' && Sefaria.isGettinToBePurimTime()) {
         SoundPlayer.playSoundFile('grogger', 'mp3');
