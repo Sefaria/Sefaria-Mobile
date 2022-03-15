@@ -97,8 +97,8 @@ const TextRange = React.memo(({
         <View style={textStyle} key={segmentRef+"|text-box"}>
           {
             showHe ? (
-              <View style={{marginTop: -17, flex: 4.5, paddingRight: biLayout == 'stacked' ? 0 : (biLayout == 'sidebyside' ? 10 : 0), paddingLeft: biLayout == 'stacked' ? 0 : (biLayout == 'sidebysiderev' ? 10 : 0)}}>
-                {displayRef ? <Text style={[styles.he, styles.textListCitation, theme.textListCitation]}>{rowData.content.sourceHeRef}</Text> : null}
+              <View style={{marginTop: displayRef ? 0 : -17, flex: 4.5, paddingRight: biLayout == 'stacked' ? 0 : (biLayout == 'sidebyside' ? 10 : 0), paddingLeft: biLayout == 'stacked' ? 0 : (biLayout == 'sidebysiderev' ? 10 : 0)}}>
+                {displayRef ? <Text style={[styles.he, styles.textListCitation, {marginBottom: -10}, theme.textListCitation]}>{rowData.content.sourceHeRef}</Text> : null}
                 <TextSegment
                   fontSize={fontSize}
                   themeStr={themeStr}
