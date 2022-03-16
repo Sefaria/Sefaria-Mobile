@@ -27,7 +27,7 @@ import { InAppBrowser } from 'react-native-inappbrowser-reborn';
 import SplashScreen from 'react-native-splash-screen';
 import nextFrame from 'next-frame';
 import RNShake from 'react-native-shake';
-// import SoundPlayer from 'react-native-sound-player'
+import SoundPlayer from 'react-native-sound-player'
 import { SearchState } from '@sefaria/search';
 
 import { STATE_ACTIONS } from './StateManager';
