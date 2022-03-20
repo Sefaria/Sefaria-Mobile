@@ -1383,7 +1383,7 @@ Sefaria.util = {
     }
   },
   hebrewInEnglish: function(text, whatToReturn) {
-    const regEx = /(^|[\s\[\]().,;:*?!\-"'])((?:[\u0591-\u05c7\u05d0-\u05ea]+[()\[\]\s'"\u05f3\u05f4]{0,2})+)([<>\[\]().,;:*?!\-'"\s]|$)/g
+    const regEx = /(^|[\s\[\]().,;:*?!\-—"'<>])((?:[\u0591-\u05c7\u05d0-\u05ea]+[()\[\]\s'"\u05f3\u05f4]{0,2})+)(?![^<]+>)([\s\[\]().,;:*?!\-—"'<>]|$)/g
     if (whatToReturn == "string") {
       // wrap all Hebrew strings with <span class="hebrew">
       return text.replace(regEx, '$1<span class="hebrew">$2</span>$3');
@@ -1401,6 +1401,7 @@ Sefaria.util = {
     text = text.replace(/\u200e/g, '');  // remove invisible LTR mark that can ruin display
     text = text.trim();
     if (lang === 'english') {
+      console.log(Sefaria.util.hebrewInEnglish(text, 'string'));
       return `<span class="english">\u2066${Sefaria.util.hebrewInEnglish(text, 'string')}</span>`;
     }
     return `<span class="hebrew">${text}</span>`;
