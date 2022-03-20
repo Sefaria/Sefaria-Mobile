@@ -244,7 +244,10 @@ const SettingsPage = ({ close, logout, openUri }) => {
         />
 
         <View style={[styles.readerDisplayOptionsMenuDivider, styles.settingsDivider, theme.readerDisplayOptionsMenuDivider]}/>
-
+        <View>
+          <Text style={[langStyle, styles.settingsSectionHeader, theme.tertiaryText]}>{strings.offlineAccess}</Text>
+        </View>
+        
         {wereBooksDownloaded() ?
           <View>
             <SystemButton
