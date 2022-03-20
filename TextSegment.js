@@ -27,13 +27,18 @@ const useSource = (data) => {
   return source;
 };
 
-const useLinkPressProp = (handleOpenURL) => {
-  const [ linkPressProp, setLinkPressProp ] = useState({a: {onPress: (event, url) => handleOpenURL(url)}});
+const useRenderersProps = (handleOpenURL) => {
+  const makeRenderersProps = (handleOpenURL) => {
+    return {
+      a: { onPress: (event, url) => { handleOpenURL(url); } }
+    };
+  };
+  const [ renderersProps, setRenderersProps ] = useState(makeRenderersProps(handleOpenURL));
   useEffect(() => {
-    setLinkPressProp({a: {onPress: (event, url) => handleOpenURL(url)}});
+    setRenderersProps(makeRenderersProps(handleOpenURL));
     return () => {};
   }, [handleOpenURL]);
-  return linkPressProp;
+  return renderersProps;
 };
 
 // pass correct functions to TextSegment for sheet renderers. probably combine renderers and make it simpler
@@ -51,7 +56,7 @@ const TextSegment = React.memo(({
   getDisplayedText,
 }) => {
   const source = useSource(data);
-  const linkPressProp = useLinkPressProp(handleOpenURL);
+  const renderersProps = useRenderersProps(handleOpenURL);
   const { width } = useWindowDimensions();
   const { textStyle, classStyles } = useHTMLViewStyles(bilingual, textType);
   const getTextWithUrl = useCallback((text, withUrl) => {
@@ -104,7 +109,7 @@ const TextSegment = React.memo(({
         defaultTextProps={textStyle}
         classesStyles={classStyles}
         systemFonts={SYSTEM_FONTS}
-        rendererProps={linkPressProp}
+        renderersProps={renderersProps}
         dangerouslyDisableWhitespaceCollapsing
       />
     </TouchableOpacity>

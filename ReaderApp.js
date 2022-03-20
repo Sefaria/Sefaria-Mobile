@@ -338,6 +338,7 @@ class ReaderApp extends React.PureComponent {
   handleOpenURLNamedParam = ({ url } = {}) => {
     // needs to be named param to be compatible with Linking API
     if (url) {
+      url = url.replace(/^about:\/\/\//, Sefaria.api._baseHost);
       if (this.state._completedInit) {
         this._deepLinkRouterRef.route(url);
       } else {
