@@ -28,6 +28,7 @@ LogBox.ignoreLogs([
   'Failed prop type: Invalid prop `TextComponent` of type `object` supplied to `HtmlView`',
   'Failed prop type: Invalid prop `RootComponent` of type `object` supplied to `HtmlView`',
   'You seem to update props of the "TRenderEngineProvider" component in short periods of time, causing costly tree rerenders',  // seems to not be a real issue
+  'You seem to update the renderersProps prop(s) of the "RenderHTML" component in short periods of time',  // seems to not be a real issue
 ]);
 const ReaderAppGesturified = gestureHandlerRootHOC(ReaderApp);
 const Root = () => {

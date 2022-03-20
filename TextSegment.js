@@ -36,7 +36,6 @@ const useRenderersProps = (handleOpenURL) => {
   const [ renderersProps, setRenderersProps ] = useState(makeRenderersProps(handleOpenURL));
   useEffect(() => {
     setRenderersProps(makeRenderersProps(handleOpenURL));
-    return () => {};
   }, [handleOpenURL]);
   return renderersProps;
 };
