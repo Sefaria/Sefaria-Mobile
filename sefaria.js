@@ -1401,7 +1401,6 @@ Sefaria.util = {
     text = text.replace(/\u200e/g, '');  // remove invisible LTR mark that can ruin display
     text = text.trim();
     if (lang === 'english') {
-      console.log(Sefaria.util.hebrewInEnglish(text, 'string'));
       return `<span class="english">\u2066${Sefaria.util.hebrewInEnglish(text, 'string')}</span>`;
     }
     return `<span class="hebrew">${text}</span>`;
