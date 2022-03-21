@@ -143,49 +143,48 @@ class ReaderDisplayOptionsMenu extends React.Component {
     const rows = [];
     for (let j = 0; j < options.length; j++) {
       let optionRow = options[j];
-      if (typeof optionRow.condition !== 'undefined' && !optionRow.condition) { continue; }
       let row = [];
       let isColor = "colors" in optionRow;
-
-      for (let i = 0; i < optionRow.buttons.length; i++) {
-        let option = optionRow.buttons[i];
-        let selected = optionRow.currVal === option;
-
-        if (isColor) {
-          let color = optionRow.colors[i];
-          row.push(
-            <ReaderDisplayOptionsMenuColor
-              key={option}
-              theme={this.props.theme}
-              option={option}
-              onPress={optionRow.onPress}
-              parametrized={optionRow.parametrized}
-              color={color}
-              align={alignments[optionRow.buttons.length-2][i]}
-              selected={selected} />
-          );
-        } else {
-          const icon = !!optionRow.icons ? optionRow.icons[i] : null;
-          const text = !!optionRow.text ? optionRow.text[i] : null;
-          row.push(
-            <ReaderDisplayOptionsMenuItem
-              key={option}
-              theme={this.props.theme}
-              option={option}
-              onPress={optionRow.onPress}
-              parametrized={optionRow.parametrized}
-              icon={icon}
-              iconLength={optionRow.iconLength}
-              text={text}
-              textStyle={optionRow.textStyle}
-              align={alignments[optionRow.buttons.length-2][i]}
-              selected={selected}
-              interfaceLanguage={this.props.interfaceLanguage} />
-          );
+      if (typeof optionRow.condition == 'undefined' || optionRow.condition) {
+        for (let i = 0; i < optionRow.buttons.length; i++) {
+          let option = optionRow.buttons[i];
+          let selected = optionRow.currVal === option;
+  
+          if (isColor) {
+            let color = optionRow.colors[i];
+            row.push(
+              <ReaderDisplayOptionsMenuColor
+                key={option}
+                theme={this.props.theme}
+                option={option}
+                onPress={optionRow.onPress}
+                parametrized={optionRow.parametrized}
+                color={color}
+                align={alignments[optionRow.buttons.length-2][i]}
+                selected={selected} />
+            );
+          } else {
+            const icon = !!optionRow.icons ? optionRow.icons[i] : null;
+            const text = !!optionRow.text ? optionRow.text[i] : null;
+            row.push(
+              <ReaderDisplayOptionsMenuItem
+                key={option}
+                theme={this.props.theme}
+                option={option}
+                onPress={optionRow.onPress}
+                parametrized={optionRow.parametrized}
+                icon={icon}
+                iconLength={optionRow.iconLength}
+                text={text}
+                textStyle={optionRow.textStyle}
+                align={alignments[optionRow.buttons.length-2][i]}
+                selected={selected}
+                interfaceLanguage={this.props.interfaceLanguage} />
+            );
+          }
         }
-
+        toggleSets.push(<ReaderDisplayOptionsMenuToggleSet key={optionRow.label + "|toggleSet"} label={optionRow.label} content={row} colorRow={isColor} theme={this.props.theme} interfaceLanguage={this.props.interfaceLanguage}/>);
       }
-      toggleSets.push(<ReaderDisplayOptionsMenuToggleSet key={optionRow.label + "|toggleSet"} label={optionRow.label} content={row} colorRow={isColor} theme={this.props.theme} interfaceLanguage={this.props.interfaceLanguage}/>);
       if (toggleSets.length % 2 === 0 || j === options.length - 1) {
         rows.push(<ReaderDisplayOptionsMenuRow key={optionRow.label + "|row"} content={toggleSets.slice(0)} />);
         toggleSets = [];
