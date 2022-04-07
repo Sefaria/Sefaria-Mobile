@@ -2,9 +2,11 @@
 
 import PropTypes from 'prop-types';
 
-import React, { useState, useEffect, useContext, Fragment, useCallback } from 'react';
+import React, { useState, useEffect, useContext, Fragment, useCallback, Children } from 'react';
 import {
+  Alert,
   Platform,
+  Pressable,
   Share,
   Text,
   TouchableOpacity,
@@ -110,6 +112,18 @@ const TextSegment = React.memo(({
         systemFonts={SYSTEM_FONTS}
         renderersProps={renderersProps}
         dangerouslyDisableWhitespaceCollapsing
+        renderers={{span: ({ TDefaultRenderer, ...props }) => {
+          if (props.tnode.classes.indexOf('word') > -1) {
+            return (
+              <Pressable onLongPress={event => Alert.alert(props.tnode.init.textNode.data)}>
+                <TDefaultRenderer {...props} />
+              </Pressable>
+            );
+          }
+          return (
+            <TDefaultRenderer {...props} />
+          );
+        }}}
       />
     </TouchableOpacity>
   );

@@ -38,8 +38,8 @@ const TextRange = React.memo(({
 
   let enText = rowData.content.text || "";
   let heText = Sefaria.util.applyVocalizationSettings(rowData.content.he, vocalization, vowelToggleAvailable) || "";
-  enText = Sefaria.util.getDisplayableHTML(enText, 'english', isSheet);
-  heText = Sefaria.util.getDisplayableHTML(heText, 'hebrew', isSheet);
+  enText = Sefaria.util.getDisplayableHTML(enText, 'english', isSheet, true);
+  heText = Sefaria.util.getDisplayableHTML(heText, 'hebrew', isSheet, true);
   let numLinks = rowData.content.links ? rowData.content.links.length : 0;
 
   const textLanguageWithContent = Sefaria.util.getTextLanguageWithContent(textLanguage, enText, heText);
