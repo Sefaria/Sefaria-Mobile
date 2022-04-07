@@ -2,9 +2,8 @@
 
 import PropTypes from 'prop-types';
 
-import React, { useState, useEffect, useContext, Fragment, useCallback, Children } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
-  Alert,
   Platform,
   Share,
   Text,
@@ -13,11 +12,11 @@ import {
 } from 'react-native';
 import ActionSheet from 'react-native-action-sheet';
 import { RenderHTML } from 'react-native-render-html';
-// import { SelectableText } from "@astrocoders/react-native-selectable-text";
 import Clipboard from "@react-native-community/clipboard";
 import strings from './LocalizedStrings';
 import { SYSTEM_FONTS } from './Misc';
 import { useHTMLViewStyles } from './useHTMLViewStyles';
+import { useRenderersProps } from './Hooks';
 
 const useSource = (data) => {
   const [ source, setSource ] = useState({html: data});
@@ -26,19 +25,6 @@ const useSource = (data) => {
     return () => {};
   }, [data]);
   return source;
-};
-
-const useRenderersProps = (handleOpenURL) => {
-  const makeRenderersProps = (handleOpenURL) => {
-    return {
-      a: { onPress: (event, url) => { handleOpenURL(url); } }
-    };
-  };
-  const [ renderersProps, setRenderersProps ] = useState(makeRenderersProps(handleOpenURL));
-  useEffect(() => {
-    setRenderersProps(makeRenderersProps(handleOpenURL));
-  }, [handleOpenURL]);
-  return renderersProps;
 };
 
 // pass correct functions to TextSegment for sheet renderers. probably combine renderers and make it simpler
@@ -113,7 +99,7 @@ const TextSegment = React.memo(({
         renderers={{span: ({ TDefaultRenderer, ...props }) => {
           if (props.tnode.classes.indexOf('clickableWord') > -1) {
             return (
-              <Text onPress={onPress} onLongPress={event => Alert.alert(props.tnode.init.textNode.data)}>
+              <Text onPress={onPress} onLongPress={() => setDictionaryLookup({ dictLookup: props.tnode.init.textNode.data })}>
                 <TDefaultRenderer {...props} />
               </Text>
             );

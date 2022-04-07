@@ -1,8 +1,4 @@
 'use strict';
-/** 
- * TODO: Haven't refactored HTMLView to RenderHTML yet because lexicon doesn't work with RenderHTML by default
- * 
-*/
 
 import React, {useContext, useState, useEffect} from 'react';
 import {
@@ -15,6 +11,7 @@ import RenderHtml from 'react-native-render-html';
 import {
   LoadingView,
   OrderedList,
+  SimpleHTMLView,
   SText,
 } from './Misc';
 import styles from './Styles.js';
@@ -95,11 +92,18 @@ LexiconBox.propTypes = {
 
 /*
   Component that renders HTML content with ability to click on inline refs / external links
-  Needs to render HTML using nested HTMLView in order to distinguish font styles for English and Hebrew
 */
 
 const LexiconText = ({ value, handleOpenURL, lang, fSize, style }) => {
   style = style || {};
+  return (
+    <SimpleHTMLView
+      text={value}
+      lang={lang}
+      onPressATag={handleOpenURL}
+      extraStyles={[{ fontSize: fSize }, style]}
+    />
+  );
   return (
     <HTMLView
       value={value}
@@ -123,7 +127,6 @@ const LexiconText = ({ value, handleOpenURL, lang, fSize, style }) => {
           lineMultiplier: 1.15
         }
       }}
-
     />
   );
 }
@@ -153,6 +156,13 @@ const LexiconAttribution = ({ entry, handleOpenURL }) => {
     lexicon_dtls['source_url'] ? `<a href="${lexicon_dtls["source_url"]}">${sourceContent}</a>` : `${sourceContent}\n`,
     lexicon_dtls['attribution_url'] ? `<a href="${lexicon_dtls['attribution_url']}">${attributionContent}</a>` : attributionContent,
   ].join('');
+  return (
+    <SimpleHTMLView
+      text={fullContent}
+      onPressATag={handleOpenURL}
+      extraStyles={[{fontSize: englishFontSize}, theme.quaternaryText]}
+    />
+  );
   return (
       <HTMLView
         value={fullContent}
