@@ -1408,6 +1408,10 @@ Sefaria.util = {
     };
     const _wrapElement = (node, index) => {
       const attributes = Object.entries(node.attribs).reduce((prev, [key, val]) => `${prev} ${key}=${val}`, '');
+      if (node.children.length === 0) {
+        // self-closing case
+        return `<${node.name}>`;
+      }
       return (
         `<${node.name} ${attributes}>${node.children.map((c, i) => _wrap(c, i)).join('')}</${node.name}>`
       );
