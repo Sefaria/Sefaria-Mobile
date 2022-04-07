@@ -1402,7 +1402,7 @@ Sefaria.util = {
     const _wrapTextNode = (node, index) => {
       if (!node.data.length) { return ''; }
       return node.data.match(/(?:\S+|\s+)/g).reduce((prev, curr) => {
-        if (curr.match(/\S+/)) { curr = `<span class="word">${curr}</span>`; }
+        if (curr.match(/\S+/)) { curr = `<span class="clickableWord">${curr}</span>`; }
         return prev + curr;
       }, '');
     };

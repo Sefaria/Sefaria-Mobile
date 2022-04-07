@@ -112,7 +112,7 @@ const TextSegment = React.memo(({
         renderersProps={renderersProps}
         dangerouslyDisableWhitespaceCollapsing
         renderers={{span: ({ TDefaultRenderer, ...props }) => {
-          if (props.tnode.classes.indexOf('word') > -1) {
+          if (props.tnode.classes.indexOf('clickableWord') > -1) {
             return (
               <Text onPress={onPress} onLongPress={event => Alert.alert(props.tnode.init.textNode.data)}>
                 <TDefaultRenderer {...props} />
