@@ -114,9 +114,9 @@ const TextSegment = React.memo(({
         renderers={{span: ({ TDefaultRenderer, ...props }) => {
           if (props.tnode.classes.indexOf('word') > -1) {
             return (
-              <TouchableOpacity onPress={onPress} onLongPress={event => Alert.alert(props.tnode.init.textNode.data)}>
+              <Text onPress={onPress} onLongPress={event => Alert.alert(props.tnode.init.textNode.data)}>
                 <TDefaultRenderer {...props} />
-              </TouchableOpacity>
+              </Text>
             );
           }
           return (
