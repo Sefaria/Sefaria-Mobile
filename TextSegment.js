@@ -6,7 +6,6 @@ import React, { useState, useEffect, useContext, Fragment, useCallback, Children
 import {
   Alert,
   Platform,
-  Pressable,
   Share,
   Text,
   TouchableOpacity,
