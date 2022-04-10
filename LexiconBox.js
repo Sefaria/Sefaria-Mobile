@@ -91,7 +91,7 @@ LexiconBox.propTypes = {
 };
 
 /*
-  Component that renders HTML content with ability to click on inline refs / external links
+  Renders HTML content with ability to click on inline refs / external links
 */
 
 const LexiconText = ({ value, handleOpenURL, lang, fSize, style }) => {
@@ -101,32 +101,17 @@ const LexiconText = ({ value, handleOpenURL, lang, fSize, style }) => {
       text={value}
       lang={lang}
       onPressATag={handleOpenURL}
-      extraStyles={[{ fontSize: fSize }, style]}
-    />
-  );
-  return (
-    <HTMLView
-      value={value}
-      onLinkPress={handleOpenURL}
-      stylesheet={styles}
-      RootComponent={Text}
-      TextComponent={({children, style, textComponentProps, ...props}) => (
-        <HTMLView
-          value={Sefaria.util.getDisplayableHTML(children, lang)}
-          textComponentProps={textComponentProps}
-          {...props}
-        />
-      )}
-      textComponentProps={{
-        stylesheet: styles,
-        RootComponent: Text,
-        TextComponent: SText,
-        textComponentProps: {
-          lang,
-          style: {...(lang === 'hebrew' ? styles.he : styles.en), fontSize: fSize, ...style},  // note, not including theme.text here because it doesn't work with blue a tags. Decided to forgo theme for blue a tags.
-          lineMultiplier: 1.15
-        }
-      }}
+      renderers={{span: ({ TDefaultRenderer, ...props }) => {
+        return (
+          <SText
+            lang={lang}
+            lineMultiplier={1.15}
+            style={[(lang === 'hebrew' ? styles.he : styles.en), { fontSize: fSize }, style]}  // note, not including theme.text here because it doesn't work with blue a tags. Decided to forgo theme for blue a tags.
+          >
+            {value}
+          </SText>
+        )
+      }}}
     />
   );
 }
