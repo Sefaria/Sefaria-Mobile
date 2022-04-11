@@ -7,7 +7,6 @@ import {
   ScrollView,
 } from 'react-native';
 import PropTypes from 'prop-types';
-import RenderHtml from 'react-native-render-html';
 import {
   LoadingView,
   OrderedList,
@@ -145,7 +144,7 @@ const LexiconAttribution = ({ entry, handleOpenURL }) => {
     <SimpleHTMLView
       text={fullContent}
       onPressATag={handleOpenURL}
-      extraStyles={[{fontSize: englishFontSize}, theme.quaternaryText]}
+      extraStyles={[styles.enInt, {fontSize: englishFontSize}, theme.quaternaryText]}
     />
   );
   return (
