@@ -16,6 +16,7 @@ import {
 import styles from './Styles.js';
 import strings from './LocalizedStrings';
 import { GlobalStateContext, getTheme } from './StateManager';
+import { HTMLContentModel, HTMLElementModel } from 'react-native-render-html';
 
 const shouldActivate = selectedWords => {
   if(selectedWords && selectedWords.match(/[\s:\u0590-\u05ff.]+/)) {
@@ -145,6 +146,15 @@ const LexiconAttribution = ({ entry, handleOpenURL }) => {
       text={fullContent}
       onPressATag={handleOpenURL}
       extraStyles={[styles.enInt, {fontSize: englishFontSize}, theme.quaternaryText]}
+      customHTMLElementModels={{
+        'a': HTMLElementModel.fromCustomModel({
+          tagName: 'a',
+          mixedUAStyles: {
+            textDecorationLine: 'underline',
+          },
+          contentModel: HTMLContentModel.mixed
+        })
+      }}
     />
   );
   return (
