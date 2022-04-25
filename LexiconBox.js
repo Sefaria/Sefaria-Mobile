@@ -12,6 +12,7 @@ import {
   OrderedList,
   SimpleHTMLView,
   SText,
+  CSS_CLASS_STYLES,
 } from './Misc';
 import styles from './Styles.js';
 import strings from './LocalizedStrings';
@@ -102,15 +103,22 @@ const LexiconText = ({ value, handleOpenURL, lang, fSize, style }) => {
       lang={lang}
       onPressATag={handleOpenURL}
       renderers={{span: ({ TDefaultRenderer, ...props }) => {
+        if (props.tnode.init.textNode) {
+          const css_styles = props.tnode.classes.map(cls => CSS_CLASS_STYLES[cls]);
+          console.log(css_styles, props.tnode.classes);
+          return (
+            <SText
+              lang={lang}
+              lineMultiplier={1.15}
+              style={[(lang === 'hebrew' ? styles.he : styles.en), { fontSize: fSize }, style].concat(css_styles)}  // note, not including theme.text here because it doesn't work with blue a tags. Decided to forgo theme for blue a tags.
+            >
+              {props.tnode.init.textNode.data}
+            </SText>
+          );
+        }
         return (
-          <SText
-            lang={lang}
-            lineMultiplier={1.15}
-            style={[(lang === 'hebrew' ? styles.he : styles.en), { fontSize: fSize }, style]}  // note, not including theme.text here because it doesn't work with blue a tags. Decided to forgo theme for blue a tags.
-          >
-            {value}
-          </SText>
-        )
+          <TDefaultRenderer {...props} />
+        );
       }}}
     />
   );
