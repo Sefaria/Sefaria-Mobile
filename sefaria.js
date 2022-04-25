@@ -46,6 +46,7 @@ Sefaria = {
     await Sefaria._loadTOC();
     await Sefaria.history._loadHistoryItems();
     await initAsyncStorage(dispatch);
+    await Sefaria.getLastGalusStatus();
     if (this._auth.token) {Sefaria.track.event("ReAuthSuccessful")};
   },
   postInitSearch: function() {
@@ -85,6 +86,9 @@ Sefaria = {
       lastAppUpdateTime = !!lastAppUpdateTime ? parseInt(lastAppUpdateTime) : 0;
     }
     return lastAppUpdateTime;
+  },
+  getLastGalusStatus: async function() {
+    Sefaria.lastGalusStatus = await AsyncStorage.getItem("lastGalusStatus");
   },
   /*
   if `context` and you're using API, only return section no matter what. default is true
@@ -731,6 +735,7 @@ Sefaria = {
     // returns true is `slug` is part of the top level of topic toc
     return Sefaria.topic_toc.filter(x => x.slug == slug).length > 0;
   },
+  lastGalusStatus: null,  // last recorded galus status to be used while waiting for really slow ip2c api
   galusOrIsrael: null,
   getGalusStatus: async function() {
     if (!!Sefaria.galusOrIsrael) {
@@ -745,8 +750,9 @@ Sefaria = {
       } else {
         Sefaria.galusOrIsrael = "diaspora";
       }
+      AsyncStorage.setItem("lastGalusStatus", Sefaria.galusOrIsrael);
     } catch (e) {
-      // rely on default based on interfaceLanguage (in <CalendarSection />)
+      // rely on defaults defined in <CalendarSection />
       Sefaria.galusOrIsrael = null;
     }
     return Sefaria.galusOrIsrael;
