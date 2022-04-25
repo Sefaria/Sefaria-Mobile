@@ -732,18 +732,24 @@ Sefaria = {
     return Sefaria.topic_toc.filter(x => x.slug == slug).length > 0;
   },
   galusOrIsrael: null,
-  getGalusStatus: function() {
-    return fetch('https://www.geoip-db.com/json')
-      .then(res => res.json())
-      .then(data => {
-        if (data.country_code == "IL") {
-          Sefaria.galusOrIsrael = "israel"
-        } else {
-          Sefaria.galusOrIsrael = "diaspora"
-        }
-        return Sefaria.galusOrIsrael;
-      })
-      .catch(()=> {Sefaria.galusOrIsrael = "diaspora";})
+  getGalusStatus: async function() {
+    if (!!Sefaria.galusOrIsrael) {
+      return Sefaria.galusOrIsrael;
+    }
+    try {
+      const res = await fetch('https://ip2c.org/self');
+      const data = await res.text();
+      const [a, country_code, b, c] = data.split(';');
+      if (country_code == "IL") {
+        Sefaria.galusOrIsrael = "israel";
+      } else {
+        Sefaria.galusOrIsrael = "diaspora";
+      }
+    } catch (e) {
+      // rely on default based on interfaceLanguage (in <CalendarSection />)
+      Sefaria.galusOrIsrael = null;
+    }
+    return Sefaria.galusOrIsrael;
   },
 
 
