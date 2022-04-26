@@ -99,12 +99,12 @@ const TextSegment = React.memo(({
         renderers={{span: ({ TDefaultRenderer, ...props }) => {
           if (props.tnode.classes.indexOf('clickableWord') > -1) {
             return (
-              <Text onPress={onPress} onLongPress={() => {
-                onPress(true);  // open resources
-                setDictionaryLookup({ dictLookup: props.tnode.init.textNode.data });
-              }}>
-                <TDefaultRenderer {...props} />
-              </Text>
+              <ClickableWord
+                onPress={onPress}
+                setDictionaryLookup={setDictionaryLookup}
+                TDefaultRenderer={TDefaultRenderer}
+                { ...props }
+              />
             );
           }
           return (
@@ -124,6 +124,17 @@ TextSegment.propTypes = {
   bilingual:          PropTypes.bool,
   onTextPress:        PropTypes.func.isRequired,
   showToast:          PropTypes.func.isRequired,
+};
+
+const ClickableWord = ({ onPress, setDictionaryLookup, TDefaultRenderer, ...props }) => {
+  return (
+    <Text onPress={onPress} onLongPress={() => {
+      onPress(true);  // open resources
+      setDictionaryLookup({ dictLookup: props.tnode.init.textNode.data });
+    }}>
+      <TDefaultRenderer {...props} />
+    </Text>
+  );
 };
 
 export default TextSegment;
