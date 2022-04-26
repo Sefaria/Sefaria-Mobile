@@ -3,17 +3,18 @@ import React, { useState, useEffect, useMemo, useCallback, useRef, useContext } 
 import { GlobalStateContext, DispatchContext, STATE_ACTIONS, getTheme } from './StateManager';
 
 
-export const useAsyncVariable = (initIsLoaded, loadVariable, onLoad) => {
+export const useAsyncVariable = (initIsLoaded, loadVariable, onLoad, initOnLoadValue) => {
   /*
   Loads a variable asynchronously and returns status of load
   Useful for determining when a variable from the Sefaria object is available, e.g. Sefaria.calendar
+  onLoad - optional function to run on load. will be passed initOnLoadValue when initIsLoaded is true
   */
   const [isLoaded, setIsLoaded] = useState(initIsLoaded);
   const loadWrapper = useCallback(() => {
     if (!isLoaded) {
       return loadVariable();
     }
-    return Promise.resolve();
+    return Promise.resolve(initOnLoadValue);
   }, [isLoaded, loadVariable]);
 
   const onLoadWrapper = useCallback((data) => {

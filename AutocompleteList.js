@@ -62,7 +62,7 @@ class AutocompleteList extends React.Component {
       Sefaria.api.name(q, true)
       .then(results => {
         if (this._isMounted) {
-          const typeToValue = { "ref": 1, "toc": 3, "topic": 2, "persontopic": 2, "authortopic": 4, "user": 5 };
+          const typeToValue = { "ref": 1, "toc": 3, "topic": 2, "persontopic": 2, "authortopic": 4, "user": 5, "collection": 6 };
           let completions = results.completion_objects.map((c,i) =>
           {
             c.type = c.type.toLowerCase()
@@ -135,7 +135,10 @@ class AutocompleteList extends React.Component {
       this.props.openTopic(new Topic({ slug: item.key }));
     } else if (item.type == "user") {
       recentType = "user";
-      this.props.openUri(`https://www.sefaria.org/profile/${item.key}`);
+      this.props.openUri(`${Sefaria.api._baseHost}profile/${item.key}`);
+    } else if (item.type == "collection") {
+      recentType = "collection";
+      this.props.openUri(`${Sefaria.api._baseHost}collections/${item.key}`);
     }
     Sefaria.saveRecentQuery(item.title, recentType, item.key, item.pic);
   };
@@ -188,7 +191,10 @@ class AutocompleteList extends React.Component {
         this.props.openTopic(new Topic({slug: d.key}));
       } else if (d.type == "User") {
         recentType = "user";
-        this.props.openUri(`https://www.sefaria.org/profile/${d.key}`);
+        this.props.openUri(`${Sefaria.api._baseHost}profile/${d.key}`);
+      } else if (d.type == "Collection") {
+        recentType = "collection";
+        this.props.openUri(`${Sefaria.api._baseHost}collections/${d.key}`);
       }
       Sefaria.saveRecentQuery(query, recentType, d.key, d.pic);
     });
@@ -224,6 +230,9 @@ class AutocompleteList extends React.Component {
         break;
       case "user":
         src = {uri: item.pic};
+        break;
+      case "collection":
+        src = this.props.themeStr === "white" ? require("./img/layers.png") : require("./img/layers-light.png");
         break;
     }
     return (

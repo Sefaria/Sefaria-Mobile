@@ -47,6 +47,7 @@ Sefaria = {
     await Sefaria._loadTOC();
     await Sefaria.history._loadHistoryItems();
     await initAsyncStorage(dispatch);
+    await Sefaria.getLastGalusStatus();
     if (this._auth.token) {Sefaria.track.event("ReAuthSuccessful")};
   },
   postInitSearch: function() {
@@ -86,6 +87,9 @@ Sefaria = {
       lastAppUpdateTime = !!lastAppUpdateTime ? parseInt(lastAppUpdateTime) : 0;
     }
     return lastAppUpdateTime;
+  },
+  getLastGalusStatus: async function() {
+    Sefaria.lastGalusStatus = await AsyncStorage.getItem("lastGalusStatus");
   },
   /*
   if `context` and you're using API, only return section no matter what. default is true
@@ -732,19 +736,27 @@ Sefaria = {
     // returns true is `slug` is part of the top level of topic toc
     return Sefaria.topic_toc.filter(x => x.slug == slug).length > 0;
   },
+  lastGalusStatus: null,  // last recorded galus status to be used while waiting for really slow ip2c api
   galusOrIsrael: null,
-  getGalusStatus: function() {
-    return fetch('https://www.geoip-db.com/json')
-      .then(res => res.json())
-      .then(data => {
-        if (data.country_code == "IL") {
-          Sefaria.galusOrIsrael = "israel"
-        } else {
-          Sefaria.galusOrIsrael = "diaspora"
-        }
-        return Sefaria.galusOrIsrael;
-      })
-      .catch(()=> {Sefaria.galusOrIsrael = "diaspora";})
+  getGalusStatus: async function() {
+    if (!!Sefaria.galusOrIsrael) {
+      return Sefaria.galusOrIsrael;
+    }
+    try {
+      const res = await fetch('https://ip2c.org/self');
+      const data = await res.text();
+      const [a, country_code, b, c] = data.split(';');
+      if (country_code == "IL") {
+        Sefaria.galusOrIsrael = "israel";
+      } else {
+        Sefaria.galusOrIsrael = "diaspora";
+      }
+      AsyncStorage.setItem("lastGalusStatus", Sefaria.galusOrIsrael);
+    } catch (e) {
+      // rely on defaults defined in <CalendarSection />
+      Sefaria.galusOrIsrael = null;
+    }
+    return Sefaria.galusOrIsrael;
   },
 
 
