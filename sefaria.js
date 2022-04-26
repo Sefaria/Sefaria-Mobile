@@ -1413,10 +1413,12 @@ Sefaria.util = {
      */
     const _wrapTextNode = (node, index) => {
       if (!node.data.length) { return ''; }
-      return node.data.match(/(?:\S+|\s+)/g).reduce((prev, curr) => {
-        if (curr.match(/\S+/)) { curr = `<span class="clickableWord">${curr}</span>`; }
+      const wordBreakers = '\\s\\(\\)\\[\\]\\.,;:\\?!\\-\u05be';
+      return node.data.match(new RegExp(`(?:[^${wordBreakers}]+|[${wordBreakers}]+)`, 'g')).reduce((prev, curr) => {
+        if (curr.match(new RegExp(`[^${wordBreakers}]+`))) { curr = `<span class="clickableWord">${curr}</span>`; }
         return prev + curr;
       }, '');
+      
     };
     const _wrapElement = (node, index) => {
       const attributes = Object.entries(node.attribs).reduce((prev, [key, val]) => `${prev} ${key}=${val}`, '');
