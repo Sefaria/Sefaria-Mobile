@@ -81,7 +81,7 @@ const TextSegment = React.memo(({
       else if (buttonIndex === 1) { shareCurrentSegment(section, segment, segmentRef); }
     })
   }, [segmentRef]);
-  const onPress = useCallback(() => onTextPress(), [onTextPress]);
+  const onPress = useCallback((onlyOpen) => onTextPress(onlyOpen), [onTextPress]);
 
   return (
     <TouchableOpacity
@@ -99,7 +99,10 @@ const TextSegment = React.memo(({
         renderers={{span: ({ TDefaultRenderer, ...props }) => {
           if (props.tnode.classes.indexOf('clickableWord') > -1) {
             return (
-              <Text onPress={onPress} onLongPress={() => setDictionaryLookup({ dictLookup: props.tnode.init.textNode.data })}>
+              <Text onPress={onPress} onLongPress={() => {
+                onPress(true);  // open resources
+                setDictionaryLookup({ dictLookup: props.tnode.init.textNode.data });
+              }}>
                 <TDefaultRenderer {...props} />
               </Text>
             );
