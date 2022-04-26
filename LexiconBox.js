@@ -105,7 +105,6 @@ const LexiconText = ({ value, handleOpenURL, lang, fSize, style }) => {
       renderers={{span: ({ TDefaultRenderer, ...props }) => {
         if (props.tnode.init.textNode) {
           const css_styles = props.tnode.classes.map(cls => CSS_CLASS_STYLES[cls]);
-          console.log(css_styles, props.tnode.classes);
           return (
             <SText
               lang={lang}

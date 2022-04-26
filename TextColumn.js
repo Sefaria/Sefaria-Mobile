@@ -95,6 +95,7 @@ class TextColumn extends React.PureComponent {
         viewPosition: 0.1,
         animated: false,
       },
+      highlightedWord: null,
     };
   }
   componentDidMount() {
@@ -350,6 +351,10 @@ class TextColumn extends React.PureComponent {
     }
   };
 
+  setHighlightedWord = () => {
+    console.log('yo');
+  }
+
   getViewableSectionData = (viewableItems) => {
     let secData = {
       indexes: [],
@@ -541,6 +546,7 @@ class TextColumn extends React.PureComponent {
           getDisplayedText={this.props.getDisplayedText}
           vowelToggleAvailable={this.props.vowelToggleAvailable}
           isSheet={this.props.isSheet}
+          setHighlightedWord={this.setHighlightedWord}
         />
       </View>
     );

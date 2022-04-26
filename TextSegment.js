@@ -40,6 +40,7 @@ const TextSegment = React.memo(({
   onTextPress,
   shareCurrentSegment,
   getDisplayedText,
+  setHighlightedWord,
 }) => {
   const source = useSource(data);
   const renderersProps = useRenderersProps(handleOpenURL);
@@ -102,6 +103,7 @@ const TextSegment = React.memo(({
               <ClickableWord
                 onPress={onPress}
                 setDictionaryLookup={setDictionaryLookup}
+                setHighlightedWord={setHighlightedWord}
                 TDefaultRenderer={TDefaultRenderer}
                 { ...props }
               />
@@ -126,10 +128,11 @@ TextSegment.propTypes = {
   showToast:          PropTypes.func.isRequired,
 };
 
-const ClickableWord = ({ onPress, setDictionaryLookup, TDefaultRenderer, ...props }) => {
+const ClickableWord = ({ onPress, setDictionaryLookup, setHighlightedWord, TDefaultRenderer, ...props }) => {
   return (
     <Text onPress={onPress} onLongPress={() => {
       onPress(true);  // open resources
+      setHighlightedWord();
       setDictionaryLookup({ dictLookup: props.tnode.init.textNode.data });
     }}>
       <TDefaultRenderer {...props} />
