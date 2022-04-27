@@ -2,7 +2,7 @@
 
 import PropTypes from 'prop-types';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   Platform,
   Share,
@@ -41,6 +41,7 @@ const TextSegment = React.memo(({
   shareCurrentSegment,
   getDisplayedText,
   setHighlightedWord,
+  highlightedWordID,
 }) => {
   const source = useSource(data);
   const renderersProps = useRenderersProps(handleOpenURL);
@@ -104,6 +105,7 @@ const TextSegment = React.memo(({
                 onPress={onPress}
                 setDictionaryLookup={setDictionaryLookup}
                 setHighlightedWord={setHighlightedWord}
+                highlightedWordID={highlightedWordID}
                 TDefaultRenderer={TDefaultRenderer}
                 { ...props }
               />
@@ -128,12 +130,15 @@ TextSegment.propTypes = {
   showToast:          PropTypes.func.isRequired,
 };
 
-const ClickableWord = ({ onPress, setDictionaryLookup, setHighlightedWord, TDefaultRenderer, ...props }) => {
+const ClickableWord = ({ onPress, setDictionaryLookup, setHighlightedWord, highlightedWordID, TDefaultRenderer, ...props }) => {
+  const word = props.tnode.init.textNode.data;
+  const wordID = `${props.tnode.__nodeIndex}|${word}`;  // not guaranteed to be unique but hopefully good enough. these components are recycled by flatlist (i believe) so can't use a random number here
+  const isHighlighted = wordID === highlightedWordID;
   return (
-    <Text onPress={onPress} onLongPress={() => {
+    <Text onPress={onPress} style={{backgroundColor: isHighlighted ? "#D2DCFF" : null}} onLongPress={() => {
       onPress(true);  // open resources
-      setHighlightedWord();
-      setDictionaryLookup({ dictLookup: props.tnode.init.textNode.data });
+      setHighlightedWord(wordID);
+      setDictionaryLookup({ dictLookup: word });
     }}>
       <TDefaultRenderer {...props} />
     </Text>

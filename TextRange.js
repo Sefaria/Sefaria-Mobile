@@ -29,6 +29,7 @@ const TextRange = React.memo(({
   vowelToggleAvailable,
   isSheet,
   setHighlightedWord,
+  highlightedWordID,
 }) => {
   const { themeStr, textLanguage, biLayout, fontSize, vocalization } = useContext(GlobalStateContext);
 
@@ -114,6 +115,7 @@ const TextRange = React.memo(({
                   shareCurrentSegment={shareCurrentSegment}
                   getDisplayedText={getDisplayedText}
                   setHighlightedWord={setHighlightedWord}
+                  highlightedWordID={highlightedWordID}
                 />
               </View>
             ) : null
@@ -137,6 +139,7 @@ const TextRange = React.memo(({
                   shareCurrentSegment={shareCurrentSegment}
                   getDisplayedText={getDisplayedText}
                   setHighlightedWord={setHighlightedWord}
+                  highlightedWordID={highlightedWordID}
                 />
               </View>
             ) : null

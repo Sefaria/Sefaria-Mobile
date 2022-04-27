@@ -164,16 +164,6 @@ const LexiconAttribution = ({ entry, handleOpenURL }) => {
       }}
     />
   );
-  return (
-      <HTMLView
-        value={fullContent}
-        stylesheet={{...styles, ...{a: theme.quaternaryText}}}
-        onLinkPress={handleOpenURL}
-        textComponentProps={{
-          style: {fontSize: englishFontSize, ...theme.quaternaryText}
-        }}
-      />
-  );
 };
 
 const LexiconEntry = ({ entry, handleOpenURL }) => {
