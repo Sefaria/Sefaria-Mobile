@@ -83,7 +83,9 @@ const TextSegment = React.memo(({
       else if (buttonIndex === 1) { shareCurrentSegment(section, segment, segmentRef); }
     })
   }, [segmentRef]);
-  const onPress = useCallback((onlyOpen) => onTextPress(onlyOpen), [onTextPress]);
+  const onPress = useCallback((e, onlyOpen) => {
+    onTextPress(onlyOpen);
+  }, [onTextPress]);
 
   return (
     <TouchableOpacity
@@ -136,7 +138,7 @@ const ClickableWord = ({ onPress, setDictionaryLookup, setHighlightedWord, highl
   const isHighlighted = wordID === highlightedWordID;
   return (
     <Text onPress={onPress} style={{backgroundColor: isHighlighted ? "#D2DCFF" : null}} onLongPress={() => {
-      onPress(true);  // open resources
+      onPress(null, true);  // open resources
       setHighlightedWord(wordID);
       setDictionaryLookup({ dictLookup: word });
     }}>
