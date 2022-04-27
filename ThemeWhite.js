@@ -17,7 +17,7 @@ var Colors = {
   lighterGrey: "#ededec",
   lightestGrey: "#fbfbfa",
   textSegmentHighlight: "#f0f7ff",
-  wordHighlight: "d2dcff",
+  wordHighlight: "#d2dcff",
   textListHeader: "#f3f3f2",
   button: "#bfbfbf",
   buttonBackground: "#fff"
