@@ -297,6 +297,8 @@ class TextColumn extends React.PureComponent {
 
       }
 
+    } else {
+      this.setHighlightedWord(null);
     }
     this.props.textSegmentPressed(section, segment, segmentRef, true, onlyOpen);
   };
