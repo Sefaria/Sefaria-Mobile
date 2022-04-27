@@ -147,7 +147,7 @@ const LexiconAttribution = ({ entry, handleOpenURL }) => {
   const fullContent = [
     lexicon_dtls['source_url'] ? `<a href="${lexicon_dtls["source_url"]}">${sourceContent}</a>` : `${sourceContent}\n`,
     lexicon_dtls['attribution_url'] ? `<a href="${lexicon_dtls['attribution_url']}">${attributionContent}</a>` : attributionContent,
-  ].join('');
+  ].join('<br>');
   return (
     <SimpleHTMLView
       text={fullContent}
