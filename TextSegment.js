@@ -16,7 +16,8 @@ import Clipboard from "@react-native-community/clipboard";
 import strings from './LocalizedStrings';
 import { SYSTEM_FONTS } from './Misc';
 import { useHTMLViewStyles } from './useHTMLViewStyles';
-import { useRenderersProps } from './Hooks';
+import { useGlobalState, useRenderersProps } from './Hooks';
+import { getTheme } from './StateManager';
 
 const useSource = (data) => {
   const [ source, setSource ] = useState({html: data});
@@ -133,11 +134,13 @@ TextSegment.propTypes = {
 };
 
 const ClickableWord = ({ onPress, setDictionaryLookup, setHighlightedWord, highlightedWordID, TDefaultRenderer, ...props }) => {
+  const { themeStr } = useGlobalState();
+  const theme = getTheme(themeStr);
   const word = props.tnode.init.textNode.data;
   const wordID = `${props.tnode.__nodeIndex}|${word}`;  // not guaranteed to be unique but hopefully good enough. these components are recycled by flatlist (i believe) so can't use a random number here
   const isHighlighted = wordID === highlightedWordID;
   return (
-    <Text onPress={onPress} style={{backgroundColor: isHighlighted ? "#D2DCFF" : null}} onLongPress={() => {
+    <Text onPress={onPress} style={isHighlighted ? theme.wordHighlight : null} onLongPress={() => {
       onPress(null, true);  // open resources
       setHighlightedWord(wordID);
       setDictionaryLookup({ dictLookup: word });

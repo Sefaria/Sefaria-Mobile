@@ -17,6 +17,7 @@ var Colors = {
   lighterGrey: "#ededec",
   lightestGrey: "#fbfbfa",
   textSegmentHighlight: "#f0f7ff",
+  wordHighlight: "d2dcff",
   textListHeader: "#f3f3f2",
   button: "#bfbfbf",
   buttonBackground: "#fff"
@@ -148,6 +149,9 @@ export default StyleSheet.create({
   },
   segmentHighlight: {
     backgroundColor: Colors.textSegmentHighlight
+  },
+  wordHighlight: {
+    backgroundColor: Colors.wordHighlight,
   },
   textTocSectionString: {
     color: Colors.tertiaryText,
