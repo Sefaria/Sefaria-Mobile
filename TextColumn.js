@@ -95,7 +95,6 @@ class TextColumn extends React.PureComponent {
         viewPosition: 0.1,
         animated: false,
       },
-      highlightedWordID: null,
     };
   }
   componentDidMount() {
@@ -298,7 +297,7 @@ class TextColumn extends React.PureComponent {
       }
 
     } else {
-      this.setHighlightedWord(null);
+      this.props.setHighlightedWord(null);
     }
     this.props.textSegmentPressed(section, segment, segmentRef, true, onlyOpen);
   };
@@ -352,10 +351,6 @@ class TextColumn extends React.PureComponent {
       }
     }
   };
-
-  setHighlightedWord = (wordID) => {
-    this.setState({ highlightedWordID: wordID });
-  }
 
   getViewableSectionData = (viewableItems) => {
     let secData = {
@@ -548,8 +543,8 @@ class TextColumn extends React.PureComponent {
           getDisplayedText={this.props.getDisplayedText}
           vowelToggleAvailable={this.props.vowelToggleAvailable}
           isSheet={this.props.isSheet}
-          setHighlightedWord={this.setHighlightedWord}
-          highlightedWordID={this.state.highlightedWordID}
+          setHighlightedWord={this.props.setHighlightedWord}
+          highlightedWordID={this.props.highlightedWordID}
         />
       </View>
     );
