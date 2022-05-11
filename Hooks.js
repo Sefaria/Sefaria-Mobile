@@ -146,14 +146,9 @@ export function useRenderersProps (onPressATag) {
    * @param {*} onPressATag function to run when pressing a-tag
    * @returns 
    */
-  const makeRenderersProps = (onPressATag) => {
+  return useMemo(() => {
     return {
       a: { onPress: (event, url) => { onPressATag(url); } }
     };
-  };
-  const [ renderersProps, setRenderersProps ] = useState(makeRenderersProps(onPressATag));
-  useEffect(() => {
-    setRenderersProps(makeRenderersProps(onPressATag));
   }, [onPressATag]);
-  return renderersProps;
 };
