@@ -1,7 +1,7 @@
 {
   "name": "RNBackgroundFetch",
   "cocoapods_version": ">= 1.10.0",
-  "version": "4.0.5",
+  "version": "4.1.0",
   "summary": "iOS & Android BackgroundFetch API implementation for React Native",
   "description": "iOS BackgroundFetch API Implementation",
   "homepage": "https://transistorsoft.github.io/react-native-background-fetch",
@@ -9,7 +9,7 @@
   "authors": "Chris Scott, Transistor Software <chris@transistorsoft.com>",
   "source": {
     "git": "https://github.com/transistorsoft/react-native-background-fetch.git",
-    "tag": "4.0.5"
+    "tag": "4.1.0"
   },
   "requires_arc": true,
   "platforms": {
