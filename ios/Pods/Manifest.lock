@@ -439,6 +439,8 @@ PODS:
     - React-Core
   - RNInAppBrowser (3.6.3):
     - React-Core
+  - RNReactNativeHapticFeedback (1.13.1):
+    - React-Core
   - RNSoundPlayer (0.11.3):
     - React
   - RNZipArchive (6.0.8):
@@ -510,6 +512,7 @@ DEPENDENCIES:
   - "RNFBRemoteConfig (from `../node_modules/@react-native-firebase/remote-config`)"
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
   - RNInAppBrowser (from `../node_modules/react-native-inappbrowser-reborn`)
+  - RNReactNativeHapticFeedback (from `../node_modules/react-native-haptic-feedback`)
   - RNSoundPlayer (from `../node_modules/react-native-sound-player`)
   - RNZipArchive (from `../node_modules/react-native-zip-archive`)
   - UMAppLoader (from `../node_modules/unimodules-app-loader/ios`)
@@ -633,6 +636,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-gesture-handler"
   RNInAppBrowser:
     :path: "../node_modules/react-native-inappbrowser-reborn"
+  RNReactNativeHapticFeedback:
+    :path: "../node_modules/react-native-haptic-feedback"
   RNSoundPlayer:
     :path: "../node_modules/react-native-sound-player"
   RNZipArchive:
@@ -711,6 +716,7 @@ SPEC CHECKSUMS:
   RNFBRemoteConfig: e2ab6deecf08a4f7d41274425163ddfdc6ae268a
   RNGestureHandler: a479ebd5ed4221a810967000735517df0d2db211
   RNInAppBrowser: 3ff3a3b8f458aaf25aaee879d057352862edf357
+  RNReactNativeHapticFeedback: 4085973f5a38b40d3c6793a3ee5724773eae045e
   RNSoundPlayer: 6b5532fb8e9afe17af48e62813c80ad568aea5d3
   RNZipArchive: 3f89b114cfeb89dac027fc5c7afd7e58d3dc4ebf
   SSZipArchive: 62d4947b08730e4cda640473b0066d209ff033c9
