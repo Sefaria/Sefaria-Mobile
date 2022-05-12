@@ -13,6 +13,7 @@ import {
 import ActionSheet from 'react-native-action-sheet';
 import { RenderHTML } from 'react-native-render-html';
 import Clipboard from "@react-native-community/clipboard";
+import ReactNativeHapticFeedback from "react-native-haptic-feedback";
 import strings from './LocalizedStrings';
 import { SYSTEM_FONTS } from './Misc';
 import { useHTMLViewStyles } from './useHTMLViewStyles';
@@ -142,6 +143,7 @@ const ClickableWord = ({ onPress, setDictionaryLookup, setHighlightedWord, highl
   return (
     <Text onPress={onPress} style={isHighlighted ? theme.wordHighlight : null} onLongPress={() => {
       onPress(null, true);  // open resources
+      ReactNativeHapticFeedback.trigger("impactLight");
       setHighlightedWord(wordID);
       setDictionaryLookup({ dictLookup: word });
     }}>
