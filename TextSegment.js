@@ -57,7 +57,7 @@ const TextSegment = React.memo(({
   const source = useSource(data);
   const renderersProps = useRenderersProps(handleOpenURL);
   const { width } = useWindowDimensions();
-  const { textStyle, classStyles } = useHTMLViewStyles(bilingual, textType);
+  const { textStyle, classesStyles, tagsStyles } = useHTMLViewStyles(bilingual, textType);
   const getTextWithUrl = useCallback((text, withUrl) => {
     return withUrl ? `${text}\n\n${Sefaria.refToFullUrl(segmentRef)}` : text;
   }, [segmentRef]);
@@ -106,7 +106,8 @@ const TextSegment = React.memo(({
         source={source}
         contentWidth={width}
         defaultTextProps={textStyle}
-        classesStyles={classStyles}
+        classesStyles={classesStyles}
+        tagsStyles={tagsStyles}
         systemFonts={SYSTEM_FONTS}
         renderersProps={renderersProps}
         dangerouslyDisableWhitespaceCollapsing

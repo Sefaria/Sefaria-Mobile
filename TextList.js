@@ -219,8 +219,8 @@ const ListItem = ({
   const lco = linkContentObj;
   const lang = Sefaria.util.getTextLanguageWithContent(textLanguage,lco.en,lco.he);
   const bilingual = lang === 'bilingual';
-  const { classStyles:enClasses, textStyle:enStyle } = useHTMLViewStyles(bilingual, 'english');
-  const { classStyles:heClasses, textStyle:heStyle } = useHTMLViewStyles(bilingual, 'hebrew');
+  const { classesStyles:enClasses, textStyle:enStyle, tagsStyles:enTags } = useHTMLViewStyles(bilingual, 'english');
+  const { classesStyles:heClasses, textStyle:heStyle, tagsStyles:heTags } = useHTMLViewStyles(bilingual, 'hebrew');
 
   const tempOpenRef = () => {
     // versionLanguage should only be defined when TextList is in VersionsBox. Otherwise you should open default version for that link
@@ -263,6 +263,7 @@ const ListItem = ({
       contentWidth={width}
       defaultTextProps={heStyle}
       classesStyles={heClasses}
+      tagsStyles={heTags}
       systemFonts={SYSTEM_FONTS}
     />
   );
@@ -273,6 +274,7 @@ const ListItem = ({
       contentWidth={width}
       defaultTextProps={enStyle}
       classesStyles={enClasses}
+      tagsStyles={enTags}
       systemFonts={SYSTEM_FONTS}
     />
   );

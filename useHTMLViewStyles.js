@@ -20,7 +20,6 @@ export function useHTMLViewStyles(bilingual, textType) {
         justifyStyle,
         {
           lineHeight,
-          fontSize: fontSizeScaled,
         },
       ];
       if (bilingual && textType == "english") {
@@ -29,15 +28,27 @@ export function useHTMLViewStyles(bilingual, textType) {
         }
         textStyle.push(theme.bilingualEnglishText);
       }
-      const classStyles = {
+      const tagsStyles = {
         small: {
           fontSize: fontSize * 0.8 * (textType === "hebrew" ? 1 : 0.8)
         },
-        ...CSS_CLASS_STYLES,
       };
+
+      // fontSize used to be in textStyle but apparently that overrides styles in tagsStyles so small tags wouldn't render with smaller fontSize
+      const classesStyles = {
+        hebrew: {
+          ...CSS_CLASS_STYLES.hebrew,
+          fontSize: fontSizeScaled,
+        },
+        english: {
+          ...CSS_CLASS_STYLES.english,
+          fontSize: fontSizeScaled,
+        }
+      }
     
       return {
-        classStyles,
+        classesStyles,
+        tagsStyles,
         textStyle: {style: textStyle},
       }
     }, [isStacked, bilingual, textType, fontSize, theme]);
