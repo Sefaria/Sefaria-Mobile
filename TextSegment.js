@@ -110,6 +110,7 @@ const TextSegment = React.memo(({
                 setDictionaryLookup={setDictionaryLookup}
                 setHighlightedWord={setHighlightedWord}
                 highlightedWordID={highlightedWordID}
+                segmentRef={segmentRef}
                 TDefaultRenderer={TDefaultRenderer}
                 { ...props }
               />
@@ -134,7 +135,7 @@ TextSegment.propTypes = {
   showToast:          PropTypes.func.isRequired,
 };
 
-const ClickableWord = ({ onPress, setDictionaryLookup, setHighlightedWord, highlightedWordID, TDefaultRenderer, ...props }) => {
+const ClickableWord = ({ onPress, setDictionaryLookup, setHighlightedWord, highlightedWordID, segmentRef, TDefaultRenderer, ...props }) => {
   const { themeStr } = useGlobalState();
   const theme = getTheme(themeStr);
   const word = props.tnode.init.textNode.data;
@@ -143,8 +144,8 @@ const ClickableWord = ({ onPress, setDictionaryLookup, setHighlightedWord, highl
   return (
     <Text onPress={onPress} style={isHighlighted ? theme.wordHighlight : null} onLongPress={() => {
       onPress(null, true);  // open resources
-      ReactNativeHapticFeedback.trigger("impactLight");
-      setHighlightedWord(wordID);
+      ReactNativeHapticFeedback.trigger("impactMedium");
+      setHighlightedWord(wordID, segmentRef);
       setDictionaryLookup({ dictLookup: word });
     }}>
       <TDefaultRenderer {...props} />

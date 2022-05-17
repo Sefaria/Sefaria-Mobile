@@ -194,7 +194,8 @@ class TextColumn extends React.PureComponent {
           }
           const rowContent = data[sectionIndex][i];
           const highlight = offsetRef == rowID || (props.textListVisible && props.segmentRef == rowID);
-          const changeString = `${rowID}|${!!rowContent.links && rowContent.links.length}|${highlight}|${this.props.fontSize}`;
+          const highlightedWordID = props.highlightedWordSegmentRef === rowID && props.highlightedWordID;
+          const changeString = `${rowID}|${!!rowContent.links && rowContent.links.length}|${highlight}|${this.props.fontSize}|${highlightedWordID}`;
           let rowData = this.dataSourceHash[changeString];
           if (!rowData) {
             rowData = {
@@ -202,6 +203,7 @@ class TextColumn extends React.PureComponent {
               sectionIndex,
               rowIndex: i,
               highlight,
+              highlightedWordID,
             };
             this.dataSourceHash[changeString] = rowData;           
           } else {
@@ -320,7 +322,9 @@ class TextColumn extends React.PureComponent {
         this.props.linksLoaded !== prevProps.linksLoaded ||
         this.props.textToc !== prevProps.textToc ||
         (this.props.sheet && this.props.sheet.id) !== (prevProps.sheet && prevProps.sheet.id) ||
-        this.props.showAliyot !== prevProps.showAliyot) {
+        this.props.showAliyot !== prevProps.showAliyot ||
+        this.props.highlightedWordID !== prevProps.highlightedWordID ||
+        this.props.highlightedWordSegmentRef !== prevProps.highlightedWordSegmentRef) {
       // Only update dataSource when a change has occurred that will result in different data
       //TODO how to optimize this function when fontSize is changing?
       this.performUpdate(prevProps);
@@ -544,7 +548,6 @@ class TextColumn extends React.PureComponent {
           vowelToggleAvailable={this.props.vowelToggleAvailable}
           isSheet={this.props.isSheet}
           setHighlightedWord={this.props.setHighlightedWord}
-          highlightedWordID={this.props.highlightedWordID}
         />
       </View>
     );
