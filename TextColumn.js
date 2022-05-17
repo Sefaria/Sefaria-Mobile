@@ -440,7 +440,7 @@ class TextColumn extends React.PureComponent {
   };
 
   onTopReached = () => {
-    if (this.props.loadingTextHead === true || !this.props.prev || this.state.jumpState.jumping) {
+    if (this.props.loadingTextHead === true || !this.props.prev || this.state.jumpState.jumping || !!this.props.sheet) {
       //already loading tail, or nothing above
       return;
     }
