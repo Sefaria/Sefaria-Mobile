@@ -129,6 +129,7 @@ class TextColumn extends React.PureComponent {
         data: props.data[0].map((source, segmentNumber) => {
           let type = null;
           const sheetNodeRef = `${sheetRef}:${segmentNumber}`;
+          const highlightedWordID = props.highlightedWordSegmentRef === sheetNodeRef && props.highlightedWordID;
           const row = {
             ref: sheetNodeRef,
             data: {
@@ -136,6 +137,7 @@ class TextColumn extends React.PureComponent {
               sectionIndex: 0,
               rowIndex: segmentNumber,
               highlight: props.textListVisible && props.segmentRef == sheetNodeRef,
+              highlightedWordID,
             },
             changeString: sheetNodeRef,
           };
