@@ -14,7 +14,8 @@ import { initAsyncStorage } from './StateManager';
 import { VOCALIZATION } from './VocalizationEnum';
 import URL from 'url-parse';
 import analytics from '@react-native-firebase/analytics';
-import {FileSystem} from 'react-native-unimodules'
+import {FileSystem} from 'react-native-unimodules';
+import {parseDocument, ElementType} from 'htmlparser2';
 import {
   packageSetupProtocol,
   downloadUpdate,
@@ -1404,7 +1405,52 @@ Sefaria.util = {
       return text.split(regEx)
     }
   },
-  getDisplayableHTML: function(text, lang, isSheet) {
+  wrapWordsWithClickableHTML: function(html) {
+    /**
+     * Wraps each word in `html` with `<word>` tag. This tag is used to make each word clickable for dictionary lookup.
+     * @param html. str with HTML tags 
+     * @returns 
+     */
+    const _wrapTextNode = (node, index) => {
+      if (!node.data.length) { return ''; }
+      const wordBreakers = '\\s\\(\\)\\[\\]\\.,;:\\?!\\-\u05be';
+      return node.data.match(new RegExp(`(?:[^${wordBreakers}]+|[${wordBreakers}]+)`, 'g')).reduce((prev, curr) => {
+        if (curr.match(new RegExp(`[^${wordBreakers}]+`))) { curr = `<span class="clickableWord">${curr}</span>`; }
+        return prev + curr;
+      }, '');
+      
+    };
+    const _wrapElement = (node, index) => {
+      const attributes = Object.entries(node.attribs).reduce((prev, [key, val]) => `${prev} ${key}=${val}`, '');
+      if (node.children.length === 0) {
+        // self-closing case
+        return `<${node.name} ${attributes}>`;
+      }
+      const shouldWrapChildren = node.name !== "a";  // dont wrap contents in a tags.
+      const nodeContents = node.children.map(
+        (c, i) => _wrap(c, i, shouldWrapChildren)
+      ).join('');
+      return (
+        `<${node.name} ${attributes}>${nodeContents}</${node.name}>`
+      );
+    };
+    const _wrap = (node, index, shouldWrapChildren) => {
+      switch (node.type) {
+        case ElementType.Text:
+          if (shouldWrapChildren) {
+            return _wrapTextNode(node, index);
+          } else {
+            return node.data;
+          }
+        case ElementType.Tag:
+          return _wrapElement(node, index);
+      }
+      return null;
+    };
+    const document = parseDocument(html);
+    return document.children.map((c, i) => _wrap(c, i)).join("");
+  },
+  getDisplayableHTML: function(text, lang, isSheet, clickableWords) {
     if (typeof(text) !== 'string') {
       return '';
     }
@@ -1412,10 +1458,16 @@ Sefaria.util = {
     text = Sefaria.util.filterOutItags(text);
     text = text.replace(/\u200e/g, '');  // remove invisible LTR mark that can ruin display
     text = text.trim();
+    let html;
     if (lang === 'english') {
-      return `<span class="english">\u2066${Sefaria.util.hebrewInEnglish(text, 'string')}</span>`;
+      html = `<span class="english">\u2066${Sefaria.util.hebrewInEnglish(text, 'string')}</span>`;
+    } else {
+      html = `<span class="hebrew">${text}</span>`;
     }
-    return `<span class="hebrew">${text}</span>`;
+    if (clickableWords) {
+      html = Sefaria.util.wrapWordsWithClickableHTML(html);
+    }
+    return html;
   },
   applyVocalizationSettings: function(text, vocalization, vowelToggleAvailable) {
     if (vowelToggleAvailable === VOCALIZATION.NONE || vocalization === VOCALIZATION.TAAMIM_AND_NIKKUD) { return text; } 

@@ -143,7 +143,9 @@ class ReaderApp extends React.PureComponent {
         ReaderDisplayOptionsMenuVisible: false,
         dictLookup: null,
         overwriteVersions: true, // false when you navigate to a text but dont want the current version to overwrite your sticky version
-    };
+        highlightedWordID: null,
+        highlightedWordSegmentRef: null,
+      };
     this.NetInfoEventListener = () => {};  // calling the event listener unsubcribes, initialize to a null method
 
   }
@@ -1202,6 +1204,10 @@ class ReaderApp extends React.PureComponent {
     });
   };
 
+  setHighlightedWord = (wordID, segmentRef) => {
+    this.setState({ highlightedWordID: wordID, highlightedWordSegmentRef: segmentRef });
+  };
+
   openTextTocDirectly = (title) => {
 
     // used to open text toc witout going throught the reader
@@ -1317,7 +1323,7 @@ class ReaderApp extends React.PureComponent {
   };
 
   closeLinkCat = () => {
-    this.setState({connectionsMode: null});
+    this.setState({connectionsMode: null, highlightedWordID: null, highlightedWordSegmentRef: null});
   };
 
   updateLinkSummary = (section, segment) => {
@@ -2078,7 +2084,10 @@ class ReaderApp extends React.PureComponent {
                   setDictionaryLookup={this.setDictionaryLookup}
                   shareCurrentSegment={this.shareCurrentSegment}
                   getDisplayedText={this.getDisplayedText}
-                  vowelToggleAvailable={vowelToggleAvailable}              
+                  vowelToggleAvailable={vowelToggleAvailable}
+                  highlightedWordID={this.state.highlightedWordID}
+                  highlightedWordSegmentRef={this.state.highlightedWordSegmentRef}
+                  setHighlightedWord={this.setHighlightedWord}            
                 />
             </View> }
 

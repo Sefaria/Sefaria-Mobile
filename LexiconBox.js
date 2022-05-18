@@ -1,8 +1,4 @@
 'use strict';
-/** 
- * TODO: Haven't refactored HTMLView to RenderHTML yet because lexicon doesn't work with RenderHTML by default
- * 
-*/
 
 import React, {useContext, useState, useEffect} from 'react';
 import {
@@ -11,15 +7,17 @@ import {
   ScrollView,
 } from 'react-native';
 import PropTypes from 'prop-types';
-import RenderHtml from 'react-native-render-html';
 import {
   LoadingView,
   OrderedList,
+  SimpleHTMLView,
   SText,
+  CSS_CLASS_STYLES,
 } from './Misc';
 import styles from './Styles.js';
 import strings from './LocalizedStrings';
 import { GlobalStateContext, getTheme } from './StateManager';
+import { HTMLContentModel, HTMLElementModel } from 'react-native-render-html';
 
 const shouldActivate = selectedWords => {
   if(selectedWords && selectedWords.match(/[\s:\u0590-\u05ff.]+/)) {
@@ -94,36 +92,33 @@ LexiconBox.propTypes = {
 };
 
 /*
-  Component that renders HTML content with ability to click on inline refs / external links
-  Needs to render HTML using nested HTMLView in order to distinguish font styles for English and Hebrew
+  Renders HTML content with ability to click on inline refs / external links
 */
 
 const LexiconText = ({ value, handleOpenURL, lang, fSize, style }) => {
   style = style || {};
   return (
-    <HTMLView
-      value={value}
-      onLinkPress={handleOpenURL}
-      stylesheet={styles}
-      RootComponent={Text}
-      TextComponent={({children, style, textComponentProps, ...props}) => (
-        <HTMLView
-          value={Sefaria.util.getDisplayableHTML(children, lang)}
-          textComponentProps={textComponentProps}
-          {...props}
-        />
-      )}
-      textComponentProps={{
-        stylesheet: styles,
-        RootComponent: Text,
-        TextComponent: SText,
-        textComponentProps: {
-          lang,
-          style: {...(lang === 'hebrew' ? styles.he : styles.en), fontSize: fSize, ...style},  // note, not including theme.text here because it doesn't work with blue a tags. Decided to forgo theme for blue a tags.
-          lineMultiplier: 1.15
+    <SimpleHTMLView
+      text={value}
+      lang={lang}
+      onPressATag={handleOpenURL}
+      renderers={{span: ({ TDefaultRenderer, ...props }) => {
+        if (props.tnode.init.textNode) {
+          const css_styles = props.tnode.classes.map(cls => CSS_CLASS_STYLES[cls]);
+          return (
+            <SText
+              lang={lang}
+              lineMultiplier={1.15}
+              style={[(lang === 'hebrew' ? styles.he : styles.en), { fontSize: fSize }, style].concat(css_styles)}  // note, not including theme.text here because it doesn't work with blue a tags. Decided to forgo theme for blue a tags.
+            >
+              {props.tnode.init.textNode.data}
+            </SText>
+          );
         }
-      }}
-
+        return (
+          <TDefaultRenderer {...props} />
+        );
+      }}}
     />
   );
 }
@@ -152,16 +147,22 @@ const LexiconAttribution = ({ entry, handleOpenURL }) => {
   const fullContent = [
     lexicon_dtls['source_url'] ? `<a href="${lexicon_dtls["source_url"]}">${sourceContent}</a>` : `${sourceContent}\n`,
     lexicon_dtls['attribution_url'] ? `<a href="${lexicon_dtls['attribution_url']}">${attributionContent}</a>` : attributionContent,
-  ].join('');
+  ].join('<br>');
   return (
-      <HTMLView
-        value={fullContent}
-        stylesheet={{...styles, ...{a: theme.quaternaryText}}}
-        onLinkPress={handleOpenURL}
-        textComponentProps={{
-          style: {fontSize: englishFontSize, ...theme.quaternaryText}
-        }}
-      />
+    <SimpleHTMLView
+      text={fullContent}
+      onPressATag={handleOpenURL}
+      extraStyles={[styles.enInt, {fontSize: englishFontSize}, theme.quaternaryText]}
+      customHTMLElementModels={{
+        'a': HTMLElementModel.fromCustomModel({
+          tagName: 'a',
+          mixedUAStyles: {
+            textDecorationLine: 'underline',
+          },
+          contentModel: HTMLContentModel.mixed
+        })
+      }}
+    />
   );
 };
 

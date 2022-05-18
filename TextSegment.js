@@ -2,7 +2,7 @@
 
 import PropTypes from 'prop-types';
 
-import React, { useState, useEffect, useContext, Fragment, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   Platform,
   Share,
@@ -12,11 +12,13 @@ import {
 } from 'react-native';
 import ActionSheet from 'react-native-action-sheet';
 import { RenderHTML } from 'react-native-render-html';
-// import { SelectableText } from "@astrocoders/react-native-selectable-text";
 import Clipboard from "@react-native-community/clipboard";
+import ReactNativeHapticFeedback from "react-native-haptic-feedback";
 import strings from './LocalizedStrings';
 import { SYSTEM_FONTS } from './Misc';
 import { useHTMLViewStyles } from './useHTMLViewStyles';
+import { useGlobalState, useRenderersProps } from './Hooks';
+import { getTheme } from './StateManager';
 
 const useSource = (data) => {
   const [ source, setSource ] = useState({html: data});
@@ -25,19 +27,6 @@ const useSource = (data) => {
     return () => {};
   }, [data]);
   return source;
-};
-
-const useRenderersProps = (handleOpenURL) => {
-  const makeRenderersProps = (handleOpenURL) => {
-    return {
-      a: { onPress: (event, url) => { handleOpenURL(url); } }
-    };
-  };
-  const [ renderersProps, setRenderersProps ] = useState(makeRenderersProps(handleOpenURL));
-  useEffect(() => {
-    setRenderersProps(makeRenderersProps(handleOpenURL));
-  }, [handleOpenURL]);
-  return renderersProps;
 };
 
 // pass correct functions to TextSegment for sheet renderers. probably combine renderers and make it simpler
@@ -53,6 +42,8 @@ const TextSegment = React.memo(({
   onTextPress,
   shareCurrentSegment,
   getDisplayedText,
+  setHighlightedWord,
+  highlightedWordID,
 }) => {
   const source = useSource(data);
   const renderersProps = useRenderersProps(handleOpenURL);
@@ -94,12 +85,13 @@ const TextSegment = React.memo(({
       else if (buttonIndex === 1) { shareCurrentSegment(section, segment, segmentRef); }
     })
   }, [segmentRef]);
-  const onPress = useCallback(() => onTextPress(), [onTextPress]);
+  const onPress = useCallback((e, onlyOpen) => {
+    onTextPress(onlyOpen);
+  }, [onTextPress]);
 
   return (
     <TouchableOpacity
       onPress={onPress}
-      onLongPress={onLongPress}
       delayPressIn={200}
     >
       <RenderHTML
@@ -111,6 +103,24 @@ const TextSegment = React.memo(({
         systemFonts={SYSTEM_FONTS}
         renderersProps={renderersProps}
         dangerouslyDisableWhitespaceCollapsing
+        renderers={{span: ({ TDefaultRenderer, ...props }) => {
+          if (props.tnode.classes.indexOf('clickableWord') > -1) {
+            return (
+              <ClickableWord
+                onPress={onPress}
+                setDictionaryLookup={setDictionaryLookup}
+                setHighlightedWord={setHighlightedWord}
+                highlightedWordID={highlightedWordID}
+                segmentRef={segmentRef}
+                TDefaultRenderer={TDefaultRenderer}
+                { ...props }
+              />
+            );
+          }
+          return (
+            <TDefaultRenderer {...props} />
+          );
+        }}}
       />
     </TouchableOpacity>
   );
@@ -124,6 +134,24 @@ TextSegment.propTypes = {
   bilingual:          PropTypes.bool,
   onTextPress:        PropTypes.func.isRequired,
   showToast:          PropTypes.func.isRequired,
+};
+
+const ClickableWord = ({ onPress, setDictionaryLookup, setHighlightedWord, highlightedWordID, segmentRef, TDefaultRenderer, ...props }) => {
+  const { themeStr } = useGlobalState();
+  const theme = getTheme(themeStr);
+  const word = props.tnode.init.textNode.data;
+  const wordID = `${props.tnode.__nodeIndex}|${word}`;  // not guaranteed to be unique but hopefully good enough. these components are recycled by flatlist (i believe) so can't use a random number here
+  const isHighlighted = wordID === highlightedWordID;
+  return (
+    <Text onPress={onPress} style={isHighlighted ? theme.wordHighlight : null} onLongPress={() => {
+      onPress(null, true);  // open resources
+      ReactNativeHapticFeedback.trigger("impactMedium");
+      setHighlightedWord(wordID, segmentRef);
+      setDictionaryLookup({ dictLookup: word });
+    }}>
+      <TDefaultRenderer {...props} />
+    </Text>
+  );
 };
 
 export default TextSegment;

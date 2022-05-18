@@ -20,7 +20,7 @@ import {
   useWindowDimensions,
 } from 'react-native';
 import { GlobalStateContext, DispatchContext, STATE_ACTIONS, themeStr, getTheme } from './StateManager';
-import { useGlobalState } from './Hooks';
+import { useGlobalState, useRenderersProps } from './Hooks';
 import Sefaria from './sefaria';
 import styles from './Styles.js';
 import strings from './LocalizedStrings';
@@ -1102,9 +1102,10 @@ SimpleInterfaceBlock.propTypes = {
   extraStyles: PropTypes.array,
 };
 
-const SimpleHTMLView = ({text, lang, extraStyles=[], ...renderHTMLProps}) => {
+const SimpleHTMLView = ({text, lang, extraStyles=[], onPressATag, ...renderHTMLProps}) => {
   const { themeStr } = useContext(GlobalStateContext);
   const { width } = useWindowDimensions();
+  const renderersProps = useRenderersProps(onPressATag);
   const theme = getTheme(themeStr);
   const html = Sefaria.util.getDisplayableHTML(text, lang);
   const textStyle = [lang == "hebrew" ? styles.hebrewText : styles.englishText, theme.text].concat(extraStyles);
@@ -1115,6 +1116,7 @@ const SimpleHTMLView = ({text, lang, extraStyles=[], ...renderHTMLProps}) => {
       defaultTextProps={{ style: textStyle }}
       classesStyles={CSS_CLASS_STYLES}
       systemFonts={SYSTEM_FONTS}
+      renderersProps={renderersProps}
       {...renderHTMLProps}
     />
   );

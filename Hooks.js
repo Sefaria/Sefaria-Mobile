@@ -139,3 +139,16 @@ export function useRtlFlexDir(lang, dir='row', reverse) {
   const langReverse = isRTL ^ reverse;  // rare situation where XOR makes sense
   return `${dir}${langReverse ? '-reverse' : ''}`;
 }
+
+export function useRenderersProps (onPressATag) {
+  /**
+   * Used for the `renderersProps` prop of `RenderHTML`. Currently only supports setting a-tag onPress.
+   * @param {*} onPressATag function to run when pressing a-tag
+   * @returns 
+   */
+  return useMemo(() => {
+    return {
+      a: { onPress: (event, url) => { onPressATag(url); } }
+    };
+  }, [onPressATag]);
+};

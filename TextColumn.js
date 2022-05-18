@@ -129,6 +129,7 @@ class TextColumn extends React.PureComponent {
         data: props.data[0].map((source, segmentNumber) => {
           let type = null;
           const sheetNodeRef = `${sheetRef}:${segmentNumber}`;
+          const highlightedWordID = props.highlightedWordSegmentRef === sheetNodeRef && props.highlightedWordID;
           const row = {
             ref: sheetNodeRef,
             data: {
@@ -136,6 +137,7 @@ class TextColumn extends React.PureComponent {
               sectionIndex: 0,
               rowIndex: segmentNumber,
               highlight: props.textListVisible && props.segmentRef == sheetNodeRef,
+              highlightedWordID,
             },
             changeString: sheetNodeRef,
           };
@@ -194,7 +196,8 @@ class TextColumn extends React.PureComponent {
           }
           const rowContent = data[sectionIndex][i];
           const highlight = offsetRef == rowID || (props.textListVisible && props.segmentRef == rowID);
-          const changeString = `${rowID}|${!!rowContent.links && rowContent.links.length}|${highlight}|${this.props.fontSize}`;
+          const highlightedWordID = props.highlightedWordSegmentRef === rowID && props.highlightedWordID;
+          const changeString = `${rowID}|${!!rowContent.links && rowContent.links.length}|${highlight}|${this.props.fontSize}|${highlightedWordID}`;
           let rowData = this.dataSourceHash[changeString];
           if (!rowData) {
             rowData = {
@@ -202,6 +205,7 @@ class TextColumn extends React.PureComponent {
               sectionIndex,
               rowIndex: i,
               highlight,
+              highlightedWordID,
             };
             this.dataSourceHash[changeString] = rowData;           
           } else {
@@ -296,6 +300,8 @@ class TextColumn extends React.PureComponent {
 
       }
 
+    } else {
+      this.props.setHighlightedWord(null);
     }
     this.props.textSegmentPressed(section, segment, segmentRef, true, onlyOpen);
   };
@@ -318,7 +324,9 @@ class TextColumn extends React.PureComponent {
         this.props.linksLoaded !== prevProps.linksLoaded ||
         this.props.textToc !== prevProps.textToc ||
         (this.props.sheet && this.props.sheet.id) !== (prevProps.sheet && prevProps.sheet.id) ||
-        this.props.showAliyot !== prevProps.showAliyot) {
+        this.props.showAliyot !== prevProps.showAliyot ||
+        this.props.highlightedWordID !== prevProps.highlightedWordID ||
+        this.props.highlightedWordSegmentRef !== prevProps.highlightedWordSegmentRef) {
       // Only update dataSource when a change has occurred that will result in different data
       //TODO how to optimize this function when fontSize is changing?
       this.performUpdate(prevProps);
@@ -432,7 +440,7 @@ class TextColumn extends React.PureComponent {
   };
 
   onTopReached = () => {
-    if (this.props.loadingTextHead === true || !this.props.prev || this.state.jumpState.jumping) {
+    if (this.props.loadingTextHead === true || !this.props.prev || this.state.jumpState.jumping || !!this.props.sheet) {
       //already loading tail, or nothing above
       return;
     }
@@ -541,6 +549,7 @@ class TextColumn extends React.PureComponent {
           getDisplayedText={this.props.getDisplayedText}
           vowelToggleAvailable={this.props.vowelToggleAvailable}
           isSheet={this.props.isSheet}
+          setHighlightedWord={this.props.setHighlightedWord}
         />
       </View>
     );

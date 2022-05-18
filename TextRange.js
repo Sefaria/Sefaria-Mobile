@@ -28,6 +28,7 @@ const TextRange = React.memo(({
   getDisplayedText,
   vowelToggleAvailable,
   isSheet,
+  setHighlightedWord,
 }) => {
   const { themeStr, textLanguage, biLayout, fontSize, vocalization } = useContext(GlobalStateContext);
 
@@ -38,8 +39,8 @@ const TextRange = React.memo(({
 
   let enText = rowData.content.text || "";
   let heText = Sefaria.util.applyVocalizationSettings(rowData.content.he, vocalization, vowelToggleAvailable) || "";
-  enText = Sefaria.util.getDisplayableHTML(enText, 'english', isSheet);
-  heText = Sefaria.util.getDisplayableHTML(heText, 'hebrew', isSheet);
+  enText = Sefaria.util.getDisplayableHTML(enText, 'english', isSheet, false);
+  heText = Sefaria.util.getDisplayableHTML(heText, 'hebrew', isSheet, true);
   let numLinks = rowData.content.links ? rowData.content.links.length : 0;
 
   const textLanguageWithContent = Sefaria.util.getTextLanguageWithContent(textLanguage, enText, heText);
@@ -112,6 +113,8 @@ const TextRange = React.memo(({
                   handleOpenURL={handleOpenURL}
                   shareCurrentSegment={shareCurrentSegment}
                   getDisplayedText={getDisplayedText}
+                  setHighlightedWord={setHighlightedWord}
+                  highlightedWordID={rowData.highlightedWordID}
                 />
               </View>
             ) : null
@@ -134,6 +137,8 @@ const TextRange = React.memo(({
                   handleOpenURL={handleOpenURL}
                   shareCurrentSegment={shareCurrentSegment}
                   getDisplayedText={getDisplayedText}
+                  setHighlightedWord={setHighlightedWord}
+                  highlightedWordID={rowData.highlightedWordID}
                 />
               </View>
             ) : null

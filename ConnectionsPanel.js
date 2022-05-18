@@ -79,6 +79,8 @@ class ConnectionsPanel extends React.PureComponent {
     openTopic:            PropTypes.func.isRequired,
   };
 
+  reloadRelated = () => this.props.loadRelated(this.props.sectionRef);
+  
   render() {
     let recentFilters, filterIndex, listContents, loadContent, updateCat;
     switch (this.props.connectionsMode) {
@@ -284,7 +286,7 @@ class ConnectionsPanel extends React.PureComponent {
                 shareCurrentSegment={this.props.shareCurrentSegment}
                 reportError={this.props.reportError}
                 viewOnSite={this.props.viewOnSite}
-                reloadRelated={() => this.props.loadRelated(this.props.sectionRef)}
+                reloadRelated={this.reloadRelated}
               />
             );
           }
