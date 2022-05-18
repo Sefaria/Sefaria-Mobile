@@ -1426,14 +1426,22 @@ Sefaria.util = {
         // self-closing case
         return `<${node.name} ${attributes}>`;
       }
+      const shouldWrapChildren = node.name !== "a";  // dont wrap contents in a tags.
+      const nodeContents = node.children.map(
+        (c, i) => _wrap(c, i, shouldWrapChildren)
+      ).join('');
       return (
-        `<${node.name} ${attributes}>${node.children.map((c, i) => _wrap(c, i)).join('')}</${node.name}>`
+        `<${node.name} ${attributes}>${nodeContents}</${node.name}>`
       );
     };
-    const _wrap = (node, index) => {
+    const _wrap = (node, index, shouldWrapChildren) => {
       switch (node.type) {
         case ElementType.Text:
-          return _wrapTextNode(node, index);
+          if (shouldWrapChildren) {
+            return _wrapTextNode(node, index);
+          } else {
+            return node.data;
+          }
         case ElementType.Tag:
           return _wrapElement(node, index);
       }
