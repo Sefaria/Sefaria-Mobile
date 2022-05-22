@@ -602,8 +602,8 @@ class TextColumn extends React.PureComponent {
     if (this.props.isSheet) {
       return (
         <View>
-          <Text style={styles.sheetTitle}><HebrewInEnglishText text={this.props.sheetMeta.title} stylesHe={[styles.heInEn]} stylesEn={[]}/></Text>
-          <Text style={styles.sheetAuthor}>{this.props.sheetMeta.ownerName}</Text>
+          <Text style={[styles.sheetTitle, this.props.theme.text]}><HebrewInEnglishText text={this.props.sheetMeta.title} stylesHe={[styles.heInEn]} stylesEn={[]}/></Text>
+          <Text style={[styles.sheetAuthor, this.props.theme.tertiaryText]}>{this.props.sheetMeta.ownerName}</Text>
         </View>
       )
     }

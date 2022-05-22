@@ -857,7 +857,6 @@ export default StyleSheet.create({
   },
   sheetTitle: {
     fontSize: 20,
-    color: "#000",
     textAlign: "center",
     fontFamily: "Amiri",
     margin:20,
