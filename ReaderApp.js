@@ -264,8 +264,8 @@ class ReaderApp extends React.PureComponent {
           const mostRecent =  Sefaria.history.lastPlace.length ? Sefaria.history.lastPlace[0] : {ref: "Genesis 1"};
           this.openRef(mostRecent.ref, null, mostRecent.versions, false)  // first call to openRef should not add to backStack
           .then(Sefaria.postInitSearch)
+          .then(() => { this.setState({_completedInit: true}); })  // setting this true before end of postInit. postInit takes a surprisingly long time due to download update check.
           .then(() => Sefaria.postInit(this.props.downloadNetworkSetting))
-          .then(() => { this.setState({_completedInit: true}); })
           .then(this.promptLibraryDownload.bind(this));
         } else {
           // apply deep link here to make sure it applies correctly
@@ -274,8 +274,8 @@ class ReaderApp extends React.PureComponent {
           .then(() => {
             this._deepLinkRouterRef.route(this._initDeepLinkURL);
           })
-          .then(() => Sefaria.postInit(this.props.downloadNetworkSetting))
           .then(() => { this.setState({_completedInit: true}); })
+          .then(() => Sefaria.postInit(this.props.downloadNetworkSetting))
           .then(this.promptLibraryDownload.bind(this));
         }
     });
