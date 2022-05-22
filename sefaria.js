@@ -1460,9 +1460,9 @@ Sefaria.util = {
     text = text.trim();
     let html;
     if (lang === 'english') {
-      html = `<span class="english">\u2066${Sefaria.util.hebrewInEnglish(text, 'string')}</span>`;
+      html = `<div class="english">\u2066${Sefaria.util.hebrewInEnglish(text, 'string')}</div>`;
     } else {
-      html = `<span class="hebrew">${text}</span>`;
+      html = `<div class="hebrew">${text}</div>`;
     }
     if (clickableWords) {
       html = Sefaria.util.wrapWordsWithClickableHTML(html);
