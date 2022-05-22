@@ -204,32 +204,33 @@ class AutocompleteList extends React.Component {
     if (item.query) { item.title = item.query; }
     // toc queries get saved as arrays
     const isHeb = this.state.completionsLang === 'he';
+    const isWhite = this.props.themeStr === 'white';
     let src;
     switch (item.type) {
       case "searchFor":
       case "query":
-        src = this.props.themeStr === "white" ? require("./img/search.png") : require("./img/search-light.png");
+        src = isWhite ? require("./img/search.png") : require("./img/search-light.png");
         break;
       case "ref":
       case "book":
-        src = this.props.themeStr === "white" ? require("./img/book.png") : require("./img/book-light.png");
+        src = isWhite ? require("./img/book.png") : require("./img/book-light.png");
         break;
       case "toc":
       case "toccategory":
-        src = this.props.themeStr === "white" ? require("./img/category.png") : require("./img/category-light.png");
+        src = isWhite ? require("./img/category.png") : require("./img/category-light.png");
         break;
       case "group":
-        src = this.props.themeStr === "white" ? require("./img/group.png") : require("./img/group-light.png");
+        src = isWhite ? require("./img/group.png") : require("./img/group-light.png");
         break;        
       case "authortopic":
-        src = this.props.themeStr === "white" ? require("./img/quill.png") : require("./img/quill-light.png");
+        src = isWhite ? require("./img/quill.png") : require("./img/quill-light.png");
         break;
       case "persontopic":
       case "topic":
-        src = this.props.themeStr === "white" ? require("./img/hashtag.png") : require("./img/hashtag-light.png");
+        src = isWhite ? require("./img/hashtag.png") : require("./img/hashtag-light.png");
         break;
       case "user":
-        src = {uri: item.pic};
+        src = item.pic.length ? {uri: item.pic} : (isWhite ? require("./img/user.png") : require("./img/user-light.png"));
         break;
       case "collection":
         src = this.props.themeStr === "white" ? require("./img/layers.png") : require("./img/layers-light.png");
