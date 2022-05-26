@@ -142,13 +142,14 @@ const ClickableWord = ({ onPress, setDictionaryLookup, setHighlightedWord, highl
   const word = props.tnode.init.textNode.data;
   const wordID = `${props.tnode.__nodeIndex}|${word}`;  // not guaranteed to be unique but hopefully good enough. these components are recycled by flatlist (i believe) so can't use a random number here
   const isHighlighted = wordID === highlightedWordID;
+  const onLongPress = useCallback(() => {
+    onPress(null, true);  // open resources
+    ReactNativeHapticFeedback.trigger("impactMedium");
+    setHighlightedWord(wordID, segmentRef);
+    setDictionaryLookup({ dictLookup: word });
+  }, [segmentRef]);  // not sure if I need wordID here also. Doesn't seem so.
   return (
-    <Text onPress={onPress} style={isHighlighted ? theme.wordHighlight : null} onLongPress={() => {
-      onPress(null, true);  // open resources
-      ReactNativeHapticFeedback.trigger("impactMedium");
-      setHighlightedWord(wordID, segmentRef);
-      setDictionaryLookup({ dictLookup: word });
-    }}>
+    <Text onPress={onPress} style={isHighlighted ? theme.wordHighlight : null} onLongPress={onLongPress}>
       <TDefaultRenderer {...props} />
     </Text>
   );
