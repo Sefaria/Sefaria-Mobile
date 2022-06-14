@@ -1171,11 +1171,19 @@ class ReaderApp extends React.PureComponent {
         preferredBarTintColor: Sefaria.palette.system,
         preferredControlTintColor: Sefaria.palette.system,
       }
-    }).catch(error => { this.openInDefaultBrowser(uri); })
+    }).catch(error => { this.openInDefaultBrowser(uri); });
   };
 
   openInDefaultBrowser = uri => {
-    Linking.openURL(uri);
+    Linking.openURL(uri).catch(error => {
+      Alert.alert(
+        "Failed to open URL",
+        `Failed to open ${uri}. If your browser is updating, wait for it to finish and try again. Otherwise, your phone might not have a browser installed. For help, email hello@sefaria.org.`,
+        [
+          {text: strings.ok}
+        ]
+      );
+    });
   }
 
   goBack = () => {
