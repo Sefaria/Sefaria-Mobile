@@ -1,7 +1,7 @@
-def VERSION_BUILD=6153
+def VERSION_BUILD=6155
 def VERSION_MAJOR=5
 def VERSION_MINOR=14
-def VERSION_PATCH=0
+def VERSION_PATCH=2
 
 apply plugin: "com.android.application"
 apply from: '../../node_modules/react-native-unimodules/gradle.groovy'
