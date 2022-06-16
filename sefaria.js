@@ -1464,9 +1464,9 @@ Sefaria.util = {
     } else {
       html = `<div class="hebrew">${text}</div>`;
     }
-    if (clickableWords && html.split(" ").length <= 350) {
+    if (clickableWords && html.split(" ").length <= 150) {
       // unfortunately, word wrapping leads to expensive rendering
-      // currently limiting word wrapping to semgents with 350 or fewer words
+      // currently limiting word wrapping to semgents with 150 or fewer words
       html = Sefaria.util.wrapWordsWithClickableHTML(html);
     }
     return html;
