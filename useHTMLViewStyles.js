@@ -32,6 +32,9 @@ export function useHTMLViewStyles(bilingual, textType) {
         small: {
           fontSize: fontSize * 0.8 * (textType === "hebrew" ? 1 : 0.8)
         },
+        big: {
+          fontSize: fontSize * 1.2 * (textType === "hebrew" ? 1 : 1.2)
+        },
       };
 
       // fontSize used to be in textStyle but apparently that overrides styles in tagsStyles so small tags wouldn't render with smaller fontSize
