@@ -10,7 +10,7 @@ export function useHTMLViewStyles(bilingual, textType) {
 
     const getHTMLViewStyles = useCallback((bilingual, textType) => {
       const isHeb = textType == "hebrew";
-      const lineHeightMultiplier = isHeb ? (Platform.OS === 'android' ? 1.333 : 1.2) : 1.15;
+      const lineHeightMultiplier = isHeb ? (Platform.OS === 'android' ? 1.333 : 1.25) : 1.15;
       const fontSizeMultiplier = isHeb ? 1 : 0.8;
       const justifyStyle = {textAlign: (isStacked && Platform.OS === 'ios') ? 'justify' : (textType === 'hebrew' ? 'right' : 'left')};
       const lineHeight = fontSize * lineHeightMultiplier;
