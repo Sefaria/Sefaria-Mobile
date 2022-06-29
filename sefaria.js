@@ -204,8 +204,7 @@ Sefaria = {
           data = await Sefaria._loadJSON(jsonPath);
           return preResolve(data);
         } catch (e2) {
-          // Now that the file is unzipped, if there was an error assume we have a depth 1 text
-          // NOAH 10/30/2019 not sure if this path is ever reached
+          // Now that the file is unzipped, if there was an error assume we have a depth 1 or 3 text
           var depth1FilenameStem = fileNameStem.substr(0, fileNameStem.lastIndexOf(" "));
           var depth1JSONPath = Sefaria._JSONSourcePath(depth1FilenameStem);
           try {
