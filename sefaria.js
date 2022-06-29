@@ -1457,6 +1457,15 @@ Sefaria.util = {
     const document = parseDocument(html);
     return document.children.map((c, i) => _wrap(c, i)).join("");
   },
+  hackyFixForCantillationAtStart: function(text) {
+    // cantillation at start of string can get cut off for some reason (possibly an issue with React Native, possibly the Hebrew font we're using)
+    // hacky fix is to add a leading space
+    const reg = new RegExp('^.{0,3}[\u05a0\u05a9]');
+    if (reg.test(text)) {
+      return " " + text;
+    }
+    return text;
+  },
   getDisplayableHTML: function(text, lang, isSheet, clickableWords) {
     if (typeof(text) !== 'string') {
       return '';
@@ -1469,7 +1478,7 @@ Sefaria.util = {
     if (lang === 'english') {
       html = `<div class="english">\u2066${Sefaria.util.hebrewInEnglish(text, 'string')}</div>`;
     } else {
-      html = `<div class="hebrew">${text}</div>`;
+      html = `<div class="hebrew">${Sefaria.util.hackyFixForCantillationAtStart(text)}</div>`;
     }
     if (clickableWords && html.split(" ").length <= 150) {
       // unfortunately, word wrapping leads to expensive rendering
