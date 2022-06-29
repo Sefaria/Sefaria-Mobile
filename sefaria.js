@@ -113,6 +113,7 @@ Sefaria = {
                 }
               })
           } else {
+            console.error("Error loading offline file", error);
             reject(error);
           }
         })
@@ -124,19 +125,26 @@ Sefaria = {
     } else {
       // If the data file represents multiple sections, pick the appropriate one to return
       const refUpOne = Sefaria.refUpOne(ref);
-      //console.log(ref, data.sections);
-      if (ref in data.sections) {
-        return data.sections[ref];
-      } else if (refUpOne in data.sections) {
-        return data.sections[refUpOne];
-      } else {
-        return;
+
+      // for malformed URLs that we can possibly correct
+      const refWColon = Sefaria.refMissingColon(ref);
+      const refWColonUpOne = Sefaria.refMissingColon(refUpOne);
+      const possibleRefs = [ref, refUpOne, refWColon, refWColonUpOne];
+      for (let tempRef of possibleRefs) {
+        if (data.sections[tempRef]) {
+          return data.sections[tempRef];
+        }
       }
     }
   },
   refUpOne: function(ref) {
     //return ref up one level, assuming you can
     return ref.lastIndexOf(":") !== -1 ? ref.slice(0, ref.lastIndexOf(":")) : ref;
+  },
+  refMissingColon: function(ref) {
+    // the site can handle links that end "\d+ \d+". I believe this links are non-standard but since the site handles them, app should also
+    // Need to add missing colon
+    return ref.replace(/(\d+) (\d+)$/, "$1:$2");
   },
   processFileData: function(ref, data) {
     return new Promise((resolve, reject) => {
