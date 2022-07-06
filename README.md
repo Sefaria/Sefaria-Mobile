@@ -30,8 +30,8 @@ Put `google-services.json` in the `android/app` directory.
 
 To build and start the simulator:
 
-From the root of the repo, run `react-native start`.  
-From another terminal, run `react-native run-ios` or `react-native run-android`
+From the root of the repo, run `npx react-native start`.  
+From another terminal, run `npx react-native run-ios` or `npx react-native run-android`
 
 Alternatively for iOS, you can open `/ios/ReaderApp.xcworkspace` and hit run.
 
