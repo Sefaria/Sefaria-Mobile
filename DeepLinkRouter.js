@@ -100,7 +100,8 @@ class DeepLinkRouter extends React.PureComponent {
   openSearch = ({ q, tab, tvar, tsort, svar, ssort }) => {
     // TODO: implement tab, svar and ssort
     const isExact = !!tvar && tvar.length > 0 && tvar === '0';
-    this.props.setSearchOptions(tsort, isExact, () => { this.props.openSearch(tab, q); });
+    tsort = tsort || 'relevance';
+    this.props.setSearchOptions(tab, tsort, isExact, () => { this.props.openSearch(tab, q); });
   };
   catchAll = ({ url }) => {
     // runs in case no route can handle this url
