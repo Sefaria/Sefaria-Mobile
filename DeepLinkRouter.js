@@ -101,6 +101,7 @@ class DeepLinkRouter extends React.PureComponent {
     // TODO: implement tab, svar and ssort
     const isExact = !!tvar && tvar.length > 0 && tvar === '0';
     tsort = tsort || 'relevance';
+    tab = tab || 'text';
     this.props.setSearchOptions(tab, tsort, isExact, () => { this.props.openSearch(tab, q); });
   };
   catchAll = ({ url }) => {
