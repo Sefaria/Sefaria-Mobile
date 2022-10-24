@@ -1406,7 +1406,7 @@ Sefaria.util = {
     const regEx = /(^|[\s\[\]().,;:*?!\-—"'<>])((?:[\u0591-\u05c7\u05d0-\u05ea]+[()\[\]\s'"\u05f3\u05f4]{0,2})+)(?![^<]+>)([\s\[\]().,;:*?!\-—"'<>]|$)/g
     if (whatToReturn == "string") {
       // wrap all Hebrew strings with <span class="hebrew">
-      text = text.replace(/<span dir="rtl">(.*?)<\/span>/g, '<span class="hebrew">\u202B $1 \u202C</span>');
+      text = text.replace(/<span dir="rtl">(.*?)<\/span>/g, '<span class="hebrew">\u2067$1\u2069</span>');
       return text.replace(regEx, '$1<span class="hebrew">$2</span>$3');
     }
     else if (whatToReturn == "list") {

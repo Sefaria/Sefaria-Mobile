@@ -204,11 +204,11 @@ const LexiconEntry = ({ entry, handleOpenURL }) => {
       const allCited = ('all_cited' in entry) ? '† ' : '';
       const ordinal = ('ordinal' in entry) ? `${entry["ordinal"]} ` : '';
       const hw = `<span dir="rtl">${entry['headword'].replace(/[⁰¹²³⁴⁵⁶⁷⁸⁹]*$/, '')}</span>`;
-      const occurrences = ('occurrences' in entry) ? `<small>${entry['occurrences']}</small>` : '';
+      const occurrences = ('occurrences' in entry) ? `<sub>${entry['occurrences']}</sub>` : '';
       const alts = ('alt_headwords' in entry) ? entry['alt_headwords']
         .map(alt => {
             var ahw = `<span dir="rtl">${alt['word']}</span>`;
-            var aocc = ('occurrences' in alt) ? `<small>${alt['occurrences']}</small>` : '';
+            var aocc = ('occurrences' in alt) ? `<sub>${alt['occurrences']}</sub>` : '';
           return `<span>, ${ahw}${aocc}</span>`
         })
         .reduce((prev, curr) => [prev, curr]) : '';
@@ -216,10 +216,11 @@ const LexiconEntry = ({ entry, handleOpenURL }) => {
         (entry['brackets'] == 'all') ? `<span>[${hw}${occurrences}${alts}]</span>` :
           (entry['brackets'] == 'first_word') ? `<span>[${hw}${occurrences}]${alts}</span>` :
             hw + occurrences + alts;
+      console.log(peculiar + allCited + ordinal + allHeadwords)
       return (<SimpleHTMLView
           text={peculiar + allCited + ordinal + allHeadwords}
           lang="english"
-          extraStyles={[styles.he, {fontSize: fontSize}, theme.text]}
+          extraStyles={[styles.he, {fontSize: englishFontSize}, theme.text]}
       />);
       }
   }
