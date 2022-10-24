@@ -1099,20 +1099,21 @@ SimpleInterfaceBlock.propTypes = {
 const SimpleHTMLView = ({text, lang, extraStyles=[], onPressATag, ...renderHTMLProps}) => {
   const { themeStr } = useContext(GlobalStateContext);
   const { width } = useWindowDimensions();
-  const { _, classesStyles, tagsStyles } = useHTMLViewStyles(false, lang);
+  const { textStyle, classesStyles, tagsStyles } = useHTMLViewStyles(false, lang);
   const renderersProps = useRenderersProps(onPressATag);
   const theme = getTheme(themeStr);
   const html = Sefaria.util.getDisplayableHTML(text, lang);
-  const textStyle = [lang == "hebrew" ? styles.hebrewText : styles.englishText, theme.text].concat(extraStyles);
+  textStyle.style.concat(extraStyles);
   return (
     <RenderHTML
       source={{ html }}
       contentWidth={width}
-      defaultTextProps={{ style: textStyle }}
+      defaultTextProps={textStyle}
       classesStyles={classesStyles}
       tagsStyles={tagsStyles}
       systemFonts={SYSTEM_FONTS}
       renderersProps={renderersProps}
+      dangerouslyDisableWhitespaceCollapsing
       {...renderHTMLProps}
     />
   );
