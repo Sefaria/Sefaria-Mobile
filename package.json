@@ -41,7 +41,7 @@
     "inquirer": "^3.2.0",
     "jwt-decode": "^2.2.0",
     "link": "^0.1.5",
-    "moment": "^2.24.0",
+    "moment": "^2.29.4",
     "next-frame": "^0.2.3",
     "path": "^0.12.7",
     "performance-now": "^2.1.0",
