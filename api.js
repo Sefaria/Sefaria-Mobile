@@ -15,7 +15,7 @@ var Api = {
   /*
   takes responses from text and links api and returns json in the format of iOS json
   */
-  _baseHost: 'https://bdb.cauldron.sefaria.org/',
+  _baseHost: 'https://www.sefaria.org/',
   _textCache: {}, //in memory cache for API data
   _bulkText: {},
   _bulkSheets: {},
