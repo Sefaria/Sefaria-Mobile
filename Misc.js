@@ -952,13 +952,6 @@ class SText extends React.Component {
     style:    PropTypes.oneOfType([PropTypes.object, PropTypes.array]),
   }
 
-  // very naive guess at what the function should be
-  fsize2lheight = (fsize, lang, lineMultiplier) => (
-    (lineMultiplier || 1) * (Platform.OS === 'ios' ?
-    (lang !== "hebrew" ? (fsize * 1.2) : fsize) :
-    (lang !== "hebrew" ? (fsize * 1.333) : fsize))
-  );
-
   getFontSize = (style, lang) => {
     let fsize = 14;  // default font size in rn (i believe)
     for (let s of style) {
@@ -973,7 +966,7 @@ class SText extends React.Component {
     const styleArray = Array.isArray(style) ? style : [style];
     const fontSize = this.getFontSize(styleArray, lang);
     return (
-      <Text {...this.props} style={styleArray.concat([{lineHeight: this.fsize2lheight(fontSize, lang, lineMultiplier)}])}>
+      <Text {...this.props} style={styleArray.concat([{lineHeight: Sefaria.util.fsize2lheight(fontSize, lang, lineMultiplier)}])}>
         { children }
       </Text>
     );
