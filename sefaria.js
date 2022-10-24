@@ -1507,7 +1507,7 @@ Sefaria.util = {
       const libStats = await FileSystem.getInfoAsync(libPath);
       useLib = libStats.modificationTime * 1000 > Sefaria.lastAppUpdateTime;
     }
-    if (useLib) {
+    if (useLib && false) {
       fileData = await Sefaria._loadJSON(libPath);
     } else {  //if (isIOS) {
       fileData = await Sefaria._loadJSON(sourcePath);
