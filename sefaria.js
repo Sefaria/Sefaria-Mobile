@@ -1406,10 +1406,11 @@ Sefaria.util = {
     const regEx = /(^|[\s\[\]().,;:*?!\-—"'<>])((?:[\u0591-\u05c7\u05d0-\u05ea]+[()\[\]\s'"\u05f3\u05f4]{0,2})+)(?![^<]+>)([\s\[\]().,;:*?!\-—"'<>]|$)/g
     if (whatToReturn == "string") {
       // wrap all Hebrew strings with <span class="hebrew">
+      text = text.replace(/<span dir="rtl">(.*?)<\/span>/g, '<span class="hebrew">\u2067$1\u2069</span>');
       return text.replace(regEx, '$1<span class="hebrew">$2</span>$3');
     }
     else if (whatToReturn == "list") {
-      return text.split(regEx)
+      return text.split(regEx);
     }
   },
   wrapWordsWithClickableHTML: function(html) {
@@ -1682,7 +1683,12 @@ Sefaria.util = {
     }
     return Linking.openURL(url);
   },
-
+  // very naive guess at what the function should be
+  fsize2lheight : (fsize, lang, lineMultiplier) => (
+    (lineMultiplier || 1) * (Platform.OS === 'ios' ?
+    (lang !== "hebrew" ? (fsize * 1.2) : fsize) :
+    (lang !== "hebrew" ? (fsize * 1.333) : fsize))
+  )
 };
 
 Sefaria.api = Api;

@@ -24,9 +24,10 @@ import { useGlobalState, useRenderersProps } from './Hooks';
 import Sefaria from './sefaria';
 import styles from './Styles.js';
 import strings from './LocalizedStrings';
+import { useHTMLViewStyles } from './useHTMLViewStyles';
 import { RenderHTML } from 'react-native-render-html';
 
-const SYSTEM_FONTS = ["Taamey Frank Taamim Fix", "Amiri", "Heebo", "OpenSans"];  // list of system fonts. needed for RenderHTML
+const SYSTEM_FONTS = ["Taamey Frank Taamim Fix", "Amiri", "Heebo", "OpenSans", "SertoBatnan"];  // list of system fonts. needed for RenderHTML
 const CSS_CLASS_STYLES = {
   hebrew: {
     fontFamily: "Taamey Frank Taamim Fix",
@@ -952,13 +953,6 @@ class SText extends React.Component {
     style:    PropTypes.oneOfType([PropTypes.object, PropTypes.array]),
   }
 
-  // very naive guess at what the function should be
-  fsize2lheight = (fsize, lang, lineMultiplier) => (
-    (lineMultiplier || 1) * (Platform.OS === 'ios' ?
-    (lang !== "hebrew" ? (fsize * 1.2) : fsize) :
-    (lang !== "hebrew" ? (fsize * 1.333) : fsize))
-  );
-
   getFontSize = (style, lang) => {
     let fsize = 14;  // default font size in rn (i believe)
     for (let s of style) {
@@ -973,7 +967,7 @@ class SText extends React.Component {
     const styleArray = Array.isArray(style) ? style : [style];
     const fontSize = this.getFontSize(styleArray, lang);
     return (
-      <Text {...this.props} style={styleArray.concat([{lineHeight: this.fsize2lheight(fontSize, lang, lineMultiplier)}])}>
+      <Text {...this.props} style={styleArray.concat([{lineHeight: Sefaria.util.fsize2lheight(fontSize, lang, lineMultiplier)}])}>
         { children }
       </Text>
     );
@@ -1105,18 +1099,21 @@ SimpleInterfaceBlock.propTypes = {
 const SimpleHTMLView = ({text, lang, extraStyles=[], onPressATag, ...renderHTMLProps}) => {
   const { themeStr } = useContext(GlobalStateContext);
   const { width } = useWindowDimensions();
+  const { textStyle, classesStyles, tagsStyles } = useHTMLViewStyles(false, lang);
   const renderersProps = useRenderersProps(onPressATag);
   const theme = getTheme(themeStr);
   const html = Sefaria.util.getDisplayableHTML(text, lang);
-  const textStyle = [lang == "hebrew" ? styles.hebrewText : styles.englishText, theme.text].concat(extraStyles);
+  textStyle.style.concat(extraStyles);
   return (
     <RenderHTML
       source={{ html }}
       contentWidth={width}
-      defaultTextProps={{ style: textStyle }}
-      classesStyles={CSS_CLASS_STYLES}
+      defaultTextProps={textStyle}
+      classesStyles={classesStyles}
+      tagsStyles={tagsStyles}
       systemFonts={SYSTEM_FONTS}
       renderersProps={renderersProps}
+      dangerouslyDisableWhitespaceCollapsing
       {...renderHTMLProps}
     />
   );

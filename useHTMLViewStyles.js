@@ -33,8 +33,14 @@ export function useHTMLViewStyles(bilingual, textType) {
           fontSize: fontSize * 0.8 * (textType === "hebrew" ? 1 : 0.8)
         },
         big: {
-          fontSize: fontSize * 1.2 * (textType === "hebrew" ? 1 : 1.2)
+          fontSize,  // disabling big tags for now because they cause line to get cutoff
         },
+        sup : {
+          fontSize: fontSize * 0.6 * (textType === "hebrew" ? 1 : 0.8)
+        },
+        sub : {
+          fontSize: fontSize * 0.6 * (textType === "hebrew" ? 1 : 0.8)
+        }
       };
 
       // fontSize used to be in textStyle but apparently that overrides styles in tagsStyles so small tags wouldn't render with smaller fontSize
