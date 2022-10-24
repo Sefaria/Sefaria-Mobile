@@ -24,6 +24,7 @@ import { useGlobalState, useRenderersProps } from './Hooks';
 import Sefaria from './sefaria';
 import styles from './Styles.js';
 import strings from './LocalizedStrings';
+import { useHTMLViewStyles } from './useHTMLViewStyles';
 import { RenderHTML } from 'react-native-render-html';
 
 const SYSTEM_FONTS = ["Taamey Frank Taamim Fix", "Amiri", "Heebo", "OpenSans"];  // list of system fonts. needed for RenderHTML
@@ -1098,6 +1099,7 @@ SimpleInterfaceBlock.propTypes = {
 const SimpleHTMLView = ({text, lang, extraStyles=[], onPressATag, ...renderHTMLProps}) => {
   const { themeStr } = useContext(GlobalStateContext);
   const { width } = useWindowDimensions();
+  const { _, classesStyles, tagsStyles } = useHTMLViewStyles(false, lang);
   const renderersProps = useRenderersProps(onPressATag);
   const theme = getTheme(themeStr);
   const html = Sefaria.util.getDisplayableHTML(text, lang);
@@ -1107,7 +1109,8 @@ const SimpleHTMLView = ({text, lang, extraStyles=[], onPressATag, ...renderHTMLP
       source={{ html }}
       contentWidth={width}
       defaultTextProps={{ style: textStyle }}
-      classesStyles={CSS_CLASS_STYLES}
+      classesStyles={classesStyles}
+      tagsStyles={tagsStyles}
       systemFonts={SYSTEM_FONTS}
       renderersProps={renderersProps}
       {...renderHTMLProps}
