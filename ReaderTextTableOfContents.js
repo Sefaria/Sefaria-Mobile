@@ -392,9 +392,8 @@ const JaggedArrayNodeSection = ({ depth, sectionNames, addressTypes, contentCoun
       if (contentCountIsEmpty(contentCounts[i])) { continue; }
       let enSection = i+1;
       let heSection = Sefaria.hebrew.encodeHebrewNumeral(i+1);
-      if (addressTypes[0] === "Talmud") {
-        enSection = Sefaria.hebrew.intToDaf(i);
-        heSection = Sefaria.hebrew.encodeHebrewDaf(enSection);
+      if (["Talmud", "Folio"].includes(addressTypes[0])) {
+        [enSection, heSection] = Sefaria.hebrew.setDafOrFolio(addressTypes[0], i);
       }
       content.push(
         <View style={styles.textTocNumberedSectionBox} key={i}>
@@ -418,9 +417,8 @@ const JaggedArrayNodeSection = ({ depth, sectionNames, addressTypes, contentCoun
     if (contentCountIsEmpty(contentCounts[i])) { return null; }
     let section = i+1;
     let heSection = Sefaria.hebrew.encodeHebrewNumeral(i+1);
-    if (addressTypes[0] === "Talmud") {
-      section = Sefaria.hebrew.intToDaf(i);
-      heSection = Sefaria.hebrew.encodeHebrewDaf(section);
+      if (["Talmud", "Folio"].includes(addressTypes[0])) {
+        [section, heSection] = Sefaria.hebrew.setDafOrFolio(addressTypes[0], i);
     }
     const ref  = (refPath + ":" + section).replace(":", " ") + refPathTerminal(contentCounts[i]);
     return (
@@ -489,9 +487,8 @@ const ArrayMapNode = ({ schema, openRef, categories }) => {
       const enableAliyot = !!categories && categories[0] === "Tanakh" && categories[1] === "Torah";  // enable aliyot in reader when you click on an aliya
       let section = i+1;
       let heSection = Sefaria.hebrew.encodeHebrewNumeral(i+1);
-      if (schema.addressTypes[0] === "Talmud") {
-        section = Sefaria.hebrew.intToDaf(i);
-        heSection = Sefaria.hebrew.encodeHebrewDaf(section);
+      if (["Talmud", "Folio"].includes(addressTypes[0])) {
+        [section, heSection] = Sefaria.hebrew.setDafOrFolio(addressTypes[0], i);
       }
       return (
         <JaggedArrayNodeSectionBox
