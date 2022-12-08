@@ -44,7 +44,7 @@ import {
   FILE_DIRECTORY, downloadUpdate
 } from './DownloadControl';
 import Sefaria from "./sefaria";
-import {FileSystem} from "react-native-unimodules";
+import * as FileSystem from 'expo-file-system';
 const DEBUG_MODE = false;
 
 /**

@@ -14,7 +14,7 @@ import { initAsyncStorage } from './StateManager';
 import { VOCALIZATION } from './VocalizationEnum';
 import URL from 'url-parse';
 import analytics from '@react-native-firebase/analytics';
-import {FileSystem} from 'react-native-unimodules';
+import * as FileSystem from 'expo-file-system';
 import {parseDocument, ElementType} from 'htmlparser2';
 import {
   packageSetupProtocol,

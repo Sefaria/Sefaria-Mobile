@@ -3,7 +3,9 @@ package org.sefaria.sefaria;
 import androidx.multidex.MultiDexApplication;
 import android.content.Context;
 
-import org.sefaria.sefaria.generated.BasePackageList;
+import android.content.res.Configuration;
+import expo.modules.ApplicationLifecycleDispatcher;
+import expo.modules.ReactNativeHostWrapper;
 
 import com.facebook.react.PackageList;
 import com.facebook.react.ReactApplication;
@@ -20,17 +22,11 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.List;
 
-import org.unimodules.adapters.react.ModuleRegistryAdapter;
-import org.unimodules.adapters.react.ReactModuleRegistryProvider;
-import org.unimodules.core.interfaces.SingletonModule;
-
 public class MainApplication extends MultiDexApplication implements ReactApplication {
-  private final ReactModuleRegistryProvider mModuleRegistryProvider = new
-    ReactModuleRegistryProvider(new BasePackageList().getPackageList(), null);
 
   private final ReactNativeHost mReactNativeHost =
 
-    new ReactNativeHost(this) {
+  new ReactNativeHostWrapper(this, new ReactNativeHost(this) {
       @Override
       public boolean getUseDeveloperSupport() {
         return BuildConfig.DEBUG;
@@ -40,11 +36,6 @@ public class MainApplication extends MultiDexApplication implements ReactApplica
       protected List<ReactPackage> getPackages() {
         List<ReactPackage> packages = new PackageList(this).getPackages();
         packages.add(new SplashScreenReactPackage());
-        List<ReactPackage> unimodules = Arrays.<ReactPackage>asList(
-          new ModuleRegistryAdapter(mModuleRegistryProvider)
-          );
-        packages.addAll(unimodules);
-
         return packages;
         // return Arrays.<ReactPackage>asList(
         //     new MainReactPackage(),
@@ -65,10 +56,11 @@ public class MainApplication extends MultiDexApplication implements ReactApplica
       protected String getJSMainModuleName() {
         return "index";
       }
-    };
+    });
 
   @Override
   public ReactNativeHost getReactNativeHost() {
+    ApplicationLifecycleDispatcher.onApplicationCreate(this);
     return mReactNativeHost;
   }
 
@@ -80,4 +72,10 @@ public class MainApplication extends MultiDexApplication implements ReactApplica
     sharedI18nUtilInstance.allowRTL(this, false);
     SoLoader.init(this, /* native exopackage */ false);
   }
+
+  @Override
+	public void onConfigurationChanged(Configuration newConfig) {
+	  super.onConfigurationChanged(newConfig);
+	  ApplicationLifecycleDispatcher.onConfigurationChanged(this, newConfig);
+	}
 }

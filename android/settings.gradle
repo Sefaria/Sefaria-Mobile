@@ -1,5 +1,6 @@
 rootProject.name = 'ReaderApp'
-apply from: '../node_modules/react-native-unimodules/gradle.groovy'; includeUnimodulesProjects()
+apply from: new File(["node", "--print", "require.resolve('expo/package.json')"].execute(null, rootDir).text.trim(), "../scripts/autolinking.gradle")
+useExpoModules()
 include ':react-native-play-install-referrer'
 project(':react-native-play-install-referrer').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-play-install-referrer/android')
 include ':react-native-webview'

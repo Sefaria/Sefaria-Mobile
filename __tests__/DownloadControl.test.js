@@ -12,7 +12,7 @@ import {
   FILE_DIRECTORY, calculateBooksToDownload, calculateBooksToDelete, autoUpdateCheck
 } from '../DownloadControl'
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {FileSystem} from 'react-native-unimodules'
+import * as FileSystem from 'expo-file-system';
 import Sefaria from '../sefaria'
 
 

@@ -1,6 +1,6 @@
 'use strict';
 
-import {FileSystem} from 'react-native-unimodules'
+import * as FileSystem from 'expo-file-system';
 import {unzip} from 'react-native-zip-archive'; //for unzipping -- (https://github.com/plrthink/react-native-zip-archive)
 import strings from './LocalizedStrings'
 import {Alert, Platform} from 'react-native';

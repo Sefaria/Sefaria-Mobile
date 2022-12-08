@@ -4,7 +4,6 @@ def VERSION_MINOR=14
 def VERSION_PATCH=6
 
 apply plugin: "com.android.application"
-apply from: '../../node_modules/react-native-unimodules/gradle.groovy'
 import com.android.build.OutputFile
 
 /**
@@ -181,8 +180,6 @@ dependencies {
     implementation "com.facebook.react:react-native:+"  // From node_modules
     implementation 'androidx.multidex:multidex:2.0.1'
     implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.0.0"
-
-    addUnimodulesDependencies()
 
     if (enableHermes) {
         def hermesPath = "../../node_modules/hermes-engine/android/";

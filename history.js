@@ -1,6 +1,6 @@
 'use strict';
 import crashlytics from '@react-native-firebase/crashlytics';
-import {FileSystem} from 'react-native-unimodules'
+import * as FileSystem from 'expo-file-system';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { STATE_ACTIONS } from './StateManager';
 
