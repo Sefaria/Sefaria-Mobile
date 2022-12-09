@@ -48,7 +48,7 @@
     "performance-now": "^2.1.0",
     "prop-types": "^15.7.2",
     "react": "17.0.2",
-    "react-native": "0.67.0",
+    "react-native": "0.67.5",
     "react-native-action-sheet": "^2.2.0",
     "react-native-background-fetch": "^4.0.5",
     "react-native-gesture-handler": "^1.10.3",
