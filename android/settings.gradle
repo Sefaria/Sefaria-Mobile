@@ -1,48 +1,9 @@
 rootProject.name = 'ReaderApp'
 apply from: new File(["node", "--print", "require.resolve('expo/package.json')"].execute(null, rootDir).text.trim(), "../scripts/autolinking.gradle")
 useExpoModules()
-include ':react-native-play-install-referrer'
-project(':react-native-play-install-referrer').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-play-install-referrer/android')
-include ':react-native-webview'
-project(':react-native-webview').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-webview/android')
-include ':react-native-background-fetch'
-project(':react-native-background-fetch').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-background-fetch/android')
-include ':@react-native-firebase_analytics'
-project(':@react-native-firebase_analytics').projectDir = new File(rootProject.projectDir, '../node_modules/@react-native-firebase/analytics/android')
-include ':@react-native-firebase_app'
-project(':@react-native-firebase_app').projectDir = new File(rootProject.projectDir, '../node_modules/@react-native-firebase/app/android')
-include ':@react-native-firebase_crashlytics'
-project(':@react-native-firebase_crashlytics').projectDir = new File(rootProject.projectDir, '../node_modules/@react-native-firebase/crashlytics/android')
-include ':@react-native-firebase_remote-config'
-project(':@react-native-firebase_remote-config').projectDir = new File(rootProject.projectDir, '../node_modules/@react-native-firebase/remote-config/android')
-include ':rn-fetch-blob'
-project(':rn-fetch-blob').projectDir = new File(rootProject.projectDir, '../node_modules/rn-fetch-blob/android')
-include ':@react-native-community_clipboard'
-project(':@react-native-community_clipboard').projectDir = new File(rootProject.projectDir, '../node_modules/@react-native-community/clipboard/android')
-include ':@react-native-community_netinfo'
-project(':@react-native-community_netinfo').projectDir = new File(rootProject.projectDir, '../node_modules/@react-native-community/netinfo/android')
-include ':@react-native-async-storage_async-storage'
-project(':@react-native-async-storage_async-storage').projectDir = new File(rootProject.projectDir, '../node_modules/@react-native-async-storage/async-storage/android')
-include ':react-native-action-sheet'
-project(':react-native-action-sheet').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-action-sheet/android')
-include ':react-native-localization'
-project(':react-native-localization').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-localization/android')
-include ':react-native-shake'
-project(':react-native-shake').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-shake/android')
-include ':react-native-zip-archive'
-project(':react-native-zip-archive').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-zip-archive/android')
-include ':react-native-version-number'
-project(':react-native-version-number').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-version-number/android')
+apply from: file("../node_modules/@react-native-community/cli-platform-android/native_modules.gradle"); applyNativeModulesSettingsGradle(settings)
 include ':react-native-splash-screen'
 project(':react-native-splash-screen').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-splash-screen/android')
-include ':react-native-inappbrowser-reborn'
-project(':react-native-inappbrowser-reborn').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-inappbrowser-reborn/android')
-include ':react-native-gesture-handler'
-project(':react-native-gesture-handler').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-gesture-handler/android')
-include ':react-native-sound-player'
-project (':react-native-sound-player').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-sound-player/android')
-include ':react-native-haptic-feedback'
-project (':react-native-haptic-feedback').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-haptic-feedback/android')
 include ':app'
 includeBuild('../node_modules/react-native-gradle-plugin')
 if (settings.hasProperty("newArchEnabled") && settings.newArchEnabled == "true") {

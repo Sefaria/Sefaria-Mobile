@@ -23,7 +23,7 @@
     }
   },
   "dependencies": {
-    "@react-native-async-storage/async-storage": "^1.13.4",
+    "@react-native-async-storage/async-storage": "^1.17.11",
     "@react-native-community/clipboard": "^1.2.2",
     "@react-native-community/netinfo": "^8.0.0",
     "@react-native-firebase/analytics": "^14.5.0",
@@ -60,7 +60,7 @@
     "react-native-root-toast": "^3.2.1",
     "react-native-shake": "^5.1.1",
     "react-native-sound-player": "^0.11.3",
-    "react-native-splash-screen": "^3.2.0",
+    "react-native-splash-screen": "^3.3.0",
     "react-native-version-number": "^0.3.6",
     "react-native-webview": "^11.17.2",
     "react-native-zip-archive": "^6.0.8",

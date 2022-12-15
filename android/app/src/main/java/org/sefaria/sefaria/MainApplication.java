@@ -17,7 +17,7 @@ import com.facebook.react.ReactPackage;
 import com.facebook.react.config.ReactFeatureFlags;
 import com.facebook.react.shell.MainReactPackage;
 import com.facebook.soloader.SoLoader;
-import com.readerapp.newarchitecture.MainApplicationReactNativeHost;
+import org.sefaria.sefaria.newarchitecture.MainApplicationReactNativeHost;
 import com.facebook.react.modules.i18nmanager.I18nUtil;
 import java.lang.reflect.InvocationTargetException;
 
