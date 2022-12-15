@@ -14,8 +14,10 @@ import org.devio.rn.splashscreen.SplashScreenReactPackage;
 import com.facebook.react.ReactInstanceManager;
 import com.facebook.react.ReactNativeHost;
 import com.facebook.react.ReactPackage;
+import com.facebook.react.config.ReactFeatureFlags;
 import com.facebook.react.shell.MainReactPackage;
 import com.facebook.soloader.SoLoader;
+import com.readerapp.newarchitecture.MainApplicationReactNativeHost;
 import com.facebook.react.modules.i18nmanager.I18nUtil;
 import java.lang.reflect.InvocationTargetException;
 
@@ -58,15 +60,24 @@ public class MainApplication extends MultiDexApplication implements ReactApplica
       }
     });
 
+  private final ReactNativeHost mNewArchitectureNativeHost =
+      new MainApplicationReactNativeHost(this);
+
   @Override
   public ReactNativeHost getReactNativeHost() {
     ApplicationLifecycleDispatcher.onApplicationCreate(this);
-    return mReactNativeHost;
+    if (BuildConfig.IS_NEW_ARCHITECTURE_ENABLED) {
+      return mNewArchitectureNativeHost;
+    } else {
+      return mReactNativeHost;
+    }
   }
 
   @Override
   public void onCreate() {
     super.onCreate();
+    // If you opted-in for the New Architecture, we enable the TurboModule system
+    ReactFeatureFlags.useTurboModules = BuildConfig.IS_NEW_ARCHITECTURE_ENABLED;
     I18nUtil sharedI18nUtilInstance = I18nUtil.getInstance();
     //sharedI18nUtilInstance.forceRTL(this,false);
     sharedI18nUtilInstance.allowRTL(this, false);

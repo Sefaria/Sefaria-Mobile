@@ -69,5 +69,6 @@ android/app/google-services.json
 ios/GoogleService-info.plist
 scripts/envvars.sh
 
-# CocoaPods
+# Ruby / CocoaPods
 /ios/Pods/
+/vendor/bundle/
