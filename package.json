@@ -66,7 +66,7 @@
     "react-native-zip-archive": "^6.0.8",
     "react-redux": "^8.0.1",
     "redux": "^4.2.0",
-    "sanitize-html": "^1.20.1",
+    "sanitize-html": "^2.3.2",
     "simple-plist": "^0.2.1",
     "stream": "0.0.2",
     "url": "^0.11.0",
