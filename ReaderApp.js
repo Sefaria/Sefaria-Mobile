@@ -83,6 +83,7 @@ class ReaderApp extends React.PureComponent {
   constructor(props, context) {
     super(props, context);
     this._initDeepLinkURL = null;  // if you init the app thru a deep link, need to make sure the URL is applied during componentDidMount()
+    this.pageHistory = PageHistory();
     if (Platform.OS === 'android') {
       UIManager.setLayoutAnimationEnabledExperimental && UIManager.setLayoutAnimationEnabledExperimental(true);
       if (strings.getInterfaceLanguage() === 'iw-IL') {
@@ -286,7 +287,7 @@ class ReaderApp extends React.PureComponent {
   }
 
   manageBack = type => {
-    const oldState = PageHistory.back({ type });
+    const oldState = this.pageHistory.back({ type });
     if (!!oldState) {
       oldState._completedInit = this.state._completedInit || oldState._completedInit;  // dont go back to false for this variable. can't undo completedInit!
       const isTextColumn = !oldState.menuOpen;
@@ -548,7 +549,7 @@ class ReaderApp extends React.PureComponent {
       if (shouldToggle && this.state.textListVisible) {
           if (!onlyOpen) {
             this.animateTextList(this.state.textListFlex, 0.0001, 200);
-            PageHistory.back({ type: "secondary" });
+            this.pageHistory.back({ type: "secondary" });
           }
           return; // Don't bother with other changes if we are simply closing the TextList
       }
@@ -582,7 +583,7 @@ class ReaderApp extends React.PureComponent {
         stateObj.segmentRefOnSheet = this.state.data[section][segment].sourceRef;
       }
       if (shouldToggle) {
-        PageHistory.forward({ state: {textListVisible: this.state.textListVisible}, type: "secondary" });
+        this.pageHistory.forward({ state: {textListVisible: this.state.textListVisible}, type: "secondary" });
         stateObj.textListVisible = !this.state.textListVisible;
         stateObj.offsetRef = null; //offsetRef is used to highlight. once you open textlist, you should remove the highlight
         this.setState(stateObj, () => {
@@ -900,7 +901,7 @@ class ReaderApp extends React.PureComponent {
 
   openRefSheet = (sheetID, sheetMeta, addToBackStack=true, calledFrom) => {
     if (addToBackStack) {
-      PageHistory.forward({ state: this.state, calledFrom });
+      this.pageHistory.forward({ state: this.state, calledFrom });
     }
     this.setState({
         loaded: false,
@@ -1080,7 +1081,7 @@ class ReaderApp extends React.PureComponent {
           ({ appliedFilters, appliedFilterAggTypes, currPage, initScrollPos } = this.state.sheetSearchState);
           this.state.sheetSearchState = new SearchState({type: 'sheet', appliedFilters, appliedFilterAggTypes, currPage, initScrollPos});
         }
-        PageHistory.forward({ state: this.state, calledFrom });
+        this.pageHistory.forward({ state: this.state, calledFrom });
       }
 
       this.setState({
@@ -1110,7 +1111,7 @@ class ReaderApp extends React.PureComponent {
           }
         }
       }
-      PageHistory.forward({ state: this.state });
+      this.pageHistory.forward({ state: this.state });
     }
     this.setState({menuOpen: menu});
     if (via && typeof via === 'string') {
@@ -1122,7 +1123,7 @@ class ReaderApp extends React.PureComponent {
     if (isBack) {
       this.manageBackMain();
     } else {
-      PageHistory.forward({ state: this.state });
+      this.pageHistory.forward({ state: this.state });
       this.setState({subMenuOpen: subMenu});
     }
   };
@@ -1137,7 +1138,7 @@ class ReaderApp extends React.PureComponent {
 
   closeAuthPage = (authMode) => {
     let via;
-    const backStack = PageHistory.getStack({ type: 'main' });
+    const backStack = this.pageHistory.getStack({ type: 'main' });
     if (backStack.length > 0) {
       via = backStack[backStack.length-1].state.menuOpen;
     }
@@ -1193,10 +1194,10 @@ class ReaderApp extends React.PureComponent {
 
   setNavigationCategories = (categories) => {
     if (categories.length) {
-      PageHistory.forward({ state: this.state, calledFrom: "toc" });
+      this.pageHistory.forward({ state: this.state, calledFrom: "toc" });
     } else {
       // you're navigating home, make sure to delete previous toc entries in the backStack
-      PageHistory.back({ calledFrom: "toc" });
+      this.pageHistory.back({ calledFrom: "toc" });
     }
     this.setState({navigationCategories: categories});
   };
@@ -1768,7 +1769,7 @@ class ReaderApp extends React.PureComponent {
     else {
       // see ReaderApp.openRef()
       const calledFromDict = { "text list": true, "search": true, "topic": true };
-      return PageHistory.getStack({ type: "main" }).filter(x => calledFromDict[x.calledFrom]).length === 0;
+      return this.pageHistory.getStack({ type: "main" }).filter(x => calledFromDict[x.calledFrom]).length === 0;
     }
   };
 
@@ -1779,7 +1780,7 @@ class ReaderApp extends React.PureComponent {
 
   openTopic = (topic, isCategory, addToBackStack=true) => {
     if (addToBackStack) {
-      PageHistory.forward({ state: this.state });
+      this.pageHistory.forward({ state: this.state });
     }
     this.setState({navigationTopic: topic, menuOpen: isCategory ? "topic toc" : "topic"});
   };

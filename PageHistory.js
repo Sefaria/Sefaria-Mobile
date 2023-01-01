@@ -2,18 +2,19 @@
 
 export class PageHistory {
 
-  static _backStack = [];
-  static _backStackMain = [];
-
-  static forward({ state, type = "main", calledFrom }) {
-    //debugger;
-    const stateClone = Sefaria.util.clone(state);
-    PageHistory._backStack.push({ type, state: stateClone, calledFrom });
-    PageHistory._updateMainBackStack();
+  constructor() {
+    this._backStack = [];
+    this._backStackMain = [];
   }
 
-  static back({ type, calledFrom } = { }) {
-    const bs = PageHistory._backStack;
+  forward({ state, type = "main", calledFrom }) {
+    const stateClone = Sefaria.util.clone(state);
+    this._backStack.push({ type, state: stateClone, calledFrom });
+    this._updateMainBackStack();
+  }
+
+  back({ type, calledFrom } = { }) {
+    const bs = this._backStack;
     let oldStateObj = bs.pop();
     if (!oldStateObj) { return oldStateObj; }
 
@@ -28,16 +29,16 @@ export class PageHistory {
         oldStateObj = bs.pop();
       }
     }
-    PageHistory._updateMainBackStack();
+    this._updateMainBackStack();
     if (!oldStateObj) { return oldStateObj; }
     return oldStateObj.state;
   }
 
-  static _updateMainBackStack() {
-    PageHistory._backStackMain = PageHistory._backStack.filter( s => s.type === 'main' );
+  _updateMainBackStack() {
+    this._backStackMain = this._backStack.filter( s => s.type === 'main' );
   }
 
-  static getStack({ type }) {
-    return PageHistory._backStackMain;
+  getStack({ type }) {
+    return this._backStackMain;
   }
 }
