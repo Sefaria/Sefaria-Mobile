@@ -1,6 +1,6 @@
 'use strict';
 
-class BackManager {
+export class PageHistory {
 
   static _backStack = [];
   static _backStackMain = [];
@@ -8,12 +8,12 @@ class BackManager {
   static forward({ state, type = "main", calledFrom }) {
     //debugger;
     const stateClone = Sefaria.util.clone(state);
-    BackManager._backStack.push({ type, state: stateClone, calledFrom });
-    BackManager._updateMainBackStack();
+    PageHistory._backStack.push({ type, state: stateClone, calledFrom });
+    PageHistory._updateMainBackStack();
   }
 
   static back({ type, calledFrom } = { }) {
-    const bs = BackManager._backStack;
+    const bs = PageHistory._backStack;
     let oldStateObj = bs.pop();
     if (!oldStateObj) { return oldStateObj; }
 
@@ -28,18 +28,16 @@ class BackManager {
         oldStateObj = bs.pop();
       }
     }
-    BackManager._updateMainBackStack();
+    PageHistory._updateMainBackStack();
     if (!oldStateObj) { return oldStateObj; }
     return oldStateObj.state;
   }
 
   static _updateMainBackStack() {
-    BackManager._backStackMain = BackManager._backStack.filter( s => s.type === 'main' );
+    PageHistory._backStackMain = PageHistory._backStack.filter( s => s.type === 'main' );
   }
 
   static getStack({ type }) {
-    return BackManager._backStackMain;
+    return PageHistory._backStackMain;
   }
 }
-
-export default BackManager;

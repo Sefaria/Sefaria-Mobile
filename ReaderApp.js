@@ -47,7 +47,7 @@ import SettingsPage from './SettingsPage';
 import InterruptingMessage from './InterruptingMessage';
 import SwipeableCategoryList from './SwipeableCategoryList';
 import Toast from 'react-native-root-toast';
-import BackManager from './BackManager';
+import { PageHistory } from './PageHistory';
 import ReaderNavigationSheetList from "./ReaderNavigationSheetList";
 import SheetMeta from "./SheetMeta.js";
 import DeepLinkRouter from "./DeepLinkRouter.js";
@@ -286,7 +286,7 @@ class ReaderApp extends React.PureComponent {
   }
 
   manageBack = type => {
-    const oldState = BackManager.back({ type });
+    const oldState = PageHistory.back({ type });
     if (!!oldState) {
       oldState._completedInit = this.state._completedInit || oldState._completedInit;  // dont go back to false for this variable. can't undo completedInit!
       const isTextColumn = !oldState.menuOpen;
@@ -548,7 +548,7 @@ class ReaderApp extends React.PureComponent {
       if (shouldToggle && this.state.textListVisible) {
           if (!onlyOpen) {
             this.animateTextList(this.state.textListFlex, 0.0001, 200);
-            BackManager.back({ type: "secondary" });
+            PageHistory.back({ type: "secondary" });
           }
           return; // Don't bother with other changes if we are simply closing the TextList
       }
@@ -582,7 +582,7 @@ class ReaderApp extends React.PureComponent {
         stateObj.segmentRefOnSheet = this.state.data[section][segment].sourceRef;
       }
       if (shouldToggle) {
-        BackManager.forward({ state: {textListVisible: this.state.textListVisible}, type: "secondary" });
+        PageHistory.forward({ state: {textListVisible: this.state.textListVisible}, type: "secondary" });
         stateObj.textListVisible = !this.state.textListVisible;
         stateObj.offsetRef = null; //offsetRef is used to highlight. once you open textlist, you should remove the highlight
         this.setState(stateObj, () => {
@@ -900,7 +900,7 @@ class ReaderApp extends React.PureComponent {
 
   openRefSheet = (sheetID, sheetMeta, addToBackStack=true, calledFrom) => {
     if (addToBackStack) {
-      BackManager.forward({ state: this.state, calledFrom });
+      PageHistory.forward({ state: this.state, calledFrom });
     }
     this.setState({
         loaded: false,
@@ -1080,7 +1080,7 @@ class ReaderApp extends React.PureComponent {
           ({ appliedFilters, appliedFilterAggTypes, currPage, initScrollPos } = this.state.sheetSearchState);
           this.state.sheetSearchState = new SearchState({type: 'sheet', appliedFilters, appliedFilterAggTypes, currPage, initScrollPos});
         }
-        BackManager.forward({ state: this.state, calledFrom });
+        PageHistory.forward({ state: this.state, calledFrom });
       }
 
       this.setState({
@@ -1110,7 +1110,7 @@ class ReaderApp extends React.PureComponent {
           }
         }
       }
-      BackManager.forward({ state: this.state });
+      PageHistory.forward({ state: this.state });
     }
     this.setState({menuOpen: menu});
     if (via && typeof via === 'string') {
@@ -1122,7 +1122,7 @@ class ReaderApp extends React.PureComponent {
     if (isBack) {
       this.manageBackMain();
     } else {
-      BackManager.forward({ state: this.state });
+      PageHistory.forward({ state: this.state });
       this.setState({subMenuOpen: subMenu});
     }
   };
@@ -1137,7 +1137,7 @@ class ReaderApp extends React.PureComponent {
 
   closeAuthPage = (authMode) => {
     let via;
-    const backStack = BackManager.getStack({ type: 'main' });
+    const backStack = PageHistory.getStack({ type: 'main' });
     if (backStack.length > 0) {
       via = backStack[backStack.length-1].state.menuOpen;
     }
@@ -1193,10 +1193,10 @@ class ReaderApp extends React.PureComponent {
 
   setNavigationCategories = (categories) => {
     if (categories.length) {
-      BackManager.forward({ state: this.state, calledFrom: "toc" });
+      PageHistory.forward({ state: this.state, calledFrom: "toc" });
     } else {
       // you're navigating home, make sure to delete previous toc entries in the backStack
-      BackManager.back({ calledFrom: "toc" });
+      PageHistory.back({ calledFrom: "toc" });
     }
     this.setState({navigationCategories: categories});
   };
@@ -1768,7 +1768,7 @@ class ReaderApp extends React.PureComponent {
     else {
       // see ReaderApp.openRef()
       const calledFromDict = { "text list": true, "search": true, "topic": true };
-      return BackManager.getStack({ type: "main" }).filter(x => calledFromDict[x.calledFrom]).length === 0;
+      return PageHistory.getStack({ type: "main" }).filter(x => calledFromDict[x.calledFrom]).length === 0;
     }
   };
 
@@ -1779,7 +1779,7 @@ class ReaderApp extends React.PureComponent {
 
   openTopic = (topic, isCategory, addToBackStack=true) => {
     if (addToBackStack) {
-      BackManager.forward({ state: this.state });
+      PageHistory.forward({ state: this.state });
     }
     this.setState({navigationTopic: topic, menuOpen: isCategory ? "topic toc" : "topic"});
   };
