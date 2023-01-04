@@ -487,8 +487,8 @@ const ArrayMapNode = ({ schema, openRef, categories }) => {
       const enableAliyot = !!categories && categories[0] === "Tanakh" && categories[1] === "Torah";  // enable aliyot in reader when you click on an aliya
       let section = i+1;
       let heSection = Sefaria.hebrew.encodeHebrewNumeral(i+1);
-      if (["Talmud", "Folio"].includes(addressTypes[0])) {
-        [section, heSection] = Sefaria.hebrew.setDafOrFolio(addressTypes[0], i);
+      if (["Talmud", "Folio"].includes(schema.addressTypes[0])) {
+        [section, heSection] = Sefaria.hebrew.setDafOrFolio(schema.addressTypes[0], i);
       }
       return (
         <JaggedArrayNodeSectionBox

@@ -1825,8 +1825,10 @@ Sefaria.hebrew = {
     const n = parseInt(daf.slice(0,-1));
     let a = {a: "א", b: "ב", c: "ג", d: "ד"}[daf.slice(-1)];
     return this.encodeHebrewNumeral(n) + "," + a;
-  }
-  setDafOrFolio: function(addressType, i) {
+  },
+    setDafOrFolio: function(addressType, i) {
+    let enSection;
+    let heSection;
     if (addressType === 'Talmud') {
       enSection = Sefaria.hebrew.intToDaf(i);
       heSection = Sefaria.hebrew.encodeHebrewDaf(enSection);
@@ -1835,7 +1837,7 @@ Sefaria.hebrew = {
       enSection = Sefaria.hebrew.intToFolio(i);
       heSection = Sefaria.hebrew.encodeHebrewFolio(enSection);
     }
-    return {enSection, heSection};
+    return [enSection, heSection];
   },
   stripNikkud: function(rawString) {
     return rawString.replace(/[\u0591-\u05C7]/g,"");
@@ -1892,10 +1894,10 @@ Sefaria.hebrew = {
   },
   intToDaf: function(i) {
     i += 1;
-    daf = Math.ceil(i/2);
+    const daf = Math.ceil(i/2);
     return daf + (i%2 ? "a" : "b");
   },
-  intToFolio: function(u) {
+  intToFolio: function(i) {
     i += 1;
     const daf = Math.ceil(i/4);
     const mod = i%4;
@@ -1933,7 +1935,7 @@ Sefaria.hebrewCategory = function(cat) {
 };
 
 Sefaria.hebrewSectionName = function(name) {
-  sectionNames = {
+  const sectionNames = {
     "Chapter":          "פרק",
     "Chapters":         "פרקים",
     "Perek":            "פרק",
