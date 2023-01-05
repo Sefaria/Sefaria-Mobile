@@ -349,24 +349,14 @@ SchemaNode.propTypes = {
 const JaggedArrayNode = ({ schema, refPath, openRef }) => {
   if (refPath.startsWith("Beit Yosef, ")) { schema.toc_zoom = 2; }
 
-  if ("toc_zoom" in schema) {
-    const zoom = schema.toc_zoom - 1;
-    return (<JaggedArrayNodeSection
-              depth={schema.depth - zoom}
-              sectionNames={schema.sectionNames.slice(0, -zoom)}
-              addressTypes={schema.addressTypes.slice(0, -zoom)}
-              contentCounts={schema.content_counts}
-              refPath={refPath}
-              openRef={openRef} />);
-  }
+  const zoom = schema?.toc_zoom - 1 || 0;
   return (<JaggedArrayNodeSection
-            depth={schema.depth}
-            sectionNames={schema.sectionNames}
-            addressTypes={schema.addressTypes}
+            depth={schema.depth - zoom}
+            sectionNames={schema.sectionNames.slice(0, schema.sectionNames.length - zoom)}
+            addressTypes={schema.addressTypes.slice(0, schema.addressTypes.length - zoom)}
             contentCounts={schema.content_counts}
             refPath={refPath}
-            openRef={openRef} />);
-}
+            openRef={openRef} />);}
 
 const contentCountIsEmpty = count => {
   // Returns true if count is zero or is an an array (of arrays) of zeros.
@@ -424,8 +414,8 @@ const JaggedArrayNodeSection = ({ depth, sectionNames, addressTypes, contentCoun
     if (contentCountIsEmpty(contentCounts[i])) { return null; }
     let section = i+1;
     let heSection = Sefaria.hebrew.encodeHebrewNumeral(i+1);
-      if (["Talmud", "Folio"].includes(addressTypes[0])) {
-        [section, heSection] = Sefaria.hebrew.setDafOrFolio(addressTypes[0], i);
+    if (["Talmud", "Folio"].includes(addressTypes[0])) {
+      [section, heSection] = Sefaria.hebrew.setDafOrFolio(addressTypes[0], i);
     }
     const ref  = (refPath + ":" + section).replace(":", " ") + refPathTerminal(contentCounts[i]);
     return (
