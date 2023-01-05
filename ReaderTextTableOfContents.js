@@ -126,6 +126,7 @@ const ReaderTextTableOfContents = ({
               alts={textToc.alts || null}
               defaultStruct={"default_struct" in textToc && textToc.default_struct in textToc.alts ? textToc.default_struct : "default"}
               title={title}
+              exclude_structs={textToc?.exclude_structs || []}
               openRef={openRef} /> : <LoadingView category={Sefaria.primaryCategoryForTitle(title)}/> }
 
         </ScrollView>
@@ -145,47 +146,53 @@ ReaderTextTableOfContents.propTypes = {
   textUnavailableAlert: PropTypes.func.isRequired,
 };
 
-const TextTableOfContentsNavigation = ({ schema, commentatorList, alts, defaultStruct, title, openRef }) => {
+const TextTableOfContentsNavigation = ({ schema, commentatorList, alts, defaultStruct, title, exclude_structs, openRef }) => {
   const [tab, setTab] = useState(defaultStruct);
   let toggle = null;
-  if (commentatorList.length || alts) {
-    var options = [{
+  let options = [];
+  if (!exclude_structs.includes('schema')) {
+    options = [{
       name: "default",
       text: "sectionNames" in schema ? schema.sectionNames[0] : "Contents",
       heText: "sectionNames" in schema ? Sefaria.hebrewSectionName(schema.sectionNames[0]) : "תוכן",
-      onPress: () => { setTab('default'); },
+      onPress: () => {
+        setTab('default');
+      },
     }];
-    if (alts) {
-      for (var alt in alts) {
-        if (alts.hasOwnProperty(alt)) {
-          options.push({
-            name: alt,
-            text: alt,
-            heText: Sefaria.hebrewSectionName(alt),
-            onPress: setTab.bind(null, alt)
-          });
-        }
+  }
+  if (alts) {
+    for (var alt in alts) {
+      if (alts.hasOwnProperty(alt)) {
+        options.push({
+          name: alt,
+          text: alt,
+          heText: Sefaria.hebrewSectionName(alt),
+          onPress: setTab.bind(null, alt)
+        });
       }
     }
-    if (commentatorList.length) {
-      options.push({
-        name: "commentary",
-        text: "Commentary",
-        heText: "מפרשים",
-        onPress: () => { setTab('commentary'); },
-      });
-    }
-    options = options.sort((a, b) => (
-      a.name == defaultStruct ? -1 :
-        b.name == defaultStruct ? 1 : 0
-    ));
+  }
+  if (commentatorList.length) {
+    options.push({
+      name: "commentary",
+      text: "Commentary",
+      heText: "מפרשים",
+      onPress: () => { setTab('commentary'); },
+    });
+  }
+  options = options.sort((a, b) => (
+    a.name == defaultStruct ? -1 :
+      b.name == defaultStruct ? 1 : 0
+  ));
+  if (options.length > 1) {
     toggle = (
-      <ToggleSet
-        options={options}
-        active={tab}
-      />
+        <ToggleSet
+            options={options}
+            active={tab}
+        />
     );
   }
+
 
   // Set margins around nav sections dependent on screen width so grid centered no mater how many sections fit per line
   var {height, width}   = Dimensions.get('window');
