@@ -485,9 +485,20 @@ const JaggedArrayNodeSectionTitle = ({ openRef, tref, title, heTitle }) => {
 
 const ArrayMapNode = ({ schema, openRef, categories }) => {
   const { menuLanguage } = useGlobalState();
+  let offset = schema.offset || 0;
   if ("refs" in schema && schema.refs.length) {
     var sectionLinks = schema.refs.map((ref, i) => {
-      i += schema.offset || 0;
+      if (schema.addresses) {
+        i = schema.addresses[i];
+      } else {
+        i += offset;
+      }
+      if (schema.skipped_addresses) {
+        while (schema.skipped_addresses.includes(i+1)) {
+          i += 1;
+          offset += 1;
+        }
+      }
       const enableAliyot = !!categories && categories[0] === "Tanakh" && categories[1] === "Torah";  // enable aliyot in reader when you click on an aliya
       let section = i+1;
       let heSection = Sefaria.hebrew.encodeHebrewNumeral(i+1);
