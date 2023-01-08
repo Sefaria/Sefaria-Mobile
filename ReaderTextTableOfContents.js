@@ -356,7 +356,9 @@ const JaggedArrayNode = ({ schema, refPath, openRef }) => {
             addressTypes={schema.addressTypes.slice(0, schema.addressTypes.length - zoom)}
             contentCounts={schema.content_counts}
             refPath={refPath}
-            openRef={openRef} />);}
+            openRef={openRef}
+            indexOffsetsByDepth={schema.index_offsets_by_depth || {}}
+  />);}
 
 const contentCountIsEmpty = count => {
   // Returns true if count is zero or is an an array (of arrays) of zeros.
@@ -380,17 +382,18 @@ const refPathTerminal = count => {
   return terminal;
 };
 
-const JaggedArrayNodeSection = ({ depth, sectionNames, addressTypes, contentCounts, refPath, openRef }) => {
+const JaggedArrayNodeSection = ({ depth, sectionNames, addressTypes, contentCounts, refPath, openRef, indexOffsetsByDepth }) => {
+  const offset = indexOffsetsByDepth?.[1] || 0;
   const { menuLanguage, theme } = useGlobalState();
   const showHebrew = menuLanguage == "hebrew";
   if (depth > 2) {
     const content = [];
     for (let i = 0; i < contentCounts.length; i++) {
       if (contentCountIsEmpty(contentCounts[i])) { continue; }
-      let enSection = i+1;
-      let heSection = Sefaria.hebrew.encodeHebrewNumeral(i+1);
+      let enSection = i+1+offset;
+      let heSection = Sefaria.hebrew.encodeHebrewNumeral(i+1+offset);
       if (["Talmud", "Folio"].includes(addressTypes[0])) {
-        [enSection, heSection] = Sefaria.hebrew.setDafOrFolio(addressTypes[0], i);
+        [enSection, heSection] = Sefaria.hebrew.setDafOrFolio(addressTypes[0], i+offset);
       }
       content.push(
         <View style={styles.textTocNumberedSectionBox} key={i}>
@@ -403,7 +406,11 @@ const JaggedArrayNodeSection = ({ depth, sectionNames, addressTypes, contentCoun
             addressTypes={addressTypes.slice(1)}
             contentCounts={contentCounts[i]}
             refPath={`${refPath}:${enSection}`}
-            openRef={openRef} />
+            openRef={openRef}
+            indexOffsetsByDepth={Object.fromEntries(Object.entries(indexOffsetsByDepth)
+                .filter(([k]) => k !== '1')
+                .map(([k, v]) => [(k-1).toString(), v[i]]))}
+          />
         </View>);
     }
     return ( <View>{content}</View> );
@@ -412,10 +419,10 @@ const JaggedArrayNodeSection = ({ depth, sectionNames, addressTypes, contentCoun
   contentCounts = depth == 1 ? new Array(contentCounts).fill(1) : contentCounts;
   const sectionLinks = contentCounts.map((contentCount, i) => {
     if (contentCountIsEmpty(contentCounts[i])) { return null; }
-    let section = i+1;
-    let heSection = Sefaria.hebrew.encodeHebrewNumeral(i+1);
+    let section = i+1+offset;
+    let heSection = Sefaria.hebrew.encodeHebrewNumeral(i+1+offset);
     if (["Talmud", "Folio"].includes(addressTypes[0])) {
-      [section, heSection] = Sefaria.hebrew.setDafOrFolio(addressTypes[0], i);
+      [section, heSection] = Sefaria.hebrew.setDafOrFolio(addressTypes[0], i+offset);
     }
     const ref  = (refPath + ":" + section).replace(":", " ") + refPathTerminal(contentCounts[i]);
     return (
