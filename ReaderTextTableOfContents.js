@@ -367,6 +367,12 @@ const contentCountIsEmpty = count => {
   return innerCounts.every((empty) => {empty});
 };
 
+const reduceIndexOffsetsByDepth = indexOffsetsByDepth => {
+  return Object.fromEntries(Object.entries(indexOffsetsByDepth)
+      .filter(([k]) => k !== '1')
+      .map(([k, v]) => [(k-1), v[i]]));
+}
+
 const refPathTerminal = count => {
   // Returns a string to be added to the end of a section link depending on a content count
   // Used in cases of "zoomed" JaggedArrays, where `contentCounts` is deeper than `depth` so that zoomed section
@@ -407,9 +413,7 @@ const JaggedArrayNodeSection = ({ depth, sectionNames, addressTypes, contentCoun
             contentCounts={contentCounts[i]}
             refPath={`${refPath}:${enSection}`}
             openRef={openRef}
-            indexOffsetsByDepth={Object.fromEntries(Object.entries(indexOffsetsByDepth)
-                .filter(([k]) => k !== '1')
-                .map(([k, v]) => [(k-1).toString(), v[i]]))}
+            indexOffsetsByDepth={reduceIndexOffsetsByDepth(indexOffsetsByDepth)}
           />
         </View>);
     }

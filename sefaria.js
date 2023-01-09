@@ -1826,7 +1826,7 @@ Sefaria.hebrew = {
     let a = {a: "א", b: "ב", c: "ג", d: "ד"}[daf.slice(-1)];
     return this.encodeHebrewNumeral(n) + "," + a;
   },
-    setDafOrFolio: function(addressType, i) {
+  setDafOrFolio: function(addressType, i) {
     let enSection;
     let heSection;
     if (addressType === 'Talmud') {
