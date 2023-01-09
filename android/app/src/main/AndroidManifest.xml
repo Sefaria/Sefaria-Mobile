@@ -25,7 +25,6 @@
 
       <activity
           android:name=".SplashActivity"
-          android:exported="true"
           android:launchMode="singleTask"
           android:theme="@style/SplashTheme"
           android:exported="true"
