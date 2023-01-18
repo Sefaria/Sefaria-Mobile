@@ -9,13 +9,13 @@ export class PageHistory {
     this._backStackMain = [];
   }
 
-  forward({ state, type = "main", calledFrom }) {
+  forward = ({ state, type = "main", calledFrom }) => {
     const stateClone = Sefaria.util.clone(state);
     this._backStack.push({ type, state: stateClone, calledFrom });
     this._updateMainBackStack();
   }
 
-  back({ type, calledFrom } = { }) {
+  back = ({ type, calledFrom } = { }) => {
     const bs = this._backStack;
     let oldStateObj = bs.pop();
     if (!oldStateObj) { return oldStateObj; }
@@ -36,12 +36,8 @@ export class PageHistory {
     return oldStateObj.state;
   }
 
-  _updateMainBackStack() {
+  _updateMainBackStack = () => {
     this._backStackMain = this._backStack.filter( s => s.type === 'main' );
-  }
-
-  getStack({ type }) {
-    return this._backStackMain;
   }
 }
 
@@ -54,11 +50,11 @@ export class TabHistory {
     this._historyByTab = TabHistory._initializeHistoryByTab();
   }
 
-  forward({ tab, ...args }) {
+  forward = ({ tab, ...args }) => {
     this._historyByTab[tab].forward({ ...args });
-  }
+  };
 
-  back({ tab, ...args } = { }) {
+  back = ({ tab, ...args } = { }) => {
     return this._historyByTab[tab].back({ ...args });
   }
 
