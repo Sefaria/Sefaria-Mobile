@@ -75,7 +75,7 @@ export class TabMetadata {
   }
 
   static namesWithIcons() {
-    return Sefaria.util.zip(TabMetadata._names, TabMetadata._icons);
+    return Sefaria.util.zip([TabMetadata._names, TabMetadata._icons]);
   }
 
   static initialTabName() {
