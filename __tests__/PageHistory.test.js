@@ -25,9 +25,23 @@ describe('PageHistory', () => {
     test.each(statesToPushTable)('push state', (...states) => {
         const hist = new PageHistory();
         states.map(state => hist.forward({ state }));
-        [...states].reverse().map((state, i) => {
+        [...states].reverse().map(state => {
             const prevState = hist.back();
-            expect(prevState).toStrictEqual(states[states.length-i-1]);
+            expect(prevState).toStrictEqual(state);
         })
     });
+});
+
+describe('TabHistory push state', () => {
+  const statesToPushWithTabs = [
+      [{tab: "Texts", state: {sup: 1}}, {tab: "Topics", state: {sup: 3}}, {tab: "Texts", state: {sup: 5}}],
+  ];
+  test.each(statesToPushWithTabs)('push state', (...tabStates) => {
+      const hist = new TabHistory();
+      tabStates.map(({tab, state}) => hist.forward({tab, state}));
+      [...tabStates].reverse().map(({tab, state}) => {
+          const prevState = hist.back({tab});
+          expect(prevState).toStrictEqual(state);
+      });
+  });
 });
