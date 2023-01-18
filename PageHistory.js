@@ -60,7 +60,7 @@ export class TabHistory {
     return this._historyByTab[tab].back({ ...args });
   }
 
-  private static _initializeHistoryByTab() {
+  static _initializeHistoryByTab() {
     return TabMetadata.names().reduce((historyByTab, curr) => {
       historyByTab[curr] = new PageHistory();
       return historyByTab;
@@ -68,7 +68,7 @@ export class TabHistory {
   }
 }
 
-class TabMetadata {
+export class TabMetadata {
   static _names = ["Texts", "Topics", "Search", "Saved", "Account"];
   static _icons = ["book", "hashtag", "search", "N/A", "N/A"];
 
