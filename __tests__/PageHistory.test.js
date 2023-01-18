@@ -8,6 +8,14 @@ describe('TabMetadata', () => {
    test('names function works', () => {
        expect(TabMetadata.names()).toBe(TabMetadata._names);
    });
+
+   test('namesWithIcons works', () => {
+       const namesWithIcons = TabMetadata.namesWithIcons();
+       namesWithIcons.map(([name, icon], i) => {
+           expect(name).toBe(TabMetadata._names[i]);
+           expect(icon).toBe(TabMetadata._icons[i]);
+       })
+   })
 });
 
 describe('TabHistory', () => {
