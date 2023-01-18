@@ -47,7 +47,7 @@ import SettingsPage from './SettingsPage';
 import InterruptingMessage from './InterruptingMessage';
 import SwipeableCategoryList from './SwipeableCategoryList';
 import Toast from 'react-native-root-toast';
-import { PageHistory } from './PageHistory';
+import { TabHistory, TabMetadata } from './PageHistory';
 import ReaderNavigationSheetList from "./ReaderNavigationSheetList";
 import SheetMeta from "./SheetMeta.js";
 import DeepLinkRouter from "./DeepLinkRouter.js";
@@ -83,7 +83,7 @@ class ReaderApp extends React.PureComponent {
   constructor(props, context) {
     super(props, context);
     this._initDeepLinkURL = null;  // if you init the app thru a deep link, need to make sure the URL is applied during componentDidMount()
-    this.pageHistory = new PageHistory();
+    this.tabHistory = new TabHistory();
     if (Platform.OS === 'android') {
       UIManager.setLayoutAnimationEnabledExperimental && UIManager.setLayoutAnimationEnabledExperimental(true);
       if (strings.getInterfaceLanguage() === 'iw-IL') {
@@ -105,6 +105,7 @@ class ReaderApp extends React.PureComponent {
         subMenuOpen: null, // currently only used to define subpages in search
         navigationCategories: [],
         navigationTopic: null,
+        footerTab: TabMetadata.initialTabName(),
         topicsTab: 'sources',
         loadingTextTail: false,
         loadingTextHead: false,
@@ -286,8 +287,16 @@ class ReaderApp extends React.PureComponent {
     this.manageBack("main");
   }
 
+  modifyHistory = ({ dir, ...args }) => {
+    /**
+     * dir is either "back" or "forward"
+     */
+    const func = this.tabHistory[dir];
+    return func({ tab: this.state.footerTab, ...args });
+  };
+
   manageBack = type => {
-    const oldState = this.pageHistory.back({ type });
+    const oldState = this.modifyHistory({dir: "back", type});
     if (!!oldState) {
       oldState._completedInit = this.state._completedInit || oldState._completedInit;  // dont go back to false for this variable. can't undo completedInit!
       const isTextColumn = !oldState.menuOpen;
@@ -549,7 +558,7 @@ class ReaderApp extends React.PureComponent {
       if (shouldToggle && this.state.textListVisible) {
           if (!onlyOpen) {
             this.animateTextList(this.state.textListFlex, 0.0001, 200);
-            this.pageHistory.back({ type: "secondary" });
+            this.modifyHistory({dir: "back", type: "secondary"});
           }
           return; // Don't bother with other changes if we are simply closing the TextList
       }
@@ -583,7 +592,7 @@ class ReaderApp extends React.PureComponent {
         stateObj.segmentRefOnSheet = this.state.data[section][segment].sourceRef;
       }
       if (shouldToggle) {
-        this.pageHistory.forward({ state: {textListVisible: this.state.textListVisible}, type: "secondary" });
+        this.modifyHistory({ dir: "forward", state: {textListVisible: this.state.textListVisible}, type: "secondary" });
         stateObj.textListVisible = !this.state.textListVisible;
         stateObj.offsetRef = null; //offsetRef is used to highlight. once you open textlist, you should remove the highlight
         this.setState(stateObj, () => {
@@ -901,7 +910,7 @@ class ReaderApp extends React.PureComponent {
 
   openRefSheet = (sheetID, sheetMeta, addToBackStack=true, calledFrom) => {
     if (addToBackStack) {
-      this.pageHistory.forward({ state: this.state, calledFrom });
+      this.modifyHistory({ dir: "forward", state: this.state, calledFrom });
     }
     this.setState({
         loaded: false,
@@ -1081,7 +1090,7 @@ class ReaderApp extends React.PureComponent {
           ({ appliedFilters, appliedFilterAggTypes, currPage, initScrollPos } = this.state.sheetSearchState);
           this.state.sheetSearchState = new SearchState({type: 'sheet', appliedFilters, appliedFilterAggTypes, currPage, initScrollPos});
         }
-        this.pageHistory.forward({ state: this.state, calledFrom });
+        this.modifyHistory({ dir: "forward", state: this.state, calledFrom });
       }
 
       this.setState({
@@ -1111,7 +1120,7 @@ class ReaderApp extends React.PureComponent {
           }
         }
       }
-      this.pageHistory.forward({ state: this.state });
+      this.modifyHistory({ dir: "forward", state: this.state });
     }
     this.setState({menuOpen: menu});
     if (via && typeof via === 'string') {
@@ -1123,7 +1132,7 @@ class ReaderApp extends React.PureComponent {
     if (isBack) {
       this.manageBackMain();
     } else {
-      this.pageHistory.forward({ state: this.state });
+      this.modifyHistory({ dir: "forward", state: this.state });
       this.setState({subMenuOpen: subMenu});
     }
   };
@@ -1137,11 +1146,6 @@ class ReaderApp extends React.PureComponent {
   };
 
   closeAuthPage = (authMode) => {
-    let via;
-    const backStack = this.pageHistory.getStack({ type: 'main' });
-    if (backStack.length > 0) {
-      via = backStack[backStack.length-1].state.menuOpen;
-    }
     this.manageBackMain();
   };
 
@@ -1194,10 +1198,10 @@ class ReaderApp extends React.PureComponent {
 
   setNavigationCategories = (categories) => {
     if (categories.length) {
-      this.pageHistory.forward({ state: this.state, calledFrom: "toc" });
+      this.modifyHistory({ dir: "forward", state: this.state, calledFrom: "toc" });
     } else {
       // you're navigating home, make sure to delete previous toc entries in the backStack
-      this.pageHistory.back({ calledFrom: "toc" });
+      this.modifyHistory({ dir: "back", calledFrom: "toc" });
     }
     this.setState({navigationCategories: categories});
   };
@@ -1764,15 +1768,6 @@ class ReaderApp extends React.PureComponent {
     this.openUri(uri);
   }
 
-  shouldShowHamburger = () => {
-    if (Platform.OS === "android") { return true; }
-    else {
-      // see ReaderApp.openRef()
-      const calledFromDict = { "text list": true, "search": true, "topic": true };
-      return this.pageHistory.getStack({ type: "main" }).filter(x => calledFromDict[x.calledFrom]).length === 0;
-    }
-  };
-
   openTopicToc = () => {
     this.setState({navigationTopic: null});
     this.openMenu('topic toc');
@@ -1780,7 +1775,7 @@ class ReaderApp extends React.PureComponent {
 
   openTopic = (topic, isCategory, addToBackStack=true) => {
     if (addToBackStack) {
-      this.pageHistory.forward({ state: this.state });
+      this.modifyHistory({ dir: "forward", state: this.state });
     }
     this.setState({navigationTopic: topic, menuOpen: isCategory ? "topic toc" : "topic"});
   };
@@ -2044,7 +2039,6 @@ class ReaderApp extends React.PureComponent {
               openTextToc={this.openTextToc}
               openSheetMeta={this.openSheetMeta}
               sheet={this.state.sheet}
-              shouldShowHamburger={this.shouldShowHamburger}
               toggleReaderDisplayOptionsMenu={this.toggleReaderDisplayOptionsMenu}
               openUri={this.openUri}
               getHistoryObject={this.getHistoryObject}

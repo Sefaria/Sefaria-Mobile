@@ -34,7 +34,6 @@ const ReaderControls = ({
   openSheetMeta,
   goBack,
   toggleReaderDisplayOptionsMenu,
-  shouldShowHamburger,
   openUri,
   sheet,
   getHistoryObject,
@@ -46,7 +45,7 @@ const ReaderControls = ({
   const isHeb = Sefaria.util.get_menu_language(interfaceLanguage, textLanguage) == "hebrew";
   var langStyle = isHeb ? [styles.he] : [styles.en, sheet ? {lineHeight: 28} : {marginBottom: -5.3}];
   var titleTextStyle = [langStyle, styles.headerTextTitleText, theme.text];
-  if (shouldShowHamburger()) {
+  if (true) {
     var leftMenuButton = <MenuButton onPress={openNav} />
   } else {
     var leftMenuButton =
