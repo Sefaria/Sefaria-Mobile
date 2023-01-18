@@ -106,7 +106,6 @@ ReaderControls.propTypes = {
   openTextToc:                     PropTypes.func,
   goBack:                          PropTypes.func,
   toggleReaderDisplayOptionsMenu:  PropTypes.func,
-  shouldShowHamburger:             PropTypes.func.isRequired,
   openUri:                         PropTypes.func.isRequired,
   getHistoryObject:                PropTypes.func.isRequired,
   showToast:                       PropTypes.func.isRequired,
