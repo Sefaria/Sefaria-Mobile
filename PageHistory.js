@@ -42,3 +42,53 @@ export class PageHistory {
     return this._backStackMain;
   }
 }
+
+export class TabHistory {
+  /**
+   * Composes PageHistory and exposes functionality to control history by tab
+   */
+
+  constructor() {
+    this._historyByTab = TabHistory._initializeHistoryByTab();
+  }
+
+  forward({ tab, ...args }) {
+    this._historyByTab[tab].forward({ ...args });
+  }
+
+  back({ tab, ...args } = { }) {
+    return this._historyByTab[tab].back({ ...args });
+  }
+
+  private static _initializeHistoryByTab() {
+    return TabMetadata.names().reduce((historyByTab, curr) => {
+      historyByTab[curr] = new PageHistory();
+      return historyByTab;
+    }, {});
+  }
+}
+
+class TabMetadata {
+  static _names = ["Texts", "Topics", "Search", "Saved", "Account"];
+  static _icons = ["book", "hashtag", "search", "N/A", "N/A"];
+
+  static names() {
+    return TabMetadata._names;
+  }
+
+  static namesWithIcons() {
+    return Sefaria.util.zip(TabMetadata._names, TabMetadata._icons);
+  }
+
+  static initialTabName() {
+    return TabMetadata._names[0];
+  }
+
+  static iconByName(name) {
+    const nameIndex = TabMetadata._names.indexOf(name);
+    if (nameIndex === -1) {
+      throw Error(`No tab name matching '${name}'`);
+    }
+    return TabMetadata._icons[nameIndex];
+  }
+}
