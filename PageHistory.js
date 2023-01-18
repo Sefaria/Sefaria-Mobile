@@ -1,5 +1,7 @@
 'use strict';
 
+import Sefaria from './sefaria';
+
 export class PageHistory {
 
   constructor() {
