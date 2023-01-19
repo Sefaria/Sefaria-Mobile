@@ -68,7 +68,7 @@ export class TabHistory {
 
 export class TabMetadata {
   static _names = ["Texts", "Topics", "Search", "Saved", "Account"];
-  static _icons = ["book", "hashtag", "search", "N/A", "N/A"];
+  static _icons = [require("./img/book.png"), require("./img/hashtag.png"), require("./img/search.png"), require("./img/bookmark.png"), require("./img/profile.png")];
 
   static names() {
     return TabMetadata._names;
