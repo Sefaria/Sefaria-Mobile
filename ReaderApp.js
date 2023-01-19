@@ -44,6 +44,7 @@ import AutocompletePage from './AutocompletePage';
 import TextColumn from './TextColumn';
 import ConnectionsPanel from './ConnectionsPanel';
 import SettingsPage from './SettingsPage';
+import GeneralNavigationMenu from "./GeneralNavigationMenu";
 import InterruptingMessage from './InterruptingMessage';
 import SwipeableCategoryList from './SwipeableCategoryList';
 import Toast from 'react-native-root-toast';
@@ -1822,6 +1823,7 @@ class ReaderApp extends React.PureComponent {
               openSearch={this.openSearch}
               setIsNewSearch={this.setIsNewSearch}
               openSettings={this.openMenu.bind(null, "settings")}
+              openNavMenu={this.openMenu.bind(null, "navmenu")}
               openHistory={this.openMenu.bind(null, "history")}
               openSaved={this.openMenu.bind(null, "saved")}
               openLogin={this.openMenu.bind(null, "login", "toc")}
@@ -1908,6 +1910,9 @@ class ReaderApp extends React.PureComponent {
       case ("settings"):
         Sefaria.track.setScreen("settings", "menu")
         return(<SettingsPage close={this.manageBackMain} logout={this.logout} openUri={this.openUri} />);
+      case ("navmenu"):
+        Sefaria.track.setScreen("nav", "menu")
+        return(<GeneralNavigationMenu close={this.manageBackMain} logout={this.logout} openUri={this.openUri} />);
       case ("history"):
         Sefaria.track.setScreen("history", "menu")
         return(
