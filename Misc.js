@@ -44,6 +44,13 @@ const CSS_CLASS_STYLES = {
   },
 };
 
+const PageHeader = ({titleKey}) => {
+  const { theme } = useGlobalState();
+  return(
+      <InterfaceText stringKey={titleKey} extraStyles={[{fontSize: 22, fontWeight: 500}, theme.tertiaryText]} />
+  );
+}
+
 const SystemHeader = ({ title, onBack, openNav, hideLangToggle }) => {
   const { themeStr, interfaceLanguage } = useContext(GlobalStateContext);
   const theme = getTheme(themeStr);
@@ -1385,6 +1392,7 @@ export {
   LocalSearchBar,
   MenuButton,
   OrderedList,
+  PageHeader,  
   ProfileListing,
   ProfilePic,
   RainbowBar,
