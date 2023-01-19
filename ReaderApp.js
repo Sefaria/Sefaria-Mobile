@@ -66,6 +66,7 @@ import {
   SefariaProgressBar,
   ConditionalProgressWrapper,
 } from './Misc.js';
+import {FooterTabBar} from "./FooterTabBar";
 const ViewPort    = Dimensions.get('window');
 
 class ReaderApp extends React.PureComponent {
@@ -2213,6 +2214,7 @@ class ReaderApp extends React.PureComponent {
               />
             </ConditionalProgressWrapper>
               { this.renderContent() }
+            <FooterTabBar />
           </View>
         </SafeAreaView>
         <InterruptingMessage
