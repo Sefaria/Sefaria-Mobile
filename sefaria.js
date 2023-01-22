@@ -1999,7 +1999,8 @@ Sefaria.hebrewSectionName = function(name) {
     "Article":          "סעיף",
     "Shoresh":          "שורש",
     "Story":            "סיפור",
-    "Remez":            "רמז"
+    "Remez":            "רמז",
+    "Essay":            "מאמר",
   };
   return name in sectionNames ? sectionNames[name] : name;
 };
