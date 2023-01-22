@@ -126,6 +126,7 @@ const ReaderTextTableOfContents = ({
               alts={textToc.alts || null}
               defaultStruct={"default_struct" in textToc && textToc.default_struct in textToc.alts ? textToc.default_struct : "default"}
               title={title}
+              exclude_structs={textToc?.exclude_structs || []}
               openRef={openRef} /> : <LoadingView category={Sefaria.primaryCategoryForTitle(title)}/> }
 
         </ScrollView>
@@ -145,47 +146,53 @@ ReaderTextTableOfContents.propTypes = {
   textUnavailableAlert: PropTypes.func.isRequired,
 };
 
-const TextTableOfContentsNavigation = ({ schema, commentatorList, alts, defaultStruct, title, openRef }) => {
+const TextTableOfContentsNavigation = ({ schema, commentatorList, alts, defaultStruct, title, exclude_structs, openRef }) => {
   const [tab, setTab] = useState(defaultStruct);
   let toggle = null;
-  if (commentatorList.length || alts) {
-    var options = [{
+  let options = [];
+  if (!exclude_structs.includes('schema')) {
+    options = [{
       name: "default",
       text: "sectionNames" in schema ? schema.sectionNames[0] : "Contents",
       heText: "sectionNames" in schema ? Sefaria.hebrewSectionName(schema.sectionNames[0]) : "תוכן",
-      onPress: () => { setTab('default'); },
+      onPress: () => {
+        setTab('default');
+      },
     }];
-    if (alts) {
-      for (var alt in alts) {
-        if (alts.hasOwnProperty(alt)) {
-          options.push({
-            name: alt,
-            text: alt,
-            heText: Sefaria.hebrewSectionName(alt),
-            onPress: setTab.bind(null, alt)
-          });
-        }
+  }
+  if (alts) {
+    for (var alt in alts) {
+      if (alts.hasOwnProperty(alt)) {
+        options.push({
+          name: alt,
+          text: alt,
+          heText: Sefaria.hebrewSectionName(alt),
+          onPress: setTab.bind(null, alt)
+        });
       }
     }
-    if (commentatorList.length) {
-      options.push({
-        name: "commentary",
-        text: "Commentary",
-        heText: "מפרשים",
-        onPress: () => { setTab('commentary'); },
-      });
-    }
-    options = options.sort((a, b) => (
-      a.name == defaultStruct ? -1 :
-        b.name == defaultStruct ? 1 : 0
-    ));
+  }
+  if (commentatorList.length) {
+    options.push({
+      name: "commentary",
+      text: "Commentary",
+      heText: "מפרשים",
+      onPress: () => { setTab('commentary'); },
+    });
+  }
+  options = options.sort((a, b) => (
+    a.name == defaultStruct ? -1 :
+      b.name == defaultStruct ? 1 : 0
+  ));
+  if (options.length > 1) {
     toggle = (
-      <ToggleSet
-        options={options}
-        active={tab}
-      />
+        <ToggleSet
+            options={options}
+            active={tab}
+        />
     );
   }
+
 
   // Set margins around nav sections dependent on screen width so grid centered no mater how many sections fit per line
   var {height, width}   = Dimensions.get('window');
@@ -342,24 +349,16 @@ SchemaNode.propTypes = {
 const JaggedArrayNode = ({ schema, refPath, openRef }) => {
   if (refPath.startsWith("Beit Yosef, ")) { schema.toc_zoom = 2; }
 
-  if ("toc_zoom" in schema) {
-    const zoom = schema.toc_zoom - 1;
-    return (<JaggedArrayNodeSection
-              depth={schema.depth - zoom}
-              sectionNames={schema.sectionNames.slice(0, -zoom)}
-              addressTypes={schema.addressTypes.slice(0, -zoom)}
-              contentCounts={schema.content_counts}
-              refPath={refPath}
-              openRef={openRef} />);
-  }
+  const zoom = schema?.toc_zoom - 1 || 0;
   return (<JaggedArrayNodeSection
-            depth={schema.depth}
-            sectionNames={schema.sectionNames}
-            addressTypes={schema.addressTypes}
+            depth={schema.depth - zoom}
+            sectionNames={schema.sectionNames.slice(0, schema.sectionNames.length - zoom)}
+            addressTypes={schema.addressTypes.slice(0, schema.addressTypes.length - zoom)}
             contentCounts={schema.content_counts}
             refPath={refPath}
-            openRef={openRef} />);
-}
+            openRef={openRef}
+            indexOffsetsByDepth={schema.index_offsets_by_depth || {}}
+  />);}
 
 const contentCountIsEmpty = count => {
   // Returns true if count is zero or is an an array (of arrays) of zeros.
@@ -367,6 +366,12 @@ const contentCountIsEmpty = count => {
   var innerCounts = count.map(contentCountIsEmpty);
   return innerCounts.every((empty) => {empty});
 };
+
+const reduceIndexOffsetsByDepth = indexOffsetsByDepth => {
+  return Object.fromEntries(Object.entries(indexOffsetsByDepth)
+      .filter(([k]) => k !== '1')
+      .map(([k, v]) => [(k-1), v[i]]));
+}
 
 const refPathTerminal = count => {
   // Returns a string to be added to the end of a section link depending on a content count
@@ -383,18 +388,18 @@ const refPathTerminal = count => {
   return terminal;
 };
 
-const JaggedArrayNodeSection = ({ depth, sectionNames, addressTypes, contentCounts, refPath, openRef }) => {
+const JaggedArrayNodeSection = ({ depth, sectionNames, addressTypes, contentCounts, refPath, openRef, indexOffsetsByDepth }) => {
+  const offset = indexOffsetsByDepth?.[1] || 0;
   const { menuLanguage, theme } = useGlobalState();
   const showHebrew = menuLanguage == "hebrew";
   if (depth > 2) {
     const content = [];
     for (let i = 0; i < contentCounts.length; i++) {
       if (contentCountIsEmpty(contentCounts[i])) { continue; }
-      let enSection = i+1;
-      let heSection = Sefaria.hebrew.encodeHebrewNumeral(i+1);
-      if (addressTypes[0] === "Talmud") {
-        enSection = Sefaria.hebrew.intToDaf(i);
-        heSection = Sefaria.hebrew.encodeHebrewDaf(enSection);
+      let enSection = i+1+offset;
+      let heSection = Sefaria.hebrew.encodeHebrewNumeral(i+1+offset);
+      if (["Talmud", "Folio"].includes(addressTypes[0])) {
+        [enSection, heSection] = Sefaria.hebrew.setDafOrFolio(addressTypes[0], i+offset);
       }
       content.push(
         <View style={styles.textTocNumberedSectionBox} key={i}>
@@ -407,7 +412,9 @@ const JaggedArrayNodeSection = ({ depth, sectionNames, addressTypes, contentCoun
             addressTypes={addressTypes.slice(1)}
             contentCounts={contentCounts[i]}
             refPath={`${refPath}:${enSection}`}
-            openRef={openRef} />
+            openRef={openRef}
+            indexOffsetsByDepth={reduceIndexOffsetsByDepth(indexOffsetsByDepth)}
+          />
         </View>);
     }
     return ( <View>{content}</View> );
@@ -416,11 +423,10 @@ const JaggedArrayNodeSection = ({ depth, sectionNames, addressTypes, contentCoun
   contentCounts = depth == 1 ? new Array(contentCounts).fill(1) : contentCounts;
   const sectionLinks = contentCounts.map((contentCount, i) => {
     if (contentCountIsEmpty(contentCounts[i])) { return null; }
-    let section = i+1;
-    let heSection = Sefaria.hebrew.encodeHebrewNumeral(i+1);
-    if (addressTypes[0] === "Talmud") {
-      section = Sefaria.hebrew.intToDaf(i);
-      heSection = Sefaria.hebrew.encodeHebrewDaf(section);
+    let section = i+1+offset;
+    let heSection = Sefaria.hebrew.encodeHebrewNumeral(i+1+offset);
+    if (["Talmud", "Folio"].includes(addressTypes[0])) {
+      [section, heSection] = Sefaria.hebrew.setDafOrFolio(addressTypes[0], i+offset);
     }
     const ref  = (refPath + ":" + section).replace(":", " ") + refPathTerminal(contentCounts[i]);
     return (
@@ -483,15 +489,25 @@ const JaggedArrayNodeSectionTitle = ({ openRef, tref, title, heTitle }) => {
 
 const ArrayMapNode = ({ schema, openRef, categories }) => {
   const { menuLanguage } = useGlobalState();
+  let offset = schema.offset || 0;
   if ("refs" in schema && schema.refs.length) {
     var sectionLinks = schema.refs.map((ref, i) => {
-      i += schema.offset || 0;
+      if (schema.addresses) {
+        i = schema.addresses[i];
+      } else {
+        i += offset;
+      }
+      if (schema.skipped_addresses) {
+        while (schema.skipped_addresses.includes(i+1)) {
+          i += 1;
+          offset += 1;
+        }
+      }
       const enableAliyot = !!categories && categories[0] === "Tanakh" && categories[1] === "Torah";  // enable aliyot in reader when you click on an aliya
       let section = i+1;
       let heSection = Sefaria.hebrew.encodeHebrewNumeral(i+1);
-      if (schema.addressTypes[0] === "Talmud") {
-        section = Sefaria.hebrew.intToDaf(i);
-        heSection = Sefaria.hebrew.encodeHebrewDaf(section);
+      if (["Talmud", "Folio"].includes(schema.addressTypes[0])) {
+        [section, heSection] = Sefaria.hebrew.setDafOrFolio(schema.addressTypes[0], i);
       }
       return (
         <JaggedArrayNodeSectionBox

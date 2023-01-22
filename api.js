@@ -80,8 +80,10 @@ var Api = {
         });
       }
 
+      let offset = text_response?.index_offsets_by_depth?.[text_response.textDepth] || 0;
+      offset = (Array.isArray(offset)) ? offset[0] : offset;
       let content = text_response.text.map((en,i) => ({
-        "segmentNumber": ""+(i+1),
+        "segmentNumber": ""+(i+1+offset),
         "he": text_response.he[i],
         "text": en,
         "links": link_response[i] ? link_response[i] : []
