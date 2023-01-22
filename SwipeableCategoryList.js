@@ -198,7 +198,7 @@ const SyncPrompt = ({ openLogin }) => {
           });
         }}>
         <Image
-          source={require('./img/close-light.png')}
+          source={iconData.get('close', 'black')}
           resizeMode={'contain'}
           style={{width: 14, height: 14}}
         />

@@ -9,16 +9,17 @@ import {
   FlatList,
 } from 'react-native';
 import { TabHistory, TabMetadata } from './PageHistory';
-
+import { iconData } from "./IconData";
+import {useGlobalState} from "./Hooks";
 
 
 export const FooterTabBar = ({}) => {
   return (
       <View style={{flexDirection: "row", justifyContent: "space-between", marginHorizontal: 5}}>
         {
-          TabMetadata.namesWithIcons().map(([name, icon]) => {
+          TabMetadata.namesWithIcons().map(([name, iconName]) => {
             return (
-                <FooterTabButton key={name} text={name} icon={icon} />
+                <FooterTabButton key={name} text={name} iconName={iconName} />
             );
           })
         }
@@ -26,11 +27,12 @@ export const FooterTabBar = ({}) => {
   );
 };
 
-const FooterTabButton = ({text, icon}) => {
-  return (
+const FooterTabButton = ({text, iconName}) => {
+    const { themeStr } = useGlobalState();
+    return (
       <View style={{flex: 1, marginHorizontal: 17, marginVertical: 14, alignItems: "center", justifyContent: "center", flexDirection: "column"}}>
-        <Image source={icon} resizeMode={'contain'}/>
+        <Image source={iconData.get(iconName, themeStr)} resizeMode={'contain'}/>
         <Text style={{ fontSize: 8, fontFamily: "OpenSans", fontWeight: "normal", fontStyle: "normal" }}>{text}</Text>
       </View>
-  );
+    );
 };

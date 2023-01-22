@@ -40,6 +40,7 @@ import { useAsyncVariable, useIncrementalLoad, useGlobalState, useRtlFlexDir } f
 import Sefaria from './sefaria';
 import strings from './LocalizedStrings';
 import styles from './Styles';
+import {iconData} from "./IconData";
 
 const sortTopicCategories = (a, b, interfaceLanguage, isRoot) => {
   // Don't use display order intended for top level a category level. Bandaid for unclear semantics on displayOrder.
@@ -705,7 +706,8 @@ const TopicSideColumn = ({ topic, links, openTopic, openRef, parashaData, tref }
     : null
   );
   const hasMore = linkTypeArray && (linkTypeArray[0].links.filter(l => l.shouldDisplay !== false) > 10 || linkTypeArray.length > 1);
-  const moreSource = themeStr === 'white' ? (showMore ? require('./img/up.png') : require('./img/down.png')) : (showMore ? require('./img/up-light.png') : require('./img/down-light.png'))
+  const moreIconName = showMore ? 'up' : 'down';
+  const moreSource = iconData.get(moreIconName, themeStr);
   const moreButton = hasMore ?
     (
       <SefariaPressable extraStyles={[styles.topicLinkSideMore, {flexDirection: isHeb ? 'row-reverse': 'row'}]} onPress={() => setShowMore(prevShowMore => !prevShowMore)}>

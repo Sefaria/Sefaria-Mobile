@@ -19,6 +19,7 @@ import {
 import { GlobalStateContext, getTheme } from './StateManager';
 import styles from './Styles';
 import strings from './LocalizedStrings';
+import {iconData} from "./IconData";
 
 const SearchFilterPage = ({
   subMenuOpen,
@@ -64,7 +65,7 @@ const SearchFilterPage = ({
   var backImageStyle = isheb && false ? styles.directedButtonWithTextHe : styles.directedButtonWithTextEn;
   var loadingMessage = (<Text style={[langStyle, theme.searchResultSummaryText]}>{strings.loadingFilters}</Text>);
   var content = null;
-  var closeSrc = themeStr == "white" ? require("./img/circle-close.png") : require("./img/circle-close-light.png");
+  var closeSrc = iconData.get('circle-close', themeStr);
   var flexDir = { flexDirection: interfaceLanguage === "hebrew" ? "row-reverse" : "row" };
   switch (subMenuOpen) {
     case "filter":
