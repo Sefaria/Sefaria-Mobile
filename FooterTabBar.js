@@ -14,8 +14,9 @@ import {useGlobalState} from "./Hooks";
 
 
 export const FooterTabBar = ({}) => {
-  return (
-      <View style={{flexDirection: "row", justifyContent: "space-between", marginHorizontal: 5}}>
+    const { theme } = useGlobalState();
+    return (
+      <View style={[{flexDirection: "row", justifyContent: "space-between", paddingHorizontal: 5, borderTopWidth: 1}, theme.mainTextPanel, theme.lightGreyBorder ]}>
         {
           TabMetadata.namesWithIcons().map(([name, iconName]) => {
             return (
@@ -24,15 +25,15 @@ export const FooterTabBar = ({}) => {
           })
         }
       </View>
-  );
+    );
 };
 
 const FooterTabButton = ({text, iconName}) => {
-    const { themeStr } = useGlobalState();
+    const { themeStr, theme } = useGlobalState();
     return (
       <View style={{flex: 1, marginHorizontal: 17, marginVertical: 14, alignItems: "center", justifyContent: "center", flexDirection: "column"}}>
         <Image source={iconData.get(iconName, themeStr)} resizeMode={'contain'}/>
-        <Text style={{ fontSize: 8, fontFamily: "OpenSans", fontWeight: "normal", fontStyle: "normal" }}>{text}</Text>
+        <Text style={[{ marginTop: 8, fontSize: 8, fontFamily: "OpenSans", fontWeight: "normal", fontStyle: "normal" }, theme.tertiaryText]}>{text}</Text>
       </View>
     );
 };
