@@ -2215,7 +2215,7 @@ class ReaderApp extends React.PureComponent {
               />
             </ConditionalProgressWrapper>
               { this.renderContent() }
-            <FooterTabBar />
+            <FooterTabBar selectedTabName={this.state.footerTab} />
           </View>
         </SafeAreaView>
         <InterruptingMessage

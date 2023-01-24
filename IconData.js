@@ -4,16 +4,20 @@ class IconData {
        this._icons = IconData._load_icons();
     }
 
-    get = (iconName, themeStr) => {
+    get = (iconName, themeStr, isSelected=false) => {
         const iconThemes = this._icons[iconName];
         if (!iconThemes) {
             throw Error(`Icon name '${iconName}' doesn't exist.`);
         }
-        const icon = iconThemes[themeStr];
+        const icon = iconThemes[this._getColorKey(themeStr, isSelected)];
         if (!icon) {
             throw Error(`Icon theme '${themeStr}' doesn't exist for icon name '${iconName}'.`);
         }
         return icon;
+    }
+
+    _getColorKey(themeStr, isSelected) {
+        return `${themeStr}${isSelected ? "_selected" : ""}`;
     }
 
     static _load_icons() {
@@ -45,10 +49,14 @@ class IconData {
             'book': {
                 black: require('./img/book-light.png'),
                 white: require('./img/book.png'),
+                black_selected: require('./img/book-white.png'),
+                white_selected: require('./img/book-dark.png'),
             },
             'bookmark': {
                 black: require('./img/bookmark-light.png'),
                 white: require('./img/bookmark.png'),
+                black_selected: require('./img/bookmark-white.png'),
+                white_selected: require('./img/bookmark-dark.png'),
             },
             'breaks': {
                 black: require('./img/breaks-light.png'),
@@ -121,6 +129,8 @@ class IconData {
             'hashtag': {
                 black: require('./img/hashtag-light.png'),
                 white: require('./img/hashtag.png'),
+                black_selected: require('./img/hashtag-white.png'),
+                white_selected: require('./img/hashtag-dark.png'),
             },
             'heart': {
                 black: require('./img/heart-light.png'),
@@ -145,6 +155,8 @@ class IconData {
             'profile': {
                 black: require('./img/profile-light.png'),
                 white: require('./img/profile.png'),
+                black_selected: require('./img/profile-white.png'),
+                white_selected: require('./img/profile-dark.png'),
             },
             'quill': {
                 black: require('./img/quill-light.png'),
@@ -153,6 +165,8 @@ class IconData {
             'search': {
                 black: require('./img/search-light.png'),
                 white: require('./img/search.png'),
+                black_selected: require('./img/search-white.png'),
+                white_selected: require('./img/search-dark.png'),
             },
             'settings': {
                 black: require('./img/settings-light.png'),
@@ -165,6 +179,8 @@ class IconData {
             'sheet': {
                 black: require('./img/sheet-light.png'),
                 white: require('./img/sheet.png'),
+                black_selected: require('./img/sheet-white.png'),
+                white_selected: require('./img/sheet-dark.png'),
             },
             'sidebyside': {
                 black: require('./img/sidebyside-light.png'),

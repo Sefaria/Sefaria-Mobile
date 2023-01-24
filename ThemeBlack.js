@@ -165,6 +165,9 @@ export default StyleSheet.create({
   contrastText: {
     color: Colors.mainForeground,
   },
+  primaryText: {
+    color: Colors.mainText,
+  },
   secondaryText: {
     color: Colors.secondaryText,
   },
