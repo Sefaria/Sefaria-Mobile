@@ -23,6 +23,7 @@ import { GlobalStateContext, DispatchContext, STATE_ACTIONS, themeStr, getTheme 
 import { useGlobalState, useRenderersProps } from './Hooks';
 import Sefaria from './sefaria';
 import styles from './Styles.js';
+import {iconData } from "./IconData";
 import strings from './LocalizedStrings';
 import { useHTMLViewStyles } from './useHTMLViewStyles';
 import { RenderHTML } from 'react-native-render-html';
@@ -252,7 +253,7 @@ const SefariaProgressBar = ({ onPress, onClose, download, downloadNotification, 
           {!!onClose ?
             <TouchableOpacity onPress={onClose} accessibilityLabel="Close">
               <Image
-                source={themeStr === 'white' ? require('./img/close.png') : require('./img/close-light.png')}
+                source={iconData.get('close', themeStr)}
                 resizeMode={'contain'}
                 style={{width: 14, height: 14}}
               />
@@ -354,11 +355,11 @@ const CategoryBlockLink = ({
   return (
     <TouchableOpacity onLongPress={onLongPress} onPress={onPress} style={[styles.readerNavCategory, theme.readerNavCategory, style]}>
       <View style={styles.readerNavCategoryInner}>
-        { iconOnLeft && (withArrow || icon) ? <Image source={withArrow || !icon ? (themeStr == "white" ? require('./img/back.png') : require('./img/back-light.png')) : icon }
+        { iconOnLeft && (withArrow || icon) ? <Image source={withArrow || !icon ? iconData.get('back', themeStr) : icon }
           style={[styles.moreArrowHe, isSans ? styles.categoryBlockLinkIconSansHe : null]}
           resizeMode={'contain'} /> : null }
         {content}
-        { !iconOnLeft && (withArrow || icon) ? <Image source={ withArrow || !icon ? (themeStr == "white" ? require('./img/forward.png'): require('./img/forward-light.png')) : icon }
+        { !iconOnLeft && (withArrow || icon) ? <Image source={ withArrow || !icon ? iconData.get('forward', themeStr) : icon }
           style={[styles.moreArrowEn, isSans ? styles.categoryBlockLinkIconSansEn : null]}
           resizeMode={'contain'} /> : null }
       </View>
@@ -617,26 +618,14 @@ const LanguageToggleButton = () => {
 
 const CollapseIcon = ({ showHebrew, isVisible }) => {
   const { themeStr } = useContext(GlobalStateContext);
-  var src;
-  if (themeStr == "white") {
-    if (isVisible) {
-      src = require('./img/down.png');
-    } else {
-      if (showHebrew) {
-        src = require('./img/back.png');
-      } else {
-        src = require('./img/forward.png');
-      }
-    }
+  let src;
+  if (isVisible) {
+    src = iconData.get('down', themeStr);
   } else {
-    if (isVisible) {
-      src = require('./img/down-light.png');
+    if (showHebrew) {
+      src = iconData.get('back', themeStr);
     } else {
-      if (showHebrew) {
-        src = require('./img/back-light.png');
-      } else {
-        src = require('./img/forward-light.png');
-      }
+      src = iconData.get('forward', themeStr);
     }
   }
   return (
@@ -692,22 +681,9 @@ class DirectedButton extends React.Component {
 const DirectedArrow = ({ imageStyle, language, direction }) => {
   const { themeStr } = useContext(GlobalStateContext);
   const isheb = language === 'hebrew';
-  var actualDirBack = (isheb  && direction === "forward") || (!isheb && direction === "back");
-  //I wish there was a way to reduce these if statements, but there's a limitation that require statements can't have variables in them
-  var src;
-  if (actualDirBack) {
-    if (themeStr === "white") {
-      src = require("./img/back.png");
-    } else {
-      src = require("./img/back-light.png");
-    }
-  } else {
-    if (themeStr === "white") {
-      src = require("./img/forward.png");
-    } else {
-      src = require("./img/forward-light.png");
-    }
-  }
+  const actualDirBack = (isheb  && direction === "forward") || (!isheb && direction === "back");
+  const iconName = actualDirBack ? 'back' : 'forward';
+  const src = iconData.get(iconName, themeStr);
   return (
     <Image source={src} style={imageStyle} resizeMode={'contain'}/>
   );
@@ -723,7 +699,7 @@ const SearchButton = ({ onPress, extraStyles, disabled }) => {
   return (
     <TouchableOpacity style={[styles.headerButton, styles.headerButtonSearch, extraStyles]} onPress={onPress} disabled >
       <Image
-        source={themeStr == "white" ? require('./img/search.png'): require('./img/search-light.png') }
+        source={iconData.get('search', themeStr)}
         style={styles.searchButton}
         resizeMode={'contain'}
       />
@@ -736,7 +712,7 @@ const MenuButton = ({ onPress, placeholder }) => {
   return (
     <TouchableOpacity style={[styles.headerButton, styles.leftHeaderButton, {opacity: placeholder ? 0 : 1}]} onPress={onPress} accessibilityLabel="Open Menu">
       <Image
-        source={themeStr == "white" ? require('./img/menu.png'): require('./img/menu-light.png') }
+        source={iconData.get('menu', themeStr)}
         style={styles.menuButton}
         resizeMode={'contain'}
       />
@@ -749,7 +725,7 @@ const CloseButton = ({ onPress }) => {
   return (
     <TouchableOpacity style={[styles.headerButton, styles.leftHeaderButton]} onPress={onPress} accessibilityLabel="Close">
       <Image
-        source={themeStr == "white" ? require('./img/close.png'): require('./img/close-light.png') }
+        source={iconData.get('close', themeStr)}
         style={styles.closeButton}
         resizeMode={'contain'}
       />
@@ -762,7 +738,7 @@ const CircleCloseButton = ({ onPress }) => {
   return (
     <TouchableOpacity style={styles.headerButton} onPress={onPress} accessibilityLabel="Close">
       <Image
-        source={themeStr == "white" ? require('./img/circle-close.png'): require('./img/circle-close-light.png') }
+        source={iconData.get('circle-close', themeStr)}
         style={styles.circleCloseButton}
         resizeMode={'contain'}
       />
@@ -779,7 +755,7 @@ const TripleDots = ({ onPress }) => {
     >
       <Image
         style={styles.tripleDots}
-        source={themeStr == "white" ? require('./img/dots.png'): require('./img/dots-light.png') }
+        source={iconData.get('dots', themeStr)}
       />
     </TouchableOpacity>
   );
@@ -794,7 +770,7 @@ const DisplaySettingsButton = ({ onPress }) => {
       accessibilityLabel="Open display settings"
     >
       <Image
-        source={themeStr == "white" ? require('./img/a-aleph.png'): require('./img/a-aleph-light.png') }
+        source={iconData.get('a-aleph', themeStr)}
         style={styles.displaySettingsButton}
         resizeMode={'contain'}
       />
@@ -904,26 +880,15 @@ const LoadingView = ({ style, category, size, height, color=Sefaria.palette.colo
 
 const IndeterminateCheckBox = ({ state, onPress }) => {
   const { themeStr } = useContext(GlobalStateContext);
-  var src;
+  let iconName;
   if (state === 1) {
-    if (themeStr == "white") {
-      src = require('./img/checkbox-checked.png');
-    } else {
-      src = require('./img/checkbox-checked-light.png');
-    }
+    iconName = 'checkbox-checked';
   } else if (state === 0) {
-    if (themeStr == "white") {
-      src = require('./img/checkbox-unchecked.png');
-    } else {
-      src = require('./img/checkbox-unchecked-light.png');
-    }
+    iconName = 'checkbox-unchecked';
   } else {
-    if (themeStr == "white") {
-      src = require('./img/checkbox-partially.png');
-    } else {
-      src = require('./img/checkbox-partially-light.png');
-    }
+    iconName = 'checkbox-partially';
   }
+  const src = iconData.get(iconName, themeStr);
 
   return (
     <TouchableOpacity onPress={onPress}>
@@ -1066,7 +1031,7 @@ const CancelButton = ({ onPress, extraStyles=[] }) => {
   return (
     <TouchableOpacity onPress={onPress} accessibilityLabel="close">
       <Image
-        source={themeStr === 'white' ? require('./img/circle-close.png') : require('./img/circle-close-light.png')}
+        source={iconData.get('circle-close', themeStr)}
         style={[styles.cancelSearchButton].concat(extraStyles)}
         resizeMode={'contain'}
       />
@@ -1079,6 +1044,8 @@ const SaveButton = ({ historyItem, showToast, extraStyles=[] }) => {
   const [, forceUpdate] = useReducer(x => x + 1, 0);  // HACK
   const isHeb = Sefaria.util.get_menu_language(interfaceLanguage, textLanguage) == "hebrew";
   const isSaved = Sefaria.history.indexOfSaved(historyItem.ref) !== -1;
+  const iconName = isSaved ? 'starFilled' : 'starUnfilled';
+  const src = iconData.get(iconName, themeStr);
   return (
     <TouchableOpacity onPress={
         () => {
@@ -1096,9 +1063,7 @@ const SaveButton = ({ historyItem, showToast, extraStyles=[] }) => {
       }>
       <Image
         style={[styles.starIcon].concat(extraStyles)}
-        source={themeStr == "white" ?
-                (isSaved ? require('./img/starFilled.png') : require('./img/starUnfilled.png')) :
-                (isSaved ? require('./img/starFilled-light.png') : require('./img/starUnfilled-light.png'))}
+        source={src}
         resizeMode={'contain'}
       />
     </TouchableOpacity>
@@ -1309,7 +1274,7 @@ const DataSourceLine = ({ children, dataSources, title, flexDirection="row", pre
         {children}
         <SefariaPressable extraStyles={[styles.dataSourceButton, theme.lighterGreyBackground].concat(imageStyles)} onPress={()=>setDisplaySource(prev=>!prev)}>
           <Image
-            source={themeStr == "white" ? require('./img/dots.png'): require('./img/dots-light.png') }
+            source={iconData.get('dots', themeStr)}
             style={styles.dataSourceButtonImage}
             resizeMode={'contain'}
           />

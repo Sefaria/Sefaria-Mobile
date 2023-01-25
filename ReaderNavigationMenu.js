@@ -36,6 +36,7 @@ import {
   PackagesState
 } from './DownloadControl';
 import { useAsyncVariable } from './Hooks';
+import {iconData} from "./IconData";
 
 
 const ReaderNavigationMenu = props => {
@@ -43,7 +44,6 @@ const ReaderNavigationMenu = props => {
   const { themeStr, interfaceLanguage, textLanguage } = useContext(GlobalStateContext);
   const [showMore, setShowMore] = useState(false);
   const theme = getTheme(themeStr);
-  const isWhite = themeStr === "white";
 
   if (props.categories.length) {
     // List of Text in a Category
@@ -99,7 +99,7 @@ const ReaderNavigationMenu = props => {
               onFocus={props.openAutocomplete}/>
             <ScrollView style={styles.menuContent} contentContainerStyle={styles.menuScrollViewContent}>
               <SavedHistorySection
-                isWhite={isWhite}
+                themeStr={themeStr}
                 isHeb={isHeb}
                 openHistory={props.openHistory}
                 openSaved={props.openSaved}
@@ -263,28 +263,28 @@ const MoreSection = ({ isHeb, openUri, openSettings, openNavMenu }) => {
       <TwoBox>
         <SystemButton
           text={strings.donate}
-          img={themeStr == "white" ? require('./img/heart.png'): require('./img/heart-light.png')}
+          img={iconData.get('heart', themeStr)}
           onPress={onDonate}
           extraStyles={[styles.systemButtonTwoBox]}
           isHeb={isHeb}
         />
         <SystemButton
           text={strings.settings}
-          img={themeStr == "white" ? require('./img/settings.png'): require('./img/settings-light.png')}
+          img={iconData.get('settings', themeStr)}
           onPress={openSettings}
           extraStyles={[styles.systemButtonTwoBox]}
           isHeb={isHeb}
         />
         <SystemButton
           text={strings.about}
-          img={themeStr == "white" ? require('./img/info.png'): require('./img/info-light.png')}
+          img={iconData.get('info', themeStr)}
           onPress={openNavMenu}
           extraStyles={[styles.systemButtonTwoBox]}
           isHeb={isHeb}
         />
         <SystemButton
           text={strings.feedback}
-          img={themeStr == "white" ? require('./img/feedback.png'): require('./img/feedback-light.png')}
+          img={iconData.get('feedback', themeStr)}
           onPress={onFeedback}
           extraStyles={[styles.systemButtonTwoBox]}
           isHeb={isHeb}
@@ -303,7 +303,6 @@ MoreSection.whyDidYouRender = true;
 const ResourcesSection = ({ openTopicToc, openMySheets, openLogin }) => {
   const { themeStr, interfaceLanguage, isLoggedIn } = useContext(GlobalStateContext);
   const theme = getTheme(themeStr);
-  const isWhite = themeStr === "white";
   const isHeb = interfaceLanguage === "hebrew";
   const langStyle = !isHeb ? styles.enInt : styles.heInt;
 
@@ -316,14 +315,14 @@ const ResourcesSection = ({ openTopicToc, openMySheets, openLogin }) => {
       </View>
       <SystemButton
         text={strings.topics}
-        img={isWhite ? require('./img/hashtag.png'): require('./img/hashtag-light.png')}
+        img={iconData.get('hashtag', themeStr)}
         onPress={openTopicToc}
         isHeb={isHeb}
       />
       <SystemButton
         onPress={isLoggedIn ? openMySheets : openLogin}
         text={strings.mySheets}
-        img={isWhite ? require('./img/sheet.png') : require('./img/sheet-light.png')}
+        img={iconData.get('sheet', themeStr)}
         isHeb={isHeb}
       />
     </View>
@@ -384,18 +383,18 @@ CalendarSection.propTypes = {
 };
 CalendarSection.whyDidYouRender = true;
 
-const SavedHistorySection = ({ isWhite, isHeb, openHistory, openSaved }) => (
+const SavedHistorySection = ({ themeStr, isHeb, openHistory, openSaved }) => (
   <TwoBox>
     <SystemButton
       text={strings.history}
-      img={isWhite ? require('./img/clock.png'): require('./img/clock-light.png')}
+      img={iconData.get('clock', themeStr)}
       onPress={openHistory}
       isHeb={isHeb}
       extraStyles={[styles.systemButtonTwoBox]}
     />
     <SystemButton
       text={strings.saved}
-      img={isWhite ? require('./img/starUnfilled.png'): require('./img/starUnfilled-light.png')}
+      img={iconData.get('starUnfilled', themeStr)}
       onPress={openSaved}
       isHeb={isHeb}
       extraStyles={[styles.systemButtonTwoBox]}

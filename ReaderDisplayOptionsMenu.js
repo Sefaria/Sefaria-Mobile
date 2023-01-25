@@ -13,26 +13,9 @@ import {
 import styles from './Styles.js';
 import strings from './LocalizedStrings';
 import { VOCALIZATION } from './VocalizationEnum';
+import {iconData} from "./IconData";
 
-var a_aleph_icon          = require('./img/a_aleph.png');
-var a_icon                = require('./img/a_icon.png');
-var a_icon_small          = require('./img/a_icon_small.png');
-var aleph_icon            = require('./img/aleph.png');
-var segmented_icon        = require('./img/breaks.png');
-var continuous_icon       = require('./img/continuous.png');
-var stacked_icon          = require('./img/stacked.png');
-var side_icon             = require('./img/sidebyside.png');
-var siderev_icon          = require('./img/sidebysiderev.png');
-var a_aleph_icon_light    = require('./img/a_aleph-light.png');
-var a_icon_light          = require('./img/a_icon-light.png');
-var a_icon_small_light    = require('./img/a_icon_small-light.png');
-var aleph_icon_light      = require('./img/aleph-light.png');
-var segmented_icon_light  = require('./img/breaks-light.png');
-var continuous_icon_light = require('./img/continuous-light.png');
-var stacked_icon_light    = require('./img/stacked-light.png');
-var side_icon_light       = require('./img/sidebyside-light.png');
-var siderev_icon_light    = require('./img/sidebysiderev-light.png');
-
+const menuIconNames = ['a_aleph', 'a_icon', 'a_icon_small', 'aleph', 'breaks', 'continuous', 'stacked', 'sidebyside', 'sidebysiderev']
 
 class ReaderDisplayOptionsMenu extends React.Component {
   static whyDidYouRender = true;
@@ -74,12 +57,16 @@ class ReaderDisplayOptionsMenu extends React.Component {
   };
 
   render() {
+    const icons = menuIconNames.reduce((accum, iconName) => {
+      accum[iconName] = iconData.get(iconName, this.props.themeStr);
+      return accum;
+    }, {});
     const options = [
       {
         label: strings.languageYo,
         onPress: this.props.setTextLanguage,
         buttons: ["english","bilingual","hebrew"],
-        icons: this.props.themeStr == "white" ? [a_icon,a_aleph_icon,aleph_icon]: [a_icon_light,a_aleph_icon_light,aleph_icon_light],
+        icons: [icons.a_icon, icons.a_aleph, icons.aleph],
         currVal: this.props.textLanguage,
         parametrized: true
       },
@@ -88,7 +75,7 @@ class ReaderDisplayOptionsMenu extends React.Component {
         label: strings.layout,
         onPress: this.props.setTextFlow,
         buttons: ["segmented","continuous"],
-        icons: this.props.themeStr == "white" ? [segmented_icon,continuous_icon]: [segmented_icon_light,continuous_icon_light],
+        icons: [icons.breaks, icons.continuous],
         currVal: this.props.textFlow,
         parametrized: true
       },
@@ -97,7 +84,7 @@ class ReaderDisplayOptionsMenu extends React.Component {
         label: strings.bilingualLayout,
         onPress: this.props.setBiLayout,
         buttons: ["stacked", "sidebyside", "sidebysiderev"],
-        icons: this.props.themeStr == "white" ? [stacked_icon,side_icon,siderev_icon] : [stacked_icon_light,side_icon_light,siderev_icon_light],
+        icons: [icons.stacked, icons.sidebyside, icons.sidebysiderev],
         currVal: this.props.biLayout,
         parametrized: true,
         iconLength: 19,
@@ -123,7 +110,7 @@ class ReaderDisplayOptionsMenu extends React.Component {
         label: strings.fontSize,
         onPress: this.props.incrementFont,
         buttons:["smaller","larger"],
-        icons: this.props.themeStr == "white" ? [a_icon_small,a_icon]: [a_icon_small_light,a_icon_light],
+        icons: [icons.a_icon_small, icons.a_icon],
         currVal: null,
         parametrized: true
       },

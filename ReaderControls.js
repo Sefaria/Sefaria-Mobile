@@ -22,7 +22,7 @@ import {
   SaveButton,
 } from './Misc.js';
 import { GlobalStateContext, getTheme } from './StateManager';
-import strings from './LocalizedStrings';
+import { iconData } from "./IconData";
 import Sefaria from "./sefaria";
 
 const ReaderControls = ({
@@ -65,13 +65,13 @@ const ReaderControls = ({
         <View style={styles.readerNavSectionMoreInvisible}>
           <Image
             style={styles.starIcon}
-            source={require('./img/starUnfilled.png')}
+            source={iconData.get('starUnfilled', 'white')}
             resizeMode={'contain'}
           />
         </View>
         <TouchableOpacity style={styles.headerTextTitle} onPress={sheet ? openSheetMeta : openTextToc }>
           <View style={styles.headerTextTitleInner}>
-            <Image source={themeStr == "white" ? require('./img/caret.png'): require('./img/caret-light.png') }
+            <Image source={iconData.get('caret', themeStr)}
                      style={[styles.downCaret, isHeb ? null: {opacity: 0}]}
                      resizeMode={'contain'} />
 
@@ -79,7 +79,7 @@ const ReaderControls = ({
                 <Text lang={textLanguage} style={titleTextStyle} numberOfLines={1} ellipsizeMode={"middle"}><HebrewInEnglishText text={sheet.title} stylesHe={[styles.heInEn]} stylesEn={[]}/></Text> :
                 <SText lang={textLanguage} style={titleTextStyle} numberOfLines={1} ellipsizeMode={"middle"} lineMultiplier={Platform.OS == 'ios' ? 1.5 : 1}>{textTitle}</SText>
             }
-            <Image source={themeStr == "white" ? require('./img/caret.png'): require('./img/caret-light.png') }
+            <Image source={iconData.get('caret', themeStr)}
                      style={[styles.downCaret, isHeb ? {opacity: 0} : null]}
                      resizeMode={'contain'} />
           </View>

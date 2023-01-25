@@ -3,6 +3,7 @@ import renderer from 'react-test-renderer';
 import SwipeableCategoryList from '../SwipeableCategoryList';
 import { GlobalStateContext } from '../StateManager';
 import { AnimatedRow } from '../Misc';
+import {iconData} from "../IconData";
 
 describe('SwipeableCategoryList', () => {
   test('basic render', async () => {
@@ -31,7 +32,7 @@ describe('SwipeableCategoryList', () => {
           hasDismissedSyncModal={false}
           readingHistory={true}
           dispatch={() => {}}
-          icon={require('./img/clock.png')}
+          icon={iconData.get('clock', 'white')}
         />
       </GlobalStateContext.Provider>
 
@@ -97,7 +98,7 @@ describe('SwipeableCategoryList', () => {
           isLoggedIn={false}
           hasDismissedSyncModal={false}
           dispatch={()=>{}}
-          icon={require('./img/clock.png')}
+          icon={iconData.get('clock', 'white')}
         />
       </GlobalStateContext.Provider>
     );

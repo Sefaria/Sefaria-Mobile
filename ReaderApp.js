@@ -67,6 +67,8 @@ import {
   SefariaProgressBar,
   ConditionalProgressWrapper,
 } from './Misc.js';
+import {FooterTabBar} from "./FooterTabBar";
+import {iconData} from "./IconData";
 const ViewPort    = Dimensions.get('window');
 
 class ReaderApp extends React.PureComponent {
@@ -1926,7 +1928,7 @@ class ReaderApp extends React.PureComponent {
             onRemove={null}
             title={strings.history}
             menuOpen={this.state.menuOpen}
-            icon={this.props.themeStr === "white" ? require('./img/clock.png') : require('./img/clock-light.png')}
+            icon={iconData.get('clock', this.props.themeStr)}
             loadData={this.syncProfileBound}
             openLogin={this.openMenu.bind(null, "login", "history")}
             openSettings={this.openMenu.bind(null, "settings")}
@@ -1949,7 +1951,7 @@ class ReaderApp extends React.PureComponent {
             onRemove={this.removeSavedItem}
             title={strings.saved}
             menuOpen={this.state.menuOpen}
-            icon={this.props.themeStr === "white" ? require('./img/starUnfilled.png') : require('./img/starUnfilled-light.png')}
+            icon={iconData.get('starUnfilled', this.props.themeStr)}
             loadData={async () => Sefaria.history.syncProfileGetSaved(this.props.dispatch, await this.getSettingsObject())}
             openLogin={this.openMenu.bind(null, "login", "saved")}
             openSettings={this.openMenu.bind(null, "settings")}
@@ -2218,6 +2220,7 @@ class ReaderApp extends React.PureComponent {
               />
             </ConditionalProgressWrapper>
               { this.renderContent() }
+            <FooterTabBar />
           </View>
         </SafeAreaView>
         <InterruptingMessage

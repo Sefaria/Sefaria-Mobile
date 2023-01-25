@@ -68,14 +68,14 @@ export class TabHistory {
 
 export class TabMetadata {
   static _names = ["Texts", "Topics", "Search", "Saved", "Account"];
-  static _icons = ["book", "hashtag", "search", "N/A", "N/A"];
+  static _icons = ["book", "hashtag", "search", "bookmark", "profile"];
 
   static names() {
     return TabMetadata._names;
   }
 
   static namesWithIcons() {
-    return Sefaria.util.zip(TabMetadata._names, TabMetadata._icons);
+    return Sefaria.util.zip([TabMetadata._names, TabMetadata._icons]);
   }
 
   static initialTabName() {

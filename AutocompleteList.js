@@ -19,6 +19,7 @@ import {
 import styles from './Styles';
 import strings from './LocalizedStrings';
 import { Topic } from './Topic';
+import {iconData} from "./IconData";
 
 class AutocompleteList extends React.Component {
   static propTypes = {
@@ -204,36 +205,35 @@ class AutocompleteList extends React.Component {
     if (item.query) { item.title = item.query; }
     // toc queries get saved as arrays
     const isHeb = this.state.completionsLang === 'he';
-    const isWhite = this.props.themeStr === 'white';
     let src;
     switch (item.type) {
       case "searchFor":
       case "query":
-        src = isWhite ? require("./img/search.png") : require("./img/search-light.png");
+        src = iconData.get('search', this.props.themeStr);
         break;
       case "ref":
       case "book":
-        src = isWhite ? require("./img/book.png") : require("./img/book-light.png");
+        src = iconData.get('book', this.props.themeStr);
         break;
       case "toc":
       case "toccategory":
-        src = isWhite ? require("./img/category.png") : require("./img/category-light.png");
+        src = iconData.get('category', this.props.themeStr);
         break;
       case "group":
-        src = isWhite ? require("./img/group.png") : require("./img/group-light.png");
+        src = iconData.get('group', this.props.themeStr);
         break;        
       case "authortopic":
-        src = isWhite ? require("./img/quill.png") : require("./img/quill-light.png");
+        src = iconData.get('quill', this.props.themeStr);
         break;
       case "persontopic":
       case "topic":
-        src = isWhite ? require("./img/hashtag.png") : require("./img/hashtag-light.png");
+        src = iconData.get('hashtag', this.props.themeStr);
         break;
       case "user":
-        src = item.pic.length ? {uri: item.pic} : (isWhite ? require("./img/user.png") : require("./img/user-light.png"));
+        src = item.pic.length ? {uri: item.pic} : (iconData.get('user', this.props.themeStr));
         break;
       case "collection":
-        src = this.props.themeStr === "white" ? require("./img/layers.png") : require("./img/layers-light.png");
+        src = iconData.get('layers', this.props.themeStr);
         break;
     }
     return (

@@ -17,6 +17,7 @@ import {
 } from './Misc.js';
 import bstyles from './Styles';
 import { getTheme, GlobalStateContext } from './StateManager.js';
+import {iconData} from "./IconData";
 
 var styles = StyleSheet.create({
   interruptingMessageBox: {
@@ -158,7 +159,6 @@ class InterruptingMessage extends React.Component {
   render() {
     if (!this.state.data) { return null; }
     const theme = getTheme(this.context.themeStr);
-    const isWhite = this.context.themeStr === 'white';
     const data = this.state.data;
     const titleStyle = this.props.interfaceLanguage == "hebrew" ? styles.interruptingMessageTitleHe : styles.interruptingMessageTitleEn;
     const textStyle = this.props.interfaceLanguage == "hebrew" ? bstyles.intHe : bstyles.en;
@@ -182,7 +182,7 @@ class InterruptingMessage extends React.Component {
                       onPress={this.close}
                       accessibilityLabel="Close pop up"
                     >
-                      <Image source={isWhite ? require("./img/circle-close.png") : require("./img/circle-close-light.png")}
+                      <Image source={iconData.get('circle-close', this.props.themeStr)}
                         resizeMode={'contain'}
                         style={styles.interruptingMessageClose} />
                     </TouchableOpacity>
