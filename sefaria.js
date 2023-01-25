@@ -96,6 +96,12 @@ Sefaria = {
   versions is object with keys { en, he } specifying version titles of requested ref
   */
   data: function(ref, context, versions) {
+    const ref_suffix = ref.replace(Sefaria.textTitleForRef(ref), '').trim();
+    const cats = Sefaria.categoriesForRef(ref);
+    const is_bavli = ((cats[cats.length-2] === 'Bavli' && cats[cats.length-1].includes('Seder')) || cats.includes('Acharonim on Talmud') || cats.includes('Rishonim on Talmud'));
+    if (is_bavli && RegExp(/^\d*$/).test(ref_suffix)) {
+      ref += 'a';
+    }
     if (typeof context === "undefined") { context = true; }
     return new Promise(function(resolve, reject) {
       const bookRefStem  = Sefaria.textTitleForRef(ref);
@@ -172,6 +178,9 @@ Sefaria = {
     return new Promise((resolve, reject) => {
       Sefaria.api.textCache(ref, context, versions, data);
       Sefaria.cacheVersionInfo(data, true);
+      if (Array.isArray(data?.content?.[0])) {
+        data.content = data.content[0];
+      }
       //console.log(data);
       resolve(data);
     });
@@ -925,15 +934,15 @@ Sefaria = {
         return offlineRelatedData;
       }
     },
-    getSegmentIndexFromRef: function(ref) {
-      let index = parseInt(ref.substring(ref.lastIndexOf(':') + 1)) - 1;
+    getSegmentIndexFromRef: function(ref, offset) {
+      let index = parseInt(ref.substring(ref.lastIndexOf(':') + 1)) - 1 - offset;
       if (!index && index !== 0) {
         // try again. assume depth-1 text
-        index = parseInt(ref.substring(ref.lastIndexOf(' ') + 1).trim()) - 1;
+        index = parseInt(ref.substring(ref.lastIndexOf(' ') + 1).trim()) - 1 - offset;
       }
       return index;
     },
-    organizeRelatedBySegment: function(related) {
+    organizeRelatedBySegment: function(related, offset=0) {
       let output = {};
       //filter out books not in toc
       Object.entries(related).map(([key, valueList]) => {
@@ -946,7 +955,7 @@ Sefaria = {
           const anchors = value.anchorRefExpanded || [value.anchorRef];
           if (anchors.length === 0) { continue; }
           for (let anchor of anchors) {
-            const refIndex = Sefaria.links.getSegmentIndexFromRef(anchor);
+            const refIndex = Sefaria.links.getSegmentIndexFromRef(anchor, offset);
             if (!output[key][refIndex]) { output[key][refIndex] = []; }
             let outputValue = value;
             if (key == 'links') {
@@ -986,7 +995,8 @@ Sefaria = {
       return sheet;
     },
     addRelatedToText: function(text, related) {
-      const related_obj = Sefaria.links.organizeRelatedBySegment(related);
+      const offset = parseInt(text[0]['segmentNumber']) - 1
+      const related_obj = Sefaria.links.organizeRelatedBySegment(related, offset);
       return text.map((seg,i) => ({
         ...seg,
         links: related_obj.links[i] || [],
