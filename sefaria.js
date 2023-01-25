@@ -925,15 +925,15 @@ Sefaria = {
         return offlineRelatedData;
       }
     },
-    getSegmentIndexFromRef: function(ref) {
-      let index = parseInt(ref.substring(ref.lastIndexOf(':') + 1)) - 1;
+    getSegmentIndexFromRef: function(ref, offset) {
+      let index = parseInt(ref.substring(ref.lastIndexOf(':') + 1)) - 1 - offset;
       if (!index && index !== 0) {
         // try again. assume depth-1 text
-        index = parseInt(ref.substring(ref.lastIndexOf(' ') + 1).trim()) - 1;
+        index = parseInt(ref.substring(ref.lastIndexOf(' ') + 1).trim()) - 1 - offset;
       }
       return index;
     },
-    organizeRelatedBySegment: function(related) {
+    organizeRelatedBySegment: function(related, offset=0) {
       let output = {};
       //filter out books not in toc
       Object.entries(related).map(([key, valueList]) => {
@@ -946,7 +946,7 @@ Sefaria = {
           const anchors = value.anchorRefExpanded || [value.anchorRef];
           if (anchors.length === 0) { continue; }
           for (let anchor of anchors) {
-            const refIndex = Sefaria.links.getSegmentIndexFromRef(anchor);
+            const refIndex = Sefaria.links.getSegmentIndexFromRef(anchor, offset);
             if (!output[key][refIndex]) { output[key][refIndex] = []; }
             let outputValue = value;
             if (key == 'links') {
@@ -986,7 +986,8 @@ Sefaria = {
       return sheet;
     },
     addRelatedToText: function(text, related) {
-      const related_obj = Sefaria.links.organizeRelatedBySegment(related);
+      const offset = parseInt(text[0]['segmentNumber']) - 1;
+      const related_obj = Sefaria.links.organizeRelatedBySegment(related, offset);
       return text.map((seg,i) => ({
         ...seg,
         links: related_obj.links[i] || [],
