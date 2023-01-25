@@ -1788,10 +1788,21 @@ class ReaderApp extends React.PureComponent {
   setFooterTab = tab => {
     const newState = this.tabHistory.peek({ tab })
     if (!newState) {
-
+      this._openTabForFirstTime(tab);
     } else {
       newState.footerTab = tab;
       this.setState(newState);
+    }
+    this.setState({footerTab: tab});
+  };
+
+  _openTabForFirstTime = tab => {
+    const newMenu = TabMetadata.menuByName(tab);
+    const specialCases = {navigation: this.openNav, "topic toc": this.openTopicToc};
+    if (specialCases.hasOwnProperty(newMenu)) {
+      specialCases[newMenu]();
+    } else {
+      this.openMenu(newMenu);
     }
   };
 
