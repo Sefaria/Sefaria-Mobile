@@ -41,7 +41,7 @@ export class PageHistory {
     if (bs.length === 0) {
       return;
     }
-    return bs[bs.length-1];
+    return bs[bs.length-1].state;
   }
 
   _updateMainBackStack = () => {
@@ -97,5 +97,13 @@ export class TabMetadata {
 
   static initialTabName() {
     return TabMetadata._tabData[0].name;
+  }
+
+  static menuByName(name) {
+    const tabDatum = TabMetadata._tabData.find(tabDatum => tabDatum.name === name);
+    if (!tabDatum) {
+      throw Error(`No tab name matching '${name}'`);
+    }
+    return tabDatum.menu;
   }
 }
