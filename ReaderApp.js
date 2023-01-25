@@ -301,35 +301,39 @@ class ReaderApp extends React.PureComponent {
   manageBack = type => {
     const oldState = this.modifyHistory({dir: "back", type});
     if (!!oldState) {
-      oldState._completedInit = this.state._completedInit || oldState._completedInit;  // dont go back to false for this variable. can't undo completedInit!
-      const isTextColumn = !oldState.menuOpen;
-      if (isTextColumn) {
-        // you're going back to textcolumn. make sure to jump
-        oldState.textColumnKey = oldState.segmentRef;  // manually add a key to TextColumn to make sure it gets regenerated
-        oldState.offsetRef = oldState.segmentRef;
-        if (!!oldState.linksLoaded) {
-          oldState.linksLoaded = oldState.linksLoaded.map(() => false);  // manually set linksLoaded to false because links are not stored in oldState
-        }
-      } else if (oldState.menuOpen === 'search') {
-        this.onQueryChange('sheet', oldState.searchQuery, true, true, true);
-        this.onQueryChange('text', oldState.searchQuery, true, true, true);
-      }
-      this.setState(oldState, () => {
-        if (isTextColumn && (!!oldState.sectionArray || !!oldState.sheet)) {
-          Sefaria.history.saveHistoryItem(this.getHistoryObject, true);
-          if (!oldState.sheet) {
-            for (let sectionRef of oldState.sectionArray) {
-              this.loadRelated(sectionRef);
-            }
-          }
-          else { this.loadRelatedSheet(oldState.sheet); }
-        }
-      });
+      this._applyPreviousState(oldState);
       return true;
     } else {
       // close app
       return false;
     }
+  };
+
+  _applyPreviousState = oldState => {
+    oldState._completedInit = this.state._completedInit || oldState._completedInit;  // dont go back to false for this variable. can't undo completedInit!
+    const isTextColumn = !oldState.menuOpen;
+    if (isTextColumn) {
+      // you're going back to textcolumn. make sure to jump
+      oldState.textColumnKey = oldState.segmentRef;  // manually add a key to TextColumn to make sure it gets regenerated
+      oldState.offsetRef = oldState.segmentRef;
+      if (!!oldState.linksLoaded) {
+        oldState.linksLoaded = oldState.linksLoaded.map(() => false);  // manually set linksLoaded to false because links are not stored in oldState
+      }
+    } else if (oldState.menuOpen === 'search') {
+      this.onQueryChange('sheet', oldState.searchQuery, true, true, true);
+      this.onQueryChange('text', oldState.searchQuery, true, true, true);
+    }
+    this.setState(oldState, () => {
+      if (isTextColumn && (!!oldState.sectionArray || !!oldState.sheet)) {
+        Sefaria.history.saveHistoryItem(this.getHistoryObject, true);
+        if (!oldState.sheet) {
+          for (let sectionRef of oldState.sectionArray) {
+            this.loadRelated(sectionRef);
+          }
+        }
+        else { this.loadRelatedSheet(oldState.sheet); }
+      }
+    });
   };
 
   syncProfileBound = async () => Sefaria.history.syncProfile(this.props.dispatch, await this.getSettingsObject());
@@ -1790,7 +1794,7 @@ class ReaderApp extends React.PureComponent {
     if (!newState) {
       this._openTabForFirstTime(tab);
     } else {
-      this.setState(newState);
+      this._applyPreviousState(newState);
     }
     this.setState({footerTab: tab});
   };
