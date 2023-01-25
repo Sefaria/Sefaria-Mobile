@@ -17,7 +17,7 @@ export const FooterTabBar = ({ selectedTabName, setTab }) => {
     return (
       <View style={[styles.footerBar, theme.mainTextPanel, theme.lightGreyBorder ]}>
         {
-          TabMetadata.namesWithIcons().map(([name, iconName]) => (
+          TabMetadata.namesWithIcons().map(({name, icon:iconName}) => (
             <FooterTabButton
                 key={name}
                 isSelected={name===selectedTabName}

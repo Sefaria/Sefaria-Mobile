@@ -36,6 +36,14 @@ export class PageHistory {
     return oldStateObj.state;
   }
 
+  peek = () => {
+    const bs = this._backStack;
+    if (bs.length === 0) {
+      return;
+    }
+    return bs[bs.length-1];
+  }
+
   _updateMainBackStack = () => {
     this._backStackMain = this._backStack.filter( s => s.type === 'main' );
   }
@@ -54,9 +62,13 @@ export class TabHistory {
     this._historyByTab[tab].forward({ ...args });
   };
 
-  back = ({ tab, ...args } = { }) => {
+  back = ({ tab, ...args }) => {
     return this._historyByTab[tab].back({ ...args });
-  }
+  };
+
+  peek = ({ tab, ...args }) => {
+    return this._historyByTab[tab].peek({ ...args });
+  };
 
   static _initializeHistoryByTab() {
     return TabMetadata.names().reduce((historyByTab, curr) => {
@@ -67,26 +79,23 @@ export class TabHistory {
 }
 
 export class TabMetadata {
-  static _names = ["Texts", "Topics", "Search", "Saved", "Account"];
-  static _icons = ["book", "hashtag", "search", "bookmark", "profile"];
+  static _tabData = [
+    {name: "Texts", icon: "book", menu: "navigation" },
+    {name: "Topics", icon: "hashtag", menu: "topic toc"},
+    {name: "Search", icon: "search", menu: "autocomplete"},
+    {name: "Saved", icon: "bookmark", menu: "history"},
+    {name: "Account", icon: "profile", menu: "account"},
+  ];
 
   static names() {
-    return TabMetadata._names;
+    return TabMetadata._tabData.map(tabDatum => tabDatum.name);
   }
 
   static namesWithIcons() {
-    return Sefaria.util.zip([TabMetadata._names, TabMetadata._icons]);
+    return TabMetadata._tabData;
   }
 
   static initialTabName() {
-    return TabMetadata._names[0];
-  }
-
-  static iconByName(name) {
-    const nameIndex = TabMetadata._names.indexOf(name);
-    if (nameIndex === -1) {
-      throw Error(`No tab name matching '${name}'`);
-    }
-    return TabMetadata._icons[nameIndex];
+    return TabMetadata._tabData[0].name;
   }
 }
