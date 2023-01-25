@@ -292,6 +292,7 @@ class ReaderApp extends React.PureComponent {
   modifyHistory = ({ dir, ...args }) => {
     /**
      * dir is either "back" or "forward"
+     * ...args are either the arguments for TabHistory.back() or TabHistory.forward(), depending on the value of `dir`
      */
     const func = this.tabHistory[dir];
     return func({ tab: this.state.footerTab, ...args });
