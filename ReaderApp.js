@@ -1790,7 +1790,6 @@ class ReaderApp extends React.PureComponent {
     if (!newState) {
       this._openTabForFirstTime(tab);
     } else {
-      newState.footerTab = tab;
       this.setState(newState);
     }
     this.setState({footerTab: tab});
