@@ -1783,6 +1783,7 @@ class ReaderApp extends React.PureComponent {
   };
 
   setTopicsTab = topicsTab => { this.setState({topicsTab}); };
+  setFooterTab = footerTab => { this.setState({footerTab}); };
 
   _getReaderDisplayOptionsMenuRef = ref => {
     this._readerDisplayOptionsMenuRef = ref;
@@ -2215,7 +2216,7 @@ class ReaderApp extends React.PureComponent {
               />
             </ConditionalProgressWrapper>
               { this.renderContent() }
-            <FooterTabBar selectedTabName={this.state.footerTab} />
+            <FooterTabBar selectedTabName={this.state.footerTab} setTab={this.setFooterTab} />
           </View>
         </SafeAreaView>
         <InterruptingMessage
