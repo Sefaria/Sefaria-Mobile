@@ -1783,7 +1783,10 @@ class ReaderApp extends React.PureComponent {
   };
 
   setTopicsTab = topicsTab => { this.setState({topicsTab}); };
-  setFooterTab = footerTab => { this.setState({footerTab}); };
+
+  setFooterTab = footerTab => {
+    this.setState({footerTab});
+  };
 
   _getReaderDisplayOptionsMenuRef = ref => {
     this._readerDisplayOptionsMenuRef = ref;
