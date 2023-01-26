@@ -292,6 +292,7 @@ class ReaderApp extends React.PureComponent {
   modifyHistory = ({ dir, ...args }) => {
     /**
      * dir is either "back" or "forward"
+     * ...args are either the arguments for TabHistory.back() or TabHistory.forward(), depending on the value of `dir`
      */
     const func = this.tabHistory[dir];
     return func({ tab: this.state.footerTab, ...args });
@@ -300,35 +301,39 @@ class ReaderApp extends React.PureComponent {
   manageBack = type => {
     const oldState = this.modifyHistory({dir: "back", type});
     if (!!oldState) {
-      oldState._completedInit = this.state._completedInit || oldState._completedInit;  // dont go back to false for this variable. can't undo completedInit!
-      const isTextColumn = !oldState.menuOpen;
-      if (isTextColumn) {
-        // you're going back to textcolumn. make sure to jump
-        oldState.textColumnKey = oldState.segmentRef;  // manually add a key to TextColumn to make sure it gets regenerated
-        oldState.offsetRef = oldState.segmentRef;
-        if (!!oldState.linksLoaded) {
-          oldState.linksLoaded = oldState.linksLoaded.map(() => false);  // manually set linksLoaded to false because links are not stored in oldState
-        }
-      } else if (oldState.menuOpen === 'search') {
-        this.onQueryChange('sheet', oldState.searchQuery, true, true, true);
-        this.onQueryChange('text', oldState.searchQuery, true, true, true);
-      }
-      this.setState(oldState, () => {
-        if (isTextColumn && (!!oldState.sectionArray || !!oldState.sheet)) {
-          Sefaria.history.saveHistoryItem(this.getHistoryObject, true);
-          if (!oldState.sheet) {
-            for (let sectionRef of oldState.sectionArray) {
-              this.loadRelated(sectionRef);
-            }
-          }
-          else { this.loadRelatedSheet(oldState.sheet); }
-        }
-      });
+      this._applyPreviousState(oldState);
       return true;
     } else {
       // close app
       return false;
     }
+  };
+
+  _applyPreviousState = oldState => {
+    oldState._completedInit = this.state._completedInit || oldState._completedInit;  // dont go back to false for this variable. can't undo completedInit!
+    const isTextColumn = !oldState.menuOpen;
+    if (isTextColumn) {
+      // you're going back to textcolumn. make sure to jump
+      oldState.textColumnKey = oldState.segmentRef;  // manually add a key to TextColumn to make sure it gets regenerated
+      oldState.offsetRef = oldState.segmentRef;
+      if (!!oldState.linksLoaded) {
+        oldState.linksLoaded = oldState.linksLoaded.map(() => false);  // manually set linksLoaded to false because links are not stored in oldState
+      }
+    } else if (oldState.menuOpen === 'search') {
+      this.onQueryChange('sheet', oldState.searchQuery, true, true, true);
+      this.onQueryChange('text', oldState.searchQuery, true, true, true);
+    }
+    this.setState(oldState, () => {
+      if (isTextColumn && (!!oldState.sectionArray || !!oldState.sheet)) {
+        Sefaria.history.saveHistoryItem(this.getHistoryObject, true);
+        if (!oldState.sheet) {
+          for (let sectionRef of oldState.sectionArray) {
+            this.loadRelated(sectionRef);
+          }
+        }
+        else { this.loadRelatedSheet(oldState.sheet); }
+      }
+    });
   };
 
   syncProfileBound = async () => Sefaria.history.syncProfile(this.props.dispatch, await this.getSettingsObject());
@@ -1109,10 +1114,8 @@ class ReaderApp extends React.PureComponent {
     })
   };
 
-  openMenu = (menu, via) => {
-    // set of `menuOpen` states which you shouldn't be able to go back to
-    const SKIP_MENUS = { autocomplete: true, register: true, login: true };
-    if (!SKIP_MENUS[this.state.menuOpen] && !!menu) {
+  openMenu = (menu, via, pushHistory=true) => {
+    if (pushHistory && !!menu) {
       if (!this.state.menu && !!this.state.data) {
         // text column. remove related data
         for (let section of this.state.data) {
@@ -1251,6 +1254,14 @@ class ReaderApp extends React.PureComponent {
   openSearch = (type, query) => {
     this.onQueryChange(type, query,true,false,true);
     this.openMenu("search");
+  };
+
+  openLogin = (via) => {
+    this.openMenu("login", via, false);
+  };
+
+  openRegister = (via) => {
+    this.openMenu("register", via, false);
   };
 
   openAutocomplete = () => {
@@ -1784,6 +1795,31 @@ class ReaderApp extends React.PureComponent {
 
   setTopicsTab = topicsTab => { this.setState({topicsTab}); };
 
+  setFooterTab = tab => {
+    const alreadyOnTab = tab === this.state.footerTab;
+    this.tabHistory.saveCurrentState({ tab: this.state.footerTab, state: this.state });
+    const newState = this.tabHistory.getCurrentState({ tab });
+    if (!newState || alreadyOnTab) {
+      this._openTabForFirstTime(tab);
+      if (alreadyOnTab) {
+        this.tabHistory.clear({ tab });
+      }
+    } else {
+      this._applyPreviousState(newState);
+    }
+    this.setState({footerTab: tab});
+  };
+
+  _openTabForFirstTime = tab => {
+    const newMenu = TabMetadata.menuByName(tab);
+    const specialCases = {navigation: this.openNav, "topic toc": this.openTopicToc};
+    if (specialCases.hasOwnProperty(newMenu)) {
+      specialCases[newMenu](false);
+    } else {
+      this.openMenu(newMenu, null, false);
+    }
+  };
+
   _getReaderDisplayOptionsMenuRef = ref => {
     this._readerDisplayOptionsMenuRef = ref;
   };
@@ -1826,8 +1862,8 @@ class ReaderApp extends React.PureComponent {
               openSettings={this.openMenu.bind(null, "settings")}
               openHistory={this.openMenu.bind(null, "history")}
               openSaved={this.openMenu.bind(null, "saved")}
-              openLogin={this.openMenu.bind(null, "login", "toc")}
-              openRegister={this.openMenu.bind(null, "register", "toc")}
+              openLogin={this.openLogin.bind(null, "toc")}
+              openRegister={this.openRegister.bind(null, "toc")}
               openTopicToc={this.openTopicToc}
               openDedication={this.openMenu.bind(null, "dedication")}
               openMySheets={this.openMySheets.bind(null, "toc")}
@@ -1925,7 +1961,7 @@ class ReaderApp extends React.PureComponent {
             menuOpen={this.state.menuOpen}
             icon={iconData.get('clock', this.props.themeStr)}
             loadData={this.syncProfileBound}
-            openLogin={this.openMenu.bind(null, "login", "history")}
+            openLogin={this.openLogin.bind(null, "history")}
             openSettings={this.openMenu.bind(null, "settings")}
             isLoggedIn={this.props.isLoggedIn}
             hasDismissedSyncModal={this.props.hasDismissedSyncModal}
@@ -1948,7 +1984,7 @@ class ReaderApp extends React.PureComponent {
             menuOpen={this.state.menuOpen}
             icon={iconData.get('starUnfilled', this.props.themeStr)}
             loadData={async () => Sefaria.history.syncProfileGetSaved(this.props.dispatch, await this.getSettingsObject())}
-            openLogin={this.openMenu.bind(null, "login", "saved")}
+            openLogin={this.openLogin.bind(null, "saved")}
             openSettings={this.openMenu.bind(null, "settings")}
             isLoggedIn={this.props.isLoggedIn}
             hasDismissedSyncModal={this.props.hasDismissedSyncModal}
@@ -1963,8 +1999,8 @@ class ReaderApp extends React.PureComponent {
             authMode={this.state.menuOpen}
             close={this.closeAuthPage}
             showToast={this.showToast}
-            openLogin={this.openMenu.bind(null, 'login')}
-            openRegister={this.openMenu.bind(null, 'register')}
+            openLogin={this.openLogin}
+            openRegister={this.openRegister}
             openUri={this.openUri}
             syncProfile={this.syncProfileBound}
           />
@@ -2215,7 +2251,7 @@ class ReaderApp extends React.PureComponent {
               />
             </ConditionalProgressWrapper>
               { this.renderContent() }
-            <FooterTabBar />
+            <FooterTabBar selectedTabName={this.state.footerTab} setTab={this.setFooterTab} />
           </View>
         </SafeAreaView>
         <InterruptingMessage

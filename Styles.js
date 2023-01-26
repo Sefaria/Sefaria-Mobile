@@ -1433,5 +1433,26 @@ export default StyleSheet.create({
   },
   topicCategoryButtonWrapperRoot: {
     borderTopWidth: 0,  // no border top b/c of trending topics
-  }
+  },
+  footerBar: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingHorizontal: 5,
+    borderTopWidth: 1
+  },
+  footerButton: {
+    flex: 1,
+    marginHorizontal: 17,
+    marginVertical: 14,
+    alignItems: "center",
+    justifyContent: "center",
+    flexDirection: "column"
+  },
+  footerButtonText: {
+    marginTop: 8,
+    fontSize: 8,
+    fontFamily: "OpenSans",
+    fontWeight: "normal",
+    fontStyle: "normal"
+  },
 });

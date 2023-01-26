@@ -23,6 +23,7 @@ import { DispatchContext, STATE_ACTIONS } from './StateManager';
 import SwipeableFlatList from './SwipeableFlatList';
 import styles from './Styles';
 import strings from './LocalizedStrings';
+import {iconData} from "./IconData";
 import { useGlobalState } from './Hooks.js';
 
 

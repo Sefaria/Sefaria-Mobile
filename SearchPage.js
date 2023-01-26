@@ -15,6 +15,7 @@ import SearchResultList from './SearchResultList';
 import SearchFilterPage from './SearchFilterPage';
 import styles from './Styles';
 import strings from './LocalizedStrings';
+import {iconData} from "./IconData";
 
 import {
   CategoryColorLine,
@@ -30,19 +31,16 @@ const SearchToggleIcon = ({ type, setSearchTypeState, searchStateType, langStyle
   const { interfaceLanguage, themeStr } = useContext(GlobalStateContext);
   const theme = getTheme(themeStr);
   const isheb = interfaceLanguage === "hebrew";
-  let icon;
-  if (type === 'sheet') {
-    icon = searchStateType == type ? require('./img/sheet-dark.png') : require('./img/sheet.png');
-  } else {
-    icon = searchStateType == type ? require('./img/book-dark.png') : require('./img/book.png');
-  }
+  const iconName = type === 'sheet' ? 'sheet' : 'book';
+  const isSelected = searchStateType === type;
+  const icon = iconData.get(iconName, themeStr, isSelected);
   return (
     <TouchableOpacity onPress={() => setSearchTypeState(type)} style={isheb ? styles.searchOptionButtonTextHe : styles.searchOptionButtonTextEn}>
       <Image source={icon}
         style={[styles.menuButton, isheb ? styles.headerIconWithTextHe : styles.headerIconWithTextEn]}
         resizeMode={'contain'}
       />
-    <Text style={[theme.searchResultSummaryText, langStyle, searchStateType == type ? {color: '#000'} : {color: '#999'},  {marginTop: -2} ]}>{status}</Text>
+    <Text style={[theme.searchResultSummaryText, langStyle, isSelected ? theme.primaryText : theme.secondaryText,  {marginTop: -2} ]}>{status}</Text>
     </TouchableOpacity>
   );
 }
