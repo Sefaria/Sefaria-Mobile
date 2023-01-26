@@ -60,8 +60,7 @@ class AutocompletePage extends React.Component {
 
   render() {
     return (
-      <View style={[styles.menu, this.props.theme.menu]}>
-        <CategoryColorLine category={"Other"} />
+      <View style={[styles.menu, this.props.theme.menu, {paddingHorizontal: 15, paddingVertical: 20}]}>
         <SearchBar
           autoFocus
           onBack={this.props.onBack}

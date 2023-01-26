@@ -51,19 +51,8 @@ const SearchBar = ({
   var placeholderTextColor = themeStr == "black" ? "#BBB" : "#777";
   //TODO make flex dependent on results. animate opening of results
   return (
-    <View style={{flexDirection: 'column', flex:0}}>
-      <View style={[styles.header, theme.header]}>
-        {leftMenuButton == "close" ?
-          <CloseButton onPress={onBack} /> :
-          <DirectedButton
-            onPress={onBack}
-            imageStyle={[styles.menuButton, styles.directedButton]}
-            language="english"
-            direction="back"/>
-        }
-        { hideSearchButton ? null :
-          <SearchButton onPress={submitSearch} />
-        }
+    <View style={[{flexDirection: 'row', flex:0, borderRadius: 250, paddingHorizontal: 18}, theme.lighterGreyBackground]}>
+        <SearchButton onPress={submitSearch} />
         <TextInput
           autoFocus={autoFocus}
           style={textInputStyle}
@@ -79,10 +68,6 @@ const SearchBar = ({
           <CancelButton onPress={() => { onChange(""); }} />
           : null
         }
-        {hasLangToggle ?
-          <LanguageToggleButton />
-           : null}
-      </View>
     </View>
   );
 }
