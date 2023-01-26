@@ -5,8 +5,7 @@ import Sefaria from './sefaria';
 export class PageHistory {
 
   constructor() {
-    this._backStack = [];
-    this._backStackMain = [];
+    this._initStacks();
   }
 
   forward = ({ state, type = "main", calledFrom }) => {
@@ -14,6 +13,15 @@ export class PageHistory {
     this._backStack.push({ type, state: stateClone, calledFrom });
     this._updateMainBackStack();
   }
+
+  _initStacks = () => {
+    this._backStack = [];
+    this._backStackMain = [];
+  }
+
+  clear = () => {
+    this._initStacks();
+  };
 
   back = ({ type, calledFrom } = { }) => {
     const bs = this._backStack;
@@ -59,6 +67,10 @@ export class TabHistory {
 
   back = ({ tab, ...args }) => {
     return this._historyByTab[tab].back({ ...args });
+  };
+
+  clear = ({ tab }) => {
+    this._historyByTab[tab].clear();
   };
 
   getCurrentState = ({ tab }) => {

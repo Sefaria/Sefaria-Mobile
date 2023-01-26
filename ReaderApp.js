@@ -1796,13 +1796,14 @@ class ReaderApp extends React.PureComponent {
   setTopicsTab = topicsTab => { this.setState({topicsTab}); };
 
   setFooterTab = tab => {
-    if (tab === this.state.footerTab) {
-      return;
-    }
+    const alreadyOnTab = tab === this.state.footerTab;
     this.tabHistory.saveCurrentState({ tab: this.state.footerTab, state: this.state });
     const newState = this.tabHistory.getCurrentState({ tab });
-    if (!newState) {
+    if (!newState || alreadyOnTab) {
       this._openTabForFirstTime(tab);
+      if (alreadyOnTab) {
+        this.tabHistory.clear({ tab });
+      }
     } else {
       this._applyPreviousState(newState);
     }
