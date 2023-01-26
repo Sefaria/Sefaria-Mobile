@@ -36,14 +36,6 @@ export class PageHistory {
     return oldStateObj.state;
   }
 
-  peek = () => {
-    const bs = this._backStack;
-    if (bs.length === 0) {
-      return;
-    }
-    return bs[bs.length-1].state;
-  }
-
   _updateMainBackStack = () => {
     this._backStackMain = this._backStack.filter( s => s.type === 'main' );
   }
@@ -56,6 +48,9 @@ export class TabHistory {
 
   constructor() {
     this._historyByTab = TabHistory._initializeHistoryByTab();
+    // need to keep track of current state for each tab so you can switch back to it
+    // this is not the same as the back stack because current state never should be popped
+    this._currentStateByTab = {};
   }
 
   forward = ({ tab, ...args }) => {
@@ -66,8 +61,12 @@ export class TabHistory {
     return this._historyByTab[tab].back({ ...args });
   };
 
-  peek = ({ tab, ...args }) => {
-    return this._historyByTab[tab].peek({ ...args });
+  getCurrentState = ({ tab }) => {
+    return this._currentStateByTab[tab];
+  };
+
+  saveCurrentState = ({ tab, state }) => {
+    this._currentStateByTab[tab] = Sefaria.util.clone(state);
   };
 
   static _initializeHistoryByTab() {

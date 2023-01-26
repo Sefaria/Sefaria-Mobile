@@ -1114,10 +1114,8 @@ class ReaderApp extends React.PureComponent {
     })
   };
 
-  openMenu = (menu, via) => {
-    // set of `menuOpen` states which you shouldn't be able to go back to
-    const SKIP_MENUS = { register: true, login: true };
-    if (!SKIP_MENUS[this.state.menuOpen] && !!menu) {
+  openMenu = (menu, via, pushHistory=true) => {
+    if (pushHistory && !!menu) {
       if (!this.state.menu && !!this.state.data) {
         // text column. remove related data
         for (let section of this.state.data) {
@@ -1256,6 +1254,14 @@ class ReaderApp extends React.PureComponent {
   openSearch = (type, query) => {
     this.onQueryChange(type, query,true,false,true);
     this.openMenu("search");
+  };
+
+  openLogin = (via) => {
+    this.openMenu("login", via, false);
+  };
+
+  openRegister = (via) => {
+    this.openMenu("register", via, false);
   };
 
   openAutocomplete = () => {
@@ -1790,7 +1796,11 @@ class ReaderApp extends React.PureComponent {
   setTopicsTab = topicsTab => { this.setState({topicsTab}); };
 
   setFooterTab = tab => {
-    const newState = this.tabHistory.peek({ tab })
+    if (tab === this.state.footerTab) {
+      return;
+    }
+    this.tabHistory.saveCurrentState({ tab: this.state.footerTab, state: this.state });
+    const newState = this.tabHistory.getCurrentState({ tab });
     if (!newState) {
       this._openTabForFirstTime(tab);
     } else {
@@ -1803,9 +1813,9 @@ class ReaderApp extends React.PureComponent {
     const newMenu = TabMetadata.menuByName(tab);
     const specialCases = {navigation: this.openNav, "topic toc": this.openTopicToc};
     if (specialCases.hasOwnProperty(newMenu)) {
-      specialCases[newMenu]();
+      specialCases[newMenu](false);
     } else {
-      this.openMenu(newMenu);
+      this.openMenu(newMenu, null, false);
     }
   };
 
@@ -1851,8 +1861,8 @@ class ReaderApp extends React.PureComponent {
               openSettings={this.openMenu.bind(null, "settings")}
               openHistory={this.openMenu.bind(null, "history")}
               openSaved={this.openMenu.bind(null, "saved")}
-              openLogin={this.openMenu.bind(null, "login", "toc")}
-              openRegister={this.openMenu.bind(null, "register", "toc")}
+              openLogin={this.openLogin.bind(null, "toc")}
+              openRegister={this.openRegister.bind(null, "toc")}
               openTopicToc={this.openTopicToc}
               openDedication={this.openMenu.bind(null, "dedication")}
               openMySheets={this.openMySheets.bind(null, "toc")}
@@ -1950,7 +1960,7 @@ class ReaderApp extends React.PureComponent {
             menuOpen={this.state.menuOpen}
             icon={iconData.get('clock', this.props.themeStr)}
             loadData={this.syncProfileBound}
-            openLogin={this.openMenu.bind(null, "login", "history")}
+            openLogin={this.openLogin.bind(null, "history")}
             openSettings={this.openMenu.bind(null, "settings")}
             isLoggedIn={this.props.isLoggedIn}
             hasDismissedSyncModal={this.props.hasDismissedSyncModal}
@@ -1973,7 +1983,7 @@ class ReaderApp extends React.PureComponent {
             menuOpen={this.state.menuOpen}
             icon={iconData.get('starUnfilled', this.props.themeStr)}
             loadData={async () => Sefaria.history.syncProfileGetSaved(this.props.dispatch, await this.getSettingsObject())}
-            openLogin={this.openMenu.bind(null, "login", "saved")}
+            openLogin={this.openLogin.bind(null, "saved")}
             openSettings={this.openMenu.bind(null, "settings")}
             isLoggedIn={this.props.isLoggedIn}
             hasDismissedSyncModal={this.props.hasDismissedSyncModal}
@@ -1988,8 +1998,8 @@ class ReaderApp extends React.PureComponent {
             authMode={this.state.menuOpen}
             close={this.closeAuthPage}
             showToast={this.showToast}
-            openLogin={this.openMenu.bind(null, 'login')}
-            openRegister={this.openMenu.bind(null, 'register')}
+            openLogin={this.openLogin}
+            openRegister={this.openRegister}
             openUri={this.openUri}
             syncProfile={this.syncProfileBound}
           />
