@@ -49,33 +49,20 @@ const SearchPage = props => {
   const { interfaceLanguage, themeStr } = useContext(GlobalStateContext);
   const theme = getTheme(themeStr);
 
-  const backFromAutocomplete = () => {
-    props.openSearch();
-    props.search('text', props.query, true, false);
-    props.search('sheet', props.query, true, false);
-  }
+  let sheetStatus = props.sheetSearchState.isLoading ? strings.loading : numberWithCommas(props.sheetSearchState.numResults)
+  let textStatus = props.textSearchState.isLoading ? strings.loading : numberWithCommas(props.textSearchState.numResults)
 
-  var status = props.hasInternet ?
-          props.textSearchState.isLoading || props.sheetSearchState.isLoading ? strings.loading
-              :       "Texts: " + numberWithCommas(props.textSearchState.numResults) + " " +
-    "Sheets: " + numberWithCommas(props.sheetSearchState.numResults)
-        : strings.connectToSearchMessage;
-
-
-  var sheetStatus = props.sheetSearchState.isLoading ? strings.loading : numberWithCommas(props.sheetSearchState.numResults)
-  var textStatus = props.textSearchState.isLoading ? strings.loading : numberWithCommas(props.textSearchState.numResults)
-
-  var isheb = interfaceLanguage === "hebrew";
-  var langStyle = !isheb ? styles.enInt : styles.heInt;
-  var summaryStyle = [styles.searchResultSummary, theme.searchResultSummary];
+  let isheb = interfaceLanguage === "hebrew";
+  let langStyle = !isheb ? styles.enInt : styles.heInt;
+  let summaryStyle = [styles.searchResultSummary, theme.searchResultSummary];
   if (isheb && false) { //TODO enable when we properly handle interface hebrew throughout app
     summaryStyle.push(styles.searchResultSummaryHe);
   }
-  var forwardImageStyle = isheb && false ? styles.forwardButtonHe : styles.forwardButtonEn;
-  var content = null;
+  let forwardImageStyle = isheb && false ? styles.forwardButtonHe : styles.forwardButtonEn;
+  let content = null;
 
   switch (props.subMenuOpen) {
-    case (null):
+    case null:
       content = (
         <View style={[styles.menu, theme.menu]}>
           <SearchBar
@@ -108,7 +95,7 @@ const SearchPage = props => {
                   status={sheetStatus}
                 />
               </View>
-            {props.searchState.type == "text" ?
+            {props.searchState.type === "text" ?
             <DirectedButton
               text={(<Text>{strings.filter} <Text style={theme.text}>{`(${props.searchState.appliedFilters.length})`}</Text></Text>)}
               accessibilityText={strings.filter}
