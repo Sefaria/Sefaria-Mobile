@@ -51,7 +51,7 @@ const SearchBar = ({
   var placeholderTextColor = themeStr == "black" ? "#BBB" : "#777";
   //TODO make flex dependent on results. animate opening of results
   return (
-    <View style={[{flexDirection: 'row', flex:0, borderRadius: 250, paddingHorizontal: 18}, theme.lighterGreyBackground]}>
+    <View style={[{flexDirection: 'row', alignItems: "center", flex:0, borderRadius: 250, paddingStart: 18}, theme.lighterGreyBackground]}>
         <SearchButton onPress={submitSearch} />
         <TextInput
           autoFocus={autoFocus}
@@ -65,7 +65,7 @@ const SearchBar = ({
           placeholderTextColor={placeholderTextColor}
           autoCorrect={false} />
         {query.length ?
-          <CancelButton onPress={() => { onChange(""); }} />
+          <CancelButton extraStyles={[{height: 12, width: 12}]} onPress={() => { onChange(""); }} />
           : null
         }
     </View>

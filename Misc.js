@@ -1005,7 +1005,7 @@ const CancelButton = ({ onPress, extraStyles=[] }) => {
   return (
     <TouchableOpacity onPress={onPress} accessibilityLabel="close">
       <Image
-        source={iconData.get('circle-close', themeStr)}
+        source={iconData.get('close', themeStr)}
         style={[styles.cancelSearchButton].concat(extraStyles)}
         resizeMode={'contain'}
       />
