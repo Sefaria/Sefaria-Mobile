@@ -236,7 +236,7 @@ let strings = new LocalizedStrings({
     daily: "יומית",
     weekly: "שבועית",
     never: "לעולם לא",
-    sephardi: "עדת המזרח",
+    sephardi: "עדות המזרח",
     ashkenazi: "אשכנז",
     english: "אנגלית",
     hebrew: "עברית",
