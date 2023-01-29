@@ -950,7 +950,7 @@ const TabRowView = ({ tabs, renderTab, currTabId, setTab, flexDirection='row', R
     );
   };
   return (
-    <View style={[{ flexDirection, borderBottomWidth: 1, marginHorizontal: -15, paddingHorizontal: 15, alignItems: "flex-end" }, theme.borderedBottom]}>
+    <View style={[{ flexDirection, borderBottomWidth: 1, marginHorizontal: -15, paddingHorizontal: 15, alignItems: "center" }, theme.borderedBottom]}>
       {tabs.map(renderTabWrapper)}
       {RowEndComponent}
     </View>

@@ -87,8 +87,8 @@ const SearchTabView = ({text, active, count}) => {
 const FilterButton = ({ onPress, numFilters }) => {
     const { theme } = useGlobalState();
     return (
-        <TouchableOpacity onPress={onPress}>
-            <Text>
+        <TouchableOpacity onPress={onPress} style={[{borderRadius: 6, paddingVertical: 10, paddingHorizontal: 7}, theme.lighterGreyBackground]}>
+            <Text style={[theme.tertiaryText]}>
                 {strings.filter}
                 <Text style={theme.text}>
                     {`(${numFilters})`}
