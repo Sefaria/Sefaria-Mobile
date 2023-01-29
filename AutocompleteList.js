@@ -74,7 +74,7 @@ class AutocompleteList extends React.Component {
           if (results.is_ref && results.ref) {
             let ref = results.ref
             // if ref is whole daf, take page a
-            if (!results.is_book && results.sectionNames.findIndex((e) => e==='Daf') === results.sections.length-1 && /\d$/.test(ref)) {
+            if (results.sectionNames[results.sections.length-1] === 'Daf' && /\d$/.test(ref)) {
               ref += 'a';
             }
             // manually add ref item to list
