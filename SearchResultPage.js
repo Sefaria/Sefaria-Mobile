@@ -1,5 +1,5 @@
 import React  from 'react';
-import {View, Text} from "react-native";
+import {View, Text, TouchableOpacity} from "react-native";
 import SearchBar from './SearchBar';
 import SearchResultList from './SearchResultList';
 import {TabView, TabRowView, DirectedButton} from "./Misc";
@@ -27,12 +27,13 @@ export const SearchResultPage = (props) => {
     const tabs = useSearchTabData({...props});
     const flexDirection = useRtlFlexDir(interfaceLanguage);
     let isheb = interfaceLanguage === "hebrew";
-    let langStyle = !isheb ? styles.enInt : styles.heInt;
     let summaryStyle = [styles.searchResultSummary, theme.searchResultSummary];
     if (isheb && false) { //TODO enable when we properly handle interface hebrew throughout app
         summaryStyle.push(styles.searchResultSummaryHe);
     }
-    let forwardImageStyle = isheb && false ? styles.forwardButtonHe : styles.forwardButtonEn;
+
+    const numFilters = props.searchState.appliedFilters.length;
+    const onFilterPress = () => props.openSubMenu("filter");
     return (
         <View style={[styles.menu, theme.menu]}>
             <SearchBar
@@ -53,17 +54,8 @@ export const SearchResultPage = (props) => {
                     currTabId={props.searchState.type}
                     setTab={props.setSearchTypeState}
                     flexDirection={flexDirection}
+                    RowEndComponent={props.searchState.type === "text" ? <FilterButton onPress={onFilterPress} numFilters={numFilters}/> : null}
                 />
-                {props.searchState.type === "text" ?
-                    <DirectedButton
-                        text={(<Text>{strings.filter} <Text
-                            style={theme.text}>{`(${props.searchState.appliedFilters.length})`}</Text></Text>)}
-                        accessibilityText={strings.filter}
-                        direction="forward"
-                        language={"english"}
-                        textStyle={[theme.searchResultSummaryText, langStyle]}
-                        imageStyle={forwardImageStyle}
-                        onPress={() => props.openSubMenu("filter")}/> : null}
             </View>
             <SearchResultList
                 setInitSearchScrollPos={props.setInitSearchScrollPos}
@@ -90,4 +82,18 @@ const SearchTabView = ({text, active, count}) => {
             baseTextStyles={[styles.enInt, {fontSize: 16, fontWeight: "bold"}]}
         />
     );
-}
+};
+
+const FilterButton = ({ onPress, numFilters }) => {
+    const { theme } = useGlobalState();
+    return (
+        <TouchableOpacity onPress={onPress}>
+            <Text>
+                {strings.filter}
+                <Text style={theme.text}>
+                    {`(${numFilters})`}
+                </Text>
+            </Text>
+        </TouchableOpacity>
+    );
+};
