@@ -72,10 +72,15 @@ class AutocompleteList extends React.Component {
           .stableSort((a,b) => typeToValue[a.type] - typeToValue[b.type])
           .concat([{title: `Search for: "${this.props.query}"`, type: "searchFor"}]); // always add a searchFor element at the bottom
           if (results.is_ref && results.ref) {
+            let ref = results.ref
+            // if ref is whole daf, take page a
+            if (!results.is_book && results.sectionNames.findIndex((e) => e==='Daf') === results.sections.length-1 && /\d$/.test(ref)) {
+              ref += 'a';
+            }
             // manually add ref item to list
             completions.unshift({
               title: results.ref,
-              key: results.ref,
+              key: ref,
               type: 'ref',
               is_primary: true,
             });
