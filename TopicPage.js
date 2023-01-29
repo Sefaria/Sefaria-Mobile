@@ -558,6 +558,21 @@ const TopicListEmpty = ({ query, tab, isLoading }) => {
     </View>
   );
 };
+
+const TopicTabView = ({text, active}) => {
+  const { interfaceLanguage, theme } = useGlobalState();
+  return (
+      <TabView
+          text={text}
+          active={active}
+          lang={interfaceLanguage}
+          activeTextStyle={theme.tertiaryText}
+          inactiveTextStyle={theme.secondaryText}
+          baseTextStyles={[styles.enInt, styles.systemH3]}
+      />
+  );
+};
+
 const TopicPageHeader = ({ title, slug, description, topicsTab, setTopicsTab, query, setQuery, tabs, topicRef, parasha, openRef, jumpToSearchBar, setSearchBarY }) => {
   const { theme, interfaceLanguage } = useGlobalState();
   const flexDirection = useRtlFlexDir(interfaceLanguage);
@@ -598,7 +613,7 @@ const TopicPageHeader = ({ title, slug, description, topicsTab, setTopicsTab, qu
       : null}
       <TabRowView
         tabs={tabs}
-        renderTab={(tab, active) => <TabView {...tab} active={active} lang={interfaceLanguage} />}
+        renderTab={(tab, active) => <TopicTabView text={tab.text} active={active} />}
         currTabId={topicsTab}
         setTab={setTopicsTab}
         flexDirection={flexDirection}

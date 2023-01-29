@@ -6,8 +6,6 @@ import React, { useContext } from 'react';
 import {
   View,
   Text,
-  TouchableOpacity,
-  Image,
 } from 'react-native';
 
 import SearchBar from './SearchBar';
@@ -15,42 +13,33 @@ import SearchResultList from './SearchResultList';
 import SearchFilterPage from './SearchFilterPage';
 import styles from './Styles';
 import strings from './LocalizedStrings';
-import {iconData} from "./IconData";
-
+import {useGlobalState, useRtlFlexDir} from "./Hooks";
 import {
   CategoryColorLine,
-  DirectedButton
+  DirectedButton,
+  TabView,
+  TabRowView,
 } from './Misc.js';
-import { GlobalStateContext, getTheme } from './StateManager';
 
 const numberWithCommas = x => {
   return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 };
 
-const SearchToggleIcon = ({ type, setSearchTypeState, searchStateType, langStyle, status }) => {
-  const { interfaceLanguage, themeStr } = useContext(GlobalStateContext);
-  const theme = getTheme(themeStr);
-  const isheb = interfaceLanguage === "hebrew";
-  const iconName = type === 'sheet' ? 'sheet' : 'book';
-  const isSelected = searchStateType === type;
-  const icon = iconData.get(iconName, themeStr, isSelected);
-  return (
-    <TouchableOpacity onPress={() => setSearchTypeState(type)} style={isheb ? styles.searchOptionButtonTextHe : styles.searchOptionButtonTextEn}>
-      <Image source={icon}
-        style={[styles.menuButton, isheb ? styles.headerIconWithTextHe : styles.headerIconWithTextEn]}
-        resizeMode={'contain'}
-      />
-    <Text style={[theme.searchResultSummaryText, langStyle, isSelected ? theme.primaryText : theme.secondaryText,  {marginTop: -2} ]}>{status}</Text>
-    </TouchableOpacity>
-  );
+const getStatusFromState = (searchState) => (
+    searchState.isLoading ? "-" : numberWithCommas(searchState.numResults)
+);
+
+const useSearchTabData = ({ textSearchState, sheetSearchState }) => {
+  return [
+    {text: strings.sources, id: 'text', count: getStatusFromState(textSearchState)},
+    {text: strings.sheets, id: 'sheet', count: getStatusFromState(sheetSearchState)}
+  ];
 }
 
 const SearchPage = props => {
-  const { interfaceLanguage, themeStr } = useContext(GlobalStateContext);
-  const theme = getTheme(themeStr);
-
-  let sheetStatus = props.sheetSearchState.isLoading ? strings.loading : numberWithCommas(props.sheetSearchState.numResults)
-  let textStatus = props.textSearchState.isLoading ? strings.loading : numberWithCommas(props.textSearchState.numResults)
+  const { interfaceLanguage, theme } = useGlobalState();
+  const tabs = useSearchTabData({...props})
+  const flexDirection = useRtlFlexDir(interfaceLanguage);
 
   let isheb = interfaceLanguage === "hebrew";
   let langStyle = !isheb ? styles.enInt : styles.heInt;
@@ -77,24 +66,13 @@ const SearchPage = props => {
             hideSearchButton={true}
           />
           <View style={summaryStyle}>
-              <View style={{flexDirection: 'row'}}>
-                <SearchToggleIcon
-                  type="text"
-                  setSearchTypeState={props.setSearchTypeState}
-                  searchStateType={props.searchState.type}
-                  langStyle={langStyle}
-                  status={textStatus}
-                />
-                <Text>
-                </Text>
-                <SearchToggleIcon
-                  type="sheet"
-                  setSearchTypeState={props.setSearchTypeState}
-                  searchStateType={props.searchState.type}
-                  langStyle={langStyle}
-                  status={sheetStatus}
-                />
-              </View>
+            <TabRowView
+              tabs={tabs}
+              renderTab={(tab, active) => <SearchTabView active={active} {...tab} />}
+              currTabId={props.searchState.type}
+              setTab={props.setSearchTypeState}
+              flexDirection={flexDirection}
+            />
             {props.searchState.type === "text" ?
             <DirectedButton
               text={(<Text>{strings.filter} <Text style={theme.text}>{`(${props.searchState.appliedFilters.length})`}</Text></Text>)}
@@ -157,4 +135,16 @@ SearchPage.propTypes = {
   openAutocomplete:    PropTypes.func.isRequired,
 };
 
+const SearchTabView = ({ text, active, count }) => {
+  const { interfaceLanguage, theme } = useGlobalState();
+  return (
+      <TabView
+          text={`${text} (${count})`}
+          active={active}
+          lang={interfaceLanguage}
+          activeTextStyle={theme.primaryText}
+          inactiveTextStyle={theme.tertiaryText}
+      />
+  );
+}
 export default SearchPage;

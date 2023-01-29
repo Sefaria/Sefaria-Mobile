@@ -1455,4 +1455,8 @@ export default StyleSheet.create({
     fontWeight: "normal",
     fontStyle: "normal"
   },
+  systemH3: {
+    fontSize: 22,
+    fontWeight: 'bold',
+  },
 });
