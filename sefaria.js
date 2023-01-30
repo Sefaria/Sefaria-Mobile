@@ -292,10 +292,10 @@ Sefaria = {
     return { ref, title };
   },
   addPageToWholeDafRef: function(ref, sectionName) {
-  if (sectionName === 'Daf' && /\d$/.test(ref)) {
-    ref += 'a';
-    }
-  return ref;
+    if (sectionName === 'Daf' && /\d$/.test(ref)) {
+      ref += 'a';
+      }
+    return ref;
   },
   primaryCategoryForTitle: function(title, isSheet) {
     if (isSheet) { return ["Sheets"]; }
