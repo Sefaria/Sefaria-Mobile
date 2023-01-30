@@ -443,6 +443,10 @@ export default StyleSheet.create({
   searchInputPlaceholder: {
     fontStyle: "italic",
   },
+  searchVersionTitle: {
+    fontSize: 12,
+    marginTop: 4
+  },
   searchPage: {
     flex: 1,
     flexDirection: 'column',

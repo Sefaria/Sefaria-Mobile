@@ -13,7 +13,6 @@ import {
 } from "../Story";
 
 export const SearchTextResult = ({text, tref, heRef, openRef, lang, versionTitle}) => {
-    const {theme} = useGlobalState();
     const en = lang === "english" ? text : "";
     const he = lang === "hebrew" ? text : "";
     return (
@@ -21,11 +20,20 @@ export const SearchTextResult = ({text, tref, heRef, openRef, lang, versionTitle
             <StoryTitleBlock en={tref} he={Sefaria.normHebrewRef(heRef)} onClick={() => openRef(tref)}/>
             <ColorBarBox tref={tref}>
                 <StoryBodyBlock en={en} he={he}/>
-                {!!versionTitle ? <Text style={[styles.enInt, {
-                    fontSize: 12,
-                    marginTop: 4
-                }, theme.textListCitation]}>{versionTitle}</Text> : null}
             </ColorBarBox>
+            <VersionTitleLine versionTitle={versionTitle} />
         </StoryFrame>
+    );
+};
+
+const VersionTitleLine = ({ versionTitle }) => {
+    const {theme} = useGlobalState();
+    if (!versionTitle) {
+        return null;
+    }
+    return (
+        <Text style={[styles.enInt, styles.searchVersionTitle, theme.textListCitation]}>
+            {versionTitle}
+        </Text>
     );
 };
