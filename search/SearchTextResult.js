@@ -7,9 +7,9 @@ import {
   TouchableOpacity,
   View
 } from 'react-native';
-import { SimpleHTMLView } from './Misc';
-import { GlobalStateContext, getTheme } from './StateManager';
-import styles from './Styles.js';
+import { SimpleHTMLView } from '../Misc';
+import { GlobalStateContext, getTheme } from '../StateManager';
+import styles from '../Styles.js';
 
 const SearchTextResult = ({ text, title, heTitle, textType, version, onPress }) => {
   const { textLanguage, interfaceLanguage, themeStr } = useContext(GlobalStateContext);

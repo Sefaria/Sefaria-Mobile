@@ -9,7 +9,7 @@ import {
   View
 } from 'react-native';
 
-import styles from './Styles';
+import styles from '../Styles';
 import SearchTextResult from './SearchTextResult';
 import SearchSheetResult from './SearchSheetResult';
 

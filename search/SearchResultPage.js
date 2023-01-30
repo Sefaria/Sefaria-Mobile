@@ -2,10 +2,10 @@ import React  from 'react';
 import {View, Text, TouchableOpacity} from "react-native";
 import SearchBar from './SearchBar';
 import SearchResultList from './SearchResultList';
-import {TabView, TabRowView, DirectedButton} from "./Misc";
-import {useGlobalState, useRtlFlexDir} from "./Hooks";
-import styles from "./Styles";
-import strings from "./LocalizedStrings";
+import {TabView, TabRowView, DirectedButton} from "../Misc";
+import {useGlobalState, useRtlFlexDir} from "../Hooks";
+import styles from "../Styles";
+import strings from "../LocalizedStrings";
 
 const numberWithCommas = x => {
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");

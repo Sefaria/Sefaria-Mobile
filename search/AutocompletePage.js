@@ -10,12 +10,12 @@ import {
 
 import {
   CategoryColorLine,
-} from './Misc';
+} from '../Misc';
 
 import AutocompleteList from './AutocompleteList';
 import SearchBar from './SearchBar';
-import styles from './Styles';
-import strings from './LocalizedStrings';
+import styles from '../Styles';
+import strings from '../LocalizedStrings';
 
 class AutocompletePage extends React.Component {
   static propTypes = {

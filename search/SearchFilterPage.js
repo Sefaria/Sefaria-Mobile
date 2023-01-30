@@ -15,11 +15,11 @@ import {
   DirectedButton,
   ButtonToggleSet,
   LibraryNavButton,
-} from './Misc.js';
-import { GlobalStateContext, getTheme } from './StateManager';
-import styles from './Styles';
-import strings from './LocalizedStrings';
-import {iconData} from "./IconData";
+} from '../Misc.js';
+import { GlobalStateContext, getTheme } from '../StateManager';
+import styles from '../Styles';
+import strings from '../LocalizedStrings';
+import {iconData} from "../IconData";
 
 const SearchFilterPage = ({
   subMenuOpen,

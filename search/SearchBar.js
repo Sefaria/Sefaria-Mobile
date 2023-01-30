@@ -16,12 +16,12 @@ import {
   CancelButton,
   SearchButton,
   LanguageToggleButton,
-} from './Misc.js';
-import { GlobalStateContext, getTheme } from './StateManager';
+} from '../Misc.js';
+import { GlobalStateContext, getTheme } from '../StateManager';
 import AutocompleteList from './AutocompleteList';
 
-import styles from './Styles';
-import strings from './LocalizedStrings';
+import styles from '../Styles';
+import strings from '../LocalizedStrings';
 
 const SearchBar = ({
   search,
