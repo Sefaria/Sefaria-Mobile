@@ -54,6 +54,7 @@ class SearchResultList extends React.Component {
   };
 
   renderTextResult = ({ item }) => {
+    console.log("ITEM", item);
     return (
         <SearchTextResult
             lang={item.textType}
