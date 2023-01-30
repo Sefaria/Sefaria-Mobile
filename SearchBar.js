@@ -67,12 +67,8 @@ const SearchBar = ({
   );
 }
 SearchBar.propTypes = {
-  onBack:          PropTypes.func.isRequired,
   search:          PropTypes.func.isRequired,
   setIsNewSearch:  PropTypes.func.isRequired,
-  searchType:      PropTypes.oneOf(['text', 'sheet']).isRequired,
-  hideSearchButton:PropTypes.bool,
-  hasLangToggle:   PropTypes.bool,
   query:           PropTypes.string.isRequired,
   onChange:        PropTypes.func.isRequired,
   onFocus:         PropTypes.func,
