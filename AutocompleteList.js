@@ -73,9 +73,12 @@ class AutocompleteList extends React.Component {
           .concat([{title: `Search for: "${this.props.query}"`, type: "searchFor"}]); // always add a searchFor element at the bottom
           if (results.is_ref && results.ref) {
             // manually add ref item to list
+            function lastSectionName(data) {
+              return data.sectionNames[data.sections.length-1];
+            }
             completions.unshift({
               title: results.ref,
-              key: results.ref,
+              key: Sefaria.addPageToWholeDafRef(results.ref, lastSectionName(results)),
               type: 'ref',
               is_primary: true,
             });
