@@ -16,7 +16,7 @@ export const SearchTextResult = ({text, tref, heRef, openRef, lang, versionTitle
     const en = lang === "english" ? text : "";
     const he = lang === "hebrew" ? text : "";
     return (
-        <StoryFrame extraStyles={styles.topicItemMargins}>
+        <StoryFrame>
             <StoryTitleBlock en={tref} he={Sefaria.normHebrewRef(heRef)} onClick={() => openRef(tref)}/>
             <ColorBarBox tref={tref}>
                 <StoryBodyBlock en={en} he={he}/>
