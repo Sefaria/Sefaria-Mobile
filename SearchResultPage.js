@@ -31,15 +31,11 @@ export const SearchResultPage = (props) => {
     return (
         <View style={[styles.menu, theme.menu]}>
             <SearchBar
-                onBack={props.onBack}
-                leftMenuButton="back"
                 search={props.search}
                 query={props.query}
                 setIsNewSearch={props.setIsNewSearch}
                 onChange={props.onChangeSearchQuery}
                 onFocus={props.openAutocomplete}
-                searchType={props.searchState.type}
-                hideSearchButton={true}
             />
             <TabRowView
                 tabs={tabs}

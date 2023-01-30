@@ -24,16 +24,11 @@ import styles from './Styles';
 import strings from './LocalizedStrings';
 
 const SearchBar = ({
-  onBack,
   search,
   setIsNewSearch,
-  searchType,
-  hasLangToggle,
-  hideSearchButton,
   query,
   onChange,
   onFocus,
-  leftMenuButton,
   autoFocus,
 }) => {
   const { themeStr, interfaceLanguage } = useContext(GlobalStateContext);
