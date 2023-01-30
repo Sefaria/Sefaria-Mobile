@@ -590,6 +590,9 @@ export default StyleSheet.create({
     alignSelf: 'stretch',
     flex: 1
   },
+  pageMargins: {
+    marginHorizontal: 15,
+  },
   menuContent: {
     paddingHorizontal: iPad ? 20 : 10,
     paddingTop: 20,
