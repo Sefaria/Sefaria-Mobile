@@ -72,15 +72,13 @@ class AutocompleteList extends React.Component {
           .stableSort((a,b) => typeToValue[a.type] - typeToValue[b.type])
           .concat([{title: `Search for: "${this.props.query}"`, type: "searchFor"}]); // always add a searchFor element at the bottom
           if (results.is_ref && results.ref) {
-            let ref = results.ref
-            // if ref is whole daf, take page a
-            if (results.sectionNames[results.sections.length-1] === 'Daf' && /\d$/.test(ref)) {
-              ref += 'a';
-            }
             // manually add ref item to list
+            function lastSectionName(data) {
+              return data.sectionNames[data.sections.length-1];
+            }
             completions.unshift({
               title: results.ref,
-              key: ref,
+              key: Sefaria.addPageToWholeDafRef(results.ref, lastSectionName(results)),
               type: 'ref',
               is_primary: true,
             });
