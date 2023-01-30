@@ -47,7 +47,7 @@ export const SearchResultPage = (props) => {
                 searchType={props.searchState.type}
                 hideSearchButton={true}
             />
-            <View style={summaryStyle}>
+            <View>
                 <TabRowView
                     tabs={tabs}
                     renderTab={(tab, active) => <SearchTabView active={active} {...tab} />}
