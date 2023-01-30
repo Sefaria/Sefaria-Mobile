@@ -634,8 +634,7 @@ const TopicPageHeader = ({ title, slug, description, topicsTab, setTopicsTab, qu
 const TextPassage = ({text, topicTitle, showToast, openRef }) => {
   const { interfaceLanguage } = useGlobalState();
   if (!text.ref) { return null; }
-  const isHeb = interfaceLanguage === 'hebrew';
-  const flexDirection = isHeb ? "row-reverse" : "row";
+  const flexDirection = useRtlFlexDir(interfaceLanguage);
   return (
     <StoryFrame extraStyles={styles.topicItemMargins}>
       <DataSourceLine dataSources={text.dataSources} title={topicTitle} flexDirection={flexDirection} prefixText={strings.thisSourceIsConnectedTo} imageStyles={[{marginTop: -12}]}>
