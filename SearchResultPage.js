@@ -26,12 +26,6 @@ export const SearchResultPage = (props) => {
     const {interfaceLanguage, theme} = useGlobalState();
     const tabs = useSearchTabData({...props});
     const flexDirection = useRtlFlexDir(interfaceLanguage);
-    let isheb = interfaceLanguage === "hebrew";
-    let summaryStyle = [styles.searchResultSummary, theme.searchResultSummary];
-    if (isheb && false) { //TODO enable when we properly handle interface hebrew throughout app
-        summaryStyle.push(styles.searchResultSummaryHe);
-    }
-
     const numFilters = props.searchState.appliedFilters.length;
     const onFilterPress = () => props.openSubMenu("filter");
     return (
@@ -47,16 +41,14 @@ export const SearchResultPage = (props) => {
                 searchType={props.searchState.type}
                 hideSearchButton={true}
             />
-            <View>
-                <TabRowView
-                    tabs={tabs}
-                    renderTab={(tab, active) => <SearchTabView active={active} {...tab} />}
-                    currTabId={props.searchState.type}
-                    setTab={props.setSearchTypeState}
-                    flexDirection={flexDirection}
-                    RowEndComponent={props.searchState.type === "text" ? <FilterButton onPress={onFilterPress} numFilters={numFilters}/> : null}
-                />
-            </View>
+            <TabRowView
+                tabs={tabs}
+                renderTab={(tab, active) => <SearchTabView active={active} {...tab} />}
+                currTabId={props.searchState.type}
+                setTab={props.setSearchTypeState}
+                flexDirection={flexDirection}
+                RowEndComponent={props.searchState.type === "text" ? <FilterButton onPress={onFilterPress} numFilters={numFilters}/> : null}
+            />
             <SearchResultList
                 setInitSearchScrollPos={props.setInitSearchScrollPos}
                 openRef={props.openRef}
