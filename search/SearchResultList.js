@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 
 import styles from '../Styles';
-import SearchTextResult from './SearchTextResult';
+import {SearchTextResult} from './SearchTextResult';
 import SearchSheetResult from './SearchSheetResult';
 
 class SearchResultList extends React.Component {
@@ -56,12 +56,12 @@ class SearchResultList extends React.Component {
   renderTextResult = ({ item }) => {
     return (
         <SearchTextResult
-            textType={item.textType}
-            title={item.title}
-            heTitle={item.heTitle}
+            lang={item.textType}
+            tref={item.title}
+            heRef={item.heTitle}
             text={item.text}
-            version={item.version}
-            onPress={this.props.openRef.bind(null, item.title)}
+            versionTitle={item.version}
+            openRef={this.props.openRef}
         />
     );
   };
