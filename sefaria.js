@@ -291,6 +291,7 @@ Sefaria = {
     const ref = url.replace(/\./g, ':');
     return { ref, title };
   },
+  normHebrewRef: tref => tref.replace(/[׳״]/g, ''),
   primaryCategoryForTitle: function(title, isSheet) {
     if (isSheet) { return ["Sheets"]; }
     const index = Sefaria.index(title);

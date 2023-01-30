@@ -64,9 +64,6 @@ const sortTopicCategories = (a, b, interfaceLanguage, isRoot) => {
   return aDisplayOrder - bDisplayOrder;
 };
 
-const norm_hebrew_ref = tref => tref.replace(/[׳״]/g, '');
-
-
 const fetchBulkText = inRefs =>
   Sefaria.api.getBulkText(
     inRefs.map(x => x.ref),
@@ -602,7 +599,7 @@ const TopicPageHeader = ({ title, slug, description, topicsTab, setTopicsTab, qu
       {topicRef ?
         (
           <SystemButton
-            text={parasha ? strings.readThePortion : (isHeb ? norm_hebrew_ref(topicRef.he) : topicRef.en)}
+            text={parasha ? strings.readThePortion : (isHeb ? Sefaria.normHebrewRef(topicRef.he) : topicRef.en)}
             img={require('./img/book-dark.png')}
             extraStyles={[isHeb ? styles.readThePortionButtonHe : styles.readThePortionButton, {alignSelf: isHeb ? "flex-end" : "flex-start"}]}
             extraImageStyles={[{tintColor: "#fff"}]}
@@ -639,7 +636,7 @@ const TextPassage = ({text, topicTitle, showToast, openRef }) => {
     <StoryFrame extraStyles={styles.topicItemMargins}>
       <DataSourceLine dataSources={text.dataSources} title={topicTitle} flexDirection={flexDirection} prefixText={strings.thisSourceIsConnectedTo} imageStyles={[{marginTop: -12}]}>
         <SaveLine dref={text.ref} showToast={showToast} flexDirection={flexDirection} imageStyles={[{marginTop: -12}]}>
-          <StoryTitleBlock en={text.ref} he={norm_hebrew_ref(text.heRef)} onClick={() => openRef(text.ref)} />
+          <StoryTitleBlock en={text.ref} he={Sefaria.normHebrewRef(text.heRef)} onClick={() => openRef(text.ref)} />
         </SaveLine>
       </DataSourceLine>
       <ColorBarBox tref={text.ref}>
@@ -768,7 +765,7 @@ const ReadingsComponent = ({ parashaData, tref, openRef }) => {
       <View style={styles.readingsSection}>
         <InterfaceTextWithFallback en={"Torah"} he={"תורה"} extraStyles={[theme.tertiaryText, {marginBottom: 5}]} />
         <SefariaPressable onPress={()=>{ openRef(tref.en); }} extraStyles={{marginTop: 6}}>
-          <ContentTextWithFallback en={tref.en} he={norm_hebrew_ref(tref.he)} extraStyles={[theme.text]}/>
+          <ContentTextWithFallback en={tref.en} he={Sefaria.normHebrewRef(tref.he)} extraStyles={[theme.text]}/>
         </SefariaPressable>
       </View>
       <View style={styles.readingsSection}>
@@ -779,7 +776,7 @@ const ReadingsComponent = ({ parashaData, tref, openRef }) => {
             items={parashaData.haftarah}
             renderItem={h => (
               <SefariaPressable onPress={()=>{ openRef(h.displayValue.en); }} extraStyles={{marginTop: 6}}>
-                <ContentTextWithFallback en={h.displayValue.en} he={norm_hebrew_ref(h.displayValue.he)} extraStyles={[theme.text]}/>
+                <ContentTextWithFallback en={h.displayValue.en} he={Sefaria.normHebrewRef(h.displayValue.he)} extraStyles={[theme.text]}/>
               </SefariaPressable>
             )}
             keyExtractor={h => h.url}
