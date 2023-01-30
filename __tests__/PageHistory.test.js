@@ -6,14 +6,14 @@ describe('TabMetadata', () => {
    });
 
    test('names function works', () => {
-       expect(TabMetadata.names()).toBe(TabMetadata._names);
+       expect(TabMetadata.names()).toStrictEqual(TabMetadata._tabData.map(x=>x.name));
    });
 
    test('namesWithIcons works', () => {
        const namesWithIcons = TabMetadata.namesWithIcons();
-       namesWithIcons.map(([name, icon], i) => {
-           expect(name).toBe(TabMetadata._names[i]);
-           expect(icon).toBe(TabMetadata._icons[i]);
+       namesWithIcons.map(({name, icon}, i) => {
+           expect(name).toBe(TabMetadata._tabData[i].name);
+           expect(icon).toBe(TabMetadata._tabData[i].icon);
        })
    })
 });
@@ -21,7 +21,7 @@ describe('TabMetadata', () => {
 describe('TabHistory', () => {
     test('historyByTab has right keys', () => {
         const hist = new TabHistory();
-        expect(Object.keys(hist._historyByTab)).toStrictEqual(TabMetadata._names);
+        expect(Object.keys(hist._historyByTab)).toStrictEqual(TabMetadata.names());
     });
 });
 

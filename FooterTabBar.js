@@ -1,38 +1,43 @@
 'use strict';
 
-import React, { useState, useContext, useEffect, useCallback, useRef } from 'react';
-import PropTypes from 'prop-types';
+import React  from 'react';
 import {
-  View,
-  Text,
-  Image,
-  FlatList,
+    View,
+    Text,
+    Image, TouchableOpacity,
 } from 'react-native';
-import { TabHistory, TabMetadata } from './PageHistory';
+import { TabMetadata } from './PageHistory';
 import { iconData } from "./IconData";
+import styles from './Styles';
 import {useGlobalState} from "./Hooks";
 
 
-export const FooterTabBar = ({}) => {
-  return (
-      <View style={{flexDirection: "row", justifyContent: "space-between", marginHorizontal: 5}}>
+export const FooterTabBar = ({ selectedTabName, setTab }) => {
+    const { theme } = useGlobalState();
+    return (
+      <View style={[styles.footerBar, theme.mainTextPanel, theme.lightGreyBorder ]}>
         {
-          TabMetadata.namesWithIcons().map(([name, iconName]) => {
-            return (
-                <FooterTabButton key={name} text={name} iconName={iconName} />
-            );
-          })
+          TabMetadata.namesWithIcons().map(({name, icon:iconName}) => (
+            <FooterTabButton
+                key={name}
+                isSelected={name===selectedTabName}
+                text={name}
+                iconName={iconName}
+                setTab={setTab}
+            />
+          ))
         }
       </View>
-  );
+    );
 };
 
-const FooterTabButton = ({text, iconName}) => {
-    const { themeStr } = useGlobalState();
+const FooterTabButton = ({text, iconName, isSelected, setTab}) => {
+    const { themeStr, theme } = useGlobalState();
+    const onPress = () => setTab(text);
     return (
-      <View style={{flex: 1, marginHorizontal: 17, marginVertical: 14, alignItems: "center", justifyContent: "center", flexDirection: "column"}}>
-        <Image source={iconData.get(iconName, themeStr)} resizeMode={'contain'}/>
-        <Text style={{ fontSize: 8, fontFamily: "OpenSans", fontWeight: "normal", fontStyle: "normal" }}>{text}</Text>
-      </View>
+      <TouchableOpacity style={styles.footerButton} onPress={onPress}>
+        <Image source={iconData.get(iconName, themeStr, isSelected)} resizeMode={'contain'}/>
+        <Text style={[styles.footerButtonText, theme.tertiaryText, isSelected ? theme.primaryText : undefined]}>{text}</Text>
+      </TouchableOpacity>
     );
 };

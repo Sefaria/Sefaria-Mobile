@@ -162,6 +162,9 @@ export default StyleSheet.create({
   contrastText: {
     color: Colors.mainForeground,
   },
+  primaryText: {
+    color: Colors.mainText,
+  },
   secondaryText: {
     color: Colors.secondaryText,
   },
@@ -200,9 +203,6 @@ export default StyleSheet.create({
   },
   lightGreyBorder: {
     borderColor: Colors.lightGrey,
-  },
-  lighterGreyBackground: {
-    backgroundColor: Colors.lighterGrey,
   },
   lighterGreyBorder: {
     borderColor: Colors.lighterGrey,
