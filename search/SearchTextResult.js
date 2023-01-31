@@ -1,16 +1,17 @@
 'use strict';
 import React, {useState} from 'react';
 import {
-    Text, TouchableOpacity, View,
+    Text, TouchableOpacity, View, Image,
 } from 'react-native';
 import styles from '../Styles.js';
-import {useGlobalState} from "../Hooks";
+import {useGlobalState, useRtlFlexDir} from "../Hooks";
 import {
     StoryFrame,
     ColorBarBox,
     StoryTitleBlock,
     StoryBodyBlock,
 } from "../Story";
+import {iconData} from "../IconData";
 
 export const SearchTextResult = ({text, tref, heTref, openRef, lang, versionTitle, duplicates, isDuplicate}) => {
     const en = lang === "english" ? text : "";
@@ -42,19 +43,20 @@ const VersionTitleLine = ({ versionTitle }) => {
 };
 
 const SimilarResults = ({ duplicates, openRef }) => {
-    const { theme } = useGlobalState();
     const [showDuplicates, setShowDuplicates] = useState(false);
-    const toggleShowDuplicates = ()=>setShowDuplicates(curr=>!curr);
+    const toggleDuplicates = ()=>setShowDuplicates(curr=>!curr);
     if (!duplicates || duplicates.length === 0) {
         return null;
     }
     return (
         <View>
-            <TouchableOpacity onPress={toggleShowDuplicates}>
-                <Text style={[styles.enInt, theme.secondaryText, {fontSize: 14}]}>{`${duplicates.length} more versions`}</Text>
-            </TouchableOpacity>
+            <SimilarResultsButton
+                showDuplicates={showDuplicates}
+                numDuplicates={duplicates.length}
+                toggleDuplicates={toggleDuplicates}
+            />
             <View style={{paddingStart: 30}}>
-                { showDuplicates ? duplicates.map(item => (
+                { (showDuplicates ? duplicates : []).map(item => (
                     <SearchTextResult
                         key={item.version}
                         lang={item.textType}
@@ -65,8 +67,21 @@ const SimilarResults = ({ duplicates, openRef }) => {
                         openRef={openRef}
                         isDuplicate
                     />
-                )) : null}
+                )) }
             </View>
         </View>
     )
+};
+
+
+const SimilarResultsButton = ({ showDuplicates, toggleDuplicates, numDuplicates }) => {
+    const { theme, interfaceLanguage, themeStr } = useGlobalState();
+    const flexDirection = useRtlFlexDir(interfaceLanguage)
+    const iconName = showDuplicates ? 'up' : 'down';
+    return (
+        <TouchableOpacity onPress={toggleDuplicates} style={{flexDirection, alignItems: "center"}}>
+            <Text style={[styles.enInt, theme.secondaryText, {fontSize: 14}]}>{`${numDuplicates} more versions`}</Text>
+            <Image source={iconData.get(iconName, themeStr)} resizeMode={'contain'} style={{marginHorizontal: 5, width: 8, height: 8}}/>
+        </TouchableOpacity>
+    );
 };
