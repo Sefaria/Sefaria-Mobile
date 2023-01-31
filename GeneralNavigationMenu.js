@@ -46,7 +46,7 @@ import ReaderNavigationMenu from "./ReaderNavigationMenu";
  * @param props
  * @constructor
  */
-const GeneralNavigationMenu = props => {
+export const GeneralNavigationMenu = props => {
     return (
         <ScrollView style={{flex:1}} contentContainerStyle={{flex:1, alignContent: "flex-start"}}>
           <PageHeader titleKey={"account"}/>
@@ -74,18 +74,19 @@ const GeneralNavMenuButtonList = () => {
 
 const useMenuButtonObjects = () => {
   const {isLoggedIn} = useGlobalState();
-  const filterFunc = (x) => typeof x.loggedIn == 'undefined' || x.loggedIn === isLoggedIn;
-  return MenuItemsMeta.getMenuItems().filter(filterFunc);
+  return MenuItemsMeta.getMenuItems(isLoggedIn);
 }
 
-class MenuItemsMeta{
+export class MenuItemsMeta{
   static _items = [
     {title: 'profile', icon: 'profile', loggedIn: true, },
     {title: 'logIn', icon: 'login', loggedIn: false },
     {title: 'updates', icon: 'profile'}  
   ]
-  static getMenuItems(){
-    return MenuItemsMeta._items;
+  static getMenuItems(isLoggedIn){
+    const filterFunc = (x) => typeof x.loggedIn == 'undefined' || x.loggedIn === isLoggedIn;
+    return MenuItemsMeta._items.filter(filterFunc);
   }
+  
 } 
-export default GeneralNavigationMenu;
+
