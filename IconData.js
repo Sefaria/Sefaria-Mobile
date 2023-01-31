@@ -38,6 +38,10 @@ class IconData {
                 black: require('./img/a_icon_small-light.png'),
                 white: require('./img/a_icon_small.png'),
             },
+            'about': {
+                black: require('./img/info-2-light.png'),
+                white: require('./img/info-2.png'),
+            },
             'aleph': {
                 black: require('./img/aleph-light.png'),
                 white: require('./img/aleph.png'),
@@ -45,6 +49,10 @@ class IconData {
             'back': {
                 black: require('./img/back-light.png'),
                 white: require('./img/back.png'),
+            },
+            'bell': {
+                black: require('./img/bell-2-light.png'),
+                white: require('./img/bell-2.png'),
             },
             'book': {
                 black: require('./img/book-light.png'),
@@ -122,6 +130,10 @@ class IconData {
                 black: require('./img/forward-light.png'),
                 white: require('./img/forward.png'),
             },
+            'globe': {
+                black: require('./img/globe-8-light.png'),
+                white: require('./img/globe-8.png'),
+            },
             'group': {
                 black: require('./img/group-light.png'),
                 white: require('./img/group.png'),
@@ -136,6 +148,14 @@ class IconData {
                 black: require('./img/heart-light.png'),
                 white: require('./img/heart.png'),
             },
+            'heart-white': {
+                black: require('./img/heart-white.png'),
+                white: require('./img/heart-white.png'),
+            },
+            'help': {
+                black: require('./img/question-thin-light.png'),
+                white: require('./img/question-thin.png'),
+            },
             'info': {
                 black: require('./img/info-light.png'),
                 white: require('./img/info.png'),
@@ -143,6 +163,14 @@ class IconData {
             'layers': {
                 black: require('./img/layers-light.png'),
                 white: require('./img/layers.png'),
+            },
+            'login': {
+                black: require('./img/login-light.png'),
+                white: require('./img/login.png'),
+            },
+            'logout': {
+                black: require('./img/logout-light.png'),
+                white: require('./img/logout.png'),
             },
             'mail': {
                 black: require('./img/mail-light.png'),
@@ -157,6 +185,10 @@ class IconData {
                 white: require('./img/profile.png'),
                 black_selected: require('./img/profile-white.png'),
                 white_selected: require('./img/profile-dark.png'),
+            },
+            'profile-nav': {
+                black: require('./img/profile-sefaria.png'),
+                white: require('./img/profile-sefaria.png'),
             },
             'quill': {
                 black: require('./img/quill-light.png'),
