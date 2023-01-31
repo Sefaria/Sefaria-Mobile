@@ -444,7 +444,7 @@ export default StyleSheet.create({
     fontStyle: "italic",
   },
   searchVersionTitle: {
-    fontSize: 12,
+    fontSize: 14,
     marginTop: 4
   },
   searchPage: {

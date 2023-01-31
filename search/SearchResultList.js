@@ -54,15 +54,15 @@ class SearchResultList extends React.Component {
   };
 
   renderTextResult = ({ item }) => {
-    console.log("ITEM", item);
     return (
         <SearchTextResult
             lang={item.textType}
             tref={item.title}
-            heRef={item.heTitle}
+            heTref={item.heTitle}
             text={item.text}
             versionTitle={item.version}
             openRef={this.props.openRef}
+            duplicates={item.duplicates}
         />
     );
   };
