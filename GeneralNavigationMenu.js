@@ -1,44 +1,20 @@
 'use strict';
 import PropTypes from 'prop-types';
-import React, { useContext, useState, useEffect, useReducer, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   ScrollView,
-  StyleSheet,
-  Text,
   TouchableOpacity,
-  TouchableNativeFeedback,
-  TouchableWithoutFeedback,
   View,
-  Image,
-  Platform,
-  Linking,
-  Alert,
+  Image
 } from 'react-native';
-
 import {
-  CategoryColorLine,
-  CategoryBlockLink,
   InterfaceText,
   PageHeader,
-  TwoBox,
-  SystemButton,
-  LoadingView, SefariaPressable,
 } from './Misc.js';
-import { STATE_ACTIONS, DispatchContext, GlobalStateContext, getTheme } from './StateManager';
-import VersionNumber from 'react-native-version-number';
-import ActionSheet from 'react-native-action-sheet';
-import SearchBar from './SearchBar';
-import ReaderNavigationCategoryMenu from './ReaderNavigationCategoryMenu';
+import { iconData } from './IconData';
 import styles from './Styles.js';
-import strings from './LocalizedStrings.js';
-import Sefaria from './sefaria';
-import {
-  getFullBookList,
-  getLocalBookList,
-  PackagesState
-} from './DownloadControl';
 import {useAsyncVariable, useGlobalState} from './Hooks';
-import ReaderNavigationMenu from "./ReaderNavigationMenu";
+
 
 /**
  * Navigation menu for misc areas of the app that are not the text reader interfaces
@@ -55,19 +31,36 @@ export const GeneralNavigationMenu = props => {
     );
 }
 
-const GeneralNavMenuButton = ({titleKey}) => {
+const GeneralNavMenuButton = ({titleKey, icon}) => {
+  const { themeStr } = useGlobalState();
+  const myIcon = iconData.get(icon, themeStr);
   return (
       <TouchableOpacity>
+        <Image source={myIcon} />
         <InterfaceText stringKey={titleKey} />
       </TouchableOpacity>
   );
 }; 
 
+const SpecialNavMenuButton = ({...menuButtonProps}) => {
+  return(
+      <View style={[styles.systemButtonBlue]}>
+        <GeneralNavMenuButton {...menuButtonProps}/>
+      </View>
+  );
+}
+
+const InterfaceLanguageMenuButton = () => {
+  
+}
+
+
+
 const GeneralNavMenuButtonList = () => {
   let menuButtons = useMenuButtonObjects();
   return (
       <View>
-        {menuButtons.map(button => <GeneralNavMenuButton key={button.title} titleKey={button.title} /> )}
+        {menuButtons.map(button => <GeneralNavMenuButton key={button.title} titleKey={button.title} icon={button.icon} /> )}
       </View>
   )
 }
@@ -79,9 +72,16 @@ const useMenuButtonObjects = () => {
 
 export class MenuItemsMeta{
   static _items = [
-    {title: 'profile', icon: 'profile', loggedIn: true, },
-    {title: 'logIn', icon: 'login', loggedIn: false },
-    {title: 'updates', icon: 'profile'}  
+    {title: 'profile', icon: 'profile-nav', loggedIn: true},
+    {title: 'signup', icon: 'profile-nav', loggedIn: false} , 
+    {title: 'login', icon: 'login', loggedIn: false},
+    {title: 'updates', icon: 'bell'}, 
+    {title: 'settings', icon: 'settings'}, 
+    {title: 'interfaceLanguage', icon: 'globe'}, 
+    {title: 'help', icon: 'help'}, 
+    {title: 'aboutSefaria', icon: 'about'}, 
+    {title: 'logout', icon: 'logout', loggedIn: true},
+    {title: 'donate', icon: 'heart-white', loggedIn: false},
   ]
   static getMenuItems(isLoggedIn){
     const filterFunc = (x) => typeof x.loggedIn == 'undefined' || x.loggedIn === isLoggedIn;

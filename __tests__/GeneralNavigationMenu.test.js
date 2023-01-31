@@ -2,11 +2,11 @@ import {MenuItemsMeta} from "../GeneralNavigationMenu";
 
 describe('MenuItemsMeta', () => {
    test('logged in menu items', () => {
-       expect(MenuItemsMeta.getMenuItems(true)).map(x => x['title']).toStrictEqual(['profile', 'updates', 'settings', 'language', 'help', 'aboutSefaria', 'logout', 'donate']);
+       expect(MenuItemsMeta.getMenuItems(true)).map(x => x['title']).toStrictEqual(['profile', 'updates', 'settings', 'interfaceLanguage', 'help', 'aboutSefaria', 'logout', 'donate']);
    });
 
    test('logged out menu items', () => {
-       expect(MenuItemsMeta.getMenuItems(false)).map(x => x['title']).toStrictEqual(['signup', 'login', 'updates', 'settings', 'language', 'help', 'aboutSefaria', 'donate'])
+       expect(MenuItemsMeta.getMenuItems(false)).map(x => x['title']).toStrictEqual(['signup', 'login', 'updates', 'settings', 'interfaceLanguage', 'help', 'aboutSefaria', 'donate'])
    });
    
    test('logged in menu icons', () => {
