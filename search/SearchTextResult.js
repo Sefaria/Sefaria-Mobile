@@ -55,7 +55,7 @@ const SimilarResults = ({ duplicates, openRef }) => {
                 numDuplicates={duplicates.length}
                 toggleDuplicates={toggleDuplicates}
             />
-            <View style={{paddingStart: 30}}>
+            <View>
                 { (showDuplicates ? duplicates : []).map(item => (
                     <SearchTextResult
                         key={item.version}
