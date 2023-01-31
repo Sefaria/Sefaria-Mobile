@@ -44,7 +44,7 @@ import AutocompletePage from './AutocompletePage';
 import TextColumn from './TextColumn';
 import ConnectionsPanel from './ConnectionsPanel';
 import SettingsPage from './SettingsPage';
-import GeneralNavigationMenu from "./GeneralNavigationMenu";
+import {GeneralNavigationMenu} from "./GeneralNavigationMenu";
 import InterruptingMessage from './InterruptingMessage';
 import SwipeableCategoryList from './SwipeableCategoryList';
 import Toast from 'react-native-root-toast';
