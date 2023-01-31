@@ -45,10 +45,23 @@ const CSS_CLASS_STYLES = {
   },
 };
 
-const PageHeader = ({titleKey}) => {
+const PageHeader = ({...headerProps}) => {
+    return (
+        <View>
+          <Header {...headerProps} />
+        </View>
+    )
+}
+/***
+ * Renders text styled as a header
+ * @param titleKey the text to use for the header
+ * @returns {JSX.Element}
+ * @constructor
+ */
+const Header = ({titleKey}) => {
   const { theme } = useGlobalState();
   return(
-      <InterfaceText stringKey={titleKey} extraStyles={[{fontSize: 22, fontWeight: 500}, theme.tertiaryText]} />
+      <InterfaceText stringKey={titleKey} extraStyles={[{fontSize: 22, fontWeight: "500"}, theme.tertiaryText]} />
   );
 }
 
@@ -1350,6 +1363,7 @@ export {
   FilterableFlatList,
   HebrewInEnglishText,
   IndeterminateCheckBox,
+  InterfaceText,
   InterfaceTextWithFallback,
   LanguageToggleButton,
   LibraryNavButton,

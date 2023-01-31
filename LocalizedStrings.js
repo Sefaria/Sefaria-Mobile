@@ -5,6 +5,8 @@ import LocalizedStrings from 'react-native-localization';
 
 let strings = new LocalizedStrings({
   en: {
+    profile: "Profile",
+    updates: "Updates",
     mySheets: "My Sheets",
     history: "History",
     saved: "Saved",
@@ -193,6 +195,8 @@ let strings = new LocalizedStrings({
     readingHistoryIsCurrentlyDisabled: "Reading history is currently disabled. You can re-enable this feature in your",
   },
   he: {
+    profile: "פרופיל",
+    updates: "עדכונים",
     mySheets: "דפי המקורות שלי",
     history: "היסטוריה",
     saved: "שמורים",

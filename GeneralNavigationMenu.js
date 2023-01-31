@@ -18,6 +18,8 @@ import {
 import {
   CategoryColorLine,
   CategoryBlockLink,
+  InterfaceText,
+  PageHeader,
   TwoBox,
   SystemButton,
   LoadingView, SefariaPressable,
@@ -35,7 +37,7 @@ import {
   getLocalBookList,
   PackagesState
 } from './DownloadControl';
-import { useAsyncVariable } from './Hooks';
+import {useAsyncVariable, useGlobalState} from './Hooks';
 import ReaderNavigationMenu from "./ReaderNavigationMenu";
 
 /**
@@ -45,7 +47,45 @@ import ReaderNavigationMenu from "./ReaderNavigationMenu";
  * @constructor
  */
 const GeneralNavigationMenu = props => {
-    
+    return (
+        <ScrollView style={{flex:1}} contentContainerStyle={{flex:1, alignContent: "flex-start"}}>
+          <PageHeader titleKey={"account"}/>
+          <GeneralNavMenuButtonList />
+        </ScrollView>
+    );
 }
 
+const GeneralNavMenuButton = ({titleKey}) => {
+  return (
+      <TouchableOpacity>
+        <InterfaceText stringKey={titleKey} />
+      </TouchableOpacity>
+  );
+}; 
+
+const GeneralNavMenuButtonList = () => {
+  let menuButtons = useMenuButtonObjects();
+  return (
+      <View>
+        {menuButtons.map(button => <GeneralNavMenuButton key={button.title} titleKey={button.title} /> )}
+      </View>
+  )
+}
+
+const useMenuButtonObjects = () => {
+  const {isLoggedIn} = useGlobalState();
+  const filterFunc = (x) => typeof x.loggedIn == 'undefined' || x.loggedIn === isLoggedIn;
+  return MenuItemsMeta.getMenuItems().filter(filterFunc);
+}
+
+class MenuItemsMeta{
+  static _items = [
+    {title: 'profile', icon: 'profile', loggedIn: true, },
+    {title: 'logIn', icon: 'login', loggedIn: false },
+    {title: 'updates', icon: 'profile'}  
+  ]
+  static getMenuItems(){
+    return MenuItemsMeta._items;
+  }
+} 
 export default GeneralNavigationMenu;
