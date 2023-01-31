@@ -20,8 +20,9 @@ import { GlobalStateContext, getTheme } from '../StateManager';
 import styles from '../Styles';
 import strings from '../LocalizedStrings';
 import {iconData} from "../IconData";
+import {useGlobalState} from "../Hooks";
 
-const SearchFilterPage = ({
+export const SearchFilterPage = ({
   subMenuOpen,
   toggleFilter,
   clearAllFilters,
@@ -31,8 +32,7 @@ const SearchFilterPage = ({
   setSearchOptions,
   searchState,
 }) => {
-  const { interfaceLanguage, themeStr } = useContext(GlobalStateContext);
-  const theme = getTheme(themeStr);
+  const { interfaceLanguage, theme, themeStr } = useGlobalState();
   const { type } = searchState;
   const sortOptions = [
     {name: "chronological", text: strings.chronological, onPress: () => { setSearchOptions(type, "chronological", searchState.field); }},
@@ -60,13 +60,12 @@ const SearchFilterPage = ({
 
   const toggleFilterBound = filter => { toggleFilter(type, filter); };
 
-  var isheb = interfaceLanguage === "hebrew"; //TODO enable when we properly handle interface hebrew throughout app
-  var langStyle = !isheb ? styles.enInt : styles.heInt;
-  var backImageStyle = isheb && false ? styles.directedButtonWithTextHe : styles.directedButtonWithTextEn;
-  var loadingMessage = (<Text style={[langStyle, theme.searchResultSummaryText]}>{strings.loadingFilters}</Text>);
-  var content = null;
-  var closeSrc = iconData.get('circle-close', themeStr);
-  var flexDir = { flexDirection: interfaceLanguage === "hebrew" ? "row-reverse" : "row" };
+  let isheb = interfaceLanguage === "hebrew"; //TODO enable when we properly handle interface hebrew throughout app
+  let langStyle = !isheb ? styles.enInt : styles.heInt;
+  let backImageStyle = isheb && false ? styles.directedButtonWithTextHe : styles.directedButtonWithTextEn;
+  let loadingMessage = (<Text style={[langStyle, theme.searchResultSummaryText]}>{strings.loadingFilters}</Text>);
+  let content;
+  let closeSrc = iconData.get('circle-close', themeStr);
   switch (subMenuOpen) {
     case "filter":
       content =
@@ -117,8 +116,8 @@ const SearchFilterPage = ({
       </View>);
       break;
     default:
-      var currFilter = FilterNode.findFilterInList(searchState.availableFilters, subMenuOpen);
-      var filterList =
+      let currFilter = FilterNode.findFilterInList(searchState.availableFilters, subMenuOpen);
+      let filterList =
       [(<SearchFilter
         key={0}
         filterNode={currFilter}
@@ -200,4 +199,4 @@ SearchFilter.propTypes = {
   toggleFilter: PropTypes.func.isRequired,
 };
 
-export default SearchFilterPage;
+

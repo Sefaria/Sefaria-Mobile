@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import React  from 'react';
 import { View } from 'react-native';
 import {SearchResultPage} from "./SearchResultPage";
-import SearchFilterPage from './SearchFilterPage';
+import {SearchFilterPage} from './SearchFilterPage';
 import styles from '../Styles';
 import {useGlobalState} from "../Hooks";
 
