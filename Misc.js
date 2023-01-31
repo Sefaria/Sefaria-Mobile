@@ -34,7 +34,6 @@ const CSS_CLASS_STYLES = {
     fontFamily: "Taamey Frank Taamim Fix",
     writingDirection: "rtl",
     flex: -1,
-    paddingTop: 15,
     textAlign: Platform.OS == "android" ? "right" : "justify",
   },
   english: {
