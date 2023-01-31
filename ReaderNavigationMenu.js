@@ -178,12 +178,12 @@ const AuthSection = ({ openLogin, openRegister, logout, }) => {
     <View>
       <SystemButton
         onPress={openRegister}
-        text={strings.sign_up}
+        text={strings.signup}
         isBlue={true}
       />
       <SystemButton
         onPress={openLogin}
-        text={strings.log_in}
+        text={strings.login}
       />
     </View>
   );
