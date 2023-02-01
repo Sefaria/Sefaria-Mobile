@@ -1,7 +1,7 @@
 'use strict';
 
 import PropTypes from 'prop-types';
-import React, { useContext } from 'react';
+import React from 'react';
 import {
   View,
   Text,
@@ -16,7 +16,6 @@ import {
   ButtonToggleSet,
   LibraryNavButton,
 } from '../Misc.js';
-import { GlobalStateContext, getTheme } from '../StateManager';
 import styles from '../Styles';
 import strings from '../LocalizedStrings';
 import {iconData} from "../IconData";
@@ -32,24 +31,11 @@ export const SearchFilterPage = ({
   setSearchOptions,
   searchState,
 }) => {
-  const { interfaceLanguage, theme, themeStr } = useGlobalState();
+  const { interfaceLanguage, theme } = useGlobalState();
   const { type } = searchState;
-  const sortOptions = [
-    {name: "chronological", text: strings.chronological, onPress: () => { setSearchOptions(type, "chronological", searchState.field); }},
-    {name: "relevance", text: strings.relevance, onPress: () => { setSearchOptions(type, "relevance", searchState.field); }}
-  ];
-  const exactOptions = [
-    {name: false, text: strings.off, onPress: () => {
-      setSearchOptions(type, searchState.sortType, searchState.fieldBroad, ()=>search(type, query, true, false, true));
-    }},
-    {name: true, text: strings.on, onPress: () => {
-      setSearchOptions(type, searchState.sortType, searchState.fieldExact, ()=>search(type, query, true, false, true));
-    }}
-  ];
-
 
   const backFromFilter = () => {
-    const backPage = subMenuOpen == "filter" ? null : "filter"; // if you're at a category filter page, go back to main filter page
+    const backPage = subMenuOpen === "filter" ? null : "filter"; // if you're at a category filter page, go back to main filter page
     openSubMenu(backPage, true);
   };
 
@@ -57,85 +43,28 @@ export const SearchFilterPage = ({
     openSubMenu(null);
     search(type, query, true, false);
   };
-
   const toggleFilterBound = filter => { toggleFilter(type, filter); };
+  const onResetPress = () => { clearAllFilters(type); }
+  const onSetSearchOptions = ()=>search(type, query, true, false, true);
 
   let isheb = interfaceLanguage === "hebrew"; //TODO enable when we properly handle interface hebrew throughout app
   let langStyle = !isheb ? styles.enInt : styles.heInt;
   let backImageStyle = isheb && false ? styles.directedButtonWithTextHe : styles.directedButtonWithTextEn;
-  let loadingMessage = (<Text style={[langStyle, theme.searchResultSummaryText]}>{strings.loadingFilters}</Text>);
-  let content;
-  let closeSrc = iconData.get('circle-close', themeStr);
-  switch (subMenuOpen) {
-    case "filter":
-      content =
-      (<View>
-        <TouchableOpacity style={[styles.readerDisplayOptionsMenuItem, styles.button, theme.readerDisplayOptionsMenuItem]} onPress={() => { clearAllFilters(type); }}>
-          <Image source={closeSrc}
-            resizeMode={'contain'}
-            style={styles.searchFilterClearAll} />
-          <Text style={[isheb ? styles.heInt : styles.enInt, styles.heInt, theme.tertiaryText]}>{strings.clearAll}</Text>
-
-        </TouchableOpacity>
-        <View style={styles.settingsSection}>
-          <View>
-            <Text style={[isheb ? styles.heInt : styles.enInt, styles.settingsSectionHeader, theme.tertiaryText]}>{strings.sortBy}</Text>
-          </View>
-          <ButtonToggleSet
-            options={sortOptions}
-            lang={interfaceLanguage}
-            active={searchState.sortType} />
+  const buttonToggleSetData = new ButtonToggleSetData(type, searchState, setSearchOptions, onSetSearchOptions);
+  let rootFilterContent = null;
+  let filters;
+  if (subMenuOpen === "filter") {
+    // root
+    rootFilterContent = (
+        <View>
+          <ResetButton onPress={onResetPress} />
+          <SearchButtonToggles buttonToggleSetData={buttonToggleSetData} />
         </View>
-        <View style={styles.settingsSection}>
-          <View>
-            <Text style={[isheb ? styles.heInt : styles.enInt, styles.settingsSectionHeader, theme.tertiaryText]}>{strings.exactSearch}</Text>
-          </View>
-          <ButtonToggleSet
-            options={exactOptions}
-            lang={interfaceLanguage}
-            active={searchState.field === searchState.fieldExact} />
-        </View>
-        <View style={styles.settingsSection}>
-          <View>
-            <Text style={[isheb ? styles.heInt : styles.enInt, styles.settingsSectionHeader, theme.tertiaryText]}>{strings.filterByText}</Text>
-          </View>
-          <View>
-            { searchState.filtersValid ?
-              searchState.availableFilters.map((filter, ifilter)=>{
-                return (
-                  <SearchFilter
-                    key={ifilter}
-                    filterNode={filter}
-                    openSubMenu={openSubMenu}
-                    toggleFilter={toggleFilterBound}
-                  />);
-              }) : loadingMessage
-            }
-          </View>
-        </View>
-      </View>);
-      break;
-    default:
-      let currFilter = FilterNode.findFilterInList(searchState.availableFilters, subMenuOpen);
-      let filterList =
-      [(<SearchFilter
-        key={0}
-        filterNode={currFilter}
-        toggleFilter={toggleFilterBound}
-        />)];
-      content =
-      (<View>
-        { searchState.filtersValid ?
-          filterList.concat(currFilter.getLeafNodes().map((filter, ifilter)=>{
-            return (
-              <SearchFilter
-                key={ifilter+1}
-                filterNode={filter}
-                toggleFilter={toggleFilterBound}
-              />);
-          })) : loadingMessage
-        }
-      </View>);
+    );
+    filters = searchState.availableFilters;
+  } else {
+    const currFilter = FilterNode.findFilterInList(searchState.availableFilters, subMenuOpen);
+    filters = [currFilter].concat(currFilter.getLeafNodes());
   }
   return (<View style={{flex:1}}>
     <View style={[styles.header, theme.header, {justifyContent: "space-between", paddingHorizontal: 12}]}>
@@ -151,7 +80,13 @@ export const SearchFilterPage = ({
       </TouchableOpacity>
     </View>
     <ScrollView key={subMenuOpen} contentContainerStyle={styles.menuContent} style={styles.scrollViewPaddingInOrderToScroll}>
-      {content}
+      {rootFilterContent}
+      <FiltersList
+          filters={filters}
+          filtersValid={searchState.filtersValid}
+          openSubMenu={openSubMenu}
+          toggleFilter={toggleFilterBound}
+      />
     </ScrollView>
   </View>);
 }
@@ -168,18 +103,12 @@ SearchFilterPage.propTypes = {
 
 
 const SearchFilter = ({ filterNode, openSubMenu, toggleFilter }) => {
-  const { textLanguage, interfaceLanguage, themeStr } = useContext(GlobalStateContext);
-  const theme = getTheme(themeStr);
   const clickCheckBox = () => { toggleFilter(filterNode); }
   const onPress = () => { openSubMenu ? openSubMenu(title) : clickCheckBox() }
   const { title, heTitle, selected, children, docCount } = filterNode;
   let isCat = children.length > 0;
-
   let catColor = Sefaria.palette.categoryColor(title.replace(" Commentaries", ""));
-  let colorStyle = isCat ? [{"borderColor": catColor}] : [theme.searchResultSummary, {"borderTopWidth": 1}];
-  let textStyle  = [isCat ? styles.spacedText : null];
   let enTitle = isCat ? title.toUpperCase() : title;
-  let flexDir = Sefaria.util.get_menu_language(interfaceLanguage, textLanguage) == "hebrew" ? "row-reverse" : "row";
   return (
     <LibraryNavButton
       onPress={onPress}
@@ -199,4 +128,102 @@ SearchFilter.propTypes = {
   toggleFilter: PropTypes.func.isRequired,
 };
 
+class ButtonToggleSetData {
 
+  constructor(type, searchState, setOptions, onSetOptions) {
+    this.setOptions = setOptions;
+    this.type = type;
+    this.searchState = searchState;
+    this.onSetOptions = onSetOptions;
+  }
+
+  getData = () => {
+    return [
+      {title: strings.sortBy, options: this._getSortOptions(), active: this.searchState.sortType},
+      {title: strings.exactSearch, options: this._getExactOptions(), active: this.searchState.field === this.searchState.fieldExact},
+    ];
+  };
+
+  _getSortOptions = () => {
+    return [
+      {name: "chronological", text: strings.chronological, onPress: () => { this.setOptions(this.type, "chronological", this.searchState.field); }},
+      {name: "relevance", text: strings.relevance, onPress: () => { this.setOptions(this.type, "relevance", this.searchState.field); }}
+    ];
+  };
+
+  _getExactOptions = () => {
+    return [
+      {name: false, text: strings.off, onPress: () => {
+          this.setOptions(this.type, this.searchState.sortType, this.searchState.fieldBroad, this.onSetOptions);
+        }},
+      {name: true, text: strings.on, onPress: () => {
+          this.setOptions(this.type, this.searchState.sortType, this.searchState.fieldExact, this.onSetOptions);
+        }}
+    ];
+  };
+}
+
+const SearchButtonToggles = ({buttonToggleSetData}) => {
+  const { interfaceLanguage } = useGlobalState();
+  return (
+    <View>
+      { buttonToggleSetData.getData().map(({ title, options, active }) => (
+          <View style={styles.settingsSection} key={title}>
+            <ButtonToggleSetTitle title={title} />
+            <ButtonToggleSet
+                options={options}
+                lang={interfaceLanguage}
+                active={active} />
+          </View>
+      ))}
+    </View>
+  )
+}
+
+const FiltersList = ({filters, filtersValid, openSubMenu, toggleFilter }) => {
+  const { theme, interfaceLanguage } = useGlobalState();
+  const langStyle = interfaceLanguage === "hebrew" ? styles.heInt : styles.enInt;
+  let loadingMessage = (<Text style={[langStyle, theme.searchResultSummaryText]}>{strings.loadingFilters}</Text>);
+  return (
+      <View>
+        {
+            filtersValid ? filters.map((filter, ifilter)=>{
+              return (
+                  <SearchFilter
+                      key={ifilter}
+                      filterNode={filter}
+                      openSubMenu={openSubMenu}
+                      toggleFilter={toggleFilter}
+                  />);
+            }) : loadingMessage
+        }
+      </View>
+  )
+}
+
+const ResetButton = ({ onPress }) => {
+  const { theme, themeStr, interfaceLanguage } = useGlobalState();
+  let closeSrc = iconData.get('circle-close', themeStr);
+  let isheb = interfaceLanguage === "hebrew"; //TODO enable when we properly handle interface hebrew throughout app
+  return (
+      <TouchableOpacity style={[styles.readerDisplayOptionsMenuItem, styles.button, theme.readerDisplayOptionsMenuItem]} onPress={onPress}>
+        <Image source={closeSrc}
+               resizeMode={'contain'}
+               style={styles.searchFilterClearAll} />
+        <Text style={[isheb ? styles.heInt : styles.enInt, styles.heInt, theme.tertiaryText]}>{strings.clearAll}</Text>
+
+      </TouchableOpacity>
+  )
+}
+
+const ButtonToggleSetTitle = ({ title }) => {
+  const { interfaceLanguage, theme } = useGlobalState();
+  const langStyle = interfaceLanguage === "hebrew" ? styles.heInt : styles.enInt;
+  return (
+      <View>
+        <Text style={[langStyle, styles.settingsSectionHeader, theme.tertiaryText]}>
+          {title}
+        </Text>
+      </View>
+  );
+};
