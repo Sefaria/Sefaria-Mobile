@@ -291,6 +291,12 @@ Sefaria = {
     const ref = url.replace(/\./g, ':');
     return { ref, title };
   },
+  addPageToWholeDafRef: function(ref, sectionName) {
+    if (sectionName === 'Daf' && /\d$/.test(ref)) {
+      ref += 'a';
+      }
+    return ref;
+  },
   primaryCategoryForTitle: function(title, isSheet) {
     if (isSheet) { return ["Sheets"]; }
     const index = Sefaria.index(title);
