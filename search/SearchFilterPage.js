@@ -30,15 +30,15 @@ const getCurrFilters = (searchState, subMenuOpen) => {
 };
 
 export const SearchFilterPage = ({
-                                     subMenuOpen,
-                                     toggleFilter,
-                                     clearAllFilters,
-                                     query,
-                                     openSubMenu,
-                                     search,
-                                     setSearchOptions,
-                                     searchState,
-                                 }) => {
+    subMenuOpen,
+    toggleFilter,
+    clearAllFilters,
+    query,
+    openSubMenu,
+    search,
+    setSearchOptions,
+    searchState,
+}) => {
     const {type} = searchState;
     const toggleFilterBound = filter => {
         toggleFilter(type, filter);
