@@ -1035,13 +1035,9 @@ export default StyleSheet.create({
     marginTop: 15,
     marginBottom: 5,
   },
-  buttonToggleSetNew: {
+  buttonToggleSet: {
     borderRadius: 5,
     height: 50,
-  },
-  buttonToggleSet: {
-    marginRight: 0,
-    marginLeft: 0,
   },
   settingsMessage: {
     textAlign: "center",

@@ -784,46 +784,13 @@ ToggleSet.propTypes = {
   active:      PropTypes.string.isRequired
 };
 
-const ButtonToggleSet = ({ options, active }) => {
-  const { themeStr, interfaceLanguage } = useContext(GlobalStateContext);
-  const theme = getTheme(themeStr);
-  var showHebrew = interfaceLanguage == "hebrew";
-  const optionComponents = options.map((option, i) => {
-
-    let alignStyle;
-    if (i == options.length -1) { alignStyle = styles.readerDisplayOptionsMenuItemRight; }
-    else if (i == 0)            { alignStyle = styles.readerDisplayOptionsMenuItemLeft; }
-    else                        { alignStyle = styles.readerDisplayOptionsMenuItemCenter; }
-
-    var itemStyles = [styles.readerDisplayOptionsMenuItem, theme.readerDisplayOptionsMenuItem, alignStyle];
-    itemStyles = itemStyles.concat(active === option.name ? [theme.readerDisplayOptionsMenuItemSelected] : []);
-    return (
-      <TouchableOpacity onPress={option.onPress} key={i} style={itemStyles}>
-        {showHebrew ?
-          <Text style={[styles.heInt, theme.tertiaryText]}>{option.text}</Text> :
-          <Text style={[styles.enInt, theme.tertiaryText]}>{option.text}</Text> }
-      </TouchableOpacity>
-    );
-  });
-
-  return (
-    <View style={[styles.readerDisplayOptionsMenuRow, styles.buttonToggleSet]}>
-      {optionComponents}
-    </View>
-  );
-}
-ButtonToggleSet.propTypes = {
-  options:     PropTypes.array.isRequired, // array of object with `name`. `text`, `onPress`
-  active:      PropTypes.oneOfType([PropTypes.bool, PropTypes.string])
-};
-
-const ButtonToggleSetNew = ({ options, active }) => {
+const ButtonToggleSet= ({ options, active }) => {
   /* based on new styles guide */
   const { themeStr, interfaceLanguage } = useContext(GlobalStateContext);
   const theme = getTheme(themeStr);
   const isHeb = interfaceLanguage === 'hebrew';
   return (
-    <View style={[styles.readerDisplayOptionsMenuRow, styles.boxShadow, styles.buttonToggleSetNew, theme.mainTextPanel]}>
+    <View style={[styles.readerDisplayOptionsMenuRow, styles.boxShadow, styles.buttonToggleSet, theme.mainTextPanel]}>
       {
         options.map(option => {
           const isActive = active === (typeof option.value == 'undefined' ? option.name : option.value);
@@ -1313,7 +1280,6 @@ const SefariaPressable = ({ children, extraStyles=[], ...pressableProps }) => {
 export {
   AnimatedRow,
   ButtonToggleSet,
-  ButtonToggleSetNew,
   CancelButton,
   CategoryBlockLink,
   CategoryAttribution,
