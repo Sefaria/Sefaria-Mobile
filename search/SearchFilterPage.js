@@ -176,7 +176,7 @@ class ButtonToggleSetData {
     }
 
     get = (title) => {
-        return this._data(title);
+        return this._data[title];
     };
 
     _getSortOptions = () => {
