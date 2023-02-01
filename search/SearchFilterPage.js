@@ -29,6 +29,22 @@ const getCurrFilters = (searchState, subMenuOpen) => {
     return [currFilter].concat(currFilter.getLeafNodes());
 };
 
+const useSearchFilterCallbacks = (searchType, toggleFilter, clearAllFilters, search, query) => {
+    const toggleFilterBound = filter => {
+        toggleFilter(searchType, filter);
+    };
+    const onResetPress = () => {
+        clearAllFilters(searchType);
+    }
+    const onSetSearchOptions = () => search(searchType, query, true, false, true);
+
+    return {
+        toggleFilterBound,
+        onResetPress,
+        onSetSearchOptions,
+    };
+}
+
 export const SearchFilterPage = ({
     subMenuOpen,
     toggleFilter,
@@ -39,16 +55,8 @@ export const SearchFilterPage = ({
     setSearchOptions,
     searchState,
 }) => {
-    const {type} = searchState;
-    const toggleFilterBound = filter => {
-        toggleFilter(type, filter);
-    };
-    const onResetPress = () => {
-        clearAllFilters(type);
-    }
-    const onSetSearchOptions = () => search(type, query, true, false, true);
-
-    const buttonToggleSetData = new ButtonToggleSetData(type, searchState, setSearchOptions, onSetSearchOptions);
+    const { toggleFilterBound, onResetPress, onSetSearchOptions } = useSearchFilterCallbacks(searchState.type, toggleFilter, clearAllFilters, search, query);
+    const buttonToggleSetData = new ButtonToggleSetData(searchState.type, searchState, setSearchOptions, onSetSearchOptions);
     return (
         <View style={{flex: 1}}>
             <ScrollView key={subMenuOpen} contentContainerStyle={styles.menuContent}
