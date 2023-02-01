@@ -117,7 +117,7 @@ const RootFilterButtons = ({ onResetPress, buttonToggleSetData }) => {
     return (
         <View>
             <ResetButton onPress={onResetPress}/>
-            <SearchButtonToggles buttonToggleSetData={buttonToggleSetData}/>
+            <TitledButtonToggleSet {...buttonToggleSetData.get(strings.sortBy)} />
         </View>
     )
 }
@@ -159,17 +159,24 @@ class ButtonToggleSetData {
         this.type = type;
         this.searchState = searchState;
         this.onSetOptions = onSetOptions;
+        this._data = {
+            [strings.sortBy]:
+                {
+                    title: strings.sortBy,
+                    options: this._getSortOptions(),
+                    active: this.searchState.sortType
+                },
+            [strings.exactSearch]:
+                {
+                    title: strings.exactSearch,
+                    options: this._getExactOptions(),
+                    active: this.searchState.field === this.searchState.fieldExact
+                },
+        };
     }
 
-    getData = () => {
-        return [
-            {title: strings.sortBy, options: this._getSortOptions(), active: this.searchState.sortType},
-            {
-                title: strings.exactSearch,
-                options: this._getExactOptions(),
-                active: this.searchState.field === this.searchState.fieldExact
-            },
-        ];
+    get = (title) => {
+        return this._data(title);
     };
 
     _getSortOptions = () => {
@@ -201,23 +208,6 @@ class ButtonToggleSetData {
             }
         ];
     };
-}
-
-const SearchButtonToggles = ({buttonToggleSetData}) => {
-    const {interfaceLanguage} = useGlobalState();
-    return (
-        <View>
-            {buttonToggleSetData.getData().map(({title, options, active}) => (
-                <View style={styles.settingsSection} key={title}>
-                    <ButtonToggleSetTitle title={title}/>
-                    <ButtonToggleSet
-                        options={options}
-                        lang={interfaceLanguage}
-                        active={active}/>
-                </View>
-            ))}
-        </View>
-    )
 }
 
 const FiltersList = ({filters, filtersValid, openSubMenu, toggleFilter}) => {
@@ -270,3 +260,18 @@ const ButtonToggleSetTitle = ({title}) => {
         </View>
     );
 };
+
+const TitledButtonToggleSet = ({ title, options, active }) => {
+    const { interfaceLanguage } = useGlobalState();
+    return (
+        <View style={styles.settingsSection} key={title}>
+            <ButtonToggleSetTitle title={title}/>
+            <ButtonToggleSet
+                options={options}
+                lang={interfaceLanguage}
+                active={active}/>
+        </View>
+    );
+};
+
+
