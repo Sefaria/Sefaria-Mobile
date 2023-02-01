@@ -49,21 +49,13 @@ export const SearchFilterPage = ({
     const onSetSearchOptions = () => search(type, query, true, false, true);
 
     const buttonToggleSetData = new ButtonToggleSetData(type, searchState, setSearchOptions, onSetSearchOptions);
-    let rootFilterContent = null;
-    if (subMenuOpen === "filter") {
-        // root
-        rootFilterContent = (
-            <View>
-                <ResetButton onPress={onResetPress}/>
-                <SearchButtonToggles buttonToggleSetData={buttonToggleSetData}/>
-            </View>
-        );
-    }
     return (
         <View style={{flex: 1}}>
             <ScrollView key={subMenuOpen} contentContainerStyle={styles.menuContent}
                         style={styles.scrollViewPaddingInOrderToScroll}>
-                {rootFilterContent}
+                { subMenuOpen === "filter" ? (
+                    <RootFilterButtons buttonToggleSetData={buttonToggleSetData} onResetPress={onResetPress} />
+                ) : null}
                 <FiltersList
                     filters={getCurrFilters(searchState, subMenuOpen)}
                     filtersValid={searchState.filtersValid}
@@ -84,6 +76,14 @@ SearchFilterPage.propTypes = {
     searchState: PropTypes.object,
 };
 
+const RootFilterButtons = ({ onResetPress, buttonToggleSetData }) => {
+    return (
+        <View>
+            <ResetButton onPress={onResetPress}/>
+            <SearchButtonToggles buttonToggleSetData={buttonToggleSetData}/>
+        </View>
+    )
+}
 
 const SearchFilter = ({filterNode, openSubMenu, toggleFilter}) => {
     const clickCheckBox = () => {
