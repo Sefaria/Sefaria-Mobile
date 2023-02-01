@@ -14,7 +14,7 @@ import {FilterNode, SearchPropTypes} from '@sefaria/search';
 import {
     DirectedButton,
     ButtonToggleSet,
-    LibraryNavButton,
+    LibraryNavButton, SystemButton,
 } from '../Misc.js';
 import styles from '../Styles';
 import strings from '../LocalizedStrings';
@@ -29,7 +29,7 @@ const getCurrFilters = (searchState, subMenuOpen) => {
     return [currFilter].concat(currFilter.getLeafNodes());
 };
 
-const useSearchFilterCallbacks = (searchType, toggleFilter, clearAllFilters, search, query) => {
+const useSearchFilterCallbacks = (searchType, openSubMenu, toggleFilter, clearAllFilters, search, query) => {
     const toggleFilterBound = filter => {
         toggleFilter(searchType, filter);
     };
@@ -37,11 +37,16 @@ const useSearchFilterCallbacks = (searchType, toggleFilter, clearAllFilters, sea
         clearAllFilters(searchType);
     }
     const onSetSearchOptions = () => search(searchType, query, true, false, true);
+    const applyFilters = () => {
+        openSubMenu(null);
+        search(searchType, query, true, false);
+    };
 
     return {
         toggleFilterBound,
         onResetPress,
         onSetSearchOptions,
+        applyFilters,
     };
 }
 
@@ -55,7 +60,7 @@ export const SearchFilterPage = ({
     setSearchOptions,
     searchState,
 }) => {
-    const { toggleFilterBound, onResetPress, onSetSearchOptions } = useSearchFilterCallbacks(searchState.type, toggleFilter, clearAllFilters, search, query);
+    const { toggleFilterBound, onResetPress, onSetSearchOptions, applyFilters } = useSearchFilterCallbacks(searchState.type, openSubMenu, toggleFilter, clearAllFilters, search, query);
     const buttonToggleSetData = new ButtonToggleSetData(searchState.type, searchState, setSearchOptions, onSetSearchOptions);
     return (
         <View style={{flex: 1}}>
@@ -71,6 +76,9 @@ export const SearchFilterPage = ({
                     toggleFilter={toggleFilterBound}
                 />
             </ScrollView>
+            <SearchFooterFrame>
+                <ShowResultsButton applyFilters={applyFilters} />
+            </SearchFooterFrame>
         </View>);
 }
 SearchFilterPage.propTypes = {
@@ -83,6 +91,27 @@ SearchFilterPage.propTypes = {
     setSearchOptions: PropTypes.func,
     searchState: PropTypes.object,
 };
+
+const SearchFooterFrame = ({ children }) => {
+    const { theme } = useGlobalState();
+    return (
+        <View style={[{padding: 15, borderTopWidth: 1}, theme.lightGreyBorder]}>
+            { children }
+        </View>
+    );
+};
+
+const ShowResultsButton = ({ applyFilters }) => {
+    const { interfaceLanguage } = useGlobalState();
+   return (
+       <SystemButton
+           onPress={applyFilters}
+           text={strings.showResults}
+           isBlue
+           isHeb={interfaceLanguage === "hebrew"}
+       />
+   );
+}
 
 const RootFilterButtons = ({ onResetPress, buttonToggleSetData }) => {
     return (

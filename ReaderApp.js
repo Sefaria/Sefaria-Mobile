@@ -1703,6 +1703,9 @@ class ReaderApp extends React.PureComponent {
   };
 
   toggleSearchFilter = (type, filterNode) => {
+    if (!filterNode) {
+      return;
+    }
     if (filterNode.isUnselected()) {
       filterNode.setSelected(true);
     } else {
