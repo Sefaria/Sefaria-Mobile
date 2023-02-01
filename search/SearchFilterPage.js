@@ -21,6 +21,14 @@ import strings from '../LocalizedStrings';
 import {iconData} from "../IconData";
 import {useGlobalState} from "../Hooks";
 
+const getCurrFilters = (searchState, subMenuOpen) => {
+  if (subMenuOpen === "filter") {
+    return searchState.availableFilters;
+  }
+  const currFilter = FilterNode.findFilterInList(searchState.availableFilters, subMenuOpen);
+  return [currFilter].concat(currFilter.getLeafNodes());
+};
+
 export const SearchFilterPage = ({
   subMenuOpen,
   toggleFilter,
@@ -31,28 +39,13 @@ export const SearchFilterPage = ({
   setSearchOptions,
   searchState,
 }) => {
-  const { interfaceLanguage, theme } = useGlobalState();
   const { type } = searchState;
-
-  const backFromFilter = () => {
-    const backPage = subMenuOpen === "filter" ? null : "filter"; // if you're at a category filter page, go back to main filter page
-    openSubMenu(backPage, true);
-  };
-
-  const applyFilters = () => {
-    openSubMenu(null);
-    search(type, query, true, false);
-  };
   const toggleFilterBound = filter => { toggleFilter(type, filter); };
   const onResetPress = () => { clearAllFilters(type); }
   const onSetSearchOptions = ()=>search(type, query, true, false, true);
 
-  let isheb = interfaceLanguage === "hebrew"; //TODO enable when we properly handle interface hebrew throughout app
-  let langStyle = !isheb ? styles.enInt : styles.heInt;
-  let backImageStyle = isheb && false ? styles.directedButtonWithTextHe : styles.directedButtonWithTextEn;
   const buttonToggleSetData = new ButtonToggleSetData(type, searchState, setSearchOptions, onSetSearchOptions);
   let rootFilterContent = null;
-  let filters;
   if (subMenuOpen === "filter") {
     // root
     rootFilterContent = (
@@ -61,28 +54,13 @@ export const SearchFilterPage = ({
           <SearchButtonToggles buttonToggleSetData={buttonToggleSetData} />
         </View>
     );
-    filters = searchState.availableFilters;
-  } else {
-    const currFilter = FilterNode.findFilterInList(searchState.availableFilters, subMenuOpen);
-    filters = [currFilter].concat(currFilter.getLeafNodes());
   }
-  return (<View style={{flex:1}}>
-    <View style={[styles.header, theme.header, {justifyContent: "space-between", paddingHorizontal: 12}]}>
-      <DirectedButton
-        onPress={backFromFilter}
-        text={strings.back}
-        direction="back"
-        language="english"
-        textStyle={[theme.searchResultSummaryText, langStyle]}
-        imageStyle={[styles.menuButton, backImageStyle]}/>
-      <TouchableOpacity onPress={applyFilters} style={{marginLeft: 7, marginRight: 7}}>
-        <Text style={[theme.searchResultSummaryText, langStyle, {marginTop: -1}]}>{strings.apply}</Text>
-      </TouchableOpacity>
-    </View>
+  return (
+      <View style={{flex:1}}>
     <ScrollView key={subMenuOpen} contentContainerStyle={styles.menuContent} style={styles.scrollViewPaddingInOrderToScroll}>
       {rootFilterContent}
       <FiltersList
-          filters={filters}
+          filters={getCurrFilters(searchState, subMenuOpen)}
           filtersValid={searchState.filtersValid}
           openSubMenu={openSubMenu}
           toggleFilter={toggleFilterBound}
