@@ -20,7 +20,7 @@ import {
   useWindowDimensions,
 } from 'react-native';
 import { GlobalStateContext, DispatchContext, STATE_ACTIONS, themeStr, getTheme } from './StateManager';
-import { useGlobalState, useRenderersProps } from './Hooks';
+import {useGlobalState, useRenderersProps, useRtlFlexDir} from './Hooks';
 import Sefaria from './sefaria';
 import styles from './Styles.js';
 import {iconData } from "./IconData";
@@ -818,21 +818,18 @@ const LoadingView = ({ style, category, size, height, color=Sefaria.palette.colo
   </View>
 );
 
-const IndeterminateCheckBox = ({ state, onPress }) => {
+const useCheckboxIcon = (state) => {
   const { themeStr } = useContext(GlobalStateContext);
-  let iconName;
-  if (state === 1) {
-    iconName = 'checkbox-checked';
-  } else if (state === 0) {
-    iconName = 'checkbox-unchecked';
-  } else {
-    iconName = 'checkbox-partially';
-  }
-  const src = iconData.get(iconName, themeStr);
+  const iconNameSuffixMap = ['unchecked', 'checked', 'partially'];
+  const iconName = `checkbox-${iconNameSuffixMap[state]}`;
+  return iconData.get(iconName, themeStr);
+}
 
+const IndeterminateCheckBox = ({ state, onPress }) => {
+  const icon = useCheckboxIcon(state);
   return (
     <TouchableOpacity onPress={onPress}>
-      <Image source={src}
+      <Image source={icon}
         resizeMode={'contain'}
         style={styles.searchFilterCheckBox} />
     </TouchableOpacity>
@@ -1277,6 +1274,16 @@ const SefariaPressable = ({ children, extraStyles=[], ...pressableProps }) => {
   );
 }
 
+const SpaceBetweenFrame = ({ children }) => {
+  const { interfaceLanguage } = useGlobalState();
+  const flexDirection = useRtlFlexDir(interfaceLanguage);
+  return (
+    <View style={{flexDirection, justifyContent: "space-between"}}>
+      {children}
+    </View>
+  );
+};
+
 export {
   AnimatedRow,
   ButtonToggleSet,
@@ -1317,6 +1324,7 @@ export {
   SimpleHTMLView,
   SimpleInterfaceBlock,
   SimpleLinkedBlock,
+  SpaceBetweenFrame,
   SText,
   SystemButton,
   SystemHeader,
