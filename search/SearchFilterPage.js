@@ -66,6 +66,16 @@ const useFilterSearcher = (filtersValid, availableFilters, currFilterName) => {
     };
 };
 
+const FilterLoadingView = () => {
+    const {theme, interfaceLanguage} = useGlobalState();
+    const langStyle = interfaceLanguage === "hebrew" ? styles.heInt : styles.enInt;
+    return (
+        <Text style={[langStyle, theme.searchResultSummaryText]}>
+            {strings.loadingFilters}
+        </Text>
+    );
+}
+
 export const SearchFilterPage = ({
     subMenuOpen,
     toggleFilter,
@@ -76,14 +86,9 @@ export const SearchFilterPage = ({
     setSearchOptions,
     searchState,
 }) => {
-    const {theme, interfaceLanguage} = useGlobalState();
     const { toggleFilterBound, onResetPress, onSetSearchOptions, applyFilters } = useSearchFilterCallbacks(searchState.type, openSubMenu, toggleFilter, clearAllFilters, search, query);
     const currFilterName = subMenuOpen === "filter" ? null : subMenuOpen;
     const { displayedFilters, onFilterQueryChange, filterQuery } = useFilterSearcher(searchState.filtersValid, searchState.availableFilters, currFilterName);
-
-    const langStyle = interfaceLanguage === "hebrew" ? styles.heInt : styles.enInt;
-    const loadingMessage = (<Text style={[langStyle, theme.searchResultSummaryText]}>{strings.loadingFilters}</Text>);
-
     const buttonToggleSetData = new ButtonToggleSetData(searchState.type, searchState, setSearchOptions, onSetSearchOptions);
     return (
         <View style={{flex: 1}}>
@@ -103,7 +108,7 @@ export const SearchFilterPage = ({
                         <LocalSearchBar onChange={onFilterQueryChange} query={filterQuery} />
                     </View>
                 )}
-                ListEmptyComponent={() => !searchState.filtersValid && loadingMessage}
+                ListEmptyComponent={() => !searchState.filtersValid && <FilterLoadingView />}
             />
             <SearchFooterFrame>
                 <ShowResultsButton applyFilters={applyFilters} />
