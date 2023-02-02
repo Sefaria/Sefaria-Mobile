@@ -818,20 +818,17 @@ const LoadingView = ({ style, category, size, height, color=Sefaria.palette.colo
   </View>
 );
 
-const useCheckboxIcon = (state) => {
+const useCheckboxIconName = (state) => {
   const { themeStr } = useContext(GlobalStateContext);
   const iconNameSuffixMap = ['unchecked', 'checked', 'partially'];
-  const iconName = `checkbox-${iconNameSuffixMap[state]}`;
-  return iconData.get(iconName, themeStr);
+  return `checkbox-${iconNameSuffixMap[state]}`;
 }
 
 const IndeterminateCheckBox = ({ state, onPress }) => {
-  const icon = useCheckboxIcon(state);
+  const iconName = useCheckboxIconName(state);
   return (
     <TouchableOpacity onPress={onPress}>
-      <Image source={icon}
-        resizeMode={'contain'}
-        style={styles.searchFilterCheckBox} />
+      <Icon name={iconName} extraStyles={[styles.searchFilterCheckBox]} />
     </TouchableOpacity>
   );
 }
