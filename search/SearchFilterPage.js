@@ -66,39 +66,16 @@ export const SearchFilterPage = ({
     searchState,
 }) => {
     const {theme, interfaceLanguage} = useGlobalState();
-    const [filterQuery, setFilterQuery] = React.useState("");
-    const { toggleFilterBound, onResetPress, onSetSearchOptions, applyFilters } = useSearchFilterCallbacks(searchState.type, openSubMenu, toggleFilter, clearAllFilters, search, query);
-    const onFilterQueryChange = query => setFilterQuery(query);
-    const langStyle = interfaceLanguage === "hebrew" ? styles.heInt : styles.enInt;
-    const buttonToggleSetData = new ButtonToggleSetData(searchState.type, searchState, setSearchOptions, onSetSearchOptions);
-    let loadingMessage = (<Text style={[langStyle, theme.searchResultSummaryText]}>{strings.loadingFilters}</Text>);
-    const renderSearchFilter = ({ item:filterNode }) => {
-        return (
-            <SearchFilter
-                toggleFilter={toggleFilterBound}
-                filterNode={filterNode}
-                openSubMenu={openSubMenu}
-            />
-        );
-    };
-    const ListHeaderComponent = () => {
-       return (
-           <View>
-               {
-                   subMenuOpen === "filter" ? (
-                       <RootFilterButtons buttonToggleSetData={buttonToggleSetData} onResetPress={onResetPress} />
-                   ) : null }
-               <LocalSearchBar onChange={onFilterQueryChange} query={filterQuery} />
-           </View>
-       );
-    };
-    const ListEmptyComponent = () => {
-       if (searchState.filtersValid) {
-           return null;
-       }
-       return loadingMessage;
-    }
 
+    const [filterQuery, setFilterQuery] = React.useState("");
+    const onFilterQueryChange = query => setFilterQuery(query);
+
+    const { toggleFilterBound, onResetPress, onSetSearchOptions, applyFilters } = useSearchFilterCallbacks(searchState.type, openSubMenu, toggleFilter, clearAllFilters, search, query);
+
+    const langStyle = interfaceLanguage === "hebrew" ? styles.heInt : styles.enInt;
+    const loadingMessage = (<Text style={[langStyle, theme.searchResultSummaryText]}>{strings.loadingFilters}</Text>);
+
+    const buttonToggleSetData = new ButtonToggleSetData(searchState.type, searchState, setSearchOptions, onSetSearchOptions);
     const filterSearcher = new FilterSearcher(getCurrFilters(searchState, subMenuOpen));
     const displayedFilters = filterSearcher.search(filterQuery, true)
     return (
@@ -106,9 +83,20 @@ export const SearchFilterPage = ({
             <FlatList
                 contentContainerStyle={styles.menuContent}
                 data={displayedFilters}
-                renderItem={renderSearchFilter}
-                ListHeaderComponent={ListHeaderComponent}
-                ListEmptyComponent={ListEmptyComponent}
+                renderItem={({ item:filterNode }) => (
+                    <SearchFilter
+                    toggleFilter={toggleFilterBound}
+                    filterNode={filterNode}
+                    openSubMenu={openSubMenu}
+                    />
+                )}
+                ListHeaderComponent={() => (
+                    <View>
+                        { subMenuOpen === "filter" && <RootFilterButtons buttonToggleSetData={buttonToggleSetData} onResetPress={onResetPress} />}
+                        <LocalSearchBar onChange={onFilterQueryChange} query={filterQuery} />
+                    </View>
+                )}
+                ListEmptyComponent={() => !searchState.filtersValid && loadingMessage}
             />
             <SearchFooterFrame>
                 <ShowResultsButton applyFilters={applyFilters} />
