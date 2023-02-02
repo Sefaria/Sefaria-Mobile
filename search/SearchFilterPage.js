@@ -7,7 +7,7 @@ import {
     Text,
     TouchableOpacity,
     ScrollView,
-    Image,
+    Image, FlatList,
 } from 'react-native';
 
 import {FilterNode, SearchPropTypes} from '@sefaria/search';
@@ -23,6 +23,9 @@ import {iconData} from "../IconData";
 import {useGlobalState} from "../Hooks";
 
 const getCurrFilters = (searchState, subMenuOpen) => {
+    if (!searchState.filtersValid) {
+        return [];
+    }
     if (subMenuOpen === "filter") {
         return searchState.availableFilters;
     }
@@ -51,6 +54,7 @@ const useSearchFilterCallbacks = (searchType, openSubMenu, toggleFilter, clearAl
     };
 }
 
+
 export const SearchFilterPage = ({
     subMenuOpen,
     toggleFilter,
@@ -61,22 +65,51 @@ export const SearchFilterPage = ({
     setSearchOptions,
     searchState,
 }) => {
+    const {theme, interfaceLanguage} = useGlobalState();
+    const [filterQuery, setFilterQuery] = React.useState("");
     const { toggleFilterBound, onResetPress, onSetSearchOptions, applyFilters } = useSearchFilterCallbacks(searchState.type, openSubMenu, toggleFilter, clearAllFilters, search, query);
+    const onFilterQueryChange = query => setFilterQuery(query);
+    const langStyle = interfaceLanguage === "hebrew" ? styles.heInt : styles.enInt;
     const buttonToggleSetData = new ButtonToggleSetData(searchState.type, searchState, setSearchOptions, onSetSearchOptions);
+    let loadingMessage = (<Text style={[langStyle, theme.searchResultSummaryText]}>{strings.loadingFilters}</Text>);
+    const renderSearchFilter = ({ item:filterNode }) => {
+        return (
+            <SearchFilter
+                toggleFilter={toggleFilterBound}
+                filterNode={filterNode}
+                openSubMenu={openSubMenu}
+            />
+        );
+    };
+    const ListHeaderComponent = () => {
+       return (
+           <View>
+               {
+                   subMenuOpen === "filter" ? (
+                       <RootFilterButtons buttonToggleSetData={buttonToggleSetData} onResetPress={onResetPress} />
+                   ) : null }
+               <LocalSearchBar onChange={onFilterQueryChange} query={filterQuery} />
+           </View>
+       );
+    };
+    const ListEmptyComponent = () => {
+       if (searchState.filtersValid) {
+           return null;
+       }
+       return loadingMessage;
+    }
+
+    const filterSearcher = new FilterSearcher(getCurrFilters(searchState, subMenuOpen));
+    const displayedFilters = filterSearcher.search(filterQuery, true)
     return (
         <View style={{flex: 1}}>
-            <ScrollView key={subMenuOpen} contentContainerStyle={styles.menuContent}
-                        style={styles.scrollViewPaddingInOrderToScroll}>
-                { subMenuOpen === "filter" ? (
-                    <RootFilterButtons buttonToggleSetData={buttonToggleSetData} onResetPress={onResetPress} />
-                ) : null}
-                <FiltersList
-                    filters={getCurrFilters(searchState, subMenuOpen)}
-                    filtersValid={searchState.filtersValid}
-                    openSubMenu={openSubMenu}
-                    toggleFilter={toggleFilterBound}
-                />
-            </ScrollView>
+            <FlatList
+                contentContainerStyle={styles.menuContent}
+                data={displayedFilters}
+                renderItem={renderSearchFilter}
+                ListHeaderComponent={ListHeaderComponent}
+                ListEmptyComponent={ListEmptyComponent}
+            />
             <SearchFooterFrame>
                 <ShowResultsButton applyFilters={applyFilters} />
             </SearchFooterFrame>
@@ -242,31 +275,6 @@ class FilterSearcher {
         }
         return matchingFilters;
     };
-}
-
-const FiltersList = ({filters, filtersValid, openSubMenu, toggleFilter}) => {
-    const {theme, interfaceLanguage} = useGlobalState();
-    const [filterQuery, setFilterQuery] = React.useState("");
-    const onFilterQueryChange = query => setFilterQuery(query);
-    const filterSearcher = new FilterSearcher(filters);
-    const langStyle = interfaceLanguage === "hebrew" ? styles.heInt : styles.enInt;
-    let loadingMessage = (<Text style={[langStyle, theme.searchResultSummaryText]}>{strings.loadingFilters}</Text>);
-    return (
-        <View>
-            <LocalSearchBar onChange={onFilterQueryChange} query={filterQuery} />
-            {
-                filtersValid ? filterSearcher.search(filterQuery, true).map((filter, ifilter) => {
-                    return (
-                        <SearchFilter
-                            key={ifilter}
-                            filterNode={filter}
-                            openSubMenu={openSubMenu}
-                            toggleFilter={toggleFilter}
-                        />);
-                }) : loadingMessage
-            }
-        </View>
-    )
 }
 
 const ResetButton = ({onPress}) => {
