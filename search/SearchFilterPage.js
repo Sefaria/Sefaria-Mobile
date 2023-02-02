@@ -15,7 +15,7 @@ import {
     ButtonToggleSet,
     LibraryNavButton,
     SystemButton,
-    IndeterminateCheckBox, Icon, FlexFrame, ContentTextWithFallback,
+    IndeterminateCheckBox, Icon, FlexFrame, ContentTextWithFallback, LocalSearchBar,
 } from '../Misc.js';
 import styles from '../Styles';
 import strings from '../LocalizedStrings';
@@ -246,12 +246,16 @@ class FilterSearcher {
 
 const FiltersList = ({filters, filtersValid, openSubMenu, toggleFilter}) => {
     const {theme, interfaceLanguage} = useGlobalState();
+    const [filterQuery, setFilterQuery] = React.useState("");
+    const onFilterQueryChange = query => setFilterQuery(query);
+    const filterSearcher = new FilterSearcher(filters);
     const langStyle = interfaceLanguage === "hebrew" ? styles.heInt : styles.enInt;
     let loadingMessage = (<Text style={[langStyle, theme.searchResultSummaryText]}>{strings.loadingFilters}</Text>);
     return (
         <View>
+            <LocalSearchBar onChange={onFilterQueryChange} query={filterQuery} />
             {
-                filtersValid ? filters.map((filter, ifilter) => {
+                filtersValid ? filterSearcher.search(filterQuery, true).map((filter, ifilter) => {
                     return (
                         <SearchFilter
                             key={ifilter}
