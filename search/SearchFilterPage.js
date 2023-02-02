@@ -12,9 +12,10 @@ import {
 
 import {FilterNode, SearchPropTypes} from '@sefaria/search';
 import {
-    DirectedButton,
     ButtonToggleSet,
-    LibraryNavButton, SystemButton,
+    LibraryNavButton,
+    SystemButton,
+    IndeterminateCheckBox, Icon, FlexFrame, ContentTextWithFallback,
 } from '../Misc.js';
 import styles from '../Styles';
 import strings from '../LocalizedStrings';
@@ -123,27 +124,22 @@ const RootFilterButtons = ({ onResetPress, buttonToggleSetData }) => {
 }
 
 const SearchFilter = ({filterNode, openSubMenu, toggleFilter}) => {
-    const clickCheckBox = () => {
-        toggleFilter(filterNode);
-    }
-    const onPress = () => {
-        openSubMenu ? openSubMenu(title) : clickCheckBox()
-    }
+    const { theme } = useGlobalState();
     const {title, heTitle, selected, children, docCount} = filterNode;
-    let isCat = children.length > 0;
-    let catColor = Sefaria.palette.categoryColor(title.replace(" Commentaries", ""));
-    let enTitle = isCat ? title.toUpperCase() : title;
+    const clickCheckBox = () => toggleFilter(filterNode);
+    const onPress = () => { openSubMenu ? openSubMenu(title) : clickCheckBox() }
+    const countStr = `(${docCount})`;
     return (
-        <LibraryNavButton
-            onPress={onPress}
-            onPressCheckBox={clickCheckBox}
-            checkBoxSelected={selected}
-            enText={enTitle}
-            count={docCount}
-            heText={heTitle}
-            catColor={isCat ? catColor : null}
-            withArrow={!!openSubMenu}
-            buttonStyle={{margin: 2, paddingVertical: 0, paddingHorizontal: 5,}}/>
+        <TouchableOpacity onPress={onPress}>
+            <FlexFrame justifyContent={"space-between"}>
+                <FlexFrame>
+                    <IndeterminateCheckBox onPress={clickCheckBox} state={selected} />
+                    <ContentTextWithFallback en={title} he={heTitle} />
+                    <ContentTextWithFallback en={countStr} he={countStr} extraStyles={[theme.tertiaryText]} />
+                </FlexFrame>
+                <Icon name={'forward'} length={12} />
+            </FlexFrame>
+        </TouchableOpacity>
     );
 }
 SearchFilter.propTypes = {
