@@ -1292,11 +1292,11 @@ const SefariaPressable = ({ children, extraStyles=[], ...pressableProps }) => {
   );
 }
 
-const SpaceBetweenFrame = ({ children }) => {
+const FlexFrame = ({ dir, justifyContent, alignItems, children }) => {
   const { interfaceLanguage } = useGlobalState();
-  const flexDirection = useRtlFlexDir(interfaceLanguage);
+  const flexDirection = useRtlFlexDir(interfaceLanguage, dir );
   return (
-    <View style={{flexDirection, justifyContent: "space-between"}}>
+    <View style={{flexDirection, justifyContent, alignItems}}>
       {children}
     </View>
   );
@@ -1322,6 +1322,7 @@ export {
   DisplaySettingsButton,
   DotSeparatedList,
   FilterableFlatList,
+  FlexFrame,
   HebrewInEnglishText,
   Icon,
   IndeterminateCheckBox,
@@ -1343,7 +1344,6 @@ export {
   SimpleHTMLView,
   SimpleInterfaceBlock,
   SimpleLinkedBlock,
-  SpaceBetweenFrame,
   SText,
   SystemButton,
   SystemHeader,
