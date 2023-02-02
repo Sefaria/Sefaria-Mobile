@@ -840,6 +840,27 @@ IndeterminateCheckBox.propTypes = {
   onPress:    PropTypes.func.isRequired,
 };
 
+/**
+ * Icon component to be used wherever an icon from `IconData` is needed
+ * @param name - name of the icon
+ * @param length - assumption is the icon has the same width and height
+ * @param isSelected
+ * @param extraStyles - list of extra styles for icon
+ * @returns {JSX.Element}
+ * @constructor
+ */
+const Icon = ({ name, length, isSelected, extraStyles=[] }) => {
+  const { themeStr } = useGlobalState();
+  const icon = iconData.get(name, themeStr, isSelected);
+  return (
+     <Image
+         source={icon}
+         resizeMode={'contain'}
+         style={[{width: length, height: length}].concat(extraStyles)}
+     />
+  );
+};
+
 class RainbowBar extends React.Component {
   render() {
     const colors = [
@@ -1305,6 +1326,7 @@ export {
   DotSeparatedList,
   FilterableFlatList,
   HebrewInEnglishText,
+  Icon,
   IndeterminateCheckBox,
   InterfaceTextWithFallback,
   LanguageToggleButton,
