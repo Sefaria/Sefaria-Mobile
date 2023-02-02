@@ -22,14 +22,14 @@ import strings from '../LocalizedStrings';
 import {iconData} from "../IconData";
 import {useGlobalState} from "../Hooks";
 
-const getCurrFilters = (searchState, subMenuOpen) => {
-    if (!searchState.filtersValid) {
+const getCurrFilters = (filtersValid, availableFilters, currFilterName) => {
+    if (!filtersValid) {
         return [];
     }
-    if (subMenuOpen === "filter") {
-        return searchState.availableFilters;
+    if (!currFilterName) {
+        return availableFilters;
     }
-    const currFilter = FilterNode.findFilterInList(searchState.availableFilters, subMenuOpen);
+    const currFilter = FilterNode.findFilterInList(availableFilters, currFilterName);
     return [currFilter].concat(currFilter.getLeafNodes());
 };
 
@@ -54,6 +54,17 @@ const useSearchFilterCallbacks = (searchType, openSubMenu, toggleFilter, clearAl
     };
 }
 
+const useFilterSearcher = (filtersValid, availableFilters, currFilterName) => {
+    const [filterQuery, setFilterQuery] = React.useState("");
+    const onFilterQueryChange = query => setFilterQuery(query);
+    const filterSearcher = new FilterSearcher(getCurrFilters(filtersValid, availableFilters, currFilterName));
+    const displayedFilters = filterSearcher.search(filterQuery, true)
+    return {
+        displayedFilters,
+        onFilterQueryChange,
+        filterQuery,
+    };
+};
 
 export const SearchFilterPage = ({
     subMenuOpen,
@@ -66,18 +77,14 @@ export const SearchFilterPage = ({
     searchState,
 }) => {
     const {theme, interfaceLanguage} = useGlobalState();
-
-    const [filterQuery, setFilterQuery] = React.useState("");
-    const onFilterQueryChange = query => setFilterQuery(query);
-
     const { toggleFilterBound, onResetPress, onSetSearchOptions, applyFilters } = useSearchFilterCallbacks(searchState.type, openSubMenu, toggleFilter, clearAllFilters, search, query);
+    const currFilterName = subMenuOpen === "filter" ? null : subMenuOpen;
+    const { displayedFilters, onFilterQueryChange, filterQuery } = useFilterSearcher(searchState.filtersValid, searchState.availableFilters, currFilterName);
 
     const langStyle = interfaceLanguage === "hebrew" ? styles.heInt : styles.enInt;
     const loadingMessage = (<Text style={[langStyle, theme.searchResultSummaryText]}>{strings.loadingFilters}</Text>);
 
     const buttonToggleSetData = new ButtonToggleSetData(searchState.type, searchState, setSearchOptions, onSetSearchOptions);
-    const filterSearcher = new FilterSearcher(getCurrFilters(searchState, subMenuOpen));
-    const displayedFilters = filterSearcher.search(filterQuery, true)
     return (
         <View style={{flex: 1}}>
             <FlatList
