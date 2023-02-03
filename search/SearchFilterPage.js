@@ -60,7 +60,7 @@ const organizeFiltersAsSections = (filters, expandedCategories) => (
     })
 );
 
-const useFilterSearcher = (filtersValid, availableFilters, currFilterName) => {
+const useFilterSearcher = (filtersValid, availableFilters) => {
     const [filterQuery, setFilterQuery] = React.useState("");
     const [expandedFilterCategories, setExpandedFilterCategories] = React.useState(new Set());
     const filterSearcher = new FilterSearcher(getCurrFilters(filtersValid, availableFilters));
@@ -100,8 +100,7 @@ export const SearchFilterPage = ({
     searchState,
 }) => {
     const { toggleFilterBound, onResetPress, onSetSearchOptions, applyFilters } = useSearchFilterCallbacks(searchState.type, openSubMenu, toggleFilter, clearAllFilters, search, query);
-    const currFilterName = subMenuOpen === "filter" ? null : subMenuOpen;
-    const { filterSections, onFilterQueryChange, filterQuery, setExpandedFilterCategories } = useFilterSearcher(searchState.filtersValid, searchState.availableFilters, currFilterName);
+    const { filterSections, onFilterQueryChange, filterQuery, setExpandedFilterCategories } = useFilterSearcher(searchState.filtersValid, searchState.availableFilters);
     const expandFilter = (title) => setExpandedFilterCategories(prev => {
         const next = new Set(prev);
         if (next.has(title)) {
