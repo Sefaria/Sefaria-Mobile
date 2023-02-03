@@ -49,9 +49,9 @@ const useSearchFilterCallbacks = (searchType, openSubMenu, toggleFilter, clearAl
     };
 }
 
-const organizeFiltersAsSections = (filters, expandedCategories) => (
+const organizeFiltersAsSections = (filters, expandedCategories, autoExpand) => (
     filters.map(filterNode => {
-        const expanded = expandedCategories.has(filterNode.title);
+        const expanded = autoExpand || expandedCategories.has(filterNode.title);
         return {
             filterNode,
             expanded,
@@ -65,8 +65,9 @@ const useFilterSearcher = (filtersValid, availableFilters, currFilterName) => {
     const [expandedFilterCategories, setExpandedFilterCategories] = React.useState(new Set());
     const onFilterQueryChange = query => setFilterQuery(query);
     const filterSearcher = new FilterSearcher(getCurrFilters(filtersValid, availableFilters));
-    const displayedFilters = filterSearcher.search(filterQuery, false);
-    const filterSections = organizeFiltersAsSections(displayedFilters, expandedFilterCategories);
+    const displayedFilters = filterSearcher.getMatchingFilterTree(filterQuery, false);
+    const autoExpand = filterQuery && filterQuery !== "";
+    const filterSections = organizeFiltersAsSections(displayedFilters, expandedFilterCategories, autoExpand);
     return {
         filterSections,
         onFilterQueryChange,
@@ -122,13 +123,11 @@ export const SearchFilterPage = ({
                     />
                 )}
                 renderItem={({ item: filterNode}) => (
-                    expanded && (
-                        <SearchFilter
-                            toggleFilter={toggleFilterBound}
-                            filterNode={filterNode}
-                            indented
-                        />
-                    )
+                    <SearchFilter
+                        toggleFilter={toggleFilterBound}
+                        filterNode={filterNode}
+                        indented
+                    />
                 )}
                 ListHeaderComponent={() => (
                     <View>
