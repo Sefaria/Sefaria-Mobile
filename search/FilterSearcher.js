@@ -6,7 +6,7 @@ export class FilterSearcher {
     }
     static _normalizeQuery = query => Sefaria.util.regexEscape(query).replace(/[^\w\s\-\u05d0-\u05ea]/g, "");
     static _getRegex = query => new RegExp(`(?:^|.+\\s)${query}.*`, "i");
-    static _queryMatchesText = (query, text) => text.match(this._getRegex(query));
+    static _queryMatchesText = (query, text) => this._getRegex(query).test(text);
     static _queryMatchesFilter = (query, filter) => (
         filter.selected ||
         this._queryMatchesText(query, filter.title) ||
