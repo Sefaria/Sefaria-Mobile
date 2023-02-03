@@ -91,7 +91,7 @@ const getSections = (categories, contents, recurseLevel=0) => {
   return finalItems;
 };
 
-const ReaderNavigationCategoryMenu = ({
+const TextsCategoryPage = ({
   category,
   categories,
   setCategories,
@@ -156,7 +156,7 @@ const ReaderNavigationCategoryMenu = ({
     </View>
   );
 }
-ReaderNavigationCategoryMenu.propTypes = {
+TextsCategoryPage.propTypes = {
   category:       PropTypes.string.isRequired,
   categories:     PropTypes.array.isRequired,
   setCategories:  PropTypes.func.isRequired,
@@ -285,4 +285,4 @@ const BookButton = ({
 }
 
 
-export default ReaderNavigationCategoryMenu;
+export default TextsCategoryPage;

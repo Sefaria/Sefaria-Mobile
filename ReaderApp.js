@@ -37,7 +37,7 @@ import strings from './LocalizedStrings';
 import Sefaria from './sefaria';
 import { LinkFilter } from './Filter';
 import ReaderDisplayOptionsMenu from './ReaderDisplayOptionsMenu';
-import ReaderNavigationMenu from './ReaderNavigationMenu';
+import TextsPage from './TextsPage';
 import ReaderTextTableOfContents from './ReaderTextTableOfContents';
 import SearchPage from './search/SearchPage';
 import AutocompletePage from './search/AutocompletePage';
@@ -1867,7 +1867,7 @@ class ReaderApp extends React.PureComponent {
           loading ?
           <LoadingView /> :
           (<View style={{flex:1, flexDirection: 'row'}}>
-            <ReaderNavigationMenu
+            <TextsPage
               searchQuery={this.state.searchQuery}
               categories={this.state.navigationCategories}
               setCategories={this.setNavigationCategories}

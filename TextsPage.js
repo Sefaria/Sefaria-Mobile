@@ -26,7 +26,7 @@ import { STATE_ACTIONS, DispatchContext, GlobalStateContext, getTheme } from './
 import VersionNumber from 'react-native-version-number';
 import ActionSheet from 'react-native-action-sheet';
 import SearchBar from './search/SearchBar';
-import ReaderNavigationCategoryMenu from './ReaderNavigationCategoryMenu';
+import TextsCategoryPage from './TextsCategoryPage';
 import styles from './Styles.js';
 import strings from './LocalizedStrings.js';
 import Sefaria from './sefaria';
@@ -39,7 +39,7 @@ import { useAsyncVariable } from './Hooks';
 import {iconData} from "./IconData";
 
 
-const ReaderNavigationMenu = props => {
+const TextsPage = props => {
   // The Navigation menu for browsing and searching texts
   const { themeStr, interfaceLanguage, textLanguage } = useContext(GlobalStateContext);
   const [showMore, setShowMore] = useState(false);
@@ -47,7 +47,7 @@ const ReaderNavigationMenu = props => {
 
   if (props.categories.length) {
     // List of Text in a Category
-    return (<ReaderNavigationCategoryMenu
+    return (<TextsCategoryPage
               key={props.categories.slice(-1)[0]}
               categories={props.categories}
               category={props.categories.slice(-1)[0]}
@@ -105,7 +105,7 @@ const ReaderNavigationMenu = props => {
                 openSaved={props.openSaved}
               />
 
-              <ReaderNavigationMenuSection
+              <TextsPageSection
                 title={strings.browse}
                 heTitle="טקסטים"
                 content={categories}
@@ -143,7 +143,7 @@ const ReaderNavigationMenu = props => {
           </View>);
   }
 }
-ReaderNavigationMenu.propTypes = {
+TextsPage.propTypes = {
   categories:     PropTypes.array.isRequired,
   setCategories:  PropTypes.func.isRequired,
   openRef:        PropTypes.func.isRequired,
@@ -162,7 +162,7 @@ ReaderNavigationMenu.propTypes = {
   searchType:     PropTypes.oneOf(['text', 'sheet']).isRequired,
   logout:         PropTypes.func.isRequired,
 };
-ReaderNavigationMenu.whyDidYouRender = true;
+TextsPage.whyDidYouRender = true;
 
 const AuthSection = ({ openLogin, openRegister, logout, }) => {
   const { isLoggedIn } = useContext(GlobalStateContext);
@@ -187,7 +187,7 @@ const AuthSection = ({ openLogin, openRegister, logout, }) => {
     </View>
   );
   return (
-    <ReaderNavigationMenuSection
+    <TextsPageSection
       hasmore={false}
       title={strings.account.toUpperCase()}
       heTitle={strings.account}
@@ -344,7 +344,7 @@ const CalendarSection = ({ openRef, openUri }) => {
   const calItems = Sefaria.getCalendars(preferredCustom, galusOrIsrael === 'diaspora');
   const isHeb = Sefaria.util.get_menu_language(interfaceLanguage, textLanguage) == 'hebrew';
   return (
-    <ReaderNavigationMenuSection
+    <TextsPageSection
       hasmore={false}
       title={strings.calendar}
       heTitle={strings.calendar}
@@ -401,7 +401,7 @@ const SavedHistorySection = ({ themeStr, isHeb, openHistory, openSaved }) => (
   </TwoBox>
 );
 
-const ReaderNavigationMenuSection = ({ title, heTitle, content, hasmore, moreClick }) => {
+const TextsPageSection = ({ title, heTitle, content, hasmore, moreClick }) => {
   // A Section on the main navigation which includes a title over a grid of options
   const { themeStr, interfaceLanguage } = useContext(GlobalStateContext);
   const theme = getTheme(themeStr);
@@ -425,14 +425,14 @@ const ReaderNavigationMenuSection = ({ title, heTitle, content, hasmore, moreCli
             { content }
           </View>);
 }
-ReaderNavigationMenuSection.propTypes = {
+TextsPageSection.propTypes = {
   title:         PropTypes.string,
   heTitle:       PropTypes.string,
   content:       PropTypes.object,
   hasmore:       PropTypes.bool,
   moreClick:     PropTypes.func
 };
-ReaderNavigationMenuSection.whyDidYouRender = true;
+TextsPageSection.whyDidYouRender = true;
 
 
-export default ReaderNavigationMenu;
+export default TextsPage;
