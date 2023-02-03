@@ -819,7 +819,6 @@ const LoadingView = ({ style, category, size, height, color=Sefaria.palette.colo
 );
 
 const useCheckboxIconName = (state) => {
-  const { themeStr } = useContext(GlobalStateContext);
   const iconNameSuffixMap = ['unchecked', 'checked', 'partially'];
   return `checkbox-${iconNameSuffixMap[state]}`;
 }

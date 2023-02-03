@@ -6,7 +6,7 @@ import {
     View,
     Text,
     TouchableOpacity,
-    Image, FlatList,
+    Image, FlatList, SectionList,
 } from 'react-native';
 
 import {FilterNode, SearchPropTypes} from '@sefaria/search';
@@ -53,14 +53,27 @@ const useSearchFilterCallbacks = (searchType, openSubMenu, toggleFilter, clearAl
     };
 }
 
+const organizeFiltersAsSections = (filters, expandedCategories) => (
+    filters.map(filterNode => ({
+        filterNode,
+        data: filterNode.getLeafNodes().map(child => ({
+            filterNode: child,
+            expanded: expandedCategories.has(filterNode.title),
+        })).filter(data => data.expanded),
+    }))
+);
+
 const useFilterSearcher = (filtersValid, availableFilters, currFilterName) => {
     const [filterQuery, setFilterQuery] = React.useState("");
+    const [expandedFilterCategories, setExpandedFilterCategories] = React.useState(new Set());
     const onFilterQueryChange = query => setFilterQuery(query);
     const filterSearcher = new FilterSearcher(getCurrFilters(filtersValid, availableFilters, currFilterName));
     const displayedFilters = filterSearcher.search(filterQuery, true)
+    const filterSections = organizeFiltersAsSections(displayedFilters, expandedFilterCategories);
     return {
-        displayedFilters,
+        filterSections,
         onFilterQueryChange,
+        setExpandedFilterCategories,
         filterQuery,
     };
 };
@@ -87,23 +100,41 @@ export const SearchFilterPage = ({
 }) => {
     const { toggleFilterBound, onResetPress, onSetSearchOptions, applyFilters } = useSearchFilterCallbacks(searchState.type, openSubMenu, toggleFilter, clearAllFilters, search, query);
     const currFilterName = subMenuOpen === "filter" ? null : subMenuOpen;
-    const { displayedFilters, onFilterQueryChange, filterQuery } = useFilterSearcher(searchState.filtersValid, searchState.availableFilters, currFilterName);
+    const { filterSections, onFilterQueryChange, filterQuery, setExpandedFilterCategories } = useFilterSearcher(searchState.filtersValid, searchState.availableFilters, currFilterName);
+    const expandFilter = (title) => setExpandedFilterCategories(prev => {
+        const next = new Set(prev);
+        if (next.has(title)) {
+            next.delete(title);
+        } else {
+            next.add(title);
+        }
+        return next;
+    })
     const buttonToggleSetData = new ButtonToggleSetData(searchState.type, searchState, setSearchOptions, onSetSearchOptions);
     return (
         <View style={{flex: 1}}>
-            <FlatList
+            <SectionList
                 contentContainerStyle={styles.menuContent}
-                data={displayedFilters}
-                renderItem={({ item:filterNode }) => (
+                sections={filterSections}
+                renderSectionHeader={({ section: { filterNode } }) => (
                     <SearchFilter
-                    toggleFilter={toggleFilterBound}
-                    filterNode={filterNode}
-                    openSubMenu={openSubMenu}
+                        toggleFilter={toggleFilterBound}
+                        filterNode={filterNode}
+                        expandFilter={expandFilter}
                     />
+                )}
+                renderItem={({ item: { filterNode, expanded }}) => (
+                    expanded && (
+                        <SearchFilter
+                            toggleFilter={toggleFilterBound}
+                            filterNode={filterNode}
+                            indented
+                        />
+                    )
                 )}
                 ListHeaderComponent={() => (
                     <View>
-                        { subMenuOpen === "filter" && <RootFilterButtons buttonToggleSetData={buttonToggleSetData} onResetPress={onResetPress} />}
+                        <RootFilterButtons buttonToggleSetData={buttonToggleSetData} onResetPress={onResetPress} />
                         <LocalSearchBar onChange={onFilterQueryChange} query={filterQuery} />
                     </View>
                 )}
@@ -155,14 +186,14 @@ const RootFilterButtons = ({ onResetPress, buttonToggleSetData }) => {
     )
 }
 
-const SearchFilter = ({filterNode, openSubMenu, toggleFilter}) => {
+const SearchFilter = ({filterNode, expandFilter, toggleFilter, indented}) => {
     const { theme } = useGlobalState();
-    const {title, heTitle, selected, children, docCount} = filterNode;
+    const {title, heTitle, selected, docCount} = filterNode;
     const clickCheckBox = () => toggleFilter(filterNode);
-    const onPress = () => { openSubMenu ? openSubMenu(title) : clickCheckBox() }
+    const onPress = () => { expandFilter ? expandFilter(title) : clickCheckBox() }
     const countStr = `(${docCount})`;
     return (
-        <TouchableOpacity onPress={onPress}>
+        <TouchableOpacity onPress={onPress} style={{marginLeft: indented ? 30 : 0}}>
             <FlexFrame justifyContent={"space-between"}>
                 <FlexFrame>
                     <IndeterminateCheckBox onPress={clickCheckBox} state={selected} />
