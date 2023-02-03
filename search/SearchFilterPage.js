@@ -63,14 +63,16 @@ const organizeFiltersAsSections = (filters, expandedCategories) => (
 const useFilterSearcher = (filtersValid, availableFilters) => {
     const [filterQuery, setFilterQuery] = React.useState("");
     const [expandedFilterCategories, setExpandedFilterCategories] = React.useState(new Set());
-    const filterSearcher = new FilterSearcher(getCurrFilters(filtersValid, availableFilters));
-    const displayedFilters = filterSearcher.getMatchingFilterTree(filterQuery, false);
-    const filterSections = organizeFiltersAsSections(displayedFilters, expandedFilterCategories);
-    const onFilterQueryChange = query => {
+    const filterSections = React.useMemo(() => {
+        const filterSearcher = new FilterSearcher(getCurrFilters(filtersValid, availableFilters));
+        const displayedFilters = filterSearcher.getMatchingFilterTree(filterQuery, false);
+        return organizeFiltersAsSections(displayedFilters, expandedFilterCategories);
+    }, [filtersValid, availableFilters, filterQuery, expandedFilterCategories]);
+    const onFilterQueryChange = React.useCallback(query => {
         // expand all filter sections to show query results
         setExpandedFilterCategories(new Set(filterSections.map(filterSection => filterSection.filterNode.title)));
         setFilterQuery(query);
-    }
+    }, [filterSections]);
     return {
         filterSections,
         onFilterQueryChange,
@@ -111,10 +113,11 @@ export const SearchFilterPage = ({
     })
     const buttonToggleSetData = new ButtonToggleSetData(searchState.type, searchState, setSearchOptions, onSetSearchOptions);
     return (
-        <View style={{flex: 1}}>
+        <View style={styles.flex1}>
             <SectionList
                 contentContainerStyle={styles.menuContent}
                 sections={filterSections}
+                keyExtractor={item => item.title}
                 renderSectionHeader={({ section: { filterNode, expanded } }) => (
                     <SearchFilter
                         toggleFilter={toggleFilterBound}
@@ -144,7 +147,6 @@ export const SearchFilterPage = ({
         </View>);
 }
 SearchFilterPage.propTypes = {
-    subMenuOpen: PropTypes.string.isRequired,
     toggleFilter: PropTypes.func.isRequired,
     clearAllFilters: PropTypes.func.isRequired,
     query: PropTypes.string,
