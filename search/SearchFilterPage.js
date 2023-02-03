@@ -49,9 +49,9 @@ const useSearchFilterCallbacks = (searchType, openSubMenu, toggleFilter, clearAl
     };
 }
 
-const organizeFiltersAsSections = (filters, expandedCategories, autoExpand) => (
+const organizeFiltersAsSections = (filters, expandedCategories) => (
     filters.map(filterNode => {
-        const expanded = autoExpand || expandedCategories.has(filterNode.title);
+        const expanded = expandedCategories.has(filterNode.title);
         return {
             filterNode,
             expanded,
@@ -63,11 +63,14 @@ const organizeFiltersAsSections = (filters, expandedCategories, autoExpand) => (
 const useFilterSearcher = (filtersValid, availableFilters, currFilterName) => {
     const [filterQuery, setFilterQuery] = React.useState("");
     const [expandedFilterCategories, setExpandedFilterCategories] = React.useState(new Set());
-    const onFilterQueryChange = query => setFilterQuery(query);
     const filterSearcher = new FilterSearcher(getCurrFilters(filtersValid, availableFilters));
     const displayedFilters = filterSearcher.getMatchingFilterTree(filterQuery, false);
-    const autoExpand = filterQuery && filterQuery !== "";
-    const filterSections = organizeFiltersAsSections(displayedFilters, expandedFilterCategories, autoExpand);
+    const filterSections = organizeFiltersAsSections(displayedFilters, expandedFilterCategories);
+    const onFilterQueryChange = query => {
+        // expand all filter sections to show query results
+        setExpandedFilterCategories(new Set(filterSections.map(filterSection => filterSection.filterNode.title)));
+        setFilterQuery(query);
+    }
     return {
         filterSections,
         onFilterQueryChange,
