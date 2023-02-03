@@ -1,8 +1,10 @@
+import Sefaria from "../sefaria";
+
 export class FilterSearcher {
     constructor(filters) {
         this.filters = filters;
     }
-    static _escapeQuery = query => query.replace("-", "\-").replace(/[^\w\s\-]/g, "");
+    static _normalizeQuery = query => Sefaria.util.regexEscape(query).replace(/[^\w\s\-\u05d0-\u05ea]/g, "");
     static _getRegex = query => new RegExp(`(?:^|.+\\s)${query}.*`, "i");
     static _queryMatchesText = (query, text) => text.match(this._getRegex(query));
     static _queryMatchesFilter = (query, filter) => (
@@ -12,8 +14,8 @@ export class FilterSearcher {
     );
 
     static _hasWordStartingWithOrSelected = (filter, query) => {
-        const escapedQuery = this._escapeQuery(query);
-        return this._hasWordStartingWithOrSelectedRecursive(filter, escapedQuery);
+        query = this._normalizeQuery(query);
+        return this._hasWordStartingWithOrSelectedRecursive(filter, query);
     };
 
     static _hasWordStartingWithOrSelectedRecursive = (filter, escapedQuery) => {
