@@ -21,15 +21,11 @@ import {iconData} from "../IconData";
 import {FilterSearcher} from "./FilterSearcher";
 import {useGlobalState} from "../Hooks";
 
-const getCurrFilters = (filtersValid, availableFilters, currFilterName) => {
+const getCurrFilters = (filtersValid, availableFilters) => {
     if (!filtersValid) {
         return [];
     }
-    if (!currFilterName) {
-        return availableFilters;
-    }
-    const currFilter = FilterNode.findFilterInList(availableFilters, currFilterName);
-    return [currFilter].concat(currFilter.getLeafNodes());
+    return availableFilters;
 };
 
 const useSearchFilterCallbacks = (searchType, openSubMenu, toggleFilter, clearAllFilters, search, query) => {
@@ -68,7 +64,7 @@ const useFilterSearcher = (filtersValid, availableFilters, currFilterName) => {
     const [filterQuery, setFilterQuery] = React.useState("");
     const [expandedFilterCategories, setExpandedFilterCategories] = React.useState(new Set());
     const onFilterQueryChange = query => setFilterQuery(query);
-    const filterSearcher = new FilterSearcher(getCurrFilters(filtersValid, availableFilters, currFilterName));
+    const filterSearcher = new FilterSearcher(getCurrFilters(filtersValid, availableFilters));
     const displayedFilters = filterSearcher.search(filterQuery, true)
     const filterSections = organizeFiltersAsSections(displayedFilters, expandedFilterCategories);
     return {
