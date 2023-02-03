@@ -54,14 +54,14 @@ const useSearchFilterCallbacks = (searchType, openSubMenu, toggleFilter, clearAl
 }
 
 const organizeFiltersAsSections = (filters, expandedCategories) => (
-    filters.map(filterNode => ({
-        filterNode,
-        expanded: expandedCategories.has(filterNode.title),
-        data: filterNode.getLeafNodes().map(child => ({
-            filterNode: child,
-            expanded: expandedCategories.has(filterNode.title),
-        })).filter(data => data.expanded),
-    }))
+    filters.map(filterNode => {
+        const expanded = expandedCategories.has(filterNode.title);
+        return {
+            filterNode,
+            expanded,
+            data: expanded ? filterNode.getLeafNodes() : [],
+        };
+    })
 );
 
 const useFilterSearcher = (filtersValid, availableFilters, currFilterName) => {
@@ -125,7 +125,7 @@ export const SearchFilterPage = ({
                         expanded={expanded}
                     />
                 )}
-                renderItem={({ item: { filterNode, expanded }}) => (
+                renderItem={({ item: filterNode}) => (
                     expanded && (
                         <SearchFilter
                             toggleFilter={toggleFilterBound}
