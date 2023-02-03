@@ -8,7 +8,7 @@ export class FilterSearcher {
     static _getRegex = query => new RegExp(`(?:^|.+\\s)${query}.*`, "i");
     static _queryMatchesText = (query, text) => this._getRegex(query).test(text);
     static _queryMatchesFilter = (query, filter) => (
-        filter.selected ||
+        !!filter.selected ||
         this._queryMatchesText(query, filter.title) ||
         this._queryMatchesText(query, filter.heTitle)
     );
