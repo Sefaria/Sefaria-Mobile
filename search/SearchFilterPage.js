@@ -90,7 +90,6 @@ const FilterLoadingView = () => {
 }
 
 export const SearchFilterPage = ({
-    subMenuOpen,
     toggleFilter,
     clearAllFilters,
     query,

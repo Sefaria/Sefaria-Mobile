@@ -24,7 +24,6 @@ const SearchPage = props => {
       //either "filter" or any top level category cateory
       content = (
         <SearchFilterPage
-          subMenuOpen={props.subMenuOpen}
           openSubMenu={props.openSubMenu}
           query={props.query}
           search={props.search}
