@@ -15,11 +15,11 @@ import ActionSheet from 'react-native-action-sheet';
 
 import {
   SText,
-} from './Misc';
-import styles from './Styles';
-import strings from './LocalizedStrings';
-import { Topic } from './Topic';
-import {iconData} from "./IconData";
+} from '../Misc';
+import styles from '../Styles';
+import strings from '../LocalizedStrings';
+import { Topic } from '../Topic';
+import {iconData} from "../IconData";
 
 class AutocompleteList extends React.Component {
   static propTypes = {

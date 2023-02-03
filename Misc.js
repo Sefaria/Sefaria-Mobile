@@ -20,7 +20,7 @@ import {
   useWindowDimensions,
 } from 'react-native';
 import { GlobalStateContext, DispatchContext, STATE_ACTIONS, themeStr, getTheme } from './StateManager';
-import { useGlobalState, useRenderersProps } from './Hooks';
+import {useGlobalState, useRenderersProps, useRtlFlexDir} from './Hooks';
 import Sefaria from './sefaria';
 import styles from './Styles.js';
 import {iconData } from "./IconData";
@@ -34,7 +34,6 @@ const CSS_CLASS_STYLES = {
     fontFamily: "Taamey Frank Taamim Fix",
     writingDirection: "rtl",
     flex: -1,
-    paddingTop: 15,
     textAlign: Platform.OS == "android" ? "right" : "justify",
   },
   english: {
@@ -785,46 +784,13 @@ ToggleSet.propTypes = {
   active:      PropTypes.string.isRequired
 };
 
-const ButtonToggleSet = ({ options, active }) => {
-  const { themeStr, interfaceLanguage } = useContext(GlobalStateContext);
-  const theme = getTheme(themeStr);
-  var showHebrew = interfaceLanguage == "hebrew";
-  const optionComponents = options.map((option, i) => {
-
-    let alignStyle;
-    if (i == options.length -1) { alignStyle = styles.readerDisplayOptionsMenuItemRight; }
-    else if (i == 0)            { alignStyle = styles.readerDisplayOptionsMenuItemLeft; }
-    else                        { alignStyle = styles.readerDisplayOptionsMenuItemCenter; }
-
-    var itemStyles = [styles.readerDisplayOptionsMenuItem, theme.readerDisplayOptionsMenuItem, alignStyle];
-    itemStyles = itemStyles.concat(active === option.name ? [theme.readerDisplayOptionsMenuItemSelected] : []);
-    return (
-      <TouchableOpacity onPress={option.onPress} key={i} style={itemStyles}>
-        {showHebrew ?
-          <Text style={[styles.heInt, theme.tertiaryText]}>{option.text}</Text> :
-          <Text style={[styles.enInt, theme.tertiaryText]}>{option.text}</Text> }
-      </TouchableOpacity>
-    );
-  });
-
-  return (
-    <View style={[styles.readerDisplayOptionsMenuRow, styles.buttonToggleSet]}>
-      {optionComponents}
-    </View>
-  );
-}
-ButtonToggleSet.propTypes = {
-  options:     PropTypes.array.isRequired, // array of object with `name`. `text`, `onPress`
-  active:      PropTypes.oneOfType([PropTypes.bool, PropTypes.string])
-};
-
-const ButtonToggleSetNew = ({ options, active }) => {
+const ButtonToggleSet= ({ options, active }) => {
   /* based on new styles guide */
   const { themeStr, interfaceLanguage } = useContext(GlobalStateContext);
   const theme = getTheme(themeStr);
   const isHeb = interfaceLanguage === 'hebrew';
   return (
-    <View style={[styles.readerDisplayOptionsMenuRow, styles.boxShadow, styles.buttonToggleSetNew, theme.mainTextPanel]}>
+    <View style={[styles.readerDisplayOptionsMenuRow, styles.boxShadow, styles.buttonToggleSet, theme.mainTextPanel]}>
       {
         options.map(option => {
           const isActive = active === (typeof option.value == 'undefined' ? option.name : option.value);
@@ -852,29 +818,43 @@ const LoadingView = ({ style, category, size, height, color=Sefaria.palette.colo
   </View>
 );
 
-const IndeterminateCheckBox = ({ state, onPress }) => {
-  const { themeStr } = useContext(GlobalStateContext);
-  let iconName;
-  if (state === 1) {
-    iconName = 'checkbox-checked';
-  } else if (state === 0) {
-    iconName = 'checkbox-unchecked';
-  } else {
-    iconName = 'checkbox-partially';
-  }
-  const src = iconData.get(iconName, themeStr);
+const useCheckboxIconName = (state) => {
+  const iconNameSuffixMap = ['unchecked', 'checked', 'partially'];
+  return `checkbox-${iconNameSuffixMap[state]}`;
+}
 
+const IndeterminateCheckBox = ({ state, onPress }) => {
+  const iconName = useCheckboxIconName(state);
   return (
     <TouchableOpacity onPress={onPress}>
-      <Image source={src}
-        resizeMode={'contain'}
-        style={styles.searchFilterCheckBox} />
+      <Icon name={iconName} extraStyles={[styles.searchFilterCheckBox]} />
     </TouchableOpacity>
   );
 }
 IndeterminateCheckBox.propTypes = {
   state:      PropTypes.oneOf([0,1,2]),
   onPress:    PropTypes.func.isRequired,
+};
+
+/**
+ * Icon component to be used wherever an icon from `IconData` is needed
+ * @param name - name of the icon
+ * @param length - assumption is the icon has the same width and height
+ * @param isSelected
+ * @param extraStyles - list of extra styles for icon
+ * @returns {JSX.Element}
+ * @constructor
+ */
+const Icon = ({ name, length, isSelected, extraStyles=[] }) => {
+  const { themeStr } = useGlobalState();
+  const icon = iconData.get(name, themeStr, isSelected);
+  return (
+     <Image
+         source={icon}
+         resizeMode={'contain'}
+         style={[{width: length, height: length}].concat(extraStyles)}
+     />
+  );
 };
 
 class RainbowBar extends React.Component {
@@ -939,7 +919,7 @@ class SText extends React.Component {
   }
 }
 
-const TabRowView = ({ tabs, renderTab, currTabId, setTab, flexDirection='row' }) => {
+const TabRowView = ({ tabs, renderTab, currTabId, setTab, flexDirection='row', RowEndComponent=null }) => {
   const { theme } = useGlobalState();
   const renderTabWrapper = (tab) => {
     const active = currTabId === tab.id;
@@ -950,13 +930,16 @@ const TabRowView = ({ tabs, renderTab, currTabId, setTab, flexDirection='row' })
     );
   };
   return (
-    <View style={[{ flexDirection, borderBottomWidth: 1, marginHorizontal: -15, paddingHorizontal: 15, alignItems: "flex-end" }, theme.borderedBottom]}>
-      {tabs.map(renderTabWrapper)}
+    <View style={[{ flexDirection, borderBottomWidth: 1, marginHorizontal: -15, paddingHorizontal: 15, alignItems: "center", justifyContent: "space-between" }, theme.borderedBottom]}>
+      <View style={[{flexDirection}]}>
+        {tabs.map(renderTabWrapper)}
+      </View>
+      {RowEndComponent}
     </View>
   );
 }
 
-const TabView = ({ text, active, lang }) => {
+const TabView = ({ active, lang, ...tabTextProps }) => {
   /*
   Standard Sefaria Tab to be used in renderTab of TabRowView
   */
@@ -965,8 +948,15 @@ const TabView = ({ text, active, lang }) => {
   const style = {marginRight: lang === 'hebrew' ? 0 : 20, marginLeft: lang === 'hebrew' ? 20 : 0};
   return (
     <View style={[{ paddingVertical: 10, borderBottomWidth: 4, borderBottomColor: "transparent" }, style].concat(active ? activeBorderStyle : [])}>
-      <Text style={[styles.enInt, {fontSize: 22, fontWeight: 'bold'}, active ? theme.tertiaryText : theme.secondaryText]}>{ text }</Text>
+      <TabText active={active} {...tabTextProps} />
     </View>
+  );
+};
+
+const TabText = ({ active, text, baseTextStyles, activeTextStyle, inactiveTextStyle }) => {
+  const textStyle = baseTextStyles.concat([active ? activeTextStyle : inactiveTextStyle]);
+  return (
+      <Text style={textStyle}>{ text }</Text>
   );
 };
 
@@ -1005,7 +995,7 @@ const CancelButton = ({ onPress, extraStyles=[] }) => {
   return (
     <TouchableOpacity onPress={onPress} accessibilityLabel="close">
       <Image
-        source={iconData.get('circle-close', themeStr)}
+        source={iconData.get('close', themeStr)}
         style={[styles.cancelSearchButton].concat(extraStyles)}
         resizeMode={'contain'}
       />
@@ -1301,10 +1291,19 @@ const SefariaPressable = ({ children, extraStyles=[], ...pressableProps }) => {
   );
 }
 
+const FlexFrame = ({ dir, justifyContent, alignItems, children }) => {
+  const { interfaceLanguage } = useGlobalState();
+  const flexDirection = useRtlFlexDir(interfaceLanguage, dir );
+  return (
+    <View style={{flexDirection, justifyContent, alignItems}}>
+      {children}
+    </View>
+  );
+};
+
 export {
   AnimatedRow,
   ButtonToggleSet,
-  ButtonToggleSetNew,
   CancelButton,
   CategoryBlockLink,
   CategoryAttribution,
@@ -1322,7 +1321,9 @@ export {
   DisplaySettingsButton,
   DotSeparatedList,
   FilterableFlatList,
+  FlexFrame,
   HebrewInEnglishText,
+  Icon,
   IndeterminateCheckBox,
   InterfaceTextWithFallback,
   LanguageToggleButton,

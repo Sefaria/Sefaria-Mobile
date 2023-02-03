@@ -291,6 +291,7 @@ Sefaria = {
     const ref = url.replace(/\./g, ':');
     return { ref, title };
   },
+  normHebrewRef: tref => tref.replace(/[׳״]/g, ''),
   addPageToWholeDafRef: function(ref, sectionName) {
     if (sectionName === 'Daf' && /\d$/.test(ref)) {
       ref += 'a';

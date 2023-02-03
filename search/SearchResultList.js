@@ -9,8 +9,8 @@ import {
   View
 } from 'react-native';
 
-import styles from './Styles';
-import SearchTextResult from './SearchTextResult';
+import styles from '../Styles';
+import {SearchTextResult} from './SearchTextResult';
 import SearchSheetResult from './SearchSheetResult';
 
 class SearchResultList extends React.Component {
@@ -31,34 +31,40 @@ class SearchResultList extends React.Component {
   };
 
   renderRow = ({ item }) => {
+    const { searchType } = this.props;
+    const renderer = searchType === "sheet" ? this.renderSheetResult : this.renderTextResult;
+    return renderer({ item });
+  };
 
-    if (this.props.searchType == "sheet") {
-    var refToOpen = "Sheet "+ item.id
-      return (
+  renderSheetResult = ({ item }) => {
+    const refToOpen = "Sheet "+ item.id
+    return (
         <SearchSheetResult
-          textType={item.textType}
-          title={item.title}
-          heTitle={item.heTitle}
-          text={item.text}
-          ownerImageUrl={item.metadata.ownerImageUrl}
-          ownerName={item.metadata.ownerName}
-          views={item.metadata.views}
-          tags={item.metadata.tags}
-          onPress={this.props.openRef.bind(null,refToOpen)} />
-      );
-    }
-    else
-      {
-          return (
-              <SearchTextResult
-                  textType={item.textType}
-                  title={item.title}
-                  heTitle={item.heTitle}
-                  text={item.text}
-                  version={item.version}
-                  onPress={this.props.openRef.bind(null, item.title)}/>
-          );
-      }
+            textType={item.textType}
+            title={item.title}
+            heTitle={item.heTitle}
+            text={item.text}
+            ownerImageUrl={item.metadata.ownerImageUrl}
+            ownerName={item.metadata.ownerName}
+            views={item.metadata.views}
+            tags={item.metadata.tags}
+            onPress={this.props.openRef.bind(null,refToOpen)}
+        />
+    );
+  };
+
+  renderTextResult = ({ item }) => {
+    return (
+        <SearchTextResult
+            lang={item.textType}
+            tref={item.title}
+            heTref={item.heTitle}
+            text={item.text}
+            versionTitle={item.version}
+            openRef={this.props.openRef}
+            duplicates={item.duplicates}
+        />
+    );
   };
 
   componentDidUpdate() {

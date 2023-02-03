@@ -8,9 +8,9 @@ import {
   View,
   Image
 } from 'react-native';
-import { SimpleHTMLView } from './Misc';
-import { GlobalStateContext, getTheme } from './StateManager';
-import styles from './Styles.js';
+import { SimpleHTMLView } from '../Misc';
+import { GlobalStateContext, getTheme } from '../StateManager';
+import styles from '../Styles.js';
 
 const SearchSheetResult = ({
   text,
