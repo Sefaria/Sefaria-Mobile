@@ -65,7 +65,7 @@ const useFilterSearcher = (filtersValid, availableFilters, currFilterName) => {
     const [expandedFilterCategories, setExpandedFilterCategories] = React.useState(new Set());
     const onFilterQueryChange = query => setFilterQuery(query);
     const filterSearcher = new FilterSearcher(getCurrFilters(filtersValid, availableFilters));
-    const displayedFilters = filterSearcher.search(filterQuery, true)
+    const displayedFilters = filterSearcher.search(filterQuery, false);
     const filterSections = organizeFiltersAsSections(displayedFilters, expandedFilterCategories);
     return {
         filterSections,
