@@ -84,8 +84,11 @@ describe('search filters', () => {
     const queries = [
         {query: "Blah", toMatchFilter: getf("Genesis")},
         {query: "איוב", toMatchFilter: getf("Job")},
+        {query: "איו", toMatchFilter: getf("Rashi on Job")},
+        {query: "רשי", toMatchFilter: getf("Rashi on Job")},
     ];
     test.each(queries)('queryMatchesFilter', ({ query, toMatchFilter, toNotMatchFilter }) => {
+        query = FS._normalizeQuery(query);
         const testResult = FS._queryMatchesFilter(query, toMatchFilter || toNotMatchFilter);
         const expectedResult = !!toMatchFilter;
         expect(testResult).toBe(expectedResult);
