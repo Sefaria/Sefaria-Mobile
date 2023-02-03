@@ -73,9 +73,8 @@ const getFilterByEnTitle = (filterTree, enTitle) => {
         if (filter.title === enTitle) {
             return filter;
         }
-        if (filter.children) {
-            return getFilterByEnTitle(filter.children, enTitle);
-        }
+        const filterChild = getFilterByEnTitle(filter.children || [], enTitle);
+        if (filterChild) { return filterChild; }
     }
 };
 
@@ -83,9 +82,9 @@ describe('search filters', () => {
     const filterTree = getFilterTree();
     const getf = getFilterByEnTitle.bind(null, filterTree);
     const queries = [
-        {query: "Genesis", toMatchFilter: getf("Genesis")},
+        {query: "Blah", toMatchFilter: getf("Genesis")},
+        {query: "איוב", toMatchFilter: getf("Job")},
     ];
-    console.debug(queries);
     test.each(queries)('queryMatchesFilter', ({ query, toMatchFilter, toNotMatchFilter }) => {
         const testResult = FS._queryMatchesFilter(query, toMatchFilter || toNotMatchFilter);
         const expectedResult = !!toMatchFilter;
