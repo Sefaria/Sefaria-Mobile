@@ -6,14 +6,12 @@ import {
     View,
     Text,
     TouchableOpacity,
-    ScrollView,
     Image, FlatList,
 } from 'react-native';
 
 import {FilterNode, SearchPropTypes} from '@sefaria/search';
 import {
     ButtonToggleSet,
-    LibraryNavButton,
     SystemButton,
     IndeterminateCheckBox, Icon, FlexFrame, ContentTextWithFallback, LocalSearchBar,
 } from '../Misc.js';
