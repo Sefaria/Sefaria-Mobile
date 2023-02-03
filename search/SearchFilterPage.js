@@ -56,6 +56,7 @@ const useSearchFilterCallbacks = (searchType, openSubMenu, toggleFilter, clearAl
 const organizeFiltersAsSections = (filters, expandedCategories) => (
     filters.map(filterNode => ({
         filterNode,
+        expanded: expandedCategories.has(filterNode.title),
         data: filterNode.getLeafNodes().map(child => ({
             filterNode: child,
             expanded: expandedCategories.has(filterNode.title),
@@ -116,11 +117,12 @@ export const SearchFilterPage = ({
             <SectionList
                 contentContainerStyle={styles.menuContent}
                 sections={filterSections}
-                renderSectionHeader={({ section: { filterNode } }) => (
+                renderSectionHeader={({ section: { filterNode, expanded } }) => (
                     <SearchFilter
                         toggleFilter={toggleFilterBound}
                         filterNode={filterNode}
                         expandFilter={expandFilter}
+                        expanded={expanded}
                     />
                 )}
                 renderItem={({ item: { filterNode, expanded }}) => (
@@ -186,7 +188,7 @@ const RootFilterButtons = ({ onResetPress, buttonToggleSetData }) => {
     )
 }
 
-const SearchFilter = ({filterNode, expandFilter, toggleFilter, indented}) => {
+const SearchFilter = ({filterNode, expandFilter, toggleFilter, indented, expanded}) => {
     const { theme } = useGlobalState();
     const {title, heTitle, selected, docCount} = filterNode;
     const clickCheckBox = () => toggleFilter(filterNode);
@@ -200,7 +202,7 @@ const SearchFilter = ({filterNode, expandFilter, toggleFilter, indented}) => {
                     <ContentTextWithFallback en={title} he={heTitle} />
                     <ContentTextWithFallback en={countStr} he={countStr} extraStyles={[theme.tertiaryText]} />
                 </FlexFrame>
-                <Icon name={'forward'} length={12} />
+                { !indented && <Icon name={expanded ? 'down' : 'forward'} length={12} /> }
             </FlexFrame>
         </TouchableOpacity>
     );
