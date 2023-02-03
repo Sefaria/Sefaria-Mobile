@@ -46,3 +46,49 @@ describe('getRegex', () => {
         expect(testResult).toBe(expectedResult);
     });
 });
+
+const getFilterTree = () => {
+    return [
+        {
+            title: "Tanakh", heTitle: "תנ״ך", selected: 2, children: [
+                {title: "Genesis", heTitle: "בראשית", selected: 1},
+                {title: "Job", heTitle: "איוב", selected: 0},
+            ],
+        },
+        {
+            title: "Tanakh Commentary", heTitle: "מפרשי תנ״ך", selected: 1, children: [
+                {title: "Rashi on Job", heTitle: "רש״י על איוב", selected: 1},
+            ],
+        },
+        {
+            title: "Talmud Commentary", heTitle: "מפרשי תלמוד", selected: 0, children: [
+                {title: "Rashi on Berakhot", heTitle: "רש״י על ברכות", selected: 0},
+            ],
+        },
+    ].map(rawFilter => new FilterNode(rawFilter));
+};
+
+const getFilterByEnTitle = (filterTree, enTitle) => {
+    for (let filter of filterTree) {
+        if (filter.title === enTitle) {
+            return filter;
+        }
+        if (filter.children) {
+            return getFilterByEnTitle(filter.children, enTitle);
+        }
+    }
+};
+
+describe('search filters', () => {
+    const filterTree = getFilterTree();
+    const getf = getFilterByEnTitle.bind(null, filterTree);
+    const queries = [
+        {query: "Genesis", toMatchFilter: getf("Genesis")},
+    ];
+    console.debug(queries);
+    test.each(queries)('queryMatchesFilter', ({ query, toMatchFilter, toNotMatchFilter }) => {
+        const testResult = FS._queryMatchesFilter(query, toMatchFilter || toNotMatchFilter);
+        const expectedResult = !!toMatchFilter;
+        expect(testResult).toBe(expectedResult);
+    });
+})
