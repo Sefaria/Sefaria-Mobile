@@ -86,6 +86,8 @@ describe('search filters', () => {
         {query: "איוב", toMatchFilter: getf("Job")},
         {query: "איו", toMatchFilter: getf("Rashi on Job")},
         {query: "רשי", toMatchFilter: getf("Rashi on Job")},
+        {query: "dfad", toMatchFilter: getf("Tanakh")},
+        {query: "dfad", toNotMatchFilter: getf("Talmud Commentary")},
     ];
     test.each(queries)('queryMatchesFilter', ({ query, toMatchFilter, toNotMatchFilter }) => {
         query = FS._normalizeQuery(query);
@@ -93,4 +95,10 @@ describe('search filters', () => {
         const expectedResult = !!toMatchFilter;
         expect(testResult).toBe(expectedResult);
     });
+    test.each(queries)('_hasWordStartingWithOrSelected', ({ query, toMatchFilter, toNotMatchFilter }) => {
+        const testResult = FS._hasWordStartingWithOrSelected(toMatchFilter || toNotMatchFilter, query);
+        const expectedResult = !!toMatchFilter;
+        expect(testResult).toBe(expectedResult);
+    })
+
 })
