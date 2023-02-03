@@ -69,8 +69,15 @@ const useFilterSearcher = (filtersValid, availableFilters) => {
         return organizeFiltersAsSections(displayedFilters, expandedFilterCategories);
     }, [filtersValid, availableFilters, filterQuery, expandedFilterCategories]);
     const onFilterQueryChange = React.useCallback(query => {
-        // expand all filter sections to show query results
-        setExpandedFilterCategories(new Set(filterSections.map(filterSection => filterSection.filterNode.title)));
+        let newExpandedCategories;
+        if (query) {
+            // expand all filter sections to show query results
+            newExpandedCategories = filterSections.map(filterSection => filterSection.filterNode.title)
+        } else {
+            // close all filter sections when clearing query
+            newExpandedCategories = [];
+        }
+        setExpandedFilterCategories(new Set(newExpandedCategories));
         setFilterQuery(query);
     }, [filterSections]);
     return {
