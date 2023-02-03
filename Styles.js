@@ -1462,4 +1462,7 @@ export default StyleSheet.create({
     fontSize: 22,
     fontWeight: 'bold',
   },
+  flex1: {
+    flex: 1,
+  },
 });
