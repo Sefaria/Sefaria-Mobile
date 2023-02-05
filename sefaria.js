@@ -749,6 +749,10 @@ Sefaria = {
   },
   lastGalusStatus: null,  // last recorded galus status to be used while waiting for really slow ip2c api
   galusOrIsrael: null,
+  getDefaultGalusStatus: function(interfaceLanguage) {
+    const defaultGalusStatus = (interfaceLanguage === "hebrew" ? "israel" : "diaspora");
+    return Sefaria.galusOrIsrael || Sefaria.lastGalusStatus || defaultGalusStatus
+  },
   getGalusStatus: async function() {
     if (!!Sefaria.galusOrIsrael) {
       return Sefaria.galusOrIsrael;
