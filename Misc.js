@@ -1332,7 +1332,8 @@ const CategoryButton = ({ title, description, onPress }) => {
 
 const FlexFrame = ({ dir, justifyContent, alignItems, children }) => {
   const { interfaceLanguage } = useGlobalState();
-  const flexDirection = useRtlFlexDir(interfaceLanguage, dir );
+  // never flip column by RTL
+  const flexDirection = dir === "row" ? useRtlFlexDir(interfaceLanguage, dir ) : dir;
   return (
     <View style={{flexDirection, justifyContent, alignItems}}>
       {children}
