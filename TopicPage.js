@@ -23,7 +23,7 @@ import {
   ContentTextWithFallback,
   DotSeparatedList,
   SystemButton,
-  SefariaPressable, CategoryButton,
+  SefariaPressable, CategoryButton, GreyBoxFrame,
 } from './Misc';
 
 import {
@@ -728,13 +728,13 @@ const TopicSideColumn = ({ topic, links, openTopic, openRef, parashaData, tref }
     )
     : null;
   return (
-    <View style={[theme.lightestGreyBackground, {padding: 14, marginBottom: 30}]}>
-      { readingsComponent }
-      { linksComponent }
-      { moreButton }
-    </View>
-  )
-}
+      <GreyBoxFrame>
+        { readingsComponent }
+        { linksComponent }
+        { moreButton }
+      </GreyBoxFrame>
+  );
+};
 TopicSideColumn.propTypes = {
   topicData: PropTypes.object,
 };

@@ -1340,6 +1340,15 @@ const FlexFrame = ({ dir, justifyContent, alignItems, children }) => {
   );
 };
 
+const GreyBoxFrame = ({ children }) => {
+  const { theme } = useGlobalState();
+  return (
+      <View style={[theme.lightestGreyBackground, styles.greyBoxFrame]}>
+        { children }
+      </View>
+  );
+};
+
 export {
   AnimatedRow,
   ButtonToggleSet,
@@ -1362,6 +1371,7 @@ export {
   DotSeparatedList,
   FilterableFlatList,
   FlexFrame,
+  GreyBoxFrame,
   HebrewInEnglishText,
   Icon,
   IndeterminateCheckBox,
