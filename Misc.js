@@ -454,9 +454,19 @@ class AnimatedRow extends React.Component {
   }
 }
 
-const CategoryColorLine = ({ category }) => {
-  const style = {backgroundColor: Sefaria.palette.categoryColor(category)};
-  return (<View style={[styles.categoryColorLine, style]} />);
+/**
+ * Horizontal line that has the corresponding category color of `category`, based on Sefaria.palette.categoryColor()
+ * @param category: string top-level category name.
+ * @param thickness: int, how thick the category line is.
+ * @returns {JSX.Element}
+ * @constructor
+ */
+const CategoryColorLine = ({ category, thickness=8 }) => {
+  const style = {
+    height: thickness,
+    backgroundColor: Sefaria.palette.categoryColor(category)
+  };
+  return (<View style={style} />);
 }
 
 const CategoryAttribution = ({ categories, context, linked=true, openUri }) => {

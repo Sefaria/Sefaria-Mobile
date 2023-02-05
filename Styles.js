@@ -137,10 +137,6 @@ export default StyleSheet.create({
     alignItems: 'center',
     alignSelf: 'stretch'
   },
-  categoryColorLine: {
-    height: 8,
-    alignSelf: "stretch"
-  },
   header: {
     height: 50,
     alignItems: 'center',
