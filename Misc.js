@@ -1291,6 +1291,37 @@ const SefariaPressable = ({ children, extraStyles=[], ...pressableProps }) => {
   );
 }
 
+/**
+ * Button which displays a category title and optional description
+ * @param title: Object with keys "en" and "he"
+ * @param description Object with keys "en" and "he"
+ * @param onPress
+ * @returns {JSX.Element}
+ * @constructor
+ */
+const CategoryButton = ({ title, description, onPress }) => {
+  const { theme, menuLanguage } = useGlobalState();
+  const isHeb = menuLanguage === 'hebrew';
+  const descriptionHasContent = !!description && Object.values(description).reduce((accum, curr) => accum || !!curr, false);
+  return (
+      <SefariaPressable onPress={onPress} extraStyles={{paddingVertical: 17}}>
+        <SText
+            lang={menuLanguage}
+            style={[isHeb ? styles.he : styles.en, {fontSize: 24, marginBottom: -10}, theme.text]} lineMultiplier={1.05}
+        >
+          {isHeb ? title.he : title.en}
+        </SText>
+        {descriptionHasContent ? (
+            <InterfaceTextWithFallback
+                {...description}
+                lang={menuLanguage}
+                extraStyles={[{marginTop: 10, fontSize: 13}, theme.tertiaryText]}
+            />
+        ) : null}
+      </SefariaPressable>
+  );
+};
+
 const FlexFrame = ({ dir, justifyContent, alignItems, children }) => {
   const { interfaceLanguage } = useGlobalState();
   const flexDirection = useRtlFlexDir(interfaceLanguage, dir );
@@ -1306,6 +1337,7 @@ export {
   ButtonToggleSet,
   CancelButton,
   CategoryBlockLink,
+  CategoryButton,
   CategoryAttribution,
   CategoryColorLine,
   CategorySideColorLink,
