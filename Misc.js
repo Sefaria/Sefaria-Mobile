@@ -464,6 +464,7 @@ class AnimatedRow extends React.Component {
 const CategoryColorLine = ({ category, thickness=8 }) => {
   const style = {
     height: thickness,
+    alignSelf: "stretch",
     backgroundColor: Sefaria.palette.categoryColor(category)
   };
   return (<View style={style} />);
@@ -1330,7 +1331,7 @@ const CategoryButton = ({ title, description, onPress }) => {
   );
 };
 
-const FlexFrame = ({ dir, justifyContent, alignItems, children }) => {
+const FlexFrame = ({ dir="row", justifyContent, alignItems, children }) => {
   const { interfaceLanguage } = useGlobalState();
   // never flip column by RTL
   const flexDirection = dir === "row" ? useRtlFlexDir(interfaceLanguage, dir ) : dir;
