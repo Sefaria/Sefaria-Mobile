@@ -454,11 +454,9 @@ class AnimatedRow extends React.Component {
   }
 }
 
-class CategoryColorLine extends React.Component {
-  render() {
-    var style = {backgroundColor: Sefaria.palette.categoryColor(this.props.category)};
-    return (<View style={[styles.categoryColorLine, style]}></View>);
-  }
+const CategoryColorLine = ({ category }) => {
+  const style = {backgroundColor: Sefaria.palette.categoryColor(category)};
+  return (<View style={[styles.categoryColorLine, style]} />);
 }
 
 const CategoryAttribution = ({ categories, context, linked=true, openUri }) => {
