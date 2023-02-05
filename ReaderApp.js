@@ -37,7 +37,7 @@ import strings from './LocalizedStrings';
 import Sefaria from './sefaria';
 import { LinkFilter } from './Filter';
 import ReaderDisplayOptionsMenu from './ReaderDisplayOptionsMenu';
-import TextsPage from './TextsPage';
+import {TextsPage} from "./TextsPage";
 import ReaderTextTableOfContents from './ReaderTextTableOfContents';
 import SearchPage from './search/SearchPage';
 import AutocompletePage from './search/AutocompletePage';
