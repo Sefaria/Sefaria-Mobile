@@ -278,7 +278,7 @@ const MoreSection = ({ isHeb, openUri, openSettings, openNavMenu }) => {
         <SystemButton
           text={strings.about}
           img={iconData.get('info', themeStr)}
-          onPress={openNavMenu}
+          onPress={onAbout}
           extraStyles={[styles.systemButtonTwoBox]}
           isHeb={isHeb}
         />
