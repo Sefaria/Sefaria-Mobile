@@ -1065,7 +1065,7 @@ export default StyleSheet.create({
   dedication: {
     fontStyle: "italic",
     fontFamily: "Amiri",
-    fontSize: 14,
+    fontSize: 18,
     textAlign: "center",
     marginBottom: 20
   },
