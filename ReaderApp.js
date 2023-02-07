@@ -1950,7 +1950,7 @@ class ReaderApp extends React.PureComponent {
         return(<SettingsPage close={this.manageBackMain} logout={this.logout} openUri={this.openUri} />);
       case ("navmenu"):
         Sefaria.track.setScreen("nav", "menu")
-        return(<GeneralNavigationMenu close={this.manageBackMain} logout={this.logout} openUri={this.openUri} />);
+        return(<GeneralNavigationMenu close={this.manageBackMain} logout={this.logout} openMenu={this.openMenu} openUri={this.openUri} />);
       case ("history"):
         Sefaria.track.setScreen("history", "menu")
         return(
