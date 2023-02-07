@@ -1,4 +1,4 @@
-import {MenuItemsMeta} from "../GeneralNavigationMenu";
+import {MenuItemsMeta} from "../AccountNavigationMenu";
 
 describe('MenuItemsMeta', () => {
    test('logged in menu items', () => {
