@@ -231,7 +231,7 @@ const SefariaProgressBar = ({ onPress, onClose, download, downloadNotification, 
    * process, I imagine this will generally be listening to libraries that support Stateful Promises. This can be
    * revisited if reuseability becomes a problem.
    */
-  const { theme, interfaceLanguage } = useGlobalState();
+  const { theme, themeStr, interfaceLanguage } = useGlobalState();
   const [ progress, setProgress ] = useState(0);
   const calculateProgress = (received, total) => !!(received) ? setProgress(received / total) : setProgress(0.0);
   const downloadActive = !!downloadNotification ? downloadNotification.downloadActive : false;
