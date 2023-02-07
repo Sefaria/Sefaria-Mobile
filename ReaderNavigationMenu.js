@@ -37,6 +37,7 @@ import {
 } from './DownloadControl';
 import { useAsyncVariable } from './Hooks';
 import {iconData} from "./IconData";
+import {ShortDedication} from "./Dedication";
 
 
 const ReaderNavigationMenu = props => {
@@ -134,11 +135,8 @@ const ReaderNavigationMenu = props => {
                 openRegister={props.openRegister}
                 logout={props.logout}
               />
+              <ShortDedication openDedication={props.openDedication}/>
 
-              <Text style={[styles.dedication, isHeb ? styles.hebrewSystemFont : null, theme.secondaryText]}
-                  onPress={props.openDedication}>
-                { Platform.OS === 'ios' ? strings.dedicatedIOS : strings.dedicatedAndroid }
-              </Text>
 
             </ScrollView>
           </View>);

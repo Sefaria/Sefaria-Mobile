@@ -54,7 +54,7 @@ import SheetMeta from "./SheetMeta.js";
 import DeepLinkRouter from "./DeepLinkRouter.js";
 import { AuthPage } from "./AuthPage";
 import { TopicCategory, TopicPage } from "./TopicPage";
-import Dedication from  "./Dedication"
+import {Dedication} from  "./Dedication"
 import {
   Tracker as DownloadTracker,
 } from "./DownloadControl.js"
