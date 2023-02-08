@@ -126,7 +126,6 @@ const ReaderNavigationMenu = props => {
               <MoreSection
                 isHeb={isHeb}
                 openUri={props.openUri}
-                openNavMenu={props.openNavMenu}
                 openSettings={props.openSettings}
               />
 
@@ -208,7 +207,7 @@ const getEmailBody = (downloaded, available) => {
           OS Version: ${Platform.OS} ${Platform.Version}\n`;
 };
 
-const MoreSection = ({ isHeb, openUri, openSettings, openNavMenu }) => {
+const MoreSection = ({ isHeb, openUri, openSettings }) => {
   const { themeStr, debugInterruptingMessage, interfaceLanguage } = useContext(GlobalStateContext);
   const dispatch = useContext(DispatchContext);
   const [, forceUpdate] = useReducer(x => x + 1, 0);  // HACK
@@ -276,7 +275,7 @@ const MoreSection = ({ isHeb, openUri, openSettings, openNavMenu }) => {
         <SystemButton
           text={strings.about}
           img={iconData.get('info', themeStr)}
-          onPress={openNavMenu}
+          onPress={onAbout}
           extraStyles={[styles.systemButtonTwoBox]}
           isHeb={isHeb}
         />

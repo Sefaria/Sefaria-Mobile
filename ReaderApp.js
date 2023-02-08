@@ -1861,7 +1861,6 @@ class ReaderApp extends React.PureComponent {
               openSearch={this.openSearch}
               setIsNewSearch={this.setIsNewSearch}
               openSettings={this.openMenu.bind(null, "settings")}
-              openNavMenu={this.openMenu.bind(null, "navmenu")}
               openHistory={this.openMenu.bind(null, "history")}
               openSaved={this.openMenu.bind(null, "saved")}
               openLogin={this.openLogin.bind(null, "toc")}
@@ -1948,8 +1947,8 @@ class ReaderApp extends React.PureComponent {
       case ("settings"):
         Sefaria.track.setScreen("settings", "menu")
         return(<SettingsPage close={this.manageBackMain} logout={this.logout} openUri={this.openUri} />);
-      case ("navmenu"):
-        Sefaria.track.setScreen("nav", "menu")
+      case ("account-menu"):
+        Sefaria.track.setScreen("account-menu", "menu")
         return(<AccountNavigationMenu 
             openMenu={this.openMenu}
             openUri={this.openUri}
