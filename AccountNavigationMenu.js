@@ -40,13 +40,13 @@ const AccountNavigationMenuButtonList = ({openMenu, openUri, logout}) => {
   let menuButtons = useMenuButtonObjects();
   return (
       <View>
-        {menuButtons.map(({ title, icon, ButtonComponent, componentProps }) => {
+        {menuButtons.map(({ title, icon, ButtonComponent, actionProps }) => {
             let callbackFunc = null;
-            let action = componentProps?.["action"];
+            let action = actionProps?.["action"];
             if(action == "menu"){
-                callbackFunc = () => openMenu(componentProps["destination"], "AccountNavigationMenu", componentProps?.["pushHistory"]);
+                callbackFunc = () => openMenu(actionProps["destination"], "AccountNavigationMenu", actionProps?.["pushHistory"]);
             }else if(action == "uri"){
-                callbackFunc = () => openUri(componentProps["destination"]);  
+                callbackFunc = () => openUri(actionProps["destination"]);  
             }else if(action =="logout"){
                 callbackFunc = () => logout();   
             }
@@ -104,16 +104,16 @@ const useMenuButtonObjects = () => {
 
 export class MenuItemsMeta{
   static _items = [
-    {title: 'profile', icon: 'profile-nav', loggedIn: true, ButtonComponent: AccountNavigationMenuButton, componentProps:{action: "menu", destination:"profile"}},
-    {title: 'signup', icon: 'profile-nav', loggedIn: false, ButtonComponent: AccountNavigationMenuButton, componentProps:{action: "menu", pushHistory: false,  destination:"register"}} , 
-    {title: 'login', icon: 'login', loggedIn: false, ButtonComponent: AccountNavigationMenuButton, componentProps:{action: "menu",  pushHistory: false, destination:"login"}},
-    {title: 'updates', icon: 'bell', ButtonComponent: AccountNavigationMenuButton, componentProps:{action: "menu", destination:"updates"}}, 
-    {title: 'settings', icon: 'settings', ButtonComponent: AccountNavigationMenuButton, componentProps:{action: "menu", destination:"settings"}}, 
-    {title: 'interfaceLanguage', icon: 'globe', ButtonComponent: InterfaceLanguageMenuButton, componentProps: {}}, 
-    {title: 'help', icon: 'help', ButtonComponent: AccountNavigationMenuButton, componentProps:{action: "uri", destination:"https://www.sefaria.org/help"}}, 
-    {title: 'aboutSefaria', icon: 'about', ButtonComponent: AccountNavigationMenuButton, componentProps:{action: "uri", destination:"https://www.sefaria.org/about"}}, 
-    {title: 'logout', icon: 'logout', loggedIn: true, ButtonComponent: AccountNavigationMenuButton, componentProps:{action: "logout"}},
-    {title: 'donate', icon: 'heart-white', ButtonComponent: ColoredAccountNavigationMenuButton, componentProps:{action: "uri", destination:"https://www.sefaria.org/donate/mobile"}},
+    {title: 'profile', icon: 'profile-nav', loggedIn: true, ButtonComponent: AccountNavigationMenuButton, actionProps:{action: "menu", destination:"profile"}},
+    {title: 'signup', icon: 'profile-nav', loggedIn: false, ButtonComponent: AccountNavigationMenuButton, actionProps:{action: "menu", pushHistory: false,  destination:"register"}} , 
+    {title: 'login', icon: 'login', loggedIn: false, ButtonComponent: AccountNavigationMenuButton, actionProps:{action: "menu",  pushHistory: false, destination:"login"}},
+    {title: 'updates', icon: 'bell', ButtonComponent: AccountNavigationMenuButton, actionProps:{action: "menu", destination:"updates"}}, 
+    {title: 'settings', icon: 'settings', ButtonComponent: AccountNavigationMenuButton, actionProps:{action: "menu", destination:"settings"}}, 
+    {title: 'interfaceLanguage', icon: 'globe', ButtonComponent: InterfaceLanguageMenuButton, actionProps: {}}, 
+    {title: 'help', icon: 'help', ButtonComponent: AccountNavigationMenuButton, actionProps:{action: "uri", destination:"https://www.sefaria.org/help"}}, 
+    {title: 'aboutSefaria', icon: 'about', ButtonComponent: AccountNavigationMenuButton, actionProps:{action: "uri", destination:"https://www.sefaria.org/about"}}, 
+    {title: 'logout', icon: 'logout', loggedIn: true, ButtonComponent: AccountNavigationMenuButton, actionProps:{action: "logout"}},
+    {title: 'donate', icon: 'heart-white', ButtonComponent: ColoredAccountNavigationMenuButton, actionProps:{action: "uri", destination:"https://www.sefaria.org/donate/mobile"}},
   ]
   static getMenuItems(isLoggedIn){
     const filterFunc = (x) => typeof x.loggedIn == 'undefined' || x.loggedIn === isLoggedIn;
