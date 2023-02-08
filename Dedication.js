@@ -59,8 +59,9 @@ Dedication.propTypes = {
 export const ShortDedication = ({openDedication}) => {
   const { theme, interfaceLanguage } = useGlobalState();
   return(
-        <View>
-            <Text style={[styles.dedication, (interfaceLanguage === "hebrew") ? styles.hebrewSystemFont : null, theme.secondaryText]} onPress={openDedication}>
+        <View style={[styles.navReDedicationBox, theme.lightestGreyBackground]}>
+            <Text style={[styles.dedication, (interfaceLanguage === "hebrew") ? styles.hebrewSystemFont : null, theme.secondaryText]} 
+                  onPress={openDedication}>
               { Platform.OS === 'ios' ? strings.dedicatedIOS : strings.dedicatedAndroid }
             </Text>  
         </View>

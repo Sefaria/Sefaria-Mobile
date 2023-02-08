@@ -58,6 +58,58 @@ export default StyleSheet.create({
     lineHeight: 23,
     textAlign: 'right',
   },
+  navRePage:{
+    display: "flex",
+    marginHorizontal: 15,
+  },
+  navReEnglish:{
+    direction: "ltr",
+  },
+  navReHebrew:{
+    direction: "rtl",
+  },
+  navReHeaderText: {
+    fontSize: 22, 
+    fontWeight: "bold",
+    lineHeight: 25,
+  },
+  navRePageHeader:{
+    marginVertical: 24,
+    direction: "inherit",
+  },
+  navReAccountMenuButton:{
+    display: "flex",
+    flexDirection: "row",
+    alignContent: "flex-start",
+    alignItems: "center",
+    borderTopWidth: 1,
+    paddingVertical: 20,
+    direction: "inherit",
+  },
+  navReAccountMenuButtonText:{
+    fontSize:18,
+    fontWeight:500,
+    lineHeight:19,
+    textAlignVertical: "center",
+  },
+  navReAccountMenuButtonIcon:{
+    fontSize:16,
+    marginEnd: 15,
+    marginStart: 10,
+    lineHeight:19,
+    textAlignVertical: "center",
+  },
+  navReAccountMenuButtonSep:{
+    fontSize: 16, 
+    padding: 10,
+    textAlignVertical: "center",
+  },
+  navReSefaria501:{
+    fontWeight: "bold",
+    fontSize: 14,
+    lineHeight: 18,
+    textAlign: "center",
+  },
   boxShadow: {
     shadowColor: 'black',
     shadowOffset: { width: 0, height: 1 },
@@ -1066,8 +1118,13 @@ export default StyleSheet.create({
     fontStyle: "italic",
     fontFamily: "Amiri",
     fontSize: 18,
+    fontWeight: "bold",
     textAlign: "center",
-    marginBottom: 20
+  },
+  navReDedicationBox:{
+    height: 100,
+    width: 344,
+    marginBottom: 20,
   },
   lineEnd: {
     flex: 1,

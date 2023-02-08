@@ -25,8 +25,9 @@ import {ShortDedication} from "./Dedication";
  */
 export const AccountNavigationMenu = props => {
     const { theme, interfaceLanguage } = useGlobalState();
+    const directionStyle = interfaceLanguage == "english" ? styles.navReEnglish : styles.navReHebrew;
     return (
-        <ScrollView style={[styles.navRePage, {flex:1}]} contentContainerStyle={[{flex:1, alignContent: "flex-start"}]}>
+        <ScrollView style={[styles.navRePage, directionStyle]} contentContainerStyle={[{flex:1, alignContent: "flex-start"}]}>
             <PageHeader titleKey={"account"}/>
             <AccountNavigationMenuButtonList {...props} />
             <ShortDedication openDedication={() => props.openMenu("dedication", "AccountNavigationMenu")}/>
@@ -55,12 +56,12 @@ const AccountNavigationMenuButtonList = ({openMenu, openUri, logout}) => {
   )
 }
 
-const AccountNavigationMenuButton = ({titleKey, icon, callbackFunc}) => {
-  const { themeStr } = useGlobalState();
+const AccountNavigationMenuButton = ({titleKey, icon, callbackFunc, textStyles, containerStyles}) => {
+  const { themeStr, theme } = useGlobalState();
   const myIcon = iconData.get(icon, themeStr);
   return (
-      <TouchableOpacity onPress={callbackFunc}>
-        <Image source={myIcon} />
+      <TouchableOpacity style={[styles.navReAccountMenuButton, theme.tertiaryText, theme.lighterGreyBorder]} onPress={callbackFunc}>
+        <Image style={styles.navReAccountMenuButtonIcon} source={myIcon} />
         <InterfaceText stringKey={titleKey} />
       </TouchableOpacity>
   );
@@ -76,7 +77,7 @@ const ColoredAccountNavigationMenuButton = ({...menuButtonProps}) => {
 
 const InterfaceLanguageMenuButton = () => {
       const dispatch = useContext(DispatchContext);
-      const globalState = useContext(GlobalStateContext);
+      const {themeStr, theme, interfaceLanguage } = useGlobalState();
       const setInterfaceLanguage = language => {
         dispatch({ //this is copied from ButtonToggleSection, is there a way to not duplicate code? 
           type: STATE_ACTIONS.setInterfaceLanguage,
@@ -84,13 +85,13 @@ const InterfaceLanguageMenuButton = () => {
           time: Sefaria.util.epoch_time(),
         });
       };
-      const myIcon = iconData.get("globe", globalState.themeStr);
+      const myIcon = iconData.get("globe", themeStr);
       return (
-          <View>
-              <Image source={myIcon} />
-              <TouchableOpacity onPress={() => setInterfaceLanguage("english")} ><Text style={[styles.enInt]}>English</Text></TouchableOpacity>
-              <Text style={{ fontSize: 16, padding: 2 }}>•</Text>
-              <TouchableOpacity onPress={() => setInterfaceLanguage("hebrew")} ><Text style={[styles.heInt]}>עברית</Text></TouchableOpacity>
+          <View style={[styles.navReAccountMenuButton, theme.lighterGreyBorder]}>
+              <Image style={styles.navReAccountMenuButtonIcon} source={myIcon} />
+              <TouchableOpacity onPress={() => setInterfaceLanguage("english")} ><Text style={[styles.enInt, interfaceLanguage == 'hebrew' ? theme.tertiaryText : null]}>English</Text></TouchableOpacity>
+              <Text style={[styles.navReAccountMenuButtonSep]}>•</Text>
+              <TouchableOpacity onPress={() => setInterfaceLanguage("hebrew")} ><Text style={[styles.heInt, interfaceLanguage == 'english' ? theme.tertiaryText : null]}>עברית</Text></TouchableOpacity>
           </View>
       );
 }

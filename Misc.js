@@ -47,7 +47,7 @@ const CSS_CLASS_STYLES = {
 
 const PageHeader = ({...headerProps}) => {
     return (
-        <View>
+        <View style={[styles.navRePageHeader]}>
           <Header {...headerProps} />
         </View>
     )
@@ -61,7 +61,7 @@ const PageHeader = ({...headerProps}) => {
 const Header = ({titleKey}) => {
   const { theme } = useGlobalState();
   return(
-      <InterfaceText stringKey={titleKey} extraStyles={[{fontSize: 22, fontWeight: "500"}, theme.tertiaryText]} />
+      <InterfaceText stringKey={titleKey} extraStyles={[styles.navReHeaderText, theme.tertiaryText]} />
   );
 }
 
