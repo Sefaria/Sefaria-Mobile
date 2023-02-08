@@ -57,12 +57,12 @@ const AccountNavigationMenuButtonList = ({openMenu, openUri, logout}) => {
 }
 
 const AccountNavigationMenuButton = ({titleKey, icon, callbackFunc, textStyles, containerStyles}) => {
-  const { themeStr, theme } = useGlobalState();
+  const { themeStr, theme, interfaceLanguage } = useGlobalState();
   const myIcon = iconData.get(icon, themeStr);
   return (
-      <TouchableOpacity style={[styles.navReAccountMenuButton, theme.tertiaryText, theme.lighterGreyBorder]} onPress={callbackFunc}>
+      <TouchableOpacity style={[styles.navReAccountMenuButton, theme.tertiaryText, theme.lighterGreyBorder].concat(containerStyles)} onPress={callbackFunc}>
         <Image style={styles.navReAccountMenuButtonIcon} source={myIcon} />
-        <InterfaceText extraStyles={[styles.navReAccountMenuButtonText, theme.tertiaryText]} stringKey={titleKey} />
+        <InterfaceText extraStyles={[styles.navReAccountMenuButtonText, theme.tertiaryText].concat(textStyles)} stringKey={titleKey} />
       </TouchableOpacity>
   );
 }; 
