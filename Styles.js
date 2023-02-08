@@ -1124,7 +1124,7 @@ export default StyleSheet.create({
   navReDedicationBox:{
     height: 100,
     width: 344,
-    marginBottom: 20,
+    marginVertical: 20,
   },
   lineEnd: {
     flex: 1,

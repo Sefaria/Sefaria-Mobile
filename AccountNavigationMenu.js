@@ -24,10 +24,8 @@ import {ShortDedication} from "./Dedication";
  * @constructor
  */
 export const AccountNavigationMenu = props => {
-    const { theme, interfaceLanguage } = useGlobalState();
-    const directionStyle = interfaceLanguage == "english" ? styles.navReEnglish : styles.navReHebrew;
     return (
-        <ScrollView style={[styles.navRePage, directionStyle]} contentContainerStyle={[{flex:1, alignContent: "flex-start"}]}>
+        <ScrollView contentContainerStyle={[styles.navRePage]} >
             <PageHeader titleKey={"account"}/>
             <AccountNavigationMenuButtonList {...props} />
             <ShortDedication openDedication={() => props.openMenu("dedication", "AccountNavigationMenu")}/>
@@ -40,7 +38,7 @@ const AccountNavigationMenuButtonList = ({openMenu, openUri, logout}) => {
   let menuButtons = useMenuButtonObjects();
   return (
       <View>
-        {menuButtons.map(({ title, icon, ButtonComponent, actionProps }) => {
+        {menuButtons.map(({ title, icon, ButtonComponent, actionProps, componentProps = {} }) => {
             let callbackFunc = null;
             let action = actionProps?.["action"];
             if(action == "menu"){
@@ -50,7 +48,8 @@ const AccountNavigationMenuButtonList = ({openMenu, openUri, logout}) => {
             }else if(action =="logout"){
                 callbackFunc = () => logout();   
             }
-            return <ButtonComponent key={title} titleKey={title} icon={icon} callbackFunc={callbackFunc} />
+            let {textStyles = [], containerStyles = []} = componentProps;
+            return <ButtonComponent key={title} titleKey={title} icon={icon} textStyles={textStyles} containerStyles={containerStyles} callbackFunc={callbackFunc} />
         })}
       </View>
   )
@@ -60,20 +59,22 @@ const AccountNavigationMenuButton = ({titleKey, icon, callbackFunc, textStyles, 
   const { themeStr, theme, interfaceLanguage } = useGlobalState();
   const myIcon = iconData.get(icon, themeStr);
   return (
-      <TouchableOpacity style={[styles.navReAccountMenuButton, theme.tertiaryText, theme.lighterGreyBorder].concat(containerStyles)} onPress={callbackFunc}>
+      <TouchableOpacity style={[styles.navReAccountMenuButton, interfaceLanguage == "hebrew" ? styles.navReHebrew : null, theme.tertiaryText, theme.lighterGreyBorder].concat(containerStyles)} onPress={callbackFunc}>
         <Image style={styles.navReAccountMenuButtonIcon} source={myIcon} />
         <InterfaceText extraStyles={[styles.navReAccountMenuButtonText, theme.tertiaryText].concat(textStyles)} stringKey={titleKey} />
       </TouchableOpacity>
   );
 }; 
 
-const ColoredAccountNavigationMenuButton = ({...menuButtonProps}) => {
-    return(
-          <View style={[styles.systemButtonBlue]}>
-            <AccountNavigationMenuButton {...menuButtonProps}/>
-          </View>
-      );
-}
+const BlueBackgroundAccountNavigationMenuButton = ({...menuButtonProps}) => {
+    const {  theme } = useGlobalState();
+    return(<AccountNavigationMenuButton {...menuButtonProps} textStyles={[theme.sefariaColorButtonText]} containerStyles={[theme.sefariaColorButton]}/>);
+};
+
+const BlueTextAccountNavigationMenuButton = ({...menuButtonProps}) => {
+    const {  theme } = useGlobalState();
+    return(<AccountNavigationMenuButton {...menuButtonProps} textStyles={[theme.sefariaColorText]}/> );
+};
 
 const InterfaceLanguageMenuButton = () => {
       const dispatch = useContext(DispatchContext);
@@ -105,7 +106,7 @@ const useMenuButtonObjects = () => {
 export class MenuItemsMeta{
   static _items = [
     {title: 'profile', icon: 'profile-nav', loggedIn: true, ButtonComponent: AccountNavigationMenuButton, actionProps:{action: "menu", destination:"profile"}},
-    {title: 'signup', icon: 'profile-nav', loggedIn: false, ButtonComponent: AccountNavigationMenuButton, actionProps:{action: "menu", pushHistory: false,  destination:"register"}} , 
+    {title: 'signup', icon: 'profile-nav', loggedIn: false, ButtonComponent: BlueTextAccountNavigationMenuButton, actionProps:{action: "menu", pushHistory: false,  destination:"register"}} , 
     {title: 'login', icon: 'login', loggedIn: false, ButtonComponent: AccountNavigationMenuButton, actionProps:{action: "menu",  pushHistory: false, destination:"login"}},
     {title: 'updates', icon: 'bell', ButtonComponent: AccountNavigationMenuButton, actionProps:{action: "menu", destination:"updates"}}, 
     {title: 'settings', icon: 'settings', ButtonComponent: AccountNavigationMenuButton, actionProps:{action: "menu", destination:"settings"}}, 
@@ -113,7 +114,7 @@ export class MenuItemsMeta{
     {title: 'help', icon: 'help', ButtonComponent: AccountNavigationMenuButton, actionProps:{action: "uri", destination:"https://www.sefaria.org/help"}}, 
     {title: 'aboutSefaria', icon: 'about', ButtonComponent: AccountNavigationMenuButton, actionProps:{action: "uri", destination:"https://www.sefaria.org/about"}}, 
     {title: 'logout', icon: 'logout', loggedIn: true, ButtonComponent: AccountNavigationMenuButton, actionProps:{action: "logout"}},
-    {title: 'donate', icon: 'heart-white', ButtonComponent: ColoredAccountNavigationMenuButton, actionProps:{action: "uri", destination:"https://www.sefaria.org/donate/mobile"}},
+    {title: 'donate', icon: 'heart-white', ButtonComponent: BlueBackgroundAccountNavigationMenuButton, actionProps:{action: "uri", destination:"https://www.sefaria.org/donate/mobile"}},
   ]
   static getMenuItems(isLoggedIn){
     const filterFunc = (x) => typeof x.loggedIn == 'undefined' || x.loggedIn === isLoggedIn;
