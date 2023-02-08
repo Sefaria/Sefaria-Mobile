@@ -7,10 +7,7 @@ import {
     View,
     Image, Text, Platform
 } from 'react-native';
-import {
-  InterfaceText,
-  PageHeader,
-} from './Misc.js';
+import { InterfaceText,PageHeader, Sefaria501} from './Misc.js';
 import { iconData } from './IconData';
 import styles from './Styles.js';
 import {useAsyncVariable, useGlobalState} from './Hooks';
@@ -29,10 +26,11 @@ import {ShortDedication} from "./Dedication";
 export const AccountNavigationMenu = props => {
     const { theme, interfaceLanguage } = useGlobalState();
     return (
-        <ScrollView style={{flex:1}} contentContainerStyle={{flex:1, alignContent: "flex-start"}}>
-          <PageHeader titleKey={"account"}/>
-          <AccountNavigationMenuButtonList {...props} />
-          <ShortDedication openDedication={() => props.openMenu("dedication", "AccountNavigationMenu")}/>
+        <ScrollView style={[styles.navRePage, {flex:1}]} contentContainerStyle={[{flex:1, alignContent: "flex-start"}]}>
+            <PageHeader titleKey={"account"}/>
+            <AccountNavigationMenuButtonList {...props} />
+            <ShortDedication openDedication={() => props.openMenu("dedication", "AccountNavigationMenu")}/>
+            <Sefaria501/>
         </ScrollView>
     );
 }
