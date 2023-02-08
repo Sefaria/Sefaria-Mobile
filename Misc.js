@@ -1340,6 +1340,17 @@ const SefariaPressable = ({ children, extraStyles=[], ...pressableProps }) => {
   );
 }
 
+const Sefaria501 = () => {
+  const { theme, interfaceLanguage } = useGlobalState();
+  return(
+        <View>
+            <Text style={[styles.navReSefaria501, (interfaceLanguage === "hebrew") ? styles.hebrewSystemFont : null, theme.secondaryText]}>
+              { strings.sefaria501 }
+            </Text>  
+        </View>
+      );
+};
+
 export {
   AnimatedRow,
   ButtonToggleSet,
@@ -1377,6 +1388,7 @@ export {
   RainbowBar,
   SaveButton,
   SearchButton,
+  Sefaria501,
   SefariaPressable,
   SefariaProgressBar,
   SimpleContentBlock,
