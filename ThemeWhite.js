@@ -213,4 +213,10 @@ export default StyleSheet.create({
   lightestGreyBackground: {
     backgroundColor: Colors.lightestGrey,
   },
+  interfaceLangToggleInActive: {
+    color: Colors.secondaryText,
+  },
+  interfaceLangToggleActive: {
+    color: Colors.tertiaryText,
+  },
 });

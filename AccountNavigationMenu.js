@@ -62,7 +62,7 @@ const AccountNavigationMenuButton = ({titleKey, icon, callbackFunc, textStyles, 
   return (
       <TouchableOpacity style={[styles.navReAccountMenuButton, theme.tertiaryText, theme.lighterGreyBorder]} onPress={callbackFunc}>
         <Image style={styles.navReAccountMenuButtonIcon} source={myIcon} />
-        <InterfaceText stringKey={titleKey} />
+        <InterfaceText extraStyles={[styles.navReAccountMenuButtonText, theme.tertiaryText]} stringKey={titleKey} />
       </TouchableOpacity>
   );
 }; 
@@ -89,9 +89,9 @@ const InterfaceLanguageMenuButton = () => {
       return (
           <View style={[styles.navReAccountMenuButton, theme.lighterGreyBorder]}>
               <Image style={styles.navReAccountMenuButtonIcon} source={myIcon} />
-              <TouchableOpacity onPress={() => setInterfaceLanguage("english")} ><Text style={[styles.enInt, interfaceLanguage == 'hebrew' ? theme.tertiaryText : null]}>English</Text></TouchableOpacity>
+              <TouchableOpacity onPress={() => setInterfaceLanguage("english")} ><Text style={[styles.enInt, styles.navReAccountMenuButtonText, theme.tertiaryText, interfaceLanguage == 'hebrew' ? theme.interfaceLangToggleInActive : null]}>English</Text></TouchableOpacity>
               <Text style={[styles.navReAccountMenuButtonSep]}>•</Text>
-              <TouchableOpacity onPress={() => setInterfaceLanguage("hebrew")} ><Text style={[styles.heInt, interfaceLanguage == 'english' ? theme.tertiaryText : null]}>עברית</Text></TouchableOpacity>
+              <TouchableOpacity onPress={() => setInterfaceLanguage("hebrew")} ><Text style={[styles.heInt, styles.navReAccountMenuButtonText, theme.tertiaryText, interfaceLanguage == 'english' ? theme.interfaceLangToggleInActive : null]}>עברית</Text></TouchableOpacity>
           </View>
       );
 }

@@ -88,7 +88,7 @@ export default StyleSheet.create({
   },
   navReAccountMenuButtonText:{
     fontSize:18,
-    fontWeight:500,
+    fontWeight:"bold",
     lineHeight:19,
     textAlignVertical: "center",
   },
