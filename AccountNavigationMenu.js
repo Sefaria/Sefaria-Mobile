@@ -5,12 +5,12 @@ import {
     ScrollView,
     TouchableOpacity,
     View,
-    Image, Text, Platform
+    Image, Text,
 } from 'react-native';
 import { InterfaceText,PageHeader, Sefaria501} from './Misc.js';
 import { iconData } from './IconData';
 import styles from './Styles.js';
-import {useAsyncVariable, useGlobalState} from './Hooks';
+import {useGlobalState} from './Hooks';
 import { GlobalStateContext, DispatchContext, STATE_ACTIONS, getTheme } from './StateManager';
 import Sefaria from "./sefaria";
 import strings from "./LocalizedStrings";
