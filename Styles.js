@@ -63,10 +63,10 @@ export default StyleSheet.create({
     marginHorizontal: 15,
   },
   navReEnglish:{
-    direction: "ltr",
+    flexDirection: "row",
   },
   navReHebrew:{
-    direction: "rtl",
+    flexDirection: "row-reverse",
   },
   navReHeaderText: {
     fontSize: 22, 
@@ -96,12 +96,11 @@ export default StyleSheet.create({
     fontSize:16,
     marginEnd: 15,
     marginStart: 10,
-    lineHeight:19,
     textAlignVertical: "center",
   },
   navReAccountMenuButtonSep:{
     fontSize: 16, 
-    padding: 10,
+    paddingHorizontal: 10,
     textAlignVertical: "center",
   },
   navReSefaria501:{
@@ -109,6 +108,7 @@ export default StyleSheet.create({
     fontSize: 14,
     lineHeight: 18,
     textAlign: "center",
+    marginVertical:20,
   },
   boxShadow: {
     shadowColor: 'black',

@@ -93,7 +93,7 @@ const InterfaceLanguageMenuButton = () => {
       };
       const myIcon = iconData.get("globe", themeStr);
       return (
-          <View style={[styles.navReAccountMenuButton, theme.lighterGreyBorder]}>
+          <View style={[styles.navReAccountMenuButton, theme.lighterGreyBorder, interfaceLanguage == "hebrew" ? styles.navReHebrew : null]}>
               <Image style={styles.navReAccountMenuButtonIcon} source={myIcon} />
               <TouchableOpacity onPress={() => setInterfaceLanguage("english")} ><Text style={[styles.enInt, styles.navReAccountMenuButtonText, theme.tertiaryText, interfaceLanguage == 'hebrew' ? theme.interfaceLangToggleInActive : null]}>English</Text></TouchableOpacity>
               <Text style={[styles.navReAccountMenuButtonSep]}>•</Text>
