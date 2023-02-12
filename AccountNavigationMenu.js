@@ -76,6 +76,11 @@ const BlueTextAccountNavigationMenuButton = ({...menuButtonProps}) => {
     return(<AccountNavigationMenuButton {...menuButtonProps} textStyles={[theme.sefariaColorText]}/> );
 };
 
+const GrayTextAccountNavigationMenuButton = ({...menuButtonProps}) => {
+    const {  theme } = useGlobalState();
+    return(<AccountNavigationMenuButton {...menuButtonProps} textStyles={[theme.secondaryText]}/> );
+};
+
 const InterfaceLanguageMenuButton = () => {
       const dispatch = useContext(DispatchContext);
       const {themeStr, theme, interfaceLanguage } = useGlobalState();
@@ -113,7 +118,7 @@ export class MenuItemsMeta{
     {title: 'interfaceLanguage', icon: 'globe', ButtonComponent: InterfaceLanguageMenuButton, actionProps: {}}, 
     {title: 'help', icon: 'help', ButtonComponent: AccountNavigationMenuButton, actionProps:{action: "uri", destination:"https://www.sefaria.org/help"}}, 
     {title: 'aboutSefaria', icon: 'about', ButtonComponent: AccountNavigationMenuButton, actionProps:{action: "uri", destination:"https://www.sefaria.org/about"}}, 
-    {title: 'logout', icon: 'logout', loggedIn: true, ButtonComponent: AccountNavigationMenuButton, actionProps:{action: "logout"}},
+    {title: 'logout', icon: 'logout', loggedIn: true, ButtonComponent: GrayTextAccountNavigationMenuButton, actionProps:{action: "logout"}},
     {title: 'donate', icon: 'heart-white', ButtonComponent: BlueBackgroundAccountNavigationMenuButton, actionProps:{action: "uri", destination:"https://www.sefaria.org/donate/mobile"}},
   ]
   static getMenuItems(isLoggedIn){
