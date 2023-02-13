@@ -1309,25 +1309,37 @@ const SefariaPressable = ({ children, extraStyles=[], ...pressableProps }) => {
  * @constructor
  */
 const CategoryButton = ({ title, description, onPress }) => {
-  const { theme, menuLanguage } = useGlobalState();
-  const isHeb = menuLanguage === 'hebrew';
-  const descriptionHasContent = !!description && Object.values(description).reduce((accum, curr) => accum || !!curr, false);
   return (
       <SefariaPressable onPress={onPress} extraStyles={{paddingVertical: 17}}>
-        <SText
-            lang={menuLanguage}
-            style={[isHeb ? styles.he : styles.en, {fontSize: 24, marginBottom: -10}, theme.text]} lineMultiplier={1.05}
-        >
-          {isHeb ? title.he : title.en}
-        </SText>
-        {descriptionHasContent ? (
-            <InterfaceTextWithFallback
-                {...description}
-                lang={menuLanguage}
-                extraStyles={[{marginTop: 10, fontSize: 13}, theme.tertiaryText]}
-            />
-        ) : null}
+        <CategoryTitle title={title} />
+        <CategoryDescription description={description} />
       </SefariaPressable>
+  );
+};
+
+const CategoryTitle = ({ title, extraStyles=[] }) => {
+  const { theme, menuLanguage } = useGlobalState();
+  const isHeb = menuLanguage === 'hebrew';
+  return (
+      <SText
+          lang={menuLanguage}
+          style={[isHeb ? styles.he : styles.en, {fontSize: 24, marginBottom: -10}, theme.text].concat(extraStyles)} lineMultiplier={1.05}
+      >
+        {isHeb ? title.he : title.en}
+      </SText>
+  );
+};
+
+const CategoryDescription = ({ description }) => {
+  const { theme, menuLanguage } = useGlobalState();
+  const descriptionHasContent = !!description && Object.values(description).reduce((accum, curr) => accum || !!curr, false);
+  if (!descriptionHasContent) { return null; }
+  return (
+      <InterfaceTextWithFallback
+          {...description}
+          lang={menuLanguage}
+          extraStyles={[{marginTop: 10, fontSize: 13}, theme.tertiaryText]}
+      />
   );
 };
 
@@ -1355,11 +1367,13 @@ export {
   AnimatedRow,
   ButtonToggleSet,
   CancelButton,
+  CategoryAttribution,
   CategoryBlockLink,
   CategoryButton,
-  CategoryAttribution,
   CategoryColorLine,
+  CategoryDescription,
   CategorySideColorLink,
+  CategoryTitle,
   CircleCloseButton,
   CloseButton,
   CollapseIcon,

@@ -37,7 +37,7 @@ import strings from './LocalizedStrings';
 import Sefaria from './sefaria';
 import { LinkFilter } from './Filter';
 import ReaderDisplayOptionsMenu from './ReaderDisplayOptionsMenu';
-import {TextsPage} from "./TextsPage";
+import {LearningSchedulesPage, TextsPage} from "./TextsPage";
 import ReaderTextTableOfContents from './ReaderTextTableOfContents';
 import SearchPage from './search/SearchPage';
 import AutocompletePage from './search/AutocompletePage';
@@ -1868,28 +1868,20 @@ class ReaderApp extends React.PureComponent {
           <LoadingView /> :
           (<View style={{flex:1, flexDirection: 'row'}}>
             <TextsPage
-              searchQuery={this.state.searchQuery}
               categories={this.state.navigationCategories}
               setCategories={this.setNavigationCategories}
               openRef={(ref, versions)=>this.openRef(ref,"navigation", versions)}
-              openAutocomplete={this.openAutocomplete}
               onBack={this.manageBackMain}
-              openSearch={this.openSearch}
-              setIsNewSearch={this.setIsNewSearch}
-              openSettings={this.openMenu.bind(null, "settings")}
-              openHistory={this.openMenu.bind(null, "history")}
-              openSaved={this.openMenu.bind(null, "saved")}
-              openLogin={this.openLogin.bind(null, "toc")}
-              openRegister={this.openRegister.bind(null, "toc")}
-              openTopicToc={this.openTopicToc}
+              openLearningSchedules={this.openMenu.bind(null, "learning schedules")}
               openDedication={this.openMenu.bind(null, "dedication")}
-              openMySheets={this.openMySheets.bind(null, "toc")}
-              onChangeSearchQuery={this.onChangeSearchQuery}
               openUri={this.openUri}
-              searchType={this.state.searchType}
-              logout={this.logout}
             />
           </View>)
+        );
+      case ("learning schedules"):
+        Sefaria.track.setScreen("learning schedules", "navigation")
+        return (
+           <LearningSchedulesPage openRef={this.openRef} openUri={this.openUri} />
         );
       case ("text toc"):
         Sefaria.track.setScreen("text toc", "menu")

@@ -788,7 +788,15 @@ Sefaria = {
         cal_items.push(c);
       }
     }
-    return cal_items.sort((a, b) => a.order - b.order);
+    return Sefaria._addMetadataToCalendarItems(cal_items.sort((a, b) => a.order - b.order));
+  },
+  _addMetadataToCalendarItems: function(calendarItems) {
+    const meta = Sefaria.calendar?.metadata || {};
+    return calendarItems.map(item => ({
+      ...item,
+      description: item.description || meta?.[item.title.en]?.description,
+      subtitle: meta?.[item.title.en]?.subtitle,
+    }));
   },
   _dateString: function(date) {
     // Returns of string in the format "DD/MM/YYYY" for either `date` or today.
@@ -1516,7 +1524,7 @@ Sefaria.util = {
       const libStats = await FileSystem.getInfoAsync(libPath);
       useLib = libStats.modificationTime * 1000 > Sefaria.lastAppUpdateTime;
     }
-    if (useLib) {
+    if (useLib && false) {
       fileData = await Sefaria._loadJSON(libPath);
     } else {  //if (isIOS) {
       fileData = await Sefaria._loadJSON(sourcePath);

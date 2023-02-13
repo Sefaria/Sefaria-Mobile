@@ -1,7 +1,15 @@
 import React, {useCallback, useState} from 'react';
-import {View, FlatList, Text} from "react-native";
+import {View, FlatList, Text, SectionList} from "react-native";
 import Sefaria from "./sefaria";
-import {CategoryButton, CategoryColorLine, FlexFrame, GreyBoxFrame, LoadingView, SefariaPressable} from "./Misc";
+import {
+    CategoryButton,
+    CategoryColorLine, CategoryDescription,
+    CategoryTitle, ContentTextWithFallback,
+    FlexFrame,
+    GreyBoxFrame, Icon,
+    LoadingView,
+    SefariaPressable
+} from "./Misc";
 import {useAsyncVariable, useGlobalState} from "./Hooks";
 import styles from "./Styles";
 
@@ -23,9 +31,9 @@ const useCategoryButtonProps = (tocItem, setCategories) => {
     }
 }
 
-const TopLevelCategoryOrLearningSchedulesBox = ({item, setCategories, openRef}) => (
+const TopLevelCategoryOrLearningSchedulesBox = ({item, setCategories, openRef, openLearningSchedules}) => (
     item.isSplice ?
-        (<LearningSchedulesBox openRef={openRef} />) :
+        (<LearningSchedulesBox openRef={openRef} openLearningSchedules={openLearningSchedules}/>) :
         (<TopLevelCategory item={item} setCategories={setCategories}/>)
 );
 
@@ -39,24 +47,59 @@ const useCalendarItems = () => {
         calendarLoaded,
         calendarItems,
     };
-}
+};
+
+const useCalendarItemsBySection = () => {
+    const { calendarItems } = useCalendarItems();
+    const makeListings = enTitleList => calendarItems.filter(c => enTitleList.indexOf(c.title.en) !== -1);
+    const calendarTitleSections = [
+        {
+            sectionTitle: "Weekly Torah Portion",
+            calendarTitles: [
+                "Parashat Hashavua", "Haftarah (A)", "Haftarah (S)", "Haftarah"
+            ],
+        },
+        {
+            sectionTitle: "Daily Learning",
+            calendarTitles: [
+                "Daf Yomi", "929", "Daily Mishnah", "Daily Rambam", "Daily Rambam (3 Chapters)", "Halakhah Yomit",
+                "Arukh HaShulchan Yomi", "Tanakh Yomi", "Zohar for Elul", "Chok LeYisrael", "Tanya Yomi"
+            ],
+        },
+        {
+            sectionTitle: "Weekly Learning",
+            calendarTitles: ["Daf a Week"],
+        },
+    ];
+    const calendarItemSections = calendarTitleSections.map(({sectionTitle, calendarTitles}) => ({
+        sectionTitle,
+        data: makeListings(calendarTitles),
+    }));
+    return calendarItemSections;
+};
 
 const getCalendarItemsForTextsPage = calendarItems => {
-    const textsPageCalendarTitles = new Set(['Parashat Hashavua', 'Haftarah (S)', 'Haftarah (A)','Daf Yomi']);
+    const textsPageCalendarTitles = new Set(['Parashat Hashavua', 'Haftarah', 'Daf Yomi']);
     return calendarItems.filter(item => textsPageCalendarTitles.has(item.title.en));
 };
 
-const LearningSchedulesBox = ({item, openRef}) => {
+const LearningSchedulesBox = ({openRef, openLearningSchedules}) => {
     const { calendarLoaded, calendarItems } = useCalendarItems();
     const textsPageCalendarItems = getCalendarItemsForTextsPage(calendarItems);
+    const loadedLearningSchedules = (
+        <View>
+            <FlexFrame dir={"row"} justifyContent={"space-between"}>
+                <Text>{"Learning Schedules"}</Text>
+                <SefariaPressable onPress={openLearningSchedules}>
+                    <Text>{"See all"}</Text>
+                </SefariaPressable>
+            </FlexFrame>
+            <LearningScheduleTable calendarItems={textsPageCalendarItems} openRef={openRef} />
+        </View>
+    )
     return (
         <GreyBoxFrame>
-            <Text>{"Learning Schedules"}</Text>
-            { calendarLoaded ?
-                <LearningScheduleTable calendarItems={textsPageCalendarItems} openRef={openRef} />
-                :
-                <LoadingView />
-            }
+            { calendarLoaded ? loadedLearningSchedules : <LoadingView />}
         </GreyBoxFrame>
     );
 };
@@ -65,7 +108,7 @@ const LearningScheduleTable = ({ calendarItems, openRef }) => {
     return (
         <FlexFrame dir={"column"}>
             {calendarItems.map(item => (
-                <LearningScheduleRow calendarItem={item} openRef={openRef} />
+                <LearningScheduleRow key={item.title.en} calendarItem={item} openRef={openRef} />
             ))}
         </FlexFrame>
     );
@@ -101,7 +144,7 @@ const TextsPageHeader = () => {
     );
 };
 
-export const TextsPage = ({setCategories, openRef}) => {
+export const TextsPage = ({setCategories, openRef, openLearningSchedules}) => {
     const { theme } = useGlobalState();
     const tocItems = Sefaria.tocItemsByCategories([]);
     const data = [...tocItems];
@@ -112,13 +155,111 @@ export const TextsPage = ({setCategories, openRef}) => {
             contentContainerStyle={[{paddingHorizontal: 15}, theme.mainTextPanel]}
             ListHeaderComponent={TextsPageHeader}
             keyExtractor={item => item.isSplice ? 'splice' : item.category}
-            renderItem={props => (
+            renderItem={({ item }) => (
                 <TopLevelCategoryOrLearningSchedulesBox
-                    {...props}
+                    item={item}
                     setCategories={setCategories}
                     openRef={openRef}
+                    openLearningSchedules={openLearningSchedules}
                 />
             )}
         />
+    );
+};
+
+export const LearningSchedulesPage = ({ openRef, openUri }) => {
+    const { theme } = useGlobalState();
+    const calendarItemsBySection = useCalendarItemsBySection();
+    return (
+        <SectionList
+            contentContainerStyle={[{paddingHorizontal: 15}, theme.mainTextPanel]}
+            sections={calendarItemsBySection}
+            renderSectionHeader={({ section: { sectionTitle } }) => <Text>{sectionTitle}</Text>}
+            renderItem={({ item }) => (<LearningSchedule calendarItem={item} openRef={openRef} openUri={openUri} />)}
+        />
+    );
+};
+
+const useOpenNthRefOrUrl = (n, calendarItem, openRef, openUri) => {
+    /**
+     * Returns function to either open the nth ref of calendarItem or its url (there can only be one url).
+     */
+    return () => {
+        if (typeof calendarItem.refs == 'undefined') {
+            if (n > 0) {
+                throw new Error("There is only one URL on calendarItem but `n`= " + n);
+            }
+            openUri(`${Sefaria.api._baseHost}${calendarItem.url}`);
+        } else {
+            openRef(calendarItem.refs[n]);
+        }
+    };
+};
+
+const LearningSchedule = ({ calendarItem, openRef, openUri }) => {
+    const { category, description } = calendarItem;
+    return (
+        <View style={{paddingVertical: 17}}>
+            <FlexFrame dir={"column"}>
+                <CategoryColorLine category={category} thickness={4}/>
+                <LearningScheduleTitleRow calendarItem={calendarItem} openRef={openRef} openUri={openUri} />
+                <LearningScheduleSubtitleRow calendarItem={calendarItem} openRef={openRef} openUri={openUri}  />
+                <CategoryDescription description={description} />
+            </FlexFrame>
+        </View>
+    )
+};
+
+const useLearningScheduleDisplayTitles = (title, scheduleSubtitle, itemSubtitles) => {
+    /**
+     * @param title
+     * @param scheduleSubtitle: str, generic subtitle for the schedule as a whole
+     * @param itemSubtitles: list[str], list of learnings for this schedule on this day
+     */
+    const displayTitle = title.en === "Parashat Hashavua" ? itemSubtitles[0] : title;
+    const getWrapped = text => text && `(${text})`;
+    const displaySubtitle = {en: getWrapped(scheduleSubtitle.en), he: getWrapped(scheduleSubtitle.he)};
+    return { displayTitle, displaySubtitle };
+};
+
+const LearningScheduleTitleRow = ({ calendarItem, openRef, openUri }) => {
+    const { theme } = useGlobalState();
+    const openMainRef = useOpenNthRefOrUrl(0, calendarItem, openRef, openUri);
+    const { title, subtitle, subs } = calendarItem;
+    const { displayTitle, displaySubtitle } = useLearningScheduleDisplayTitles(title, subtitle, subs);
+    return (
+        <SefariaPressable onPress={openMainRef}>
+            <FlexFrame dir={"row"}>
+                <CategoryTitle title={displayTitle} />
+                <CategoryTitle title={displaySubtitle} extraStyles={[theme.tertiaryText]}/>
+            </FlexFrame>
+        </SefariaPressable>
+    );
+};
+
+const LearningScheduleSubtitleRow = ({ calendarItem, openRef, openUri }) => {
+    const subtitles = calendarItem.title.en === "Parashat Hashavua" ? [{en: calendarItem.refs, he: calendarItem.heRef}] : calendarItem.subs;
+    return (
+        <FlexFrame dir={"row"}>
+            <Icon name={"book"} length={16} />
+            { subtitles.map((subtitle, n) => (
+                <LearningScheduleSubtitle
+                    n={n}
+                    subtitle={subtitle}
+                    calendarItem={calendarItem}
+                    openRef={openRef}
+                    openUri={openUri}
+                />
+            ))}
+        </FlexFrame>
+    )
+};
+
+const LearningScheduleSubtitle = ({ n, subtitle, calendarItem, openRef, openUri }) => {
+    const onPress = useOpenNthRefOrUrl(n, calendarItem, openRef, openUri);
+    return (
+        <SefariaPressable onPress={onPress}>
+            <ContentTextWithFallback {...subtitle} />
+        </SefariaPressable>
     );
 };
