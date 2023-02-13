@@ -125,6 +125,5 @@ export class MenuItemsMeta{
     const filterFunc = (x) => typeof x.loggedIn == 'undefined' || x.loggedIn === isLoggedIn;
     return MenuItemsMeta._items.filter(filterFunc);
   }
-  
 } 
 

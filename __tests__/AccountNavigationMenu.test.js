@@ -10,11 +10,20 @@ describe('MenuItemsMeta', () => {
    });
    
    test('logged in menu icons', () => {
-       expect(MenuItemsMeta.getMenuItems(true)).map(x => x['icon']).toStrictEqual(['Texts']);
+       expect(MenuItemsMeta.getMenuItems(true)).map(x => x['icon']).toStrictEqual(['profile-nav', 'bell', 'settings', 'globe', 'help', 'about', 'logout', 'heart-white']);
    });
 
    test('logged out menu icons', () => {
-       expect(MenuItemsMeta.getMenuItems(false)).map(x => x['icon']).toStrictEqual([])
+       expect(MenuItemsMeta.getMenuItems(false)).map(x => x['icon']).toStrictEqual(['profile-nav', 'login', 'bell', 'settings', 'globe', 'help', 'about','heart-white'])
+   });
+   
+   
+   test('Check that actions are correct - pofile', () => {
+       expect(MenuItemsMeta.getMenuItems(false)).find(x => x['title'] == "menu")["actionProps"].toStrictEqual({action: "menu", destination:"profile"})
+   });
+   
+   test('Check that actions are correct - about', () => {
+       expect(MenuItemsMeta.getMenuItems(false)).find(x => x['title'] == "aboutSefaria")["actionProps"].toStrictEqual({action: "uri", destination:"https://www.sefaria.org/about"})
    });
 
    /*test('namesWithIcons works', () => {
