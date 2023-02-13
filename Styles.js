@@ -495,6 +495,10 @@ export default StyleSheet.create({
   searchInputPlaceholder: {
     fontStyle: "italic",
   },
+  searchVersionTitle: {
+    fontSize: 14,
+    marginTop: 4
+  },
   searchPage: {
     flex: 1,
     flexDirection: 'column',
@@ -637,6 +641,9 @@ export default StyleSheet.create({
   menu: {
     alignSelf: 'stretch',
     flex: 1
+  },
+  pageMargins: {
+    marginHorizontal: 15,
   },
   menuContent: {
     paddingHorizontal: iPad ? 20 : 10,
@@ -1080,13 +1087,9 @@ export default StyleSheet.create({
     marginTop: 15,
     marginBottom: 5,
   },
-  buttonToggleSetNew: {
+  buttonToggleSet: {
     borderRadius: 5,
     height: 50,
-  },
-  buttonToggleSet: {
-    marginRight: 0,
-    marginLeft: 0,
   },
   settingsMessage: {
     textAlign: "center",
@@ -1511,5 +1514,12 @@ export default StyleSheet.create({
     fontFamily: "OpenSans",
     fontWeight: "normal",
     fontStyle: "normal"
+  },
+  systemH3: {
+    fontSize: 22,
+    fontWeight: 'bold',
+  },
+  flex1: {
+    flex: 1,
   },
 });

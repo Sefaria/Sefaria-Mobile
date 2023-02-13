@@ -39,8 +39,8 @@ import { LinkFilter } from './Filter';
 import ReaderDisplayOptionsMenu from './ReaderDisplayOptionsMenu';
 import ReaderNavigationMenu from './ReaderNavigationMenu';
 import ReaderTextTableOfContents from './ReaderTextTableOfContents';
-import SearchPage from './SearchPage';
-import AutocompletePage from './AutocompletePage';
+import SearchPage from './search/SearchPage';
+import AutocompletePage from './search/AutocompletePage';
 import TextColumn from './TextColumn';
 import ConnectionsPanel from './ConnectionsPanel';
 import SettingsPage from './SettingsPage';
@@ -1552,6 +1552,25 @@ class ReaderApp extends React.PureComponent {
   };
   _getSearchStateName = type => ( `${type}SearchState` );
   _getSearchState = type => ( this.state[this._getSearchStateName(type)] );
+  convertSearchHit = (searchType, hit, field) => {
+    const source = hit._source;
+    const duplicates = hit.duplicates || [];
+    return ({
+        title: searchType === "sheet" ? source.title : source.ref,
+        heTitle: searchType === "sheet" ? source.title : source.heRef,
+        text: hit.highlight[field].join(" ... "),
+        id: hit._id,
+        duplicates: duplicates.map(subhit => this.convertSearchHit(searchType, subhit, field)),
+        textType: hit._id.includes("[he]") ? "hebrew" : "english",
+        version: source.version,
+        metadata: searchType === "sheet" ? {
+          ownerImageUrl: source.owner_image,
+          ownerName: source.owner_name,
+          views: source.views,
+          tags: source.tags,
+        } : null
+    });
+  };
   onQueryChange = (type, query, resetQuery, fromBackButton, getFilters) => {
     Sefaria.track.event("Search", {query_type: type, query: query});
     // getFilters should be true if the query has changed or the exactType has changed
@@ -1602,15 +1621,10 @@ class ReaderApp extends React.PureComponent {
       const searchStateName = this._getSearchStateName(type);
       Sefaria.search.execute_query(queryProps)
       .then(data => {
-        const newResultsArray = (type == "sheet" ? data.hits.hits : Sefaria.search.process_text_hits(data.hits.hits)).map(r => ({
-            title: type == "sheet" ? r._source.title : r._source.ref,
-            heTitle: type == "sheet" ? r._source.title : r._source.heRef,
-            text: r.highlight[field].join(" ... "),
-            id: r._id,
-            textType: r._id.includes("[he]") ? "hebrew" : "english",
-            version: r._source.version,
-            metadata: type == "sheet" ? {"ownerImageUrl": r._source.owner_image, "ownerName": r._source.owner_name, "views": r._source.views, "tags": r._source.tags} : null
-          })
+        const newResultsArray = (
+            type === "sheet" ?
+                data.hits.hits :
+                Sefaria.search.process_text_hits(data.hits.hits)).map(hit => this.convertSearchHit(type, hit, field)
         );
         const results = resetQuery ? newResultsArray :
           searchState.results.concat(newResultsArray);
@@ -1690,6 +1704,9 @@ class ReaderApp extends React.PureComponent {
   };
 
   toggleSearchFilter = (type, filterNode) => {
+    if (!filterNode) {
+      return;
+    }
     if (filterNode.isUnselected()) {
       filterNode.setSelected(true);
     } else {

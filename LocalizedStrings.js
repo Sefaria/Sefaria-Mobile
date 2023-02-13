@@ -194,6 +194,7 @@ let strings = new LocalizedStrings({
     readingHistory: "Reading History",
     turningThisFeatureOff: "Turning this feature off will permanently delete your reading history.",
     readingHistoryIsCurrentlyDisabled: "Reading history is currently disabled. You can re-enable this feature in your",
+    showResults: 'Show Results',
     sefaria501: "Sefaria is a 501(c)(3) organization that relies on user donations to maintain and grow the library.",
   },
   he: {
@@ -244,7 +245,7 @@ let strings = new LocalizedStrings({
     daily: "יומית",
     weekly: "שבועית",
     never: "לעולם לא",
-    sephardi: "עדת המזרח",
+    sephardi: "עדות המזרח",
     ashkenazi: "אשכנז",
     english: "אנגלית",
     hebrew: "עברית",
@@ -386,6 +387,7 @@ let strings = new LocalizedStrings({
     readingHistory: "היסטורית קריאה",
     turningThisFeatureOff: "כיבוי אפשרות זו תמחק לצמיתות את היסטורית הקריאה שלך.",
     readingHistoryIsCurrentlyDisabled: "היסטורית קריאה כבויה כרגע. ניתן להפעילה מחדש במסך",
+    showResults: 'הצגת תוצאות',
     sefaria501: "ספריא הינה ארגון ללא מטרות רווח הנשען על תרומות משתמשים לצורך אחזקת ופיתוח הספרייה.",
   }
 });

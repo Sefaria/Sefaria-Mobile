@@ -25,7 +25,7 @@ import {
 import { STATE_ACTIONS, DispatchContext, GlobalStateContext, getTheme } from './StateManager';
 import VersionNumber from 'react-native-version-number';
 import ActionSheet from 'react-native-action-sheet';
-import SearchBar from './SearchBar';
+import SearchBar from './search/SearchBar';
 import ReaderNavigationCategoryMenu from './ReaderNavigationCategoryMenu';
 import styles from './Styles.js';
 import strings from './LocalizedStrings.js';
