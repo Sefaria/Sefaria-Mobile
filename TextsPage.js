@@ -240,7 +240,7 @@ const LearningScheduleTitleRow = ({ calendarItem, openRef, openUri }) => {
 const LearningScheduleSubtitleRow = ({ calendarItem, openRef, openUri }) => {
     const subtitles = calendarItem.title.en === "Parashat Hashavua" ? [{en: calendarItem.refs, he: calendarItem.heRef}] : calendarItem.subs;
     return (
-        <FlexFrame dir={"row"}>
+        <FlexFrame dir={"row"} flexWrap={"wrap"}>
             <Icon name={"book"} length={16} />
             { subtitles.map((subtitle, n) => (
                 <LearningScheduleSubtitle
@@ -258,8 +258,11 @@ const LearningScheduleSubtitleRow = ({ calendarItem, openRef, openUri }) => {
 const LearningScheduleSubtitle = ({ n, subtitle, calendarItem, openRef, openUri }) => {
     const onPress = useOpenNthRefOrUrl(n, calendarItem, openRef, openUri);
     return (
-        <SefariaPressable onPress={onPress}>
-            <ContentTextWithFallback {...subtitle} />
-        </SefariaPressable>
+        <FlexFrame dir={"row"}>
+            { n > 0 && <ContentTextWithFallback en={", "} he={", "}/>}
+            <SefariaPressable onPress={onPress}>
+                <ContentTextWithFallback {...subtitle} />
+            </SefariaPressable>
+        </FlexFrame>
     );
 };
