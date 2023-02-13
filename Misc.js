@@ -1343,12 +1343,15 @@ const CategoryDescription = ({ description }) => {
   );
 };
 
-const FlexFrame = ({ dir="row", justifyContent, alignItems, children }) => {
+const FlexFrame = ({ dir="row", children, ...viewStyleProps }) => {
+  /**
+   * @param viewStyleProps: any valid style for a <View>. The intention is to mainly use flex styles
+   */
   const { interfaceLanguage } = useGlobalState();
   // never flip column by RTL
   const flexDirection = dir === "row" ? useRtlFlexDir(interfaceLanguage, dir ) : dir;
   return (
-    <View style={{flexDirection, justifyContent, alignItems}}>
+    <View style={{flexDirection, ...viewStyleProps}}>
       {children}
     </View>
   );
