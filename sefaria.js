@@ -503,20 +503,29 @@ Sefaria = {
   },
   topLevelCategories: [],  // useful for ordering categories in linkSummary
   toc: null,
+  tocObjectByCategories: function(cats) {
+    // Returns the TOC entry that corresponds to list of categories `cats`
+    let found, item;
+    let list = Sefaria.toc;
+    for (let i = 0; i < cats.length; i++) {
+      found = false;
+      item = null;
+      for (let k = 0; k < list.length; k++) {
+        if (list[k].category === cats[i]) {
+          item = list[k];
+          list = item.contents || [];
+          found = true;
+          break;
+        }
+      }
+      if (!found) { return null; }
+    }
+    return item;
+  },
   tocItemsByCategories: function(cats) {
     // Returns the TOC items that correspond to the list of categories 'cats'
-    let currToc = Sefaria.toc
-    for (let cat of cats) {
-      let found = false;
-      for (let tocItem of currToc) {
-        if (tocItem.category !== cat) { continue; }
-        currToc = Sefaria.util.clone(tocItem.contents);
-        found = true;
-        break;
-      }
-      if (!found) { return []; }
-    }
-    return currToc;
+    const object = Sefaria.tocObjectByCategories(cats);
+    return object ? Sefaria.util.clone(object.contents) : [];
   },
   _versionInfo: {},
   cacheVersionInfo: function(data, isSection) {
