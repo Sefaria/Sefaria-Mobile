@@ -665,9 +665,9 @@ export default StyleSheet.create({
     marginHorizontal: 20,
   },
   languageToggle: {
-    width: 30,
-    height: 30,
-    marginRight: iPad ? 20 : 10,
+    width: 20,
+    height: 20,
+    padding: 11,
     borderWidth: 1,
     borderRadius: 4,
     flexDirection: "row",

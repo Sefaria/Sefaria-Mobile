@@ -6,8 +6,8 @@ import {
     CategoryColorLine, CategoryDescription,
     CategoryTitle, ContentTextWithFallback,
     FlexFrame,
-    GreyBoxFrame, Icon,
-    LoadingView,
+    GreyBoxFrame, Icon, InterfaceText, LanguageToggleButton,
+    LoadingView, PageHeader,
     SefariaPressable
 } from "./Misc";
 import {useAsyncVariable, useGlobalState} from "./Hooks";
@@ -138,9 +138,10 @@ const TopLevelCategory = ({item: tocItem, setCategories}) => {
 
 const TextsPageHeader = () => {
     return (
-        <View>
-            <Text>{"Browse the Library"}</Text>
-        </View>
+        <FlexFrame dir={"row"} justifyContent={"space-between"} alignItems={"center"}>
+            <PageHeader titleKey={"browseTheLibrary"}/>
+            <LanguageToggleButton />
+        </FlexFrame>
     );
 };
 
