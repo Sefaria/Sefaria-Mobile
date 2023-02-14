@@ -527,6 +527,9 @@ Sefaria = {
     const object = Sefaria.tocObjectByCategories(cats);
     return object ? Sefaria.util.clone(object.contents) : [];
   },
+  getRootTocItems: function() {
+    return [...Sefaria.toc];
+  },
   _versionInfo: {},
   cacheVersionInfo: function(data, isSection) {
     //isSection = true if data has `sectionRef`. false if data has `title`

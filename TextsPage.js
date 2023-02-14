@@ -120,7 +120,7 @@ const LearningScheduleRow = ({ calendarItem, openRef }) => {
         <SefariaPressable onPress={onPress}>
             <FlexFrame dir={"row"} justifyContent={"space-between"}>
                 <Text style={[styles.flex1]}>{calendarItem.title.en}</Text>
-                <Text style={[styles.flex1]}>{calendarItem.refs[0]}</Text>
+                <Text style={[styles.flex1]}>{calendarItem.subs[0].en}</Text>
             </FlexFrame>
         </SefariaPressable>
     );
@@ -146,8 +146,7 @@ const TextsPageHeader = () => {
 
 export const TextsPage = ({setCategories, openRef, openLearningSchedules}) => {
     const { theme } = useGlobalState();
-    const tocItems = Sefaria.tocItemsByCategories([]);
-    const data = [...tocItems];
+    const data = Sefaria.getRootTocItems();
     data.splice(3, 0, {isSplice: true});
     return (
         <FlatList
