@@ -105,7 +105,7 @@ const AuthPage = ({ authMode, close, showToast, openLogin, openRegister, openUri
       <View style={{ flex: 1, alignSelf: "stretch", alignItems: "flex-end", marginHorizontal: 10}}>
         <CircleCloseButton onPress={close} />
       </View>
-      <Text style={[styles.pageTitle, theme.text]}>{isLogin ? strings.log_in : strings.sign_up}</Text>
+      <Text style={[styles.pageTitle, theme.text]}>{isLogin ? strings.login : strings.signup}</Text>
       <View style={{flex: 1, alignSelf: "stretch",  marginHorizontal: 37}}>
         <View style={styles.logInMotivator}>
           {
@@ -155,7 +155,7 @@ const AuthPage = ({ authMode, close, showToast, openLogin, openRegister, openUri
         <SystemButton
           isLoading={isLoading}
           onPress={onSubmit}
-          text={isLogin ? strings.log_in : strings.sign_up}
+          text={isLogin ? strings.login : strings.signup}
           isHeb={isHeb}
           isBlue
         />
@@ -178,7 +178,7 @@ const AuthPage = ({ authMode, close, showToast, openLogin, openRegister, openUri
               <View style={{flexDirection: isHeb ? 'row-reverse' : 'row', alignItems: 'center'}}>
                 <Text style={[theme.secondaryText, isHeb ? styles.heInt : styles.enInt]}>{strings.alreadyHaveAnAccount}</Text>
                 <TouchableOpacity onPress={openLogin}>
-                  <Text style={[theme.text, isHeb ? styles.heInt : styles.enInt]}>{` ${strings.log_in}.`}</Text>
+                  <Text style={[theme.text, isHeb ? styles.heInt : styles.enInt]}>{` ${strings.login}.`}</Text>
                 </TouchableOpacity>
               </View>
 

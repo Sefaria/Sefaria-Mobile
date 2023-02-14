@@ -14,10 +14,10 @@ import { GlobalStateContext, getTheme } from './StateManager';
 import strings from './LocalizedStrings';
 import styles from './Styles';
 import { RainbowBar, CircleCloseButton } from './Misc'
+import {useGlobalState} from "./Hooks";
 
-const Dedication = function(props) {
-  const { interfaceLanguage, themeStr } = useContext(GlobalStateContext);
-  const theme = getTheme(themeStr);
+export const Dedication = function(props) {
+  const { interfaceLanguage, theme } = useGlobalState();
   const isHeb = interfaceLanguage === 'hebrew';
   const flexDirection = isHeb ? 'row-reverse' : 'row';
   const justifyStyle = {textAlign: (Platform.OS === 'ios') ? 'justify' : isHeb ? 'right' : 'left', writingDirection: isHeb ? "rtl" : "ltr"};
@@ -56,4 +56,17 @@ Dedication.propTypes = {
   close: PropTypes.func.isRequired
 };
 
-export default Dedication;
+export const ShortDedication = ({openDedication}) => {
+  const { theme, interfaceLanguage } = useGlobalState();
+  return(
+        <View style={[styles.navReDedicationBox, theme.lightestGreyBackground]}>
+            <Text style={[styles.dedication, (interfaceLanguage === "hebrew") ? styles.hebrewSystemFont : null, theme.secondaryText]} 
+                  onPress={openDedication}>
+              { Platform.OS === 'ios' ? strings.dedicatedIOS : strings.dedicatedAndroid }
+            </Text>  
+        </View>
+      );
+};
+ShortDedication.propTypes = {
+  openDedication: PropTypes.func.isRequired
+};

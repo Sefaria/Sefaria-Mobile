@@ -20,7 +20,8 @@ var Colors = {
   wordHighlight: "#d2dcff",
   textListHeader: "#f3f3f2",
   button: "#bfbfbf",
-  buttonBackground: "#fff"
+  buttonBackground: "#fff",
+  sefariaBlue: "#18345D",
 }
 
 export default StyleSheet.create({
@@ -212,5 +213,20 @@ export default StyleSheet.create({
   },
   lightestGreyBackground: {
     backgroundColor: Colors.lightestGrey,
+  },
+  interfaceLangToggleInActive: {
+    color: Colors.secondaryText,
+  },
+  interfaceLangToggleActive: {
+    color: Colors.tertiaryText,
+  },
+  sefariaColorText:{
+    color: Colors.sefariaBlue,
+  },
+  sefariaColorButton: {
+    backgroundColor: Colors.sefariaBlue,
+  },
+  sefariaColorButtonText: {
+    color: 'white'
   },
 });

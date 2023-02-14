@@ -189,7 +189,7 @@ const SyncPrompt = ({ openLogin }) => {
     >
       <Text style={[ styles.systemButtonText, styles.systemButtonTextBlue, styles.enInt]}>
         { `${strings.wantToSync} ` }
-        <Text style={[{ textDecorationLine: 'underline'}]}>{ strings.logIn }</Text>
+        <Text style={[{ textDecorationLine: 'underline'}]}>{ strings.login }</Text>
       </Text>
 
       <TouchableOpacity onPress={() => {

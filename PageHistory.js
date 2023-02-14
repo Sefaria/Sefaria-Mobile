@@ -95,7 +95,7 @@ export class TabMetadata {
     {name: "Topics", icon: "hashtag", menu: "topic toc"},
     {name: "Search", icon: "search", menu: "autocomplete"},
     {name: "Saved", icon: "bookmark", menu: "history"},
-    {name: "Account", icon: "profile", menu: "account"},
+    {name: "Account", icon: "profile", menu: "account-menu"},
   ];
 
   static names() {
