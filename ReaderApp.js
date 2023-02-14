@@ -2276,6 +2276,7 @@ class ReaderApp extends React.PureComponent {
           interfaceLanguage={this.props.interfaceLanguage}
           openInDefaultBrowser={this.openInDefaultBrowser}
           debugInterruptingMessage={this.props.debugInterruptingMessage}
+          themeStr={this.props.themeStr}
         />
         <DeepLinkRouter
           ref={this._getDeepLinkRouterRef}
