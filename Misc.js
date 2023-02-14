@@ -44,6 +44,26 @@ const CSS_CLASS_STYLES = {
   },
 };
 
+const PageHeader = ({...headerProps}) => {
+    return (
+        <View style={[styles.navRePageHeader]}>
+          <Header {...headerProps} />
+        </View>
+    )
+}
+/***
+ * Renders text styled as a header
+ * @param titleKey the text to use for the header
+ * @returns {JSX.Element}
+ * @constructor
+ */
+const Header = ({titleKey}) => {
+  const { theme } = useGlobalState();
+  return(
+      <InterfaceText stringKey={titleKey} extraStyles={[styles.navReHeaderText, theme.tertiaryText]} />
+  );
+}
+
 const SystemHeader = ({ title, onBack, openNav, hideLangToggle }) => {
   const { themeStr, interfaceLanguage } = useContext(GlobalStateContext);
   const theme = getTheme(themeStr);
@@ -70,6 +90,25 @@ const SystemHeader = ({ title, onBack, openNav, hideLangToggle }) => {
         />
       ) : <LanguageToggleButton /> }
     </View>
+  );
+};
+
+/**
+ * Component to render an interface string that is present in strings.js
+ * Please use this as opposed to InterfaceTextWithFallback when possible
+ * @param stringKey the key of the string to be rendered (must exist in all interface languages)
+ * @param extraStyles additional styling directives to render this specific text (is it a header, a simple line of text, etc)
+ * @returns {Text}
+ */
+const InterfaceText = ({stringKey, extraStyles = []}) => {
+  const { interfaceLanguage } = useContext(GlobalStateContext);
+  const intTextStyles = {
+    'english' : styles.enInt,
+    'hebrew' : styles.heInt
+  }
+  const langStyle = intTextStyles[interfaceLanguage];
+  return (
+    <Text style={[langStyle].concat(extraStyles)}>{strings[stringKey]}</Text>
   );
 };
 
@@ -191,7 +230,7 @@ const SefariaProgressBar = ({ onPress, onClose, download, downloadNotification, 
    * process, I imagine this will generally be listening to libraries that support Stateful Promises. This can be
    * revisited if reuseability becomes a problem.
    */
-  const { theme, interfaceLanguage } = useGlobalState();
+  const { theme, themeStr, interfaceLanguage } = useGlobalState();
   const [ progress, setProgress ] = useState(0);
   const calculateProgress = (received, total) => !!(received) ? setProgress(received / total) : setProgress(0.0);
   const downloadActive = !!downloadNotification ? downloadNotification.downloadActive : false;
@@ -1343,6 +1382,17 @@ const CategoryDescription = ({ description }) => {
   );
 };
 
+const Sefaria501 = () => {
+  const { theme, interfaceLanguage } = useGlobalState();
+  return(
+        <View>
+            <Text style={[styles.navReSefaria501, (interfaceLanguage === "hebrew") ? styles.hebrewSystemFont : null, theme.secondaryText]}>
+              { strings.sefaria501 }
+            </Text>  
+        </View>
+      );
+};
+
 const FlexFrame = ({ dir="row", children, ...viewStyleProps }) => {
   /**
    * @param viewStyleProps: any valid style for a <View>. The intention is to mainly use flex styles
@@ -1394,6 +1444,7 @@ export {
   HebrewInEnglishText,
   Icon,
   IndeterminateCheckBox,
+  InterfaceText,
   InterfaceTextWithFallback,
   LanguageToggleButton,
   LibraryNavButton,
@@ -1401,11 +1452,13 @@ export {
   LocalSearchBar,
   MenuButton,
   OrderedList,
+  PageHeader,  
   ProfileListing,
   ProfilePic,
   RainbowBar,
   SaveButton,
   SearchButton,
+  Sefaria501,
   SefariaPressable,
   SefariaProgressBar,
   SimpleContentBlock,

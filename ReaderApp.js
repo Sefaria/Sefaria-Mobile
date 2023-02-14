@@ -44,6 +44,7 @@ import AutocompletePage from './search/AutocompletePage';
 import TextColumn from './TextColumn';
 import ConnectionsPanel from './ConnectionsPanel';
 import SettingsPage from './SettingsPage';
+import {AccountNavigationMenu} from "./AccountNavigationMenu";
 import InterruptingMessage from './InterruptingMessage';
 import SwipeableCategoryList from './SwipeableCategoryList';
 import Toast from 'react-native-root-toast';
@@ -53,7 +54,7 @@ import SheetMeta from "./SheetMeta.js";
 import DeepLinkRouter from "./DeepLinkRouter.js";
 import { AuthPage } from "./AuthPage";
 import { TopicCategory, TopicPage } from "./TopicPage";
-import Dedication from  "./Dedication"
+import {Dedication} from  "./Dedication"
 import {
   Tracker as DownloadTracker,
 } from "./DownloadControl.js"
@@ -1955,6 +1956,13 @@ class ReaderApp extends React.PureComponent {
       case ("settings"):
         Sefaria.track.setScreen("settings", "menu")
         return(<SettingsPage close={this.manageBackMain} logout={this.logout} openUri={this.openUri} />);
+      case ("account-menu"):
+        Sefaria.track.setScreen("account-menu", "menu")
+        return(<AccountNavigationMenu 
+            openMenu={this.openMenu}
+            openUri={this.openUri}
+            logout={this.logout}
+        />);
       case ("history"):
         Sefaria.track.setScreen("history", "menu")
         return(
