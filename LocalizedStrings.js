@@ -197,6 +197,8 @@ let strings = new LocalizedStrings({
     showResults: 'Show Results',
     sefaria501: "Sefaria is a 501(c)(3) organization that relies on user donations to maintain and grow the library.",
     browseTheLibrary: "Browse the Library",
+    learningSchedules: "Learning Schedules",
+    seeAll: "See All",
   },
   he: {
     profile: "פרופיל",
@@ -391,6 +393,8 @@ let strings = new LocalizedStrings({
     showResults: 'הצגת תוצאות',
     sefaria501: "ספריא הינה ארגון ללא מטרות רווח הנשען על תרומות משתמשים לצורך אחזקת ופיתוח הספרייה.",
     browseTheLibrary: "עיון בספריה",
+    learningSchedules: "לוח לימוד יומי",
+    seeAll: "See All TODO",
   }
 });
 

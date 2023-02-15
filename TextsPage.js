@@ -89,9 +89,9 @@ const LearningSchedulesBox = ({openRef, openLearningSchedules}) => {
     const loadedLearningSchedules = (
         <View>
             <FlexFrame dir={"row"} justifyContent={"space-between"}>
-                <Text>{"Learning Schedules"}</Text>
+                <InterfaceText stringKey={"learningSchedules"} />
                 <SefariaPressable onPress={openLearningSchedules}>
-                    <Text>{"See all"}</Text>
+                    <InterfaceText stringKey={"seeAll"} />
                 </SefariaPressable>
             </FlexFrame>
             <LearningScheduleTable calendarItems={textsPageCalendarItems} openRef={openRef} />
@@ -119,8 +119,8 @@ const LearningScheduleRow = ({ calendarItem, openRef }) => {
     return (
         <SefariaPressable onPress={onPress}>
             <FlexFrame dir={"row"} justifyContent={"space-between"}>
-                <Text style={[styles.flex1]}>{calendarItem.title.en}</Text>
-                <Text style={[styles.flex1]}>{calendarItem.subs[0].en}</Text>
+                <InterfaceText {...calendarItem.title} extraStyles={[styles.flex1]} />
+                <ContentTextWithFallback {...calendarItem.subs[0]} extraStyles={[styles.flex1]} />
             </FlexFrame>
         </SefariaPressable>
     );
