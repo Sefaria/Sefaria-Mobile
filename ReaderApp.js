@@ -1799,9 +1799,9 @@ class ReaderApp extends React.PureComponent {
     this.openUri(uri);
   }
 
-  openTopicToc = () => {
+  openTopicToc = (pushHistory) => {
     this.setState({navigationTopic: null});
-    this.openMenu('topic toc');
+    this.openMenu('topic toc', null, pushHistory);
   };
 
   openTopic = (topic, isCategory, addToBackStack=true) => {
@@ -1882,7 +1882,7 @@ class ReaderApp extends React.PureComponent {
       case ("learning schedules"):
         Sefaria.track.setScreen("learning schedules", "navigation")
         return (
-           <LearningSchedulesPage openRef={this.openRef} openUri={this.openUri} />
+           <LearningSchedulesPage openRef={this.openRef} openUri={this.openUri} onBack={this.manageBackMain}/>
         );
       case ("text toc"):
         Sefaria.track.setScreen("text toc", "menu")
