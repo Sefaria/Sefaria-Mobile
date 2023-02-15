@@ -1258,11 +1258,11 @@ class ReaderApp extends React.PureComponent {
   };
 
   openLogin = (via) => {
-    this.openMenu("login", via, false);
+    this.openMenu("login", via, true);
   };
 
   openRegister = (via) => {
-    this.openMenu("register", via, false);
+    this.openMenu("register", via, true);
   };
 
   openAutocomplete = () => {
