@@ -244,6 +244,7 @@ const LearningScheduleSubtitleRow = ({ calendarItem, openRef, openUri }) => {
             <Icon name={"book"} length={16} />
             { subtitles.map((subtitle, n) => (
                 <LearningScheduleSubtitle
+                    key={subtitle.en}
                     n={n}
                     subtitle={subtitle}
                     calendarItem={calendarItem}
