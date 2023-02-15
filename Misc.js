@@ -96,19 +96,27 @@ const SystemHeader = ({ title, onBack, openNav, hideLangToggle }) => {
 /**
  * Component to render an interface string that is present in strings.js
  * Please use this as opposed to InterfaceTextWithFallback when possible
- * @param stringKey the key of the string to be rendered (must exist in all interface languages)
+ * @param stringKey the key of the string to be rendered (must exist in all interface languages). If not passed, must pass `en` and `he`
+ * @param en Explicit text to be displayed when interfaceLanguage is English. Only used if stringKey is not supplied.
+ * @param he Explicit text to be displayed when interfaceLanguage is Hebrew. Only used if stringKey is not supplied.
  * @param extraStyles additional styling directives to render this specific text (is it a header, a simple line of text, etc)
  * @returns {Text}
  */
-const InterfaceText = ({stringKey, extraStyles = []}) => {
+const InterfaceText = ({stringKey, en, he, extraStyles = []}) => {
   const { interfaceLanguage } = useContext(GlobalStateContext);
   const intTextStyles = {
     'english' : styles.enInt,
     'hebrew' : styles.heInt
   }
   const langStyle = intTextStyles[interfaceLanguage];
+  let text;
+  if (stringKey) {
+    text = strings[stringKey];
+  } else {
+    text = interfaceLanguage === 'english' ? en : he;
+  }
   return (
-    <Text style={[langStyle].concat(extraStyles)}>{strings[stringKey]}</Text>
+    <Text style={[langStyle].concat(extraStyles)}>{text}</Text>
   );
 };
 
