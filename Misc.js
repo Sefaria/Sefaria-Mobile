@@ -731,9 +731,11 @@ const BackButton = ({ onPress }) => {
 
 const BackButtonRow = ({ onPress }) => {
   return (
-      <FlexFrame dir={"row"} justifyContent={"flex-start"} alignItems={"center"}>
-        <BackButton onPress={onPress} />
-      </FlexFrame>
+      <View style={{paddingVertical: 18}}>
+        <FlexFrame dir={"row"} justifyContent={"flex-start"} alignItems={"center"}>
+          <BackButton onPress={onPress} />
+        </FlexFrame>
+      </View>
   );
 };
 
