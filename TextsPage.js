@@ -8,7 +8,7 @@ import {
     FlexFrame,
     GreyBoxFrame, Icon, InterfaceText, LanguageToggleButton,
     LoadingView, PageHeader,
-    SefariaPressable
+    SefariaPressable, BackButtonRow,
 } from "./Misc";
 import {useAsyncVariable, useGlobalState} from "./Hooks";
 import styles from "./Styles";
@@ -167,13 +167,14 @@ export const TextsPage = ({setCategories, openRef, openLearningSchedules}) => {
     );
 };
 
-export const LearningSchedulesPage = ({ openRef, openUri }) => {
+export const LearningSchedulesPage = ({ openRef, openUri, onBack }) => {
     const { theme } = useGlobalState();
     const calendarItemsBySection = useCalendarItemsBySection();
     return (
         <SectionList
             contentContainerStyle={[{paddingHorizontal: 15}, theme.mainTextPanel]}
             sections={calendarItemsBySection}
+            ListHeaderComponent={() => <BackButtonRow onPress={onBack} />}
             renderSectionHeader={({ section: { sectionTitle } }) => <Text>{sectionTitle}</Text>}
             renderItem={({ item }) => (<LearningSchedule calendarItem={item} openRef={openRef} openUri={openUri} />)}
         />

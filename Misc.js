@@ -719,6 +719,24 @@ DirectedArrow.propTypes = {
   direction:  PropTypes.oneOf(["forward", "back"]).isRequired,
 };
 
+const BackButton = ({ onPress }) => {
+  const { interfaceLanguage } = useGlobalState();
+  const iconName = interfaceLanguage === "english" ? "back" : "forward";
+  return (
+      <SefariaPressable onPress={onPress}>
+        <Icon name={iconName} length={18} />
+      </SefariaPressable>
+  );
+};
+
+const BackButtonRow = ({ onPress }) => {
+  return (
+      <FlexFrame dir={"row"} justifyContent={"flex-start"} alignItems={"center"}>
+        <BackButton onPress={onPress} />
+      </FlexFrame>
+  );
+};
+
 const SearchButton = ({ onPress, extraStyles, disabled }) => {
   const { themeStr } = useContext(GlobalStateContext);
   return (
@@ -1422,6 +1440,8 @@ const GreyBoxFrame = ({ children }) => {
 
 export {
   AnimatedRow,
+  BackButton,
+  BackButtonRow,
   ButtonToggleSet,
   CancelButton,
   CategoryAttribution,
