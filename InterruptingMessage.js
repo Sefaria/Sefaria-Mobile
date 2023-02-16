@@ -182,7 +182,7 @@ class InterruptingMessage extends React.Component {
                       onPress={this.close}
                       accessibilityLabel="Close pop up"
                     >
-                      <Image source={iconData.get('circle-close', this.props.themeStr)}
+                      <Image source={iconData.get('circle-close', this.context.themeStr)}
                         resizeMode={'contain'}
                         style={styles.interruptingMessageClose} />
                     </TouchableOpacity>
