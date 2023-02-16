@@ -11,7 +11,6 @@ import {
   View,
   Image,
   ActivityIndicator,
-  ViewPropTypes,
   Animated,
   Platform,
   TextInput,
@@ -19,6 +18,7 @@ import {
   FlatList,
   useWindowDimensions,
 } from 'react-native';
+import {ViewPropTypes} from 'deprecated-react-native-prop-types';
 import { GlobalStateContext, DispatchContext, STATE_ACTIONS, themeStr, getTheme } from './StateManager';
 import {useGlobalState, useRenderersProps, useRtlFlexDir} from './Hooks';
 import Sefaria from './sefaria';
