@@ -1118,7 +1118,7 @@ class ReaderApp extends React.PureComponent {
   openMenu = (menu, via, pushHistory=true) => {
     //set of `menuOpen` states which you shouldn't be able to go back to
     const SKIP_MENUS = ["register", "login"]
-    if (!!menu && (pushHistory || !SKIP_MENUS.includes(this.state.menuOpen))) {
+    if (!!menu && pushHistory && !SKIP_MENUS.includes(this.state.menuOpen)) {
       if (!this.state.menuOpen && !!this.state.data) {
         // text column. remove related data
         for (let section of this.state.data) {
