@@ -110,10 +110,10 @@ const useMenuButtonObjects = () => {
 
 export class MenuItemsMeta{
   static _items = [
-    {title: 'profile', icon: 'profile-nav', loggedIn: true, ButtonComponent: AccountNavigationMenuButton, actionProps:{action: "menu", destination:"profile"}},
+    /*{title: 'profile', icon: 'profile-nav', loggedIn: true, ButtonComponent: AccountNavigationMenuButton, actionProps:{action: "menu", destination:"profile"}},*/
     {title: 'signup', icon: 'profile-nav', loggedIn: false, ButtonComponent: SefariaTextAccountNavigationMenuButton, actionProps:{action: "menu", destination:"register"}} , 
     {title: 'login', icon: 'login', loggedIn: false, ButtonComponent: AccountNavigationMenuButton, actionProps:{action: "menu",  destination:"login"}},
-    {title: 'updates', icon: 'bell', ButtonComponent: AccountNavigationMenuButton, actionProps:{action: "menu", destination:"updates"}}, 
+    /*{title: 'updates', icon: 'bell', ButtonComponent: AccountNavigationMenuButton, actionProps:{action: "menu", destination:"updates"}},*/ 
     {title: 'settings', icon: 'settings', ButtonComponent: AccountNavigationMenuButton, actionProps:{action: "menu", destination:"settings"}}, 
     {title: 'interfaceLanguage', icon: 'globe', ButtonComponent: InterfaceLanguageMenuButton, actionProps: {}}, 
     {title: 'help', icon: 'help', ButtonComponent: AccountNavigationMenuButton, actionProps:{action: "uri", destination:"https://www.sefaria.org/help"}}, 
