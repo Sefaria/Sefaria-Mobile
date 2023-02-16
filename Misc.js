@@ -44,6 +44,13 @@ const CSS_CLASS_STYLES = {
   },
 };
 
+
+/**
+ * Renderes a page header with Styles to match all page headers and spacing
+ * @param headerProps the props that would be passed to <Header>
+ * @returns {JSX.Element}
+ * @constructor
+ */
 const PageHeader = ({...headerProps}) => {
     return (
         <View style={[styles.navRePageHeader]}>
