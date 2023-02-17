@@ -21,6 +21,7 @@ class IconData {
     }
 
     static _load_icons() {
+        //TODO: these icons should really be named for their user case and not a arbitrary "shade"! 
         return {
             'a-aleph': {
                 black: require('./img/a-aleph-light.png'),
@@ -58,7 +59,7 @@ class IconData {
                 black: require('./img/book-light.png'),
                 white: require('./img/book.png'),
                 black_selected: require('./img/book-white.png'),
-                white_selected: require('./img/book-dark.png'),
+                white_selected: require('./img/book-black.png'),
             },
             'bookmark': {
                 black: require('./img/bookmark-light.png'),
