@@ -76,6 +76,8 @@ export default StyleSheet.create({
   navRePageHeader:{
     marginVertical: 24,
     direction: "inherit",
+    display: "flex",
+    alignContent: "flex-start",
   },
   navReAccountMenuButton:{
     display: "flex",
