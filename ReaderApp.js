@@ -69,6 +69,7 @@ import {
 } from './Misc.js';
 import {FooterTabBar} from "./FooterTabBar";
 import {iconData} from "./IconData";
+import {HistoryPage} from "./HistoryPage";
 const ViewPort    = Dimensions.get('window');
 
 class ReaderApp extends React.PureComponent {
@@ -1975,7 +1976,8 @@ class ReaderApp extends React.PureComponent {
         />);
       case ("history"):
         Sefaria.track.setScreen("history", "menu")
-        return(
+        return(<HistoryPage/>)  
+        /*return(
           <SwipeableCategoryList
             close={this.manageBackMain}
             theme={this.props.theme}
@@ -1994,7 +1996,7 @@ class ReaderApp extends React.PureComponent {
             hasDismissedSyncModal={this.props.hasDismissedSyncModal}
             readingHistory={this.props.readingHistory}
           />
-        );
+        );*/
         break;
       case ("saved"):
         Sefaria.track.setScreen("saved", "menu")
