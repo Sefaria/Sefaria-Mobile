@@ -7,7 +7,7 @@ import {
     View,
     Image, Text,
 } from 'react-native';
-import { InterfaceText,PageHeader, Sefaria501} from './Misc.js';
+import { InterfaceText,PageHeader, Header, Sefaria501} from './Misc.js';
 import { iconData } from './IconData';
 import styles from './Styles.js';
 import {useGlobalState} from './Hooks';
@@ -15,6 +15,7 @@ import { GlobalStateContext, DispatchContext, STATE_ACTIONS, getTheme } from './
 import Sefaria from "./sefaria";
 import strings from "./LocalizedStrings";
 import {ShortDedication} from "./Dedication";
+
 
 
 /**
@@ -26,7 +27,7 @@ import {ShortDedication} from "./Dedication";
 export const AccountNavigationMenu = props => {
     return (
         <ScrollView contentContainerStyle={[styles.navRePage]} >
-            <PageHeader titleKey={"account"}/>
+            <PageHeader><Header titleKey={"account"}/></PageHeader>
             <AccountNavigationMenuButtonList {...props} />
             <ShortDedication openDedication={() => props.openMenu("dedication", "AccountNavigationMenu")}/>
             <Sefaria501/>
