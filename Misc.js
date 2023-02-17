@@ -44,12 +44,29 @@ const CSS_CLASS_STYLES = {
   },
 };
 
-const PageHeader = ({...headerProps}) => {
+const PageHeader = ({children}) => {
     return (
         <View style={[styles.navRePageHeader]}>
-          <Header {...headerProps} />
+          {children}
         </View>
     )
+}
+/***
+ * Renders text styled as a header that has functionality
+ * @param titleKey the text to use for the header
+ * @returns {JSX.Element}
+ * @constructor
+ */
+const StatefulHeader = ({titleKey, icon = null, callbackFunc=()=>{}, active=true}) => {
+  const { theme } = useGlobalState();
+  return(
+      <FlexFrame>
+        <TouchableOpacity onPress={callbackFunc}>
+          {icon ? <Icon name={icon} isSelected={active}/> : null}
+          <InterfaceText stringKey={titleKey} extraStyles={[styles.navReHeaderText, active ? theme.tertiaryText : theme.secondaryText]} />
+        </TouchableOpacity>
+      </FlexFrame>
+  );
 }
 /***
  * Renders text styled as a header
@@ -57,10 +74,13 @@ const PageHeader = ({...headerProps}) => {
  * @returns {JSX.Element}
  * @constructor
  */
-const Header = ({titleKey}) => {
+const Header = ({titleKey, icon = null}) => {
   const { theme } = useGlobalState();
   return(
-      <InterfaceText stringKey={titleKey} extraStyles={[styles.navReHeaderText, theme.tertiaryText]} />
+      <FlexFrame>
+        {icon ? <Icon name={icon}/> : null}
+        <InterfaceText stringKey={titleKey} extraStyles={[styles.navReHeaderText, theme.tertiaryText]} />
+      </FlexFrame>
   );
 }
 
@@ -1525,6 +1545,7 @@ export {
   SimpleHTMLView,
   SimpleInterfaceBlock,
   SimpleLinkedBlock,
+  StatefulHeader,
   SText,
   SystemButton,
   SystemHeader,
