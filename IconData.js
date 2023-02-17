@@ -64,7 +64,7 @@ class IconData {
                 black: require('./img/bookmark-light.png'),
                 white: require('./img/bookmark.png'),
                 black_selected: require('./img/bookmark-white.png'),
-                white_selected: require('./img/bookmark-dark.png'),
+                white_selected: require('./img/bookmark-black.png'),
             },
             'breaks': {
                 black: require('./img/breaks-light.png'),
@@ -101,6 +101,8 @@ class IconData {
             'clock': {
                 black: require('./img/clock-light.png'),
                 white: require('./img/clock.png'),
+                black_selected: require('./img/clock-white.png'),
+                white_selected: require('./img/clock-dark.png'),
             },
             'close': {
                 black: require('./img/close-light.png'),
@@ -142,7 +144,7 @@ class IconData {
                 black: require('./img/hashtag-light.png'),
                 white: require('./img/hashtag.png'),
                 black_selected: require('./img/hashtag-white.png'),
-                white_selected: require('./img/hashtag-dark.png'),
+                white_selected: require('./img/hashtag-black.png'),
             },
             'heart': {
                 black: require('./img/heart-light.png'),
@@ -184,7 +186,7 @@ class IconData {
                 black: require('./img/profile-light.png'),
                 white: require('./img/profile.png'),
                 black_selected: require('./img/profile-white.png'),
-                white_selected: require('./img/profile-dark.png'),
+                white_selected: require('./img/profile-black.png'),
             },
             'profile-nav': {
                 black: require('./img/profile-sefaria.png'),
@@ -194,11 +196,17 @@ class IconData {
                 black: require('./img/quill-light.png'),
                 white: require('./img/quill.png'),
             },
+            'saved': {
+                black: require('./img/bookmark-light.png'),
+                white: require('./img/bookmark.png'),
+                black_selected: require('./img/bookmark-white.png'),
+                white_selected: require('./img/bookmark-dark.png'), //#666666
+            },
             'search': {
                 black: require('./img/search-light.png'),
                 white: require('./img/search.png'),
                 black_selected: require('./img/search-white.png'),
-                white_selected: require('./img/search-dark.png'),
+                white_selected: require('./img/search-black.png'),
             },
             'settings': {
                 black: require('./img/settings-light.png'),
@@ -212,7 +220,7 @@ class IconData {
                 black: require('./img/sheet-light.png'),
                 white: require('./img/sheet.png'),
                 black_selected: require('./img/sheet-white.png'),
-                white_selected: require('./img/sheet-dark.png'),
+                white_selected: require('./img/sheet-black.png'),
             },
             'sidebyside': {
                 black: require('./img/sidebyside-light.png'),
@@ -246,6 +254,7 @@ class IconData {
                 black: require('./img/user-light.png'),
                 white: require('./img/user.png'),
             },
+            
         }
     }
 }
