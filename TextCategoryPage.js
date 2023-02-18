@@ -269,9 +269,7 @@ export const TextCategoryPage = ({categories, setCategories, openRef, onBack}) =
 
     return (
         <FlexFrame dir={"column"}>
-            <View style={{marginHorizontal: -15}}>
-                <CategoryColorLine category={displayCategories[0]} thickness={4} />
-            </View>
+            <CategoryColorLine category={displayCategories[0]} thickness={4} />
             <SectionList
                 sections={sections}
                 stickySectionHeadersEnabled={false}
