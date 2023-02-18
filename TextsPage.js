@@ -12,6 +12,7 @@ import {
 } from "./Misc";
 import {useAsyncVariable, useGlobalState} from "./Hooks";
 import styles from "./Styles";
+import {TextCategoryPage} from "./TextCategoryPage";
 
 const useCategoryButtonProps = (tocItem, setCategories) => {
     const {category, heCategory, enDesc, heDesc, enShortDesc, heShortDesc} = tocItem;
@@ -145,8 +146,20 @@ const TextsPageHeader = () => {
     );
 };
 
-export const TextsPage = ({setCategories, openRef, openLearningSchedules}) => {
+export const TextsPage = ({categories, setCategories, openRef, openLearningSchedules, onBack}) => {
     const { theme } = useGlobalState();
+
+    if (categories.length) {
+        return (
+            <TextCategoryPage
+                categories={categories}
+                setCategories={setCategories}
+                openRef={openRef}
+                onBack={onBack}
+            />
+        )
+    }
+
     const data = Sefaria.getRootTocItems();
     data.splice(3, 0, {isSplice: true});
     return (
