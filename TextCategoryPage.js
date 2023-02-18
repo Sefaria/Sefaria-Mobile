@@ -248,9 +248,6 @@ const SubCategoryToggle = ({displayCategories, setCategories}) => {
 const TextCategoryHeader = ({ title, description, onBack, displayCategories, setCategories }) => {
     return (
         <FlexFrame dir={"column"}>
-            <View style={{marginHorizontal: -15}}>
-                <CategoryColorLine category={displayCategories[0]} thickness={4} />
-            </View>
             <FlexFrame dir={"row"} justifyContent={"space-between"} alignItems={"center"}>
                 <BackButtonRow onPress={onBack} />
                 <LanguageToggleButton />
@@ -271,28 +268,33 @@ export const TextCategoryPage = ({categories, setCategories, openRef, onBack}) =
     const categoryDescription = getCategoryDescription(categories);
 
     return (
-        <SectionList
-            sections={sections}
-            stickySectionHeadersEnabled={false}
-            contentContainerStyle={[{paddingHorizontal: 15}, theme.mainTextPanel]}
-            ListHeaderComponent={() => (
-                <TextCategoryHeader
-                    title={categoryTitle}
-                    description={categoryDescription}
-                    onBack={onBack}
-                    displayCategories={displayCategories}
-                    categories={categories}
-                    setCategories={setCategories}
-                />
-            )}
-            renderSectionHeader={({section: { item }}) => <ContentTextWithFallback {...item.title} />}
-            renderItem={({ item: displayTocItem }) => (
-                <CategoryButton
-                    title={displayTocItem.title}
-                    description={displayTocItem.description}
-                    onPress={getTocItemOnPress(displayTocItem, setCategories, openRef)}
-                />
-            )}
-        />
+        <FlexFrame dir={"column"}>
+            <View style={{marginHorizontal: -15}}>
+                <CategoryColorLine category={displayCategories[0]} thickness={4} />
+            </View>
+            <SectionList
+                sections={sections}
+                stickySectionHeadersEnabled={false}
+                contentContainerStyle={[{paddingHorizontal: 15}, theme.mainTextPanel]}
+                ListHeaderComponent={() => (
+                    <TextCategoryHeader
+                        title={categoryTitle}
+                        description={categoryDescription}
+                        onBack={onBack}
+                        displayCategories={displayCategories}
+                        categories={categories}
+                        setCategories={setCategories}
+                    />
+                )}
+                renderSectionHeader={({section: { item }}) => <ContentTextWithFallback {...item.title} />}
+                renderItem={({ item: displayTocItem }) => (
+                    <CategoryButton
+                        title={displayTocItem.title}
+                        description={displayTocItem.description}
+                        onPress={getTocItemOnPress(displayTocItem, setCategories, openRef)}
+                    />
+                )}
+            />
+        </FlexFrame>
     );
 };
