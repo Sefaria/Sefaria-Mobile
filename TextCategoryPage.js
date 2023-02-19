@@ -228,6 +228,7 @@ const getSubCategoryToggle = categories => {
 const SubCategoryToggle = ({displayCategories, setCategories}) => {
     const { theme } = useGlobalState();
     const toggleData = getSubCategoryToggle(displayCategories);
+    if (!toggleData) { return null; }
     const options = toggleData["subCategories"].map((element, index) => {
         const toggleFunc = () => setCategories([displayCategories[0], element]); //this may need some adjustment if there ever was another toggle not at dpeth 2
         const toggleTitle = toggleData["subCategoriesDisplay"][index];
