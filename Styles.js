@@ -342,7 +342,7 @@ export default StyleSheet.create({
   menuButtonMargined: {
     width: 20,
     height: 20,
-    marginHorizontal: 10,
+    marginHorizontal: 20,
   },
   menuButtonMarginedHe: {
     width: 17,
