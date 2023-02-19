@@ -85,23 +85,28 @@ const getCalendarItemsForTextsPage = calendarItems => {
 };
 
 const LearningSchedulesBox = ({openRef, openLearningSchedules}) => {
+    const { theme } = useGlobalState();
     const { calendarLoaded, calendarItems } = useCalendarItems();
     const textsPageCalendarItems = getCalendarItemsForTextsPage(calendarItems);
     const loadedLearningSchedules = (
         <View>
-            <FlexFrame dir={"row"} justifyContent={"space-between"}>
-                <InterfaceText stringKey={"learningSchedules"} />
-                <SefariaPressable onPress={openLearningSchedules}>
-                    <InterfaceText stringKey={"seeAll"} />
-                </SefariaPressable>
-            </FlexFrame>
+            <View style={[{borderBottomWidth: 1, paddingBottom: 5, marginBottom: 5}, theme.lightGreyBorder]}>
+                <FlexFrame dir={"row"} justifyContent={"space-between"}>
+                    <InterfaceText stringKey={"learningSchedules"} extraStyles={[styles.fontSize16, styles.fontBold, theme.tertiaryText]}/>
+                    <SefariaPressable onPress={openLearningSchedules}>
+                        <InterfaceText stringKey={"seeAll"} extraStyles={[styles.fontSize16, theme.secondaryText]}/>
+                    </SefariaPressable>
+                </FlexFrame>
+            </View>
             <LearningScheduleTable calendarItems={textsPageCalendarItems} openRef={openRef} />
         </View>
     )
     return (
-        <GreyBoxFrame>
-            { calendarLoaded ? loadedLearningSchedules : <LoadingView />}
-        </GreyBoxFrame>
+        <View style={{marginHorizontal: -15}}>
+            <GreyBoxFrame>
+                { calendarLoaded ? loadedLearningSchedules : <LoadingView />}
+            </GreyBoxFrame>
+        </View>
     );
 };
 
@@ -116,12 +121,14 @@ const LearningScheduleTable = ({ calendarItems, openRef }) => {
 };
 
 const LearningScheduleRow = ({ calendarItem, openRef }) => {
+    const { theme } = useGlobalState();
     const onPress = () => openRef(calendarItem.refs[0]);
+    const displayTitle = calendarItem.title.en === "Parashat Hashavua" ? {en: "Torah", he: "תורה"} : calendarItem.title
     return (
         <SefariaPressable onPress={onPress}>
             <FlexFrame dir={"row"} justifyContent={"space-between"}>
-                <InterfaceText {...calendarItem.title} extraStyles={[styles.flex1]} />
-                <ContentTextWithFallback {...calendarItem.subs[0]} extraStyles={[styles.flex1]} />
+                <InterfaceText {...displayTitle} extraStyles={[styles.flex1, styles.fontSize16, theme.tertiaryText]} />
+                <ContentTextWithFallback {...calendarItem.subs[0]} extraStyles={[styles.flex1, {marginTop: 5}]} />
             </FlexFrame>
         </SefariaPressable>
     );

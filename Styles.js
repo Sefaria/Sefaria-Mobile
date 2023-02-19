@@ -58,6 +58,18 @@ export default StyleSheet.create({
     lineHeight: 23,
     textAlign: 'right',
   },
+  fontSize14: {
+    fontSize: 14,
+  },
+  fontBold: {
+    fontWeight: 'bold',
+  },
+  fontSize16: {
+    fontSize: 16,
+  },
+  fontSize18: {
+    fontSize: 18,
+  },
   navRePage:{
     display: "flex",
     marginHorizontal: 15,
