@@ -1,5 +1,5 @@
 import React from "react";
-import {SectionList, View} from "react-native";
+import {SectionList} from "react-native";
 import {useGlobalState} from "./Hooks";
 import {
     BackButtonRow,
@@ -10,7 +10,7 @@ import {
     LanguageToggleButton, SefariaPressable
 } from "./Misc";
 import Sefaria from "./sefaria";
-import {BasicLearningScheduleBox} from "./LearningSchedules";
+import {NavSidebar} from "./NavSidebar";
 
 /**
  * Return modified categories for cases with category toggles
@@ -248,7 +248,8 @@ const SubCategoryToggle = ({displayCategories, setCategories}) => {
     );
 };
 
-const TextCategoryHeader = ({ title, description, onBack, displayCategories, setCategories }) => {
+
+const TextCategoryHeader = ({ title, description, onBack, displayCategories, setCategories, openRef }) => {
     return (
         <FlexFrame dir={"column"}>
             <FlexFrame dir={"row"} justifyContent={"space-between"} alignItems={"center"}>
@@ -260,6 +261,7 @@ const TextCategoryHeader = ({ title, description, onBack, displayCategories, set
                 <SubCategoryToggle displayCategories={displayCategories} setCategories={setCategories} />
             </FlexFrame>
             <InterfaceText {...description} />
+            <NavSidebar modules={getSidebarModules(displayCategories, openRef)} />
         </FlexFrame>
     );
 };
@@ -314,6 +316,7 @@ export const TextCategoryPage = ({categories, setCategories, openRef, onBack}) =
                         displayCategories={displayCategories}
                         categories={categories}
                         setCategories={setCategories}
+                        openRef={openRef}
                     />
                 )}
                 renderSectionHeader={({section: { item }}) => <SectionHeader displayTocItem={item} /> }
@@ -329,5 +332,22 @@ export const TextCategoryPage = ({categories, setCategories, openRef, onBack}) =
     );
 };
 
-const WeeklyTorahPortionBox = ({ openRef }) => <BasicLearningScheduleBox openRef={openRef} desiredCalendarTitles={['Parashat Hashavua', 'Haftarah']} titleKey={"weeklyTorahPortion"} />;
-const DafYomiBox = ({ openRef }) => <BasicLearningScheduleBox openRef={openRef} desiredCalendarTitles={['Daf Yomi']} titleKey={"dafYomi"} />;
+const getSidebarModules = (categories, openRef) => {
+    const path = categories.join("|");
+
+    const modules = {
+        "Tanakh": [
+            {type: "WeeklyTorahPortion", props: {openRef}},
+        ],
+        "Talmud|Bavli": [
+            {type: "DafYomi", props: {openRef}},
+        ]
+    };
+
+    const customModules = path in modules ? modules[path] : [];
+
+    // TODO fill in as needed
+    const defaultModules = [];
+
+    return customModules.concat(defaultModules);
+};
