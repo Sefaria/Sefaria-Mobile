@@ -31,6 +31,7 @@ const SearchPage = props => {
           setSearchOptions={props.setSearchOptions}
           toggleFilter={props.toggleFilter}
           clearAllFilters={props.clearAllFilters}
+          onBack={props.onBack}
         />
       );
   }

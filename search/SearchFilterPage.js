@@ -13,7 +13,7 @@ import {FilterNode, SearchPropTypes} from '@sefaria/search';
 import {
     ButtonToggleSet,
     SystemButton,
-    IndeterminateCheckBox, Icon, FlexFrame, ContentTextWithFallback, LocalSearchBar,
+    IndeterminateCheckBox, Icon, FlexFrame, ContentTextWithFallback, LocalSearchBar, BackButtonRow,
 } from '../Misc.js';
 import styles from '../Styles';
 import strings from '../LocalizedStrings';
@@ -106,6 +106,7 @@ export const SearchFilterPage = ({
     search,
     setSearchOptions,
     searchState,
+    onBack,
 }) => {
     const { toggleFilterBound, onResetPress, onSetSearchOptions, applyFilters } = useSearchFilterCallbacks(searchState.type, openSubMenu, toggleFilter, clearAllFilters, search, query);
     const { filterSections, onFilterQueryChange, filterQuery, setExpandedFilterCategories } = useFilterSearcher(searchState.filtersValid, searchState.availableFilters);
@@ -142,6 +143,7 @@ export const SearchFilterPage = ({
                 )}
                 ListHeaderComponent={() => (
                     <View>
+                        <BackButtonRow onPress={onBack} />
                         <RootFilterButtons buttonToggleSetData={buttonToggleSetData} onResetPress={onResetPress} />
                         <LocalSearchBar onChange={onFilterQueryChange} query={filterQuery} />
                     </View>
