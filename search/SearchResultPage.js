@@ -38,14 +38,16 @@ export const SearchResultPage = (props) => {
                 onChange={props.onChangeSearchQuery}
                 onFocus={props.openAutocomplete}
             />
-            <TabRowView
-                tabs={tabs}
-                renderTab={(tab, active) => <SearchTabView active={active} {...tab} />}
-                currTabId={props.searchState.type}
-                setTab={props.setSearchTypeState}
-                flexDirection={flexDirection}
-                RowEndComponent={props.searchState.type === "text" ? <FilterButton onPress={onFilterPress} numFilters={numFilters}/> : null}
-            />
+            <View style={{marginVertical: 17}}>
+                <TabRowView
+                    tabs={tabs}
+                    renderTab={(tab, active) => <SearchTabView active={active} {...tab} />}
+                    currTabId={props.searchState.type}
+                    setTab={props.setSearchTypeState}
+                    flexDirection={flexDirection}
+                    RowEndComponent={props.searchState.type === "text" ? <FilterButton onPress={onFilterPress} numFilters={numFilters}/> : null}
+                />
+            </View>
             <SearchResultList
                 setInitSearchScrollPos={props.setInitSearchScrollPos}
                 openRef={props.openRef}
