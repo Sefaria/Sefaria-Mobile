@@ -199,6 +199,7 @@ let strings = new LocalizedStrings({
     browseTheLibrary: "Browse the Library",
     learningSchedules: "Learning Schedules",
     seeAll: "See All",
+    weeklyTorahPortion: "Weekly Torah Portion",
   },
   he: {
     profile: "פרופיל",
@@ -395,6 +396,7 @@ let strings = new LocalizedStrings({
     browseTheLibrary: "עיון בספריה",
     learningSchedules: "לוח לימוד יומי",
     seeAll: "See All TODO",
+    weeklyTorahPortion: "פרשת השבוע",
   }
 });
 

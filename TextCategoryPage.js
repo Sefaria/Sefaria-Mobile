@@ -10,6 +10,7 @@ import {
     LanguageToggleButton, SefariaPressable
 } from "./Misc";
 import Sefaria from "./sefaria";
+import {BasicLearningScheduleBox} from "./LearningSchedules";
 
 /**
  * Return modified categories for cases with category toggles
@@ -327,3 +328,6 @@ export const TextCategoryPage = ({categories, setCategories, openRef, onBack}) =
         </FlexFrame>
     );
 };
+
+const WeeklyTorahPortionBox = ({ openRef }) => <BasicLearningScheduleBox openRef={openRef} desiredCalendarTitles={['Parashat Hashavua', 'Haftarah']} titleKey={"weeklyTorahPortion"} />;
+const DafYomiBox = ({ openRef }) => <BasicLearningScheduleBox openRef={openRef} desiredCalendarTitles={['Daf Yomi']} titleKey={"dafYomi"} />;

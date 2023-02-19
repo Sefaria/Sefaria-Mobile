@@ -58,6 +58,33 @@ const getFilteredCalendarItems = (calendarItems, desiredCalendarTitles) => {
     return calendarItems.filter(item => desiredCalendarTitlesSet.has(item.title.en));
 };
 
+/**
+ * Simple learning schedule box to insert wherever a sidebar element can go on the site
+ * @param openRef
+ * @param desiredCalendarTitles: list of calendar titles to display
+ * @param titleKey: key for LocalizedStrings.js
+ * @returns {JSX.Element}
+ * @constructor
+ */
+export const BasicLearningScheduleBox = ({ openRef, desiredCalendarTitles, titleKey }) => {
+    const { theme } = useGlobalState();
+    return (
+        <LearningSchedulesBox openRef={openRef} desiredCalendarTitles={desiredCalendarTitles}>
+            <FlexFrame dir={"row"} justifyContent={"flex-start"}>
+                <InterfaceText stringKey={titleKey} extraStyles={[styles.fontSize16, styles.fontBold, theme.tertiaryText]} />
+            </FlexFrame>
+        </LearningSchedulesBox>
+    );
+};
+
+/**
+ * Learning schedules box to insert wherever a sidebar element can go on the site. A bit more modular than BasicLearningSchedulesBox.
+ * @param openRef
+ * @param desiredCalendarTitles: list of calendar titles to display
+ * @param children: element to display above the learning schedules
+ * @returns {JSX.Element}
+ * @constructor
+ */
 export const LearningSchedulesBox = ({openRef, desiredCalendarTitles, children}) => {
     const { theme } = useGlobalState();
     const { calendarLoaded } = useCalendarItems();
