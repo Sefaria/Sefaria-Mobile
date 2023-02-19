@@ -129,6 +129,7 @@ class DisplayTocItem {
     };
 
     isNested = () => this.children?.length > 0;
+    isDescriptionLong = lang => this.description[lang].split(" ").length > 5;
 }
 
 const getDisplayTocItems = (displayCategories, nestLevel, contentLang) => {
@@ -263,18 +264,32 @@ const TextCategoryHeader = ({ title, description, onBack, displayCategories, set
 };
 
 const SectionHeader = ({ displayTocItem }) => {
-    const { menuLanguage } = useGlobalState();
+    if (!displayTocItem) { return null; }
+    const { theme, menuLanguage } = useGlobalState();
     const { title, description } = displayTocItem;
     const getTitleWithDescription = lang => {
         let str = title[lang];
         if (lang === 'en') { str = str.toUpperCase(); }
-        return str + (description[lang] ? ` (${description[lang]})` : '');
+        if (!description[lang] || displayTocItem.isDescriptionLong(lang)) {
+            return str;
+        }
+        return `${str} (${description[lang]})`;
     }
     const displayTitle = {
         en: getTitleWithDescription('en'),
         he: getTitleWithDescription('he'),
     };
-    return (<ContentTextWithFallback {...displayTitle} lang={menuLanguage} />);
+    const titleComponent = <ContentTextWithFallback {...displayTitle} lang={menuLanguage} extraStyles={[{fontSize: 18}, theme.tertiaryText]} />;
+    const currLangCode = menuLanguage.substring(0, 2);
+    if (displayTocItem.isDescriptionLong(currLangCode)) {
+        return (
+            <FlexFrame dir={"column"}>
+                { titleComponent }
+                <ContentTextWithFallback {...description} lang={menuLanguage} extraStyles={[{fontSize: 14}, theme.tertiaryText]}/>
+            </FlexFrame>
+        );
+    }
+    return titleComponent;
 };
 
 export const TextCategoryPage = ({categories, setCategories, openRef, onBack}) => {
