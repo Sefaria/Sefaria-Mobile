@@ -67,6 +67,12 @@ class IconData {
                 black_selected: require('./img/bookmark-white.png'),
                 white_selected: require('./img/bookmark-black.png'),
             },
+            'bookmark2': {
+                black: require('./img/bookmark2-light.png'),
+                white: require('./img/bookmark2.png'),
+                black_selected: require('./img/bookmark2-white.png'),
+                white_selected: require('./img/bookmark2-dark.png'), //#666666
+            },
             'breaks': {
                 black: require('./img/breaks-light.png'),
                 white: require('./img/breaks.png'),
@@ -196,12 +202,6 @@ class IconData {
             'quill': {
                 black: require('./img/quill-light.png'),
                 white: require('./img/quill.png'),
-            },
-            'saved': {
-                black: require('./img/bookmark-light.png'),
-                white: require('./img/bookmark.png'),
-                black_selected: require('./img/bookmark-white.png'),
-                white_selected: require('./img/bookmark-dark.png'), //#666666
             },
             'search': {
                 black: require('./img/search-light.png'),
