@@ -395,7 +395,7 @@ let strings = new LocalizedStrings({
     sefaria501: "ספריא הינה ארגון ללא מטרות רווח הנשען על תרומות משתמשים לצורך אחזקת ופיתוח הספרייה.",
     browseTheLibrary: "עיון בספריה",
     learningSchedules: "לוח לימוד יומי",
-    seeAll: "See All TODO",
+    seeAll: "צפייה בנוספים",
     weeklyTorahPortion: "פרשת השבוע",
   }
 });
