@@ -53,28 +53,22 @@ const useCalendarItemsBySection = () => {
     return calendarItemSections;
 };
 
-const getCalendarItemsForTextsPage = calendarItems => {
-    const textsPageCalendarTitles = new Set(['Parashat Hashavua', 'Haftarah', 'Daf Yomi']);
-    return calendarItems.filter(item => textsPageCalendarTitles.has(item.title.en));
+const getFilteredCalendarItems = (calendarItems, desiredCalendarTitles) => {
+    const desiredCalendarTitlesSet = new Set(desiredCalendarTitles);
+    return calendarItems.filter(item => desiredCalendarTitlesSet.has(item.title.en));
 };
 
-export const LearningSchedulesBox = ({openRef, openLearningSchedules}) => {
+export const LearningSchedulesBox = ({openRef, desiredCalendarTitles, children}) => {
     const { theme } = useGlobalState();
-    const { calendarLoaded, calendarItems } = useCalendarItems();
-    const textsPageCalendarItems = getCalendarItemsForTextsPage(calendarItems);
+    const { calendarLoaded } = useCalendarItems();
     const loadedLearningSchedules = (
         <View>
-            <View style={[{borderBottomWidth: 1, paddingBottom: 5, marginBottom: 5}, theme.lightGreyBorder]}>
-                <FlexFrame dir={"row"} justifyContent={"space-between"}>
-                    <InterfaceText stringKey={"learningSchedules"} extraStyles={[styles.fontSize16, styles.fontBold, theme.tertiaryText]}/>
-                    <SefariaPressable onPress={openLearningSchedules}>
-                        <InterfaceText stringKey={"seeAll"} extraStyles={[styles.fontSize16, theme.secondaryText]}/>
-                    </SefariaPressable>
-                </FlexFrame>
+            <View style={[styles.learningSchedulesBorder, theme.lightGreyBorder]}>
+                { children }
             </View>
-            <LearningScheduleTable calendarItems={textsPageCalendarItems} openRef={openRef} />
+            <LearningScheduleTable desiredCalendarTitles={desiredCalendarTitles} openRef={openRef} />
         </View>
-    )
+    );
     return (
         <View style={{marginHorizontal: -15}}>
             <GreyBoxFrame>
@@ -84,10 +78,12 @@ export const LearningSchedulesBox = ({openRef, openLearningSchedules}) => {
     );
 };
 
-const LearningScheduleTable = ({ calendarItems, openRef }) => {
+const LearningScheduleTable = ({ desiredCalendarTitles, openRef }) => {
+    const { calendarItems } = useCalendarItems();
+    const filteredCalendarItems = getFilteredCalendarItems(calendarItems, desiredCalendarTitles);
     return (
         <FlexFrame dir={"column"}>
-            {calendarItems.map(item => (
+            {filteredCalendarItems.map(item => (
                 <LearningScheduleRow key={item.title.en} calendarItem={item} openRef={openRef} />
             ))}
         </FlexFrame>

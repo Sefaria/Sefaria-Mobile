@@ -122,6 +122,7 @@ export default StyleSheet.create({
     textAlign: "center",
     marginVertical:20,
   },
+  learningSchedulesBorder: {borderBottomWidth: 1, paddingBottom: 5, marginBottom: 5},
   boxShadow: {
     shadowColor: 'black',
     shadowOffset: { width: 0, height: 1 },

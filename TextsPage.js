@@ -7,7 +7,10 @@ import {
     FlexFrame,
     LanguageToggleButton,
     PageHeader,
+    InterfaceText,
+    SefariaPressable,
 } from "./Misc";
+import styles from "./Styles";
 import {LearningSchedulesBox} from "./LearningSchedules";
 import {useGlobalState} from "./Hooks";
 import {TextCategoryPage} from "./TextCategoryPage";
@@ -30,9 +33,23 @@ const useCategoryButtonProps = (tocItem, setCategories) => {
     }
 }
 
+const TextsPageLearningSchedulesBox = ({ openRef, openLearningSchedules }) => {
+    const { theme } = useGlobalState();
+    return (
+        <LearningSchedulesBox openRef={openRef} desiredCalendarTitles={['Parashat Hashavua', 'Haftarah', 'Daf Yomi']}>
+            <FlexFrame dir={"row"} justifyContent={"space-between"}>
+                <InterfaceText stringKey={"learningSchedules"} extraStyles={[styles.fontSize16, styles.fontBold, theme.tertiaryText]}/>
+                <SefariaPressable onPress={openLearningSchedules}>
+                    <InterfaceText stringKey={"seeAll"} extraStyles={[styles.fontSize16, theme.secondaryText]}/>
+                </SefariaPressable>
+            </FlexFrame>
+        </LearningSchedulesBox>
+    );
+};
+
 const TopLevelCategoryOrLearningSchedulesBox = ({item, setCategories, openRef, openLearningSchedules}) => (
     item.isSplice ?
-        (<LearningSchedulesBox openRef={openRef} openLearningSchedules={openLearningSchedules}/>) :
+        (<TextsPageLearningSchedulesBox openRef={openRef} openLearningSchedules={openLearningSchedules}/>) :
         (<TopLevelCategory item={item} setCategories={setCategories}/>)
 );
 
