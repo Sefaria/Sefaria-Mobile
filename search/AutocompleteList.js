@@ -14,6 +14,7 @@ import {
 import ActionSheet from 'react-native-action-sheet';
 
 import {
+  InterfaceText,
   SText,
 } from '../Misc';
 import styles from '../Styles';
@@ -290,9 +291,9 @@ class AutocompleteList extends React.Component {
                   renderItem={this.renderItem}
                 />
                 :
-                <View style={{flex:1}}>
-                  <View style={[{paddingVertical: 15, paddingHorizontal: 15, borderBottomWidth: 1}, this.props.theme.bordered]}>
-                    <Text style={[this.props.theme.searchResultSummaryText, langStyle, this.props.theme.secondaryText]}>{strings.recentSearches}</Text>
+                <View style={styles.flex1}>
+                  <View style={[{paddingVertical: 15, borderBottomWidth: 1}, this.props.theme.bordered]}>
+                    <InterfaceText stringKey={"recentSearches"} extraStyles={[this.props.theme.tertiaryText, styles.fontBold, styles.fontSize16]} />
                   </View>
                   <FlatList
                     keyExtractor={this._keyExtractor}

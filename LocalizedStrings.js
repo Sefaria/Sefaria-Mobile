@@ -140,7 +140,7 @@ let strings = new LocalizedStrings({
     sources: "Sources",
     supportSefaria: "SUPPORT SEFARIA",
     donate: "Donate",
-    recentSearches: "RECENT SEARCHES",
+    recentSearches: "Recent Searches",
     remove: "Remove",
     alreadyDownloaded: "Already Downloaded",
     areIncludedIn: "These texts are included in",
