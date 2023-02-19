@@ -621,9 +621,11 @@ LibraryNavButton.propTypes = {
 
 const LanguageToggleButton = () => {
   // button for toggling b/w he and en for menu and text lang (both controlled by `textLanguage`)
-  const { theme, themeStr, interfaceLanguage, textLanguage } = useGlobalState();
+  const { theme, textLanguage, interfaceLanguage } = useGlobalState();
   const dispatch = useContext(DispatchContext);
-  const isHeb = Sefaria.util.get_menu_language(interfaceLanguage, textLanguage) === 'hebrew';
+  const isHeb = textLanguage === 'hebrew';
+  const iconName = isHeb ? "a_icon" : "aleph";
+  const enabled = interfaceLanguage !== 'hebrew';
 
   const toggle = () => {
     const language = !isHeb ? "hebrew" : 'english';
@@ -633,10 +635,10 @@ const LanguageToggleButton = () => {
     });
   };
 
-  const style = [styles.languageToggle, theme.languageToggle, interfaceLanguage === "hebrew" ? {opacity:0} : null];
+  const style = [styles.languageToggle, theme.languageToggle, enabled ? null : {opacity:0}];
   return (
-    <TouchableOpacity style={style} onPress={interfaceLanguage === "hebrew" ? null : toggle} accessibilityLabel={`Change language to ${isHeb ? "English" : "Hebrew"}`}>
-      <Icon name={"aleph"} length={13.5} />
+    <TouchableOpacity style={style} onPress={toggle} disabled={!enabled} accessibilityLabel={`Change language to ${isHeb ? "English" : "Hebrew"}`}>
+      <Icon name={iconName} length={13.5} />
     </TouchableOpacity>
   );
 }
