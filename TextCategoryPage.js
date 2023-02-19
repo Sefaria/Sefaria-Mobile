@@ -261,6 +261,21 @@ const TextCategoryHeader = ({ title, description, onBack, displayCategories, set
     );
 };
 
+const SectionHeader = ({ displayTocItem }) => {
+    const { menuLanguage } = useGlobalState();
+    const { title, description } = displayTocItem;
+    const getTitleWithDescription = lang => {
+        let str = title[lang];
+        if (lang === 'en') { str = str.toUpperCase(); }
+        return str + (description[lang] ? ` (${description[lang]})` : '');
+    }
+    const displayTitle = {
+        en: getTitleWithDescription('en'),
+        he: getTitleWithDescription('he'),
+    };
+    return (<ContentTextWithFallback {...displayTitle} lang={menuLanguage} />);
+};
+
 export const TextCategoryPage = ({categories, setCategories, openRef, onBack}) => {
     const { theme } = useGlobalState();
     const { sections, displayCategories } = useSectionsAndDisplayCategories(categories);
@@ -284,7 +299,7 @@ export const TextCategoryPage = ({categories, setCategories, openRef, onBack}) =
                         setCategories={setCategories}
                     />
                 )}
-                renderSectionHeader={({section: { item }}) => <ContentTextWithFallback {...item.title} />}
+                renderSectionHeader={({section: { item }}) => <SectionHeader displayTocItem={item} /> }
                 renderItem={({ item: displayTocItem }) => (
                     <CategoryButton
                         title={displayTocItem.title}
