@@ -67,12 +67,12 @@ const PageHeader = ({children}) => {
 const StatefulHeader = ({titleKey, icon = null, callbackFunc=()=>{}, active=true}) => {
   const { theme } = useGlobalState();
   return(
-      <FlexFrame>
-        <TouchableOpacity onPress={callbackFunc}>
-          {icon ? <Icon name={icon} isSelected={active}/> : null}
-          <InterfaceText stringKey={titleKey} extraStyles={[styles.navReHeaderText, active ? theme.tertiaryText : theme.secondaryText]} />
-        </TouchableOpacity>
-      </FlexFrame>
+      <TouchableOpacity onPress={callbackFunc}>
+        <FlexFrame justifyContent={"flex-start"}>
+            {icon ? <Icon name={icon} isSelected={active}/> : null}
+            <InterfaceText stringKey={titleKey} extraStyles={[styles.navReHeaderText, active ? theme.tertiaryText : theme.secondaryText]} />
+        </FlexFrame>
+      </TouchableOpacity>
   );
 }
 /***
