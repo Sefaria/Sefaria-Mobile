@@ -17,10 +17,9 @@ import {
     Icon,
     FlexFrame,
     ContentTextWithFallback,
-    LocalSearchBar,
     BackButtonRow,
     SefariaPressable,
-    InterfaceText, Header,
+    InterfaceText, Header, CondensedSearchBar,
 } from '../Misc.js';
 import styles from '../Styles';
 import strings from '../LocalizedStrings';
@@ -129,7 +128,9 @@ const SearchFilterHeader = ({ onBack, onResetPress, buttonToggleSetData, onFilte
             <View style={[{borderBottomWidth: 1, paddingVertical: 8}, theme.lightGreyBorder]}>
                 <Header titleKey={"text"} />
             </View>
-            <LocalSearchBar onChange={onFilterQueryChange} query={filterQuery} />
+            <View style={{marginVertical: 16}}>
+                <CondensedSearchBar onChange={onFilterQueryChange} query={filterQuery} placeholder={"Search texts"} />
+            </View>
         </View>
     );
 };

@@ -1034,33 +1034,55 @@ const TabText = ({ active, text, baseTextStyles, activeTextStyle, inactiveTextSt
   );
 };
 
-const LocalSearchBar = ({ onChange, query, onFocus }) => {
+const SearchTextInput = ({ onChange, query, onFocus, placeholder }) => {
+  const { themeStr, theme } = useGlobalState();
+  const placeholderTextColor = themeStr === "black" ? "#BBB" : "#666";
+  return (
+      <View style={Platform.OS === 'android' ? {flex: 1, marginTop: 2, marginBottom: -2} : {flex:1}}>
+        <TextInput
+            style={[styles.en, { fontSize: 18, paddingVertical: 0, paddingRight: 20, lineHeight: Platform.OS === 'android' ? 40 : null, flex: 1 }, theme.text]}
+            onChangeText={onChange}
+            value={query}
+            underlineColorAndroid={"transparent"}
+            placeholder={placeholder}
+            placeholderTextColor={placeholderTextColor}
+            autoCorrect={false}
+            onFocus={onFocus}
+        />
+      </View>
+  );
+};
+
+const SearchCancelButton = ({ onChange, query, iconLength=16 }) => {
+  if (!query) { return null; }
+  return (
+      <CancelButton onPress={() => { onChange(""); }} extraStyles={[{marginHorizontal: 5, width: iconLength, height: iconLength}]}/>
+  );
+};
+
+const SearchBarWithIcon = ({ onChange, query, onFocus }) => {
   /*
   Search bar used for local search on a page. E.g. on topic pages
   */
-  const { themeStr, theme } = useGlobalState();
-  const placeholderTextColor = themeStr === "black" ? "#BBB" : "#777";
+  const { theme } = useGlobalState();
   return (
     <View style={[{borderRadius: 400, borderWidth: 1, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10}, theme.container, theme.lighterGreyBorder]}>
       <SearchButton onPress={()=>{}} extraStyles={{height: 40}} disabled />
-      <View style={Platform.OS === 'android' ? {flex: 1, marginTop: 2, marginBottom: -2} : {flex:1}}>
-        <TextInput
-          style={[styles.en, { fontSize: 18, paddingVertical: 0, paddingRight: 20, lineHeight: Platform.OS === 'android' ? 40 : null, flex: 1 }, theme.text]}
-          onChangeText={onChange}
-          value={query}
-          underlineColorAndroid={"transparent"}
-          placeholder={strings.search}
-          placeholderTextColor={placeholderTextColor}
-          autoCorrect={false}
-          onFocus={onFocus}
-        />
-      </View>
-      {query ?
-        <CancelButton onPress={() => { onChange(""); }} extraStyles={[{marginHorizontal: 5}]}/>
-        : null
-      }
+      <SearchTextInput onChange={onChange} query={query} onFocus={onFocus} placeholder={strings.search} />
+      <SearchCancelButton onChange={onChange} query={query} />
     </View>
+  );
+};
 
+const CondensedSearchBar = ({ onChange, query, onFocus, placeholder }) => {
+  const { theme } = useGlobalState();
+  return (
+      <View style={[{borderRadius: 400, paddingHorizontal: 10}, theme.lighterGreyBackground]}>
+        <FlexFrame dir={"row"} alignItems={"center"} justifyContent={"space-between"}>
+          <SearchTextInput onChange={onChange} query={query} onFocus={onFocus} placeholder={placeholder} />
+          <SearchCancelButton onChange={onChange} query={query} iconLength={10} />
+        </FlexFrame>
+      </View>
   );
 };
 
@@ -1458,6 +1480,7 @@ export {
   CircleCloseButton,
   CloseButton,
   CollapseIcon,
+  CondensedSearchBar,
   ConditionalProgressWrapper,
   ContentTextWithFallback,
   CSS_CLASS_STYLES,
@@ -1478,7 +1501,7 @@ export {
   LanguageToggleButton,
   LibraryNavButton,
   LoadingView,
-  LocalSearchBar,
+  SearchBarWithIcon,
   MenuButton,
   OrderedList,
   PageHeader,  
