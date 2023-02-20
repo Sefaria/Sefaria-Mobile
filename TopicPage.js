@@ -437,6 +437,7 @@ const TopicPage = ({ topic, onBack, openNav, openTopic, showToast, openRef, open
   const TopicPageHeaderRendered = (
     <TopicPageHeader
       {...topic}
+      onBack={onBack}
       topicRef={topicData && topicData.ref}
       parasha={topicData && topicData.parasha}
       description={topicData && topicData.description}
@@ -509,12 +510,6 @@ const TopicPage = ({ topic, onBack, openNav, openTopic, showToast, openRef, open
 
   return (
     <View style={[styles.menu, theme.mainTextPanel]} key={topic.slug}>
-      <SystemHeader
-        title={strings.topics}
-        onBack={onBack}
-        openNav={openNav}
-        hideLangToggle
-      />
       { ListRendered }
     </View>
   )
@@ -553,13 +548,14 @@ const TopicTabView = ({text, active}) => {
   );
 };
 
-const TopicPageHeader = ({ title, slug, description, topicsTab, setTopicsTab, query, setQuery, tabs, topicRef, parasha, openRef, jumpToSearchBar, setSearchBarY }) => {
+const TopicPageHeader = ({ title, slug, description, topicsTab, setTopicsTab, query, setQuery, tabs, topicRef, parasha, openRef, jumpToSearchBar, setSearchBarY, onBack }) => {
   const { theme, interfaceLanguage } = useGlobalState();
   const flexDirection = useRtlFlexDir(interfaceLanguage);
   const isHeb = interfaceLanguage === 'hebrew';
   const category = Sefaria.topicTocCategory(slug);
   return (
-    <View style={{marginHorizontal: 15, marginVertical: 20}}>
+    <View style={{marginHorizontal: 15, marginBottom: 20}}>
+      <BackButtonRow onPress={onBack} />
       {title ? (
         <ContentTextWithFallback
           {...title}
