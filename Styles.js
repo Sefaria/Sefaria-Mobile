@@ -58,6 +58,18 @@ export default StyleSheet.create({
     lineHeight: 23,
     textAlign: 'right',
   },
+  fontSize14: {
+    fontSize: 14,
+  },
+  fontBold: {
+    fontWeight: 'bold',
+  },
+  fontSize16: {
+    fontSize: 16,
+  },
+  fontSize18: {
+    fontSize: 18,
+  },
   navRePage:{
     display: "flex",
     marginHorizontal: 15,
@@ -110,6 +122,7 @@ export default StyleSheet.create({
     textAlign: "center",
     marginVertical:20,
   },
+  learningSchedulesBorder: {borderBottomWidth: 1, paddingBottom: 5, marginBottom: 5},
   boxShadow: {
     shadowColor: 'black',
     shadowOffset: { width: 0, height: 1 },
@@ -189,10 +202,6 @@ export default StyleSheet.create({
     alignItems: 'center',
     alignSelf: 'stretch'
   },
-  categoryColorLine: {
-    height: 8,
-    alignSelf: "stretch"
-  },
   header: {
     height: 50,
     alignItems: 'center',
@@ -200,6 +209,7 @@ export default StyleSheet.create({
     flexDirection: 'row',
     borderBottomWidth: 1
   },
+  greyBoxFrame: {padding: 14, marginBottom: 30},
   readerDisplayOptionsMenuMask: {
     flex: 1,
     left: 0,
@@ -240,7 +250,7 @@ export default StyleSheet.create({
     flex:1,
     flexDirection: "row",
     justifyContent: "space-around",
-    marginVertical: 10,
+    marginVertical: 16,
   },
   readerDisplayOptionsMenuItem: {
     flex: 1,
@@ -332,7 +342,7 @@ export default StyleSheet.create({
   menuButtonMargined: {
     width: 20,
     height: 20,
-    marginHorizontal: 10,
+    marginHorizontal: 20,
   },
   menuButtonMarginedHe: {
     width: 17,
@@ -647,7 +657,6 @@ export default StyleSheet.create({
   },
   menuContent: {
     paddingHorizontal: iPad ? 20 : 10,
-    paddingTop: 20,
     paddingBottom: 40,
   },
   menuAllSheetTagContent: {
@@ -668,9 +677,9 @@ export default StyleSheet.create({
     marginHorizontal: 20,
   },
   languageToggle: {
-    width: 30,
-    height: 30,
-    marginRight: iPad ? 20 : 10,
+    width: 20,
+    height: 20,
+    padding: 11,
     borderWidth: 1,
     borderRadius: 4,
     flexDirection: "row",
@@ -1089,7 +1098,7 @@ export default StyleSheet.create({
   },
   buttonToggleSet: {
     borderRadius: 5,
-    height: 50,
+    height: 40,
   },
   settingsMessage: {
     textAlign: "center",

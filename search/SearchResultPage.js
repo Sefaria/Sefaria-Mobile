@@ -2,7 +2,7 @@ import React  from 'react';
 import {View, Text, TouchableOpacity} from "react-native";
 import SearchBar from './SearchBar';
 import SearchResultList from './SearchResultList';
-import {TabView, TabRowView, DirectedButton} from "../Misc";
+import {TabView, TabRowView, DirectedButton, PageHeader} from "../Misc";
 import {useGlobalState, useRtlFlexDir} from "../Hooks";
 import styles from "../Styles";
 import strings from "../LocalizedStrings";
@@ -30,6 +30,7 @@ export const SearchResultPage = (props) => {
     const onFilterPress = () => props.openSubMenu("filter");
     return (
         <View style={[styles.menu, styles.pageMargins, theme.menu]}>
+            <PageHeader titleKey={"search"} />
             <SearchBar
                 search={props.search}
                 query={props.query}
@@ -37,14 +38,16 @@ export const SearchResultPage = (props) => {
                 onChange={props.onChangeSearchQuery}
                 onFocus={props.openAutocomplete}
             />
-            <TabRowView
-                tabs={tabs}
-                renderTab={(tab, active) => <SearchTabView active={active} {...tab} />}
-                currTabId={props.searchState.type}
-                setTab={props.setSearchTypeState}
-                flexDirection={flexDirection}
-                RowEndComponent={props.searchState.type === "text" ? <FilterButton onPress={onFilterPress} numFilters={numFilters}/> : null}
-            />
+            <View style={{marginVertical: 17}}>
+                <TabRowView
+                    tabs={tabs}
+                    renderTab={(tab, active) => <SearchTabView active={active} {...tab} />}
+                    currTabId={props.searchState.type}
+                    setTab={props.setSearchTypeState}
+                    flexDirection={flexDirection}
+                    RowEndComponent={props.searchState.type === "text" ? <FilterButton onPress={onFilterPress} numFilters={numFilters}/> : null}
+                />
+            </View>
             <SearchResultList
                 setInitSearchScrollPos={props.setInitSearchScrollPos}
                 openRef={props.openRef}

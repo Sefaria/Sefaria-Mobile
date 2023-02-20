@@ -16,14 +16,14 @@ import {
   SText,
   TabView,
   TabRowView,
-  LocalSearchBar,
+  SearchBarWithIcon,
   DataSourceLine,
   FilterableFlatList,
   InterfaceTextWithFallback,
   ContentTextWithFallback,
   DotSeparatedList,
   SystemButton,
-  SefariaPressable,
+  SefariaPressable, CategoryButton, GreyBoxFrame,
 } from './Misc';
 
 import {
@@ -342,25 +342,17 @@ const TrendingTopics = ({ trendingTopics, openTopic }) => {
 }
 
 const TopicCategoryButton = ({ topic, openTopic }) => {
-  const { theme, menuLanguage } = useGlobalState();
-  const isHeb = menuLanguage == 'hebrew';
   const { slug, en, he, description, categoryDescription } = topic;
   const onPress = useCallback(() => {
     openTopic(new Topic({ slug, title: {en, he}, description, categoryDescription}), !!Sefaria.topicTocPage(slug));
   }, [slug]);
   const displayDescription = categoryDescription || description;
-  const descriptionHasContent = !!displayDescription && Object.values(displayDescription).reduce((accum, curr) => accum || !!curr, false);
   return (
-    <SefariaPressable onPress={onPress} extraStyles={{paddingVertical: 17}}>
-      <SText lang={menuLanguage} style={[isHeb ? styles.he : styles.en, {fontSize: 24, marginBottom: -10}, theme.text]} lineMultiplier={1.05}>{isHeb ? he : en}</SText>
-      {descriptionHasContent ? (
-          <InterfaceTextWithFallback
-            {...displayDescription}
-            lang={menuLanguage}
-            extraStyles={[{marginTop: 10, fontSize: 13}, theme.tertiaryText]}
-          />
-        ) : null}
-    </SefariaPressable>
+      <CategoryButton
+          title={{en, he}}
+          description={displayDescription}
+          onPress={onPress}
+      />
   );
 };
 
@@ -618,7 +610,7 @@ const TopicPageHeader = ({ title, slug, description, topicsTab, setTopicsTab, qu
       <View style={{ marginTop: 15, marginBottom: 10 }} onLayout={event => {
         setSearchBarY(event.nativeEvent.layout.y);
       }}>
-        <LocalSearchBar
+        <SearchBarWithIcon
           onFocus={jumpToSearchBar}
           query={query}
           onChange={setQuery}
@@ -736,13 +728,13 @@ const TopicSideColumn = ({ topic, links, openTopic, openRef, parashaData, tref }
     )
     : null;
   return (
-    <View style={[theme.lightestGreyBackground, {padding: 14, marginBottom: 30}]}>
-      { readingsComponent }
-      { linksComponent }
-      { moreButton }
-    </View>
-  )
-}
+      <GreyBoxFrame>
+        { readingsComponent }
+        { linksComponent }
+        { moreButton }
+      </GreyBoxFrame>
+  );
+};
 TopicSideColumn.propTypes = {
   topicData: PropTypes.object,
 };

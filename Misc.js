@@ -123,19 +123,27 @@ const SystemHeader = ({ title, onBack, openNav, hideLangToggle }) => {
 /**
  * Component to render an interface string that is present in strings.js
  * Please use this as opposed to InterfaceTextWithFallback when possible
- * @param stringKey the key of the string to be rendered (must exist in all interface languages)
+ * @param stringKey the key of the string to be rendered (must exist in all interface languages). If not passed, must pass `en` and `he`
+ * @param en Explicit text to be displayed when interfaceLanguage is English. Only used if stringKey is not supplied.
+ * @param he Explicit text to be displayed when interfaceLanguage is Hebrew. Only used if stringKey is not supplied.
  * @param extraStyles additional styling directives to render this specific text (is it a header, a simple line of text, etc)
  * @returns {Text}
  */
-const InterfaceText = ({stringKey, extraStyles = []}) => {
+const InterfaceText = ({stringKey, en, he, extraStyles = []}) => {
   const { interfaceLanguage } = useContext(GlobalStateContext);
   const intTextStyles = {
     'english' : styles.enInt,
     'hebrew' : styles.heInt
   }
   const langStyle = intTextStyles[interfaceLanguage];
+  let text;
+  if (stringKey) {
+    text = strings[stringKey];
+  } else {
+    text = interfaceLanguage === 'english' ? en : he;
+  }
   return (
-    <Text style={[langStyle].concat(extraStyles)}>{strings[stringKey]}</Text>
+    <Text style={[langStyle].concat(extraStyles)}>{text}</Text>
   );
 };
 
@@ -520,11 +528,20 @@ class AnimatedRow extends React.Component {
   }
 }
 
-class CategoryColorLine extends React.Component {
-  render() {
-    var style = {backgroundColor: Sefaria.palette.categoryColor(this.props.category)};
-    return (<View style={[styles.categoryColorLine, style]}></View>);
-  }
+/**
+ * Horizontal line that has the corresponding category color of `category`, based on Sefaria.palette.categoryColor()
+ * @param category: string top-level category name.
+ * @param thickness: int, how thick the category line is.
+ * @returns {JSX.Element}
+ * @constructor
+ */
+const CategoryColorLine = ({ category, thickness=8 }) => {
+  const style = {
+    height: thickness,
+    alignSelf: "stretch",
+    backgroundColor: Sefaria.palette.categoryColor(category)
+  };
+  return (<View style={style} />);
 }
 
 const CategoryAttribution = ({ categories, context, linked=true, openUri }) => {
@@ -631,10 +648,11 @@ LibraryNavButton.propTypes = {
 
 const LanguageToggleButton = () => {
   // button for toggling b/w he and en for menu and text lang (both controlled by `textLanguage`)
-  const { themeStr, interfaceLanguage, textLanguage } = useContext(GlobalStateContext);
-  const theme = getTheme(themeStr);
+  const { theme, textLanguage, interfaceLanguage } = useGlobalState();
   const dispatch = useContext(DispatchContext);
-  const isHeb = Sefaria.util.get_menu_language(interfaceLanguage, textLanguage) == 'hebrew';
+  const isHeb = textLanguage === 'hebrew';
+  const iconName = isHeb ? "a_icon" : "aleph";
+  const enabled = interfaceLanguage !== 'hebrew';
 
   const toggle = () => {
     const language = !isHeb ? "hebrew" : 'english';
@@ -644,13 +662,10 @@ const LanguageToggleButton = () => {
     });
   };
 
-  const content = isHeb ?
-      (<Text style={[styles.languageToggleTextEn, theme.languageToggleText, styles.en]}>A</Text>) :
-      (<Text style={[styles.languageToggleTextHe, theme.languageToggleText, styles.he]}>א</Text>);
-  const style = [styles.languageToggle, theme.languageToggle, interfaceLanguage === "hebrew" ? {opacity:0} : null];
+  const style = [styles.languageToggle, theme.languageToggle, enabled ? null : {opacity:0}];
   return (
-    <TouchableOpacity style={style} onPress={interfaceLanguage === "hebrew" ? null : toggle} accessibilityLabel={`Change language to ${isHeb ? "English" : "Hebrew"}`}>
-      {content}
+    <TouchableOpacity style={style} onPress={toggle} disabled={!enabled} accessibilityLabel={`Change language to ${isHeb ? "English" : "Hebrew"}`}>
+      <Icon name={iconName} length={13.5} />
     </TouchableOpacity>
   );
 }
@@ -731,6 +746,26 @@ DirectedArrow.propTypes = {
   imageStyle:   PropTypes.oneOfType([ViewPropTypes.style, PropTypes.array]),
   language:     PropTypes.oneOf(["hebrew", "bilingual", "english"]).isRequired,
   direction:  PropTypes.oneOf(["forward", "back"]).isRequired,
+};
+
+const BackButton = ({ onPress }) => {
+  const { interfaceLanguage } = useGlobalState();
+  const iconName = interfaceLanguage === "english" ? "back" : "forward";
+  return (
+      <SefariaPressable onPress={onPress}>
+        <Icon name={iconName} length={18} />
+      </SefariaPressable>
+  );
+};
+
+const BackButtonRow = ({ onPress }) => {
+  return (
+      <View style={{paddingVertical: 18}}>
+        <FlexFrame dir={"row"} justifyContent={"flex-start"} alignItems={"center"}>
+          <BackButton onPress={onPress} />
+        </FlexFrame>
+      </View>
+  );
 };
 
 const SearchButton = ({ onPress, extraStyles, disabled }) => {
@@ -1026,33 +1061,55 @@ const TabText = ({ active, text, baseTextStyles, activeTextStyle, inactiveTextSt
   );
 };
 
-const LocalSearchBar = ({ onChange, query, onFocus }) => {
+const SearchTextInput = ({ onChange, query, onFocus, placeholder }) => {
+  const { themeStr, theme } = useGlobalState();
+  const placeholderTextColor = themeStr === "black" ? "#BBB" : "#666";
+  return (
+      <View style={Platform.OS === 'android' ? {flex: 1, marginTop: 2, marginBottom: -2} : {flex:1}}>
+        <TextInput
+            style={[styles.en, { fontSize: 18, paddingVertical: 0, paddingRight: 20, lineHeight: Platform.OS === 'android' ? 40 : null, flex: 1 }, theme.text]}
+            onChangeText={onChange}
+            value={query}
+            underlineColorAndroid={"transparent"}
+            placeholder={placeholder}
+            placeholderTextColor={placeholderTextColor}
+            autoCorrect={false}
+            onFocus={onFocus}
+        />
+      </View>
+  );
+};
+
+const SearchCancelButton = ({ onChange, query, iconLength=16 }) => {
+  if (!query) { return null; }
+  return (
+      <CancelButton onPress={() => { onChange(""); }} extraStyles={[{marginHorizontal: 5, width: iconLength, height: iconLength}]}/>
+  );
+};
+
+const SearchBarWithIcon = ({ onChange, query, onFocus }) => {
   /*
   Search bar used for local search on a page. E.g. on topic pages
   */
-  const { themeStr, theme } = useGlobalState();
-  const placeholderTextColor = themeStr == "black" ? "#BBB" : "#777";
+  const { theme } = useGlobalState();
   return (
     <View style={[{borderRadius: 400, borderWidth: 1, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10}, theme.container, theme.lighterGreyBorder]}>
       <SearchButton onPress={()=>{}} extraStyles={{height: 40}} disabled />
-      <View style={Platform.OS === 'android' ? {flex: 1, marginTop: 2, marginBottom: -2} : {flex:1}}>
-        <TextInput
-          style={[styles.en, { fontSize: 18, paddingVertical: 0, paddingRight: 20, lineHeight: Platform.OS === 'android' ? 40 : null, flex: 1 }, theme.text]}
-          onChangeText={onChange}
-          value={query}
-          underlineColorAndroid={"transparent"}
-          placeholder={strings.search}
-          placeholderTextColor={placeholderTextColor}
-          autoCorrect={false}
-          onFocus={onFocus}
-        />
-      </View>
-      {query ?
-        <CancelButton onPress={() => { onChange(""); }} extraStyles={[{marginHorizontal: 5}]}/>
-        : null
-      }
+      <SearchTextInput onChange={onChange} query={query} onFocus={onFocus} placeholder={strings.search} />
+      <SearchCancelButton onChange={onChange} query={query} />
     </View>
+  );
+};
 
+const CondensedSearchBar = ({ onChange, query, onFocus, placeholder }) => {
+  const { theme } = useGlobalState();
+  return (
+      <View style={[{borderRadius: 400, paddingHorizontal: 10}, theme.lighterGreyBackground]}>
+        <FlexFrame dir={"row"} alignItems={"center"} justifyContent={"space-between"}>
+          <SearchTextInput onChange={onChange} query={query} onFocus={onFocus} placeholder={placeholder} />
+          <SearchCancelButton onChange={onChange} query={query} iconLength={10} />
+        </FlexFrame>
+      </View>
   );
 };
 
@@ -1357,6 +1414,49 @@ const SefariaPressable = ({ children, extraStyles=[], ...pressableProps }) => {
   );
 }
 
+/**
+ * Button which displays a category title and optional description
+ * @param title: Object with keys "en" and "he"
+ * @param description Object with keys "en" and "he"
+ * @param onPress
+ * @returns {JSX.Element}
+ * @constructor
+ */
+const CategoryButton = ({ title, description, onPress }) => {
+  return (
+      <SefariaPressable onPress={onPress} extraStyles={{paddingVertical: 17}}>
+        <CategoryTitle title={title} />
+        <CategoryDescription description={description} />
+      </SefariaPressable>
+  );
+};
+
+const CategoryTitle = ({ title, extraStyles=[] }) => {
+  const { theme, menuLanguage } = useGlobalState();
+  const isHeb = menuLanguage === 'hebrew';
+  return (
+      <SText
+          lang={menuLanguage}
+          style={[isHeb ? styles.he : styles.en, {fontSize: 24, marginBottom: -10}, theme.text].concat(extraStyles)} lineMultiplier={1.05}
+      >
+        {isHeb ? title.he : title.en}
+      </SText>
+  );
+};
+
+const CategoryDescription = ({ description }) => {
+  const { theme, menuLanguage } = useGlobalState();
+  const descriptionHasContent = !!description && Object.values(description).reduce((accum, curr) => accum || !!curr, false);
+  if (!descriptionHasContent) { return null; }
+  return (
+      <InterfaceTextWithFallback
+          {...description}
+          lang={menuLanguage}
+          extraStyles={[{marginTop: 10, fontSize: 13}, theme.tertiaryText]}
+      />
+  );
+};
+
 const Sefaria501 = () => {
   const { theme, interfaceLanguage } = useGlobalState();
   return(
@@ -1368,27 +1468,46 @@ const Sefaria501 = () => {
       );
 };
 
-const FlexFrame = ({ dir, justifyContent, alignItems, children }) => {
+const FlexFrame = ({ dir="row", children, ...viewStyleProps }) => {
+  /**
+   * @param viewStyleProps: any valid style for a <View>. The intention is to mainly use flex styles
+   */
   const { interfaceLanguage } = useGlobalState();
-  const flexDirection = useRtlFlexDir(interfaceLanguage, dir );
+  // never flip column by RTL
+  const flexDirection = dir === "row" ? useRtlFlexDir(interfaceLanguage, dir ) : dir;
   return (
-    <View style={{flexDirection, justifyContent, alignItems}}>
+    <View style={{flexDirection, ...viewStyleProps}}>
       {children}
     </View>
   );
 };
 
+const GreyBoxFrame = ({ children }) => {
+  const { theme } = useGlobalState();
+  return (
+      <View style={[theme.lightestGreyBackground, styles.greyBoxFrame]}>
+        { children }
+      </View>
+  );
+};
+
 export {
   AnimatedRow,
+  BackButton,
+  BackButtonRow,
   ButtonToggleSet,
   CancelButton,
-  CategoryBlockLink,
   CategoryAttribution,
+  CategoryBlockLink,
+  CategoryButton,
   CategoryColorLine,
+  CategoryDescription,
   CategorySideColorLink,
+  CategoryTitle,
   CircleCloseButton,
   CloseButton,
   CollapseIcon,
+  CondensedSearchBar,
   ConditionalProgressWrapper,
   ContentTextWithFallback,
   CSS_CLASS_STYLES,
@@ -1400,6 +1519,7 @@ export {
   FilterableFlatList,
   FlexFrame,
   Header,
+  GreyBoxFrame,
   HebrewInEnglishText,
   Icon,
   IndeterminateCheckBox,
@@ -1408,7 +1528,7 @@ export {
   LanguageToggleButton,
   LibraryNavButton,
   LoadingView,
-  LocalSearchBar,
+  SearchBarWithIcon,
   MenuButton,
   OrderedList,
   PageHeader,  

@@ -503,23 +503,32 @@ Sefaria = {
   },
   topLevelCategories: [],  // useful for ordering categories in linkSummary
   toc: null,
-  tocItemsByCategories: function(cats) {
-    // Returns the TOC items that correspond to the list of categories 'cats'
-    var list = Sefaria.toc
-    for (var i = 0; i < cats.length; i++) {
-      var found = false;
-      for (var k = 0; k < list.length; k++) {
-        if (list[k].category == cats[i]) {
-          list = Sefaria.util.clone(list[k].contents);
+  tocObjectByCategories: function(cats) {
+    // Returns the TOC entry that corresponds to list of categories `cats`
+    let found, item;
+    let list = Sefaria.toc;
+    for (let i = 0; i < cats.length; i++) {
+      found = false;
+      item = null;
+      for (let k = 0; k < list.length; k++) {
+        if (list[k].category === cats[i]) {
+          item = list[k];
+          list = item.contents || [];
           found = true;
           break;
         }
       }
-      if (!found) {
-        return [];
-      }
+      if (!found) { return null; }
     }
-    return list;
+    return item;
+  },
+  tocItemsByCategories: function(cats) {
+    // Returns the TOC items that correspond to the list of categories 'cats'
+    const object = Sefaria.tocObjectByCategories(cats);
+    return object ? Sefaria.util.clone(object.contents) : [];
+  },
+  getRootTocItems: function() {
+    return [...Sefaria.toc];
   },
   _versionInfo: {},
   cacheVersionInfo: function(data, isSection) {
@@ -752,6 +761,10 @@ Sefaria = {
   },
   lastGalusStatus: null,  // last recorded galus status to be used while waiting for really slow ip2c api
   galusOrIsrael: null,
+  getDefaultGalusStatus: function(interfaceLanguage) {
+    const defaultGalusStatus = (interfaceLanguage === "hebrew" ? "israel" : "diaspora");
+    return Sefaria.galusOrIsrael || Sefaria.lastGalusStatus || defaultGalusStatus
+  },
   getGalusStatus: async function() {
     if (!!Sefaria.galusOrIsrael) {
       return Sefaria.galusOrIsrael;
@@ -787,7 +800,15 @@ Sefaria = {
         cal_items.push(c);
       }
     }
-    return cal_items.sort((a, b) => a.order - b.order);
+    return Sefaria._addMetadataToCalendarItems(cal_items.sort((a, b) => a.order - b.order));
+  },
+  _addMetadataToCalendarItems: function(calendarItems) {
+    const meta = Sefaria.calendar?.metadata || {};
+    return calendarItems.map(item => ({
+      ...item,
+      description: item.description || meta?.[item.title.en]?.description,
+      subtitle: meta?.[item.title.en]?.subtitle,
+    }));
   },
   _dateString: function(date) {
     // Returns of string in the format "DD/MM/YYYY" for either `date` or today.
