@@ -23,7 +23,7 @@ import {
   ContentTextWithFallback,
   DotSeparatedList,
   SystemButton,
-  SefariaPressable, CategoryButton, GreyBoxFrame,
+  SefariaPressable, CategoryButton, GreyBoxFrame, BackButtonRow,
 } from './Misc';
 
 import {
@@ -262,7 +262,7 @@ const TopicCategory = ({ topic, openTopic, onBack, openNav }) => {
               </View>
             )}
             ListHeaderComponent={() => (
-              <TopicCategoryHeader {...headerTopic}>
+              <TopicCategoryHeader {...headerTopic} onBack={!!topic && onBack}>
                 <TrendingTopics trendingTopics={trendingTopics} openTopic={openTopic} />
               </TopicCategoryHeader>
             )}
@@ -274,17 +274,13 @@ const TopicCategory = ({ topic, openTopic, onBack, openNav }) => {
   );
 };
 
-/*
-<TouchableOpacity onPress={()=>openTopic(t, false)}>
-          <SText lang={menu_language} style={[isHeb ? styles.he : styles.en, {fontSize: 18, marginTop: 6}, theme.text]}>{isHeb ? t.he : t.en}</SText>
-        </TouchableOpacity>
-*/
-const TopicCategoryHeader = ({ title, description, categoryDescription, children }) => {
+const TopicCategoryHeader = ({ title, description, categoryDescription, children, onBack }) => {
   const { theme, interfaceLanguage } = useGlobalState();
   const displayDescription = categoryDescription || description;
   return (
     <View>
-      <View style={{marginHorizontal: 15, marginVertical: 24}}>
+      <View style={{marginHorizontal: 15, marginBottom: 24, marginTop: !!onBack ? 0 : 24}}>
+        { !!onBack && <BackButtonRow onPress={onBack} />}
         <InterfaceTextWithFallback
           {...title}
           lang={interfaceLanguage}
