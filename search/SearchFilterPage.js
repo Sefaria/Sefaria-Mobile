@@ -232,11 +232,13 @@ const SearchFilter = ({filterNode, expandFilter, toggleFilter, indented, expande
     const onPress = () => { expandFilter ? expandFilter(title) : clickCheckBox() }
     const countStr = `(${docCount})`;
     return (
-        <TouchableOpacity onPress={onPress} style={{marginLeft: indented ? 30 : 0}}>
-            <FlexFrame justifyContent={"space-between"}>
-                <FlexFrame>
+        <TouchableOpacity onPress={onPress} style={{marginLeft: indented ? 30 : 0, marginBottom: 10}}>
+            <FlexFrame dir={"row"} justifyContent={"space-between"}>
+                <FlexFrame dir={"row"}>
                     <IndeterminateCheckBox onPress={clickCheckBox} state={selected} />
-                    <ContentTextWithFallback en={title} he={heTitle} />
+                    <View style={{marginHorizontal: 10}}>
+                        <ContentTextWithFallback en={title} he={heTitle} />
+                    </View>
                     <ContentTextWithFallback en={countStr} he={countStr} extraStyles={[theme.tertiaryText]} />
                 </FlexFrame>
                 { !indented && <Icon name={expanded ? 'down' : 'forward'} length={12} /> }
