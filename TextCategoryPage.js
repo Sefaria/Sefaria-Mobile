@@ -282,17 +282,17 @@ const SectionHeader = ({ displayTocItem }) => {
         en: getTitleWithDescription('en'),
         he: getTitleWithDescription('he'),
     };
-    const titleComponent = <ContentTextWithFallback {...displayTitle} lang={menuLanguage} extraStyles={[{fontSize: 18}, theme.tertiaryText]} />;
+    const titleComponent = <ContentTextWithFallback {...displayTitle} lang={menuLanguage} extraStyles={[{fontSize: 24, marginTop: 24}, theme.tertiaryText]} />;
     const currLangCode = menuLanguage.substring(0, 2);
-    if (displayTocItem.isDescriptionLong(currLangCode)) {
-        return (
-            <FlexFrame dir={"column"}>
-                { titleComponent }
+    return (
+        <FlexFrame dir={"column"}>
+            { titleComponent }
+            <TextCategorySeparator />
+            { displayTocItem.isDescriptionLong(currLangCode) ? (
                 <ContentTextWithFallback {...description} lang={menuLanguage} extraStyles={[{fontSize: 14}, theme.tertiaryText]}/>
-            </FlexFrame>
-        );
-    }
-    return titleComponent;
+            ) : null}
+        </FlexFrame>
+    );
 };
 
 const TextCategorySeparator = () => {
