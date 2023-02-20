@@ -249,11 +249,6 @@ const TopicCategory = ({ topic, openTopic, onBack, openNav }) => {
 
   return (
     <View style={[styles.menu, theme.readerNavCategory]} key={slug}>
-      <SystemHeader
-        title={strings.topics}
-        onBack={onBack}
-        openNav={openNav}
-      />
       {
         (!topicTocLoaded || !subtopics) ? (<LoadingView />) : (
           <FlatList
