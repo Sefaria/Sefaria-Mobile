@@ -1,5 +1,5 @@
 import React from "react";
-import {SectionList} from "react-native";
+import {SectionList, View} from "react-native";
 import {useGlobalState} from "./Hooks";
 import {
     BackButtonRow,
@@ -295,6 +295,11 @@ const SectionHeader = ({ displayTocItem }) => {
     return titleComponent;
 };
 
+const TextCategorySeparator = () => {
+    const { theme } = useGlobalState();
+    return <View style={[{height: 1}, theme.lighterGreyBackground]} />;
+};
+
 export const TextCategoryPage = ({categories, setCategories, openRef, onBack}) => {
     const { theme } = useGlobalState();
     const { sections, displayCategories } = useSectionsAndDisplayCategories(categories);
@@ -308,6 +313,7 @@ export const TextCategoryPage = ({categories, setCategories, openRef, onBack}) =
                 sections={sections}
                 stickySectionHeadersEnabled={false}
                 contentContainerStyle={[{paddingHorizontal: 15}, theme.mainTextPanel]}
+                ItemSeparatorComponent={TextCategorySeparator}
                 ListHeaderComponent={() => (
                     <TextCategoryHeader
                         title={categoryTitle}
