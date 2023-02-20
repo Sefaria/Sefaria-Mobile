@@ -29,7 +29,6 @@ const ReaderControls = ({
   enRef,
   heRef,
   categories,
-  openNav,
   openTextToc,
   openSheetMeta,
   goBack,
@@ -45,16 +44,14 @@ const ReaderControls = ({
   const isHeb = Sefaria.util.get_menu_language(interfaceLanguage, textLanguage) == "hebrew";
   var langStyle = isHeb ? [styles.he] : [styles.en, sheet ? {lineHeight: 28} : {marginBottom: -5.3}];
   var titleTextStyle = [langStyle, styles.headerTextTitleText, theme.text];
-  if (true) {
-    var leftMenuButton = <MenuButton onPress={openNav} />
-  } else {
-    var leftMenuButton =
+  const leftMenuButton = (
       <DirectedButton
-        onPress={goBack}
-        imageStyle={[styles.menuButton, styles.directedButton]}
-        language="english"
-        direction="back"/>
-  }
+          onPress={goBack}
+          imageStyle={[styles.menuButton, styles.directedButton]}
+          language="english"
+          direction="back"
+      />
+  );
     var textTitle = isHeb ? heRef : enRef;
     if (sheet) {
       textTitle = Sefaria.util.stripHtml(sheet.title);
@@ -102,7 +99,6 @@ ReaderControls.propTypes = {
   enRef:                           PropTypes.string,
   heRef:                           PropTypes.string,
   categories:                      PropTypes.array,
-  openNav:                         PropTypes.func,
   openTextToc:                     PropTypes.func,
   goBack:                          PropTypes.func,
   toggleReaderDisplayOptionsMenu:  PropTypes.func,

@@ -288,8 +288,18 @@ class ReaderApp extends React.PureComponent {
   }
 
   manageBackMain = () => {
-    this.manageBack("main");
-  }
+    return this.manageBack("main");
+  };
+
+  /**
+   * Try to go back. If history is empty, open nav menu.
+   */
+  manageBackMainOrOpenNav = () => {
+    const wentBack = this.manageBackMain();
+    if (!wentBack) {
+      this.openNav();
+    }
+  };
 
   modifyHistory = ({ dir, ...args }) => {
     /**
@@ -2092,8 +2102,7 @@ class ReaderApp extends React.PureComponent {
               enRef={this.state.textReference}
               heRef={this.state.heRef}
               categories={Sefaria.categoriesForTitle(this.state.textTitle, isSheet)}
-              openNav={this.openNav}
-              goBack={this.manageBackMain}
+              goBack={this.manageBackMainOrOpenNav}
               openTextToc={this.openTextToc}
               openSheetMeta={this.openSheetMeta}
               sheet={this.state.sheet}
