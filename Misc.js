@@ -1039,7 +1039,7 @@ const LocalSearchBar = ({ onChange, query, onFocus }) => {
   Search bar used for local search on a page. E.g. on topic pages
   */
   const { themeStr, theme } = useGlobalState();
-  const placeholderTextColor = themeStr == "black" ? "#BBB" : "#777";
+  const placeholderTextColor = themeStr === "black" ? "#BBB" : "#777";
   return (
     <View style={[{borderRadius: 400, borderWidth: 1, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10}, theme.container, theme.lighterGreyBorder]}>
       <SearchButton onPress={()=>{}} extraStyles={{height: 40}} disabled />
