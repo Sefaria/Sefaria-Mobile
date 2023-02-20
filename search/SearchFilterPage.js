@@ -6,14 +6,21 @@ import {
     View,
     Text,
     TouchableOpacity,
-    Image, FlatList, SectionList,
+    SectionList,
 } from 'react-native';
 
-import {FilterNode, SearchPropTypes} from '@sefaria/search';
+import {SearchPropTypes} from '@sefaria/search';
 import {
     ButtonToggleSet,
     SystemButton,
-    IndeterminateCheckBox, Icon, FlexFrame, ContentTextWithFallback, LocalSearchBar, BackButtonRow,
+    IndeterminateCheckBox,
+    Icon,
+    FlexFrame,
+    ContentTextWithFallback,
+    LocalSearchBar,
+    BackButtonRow,
+    SefariaPressable,
+    InterfaceText, Header,
 } from '../Misc.js';
 import styles from '../Styles';
 import strings from '../LocalizedStrings';
@@ -98,6 +105,35 @@ const FilterLoadingView = () => {
     );
 }
 
+const TopHeaderRow = ({ onBack, onResetPress }) => {
+    const { theme } = useGlobalState();
+    return (
+        <FlexFrame dir={"row"} justifyContent={"space-between"} alignItems={"center"}>
+            <BackButtonRow onPress={onBack} />
+            <SefariaPressable onPress={onResetPress}>
+                <FlexFrame dir={"row"} alignItems={"center"}>
+                    <InterfaceText stringKey={"reset"} extraStyles={[theme.secondaryText, {paddingHorizontal: 7}]}/>
+                    <Icon name={"circle-close"} length={13} />
+                </FlexFrame>
+            </SefariaPressable>
+        </FlexFrame>
+    );
+};
+
+const SearchFilterHeader = ({ onBack, onResetPress, buttonToggleSetData, onFilterQueryChange, filterQuery }) => {
+    const { theme } = useGlobalState();
+    return (
+        <View>
+            <TopHeaderRow onBack={onBack} onResetPress={onResetPress} />
+            <TitledButtonToggleSet {...buttonToggleSetData.get(strings.sortBy)} />
+            <View style={[{borderBottomWidth: 1, paddingVertical: 8}, theme.lightGreyBorder]}>
+                <Header titleKey={"text"} />
+            </View>
+            <LocalSearchBar onChange={onFilterQueryChange} query={filterQuery} />
+        </View>
+    );
+};
+
 export const SearchFilterPage = ({
     toggleFilter,
     clearAllFilters,
@@ -142,11 +178,13 @@ export const SearchFilterPage = ({
                     />
                 )}
                 ListHeaderComponent={() => (
-                    <View>
-                        <BackButtonRow onPress={onBack} />
-                        <RootFilterButtons buttonToggleSetData={buttonToggleSetData} onResetPress={onResetPress} />
-                        <LocalSearchBar onChange={onFilterQueryChange} query={filterQuery} />
-                    </View>
+                    <SearchFilterHeader
+                        onBack={onBack}
+                        onResetPress={onResetPress}
+                        buttonToggleSetData={buttonToggleSetData}
+                        onFilterQueryChange={onFilterQueryChange}
+                        filterQuery={filterQuery}
+                    />
                 )}
                 ListEmptyComponent={() => !searchState.filtersValid && <FilterLoadingView />}
             />
@@ -186,15 +224,6 @@ const ShowResultsButton = ({ applyFilters }) => {
    );
 }
 
-const RootFilterButtons = ({ onResetPress, buttonToggleSetData }) => {
-    return (
-        <View>
-            <ResetButton onPress={onResetPress}/>
-            <TitledButtonToggleSet {...buttonToggleSetData.get(strings.sortBy)} />
-        </View>
-    )
-}
-
 const SearchFilter = ({filterNode, expandFilter, toggleFilter, indented, expanded}) => {
     const { theme } = useGlobalState();
     const {title, heTitle, selected, docCount} = filterNode;
@@ -230,13 +259,13 @@ class ButtonToggleSetData {
         this._data = {
             [strings.sortBy]:
                 {
-                    title: strings.sortBy,
+                    titleKey: "sortBy",
                     options: this._getSortOptions(),
                     active: this.searchState.sortType
                 },
             [strings.exactSearch]:
                 {
-                    title: strings.exactSearch,
+                    titleKey: "options",
                     options: this._getExactOptions(),
                     active: this.searchState.field === this.searchState.fieldExact
                 },
@@ -250,15 +279,15 @@ class ButtonToggleSetData {
     _getSortOptions = () => {
         return [
             {
+                name: "relevance", text: strings.relevance, onPress: () => {
+                    this.setOptions(this.type, "relevance", this.searchState.field);
+                }
+            },
+            {
                 name: "chronological", text: strings.chronological, onPress: () => {
                     this.setOptions(this.type, "chronological", this.searchState.field);
                 }
             },
-            {
-                name: "relevance", text: strings.relevance, onPress: () => {
-                    this.setOptions(this.type, "relevance", this.searchState.field);
-                }
-            }
         ];
     };
 
@@ -278,41 +307,13 @@ class ButtonToggleSetData {
     };
 }
 
-const ResetButton = ({onPress}) => {
-    const {theme, themeStr, interfaceLanguage} = useGlobalState();
-    let closeSrc = iconData.get('circle-close', themeStr);
-    let isheb = interfaceLanguage === "hebrew"; //TODO enable when we properly handle interface hebrew throughout app
-    return (
-        <TouchableOpacity
-            style={[styles.readerDisplayOptionsMenuItem, styles.button, theme.readerDisplayOptionsMenuItem]}
-            onPress={onPress}>
-            <Image source={closeSrc}
-                   resizeMode={'contain'}
-                   style={styles.searchFilterClearAll}/>
-            <Text
-                style={[isheb ? styles.heInt : styles.enInt, styles.heInt, theme.tertiaryText]}>{strings.clearAll}</Text>
-
-        </TouchableOpacity>
-    )
-}
-
-const ButtonToggleSetTitle = ({title}) => {
-    const {interfaceLanguage, theme} = useGlobalState();
-    const langStyle = interfaceLanguage === "hebrew" ? styles.heInt : styles.enInt;
+const TitledButtonToggleSet = ({ titleKey, options, active }) => {
+    const { theme, interfaceLanguage } = useGlobalState();
     return (
         <View>
-            <Text style={[langStyle, styles.settingsSectionHeader, theme.tertiaryText]}>
-                {title}
-            </Text>
-        </View>
-    );
-};
-
-const TitledButtonToggleSet = ({ title, options, active }) => {
-    const { interfaceLanguage } = useGlobalState();
-    return (
-        <View style={styles.settingsSection} key={title}>
-            <ButtonToggleSetTitle title={title}/>
+            <View style={[{borderBottomWidth: 1, paddingVertical: 8}, theme.lightGreyBorder]}>
+                <Header titleKey={titleKey} />
+            </View>
             <ButtonToggleSet
                 options={options}
                 lang={interfaceLanguage}

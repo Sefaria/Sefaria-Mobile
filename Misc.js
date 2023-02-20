@@ -1469,6 +1469,7 @@ export {
   FilterableFlatList,
   FlexFrame,
   GreyBoxFrame,
+  Header,
   HebrewInEnglishText,
   Icon,
   IndeterminateCheckBox,

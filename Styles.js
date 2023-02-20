@@ -250,7 +250,7 @@ export default StyleSheet.create({
     flex:1,
     flexDirection: "row",
     justifyContent: "space-around",
-    marginVertical: 10,
+    marginVertical: 16,
   },
   readerDisplayOptionsMenuItem: {
     flex: 1,
@@ -1098,7 +1098,7 @@ export default StyleSheet.create({
   },
   buttonToggleSet: {
     borderRadius: 5,
-    height: 50,
+    height: 40,
   },
   settingsMessage: {
     textAlign: "center",
