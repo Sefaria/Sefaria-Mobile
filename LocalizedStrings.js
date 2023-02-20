@@ -98,7 +98,7 @@ let strings = new LocalizedStrings({
     clearAll: "Clear All",
     apply: "Apply",
     filter: "FILTER",
-    sortBy: "SORT BY",
+    sortBy: "Sort by",
     chronological: "Chronological",
     relevance: "Relevance",
     exactSearch: "EXACT SEARCH",
@@ -140,7 +140,7 @@ let strings = new LocalizedStrings({
     sources: "Sources",
     supportSefaria: "SUPPORT SEFARIA",
     donate: "Donate",
-    recentSearches: "RECENT SEARCHES",
+    recentSearches: "Recent Searches",
     remove: "Remove",
     alreadyDownloaded: "Already Downloaded",
     areIncludedIn: "These texts are included in",
@@ -200,6 +200,10 @@ let strings = new LocalizedStrings({
     learningSchedules: "Learning Schedules",
     seeAll: "See All",
     weeklyTorahPortion: "Weekly Torah Portion",
+    reset: "Reset",
+    text: "Text",
+    options: "Options",
+    exactMatchesOnly: "Exact Matches Only",
   },
   he: {
     profile: "פרופיל",
@@ -397,6 +401,10 @@ let strings = new LocalizedStrings({
     learningSchedules: "לוח לימוד יומי",
     seeAll: "צפייה בנוספים",
     weeklyTorahPortion: "פרשת השבוע",
+    reset: "איפוס",
+    text: "מקורות",
+    options: "אפשרויות",
+    exactMatchesOnly: "התאמה מדויקת למילות החיפוש",
   }
 });
 

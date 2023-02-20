@@ -14,6 +14,7 @@ import {
 import ActionSheet from 'react-native-action-sheet';
 
 import {
+  InterfaceText,
   SText,
 } from '../Misc';
 import styles from '../Styles';
@@ -241,7 +242,7 @@ class AutocompleteList extends React.Component {
     }
     return (
       <TouchableOpacity
-        style={[{flexDirection: isHeb ? 'row-reverse' : 'row'}, styles.autocompleteItem, this.props.theme.bordered]}
+        style={[{flexDirection: isHeb ? 'row-reverse' : 'row'}, styles.autocompleteItem, this.props.theme.lighterGreyBorder]}
         onPress={()=>{
           if (item.type === 'query') {
             this.props.search(item.title || item.query);
@@ -280,7 +281,7 @@ class AutocompleteList extends React.Component {
 
         Platform.OS == "ios" ?
 
-            (<KeyboardAvoidingView style={[styles.autocompleteList, this.props.theme.container, this.props.theme.bordered]} behavior="padding">
+            (<KeyboardAvoidingView style={[styles.autocompleteList, this.props.theme.container, this.props.theme.lighterGreyBorder]} behavior="padding">
               {!!this.state.completions.length ?
                 <FlatList
                   keyExtractor={this._keyExtractor}
@@ -290,9 +291,9 @@ class AutocompleteList extends React.Component {
                   renderItem={this.renderItem}
                 />
                 :
-                <View style={{flex:1}}>
-                  <View style={[{paddingVertical: 15, paddingHorizontal: 15, borderBottomWidth: 1}, this.props.theme.bordered]}>
-                    <Text style={[this.props.theme.searchResultSummaryText, langStyle, this.props.theme.secondaryText]}>{strings.recentSearches}</Text>
+                <View style={styles.flex1}>
+                  <View style={[{paddingVertical: 15, borderBottomWidth: 1}, this.props.theme.lighterGreyBorder]}>
+                    <InterfaceText stringKey={"recentSearches"} extraStyles={[this.props.theme.tertiaryText, styles.fontBold, styles.fontSize16]} />
                   </View>
                   <FlatList
                     keyExtractor={this._keyExtractor}
@@ -314,8 +315,8 @@ class AutocompleteList extends React.Component {
                   renderItem={this.renderItem}
                 />
                 :
-                <View style={{flex:1}}>
-                  <View style={[{paddingVertical: 15, paddingHorizontal: 15, borderBottomWidth: 1}, this.props.theme.bordered]}>
+                <View style={styles.flex1}>
+                  <View style={[{paddingVertical: 15, paddingHorizontal: 15, borderBottomWidth: 1}, this.props.theme.lighterGreyBorder]}>
                     <Text style={[this.props.theme.searchResultSummaryText, langStyle, this.props.theme.secondaryText]}>{strings.recentSearches}</Text>
                   </View>
                   <FlatList

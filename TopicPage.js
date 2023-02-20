@@ -16,7 +16,7 @@ import {
   SText,
   TabView,
   TabRowView,
-  LocalSearchBar,
+  SearchBarWithIcon,
   DataSourceLine,
   FilterableFlatList,
   InterfaceTextWithFallback,
@@ -610,7 +610,7 @@ const TopicPageHeader = ({ title, slug, description, topicsTab, setTopicsTab, qu
       <View style={{ marginTop: 15, marginBottom: 10 }} onLayout={event => {
         setSearchBarY(event.nativeEvent.layout.y);
       }}>
-        <LocalSearchBar
+        <SearchBarWithIcon
           onFocus={jumpToSearchBar}
           query={query}
           onChange={setQuery}
