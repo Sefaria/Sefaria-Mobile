@@ -23,7 +23,6 @@ import {
 } from '../Misc.js';
 import styles from '../Styles';
 import strings from '../LocalizedStrings';
-import {iconData} from "../IconData";
 import {FilterSearcher} from "./FilterSearcher";
 import {useGlobalState} from "../Hooks";
 
@@ -135,6 +134,24 @@ const SearchFilterHeader = ({ onBack, onResetPress, buttonToggleSetData, onFilte
     );
 };
 
+const SearchFilterFooter = ({ buttonToggleSetData }) => {
+    const { theme } = useGlobalState();
+    const { toggleFunction, active } = buttonToggleSetData.get(strings.exactSearch);
+    return (
+        <View>
+            <View style={[{borderBottomWidth: 1, paddingVertical: 8}, theme.lightGreyBorder]}>
+                <Header titleKey={"options"} />
+            </View>
+            <View style={{marginTop: 16}}>
+                <FlexFrame dir={"row"} justifyContent={"flex-start"} alignItems={"center"}>
+                    <IndeterminateCheckBox onPress={toggleFunction} state={active+0} />
+                    <InterfaceText stringKey={"exactMatchesOnly"} extraStyles={[{marginHorizontal: 10}]}/>
+                </FlexFrame>
+            </View>
+        </View>
+    )
+}
+
 export const SearchFilterPage = ({
     toggleFilter,
     clearAllFilters,
@@ -185,6 +202,11 @@ export const SearchFilterPage = ({
                         buttonToggleSetData={buttonToggleSetData}
                         onFilterQueryChange={onFilterQueryChange}
                         filterQuery={filterQuery}
+                    />
+                )}
+                ListFooterComponent={() => (
+                    <SearchFilterFooter
+                        buttonToggleSetData={buttonToggleSetData}
                     />
                 )}
                 ListEmptyComponent={() => !searchState.filtersValid && <FilterLoadingView />}
@@ -268,8 +290,7 @@ class ButtonToggleSetData {
                 },
             [strings.exactSearch]:
                 {
-                    titleKey: "options",
-                    options: this._getExactOptions(),
+                    toggleFunction: this._getExactToggleFunction(),
                     active: this.searchState.field === this.searchState.fieldExact
                 },
         };
@@ -294,19 +315,13 @@ class ButtonToggleSetData {
         ];
     };
 
-    _getExactOptions = () => {
-        return [
-            {
-                name: false, text: strings.off, onPress: () => {
-                    this.setOptions(this.type, this.searchState.sortType, this.searchState.fieldBroad, this.onSetOptions);
-                }
-            },
-            {
-                name: true, text: strings.on, onPress: () => {
-                    this.setOptions(this.type, this.searchState.sortType, this.searchState.fieldExact, this.onSetOptions);
-                }
-            }
-        ];
+    _getExactToggleFunction = () => {
+        return () => {
+            const { field, fieldExact, fieldBroad } = this.searchState;
+            const isExact = field === fieldExact;
+            const otherState = isExact ? fieldBroad : fieldExact;
+            this.setOptions(this.type, this.searchState.sortType, otherState, this.onSetOptions);
+        };
     };
 }
 

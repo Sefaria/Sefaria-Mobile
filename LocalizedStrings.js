@@ -202,6 +202,8 @@ let strings = new LocalizedStrings({
     weeklyTorahPortion: "Weekly Torah Portion",
     reset: "Reset",
     text: "Text",
+    options: "Options",
+    exactMatchesOnly: "Exact Matches Only",
   },
   he: {
     profile: "פרופיל",
@@ -400,7 +402,9 @@ let strings = new LocalizedStrings({
     seeAll: "צפייה בנוספים",
     weeklyTorahPortion: "פרשת השבוע",
     reset: "איפוס",
-    text: "טקסט",
+    text: "מקורות",
+    options: "אפשרויות",
+    exactMatchesOnly: "התאמה מדויקת למילות החיפוש",
   }
 });
 
