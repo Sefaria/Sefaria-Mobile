@@ -1315,11 +1315,15 @@ Sefaria = {
 };
 
 Sefaria.util = {
-  localeDate: (dateString, interfaceLanguage) => {
-    // takes dateString (usually generated from Python datetime object) and returns a human readable string depending on interfaceLang
+  /**
+   * @param dateStringOrObject either a dateString (preferably in ISO format though other formats likely work) or JS Date object.
+   * @param interfaceLanguage either "english" or "hebrew"
+   * @returns {string} string representation of date in `interfaceLanguage`
+   */
+  localeDate: (dateStringOrObject, interfaceLanguage) => {
     const locale = interfaceLanguage === 'english' ? 'en-US' : 'iw-IL';
     const dateOptions = {year: 'numeric', month: 'short', day: 'numeric'};
-    return (new Date(dateString)).toLocaleDateString(locale, dateOptions).replace(',', '');  // remove comma from english date
+    return (new Date(dateStringOrObject)).toLocaleDateString(locale, dateOptions).replace(',', '');  // remove comma from english date
   },
   makeCancelable: (promise) => {
     let hasCanceled_ = false;
