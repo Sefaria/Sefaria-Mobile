@@ -105,10 +105,8 @@ export default StyleSheet.create({
     textAlignVertical: "center",
   },
   navReAccountMenuButtonIcon:{
-    fontSize:16,
     marginEnd: 15,
     marginStart: 10,
-    textAlignVertical: "center",
   },
   navReAccountMenuButtonSep:{
     fontSize: 16, 
