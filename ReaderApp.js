@@ -2271,7 +2271,7 @@ class ReaderApp extends React.PureComponent {
 
     // StatuBar comment: can't figure out how to get barStyle = light-content to be respected on Android
     return (
-      <View style={{flex:1}}>
+      <View style={styles.flex1}>
         <SafeAreaView style={[styles.safeArea, {"backgroundColor": 'black'}]}>
           <View style={[styles.container, this.props.theme.container]}>
               <StatusBar barStyle={'light-content'} backgroundColor={'black'}/>
