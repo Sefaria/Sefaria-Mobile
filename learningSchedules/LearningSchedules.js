@@ -15,25 +15,25 @@ const useCalendarItemsBySection = () => {
     const makeListings = enTitleList => calendarItems.filter(c => enTitleList.indexOf(c.title.en) !== -1);
     const calendarTitleSections = [
         {
-            sectionTitle: "Weekly Torah Portion",
+            sectionTitleKey: "weeklyTorahPortion",
             calendarTitles: [
                 "Parashat Hashavua", "Haftarah (A)", "Haftarah (S)", "Haftarah"
             ],
         },
         {
-            sectionTitle: "Daily Learning",
+            sectionTitleKey: "dailyLearning",
             calendarTitles: [
                 "Daf Yomi", "929", "Daily Mishnah", "Daily Rambam", "Daily Rambam (3 Chapters)", "Halakhah Yomit",
                 "Arukh HaShulchan Yomi", "Tanakh Yomi", "Zohar for Elul", "Chok LeYisrael", "Tanya Yomi"
             ],
         },
         {
-            sectionTitle: "Weekly Learning",
+            sectionTitleKey: "weeklyLearning",
             calendarTitles: ["Daf a Week"],
         },
     ];
-    const calendarItemSections = calendarTitleSections.map(({sectionTitle, calendarTitles}) => ({
-        sectionTitle,
+    const calendarItemSections = calendarTitleSections.map(({sectionTitleKey, calendarTitles}) => ({
+        sectionTitleKey,
         data: makeListings(calendarTitles),
     }));
     return calendarItemSections;
@@ -47,7 +47,7 @@ export const LearningSchedulesPage = ({ openRef, openUri, onBack }) => {
             contentContainerStyle={[{paddingHorizontal: 15}, theme.mainTextPanel]}
             sections={calendarItemsBySection}
             ListHeaderComponent={() => <LearningSchedulesPageHeader onBack={onBack} />}
-            renderSectionHeader={({ section: { sectionTitle } }) => <Text>{sectionTitle}</Text>}
+            renderSectionHeader={({ section: { sectionTitleKey } }) => <Header titleKey={sectionTitleKey} />}
             renderItem={({ item }) => (<LearningSchedule calendarItem={item} openRef={openRef} openUri={openUri} />)}
         />
     );
