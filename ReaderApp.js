@@ -38,7 +38,7 @@ import Sefaria from './sefaria';
 import { LinkFilter } from './Filter';
 import ReaderDisplayOptionsMenu from './ReaderDisplayOptionsMenu';
 import {TextsPage} from "./TextsPage";
-import {LearningSchedulesPage} from "./LearningSchedules";
+import {LearningSchedulesPage} from "./learningSchedules/LearningSchedules";
 import ReaderTextTableOfContents from './ReaderTextTableOfContents';
 import SearchPage from './search/SearchPage';
 import AutocompletePage from './search/AutocompletePage';

@@ -10,7 +10,7 @@ import {
     LanguageToggleButton, SefariaPressable
 } from "./Misc";
 import Sefaria from "./sefaria";
-import {NavSidebar} from "./NavSidebar";
+import {LearningSchedulesBoxFactory} from "./learningSchedules/LearningSchedulesBox";
 
 /**
  * Return modified categories for cases with category toggles
@@ -261,7 +261,7 @@ const TextCategoryHeader = ({ title, description, onBack, displayCategories, set
                 <SubCategoryToggle displayCategories={displayCategories} setCategories={setCategories} />
             </FlexFrame>
             <InterfaceText {...description} />
-            <NavSidebar modules={getSidebarModules(displayCategories, openRef)} />
+            <LearningSchedulesBoxFactory categories={displayCategories} openRef={openRef} />
         </FlexFrame>
     );
 };
@@ -336,24 +336,4 @@ export const TextCategoryPage = ({categories, setCategories, openRef, onBack}) =
             />
         </FlexFrame>
     );
-};
-
-const getSidebarModules = (categories, openRef) => {
-    const path = categories.join("|");
-
-    const modules = {
-        "Tanakh": [
-            {type: "WeeklyTorahPortion", props: {openRef}},
-        ],
-        "Talmud|Bavli": [
-            {type: "DafYomi", props: {openRef}},
-        ]
-    };
-
-    const customModules = path in modules ? modules[path] : [];
-
-    // TODO fill in as needed
-    const defaultModules = [];
-
-    return customModules.concat(defaultModules);
 };

@@ -1,28 +1,14 @@
-import React, {useState} from 'react';
+import React from 'react';
 import {View, Text, SectionList} from "react-native";
-import Sefaria from "./sefaria";
+import Sefaria from "../sefaria";
 import {
     CategoryColorLine, CategoryDescription,
     CategoryTitle, ContentTextWithFallback,
-    FlexFrame,
-    GreyBoxFrame, Icon, InterfaceText,
-    LoadingView,
+    FlexFrame, Icon,
     SefariaPressable, BackButtonRow,
-} from "./Misc";
-import {useAsyncVariable, useGlobalState} from "./Hooks";
-import styles from "./Styles";
-
-const useCalendarItems = () => {
-    const {interfaceLanguage, preferredCustom} = useGlobalState();
-    const calendarLoaded = useAsyncVariable(!!Sefaria.calendar, Sefaria._loadCalendar);
-    const [galusOrIsrael, setGalusOrIsrael] = useState(Sefaria.getDefaultGalusStatus(interfaceLanguage));
-    useAsyncVariable(!!Sefaria.galusOrIsrael, Sefaria.getGalusStatus, setGalusOrIsrael, Sefaria.galusOrIsrael);
-    const calendarItems = Sefaria.getCalendars(preferredCustom, galusOrIsrael === 'diaspora');
-    return {
-        calendarLoaded,
-        calendarItems,
-    };
-};
+} from "../Misc";
+import {useGlobalState} from "../Hooks";
+import {useCalendarItems} from "./useCalendarItems";
 
 const useCalendarItemsBySection = () => {
     const { calendarItems } = useCalendarItems();
@@ -53,83 +39,6 @@ const useCalendarItemsBySection = () => {
     return calendarItemSections;
 };
 
-const getFilteredCalendarItems = (calendarItems, desiredCalendarTitles) => {
-    const desiredCalendarTitlesSet = new Set(desiredCalendarTitles);
-    return calendarItems.filter(item => desiredCalendarTitlesSet.has(item.title.en));
-};
-
-/**
- * Simple learning schedule box to insert wherever a sidebar element can go on the site
- * @param openRef
- * @param desiredCalendarTitles: list of calendar titles to display
- * @param titleKey: key for LocalizedStrings.js
- * @returns {JSX.Element}
- * @constructor
- */
-export const BasicLearningScheduleBox = ({ openRef, desiredCalendarTitles, titleKey }) => {
-    const { theme } = useGlobalState();
-    return (
-        <LearningSchedulesBox openRef={openRef} desiredCalendarTitles={desiredCalendarTitles}>
-            <FlexFrame dir={"row"} justifyContent={"flex-start"}>
-                <InterfaceText stringKey={titleKey} extraStyles={[styles.fontSize16, styles.fontBold, theme.tertiaryText]} />
-            </FlexFrame>
-        </LearningSchedulesBox>
-    );
-};
-
-/**
- * Learning schedules box to insert wherever a sidebar element can go on the site. A bit more modular than BasicLearningSchedulesBox.
- * @param openRef
- * @param desiredCalendarTitles: list of calendar titles to display
- * @param children: element to display above the learning schedules
- * @returns {JSX.Element}
- * @constructor
- */
-export const LearningSchedulesBox = ({openRef, desiredCalendarTitles, children}) => {
-    const { theme } = useGlobalState();
-    const { calendarLoaded } = useCalendarItems();
-    const loadedLearningSchedules = (
-        <View>
-            <View style={[styles.learningSchedulesBorder, theme.lightGreyBorder]}>
-                { children }
-            </View>
-            <LearningScheduleTable desiredCalendarTitles={desiredCalendarTitles} openRef={openRef} />
-        </View>
-    );
-    return (
-        <View style={{marginHorizontal: -15}}>
-            <GreyBoxFrame>
-                { calendarLoaded ? loadedLearningSchedules : <LoadingView />}
-            </GreyBoxFrame>
-        </View>
-    );
-};
-
-const LearningScheduleTable = ({ desiredCalendarTitles, openRef }) => {
-    const { calendarItems } = useCalendarItems();
-    const filteredCalendarItems = getFilteredCalendarItems(calendarItems, desiredCalendarTitles);
-    return (
-        <FlexFrame dir={"column"}>
-            {filteredCalendarItems.map(item => (
-                <LearningScheduleRow key={item.title.en} calendarItem={item} openRef={openRef} />
-            ))}
-        </FlexFrame>
-    );
-};
-
-const LearningScheduleRow = ({ calendarItem, openRef }) => {
-    const { theme } = useGlobalState();
-    const onPress = () => openRef(calendarItem.refs[0]);
-    const displayTitle = calendarItem.title.en === "Parashat Hashavua" ? {en: "Torah", he: "תורה"} : calendarItem.title
-    return (
-        <SefariaPressable onPress={onPress}>
-            <FlexFrame dir={"row"} justifyContent={"space-between"}>
-                <InterfaceText {...displayTitle} extraStyles={[styles.flex1, styles.fontSize16, theme.tertiaryText]} />
-                <ContentTextWithFallback {...calendarItem.subs[0]} extraStyles={[styles.flex1, {marginTop: 5}]} />
-            </FlexFrame>
-        </SefariaPressable>
-    );
-};
 
 export const LearningSchedulesPage = ({ openRef, openUri, onBack }) => {
     const { theme } = useGlobalState();

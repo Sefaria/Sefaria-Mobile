@@ -11,7 +11,7 @@ import {
     SefariaPressable,
 } from "./Misc";
 import styles from "./Styles";
-import {LearningSchedulesBox} from "./LearningSchedules";
+import {LearningSchedulesBox} from "./learningSchedules/LearningSchedulesBox";
 import {useGlobalState} from "./Hooks";
 import {TextCategoryPage} from "./TextCategoryPage";
 
