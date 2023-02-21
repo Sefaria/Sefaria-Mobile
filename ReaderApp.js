@@ -262,7 +262,7 @@ class ReaderApp extends React.PureComponent {
     * @returns {Promise<unknown>|*}
    */
   getInitialPromise = () => {
-    if (Sefaria.history.lastPlace.length && false) {
+    if (Sefaria.history.lastPlace.length) {
       const mostRecent =  Sefaria.history.lastPlace[0];
       return this.openRef(mostRecent.ref, null, mostRecent.versions, false)  // first call to openRef should not add to backStack
     } else {
