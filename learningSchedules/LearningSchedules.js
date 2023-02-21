@@ -5,9 +5,10 @@ import {
     CategoryColorLine, CategoryDescription,
     CategoryTitle, ContentTextWithFallback,
     FlexFrame, Icon,
-    SefariaPressable, BackButtonRow, PageHeader, InterfaceText, Header,
+    SefariaPressable, BackButtonRow, InterfaceText, Header,
 } from "../Misc";
 import {useGlobalState} from "../Hooks";
+import styles from "../Styles";
 import {useCalendarItems} from "./useCalendarItems";
 
 const useCalendarItemsBySection = () => {
@@ -59,6 +60,7 @@ const LearningSchedulesPageHeader = ({ onBack }) => {
         <FlexFrame dir={"column"}>
             <BackButtonRow onPress={onBack} />
             <Header titleKey={"learningSchedules"} />
+            <CurrentDate />
             <InterfaceText
                 en={"Since biblical times, the Torah has been divided into sections which are read each week on a set yearly calendar. Following this practice, many other calendars have been created to help communities of learners work through specific texts together."}
                 he={"מימי קדם חולקה התורה לקטעי קריאה שבועיים שנועדו לסיום הספר כולו במשך תקופת זמן של שנה. בעקבות המנהג הזה התפתחו לאורך השנים סדרי לימוד תקופתיים רבים נוספים, ובעזרתם יכולות קהילות וקבוצות של לומדים ללמוד יחד טקסטים שלמים."}
@@ -66,6 +68,28 @@ const LearningSchedulesPageHeader = ({ onBack }) => {
             />
         </FlexFrame>
 
+    );
+};
+
+const CurrentDate = () => {
+    const { theme } = useGlobalState();
+    const todaysDate = new Date();
+    const gregDate = {
+        en: Sefaria.util.localeDate(todaysDate, "english"),
+        he: Sefaria.util.localeDate(todaysDate, "hebrew"),
+    };
+    const hebrewDate = {
+        en: Sefaria.util.hebrewLocaleDate("english"),
+        he: Sefaria.util.hebrewLocaleDate("hebrew"),
+    }
+    return (
+        <View style={{marginTop: 15}}>
+            <FlexFrame dir={"row"}>
+                <InterfaceText {...gregDate} extraStyles={[{fontStyle: "italic"}, theme.tertiaryText]}/>
+                <Text style={[styles.separator, theme.tertiaryText]}> · </Text>
+                <InterfaceText {...hebrewDate} extraStyles={[{fontStyle: "italic"}, theme.tertiaryText]}/>
+            </FlexFrame>
+        </View>
     );
 };
 
