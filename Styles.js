@@ -1520,9 +1520,6 @@ export default StyleSheet.create({
   footerButtonText: {
     marginTop: 8,
     fontSize: 8,
-    fontFamily: "OpenSans",
-    fontWeight: "normal",
-    fontStyle: "normal"
   },
   systemH3: {
     fontSize: 22,

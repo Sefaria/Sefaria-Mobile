@@ -204,6 +204,7 @@ let strings = new LocalizedStrings({
     weeklyLearning: "Weekly Learning",
     reset: "Reset",
     text: "Text",
+    texts: "Texts",
     options: "Options",
     exactMatchesOnly: "Exact Matches Only",
   },
@@ -407,6 +408,7 @@ let strings = new LocalizedStrings({
     weeklyLearning: "לימוד שבועי",
     reset: "איפוס",
     text: "מקורות",
+    texts: "מקורות",
     options: "אפשרויות",
     exactMatchesOnly: "התאמה מדויקת למילות החיפוש",
   }
