@@ -257,6 +257,20 @@ class ReaderApp extends React.PureComponent {
     });
   }
 
+  /**
+   * Return initial promise on app startup
+    * @returns {Promise<unknown>|*}
+   */
+  getInitialPromise = () => {
+    if (Sefaria.history.lastPlace.length && false) {
+      const mostRecent =  Sefaria.history.lastPlace[0];
+      return this.openRef(mostRecent.ref, null, mostRecent.versions, false)  // first call to openRef should not add to backStack
+    } else {
+      // if no last place, open navigation
+      return Promise.resolve(this.openNav());
+    }
+  }
+
   initFiles = () => {
     Sefaria._deleteUnzippedFiles()
     .then(() => Sefaria.init(this.props.dispatch)).then(() => {
@@ -267,8 +281,8 @@ class ReaderApp extends React.PureComponent {
         // wait to check for interrupting message until after asyncstorage is loaded
         this._interruptingMessageRef && this._interruptingMessageRef.checkForMessage();
         if (!this._initDeepLinkURL) {
-          const mostRecent =  Sefaria.history.lastPlace.length ? Sefaria.history.lastPlace[0] : {ref: "Genesis 1"};
-          this.openRef(mostRecent.ref, null, mostRecent.versions, false)  // first call to openRef should not add to backStack
+
+          this.getInitialPromise()
           .then(Sefaria.postInitSearch)
           .then(() => { this.setState({_completedInit: true}); })  // setting this true before end of postInit. postInit takes a surprisingly long time due to download update check.
           .then(() => Sefaria.postInit(this.props.downloadNetworkSetting))
