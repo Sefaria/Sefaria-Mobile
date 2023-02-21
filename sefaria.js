@@ -1328,15 +1328,17 @@ Sefaria.util = {
   },
   /**
    *
+   * @param interfaceLanguage either "english" or "hebrew"
    * @param hdateParams params to create new HDate. See https://github.com/hebcal/hebcal-es6#new_HDate_new
    * @returns {string} Hebrew date string representation of date in `interfaceLanguage`
    */
   hebrewLocaleDate: (interfaceLanguage, ...hdateParams) => {
     const hdate = new HDate(...hdateParams);
-    const enMonths = ["Nisan", "Iyar", "Sivan", "Tammuz", "Av", "Elul", "Tishrei", "Cheshvan", "Kislev", "Tevet", "Shevat", "Adar", "Adar II"];
-    const heMonths = ["ניסן", "אייר", "סיוון", "תמוז", "אב", "אלול", "תישרי", "חשון", "כסלו", "טבת", "שבט", "אדר", "אדר ב׳"];
-    const monthList = interfaceLanguage === "english" ? enMonths : heMonths;
-    return `${monthList[hdate.getMonth()-1]} ${hdate.getDate()}, ${hdate.getFullYear()}`
+    if (interfaceLanguage === "english") {
+      const enMonths = ["Nisan", "Iyar", "Sivan", "Tammuz", "Av", "Elul", "Tishrei", "Cheshvan", "Kislev", "Tevet", "Shevat", "Adar", "Adar II"];
+      return `${enMonths[hdate.getMonth()-1]} ${hdate.getDate()}, ${hdate.getFullYear()}`
+    }
+    return Sefaria.hebrew.stripNikkud(hdate.renderGematriya());
   },
   makeCancelable: (promise) => {
     let hasCanceled_ = false;
