@@ -117,7 +117,7 @@ const LearningScheduleTitleRow = ({ calendarItem, openRef, openUri }) => {
     const { title, subtitle, subs } = calendarItem;
     const { displayTitle, displaySubtitle } = useLearningScheduleDisplayTitles(title, subtitle, subs);
     return (
-        <SefariaPressable onPress={openMainRef}>
+        <SefariaPressable onPress={openMainRef} extraStyles={[{marginVertical: 15}]}>
             <FlexFrame dir={"row"}>
                 <CategoryTitle title={displayTitle} />
                 <CategoryTitle title={displaySubtitle} extraStyles={[theme.tertiaryText]}/>
@@ -131,27 +131,30 @@ const LearningScheduleSubtitleRow = ({ calendarItem, openRef, openUri }) => {
     return (
         <FlexFrame dir={"row"} flexWrap={"wrap"}>
             <Icon name={"book"} length={16} />
-            { subtitles.map((subtitle, n) => (
-                <LearningScheduleSubtitle
-                    key={subtitle.en}
-                    n={n}
-                    subtitle={subtitle}
-                    calendarItem={calendarItem}
-                    openRef={openRef}
-                    openUri={openUri}
-                />
-            ))}
+            <View style={{marginHorizontal: 8}}>
+                { subtitles.map((subtitle, n) => (
+                    <LearningScheduleSubtitle
+                        key={subtitle.en}
+                        n={n}
+                        subtitle={subtitle}
+                        calendarItem={calendarItem}
+                        openRef={openRef}
+                        openUri={openUri}
+                    />
+                ))}
+            </View>
         </FlexFrame>
     )
 };
 
 const LearningScheduleSubtitle = ({ n, subtitle, calendarItem, openRef, openUri }) => {
+    const { theme } = useGlobalState();
     const onPress = useOpenNthRefOrUrl(n, calendarItem, openRef, openUri);
     return (
         <FlexFrame dir={"row"}>
-            { n > 0 && <ContentTextWithFallback en={", "} he={", "}/>}
+            { n > 0 && <ContentTextWithFallback en={", "} he={", "} extraStyles={[theme.tertiaryText]}/>}
             <SefariaPressable onPress={onPress}>
-                <ContentTextWithFallback {...subtitle} />
+                <ContentTextWithFallback {...subtitle} extraStyles={[theme.tertiaryText]}/>
             </SefariaPressable>
         </FlexFrame>
     );
