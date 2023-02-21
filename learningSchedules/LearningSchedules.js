@@ -5,7 +5,7 @@ import {
     CategoryColorLine, CategoryDescription,
     CategoryTitle, ContentTextWithFallback,
     FlexFrame, Icon,
-    SefariaPressable, BackButtonRow,
+    SefariaPressable, BackButtonRow, PageHeader, InterfaceText, Header,
 } from "../Misc";
 import {useGlobalState} from "../Hooks";
 import {useCalendarItems} from "./useCalendarItems";
@@ -39,7 +39,6 @@ const useCalendarItemsBySection = () => {
     return calendarItemSections;
 };
 
-
 export const LearningSchedulesPage = ({ openRef, openUri, onBack }) => {
     const { theme } = useGlobalState();
     const calendarItemsBySection = useCalendarItemsBySection();
@@ -47,10 +46,26 @@ export const LearningSchedulesPage = ({ openRef, openUri, onBack }) => {
         <SectionList
             contentContainerStyle={[{paddingHorizontal: 15}, theme.mainTextPanel]}
             sections={calendarItemsBySection}
-            ListHeaderComponent={() => <BackButtonRow onPress={onBack} />}
+            ListHeaderComponent={() => <LearningSchedulesPageHeader onBack={onBack} />}
             renderSectionHeader={({ section: { sectionTitle } }) => <Text>{sectionTitle}</Text>}
             renderItem={({ item }) => (<LearningSchedule calendarItem={item} openRef={openRef} openUri={openUri} />)}
         />
+    );
+};
+
+const LearningSchedulesPageHeader = ({ onBack }) => {
+    const { theme } = useGlobalState();
+    return (
+        <FlexFrame dir={"column"}>
+            <BackButtonRow onPress={onBack} />
+            <Header titleKey={"learningSchedules"} />
+            <InterfaceText
+                en={"Since biblical times, the Torah has been divided into sections which are read each week on a set yearly calendar. Following this practice, many other calendars have been created to help communities of learners work through specific texts together."}
+                he={"מימי קדם חולקה התורה לקטעי קריאה שבועיים שנועדו לסיום הספר כולו במשך תקופת זמן של שנה. בעקבות המנהג הזה התפתחו לאורך השנים סדרי לימוד תקופתיים רבים נוספים, ובעזרתם יכולות קהילות וקבוצות של לומדים ללמוד יחד טקסטים שלמים."}
+                extraStyles={[{marginTop: 15, marginBottom: 30}, theme.tertiaryText]}
+            />
+        </FlexFrame>
+
     );
 };
 
