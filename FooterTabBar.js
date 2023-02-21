@@ -10,25 +10,27 @@ import {TabMetadata} from './PageHistory';
 import {iconData} from "./IconData";
 import styles from './Styles';
 import {useGlobalState} from "./Hooks";
-import {InterfaceText} from "./Misc";
+import {FlexFrame, InterfaceText} from "./Misc";
 
 
 export const FooterTabBar = ({selectedTabName, setTab}) => {
     const {theme} = useGlobalState();
     return (
         <View style={[styles.footerBar, theme.mainTextPanel, theme.lightGreyBorder]}>
-            {
-                TabMetadata.namesWithIcons().map(({name, stringKey, icon: iconName}) => (
-                    <FooterTabButton
-                        key={name}
-                        isSelected={name === selectedTabName}
-                        stringKey={stringKey}
-                        iconName={iconName}
-                        setTab={setTab}
-                        name={name}
-                    />
-                ))
-            }
+            <FlexFrame dir={"row"} justifyContent={"space-between"}>
+                {
+                    TabMetadata.namesWithIcons().map(({name, stringKey, icon: iconName}) => (
+                        <FooterTabButton
+                            key={name}
+                            isSelected={name === selectedTabName}
+                            stringKey={stringKey}
+                            iconName={iconName}
+                            setTab={setTab}
+                            name={name}
+                        />
+                    ))
+                }
+            </FlexFrame>
         </View>
     );
 };

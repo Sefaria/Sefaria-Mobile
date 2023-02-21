@@ -1502,8 +1502,7 @@ export default StyleSheet.create({
     borderTopWidth: 0,  // no border top b/c of trending topics
   },
   footerBar: {
-    flexDirection: "row",
-    justifyContent: "space-between",
+    alignSelf: "stretch",
     paddingHorizontal: 5,
     borderTopWidth: 1
   },
