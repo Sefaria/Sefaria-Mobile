@@ -1894,8 +1894,7 @@ class ReaderApp extends React.PureComponent {
         return (
           loading ?
           <LoadingView /> :
-          (<View style={{flex:1, flexDirection: 'row'}}>
-            <TextsPage
+          (<TextsPage
               categories={this.state.navigationCategories}
               setCategories={this.setNavigationCategories}
               openRef={(ref, versions)=>this.openRef(ref,"navigation", versions)}
@@ -1903,8 +1902,7 @@ class ReaderApp extends React.PureComponent {
               openLearningSchedules={this.openMenu.bind(null, "learning schedules")}
               openDedication={this.openMenu.bind(null, "dedication")}
               openUri={this.openUri}
-            />
-          </View>)
+            />)
         );
       case ("learning schedules"):
         Sefaria.track.setScreen("learning schedules", "navigation")
