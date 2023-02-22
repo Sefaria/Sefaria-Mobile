@@ -73,18 +73,24 @@ const useFilterSearcher = (filtersValid, availableFilters) => {
         const displayedFilters = filterSearcher.getMatchingFilterTree(filterQuery, false);
         return organizeFiltersAsSections(displayedFilters, expandedFilterCategories);
     }, [filtersValid, availableFilters, filterQuery, expandedFilterCategories]);
-    const onFilterQueryChange = React.useCallback(query => {
+    React.useEffect(() => {
+        const areSetsEqual = (a, b) => a.size === b.size && new Set([...a, ...b]).size === a.size;
         let newExpandedCategories;
-        if (query) {
+        if (filterQuery) {
             // expand all filter sections to show query results
             newExpandedCategories = filterSections.map(filterSection => filterSection.filterNode.title)
         } else {
             // close all filter sections when clearing query
             newExpandedCategories = [];
         }
-        setExpandedFilterCategories(new Set(newExpandedCategories));
+        const newExpandedCategoriesSet = new Set(newExpandedCategories);
+        if (!areSetsEqual(newExpandedCategoriesSet, expandedFilterCategories)) {
+            setExpandedFilterCategories(newExpandedCategoriesSet);
+        }
+    }, [filterQuery, filterSections]);
+    const onFilterQueryChange = React.useCallback(query => {
         setFilterQuery(query);
-    }, [filterSections]);
+    }, []);
     return {
         filterSections,
         onFilterQueryChange,
