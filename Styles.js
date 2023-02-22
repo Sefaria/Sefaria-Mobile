@@ -362,7 +362,7 @@ export default StyleSheet.create({
   },
   headerButtonSearch: {
     width: 24,
-    marginRight: 10,
+    marginHorizontal: 10,
   },
   searchButton: {
     width: 17,
@@ -493,7 +493,6 @@ export default StyleSheet.create({
     fontFamily: "Amiri",
     paddingTop: 4,
     paddingBottom: 4,
-    paddingRight: 20,
     backgroundColor: "transparent"
   },
   searchInputPlaceholder: {
@@ -668,7 +667,7 @@ export default StyleSheet.create({
   cancelSearchButton: {
     width: 16,
     height: 16,
-    marginHorizontal: 20,
+    marginHorizontal: 12,
   },
   languageToggle: {
     width: 20,

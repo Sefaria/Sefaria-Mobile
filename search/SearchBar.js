@@ -14,7 +14,7 @@ import {
 
 import styles from '../Styles';
 import strings from '../LocalizedStrings';
-import {useGlobalState} from "../Hooks";
+import {useGlobalState, useRtlFlexDir} from "../Hooks";
 
 const SearchBar = ({
   search,
@@ -25,7 +25,7 @@ const SearchBar = ({
   autoFocus,
 }) => {
   const { themeStr, theme, interfaceLanguage } = useGlobalState();
-
+  const isHeb = interfaceLanguage === "hebrew";
   const submitSearch = () => {
     if (query) {
       setIsNewSearch(true);
@@ -33,10 +33,11 @@ const SearchBar = ({
       search('sheet', query, true, false, true);
     }
   };
-  const textInputStyle = [styles.searchInput, interfaceLanguage === "hebrew" ? styles.hebrewSystemFont : null, theme.text];
+  const textInputStyle = [styles.searchInput, isHeb ? styles.hebrewSystemFont : null, {textAlign: isHeb ? "right" : "left"}, theme.text];
   const placeholderTextColor = themeStr === "black" ? "#BBB" : "#777";
+  const flexDirection = useRtlFlexDir(interfaceLanguage);
   return (
-    <View style={[{flexDirection: 'row', alignItems: "center", flex:0, borderRadius: 250, paddingStart: 18}, theme.lighterGreyBackground]}>
+    <View style={[{flexDirection, alignItems: "center", borderRadius: 250, paddingHorizontal: 8}, theme.lighterGreyBackground]}>
         <SearchButton onPress={submitSearch} />
         <TextInput
           autoFocus={autoFocus}
