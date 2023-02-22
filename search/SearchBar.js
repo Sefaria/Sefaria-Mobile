@@ -1,24 +1,16 @@
 'use strict';
 import PropTypes from 'prop-types';
-import React, { useContext } from 'react';
+import React from 'react';
 
 import {
-  TouchableOpacity,
-  Text,
   View,
   TextInput,
-  Image,
 } from 'react-native';
 
 import {
-  DirectedButton,
-  CloseButton,
   CancelButton,
   SearchButton,
-  LanguageToggleButton,
 } from '../Misc.js';
-import { GlobalStateContext, getTheme } from '../StateManager';
-import AutocompleteList from './AutocompleteList';
 
 import styles from '../Styles';
 import strings from '../LocalizedStrings';
