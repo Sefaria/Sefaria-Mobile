@@ -264,10 +264,10 @@ const SearchFilter = ({filterNode, expandFilter, toggleFilter, indented, expande
             <FlexFrame dir={"row"} justifyContent={"space-between"}>
                 <FlexFrame dir={"row"}>
                     <IndeterminateCheckBox onPress={clickCheckBox} state={selected} />
-                    <View style={{marginHorizontal: 10}}>
-                        <ContentTextWithFallback en={title} he={heTitle} />
+                    <View style={{marginLeft: 10, marginRight: 30, flexDirection: "row", flexShrink: 2}}>
+                        <ContentTextWithFallback en={title} he={heTitle} extraStyles={[{marginRight: 5}]}/>
+                        <ContentTextWithFallback en={countStr} he={countStr} extraStyles={[theme.tertiaryText]} />
                     </View>
-                    <ContentTextWithFallback en={countStr} he={countStr} extraStyles={[theme.tertiaryText]} />
                 </FlexFrame>
                 { !indented && <Icon name={expanded ? 'down' : 'forward'} length={12} /> }
             </FlexFrame>
