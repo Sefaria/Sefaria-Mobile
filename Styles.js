@@ -71,7 +71,6 @@ export default StyleSheet.create({
     fontSize: 18,
   },
   navRePage:{
-    display: "flex",
     marginHorizontal: 15,
   },
   navReEnglish:{
@@ -90,13 +89,10 @@ export default StyleSheet.create({
     direction: "inherit",
   },
   navReAccountMenuButton:{
-    display: "flex",
     flexDirection: "row",
-    alignContent: "flex-start",
     alignItems: "center",
     borderTopWidth: 1,
     paddingVertical: 20,
-    direction: "inherit",
   },
   navReAccountMenuButtonText:{
     fontSize:18,
