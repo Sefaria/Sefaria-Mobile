@@ -87,7 +87,7 @@ const useFilterSearcher = (filtersValid, availableFilters) => {
         if (!areSetsEqual(newExpandedCategoriesSet, expandedFilterCategories)) {
             setExpandedFilterCategories(newExpandedCategoriesSet);
         }
-    }, [filterQuery, filterSections]);
+    }, [filterQuery]);
     const onFilterQueryChange = React.useCallback(query => {
         setFilterQuery(query);
     }, []);
