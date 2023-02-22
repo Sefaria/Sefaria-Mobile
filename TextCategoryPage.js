@@ -260,8 +260,8 @@ const TextCategoryHeader = ({ title, description, onBack, displayCategories, set
                 <ContentTextWithFallback {...title} extraStyles={[{fontSize: 30}]}/>
                 <SubCategoryToggle displayCategories={displayCategories} setCategories={setCategories} />
             </FlexFrame>
-            <InterfaceText {...description} />
-            <LearningSchedulesBoxFactory categories={displayCategories} openRef={openRef} />
+            <InterfaceText {...description} extraStyles={[{marginBottom: 30}]}/>
+            <LearningSchedulesBoxFactory categories={displayCategories} openRef={openRef} extraStyles={{marginTop: 10, marginBottom: 6}}/>
         </FlexFrame>
     );
 };

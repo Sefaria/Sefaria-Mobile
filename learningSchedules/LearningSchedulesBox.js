@@ -71,10 +71,14 @@ const getLearningSchedulesBoxComponent = categories => {
     return components[path];
 }
 
-export const LearningSchedulesBoxFactory = ({ categories, openRef }) => {
+export const LearningSchedulesBoxFactory = ({ categories, openRef, extraStyles=[]}) => {
     const Component = getLearningSchedulesBoxComponent(categories);
     if (!Component) { return null; }
-    return <Component openRef={openRef} />
+    return (
+        <View style={extraStyles}>
+            <Component openRef={openRef} />
+        </View>
+    );
 };
 
 const LearningScheduleTable = ({ desiredCalendarTitles, openRef }) => {
