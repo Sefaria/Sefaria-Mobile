@@ -40,6 +40,7 @@ let strings = new LocalizedStrings({
     noContent: "(No content)",
     noResultsContaining: 'No results containing',
     search: "Search",
+    searchTexts: "Search texts",
     loading: "Loading...",
     loadingFilters: "Loading Filters...",
     results: "Results", // to be combined with a number, e.g. "32 Results"
@@ -245,6 +246,7 @@ let strings = new LocalizedStrings({
     noContent: "(אין טקסט)",
     noResultsContaining: "אין תוצאות בשביל",
     search: "חיפוש",
+    searchTexts: "חיפוש מקורות",
     loading: "טוען...",
     loadingFilters: "טוען מסננים...",
     results: "תוצאות", // to be combined with a number, e.g. "32 Results"

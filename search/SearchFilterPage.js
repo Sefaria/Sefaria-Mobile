@@ -134,7 +134,7 @@ const SearchFilterHeader = ({ onBack, onResetPress, buttonToggleSetData, onFilte
                 <Header titleKey={"text"} />
             </View>
             <View style={{marginVertical: 16}}>
-                <CondensedSearchBar onChange={onFilterQueryChange} query={filterQuery} placeholder={"Search texts"} />
+                <CondensedSearchBar onChange={onFilterQueryChange} query={filterQuery} placeholder={strings.searchTexts} />
             </View>
         </View>
     );
