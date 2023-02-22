@@ -41,10 +41,8 @@ const SearchBar = ({
       search('sheet', query, true, false, true);
     }
   };
-  var textInputStyle = [styles.searchInput, interfaceLanguage === "hebrew" ? styles.hebrewSystemFont : null, theme.text];
-  //TODO sorry for the hard-coded colors. because the prop placeholderTextColor of TextInput doesn't take a style and instead requires an explicit color string, I had to do it this way
-  var placeholderTextColor = themeStr == "black" ? "#BBB" : "#777";
-  //TODO make flex dependent on results. animate opening of results
+  const textInputStyle = [styles.searchInput, interfaceLanguage === "hebrew" ? styles.hebrewSystemFont : null, theme.text];
+  const placeholderTextColor = themeStr === "black" ? "#BBB" : "#777";
   return (
     <View style={[{flexDirection: 'row', alignItems: "center", flex:0, borderRadius: 250, paddingStart: 18}, theme.lighterGreyBackground]}>
         <SearchButton onPress={submitSearch} />
