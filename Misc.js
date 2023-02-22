@@ -901,7 +901,7 @@ const IndeterminateCheckBox = ({ state, onPress }) => {
   const iconName = useCheckboxIconName(state);
   return (
     <TouchableOpacity onPress={onPress}>
-      <Icon name={iconName} extraStyles={[styles.searchFilterCheckBox]} />
+      <Icon name={iconName} length={18} />
     </TouchableOpacity>
   );
 }
