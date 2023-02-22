@@ -1281,7 +1281,6 @@ export default StyleSheet.create({
     flexDirection: 'column',
   },
   autocompleteItem: {
-    flex:1,
     alignItems: "center",
     borderBottomWidth: 1,
     paddingVertical: 10,
