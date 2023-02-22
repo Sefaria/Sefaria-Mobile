@@ -185,6 +185,7 @@ export const SearchFilterPage = ({
             <SectionList
                 contentContainerStyle={styles.menuContent}
                 sections={filterSections}
+                stickySectionHeadersEnabled={false}
                 keyExtractor={item => item.title}
                 renderSectionHeader={({ section: { filterNode, expanded } }) => (
                     <SearchFilter
