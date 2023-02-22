@@ -201,7 +201,7 @@ export const SearchFilterPage = ({
                         indented
                     />
                 )}
-                ListHeaderComponent={() => (
+                ListHeaderComponent={
                     <SearchFilterHeader
                         onBack={onBack}
                         onResetPress={onResetPress}
@@ -209,12 +209,12 @@ export const SearchFilterPage = ({
                         onFilterQueryChange={onFilterQueryChange}
                         filterQuery={filterQuery}
                     />
-                )}
-                ListFooterComponent={() => (
+                }
+                ListFooterComponent={
                     <SearchFilterFooter
                         buttonToggleSetData={buttonToggleSetData}
                     />
-                )}
+                }
                 ListEmptyComponent={() => !searchState.filtersValid && <FilterLoadingView />}
             />
             <SearchFooterFrame>
