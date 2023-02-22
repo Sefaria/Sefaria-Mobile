@@ -22,6 +22,7 @@ import AutocompleteList from './AutocompleteList';
 
 import styles from '../Styles';
 import strings from '../LocalizedStrings';
+import {useGlobalState} from "../Hooks";
 
 const SearchBar = ({
   search,
@@ -31,8 +32,7 @@ const SearchBar = ({
   onFocus,
   autoFocus,
 }) => {
-  const { themeStr, interfaceLanguage } = useContext(GlobalStateContext);
-  const theme = getTheme(themeStr);
+  const { themeStr, theme, interfaceLanguage } = useGlobalState();
 
   const submitSearch = () => {
     if (query) {
