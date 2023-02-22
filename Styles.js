@@ -1340,6 +1340,9 @@ export default StyleSheet.create({
     flexDirection: 'row',
     backgroundColor: 'black',
   },
+  alignSelf: {
+    alignSelf: "stretch",
+  },
   //HTML Styles:
   strong: {
     fontWeight: "bold"

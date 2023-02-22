@@ -25,7 +25,7 @@ import {ShortDedication} from "./Dedication";
  */
 export const AccountNavigationMenu = props => {
     return (
-        <ScrollView contentContainerStyle={[styles.navRePage]} >
+        <ScrollView style={styles.alignSelf} contentContainerStyle={[styles.navRePage]} >
             <PageHeader titleKey={"account"}/>
             <AccountNavigationMenuButtonList {...props} />
             <ShortDedication openDedication={() => props.openMenu("dedication", "AccountNavigationMenu")}/>
