@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 
 import {
-  CategoryColorLine, PageHeader,
+  CategoryColorLine, Header, PageHeader,
 } from '../Misc';
 
 import AutocompleteList from './AutocompleteList';
@@ -61,7 +61,7 @@ class AutocompletePage extends React.Component {
   render() {
     return (
       <View style={[styles.menu, this.props.theme.menu, {paddingHorizontal: 15}]}>
-        <PageHeader titleKey={"search"} />
+        <PageHeader><Header titleKey={"search"}/></PageHeader>
         <SearchBar
           autoFocus
           onBack={this.props.onBack}
