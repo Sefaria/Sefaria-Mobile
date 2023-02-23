@@ -319,7 +319,7 @@ const TrendingTopics = ({ trendingTopics, openTopic }) => {
             extraStyles={[{fontSize: 16, fontWeight: "bold"}, theme.tertiaryText]}
           />
         </View>
-        <View style={{flexDirection: isHeb ? "row-reverse" : "row", flexWrap: 'wrap', marginTop: 5}}>
+        <View style={{flexDirection: isHeb ? "row-reverse" : "row", flexWrap: 'wrap', marginTop: 10}}>
           <DotSeparatedList
             flexDirection={isHeb ? 'row-reverse' : 'row'}
             items={trendingTopics.slice(0, 6)}
