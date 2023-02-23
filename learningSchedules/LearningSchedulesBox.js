@@ -94,14 +94,14 @@ const LearningScheduleTable = ({ desiredCalendarTitles, openRef }) => {
 };
 
 const LearningScheduleRow = ({ calendarItem, openRef }) => {
-    const { theme } = useGlobalState();
+    const { theme, interfaceLanguage } = useGlobalState();
     const onPress = () => openRef(calendarItem.refs[0]);
     const displayTitle = calendarItem.title.en === "Parashat Hashavua" ? {en: "Torah", he: "תורה"} : calendarItem.title
     return (
         <SefariaPressable onPress={onPress}>
             <FlexFrame dir={"row"} justifyContent={"space-between"}>
                 <InterfaceText {...displayTitle} extraStyles={[styles.flex1, styles.fontSize16, theme.tertiaryText]} />
-                <ContentTextWithFallback {...calendarItem.subs[0]} extraStyles={[styles.flex1, {marginTop: 5}, theme.text]} />
+                <ContentTextWithFallback {...calendarItem.subs[0]} extraStyles={[styles.flex1, {marginTop: interfaceLanguage === "english" ? 5 : 0}, theme.text]} />
             </FlexFrame>
         </SefariaPressable>
     );
