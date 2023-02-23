@@ -1183,7 +1183,11 @@ const SimpleContentBlock = ({en, he}) => {
   return (
     <View>
       {showHebrew  ? <SimpleHTMLView text={he} lang={'hebrew'} />: null}
-      {showEnglish ? <SimpleHTMLView text={en} lang={'english'} /> : null}
+      {showEnglish ? (
+          <View style={{marginTop: showHebrew ? 10 : 0}}>
+            <SimpleHTMLView text={en} lang={'english'} />
+          </View>
+      ): null}
     </View>
   );
 }
