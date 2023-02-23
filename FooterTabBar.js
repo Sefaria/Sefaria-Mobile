@@ -10,7 +10,7 @@ import {TabMetadata} from './PageHistory';
 import {iconData} from "./IconData";
 import styles from './Styles';
 import {useGlobalState} from "./Hooks";
-import {FlexFrame, InterfaceText} from "./Misc";
+import {FlexFrame, Icon, InterfaceText} from "./Misc";
 
 
 export const FooterTabBar = ({selectedTabName, setTab}) => {
@@ -40,7 +40,7 @@ const FooterTabButton = ({stringKey, name, iconName, isSelected, setTab}) => {
     const onPress = () => setTab(name);
     return (
         <TouchableOpacity style={styles.footerButton} onPress={onPress}>
-            <Image source={iconData.get(iconName, themeStr, isSelected)} resizeMode={'contain'}/>
+            <Icon name={iconName} isSelected={isSelected} length={20}/>
             <InterfaceText stringKey={stringKey} extraStyles={[styles.footerButtonText, theme.tertiaryText, isSelected ? theme.primaryText : undefined]} />
         </TouchableOpacity>
     );

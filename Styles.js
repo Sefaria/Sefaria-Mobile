@@ -97,8 +97,6 @@ export default StyleSheet.create({
   navReAccountMenuButtonText:{
     fontSize:18,
     fontWeight:"bold",
-    lineHeight:19,
-    textAlignVertical: "center",
   },
   navReAccountMenuButtonIcon:{
     marginEnd: 15,
@@ -1512,7 +1510,7 @@ export default StyleSheet.create({
   },
   footerButtonText: {
     marginTop: 8,
-    fontSize: 8,
+    fontSize: 10,
   },
   systemH3: {
     fontSize: 22,
