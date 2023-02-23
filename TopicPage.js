@@ -715,11 +715,13 @@ const TopicSideColumn = ({ topic, links, openTopic, openRef, parashaData, tref }
     )
     : null;
   return (
-      <GreyBoxFrame>
-        { readingsComponent }
-        { linksComponent }
-        { moreButton }
-      </GreyBoxFrame>
+      <View style={{marginBottom: 30}}>
+        <GreyBoxFrame>
+          { readingsComponent }
+          { linksComponent }
+          { moreButton }
+        </GreyBoxFrame>
+      </View>
   );
 };
 TopicSideColumn.propTypes = {
