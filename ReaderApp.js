@@ -1969,7 +1969,7 @@ class ReaderApp extends React.PureComponent {
         />);
       case ("history"):
         Sefaria.track.setScreen("history", "menu")
-        return(<HistoryPage/>)  
+        return(<HistoryPage/>);  
         /*return(
           <SwipeableCategoryList
             close={this.manageBackMain}
@@ -1992,7 +1992,7 @@ class ReaderApp extends React.PureComponent {
         );*/
         break;
       case ("saved"):
-        Sefaria.track.setScreen("saved", "menu")
+        /*Sefaria.track.setScreen("saved", "menu")
         return(
           <SwipeableCategoryList
             close={this.manageBackMain}
@@ -2012,7 +2012,7 @@ class ReaderApp extends React.PureComponent {
             hasDismissedSyncModal={this.props.hasDismissedSyncModal}
             readingHistory={this.props.readingHistory}
           />
-        );
+        );*/
         break;
       case("login"):
       case("register"):

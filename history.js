@@ -161,6 +161,7 @@ const History = {
         const { mergedHistory, mergedSaved } = Sefaria.history.mergeHistory(currHistory, currSaved, response.user_history);
         Sefaria.history.lastPlace = Sefaria.history.historyToLastPlace(mergedHistory);
         Sefaria.history.saved = mergedSaved;
+        Sefaria.history.history = nextLastSyncItems.filter(h => !h.action).concat(currHistory);
         currHistory = mergedHistory;
         await Sefaria.history.setItem('savedItems', JSON.stringify(Sefaria.history.saved));
         await Sefaria.history.setItem('lastPlace', JSON.stringify(Sefaria.history.lastPlace));
@@ -175,7 +176,7 @@ const History = {
         console.log('sync error', e);
       }
     }
-    return nextLastSyncItems.filter(h => !h.action).concat(currHistory);
+    return Sefaria.history.history;
   },
   syncProfileGetSaved: async (dispatch, settings) => {
     await Sefaria.history.syncProfile(dispatch, settings);
