@@ -224,7 +224,11 @@ const TopicCategory = ({ topic, openTopic, onBack, openNav }) => {
         openTopic(newTopic, true, false);  // make sure topic is set with all available info if it wasn't set correctly initially (e.g. came from external link)
       }
     }
-    setSubtopics(getSubtopics(slug));
+    const tempSubtopics = getSubtopics(slug);
+    if (tempSubtopics) {
+      tempSubtopics.splice(3, 0, {isSplice: true});
+    }
+    setSubtopics(tempSubtopics);
   }, [slug, topicTocLoaded]);
   const [trendingTopics, setTrendingTopics] = useState(Sefaria.api._trendingTags);
   useEffect(() => {
@@ -254,19 +258,22 @@ const TopicCategory = ({ topic, openTopic, onBack, openNav }) => {
           <FlatList
             data={subtopics}
             renderItem={({ item, index }) => (
-              <View style={[styles.topicCategoryButtonWrapper, theme.lighterGreyBorder, (index === 0 && trendingTopics) ? styles.topicCategoryButtonWrapperRoot : null]}>
-                <TopicCategoryButton
-                  topic={item}
-                  openTopic={openTopic}
-                />
-              </View>
+                item.isSplice ? (
+                  <TrendingTopics trendingTopics={trendingTopics} openTopic={openTopic} />
+                ) : (
+                  <View style={[styles.topicCategoryButtonWrapper, theme.lighterGreyBorder]}>
+                    <TopicCategoryButton
+                        topic={item}
+                        openTopic={openTopic}
+                    />
+                  </View>
+                )
             )}
             ListHeaderComponent={() => (
               <TopicCategoryHeader {...headerTopic} onBack={!!topic && onBack}>
-                <TrendingTopics trendingTopics={trendingTopics} openTopic={openTopic} />
               </TopicCategoryHeader>
             )}
-            keyExtractor={t => t.slug}
+            keyExtractor={t => t.slug || 'splice'}
           />
         )
       }
@@ -304,7 +311,7 @@ const TrendingTopics = ({ trendingTopics, openTopic }) => {
   const isHeb = menuLanguage === 'hebrew';
   return (
     trendingTopics ? (
-      <View style={[{padding: 15, marginBottom: 5}, theme.lightestGreyBackground]}>
+      <View style={[{padding: 15}, theme.lightestGreyBackground]}>
         <View style={[{borderBottomWidth: 1, paddingBottom: 5}, theme.lightGreyBorder]}>
           <InterfaceTextWithFallback
             en={strings.trendingTopics}
