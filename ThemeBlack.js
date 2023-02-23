@@ -225,7 +225,7 @@ export default StyleSheet.create({
     color: Colors.tertiaryText,
   },
   sefariaColorText:{
-    color: Colors.sefariaBlue,
+    color: Colors.mainForegroundContrast,
   },
   sefariaColorButton: {
     backgroundColor: Colors.sefariaBlue,

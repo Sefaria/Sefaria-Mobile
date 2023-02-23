@@ -101,7 +101,7 @@ const LearningScheduleRow = ({ calendarItem, openRef }) => {
         <SefariaPressable onPress={onPress}>
             <FlexFrame dir={"row"} justifyContent={"space-between"}>
                 <InterfaceText {...displayTitle} extraStyles={[styles.flex1, styles.fontSize16, theme.tertiaryText]} />
-                <ContentTextWithFallback {...calendarItem.subs[0]} extraStyles={[styles.flex1, {marginTop: 5}]} />
+                <ContentTextWithFallback {...calendarItem.subs[0]} extraStyles={[styles.flex1, {marginTop: 5}, theme.text]} />
             </FlexFrame>
         </SefariaPressable>
     );

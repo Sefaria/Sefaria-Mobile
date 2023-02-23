@@ -250,6 +250,7 @@ const SubCategoryToggle = ({displayCategories, setCategories}) => {
 
 
 const TextCategoryHeader = ({ title, description, onBack, displayCategories, setCategories, openRef }) => {
+    const { theme } = useGlobalState();
     return (
         <FlexFrame dir={"column"}>
             <FlexFrame dir={"row"} justifyContent={"space-between"} alignItems={"center"}>
@@ -257,10 +258,10 @@ const TextCategoryHeader = ({ title, description, onBack, displayCategories, set
                 <LanguageToggleButton />
             </FlexFrame>
             <FlexFrame dir={"column"}>
-                <ContentTextWithFallback {...title} extraStyles={[{fontSize: 30, marginTop: 4}]}/>
+                <ContentTextWithFallback {...title} extraStyles={[{fontSize: 30, marginTop: 4}, theme.text]} />
                 <SubCategoryToggle displayCategories={displayCategories} setCategories={setCategories} />
             </FlexFrame>
-            <InterfaceText {...description} />
+            <InterfaceText {...description} extraStyles={[theme.tertiaryText]}/>
             <LearningSchedulesBoxFactory categories={displayCategories} openRef={openRef} extraStyles={{marginTop: 40}}/>
         </FlexFrame>
     );

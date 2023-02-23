@@ -151,7 +151,7 @@ const SearchFilterFooter = ({ buttonToggleSetData }) => {
             <View style={{marginTop: 16}}>
                 <FlexFrame dir={"row"} justifyContent={"flex-start"} alignItems={"center"}>
                     <IndeterminateCheckBox onPress={toggleFunction} state={active+0} />
-                    <InterfaceText stringKey={"exactMatchesOnly"} extraStyles={[{marginHorizontal: 10}]}/>
+                    <InterfaceText stringKey={"exactMatchesOnly"} extraStyles={[{marginHorizontal: 10}, theme.text]}/>
                 </FlexFrame>
             </View>
         </View>
@@ -266,7 +266,7 @@ const SearchFilter = ({filterNode, expandFilter, toggleFilter, indented, expande
                 <FlexFrame dir={"row"}>
                     <IndeterminateCheckBox onPress={clickCheckBox} state={selected} />
                     <View style={{marginLeft: 10, marginRight: 30, flexDirection: "row", flexShrink: 2}}>
-                        <ContentTextWithFallback en={title} he={heTitle} extraStyles={[{marginRight: 5}]}/>
+                        <ContentTextWithFallback en={title} he={heTitle} extraStyles={[{marginRight: 5}, theme.text]}/>
                         <ContentTextWithFallback en={countStr} he={countStr} extraStyles={[theme.tertiaryText]} />
                     </View>
                 </FlexFrame>
