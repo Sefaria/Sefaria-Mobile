@@ -110,7 +110,7 @@ const AuthPage = ({ authMode, close, showToast, openLogin, openRegister, openUri
         <View style={styles.logInMotivator}>
           {
             [
-              {iconName: 'starUnfilled', text: strings.saveTexts},
+              {iconName: 'bookmark', text: strings.saveTexts},
               {iconName: 'sync', text: strings.syncYourReading},
               {iconName: 'sheet', text: strings.readYourSheets},
               {iconName: 'mail', text: strings.getUpdates},

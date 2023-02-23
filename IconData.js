@@ -66,6 +66,10 @@ class IconData {
                 black_selected: require('./img/bookmark-white.png'),
                 white_selected: require('./img/bookmark-dark.png'),
             },
+            'bookmark-filled': {
+                black: require('./img/bookmark-filled-light.png'),
+                white: require('./img/bookmark-filled.png'),
+            },
             'breaks': {
                 black: require('./img/breaks-light.png'),
                 white: require('./img/breaks.png'),
