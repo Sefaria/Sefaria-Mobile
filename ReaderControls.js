@@ -62,7 +62,7 @@ const ReaderControls = ({
         <View style={styles.readerNavSectionMoreInvisible}>
           <Image
             style={styles.starIcon}
-            source={iconData.get('bookmark', 'white')}
+            source={iconData.get('bookmark-unfilled', 'white')}
             resizeMode={'contain'}
           />
         </View>

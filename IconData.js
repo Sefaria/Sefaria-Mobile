@@ -60,11 +60,15 @@ class IconData {
                 black_selected: require('./img/book-white.png'),
                 white_selected: require('./img/book-dark.png'),
             },
-            'bookmark': {
-                black: require('./img/bookmark-light.png'),
-                white: require('./img/bookmark.png'),
-                black_selected: require('./img/bookmark-white.png'),
-                white_selected: require('./img/bookmark-dark.png'),
+            'bookmark-double': {
+                black: require('./img/bookmark-double-light.png'),
+                white: require('./img/bookmark-double.png'),
+                black_selected: require('./img/bookmark-double-white.png'),
+                white_selected: require('./img/bookmark-double-dark.png'),
+            },
+            'bookmark-unfilled': {
+                black: require('./img/bookmark-unfilled-light.png'),
+                white: require('./img/bookmark-unfilled.png'),
             },
             'bookmark-filled': {
                 black: require('./img/bookmark-filled-light.png'),

@@ -1106,7 +1106,7 @@ const SaveButton = ({ historyItem, showToast, extraStyles=[] }) => {
   const [, forceUpdate] = useReducer(x => x + 1, 0);  // HACK
   const isHeb = Sefaria.util.get_menu_language(interfaceLanguage, textLanguage) == "hebrew";
   const isSaved = Sefaria.history.indexOfSaved(historyItem.ref) !== -1;
-  const iconName = isSaved ? 'bookmark-filled' : 'bookmark';
+  const iconName = isSaved ? 'bookmark-filled' : 'bookmark-unfilled';
   const src = iconData.get(iconName, themeStr);
   return (
     <TouchableOpacity onPress={
