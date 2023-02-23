@@ -132,7 +132,8 @@ export const HistoryPage = ({}) => {
     const dedupeAndNormalizeHistoryArray = (historyArray, onlyNormalize = false) => {
         return historyArray.reduce((accum, curr, index) => {
             //local history sheet items may not have the required data, so parse it out. 
-            if(curr?.is_sheet && !curr.hasOwnProperty("sheet_id")) { curr["sheet_id"] = getSheetIdFromRef(curr['ref']); }
+            if(curr?.is_sheet && !curr.hasOwnProperty("sheet_id")) { curr.sheet_id = getSheetIdFromRef(curr['ref']); }
+            if(!curr.hasOwnProperty("book")) { curr.book = Sefaria.textTitleForRef(curr.ref) }; 
             //for saved items we dont want to dedupe at all
             if (!accum.length || onlyNormalize) {return accum.concat([curr]); }
             const prev = accum[accum.length-1];
@@ -142,7 +143,7 @@ export const HistoryPage = ({}) => {
             } else if (!curr.is_sheet && curr.book === prev.book) {
               return accum;
             } else {
-              return accum.concat(curr);
+              return accum.concat([curr]);
             }
           }, [])
     };
