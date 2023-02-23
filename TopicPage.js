@@ -547,9 +547,13 @@ const TopicTabView = ({text, active}) => {
           text={text}
           active={active}
           lang={interfaceLanguage}
+          textStyleByLang={{
+            english: styles.enInt,
+            hebrew: styles.heInt,
+          }}
           activeTextStyle={theme.tertiaryText}
           inactiveTextStyle={theme.secondaryText}
-          baseTextStyles={[styles.enInt, styles.systemH3]}
+          baseTextStyles={[styles.systemH3]}
       />
   );
 };
