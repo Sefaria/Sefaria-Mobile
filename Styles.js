@@ -110,7 +110,6 @@ export default StyleSheet.create({
     textAlignVertical: "center",
   },
   navReSefaria501:{
-    fontWeight: "bold",
     fontSize: 14,
     lineHeight: 18,
     textAlign: "center",
