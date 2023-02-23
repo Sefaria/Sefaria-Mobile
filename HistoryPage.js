@@ -47,17 +47,16 @@ export const HistoryPage = ({}) => {
             console.log(Sefaria.history.history.slice(0, 100));
             setStoreLoading(false);
         })();
-        
     }, []);
     
     useEffect(() => {
         //here we are getting a "copy" of local history items that we will perform operations on. 
         if(storeLoading) return;
-        let store = Sefaria.history[mode]
+        let store = Sefaria.history[mode];
         store = dedupeAndNormalizeHistoryArray(store, mode == "saved");
         setStore(store); 
         loadData();
-    }, [mode]);
+    }, [mode, storeLoading]);
     
     /*useEffect(() => {
         loadData();
