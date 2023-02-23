@@ -1884,6 +1884,11 @@ class ReaderApp extends React.PureComponent {
     }
   };
 
+  shouldShowFooter = menuOpen => {
+    const menuBlacklist = [null, 'text toc', 'sheet meta'];
+    return menuBlacklist.indexOf(menuOpen) === -1;
+  };
+
   renderContent() {
     const loading = !this.state.loaded;
     switch(this.state.menuOpen) {
@@ -2292,7 +2297,7 @@ class ReaderApp extends React.PureComponent {
               />
             </ConditionalProgressWrapper>
               { this.renderContent() }
-            { this.state.menuOpen && (
+            { this.shouldShowFooter(this.state.menuOpen) && (
                 <FooterTabBar selectedTabName={this.state.footerTab} setTab={this.setFooterTab} />
             )}
           </View>
