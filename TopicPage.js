@@ -270,8 +270,7 @@ const TopicCategory = ({ topic, openTopic, onBack, openNav }) => {
                 )
             )}
             ListHeaderComponent={() => (
-              <TopicCategoryHeader {...headerTopic} onBack={!!topic && onBack}>
-              </TopicCategoryHeader>
+              <TopicCategoryHeader {...headerTopic} onBack={!!topic && onBack}/>
             )}
             keyExtractor={t => t.slug || 'splice'}
           />
