@@ -619,11 +619,13 @@ const TextPassage = ({text, topicTitle, showToast, openRef }) => {
   const flexDirection = useRtlFlexDir(interfaceLanguage);
   return (
     <StoryFrame extraStyles={styles.topicItemMargins}>
-      <DataSourceLine dataSources={text.dataSources} title={topicTitle} flexDirection={flexDirection} prefixText={strings.thisSourceIsConnectedTo} imageStyles={[{marginTop: -12}]}>
-        <SaveLine dref={text.ref} showToast={showToast} flexDirection={flexDirection} imageStyles={[{marginTop: -12}]}>
-          <StoryTitleBlock en={text.ref} he={Sefaria.normHebrewRef(text.heRef)} onClick={() => openRef(text.ref)} />
-        </SaveLine>
-      </DataSourceLine>
+      <View style={{marginBottom: 10}}>
+        <DataSourceLine dataSources={text.dataSources} title={topicTitle} flexDirection={flexDirection} prefixText={strings.thisSourceIsConnectedTo} imageStyles={[{marginTop: -12}]}>
+          <SaveLine dref={text.ref} showToast={showToast} flexDirection={flexDirection} imageStyles={[{marginTop: -12}]}>
+            <StoryTitleBlock en={text.ref} he={Sefaria.normHebrewRef(text.heRef)} onClick={() => openRef(text.ref)} />
+          </SaveLine>
+        </DataSourceLine>
+      </View>
       <ColorBarBox tref={text.ref}>
         <StoryBodyBlock en={text.en} he={text.he}/>
       </ColorBarBox>
