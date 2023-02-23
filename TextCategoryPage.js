@@ -236,8 +236,8 @@ const SubCategoryToggle = ({displayCategories, setCategories}) => {
         const toggleTitle = toggleData["subCategoriesDisplay"][index];
         const active = displayCategories[1] === element;
         return(
-            <SefariaPressable onPress={toggleFunc} key={toggleTitle.en} extraStyles={[{borderBottomWidth: active ? 2 : 0, marginBottom: 17}, theme.borderDarker]}>
-                <ContentTextWithFallback {...toggleTitle} />
+            <SefariaPressable onPress={toggleFunc} key={toggleTitle.en} extraStyles={[{borderBottomWidth: active ? 2 : 0, marginBottom: 17, marginRight: 10}, theme.borderDarker]}>
+                <ContentTextWithFallback {...toggleTitle} extraStyles={[{textTransform: "uppercase"}, active ? null : theme.tertiaryText]}/>
             </SefariaPressable>
         );
     });
@@ -256,7 +256,7 @@ const TextCategoryHeader = ({ title, description, onBack, displayCategories, set
                 <BackButtonRow onPress={onBack} />
                 <LanguageToggleButton />
             </FlexFrame>
-            <FlexFrame dir={"row"}>
+            <FlexFrame dir={"column"}>
                 <ContentTextWithFallback {...title} extraStyles={[{fontSize: 30, marginTop: 4}]}/>
                 <SubCategoryToggle displayCategories={displayCategories} setCategories={setCategories} />
             </FlexFrame>
