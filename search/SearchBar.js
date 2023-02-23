@@ -1,6 +1,6 @@
 'use strict';
 import PropTypes from 'prop-types';
-import React from 'react';
+import React, { useRef } from 'react';
 
 import {
   View,
@@ -25,6 +25,7 @@ const SearchBar = ({
   autoFocus,
 }) => {
   const { themeStr, theme, interfaceLanguage } = useGlobalState();
+  const textInputRef = useRef(null);
   const isHeb = interfaceLanguage === "hebrew";
   const submitSearch = () => {
     if (query) {
@@ -36,10 +37,16 @@ const SearchBar = ({
   const textInputStyle = [styles.searchInput, isHeb ? styles.hebrewSystemFont : null, {textAlign: isHeb ? "right" : "left"}, theme.text];
   const placeholderTextColor = themeStr === "black" ? "#BBB" : "#777";
   const flexDirection = useRtlFlexDir(interfaceLanguage);
+  const onCancel = () => {
+    onChange("");
+    textInputRef.current.blur();
+  };
+
   return (
     <View style={[{flexDirection, alignItems: "center", borderRadius: 250, paddingHorizontal: 8}, theme.lighterGreyBackground]}>
         <SearchButton onPress={submitSearch} />
         <TextInput
+          ref={textInputRef}
           autoFocus={autoFocus}
           style={textInputStyle}
           onChangeText={onChange}
@@ -51,7 +58,7 @@ const SearchBar = ({
           placeholderTextColor={placeholderTextColor}
           autoCorrect={false} />
         {query.length ?
-          <CancelButton extraStyles={[{height: 12, width: 12}]} onPress={() => { onChange(""); }} />
+          <CancelButton extraStyles={[{height: 12, width: 12}]} onPress={onCancel} />
           : null
         }
     </View>
