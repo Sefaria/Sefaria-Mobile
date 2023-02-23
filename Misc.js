@@ -1176,11 +1176,10 @@ SimpleHTMLView.propTypes = {
   lang: PropTypes.oneOf(['english', 'hebrew']),
 };
 
-const SimpleContentBlock = ({en, he, classes}) => {
-  const { themeStr, interfaceLanguage } = useContext(GlobalStateContext);
-  const theme = getTheme(themeStr);
+const SimpleContentBlock = ({en, he}) => {
+  const { interfaceLanguage } = useContext(GlobalStateContext);
   const showHebrew = !!he;
-  const showEnglish = !!en && interfaceLanguage == 'english';
+  const showEnglish = !!en && interfaceLanguage === 'english';
   return (
     <View>
       {showHebrew  ? <SimpleHTMLView text={he} lang={'hebrew'} />: null}
