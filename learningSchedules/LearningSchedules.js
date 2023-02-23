@@ -47,6 +47,7 @@ export const LearningSchedulesPage = ({ openRef, openUri, onBack }) => {
         <SectionList
             contentContainerStyle={[{paddingHorizontal: 15}, theme.mainTextPanel]}
             sections={calendarItemsBySection}
+            stickySectionHeadersEnabled={false}
             ListHeaderComponent={() => <LearningSchedulesPageHeader onBack={onBack} />}
             renderSectionHeader={({ section: { sectionTitleKey } }) => <Header titleKey={sectionTitleKey} />}
             renderItem={({ item }) => (<LearningSchedule calendarItem={item} openRef={openRef} openUri={openUri} />)}
