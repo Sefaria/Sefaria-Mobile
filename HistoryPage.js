@@ -167,23 +167,21 @@ export const HistoryPage = ({}) => {
     
 
     return(
-        <View contentContainerStyle={[styles.navRePage]} >
+        <View contentContainerStyle={[styles.navRePage, {alignSelf: "stretch", flex: 1}]} >
             <PageHeader>
                 <FlexFrame justifyContent={"flex-start"}>
                     <StatefulHeader titleKey={"saved"} icon={"bookmark2"} active={mode === "saved"} callbackFunc={()=>{ setMode("saved")}}/>
                     <StatefulHeader titleKey={"history"} icon={"clock"} active={mode === "history"} callbackFunc={()=>{ setMode("history")}}/>
                 </FlexFrame>
             </PageHeader>
-            <View>
-                <FlatList
-                    data={data}
-                    keyExtractor={item => item.ref}
-                    renderItem={renderItem}
-                    onEndReached={onItemsEndReached}
-                    onEndReachedThreshold={0.5}
-                    ListFooterComponent={renderFooter}
-                  />
-            </View>
+            <FlatList
+                data={data}
+                keyExtractor={item => item.ref}
+                renderItem={renderItem}
+                onEndReached={onItemsEndReached}
+                onEndReachedThreshold={0.5}
+                ListFooterComponent={renderFooter}
+              />
         </View>
     );
 }
