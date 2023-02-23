@@ -257,11 +257,11 @@ const TextCategoryHeader = ({ title, description, onBack, displayCategories, set
                 <LanguageToggleButton />
             </FlexFrame>
             <FlexFrame dir={"row"}>
-                <ContentTextWithFallback {...title} extraStyles={[{fontSize: 30}]}/>
+                <ContentTextWithFallback {...title} extraStyles={[{fontSize: 30, marginTop: 4}]}/>
                 <SubCategoryToggle displayCategories={displayCategories} setCategories={setCategories} />
             </FlexFrame>
-            <InterfaceText {...description} extraStyles={[{marginBottom: 30}]}/>
-            <LearningSchedulesBoxFactory categories={displayCategories} openRef={openRef} extraStyles={{marginTop: 10, marginBottom: 6}}/>
+            <InterfaceText {...description} />
+            <LearningSchedulesBoxFactory categories={displayCategories} openRef={openRef} extraStyles={{marginTop: 40}}/>
         </FlexFrame>
     );
 };
@@ -282,7 +282,7 @@ const SectionHeader = ({ displayTocItem }) => {
         en: getTitleWithDescription('en'),
         he: getTitleWithDescription('he'),
     };
-    const titleComponent = <ContentTextWithFallback {...displayTitle} lang={menuLanguage} extraStyles={[{fontSize: 24, marginTop: 24}, theme.tertiaryText]} />;
+    const titleComponent = <ContentTextWithFallback {...displayTitle} lang={menuLanguage} extraStyles={[{fontSize: 24, paddingTop: 30}, theme.tertiaryText]} />;
     const currLangCode = menuLanguage.substring(0, 2);
     return (
         <FlexFrame dir={"column"}>

@@ -203,7 +203,7 @@ export default StyleSheet.create({
     flexDirection: 'row',
     borderBottomWidth: 1
   },
-  greyBoxFrame: {padding: 14, marginBottom: 30},
+  greyBoxFrame: {padding: 14},
   readerDisplayOptionsMenuMask: {
     flex: 1,
     left: 0,
