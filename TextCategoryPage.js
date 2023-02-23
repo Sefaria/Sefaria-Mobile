@@ -287,10 +287,10 @@ const SectionHeader = ({ displayTocItem }) => {
     return (
         <FlexFrame dir={"column"}>
             { titleComponent }
-            <TextCategorySeparator />
             { displayTocItem.isDescriptionLong(currLangCode) ? (
-                <ContentTextWithFallback {...description} lang={menuLanguage} extraStyles={[{fontSize: 14}, theme.tertiaryText]}/>
+                <InterfaceText {...description} lang={menuLanguage} extraStyles={[{fontSize: 14, marginBottom: 20}, theme.tertiaryText]}/>
             ) : null}
+            <TextCategorySeparator />
         </FlexFrame>
     );
 };
