@@ -44,7 +44,7 @@ export const HistoryPage = ({}) => {
     useEffect(() => {
         (async () => { //using an async IAFE so the whole function doest become async
             await Sefaria.history.syncProfile(dispatch, await getUserSettings());
-            console.log(Sefaria.history.history.slice(0, 100));
+            //console.log(Sefaria.history.history.slice(0, 100));
             setStoreLoading(false);
         })();
     }, []);
@@ -73,29 +73,31 @@ export const HistoryPage = ({}) => {
         }
         setLoading(true);
         let nitems = store.slice(skip, skip + SKIP_STEP); //get the next 20 items from the raw local history
-        let nextItems = getAnnotatedNextItems(nitems);
-        setData(prevItems => [...prevItems, ...nextItems]);
-        if (nextItems.length < SKIP_STEP) {
-            setHasMore(false);
-        }
-        setLoading(false);
+        getAnnotatedNextItems(nitems).then( nextItems => {
+            console.log(nextItems);
+            setData(prevItems => [...prevItems, ...nextItems]);
+            if (skip + SKIP_STEP >= store.length) {
+                setHasMore(false);
+            }
+            setLoading(false);
+        });
     };
     
     
-    const getAnnotatedNextItems = (items) => {
+    const getAnnotatedNextItems = async (items) => {
         let refs = [];
         let sheets = [];
         for(let i of items){ //make lists of sheet ids and refs to fetch "previews" for from api
-            if(i.is_sheet){
+            if(i?.is_sheet){
                 sheets.push(i.sheet_id);
             }else{
                 refs.push(i.ref);
             }
         }
-        let [textsAnnotated, sheetsAnnotated] = getAnnotatedItems(refs, sheets);
+        let [textsAnnotated, sheetsAnnotated] = await getAnnotatedItems(refs, sheets);
         // iterate over original items and put the extra data in
         for(let item of items){ //merge the new data into the existing
-            if(item.is_sheet){
+            if(item?.is_sheet){
                 item = {...item, ...sheetsAnnotated[item.sheet_id]};
             }else{
                 item = {...item, ...textsAnnotated[item.ref]};
@@ -107,14 +109,12 @@ export const HistoryPage = ({}) => {
     const getAnnotatedItems = async(refs, sheets) => {
         const p1 = Sefaria.api.getBulkText(refs, true);
         const p2 = Sefaria.api.getBulkSheets(sheets);
-        await Promise.all([p1, p2])
-          .then(responses => {
-            return responses;
-          })
-          .catch(error => {
+        try {
+            return await Promise.all([p1, p2]);
+        } catch (error) {
             console.error(error);
             return [{}, {}];
-          });
+        }
     };
     
     const getSheetIdFromRef = (sref) => {
