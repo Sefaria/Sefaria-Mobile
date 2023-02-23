@@ -230,14 +230,6 @@ class IconData {
                 black: require('./img/stacked-light.png'),
                 white: require('./img/stacked.png'),
             },
-            'starFilled': {
-                black: require('./img/starFilled-light.png'),
-                white: require('./img/starFilled.png'),
-            },
-            'starUnfilled': {
-                black: require('./img/starUnfilled-light.png'),
-                white: require('./img/starUnfilled.png'),
-            },
             'sync': {
                 black: require('./img/sync-light.png'),
                 white: require('./img/sync.png'),
