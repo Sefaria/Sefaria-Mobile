@@ -2024,7 +2024,7 @@ class ReaderApp extends React.PureComponent {
             onRemove={this.removeSavedItem}
             title={strings.saved}
             menuOpen={this.state.menuOpen}
-            icon={iconData.get('starUnfilled', this.props.themeStr)}
+            icon={iconData.get('bookmark', this.props.themeStr)}
             loadData={async () => Sefaria.history.syncProfileGetSaved(this.props.dispatch, await this.getSettingsObject())}
             openLogin={this.openLogin.bind(null, "saved")}
             openSettings={this.openMenu.bind(null, "settings")}
