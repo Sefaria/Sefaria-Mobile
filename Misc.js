@@ -1037,12 +1037,13 @@ const TabText = ({ active, text, baseTextStyles, activeTextStyle, inactiveTextSt
 };
 
 const SearchTextInput = ({ onChange, query, onFocus, placeholder }) => {
-  const { themeStr, theme } = useGlobalState();
+  const { themeStr, theme, interfaceLanguage } = useGlobalState();
+  const isHeb = interfaceLanguage === "hebrew";
   const placeholderTextColor = themeStr === "black" ? "#BBB" : "#666";
   return (
       <View style={Platform.OS === 'android' ? {flex: 1, marginTop: 2, marginBottom: -2} : {flex:1}}>
         <TextInput
-            style={[styles.en, { fontSize: 18, paddingVertical: 0, paddingRight: 20, lineHeight: Platform.OS === 'android' ? 40 : null, flex: 1 }, theme.text]}
+            style={[styles.en, { textAlign: isHeb ? "right" : "left", fontSize: 18, paddingVertical: 0, paddingRight: isHeb ? 0 : 20, paddingLeft: isHeb ? 20 : 0, lineHeight: Platform.OS === 'android' ? 40 : null, flex: 1 }, theme.text]}
             onChangeText={onChange}
             value={query}
             underlineColorAndroid={"transparent"}
@@ -1068,10 +1069,12 @@ const SearchBarWithIcon = ({ onChange, query, onFocus }) => {
   */
   const { theme } = useGlobalState();
   return (
-    <View style={[{borderRadius: 400, borderWidth: 1, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10}, theme.container, theme.lighterGreyBorder]}>
-      <SearchButton onPress={()=>{}} extraStyles={{height: 40}} disabled />
-      <SearchTextInput onChange={onChange} query={query} onFocus={onFocus} placeholder={strings.search} />
-      <SearchCancelButton onChange={onChange} query={query} />
+    <View style={[{borderRadius: 400, borderWidth: 1, paddingHorizontal: 10}, theme.container, theme.lighterGreyBorder]}>
+      <FlexFrame dir={"row"} alignItems={"center"}>
+        <SearchButton onPress={()=>{}} extraStyles={{height: 40}} disabled />
+        <SearchTextInput onChange={onChange} query={query} onFocus={onFocus} placeholder={strings.search} />
+        <SearchCancelButton onChange={onChange} query={query} />
+      </FlexFrame>
     </View>
   );
 };
