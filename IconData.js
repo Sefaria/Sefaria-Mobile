@@ -61,12 +61,19 @@ class IconData {
                 black_selected: require('./img/book-white.png'),
                 white_selected: require('./img/book-black.png'),
             },
-            'bookmark': {
-                black: require('./img/bookmark-light.png'),
-                white: require('./img/bookmark.png'),
-                black_selected: require('./img/bookmark-white.png'),
-                white_selected: require('./img/bookmark-black.png'),
+            'bookmark-double': {
+                black: require('./img/bookmark-double-light.png'),
+                white: require('./img/bookmark-double.png'),
+                black_selected: require('./img/bookmark-double-white.png'),
+                white_selected: require('./img/bookmark-double-dark.png'),
             },
+            'bookmark-unfilled': {
+                black: require('./img/bookmark-unfilled-light.png'),
+                white: require('./img/bookmark-unfilled.png'),
+            },
+            'bookmark-filled': {
+                black: require('./img/bookmark-filled-light.png'),
+                white: require('./img/bookmark-filled.png'),
             'bookmark2': {
                 black: require('./img/bookmark2-light.png'),
                 white: require('./img/bookmark2.png'),
@@ -234,14 +241,6 @@ class IconData {
             'stacked': {
                 black: require('./img/stacked-light.png'),
                 white: require('./img/stacked.png'),
-            },
-            'starFilled': {
-                black: require('./img/starFilled-light.png'),
-                white: require('./img/starFilled.png'),
-            },
-            'starUnfilled': {
-                black: require('./img/starUnfilled-light.png'),
-                white: require('./img/starUnfilled.png'),
             },
             'sync': {
                 black: require('./img/sync-light.png'),

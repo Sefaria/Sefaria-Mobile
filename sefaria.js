@@ -14,6 +14,7 @@ import { initAsyncStorage } from './StateManager';
 import { VOCALIZATION } from './VocalizationEnum';
 import URL from 'url-parse';
 import analytics from '@react-native-firebase/analytics';
+import {HDate} from "@hebcal/core";
 import * as FileSystem from 'expo-file-system';
 import {parseDocument, ElementType} from 'htmlparser2';
 import {
@@ -1315,11 +1316,29 @@ Sefaria = {
 };
 
 Sefaria.util = {
-  localeDate: (dateString, interfaceLanguage) => {
-    // takes dateString (usually generated from Python datetime object) and returns a human readable string depending on interfaceLang
+  /**
+   * @param dateStringOrObject either a dateString (preferably in ISO format though other formats likely work) or JS Date object.
+   * @param interfaceLanguage either "english" or "hebrew"
+   * @returns {string} string representation of date in `interfaceLanguage`
+   */
+  localeDate: (dateStringOrObject, interfaceLanguage) => {
     const locale = interfaceLanguage === 'english' ? 'en-US' : 'iw-IL';
     const dateOptions = {year: 'numeric', month: 'short', day: 'numeric'};
-    return (new Date(dateString)).toLocaleDateString(locale, dateOptions).replace(',', '');  // remove comma from english date
+    return (new Date(dateStringOrObject)).toLocaleDateString(locale, dateOptions).replace(',', '');  // remove comma from english date
+  },
+  /**
+   *
+   * @param interfaceLanguage either "english" or "hebrew"
+   * @param hdateParams params to create new HDate. See https://github.com/hebcal/hebcal-es6#new_HDate_new
+   * @returns {string} Hebrew date string representation of date in `interfaceLanguage`
+   */
+  hebrewLocaleDate: (interfaceLanguage, ...hdateParams) => {
+    const hdate = new HDate(...hdateParams);
+    if (interfaceLanguage === "english") {
+      const enMonths = ["Nisan", "Iyar", "Sivan", "Tammuz", "Av", "Elul", "Tishrei", "Cheshvan", "Kislev", "Tevet", "Shevat", "Adar", "Adar II"];
+      return `${enMonths[hdate.getMonth()-1]} ${hdate.getDate()}, ${hdate.getFullYear()}`
+    }
+    return Sefaria.hebrew.stripNikkud(hdate.renderGematriya());
   },
   makeCancelable: (promise) => {
     let hasCanceled_ = false;

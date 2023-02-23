@@ -1,5 +1,5 @@
 import React from "react";
-import {SectionList} from "react-native";
+import {SectionList, View} from "react-native";
 import {useGlobalState} from "./Hooks";
 import {
     BackButtonRow,
@@ -10,7 +10,7 @@ import {
     LanguageToggleButton, SefariaPressable
 } from "./Misc";
 import Sefaria from "./sefaria";
-import {NavSidebar} from "./NavSidebar";
+import {LearningSchedulesBoxFactory} from "./learningSchedules/LearningSchedulesBox";
 
 /**
  * Return modified categories for cases with category toggles
@@ -236,8 +236,8 @@ const SubCategoryToggle = ({displayCategories, setCategories}) => {
         const toggleTitle = toggleData["subCategoriesDisplay"][index];
         const active = displayCategories[1] === element;
         return(
-            <SefariaPressable onPress={toggleFunc} key={toggleTitle.en} extraStyles={[{borderBottomWidth: active ? 2 : 0, marginBottom: 17}, theme.borderDarker]}>
-                <ContentTextWithFallback {...toggleTitle} />
+            <SefariaPressable onPress={toggleFunc} key={toggleTitle.en} extraStyles={[{borderBottomWidth: active ? 2 : 0, marginBottom: 17, marginRight: 10}, theme.borderDarker]}>
+                <ContentTextWithFallback {...toggleTitle} extraStyles={[{textTransform: "uppercase"}, active ? null : theme.tertiaryText]}/>
             </SefariaPressable>
         );
     });
@@ -250,18 +250,19 @@ const SubCategoryToggle = ({displayCategories, setCategories}) => {
 
 
 const TextCategoryHeader = ({ title, description, onBack, displayCategories, setCategories, openRef }) => {
+    const { theme } = useGlobalState();
     return (
         <FlexFrame dir={"column"}>
             <FlexFrame dir={"row"} justifyContent={"space-between"} alignItems={"center"}>
                 <BackButtonRow onPress={onBack} />
                 <LanguageToggleButton />
             </FlexFrame>
-            <FlexFrame dir={"row"}>
-                <ContentTextWithFallback {...title} extraStyles={[{fontSize: 30}]}/>
+            <FlexFrame dir={"column"}>
+                <ContentTextWithFallback {...title} extraStyles={[{fontSize: 30, marginTop: 4}, theme.text]} />
                 <SubCategoryToggle displayCategories={displayCategories} setCategories={setCategories} />
             </FlexFrame>
-            <InterfaceText {...description} />
-            <NavSidebar modules={getSidebarModules(displayCategories, openRef)} />
+            <InterfaceText {...description} extraStyles={[theme.tertiaryText]}/>
+            <LearningSchedulesBoxFactory categories={displayCategories} openRef={openRef} extraStyles={{marginTop: 40}}/>
         </FlexFrame>
     );
 };
@@ -282,17 +283,22 @@ const SectionHeader = ({ displayTocItem }) => {
         en: getTitleWithDescription('en'),
         he: getTitleWithDescription('he'),
     };
-    const titleComponent = <ContentTextWithFallback {...displayTitle} lang={menuLanguage} extraStyles={[{fontSize: 18}, theme.tertiaryText]} />;
+    const titleComponent = <ContentTextWithFallback {...displayTitle} lang={menuLanguage} extraStyles={[{fontSize: 24, paddingTop: 30}, theme.tertiaryText]} />;
     const currLangCode = menuLanguage.substring(0, 2);
-    if (displayTocItem.isDescriptionLong(currLangCode)) {
-        return (
-            <FlexFrame dir={"column"}>
-                { titleComponent }
-                <ContentTextWithFallback {...description} lang={menuLanguage} extraStyles={[{fontSize: 14}, theme.tertiaryText]}/>
-            </FlexFrame>
-        );
-    }
-    return titleComponent;
+    return (
+        <FlexFrame dir={"column"}>
+            { titleComponent }
+            { displayTocItem.isDescriptionLong(currLangCode) ? (
+                <InterfaceText {...description} lang={menuLanguage} extraStyles={[{fontSize: 14, marginBottom: 20}, theme.tertiaryText]}/>
+            ) : null}
+            <TextCategorySeparator />
+        </FlexFrame>
+    );
+};
+
+const TextCategorySeparator = () => {
+    const { theme } = useGlobalState();
+    return <View style={[{height: 1}, theme.lighterGreyBackground]} />;
 };
 
 export const TextCategoryPage = ({categories, setCategories, openRef, onBack}) => {
@@ -308,6 +314,7 @@ export const TextCategoryPage = ({categories, setCategories, openRef, onBack}) =
                 sections={sections}
                 stickySectionHeadersEnabled={false}
                 contentContainerStyle={[{paddingHorizontal: 15}, theme.mainTextPanel]}
+                ItemSeparatorComponent={TextCategorySeparator}
                 ListHeaderComponent={() => (
                     <TextCategoryHeader
                         title={categoryTitle}
@@ -330,24 +337,4 @@ export const TextCategoryPage = ({categories, setCategories, openRef, onBack}) =
             />
         </FlexFrame>
     );
-};
-
-const getSidebarModules = (categories, openRef) => {
-    const path = categories.join("|");
-
-    const modules = {
-        "Tanakh": [
-            {type: "WeeklyTorahPortion", props: {openRef}},
-        ],
-        "Talmud|Bavli": [
-            {type: "DafYomi", props: {openRef}},
-        ]
-    };
-
-    const customModules = path in modules ? modules[path] : [];
-
-    // TODO fill in as needed
-    const defaultModules = [];
-
-    return customModules.concat(defaultModules);
 };

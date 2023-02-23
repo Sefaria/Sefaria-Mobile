@@ -1,27 +1,20 @@
 'use strict';
 import PropTypes from 'prop-types';
-import React, { useContext } from 'react';
+import React, { useRef } from 'react';
 
 import {
-  TouchableOpacity,
-  Text,
   View,
   TextInput,
-  Image,
 } from 'react-native';
 
 import {
-  DirectedButton,
-  CloseButton,
   CancelButton,
   SearchButton,
-  LanguageToggleButton,
 } from '../Misc.js';
-import { GlobalStateContext, getTheme } from '../StateManager';
-import AutocompleteList from './AutocompleteList';
 
 import styles from '../Styles';
 import strings from '../LocalizedStrings';
+import {useGlobalState, useRtlFlexDir} from "../Hooks";
 
 const SearchBar = ({
   search,
@@ -31,9 +24,9 @@ const SearchBar = ({
   onFocus,
   autoFocus,
 }) => {
-  const { themeStr, interfaceLanguage } = useContext(GlobalStateContext);
-  const theme = getTheme(themeStr);
-
+  const { themeStr, theme, interfaceLanguage } = useGlobalState();
+  const textInputRef = useRef(null);
+  const isHeb = interfaceLanguage === "hebrew";
   const submitSearch = () => {
     if (query) {
       setIsNewSearch(true);
@@ -41,14 +34,19 @@ const SearchBar = ({
       search('sheet', query, true, false, true);
     }
   };
-  var textInputStyle = [styles.searchInput, interfaceLanguage === "hebrew" ? styles.hebrewSystemFont : null, theme.text];
-  //TODO sorry for the hard-coded colors. because the prop placeholderTextColor of TextInput doesn't take a style and instead requires an explicit color string, I had to do it this way
-  var placeholderTextColor = themeStr == "black" ? "#BBB" : "#777";
-  //TODO make flex dependent on results. animate opening of results
+  const textInputStyle = [styles.searchInput, isHeb ? styles.hebrewSystemFont : null, {textAlign: isHeb ? "right" : "left"}, theme.text];
+  const placeholderTextColor = themeStr === "black" ? "#BBB" : "#777";
+  const flexDirection = useRtlFlexDir(interfaceLanguage);
+  const onCancel = () => {
+    onChange("");
+    textInputRef.current.blur();
+  };
+
   return (
-    <View style={[{flexDirection: 'row', alignItems: "center", flex:0, borderRadius: 250, paddingStart: 18}, theme.lighterGreyBackground]}>
+    <View style={[{flexDirection, alignItems: "center", borderRadius: 250, paddingHorizontal: 8}, theme.lighterGreyBackground]}>
         <SearchButton onPress={submitSearch} />
         <TextInput
+          ref={textInputRef}
           autoFocus={autoFocus}
           style={textInputStyle}
           onChangeText={onChange}
@@ -60,7 +58,7 @@ const SearchBar = ({
           placeholderTextColor={placeholderTextColor}
           autoCorrect={false} />
         {query.length ?
-          <CancelButton extraStyles={[{height: 12, width: 12}]} onPress={() => { onChange(""); }} />
+          <CancelButton extraStyles={[{height: 12, width: 12}]} onPress={onCancel} />
           : null
         }
     </View>

@@ -124,23 +124,25 @@ const SystemHeader = ({ title, onBack, openNav, hideLangToggle }) => {
  * Component to render an interface string that is present in strings.js
  * Please use this as opposed to InterfaceTextWithFallback when possible
  * @param stringKey the key of the string to be rendered (must exist in all interface languages). If not passed, must pass `en` and `he`
+ * @param lang Optional explicit language to control which style of text is displayed. Either "english" or "hebrew".
  * @param en Explicit text to be displayed when interfaceLanguage is English. Only used if stringKey is not supplied.
  * @param he Explicit text to be displayed when interfaceLanguage is Hebrew. Only used if stringKey is not supplied.
  * @param extraStyles additional styling directives to render this specific text (is it a header, a simple line of text, etc)
  * @returns {Text}
  */
-const InterfaceText = ({stringKey, en, he, extraStyles = []}) => {
+const InterfaceText = ({stringKey, lang, en, he, extraStyles = []}) => {
   const { interfaceLanguage } = useContext(GlobalStateContext);
   const intTextStyles = {
     'english' : styles.enInt,
     'hebrew' : styles.heInt
-  }
-  const langStyle = intTextStyles[interfaceLanguage];
+  };
+  lang = lang || interfaceLanguage;
+  const langStyle = intTextStyles[lang];
   let text;
   if (stringKey) {
     text = strings[stringKey];
   } else {
-    text = interfaceLanguage === 'english' ? en : he;
+    text = lang === 'english' ? en : he;
   }
   return (
     <Text style={[langStyle].concat(extraStyles)}>{text}</Text>
@@ -928,7 +930,7 @@ const IndeterminateCheckBox = ({ state, onPress }) => {
   const iconName = useCheckboxIconName(state);
   return (
     <TouchableOpacity onPress={onPress}>
-      <Icon name={iconName} extraStyles={[styles.searchFilterCheckBox]} />
+      <Icon name={iconName} length={18} />
     </TouchableOpacity>
   );
 }
@@ -1040,7 +1042,7 @@ const TabRowView = ({ tabs, renderTab, currTabId, setTab, flexDirection='row', R
   );
 }
 
-const TabView = ({ active, lang, ...tabTextProps }) => {
+const TabView = ({ active, lang, textStyleByLang = {}, baseTextStyles, ...tabTextProps }) => {
   /*
   Standard Sefaria Tab to be used in renderTab of TabRowView
   */
@@ -1049,7 +1051,7 @@ const TabView = ({ active, lang, ...tabTextProps }) => {
   const style = {marginRight: lang === 'hebrew' ? 0 : 20, marginLeft: lang === 'hebrew' ? 20 : 0};
   return (
     <View style={[{ paddingVertical: 10, borderBottomWidth: 4, borderBottomColor: "transparent" }, style].concat(active ? activeBorderStyle : [])}>
-      <TabText active={active} {...tabTextProps} />
+      <TabText active={active} {...tabTextProps} baseTextStyles={baseTextStyles.concat(textStyleByLang[lang])}/>
     </View>
   );
 };
@@ -1062,12 +1064,13 @@ const TabText = ({ active, text, baseTextStyles, activeTextStyle, inactiveTextSt
 };
 
 const SearchTextInput = ({ onChange, query, onFocus, placeholder }) => {
-  const { themeStr, theme } = useGlobalState();
+  const { themeStr, theme, interfaceLanguage } = useGlobalState();
+  const isHeb = interfaceLanguage === "hebrew";
   const placeholderTextColor = themeStr === "black" ? "#BBB" : "#666";
   return (
       <View style={Platform.OS === 'android' ? {flex: 1, marginTop: 2, marginBottom: -2} : {flex:1}}>
         <TextInput
-            style={[styles.en, { fontSize: 18, paddingVertical: 0, paddingRight: 20, lineHeight: Platform.OS === 'android' ? 40 : null, flex: 1 }, theme.text]}
+            style={[styles.en, { textAlign: isHeb ? "right" : "left", fontSize: 18, paddingVertical: 0, paddingRight: isHeb ? 0 : 20, paddingLeft: isHeb ? 20 : 0, lineHeight: Platform.OS === 'android' ? 40 : null, flex: 1 }, theme.text]}
             onChangeText={onChange}
             value={query}
             underlineColorAndroid={"transparent"}
@@ -1093,10 +1096,12 @@ const SearchBarWithIcon = ({ onChange, query, onFocus }) => {
   */
   const { theme } = useGlobalState();
   return (
-    <View style={[{borderRadius: 400, borderWidth: 1, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10}, theme.container, theme.lighterGreyBorder]}>
-      <SearchButton onPress={()=>{}} extraStyles={{height: 40}} disabled />
-      <SearchTextInput onChange={onChange} query={query} onFocus={onFocus} placeholder={strings.search} />
-      <SearchCancelButton onChange={onChange} query={query} />
+    <View style={[{borderRadius: 400, borderWidth: 1, paddingHorizontal: 10}, theme.container, theme.lighterGreyBorder]}>
+      <FlexFrame dir={"row"} alignItems={"center"}>
+        <SearchButton onPress={()=>{}} extraStyles={{height: 40}} disabled />
+        <SearchTextInput onChange={onChange} query={query} onFocus={onFocus} placeholder={strings.search} />
+        <SearchCancelButton onChange={onChange} query={query} />
+      </FlexFrame>
     </View>
   );
 };
@@ -1131,7 +1136,7 @@ const SaveButton = ({ historyItem, showToast, extraStyles=[] }) => {
   const [, forceUpdate] = useReducer(x => x + 1, 0);  // HACK
   const isHeb = Sefaria.util.get_menu_language(interfaceLanguage, textLanguage) == "hebrew";
   const isSaved = Sefaria.history.indexOfSaved(historyItem.ref) !== -1;
-  const iconName = isSaved ? 'starFilled' : 'starUnfilled';
+  const iconName = isSaved ? 'bookmark-filled' : 'bookmark-unfilled';
   const src = iconData.get(iconName, themeStr);
   return (
     <TouchableOpacity onPress={
@@ -1201,15 +1206,18 @@ SimpleHTMLView.propTypes = {
   lang: PropTypes.oneOf(['english', 'hebrew']),
 };
 
-const SimpleContentBlock = ({en, he, classes}) => {
-  const { themeStr, interfaceLanguage } = useContext(GlobalStateContext);
-  const theme = getTheme(themeStr);
+const SimpleContentBlock = ({en, he}) => {
+  const { interfaceLanguage } = useContext(GlobalStateContext);
   const showHebrew = !!he;
-  const showEnglish = !!en && interfaceLanguage == 'english';
+  const showEnglish = !!en && interfaceLanguage === 'english';
   return (
     <View>
       {showHebrew  ? <SimpleHTMLView text={he} lang={'hebrew'} />: null}
-      {showEnglish ? <SimpleHTMLView text={en} lang={'english'} /> : null}
+      {showEnglish ? (
+          <View style={{marginTop: showHebrew ? 10 : 0}}>
+            <SimpleHTMLView text={en} lang={'english'} />
+          </View>
+      ): null}
     </View>
   );
 }

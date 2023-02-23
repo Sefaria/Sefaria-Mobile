@@ -91,11 +91,11 @@ export class TabHistory {
 
 export class TabMetadata {
   static _tabData = [
-    {name: "Texts", icon: "book", menu: "navigation" },
-    {name: "Topics", icon: "hashtag", menu: "topic toc"},
-    {name: "Search", icon: "search", menu: "autocomplete"},
-    {name: "Saved", icon: "bookmark", menu: "history"},
-    {name: "Account", icon: "profile", menu: "account-menu"},
+    {name: "Texts", stringKey: "texts", icon: "book", menu: "navigation" },
+    {name: "Topics", stringKey: "topics", icon: "hashtag", menu: "topic toc"},
+    {name: "Search", stringKey: "search", icon: "search", menu: "autocomplete"},
+    {name: "Saved", stringKey: "saved", icon: "bookmark-double", menu: "history"},
+    {name: "Account", stringKey: "accountFooter", icon: "profile", menu: "account-menu"},
   ];
 
   static names() {

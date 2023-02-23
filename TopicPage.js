@@ -23,7 +23,7 @@ import {
   ContentTextWithFallback,
   DotSeparatedList,
   SystemButton,
-  SefariaPressable, CategoryButton, GreyBoxFrame,
+  SefariaPressable, CategoryButton, GreyBoxFrame, BackButtonRow,
 } from './Misc';
 
 import {
@@ -224,7 +224,11 @@ const TopicCategory = ({ topic, openTopic, onBack, openNav }) => {
         openTopic(newTopic, true, false);  // make sure topic is set with all available info if it wasn't set correctly initially (e.g. came from external link)
       }
     }
-    setSubtopics(getSubtopics(slug));
+    const tempSubtopics = getSubtopics(slug);
+    if (tempSubtopics) {
+      tempSubtopics.splice(3, 0, {isSplice: true});
+    }
+    setSubtopics(tempSubtopics);
   }, [slug, topicTocLoaded]);
   const [trendingTopics, setTrendingTopics] = useState(Sefaria.api._trendingTags);
   useEffect(() => {
@@ -249,29 +253,26 @@ const TopicCategory = ({ topic, openTopic, onBack, openNav }) => {
 
   return (
     <View style={[styles.menu, theme.readerNavCategory]} key={slug}>
-      <SystemHeader
-        title={strings.topics}
-        onBack={onBack}
-        openNav={openNav}
-      />
       {
         (!topicTocLoaded || !subtopics) ? (<LoadingView />) : (
           <FlatList
             data={subtopics}
             renderItem={({ item, index }) => (
-              <View style={[styles.topicCategoryButtonWrapper, theme.lighterGreyBorder, (index === 0 && trendingTopics) ? styles.topicCategoryButtonWrapperRoot : null]}>
-                <TopicCategoryButton
-                  topic={item}
-                  openTopic={openTopic}
-                />
-              </View>
+                item.isSplice ? (
+                  <TrendingTopics trendingTopics={trendingTopics} openTopic={openTopic} />
+                ) : (
+                  <View style={[styles.topicCategoryButtonWrapper, theme.lighterGreyBorder]}>
+                    <TopicCategoryButton
+                        topic={item}
+                        openTopic={openTopic}
+                    />
+                  </View>
+                )
             )}
             ListHeaderComponent={() => (
-              <TopicCategoryHeader {...headerTopic}>
-                <TrendingTopics trendingTopics={trendingTopics} openTopic={openTopic} />
-              </TopicCategoryHeader>
+              <TopicCategoryHeader {...headerTopic} onBack={!!topic && onBack}/>
             )}
-            keyExtractor={t => t.slug}
+            keyExtractor={t => t.slug || 'splice'}
           />
         )
       }
@@ -279,17 +280,13 @@ const TopicCategory = ({ topic, openTopic, onBack, openNav }) => {
   );
 };
 
-/*
-<TouchableOpacity onPress={()=>openTopic(t, false)}>
-          <SText lang={menu_language} style={[isHeb ? styles.he : styles.en, {fontSize: 18, marginTop: 6}, theme.text]}>{isHeb ? t.he : t.en}</SText>
-        </TouchableOpacity>
-*/
-const TopicCategoryHeader = ({ title, description, categoryDescription, children }) => {
+const TopicCategoryHeader = ({ title, description, categoryDescription, children, onBack }) => {
   const { theme, interfaceLanguage } = useGlobalState();
   const displayDescription = categoryDescription || description;
   return (
     <View>
-      <View style={{marginHorizontal: 15, marginVertical: 24}}>
+      <View style={{marginHorizontal: 15, marginBottom: 24, marginTop: !!onBack ? 0 : 24}}>
+        { !!onBack && <BackButtonRow onPress={onBack} />}
         <InterfaceTextWithFallback
           {...title}
           lang={interfaceLanguage}
@@ -313,7 +310,7 @@ const TrendingTopics = ({ trendingTopics, openTopic }) => {
   const isHeb = menuLanguage === 'hebrew';
   return (
     trendingTopics ? (
-      <View style={[{padding: 15, marginBottom: 5}, theme.lightestGreyBackground]}>
+      <View style={[{padding: 15}, theme.lightestGreyBackground]}>
         <View style={[{borderBottomWidth: 1, paddingBottom: 5}, theme.lightGreyBorder]}>
           <InterfaceTextWithFallback
             en={strings.trendingTopics}
@@ -322,7 +319,7 @@ const TrendingTopics = ({ trendingTopics, openTopic }) => {
             extraStyles={[{fontSize: 16, fontWeight: "bold"}, theme.tertiaryText]}
           />
         </View>
-        <View style={{flexDirection: isHeb ? "row-reverse" : "row", flexWrap: 'wrap', marginTop: 5}}>
+        <View style={{flexDirection: isHeb ? "row-reverse" : "row", flexWrap: 'wrap', marginTop: 10}}>
           <DotSeparatedList
             flexDirection={isHeb ? 'row-reverse' : 'row'}
             items={trendingTopics.slice(0, 6)}
@@ -446,6 +443,7 @@ const TopicPage = ({ topic, onBack, openNav, openTopic, showToast, openRef, open
   const TopicPageHeaderRendered = (
     <TopicPageHeader
       {...topic}
+      onBack={onBack}
       topicRef={topicData && topicData.ref}
       parasha={topicData && topicData.parasha}
       description={topicData && topicData.description}
@@ -518,12 +516,6 @@ const TopicPage = ({ topic, onBack, openNav, openTopic, showToast, openRef, open
 
   return (
     <View style={[styles.menu, theme.mainTextPanel]} key={topic.slug}>
-      <SystemHeader
-        title={strings.topics}
-        onBack={onBack}
-        openNav={openNav}
-        hideLangToggle
-      />
       { ListRendered }
     </View>
   )
@@ -555,20 +547,25 @@ const TopicTabView = ({text, active}) => {
           text={text}
           active={active}
           lang={interfaceLanguage}
+          textStyleByLang={{
+            english: styles.enInt,
+            hebrew: styles.heInt,
+          }}
           activeTextStyle={theme.tertiaryText}
           inactiveTextStyle={theme.secondaryText}
-          baseTextStyles={[styles.enInt, styles.systemH3]}
+          baseTextStyles={[styles.systemH3]}
       />
   );
 };
 
-const TopicPageHeader = ({ title, slug, description, topicsTab, setTopicsTab, query, setQuery, tabs, topicRef, parasha, openRef, jumpToSearchBar, setSearchBarY }) => {
+const TopicPageHeader = ({ title, slug, description, topicsTab, setTopicsTab, query, setQuery, tabs, topicRef, parasha, openRef, jumpToSearchBar, setSearchBarY, onBack }) => {
   const { theme, interfaceLanguage } = useGlobalState();
   const flexDirection = useRtlFlexDir(interfaceLanguage);
   const isHeb = interfaceLanguage === 'hebrew';
   const category = Sefaria.topicTocCategory(slug);
   return (
-    <View style={{marginHorizontal: 15, marginVertical: 20}}>
+    <View style={{marginHorizontal: 15, marginBottom: 20}}>
+      <BackButtonRow onPress={onBack} />
       {title ? (
         <ContentTextWithFallback
           {...title}
@@ -626,11 +623,13 @@ const TextPassage = ({text, topicTitle, showToast, openRef }) => {
   const flexDirection = useRtlFlexDir(interfaceLanguage);
   return (
     <StoryFrame extraStyles={styles.topicItemMargins}>
-      <DataSourceLine dataSources={text.dataSources} title={topicTitle} flexDirection={flexDirection} prefixText={strings.thisSourceIsConnectedTo} imageStyles={[{marginTop: -12}]}>
-        <SaveLine dref={text.ref} showToast={showToast} flexDirection={flexDirection} imageStyles={[{marginTop: -12}]}>
-          <StoryTitleBlock en={text.ref} he={Sefaria.normHebrewRef(text.heRef)} onClick={() => openRef(text.ref)} />
-        </SaveLine>
-      </DataSourceLine>
+      <View style={{marginBottom: 10}}>
+        <DataSourceLine dataSources={text.dataSources} title={topicTitle} flexDirection={flexDirection} prefixText={strings.thisSourceIsConnectedTo} imageStyles={[{marginTop: -12}]}>
+          <SaveLine dref={text.ref} showToast={showToast} flexDirection={flexDirection} imageStyles={[{marginTop: -12}]}>
+            <StoryTitleBlock en={text.ref} he={Sefaria.normHebrewRef(text.heRef)} onClick={() => openRef(text.ref)} />
+          </SaveLine>
+        </DataSourceLine>
+      </View>
       <ColorBarBox tref={text.ref}>
         <StoryBodyBlock en={text.en} he={text.he}/>
       </ColorBarBox>
@@ -728,11 +727,13 @@ const TopicSideColumn = ({ topic, links, openTopic, openRef, parashaData, tref }
     )
     : null;
   return (
-      <GreyBoxFrame>
-        { readingsComponent }
-        { linksComponent }
-        { moreButton }
-      </GreyBoxFrame>
+      <View style={{marginBottom: 30}}>
+        <GreyBoxFrame>
+          { readingsComponent }
+          { linksComponent }
+          { moreButton }
+        </GreyBoxFrame>
+      </View>
   );
 };
 TopicSideColumn.propTypes = {

@@ -71,7 +71,6 @@ export default StyleSheet.create({
     fontSize: 18,
   },
   navRePage:{
-    display: "flex",
     marginHorizontal: 15,
   },
   navReEnglish:{
@@ -92,19 +91,14 @@ export default StyleSheet.create({
     alignContent: "flex-start",
   },
   navReAccountMenuButton:{
-    display: "flex",
     flexDirection: "row",
-    alignContent: "flex-start",
     alignItems: "center",
     borderTopWidth: 1,
     paddingVertical: 20,
-    direction: "inherit",
   },
   navReAccountMenuButtonText:{
     fontSize:18,
     fontWeight:"bold",
-    lineHeight:19,
-    textAlignVertical: "center",
   },
   navReAccountMenuButtonIcon:{
     marginEnd: 15,
@@ -116,13 +110,12 @@ export default StyleSheet.create({
     textAlignVertical: "center",
   },
   navReSefaria501:{
-    fontWeight: "bold",
     fontSize: 14,
     lineHeight: 18,
     textAlign: "center",
     marginVertical:20,
   },
-  learningSchedulesBorder: {borderBottomWidth: 1, paddingBottom: 5, marginBottom: 5},
+  learningSchedulesBorder: {borderBottomWidth: 1, paddingBottom: 5, marginBottom: 10},
   boxShadow: {
     shadowColor: 'black',
     shadowOffset: { width: 0, height: 1 },
@@ -209,7 +202,7 @@ export default StyleSheet.create({
     flexDirection: 'row',
     borderBottomWidth: 1
   },
-  greyBoxFrame: {padding: 14, marginBottom: 30},
+  greyBoxFrame: {padding: 14},
   readerDisplayOptionsMenuMask: {
     flex: 1,
     left: 0,
@@ -368,7 +361,7 @@ export default StyleSheet.create({
   },
   headerButtonSearch: {
     width: 24,
-    marginRight: 10,
+    marginHorizontal: 10,
   },
   searchButton: {
     width: 17,
@@ -499,7 +492,6 @@ export default StyleSheet.create({
     fontFamily: "Amiri",
     paddingTop: 4,
     paddingBottom: 4,
-    paddingRight: 20,
     backgroundColor: "transparent"
   },
   searchInputPlaceholder: {
@@ -674,7 +666,7 @@ export default StyleSheet.create({
   cancelSearchButton: {
     width: 16,
     height: 16,
-    marginHorizontal: 20,
+    marginHorizontal: 12,
   },
   languageToggle: {
     width: 20,
@@ -1287,7 +1279,6 @@ export default StyleSheet.create({
     flexDirection: 'column',
   },
   autocompleteItem: {
-    flex:1,
     alignItems: "center",
     borderBottomWidth: 1,
     paddingVertical: 10,
@@ -1341,6 +1332,9 @@ export default StyleSheet.create({
     alignSelf: 'stretch',
     flexDirection: 'row',
     backgroundColor: 'black',
+  },
+  alignSelf: {
+    alignSelf: "stretch",
   },
   //HTML Styles:
   strong: {
@@ -1504,8 +1498,7 @@ export default StyleSheet.create({
     borderTopWidth: 0,  // no border top b/c of trending topics
   },
   footerBar: {
-    flexDirection: "row",
-    justifyContent: "space-between",
+    alignSelf: "stretch",
     paddingHorizontal: 5,
     borderTopWidth: 1
   },
@@ -1519,10 +1512,7 @@ export default StyleSheet.create({
   },
   footerButtonText: {
     marginTop: 8,
-    fontSize: 8,
-    fontFamily: "OpenSans",
-    fontWeight: "normal",
-    fontStyle: "normal"
+    fontSize: 10,
   },
   systemH3: {
     fontSize: 22,

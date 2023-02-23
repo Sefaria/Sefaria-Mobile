@@ -38,7 +38,7 @@ import Sefaria from './sefaria';
 import { LinkFilter } from './Filter';
 import ReaderDisplayOptionsMenu from './ReaderDisplayOptionsMenu';
 import {TextsPage} from "./TextsPage";
-import {LearningSchedulesPage} from "./LearningSchedules";
+import {LearningSchedulesPage} from "./learningSchedules/LearningSchedules";
 import ReaderTextTableOfContents from './ReaderTextTableOfContents';
 import SearchPage from './search/SearchPage';
 import AutocompletePage from './search/AutocompletePage';
@@ -258,6 +258,20 @@ class ReaderApp extends React.PureComponent {
     });
   }
 
+  /**
+   * Return initial promise on app startup
+    * @returns {Promise<unknown>|*}
+   */
+  getInitialPromise = () => {
+    if (Sefaria.history.lastPlace.length) {
+      const mostRecent =  Sefaria.history.lastPlace[0];
+      return this.openRef(mostRecent.ref, null, mostRecent.versions, false)  // first call to openRef should not add to backStack
+    } else {
+      // if no last place, open navigation
+      return Promise.resolve(this.openNav());
+    }
+  }
+
   initFiles = () => {
     Sefaria._deleteUnzippedFiles()
     .then(() => Sefaria.init(this.props.dispatch)).then(() => {
@@ -268,8 +282,8 @@ class ReaderApp extends React.PureComponent {
         // wait to check for interrupting message until after asyncstorage is loaded
         this._interruptingMessageRef && this._interruptingMessageRef.checkForMessage();
         if (!this._initDeepLinkURL) {
-          const mostRecent =  Sefaria.history.lastPlace.length ? Sefaria.history.lastPlace[0] : {ref: "Genesis 1"};
-          this.openRef(mostRecent.ref, null, mostRecent.versions, false)  // first call to openRef should not add to backStack
+
+          this.getInitialPromise()
           .then(Sefaria.postInitSearch)
           .then(() => { this.setState({_completedInit: true}); })  // setting this true before end of postInit. postInit takes a surprisingly long time due to download update check.
           .then(() => Sefaria.postInit(this.props.downloadNetworkSetting))
@@ -289,8 +303,18 @@ class ReaderApp extends React.PureComponent {
   }
 
   manageBackMain = () => {
-    this.manageBack("main");
-  }
+    return this.manageBack("main");
+  };
+
+  /**
+   * Try to go back. If history is empty, open nav menu.
+   */
+  manageBackMainOrOpenNav = () => {
+    const wentBack = this.manageBackMain();
+    if (!wentBack) {
+      this.openNav();
+    }
+  };
 
   modifyHistory = ({ dir, ...args }) => {
     /**
@@ -1861,6 +1885,11 @@ class ReaderApp extends React.PureComponent {
     }
   };
 
+  shouldShowFooter = menuOpen => {
+    const menuBlacklist = [null, 'text toc', 'sheet meta'];
+    return menuBlacklist.indexOf(menuOpen) === -1;
+  };
+
   renderContent() {
     const loading = !this.state.loaded;
     switch(this.state.menuOpen) {
@@ -1871,8 +1900,7 @@ class ReaderApp extends React.PureComponent {
         return (
           loading ?
           <LoadingView /> :
-          (<View style={{flex:1, flexDirection: 'row'}}>
-            <TextsPage
+          (<TextsPage
               categories={this.state.navigationCategories}
               setCategories={this.setNavigationCategories}
               openRef={(ref, versions)=>this.openRef(ref,"navigation", versions)}
@@ -1880,8 +1908,7 @@ class ReaderApp extends React.PureComponent {
               openLearningSchedules={this.openMenu.bind(null, "learning schedules")}
               openDedication={this.openMenu.bind(null, "dedication")}
               openUri={this.openUri}
-            />
-          </View>)
+            />)
         );
       case ("learning schedules"):
         Sefaria.track.setScreen("learning schedules", "navigation")
@@ -2004,7 +2031,7 @@ class ReaderApp extends React.PureComponent {
             onRemove={this.removeSavedItem}
             title={strings.saved}
             menuOpen={this.state.menuOpen}
-            icon={iconData.get('starUnfilled', this.props.themeStr)}
+            icon={iconData.get('bookmark-unfilled', this.props.themeStr)}
             loadData={async () => Sefaria.history.syncProfileGetSaved(this.props.dispatch, await this.getSettingsObject())}
             openLogin={this.openLogin.bind(null, "saved")}
             openSettings={this.openMenu.bind(null, "settings")}
@@ -2094,8 +2121,7 @@ class ReaderApp extends React.PureComponent {
               enRef={this.state.textReference}
               heRef={this.state.heRef}
               categories={Sefaria.categoriesForTitle(this.state.textTitle, isSheet)}
-              openNav={this.openNav}
-              goBack={this.manageBackMain}
+              goBack={this.manageBackMainOrOpenNav}
               openTextToc={this.openTextToc}
               openSheetMeta={this.openSheetMeta}
               sheet={this.state.sheet}
@@ -2250,7 +2276,7 @@ class ReaderApp extends React.PureComponent {
 
     // StatuBar comment: can't figure out how to get barStyle = light-content to be respected on Android
     return (
-      <View style={{flex:1}}>
+      <View style={styles.flex1}>
         <SafeAreaView style={[styles.safeArea, {"backgroundColor": 'black'}]}>
           <View style={[styles.container, this.props.theme.container]}>
               <StatusBar barStyle={'light-content'} backgroundColor={'black'}/>
@@ -2273,7 +2299,9 @@ class ReaderApp extends React.PureComponent {
               />
             </ConditionalProgressWrapper>
               { this.renderContent() }
-            <FooterTabBar selectedTabName={this.state.footerTab} setTab={this.setFooterTab} />
+            { this.shouldShowFooter(this.state.menuOpen) && (
+                <FooterTabBar selectedTabName={this.state.footerTab} setTab={this.setFooterTab} />
+            )}
           </View>
         </SafeAreaView>
         <InterruptingMessage

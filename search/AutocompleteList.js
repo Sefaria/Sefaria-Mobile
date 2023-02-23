@@ -242,7 +242,7 @@ class AutocompleteList extends React.Component {
     }
     return (
       <TouchableOpacity
-        style={[{flexDirection: isHeb ? 'row-reverse' : 'row'}, styles.autocompleteItem, this.props.theme.lighterGreyBorder]}
+        style={[{flexDirection: this.props.interfaceLanguage === "hebrew" ? 'row-reverse' : 'row'}, styles.autocompleteItem, this.props.theme.lighterGreyBorder]}
         onPress={()=>{
           if (item.type === 'query') {
             this.props.search(item.title || item.query);
@@ -260,7 +260,7 @@ class AutocompleteList extends React.Component {
           style={[styles.menuButtonMargined]}
           resizeMode={'contain'}
         />
-        <SText lang={isHeb ? "hebrew" : "english"} style={[styles.autocompleteItemText, this.props.theme.text, {textAlign: isHeb ? 'right' : 'left', fontFamily: isHeb ? 'Heebo' : 'Amiri', paddingTop: 5, marginTop: isHeb ? 0 : 5}]}>
+        <SText lang={isHeb ? "hebrew" : "english"} style={[styles.autocompleteItemText, this.props.theme.text, {textAlign: this.props.interfaceLanguage === "hebrew" ? 'right' : 'left', fontFamily: isHeb ? 'Heebo' : 'Amiri', paddingTop: 5, marginTop: isHeb ? 0 : 5}]}>
           { (item.type === 'toc' || item.type === 'toccategory') ? item.title.toUpperCase() : item.title }
         </SText>
         {item.loading ? (<Text style={[{paddingHorizontal: 10}, this.props.theme.secondaryText, !isHeb ? styles.enInt : styles.heInt]}>

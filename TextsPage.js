@@ -11,7 +11,7 @@ import {
     SefariaPressable,
 } from "./Misc";
 import styles from "./Styles";
-import {LearningSchedulesBox} from "./LearningSchedules";
+import {LearningSchedulesBox} from "./learningSchedules/LearningSchedulesBox";
 import {useGlobalState} from "./Hooks";
 import {TextCategoryPage} from "./TextCategoryPage";
 
@@ -36,14 +36,16 @@ const useCategoryButtonProps = (tocItem, setCategories) => {
 const TextsPageLearningSchedulesBox = ({ openRef, openLearningSchedules }) => {
     const { theme } = useGlobalState();
     return (
-        <LearningSchedulesBox openRef={openRef} desiredCalendarTitles={['Parashat Hashavua', 'Haftarah', 'Daf Yomi']}>
-            <FlexFrame dir={"row"} justifyContent={"space-between"}>
-                <InterfaceText stringKey={"learningSchedules"} extraStyles={[styles.fontSize16, styles.fontBold, theme.tertiaryText]}/>
-                <SefariaPressable onPress={openLearningSchedules}>
-                    <InterfaceText stringKey={"seeAll"} extraStyles={[styles.fontSize16, theme.secondaryText]}/>
-                </SefariaPressable>
-            </FlexFrame>
-        </LearningSchedulesBox>
+        <View style={{marginBottom: 20}}>
+            <LearningSchedulesBox openRef={openRef} desiredCalendarTitles={['Parashat Hashavua', 'Haftarah', 'Daf Yomi']}>
+                <FlexFrame dir={"row"} justifyContent={"space-between"}>
+                    <InterfaceText stringKey={"learningSchedules"} extraStyles={[styles.fontSize16, styles.fontBold, theme.tertiaryText]}/>
+                    <SefariaPressable onPress={openLearningSchedules}>
+                        <InterfaceText stringKey={"seeAll"} extraStyles={[styles.fontSize16, theme.secondaryText]}/>
+                    </SefariaPressable>
+                </FlexFrame>
+            </LearningSchedulesBox>
+        </View>
     );
 };
 

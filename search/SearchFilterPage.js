@@ -73,18 +73,24 @@ const useFilterSearcher = (filtersValid, availableFilters) => {
         const displayedFilters = filterSearcher.getMatchingFilterTree(filterQuery, false);
         return organizeFiltersAsSections(displayedFilters, expandedFilterCategories);
     }, [filtersValid, availableFilters, filterQuery, expandedFilterCategories]);
-    const onFilterQueryChange = React.useCallback(query => {
+    React.useEffect(() => {
+        const areSetsEqual = (a, b) => a.size === b.size && new Set([...a, ...b]).size === a.size;
         let newExpandedCategories;
-        if (query) {
+        if (filterQuery) {
             // expand all filter sections to show query results
             newExpandedCategories = filterSections.map(filterSection => filterSection.filterNode.title)
         } else {
             // close all filter sections when clearing query
             newExpandedCategories = [];
         }
-        setExpandedFilterCategories(new Set(newExpandedCategories));
+        const newExpandedCategoriesSet = new Set(newExpandedCategories);
+        if (!areSetsEqual(newExpandedCategoriesSet, expandedFilterCategories)) {
+            setExpandedFilterCategories(newExpandedCategoriesSet);
+        }
+    }, [filterQuery]);
+    const onFilterQueryChange = React.useCallback(query => {
         setFilterQuery(query);
-    }, [filterSections]);
+    }, []);
     return {
         filterSections,
         onFilterQueryChange,
@@ -128,7 +134,7 @@ const SearchFilterHeader = ({ onBack, onResetPress, buttonToggleSetData, onFilte
                 <Header titleKey={"text"} />
             </View>
             <View style={{marginVertical: 16}}>
-                <CondensedSearchBar onChange={onFilterQueryChange} query={filterQuery} placeholder={"Search texts"} />
+                <CondensedSearchBar onChange={onFilterQueryChange} query={filterQuery} placeholder={strings.searchTexts} />
             </View>
         </View>
     );
@@ -145,7 +151,7 @@ const SearchFilterFooter = ({ buttonToggleSetData }) => {
             <View style={{marginTop: 16}}>
                 <FlexFrame dir={"row"} justifyContent={"flex-start"} alignItems={"center"}>
                     <IndeterminateCheckBox onPress={toggleFunction} state={active+0} />
-                    <InterfaceText stringKey={"exactMatchesOnly"} extraStyles={[{marginHorizontal: 10}]}/>
+                    <InterfaceText stringKey={"exactMatchesOnly"} extraStyles={[{marginHorizontal: 10}, theme.text]}/>
                 </FlexFrame>
             </View>
         </View>
@@ -179,6 +185,7 @@ export const SearchFilterPage = ({
             <SectionList
                 contentContainerStyle={styles.menuContent}
                 sections={filterSections}
+                stickySectionHeadersEnabled={false}
                 keyExtractor={item => item.title}
                 renderSectionHeader={({ section: { filterNode, expanded } }) => (
                     <SearchFilter
@@ -195,7 +202,7 @@ export const SearchFilterPage = ({
                         indented
                     />
                 )}
-                ListHeaderComponent={() => (
+                ListHeaderComponent={
                     <SearchFilterHeader
                         onBack={onBack}
                         onResetPress={onResetPress}
@@ -203,12 +210,12 @@ export const SearchFilterPage = ({
                         onFilterQueryChange={onFilterQueryChange}
                         filterQuery={filterQuery}
                     />
-                )}
-                ListFooterComponent={() => (
+                }
+                ListFooterComponent={
                     <SearchFilterFooter
                         buttonToggleSetData={buttonToggleSetData}
                     />
-                )}
+                }
                 ListEmptyComponent={() => !searchState.filtersValid && <FilterLoadingView />}
             />
             <SearchFooterFrame>
@@ -258,10 +265,10 @@ const SearchFilter = ({filterNode, expandFilter, toggleFilter, indented, expande
             <FlexFrame dir={"row"} justifyContent={"space-between"}>
                 <FlexFrame dir={"row"}>
                     <IndeterminateCheckBox onPress={clickCheckBox} state={selected} />
-                    <View style={{marginHorizontal: 10}}>
-                        <ContentTextWithFallback en={title} he={heTitle} />
+                    <View style={{marginLeft: 10, marginRight: 30, flexDirection: "row", flexShrink: 2}}>
+                        <ContentTextWithFallback en={title} he={heTitle} extraStyles={[{marginRight: 5}, theme.text]}/>
+                        <ContentTextWithFallback en={countStr} he={countStr} extraStyles={[theme.tertiaryText]} />
                     </View>
-                    <ContentTextWithFallback en={countStr} he={countStr} extraStyles={[theme.tertiaryText]} />
                 </FlexFrame>
                 { !indented && <Icon name={expanded ? 'down' : 'forward'} length={12} /> }
             </FlexFrame>
