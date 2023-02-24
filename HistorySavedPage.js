@@ -79,6 +79,7 @@ const UserReadingList = ({mode}) => {
     const [loadingAPIData, setLoadingAPIData] = useState(true);
     const [skip, setSkip] = useState(0);
     const [hasMoreData, setHasMoreData] = useState(true);
+    const [afterFirstLoad, setAfterFirstLoad] = useState(false);
     const SKIP_STEP = 20;
     
     useEffect(() => {
@@ -96,6 +97,7 @@ const UserReadingList = ({mode}) => {
         if(!localData.length) {console.log("Store not loaded, quitting"); return;}
         console.log("Before first load data");
         loadData();
+        setAfterFirstLoad(true);
     }, [localData /*, mode*/]);
     
     
@@ -205,15 +207,22 @@ const UserReadingList = ({mode}) => {
       );
     };
     
-    
-    return (
-        <FlatList
+    if(afterFirstLoad){
+        return (
+            <FlatList key={`data-length-${data.length}`}
                 data={data}
-                keyExtractor={item => item.ref}
+                keyExtractor={(item, index) => `${item.ref}-${index}`}
                 renderItem={renderItem}
                 onEndReached={onItemsEndReached}
                 onEndReachedThreshold={0.5}
                 ListFooterComponent={renderFooter}
-              />
-    )
+            />
+        )
+    } else {
+        return (
+          <View style={{ paddingVertical: 20 }}>
+            <ActivityIndicator size="large" />
+          </View>
+        );
+    }
 };
