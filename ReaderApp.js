@@ -2263,20 +2263,32 @@ class ReaderApp extends React.PureComponent {
     );
   }
 
-  render() {
+  getSafeViewStyleAndStatusBarBackground = () => {
     // make the SafeAreaView background based on the category color
-    const cat = this.state.menuOpen ? (this.state.navigationCategories.length ? this.state.navigationCategories[0] : "Other") : Sefaria.primaryCategoryForTitle(this.state.textTitle);
-    let style = {backgroundColor: "black"};
+    const cat = this.state.menuOpen ? (this.state.navigationCategories.length ? this.state.navigationCategories[0] : "N/A") : Sefaria.primaryCategoryForTitle(this.state.textTitle);
+    let statusBarBackgroundColor = "black";
+    let safeViewStyle = {backgroundColor: statusBarBackgroundColor};
     if (cat) {
-      style = {backgroundColor: Sefaria.util.lightenDarkenColor(Sefaria.palette.categoryColor(cat), -50)};
+      if (cat === "N/A") {
+        safeViewStyle = this.props.theme.mainTextPanel;
+        statusBarBackgroundColor = this.props.themeStr === "white" ? "white" : "#333331";
+      } else {
+        statusBarBackgroundColor = Sefaria.util.lightenDarkenColor(Sefaria.palette.categoryColor(cat), -50);
+        safeViewStyle = {backgroundColor: statusBarBackgroundColor};
+      }
     }
+    return {safeViewStyle, statusBarBackgroundColor};
+  };
+
+  render() {
     // StatuBar comment: can't figure out how to get barStyle = light-content to be respected on Android
+    const { safeViewStyle, statusBarBackgroundColor } = this.getSafeViewStyleAndStatusBarBackground();
     return (
       <View style={styles.flex1}>
-        <SafeAreaView style={[{flex: 0}, style]} />
-        <SafeAreaView style={[styles.safeArea, {"backgroundColor": 'black'}]}>
+        <SafeAreaView style={[{flex: 0}, safeViewStyle]} />
+        <SafeAreaView style={[styles.safeArea, this.props.theme.mainTextPanel]}>
           <View style={[styles.container, this.props.theme.container]}>
-              <StatusBar barStyle={'light-content'} backgroundColor={'black'}/>
+              <StatusBar barStyle={this.props.themeStr === 'white' && cat==="N/A" ? 'dark-content' : 'light-content'} backgroundColor={statusBarBackgroundColor}/>
             <ConditionalProgressWrapper
               conditionMethod={(state, props) => {
                 return state && (props.menuOpen !== 'settings' || state.downloadNotification === 'Update');
