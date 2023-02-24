@@ -35,11 +35,8 @@ export const HistorySavedPage = ({}) => {
     
     
     useEffect(() => {
-        console.log("Performing sync");
         (async () => { //using an async IAFE so the whole function doest become async
             await Sefaria.history.syncProfile(dispatch, await getUserSettings());
-            //console.log(Sefaria.history.history.slice(0, 100));
-            console.log("Performing sync done");
             setSynced(true);
         })();
     }, []);
@@ -116,11 +113,8 @@ const UserReadingList = ({mode}) => {
         console.log("In loadData: starting all the fetch stuff");
         setLoadingAPIData(true);
         console.log("store: ", localData);
-        console.log("store length: ", localData.length);
-        console.log("skip: ", skip);
-        console.log("slice: ", skip+SKIP_STEP);
         let nitems = localData.slice(skip, skip + SKIP_STEP); //get the next 20 items from the raw local history
-        console.log("After slice: ", nitems);
+        console.log("Store After slice: ", nitems);
         getAnnotatedNextItems(nitems).then( nextItems => {
             console.log(nextItems);
             setData(prevItems => [...prevItems, ...nextItems]);
