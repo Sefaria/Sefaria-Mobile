@@ -167,7 +167,7 @@ export const HistoryPage = ({}) => {
     
 
     return(
-        <View contentContainerStyle={[styles.navRePage, {alignSelf: "stretch", flex: 1}]} >
+        <FlexFrame dir={"column"} flex={1} contentContainerStyle={[styles.navRePage, {alignSelf: "stretch"}]} >
             <PageHeader>
                 <FlexFrame justifyContent={"flex-start"}>
                     <StatefulHeader titleKey={"saved"} icon={"bookmark2"} active={mode === "saved"} callbackFunc={()=>{ setMode("saved")}}/>
@@ -182,6 +182,6 @@ export const HistoryPage = ({}) => {
                 onEndReachedThreshold={0.5}
                 ListFooterComponent={renderFooter}
               />
-        </View>
+        </FlexFrame>
     );
 }
