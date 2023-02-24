@@ -2266,14 +2266,6 @@ class ReaderApp extends React.PureComponent {
   }
 
   render() {
-    /*
-    // make the SafeAreaView background based on the category color
-    const cat = this.state.menuOpen ? (this.state.navigationCategories.length ? this.state.navigationCategories[0] : "Other") : Sefaria.primaryCategoryForTitle(this.state.textTitle);
-    let style = {};
-    if (cat) {
-      style = {backgroundColor: Sefaria.util.lightenDarkenColor(Sefaria.palette.categoryColor(cat), -25)};
-    }*/
-
     // StatuBar comment: can't figure out how to get barStyle = light-content to be respected on Android
     return (
       <View style={styles.flex1}>
