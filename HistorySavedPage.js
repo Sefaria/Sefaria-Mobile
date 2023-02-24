@@ -26,7 +26,7 @@ import {useGetUserSettingsObj, useGlobalState} from './Hooks.js';
 import Sefaria from './sefaria';
 
 
-export const HistoryPage = ({}) => {
+export const HistorySavedPage = ({}) => {
     const dispatch = useContext(DispatchContext);  
     const getUserSettings = useGetUserSettingsObj();
     const [synced, setSynced] = useState(false);

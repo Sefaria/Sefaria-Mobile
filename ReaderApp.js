@@ -55,6 +55,7 @@ import SheetMeta from "./SheetMeta.js";
 import DeepLinkRouter from "./DeepLinkRouter.js";
 import { AuthPage } from "./AuthPage";
 import { TopicCategory, TopicPage } from "./TopicPage";
+import {HistorySavedPage} from "./HistorySavedPage";
 import {Dedication} from  "./Dedication"
 import {
   Tracker as DownloadTracker,
@@ -70,7 +71,7 @@ import {
 } from './Misc.js';
 import {FooterTabBar} from "./FooterTabBar";
 import {iconData} from "./IconData";
-import {HistoryPage} from "./HistoryPage";
+
 const ViewPort    = Dimensions.get('window');
 
 class ReaderApp extends React.PureComponent {
@@ -1996,7 +1997,7 @@ class ReaderApp extends React.PureComponent {
         />);
       case ("history"):
         Sefaria.track.setScreen("history", "menu")
-        return(<HistoryPage/>);  
+        return(<HistorySavedPage/>);  
         /*return(
           <SwipeableCategoryList
             close={this.manageBackMain}
