@@ -26,60 +26,80 @@ import {useGetUserSettingsObj, useGlobalState} from './Hooks.js';
 import Sefaria from './sefaria';
 
 
-
-
-
 export const HistoryPage = ({}) => {
     const dispatch = useContext(DispatchContext);  
     const getUserSettings = useGetUserSettingsObj();
-    const [mode, setMode] = useState("saved");
+    const [synced, setSynced] = useState(false);
     const [store, setStore] = useState([]);
-    const [storeLoading, setStoreLoading] = useState(true);
+    const [mode, setMode] = useState("saved");
+    
     const [data, setData] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const [loadingData, setLoadingData] = useState(true);
     const [skip, setSkip] = useState(0);
-    const [hasMore, setHasMore] = useState(true);
+    const [hasMoreData, setHasMoreData] = useState(true);
     const SKIP_STEP = 20;
     
     useEffect(() => {
+        console.log("Performing sync");
         (async () => { //using an async IAFE so the whole function doest become async
             await Sefaria.history.syncProfile(dispatch, await getUserSettings());
             //console.log(Sefaria.history.history.slice(0, 100));
-            setStoreLoading(false);
+            console.log("Performing sync done");
+            setSynced(true);
         })();
     }, []);
     
     useEffect(() => {
         //here we are getting a "copy" of local history items that we will perform operations on. 
-        if(storeLoading) return;
-        let store = Sefaria.history[mode];
-        store = dedupeAndNormalizeHistoryArray(store, mode == "saved");
-        setStore(store); 
-        loadData();
-    }, [mode, storeLoading]);
+        if(!synced) {console.log("Not synced, quitting"); return;}
+        console.log("Performing store load");
+        let rstore = Sefaria.history.getLocalHistoryArray(mode);
+        let nstore = dedupeAndNormalizeHistoryArray(rstore, mode == "saved");
+        setStore([...nstore]);
+        console.log("Store after dedupe: ", nstore.slice(0, 100), nstore.length);
+    }, [synced, mode]);
     
-    /*useEffect(() => {
+    useEffect(()=> {
+        console.log("Store before load data: ", store)
+        if(!store.length) {console.log("Store not loaded, quitting"); return;}
+        console.log("Before first load data");
         loadData();
-    }, []);*/
+    }, [store, mode]);
+    
+    const changeMode = (newmode) => {
+        if(newmode != mode){
+            setStore([]);
+            setMode(newmode);  
+        }
+    };
     
     const onItemsEndReached = () => {
         setSkip(skip + SKIP_STEP);
         loadData();
-    }
+    };
     
     const loadData = () => {
-        if (!hasMore) {
+        console.log("In loadData");
+        if (!hasMoreData) {
+          console.log("no more data");  
           return;
         }
-        setLoading(true);
+        console.log("In loadData: starting all the fetch stuff");
+        setLoadingData(true);
+        console.log("store: ", store);
+        console.log("store length: ", store.length);
+        console.log("skip: ", skip);
+        console.log("slice: ", skip+SKIP_STEP);
         let nitems = store.slice(skip, skip + SKIP_STEP); //get the next 20 items from the raw local history
+        console.log("After slice: ", nitems);
         getAnnotatedNextItems(nitems).then( nextItems => {
             console.log(nextItems);
             setData(prevItems => [...prevItems, ...nextItems]);
             if (skip + SKIP_STEP >= store.length) {
-                setHasMore(false);
+                console.log(`flagging no more data: ${skip} + ${SKIP_STEP} >=< ${store.length} `);
+                setHasMoreData(false);
             }
-            setLoading(false);
+            setLoadingData(false);
         });
     };
     
@@ -94,7 +114,9 @@ export const HistoryPage = ({}) => {
                 refs.push(i.ref);
             }
         }
+        //console.log("Refs/Sheets for Bulk: ", refs, sheets);
         let [textsAnnotated, sheetsAnnotated] = await getAnnotatedItems(refs, sheets);
+        //console.log("Refs/Sheets after Bulk: ", textsAnnotated, sheetsAnnotated);
         // iterate over original items and put the extra data in
         for(let item of items){ //merge the new data into the existing
             if(item?.is_sheet){
@@ -148,7 +170,7 @@ export const HistoryPage = ({}) => {
     };
     
     const renderFooter = () => {
-        if (!loading) return null;
+        if (!loadingData) return null;
     
         return (
           <View style={{ paddingVertical: 20 }}>
@@ -170,8 +192,8 @@ export const HistoryPage = ({}) => {
         <FlexFrame dir={"column"} flex={1} contentContainerStyle={[styles.navRePage, {alignSelf: "stretch"}]} >
             <PageHeader>
                 <FlexFrame justifyContent={"flex-start"}>
-                    <StatefulHeader titleKey={"saved"} icon={"bookmark2"} active={mode === "saved"} callbackFunc={()=>{ setMode("saved")}}/>
-                    <StatefulHeader titleKey={"history"} icon={"clock"} active={mode === "history"} callbackFunc={()=>{ setMode("history")}}/>
+                    <StatefulHeader titleKey={"saved"} icon={"bookmark2"} active={mode === "saved"} callbackFunc={()=>{ changeMode("saved")}}/>
+                    <StatefulHeader titleKey={"history"} icon={"clock"} active={mode === "history"} callbackFunc={()=>{ changeMode("history")}}/>
                 </FlexFrame>
             </PageHeader>
             <FlatList

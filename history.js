@@ -182,6 +182,9 @@ const History = {
     await Sefaria.history.syncProfile(dispatch, settings);
     return Sefaria.history.saved;
   },
+  getLocalHistoryArray: function(bucket){
+    return [...Sefaria.history[bucket]];
+  },
   updateSettingsAfterSync: function(dispatch, newSettings) {
     const fieldToActionMap = {
       email_notifications: STATE_ACTIONS.setEmailFrequency,
