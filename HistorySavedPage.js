@@ -50,25 +50,17 @@ export const HistorySavedPage = ({}) => {
             setMode(newmode);  
         }
     };
-    if(!synced){
-        return (
-            <View style={{ paddingVertical: 20 }}>
-                <ActivityIndicator size="large" />
-            </View>
-        );
-    } else {
-        return(
-            <FlexFrame dir={"column"} flex={1} contentContainerStyle={[styles.navRePage, {alignSelf: "stretch"}]} >
-                <PageHeader>
-                    <FlexFrame justifyContent={"flex-start"}>
-                        <StatefulHeader titleKey={"saved"} icon={"bookmark2"} active={mode === "saved"} callbackFunc={()=>{ changeMode("saved")}}/>
-                        <StatefulHeader titleKey={"history"} icon={"clock"} active={mode === "history"} callbackFunc={()=>{ changeMode("history")}}/>
-                    </FlexFrame>
-                </PageHeader>
-                <HistoryOrSavedList mode={mode}/>
-            </FlexFrame>
-        );
-    }
+    return(
+        <FlexFrame dir={"column"} flex={1} contentContainerStyle={[styles.navRePage, {alignSelf: "stretch"}]} >
+            <PageHeader>
+                <FlexFrame justifyContent={"flex-start"}>
+                    <StatefulHeader titleKey={"saved"} icon={"bookmark2"} active={mode === "saved"} callbackFunc={()=>{ changeMode("saved")}}/>
+                    <StatefulHeader titleKey={"history"} icon={"clock"} active={mode === "history"} callbackFunc={()=>{ changeMode("history")}}/>
+                </FlexFrame>
+            </PageHeader>
+            {synced ? <HistoryOrSavedList mode={mode}/> : <ActivityIndicator size="large" />  }
+        </FlexFrame>
+    );
 };
 
 const HistoryOrSavedList = ({mode}) => {
