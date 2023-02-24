@@ -1,6 +1,6 @@
 'use strict';
 
-import PropTypes from 'prop-types';
+import PropTypes, {element} from 'prop-types';
 
 import React, {useContext, useEffect, useState} from 'react';
 import {
@@ -116,7 +116,7 @@ const UserReadingList = ({mode}) => {
         let nitems = localData.slice(skip, skip + SKIP_STEP); //get the next 20 items from the raw local history
         console.log("Store After slice: ", nitems);
         getAnnotatedNextItems(nitems).then( nextItems => {
-            console.log(nextItems);
+            console.log("Items after api calls: ", nextItems);
             setData(prevItems => [...prevItems, ...nextItems]);
             if (skip + SKIP_STEP >= localData.length) {
                 console.log(`flagging no more data: ${skip} + ${SKIP_STEP} >=< ${localData.length} `);
@@ -137,18 +137,13 @@ const UserReadingList = ({mode}) => {
                 refs.push(i.ref);
             }
         }
-        //console.log("Refs/Sheets for Bulk: ", refs, sheets);
+        console.log("Refs/Sheets for Bulk: ", refs, sheets);
         let [textsAnnotated, sheetsAnnotated] = await getAnnotatedItems(refs, sheets);
-        //console.log("Refs/Sheets after Bulk: ", textsAnnotated, sheetsAnnotated);
+        console.log("Refs/Sheets after Bulk: ", textsAnnotated, sheetsAnnotated);
         // iterate over original items and put the extra data in
-        for(let item of items){ //merge the new data into the existing
-            if(item?.is_sheet){
-                item = {...item, ...sheetsAnnotated[item.sheet_id]};
-            }else{
-                item = {...item, ...textsAnnotated[item.ref]};
-            }
-        }
-        return items;
+        return items.map((hisElement) => {
+            return hisElement?.is_sheet ? {...hisElement, ...sheetsAnnotated[hisElement.sheet_id]} : {...hisElement, ...textsAnnotated[hisElement.ref]};
+        });
     };
     
     const getAnnotatedItems = async(refs, sheets) => {
