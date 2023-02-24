@@ -24,20 +24,15 @@ import strings from './LocalizedStrings';
 import {iconData} from "./IconData";
 import {useGetUserSettingsObj, useGlobalState} from './Hooks.js';
 import Sefaria from './sefaria';
+import SwipeableFlatList from "./SwipeableFlatList";
 
 
 export const HistorySavedPage = ({}) => {
     const dispatch = useContext(DispatchContext);  
     const getUserSettings = useGetUserSettingsObj();
     const [synced, setSynced] = useState(false);
-    const [store, setStore] = useState([]);
     const [mode, setMode] = useState("saved");
     
-    const [data, setData] = useState([]);
-    const [loadingData, setLoadingData] = useState(true);
-    const [skip, setSkip] = useState(0);
-    const [hasMoreData, setHasMoreData] = useState(true);
-    const SKIP_STEP = 20;
     
     useEffect(() => {
         console.log("Performing sync");
@@ -49,29 +44,71 @@ export const HistorySavedPage = ({}) => {
         })();
     }, []);
     
-    useEffect(() => {
-        //here we are getting a "copy" of local history items that we will perform operations on. 
-        if(!synced) {console.log("Not synced, quitting"); return;}
-        console.log("Performing store load");
-        let rstore = Sefaria.history.getLocalHistoryArray(mode);
-        let nstore = dedupeAndNormalizeHistoryArray(rstore, mode == "saved");
-        setStore([...nstore]);
-        console.log("Store after dedupe: ", nstore.slice(0, 100), nstore.length);
-    }, [synced, mode]);
-    
-    useEffect(()=> {
-        console.log("Store before load data: ", store)
-        if(!store.length) {console.log("Store not loaded, quitting"); return;}
-        console.log("Before first load data");
-        loadData();
-    }, [store, mode]);
     
     const changeMode = (newmode) => {
         if(newmode != mode){
-            setStore([]);
             setMode(newmode);  
         }
     };
+    if(!synced){
+        return (
+            <View style={{ paddingVertical: 20 }}>
+                <ActivityIndicator size="large" />
+            </View>
+        );
+    } else {
+        return(
+            <FlexFrame dir={"column"} flex={1} contentContainerStyle={[styles.navRePage, {alignSelf: "stretch"}]} >
+                <PageHeader>
+                    <FlexFrame justifyContent={"flex-start"}>
+                        <StatefulHeader titleKey={"saved"} icon={"bookmark2"} active={mode === "saved"} callbackFunc={()=>{ changeMode("saved")}}/>
+                        <StatefulHeader titleKey={"history"} icon={"clock"} active={mode === "history"} callbackFunc={()=>{ changeMode("history")}}/>
+                    </FlexFrame>
+                </PageHeader>
+                <HistoryOrSavedList mode={mode}/>
+            </FlexFrame>
+        );
+    }
+};
+
+const HistoryOrSavedList = ({mode}) => {
+    const RenderClass = mode === "history" ? HistoryList : SavedList;  
+    return (<RenderClass/>);
+};
+
+const SavedList = () => {
+    return (<UserReadingList mode={"saved"} />);
+};
+
+const HistoryList = () => {
+    return (<UserReadingList mode={"history"} />);
+};
+
+const UserReadingList = ({mode}) => {
+    const [localData, setLocalData] = useState([]);
+    const [data, setData] = useState([]);
+    const [loadingAPIData, setLoadingAPIData] = useState(true);
+    const [skip, setSkip] = useState(0);
+    const [hasMoreData, setHasMoreData] = useState(true);
+    const SKIP_STEP = 20;
+    
+    useEffect(() => {
+        //here we are getting a "copy" of local history items that we will perform operations on. 
+        /*if(!synced) {console.log("Not synced, quitting"); return;}*/
+        console.log("Performing store load");
+        let rstore = Sefaria.history.getLocalHistoryArray(mode);
+        let nstore = dedupeAndNormalizeHistoryArray(rstore, mode == "saved");
+        setLocalData([...nstore]);
+        console.log("Store after dedupe: ", nstore.slice(0, 100), nstore.length);
+    }, []);
+    
+    useEffect(()=> {
+        console.log("Store before load data: ", localData)
+        if(!localData.length) {console.log("Store not loaded, quitting"); return;}
+        console.log("Before first load data");
+        loadData();
+    }, [localData /*, mode*/]);
+    
     
     const onItemsEndReached = () => {
         setSkip(skip + SKIP_STEP);
@@ -85,21 +122,21 @@ export const HistorySavedPage = ({}) => {
           return;
         }
         console.log("In loadData: starting all the fetch stuff");
-        setLoadingData(true);
-        console.log("store: ", store);
-        console.log("store length: ", store.length);
+        setLoadingAPIData(true);
+        console.log("store: ", localData);
+        console.log("store length: ", localData.length);
         console.log("skip: ", skip);
         console.log("slice: ", skip+SKIP_STEP);
-        let nitems = store.slice(skip, skip + SKIP_STEP); //get the next 20 items from the raw local history
+        let nitems = localData.slice(skip, skip + SKIP_STEP); //get the next 20 items from the raw local history
         console.log("After slice: ", nitems);
         getAnnotatedNextItems(nitems).then( nextItems => {
             console.log(nextItems);
             setData(prevItems => [...prevItems, ...nextItems]);
-            if (skip + SKIP_STEP >= store.length) {
-                console.log(`flagging no more data: ${skip} + ${SKIP_STEP} >=< ${store.length} `);
+            if (skip + SKIP_STEP >= localData.length) {
+                console.log(`flagging no more data: ${skip} + ${SKIP_STEP} >=< ${localData.length} `);
                 setHasMoreData(false);
             }
-            setLoadingData(false);
+            setLoadingAPIData(false);
         });
     };
     
@@ -170,7 +207,7 @@ export const HistorySavedPage = ({}) => {
     };
     
     const renderFooter = () => {
-        if (!loadingData) return null;
+        if (!loadingAPIData) return null;
     
         return (
           <View style={{ paddingVertical: 20 }}>
@@ -187,16 +224,9 @@ export const HistorySavedPage = ({}) => {
       );
     };
     
-
-    return(
-        <FlexFrame dir={"column"} flex={1} contentContainerStyle={[styles.navRePage, {alignSelf: "stretch"}]} >
-            <PageHeader>
-                <FlexFrame justifyContent={"flex-start"}>
-                    <StatefulHeader titleKey={"saved"} icon={"bookmark2"} active={mode === "saved"} callbackFunc={()=>{ changeMode("saved")}}/>
-                    <StatefulHeader titleKey={"history"} icon={"clock"} active={mode === "history"} callbackFunc={()=>{ changeMode("history")}}/>
-                </FlexFrame>
-            </PageHeader>
-            <FlatList
+    
+    return (
+        <FlatList
                 data={data}
                 keyExtractor={item => item.ref}
                 renderItem={renderItem}
@@ -204,6 +234,5 @@ export const HistorySavedPage = ({}) => {
                 onEndReachedThreshold={0.5}
                 ListFooterComponent={renderFooter}
               />
-        </FlexFrame>
-    );
-}
+    )
+};
