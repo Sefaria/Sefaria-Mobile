@@ -2273,22 +2273,23 @@ class ReaderApp extends React.PureComponent {
         safeViewStyle = this.props.theme.mainTextPanel;
         statusBarBackgroundColor = this.props.themeStr === "white" ? "white" : "#333331";
       } else {
-        statusBarBackgroundColor = Sefaria.util.lightenDarkenColor(Sefaria.palette.categoryColor(cat), -50);
+        statusBarBackgroundColor = Sefaria.palette.categoryColor(cat);
         safeViewStyle = {backgroundColor: statusBarBackgroundColor};
       }
     }
-    return {safeViewStyle, statusBarBackgroundColor};
+    const statusBarStyle = this.props.themeStr === 'white' && cat==="N/A" ? 'dark-content' : 'light-content';
+    return {safeViewStyle, statusBarBackgroundColor, statusBarStyle};
   };
 
   render() {
     // StatuBar comment: can't figure out how to get barStyle = light-content to be respected on Android
-    const { safeViewStyle, statusBarBackgroundColor } = this.getSafeViewStyleAndStatusBarBackground();
+    const { safeViewStyle, statusBarBackgroundColor, statusBarStyle } = this.getSafeViewStyleAndStatusBarBackground();
     return (
       <View style={styles.flex1}>
         <SafeAreaView style={[{flex: 0}, safeViewStyle]} />
         <SafeAreaView style={[styles.safeArea, this.props.theme.mainTextPanel]}>
           <View style={[styles.container, this.props.theme.container]}>
-              <StatusBar barStyle={this.props.themeStr === 'white' && cat==="N/A" ? 'dark-content' : 'light-content'} backgroundColor={statusBarBackgroundColor}/>
+              <StatusBar barStyle={statusBarStyle} backgroundColor={statusBarBackgroundColor}/>
             <ConditionalProgressWrapper
               conditionMethod={(state, props) => {
                 return state && (props.menuOpen !== 'settings' || state.downloadNotification === 'Update');
