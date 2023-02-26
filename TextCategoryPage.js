@@ -237,7 +237,7 @@ const SubCategoryToggle = ({displayCategories, setCategories}) => {
         const active = displayCategories[1] === element;
         return(
             <SefariaPressable onPress={toggleFunc} key={toggleTitle.en} extraStyles={[{borderBottomWidth: active ? 2 : 0, marginBottom: 17, marginRight: 10}, theme.borderDarker]}>
-                <ContentTextWithFallback {...toggleTitle} extraStyles={[{textTransform: "uppercase"}, active ? null : theme.tertiaryText]}/>
+                <ContentTextWithFallback {...toggleTitle} extraStyles={[{textTransform: "uppercase"}, active ? theme.text : theme.tertiaryText]}/>
             </SefariaPressable>
         );
     });
