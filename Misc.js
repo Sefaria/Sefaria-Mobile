@@ -1305,7 +1305,7 @@ class ProfilePic extends React.Component {
     this.setState({showDefault: true});
   };
   setShowImage = () => {
-    console.log('setShowImage', this._isMounted);
+    //console.log('setShowImage', this._isMounted);
     if (!this._isMounted) { return; }
     this.setState({showDefault: false});
   };
@@ -1323,7 +1323,7 @@ class ProfilePic extends React.Component {
     const nameArray = !!name.trim() ? name.trim().split(/\s/) : [];
     const initials = nameArray.length > 0 ? (nameArray.length === 1 ? nameArray[0][0] : nameArray[0][0] + nameArray[nameArray.length-1][0]) : "";
     const imageSrc = url.replace("profile-default.png", 'profile-default-404.png');  // replace default with non-existant image to force onLoad to fail
-    console.log('imageSrc', imageSrc);
+    //console.log('imageSrc', imageSrc);
     return (
       <View>
         {

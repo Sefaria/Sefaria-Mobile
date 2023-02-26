@@ -7,7 +7,7 @@ import {
     Text,
     TouchableOpacity,
     View,
-    FlatList, 
+    FlatList,
     ActivityIndicator
 } from 'react-native';
 import {
@@ -32,7 +32,7 @@ export const HistorySavedPage = ({}) => {
     const dispatch = useContext(DispatchContext);  
     const getUserSettings = useGetUserSettingsObj();
     const [synced, setSynced] = useState(false);
-    const [mode, setMode] = useState("saved");
+    const [mode, setMode] = useState("history");
     
     
     useEffect(() => {
@@ -83,6 +83,7 @@ const UserReadingList = ({mode, headerCallback}) => {
         //here we are getting a "copy" of local history items that we will perform operations on. 
         let rstore = Sefaria.history.getLocalHistoryArray(mode);
         let nstore = dedupeAndNormalizeHistoryArray(rstore, mode == "saved");
+        console.log("store:" ,nstore);
         setLocalData([...nstore]);
     }, []);
     
@@ -98,6 +99,7 @@ const UserReadingList = ({mode, headerCallback}) => {
     
     
     const onItemsEndReached = () => {
+        console.log("end items reached")
         setSkip(skip + SKIP_STEP);
         //loadData();
     };
@@ -110,6 +112,7 @@ const UserReadingList = ({mode, headerCallback}) => {
         let nitems = localData.slice(skip, skip + SKIP_STEP); //get the next 20 items from the raw local history
         getAnnotatedNextItems(nitems).then( nextItems => {
             setData(prevItems => {
+                console.log([...prevItems, ...nextItems]);
                 return [...prevItems, ...nextItems];
             });
             if (skip + SKIP_STEP >= localData.length) {
