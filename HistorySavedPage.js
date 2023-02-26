@@ -100,14 +100,19 @@ const UserReadingList = ({mode}) => {
         setAfterFirstLoad(true);
     }, [localData /*, mode*/]);
     
+    useEffect(() => {
+        if(!localData.length || skip === 0) {console.log("skipping first load from effect"); return;}
+        loadData();
+    }, [skip]);
+    
     
     const onItemsEndReached = () => {
         setSkip(skip + SKIP_STEP);
-        loadData();
+        //loadData();
     };
     
     const loadData = () => {
-        console.log("In loadData");
+        console.log(`In loadData skip: ${skip}`);
         if (!hasMoreData) {
           console.log("no more data");  
           return;
@@ -118,8 +123,11 @@ const UserReadingList = ({mode}) => {
         let nitems = localData.slice(skip, skip + SKIP_STEP); //get the next 20 items from the raw local history
         console.log("Store After slice: ", nitems);
         getAnnotatedNextItems(nitems).then( nextItems => {
-            console.log("Items after api calls: ", nextItems);
-            setData(prevItems => [...prevItems, ...nextItems]);
+            //console.log("Items after api calls: ", nextItems);
+            setData(prevItems => {
+                console.log("New data list: ", [...prevItems, ...nextItems]);
+                return [...prevItems, ...nextItems];
+            });
             if (skip + SKIP_STEP >= localData.length) {
                 console.log(`flagging no more data: ${skip} + ${SKIP_STEP} >=< ${localData.length} `);
                 setHasMoreData(false);
