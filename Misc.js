@@ -1250,7 +1250,7 @@ SimpleLinkedBlock.propTypes = {
 };
 
 const ProfileListing = ({ image, name, organization, flexDirection='row' }) => {
-  const { themeStr } = useContext(GlobalStateContext);
+  const { themeStr, theme } = useGlobalState();
   return (
     <View style={{flexDirection}}>
       <ProfilePic
@@ -1259,13 +1259,13 @@ const ProfileListing = ({ image, name, organization, flexDirection='row' }) => {
         name={name}
         themeStr={themeStr}
       />
-      <View style={{paddingHorizontal: 10, justifyContent: 'space-between', flex: 1}}>
-        <SimpleInterfaceBlock
+      <View style={{paddingHorizontal: 10, justifyContent: 'center', flex: 1}}>
+        <SimpleInterfaceBlock extraStyles={[theme.mainText]}
           en={name}
           he={name}
         />
         {
-          !!organization ? <SimpleInterfaceBlock
+          !!organization ? <SimpleInterfaceBlock extraStyles={[theme.secondaryText]}
             en={organization}
             he={organization}
           />:null
