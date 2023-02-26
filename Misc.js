@@ -64,15 +64,18 @@ const PageHeader = ({children}) => {
  * @returns {JSX.Element}
  * @constructor
  */
-const StatefulHeader = ({titleKey, icon = null, callbackFunc=()=>{}, active=true}) => {
-  const { theme } = useGlobalState();
+const StatefulHeader = ({titleKey, icon = null, callbackFunc, active=true}) => {
+  const {themeStr, theme} = useGlobalState();
+  const myIcon = iconData.get(icon, themeStr, active);
   return(
-      <TouchableOpacity onPress={callbackFunc}>
-        <FlexFrame justifyContent={"flex-start"}>
-            {icon ? <Icon name={icon} isSelected={active}/> : null}
-            <InterfaceText stringKey={titleKey} extraStyles={[styles.navReHeaderText, active ? theme.tertiaryText : theme.secondaryText]} />
-        </FlexFrame>
-      </TouchableOpacity>
+      <View style={styles.navReStatefulHeader}>
+        <TouchableOpacity onPress={callbackFunc}>
+          <FlexFrame alignItems={"center"}>
+              {icon ? <Image style={styles.navReStatefulHeaderIcon} source={myIcon}/> : null}
+              <InterfaceText stringKey={titleKey} extraStyles={[styles.navReHeaderText, active ? theme.tertiaryText : theme.secondaryText]} />
+          </FlexFrame>
+        </TouchableOpacity>
+      </View>
   );
 }
 /***
