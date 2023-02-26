@@ -2261,7 +2261,8 @@ class ReaderApp extends React.PureComponent {
 
   getSafeViewStyleAndStatusBarBackground = () => {
     // make the SafeAreaView background based on the category color
-    const cat = (this.state.menuOpen && this.state.menuOpen !== "text toc") ? (this.state.navigationCategories.length ? this.state.navigationCategories[0] : "N/A") : (!!this.state.sheet ? "Other" : Sefaria.primaryCategoryForTitle(this.state.textTitle));
+    const menu = this.state.menuOpen;
+    const cat = (menu && menu !== "text toc" && menu !== "sheet meta") ? (this.state.navigationCategories.length ? this.state.navigationCategories[0] : (menu === "settings" ? "Other" : "N/A")) : (!!this.state.sheet ? "Other" : Sefaria.primaryCategoryForTitle(this.state.textTitle));
     let statusBarBackgroundColor = "black";
     let safeViewStyle = {backgroundColor: statusBarBackgroundColor};
     if (cat) {
