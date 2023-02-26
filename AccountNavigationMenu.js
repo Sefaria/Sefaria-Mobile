@@ -27,7 +27,9 @@ export const AccountNavigationMenu = props => {
     const { theme } = useGlobalState();
     return (
         <ScrollView style={[styles.alignSelf, theme.mainTextPanel]} contentContainerStyle={{alignItems: "stretch"}}>
-            <PageHeader><Header titleKey={"account"}/></PageHeader>
+            <View style={styles.navRePage}>
+                <PageHeader><Header titleKey={"account"}/></PageHeader>
+            </View>
             <AccountNavigationMenuButtonList {...props} />
             <View style={[styles.navRePage, {alignItems: 'center'}]}>
                 <ShortDedication openDedication={() => props.openMenu("dedication", "AccountNavigationMenu")}/>
