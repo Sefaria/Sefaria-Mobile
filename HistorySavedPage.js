@@ -16,15 +16,16 @@ import {
     DirectedButton,
     LanguageToggleButton,
     AnimatedRow,
-    PageHeader, StatefulHeader, FlexFrame,
+    PageHeader, StatefulHeader, FlexFrame, SimpleInterfaceBlock, ProfileListing,
 } from './Misc.js';
 import { DispatchContext, STATE_ACTIONS } from './StateManager';
 import styles from './Styles';
 import strings from './LocalizedStrings';
 import {iconData} from "./IconData";
-import {useGetUserSettingsObj, useGlobalState} from './Hooks.js';
+import {useGetUserSettingsObj, useGlobalState, useRtlFlexDir} from './Hooks.js';
 import Sefaria from './sefaria';
 import SwipeableFlatList from "./SwipeableFlatList";
+import {ColorBarBox, StoryBodyBlock, StoryFrame, StoryTitleBlock} from "./Story";
 
 
 export const HistorySavedPage = ({}) => {
@@ -211,6 +212,12 @@ const UserReadingList = ({mode}) => {
         />
     );
 };
+
+
+const renderItem = ({item, index}) => {
+    return (<HistoryItem item={item} key={index} />);
+};
+    
 
 const HistoryItem = ({item}) => {
     const {theme} = useGlobalState();
