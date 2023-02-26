@@ -218,7 +218,7 @@ const UserReadingList = ({mode}) => {
     };
     
     return (
-        <FlatList key={`data-length-${data.length}`}
+        <FlatList
             data={data}
             keyExtractor={(item, index) => `${item.ref}-${index}`}
             renderItem={renderItem}
