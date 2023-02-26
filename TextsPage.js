@@ -8,7 +8,7 @@ import {
     LanguageToggleButton,
     PageHeader,
     InterfaceText,
-    SefariaPressable,
+    SefariaPressable, Header,
 } from "./Misc";
 import styles from "./Styles";
 import {LearningSchedulesBox} from "./learningSchedules/LearningSchedulesBox";
@@ -68,7 +68,7 @@ const TopLevelCategory = ({item: tocItem, setCategories}) => {
 const TextsPageHeader = () => {
     return (
         <FlexFrame dir={"row"} justifyContent={"space-between"} alignItems={"center"}>
-            <PageHeader titleKey={"browseTheLibrary"}/>
+            <PageHeader><Header titleKey={"browseTheLibrary"}/></PageHeader>
             <LanguageToggleButton />
         </FlexFrame>
     );
