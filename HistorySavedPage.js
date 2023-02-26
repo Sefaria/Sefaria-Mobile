@@ -8,7 +8,7 @@ import {
     TouchableOpacity,
     View,
     FlatList,
-    ActivityIndicator
+    ActivityIndicator, Image
 } from 'react-native';
 import {
     CategoryColorLine,
@@ -28,7 +28,7 @@ import SwipeableFlatList from "./SwipeableFlatList";
 import {ColorBarBox, StoryBodyBlock, StoryFrame, StoryTitleBlock} from "./Story";
 
 
-export const HistorySavedPage = ({}) => {
+export const HistorySavedPage = ({openRef, openMenu}) => {
     const dispatch = useContext(DispatchContext);  
     const getUserSettings = useGetUserSettingsObj();
     const [synced, setSynced] = useState(false);
@@ -52,26 +52,26 @@ export const HistorySavedPage = ({}) => {
     return(
         <View style={[styles.navRePage, {flex: 1, alignSelf: "stretch"}]}>
             <FlexFrame dir={"column"}>
-                {synced ? <HistoryOrSavedList mode={mode} headerCallback={changeMode}/> : <ActivityIndicator size="large" />  }
+                {synced ? <HistoryOrSavedList mode={mode} changeMode={changeMode} openRef={openRef} openMenu={openMenu}/> : <ActivityIndicator size="large" />  }
             </FlexFrame>
         </View>
     );
 };
 
-const HistoryOrSavedList = ({mode, headerCallback}) => {
+const HistoryOrSavedList = ({mode, changeMode, openRef, openMenu}) => {
     const RenderClass = mode === "history" ? HistoryList : SavedList;  
-    return (<RenderClass headerCallback={headerCallback} />);
+    return (<RenderClass changeMode={changeMode} openRef={openRef} openMenu={openMenu}/>);
 };
 
-const SavedList = (headerCallback) => {
-    return (<UserReadingList mode={"saved"} headerCallback={headerCallback}/>);
+const SavedList = (changeMode, openRef, openMenu) => {
+    return (<UserReadingList mode={"saved"} changeMode={changeMode} openRef={openRef} openMenu={openMenu}/>);
 };
 
-const HistoryList = (headerCallback) => {
-    return (<UserReadingList mode={"history"} headerCallback={headerCallback}/>);
+const HistoryList = (changeMode, openRef, openMenu) => {
+    return (<UserReadingList mode={"history"} changeMode={changeMode} openRef={openRef} openMenu={openMenu}/>);
 };
 
-const UserReadingList = ({mode, headerCallback}) => {
+const UserReadingList = ({mode, changeMode, openRef, openMenu}) => {
     const [localData, setLocalData] = useState([]);
     const [data, setData] = useState([]);
     const [loadingAPIData, setLoadingAPIData] = useState(true);
@@ -181,6 +181,10 @@ const UserReadingList = ({mode, headerCallback}) => {
           }, [])
     };
     
+    const fireModeChange = (mode) => {
+        changeMode(mode);
+    }; 
+    
     const renderFooter = () => {
         if (!loadingAPIData) return null;
     
@@ -192,14 +196,25 @@ const UserReadingList = ({mode, headerCallback}) => {
     };
     
     const renderHeader = () => {
+        const {theme, isLoggedIn, hasDismissedSyncModal, readingHistory} = useGlobalState();
+        const openLogin = () =>  openMenu("login", "HistorySavedPage");
+        const openSettings = () => openMenu("settings", "HistorySavedPage");
         return(
             <View>
-                <PageHeader>
-                    <FlexFrame justifyContent={"flex-start"}>
-                        <StatefulHeader titleKey={"saved"} icon={"bookmark2"} active={mode === "saved"} callbackFunc={()=>{ headerCallback("saved")}}/>
-                        <StatefulHeader titleKey={"history"} icon={"clock"} active={mode === "history"} callbackFunc={()=>{ headerCallback("history")}}/>
-                    </FlexFrame>
-                </PageHeader>
+                <View style={[styles.navReHistoryItem, theme.lighterGreyBorder]}>
+                    <PageHeader>
+                        <FlexFrame justifyContent={"flex-start"}>
+                            <StatefulHeader titleKey={"saved"} icon={"bookmark2"} active={mode === "saved"} callbackFunc={()=>{ fireModeChange("saved")}}/>
+                            <StatefulHeader titleKey={"history"} icon={"clock"} active={mode === "history"} callbackFunc={()=>{ fireModeChange("history")}}/>
+                        </FlexFrame>
+                    </PageHeader>
+                </View>
+                {isLoggedIn || hasDismissedSyncModal ? null :
+                  <SyncPrompt openLogin={openLogin} />
+                }
+                {
+                  mode === 'history' && !readingHistory ? <ReadingHistoryPrompt openSettings={openSettings} /> : null
+                }
             </View>
         );
     }
@@ -266,4 +281,55 @@ const SheetHistoryItem = ({sheet}) => {
         </View>
     </StoryFrame>
     );
+}; 
+
+
+const SyncPrompt = ({ openLogin }) => {
+  const dispatch = useContext(DispatchContext);
+  return (
+    <TouchableOpacity style={{
+        backgroundColor: "#18345D",
+        paddingVertical: 20,
+        paddingHorizontal: 15,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+      }}
+      onPress={openLogin}
+    >
+      <Text style={[ styles.systemButtonText, styles.systemButtonTextBlue, styles.enInt]}>
+        { `${strings.wantToSync} ` }
+        <Text style={[{ textDecorationLine: 'underline'}]}>{ strings.login }</Text>
+      </Text>
+
+      <TouchableOpacity onPress={() => {
+          dispatch({
+            type: STATE_ACTIONS.setHasDismissedSyncModal,
+            value: true,
+          });
+        }}>
+        <Image
+          source={iconData.get('close', 'black')}
+          resizeMode={'contain'}
+          style={{width: 14, height: 14}}
+        />
+      </TouchableOpacity>
+    </TouchableOpacity>
+  );
+}
+
+const ReadingHistoryPrompt = ({ openSettings }) => {
+  const { theme, interfaceLanguage } = useGlobalState();
+  const langStyle = interfaceLanguage === 'he' ? styles.heInt : styles.enInt;
+  return (
+    <View>
+      <Text style={[langStyle, {textAlign: "center", marginTop: 20, paddingHorizontal: 15}, theme.secondaryText]}>
+        {strings.readingHistoryIsCurrentlyDisabled + " "}
+        <Text style={[langStyle, theme.text]} onPress={openSettings}>
+          {strings.settings.toLowerCase()}
+        </Text>
+        {'.'}
+      </Text>
+    </View>
+  );
 }
