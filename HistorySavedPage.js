@@ -161,7 +161,7 @@ const UserReadingList = ({mode}) => {
     
     const getSheetIdFromRef = (sref) => {
         let num = sref.match(/Sheet\s+(\d+)/);
-        return num?.[1];
+        return parseInt(num?.[1]);
     };
     
     /***
