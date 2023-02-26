@@ -209,7 +209,7 @@ const UserReadingList = ({mode}) => {
         );
     };
     
-    const renderItem = (item) => {
+    const renderItem = ({item}) => {
       return(
           <View>
             <Text>{item.ref}</Text>
@@ -217,22 +217,14 @@ const UserReadingList = ({mode}) => {
       );
     };
     
-    if(afterFirstLoad){
-        return (
-            <FlatList key={`data-length-${data.length}`}
-                data={data}
-                keyExtractor={(item, index) => `${item.ref}-${index}`}
-                renderItem={renderItem}
-                onEndReached={onItemsEndReached}
-                onEndReachedThreshold={0.5}
-                ListFooterComponent={renderFooter}
-            />
-        )
-    } else {
-        return (
-          <View style={{ paddingVertical: 20 }}>
-            <ActivityIndicator size="large" />
-          </View>
-        );
-    }
+    return (
+        <FlatList key={`data-length-${data.length}`}
+            data={data}
+            keyExtractor={(item, index) => `${item.ref}-${index}`}
+            renderItem={renderItem}
+            onEndReached={onItemsEndReached}
+            onEndReachedThreshold={0.5}
+            ListFooterComponent={renderFooter}
+        />
+    );
 };
