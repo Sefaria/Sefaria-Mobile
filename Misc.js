@@ -1400,7 +1400,7 @@ const SefariaPressable = ({ children, extraStyles=[], ...pressableProps }) => {
   const stylesFunc = useCallback(({ pressed }) => {
     let styles = Array.isArray(extraStyles) ? extraStyles : [extraStyles];
     if (pressed && Platform.OS === 'ios') {
-      styles = styles.concat([{opacity: 0.2}]);
+      styles = styles.concat([{opacity: 0.5}]);
     }
     return styles;
   }, [extraStyles]);
