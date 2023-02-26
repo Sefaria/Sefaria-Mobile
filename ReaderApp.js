@@ -1188,6 +1188,7 @@ class ReaderApp extends React.PureComponent {
       this.setState({
         loaded: true,
         searchQuery: "",
+        navigationCategories: [],
         textSearchState: new SearchState({type: 'text'}),
         sheetSearchState: new SearchState({type: 'sheet'}),
         textListVisible: false,
