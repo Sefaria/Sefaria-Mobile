@@ -48,35 +48,30 @@ export const HistorySavedPage = ({}) => {
             setMode(newmode);  
         }
     };
+    
     return(
         <View style={[styles.navRePage, {flex: 1, alignSelf: "stretch"}]}>
             <FlexFrame dir={"column"}>
-                <PageHeader>
-                    <FlexFrame justifyContent={"flex-start"}>
-                        <StatefulHeader titleKey={"saved"} icon={"bookmark2"} active={mode === "saved"} callbackFunc={()=>{ changeMode("saved")}}/>
-                        <StatefulHeader titleKey={"history"} icon={"clock"} active={mode === "history"} callbackFunc={()=>{ changeMode("history")}}/>
-                    </FlexFrame>
-                </PageHeader>
-                {synced ? <HistoryOrSavedList mode={mode}/> : <ActivityIndicator size="large" />  }
+                {synced ? <HistoryOrSavedList mode={mode} headerCallback={changeMode}/> : <ActivityIndicator size="large" />  }
             </FlexFrame>
         </View>
     );
 };
 
-const HistoryOrSavedList = ({mode}) => {
+const HistoryOrSavedList = ({mode, headerCallback}) => {
     const RenderClass = mode === "history" ? HistoryList : SavedList;  
-    return (<RenderClass/>);
+    return (<RenderClass headerCallback={headerCallback} />);
 };
 
-const SavedList = () => {
-    return (<UserReadingList mode={"saved"} />);
+const SavedList = (headerCallback) => {
+    return (<UserReadingList mode={"saved"} headerCallback={headerCallback}/>);
 };
 
-const HistoryList = () => {
-    return (<UserReadingList mode={"history"} />);
+const HistoryList = (headerCallback) => {
+    return (<UserReadingList mode={"history"} headerCallback={headerCallback}/>);
 };
 
-const UserReadingList = ({mode}) => {
+const UserReadingList = ({mode, headerCallback}) => {
     const [localData, setLocalData] = useState([]);
     const [data, setData] = useState([]);
     const [loadingAPIData, setLoadingAPIData] = useState(true);
@@ -193,21 +188,27 @@ const UserReadingList = ({mode}) => {
         );
     };
     
-    const renderItem = ({item}) => {
-      return(
-          <View>
-            <Text>{item.ref}</Text>
-          </View>
-      );
-    };
+    const renderHeader = () => {
+        return(
+            <View>
+                <PageHeader>
+                    <FlexFrame justifyContent={"flex-start"}>
+                        <StatefulHeader titleKey={"saved"} icon={"bookmark2"} active={mode === "saved"} callbackFunc={()=>{ headerCallback("saved")}}/>
+                        <StatefulHeader titleKey={"history"} icon={"clock"} active={mode === "history"} callbackFunc={()=>{ headerCallback("history")}}/>
+                    </FlexFrame>
+                </PageHeader>
+            </View>
+        );
+    }
     
     return (
         <FlatList
+            ListHeaderComponent={renderHeader}
             data={data}
             keyExtractor={(item, index) => `${item.ref}-${index}`}
             renderItem={renderItem}
             onEndReached={onItemsEndReached}
-            onEndReachedThreshold={0.5}
+            onEndReachedThreshold={0.3}
             ListFooterComponent={renderFooter}
         />
     );
