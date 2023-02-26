@@ -747,7 +747,7 @@ const BackButton = ({ onPress }) => {
   const { interfaceLanguage } = useGlobalState();
   const iconName = interfaceLanguage === "english" ? "back" : "forward";
   return (
-      <SefariaPressable onPress={onPress}>
+      <SefariaPressable onPress={onPress} hitSlop={20}>
         <Icon name={iconName} length={18} />
       </SefariaPressable>
   );
