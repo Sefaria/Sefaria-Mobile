@@ -183,7 +183,10 @@ const History = {
     return Sefaria.history.saved;
   },
   getLocalHistoryArray: function(bucket){
-    return [...Sefaria.history[bucket]];
+    if(Sefaria.history.hasOwnProperty(bucket)){
+      return [...Sefaria.history[bucket]];
+    }
+    return [];
   },
   updateSettingsAfterSync: function(dispatch, newSettings) {
     const fieldToActionMap = {
