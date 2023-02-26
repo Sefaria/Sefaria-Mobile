@@ -1225,11 +1225,6 @@ class ReaderApp extends React.PureComponent {
     });
   }
 
-  goBack = () => {
-    const { stateFunc } = this.state.backStack.pop();
-    stateFunc();
-  };
-
   setNavigationCategories = (categories) => {
     if (categories.length) {
       this.modifyHistory({ dir: "forward", state: this.state, calledFrom: "toc" });
