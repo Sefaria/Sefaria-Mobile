@@ -81,29 +81,22 @@ const UserReadingList = ({mode}) => {
     const [loadingAPIData, setLoadingAPIData] = useState(true);
     const [skip, setSkip] = useState(0);
     const [hasMoreData, setHasMoreData] = useState(true);
-    const [afterFirstLoad, setAfterFirstLoad] = useState(false);
     const SKIP_STEP = 20;
     
     useEffect(() => {
         //here we are getting a "copy" of local history items that we will perform operations on. 
-        /*if(!synced) {console.log("Not synced, quitting"); return;}*/
-        console.log("Performing store load");
         let rstore = Sefaria.history.getLocalHistoryArray(mode);
         let nstore = dedupeAndNormalizeHistoryArray(rstore, mode == "saved");
         setLocalData([...nstore]);
-        console.log("Store after dedupe: ", nstore.slice(0, 100), nstore.length);
     }, []);
     
     useEffect(()=> {
-        console.log("Store before load data: ", localData)
-        if(!localData.length) {console.log("Store not loaded, quitting"); return;}
-        console.log("Before first load data");
+        if(!localData.length) {return;}
         loadData();
-        setAfterFirstLoad(true);
     }, [localData /*, mode*/]);
     
     useEffect(() => {
-        if(!localData.length || skip === 0) {console.log("skipping first load from effect"); return;}
+        if(!localData.length || skip === 0) {return;}
         loadData();
     }, [skip]);
     
@@ -114,24 +107,16 @@ const UserReadingList = ({mode}) => {
     };
     
     const loadData = () => {
-        console.log(`In loadData skip: ${skip}`);
         if (!hasMoreData) {
-          console.log("no more data");  
           return;
         }
-        console.log("In loadData: starting all the fetch stuff");
         setLoadingAPIData(true);
-        console.log("store: ", localData);
         let nitems = localData.slice(skip, skip + SKIP_STEP); //get the next 20 items from the raw local history
-        console.log("Store After slice: ", nitems);
         getAnnotatedNextItems(nitems).then( nextItems => {
-            //console.log("Items after api calls: ", nextItems);
             setData(prevItems => {
-                console.log("New data list: ", [...prevItems, ...nextItems]);
                 return [...prevItems, ...nextItems];
             });
             if (skip + SKIP_STEP >= localData.length) {
-                console.log(`flagging no more data: ${skip} + ${SKIP_STEP} >=< ${localData.length} `);
                 setHasMoreData(false);
             }
             setLoadingAPIData(false);
@@ -149,9 +134,7 @@ const UserReadingList = ({mode}) => {
                 refs.push(i.ref);
             }
         }
-        console.log("Refs/Sheets for Bulk: ", refs, sheets);
         let [textsAnnotated, sheetsAnnotated] = await getAnnotatedItems(refs, sheets);
-        console.log("Refs/Sheets after Bulk: ", textsAnnotated, sheetsAnnotated);
         // iterate over original items and put the extra data in
         return items.map((hisElement) => {
             return hisElement?.is_sheet ? {...hisElement, ...sheetsAnnotated[hisElement.sheet_id]} : {...hisElement, ...textsAnnotated[hisElement.ref]};
