@@ -211,3 +211,48 @@ const UserReadingList = ({mode}) => {
         />
     );
 };
+
+const HistoryItem = ({item}) => {
+    const {theme} = useGlobalState();
+    const is_sheet = item.is_sheet;
+    return(
+        <View style={[styles.navReHistoryItem, theme.lighterGreyBorder]}>
+            {is_sheet ? <SheetHistoryItem sheet={item} /> : <TextHistoryItem text={item} />}
+        </View>  
+    );
+}
+
+const TextHistoryItem = ({text}) => {
+    const { textLanguage } = useGlobalState();
+    return (
+        <StoryFrame extraStyles={styles.topicItemMargins}>
+          <View style={{marginBottom: 10}}>
+              <StoryTitleBlock en={text.ref} he={Sefaria.normHebrewRef(text.heRef)} /*onClick={() => openRef(text.ref)}*/ />
+          </View>
+          <ColorBarBox tref={text.ref}>
+            <StoryBodyBlock en={text.en} he={text.he}/>
+          </ColorBarBox>
+        </StoryFrame>
+      );
+}; 
+
+const SheetHistoryItem = ({sheet}) => {
+    const { theme, interfaceLanguage, textLanguage } = useGlobalState();
+    const flexDirection = useRtlFlexDir(interfaceLanguage);
+    const isHeb = interfaceLanguage === 'hebrew';
+    const title = Sefaria.util.stripHtml(sheet.sheet_title);
+    return (
+    <StoryFrame extraStyles={[styles.topicItemMargins]}>
+        <StoryTitleBlock en={title} he={title} /*onClick={}*/ />
+        {sheet.sheet_summary ? <SimpleInterfaceBlock en={sheet.sheet_summary} he={sheet.sheet_summary}/> : null}
+        <View style={{marginTop: 10}}>
+          <ProfileListing
+            image={sheet.publisher_image}
+            name={sheet.publisher_name}
+            organization={sheet.publisher_organization}
+            flexDirection={flexDirection}
+          />
+        </View>
+    </StoryFrame>
+    );
+}

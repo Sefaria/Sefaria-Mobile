@@ -115,6 +115,9 @@ export default StyleSheet.create({
     textAlign: "center",
     marginVertical:20,
   },
+  navReHistoryItem:{
+    borderBottomWidth: 1,
+  },
   learningSchedulesBorder: {borderBottomWidth: 1, paddingBottom: 5, marginBottom: 10},
   boxShadow: {
     shadowColor: 'black',
