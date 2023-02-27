@@ -11,7 +11,6 @@ import {
   Dimensions,
   View,
   StatusBar,
-  SafeAreaView,
   Platform,
   BackHandler,
   UIManager,
@@ -47,6 +46,7 @@ import ConnectionsPanel from './ConnectionsPanel';
 import SettingsPage from './SettingsPage';
 import {AccountNavigationMenu} from "./AccountNavigationMenu";
 import InterruptingMessage from './InterruptingMessage';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import SwipeableCategoryList from './SwipeableCategoryList';
 import Toast from 'react-native-root-toast';
 import { TabHistory, TabMetadata } from './PageHistory';
@@ -2269,8 +2269,11 @@ class ReaderApp extends React.PureComponent {
     const { safeViewStyle, statusBarBackgroundColor, statusBarStyle } = getSafeViewStyleAndStatusBarBackground(this.state, this.props.theme.mainTextPanel);
     return (
       <View style={styles.flex1}>
-        <SafeAreaView style={[{flex: 0}, safeViewStyle]} />
-        <SafeAreaView style={[styles.safeArea, this.props.theme.mainTextPanel]}>
+        <SafeAreaView edges={["top"]} style={[{ flex: 0 }, safeViewStyle]} />
+        <SafeAreaView
+           edges={["left", "right", "bottom"]}
+           style={[styles.safeArea, this.props.theme.mainTextPanel]}
+        >
           <View style={[styles.container, this.props.theme.mainTextPanel]}>
               <StatusBar barStyle={statusBarStyle} backgroundColor={statusBarBackgroundColor}/>
             <ConditionalProgressWrapper

@@ -14,6 +14,7 @@ import {
   getTheme,
 } from './StateManager';
 import strings from './LocalizedStrings';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import ReaderApp from './ReaderApp';
 import '@react-native-firebase/crashlytics';  // to setup up generic crashlytics reports
 
@@ -36,15 +37,17 @@ const Root = () => {
   const [ globalState, dispatch ] = useReducer(reducer, DEFAULT_STATE);
   const theme = getTheme(globalState.themeStr);
   return (
-    <DispatchContext.Provider value={dispatch}>
-      <GlobalStateContext.Provider value={globalState}>
-        <ReaderAppGesturified
-          { ...globalState }
-          theme={theme}
-          dispatch={dispatch}
-        />
-      </GlobalStateContext.Provider>
-    </DispatchContext.Provider>
+      <SafeAreaProvider>
+        <DispatchContext.Provider value={dispatch}>
+          <GlobalStateContext.Provider value={globalState}>
+            <ReaderAppGesturified
+                { ...globalState }
+                theme={theme}
+                dispatch={dispatch}
+            />
+          </GlobalStateContext.Provider>
+        </DispatchContext.Provider>
+      </SafeAreaProvider>
   );
 }
 Root.whyDidYouRender = true;
