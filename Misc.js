@@ -1303,7 +1303,7 @@ class ProfilePic extends React.Component {
   }
   componentWillUnmount() { this._isMounted = false; }
   setShowDefault = () => {
-    console.log('setShowDefault', this._isMounted);
+    //console.log('setShowDefault', this._isMounted);
     if (!this._isMounted) { return; }
     this.setState({showDefault: true});
   };
