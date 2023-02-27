@@ -2263,6 +2263,14 @@ class ReaderApp extends React.PureComponent {
     );
   }
 
+  getBottomSafeAreaEdges = (menuOpen) => {
+    const bottomSafeAreaEdges = ["left", "right"];
+    if (this.shouldShowFooter(menuOpen)) {
+      bottomSafeAreaEdges.push("bottom");
+    }
+    return bottomSafeAreaEdges;
+  }
+
 
   render() {
     // StatuBar comment: can't figure out how to get barStyle = light-content to be respected on Android
@@ -2271,7 +2279,7 @@ class ReaderApp extends React.PureComponent {
       <View style={styles.flex1}>
         <SafeAreaView edges={["top"]} style={[{ flex: 0 }, safeViewStyle]} />
         <SafeAreaView
-           edges={["left", "right", "bottom"]}
+           edges={this.getBottomSafeAreaEdges(this.state.menuOpen)}
            style={[styles.safeArea, this.props.theme.mainTextPanel]}
         >
           <View style={[styles.container, this.props.theme.mainTextPanel]}>
