@@ -1,6 +1,7 @@
 'use strict';
 import React, {useState, useEffect, useMemo, useCallback, useRef, useContext} from 'react';
 import {GlobalStateContext, DispatchContext, STATE_ACTIONS, getTheme} from './StateManager';
+import {Keyboard} from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 
