@@ -13,7 +13,7 @@ export const getSafeViewCategory = ({menu, navigationCategories, sheet, textTitl
     return "N/A";
 };
 
-export const getSafeViewStyleAndStatusBarBackground = ({menuOpen:menu, themeStr, navigationCategories, sheet, textTitle}, defaultSafeViewStyle) => {
+export const getSafeViewStyleAndStatusBarBackground = ({menuOpen:menu, navigationCategories, sheet, textTitle}, defaultSafeViewStyle, isWhiteTheme) => {
     // make the SafeAreaView background based on the category color
     const cat = getSafeViewCategory({menu, navigationCategories, sheet, textTitle});
     let statusBarBackgroundColor = "black";
@@ -21,12 +21,12 @@ export const getSafeViewStyleAndStatusBarBackground = ({menuOpen:menu, themeStr,
     if (cat) {
         if (cat === "N/A") {
             safeViewStyle = defaultSafeViewStyle;
-            statusBarBackgroundColor = themeStr === "white" ? "white" : "#333331";
+            statusBarBackgroundColor = isWhiteTheme ? "white" : "#333331";
         } else {
             statusBarBackgroundColor = Sefaria.palette.categoryColor(cat);
             safeViewStyle = {backgroundColor: statusBarBackgroundColor};
         }
     }
-    const statusBarStyle = themeStr === 'white' && cat==="N/A" ? 'dark-content' : 'light-content';
+    const statusBarStyle = isWhiteTheme && cat==="N/A" ? 'dark-content' : 'light-content';
     return {safeViewStyle, statusBarBackgroundColor, statusBarStyle};
 };
