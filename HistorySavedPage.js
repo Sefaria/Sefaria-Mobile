@@ -32,7 +32,7 @@ export const HistorySavedPage = ({openRef, openMenu, hasInternet}) => {
     const dispatch = useContext(DispatchContext);  
     const getUserSettings = useGetUserSettingsObj();
     const [synced, setSynced] = useState(false);
-    const [mode, setMode] = useState("history");
+    const [mode, setMode] = useState("saved");
     
     
     useEffect(() => {
@@ -146,9 +146,19 @@ const UserReadingList = ({mode, changeMode, openRef, openMenu}) => {
         let [textsAnnotated, sheetsAnnotated] = await getAnnotatedItems(refs, sheets);
         // iterate over original items and put the extra data in
         //filter for errors here before mapping
-        return items.filter((item) => {return !item.hasOwnProperty("error")}).map((hisElement) => {
-            return hisElement?.is_sheet ? {...hisElement, ...sheetsAnnotated[hisElement.sheet_id]} : {...hisElement, ...textsAnnotated[hisElement.ref]};
-        });
+        return items.reduce((result, element) => {
+            if(element.hasOwnProperty("error")){
+                return result;
+            }
+            const key = element.is_sheet ? "sheet_id" : "ref";
+            const apiResponseObj = element.is_sheet ? sheetsAnnotated : textsAnnotated;
+            if(!apiResponseObj.hasOwnProperty(element[key])){
+                return result;
+            }
+            const mergedElement = {...element, ...apiResponseObj[element[key]]};
+            return [...result, mergedElement];
+            //return hisElement?.is_sheet ? {...hisElement, ...sheetsAnnotated[hisElement.sheet_id]} : {...hisElement, ...textsAnnotated[hisElement.ref]};
+        }, []);
     };
     
     const getAnnotatedItems = async(refs, sheets) => {
@@ -177,6 +187,7 @@ const UserReadingList = ({mode, changeMode, openRef, openMenu}) => {
         return historyArray.reduce((accum, curr, index) => {
             //local history sheet items may not have the required data, so parse it out. 
             if(curr?.is_sheet && !curr.hasOwnProperty("sheet_id")) { curr.sheet_id = getSheetIdFromRef(curr['ref']); }
+            if(curr.hasOwnProperty("he_ref")) { curr.heRef = curr.he_ref };
             if(!curr.hasOwnProperty("book")) { curr.book = Sefaria.textTitleForRef(curr.ref) }; 
             //for saved items we dont want to dedupe at all
             if (!accum.length || onlyNormalize) {return accum.concat([curr]); }
