@@ -38,6 +38,7 @@ export const HistorySavedPage = ({openRef, openMenu, hasInternet}) => {
     useEffect(() => {
         (async () => { //using an async IAFE so the whole function doest become async
             await Sefaria.history.syncProfile(dispatch, await getUserSettings());
+            console.log(Sefaria.history.history.slice(0, 100));
             setSynced(true);
         })();
     }, []);
@@ -83,7 +84,6 @@ const UserReadingList = ({mode, changeMode, openRef, openMenu, hasInternet}) => 
     const openLogin = () => openMenu("login", "HistorySavedPage");
     const openSettings = () => openMenu("settings", "HistorySavedPage");
     const fireModeChange = (mode) => {
-        console.log(mode);
         changeMode(mode);
     } 
     
@@ -299,15 +299,15 @@ const SheetHistoryItem = ({sheet}) => {
     return (
     <StoryFrame extraStyles={[styles.topicItemMargins]}>
         <StoryTitleBlock en={title} he={title} /*onClick={}*/ />
-        {sheet.sheet_summary ? <SimpleInterfaceBlock en={sheet.sheet_summary} he={sheet.sheet_summary}/> : null}
-        <View style={{marginTop: 10}}>
+        {!!sheet.sheet_summary ? <SimpleInterfaceBlock en={sheet.sheet_summary} he={sheet.sheet_summary}/> : null}
+        {!!sheet.publisher_image && !!sheet.publisher_name ? <View style={{marginTop: 10}}>
           <ProfileListing
             image={sheet.publisher_image}
             name={sheet.publisher_name}
             organization={sheet.publisher_organization}
             flexDirection={flexDirection}
-          />
-        </View>
+          /> 
+        </View> : null }
     </StoryFrame>
     );
 }; 
