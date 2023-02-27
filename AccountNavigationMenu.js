@@ -111,7 +111,7 @@ const InterfaceLanguageMenuButton = () => {
             <Image style={styles.navReAccountMenuButtonIcon} source={myIcon}/>
             <TouchableOpacity onPress={() => setInterfaceLanguage("english")}><Text
                 style={[styles.enInt, styles.navReAccountMenuButtonText, theme.tertiaryText, interfaceLanguage == 'hebrew' ? theme.interfaceLangToggleInActive : null]}>English</Text></TouchableOpacity>
-            <Text style={[styles.navReAccountMenuButtonSep, theme.text]}>•</Text>
+            <Text style={[styles.navReAccountMenuButtonSep, theme.secondaryText]}>•</Text>
             <TouchableOpacity onPress={() => setInterfaceLanguage("hebrew")}><Text
                 style={[styles.heInt, styles.navReAccountMenuButtonText, theme.tertiaryText, interfaceLanguage == 'english' ? theme.interfaceLangToggleInActive : null]}>עברית</Text></TouchableOpacity>
         </View>
