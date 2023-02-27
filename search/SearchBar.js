@@ -8,13 +8,13 @@ import {
 } from 'react-native';
 
 import {
-  CancelButton,
-  SearchButton,
+  CancelButton, InterfaceText,
+  SearchButton, SefariaPressable,
 } from '../Misc.js';
 
 import styles from '../Styles';
 import strings from '../LocalizedStrings';
-import {useGlobalState, useRtlFlexDir} from "../Hooks";
+import {useGlobalState, useIsKeyboardVisible, useRtlFlexDir} from "../Hooks";
 
 const SearchBar = ({
   search,
@@ -25,6 +25,7 @@ const SearchBar = ({
   autoFocus,
 }) => {
   const { themeStr, theme, interfaceLanguage } = useGlobalState();
+  const isKeyboardVisible = useIsKeyboardVisible();
   const textInputRef = useRef(null);
   const isHeb = interfaceLanguage === "hebrew";
   const submitSearch = () => {
@@ -39,29 +40,37 @@ const SearchBar = ({
   const flexDirection = useRtlFlexDir(interfaceLanguage);
   const onCancel = () => {
     onChange("");
-    textInputRef.current.blur();
   };
 
   return (
-    <View style={[{flexDirection, alignItems: "center", borderRadius: 250, paddingHorizontal: 8}, theme.lighterGreyBackground]}>
-        <SearchButton onPress={submitSearch} />
-        <TextInput
-          ref={textInputRef}
-          autoFocus={autoFocus}
-          style={textInputStyle}
-          onChangeText={onChange}
-          onSubmitEditing={submitSearch}
-          onFocus={onFocus}
-          value={query}
-          underlineColorAndroid={"transparent"}
-          placeholder={strings.search}
-          placeholderTextColor={placeholderTextColor}
-          autoCorrect={false} />
-        {query.length ?
-          <CancelButton extraStyles={[{height: 12, width: 12}]} onPress={onCancel} />
-          : null
-        }
-    </View>
+      <View style={[{flexDirection, alignItems: "center", alignSelf: "stretch", justifyContent: "space-between"}]}>
+        <View style={[{flexDirection, alignItems: "center", flex: 1, borderRadius: 250, paddingHorizontal: 8}, theme.lighterGreyBackground]}>
+          <SearchButton onPress={submitSearch} />
+          <TextInput
+              ref={textInputRef}
+              autoFocus={autoFocus}
+              style={textInputStyle}
+              onChangeText={onChange}
+              onSubmitEditing={submitSearch}
+              onFocus={onFocus}
+              value={query}
+              underlineColorAndroid={"transparent"}
+              placeholder={strings.search}
+              placeholderTextColor={placeholderTextColor}
+              autoCorrect={false} />
+          {query.length ?
+              <CancelButton extraStyles={[{height: 12, width: 12}]} onPress={onCancel} />
+              : null
+          }
+        </View>
+        { isKeyboardVisible ? (
+            <SefariaPressable onPress={()=>{
+              textInputRef.current.blur();
+            }} extraStyles={{marginLeft: 15}}>
+              <InterfaceText stringKey={"cancel"} extraStyles={[styles.fontSize16, theme.tertiaryText]}/>
+            </SefariaPressable>
+        ) : null}
+      </View>
   );
 }
 SearchBar.propTypes = {
