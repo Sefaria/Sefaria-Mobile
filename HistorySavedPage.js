@@ -52,26 +52,26 @@ export const HistorySavedPage = ({openRef, openMenu, hasInternet}) => {
     return(
         <View style={[styles.navRePage, {flex: 1, alignSelf: "stretch"}]}>
             <FlexFrame dir={"column"}>
-                {synced ? <HistoryOrSavedList mode={mode} changeMode={changeMode} openRef={openRef} openMenu={openMenu}/> : <ActivityIndicator size="large" />  }
+                {synced ? <HistoryOrSavedList mode={mode} changeMode={changeMode} openRef={openRef} openMenu={openMenu} hasInternet={hasInternet}/> : <ActivityIndicator size="large" />  }
             </FlexFrame>
         </View>
     );
 };
 
-const HistoryOrSavedList = ({mode, changeMode, openRef, openMenu}) => {
+const HistoryOrSavedList = ({mode, changeMode, openRef, openMenu, hasInternet}) => {
     const RenderClass = mode === "history" ? HistoryList : SavedList;  
-    return (<RenderClass changeMode={changeMode} openRef={openRef} openMenu={openMenu}/>);
+    return (<RenderClass changeMode={changeMode} openRef={openRef} openMenu={openMenu} hasInternet={hasInternet}/>);
 };
 
-const SavedList = ({changeMode, openRef, openMenu}) => {
-    return (<UserReadingList mode={"saved"} changeMode={changeMode} openRef={openRef} openMenu={openMenu}/>);
+const SavedList = ({changeMode, openRef, openMenu, hasInternet}) => {
+    return (<UserReadingList mode={"saved"} changeMode={changeMode} openRef={openRef} openMenu={openMenu} hasInternet={hasInternet}/>);
 };
 
-const HistoryList = ({changeMode, openRef, openMenu}) => {
-    return (<UserReadingList mode={"history"} changeMode={changeMode} openRef={openRef} openMenu={openMenu}/>);
+const HistoryList = ({changeMode, openRef, openMenu, hasInternet}) => {
+    return (<UserReadingList mode={"history"} changeMode={changeMode} openRef={openRef} openMenu={openMenu} hasInternet={hasInternet}/>);
 };
 
-const UserReadingList = ({mode, changeMode, openRef, openMenu}) => {
+const UserReadingList = ({mode, changeMode, openRef, openMenu, hasInternet}) => {
     const [localData, setLocalData] = useState([]);
     const [data, setData] = useState([]);
     const [loadingAPIData, setLoadingAPIData] = useState(false);
@@ -162,6 +162,9 @@ const UserReadingList = ({mode, changeMode, openRef, openMenu}) => {
     };
     
     const getAnnotatedItems = async(refs, sheets) => {
+        if(!hasInternet){
+            return [{}, {}];
+        }
         const p1 = Sefaria.api.getBulkText(refs, true);
         const p2 = Sefaria.api.getBulkSheets(sheets);
         try {
