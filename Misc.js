@@ -530,7 +530,7 @@ class AnimatedRow extends React.Component {
  * @returns {JSX.Element}
  * @constructor
  */
-const CategoryColorLine = ({ category, thickness=8 }) => {
+const CategoryColorLine = ({ category, thickness=4 }) => {
   const style = {
     height: thickness,
     alignSelf: "stretch",
