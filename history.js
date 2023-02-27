@@ -135,6 +135,7 @@ const History = {
     const nextLastSyncItems = lastSyncItems.slice(0, -max_sync_history_len);
     let currHistory = JSON.parse(currHistoryStr);
     currHistory = lastSyncItemsToSend.filter(h => !h.action).concat(currHistory);
+    Sefaria.history.history = nextLastSyncItems.filter(h => !h.action).concat(currHistory); // set this here so its guaranteed to exist for logged outers
     await Sefaria.api.getAuthToken();
     if (Sefaria._auth.uid) {
       try {
