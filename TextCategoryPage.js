@@ -262,7 +262,7 @@ const TextCategoryHeader = ({ title, description, onBack, displayCategories, set
                 <SubCategoryToggle displayCategories={displayCategories} setCategories={setCategories} />
             </FlexFrame>
             <InterfaceText {...description} extraStyles={[theme.tertiaryText]}/>
-            <LearningSchedulesBoxFactory categories={displayCategories} openRef={openRef} extraStyles={{marginTop: 40}}/>
+            <LearningSchedulesBoxFactory categories={displayCategories} openRef={openRef} extraStyles={{marginTop: 30}}/>
         </FlexFrame>
     );
 };
