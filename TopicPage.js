@@ -261,7 +261,7 @@ const TopicCategory = ({ topic, openTopic, onBack, openNav }) => {
                 item.isSplice ? (
                   <TrendingTopics trendingTopics={trendingTopics} openTopic={openTopic} />
                 ) : (
-                  <View style={[styles.topicCategoryButtonWrapper, theme.lighterGreyBorder]}>
+                  <View style={[styles.topicCategoryButtonWrapper, index > 0 && subtopics[index-1].isSplice ? {borderTopWidth: 0} : null, theme.lighterGreyBorder]}>
                     <TopicCategoryButton
                         topic={item}
                         openTopic={openTopic}
