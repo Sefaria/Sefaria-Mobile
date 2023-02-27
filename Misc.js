@@ -1070,10 +1070,14 @@ const SearchTextInput = ({ onChange, query, onFocus, placeholder }) => {
   const { themeStr, theme, interfaceLanguage } = useGlobalState();
   const isHeb = interfaceLanguage === "hebrew";
   const placeholderTextColor = themeStr === "black" ? "#BBB" : "#666";
+  const isPlaceholder = query.length === 0;
+  const defaultStyles = {textAlign: isHeb ? "right" : "left", fontSize: 18, paddingVertical: 0, paddingRight: isHeb ? 0 : 20, paddingLeft: isHeb ? 20 : 0, flex: 1}
+  // unfortunately textinput behaves differently on android
+  const androidStyles = {marginVertical: isPlaceholder ? 0 : -8, paddingBottom: 0, paddingTop: isPlaceholder ? 5 : 0, fontSize: 18, includeFontPadding: false, textAlignVertical: "center"};
   return (
-      <View style={Platform.OS === 'android' ? {flex: 1, marginTop: 2, marginBottom: -2} : {flex:1}}>
+      <View style={styles.flex1}>
         <TextInput
-            style={[styles.en, { textAlign: isHeb ? "right" : "left", fontSize: 18, paddingVertical: 0, paddingRight: isHeb ? 0 : 20, paddingLeft: isHeb ? 20 : 0, lineHeight: Platform.OS === 'android' ? 40 : null, flex: 1 }, theme.text]}
+            style={[styles.en, defaultStyles, Platform.OS === 'android' ? androidStyles : null, theme.text]}
             onChangeText={onChange}
             value={query}
             underlineColorAndroid={"transparent"}
