@@ -87,6 +87,8 @@ export default StyleSheet.create({
   navRePageHeader:{
     marginVertical: 24,
     direction: "inherit",
+    display: "flex",
+    alignContent: "flex-start",
   },
   navReAccountMenuButton:{
     flexDirection: "row",
@@ -102,6 +104,12 @@ export default StyleSheet.create({
     marginEnd: 15,
     marginStart: 10,
   },
+  navReStatefulHeader:{
+    marginEnd: 15,
+  },
+  navReStatefulHeaderIcon:{
+    marginEnd: 6,
+  },
   navReAccountMenuButtonSep:{
     fontSize: 16, 
     paddingHorizontal: 10,
@@ -112,6 +120,9 @@ export default StyleSheet.create({
     lineHeight: 18,
     textAlign: "center",
     marginVertical:20,
+  },
+  navReHistoryItem:{
+    borderBottomWidth: 1,
   },
   learningSchedulesBorder: {borderBottomWidth: 1, paddingBottom: 5, marginBottom: 10},
   boxShadow: {

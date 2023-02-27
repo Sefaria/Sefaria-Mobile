@@ -7,10 +7,10 @@ import {
   SectionList,
   RefreshControl,
   Dimensions,
-  ViewPropTypes,
   AppState,
   Image,
 } from 'react-native';
+import {ViewPropTypes} from 'deprecated-react-native-prop-types';
 import { WebView } from 'react-native-webview';
 import styles from './Styles.js';
 import TextRange from './TextRange';

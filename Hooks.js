@@ -1,6 +1,7 @@
 'use strict';
 import React, { useState, useEffect, useMemo, useCallback, useRef, useContext } from 'react';
 import { GlobalStateContext, DispatchContext, STATE_ACTIONS, getTheme } from './StateManager';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 
 export const useAsyncVariable = (initIsLoaded, loadVariable, onLoad, initOnLoadValue) => {
@@ -152,3 +153,18 @@ export function useRenderersProps (onPressATag) {
     };
   }, [onPressATag]);
 };
+
+export const useGetUserSettingsObj = () => {
+    const {emailFrequency, interfaceLanguage, preferredCustom,  readingHistory} = useGlobalState();
+    return async () => { // returns a funtion because thats the only way to get it to work, so the caller of this hook needs to await the functions resolving. 
+      let time_stamp = parseInt(await AsyncStorage.getItem('lastSettingsUpdateTime'));
+      if (!time_stamp) { time_stamp = 0; }
+      return ({
+        email_notifications: emailFrequency,
+        interface_language: interfaceLanguage,
+        textual_custom: preferredCustom,
+        reading_history: readingHistory,
+        time_stamp,
+      });
+    }
+}
