@@ -63,11 +63,11 @@ const HistoryOrSavedList = ({mode, changeMode, openRef, openMenu}) => {
     return (<RenderClass changeMode={changeMode} openRef={openRef} openMenu={openMenu}/>);
 };
 
-const SavedList = (changeMode, openRef, openMenu) => {
+const SavedList = ({changeMode, openRef, openMenu}) => {
     return (<UserReadingList mode={"saved"} changeMode={changeMode} openRef={openRef} openMenu={openMenu}/>);
 };
 
-const HistoryList = (changeMode, openRef, openMenu) => {
+const HistoryList = ({changeMode, openRef, openMenu}) => {
     return (<UserReadingList mode={"history"} changeMode={changeMode} openRef={openRef} openMenu={openMenu}/>);
 };
 
@@ -78,6 +78,14 @@ const UserReadingList = ({mode, changeMode, openRef, openMenu}) => {
     const [skip, setSkip] = useState(0);
     const [hasMoreData, setHasMoreData] = useState(true);
     const SKIP_STEP = 20;
+    
+    const {theme, isLoggedIn, hasDismissedSyncModal, readingHistory} = useGlobalState();
+    const openLogin = () => openMenu("login", "HistorySavedPage");
+    const openSettings = () => openMenu("settings", "HistorySavedPage");
+    const fireModeChange = (mode) => {
+        console.log(mode);
+        changeMode(mode);
+    } 
     
     useEffect(() => {
         //here we are getting a "copy" of local history items that we will perform operations on. 
@@ -181,9 +189,7 @@ const UserReadingList = ({mode, changeMode, openRef, openMenu}) => {
           }, [])
     };
     
-    const fireModeChange = (mode) => {
-        changeMode(mode);
-    }; 
+    
     
     const renderFooter = () => {
         if (!loadingAPIData) return null;
@@ -196,16 +202,13 @@ const UserReadingList = ({mode, changeMode, openRef, openMenu}) => {
     };
     
     const renderHeader = () => {
-        const {theme, isLoggedIn, hasDismissedSyncModal, readingHistory} = useGlobalState();
-        const openLogin = () =>  openMenu("login", "HistorySavedPage");
-        const openSettings = () => openMenu("settings", "HistorySavedPage");
         return(
             <View>
                 <View style={[styles.navReHistoryItem, theme.lighterGreyBorder]}>
                     <PageHeader>
                         <FlexFrame justifyContent={"flex-start"}>
-                            <StatefulHeader titleKey={"saved"} icon={"bookmark2"} active={mode === "saved"} callbackFunc={()=>{ fireModeChange("saved")}}/>
-                            <StatefulHeader titleKey={"history"} icon={"clock"} active={mode === "history"} callbackFunc={()=>{ fireModeChange("history")}}/>
+                            <StatefulHeader titleKey={"saved"} icon={"bookmark2"} active={mode === "saved"} callbackFunc={()=>fireModeChange("saved")}/>
+                            <StatefulHeader titleKey={"history"} icon={"clock"} active={mode === "history"} callbackFunc={()=>fireModeChange("history")}/>
                         </FlexFrame>
                     </PageHeader>
                 </View>
@@ -217,7 +220,11 @@ const UserReadingList = ({mode, changeMode, openRef, openMenu}) => {
                 }
             </View>
         );
-    }
+    };
+    
+    const renderItem = ({item, index}) => {
+        return (<HistoryItem item={item} key={index} />);
+    };
     
     return (
         <FlatList
@@ -233,10 +240,7 @@ const UserReadingList = ({mode, changeMode, openRef, openMenu}) => {
 };
 
 
-const renderItem = ({item, index}) => {
-    return (<HistoryItem item={item} key={index} />);
-};
-    
+
 
 const HistoryItem = ({item}) => {
     const {theme} = useGlobalState();
