@@ -2269,7 +2269,7 @@ class ReaderApp extends React.PureComponent {
       <View style={styles.flex1}>
         <SafeAreaView style={[{flex: 0}, safeViewStyle]} />
         <SafeAreaView style={[styles.safeArea, this.props.theme.mainTextPanel]}>
-          <View style={[styles.container, this.props.theme.container]}>
+          <View style={[styles.container, this.props.theme.mainTextPanel]}>
               <StatusBar barStyle={statusBarStyle} backgroundColor={statusBarBackgroundColor}/>
             <ConditionalProgressWrapper
               conditionMethod={(state, props) => {
