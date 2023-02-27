@@ -38,7 +38,7 @@ export const HistorySavedPage = ({openRef, openMenu, hasInternet}) => {
     useEffect(() => {
         (async () => { //using an async IAFE so the whole function doest become async
             await Sefaria.history.syncProfile(dispatch, await getUserSettings());
-            console.log(Sefaria.history.history.slice(0, 100));
+            //console.log(Sefaria.history.history.slice(0, 100));
             setSynced(true);
         })();
     }, []);
@@ -91,7 +91,7 @@ const UserReadingList = ({mode, changeMode, openRef, openMenu, hasInternet}) => 
         //here we are getting a "copy" of local history items that we will perform operations on. 
         let rstore = Sefaria.history.getLocalHistoryArray(mode);
         let nstore = dedupeAndNormalizeHistoryArray(rstore, mode == "saved");
-        console.log("store:" ,nstore);
+        //console.log("store:" ,nstore);
         setLocalData([...nstore]);
     }, []);
     
@@ -107,7 +107,7 @@ const UserReadingList = ({mode, changeMode, openRef, openMenu, hasInternet}) => 
     
     
     const onItemsEndReached = () => {
-        console.log("end items reached")
+        //console.log("end items reached")
         setSkip(skip + SKIP_STEP);
         //loadData();
     };
@@ -122,7 +122,7 @@ const UserReadingList = ({mode, changeMode, openRef, openMenu, hasInternet}) => 
         setLoadingAPIData(true);
         getAnnotatedNextItems(nitems).then( nextItems => {
             setData(prevItems => {
-                console.log([...prevItems, ...nextItems]);
+                //console.log([...prevItems, ...nextItems]);
                 return [...prevItems, ...nextItems];
             });
             if (skip + SKIP_STEP >= localData.length) {
