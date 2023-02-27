@@ -145,7 +145,8 @@ const UserReadingList = ({mode, changeMode, openRef, openMenu}) => {
         }
         let [textsAnnotated, sheetsAnnotated] = await getAnnotatedItems(refs, sheets);
         // iterate over original items and put the extra data in
-        return items.map((hisElement) => {
+        //filter for errors here before mapping
+        return items.filter((item) => {return !item.hasOwnProperty("error")}).map((hisElement) => {
             return hisElement?.is_sheet ? {...hisElement, ...sheetsAnnotated[hisElement.sheet_id]} : {...hisElement, ...textsAnnotated[hisElement.ref]};
         });
     };
