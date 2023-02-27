@@ -312,7 +312,7 @@ let strings = new LocalizedStrings({
     apply: "החל",
     filter: "סינון",
     sortBy: "מיון לפי",
-    chronological: "כרונולוגי",
+    chronological: "סדר כרונולוגי",
     relevance: "רלוונטיות",
     exactSearch: "חיפוש מדויק",
     on: "פעיל",
