@@ -1120,7 +1120,6 @@ export default StyleSheet.create({
     fontStyle: "italic",
     fontFamily: "Amiri",
     fontSize: 18,
-    fontWeight: "bold",
     textAlign: "center",
   },
   navReDedicationBox:{
