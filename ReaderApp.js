@@ -2264,8 +2264,6 @@ class ReaderApp extends React.PureComponent {
 
   render() {
     // StatuBar comment: can't figure out how to get barStyle = light-content to be respected on Android
-    console.log("textTitle", this.state.textTitle);
-    console.log("sheet", !!this.state.sheet);
     const { safeViewStyle, statusBarBackgroundColor, statusBarStyle } = getSafeViewStyleAndStatusBarBackground(this.state, this.props.theme.mainTextPanel);
     return (
       <View style={styles.flex1}>
