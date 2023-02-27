@@ -152,11 +152,10 @@ const UserReadingList = ({mode, changeMode, openRef, openMenu, hasInternet}) => 
             }
             const key = element.is_sheet ? "sheet_id" : "ref";
             const apiResponseObj = element.is_sheet ? sheetsAnnotated : textsAnnotated;
-            if(!apiResponseObj.hasOwnProperty(element[key])){
-                return result;
+            if(apiResponseObj.hasOwnProperty(element[key])){
+                element = {...element, ...apiResponseObj[element[key]]};
             }
-            const mergedElement = {...element, ...apiResponseObj[element[key]]};
-            return [...result, mergedElement];
+            return [...result, element];
             //return hisElement?.is_sheet ? {...hisElement, ...sheetsAnnotated[hisElement.sheet_id]} : {...hisElement, ...textsAnnotated[hisElement.ref]};
         }, []);
     };
