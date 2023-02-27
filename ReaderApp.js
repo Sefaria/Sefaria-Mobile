@@ -70,6 +70,7 @@ import {
 } from './Misc.js';
 import {FooterTabBar} from "./FooterTabBar";
 import {iconData} from "./IconData";
+import {getSafeViewStyleAndStatusBarBackground} from "./getSafeViewStyles";
 const ViewPort    = Dimensions.get('window');
 
 class ReaderApp extends React.PureComponent {
@@ -950,6 +951,7 @@ class ReaderApp extends React.PureComponent {
         textListVisible: false,
         sheet: null,
         sheetMeta: null,
+        textTitle: "",
     }, () => {
         this.loadSheet(sheetID, sheetMeta,addToBackStack, calledFrom);
     });
@@ -2259,28 +2261,12 @@ class ReaderApp extends React.PureComponent {
     );
   }
 
-  getSafeViewStyleAndStatusBarBackground = () => {
-    // make the SafeAreaView background based on the category color
-    const menu = this.state.menuOpen;
-    const cat = (menu && menu !== "text toc" && menu !== "sheet meta") ? (this.state.navigationCategories.length ? this.state.navigationCategories[0] : (menu === "settings" ? "Other" : "N/A")) : (!!this.state.sheet ? "Other" : Sefaria.primaryCategoryForTitle(this.state.textTitle));
-    let statusBarBackgroundColor = "black";
-    let safeViewStyle = {backgroundColor: statusBarBackgroundColor};
-    if (cat) {
-      if (cat === "N/A") {
-        safeViewStyle = this.props.theme.mainTextPanel;
-        statusBarBackgroundColor = this.props.themeStr === "white" ? "white" : "#333331";
-      } else {
-        statusBarBackgroundColor = Sefaria.palette.categoryColor(cat);
-        safeViewStyle = {backgroundColor: statusBarBackgroundColor};
-      }
-    }
-    const statusBarStyle = this.props.themeStr === 'white' && cat==="N/A" ? 'dark-content' : 'light-content';
-    return {safeViewStyle, statusBarBackgroundColor, statusBarStyle};
-  };
 
   render() {
     // StatuBar comment: can't figure out how to get barStyle = light-content to be respected on Android
-    const { safeViewStyle, statusBarBackgroundColor, statusBarStyle } = this.getSafeViewStyleAndStatusBarBackground();
+    console.log("textTitle", this.state.textTitle);
+    console.log("sheet", !!this.state.sheet);
+    const { safeViewStyle, statusBarBackgroundColor, statusBarStyle } = getSafeViewStyleAndStatusBarBackground(this.state, this.props.theme.mainTextPanel);
     return (
       <View style={styles.flex1}>
         <SafeAreaView style={[{flex: 0}, safeViewStyle]} />
