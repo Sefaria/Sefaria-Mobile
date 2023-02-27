@@ -17,6 +17,7 @@ import strings from "./LocalizedStrings";
 import {ShortDedication} from "./Dedication";
 
 
+
 /**
  * Navigation menu for misc areas of the app that are not the text reader interfaces
  * Copied from SefariaProject's `MobileNavMenu` component

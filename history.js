@@ -135,6 +135,7 @@ const History = {
     const nextLastSyncItems = lastSyncItems.slice(0, -max_sync_history_len);
     let currHistory = JSON.parse(currHistoryStr);
     currHistory = lastSyncItemsToSend.filter(h => !h.action).concat(currHistory);
+    Sefaria.history.history = nextLastSyncItems.filter(h => !h.action).concat(currHistory); // set this here so its guaranteed to exist for logged outers
     await Sefaria.api.getAuthToken();
     if (Sefaria._auth.uid) {
       try {
@@ -161,6 +162,7 @@ const History = {
         const { mergedHistory, mergedSaved } = Sefaria.history.mergeHistory(currHistory, currSaved, response.user_history);
         Sefaria.history.lastPlace = Sefaria.history.historyToLastPlace(mergedHistory);
         Sefaria.history.saved = mergedSaved;
+        Sefaria.history.history = nextLastSyncItems.filter(h => !h.action).concat(currHistory);
         currHistory = mergedHistory;
         await Sefaria.history.setItem('savedItems', JSON.stringify(Sefaria.history.saved));
         await Sefaria.history.setItem('lastPlace', JSON.stringify(Sefaria.history.lastPlace));
@@ -175,11 +177,17 @@ const History = {
         console.log('sync error', e);
       }
     }
-    return nextLastSyncItems.filter(h => !h.action).concat(currHistory);
+    return Sefaria.history.history;
   },
   syncProfileGetSaved: async (dispatch, settings) => {
     await Sefaria.history.syncProfile(dispatch, settings);
     return Sefaria.history.saved;
+  },
+  getLocalHistoryArray: function(bucket){
+    if(Sefaria.history.hasOwnProperty(bucket)){
+      return [...Sefaria.history[bucket]];
+    }
+    return [];
   },
   updateSettingsAfterSync: function(dispatch, newSettings) {
     const fieldToActionMap = {

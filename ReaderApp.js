@@ -55,6 +55,7 @@ import SheetMeta from "./SheetMeta.js";
 import DeepLinkRouter from "./DeepLinkRouter.js";
 import { AuthPage } from "./AuthPage";
 import { TopicCategory, TopicPage } from "./TopicPage";
+import {HistorySavedPage} from "./HistorySavedPage";
 import {Dedication} from  "./Dedication"
 import {
   Tracker as DownloadTracker,
@@ -70,6 +71,7 @@ import {
 } from './Misc.js';
 import {FooterTabBar} from "./FooterTabBar";
 import {iconData} from "./IconData";
+
 const ViewPort    = Dimensions.get('window');
 
 class ReaderApp extends React.PureComponent {
@@ -1995,7 +1997,8 @@ class ReaderApp extends React.PureComponent {
         />);
       case ("history"):
         Sefaria.track.setScreen("history", "menu")
-        return(
+        return(<HistorySavedPage openRef={this.openRef} openMenu={this.openMenu} hasInternet={this.state.hasInternet}/>);  
+        /*return(
           <SwipeableCategoryList
             close={this.manageBackMain}
             theme={this.props.theme}
@@ -2014,10 +2017,10 @@ class ReaderApp extends React.PureComponent {
             hasDismissedSyncModal={this.props.hasDismissedSyncModal}
             readingHistory={this.props.readingHistory}
           />
-        );
+        );*/
         break;
       case ("saved"):
-        Sefaria.track.setScreen("saved", "menu")
+        /*Sefaria.track.setScreen("saved", "menu")
         return(
           <SwipeableCategoryList
             close={this.manageBackMain}
@@ -2037,7 +2040,7 @@ class ReaderApp extends React.PureComponent {
             hasDismissedSyncModal={this.props.hasDismissedSyncModal}
             readingHistory={this.props.readingHistory}
           />
-        );
+        );*/
         break;
       case("login"):
       case("register"):

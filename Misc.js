@@ -11,7 +11,6 @@ import {
   View,
   Image,
   ActivityIndicator,
-  ViewPropTypes,
   Animated,
   Platform,
   TextInput,
@@ -19,6 +18,7 @@ import {
   FlatList,
   useWindowDimensions,
 } from 'react-native';
+import {ViewPropTypes} from 'deprecated-react-native-prop-types';
 import { GlobalStateContext, DispatchContext, STATE_ACTIONS, themeStr, getTheme } from './StateManager';
 import {useGlobalState, useRenderersProps, useRtlFlexDir} from './Hooks';
 import Sefaria from './sefaria';
@@ -44,6 +44,13 @@ const CSS_CLASS_STYLES = {
   },
 };
 
+
+/**
+ * Renderes a page header with Styles to match all page headers and spacing
+ * @param headerProps the props that would be passed to <Header>
+ * @returns {JSX.Element} 
+ * @constructor
+ */
 const PageHeader = ({children}) => {
     return (
         <View style={[styles.navRePageHeader]}>
@@ -57,15 +64,18 @@ const PageHeader = ({children}) => {
  * @returns {JSX.Element}
  * @constructor
  */
-const StatefulHeader = ({titleKey, icon = null, callbackFunc=()=>{}, active=true}) => {
-  const { theme } = useGlobalState();
+const StatefulHeader = ({titleKey, icon = null, callbackFunc, active=true}) => {
+  const {themeStr, theme} = useGlobalState();
+  const myIcon = iconData.get(icon, themeStr, active);
   return(
-      <FlexFrame>
+      <View style={styles.navReStatefulHeader}>
         <TouchableOpacity onPress={callbackFunc}>
-          {icon ? <Icon name={icon} isSelected={active}/> : null}
-          <InterfaceText stringKey={titleKey} extraStyles={[styles.navReHeaderText, active ? theme.tertiaryText : theme.secondaryText]} />
+          <FlexFrame alignItems={"center"}>
+              {icon ? <Image style={styles.navReStatefulHeaderIcon} source={myIcon}/> : null}
+              <InterfaceText stringKey={titleKey} extraStyles={[styles.navReHeaderText, active ? theme.tertiaryText : theme.secondaryText]} />
+          </FlexFrame>
         </TouchableOpacity>
-      </FlexFrame>
+      </View>
   );
 }
 /***
@@ -1243,7 +1253,7 @@ SimpleLinkedBlock.propTypes = {
 };
 
 const ProfileListing = ({ image, name, organization, flexDirection='row' }) => {
-  const { themeStr } = useContext(GlobalStateContext);
+  const { themeStr, theme } = useGlobalState();
   return (
     <View style={{flexDirection}}>
       <ProfilePic
@@ -1252,13 +1262,13 @@ const ProfileListing = ({ image, name, organization, flexDirection='row' }) => {
         name={name}
         themeStr={themeStr}
       />
-      <View style={{paddingHorizontal: 10, justifyContent: 'space-between', flex: 1}}>
-        <SimpleInterfaceBlock
+      <View style={{paddingHorizontal: 10, justifyContent: 'center', flex: 1}}>
+        <SimpleInterfaceBlock extraStyles={[theme.mainText]}
           en={name}
           he={name}
         />
         {
-          !!organization ? <SimpleInterfaceBlock
+          !!organization ? <SimpleInterfaceBlock extraStyles={[theme.secondaryText]}
             en={organization}
             he={organization}
           />:null
@@ -1293,12 +1303,12 @@ class ProfilePic extends React.Component {
   }
   componentWillUnmount() { this._isMounted = false; }
   setShowDefault = () => {
-    console.log('setShowDefault', this._isMounted);
+    //console.log('setShowDefault', this._isMounted);
     if (!this._isMounted) { return; }
     this.setState({showDefault: true});
   };
   setShowImage = () => {
-    console.log('setShowImage', this._isMounted);
+    //console.log('setShowImage', this._isMounted);
     if (!this._isMounted) { return; }
     this.setState({showDefault: false});
   };
@@ -1316,7 +1326,7 @@ class ProfilePic extends React.Component {
     const nameArray = !!name.trim() ? name.trim().split(/\s/) : [];
     const initials = nameArray.length > 0 ? (nameArray.length === 1 ? nameArray[0][0] : nameArray[0][0] + nameArray[nameArray.length-1][0]) : "";
     const imageSrc = url.replace("profile-default.png", 'profile-default-404.png');  // replace default with non-existant image to force onLoad to fail
-    console.log('imageSrc', imageSrc);
+    //console.log('imageSrc', imageSrc);
     return (
       <View>
         {
@@ -1519,8 +1529,8 @@ export {
   DotSeparatedList,
   FilterableFlatList,
   FlexFrame,
-  GreyBoxFrame,
   Header,
+  GreyBoxFrame,
   HebrewInEnglishText,
   Icon,
   IndeterminateCheckBox,

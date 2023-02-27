@@ -114,7 +114,7 @@ const AuthPage = ({ authMode, close, showToast, openLogin, openRegister, openUri
               {iconName: 'sync', text: strings.syncYourReading},
               {iconName: 'sheet', text: strings.readYourSheets},
               {iconName: 'mail', text: strings.getUpdates},
-            ].map(x => (<LogInMotivator key={x.iconStr} { ...x } />))
+            ].map(x => (<LogInMotivator key={x.iconName} { ...x } />))
           }
         </View>
         { isLogin ? null :

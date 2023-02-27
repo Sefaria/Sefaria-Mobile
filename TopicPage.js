@@ -589,7 +589,7 @@ const TopicPageHeader = ({ title, slug, description, topicsTab, setTopicsTab, qu
         (
           <SystemButton
             text={parasha ? strings.readThePortion : (isHeb ? Sefaria.normHebrewRef(topicRef.he) : topicRef.en)}
-            img={require('./img/book-dark.png')}
+            img={require('./img/book-black.png')}
             extraStyles={[isHeb ? styles.readThePortionButtonHe : styles.readThePortionButton, {alignSelf: isHeb ? "flex-end" : "flex-start"}]}
             extraImageStyles={[{tintColor: "#fff"}]}
             onPress={() => { openRef(topicRef.en); }} isHeb={isHeb} isBlue
