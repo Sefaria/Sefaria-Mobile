@@ -29,7 +29,7 @@ export const SearchResultPage = (props) => {
     const numFilters = props.searchState.appliedFilters.length;
     const onFilterPress = () => props.openSubMenu("filter");
     return (
-        <View style={[styles.menu, styles.pageMargins, theme.menu]}>
+        <View style={[styles.menu, styles.pageMargins]}>
             <PageHeader><Header titleKey={"search"}/></PageHeader>
             <SearchBar
                 search={props.search}

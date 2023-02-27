@@ -36,7 +36,7 @@ const SearchPage = props => {
       );
   }
   return (
-    <View style={[styles.menu, theme.menu]}>
+    <View style={[styles.menu, theme.mainTextPanel]}>
       {content}
     </View>
   );

@@ -60,7 +60,7 @@ class AutocompletePage extends React.Component {
 
   render() {
     return (
-      <View style={[styles.menu, this.props.theme.menu, {paddingHorizontal: 15}]}>
+      <View style={[styles.menu, {paddingHorizontal: 15}, this.props.theme.mainTextPanel]}>
         <PageHeader><Header titleKey={"search"}/></PageHeader>
         <SearchBar
           autoFocus
