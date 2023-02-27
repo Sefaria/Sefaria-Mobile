@@ -1463,12 +1463,12 @@ class ReaderApp extends React.PureComponent {
     // truncate data if it's crazy long (e.g. Smag)
     const cutoffLen = 3500;
     if (data.en.length > cutoffLen) {
-      const spaceInd = data.en.indexOf(' ', cutoffLen);
+      let spaceInd = data.en.indexOf(' ', cutoffLen);
       if (spaceInd === -1) { spaceInd = cutoffLen; }
       data.en = data.en.slice(0, spaceInd) + "... <b>(Tap to read more)</b>";
     }
     if (data.he.length > cutoffLen) {
-      const spaceInd = data.he.indexOf(' ', cutoffLen);
+      let spaceInd = data.he.indexOf(' ', cutoffLen);
       if (spaceInd === -1) { spaceInd = cutoffLen; }
       data.he = data.he.slice(0, spaceInd) + "... <b>(לחץ לקרוא עוד)</b>";
     }
