@@ -79,7 +79,7 @@ const UserReadingList = ({mode, changeMode, openRef, openMenu, hasInternet}) => 
     const [hasMoreData, setHasMoreData] = useState(true);
     const SKIP_STEP = 20;
     
-    const {theme, isLoggedIn, hasDismissedSyncModal, readingHistory} = useGlobalState();
+    const {theme, isLoggedIn, hasDismissedSyncModal, readingHistory, interfaceLanguage} = useGlobalState();
     const openLogin = () => openMenu("login", "HistorySavedPage");
     const openSettings = () => openMenu("settings", "HistorySavedPage");
     const fireModeChange = (mode) => {
@@ -206,7 +206,14 @@ const UserReadingList = ({mode, changeMode, openRef, openMenu, hasInternet}) => 
           }, [])
     };
     
-    
+    const renderEmpty = () => {
+        const isHeb = interfaceLanguage === "hebrew";
+        return(
+            <View style={{ paddingVertical: 20 }}>
+                <Text style={[theme.secondaryText, isHeb ? styles.heInt : styles.enInt, {textAlign: "center"}]}>{strings.noHistory}</Text>
+            </View>
+        );
+    }
     
     const renderFooter = () => {
         if (!loadingAPIData) {
@@ -247,6 +254,7 @@ const UserReadingList = ({mode, changeMode, openRef, openMenu, hasInternet}) => 
     return (
         <FlatList
             ListHeaderComponent={renderHeader}
+            ListEmptyComponent={renderEmpty}
             data={data}
             keyExtractor={(item, index) => `${item.ref}-${index}`}
             renderItem={renderItem}
