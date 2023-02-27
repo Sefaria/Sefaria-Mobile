@@ -116,8 +116,10 @@ const UserReadingList = ({mode, changeMode, openRef, openMenu}) => {
         if (!hasMoreData) {
           return;
         }
-        setLoadingAPIData(true);
+        
         let nitems = localData.slice(skip, skip + SKIP_STEP); //get the next 20 items from the raw local history
+        if(!nitems.length) { setHasMoreData(false); return;}
+        setLoadingAPIData(true);
         getAnnotatedNextItems(nitems).then( nextItems => {
             setData(prevItems => {
                 console.log([...prevItems, ...nextItems]);
