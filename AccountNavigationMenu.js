@@ -27,11 +27,15 @@ import {ShortDedication} from "./Dedication";
 export const AccountNavigationMenu = props => {
     const { theme } = useGlobalState();
     return (
-        <ScrollView style={[styles.alignSelf, theme.mainTextPanel]} contentContainerStyle={[styles.navRePage]}>
-            <PageHeader><Header titleKey={"account"}/></PageHeader>
+        <ScrollView style={[styles.alignSelf, theme.mainTextPanel]} contentContainerStyle={{alignItems: "stretch"}}>
+            <View style={styles.navRePage}>
+                <PageHeader><Header titleKey={"account"}/></PageHeader>
+            </View>
             <AccountNavigationMenuButtonList {...props} />
-            <ShortDedication openDedication={() => props.openMenu("dedication", "AccountNavigationMenu")}/>
-            <Sefaria501/>
+            <View style={[styles.navRePage, {alignItems: 'center'}]}>
+                <ShortDedication openDedication={() => props.openMenu("dedication", "AccountNavigationMenu")}/>
+                <Sefaria501/>
+            </View>
         </ScrollView>
     );
 }
@@ -63,7 +67,7 @@ const AccountNavigationMenuButton = ({titleKey, icon, callbackFunc, textStyles, 
     const myIcon = iconData.get(icon, themeStr);
     return (
         <TouchableOpacity
-            style={[styles.navReAccountMenuButton, interfaceLanguage == "hebrew" ? styles.navReHebrew : null, theme.tertiaryText, theme.lighterGreyBorder].concat(containerStyles)}
+            style={[{marginHorizontal: 15}, styles.navReAccountMenuButton, interfaceLanguage == "hebrew" ? styles.navReHebrew : null, theme.tertiaryText, theme.lighterGreyBorder].concat(containerStyles)}
             onPress={callbackFunc}>
             <Image style={styles.navReAccountMenuButtonIcon} source={myIcon}/>
             <InterfaceText extraStyles={[styles.navReAccountMenuButtonText, theme.tertiaryText].concat(textStyles)}
@@ -76,7 +80,7 @@ const SefariaBackgroundAccountNavigationMenuButton = ({...menuButtonProps}) => {
     const {theme} = useGlobalState();
     return (<AccountNavigationMenuButton {...menuButtonProps} textStyles={[theme.sefariaColorButtonText]}
                                          containerStyles={[theme.sefariaColorButton, {
-                                             marginHorizontal: -15,
+                                             marginHorizontal: 0,
                                              paddingHorizontal: 15
                                          }]}/>);
 };
@@ -104,7 +108,7 @@ const InterfaceLanguageMenuButton = () => {
     const myIcon = iconData.get("globe", themeStr);
     return (
         <View
-            style={[styles.navReAccountMenuButton, theme.lighterGreyBorder, interfaceLanguage == "hebrew" ? styles.navReHebrew : null]}>
+            style={[{marginHorizontal: 15}, styles.navReAccountMenuButton, theme.lighterGreyBorder, interfaceLanguage == "hebrew" ? styles.navReHebrew : null]}>
             <Image style={styles.navReAccountMenuButtonIcon} source={myIcon}/>
             <TouchableOpacity onPress={() => setInterfaceLanguage("english")}><Text
                 style={[styles.enInt, styles.navReAccountMenuButtonText, theme.tertiaryText, interfaceLanguage == 'hebrew' ? theme.interfaceLangToggleInActive : null]}>English</Text></TouchableOpacity>

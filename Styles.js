@@ -1135,8 +1135,11 @@ export default StyleSheet.create({
     textAlign: "center",
   },
   navReDedicationBox:{
-    height: 100,
     width: 344,
+    flexDirection: "row",
+    paddingVertical: 5,
+    alignItems: "center",
+    justifyContent: "center",
     marginVertical: 20,
   },
   lineEnd: {
