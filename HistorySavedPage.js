@@ -247,7 +247,7 @@ const UserReadingList = ({mode, changeMode, openRef, openMenu, hasInternet}) => 
     };
     
     const renderItem = ({item, index}) => {
-        return (<HistoryItem item={item} key={index} />);
+        return (<HistoryItem item={item} key={index} openRef={openRef} />);
     };
     
     return (
@@ -267,13 +267,17 @@ const UserReadingList = ({mode, changeMode, openRef, openMenu, hasInternet}) => 
 
 
 
-const HistoryItem = ({item}) => {
+const HistoryItem = ({item, openRef}) => {
     const {theme} = useGlobalState();
     const is_sheet = item.is_sheet;
+    let { ref, versions } = item;
+    const openHistoryItem = () => openRef(ref, null, versions);
     return(
-        <View style={[styles.navReHistoryItem, theme.lighterGreyBorder]}>
-            {is_sheet ? <SheetHistoryItem sheet={item} /> : <TextHistoryItem text={item} />}
-        </View>  
+        <TouchableOpacity onPress={openHistoryItem}>
+            <View style={[styles.navReHistoryItem, theme.lighterGreyBorder]}>
+                {is_sheet ? <SheetHistoryItem sheet={item} /> : <TextHistoryItem text={item} />}
+            </View>  
+        </TouchableOpacity>
     );
 }
 
