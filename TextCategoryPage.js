@@ -308,7 +308,7 @@ export const TextCategoryPage = ({categories, setCategories, openRef, onBack}) =
     const categoryDescription = getCategoryDescription(categories);
 
     return (
-        <FlexFrame dir={"column"} flex={1}>
+        <FlexFrame dir={"column"} flex={1} alignSelf={"stretch"} key={categories}>
             <CategoryColorLine category={displayCategories[0]} thickness={4} />
             <SectionList
                 sections={sections}
