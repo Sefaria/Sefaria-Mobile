@@ -196,7 +196,7 @@ let strings = new LocalizedStrings({
     readingHistory: "Reading History",
     turningThisFeatureOff: "Turning this feature off will permanently delete your reading history.",
     readingHistoryIsCurrentlyDisabled: "Reading history is currently disabled. You can re-enable this feature in your",
-    noHistory: "Every expert was once a beginner. Nothing to see here yet.",
+    noHistory: "\"Do not say, 'When I have free time I will study,' for you may never have free time.\" - Pirkei Avot 2:5, The ChatGPT Edition",
     showResults: 'Show Results',
     sefaria501: "Sefaria is a 501(c)(3) organization that relies on user donations to maintain and grow the library.",
     browseTheLibrary: "Browse the Library",
