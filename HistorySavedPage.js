@@ -74,7 +74,7 @@ const HistoryList = ({changeMode, openRef, openMenu}) => {
 const UserReadingList = ({mode, changeMode, openRef, openMenu}) => {
     const [localData, setLocalData] = useState([]);
     const [data, setData] = useState([]);
-    const [loadingAPIData, setLoadingAPIData] = useState(true);
+    const [loadingAPIData, setLoadingAPIData] = useState(false);
     const [skip, setSkip] = useState(0);
     const [hasMoreData, setHasMoreData] = useState(true);
     const SKIP_STEP = 20;
@@ -96,7 +96,7 @@ const UserReadingList = ({mode, changeMode, openRef, openMenu}) => {
     }, []);
     
     useEffect(()=> {
-        if(!localData.length) {return;}
+        if(!localData.length) { return;}
         loadData();
     }, [localData /*, mode*/]);
     
@@ -206,8 +206,9 @@ const UserReadingList = ({mode, changeMode, openRef, openMenu}) => {
     
     
     const renderFooter = () => {
-        if (!loadingAPIData) return null;
-    
+        if (!loadingAPIData) {
+            return null;
+        }
         return (
           <View style={{ paddingVertical: 20 }}>
             <ActivityIndicator size="large" />
