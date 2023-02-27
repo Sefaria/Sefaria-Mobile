@@ -281,7 +281,7 @@ class AutocompleteList extends React.Component {
 
         Platform.OS == "ios" ?
 
-            (<KeyboardAvoidingView style={[styles.autocompleteList, this.props.theme.container, this.props.theme.lighterGreyBorder]} behavior="padding">
+            (<KeyboardAvoidingView style={[styles.autocompleteList, this.props.theme.mainTextPanel, this.props.theme.lighterGreyBorder]} behavior="padding">
               {!!this.state.completions.length ?
                 <FlatList
                   keyExtractor={this._keyExtractor}
