@@ -28,7 +28,7 @@ import SwipeableFlatList from "./SwipeableFlatList";
 import {ColorBarBox, StoryBodyBlock, StoryFrame, StoryTitleBlock} from "./Story";
 
 
-export const HistorySavedPage = ({openRef, openMenu}) => {
+export const HistorySavedPage = ({openRef, openMenu, hasInternet}) => {
     const dispatch = useContext(DispatchContext);  
     const getUserSettings = useGetUserSettingsObj();
     const [synced, setSynced] = useState(false);

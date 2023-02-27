@@ -1997,7 +1997,7 @@ class ReaderApp extends React.PureComponent {
         />);
       case ("history"):
         Sefaria.track.setScreen("history", "menu")
-        return(<HistorySavedPage openRef={this.openRef} openMenu={this.openMenu}/>);  
+        return(<HistorySavedPage openRef={this.openRef} openMenu={this.openMenu} hasInternet={this.state.hasInternet}/>);  
         /*return(
           <SwipeableCategoryList
             close={this.manageBackMain}
