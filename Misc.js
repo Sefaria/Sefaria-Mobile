@@ -1070,7 +1070,7 @@ const SearchTextInput = ({ onChange, query, onFocus, placeholder }) => {
   const { themeStr, theme, interfaceLanguage } = useGlobalState();
   const isHeb = interfaceLanguage === "hebrew";
   const placeholderTextColor = themeStr === "black" ? "#BBB" : "#666";
-  const isPlaceholder = query.length === 0;
+  const isPlaceholder = !query?.length;
   const defaultStyles = {textAlign: isHeb ? "right" : "left", fontSize: 18, paddingVertical: 0, paddingRight: isHeb ? 0 : 20, paddingLeft: isHeb ? 20 : 0, flex: 1}
   // unfortunately textinput behaves differently on android
   const androidStyles = {marginVertical: isPlaceholder ? 0 : -8, paddingBottom: 0, paddingTop: isPlaceholder ? 5 : 0, fontSize: 18, includeFontPadding: false, textAlignVertical: "center"};
