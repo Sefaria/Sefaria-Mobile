@@ -1,7 +1,5 @@
 'use strict';
 
-import PropTypes, {element} from 'prop-types';
-
 import React, {useContext, useEffect, useState} from 'react';
 import {
     Text,
@@ -11,11 +9,6 @@ import {
     ActivityIndicator, Image
 } from 'react-native';
 import {
-    CategoryColorLine,
-    CategorySideColorLink,
-    DirectedButton,
-    LanguageToggleButton,
-    AnimatedRow,
     PageHeader, StatefulHeader, FlexFrame, SimpleInterfaceBlock, ProfileListing,
 } from './Misc.js';
 import { DispatchContext, STATE_ACTIONS } from './StateManager';
@@ -24,7 +17,6 @@ import strings from './LocalizedStrings';
 import {iconData} from "./IconData";
 import {useGetUserSettingsObj, useGlobalState, useRtlFlexDir} from './Hooks.js';
 import Sefaria from './sefaria';
-import SwipeableFlatList from "./SwipeableFlatList";
 import {ColorBarBox, StoryBodyBlock, StoryFrame, StoryTitleBlock} from "./Story";
 
 
