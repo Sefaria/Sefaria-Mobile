@@ -333,14 +333,14 @@ const SheetHistoryItem = ({sheet}) => {
 const SyncPrompt = ({ openLogin }) => {
   const dispatch = useContext(DispatchContext);
   return (
-    <TouchableOpacity style={{
+    <TouchableOpacity style={[{
         backgroundColor: "#18345D",
         paddingVertical: 20,
         paddingHorizontal: 15,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-      }}
+      }, styles.navReUpToEdge]}
       onPress={openLogin}
     >
       <Text style={[ styles.systemButtonText, styles.systemButtonTextBlue, styles.enInt]}>
@@ -369,7 +369,7 @@ const ReadingHistoryPrompt = ({ openSettings }) => {
   const langStyle = interfaceLanguage === 'he' ? styles.heInt : styles.enInt;
   return (
     <View>
-      <Text style={[langStyle, {textAlign: "center", marginTop: 20, paddingHorizontal: 15}, theme.secondaryText]}>
+      <Text style={[langStyle, styles.navReUpToEdge, {textAlign: "center", marginTop: 20, paddingHorizontal: 15}, theme.secondaryText]}>
         {strings.readingHistoryIsCurrentlyDisabled + " "}
         <Text style={[langStyle, theme.text]} onPress={openSettings}>
           {strings.settings.toLowerCase()}
