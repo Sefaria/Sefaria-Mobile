@@ -9,7 +9,7 @@ import {
     ActivityIndicator, Image
 } from 'react-native';
 import {
-    PageHeader, StatefulHeader, FlexFrame, SimpleInterfaceBlock, ProfileListing,
+    PageHeader, StatefulHeader, FlexFrame, SimpleInterfaceBlock, ProfileListing, LoadingView,
 } from './Misc.js';
 import { DispatchContext, STATE_ACTIONS } from './StateManager';
 import styles from './Styles';
@@ -43,13 +43,55 @@ export const HistorySavedPage = ({openRef, openMenu, hasInternet}) => {
     };
     
     return(
-        <View style={[styles.navRePage, {flex: 1, alignSelf: "stretch"}]}>
+        <View style={[{flex: 1, alignSelf: "stretch"}]}>
+            {
+                !synced ? <HistorySavedPageHeader mode={mode} changeMode={changeMode} openMenu={openMenu} /> : null
+            }
             <FlexFrame dir={"column"}>
-                {synced ? <HistoryOrSavedList mode={mode} changeMode={changeMode} openRef={openRef} openMenu={openMenu} hasInternet={hasInternet}/> : <ActivityIndicator size="large" />  }
+                {synced ? 
+                    <HistoryOrSavedList mode={mode} changeMode={changeMode} openRef={openRef} openMenu={openMenu} hasInternet={hasInternet}/> 
+                    : 
+                   <HistorySavedPageLoadingView />
+                }
             </FlexFrame>
         </View>
     );
 };
+
+
+const HistorySavedPageLoadingView = () => {
+    return(
+        <LoadingView size="large" style={{ paddingVertical: 30 }}/>
+    );
+};
+
+
+const HistorySavedPageHeader = ({mode, changeMode, openMenu}) => {
+    const {theme, isLoggedIn, hasDismissedSyncModal, readingHistory, interfaceLanguage} = useGlobalState();
+    const openLogin = () => openMenu("login", "HistorySavedPage");
+    const openSettings = () => openMenu("settings", "HistorySavedPage");
+    const fireModeChange = (mode) => {
+        changeMode(mode);
+    } 
+    return(
+        <View>
+            <View style={[styles.navRePage, styles.navReHistoryItem, theme.lighterGreyBorder]}>
+                <PageHeader>
+                    <FlexFrame justifyContent={"flex-start"}>
+                        <StatefulHeader titleKey={"saved"} icon={"bookmark2"} active={mode === "saved"} callbackFunc={()=>fireModeChange("saved")}/>
+                        <StatefulHeader titleKey={"history"} icon={"clock"} active={mode === "history"} callbackFunc={()=>fireModeChange("history")}/>
+                    </FlexFrame>
+                </PageHeader>
+            </View>
+            {isLoggedIn || hasDismissedSyncModal ? null :
+              <SyncPrompt openLogin={openLogin} />
+            }
+            {
+              mode === 'history' && !readingHistory ? <ReadingHistoryPrompt openSettings={openSettings} /> : null
+            }
+        </View>
+    );
+}
 
 const HistoryOrSavedList = ({mode, changeMode, openRef, openMenu, hasInternet}) => {
     const RenderClass = mode === "history" ? HistoryList : SavedList;  
@@ -72,12 +114,8 @@ const UserReadingList = ({mode, changeMode, openRef, openMenu, hasInternet}) => 
     const [hasMoreData, setHasMoreData] = useState(true);
     const SKIP_STEP = 20;
     
-    const {theme, isLoggedIn, hasDismissedSyncModal, readingHistory, interfaceLanguage} = useGlobalState();
-    const openLogin = () => openMenu("login", "HistorySavedPage");
-    const openSettings = () => openMenu("settings", "HistorySavedPage");
-    const fireModeChange = (mode) => {
-        changeMode(mode);
-    } 
+    const {theme, interfaceLanguage} = useGlobalState();
+    
     
     useEffect(() => {
         //here we are getting a "copy" of local history items that we will perform operations on. 
@@ -211,30 +249,13 @@ const UserReadingList = ({mode, changeMode, openRef, openMenu, hasInternet}) => 
             return null;
         }
         return (
-          <View style={{ paddingVertical: 20 }}>
-            <ActivityIndicator size="large" />
-          </View>
+            <HistorySavedPageLoadingView />
         );
     };
     
     const renderHeader = () => {
         return(
-            <View>
-                <View style={[styles.navReHistoryItem, theme.lighterGreyBorder]}>
-                    <PageHeader>
-                        <FlexFrame justifyContent={"flex-start"}>
-                            <StatefulHeader titleKey={"saved"} icon={"bookmark2"} active={mode === "saved"} callbackFunc={()=>fireModeChange("saved")}/>
-                            <StatefulHeader titleKey={"history"} icon={"clock"} active={mode === "history"} callbackFunc={()=>fireModeChange("history")}/>
-                        </FlexFrame>
-                    </PageHeader>
-                </View>
-                {isLoggedIn || hasDismissedSyncModal ? null :
-                  <SyncPrompt openLogin={openLogin} />
-                }
-                {
-                  mode === 'history' && !readingHistory ? <ReadingHistoryPrompt openSettings={openSettings} /> : null
-                }
-            </View>
+            <HistorySavedPageHeader mode={mode} changeMode={changeMode} openMenu={openMenu} />
         );
     };
     
