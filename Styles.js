@@ -73,6 +73,10 @@ export default StyleSheet.create({
   navRePage:{
     marginHorizontal: 15,
   },
+  navReUpToEdge: {
+     marginHorizontal: 0,
+     paddingHorizontal: 15
+ },
   navReEnglish:{
     flexDirection: "row",
   },
