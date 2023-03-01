@@ -14,6 +14,7 @@ import styles from "./Styles";
 import {LearningSchedulesBox} from "./learningSchedules/LearningSchedulesBox";
 import {useGlobalState} from "./Hooks";
 import {TextCategoryPage} from "./TextCategoryPage";
+import {ShortDedication} from "./Dedication";
 
 const useCategoryButtonProps = (tocItem, setCategories) => {
     const {category, heCategory, enDesc, heDesc, enShortDesc, heShortDesc} = tocItem;
@@ -74,7 +75,7 @@ const TextsPageHeader = () => {
     );
 };
 
-export const TextsPage = ({categories, setCategories, openRef, openLearningSchedules, onBack}) => {
+export const TextsPage = ({categories, setCategories, openRef, openLearningSchedules, onBack, openDedication}) => {
     const { theme } = useGlobalState();
 
     if (categories.length) {
@@ -95,6 +96,11 @@ export const TextsPage = ({categories, setCategories, openRef, openLearningSched
             data={data}
             contentContainerStyle={[{paddingHorizontal: 15}, theme.mainTextPanel]}
             ListHeaderComponent={TextsPageHeader}
+            ListFooterComponent={
+                <ShortDedication
+                    openDedication={openDedication}
+                />
+            }
             keyExtractor={item => item.isSplice ? 'splice' : item.category}
             renderItem={({ item }) => (
                 <TopLevelCategoryOrLearningSchedulesBox
