@@ -94,7 +94,7 @@ export const TextsPage = ({categories, setCategories, openRef, openLearningSched
     return (
         <FlatList
             data={data}
-            contentContainerStyle={[{paddingHorizontal: 15}, theme.mainTextPanel]}
+            contentContainerStyle={[{paddingHorizontal: 15, alignSelf: "stretch"}, theme.mainTextPanel]}
             ListHeaderComponent={TextsPageHeader}
             ListFooterComponent={
                 <ShortDedication
