@@ -29,6 +29,8 @@ export const HistorySavedPage = ({openRef, openMenu, hasInternet}) => {
     
     useEffect(() => {
         (async () => { //using an async IAFE so the whole function doest become async
+            // When this page loads, we make sure to sync with the application server to get latest history/saved synced. 
+            // If the sync fails we still use what we have locally and work off that. 
             await Sefaria.history.syncProfile(dispatch, await getUserSettings());
             //console.log(Sefaria.history.history.slice(0, 100));
             setSynced(true);
@@ -45,6 +47,8 @@ export const HistorySavedPage = ({openRef, openMenu, hasInternet}) => {
     return(
         <View style={[{flex: 1, alignSelf: "stretch"}]}>
             {
+                //If the main sync is still underway, we do stil lwant the headers to show to the user, since its ugly otherwise. 
+                // Once the rest renders the header will render as part of the FlatList below.  
                 !synced ? <HistorySavedPageHeader mode={mode} changeMode={changeMode} openMenu={openMenu} /> : null
             }
             <FlexFrame dir={"column"}>
