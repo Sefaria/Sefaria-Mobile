@@ -33,6 +33,7 @@ export default StyleSheet.create({
     fontFamily: 'Amiri',
     fontSize: 18,
     lineHeight: 22,
+    textAlign: "left",
   },
   // Sefaria Design System - Content Body Hebrew
   ContentBodyHe: {
@@ -69,6 +70,10 @@ export default StyleSheet.create({
   },
   fontSize18: {
     fontSize: 18,
+  },
+  rootContainer: {
+    flex: 1,
+    direction: "ltr",  // while we don't fully support React Native's RTL system, we need to explicitly set direction to LTR and flip things using interfaceLanguage
   },
   navRePage:{
     marginHorizontal: 15,
