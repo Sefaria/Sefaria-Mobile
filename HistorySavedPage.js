@@ -1,7 +1,5 @@
 'use strict';
 
-import PropTypes, {element} from 'prop-types';
-
 import React, {useContext, useEffect, useState} from 'react';
 import {
     Text,
@@ -11,12 +9,7 @@ import {
     ActivityIndicator, Image
 } from 'react-native';
 import {
-    CategoryColorLine,
-    CategorySideColorLink,
-    DirectedButton,
-    LanguageToggleButton,
-    AnimatedRow,
-    PageHeader, StatefulHeader, FlexFrame, SimpleInterfaceBlock, ProfileListing,
+    PageHeader, StatefulHeader, FlexFrame, SimpleInterfaceBlock, ProfileListing, LoadingView,
 } from './Misc.js';
 import { DispatchContext, STATE_ACTIONS } from './StateManager';
 import styles from './Styles';
@@ -24,7 +17,6 @@ import strings from './LocalizedStrings';
 import {iconData} from "./IconData";
 import {useGetUserSettingsObj, useGlobalState, useRtlFlexDir} from './Hooks.js';
 import Sefaria from './sefaria';
-import SwipeableFlatList from "./SwipeableFlatList";
 import {ColorBarBox, StoryBodyBlock, StoryFrame, StoryTitleBlock} from "./Story";
 
 
@@ -37,6 +29,8 @@ export const HistorySavedPage = ({openRef, openMenu, hasInternet}) => {
     
     useEffect(() => {
         (async () => { //using an async IAFE so the whole function doest become async
+            // When this page loads, we make sure to sync with the application server to get latest history/saved synced. 
+            // If the sync fails we still use what we have locally and work off that. 
             await Sefaria.history.syncProfile(dispatch, await getUserSettings());
             //console.log(Sefaria.history.history.slice(0, 100));
             setSynced(true);
@@ -51,13 +45,57 @@ export const HistorySavedPage = ({openRef, openMenu, hasInternet}) => {
     };
     
     return(
-        <View style={[styles.navRePage, {flex: 1, alignSelf: "stretch"}]}>
+        <View style={[{flex: 1, alignSelf: "stretch"}]}>
+            {
+                //If the main sync is still underway, we do stil lwant the headers to show to the user, since its ugly otherwise. 
+                // Once the rest renders the header will render as part of the FlatList below.  
+                !synced ? <HistorySavedPageHeader mode={mode} changeMode={changeMode} openMenu={openMenu} /> : null
+            }
             <FlexFrame dir={"column"}>
-                {synced ? <HistoryOrSavedList mode={mode} changeMode={changeMode} openRef={openRef} openMenu={openMenu} hasInternet={hasInternet}/> : <ActivityIndicator size="large" />  }
+                {synced ? 
+                    <HistoryOrSavedList mode={mode} changeMode={changeMode} openRef={openRef} openMenu={openMenu} hasInternet={hasInternet}/> 
+                    : 
+                   <HistorySavedPageLoadingView />
+                }
             </FlexFrame>
         </View>
     );
 };
+
+
+const HistorySavedPageLoadingView = () => {
+    return(
+        <LoadingView size="large" style={{ paddingVertical: 30 }}/>
+    );
+};
+
+
+const HistorySavedPageHeader = ({mode, changeMode, openMenu}) => {
+    const {theme, isLoggedIn, hasDismissedSyncModal, readingHistory, interfaceLanguage} = useGlobalState();
+    const openLogin = () => openMenu("login", "HistorySavedPage");
+    const openSettings = () => openMenu("settings", "HistorySavedPage");
+    const fireModeChange = (mode) => {
+        changeMode(mode);
+    } 
+    return(
+        <View>
+            <View style={[styles.navRePage, styles.navReHistoryItem, theme.lighterGreyBorder]}>
+                <PageHeader>
+                    <FlexFrame justifyContent={"flex-start"}>
+                        <StatefulHeader titleKey={"saved"} icon={"bookmark2"} active={mode === "saved"} callbackFunc={()=>fireModeChange("saved")}/>
+                        <StatefulHeader titleKey={"history"} icon={"clock"} active={mode === "history"} callbackFunc={()=>fireModeChange("history")}/>
+                    </FlexFrame>
+                </PageHeader>
+            </View>
+            {isLoggedIn || hasDismissedSyncModal ? null :
+              <SyncPrompt openLogin={openLogin} />
+            }
+            {
+              mode === 'history' && !readingHistory ? <ReadingHistoryPrompt openSettings={openSettings} /> : null
+            }
+        </View>
+    );
+}
 
 const HistoryOrSavedList = ({mode, changeMode, openRef, openMenu, hasInternet}) => {
     const RenderClass = mode === "history" ? HistoryList : SavedList;  
@@ -80,12 +118,8 @@ const UserReadingList = ({mode, changeMode, openRef, openMenu, hasInternet}) => 
     const [hasMoreData, setHasMoreData] = useState(true);
     const SKIP_STEP = 20;
     
-    const {theme, isLoggedIn, hasDismissedSyncModal, readingHistory, interfaceLanguage} = useGlobalState();
-    const openLogin = () => openMenu("login", "HistorySavedPage");
-    const openSettings = () => openMenu("settings", "HistorySavedPage");
-    const fireModeChange = (mode) => {
-        changeMode(mode);
-    } 
+    const {theme, interfaceLanguage} = useGlobalState();
+    
     
     useEffect(() => {
         //here we are getting a "copy" of local history items that we will perform operations on. 
@@ -219,30 +253,13 @@ const UserReadingList = ({mode, changeMode, openRef, openMenu, hasInternet}) => 
             return null;
         }
         return (
-          <View style={{ paddingVertical: 20 }}>
-            <ActivityIndicator size="large" />
-          </View>
+            <HistorySavedPageLoadingView />
         );
     };
     
     const renderHeader = () => {
         return(
-            <View>
-                <View style={[styles.navReHistoryItem, theme.lighterGreyBorder]}>
-                    <PageHeader>
-                        <FlexFrame justifyContent={"flex-start"}>
-                            <StatefulHeader titleKey={"saved"} icon={"bookmark2"} active={mode === "saved"} callbackFunc={()=>fireModeChange("saved")}/>
-                            <StatefulHeader titleKey={"history"} icon={"clock"} active={mode === "history"} callbackFunc={()=>fireModeChange("history")}/>
-                        </FlexFrame>
-                    </PageHeader>
-                </View>
-                {isLoggedIn || hasDismissedSyncModal ? null :
-                  <SyncPrompt openLogin={openLogin} />
-                }
-                {
-                  mode === 'history' && !readingHistory ? <ReadingHistoryPrompt openSettings={openSettings} /> : null
-                }
-            </View>
+            <HistorySavedPageHeader mode={mode} changeMode={changeMode} openMenu={openMenu} />
         );
     };
     
@@ -284,7 +301,7 @@ const HistoryItem = ({item, openRef}) => {
 const TextHistoryItem = ({text}) => {
     const { textLanguage } = useGlobalState();
     return (
-        <StoryFrame extraStyles={styles.topicItemMargins}>
+        <StoryFrame>
           <View style={{marginBottom: 10}}>
               <StoryTitleBlock en={text.ref} he={Sefaria.normHebrewRef(text.heRef)} /*onClick={() => openRef(text.ref)}*/ />
           </View>
@@ -301,10 +318,10 @@ const SheetHistoryItem = ({sheet}) => {
     const isHeb = interfaceLanguage === 'hebrew';
     const title = Sefaria.util.stripHtml(sheet.sheet_title);
     return (
-    <StoryFrame extraStyles={[styles.topicItemMargins]}>
+    <StoryFrame>
         <StoryTitleBlock en={title} he={title} /*onClick={}*/ />
         {!!sheet.sheet_summary ? <SimpleInterfaceBlock en={sheet.sheet_summary} he={sheet.sheet_summary}/> : null}
-        {!!sheet.publisher_image && !!sheet.publisher_name ? <View style={{marginTop: 10}}>
+        {!!sheet.publisher_name ? <View style={{marginTop: 10}}>
           <ProfileListing
             image={sheet.publisher_image}
             name={sheet.publisher_name}
@@ -320,14 +337,14 @@ const SheetHistoryItem = ({sheet}) => {
 const SyncPrompt = ({ openLogin }) => {
   const dispatch = useContext(DispatchContext);
   return (
-    <TouchableOpacity style={{
+    <TouchableOpacity style={[{
         backgroundColor: "#18345D",
         paddingVertical: 20,
         paddingHorizontal: 15,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-      }}
+      }, styles.navReUpToEdge]}
       onPress={openLogin}
     >
       <Text style={[ styles.systemButtonText, styles.systemButtonTextBlue, styles.enInt]}>
@@ -356,7 +373,7 @@ const ReadingHistoryPrompt = ({ openSettings }) => {
   const langStyle = interfaceLanguage === 'he' ? styles.heInt : styles.enInt;
   return (
     <View>
-      <Text style={[langStyle, {textAlign: "center", marginTop: 20, paddingHorizontal: 15}, theme.secondaryText]}>
+      <Text style={[langStyle, styles.navReUpToEdge, {textAlign: "center", marginTop: 20, paddingHorizontal: 15}, theme.secondaryText]}>
         {strings.readingHistoryIsCurrentlyDisabled + " "}
         <Text style={[langStyle, theme.text]} onPress={openSettings}>
           {strings.settings.toLowerCase()}

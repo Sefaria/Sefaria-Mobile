@@ -65,13 +65,16 @@ const PageHeader = ({children}) => {
  * @constructor
  */
 const StatefulHeader = ({titleKey, icon = null, callbackFunc, active=true}) => {
-  const {themeStr, theme} = useGlobalState();
+  const {themeStr, theme, interfaceLanguage} = useGlobalState();
   const myIcon = iconData.get(icon, themeStr, active);
+  //this dance is bad. In react 0.71 we can use the 'gap' css directive on the container to do gaps betwwen the icon and text more unifromly. 
+  const isHeb = interfaceLanguage == "hebrew";
+  const iconStyles = isHeb ? styles.navReStatefulHeaderIconHe : styles.navReStatefulHeaderIcon;
   return(
       <View style={styles.navReStatefulHeader}>
         <TouchableOpacity onPress={callbackFunc}>
           <FlexFrame alignItems={"center"}>
-              {icon ? <Image style={styles.navReStatefulHeaderIcon} source={myIcon}/> : null}
+              {icon ? <Image style={[iconStyles]} source={myIcon}/> : null}
               <InterfaceText stringKey={titleKey} extraStyles={[styles.navReHeaderText, active ? theme.tertiaryText : theme.secondaryText]} />
           </FlexFrame>
         </TouchableOpacity>
@@ -1292,7 +1295,7 @@ class ProfilePic extends React.Component {
     super(props);
     this.state = {
       showDefault: !props.url || props.url.startsWith("https://www.gravatar"), // We can't know in advance if a gravatar image exists of not, so start with the default beforing trying to load image
-      url: props.url.replace("profile-default.png", 'profile-default-404.png'),
+      url: !!props.url ? props.url.replace("profile-default.png", 'profile-default-404.png'): "",
     };
     this.imgFile = React.createRef();
   }

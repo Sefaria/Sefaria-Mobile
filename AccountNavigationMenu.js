@@ -79,10 +79,7 @@ const AccountNavigationMenuButton = ({titleKey, icon, callbackFunc, textStyles, 
 const SefariaBackgroundAccountNavigationMenuButton = ({...menuButtonProps}) => {
     const {theme} = useGlobalState();
     return (<AccountNavigationMenuButton {...menuButtonProps} textStyles={[theme.sefariaColorButtonText]}
-                                         containerStyles={[theme.sefariaColorButton, {
-                                             marginHorizontal: 0,
-                                             paddingHorizontal: 15
-                                         }]}/>);
+                                         containerStyles={[theme.sefariaColorButton, styles.navReUpToEdge]}/>);
 };
 
 const SefariaTextAccountNavigationMenuButton = ({...menuButtonProps}) => {

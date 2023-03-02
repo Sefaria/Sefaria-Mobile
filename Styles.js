@@ -78,6 +78,10 @@ export default StyleSheet.create({
   navRePage:{
     marginHorizontal: 15,
   },
+  navReUpToEdge: {
+     marginHorizontal: 0,
+     paddingHorizontal: 15
+ },
   navReEnglish:{
     flexDirection: "row",
   },
@@ -113,7 +117,10 @@ export default StyleSheet.create({
     marginEnd: 15,
   },
   navReStatefulHeaderIcon:{
-    marginEnd: 6,
+    marginRight: 6,
+  }, 
+  navReStatefulHeaderIconHe:{
+    marginLeft: 6,
   },
   navReAccountMenuButtonSep:{
     fontSize: 16, 
@@ -127,7 +134,10 @@ export default StyleSheet.create({
     marginVertical:20,
   },
   navReHistoryItem:{
-    borderBottomWidth: 1,
+    paddingBottom:20,
+    borderBottomWidth: 1, 
+    marginHorizontal: 15,
+    marginBottom: 22,
   },
   learningSchedulesBorder: {borderBottomWidth: 1, paddingBottom: 5, marginBottom: 10},
   boxShadow: {
@@ -1436,15 +1446,16 @@ export default StyleSheet.create({
     justifyContent: 'space-between',
   },
   topicSourceTitle: {
-    fontSize: 24,
+    fontSize: 24, 
+    lineHeight:33,
   },
   colorBarBoxEnglish: {
     borderLeftWidth: 4,
-    paddingLeft: 30,
+    paddingLeft: 17,
   },
   colorBarBoxHebrew: {
     borderRightWidth: 4,
-    paddingRight: 30,
+    paddingRight: 17,
   },
   dataSourceButton: {
     borderRadius: 500,
