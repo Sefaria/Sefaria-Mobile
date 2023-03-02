@@ -112,7 +112,10 @@ export default StyleSheet.create({
     marginEnd: 15,
   },
   navReStatefulHeaderIcon:{
-    marginEnd: 6,
+    marginRight: 6,
+  }, 
+  navReStatefulHeaderIconHe:{
+    marginLeft: 6,
   },
   navReAccountMenuButtonSep:{
     fontSize: 16, 
