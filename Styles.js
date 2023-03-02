@@ -1438,7 +1438,8 @@ export default StyleSheet.create({
     justifyContent: 'space-between',
   },
   topicSourceTitle: {
-    fontSize: 24,
+    fontSize: 24, 
+    lineHeight:33,
   },
   colorBarBoxEnglish: {
     borderLeftWidth: 4,
