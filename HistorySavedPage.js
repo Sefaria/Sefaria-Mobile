@@ -297,7 +297,7 @@ const HistoryItem = ({item, openRef}) => {
 const TextHistoryItem = ({text}) => {
     const { textLanguage } = useGlobalState();
     return (
-        <StoryFrame extraStyles={styles.topicItemMargins}>
+        <StoryFrame>
           <View style={{marginBottom: 10}}>
               <StoryTitleBlock en={text.ref} he={Sefaria.normHebrewRef(text.heRef)} /*onClick={() => openRef(text.ref)}*/ />
           </View>
@@ -314,7 +314,7 @@ const SheetHistoryItem = ({sheet}) => {
     const isHeb = interfaceLanguage === 'hebrew';
     const title = Sefaria.util.stripHtml(sheet.sheet_title);
     return (
-    <StoryFrame extraStyles={[styles.topicItemMargins]}>
+    <StoryFrame>
         <StoryTitleBlock en={title} he={title} /*onClick={}*/ />
         {!!sheet.sheet_summary ? <SimpleInterfaceBlock en={sheet.sheet_summary} he={sheet.sheet_summary}/> : null}
         {!!sheet.publisher_image && !!sheet.publisher_name ? <View style={{marginTop: 10}}>

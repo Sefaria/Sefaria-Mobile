@@ -126,7 +126,10 @@ export default StyleSheet.create({
     marginVertical:20,
   },
   navReHistoryItem:{
-    borderBottomWidth: 1,
+    paddingBottom:20,
+    borderBottomWidth: 1, 
+    marginHorizontal: 15,
+    marginBottom: 22,
   },
   learningSchedulesBorder: {borderBottomWidth: 1, paddingBottom: 5, marginBottom: 10},
   boxShadow: {
