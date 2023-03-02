@@ -34,6 +34,7 @@ class AutocompleteList extends React.Component {
     setCategories: PropTypes.func.isRequired,
     search:   PropTypes.func.isRequired,
     openUri: PropTypes.func.isRequired,
+    setQueryRef: PropTypes.func.isRequired,
   };
 
   constructor(props) {
@@ -59,6 +60,10 @@ class AutocompleteList extends React.Component {
     }
   }
 
+  shouldQueryOpenToc = ({ is_book, is_node, is_section, is_segment, is_range }) => {
+    return is_book || (is_node && !(is_section || is_segment || is_range));
+  }
+
   onQueryChange = q => {
     if (q.length >= 3) {
       Sefaria.api.name(q, true)
@@ -73,14 +78,17 @@ class AutocompleteList extends React.Component {
           })
           .stableSort((a,b) => typeToValue[a.type] - typeToValue[b.type])
           .concat([{title: `Search for: "${this.props.query}"`, type: "searchFor"}]); // always add a searchFor element at the bottom
-          if (results.is_ref && results.ref) {
+          this.props.setQueryRef(null, false);
+          if (results.is_ref && !!results.ref) {
             // manually add ref item to list
             function lastSectionName(data) {
-              return data.sectionNames[data.sections.length-1];
+              return data?.sectionNames?.[data.sections.length-1];
             }
+            const queryRef = Sefaria.addPageToWholeDafRef(results.ref, lastSectionName(results));
+            this.props.setQueryRef(queryRef, results.index, this.shouldQueryOpenToc(results));
             completions.unshift({
               title: results.ref,
-              key: Sefaria.addPageToWholeDafRef(results.ref, lastSectionName(results)),
+              key: refQuery,
               type: 'ref',
               is_primary: true,
             });

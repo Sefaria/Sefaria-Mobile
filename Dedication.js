@@ -22,7 +22,7 @@ export const Dedication = function(props) {
   const flexDirection = isHeb ? 'row-reverse' : 'row';
   const justifyStyle = {textAlign: (Platform.OS === 'ios') ? 'justify' : isHeb ? 'right' : 'left', writingDirection: isHeb ? "rtl" : "ltr"};
 
-  return <View style={[theme.menu]}>
+  return <View style={[{alignSelf: "stretch", flex: 1}, theme.mainTextPanel]}>
     <RainbowBar/>
     <ScrollView contentContainerStyle={{paddingHorizontal: 50, textAlign: 'center'}}>
       <View style={{marginHorizontal: -50, flexDirection: 'row-reverse'}}>
