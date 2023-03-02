@@ -1439,11 +1439,11 @@ export default StyleSheet.create({
   },
   colorBarBoxEnglish: {
     borderLeftWidth: 4,
-    paddingLeft: 30,
+    paddingLeft: 17,
   },
   colorBarBoxHebrew: {
     borderRightWidth: 4,
-    paddingRight: 30,
+    paddingRight: 17,
   },
   dataSourceButton: {
     borderRadius: 500,
