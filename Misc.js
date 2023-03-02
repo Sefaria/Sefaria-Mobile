@@ -1292,7 +1292,7 @@ class ProfilePic extends React.Component {
     super(props);
     this.state = {
       showDefault: !props.url || props.url.startsWith("https://www.gravatar"), // We can't know in advance if a gravatar image exists of not, so start with the default beforing trying to load image
-      url: props.url.replace("profile-default.png", 'profile-default-404.png'),
+      url: !!props.url ? props.url.replace("profile-default.png", 'profile-default-404.png'): "",
     };
     this.imgFile = React.createRef();
   }

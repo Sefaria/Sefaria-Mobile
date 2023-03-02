@@ -321,7 +321,7 @@ const SheetHistoryItem = ({sheet}) => {
     <StoryFrame>
         <StoryTitleBlock en={title} he={title} /*onClick={}*/ />
         {!!sheet.sheet_summary ? <SimpleInterfaceBlock en={sheet.sheet_summary} he={sheet.sheet_summary}/> : null}
-        {!!sheet.publisher_image && !!sheet.publisher_name ? <View style={{marginTop: 10}}>
+        {!!sheet.publisher_name ? <View style={{marginTop: 10}}>
           <ProfileListing
             image={sheet.publisher_image}
             name={sheet.publisher_name}
