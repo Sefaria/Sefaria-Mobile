@@ -126,6 +126,13 @@ export class MenuItemsMeta {
     static _items = [
         /*{title: 'profile', icon: 'profile-nav', loggedIn: true, ButtonComponent: AccountNavigationMenuButton, actionProps:{action: "menu", destination:"profile"}},*/
         {
+            title: 'mySheets',
+            icon: 'sheet',
+            loggedIn: true,
+            ButtonComponent: SefariaTextAccountNavigationMenuButton,
+            actionProps: {action: "menu", destination: "mySheets"}
+        },
+        {
             title: 'signup',
             icon: 'profile-nav',
             loggedIn: false,
