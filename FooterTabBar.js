@@ -36,7 +36,7 @@ export const FooterTabBar = ({selectedTabName, setTab}) => {
 };
 
 const FooterTabButton = ({stringKey, name, iconName, isSelected, setTab}) => {
-    const {themeStr, theme} = useGlobalState();
+    const {theme} = useGlobalState();
     const onPress = () => setTab(name);
     return (
         <TouchableOpacity style={styles.footerButton} onPress={onPress}>

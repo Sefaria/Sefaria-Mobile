@@ -1531,7 +1531,6 @@ export default StyleSheet.create({
   },
   footerButton: {
     flex: 1,
-    marginHorizontal: 17,
     marginVertical: 14,
     alignItems: "center",
     justifyContent: "center",
