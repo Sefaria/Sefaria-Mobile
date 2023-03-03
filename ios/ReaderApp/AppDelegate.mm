@@ -7,6 +7,7 @@
 #import <React/RCTAppSetupUtils.h>
 #import <React/RCTLinkingManager.h>
 #import <TSBackgroundFetch/TSBackgroundFetch.h>
+#import <RNSplashScreen.h>
 #import <Firebase.h>
 
 #if RCT_NEW_ARCH_ENABLED
@@ -61,6 +62,8 @@
   // Stuff added
   [[TSBackgroundFetch sharedInstance] didFinishLaunching];
   [FIRApp configure];
+  [RNSplashScreen show];
+  //[NSThread sleepForTimeInterval:0.500];//time delay
   // End stuff added
 
   return YES;
