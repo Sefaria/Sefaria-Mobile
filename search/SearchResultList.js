@@ -105,7 +105,7 @@ class SearchResultList extends React.Component {
           keyExtractor={this._keyExtractor}
           scrollEventThrottle={100}
           onEndReached={this.onEndReached}
-          contentContainerStyle={{marginBottom:50}}/>
+          contentContainerStyle={[{marginBottom:50}, styles.pageMargins]}/>
       );
     } else {
       return null;

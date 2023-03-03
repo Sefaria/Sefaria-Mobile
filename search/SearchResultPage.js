@@ -29,24 +29,26 @@ export const SearchResultPage = (props) => {
     const numFilters = props.searchState.appliedFilters.length;
     const onFilterPress = () => props.openSubMenu("filter");
     return (
-        <View style={[styles.menu, styles.pageMargins]}>
-            <PageHeader><Header titleKey={"search"}/></PageHeader>
-            <SearchBar
-                search={props.search}
-                query={props.query}
-                setIsNewSearch={props.setIsNewSearch}
-                onChange={props.onChangeSearchQuery}
-                onFocus={props.openAutocomplete}
-            />
-            <View style={{marginVertical: 17}}>
-                <TabRowView
-                    tabs={tabs}
-                    renderTab={(tab, active) => <SearchTabView active={active} {...tab} />}
-                    currTabId={props.searchState.type}
-                    setTab={props.setSearchTypeState}
-                    flexDirection={flexDirection}
-                    RowEndComponent={props.searchState.type === "text" ? <FilterButton onPress={onFilterPress} numFilters={numFilters}/> : null}
+        <View style={styles.menu}>
+            <View style={styles.pageMargins}>
+                <PageHeader><Header titleKey={"search"}/></PageHeader>
+                <SearchBar
+                    search={props.search}
+                    query={props.query}
+                    setIsNewSearch={props.setIsNewSearch}
+                    onChange={props.onChangeSearchQuery}
+                    onFocus={props.openAutocomplete}
                 />
+                <View style={{marginVertical: 17}}>
+                    <TabRowView
+                        tabs={tabs}
+                        renderTab={(tab, active) => <SearchTabView active={active} {...tab} />}
+                        currTabId={props.searchState.type}
+                        setTab={props.setSearchTypeState}
+                        flexDirection={flexDirection}
+                        RowEndComponent={props.searchState.type === "text" ? <FilterButton onPress={onFilterPress} numFilters={numFilters}/> : null}
+                    />
+                </View>
             </View>
             <SearchResultList
                 setInitSearchScrollPos={props.setInitSearchScrollPos}
