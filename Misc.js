@@ -134,9 +134,10 @@ const SystemHeader = ({ title, onBack, openNav, hideLangToggle }) => {
  * @param en Explicit text to be displayed when interfaceLanguage is English. Only used if stringKey is not supplied.
  * @param he Explicit text to be displayed when interfaceLanguage is Hebrew. Only used if stringKey is not supplied.
  * @param extraStyles additional styling directives to render this specific text (is it a header, a simple line of text, etc)
+ * @param allowFontScaling Equivalent to <Text>'s prop of the same name.
  * @returns {Text}
  */
-const InterfaceText = ({stringKey, lang, en, he, extraStyles = []}) => {
+const InterfaceText = ({stringKey, lang, en, he, extraStyles = [], allowFontScaling=true}) => {
   const { interfaceLanguage } = useContext(GlobalStateContext);
   const intTextStyles = {
     'english' : styles.enInt,
@@ -151,7 +152,7 @@ const InterfaceText = ({stringKey, lang, en, he, extraStyles = []}) => {
     text = lang === 'english' ? en : he;
   }
   return (
-    <Text style={[langStyle].concat(extraStyles)}>{text}</Text>
+    <Text style={[langStyle].concat(extraStyles)} allowFontScaling={allowFontScaling}>{text}</Text>
   );
 };
 

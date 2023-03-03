@@ -41,7 +41,7 @@ const FooterTabButton = ({stringKey, name, iconName, isSelected, setTab}) => {
     return (
         <TouchableOpacity style={styles.footerButton} onPress={onPress}>
             <Icon name={iconName} isSelected={isSelected} length={20}/>
-            <InterfaceText stringKey={stringKey} extraStyles={[styles.footerButtonText, theme.tertiaryText, isSelected ? theme.primaryText : undefined]} />
+            <InterfaceText allowFontScaling={false} stringKey={stringKey} extraStyles={[styles.footerButtonText, theme.tertiaryText, isSelected ? theme.primaryText : undefined]} />
         </TouchableOpacity>
     );
 };
