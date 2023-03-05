@@ -25,7 +25,7 @@ const useCalendarItemsBySection = () => {
             sectionTitleKey: "dailyLearning",
             calendarTitles: [
                 "Daf Yomi", "929", "Daily Mishnah", "Daily Rambam", "Daily Rambam (3 Chapters)", "Halakhah Yomit",
-                "Arukh HaShulchan Yomi", "Tanakh Yomi", "Zohar for Elul", "Chok LeYisrael", "Tanya Yomi"
+                "Arukh HaShulchan Yomi", "Tanakh Yomi", "Zohar for Elul", "Chok LeYisrael", "Tanya Yomi", "Yerushalmi Yomi"
             ],
         },
         {
