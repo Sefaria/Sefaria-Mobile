@@ -132,7 +132,7 @@ const useLearningScheduleDisplayTitles = (title, scheduleSubtitle, itemSubtitles
      */
     const displayTitle = title.en === "Parashat Hashavua" ? itemSubtitles[0] : title;
     const getWrapped = text => text && `(${text})`;
-    const displaySubtitle = {en: getWrapped(scheduleSubtitle.en), he: getWrapped(scheduleSubtitle.he)};
+    const displaySubtitle = {en: getWrapped(scheduleSubtitle?.en), he: getWrapped(scheduleSubtitle?.he)};
     return { displayTitle, displaySubtitle };
 };
 
