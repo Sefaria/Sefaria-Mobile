@@ -129,7 +129,7 @@ export class MenuItemsMeta {
             title: 'mySheets',
             icon: 'sheet',
             loggedIn: true,
-            ButtonComponent: SefariaTextAccountNavigationMenuButton,
+            ButtonComponent: AccountNavigationMenuButton,
             actionProps: {action: "menu", destination: "mySheets"}
         },
         {
