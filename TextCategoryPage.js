@@ -148,7 +148,7 @@ const getDisplayTocItems = (displayCategories, nestLevel, contentLang) => {
                 if(tocItem.contents && tocItem.contents.length === 1 && !("category" in tocItem.contents[0])) {
                     const chItem = tocItem.contents[0];
                     if (chItem.hidden) { continue; }
-                    displayTocItems.push(new DisplayTocItem({ tocItem }));
+                    displayTocItems.push(new DisplayTocItem({ tocItem: chItem }));
                 } else {
                     // Create a link to a subcategory
                     displayTocItems.push(new DisplayTocItem({ tocItem, categories: newCats }));
