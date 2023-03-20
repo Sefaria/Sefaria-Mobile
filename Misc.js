@@ -11,7 +11,6 @@ import {
   View,
   Image,
   ActivityIndicator,
-  ViewPropTypes,
   Animated,
   Platform,
   TextInput,
@@ -19,10 +18,12 @@ import {
   FlatList,
   useWindowDimensions,
 } from 'react-native';
+import {ViewPropTypes} from 'deprecated-react-native-prop-types';
 import { GlobalStateContext, DispatchContext, STATE_ACTIONS, themeStr, getTheme } from './StateManager';
-import { useGlobalState, useRenderersProps } from './Hooks';
+import {useGlobalState, useRenderersProps, useRtlFlexDir} from './Hooks';
 import Sefaria from './sefaria';
 import styles from './Styles.js';
+import {iconData } from "./IconData";
 import strings from './LocalizedStrings';
 import { useHTMLViewStyles } from './useHTMLViewStyles';
 import { RenderHTML } from 'react-native-render-html';
@@ -33,7 +34,6 @@ const CSS_CLASS_STYLES = {
     fontFamily: "Taamey Frank Taamim Fix",
     writingDirection: "rtl",
     flex: -1,
-    paddingTop: 15,
     textAlign: Platform.OS == "android" ? "right" : "justify",
   },
   english: {
@@ -43,6 +43,59 @@ const CSS_CLASS_STYLES = {
     paddingTop: 0,
   },
 };
+
+
+/**
+ * Renderes a page header with Styles to match all page headers and spacing
+ * @param headerProps the props that would be passed to <Header>
+ * @returns {JSX.Element} 
+ * @constructor
+ */
+const PageHeader = ({children}) => {
+    return (
+        <View style={[styles.navRePageHeader]}>
+          {children}
+        </View>
+    )
+}
+/***
+ * Renders text styled as a header that has functionality
+ * @param titleKey the text to use for the header
+ * @returns {JSX.Element}
+ * @constructor
+ */
+const StatefulHeader = ({titleKey, icon = null, callbackFunc, active=true}) => {
+  const {themeStr, theme, interfaceLanguage} = useGlobalState();
+  const myIcon = iconData.get(icon, themeStr, active);
+  //this dance is bad. In react 0.71 we can use the 'gap' css directive on the container to do gaps betwwen the icon and text more unifromly. 
+  const isHeb = interfaceLanguage == "hebrew";
+  const iconStyles = isHeb ? styles.navReStatefulHeaderIconHe : styles.navReStatefulHeaderIcon;
+  return(
+      <View style={styles.navReStatefulHeader}>
+        <TouchableOpacity onPress={callbackFunc}>
+          <FlexFrame alignItems={"center"}>
+              {icon ? <Image style={[iconStyles]} source={myIcon}/> : null}
+              <InterfaceText stringKey={titleKey} extraStyles={[styles.navReHeaderText, active ? theme.tertiaryText : theme.secondaryText]} />
+          </FlexFrame>
+        </TouchableOpacity>
+      </View>
+  );
+}
+/***
+ * Renders text styled as a header
+ * @param titleKey the text to use for the header
+ * @returns {JSX.Element}
+ * @constructor
+ */
+const Header = ({titleKey, icon = null}) => {
+  const { theme } = useGlobalState();
+  return(
+      <FlexFrame>
+        {icon ? <Icon name={icon}/> : null}
+        <InterfaceText stringKey={titleKey} extraStyles={[styles.navReHeaderText, theme.tertiaryText]} />
+      </FlexFrame>
+  );
+}
 
 const SystemHeader = ({ title, onBack, openNav, hideLangToggle }) => {
   const { themeStr, interfaceLanguage } = useContext(GlobalStateContext);
@@ -70,6 +123,36 @@ const SystemHeader = ({ title, onBack, openNav, hideLangToggle }) => {
         />
       ) : <LanguageToggleButton /> }
     </View>
+  );
+};
+
+/**
+ * Component to render an interface string that is present in strings.js
+ * Please use this as opposed to InterfaceTextWithFallback when possible
+ * @param stringKey the key of the string to be rendered (must exist in all interface languages). If not passed, must pass `en` and `he`
+ * @param lang Optional explicit language to control which style of text is displayed. Either "english" or "hebrew".
+ * @param en Explicit text to be displayed when interfaceLanguage is English. Only used if stringKey is not supplied.
+ * @param he Explicit text to be displayed when interfaceLanguage is Hebrew. Only used if stringKey is not supplied.
+ * @param extraStyles additional styling directives to render this specific text (is it a header, a simple line of text, etc)
+ * @param allowFontScaling Equivalent to <Text>'s prop of the same name.
+ * @returns {Text}
+ */
+const InterfaceText = ({stringKey, lang, en, he, extraStyles = [], allowFontScaling=true}) => {
+  const { interfaceLanguage } = useContext(GlobalStateContext);
+  const intTextStyles = {
+    'english' : styles.enInt,
+    'hebrew' : styles.heInt
+  };
+  lang = lang || interfaceLanguage;
+  const langStyle = intTextStyles[lang];
+  let text;
+  if (stringKey) {
+    text = strings[stringKey];
+  } else {
+    text = lang === 'english' ? en : he;
+  }
+  return (
+    <Text style={[langStyle].concat(extraStyles)} allowFontScaling={allowFontScaling}>{text}</Text>
   );
 };
 
@@ -191,7 +274,7 @@ const SefariaProgressBar = ({ onPress, onClose, download, downloadNotification, 
    * process, I imagine this will generally be listening to libraries that support Stateful Promises. This can be
    * revisited if reuseability becomes a problem.
    */
-  const { theme, interfaceLanguage } = useGlobalState();
+  const { theme, themeStr, interfaceLanguage } = useGlobalState();
   const [ progress, setProgress ] = useState(0);
   const calculateProgress = (received, total) => !!(received) ? setProgress(received / total) : setProgress(0.0);
   const downloadActive = !!downloadNotification ? downloadNotification.downloadActive : false;
@@ -226,7 +309,7 @@ const SefariaProgressBar = ({ onPress, onClose, download, downloadNotification, 
           {!!onClose ?
             <TouchableOpacity onPress={onClose} accessibilityLabel="Close">
               <Image
-                source={themeStr === 'white' ? require('./img/close.png') : require('./img/close-light.png')}
+                source={iconData.get('close', themeStr)}
                 resizeMode={'contain'}
                 style={{width: 14, height: 14}}
               />
@@ -328,11 +411,11 @@ const CategoryBlockLink = ({
   return (
     <TouchableOpacity onLongPress={onLongPress} onPress={onPress} style={[styles.readerNavCategory, theme.readerNavCategory, style]}>
       <View style={styles.readerNavCategoryInner}>
-        { iconOnLeft && (withArrow || icon) ? <Image source={withArrow || !icon ? (themeStr == "white" ? require('./img/back.png') : require('./img/back-light.png')) : icon }
+        { iconOnLeft && (withArrow || icon) ? <Image source={withArrow || !icon ? iconData.get('back', themeStr) : icon }
           style={[styles.moreArrowHe, isSans ? styles.categoryBlockLinkIconSansHe : null]}
           resizeMode={'contain'} /> : null }
         {content}
-        { !iconOnLeft && (withArrow || icon) ? <Image source={ withArrow || !icon ? (themeStr == "white" ? require('./img/forward.png'): require('./img/forward-light.png')) : icon }
+        { !iconOnLeft && (withArrow || icon) ? <Image source={ withArrow || !icon ? iconData.get('forward', themeStr) : icon }
           style={[styles.moreArrowEn, isSans ? styles.categoryBlockLinkIconSansEn : null]}
           resizeMode={'contain'} /> : null }
       </View>
@@ -454,11 +537,20 @@ class AnimatedRow extends React.Component {
   }
 }
 
-class CategoryColorLine extends React.Component {
-  render() {
-    var style = {backgroundColor: Sefaria.palette.categoryColor(this.props.category)};
-    return (<View style={[styles.categoryColorLine, style]}></View>);
-  }
+/**
+ * Horizontal line that has the corresponding category color of `category`, based on Sefaria.palette.categoryColor()
+ * @param category: string top-level category name.
+ * @param thickness: int, how thick the category line is.
+ * @returns {JSX.Element}
+ * @constructor
+ */
+const CategoryColorLine = ({ category, thickness=4 }) => {
+  const style = {
+    height: thickness,
+    alignSelf: "stretch",
+    backgroundColor: Sefaria.palette.categoryColor(category)
+  };
+  return (<View style={style} />);
 }
 
 const CategoryAttribution = ({ categories, context, linked=true, openUri }) => {
@@ -565,10 +657,11 @@ LibraryNavButton.propTypes = {
 
 const LanguageToggleButton = () => {
   // button for toggling b/w he and en for menu and text lang (both controlled by `textLanguage`)
-  const { themeStr, interfaceLanguage, textLanguage } = useContext(GlobalStateContext);
-  const theme = getTheme(themeStr);
+  const { theme, textLanguage, interfaceLanguage } = useGlobalState();
   const dispatch = useContext(DispatchContext);
-  const isHeb = Sefaria.util.get_menu_language(interfaceLanguage, textLanguage) == 'hebrew';
+  const isHeb = textLanguage === 'hebrew';
+  const iconName = isHeb ? "a_icon" : "aleph";
+  const enabled = interfaceLanguage !== 'hebrew';
 
   const toggle = () => {
     const language = !isHeb ? "hebrew" : 'english';
@@ -578,39 +671,24 @@ const LanguageToggleButton = () => {
     });
   };
 
-  const content = isHeb ?
-      (<Text style={[styles.languageToggleTextEn, theme.languageToggleText, styles.en]}>A</Text>) :
-      (<Text style={[styles.languageToggleTextHe, theme.languageToggleText, styles.he]}>א</Text>);
-  const style = [styles.languageToggle, theme.languageToggle, interfaceLanguage === "hebrew" ? {opacity:0} : null];
+  const style = [styles.languageToggle, theme.languageToggle, enabled ? null : {opacity:0}];
   return (
-    <TouchableOpacity style={style} onPress={interfaceLanguage === "hebrew" ? null : toggle} accessibilityLabel={`Change language to ${isHeb ? "English" : "Hebrew"}`}>
-      {content}
+    <TouchableOpacity style={style} onPress={toggle} disabled={!enabled} accessibilityLabel={`Change language to ${isHeb ? "English" : "Hebrew"}`}>
+      <Icon name={iconName} length={13.5} />
     </TouchableOpacity>
   );
 }
 
 const CollapseIcon = ({ showHebrew, isVisible }) => {
   const { themeStr } = useContext(GlobalStateContext);
-  var src;
-  if (themeStr == "white") {
-    if (isVisible) {
-      src = require('./img/down.png');
-    } else {
-      if (showHebrew) {
-        src = require('./img/back.png');
-      } else {
-        src = require('./img/forward.png');
-      }
-    }
+  let src;
+  if (isVisible) {
+    src = iconData.get('down', themeStr);
   } else {
-    if (isVisible) {
-      src = require('./img/down-light.png');
+    if (showHebrew) {
+      src = iconData.get('back', themeStr);
     } else {
-      if (showHebrew) {
-        src = require('./img/back-light.png');
-      } else {
-        src = require('./img/forward-light.png');
-      }
+      src = iconData.get('forward', themeStr);
     }
   }
   return (
@@ -666,22 +744,9 @@ class DirectedButton extends React.Component {
 const DirectedArrow = ({ imageStyle, language, direction }) => {
   const { themeStr } = useContext(GlobalStateContext);
   const isheb = language === 'hebrew';
-  var actualDirBack = (isheb  && direction === "forward") || (!isheb && direction === "back");
-  //I wish there was a way to reduce these if statements, but there's a limitation that require statements can't have variables in them
-  var src;
-  if (actualDirBack) {
-    if (themeStr === "white") {
-      src = require("./img/back.png");
-    } else {
-      src = require("./img/back-light.png");
-    }
-  } else {
-    if (themeStr === "white") {
-      src = require("./img/forward.png");
-    } else {
-      src = require("./img/forward-light.png");
-    }
-  }
+  const actualDirBack = (isheb  && direction === "forward") || (!isheb && direction === "back");
+  const iconName = actualDirBack ? 'back' : 'forward';
+  const src = iconData.get(iconName, themeStr);
   return (
     <Image source={src} style={imageStyle} resizeMode={'contain'}/>
   );
@@ -692,12 +757,32 @@ DirectedArrow.propTypes = {
   direction:  PropTypes.oneOf(["forward", "back"]).isRequired,
 };
 
+const BackButton = ({ onPress }) => {
+  const { interfaceLanguage } = useGlobalState();
+  const iconName = interfaceLanguage === "english" ? "back" : "forward";
+  return (
+      <SefariaPressable onPress={onPress} hitSlop={20}>
+        <Icon name={iconName} length={18} />
+      </SefariaPressable>
+  );
+};
+
+const BackButtonRow = ({ onPress }) => {
+  return (
+      <View style={{paddingVertical: 18}}>
+        <FlexFrame dir={"row"} justifyContent={"flex-start"} alignItems={"center"}>
+          <BackButton onPress={onPress} />
+        </FlexFrame>
+      </View>
+  );
+};
+
 const SearchButton = ({ onPress, extraStyles, disabled }) => {
   const { themeStr } = useContext(GlobalStateContext);
   return (
     <TouchableOpacity style={[styles.headerButton, styles.headerButtonSearch, extraStyles]} onPress={onPress} disabled >
       <Image
-        source={themeStr == "white" ? require('./img/search.png'): require('./img/search-light.png') }
+        source={iconData.get('search', themeStr)}
         style={styles.searchButton}
         resizeMode={'contain'}
       />
@@ -710,7 +795,7 @@ const MenuButton = ({ onPress, placeholder }) => {
   return (
     <TouchableOpacity style={[styles.headerButton, styles.leftHeaderButton, {opacity: placeholder ? 0 : 1}]} onPress={onPress} accessibilityLabel="Open Menu">
       <Image
-        source={themeStr == "white" ? require('./img/menu.png'): require('./img/menu-light.png') }
+        source={iconData.get('menu', themeStr)}
         style={styles.menuButton}
         resizeMode={'contain'}
       />
@@ -723,7 +808,7 @@ const CloseButton = ({ onPress }) => {
   return (
     <TouchableOpacity style={[styles.headerButton, styles.leftHeaderButton]} onPress={onPress} accessibilityLabel="Close">
       <Image
-        source={themeStr == "white" ? require('./img/close.png'): require('./img/close-light.png') }
+        source={iconData.get('close', themeStr)}
         style={styles.closeButton}
         resizeMode={'contain'}
       />
@@ -736,7 +821,7 @@ const CircleCloseButton = ({ onPress }) => {
   return (
     <TouchableOpacity style={styles.headerButton} onPress={onPress} accessibilityLabel="Close">
       <Image
-        source={themeStr == "white" ? require('./img/circle-close.png'): require('./img/circle-close-light.png') }
+        source={iconData.get('circle-close', themeStr)}
         style={styles.circleCloseButton}
         resizeMode={'contain'}
       />
@@ -753,7 +838,7 @@ const TripleDots = ({ onPress }) => {
     >
       <Image
         style={styles.tripleDots}
-        source={themeStr == "white" ? require('./img/dots.png'): require('./img/dots-light.png') }
+        source={iconData.get('dots', themeStr)}
       />
     </TouchableOpacity>
   );
@@ -768,7 +853,7 @@ const DisplaySettingsButton = ({ onPress }) => {
       accessibilityLabel="Open display settings"
     >
       <Image
-        source={themeStr == "white" ? require('./img/a-aleph.png'): require('./img/a-aleph-light.png') }
+        source={iconData.get('a-aleph', themeStr)}
         style={styles.displaySettingsButton}
         resizeMode={'contain'}
       />
@@ -809,46 +894,13 @@ ToggleSet.propTypes = {
   active:      PropTypes.string.isRequired
 };
 
-const ButtonToggleSet = ({ options, active }) => {
-  const { themeStr, interfaceLanguage } = useContext(GlobalStateContext);
-  const theme = getTheme(themeStr);
-  var showHebrew = interfaceLanguage == "hebrew";
-  const optionComponents = options.map((option, i) => {
-
-    let alignStyle;
-    if (i == options.length -1) { alignStyle = styles.readerDisplayOptionsMenuItemRight; }
-    else if (i == 0)            { alignStyle = styles.readerDisplayOptionsMenuItemLeft; }
-    else                        { alignStyle = styles.readerDisplayOptionsMenuItemCenter; }
-
-    var itemStyles = [styles.readerDisplayOptionsMenuItem, theme.readerDisplayOptionsMenuItem, alignStyle];
-    itemStyles = itemStyles.concat(active === option.name ? [theme.readerDisplayOptionsMenuItemSelected] : []);
-    return (
-      <TouchableOpacity onPress={option.onPress} key={i} style={itemStyles}>
-        {showHebrew ?
-          <Text style={[styles.heInt, theme.tertiaryText]}>{option.text}</Text> :
-          <Text style={[styles.enInt, theme.tertiaryText]}>{option.text}</Text> }
-      </TouchableOpacity>
-    );
-  });
-
-  return (
-    <View style={[styles.readerDisplayOptionsMenuRow, styles.buttonToggleSet]}>
-      {optionComponents}
-    </View>
-  );
-}
-ButtonToggleSet.propTypes = {
-  options:     PropTypes.array.isRequired, // array of object with `name`. `text`, `onPress`
-  active:      PropTypes.oneOfType([PropTypes.bool, PropTypes.string])
-};
-
-const ButtonToggleSetNew = ({ options, active }) => {
+const ButtonToggleSet= ({ options, active }) => {
   /* based on new styles guide */
   const { themeStr, interfaceLanguage } = useContext(GlobalStateContext);
   const theme = getTheme(themeStr);
   const isHeb = interfaceLanguage === 'hebrew';
   return (
-    <View style={[styles.readerDisplayOptionsMenuRow, styles.boxShadow, styles.buttonToggleSetNew, theme.mainTextPanel]}>
+    <View style={[styles.readerDisplayOptionsMenuRow, styles.boxShadow, styles.buttonToggleSet, theme.mainTextPanel]}>
       {
         options.map(option => {
           const isActive = active === (typeof option.value == 'undefined' ? option.name : option.value);
@@ -876,40 +928,43 @@ const LoadingView = ({ style, category, size, height, color=Sefaria.palette.colo
   </View>
 );
 
-const IndeterminateCheckBox = ({ state, onPress }) => {
-  const { themeStr } = useContext(GlobalStateContext);
-  var src;
-  if (state === 1) {
-    if (themeStr == "white") {
-      src = require('./img/checkbox-checked.png');
-    } else {
-      src = require('./img/checkbox-checked-light.png');
-    }
-  } else if (state === 0) {
-    if (themeStr == "white") {
-      src = require('./img/checkbox-unchecked.png');
-    } else {
-      src = require('./img/checkbox-unchecked-light.png');
-    }
-  } else {
-    if (themeStr == "white") {
-      src = require('./img/checkbox-partially.png');
-    } else {
-      src = require('./img/checkbox-partially-light.png');
-    }
-  }
+const useCheckboxIconName = (state) => {
+  const iconNameSuffixMap = ['unchecked', 'checked', 'partially'];
+  return `checkbox-${iconNameSuffixMap[state]}`;
+}
 
+const IndeterminateCheckBox = ({ state, onPress }) => {
+  const iconName = useCheckboxIconName(state);
   return (
     <TouchableOpacity onPress={onPress}>
-      <Image source={src}
-        resizeMode={'contain'}
-        style={styles.searchFilterCheckBox} />
+      <Icon name={iconName} length={18} />
     </TouchableOpacity>
   );
 }
 IndeterminateCheckBox.propTypes = {
   state:      PropTypes.oneOf([0,1,2]),
   onPress:    PropTypes.func.isRequired,
+};
+
+/**
+ * Icon component to be used wherever an icon from `IconData` is needed
+ * @param name - name of the icon
+ * @param length - assumption is the icon has the same width and height
+ * @param isSelected
+ * @param extraStyles - list of extra styles for icon
+ * @returns {JSX.Element}
+ * @constructor
+ */
+const Icon = ({ name, length, isSelected, extraStyles=[] }) => {
+  const { themeStr } = useGlobalState();
+  const icon = iconData.get(name, themeStr, isSelected);
+  return (
+     <Image
+         source={icon}
+         resizeMode={'contain'}
+         style={[{width: length, height: length}].concat(extraStyles)}
+     />
+  );
 };
 
 class RainbowBar extends React.Component {
@@ -974,7 +1029,7 @@ class SText extends React.Component {
   }
 }
 
-const TabRowView = ({ tabs, renderTab, currTabId, setTab, flexDirection='row' }) => {
+const TabRowView = ({ tabs, renderTab, currTabId, setTab, flexDirection='row', RowEndComponent=null }) => {
   const { theme } = useGlobalState();
   const renderTabWrapper = (tab) => {
     const active = currTabId === tab.id;
@@ -985,13 +1040,16 @@ const TabRowView = ({ tabs, renderTab, currTabId, setTab, flexDirection='row' })
     );
   };
   return (
-    <View style={[{ flexDirection, borderBottomWidth: 1, marginHorizontal: -15, paddingHorizontal: 15, alignItems: "flex-end" }, theme.borderedBottom]}>
-      {tabs.map(renderTabWrapper)}
+    <View style={[{ flexDirection, borderBottomWidth: 1, marginHorizontal: -15, paddingHorizontal: 15, alignItems: "center", justifyContent: "space-between" }, theme.borderedBottom]}>
+      <View style={[{flexDirection}]}>
+        {tabs.map(renderTabWrapper)}
+      </View>
+      {RowEndComponent}
     </View>
   );
 }
 
-const TabView = ({ text, active, lang }) => {
+const TabView = ({ active, lang, textStyleByLang = {}, baseTextStyles, ...tabTextProps }) => {
   /*
   Standard Sefaria Tab to be used in renderTab of TabRowView
   */
@@ -1000,38 +1058,74 @@ const TabView = ({ text, active, lang }) => {
   const style = {marginRight: lang === 'hebrew' ? 0 : 20, marginLeft: lang === 'hebrew' ? 20 : 0};
   return (
     <View style={[{ paddingVertical: 10, borderBottomWidth: 4, borderBottomColor: "transparent" }, style].concat(active ? activeBorderStyle : [])}>
-      <Text style={[styles.enInt, {fontSize: 22, fontWeight: 'bold'}, active ? theme.tertiaryText : theme.secondaryText]}>{ text }</Text>
+      <TabText active={active} {...tabTextProps} baseTextStyles={baseTextStyles.concat(textStyleByLang[lang])}/>
     </View>
   );
 };
 
-const LocalSearchBar = ({ onChange, query, onFocus }) => {
+const TabText = ({ active, text, baseTextStyles, activeTextStyle, inactiveTextStyle }) => {
+  const textStyle = baseTextStyles.concat([active ? activeTextStyle : inactiveTextStyle]);
+  return (
+      <Text style={textStyle}>{ text }</Text>
+  );
+};
+
+const SearchTextInput = ({ onChange, query, onFocus, placeholder }) => {
+  const { themeStr, theme, interfaceLanguage } = useGlobalState();
+  const isHeb = interfaceLanguage === "hebrew";
+  const placeholderTextColor = themeStr === "black" ? "#BBB" : "#666";
+  const isPlaceholder = !query?.length;
+  const defaultStyles = {textAlign: isHeb ? "right" : "left", fontSize: 18, paddingVertical: 0, paddingRight: isHeb ? 0 : 20, paddingLeft: isHeb ? 20 : 0, flex: 1}
+  // unfortunately textinput behaves differently on android
+  const androidStyles = {marginVertical: isPlaceholder ? 0 : -8, paddingBottom: 0, paddingTop: isPlaceholder ? 5 : 0, fontSize: 18, includeFontPadding: false, textAlignVertical: "center"};
+  return (
+      <View style={styles.flex1}>
+        <TextInput
+            style={[styles.en, defaultStyles, Platform.OS === 'android' ? androidStyles : null, theme.text]}
+            onChangeText={onChange}
+            value={query}
+            underlineColorAndroid={"transparent"}
+            placeholder={placeholder}
+            placeholderTextColor={placeholderTextColor}
+            autoCorrect={false}
+            onFocus={onFocus}
+        />
+      </View>
+  );
+};
+
+const SearchCancelButton = ({ onChange, query, iconLength=16 }) => {
+  if (!query) { return null; }
+  return (
+      <CancelButton onPress={() => { onChange(""); }} extraStyles={[{marginHorizontal: 5, width: iconLength, height: iconLength}]}/>
+  );
+};
+
+const SearchBarWithIcon = ({ onChange, query, onFocus }) => {
   /*
   Search bar used for local search on a page. E.g. on topic pages
   */
-  const { themeStr, theme } = useGlobalState();
-  const placeholderTextColor = themeStr == "black" ? "#BBB" : "#777";
+  const { theme } = useGlobalState();
   return (
-    <View style={[{borderRadius: 400, borderWidth: 1, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10}, theme.container, theme.lighterGreyBorder]}>
-      <SearchButton onPress={()=>{}} extraStyles={{height: 40}} disabled />
-      <View style={Platform.OS === 'android' ? {flex: 1, marginTop: 2, marginBottom: -2} : {flex:1}}>
-        <TextInput
-          style={[styles.en, { fontSize: 18, paddingVertical: 0, paddingRight: 20, lineHeight: Platform.OS === 'android' ? 40 : null, flex: 1 }, theme.text]}
-          onChangeText={onChange}
-          value={query}
-          underlineColorAndroid={"transparent"}
-          placeholder={strings.search}
-          placeholderTextColor={placeholderTextColor}
-          autoCorrect={false}
-          onFocus={onFocus}
-        />
-      </View>
-      {query ?
-        <CancelButton onPress={() => { onChange(""); }} extraStyles={[{marginHorizontal: 5}]}/>
-        : null
-      }
+    <View style={[{borderRadius: 400, borderWidth: 1, paddingHorizontal: 10}, theme.container, theme.lighterGreyBorder]}>
+      <FlexFrame dir={"row"} alignItems={"center"}>
+        <SearchButton onPress={()=>{}} extraStyles={{height: 40}} disabled />
+        <SearchTextInput onChange={onChange} query={query} onFocus={onFocus} placeholder={strings.search} />
+        <SearchCancelButton onChange={onChange} query={query} />
+      </FlexFrame>
     </View>
+  );
+};
 
+const CondensedSearchBar = ({ onChange, query, onFocus, placeholder }) => {
+  const { theme } = useGlobalState();
+  return (
+      <View style={[{borderRadius: 400, paddingHorizontal: 10}, theme.lighterGreyBackground]}>
+        <FlexFrame dir={"row"} alignItems={"center"} justifyContent={"space-between"}>
+          <SearchTextInput onChange={onChange} query={query} onFocus={onFocus} placeholder={placeholder} />
+          <SearchCancelButton onChange={onChange} query={query} iconLength={10} />
+        </FlexFrame>
+      </View>
   );
 };
 
@@ -1040,7 +1134,7 @@ const CancelButton = ({ onPress, extraStyles=[] }) => {
   return (
     <TouchableOpacity onPress={onPress} accessibilityLabel="close">
       <Image
-        source={themeStr === 'white' ? require('./img/circle-close.png') : require('./img/circle-close-light.png')}
+        source={iconData.get('close', themeStr)}
         style={[styles.cancelSearchButton].concat(extraStyles)}
         resizeMode={'contain'}
       />
@@ -1053,6 +1147,8 @@ const SaveButton = ({ historyItem, showToast, extraStyles=[] }) => {
   const [, forceUpdate] = useReducer(x => x + 1, 0);  // HACK
   const isHeb = Sefaria.util.get_menu_language(interfaceLanguage, textLanguage) == "hebrew";
   const isSaved = Sefaria.history.indexOfSaved(historyItem.ref) !== -1;
+  const iconName = isSaved ? 'bookmark-filled' : 'bookmark-unfilled';
+  const src = iconData.get(iconName, themeStr);
   return (
     <TouchableOpacity onPress={
         () => {
@@ -1070,9 +1166,7 @@ const SaveButton = ({ historyItem, showToast, extraStyles=[] }) => {
       }>
       <Image
         style={[styles.starIcon].concat(extraStyles)}
-        source={themeStr == "white" ?
-                (isSaved ? require('./img/starFilled.png') : require('./img/starUnfilled.png')) :
-                (isSaved ? require('./img/starFilled-light.png') : require('./img/starUnfilled-light.png'))}
+        source={src}
         resizeMode={'contain'}
       />
     </TouchableOpacity>
@@ -1123,15 +1217,18 @@ SimpleHTMLView.propTypes = {
   lang: PropTypes.oneOf(['english', 'hebrew']),
 };
 
-const SimpleContentBlock = ({en, he, classes}) => {
-  const { themeStr, interfaceLanguage } = useContext(GlobalStateContext);
-  const theme = getTheme(themeStr);
+const SimpleContentBlock = ({en, he}) => {
+  const { interfaceLanguage } = useContext(GlobalStateContext);
   const showHebrew = !!he;
-  const showEnglish = !!en && interfaceLanguage == 'english';
+  const showEnglish = !!en && (interfaceLanguage === 'english' || !he);
   return (
     <View>
       {showHebrew  ? <SimpleHTMLView text={he} lang={'hebrew'} />: null}
-      {showEnglish ? <SimpleHTMLView text={en} lang={'english'} /> : null}
+      {showEnglish ? (
+          <View style={{marginTop: showHebrew ? 10 : 0}}>
+            <SimpleHTMLView text={en} lang={'english'} />
+          </View>
+      ): null}
     </View>
   );
 }
@@ -1164,7 +1261,7 @@ SimpleLinkedBlock.propTypes = {
 };
 
 const ProfileListing = ({ image, name, organization, flexDirection='row' }) => {
-  const { themeStr } = useContext(GlobalStateContext);
+  const { themeStr, theme } = useGlobalState();
   return (
     <View style={{flexDirection}}>
       <ProfilePic
@@ -1173,13 +1270,13 @@ const ProfileListing = ({ image, name, organization, flexDirection='row' }) => {
         name={name}
         themeStr={themeStr}
       />
-      <View style={{paddingHorizontal: 10, justifyContent: 'space-between', flex: 1}}>
-        <SimpleInterfaceBlock
+      <View style={{paddingHorizontal: 10, justifyContent: 'center', flex: 1}}>
+        <SimpleInterfaceBlock extraStyles={[theme.mainText]}
           en={name}
           he={name}
         />
         {
-          !!organization ? <SimpleInterfaceBlock
+          !!organization ? <SimpleInterfaceBlock extraStyles={[theme.secondaryText]}
             en={organization}
             he={organization}
           />:null
@@ -1199,7 +1296,7 @@ class ProfilePic extends React.Component {
     super(props);
     this.state = {
       showDefault: !props.url || props.url.startsWith("https://www.gravatar"), // We can't know in advance if a gravatar image exists of not, so start with the default beforing trying to load image
-      url: props.url.replace("profile-default.png", 'profile-default-404.png'),
+      url: !!props.url ? props.url.replace("profile-default.png", 'profile-default-404.png'): "",
     };
     this.imgFile = React.createRef();
   }
@@ -1214,12 +1311,12 @@ class ProfilePic extends React.Component {
   }
   componentWillUnmount() { this._isMounted = false; }
   setShowDefault = () => {
-    console.log('setShowDefault', this._isMounted);
+    //console.log('setShowDefault', this._isMounted);
     if (!this._isMounted) { return; }
     this.setState({showDefault: true});
   };
   setShowImage = () => {
-    console.log('setShowImage', this._isMounted);
+    //console.log('setShowImage', this._isMounted);
     if (!this._isMounted) { return; }
     this.setState({showDefault: false});
   };
@@ -1237,7 +1334,7 @@ class ProfilePic extends React.Component {
     const nameArray = !!name.trim() ? name.trim().split(/\s/) : [];
     const initials = nameArray.length > 0 ? (nameArray.length === 1 ? nameArray[0][0] : nameArray[0][0] + nameArray[nameArray.length-1][0]) : "";
     const imageSrc = url.replace("profile-default.png", 'profile-default-404.png');  // replace default with non-existant image to force onLoad to fail
-    console.log('imageSrc', imageSrc);
+    //console.log('imageSrc', imageSrc);
     return (
       <View>
         {
@@ -1283,7 +1380,7 @@ const DataSourceLine = ({ children, dataSources, title, flexDirection="row", pre
         {children}
         <SefariaPressable extraStyles={[styles.dataSourceButton, theme.lighterGreyBackground].concat(imageStyles)} onPress={()=>setDisplaySource(prev=>!prev)}>
           <Image
-            source={themeStr == "white" ? require('./img/dots.png'): require('./img/dots-light.png') }
+            source={iconData.get('dots', themeStr)}
             style={styles.dataSourceButtonImage}
             resizeMode={'contain'}
           />
@@ -1321,7 +1418,7 @@ const SefariaPressable = ({ children, extraStyles=[], ...pressableProps }) => {
   const stylesFunc = useCallback(({ pressed }) => {
     let styles = Array.isArray(extraStyles) ? extraStyles : [extraStyles];
     if (pressed && Platform.OS === 'ios') {
-      styles = styles.concat([{opacity: 0.2}]);
+      styles = styles.concat([{opacity: 0.5}]);
     }
     return styles;
   }, [extraStyles]);
@@ -1336,18 +1433,100 @@ const SefariaPressable = ({ children, extraStyles=[], ...pressableProps }) => {
   );
 }
 
+/**
+ * Button which displays a category title and optional description
+ * @param title: Object with keys "en" and "he"
+ * @param description Object with keys "en" and "he"
+ * @param onPress
+ * @returns {JSX.Element}
+ * @constructor
+ */
+const CategoryButton = ({ title, description, onPress }) => {
+  return (
+      <SefariaPressable onPress={onPress} extraStyles={{paddingVertical: 17}}>
+        <CategoryTitle title={title} />
+        <CategoryDescription description={description} />
+      </SefariaPressable>
+  );
+};
+
+const CategoryTitle = ({ title, extraStyles=[] }) => {
+  const { theme, menuLanguage } = useGlobalState();
+  const isHeb = menuLanguage === 'hebrew';
+  return (
+      <SText
+          lang={menuLanguage}
+          style={[isHeb ? styles.he : styles.en, {fontSize: 24, marginBottom: -10}, theme.text].concat(extraStyles)} lineMultiplier={1.05}
+      >
+        {isHeb ? title.he : title.en}
+      </SText>
+  );
+};
+
+const CategoryDescription = ({ description }) => {
+  const { theme, menuLanguage } = useGlobalState();
+  const descriptionHasContent = !!description && Object.values(description).reduce((accum, curr) => accum || !!curr, false);
+  if (!descriptionHasContent) { return null; }
+  return (
+      <InterfaceTextWithFallback
+          {...description}
+          lang={menuLanguage}
+          extraStyles={[{marginTop: 10, fontSize: 13}, theme.tertiaryText]}
+      />
+  );
+};
+
+const Sefaria501 = () => {
+  const { theme, interfaceLanguage } = useGlobalState();
+  return(
+        <View>
+            <Text style={[styles.navReSefaria501, (interfaceLanguage === "hebrew") ? styles.hebrewSystemFont : null, theme.secondaryText]}>
+              { strings.sefaria501 }
+            </Text>  
+        </View>
+      );
+};
+
+const FlexFrame = ({ dir="row", children, ...viewStyleProps }) => {
+  /**
+   * @param viewStyleProps: any valid style for a <View>. The intention is to mainly use flex styles
+   */
+  const { interfaceLanguage } = useGlobalState();
+  // never flip column by RTL
+  const flexDirection = dir === "row" ? useRtlFlexDir(interfaceLanguage, dir ) : dir;
+  return (
+    <View style={{flexDirection, ...viewStyleProps}}>
+      {children}
+    </View>
+  );
+};
+
+const GreyBoxFrame = ({ children }) => {
+  const { theme } = useGlobalState();
+  return (
+      <View style={[theme.lightestGreyBackground, styles.greyBoxFrame]}>
+        { children }
+      </View>
+  );
+};
+
 export {
   AnimatedRow,
+  BackButton,
+  BackButtonRow,
   ButtonToggleSet,
-  ButtonToggleSetNew,
   CancelButton,
-  CategoryBlockLink,
   CategoryAttribution,
+  CategoryBlockLink,
+  CategoryButton,
   CategoryColorLine,
+  CategoryDescription,
   CategorySideColorLink,
+  CategoryTitle,
   CircleCloseButton,
   CloseButton,
   CollapseIcon,
+  CondensedSearchBar,
   ConditionalProgressWrapper,
   ContentTextWithFallback,
   CSS_CLASS_STYLES,
@@ -1357,26 +1536,34 @@ export {
   DisplaySettingsButton,
   DotSeparatedList,
   FilterableFlatList,
+  FlexFrame,
+  Header,
+  GreyBoxFrame,
   HebrewInEnglishText,
+  Icon,
   IndeterminateCheckBox,
+  InterfaceText,
   InterfaceTextWithFallback,
   LanguageToggleButton,
   LibraryNavButton,
   LoadingView,
-  LocalSearchBar,
+  SearchBarWithIcon,
   MenuButton,
   OrderedList,
+  PageHeader,  
   ProfileListing,
   ProfilePic,
   RainbowBar,
   SaveButton,
   SearchButton,
+  Sefaria501,
   SefariaPressable,
   SefariaProgressBar,
   SimpleContentBlock,
   SimpleHTMLView,
   SimpleInterfaceBlock,
   SimpleLinkedBlock,
+  StatefulHeader,
   SText,
   SystemButton,
   SystemHeader,

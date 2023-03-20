@@ -33,6 +33,7 @@ export default StyleSheet.create({
     fontFamily: 'Amiri',
     fontSize: 18,
     lineHeight: 22,
+    textAlign: "left",
   },
   // Sefaria Design System - Content Body Hebrew
   ContentBodyHe: {
@@ -58,6 +59,87 @@ export default StyleSheet.create({
     lineHeight: 23,
     textAlign: 'right',
   },
+  fontSize14: {
+    fontSize: 14,
+  },
+  fontBold: {
+    fontWeight: 'bold',
+  },
+  fontSize16: {
+    fontSize: 16,
+  },
+  fontSize18: {
+    fontSize: 18,
+  },
+  rootContainer: {
+    flex: 1,
+    direction: "ltr",  // while we don't fully support React Native's RTL system, we need to explicitly set direction to LTR and flip things using interfaceLanguage
+  },
+  navRePage:{
+    marginHorizontal: 15,
+  },
+  navReUpToEdge: {
+     marginHorizontal: 0,
+     paddingHorizontal: 15
+ },
+  navReEnglish:{
+    flexDirection: "row",
+  },
+  navReHebrew:{
+    flexDirection: "row-reverse",
+  },
+  navReHeaderText: {
+    fontSize: 22, 
+    fontWeight: "bold",
+    lineHeight: 25,
+  },
+  navRePageHeader:{
+    marginVertical: 24,
+    direction: "inherit",
+    display: "flex",
+    alignContent: "flex-start",
+  },
+  navReAccountMenuButton:{
+    flexDirection: "row",
+    alignItems: "center",
+    borderTopWidth: 1,
+    paddingVertical: 20,
+  },
+  navReAccountMenuButtonText:{
+    fontSize:18,
+    fontWeight:"bold",
+  },
+  navReAccountMenuButtonIcon:{
+    marginEnd: 15,
+    marginStart: 10,
+  },
+  navReStatefulHeader:{
+    marginEnd: 15,
+  },
+  navReStatefulHeaderIcon:{
+    marginRight: 6,
+  }, 
+  navReStatefulHeaderIconHe:{
+    marginLeft: 6,
+  },
+  navReAccountMenuButtonSep:{
+    fontSize: 16, 
+    paddingHorizontal: 10,
+    textAlignVertical: "center",
+  },
+  navReSefaria501:{
+    fontSize: 14,
+    lineHeight: 18,
+    textAlign: "center",
+    marginVertical:20,
+  },
+  navReHistoryItem:{
+    paddingBottom:20,
+    borderBottomWidth: 1, 
+    marginHorizontal: 15,
+    marginBottom: 22,
+  },
+  learningSchedulesBorder: {borderBottomWidth: 1, paddingBottom: 5, marginBottom: 10},
   boxShadow: {
     shadowColor: 'black',
     shadowOffset: { width: 0, height: 1 },
@@ -137,10 +219,6 @@ export default StyleSheet.create({
     alignItems: 'center',
     alignSelf: 'stretch'
   },
-  categoryColorLine: {
-    height: 8,
-    alignSelf: "stretch"
-  },
   header: {
     height: 50,
     alignItems: 'center',
@@ -148,6 +226,7 @@ export default StyleSheet.create({
     flexDirection: 'row',
     borderBottomWidth: 1
   },
+  greyBoxFrame: {padding: 14},
   readerDisplayOptionsMenuMask: {
     flex: 1,
     left: 0,
@@ -188,7 +267,7 @@ export default StyleSheet.create({
     flex:1,
     flexDirection: "row",
     justifyContent: "space-around",
-    marginVertical: 10,
+    marginVertical: 16,
   },
   readerDisplayOptionsMenuItem: {
     flex: 1,
@@ -280,7 +359,7 @@ export default StyleSheet.create({
   menuButtonMargined: {
     width: 20,
     height: 20,
-    marginHorizontal: 10,
+    marginHorizontal: 20,
   },
   menuButtonMarginedHe: {
     width: 17,
@@ -306,7 +385,7 @@ export default StyleSheet.create({
   },
   headerButtonSearch: {
     width: 24,
-    marginRight: 10,
+    marginHorizontal: 10,
   },
   searchButton: {
     width: 17,
@@ -437,11 +516,14 @@ export default StyleSheet.create({
     fontFamily: "Amiri",
     paddingTop: 4,
     paddingBottom: 4,
-    paddingRight: 20,
     backgroundColor: "transparent"
   },
   searchInputPlaceholder: {
     fontStyle: "italic",
+  },
+  searchVersionTitle: {
+    fontSize: 14,
+    marginTop: 4
   },
   searchPage: {
     flex: 1,
@@ -586,9 +668,11 @@ export default StyleSheet.create({
     alignSelf: 'stretch',
     flex: 1
   },
+  pageMargins: {
+    marginHorizontal: 15,
+  },
   menuContent: {
     paddingHorizontal: iPad ? 20 : 10,
-    paddingTop: 20,
     paddingBottom: 40,
   },
   menuAllSheetTagContent: {
@@ -606,12 +690,12 @@ export default StyleSheet.create({
   cancelSearchButton: {
     width: 16,
     height: 16,
-    marginHorizontal: 20,
+    marginHorizontal: 12,
   },
   languageToggle: {
-    width: 30,
-    height: 30,
-    marginRight: iPad ? 20 : 10,
+    width: 20,
+    height: 20,
+    padding: 11,
     borderWidth: 1,
     borderRadius: 4,
     flexDirection: "row",
@@ -1028,13 +1112,9 @@ export default StyleSheet.create({
     marginTop: 15,
     marginBottom: 5,
   },
-  buttonToggleSetNew: {
-    borderRadius: 5,
-    height: 50,
-  },
   buttonToggleSet: {
-    marginRight: 0,
-    marginLeft: 0,
+    borderRadius: 5,
+    height: 40,
   },
   settingsMessage: {
     textAlign: "center",
@@ -1065,9 +1145,16 @@ export default StyleSheet.create({
   dedication: {
     fontStyle: "italic",
     fontFamily: "Amiri",
-    fontSize: 14,
+    fontSize: 18,
     textAlign: "center",
-    marginBottom: 20
+  },
+  navReDedicationBox:{
+    width: 344,
+    flexDirection: "row",
+    paddingVertical: 5,
+    alignItems: "center",
+    justifyContent: "center",
+    marginVertical: 20,
   },
   lineEnd: {
     flex: 1,
@@ -1218,7 +1305,6 @@ export default StyleSheet.create({
     flexDirection: 'column',
   },
   autocompleteItem: {
-    flex:1,
     alignItems: "center",
     borderBottomWidth: 1,
     paddingVertical: 10,
@@ -1272,6 +1358,9 @@ export default StyleSheet.create({
     alignSelf: 'stretch',
     flexDirection: 'row',
     backgroundColor: 'black',
+  },
+  alignSelf: {
+    alignSelf: "stretch",
   },
   //HTML Styles:
   strong: {
@@ -1357,15 +1446,16 @@ export default StyleSheet.create({
     justifyContent: 'space-between',
   },
   topicSourceTitle: {
-    fontSize: 24,
+    fontSize: 24, 
+    lineHeight:33,
   },
   colorBarBoxEnglish: {
     borderLeftWidth: 4,
-    paddingLeft: 30,
+    paddingLeft: 17,
   },
   colorBarBoxHebrew: {
     borderRightWidth: 4,
-    paddingRight: 30,
+    paddingRight: 17,
   },
   dataSourceButton: {
     borderRadius: 500,
@@ -1433,5 +1523,28 @@ export default StyleSheet.create({
   },
   topicCategoryButtonWrapperRoot: {
     borderTopWidth: 0,  // no border top b/c of trending topics
-  }
+  },
+  footerBar: {
+    alignSelf: "stretch",
+    paddingHorizontal: 5,
+    borderTopWidth: 1
+  },
+  footerButton: {
+    flex: 1,
+    marginVertical: 14,
+    alignItems: "center",
+    justifyContent: "center",
+    flexDirection: "column"
+  },
+  footerButtonText: {
+    marginTop: 8,
+    fontSize: 10,
+  },
+  systemH3: {
+    fontSize: 22,
+    fontWeight: 'bold',
+  },
+  flex1: {
+    flex: 1,
+  },
 });

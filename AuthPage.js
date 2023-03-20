@@ -12,6 +12,7 @@ import {
   Platform,
   Image,
 } from 'react-native';
+import { iconData } from "./IconData";
 import remoteConfig from '@react-native-firebase/remote-config';
 
 import {
@@ -104,16 +105,16 @@ const AuthPage = ({ authMode, close, showToast, openLogin, openRegister, openUri
       <View style={{ flex: 1, alignSelf: "stretch", alignItems: "flex-end", marginHorizontal: 10}}>
         <CircleCloseButton onPress={close} />
       </View>
-      <Text style={[styles.pageTitle, theme.text]}>{isLogin ? strings.log_in : strings.sign_up}</Text>
+      <Text style={[styles.pageTitle, theme.text]}>{isLogin ? strings.login : strings.signup}</Text>
       <View style={{flex: 1, alignSelf: "stretch",  marginHorizontal: 37}}>
         <View style={styles.logInMotivator}>
           {
             [
-              {iconStr: 'star', text: strings.saveTexts},
-              {iconStr: 'sync', text: strings.syncYourReading},
-              {iconStr: 'sheet', text: strings.readYourSheets},
-              {iconStr: 'mail', text: strings.getUpdates},
-            ].map(x => (<LogInMotivator key={x.iconStr} { ...x } />))
+              {iconName: 'bookmark-unfilled', text: strings.saveTexts},
+              {iconName: 'sync', text: strings.syncYourReading},
+              {iconName: 'sheet', text: strings.readYourSheets},
+              {iconName: 'mail', text: strings.getUpdates},
+            ].map(x => (<LogInMotivator key={x.iconName} { ...x } />))
           }
         </View>
         { isLogin ? null :
@@ -154,7 +155,7 @@ const AuthPage = ({ authMode, close, showToast, openLogin, openRegister, openUri
         <SystemButton
           isLoading={isLoading}
           onPress={onSubmit}
-          text={isLogin ? strings.log_in : strings.sign_up}
+          text={isLogin ? strings.login : strings.signup}
           isHeb={isHeb}
           isBlue
         />
@@ -177,7 +178,7 @@ const AuthPage = ({ authMode, close, showToast, openLogin, openRegister, openUri
               <View style={{flexDirection: isHeb ? 'row-reverse' : 'row', alignItems: 'center'}}>
                 <Text style={[theme.secondaryText, isHeb ? styles.heInt : styles.enInt]}>{strings.alreadyHaveAnAccount}</Text>
                 <TouchableOpacity onPress={openLogin}>
-                  <Text style={[theme.text, isHeb ? styles.heInt : styles.enInt]}>{` ${strings.log_in}.`}</Text>
+                  <Text style={[theme.text, isHeb ? styles.heInt : styles.enInt]}>{` ${strings.login}.`}</Text>
                 </TouchableOpacity>
               </View>
 
@@ -261,24 +262,13 @@ const AuthTextInput = ({
 );
 
 const LogInMotivator = ({
-  iconStr,
+  iconName,
   text
 }) => {
   const { themeStr, interfaceLanguage } = useContext(GlobalStateContext);
   const theme = getTheme(themeStr);
   const isHeb = interfaceLanguage === 'hebrew';
-  let icon;
-  if (themeStr === 'white') {
-    if (iconStr === 'star')  { icon = require('./img/starUnfilled.png'); }
-    if (iconStr === 'sync')  { icon = require('./img/sync.png'); }
-    if (iconStr === 'sheet') { icon = require('./img/sheet.png'); }
-    if (iconStr === 'mail')  { icon = require('./img/mail.png'); }
-  } else {
-    if (iconStr === 'star')  { icon = require('./img/starUnfilled-light.png'); }
-    if (iconStr === 'sync')  { icon = require('./img/sync-light.png'); }
-    if (iconStr === 'sheet') { icon = require('./img/sheet-light.png'); }
-    if (iconStr === 'mail')  { icon = require('./img/mail-light.png'); }
-  }
+  let icon = iconData.get(iconName, themeStr);
   return (
     <View style={{
         flexDirection: isHeb ? 'row-reverse' : 'row',

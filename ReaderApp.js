@@ -11,7 +11,6 @@ import {
   Dimensions,
   View,
   StatusBar,
-  SafeAreaView,
   Platform,
   BackHandler,
   UIManager,
@@ -37,23 +36,27 @@ import strings from './LocalizedStrings';
 import Sefaria from './sefaria';
 import { LinkFilter } from './Filter';
 import ReaderDisplayOptionsMenu from './ReaderDisplayOptionsMenu';
-import ReaderNavigationMenu from './ReaderNavigationMenu';
+import {TextsPage} from "./TextsPage";
+import {LearningSchedulesPage} from "./learningSchedules/LearningSchedules";
 import ReaderTextTableOfContents from './ReaderTextTableOfContents';
-import SearchPage from './SearchPage';
-import AutocompletePage from './AutocompletePage';
+import SearchPage from './search/SearchPage';
+import AutocompletePage from './search/AutocompletePage';
 import TextColumn from './TextColumn';
 import ConnectionsPanel from './ConnectionsPanel';
 import SettingsPage from './SettingsPage';
+import {AccountNavigationMenu} from "./AccountNavigationMenu";
 import InterruptingMessage from './InterruptingMessage';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import SwipeableCategoryList from './SwipeableCategoryList';
 import Toast from 'react-native-root-toast';
-import BackManager from './BackManager';
+import { TabHistory, TabMetadata } from './PageHistory';
 import ReaderNavigationSheetList from "./ReaderNavigationSheetList";
 import SheetMeta from "./SheetMeta.js";
 import DeepLinkRouter from "./DeepLinkRouter.js";
 import { AuthPage } from "./AuthPage";
 import { TopicCategory, TopicPage } from "./TopicPage";
-import Dedication from  "./Dedication"
+import {HistorySavedPage} from "./HistorySavedPage";
+import {Dedication} from  "./Dedication"
 import {
   Tracker as DownloadTracker,
 } from "./DownloadControl.js"
@@ -66,6 +69,9 @@ import {
   SefariaProgressBar,
   ConditionalProgressWrapper,
 } from './Misc.js';
+import {FooterTabBar} from "./FooterTabBar";
+import {iconData} from "./IconData";
+import {getSafeViewStyleAndStatusBarBackground} from "./getSafeViewStyles";
 const ViewPort    = Dimensions.get('window');
 
 class ReaderApp extends React.PureComponent {
@@ -83,6 +89,7 @@ class ReaderApp extends React.PureComponent {
   constructor(props, context) {
     super(props, context);
     this._initDeepLinkURL = null;  // if you init the app thru a deep link, need to make sure the URL is applied during componentDidMount()
+    this.tabHistory = new TabHistory();
     if (Platform.OS === 'android') {
       UIManager.setLayoutAnimationEnabledExperimental && UIManager.setLayoutAnimationEnabledExperimental(true);
       if (strings.getInterfaceLanguage() === 'iw-IL') {
@@ -104,6 +111,7 @@ class ReaderApp extends React.PureComponent {
         subMenuOpen: null, // currently only used to define subpages in search
         navigationCategories: [],
         navigationTopic: null,
+        footerTab: TabMetadata.initialTabName(),
         topicsTab: 'sources',
         loadingTextTail: false,
         loadingTextHead: false,
@@ -251,18 +259,32 @@ class ReaderApp extends React.PureComponent {
     });
   }
 
+  /**
+   * Return initial promise on app startup
+    * @returns {Promise<unknown>|*}
+   */
+  getInitialPromise = () => {
+    if (Sefaria.history.lastPlace.length) {
+      const mostRecent =  Sefaria.history.lastPlace[0];
+      return this.openRef(mostRecent.ref, null, mostRecent.versions, false)  // first call to openRef should not add to backStack
+    } else {
+      // if no last place, open navigation
+      return Promise.resolve(this.openNav());
+    }
+  }
+
   initFiles = () => {
     Sefaria._deleteUnzippedFiles()
     .then(() => Sefaria.init(this.props.dispatch)).then(() => {
-        setTimeout(SplashScreen.hide, 300);
+        setTimeout(SplashScreen.hide, 500);
         this.setState({
           loaded: true,
         });
         // wait to check for interrupting message until after asyncstorage is loaded
         this._interruptingMessageRef && this._interruptingMessageRef.checkForMessage();
         if (!this._initDeepLinkURL) {
-          const mostRecent =  Sefaria.history.lastPlace.length ? Sefaria.history.lastPlace[0] : {ref: "Genesis 1"};
-          this.openRef(mostRecent.ref, null, mostRecent.versions, false)  // first call to openRef should not add to backStack
+
+          this.getInitialPromise()
           .then(Sefaria.postInitSearch)
           .then(() => { this.setState({_completedInit: true}); })  // setting this true before end of postInit. postInit takes a surprisingly long time due to download update check.
           .then(() => Sefaria.postInit(this.props.downloadNetworkSetting))
@@ -282,41 +304,64 @@ class ReaderApp extends React.PureComponent {
   }
 
   manageBackMain = () => {
-    this.manageBack("main");
-  }
+    return this.manageBack("main");
+  };
+
+  /**
+   * Try to go back. If history is empty, open nav menu.
+   */
+  manageBackMainOrOpenNav = () => {
+    const wentBack = this.manageBackMain();
+    if (!wentBack) {
+      this.openNav();
+    }
+  };
+
+  modifyHistory = ({ dir, ...args }) => {
+    /**
+     * dir is either "back" or "forward"
+     * ...args are either the arguments for TabHistory.back() or TabHistory.forward(), depending on the value of `dir`
+     */
+    const func = this.tabHistory[dir];
+    return func({ tab: this.state.footerTab, ...args });
+  };
 
   manageBack = type => {
-    const oldState = BackManager.back({ type });
+    const oldState = this.modifyHistory({dir: "back", type});
     if (!!oldState) {
-      oldState._completedInit = this.state._completedInit || oldState._completedInit;  // dont go back to false for this variable. can't undo completedInit!
-      const isTextColumn = !oldState.menuOpen;
-      if (isTextColumn) {
-        // you're going back to textcolumn. make sure to jump
-        oldState.textColumnKey = oldState.segmentRef;  // manually add a key to TextColumn to make sure it gets regenerated
-        oldState.offsetRef = oldState.segmentRef;
-        if (!!oldState.linksLoaded) {
-          oldState.linksLoaded = oldState.linksLoaded.map(() => false);  // manually set linksLoaded to false because links are not stored in oldState
-        }
-      } else if (oldState.menuOpen === 'search') {
-        this.onQueryChange('sheet', oldState.searchQuery, true, true, true);
-        this.onQueryChange('text', oldState.searchQuery, true, true, true);
-      }
-      this.setState(oldState, () => {
-        if (isTextColumn && (!!oldState.sectionArray || !!oldState.sheet)) {
-          Sefaria.history.saveHistoryItem(this.getHistoryObject, true);
-          if (!oldState.sheet) {
-            for (let sectionRef of oldState.sectionArray) {
-              this.loadRelated(sectionRef);
-            }
-          }
-          else { this.loadRelatedSheet(oldState.sheet); }
-        }
-      });
+      this._applyPreviousState(oldState);
       return true;
     } else {
       // close app
       return false;
     }
+  };
+
+  _applyPreviousState = oldState => {
+    oldState._completedInit = this.state._completedInit || oldState._completedInit;  // dont go back to false for this variable. can't undo completedInit!
+    const isTextColumn = !oldState.menuOpen;
+    if (isTextColumn) {
+      // you're going back to textcolumn. make sure to jump
+      oldState.textColumnKey = oldState.segmentRef;  // manually add a key to TextColumn to make sure it gets regenerated
+      oldState.offsetRef = oldState.segmentRef;
+      if (!!oldState.linksLoaded) {
+        oldState.linksLoaded = oldState.linksLoaded.map(() => false);  // manually set linksLoaded to false because links are not stored in oldState
+      }
+    } else if (oldState.menuOpen === 'search') {
+      this.onQueryChange('sheet', oldState.searchQuery, true, true, true);
+      this.onQueryChange('text', oldState.searchQuery, true, true, true);
+    }
+    this.setState(oldState, () => {
+      if (isTextColumn && (!!oldState.sectionArray || !!oldState.sheet)) {
+        Sefaria.history.saveHistoryItem(this.getHistoryObject, true);
+        if (!oldState.sheet) {
+          for (let sectionRef of oldState.sectionArray) {
+            this.loadRelated(sectionRef);
+          }
+        }
+        else { this.loadRelatedSheet(oldState.sheet); }
+      }
+    });
   };
 
   syncProfileBound = async () => Sefaria.history.syncProfile(this.props.dispatch, await this.getSettingsObject());
@@ -548,7 +593,7 @@ class ReaderApp extends React.PureComponent {
       if (shouldToggle && this.state.textListVisible) {
           if (!onlyOpen) {
             this.animateTextList(this.state.textListFlex, 0.0001, 200);
-            BackManager.back({ type: "secondary" });
+            this.modifyHistory({dir: "back", type: "secondary"});
           }
           return; // Don't bother with other changes if we are simply closing the TextList
       }
@@ -582,7 +627,7 @@ class ReaderApp extends React.PureComponent {
         stateObj.segmentRefOnSheet = this.state.data[section][segment].sourceRef;
       }
       if (shouldToggle) {
-        BackManager.forward({ state: {textListVisible: this.state.textListVisible}, type: "secondary" });
+        this.modifyHistory({ dir: "forward", state: {textListVisible: this.state.textListVisible}, type: "secondary" });
         stateObj.textListVisible = !this.state.textListVisible;
         stateObj.offsetRef = null; //offsetRef is used to highlight. once you open textlist, you should remove the highlight
         this.setState(stateObj, () => {
@@ -900,13 +945,14 @@ class ReaderApp extends React.PureComponent {
 
   openRefSheet = (sheetID, sheetMeta, addToBackStack=true, calledFrom) => {
     if (addToBackStack) {
-      BackManager.forward({ state: this.state, calledFrom });
+      this.modifyHistory({ dir: "forward", state: this.state, calledFrom });
     }
     this.setState({
         loaded: false,
         textListVisible: false,
         sheet: null,
         sheetMeta: null,
+        textTitle: "",
     }, () => {
         this.loadSheet(sheetID, sheetMeta,addToBackStack, calledFrom);
     });
@@ -1080,7 +1126,7 @@ class ReaderApp extends React.PureComponent {
           ({ appliedFilters, appliedFilterAggTypes, currPage, initScrollPos } = this.state.sheetSearchState);
           this.state.sheetSearchState = new SearchState({type: 'sheet', appliedFilters, appliedFilterAggTypes, currPage, initScrollPos});
         }
-        BackManager.forward({ state: this.state, calledFrom });
+        this.modifyHistory({ dir: "forward", state: this.state, calledFrom });
       }
 
       this.setState({
@@ -1097,11 +1143,11 @@ class ReaderApp extends React.PureComponent {
     })
   };
 
-  openMenu = (menu, via) => {
-    // set of `menuOpen` states which you shouldn't be able to go back to
-    const SKIP_MENUS = { autocomplete: true, register: true, login: true };
-    if (!SKIP_MENUS[this.state.menuOpen] && !!menu) {
-      if (!this.state.menu && !!this.state.data) {
+  openMenu = (menu, via, pushHistory=true) => {
+    //set of `menuOpen` states which you shouldn't be able to go back to
+    const SKIP_MENUS = ["register", "login"]
+    if (!!menu && pushHistory && !SKIP_MENUS.includes(this.state.menuOpen)) {
+      if (!this.state.menuOpen && !!this.state.data) {
         // text column. remove related data
         for (let section of this.state.data) {
           for (let segment of section) {
@@ -1110,7 +1156,7 @@ class ReaderApp extends React.PureComponent {
           }
         }
       }
-      BackManager.forward({ state: this.state });
+      this.modifyHistory({ dir: "forward", state: this.state });
     }
     this.setState({menuOpen: menu});
     if (via && typeof via === 'string') {
@@ -1122,7 +1168,7 @@ class ReaderApp extends React.PureComponent {
     if (isBack) {
       this.manageBackMain();
     } else {
-      BackManager.forward({ state: this.state });
+      this.modifyHistory({ dir: "forward", state: this.state });
       this.setState({subMenuOpen: subMenu});
     }
   };
@@ -1136,11 +1182,6 @@ class ReaderApp extends React.PureComponent {
   };
 
   closeAuthPage = (authMode) => {
-    let via;
-    const backStack = BackManager.getStack({ type: 'main' });
-    if (backStack.length > 0) {
-      via = backStack[backStack.length-1].state.menuOpen;
-    }
     this.manageBackMain();
   };
 
@@ -1150,6 +1191,7 @@ class ReaderApp extends React.PureComponent {
       this.setState({
         loaded: true,
         searchQuery: "",
+        navigationCategories: [],
         textSearchState: new SearchState({type: 'text'}),
         sheetSearchState: new SearchState({type: 'sheet'}),
         textListVisible: false,
@@ -1186,17 +1228,12 @@ class ReaderApp extends React.PureComponent {
     });
   }
 
-  goBack = () => {
-    const { stateFunc } = this.state.backStack.pop();
-    stateFunc();
-  };
-
   setNavigationCategories = (categories) => {
     if (categories.length) {
-      BackManager.forward({ state: this.state, calledFrom: "toc" });
+      this.modifyHistory({ dir: "forward", state: this.state, calledFrom: "toc" });
     } else {
       // you're navigating home, make sure to delete previous toc entries in the backStack
-      BackManager.back({ calledFrom: "toc" });
+      this.modifyHistory({ dir: "back", calledFrom: "toc" });
     }
     this.setState({navigationCategories: categories});
   };
@@ -1244,6 +1281,14 @@ class ReaderApp extends React.PureComponent {
   openSearch = (type, query) => {
     this.onQueryChange(type, query,true,false,true);
     this.openMenu("search");
+  };
+
+  openLogin = (via) => {
+    this.openMenu("login", via);
+  };
+
+  openRegister = (via) => {
+    this.openMenu("register", via);
   };
 
   openAutocomplete = () => {
@@ -1418,12 +1463,12 @@ class ReaderApp extends React.PureComponent {
     // truncate data if it's crazy long (e.g. Smag)
     const cutoffLen = 3500;
     if (data.en.length > cutoffLen) {
-      const spaceInd = data.en.indexOf(' ', cutoffLen);
+      let spaceInd = data.en.indexOf(' ', cutoffLen);
       if (spaceInd === -1) { spaceInd = cutoffLen; }
       data.en = data.en.slice(0, spaceInd) + "... <b>(Tap to read more)</b>";
     }
     if (data.he.length > cutoffLen) {
-      const spaceInd = data.he.indexOf(' ', cutoffLen);
+      let spaceInd = data.he.indexOf(' ', cutoffLen);
       if (spaceInd === -1) { spaceInd = cutoffLen; }
       data.he = data.he.slice(0, spaceInd) + "... <b>(לחץ לקרוא עוד)</b>";
     }
@@ -1533,6 +1578,25 @@ class ReaderApp extends React.PureComponent {
   };
   _getSearchStateName = type => ( `${type}SearchState` );
   _getSearchState = type => ( this.state[this._getSearchStateName(type)] );
+  convertSearchHit = (searchType, hit, field) => {
+    const source = hit._source;
+    const duplicates = hit.duplicates || [];
+    return ({
+        title: searchType === "sheet" ? source.title : source.ref,
+        heTitle: searchType === "sheet" ? source.title : source.heRef,
+        text: hit.highlight[field].join(" ... "),
+        id: hit._id,
+        duplicates: duplicates.map(subhit => this.convertSearchHit(searchType, subhit, field)),
+        textType: hit._id.includes("[he]") ? "hebrew" : "english",
+        version: source.version,
+        metadata: searchType === "sheet" ? {
+          ownerImageUrl: source.owner_image,
+          ownerName: source.owner_name,
+          views: source.views,
+          tags: source.tags,
+        } : null
+    });
+  };
   onQueryChange = (type, query, resetQuery, fromBackButton, getFilters) => {
     Sefaria.track.event("Search", {query_type: type, query: query});
     // getFilters should be true if the query has changed or the exactType has changed
@@ -1583,15 +1647,10 @@ class ReaderApp extends React.PureComponent {
       const searchStateName = this._getSearchStateName(type);
       Sefaria.search.execute_query(queryProps)
       .then(data => {
-        const newResultsArray = (type == "sheet" ? data.hits.hits : Sefaria.search.process_text_hits(data.hits.hits)).map(r => ({
-            title: type == "sheet" ? r._source.title : r._source.ref,
-            heTitle: type == "sheet" ? r._source.title : r._source.heRef,
-            text: r.highlight[field].join(" ... "),
-            id: r._id,
-            textType: r._id.includes("[he]") ? "hebrew" : "english",
-            version: r._source.version,
-            metadata: type == "sheet" ? {"ownerImageUrl": r._source.owner_image, "ownerName": r._source.owner_name, "views": r._source.views, "tags": r._source.tags} : null
-          })
+        const newResultsArray = (
+            type === "sheet" ?
+                data.hits.hits :
+                Sefaria.search.process_text_hits(data.hits.hits)).map(hit => this.convertSearchHit(type, hit, field)
         );
         const results = resetQuery ? newResultsArray :
           searchState.results.concat(newResultsArray);
@@ -1671,6 +1730,9 @@ class ReaderApp extends React.PureComponent {
   };
 
   toggleSearchFilter = (type, filterNode) => {
+    if (!filterNode) {
+      return;
+    }
     if (filterNode.isUnselected()) {
       filterNode.setSelected(true);
     } else {
@@ -1763,28 +1825,44 @@ class ReaderApp extends React.PureComponent {
     this.openUri(uri);
   }
 
-  shouldShowHamburger = () => {
-    if (Platform.OS === "android") { return true; }
-    else {
-      // see ReaderApp.openRef()
-      const calledFromDict = { "text list": true, "search": true, "topic": true };
-      return BackManager.getStack({ type: "main" }).filter(x => calledFromDict[x.calledFrom]).length === 0;
-    }
-  };
-
-  openTopicToc = () => {
+  openTopicToc = (pushHistory) => {
     this.setState({navigationTopic: null});
-    this.openMenu('topic toc');
+    this.openMenu('topic toc', null, pushHistory);
   };
 
   openTopic = (topic, isCategory, addToBackStack=true) => {
     if (addToBackStack) {
-      BackManager.forward({ state: this.state });
+      this.modifyHistory({ dir: "forward", state: this.state });
     }
     this.setState({navigationTopic: topic, menuOpen: isCategory ? "topic toc" : "topic"});
   };
 
   setTopicsTab = topicsTab => { this.setState({topicsTab}); };
+
+  setFooterTab = tab => {
+    const alreadyOnTab = tab === this.state.footerTab;
+    this.tabHistory.saveCurrentState({ tab: this.state.footerTab, state: this.state });
+    const newState = this.tabHistory.getCurrentState({ tab });
+    if (!newState || alreadyOnTab) {
+      this._openTabForFirstTime(tab);
+      if (alreadyOnTab) {
+        this.tabHistory.clear({ tab });
+      }
+    } else {
+      this._applyPreviousState(newState);
+    }
+    this.setState({footerTab: tab});
+  };
+
+  _openTabForFirstTime = tab => {
+    const newMenu = TabMetadata.menuByName(tab);
+    const specialCases = {navigation: this.openNav, "topic toc": this.openTopicToc};
+    if (specialCases.hasOwnProperty(newMenu)) {
+      specialCases[newMenu](false);
+    } else {
+      this.openMenu(newMenu, null, false);
+    }
+  };
 
   _getReaderDisplayOptionsMenuRef = ref => {
     this._readerDisplayOptionsMenuRef = ref;
@@ -1805,6 +1883,11 @@ class ReaderApp extends React.PureComponent {
     }
   };
 
+  shouldShowFooter = menuOpen => {
+    const menuBlacklist = [null, 'text toc', 'sheet meta'];
+    return menuBlacklist.indexOf(menuOpen) === -1;
+  };
+
   renderContent() {
     const loading = !this.state.loaded;
     switch(this.state.menuOpen) {
@@ -1815,30 +1898,20 @@ class ReaderApp extends React.PureComponent {
         return (
           loading ?
           <LoadingView /> :
-          (<View style={{flex:1, flexDirection: 'row'}}>
-            <ReaderNavigationMenu
-              searchQuery={this.state.searchQuery}
+          (<TextsPage
               categories={this.state.navigationCategories}
               setCategories={this.setNavigationCategories}
               openRef={(ref, versions)=>this.openRef(ref,"navigation", versions)}
-              openAutocomplete={this.openAutocomplete}
               onBack={this.manageBackMain}
-              openSearch={this.openSearch}
-              setIsNewSearch={this.setIsNewSearch}
-              openSettings={this.openMenu.bind(null, "settings")}
-              openHistory={this.openMenu.bind(null, "history")}
-              openSaved={this.openMenu.bind(null, "saved")}
-              openLogin={this.openMenu.bind(null, "login", "toc")}
-              openRegister={this.openMenu.bind(null, "register", "toc")}
-              openTopicToc={this.openTopicToc}
+              openLearningSchedules={this.openMenu.bind(null, "learning schedules")}
               openDedication={this.openMenu.bind(null, "dedication")}
-              openMySheets={this.openMySheets.bind(null, "toc")}
-              onChangeSearchQuery={this.onChangeSearchQuery}
               openUri={this.openUri}
-              searchType={this.state.searchType}
-              logout={this.logout}
-            />
-          </View>)
+            />)
+        );
+      case ("learning schedules"):
+        Sefaria.track.setScreen("learning schedules", "navigation")
+        return (
+           <LearningSchedulesPage openRef={this.openRef} openUri={this.openUri} onBack={this.manageBackMain}/>
         );
       case ("text toc"):
         Sefaria.track.setScreen("text toc", "menu")
@@ -1912,9 +1985,17 @@ class ReaderApp extends React.PureComponent {
       case ("settings"):
         Sefaria.track.setScreen("settings", "menu")
         return(<SettingsPage close={this.manageBackMain} logout={this.logout} openUri={this.openUri} />);
+      case ("account-menu"):
+        Sefaria.track.setScreen("account-menu", "menu")
+        return(<AccountNavigationMenu 
+            openMenu={this.openMenu}
+            openUri={this.openUri}
+            logout={this.logout}
+        />);
       case ("history"):
         Sefaria.track.setScreen("history", "menu")
-        return(
+        return(<HistorySavedPage openRef={this.openRef} openMenu={this.openMenu} hasInternet={this.state.hasInternet}/>);  
+        /*return(
           <SwipeableCategoryList
             close={this.manageBackMain}
             theme={this.props.theme}
@@ -1925,18 +2006,18 @@ class ReaderApp extends React.PureComponent {
             onRemove={null}
             title={strings.history}
             menuOpen={this.state.menuOpen}
-            icon={this.props.themeStr === "white" ? require('./img/clock.png') : require('./img/clock-light.png')}
+            icon={iconData.get('clock', this.props.themeStr)}
             loadData={this.syncProfileBound}
-            openLogin={this.openMenu.bind(null, "login", "history")}
+            openLogin={this.openLogin.bind(null, "history")}
             openSettings={this.openMenu.bind(null, "settings")}
             isLoggedIn={this.props.isLoggedIn}
             hasDismissedSyncModal={this.props.hasDismissedSyncModal}
             readingHistory={this.props.readingHistory}
           />
-        );
+        );*/
         break;
       case ("saved"):
-        Sefaria.track.setScreen("saved", "menu")
+        /*Sefaria.track.setScreen("saved", "menu")
         return(
           <SwipeableCategoryList
             close={this.manageBackMain}
@@ -1948,15 +2029,15 @@ class ReaderApp extends React.PureComponent {
             onRemove={this.removeSavedItem}
             title={strings.saved}
             menuOpen={this.state.menuOpen}
-            icon={this.props.themeStr === "white" ? require('./img/starUnfilled.png') : require('./img/starUnfilled-light.png')}
+            icon={iconData.get('bookmark-unfilled', this.props.themeStr)}
             loadData={async () => Sefaria.history.syncProfileGetSaved(this.props.dispatch, await this.getSettingsObject())}
-            openLogin={this.openMenu.bind(null, "login", "saved")}
+            openLogin={this.openLogin.bind(null, "saved")}
             openSettings={this.openMenu.bind(null, "settings")}
             isLoggedIn={this.props.isLoggedIn}
             hasDismissedSyncModal={this.props.hasDismissedSyncModal}
             readingHistory={this.props.readingHistory}
           />
-        );
+        );*/
         break;
       case("login"):
       case("register"):
@@ -1965,8 +2046,8 @@ class ReaderApp extends React.PureComponent {
             authMode={this.state.menuOpen}
             close={this.closeAuthPage}
             showToast={this.showToast}
-            openLogin={this.openMenu.bind(null, 'login')}
-            openRegister={this.openMenu.bind(null, 'register')}
+            openLogin={this.openLogin}
+            openRegister={this.openRegister}
             openUri={this.openUri}
             syncProfile={this.syncProfileBound}
           />
@@ -2038,12 +2119,10 @@ class ReaderApp extends React.PureComponent {
               enRef={this.state.textReference}
               heRef={this.state.heRef}
               categories={Sefaria.categoriesForTitle(this.state.textTitle, isSheet)}
-              openNav={this.openNav}
-              goBack={this.manageBackMain}
+              goBack={this.manageBackMainOrOpenNav}
               openTextToc={this.openTextToc}
               openSheetMeta={this.openSheetMeta}
               sheet={this.state.sheet}
-              shouldShowHamburger={this.shouldShowHamburger}
               toggleReaderDisplayOptionsMenu={this.toggleReaderDisplayOptionsMenu}
               openUri={this.openUri}
               getHistoryObject={this.getHistoryObject}
@@ -2184,21 +2263,27 @@ class ReaderApp extends React.PureComponent {
     );
   }
 
-  render() {
-    /*
-    // make the SafeAreaView background based on the category color
-    const cat = this.state.menuOpen ? (this.state.navigationCategories.length ? this.state.navigationCategories[0] : "Other") : Sefaria.primaryCategoryForTitle(this.state.textTitle);
-    let style = {};
-    if (cat) {
-      style = {backgroundColor: Sefaria.util.lightenDarkenColor(Sefaria.palette.categoryColor(cat), -25)};
-    }*/
+  getBottomSafeAreaEdges = (menuOpen) => {
+    const bottomSafeAreaEdges = ["left", "right"];
+    if (this.shouldShowFooter(menuOpen)) {
+      bottomSafeAreaEdges.push("bottom");
+    }
+    return bottomSafeAreaEdges;
+  }
 
+
+  render() {
     // StatuBar comment: can't figure out how to get barStyle = light-content to be respected on Android
+    const { safeViewStyle, statusBarBackgroundColor, statusBarStyle } = getSafeViewStyleAndStatusBarBackground(this.state, this.props.theme.mainTextPanel, this.props.themeStr === "white");
     return (
-      <View style={{flex:1}}>
-        <SafeAreaView style={[styles.safeArea, {"backgroundColor": 'black'}]}>
-          <View style={[styles.container, this.props.theme.container]}>
-              <StatusBar barStyle={'light-content'} backgroundColor={'black'}/>
+      <View style={styles.rootContainer}>
+        <SafeAreaView edges={["top"]} style={[{ flex: 0 }, safeViewStyle]} />
+        <SafeAreaView
+           edges={this.getBottomSafeAreaEdges(this.state.menuOpen)}
+           style={[styles.safeArea, this.props.theme.mainTextPanel]}
+        >
+          <View style={[styles.container, this.props.theme.mainTextPanel]}>
+              <StatusBar barStyle={statusBarStyle} backgroundColor={statusBarBackgroundColor}/>
             <ConditionalProgressWrapper
               conditionMethod={(state, props) => {
                 return state && (props.menuOpen !== 'settings' || state.downloadNotification === 'Update');
@@ -2218,6 +2303,9 @@ class ReaderApp extends React.PureComponent {
               />
             </ConditionalProgressWrapper>
               { this.renderContent() }
+            { this.shouldShowFooter(this.state.menuOpen) && (
+                <FooterTabBar selectedTabName={this.state.footerTab} setTab={this.setFooterTab} />
+            )}
           </View>
         </SafeAreaView>
         <InterruptingMessage

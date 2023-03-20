@@ -23,6 +23,7 @@ import { DispatchContext, STATE_ACTIONS } from './StateManager';
 import SwipeableFlatList from './SwipeableFlatList';
 import styles from './Styles';
 import strings from './LocalizedStrings';
+import {iconData} from "./IconData";
 import { useGlobalState } from './Hooks.js';
 
 
@@ -188,7 +189,7 @@ const SyncPrompt = ({ openLogin }) => {
     >
       <Text style={[ styles.systemButtonText, styles.systemButtonTextBlue, styles.enInt]}>
         { `${strings.wantToSync} ` }
-        <Text style={[{ textDecorationLine: 'underline'}]}>{ strings.logIn }</Text>
+        <Text style={[{ textDecorationLine: 'underline'}]}>{ strings.login }</Text>
       </Text>
 
       <TouchableOpacity onPress={() => {
@@ -198,7 +199,7 @@ const SyncPrompt = ({ openLogin }) => {
           });
         }}>
         <Image
-          source={require('./img/close-light.png')}
+          source={iconData.get('close', 'black')}
           resizeMode={'contain'}
           style={{width: 14, height: 14}}
         />

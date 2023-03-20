@@ -16,14 +16,14 @@ import {
   SText,
   TabView,
   TabRowView,
-  LocalSearchBar,
+  SearchBarWithIcon,
   DataSourceLine,
   FilterableFlatList,
   InterfaceTextWithFallback,
   ContentTextWithFallback,
   DotSeparatedList,
   SystemButton,
-  SefariaPressable,
+  SefariaPressable, CategoryButton, GreyBoxFrame, BackButtonRow,
 } from './Misc';
 
 import {
@@ -40,6 +40,7 @@ import { useAsyncVariable, useIncrementalLoad, useGlobalState, useRtlFlexDir } f
 import Sefaria from './sefaria';
 import strings from './LocalizedStrings';
 import styles from './Styles';
+import {iconData} from "./IconData";
 
 const sortTopicCategories = (a, b, interfaceLanguage, isRoot) => {
   // Don't use display order intended for top level a category level. Bandaid for unclear semantics on displayOrder.
@@ -62,9 +63,6 @@ const sortTopicCategories = (a, b, interfaceLanguage, isRoot) => {
   }
   return aDisplayOrder - bDisplayOrder;
 };
-
-const norm_hebrew_ref = tref => tref.replace(/[׳״]/g, '');
-
 
 const fetchBulkText = inRefs =>
   Sefaria.api.getBulkText(
@@ -226,7 +224,11 @@ const TopicCategory = ({ topic, openTopic, onBack, openNav }) => {
         openTopic(newTopic, true, false);  // make sure topic is set with all available info if it wasn't set correctly initially (e.g. came from external link)
       }
     }
-    setSubtopics(getSubtopics(slug));
+    const tempSubtopics = getSubtopics(slug);
+    if (tempSubtopics) {
+      tempSubtopics.splice(3, 0, {isSplice: true});
+    }
+    setSubtopics(tempSubtopics);
   }, [slug, topicTocLoaded]);
   const [trendingTopics, setTrendingTopics] = useState(Sefaria.api._trendingTags);
   useEffect(() => {
@@ -251,29 +253,26 @@ const TopicCategory = ({ topic, openTopic, onBack, openNav }) => {
 
   return (
     <View style={[styles.menu, theme.readerNavCategory]} key={slug}>
-      <SystemHeader
-        title={strings.topics}
-        onBack={onBack}
-        openNav={openNav}
-      />
       {
         (!topicTocLoaded || !subtopics) ? (<LoadingView />) : (
           <FlatList
             data={subtopics}
             renderItem={({ item, index }) => (
-              <View style={[styles.topicCategoryButtonWrapper, theme.lighterGreyBorder, (index === 0 && trendingTopics) ? styles.topicCategoryButtonWrapperRoot : null]}>
-                <TopicCategoryButton
-                  topic={item}
-                  openTopic={openTopic}
-                />
-              </View>
+                item.isSplice ? (
+                  <TrendingTopics trendingTopics={trendingTopics} openTopic={openTopic} />
+                ) : (
+                  <View style={[styles.topicCategoryButtonWrapper, index > 0 && subtopics[index-1].isSplice ? {borderTopWidth: 0} : null, theme.lighterGreyBorder]}>
+                    <TopicCategoryButton
+                        topic={item}
+                        openTopic={openTopic}
+                    />
+                  </View>
+                )
             )}
             ListHeaderComponent={() => (
-              <TopicCategoryHeader {...headerTopic}>
-                <TrendingTopics trendingTopics={trendingTopics} openTopic={openTopic} />
-              </TopicCategoryHeader>
+              <TopicCategoryHeader {...headerTopic} onBack={!!topic && onBack}/>
             )}
-            keyExtractor={t => t.slug}
+            keyExtractor={t => t.slug || 'splice'}
           />
         )
       }
@@ -281,17 +280,13 @@ const TopicCategory = ({ topic, openTopic, onBack, openNav }) => {
   );
 };
 
-/*
-<TouchableOpacity onPress={()=>openTopic(t, false)}>
-          <SText lang={menu_language} style={[isHeb ? styles.he : styles.en, {fontSize: 18, marginTop: 6}, theme.text]}>{isHeb ? t.he : t.en}</SText>
-        </TouchableOpacity>
-*/
-const TopicCategoryHeader = ({ title, description, categoryDescription, children }) => {
+const TopicCategoryHeader = ({ title, description, categoryDescription, children, onBack }) => {
   const { theme, interfaceLanguage } = useGlobalState();
   const displayDescription = categoryDescription || description;
   return (
     <View>
-      <View style={{marginHorizontal: 15, marginVertical: 24}}>
+      <View style={{marginHorizontal: 15, marginBottom: 24, marginTop: !!onBack ? 0 : 24}}>
+        { !!onBack && <BackButtonRow onPress={onBack} />}
         <InterfaceTextWithFallback
           {...title}
           lang={interfaceLanguage}
@@ -315,7 +310,7 @@ const TrendingTopics = ({ trendingTopics, openTopic }) => {
   const isHeb = menuLanguage === 'hebrew';
   return (
     trendingTopics ? (
-      <View style={[{padding: 15, marginBottom: 5}, theme.lightestGreyBackground]}>
+      <View style={[{padding: 15}, theme.lightestGreyBackground]}>
         <View style={[{borderBottomWidth: 1, paddingBottom: 5}, theme.lightGreyBorder]}>
           <InterfaceTextWithFallback
             en={strings.trendingTopics}
@@ -324,7 +319,7 @@ const TrendingTopics = ({ trendingTopics, openTopic }) => {
             extraStyles={[{fontSize: 16, fontWeight: "bold"}, theme.tertiaryText]}
           />
         </View>
-        <View style={{flexDirection: isHeb ? "row-reverse" : "row", flexWrap: 'wrap', marginTop: 5}}>
+        <View style={{flexDirection: isHeb ? "row-reverse" : "row", flexWrap: 'wrap', marginTop: 10}}>
           <DotSeparatedList
             flexDirection={isHeb ? 'row-reverse' : 'row'}
             items={trendingTopics.slice(0, 6)}
@@ -344,25 +339,17 @@ const TrendingTopics = ({ trendingTopics, openTopic }) => {
 }
 
 const TopicCategoryButton = ({ topic, openTopic }) => {
-  const { theme, menuLanguage } = useGlobalState();
-  const isHeb = menuLanguage == 'hebrew';
   const { slug, en, he, description, categoryDescription } = topic;
   const onPress = useCallback(() => {
     openTopic(new Topic({ slug, title: {en, he}, description, categoryDescription}), !!Sefaria.topicTocPage(slug));
   }, [slug]);
   const displayDescription = categoryDescription || description;
-  const descriptionHasContent = !!displayDescription && Object.values(displayDescription).reduce((accum, curr) => accum || !!curr, false);
   return (
-    <SefariaPressable onPress={onPress} extraStyles={{paddingVertical: 17}}>
-      <SText lang={menuLanguage} style={[isHeb ? styles.he : styles.en, {fontSize: 24, marginBottom: -10}, theme.text]} lineMultiplier={1.05}>{isHeb ? he : en}</SText>
-      {descriptionHasContent ? (
-          <InterfaceTextWithFallback
-            {...displayDescription}
-            lang={menuLanguage}
-            extraStyles={[{marginTop: 10, fontSize: 13}, theme.tertiaryText]}
-          />
-        ) : null}
-    </SefariaPressable>
+      <CategoryButton
+          title={{en, he}}
+          description={displayDescription}
+          onPress={onPress}
+      />
   );
 };
 
@@ -456,6 +443,7 @@ const TopicPage = ({ topic, onBack, openNav, openTopic, showToast, openRef, open
   const TopicPageHeaderRendered = (
     <TopicPageHeader
       {...topic}
+      onBack={onBack}
       topicRef={topicData && topicData.ref}
       parasha={topicData && topicData.parasha}
       description={topicData && topicData.description}
@@ -528,12 +516,6 @@ const TopicPage = ({ topic, onBack, openNav, openTopic, showToast, openRef, open
 
   return (
     <View style={[styles.menu, theme.mainTextPanel]} key={topic.slug}>
-      <SystemHeader
-        title={strings.topics}
-        onBack={onBack}
-        openNav={openNav}
-        hideLangToggle
-      />
       { ListRendered }
     </View>
   )
@@ -557,13 +539,33 @@ const TopicListEmpty = ({ query, tab, isLoading }) => {
     </View>
   );
 };
-const TopicPageHeader = ({ title, slug, description, topicsTab, setTopicsTab, query, setQuery, tabs, topicRef, parasha, openRef, jumpToSearchBar, setSearchBarY }) => {
+
+const TopicTabView = ({text, active}) => {
+  const { interfaceLanguage, theme } = useGlobalState();
+  return (
+      <TabView
+          text={text}
+          active={active}
+          lang={interfaceLanguage}
+          textStyleByLang={{
+            english: styles.enInt,
+            hebrew: styles.heInt,
+          }}
+          activeTextStyle={theme.tertiaryText}
+          inactiveTextStyle={theme.secondaryText}
+          baseTextStyles={[styles.systemH3]}
+      />
+  );
+};
+
+const TopicPageHeader = ({ title, slug, description, topicsTab, setTopicsTab, query, setQuery, tabs, topicRef, parasha, openRef, jumpToSearchBar, setSearchBarY, onBack }) => {
   const { theme, interfaceLanguage } = useGlobalState();
   const flexDirection = useRtlFlexDir(interfaceLanguage);
   const isHeb = interfaceLanguage === 'hebrew';
   const category = Sefaria.topicTocCategory(slug);
   return (
-    <View style={{marginHorizontal: 15, marginVertical: 20}}>
+    <View style={{marginHorizontal: 15, marginBottom: 20}}>
+      <BackButtonRow onPress={onBack} />
       {title ? (
         <ContentTextWithFallback
           {...title}
@@ -586,8 +588,8 @@ const TopicPageHeader = ({ title, slug, description, topicsTab, setTopicsTab, qu
       {topicRef ?
         (
           <SystemButton
-            text={parasha ? strings.readThePortion : (isHeb ? norm_hebrew_ref(topicRef.he) : topicRef.en)}
-            img={require('./img/book-dark.png')}
+            text={parasha ? strings.readThePortion : (isHeb ? Sefaria.normHebrewRef(topicRef.he) : topicRef.en)}
+            img={require('./img/book-black.png')}
             extraStyles={[isHeb ? styles.readThePortionButtonHe : styles.readThePortionButton, {alignSelf: isHeb ? "flex-end" : "flex-start"}]}
             extraImageStyles={[{tintColor: "#fff"}]}
             onPress={() => { openRef(topicRef.en); }} isHeb={isHeb} isBlue
@@ -597,7 +599,7 @@ const TopicPageHeader = ({ title, slug, description, topicsTab, setTopicsTab, qu
       : null}
       <TabRowView
         tabs={tabs}
-        renderTab={(tab, active) => <TabView {...tab} active={active} lang={interfaceLanguage} />}
+        renderTab={(tab, active) => <TopicTabView text={tab.text} active={active} />}
         currTabId={topicsTab}
         setTab={setTopicsTab}
         flexDirection={flexDirection}
@@ -605,7 +607,7 @@ const TopicPageHeader = ({ title, slug, description, topicsTab, setTopicsTab, qu
       <View style={{ marginTop: 15, marginBottom: 10 }} onLayout={event => {
         setSearchBarY(event.nativeEvent.layout.y);
       }}>
-        <LocalSearchBar
+        <SearchBarWithIcon
           onFocus={jumpToSearchBar}
           query={query}
           onChange={setQuery}
@@ -618,15 +620,16 @@ const TopicPageHeader = ({ title, slug, description, topicsTab, setTopicsTab, qu
 const TextPassage = ({text, topicTitle, showToast, openRef }) => {
   const { interfaceLanguage } = useGlobalState();
   if (!text.ref) { return null; }
-  const isHeb = interfaceLanguage === 'hebrew';
-  const flexDirection = isHeb ? "row-reverse" : "row";
+  const flexDirection = useRtlFlexDir(interfaceLanguage);
   return (
     <StoryFrame extraStyles={styles.topicItemMargins}>
-      <DataSourceLine dataSources={text.dataSources} title={topicTitle} flexDirection={flexDirection} prefixText={strings.thisSourceIsConnectedTo} imageStyles={[{marginTop: -12}]}>
-        <SaveLine dref={text.ref} showToast={showToast} flexDirection={flexDirection} imageStyles={[{marginTop: -12}]}>
-          <StoryTitleBlock en={text.ref} he={norm_hebrew_ref(text.heRef)} onClick={() => openRef(text.ref)} />
-        </SaveLine>
-      </DataSourceLine>
+      <View style={{marginBottom: 10}}>
+        <DataSourceLine dataSources={text.dataSources} title={topicTitle} flexDirection={flexDirection} prefixText={strings.thisSourceIsConnectedTo} imageStyles={[{marginTop: -12}]}>
+          <SaveLine dref={text.ref} showToast={showToast} flexDirection={flexDirection} imageStyles={[{marginTop: -12}]}>
+            <StoryTitleBlock en={text.ref} he={Sefaria.normHebrewRef(text.heRef)} onClick={() => openRef(text.ref)} />
+          </SaveLine>
+        </DataSourceLine>
+      </View>
       <ColorBarBox tref={text.ref}>
         <StoryBodyBlock en={text.en} he={text.he}/>
       </ColorBarBox>
@@ -705,7 +708,8 @@ const TopicSideColumn = ({ topic, links, openTopic, openRef, parashaData, tref }
     : null
   );
   const hasMore = linkTypeArray && (linkTypeArray[0].links.filter(l => l.shouldDisplay !== false) > 10 || linkTypeArray.length > 1);
-  const moreSource = themeStr === 'white' ? (showMore ? require('./img/up.png') : require('./img/down.png')) : (showMore ? require('./img/up-light.png') : require('./img/down-light.png'))
+  const moreIconName = showMore ? 'up' : 'down';
+  const moreSource = iconData.get(moreIconName, themeStr);
   const moreButton = hasMore ?
     (
       <SefariaPressable extraStyles={[styles.topicLinkSideMore, {flexDirection: isHeb ? 'row-reverse': 'row'}]} onPress={() => setShowMore(prevShowMore => !prevShowMore)}>
@@ -723,13 +727,15 @@ const TopicSideColumn = ({ topic, links, openTopic, openRef, parashaData, tref }
     )
     : null;
   return (
-    <View style={[theme.lightestGreyBackground, {padding: 14, marginBottom: 30}]}>
-      { readingsComponent }
-      { linksComponent }
-      { moreButton }
-    </View>
-  )
-}
+      <View style={{marginBottom: 30}}>
+        <GreyBoxFrame>
+          { readingsComponent }
+          { linksComponent }
+          { moreButton }
+        </GreyBoxFrame>
+      </View>
+  );
+};
 TopicSideColumn.propTypes = {
   topicData: PropTypes.object,
 };
@@ -752,7 +758,7 @@ const ReadingsComponent = ({ parashaData, tref, openRef }) => {
       <View style={styles.readingsSection}>
         <InterfaceTextWithFallback en={"Torah"} he={"תורה"} extraStyles={[theme.tertiaryText, {marginBottom: 5}]} />
         <SefariaPressable onPress={()=>{ openRef(tref.en); }} extraStyles={{marginTop: 6}}>
-          <ContentTextWithFallback en={tref.en} he={norm_hebrew_ref(tref.he)} extraStyles={[theme.text]}/>
+          <ContentTextWithFallback en={tref.en} he={Sefaria.normHebrewRef(tref.he)} extraStyles={[theme.text]}/>
         </SefariaPressable>
       </View>
       <View style={styles.readingsSection}>
@@ -763,7 +769,7 @@ const ReadingsComponent = ({ parashaData, tref, openRef }) => {
             items={parashaData.haftarah}
             renderItem={h => (
               <SefariaPressable onPress={()=>{ openRef(h.displayValue.en); }} extraStyles={{marginTop: 6}}>
-                <ContentTextWithFallback en={h.displayValue.en} he={norm_hebrew_ref(h.displayValue.he)} extraStyles={[theme.text]}/>
+                <ContentTextWithFallback en={h.displayValue.en} he={Sefaria.normHebrewRef(h.displayValue.he)} extraStyles={[theme.text]}/>
               </SefariaPressable>
             )}
             keyExtractor={h => h.url}

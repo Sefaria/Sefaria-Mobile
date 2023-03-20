@@ -20,7 +20,7 @@ import {
   CategoryColorLine,
   ConditionalProgressWrapper,
   CloseButton,
-  ButtonToggleSetNew,
+  ButtonToggleSet,
   LibraryNavButton,
   SefariaProgressBar,
   SystemButton,
@@ -426,7 +426,7 @@ const ButtonToggleSection = ({ langStyle }) => {
           <View>
             <Text style={[langStyle, styles.settingsSectionHeader, theme.tertiaryText]}>{strings[s]}</Text>
           </View>
-          <ButtonToggleSetNew
+          <ButtonToggleSet
             options={options[`${s}Options`]}
             lang={globalState.interfaceLanguage}
             active={globalState[s]} />

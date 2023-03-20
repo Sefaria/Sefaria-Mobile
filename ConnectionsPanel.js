@@ -21,6 +21,7 @@ import SheetListInConnections from './SheetListInConnections';
 import TopicList from './TopicList';
 import LexiconBox from './LexiconBox';
 import { GlobalStateContext, getTheme } from './StateManager';
+import {iconData} from "./IconData";
 
 const {
   CategoryColorLine,
@@ -337,8 +338,6 @@ class ResourcesList extends React.PureComponent {
   }
 
   render() {
-    const isWhite = this.props.themeStr === "white";
-    const isSaved = Sefaria.history.indexOfSaved(this.props.segmentRef) !== -1;
     return (
       <View>
         {
@@ -351,41 +350,41 @@ class ResourcesList extends React.PureComponent {
         }
         <ToolsButton
           text={strings.sheets}
-          icon={isWhite ? require("./img/sheet.png") : require("./img/sheet.png")}
+          icon={iconData.get('sheet', this.props.themeStr)}
           count={this.props.sheetsCount}
           onPress={()=>{ this.props.setConnectionsMode("sheetsByRef"); }}
         />
         {this.props.topicsCount && this.props.topicsCount > 0 ? (
           <ToolsButton
             text={strings.topics} count={this.props.topicsCount}
-            icon={isWhite ? require("./img/hashtag.png") : require("./img/hashtag-light.png")}
+            icon={iconData.get('hashtag', this.props.themeStr)}
             onPress={() => this.props.setConnectionsMode("topicsByRef")}
           />) : null
         }
         <ToolsButton
           text={strings.about}
-          icon={isWhite ? require("./img/book.png") : require("./img/book-light.png")}
+          icon={iconData.get('book', this.props.themeStr)}
           onPress={()=>{ this.props.setConnectionsMode("about"); }}
         />
         {this.props.sheet ? null : <ToolsButton
           text={strings.translations}
-          icon={isWhite ? require("./img/layers.png") : require("./img/layers-light.png")}
+          icon={iconData.get('layers', this.props.themeStr)}
           count={this.props.versionsCount}
           onPress={()=>{ this.props.setConnectionsMode("versions"); }}
         /> }
         <ToolsButton
           text={strings.share}
-          icon={isWhite ? require("./img/share.png") : require("./img/share-light.png")}
+          icon={iconData.get('share', this.props.themeStr)}
           onPress={() => this.props.shareCurrentSegment()}
         />
         {this.props.sheet ? null : <ToolsButton
           text={strings.reportError}
-          icon={isWhite ? require("./img/bubble.png") : require("./img/bubble-light.png")}
+          icon={iconData.get('bubble', this.props.themeStr)}
           onPress={this.props.reportError}
         />}
         <ToolsButton
           text={strings.viewOnSite}
-          icon={isWhite ? require("./img/externalLink.png") : require("./img/externalLink-light.png")}
+          icon={iconData.get('externalLink', this.props.themeStr)}
           onPress={this.props.viewOnSite}
         />
       </View>
@@ -399,7 +398,7 @@ const ToolsButton = ({ text, onPress, icon, count }) => {
   const textStyle = interfaceLanguage === "english" ? styles.enInt : styles.heInt;
   const flexDir = interfaceLanguage === "english" ? null : styles.rtlRow;
   const hasIcon = !!icon;
-  icon = icon || require("./img/sheet.png");  // default to arbitrary icon that will be invisible if icon wasn't passed
+  icon = icon || iconData.get('sheet', themeStr);  // default to arbitrary icon that will be invisible if icon wasn't passed
   const iconComp = (<View style={[styles.toolsButtonIcon, hasIcon ? null : styles.readerNavSectionMoreInvisible]}><Image source={icon} style={styles.menuButton} resizeMode={'contain'}></Image></View>);
   const countComp = !!count || count === 0 ? <Text style={[styles.enInt, theme.secondaryText, styles.spacedText]}>{` (${count}) `}</Text> : null
   return (

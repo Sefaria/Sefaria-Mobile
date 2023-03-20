@@ -79,7 +79,9 @@ const ReaderTextTableOfContents = ({
       <View style={[styles.header, theme.header]}>
         <CloseButton onPress={close} />
         <Text style={[langStyle, styles.textTocHeaderTitle, styles.textCenter, theme.text]}>{strings.tableOfContents}</Text>
-        <LanguageToggleButton />
+        <View style={{marginRight: 10}}>
+          <LanguageToggleButton />
+        </View>
       </View>
 
       <TextErrorBoundary textUnavailableAlert={textUnavailableAlert} title={title}>
