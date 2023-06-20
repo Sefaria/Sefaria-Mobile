@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import ActionSheet from 'react-native-action-sheet';
 import { RenderHTML } from 'react-native-render-html';
-import Clipboard from "@react-native-community/clipboard";
+import Clipboard from "@react-native-clipboard/clipboard";
 import ReactNativeHapticFeedback from "react-native-haptic-feedback";
 import strings from './LocalizedStrings';
 import { SYSTEM_FONTS } from './Misc';
