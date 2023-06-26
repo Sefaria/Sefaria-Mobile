@@ -53,7 +53,7 @@
     "react-native": "^0.69.0",
     "react-native-action-sheet": "^2.2.0",
     "react-native-background-fetch": "^4.0.5",
-    "react-native-gesture-handler": "^2.5.0",
+    "react-native-gesture-handler": "2.8.0",
     "react-native-haptic-feedback": "^1.13.1",
     "react-native-inappbrowser-reborn": "^3.7.0",
     "react-native-localization": "^2.3.1",
