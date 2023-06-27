@@ -2,19 +2,19 @@ PODS:
   - boost (1.76.0)
   - CocoaAsyncSocket (7.6.5)
   - DoubleConversion (1.1.6)
-  - EXApplication (4.2.2):
+  - EXApplication (5.0.1):
     - ExpoModulesCore
-  - EXConstants (13.2.4):
+  - EXConstants (14.0.2):
     - ExpoModulesCore
-  - EXErrorRecovery (3.2.0):
+  - EXErrorRecovery (4.0.1):
     - ExpoModulesCore
   - EXFileSystem (14.0.0):
     - ExpoModulesCore
-  - EXFont (10.2.1):
+  - EXFont (11.0.1):
     - ExpoModulesCore
-  - Expo (46.0.21):
+  - Expo (47.0.14):
     - ExpoModulesCore
-  - ExpoKeepAwake (10.2.1):
+  - ExpoKeepAwake (11.0.1):
     - ExpoModulesCore
   - ExpoModulesCore (1.2.7):
     - React-Core
@@ -517,7 +517,7 @@ PODS:
     - Firebase/RemoteConfig (= 8.15.0)
     - React-Core
     - RNFBApp
-  - RNGestureHandler (2.8.0):
+  - RNGestureHandler (2.12.0):
     - React-Core
   - RNInAppBrowser (3.7.0):
     - React-Core
@@ -782,13 +782,13 @@ SPEC CHECKSUMS:
   boost: a7c83b31436843459a1961bfd74b96033dc77234
   CocoaAsyncSocket: 065fd1e645c7abab64f7a6a2007a48038fdc6a99
   DoubleConversion: 5189b271737e1565bdce30deb4a08d647e3f5f54
-  EXApplication: e418d737a036e788510f2c4ad6c10a7d54d18586
-  EXConstants: 7c44785d41d8e959d527d23d29444277a4d1ee73
-  EXErrorRecovery: 74d71ee59f6814315457b09d68e86aa95cc7d05d
+  EXApplication: 034b1c40a8e9fe1bff76a1e511ee90dff64ad834
+  EXConstants: 3c86653c422dd77e40d10cbbabb3025003977415
+  EXErrorRecovery: ae43433feb0608a64dc5b1c8363b3e7769a9ea24
   EXFileSystem: 2aa2d9289f84bca9532b9ccbd81504fa31eb1ded
-  EXFont: 06df627203afcb8a3b3152ec06eb2f11f46f0cff
-  Expo: 99284f9f697b6def5988fdf50652e21f062991e3
-  ExpoKeepAwake: 8b47e5358d54ea4922b630a74f2acb026ab7a28b
+  EXFont: 319606bfe48c33b5b5063fb0994afdc496befe80
+  Expo: 5f4240506a147162542178989696e56e3dd72924
+  ExpoKeepAwake: 69b59d0a8d2b24de9f82759c39b3821fec030318
   ExpoModulesCore: 040e8332566f81f10aba6e921a5ecb74fd6502ff
   FBLazyVector: 5c0975e66853436589eae7542f4b956c7e2ef465
   FBReactNativeSpec: bb062293e84c33200005312d1807d8cb94a0d66a
@@ -859,7 +859,7 @@ SPEC CHECKSUMS:
   RNFBApp: e4439717c23252458da2b41b81b4b475c86f90c4
   RNFBCrashlytics: 94e1f78e2a9aa9e02edbfb0d3f1f0921ce00094b
   RNFBRemoteConfig: 92fbb75ceb69fec44ae727b70d23c5d1798f7648
-  RNGestureHandler: 62232ba8f562f7dea5ba1b3383494eb5bf97a4d3
+  RNGestureHandler: dec4645026e7401a0899f2846d864403478ff6a5
   RNInAppBrowser: e36d6935517101ccba0e875bac8ad7b0cb655364
   RNReactNativeHapticFeedback: 1e3efeca9628ff9876ee7cdd9edec1b336913f8c
   RNSoundPlayer: 6b5532fb8e9afe17af48e62813c80ad568aea5d3
@@ -871,4 +871,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: 6f67ee92414d971eb0fa3fa2d645052434007b5f
 
-COCOAPODS: 1.11.3
+COCOAPODS: 1.12.1
