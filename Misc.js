@@ -709,7 +709,7 @@ class DirectedButton extends React.Component {
   static propTypes = {
     text:       PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
     language:   PropTypes.oneOf(["hebrew", "english"]).isRequired,
-    textStyle:  PropTypes.oneOfType([Text.propTypes.style, PropTypes.array]),
+    textStyle:  PropTypes.oneOfType([PropTypes.object, PropTypes.array]),
     imageStyle: PropTypes.oneOfType([ViewPropTypes.style, PropTypes.array]),
     onPress:    PropTypes.func.isRequired,
     direction:  PropTypes.oneOf(["forward", "back"]).isRequired,

@@ -36,6 +36,6 @@
     "HEADER_SEARCH_PATHS": "$(PODS_TARGET_SRCROOT)/src"
   },
   "platforms": {
-    "ios": "11.0"
+    "ios": "12.4"
   }
 }

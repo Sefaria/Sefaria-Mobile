@@ -3,7 +3,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Text, View, StyleSheet } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 
 const measureBatchSize = 50;
 
@@ -18,7 +18,7 @@ class TextHeightMeasurer extends React.PureComponent {
     })).isRequired,
     allHeightsMeasuredCallback: PropTypes.func.isRequired,
     minHeight: PropTypes.number,
-    style: Text.propTypes.style,
+    style: PropTypes.object,
   };
 
   constructor(props) {
