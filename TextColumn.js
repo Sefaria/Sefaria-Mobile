@@ -201,7 +201,7 @@ class TextColumn extends React.PureComponent {
           let rowData = this.dataSourceHash[changeString];
           if (!rowData) {
             rowData = {
-              content1: rowContent, // Store data in `content` so that we can manipulate other fields without manipulating the original data
+              content: rowContent, // Store data in `content` so that we can manipulate other fields without manipulating the original data
               sectionIndex,
               rowIndex: i,
               highlight,
