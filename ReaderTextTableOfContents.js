@@ -1,6 +1,6 @@
 'use strict';
 import PropTypes from 'prop-types';
-import React, { useState } from 'react';
+import React, {useCallback, useState} from 'react';
 import {
   Text,
   TouchableOpacity,
@@ -24,7 +24,7 @@ import {
 import styles from './Styles';
 import strings from './LocalizedStrings';
 import iPad from './isIPad';
-import TextErrorBoundary from './TextErrorBoundary';
+import ErrorBoundaryWithAlert from './ErrorBoundaryWithAlert';
 import { useGlobalState } from './Hooks.js';
 
 const sectionString = (isHeb, textToc, currentRef, currentHeRef) => {
@@ -66,6 +66,9 @@ const ReaderTextTableOfContents = ({
 }) => {
   // The Table of Contents for a single Text
   const { theme, interfaceLanguage, menuLanguage } = useGlobalState();
+  const textErrorBoundaryAlert = useCallback(() => {
+    textUnavailableAlert(title);
+  }, [title]);
   var enTitle = title;
   var heTitle = Sefaria.index(title).heTitle;
   const isHeb = menuLanguage == "hebrew";
@@ -84,7 +87,7 @@ const ReaderTextTableOfContents = ({
         </View>
       </View>
 
-      <TextErrorBoundary textUnavailableAlert={textUnavailableAlert} title={title}>
+      <ErrorBoundaryWithAlert alert={textErrorBoundaryAlert}>
         <ScrollView style={styles.menuContent} contentContainerStyle={{paddingTop: 20,paddingBottom: 40}}>
           <View style={[styles.textTocTopBox, theme.bordered]}>
             <View style={styles.textTocCategoryBox}>
@@ -133,7 +136,7 @@ const ReaderTextTableOfContents = ({
 
         </ScrollView>
 
-      </TextErrorBoundary>
+      </ErrorBoundaryWithAlert>
     </View>
   );
 }

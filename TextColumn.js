@@ -16,7 +16,7 @@ import styles from './Styles.js';
 import TextRange from './TextRange';
 import TextRangeContinuous from './TextRangeContinuous';
 import TextHeightMeasurer from './TextHeightMeasurer';
-import TextErrorBoundary from './TextErrorBoundary';
+import ErrorBoundaryWithAlert from './ErrorBoundaryWithAlert';
 import { VOCALIZATION } from './VocalizationEnum';
 const ViewPort  = Dimensions.get('window');
 const COMMENTARY_LINE_THRESHOLD = 100;
@@ -201,7 +201,7 @@ class TextColumn extends React.PureComponent {
           let rowData = this.dataSourceHash[changeString];
           if (!rowData) {
             rowData = {
-              content: rowContent, // Store data in `content` so that we can manipulate other fields without manipulating the original data
+              content1: rowContent, // Store data in `content` so that we can manipulate other fields without manipulating the original data
               sectionIndex,
               rowIndex: i,
               highlight,
@@ -773,10 +773,14 @@ class TextColumn extends React.PureComponent {
     );
   };
 
+  _textErrorBoundaryAlert = () => {
+    this.props.textUnavailableAlert(this.props.textTitle);
+  };
+
   render() {
     return (
         <View style={styles.textColumn}>
-          <TextErrorBoundary textUnavailableAlert={this.props.textUnavailableAlert} title={this.props.textTitle}>
+          <ErrorBoundaryWithAlert alert={this._textErrorBoundaryAlert}>
             <SectionList
               style={styles.scrollViewPaddingInOrderToScroll}
               ref={this._getSectionListRef}
@@ -808,7 +812,7 @@ class TextColumn extends React.PureComponent {
                 componentsToMeasure={this.state.componentsToMeasure}
                 allHeightsMeasuredCallback={this.allHeightsMeasured}/> : null
             }
-          </TextErrorBoundary>
+          </ErrorBoundaryWithAlert>
         </View>
     );
   }

@@ -1,10 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-class TextErrorBoundary extends React.Component {
+class ErrorBoundaryWithAlert extends React.Component {
   static propTypes = {
-    textUnavailableAlert: PropTypes.func.isRequired,
-    title:                PropTypes.string.isRequired,
+    alert: PropTypes.func.isRequired,
   };
 
   constructor(props) {
@@ -15,7 +14,7 @@ class TextErrorBoundary extends React.Component {
     return { hasError: true };
   }
   componentDidCatch(error, errorInfo) {
-    this.props.textUnavailableAlert(this.props.title)
+    this.props.alert();
   }
 
   render() {
@@ -25,4 +24,4 @@ class TextErrorBoundary extends React.Component {
   }
 }
 
-export default TextErrorBoundary;
+export default ErrorBoundaryWithAlert;
