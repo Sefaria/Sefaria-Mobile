@@ -11,6 +11,7 @@ import {
   Image,
 } from 'react-native';
 import {ViewPropTypes} from 'deprecated-react-native-prop-types';
+import {ErrorBoundaryFallbackComponent} from "./ErrorBoundaryFallbackComponent";
 import { WebView } from 'react-native-webview';
 import styles from './Styles.js';
 import TextRange from './TextRange';
@@ -777,12 +778,10 @@ class TextColumn extends React.PureComponent {
     this.props.textUnavailableAlert(this.props.textTitle);
   };
 
-  _textErrorBoundaryFallbackRender = () => null;
-
   render() {
     return (
         <View style={styles.textColumn}>
-          <ErrorBoundary fallbackRender={this._textErrorBoundaryFallbackRender} onError={this._textErrorBoundaryAlert}>
+          <ErrorBoundary FallbackComponent={ErrorBoundaryFallbackComponent} onError={this._textErrorBoundaryAlert}>
             <SectionList
               style={styles.scrollViewPaddingInOrderToScroll}
               ref={this._getSectionListRef}

@@ -9,6 +9,7 @@ import {
   Dimensions
 } from 'react-native';
 
+import {ErrorBoundaryFallbackComponent} from "./ErrorBoundaryFallbackComponent";
 import {
   CloseButton,
   LanguageToggleButton,
@@ -87,7 +88,7 @@ const ReaderTextTableOfContents = ({
         </View>
       </View>
 
-      <ErrorBoundary fallbackRender={() => null} onError={textErrorBoundaryAlert}>
+      <ErrorBoundary FallbackComponent={ErrorBoundaryFallbackComponent} onError={textErrorBoundaryAlert}>
         <ScrollView style={styles.menuContent} contentContainerStyle={{paddingTop: 20,paddingBottom: 40}}>
           <View style={[styles.textTocTopBox, theme.bordered]}>
             <View style={styles.textTocCategoryBox}>
