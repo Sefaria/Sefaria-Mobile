@@ -24,8 +24,8 @@ import {
 import styles from './Styles';
 import strings from './LocalizedStrings';
 import iPad from './isIPad';
-import ErrorBoundaryWithAlert from './ErrorBoundaryWithAlert';
 import { useGlobalState } from './Hooks.js';
+import {ErrorBoundary} from "react-error-boundary";
 
 const sectionString = (isHeb, textToc, currentRef, currentHeRef) => {
   // Returns a string expressing just the section we're currently looking including section name when possible
@@ -87,7 +87,7 @@ const ReaderTextTableOfContents = ({
         </View>
       </View>
 
-      <ErrorBoundaryWithAlert alert={textErrorBoundaryAlert}>
+      <ErrorBoundary fallbackRender={() => null} onError={textErrorBoundaryAlert}>
         <ScrollView style={styles.menuContent} contentContainerStyle={{paddingTop: 20,paddingBottom: 40}}>
           <View style={[styles.textTocTopBox, theme.bordered]}>
             <View style={styles.textTocCategoryBox}>
@@ -136,7 +136,7 @@ const ReaderTextTableOfContents = ({
 
         </ScrollView>
 
-      </ErrorBoundaryWithAlert>
+      </ErrorBoundary>
     </View>
   );
 }

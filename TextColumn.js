@@ -16,7 +16,6 @@ import styles from './Styles.js';
 import TextRange from './TextRange';
 import TextRangeContinuous from './TextRangeContinuous';
 import TextHeightMeasurer from './TextHeightMeasurer';
-import ErrorBoundaryWithAlert from './ErrorBoundaryWithAlert';
 import { VOCALIZATION } from './VocalizationEnum';
 const ViewPort  = Dimensions.get('window');
 const COMMENTARY_LINE_THRESHOLD = 100;
@@ -25,6 +24,7 @@ import {
   LoadingView,
   HebrewInEnglishText,
 } from './Misc.js';
+import { ErrorBoundary } from "react-error-boundary";
 
 const ROW_TYPES = {
   SEGMENT: 1,
@@ -777,10 +777,12 @@ class TextColumn extends React.PureComponent {
     this.props.textUnavailableAlert(this.props.textTitle);
   };
 
+  _textErrorBoundaryFallbackRender = () => null;
+
   render() {
     return (
         <View style={styles.textColumn}>
-          <ErrorBoundaryWithAlert alert={this._textErrorBoundaryAlert}>
+          <ErrorBoundary fallbackRender={this._textErrorBoundaryFallbackRender} onError={this._textErrorBoundaryAlert}>
             <SectionList
               style={styles.scrollViewPaddingInOrderToScroll}
               ref={this._getSectionListRef}
@@ -812,7 +814,7 @@ class TextColumn extends React.PureComponent {
                 componentsToMeasure={this.state.componentsToMeasure}
                 allHeightsMeasuredCallback={this.allHeightsMeasured}/> : null
             }
-          </ErrorBoundaryWithAlert>
+          </ErrorBoundary>
         </View>
     );
   }
