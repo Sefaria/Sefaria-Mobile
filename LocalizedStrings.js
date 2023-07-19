@@ -210,6 +210,8 @@ let strings = new LocalizedStrings({
     texts: "Texts",
     options: "Options",
     exactMatchesOnly: "Exact Matches Only",
+    generalErrorAlertTitle: "The Sefaria app encountered an error",
+    generalErrorAlertMessage: "If the problem persists, we recommend uninstalling and reinstalling the Sefaria app.",
   },
   he: {
     profile: "פרופיל",
@@ -417,6 +419,8 @@ let strings = new LocalizedStrings({
     texts: "מקורות",
     options: "אפשרויות",
     exactMatchesOnly: "התאמה מדויקת למילות החיפוש",
+    generalErrorAlertTitle: "יש שגיאה ביישומון",
+    generalErrorAlertMessage: "אם הבעיה ממשיכה, מומלץ למחוק ולהתקין מחדש מחנות האפליקציות.",
   }
 });
 

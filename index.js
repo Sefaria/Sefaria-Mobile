@@ -38,13 +38,10 @@ LogBox.ignoreLogs([
 
 const generalAppErrorAlert = () => {
   Alert.alert(
-      "ERROR",
-      "badness",
+      strings.generalErrorAlertTitle,
+      strings.generalErrorAlertMessage,
       [
-        {text: strings.cancel, style: 'cancel'},
-        {text: strings.open, onPress: () => {
-
-          }}
+        {text: strings.ok, style: 'cancel'},
       ]
   );
 };
