@@ -303,6 +303,7 @@ class ReaderApp extends React.PureComponent {
         }
     })
     .catch(error => {
+      crashlytics().recordError(error, "error with app init");
       this.props.showErrorBoundary(error);
     });
   }
