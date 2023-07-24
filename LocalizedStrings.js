@@ -419,7 +419,7 @@ let strings = new LocalizedStrings({
     texts: "מקורות",
     options: "אפשרויות",
     exactMatchesOnly: "התאמה מדויקת למילות החיפוש",
-    generalErrorAlertTitle: "יש שגיאה ביישומון",
+    generalErrorAlertTitle: "שגיאה באפליקצה",
     generalErrorAlertMessage: "אם הבעיה ממשיכה, מומלץ למחוק ולהתקין מחדש מחנות האפליקציות.",
   }
 });
