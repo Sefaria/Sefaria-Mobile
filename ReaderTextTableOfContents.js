@@ -1,6 +1,6 @@
 'use strict';
 import PropTypes from 'prop-types';
-import React, { useState } from 'react';
+import React, {useCallback, useState} from 'react';
 import {
   Text,
   TouchableOpacity,
@@ -9,6 +9,7 @@ import {
   Dimensions
 } from 'react-native';
 
+import {ErrorBoundaryFallbackComponent} from "./ErrorBoundaryFallbackComponent";
 import {
   CloseButton,
   LanguageToggleButton,
@@ -24,8 +25,8 @@ import {
 import styles from './Styles';
 import strings from './LocalizedStrings';
 import iPad from './isIPad';
-import TextErrorBoundary from './TextErrorBoundary';
 import { useGlobalState } from './Hooks.js';
+import {ErrorBoundary} from "react-error-boundary";
 
 const sectionString = (isHeb, textToc, currentRef, currentHeRef) => {
   // Returns a string expressing just the section we're currently looking including section name when possible
@@ -66,6 +67,9 @@ const ReaderTextTableOfContents = ({
 }) => {
   // The Table of Contents for a single Text
   const { theme, interfaceLanguage, menuLanguage } = useGlobalState();
+  const textErrorBoundaryAlert = useCallback(() => {
+    textUnavailableAlert(title);
+  }, [title]);
   var enTitle = title;
   var heTitle = Sefaria.index(title).heTitle;
   const isHeb = menuLanguage == "hebrew";
@@ -84,7 +88,7 @@ const ReaderTextTableOfContents = ({
         </View>
       </View>
 
-      <TextErrorBoundary textUnavailableAlert={textUnavailableAlert} title={title}>
+      <ErrorBoundary FallbackComponent={ErrorBoundaryFallbackComponent} onError={textErrorBoundaryAlert}>
         <ScrollView style={styles.menuContent} contentContainerStyle={{paddingTop: 20,paddingBottom: 40}}>
           <View style={[styles.textTocTopBox, theme.bordered]}>
             <View style={styles.textTocCategoryBox}>
@@ -133,7 +137,7 @@ const ReaderTextTableOfContents = ({
 
         </ScrollView>
 
-      </TextErrorBoundary>
+      </ErrorBoundary>
     </View>
   );
 }

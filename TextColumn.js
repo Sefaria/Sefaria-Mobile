@@ -11,12 +11,12 @@ import {
   Image,
 } from 'react-native';
 import {ViewPropTypes} from 'deprecated-react-native-prop-types';
+import {ErrorBoundaryFallbackComponent} from "./ErrorBoundaryFallbackComponent";
 import { WebView } from 'react-native-webview';
 import styles from './Styles.js';
 import TextRange from './TextRange';
 import TextRangeContinuous from './TextRangeContinuous';
 import TextHeightMeasurer from './TextHeightMeasurer';
-import TextErrorBoundary from './TextErrorBoundary';
 import { VOCALIZATION } from './VocalizationEnum';
 const ViewPort  = Dimensions.get('window');
 const COMMENTARY_LINE_THRESHOLD = 100;
@@ -25,6 +25,7 @@ import {
   LoadingView,
   HebrewInEnglishText,
 } from './Misc.js';
+import { ErrorBoundary } from "react-error-boundary";
 
 const ROW_TYPES = {
   SEGMENT: 1,
@@ -773,10 +774,14 @@ class TextColumn extends React.PureComponent {
     );
   };
 
+  _textErrorBoundaryAlert = () => {
+    this.props.textUnavailableAlert(this.props.textTitle);
+  };
+
   render() {
     return (
         <View style={styles.textColumn}>
-          <TextErrorBoundary textUnavailableAlert={this.props.textUnavailableAlert} title={this.props.textTitle}>
+          <ErrorBoundary FallbackComponent={ErrorBoundaryFallbackComponent} onError={this._textErrorBoundaryAlert}>
             <SectionList
               style={styles.scrollViewPaddingInOrderToScroll}
               ref={this._getSectionListRef}
@@ -808,7 +813,7 @@ class TextColumn extends React.PureComponent {
                 componentsToMeasure={this.state.componentsToMeasure}
                 allHeightsMeasuredCallback={this.allHeightsMeasured}/> : null
             }
-          </TextErrorBoundary>
+          </ErrorBoundary>
         </View>
     );
   }

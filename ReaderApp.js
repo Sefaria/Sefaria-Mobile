@@ -84,6 +84,7 @@ class ReaderApp extends React.PureComponent {
     overwriteVersions:PropTypes.bool.isRequired,
     isLoggedIn:       PropTypes.bool.isRequired,
     dispatch:         PropTypes.func.isRequired,
+    showErrorBoundary:PropTypes.func.isRequired,
   };
 
   constructor(props, context) {
@@ -300,6 +301,10 @@ class ReaderApp extends React.PureComponent {
           .then(() => Sefaria.postInit(this.props.downloadNetworkSetting))
           .then(this.promptLibraryDownload.bind(this));
         }
+    })
+    .catch(error => {
+      crashlytics().recordError(error, "error with app init");
+      this.props.showErrorBoundary(error);
     });
   }
 
