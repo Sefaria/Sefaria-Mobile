@@ -1,7 +1,7 @@
-def VERSION_BUILD=6196
+def VERSION_BUILD=6197
 def VERSION_MAJOR=6
 def VERSION_MINOR=0
-def VERSION_PATCH=11
+def VERSION_PATCH=12
 
 apply plugin: "com.android.application"
 import com.android.build.OutputFile
