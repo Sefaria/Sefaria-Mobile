@@ -115,8 +115,10 @@ const AboutBox = ({ textToc, currVersions, textTitle, sheet, openUri }) => {
       </View>
     );
   }
+  const showSourceVersionDetails = textLanguage !== 'english';
+  const showTranslationVersionDetails = textLanguage !== 'hebrew';
   const versionSectionHe =
-    (!!vh && !vh.disabled ? <View style={styles.currVersionSection}>
+    (!!vh && showSourceVersionDetails ? <View style={styles.currVersionSection}>
       <View style={[styles.aboutHeaderWrapper, theme.bordered]}>
         <Text style={[styles.aboutHeader, theme.secondaryText, hei ? styles.heInt : null]}>{ strings.currentHebrewVersion }</Text>
       </View>
@@ -126,7 +128,7 @@ const AboutBox = ({ textToc, currVersions, textTitle, sheet, openUri }) => {
       />
     </View> : null );
   const versionSectionEn =
-    (!!ve && !ve.disabled ? <View style={styles.currVersionSection}>
+    (!!ve && showTranslationVersionDetails ? <View style={styles.currVersionSection}>
       <View style={[styles.aboutHeaderWrapper, theme.bordered]}>
         <Text style={[styles.aboutHeader, theme.secondaryText, hei ? styles.heInt : null]}>{ strings.currentEnglishVersion }</Text>
       </View>
