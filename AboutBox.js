@@ -115,8 +115,8 @@ const AboutBox = ({ textToc, currVersions, textTitle, sheet, openUri }) => {
       </View>
     );
   }
-  const showSourceVersionDetails = textLanguage != 'english';
-  const showTranslationVersionDetails = textLanguage != 'hebrew';
+  const showSourceVersionDetails = textLanguage !== 'english';
+  const showTranslationVersionDetails = textLanguage !== 'hebrew';
   const versionSectionHe =
     (!!vh && showSourceVersionDetails ? <View style={styles.currVersionSection}>
       <View style={[styles.aboutHeaderWrapper, theme.bordered]}>
