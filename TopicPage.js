@@ -683,7 +683,8 @@ const TopicSideColumn = ({ topic, links, openTopic, openRef, parashaData, tref }
     />
   );
 
-  const hasReadings = parashaData && (!Array.isArray(parashaData) || parashaData.length > 0) && tref;
+  // parashaData can be an empty array if it is missing
+  const hasReadings = parashaData && !Array.isArray(parashaData)  && tref;
   const readingsComponent = hasReadings ? (
     <ReadingsComponent parashaData={parashaData} tref={tref} openRef={openRef} />
   ) : null;
