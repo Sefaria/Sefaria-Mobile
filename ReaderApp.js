@@ -751,7 +751,8 @@ class ReaderApp extends React.PureComponent {
         Sefaria.textToc(title).then(textToc => {
           this.setState({textToc}, () => {
             // at this point, both book and section level version info is available
-            this.setCurrVersions(sectionRef, title).then(resolve); // not positive if this will combine versions well
+            this.setCurrVersions(sectionRef, title); // not positive if this will combine versions well
+            resolve();
           });
         });
       });
@@ -773,13 +774,9 @@ class ReaderApp extends React.PureComponent {
   };
 
   setCurrVersions = (sectionRef, title) => {
-    return new Promise((resolve, reject) => {
       let enVInfo = !sectionRef ? this.state.currVersions.en : Sefaria.versionInfo(sectionRef, title, 'english');
       let heVInfo = !sectionRef ? this.state.currVersions.he : Sefaria.versionInfo(sectionRef, title, 'hebrew');
-      if (enVInfo) { enVInfo.disabled = this.props.textLanguage ===  'hebrew'; } // not currently viewing this version
-      if (heVInfo) { heVInfo.disabled = this.props.textLanguage === 'english'; }
-      this.setState({ currVersions: { en: enVInfo, he: heVInfo } }, resolve);
-    });
+      this.setState({ currVersions: { en: enVInfo, he: heVInfo } });
   };
 
   loadSecondaryData = (ref) => {
