@@ -776,8 +776,6 @@ class ReaderApp extends React.PureComponent {
     return new Promise((resolve, reject) => {
       let enVInfo = !sectionRef ? this.state.currVersions.en : Sefaria.versionInfo(sectionRef, title, 'english');
       let heVInfo = !sectionRef ? this.state.currVersions.he : Sefaria.versionInfo(sectionRef, title, 'hebrew');
-      if (enVInfo) { enVInfo.disabled = this.props.textLanguage ===  'hebrew'; } // not currently viewing this version
-      if (heVInfo) { heVInfo.disabled = this.props.textLanguage === 'english'; }
       this.setState({ currVersions: { en: enVInfo, he: heVInfo } }, resolve);
     });
   };
