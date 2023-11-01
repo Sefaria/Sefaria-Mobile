@@ -11,7 +11,7 @@ If you haven't already done so, install React Native for your development enviro
 brew install node
 brew install watchman
 git clone https://github.com/Sefaria/Sefaria-iOS/
-cd Sefaria-iOS                          
+cd Sefaria-Mobile                          
 npm install
 npm run setup
 brew install cocoapods
