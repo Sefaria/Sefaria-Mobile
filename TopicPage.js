@@ -6,7 +6,7 @@ import {
   View,
   Text,
   Image,
-  FlatList,
+  FlatList, TouchableOpacity,
 } from 'react-native';
 
 import { Topic } from './Topic';
@@ -23,7 +23,7 @@ import {
   ContentTextWithFallback,
   DotSeparatedList,
   SystemButton,
-  SefariaPressable, CategoryButton, GreyBoxFrame, BackButtonRow,
+  SefariaPressable, CategoryButton, GreyBoxFrame, BackButtonRow, SimpleLinkedBlock,
 } from './Misc';
 
 import {
@@ -206,6 +206,18 @@ const organizeLinks = (topic, links) => {
   return linkTypeArray;
 };
 
+const SLUG_PORTAL_LINK_MAP = {
+  "adin-steinsaltz": {
+    url: "https://sefaria.org/topics/adin-steinsaltz",
+    text: {
+      en: "Steinsaltz Collection on Sefaria",
+      he: "לאוסף המלא של ספרי הרב שטיינזלץ בספריא",
+    },
+  }
+}
+const getPortalLink = slug => SLUG_PORTAL_LINK_MAP[slug];
+
+
 const TopicCategory = ({ topic, openTopic, onBack, openNav }) => {
   const { theme, interfaceLanguage } = useGlobalState();
 
@@ -353,7 +365,7 @@ const TopicCategoryButton = ({ topic, openTopic }) => {
   );
 };
 
-const TopicPage = ({ topic, onBack, openNav, openTopic, showToast, openRef, openRefSheet, setTopicsTab, topicsTab }) => {
+const TopicPage = ({ topic, onBack, openNav, openTopic, showToast, openRef, openRefSheet, setTopicsTab, topicsTab, openUri }) => {
   const { theme, interfaceLanguage } = useGlobalState();
   // why doesn't this variable update?
   const topicTocLoaded = useAsyncVariable(!!Sefaria.topic_toc, Sefaria.loadTopicToc);
@@ -453,6 +465,7 @@ const TopicPage = ({ topic, onBack, openNav, openTopic, showToast, openRef, open
       setQuery={setQuery}
       tabs={tabs}
       openRef={openRef}
+      openUri={openUri}
       jumpToSearchBar={jumpToSearchBar}
       setSearchBarY={setSearchBarY}
     />
@@ -558,7 +571,7 @@ const TopicTabView = ({text, active}) => {
   );
 };
 
-const TopicPageHeader = ({ title, slug, description, topicsTab, setTopicsTab, query, setQuery, tabs, topicRef, parasha, openRef, jumpToSearchBar, setSearchBarY, onBack }) => {
+const TopicPageHeader = ({ title, slug, description, topicsTab, setTopicsTab, query, setQuery, tabs, topicRef, parasha, openRef, jumpToSearchBar, setSearchBarY, onBack, openUri }) => {
   const { theme, interfaceLanguage } = useGlobalState();
   const flexDirection = useRtlFlexDir(interfaceLanguage);
   const isHeb = interfaceLanguage === 'hebrew';
@@ -585,6 +598,7 @@ const TopicPageHeader = ({ title, slug, description, topicsTab, setTopicsTab, qu
           {...description}
         />
       ) : null }
+      <PortalLink slug={slug} openUri={openUri} />
       {topicRef ?
         (
           <SystemButton
@@ -616,6 +630,14 @@ const TopicPageHeader = ({ title, slug, description, topicsTab, setTopicsTab, qu
     </View>
   );
 };
+
+const PortalLink = ({ slug, openUri }) => {
+  const link = getPortalLink(slug);
+  if (!link) { return null; }
+
+  const { url, text } = getPortalLink(slug);
+  return <SimpleLinkedBlock {...text} onClick={()=>openUri(url)} />;
+}
 
 const TextPassage = ({text, topicTitle, showToast, openRef }) => {
   const { interfaceLanguage } = useGlobalState();
