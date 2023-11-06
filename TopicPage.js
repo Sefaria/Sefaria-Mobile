@@ -206,17 +206,6 @@ const organizeLinks = (topic, links) => {
   return linkTypeArray;
 };
 
-const SLUG_PORTAL_LINK_MAP = {
-  "adin-steinsaltz": {
-    url: "https://sefaria.org/topics/adin-steinsaltz",
-    text: {
-      en: "Steinsaltz Collection on Sefaria",
-      he: "לאוסף המלא של ספרי הרב שטיינזלץ בספריא",
-    },
-  }
-}
-const getPortalLink = slug => SLUG_PORTAL_LINK_MAP[slug];
-
 
 const TopicCategory = ({ topic, openTopic, onBack, openNav }) => {
   const { theme, interfaceLanguage } = useGlobalState();
@@ -377,6 +366,7 @@ const TopicPage = ({ topic, onBack, openNav, openTopic, showToast, openRef, open
   const [sheetRefsToFetch, setSheetRefsToFetch] = useState(false);
   const [parashaData, setParashaData] = useState(null);
   const [query, setQuery] = useState(null);
+  const [portal, setPortal] = useState(null);
   const tabs = [];
   if (!!topicData && !!topicData.textRefs.length) { tabs.push({text: strings.sources, id: 'sources'}); }
   if (!!topicData && !!topicData.sheetRefs.length) { tabs.push({text: strings.sheets, id: 'sheets'}); }
@@ -446,6 +436,10 @@ const TopicPage = ({ topic, onBack, openNav, openTopic, showToast, openRef, open
     }
   };
   if (!topicTocLoaded) { return <LoadingView />; }
+
+  if (topicData?.portal_slug) {
+    Sefaria.api.portal(topicData.portal_slug).then(setPortal);
+  }
   const TopicSideColumnRendered =  topicData ?
     (<TopicSideColumn topic={topic} links={topicData.links}
       openTopic={openTopic} openRef={openRef}
@@ -468,6 +462,7 @@ const TopicPage = ({ topic, onBack, openNav, openTopic, showToast, openRef, open
       openUri={openUri}
       jumpToSearchBar={jumpToSearchBar}
       setSearchBarY={setSearchBarY}
+      portal={portal}
     />
   );
   const ListRendered = (
@@ -571,7 +566,7 @@ const TopicTabView = ({text, active}) => {
   );
 };
 
-const TopicPageHeader = ({ title, slug, description, topicsTab, setTopicsTab, query, setQuery, tabs, topicRef, parasha, openRef, jumpToSearchBar, setSearchBarY, onBack, openUri }) => {
+const TopicPageHeader = ({ title, slug, description, topicsTab, setTopicsTab, query, setQuery, tabs, topicRef, parasha, openRef, jumpToSearchBar, setSearchBarY, onBack, openUri, portal }) => {
   const { theme, interfaceLanguage } = useGlobalState();
   const flexDirection = useRtlFlexDir(interfaceLanguage);
   const isHeb = interfaceLanguage === 'hebrew';
@@ -598,7 +593,7 @@ const TopicPageHeader = ({ title, slug, description, topicsTab, setTopicsTab, qu
           {...description}
         />
       ) : null }
-      <PortalLink slug={slug} openUri={openUri} />
+      <PortalLink topicSlug={slug} portal={portal} openUri={openUri} />
       {topicRef ?
         (
           <SystemButton
@@ -631,12 +626,14 @@ const TopicPageHeader = ({ title, slug, description, topicsTab, setTopicsTab, qu
   );
 };
 
-const PortalLink = ({ slug, openUri }) => {
-  const link = getPortalLink(slug);
-  if (!link) { return null; }
-
-  const { url, text } = getPortalLink(slug);
-  return <SimpleLinkedBlock {...text} onClick={()=>openUri(url)} />;
+const PortalLink = ({ topicSlug, portal, openUri }) => {
+  if (!portal) { return null; }
+  const uri = `https://sefaria.org/topics/${topicSlug}`;
+  const {en, he} = portal.name;
+  const linkText = {
+    en: `${en} on Sefaria`, he: `${he} בספריא`
+  }
+  return <SimpleLinkedBlock {...linkText} onClick={()=>openUri(uri)} />;
 }
 
 const TextPassage = ({text, topicTitle, showToast, openRef }) => {
