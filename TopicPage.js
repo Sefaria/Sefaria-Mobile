@@ -631,7 +631,7 @@ const PortalLink = ({ topicSlug, portal, openUri }) => {
   const uri = `https://sefaria.org/topics/${topicSlug}`;
   const {en, he} = portal.name;
   const linkText = {
-    en: `${en} on Sefaria`, he: `${he} בספריא`
+    en: `\n${en} on Sefaria`, he: `\n${he} בספריא`
   }
   return <SimpleLinkedBlock {...linkText} onClick={()=>openUri(uri)} />;
 }
