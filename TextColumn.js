@@ -695,6 +695,13 @@ class TextColumn extends React.PureComponent {
     this.setState({itemLayoutList: null});
   }
 
+  callOnEndReachedWhenContentIsShort = (itemLayoutList) => {
+    const lastLayout = itemLayoutList[itemLayoutList.length-1];
+    if (lastLayout.offset + lastLayout.length < ViewPort.height) {
+      this.onEndReached();
+    }
+  };
+
   allHeightsMeasured = (componentsToMeasure, textToHeightMap) => {
     if (!this.measuringHeights) { return; } //sometimes allHeightsMeasured() gets called but we don't care
     let currOffset = 0;
@@ -717,6 +724,7 @@ class TextColumn extends React.PureComponent {
       itemLayoutList[currIndex] = {index: currIndex, length: 0, offset: currOffset};
       currIndex++;
     }
+    this.callOnEndReachedWhenContentIsShort(itemLayoutList);
     this.backupItemLayoutList = itemLayoutList;
     this.measuringHeights = false;
 
