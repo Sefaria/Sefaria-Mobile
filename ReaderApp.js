@@ -2076,6 +2076,7 @@ class ReaderApp extends React.PureComponent {
             topic={this.state.navigationTopic}
             showToast={this.showToast}
             openRef={this.openRef}
+            openUri={this.openUri}
             openRefSheet={this.openRefSheet}
           />
         );

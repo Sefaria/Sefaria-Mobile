@@ -6,7 +6,7 @@ import {
   View,
   Text,
   Image,
-  FlatList,
+  FlatList, TouchableOpacity,
 } from 'react-native';
 
 import { Topic } from './Topic';
@@ -23,7 +23,7 @@ import {
   ContentTextWithFallback,
   DotSeparatedList,
   SystemButton,
-  SefariaPressable, CategoryButton, GreyBoxFrame, BackButtonRow,
+  SefariaPressable, CategoryButton, GreyBoxFrame, BackButtonRow, SimpleLinkedBlock,
 } from './Misc';
 
 import {
@@ -206,6 +206,7 @@ const organizeLinks = (topic, links) => {
   return linkTypeArray;
 };
 
+
 const TopicCategory = ({ topic, openTopic, onBack, openNav }) => {
   const { theme, interfaceLanguage } = useGlobalState();
 
@@ -353,7 +354,7 @@ const TopicCategoryButton = ({ topic, openTopic }) => {
   );
 };
 
-const TopicPage = ({ topic, onBack, openNav, openTopic, showToast, openRef, openRefSheet, setTopicsTab, topicsTab }) => {
+const TopicPage = ({ topic, onBack, openNav, openTopic, showToast, openRef, openRefSheet, setTopicsTab, topicsTab, openUri }) => {
   const { theme, interfaceLanguage } = useGlobalState();
   // why doesn't this variable update?
   const topicTocLoaded = useAsyncVariable(!!Sefaria.topic_toc, Sefaria.loadTopicToc);
@@ -365,6 +366,7 @@ const TopicPage = ({ topic, onBack, openNav, openTopic, showToast, openRef, open
   const [sheetRefsToFetch, setSheetRefsToFetch] = useState(false);
   const [parashaData, setParashaData] = useState(null);
   const [query, setQuery] = useState(null);
+  const [portal, setPortal] = useState(null);
   const tabs = [];
   if (!!topicData && !!topicData.textRefs.length) { tabs.push({text: strings.sources, id: 'sources'}); }
   if (!!topicData && !!topicData.sheetRefs.length) { tabs.push({text: strings.sheets, id: 'sheets'}); }
@@ -434,6 +436,10 @@ const TopicPage = ({ topic, onBack, openNav, openTopic, showToast, openRef, open
     }
   };
   if (!topicTocLoaded) { return <LoadingView />; }
+
+  if (topicData?.portal_slug) {
+    Sefaria.api.portal(topicData.portal_slug).then(setPortal);
+  }
   const TopicSideColumnRendered =  topicData ?
     (<TopicSideColumn topic={topic} links={topicData.links}
       openTopic={openTopic} openRef={openRef}
@@ -453,8 +459,10 @@ const TopicPage = ({ topic, onBack, openNav, openTopic, showToast, openRef, open
       setQuery={setQuery}
       tabs={tabs}
       openRef={openRef}
+      openUri={openUri}
       jumpToSearchBar={jumpToSearchBar}
       setSearchBarY={setSearchBarY}
+      portal={portal}
     />
   );
   const ListRendered = (
@@ -558,7 +566,7 @@ const TopicTabView = ({text, active}) => {
   );
 };
 
-const TopicPageHeader = ({ title, slug, description, topicsTab, setTopicsTab, query, setQuery, tabs, topicRef, parasha, openRef, jumpToSearchBar, setSearchBarY, onBack }) => {
+const TopicPageHeader = ({ title, slug, description, topicsTab, setTopicsTab, query, setQuery, tabs, topicRef, parasha, openRef, jumpToSearchBar, setSearchBarY, onBack, openUri, portal }) => {
   const { theme, interfaceLanguage } = useGlobalState();
   const flexDirection = useRtlFlexDir(interfaceLanguage);
   const isHeb = interfaceLanguage === 'hebrew';
@@ -585,6 +593,7 @@ const TopicPageHeader = ({ title, slug, description, topicsTab, setTopicsTab, qu
           {...description}
         />
       ) : null }
+      <PortalLink topicSlug={slug} portal={portal} openUri={openUri} />
       {topicRef ?
         (
           <SystemButton
@@ -616,6 +625,16 @@ const TopicPageHeader = ({ title, slug, description, topicsTab, setTopicsTab, qu
     </View>
   );
 };
+
+const PortalLink = ({ topicSlug, portal, openUri }) => {
+  if (!portal) { return null; }
+  const uri = `https://sefaria.org/topics/${topicSlug}`;
+  const {en, he} = portal.name;
+  const linkText = {
+    en: `\n${en} on Sefaria`, he: `\n${he} בספריא`
+  }
+  return <SimpleLinkedBlock {...linkText} onClick={()=>openUri(uri)} />;
+}
 
 const TextPassage = ({text, topicTitle, showToast, openRef }) => {
   const { interfaceLanguage } = useGlobalState();

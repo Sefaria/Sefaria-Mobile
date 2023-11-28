@@ -27,6 +27,7 @@ var Api = {
   _related: {},
   _sheets: {},
   _topic: {},
+  _portal: {},
   _trendingTags: null,
   _versions: {},
   _translateVersions: {},
@@ -233,6 +234,10 @@ var Api = {
           url += `api/topics/${slug}`;
           urlSuffix = `?with_links=${0+with_links}&annotate_links=${0+annotate_links}&with_refs=${0+with_refs}&group_related=${0+group_related}`;
           break;
+        case "portal":
+          const { portalSlug } = extra_args;
+          url += `api/portals/${portalSlug}`;
+          break;
         default:
           console.error("You passed invalid type: ",apiType," into _toURL()");
           break;
@@ -339,7 +344,13 @@ var Api = {
         });
     });
   },
-
+  portal: async function(slug) {
+    const cached = Sefaria.api._portal[slug];
+    if (!!cached) { return cached; }
+    let response = await Sefaria.api._request('', 'portal', false, { portalSlug: slug }, false);
+    Sefaria.api._portal[slug] = response;
+    return response;
+  },
   name: function(name, failSilently) {
     Sefaria.api._abortRequestType('name');
     return new Promise((resolve, reject) => {
