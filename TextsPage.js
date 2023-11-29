@@ -92,24 +92,27 @@ export const TextsPage = ({categories, setCategories, openRef, openLearningSched
     const data = Sefaria.getRootTocItems();
     data.splice(3, 0, {isSplice: true});
     return (
-        <FlatList
-            data={data}
-            contentContainerStyle={[{paddingHorizontal: 15, alignSelf: "stretch"}, theme.mainTextPanel]}
-            ListHeaderComponent={TextsPageHeader}
-            ListFooterComponent={
-                <ShortDedication
-                    openDedication={openDedication}
-                />
-            }
-            keyExtractor={item => item.isSplice ? 'splice' : item.category}
-            renderItem={({ item }) => (
-                <TopLevelCategoryOrLearningSchedulesBox
-                    item={item}
-                    setCategories={setCategories}
-                    openRef={openRef}
-                    openLearningSchedules={openLearningSchedules}
-                />
-            )}
-        />
+        // outer view with flexDirection row properly bounds the FlatList so it doesn't overflow horizontally on some displays.
+        <View style={{flex: 1, flexDirection: "row"}}>
+            <FlatList
+                data={data}
+                contentContainerStyle={[{paddingHorizontal: 15, alignSelf: "stretch"}, theme.mainTextPanel]}
+                ListHeaderComponent={TextsPageHeader}
+                ListFooterComponent={
+                    <ShortDedication
+                        openDedication={openDedication}
+                    />
+                }
+                keyExtractor={item => item.isSplice ? 'splice' : item.category}
+                renderItem={({ item }) => (
+                    <TopLevelCategoryOrLearningSchedulesBox
+                        item={item}
+                        setCategories={setCategories}
+                        openRef={openRef}
+                        openLearningSchedules={openLearningSchedules}
+                    />
+                )}
+            />
+        </View>
     );
 };
