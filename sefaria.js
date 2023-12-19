@@ -177,19 +177,17 @@ Sefaria = {
       resolve(data);
     });
   },
-  shouldLoadFromApi: function(versions) {
-    // there are currently two cases where we load from API even if the index is downloaded
-    // 1) debugNoLibrary is true 2) you're loading a non-default version
-    return Sefaria.util.objectHasNonNullValues(versions) || Sefaria.debugNoLibrary;
+  shouldLoadFromApi: function() {
+    // there is currently one case where we load from API even if the index is downloaded
+    // 1) debugNoLibrary is true
+    return Sefaria.debugNoLibrary;
   },
   loadOfflineFile: async function(ref, context, versions) {
-    var fileNameStem = ref.split(":")[0];
-    var bookRefStem  = Sefaria.textTitleForRef(ref);
-    //if you want to open a specific version, there is no json file. force an api call instead
-    const shouldLoadFromApi = Sefaria.shouldLoadFromApi(versions);
-    if (shouldLoadFromApi) { throw ERRORS.NOT_OFFLINE; }
-    var jsonPath = Sefaria._JSONSourcePath(fileNameStem);
-    var zipPath  = Sefaria._zipSourcePath(bookRefStem);
+    const fileNameStem = ref.split(":")[0];
+    const bookRefStem  = Sefaria.textTitleForRef(ref);
+    if (Sefaria.shouldLoadFromApi()) { throw ERRORS.NOT_OFFLINE; }
+    const jsonPath = Sefaria._JSONSourcePath(fileNameStem);
+    const zipPath  = Sefaria._zipSourcePath(bookRefStem);
     // Pull data from in memory cache if available
     if (jsonPath in Sefaria._jsonData) {
       return Sefaria._jsonData[jsonPath];
