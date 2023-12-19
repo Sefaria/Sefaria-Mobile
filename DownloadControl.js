@@ -8,7 +8,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import NetInfo from "@react-native-community/netinfo";
 import crashlytics from '@react-native-firebase/crashlytics';
 
-const SCHEMA_VERSION = "6";
+const SCHEMA_VERSION = "7";
 // const DOWNLOAD_SERVER = "http://10.0.2.2:5000"  // this ip will allow the android emulator to access a localhost server
 const DOWNLOAD_SERVER = "https://readonly.sefaria.org";
 const HOST_PATH = `${DOWNLOAD_SERVER}/static/ios-export/${SCHEMA_VERSION}`;
