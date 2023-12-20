@@ -31,7 +31,6 @@ import { Topic } from './Topic';
 
 const ERRORS = {
   NOT_OFFLINE: 1,
-  NO_CONTEXT: 2,
   CANT_GET_SECTION_FROM_DATA: "Couldn't find section in depth 3+ text",
 };
 
@@ -107,13 +106,7 @@ Sefaria = {
           if (error === ERRORS.NOT_OFFLINE) {
             Sefaria.loadFromApi(ref, context, versions, bookRefStem)
               .then(data => { Sefaria.processApiData(ref, context, versions, data).then(resolve); })
-              .catch(error => {
-                if (error.error === ERRORS.NO_CONTEXT) {
-                  resolve(error.data);
-                } else {
-                  reject(error);
-                }
-              })
+              .catch(error => reject(error))
           } else {
             console.error("Error loading offline file", error);
             reject(error);
@@ -283,14 +276,8 @@ Sefaria = {
         resolve(cacheValue);
       }
       Sefaria.api._text(ref, { context, versions, stripItags: true })
-        .then(data => {
-          if (context) { resolve(data); }
-          else         { reject({error: ERRORS.NO_CONTEXT, data}); }
-        })
-        .catch(function(error) {
-          //console.error("Error with API: ", Sefaria.api._toURL(ref, false, 'text', true));
-          reject(error);
-      });
+        .then(data => resolve(data))
+        .catch(error => reject(error));
     });
   },
   _jsonData: {}, // in memory cache for JSON data
