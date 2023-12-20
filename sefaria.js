@@ -1,5 +1,6 @@
 import { Alert, Linking, Platform } from 'react-native';
 import qs from 'qs';
+import md5 from 'md5';
 //import { GoogleAnalyticsTracker } from 'react-native-google-analytics-bridge'; //https://github.com/idehub/react-native-google-analytics-bridge/blob/master/README.md
 import { unzip } from 'react-native-zip-archive'; //for unzipping -- (https://github.com/plrthink/react-native-zip-archive)
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -100,7 +101,7 @@ Sefaria = {
     if (typeof context === "undefined") { context = true; }
     return new Promise(function(resolve, reject) {
       const bookRefStem  = Sefaria.textTitleForRef(ref);
-      Sefaria.loadOfflineFile(ref, context, versions)
+      Sefaria.loadOfflineSection(ref, versions)
         .then(data => { Sefaria.processFileData(ref, data).then(resolve); })
         .catch(error => {
           if (error === ERRORS.NOT_OFFLINE) {
@@ -149,7 +150,6 @@ Sefaria = {
   },
   processFileData: function(ref, data) {
     return new Promise((resolve, reject) => {
-      // Store data in in memory cache if it's not there already
       const result = Sefaria.getSectionFromJsonData(ref, data);
       if (!result) { reject(ERRORS.CANT_GET_SECTION_FROM_DATA); }
       // Annotate link objects with useful fields not included in export
@@ -182,41 +182,87 @@ Sefaria = {
     // 1) debugNoLibrary is true
     return Sefaria.debugNoLibrary;
   },
-  loadOfflineFile: async function(ref, context, versions) {
-    const fileNameStem = ref.split(":")[0];
-    const bookRefStem  = Sefaria.textTitleForRef(ref);
-    if (Sefaria.shouldLoadFromApi()) { throw ERRORS.NOT_OFFLINE; }
-    const jsonPath = Sefaria._JSONSourcePath(fileNameStem);
-    const zipPath  = Sefaria._zipSourcePath(bookRefStem);
-    // Pull data from in memory cache if available
-    if (jsonPath in Sefaria._jsonData) {
-      return Sefaria._jsonData[jsonPath];
+  fallbackOnDefaultVersions: function(currVersions, allVersions) {
+    // given currVersions and a list of versions sorted by priority,
+    // make sure both "en" and "he" versions are populated, falling back on default
+    currVersions = currVersions || {};
+    for (let lang of ["en", "he"]) {
+      if (currVersions[lang]) { continue; }
+      const defaultVersion = allVersions.find(v => v.language === lang);
+      if (!defaultVersion) { continue; }
+      currVersions[lang] = defaultVersion.versionTitle;
+    }
+    return currVersions;
+  },
+  loadOfflineSection: async function(ref, versions) {
+    const key = `${ref}|${versions}`;
+    const cached = Sefaria._jsonSectionData[key];
+    if (cached) {
+      return cached;
+    }
+    const [metadata, fileNameStem] = await Sefaria.loadOfflineSectionMetadataWithCache(ref);
+
+    const textByLang = {};
+    versions = Sefaria.fallbackOnDefaultVersions(versions, metadata.versions);
+    for (let [lang, vtitle] of Object.entries(versions)) {
+      textByLang[lang] = await Sefaria.loadOfflineSectionByVersion(fileNameStem, lang, vtitle);
     }
 
-    const preResolve = data => {
-      if (!(jsonPath in Sefaria._jsonData)) {
-        Sefaria._jsonData[jsonPath] = data;
-      }
-      return data;
-    };
-    let data;
+    const fullSection = {...metadata};
+    delete fullSection.links;
+    fullSection.content = [];
+    const sectionLen = Math.max(...Object.values(textByLang).map(x => x.length))
+    for (let i = 0; i < sectionLen; i++) {
+      fullSection.content.push({
+        segmentNumber: i+1+"",
+        links: metadata.links?.[i] || [],
+        text: textByLang?.en?.[i] || "",
+        he: textByLang?.he?.[i] || "",
+      });
+    }
+
+    Sefaria._jsonSectionData[key] = fullSection;
+    return fullSection;
+  },
+  loadOfflineSectionByVersion: async function(fileNameStem, lang, vtitle) {
+    /**
+     * Assumption is zip file was already unzipped in loading of metadata
+     * We also already know the fileNameStem from loading of metadata
+     */
+    const jsonPath = Sefaria._JSONSectionPath(fileNameStem, vtitle, lang);
+    return await Sefaria._loadJSON(jsonPath);
+  },
+  loadOfflineSectionMetadataWithCache: async function(ref) {
+    const cached = Sefaria._jsonSectionData[ref];
+    if (cached) { return cached; }
+    const metadata = Sefaria.loadOfflineSectionMetadata(ref);
+    Sefaria._jsonSectionData[metadata] = metadata;
+    return metadata;
+  },
+  loadOfflineSectionMetadata: async function(ref) {
+    if (Sefaria.shouldLoadFromApi()) {
+      throw ERRORS.NOT_OFFLINE;
+    }
+
+    const fileNameStem = ref.split(":")[0];
+    const bookRefStem  = Sefaria.textTitleForRef(ref);
+    const jsonPath = Sefaria._JSONMetadataPath(fileNameStem);
+    const zipPath  = Sefaria._zipSourcePath(bookRefStem);
+
     try {
-      data = await Sefaria._loadJSON(jsonPath);
-      return preResolve(data);
+      return [await Sefaria._loadJSON(jsonPath), fileNameStem];
     } catch (e) {
       const exists = await fileExists(zipPath);
       if (exists) {
-        const path = await Sefaria._unzip(zipPath);
+        await Sefaria._unzip(zipPath);
         try {
-          data = await Sefaria._loadJSON(jsonPath);
-          return preResolve(data);
+          return [await Sefaria._loadJSON(jsonPath), fileNameStem];
         } catch (e2) {
           // Now that the file is unzipped, if there was an error assume we have a depth 1 or 3 text
-          var depth1FilenameStem = fileNameStem.substr(0, fileNameStem.lastIndexOf(" "));
-          var depth1JSONPath = Sefaria._JSONSourcePath(depth1FilenameStem);
+          const depth1FilenameStem = fileNameStem.substring(0, fileNameStem.lastIndexOf(" "));
+          const depth1JSONPath = Sefaria._JSONMetadataPath(depth1FilenameStem);
           try {
-            data = await Sefaria._loadJSON(depth1JSONPath);
-            return preResolve(data);
+            return [await Sefaria._loadJSON(depth1JSONPath), depth1FilenameStem];
           } catch (e3) {
             console.error("Error loading JSON file: " + jsonPath + " OR " + depth1JSONPath);
             throw ERRORS.NOT_OFFLINE;
@@ -248,6 +294,7 @@ Sefaria = {
     });
   },
   _jsonData: {}, // in memory cache for JSON data
+  _jsonSectionData: {}, // in memory cache for loaded section files (after merging)
   _apiData: {},  // in memory cache for API data
   textTitleForRef: function(ref) {
     // Returns the book title named in `ref` by examining the list of known book titles.
@@ -855,6 +902,19 @@ Sefaria = {
   _loadJSON: function(JSONSourcePath) {
     return loadJSONFile(JSONSourcePath)
   },
+  _JSONMetadataPath: function(sectionRef) {
+    /**
+     * Return the file path for a section file that contains the metadata for sectionRef
+     */
+    return Sefaria._JSONSourcePath(`${sectionRef}.metadata`);
+  },
+  _JSONSectionPath: function(sectionRef, vtitle, lang) {
+    /**
+     * Return the file path for a section file that contains data for a given section / vtitle / lang triplet
+     */
+    const vtitleHash = md5(vtitle);
+    return Sefaria._JSONSourcePath(`${sectionRef}.${vtitleHash}.${lang}`);
+  },
   _JSONSourcePath: function(fileName) {
     return (FileSystem.documentDirectory + "/" + fileName + ".json");
   },
@@ -928,7 +988,7 @@ Sefaria = {
         const cacheKey = Sefaria.links.relatedCacheKey(ref, online);
         const cached = Sefaria.api._related[cacheKey];
         if (!!cached) { return cached; }
-        const data = await Sefaria.loadOfflineFile(ref, false);
+        const data = await Sefaria.loadOfflineSection(ref);
         // mimic response of links API so that addLinksToText() will work independent of data source
         const sectionData = Sefaria.getSectionFromJsonData(ref, data);
         if (!sectionData) { throw ERRORS.CANT_GET_SECTION_FROM_DATA; }
