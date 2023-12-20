@@ -101,7 +101,7 @@ Sefaria = {
     return new Promise(function(resolve, reject) {
       const bookRefStem  = Sefaria.textTitleForRef(ref);
       Sefaria.loadOfflineSection(ref, versions)
-        .then(data => { Sefaria.processFileData(ref, data).then(resolve); })
+        .then(data => { Sefaria.processFileData(ref, data).then(x => Sefaria.convertToLinkContentMaybe(context, x)).then(resolve); })
         .catch(error => {
           if (error === ERRORS.NOT_OFFLINE) {
             Sefaria.loadFromApi(ref, context, versions, bookRefStem)
@@ -161,6 +161,12 @@ Sefaria = {
       Sefaria.cacheVersionInfo(result, true);
       resolve(result);
     });
+  },
+  convertToLinkContentMaybe: await function(context, data) {
+    if (context) {
+      return data;
+    }
+    return Sefaria.textFromRefData(data);
   },
   processApiData: function(ref, context, versions, data) {
     return new Promise((resolve, reject) => {
@@ -1077,7 +1083,7 @@ Sefaria = {
       const parseData = async function(data) {
         let result;
         try {
-          result = data.fromAPI ? data.result : Sefaria.textFromRefData(data);
+          result = data.result;
         } catch (e) {
           crashlytics().recordError(new Error(`loadLinkData failed to load ${data.requestedRef}`));
         }
