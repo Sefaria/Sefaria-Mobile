@@ -679,76 +679,78 @@ class ReaderApp extends React.PureComponent {
           textToc: null,
       },
       () => {
-        this.loadTextToc(Sefaria.textTitleForRef(ref)).then(() => {
-          Sefaria.data(ref, true, versions).then(data => {
-              // debugger;
-              if (Sefaria.util.objectHasNonNullValues(data.nonExistantVersions) ||
-                  // if specific versions were requested, but no content exists for those versions, try again with default versions
-                  (data.content.length === 0 && !!versions)) {
-                if (numTries >= 4) { throw "Return to Nav"; }
-                this.loadNewText({ ref, isLoadingVersion, overwriteVersions, numTries: numTries + 1 }).then(resolve);
-                return;
-              }
-              let nextState = {
-                data:              [data.content],
-                textTitle:         data.indexTitle,
-                next:              data.next,
-                prev:              data.prev,
-                heTitle:           data.heTitle,
-                heRef:             data.heSectionRef || data.heRef,
-                sectionArray:      [data.sectionRef],
-                sectionHeArray:    [data.heSectionRef || data.heRef], // backwards compatible because offline files are missing `heSectionRef`. we specifically want heSectionRef in case you load a segment ref with context
-                loaded:            true,
-                offsetRef:         !data.isSectionLevel ? data.requestedRef : null,
+        Sefaria.data(ref, true, versions).then(data => {
+            // debugger;
+            if (Sefaria.util.objectHasNonNullValues(data.nonExistantVersions) ||
+                // if specific versions were requested, but no content exists for those versions, try again with default versions
+                (data.content.length === 0 && !!versions)) {
+              if (numTries >= 4) { throw "Return to Nav"; }
+              this.loadNewText({ ref, isLoadingVersion, overwriteVersions, numTries: numTries + 1 }).then(resolve);
+              return;
+            }
+            let nextState = {
+              data:              [data.content],
+              textTitle:         data.indexTitle,
+              next:              data.next,
+              prev:              data.prev,
+              heTitle:           data.heTitle,
+              heRef:             data.heSectionRef || data.heRef,
+              sectionArray:      [data.sectionRef],
+              sectionHeArray:    [data.heSectionRef || data.heRef], // backwards compatible because offline files are missing `heSectionRef`. we specifically want heSectionRef in case you load a segment ref with context
+              loaded:            true,
+              offsetRef:         !data.isSectionLevel ? data.requestedRef : null,
+            };
+            if (!isLoadingVersion) {
+              // also overwrite sidebar state
+              nextState = {
+                ...nextState,
+                linksLoaded:       [false],
+                connectionsMode:   null, //Reset link state
+                filterIndex:       null,
+                linkRecentFilters: [],
+                versionFilterIndex: null,
+                versionRecentFilters: [],
+                linkSummary:       [],
+                linkContents:      [],
+                loadingLinks:      false,
+                textListVisible:   false,
+                dictLookup:        null,
               };
-              if (!isLoadingVersion) {
-                // also overwrite sidebar state
-                nextState = {
-                  ...nextState,
-                  linksLoaded:       [false],
-                  connectionsMode:   null, //Reset link state
-                  filterIndex:       null,
-                  linkRecentFilters: [],
-                  versionFilterIndex: null,
-                  versionRecentFilters: [],
-                  linkSummary:       [],
-                  linkContents:      [],
-                  loadingLinks:      false,
-                  textListVisible:   false,
-                  dictLookup:        null,
-                };
-                Sefaria.links.reset();
-              }
-              this.setState(nextState, ()=>{
-                this.loadSecondaryData(data.sectionRef);
+              Sefaria.links.reset();
+            }
+            this.setState(nextState, ()=>{
+              this.loadSecondaryData(data.sectionRef);
 
+              // Preload Text TOC data into memory
+              this.loadTextToc(data.indexTitle, data.sectionRef).then(() => {
                 // dependent on nextState and currVersions
                 Sefaria.history.saveHistoryItem(this.getHistoryObject);
               });
+            });
 
-              resolve();
-          }).catch(error => {
-            console.log(error);
-            if (error == "Return to Nav") {
-              this.openTextTocDirectly(Sefaria.textTitleForRef(ref));
-              resolve();
-              return;
-            }
-            console.error('Error caught from ReaderApp.loadNewText', error);
-            reject();
-          });
+
+            resolve();
+        }).catch(error => {
+          console.log(error);
+          if (error == "Return to Nav") {
+            this.openTextTocDirectly(Sefaria.textTitleForRef(ref));
+            resolve();
+            return;
+          }
+          console.error('Error caught from ReaderApp.loadNewText', error);
+          reject();
         });
       });
     });
   };
 
-  loadTextToc = (title) => {
+  loadTextToc = (title, sectionRef) => {
     return new Promise((resolve, reject) => {
       this.setState({textToc: null}, () => {
         Sefaria.textToc(title).then(textToc => {
           this.setState({textToc}, () => {
             // at this point, both book and section level version info is available
-            this.setCurrVersions(title); // not positive if this will combine versions well
+            this.setCurrVersions(sectionRef, title); // not positive if this will combine versions well
             resolve();
           });
         });
@@ -770,9 +772,9 @@ class ReaderApp extends React.PureComponent {
     return newVersions;
   };
 
-  setCurrVersions = (title) => {
-      let enVInfo = !title ? this.state.currVersions.en : Sefaria.versionInfo(title, 'english');
-      let heVInfo = !title ? this.state.currVersions.he : Sefaria.versionInfo(title, 'hebrew');
+  setCurrVersions = (sectionRef, title) => {
+      let enVInfo = !sectionRef ? this.state.currVersions.en : Sefaria.versionInfo(sectionRef, title, 'english');
+      let heVInfo = !sectionRef ? this.state.currVersions.he : Sefaria.versionInfo(sectionRef, title, 'hebrew');
       this.setState({ currVersions: { en: enVInfo, he: heVInfo } });
   };
 
@@ -884,7 +886,7 @@ class ReaderApp extends React.PureComponent {
           loadingTextHead: false,
         }, ()=>{
           this.loadSecondaryData(data.sectionRef);
-          this.setCurrVersions(data.indexTitle);
+          this.setCurrVersions(data.sectionRef, data.indexTitle);
         });
 
       }.bind(this)).catch(function(error) {
@@ -912,7 +914,7 @@ class ReaderApp extends React.PureComponent {
           loadingTextTail: false,
         }, ()=>{
           this.loadSecondaryData(data.sectionRef);
-          this.setCurrVersions(data.indexTitle);
+          this.setCurrVersions(data.sectionRef, data.indexTitle);
         });
 
       }.bind(this)).catch(function(error) {
