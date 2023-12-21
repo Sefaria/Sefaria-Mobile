@@ -162,11 +162,11 @@ Sefaria = {
       resolve(result);
     });
   },
-  convertToLinkContentMaybe: await function(context, data) {
+  convertToLinkContentMaybe: async function(context, data) {
     if (context) {
       return data;
     }
-    return Sefaria.textFromRefData(data);
+    return {result: Sefaria.textFromRefData(data)};
   },
   processApiData: function(ref, context, versions, data) {
     return new Promise((resolve, reject) => {
@@ -193,16 +193,25 @@ Sefaria = {
     }
     return currVersions;
   },
+  getOfflineSectionKey: function(ref, versions) {
+    versions = versions || {};
+    return `${ref}|${Object.entries(versions).join(',')}`;
+  },
   loadOfflineSection: async function(ref, versions) {
-    const key = `${ref}|${versions}`;
+    const key = Sefaria.getOfflineSectionKey(ref, versions);
     const cached = Sefaria._jsonSectionData[key];
-    if (cached) {
+    if (cached && false) {
       return cached;
     }
+
+    // TODO make `metadata.versions` be a complete versions API response
+    // TODO and cache it
     const [metadata, fileNameStem] = await Sefaria.loadOfflineSectionMetadataWithCache(ref);
 
     const textByLang = {};
+    // TODO don't fallback on default if you are explicitly defining what versions you want.
     versions = Sefaria.fallbackOnDefaultVersions(versions, metadata.versions);
+    console.log("versions", versions);
     for (let [lang, vtitle] of Object.entries(versions)) {
       textByLang[lang] = await Sefaria.loadOfflineSectionByVersion(fileNameStem, lang, vtitle);
     }
