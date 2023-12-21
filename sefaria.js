@@ -589,19 +589,17 @@ Sefaria = {
     });
     //console.log("SETTING VERSION INFO", cacheKey, isSection,Sefaria._versionInfo[cacheKey]);
   },
-  versionInfo: function(ref, title, vlang) {
+  versionInfo: function(title, vlang) {
     let versionInfo = {};
-    let sectionInfo = Sefaria._versionInfo[ref];
-    if (!sectionInfo) sectionInfo = {};
     let indexInfo = Sefaria._versionInfo[title];
     if (!indexInfo) indexInfo = {};
-    attrs = ['versionTitle', 'versionTitleInHebrew', 'versionNotes', 'versionNotesInHebrew', 'license', 'versionSource'];
+    const attrs = ['versionTitle', 'versionTitleInHebrew', 'versionNotes', 'versionNotesInHebrew', 'license', 'versionSource'];
     let allFieldsUndefined = true;
     attrs.map((attr)=>{
       //if 'he', prepend 'he' to attr
       const enAttr = attr;
       if (vlang === 'hebrew') { attr = 'he' + attr[0].toUpperCase() + attr.substring(1); }
-      versionInfo[enAttr] = !!sectionInfo[attr] ? sectionInfo[attr] : indexInfo[attr];
+      versionInfo[enAttr] = indexInfo[attr];
       if (!!versionInfo[enAttr]) { allFieldsUndefined = false; }
     });
     if (allFieldsUndefined) { versionInfo = null; }
