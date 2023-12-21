@@ -722,7 +722,7 @@ class ReaderApp extends React.PureComponent {
               this.loadSecondaryData(data.sectionRef);
 
               // Preload Text TOC data into memory
-              this.loadTextTocData(data.indexTitle, data.sectionRef).then(() => {
+              this.loadTextToc(data.indexTitle, data.sectionRef).then(() => {
                 // dependent on nextState and currVersions
                 Sefaria.history.saveHistoryItem(this.getHistoryObject);
               });
@@ -744,7 +744,7 @@ class ReaderApp extends React.PureComponent {
     });
   };
 
-  loadTextTocData = (title, sectionRef) => {
+  loadTextToc = (title, sectionRef) => {
     return new Promise((resolve, reject) => {
       this.setState({textToc: null}, () => {
         Sefaria.textToc(title).then(textToc => {
@@ -1261,7 +1261,7 @@ class ReaderApp extends React.PureComponent {
       this.textUnavailableAlert(title);
       return;
     }
-    this.loadTextTocData(title);
+    this.loadTextToc(title);
     this.setState({
       textTitle: title,
       textReference: '',
