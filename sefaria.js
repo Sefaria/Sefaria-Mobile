@@ -143,26 +143,22 @@ Sefaria = {
     // Need to add missing colon
     return ref.replace(/(\d+) (\d+)$/, "$1:$2");
   },
-  processFileData: function(ref, data) {
-    return new Promise((resolve, reject) => {
-      const result = Sefaria.getSectionFromJsonData(ref, data);
-      if (!result) { reject(ERRORS.CANT_GET_SECTION_FROM_DATA); }
-      // Annotate link objects with useful fields not included in export
-      result.content.forEach(segment => {
-        if ("links" in segment) {
-          segment.links.map(link => {
-            link.textTitle = Sefaria.textTitleForRef(link.sourceRef);
-            if (!("category" in link)) {
-              link.category = Sefaria.primaryCategoryForTitle(link.textTitle);
-            }
-          });
-        }
-      });
-      result.requestedRef   = ref;
-      result.isSectionLevel = (ref === result.sectionRef);
-      Sefaria.cacheVersionsAvailableBySection(result.sectionRef, data.versions);
-      resolve(result);
+  processFileData: async function(ref, data) {
+    // Annotate link objects with useful fields not included in export
+    data.content.forEach(segment => {
+      if ("links" in segment) {
+        segment.links.map(link => {
+          link.textTitle = Sefaria.textTitleForRef(link.sourceRef);
+          if (!("category" in link)) {
+            link.category = Sefaria.primaryCategoryForTitle(link.textTitle);
+          }
+        });
+      }
     });
+    data.requestedRef   = ref;
+    data.isSectionLevel = (ref === data.sectionRef);
+    Sefaria.cacheVersionsAvailableBySection(data.sectionRef, data.versions);
+    return data;
   },
   convertToLinkContentMaybe: async function(context, data) {
     if (context) {
@@ -266,21 +262,26 @@ Sefaria = {
     const bookRefStem  = Sefaria.textTitleForRef(ref);
     const jsonPath = Sefaria._JSONMetadataPath(fileNameStem);
     const zipPath  = Sefaria._zipSourcePath(bookRefStem);
+    const preResolve = jsonData => {
+      const sectionData = Sefaria.getSectionFromJsonData(ref, jsonData);
+      if (!sectionData) { throw ERRORS.CANT_GET_SECTION_FROM_DATA; }
+      return sectionData;
+    };
 
     try {
-      return [await Sefaria._loadJSON(jsonPath), fileNameStem];
+      return [preResolve(await Sefaria._loadJSON(jsonPath)), fileNameStem];
     } catch (e) {
       const exists = await fileExists(zipPath);
       if (exists) {
         await Sefaria._unzip(zipPath);
         try {
-          return [await Sefaria._loadJSON(jsonPath), fileNameStem];
+          return [preResolve(await Sefaria._loadJSON(jsonPath)), fileNameStem];
         } catch (e2) {
           // Now that the file is unzipped, if there was an error assume we have a depth 1 or 3 text
           const depth1FilenameStem = fileNameStem.substring(0, fileNameStem.lastIndexOf(" "));
           const depth1JSONPath = Sefaria._JSONMetadataPath(depth1FilenameStem);
           try {
-            return [await Sefaria._loadJSON(depth1JSONPath), depth1FilenameStem];
+            return [preResolve(await Sefaria._loadJSON(depth1JSONPath)), depth1FilenameStem];
           } catch (e3) {
             console.error("Error loading JSON file: " + jsonPath + " OR " + depth1JSONPath);
             throw ERRORS.NOT_OFFLINE;
@@ -1002,9 +1003,8 @@ Sefaria = {
         if (!!cached) { return cached; }
         const [metadata, fileNameStem] = await Sefaria.loadOfflineSectionMetadataWithCache(ref);
         // mimic response of links API so that addLinksToText() will work independent of data source
-        const sectionMetadata = Sefaria.getSectionFromJsonData(ref, metadata);
-        if (!sectionMetadata) { throw ERRORS.CANT_GET_SECTION_FROM_DATA; }
-        const linkList = (sectionMetadata.links.reduce((accum, segmentLinks, segNum) => accum.concat(
+        if (!metadata) { throw ERRORS.CANT_GET_SECTION_FROM_DATA; }
+        const linkList = (metadata.links.reduce((accum, segmentLinks, segNum) => accum.concat(
           !!segmentLinks ? segmentLinks.map(link => {
             const index_title = Sefaria.textTitleForRef(link.sourceRef);
             const collectiveTitle = Sefaria.collectiveTitlesDict[index_title];
