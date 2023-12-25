@@ -158,7 +158,7 @@ Sefaria = {
       });
       result.requestedRef   = ref;
       result.isSectionLevel = (ref === result.sectionRef);
-      Sefaria.cacheVersionInfo(result, true);
+      Sefaria.cacheVersionsAvailableBySection(result.sectionRef, data.versions);
       resolve(result);
     });
   },
@@ -197,23 +197,22 @@ Sefaria = {
     versions = versions || {};
     return `${ref}|${Object.entries(versions).join(',')}`;
   },
-  loadOfflineSection: async function(ref, versions) {
+  loadOfflineSection: async function(ref, versions, fallbackOnDefaultVersions=true) {
     const key = Sefaria.getOfflineSectionKey(ref, versions);
     const cached = Sefaria._jsonSectionData[key];
     if (cached && false) {
       return cached;
     }
 
-    // TODO make `metadata.versions` be a complete versions API response
-    // TODO and cache it
     const [metadata, fileNameStem] = await Sefaria.loadOfflineSectionMetadataWithCache(ref);
 
     const textByLang = {};
-    // TODO don't fallback on default if you are explicitly defining what versions you want.
-    versions = Sefaria.fallbackOnDefaultVersions(versions, metadata.versions);
-    console.log("versions", versions);
+    if (fallbackOnDefaultVersions) {
+      versions = Sefaria.fallbackOnDefaultVersions(versions, metadata.versions);
+      Sefaria.cacheCurrVersionsBySection(versions, ref);
+    }
     for (let [lang, vtitle] of Object.entries(versions)) {
-      textByLang[lang] = await Sefaria.loadOfflineSectionByVersion(fileNameStem, lang, vtitle);
+      textByLang[lang] = await Sefaria.loadOfflineSectionByVersionWithCache(fileNameStem, lang, vtitle);
     }
 
     const fullSection = {...metadata};
@@ -232,6 +231,14 @@ Sefaria = {
     Sefaria._jsonSectionData[key] = fullSection;
     return fullSection;
   },
+  loadOfflineSectionByVersionWithCache: async function(fileNameStem, lang, vtitle) {
+    const key = `${fileNameStem}|${lang}|${vtitle}`;
+    const cached = Sefaria._jsonSectionData[key];
+    if (cached) { return cached; }
+    const text = await Sefaria.loadOfflineSectionByVersion(fileNameStem, lang, vtitle);
+    Sefaria._jsonSectionData[key] = text;
+    return text;
+  },
   loadOfflineSectionByVersion: async function(fileNameStem, lang, vtitle) {
     /**
      * Assumption is zip file was already unzipped in loading of metadata
@@ -241,10 +248,11 @@ Sefaria = {
     return await Sefaria._loadJSON(jsonPath);
   },
   loadOfflineSectionMetadataWithCache: async function(ref) {
-    const cached = Sefaria._jsonSectionData[ref];
+    const key = `${ref}|metadata`;
+    const cached = Sefaria._jsonSectionData[key];
     if (cached) { return cached; }
-    const metadata = Sefaria.loadOfflineSectionMetadata(ref);
-    Sefaria._jsonSectionData[metadata] = metadata;
+    const metadata = await Sefaria.loadOfflineSectionMetadata(ref);
+    Sefaria._jsonSectionData[key] = metadata;
     return metadata;
   },
   loadOfflineSectionMetadata: async function(ref) {
@@ -578,35 +586,46 @@ Sefaria = {
   getRootTocItems: function() {
     return [...Sefaria.toc];
   },
-  _versionInfo: {},
-  cacheVersionInfo: function(data, isSection) {
-    //isSection = true if data has `sectionRef`. false if data has `title`
-    const attrs = ['versionTitle','versionNotes','license','versionSource','versionTitleInHebrew','versionNotesInHebrew'];
-    const cacheKey = isSection ? data.sectionRef : data.title;
-    Sefaria._versionInfo[cacheKey] = {};
-    attrs.map((attr)=>{
-      Sefaria._versionInfo[cacheKey][attr] = data[attr];
-    });
-    //console.log("SETTING VERSION INFO", cacheKey, isSection,Sefaria._versionInfo[cacheKey]);
+  _versionObjectsByTitle: {},  // cache where key is book title and value is list with version objects as returned by versions API
+  _currVersionsBySection: {},
+  _versionsAvailableBySection: {},  // list of version titles and languages available per section ref
+  cacheCurrVersionsBySection: function(currVersions, ref) {
+    Sefaria._currVersionsBySection[ref] = currVersions;
   },
-  versionInfo: function(ref, title, vlang) {
-    let versionInfo = {};
-    let sectionInfo = Sefaria._versionInfo[ref];
-    if (!sectionInfo) sectionInfo = {};
-    let indexInfo = Sefaria._versionInfo[title];
-    if (!indexInfo) indexInfo = {};
-    attrs = ['versionTitle', 'versionTitleInHebrew', 'versionNotes', 'versionNotesInHebrew', 'license', 'versionSource'];
-    let allFieldsUndefined = true;
-    attrs.map((attr)=>{
-      //if 'he', prepend 'he' to attr
-      const enAttr = attr;
-      if (vlang === 'hebrew') { attr = 'he' + attr[0].toUpperCase() + attr.substring(1); }
-      versionInfo[enAttr] = !!sectionInfo[attr] ? sectionInfo[attr] : indexInfo[attr];
-      if (!!versionInfo[enAttr]) { allFieldsUndefined = false; }
+  cacheVersionObjectByTitle: function(versionObjects, title) {
+    /**
+     * cache full version objects by title so that we can easily look them up by vtitle + lang later on
+     * all versions for an index are stored on the index file in the offline library. these can be stored as-is.
+     * only the current versions for the section are retrieved from the versions API. We need to aggregate these versions by title.
+     */
+    if (!versionObjects) { return; }
+    const currVersionsObjects = Sefaria._versionObjectsByTitle[title] || {};
+    versionObjects.forEach((version, i) => {
+      const {versionTitle, language} = version;
+      version.priority = i;
+      currVersionsObjects[`${versionTitle}|${language}`] = version;
     });
-    if (allFieldsUndefined) { versionInfo = null; }
-
-    return versionInfo;
+    Sefaria._versionObjectsByTitle[title] = currVersionsObjects;
+  },
+  cacheVersionsAvailableBySection: function(ref, versionList) {
+    Sefaria._versionsAvailableBySection[ref] = versionList;
+  },
+  getCurrVersionObjectBySection: function(ref, lang) {
+    const currVTitle = Sefaria._currVersionsBySection[ref]?.[lang];
+    const title = Sefaria.textTitleForRef(ref);
+    const versionObjects = Sefaria._versionObjectsByTitle[title] || [];
+    return versionObjects.find(v => v.language === lang && v.versionTitle === currVTitle);
+  },
+  getVersionObject: function(vtitle, language, title) {
+    return Sefaria._versionObjectsByTitle[title]?.[`${vtitle}|${language}`];
+  },
+  getVersionObjectsAvailable: function(ref) {
+    const title = Sefaria.textTitleForRef(ref);
+    const basicVersionObjects = Sefaria._versionsAvailableBySection[ref];
+    const fullVersionObjects = basicVersionObjects.map(({versionTitle, language}) => {
+      return Sefaria.getVersionObject(versionTitle, language, title);
+    });
+    return fullVersionObjects;
   },
   commentaryList: function(title) {
     // Returns the list of commentaries for 'title' which are found in Sefaria.toc
@@ -693,7 +712,7 @@ Sefaria = {
     return new Promise((resolve, reject) => {
       const resolver = function(data) {
         Sefaria._textToc[title] = data;
-        Sefaria.cacheVersionInfo(data,false);
+        Sefaria.cacheVersionObjectByTitle(data.versions, title);
         resolve(data);
       };
       if (title in Sefaria._textToc) {
@@ -976,7 +995,7 @@ Sefaria = {
         const cacheKey = Sefaria.links.relatedCacheKey(ref, online);
         const cached = Sefaria.api._related[cacheKey];
         if (!!cached) { return cached; }
-        const data = await Sefaria.loadOfflineSection(ref);
+        const data = await Sefaria.loadOfflineSection(ref, {}, false);
         // mimic response of links API so that addLinksToText() will work independent of data source
         const sectionData = Sefaria.getSectionFromJsonData(ref, data);
         if (!sectionData) { throw ERRORS.CANT_GET_SECTION_FROM_DATA; }

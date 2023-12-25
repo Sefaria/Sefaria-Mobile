@@ -17,7 +17,6 @@ const VersionBlock = ({
   version,
   openVersionInSidebar,
   openVersionInReader,
-  isCurrent,
   openUri,
 }) => {
   const { themeStr, textLanguage, interfaceLanguage } = useContext(GlobalStateContext);
@@ -101,7 +100,6 @@ VersionBlock.propTypes = {
   version:              PropTypes.object.isRequired,
   openVersionInSidebar: PropTypes.func,
   openVersionInReader:  PropTypes.func,
-  isCurrent:            PropTypes.bool,
   openUri:              PropTypes.func.isRequired,
 };
 

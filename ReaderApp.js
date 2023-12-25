@@ -131,8 +131,8 @@ class ReaderApp extends React.PureComponent {
         loadingLinks: false,
         versionRecentFilters: [],
         versionFilterIndex: null,
-        currVersions: {en: null, he: null}, /* actual current versions you're reading */
-        selectedVersions: {en: null, he: null}, /* custom versions you've selected. not necessarily available for the current section */
+        currVersionObjects: {en: null, he: null}, /* actual current versions you're reading. Full version objects. */
+        selectedVersions: {en: null, he: null}, /* custom versions you've selected. not necessarily available for the current section. Just version title. */
         versions: [],
         versionsApiError: false,
         versionStaleRecentFilters: [],
@@ -470,7 +470,7 @@ class ReaderApp extends React.PureComponent {
       type: STATE_ACTIONS.setTextLanguage,
       value: textLanguage,
     });
-    this.setCurrVersions(); // update curr versions based on language
+    this.setCurrVersionObjects(); // update curr versions based on language
     if (textLanguage == "bilingual" && textFlow == "continuous") {
       this.setTextFlow("segmented");
     }
@@ -675,7 +675,7 @@ class ReaderApp extends React.PureComponent {
           segmentIndexRef: -1,
           sectionIndexRef: 0,
           selectedVersions: versions,
-          currVersions: {en: null, he: null},
+          currVersionObjects: {en: null, he: null},
           textToc: null,
       },
       () => {
@@ -723,7 +723,7 @@ class ReaderApp extends React.PureComponent {
 
               // Preload Text TOC data into memory
               this.loadTextToc(data.indexTitle, data.sectionRef).then(() => {
-                // dependent on nextState and currVersions
+                // dependent on nextState and currVersionObjects
                 Sefaria.history.saveHistoryItem(this.getHistoryObject);
               });
             });
@@ -750,7 +750,7 @@ class ReaderApp extends React.PureComponent {
         Sefaria.textToc(title).then(textToc => {
           this.setState({textToc}, () => {
             // at this point, both book and section level version info is available
-            this.setCurrVersions(sectionRef, title); // not positive if this will combine versions well
+            this.setCurrVersionObjects(sectionRef, title); // not positive if this will combine versions well
             resolve();
           });
         });
@@ -772,10 +772,10 @@ class ReaderApp extends React.PureComponent {
     return newVersions;
   };
 
-  setCurrVersions = (sectionRef, title) => {
-      let enVInfo = !sectionRef ? this.state.currVersions.en : Sefaria.versionInfo(sectionRef, title, 'english');
-      let heVInfo = !sectionRef ? this.state.currVersions.he : Sefaria.versionInfo(sectionRef, title, 'hebrew');
-      this.setState({ currVersions: { en: enVInfo, he: heVInfo } });
+  setCurrVersionObjects = (sectionRef, title) => {
+      let enVInfo = !sectionRef ? this.state.currVersionObjects.en : Sefaria.versionInfo(sectionRef, title);
+      let heVInfo = !sectionRef ? this.state.currVersionObjects.he : Sefaria.versionInfo(sectionRef, title);
+      this.setState({ currVersionObjects: { en: enVInfo, he: heVInfo } });
   };
 
   loadSecondaryData = (ref) => {
@@ -846,13 +846,18 @@ class ReaderApp extends React.PureComponent {
       });
   };
 
-  loadVersions = (ref) => {
-    Sefaria.api.versions(ref, true).then(data=> {
-      this.setState({ versions: data, versionsApiError: false });
-    }).catch(error=>{
-      console.log("error", error);
-      this.setState({ versions: [], versionsApiError: true });
-    });
+  loadVersions = async (ref) => {
+    let versionsApiError = false;
+    let versions = Sefaria.getVersionObjectsAvailable(ref);
+    if (!versions) {
+      try {
+        versions = await Sefaria.api.versions(ref, true);
+      } catch(error) {
+        versions = [];
+        versionsApiError = true;
+      }
+    }
+    this.setState({ versions, versionsApiError });
   };
 
   updateData = (direction) => {
@@ -886,7 +891,7 @@ class ReaderApp extends React.PureComponent {
           loadingTextHead: false,
         }, ()=>{
           this.loadSecondaryData(data.sectionRef);
-          this.setCurrVersions(data.sectionRef, data.indexTitle);
+          this.setCurrVersionObjects(data.sectionRef, data.indexTitle);
         });
 
       }.bind(this)).catch(function(error) {
@@ -914,7 +919,7 @@ class ReaderApp extends React.PureComponent {
           loadingTextTail: false,
         }, ()=>{
           this.loadSecondaryData(data.sectionRef);
-          this.setCurrVersions(data.sectionRef, data.indexTitle);
+          this.setCurrVersionObjects(data.sectionRef, data.indexTitle);
         });
 
       }.bind(this)).catch(function(error) {
@@ -2219,7 +2224,7 @@ class ReaderApp extends React.PureComponent {
                 recentFilters={this.state.linkRecentFilters}
                 versionRecentFilters={this.state.versionRecentFilters}
                 versionFilterIndex={this.state.versionFilterIndex}
-                currVersions={this.state.currVersions}
+                currVersionObjects={this.state.currVersionObjects}
                 versions={this.state.versions}
                 versionsApiError={this.state.versionsApiError}
                 relatedData={relatedData}
