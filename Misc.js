@@ -48,7 +48,7 @@ const CSS_CLASS_STYLES = {
 /**
  * Renderes a page header with Styles to match all page headers and spacing
  * @param headerProps the props that would be passed to <Header>
- * @returns {JSX.Element} 
+ * @returns {JSX.Element}
  * @constructor
  */
 const PageHeader = ({children}) => {
@@ -67,7 +67,7 @@ const PageHeader = ({children}) => {
 const StatefulHeader = ({titleKey, icon = null, callbackFunc, active=true}) => {
   const {themeStr, theme, interfaceLanguage} = useGlobalState();
   const myIcon = iconData.get(icon, themeStr, active);
-  //this dance is bad. In react 0.71 we can use the 'gap' css directive on the container to do gaps betwwen the icon and text more unifromly. 
+  //this dance is bad. In react 0.71 we can use the 'gap' css directive on the container to do gaps betwwen the icon and text more unifromly.
   const isHeb = interfaceLanguage == "hebrew";
   const iconStyles = isHeb ? styles.navReStatefulHeaderIconHe : styles.navReStatefulHeaderIcon;
   return(
@@ -1482,7 +1482,7 @@ const Sefaria501 = () => {
         <View>
             <Text style={[styles.navReSefaria501, (interfaceLanguage === "hebrew") ? styles.hebrewSystemFont : null, theme.secondaryText]}>
               { strings.sefaria501 }
-            </Text>  
+            </Text>
         </View>
       );
 };
@@ -1550,7 +1550,7 @@ export {
   SearchBarWithIcon,
   MenuButton,
   OrderedList,
-  PageHeader,  
+  PageHeader,
   ProfileListing,
   ProfilePic,
   RainbowBar,
