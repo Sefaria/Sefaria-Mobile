@@ -115,9 +115,10 @@ Sefaria = {
     });
   },
   getSectionFromJsonData: function(ref, data) {
-    if ("content" in data) {
-      return data;
-    } else {
+    /**
+     * works on either metadata files or objects returned from loadOfflineSection()
+     */
+    if (data.sections) {
       // If the data file represents multiple sections, pick the appropriate one to return
       const refUpOne = Sefaria.refUpOne(ref);
 
@@ -131,6 +132,7 @@ Sefaria = {
         }
       }
     }
+    return data;
   },
   refUpOne: function(ref) {
     //return ref up one level, assuming you can
@@ -998,12 +1000,12 @@ Sefaria = {
         const cacheKey = Sefaria.links.relatedCacheKey(ref, online);
         const cached = Sefaria.api._related[cacheKey];
         if (!!cached) { return cached; }
-        const data = await Sefaria.loadOfflineSection(ref, {}, false);
+        const [metadata, fileNameStem] = await Sefaria.loadOfflineSectionMetadataWithCache(ref);
         // mimic response of links API so that addLinksToText() will work independent of data source
-        const sectionData = Sefaria.getSectionFromJsonData(ref, data);
-        if (!sectionData) { throw ERRORS.CANT_GET_SECTION_FROM_DATA; }
-        const linkList = (sectionData.content.reduce((accum, segment, segNum) => accum.concat(
-          ("links" in segment) ? segment.links.map(link => {
+        const sectionMetadata = Sefaria.getSectionFromJsonData(ref, metadata);
+        if (!sectionMetadata) { throw ERRORS.CANT_GET_SECTION_FROM_DATA; }
+        const linkList = (sectionMetadata.links.reduce((accum, segmentLinks, segNum) => accum.concat(
+          !!segmentLinks ? segmentLinks.map(link => {
             const index_title = Sefaria.textTitleForRef(link.sourceRef);
             const collectiveTitle = Sefaria.collectiveTitlesDict[index_title];
             return {
