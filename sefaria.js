@@ -603,21 +603,24 @@ Sefaria = {
     versionObjects.forEach((version, i) => {
       const {versionTitle, language} = version;
       version.priority = i;
-      currVersionsObjects[`${versionTitle}|${language}`] = version;
+      currVersionsObjects[Sefaria.getVersionObjectCacheKey(versionTitle, language)] = version;
     });
     Sefaria._versionObjectsByTitle[title] = currVersionsObjects;
   },
   cacheVersionsAvailableBySection: function(ref, versionList) {
     Sefaria._versionsAvailableBySection[ref] = versionList;
   },
+  getVersionObjectCacheKey: function(vtitle, lang) {
+    return `${vtitle}|${lang}`;
+  },
   getCurrVersionObjectBySection: function(ref, lang) {
     const currVTitle = Sefaria._currVersionsBySection[ref]?.[lang];
     const title = Sefaria.textTitleForRef(ref);
     const versionObjects = Sefaria._versionObjectsByTitle[title] || [];
-    return versionObjects.find(v => v.language === lang && v.versionTitle === currVTitle);
+    return versionObjects[Sefaria.getVersionObjectCacheKey(currVTitle, lang)];
   },
-  getVersionObject: function(vtitle, language, title) {
-    return Sefaria._versionObjectsByTitle[title]?.[`${vtitle}|${language}`];
+  getVersionObject: function(vtitle, lang, title) {
+    return Sefaria._versionObjectsByTitle[title]?.[Sefaria.getVersionObjectCacheKey(vtitle, lang)];
   },
   getVersionObjectsAvailable: function(ref) {
     const title = Sefaria.textTitleForRef(ref);
