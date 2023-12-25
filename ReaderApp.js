@@ -470,7 +470,7 @@ class ReaderApp extends React.PureComponent {
       type: STATE_ACTIONS.setTextLanguage,
       value: textLanguage,
     });
-    if (textLanguage == "bilingual" && textFlow == "continuous") {
+    if (textLanguage === "bilingual" && textFlow === "continuous") {
       this.setTextFlow("segmented");
     }
     if (!dontToggle) { this.toggleReaderDisplayOptionsMenu(); }
