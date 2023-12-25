@@ -718,10 +718,10 @@ class ReaderApp extends React.PureComponent {
               Sefaria.links.reset();
             }
             this.setState(nextState, ()=>{
-              this.loadSecondaryData(data.sectionRef);
-
               // Preload Text TOC data into memory
               this.loadTextToc(data.indexTitle, data.sectionRef).then(() => {
+                // dependent on versions cached from offline textToc
+                this.loadSecondaryData(data.sectionRef);
                 // dependent on nextState and currVersionObjects
                 Sefaria.history.saveHistoryItem(this.getHistoryObject);
               });
