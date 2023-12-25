@@ -470,7 +470,6 @@ class ReaderApp extends React.PureComponent {
       type: STATE_ACTIONS.setTextLanguage,
       value: textLanguage,
     });
-    this.setCurrVersionObjects(); // update curr versions based on language
     if (textLanguage == "bilingual" && textFlow == "continuous") {
       this.setTextFlow("segmented");
     }
@@ -750,7 +749,7 @@ class ReaderApp extends React.PureComponent {
         Sefaria.textToc(title).then(textToc => {
           this.setState({textToc}, () => {
             // at this point, both book and section level version info is available
-            this.setCurrVersionObjects(sectionRef, title); // not positive if this will combine versions well
+            this.setCurrVersionObjects(sectionRef);
             resolve();
           });
         });
@@ -772,10 +771,11 @@ class ReaderApp extends React.PureComponent {
     return newVersions;
   };
 
-  setCurrVersionObjects = (sectionRef, title) => {
-      let enVInfo = !sectionRef ? this.state.currVersionObjects.en : Sefaria.versionInfo(sectionRef, title);
-      let heVInfo = !sectionRef ? this.state.currVersionObjects.he : Sefaria.versionInfo(sectionRef, title);
-      this.setState({ currVersionObjects: { en: enVInfo, he: heVInfo } });
+  setCurrVersionObjects = (sectionRef) => {
+      this.setState({ currVersionObjects: {
+        en: Sefaria.getCurrVersionObjectBySection(sectionRef, 'en'),
+        he: Sefaria.getCurrVersionObjectBySection(sectionRef, 'he'),
+      } });
   };
 
   loadSecondaryData = (ref) => {
@@ -891,7 +891,7 @@ class ReaderApp extends React.PureComponent {
           loadingTextHead: false,
         }, ()=>{
           this.loadSecondaryData(data.sectionRef);
-          this.setCurrVersionObjects(data.sectionRef, data.indexTitle);
+          this.setCurrVersionObjects(data.sectionRef);
         });
 
       }.bind(this)).catch(function(error) {
@@ -919,7 +919,7 @@ class ReaderApp extends React.PureComponent {
           loadingTextTail: false,
         }, ()=>{
           this.loadSecondaryData(data.sectionRef);
-          this.setCurrVersionObjects(data.sectionRef, data.indexTitle);
+          this.setCurrVersionObjects(data.sectionRef);
         });
 
       }.bind(this)).catch(function(error) {
