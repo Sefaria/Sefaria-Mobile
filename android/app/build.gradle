@@ -1,7 +1,7 @@
-def VERSION_BUILD=6204
+def VERSION_BUILD=6205
 def VERSION_MAJOR=6
 def VERSION_MINOR=1
-def VERSION_PATCH=0
+def VERSION_PATCH=1
 
 apply plugin: "com.android.application"
 apply plugin: "com.facebook.react"

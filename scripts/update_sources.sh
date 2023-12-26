@@ -6,7 +6,7 @@ cd "${0%/*}"  # cd to dir of this script. see https://stackoverflow.com/question
 echo "Updating IOS and Android source files from readonly environment on old dev server"
 IOS_SOURCES="../ios/sources/"
 ANDROID_SOURCES="../android/app/src/main/assets/sources/"
-EXPORT_VERSION="6"
+EXPORT_VERSION="7"
 
 ENVFILE=envvars.sh
 if test -f "$ENVFILE"; then
