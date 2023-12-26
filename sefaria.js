@@ -1227,8 +1227,7 @@ Sefaria = {
                                                     });
       }
       if (Sefaria.links._linkContentLoadingStack.length == 1 || runNow) {
-        //console.log("Starting to load",ref);
-        return Sefaria.data(ref, true).then(parseData);
+        return Sefaria.data(ref, false).then(parseData);
       } else {
         //console.log("Rejecting", ref);
         return new Promise(function(resolve, reject) {
