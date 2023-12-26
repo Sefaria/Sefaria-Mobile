@@ -846,6 +846,8 @@ const TripleDots = ({ onPress }) => {
 
 const DisplaySettingsButton = ({ onPress }) => {
   const { themeStr } = useContext(GlobalStateContext);
+  const { interfaceLanguage } = useGlobalState();
+  const iconName = interfaceLanguage === 'hebrew' ? "aleph" : "a_icon";
   return (
     <TouchableOpacity
       style={[styles.headerButton, styles.rightHeaderButton]}
@@ -853,7 +855,7 @@ const DisplaySettingsButton = ({ onPress }) => {
       accessibilityLabel="Open display settings"
     >
       <Image
-        source={iconData.get('a-aleph', themeStr)}
+        source={iconData.get(iconName, themeStr)}
         style={styles.displaySettingsButton}
         resizeMode={'contain'}
       />
