@@ -1226,7 +1226,7 @@ Sefaria = {
                                                       "rejectClosure":rejectClosure
                                                     });
       }
-      if (Sefaria.links._linkContentLoadingStack.length == 1 || runNow) {
+      if (Sefaria.links._linkContentLoadingStack.length === 1 || runNow) {
         return Sefaria.data(ref, false).then(parseData);
       } else {
         //console.log("Rejecting", ref);
