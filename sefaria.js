@@ -32,6 +32,7 @@ import { Topic } from './Topic';
 const ERRORS = {
   NOT_OFFLINE: 1,
   CANT_GET_SECTION_FROM_DATA: "Couldn't find section in depth 3+ text",
+  OFFLINE_LIBRARY_NOT_COMPATIBLE_WITH_V7: "not compat v7",
 };
 
 Sefaria = {
@@ -100,7 +101,7 @@ Sefaria = {
     if (typeof context === "undefined") { context = true; }
     return new Promise(function(resolve, reject) {
       const bookRefStem  = Sefaria.textTitleForRef(ref);
-      Sefaria.loadOfflineSection(ref, versions)
+      Sefaria.loadOfflineSectionCompat(ref, versions)
         .then(data => { Sefaria.processFileData(ref, data).then(x => Sefaria.convertToLinkContentMaybe(context, x)).then(resolve); })
         .catch(error => {
           if (error === ERRORS.NOT_OFFLINE) {
@@ -195,6 +196,67 @@ Sefaria = {
     versions = versions || {};
     return `${ref}|${Object.entries(versions).join(',')}`;
   },
+  loadOfflineSectionCompat: async function(ref, versions, context, fallbackOnDefaultVersions=true) {
+    /**
+     * v6 compatibility code
+     */
+    try {
+      return await Sefaria.loadOfflineSection(ref, versions, fallbackOnDefaultVersions);
+    } catch(error) {
+      if (error === ERRORS.OFFLINE_LIBRARY_NOT_COMPATIBLE_WITH_V7) {
+        return await Sefaria.loadOfflineFileCompat(ref, versions);
+      }
+    }
+  },
+  loadOfflineFileCompat: async function(ref, versions) {
+    /**
+     * v6 compatibility code
+     */
+    var fileNameStem = ref.split(":")[0];
+    var bookRefStem  = Sefaria.textTitleForRef(ref);
+    //if you want to open a specific version, there is no json file. force an api call instead
+    const shouldLoadFromApi = Sefaria.shouldLoadFromApi(versions);
+    if (shouldLoadFromApi) { throw ERRORS.NOT_OFFLINE; }
+    var jsonPath = Sefaria._JSONSourcePath(fileNameStem);
+    var zipPath  = Sefaria._zipSourcePath(bookRefStem);
+    // Pull data from in memory cache if available
+    if (jsonPath in Sefaria._jsonData) {
+      return Sefaria._jsonData[jsonPath];
+    }
+
+    const preResolve = data => {
+      if (!(jsonPath in Sefaria._jsonData)) {
+        Sefaria._jsonData[jsonPath] = data;
+      }
+      return data;
+    };
+    let data;
+    try {
+      data = await Sefaria._loadJSON(jsonPath);
+      return preResolve(data);
+    } catch (e) {
+      const exists = await fileExists(zipPath);
+      if (exists) {
+        const path = await Sefaria._unzip(zipPath);
+        try {
+          data = await Sefaria._loadJSON(jsonPath);
+          return preResolve(data);
+        } catch (e2) {
+          // Now that the file is unzipped, if there was an error assume we have a depth 1 or 3 text
+          var depth1FilenameStem = fileNameStem.substr(0, fileNameStem.lastIndexOf(" "));
+          var depth1JSONPath = Sefaria._JSONSourcePath(depth1FilenameStem);
+          try {
+            data = await Sefaria._loadJSON(depth1JSONPath);
+            return preResolve(data);
+          } catch (e3) {
+            throw ERRORS.NOT_OFFLINE;
+          }
+        }
+      } else {
+        throw ERRORS.NOT_OFFLINE;
+      }
+    }
+  },
   loadOfflineSection: async function(ref, versions, fallbackOnDefaultVersions=true) {
     const key = Sefaria.getOfflineSectionKey(ref, versions);
     const cached = Sefaria._jsonSectionData[key];
@@ -249,7 +311,12 @@ Sefaria = {
     const key = `${ref}|metadata`;
     const cached = Sefaria._jsonSectionData[key];
     if (cached) { return cached; }
-    const metadata = await Sefaria.loadOfflineSectionMetadata(ref);
+    let metadata;
+    try {
+      metadata = await Sefaria.loadOfflineSectionMetadata(ref);
+    } catch(error) {
+      throw ERRORS.OFFLINE_LIBRARY_NOT_COMPATIBLE_WITH_V7;
+    }
     Sefaria._jsonSectionData[key] = metadata;
     return metadata;
   },
@@ -283,7 +350,6 @@ Sefaria = {
           try {
             return [preResolve(await Sefaria._loadJSON(depth1JSONPath)), depth1FilenameStem];
           } catch (e3) {
-            console.error("Error loading JSON file: " + jsonPath + " OR " + depth1JSONPath);
             throw ERRORS.NOT_OFFLINE;
           }
         }
@@ -628,6 +694,7 @@ Sefaria = {
   getVersionObjectsAvailable: function(ref) {
     const title = Sefaria.textTitleForRef(ref);
     const basicVersionObjects = Sefaria._versionsAvailableBySection[ref];
+    if (!basicVersionObjects) { return; }
     const fullVersionObjects = basicVersionObjects.map(({versionTitle, language}) => {
       return Sefaria.getVersionObject(versionTitle, language, title);
     });
@@ -1001,7 +1068,16 @@ Sefaria = {
         const cacheKey = Sefaria.links.relatedCacheKey(ref, online);
         const cached = Sefaria.api._related[cacheKey];
         if (!!cached) { return cached; }
-        const [metadata, fileNameStem] = await Sefaria.loadOfflineSectionMetadataWithCache(ref);
+        let metadata, fileNameStem;
+        try {
+          [metadata, fileNameStem] = await Sefaria.loadOfflineSectionMetadataWithCache(ref);
+        } catch(error) {
+          if (error === ERRORS.OFFLINE_LIBRARY_NOT_COMPATIBLE_WITH_V7) {
+            const compatData = await Sefaria.loadOfflineFileCompat(ref);
+            const sectionCompat = Sefaria.getSectionFromJsonData(ref, compatData);
+            metadata = {links: sectionCompat.content.map(segment => segment.links)};
+          }
+        }
         // mimic response of links API so that addLinksToText() will work independent of data source
         if (!metadata) { throw ERRORS.CANT_GET_SECTION_FROM_DATA; }
         const linkList = (metadata.links.reduce((accum, segmentLinks, segNum) => accum.concat(
