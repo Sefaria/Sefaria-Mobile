@@ -223,11 +223,12 @@ Sefaria = {
       return Sefaria._jsonData[jsonPath];
     }
 
-    const preResolve = data => {
+    const preResolve = jsonData => {
+      const sectionData = Sefaria.getSectionFromJsonData(ref, jsonData);
       if (!(jsonPath in Sefaria._jsonData)) {
-        Sefaria._jsonData[jsonPath] = data;
+        Sefaria._jsonData[jsonPath] = sectionData;
       }
-      return data;
+      return sectionData;
     };
     let data;
     try {
