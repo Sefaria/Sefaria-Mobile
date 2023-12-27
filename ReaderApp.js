@@ -81,7 +81,6 @@ class ReaderApp extends React.PureComponent {
     themeStr:         PropTypes.string.isRequired,
     biLayout:         PropTypes.string.isRequired,
     textLanguage:     PropTypes.string.isRequired,
-    overwriteVersions:PropTypes.bool.isRequired,
     isLoggedIn:       PropTypes.bool.isRequired,
     dispatch:         PropTypes.func.isRequired,
     showErrorBoundary:PropTypes.func.isRequired,
@@ -151,7 +150,6 @@ class ReaderApp extends React.PureComponent {
         isNewSearch: false,
         ReaderDisplayOptionsMenuVisible: false,
         dictLookup: null,
-        overwriteVersions: true, // false when you navigate to a text but dont want the current version to overwrite your sticky version
         highlightedWordID: null,
         highlightedWordSegmentRef: null,
       };
@@ -650,16 +648,8 @@ class ReaderApp extends React.PureComponent {
   };
   /*
     isLoadingVersion - true when you are replacing an already loaded text with a specific version
-    overwriteVersions - false when you want to switch versions but not overwrite sticky version (e.g. search)
   */
-  loadNewText = ({ ref, versions, isLoadingVersion = false, overwriteVersions = true, numTries = 0 }) => {
-    if (!this.state.hasInternet) {
-      overwriteVersions = false;
-    }
-    this.props.dispatch({
-      type: STATE_ACTIONS.setOverwriteVersions,
-      value: overwriteVersions,
-    });
+  loadNewText = ({ ref, versions, isLoadingVersion = false, numTries = 0 }) => {
     // Open ranged refs to their first segment (not ideal behavior, but good enough for now)
     ref = ref.indexOf("-") != -1 ? ref.split("-")[0] : ref;
     return new Promise((resolve, reject) => {
@@ -683,7 +673,7 @@ class ReaderApp extends React.PureComponent {
                 // if specific versions were requested, but no content exists for those versions, try again with default versions
                 (data.content.length === 0 && !!versions)) {
               if (numTries >= 4) { throw "Return to Nav"; }
-              this.loadNewText({ ref, isLoadingVersion, overwriteVersions, numTries: numTries + 1 }).then(resolve);
+              this.loadNewText({ ref, isLoadingVersion, numTries: numTries + 1 }).then(resolve);
               return;
             }
             let nextState = {
@@ -1143,7 +1133,7 @@ class ReaderApp extends React.PureComponent {
         connectionsMode: null,
       }, () => {
           this.closeMenu(); // Don't close until these values are in state, so we know if we need to load defualt text
-          this.loadNewText({ ref, versions: newVersions, overwriteVersions }).then(resolve);
+          this.loadNewText({ ref, versions: newVersions }).then(resolve);
       });
     })
   };
