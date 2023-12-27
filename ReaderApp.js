@@ -655,7 +655,6 @@ class ReaderApp extends React.PureComponent {
   loadNewText = ({ ref, versions, isLoadingVersion = false, overwriteVersions = true, numTries = 0 }) => {
     if (!this.state.hasInternet) {
       overwriteVersions = false;
-      versions = undefined; // change to default version in case they have offline library they'll still be able to read
     }
     this.props.dispatch({
       type: STATE_ACTIONS.setOverwriteVersions,
