@@ -1497,7 +1497,7 @@ class ReaderApp extends React.PureComponent {
   };
 
   loadVersionContent = (ref, pos, versionTitle, versionLanguage) => {
-    Sefaria.data(ref, false, {[versionLanguage]: versionTitle }).then(data => {
+    Sefaria.data(ref, false, {[versionLanguage]: versionTitle }, false).then(data => {
       // only want to show versionLanguage in results
       const removeLang = versionLanguage === "he" ? "en" : "he";
       data.result[removeLang] = "";

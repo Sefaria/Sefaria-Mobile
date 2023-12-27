@@ -97,11 +97,11 @@ Sefaria = {
   if `context` and you're using API, only return section no matter what. default is true
   versions is object with keys { en, he } specifying version titles of requested ref
   */
-  data: function(ref, context, versions) {
+  data: function(ref, context, versions, fallbackOnDefaultVersions=true) {
     if (typeof context === "undefined") { context = true; }
     return new Promise(function(resolve, reject) {
       const bookRefStem  = Sefaria.textTitleForRef(ref);
-      Sefaria.loadOfflineSectionCompat(ref, versions)
+      Sefaria.loadOfflineSectionCompat(ref, versions, fallbackOnDefaultVersions)
         .then(data => { Sefaria.processFileData(ref, data).then(x => Sefaria.convertToLinkContentMaybe(context, x)).then(resolve); })
         .catch(error => {
           if (error === ERRORS.NOT_OFFLINE) {
@@ -185,17 +185,24 @@ Sefaria = {
     currVersions = currVersions || {};
     for (let lang of ["en", "he"]) {
       if (currVersions[lang]) { continue; }
-      const defaultVersion = allVersions.find(v => v.language === lang);
+      const defaultVersion = Sefaria.getDefaultVersionForLang(allVersions, lang);
       if (!defaultVersion) { continue; }
       currVersions[lang] = defaultVersion.versionTitle;
     }
     return currVersions;
   },
+  getDefaultVersionForLang: function(allVersions, lang) {
+    /**
+     * default is first version with `lang`
+     * assumption is versions are sorted in priority order, as returned by VersionSet()
+     */
+    return allVersions.find(v => v.language === lang);
+  },
   getOfflineSectionKey: function(ref, versions) {
     versions = versions || {};
     return `${ref}|${Object.entries(versions).join(',')}`;
   },
-  loadOfflineSectionCompat: async function(ref, versions, context, fallbackOnDefaultVersions=true) {
+  loadOfflineSectionCompat: async function(ref, versions, fallbackOnDefaultVersions=true) {
     /**
      * v6 compatibility code
      */
@@ -204,6 +211,9 @@ Sefaria = {
     } catch(error) {
       if (error === ERRORS.OFFLINE_LIBRARY_NOT_COMPATIBLE_WITH_V7) {
         return await Sefaria.loadOfflineFileCompat(ref, versions);
+      } else if (error === ERRORS.NOT_OFFLINE) {
+        // rethrow to indicate we should try an API call
+        throw error;
       }
     }
   },
@@ -267,12 +277,14 @@ Sefaria = {
     const [metadata, fileNameStem] = await Sefaria.loadOfflineSectionMetadataWithCache(ref);
 
     const textByLang = {};
+    let defaultVersions = {};
     if (fallbackOnDefaultVersions) {
       versions = Sefaria.fallbackOnDefaultVersions(versions, metadata.versions);
+      defaultVersions = Sefaria.fallbackOnDefaultVersions({}, metadata.versions);
       Sefaria.cacheCurrVersionsBySection(versions, ref);
     }
     for (let [lang, vtitle] of Object.entries(versions)) {
-      textByLang[lang] = await Sefaria.loadOfflineSectionByVersionWithCache(fileNameStem, lang, vtitle);
+      textByLang[lang] = await Sefaria.loadOfflineSectionByVersionWithCacheAndFallback(fileNameStem, lang, vtitle, defaultVersions[lang]);
     }
 
     const fullSection = {...metadata};
@@ -290,6 +302,25 @@ Sefaria = {
 
     Sefaria._jsonSectionData[key] = fullSection;
     return fullSection;
+  },
+  loadOfflineSectionByVersionWithCacheAndFallback: async function(fileNameStem, lang, vtitle, defaultVTitle) {
+    /**
+     * tries to load `vtitle`. If it fails, falls back on default and if that fails, throws an error that this version
+     * isn't offline
+     * if defaultVTitle is falsy, only try to load `vtitle` and if that fails throw error
+     */
+    try {
+      return await Sefaria.loadOfflineSectionByVersionWithCache(fileNameStem, lang, vtitle);
+    } catch(error) {
+      if (!defaultVTitle) {
+        throw ERRORS.NOT_OFFLINE;
+      }
+      try {
+        return await Sefaria.loadOfflineSectionByVersionWithCache(fileNameStem, lang, defaultVTitle);
+      } catch(error) {
+        throw ERRORS.NOT_OFFLINE;
+      }
+    }
   },
   loadOfflineSectionByVersionWithCache: async function(fileNameStem, lang, vtitle) {
     const key = `${fileNameStem}|${lang}|${vtitle}`;
