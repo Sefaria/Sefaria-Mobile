@@ -716,7 +716,7 @@ Sefaria = {
     if (!basicVersionObjects) { return; }
     const fullVersionObjects = basicVersionObjects.map(({versionTitle, language}) => {
       return Sefaria.getVersionObject(versionTitle, language, title);
-    });
+    }).filter(versionObject => !!versionObject);
     return fullVersionObjects;
   },
   commentaryList: function(title) {
