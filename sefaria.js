@@ -710,7 +710,10 @@ Sefaria = {
   getVersionObject: function(vtitle, lang, title) {
     return Sefaria._versionObjectsByTitle[title]?.[Sefaria.getVersionObjectCacheKey(vtitle, lang)];
   },
-  getVersionObjectsAvailable: function(ref) {
+  getOfflineVersionObjectsAvailable: function(ref) {
+    /**
+     * Returns known versions available for `ref` that are stored in index file of `ref`s index
+     */
     const title = Sefaria.textTitleForRef(ref);
     const basicVersionObjects = Sefaria._versionsAvailableBySection[ref];
     if (!basicVersionObjects) { return; }
