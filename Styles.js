@@ -371,8 +371,8 @@ export default StyleSheet.create({
     marginRight: iPad ? 10 : 0
   },
   displaySettingsButton: {
-    width: 15,
-    height: 15,
+    width: 18,
+    height: 18,
     marginRight: 4
   },
   closeButton: {
