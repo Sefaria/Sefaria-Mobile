@@ -651,7 +651,7 @@ class ReaderApp extends React.PureComponent {
   */
   loadNewText = ({ ref, versions, isLoadingVersion = false, numTries = 0 }) => {
     // Open ranged refs to their first segment (not ideal behavior, but good enough for now)
-    ref = ref.indexOf("-") != -1 ? ref.split("-")[0] : ref;
+    ref = ref.indexOf("-") !== -1 ? ref.split("-")[0] : ref;
     return new Promise((resolve, reject) => {
       this.setState({
           loaded: false,
@@ -1115,7 +1115,7 @@ class ReaderApp extends React.PureComponent {
       }
 
       if (addToBackStack) {
-        if (calledFrom == 'search') {
+        if (calledFrom === 'search') {
           // only pass small state variables to forward() (eg avoid passing `results`) because cloning large variables takes too long.
           let { appliedFilters, appliedFilterAggTypes, currPage, initScrollPos } = this.state.textSearchState;
           this.state.textSearchState = new SearchState({type: 'text', appliedFilters, appliedFilterAggTypes});
