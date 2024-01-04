@@ -667,7 +667,7 @@ class ReaderApp extends React.PureComponent {
           textToc: null,
       },
       () => {
-        Sefaria.data(ref, true, versions).then(data => {
+        Sefaria.data(ref, true, versions, !this.state.hasInternet).then(data => {
             // debugger;
             if (Sefaria.util.objectHasNonNullValues(data.nonExistantVersions) ||
                 // if specific versions were requested, but no content exists for those versions, try again with default versions
