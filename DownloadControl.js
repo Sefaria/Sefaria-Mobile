@@ -1085,7 +1085,6 @@ async function schemaCheckAndPurge() {
   if (!lastUpdateSchema) {  // value was not set and library was never downloaded
     await AsyncStorage.setItem("lastUpdateSchema", SCHEMA_VERSION);
     return
-  } else {
   }
   if (lastUpdateSchema !== schemaVersion) {
     crashlytics().log("a user's library has been purged");  // todo: review: should we notify the user that his Library is about to be purged?
@@ -1093,6 +1092,7 @@ async function schemaCheckAndPurge() {
     const bookList = getFullBookList();
     await deleteBooks(bookList);
     setDesiredBooks()
+    await AsyncStorage.setItem("lastUpdateSchema", SCHEMA_VERSION);
   }
 }
 
