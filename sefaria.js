@@ -270,7 +270,7 @@ Sefaria = {
   loadOfflineSection: async function(ref, versions, fallbackOnDefaultVersions=true) {
     const key = Sefaria.getOfflineSectionKey(ref, versions);
     const cached = Sefaria._jsonSectionData[key];
-    if (cached && false) {
+    if (cached) {
       return cached;
     }
 
