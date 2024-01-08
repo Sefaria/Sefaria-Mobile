@@ -179,7 +179,7 @@ Sefaria = {
     // 1) debugNoLibrary is true
     return Sefaria.debugNoLibrary;
   },
-  fallbackOnDefaultVersions: function(currVersions, allVersions) {
+  populateMissingVersions: function(currVersions, allVersions) {
     // given currVersions and a list of versions sorted by priority,
     // make sure both "en" and "he" versions are populated, falling back on default
     currVersions = currVersions || {};
@@ -278,9 +278,9 @@ Sefaria = {
 
     const textByLang = {};
     let defaultVersions = {};
+    versions = Sefaria.populateMissingVersions(versions, metadata.versions);
     if (fallbackOnDefaultVersions) {
-      versions = Sefaria.fallbackOnDefaultVersions(versions, metadata.versions);
-      defaultVersions = Sefaria.fallbackOnDefaultVersions({}, metadata.versions);
+      defaultVersions = Sefaria.populateMissingVersions({}, metadata.versions);
       Sefaria.cacheCurrVersionsBySection(versions, ref);
     }
     for (let [lang, vtitle] of Object.entries(versions)) {
