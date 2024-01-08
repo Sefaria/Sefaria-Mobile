@@ -862,7 +862,7 @@ class ReaderApp extends React.PureComponent {
 
   updateDataPrev = () => {
       this.setState({loadingTextHead: true});
-      Sefaria.data(this.state.prev, true, this.state.selectedVersions).then(function(data) {
+      Sefaria.data(this.state.prev, true, this.state.selectedVersions, !this.state.hasInternet).then(function(data) {
 
         var updatedData = [data.content].concat(this.state.data);
         this.state.sectionArray.unshift(data.sectionRef);
@@ -891,7 +891,7 @@ class ReaderApp extends React.PureComponent {
 
   updateDataNext = () => {
       this.setState({loadingTextTail: true});
-      Sefaria.data(this.state.next, true, this.state.selectedVersions).then(function(data) {
+      Sefaria.data(this.state.next, true, this.state.selectedVersions, !this.state.hasInternet).then(function(data) {
 
         var updatedData = this.state.data.concat([data.content]);
         this.state.sectionArray.push(data.sectionRef);;
