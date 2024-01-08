@@ -34,11 +34,11 @@ target 'ReaderApp' do
       Pod::UI.warn e
     end
   end
-  config = use_native_modules!
+  $config = use_native_modules!
   # Flags change depending on the env values.
   flags = get_default_flags()
   use_react_native!(
-    :path => config[:reactNativePath],
+    :path => $config[:reactNativePath],
     # Hermes is now enabled by default. Disable by setting this flag to false.
     :production => production,
     :hermes_enabled => flags[:hermes_enabled],
@@ -60,13 +60,13 @@ end
 post_install do |installer|
   react_native_post_install(
     installer,
-    config[:reactNativePath],
+    $config[:reactNativePath],
     :mac_catalyst_enabled => false
   )
   `sed -i -e  $'s/__IPHONE_10_0/__IPHONE_13_0/' #{installer.sandbox.root}/RCT-Folly/folly/portability/Time.h`
   # __apply_Xcode_12_5_M1_post_install_workaround(installer)  # this still doesn't work... keeping hacky workaround below for now
-  installer.pods_project.build_configurations.each do |config|
-    config.build_settings["EXCLUDED_ARCHS[sdk=iphonesimulator*]"] = "arm64"
+  installer.pods_project.build_configurations.each do |curr_config|
+    curr_config.build_settings["EXCLUDED_ARCHS[sdk=iphonesimulator*]"] = "arm64"
   end
 end
 
