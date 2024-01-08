@@ -336,7 +336,7 @@ Sefaria = {
      * We also already know the fileNameStem from loading of metadata
      */
     const jsonPath = Sefaria._JSONSectionPath(fileNameStem, vtitle, lang);
-    return await Sefaria._loadJSON(jsonPath);
+    return Sefaria.getSectionFromJsonData(await Sefaria._loadJSON(jsonPath));
   },
   loadOfflineSectionMetadataWithCache: async function(ref) {
     const key = `${ref}|metadata`;
