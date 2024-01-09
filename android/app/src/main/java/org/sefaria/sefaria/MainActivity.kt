@@ -6,11 +6,11 @@ import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate
 import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint.fabricEnabled
 import com.facebook.react.defaults.DefaultReactActivityDelegate
-import org.devio.rn.splashscreen.SplashScreen
 import android.os.Bundle
+import com.zoontek.rnbootsplash.RNBootSplash
 import androidx.annotation.Nullable
 
-class MainActivity : ReactActivity() {
+class MainActivity : ReactActivity(), DefaultHardwareBackBtnHandler {
 
     /**
      * Returns the name of the main component registered from JavaScript.
@@ -25,22 +25,12 @@ class MainActivity : ReactActivity() {
   override fun createReactActivityDelegate(): ReactActivityDelegate =
       DefaultReactActivityDelegate(this, mainComponentName, fabricEnabled)
 
-  /**
-    @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState)
-        SplashScreen.show(this)
-    }
+  override fun onCreate(savedInstanceState: Bundle?) {
+    RNBootSplash.init(this, R.style.SplashTheme) // ⬅️ initialize the splash screen
+    super.onCreate(savedInstanceState) // super.onCreate(null) with react-native-screens
+  }
 
-    @Override
-    protected void onPause() {
-        SplashScreen.hide(this)
-        super.onPause()
+    override fun invokeDefaultOnBackPressed() {
+        super.onBackPressed()
     }
-
-    @Override
-    public void invokeDefaultOnBackPressed() {
-        moveTaskToBack(true)
-    }
-    */
 }

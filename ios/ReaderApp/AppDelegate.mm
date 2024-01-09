@@ -4,7 +4,7 @@
 
 #import <React/RCTLinkingManager.h>
 #import <TSBackgroundFetch/TSBackgroundFetch.h>
-#import <RNSplashScreen.h>
+#import "RNBootSplash.h"
 #import <Firebase.h>
 
 @implementation AppDelegate
@@ -21,7 +21,6 @@
 
   // Stuff added
   // this needs to be called after [super application:application didFinishLaunchingWithOptions:launchOptions];
-  [RNSplashScreen show];
   [[TSBackgroundFetch sharedInstance] didFinishLaunching];
   // End stuff added
 
@@ -56,4 +55,15 @@
                     restorationHandler:restorationHandler];
 }
 
+- (UIView *)createRootViewWithBridge:(RCTBridge *)bridge
+                          moduleName:(NSString *)moduleName
+                           initProps:(NSDictionary *)initProps {
+  UIView *rootView = [super createRootViewWithBridge:bridge
+                                          moduleName:moduleName
+                                           initProps:initProps];
+
+  [RNBootSplash initWithStoryboard:@"Launch Screen" rootView:rootView]; // ⬅️ initialize the splash screen
+
+  return rootView;
+}
 @end
