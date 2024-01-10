@@ -4,6 +4,7 @@ def VERSION_MINOR=1
 def VERSION_PATCH=4
 
 apply plugin: "com.android.application"
+apply plugin: "org.jetbrains.kotlin.android"
 apply plugin: "com.facebook.react"
 
 /**
@@ -82,7 +83,7 @@ android {
         }
     }
     ndkVersion rootProject.ext.ndkVersion
-    
+    buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdkVersion rootProject.ext.compileSdkVersion
 
     namespace "org.sefaria.sefaria"
@@ -109,9 +110,9 @@ android {
 }
 
 dependencies {
-    implementation project(':react-native-splash-screen')
     // The version of react-native is set by the React Native Gradle Plugin
     implementation("com.facebook.react:react-android")
+    implementation("com.facebook.react:flipper-integration")
     implementation 'androidx.appcompat:appcompat:1.1.0'
     implementation 'androidx.multidex:multidex:2.0.1'
     if (hermesEnabled.toBoolean()) {

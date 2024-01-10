@@ -23,7 +23,7 @@ import {State } from 'react-native-gesture-handler';
 //import --- from 'react-native-gesture-handler';
 import BackgroundFetch from "react-native-background-fetch";
 import { InAppBrowser } from 'react-native-inappbrowser-reborn';
-import SplashScreen from 'react-native-splash-screen';
+import BootSplash from "react-native-bootsplash";
 import nextFrame from 'next-frame';
 import RNShake from 'react-native-shake';
 import SoundPlayer from 'react-native-sound-player'
@@ -275,7 +275,7 @@ class ReaderApp extends React.PureComponent {
   initFiles = () => {
     Sefaria._deleteUnzippedFiles()
     .then(() => Sefaria.init(this.props.dispatch)).then(() => {
-        setTimeout(SplashScreen.hide, 700);
+        setTimeout(BootSplash.hide, 700);
         this.setState({
           loaded: true,
         });
