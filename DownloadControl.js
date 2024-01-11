@@ -1010,7 +1010,6 @@ async function checkUpdatesFromServer() {
   await schemaCheckAndPurge();
   let timestamp = new Date().toJSON();
   await AsyncStorage.setItem('lastUpdateCheck', timestamp);
-  await AsyncStorage.setItem('lastUpdateSchema', SCHEMA_VERSION);
 
   await Promise.all([
     downloadCoreFile('last_updated.json'),
