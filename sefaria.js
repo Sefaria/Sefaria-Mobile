@@ -284,7 +284,9 @@ Sefaria = {
       Sefaria.cacheCurrVersionsBySection(versions, ref);
     }
     for (let [lang, vtitle] of Object.entries(versions)) {
-      textByLang[lang] = await Sefaria.loadOfflineSectionByVersionWithCacheAndFallback(fileNameStem, lang, vtitle, defaultVersions[lang]);
+      const versionText = await Sefaria.loadOfflineSectionByVersionWithCacheAndFallback(fileNameStem, lang, vtitle, defaultVersions[lang]);
+      // versionText may be depth-3. extract depth-2 if necessary.
+      textByLang[lang] = Sefaria.getSectionFromJsonData(ref, versionText);
     }
 
     const fullSection = {...metadata};
@@ -336,7 +338,7 @@ Sefaria = {
      * We also already know the fileNameStem from loading of metadata
      */
     const jsonPath = Sefaria._JSONSectionPath(fileNameStem, vtitle, lang);
-    return Sefaria.getSectionFromJsonData(await Sefaria._loadJSON(jsonPath));
+    return await Sefaria._loadJSON(jsonPath);
   },
   loadOfflineSectionMetadataWithCache: async function(ref) {
     const key = `${ref}|metadata`;
