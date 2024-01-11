@@ -557,7 +557,7 @@ async function requestNewBundle(bookList, badResponseWaitTime=3000) {
    * This method will continually ping the server until the download is ready (and a 200 is received).
    */
   while (true) {
-    let response = await fetch(`${DOWNLOAD_SERVER}/makeBundle`, {
+    let response = await fetch(`${DOWNLOAD_SERVER}/makeBundle?schema_version=${SCHEMA_VERSION}`, {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({books: bookList})
