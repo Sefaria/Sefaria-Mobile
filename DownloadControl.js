@@ -1082,18 +1082,14 @@ async function schemaCheckAndPurge() {
   let lastUpdateSchema = await AsyncStorage.getItem("lastUpdateSchema");
   lastUpdateSchema = parseInt(JSON.parse(lastUpdateSchema));
   const schemaVersion = parseInt(SCHEMA_VERSION);  // gets rid of annoying bugs due to the types of these values
-  if (!lastUpdateSchema) {  // value was not set and library was never downloaded
-    await AsyncStorage.setItem("lastUpdateSchema", SCHEMA_VERSION);
-    return
-  }
-  if (lastUpdateSchema !== schemaVersion) {
+  if (!!lastUpdateSchema && lastUpdateSchema !== schemaVersion) {
     crashlytics().log("a user's library has been purged");  // todo: review: should we notify the user that his Library is about to be purged?
     // We want to delete the library but keep the package selections
     const bookList = getFullBookList();
     await deleteBooks(bookList);
-    setDesiredBooks()
-    await AsyncStorage.setItem("lastUpdateSchema", SCHEMA_VERSION);
+    setDesiredBooks();
   }
+  await AsyncStorage.setItem("lastUpdateSchema", SCHEMA_VERSION);
 }
 
 async function throttlePromiseAll(argList, promiseCallback, maxWorkers=10) {
