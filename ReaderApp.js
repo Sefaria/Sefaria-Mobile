@@ -837,12 +837,11 @@ class ReaderApp extends React.PureComponent {
 
   loadVersions = async (ref) => {
     let versionsApiError = false;
-    let versions;
-    try {
-      versions = await Sefaria.api.versions(ref, true);
-    } catch(error) {
-      versions = Sefaria.getOfflineVersionObjectsAvailable(ref);
-      if (!versions) {
+    let versions = Sefaria.getOfflineVersionObjectsAvailable(ref);
+    if (!versions) {
+      try {
+        versions = await Sefaria.api.versions(ref, true);
+      } catch(error) {
         versions = [];
         versionsApiError = true;
       }
