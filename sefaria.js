@@ -1047,7 +1047,7 @@ Sefaria = {
     /**
      * Return the file path for a section file that contains data for a given section / vtitle / lang triplet
      */
-    const vtitleHash = md5(vtitle);
+    const vtitleHash = md5(vtitle).substring(0, 8);  // version title hash only uses the first 8 chars which is unique enough
     return Sefaria._JSONSourcePath(`${sectionRef}.${vtitleHash}.${lang}`);
   },
   _JSONSourcePath: function(fileName) {
