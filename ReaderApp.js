@@ -931,8 +931,8 @@ class ReaderApp extends React.PureComponent {
       });
   };
 
-  openRefSearch = ref => {
-    this.openRef(ref, "search");
+  openRefSearch = (ref, ...args) => {
+    this.openRef(ref, "search", ...args);
   };
 
   openRefTOC = (ref, enableAliyot) => {
@@ -1056,6 +1056,7 @@ class ReaderApp extends React.PureComponent {
   enableAliyot - true when you click on an aliya form ReaderTextTableOfContents
   */
   openRef = (ref, calledFrom, versions, addToBackStack=true, enableAliyot=false, loadNewVersions=false) => {
+    console.log(ref, calledFrom, versions, addToBackStack, enableAliyot, loadNewVersions);
     if (ref.startsWith("Sheet")){
         this.openRefSheet(ref.match(/\d+/)[0], null, addToBackStack, calledFrom) //open ref sheet expects just the sheet ID
     }
