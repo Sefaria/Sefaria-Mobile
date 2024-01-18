@@ -2,17 +2,17 @@ PODS:
   - boost (1.83.0)
   - CocoaAsyncSocket (7.6.5)
   - DoubleConversion (1.1.6)
-  - EXConstants (15.4.2):
+  - EXConstants (15.4.5):
     - ExpoModulesCore
-  - EXFont (11.10.0):
+  - EXFont (11.10.2):
     - ExpoModulesCore
-  - Expo (50.0.0-preview.8):
+  - Expo (50.0.1):
     - ExpoModulesCore
   - ExpoFileSystem (16.0.2):
     - ExpoModulesCore
-  - ExpoKeepAwake (12.8.0):
+  - ExpoKeepAwake (12.8.2):
     - ExpoModulesCore
-  - ExpoModulesCore (1.11.4):
+  - ExpoModulesCore (1.11.7):
     - glog
     - RCT-Folly (= 2022.05.16.00)
     - React-Core
@@ -1051,8 +1051,10 @@ PODS:
     - React-Core
   - react-native-safe-area-context (4.8.2):
     - React-Core
-  - react-native-shake (5.3.2):
-    - React
+  - react-native-shake (5.6.0):
+    - glog
+    - RCT-Folly (= 2022.05.16.00)
+    - React-Core
   - react-native-version-number (0.3.6):
     - React
   - react-native-webview (13.6.4):
@@ -1251,7 +1253,7 @@ PODS:
     - Firebase/RemoteConfig (= 8.15.0)
     - React-Core
     - RNFBApp
-  - RNGestureHandler (2.14.0):
+  - RNGestureHandler (2.14.1):
     - glog
     - RCT-Folly (= 2022.05.16.00)
     - React-Core
@@ -1558,12 +1560,12 @@ SPEC CHECKSUMS:
   boost: d3f49c53809116a5d38da093a8aa78bf551aed09
   CocoaAsyncSocket: 065fd1e645c7abab64f7a6a2007a48038fdc6a99
   DoubleConversion: fea03f2699887d960129cc54bba7e52542b6f953
-  EXConstants: e77cccf9afb245a6fb2ea917fe5f45f0e1d8b841
-  EXFont: 9ae7e8e2e4825cef04a45dca74512a3f711e2fe9
-  Expo: 87664535771d38d078a93d5db36a3f82f06eb7f9
+  EXConstants: 988aa430ca0f76b43cd46b66e7fae3287f9cc2fc
+  EXFont: 21b9c760abd593ce8f0d5386b558ced76018506f
+  Expo: 08cf73d1f27103bdcdfba181c81469ac4b15ac5a
   ExpoFileSystem: fb4c94cc5ec5c50cb2663d2f6d503a1960b95a1d
-  ExpoKeepAwake: ed71bfe0e6ecd38e337586ba6e1ba27a56eb373b
-  ExpoModulesCore: 01c0abfa6cd9c41c4bd76d8a1a079e6b591db10f
+  ExpoKeepAwake: 0f5cad99603a3268e50af9a6eb8b76d0d9ac956c
+  ExpoModulesCore: f103ff1346136b2926e1654f32b3f45ab0b74830
   FBLazyVector: fbc4957d9aa695250b55d879c1d86f79d7e69ab4
   FBReactNativeSpec: 86de768f89901ef6ed3207cd686362189d64ac88
   Firebase: 5f8193dff4b5b7c5d5ef72ae54bb76c08e2b841d
@@ -1616,7 +1618,7 @@ SPEC CHECKSUMS:
   react-native-netinfo: 8a7fd3f7130ef4ad2fb4276d5c9f8d3f28d2df3d
   react-native-render-html: 984dfe2294163d04bf5fe25d7c9f122e60e05ebe
   react-native-safe-area-context: 0ee144a6170530ccc37a0fd9388e28d06f516a89
-  react-native-shake: 62aa5681863203090a087842da70183c442b97f8
+  react-native-shake: d5f2fea42a420ed1d601cb9b227895c9c299b6ae
   react-native-version-number: b415bbec6a13f2df62bf978e85bc0d699462f37f
   react-native-webview: f95eb7d4d6a7ca45d04d861d99f628241b2aff83
   React-nativeconfig: d753fbbc8cecc8ae413d615599ac378bbf6999bb
@@ -1648,7 +1650,7 @@ SPEC CHECKSUMS:
   RNFBApp: e4439717c23252458da2b41b81b4b475c86f90c4
   RNFBCrashlytics: 94e1f78e2a9aa9e02edbfb0d3f1f0921ce00094b
   RNFBRemoteConfig: 92fbb75ceb69fec44ae727b70d23c5d1798f7648
-  RNGestureHandler: 61bfdfc05db9b79dd61f894dcd29d3dcc6db3c02
+  RNGestureHandler: 25b969a1ffc806b9f9ad2e170d4a3b049c6af85e
   RNInAppBrowser: e36d6935517101ccba0e875bac8ad7b0cb655364
   RNReactNativeHapticFeedback: 1e3efeca9628ff9876ee7cdd9edec1b336913f8c
   RNSoundPlayer: 6b5532fb8e9afe17af48e62813c80ad568aea5d3
@@ -1659,4 +1661,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: 79d7be342c1318cd7a8dc2bf1178356c0175ab26
 
-COCOAPODS: 1.12.1
+COCOAPODS: 1.14.3
