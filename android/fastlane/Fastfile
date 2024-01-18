@@ -24,7 +24,7 @@ platform :android do
     gradle(task: "clean")
     increment_android_version_code(path: "app/build.gradle")
     gradle(
-      task: "assemble",
+      task: "bundle",
       build_type: "Release",
       properties: {
         "android.injected.signing.store.file" => "kstore.jks",
