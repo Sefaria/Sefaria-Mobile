@@ -801,7 +801,7 @@ Sefaria = {
                                                     });
       }
       if (Sefaria.links._linkContentLoadingStack.length === 1 || runNow) {
-        return Sefaria.loadText(ref, false).then(parseData);
+        return Sefaria.offlineOnline.loadText(ref, false).then(parseData);
       } else {
         //console.log("Rejecting", ref);
         return new Promise(function(resolve, reject) {
