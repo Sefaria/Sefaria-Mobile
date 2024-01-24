@@ -266,6 +266,19 @@ var Api = {
       }).catch(error => reject(error));
     });
   },
+  textApi: async function(ref, context, versions) {
+    const cacheValue = Sefaria.api.textCache(ref, context, versions);
+    if (cacheValue) {
+      // Don't check the API cahce until we've checked for a local file, because the API
+      // cache may be left in a state with text but without links.
+      return cacheValue;
+    }
+    return Sefaria.api._text(ref, { context, versions, stripItags: true });
+  },
+  processTextApiData: function(ref, context, versions, data) {
+    Sefaria.api.textCache(ref, context, versions, data);
+    Sefaria.cacheVersionInfoOldFormat(data);
+  },
   links: function(ref) {
     return new Promise((resolve, reject) => {
       if (ref in Sefaria.api._linkCache) {

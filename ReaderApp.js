@@ -667,7 +667,7 @@ class ReaderApp extends React.PureComponent {
           textToc: null,
       },
       () => {
-        Sefaria.data(ref, true, versions, !this.state.hasInternet).then(data => {
+        Sefaria.offlineOnline.loadText(ref, true, versions, !this.state.hasInternet).then(data => {
             // debugger;
             if (Sefaria.util.objectHasNonNullValues(data.nonExistantVersions) ||
                 // if specific versions were requested, but no content exists for those versions, try again with default versions
@@ -735,7 +735,7 @@ class ReaderApp extends React.PureComponent {
   loadTextToc = (title, sectionRef) => {
     return new Promise((resolve, reject) => {
       this.setState({textToc: null}, () => {
-        Sefaria.textToc(title).then(textToc => {
+        Sefaria.offlineOnline.textToc(title).then(textToc => {
           this.setState({textToc}, () => {
             // at this point, both book and section level version info is available
             this.setCurrVersionObjects(sectionRef);
@@ -809,7 +809,7 @@ class ReaderApp extends React.PureComponent {
     // Links are not loaded yet in case you're in API mode, or you are reading a non-default version
     const iSec = isSheet ? 0 : this.state.sectionArray.findIndex(secRef=>secRef===ref);
     if (!iSec && iSec !== 0) { console.log("could not find section ref in sectionArray", ref); return; }
-    return Sefaria.links.loadRelated(ref, online)
+    return Sefaria.offlineOnline.loadRelated(ref, online)
       .then(response => {
         //add the related data into the appropriate section and reload
         if (isSheet) {
@@ -836,16 +836,7 @@ class ReaderApp extends React.PureComponent {
   };
 
   loadVersions = async (ref) => {
-    let versionsApiError = false;
-    let versions = Sefaria.getOfflineVersionObjectsAvailable(ref);
-    if (!versions) {
-      try {
-        versions = await Sefaria.api.versions(ref, true);
-      } catch(error) {
-        versions = [];
-        versionsApiError = true;
-      }
-    }
+    const { versions, versionsApiError } = await Sefaria.offlineOnline.loadVersions(ref);
     this.setState({ versions, versionsApiError });
   };
 
@@ -861,7 +852,7 @@ class ReaderApp extends React.PureComponent {
 
   updateDataPrev = () => {
       this.setState({loadingTextHead: true});
-      Sefaria.data(this.state.prev, true, this.state.selectedVersions, !this.state.hasInternet).then(function(data) {
+      Sefaria.offlineOnline.loadText(this.state.prev, true, this.state.selectedVersions, !this.state.hasInternet).then(function(data) {
 
         var updatedData = [data.content].concat(this.state.data);
         this.state.sectionArray.unshift(data.sectionRef);
@@ -890,7 +881,7 @@ class ReaderApp extends React.PureComponent {
 
   updateDataNext = () => {
       this.setState({loadingTextTail: true});
-      Sefaria.data(this.state.next, true, this.state.selectedVersions, !this.state.hasInternet).then(function(data) {
+      Sefaria.offlineOnline.loadText(this.state.next, true, this.state.selectedVersions, !this.state.hasInternet).then(function(data) {
 
         var updatedData = this.state.data.concat([data.content]);
         this.state.sectionArray.push(data.sectionRef);;
@@ -1497,7 +1488,7 @@ class ReaderApp extends React.PureComponent {
   };
 
   loadVersionContent = (ref, pos, versionTitle, versionLanguage) => {
-    Sefaria.data(ref, false, {[versionLanguage]: versionTitle }, false).then(data => {
+    Sefaria.offlineOnline.loadText(ref, false, {[versionLanguage]: versionTitle }, false).then(data => {
       // only want to show versionLanguage in results
       const removeLang = versionLanguage === "he" ? "en" : "he";
       data.result[removeLang] = "";
