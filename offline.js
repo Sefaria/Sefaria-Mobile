@@ -6,7 +6,7 @@ import LinkContent from './LinkContent';
 import {ERRORS} from "./errors";
 import {loadJSONFile} from "./DownloadControl";
 import {
-    fileExists, simpleDelete
+    fileExists
 } from './DownloadControl'
 
 /*
@@ -14,7 +14,7 @@ PUBLIC INTERFACE
  */
 
 export const loadTextOffline = async function(ref, context, versions, fallbackOnDefaultVersions) {
-    const sectionData = loadOfflineSectionCompat(ref, versions, fallbackOnDefaultVersions);
+    const sectionData = await loadOfflineSectionCompat(ref, versions, fallbackOnDefaultVersions);
     const processed = processFileData(ref, sectionData);
     if (context) {
         return processed;
@@ -53,20 +53,6 @@ export const loadOfflineSectionMetadataCompat = async function(ref) {
             return {links: compatData.content.map(segment => segment.links)};
         }
     }
-};
-
-export const deleteUnzippedFiles = function() {
-    return new Promise((resolve, reject) => {
-        FileSystem.readDirectoryAsync(FileSystem.documentDirectory).then(fileList => {
-            for (let f of fileList) {
-                if (f.endsWith(".json")) {
-                    //console.log('deleting', f.path);
-                    simpleDelete(`${FileSystem.documentDirectory}/${f}`).then(() => {});
-                }
-            }
-            resolve();
-        });
-    });
 };
 
 export const openFileInSources = async function(filename) {

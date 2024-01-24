@@ -17,9 +17,10 @@ import {parseDocument, ElementType} from 'htmlparser2';
 import {
   packageSetupProtocol,
   downloadUpdate,
-  autoUpdateCheck,
+  autoUpdateCheck, simpleDelete,
   checkUpdatesFromServer,
 } from './DownloadControl'
+import * as FileSystem from 'expo-file-system';
 import { Topic } from './Topic';
 import {openFileInSources} from "./offline";
 
@@ -1058,6 +1059,19 @@ Sefaria.util = {
    * @param interfaceLanguage either "english" or "hebrew"
    * @returns {string} string representation of date in `interfaceLanguage`
    */
+  deleteUnzippedFiles: () => {
+    return new Promise((resolve, reject) => {
+      FileSystem.readDirectoryAsync(FileSystem.documentDirectory).then(fileList => {
+        for (let f of fileList) {
+          if (f.endsWith(".json")) {
+            //console.log('deleting', f.path);
+            simpleDelete(`${FileSystem.documentDirectory}/${f}`).then(() => {});
+          }
+        }
+        resolve();
+      });
+    });
+  },
   localeDate: (dateStringOrObject, interfaceLanguage) => {
     const locale = interfaceLanguage === 'english' ? 'en-US' : 'iw-IL';
     const dateOptions = {year: 'numeric', month: 'short', day: 'numeric'};
