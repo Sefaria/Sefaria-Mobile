@@ -1263,6 +1263,8 @@ PODS:
     - React-Core
   - RNSoundPlayer (0.11.3):
     - React
+  - RNSVG (14.1.0):
+    - React-Core
   - RNZipArchive (6.1.0):
     - React-Core
     - RNZipArchive/Core (= 6.1.0)
@@ -1372,6 +1374,7 @@ DEPENDENCIES:
   - RNInAppBrowser (from `../node_modules/react-native-inappbrowser-reborn`)
   - RNReactNativeHapticFeedback (from `../node_modules/react-native-haptic-feedback`)
   - RNSoundPlayer (from `../node_modules/react-native-sound-player`)
+  - RNSVG (from `../node_modules/react-native-svg`)
   - RNZipArchive (from `../node_modules/react-native-zip-archive`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
@@ -1551,6 +1554,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-haptic-feedback"
   RNSoundPlayer:
     :path: "../node_modules/react-native-sound-player"
+  RNSVG:
+    :path: "../node_modules/react-native-svg"
   RNZipArchive:
     :path: "../node_modules/react-native-zip-archive"
   Yoga:
@@ -1654,6 +1659,7 @@ SPEC CHECKSUMS:
   RNInAppBrowser: e36d6935517101ccba0e875bac8ad7b0cb655364
   RNReactNativeHapticFeedback: 1e3efeca9628ff9876ee7cdd9edec1b336913f8c
   RNSoundPlayer: 6b5532fb8e9afe17af48e62813c80ad568aea5d3
+  RNSVG: ba3e7232f45e34b7b47e74472386cf4e1a676d0a
   RNZipArchive: ef9451b849c45a29509bf44e65b788829ab07801
   SocketRocket: f32cd54efbe0f095c4d7594881e52619cfe80b17
   SSZipArchive: fe6a26b2a54d5a0890f2567b5cc6de5caa600aef
