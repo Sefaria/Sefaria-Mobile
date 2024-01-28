@@ -25,8 +25,8 @@ export const loadText = function(ref, context, versions, fallbackOnDefaultVersio
             if (error === ERRORS.NOT_OFFLINE) {
                 api.textApi(ref, context, versions)
                 .then(data => {
-                    api.processTextApiData(ref, context, versions, data)
-                    return data;
+                    api.processTextApiData(ref, context, versions, data);
+                    resolve(data);
                 })
                 .catch(error => reject(error))
             } else {
