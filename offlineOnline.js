@@ -22,7 +22,7 @@ export const loadText = function(ref, context, versions, fallbackOnDefaultVersio
     return new Promise(function(resolve, reject) {
         loadTextOffline(ref, context, versions, fallbackOnDefaultVersions).then(resolve)
         .catch(error => {
-            if (error === ERRORS.NOT_OFFLINE) {
+            if (error === ERRORS.MISSING_OFFLINE_DATA) {
                 api.textApi(ref, context, versions)
                 .then(data => {
                     api.processTextApiData(ref, context, versions, data);

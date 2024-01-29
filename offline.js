@@ -141,7 +141,7 @@ const loadOfflineSectionCompat = async function(ref, versions, fallbackOnDefault
     } catch(error) {
         if (error === ERRORS.OFFLINE_LIBRARY_NOT_COMPATIBLE_WITH_V7) {
             return await loadOfflineSectionV6(ref, versions);
-        } else if (error === ERRORS.NOT_OFFLINE) {
+        } else if (error === ERRORS.MISSING_OFFLINE_DATA) {
             // rethrow to indicate we should try an API call
             throw error;
         }
@@ -156,7 +156,7 @@ const loadOfflineSectionV6 = async function(ref, versions) {
     var bookRefStem  = Sefaria.textTitleForRef(ref);
     //if you want to open a specific version, there is no json file. force an api call instead
     const shouldLoadFromApi = shouldLoadFromApi(versions) || Sefaria.util.objectHasNonNullValues(versions);
-    if (shouldLoadFromApi) { throw ERRORS.NOT_OFFLINE; }
+    if (shouldLoadFromApi) { throw ERRORS.MISSING_OFFLINE_DATA; }
     var jsonPath = _JSONSourcePath(fileNameStem);
     var zipPath  = _zipSourcePath(bookRefStem);
     // Pull data from in memory cache if available
@@ -190,18 +190,18 @@ const loadOfflineSectionV6 = async function(ref, versions) {
                     data = await _loadJSON(depth1JSONPath);
                     return preResolve(data);
                 } catch (e3) {
-                    throw ERRORS.NOT_OFFLINE;
+                    throw ERRORS.MISSING_OFFLINE_DATA;
                 }
             }
         } else {
-            throw ERRORS.NOT_OFFLINE;
+            throw ERRORS.MISSING_OFFLINE_DATA;
         }
     }
 };
 
 const loadOfflineSection = async function(ref, versions, fallbackOnDefaultVersions=true) {
     if (shouldLoadFromApi()) {
-        throw ERRORS.NOT_OFFLINE;
+        throw ERRORS.MISSING_OFFLINE_DATA;
     }
 
     const key = getOfflineSectionKey(ref, versions);
@@ -252,12 +252,12 @@ const loadOfflineSectionByVersionWithCacheAndFallback = async function(fileNameS
         return await loadOfflineSectionByVersionWithCache(fileNameStem, lang, vtitle);
     } catch(error) {
         if (!defaultVTitle) {
-            throw ERRORS.NOT_OFFLINE;
+            throw ERRORS.MISSING_OFFLINE_DATA;
         }
         try {
             return await loadOfflineSectionByVersionWithCache(fileNameStem, lang, defaultVTitle);
         } catch(error) {
-            throw ERRORS.NOT_OFFLINE;
+            throw ERRORS.MISSING_OFFLINE_DATA;
         }
     }
 };
@@ -320,11 +320,11 @@ const loadOfflineSectionMetadata = async function(ref) {
                 try {
                     return [preResolve(await _loadJSON(depth1JSONPath)), depth1FilenameStem];
                 } catch (e3) {
-                    throw ERRORS.NOT_OFFLINE;
+                    throw ERRORS.MISSING_OFFLINE_DATA;
                 }
             }
         } else {
-            throw ERRORS.NOT_OFFLINE;
+            throw ERRORS.MISSING_OFFLINE_DATA;
         }
     }
 };
