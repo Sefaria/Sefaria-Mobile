@@ -59,7 +59,7 @@ class ConnectionsPanel extends React.PureComponent {
     recentFilters:        PropTypes.array.isRequired, /* of the form [{title,heTitle,refList}...] */
     versionRecentFilters: PropTypes.array.isRequired,
     versionFilterIndex:   PropTypes.number,
-    currVersions:         PropTypes.object.isRequired,
+    currVersionObjects:   PropTypes.object.isRequired,
     versions:             PropTypes.array.isRequired,
     versionsApiError:     PropTypes.bool.isRequired,
     textLanguage:         PropTypes.oneOf(["english","hebrew","bilingual"]),
@@ -161,7 +161,7 @@ class ConnectionsPanel extends React.PureComponent {
             {connectionsPanelHeader}
             <VersionsBox
               mode={this.props.connectionsMode}
-              currVersions={this.props.currVersions}
+              currVersionObjects={this.props.currVersionObjects}
               mainVersionLanguage={this.props.textLanguage}
               vFilterIndex={this.props.versionFilterIndex}
               recentVFilters={this.props.versionRecentFilters}
@@ -171,6 +171,7 @@ class ConnectionsPanel extends React.PureComponent {
               segmentRef={this.props.segmentRef}
               openFilter={this.props.openFilter}
               openUri={this.props.openUri}
+              handleOpenURL={this.props.handleOpenURL}
             />
           </View>
         );
@@ -181,7 +182,7 @@ class ConnectionsPanel extends React.PureComponent {
             <AboutBox
               sheet={this.props.sheet}
               textToc={this.props.textToc}
-              currVersions={this.props.currVersions}
+              currVersionObjects={this.props.currVersionObjects}
               textTitle={this.props.textTitle}
               openUri={this.props.openUri}
             />

@@ -8,7 +8,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import NetInfo from "@react-native-community/netinfo";
 import crashlytics from '@react-native-firebase/crashlytics';
 
-const SCHEMA_VERSION = "6";
+const SCHEMA_VERSION = "7";
 // const DOWNLOAD_SERVER = "http://10.0.2.2:5000"  // this ip will allow the android emulator to access a localhost server
 const DOWNLOAD_SERVER = "https://readonly.sefaria.org";
 const HOST_PATH = `${DOWNLOAD_SERVER}/static/ios-export/${SCHEMA_VERSION}`;
@@ -557,7 +557,7 @@ async function requestNewBundle(bookList, badResponseWaitTime=3000) {
    * This method will continually ping the server until the download is ready (and a 200 is received).
    */
   while (true) {
-    let response = await fetch(`${DOWNLOAD_SERVER}/makeBundle`, {
+    let response = await fetch(`${DOWNLOAD_SERVER}/makeBundle?schema_version=${SCHEMA_VERSION}`, {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({books: bookList})
@@ -1010,7 +1010,6 @@ async function checkUpdatesFromServer() {
   await schemaCheckAndPurge();
   let timestamp = new Date().toJSON();
   await AsyncStorage.setItem('lastUpdateCheck', timestamp);
-  await AsyncStorage.setItem('lastUpdateSchema', SCHEMA_VERSION);
 
   await Promise.all([
     downloadCoreFile('last_updated.json'),
@@ -1082,18 +1081,14 @@ async function schemaCheckAndPurge() {
   let lastUpdateSchema = await AsyncStorage.getItem("lastUpdateSchema");
   lastUpdateSchema = parseInt(JSON.parse(lastUpdateSchema));
   const schemaVersion = parseInt(SCHEMA_VERSION);  // gets rid of annoying bugs due to the types of these values
-  if (!lastUpdateSchema) {  // value was not set and library was never downloaded
-    await AsyncStorage.setItem("lastUpdateSchema", SCHEMA_VERSION);
-    return
-  } else {
-  }
-  if (lastUpdateSchema !== schemaVersion) {
+  if (!!lastUpdateSchema && lastUpdateSchema !== schemaVersion) {
     crashlytics().log("a user's library has been purged");  // todo: review: should we notify the user that his Library is about to be purged?
     // We want to delete the library but keep the package selections
     const bookList = getFullBookList();
     await deleteBooks(bookList);
-    setDesiredBooks()
+    setDesiredBooks();
   }
+  await AsyncStorage.setItem("lastUpdateSchema", SCHEMA_VERSION);
 }
 
 async function throttlePromiseAll(argList, promiseCallback, maxWorkers=10) {

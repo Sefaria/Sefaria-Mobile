@@ -4,7 +4,7 @@
 
 #import <React/RCTLinkingManager.h>
 #import <TSBackgroundFetch/TSBackgroundFetch.h>
-#import <RNSplashScreen.h>
+#import "RNBootSplash.h"
 #import <Firebase.h>
 
 @implementation AppDelegate
@@ -21,7 +21,6 @@
 
   // Stuff added
   // this needs to be called after [super application:application didFinishLaunchingWithOptions:launchOptions];
-  [RNSplashScreen show];
   [[TSBackgroundFetch sharedInstance] didFinishLaunching];
   // End stuff added
 
@@ -30,21 +29,15 @@
 
 - (NSURL *)sourceURLForBridge:(RCTBridge *)bridge
 {
+  return [self getBundleURL];
+}
+- (NSURL *)getBundleURL
+{
 #if DEBUG
   return [[RCTBundleURLProvider sharedSettings] jsBundleURLForBundleRoot:@"index"];
 #else
   return [[NSBundle mainBundle] URLForResource:@"main" withExtension:@"jsbundle"];
 #endif
-}
-
-/// This method controls whether the `concurrentRoot`feature of React18 is turned on or off.
-///
-/// @see: https://reactjs.org/blog/2022/03/29/react-v18.html
-/// @note: This requires to be rendering on Fabric (i.e. on the New Architecture).
-/// @return: `true` if the `concurrentRoot` feature is enabled. Otherwise, it returns `false`.
-- (BOOL)concurrentRootEnabled
-{
-  return true;
 }
 
 - (BOOL)application:(UIApplication *)application
@@ -62,4 +55,15 @@
                     restorationHandler:restorationHandler];
 }
 
+- (UIView *)createRootViewWithBridge:(RCTBridge *)bridge
+                          moduleName:(NSString *)moduleName
+                           initProps:(NSDictionary *)initProps {
+  UIView *rootView = [super createRootViewWithBridge:bridge
+                                          moduleName:moduleName
+                                           initProps:initProps];
+
+  [RNBootSplash initWithStoryboard:@"Launch Screen" rootView:rootView]; // ⬅️ initialize the splash screen
+
+  return rootView;
+}
 @end

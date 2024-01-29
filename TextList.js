@@ -229,7 +229,7 @@ const ListItem = ({
       versions = {[versionLanguage]: versionTitle};
       loadNewVersions = true;
     }
-    openRef(refStr, versions, {loadNewVersions});
+    openRef(refStr, versions, loadNewVersions);
   };
   const openActionSheet = () => {
     ActionSheet.showActionSheetWithOptions({

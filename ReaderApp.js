@@ -23,7 +23,7 @@ import {State } from 'react-native-gesture-handler';
 //import --- from 'react-native-gesture-handler';
 import BackgroundFetch from "react-native-background-fetch";
 import { InAppBrowser } from 'react-native-inappbrowser-reborn';
-import SplashScreen from 'react-native-splash-screen';
+import BootSplash from "react-native-bootsplash";
 import nextFrame from 'next-frame';
 import RNShake from 'react-native-shake';
 import SoundPlayer from 'react-native-sound-player'
@@ -81,7 +81,6 @@ class ReaderApp extends React.PureComponent {
     themeStr:         PropTypes.string.isRequired,
     biLayout:         PropTypes.string.isRequired,
     textLanguage:     PropTypes.string.isRequired,
-    overwriteVersions:PropTypes.bool.isRequired,
     isLoggedIn:       PropTypes.bool.isRequired,
     dispatch:         PropTypes.func.isRequired,
     showErrorBoundary:PropTypes.func.isRequired,
@@ -131,8 +130,8 @@ class ReaderApp extends React.PureComponent {
         loadingLinks: false,
         versionRecentFilters: [],
         versionFilterIndex: null,
-        currVersions: {en: null, he: null}, /* actual current versions you're reading */
-        selectedVersions: {en: null, he: null}, /* custom versions you've selected. not necessarily available for the current section */
+        currVersionObjects: {en: null, he: null}, /* actual current versions you're reading. Full version objects. */
+        selectedVersions: {en: null, he: null}, /* custom versions you've selected. not necessarily available for the current section. Just version title. */
         versions: [],
         versionsApiError: false,
         versionStaleRecentFilters: [],
@@ -151,7 +150,6 @@ class ReaderApp extends React.PureComponent {
         isNewSearch: false,
         ReaderDisplayOptionsMenuVisible: false,
         dictLookup: null,
-        overwriteVersions: true, // false when you navigate to a text but dont want the current version to overwrite your sticky version
         highlightedWordID: null,
         highlightedWordSegmentRef: null,
       };
@@ -275,9 +273,9 @@ class ReaderApp extends React.PureComponent {
   }
 
   initFiles = () => {
-    Sefaria._deleteUnzippedFiles()
+    Sefaria.util.deleteUnzippedFiles()
     .then(() => Sefaria.init(this.props.dispatch)).then(() => {
-        setTimeout(SplashScreen.hide, 700);
+        setTimeout(BootSplash.hide, 700);
         this.setState({
           loaded: true,
         });
@@ -470,8 +468,7 @@ class ReaderApp extends React.PureComponent {
       type: STATE_ACTIONS.setTextLanguage,
       value: textLanguage,
     });
-    this.setCurrVersions(); // update curr versions based on language
-    if (textLanguage == "bilingual" && textFlow == "continuous") {
+    if (textLanguage === "bilingual" && textFlow === "continuous") {
       this.setTextFlow("segmented");
     }
     if (!dontToggle) { this.toggleReaderDisplayOptionsMenu(); }
@@ -651,20 +648,10 @@ class ReaderApp extends React.PureComponent {
   };
   /*
     isLoadingVersion - true when you are replacing an already loaded text with a specific version
-    overwriteVersions - false when you want to switch versions but not overwrite sticky version (e.g. search)
   */
-  loadNewText = ({ ref, versions, isLoadingVersion = false, overwriteVersions = true, numTries = 0 }) => {
-    if (!this.state.hasInternet) {
-      overwriteVersions = false;
-      versions = undefined; // change to default version in case they have offline library they'll still be able to read
-    }
-    this.props.dispatch({
-      type: STATE_ACTIONS.setOverwriteVersions,
-      value: overwriteVersions,
-    });
-    versions = this.removeDefaultVersions(ref, versions);
+  loadNewText = ({ ref, versions, isLoadingVersion = false, numTries = 0 }) => {
     // Open ranged refs to their first segment (not ideal behavior, but good enough for now)
-    ref = ref.indexOf("-") != -1 ? ref.split("-")[0] : ref;
+    ref = ref.indexOf("-") !== -1 ? ref.split("-")[0] : ref;
     return new Promise((resolve, reject) => {
       this.setState({
           loaded: false,
@@ -676,17 +663,17 @@ class ReaderApp extends React.PureComponent {
           segmentIndexRef: -1,
           sectionIndexRef: 0,
           selectedVersions: versions,
-          currVersions: {en: null, he: null},
+          currVersionObjects: {en: null, he: null},
           textToc: null,
       },
       () => {
-        Sefaria.data(ref, true, versions).then(data => {
+        Sefaria.offlineOnline.loadText(ref, true, versions, !this.state.hasInternet).then(data => {
             // debugger;
             if (Sefaria.util.objectHasNonNullValues(data.nonExistantVersions) ||
                 // if specific versions were requested, but no content exists for those versions, try again with default versions
                 (data.content.length === 0 && !!versions)) {
               if (numTries >= 4) { throw "Return to Nav"; }
-              this.loadNewText({ ref, isLoadingVersion, overwriteVersions, numTries: numTries + 1 }).then(resolve);
+              this.loadNewText({ ref, isLoadingVersion, numTries: numTries + 1 }).then(resolve);
               return;
             }
             let nextState = {
@@ -720,11 +707,11 @@ class ReaderApp extends React.PureComponent {
               Sefaria.links.reset();
             }
             this.setState(nextState, ()=>{
-              this.loadSecondaryData(data.sectionRef);
-
               // Preload Text TOC data into memory
-              this.loadTextTocData(data.indexTitle, data.sectionRef).then(() => {
-                // dependent on nextState and currVersions
+              this.loadTextToc(data.indexTitle, data.sectionRef).then(() => {
+                // dependent on versions cached from offline textToc
+                this.loadSecondaryData(data.sectionRef);
+                // dependent on nextState and currVersionObjects
                 Sefaria.history.saveHistoryItem(this.getHistoryObject);
               });
             });
@@ -745,13 +732,13 @@ class ReaderApp extends React.PureComponent {
     });
   };
 
-  loadTextTocData = (title, sectionRef) => {
+  loadTextToc = (title, sectionRef) => {
     return new Promise((resolve, reject) => {
       this.setState({textToc: null}, () => {
-        Sefaria.textToc(title).then(textToc => {
+        Sefaria.offlineOnline.textToc(title).then(textToc => {
           this.setState({textToc}, () => {
             // at this point, both book and section level version info is available
-            this.setCurrVersions(sectionRef, title); // not positive if this will combine versions well
+            this.setCurrVersionObjects(sectionRef);
             resolve();
           });
         });
@@ -773,10 +760,11 @@ class ReaderApp extends React.PureComponent {
     return newVersions;
   };
 
-  setCurrVersions = (sectionRef, title) => {
-      let enVInfo = !sectionRef ? this.state.currVersions.en : Sefaria.versionInfo(sectionRef, title, 'english');
-      let heVInfo = !sectionRef ? this.state.currVersions.he : Sefaria.versionInfo(sectionRef, title, 'hebrew');
-      this.setState({ currVersions: { en: enVInfo, he: heVInfo } });
+  setCurrVersionObjects = (sectionRef) => {
+      this.setState({ currVersionObjects: {
+        en: Sefaria.getCurrVersionObjectBySection(sectionRef, 'en'),
+        he: Sefaria.getCurrVersionObjectBySection(sectionRef, 'he'),
+      } });
   };
 
   loadSecondaryData = (ref) => {
@@ -821,7 +809,7 @@ class ReaderApp extends React.PureComponent {
     // Links are not loaded yet in case you're in API mode, or you are reading a non-default version
     const iSec = isSheet ? 0 : this.state.sectionArray.findIndex(secRef=>secRef===ref);
     if (!iSec && iSec !== 0) { console.log("could not find section ref in sectionArray", ref); return; }
-    return Sefaria.links.loadRelated(ref, online)
+    return Sefaria.offlineOnline.loadRelated(ref, online)
       .then(response => {
         //add the related data into the appropriate section and reload
         if (isSheet) {
@@ -847,13 +835,9 @@ class ReaderApp extends React.PureComponent {
       });
   };
 
-  loadVersions = (ref) => {
-    Sefaria.api.versions(ref, true).then(data=> {
-      this.setState({ versions: data, versionsApiError: false });
-    }).catch(error=>{
-      console.log("error", error);
-      this.setState({ versions: [], versionsApiError: true });
-    });
+  loadVersions = async (ref) => {
+    const { versions, versionsApiError } = await Sefaria.offlineOnline.loadVersions(ref);
+    this.setState({ versions, versionsApiError });
   };
 
   updateData = (direction) => {
@@ -868,7 +852,7 @@ class ReaderApp extends React.PureComponent {
 
   updateDataPrev = () => {
       this.setState({loadingTextHead: true});
-      Sefaria.data(this.state.prev, true, this.state.selectedVersions).then(function(data) {
+      Sefaria.offlineOnline.loadText(this.state.prev, true, this.state.selectedVersions, !this.state.hasInternet).then(function(data) {
 
         var updatedData = [data.content].concat(this.state.data);
         this.state.sectionArray.unshift(data.sectionRef);
@@ -887,7 +871,7 @@ class ReaderApp extends React.PureComponent {
           loadingTextHead: false,
         }, ()=>{
           this.loadSecondaryData(data.sectionRef);
-          this.setCurrVersions(data.sectionRef, data.indexTitle);
+          this.setCurrVersionObjects(data.sectionRef);
         });
 
       }.bind(this)).catch(function(error) {
@@ -897,7 +881,7 @@ class ReaderApp extends React.PureComponent {
 
   updateDataNext = () => {
       this.setState({loadingTextTail: true});
-      Sefaria.data(this.state.next, true, this.state.selectedVersions).then(function(data) {
+      Sefaria.offlineOnline.loadText(this.state.next, true, this.state.selectedVersions, !this.state.hasInternet).then(function(data) {
 
         var updatedData = this.state.data.concat([data.content]);
         this.state.sectionArray.push(data.sectionRef);;
@@ -915,7 +899,7 @@ class ReaderApp extends React.PureComponent {
           loadingTextTail: false,
         }, ()=>{
           this.loadSecondaryData(data.sectionRef);
-          this.setCurrVersions(data.sectionRef, data.indexTitle);
+          this.setCurrVersionObjects(data.sectionRef);
         });
 
       }.bind(this)).catch(function(error) {
@@ -937,8 +921,8 @@ class ReaderApp extends React.PureComponent {
       });
   };
 
-  openRefSearch = ref => {
-    this.openRef(ref, "search");
+  openRefSearch = (ref, ...args) => {
+    this.openRef(ref, "search", ...args);
   };
 
   openRefTOC = (ref, enableAliyot) => {
@@ -1062,6 +1046,7 @@ class ReaderApp extends React.PureComponent {
   enableAliyot - true when you click on an aliya form ReaderTextTableOfContents
   */
   openRef = (ref, calledFrom, versions, addToBackStack=true, enableAliyot=false, loadNewVersions=false) => {
+    console.log(ref, calledFrom, versions, addToBackStack, enableAliyot, loadNewVersions);
     if (ref.startsWith("Sheet")){
         this.openRefSheet(ref.match(/\d+/)[0], null, addToBackStack, calledFrom) //open ref sheet expects just the sheet ID
     }
@@ -1121,7 +1106,7 @@ class ReaderApp extends React.PureComponent {
       }
 
       if (addToBackStack) {
-        if (calledFrom == 'search') {
+        if (calledFrom === 'search') {
           // only pass small state variables to forward() (eg avoid passing `results`) because cloning large variables takes too long.
           let { appliedFilters, appliedFilterAggTypes, currPage, initScrollPos } = this.state.textSearchState;
           this.state.textSearchState = new SearchState({type: 'text', appliedFilters, appliedFilterAggTypes});
@@ -1140,7 +1125,7 @@ class ReaderApp extends React.PureComponent {
         connectionsMode: null,
       }, () => {
           this.closeMenu(); // Don't close until these values are in state, so we know if we need to load defualt text
-          this.loadNewText({ ref, versions: newVersions, overwriteVersions }).then(resolve);
+          this.loadNewText({ ref, versions: newVersions }).then(resolve);
       });
     })
   };
@@ -1262,7 +1247,7 @@ class ReaderApp extends React.PureComponent {
       this.textUnavailableAlert(title);
       return;
     }
-    this.loadTextTocData(title);
+    this.loadTextToc(title);
     this.setState({
       textTitle: title,
       textReference: '',
@@ -1503,7 +1488,7 @@ class ReaderApp extends React.PureComponent {
   };
 
   loadVersionContent = (ref, pos, versionTitle, versionLanguage) => {
-    Sefaria.data(ref, false, {[versionLanguage]: versionTitle }).then(data => {
+    Sefaria.offlineOnline.loadText(ref, false, {[versionLanguage]: versionTitle }, false).then(data => {
       // only want to show versionLanguage in results
       const removeLang = versionLanguage === "he" ? "en" : "he";
       data.result[removeLang] = "";
@@ -2220,7 +2205,7 @@ class ReaderApp extends React.PureComponent {
                 recentFilters={this.state.linkRecentFilters}
                 versionRecentFilters={this.state.versionRecentFilters}
                 versionFilterIndex={this.state.versionFilterIndex}
-                currVersions={this.state.currVersions}
+                currVersionObjects={this.state.currVersionObjects}
                 versions={this.state.versions}
                 versionsApiError={this.state.versionsApiError}
                 relatedData={relatedData}

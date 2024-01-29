@@ -14,7 +14,6 @@ const STATE_ACTIONS = {
   setEmailFrequency: "SET_EMAIL_FREQUENCY",
   setPreferredCustom: "SET_PREFERRED_CUSTOM",
   setFontSize: "SET_FONT_SIZE",
-  setOverwriteVersions: "SET_OVERWRITE_VERSIONS",
   setAliyot: "SET_ALIYOT",
   setVocalization: "SET_VOCALIZATION",
   toggleDebugInterruptingMessage: "TOGGLE_DEBUG_INTERRUPTING_MESSAGE",
@@ -68,10 +67,6 @@ const ACTION_CREATORS = {
     type: STATE_ACTIONS.setFontSize,
     value: fontSize,
     fromAsync,
-  }),
-  setOverwriteVersions: overwrite => ({
-    type: STATE_ACTIONS.setOverwriteVersions,
-    value: overwrite,
   }),
   setAliyot: show => ({
     type: STATE_ACTIONS.setAliyot,
@@ -183,7 +178,6 @@ const DEFAULT_STATE = {
   readingHistory: ASYNC_STORAGE_DEFAULTS.readingHistory.default,
   preferredCustom: ASYNC_STORAGE_DEFAULTS.preferredCustom.default,
   fontSize: ASYNC_STORAGE_DEFAULTS.fontSize.default,
-  overwriteVersions: true,
   showAliyot: ASYNC_STORAGE_DEFAULTS.showAliyot.default,
   vocalization: ASYNC_STORAGE_DEFAULTS.vocalization.default,
   debugInterruptingMessage: ASYNC_STORAGE_DEFAULTS.debugInterruptingMessage.default,
@@ -252,11 +246,6 @@ const reducer = function (state, action) {
       return {
         ...state,
         fontSize: action.value,
-      }
-    case STATE_ACTIONS.setOverwriteVersions:
-      return {
-        ...state,
-        overwriteVersions: action.value,
       }
     case STATE_ACTIONS.setAliyot:
       if (!action.fromAsync) { saveFieldToAsync('showAliyot', action.value); }

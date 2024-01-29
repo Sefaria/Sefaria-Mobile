@@ -1,38 +1,29 @@
 import { Alert, Linking, Platform } from 'react-native';
 import qs from 'qs';
-//import { GoogleAnalyticsTracker } from 'react-native-google-analytics-bridge'; //https://github.com/idehub/react-native-google-analytics-bridge/blob/master/README.md
-import { unzip } from 'react-native-zip-archive'; //for unzipping -- (https://github.com/plrthink/react-native-zip-archive)
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import crashlytics from '@react-native-firebase/crashlytics';
 import VersionNumber from 'react-native-version-number';
 import { Search } from '@sefaria/search';
 import sanitizeHtml from 'sanitize-html'
 import Api from './api';
+import * as OfflineOnline from './offlineOnline';
 import History from './history';
-import LinkContent from './LinkContent';
 import { initAsyncStorage } from './StateManager';
 import { VOCALIZATION } from './VocalizationEnum';
 import URL from 'url-parse';
 import analytics from '@react-native-firebase/analytics';
 import {HDate} from "@hebcal/core";
-import * as FileSystem from 'expo-file-system';
 import {parseDocument, ElementType} from 'htmlparser2';
 import {
   packageSetupProtocol,
   downloadUpdate,
-  autoUpdateCheck,
+  autoUpdateCheck, simpleDelete,
   checkUpdatesFromServer,
-  loadJSONFile,
-  fileExists, FILE_DIRECTORY,
-  simpleDelete,
 } from './DownloadControl'
+import * as FileSystem from 'expo-file-system';
 import { Topic } from './Topic';
+import {openFileInSources} from "./offline";
 
-const ERRORS = {
-  NOT_OFFLINE: 1,
-  NO_CONTEXT: 2,
-  CANT_GET_SECTION_FROM_DATA: "Couldn't find section in depth 3+ text",
-};
 
 Sefaria = {
   _auth: {},
@@ -92,52 +83,6 @@ Sefaria = {
   getLastGalusStatus: async function() {
     Sefaria.lastGalusStatus = await AsyncStorage.getItem("lastGalusStatus");
   },
-  /*
-  if `context` and you're using API, only return section no matter what. default is true
-  versions is object with keys { en, he } specifying version titles of requested ref
-  */
-  data: function(ref, context, versions) {
-    if (typeof context === "undefined") { context = true; }
-    return new Promise(function(resolve, reject) {
-      const bookRefStem  = Sefaria.textTitleForRef(ref);
-      Sefaria.loadOfflineFile(ref, context, versions)
-        .then(data => { Sefaria.processFileData(ref, data).then(resolve); })
-        .catch(error => {
-          if (error === ERRORS.NOT_OFFLINE) {
-            Sefaria.loadFromApi(ref, context, versions, bookRefStem)
-              .then(data => { Sefaria.processApiData(ref, context, versions, data).then(resolve); })
-              .catch(error => {
-                if (error.error === ERRORS.NO_CONTEXT) {
-                  resolve(error.data);
-                } else {
-                  reject(error);
-                }
-              })
-          } else {
-            console.error("Error loading offline file", error);
-            reject(error);
-          }
-        })
-    });
-  },
-  getSectionFromJsonData: function(ref, data) {
-    if ("content" in data) {
-      return data;
-    } else {
-      // If the data file represents multiple sections, pick the appropriate one to return
-      const refUpOne = Sefaria.refUpOne(ref);
-
-      // for malformed URLs that we can possibly correct
-      const refWColon = Sefaria.refMissingColon(ref);
-      const refWColonUpOne = Sefaria.refMissingColon(refUpOne);
-      const possibleRefs = [ref, refUpOne, refWColon, refWColonUpOne];
-      for (let tempRef of possibleRefs) {
-        if (data.sections[tempRef]) {
-          return data.sections[tempRef];
-        }
-      }
-    }
-  },
   refUpOne: function(ref) {
     //return ref up one level, assuming you can
     return ref.lastIndexOf(":") !== -1 ? ref.slice(0, ref.lastIndexOf(":")) : ref;
@@ -147,109 +92,8 @@ Sefaria = {
     // Need to add missing colon
     return ref.replace(/(\d+) (\d+)$/, "$1:$2");
   },
-  processFileData: function(ref, data) {
-    return new Promise((resolve, reject) => {
-      // Store data in in memory cache if it's not there already
-      const result = Sefaria.getSectionFromJsonData(ref, data);
-      if (!result) { reject(ERRORS.CANT_GET_SECTION_FROM_DATA); }
-      // Annotate link objects with useful fields not included in export
-      result.content.forEach(segment => {
-        if ("links" in segment) {
-          segment.links.map(link => {
-            link.textTitle = Sefaria.textTitleForRef(link.sourceRef);
-            if (!("category" in link)) {
-              link.category = Sefaria.primaryCategoryForTitle(link.textTitle);
-            }
-          });
-        }
-      });
-      result.requestedRef   = ref;
-      result.isSectionLevel = (ref === result.sectionRef);
-      Sefaria.cacheVersionInfo(result, true);
-      resolve(result);
-    });
-  },
-  processApiData: function(ref, context, versions, data) {
-    return new Promise((resolve, reject) => {
-      Sefaria.api.textCache(ref, context, versions, data);
-      Sefaria.cacheVersionInfo(data, true);
-      //console.log(data);
-      resolve(data);
-    });
-  },
-  shouldLoadFromApi: function(versions) {
-    // there are currently two cases where we load from API even if the index is downloaded
-    // 1) debugNoLibrary is true 2) you're loading a non-default version
-    return Sefaria.util.objectHasNonNullValues(versions) || Sefaria.debugNoLibrary;
-  },
-  loadOfflineFile: async function(ref, context, versions) {
-    var fileNameStem = ref.split(":")[0];
-    var bookRefStem  = Sefaria.textTitleForRef(ref);
-    //if you want to open a specific version, there is no json file. force an api call instead
-    const shouldLoadFromApi = Sefaria.shouldLoadFromApi(versions);
-    if (shouldLoadFromApi) { throw ERRORS.NOT_OFFLINE; }
-    var jsonPath = Sefaria._JSONSourcePath(fileNameStem);
-    var zipPath  = Sefaria._zipSourcePath(bookRefStem);
-    // Pull data from in memory cache if available
-    if (jsonPath in Sefaria._jsonData) {
-      return Sefaria._jsonData[jsonPath];
-    }
-
-    const preResolve = data => {
-      if (!(jsonPath in Sefaria._jsonData)) {
-        Sefaria._jsonData[jsonPath] = data;
-      }
-      return data;
-    };
-    let data;
-    try {
-      data = await Sefaria._loadJSON(jsonPath);
-      return preResolve(data);
-    } catch (e) {
-      const exists = await fileExists(zipPath);
-      if (exists) {
-        const path = await Sefaria._unzip(zipPath);
-        try {
-          data = await Sefaria._loadJSON(jsonPath);
-          return preResolve(data);
-        } catch (e2) {
-          // Now that the file is unzipped, if there was an error assume we have a depth 1 or 3 text
-          var depth1FilenameStem = fileNameStem.substr(0, fileNameStem.lastIndexOf(" "));
-          var depth1JSONPath = Sefaria._JSONSourcePath(depth1FilenameStem);
-          try {
-            data = await Sefaria._loadJSON(depth1JSONPath);
-            return preResolve(data);
-          } catch (e3) {
-            console.error("Error loading JSON file: " + jsonPath + " OR " + depth1JSONPath);
-            throw ERRORS.NOT_OFFLINE;
-          }
-        }
-      } else {
-        throw ERRORS.NOT_OFFLINE;
-      }
-    }
-  },
-  loadFromApi: function(ref, context, versions, bookRefStem) {
-    return new Promise((resolve, reject) => {
-      // The zip doesn't exist yet, so make an API call
-      const cacheValue = Sefaria.api.textCache(ref, context, versions);
-      if (cacheValue) {
-        // Don't check the API cahce until we've checked for a local file, because the API
-        // cache may be left in a state with text but without links.
-        resolve(cacheValue);
-      }
-      Sefaria.api._text(ref, { context, versions, stripItags: true })
-        .then(data => {
-          if (context) { resolve(data); }
-          else         { reject({error: ERRORS.NO_CONTEXT, data}); }
-        })
-        .catch(function(error) {
-          //console.error("Error with API: ", Sefaria.api._toURL(ref, false, 'text', true));
-          reject(error);
-      });
-    });
-  },
   _jsonData: {}, // in memory cache for JSON data
+  _jsonSectionData: {}, // in memory cache for loaded section files (after merging)
   _apiData: {},  // in memory cache for API data
   textTitleForRef: function(ref) {
     // Returns the book title named in `ref` by examining the list of known book titles.
@@ -428,19 +272,19 @@ Sefaria = {
     }
   },
   _loadTOC: function() {
-    return Sefaria.util.openFileInSources("toc.json").then(data => {
+    return openFileInSources("toc.json").then(data => {
       Sefaria.toc = data;
       Sefaria._cacheIndexFromToc(data, true);
     });
   },
   search_toc: null,
   _loadSearchTOC: function() {
-    return Sefaria.util.openFileInSources('search_toc.json').then(data => {
+    return openFileInSources('search_toc.json').then(data => {
       Sefaria.search_toc = data;
     });
   },
   _loadHebrewCategories: function() {
-    return Sefaria.util.openFileInSources("hebrew_categories.json").then(data => {
+    return openFileInSources("hebrew_categories.json").then(data => {
       Sefaria.hebrewCategories = data;
       Sefaria.englishCategories = {}; // used for classifying cats in autocomplete
       Object.entries(data).forEach(([key, value]) => {
@@ -449,7 +293,7 @@ Sefaria = {
     });
   },
   _loadPeople: function() {
-    return Sefaria.util.openFileInSources("people.json").then(data => {
+    return openFileInSources("people.json").then(data => {
       Sefaria.people = data;
     });
   },
@@ -531,35 +375,60 @@ Sefaria = {
   getRootTocItems: function() {
     return [...Sefaria.toc];
   },
-  _versionInfo: {},
-  cacheVersionInfo: function(data, isSection) {
-    //isSection = true if data has `sectionRef`. false if data has `title`
-    attrs = ['versionTitle','heVersionTitle','versionNotes','heVersionNotes','license','heLicense','versionSource','heVersionSource','versionTitleInHebrew','heVersionTitleInHebrew','versionNotesInHebrew','heVersionNotesInHebrew'];
-    cacheKey = isSection ? data.sectionRef : data.title;
-    Sefaria._versionInfo[cacheKey] = {};
-    attrs.map((attr)=>{
-      Sefaria._versionInfo[cacheKey][attr] = data[attr];
-    });
-    //console.log("SETTING VERSION INFO", cacheKey, isSection,Sefaria._versionInfo[cacheKey]);
+  _versionObjectsByTitle: {},  // cache where key is book title and value is list with version objects as returned by versions API
+  _currVersionsBySection: {},
+  _versionsAvailableBySection: {},  // list of version titles and languages available per section ref
+  cacheCurrVersionsBySection: function(currVersions, ref) {
+    Sefaria._currVersionsBySection[ref] = currVersions;
   },
-  versionInfo: function(ref, title, vlang) {
-    let versionInfo = {};
-    let sectionInfo = Sefaria._versionInfo[ref];
-    if (!sectionInfo) sectionInfo = {};
-    let indexInfo = Sefaria._versionInfo[title];
-    if (!indexInfo) indexInfo = {};
-    attrs = ['versionTitle', 'versionTitleInHebrew', 'versionNotes', 'versionNotesInHebrew', 'license', 'versionSource'];
-    let allFieldsUndefined = true;
-    attrs.map((attr)=>{
-      //if 'he', prepend 'he' to attr
-      const enAttr = attr;
-      if (vlang === 'hebrew') { attr = 'he' + attr[0].toUpperCase() + attr.substring(1); }
-      versionInfo[enAttr] = !!sectionInfo[attr] ? sectionInfo[attr] : indexInfo[attr];
-      if (!!versionInfo[enAttr]) { allFieldsUndefined = false; }
+  cacheVersionInfoOldFormat: function(data) {
+    /**
+     * Caches version info where hebrew and english attributes are in separate fields at root of section data
+     * as opposed to version data being a list of version objects
+     */
+    const attrs = ['versionTitle','versionNotes','license','versionSource','versionTitleInHebrew','versionNotesInHebrew'];
+    const currVersions = {en: data.versionTitle, he: data.heVersionTitle};
+    Sefaria.cacheCurrVersionsBySection(currVersions, data.sectionRef);
+    const versionObjects = [];
+    for (let lang of ['en', 'he']) {
+      const versionObject = {};
+      attrs.forEach(attr => {
+        const dataAttr = lang === 'he' ? `he${attr.at(0).toUpperCase()}${attr.substring(1)}` : attr;
+        versionObject[attr] = data[dataAttr];
+      });
+      versionObjects.push(versionObject);
+    }
+    Sefaria.cacheVersionObjectByTitle(versionObjects, data.title);
+  },
+  cacheVersionObjectByTitle: function(versionObjects, title) {
+    /**
+     * cache full version objects by title so that we can easily look them up by vtitle + lang later on
+     * all versions for an index are stored on the index file in the offline library. these can be stored as-is.
+     * only the current versions for the section are retrieved from the versions API. We need to aggregate these versions by title.
+     */
+    if (!versionObjects) { return; }
+    const currVersionsObjects = Sefaria._versionObjectsByTitle[title] || {};
+    versionObjects.forEach((version, i) => {
+      const {versionTitle, language} = version;
+      version.priority = i;
+      currVersionsObjects[Sefaria.getVersionObjectCacheKey(versionTitle, language)] = version;
     });
-    if (allFieldsUndefined) { versionInfo = null; }
-
-    return versionInfo;
+    Sefaria._versionObjectsByTitle[title] = currVersionsObjects;
+  },
+  cacheVersionsAvailableBySection: function(ref, versionList) {
+    Sefaria._versionsAvailableBySection[ref] = versionList;
+  },
+  getVersionObjectCacheKey: function(vtitle, lang) {
+    return `${vtitle}|${lang}`;
+  },
+  getCurrVersionObjectBySection: function(ref, lang) {
+    const currVTitle = Sefaria._currVersionsBySection[ref]?.[lang];
+    const title = Sefaria.textTitleForRef(ref);
+    const versionObjects = Sefaria._versionObjectsByTitle[title] || [];
+    return versionObjects[Sefaria.getVersionObjectCacheKey(currVTitle, lang)];
+  },
+  getVersionObject: function(vtitle, lang, title) {
+    return Sefaria._versionObjectsByTitle[title]?.[Sefaria.getVersionObjectCacheKey(vtitle, lang)];
   },
   commentaryList: function(title) {
     // Returns the list of commentaries for 'title' which are found in Sefaria.toc
@@ -641,39 +510,6 @@ Sefaria = {
     }
     Sefaria._commentatorListBySection[ref] = commentators;
   },
-  _textToc: {},
-  textToc: function(title) {
-    return new Promise((resolve, reject) => {
-      const resolver = function(data) {
-        data = Sefaria._fixTalmudAltStructAddressTypes(data);
-        Sefaria._textToc[title] = data;
-        Sefaria.cacheVersionInfo(data,false);
-        resolve(data);
-      };
-      if (title in Sefaria._textToc) {
-        resolve(Sefaria._textToc[title]);
-      } else {
-        const path = Sefaria._JSONSourcePath(title + "_index");
-        Sefaria
-        ._loadJSON(path)
-        .then(resolver)
-        .catch(()=>{Sefaria.api._request(title, 'index', true, {}).then(resolver)});
-      }
-    });
-  },
-  _fixTalmudAltStructAddressTypes: function(textToc) {
-    // This is a bandaid on what may or may not be bad data. For Talmud alt struct "Chapter", we want to display
-    // sections with Talmud address type, but the data current lists them as Integer.
-    if (textToc.categories.length == 3 &&
-        textToc.categories[0] == "Talmud" &&
-        textToc.categories[1] == "Bavli" &&
-        textToc.categories[2].indexOf("Seder ") != -1) {
-      for (var i = 0; i < textToc.alts.Chapters.nodes.length; i++) {
-        textToc.alts.Chapters.nodes[i].addressTypes = ["Talmud"];
-      }
-    }
-    return textToc;
-  },
   reformatTalmudContent(segment) {
     return segment
       .replace(/<span\s+class="gemarra-regular">(.+?)<\/span>/g, '<gemarraregular>$1</gemarraregular>')
@@ -701,12 +537,12 @@ Sefaria = {
   },
   calendar: null,
   _loadCalendar: async function() {
-    const data = await Sefaria.util.openFileInSources("calendar.json");
+    const data = await openFileInSources("calendar.json");
     Sefaria.calendar = data;
   },
   topic_toc: null,
   loadTopicToc: async function () {
-    const data = await Sefaria.util.openFileInSources("topic_toc.json");
+    const data = await openFileInSources("topic_toc.json");
     Sefaria.topic_toc = data;
     Sefaria._initTopicTocPages();
   },
@@ -838,68 +674,6 @@ Sefaria = {
       Sefaria.recentQueries = JSON.parse(data) || [];
     });
   },
-  _deleteUnzippedFiles: function() {
-    return new Promise((resolve, reject) => {
-      FileSystem.readDirectoryAsync(FileSystem.documentDirectory).then(fileList => {
-        for (let f of fileList) {
-          if (f.endsWith(".json")) {
-            //console.log('deleting', f.path);
-            simpleDelete(`${FileSystem.documentDirectory}/${f}`).then(() => {});
-          }
-        }
-        resolve();
-      });
-    });
-  },
-  _unzip: function(zipSourcePath) {
-    return unzip(zipSourcePath, FileSystem.documentDirectory);
-  },
-  _loadJSON: function(JSONSourcePath) {
-    return loadJSONFile(JSONSourcePath)
-  },
-  _JSONSourcePath: function(fileName) {
-    return (FileSystem.documentDirectory + "/" + fileName + ".json");
-  },
-  _zipSourcePath: function(fileName) {
-    return (FileSystem.documentDirectory + "/library/" + fileName + ".zip");
-  },
-  textFromRefData: function(data) {
-    // Returns a dictionary of the form {en: "", he: "", sectionRef: ""} that includes a single string with
-    // Hebrew and English for `data.requestedRef` found in `data` as returned from Sefaria.data.
-    // sectionRef is so that we know which file / api call to make to open this text
-    // `data.requestedRef` may be either section or segment level or ranged ref.
-    if (data.isSectionLevel) {
-      let enText = "", heText = "";
-      for (let i = 0; i < data.content.length; i++) {
-        let item = data.content[i];
-        if (typeof item.text === "string") enText += item.text + " ";
-        if (typeof item.he === "string") heText += item.he + " ";
-      }
-      return new LinkContent(enText, heText, data.sectionRef);
-    } else {
-      let segmentNumber = data.requestedRef.slice(data.ref.length+1);
-      let toSegmentNumber = -1;
-      let dashIndex = segmentNumber.indexOf("-");
-      if (dashIndex !== -1) {
-        toSegmentNumber = parseInt(segmentNumber.slice(dashIndex+1));
-        segmentNumber = parseInt(segmentNumber.slice(0, dashIndex));
-      } else { segmentNumber = parseInt(segmentNumber); }
-      let enText = "";
-      let heText = "";
-      for (let i = 0; i < data.content.length; i++) {
-        let item = data.content[i];
-        const currSegNum = parseInt(item.segmentNumber);
-        if (currSegNum >= segmentNumber && (toSegmentNumber === -1 || currSegNum <= toSegmentNumber)) {
-            if (typeof item.text === "string") enText += item.text + " ";
-            if (typeof item.he === "string") heText += item.he + " ";
-            if (toSegmentNumber === -1) {
-              break; //not a ranged ref
-            }
-        }
-      }
-      return new LinkContent(enText, heText, data.sectionRef);
-    }
-  },
   isGettinToBePurimTime: function() {
     const msInDay = 1000*60*60*24;
     const purimsOfTheFuture = [[2020, 2, 10], [2021, 1, 26], [2022, 2, 17], [2023, 2, 7], [2024, 2, 24], [2025, 2, 14], [2026, 2, 4], [2027, 2, 24], [2028, 2, 12], [2029, 2, 2]];
@@ -918,41 +692,6 @@ Sefaria = {
     /* when you switch segments, delete stack and hashtable */
     reset: function() {
       Sefaria.links._linkContentLoadingStack = [];
-    },
-    relatedCacheKey(ref, online) {
-      return `${ref}|${online}`;
-    },
-    loadRelated: async function(ref, online) {
-      if (online) {
-        const data = await Sefaria.api.related(ref);
-        return data;
-      } else {
-        const cacheKey = Sefaria.links.relatedCacheKey(ref, online);
-        const cached = Sefaria.api._related[cacheKey];
-        if (!!cached) { return cached; }
-        const data = await Sefaria.loadOfflineFile(ref, false);
-        // mimic response of links API so that addLinksToText() will work independent of data source
-        const sectionData = Sefaria.getSectionFromJsonData(ref, data);
-        if (!sectionData) { throw ERRORS.CANT_GET_SECTION_FROM_DATA; }
-        const linkList = (sectionData.content.reduce((accum, segment, segNum) => accum.concat(
-          ("links" in segment) ? segment.links.map(link => {
-            const index_title = Sefaria.textTitleForRef(link.sourceRef);
-            const collectiveTitle = Sefaria.collectiveTitlesDict[index_title];
-            return {
-              sourceRef: link.sourceRef,
-              sourceHeRef: link.sourceHeRef,
-              index_title,
-              collectiveTitle,
-              category: ("category" in link) ? link.category : Sefaria.primaryCategoryForTitle(index_title),
-              anchorRef: `${ref}:${segNum+1}`,
-              sourceHasEn: link.sourceHasEn,
-            }
-          }) : []
-        ), []));
-        const offlineRelatedData = {links: linkList};
-        Sefaria.api._related[cacheKey] = offlineRelatedData;
-        return offlineRelatedData;
-      }
     },
     getSegmentIndexFromRef: function(ref, offset) {
       let index = parseInt(ref.substring(ref.lastIndexOf(':') + 1)) - 1 - offset;
@@ -1032,7 +771,7 @@ Sefaria = {
       const parseData = async function(data) {
         let result;
         try {
-          result = data.fromAPI ? data.result : Sefaria.textFromRefData(data);
+          result = data.result;
         } catch (e) {
           crashlytics().recordError(new Error(`loadLinkData failed to load ${data.requestedRef}`));
         }
@@ -1061,9 +800,8 @@ Sefaria = {
                                                       "rejectClosure":rejectClosure
                                                     });
       }
-      if (Sefaria.links._linkContentLoadingStack.length == 1 || runNow) {
-        //console.log("Starting to load",ref);
-        return Sefaria.data(ref, true).then(parseData);
+      if (Sefaria.links._linkContentLoadingStack.length === 1 || runNow) {
+        return Sefaria.offlineOnline.loadText(ref, false).then(parseData);
       } else {
         //console.log("Rejecting", ref);
         return new Promise(function(resolve, reject) {
@@ -1321,6 +1059,19 @@ Sefaria.util = {
    * @param interfaceLanguage either "english" or "hebrew"
    * @returns {string} string representation of date in `interfaceLanguage`
    */
+  deleteUnzippedFiles: () => {
+    return new Promise((resolve, reject) => {
+      FileSystem.readDirectoryAsync(FileSystem.documentDirectory).then(fileList => {
+        for (let f of fileList) {
+          if (f.endsWith(".json")) {
+            //console.log('deleting', f.path);
+            simpleDelete(`${FileSystem.documentDirectory}/${f}`).then(() => {});
+          }
+        }
+        resolve();
+      });
+    });
+  },
   localeDate: (dateStringOrObject, interfaceLanguage) => {
     const locale = interfaceLanguage === 'english' ? 'en-US' : 'iw-IL';
     const dateOptions = {year: 'numeric', month: 'short', day: 'numeric'};
@@ -1543,36 +1294,6 @@ Sefaria.util = {
     const strip_text_re = (vocalization == VOCALIZATION.NIKKUD) ? nre : cnre;
     return text.replace(strip_text_re, "");
   },
-  openFileInSources: async function(filename) {
-    const isIOS = Platform.OS === 'ios';
-    let fileData;
-    let useLib = false;
-    const libPath = `${FileSystem.documentDirectory}/library/${filename}`;
-    const sourcePath = isIOS ? encodeURI(`${FileSystem.bundleDirectory}/sources/${filename}`) : `${FileSystem.bundleDirectory}sources/${filename}`;
-    const libExists = await fileExists(libPath);
-    if (libExists) {
-      // check date of each file and choose latest
-      const libStats = await FileSystem.getInfoAsync(libPath);
-      useLib = libStats.modificationTime * 1000 > Sefaria.lastAppUpdateTime;
-    }
-    if (useLib) {
-      fileData = await Sefaria._loadJSON(libPath);
-    } else {  //if (isIOS) {
-      fileData = await Sefaria._loadJSON(sourcePath);
-    } //else {
-      // android
-      // fileData = await FileSystem.readAsStringAsync(sourcePath);
-      // fileData = JSON.parse(fileData);
-    //}
-    return fileData;
-  },
-  getISOCountryCode: function() {
-    return new Promise((resolve, reject) => {
-      fetch('http://ip-api.com/json')
-      .then(result=>result.json())
-      .then(json=>resolve(json.countryCode));
-    });
-  },
   parseURLhost: function(url) {
     //thanks rvighne! https://stackoverflow.com/questions/736513/how-do-i-parse-a-url-into-hostname-and-path-in-javascript
     const u = new URL(url);
@@ -1740,6 +1461,8 @@ Sefaria.util = {
 };
 
 Sefaria.api = Api;
+
+Sefaria.offlineOnline = OfflineOnline;
 
 Sefaria.history = History;
 

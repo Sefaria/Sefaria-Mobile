@@ -22,7 +22,7 @@ let strings = new LocalizedStrings({
     dedicatedIOS: "Dedicated in honor of\nJulia & Henry Koschitzky\nby their children",
     dedicatedAndroid: "Dedicated in honor of\nJulia & Henry Koschitzky\nby their children",
     deleteAccount: "Delete Account",
-    deleteAccountMsg: "Deleting your account will permanenetly delete all data associated with your Sefaria account. \n Do you wish to proceed?",
+    deleteAccountMsg: "Deleting your account will permanently delete all data associated with your Sefaria account. \n Do you wish to proceed?",
     deleteAccountError: "There was an error trying to complete your request. \n The Sefaria staff have been notified but you can send an email as well.",
     deleteAccountOK: "User account deleted successfully",
     cancel: "Cancel",

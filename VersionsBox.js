@@ -44,8 +44,8 @@ const getVLangState = (initialCurrVersions, initialMainVersionLanguage, versions
   return { versionLangMap, versionLangs };
 };
 
-const useVLangState = (currVersions, versions) => {
-  const [initialCurrVersions,] = useState(Object.entries(currVersions).reduce(
+const useVLangState = (currVersionObjects, versions) => {
+  const [initialCurrVersions,] = useState(Object.entries(currVersionObjects).reduce(
     (obj, [lang, val]) => {
       obj[lang] = !!val ? val.versionTitle : null;
       return obj;
@@ -67,7 +67,7 @@ const useVLangState = (currVersions, versions) => {
 const VersionsBox = ({
   versions,
   versionsApiError,
-  currVersions,
+  currVersionObjects,
   mode,
   vFilterIndex,
   recentVFilters,
@@ -75,12 +75,13 @@ const VersionsBox = ({
   setConnectionsMode,
   openFilter,
   openUri,
+  handleOpenURL,
 }) => {
   const { themeStr, interfaceLanguage } = useContext(GlobalStateContext);
   const {
     vLangState,
     setVLangState
-  } = useVLangState(currVersions, versions);
+  } = useVLangState(currVersionObjects, versions);
   useEffect(() => {
     setVLangState(versions);
   }, [versions]);
@@ -105,8 +106,8 @@ const VersionsBox = ({
     );
   }
   const currVersionTitles = {};
-  for (let vlang in currVersions) {
-    const tempV = currVersions[vlang];
+  for (let vlang in currVersionObjects) {
+    const tempV = currVersionObjects[vlang];
     currVersionTitles[vlang] = !!tempV ? tempV.versionTitle : null;
   }
   const isheb = interfaceLanguage === "hebrew";
@@ -129,11 +130,9 @@ const VersionsBox = ({
                   <VersionBlock
                     theme={theme}
                     version={v}
-                    currVersions={currVersionTitles}
                     openVersionInReader={()=>{}}
-                    isCurrent={(currVersions.en && currVersions.en.versionTitle === v.versionTitle) ||
-                              (currVersions.he && currVersions.he.versionTitle === v.versionTitle)}
                     openUri={openUri}
+                    handleOpenURL={handleOpenURL}
                   />
                 </TouchableOpacity>
               ))
@@ -147,7 +146,7 @@ const VersionsBox = ({
 VersionsBox.propTypes = {
   versions:                 PropTypes.array.isRequired,
   versionsApiError:         PropTypes.bool.isRequired,
-  currVersions:             PropTypes.object.isRequired,
+  currVersionObjects:             PropTypes.object.isRequired,
   mode:                     PropTypes.oneOf(["versions", "version Open"]),
   vFilterIndex:             PropTypes.number,
   recentVFilters:           PropTypes.array,

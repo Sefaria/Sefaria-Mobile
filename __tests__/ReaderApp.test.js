@@ -61,10 +61,10 @@ describe('ReaderApp noInternet', () =>{
     readerApp.instance.setState = jest.fn();
     readerApp.props.dispatch = jest.fn();
     const loadNewText = () => {
-      return readerApp.instance.loadNewText({ref: 'Genesis 1', versions: null, overwriteVersions: false});
+      return readerApp.instance.loadNewText({ref: 'Genesis 1', versions: null });
     }
     // await act(loadNewText);
-    // return readerApp.loadNewText({ref: 'Genesis 1', versions: null, overwriteVersions: false})
+    // return readerApp.loadNewText({ref: 'Genesis 1', versions: null })
     // .then(data => expect(data).toBe('foo'));
     await loadNewText().then(resolve);
     expect(resolve.mock.calls.length).toBe(1);

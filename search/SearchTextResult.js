@@ -16,10 +16,14 @@ import {iconData} from "../IconData";
 export const SearchTextResult = ({text, tref, heTref, openRef, lang, versionTitle, duplicates, isDuplicate}) => {
     const en = lang === "english" ? text : "";
     const he = lang === "hebrew" ? text : "";
+    const shortLang = lang === "english" ? "en" : "he";
+    const onClick = () => {
+        openRef(tref, {[shortLang]: versionTitle}, true, false, true);
+    };
     return (
         <StoryFrame extraStyles={[{marginVertical: 16}]}>
             {isDuplicate ? null :
-                <StoryTitleBlock en={tref} he={Sefaria.normHebrewRef(heTref)} onClick={() => openRef(tref)}/>
+                <StoryTitleBlock en={tref} he={Sefaria.normHebrewRef(heTref)} onClick={onClick}/>
             }
             <ColorBarBox tref={tref}>
                 <StoryBodyBlock en={en} he={he}/>

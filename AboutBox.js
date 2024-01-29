@@ -13,12 +13,12 @@ import VersionBlock from './VersionBlock';
 var moment = require("moment");
 
 
-const AboutBox = ({ textToc, currVersions, textTitle, sheet, openUri }) => {
+const AboutBox = ({ textToc, currVersionObjects, textTitle, sheet, openUri }) => {
   const { themeStr, interfaceLanguage, textLanguage } = React.useContext(GlobalStateContext);
   const theme = getTheme(themeStr);
   const d = textToc;
-  const vh = currVersions.he;
-  const ve = currVersions.en;
+  const vh = currVersionObjects.he;
+  const ve = currVersionObjects.en;
   const hei = interfaceLanguage === "hebrew";
 
 
@@ -150,7 +150,7 @@ const AboutBox = ({ textToc, currVersions, textTitle, sheet, openUri }) => {
 AboutBox.propTypes = {
   textToc:             PropTypes.object,
   sheet:               PropTypes.object,
-  currVersions:        PropTypes.object.isRequired,
+  currVersionObjects:  PropTypes.object.isRequired,
   textTitle:           PropTypes.string.isRequired,
   openUri:             PropTypes.func.isRequired,
 };
