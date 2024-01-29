@@ -75,6 +75,7 @@ const VersionsBox = ({
   setConnectionsMode,
   openFilter,
   openUri,
+  handleOpenURL,
 }) => {
   const { themeStr, interfaceLanguage } = useContext(GlobalStateContext);
   const {
@@ -131,6 +132,7 @@ const VersionsBox = ({
                     version={v}
                     openVersionInReader={()=>{}}
                     openUri={openUri}
+                    handleOpenURL={handleOpenURL}
                   />
                 </TouchableOpacity>
               ))

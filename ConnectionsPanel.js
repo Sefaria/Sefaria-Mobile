@@ -171,6 +171,7 @@ class ConnectionsPanel extends React.PureComponent {
               segmentRef={this.props.segmentRef}
               openFilter={this.props.openFilter}
               openUri={this.props.openUri}
+              handleOpenURL={this.props.handleOpenURL}
             />
           </View>
         );

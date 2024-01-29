@@ -18,6 +18,7 @@ const VersionBlock = ({
   openVersionInSidebar,
   openVersionInReader,
   openUri,
+  handleOpenURL,
 }) => {
   const { themeStr, textLanguage, interfaceLanguage } = useContext(GlobalStateContext);
   const theme = getTheme(themeStr);
@@ -91,6 +92,7 @@ const VersionBlock = ({
           lang={"english"}
           rendererProps={{a: {onPress: (event, url) => openUri(url)}}}
           extraStyles={[theme.tertiaryText]}
+          onPressATag={handleOpenURL}
         /> : null
       }
     </View>
