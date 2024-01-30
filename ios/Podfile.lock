@@ -6,7 +6,7 @@ PODS:
     - ExpoModulesCore
   - EXFont (11.10.2):
     - ExpoModulesCore
-  - Expo (50.0.2):
+  - Expo (50.0.1):
     - ExpoModulesCore
   - ExpoFileSystem (16.0.2):
     - ExpoModulesCore
@@ -1263,6 +1263,8 @@ PODS:
     - React-Core
   - RNSoundPlayer (0.11.3):
     - React
+  - RNSVG (14.1.0):
+    - React-Core
   - RNZipArchive (6.1.0):
     - React-Core
     - RNZipArchive/Core (= 6.1.0)
@@ -1372,6 +1374,7 @@ DEPENDENCIES:
   - RNInAppBrowser (from `../node_modules/react-native-inappbrowser-reborn`)
   - RNReactNativeHapticFeedback (from `../node_modules/react-native-haptic-feedback`)
   - RNSoundPlayer (from `../node_modules/react-native-sound-player`)
+  - RNSVG (from `../node_modules/react-native-svg`)
   - RNZipArchive (from `../node_modules/react-native-zip-archive`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
@@ -1551,6 +1554,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-haptic-feedback"
   RNSoundPlayer:
     :path: "../node_modules/react-native-sound-player"
+  RNSVG:
+    :path: "../node_modules/react-native-svg"
   RNZipArchive:
     :path: "../node_modules/react-native-zip-archive"
   Yoga:
@@ -1562,7 +1567,7 @@ SPEC CHECKSUMS:
   DoubleConversion: fea03f2699887d960129cc54bba7e52542b6f953
   EXConstants: 988aa430ca0f76b43cd46b66e7fae3287f9cc2fc
   EXFont: 21b9c760abd593ce8f0d5386b558ced76018506f
-  Expo: 6c6526e76864e140363431722b22d0fa3cdeafd2
+  Expo: 08cf73d1f27103bdcdfba181c81469ac4b15ac5a
   ExpoFileSystem: fb4c94cc5ec5c50cb2663d2f6d503a1960b95a1d
   ExpoKeepAwake: 0f5cad99603a3268e50af9a6eb8b76d0d9ac956c
   ExpoModulesCore: f103ff1346136b2926e1654f32b3f45ab0b74830
@@ -1654,6 +1659,7 @@ SPEC CHECKSUMS:
   RNInAppBrowser: e36d6935517101ccba0e875bac8ad7b0cb655364
   RNReactNativeHapticFeedback: 1e3efeca9628ff9876ee7cdd9edec1b336913f8c
   RNSoundPlayer: 6b5532fb8e9afe17af48e62813c80ad568aea5d3
+  RNSVG: ba3e7232f45e34b7b47e74472386cf4e1a676d0a
   RNZipArchive: ef9451b849c45a29509bf44e65b788829ab07801
   SocketRocket: f32cd54efbe0f095c4d7594881e52619cfe80b17
   SSZipArchive: fe6a26b2a54d5a0890f2567b5cc6de5caa600aef
@@ -1661,4 +1667,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: 79d7be342c1318cd7a8dc2bf1178356c0175ab26
 
-COCOAPODS: 1.12.1
+COCOAPODS: 1.14.3

@@ -197,6 +197,10 @@ class IconData {
                 black: require('./img/menu-light.png'),
                 white: require('./img/menu.png'),
             },
+            'more': {
+                black: require('./img/more-light.png'),
+                white: require('./img/more.png'),
+            },
             'profile': {
                 black: require('./img/profile-light.png'),
                 white: require('./img/profile.png'),
@@ -225,6 +229,10 @@ class IconData {
                 black: require('./img/share-light.png'),
                 white: require('./img/share.png'),
             },
+            'share-full': {
+                black: require('./img/share-full-light.png'),
+                white: require('./img/share-full.png'),
+            },
             'sheet': {
                 black: require('./img/sheet-light.png'),
                 white: require('./img/sheet.png'),
@@ -242,6 +250,10 @@ class IconData {
             'stacked': {
                 black: require('./img/stacked-light.png'),
                 white: require('./img/stacked.png'),
+            },
+            'translations': {
+                black: require('./img/translations.png'),
+                white: require('./img/translations.png'),
             },
             'sync': {
                 black: require('./img/sync-light.png'),
