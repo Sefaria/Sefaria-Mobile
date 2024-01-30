@@ -27,6 +27,7 @@ import {iconData } from "./IconData";
 import strings from './LocalizedStrings';
 import { useHTMLViewStyles } from './useHTMLViewStyles';
 import { RenderHTML } from 'react-native-render-html';
+import BookSVG from './img/connection-book.svg';
 
 const SYSTEM_FONTS = ["Taamey Frank Taamim Fix", "Amiri", "Heebo", "OpenSans", "SertoBatnan"];  // list of system fonts. needed for RenderHTML
 const CSS_CLASS_STYLES = {
@@ -593,15 +594,17 @@ const LibraryNavButton = ({
   hasEn,
   withArrow,
   buttonStyle,
+  isMainMenu
 }) => {
   const { themeStr, textLanguage, interfaceLanguage } = useContext(GlobalStateContext);
   const theme = getTheme(themeStr);
-  let colorStyle = catColor ? [{"borderColor": catColor}] : [theme.searchResultSummary, {"borderTopWidth": 1}];
+  let borderTopWidth = isMainMenu ? null : 1;
+  let colorStyle = catColor && !isMainMenu ? [{"borderColor": catColor}] : [theme.searchResultSummary, {"borderTopWidth": borderTopWidth}];
   let textStyle  = [catColor ? styles.spacedText : null];
   const isHeb = Sefaria.util.get_menu_language(interfaceLanguage, textLanguage) == "hebrew";
   let flexDir = isHeb ? "row-reverse" : "row";
-  let textMargin = !!onPressCheckBox ? { marginHorizontal: 0 } : styles.readerSideMargin;
-  if (count === 0) { textStyle.push(theme.secondaryText); }
+  let textMargin = !onPressCheckBox && !isMainMenu && styles.readerSideMargin;
+  if (count === 0) { textStyle.push(theme.secondaryText); } else if (isMainMenu) { textStyle.push(theme.primaryText);}
   return (
     <TouchableOpacity
       onPress={onPress}
@@ -610,6 +613,12 @@ const LibraryNavButton = ({
     >
       <View style={[{flexDirection: flexDir, alignItems: "center", justifyContent: "space-between", flex: 1}, textMargin]}>
         <View style={{flexDirection: flexDir, alignItems: "center"}}>
+          {
+            isMainMenu &&
+              <View style={[styles.toolsButtonIcon]}>
+                <BookSVG style={styles.menuButton} resizeMode={'contain'} color={catColor}/>
+              </View>
+          }
           {
             !!onPressCheckBox ?
             <TouchableOpacity style={{paddingHorizontal: 10, paddingVertical: 15}} onPress={onPressCheckBox} >
@@ -653,6 +662,7 @@ LibraryNavButton.propTypes = {
   count:           PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
   withArrow:       PropTypes.bool.isRequired,
   buttonStyle:     PropTypes.oneOfType([ViewPropTypes.style, PropTypes.array]),
+  isMainMenu:    PropTypes.bool,
 };
 
 const LanguageToggleButton = () => {

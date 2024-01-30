@@ -1,6 +1,6 @@
 'use strict';
 import PropTypes from 'prop-types';
-import React, { useContext } from 'react';
+import React, {useContext, useState} from 'react';
 import {
   View,
   ScrollView,
@@ -23,6 +23,7 @@ import LexiconBox from './LexiconBox';
 import { GlobalStateContext, getTheme } from './StateManager';
 import {iconData} from "./IconData";
 
+
 const {
   CategoryColorLine,
   LoadingView,
@@ -31,6 +32,12 @@ const {
 } = require('./Misc.js');
 
 class ConnectionsPanel extends React.PureComponent {
+  constructor(props) {
+    super(props);
+    this.state = {
+      showAllRelated: false,
+    };
+  }
   static whyDidYouRender = true;
   static propTypes = {
     textToc:              PropTypes.object,
@@ -81,7 +88,8 @@ class ConnectionsPanel extends React.PureComponent {
   };
 
   reloadRelated = () => this.props.loadRelated(this.props.sectionRef);
-  
+  onPresshShowMoreLess = () => this.setState((prevState) => ({showAllRelated: !prevState.showAllRelated}));
+
   render() {
     let recentFilters, filterIndex, listContents, loadContent, updateCat;
     switch (this.props.connectionsMode) {
@@ -120,7 +128,7 @@ class ConnectionsPanel extends React.PureComponent {
       </View>
     );
     switch (this.props.connectionsMode) {
-      case 'filter': // fall-through
+      case 'filter': return; // fall-through
       case 'version open':
         return (
           <View style={[styles.mainTextPanel, styles.textColumn, this.props.theme.textListContentOuter, {maxWidth: null, flex: this.props.textListFlex}]}>
@@ -230,9 +238,10 @@ class ConnectionsPanel extends React.PureComponent {
             if (connectionsMode !== null && !catFilterSelected) { continue; }
             const heCategory = Sefaria.hebrewCategory(cat.category);
             const filter = new LinkFilter(cat.category, heCategory, cat.category, heCategory, cat.refList, cat.heRefList, cat.category);
+            const enText = (this.props.connectionsMode === null) ? cat.category : cat.category.toUpperCase();
             viewList.push(
               <LibraryNavButton
-                enText={cat.category.toUpperCase()}
+                enText={enText}
                 heText={heCategory}
                 catColor={Sefaria.palette.categoryColor(cat.category)}
                 count={!catFilterSelected && cat.totalCount || cat.count}
@@ -247,6 +256,7 @@ class ConnectionsPanel extends React.PureComponent {
                 withArrow={false}
                 buttonStyle={{margin: 0, padding: 0}}
                 key={cat.category}
+                isMainMenu={this.props.connectionsMode === null}
               />
             );
             if (catFilterSelected) {
@@ -271,25 +281,52 @@ class ConnectionsPanel extends React.PureComponent {
             }
           }
           if (this.props.connectionsMode === null) {
-            viewList.push(
-              <ResourcesList
-                key={"resourcesList"}
-                relatedHasError={this.props.relatedHasError}
-                sheet={this.props.sheet}
-                themeStr={this.props.themeStr}
-                versionsCount={this.props.versions.length}
-                sheetsCount={this.props.relatedData.sheets ? this.props.relatedData.sheets.length : 0}
-                topicsCount={this.props.relatedData.topics ? Sefaria.links.topicsCount(this.props.relatedData.topics) : 0}
-                setConnectionsMode={this.props.setConnectionsMode}
-                segmentRef={this.props.segmentRef}
-                heSegmentRef={this.props.heSegmentRef}
-                categories={this.props.categories}
-                shareCurrentSegment={this.props.shareCurrentSegment}
-                reportError={this.props.reportError}
-                viewOnSite={this.props.viewOnSite}
-                reloadRelated={this.reloadRelated}
-              />
-            );
+              const collapsedTopLevelLimit = 3;
+              if (viewList.length > collapsedTopLevelLimit) {
+                const { showAllRelated } = this.state;
+                if (!showAllRelated) {
+                  viewList = viewList.slice(0, collapsedTopLevelLimit);
+                  viewList.push((
+                      <ToolsButton
+                          onPress={this.onPresshShowMoreLess}
+                          text={strings.more}
+                          icon={iconData.get('more', this.props.themeStr)}
+                      />
+                  ));
+                } else {
+                  viewList.push((
+                      <ToolsButton
+                          onPress={this.onPresshShowMoreLess}
+                          text={strings.less}
+                          icon={iconData.get('up', this.props.themeStr)}
+                      />
+                  ));
+                }
+              }
+              viewList = [
+                (<TopButtons
+                  relatedHasError={this.props.relatedHasError}
+                  sheet={this.props.sheet}
+                  themeStr={this.props.themeStr}
+                  versionsCount={this.props.versions.length}
+                  setConnectionsMode={this.props.setConnectionsMode}
+                  reloadRelated={this.reloadRelated}
+                />),
+                (<ConnectionsPanelSection title={strings.relatedTexts}>{viewList}</ConnectionsPanelSection>),
+                (<ResourcesList
+                  themeStr={this.props.themeStr}
+                  topicsCount={this.props.relatedData.topics ? Sefaria.links.topicsCount(this.props.relatedData.topics) : 0}
+                  sheetsCount={this.props.relatedData.sheets ? this.props.relatedData.sheets.length : 0}
+                  setConnectionsMode={this.props.setConnectionsMode}
+                />),
+                (<ToolsList
+                  themeStr={this.props.themeStr}
+                  sheet={this.props.sheet}
+                  shareCurrentSegment={this.props.shareCurrentSegment}
+                  viewOnSite={this.props.viewOnSite}
+                  reportError={this.props.reportError}
+                />)
+              ]
           }
           content = (
             <ScrollView
@@ -307,7 +344,6 @@ class ConnectionsPanel extends React.PureComponent {
               styles.mainTextPanel,
               styles.textListSummary,
               this.props.theme.commentaryTextPanel,
-              this.props.theme.textListSummary,
               {flex: this.props.textListFlex}]}
             onStartShouldSetResponderCapture={this.props.onStartShouldSetResponderCapture}>
             {connectionsPanelHeader}
@@ -317,80 +353,6 @@ class ConnectionsPanel extends React.PureComponent {
   }
 }
 
-
-class ResourcesList extends React.PureComponent {
-  static whyDidYouRender = true;
-  static propTypes = {
-    themeStr:           PropTypes.string.isRequired,
-    setConnectionsMode: PropTypes.func.isRequired,
-    versionsCount:      PropTypes.number.isRequired,
-    sheetsCount:        PropTypes.number.isRequired,
-    topicsCount:        PropTypes.number.isRequired,
-    segmentRef:         PropTypes.string.isRequired,
-    segmentRefOnSheet:  PropTypes.string,
-    heSegmentRef:       PropTypes.string.isRequired,
-    categories:         PropTypes.array.isRequired,
-    shareCurrentSegment:PropTypes.func.isRequired,
-    viewOnSite:         PropTypes.func.isRequired,
-    reportError:        PropTypes.func.isRequired,
-    relatedHasError:    PropTypes.bool,
-    reloadRelated:      PropTypes.func.isRequired,
-  }
-
-  render() {
-    return (
-      <View>
-        {
-          this.props.relatedHasError ? (
-            <ToolsButton
-            text={strings.resourcesFailedToLoad}
-            onPress={this.props.reloadRelated}
-          />
-          ) : null
-        }
-        <ToolsButton
-          text={strings.sheets}
-          icon={iconData.get('sheet', this.props.themeStr)}
-          count={this.props.sheetsCount}
-          onPress={()=>{ this.props.setConnectionsMode("sheetsByRef"); }}
-        />
-        {this.props.topicsCount && this.props.topicsCount > 0 ? (
-          <ToolsButton
-            text={strings.topics} count={this.props.topicsCount}
-            icon={iconData.get('hashtag', this.props.themeStr)}
-            onPress={() => this.props.setConnectionsMode("topicsByRef")}
-          />) : null
-        }
-        <ToolsButton
-          text={strings.about}
-          icon={iconData.get('book', this.props.themeStr)}
-          onPress={()=>{ this.props.setConnectionsMode("about"); }}
-        />
-        {this.props.sheet ? null : <ToolsButton
-          text={strings.translations}
-          icon={iconData.get('layers', this.props.themeStr)}
-          count={this.props.versionsCount}
-          onPress={()=>{ this.props.setConnectionsMode("versions"); }}
-        /> }
-        <ToolsButton
-          text={strings.share}
-          icon={iconData.get('share', this.props.themeStr)}
-          onPress={() => this.props.shareCurrentSegment()}
-        />
-        {this.props.sheet ? null : <ToolsButton
-          text={strings.reportError}
-          icon={iconData.get('bubble', this.props.themeStr)}
-          onPress={this.props.reportError}
-        />}
-        <ToolsButton
-          text={strings.viewOnSite}
-          icon={iconData.get('externalLink', this.props.themeStr)}
-          onPress={this.props.viewOnSite}
-        />
-      </View>
-    );
-  }
-}
 
 const ToolsButton = ({ text, onPress, icon, count }) => {
   const { themeStr, interfaceLanguage } = useContext(GlobalStateContext);
@@ -417,6 +379,112 @@ ToolsButton.propTypes = {
   onPress:       PropTypes.func.isRequired,
   icon:          PropTypes.number,
   count:         PropTypes.number,
+};
+
+const ConnectionsPanelSection = ({ title, children }) => {
+  const { themeStr, interfaceLanguage } = useContext(GlobalStateContext);
+  const theme = getTheme(themeStr);
+  return (
+    <View style={styles.connectionPanelSection}  flexdir={interfaceLanguage === "english" ? null : styles.rtlRow}>
+      {title &&
+        <View style={styles.connectionPanelTitle}>
+          <Text style={[interfaceLanguage === "hebrew" ? styles.heInt : styles.enInt, theme.tertiaryText]}>
+            {title}
+          </Text>
+        </View>
+      }
+      <View>
+        {children}
+      </View>
+    </View>
+  );
+};
+ConnectionsPanelSection.propTypes = {
+  title: PropTypes.string,
+  children: PropTypes.node.isRequired,
+};
+
+const TopButtons = ({relatedHasError, reloadRelated, themeStr, setConnectionsMode, sheet, versionsCount}) => {
+  return (
+    <ConnectionsPanelSection>
+      {!relatedHasError ? null : <ToolsButton
+        text={strings.resourcesFailedToLoad}
+        onPress={reloadRelated}
+      /> }
+      <ToolsButton
+        text={strings.aboutThisText}
+        icon={iconData.get('info', themeStr)}
+        onPress={()=> {setConnectionsMode("about"); }}
+      />
+      {sheet ? null : <ToolsButton
+        text={strings.translations}
+        icon={iconData.get('translations', themeStr)}
+        count={versionsCount}
+        onPress={()=> {setConnectionsMode("versions"); }}
+      /> }
+    </ConnectionsPanelSection>
+  )
+};
+TopButtons.propTypes = {
+    themeStr:           PropTypes.string.isRequired,
+    setConnectionsMode: PropTypes.func.isRequired,
+    versionsCount:      PropTypes.number.isRequired,
+    relatedHasError:    PropTypes.bool,
+    reloadRelated:      PropTypes.func.isRequired,
+  // what is sheet?
+};
+
+const ResourcesList = ({themeStr, sheetsCount, setConnectionsMode, topicsCount}) => {
+  return (
+      <ConnectionsPanelSection title={strings.resources}>
+        <ToolsButton
+          text={strings.sheets}
+          icon={iconData.get('sheet', themeStr)}
+          count={sheetsCount}
+          onPress={()=>{ setConnectionsMode("sheetsByRef"); }}
+        />
+        {!topicsCount ? null : <ToolsButton
+            text={strings.topics} count={topicsCount}
+            icon={iconData.get('hashtag', themeStr)}
+            onPress={() => setConnectionsMode("topicsByRef")}
+        /> }
+      </ConnectionsPanelSection>
+  )
+};
+ResourcesList.propTypes = {
+  themeStr:           PropTypes.string.isRequired,
+  setConnectionsMode: PropTypes.func.isRequired,
+  sheetsCount:        PropTypes.number.isRequired,
+  topicsCount:        PropTypes.number.isRequired,
+};
+
+const ToolsList = ({themeStr, shareCurrentSegment, sheet, reportError, viewOnSite}) => {
+  return (
+      <ConnectionsPanelSection title={strings.tools}>
+        <ToolsButton
+          text={strings.share}
+          icon={iconData.get('share-full', themeStr)}
+          onPress={() => shareCurrentSegment()}
+        />
+        {sheet ? null : <ToolsButton
+          text={strings.reportError}
+          icon={iconData.get('bubble', themeStr)}
+          onPress={reportError}
+        />}
+        <ToolsButton
+          text={strings.viewOnSite}
+          icon={iconData.get('externalLink', themeStr)}
+          onPress={viewOnSite}
+        />
+      </ConnectionsPanelSection>
+  )
+};
+ToolsList.propTypes = {
+  themeStr:           PropTypes.string.isRequired,
+  shareCurrentSegment:PropTypes.func.isRequired,
+  viewOnSite:         PropTypes.func.isRequired,
+  reportError:        PropTypes.func.isRequired,
+  // what is sheet?
 };
 
 export default ConnectionsPanel;
