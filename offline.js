@@ -155,8 +155,8 @@ const loadOfflineSectionV6 = async function(ref, versions) {
     var fileNameStem = ref.split(":")[0];
     var bookRefStem  = Sefaria.textTitleForRef(ref);
     //if you want to open a specific version, there is no json file. force an api call instead
-    const shouldLoadFromApi = shouldLoadFromApi(versions) || Sefaria.util.objectHasNonNullValues(versions);
-    if (shouldLoadFromApi) { throw ERRORS.MISSING_OFFLINE_DATA; }
+    const loadFromApi = shouldLoadFromApi(versions) || Sefaria.util.objectHasNonNullValues(versions);
+    if (loadFromApi) { throw ERRORS.MISSING_OFFLINE_DATA; }
     var jsonPath = _JSONSourcePath(fileNameStem);
     var zipPath  = _zipSourcePath(bookRefStem);
     // Pull data from in memory cache if available
