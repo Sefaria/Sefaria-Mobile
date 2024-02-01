@@ -615,7 +615,7 @@ const LibraryNavButton = ({
         <View style={{flexDirection: flexDir, alignItems: "center"}}>
           {
             isMainMenu &&
-              <View style={[styles.toolsButtonIcon]}>
+              <View style={[styles.toolsButtonIcon, {flexDirection: flexDir}]}>
                 <BookSVG style={styles.menuButton} resizeMode={'contain'} color={catColor}/>
               </View>
           }

@@ -362,7 +362,7 @@ const ToolsButton = ({ text, onPress, icon, count }) => {
   const flexDir = interfaceLanguage === "english" ? null : styles.rtlRow;
   const hasIcon = !!icon;
   icon = icon || iconData.get('sheet', themeStr);  // default to arbitrary icon that will be invisible if icon wasn't passed
-  const iconComp = (<View style={[styles.toolsButtonIcon, hasIcon ? null : styles.readerNavSectionMoreInvisible]}><Image source={icon} style={styles.menuButton} resizeMode={'contain'}></Image></View>);
+  const iconComp = (<View style={[styles.toolsButtonIcon, flexDir, hasIcon ? null : styles.readerNavSectionMoreInvisible]}><Image source={icon} style={styles.menuButton} resizeMode={'contain'}></Image></View>);
   const countComp = !!count || count === 0 ? <Text style={[styles.enInt, theme.secondaryText, styles.spacedText]}>{` (${count}) `}</Text> : null
   return (
     <SefariaPressable
