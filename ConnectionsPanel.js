@@ -366,7 +366,7 @@ const ToolsButton = ({ text, onPress, icon, count }) => {
   const countComp = !!count || count === 0 ? <Text style={[styles.enInt, theme.secondaryText, styles.spacedText]}>{` (${count}) `}</Text> : null
   return (
     <SefariaPressable
-      extraStyles={[styles.searchFilterCat, styles.toolsButton, flexDir, theme.bordered]}
+      extraStyles={[styles.searchFilterCat, styles.toolsButton, flexDir, theme.bordered, {height: 36}]}
       onPress={onPress}
     >
       { iconComp }

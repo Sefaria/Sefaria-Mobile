@@ -600,6 +600,7 @@ const LibraryNavButton = ({
   const theme = getTheme(themeStr);
   let borderTopWidth = isMainMenu ? null : 1;
   let colorStyle = catColor && !isMainMenu ? [{"borderColor": catColor}] : [theme.searchResultSummary, {"borderTopWidth": borderTopWidth}];
+  let height = isMainMenu ? {height: 36} : null;
   let textStyle  = [catColor ? styles.spacedText : null];
   const isHeb = Sefaria.util.get_menu_language(interfaceLanguage, textLanguage) == "hebrew";
   let flexDir = isHeb ? "row-reverse" : "row";
@@ -608,7 +609,7 @@ const LibraryNavButton = ({
   return (
     <TouchableOpacity
       onPress={onPress}
-      style={[styles.searchFilterCat, {flexDirection: flexDir}, buttonStyle].concat(colorStyle)}
+      style={[styles.searchFilterCat, {flexDirection: flexDir}, buttonStyle, height].concat(colorStyle)}
       delayPressIn={200}
     >
       <View style={[{flexDirection: flexDir, alignItems: "center", justifyContent: "space-between", flex: 1}, textMargin]}>
