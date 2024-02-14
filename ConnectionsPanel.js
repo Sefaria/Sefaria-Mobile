@@ -128,7 +128,7 @@ class ConnectionsPanel extends React.PureComponent {
       </View>
     );
     switch (this.props.connectionsMode) {
-      case 'filter': return; // fall-through
+      case 'filter': return;
       case 'version open':
         return (
           <View style={[styles.mainTextPanel, styles.textColumn, this.props.theme.textListContentOuter, {maxWidth: null, flex: this.props.textListFlex}]}>
