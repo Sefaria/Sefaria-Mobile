@@ -1545,14 +1545,14 @@ export default StyleSheet.create({
     fontWeight: 'bold',
   },
   flex1: {
-  flex: 1,
+    flex: 1,
   },
-connectionPanelSection: {
-  paddingHorizontal: 40,
-},
-connectionPanelTitle: {
-  paddingVertical: 10,
-  borderBottomWidth: 1,
-  borderBottomColor: '#CCCCCC',
-}
+  connectionPanelSection: {
+    paddingHorizontal: 40,
+  },
+  connectionPanelTitle: {
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#CCCCCC',
+  }
 });
