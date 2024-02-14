@@ -433,7 +433,7 @@ TopButtons.propTypes = {
     versionsCount:      PropTypes.number.isRequired,
     relatedHasError:    PropTypes.bool,
     reloadRelated:      PropTypes.func.isRequired,
-  // what is sheet?
+    sheet:              PropTypes.object,
 };
 
 const ResourcesList = ({themeStr, sheetsCount, setConnectionsMode, topicsCount}) => {
@@ -486,7 +486,7 @@ ToolsList.propTypes = {
   shareCurrentSegment:PropTypes.func.isRequired,
   viewOnSite:         PropTypes.func.isRequired,
   reportError:        PropTypes.func.isRequired,
-  // what is sheet?
+  sheet:              PropTypes.object,
 };
 
 export default ConnectionsPanel;
