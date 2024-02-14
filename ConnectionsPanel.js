@@ -409,7 +409,7 @@ ConnectionsPanelSection.propTypes = {
 const TopButtons = ({relatedHasError, reloadRelated, themeStr, setConnectionsMode, sheet, versionsCount}) => {
   return (
     <ConnectionsPanelSection>
-      {!relatedHasError ? null : <ToolsButton
+      {relatedHasError && <ToolsButton
         text={strings.resourcesFailedToLoad}
         onPress={reloadRelated}
       /> }
