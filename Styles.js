@@ -1553,6 +1553,5 @@ export default StyleSheet.create({
   connectionPanelTitle: {
     paddingVertical: 10,
     borderBottomWidth: 1,
-    borderBottomColor: '#CCCCCC',
   }
 });

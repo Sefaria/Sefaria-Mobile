@@ -385,11 +385,11 @@ ToolsButton.propTypes = {
 
 const ConnectionsPanelSection = ({ title, children }) => {
   const { themeStr, interfaceLanguage } = useContext(GlobalStateContext);
-  const theme = getTheme(themeStr);
+  const theme= getTheme(themeStr);
   return (
     <View style={styles.connectionPanelSection} >
       {title &&
-        <View style={styles.connectionPanelTitle}>
+        <View style={{...styles.connectionPanelTitle, ...theme.lightGreyBorder}}>
           <Text style={[interfaceLanguage === "hebrew" ? styles.heInt : styles.enInt, theme.tertiaryText]}>
             {title}
           </Text>
