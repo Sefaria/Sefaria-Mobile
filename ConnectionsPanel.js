@@ -88,7 +88,7 @@ class ConnectionsPanel extends React.PureComponent {
   };
 
   reloadRelated = () => this.props.loadRelated(this.props.sectionRef);
-  onPresshShowMoreLess = () => this.setState((prevState) => ({showAllRelated: !prevState.showAllRelated}));
+  toggleShowAllRelated = () => this.setState((prevState) => ({showAllRelated: !prevState.showAllRelated}));
 
   render() {
     let recentFilters, filterIndex, listContents, loadContent, updateCat;
@@ -289,7 +289,7 @@ class ConnectionsPanel extends React.PureComponent {
                   viewList = viewList.slice(0, collapsedTopLevelLimit);
                   viewList.push((
                       <ToolsButton
-                          onPress={this.onPresshShowMoreLess}
+                          onPress={this.toggleShowAllRelated}
                           text={strings.more}
                           icon={iconData.get('more', this.props.themeStr)}
                       />
@@ -297,7 +297,7 @@ class ConnectionsPanel extends React.PureComponent {
                 } else {
                   viewList.push((
                       <ToolsButton
-                          onPress={this.onPresshShowMoreLess}
+                          onPress={this.toggleShowAllRelated}
                           text={strings.less}
                           icon={iconData.get('up', this.props.themeStr)}
                       />
