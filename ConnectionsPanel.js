@@ -445,7 +445,7 @@ const ResourcesList = ({themeStr, sheetsCount, setConnectionsMode, topicsCount})
           count={sheetsCount}
           onPress={()=>{ setConnectionsMode("sheetsByRef"); }}
         />
-        {!topicsCount ? null : <ToolsButton
+        {topicsCount && <ToolsButton
             text={strings.topics} count={topicsCount}
             icon={iconData.get('hashtag', themeStr)}
             onPress={() => setConnectionsMode("topicsByRef")}
