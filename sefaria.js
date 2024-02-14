@@ -815,7 +815,7 @@ Sefaria = {
       return new Promise(function(resolve, reject) {
         // Returns an ordered array summarizing the link counts by category and text
         // Takes an array of links which are of the form { "category", "sourceHeRef", "sourceRef", "textTitle"}
-        var summary = {"Commentary": {count: 0, books: {}, hasEn: false}};
+        let summary = {"Commentary": {count: 0, books: {}, hasEn: false}};
 
         // Process tempLinks if any
         for (let link of links) {
