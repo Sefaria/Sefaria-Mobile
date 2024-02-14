@@ -1245,7 +1245,7 @@ export default StyleSheet.create({
   },
   toolsButtonIcon: {
     width: iPad ? readerSideMarginIpad : readerSideMargin,
-},
+  },
   toolsButtonText: {
   },
   versionsBoxLang: {
