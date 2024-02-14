@@ -387,7 +387,7 @@ const ConnectionsPanelSection = ({ title, children }) => {
   const { themeStr, interfaceLanguage } = useContext(GlobalStateContext);
   const theme = getTheme(themeStr);
   return (
-    <View style={styles.connectionPanelSection}  flexdir={interfaceLanguage === "english" ? null : styles.rtlRow}>
+    <View style={styles.connectionPanelSection} >
       {title &&
         <View style={styles.connectionPanelTitle}>
           <Text style={[interfaceLanguage === "hebrew" ? styles.heInt : styles.enInt, theme.tertiaryText]}>
