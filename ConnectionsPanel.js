@@ -92,6 +92,7 @@ class ConnectionsPanel extends React.PureComponent {
 
   render() {
     let recentFilters, filterIndex, listContents, loadContent, updateCat;
+    const isMainMenu= this.props.connectionsMode === null;
     switch (this.props.connectionsMode) {
       case 'filter':
         recentFilters = this.props.recentFilters;
@@ -239,7 +240,7 @@ class ConnectionsPanel extends React.PureComponent {
             if (connectionsMode !== null && !catFilterSelected) { continue; }
             const heCategory = Sefaria.hebrewCategory(cat.category);
             const filter = new LinkFilter(cat.category, heCategory, cat.category, heCategory, cat.refList, cat.heRefList, cat.category);
-            const enText = (this.props.connectionsMode === null) ? cat.category : cat.category.toUpperCase();
+            const enText = (isMainMenu) ? cat.category : cat.category.toUpperCase();
             viewList.push(
               <LibraryNavButton
                 enText={enText}
@@ -257,7 +258,7 @@ class ConnectionsPanel extends React.PureComponent {
                 withArrow={false}
                 buttonStyle={{margin: 0, padding: 0}}
                 key={cat.category}
-                isMainMenu={this.props.connectionsMode === null}
+                isMainMenu={isMainMenu}
               />
             );
             if (catFilterSelected) {
@@ -281,7 +282,7 @@ class ConnectionsPanel extends React.PureComponent {
               }));
             }
           }
-          if (this.props.connectionsMode === null) {
+          if (isMainMenu) {
               const collapsedTopLevelLimit = 3;
               if (viewList.length > collapsedTopLevelLimit) {
                 const { showAllRelated } = this.state;
