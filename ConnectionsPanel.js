@@ -230,14 +230,14 @@ class ConnectionsPanel extends React.PureComponent {
           const connectionsMode = this.props.connectionsMode && this.props.connectionsMode.indexOf(" Commentary") !== -1 ? "Commentary" : this.props.connectionsMode;
           let viewList = [];
           let linkSummary = this.props.linkSummary;
-          if (connectionsMode !== null && !linkSummary.find(cat => cat.category === connectionsMode)) {
+          if (!isMainMenu && !linkSummary.find(cat => cat.category === connectionsMode)) {
             linkSummary = linkSummary.concat([{category: connectionsMode, count: 0, refList: [], heRefList: [], books: []}]);
           }
           for (let i = 0; i < linkSummary.length; i++) {
             const cat = linkSummary[i];
             const catFilterSelected = (cat.category === connectionsMode || (connectionsMode === "Commentary" && cat.category.indexOf(" Commentary") !== -1));
             if (!catFilterSelected && (cat.category === "Quoting Commentary" || cat.category === "Modern Commentary")) { continue; }  // skip these categories in the main link summary and only include them under Commentary
-            if (connectionsMode !== null && !catFilterSelected) { continue; }
+            if (!isMainMenu && !catFilterSelected) { continue; }
             const heCategory = Sefaria.hebrewCategory(cat.category);
             const filter = new LinkFilter(cat.category, heCategory, cat.category, heCategory, cat.refList, cat.heRefList, cat.category);
             const enText = (isMainMenu) ? cat.category : cat.category.toUpperCase();
