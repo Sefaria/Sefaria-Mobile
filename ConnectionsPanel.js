@@ -282,10 +282,9 @@ const getLibraryNavButtonCatProps = (cat, connectionsMode, catFilterSelected, op
   const count = !catFilterSelected && cat.totalCount || cat.count;
   const hasEn = cat.hasEn;
   const onPress = (catFilterSelected) ? () => openFilter(filter, "link") : () => setConnectionsMode(cat.category);
-  const withArrow = false;
   const buttonStyle = {margin: 0, padding: 0};
   const key = cat.category;
-  return {enText, heText, catColor, count, hasEn, onPress, withArrow, buttonStyle, key, isMainMenu};
+  return {enText, heText, catColor, count, hasEn, onPress, buttonStyle, key, isMainMenu};
 }
 
 const getLibraryNavButtonBookProps = (book, cat, connectionsMode, catFilterSelected, openFilter) => {
@@ -295,10 +294,9 @@ const getLibraryNavButtonBookProps = (book, cat, connectionsMode, catFilterSelec
   const count = book.count;
   const hasEn = book.hasEn;
   const onPress = () => openFilter(filter, "link");
-  const withArrow = false;
   const buttonStyle = {margin: 0, padding: 0};
   const key = `${book.title}|${cat.category}`;
-  return {enText, heText, count, hasEn, onPress, withArrow, buttonStyle, key};
+  return {enText, heText, count, hasEn, onPress, buttonStyle, key};
 }
 
 const getLibraryNavButtonPropsList = (linkSummary, connectionsMode, openFilter, setConnectionsMode) => {

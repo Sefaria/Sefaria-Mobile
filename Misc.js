@@ -624,9 +624,6 @@ const LibraryNavButton = ({
             </Text>
         }
       </View>
-      { withArrow &&
-        <DirectedArrow themeStr={themeStr} imageStyle={{opacity: 0.5}} language={textLanguage} direction={"forward"} />
-      }
    </TouchableOpacity>
  );
 }
@@ -638,7 +635,6 @@ LibraryNavButton.propTypes = {
   enText:          PropTypes.string.isRequired,
   heText:          PropTypes.string.isRequired,
   count:           PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-  withArrow:       PropTypes.bool.isRequired,
   buttonStyle:     PropTypes.oneOfType([ViewPropTypes.style, PropTypes.array]),
   isMainMenu:    PropTypes.bool,
 };

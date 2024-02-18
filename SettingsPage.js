@@ -487,7 +487,6 @@ const PackageComponent = ({ packageObj, onPackagePress, isDisabledObj }) => {
         onPressCheckBox={onPress}
         checkBoxSelected={0+isSelected}
         buttonStyle={{margin: 0, padding: 0, opacity: isDisabledObj[packageObj.en] ? 0.6 : 1.0}}
-        withArrow={false}
       />
       <ConditionalProgressWrapper
         conditionMethod={ (state, props) => state && state.downloadNotification === props.packageName}
