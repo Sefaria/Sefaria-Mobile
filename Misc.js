@@ -614,36 +614,14 @@ const LibraryNavButton = ({
     >
       <View style={[{flexDirection: flexDir, alignItems: "center", justifyContent: "space-between", flex: 1}, textMargin]}>
         <View style={{flexDirection: flexDir, alignItems: "center"}}>
-          {
-            isMainMenu &&
-              <View style={[styles.toolsButtonIcon, {flexDirection: flexDir}]}>
-                <BookSVG style={styles.menuButton} resizeMode={'contain'} color={catColor}/>
-              </View>
-          }
-          {
-            !!onPressCheckBox &&
-            <TouchableOpacity style={{paddingHorizontal: 10, paddingVertical: 15}} onPress={onPressCheckBox} >
-              <IndeterminateCheckBox themeStr={themeStr} state={checkBoxSelected} onPress={onPressCheckBox} />
-            </TouchableOpacity>
-          }
-          { !isHeb ?
-            <Text style={[styles.englishText].concat([theme.tertiaryText, textStyle, {paddingTop:3}])}>
-              {`${enText} `}
-              {
-                !!count && <Text style={[styles.englishText].concat([theme.secondaryText, textStyle])}>{`(${count})`}</Text>
-              }
-            </Text>
-            :
-            <Text style={[styles.hebrewText].concat([theme.tertiaryText, textStyle, {paddingTop:13}])}>
-              {`${heText} `}
-              {
-                !!count && <Text style={[styles.hebrewText].concat([theme.secondaryText, textStyle])}>{`(${count})`}</Text>
-              }
-            </Text>
-          }
+          {isMainMenu && <ColoredBook flexDir={flexDir} color={catColor} />}
+          {!!onPressCheckBox && <CheckBox themeStr={themeStr} state={checkBoxSelected} onPress={onPressCheckBox} />}
+          <LibraryNavButtonText enText={enText} heText={heText} count={count} isHeb={isHeb} textStyle={textStyle} />
         </View>
-        {
-          (hasEn && !isHeb) && <Text style={[styles.englishSystemFont, styles.enConnectionMarker, theme.enConnectionMarker, theme.secondaryText, Platform.OS === 'android' && {paddingLeft: 5, paddingTop: 2}]}>{"EN"}</Text>
+        {(hasEn && !isHeb) &&
+            <Text style={[styles.englishSystemFont, styles.enConnectionMarker, theme.enConnectionMarker, theme.secondaryText, Platform.OS === 'android' && {paddingLeft: 5, paddingTop: 2}]}>
+              {"EN"}
+            </Text>
         }
       </View>
       { withArrow &&
@@ -663,6 +641,52 @@ LibraryNavButton.propTypes = {
   withArrow:       PropTypes.bool.isRequired,
   buttonStyle:     PropTypes.oneOfType([ViewPropTypes.style, PropTypes.array]),
   isMainMenu:    PropTypes.bool,
+};
+
+const ColoredBook = ({flexDir, color}) => {
+  return (
+    <View style={[styles.toolsButtonIcon, {flexDirection: flexDir}]}>
+      <BookSVG style={styles.menuButton} resizeMode={'contain'} color={color}/>
+    </View>
+  );
+}
+ColoredBook.proptypes = {
+  flexDir: PropTypes.string.isRequired,
+  color: PropTypes.string.isRequired,
+};
+
+const CheckBox = ({themeStr, state, onPress}) => {
+  return (
+    <TouchableOpacity style={{paddingHorizontal: 10, paddingVertical: 15}} onPress={onPress} >
+      <IndeterminateCheckBox themeStr={themeStr} state={state} onPress={onPress} />
+    </TouchableOpacity>
+  );
+}
+CheckBox.proptypes = {
+  themeStr: PropTypes.string.isRequired,
+  state: PropTypes.number.isRequired,
+  onPress: PropTypes.func.isRequired,
+};
+
+const LibraryNavButtonText = ({isHeb, enText, heText, count, textStyle}) => {
+  const langStyle = (isHeb) ? styles.hebrewText : styles.englishText;
+  const paddingTop = (isHeb) ? 13 : 3;
+  const text = (isHeb) ? heText : enText;
+  const { themeStr } = useContext(GlobalStateContext);
+  const theme = getTheme(themeStr);
+  return (
+    <Text style={[langStyle].concat([theme.tertiaryText, textStyle, {paddingTop:paddingTop}])}>
+      {text}
+      { !!count && <Text style={[langStyle].concat([theme.secondaryText, textStyle])}>{` (${count})`}</Text> }
+    </Text>
+  );
+}
+LibraryNavButtonText.proptypes = {
+  isHeb: PropTypes.bool.isRequired,
+  enText: PropTypes.string.isRequired,
+  heText: PropTypes.string.isRequired,
+  count: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+  textStyle: PropTypes.array.isRequired
 };
 
 const LanguageToggleButton = () => {
