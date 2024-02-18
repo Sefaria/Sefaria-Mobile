@@ -129,7 +129,7 @@ class ConnectionsPanel extends React.PureComponent {
       </View>
     );
     switch (this.props.connectionsMode) {
-      case 'filter': return;
+      case 'filter': // fall-through
       case 'version open':
         return (
           <View style={[styles.mainTextPanel, styles.textColumn, this.props.theme.textListContentOuter, {maxWidth: null, flex: this.props.textListFlex}]}>
@@ -227,119 +227,36 @@ class ConnectionsPanel extends React.PureComponent {
           content = (<LoadingView />);
         } else {
           // if you're in Modern Commentary, switch to Commentary
-          const connectionsMode = this.props.connectionsMode && this.props.connectionsMode.indexOf(" Commentary") !== -1 ? "Commentary" : this.props.connectionsMode;
-          let viewList = [];
-          let linkSummary = this.props.linkSummary;
-          if (!isMainMenu && !linkSummary.find(cat => cat.category === connectionsMode)) {
-            linkSummary = linkSummary.concat([{category: connectionsMode, count: 0, refList: [], heRefList: [], books: []}]);
-          }
-          for (let i = 0; i < linkSummary.length; i++) {
-            const cat = linkSummary[i];
-            const catFilterSelected = (cat.category === connectionsMode || (connectionsMode === "Commentary" && cat.category.indexOf(" Commentary") !== -1));
-            if (!catFilterSelected && (cat.category === "Quoting Commentary" || cat.category === "Modern Commentary")) { continue; }  // skip these categories in the main link summary and only include them under Commentary
-            if (!isMainMenu && !catFilterSelected) { continue; }
-            const heCategory = Sefaria.hebrewCategory(cat.category);
-            const filter = new LinkFilter(cat.category, heCategory, cat.category, heCategory, cat.refList, cat.heRefList, cat.category);
-            const enText = (isMainMenu) ? cat.category : cat.category.toUpperCase();
-            viewList.push(
-              <LibraryNavButton
-                enText={enText}
-                heText={heCategory}
-                catColor={Sefaria.palette.categoryColor(cat.category)}
-                count={!catFilterSelected && cat.totalCount || cat.count}
-                hasEn={cat.hasEn}
-                onPress={function(filter,category) {
-                  if (catFilterSelected) {
-                    this.props.openFilter(filter, "link");
-                  } else {
-                    this.props.setConnectionsMode(category);
-                  }
-                }.bind(this,filter,cat.category)}
-                withArrow={false}
-                buttonStyle={{margin: 0, padding: 0}}
-                key={cat.category}
-                isMainMenu={isMainMenu}
-              />
-            );
-            if (catFilterSelected) {
-              //if true, means we have a category filter selected
-              viewList = viewList.concat(cat.books.map((obook)=>{
-                const filter = new LinkFilter(obook.title, obook.heTitle, obook.collectiveTitle, obook.heCollectiveTitle, obook.refList, obook.heRefList, cat.category);
-                return (
-                  <LibraryNavButton
-                    enText={obook.collectiveTitle ? obook.collectiveTitle : obook.title} //NOTE backwards compatibility
-                    heText={obook.heCollectiveTitle ? obook.heCollectiveTitle : obook.heTitle}
-                    count={obook.count}
-                    hasEn={obook.hasEn}
-                    onPress={function(filter,title) {
-                      this.props.openFilter(filter, "link");
-                    }.bind(this,filter,obook.title)}
-                    withArrow={false}
-                    buttonStyle={{margin: 0, padding: 0}}
-                    key={`${obook.title}|${cat.category}`}
-                  />
-                )
-              }));
-            }
-          }
+          let buttons;
           if (isMainMenu) {
-              const collapsedTopLevelLimit = 3;
-              if (viewList.length > collapsedTopLevelLimit) {
-                const { showAllRelated } = this.state;
-                if (!showAllRelated) {
-                  viewList = viewList.slice(0, collapsedTopLevelLimit);
-                  viewList.push((
-                      <ToolsButton
-                          onPress={this.toggleShowAllRelated}
-                          text={strings.more}
-                          icon={iconData.get('more', this.props.themeStr)}
-                      />
-                  ));
-                } else {
-                  viewList.push((
-                      <ToolsButton
-                          onPress={this.toggleShowAllRelated}
-                          text={strings.less}
-                          icon={iconData.get('up', this.props.themeStr)}
-                      />
-                  ));
-                }
-              }
-              viewList = [
-                (<TopButtons
-                  relatedHasError={this.props.relatedHasError}
-                  sheet={this.props.sheet}
-                  themeStr={this.props.themeStr}
-                  versionsCount={this.props.versions.length}
-                  setConnectionsMode={this.props.setConnectionsMode}
-                  reloadRelated={this.reloadRelated}
-                />),
-                (<ConnectionsPanelSection title={strings.relatedTexts}>{viewList}</ConnectionsPanelSection>),
-                (<ResourcesList
-                  themeStr={this.props.themeStr}
-                  topicsCount={this.props.relatedData.topics ? Sefaria.links.topicsCount(this.props.relatedData.topics) : 0}
-                  sheetsCount={this.props.relatedData.sheets ? this.props.relatedData.sheets.length : 0}
-                  setConnectionsMode={this.props.setConnectionsMode}
-                />),
-                (<ToolsList
-                  themeStr={this.props.themeStr}
-                  sheet={this.props.sheet}
-                  shareCurrentSegment={this.props.shareCurrentSegment}
-                  viewOnSite={this.props.viewOnSite}
-                  reportError={this.props.reportError}
-                />)
-              ]
+            buttons = (<MainMenuButtons
+                relatedHasError={this.props.relatedHasError}
+                sheet={this.props.sheet}
+                themeStr={this.props.themeStr}
+                versions={this.props.versions}
+                setConnectionsMode={this.props.setConnectionsMode}
+                reloadRelated={this.reloadRelated}
+                relatedData={this.props.relatedData}
+                shareCurrentSegment={this.props.shareCurrentSegment}
+                viewOnSite={this.props.viewOnSite}
+                reportError={this.props.reportError}
+                linkSummary={this.props.linkSummary}
+                connectionsMode={this.props.connectionsMode}
+                openFilter={this.props.openFilter}
+            />);
+          } else {
+            let navButtonPropsList= getLibraryNavButtonPropsList(this.props.linkSummary, this.props.connectionsMode, this.props.openFilter, this.props.setConnectionsMode);
+            buttons = navButtonPropsList.map(props => (<LibraryNavButton {...props} />));
           }
           content = (
             <ScrollView
               style={styles.scrollViewPaddingInOrderToScroll}
               key={""+this.props.connectionsMode}
               contentContainerStyle={styles.textListSummaryScrollView}>
-                {viewList}
+                {buttons}
             </ScrollView>
           );
         }
-
         return (
           <View
             style={[
@@ -355,6 +272,136 @@ class ConnectionsPanel extends React.PureComponent {
   }
 }
 
+
+const getLibraryNavButtonCatProps = (cat, connectionsMode, catFilterSelected, openFilter, setConnectionsMode) => {
+  const isMainMenu = connectionsMode === null;
+  const enText = (isMainMenu) ? cat.category : cat.category.toUpperCase();
+  const heText = Sefaria.hebrewCategory(cat.category);
+  const filter = new LinkFilter(cat.category, heText, cat.category, heText, cat.refList, cat.heRefList, cat.category);
+  const catColor = Sefaria.palette.categoryColor(cat.category);
+  const count = !catFilterSelected && cat.totalCount || cat.count;
+  const hasEn = cat.hasEn;
+  const onPress = (catFilterSelected) ? () => openFilter(filter, "link") : () => setConnectionsMode(cat.category);
+  const withArrow = false;
+  const buttonStyle = {margin: 0, padding: 0};
+  const key = cat.category;
+  return {enText, heText, catColor, count, hasEn, onPress, withArrow, buttonStyle, key, isMainMenu};
+}
+
+const getLibraryNavButtonBookProps = (book, cat, connectionsMode, catFilterSelected, openFilter) => {
+  const enText = book.collectiveTitle ? book.collectiveTitle : book.title;
+  const heText = book.heCollectiveTitle ? book.heCollectiveTitle : book.heTitle;
+  const filter = new LinkFilter(book.title, book.heTitle, book.collectiveTitle, book.heCollectiveTitle, book.refList, book.heRefList, cat.category);
+  const count = book.count;
+  const hasEn = book.hasEn;
+  const onPress = () => openFilter(filter, "link");
+  const withArrow = false;
+  const buttonStyle = {margin: 0, padding: 0};
+  const key = `${book.title}|${cat.category}`;
+  return {enText, heText, count, hasEn, onPress, withArrow, buttonStyle, key};
+}
+
+const getLibraryNavButtonPropsList = (linkSummary, connectionsMode, openFilter, setConnectionsMode) => {
+  connectionsMode = connectionsMode && connectionsMode.indexOf(" Commentary") !== -1 ? "Commentary" : connectionsMode;
+  const isMainMenu = connectionsMode === null;
+  let navButtonPropsList = [];
+  if (!isMainMenu && !linkSummary.find(cat => cat.category === connectionsMode)) {
+    linkSummary = linkSummary.concat([{category: connectionsMode, count: 0, refList: [], heRefList: [], books: []}]);
+  }
+  for (let i = 0; i < linkSummary.length; i++) {
+    const cat = linkSummary[i];
+    const catFilterSelected = (cat.category === connectionsMode || (connectionsMode === "Commentary" && cat.category.indexOf(" Commentary") !== -1));
+    if (!catFilterSelected && (cat.category === "Quoting Commentary" || cat.category === "Modern Commentary")) {
+      continue;   // skip these categories in the main link summary and only include them under Commentary
+    }
+    if (!isMainMenu && !catFilterSelected) {
+      continue;
+    }
+    navButtonPropsList.push(getLibraryNavButtonCatProps(cat, connectionsMode, catFilterSelected, openFilter, setConnectionsMode));
+    if (catFilterSelected) {
+      //if true, means we have a category filter selected
+      navButtonPropsList = navButtonPropsList.concat(cat.books.map((book) =>
+        getLibraryNavButtonBookProps(book, cat, connectionsMode, catFilterSelected, openFilter)
+      ));
+   }
+  }
+  return navButtonPropsList;
+}
+
+const MainMenuButtons = ({linkSummary,
+                           connectionsMode,
+                           openFilter,
+                           relatedHasError,
+                           sheet,
+                           themeStr,
+                           versions,
+                           setConnectionsMode,
+                           reloadRelated,
+                           relatedData,
+                           shareCurrentSegment,
+                           viewOnSite,
+                           reportError}) => {
+  const [showAllRelated, setShowAllRelated] = useState(false);
+  const toggleShowAllRelated = () => setShowAllRelated(!showAllRelated);
+  let navButtonPropsList = getLibraryNavButtonPropsList(linkSummary, connectionsMode, openFilter, setConnectionsMode, showAllRelated);
+  const collapsedTopLevelLimit = 3;
+  const buttonsOverload = navButtonPropsList.length > collapsedTopLevelLimit;
+  let string, icon;
+  if (buttonsOverload && !showAllRelated) {
+    navButtonPropsList = navButtonPropsList.slice(0, collapsedTopLevelLimit);
+    string = 'more';
+    icon = 'more';
+  } else if (buttonsOverload) {
+    string = 'less';
+    icon = 'up'
+  }
+  const navButtons = navButtonPropsList.map(props => (<LibraryNavButton {...props} />));
+  if (buttonsOverload) {navButtons.push(<ToolsButton
+        onPress={toggleShowAllRelated}
+        text={strings[string]}
+        icon={iconData.get(icon, themeStr)}
+        key='showMreLessButton'
+    />)}
+  return (<>
+    <TopButtons
+      relatedHasError={relatedHasError}
+      sheet={sheet}
+      themeStr={themeStr}
+      versionsCount={versions.length}
+      setConnectionsMode={setConnectionsMode}
+      reloadRelated={reloadRelated}
+    />
+    <ConnectionsPanelSection title={strings.relatedTexts}>{navButtons}</ConnectionsPanelSection>
+    <ResourcesList
+      themeStr={themeStr}
+      topicsCount={relatedData.topics ? Sefaria.links.topicsCount(relatedData.topics) : 0}
+      sheetsCount={relatedData.sheets ? relatedData.sheets.length : 0}
+      setConnectionsMode={setConnectionsMode}
+    />
+    <ToolsList
+      themeStr={themeStr}
+      sheet={sheet}
+      shareCurrentSegment={shareCurrentSegment}
+      viewOnSite={viewOnSite}
+      reportError={reportError}
+    />
+  </>);
+}
+MainMenuButtons.propTypes = {
+  linkSummary: PropTypes.array.isRequired,
+  connectionsMode: PropTypes.string,
+  openFilter: PropTypes.func.isRequired,
+  relatedHasError: PropTypes.bool.isRequired,
+  sheet: PropTypes.object,
+  themeStr: PropTypes.string.isRequired,
+  versions: PropTypes.array.isRequired,
+  setConnectionsMode: PropTypes.func.isRequired,
+  reloadRelated: PropTypes.func.isRequired,
+  relatedData: PropTypes.object.isRequired,
+  shareCurrentSegment: PropTypes.func.isRequired,
+  viewOnSite: PropTypes.func.isRequired,
+  reportError: PropTypes.func.isRequired,
+}
 
 const ToolsButton = ({ text, onPress, icon, count }) => {
   const { themeStr, interfaceLanguage } = useContext(GlobalStateContext);
@@ -388,7 +435,7 @@ const ConnectionsPanelSection = ({ title, children }) => {
   const theme= getTheme(themeStr);
   return (
     <View style={styles.connectionPanelSection} >
-      {title &&
+      {!!title &&
         <View style={{...styles.connectionPanelTitle, ...theme.lightGreyBorder}}>
           <Text style={[interfaceLanguage === "hebrew" ? styles.heInt : styles.enInt, theme.tertiaryText]}>
             {title}
@@ -445,7 +492,7 @@ const ResourcesList = ({themeStr, sheetsCount, setConnectionsMode, topicsCount})
           count={sheetsCount}
           onPress={()=>{ setConnectionsMode("sheetsByRef"); }}
         />
-        {topicsCount && <ToolsButton
+        {!!topicsCount && <ToolsButton
             text={strings.topics} count={topicsCount}
             icon={iconData.get('hashtag', themeStr)}
             onPress={() => setConnectionsMode("topicsByRef")}
