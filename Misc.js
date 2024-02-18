@@ -621,34 +621,33 @@ const LibraryNavButton = ({
               </View>
           }
           {
-            !!onPressCheckBox ?
+            !!onPressCheckBox &&
             <TouchableOpacity style={{paddingHorizontal: 10, paddingVertical: 15}} onPress={onPressCheckBox} >
               <IndeterminateCheckBox themeStr={themeStr} state={checkBoxSelected} onPress={onPressCheckBox} />
-            </TouchableOpacity> : null
+            </TouchableOpacity>
           }
           { !isHeb ?
             <Text style={[styles.englishText].concat([theme.tertiaryText, textStyle, {paddingTop:3}])}>
               {`${enText} `}
               {
-                !!count ? <Text style={[styles.englishText].concat([theme.secondaryText, textStyle])}>{`(${count})`}</Text> : null
+                !!count && <Text style={[styles.englishText].concat([theme.secondaryText, textStyle])}>{`(${count})`}</Text>
               }
             </Text>
             :
             <Text style={[styles.hebrewText].concat([theme.tertiaryText, textStyle, {paddingTop:13}])}>
               {`${heText} `}
               {
-                !!count ? <Text style={[styles.hebrewText].concat([theme.secondaryText, textStyle])}>{`(${count})`}</Text> : null
+                !!count && <Text style={[styles.hebrewText].concat([theme.secondaryText, textStyle])}>{`(${count})`}</Text>
               }
             </Text>
           }
         </View>
         {
-          (hasEn && !isHeb) ? <Text style={[styles.englishSystemFont, styles.enConnectionMarker, theme.enConnectionMarker, theme.secondaryText, Platform.OS === 'android' ? {paddingLeft: 5, paddingTop: 2} : null]}>{"EN"}</Text> : null
+          (hasEn && !isHeb) && <Text style={[styles.englishSystemFont, styles.enConnectionMarker, theme.enConnectionMarker, theme.secondaryText, Platform.OS === 'android' && {paddingLeft: 5, paddingTop: 2}]}>{"EN"}</Text>
         }
       </View>
-      { withArrow ?
+      { withArrow &&
         <DirectedArrow themeStr={themeStr} imageStyle={{opacity: 0.5}} language={textLanguage} direction={"forward"} />
-        : null
       }
    </TouchableOpacity>
  );
