@@ -424,7 +424,7 @@ Sefaria = {
   getCurrVersionObjectBySection: function(ref, lang) {
     const currVTitle = Sefaria._currVersionsBySection[ref]?.[lang];
     const title = Sefaria.textTitleForRef(ref);
-    const versionObjects = Sefaria._versionObjectsByTitle[title] || [];
+    const versionObjects = Sefaria._versionObjectsByTitle[title] || {};
     return versionObjects[Sefaria.getVersionObjectCacheKey(currVTitle, lang)];
   },
   getVersionObject: function(vtitle, lang, title) {
