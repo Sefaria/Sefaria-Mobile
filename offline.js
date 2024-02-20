@@ -211,19 +211,7 @@ const loadOfflineSection = async function(ref, versions, fallbackOnDefaultVersio
     }
 
     const [metadata, fileNameStem] = await loadOfflineSectionMetadataWithCache(ref);
-
-    const textByLang = {};
-    let defaultVersions = {};
-    versions = populateMissingVersions(versions, metadata.versions);
-    if (fallbackOnDefaultVersions) {
-        defaultVersions = populateMissingVersions({}, metadata.versions);
-        Sefaria.cacheCurrVersionsBySection(versions, ref);
-    }
-    for (let [lang, vtitle] of Object.entries(versions)) {
-        const versionText = await loadOfflineSectionByVersionWithCacheAndFallback(fileNameStem, lang, vtitle, defaultVersions[lang]);
-        // versionText may be depth-3. extract depth-2 if necessary.
-        textByLang[lang] = getSectionFromJsonData(ref, versionText);
-    }
+    const textByLang = await loadOfflineSectionByVersions(versions, metadata.versions, ref, fileNameStem, fallbackOnDefaultVersions);
 
     const fullSection = {...metadata};
     delete fullSection.links;
@@ -242,6 +230,24 @@ const loadOfflineSection = async function(ref, versions, fallbackOnDefaultVersio
     return fullSection;
 };
 
+const loadOfflineSectionByVersions = async function(selectedVersions, allVersions, ref, fileNameStem, fallbackOnDefaultVersions=true) {
+    const textByLang = {};
+    let defaultVersions = {};
+    selectedVersions = populateMissingVersions(selectedVersions, allVersions);
+    if (fallbackOnDefaultVersions) {
+        defaultVersions = populateMissingVersions({}, allVersions);
+    }
+    const loadedVersions = {};  // actual versions that were loaded, taking into account falling back on default version
+    for (let [lang, vtitle] of Object.entries(selectedVersions)) {
+        const [versionText, loadedVTitle] = await loadOfflineSectionByVersionWithCacheAndFallback(fileNameStem, lang, vtitle, defaultVersions[lang]);
+        loadedVersions[lang] = loadedVTitle;
+        // versionText may be depth-3. extract depth-2 if necessary.
+        textByLang[lang] = getSectionFromJsonData(ref, versionText);
+    }
+    Sefaria.cacheCurrVersionsBySection(loadedVersions, ref);
+    return textByLang;
+};
+
 const loadOfflineSectionByVersionWithCacheAndFallback = async function(fileNameStem, lang, vtitle, defaultVTitle) {
     /**
      * tries to load `vtitle`. If it fails, falls back on default and if that fails, throws an error that this version
@@ -249,13 +255,13 @@ const loadOfflineSectionByVersionWithCacheAndFallback = async function(fileNameS
      * if defaultVTitle is falsy, only try to load `vtitle` and if that fails throw error
      */
     try {
-        return await loadOfflineSectionByVersionWithCache(fileNameStem, lang, vtitle);
+        return [await loadOfflineSectionByVersionWithCache(fileNameStem, lang, vtitle), vtitle];
     } catch(error) {
         if (!defaultVTitle) {
             throw ERRORS.MISSING_OFFLINE_DATA;
         }
         try {
-            return await loadOfflineSectionByVersionWithCache(fileNameStem, lang, defaultVTitle);
+            return [await loadOfflineSectionByVersionWithCache(fileNameStem, lang, defaultVTitle), defaultVTitle];
         } catch(error) {
             throw ERRORS.MISSING_OFFLINE_DATA;
         }
