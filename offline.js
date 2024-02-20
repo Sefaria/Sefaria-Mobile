@@ -204,30 +204,15 @@ const loadOfflineSection = async function(ref, versions, fallbackOnDefaultVersio
         throw ERRORS.MISSING_OFFLINE_DATA;
     }
 
-    const key = getOfflineSectionKey(ref, versions);
-    const cached = Sefaria._jsonSectionData[key];
+    const offlineSectionKey = getOfflineSectionKey(ref, versions);
+    const cached = Sefaria._jsonSectionData[offlineSectionKey];
     if (cached) {
         return cached;
     }
 
     const [metadata, fileNameStem] = await loadOfflineSectionMetadataWithCache(ref);
     const textByLang = await loadOfflineSectionByVersions(versions, metadata.versions, ref, fileNameStem, fallbackOnDefaultVersions);
-
-    const fullSection = {...metadata};
-    delete fullSection.links;
-    fullSection.content = [];
-    const sectionLen = Math.max(...Object.values(textByLang).map(x => x.length))
-    for (let i = 0; i < sectionLen; i++) {
-        fullSection.content.push({
-            segmentNumber: i+1+"",
-            links: metadata.links?.[i] || [],
-            text: textByLang?.en?.[i] || "",
-            he: textByLang?.he?.[i] || "",
-        });
-    }
-
-    Sefaria._jsonSectionData[key] = fullSection;
-    return fullSection;
+    return createFullSectionObject(metadata, textByLang);
 };
 
 const loadOfflineSectionByVersions = async function(selectedVersions, allVersions, ref, fileNameStem, fallbackOnDefaultVersions=true) {
@@ -246,6 +231,27 @@ const loadOfflineSectionByVersions = async function(selectedVersions, allVersion
     }
     Sefaria.cacheCurrVersionsBySection(loadedVersions, ref);
     return textByLang;
+};
+
+const createFullSectionObject = (metadata, textByLang, cacheKey) => {
+    /**
+     * Given metadata file and text for each version, combine them into a full section object which is used by the reader
+     */
+    const fullSection = {...metadata};
+    delete fullSection.links;
+    fullSection.content = [];
+    const sectionLen = Math.max(...Object.values(textByLang).map(x => x.length))
+    for (let i = 0; i < sectionLen; i++) {
+        fullSection.content.push({
+            segmentNumber: i+1+"",
+            links: metadata.links?.[i] || [],
+            text: textByLang?.en?.[i] || "",
+            he: textByLang?.he?.[i] || "",
+        });
+    }
+
+    Sefaria._jsonSectionData[cacheKey] = fullSection;
+    return fullSection;
 };
 
 const loadOfflineSectionByVersionWithCacheAndFallback = async function(fileNameStem, lang, vtitle, defaultVTitle) {
