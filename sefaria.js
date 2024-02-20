@@ -393,12 +393,14 @@ Sefaria = {
     for (let lang of ['en', 'he']) {
       const versionObject = {};
       attrs.forEach(attr => {
+        // remove 'he' prefix from attributes
         const dataAttr = lang === 'he' ? `he${attr.at(0).toUpperCase()}${attr.substring(1)}` : attr;
         versionObject[attr] = data[dataAttr];
       });
+      versionObject.language = lang;
       versionObjects.push(versionObject);
     }
-    Sefaria.cacheVersionObjectByTitle(versionObjects, data.title);
+    Sefaria.cacheVersionObjectByTitle(versionObjects, data.indexTitle);
   },
   cacheVersionObjectByTitle: function(versionObjects, title) {
     /**
