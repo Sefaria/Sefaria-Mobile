@@ -204,27 +204,39 @@ const loadOfflineSection = async function(ref, versions, fallbackOnDefaultVersio
         throw ERRORS.MISSING_OFFLINE_DATA;
     }
 
-    const key = getOfflineSectionKey(ref, versions);
-    const cached = Sefaria._jsonSectionData[key];
+    const offlineSectionKey = getOfflineSectionKey(ref, versions);
+    const cached = Sefaria._jsonSectionData[offlineSectionKey];
     if (cached) {
         return cached;
     }
 
     const [metadata, fileNameStem] = await loadOfflineSectionMetadataWithCache(ref);
+    const textByLang = await loadOfflineSectionByVersions(versions, metadata.versions, ref, fileNameStem, fallbackOnDefaultVersions);
+    return createFullSectionObject(metadata, textByLang);
+};
 
+const loadOfflineSectionByVersions = async function(selectedVersions, allVersions, ref, fileNameStem, fallbackOnDefaultVersions=true) {
     const textByLang = {};
     let defaultVersions = {};
-    versions = populateMissingVersions(versions, metadata.versions);
+    selectedVersions = populateMissingVersions(selectedVersions, allVersions);
     if (fallbackOnDefaultVersions) {
-        defaultVersions = populateMissingVersions({}, metadata.versions);
-        Sefaria.cacheCurrVersionsBySection(versions, ref);
+        defaultVersions = populateMissingVersions({}, allVersions);
     }
-    for (let [lang, vtitle] of Object.entries(versions)) {
-        const versionText = await loadOfflineSectionByVersionWithCacheAndFallback(fileNameStem, lang, vtitle, defaultVersions[lang]);
+    const loadedVersions = {};  // actual versions that were loaded, taking into account falling back on default version
+    for (let [lang, vtitle] of Object.entries(selectedVersions)) {
+        const [versionText, loadedVTitle] = await loadOfflineSectionByVersionWithCacheAndFallback(fileNameStem, lang, vtitle, defaultVersions[lang]);
+        loadedVersions[lang] = loadedVTitle;
         // versionText may be depth-3. extract depth-2 if necessary.
         textByLang[lang] = getSectionFromJsonData(ref, versionText);
     }
+    Sefaria.cacheCurrVersionsBySection(loadedVersions, ref);
+    return textByLang;
+};
 
+const createFullSectionObject = (metadata, textByLang, cacheKey) => {
+    /**
+     * Given metadata file and text for each version, combine them into a full section object which is used by the reader
+     */
     const fullSection = {...metadata};
     delete fullSection.links;
     fullSection.content = [];
@@ -238,7 +250,7 @@ const loadOfflineSection = async function(ref, versions, fallbackOnDefaultVersio
         });
     }
 
-    Sefaria._jsonSectionData[key] = fullSection;
+    Sefaria._jsonSectionData[cacheKey] = fullSection;
     return fullSection;
 };
 
@@ -249,13 +261,13 @@ const loadOfflineSectionByVersionWithCacheAndFallback = async function(fileNameS
      * if defaultVTitle is falsy, only try to load `vtitle` and if that fails throw error
      */
     try {
-        return await loadOfflineSectionByVersionWithCache(fileNameStem, lang, vtitle);
+        return [await loadOfflineSectionByVersionWithCache(fileNameStem, lang, vtitle), vtitle];
     } catch(error) {
         if (!defaultVTitle) {
             throw ERRORS.MISSING_OFFLINE_DATA;
         }
         try {
-            return await loadOfflineSectionByVersionWithCache(fileNameStem, lang, defaultVTitle);
+            return [await loadOfflineSectionByVersionWithCache(fileNameStem, lang, defaultVTitle), defaultVTitle];
         } catch(error) {
             throw ERRORS.MISSING_OFFLINE_DATA;
         }
