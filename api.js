@@ -359,7 +359,6 @@ var Api = {
           Sefaria.cacheVersionsAvailableBySection(ref,
               response.map(v => ({versionTitle: v.versionTitle, language: v.language}))
           );
-          Sefaria.cacheVersionObjectByTitle(response, Sefaria.textTitleForRef(ref));
           Sefaria.api._versions[ref] = response;
           resolve(response);
         })
