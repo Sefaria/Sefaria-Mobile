@@ -8,7 +8,7 @@ import {
     loadTextTocOffline,
     loadTextOffline,
     getOfflineVersionObjectsAvailable,
-    loadOfflineSectionMetadataCompat
+    loadOfflineSectionMetadataCompat, getAllTranslations
 } from "./offline";
 import api from "./api";
 
@@ -50,6 +50,21 @@ export const loadVersions = async (ref) => {
     }
     return { versions, versionsApiError };
 };
+
+export const loadTranslations = async (ref, versions) => {
+    let translationsApiError = false;
+    let translations = await getAllTranslations(ref, versions);
+    console.log(4, translations);
+    if (!translations) {
+        try {
+            translations = await api.translations(ref);
+        } catch (error) {
+            translations = [];
+            translationsApiError = true;
+        }
+    }
+    return {translations, translationsApiError};
+}
 
 const relatedCacheKey = function(ref, online) {
     return `${ref}|${online}`;
