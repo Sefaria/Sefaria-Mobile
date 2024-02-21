@@ -10,6 +10,7 @@ import LinkContent from './LinkContent';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import crashlytics from '@react-native-firebase/crashlytics';  // to setup up generic crashlytics reports
 import jwt_decode from 'jwt-decode';
+import Sefaria from "./sefaria";
 
 var Api = {
   /*
@@ -174,6 +175,10 @@ var Api = {
             urlSuffix += `&stripItags=1`;
           }
           break;
+        case 'translations':
+          url += 'api/v3/texts/';
+          urlSuffix = '?version=translations|all';
+          break;
         case "links":
           url += 'api/links/';
           urlSuffix = '?with_text=0';
@@ -274,6 +279,9 @@ var Api = {
       return cacheValue;
     }
     return Sefaria.api._text(ref, { context, versions, stripItags: true });
+  },
+  translations: async function(ref) {
+    return Sefaria.api._request(ref,'translations', true);
   },
   processTextApiData: function(ref, context, versions, data) {
     Sefaria.api.textCache(ref, context, versions, data);
