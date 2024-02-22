@@ -15,7 +15,6 @@ import {useGlobalState} from "./Hooks";
 
 const VersionBlock = ({
   version,
-  openVersionInSidebar,
   openVersionInReader,
   openUri,
   handleOpenURL,
@@ -23,9 +22,8 @@ const VersionBlock = ({
   const { theme, textLanguage, interfaceLanguage } = useGlobalState();
 
   const onVersionTitleClick = useCallback(() => {
-    const action = openVersionInSidebar ? openVersionInSidebar : openVersionInReader;
-    if (action) {
-      action(version.versionTitle, version.versionTitleInHebrew, version.language);
+    if (openVersionInReader) {
+      openVersionInReader(version.versionTitle, version.versionTitleInHebrew, version.language);
     }
   }, [version]);
   const onSelectVersionClick = useCallback(() => {
@@ -86,7 +84,6 @@ const VersionBlock = ({
 }
 VersionBlock.propTypes = {
   version:              PropTypes.object.isRequired,
-  openVersionInSidebar: PropTypes.func,
   openVersionInReader:  PropTypes.func,
   openUri:              PropTypes.func.isRequired,
 };
