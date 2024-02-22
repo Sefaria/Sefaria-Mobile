@@ -1,14 +1,11 @@
 'use strict';
 import PropTypes from 'prop-types';
-import React, { useContext } from 'react';
+import React, {useState} from 'react';
 import {
   View,
   ScrollView,
-  FlatList,
   Text,
   Image,
-  TouchableOpacity,
-  Dimensions,
 } from 'react-native';
 import styles from './Styles';
 import strings from './LocalizedStrings';
@@ -20,8 +17,9 @@ import AboutBox from './AboutBox';
 import SheetListInConnections from './SheetListInConnections';
 import TopicList from './TopicList';
 import LexiconBox from './LexiconBox';
-import { GlobalStateContext, getTheme } from './StateManager';
 import {iconData} from "./IconData";
+import {useGlobalState} from "./Hooks";
+
 
 const {
   CategoryColorLine,
@@ -31,6 +29,12 @@ const {
 } = require('./Misc.js');
 
 class ConnectionsPanel extends React.PureComponent {
+  constructor(props) {
+    super(props);
+    this.state = {
+      showAllRelated: false,
+    };
+  }
   static whyDidYouRender = true;
   static propTypes = {
     textToc:              PropTypes.object,
@@ -81,9 +85,11 @@ class ConnectionsPanel extends React.PureComponent {
   };
 
   reloadRelated = () => this.props.loadRelated(this.props.sectionRef);
-  
+  toggleShowAllRelated = () => this.setState((prevState) => ({showAllRelated: !prevState.showAllRelated}));
+
   render() {
     let recentFilters, filterIndex, listContents, loadContent, updateCat;
+    const isMainMenu= this.props.connectionsMode === null;
     switch (this.props.connectionsMode) {
       case 'filter':
         recentFilters = this.props.recentFilters;
@@ -218,97 +224,42 @@ class ConnectionsPanel extends React.PureComponent {
           content = (<LoadingView />);
         } else {
           // if you're in Modern Commentary, switch to Commentary
-          const connectionsMode = this.props.connectionsMode && this.props.connectionsMode.indexOf(" Commentary") !== -1 ? "Commentary" : this.props.connectionsMode;
-          let viewList = [];
-          let linkSummary = this.props.linkSummary;
-          if (connectionsMode !== null && !linkSummary.find(cat => cat.category === connectionsMode)) {
-            linkSummary = linkSummary.concat([{category: connectionsMode, count: 0, refList: [], heRefList: [], books: []}]);
-          }
-          for (let i = 0; i < linkSummary.length; i++) {
-            const cat = linkSummary[i];
-            const catFilterSelected = (cat.category === connectionsMode || (connectionsMode === "Commentary" && cat.category.indexOf(" Commentary") !== -1));
-            if (!catFilterSelected && (cat.category === "Quoting Commentary" || cat.category === "Modern Commentary")) { continue; }  // skip these categories in the main link summary and only include them under Commentary
-            if (connectionsMode !== null && !catFilterSelected) { continue; }
-            const heCategory = Sefaria.hebrewCategory(cat.category);
-            const filter = new LinkFilter(cat.category, heCategory, cat.category, heCategory, cat.refList, cat.heRefList, cat.category);
-            viewList.push(
-              <LibraryNavButton
-                enText={cat.category.toUpperCase()}
-                heText={heCategory}
-                catColor={Sefaria.palette.categoryColor(cat.category)}
-                count={!catFilterSelected && cat.totalCount || cat.count}
-                hasEn={cat.hasEn}
-                onPress={function(filter,category) {
-                  if (catFilterSelected) {
-                    this.props.openFilter(filter, "link");
-                  } else {
-                    this.props.setConnectionsMode(category);
-                  }
-                }.bind(this,filter,cat.category)}
-                withArrow={false}
-                buttonStyle={{margin: 0, padding: 0}}
-                key={cat.category}
-              />
-            );
-            if (catFilterSelected) {
-              //if true, means we have a category filter selected
-              viewList = viewList.concat(cat.books.map((obook)=>{
-                const filter = new LinkFilter(obook.title, obook.heTitle, obook.collectiveTitle, obook.heCollectiveTitle, obook.refList, obook.heRefList, cat.category);
-                return (
-                  <LibraryNavButton
-                    enText={obook.collectiveTitle ? obook.collectiveTitle : obook.title} //NOTE backwards compatibility
-                    heText={obook.heCollectiveTitle ? obook.heCollectiveTitle : obook.heTitle}
-                    count={obook.count}
-                    hasEn={obook.hasEn}
-                    onPress={function(filter,title) {
-                      this.props.openFilter(filter, "link");
-                    }.bind(this,filter,obook.title)}
-                    withArrow={false}
-                    buttonStyle={{margin: 0, padding: 0}}
-                    key={`${obook.title}|${cat.category}`}
-                  />
-                )
-              }));
-            }
-          }
-          if (this.props.connectionsMode === null) {
-            viewList.push(
-              <ResourcesList
-                key={"resourcesList"}
+          let buttons;
+          if (isMainMenu) {
+            buttons = (<MainMenuButtons
                 relatedHasError={this.props.relatedHasError}
                 sheet={this.props.sheet}
                 themeStr={this.props.themeStr}
-                versionsCount={this.props.versions.length}
-                sheetsCount={this.props.relatedData.sheets ? this.props.relatedData.sheets.length : 0}
-                topicsCount={this.props.relatedData.topics ? Sefaria.links.topicsCount(this.props.relatedData.topics) : 0}
+                versions={this.props.versions}
                 setConnectionsMode={this.props.setConnectionsMode}
-                segmentRef={this.props.segmentRef}
-                heSegmentRef={this.props.heSegmentRef}
-                categories={this.props.categories}
-                shareCurrentSegment={this.props.shareCurrentSegment}
-                reportError={this.props.reportError}
-                viewOnSite={this.props.viewOnSite}
                 reloadRelated={this.reloadRelated}
-              />
-            );
+                relatedData={this.props.relatedData}
+                shareCurrentSegment={this.props.shareCurrentSegment}
+                viewOnSite={this.props.viewOnSite}
+                reportError={this.props.reportError}
+                linkSummary={this.props.linkSummary}
+                connectionsMode={this.props.connectionsMode}
+                openFilter={this.props.openFilter}
+            />);
+          } else {
+            let navButtonPropsList= getLibraryNavButtonPropsList(this.props.linkSummary, this.props.connectionsMode, this.props.openFilter, this.props.setConnectionsMode);
+            buttons = navButtonPropsList.map(props => (<LibraryNavButton {...props} />));
           }
           content = (
             <ScrollView
               style={styles.scrollViewPaddingInOrderToScroll}
               key={""+this.props.connectionsMode}
               contentContainerStyle={styles.textListSummaryScrollView}>
-                {viewList}
+                {buttons}
             </ScrollView>
           );
         }
-
         return (
           <View
             style={[
               styles.mainTextPanel,
               styles.textListSummary,
               this.props.theme.commentaryTextPanel,
-              this.props.theme.textListSummary,
               {flex: this.props.textListFlex}]}
             onStartShouldSetResponderCapture={this.props.onStartShouldSetResponderCapture}>
             {connectionsPanelHeader}
@@ -319,92 +270,145 @@ class ConnectionsPanel extends React.PureComponent {
 }
 
 
-class ResourcesList extends React.PureComponent {
-  static whyDidYouRender = true;
-  static propTypes = {
-    themeStr:           PropTypes.string.isRequired,
-    setConnectionsMode: PropTypes.func.isRequired,
-    versionsCount:      PropTypes.number.isRequired,
-    sheetsCount:        PropTypes.number.isRequired,
-    topicsCount:        PropTypes.number.isRequired,
-    segmentRef:         PropTypes.string.isRequired,
-    segmentRefOnSheet:  PropTypes.string,
-    heSegmentRef:       PropTypes.string.isRequired,
-    categories:         PropTypes.array.isRequired,
-    shareCurrentSegment:PropTypes.func.isRequired,
-    viewOnSite:         PropTypes.func.isRequired,
-    reportError:        PropTypes.func.isRequired,
-    relatedHasError:    PropTypes.bool,
-    reloadRelated:      PropTypes.func.isRequired,
-  }
+const getLibraryNavButtonCatProps = (cat, connectionsMode, catFilterSelected, openFilter, setConnectionsMode) => {
+  const isMainMenu = connectionsMode === null;
+  const enText = (isMainMenu) ? cat.category : cat.category.toUpperCase();
+  const heText = Sefaria.hebrewCategory(cat.category);
+  const filter = new LinkFilter(cat.category, heText, cat.category, heText, cat.refList, cat.heRefList, cat.category);
+  const catColor = Sefaria.palette.categoryColor(cat.category);
+  const count = !catFilterSelected && cat.totalCount || cat.count;
+  const hasEn = cat.hasEn;
+  const onPress = (catFilterSelected) ? () => openFilter(filter, "link") : () => setConnectionsMode(cat.category);
+  const buttonStyle = {margin: 0, padding: 0};
+  const key = cat.category;
+  return {enText, heText, catColor, count, hasEn, onPress, buttonStyle, key, isMainMenu};
+}
 
-  render() {
-    return (
-      <View>
-        {
-          this.props.relatedHasError ? (
-            <ToolsButton
-            text={strings.resourcesFailedToLoad}
-            onPress={this.props.reloadRelated}
-          />
-          ) : null
-        }
-        <ToolsButton
-          text={strings.sheets}
-          icon={iconData.get('sheet', this.props.themeStr)}
-          count={this.props.sheetsCount}
-          onPress={()=>{ this.props.setConnectionsMode("sheetsByRef"); }}
-        />
-        {this.props.topicsCount && this.props.topicsCount > 0 ? (
-          <ToolsButton
-            text={strings.topics} count={this.props.topicsCount}
-            icon={iconData.get('hashtag', this.props.themeStr)}
-            onPress={() => this.props.setConnectionsMode("topicsByRef")}
-          />) : null
-        }
-        <ToolsButton
-          text={strings.about}
-          icon={iconData.get('book', this.props.themeStr)}
-          onPress={()=>{ this.props.setConnectionsMode("about"); }}
-        />
-        {this.props.sheet ? null : <ToolsButton
-          text={strings.translations}
-          icon={iconData.get('layers', this.props.themeStr)}
-          count={this.props.versionsCount}
-          onPress={()=>{ this.props.setConnectionsMode("versions"); }}
-        /> }
-        <ToolsButton
-          text={strings.share}
-          icon={iconData.get('share', this.props.themeStr)}
-          onPress={() => this.props.shareCurrentSegment()}
-        />
-        {this.props.sheet ? null : <ToolsButton
-          text={strings.reportError}
-          icon={iconData.get('bubble', this.props.themeStr)}
-          onPress={this.props.reportError}
-        />}
-        <ToolsButton
-          text={strings.viewOnSite}
-          icon={iconData.get('externalLink', this.props.themeStr)}
-          onPress={this.props.viewOnSite}
-        />
-      </View>
-    );
+const getLibraryNavButtonBookProps = (book, cat, connectionsMode, catFilterSelected, openFilter) => {
+  const enText = book.collectiveTitle ? book.collectiveTitle : book.title;
+  const heText = book.heCollectiveTitle ? book.heCollectiveTitle : book.heTitle;
+  const filter = new LinkFilter(book.title, book.heTitle, book.collectiveTitle, book.heCollectiveTitle, book.refList, book.heRefList, cat.category);
+  const count = book.count;
+  const hasEn = book.hasEn;
+  const onPress = () => openFilter(filter, "link");
+  const buttonStyle = {margin: 0, padding: 0};
+  const key = `${book.title}|${cat.category}`;
+  return {enText, heText, count, hasEn, onPress, buttonStyle, key};
+}
+
+const getLibraryNavButtonPropsList = (linkSummary, connectionsMode, openFilter, setConnectionsMode) => {
+  connectionsMode = connectionsMode && connectionsMode.indexOf(" Commentary") !== -1 ? "Commentary" : connectionsMode;
+  const isMainMenu = connectionsMode === null;
+  let navButtonPropsList = [];
+  if (!isMainMenu && !linkSummary.find(cat => cat.category === connectionsMode)) {
+    linkSummary = linkSummary.concat([{category: connectionsMode, count: 0, refList: [], heRefList: [], books: []}]);
   }
+  for (let i = 0; i < linkSummary.length; i++) {
+    const cat = linkSummary[i];
+    const catFilterSelected = (cat.category === connectionsMode || (connectionsMode === "Commentary" && cat.category.indexOf(" Commentary") !== -1));
+    if (!catFilterSelected && (cat.category === "Quoting Commentary" || cat.category === "Modern Commentary")) {
+      continue;   // skip these categories in the main link summary and only include them under Commentary
+    }
+    if (!isMainMenu && !catFilterSelected) {
+      continue;
+    }
+    navButtonPropsList.push(getLibraryNavButtonCatProps(cat, connectionsMode, catFilterSelected, openFilter, setConnectionsMode));
+    if (catFilterSelected) {
+      //if true, means we have a category filter selected
+      navButtonPropsList = navButtonPropsList.concat(cat.books.map((book) =>
+        getLibraryNavButtonBookProps(book, cat, connectionsMode, catFilterSelected, openFilter)
+      ));
+   }
+  }
+  return navButtonPropsList;
+}
+
+const MainMenuButtons = ({linkSummary,
+                           connectionsMode,
+                           openFilter,
+                           relatedHasError,
+                           sheet,
+                           themeStr,
+                           versions,
+                           setConnectionsMode,
+                           reloadRelated,
+                           relatedData,
+                           shareCurrentSegment,
+                           viewOnSite,
+                           reportError}) => {
+  const [showAllRelated, setShowAllRelated] = useState(false);
+  const toggleShowAllRelated = () => setShowAllRelated(!showAllRelated);
+  let navButtonPropsList = getLibraryNavButtonPropsList(linkSummary, connectionsMode, openFilter, setConnectionsMode, showAllRelated);
+  const collapsedTopLevelLimit = 3;
+  const buttonsOverload = navButtonPropsList.length > collapsedTopLevelLimit;
+  let string, icon;
+  if (buttonsOverload && !showAllRelated) {
+    navButtonPropsList = navButtonPropsList.slice(0, collapsedTopLevelLimit);
+    string = 'more';
+    icon = 'more';
+  } else if (buttonsOverload) {
+    string = 'less';
+    icon = 'up'
+  }
+  const navButtons = navButtonPropsList.map(props => (<LibraryNavButton {...props} />));
+  if (buttonsOverload) {navButtons.push(<ToolsButton
+        onPress={toggleShowAllRelated}
+        text={strings[string]}
+        icon={iconData.get(icon, themeStr)}
+        key='showMreLessButton'
+    />)}
+  return (<>
+    <TopButtons
+      relatedHasError={relatedHasError}
+      sheet={sheet}
+      themeStr={themeStr}
+      versionsCount={versions.length}
+      setConnectionsMode={setConnectionsMode}
+      reloadRelated={reloadRelated}
+    />
+    <ConnectionsPanelSection title={strings.relatedTexts}>{navButtons}</ConnectionsPanelSection>
+    <ResourcesList
+      themeStr={themeStr}
+      topicsCount={relatedData.topics ? Sefaria.links.topicsCount(relatedData.topics) : 0}
+      sheetsCount={relatedData.sheets ? relatedData.sheets.length : 0}
+      setConnectionsMode={setConnectionsMode}
+    />
+    <ToolsList
+      themeStr={themeStr}
+      sheet={sheet}
+      shareCurrentSegment={shareCurrentSegment}
+      viewOnSite={viewOnSite}
+      reportError={reportError}
+    />
+  </>);
+}
+MainMenuButtons.propTypes = {
+  linkSummary: PropTypes.array.isRequired,
+  connectionsMode: PropTypes.string,
+  openFilter: PropTypes.func.isRequired,
+  relatedHasError: PropTypes.bool.isRequired,
+  sheet: PropTypes.object,
+  themeStr: PropTypes.string.isRequired,
+  versions: PropTypes.array.isRequired,
+  setConnectionsMode: PropTypes.func.isRequired,
+  reloadRelated: PropTypes.func.isRequired,
+  relatedData: PropTypes.object.isRequired,
+  shareCurrentSegment: PropTypes.func.isRequired,
+  viewOnSite: PropTypes.func.isRequired,
+  reportError: PropTypes.func.isRequired,
 }
 
 const ToolsButton = ({ text, onPress, icon, count }) => {
-  const { themeStr, interfaceLanguage } = useContext(GlobalStateContext);
-  const theme = getTheme(themeStr);
+  const { theme, themeStr, interfaceLanguage } = useGlobalState();
   const textStyle = interfaceLanguage === "english" ? styles.enInt : styles.heInt;
   const flexDir = interfaceLanguage === "english" ? null : styles.rtlRow;
   const hasIcon = !!icon;
   icon = icon || iconData.get('sheet', themeStr);  // default to arbitrary icon that will be invisible if icon wasn't passed
-  const iconComp = (<View style={[styles.toolsButtonIcon, hasIcon ? null : styles.readerNavSectionMoreInvisible]}><Image source={icon} style={styles.menuButton} resizeMode={'contain'}></Image></View>);
+  const iconComp = (<View style={[styles.toolsButtonIcon, flexDir, hasIcon ? null : styles.readerNavSectionMoreInvisible]}><Image source={icon} style={styles.menuButton} resizeMode={'contain'}></Image></View>);
   const countComp = !!count || count === 0 ? <Text style={[styles.enInt, theme.secondaryText, styles.spacedText]}>{` (${count}) `}</Text> : null
   return (
     <SefariaPressable
-      extraStyles={[styles.searchFilterCat, styles.toolsButton, flexDir, theme.bordered]}
+      extraStyles={[styles.searchFilterCat, styles.toolsButton, flexDir, theme.bordered, {height: 36}]}
       onPress={onPress}
     >
       { iconComp }
@@ -418,6 +422,111 @@ ToolsButton.propTypes = {
   onPress:       PropTypes.func.isRequired,
   icon:          PropTypes.number,
   count:         PropTypes.number,
+};
+
+const ConnectionsPanelSection = ({ title, children }) => {
+  const { theme, interfaceLanguage } = useGlobalState();
+  return (
+    <View style={styles.connectionPanelSection} >
+      {!!title &&
+        <View style={[styles.connectionPanelTitle, theme.lightGreyBorder]}>
+          <Text style={[interfaceLanguage === "hebrew" ? styles.heInt : styles.enInt, theme.tertiaryText]}>
+            {title}
+          </Text>
+        </View>
+      }
+      <View>
+        {children}
+      </View>
+    </View>
+  );
+};
+ConnectionsPanelSection.propTypes = {
+  title: PropTypes.string,
+  children: PropTypes.node.isRequired,
+};
+
+const TopButtons = ({relatedHasError, reloadRelated, themeStr, setConnectionsMode, sheet, versionsCount}) => {
+  return (
+    <ConnectionsPanelSection>
+      {relatedHasError && <ToolsButton
+        text={strings.resourcesFailedToLoad}
+        onPress={reloadRelated}
+      /> }
+      <ToolsButton
+        text={strings.aboutThisText}
+        icon={iconData.get('info', themeStr)}
+        onPress={()=> {setConnectionsMode("about"); }}
+      />
+      {sheet ? null : <ToolsButton
+        text={strings.translations}
+        icon={iconData.get('translations', themeStr)}
+        count={versionsCount}
+        onPress={()=> {setConnectionsMode("versions"); }}
+      /> }
+    </ConnectionsPanelSection>
+  )
+};
+TopButtons.propTypes = {
+    themeStr:           PropTypes.string.isRequired,
+    setConnectionsMode: PropTypes.func.isRequired,
+    versionsCount:      PropTypes.number.isRequired,
+    relatedHasError:    PropTypes.bool,
+    reloadRelated:      PropTypes.func.isRequired,
+    sheet:              PropTypes.object,
+};
+
+const ResourcesList = ({themeStr, sheetsCount, setConnectionsMode, topicsCount}) => {
+  return (
+      <ConnectionsPanelSection title={strings.resources}>
+        <ToolsButton
+          text={strings.sheets}
+          icon={iconData.get('sheet', themeStr)}
+          count={sheetsCount}
+          onPress={()=>{ setConnectionsMode("sheetsByRef"); }}
+        />
+        {!!topicsCount && <ToolsButton
+            text={strings.topics} count={topicsCount}
+            icon={iconData.get('hashtag', themeStr)}
+            onPress={() => setConnectionsMode("topicsByRef")}
+        /> }
+      </ConnectionsPanelSection>
+  )
+};
+ResourcesList.propTypes = {
+  themeStr:           PropTypes.string.isRequired,
+  setConnectionsMode: PropTypes.func.isRequired,
+  sheetsCount:        PropTypes.number.isRequired,
+  topicsCount:        PropTypes.number.isRequired,
+};
+
+const ToolsList = ({themeStr, shareCurrentSegment, sheet, reportError, viewOnSite}) => {
+  return (
+      <ConnectionsPanelSection title={strings.tools}>
+        <ToolsButton
+          text={strings.share}
+          icon={iconData.get('share-full', themeStr)}
+          onPress={() => shareCurrentSegment()}
+        />
+        {sheet ? null : <ToolsButton
+          text={strings.reportError}
+          icon={iconData.get('bubble', themeStr)}
+          onPress={reportError}
+        />}
+        <ToolsButton
+          text={strings.viewOnSite}
+          icon={iconData.get('externalLink', themeStr)}
+          onPress={viewOnSite}
+        />
+      </ConnectionsPanelSection>
+  )
+};
+ToolsList.propTypes = {
+  themeStr:           PropTypes.string.isRequired,
+  shareCurrentSegment:PropTypes.func.isRequired,
+  viewOnSite:         PropTypes.func.isRequired,
+  reportError:        PropTypes.func.isRequired,
+  sheet:              PropTypes.object,
 };
 
 export default ConnectionsPanel;

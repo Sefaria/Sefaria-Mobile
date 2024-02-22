@@ -1239,12 +1239,12 @@ export default StyleSheet.create({
     flexDirection: "row-reverse"
   },
   toolsButton: {
-    borderTopWidth: 1,
+    borderTopWidth: null,
     justifyContent: 'flex-start',
+    paddingHorizontal: 0,
   },
   toolsButtonIcon: {
     width: iPad ? readerSideMarginIpad : readerSideMargin,
-    alignItems: 'center',
   },
   toolsButtonText: {
   },
@@ -1547,4 +1547,11 @@ export default StyleSheet.create({
   flex1: {
     flex: 1,
   },
+  connectionPanelSection: {
+    paddingHorizontal: 40,
+  },
+  connectionPanelTitle: {
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+  }
 });

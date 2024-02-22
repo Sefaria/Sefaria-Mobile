@@ -487,7 +487,6 @@ const PackageComponent = ({ packageObj, onPackagePress, isDisabledObj }) => {
         onPressCheckBox={onPress}
         checkBoxSelected={0+isSelected}
         buttonStyle={{margin: 0, padding: 0, opacity: isDisabledObj[packageObj.en] ? 0.6 : 1.0}}
-        withArrow={false}
       />
       <ConditionalProgressWrapper
         conditionMethod={ (state, props) => state && state.downloadNotification === props.packageName}
@@ -496,10 +495,10 @@ const PackageComponent = ({ packageObj, onPackagePress, isDisabledObj }) => {
         listenerName={`PackageComponent${packageObj.name}`}
         packageName={packageObj.name}
       >
-        <SefariaProgressBar
-          download={DownloadTracker}
-          identity={'SettingsPage'}
-          downloadSize={packageObj.jsonData.size} />
+      <SefariaProgressBar
+        download={DownloadTracker}
+        identity={'SettingsPage'}
+        downloadSize={packageObj.jsonData.size} />
       </ConditionalProgressWrapper>
     </View>
   )

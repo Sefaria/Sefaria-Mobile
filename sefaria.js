@@ -817,7 +817,7 @@ Sefaria = {
       return new Promise(function(resolve, reject) {
         // Returns an ordered array summarizing the link counts by category and text
         // Takes an array of links which are of the form { "category", "sourceHeRef", "sourceRef", "textTitle"}
-        var summary = {"All": {count: 0, books: {}, hasEn: false}, "Commentary": {count: 0, books: {}, hasEn: false}};
+        let summary = {"Commentary": {count: 0, books: {}, hasEn: false}};
 
         // Process tempLinks if any
         for (let link of links) {
@@ -830,7 +830,6 @@ Sefaria = {
           } else {
             summary[link.category] = {count: 1, books: {}};
           }
-          //TODO summary["All"].count += 1;
 
           var category = summary[link.category];
           // Count Book
@@ -940,7 +939,7 @@ Sefaria = {
         commentaryCat.totalCount = commentaryCat.count + otherCommentaryCount;
 
         // Sort the categories
-        const order = ["Commentary", "Targum", "byCatOrder", "All"];
+        const order = ["Commentary", "Targum", "byCatOrder"];
         const indexByCatOrder = order.indexOf("byCatOrder");
         summaryList.sort(function(a, b) {
           var indexA = order.indexOf(a.category) != -1 ? order.indexOf(a.category) : indexByCatOrder;
@@ -963,12 +962,6 @@ Sefaria = {
           return indexA - indexB;
 
         });
-
-        // Attach data to "All" category in last position
-        summaryList[summaryList.length-1].refList = allRefs;
-        summaryList[summaryList.length-1].heRefList = allHeRefs;
-        summaryList[summaryList.length-1].books = allBooks;
-        summaryList[summaryList.length-1].count = allRefs.length;
 
         // Remove "Commentary" section if it is empty or only contains greyed out items
         if (summaryList[0].books.length == 0) { summaryList = summaryList.slice(1); }

@@ -1,7 +1,7 @@
 'use strict'
 import { StyleSheet } from 'react-native';
 
-var Colors = {
+let Colors = {
   border: "#d5d5d4",
   secondaryBorder: "#eee",
   mainBackground: "#F9F9F7",
