@@ -24,7 +24,7 @@ export const loadTextOffline = async function(ref, context, versions, fallbackOn
 
 export const getAllTranslations = async function (ref, versions) {
     // versions are list of all versions
-    const translations = [];
+    const translations = {versions: []};
     if (!versions) {
         versions = getOfflineVersionObjectsAvailable(ref);
     }
@@ -32,12 +32,12 @@ export const getAllTranslations = async function (ref, versions) {
         return;
     }
     for (let version of versions) {
-     if (!version.isSource) {
+        if (!version.isSource) {
             try {
                 // this will return 2 versions. it's a waste but due cache it seems not so problematic
                 const result = await loadTextOffline(ref, false, {[version.language]: version.versionTitle}, false);
                 version.text = result.result[version.language];
-                translations.push(version);
+                translations.versions.push(version);
             } catch (error) {
                 return;
             }
