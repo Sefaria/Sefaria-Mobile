@@ -1,14 +1,11 @@
 'use strict';
 import PropTypes from 'prop-types';
-import React, {useContext, useState} from 'react';
+import React, {useState} from 'react';
 import {
   View,
   ScrollView,
-  FlatList,
   Text,
   Image,
-  TouchableOpacity,
-  Dimensions,
 } from 'react-native';
 import styles from './Styles';
 import strings from './LocalizedStrings';
@@ -20,8 +17,8 @@ import AboutBox from './AboutBox';
 import SheetListInConnections from './SheetListInConnections';
 import TopicList from './TopicList';
 import LexiconBox from './LexiconBox';
-import { GlobalStateContext, getTheme } from './StateManager';
 import {iconData} from "./IconData";
+import {useGlobalState} from "./Hooks";
 
 
 const {
@@ -402,8 +399,7 @@ MainMenuButtons.propTypes = {
 }
 
 const ToolsButton = ({ text, onPress, icon, count }) => {
-  const { themeStr, interfaceLanguage } = useContext(GlobalStateContext);
-  const theme = getTheme(themeStr);
+  const { theme, themeStr, interfaceLanguage } = useGlobalState();
   const textStyle = interfaceLanguage === "english" ? styles.enInt : styles.heInt;
   const flexDir = interfaceLanguage === "english" ? null : styles.rtlRow;
   const hasIcon = !!icon;
@@ -429,12 +425,11 @@ ToolsButton.propTypes = {
 };
 
 const ConnectionsPanelSection = ({ title, children }) => {
-  const { themeStr, interfaceLanguage } = useContext(GlobalStateContext);
-  const theme= getTheme(themeStr);
+  const { theme, interfaceLanguage } = useGlobalState();
   return (
     <View style={styles.connectionPanelSection} >
       {!!title &&
-        <View style={{...styles.connectionPanelTitle, ...theme.lightGreyBorder}}>
+        <View style={[styles.connectionPanelTitle, theme.lightGreyBorder]}>
           <Text style={[interfaceLanguage === "hebrew" ? styles.heInt : styles.enInt, theme.tertiaryText]}>
             {title}
           </Text>
