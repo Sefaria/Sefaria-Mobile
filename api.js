@@ -177,7 +177,7 @@ var Api = {
           break;
         case 'translations':
           url += 'api/v3/texts/';
-          urlSuffix = '?version=translations|all';
+          urlSuffix = '?version=translation|all';
           break;
         case "links":
           url += 'api/links/';
