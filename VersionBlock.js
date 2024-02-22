@@ -51,7 +51,7 @@ const VersionBlock = ({
 
   return (
     <View>
-      <VersionBlockTitle text={versionTitle}/>
+      <VersionBlockHeader text={versionTitle}/>
       <View style={styles.textTocVersionInfo}>
         { versionSource ?
           <TouchableOpacity onPress={() => { openUri(versionSource); }}>
@@ -90,7 +90,7 @@ VersionBlock.propTypes = {
 
 export default VersionBlock;
 
-const VersionBlockTitle = ({text}) => {
+const VersionBlockHeader = ({text}) => {
   const {theme} = useGlobalState();
   return (
     <SText lang={"english"} style={[styles.en, styles.textTocVersionTitle, { textAlign: "left" }, theme.text]}>
