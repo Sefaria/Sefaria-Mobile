@@ -9,8 +9,8 @@ import {
   SimpleHTMLView,
   SText,
 } from './Misc';
-import { GlobalStateContext, getTheme } from './StateManager';
 import styles from './Styles.js';
+import {useGlobalState} from "./Hooks";
 
 
 const VersionBlock = ({
@@ -20,8 +20,7 @@ const VersionBlock = ({
   openUri,
   handleOpenURL,
 }) => {
-  const { themeStr, textLanguage, interfaceLanguage } = useContext(GlobalStateContext);
-  const theme = getTheme(themeStr);
+  const { theme, textLanguage, interfaceLanguage } = useGlobalState();
 
   const onVersionTitleClick = useCallback(() => {
     const action = openVersionInSidebar ? openVersionInSidebar : openVersionInReader;
@@ -52,22 +51,9 @@ const VersionBlock = ({
     versionNotes = version['versionNotes'];
   }
 
-  const textAlign = { textAlign: "left" };
   return (
     <View>
-      {
-        versionTitle ?
-          (openVersionInSidebar ?
-            <TouchableOpacity onPress={onVersionTitleClick}>
-              <Text style={[styles.en, styles.textTocVersionTitle, textAlign, theme.text]}>
-                {versionTitle}
-              </Text>
-            </TouchableOpacity> :
-            <SText lang={"english"} style={[styles.en, styles.textTocVersionTitle, textAlign, theme.text]}>
-              {versionTitle}
-            </SText>)
-        : null
-      }
+      <VersionBlockTitle text={versionTitle}/>
       <View style={styles.textTocVersionInfo}>
         { versionSource ?
           <TouchableOpacity onPress={() => { openUri(versionSource); }}>
@@ -106,3 +92,12 @@ VersionBlock.propTypes = {
 };
 
 export default VersionBlock;
+
+const VersionBlockTitle = ({text}) => {
+  const {theme} = useGlobalState();
+  return (
+    <SText lang={"english"} style={[styles.en, styles.textTocVersionTitle, { textAlign: "left" }, theme.text]}>
+      {text}
+    </SText>
+  );
+}
