@@ -66,7 +66,6 @@ const useVLangState = (currVersionObjects, versions) => {
 
 const VersionsBox = ({
   versions,
-  versionsApiError,
   currVersionObjects,
   mode,
   vFilterIndex,
@@ -78,20 +77,28 @@ const VersionsBox = ({
   handleOpenURL,
 }) => {
   const { themeStr, interfaceLanguage } = useContext(GlobalStateContext);
-  const {
-    vLangState,
-    setVLangState
-  } = useVLangState(currVersionObjects, versions);
+  const {vLangState, setVLangState } = useVLangState(
+      currVersionObjects,
+      []
+  );
+  const [apiError, setApiError] = useState(false)
+  const loadData = async () => {
+    setApiError(false);
+    setVLangState([]);
+    const result = await Sefaria.offlineOnline.loadTranslations(segmentRef, versions);
+    setVLangState(result.translations.versions || []);
+    setApiError(result.translationsApiError);
+  }
   useEffect(() => {
-    setVLangState(versions);
-  }, [versions]);
+    loadData();
+  }, [segmentRef]);
   const theme = getTheme(themeStr);
 
   const openVersionInSidebar = (versionTitle, heVersionTitle, versionLanguage) => {
     const filter = new VersionFilter(versionTitle, heVersionTitle, versionLanguage, segmentRef);
     openFilter(filter, "version");
   };
-  if (versionsApiError) {
+  if (apiError) {
     return (
       <View style={[{flex:1}, styles.readerSideMargin]}>
         <Text style={[styles.emptyLinksMessage, theme.secondaryText]}>{strings.connectToVersionsMessage}</Text>
@@ -145,8 +152,7 @@ const VersionsBox = ({
 }
 VersionsBox.propTypes = {
   versions:                 PropTypes.array.isRequired,
-  versionsApiError:         PropTypes.bool.isRequired,
-  currVersionObjects:             PropTypes.object.isRequired,
+  currVersionObjects:       PropTypes.object.isRequired,
   mode:                     PropTypes.oneOf(["versions", "version Open"]),
   vFilterIndex:             PropTypes.number,
   recentVFilters:           PropTypes.array,
