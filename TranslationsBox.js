@@ -11,7 +11,7 @@ import {
   LoadingView,
 } from './Misc.js';
 import { GlobalStateContext, getTheme } from './StateManager';
-import VersionBlock from './VersionBlock';
+import {VersionBlockWithPreview} from './VersionBlock';
 import strings from './LocalizedStrings';
 import styles from'./Styles.js';
 import { VersionFilter } from './Filter';
@@ -64,7 +64,7 @@ const useVLangState = (currVersionObjects, versions) => {
   };
 }
 
-const VersionsBox = ({
+const TranslationsBox = ({
   versions,
   currVersionObjects,
   mode,
@@ -94,10 +94,6 @@ const VersionsBox = ({
   }, [segmentRef]);
   const theme = getTheme(themeStr);
 
-  const openVersionInSidebar = (versionTitle, heVersionTitle, versionLanguage) => {
-    const filter = new VersionFilter(versionTitle, heVersionTitle, versionLanguage, segmentRef);
-    openFilter(filter, "version");
-  };
   if (apiError) {
     return (
       <View style={[{flex:1}, styles.readerSideMargin]}>
@@ -130,18 +126,12 @@ const VersionsBox = ({
             </View>
             {
               vLangState.versionLangMap[lang].map(v => (
-                <TouchableOpacity
-                  style={[styles.versionsBoxVersionBlockWrapper, theme.bordered]}
+                <VersionBlockWithPreview
+                  version={v}
+                  openFilter={openFilter}
                   key={v.versionTitle + lang}
-                  onPress={()=>{ openVersionInSidebar(v.versionTitle, v.versionTitleInHebrew, v.language); }}>
-                  <VersionBlock
-                    theme={theme}
-                    version={v}
-                    openVersionInReader={()=>{}}
-                    openUri={openUri}
-                    handleOpenURL={handleOpenURL}
-                  />
-                </TouchableOpacity>
+                  segmentRef={segmentRef}
+                />
               ))
             }
           </View>
@@ -150,7 +140,7 @@ const VersionsBox = ({
     </ScrollView>
   );
 }
-VersionsBox.propTypes = {
+TranslationsBox.propTypes = {
   versions:                 PropTypes.array.isRequired,
   currVersionObjects:       PropTypes.object.isRequired,
   mode:                     PropTypes.oneOf(["versions", "version Open"]),
@@ -162,4 +152,4 @@ VersionsBox.propTypes = {
   openUri:                  PropTypes.func.isRequired,
 };
 
-export default VersionsBox;
+export default TranslationsBox;

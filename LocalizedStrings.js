@@ -130,6 +130,7 @@ let strings = new LocalizedStrings({
     aboutThisText: "About this Text",
     currentHebrewVersion: "Current Hebrew Version",
     currentEnglishVersion: "Current English Version",
+    otherPrimaryVersions: 'Alternate Source Versions',
     read: "READ",
     compare: "COMPARE",
     languageYo: "Language",  // WARNING: dont call any keys `language`. apparently that's reserved by LocalizedStrings
@@ -345,6 +346,7 @@ let strings = new LocalizedStrings({
     aboutThisText: "אודות ספר זה",
     currentHebrewVersion: "גרסה עברית נוכחית",
     currentEnglishVersion: "גרסה אנגלית נוכחית",
+    otherPrimaryVersions: 'מהדורות נוספות בשפת המקור',
     read: "קרא",
     compare: "השווה",
     languageYo: "שפה",

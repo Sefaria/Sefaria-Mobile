@@ -12,7 +12,7 @@ import strings from './LocalizedStrings';
 import ConnectionsPanelHeader from './ConnectionsPanelHeader';
 import TextList from './TextList';
 import { LinkFilter } from './Filter';
-import VersionsBox from './VersionsBox';
+import TranslationsBox from './TranslationsBox';
 import AboutBox from './AboutBox';
 import SheetListInConnections from './SheetListInConnections';
 import TopicList from './TopicList';
@@ -165,7 +165,7 @@ class ConnectionsPanel extends React.PureComponent {
         return (
           <View style={[styles.mainTextPanel, styles.textColumn, this.props.theme.textListContentOuter, {maxWidth: null, flex: this.props.textListFlex}]}>
             {connectionsPanelHeader}
-            <VersionsBox
+            <TranslationsBox
               mode={this.props.connectionsMode}
               currVersionObjects={this.props.currVersionObjects}
               mainVersionLanguage={this.props.textLanguage}
@@ -189,8 +189,10 @@ class ConnectionsPanel extends React.PureComponent {
               sheet={this.props.sheet}
               textToc={this.props.textToc}
               currVersionObjects={this.props.currVersionObjects}
-              textTitle={this.props.textTitle}
+              openFilter={this.props.openFilter}
               openUri={this.props.openUri}
+              segmentRef={this.props.segmentRef}
+              versions={this.props.versions}
             />
           </View>
         );

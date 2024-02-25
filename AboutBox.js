@@ -13,7 +13,7 @@ import VersionBlock from './VersionBlock';
 var moment = require("moment");
 
 
-const AboutBox = ({ textToc, currVersionObjects, textTitle, sheet, openUri }) => {
+const AboutBox = ({ textToc, currVersionObjects, openFilter, sheet, openUri, segmentRef, versions }) => {
   const { themeStr, interfaceLanguage, textLanguage } = React.useContext(GlobalStateContext);
   const theme = getTheme(themeStr);
   const d = textToc;
@@ -125,6 +125,7 @@ const AboutBox = ({ textToc, currVersionObjects, textTitle, sheet, openUri }) =>
       <VersionBlock
         version={vh}
         openUri={openUri}
+        segmentRef={segmentRef}
       />
     </View> : null );
   const versionSectionEn =
@@ -135,8 +136,26 @@ const AboutBox = ({ textToc, currVersionObjects, textTitle, sheet, openUri }) =>
       <VersionBlock
         version={ve}
         openUri={openUri}
+        segmentRef={segmentRef}
       />
     </View> : null );
+  const otherPrimaryVersions = versions.filter((v) => v.isPrimary && v.versionTitle !== vh.versionTitle);
+  const versionBlocks = (
+    otherPrimaryVersions && <View style={styles.currVersionSection}>
+      <View style={[styles.aboutHeaderWrapper, theme.bordered]}>
+        <Text style={[styles.aboutHeader, theme.secondaryText, hei ? styles.heInt : null]}>{ strings.otherPrimaryVersions }</Text>
+      </View>
+      {otherPrimaryVersions.map((v) =>
+        (<VersionBlock
+            openUri={openUri}
+            openFilter={openFilter}
+            segmentRef={segmentRef}
+            version={v}
+            key={v.versionTitle}
+          />)
+      )}
+    </View>
+  );
   return (
     <ScrollView contentContainerStyle={[styles.aboutBoxScrollView, styles.readerSideMargin]}>
       { detailSection }
@@ -144,6 +163,7 @@ const AboutBox = ({ textToc, currVersionObjects, textTitle, sheet, openUri }) =>
         (<View>{versionSectionEn}{versionSectionHe}</View>) :
         (<View>{versionSectionHe}{versionSectionEn}</View>)
       }
+      { versionBlocks }
     </ScrollView>
   );
 };
@@ -151,8 +171,10 @@ AboutBox.propTypes = {
   textToc:             PropTypes.object,
   sheet:               PropTypes.object,
   currVersionObjects:  PropTypes.object.isRequired,
-  textTitle:           PropTypes.string.isRequired,
+  openFilter:          PropTypes.func.isRequired,
   openUri:             PropTypes.func.isRequired,
+  segmentRef:          PropTypes.string.isRequired,
+  versions:            PropTypes.array.isRequired,
 };
 
 export default AboutBox;

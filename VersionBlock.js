@@ -1,4 +1,3 @@
-import React, { useContext, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import {
   View,
@@ -11,26 +10,18 @@ import {
 } from './Misc';
 import styles from './Styles.js';
 import {useGlobalState} from "./Hooks";
+import {VersionFilter} from "./Filter";
 
 
 const VersionBlock = ({
   version,
-  openVersionInReader,
   openUri,
+  openFilter,
   handleOpenURL,
+  segmentRef
 }) => {
   const { theme, textLanguage, interfaceLanguage } = useGlobalState();
 
-  const onVersionTitleClick = useCallback(() => {
-    if (openVersionInReader) {
-      openVersionInReader(version.versionTitle, version.versionTitleInHebrew, version.language);
-    }
-  }, [version]);
-  const onSelectVersionClick = useCallback(() => {
-    if (openVersionInReader) {
-      openVersionInReader(version.versionTitle, version.language);
-    }
-  }, [version]);
 
   let versionTitle, versionSource, shortVersionSource, license, licenseURL, versionNotes;
   if (Sefaria.util.get_menu_language(interfaceLanguage, textLanguage) == "hebrew") {
@@ -49,9 +40,20 @@ const VersionBlock = ({
     versionNotes = version['versionNotes'];
   }
 
+  const innerText = (
+    <SText lang={"english"} style={[styles.en, styles.textTocVersionTitle, { textAlign: "left" }, theme.text]}>
+      {versionTitle}
+    </SText>
+  );
+
   return (
     <View>
-      <VersionBlockHeader text={versionTitle}/>
+      <OpenVersionButton
+          openFilter={openFilter}
+          version={version}
+          child={innerText}
+          segmentRef={segmentRef}
+      />
       <View style={styles.textTocVersionInfo}>
         { versionSource ?
           <TouchableOpacity onPress={() => { openUri(versionSource); }}>
@@ -84,17 +86,59 @@ const VersionBlock = ({
 }
 VersionBlock.propTypes = {
   version:              PropTypes.object.isRequired,
-  openVersionInReader:  PropTypes.func,
+  openFilter:           PropTypes.func,
   openUri:              PropTypes.func.isRequired,
+  handleOpenURL:        PropTypes.func,
+  segmentRef:           PropTypes.string.isRequired,
 };
 
 export default VersionBlock;
 
-const VersionBlockHeader = ({text}) => {
+export const VersionBlockWithPreview = ({version, openFilter, segmentRef}) => {
+  const {theme} = useGlobalState();
+  const language = version.language;
+  const inner = (
+    <SimpleHTMLView
+        text={version.text}
+        lang={(language==='en') ? 'english' : 'hebrew'}
+        extraStyles={[styles[language]]}
+    />
+  );
+  return (
+      <OpenVersionButton
+          openFilter={openFilter}
+          version={version}
+          child={inner}
+          segmentRef={segmentRef}
+      />
+  );
+}
+VersionBlockWithPreview.propTypes = {
+  version: PropTypes.object.isRequired,
+  openFilter: PropTypes.func.isRequired,
+  segmentRef: PropTypes.string.isRequired,
+};
+
+const OpenVersionButton = ({openFilter, version, child, segmentRef}) => {
+  const openVersionInSidebar = (versionTitle, heVersionTitle, versionLanguage) => {
+    const filter = new VersionFilter(versionTitle, heVersionTitle, versionLanguage, segmentRef);
+    openFilter(filter, "version");
+  };
   const {theme} = useGlobalState();
   return (
-    <SText lang={"english"} style={[styles.en, styles.textTocVersionTitle, { textAlign: "left" }, theme.text]}>
-      {text}
-    </SText>
+      <TouchableOpacity
+        style={[styles.versionsBoxVersionBlockWrapper, theme.bordered]}
+        onPress={()=>{ openFilter &&
+          openVersionInSidebar(version.versionTitle, version.versionTitleInHebrew, version.language);
+        }}
+      >
+        {child}
+      </TouchableOpacity>
   );
+}
+OpenVersionButton .propTypes = {
+  version: PropTypes.object.isRequired,
+  openFilter: PropTypes.func,
+  segmentRef: PropTypes.string.isRequired,
+  child: PropTypes.element.isRequired,
 }
