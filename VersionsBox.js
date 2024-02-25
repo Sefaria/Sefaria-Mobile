@@ -105,7 +105,7 @@ const VersionsBox = ({
       </View>
     );
   }
-  if (!vLangState.versionLangMap) {
+  if (!Object.keys(vLangState.versionLangMap).length) {
     return (
       <View style={styles.readerSideMargin}>
         <LoadingView />
