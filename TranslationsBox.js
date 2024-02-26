@@ -122,7 +122,7 @@ const TranslationsBox = ({
   const textStyle = isheb ? styles.hebrewText : styles.englishText;
   return (
     <ScrollView
-      contentContainerStyle={[styles.versionsBoxScrollView, styles.readerSideMargin, flexStyles]}>
+      contentContainerStyle={[styles.versionsBoxScrollView, styles.readerSideMargin, ]}>
       {
         vLangState.versionLangs.map((lang) => (
           <View key={lang}>
