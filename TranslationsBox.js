@@ -93,6 +93,11 @@ const TranslationsBox = ({
     loadData();
   }, [segmentRef]);
   const theme = getTheme(themeStr);
+  const flexStyles = {
+    flexDirection: "column",
+    alignSelf: "stretch",
+    flex: 1
+  };
 
   if (apiError) {
     return (
@@ -103,7 +108,7 @@ const TranslationsBox = ({
   }
   if (!Object.keys(vLangState.versionLangMap).length) {
     return (
-      <View style={styles.readerSideMargin}>
+      <View style={flexStyles}>
         <LoadingView />
       </View>
     );
@@ -117,7 +122,7 @@ const TranslationsBox = ({
   const textStyle = isheb ? styles.hebrewText : styles.englishText;
   return (
     <ScrollView
-      contentContainerStyle={[styles.versionsBoxScrollView, styles.readerSideMargin]}>
+      contentContainerStyle={[styles.versionsBoxScrollView, styles.readerSideMargin, flexStyles]}>
       {
         vLangState.versionLangs.map((lang) => (
           <View key={lang}>
