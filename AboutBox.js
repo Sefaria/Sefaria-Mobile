@@ -141,7 +141,7 @@ const AboutBox = ({ textToc, currVersionObjects, openFilter, sheet, openUri, seg
     </View> : null );
   const otherPrimaryVersions = versions.filter((v) => v.isPrimary && v.versionTitle !== vh.versionTitle);
   const versionBlocks = (
-    otherPrimaryVersions && <View style={styles.currVersionSection}>
+    otherPrimaryVersions.length && <View style={styles.currVersionSection}>
       <View style={[styles.aboutHeaderWrapper, theme.bordered]}>
         <Text style={[styles.aboutHeader, theme.secondaryText, hei ? styles.heInt : null]}>{ strings.otherPrimaryVersions }</Text>
       </View>
