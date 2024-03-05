@@ -28,6 +28,7 @@ import strings from './LocalizedStrings';
 import { useHTMLViewStyles } from './useHTMLViewStyles';
 import { RenderHTML } from 'react-native-render-html';
 import BookSVG from './img/connection-book.svg';
+import ActionSheet from "react-native-action-sheet";
 
 const SYSTEM_FONTS = ["Taamey Frank Taamim Fix", "Amiri", "Heebo", "OpenSans", "SertoBatnan"];  // list of system fonts. needed for RenderHTML
 const CSS_CLASS_STYLES = {
@@ -1542,6 +1543,26 @@ const GreyBoxFrame = ({ children }) => {
   );
 };
 
+const openActionSheet = (refStr, versions, openRef, interfaceLanguage, heRefStr, category) => {
+  const tempOpenRef = () => {
+    // versionLanguage should only be defined when TextList is in VersionsBox. Otherwise you should open default version for that link
+    let loadNewVersions = false;
+    if (versions) {
+      loadNewVersions = true;
+    }
+    openRef(refStr, versions, loadNewVersions);
+  }
+  ActionSheet.showActionSheetWithOptions({
+    options: [`${strings.open} ${versions ? strings.version :
+      Sefaria.getTitle(refStr, heRefStr, category === 'Commentary', interfaceLanguage === "hebrew")}`,strings.cancel],
+    cancelButtonIndex: 1,
+  },
+  (buttonIndex) => {
+    if (buttonIndex === 0) { tempOpenRef(); }
+  });
+}
+
+
 export {
   AnimatedRow,
   BackButton,
@@ -1606,4 +1627,5 @@ export {
   TripleDots,
   TwoBox,
   TwoBoxRow,
+  openActionSheet,
 }
