@@ -233,4 +233,8 @@ export default StyleSheet.create({
   sefariaColorButtonText: {
     color: 'white'
   },
+  languageName: {
+    color: Colors.tertiaryText,
+    borderColor: Colors.border,
+  },
 });

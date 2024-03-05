@@ -166,18 +166,12 @@ class ConnectionsPanel extends React.PureComponent {
           <View style={[styles.mainTextPanel, styles.textColumn, this.props.theme.textListContentOuter, {maxWidth: null, flex: this.props.textListFlex}]}>
             {connectionsPanelHeader}
             <TranslationsBox
-              mode={this.props.connectionsMode}
               currVersionObjects={this.props.currVersionObjects}
-              mainVersionLanguage={this.props.textLanguage}
-              vFilterIndex={this.props.versionFilterIndex}
-              recentVFilters={this.props.versionRecentFilters}
               versions={this.props.versions}
-              versionsApiError={this.props.versionsApiError}
-              setConnectionsMode={this.props.setConnectionsMode}
               segmentRef={this.props.segmentRef}
               openFilter={this.props.openFilter}
               openUri={this.props.openUri}
-              handleOpenURL={this.props.handleOpenURL}
+              openRef={this.props.openRef}
             />
           </View>
         );

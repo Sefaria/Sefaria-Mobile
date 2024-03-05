@@ -4,7 +4,6 @@ import {
   View,
   ScrollView,
   Text,
-  TouchableOpacity,
 } from 'react-native';
 
 import {
@@ -14,7 +13,6 @@ import { GlobalStateContext, getTheme } from './StateManager';
 import {VersionBlockWithPreview} from './VersionBlock';
 import strings from './LocalizedStrings';
 import styles from'./Styles.js';
-import { VersionFilter } from './Filter';
 
 const getVLangState = (initialCurrVersions, initialMainVersionLanguage, versions) => {
   const versionLangMap = {};
@@ -67,16 +65,12 @@ const useVLangState = (currVersionObjects, versions) => {
 const TranslationsBox = ({
   versions,
   currVersionObjects,
-  mode,
-  vFilterIndex,
-  recentVFilters,
   segmentRef,
-  setConnectionsMode,
   openFilter,
   openUri,
-  handleOpenURL,
+  openRef,
 }) => {
-  const { themeStr, interfaceLanguage } = useContext(GlobalStateContext);
+  const {themeStr, textLanguage} = useContext(GlobalStateContext);
   const {vLangState, setVLangState } = useVLangState(
       currVersionObjects,
       []
@@ -118,24 +112,26 @@ const TranslationsBox = ({
     const tempV = currVersionObjects[vlang];
     currVersionTitles[vlang] = !!tempV ? tempV.versionTitle : null;
   }
-  const isheb = interfaceLanguage === "hebrew";
-  const textStyle = isheb ? styles.hebrewText : styles.englishText;
   return (
     <ScrollView
       contentContainerStyle={[styles.versionsBoxScrollView, styles.readerSideMargin, ]}>
       {
         vLangState.versionLangs.map((lang) => (
           <View key={lang}>
-            <View style={[styles.versionsBoxLang]}>
-              <Text style={[textStyle, styles.versionsBoxLangText, theme.text]}>{(strings[Sefaria.util.translateISOLanguageCode(lang)] || lang).toUpperCase()}<Text>{` (${vLangState.versionLangMap[lang].length})`}</Text></Text>
+            <View style={[styles.versionsBoxLang, {borderBottomWidth: 1}, theme.languageName]}>
+              <Text style={[styles.versionsBoxLangText, theme.sectionHeaderText]}>{(strings[Sefaria.util.translateISOLanguageCode(lang)] || lang).toUpperCase()}<Text>{` (${vLangState.versionLangMap[lang].length})`}</Text></Text>
             </View>
             {
-              vLangState.versionLangMap[lang].map(v => (
+              vLangState.versionLangMap[lang].map((v, idx) => (
                 <VersionBlockWithPreview
                   version={v}
                   openFilter={openFilter}
                   key={v.versionTitle + lang}
                   segmentRef={segmentRef}
+                  openUri={openUri}
+                  isCurrent={v.versionTitle === currVersionObjects.en.versionTitle}
+                  openRef={openRef}
+                  heVersionTitle={currVersionObjects.he.versionTitle}
                 />
               ))
             }
@@ -148,13 +144,10 @@ const TranslationsBox = ({
 TranslationsBox.propTypes = {
   versions:                 PropTypes.array.isRequired,
   currVersionObjects:       PropTypes.object.isRequired,
-  mode:                     PropTypes.oneOf(["versions", "version Open"]),
-  vFilterIndex:             PropTypes.number,
-  recentVFilters:           PropTypes.array,
   segmentRef:               PropTypes.string.isRequired,
-  setConnectionsMode:       PropTypes.func.isRequired,
   openFilter:               PropTypes.func.isRequired,
   openUri:                  PropTypes.func.isRequired,
+  openRef:                  PropTypes.func.isRequired,
 };
 
 export default TranslationsBox;

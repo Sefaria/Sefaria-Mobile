@@ -1553,5 +1553,9 @@ export default StyleSheet.create({
   connectionPanelTitle: {
     paddingVertical: 10,
     borderBottomWidth: 1,
-  }
+  },
+  versionTitle: {
+    fontSize: 12,
+    fontStyle: "italic",
+  },
 });

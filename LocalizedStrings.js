@@ -131,6 +131,7 @@ let strings = new LocalizedStrings({
     currentHebrewVersion: "Current Hebrew Version",
     currentEnglishVersion: "Current English Version",
     otherPrimaryVersions: 'Alternate Source Versions',
+    currentlySelected: 'Currently Selected',
     read: "READ",
     compare: "COMPARE",
     languageYo: "Language",  // WARNING: dont call any keys `language`. apparently that's reserved by LocalizedStrings
@@ -216,6 +217,13 @@ let strings = new LocalizedStrings({
     exactMatchesOnly: "Exact Matches Only",
     generalErrorAlertTitle: "The Sefaria app encountered an error",
     generalErrorAlertMessage: "If the problem persists, we recommend uninstalling and reinstalling the Sefaria app.",
+    mergedFrom: 'Merged from',
+    source: 'Source',
+    digitization: 'Digitization',
+    sefaria: 'Sefaria',
+    license: 'License',
+    PublicDomain: 'Public Domain',
+    buyInPrint: 'Buy in Print',
   },
   he: {
     profile: "פרופיל",
@@ -347,6 +355,7 @@ let strings = new LocalizedStrings({
     currentHebrewVersion: "גרסה עברית נוכחית",
     currentEnglishVersion: "גרסה אנגלית נוכחית",
     otherPrimaryVersions: 'מהדורות נוספות בשפת המקור',
+    currentlySelected: 'נוכחי',
     read: "קרא",
     compare: "השווה",
     languageYo: "שפה",
@@ -429,6 +438,13 @@ let strings = new LocalizedStrings({
     exactMatchesOnly: "התאמה מדויקת למילות החיפוש",
     generalErrorAlertTitle: "שגיאה באפליקצה",
     generalErrorAlertMessage: "אם הבעיה ממשיכה, מומלץ למחוק ולהתקין מחדש מחנות האפליקציות.",
+    mergedFrom: 'נוצר ממיזוג',
+    source: 'מקור',
+    digitization: 'דיגיטציה',
+    sefaria: 'ספריא',
+    license: 'רשיון',
+    PublicDomain: 'בנחלת הכלל',
+    buyInPrint: 'לרכישה בדפוס',
   }
 });
 
