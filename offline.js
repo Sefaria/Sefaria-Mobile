@@ -224,7 +224,13 @@ const loadOfflineSectionByVersions = async function(selectedVersions, allVersion
     }
     const loadedVersions = {};  // actual versions that were loaded, taking into account falling back on default version
     for (let [lang, vtitle] of Object.entries(selectedVersions)) {
-        const [versionText, loadedVTitle] = await loadOfflineSectionByVersionWithCacheAndFallback(fileNameStem, lang, vtitle, defaultVersions[lang]);
+        let versionText, loadedVTitle;
+        try {
+            [versionText, loadedVTitle] = await loadOfflineSectionByVersionWithCacheAndFallback(fileNameStem, lang, vtitle, defaultVersions[lang]);
+        } catch (error) {
+            if (fallbackOnDefaultVersions) { continue; }  // fail gracefully and return whatever data exists
+            throw error;
+        }
         loadedVersions[lang] = loadedVTitle;
         // versionText may be depth-3. extract depth-2 if necessary.
         textByLang[lang] = getSectionFromJsonData(ref, versionText);
