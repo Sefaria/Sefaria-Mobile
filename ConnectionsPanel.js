@@ -358,7 +358,7 @@ const MainMenuButtons = ({linkSummary,
       relatedHasError={relatedHasError}
       sheet={sheet}
       themeStr={themeStr}
-      versionsCount={versions.length}
+      versionsCount={versions.filter(v => !v.isSource).length}
       setConnectionsMode={setConnectionsMode}
       reloadRelated={reloadRelated}
     />
