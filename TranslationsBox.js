@@ -92,6 +92,7 @@ const TranslationsBox = ({
     alignSelf: "stretch",
     flex: 1
   };
+  const textAlign = {textAlign: (interfaceLanguage==='hebrew' ? 'right': 'left')};
 
   if (apiError) {
     return (
@@ -115,8 +116,8 @@ const TranslationsBox = ({
   return (
     <ScrollView
       contentContainerStyle={[styles.versionsBoxScrollView, styles.readerSideMargin, ]}>
-      <Text style={[theme.tertiaryText, styles.translationsHeader]}>{strings.translations}</Text>
-      <Text style={[theme.tertiaryText, styles.fontSize14, {textAlign: (interfaceLanguage==='hebrew' ? 'right': 'left')}]}>
+      <Text style={[theme.tertiaryText, styles.translationsHeader, textAlign]}>{strings.translations}</Text>
+      <Text style={[theme.tertiaryText, styles.fontSize14, textAlign]}>
         {strings.translationsDescription + ' '}
         <Text onPress={() => openUri('https://www.sefaria.org/sheets/511573')} style={{textDecorationLine: 'underline'}}>{strings.learnMore} ›</Text>
       </Text>
@@ -124,7 +125,7 @@ const TranslationsBox = ({
         vLangState.versionLangs.map((lang) => (
           <View key={lang}>
             <View style={[styles.translationsBoxLang, theme.languageName]}>
-              <Text style={[styles.versionsBoxLangText, theme.tertiaryText]}>{(strings[Sefaria.util.translateISOLanguageCode(lang)] || lang)}<Text>{` (${vLangState.versionLangMap[lang].length})`}</Text></Text>
+              <Text style={[styles.versionsBoxLangText, theme.tertiaryText, textAlign]}>{(strings[Sefaria.util.translateISOLanguageCode(lang)] || lang)}<Text>{` (${vLangState.versionLangMap[lang].length})`}</Text></Text>
             </View>
             {
               vLangState.versionLangMap[lang].map((v, idx) => (
