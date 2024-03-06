@@ -1559,4 +1559,9 @@ export default StyleSheet.create({
     fontSize: 12,
     fontStyle: "italic",
   },
+  translationsHeader: {
+    fontSize: 20,
+    paddingTop: 5,
+    paddingBottom: 5,
+  }
 });

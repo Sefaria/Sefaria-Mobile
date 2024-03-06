@@ -115,8 +115,8 @@ const TranslationsBox = ({
   return (
     <ScrollView
       contentContainerStyle={[styles.versionsBoxScrollView, styles.readerSideMargin, ]}>
-      <Text>{strings.translations}</Text>
-      <Text>
+      <Text style={[theme.tertiaryText, styles.translationsHeader]}>{strings.translations}</Text>
+      <Text style={[theme.tertiaryText, styles.fontSize14]}>
         {strings.translationsDescription + ' '}
         <Text onPress={() => openUri('https://www.sefaria.org/sheets/511573')} style={{textDecorationLine: 'underline'}}>{strings.learnMore} ›</Text>
       </Text>
