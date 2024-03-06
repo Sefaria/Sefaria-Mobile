@@ -124,7 +124,7 @@ const TranslationsBox = ({
         vLangState.versionLangs.map((lang) => (
           <View key={lang}>
             <View style={[styles.translationsBoxLang, theme.languageName]}>
-              <Text style={[styles.versionsBoxLangText, theme.sectionHeaderText]}>{(strings[Sefaria.util.translateISOLanguageCode(lang)] || lang).toUpperCase()}<Text>{` (${vLangState.versionLangMap[lang].length})`}</Text></Text>
+              <Text style={[styles.versionsBoxLangText, theme.sectionHeaderText]}>{(strings[Sefaria.util.translateISOLanguageCode(lang)] || lang)}<Text>{` (${vLangState.versionLangMap[lang].length})`}</Text></Text>
             </View>
             {
               vLangState.versionLangMap[lang].map((v, idx) => (
