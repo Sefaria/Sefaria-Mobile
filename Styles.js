@@ -1562,6 +1562,6 @@ export default StyleSheet.create({
   translationsHeader: {
     fontSize: 20,
     paddingTop: 5,
-    paddingBottom: 5,
+    paddingBottom: 6,
   }
 });
