@@ -16,7 +16,6 @@ import {VersionFilter} from "./Filter";
 import {useState} from "react";
 import {iconData} from "./IconData";
 import strings from './LocalizedStrings';
-import Sefaria from "./sefaria";
 
 
 const useVersionTitle = (version) => {
