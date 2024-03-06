@@ -22,6 +22,7 @@ let Colors = {
   button: "#bfbfbf",
   buttonBackground: "#fff",
   sefariaBlue: "#18345D",
+  buttonBlue: '#0B71E7',
 }
 
 export default StyleSheet.create({
@@ -60,6 +61,9 @@ export default StyleSheet.create({
   },
   searchButton: {
     color: Colors.button
+  },
+  openButton : {
+    color: Colors.buttonBlue
   },
   searchInputPlaceholder: {
     color: "red",

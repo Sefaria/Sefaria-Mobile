@@ -97,7 +97,7 @@ export const VersionBlockWithPreview = ({version, openFilter, segmentRef, openUr
       versionsToOpen.he = heVersionTitle;
   }
   const openVersions = () => openActionSheet(segmentRef, versionsToOpen, openRef, interfaceLanguage, 'en');
-  const openButton = (!isCurrent && <Text onPress={openVersions} style={{color: '#0B71E7', fontStyle: 'normal'}}>{strings.open}</Text>)
+  const openButton = (!isCurrent && <Text onPress={openVersions} style={[theme.openButton, {fontStyle: 'normal'}]}>{strings.open}</Text>)
   const padding = (showDetails) ? {paddingBottom: 7} : null;
   return (
     <View>
