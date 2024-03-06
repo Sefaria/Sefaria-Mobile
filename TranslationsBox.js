@@ -70,7 +70,7 @@ const TranslationsBox = ({
   openUri,
   openRef,
 }) => {
-  const {themeStr, textLanguage} = useContext(GlobalStateContext);
+  const {themeStr} = useContext(GlobalStateContext);
   const {vLangState, setVLangState } = useVLangState(
       currVersionObjects,
       []
@@ -115,6 +115,11 @@ const TranslationsBox = ({
   return (
     <ScrollView
       contentContainerStyle={[styles.versionsBoxScrollView, styles.readerSideMargin, ]}>
+      <Text>{strings.translations}</Text>
+      <Text>
+        {strings.translationsDescription + ' '}
+        <Text onPress={() => openUri('https://www.sefaria.org/sheets/511573')} style={{textDecorationLine: 'underline'}}>{strings.learnMore} ›</Text>
+      </Text>
       {
         vLangState.versionLangs.map((lang) => (
           <View key={lang}>
