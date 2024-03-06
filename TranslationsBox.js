@@ -13,6 +13,7 @@ import { GlobalStateContext, getTheme } from './StateManager';
 import {VersionBlockWithPreview} from './VersionBlock';
 import strings from './LocalizedStrings';
 import styles from'./Styles.js';
+import {useGlobalState} from "./Hooks";
 
 const getVLangState = (initialCurrVersions, initialMainVersionLanguage, versions) => {
   const versionLangMap = {};
@@ -70,7 +71,7 @@ const TranslationsBox = ({
   openUri,
   openRef,
 }) => {
-  const {themeStr} = useContext(GlobalStateContext);
+  const {theme, interfaceLanguage} = useGlobalState();
   const {vLangState, setVLangState } = useVLangState(
       currVersionObjects,
       []
@@ -86,7 +87,6 @@ const TranslationsBox = ({
   useEffect(() => {
     loadData();
   }, [segmentRef]);
-  const theme = getTheme(themeStr);
   const flexStyles = {
     flexDirection: "column",
     alignSelf: "stretch",
@@ -116,7 +116,7 @@ const TranslationsBox = ({
     <ScrollView
       contentContainerStyle={[styles.versionsBoxScrollView, styles.readerSideMargin, ]}>
       <Text style={[theme.tertiaryText, styles.translationsHeader]}>{strings.translations}</Text>
-      <Text style={[theme.tertiaryText, styles.fontSize14]}>
+      <Text style={[theme.tertiaryText, styles.fontSize14, {textAlign: (interfaceLanguage==='hebrew' ? 'right': 'left')}]}>
         {strings.translationsDescription + ' '}
         <Text onPress={() => openUri('https://www.sefaria.org/sheets/511573')} style={{textDecorationLine: 'underline'}}>{strings.learnMore} ›</Text>
       </Text>
