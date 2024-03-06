@@ -49,7 +49,7 @@ const VersionBlock = ({
 
   return (
     <View>
-      <OpenVersionButton
+      <VersionBlockHeader
           openFilter={openFilter}
           version={version}
           child={innerText}
@@ -101,7 +101,7 @@ export const VersionBlockWithPreview = ({version, openFilter, segmentRef, openUr
   const padding = (showDetails) ? {paddingBottom: 7} : null;
   return (
     <View>
-      <OpenVersionButton
+      <VersionBlockHeader
           openFilter={openFilter}
           version={version}
           child={inner}
@@ -129,7 +129,7 @@ VersionBlockWithPreview.propTypes = {
   heVersionTitle: PropTypes.string
 };
 
-const OpenVersionButton = ({openFilter, version, child, segmentRef}) => {
+const VersionBlockHeader = ({openFilter, version, child, segmentRef}) => {
   const {theme} = useGlobalState();
   const openVersionInSidebar = () => {
     const filter = new VersionFilter(version.versionTitle, version.versionTitleInHebrew, version.language, segmentRef);
@@ -146,7 +146,7 @@ const OpenVersionButton = ({openFilter, version, child, segmentRef}) => {
       </TouchableOpacity>
   );
 }
-OpenVersionButton.propTypes = {
+VersionBlockHeader.propTypes = {
   version: PropTypes.object.isRequired,
   openFilter: PropTypes.func,
   segmentRef: PropTypes.string.isRequired,
