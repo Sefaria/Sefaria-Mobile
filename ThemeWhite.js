@@ -235,6 +235,6 @@ export default StyleSheet.create({
   },
   languageName: {
     color: Colors.tertiaryText,
-    borderColor: Colors.border,
+    borderColor: Colors.lightGrey,
   },
 });

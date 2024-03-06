@@ -1248,10 +1248,11 @@ export default StyleSheet.create({
   },
   toolsButtonText: {
   },
-  versionsBoxLang: {
+  translationsBoxLang: {
     flex: 1,
     paddingVertical: 5,
     marginTop: 15,
+    borderBottomWidth: 1,
   },
   versionsBoxLangText: {
     fontSize: 17,
