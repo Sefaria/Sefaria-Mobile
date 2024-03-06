@@ -1250,7 +1250,7 @@ export default StyleSheet.create({
   },
   translationsBoxLang: {
     flex: 1,
-    paddingVertical: 5,
+    paddingVertical: 7,
     marginTop: 15,
     borderBottomWidth: 1,
   },
