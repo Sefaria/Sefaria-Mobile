@@ -223,11 +223,22 @@ const loadOfflineSectionByVersions = async function(selectedVersions, allVersion
         defaultVersions = populateMissingVersions({}, allVersions);
     }
     const loadedVersions = {};  // actual versions that were loaded, taking into account falling back on default version
+    let versionLoadError;
     for (let [lang, vtitle] of Object.entries(selectedVersions)) {
-        const [versionText, loadedVTitle] = await loadOfflineSectionByVersionWithCacheAndFallback(fileNameStem, lang, vtitle, defaultVersions[lang]);
+        let versionText, loadedVTitle;
+        try {
+            [versionText, loadedVTitle] = await loadOfflineSectionByVersionWithCacheAndFallback(fileNameStem, lang, vtitle, defaultVersions[lang]);
+        } catch (error) {
+            versionLoadError = error;
+        }
         loadedVersions[lang] = loadedVTitle;
         // versionText may be depth-3. extract depth-2 if necessary.
         textByLang[lang] = getSectionFromJsonData(ref, versionText);
+    }
+    if (Object.keys(textByLang).length === 0 && versionLoadError) {
+        // if no versions were loaded successfully, throw.
+        // else, assume some content is better than none.
+        throw versionLoadError;
     }
     Sefaria.cacheCurrVersionsBySection(loadedVersions, ref);
     return textByLang;
