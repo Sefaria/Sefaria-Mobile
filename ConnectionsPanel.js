@@ -435,7 +435,7 @@ const ConnectionsPanelSection = ({ title, children }) => {
           </Text>
         </View>
       }
-      <View>
+      <View style={styles.connectionPanelSectionFirstButton}>
         {children}
       </View>
     </View>

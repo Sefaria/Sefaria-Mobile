@@ -1550,6 +1550,9 @@ export default StyleSheet.create({
   connectionPanelSection: {
     paddingHorizontal: 40,
   },
+  connectionPanelSectionFirstButton: {
+    paddingTop: 5
+  },
   connectionPanelTitle: {
     paddingVertical: 10,
     borderBottomWidth: 1,
