@@ -230,6 +230,7 @@ const loadOfflineSectionByVersions = async function(selectedVersions, allVersion
             [versionText, loadedVTitle] = await loadOfflineSectionByVersionWithCacheAndFallback(fileNameStem, lang, vtitle, defaultVersions[lang]);
         } catch (error) {
             versionLoadError = error;
+            continue;
         }
         loadedVersions[lang] = loadedVTitle;
         // versionText may be depth-3. extract depth-2 if necessary.
