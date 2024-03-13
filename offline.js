@@ -36,8 +36,9 @@ export const getAllTranslations = async function (ref, versions) {
             try {
                 // this will return 2 versions. it's a waste but due cache it seems not so problematic
                 const result = await loadTextOffline(ref, false, {[version.language]: version.versionTitle}, false);
-                version.text = result.result[version.language];
-                translations.versions.push(version);
+                const copiedVersion = {...version};
+                copiedVersion.text = result.result[version.language];
+                translations.versions.push(copiedVersion);
             } catch (error) {
                 return;
             }
