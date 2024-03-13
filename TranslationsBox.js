@@ -64,7 +64,6 @@ const useVLangState = (currVersionObjects, versions) => {
 }
 
 const TranslationsBox = ({
-  versions,
   currVersionObjects,
   segmentRef,
   openFilter,
@@ -145,7 +144,6 @@ const TranslationsBox = ({
   );
 }
 TranslationsBox.propTypes = {
-  versions:                 PropTypes.array.isRequired,
   currVersionObjects:       PropTypes.object.isRequired,
   segmentRef:               PropTypes.string.isRequired,
   openFilter:               PropTypes.func.isRequired,
