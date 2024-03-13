@@ -72,10 +72,7 @@ const TranslationsBox = ({
   openRef,
 }) => {
   const {theme, interfaceLanguage} = useGlobalState();
-  const {vLangState, setVLangState } = useVLangState(
-      currVersionObjects,
-      []
-  );
+  const {vLangState, setVLangState } = useVLangState(currVersionObjects, []);
   const [apiError, setApiError] = useState(false)
   const loadData = async () => {
     setApiError(false);
