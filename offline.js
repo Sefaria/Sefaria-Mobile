@@ -22,7 +22,7 @@ export const loadTextOffline = async function(ref, context, versions, fallbackOn
     return {result: textFromRefData(processed)};
 };
 
-export const getAllTranslations = async function (ref) {
+export const getAllTranslationsOffline = async function (ref) {
     // versions are list of all versions
     const translations = {versions: []};
     const versions = getOfflineVersionObjectsAvailable(ref);

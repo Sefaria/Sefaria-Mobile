@@ -8,7 +8,7 @@ import {
     loadTextTocOffline,
     loadTextOffline,
     getOfflineVersionObjectsAvailable,
-    loadOfflineSectionMetadataCompat, getAllTranslations
+    loadOfflineSectionMetadataCompat, getAllTranslationsOffline
 } from "./offline";
 import api from "./api";
 
@@ -53,7 +53,7 @@ export const loadVersions = async (ref) => {
 
 export const loadTranslations = async (ref) => {
     let translationsApiError = false;
-    let translations = await getAllTranslations(ref);
+    let translations = await getAllTranslationsOffline(ref);
     if (!translations) {
         try {
             translations = await api.translations(ref);
