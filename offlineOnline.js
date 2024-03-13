@@ -51,9 +51,9 @@ export const loadVersions = async (ref) => {
     return { versions, versionsApiError };
 };
 
-export const loadTranslations = async (ref, versions) => {
+export const loadTranslations = async (ref) => {
     let translationsApiError = false;
-    let translations = await getAllTranslations(ref, versions);
+    let translations = await getAllTranslations(ref);
     if (!translations) {
         try {
             translations = await api.translations(ref);
