@@ -167,7 +167,6 @@ class ConnectionsPanel extends React.PureComponent {
             {connectionsPanelHeader}
             <TranslationsBox
               currVersionObjects={this.props.currVersionObjects}
-              versions={this.props.versions}
               segmentRef={this.props.segmentRef}
               openFilter={this.props.openFilter}
               openUri={this.props.openUri}

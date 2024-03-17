@@ -64,7 +64,6 @@ const useVLangState = (currVersionObjects, versions) => {
 }
 
 const TranslationsBox = ({
-  versions,
   currVersionObjects,
   segmentRef,
   openFilter,
@@ -72,16 +71,13 @@ const TranslationsBox = ({
   openRef,
 }) => {
   const {theme, interfaceLanguage} = useGlobalState();
-  const {vLangState, setVLangState } = useVLangState(
-      currVersionObjects,
-      []
-  );
+  const {vLangState, setVLangState } = useVLangState(currVersionObjects, []);
   const [apiError, setApiError] = useState(false)
   const loadData = async () => {
     setApiError(false);
     setVLangState([]);
     try {
-      const translations = await Sefaria.offlineOnline.loadTranslations(segmentRef, versions);
+      const translations = await Sefaria.offlineOnline.loadTranslations(segmentRef);
       setVLangState(translations.versions || []);
     } catch(error) {
       setApiError(true);
@@ -151,7 +147,6 @@ const TranslationsBox = ({
   );
 }
 TranslationsBox.propTypes = {
-  versions:                 PropTypes.array.isRequired,
   currVersionObjects:       PropTypes.object.isRequired,
   segmentRef:               PropTypes.string.isRequired,
   openFilter:               PropTypes.func.isRequired,
