@@ -41,8 +41,9 @@ const VersionBlock = ({
   segmentRef
 }) => {
   const {theme} = useGlobalState();
+  const textAlign = useTextAlign();
   const innerText = (
-    <SText lang={"english"} style={[styles.en, styles.textTocVersionTitle, useTextAlign(), theme.text]}>
+    <SText lang={"english"} style={[styles.en, styles.textTocVersionTitle, textAlign, theme.text]}>
       {useVersionTitle(version)}
     </SText>
   );
@@ -70,6 +71,7 @@ export default VersionBlock;
 
 export const VersionBlockWithPreview = ({version, openFilter, segmentRef, openUri, isCurrent, openRef, heVersionTitle}) => {
   const {theme, themeStr, interfaceLanguage, textLanguage} = useGlobalState();
+  const textAlign = useTextAlign();
   const [showDetails, setShowDetails] = useState(false);
   const toggleShowDetails = () => {
     setShowDetails((prevState) => !prevState);
@@ -108,7 +110,7 @@ export const VersionBlockWithPreview = ({version, openFilter, segmentRef, openUr
           segmentRef={segmentRef}
       />
       <TouchableOpacity onPress={toggleShowDetails} style={padding} >
-          <Text style={[useTextAlign(), styles.versionTitle, theme.secondaryText]}>
+          <Text style={[textAlign, styles.versionTitle, theme.secondaryText]}>
               {interfaceLanguage === "hebrew" ? '‏' : '‎'}{/*neither textAlign nor writingDirection work*/}
               <Image source={icon} style={{height: 8, width: 8}} />
               {` ${makeShortVersionTitle()} • ${currentlySelected}`}
@@ -156,12 +158,13 @@ VersionBlockHeader.propTypes = {
 
 const VersionMetadata = ({version, showVersionTitle, openUri, greyBackground}) => {
     const {theme} = useGlobalState();
+    const textAlign = useTextAlign();
     const shortVersionSource = Sefaria.util.parseURLhost(version.versionSource).replace("www.", "");
     const textStyle = [styles.textTocVersionInfoText];
     const backgroundStyle = (greyBackground) ? [theme.lighterGreyBackground, {padding: 5, borderRadius: 5}] : null;
     return (
         <View style={backgroundStyle}>
-            {showVersionTitle && <Text style={[textStyle, theme.primaryText, useTextAlign()]}>{useVersionTitle(version)}</Text>}
+            {showVersionTitle && <Text style={[textStyle, theme.primaryText, textAlign]}>{useVersionTitle(version)}</Text>}
             <LinkWithKey elementKey={"source"} value={shortVersionSource} url={version.versionSource} openUri={openUri} />
             {version.digitizedBySefaria &&
                 <LinkWithKey elementKey={'digitization'} value={strings.sefaria} url={'https://www.sefaria.org.il/digitized-by-sefaria'} openUri={openUri} />
@@ -176,7 +179,7 @@ const VersionMetadata = ({version, showVersionTitle, openUri, greyBackground}) =
             }
             {version.purchaseInformationURL &&
                 <TouchableOpacity onPress={() => { openUri(version.purchaseInformationURL); }}>
-                    <Text style={[textStyle, useTextAlign(), theme.sefariaColorText]}>{strings.buyInPrint}</Text>
+                    <Text style={[textStyle, textAlign, theme.sefariaColorText]}>{strings.buyInPrint}</Text>
                 </TouchableOpacity>
             }
         </View>
@@ -191,9 +194,10 @@ VersionMetadata.propTypes = {
 
 const LinkWithKey = ({elementKey, value, url, openUri}) => {
     const {theme} = useGlobalState();
+    const textAlign = useTextAlign();
     const textStyle = [styles.textTocVersionInfoText, theme.tertiaryText];
     return (
-        <Text style={[textStyle, useTextAlign()]}>
+        <Text style={[textStyle, textAlign]}>
           {strings[elementKey]}:
           <Text style={textStyle} onPress={() => { openUri(url); }}> {value}</Text>
         </Text>
