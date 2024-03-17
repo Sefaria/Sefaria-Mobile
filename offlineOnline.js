@@ -38,31 +38,19 @@ export const loadText = function(ref, context, versions, fallbackOnDefaultVersio
 };
 
 export const loadVersions = async (ref) => {
-    let versionsApiError = false;
     let versions = getOfflineVersionObjectsAvailable(ref);
     if (!versions) {
-        try {
-            versions = await api.versions(ref, true);
-        } catch(error) {
-            versions = [];
-            versionsApiError = true;
-        }
+        versions = await api.versions(ref, true);
     }
-    return { versions, versionsApiError };
+    return versions;
 };
 
 export const loadTranslations = async (ref, versions) => {
-    let translationsApiError = false;
     let translations = await getAllTranslations(ref, versions);
     if (!translations) {
-        try {
-            translations = await api.translations(ref);
-        } catch (error) {
-            translations = [];
-            translationsApiError = true;
-        }
+        translations = await api.translations(ref);
     }
-    return {translations, translationsApiError};
+    return translations;
 }
 
 const relatedCacheKey = function(ref, online) {

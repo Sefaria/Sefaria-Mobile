@@ -80,9 +80,12 @@ const TranslationsBox = ({
   const loadData = async () => {
     setApiError(false);
     setVLangState([]);
-    const result = await Sefaria.offlineOnline.loadTranslations(segmentRef, versions);
-    setVLangState(result.translations.versions || []);
-    setApiError(result.translationsApiError);
+    try {
+      const translations = await Sefaria.offlineOnline.loadTranslations(segmentRef, versions);
+      setVLangState(translations.versions || []);
+    } catch(error) {
+      setApiError(true);
+    }
   }
   useEffect(() => {
     loadData();
