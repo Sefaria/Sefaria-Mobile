@@ -1543,6 +1543,16 @@ const GreyBoxFrame = ({ children }) => {
   );
 };
 
+const singleActionPopup = (text, action) => {
+  ActionSheet.showActionSheetWithOptions({
+    options: [text, strings.cancel],
+    cancelButtonIndex: 1,
+  },
+  (buttonIndex) => {
+    if (buttonIndex === 0) { action(); }
+  });
+}
+
 const openActionSheet = (refStr, versions, openRef, interfaceLanguage, heRefStr, category) => {
   const tempOpenRef = () => {
     // versionLanguage should only be defined when TextList is in VersionsBox. Otherwise you should open default version for that link
@@ -1552,14 +1562,9 @@ const openActionSheet = (refStr, versions, openRef, interfaceLanguage, heRefStr,
     }
     openRef(refStr, versions, loadNewVersions);
   }
-  ActionSheet.showActionSheetWithOptions({
-    options: [`${strings.open} ${versions ? strings.version :
-      Sefaria.getTitle(refStr, heRefStr, category === 'Commentary', interfaceLanguage === "hebrew")}`,strings.cancel],
-    cancelButtonIndex: 1,
-  },
-  (buttonIndex) => {
-    if (buttonIndex === 0) { tempOpenRef(); }
-  });
+  const toOpen = versions ? strings.version : Sefaria.getTitle(refStr, heRefStr, category === 'Commentary', interfaceLanguage === "hebrew");
+  const text = `${strings.open} ${toOpen}`
+  singleActionPopup(text, tempOpenRef)
 }
 
 
@@ -1627,5 +1632,6 @@ export {
   TripleDots,
   TwoBox,
   TwoBoxRow,
+  singleActionPopup,
   openActionSheet,
 }
