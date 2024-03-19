@@ -42,9 +42,10 @@ const VersionBlock = ({
 }) => {
   const {theme} = useGlobalState();
   const textAlign = useTextAlign();
+  const versionTitle = useVersionTitle(version);
   const innerText = (
     <SText lang={"english"} style={[styles.en, styles.textTocVersionTitle, textAlign, theme.text]}>
-      {useVersionTitle(version)}
+      {versionTitle}
     </SText>
   );
 
