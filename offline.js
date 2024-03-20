@@ -22,6 +22,29 @@ export const loadTextOffline = async function(ref, context, versions, fallbackOn
     return {result: textFromRefData(processed)};
 };
 
+export const getAllTranslationsOffline = async function (ref) {
+    // versions are list of all versions
+    const translations = {versions: []};
+    const versions = getOfflineVersionObjectsAvailable(ref);
+    if (!versions) {
+        return;
+    }
+    for (let version of versions) {
+        if (!version.isSource) {
+            try {
+                // this will return 2 versions. it's a waste but due cache it seems not so problematic
+                const result = await loadTextOffline(ref, false, {[version.language]: version.versionTitle}, false);
+                const copiedVersion = {...version};
+                copiedVersion.text = result.result[version.language];
+                translations.versions.push(copiedVersion);
+            } catch (error) {
+                return;
+            }
+        }
+    }
+    return translations;
+}
+
 export const loadTextTocOffline = function(title) {
     return _loadJSON(_JSONSourcePath(title + "_index"));
 }

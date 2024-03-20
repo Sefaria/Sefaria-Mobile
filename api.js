@@ -174,6 +174,10 @@ var Api = {
             urlSuffix += `&stripItags=1`;
           }
           break;
+        case 'translations':
+          url += 'api/v3/texts/';
+          urlSuffix = '?version=translation|all&return_format=strip_only_footnotes';
+          break;
         case "links":
           url += 'api/links/';
           urlSuffix = '?with_text=0';
@@ -274,6 +278,9 @@ var Api = {
       return cacheValue;
     }
     return Sefaria.api._text(ref, { context, versions, stripItags: true });
+  },
+  translations: async function(ref) {
+    return Sefaria.api._request(ref,'translations', true);
   },
   processTextApiData: function(ref, context, versions, data) {
     Sefaria.api.textCache(ref, context, versions, data);

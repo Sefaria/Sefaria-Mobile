@@ -28,6 +28,7 @@ import strings from './LocalizedStrings';
 import { useHTMLViewStyles } from './useHTMLViewStyles';
 import { RenderHTML } from 'react-native-render-html';
 import BookSVG from './img/connection-book.svg';
+import ActionSheet from "react-native-action-sheet";
 
 const SYSTEM_FONTS = ["Taamey Frank Taamim Fix", "Amiri", "Heebo", "OpenSans", "SertoBatnan"];  // list of system fonts. needed for RenderHTML
 const CSS_CLASS_STYLES = {
@@ -1542,6 +1543,31 @@ const GreyBoxFrame = ({ children }) => {
   );
 };
 
+const singleActionPopup = (text, action) => {
+  ActionSheet.showActionSheetWithOptions({
+    options: [text, strings.cancel],
+    cancelButtonIndex: 1,
+  },
+  (buttonIndex) => {
+    if (buttonIndex === 0) { action(); }
+  });
+}
+
+const openActionSheet = (refStr, versions, openRef, interfaceLanguage, heRefStr, category) => {
+  const tempOpenRef = () => {
+    // versionLanguage should only be defined when TextList is in VersionsBox. Otherwise you should open default version for that link
+    let loadNewVersions = false;
+    if (versions) {
+      loadNewVersions = true;
+    }
+    openRef(refStr, versions, loadNewVersions);
+  }
+  const toOpen = versions ? strings.version : Sefaria.getTitle(refStr, heRefStr, category === 'Commentary', interfaceLanguage === "hebrew");
+  const text = `${strings.open} ${toOpen}`
+  singleActionPopup(text, tempOpenRef)
+}
+
+
 export {
   AnimatedRow,
   BackButton,
@@ -1606,4 +1632,6 @@ export {
   TripleDots,
   TwoBox,
   TwoBoxRow,
+  singleActionPopup,
+  openActionSheet,
 }

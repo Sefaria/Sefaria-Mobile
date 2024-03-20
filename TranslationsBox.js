@@ -4,17 +4,16 @@ import {
   View,
   ScrollView,
   Text,
-  TouchableOpacity,
 } from 'react-native';
 
 import {
   LoadingView,
 } from './Misc.js';
 import { GlobalStateContext, getTheme } from './StateManager';
-import VersionBlock from './VersionBlock';
+import {VersionBlockWithPreview} from './VersionBlock';
 import strings from './LocalizedStrings';
 import styles from'./Styles.js';
-import { VersionFilter } from './Filter';
+import {useGlobalState} from "./Hooks";
 
 const getVLangState = (initialCurrVersions, initialMainVersionLanguage, versions) => {
   const versionLangMap = {};
@@ -64,43 +63,46 @@ const useVLangState = (currVersionObjects, versions) => {
   };
 }
 
-const VersionsBox = ({
-  versions,
-  versionsApiError,
+const TranslationsBox = ({
   currVersionObjects,
-  mode,
-  vFilterIndex,
-  recentVFilters,
   segmentRef,
-  setConnectionsMode,
   openFilter,
   openUri,
-  handleOpenURL,
+  openRef,
 }) => {
-  const { themeStr, interfaceLanguage } = useContext(GlobalStateContext);
-  const {
-    vLangState,
-    setVLangState
-  } = useVLangState(currVersionObjects, versions);
+  const {theme, interfaceLanguage} = useGlobalState();
+  const {vLangState, setVLangState } = useVLangState(currVersionObjects, []);
+  const [apiError, setApiError] = useState(false)
+  const loadData = async () => {
+    setApiError(false);
+    setVLangState([]);
+    try {
+      const translations = await Sefaria.offlineOnline.loadTranslations(segmentRef);
+      setVLangState(translations.versions || []);
+    } catch(error) {
+      setApiError(true);
+    }
+  }
   useEffect(() => {
-    setVLangState(versions);
-  }, [versions]);
-  const theme = getTheme(themeStr);
-
-  const openVersionInSidebar = (versionTitle, heVersionTitle, versionLanguage) => {
-    const filter = new VersionFilter(versionTitle, heVersionTitle, versionLanguage, segmentRef);
-    openFilter(filter, "version");
+    loadData();
+  }, [segmentRef]);
+  const flexStyles = {
+    flexDirection: "column",
+    alignSelf: "stretch",
+    flex: 1
   };
-  if (versionsApiError) {
+  const textAlign = {textAlign: (interfaceLanguage==='hebrew' ? 'right': 'left')};
+
+  if (apiError) {
     return (
       <View style={[{flex:1}, styles.readerSideMargin]}>
         <Text style={[styles.emptyLinksMessage, theme.secondaryText]}>{strings.connectToVersionsMessage}</Text>
       </View>
     );
   }
-  if (!vLangState.versionLangMap) {
+  if (!Object.keys(vLangState.versionLangMap).length) {
     return (
-      <View style={styles.readerSideMargin}>
+      <View style={flexStyles}>
         <LoadingView />
       </View>
     );
@@ -110,31 +112,32 @@ const VersionsBox = ({
     const tempV = currVersionObjects[vlang];
     currVersionTitles[vlang] = !!tempV ? tempV.versionTitle : null;
   }
-  const isheb = interfaceLanguage === "hebrew";
-  const textStyle = isheb ? styles.hebrewText : styles.englishText;
   return (
     <ScrollView
-      contentContainerStyle={[styles.versionsBoxScrollView, styles.readerSideMargin]}>
+      contentContainerStyle={[styles.versionsBoxScrollView, styles.readerSideMargin, ]}>
+      <Text style={[theme.tertiaryText, styles.translationsHeader, textAlign]}>{strings.translations}</Text>
+      <Text style={[theme.tertiaryText, styles.fontSize14, textAlign]}>
+        {strings.translationsDescription + ' '}
+        <Text onPress={() => openUri('https://www.sefaria.org/sheets/511573')} style={{textDecorationLine: 'underline'}}>{strings.learnMore} ›</Text>
+      </Text>
       {
         vLangState.versionLangs.map((lang) => (
           <View key={lang}>
-            <View style={[styles.versionsBoxLang]}>
-              <Text style={[textStyle, styles.versionsBoxLangText, theme.text]}>{(strings[Sefaria.util.translateISOLanguageCode(lang)] || lang).toUpperCase()}<Text>{` (${vLangState.versionLangMap[lang].length})`}</Text></Text>
+            <View style={[styles.translationsBoxLang, theme.languageName]}>
+              <Text style={[styles.versionsBoxLangText, theme.tertiaryText, textAlign]}>{(strings[Sefaria.util.translateISOLanguageCode(lang)] || lang)}<Text>{` (${vLangState.versionLangMap[lang].length})`}</Text></Text>
             </View>
             {
-              vLangState.versionLangMap[lang].map(v => (
-                <TouchableOpacity
-                  style={[styles.versionsBoxVersionBlockWrapper, theme.bordered]}
+              vLangState.versionLangMap[lang].map((v, idx) => (
+                <VersionBlockWithPreview
+                  version={v}
+                  openFilter={openFilter}
                   key={v.versionTitle + lang}
-                  onPress={()=>{ openVersionInSidebar(v.versionTitle, v.versionTitleInHebrew, v.language); }}>
-                  <VersionBlock
-                    theme={theme}
-                    version={v}
-                    openVersionInReader={()=>{}}
-                    openUri={openUri}
-                    handleOpenURL={handleOpenURL}
-                  />
-                </TouchableOpacity>
+                  segmentRef={segmentRef}
+                  openUri={openUri}
+                  isCurrent={v.versionTitle === currVersionObjects.en.versionTitle}
+                  openRef={openRef}
+                  heVersionTitle={currVersionObjects.he.versionTitle}
+                />
               ))
             }
           </View>
@@ -143,17 +146,12 @@ const VersionsBox = ({
     </ScrollView>
   );
 }
-VersionsBox.propTypes = {
-  versions:                 PropTypes.array.isRequired,
-  versionsApiError:         PropTypes.bool.isRequired,
-  currVersionObjects:             PropTypes.object.isRequired,
-  mode:                     PropTypes.oneOf(["versions", "version Open"]),
-  vFilterIndex:             PropTypes.number,
-  recentVFilters:           PropTypes.array,
+TranslationsBox.propTypes = {
+  currVersionObjects:       PropTypes.object.isRequired,
   segmentRef:               PropTypes.string.isRequired,
-  setConnectionsMode:       PropTypes.func.isRequired,
   openFilter:               PropTypes.func.isRequired,
   openUri:                  PropTypes.func.isRequired,
+  openRef:                  PropTypes.func.isRequired,
 };
 
-export default VersionsBox;
+export default TranslationsBox;

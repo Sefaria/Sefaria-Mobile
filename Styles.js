@@ -1248,10 +1248,11 @@ export default StyleSheet.create({
   },
   toolsButtonText: {
   },
-  versionsBoxLang: {
+  translationsBoxLang: {
     flex: 1,
-    paddingVertical: 5,
+    paddingVertical: 7,
     marginTop: 15,
+    borderBottomWidth: 1,
   },
   versionsBoxLangText: {
     fontSize: 17,
@@ -1556,5 +1557,14 @@ export default StyleSheet.create({
   connectionPanelTitle: {
     paddingVertical: 10,
     borderBottomWidth: 1,
+  },
+  versionTitle: {
+    fontSize: 12,
+    fontStyle: "italic",
+  },
+  translationsHeader: {
+    fontSize: 20,
+    paddingTop: 5,
+    paddingBottom: 6,
   }
 });

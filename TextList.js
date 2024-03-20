@@ -11,7 +11,7 @@ import {
 import ActionSheet from 'react-native-action-sheet';
 
 import {
-  LoadingView,
+  openActionSheet,
   SYSTEM_FONTS,
 } from './Misc.js';
 import { GlobalStateContext, getTheme } from './StateManager';
@@ -222,26 +222,9 @@ const ListItem = ({
   const { classesStyles:enClasses, textStyle:enStyle, tagsStyles:enTags } = useHTMLViewStyles(bilingual, 'english');
   const { classesStyles:heClasses, textStyle:heStyle, tagsStyles:heTags } = useHTMLViewStyles(bilingual, 'hebrew');
 
-  const tempOpenRef = () => {
-    // versionLanguage should only be defined when TextList is in VersionsBox. Otherwise you should open default version for that link
-    let versions = null, loadNewVersions = false;
-    if (!!versionLanguage) {
-      versions = {[versionLanguage]: versionTitle};
-      loadNewVersions = true;
-    }
-    openRef(refStr, versions, loadNewVersions);
-  };
-  const openActionSheet = () => {
-    ActionSheet.showActionSheetWithOptions({
-      options: [`${strings.open} ${versionLanguage ? strings.version :
-        Sefaria.getTitle(refStr, heRefStr, category === 'Commentary', interfaceLanguage === "hebrew")}`,strings.cancel],
-      cancelButtonIndex: 1,
-    },
-    (buttonIndex) => {
-      if (buttonIndex === 0) { tempOpenRef(); }
-    });
-  }
-  var textViews = [];
+  const versions = (versionLanguage) ? {[versionLanguage]: versionTitle} : null;
+  const onPress = () => openActionSheet(refStr, versions, openRef, interfaceLanguage, heRefStr, category);
+  let textViews = [];
   const he = Sefaria.util.getDisplayableHTML(lco.he, "hebrew");
   const en = Sefaria.util.getDisplayableHTML(lco.en, "english");
   const lineHeightMultiplierHe = Platform.OS === 'android' ? 1.3 : 1.2;
@@ -290,7 +273,7 @@ const ListItem = ({
   const refTitleStyle = isHeb ? styles.he : styles.en;
   const tempRefStr = isHeb ? heRefStr : refStr;
   return (
-    <TouchableOpacity style={[styles.textListItem, theme.searchTextResult]} onPress={openActionSheet} delayPressIn={200}>
+    <TouchableOpacity style={[styles.textListItem, theme.searchTextResult]} onPress={onPress} delayPressIn={200}>
       {displayRef ? null : <Text style={[refTitleStyle, styles.textListCitation, theme.textListCitation]}>{tempRefStr}</Text>}
       {textViews}
     </TouchableOpacity>
