@@ -136,7 +136,7 @@ const TranslationsBox = ({
                   openUri={openUri}
                   isCurrent={v.versionTitle === currVersionObjects.en.versionTitle}
                   openRef={openRef}
-                  heVersionTitle={currVersionObjects.he.versionTitle}
+                  heVersionTitle={currVersionObjects.he?.versionTitle}
                 />
               ))
             }
