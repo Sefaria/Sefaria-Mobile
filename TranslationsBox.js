@@ -43,6 +43,16 @@ const getVLangState = (initialCurrVersions, initialMainVersionLanguage, versions
   return { versionLangMap, versionLangs };
 };
 
+const sortVersionLangMap = (versionLangMap, currVersionTitle) => {
+  Object.keys(versionLangMap).forEach((lang) => {
+    versionLangMap[lang].sort((a, b) => {
+      if (a.versionTitle === currVersionTitle) return -1;
+      if (b.versionTitle === currVersionTitle) return 1;
+      return b.priority - a.priority;
+    });
+  });
+};
+
 const useVLangState = (currVersionObjects, versions) => {
   const [initialCurrVersions,] = useState(Object.entries(currVersionObjects).reduce(
     (obj, [lang, val]) => {
@@ -55,6 +65,7 @@ const useVLangState = (currVersionObjects, versions) => {
   );
   const initialMainVersionLanguage = "english"; // hardcode to english to prioritize english versions. used to be: useState(textLanguage === "bilingual" ? "hebrew" : textLanguage);
   const [vLangState, setVLangState] = useState(getVLangStateBound(versions));
+  sortVersionLangMap(vLangState.versionLangMap, currVersionObjects.en?.versionTitle);
   return {
     vLangState,
     setVLangState: versions => {
@@ -121,20 +132,20 @@ const TranslationsBox = ({
         <Text onPress={() => openUri('https://www.sefaria.org/sheets/511573')} style={{textDecorationLine: 'underline'}}>{strings.learnMore} ›</Text>
       </Text>
       {
-        vLangState.versionLangs.map((lang) => (
+        vLangState.versionLangs.map((lang, i) => (
           <View key={lang}>
             <View style={[styles.translationsBoxLang, theme.languageName]}>
               <Text style={[styles.versionsBoxLangText, theme.tertiaryText, textAlign]}>{(strings[Sefaria.util.translateISOLanguageCode(lang)] || lang)}<Text>{` (${vLangState.versionLangMap[lang].length})`}</Text></Text>
             </View>
             {
-              vLangState.versionLangMap[lang].map((v, idx) => (
+              vLangState.versionLangMap[lang].map((v, j) => (
                 <VersionBlockWithPreview
                   version={v}
                   openFilter={openFilter}
                   key={v.versionTitle + lang}
                   segmentRef={segmentRef}
                   openUri={openUri}
-                  isCurrent={v.versionTitle === currVersionObjects.en.versionTitle}
+                  isCurrent={currVersionObjects.en ? v.versionTitle === currVersionObjects.en.versionTitle : !i && !j}
                   openRef={openRef}
                   heVersionTitle={currVersionObjects.he?.versionTitle}
                 />
