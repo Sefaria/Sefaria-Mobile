@@ -152,6 +152,7 @@ class ReaderApp extends React.PureComponent {
         dictLookup: null,
         highlightedWordID: null,
         highlightedWordSegmentRef: null,
+        translations: {},
       };
     this.NetInfoEventListener = () => {};  // calling the event listener unsubcribes, initialize to a null method
 
@@ -770,9 +771,19 @@ class ReaderApp extends React.PureComponent {
   loadSecondaryData = (ref) => {
     //loads secondary data every time a section is loaded
     //this data is not required for initial renderring of the section
+    this.loadTranslations(ref);
     this.loadRelated(ref);
     this.loadVersions(ref);
   };
+  loadTranslations = async (ref) => {
+    try {
+      Sefaria.offlineOnline.loadTranslations(ref).then(response => {
+        this.setState({translations: response});
+      });
+    } catch (error) {
+      crashlytics().recordError(new Error(`Translations load error: Message: ${error}`));
+    }
+  }
   loadRelated = async (ref, isSheet) => {
     let hadSuccess = false;
     for (let isOnline of [false, true]) {
@@ -1052,7 +1063,6 @@ class ReaderApp extends React.PureComponent {
   enableAliyot - true when you click on an aliya form ReaderTextTableOfContents
   */
   openRef = (ref, calledFrom, versions, addToBackStack=true, enableAliyot=false, loadNewVersions=false) => {
-    console.log(ref, calledFrom, versions, addToBackStack, enableAliyot, loadNewVersions);
     if (ref.startsWith("Sheet")){
         this.openRefSheet(ref.match(/\d+/)[0], null, addToBackStack, calledFrom) //open ref sheet expects just the sheet ID
     }
@@ -1571,6 +1581,15 @@ class ReaderApp extends React.PureComponent {
   };
   _getSearchStateName = type => ( `${type}SearchState` );
   _getSearchState = type => ( this.state[this._getSearchStateName(type)] );
+  _getTranslationForSegment() {
+    const ref = this.state.segmentRef;
+    const index = parseInt(ref.match(/\d*$/)?.[0]) - 1;
+    const translations = Sefaria.util.clone(this.state.translations);
+    translations.versions.forEach((version) => {
+      version.text = version.text[index];
+    });
+    return translations
+  }
   convertSearchHit = (searchType, hit, field) => {
     const source = hit._source;
     const duplicates = hit.duplicates || [];
@@ -2226,6 +2245,7 @@ class ReaderApp extends React.PureComponent {
                 viewOnSite={this.viewOnSite}
                 reportError={this.reportError}
                 openTopic={this.openTopic}
+                translations={this._getTranslationForSegment()}
               />
                : null
             }

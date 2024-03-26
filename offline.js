@@ -223,6 +223,9 @@ const loadOfflineSectionV6 = async function(ref, versions) {
 };
 
 const loadOfflineSection = async function(ref, versions, fallbackOnDefaultVersions=true) {
+    /**
+     * ref can be a segment or section ref, and it will load the section
+     */
     if (shouldLoadFromApi()) {
         throw ERRORS.MISSING_OFFLINE_DATA;
     }
@@ -234,7 +237,7 @@ const loadOfflineSection = async function(ref, versions, fallbackOnDefaultVersio
     }
 
     const [metadata, fileNameStem] = await loadOfflineSectionMetadataWithCache(ref);
-    const textByLang = await loadOfflineSectionByVersions(versions, metadata.versions, ref, fileNameStem, fallbackOnDefaultVersions);
+    const textByLang = await loadOfflineSectionByVersions(versions, metadata.versions, metadata.sectionRef, fileNameStem, fallbackOnDefaultVersions);
     return createFullSectionObject(metadata, textByLang);
 };
 
