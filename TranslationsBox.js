@@ -15,7 +15,7 @@ import strings from './LocalizedStrings';
 import styles from'./Styles.js';
 import {useGlobalState} from "./Hooks";
 
-const getVLangState = (initialCurrVersions, initialMainVersionLanguage, versions) => {
+const getVLangMap = (initialCurrVersions, initialMainVersionLanguage, versions) => {
   const versionLangMap = {};
   for (let v of versions) {
     const matches = v.versionTitle.match(new RegExp("\\[([a-z]{2})\\]$")); // two-letter ISO language code
@@ -53,25 +53,17 @@ const sortVersionLangMap = (versionLangMap, currVersionTitle) => {
   });
 };
 
-const useVLangState = (currVersionObjects, versions) => {
-  const [initialCurrVersions,] = useState(Object.entries(currVersionObjects).reduce(
+const getVLangState = (currVersionObjects, versions) => {
+  const initialCurrVersions = Object.entries(currVersionObjects).reduce(
     (obj, [lang, val]) => {
       obj[lang] = !!val ? val.versionTitle : null;
       return obj;
     }, {}
-  ));
-  const getVLangStateBound = versions => (
-    getVLangState(initialCurrVersions, initialMainVersionLanguage, versions)
   );
   const initialMainVersionLanguage = "english"; // hardcode to english to prioritize english versions. used to be: useState(textLanguage === "bilingual" ? "hebrew" : textLanguage);
-  const [vLangState, setVLangState] = useState(getVLangStateBound(versions));
+  const vLangState = getVLangMap(initialCurrVersions, initialMainVersionLanguage, versions);
   sortVersionLangMap(vLangState.versionLangMap, currVersionObjects.en?.versionTitle);
-  return {
-    vLangState,
-    setVLangState: versions => {
-      setVLangState(getVLangStateBound(versions));
-    },
-  };
+  return vLangState;
 }
 
 const TranslationsBox = ({
@@ -80,23 +72,10 @@ const TranslationsBox = ({
   openFilter,
   openUri,
   openRef,
+  translations,
 }) => {
   const {theme, interfaceLanguage} = useGlobalState();
-  const {vLangState, setVLangState } = useVLangState(currVersionObjects, []);
-  const [apiError, setApiError] = useState(false)
-  const loadData = async () => {
-    setApiError(false);
-    setVLangState([]);
-    try {
-      const translations = await Sefaria.offlineOnline.loadTranslations(segmentRef);
-      setVLangState(translations.versions || []);
-    } catch(error) {
-      setApiError(true);
-    }
-  }
-  useEffect(() => {
-    loadData();
-  }, [segmentRef]);
+  const vLangState = getVLangState(currVersionObjects, translations.versions);
   const flexStyles = {
     flexDirection: "column",
     alignSelf: "stretch",
@@ -104,13 +83,6 @@ const TranslationsBox = ({
   };
   const textAlign = {textAlign: (interfaceLanguage==='hebrew' ? 'right': 'left')};
 
-  if (apiError) {
-    return (
-      <View style={[{flex:1}, styles.readerSideMargin]}>
-        <Text style={[styles.emptyLinksMessage, theme.secondaryText]}>{strings.connectToVersionsMessage}</Text>
-      </View>
-    );
-  }
   if (!Object.keys(vLangState.versionLangMap).length) {
     return (
       <View style={flexStyles}>
@@ -163,6 +135,7 @@ TranslationsBox.propTypes = {
   openFilter:               PropTypes.func.isRequired,
   openUri:                  PropTypes.func.isRequired,
   openRef:                  PropTypes.func.isRequired,
+  translations:             PropTypes.object.isRequired,
 };
 
 export default TranslationsBox;
