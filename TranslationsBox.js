@@ -15,7 +15,7 @@ import strings from './LocalizedStrings';
 import styles from'./Styles.js';
 import {useGlobalState} from "./Hooks";
 
-const getVLangState = (initialCurrVersions, initialMainVersionLanguage, versions) => {
+const getVLangMap = (initialCurrVersions, initialMainVersionLanguage, versions) => {
   const versionLangMap = {};
   for (let v of versions) {
     const matches = v.versionTitle.match(new RegExp("\\[([a-z]{2})\\]$")); // two-letter ISO language code
@@ -43,24 +43,27 @@ const getVLangState = (initialCurrVersions, initialMainVersionLanguage, versions
   return { versionLangMap, versionLangs };
 };
 
-const useVLangState = (currVersionObjects, versions) => {
-  const [initialCurrVersions,] = useState(Object.entries(currVersionObjects).reduce(
+const sortVersionLangMap = (versionLangMap, currVersionTitle) => {
+  Object.keys(versionLangMap).forEach((lang) => {
+    versionLangMap[lang].sort((a, b) => {
+      if (a.versionTitle === currVersionTitle) return -1;
+      if (b.versionTitle === currVersionTitle) return 1;
+      return b.priority - a.priority;
+    });
+  });
+};
+
+const getVLangState = (currVersionObjects, versions) => {
+  const initialCurrVersions = Object.entries(currVersionObjects).reduce(
     (obj, [lang, val]) => {
       obj[lang] = !!val ? val.versionTitle : null;
       return obj;
     }, {}
-  ));
-  const getVLangStateBound = versions => (
-    getVLangState(initialCurrVersions, initialMainVersionLanguage, versions)
   );
   const initialMainVersionLanguage = "english"; // hardcode to english to prioritize english versions. used to be: useState(textLanguage === "bilingual" ? "hebrew" : textLanguage);
-  const [vLangState, setVLangState] = useState(getVLangStateBound(versions));
-  return {
-    vLangState,
-    setVLangState: versions => {
-      setVLangState(getVLangStateBound(versions));
-    },
-  };
+  const vLangState = getVLangMap(initialCurrVersions, initialMainVersionLanguage, versions);
+  sortVersionLangMap(vLangState.versionLangMap, currVersionObjects.en?.versionTitle);
+  return vLangState;
 }
 
 const TranslationsBox = ({
@@ -69,23 +72,10 @@ const TranslationsBox = ({
   openFilter,
   openUri,
   openRef,
+  translations,
 }) => {
   const {theme, interfaceLanguage} = useGlobalState();
-  const {vLangState, setVLangState } = useVLangState(currVersionObjects, []);
-  const [apiError, setApiError] = useState(false)
-  const loadData = async () => {
-    setApiError(false);
-    setVLangState([]);
-    try {
-      const translations = await Sefaria.offlineOnline.loadTranslations(segmentRef);
-      setVLangState(translations.versions || []);
-    } catch(error) {
-      setApiError(true);
-    }
-  }
-  useEffect(() => {
-    loadData();
-  }, [segmentRef]);
+  const vLangState = getVLangState(currVersionObjects, translations.versions);
   const flexStyles = {
     flexDirection: "column",
     alignSelf: "stretch",
@@ -93,13 +83,6 @@ const TranslationsBox = ({
   };
   const textAlign = {textAlign: (interfaceLanguage==='hebrew' ? 'right': 'left')};
 
-  if (apiError) {
-    return (
-      <View style={[{flex:1}, styles.readerSideMargin]}>
-        <Text style={[styles.emptyLinksMessage, theme.secondaryText]}>{strings.connectToVersionsMessage}</Text>
-      </View>
-    );
-  }
   if (!Object.keys(vLangState.versionLangMap).length) {
     return (
       <View style={flexStyles}>
@@ -121,22 +104,22 @@ const TranslationsBox = ({
         <Text onPress={() => openUri('https://www.sefaria.org/sheets/511573')} style={{textDecorationLine: 'underline'}}>{strings.learnMore} ›</Text>
       </Text>
       {
-        vLangState.versionLangs.map((lang) => (
+        vLangState.versionLangs.map((lang, i) => (
           <View key={lang}>
             <View style={[styles.translationsBoxLang, theme.languageName]}>
               <Text style={[styles.versionsBoxLangText, theme.tertiaryText, textAlign]}>{(strings[Sefaria.util.translateISOLanguageCode(lang)] || lang)}<Text>{` (${vLangState.versionLangMap[lang].length})`}</Text></Text>
             </View>
             {
-              vLangState.versionLangMap[lang].map((v, idx) => (
+              vLangState.versionLangMap[lang].map((v, j) => (
                 <VersionBlockWithPreview
                   version={v}
                   openFilter={openFilter}
                   key={v.versionTitle + lang}
                   segmentRef={segmentRef}
                   openUri={openUri}
-                  isCurrent={v.versionTitle === currVersionObjects.en.versionTitle}
+                  isCurrent={currVersionObjects.en ? v.versionTitle === currVersionObjects.en.versionTitle : !i && !j}
                   openRef={openRef}
-                  heVersionTitle={currVersionObjects.he.versionTitle}
+                  heVersionTitle={currVersionObjects.he?.versionTitle}
                 />
               ))
             }
@@ -152,6 +135,7 @@ TranslationsBox.propTypes = {
   openFilter:               PropTypes.func.isRequired,
   openUri:                  PropTypes.func.isRequired,
   openRef:                  PropTypes.func.isRequired,
+  translations:             PropTypes.object.isRequired,
 };
 
 export default TranslationsBox;

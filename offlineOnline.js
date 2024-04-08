@@ -45,7 +45,7 @@ export const loadVersions = async (ref) => {
     return versions;
 };
 
-export const loadTranslations = async (ref, versions) => {
+export const loadTranslations = async (ref) => {
     let translations = await getAllTranslationsOffline(ref);
     if (!translations) {
         translations = await api.translations(ref);

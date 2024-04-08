@@ -82,6 +82,7 @@ class ConnectionsPanel extends React.PureComponent {
     reportError:          PropTypes.func.isRequired,
     loadRelated:          PropTypes.func.isRequired,
     openTopic:            PropTypes.func.isRequired,
+    translations:         PropTypes.object,
   };
 
   reloadRelated = () => this.props.loadRelated(this.props.sectionRef);
@@ -171,6 +172,7 @@ class ConnectionsPanel extends React.PureComponent {
               openFilter={this.props.openFilter}
               openUri={this.props.openUri}
               openRef={this.props.openRef}
+              translations={this.props.translations}
             />
           </View>
         );
@@ -225,7 +227,7 @@ class ConnectionsPanel extends React.PureComponent {
                 relatedHasError={this.props.relatedHasError}
                 sheet={this.props.sheet}
                 themeStr={this.props.themeStr}
-                versions={this.props.versions}
+                translations={this.props.translations}
                 setConnectionsMode={this.props.setConnectionsMode}
                 reloadRelated={this.reloadRelated}
                 relatedData={this.props.relatedData}
@@ -324,7 +326,7 @@ const MainMenuButtons = ({linkSummary,
                            relatedHasError,
                            sheet,
                            themeStr,
-                           versions,
+                           translations,
                            setConnectionsMode,
                            reloadRelated,
                            relatedData,
@@ -357,7 +359,7 @@ const MainMenuButtons = ({linkSummary,
       relatedHasError={relatedHasError}
       sheet={sheet}
       themeStr={themeStr}
-      versionsCount={versions.filter(v => !v.isSource).length}
+      versionsCount={translations.versions.length}
       setConnectionsMode={setConnectionsMode}
       reloadRelated={reloadRelated}
     />
@@ -384,7 +386,7 @@ MainMenuButtons.propTypes = {
   relatedHasError: PropTypes.bool.isRequired,
   sheet: PropTypes.object,
   themeStr: PropTypes.string.isRequired,
-  versions: PropTypes.array.isRequired,
+  translations: PropTypes.object.isRequired,
   setConnectionsMode: PropTypes.func.isRequired,
   reloadRelated: PropTypes.func.isRequired,
   relatedData: PropTypes.object.isRequired,
