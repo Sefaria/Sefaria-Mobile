@@ -152,7 +152,7 @@ class ReaderApp extends React.PureComponent {
         dictLookup: null,
         highlightedWordID: null,
         highlightedWordSegmentRef: null,
-        translations: {},
+        translations: {versions: []},
       };
     this.NetInfoEventListener = () => {};  // calling the event listener unsubcribes, initialize to a null method
 
