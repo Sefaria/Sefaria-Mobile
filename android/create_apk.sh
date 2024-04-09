@@ -2,7 +2,7 @@
 # before you run, up version in app/build.gradle
 
 . ./keystore_pass.sh  # include KEYSTORE_PASS variable
-KEYSTORE="upload-kstore.jks"
+KEYSTORE="upload-kstore.keystore"
 APK_DIR="app/build/outputs/apk/release"
 curl "http://localhost:8081/index.android.bundle?platform=android" -o "app/src/main/assets/index.android.bundle"
 ./gradlew assembleRelease
