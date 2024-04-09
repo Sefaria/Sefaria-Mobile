@@ -27,9 +27,9 @@ platform :android do
       task: "bundle",
       build_type: "Release",
       properties: {
-        "android.injected.signing.store.file" => "kstore.jks",
+        "android.injected.signing.store.file" => "upload-kstore.jks",
         "android.injected.signing.store.password" => options[:storepass],
-        "android.injected.signing.key.alias" => "kstore",
+        "android.injected.signing.key.alias" => "upload-kstore",
         "android.injected.signing.key.password" => options[:storepass],
       }
     )
