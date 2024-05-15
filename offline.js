@@ -43,7 +43,7 @@ export const getAllTranslationsOffline = async function (ref, context=true) {
             }
         }
     }
- return translations;
+    return translations;
 }
 
 export const loadTextTocOffline = function(title) {
