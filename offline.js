@@ -35,14 +35,15 @@ export const getAllTranslationsOffline = async function (ref, context=true) {
                 // this will return 2 versions. it's a waste but due cache it seems not so problematic
                 const result = await loadTextOffline(ref, context, {[version.language]: version.versionTitle}, false);
                 const copiedVersion = {...version};
-                copiedVersion.text = result.result[version.language];
+                const desired_attr = (version.direction === 'rtl') ? 'he' : 'text';
+                copiedVersion.text = result.content.map(e => e[desired_attr]);
                 translations.versions.push(copiedVersion);
             } catch (error) {
                 return;
             }
         }
     }
-    return translations;
+ return translations;
 }
 
 export const loadTextTocOffline = function(title) {
