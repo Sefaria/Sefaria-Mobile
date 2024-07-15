@@ -613,7 +613,7 @@ class TextColumn extends React.PureComponent {
 
   renderListFooter = () => {
     if (this.props.isSheet) { return null; }
-    const endOfBookView = <View></View> //enables scrolling to the end when connections panel is open
+    const endOfBookView = <View></View>; //enables scrolling to the end when connections panel is open
     return this.props.next ? <LoadingView category={Sefaria.primaryCategoryForTitle(this.props.textTitle)}/> : endOfBookView;
   };
 
