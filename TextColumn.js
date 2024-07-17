@@ -787,10 +787,12 @@ class TextColumn extends React.PureComponent {
   };
 
   render() {
+    const paddingBottom = Dimensions.get('window').height * 0.7;  //0.7 allows oneline last book segment to show in the top when it's pressed, but not to scroll it out of screen
     return (
         <View style={styles.textColumn}>
           <ErrorBoundary FallbackComponent={ErrorBoundaryFallbackComponent} onError={this._textErrorBoundaryAlert}>
             <SectionList
+              contentContainerStyle={{ paddingBottom: paddingBottom }}
               style={styles.scrollViewPaddingInOrderToScroll}
               ref={this._getSectionListRef}
               sections={this.state.dataSource}
