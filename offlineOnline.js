@@ -71,12 +71,13 @@ export const loadRelated = async function(ref, online) {
             !!segmentLinks ? segmentLinks.map(link => {
                 const index_title = Sefaria.textTitleForRef(link.sourceRef);
                 const collectiveTitle = Sefaria.collectiveTitlesDict[index_title];
+                const category = link.category ? link.category : Sefaria.primaryCategoryForTitle(index_title);
                 return {
                     sourceRef: link.sourceRef,
                     sourceHeRef: link.sourceHeRef,
                     index_title,
-                    collectiveTitle,
-                    category: ("category" in link) ? link.category : Sefaria.primaryCategoryForTitle(index_title),
+                    collectiveTitle: category === "Commentary" ? collectiveTitle : undefined,
+                    category,
                     anchorRef: `${ref}:${segNum+1}`,
                     sourceHasEn: link.sourceHasEn,
                 }
