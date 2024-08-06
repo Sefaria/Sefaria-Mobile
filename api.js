@@ -512,12 +512,8 @@ var Api = {
 
   related: async function(ref) {
     //await Sefaria.api._abortRequestType('related');  doesn't seem necessary and causes many failed related calls when sections are small
-    const cached = Sefaria.api._related[ref];
-    if (!!cached) { return cached; }
     try {
-      const response = await Sefaria.api._request(ref, 'related', true, {}, true);
-      Sefaria.api._related[ref] = response;
-      return response;
+      return await Sefaria.api._request(ref, 'related', true, {}, true);
     } catch(error) {
       console.log("related API error:", error, ref);
       throw error;
