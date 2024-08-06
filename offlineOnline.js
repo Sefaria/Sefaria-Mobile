@@ -7,6 +7,7 @@ import {ERRORS} from "./errors";
 import {
     loadTextTocOffline,
     loadTextOffline,
+    loadLinksOffline,
     getOfflineVersionObjectsAvailable,
     loadOfflineSectionMetadataCompat, getAllTranslationsOffline
 } from "./offline";
@@ -53,40 +54,13 @@ export const loadTranslations = async (ref) => {
     return translations;
 }
 
-const relatedCacheKey = function(ref, online) {
-    return `${ref}|${online}`;
-};
-
 export const loadRelated = async function(ref, online) {
-    if (online) {
-        return await api.related(ref);
-    } else {
-        const cacheKey = relatedCacheKey(ref, online);
-        const cached = api._related[cacheKey];
-        if (!!cached) { return cached; }
-        // mimic response of links API so that addLinksToText() will work independent of data source
-        const metadata = await loadOfflineSectionMetadataCompat(ref);
-        if (!metadata) { throw ERRORS.CANT_GET_SECTION_FROM_DATA; }
-        const linkList = (metadata.links.reduce((accum, segmentLinks, segNum) => accum.concat(
-            !!segmentLinks ? segmentLinks.map(link => {
-                const index_title = Sefaria.textTitleForRef(link.sourceRef);
-                const collectiveTitle = Sefaria.collectiveTitlesDict[index_title];
-                const category = link.category ? link.category : Sefaria.primaryCategoryForTitle(index_title);
-                return {
-                    sourceRef: link.sourceRef,
-                    sourceHeRef: link.sourceHeRef,
-                    index_title,
-                    collectiveTitle: category === "Commentary" ? collectiveTitle : undefined,
-                    category,
-                    anchorRef: `${ref}:${segNum+1}`,
-                    sourceHasEn: link.sourceHasEn,
-                }
-            }) : []
-        ), []));
-        const offlineRelatedData = {links: linkList};
-        api._related[cacheKey] = offlineRelatedData;
-        return offlineRelatedData;
-    }
+    const cached = api._related[ref];
+    if (!!cached) { return cached; }
+    const loader = online ? api.related : loadLinksOffline;
+    const response = await loader(ref);
+    api._related[ref] = response;
+    return response;
 };
 
 const _textToc = {};

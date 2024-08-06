@@ -79,6 +79,29 @@ export const loadOfflineSectionMetadataCompat = async function(ref) {
     }
 };
 
+export const loadLinksOffline = async function(ref) {
+    // mimic response of links API so that addLinksToText() will work independent of data source
+    const metadata = await loadOfflineSectionMetadataCompat(ref);
+    if (!metadata) { throw ERRORS.CANT_GET_SECTION_FROM_DATA; }
+    const linkList = (metadata.links.reduce((accum, segmentLinks, segNum) => accum.concat(
+        !!segmentLinks ? segmentLinks.map(link => {
+            const index_title = Sefaria.textTitleForRef(link.sourceRef);
+            const collectiveTitle = Sefaria.collectiveTitlesDict[index_title];
+            const category = link.category ? link.category : Sefaria.primaryCategoryForTitle(index_title);
+            return {
+                sourceRef: link.sourceRef,
+                sourceHeRef: link.sourceHeRef,
+                index_title,
+                collectiveTitle: category === "Commentary" ? collectiveTitle : undefined,
+                category,
+                anchorRef: `${ref}:${segNum+1}`,
+                sourceHasEn: link.sourceHasEn,
+            }
+        }) : []
+    ), []));
+    return {links: linkList};
+};
+
 export const openFileInSources = async function(filename) {
     const isIOS = Platform.OS === 'ios';
     let fileData;
@@ -448,6 +471,9 @@ const _JSONSourcePath = function(fileName) {
 const _zipSourcePath = function(fileName) {
     return (FileSystem.documentDirectory + "/library/" + fileName + ".zip");
 };
+
+const relatedCacheKey = (ref) => ref;
+
 
 const processFileData = function(ref, data) {
     // Annotate link objects with useful fields not included in export
