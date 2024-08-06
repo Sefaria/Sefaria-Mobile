@@ -472,9 +472,6 @@ const _zipSourcePath = function(fileName) {
     return (FileSystem.documentDirectory + "/library/" + fileName + ".zip");
 };
 
-const relatedCacheKey = (ref) => ref;
-
-
 const processFileData = function(ref, data) {
     // Annotate link objects with useful fields not included in export
     data.content.forEach(segment => {
