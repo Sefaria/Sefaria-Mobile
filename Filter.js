@@ -45,12 +45,16 @@ class LinkFilter extends Filter {
       (this.collectiveTitle ? this.collectiveTitle : this.name);
   }
 
+  equals(filter) {
+    return this.name === filter.name && this.category === filter.category;
+  }
+
   displayRef() {
     return this.category === "Commentary" && this.name !== "Commentary";
   }
 
   listKey(i) {
-    return `${(typeof i !== 'undefined') ? this.refList[i] : ''}|${this.name}`;
+    return `${(typeof i !== 'undefined') ? this.refList[i] : ''}|${this.name}|${this.category}`;
   }
 
   clone() {
