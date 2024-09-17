@@ -313,7 +313,7 @@ const SchemaNode = ({ schema, refPath, openRef, categories }) => {
             openRef={openRef}
           />
         );
-      } else if (node.depth == 1) {
+      } else if (node.depth == 1 && !node.default) {
         const open = openRef.bind(null, refPath + ", " + node.title);
         return (
           <TouchableOpacity style={styles.textTocNamedSection} onPress={open} key={i}>
