@@ -796,7 +796,7 @@ class ReaderApp extends React.PureComponent {
     }
     if (!hadSuccess) {
       // make sure links get marked as loaded no matter what
-      const iSec = isSheet ? 0 : this.state.sectionArray.findIndex(secRef=>secRef===ref);
+      const iSec = this._getSectionIndex(ref, isSheet);
       let tempLinksLoaded = this.state.linksLoaded.slice(0);
       tempLinksLoaded[iSec] = 'error';
       this.setState({linksLoaded: tempLinksLoaded});
@@ -818,7 +818,7 @@ class ReaderApp extends React.PureComponent {
     // isSheet is true when loading links for individual refs on a sheet
     // Ensures that links have been loaded for `ref` and stores result in `this.state.linksLoaded` array.
     // Links are not loaded yet in case you're in API mode, or you are reading a non-default version
-    const iSec = isSheet ? 0 : this.state.sectionArray.findIndex(secRef=>secRef===ref);
+    const iSec = this._getSectionIndex(ref, isSheet);
     if (!iSec && iSec !== 0) { console.log("could not find section ref in sectionArray", ref); return; }
     return Sefaria.offlineOnline.loadRelated(ref, online)
       .then(response => {
@@ -844,6 +844,10 @@ class ReaderApp extends React.PureComponent {
         }
         this.setState({data: this.state.data, linksLoaded: newLinksLoaded});
       });
+  };
+
+  _getSectionIndex = (ref, isSheet) => {
+    return isSheet ? 0 : this.state.sectionArray.findIndex(secRef => secRef === ref);
   };
 
   loadVersions = async (ref) => {
