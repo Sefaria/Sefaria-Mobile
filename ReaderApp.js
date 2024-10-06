@@ -153,6 +153,7 @@ class ReaderApp extends React.PureComponent {
         highlightedWordID: null,
         highlightedWordSegmentRef: null,
         translations: [],
+        currentTranslations: [],
       };
     this.NetInfoEventListener = () => {};  // calling the event listener unsubcribes, initialize to a null method
 
@@ -623,6 +624,7 @@ class ReaderApp extends React.PureComponent {
           sectionIndexRef: section,
           linkStaleRecentFilters: this.state.linkRecentFilters.map(()=>true),
           versionStaleRecentFilters: this.state.versionRecentFilters.map(()=>true),
+          currentTranslations: this._getTranslationForSegment(section, segment),
           loadingLinks,
       };
       if (isSheet) {
@@ -1590,10 +1592,10 @@ class ReaderApp extends React.PureComponent {
   };
   _getSearchStateName = type => ( `${type}SearchState` );
   _getSearchState = type => ( this.state[this._getSearchStateName(type)] );
-  _getTranslationForSegment() {
-    const translations = Sefaria.util.clone(this.state.translations[this.state.sectionIndexRef]) || {versions: []};
+  _getTranslationForSegment(section, segment) {
+    const translations = Sefaria.util.clone(this.state.translations[section]) || {versions: []};
     translations.versions.forEach((version) => {
-      version.text = version.text[this.state.segmentIndexRef];
+      version.text = version.text[segment];
     });
     return translations;
   }
@@ -2252,7 +2254,7 @@ class ReaderApp extends React.PureComponent {
                 viewOnSite={this.viewOnSite}
                 reportError={this.reportError}
                 openTopic={this.openTopic}
-                translations={this._getTranslationForSegment()}
+                translations={this.state.currentTranslations}
               />
                : null
             }
