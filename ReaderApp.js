@@ -501,11 +501,11 @@ class ReaderApp extends React.PureComponent {
 
   incrementFont = (increment) => {
     if (increment == "larger") {
-      var x = 1.1;
+      let x = 1.1;
     } else if (increment == "smaller") {
-      var x = .9;
+      let x = .9;
     } else {
-      var x = increment;
+      let x = increment;
     }
     let newFontSize = this.props.fontSize;
     newFontSize *= x;
@@ -878,7 +878,7 @@ class ReaderApp extends React.PureComponent {
       this.setState({loadingTextHead: true});
       Sefaria.offlineOnline.loadText(this.state.prev, true, this.state.selectedVersions, !this.state.hasInternet).then(function(data) {
 
-        var updatedData = [data.content].concat(this.state.data);
+        let updatedData = [data.content].concat(this.state.data);
         this.state.sectionArray.unshift(data.sectionRef);
         this.state.sectionHeArray.unshift(data.heRef);
         this.state.linksLoaded.unshift(false);
@@ -909,7 +909,7 @@ class ReaderApp extends React.PureComponent {
       this.setState({loadingTextTail: true});
       Sefaria.offlineOnline.loadText(this.state.next, true, this.state.selectedVersions, !this.state.hasInternet).then(function(data) {
 
-        var updatedData = this.state.data.concat([data.content]);
+        let updatedData = this.state.data.concat([data.content]);
         this.state.sectionArray.push(data.sectionRef);;
         this.state.sectionHeArray.push(data.heRef);;
         this.state.linksLoaded.push(false);;
@@ -1337,7 +1337,7 @@ class ReaderApp extends React.PureComponent {
           recentFilters = this.state.versionRecentFilters;
           staleRecentFilters = this.state.versionStaleRecentFilters;
       }
-      var filterIndex = null;
+      let filterIndex = null;
       //check if filter is already in recentFilters
       for (let i = 0; i < recentFilters.length; i++) {
           let tempFilter = recentFilters[i];
@@ -1641,7 +1641,7 @@ class ReaderApp extends React.PureComponent {
 
     const justUnapplied = false; //TODO: placeholder
     const aggregationsToUpdate = filtersValid && aggregation_field_array.length === 1 ? [] : aggregation_field_array.filter( a => justUnapplied || a !== 'this.lastAppliedAggType[type]'); //TODO: placeholder
-    var queryProps = {
+    let queryProps = {
       query,
       size,
       start,
@@ -1673,7 +1673,7 @@ class ReaderApp extends React.PureComponent {
         );
         const results = resetQuery ? newResultsArray :
           searchState.results.concat(newResultsArray);
-        var numResults = data.hits.total;
+        let numResults = data.hits.total;
         this.setState({
           [searchStateName]: searchState.update({
             isLoadingTail: false,
