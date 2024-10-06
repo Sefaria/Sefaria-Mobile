@@ -152,7 +152,7 @@ class ReaderApp extends React.PureComponent {
         dictLookup: null,
         highlightedWordID: null,
         highlightedWordSegmentRef: null,
-        translations: {versions: []},
+        translations: [],
       };
     this.NetInfoEventListener = () => {};  // calling the event listener unsubcribes, initialize to a null method
 
@@ -778,7 +778,10 @@ class ReaderApp extends React.PureComponent {
   loadTranslations = async (ref) => {
     try {
       Sefaria.offlineOnline.loadTranslations(ref).then(response => {
-        this.setState({translations: response});
+        const sectionIndex = this._getSectionIndex(ref);
+        const translations = [...this.state.translations];
+        translations[sectionIndex] = response;
+        this.setState({translations: translations});
       });
     } catch (error) {
       crashlytics().recordError(new Error(`Translations load error: Message: ${error}`));
@@ -879,6 +882,7 @@ class ReaderApp extends React.PureComponent {
         this.state.sectionArray.unshift(data.sectionRef);
         this.state.sectionHeArray.unshift(data.heRef);
         this.state.linksLoaded.unshift(false);
+        this.state.translations.unshift({versions: []})
 
         this.setState({
           data: updatedData,
@@ -888,6 +892,7 @@ class ReaderApp extends React.PureComponent {
           sectionHeArray: this.state.sectionHeArray,
           sectionIndexRef: this.state.sectionIndexRef + 1,  // needs to be shifted
           linksLoaded: this.state.linksLoaded,
+          translations: this.state.translations,
           loaded: true,
           loadingTextHead: false,
         }, ()=>{
@@ -1586,13 +1591,11 @@ class ReaderApp extends React.PureComponent {
   _getSearchStateName = type => ( `${type}SearchState` );
   _getSearchState = type => ( this.state[this._getSearchStateName(type)] );
   _getTranslationForSegment() {
-    const ref = this.state.segmentRef;
-    const index = parseInt(ref.match(/\d*$/)?.[0]) - 1;
-    const translations = Sefaria.util.clone(this.state.translations);
+    const translations = Sefaria.util.clone(this.state.translations[this.state.sectionIndexRef]) || {versions: []};
     translations.versions.forEach((version) => {
-      version.text = version.text[index];
+      version.text = version.text[this.state.segmentIndexRef];
     });
-    return translations
+    return translations;
   }
   convertSearchHit = (searchType, hit, field) => {
     const source = hit._source;
