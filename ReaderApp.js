@@ -152,7 +152,8 @@ class ReaderApp extends React.PureComponent {
         dictLookup: null,
         highlightedWordID: null,
         highlightedWordSegmentRef: null,
-        translations: {versions: []},
+        translations: [],
+        currentTranslations: [],
       };
     this.NetInfoEventListener = () => {};  // calling the event listener unsubcribes, initialize to a null method
 
@@ -501,11 +502,11 @@ class ReaderApp extends React.PureComponent {
 
   incrementFont = (increment) => {
     if (increment == "larger") {
-      var x = 1.1;
+      let x = 1.1;
     } else if (increment == "smaller") {
-      var x = .9;
+      let x = .9;
     } else {
-      var x = increment;
+      let x = increment;
     }
     let newFontSize = this.props.fontSize;
     newFontSize *= x;
@@ -623,6 +624,7 @@ class ReaderApp extends React.PureComponent {
           sectionIndexRef: section,
           linkStaleRecentFilters: this.state.linkRecentFilters.map(()=>true),
           versionStaleRecentFilters: this.state.versionRecentFilters.map(()=>true),
+          currentTranslations: this._getTranslationForSegment(section, segment),
           loadingLinks,
       };
       if (isSheet) {
@@ -778,7 +780,10 @@ class ReaderApp extends React.PureComponent {
   loadTranslations = async (ref) => {
     try {
       Sefaria.offlineOnline.loadTranslations(ref).then(response => {
-        this.setState({translations: response});
+        const sectionIndex = this._getSectionIndex(ref);
+        const translations = [...this.state.translations];
+        translations[sectionIndex] = response;
+        this.setState({translations: translations});
       });
     } catch (error) {
       crashlytics().recordError(new Error(`Translations load error: Message: ${error}`));
@@ -796,7 +801,7 @@ class ReaderApp extends React.PureComponent {
     }
     if (!hadSuccess) {
       // make sure links get marked as loaded no matter what
-      const iSec = isSheet ? 0 : this.state.sectionArray.findIndex(secRef=>secRef===ref);
+      const iSec = this._getSectionIndex(ref, isSheet);
       let tempLinksLoaded = this.state.linksLoaded.slice(0);
       tempLinksLoaded[iSec] = 'error';
       this.setState({linksLoaded: tempLinksLoaded});
@@ -818,7 +823,7 @@ class ReaderApp extends React.PureComponent {
     // isSheet is true when loading links for individual refs on a sheet
     // Ensures that links have been loaded for `ref` and stores result in `this.state.linksLoaded` array.
     // Links are not loaded yet in case you're in API mode, or you are reading a non-default version
-    const iSec = isSheet ? 0 : this.state.sectionArray.findIndex(secRef=>secRef===ref);
+    const iSec = this._getSectionIndex(ref, isSheet);
     if (!iSec && iSec !== 0) { console.log("could not find section ref in sectionArray", ref); return; }
     return Sefaria.offlineOnline.loadRelated(ref, online)
       .then(response => {
@@ -846,6 +851,10 @@ class ReaderApp extends React.PureComponent {
       });
   };
 
+  _getSectionIndex = (ref, isSheet) => {
+    return isSheet ? 0 : this.state.sectionArray.findIndex(secRef => secRef === ref);
+  };
+
   loadVersions = async (ref) => {
     let versionsApiError = false;
     let versions = [];
@@ -871,10 +880,11 @@ class ReaderApp extends React.PureComponent {
       this.setState({loadingTextHead: true});
       Sefaria.offlineOnline.loadText(this.state.prev, true, this.state.selectedVersions, !this.state.hasInternet).then(function(data) {
 
-        var updatedData = [data.content].concat(this.state.data);
+        let updatedData = [data.content].concat(this.state.data);
         this.state.sectionArray.unshift(data.sectionRef);
         this.state.sectionHeArray.unshift(data.heRef);
         this.state.linksLoaded.unshift(false);
+        this.state.translations.unshift({versions: []})
 
         this.setState({
           data: updatedData,
@@ -884,6 +894,7 @@ class ReaderApp extends React.PureComponent {
           sectionHeArray: this.state.sectionHeArray,
           sectionIndexRef: this.state.sectionIndexRef + 1,  // needs to be shifted
           linksLoaded: this.state.linksLoaded,
+          translations: this.state.translations,
           loaded: true,
           loadingTextHead: false,
         }, ()=>{
@@ -900,7 +911,7 @@ class ReaderApp extends React.PureComponent {
       this.setState({loadingTextTail: true});
       Sefaria.offlineOnline.loadText(this.state.next, true, this.state.selectedVersions, !this.state.hasInternet).then(function(data) {
 
-        var updatedData = this.state.data.concat([data.content]);
+        let updatedData = this.state.data.concat([data.content]);
         this.state.sectionArray.push(data.sectionRef);;
         this.state.sectionHeArray.push(data.heRef);;
         this.state.linksLoaded.push(false);;
@@ -1328,7 +1339,7 @@ class ReaderApp extends React.PureComponent {
           recentFilters = this.state.versionRecentFilters;
           staleRecentFilters = this.state.versionStaleRecentFilters;
       }
-      var filterIndex = null;
+      let filterIndex = null;
       //check if filter is already in recentFilters
       for (let i = 0; i < recentFilters.length; i++) {
           let tempFilter = recentFilters[i];
@@ -1581,14 +1592,12 @@ class ReaderApp extends React.PureComponent {
   };
   _getSearchStateName = type => ( `${type}SearchState` );
   _getSearchState = type => ( this.state[this._getSearchStateName(type)] );
-  _getTranslationForSegment() {
-    const ref = this.state.segmentRef;
-    const index = parseInt(ref.match(/\d*$/)?.[0]) - 1;
-    const translations = Sefaria.util.clone(this.state.translations);
+  _getTranslationForSegment(section, segment) {
+    const translations = Sefaria.util.clone(this.state.translations[section]) || {versions: []};
     translations.versions.forEach((version) => {
-      version.text = version.text[index];
+      version.text = version.text[segment];
     });
-    return translations
+    return translations;
   }
   convertSearchHit = (searchType, hit, field) => {
     const source = hit._source;
@@ -1634,7 +1643,7 @@ class ReaderApp extends React.PureComponent {
 
     const justUnapplied = false; //TODO: placeholder
     const aggregationsToUpdate = filtersValid && aggregation_field_array.length === 1 ? [] : aggregation_field_array.filter( a => justUnapplied || a !== 'this.lastAppliedAggType[type]'); //TODO: placeholder
-    var queryProps = {
+    let queryProps = {
       query,
       size,
       start,
@@ -1666,7 +1675,7 @@ class ReaderApp extends React.PureComponent {
         );
         const results = resetQuery ? newResultsArray :
           searchState.results.concat(newResultsArray);
-        var numResults = data.hits.total;
+        let numResults = data.hits.total;
         this.setState({
           [searchStateName]: searchState.update({
             isLoadingTail: false,
@@ -2245,7 +2254,7 @@ class ReaderApp extends React.PureComponent {
                 viewOnSite={this.viewOnSite}
                 reportError={this.reportError}
                 openTopic={this.openTopic}
-                translations={this._getTranslationForSegment()}
+                translations={this.state.currentTranslations}
               />
                : null
             }
