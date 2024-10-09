@@ -501,12 +501,13 @@ class ReaderApp extends React.PureComponent {
   }
 
   incrementFont = (increment) => {
+    let x;
     if (increment == "larger") {
-      let x = 1.1;
+      x = 1.1;
     } else if (increment == "smaller") {
-      let x = .9;
+      x = .9;
     } else {
-      let x = increment;
+      x = increment;
     }
     let newFontSize = this.props.fontSize;
     newFontSize *= x;
