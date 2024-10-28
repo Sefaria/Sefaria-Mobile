@@ -1271,7 +1271,9 @@ Sefaria.util = {
     text = text.trim();
     let html;
     if (lang === 'english') {
-      html = `<div class="english">\u2066${Sefaria.util.hebrewInEnglish(text, 'string')}</div>`;
+      const lri = '\u2066';
+      text = lri + Sefaria.util.hebrewInEnglish(text, 'string').replace('<br/>', `<br/>${lri}`);
+      html = `<div class="english">${text}</div>`;
     } else {
       html = `<div class="hebrew">${Sefaria.util.hackyFixForCantillationAtStart(text)}</div>`;
     }
