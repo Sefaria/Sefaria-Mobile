@@ -1620,11 +1620,28 @@ class ReaderApp extends React.PureComponent {
     });
   };
   onQueryChange = (type, query, resetQuery, fromBackButton, getFilters) => {
+
+    const updateAggregations = (data) => {
+            let availableFilters = [];
+            let registry = {};
+            let orphans = [];
+            for (let aggregation of aggregation_field_array) {
+              if (!!data.aggregations[aggregation]) {
+                const { buckets } = data.aggregations[aggregation];
+                const { availableFilters: tempAvailable, registry: tempRegistry, orphans: tempOrphans } = Sefaria.search[build_and_apply_filters](buckets, appliedFilters, appliedFilterAggTypes, aggregation, Sefaria);
+                availableFilters.push(...tempAvailable);  // array concat
+                registry = {...registry, ...tempRegistry};
+                orphans.push(...tempOrphans);
+                this.setAvailableSearchFilters(type, availableFilters, orphans);
+              }
+            }
+    }
+
     Sefaria.track.event("Search", {query_type: type, query: query});
     // getFilters should be true if the query has changed or the exactType has changed
     const searchState = this._getSearchState(type);
     const searchStateName = this._getSearchStateName(type);
-    const { field, fieldExact, sortType, filtersValid, appliedFilters, appliedFilterAggTypes } = searchState;
+    const { field, fieldExact, sortType, appliedFilters, appliedFilterAggTypes } = searchState;
     const { aggregation_field_array, build_and_apply_filters } = SearchState.metadataByType[type];
     let newSearchPage = 0;
     let start = 0;
@@ -1643,7 +1660,7 @@ class ReaderApp extends React.PureComponent {
     }
 
     const justUnapplied = false; //TODO: placeholder
-    const aggregationsToUpdate = filtersValid && aggregation_field_array.length === 1 ? [] : aggregation_field_array.filter( a => justUnapplied || a !== 'this.lastAppliedAggType[type]'); //TODO: placeholder
+    const aggregationsToUpdate = getFilters && aggregation_field_array.length === 1 ? [] : aggregation_field_array.filter( a => justUnapplied || a !== 'this.lastAppliedAggType[type]'); //TODO: placeholder
     let queryProps = {
       query,
       size,
@@ -1686,19 +1703,12 @@ class ReaderApp extends React.PureComponent {
           }),
         }, () => {
           if (data.aggregations) {
-            let availableFilters = [];
-            let registry = {};
-            let orphans = [];
-            for (let aggregation of aggregation_field_array) {
-              if (!!data.aggregations[aggregation]) {
-                const { buckets } = data.aggregations[aggregation];
-                const { availableFilters: tempAvailable, registry: tempRegistry, orphans: tempOrphans } = Sefaria.search[build_and_apply_filters](buckets, appliedFilters, appliedFilterAggTypes, aggregation, Sefaria);
-                availableFilters.push(...tempAvailable);  // array concat
-                registry = {...registry, ...tempRegistry};
-                orphans.push(...tempOrphans);
-                this.setAvailableSearchFilters(type, availableFilters, orphans);
-              }
-            }
+            updateAggregations(data);
+          } else if (getFilters) {
+            [queryProps.appliedFilterAggTypes, queryProps.applied_filters, queryProps.aggregationsToUpdate] = [[], [], ['path']];
+            Sefaria.search.execute_query(queryProps).then(data => {
+              updateAggregations(data);
+            })
           }
         });
       })
