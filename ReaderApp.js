@@ -1641,7 +1641,7 @@ class ReaderApp extends React.PureComponent {
     // getFilters should be true if the query has changed or the exactType has changed
     const searchState = this._getSearchState(type);
     const searchStateName = this._getSearchStateName(type);
-    const { field, fieldExact, sortType, appliedFilters, appliedFilterAggTypes } = searchState;
+    const { field, fieldExact, sortType, filtersValid, appliedFilters, appliedFilterAggTypes } = searchState;
     const { aggregation_field_array, build_and_apply_filters } = SearchState.metadataByType[type];
     let newSearchPage = 0;
     let start = 0;
@@ -1660,7 +1660,7 @@ class ReaderApp extends React.PureComponent {
     }
 
     const justUnapplied = false; //TODO: placeholder
-    const aggregationsToUpdate = getFilters && aggregation_field_array.length === 1 ? [] : aggregation_field_array.filter( a => justUnapplied || a !== 'this.lastAppliedAggType[type]'); //TODO: placeholder
+    const aggregationsToUpdate = ((filtersValid && aggregation_field_array.length === 1) || fromBackButton) ? [] : aggregation_field_array.filter( a => justUnapplied || a !== 'this.lastAppliedAggType[type]'); //TODO: placeholder
     let queryProps = {
       query,
       size,
