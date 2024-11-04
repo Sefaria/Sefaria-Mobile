@@ -1619,6 +1619,23 @@ class ReaderApp extends React.PureComponent {
         } : null
     });
   };
+  _updateAggregations = (data, type) => {
+    let availableFilters = [];
+    let registry = {};
+    let orphans = [];
+    const { appliedFilters, appliedFilterAggTypes } = this._getSearchState(type);
+    const { aggregation_field_array, build_and_apply_filters } = SearchState.metadataByType[type];
+    for (let aggregation of aggregation_field_array) {
+      if (!!data.aggregations[aggregation]) {
+        const { buckets } = data.aggregations[aggregation];
+        const { availableFilters: tempAvailable, registry: tempRegistry, orphans: tempOrphans } = Sefaria.search[build_and_apply_filters](buckets, appliedFilters, appliedFilterAggTypes, aggregation, Sefaria);
+        availableFilters.push(...tempAvailable);  // array concat
+        registry = {...registry, ...tempRegistry};
+        orphans.push(...tempOrphans);
+        this.setAvailableSearchFilters(type, availableFilters, orphans);
+      }
+    }
+  }
   onQueryChange = (type, query, resetQuery, fromBackButton, getFilters) => {
     Sefaria.track.event("Search", {query_type: type, query: query});
     // getFilters should be true if the query has changed or the exactType has changed
@@ -1643,7 +1660,8 @@ class ReaderApp extends React.PureComponent {
     }
 
     const justUnapplied = false; //TODO: placeholder
-    const aggregationsToUpdate = filtersValid && aggregation_field_array.length === 1 ? [] : aggregation_field_array.filter( a => justUnapplied || a !== 'this.lastAppliedAggType[type]'); //TODO: placeholder
+    const getAggregationsToUpdate = () => aggregation_field_array.filter( a => justUnapplied || a !== 'this.lastAppliedAggType[type]');
+    const aggregationsToUpdate = ((filtersValid && aggregation_field_array.length === 1) || fromBackButton) ? [] : getAggregationsToUpdate(); //TODO: placeholder
     let queryProps = {
       query,
       size,
@@ -1686,19 +1704,12 @@ class ReaderApp extends React.PureComponent {
           }),
         }, () => {
           if (data.aggregations) {
-            let availableFilters = [];
-            let registry = {};
-            let orphans = [];
-            for (let aggregation of aggregation_field_array) {
-              if (!!data.aggregations[aggregation]) {
-                const { buckets } = data.aggregations[aggregation];
-                const { availableFilters: tempAvailable, registry: tempRegistry, orphans: tempOrphans } = Sefaria.search[build_and_apply_filters](buckets, appliedFilters, appliedFilterAggTypes, aggregation, Sefaria);
-                availableFilters.push(...tempAvailable);  // array concat
-                registry = {...registry, ...tempRegistry};
-                orphans.push(...tempOrphans);
-                this.setAvailableSearchFilters(type, availableFilters, orphans);
-              }
-            }
+            this._updateAggregations(data, type);
+          } else if (getFilters) {
+            [queryProps.appliedFilterAggTypes, queryProps.applied_filters, queryProps.aggregationsToUpdate] = [[], [], getAggregationsToUpdate()];
+            Sefaria.search.execute_query(queryProps).then(data => {
+              this._updateAggregations(data, type);
+            })
           }
         });
       })
