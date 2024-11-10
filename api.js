@@ -156,6 +156,9 @@ var Api = {
   apiType: string `oneOf(["text","links","index"])`. passing undefined gets the standard Reader URL.
   context is a required param if apiType == 'text'. o/w it's ignored
   */
+  _sanitizeURL: function(url) {
+    return url.replace(/ /g, "_").replace(/;/g, '%3B');
+  },
   _toURL: function(ref, useHTTPS, apiType, urlify, extra_args) {
     let url = Sefaria.api._baseHost;
 
@@ -167,8 +170,8 @@ var Api = {
           url += 'api/texts/';
           urlSuffix = `?context=${context === true ? 1 : 0}&commentary=0`;
           if (versions) {
-            if (versions.en) { urlSuffix += `&ven=${versions.en.replace(/ /g, "_")}`; }
-            if (versions.he) { urlSuffix += `&vhe=${versions.he.replace(/ /g, "_")}`; }
+            if (versions.en) { urlSuffix += `&ven=${this._sanitizeURL(versions.en)}`; }
+            if (versions.he) { urlSuffix += `&vhe=${this._sanitizeURL(versions.he)}`; }
           }
           if (stripItags) {
             urlSuffix += `&stripItags=1`;
