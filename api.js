@@ -157,7 +157,7 @@ var Api = {
   context is a required param if apiType == 'text'. o/w it's ignored
   */
   _sanitizeURL: function(url) {
-    return url.replace(/ /g, "_").replace(/;/g, '%3B');
+    return encodeURIComponent(url.replace(/ /g, "_"));
   },
   _toURL: function(ref, useHTTPS, apiType, urlify, extra_args) {
     let url = Sefaria.api._baseHost;
