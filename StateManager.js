@@ -198,6 +198,7 @@ const reducer = function (state, action) {
   if (UPDATE_SETTINGS_ACTIONS[action.type] && !action.fromAsync) {
     AsyncStorage.setItem('lastSettingsUpdateTime', JSON.stringify(action.time));
   }
+  let newState;
   switch (action.type) {
     case STATE_ACTIONS.setTheme:
       //const theme = action.value === "white" ? themeWhite : themeBlack;
