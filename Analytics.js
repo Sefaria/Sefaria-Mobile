@@ -1,5 +1,5 @@
 import { getCurrentGlobalState } from './StateManager';
-import Sefaria from './sefaria';
+import analytics from "@react-native-firebase/analytics";
 
 const trackEvent = (eventName, eventParams = {}) => {
   const globalState = getCurrentGlobalState();
@@ -14,7 +14,7 @@ const trackEvent = (eventName, eventParams = {}) => {
     user_uses_offline_packages: usesOfflinePackages,
   };
 
-  Sefaria.track.event(eventName, augmentedParams);
+  analytics().logEvent(eventName, augmentedParams);
   console.log(`Event Tracked: ${eventName}`, augmentedParams);
 };
 
