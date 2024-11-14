@@ -388,12 +388,12 @@ class ReaderApp extends React.PureComponent {
     BackgroundFetch.finish(taskId);
   };
 
-  handleOpenURLNamedParam = ({ url } = {}) => {
+  handleOpenURLNamedParam = ({ url, fromOutside=true } = {}) => {
     // needs to be named param to be compatible with Linking API
     if (url) {
       url = url.replace(/^about:\/\/\//, Sefaria.api._baseHost);
       if (this.state._completedInit) {
-        this._deepLinkRouterRef.route(url);
+        this._deepLinkRouterRef.route(url, fromOutside);
       } else {
         // save URL. it will be applied when componentDidMount finishes
         this._initDeepLinkURL = url;
@@ -402,8 +402,9 @@ class ReaderApp extends React.PureComponent {
   };
 
   handleOpenURL = (url) => {
-    // unnamed parameter func used for HTMLView callback
-    this.handleOpenURLNamedParam({ url });
+    // unnamed parameter.
+    // func used for internal routing (e.g. HTMLView and Markdown)
+    this.handleOpenURLNamedParam({ url, fromOutside: false });
   };
 
   onDownloaderChange = (openSettings) => {
