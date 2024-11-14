@@ -29,6 +29,8 @@ import { useHTMLViewStyles } from './useHTMLViewStyles';
 import { RenderHTML } from 'react-native-render-html';
 import BookSVG from './img/connection-book.svg';
 import ActionSheet from "react-native-action-sheet";
+import Markdown from "react-native-markdown-display";
+import ReaderAppContext from "./context";
 
 const SYSTEM_FONTS = ["Taamey Frank Taamim Fix", "Amiri", "Heebo", "OpenSans", "SertoBatnan"];  // list of system fonts. needed for RenderHTML
 const CSS_CLASS_STYLES = {
@@ -158,7 +160,7 @@ const InterfaceText = ({stringKey, lang, en, he, extraStyles = [], allowFontScal
   );
 };
 
-const InterfaceTextWithFallback = ({ en, he, extraStyles=[], lang }) => {
+const InterfaceTextWithFallback = ({ en, he, extraStyles=[], lang, RenderingComponent=Text }) => {
   const { interfaceLanguage } = useContext(GlobalStateContext);
   let langStyle = styles.enInt;
   let text = en;
@@ -168,7 +170,7 @@ const InterfaceTextWithFallback = ({ en, he, extraStyles=[], lang }) => {
     text = he;
   }
   return (
-    <Text style={[langStyle].concat(extraStyles)}>{text}</Text>
+    <RenderingComponent style={[langStyle].concat(extraStyles)}>{text}</RenderingComponent>
   );
 }
 
@@ -1634,4 +1636,5 @@ export {
   TwoBoxRow,
   singleActionPopup,
   openActionSheet,
+  SimpleMarkdown,
 }
