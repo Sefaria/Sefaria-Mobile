@@ -1252,6 +1252,19 @@ SimpleHTMLView.propTypes = {
   lang: PropTypes.oneOf(['english', 'hebrew']),
 };
 
+const SimpleMarkdown = ({children, markdownProps}) => {
+  const {handleOpenURL} = useContext(ReaderAppContext);
+  const onLinkPress = (url) => {
+    handleOpenURL(url);
+    return false;
+  }
+  return <Markdown onLinkPress={onLinkPress} {...markdownProps}>{children}</Markdown>;
+}
+SimpleMarkdown.propTypes = {
+  children: PropTypes.string.isRequired,
+  markdownProps: PropTypes.object,
+}
+
 const SimpleContentBlock = ({en, he}) => {
   const { interfaceLanguage } = useContext(GlobalStateContext);
   const showHebrew = !!he;
@@ -1507,6 +1520,7 @@ const CategoryDescription = ({ description }) => {
           {...description}
           lang={menuLanguage}
           extraStyles={[{marginTop: 10, fontSize: 13}, theme.tertiaryText]}
+          RenderingComponent={SimpleMarkdown}
       />
   );
 };

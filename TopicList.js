@@ -16,6 +16,7 @@ import {
     InterfaceTextWithFallback,
     ContentTextWithFallback,
     SefariaPressable,
+    SimpleMarkdown,
 } from './Misc';
 
 const TopicList = ({ topics, openTopic, segmentRef, heSegmentRef }) => {
@@ -46,7 +47,7 @@ const TopicList = ({ topics, openTopic, segmentRef, heSegmentRef }) => {
 const TopicListItem = ({ topic, openTopic, segmentRef, heSegmentRef }) => {
   // TODO generalize DataSourceLine to handle ref text instead of topicTitle
   const {theme, menuLanguage} = useGlobalState();
-  const flexDirection = useRtlFlexDir(menuLanguage)       
+  const flexDirection = useRtlFlexDir(menuLanguage)
   return (
     <SefariaPressable
       onPress={() => { openTopic(new Topic({ slug: topic.topic, ...topic })); }}
@@ -57,7 +58,7 @@ const TopicListItem = ({ topic, openTopic, segmentRef, heSegmentRef }) => {
       </DataSourceLine>
       {
         topic.description && (topic.description.en || topic.description.he) ? (
-          <InterfaceTextWithFallback {...topic.description} extraStyles={[theme.tertiaryText, {marginTop: 10}]} lang={menuLanguage}/>
+          <InterfaceTextWithFallback {...topic.description} extraStyles={[theme.tertiaryText, {marginTop: 10}]} lang={menuLanguage} RenderingComponent={SimpleMarkdown}/>
         ) : null
       }
     </SefariaPressable>
