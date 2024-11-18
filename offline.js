@@ -24,16 +24,22 @@ export const loadTextOffline = async function(ref, context, versions, fallbackOn
 
 export const getAllTranslationsOffline = async function (ref, context=true) {
     // versions are list of all versions
-    const translations = {versions: []};
     const versions = getOfflineVersionObjectsAvailable(ref);
     if (!versions) {
         return;
     }
+
+    const translations = {versions: []};
+    const missingVersions = [];
     for (let version of versions) {
         if (!version.isSource) {
             try {
                 // this will return 2 versions. it's a waste but due cache it seems not so problematic
                 const result = await loadTextOffline(ref, context, {[version.language]: version.versionTitle}, false);
+                if (result.missingLangs?.includes(version.language)) {
+                    missingVersions.push(version);
+                    continue;
+                }
                 const copiedVersion = {...version};
                 const desired_attr = (version.direction === 'rtl') ? 'he' : 'text';
                 copiedVersion.text = result.content.map(e => e[desired_attr]);
@@ -43,7 +49,7 @@ export const getAllTranslationsOffline = async function (ref, context=true) {
             }
         }
     }
-    return translations;
+    return {translations, missingVersions};
 }
 
 export const loadTextTocOffline = function(title) {
@@ -262,7 +268,7 @@ const loadOfflineSection = async function(ref, versions, fallbackOnDefaultVersio
 
     const [metadata, fileNameStem] = await loadOfflineSectionMetadataWithCache(ref);
     const textByLang = await loadOfflineSectionByVersions(versions, metadata.versions, metadata.sectionRef, fileNameStem, fallbackOnDefaultVersions);
-    return createFullSectionObject(metadata, textByLang);
+    return createFullSectionObject(metadata, textByLang, Object.keys(versions));
 };
 
 const loadOfflineSectionByVersions = async function(selectedVersions, allVersions, ref, fileNameStem, fallbackOnDefaultVersions=true) {
@@ -280,6 +286,7 @@ const loadOfflineSectionByVersions = async function(selectedVersions, allVersion
             [versionText, loadedVTitle] = await loadOfflineSectionByVersionWithCacheAndFallback(fileNameStem, lang, vtitle, defaultVersions[lang]);
         } catch (error) {
             versionLoadError = error;
+            textByLang[lang] = [];
             continue;
         }
         loadedVersions[lang] = loadedVTitle;
@@ -295,7 +302,7 @@ const loadOfflineSectionByVersions = async function(selectedVersions, allVersion
     return textByLang;
 };
 
-const createFullSectionObject = (metadata, textByLang, cacheKey) => {
+const createFullSectionObject = (metadata, textByLang, requestedLangs, cacheKey) => {
     /**
      * Given metadata file and text for each version, combine them into a full section object which is used by the reader
      */
@@ -312,7 +319,14 @@ const createFullSectionObject = (metadata, textByLang, cacheKey) => {
         });
     }
 
+    requestedLangs.forEach(lang => {
+        if (!textByLang[lang].length) {
+            (fullSection.missingLangs ||= []).push(lang);
+        }
+    });
+
     Sefaria._jsonSectionData[cacheKey] = fullSection;
+
     return fullSection;
 };
 
