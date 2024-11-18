@@ -38,6 +38,7 @@ export const getAllTranslationsOffline = async function (ref, context=true) {
                 const result = await loadTextOffline(ref, context, {[version.language]: version.versionTitle}, false);
                 if (result.missingLangs?.includes(version.language)) {
                     missingVersions.push(version);
+                    continue;
                 }
                 const copiedVersion = {...version};
                 const desired_attr = (version.direction === 'rtl') ? 'he' : 'text';
