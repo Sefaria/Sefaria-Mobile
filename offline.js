@@ -268,13 +268,7 @@ const loadOfflineSection = async function(ref, versions, fallbackOnDefaultVersio
 
     const [metadata, fileNameStem] = await loadOfflineSectionMetadataWithCache(ref);
     const textByLang = await loadOfflineSectionByVersions(versions, metadata.versions, metadata.sectionRef, fileNameStem, fallbackOnDefaultVersions);
-    const fullSectionObject = createFullSectionObject(metadata, textByLang);
-    for (const lang in versions) {
-        if (!textByLang[lang].length) {
-            (fullSectionObject.missingLangs ||= []).push(lang);
-        }
-    }
-    return fullSectionObject;
+    return createFullSectionObject(metadata, textByLang, Object.keys(versions));
 };
 
 const loadOfflineSectionByVersions = async function(selectedVersions, allVersions, ref, fileNameStem, fallbackOnDefaultVersions=true) {
@@ -308,7 +302,7 @@ const loadOfflineSectionByVersions = async function(selectedVersions, allVersion
     return textByLang;
 };
 
-const createFullSectionObject = (metadata, textByLang, cacheKey) => {
+const createFullSectionObject = (metadata, textByLang, requestedLangs, cacheKey) => {
     /**
      * Given metadata file and text for each version, combine them into a full section object which is used by the reader
      */
@@ -325,7 +319,14 @@ const createFullSectionObject = (metadata, textByLang, cacheKey) => {
         });
     }
 
+    requestedLangs.forEach(lang => {
+        if (!textByLang[lang].length) {
+            (fullSection.missingLangs ||= []).push(lang);
+        }
+    });
+
     Sefaria._jsonSectionData[cacheKey] = fullSection;
+
     return fullSection;
 };
 
