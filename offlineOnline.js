@@ -20,22 +20,28 @@ export const loadText = function(ref, context, versions, fallbackOnDefaultVersio
      versions is object with keys { en, he } specifying version titles of requested ref
      */
     if (typeof context === "undefined") { context = true; }
-    return new Promise(function(resolve, reject) {
-        loadTextOffline(ref, context, versions, fallbackOnDefaultVersions).then(resolve)
-        .catch(error => {
-            if (error === ERRORS.MISSING_OFFLINE_DATA) {
-                api.textApi(ref, context, versions)
-                .then(data => {
-                    api.processTextApiData(ref, context, versions, data);
-                    resolve(data);
-                })
-                .catch(error => reject(error))
-            } else {
-                console.error("Error loading offline file", error);
-                reject(error);
+    return loadTextOffline(ref, context, versions, fallbackOnDefaultVersions)
+        .then((result) => {
+            if (result && !result?.missingLangs?.length) {
+                return result;
+            } else if (result?.missingLangs?.length) {
+                throw ERRORS.MISSING_OFFLINE_DATA;
             }
         })
-    });
+        .catch(error => {
+            if (error === ERRORS.MISSING_OFFLINE_DATA) {
+                return api.textApi(ref, context, versions)
+                    .then(data => {
+                        api.processTextApiData(ref, context, versions, data);
+                        return data;
+                    })
+            }
+            console.error("Error loading offline file", error);
+            return Promise.reject(error);
+        })
+        .catch((error) => {
+            return Promise.reject(error);
+        })
 };
 
 export const loadVersions = async (ref) => {
@@ -47,8 +53,9 @@ export const loadVersions = async (ref) => {
 };
 
 export const loadTranslations = async (ref) => {
-    let translations = await getAllTranslationsOffline(ref);
-    if (!translations) {
+    const offlineTranslations = await getAllTranslationsOffline(ref);
+    let translations = offlineTranslations?.translations || [];
+    if (!offlineTranslations || offlineTranslations.missingVersions.length) {
         translations = await api.translations(ref);
     }
     return translations;
