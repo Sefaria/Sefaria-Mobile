@@ -30,6 +30,7 @@ import SoundPlayer from 'react-native-sound-player'
 import { SearchState } from '@sefaria/search';
 
 import { STATE_ACTIONS } from './StateManager';
+import ReaderAppContext from './context';
 import ReaderControls from './ReaderControls';
 import styles from './Styles';
 import strings from './LocalizedStrings';
@@ -387,12 +388,12 @@ class ReaderApp extends React.PureComponent {
     BackgroundFetch.finish(taskId);
   };
 
-  handleOpenURLNamedParam = ({ url } = {}) => {
+  handleOpenURLNamedParam = ({ url, fromOutside=true } = {}) => {
     // needs to be named param to be compatible with Linking API
     if (url) {
       url = url.replace(/^about:\/\/\//, Sefaria.api._baseHost);
       if (this.state._completedInit) {
-        this._deepLinkRouterRef.route(url);
+        this._deepLinkRouterRef.route(url, fromOutside);
       } else {
         // save URL. it will be applied when componentDidMount finishes
         this._initDeepLinkURL = url;
@@ -401,8 +402,9 @@ class ReaderApp extends React.PureComponent {
   };
 
   handleOpenURL = (url) => {
-    // unnamed parameter func used for HTMLView callback
-    this.handleOpenURLNamedParam({ url });
+    // unnamed parameter.
+    // func used for internal routing (e.g. HTMLView and Markdown)
+    this.handleOpenURLNamedParam({ url, fromOutside: false });
   };
 
   onDownloaderChange = (openSettings) => {
@@ -2310,61 +2312,64 @@ class ReaderApp extends React.PureComponent {
   render() {
     // StatuBar comment: can't figure out how to get barStyle = light-content to be respected on Android
     const { safeViewStyle, statusBarBackgroundColor, statusBarStyle } = getSafeViewStyleAndStatusBarBackground(this.state, this.props.theme.mainTextPanel, this.props.themeStr === "white");
-    return (
-      <View style={styles.rootContainer}>
-        <SafeAreaView edges={["top"]} style={[{ flex: 0 }, safeViewStyle]} />
-        <SafeAreaView
-           edges={this.getBottomSafeAreaEdges(this.state.menuOpen)}
-           style={[styles.safeArea, this.props.theme.mainTextPanel]}
-        >
-          <View style={[styles.container, this.props.theme.mainTextPanel]}>
-              <StatusBar barStyle={statusBarStyle} backgroundColor={statusBarBackgroundColor}/>
-            <ConditionalProgressWrapper
-              conditionMethod={(state, props) => {
-                return state && (props.menuOpen !== 'settings' || state.downloadNotification === 'Update');
-              }}
-              initialValue={DownloadTracker.getDownloadStatus()}
-              downloader={DownloadTracker}
-              listenerName={'ReaderAppBar'}
-              menuOpen={this.state.menuOpen}
-            >
-              <SefariaProgressBar
-                onPress={()=>{
-                  this.openMenu("settings")
-                }}
-                onClose={() => DownloadTracker.cancelDownload()}
-                download={DownloadTracker}
-                identity={'ReaderApp'}
-              />
-            </ConditionalProgressWrapper>
-              { this.renderContent() }
-            { this.shouldShowFooter(this.state.menuOpen) && (
-                <FooterTabBar selectedTabName={this.state.footerTab} setTab={this.setFooterTab} />
-            )}
-          </View>
-        </SafeAreaView>
-        <InterruptingMessage
-          ref={this._getInterruptingMessageRef}
-          interfaceLanguage={this.props.interfaceLanguage}
-          openInDefaultBrowser={this.openInDefaultBrowser}
-          debugInterruptingMessage={this.props.debugInterruptingMessage}
-        />
-        <DeepLinkRouter
-          ref={this._getDeepLinkRouterRef}
-          openNav={this.openNav}
-          openMenu={this.openMenu}
-          openRef={this.openRef}
-          openUri={this.openUri}
-          openRefSheet={this.openRefSheet}
-          openSearch={this.openSearch}
-          openTopic={this.openTopic}
-          setSearchOptions={this.setSearchOptions}
-          openTextTocDirectly={this.openTextTocDirectly}
-          setTextLanguage={this.setTextLanguage}
-          setNavigationCategories={this.setNavigationCategories}
-        />
-      </View>
+    const readerAppContextData = {handleOpenURL: this.handleOpenURL};
 
+    return (
+      <ReaderAppContext.Provider value={readerAppContextData}>
+        <View style={styles.rootContainer}>
+          <SafeAreaView edges={["top"]} style={[{ flex: 0 }, safeViewStyle]} />
+          <SafeAreaView
+             edges={this.getBottomSafeAreaEdges(this.state.menuOpen)}
+             style={[styles.safeArea, this.props.theme.mainTextPanel]}
+          >
+            <View style={[styles.container, this.props.theme.mainTextPanel]}>
+                <StatusBar barStyle={statusBarStyle} backgroundColor={statusBarBackgroundColor}/>
+              <ConditionalProgressWrapper
+                conditionMethod={(state, props) => {
+                  return state && (props.menuOpen !== 'settings' || state.downloadNotification === 'Update');
+                }}
+                initialValue={DownloadTracker.getDownloadStatus()}
+                downloader={DownloadTracker}
+                listenerName={'ReaderAppBar'}
+                menuOpen={this.state.menuOpen}
+              >
+                <SefariaProgressBar
+                  onPress={()=>{
+                    this.openMenu("settings")
+                  }}
+                  onClose={() => DownloadTracker.cancelDownload()}
+                  download={DownloadTracker}
+                  identity={'ReaderApp'}
+                />
+              </ConditionalProgressWrapper>
+                { this.renderContent() }
+              { this.shouldShowFooter(this.state.menuOpen) && (
+                  <FooterTabBar selectedTabName={this.state.footerTab} setTab={this.setFooterTab} />
+              )}
+            </View>
+          </SafeAreaView>
+          <InterruptingMessage
+            ref={this._getInterruptingMessageRef}
+            interfaceLanguage={this.props.interfaceLanguage}
+            openInDefaultBrowser={this.openInDefaultBrowser}
+            debugInterruptingMessage={this.props.debugInterruptingMessage}
+          />
+          <DeepLinkRouter
+            ref={this._getDeepLinkRouterRef}
+            openNav={this.openNav}
+            openMenu={this.openMenu}
+            openRef={this.openRef}
+            openUri={this.openUri}
+            openRefSheet={this.openRefSheet}
+            openSearch={this.openSearch}
+            openTopic={this.openTopic}
+            setSearchOptions={this.setSearchOptions}
+            openTextTocDirectly={this.openTextTocDirectly}
+            setTextLanguage={this.setTextLanguage}
+            setNavigationCategories={this.setNavigationCategories}
+          />
+        </View>
+      </ReaderAppContext.Provider>
     );
   }
 }

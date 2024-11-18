@@ -41,6 +41,7 @@ import Sefaria from './sefaria';
 import strings from './LocalizedStrings';
 import styles from './Styles';
 import {iconData} from "./IconData";
+import {SimpleMarkdown} from './Misc'
 
 const sortTopicCategories = (a, b, interfaceLanguage, isRoot) => {
   // Don't use display order intended for top level a category level. Bandaid for unclear semantics on displayOrder.
@@ -591,6 +592,7 @@ const TopicPageHeader = ({ title, slug, description, topicsTab, setTopicsTab, qu
         <InterfaceTextWithFallback
           extraStyles={[{fontSize: 13}, theme.tertiaryText]}
           {...description}
+          RenderingComponent={SimpleMarkdown}
         />
       ) : null }
       <PortalLink topicSlug={slug} portal={portal} openUri={openUri} />
