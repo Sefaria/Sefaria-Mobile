@@ -22,11 +22,10 @@ export const loadText = function(ref, context, versions, fallbackOnDefaultVersio
     if (typeof context === "undefined") { context = true; }
     return loadTextOffline(ref, context, versions, fallbackOnDefaultVersions)
         .then((result) => {
-            if (result && !result?.missingLangs?.length) {
-                return result;
-            } else if (result?.missingLangs?.length) {
+            if (result?.missingLangs?.length) {
                 throw ERRORS.MISSING_OFFLINE_DATA;
             }
+            return result;
         })
         .catch(error => {
             if (error === ERRORS.MISSING_OFFLINE_DATA) {
