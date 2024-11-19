@@ -162,7 +162,6 @@ const getSectionFromJsonData = function(ref, data) {
 const populateMissingVersions = function(currVersions, allVersions) {
     // given currVersions and a list of versions sorted by priority,
     // make sure both "en" and "he" versions are populated, falling back on default
-    currVersions = currVersions || {};
     for (let lang of ["en", "he"]) {
         if (currVersions[lang]) { continue; }
         const defaultVersion = getDefaultVersionForLang(allVersions, lang);
@@ -181,7 +180,6 @@ const getDefaultVersionForLang = function(allVersions, lang) {
 };
 
 const getOfflineSectionKey = function(ref, versions) {
-    versions = versions || {};
     return `${ref}|${Object.entries(versions).join(',')}`;
 };
 
@@ -256,6 +254,7 @@ const loadOfflineSection = async function(ref, versions, fallbackOnDefaultVersio
     /**
      * ref can be a segment or section ref, and it will load the section
      */
+    versions = versions || {};
     if (shouldLoadFromApi()) {
         throw ERRORS.MISSING_OFFLINE_DATA;
     }
@@ -266,7 +265,7 @@ const loadOfflineSection = async function(ref, versions, fallbackOnDefaultVersio
     }
     const [metadata, fileNameStem] = await loadOfflineSectionMetadataWithCache(ref);
     const textByLang = await loadOfflineSectionByVersions(versions, metadata.versions, metadata.sectionRef, fileNameStem, fallbackOnDefaultVersions);
-    return createFullSectionObject(metadata, textByLang, Object.keys(versions || {}));
+    return createFullSectionObject(metadata, textByLang, Object.keys(versions));
 };
 
 const loadOfflineSectionByVersions = async function(selectedVersions, allVersions, ref, fileNameStem, fallbackOnDefaultVersions=true) {
