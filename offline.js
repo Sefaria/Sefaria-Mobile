@@ -259,16 +259,14 @@ const loadOfflineSection = async function(ref, versions, fallbackOnDefaultVersio
     if (shouldLoadFromApi()) {
         throw ERRORS.MISSING_OFFLINE_DATA;
     }
-
     const offlineSectionKey = getOfflineSectionKey(ref, versions);
     const cached = Sefaria._jsonSectionData[offlineSectionKey];
     if (cached) {
         return cached;
     }
-
     const [metadata, fileNameStem] = await loadOfflineSectionMetadataWithCache(ref);
     const textByLang = await loadOfflineSectionByVersions(versions, metadata.versions, metadata.sectionRef, fileNameStem, fallbackOnDefaultVersions);
-    return createFullSectionObject(metadata, textByLang, Object.keys(versions));
+    return createFullSectionObject(metadata, textByLang, Object.keys(versions || {}));
 };
 
 const loadOfflineSectionByVersions = async function(selectedVersions, allVersions, ref, fileNameStem, fallbackOnDefaultVersions=true) {
@@ -318,15 +316,12 @@ const createFullSectionObject = (metadata, textByLang, requestedLangs, cacheKey)
             he: textByLang?.he?.[i] || "",
         });
     }
-
     requestedLangs.forEach(lang => {
         if (!textByLang[lang].length) {
             (fullSection.missingLangs ||= []).push(lang);
         }
     });
-
     Sefaria._jsonSectionData[cacheKey] = fullSection;
-
     return fullSection;
 };
 
