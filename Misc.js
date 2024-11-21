@@ -170,7 +170,7 @@ const InterfaceTextWithFallback = ({ en, he, extraStyles=[], lang, RenderingComp
     text = he;
   }
   return (
-    <RenderingComponent style={[langStyle].concat(extraStyles)}>{text}</RenderingComponent>
+    <RenderingComponent style={[langStyle].concat(extraStyles)} lang={lang}>{text}</RenderingComponent> //we use lang only when RenderingComponent is SimpleMarkdown
   );
 }
 
@@ -1252,16 +1252,19 @@ SimpleHTMLView.propTypes = {
   lang: PropTypes.oneOf(['english', 'hebrew']),
 };
 
-const SimpleMarkdown = ({children, markdownProps}) => {
+const SimpleMarkdown = ({children, lang, style, markdownProps}) => {
   const {handleOpenURL} = useContext(ReaderAppContext);
   const onLinkPress = (url) => {
     handleOpenURL(url);
     return false;
   }
-  return <Markdown onLinkPress={onLinkPress} {...markdownProps}>{children}</Markdown>;
+  const flexDirection = `row${lang==='hebrew' ? '-reverse' : ''}`
+  style = {body: style, paragraph: {flexDirection}}
+  return <Markdown onLinkPress={onLinkPress} style={style} {...markdownProps}>{children}</Markdown>;
 }
 SimpleMarkdown.propTypes = {
-  children: PropTypes.string.isRequired,
+  lang: PropTypes.oneOf(['hebrew', 'english']),
+  style: PropTypes.object,
   markdownProps: PropTypes.object,
 }
 
