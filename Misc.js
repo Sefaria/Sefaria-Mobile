@@ -1252,7 +1252,7 @@ SimpleHTMLView.propTypes = {
   lang: PropTypes.oneOf(['english', 'hebrew']),
 };
 
-const SimpleMarkdown = ({children, style, lang}) => {
+const SimpleMarkdown = ({children, lang, style, markdownProps}) => {
   const {handleOpenURL} = useContext(ReaderAppContext);
   const onLinkPress = (url) => {
     handleOpenURL(url);
@@ -1260,12 +1260,12 @@ const SimpleMarkdown = ({children, style, lang}) => {
   }
   const flexDirection = `row${lang==='hebrew' ? '-reverse' : ''}`
   style = {body: style, paragraph: {flexDirection}}
-  return <Markdown onLinkPress={onLinkPress} style={style}>{children}</Markdown>;
+  return <Markdown onLinkPress={onLinkPress} style={style} {...markdownProps}>{children}</Markdown>;
 }
 SimpleMarkdown.propTypes = {
-  children: PropTypes.string.isRequired,
-  markdownProps: PropTypes.object,
   lang: PropTypes.oneOf(['hebrew', 'english']),
+  style: PropTypes.object,
+  markdownProps: PropTypes.object,
 }
 
 const SimpleContentBlock = ({en, he}) => {
