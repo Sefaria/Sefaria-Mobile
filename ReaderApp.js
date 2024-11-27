@@ -462,7 +462,7 @@ class ReaderApp extends React.PureComponent {
     if (textFlow == "continuous" && this.props.textLanguage == "bilingual") {
       this.setTextLanguage("hebrew");
     }
-    this.toggleReaderDisplayOptionsMenu();
+    this.closeReaderDisplayOptionsMenu();
   };
 
   setBiLayout = layout => {
@@ -470,7 +470,7 @@ class ReaderApp extends React.PureComponent {
       type: STATE_ACTIONS.setBiLayout,
       value: layout,
     });
-    this.toggleReaderDisplayOptionsMenu();
+    this.closeReaderDisplayOptionsMenu();
   };
 
   setTextLanguage = (textLanguage, textFlow, dontToggle) => {
@@ -483,7 +483,7 @@ class ReaderApp extends React.PureComponent {
     if (textLanguage === "bilingual" && textFlow === "continuous") {
       this.setTextFlow("segmented");
     }
-    if (!dontToggle) { this.toggleReaderDisplayOptionsMenu(); }
+    if (!dontToggle) { this.closeReaderDisplayOptionsMenu(); }
   };
 
   setTheme = themeStr => {
@@ -491,7 +491,7 @@ class ReaderApp extends React.PureComponent {
       type: STATE_ACTIONS.setTheme,
       value: themeStr,
     });
-    this.toggleReaderDisplayOptionsMenu();
+    this.closeReaderDisplayOptionsMenu();
   }
 
   setAliyot = show => {
@@ -499,7 +499,7 @@ class ReaderApp extends React.PureComponent {
       type: STATE_ACTIONS.setAliyot,
       value: show,
     })
-    this.toggleReaderDisplayOptionsMenu();
+    this.closeReaderDisplayOptionsMenu();
   }
 
   setVocalization = value => {
@@ -507,7 +507,7 @@ class ReaderApp extends React.PureComponent {
       type: STATE_ACTIONS.setVocalization,
       value,
     })
-    this.toggleReaderDisplayOptionsMenu(); 
+    this.closeReaderDisplayOptionsMenu();
   }
 
   incrementFont = (increment) => {
