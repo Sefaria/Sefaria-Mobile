@@ -435,17 +435,25 @@ class ReaderApp extends React.PureComponent {
     Toast.show(text, {duration, onHidden});
   }
 
+  openReaderDisplayOptionsMenu = () => {
+    this.setState({ReaderDisplayOptionsMenuVisible:  true}, () => {
+      // wait for ref to be defined
+      this._readerDisplayOptionsMenuRef && this._readerDisplayOptionsMenuRef.show();
+    });
+  }
+
+  closeReaderDisplayOptionsMenu = () => {
+    this._readerDisplayOptionsMenuRef && this._readerDisplayOptionsMenuRef.hide(() => {
+      this.setState({ReaderDisplayOptionsMenuVisible:  false});
+    });
+    this.trackPageview();
+  }
+
   toggleReaderDisplayOptionsMenu = () => {
     if (this.state.ReaderDisplayOptionsMenuVisible == false) {
-      this.setState({ReaderDisplayOptionsMenuVisible:  true}, () => {
-        // wait for ref to be defined
-        this._readerDisplayOptionsMenuRef && this._readerDisplayOptionsMenuRef.show();
-      });
+      this.openReaderDisplayOptionsMenu();
     } else {
-      this._readerDisplayOptionsMenuRef && this._readerDisplayOptionsMenuRef.hide(() => {
-        this.setState({ReaderDisplayOptionsMenuVisible:  false});
-      });
-      this.trackPageview();
+      this.closeReaderDisplayOptionsMenu();
     }
   };
 
