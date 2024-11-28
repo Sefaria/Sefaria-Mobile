@@ -473,7 +473,7 @@ class ReaderApp extends React.PureComponent {
     this.closeReaderDisplayOptionsMenu();
   };
 
-  setTextLanguage = (textLanguage, textFlow, dontToggle) => {
+  setTextLanguage = (textLanguage, textFlow) => {
     // try to be less dependent on state in this func because it is called in componentWillUpdate
     textFlow = textFlow || this.state.textFlow;
     this.props.dispatch({
@@ -483,8 +483,8 @@ class ReaderApp extends React.PureComponent {
     if (textLanguage === "bilingual" && textFlow === "continuous") {
       this.setTextFlow("segmented");
     }
-    if (!dontToggle) { this.closeReaderDisplayOptionsMenu(); }
-  };
+    this.closeReaderDisplayOptionsMenu();
+  }
 
   setTheme = themeStr => {
     this.props.dispatch({
@@ -1125,7 +1125,7 @@ class ReaderApp extends React.PureComponent {
         if (!!newVersions['en'] && !!newVersions['he']) { newTextLang = "bilingual"; }
         else if (!!newVersions['en']) { newTextLang = "english"; }
         else if (!!newVersions['he']){ newTextLang = "hebrew"; }
-        this.setTextLanguage(newTextLang, null, true);
+        this.setTextLanguage(newTextLang, null);
       }
 
       switch (calledFrom) {
