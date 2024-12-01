@@ -435,17 +435,25 @@ class ReaderApp extends React.PureComponent {
     Toast.show(text, {duration, onHidden});
   }
 
+  openReaderDisplayOptionsMenu = () => {
+    this.setState({ReaderDisplayOptionsMenuVisible:  true}, () => {
+      // wait for ref to be defined
+      this._readerDisplayOptionsMenuRef && this._readerDisplayOptionsMenuRef.show();
+    });
+  }
+
+  closeReaderDisplayOptionsMenu = () => {
+    this._readerDisplayOptionsMenuRef && this._readerDisplayOptionsMenuRef.hide(() => {
+      this.setState({ReaderDisplayOptionsMenuVisible:  false});
+    });
+    this.trackPageview();
+  }
+
   toggleReaderDisplayOptionsMenu = () => {
     if (this.state.ReaderDisplayOptionsMenuVisible == false) {
-      this.setState({ReaderDisplayOptionsMenuVisible:  true}, () => {
-        // wait for ref to be defined
-        this._readerDisplayOptionsMenuRef && this._readerDisplayOptionsMenuRef.show();
-      });
+      this.openReaderDisplayOptionsMenu();
     } else {
-      this._readerDisplayOptionsMenuRef && this._readerDisplayOptionsMenuRef.hide(() => {
-        this.setState({ReaderDisplayOptionsMenuVisible:  false});
-      });
-      this.trackPageview();
+      this.closeReaderDisplayOptionsMenu();
     }
   };
 
@@ -454,7 +462,7 @@ class ReaderApp extends React.PureComponent {
     if (textFlow == "continuous" && this.props.textLanguage == "bilingual") {
       this.setTextLanguage("hebrew");
     }
-    this.toggleReaderDisplayOptionsMenu();
+    this.closeReaderDisplayOptionsMenu();
   };
 
   setBiLayout = layout => {
@@ -462,10 +470,10 @@ class ReaderApp extends React.PureComponent {
       type: STATE_ACTIONS.setBiLayout,
       value: layout,
     });
-    this.toggleReaderDisplayOptionsMenu();
+    this.closeReaderDisplayOptionsMenu();
   };
 
-  setTextLanguage = (textLanguage, textFlow, dontToggle) => {
+  setTextLanguage = (textLanguage, textFlow) => {
     // try to be less dependent on state in this func because it is called in componentWillUpdate
     textFlow = textFlow || this.state.textFlow;
     this.props.dispatch({
@@ -475,15 +483,15 @@ class ReaderApp extends React.PureComponent {
     if (textLanguage === "bilingual" && textFlow === "continuous") {
       this.setTextFlow("segmented");
     }
-    if (!dontToggle) { this.toggleReaderDisplayOptionsMenu(); }
-  };
+    this.closeReaderDisplayOptionsMenu();
+  }
 
   setTheme = themeStr => {
     this.props.dispatch({
       type: STATE_ACTIONS.setTheme,
       value: themeStr,
     });
-    this.toggleReaderDisplayOptionsMenu();
+    this.closeReaderDisplayOptionsMenu();
   }
 
   setAliyot = show => {
@@ -491,7 +499,7 @@ class ReaderApp extends React.PureComponent {
       type: STATE_ACTIONS.setAliyot,
       value: show,
     })
-    this.toggleReaderDisplayOptionsMenu();
+    this.closeReaderDisplayOptionsMenu();
   }
 
   setVocalization = value => {
@@ -499,7 +507,7 @@ class ReaderApp extends React.PureComponent {
       type: STATE_ACTIONS.setVocalization,
       value,
     })
-    this.toggleReaderDisplayOptionsMenu(); 
+    this.closeReaderDisplayOptionsMenu();
   }
 
   incrementFont = (increment) => {
@@ -1117,7 +1125,7 @@ class ReaderApp extends React.PureComponent {
         if (!!newVersions['en'] && !!newVersions['he']) { newTextLang = "bilingual"; }
         else if (!!newVersions['en']) { newTextLang = "english"; }
         else if (!!newVersions['he']){ newTextLang = "hebrew"; }
-        this.setTextLanguage(newTextLang, null, true);
+        this.setTextLanguage(newTextLang, null);
       }
 
       switch (calledFrom) {
