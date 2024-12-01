@@ -23,6 +23,7 @@ import {
 import * as FileSystem from 'expo-file-system';
 import { Topic } from './Topic';
 import {openFileInSources} from "./offline";
+import {trackEvent} from "./Analytics";
 
 
 Sefaria = {
@@ -1022,7 +1023,7 @@ Sefaria = {
       },
 
       event: function(event, params) {
-        analytics().logEvent(event, params)
+        trackEvent(event, params);
       },
 
       pageview: function(page, customDimensions, contentGroups) {
