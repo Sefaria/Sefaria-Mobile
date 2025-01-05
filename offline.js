@@ -125,7 +125,6 @@ export const openFileInSources = async function(filename) {
     } else {
         fileData = await _loadJSON(sourcePath);
     }
-    console.log(2, fileData)
     return fileData;
 };
 

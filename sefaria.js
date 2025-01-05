@@ -352,7 +352,6 @@ Sefaria = {
     // Returns the TOC entry that corresponds to list of categories `cats`
     let found, item;
     let list = Sefaria.toc;
-    console.log(3, list)
     for (let i = 0; i < cats.length; i++) {
       found = false;
       item = null;
