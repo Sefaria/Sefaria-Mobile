@@ -66,6 +66,8 @@ From another terminal, run `npx react-native run-ios` or `npx react-native run-a
 
 Alternatively for iOS, you can open `/ios/ReaderApp.xcworkspace` and hit run.
 
+> Note: To run Android Studio, make sure you have a Java SDK installed (as of 2025, must be between versions 17 and 20)
+
 
 ## Local Development
 
