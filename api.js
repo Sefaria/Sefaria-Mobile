@@ -502,6 +502,13 @@ var Api = {
     let refMap = {};
     for (let refObj of data.refs.filter(s => !s.is_sheet)) {
       refMap[refObj.ref] = {ref: refObj.ref, order: refObj.order, dataSources: refObj.dataSources};
+      if (refObj.order) {
+        refMap[refObj.ref].order = {...refObj.order, availableLangs: refObj?.order?.availableLangs || [],
+          numDatasource: refObj?.order?.numDatasource || 1,
+          tfidf: refObj?.order?.tfidf || 0,
+          pr: refObj?.order?.pr || 0,
+          curatedPrimacy: {he: refObj?.order?.curatedPrimacy?.he || 0, en: refObj?.order?.curatedPrimacy?.en || 0}}
+      }
     }
     data.textRefs = Object.values(refMap);
     let sheetMap = {};
