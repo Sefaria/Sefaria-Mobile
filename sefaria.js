@@ -678,7 +678,7 @@ Sefaria = {
   },
   isGettinToBePurimTime: function() {
     const msInDay = 1000*60*60*24;
-    const purimsOfTheFuture = [[2020, 2, 10], [2021, 1, 26], [2022, 2, 17], [2023, 2, 7], [2024, 2, 24], [2025, 2, 14], [2026, 2, 4], [2027, 2, 24], [2028, 2, 12], [2029, 2, 2]];
+    const purimsOfTheFuture = [[2025, 2, 14], [2026, 2, 4], [2027, 2, 24], [2028, 2, 12], [2029, 2, 2], [2030, 2, 18], [2031, 2, 8], [2032, 1, 25], [2033, 2, 14], [2034, 2, 4]];
 
     const now = new Date();
     for (let potentialPurim of purimsOfTheFuture) {
