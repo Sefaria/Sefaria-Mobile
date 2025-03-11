@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Sefaria</string>
+    <string name="facebook_app_id">1336140347522849</string>
+    <string name="facebook_client_token">5ddbe3f2cd8d625d1449d715bee20d60</string>
 </resources>

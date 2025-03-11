@@ -5,7 +5,8 @@ import {
   LogBox,
   Alert,
 } from 'react-native';
-import React, { useReducer } from 'react';
+import React, { useReducer, useEffect } from 'react';
+import { AppEventsLogger } from 'react-native-fbsdk-next';
 import { gestureHandlerRootHOC } from 'react-native-gesture-handler';
 import {
   GlobalStateContext,
@@ -80,3 +81,14 @@ const Root = () => {
 }
 Root.whyDidYouRender = true;
 AppRegistry.registerComponent('ReaderApp', () => Root);
+
+const App = () => {
+  useEffect(() => {
+    // Example event tracking
+    AppEventsLogger.logEvent('App Launched');
+  }, []);
+
+  return null;
+};
+
+export default App;
