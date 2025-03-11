@@ -27,7 +27,16 @@
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
 		<string>mailto</string>
+        <string>fbapi</string>
+        <string>fb-messenger-api</string>
+        <string>fbshareextension</string>
 	</array>
+    <key>FacebookAppID</key>
+    <string>1336140347522849</string>
+    <key>FacebookClientToken</key>
+    <string>5ddbe3f2cd8d625d1449d715bee20d60</string>
+    <key>FacebookDisplayName</key>
+    <string>test</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSAppTransportSecurity</key>

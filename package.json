@@ -47,6 +47,7 @@
     "react-native-action-sheet": "^2.2.0",
     "react-native-background-fetch": "^4.0.5",
     "react-native-bootsplash": "^5.2.2",
+    "react-native-fbsdk-next": "^13.4.1",
     "react-native-gesture-handler": "^2.14.0",
     "react-native-haptic-feedback": "^1.13.1",
     "react-native-inappbrowser-reborn": "^3.7.0",

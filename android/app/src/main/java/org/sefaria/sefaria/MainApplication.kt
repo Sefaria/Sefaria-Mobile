@@ -14,8 +14,10 @@ import com.facebook.react.defaults.DefaultReactNativeHost
 import com.facebook.react.flipper.ReactNativeFlipper
 import com.facebook.soloader.SoLoader
 import com.facebook.react.modules.i18nmanager.I18nUtil
+import com.facebook.FacebookSdk;
+import com.facebook.appevents.AppEventsLogger;
 
-class MainApplication : Application(), ReactApplication {
+class MainAppMainApplicationlication : Application(), ReactApplication {
 
   override val reactNativeHost: ReactNativeHost = ReactNativeHostWrapper(this, object : DefaultReactNativeHost(this) {
         override fun getPackages(): List<ReactPackage> =
@@ -37,6 +39,8 @@ class MainApplication : Application(), ReactApplication {
 
   override fun onCreate() {
     super.onCreate()
+    FacebookSdk.sdkInitialize(getApplicationContext());
+    AppEventsLogger.activateApp(this);
     val sharedI18nUtilInstance: I18nUtil = I18nUtil.getInstance()
     sharedI18nUtilInstance.allowRTL(this, false)
     SoLoader.init(this, false)

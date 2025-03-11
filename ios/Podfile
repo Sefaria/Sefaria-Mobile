@@ -45,7 +45,7 @@ target 'ReaderApp' do
   )
 
   # Pods for ReaderApp
-  # <THIS LINE LEFT EMPTY ON PURPOSE>
+  pod 'react-native-fbsdk-next', :path => '../node_modules/react-native-fbsdk-next'
 
   target 'ReaderAppTests' do
     inherit! :complete
