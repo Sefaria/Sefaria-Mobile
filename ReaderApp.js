@@ -1128,21 +1128,6 @@ class ReaderApp extends React.PureComponent {
         this.setTextLanguage(newTextLang, null);
       }
 
-      switch (calledFrom) {
-        case "search":
-          break;
-        case "navigation":
-          break;
-        case "text toc":
-          break;
-        case "deep link":
-          break;
-        case "text list":
-          break;
-        default:
-          break;
-      }
-
       if (addToBackStack) {
         if (calledFrom === 'search') {
           // only pass small state variables to forward() (eg avoid passing `results`) because cloning large variables takes too long.
