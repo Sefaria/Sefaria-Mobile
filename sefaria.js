@@ -83,9 +83,26 @@ Sefaria = {
   getLastGalusStatus: async function() {
     Sefaria.lastGalusStatus = await AsyncStorage.getItem("lastGalusStatus");
   },
-  refUpOne: function(ref) {
-    //return ref up one level, assuming you can
-    return ref.lastIndexOf(":") !== -1 ? ref.slice(0, ref.lastIndexOf(":")) : ref;
+  refUpOne: function (ref, splitOnSpaces = false) {
+    /**
+     * return ref up one level, assuming you can
+     * 
+     * @param {str} ref - reference to go one up on
+     * @param {bool} split_on_spaces - Continue spliting on spaces until you reach a valid book. Doesn't split beyond that (Words in a book)
+     */
+
+    if (ref.lastIndexOf(":") !== -1) {
+      let newRef = ref.slice(0, ref.lastIndexOf(":"));
+      return newRef;
+    }
+    // Only return sliced ref on space if the new ref will have a valid title in it
+    else if (splitOnSpaces && ref.lastIndexOf(" ") !== -1) {
+      let newRef = ref.slice(0, ref.lastIndexOf(" "));
+      if (Sefaria.textTitleForRef(newRef)){
+        return newRef;
+      }
+    }
+    return ref
   },
   refMissingColon: function(ref) {
     // the site can handle links that end "\d+ \d+". I believe this links are non-standard but since the site handles them, app should also
