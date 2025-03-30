@@ -54,7 +54,7 @@ const SearchSheetResult = ({
           />
           <View style={{flexDirection: "column", flex: 1, justifyContent: "space-between", marginHorizontal: 10}}>
              <Text style={[styles.enInt, {alignSelf: "flex-start", color:"#666"}]}>{ownerName}</Text>
-             <Text style={[{color:"#999"}, styles.enInt]}>{views} Views {tags.length > 0 ? "· " + tags.join(", ") : null}</Text>
+             <Text style={[{color:"#999"}, styles.enInt]}>{views} Views {tags?.length > 0 ? "· " + tags.join(", ") : null}</Text>
            </View>
          </View>
        </View>
