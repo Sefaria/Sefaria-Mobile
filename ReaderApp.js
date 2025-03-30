@@ -683,10 +683,14 @@ class ReaderApp extends React.PureComponent {
       () => {
         Sefaria.offlineOnline.loadText(ref, true, versions, !this.state.hasInternet).then(data => {
             // debugger;
-            if (Sefaria.util.objectHasNonNullValues(data.nonExistantVersions) ||
                 // if specific versions were requested, but no content exists for those versions, try again with default versions
+            if (Sefaria.util.objectHasNonNullValues(data.nonExistantVersions) ||
                 (data.content.length === 0 && !!versions)) {
-              if (numTries >= 4) { throw "Return to Nav"; }
+              if (numTries >= 4) { //Unclear why 4 times. 
+                console.error(`Can't find text for ref: ${ref} dispite reverting to default version. Throwing 'Return to Nav'`)
+                throw "Return to Nav";
+              } 
+              console.info(`ReaderApp.loadNewText: Recursive call without versions (fallback to default version), nonExistantVersions: ${JSON.stringify(data.nonExistantVersions)}`);
               this.loadNewText({ ref, isLoadingVersion, numTries: numTries + 1 }).then(resolve);
               return;
             }
