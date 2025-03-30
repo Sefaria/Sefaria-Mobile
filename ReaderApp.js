@@ -739,6 +739,13 @@ class ReaderApp extends React.PureComponent {
         }).catch(error => {
           console.log(error);
           if (error == "Return to Nav") {
+              // Trying to get text one up recursively.
+              const refUpOne = Sefaria.refUpOne(ref, true);
+              if (ref !== refUpOne && numTries <= 4) { //Break if there is no more ref up to do. Number limit is just in case of a edge case
+                console.log(`Couldn't find ref. Removing last part of ref and trying again\nNew ref: ${refUpOne}. Old ref: ${ref}`)
+                this.loadNewText({ ref: refUpOne, versions, isLoadingVersion, numTries: numTries + 1 }).then(resolve);
+              }
+
             this.openTextTocDirectly(Sefaria.textTitleForRef(ref));
             resolve();
             return;
