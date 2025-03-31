@@ -833,7 +833,7 @@ failSilently - if true, dont display a message if api call fails
           if (!failSilently) {
             Alert.alert(
               strings.textUnavailable,
-              strings.textUnavailableMessage,
+              strings.textUnavailableFromWebMessage,
               [{text: strings.ok, onPress: () => { reject("Return to Nav"); } }]);
           } else {
             reject("Return to Nav");
