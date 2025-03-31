@@ -737,7 +737,7 @@ class ReaderApp extends React.PureComponent {
 
             resolve();
         }).catch(error => {
-          console.log(error);
+          console.log(`Dealing with error: ${error}`);
           if (error == "Return to Nav") {
               // Trying to get text one up recursively.
               const refUpOne = Sefaria.refUpOne(ref, true);
