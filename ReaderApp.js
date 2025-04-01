@@ -681,7 +681,7 @@ class ReaderApp extends React.PureComponent {
           textToc: null,
       },
       () => {
-        Sefaria.offlineOnline.loadText(ref, true, versions, !this.state.hasInternet).then(data => {
+        Sefaria.offlineOnline.loadText(ref, true, versions, !this.state.hasInternet, true).then(data => {
             // debugger;
                 // if specific versions were requested, but no content exists for those versions, try again with default versions
             if (Sefaria.util.objectHasNonNullValues(data.nonExistantVersions) ||
@@ -744,9 +744,10 @@ class ReaderApp extends React.PureComponent {
             if (ref !== refUpOne && numTries <= 4) { //Break if there is no more ref up to do. Number limit is just in case of a edge case
               console.log(`Couldn't find ref. Removing last part of ref and trying again\nNew ref: ${refUpOne}. Old ref: ${ref}`)
               this.loadNewText({ ref: refUpOne, versions, isLoadingVersion, numTries: numTries + 1 }).then(resolve);
-            }
-
+            } else {
             this.openTextTocDirectly(Sefaria.textTitleForRef(ref));
+            }
+            
             resolve();
             return;
           }

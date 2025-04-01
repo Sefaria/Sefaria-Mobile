@@ -256,9 +256,9 @@ var Api = {
     url += ref + urlSuffix;
     return url;
   },
-  _text: function(ref, extra_args) {
+  _text: function(ref, extra_args, failSilently=false) {
     return new Promise((resolve, reject)=>{
-      Sefaria.api._request(ref,'text', true, extra_args)
+      Sefaria.api._request(ref,'text', true, extra_args, failSilently)
       .then(data => {
         if (extra_args.context) {
           resolve(Sefaria.api._toIOS({"text": data, "links": [], "ref": ref}));
@@ -273,14 +273,14 @@ var Api = {
       }).catch(error => reject(error));
     });
   },
-  textApi: async function(ref, context, versions) {
+  textApi: async function(ref, context, versions, failSilently=false) {
     const cacheValue = Sefaria.api.textCache(ref, context, versions);
     if (cacheValue) {
       // Don't check the API cahce until we've checked for a local file, because the API
       // cache may be left in a state with text but without links.
       return cacheValue;
     }
-    return Sefaria.api._text(ref, { context, versions, stripItags: true });
+    return Sefaria.api._text(ref, { context, versions, stripItags: true }, failSilently);
   },
   translations: async function(ref) {
     return Sefaria.api._request(ref,'translations', true);
