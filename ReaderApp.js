@@ -739,10 +739,14 @@ class ReaderApp extends React.PureComponent {
         }).catch(error => {
           console.log(`Dealing with error: ${error}`);
           if (error == "Return to Nav") {
-            // In case of unfound references, try going one ref up (up to the book) before returning to nav.
+            // In case of unfound references, try going one ref up (up to the book) before dealing with error by returning to nav.
+            // We do this to avoid failing in case of references to a non existent ref after a changing index of in book.
             const refUpOne = Sefaria.refUpOne(ref, true);
-            if (ref !== refUpOne && numTries <= 4) { //Break if there is no more ref up to do. Number limit is just in case of a edge case
-              console.log(`Couldn't find ref. Removing last part of ref and trying again\nNew ref: ${refUpOne}. Old ref: ${ref}`)
+            // Break if there is no more ref up to do.
+            // Number limit is just in case of a edge case.
+            // refUpOne checks if book exists, so code wont go into this if if the book doesn't exist
+            if (ref !== refUpOne && numTries <= 4) { 
+              console.warn(`Couldn't find ref. Removing last part of ref and trying again\nNew ref: ${refUpOne}. Old ref: ${ref}`)
               this.loadNewText({ ref: refUpOne, versions, isLoadingVersion, numTries: numTries + 1 }).then(resolve);
             } else {
             this.openTextTocDirectly(Sefaria.textTitleForRef(ref));
