@@ -681,7 +681,7 @@ class ReaderApp extends React.PureComponent {
           textToc: null,
       },
       () => {
-        Sefaria.offlineOnline.loadText(ref, true, versions, !this.state.hasInternet, true).then(data => {
+        Sefaria.offlineOnline.loadText(ref, true, versions, !this.state.hasInternet, true).then(data => { // Silencing the popup on failed Sefaria.api._requests and creating a new pop up if an error arises
             // debugger;
                 // if specific versions were requested, but no content exists for those versions, try again with default versions
             if (Sefaria.util.objectHasNonNullValues(data.nonExistantVersions) ||
