@@ -751,11 +751,7 @@ class ReaderApp extends React.PureComponent {
             } else {
             this.openTextTocDirectly(Sefaria.textTitleForRef(ref));
             // Pop up here because we silence the error in Sefaria.api._request to avoid uneeded popups during the recursive refUpone call.
-            Alert.alert(
-              strings.textUnavailable,
-              strings.textUnavailableFromWebMessage,
-              [{text: strings.ok, onPress: () => { reject("Return to Nav"); } }]);
-            }
+            this.textUnavailableAlert(ref)
             
             resolve();
             return;
