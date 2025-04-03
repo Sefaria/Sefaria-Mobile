@@ -83,9 +83,36 @@ Sefaria = {
   getLastGalusStatus: async function() {
     Sefaria.lastGalusStatus = await AsyncStorage.getItem("lastGalusStatus");
   },
-  refUpOne: function(ref) {
-    //return ref up one level, assuming you can
-    return ref.lastIndexOf(":") !== -1 ? ref.slice(0, ref.lastIndexOf(":")) : ref;
+  refUpOne: function(ref, splitOnSpaces = false) {
+    /**
+     * Returns ref moved up one level
+     * 
+     * @param {string} ref - ref to go one up on
+     * @param {boolean} splitOnSpaces - Try splitting on spaces if no colon found
+     * @returns {string} The ref moved up one level, or original ref if can't move up or book doesn't exist
+     */
+    // Try splitting on colon first
+    const lastIndexOfColon = ref.lastIndexOf(":");
+    if (lastIndexOfColon !== -1) {
+      const newRef = ref.slice(0, lastIndexOfColon);
+      if (Sefaria.textTitleForRef(newRef)) { // Check ref has an existing book
+        return newRef;
+      }
+    }
+    
+    // If allowed and no colon found, try splitting on space
+    if (splitOnSpaces) {
+      const lastIndexOfSpace = ref.lastIndexOf(" ");
+      if (lastIndexOfSpace !== -1) {
+        const newRef = ref.slice(0, lastIndexOfSpace);
+        if (Sefaria.textTitleForRef(newRef)) { // Check ref has an existing book
+          return newRef;
+        }
+      }
+    }
+    
+    // Can't move up or book doesn't exist, return original
+    return ref;
   },
   refMissingColon: function(ref) {
     // the site can handle links that end "\d+ \d+". I believe this links are non-standard but since the site handles them, app should also
@@ -96,7 +123,7 @@ Sefaria = {
   _jsonSectionData: {}, // in memory cache for loaded section files (after merging)
   _apiData: {},  // in memory cache for API data
   textTitleForRef: function(ref) {
-    // Returns the book title named in `ref` by examining the list of known book titles.
+    // Returns the book title named in `ref` by examining the list of known book titles or null if there is no book.
     if (!ref) { return null; }
     for (let i = ref.length; i >= 0; i--) {
       let book = ref.slice(0, i);

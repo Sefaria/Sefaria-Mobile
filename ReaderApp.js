@@ -681,12 +681,16 @@ class ReaderApp extends React.PureComponent {
           textToc: null,
       },
       () => {
-        Sefaria.offlineOnline.loadText(ref, true, versions, !this.state.hasInternet).then(data => {
+        Sefaria.offlineOnline.loadText(ref, true, versions, !this.state.hasInternet, true).then(data => { // Silencing the popup on failed Sefaria.api._requests and creating a new pop up if an error arises
             // debugger;
-            if (Sefaria.util.objectHasNonNullValues(data.nonExistantVersions) ||
                 // if specific versions were requested, but no content exists for those versions, try again with default versions
+            if (Sefaria.util.objectHasNonNullValues(data.nonExistantVersions) ||
                 (data.content.length === 0 && !!versions)) {
-              if (numTries >= 4) { throw "Return to Nav"; }
+              if (numTries >= 4) { //Unclear why 4 times. Maybe for low connectivity.
+                console.error(`Can't find text for ref: ${ref} dispite reverting to default version. Throwing 'Return to Nav'`)
+                throw "Return to Nav";
+              } 
+              console.info(`ReaderApp.loadNewText: Recursive call without versions (fallback to default version), nonExistantVersions: ${JSON.stringify(data.nonExistantVersions)}`);
               this.loadNewText({ ref, isLoadingVersion, numTries: numTries + 1 }).then(resolve);
               return;
             }
@@ -733,9 +737,21 @@ class ReaderApp extends React.PureComponent {
 
             resolve();
         }).catch(error => {
-          console.log(error);
+          console.log(`Dealing with error: ${error}. Ref: ${ref}`);
           if (error == "Return to Nav") {
-            this.openTextTocDirectly(Sefaria.textTitleForRef(ref));
+            // In case of unfound ref, try going one ref up (up to the book) before dealing with error by returning to nav.
+            // We do this to avoid failing in case of ref to a non existent ref after a changing index of a book.
+            const refUpOne = Sefaria.refUpOne(ref, true);
+            // Break if there is no more ref up to do.
+            // refUpOne checks if book exists, so code wont go into this if if the book doesn't exist
+            if (ref !== refUpOne) {
+              console.warn(`Couldn't find ref. Removing last part of ref and trying again\nNew ref: ${refUpOne}. Old ref: ${ref}.`)
+              this.loadNewText({ ref: refUpOne, versions, isLoadingVersion, numTries: numTries + 1 }).then(resolve);
+            } else {
+              this.openTextTocDirectly(Sefaria.textTitleForRef(ref));
+              // Pop up here because we silence the error in Sefaria.api._request to avoid uneeded popups during the recursive refUpone call.
+              this.textUnavailableAlert(ref)
+            }
             resolve();
             return;
           }
@@ -1126,21 +1142,6 @@ class ReaderApp extends React.PureComponent {
         else if (!!newVersions['en']) { newTextLang = "english"; }
         else if (!!newVersions['he']){ newTextLang = "hebrew"; }
         this.setTextLanguage(newTextLang, null);
-      }
-
-      switch (calledFrom) {
-        case "search":
-          break;
-        case "navigation":
-          break;
-        case "text toc":
-          break;
-        case "deep link":
-          break;
-        case "text list":
-          break;
-        default:
-          break;
       }
 
       if (addToBackStack) {

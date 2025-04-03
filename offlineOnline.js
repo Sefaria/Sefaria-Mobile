@@ -14,7 +14,7 @@ import {
 import api from "./api";
 
 
-export const loadText = function(ref, context, versions, fallbackOnDefaultVersions=true) {
+export const loadText = function(ref, context, versions, fallbackOnDefaultVersions=true, failSilently=false) {
     /**
      if `context`, only return section no matter what. default is true
      versions is object with keys { en, he } specifying version titles of requested ref
@@ -29,7 +29,7 @@ export const loadText = function(ref, context, versions, fallbackOnDefaultVersio
         })
         .catch(error => {
             if (error === ERRORS.MISSING_OFFLINE_DATA) {
-                return api.textApi(ref, context, versions)
+                return api.textApi(ref, context, versions, failSilently)
                     .then(data => {
                         api.processTextApiData(ref, context, versions, data);
                         return data;
