@@ -739,8 +739,8 @@ class ReaderApp extends React.PureComponent {
         }).catch(error => {
           console.log(`Dealing with error: ${error}. Ref: ${ref}`);
           if (error == "Return to Nav") {
-            // In case of unfound references, try going one ref up (up to the book) before dealing with error by returning to nav.
-            // We do this to avoid failing in case of references to a non existent ref after a changing index of a book.
+            // In case of unfound ref, try going one ref up (up to the book) before dealing with error by returning to nav.
+            // We do this to avoid failing in case of ref to a non existent ref after a changing index of a book.
             const refUpOne = Sefaria.refUpOne(ref, true);
             // Break if there is no more ref up to do.
             // Number limit is just in case of a edge case.
