@@ -83,28 +83,36 @@ Sefaria = {
   getLastGalusStatus: async function() {
     Sefaria.lastGalusStatus = await AsyncStorage.getItem("lastGalusStatus");
   },
-  refUpOne: function (ref, splitOnSpaces = false) {
+  refUpOne: function(ref, splitOnSpaces = false) {
     /**
-     * return ref up one level, assuming you can
+     * Returns ref moved up one level
      * 
-     * @param {str} ref - reference to go one up on
-     * @param {bool} split_on_spaces - Continue spliting on spaces until you reach a valid book. Doesn't split beyond that (Words in a book)
-    */
-   const lastIndexOfColon = ref.lastIndexOf(":");
-   const lastIndexOfSpace = ref.lastIndexOf(" ");
-
-   if (lastIndexOfColon !== -1) {
-     let newRef = ref.slice(0, lastIndexOfColon);
-     return newRef;
-    }
-    // Only return sliced ref on space if the new ref will have a valid title in it
-    else if (splitOnSpaces && lastIndexOfSpace !== -1) {
-      let newRef = ref.slice(0, lastIndexOfSpace);
-      if (Sefaria.textTitleForRef(newRef)){
+     * @param {string} ref - ref to go one up on
+     * @param {boolean} splitOnSpaces - Try splitting on spaces if no colon found
+     * @returns {string} The ref moved up one level, or original ref if can't move up or book doesn't exist
+     */
+    // Try splitting on colon first
+    const lastIndexOfColon = ref.lastIndexOf(":");
+    if (lastIndexOfColon !== -1) {
+      const newRef = ref.slice(0, lastIndexOfColon);
+      if (Sefaria.textTitleForRef(newRef)) {
         return newRef;
       }
     }
-    return ref
+    
+    // If allowed and no colon found, try splitting on space
+    if (splitOnSpaces) {
+      const lastIndexOfSpace = ref.lastIndexOf(" ");
+      if (lastIndexOfSpace !== -1) {
+        const newRef = ref.slice(0, lastIndexOfSpace);
+        if (Sefaria.textTitleForRef(newRef)) {
+          return newRef;
+        }
+      }
+    }
+    
+    // Can't move up or book doesn't exist, return original
+    return ref;
   },
   refMissingColon: function(ref) {
     // the site can handle links that end "\d+ \d+". I believe this links are non-standard but since the site handles them, app should also
