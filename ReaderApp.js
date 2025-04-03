@@ -743,10 +743,9 @@ class ReaderApp extends React.PureComponent {
             // We do this to avoid failing in case of ref to a non existent ref after a changing index of a book.
             const refUpOne = Sefaria.refUpOne(ref, true);
             // Break if there is no more ref up to do.
-            // Number limit is just in case of a edge case.
             // refUpOne checks if book exists, so code wont go into this if if the book doesn't exist
-            if (ref !== refUpOne && numTries <= 4) { 
-              console.warn(`Couldn't find ref. Removing last part of ref and trying again\nNew ref: ${refUpOne}. Old ref: ${ref}. Number of tries: ${numTries}`)
+            if (ref !== refUpOne) {
+              console.warn(`Couldn't find ref. Removing last part of ref and trying again\nNew ref: ${refUpOne}. Old ref: ${ref}.`)
               this.loadNewText({ ref: refUpOne, versions, isLoadingVersion, numTries: numTries + 1 }).then(resolve);
             } else {
               this.openTextTocDirectly(Sefaria.textTitleForRef(ref));
