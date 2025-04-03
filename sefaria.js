@@ -95,7 +95,7 @@ Sefaria = {
     const lastIndexOfColon = ref.lastIndexOf(":");
     if (lastIndexOfColon !== -1) {
       const newRef = ref.slice(0, lastIndexOfColon);
-      if (Sefaria.textTitleForRef(newRef)) {
+      if (Sefaria.textTitleForRef(newRef)) { // Check ref has an existing book
         return newRef;
       }
     }
@@ -105,7 +105,7 @@ Sefaria = {
       const lastIndexOfSpace = ref.lastIndexOf(" ");
       if (lastIndexOfSpace !== -1) {
         const newRef = ref.slice(0, lastIndexOfSpace);
-        if (Sefaria.textTitleForRef(newRef)) {
+        if (Sefaria.textTitleForRef(newRef)) { // Check ref has an existing book
           return newRef;
         }
       }
