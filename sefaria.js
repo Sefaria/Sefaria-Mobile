@@ -89,15 +89,17 @@ Sefaria = {
      * 
      * @param {str} ref - reference to go one up on
      * @param {bool} split_on_spaces - Continue spliting on spaces until you reach a valid book. Doesn't split beyond that (Words in a book)
-     */
+    */
+   const lastIndexOfColon = ref.lastIndexOf(":");
+   const lastIndexOfSpace = ref.lastIndexOf(" ");
 
-    if (ref.lastIndexOf(":") !== -1) {
-      let newRef = ref.slice(0, ref.lastIndexOf(":"));
-      return newRef;
+   if (lastIndexOfColon !== -1) {
+     let newRef = ref.slice(0, lastIndexOfColon);
+     return newRef;
     }
     // Only return sliced ref on space if the new ref will have a valid title in it
-    else if (splitOnSpaces && ref.lastIndexOf(" ") !== -1) {
-      let newRef = ref.slice(0, ref.lastIndexOf(" "));
+    else if (splitOnSpaces && lastIndexOfSpace !== -1) {
+      let newRef = ref.slice(0, lastIndexOfSpace);
       if (Sefaria.textTitleForRef(newRef)){
         return newRef;
       }
