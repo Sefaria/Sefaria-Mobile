@@ -686,7 +686,7 @@ class ReaderApp extends React.PureComponent {
                 // if specific versions were requested, but no content exists for those versions, try again with default versions
             if (Sefaria.util.objectHasNonNullValues(data.nonExistantVersions) ||
                 (data.content.length === 0 && !!versions)) {
-              if (numTries >= 4) { //Unclear why 4 times. 
+              if (numTries >= 4) { //Unclear why 4 times. Maybe for low connectivity.
                 console.error(`Can't find text for ref: ${ref} dispite reverting to default version. Throwing 'Return to Nav'`)
                 throw "Return to Nav";
               } 
