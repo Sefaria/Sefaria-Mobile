@@ -745,6 +745,7 @@ class ReaderApp extends React.PureComponent {
             // Break if there is no more ref up to do.
             // refUpOne checks if book exists, so code wont go into this if if the book doesn't exist
             if (ref !== refUpOne) {
+              // Need to change this to Crashlytics
               console.warn(`Couldn't find ref. Removing last part of ref and trying again\nNew ref: ${refUpOne}. Old ref: ${ref}.`)
               this.loadNewText({ ref: refUpOne, versions, isLoadingVersion, numTries: numTries + 1 }).then(resolve);
             } else {
