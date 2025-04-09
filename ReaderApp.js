@@ -769,6 +769,8 @@ class ReaderApp extends React.PureComponent {
               
               // Record the error with detailed message
               crashlytics().recordError(navigationError);
+              // Also log error for debugging
+              console.log(`Navigation fallback: ${ref} → ${refUpOne} (tries: ${numTries + 1}, book: ${Sefaria.textTitleForRef(ref) || 'unknown'})`);
               
               this.loadNewText({ ref: refUpOne, versions, isLoadingVersion, numTries: numTries + 1 }).then(resolve);
             } else {
