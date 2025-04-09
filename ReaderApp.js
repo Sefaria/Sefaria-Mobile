@@ -745,7 +745,31 @@ class ReaderApp extends React.PureComponent {
             // Break if there is no more ref up to do.
             // refUpOne checks if book exists, so code wont go into this if if the book doesn't exist
             if (ref !== refUpOne) {
-              console.warn(`Couldn't find ref. Removing last part of ref and trying again\nNew ref: ${refUpOne}. Old ref: ${ref}.`)
+              // Record navigation failure to Crashlytics with detailed diagnostics
+              // Create an error to capture full stack trace
+              const navigationError = new Error(`Navigation Failure: Ref resolution fallback needed`);
+              
+              // Set attributes for easier filtering/analysis in Crashlytics dashboard
+              crashlytics().setAttribute('original_ref', ref);
+              crashlytics().setAttribute('fallback_ref', refUpOne);
+              crashlytics().setAttribute('num_tries', `${numTries + 1}`);
+              
+              // If we have book structure data, include that too
+              if (Sefaria.index(Sefaria.textTitleForRef(ref))) {
+                const bookData = Sefaria.index(Sefaria.textTitleForRef(ref));
+                console.log(`Book Data. Schema and Categories: ${JSON.stringify({
+                  schema: bookData.schema,
+                  categories: bookData.categories,
+                })}`)
+                crashlytics().setAttribute('book_structure', JSON.stringify({
+                  schema: bookData.schema,
+                  categories: bookData.categories,
+                }));
+              }
+              
+              // Record the error with detailed message
+              crashlytics().recordError(navigationError);
+              
               this.loadNewText({ ref: refUpOne, versions, isLoadingVersion, numTries: numTries + 1 }).then(resolve);
             } else {
               this.openTextTocDirectly(Sefaria.textTitleForRef(ref));
