@@ -738,7 +738,7 @@ class ReaderApp extends React.PureComponent {
             resolve();
         }).catch(error => {
           console.log(`Dealing with error: ${error}. Ref: ${ref}`);
-          if (error == "Return to Nav") {
+          if (error === "Return to Nav") {
             // In case of unfound ref, try going one ref up (up to the book) before dealing with error by returning to nav.
             // We do this to avoid failing in case of ref to a non existent ref after a changing index of a book.
             const refUpOne = Sefaria.refUpOne(ref, true);
@@ -899,7 +899,7 @@ class ReaderApp extends React.PureComponent {
       // shouldCull: bool, if True, remove either first or last section (depending on `direction`)
       if (direction === "next" && this.state.next) {
           this.updateDataNext();
-      } else if (direction == "prev" && this.state.prev) {
+      } else if (direction === "prev" && this.state.prev) {
           this.updateDataPrev();
       }
   };
@@ -1427,7 +1427,7 @@ class ReaderApp extends React.PureComponent {
       let nextRefList = [];
       let nextHeRefList = [];
       for (let cat of linkSummary) {
-          if (cat.category == name) {
+          if (cat.category === name) {
             nextRefList = cat.refList;
             nextHeRefList = cat.heRefList;
             break;
