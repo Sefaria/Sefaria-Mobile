@@ -742,13 +742,53 @@ class ReaderApp extends React.PureComponent {
             // In case of unfound ref, try going one ref up (up to the book) before dealing with error by returning to nav.
             // We do this to avoid failing in case of ref to a non existent ref after a changing index of a book.
             const refUpOne = Sefaria.refUpOne(ref, true);
+
             // Break if there is no more ref up to do.
             // refUpOne checks if book exists, so code wont go into this if if the book doesn't exist
             if (ref !== refUpOne) {
-              console.warn(`Couldn't find ref. Removing last part of ref and trying again\nNew ref: ${refUpOne}. Old ref: ${ref}.`)
+              // Record navigation failure to Crashlytics with detailed diagnostics
+              // Create an error to capture full stack trace
+              const navigationError = new Error(`Navigation Failure: Ref resolution fallback needed`);
+
+              // Set attributes for easier filtering/analysis in Crashlytics dashboard
+              const bookTitle = Sefaria.textTitleForRef(ref)
+              crashlytics().setAttribute('original_ref', ref);
+              crashlytics().setAttribute('fallback_ref', refUpOne);
+              crashlytics().setAttribute('num_tries', `${numTries + 1}`);
+              crashlytics().setAttribute('title', `${bookTitle}`);
+              
+              // Record the error with detailed message
+              crashlytics().recordError(navigationError);
+              // Also log error for debugging
+              console.log(`[CRASHLYTICS] Recording navigation fallback error:
+              - Error: Navigation Failure: Ref resolution fallback needed
+              - Original ref: ${ref}
+              - Fallback ref: ${refUpOne}
+              - Num tries: ${numTries + 1}
+              - title: ${bookTitle}`);
+
               this.loadNewText({ ref: refUpOne, versions, isLoadingVersion, numTries: numTries + 1 }).then(resolve);
             } else {
-              this.openTextTocDirectly(Sefaria.textTitleForRef(ref));
+              // Record navigation terminal failure to Crashlytics
+              const terminalError = new Error(`Navigation Terminal Failure: Cannot resolve ref`);
+              
+              // Set attributes for easier filtering/analysis in Crashlytics dashboard
+              crashlytics().setAttribute('terminal_ref', ref);
+              crashlytics().setAttribute('num_tries', `${numTries}`);
+              const bookTitle = Sefaria.textTitleForRef(ref);
+              if (bookTitle) {
+                crashlytics().setAttribute('title', bookTitle);
+              }
+              
+              // Record the error
+              crashlytics().recordError(terminalError);
+              console.log(`[CRASHLYTICS] Recording terminal navigation failure:
+              - Error: Navigation Terminal Failure: Cannot resolve ref further
+              - Terminal ref: ${ref}
+              - Num tries: ${numTries}
+              - Title: ${bookTitle || 'unknown'}`);
+              
+              this.openTextTocDirectly(bookTitle);
               // Pop up here because we silence the error in Sefaria.api._request to avoid uneeded popups during the recursive refUpone call.
               this.textUnavailableAlert(ref)
             }
