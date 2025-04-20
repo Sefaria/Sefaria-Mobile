@@ -61,6 +61,7 @@ import {Dedication} from  "./Dedication"
 import {
   Tracker as DownloadTracker,
 } from "./DownloadControl.js"
+import CrashlyticsService from "./crashlyticsService"
 
 
 
@@ -746,47 +747,36 @@ class ReaderApp extends React.PureComponent {
             // Break if there is no more ref up to do.
             // refUpOne checks if book exists, so code wont go into this if if the book doesn't exist
             if (ref !== refUpOne) {
-              // Record navigation failure to Crashlytics with detailed diagnostics
-              // Create an error to capture full stack trace
-              const navigationError = new Error(`Navigation Failure: Ref resolution fallback needed`);
+              // Record navigation failure to Crashlytics
+              const navigationError = new Error('Navigation Failure: Ref resolution fallback needed');
 
-              // Set attributes for easier filtering/analysis in Crashlytics dashboard
-              const bookTitle = Sefaria.textTitleForRef(ref)
-              crashlytics().setAttribute('original_ref', ref);
-              crashlytics().setAttribute('fallback_ref', refUpOne);
-              crashlytics().setAttribute('num_tries', `${numTries + 1}`);
-              crashlytics().setAttribute('title', `${bookTitle}`);
-              
-              // Record the error with detailed message
-              crashlytics().recordError(navigationError);
-              // Also log error for debugging
-              console.log(`[CRASHLYTICS] Recording navigation fallback error:
-              - Error: Navigation Failure: Ref resolution fallback needed
-              - Original ref: ${ref}
-              - Fallback ref: ${refUpOne}
-              - Num tries: ${numTries + 1}
-              - title: ${bookTitle}`);
+              // Set attributes for Crashlytics 
+              const bookTitle = Sefaria.textTitleForRef(ref);
+              const attributes = {
+                'original_ref': ref,
+                'fallback_ref': refUpOne,
+                'num_tries': `${numTries + 1}`,
+                'title': bookTitle
+              };
+
+              // Record the error with detailed message and attributes
+              CrashlyticsService.recordError(navigationError, attributes, true);
 
               this.loadNewText({ ref: refUpOne, versions, isLoadingVersion, numTries: numTries + 1 }).then(resolve);
             } else {
-              // Record navigation terminal failure to Crashlytics
-              const terminalError = new Error(`Navigation Terminal Failure: Cannot resolve ref`);
-              
-              // Set attributes for easier filtering/analysis in Crashlytics dashboard
-              crashlytics().setAttribute('terminal_ref', ref);
-              crashlytics().setAttribute('num_tries', `${numTries}`);
+              // Create an error object to capture stack trace at this location
+              const terminalError = new Error('Navigation Terminal Failure: Cannot resolve ref');
+
+              // Set attributes for easier filtering/analysis
               const bookTitle = Sefaria.textTitleForRef(ref);
-              if (bookTitle) {
-                crashlytics().setAttribute('title', bookTitle);
-              }
-              
-              // Record the error
-              crashlytics().recordError(terminalError);
-              console.log(`[CRASHLYTICS] Recording terminal navigation failure:
-              - Error: Navigation Terminal Failure: Cannot resolve ref further
-              - Terminal ref: ${ref}
-              - Num tries: ${numTries}
-              - Title: ${bookTitle || 'unknown'}`);
+              const attributes = {
+                'terminal_ref': ref,
+                'num_tries': `${numTries}`,
+                'title': bookTitle
+              };
+
+              // Record the error with attributes and minimal logging
+              CrashlyticsService.recordError(terminalError, attributes, true);
               
               this.openTextTocDirectly(bookTitle);
               // Pop up here because we silence the error in Sefaria.api._request to avoid uneeded popups during the recursive refUpone call.
