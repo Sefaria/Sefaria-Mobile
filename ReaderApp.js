@@ -62,6 +62,7 @@ import {
   Tracker as DownloadTracker,
 } from "./DownloadControl.js"
 import CrashlyticsService from "./crashlyticsService"
+import {getOfflineBookStructure} from "./offline";
 
 
 
@@ -667,6 +668,17 @@ class ReaderApp extends React.PureComponent {
   loadNewText = ({ ref, versions, isLoadingVersion = false, numTries = 0 }) => {
     // Open ranged refs to their first segment (not ideal behavior, but good enough for now)
     ref = ref.indexOf("-") !== -1 ? ref.split("-")[0] : ref;
+
+    // TODO remove - temp for finding offline book structure
+    const bookTitle = Sefaria.textTitleForRef(ref);
+    if (bookTitle){
+      getOfflineBookStructure(ref).then(struct => {
+      console.dir(struct, { depth: null });
+      })
+    } else {
+      console.log(`No book title found`);
+    }
+
     return new Promise((resolve, reject) => {
       this.setState({
           loaded: false,
@@ -682,6 +694,7 @@ class ReaderApp extends React.PureComponent {
           textToc: null,
       },
       () => {
+
         Sefaria.offlineOnline.loadText(ref, true, versions, !this.state.hasInternet, true).then(data => { // Silencing the popup on failed Sefaria.api._requests and creating a new pop up if an error arises
             // debugger;
                 // if specific versions were requested, but no content exists for those versions, try again with default versions

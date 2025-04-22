@@ -5,21 +5,22 @@ import { unzip } from 'react-native-zip-archive';
 import LinkContent from './LinkContent';
 import {ERRORS} from "./errors";
 import {loadJSONFile} from "./DownloadControl";
-import {
-    fileExists
-} from './DownloadControl'
+import {fileExists} from './DownloadControl';
 
 /*
 PUBLIC INTERFACE
  */
 
 export const loadTextOffline = async function(ref, context, versions, fallbackOnDefaultVersions) {
+    
     const sectionData = await loadOfflineSectionCompat(ref, versions, fallbackOnDefaultVersions);
     const processed = processFileData(ref, sectionData);
+    
     if (context) {
         return processed;
     }
-    return {result: textFromRefData(processed)};
+    const finalText = textFromRefData(processed);
+    return {result: finalText};
 };
 
 export const getAllTranslationsOffline = async function (ref, context=true) {
@@ -54,7 +55,7 @@ export const getAllTranslationsOffline = async function (ref, context=true) {
 
 export const loadTextTocOffline = function(title) {
     return _loadJSON(_JSONSourcePath(title + "_index"));
-}
+};
 
 export const getOfflineVersionObjectsAvailable = function(ref) {
     /**
@@ -128,6 +129,50 @@ export const openFileInSources = async function(filename) {
     return fileData;
 };
 
+
+export async function getOfflineBookStructure(ref) {
+    /**
+         * Function returned a stripped version of the schema of a book in the given ref
+         * The data is taken from the index in the offline data
+         * 
+         * @param {string}  ref  – ref for which we will get the structure of the book
+         * @returns {object|null} - Books structure
+     */
+    
+    // TODO: catch errors, clean, etc'
+
+    console.log(`🔍  getBookStructure("${ref}")`);
+    var title  = Sefaria.textTitleForRef(ref);
+
+    if (!await hasOfflineBookIndex(title)) {
+        console.log(`Book doesn't exist offline`);
+        return null;
+    } else {
+        let toc;
+        try {
+            await loadOfflineSectionCompat(ref, undefined, undefined, true); // Here to make sure the title is unziped to a json so _loadJSON will work
+            toc = await loadTextTocOffline(title);
+        } catch (err) {
+            console.log('❌  loadTextTocOffline threw:', err);
+            return null;
+        }
+
+        if (!toc) {
+            console.log('⚠️  loadTextTocOffline returned null/undefined for', title);
+            return null;
+        }
+        if (!toc.schema) {
+            console.log('⚠️  No schema field on TOC for', title);
+            return null;
+        }
+        console.log(`🔍  Found TOC. Schema: ${Object.keys(toc.schema)}`);
+        cleanedSchema = cleanSchemaFields(toc.schema) //TODO - Check also on complex objs
+        // console.log(`Cleaned Schema: ${JSON.stringify(cleanedSchema)}`);
+        return cleanedSchema
+    }
+};
+
+
 /*
 PRIVATE INTERFACE
  */
@@ -183,12 +228,12 @@ const getOfflineSectionKey = function(ref, versions) {
     return `${ref}|${Object.entries(versions).join(',')}`;
 };
 
-const loadOfflineSectionCompat = async function(ref, versions, fallbackOnDefaultVersions=true) {
+const loadOfflineSectionCompat = async function(ref, versions, fallbackOnDefaultVersions=true, debug=false) {
     /**
      * v6 compatibility code
      */
     try {
-        return await loadOfflineSection(ref, versions, fallbackOnDefaultVersions);
+        return await loadOfflineSection(ref, versions, fallbackOnDefaultVersions, debug);
     } catch(error) {
         if (error === ERRORS.OFFLINE_LIBRARY_NOT_COMPATIBLE_WITH_V7) {
             return await loadOfflineSectionV6(ref, versions);
@@ -250,7 +295,7 @@ const loadOfflineSectionV6 = async function(ref, versions) {
     }
 };
 
-const loadOfflineSection = async function(ref, versions, fallbackOnDefaultVersions=true) {
+const loadOfflineSection = async function(ref, versions, fallbackOnDefaultVersions=true, debug=false) {
     /**
      * ref can be a segment or section ref, and it will load the section
      */
@@ -259,8 +304,14 @@ const loadOfflineSection = async function(ref, versions, fallbackOnDefaultVersio
         throw ERRORS.MISSING_OFFLINE_DATA;
     }
     const offlineSectionKey = getOfflineSectionKey(ref, versions);
+    if (debug){
+        console.log(`Loading from JSON: ${offlineSectionKey}`);
+    }
     const cached = Sefaria._jsonSectionData[offlineSectionKey];
     if (cached) {
+        if (debug){
+            console.log(`Data was cashed`);
+        }
         return cached;
     }
     const [metadata, fileNameStem] = await loadOfflineSectionMetadataWithCache(ref);
@@ -497,3 +548,30 @@ const processFileData = function(ref, data) {
     Sefaria.cacheVersionsAvailableBySection(data.sectionRef, data.versions);
     return data;
 };
+
+
+/**
+ * Returns true if we have an unpacked index JSON or a ZIP for this book.
+ */
+export async function hasOfflineBookIndex(ref) {
+  const title = Sefaria.textTitleForRef(ref);
+  const indexJsonPath = `${FileSystem.documentDirectory}/${encodeURIComponent(title)}_index.json`;
+  const indexZipPath  = `${FileSystem.documentDirectory}/library/${encodeURIComponent(title)}.zip`;
+
+  // If the JSON is already unpacked, great.
+  if (await fileExists(indexJsonPath)) return true;
+
+  // Otherwise, check for a ZIP we could unzip on‑demand.
+  return await fileExists(indexZipPath);
+}
+
+function cleanSchemaFields(schemaJson) {
+    const copy = { ...schemaJson };
+    delete copy.content_counts;
+    delete copy.match_templates;
+    delete copy.titles;
+    delete copy.title;
+    delete copy.heTitle;
+    return copy;
+}
+  

@@ -1,6 +1,8 @@
 // src/services/analytics/crashlyticsService.js
 import crashlytics from '@react-native-firebase/crashlytics';
 
+// TODO add check if there is offline data and what version it is (DownloadControl.lastUpdated())
+
 /**
  * CrashlyticsService
  * 
