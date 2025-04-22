@@ -673,8 +673,11 @@ class ReaderApp extends React.PureComponent {
     const bookTitle = Sefaria.textTitleForRef(ref);
     if (bookTitle){
       getOfflineBookStructure(ref).then(struct => {
-      console.dir(struct, { depth: null });
-      })
+      console.log(`Got book structure:`);
+      console.log(`${Object.keys(struct)}`);
+      console.log(`${JSON.stringify(struct)}`);
+      console.dir(struct, { depth: 3 });
+      });
     } else {
       console.log(`No book title found`);
     }

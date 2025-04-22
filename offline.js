@@ -166,7 +166,7 @@ export async function getOfflineBookStructure(ref) {
             return null;
         }
         console.log(`🔍  Found TOC. Schema: ${Object.keys(toc.schema)}`);
-        cleanedSchema = cleanSchemaFields(toc.schema) //TODO - Check also on complex objs
+        cleanedSchema = cleanSchemaFields(toc.schema) //TODO - Check also on complex objs + move to the calling func.
         // console.log(`Cleaned Schema: ${JSON.stringify(cleanedSchema)}`);
         return cleanedSchema
     }
@@ -563,15 +563,23 @@ export async function hasOfflineBookIndex(ref) {
 
   // Otherwise, check for a ZIP we could unzip on‑demand.
   return await fileExists(indexZipPath);
-}
+};
 
-function cleanSchemaFields(schemaJson) {
-    const copy = { ...schemaJson };
-    delete copy.content_counts;
-    delete copy.match_templates;
-    delete copy.titles;
-    delete copy.title;
-    delete copy.heTitle;
-    return copy;
-}
-  
+
+/**
+ * Removes specified fields from a schema object by creating a clean copy.
+ * @param {Object} schema - The schema object to clean
+ * @param {Set<string>} [removeKeys=new Set(['content_counts', 'match_templates', 'titles', 'title', 'heTitle', 'heSectionNames'])] - Set of keys to remove
+ * @returns {Object} A new schema object with specified fields removed
+ */
+function cleanSchemaFields(schema, removeKeys = new Set([
+    'content_counts', 'match_templates', 'titles', 
+    'title', 'heTitle', 'heSectionNames'
+])) {
+    // Use a replacer function with JSON.stringify
+    return JSON.parse(
+        JSON.stringify(schema, (key, value) => 
+            removeKeys.has(key) ? undefined : value
+        )
+    );
+};
