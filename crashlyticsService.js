@@ -2,6 +2,8 @@
 import crashlytics from '@react-native-firebase/crashlytics';
 import { hasOfflineTitle, getOfflineTitleIndex, undefined } from './offline';
 
+import { lastUpdated } from './DownloadControl';
+
 /**
  * CrashlyticsService
  * 
@@ -49,6 +51,20 @@ const CrashlyticsService = {
  * @returns {Promise<void>}
  */
 async function _enrichAttributes(attributes) {
+    // 1. Pull in the latest offline-update JSON
+    try {
+      const offlineDataSchemaVersion = await _getLatestOfflineUpdate();
+      if (offlineDataSchemaVersion) {
+        attributes.offlineDataSchemaVersion = offlineDataSchemaVersion;
+      } else {
+        attributes.offlineDataSchemaVersion = "Couldn't load offlineDataSchemaVersion";
+      }
+    } catch (e) {
+      console.error('Failed to retrieve offline schema version:', e);
+      attributes.offlineDataSchemaVersion = `Error while loading offlineDataSchemaVersion. Message: ${e}`;
+    }
+
+  // 2. Enrich with info about offline title - if there is a 'ref' attribute allready in the attributes
   if (attributes.ref) {
     try {
       const ref = attributes.ref;
@@ -57,7 +73,6 @@ async function _enrichAttributes(attributes) {
 
       // If title is available offline, get its structure
       if (isTitleSavedOffline) {
-        console.log(`Temp. crashlytics call, isTitleSavedOffline: ${isTitleSavedOffline}`);
         const offlineIndex = await getOfflineTitleIndex(ref);
         if (offlineIndex) {
           const simplifiedOfflineIndex = _simplifyIndex(offlineIndex)
@@ -85,6 +100,16 @@ function _simplifyIndex(schema, removeKeys = new Set([
         JSON.stringify(schema, (key, value) => removeKeys.has(key) ? undefined : value
         )
     );
+};
+
+/**
+ * Retreave the version of the offline schema
+ * @returns {string} the version number
+ */
+async function _getLatestOfflineUpdate() {
+  const lastUpdateJSON = await lastUpdated();
+  const offlineSchemaVersion = JSON.stringify(lastUpdateJSON.schema_version)
+  return offlineSchemaVersion;
 };
 
 export default CrashlyticsService;
