@@ -130,45 +130,38 @@ export const openFileInSources = async function(filename) {
 };
 
 
-export async function getOfflineBookStructure(ref) {
+export async function getOfflineBookIndex(ref) {
     /**
-         * Function returned a stripped version of the schema of a book in the given ref
+         * Function returned the index of a book in the given ref
          * The data is taken from the index in the offline data
          * 
-         * @param {string}  ref  – ref for which we will get the structure of the book
-         * @returns {object|null} - Books structure
+         * @param {string}  ref  – ref for which we will get the book index
+         * @returns {object|null} - Offline books index
      */
     
     // TODO: catch errors, clean, etc'
+    let title  = Sefaria.textTitleForRef(ref);
 
-    console.log(`🔍  getBookStructure("${ref}")`);
-    var title  = Sefaria.textTitleForRef(ref);
-
-    if (!await hasOfflineBookIndex(title)) {
-        console.log(`Book doesn't exist offline`);
-        return null;
-    } else {
-        let toc;
-        try {
-            await loadOfflineSectionCompat(ref, undefined, undefined, true); // Here to make sure the title is unziped to a json so _loadJSON will work
-            toc = await loadTextTocOffline(title);
-        } catch (err) {
-            console.log('❌  loadTextTocOffline threw:', err);
+    try {
+        if (!await hasOfflineBookIndex(title)) {
             return null;
-        }
+        } else {
+            await loadOfflineSectionCompat(ref, undefined, undefined, true); // Makes sure the title is unziped to a json so _loadJSON will work
+            let toc = await loadTextTocOffline(title);
 
         if (!toc) {
-            console.log('⚠️  loadTextTocOffline returned null/undefined for', title);
+            console.error('loadTextTocOffline returned null/undefined for', title);
             return null;
         }
         if (!toc.schema) {
-            console.log('⚠️  No schema field on TOC for', title);
+            console.error('No schema field on index when loading with loadTextTocOffline for', title);
             return null;
         }
-        console.log(`🔍  Found TOC. Schema: ${Object.keys(toc.schema)}`);
-        cleanedSchema = cleanSchemaFields(toc.schema) //TODO - Check also on complex objs + move to the calling func.
-        // console.log(`Cleaned Schema: ${JSON.stringify(cleanedSchema)}`);
-        return cleanedSchema
+        return toc.schema
+    } 
+    } catch (err) {
+        console.error('Error loading offline index. Message:', err);
+        return null;
     }
 };
 
@@ -566,20 +559,4 @@ export async function hasOfflineBookIndex(ref) {
 };
 
 
-/**
- * Removes specified fields from a schema object by creating a clean copy.
- * @param {Object} schema - The schema object to clean
- * @param {Set<string>} [removeKeys=new Set(['content_counts', 'match_templates', 'titles', 'title', 'heTitle', 'heSectionNames'])] - Set of keys to remove
- * @returns {Object} A new schema object with specified fields removed
- */
-function cleanSchemaFields(schema, removeKeys = new Set([
-    'content_counts', 'match_templates', 'titles', 
-    'title', 'heTitle', 'heSectionNames'
-])) {
-    // Use a replacer function with JSON.stringify
-    return JSON.parse(
-        JSON.stringify(schema, (key, value) => 
-            removeKeys.has(key) ? undefined : value
-        )
-    );
-};
+
