@@ -1,6 +1,6 @@
 // src/services/analytics/crashlyticsService.js
 import crashlytics from '@react-native-firebase/crashlytics';
-import { hasOfflineTitle, getOfflineTitleIndex } from './offline';
+import { hasOfflineTitle, getOffli_geOfflineSchemaVersionneTitleIndex } from './offline';
 
 import { lastUpdated } from './DownloadControl';
 
@@ -53,11 +53,11 @@ const CrashlyticsService = {
 async function _enrichAttributes(attributes) {
     // 1. Pull in the latest offline-update JSON
     try {
-      const offlineDataSchemaVersion = await _getLatestOfflineUpdate();
+      const offlineDataSchemaVersion = await _getOfflineSchemaVersion();
       if (offlineDataSchemaVersion) {
         attributes.offlineDataSchemaVersion = offlineDataSchemaVersion;
       } else {
-        attributes.offlineDataSchemaVersion = "Couldn't load offlineDataSchemaVersion";
+        attributes.offlineDataSchemaVersion = "Couldn't find schema, offline library likely never downloaded";
       }
     } catch (e) {
       console.error('Failed to retrieve offline schema version:', e);
@@ -85,17 +85,27 @@ async function _enrichAttributes(attributes) {
   }
 };
 
+
+/**
+ * Default set of keys to strip out of an index schema
+ * @constant {Set<string>}
+ */
+const defaultKeysToRemoveFromIndex = new Set([
+  'content_counts',
+  'match_templates',
+  'titles',
+  'title',
+  'heTitle',
+  'heSectionNames',
+]);
 /**
    * Removes specified fields from a schema object by creating a clean copy.
    * @param {Object} schema - The schema object to clean
-   * @param {Set<string>} [removeKeys=new Set(['content_counts', 'match_templates', 'titles', 'title', 'heTitle', 'heSectionNames'])] - Set of keys to remove
+   * @param {Set<string>} [removeKeys=defaultKeysToRemoveFromIndex] - Set of keys to remove
    * @returns {Object} A new schema object with specified fields removed
  */
-function _simplifyIndex(schema, removeKeys = new Set([
-    'content_counts', 'match_templates', 'titles',
-    'title', 'heTitle', 'heSectionNames'
-    ])){
-    // Use a replacer function with JSON.stringify
+function _simplifyIndex(schema, removeKeys = defaultKeysToRemoveFromIndex){
+    // Utilising a built in function of JSON.stringify to do the deep removal of keys
     return JSON.parse(
         JSON.stringify(schema, (key, value) => removeKeys.has(key) ? undefined : value
         )
@@ -103,17 +113,18 @@ function _simplifyIndex(schema, removeKeys = new Set([
 };
 
 /**
- * Retreave the version of the offline schema
+ * Retrieve the version of the offline schema
  * @returns {string} the version number. Returns null if not found.
  */
-async function _getLatestOfflineUpdate() {
-  const lastUpdateJSON = await lastUpdated();
-  if (lastUpdateJSON.schema_version){
-    const offlineSchemaVersion = lastUpdateJSON.schema_version;
-    return offlineSchemaVersion;
-  } else {
-    return null
+async function _getOfflineSchemaVersion() {
+    const lastUpdateJSON = await lastUpdated();
+    
+  // Check if lastUpdateJSON is empty or doesn't have schema_version
+  if (!lastUpdateJSON || Object.keys(lastUpdateJSON).length === 0 || !lastUpdateJSON.schema_version) {
+      return null;
+    }
+    
+    return lastUpdateJSON.schema_version;
   }
-};
 
 export default CrashlyticsService;
