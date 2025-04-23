@@ -1,6 +1,6 @@
 // src/services/analytics/crashlyticsService.js
 import crashlytics from '@react-native-firebase/crashlytics';
-import { hasOfflineTitle, getOfflineTitleIndex, undefined } from './offline';
+import { hasOfflineTitle, getOfflineTitleIndex } from './offline';
 
 import { lastUpdated } from './DownloadControl';
 
@@ -104,12 +104,16 @@ function _simplifyIndex(schema, removeKeys = new Set([
 
 /**
  * Retreave the version of the offline schema
- * @returns {string} the version number
+ * @returns {string} the version number. Returns null if not found.
  */
 async function _getLatestOfflineUpdate() {
   const lastUpdateJSON = await lastUpdated();
-  const offlineSchemaVersion = JSON.stringify(lastUpdateJSON.schema_version)
-  return offlineSchemaVersion;
+  if (lastUpdateJSON.schema_version){
+    const offlineSchemaVersion = lastUpdateJSON.schema_version;
+    return offlineSchemaVersion;
+  } else {
+    return null
+  }
 };
 
 export default CrashlyticsService;
