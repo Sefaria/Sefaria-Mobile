@@ -139,7 +139,6 @@ export async function getOfflineBookIndex(ref) {
          * @returns {object|null} - Offline books index
      */
     
-    // TODO: catch errors, clean, etc'
     let title  = Sefaria.textTitleForRef(ref);
 
     try {
