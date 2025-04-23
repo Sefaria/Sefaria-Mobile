@@ -19,7 +19,6 @@ import {
 } from 'react-native';
 import NetInfo from "@react-native-community/netinfo";
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {State } from 'react-native-gesture-handler';
 //import --- from 'react-native-gesture-handler';
 import BackgroundFetch from "react-native-background-fetch";
 import { InAppBrowser } from 'react-native-inappbrowser-reborn';
@@ -28,7 +27,6 @@ import nextFrame from 'next-frame';
 import RNShake from 'react-native-shake';
 import SoundPlayer from 'react-native-sound-player'
 import { SearchState } from '@sefaria/search';
-
 import { STATE_ACTIONS } from './StateManager';
 import ReaderAppContext from './context';
 import ReaderControls from './ReaderControls';
@@ -48,7 +46,6 @@ import SettingsPage from './SettingsPage';
 import {AccountNavigationMenu} from "./AccountNavigationMenu";
 import InterruptingMessage from './InterruptingMessage';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import SwipeableCategoryList from './SwipeableCategoryList';
 import Toast from 'react-native-root-toast';
 import { TabHistory, TabMetadata } from './PageHistory';
 import ReaderNavigationSheetList from "./ReaderNavigationSheetList";
@@ -62,10 +59,6 @@ import {
   Tracker as DownloadTracker,
 } from "./DownloadControl.js"
 import CrashlyticsService from "./crashlyticsService"
-import {getOfflineBookStructure} from "./offline";
-
-
-
 import {
   LoadingView,
   CategoryColorLine,
@@ -73,8 +66,8 @@ import {
   ConditionalProgressWrapper,
 } from './Misc.js';
 import {FooterTabBar} from "./FooterTabBar";
-import {iconData} from "./IconData";
 import {getSafeViewStyleAndStatusBarBackground} from "./getSafeViewStyles";
+
 const ViewPort    = Dimensions.get('window');
 
 class ReaderApp extends React.PureComponent {
@@ -669,19 +662,7 @@ class ReaderApp extends React.PureComponent {
     // Open ranged refs to their first segment (not ideal behavior, but good enough for now)
     ref = ref.indexOf("-") !== -1 ? ref.split("-")[0] : ref;
 
-    // TODO remove - temp for finding offline book structure
-    const bookTitle = Sefaria.textTitleForRef(ref);
-    if (bookTitle){
-      getOfflineBookStructure(ref).then(struct => {
-      console.log(`Got book structure:`);
-      console.log(`${Object.keys(struct)}`);
-      console.log(`${JSON.stringify(struct)}`);
-      console.dir(struct, { depth: 3 });
-      });
-    } else {
-      console.log(`No book title found`);
-    }
-
+    // Clear the current state, load ref, then load text into the state.
     return new Promise((resolve, reject) => {
       this.setState({
           loaded: false,
@@ -698,7 +679,7 @@ class ReaderApp extends React.PureComponent {
       },
       () => {
 
-        Sefaria.offlineOnline.loadText(ref, true, versions, !this.state.hasInternet, true).then(data => { // Silencing the popup on failed Sefaria.api._requests and creating a new pop up if an error arises
+        Sefaria.offlineOnline.loadText(ref, true, versions, !this.state.hasInternet, true).then(data => { // Silencing the popup on failed Sefaria.api _requests and creating a new pop up if an error arises
             // debugger;
                 // if specific versions were requested, but no content exists for those versions, try again with default versions
             if (Sefaria.util.objectHasNonNullValues(data.nonExistantVersions) ||
@@ -770,7 +751,7 @@ class ReaderApp extends React.PureComponent {
               const bookTitle = Sefaria.textTitleForRef(ref);
               const attributes = {
                 'original_ref': ref,
-                'fallback_ref': refUpOne,
+                'ref': refUpOne,
                 'num_tries': `${numTries + 1}`,
                 'title': bookTitle
               };
@@ -786,7 +767,7 @@ class ReaderApp extends React.PureComponent {
               // Set attributes for easier filtering/analysis
               const bookTitle = Sefaria.textTitleForRef(ref);
               const attributes = {
-                'terminal_ref': ref,
+                'ref': ref,
                 'num_tries': `${numTries}`,
                 'title': bookTitle
               };
