@@ -145,7 +145,7 @@ export async function getOfflineBookIndex(ref) {
         if (!await hasOfflineBook(title)) {
             return null;
         } else {
-            await loadOfflineSectionCompat(ref, undefined, undefined, true); // Makes sure the title is unziped to a json
+            await loadOfflineSectionCompat(ref, undefined, undefined); // Makes sure the title is unziped to a json
             let toc = await loadTextTocOffline(title);
         if (!toc) {
             console.error('loadTextTocOffline returned null/undefined for', title);
@@ -219,12 +219,12 @@ const getOfflineSectionKey = function(ref, versions) {
     return `${ref}|${Object.entries(versions).join(',')}`;
 };
 
-const loadOfflineSectionCompat = async function(ref, versions, fallbackOnDefaultVersions=true, debug=false) {
+const loadOfflineSectionCompat = async function(ref, versions, fallbackOnDefaultVersions=true) {
     /**
      * v6 compatibility code
      */
     try {
-        return await loadOfflineSection(ref, versions, fallbackOnDefaultVersions, debug);
+        return await loadOfflineSection(ref, versions, fallbackOnDefaultVersions);
     } catch(error) {
         if (error === ERRORS.OFFLINE_LIBRARY_NOT_COMPATIBLE_WITH_V7) {
             return await loadOfflineSectionV6(ref, versions);
@@ -286,7 +286,7 @@ const loadOfflineSectionV6 = async function(ref, versions) {
     }
 };
 
-const loadOfflineSection = async function(ref, versions, fallbackOnDefaultVersions=true, debug=false) {
+const loadOfflineSection = async function(ref, versions, fallbackOnDefaultVersions=true) {
     /**
      * ref can be a segment or section ref, and it will load the section
      */
@@ -295,9 +295,6 @@ const loadOfflineSection = async function(ref, versions, fallbackOnDefaultVersio
         throw ERRORS.MISSING_OFFLINE_DATA;
     }
     const offlineSectionKey = getOfflineSectionKey(ref, versions);
-    if (debug){
-        console.log(`Loading from JSON: ${offlineSectionKey}`);
-    }
     const cached = Sefaria._jsonSectionData[offlineSectionKey];
     if (cached) {
         if (debug){
