@@ -309,7 +309,6 @@ const loadOfflineSection = async function(ref, versions, fallbackOnDefaultVersio
     /**
      * ref can be a segment or section ref, and it will load the section
      */
-    console.log(`Starting loadOfflineSection. ref: ${ref}`);
     versions = versions || {};
     if (shouldLoadFromApi()) {
         throw ERRORS.MISSING_OFFLINE_DATA;
