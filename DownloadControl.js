@@ -1184,5 +1184,6 @@ export {
   isDownloadAllowed,
   requestNewBundle,
   fileExists,
+  lastUpdated,
   simpleDelete,
 };
