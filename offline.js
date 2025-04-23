@@ -130,14 +130,14 @@ export const openFileInSources = async function(filename) {
 };
 
 
+/**
+     * Function returned the index of a book in the given ref
+     * The data is taken from the index in the offline data
+     * 
+     * @param {string}  ref  – ref for which we will get the book index - This can be a broken ref (used in crashlytics)
+     * @returns {object|null} - Offline books index
+ */
 export async function getOfflineTitleIndex(ref) {
-    /**
-         * Function returned the index of a book in the given ref
-         * The data is taken from the index in the offline data
-         * 
-         * @param {string}  ref  – ref for which we will get the book index - This can be a broken ref (used in crashlytics)
-         * @returns {object|null} - Offline books index
-     */
 
     
     let title  = Sefaria.textTitleForRef(ref);
@@ -164,19 +164,21 @@ export async function getOfflineTitleIndex(ref) {
 };
 
 /**
- * Returns true if we have an unpacked JSON or a ZIP for this book.
+    * Returns true if we have an unpacked JSON or a ZIP for this book.
+    * 
+    * @param {string}  ref  – ref for which we will check if the title exists offline
+    * @returns {boolean} - If the book exists as a json or zip true, else false
  */
 export async function hasOfflineTitle(ref) {
     const title = Sefaria.textTitleForRef(ref);
-    // TODO use the helper functions to creat these
-    const indexJsonPath = `${FileSystem.documentDirectory}/${encodeURIComponent(title)}_index.json`; // Using index as the check if the book exists unziped
-    const indexZipPath  = `${FileSystem.documentDirectory}/library/${encodeURIComponent(title)}.zip`;
-  
+    const indexJsonPath = _JSONSourcePath(title + "_index");
+    
     // If the JSON is already unpacked, great.
     if (await fileExists(indexJsonPath)) {
         return true;
     };
-
+    
+    const indexZipPath = _zipSourcePath(title);
     // Otherwise, check for a ZIP we could unzip on‑demand.
     return await fileExists(indexZipPath);
 };
