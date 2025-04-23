@@ -114,7 +114,7 @@ function _simplifyIndex(schema, removeKeys = defaultKeysToRemoveFromIndex){
 
 /**
  * Retrieve the version of the offline schema
- * @returns {string} the version number. Returns null if not found.
+ * @returns {Promise<string|null>} the version number. Returns null if not found.
  */
 async function _getOfflineSchemaVersion() {
     const lastUpdateJSON = await lastUpdated();
