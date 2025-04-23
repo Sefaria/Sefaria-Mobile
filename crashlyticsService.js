@@ -1,6 +1,6 @@
 // src/services/analytics/crashlyticsService.js
 import crashlytics from '@react-native-firebase/crashlytics';
-import { hasOfflineBookIndex, getOfflineBookIndex, undefined } from './offline';
+import { hasOfflineBook, getOfflineBookIndex, undefined } from './offline';
 
 // TODO add check if there is offline data and what version it is (DownloadControl.lastUpdated())
 
@@ -54,7 +54,7 @@ async function _enrichAttributes(attributes) {
   if (attributes.ref) {
     try {
       const ref = attributes.ref;
-      const isBookSavedOffline = await hasOfflineBookIndex(ref);
+      const isBookSavedOffline = await hasOfflineBook(ref);
       attributes.isBookSavedOffline = String(isBookSavedOffline);
 
       // If book is available offline, get its structure

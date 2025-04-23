@@ -140,14 +140,13 @@ export async function getOfflineBookIndex(ref) {
      */
     
     let title  = Sefaria.textTitleForRef(ref);
-
+    
     try {
-        if (!await hasOfflineBookIndex(title)) {
+        if (!await hasOfflineBook(title)) {
             return null;
         } else {
-            await loadOfflineSectionCompat(ref, undefined, undefined, true); // Makes sure the title is unziped to a json so _loadJSON will work
+            await loadOfflineSectionCompat(ref, undefined, undefined, true); // Makes sure the title is unziped to a json
             let toc = await loadTextTocOffline(title);
-
         if (!toc) {
             console.error('loadTextTocOffline returned null/undefined for', title);
             return null;
@@ -543,11 +542,11 @@ const processFileData = function(ref, data) {
 
 
 /**
- * Returns true if we have an unpacked index JSON or a ZIP for this book.
+ * Returns true if we have an unpacked JSON or a ZIP for this book.
  */
-export async function hasOfflineBookIndex(ref) {
+export async function hasOfflineBook(ref) {
   const title = Sefaria.textTitleForRef(ref);
-  const indexJsonPath = `${FileSystem.documentDirectory}/${encodeURIComponent(title)}_index.json`;
+  const indexJsonPath = `${FileSystem.documentDirectory}/${encodeURIComponent(title)}_index.json`; // Using index as the check if the book exists unziped
   const indexZipPath  = `${FileSystem.documentDirectory}/library/${encodeURIComponent(title)}.zip`;
 
   // If the JSON is already unpacked, great.
