@@ -1,8 +1,6 @@
 // src/services/analytics/crashlyticsService.js
 import crashlytics from '@react-native-firebase/crashlytics';
-import { hasOfflineBook, getOfflineBookIndex, undefined } from './offline';
-
-// TODO add check if there is offline data and what version it is (DownloadControl.lastUpdated())
+import { hasOfflineTitle, getOfflineTitleIndex, undefined } from './offline';
 
 /**
  * CrashlyticsService
@@ -14,7 +12,7 @@ const CrashlyticsService = {
   /**
    * Records an error to Firebase Crashlytics with optional context attributes.
    * The function enriches data where relevant:
-   * - If you have a ref it will check if the book is downloaded and return a striped version of the downloaded index
+   * - If you have a ref it will check if the title is downloaded and return a striped version of the downloaded index
    * 
    * @param {Error|string} error - The error to record. Can be an Error object (to log the stack) or error message string.
    * @param {Object} attributes - Key-value pairs of additional context to attach to the error.
@@ -25,7 +23,7 @@ const CrashlyticsService = {
     // Accept an actual Error object or create one
     const errorToRecord = error instanceof Error ? error : new Error(error);
     
-    // Enrich with offline book information if a ref is provided
+    // Enrich with offline title information if a ref is provided
     await _enrichAttributes(attributes);
     
     // Set attributes
@@ -46,7 +44,7 @@ const CrashlyticsService = {
 };
 
 /**
- * Enriches the attributes object (in-place) with offline‑book info
+ * Enriches the attributes object (in-place) with offline‑title info
  * @param {{ ref?: string, [key: string]: any }} attributes
  * @returns {Promise<void>}
  */
@@ -54,19 +52,20 @@ async function _enrichAttributes(attributes) {
   if (attributes.ref) {
     try {
       const ref = attributes.ref;
-      const isBookSavedOffline = await hasOfflineBook(ref);
-      attributes.isBookSavedOffline = String(isBookSavedOffline);
+      const isTitleSavedOffline = await hasOfflineTitle(ref);
+      attributes.isTitleSavedOffline = String(isTitleSavedOffline);
 
-      // If book is available offline, get its structure
-      if (isBookSavedOffline) {
-        const offlineIndex = await getOfflineBookIndex(ref);
+      // If title is available offline, get its structure
+      if (isTitleSavedOffline) {
+        console.log(`Temp. crashlytics call, isTitleSavedOffline: ${isTitleSavedOffline}`);
+        const offlineIndex = await getOfflineTitleIndex(ref);
         if (offlineIndex) {
           const simplifiedOfflineIndex = _simplifyIndex(offlineIndex)
           attributes.simplifiedOfflineIndex = JSON.stringify(simplifiedOfflineIndex);
         }
       }
     } catch (enrichmentError) {
-      console.error('Failed to enrich error with offline book data:', enrichmentError);
+      console.error('Failed to enrich error with offline title data:', enrichmentError);
     }
   }
 };
