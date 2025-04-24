@@ -156,6 +156,9 @@ var Api = {
   apiType: string `oneOf(["text","links","index"])`. passing undefined gets the standard Reader URL.
   context is a required param if apiType == 'text'. o/w it's ignored
   */
+  _sanitizeURL: function(url) {
+    return encodeURIComponent(url.replace(/ /g, "_"));
+  },
   _toURL: function(ref, useHTTPS, apiType, urlify, extra_args) {
     let url = Sefaria.api._baseHost;
 
@@ -167,8 +170,8 @@ var Api = {
           url += 'api/texts/';
           urlSuffix = `?context=${context === true ? 1 : 0}&commentary=0`;
           if (versions) {
-            if (versions.en) { urlSuffix += `&ven=${versions.en.replace(/ /g, "_")}`; }
-            if (versions.he) { urlSuffix += `&vhe=${versions.he.replace(/ /g, "_")}`; }
+            if (versions.en) { urlSuffix += `&ven=${this._sanitizeURL(versions.en)}`; }
+            if (versions.he) { urlSuffix += `&vhe=${this._sanitizeURL(versions.he)}`; }
           }
           if (stripItags) {
             urlSuffix += `&stripItags=1`;
@@ -253,9 +256,9 @@ var Api = {
     url += ref + urlSuffix;
     return url;
   },
-  _text: function(ref, extra_args) {
+  _text: function(ref, extra_args, failSilently=false) {
     return new Promise((resolve, reject)=>{
-      Sefaria.api._request(ref,'text', true, extra_args)
+      Sefaria.api._request(ref,'text', true, extra_args, failSilently)
       .then(data => {
         if (extra_args.context) {
           resolve(Sefaria.api._toIOS({"text": data, "links": [], "ref": ref}));
@@ -270,14 +273,14 @@ var Api = {
       }).catch(error => reject(error));
     });
   },
-  textApi: async function(ref, context, versions) {
+  textApi: async function(ref, context, versions, failSilently=false) {
     const cacheValue = Sefaria.api.textCache(ref, context, versions);
     if (cacheValue) {
       // Don't check the API cahce until we've checked for a local file, because the API
       // cache may be left in a state with text but without links.
       return cacheValue;
     }
-    return Sefaria.api._text(ref, { context, versions, stripItags: true });
+    return Sefaria.api._text(ref, { context, versions, stripItags: true }, failSilently);
   },
   translations: async function(ref) {
     return Sefaria.api._request(ref,'translations', true);
@@ -499,6 +502,13 @@ var Api = {
     let refMap = {};
     for (let refObj of data.refs.filter(s => !s.is_sheet)) {
       refMap[refObj.ref] = {ref: refObj.ref, order: refObj.order, dataSources: refObj.dataSources};
+      if (refObj.order) {
+        refMap[refObj.ref].order = {...refObj.order, availableLangs: refObj?.order?.availableLangs || [],
+          numDatasource: refObj?.order?.numDatasource || 1,
+          tfidf: refObj?.order?.tfidf || 0,
+          pr: refObj?.order?.pr || 0,
+          curatedPrimacy: {he: refObj?.order?.curatedPrimacy?.he || 0, en: refObj?.order?.curatedPrimacy?.en || 0}}
+      }
     }
     data.textRefs = Object.values(refMap);
     let sheetMap = {};
@@ -823,7 +833,7 @@ failSilently - if true, dont display a message if api call fails
           if (!failSilently) {
             Alert.alert(
               strings.textUnavailable,
-              strings.textUnavailableMessage,
+              strings.textUnavailableFromWebMessage,
               [{text: strings.ok, onPress: () => { reject("Return to Nav"); } }]);
           } else {
             reject("Return to Nav");

@@ -41,6 +41,7 @@ import Sefaria from './sefaria';
 import strings from './LocalizedStrings';
 import styles from './Styles';
 import {iconData} from "./IconData";
+import {SimpleMarkdown} from './Misc'
 
 const sortTopicCategories = (a, b, interfaceLanguage, isRoot) => {
   // Don't use display order intended for top level a category level. Bandaid for unclear semantics on displayOrder.
@@ -106,6 +107,13 @@ const refSort = (currSortOption, a, b, { interfaceLanguage }) => {
     return a.order.comp_date - b.order.comp_date;
   }
   else {
+    if ((interfaceLanguage === 'english') &&
+        (a.order.curatedPrimacy.en > 0 || b.order.curatedPrimacy.en > 0)) {
+      return b.order.curatedPrimacy.en - a.order.curatedPrimacy.en;
+    } else if ((interfaceLanguage === 'hebrew') &&
+        (a.order.curatedPrimacy.he > 0 || b.order.curatedPrimacy.he > 0)) {
+      return b.order.curatedPrimacy.he - a.order.curatedPrimacy.he;
+    }
     const aAvailLangs = a.order.availableLangs || [];
     const bAvailLangs = b.order.availableLangs || [];
     if (interfaceLanguage === 'english' && aAvailLangs.length !== bAvailLangs.length) {
@@ -591,6 +599,7 @@ const TopicPageHeader = ({ title, slug, description, topicsTab, setTopicsTab, qu
         <InterfaceTextWithFallback
           extraStyles={[{fontSize: 13}, theme.tertiaryText]}
           {...description}
+          RenderingComponent={SimpleMarkdown}
         />
       ) : null }
       <PortalLink topicSlug={slug} portal={portal} openUri={openUri} />

@@ -27,16 +27,12 @@ class DeepLinkRouter extends React.PureComponent {
       ['^texts/(history)$', this.openMenu, ['menu']],
       ['^texts/(.+)?$', this.openCats, ['cats']],
       ['^search$', this.openSearch],
-      ['^(sheets)$', this.openMenu, ['menu']],
-      ['^(sheets)/tags$', this.openMenu, ['menu']],
-      ['^sheets/tags/(.+)$', this.openTopicFromTag, ['tag']],
       ['^topics/(category)/(.+)$', this.openTopic, ['categoryString','slug']],
-      ['^topics/.+$', this.catchAll],
-      ['^sheets/([0-9.]+)$', this.openRefSheet, ['sheetid']],
+      ['^topics/(.+)$', {fromOutside: this.catchAll, fromInside: this.openTopic}, ['slug']],
       ['^([^/]+)$', this.openRef, ['tref']],  // NOTE: if any static page matches a title, it will try to be opened in the app. In this case, we'll need to explicitly list the route above this route.
       ['^.*$', this.catchAll],
     ];
-    this._routes = routes.map(([ regex, func, namedCaptureGroups ]) => new Route({regex, func, namedCaptureGroups}));
+    this._routes = routes.map(([ regex, funcOrObj, namedCaptureGroups ]) => new Route({regex, funcOrObj, namedCaptureGroups}));
   }
   openMenu = ({ menu }) => {
     this.props.openMenu(menu);
@@ -108,7 +104,7 @@ class DeepLinkRouter extends React.PureComponent {
     // runs in case no route can handle this url
     this.props.openUri(url);
   };
-  route = url => {
+  route = (url, fromOutside=false) => {
     const u = new URL(url, Sefaria.api._baseHost, true);
     let { pathname, query, host, hostname } = u;
     if (!hostname.match('(?:www\.)?sefaria\.org')) {
@@ -122,16 +118,16 @@ class DeepLinkRouter extends React.PureComponent {
     // es6 dict comprehension to decode query values
     query = Object.entries(query).reduce((obj, [k, v]) => { obj[k] = decodeURIComponent(v); return obj; }, {});
     for (let r of this._routes) {
-      if (r.apply({ pathname, query, url })) { break; }
+      if (r.apply({ pathname, query, url }, fromOutside)) { break; }
     }
   };
   render() { return null; }
 }
 
 class Route {
-  constructor({ regex, func, namedCaptureGroups }) {
+  constructor({ regex, funcOrObj, namedCaptureGroups }) {
     this.regex = regex;
-    this.func = func;
+    this.funcOrObj = funcOrObj;
     this.namedCaptureGroups = namedCaptureGroups || [];
   }
   getNamedCaptureGroups = match => {
@@ -144,11 +140,16 @@ class Route {
     }
     return groups;
   };
-  apply = ({ pathname, query, url }) => {
+  apply = ({ pathname, query, url }, fromOutside) => {
     const m = pathname.match(this.regex);
     if (m) {
       const groups = this.getNamedCaptureGroups(m);
-      this.func({ ...groups, ...query, url });
+      let func = this.funcOrObj;
+      if (typeof func !=='function') {
+        const key = fromOutside ? 'fromOutside' : 'fromInside';
+        func = func[key];
+      }
+      func({ ...groups, ...query, url });
       return true;
     }
     return false;

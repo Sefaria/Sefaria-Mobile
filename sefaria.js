@@ -84,9 +84,36 @@ Sefaria = {
   getLastGalusStatus: async function() {
     Sefaria.lastGalusStatus = await AsyncStorage.getItem("lastGalusStatus");
   },
-  refUpOne: function(ref) {
-    //return ref up one level, assuming you can
-    return ref.lastIndexOf(":") !== -1 ? ref.slice(0, ref.lastIndexOf(":")) : ref;
+  refUpOne: function(ref, splitOnSpaces = false) {
+    /**
+     * Returns ref moved up one level
+     * 
+     * @param {string} ref - ref to go one up on
+     * @param {boolean} splitOnSpaces - Try splitting on spaces if no colon found
+     * @returns {string} The ref moved up one level, or original ref if can't move up or book doesn't exist
+     */
+    // Try splitting on colon first
+    const lastIndexOfColon = ref.lastIndexOf(":");
+    if (lastIndexOfColon !== -1) {
+      const newRef = ref.slice(0, lastIndexOfColon);
+      if (Sefaria.textTitleForRef(newRef)) { // Check ref has an existing book
+        return newRef;
+      }
+    }
+    
+    // If allowed and no colon found, try splitting on space
+    if (splitOnSpaces) {
+      const lastIndexOfSpace = ref.lastIndexOf(" ");
+      if (lastIndexOfSpace !== -1) {
+        const newRef = ref.slice(0, lastIndexOfSpace);
+        if (Sefaria.textTitleForRef(newRef)) { // Check ref has an existing book
+          return newRef;
+        }
+      }
+    }
+    
+    // Can't move up or book doesn't exist, return original
+    return ref;
   },
   refMissingColon: function(ref) {
     // the site can handle links that end "\d+ \d+". I believe this links are non-standard but since the site handles them, app should also
@@ -97,7 +124,7 @@ Sefaria = {
   _jsonSectionData: {}, // in memory cache for loaded section files (after merging)
   _apiData: {},  // in memory cache for API data
   textTitleForRef: function(ref) {
-    // Returns the book title named in `ref` by examining the list of known book titles.
+    // Returns the book title named in `ref` by examining the list of known book titles or null if there is no book.
     if (!ref) { return null; }
     for (let i = ref.length; i >= 0; i--) {
       let book = ref.slice(0, i);
@@ -679,7 +706,7 @@ Sefaria = {
   },
   isGettinToBePurimTime: function() {
     const msInDay = 1000*60*60*24;
-    const purimsOfTheFuture = [[2020, 2, 10], [2021, 1, 26], [2022, 2, 17], [2023, 2, 7], [2024, 2, 24], [2025, 2, 14], [2026, 2, 4], [2027, 2, 24], [2028, 2, 12], [2029, 2, 2]];
+    const purimsOfTheFuture = [[2025, 2, 14], [2026, 2, 4], [2027, 2, 24], [2028, 2, 12], [2029, 2, 2], [2030, 2, 18], [2031, 2, 8], [2032, 1, 25], [2033, 2, 14], [2034, 2, 4]];
 
     const now = new Date();
     for (let potentialPurim of purimsOfTheFuture) {
@@ -1272,7 +1299,9 @@ Sefaria.util = {
     text = text.trim();
     let html;
     if (lang === 'english') {
-      html = `<div class="english">\u2066${Sefaria.util.hebrewInEnglish(text, 'string')}</div>`;
+      const lri = '\u2066';
+      text = lri + Sefaria.util.hebrewInEnglish(text, 'string').replace('<br/>', `<br/>${lri}`);
+      html = `<div class="english">${text}</div>`;
     } else {
       html = `<div class="hebrew">${Sefaria.util.hackyFixForCantillationAtStart(text)}</div>`;
     }

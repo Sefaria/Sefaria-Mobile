@@ -30,6 +30,7 @@ import SoundPlayer from 'react-native-sound-player'
 import { SearchState } from '@sefaria/search';
 
 import { STATE_ACTIONS } from './StateManager';
+import ReaderAppContext from './context';
 import ReaderControls from './ReaderControls';
 import styles from './Styles';
 import strings from './LocalizedStrings';
@@ -387,12 +388,12 @@ class ReaderApp extends React.PureComponent {
     BackgroundFetch.finish(taskId);
   };
 
-  handleOpenURLNamedParam = ({ url } = {}) => {
+  handleOpenURLNamedParam = ({ url, fromOutside=true } = {}) => {
     // needs to be named param to be compatible with Linking API
     if (url) {
       url = url.replace(/^about:\/\/\//, Sefaria.api._baseHost);
       if (this.state._completedInit) {
-        this._deepLinkRouterRef.route(url);
+        this._deepLinkRouterRef.route(url, fromOutside);
       } else {
         // save URL. it will be applied when componentDidMount finishes
         this._initDeepLinkURL = url;
@@ -401,8 +402,9 @@ class ReaderApp extends React.PureComponent {
   };
 
   handleOpenURL = (url) => {
-    // unnamed parameter func used for HTMLView callback
-    this.handleOpenURLNamedParam({ url });
+    // unnamed parameter.
+    // func used for internal routing (e.g. HTMLView and Markdown)
+    this.handleOpenURLNamedParam({ url, fromOutside: false });
   };
 
   onDownloaderChange = (openSettings) => {
@@ -433,17 +435,25 @@ class ReaderApp extends React.PureComponent {
     Toast.show(text, {duration, onHidden});
   }
 
+  openReaderDisplayOptionsMenu = () => {
+    this.setState({ReaderDisplayOptionsMenuVisible:  true}, () => {
+      // wait for ref to be defined
+      this._readerDisplayOptionsMenuRef && this._readerDisplayOptionsMenuRef.show();
+    });
+  }
+
+  closeReaderDisplayOptionsMenu = () => {
+    this._readerDisplayOptionsMenuRef && this._readerDisplayOptionsMenuRef.hide(() => {
+      this.setState({ReaderDisplayOptionsMenuVisible:  false});
+    });
+    this.trackPageview();
+  }
+
   toggleReaderDisplayOptionsMenu = () => {
     if (this.state.ReaderDisplayOptionsMenuVisible == false) {
-      this.setState({ReaderDisplayOptionsMenuVisible:  true}, () => {
-        // wait for ref to be defined
-        this._readerDisplayOptionsMenuRef && this._readerDisplayOptionsMenuRef.show();
-      });
+      this.openReaderDisplayOptionsMenu();
     } else {
-      this._readerDisplayOptionsMenuRef && this._readerDisplayOptionsMenuRef.hide(() => {
-        this.setState({ReaderDisplayOptionsMenuVisible:  false});
-      });
-      this.trackPageview();
+      this.closeReaderDisplayOptionsMenu();
     }
   };
 
@@ -452,7 +462,7 @@ class ReaderApp extends React.PureComponent {
     if (textFlow == "continuous" && this.props.textLanguage == "bilingual") {
       this.setTextLanguage("hebrew");
     }
-    this.toggleReaderDisplayOptionsMenu();
+    this.closeReaderDisplayOptionsMenu();
   };
 
   setBiLayout = layout => {
@@ -460,10 +470,10 @@ class ReaderApp extends React.PureComponent {
       type: STATE_ACTIONS.setBiLayout,
       value: layout,
     });
-    this.toggleReaderDisplayOptionsMenu();
+    this.closeReaderDisplayOptionsMenu();
   };
 
-  setTextLanguage = (textLanguage, textFlow, dontToggle) => {
+  setTextLanguage = (textLanguage, textFlow) => {
     // try to be less dependent on state in this func because it is called in componentWillUpdate
     textFlow = textFlow || this.state.textFlow;
     this.props.dispatch({
@@ -473,15 +483,15 @@ class ReaderApp extends React.PureComponent {
     if (textLanguage === "bilingual" && textFlow === "continuous") {
       this.setTextFlow("segmented");
     }
-    if (!dontToggle) { this.toggleReaderDisplayOptionsMenu(); }
-  };
+    this.closeReaderDisplayOptionsMenu();
+  }
 
   setTheme = themeStr => {
     this.props.dispatch({
       type: STATE_ACTIONS.setTheme,
       value: themeStr,
     });
-    this.toggleReaderDisplayOptionsMenu();
+    this.closeReaderDisplayOptionsMenu();
   }
 
   setAliyot = show => {
@@ -489,7 +499,7 @@ class ReaderApp extends React.PureComponent {
       type: STATE_ACTIONS.setAliyot,
       value: show,
     })
-    this.toggleReaderDisplayOptionsMenu();
+    this.closeReaderDisplayOptionsMenu();
   }
 
   setVocalization = value => {
@@ -497,7 +507,7 @@ class ReaderApp extends React.PureComponent {
       type: STATE_ACTIONS.setVocalization,
       value,
     })
-    this.toggleReaderDisplayOptionsMenu(); 
+    this.closeReaderDisplayOptionsMenu();
   }
 
   incrementFont = (increment) => {
@@ -671,12 +681,16 @@ class ReaderApp extends React.PureComponent {
           textToc: null,
       },
       () => {
-        Sefaria.offlineOnline.loadText(ref, true, versions, !this.state.hasInternet).then(data => {
+        Sefaria.offlineOnline.loadText(ref, true, versions, !this.state.hasInternet, true).then(data => { // Silencing the popup on failed Sefaria.api._requests and creating a new pop up if an error arises
             // debugger;
-            if (Sefaria.util.objectHasNonNullValues(data.nonExistantVersions) ||
                 // if specific versions were requested, but no content exists for those versions, try again with default versions
+            if (Sefaria.util.objectHasNonNullValues(data.nonExistantVersions) ||
                 (data.content.length === 0 && !!versions)) {
-              if (numTries >= 4) { throw "Return to Nav"; }
+              if (numTries >= 4) { //Unclear why 4 times. Maybe for low connectivity.
+                console.error(`Can't find text for ref: ${ref} dispite reverting to default version. Throwing 'Return to Nav'`)
+                throw "Return to Nav";
+              } 
+              console.info(`ReaderApp.loadNewText: Recursive call without versions (fallback to default version), nonExistantVersions: ${JSON.stringify(data.nonExistantVersions)}`);
               this.loadNewText({ ref, isLoadingVersion, numTries: numTries + 1 }).then(resolve);
               return;
             }
@@ -723,9 +737,21 @@ class ReaderApp extends React.PureComponent {
 
             resolve();
         }).catch(error => {
-          console.log(error);
+          console.log(`Dealing with error: ${error}. Ref: ${ref}`);
           if (error == "Return to Nav") {
-            this.openTextTocDirectly(Sefaria.textTitleForRef(ref));
+            // In case of unfound ref, try going one ref up (up to the book) before dealing with error by returning to nav.
+            // We do this to avoid failing in case of ref to a non existent ref after a changing index of a book.
+            const refUpOne = Sefaria.refUpOne(ref, true);
+            // Break if there is no more ref up to do.
+            // refUpOne checks if book exists, so code wont go into this if if the book doesn't exist
+            if (ref !== refUpOne) {
+              console.warn(`Couldn't find ref. Removing last part of ref and trying again\nNew ref: ${refUpOne}. Old ref: ${ref}.`)
+              this.loadNewText({ ref: refUpOne, versions, isLoadingVersion, numTries: numTries + 1 }).then(resolve);
+            } else {
+              this.openTextTocDirectly(Sefaria.textTitleForRef(ref));
+              // Pop up here because we silence the error in Sefaria.api._request to avoid uneeded popups during the recursive refUpone call.
+              this.textUnavailableAlert(ref)
+            }
             resolve();
             return;
           }
@@ -1115,22 +1141,7 @@ class ReaderApp extends React.PureComponent {
         if (!!newVersions['en'] && !!newVersions['he']) { newTextLang = "bilingual"; }
         else if (!!newVersions['en']) { newTextLang = "english"; }
         else if (!!newVersions['he']){ newTextLang = "hebrew"; }
-        this.setTextLanguage(newTextLang, null, true);
-      }
-
-      switch (calledFrom) {
-        case "search":
-          break;
-        case "navigation":
-          break;
-        case "text toc":
-          break;
-        case "deep link":
-          break;
-        case "text list":
-          break;
-        default:
-          break;
+        this.setTextLanguage(newTextLang, null);
       }
 
       if (addToBackStack) {
@@ -1619,6 +1630,23 @@ class ReaderApp extends React.PureComponent {
         } : null
     });
   };
+  _updateAggregations = (data, type) => {
+    let availableFilters = [];
+    let registry = {};
+    let orphans = [];
+    const { appliedFilters, appliedFilterAggTypes } = this._getSearchState(type);
+    const { aggregation_field_array, build_and_apply_filters } = SearchState.metadataByType[type];
+    for (let aggregation of aggregation_field_array) {
+      if (!!data.aggregations[aggregation]) {
+        const { buckets } = data.aggregations[aggregation];
+        const { availableFilters: tempAvailable, registry: tempRegistry, orphans: tempOrphans } = Sefaria.search[build_and_apply_filters](buckets, appliedFilters, appliedFilterAggTypes, aggregation, Sefaria);
+        availableFilters.push(...tempAvailable);  // array concat
+        registry = {...registry, ...tempRegistry};
+        orphans.push(...tempOrphans);
+        this.setAvailableSearchFilters(type, availableFilters, orphans);
+      }
+    }
+  }
   onQueryChange = (type, query, resetQuery, fromBackButton, getFilters) => {
     Sefaria.track.event("Search", {query_type: type, query: query});
     // getFilters should be true if the query has changed or the exactType has changed
@@ -1643,7 +1671,8 @@ class ReaderApp extends React.PureComponent {
     }
 
     const justUnapplied = false; //TODO: placeholder
-    const aggregationsToUpdate = filtersValid && aggregation_field_array.length === 1 ? [] : aggregation_field_array.filter( a => justUnapplied || a !== 'this.lastAppliedAggType[type]'); //TODO: placeholder
+    const getAggregationsToUpdate = () => aggregation_field_array.filter( a => justUnapplied || a !== 'this.lastAppliedAggType[type]');
+    const aggregationsToUpdate = ((filtersValid && aggregation_field_array.length === 1) || fromBackButton) ? [] : getAggregationsToUpdate(); //TODO: placeholder
     let queryProps = {
       query,
       size,
@@ -1686,19 +1715,12 @@ class ReaderApp extends React.PureComponent {
           }),
         }, () => {
           if (data.aggregations) {
-            let availableFilters = [];
-            let registry = {};
-            let orphans = [];
-            for (let aggregation of aggregation_field_array) {
-              if (!!data.aggregations[aggregation]) {
-                const { buckets } = data.aggregations[aggregation];
-                const { availableFilters: tempAvailable, registry: tempRegistry, orphans: tempOrphans } = Sefaria.search[build_and_apply_filters](buckets, appliedFilters, appliedFilterAggTypes, aggregation, Sefaria);
-                availableFilters.push(...tempAvailable);  // array concat
-                registry = {...registry, ...tempRegistry};
-                orphans.push(...tempOrphans);
-                this.setAvailableSearchFilters(type, availableFilters, orphans);
-              }
-            }
+            this._updateAggregations(data, type);
+          } else if (getFilters) {
+            [queryProps.appliedFilterAggTypes, queryProps.applied_filters, queryProps.aggregationsToUpdate] = [[], [], getAggregationsToUpdate()];
+            Sefaria.search.execute_query(queryProps).then(data => {
+              this._updateAggregations(data, type);
+            })
           }
         });
       })
@@ -2299,61 +2321,64 @@ class ReaderApp extends React.PureComponent {
   render() {
     // StatuBar comment: can't figure out how to get barStyle = light-content to be respected on Android
     const { safeViewStyle, statusBarBackgroundColor, statusBarStyle } = getSafeViewStyleAndStatusBarBackground(this.state, this.props.theme.mainTextPanel, this.props.themeStr === "white");
-    return (
-      <View style={styles.rootContainer}>
-        <SafeAreaView edges={["top"]} style={[{ flex: 0 }, safeViewStyle]} />
-        <SafeAreaView
-           edges={this.getBottomSafeAreaEdges(this.state.menuOpen)}
-           style={[styles.safeArea, this.props.theme.mainTextPanel]}
-        >
-          <View style={[styles.container, this.props.theme.mainTextPanel]}>
-              <StatusBar barStyle={statusBarStyle} backgroundColor={statusBarBackgroundColor}/>
-            <ConditionalProgressWrapper
-              conditionMethod={(state, props) => {
-                return state && (props.menuOpen !== 'settings' || state.downloadNotification === 'Update');
-              }}
-              initialValue={DownloadTracker.getDownloadStatus()}
-              downloader={DownloadTracker}
-              listenerName={'ReaderAppBar'}
-              menuOpen={this.state.menuOpen}
-            >
-              <SefariaProgressBar
-                onPress={()=>{
-                  this.openMenu("settings")
-                }}
-                onClose={() => DownloadTracker.cancelDownload()}
-                download={DownloadTracker}
-                identity={'ReaderApp'}
-              />
-            </ConditionalProgressWrapper>
-              { this.renderContent() }
-            { this.shouldShowFooter(this.state.menuOpen) && (
-                <FooterTabBar selectedTabName={this.state.footerTab} setTab={this.setFooterTab} />
-            )}
-          </View>
-        </SafeAreaView>
-        <InterruptingMessage
-          ref={this._getInterruptingMessageRef}
-          interfaceLanguage={this.props.interfaceLanguage}
-          openInDefaultBrowser={this.openInDefaultBrowser}
-          debugInterruptingMessage={this.props.debugInterruptingMessage}
-        />
-        <DeepLinkRouter
-          ref={this._getDeepLinkRouterRef}
-          openNav={this.openNav}
-          openMenu={this.openMenu}
-          openRef={this.openRef}
-          openUri={this.openUri}
-          openRefSheet={this.openRefSheet}
-          openSearch={this.openSearch}
-          openTopic={this.openTopic}
-          setSearchOptions={this.setSearchOptions}
-          openTextTocDirectly={this.openTextTocDirectly}
-          setTextLanguage={this.setTextLanguage}
-          setNavigationCategories={this.setNavigationCategories}
-        />
-      </View>
+    const readerAppContextData = {handleOpenURL: this.handleOpenURL};
 
+    return (
+      <ReaderAppContext.Provider value={readerAppContextData}>
+        <View style={styles.rootContainer}>
+          <SafeAreaView edges={["top"]} style={[{ flex: 0 }, safeViewStyle]} />
+          <SafeAreaView
+             edges={this.getBottomSafeAreaEdges(this.state.menuOpen)}
+             style={[styles.safeArea, this.props.theme.mainTextPanel]}
+          >
+            <View style={[styles.container, this.props.theme.mainTextPanel]}>
+                <StatusBar barStyle={statusBarStyle} backgroundColor={statusBarBackgroundColor}/>
+              <ConditionalProgressWrapper
+                conditionMethod={(state, props) => {
+                  return state && (props.menuOpen !== 'settings' || state.downloadNotification === 'Update');
+                }}
+                initialValue={DownloadTracker.getDownloadStatus()}
+                downloader={DownloadTracker}
+                listenerName={'ReaderAppBar'}
+                menuOpen={this.state.menuOpen}
+              >
+                <SefariaProgressBar
+                  onPress={()=>{
+                    this.openMenu("settings")
+                  }}
+                  onClose={() => DownloadTracker.cancelDownload()}
+                  download={DownloadTracker}
+                  identity={'ReaderApp'}
+                />
+              </ConditionalProgressWrapper>
+                { this.renderContent() }
+              { this.shouldShowFooter(this.state.menuOpen) && (
+                  <FooterTabBar selectedTabName={this.state.footerTab} setTab={this.setFooterTab} />
+              )}
+            </View>
+          </SafeAreaView>
+          <InterruptingMessage
+            ref={this._getInterruptingMessageRef}
+            interfaceLanguage={this.props.interfaceLanguage}
+            openInDefaultBrowser={this.openInDefaultBrowser}
+            debugInterruptingMessage={this.props.debugInterruptingMessage}
+          />
+          <DeepLinkRouter
+            ref={this._getDeepLinkRouterRef}
+            openNav={this.openNav}
+            openMenu={this.openMenu}
+            openRef={this.openRef}
+            openUri={this.openUri}
+            openRefSheet={this.openRefSheet}
+            openSearch={this.openSearch}
+            openTopic={this.openTopic}
+            setSearchOptions={this.setSearchOptions}
+            openTextTocDirectly={this.openTextTocDirectly}
+            setTextLanguage={this.setTextLanguage}
+            setNavigationCategories={this.setNavigationCategories}
+          />
+        </View>
+      </ReaderAppContext.Provider>
     );
   }
 }

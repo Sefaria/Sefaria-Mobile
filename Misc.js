@@ -29,6 +29,8 @@ import { useHTMLViewStyles } from './useHTMLViewStyles';
 import { RenderHTML } from 'react-native-render-html';
 import BookSVG from './img/connection-book.svg';
 import ActionSheet from "react-native-action-sheet";
+import Markdown from "react-native-markdown-display";
+import ReaderAppContext from "./context";
 
 const SYSTEM_FONTS = ["Taamey Frank Taamim Fix", "Amiri", "Heebo", "OpenSans", "SertoBatnan"];  // list of system fonts. needed for RenderHTML
 const CSS_CLASS_STYLES = {
@@ -158,7 +160,7 @@ const InterfaceText = ({stringKey, lang, en, he, extraStyles = [], allowFontScal
   );
 };
 
-const InterfaceTextWithFallback = ({ en, he, extraStyles=[], lang }) => {
+const InterfaceTextWithFallback = ({ en, he, extraStyles=[], lang, RenderingComponent=Text }) => {
   const { interfaceLanguage } = useContext(GlobalStateContext);
   let langStyle = styles.enInt;
   let text = en;
@@ -168,7 +170,7 @@ const InterfaceTextWithFallback = ({ en, he, extraStyles=[], lang }) => {
     text = he;
   }
   return (
-    <Text style={[langStyle].concat(extraStyles)}>{text}</Text>
+    <RenderingComponent style={[langStyle].concat(extraStyles)} lang={lang}>{text}</RenderingComponent> //we use lang only when RenderingComponent is SimpleMarkdown
   );
 }
 
@@ -1250,6 +1252,22 @@ SimpleHTMLView.propTypes = {
   lang: PropTypes.oneOf(['english', 'hebrew']),
 };
 
+const SimpleMarkdown = ({children, lang, style, markdownProps}) => {
+  const {handleOpenURL} = useContext(ReaderAppContext);
+  const onLinkPress = (url) => {
+    handleOpenURL(url);
+    return false;
+  }
+  const flexDirection = `row${lang==='hebrew' ? '-reverse' : ''}`
+  style = {body: style, paragraph: {flexDirection}}
+  return <Markdown onLinkPress={onLinkPress} style={style} {...markdownProps}>{children}</Markdown>;
+}
+SimpleMarkdown.propTypes = {
+  lang: PropTypes.oneOf(['hebrew', 'english']),
+  style: PropTypes.object,
+  markdownProps: PropTypes.object,
+}
+
 const SimpleContentBlock = ({en, he}) => {
   const { interfaceLanguage } = useContext(GlobalStateContext);
   const showHebrew = !!he;
@@ -1505,6 +1523,7 @@ const CategoryDescription = ({ description }) => {
           {...description}
           lang={menuLanguage}
           extraStyles={[{marginTop: 10, fontSize: 13}, theme.tertiaryText]}
+          RenderingComponent={SimpleMarkdown}
       />
   );
 };
@@ -1634,4 +1653,5 @@ export {
   TwoBoxRow,
   singleActionPopup,
   openActionSheet,
+  SimpleMarkdown,
 }
