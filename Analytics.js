@@ -1,6 +1,7 @@
 import { getCurrentGlobalState } from './StateManager';
 import analytics from "@react-native-firebase/analytics";
 
+
 const trackEvent = (eventName, eventParams = {}) => {
   const globalState = getCurrentGlobalState();
 
