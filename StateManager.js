@@ -192,6 +192,7 @@ const saveFieldToAsync = function (field, value) {
   AsyncStorage.setItem(field, JSON.stringify(value));
 };
 
+// Used as a duplicate of the state so the analytics can access them.
 let currentGlobalState = DEFAULT_STATE;
 
 const reducer = function (state, action) {
@@ -326,6 +327,7 @@ const reducer = function (state, action) {
   return newState;
 };
 
+// Allows acess to the duplication of the state that is used by analytics
 const getCurrentGlobalState = () => currentGlobalState;
 
 const initAsyncStorage = dispatch => {
