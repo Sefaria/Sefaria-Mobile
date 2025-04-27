@@ -1040,7 +1040,7 @@ Sefaria = {
     },
   },
   track: {
-      // Helper functions for event tracking (with Google Analytics and Mixpanel)
+      // Helper functions for event tracking (with Google Analytics)
       init: function() {
         analytics().setAnalyticsCollectionEnabled(true);
       },
