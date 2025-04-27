@@ -24,6 +24,7 @@ import { GlobalStateContext, DispatchContext, STATE_ACTIONS, getTheme } from './
 import Sefaria from './sefaria';
 import strings from './LocalizedStrings';
 import styles from './Styles';
+import { trackEvent } from './Analytics';
 
 const onSubmit = async (formState, authMode, setErrors, onLoginSuccess, setIsLoading) => {
   setIsLoading(true);
@@ -84,7 +85,7 @@ const AuthPage = ({ authMode, close, showToast, openLogin, openRegister, openUri
     isLoading,
     onSubmit,
   } = useAuthForm(authMode, async () => {
-    Sefaria.track.event("LoginSuccessful", {authMode});
+    trackEvent("LoginSuccessful", {authMode});
     dispatch({
       type: STATE_ACTIONS.setIsLoggedIn,
       value: true,

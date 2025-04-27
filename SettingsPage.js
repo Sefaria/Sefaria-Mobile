@@ -45,6 +45,7 @@ import {
 } from './DownloadControl';
 import Sefaria from "./sefaria";
 import * as FileSystem from 'expo-file-system';
+import { trackEvent } from './Analytics';
 const DEBUG_MODE = false;
 
 /**
@@ -204,7 +205,7 @@ const SettingsPage = ({ close, logout, openUri }) => {
         },
         { text: strings.ok, onPress: () => {
             setIsProcessing(true);
-            Sefaria.track.event("DeleteUser", {platform: "app"});
+            trackEvent("DeleteUser", {platform: "app"});
             console.log("Deleting account");
             Sefaria.api.deleteUserAccount()
                 .then(()=> { //Inform user account has been deleted

@@ -61,6 +61,7 @@ import {Dedication} from  "./Dedication"
 import {
   Tracker as DownloadTracker,
 } from "./DownloadControl.js"
+import { initAnalytics, setCurrentScreen, trackEvent } from './Analytics';
 
 
 
@@ -173,7 +174,7 @@ class ReaderApp extends React.PureComponent {
       requiredNetworkType: BackgroundFetch.NETWORK_TYPE_ANY,
     }, this.onBackgroundSync, error => console.log('error starting BackgroundFetch'));
     this.initFiles();
-    Sefaria.track.init();
+    initAnalytics();
     this.NetInfoEventListener = NetInfo.addEventListener(
       this.networkChangeListener
     );
@@ -188,7 +189,7 @@ class ReaderApp extends React.PureComponent {
       const { PlayInstallReferrer } = require('react-native-play-install-referrer');
       PlayInstallReferrer.getInstallReferrerInfo((installReferrerInfo, error) => {
         if (!error) {
-          Sefaria.track.event("Install", {
+          trackEvent("Install", {
             installReferrer: installReferrerInfo.installReferrer,
             referrerClickTimestampSeconds: installReferrerInfo.referrerClickTimestampSeconds,
             installBeginTimestampSeconds: installReferrerInfo.installBeginTimestampSeconds,
@@ -549,7 +550,7 @@ class ReaderApp extends React.PureComponent {
     let sideBar   = this.state.linkRecentFilters.length > 0 ? this.state.linkRecentFilters.map(filt => filt.title).join('+') : 'all';
     let versTit   = ''; //we don't support this yet
 
-    Sefaria.track.pageview(pageType,
+    trackPageview(pageType,
       {'Panels Open': numPanels, 'Book Name': bookName, 'Ref': ref, 'Version Title': versTit, 'Page Type': pageType, 'Sidebars': sideBar},
       {1: primCat, 2: secoCat, 3: bookName, 5: contLang}
     );
@@ -1186,7 +1187,7 @@ class ReaderApp extends React.PureComponent {
     }
     this.setState({menuOpen: menu});
     if (via && typeof via === 'string') {
-      Sefaria.track.event("OpenMenu", {menu, via});
+      trackEvent("OpenMenu", {menu, via});
     }
   };
 
@@ -1648,7 +1649,7 @@ class ReaderApp extends React.PureComponent {
     }
   }
   onQueryChange = (type, query, resetQuery, fromBackButton, getFilters) => {
-    Sefaria.track.event("Search", {query_type: type, query: query});
+    trackEvent("Search", {query_type: type, query: query});
     // getFilters should be true if the query has changed or the exactType has changed
     const searchState = this._getSearchState(type);
     const searchStateName = this._getSearchStateName(type);
@@ -1938,7 +1939,7 @@ class ReaderApp extends React.PureComponent {
       case (null):
         break;
       case ("navigation"):
-          Sefaria.track.setScreen("toc", "navigation")
+          setCurrentScreen("toc", "navigation")
         return (
           loading ?
           <LoadingView /> :
@@ -1953,12 +1954,12 @@ class ReaderApp extends React.PureComponent {
             />)
         );
       case ("learning schedules"):
-        Sefaria.track.setScreen("learning schedules", "navigation")
+        setCurrentScreen("learning schedules", "navigation")
         return (
            <LearningSchedulesPage openRef={this.openRef} openUri={this.openUri} onBack={this.manageBackMain}/>
         );
       case ("text toc"):
-        Sefaria.track.setScreen("text toc", "menu")
+        setCurrentScreen("text toc", "menu")
         return (
           <ReaderTextTableOfContents
             textUnavailableAlert={this.textUnavailableAlert}
@@ -1971,7 +1972,7 @@ class ReaderApp extends React.PureComponent {
             openUri={this.openUri}/>);
         break;
       case ("sheet meta"):
-        Sefaria.track.setScreen("sheet meta", "menu")
+        setCurrentScreen("sheet meta", "menu")
         return (
           <SheetMeta
             sheet={this.state.sheet}
@@ -1980,7 +1981,7 @@ class ReaderApp extends React.PureComponent {
           />);
         break;
       case ("search"):
-        Sefaria.track.setScreen("search results", "search")
+        setCurrentScreen("search results", "search")
         return(
           <SearchPage
             subMenuOpen={this.state.subMenuOpen}
@@ -2007,7 +2008,7 @@ class ReaderApp extends React.PureComponent {
           />);
         break;
       case ("autocomplete"):
-        Sefaria.track.setScreen("autocomplete", "search")
+        setCurrentScreen("autocomplete", "search")
         return (
           <AutocompletePage
             interfaceLanguage={this.props.interfaceLanguage}
@@ -2027,17 +2028,17 @@ class ReaderApp extends React.PureComponent {
           />);
         break;
       case ("settings"):
-        Sefaria.track.setScreen("settings", "menu")
+        setCurrentScreen("settings", "menu")
         return(<SettingsPage close={this.manageBackMain} logout={this.logout} openUri={this.openUri} />);
       case ("account-menu"):
-        Sefaria.track.setScreen("account-menu", "menu")
+        setCurrentScreen("account-menu", "menu")
         return(<AccountNavigationMenu 
             openMenu={this.openMenu}
             openUri={this.openUri}
             logout={this.logout}
         />);
       case ("history"):
-        Sefaria.track.setScreen("history", "menu")
+        setCurrentScreen("history", "menu")
         return(<HistorySavedPage openRef={this.openRef} openMenu={this.openMenu} hasInternet={this.state.hasInternet}/>);  
         /*return(
           <SwipeableCategoryList
@@ -2061,7 +2062,7 @@ class ReaderApp extends React.PureComponent {
         );*/
         break;
       case ("saved"):
-        /*Sefaria.track.setScreen("saved", "menu")
+        /*setCurrentScreen("saved", "menu")
         return(
           <SwipeableCategoryList
             close={this.manageBackMain}
@@ -2098,7 +2099,7 @@ class ReaderApp extends React.PureComponent {
         );
         break;
       case ("topic toc"):
-        Sefaria.track.setScreen("topics nav", "navigation")
+        setCurrentScreen("topics nav", "navigation")
         return(
            <TopicCategory
              onBack={this.manageBackMain}
@@ -2124,7 +2125,7 @@ class ReaderApp extends React.PureComponent {
         );
 
       case ("mySheets"):
-        Sefaria.track.setScreen("my sheets page", "navigation")
+        setCurrentScreen("my sheets page", "navigation")
         return(
           loading ?
           <LoadingView /> :
@@ -2144,10 +2145,10 @@ class ReaderApp extends React.PureComponent {
     const isSheet = !!this.state.sheet;
 
     if (isSheet) {
-        Sefaria.track.setScreen("Sheet " + this.state.sheet.id, "reader")
+        setCurrentScreen("Sheet " + this.state.sheet.id, "reader")
     }
     else {
-        Sefaria.track.setScreen(this.state.textTitle, "reader")
+        setCurrentScreen(this.state.textTitle, "reader")
     }
     let textColumnFlex = this.state.textListVisible ? 1.0 - this.state.textListFlex : 1.0;
     let relatedData = {};
