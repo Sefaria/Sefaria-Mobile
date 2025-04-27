@@ -26,6 +26,21 @@ const setCurrentScreen = (screen_name, screen_class) => {
 };
 
 /**
+ * Tracks an analytics event via Firebase Analytics, enriching it with selected parameters.
+*
+* @param {string} eventName - The name of the event to log.
+* @param {Object} [eventParams={}] - Optional additional parameters for the event.
+*/
+const trackEvent = (eventName, eventParams = {}) => {
+  const augmentedParams = _enrichAnalyticsFromState(eventParams);
+  
+  analytics().logEvent(eventName, augmentedParams);
+  if (!isProd) {
+    console.log(`Analytics Event Tracked: ${eventName}`, augmentedParams);
+  }
+};
+
+/**
  * Tracks a pageview event with custom dimensions and metrics
  *
  * @param {string} pageType - The type of page being viewed
@@ -55,21 +70,6 @@ const trackPageview = (pageType, customDimensions, contentGroups) => {
   // if (!isProd) {
   //   console.log(`Analytics Page View Tracked: ${pageType}`, eventParams);
   // }
-};
-
-/**
- * Tracks an analytics event via Firebase Analytics, enriching it with selected parameters.
- *
- * @param {string} eventName - The name of the event to log.
- * @param {Object} [eventParams={}] - Optional additional parameters for the event.
- */
-const trackEvent = (eventName, eventParams = {}) => {
-  const augmentedParams = _enrichAnalyticsFromState(eventParams);
-
-  analytics().logEvent(eventName, augmentedParams);
-  if (!isProd) {
-    console.log(`Analytics Event Tracked: ${eventName}`, augmentedParams);
-  }
 };
 
 export { trackEvent, initAnalytics, setCurrentScreen, trackPageview };
