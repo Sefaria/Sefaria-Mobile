@@ -19,6 +19,7 @@ const STATE_ACTIONS = {
   toggleDebugInterruptingMessage: "TOGGLE_DEBUG_INTERRUPTING_MESSAGE",
   setBiLayout: "SET_BI_LAYOUT",
   setIsLoggedIn: "SET_IS_LOGGED_IN",
+  setUserEmail: "SET_USER_EMAIL",
   setHasDismissedSyncModal: "SET_HAS_DISMISSED_SYNC_MODAL",
   setDownloadNetworkSetting: "SET_DOWNLOAD_NETWORK_MODE",
   setReadingHistory: "SET_READING_HISTORY",
@@ -90,6 +91,11 @@ const ACTION_CREATORS = {
     type: STATE_ACTIONS.setIsLoggedIn,
     value: isLoggedIn,
   }),
+  setUserEmail: (email, fromAsync) => ({
+    type: STATE_ACTIONS.setUserEmail,
+    value: email,
+    fromAsync,
+  }),
   setHasDismissedSyncModal: (hasDismissed, fromAsync) => ({
     type: STATE_ACTIONS.setHasDismissedSyncModal,
     value: hasDismissed,
@@ -155,6 +161,10 @@ const ASYNC_STORAGE_DEFAULTS = {
     default: false,
     action: ACTION_CREATORS.setIsLoggedIn,
   },
+  userEmail: {
+    default: "",
+    action: ACTION_CREATORS.setUserEmail,
+  },
   hasDismissedSyncModal: {
     default: false,
     action: ACTION_CREATORS.setHasDismissedSyncModal,
@@ -183,6 +193,7 @@ const DEFAULT_STATE = {
   debugInterruptingMessage: ASYNC_STORAGE_DEFAULTS.debugInterruptingMessage.default,
   biLayout: ASYNC_STORAGE_DEFAULTS.biLayout.default,
   isLoggedIn: ASYNC_STORAGE_DEFAULTS.auth.default,
+  userEmail: ASYNC_STORAGE_DEFAULTS.userEmail.default,
   hasDismissedSyncModal: ASYNC_STORAGE_DEFAULTS.hasDismissedSyncModal.default,
   downloadNetworkSetting: ASYNC_STORAGE_DEFAULTS.downloadNetworkSetting.default,
   groggerActive: ASYNC_STORAGE_DEFAULTS.groggerActive.default,
@@ -295,6 +306,13 @@ const reducer = function (state, action) {
       newState = {
         ...state,
         isLoggedIn,
+      }
+      break;
+    case STATE_ACTIONS.setUserEmail:
+      if (!action.fromAsync) { saveFieldToAsync('userEmail', action.value); }
+      newState = {
+        ...state,
+        userEmail: action.value,
       }
       break;
     case STATE_ACTIONS.setHasDismissedSyncModal:

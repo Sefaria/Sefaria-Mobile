@@ -210,6 +210,11 @@ class ReaderApp extends React.PureComponent {
       type: STATE_ACTIONS.setIsLoggedIn,
       value: false,
     });
+    // Clear the user email
+    this.props.dispatch({
+      type: STATE_ACTIONS.setUserEmail,
+      value: "",
+    });
   };
 
   networkChangeListener = netState => {

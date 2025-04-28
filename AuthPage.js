@@ -35,9 +35,9 @@ const onSubmit = async (formState, authMode, setErrors, onLoginSuccess, setIsLoa
   setErrors(errors);
   setIsLoading(false);
   if (Object.keys(errors).length === 0 && Sefaria._auth.uid) {
-    onLoginSuccess();
+    // Set the user email in state - pass dispatch function to onLoginSuccess
+    onLoginSuccess(formState.email);
   }
-
 };
 
 const getMobileAppKey = async () => {
@@ -84,12 +84,17 @@ const AuthPage = ({ authMode, close, showToast, openLogin, openRegister, openUri
     setPassword,
     isLoading,
     onSubmit,
-  } = useAuthForm(authMode, async () => {
-    trackEvent("LoginSuccessful", {authMode});
+  } = useAuthForm(authMode, async (email) => {
     dispatch({
       type: STATE_ACTIONS.setIsLoggedIn,
       value: true,
     });
+    // Set user email in state
+    dispatch({
+      type: STATE_ACTIONS.setUserEmail,
+      value: email,
+    });
+    trackEvent("LoginSuccessful", {authMode});
     // try to sync immediately after login
     syncProfile();
     close(authMode);
