@@ -2114,6 +2114,7 @@ class ReaderApp extends React.PureComponent {
            />
         );
       case ("topic"):
+        setCurrentScreen(`topic ${this.state.navigationTopic.title.en}`, "reader")
         return(
           <TopicPage
             onBack={this.manageBackMain}
