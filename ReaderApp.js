@@ -61,7 +61,7 @@ import {Dedication} from  "./Dedication"
 import {
   Tracker as DownloadTracker,
 } from "./DownloadControl.js"
-import { initAnalytics, setCurrentScreen, trackEvent } from './Analytics';
+import { initAnalytics, setCurrentScreen, trackEvent, trackPageview } from './Analytics';
 
 
 
