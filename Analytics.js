@@ -1,12 +1,44 @@
 import { getCurrentGlobalState } from './StateManager';
 import analytics from "@react-native-firebase/analytics";
 import { isProd } from './env';
+import NetInfo from "@react-native-community/netinfo";
+
+// Track the NetInfo event listener for proper cleanup
+let netInfoUnsubscribe = null;
+
+// Cached network state for analytics
+let cachedIsOnline = null;
+
+/**
+ * Helper function to get the current online status
+ * @returns {boolean} Whether the device is currently online
+ */
+function getIsOnline() {
+  return cachedIsOnline;
+}
 
 /**
  * Initializes analytics collection
  */
 const initAnalytics = () => {
   analytics().setAnalyticsCollectionEnabled(true);
+  
+  // Set up NetInfo listener if not already set up
+  if (!netInfoUnsubscribe) {
+    // Set up a listener to update cached network state
+    netInfoUnsubscribe = NetInfo.addEventListener(state => {
+      cachedIsOnline = state.isConnected === true && state.isInternetReachable !== false;
+      if (!isProd) {
+        console.log(`Network state changed: isOnline=${cachedIsOnline}`);
+      }
+    });
+
+    // Initialize by fetching once
+    NetInfo.fetch().then(state => {
+      cachedIsOnline = state.isConnected === true && state.isInternetReachable !== false;
+    });
+  }
+  
   if (!isProd) {
     console.log(`Analytics initialized`);
   }
@@ -87,6 +119,7 @@ function _enrichAnalyticsFromState(eventParams) {
   const isLoggedIn = globalState.isLoggedIn;
   const interfaceLanguage = globalState.interfaceLanguage;
   const trafficType = globalState.userEmail?.includes("sefaria.org") ? 'internal' : '';
+  const isOnline = getIsOnline();
 
   // Other Parameters
 
@@ -98,6 +131,7 @@ function _enrichAnalyticsFromState(eventParams) {
     logged_in: isLoggedIn,
     site_lang: interfaceLanguage,
     traffic_type: trafficType,
+    is_online: isOnline,
     
     // user_uses_offline_packages: usesOfflinePackages,
   };
