@@ -225,6 +225,12 @@ class ReaderApp extends React.PureComponent {
     this.linkingSubscription.remove();
     this.RNShakeSubscription.remove();
     DownloadTracker.unsubscribe('ReaderApp')
+    
+    // Clean up the text loaded timeout
+    if (this.checkTextLoadedTimeout) {
+      clearTimeout(this.checkTextLoadedTimeout);
+      this.checkTextLoadedTimeout = null;
+    }
   }
 
   promptLibraryDownload() {
@@ -681,7 +687,21 @@ class ReaderApp extends React.PureComponent {
           textToc: null,
       },
       () => {
+        // Set up a timeout to check if text loaded after 10 seconds
+        this.checkTextLoadedTimeout = setTimeout(() => {
+          if (!this.state.loaded) {
+            console.error(`Text failed to load after 10 seconds for ref: ${ref}. Throwing 'Return to Nav'`);
+            throw "Return to Nav";
+          }
+        }, 10000);
+
         Sefaria.offlineOnline.loadText(ref, true, versions, !this.state.hasInternet, true).then(data => { // Silencing the popup on failed Sefaria.api._requests and creating a new pop up if an error arises
+            // Clear the timeout since text loaded successfully
+            if (this.checkTextLoadedTimeout) {
+              clearTimeout(this.checkTextLoadedTimeout);
+              this.checkTextLoadedTimeout = null;
+            }
+            
             // debugger;
                 // if specific versions were requested, but no content exists for those versions, try again with default versions
             if (Sefaria.util.objectHasNonNullValues(data.nonExistantVersions) ||
@@ -737,6 +757,12 @@ class ReaderApp extends React.PureComponent {
 
             resolve();
         }).catch(error => {
+          // Clear the timeout in case of error
+          if (this.checkTextLoadedTimeout) {
+            clearTimeout(this.checkTextLoadedTimeout);
+            this.checkTextLoadedTimeout = null;
+          }
+          
           console.log(`Dealing with error: ${error}. Ref: ${ref}`);
           if (error == "Return to Nav") {
             // In case of unfound ref, try going one ref up (up to the book) before dealing with error by returning to nav.
