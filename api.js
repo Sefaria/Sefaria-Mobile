@@ -36,20 +36,6 @@ var Api = {
   _lexiconCache: {},
   _currentRequests: {}, // object to remember current request in order to abort. keyed by apiType
   
-  // Utility function to sanitize version objects
-  sanitizeVersions: function(versions) {
-    if (!versions) return versions;
-    
-    const sanitized = {...versions};
-    if (sanitized.en && typeof sanitized.en === 'object' && Object.keys(sanitized.en).length === 0) {
-      delete sanitized.en;
-    }
-    if (sanitized.he && typeof sanitized.he === 'object' && Object.keys(sanitized.he).length === 0) {
-      delete sanitized.he;
-    }
-    return sanitized;
-  },
-  
   _textCacheKey: function(ref, context, versions) {
     return `${ref}|${context}${(!!versions ? (!!versions.en ? `|en:${versions.en}` : "") + (!!versions.he ? `|he:${versions.he}` : "")  : "")}`;
   },
@@ -185,6 +171,9 @@ var Api = {
           url += 'api/texts/';
           urlSuffix = `?context=${context === true ? 1 : 0}&commentary=0`;
           if (versions) {
+            // BUGFIX: Bookmarks created from topic searches can pass empty objects {en: {}, he: {}}
+            // instead of strings or nulls for version values, causing url.replace errors.
+            // We check that each version is actually a string before trying to sanitize it.
             if (versions.en && typeof versions.en === 'string') {
               urlSuffix += `&ven=${this._sanitizeURL(versions.en)}`;
             }
@@ -293,9 +282,6 @@ var Api = {
     });
   },
   textApi: async function(ref, context, versions, failSilently=false) {
-    // Sanitize versions to prevent url.replace errors
-    versions = Sefaria.api.sanitizeVersions(versions);
-
     const cacheValue = Sefaria.api.textCache(ref, context, versions);
     if (cacheValue) {
       // Don't check the API cahce until we've checked for a local file, because the API
