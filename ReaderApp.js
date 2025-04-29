@@ -666,6 +666,10 @@ class ReaderApp extends React.PureComponent {
   loadNewText = ({ ref, versions, isLoadingVersion = false, numTries = 0 }) => {
     // Open ranged refs to their first segment (not ideal behavior, but good enough for now)
     ref = ref.indexOf("-") !== -1 ? ref.split("-")[0] : ref;
+    
+    // Sanitize versions to prevent url.replace errors
+    versions = Sefaria.api.sanitizeVersions(versions);
+
     return new Promise((resolve, reject) => {
       this.setState({
           loaded: false,
@@ -1134,6 +1138,9 @@ class ReaderApp extends React.PureComponent {
         ...versions,
       };
 
+      // Sanitize versions to prevent url.replace errors
+      const sanitizedVersions = Sefaria.api.sanitizeVersions(newVersions);
+
       // make sure loaded text will show the versions you selected
       let newTextLang = this.props.textLanguage;
       if (newTextLang !== 'bilingual' && loadNewVersions) {
@@ -1164,7 +1171,7 @@ class ReaderApp extends React.PureComponent {
         connectionsMode: null,
       }, () => {
           this.closeMenu(); // Don't close until these values are in state, so we know if we need to load defualt text
-          this.loadNewText({ ref, versions: newVersions }).then(resolve);
+          this.loadNewText({ ref, versions: sanitizedVersions }).then(resolve);
       });
     })
   };
