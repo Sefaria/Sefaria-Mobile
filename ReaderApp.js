@@ -68,7 +68,7 @@ import {
 import {FooterTabBar} from "./FooterTabBar";
 import {getSafeViewStyleAndStatusBarBackground} from "./getSafeViewStyles";
 
-const ViewPort    = Dimensions.get('window');
+const ViewPort = Dimensions.get('window');
 
 class ReaderApp extends React.PureComponent {
   static whyDidYouRender = true;
@@ -747,33 +747,32 @@ class ReaderApp extends React.PureComponent {
               // Record navigation failure to Crashlytics
               const navigationError = new Error('Navigation Failure: Ref resolution fallback needed');
 
-              // Set attributes for Crashlytics 
-              const bookTitle = Sefaria.textTitleForRef(ref);
-              const attributes = {
-                'original_ref': ref,
-                'ref': refUpOne,
-                'num_tries': `${numTries + 1}`,
-                'title': bookTitle
-              };
-
               // Record the error with detailed message and attributes
-              CrashlyticsService.recordError(navigationError, attributes, true);
+              CrashlyticsService.recordError(
+                navigationError, 
+                {
+                  'original_ref': ref,
+                  'ref': refUpOne,
+                  'num_tries': `${numTries + 1}`,
+                  'title': bookTitle
+                },
+                true
+              );
 
               this.loadNewText({ ref: refUpOne, versions, isLoadingVersion, numTries: numTries + 1 }).then(resolve);
             } else {
               // Create an error object to capture stack trace at this location
               const terminalError = new Error('Navigation Terminal Failure: Cannot resolve ref');
 
-              // Set attributes for easier filtering/analysis
-              const bookTitle = Sefaria.textTitleForRef(ref);
-              const attributes = {
+
+              // Record the error with attributes and minimal logging
+              CrashlyticsService.recordError(
+                terminalError, {
                 'ref': ref,
                 'num_tries': `${numTries}`,
                 'title': bookTitle
-              };
-
-              // Record the error with attributes and minimal logging
-              CrashlyticsService.recordError(terminalError, attributes, true);
+                }, true
+              );
               
               this.openTextTocDirectly(bookTitle);
               // Pop up here because we silence the error in Sefaria.api._request to avoid uneeded popups during the recursive refUpone call.

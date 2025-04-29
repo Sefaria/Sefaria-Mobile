@@ -68,6 +68,14 @@ async function _enrichAttributes(attributes) {
   if (attributes.ref) {
     try {
       const ref = attributes.ref;
+
+      // Get the book title if it exists
+      const bookTitle = Sefaria.textTitleForRef(ref);
+      if (bookTitle) {
+        attributes.bookTitle = bookTitle;
+      }
+
+      // Check
       const isTitleSavedOffline = await hasOfflineTitle(ref);
       attributes.isTitleSavedOffline = String(isTitleSavedOffline);
 
