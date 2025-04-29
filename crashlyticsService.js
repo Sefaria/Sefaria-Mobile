@@ -1,7 +1,6 @@
 // src/services/analytics/crashlyticsService.js
 import crashlytics from '@react-native-firebase/crashlytics';
 import { hasOfflineTitle, getOffli_geOfflineSchemaVersionneTitleIndex } from './offline';
-
 import { lastUpdated } from './DownloadControl';
 
 /**
