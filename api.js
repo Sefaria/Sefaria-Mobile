@@ -171,9 +171,6 @@ var Api = {
           url += 'api/texts/';
           urlSuffix = `?context=${context === true ? 1 : 0}&commentary=0`;
           if (versions) {
-            // BUGFIX Patch: Bookmarks created from topic can pass empty objects {en: {}, he: {}}
-            // instead of strings or nulls for version values, causing url.replace errors.
-            // We check that each version is actually a string before trying to sanitize it.
             if (typeof versions.en === 'string') {
               urlSuffix += `&ven=${this._sanitizeURL(versions.en)}`;
             }
