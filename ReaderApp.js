@@ -663,6 +663,7 @@ class ReaderApp extends React.PureComponent {
     ref = ref.indexOf("-") !== -1 ? ref.split("-")[0] : ref;
 
     // Clear the current state, load ref, then load text into the state.
+    
     return new Promise((resolve, reject) => {
       this.setState({
           loaded: false,
