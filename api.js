@@ -35,6 +35,7 @@ var Api = {
   _tagCategory: {},
   _lexiconCache: {},
   _currentRequests: {}, // object to remember current request in order to abort. keyed by apiType
+  
   _textCacheKey: function(ref, context, versions) {
     return `${ref}|${context}${(!!versions ? (!!versions.en ? `|en:${versions.en}` : "") + (!!versions.he ? `|he:${versions.he}` : "")  : "")}`;
   },
@@ -167,11 +168,16 @@ var Api = {
       switch (apiType) {
         case "text":
           const { context, versions, stripItags } = extra_args;
-          url += 'api/texts/';
           urlSuffix = `?context=${context === true ? 1 : 0}&commentary=0`;
           if (versions) {
-            if (versions.en) { urlSuffix += `&ven=${this._sanitizeURL(versions.en)}`; }
-            if (versions.he) { urlSuffix += `&vhe=${this._sanitizeURL(versions.he)}`; }
+            // Patch: We disregard the version if it's not a string to deal with the change of structure around the move to RTL
+            // TODO: Add an analytics event to track when a version is an object
+            if (typeof versions.en === 'string') {
+              urlSuffix += `&ven=${this._sanitizeURL(versions.en)}`;
+            }
+            if (versions.he && typeof versions.he === 'string') {
+              urlSuffix += `&vhe=${this._sanitizeURL(versions.he)}`;
+            }
           }
           if (stripItags) {
             urlSuffix += `&stripItags=1`;
