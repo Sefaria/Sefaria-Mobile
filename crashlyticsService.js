@@ -50,48 +50,66 @@ const CrashlyticsService = {
  * @returns {Promise<void>}
  */
 async function _enrichAttributes(attributes) {
-    // 1. Pull in the latest offline-update JSON
-    try {
-      const offlineDataSchemaVersion = await _getOfflineSchemaVersion();
-      if (offlineDataSchemaVersion) {
-        attributes.offlineDataSchemaVersion = offlineDataSchemaVersion;
-      } else {
-        attributes.offlineDataSchemaVersion = "Couldn't find schema, offline library likely never downloaded";
-      }
-    } catch (e) {
-      console.error('Failed to retrieve offline schema version:', e);
-      attributes.offlineDataSchemaVersion = `Error while loading offlineDataSchemaVersion. Message: ${e}`;
-    }
+  // 1. Pull in the latest offline-update JSON
+  await _enrichWithSchemaVersion(attributes);
 
-  // 2. Enrich with info about offline title - if there is a 'ref' attribute allready in the attributes
+  // 2. Enrich with info about offline title
   if (attributes.ref) {
-    try {
-      const ref = attributes.ref;
-
-      // Get the book title if it exists
-      const bookTitle = Sefaria.textTitleForRef(ref);
-      if (bookTitle) {
-        attributes.bookTitle = bookTitle;
-      }
-
-      // Check
-      const isTitleSavedOffline = await hasOfflineTitle(ref);
-      attributes.isTitleSavedOffline = String(isTitleSavedOffline);
-
-      // If title is available offline, get its structure
-      if (isTitleSavedOffline) {
-        const offlineIndex = await getOfflineTitleIndex(ref);
-        if (offlineIndex) {
-          const simplifiedOfflineIndex = _simplifyIndex(offlineIndex)
-          attributes.simplifiedOfflineIndex = JSON.stringify(simplifiedOfflineIndex);
-        }
-      }
-    } catch (enrichmentError) {
-      console.error('Failed to enrich error with offline title data:', enrichmentError);
-    }
+    await _enrichWithTitleInfo(attributes);
   }
-};
+}
 
+/**
+ * Enriches the attributes inplace with offline schema version information
+ * @param {Object} attributes - The attributes object to enrich
+ * @returns {Promise<void>}
+ */
+async function _enrichWithSchemaVersion(attributes) {
+  try {
+    const offlineDataSchemaVersion = await _getOfflineSchemaVersion();
+    if (offlineDataSchemaVersion) {
+      attributes.offlineDataSchemaVersion = offlineDataSchemaVersion;
+    } else {
+      attributes.offlineDataSchemaVersion = "Couldn't find schema, offline library likely never downloaded";
+    }
+  } catch (e) {
+    console.error('Failed to retrieve offline schema version:', e);
+    attributes.offlineDataSchemaVersion = `Error while loading offlineDataSchemaVersion. Message: ${e}`;
+  }
+}
+
+/**
+ * Enriches the attributes inplace with offline title information when a ref is present
+ * @param {Object} attributes - The attributes object containing a ref property
+ * @returns {Promise<void>}
+ */
+async function _enrichWithTitleInfo(attributes) {
+  try {
+    const ref = attributes.ref;
+    if (!ref) return;
+
+    // Get the book title if it exists
+    const bookTitle = Sefaria.textTitleForRef(ref);
+    if (bookTitle) {
+      attributes.bookTitle = bookTitle;
+    }
+
+    // Check if the title is saved offline
+    const isTitleSavedOffline = await hasOfflineTitle(ref);
+    attributes.isTitleSavedOffline = String(isTitleSavedOffline);
+
+    // If title is available offline, get its structure
+    if (isTitleSavedOffline) {
+      const offlineIndex = await getOfflineTitleIndex(ref);
+      if (offlineIndex) {
+        const simplifiedOfflineIndex = _simplifyIndex(offlineIndex)
+        attributes.simplifiedOfflineIndex = JSON.stringify(simplifiedOfflineIndex);
+      }
+    }
+  } catch (enrichmentError) {
+    console.error('Failed to enrich error with offline title data:', enrichmentError);
+  }
+}
 
 /**
  * Default set of keys to strip out of an index schema
