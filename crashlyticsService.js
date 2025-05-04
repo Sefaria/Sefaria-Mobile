@@ -1,6 +1,6 @@
 // src/services/analytics/crashlyticsService.js
 import crashlytics from '@react-native-firebase/crashlytics';
-import { hasOfflineTitle, getOffli_geOfflineSchemaVersionneTitleIndex } from './offline';
+import { hasOfflineTitle, getOfflineTitleIndex } from './offline';
 import { lastUpdated } from './DownloadControl';
 
 /**
@@ -24,7 +24,6 @@ const CrashlyticsService = {
     // Accept an actual Error object or create one
     const errorToRecord = error instanceof Error ? error : new Error(error);
     
-    // Enrich with offline title information if a ref is provided
     await _enrichAttributes(attributes);
     
     // Set attributes
