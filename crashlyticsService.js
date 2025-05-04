@@ -86,7 +86,7 @@ async function _enrichWithSchemaVersion(attributes) {
  */
 async function _enrichWithTitleInfo(attributes) {
   try {
-    const ref = attributes.ref;
+    const {ref} = attributes;
     if (!ref) return;
 
     // Get the book title if it exists
