@@ -53,8 +53,35 @@ export const getAllTranslationsOffline = async function (ref, context=true) {
     return {translations, missingVersions};
 }
 
-export const loadTextIndexOffline = function(title) {
-    return _loadJSON(_JSONSourcePath(title + "_index"));
+/**
+ * Loads the index file for a given reference from offline storage.
+ * This function handles title extraction, unzipping if needed, and error handling.
+ * 
+ * @param {string} ref - The reference for which to load the index. Can be a broken ref (used in crashlytics) or title.
+ * @returns {Promise<object|null>} - The full index object if successful, null if the index couldn't be loaded.
+ */
+export const loadTextIndexOffline = async function(ref) {
+    let title = Sefaria.textTitleForRef(ref);
+    
+    try {
+        if (!await ensureTitleUnzipped(title)) {
+            return null;
+        }
+        
+        let index = await _loadJSON(_JSONSourcePath(title + "_index"));
+        if (!index) {
+            console.error('loadTextIndexOffline returned null/undefined for', title);
+            return null;
+        }
+        if (!index.schema) {
+            console.error('No schema field on index when loading with loadTextIndexOffline for', title);
+            return null;
+        }
+        return index;
+    } catch (err) {
+        console.error('Error loading offline index. Message:', err);
+        return null;
+    }
 };
 
 export const getOfflineVersionObjectsAvailable = function(ref) {
@@ -127,40 +154,6 @@ export const openFileInSources = async function(filename) {
         fileData = await _loadJSON(sourcePath);
     }
     return fileData;
-};
-
-
-/**
-    * Function returned the index of a book in the given ref
-    * The data is taken from the index in the offline data
-    * 
-    * @param {string}  ref  – ref for which we will get the book index - This can be a broken ref (used in crashlytics)
-    * @returns {object|null} - Offline books index
-    */
-export async function getOfflineTitleIndex(ref) {
-
-    
-    let title  = Sefaria.textTitleForRef(ref);
-    
-    try {
-        if (!await ensureTitleUnzipped(title)) { // Makes sure the title exists and is unziped to a json
-            return null;
-        } else {
-            let index = await loadTextIndexOffline(title);
-        if (!index) {
-            console.error('loadTextIndexOffline returned null/undefined for', title);
-            return null;
-        }
-        if (!index.schema) {
-            console.error('No schema field on index when loading with loadTextIndexOffline for', title);
-            return null;
-        }
-        return index.schema
-    } 
-    } catch (err) {
-        console.error('Error loading offline index. Message:', err);
-        return null;
-    }
 };
 
 /**
