@@ -112,30 +112,55 @@ async function _enrichWithTitleInfo(attributes) {
 }
 
 /**
- * Default set of keys to strip out of an index schema
+ * Default set of keys to leave in an index schema
  * @constant {Set<string>}
  */
-const defaultKeysToRemoveFromIndex = new Set([
-  'content_counts',
-  'match_templates',
-  'titles',
-  'title',
-  'heTitle',
-  'heSectionNames',
+const defaultKeysToLeaveInIndex = new Set([
+  "addressTypes",
+  "depth",
+  "key",
+  "lengths",
+  "nodeType",
+  "nodes",
+  "sectionNames"
 ]);
+
 /**
-   * Removes specified fields from a schema object by creating a clean copy.
-   * @param {Object} schema - The schema object to clean
-   * @param {Set<string>} [removeKeys=defaultKeysToRemoveFromIndex] - Set of keys to remove
-   * @returns {Object} A new schema object with specified fields removed
+ * Simplifies an index object by recursively filtering it to keep only whitelisted keys.
+ * If a key is not whitelisted, its entire value (including nested children) is removed.
+ * Keys whose entire sub-tree is filtered out (or is null/undefined) are not included in the returned object.
+ * This function expects an object as the top-level input.
+ *
+ * @param {Object} schema - The index object to simplify.
+ * @param {Set<string>} [leaveKeys=defaultKeysToLeaveInIndex] - Set of keys to retain.
+ * @returns {Object} A new, simplified object containing only the whitelisted keys and their recursively filtered values.
  */
-function _simplifyIndex(schema, removeKeys = defaultKeysToRemoveFromIndex){
-    // Utilising a built in function of JSON.stringify to do the deep removal of keys
-    return JSON.parse(
-        JSON.stringify(schema, (key, value) => removeKeys.has(key) ? undefined : value
-        )
-    );
-};
+function _simplifyIndex(schema, leaveKeys = defaultKeysToLeaveInIndex) {
+  // Handle non-object types encountered during recursion (or if initial input is not an object)
+  if (schema === null || typeof schema !== 'object') {
+    return schema;
+  }
+
+  // Handle arrays encountered during recursion
+  if (Array.isArray(schema)) {
+    return schema.map(item => _simplifyIndex(item, leaveKeys))
+               .filter(item => item !== null && item !== undefined); // Remove null/undefined results. prevents adding keys whose entire sub-tree was filtered out
+  }
+
+  // Handle objects (the primary expected type)
+  const filteredObj = {};
+  for (const key in schema) {
+    if (leaveKeys.has(key)) {
+      const filteredValue = _simplifyIndex(schema[key], leaveKeys);
+      // Keep the key if its filtered value is not null or undefined
+      // This prevents adding keys whose entire sub-tree was filtered out
+      if (filteredValue !== null && filteredValue !== undefined) {
+         filteredObj[key] = filteredValue;
+      }
+    }
+  }
+  return filteredObj;
+}
 
 /**
  * Retrieve the version of the offline schema
