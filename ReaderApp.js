@@ -754,8 +754,7 @@ class ReaderApp extends React.PureComponent {
                 {
                   'original_ref': ref,
                   'ref': refUpOne,
-                  'num_tries': `${numTries + 1}`,
-                  'title': bookTitle
+                  'num_tries': `${numTries + 1}`
                 }
               );
 
@@ -769,8 +768,7 @@ class ReaderApp extends React.PureComponent {
               CrashlyticsService.recordError(
                 terminalError, {
                 'ref': ref,
-                'num_tries': `${numTries}`,
-                'title': bookTitle
+                'num_tries': `${numTries}`
                 }
               );
               
