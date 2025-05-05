@@ -756,8 +756,7 @@ class ReaderApp extends React.PureComponent {
                   'ref': refUpOne,
                   'num_tries': `${numTries + 1}`,
                   'title': bookTitle
-                },
-                true
+                }
               );
 
               this.loadNewText({ ref: refUpOne, versions, isLoadingVersion, numTries: numTries + 1 }).then(resolve);
@@ -772,7 +771,7 @@ class ReaderApp extends React.PureComponent {
                 'ref': ref,
                 'num_tries': `${numTries}`,
                 'title': bookTitle
-                }, true
+                }
               );
               
               this.openTextTocDirectly(bookTitle);
