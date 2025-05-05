@@ -170,7 +170,7 @@ async function _getOfflineSchemaVersion() {
   const lastUpdateJSON = await lastUpdated();
 
   // Check if lastUpdateJSON is empty or doesn't have schema_version
-  if (!lastUpdateJSON || Object.keys(lastUpdateJSON).length === 0 || !lastUpdateJSON.schema_version) {
+  if (!lastUpdateJSON || !Object.keys(lastUpdateJSON).length || !lastUpdateJSON.schema_version) {
     return null;
   }
 
