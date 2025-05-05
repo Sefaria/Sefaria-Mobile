@@ -15,15 +15,16 @@ const CrashlyticsService = {
    * The function enriches data where relevant:
    * - If you have a ref it will check if the title is downloaded and return a striped version of the downloaded index
    * 
-   * @param {Error|string} error - The error to record. Can be an Error object (to log the stack) or error message string.
+   * @param {Error} error - The Error object to record. Must be an Error object to capture the stack trace.
    * @param {Object} attributes - Key-value pairs of additional context to attach to the error. Will be offline info (schema version. If ref is present, will also include title, is title saved offline, simplified index)
    * @param {boolean} consoleLog - Whether to also log the error to console (default: false).
    * @returns {Promise<void>} A promise that resolves when the error has been recorded
    */
   recordError: async (error, attributes = {}, consoleLog = false) => {
-    // Accept an actual Error object or create one
-    const errorToRecord = error instanceof Error ? error : new Error(error);
-
+    if (!(error instanceof Error)) {
+      throw new Error('recordError must be called with an Error object');
+    }
+    
     await _enrichAttributes(attributes);
 
     // Set attributes
