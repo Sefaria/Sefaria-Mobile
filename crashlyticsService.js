@@ -23,21 +23,21 @@ const CrashlyticsService = {
   recordError: async (error, attributes = {}, consoleLog = false) => {
     // Accept an actual Error object or create one
     const errorToRecord = error instanceof Error ? error : new Error(error);
-    
+
     await _enrichAttributes(attributes);
-    
+
     // Set attributes
     Object.entries(attributes).forEach(([key, value]) => {
       if (value !== undefined && value !== null) {
         crashlytics().setAttribute(key, String(value));
       }
     });
-    
+
     // Optionally log to console
     if (consoleLog) {
       console.error('Crashlytics Error:', errorToRecord, attributes);
     }
-    
+
     // Record the error
     return crashlytics().recordError(errorToRecord);
   }
@@ -85,7 +85,7 @@ async function _enrichWithSchemaVersion(attributes) {
  */
 async function _enrichWithTitleInfo(attributes) {
   try {
-    const {ref} = attributes;
+    const { ref } = attributes;
     if (!ref) return;
 
     // Get the book title if it exists
@@ -144,7 +144,7 @@ function _simplifyIndex(schema, leaveKeys = defaultKeysToLeaveInIndex) {
   // Handle arrays encountered during recursion
   if (Array.isArray(schema)) {
     return schema.map(item => _simplifyIndex(item, leaveKeys))
-               .filter(item => item !== null && item !== undefined); // Remove null/undefined results. prevents adding keys whose entire sub-tree was filtered out
+      .filter(item => item !== null && item !== undefined); // Remove null/undefined results. prevents adding keys whose entire sub-tree was filtered out
   }
 
   // Handle objects (the primary expected type)
@@ -155,7 +155,7 @@ function _simplifyIndex(schema, leaveKeys = defaultKeysToLeaveInIndex) {
       // Keep the key if its filtered value is not null or undefined
       // This prevents adding keys whose entire sub-tree was filtered out
       if (filteredValue !== null && filteredValue !== undefined) {
-         filteredObj[key] = filteredValue;
+        filteredObj[key] = filteredValue;
       }
     }
   }
@@ -167,14 +167,14 @@ function _simplifyIndex(schema, leaveKeys = defaultKeysToLeaveInIndex) {
  * @returns {Promise<string|null>} the version number. Returns null if not found.
  */
 async function _getOfflineSchemaVersion() {
-    const lastUpdateJSON = await lastUpdated();
-    
+  const lastUpdateJSON = await lastUpdated();
+
   // Check if lastUpdateJSON is empty or doesn't have schema_version
   if (!lastUpdateJSON || Object.keys(lastUpdateJSON).length === 0 || !lastUpdateJSON.schema_version) {
-      return null;
-    }
-    
-    return lastUpdateJSON.schema_version;
+    return null;
   }
+
+  return lastUpdateJSON.schema_version;
+}
 
 export default CrashlyticsService;
