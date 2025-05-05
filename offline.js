@@ -131,12 +131,12 @@ export const openFileInSources = async function(filename) {
 
 
 /**
-     * Function returned the index of a book in the given ref
-     * The data is taken from the index in the offline data
-     * 
-     * @param {string}  ref  – ref for which we will get the book index - This can be a broken ref (used in crashlytics)
-     * @returns {object|null} - Offline books index
- */
+    * Function returned the index of a book in the given ref
+    * The data is taken from the index in the offline data
+    * 
+    * @param {string}  ref  – ref for which we will get the book index - This can be a broken ref (used in crashlytics)
+    * @returns {object|null} - Offline books index
+    */
 export async function getOfflineTitleIndex(ref) {
 
     
