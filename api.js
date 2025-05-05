@@ -168,6 +168,7 @@ var Api = {
       switch (apiType) {
         case "text":
           const { context, versions, stripItags } = extra_args;
+          url += 'api/texts/';
           urlSuffix = `?context=${context === true ? 1 : 0}&commentary=0`;
           if (versions) {
             // Patch: We disregard the version if it's not a string to deal with the change of structure around the move to RTL
