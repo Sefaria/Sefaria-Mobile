@@ -5,7 +5,7 @@
 
 import {ERRORS} from "./errors";
 import {
-    loadTextTocOffline,
+    loadTextIndexOffline,
     loadTextOffline,
     loadLinksOffline,
     getOfflineVersionObjectsAvailable,
@@ -81,7 +81,7 @@ export const textToc = function(title) {
         if (title in _textToc) {
             resolve(_textToc[title]);
         } else {
-            loadTextTocOffline(title)
+            loadTextIndexOffline(title)
                 .then(resolver)
                 .catch(()=>{
                     api._request(title, 'index', true, {}).then(resolver)

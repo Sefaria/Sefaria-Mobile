@@ -53,7 +53,7 @@ export const getAllTranslationsOffline = async function (ref, context=true) {
     return {translations, missingVersions};
 }
 
-export const loadTextTocOffline = function(title) {
+export const loadTextIndexOffline = function(title) {
     return _loadJSON(_JSONSourcePath(title + "_index"));
 };
 
@@ -146,16 +146,16 @@ export async function getOfflineTitleIndex(ref) {
         if (!await ensureTitleUnzipped(title)) { // Makes sure the title exists and is unziped to a json
             return null;
         } else {
-            let toc = await loadTextTocOffline(title);
-        if (!toc) {
-            console.error('loadTextTocOffline returned null/undefined for', title);
+            let index = await loadTextIndexOffline(title);
+        if (!index) {
+            console.error('loadTextIndexOffline returned null/undefined for', title);
             return null;
         }
-        if (!toc.schema) {
-            console.error('No schema field on index when loading with loadTextTocOffline for', title);
+        if (!index.schema) {
+            console.error('No schema field on index when loading with loadTextIndexOffline for', title);
             return null;
         }
-        return toc.schema
+        return index.schema
     } 
     } catch (err) {
         console.error('Error loading offline index. Message:', err);
