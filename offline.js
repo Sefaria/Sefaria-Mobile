@@ -5,21 +5,22 @@ import { unzip } from 'react-native-zip-archive';
 import LinkContent from './LinkContent';
 import {ERRORS} from "./errors";
 import {loadJSONFile} from "./DownloadControl";
-import {
-    fileExists
-} from './DownloadControl'
+import {fileExists} from './DownloadControl';
 
 /*
 PUBLIC INTERFACE
  */
 
 export const loadTextOffline = async function(ref, context, versions, fallbackOnDefaultVersions) {
+    
     const sectionData = await loadOfflineSectionCompat(ref, versions, fallbackOnDefaultVersions);
     const processed = processFileData(ref, sectionData);
+    
     if (context) {
         return processed;
     }
-    return {result: textFromRefData(processed)};
+    const result = textFromRefData(processed);
+    return {result};
 };
 
 export const getAllTranslationsOffline = async function (ref, context=true) {
@@ -52,9 +53,36 @@ export const getAllTranslationsOffline = async function (ref, context=true) {
     return {translations, missingVersions};
 }
 
-export const loadTextTocOffline = function(title) {
-    return _loadJSON(_JSONSourcePath(title + "_index"));
-}
+/**
+ * Loads the index file for a given reference from offline storage.
+ * This function handles title extraction, unzipping if needed, and error handling.
+ * 
+ * @param {string} ref - The reference for which to load the index. Can be a broken ref (used in crashlytics) or title.
+ * @returns {Promise<object|null>} - The full index object if successful, null if the index couldn't be loaded.
+ */
+export const loadTextIndexOffline = async function(ref) {
+    let title = Sefaria.textTitleForRef(ref);
+    
+    try {
+        if (!await ensureTitleUnzipped(title)) {
+            return null;
+        }
+        
+        let index = await _loadJSON(_JSONSourcePath(title + "_index"));
+        if (!index) {
+            console.error('loadTextIndexOffline returned null/undefined for', title);
+            return null;
+        }
+        if (!index.schema) {
+            console.error('No schema field on index when loading with loadTextIndexOffline for', title);
+            return null;
+        }
+        return index;
+    } catch (err) {
+        console.error('Error loading offline index. Message:', err);
+        return null;
+    }
+};
 
 export const getOfflineVersionObjectsAvailable = function(ref) {
     /**
@@ -126,6 +154,26 @@ export const openFileInSources = async function(filename) {
         fileData = await _loadJSON(sourcePath);
     }
     return fileData;
+};
+
+/**
+    * Returns true if we have an unpacked JSON or a ZIP for this book.
+    * 
+    * @param {string}  ref  – ref for which we will check if the title exists offline
+    * @returns {boolean} - If the book exists as a json or zip true, else false
+ */
+export async function hasOfflineTitle(ref) {
+    const title = Sefaria.textTitleForRef(ref);
+    const indexJsonPath = _JSONSourcePath(title + "_index");
+    
+    // If the JSON is already unpacked, great.
+    if (await fileExists(indexJsonPath)) {
+        return true;
+    };
+    
+    const indexZipPath = _zipSourcePath(title);
+    // Otherwise, check for a ZIP we could unzip on‑demand.
+    return await fileExists(indexZipPath);
 };
 
 /*
@@ -261,6 +309,7 @@ const loadOfflineSection = async function(ref, versions, fallbackOnDefaultVersio
     const offlineSectionKey = getOfflineSectionKey(ref, versions);
     const cached = Sefaria._jsonSectionData[offlineSectionKey];
     if (cached) {
+        console.log(`Data is cached and returned in loadOfflineSection`);
         return cached;
     }
     const [metadata, fileNameStem] = await loadOfflineSectionMetadataWithCache(ref);
@@ -496,4 +545,47 @@ const processFileData = function(ref, data) {
     data.isSectionLevel = (ref === data.sectionRef);
     Sefaria.cacheVersionsAvailableBySection(data.sectionRef, data.versions);
     return data;
+};
+
+/**
+* Checks if a book's index JSON fil©index JSON exists or the unzip was successful, false otherwise
+*/
+async function ensureTitleUnzipped(title) {
+
+    const titleIsOffline = hasOfflineTitle(title);
+
+    if (!titleIsOffline) {
+        return false; // Title Doesn't exist offline
+    } else {
+        const indexJsonPath = _JSONSourcePath(title + "_index"); // Path like /path/to/Title_index.json
+        const indexJsonExists = await fileExists(indexJsonPath);
+
+        if (indexJsonExists) {
+            return true; // Already unzipped
+        }
+
+        // Index JSON doesn't exist, check for the zip file
+        const zipPath = _zipSourcePath(title); // Path like /path/to/library/Title.zip
+        const zipExists = await fileExists(zipPath);
+
+        if (zipExists) {
+            try {
+                await _unzip(zipPath);
+                // Verify that the index file now exists after unzipping
+                const unzippedIndexExists = await fileExists(indexJsonPath);
+                if (unzippedIndexExists) {
+                    return true;
+                } else {
+                    return false;
+                }
+            } catch (error) {
+                console.error(`Error unzipping ${zipPath}:`, error);
+                return false;
+            }
+        } else {
+            // Shouldn't be possible if titleIsOffline == true
+            console.error(`Neither index JSON nor zip file found for ${title} even though titleIsOffline=ture`);
+            throw new Error(`Neither index JSON nor zip file found for ${title} even though titleIsOffline=ture`);
+        }
+    }
 };
