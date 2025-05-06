@@ -6,6 +6,31 @@ require Pod::Executable.execute_command('node', ['-p',
     {paths: [process.argv[1]]},
   )', __dir__]).strip
 
+# Define a post processor to fix expo dependency issues
+module Expo
+  module PostInstall
+    def self.excluded_pods
+      ['ReactAppDependencyProvider']
+    end
+    
+    def self.fix_dependencies(installer)
+      installer.pods_project.targets.each do |target|
+        if target.name == 'Expo'
+          target.build_configurations.each do |config|
+            # Remove dependency on ReactAppDependencyProvider
+            dependencies = config.build_settings['OTHER_LDFLAGS'] || []
+            dependencies = dependencies.gsub(/-l"ReactAppDependencyProvider"/, '')
+            config.build_settings['OTHER_LDFLAGS'] = dependencies
+          end
+        end
+      end
+    end
+  end
+end
+
+# Add pod source for Github
+source 'https://github.com/CocoaPods/Specs.git'
+
 MIN_IOS_OVERRIDE = '15.5'
 if Gem::Version.new(MIN_IOS_OVERRIDE) > Gem::Version.new(min_ios_version_supported)
   min_ios_version_supported = MIN_IOS_OVERRIDE
@@ -25,6 +50,7 @@ target 'ReaderApp' do
 	post_integrate do |installer|
 	  begin
       expo_patch_react_imports!(installer)
+      Expo::PostInstall.fix_dependencies(installer)
     rescue => e
       Pod::UI.warn e
     end
@@ -36,7 +62,8 @@ target 'ReaderApp' do
     # An absolute path to your application root.
     :app_path => "#{Pod::Config.instance.installation_root}/..",
     fabric_enabled: false,
-    hermes_enabled: true
+    hermes_enabled: true,
+    new_arch_enabled: false
   )
 
   # Pods for ReaderApp
@@ -58,6 +85,11 @@ post_install do |installer|
         defs = Array(defs) << 'FMT_USE_LOCALE=0'
         config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] = defs.uniq
       end
+    end
+    
+    # Exclude ReactAppDependencyProvider from dependencies
+    if Expo::PostInstall.excluded_pods.include?(target.name)
+      target.remove_from_project
     end
   end
   react_native_post_install(
