@@ -54,9 +54,7 @@ async function _enrichAttributes(attributes) {
   await _enrichWithSchemaVersion(attributes);
 
   // 2. Enrich with info about offline title
-  if (attributes.ref) {
-    await _enrichWithTitleInfo(attributes);
-  }
+  await _enrichWithTitleInfo(attributes);
 }
 
 /**
