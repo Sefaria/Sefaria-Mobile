@@ -34,7 +34,9 @@ target 'ReaderApp' do
     :path => $config[:reactNativePath],
     :production => production,
     # An absolute path to your application root.
-    :app_path => "#{Pod::Config.instance.installation_root}/.."
+    :app_path => "#{Pod::Config.instance.installation_root}/..",
+    fabric_enabled: false,
+    hermes_enabled: true
   )
 
   # Pods for ReaderApp
@@ -47,6 +49,17 @@ target 'ReaderApp' do
 end
 
 post_install do |installer|
+  installer.pods_project.targets.each do |target|
+    if target.name == 'fmt'
+      target.build_configurations.each do |config|
+        config.build_settings['CLANG_CXX_LANGUAGE_STANDARD'] = 'c++17'
+        config.build_settings['CLANG_CXX_LIBRARY']           = 'libc++'
+        defs = config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] || ['$(inherited)']
+        defs = Array(defs) << 'FMT_USE_LOCALE=0'
+        config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] = defs.uniq
+      end
+    end
+  end
   react_native_post_install(
     installer,
     $config[:reactNativePath],
