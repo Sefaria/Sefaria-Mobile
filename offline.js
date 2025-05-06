@@ -19,8 +19,8 @@ export const loadTextOffline = async function(ref, context, versions, fallbackOn
     if (context) {
         return processed;
     }
-    const finalText = textFromRefData(processed);
-    return {result: finalText};
+    const result = textFromRefData(processed);
+    return {result};
 };
 
 export const getAllTranslationsOffline = async function (ref, context=true) {
@@ -548,12 +548,7 @@ const processFileData = function(ref, data) {
 };
 
 /**
-* Checks if a book's index JSON file exists. If not, checks for the
-* corresponding zip file in the library and unzips it.
-* Returns true if the index JSON exists or the unzip was successful, false otherwise.
-* 
-* @param {string} title - The title to check
-* @returns {boolean} - True if the index JSON exists or the unzip was successful, false otherwise
+* Checks if a book's index JSON fil©index JSON exists or the unzip was successful, false otherwise
 */
 async function ensureTitleUnzipped(title) {
 
