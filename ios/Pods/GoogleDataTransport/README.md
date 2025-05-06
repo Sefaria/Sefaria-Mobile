@@ -88,6 +88,11 @@ The release process is as follows:
 * Publish the newly versioned pod to CocoaPods
 
   It's recommended to point to the `GoogleDataTransport.podspec` in `staging` to make sure the correct spec is being published.
+
+  > [!WARNING]
+  > Manually update your local SpecsStaging clone or run `pod repo update`
+  > before proceeding.
+
   ```console
   pod trunk push ~/.cocoapods/repos/staging/GoogleDataTransport/{version}/GoogleDataTransport.podspec --skip-tests
   ```
@@ -202,7 +207,7 @@ Alternatively disable signing in each target:
 ### Code Formatting
 
 To ensure that the code is formatted consistently, run the script
-[./scripts/check.sh](https://github.com/firebase/firebase-ios-sdk/blob/master/scripts/check.sh)
+[./scripts/check.sh](https://github.com/firebase/firebase-ios-sdk/blob/main/scripts/check.sh)
 before creating a PR.
 
 GitHub Actions will verify that any code changes are done in a style compliant
