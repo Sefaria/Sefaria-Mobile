@@ -12,7 +12,7 @@ export function useHTMLViewStyles(bilingual, textType) {
       const isHeb = textType === "hebrew";
       const lineHeightMultiplier = isHeb ? (Platform.OS === 'android' ? 1.333 : 1.25) : 1.15;
       const fontSizeMultiplier = isHeb ? 1 : 0.8;
-      const justifyStyle = {textAlign: isStacked ? 'justify' : (isHeb ? 'right' : 'left'), direction: isHeb ? "rtl" : "ltr"};
+      const justifyStyle = {textAlign: (isStacked && Platform.OS === 'android') ? 'justify' : (isHeb ? 'right' : 'left'), direction: (isHeb && Platform.OS === 'android') ? 'rtl' : 'ltr'};
       const lineHeight = fontSize * lineHeightMultiplier;
       const fontSizeScaled = fontSize * fontSizeMultiplier;
       const textStyle = [
