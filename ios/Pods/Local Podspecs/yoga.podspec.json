@@ -11,7 +11,7 @@
   "authors": "Facebook",
   "source": {
     "git": "https://github.com/facebook/react-native.git",
-    "tag": "v0.76.9"
+    "tag": "v0.77.2"
   },
   "module_name": "yoga",
   "header_dir": "yoga",
@@ -49,6 +49,7 @@
     "yoga/debug/AssertFatal.h",
     "yoga/debug/Log.h",
     "yoga/enums/Align.h",
+    "yoga/enums/BoxSizing.h",
     "yoga/enums/Dimension.h",
     "yoga/enums/Direction.h",
     "yoga/enums/Display.h",
@@ -70,6 +71,7 @@
     "yoga/event/event.h",
     "yoga/node/CachedMeasurement.h",
     "yoga/node/LayoutResults.h",
+    "yoga/node/LayoutableChildren.h",
     "yoga/node/Node.h",
     "yoga/numeric/Comparison.h",
     "yoga/numeric/FloatOptional.h",

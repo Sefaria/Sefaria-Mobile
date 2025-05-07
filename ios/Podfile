@@ -21,6 +21,18 @@ if linkage != nil
 end
 
 target 'ReaderApp' do
+  pod 'Firebase', :modular_headers => true
+  pod 'FirebaseCoreInternal', :modular_headers => true
+  pod 'GoogleUtilities', :modular_headers => true
+  pod 'FirebaseCrashlytics', :modular_headers => true
+  pod 'FirebaseCore', :modular_headers => true
+  pod 'FirebaseInstallations', :modular_headers => true
+  pod 'GoogleDataTransport', :modular_headers => true
+  pod 'nanopb', :modular_headers => true
+  pod 'FirebaseRemoteConfig', :modular_headers => true
+  pod 'FirebaseABTesting', :modular_headers => true
+  pod 'FirebaseSessions', :modular_headers => true
+  pod 'FirebaseCoreExtension', :modular_headers => true
   use_expo_modules!
 	post_integrate do |installer|
 	  begin
@@ -40,10 +52,6 @@ target 'ReaderApp' do
   # Pods for ReaderApp
   # <THIS LINE LEFT EMPTY ON PURPOSE>
 
-  target 'ReaderAppTests' do
-    inherit! :complete
-    # Pods for testing
-  end
 end
 
 post_install do |installer|

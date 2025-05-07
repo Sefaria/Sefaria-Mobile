@@ -20,7 +20,8 @@
     "HEADER_SEARCH_PATHS": "\"$(PODS_ROOT)/DoubleConversion\""
   },
   "pod_target_xcconfig": {
-    "DEFINES_MODULE": "YES"
+    "DEFINES_MODULE": "YES",
+    "GCC_WARN_INHIBIT_ALL_WARNINGS": "YES"
   },
   "platforms": {
     "ios": "15.1"
