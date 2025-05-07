@@ -105,7 +105,9 @@ function _enrichAnalyticsFromState(eventParams) {
   return augmentedParams;
 };
 
-// Track the NetInfo event listener for proper cleanup
+// # Tracking the online status
+
+// Track the NetInfo event listener for proper cleanup - used for is_online
 let _netInfoUnsubscribe = null;
 
 // Cached network state for analytics
@@ -137,4 +139,4 @@ function _initOnlineStatuseListner() {
  */
 function _getIsOnline() {
   return _cachedIsOnline;
-}
+};
