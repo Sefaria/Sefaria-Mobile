@@ -1264,7 +1264,7 @@ const SimpleMarkdown = ({children, lang, style, markdownProps}) => {
 }
 SimpleMarkdown.propTypes = {
   lang: PropTypes.oneOf(['hebrew', 'english']),
-  style: PropTypes.object,
+  style: PropTypes.oneOfType([PropTypes.array, PropTypes.object]),
   markdownProps: PropTypes.object,
 }
 

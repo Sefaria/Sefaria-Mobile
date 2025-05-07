@@ -25,7 +25,7 @@ import BackgroundFetch from "react-native-background-fetch";
 import { InAppBrowser } from 'react-native-inappbrowser-reborn';
 import BootSplash from "react-native-bootsplash";
 import nextFrame from 'next-frame';
-import RNShake from 'react-native-shake';
+import { Shake } from '@sapkalabs/react-native-shake';
 import SoundPlayer from 'react-native-sound-player'
 import { SearchState } from '@sefaria/search';
 
@@ -178,7 +178,7 @@ class ReaderApp extends React.PureComponent {
       this.networkChangeListener
     );
     this.backHandlerListener = BackHandler.addEventListener('hardwareBackPress', this.manageBack);
-    this.RNShakeSubscription = RNShake.addListener(() => {
+    this.RNShakeSubscription = Shake.onShake(() => {
       if (this.props.groggerActive === 'on' && Sefaria.isGettinToBePurimTime()) {
         SoundPlayer.playSoundFile('grogger', 'mp3');
         SoundPlayer.setVolume(10);
