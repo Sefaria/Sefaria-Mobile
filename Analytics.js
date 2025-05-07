@@ -89,16 +89,10 @@ export { trackEvent, initAnalytics, setCurrentScreen, trackPageview };
 function _enrichAnalyticsFromState(eventParams) {
   const globalState = getCurrentGlobalState();
 
-  // Parameters that are in the GA4 Parameters
   const isLoggedIn = globalState.isLoggedIn;
   const interfaceLanguage = globalState.interfaceLanguage;
   const trafficType = globalState.userEmail?.includes("sefaria.org") ? 'internal' : '';
   const isOnline = _getIsOnline();
-
-  // Other Parameters
-
-  // TODO: Double check this, I can't find offlinePackages anywhere in the code
-  const usesOfflinePackages = globalState.offlinePackages && globalState.offlinePackages.length > 0;
 
   const augmentedParams = {
     ...eventParams,
@@ -107,7 +101,6 @@ function _enrichAnalyticsFromState(eventParams) {
     traffic_type: trafficType,
     is_online: isOnline,
 
-    // user_uses_offline_packages: usesOfflinePackages,
   };
   return augmentedParams;
 };
