@@ -10,6 +10,7 @@ import RNBootSplash
 @main
 class AppDelegate: RCTAppDelegate {
   override func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
+    RCTI18nUtil.sharedInstance().allowRTL(true)
     FirebaseApp.configure()
 
     self.moduleName = "ReaderApp"
