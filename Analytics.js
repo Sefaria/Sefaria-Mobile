@@ -3,42 +3,16 @@ import analytics from "@react-native-firebase/analytics";
 import { isProd } from './env';
 import NetInfo from "@react-native-community/netinfo";
 
-// Track the NetInfo event listener for proper cleanup
-let netInfoUnsubscribe = null;
-
-// Cached network state for analytics
-let cachedIsOnline = null;
-
-/**
- * Helper function to get the current online status
- * @returns {boolean} Whether the device is currently online
- */
-function getIsOnline() {
-  return cachedIsOnline;
-}
 
 /**
  * Initializes analytics collection
  */
 const initAnalytics = () => {
   analytics().setAnalyticsCollectionEnabled(true);
-  
-  // Set up NetInfo listener if not already set up
-  if (!netInfoUnsubscribe) {
-    // Set up a listener to update cached network state
-    netInfoUnsubscribe = NetInfo.addEventListener(state => {
-      cachedIsOnline = state.isConnected === true && state.isInternetReachable !== false;
-      if (!isProd) {
-        console.log(`Network state changed: isOnline=${cachedIsOnline}`);
-      }
-    });
 
-    // Initialize by fetching once
-    NetInfo.fetch().then(state => {
-      cachedIsOnline = state.isConnected === true && state.isInternetReachable !== false;
-    });
-  }
-  
+  // Set up NetInfo listener if not already set up
+  _initOnlineStatuseListner();
+
   if (!isProd) {
     console.log(`Analytics initialized`);
   }
@@ -65,7 +39,7 @@ const setCurrentScreen = (screen_name, screen_class) => {
 */
 const trackEvent = (eventName, eventParams = {}) => {
   const augmentedParams = _enrichAnalyticsFromState(eventParams);
-  
+
   analytics().logEvent(eventName, augmentedParams);
   if (!isProd) {
     console.log(`Analytics Event Tracked: ${eventName}`, augmentedParams);
@@ -88,7 +62,7 @@ const trackPageview = (pageType, customDimensions, contentGroups) => {
   //   page_type: pageType,
   //   ...customDimensions
   // };
-  
+
   // // Add content groups if provided
   // if (contentGroups) {
   //   for (const [key, value] of Object.entries(contentGroups)) {
@@ -119,7 +93,7 @@ function _enrichAnalyticsFromState(eventParams) {
   const isLoggedIn = globalState.isLoggedIn;
   const interfaceLanguage = globalState.interfaceLanguage;
   const trafficType = globalState.userEmail?.includes("sefaria.org") ? 'internal' : '';
-  const isOnline = getIsOnline();
+  const isOnline = _getIsOnline();
 
   // Other Parameters
 
@@ -132,8 +106,42 @@ function _enrichAnalyticsFromState(eventParams) {
     site_lang: interfaceLanguage,
     traffic_type: trafficType,
     is_online: isOnline,
-    
+
     // user_uses_offline_packages: usesOfflinePackages,
   };
   return augmentedParams;
 };
+
+// Track the NetInfo event listener for proper cleanup
+let _netInfoUnsubscribe = null;
+
+// Cached network state for analytics
+let _cachedIsOnline = null;
+
+/**
+ * Initializes the online status listener
+ */
+function _initOnlineStatuseListner() {
+  if (!_netInfoUnsubscribe) {
+    // Set up a listener to update cached network state
+    _netInfoUnsubscribe = NetInfo.addEventListener(state => {
+      _cachedIsOnline = state.isConnected === true && state.isInternetReachable !== false;
+      if (!isProd) {
+        console.log(`Network state changed: isOnline=${_cachedIsOnline}`);
+      }
+    });
+
+    // Initialize by fetching once
+    NetInfo.fetch().then(state => {
+      _cachedIsOnline = state.isConnected === true && state.isInternetReachable !== false;
+    });
+  }
+};
+
+/**
+ * Helper function to get the current online status
+ * @returns {boolean} Whether the device is currently online
+ */
+function _getIsOnline() {
+  return _cachedIsOnline;
+}
