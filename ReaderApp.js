@@ -536,8 +536,9 @@ class ReaderApp extends React.PureComponent {
     });
   };
 
-  /*
-  send current page stats to analytics
+  /**
+  * send current page stats to analytics
+  * Currently these isn't used because the call to analytics is commented out in Analytics.js
   */
   trackPageview = () => {
     let pageType  = this.state.menuOpen || (this.state.textListVisible ? "TextAndConnections" : "Text");
