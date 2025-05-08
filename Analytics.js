@@ -11,7 +11,7 @@ const initAnalytics = () => {
   analytics().setAnalyticsCollectionEnabled(true);
 
   // Set up NetInfo listener if not already set up
-  _initOnlineStatuseListner();
+  _initOnlineStatusListener();
 
   if (!isProd) {
     console.log(`Analytics initialized`);
@@ -116,7 +116,7 @@ let _cachedIsOnline = null;
 /**
  * Initializes the online status listener
  */
-function _initOnlineStatuseListner() {
+function _initOnlineStatusListener() {
   if (!_netInfoUnsubscribe) {
     // Set up a listener to update cached network state
     _netInfoUnsubscribe = NetInfo.addEventListener(state => {
