@@ -19,6 +19,7 @@ const STATE_ACTIONS = {
   toggleDebugInterruptingMessage: "TOGGLE_DEBUG_INTERRUPTING_MESSAGE",
   setBiLayout: "SET_BI_LAYOUT",
   setIsLoggedIn: "SET_IS_LOGGED_IN",
+  setUserEmail: "SET_USER_EMAIL",
   setHasDismissedSyncModal: "SET_HAS_DISMISSED_SYNC_MODAL",
   setDownloadNetworkSetting: "SET_DOWNLOAD_NETWORK_MODE",
   setReadingHistory: "SET_READING_HISTORY",
@@ -90,6 +91,11 @@ const ACTION_CREATORS = {
     type: STATE_ACTIONS.setIsLoggedIn,
     value: isLoggedIn,
   }),
+  setUserEmail: (email, fromAsync) => ({
+    type: STATE_ACTIONS.setUserEmail,
+    value: email,
+    fromAsync,
+  }),
   setHasDismissedSyncModal: (hasDismissed, fromAsync) => ({
     type: STATE_ACTIONS.setHasDismissedSyncModal,
     value: hasDismissed,
@@ -155,6 +161,10 @@ const ASYNC_STORAGE_DEFAULTS = {
     default: false,
     action: ACTION_CREATORS.setIsLoggedIn,
   },
+  userEmail: {
+    default: "",
+    action: ACTION_CREATORS.setUserEmail,
+  },
   hasDismissedSyncModal: {
     default: false,
     action: ACTION_CREATORS.setHasDismissedSyncModal,
@@ -183,6 +193,7 @@ const DEFAULT_STATE = {
   debugInterruptingMessage: ASYNC_STORAGE_DEFAULTS.debugInterruptingMessage.default,
   biLayout: ASYNC_STORAGE_DEFAULTS.biLayout.default,
   isLoggedIn: ASYNC_STORAGE_DEFAULTS.auth.default,
+  userEmail: ASYNC_STORAGE_DEFAULTS.userEmail.default,
   hasDismissedSyncModal: ASYNC_STORAGE_DEFAULTS.hasDismissedSyncModal.default,
   downloadNetworkSetting: ASYNC_STORAGE_DEFAULTS.downloadNetworkSetting.default,
   groggerActive: ASYNC_STORAGE_DEFAULTS.groggerActive.default,
@@ -192,117 +203,150 @@ const saveFieldToAsync = function (field, value) {
   AsyncStorage.setItem(field, JSON.stringify(value));
 };
 
+// Used as a duplicate of the state so the analytics can access them.
+let currentGlobalState = DEFAULT_STATE;
+
 const reducer = function (state, action) {
   if (UPDATE_SETTINGS_ACTIONS[action.type] && !action.fromAsync) {
     AsyncStorage.setItem('lastSettingsUpdateTime', JSON.stringify(action.time));
   }
+  let newState;
   switch (action.type) {
     case STATE_ACTIONS.setTheme:
       //const theme = action.value === "white" ? themeWhite : themeBlack;
       //no need to save value in async if that's where it is coming from
       if (!action.fromAsync) { saveFieldToAsync('color', action.value); }
-      return {
+      newState = {
         ...state,
         //theme,
         themeStr: action.value,
       };
+      break;
     case STATE_ACTIONS.setTextLanguage:
       if (!action.fromAsync) { saveFieldToAsync('textLanguage', action.value); }
-      return {
+      newState = {
         ...state,
         textLanguage: action.value,
       };
+      break;
     case STATE_ACTIONS.setInterfaceLanguage:
       if (!action.fromAsync) { saveFieldToAsync('interfaceLanguage', action.value); }
       if (action.value == 'hebrew') { strings.setLanguage('he'); }
       else if (action.value == 'english') { strings.setLanguage('en'); }
-      return {
+      newState = {
         ...state,
         interfaceLanguage: action.value,
       }
+      break;
     case STATE_ACTIONS.setEmailFrequency:
       if (!action.fromAsync) { saveFieldToAsync('emailFrequency', action.value); }
-      return {
+      newState = {
         ...state,
         emailFrequency: action.value,
       }
+      break;
     case STATE_ACTIONS.setReadingHistory:
       if (!action.fromAsync) {
         if (!action.value && state.readingHistory) { Sefaria.history.deleteHistory(false); }
         saveFieldToAsync('readingHistory', action.value);
       }
-      return {
+      newState = {
         ...state,
         readingHistory: action.value,
       }
+      break;
     case STATE_ACTIONS.setPreferredCustom:
       if (!action.fromAsync) { saveFieldToAsync('preferredCustom', action.value); }
-      return {
+      newState = {
         ...state,
         preferredCustom: action.value,
       }
+      break;
     case STATE_ACTIONS.setFontSize:
       if (!action.fromAsync) { saveFieldToAsync('fontSize', action.value); }
-      return {
+      newState = {
         ...state,
         fontSize: action.value,
       }
+      break;
     case STATE_ACTIONS.setAliyot:
       if (!action.fromAsync) { saveFieldToAsync('showAliyot', action.value); }
-      return {
+      newState = {
         ...state,
         showAliyot: action.value,
       }
+      break;
     case STATE_ACTIONS.setVocalization:
       if (!action.fromAsync) { saveFieldToAsync('vocalization', action.value); }
-      return {
+      newState = {
         ...state,
         vocalization: action.value,
-      }    
+      }  
+      break;  
     case STATE_ACTIONS.toggleDebugInterruptingMessage:
       // toggle if you didn't pass in debug, otherwise you're initializing the value
       const newDebug = action.value === undefined ? (!state.debugInterruptingMessage) : action.value;
       if (!action.fromAsync) { saveFieldToAsync('debugInterruptingMessage', newDebug); }
-      return {
+      newState = {
         ...state,
         debugInterruptingMessage: newDebug,
       }
+      break;
     case STATE_ACTIONS.setBiLayout:
       if (!action.fromAsync) { saveFieldToAsync('biLayout', action.value); }
-      return {
+      newState = {
         ...state,
         biLayout: action.value,
       }
+      break;
     case STATE_ACTIONS.setIsLoggedIn:
       // action can be passed either object or bool
       const isLoggedIn = !!action.value;
       if (isLoggedIn && !!action.value.uid) { Sefaria._auth = action.value; }
-      return {
+      newState = {
         ...state,
         isLoggedIn,
       }
+      break;
+    case STATE_ACTIONS.setUserEmail:
+      if (!action.fromAsync) { saveFieldToAsync('userEmail', action.value); }
+      newState = {
+        ...state,
+        userEmail: action.value,
+      }
+      break;
     case STATE_ACTIONS.setHasDismissedSyncModal:
       if (!action.fromAsync) { saveFieldToAsync('hasDismissedSyncModal', action.value); }
-      return {
+      newState = {
         ...state,
         hasDismissedSyncModal: action.value,
       }
+      break;
     case STATE_ACTIONS.setDownloadNetworkSetting:
       if (!action.fromAsync) { saveFieldToAsync('downloadNetworkSetting', action.value); }
-      return {
+      newState = {
         ...state,
         downloadNetworkSetting: action.value,
       };
+      break;
     case STATE_ACTIONS.setGroggerActive:
       if (!action.fromAsync) { saveFieldToAsync('groggerActive', action.value); }
-      return {
+      newState = {
         ...state,
         groggerActive: action.value,
       };
+      break;
     default:
-      return state;
+      newState = state;
+      break;
   }
+
+  currentGlobalState = newState;
+  return newState;
 };
+
+// Allows acess to the duplication of the state that is used by analytics
+const getCurrentGlobalState = () => currentGlobalState;
 
 const initAsyncStorage = dispatch => {
   // Loads data from each field in `_data` stored in Async storage into local memory for sync access.
@@ -338,4 +382,5 @@ export {
   GlobalStateContext,
   DispatchContext,
   getTheme,
+  getCurrentGlobalState,
 };

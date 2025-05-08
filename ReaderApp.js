@@ -61,6 +61,7 @@ import {Dedication} from  "./Dedication"
 import {
   Tracker as DownloadTracker,
 } from "./DownloadControl.js"
+import { initAnalytics, trackCurrentScreen, trackEvent, trackPageview } from './Analytics';
 
 
 
@@ -173,7 +174,7 @@ class ReaderApp extends React.PureComponent {
       requiredNetworkType: BackgroundFetch.NETWORK_TYPE_ANY,
     }, this.onBackgroundSync, error => console.log('error starting BackgroundFetch'));
     this.initFiles();
-    Sefaria.track.init();
+    initAnalytics();
     this.NetInfoEventListener = NetInfo.addEventListener(
       this.networkChangeListener
     );
@@ -188,7 +189,7 @@ class ReaderApp extends React.PureComponent {
       const { PlayInstallReferrer } = require('react-native-play-install-referrer');
       PlayInstallReferrer.getInstallReferrerInfo((installReferrerInfo, error) => {
         if (!error) {
-          Sefaria.track.event("Install", {
+          trackEvent("Install", {
             installReferrer: installReferrerInfo.installReferrer,
             referrerClickTimestampSeconds: installReferrerInfo.referrerClickTimestampSeconds,
             installBeginTimestampSeconds: installReferrerInfo.installBeginTimestampSeconds,
@@ -208,6 +209,11 @@ class ReaderApp extends React.PureComponent {
     this.props.dispatch({
       type: STATE_ACTIONS.setIsLoggedIn,
       value: false,
+    });
+    // Clear the user email
+    this.props.dispatch({
+      type: STATE_ACTIONS.setUserEmail,
+      value: "",
     });
   };
 
@@ -530,8 +536,9 @@ class ReaderApp extends React.PureComponent {
     });
   };
 
-  /*
-  send current page stats to analytics
+  /**
+  * send current page stats to analytics
+  * Currently these isn't used because the call to analytics is commented out in Analytics.js
   */
   trackPageview = () => {
     let pageType  = this.state.menuOpen || (this.state.textListVisible ? "TextAndConnections" : "Text");
@@ -549,7 +556,7 @@ class ReaderApp extends React.PureComponent {
     let sideBar   = this.state.linkRecentFilters.length > 0 ? this.state.linkRecentFilters.map(filt => filt.title).join('+') : 'all';
     let versTit   = ''; //we don't support this yet
 
-    Sefaria.track.pageview(pageType,
+    trackPageview(pageType,
       {'Panels Open': numPanels, 'Book Name': bookName, 'Ref': ref, 'Version Title': versTit, 'Page Type': pageType, 'Sidebars': sideBar},
       {1: primCat, 2: secoCat, 3: bookName, 5: contLang}
     );
@@ -1187,7 +1194,7 @@ class ReaderApp extends React.PureComponent {
     }
     this.setState({menuOpen: menu});
     if (via && typeof via === 'string') {
-      Sefaria.track.event("OpenMenu", {menu, via});
+      trackEvent("OpenMenu", {menu, via});
     }
   };
 
@@ -1649,7 +1656,7 @@ class ReaderApp extends React.PureComponent {
     }
   }
   onQueryChange = (type, query, resetQuery, fromBackButton, getFilters) => {
-    Sefaria.track.event("Search", {query_type: type, query: query});
+    trackEvent("Search", {query_type: type, query: query});
     // getFilters should be true if the query has changed or the exactType has changed
     const searchState = this._getSearchState(type);
     const searchStateName = this._getSearchStateName(type);
@@ -1939,7 +1946,7 @@ class ReaderApp extends React.PureComponent {
       case (null):
         break;
       case ("navigation"):
-          Sefaria.track.setScreen("toc", "navigation")
+          trackCurrentScreen("toc", "navigation")
         return (
           loading ?
           <LoadingView /> :
@@ -1954,12 +1961,12 @@ class ReaderApp extends React.PureComponent {
             />)
         );
       case ("learning schedules"):
-        Sefaria.track.setScreen("learning schedules", "navigation")
+        trackCurrentScreen("learning schedules", "navigation")
         return (
            <LearningSchedulesPage openRef={this.openRef} openUri={this.openUri} onBack={this.manageBackMain}/>
         );
       case ("text toc"):
-        Sefaria.track.setScreen("text toc", "menu")
+        trackCurrentScreen("text toc", "menu")
         return (
           <ReaderTextTableOfContents
             textUnavailableAlert={this.textUnavailableAlert}
@@ -1972,7 +1979,7 @@ class ReaderApp extends React.PureComponent {
             openUri={this.openUri}/>);
         break;
       case ("sheet meta"):
-        Sefaria.track.setScreen("sheet meta", "menu")
+        trackCurrentScreen("sheet meta", "menu")
         return (
           <SheetMeta
             sheet={this.state.sheet}
@@ -1981,7 +1988,7 @@ class ReaderApp extends React.PureComponent {
           />);
         break;
       case ("search"):
-        Sefaria.track.setScreen("search results", "search")
+        trackCurrentScreen("search results", "search")
         return(
           <SearchPage
             subMenuOpen={this.state.subMenuOpen}
@@ -2008,7 +2015,7 @@ class ReaderApp extends React.PureComponent {
           />);
         break;
       case ("autocomplete"):
-        Sefaria.track.setScreen("autocomplete", "search")
+        trackCurrentScreen("autocomplete", "search")
         return (
           <AutocompletePage
             interfaceLanguage={this.props.interfaceLanguage}
@@ -2028,17 +2035,17 @@ class ReaderApp extends React.PureComponent {
           />);
         break;
       case ("settings"):
-        Sefaria.track.setScreen("settings", "menu")
+        trackCurrentScreen("settings", "menu")
         return(<SettingsPage close={this.manageBackMain} logout={this.logout} openUri={this.openUri} />);
       case ("account-menu"):
-        Sefaria.track.setScreen("account-menu", "menu")
+        trackCurrentScreen("account-menu", "menu")
         return(<AccountNavigationMenu 
             openMenu={this.openMenu}
             openUri={this.openUri}
             logout={this.logout}
         />);
       case ("history"):
-        Sefaria.track.setScreen("history", "menu")
+        trackCurrentScreen("history", "menu")
         return(<HistorySavedPage openRef={this.openRef} openMenu={this.openMenu} hasInternet={this.state.hasInternet}/>);  
         /*return(
           <SwipeableCategoryList
@@ -2062,7 +2069,7 @@ class ReaderApp extends React.PureComponent {
         );*/
         break;
       case ("saved"):
-        /*Sefaria.track.setScreen("saved", "menu")
+        /*trackCurrentScreen("saved", "menu")
         return(
           <SwipeableCategoryList
             close={this.manageBackMain}
@@ -2099,7 +2106,7 @@ class ReaderApp extends React.PureComponent {
         );
         break;
       case ("topic toc"):
-        Sefaria.track.setScreen("topics nav", "navigation")
+        trackCurrentScreen("topics nav", "navigation")
         return(
            <TopicCategory
              onBack={this.manageBackMain}
@@ -2109,6 +2116,7 @@ class ReaderApp extends React.PureComponent {
            />
         );
       case ("topic"):
+        trackCurrentScreen(`topic ${this.state.navigationTopic.title.en}`, "reader")
         return(
           <TopicPage
             onBack={this.manageBackMain}
@@ -2125,7 +2133,7 @@ class ReaderApp extends React.PureComponent {
         );
 
       case ("mySheets"):
-        Sefaria.track.setScreen("my sheets page", "navigation")
+        trackCurrentScreen("my sheets page", "navigation")
         return(
           loading ?
           <LoadingView /> :
@@ -2145,10 +2153,10 @@ class ReaderApp extends React.PureComponent {
     const isSheet = !!this.state.sheet;
 
     if (isSheet) {
-        Sefaria.track.setScreen("Sheet " + this.state.sheet.id, "reader")
+        trackCurrentScreen("Sheet " + this.state.sheet.id, "reader")
     }
     else {
-        Sefaria.track.setScreen(this.state.textTitle, "reader")
+        trackCurrentScreen(this.state.textTitle, "reader")
     }
     let textColumnFlex = this.state.textListVisible ? 1.0 - this.state.textListFlex : 1.0;
     let relatedData = {};
