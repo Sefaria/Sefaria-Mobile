@@ -55,7 +55,7 @@ const trackEvent = (eventName, eventParams = {}) => {
  */
 const trackPageview = (pageType, customDimensions, contentGroups) => {
   // TODO: This seems to fire every time a new ref comes in or out of view and doesn't seem to give super rich data is this by design?
-  // This was origianlly commented out 16 months ago before the refactor to Analytics, so it would be best to get to this.
+  // This was origianlly commented out in 2023 Dec (#4448f03) before the refactor to Analytics, so it would be best to get to this.
 
   // This implementation was not tested since the refactor, it was refactored and commented out.
   // const eventParams = {
