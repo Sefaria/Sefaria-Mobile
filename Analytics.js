@@ -24,7 +24,7 @@ const initAnalytics = () => {
  * @param {string} screen_name - The name of the screen
  * @param {string} screen_class - The class of the screen
  */
-const setCurrentScreen = (screen_name, screen_class) => {
+const trackCurrentScreen = (screen_name, screen_class) => {
   analytics().logScreenView({ screen_class, screen_name });
   if (!isProd) {
     console.log(`Analytics Screen Set: ${screen_name}; Screen class: ${screen_class}`);
@@ -78,7 +78,7 @@ const trackPageview = (pageType, customDimensions, contentGroups) => {
   // }
 };
 
-export { trackEvent, initAnalytics, setCurrentScreen, trackPageview };
+export { trackEvent, initAnalytics, trackCurrentScreen, trackPageview };
 
 /**
  * Enriches analytics event parameters with user and app state information.

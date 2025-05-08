@@ -61,7 +61,7 @@ import {Dedication} from  "./Dedication"
 import {
   Tracker as DownloadTracker,
 } from "./DownloadControl.js"
-import { initAnalytics, setCurrentScreen, trackEvent, trackPageview } from './Analytics';
+import { initAnalytics, trackCurrentScreen, trackEvent, trackPageview } from './Analytics';
 
 
 
@@ -1946,7 +1946,7 @@ class ReaderApp extends React.PureComponent {
       case (null):
         break;
       case ("navigation"):
-          setCurrentScreen("toc", "navigation")
+          trackCurrentScreen("toc", "navigation")
         return (
           loading ?
           <LoadingView /> :
@@ -1961,12 +1961,12 @@ class ReaderApp extends React.PureComponent {
             />)
         );
       case ("learning schedules"):
-        setCurrentScreen("learning schedules", "navigation")
+        trackCurrentScreen("learning schedules", "navigation")
         return (
            <LearningSchedulesPage openRef={this.openRef} openUri={this.openUri} onBack={this.manageBackMain}/>
         );
       case ("text toc"):
-        setCurrentScreen("text toc", "menu")
+        trackCurrentScreen("text toc", "menu")
         return (
           <ReaderTextTableOfContents
             textUnavailableAlert={this.textUnavailableAlert}
@@ -1979,7 +1979,7 @@ class ReaderApp extends React.PureComponent {
             openUri={this.openUri}/>);
         break;
       case ("sheet meta"):
-        setCurrentScreen("sheet meta", "menu")
+        trackCurrentScreen("sheet meta", "menu")
         return (
           <SheetMeta
             sheet={this.state.sheet}
@@ -1988,7 +1988,7 @@ class ReaderApp extends React.PureComponent {
           />);
         break;
       case ("search"):
-        setCurrentScreen("search results", "search")
+        trackCurrentScreen("search results", "search")
         return(
           <SearchPage
             subMenuOpen={this.state.subMenuOpen}
@@ -2015,7 +2015,7 @@ class ReaderApp extends React.PureComponent {
           />);
         break;
       case ("autocomplete"):
-        setCurrentScreen("autocomplete", "search")
+        trackCurrentScreen("autocomplete", "search")
         return (
           <AutocompletePage
             interfaceLanguage={this.props.interfaceLanguage}
@@ -2035,17 +2035,17 @@ class ReaderApp extends React.PureComponent {
           />);
         break;
       case ("settings"):
-        setCurrentScreen("settings", "menu")
+        trackCurrentScreen("settings", "menu")
         return(<SettingsPage close={this.manageBackMain} logout={this.logout} openUri={this.openUri} />);
       case ("account-menu"):
-        setCurrentScreen("account-menu", "menu")
+        trackCurrentScreen("account-menu", "menu")
         return(<AccountNavigationMenu 
             openMenu={this.openMenu}
             openUri={this.openUri}
             logout={this.logout}
         />);
       case ("history"):
-        setCurrentScreen("history", "menu")
+        trackCurrentScreen("history", "menu")
         return(<HistorySavedPage openRef={this.openRef} openMenu={this.openMenu} hasInternet={this.state.hasInternet}/>);  
         /*return(
           <SwipeableCategoryList
@@ -2069,7 +2069,7 @@ class ReaderApp extends React.PureComponent {
         );*/
         break;
       case ("saved"):
-        /*setCurrentScreen("saved", "menu")
+        /*trackCurrentScreen("saved", "menu")
         return(
           <SwipeableCategoryList
             close={this.manageBackMain}
@@ -2106,7 +2106,7 @@ class ReaderApp extends React.PureComponent {
         );
         break;
       case ("topic toc"):
-        setCurrentScreen("topics nav", "navigation")
+        trackCurrentScreen("topics nav", "navigation")
         return(
            <TopicCategory
              onBack={this.manageBackMain}
@@ -2116,7 +2116,7 @@ class ReaderApp extends React.PureComponent {
            />
         );
       case ("topic"):
-        setCurrentScreen(`topic ${this.state.navigationTopic.title.en}`, "reader")
+        trackCurrentScreen(`topic ${this.state.navigationTopic.title.en}`, "reader")
         return(
           <TopicPage
             onBack={this.manageBackMain}
@@ -2133,7 +2133,7 @@ class ReaderApp extends React.PureComponent {
         );
 
       case ("mySheets"):
-        setCurrentScreen("my sheets page", "navigation")
+        trackCurrentScreen("my sheets page", "navigation")
         return(
           loading ?
           <LoadingView /> :
@@ -2153,10 +2153,10 @@ class ReaderApp extends React.PureComponent {
     const isSheet = !!this.state.sheet;
 
     if (isSheet) {
-        setCurrentScreen("Sheet " + this.state.sheet.id, "reader")
+        trackCurrentScreen("Sheet " + this.state.sheet.id, "reader")
     }
     else {
-        setCurrentScreen(this.state.textTitle, "reader")
+        trackCurrentScreen(this.state.textTitle, "reader")
     }
     let textColumnFlex = this.state.textListVisible ? 1.0 - this.state.textListFlex : 1.0;
     let relatedData = {};
