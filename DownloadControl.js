@@ -828,8 +828,8 @@ async function postDownload(downloadPath, newDownload=true) {
 
 const downloadBlockedNotification = () => {
   AlertManager.showAlert(
-    "Download Blocked by Network",
-    `Current network setting forbids download`,
+    strings.downloadBlockedByNetwork,
+    strings.networkSettingForbidsDownload,
     [{text: strings.ok}]
   )
 };

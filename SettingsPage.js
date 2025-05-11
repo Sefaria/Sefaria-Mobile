@@ -97,8 +97,8 @@ const usePkgState = () => {
         const netState = await NetInfo.fetch();
         if (!isDownloadAllowed(netState, downloadNetworkSetting)) {
           AlertManager.showAlert(
-            "Download Blocked by Network",
-            `Current network setting forbids download. Please change settings or connect to internet and try again.`,
+            strings.downloadBlockedByNetwork,
+            strings.networkSettingForbidsDownloadExtended,
             [{text: strings.ok}]
           );
           return
@@ -297,10 +297,10 @@ const SettingsPage = ({ close, logout, openUri }) => {
             Sefaria.debugNoLibrary = !Sefaria.debugNoLibrary;
             setNumPressesDebug(0);
             AlertManager.showAlert(
-              'Debug No Offline Library Mode',
-              `You've just ${Sefaria.debugNoLibrary ? "enabled" : "disabled"} debugging without the offline library. You can change this by tapping 'System' 7 times.`,
+              strings.debugNoLibraryMode,
+              strings.debugNoLibraryModeMessage.replace('${status}', Sefaria.debugNoLibrary ? strings.enabled : strings.disabled),
               [
-                {text: 'OK', onPress: ()=>{}},
+                {text: strings.ok, onPress: ()=>{}},
               ]
             );
           }

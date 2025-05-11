@@ -1246,8 +1246,8 @@ class ReaderApp extends React.PureComponent {
   openInDefaultBrowser = uri => {
     Linking.openURL(uri).catch(error => {
       AlertManager.showAlert(
-        "Failed to open URL",
-        `Failed to open ${uri}. If your browser is updating, wait for it to finish and try again. Otherwise, your phone might not have a browser installed. For help, email hello@sefaria.org.`,
+        strings.failedToOpenURL,
+        strings.failedToOpenURLMessage.replace('${uri}', uri),
         [
           {text: strings.ok}
         ]
