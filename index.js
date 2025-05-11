@@ -3,7 +3,6 @@
 import {
   AppRegistry,
   LogBox,
-  Alert,
 } from 'react-native';
 import React, { useReducer } from 'react';
 import { gestureHandlerRootHOC } from 'react-native-gesture-handler';
@@ -20,6 +19,7 @@ import {ErrorBoundary, useErrorBoundary} from "react-error-boundary";
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import ReaderApp from './ReaderApp';
 import '@react-native-firebase/crashlytics';  // to setup up generic crashlytics reports
+import AlertManager from './AlertManager';
 
 if (process.env.NODE_ENV !== "production" && false) {
   const whyDidYouRender = require("@welldone-software/why-did-you-render");
@@ -37,7 +37,7 @@ LogBox.ignoreLogs([
 ]);
 
 const generalAppErrorAlert = () => {
-  Alert.alert(
+  AlertManager.showAlert(
       strings.generalErrorAlertTitle,
       strings.generalErrorAlertMessage,
       [
