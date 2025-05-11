@@ -1,8 +1,6 @@
 'use strict';
 
-import {
-  Alert
-} from 'react-native';
+import AlertManager from './AlertManager';
 import 'abortcontroller-polyfill';
 
 import strings from './LocalizedStrings';
@@ -838,7 +836,7 @@ failSilently - if true, dont display a message if api call fails
       .then(json => {
         if ("error" in json) {
           if (!failSilently) {
-            Alert.alert(
+            AlertManager.showAlert(
               strings.textUnavailable,
               strings.textUnavailableFromWebMessage,
               [{text: strings.ok, onPress: () => { reject("Return to Nav"); } }]);
@@ -855,7 +853,7 @@ failSilently - if true, dont display a message if api call fails
         if (failSilently) {
           reject("Return to Nav");
         } else {
-          Alert.alert(
+          AlertManager.showAlert(
             strings.noInternet,
             strings.noInternetMessage,
             [

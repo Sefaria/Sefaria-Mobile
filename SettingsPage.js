@@ -9,7 +9,6 @@ import {
   TouchableWithoutFeedback,
   View,
   ScrollView,
-  Alert,
   Platform,
   PermissionsAndroid,
 } from 'react-native';
@@ -45,6 +44,7 @@ import {
 } from './DownloadControl';
 import Sefaria from "./sefaria";
 import * as FileSystem from 'expo-file-system';
+import AlertManager from './AlertManager';
 const DEBUG_MODE = false;
 
 /**
@@ -69,7 +69,7 @@ const getIsDisabledObj = () => {
 };
 
 const onPressDisabled = (child, parent) => {
-  Alert.alert(
+  AlertManager.showAlert(
     strings.alreadyDownloaded,
     `${strings.areIncludedIn} "${parent}"`,
     [
@@ -96,9 +96,9 @@ const usePkgState = () => {
       const addPackage = async () => {
         const netState = await NetInfo.fetch();
         if (!isDownloadAllowed(netState, downloadNetworkSetting)) {
-          Alert.alert(
-            "Download Blocked by Network",
-            `Current network setting forbids download. Please change settings or connect to internet and try again.`,
+          AlertManager.showAlert(
+            strings.downloadBlockedByNetwork,
+            strings.networkSettingForbidsDownloadExtended,
             [{text: strings.ok}]
           );
           return
@@ -113,7 +113,7 @@ const usePkgState = () => {
         }
       };
       if (PackagesState[pkgName].clicked) {
-        Alert.alert(
+        AlertManager.showAlert(
           strings.delete,
           strings.areYouSureDeletePackage,
           [{text: strings.yes, onPress: removePackage}, {text: strings.no}]
@@ -163,7 +163,7 @@ function abstractUpdateChecker(disableUpdateComponent, networkMode) {
         promptLibraryUpdate(totalDownloads, newBooks, networkMode);
       }
       else {
-        Alert.alert(
+        AlertManager.showAlert(
           strings.libraryUpToDate,
           strings.libraryUpToDateMessage,
           [
@@ -195,7 +195,7 @@ const SettingsPage = ({ close, logout, openUri }) => {
     await deleteBooks(booksToDelete);
   };
   const deleteAccount = () => {
-    Alert.alert( //ask for confirmation
+    AlertManager.showAlert( //ask for confirmation
       strings.deleteAccount,
       strings.deleteAccountMsg,
       [
@@ -208,7 +208,7 @@ const SettingsPage = ({ close, logout, openUri }) => {
             console.log("Deleting account");
             Sefaria.api.deleteUserAccount()
                 .then(()=> { //Inform user account has been deleted
-                   Alert.alert("", strings.deleteAccountOK, [{
+                   AlertManager.showAlert("", strings.deleteAccountOK, [{
                     text: strings.ok, onPress: () => {
                       setIsProcessing(false); //do it here so the delete account link doesnt re appear for a moment after deleting account
                       logout();
@@ -217,7 +217,7 @@ const SettingsPage = ({ close, logout, openUri }) => {
                 })
                 .catch(e => {// If an error occurred, inform user and open an email window to allow sending us an email 
                   setIsProcessing(false);
-                  Alert.alert("", strings.deleteAccountError, [{
+                  AlertManager.showAlert("", strings.deleteAccountError, [{
                     text: strings.ok, onPress: () => {
                       Sefaria.util.openComposedEmail("hello@sefaria.org", `Delete Account Error`, "");
                     }
@@ -258,7 +258,7 @@ const SettingsPage = ({ close, logout, openUri }) => {
 
             <SystemButton
               onPress={() => {
-                Alert.alert(
+                AlertManager.showAlert(
                   strings.deleteLibrary,
                   strings.confirmDeleteLibraryMessage,
                   [{text: strings.yes, onPress: deleteLibrary}, {text: strings.no}]
@@ -296,11 +296,11 @@ const SettingsPage = ({ close, logout, openUri }) => {
           else {
             Sefaria.debugNoLibrary = !Sefaria.debugNoLibrary;
             setNumPressesDebug(0);
-            Alert.alert(
-              'Debug No Offline Library Mode',
-              `You've just ${Sefaria.debugNoLibrary ? "enabled" : "disabled"} debugging without the offline library. You can change this by tapping 'System' 7 times.`,
+            AlertManager.showAlert(
+              strings.debugNoLibraryMode,
+              strings.debugNoLibraryModeMessage.replace('${status}', Sefaria.debugNoLibrary ? strings.enabled : strings.disabled),
               [
-                {text: 'OK', onPress: ()=>{}},
+                {text: strings.ok, onPress: ()=>{}},
               ]
             );
           }
@@ -387,7 +387,7 @@ const ButtonToggleSection = ({ langStyle }) => {
       })
     );
     if (!isReadingHistory && globalState.readingHistory) {
-      Alert.alert(
+      AlertManager.showAlert(
         strings.delete,
         strings.turningThisFeatureOff,
         [

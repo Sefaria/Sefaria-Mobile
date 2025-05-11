@@ -6,7 +6,6 @@ import crashlytics from '@react-native-firebase/crashlytics';  // to setup up ge
 import React from 'react';
 import {
   Animated,
-  Alert,
   LayoutAnimation,
   Dimensions,
   View,
@@ -73,6 +72,7 @@ import {
 import {FooterTabBar} from "./FooterTabBar";
 import {iconData} from "./IconData";
 import {getSafeViewStyleAndStatusBarBackground} from "./getSafeViewStyles";
+import AlertManager from './AlertManager';
 const ViewPort    = Dimensions.get('window');
 
 class ReaderApp extends React.PureComponent {
@@ -239,7 +239,7 @@ class ReaderApp extends React.PureComponent {
           this.openMenu("settings")
         };
         const onCancel = () => {
-          Alert.alert(
+          AlertManager.showAlert(
             strings.usingOnlineLibrary,
             strings.howToDownloadLibraryMessage,
             [
@@ -247,7 +247,7 @@ class ReaderApp extends React.PureComponent {
             ]);
         };
         const showWelcomeAlert = () => {
-          Alert.alert(
+          AlertManager.showAlert(
             strings.welcome,
             strings.downloadLibraryRecommendedMessage,
             [
@@ -1084,7 +1084,7 @@ class ReaderApp extends React.PureComponent {
   };
 
   textUnavailableAlert = ref => {
-    Alert.alert(
+    AlertManager.showAlert(
       strings.textUnavailable,
       strings.promptOpenOnWebMessage,
       [
@@ -1245,9 +1245,9 @@ class ReaderApp extends React.PureComponent {
 
   openInDefaultBrowser = uri => {
     Linking.openURL(uri).catch(error => {
-      Alert.alert(
-        "Failed to open URL",
-        `Failed to open ${uri}. If your browser is updating, wait for it to finish and try again. Otherwise, your phone might not have a browser installed. For help, email hello@sefaria.org.`,
+      AlertManager.showAlert(
+        strings.failedToOpenURL,
+        strings.failedToOpenURLMessage.replace('${uri}', uri),
         [
           {text: strings.ok}
         ]

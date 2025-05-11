@@ -1,5 +1,4 @@
 import React from 'react';
-import { Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import strings from '../LocalizedStrings';
 import renderer, { act } from 'react-test-renderer';
@@ -9,6 +8,12 @@ import {
 import SettingsPage from '../SettingsPage';
 import { ButtonToggleSetNew } from '../Misc';
 import TestContextWrapper from '../TestContextWrapper';
+import AlertManager from '../AlertManager';
+
+// Mock AlertManager
+jest.mock('../AlertManager', () => ({
+  showAlert: jest.fn(),
+}));
 
 test('settings buttons', async () => {
   // Sefaria.packages.available = [];  // todo: download refactor check how this is used and adapt
@@ -62,7 +67,7 @@ test('settings buttons with grogger', () => {
 });
 
 test('press reading history button', async () => {
-  jest.spyOn(Alert, 'alert');
+  jest.spyOn(AlertManager, 'showAlert');
   jest.spyOn(Sefaria.history, 'deleteHistory');
 
   Sefaria.util.epoch_time = jest.fn()
@@ -82,11 +87,11 @@ test('press reading history button', async () => {
   offOption.onPress();
 
   // check that popup is open
-  expect(Alert.alert).toHaveBeenCalledTimes(1);
-  expect(Alert.alert.mock.calls[0][0]).toBe(strings.delete);
+  expect(AlertManager.showAlert).toHaveBeenCalledTimes(1);
+  expect(AlertManager.showAlert.mock.calls[0][0]).toBe(strings.delete);
 
   // press delete button on popup
-  const deleteButton = Alert.alert.mock.calls[0][2].find(btn => btn.text === strings.delete);
+  const deleteButton = AlertManager.showAlert.mock.calls[0][2].find(btn => btn.text === strings.delete);
   act(deleteButton.onPress);
 
   // check that value of globalState is 'off'

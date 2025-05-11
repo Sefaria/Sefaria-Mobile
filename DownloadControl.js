@@ -3,10 +3,11 @@
 import * as FileSystem from 'expo-file-system';
 import {unzip} from 'react-native-zip-archive'; //for unzipping -- (https://github.com/plrthink/react-native-zip-archive)
 import strings from './LocalizedStrings'
-import {Alert, Platform} from 'react-native';
+import {Platform} from 'react-native';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import NetInfo from "@react-native-community/netinfo";
 import crashlytics from '@react-native-firebase/crashlytics';
+import AlertManager from './AlertManager';
 
 const SCHEMA_VERSION = "7";
 // const DOWNLOAD_SERVER = "http://10.0.2.2:5000"  // this ip will allow the android emulator to access a localhost server
@@ -709,7 +710,7 @@ async function downloadBundle(bundleName, networkSetting, downloadBuffer, recove
     await postDownload(downloadResult.uri, !recoveryMode);
   } catch (e) {
     crashlytics().log(e);
-    Alert.alert(
+    AlertManager.showAlert(
       strings.downloadError,
       strings.downloadErrorMessage,
       [{text: strings.ok}]
@@ -826,9 +827,9 @@ async function postDownload(downloadPath, newDownload=true) {
 }
 
 const downloadBlockedNotification = () => {
-  Alert.alert(
-    "Download Blocked by Network",
-    `Current network setting forbids download`,
+  AlertManager.showAlert(
+    strings.downloadBlockedByNetwork,
+    strings.networkSettingForbidsDownload,
     [{text: strings.ok}]
   )
 };
@@ -1057,14 +1058,14 @@ function promptLibraryUpdate(totalDownloads, newBooks, networkMode) {
   const updateString = `${newBooks.length} ${strings.newBooksAvailable}\n${updates} ${strings.updatesAvailableMessage}`;
 
   const onCancel = function () {
-    Alert.alert(
+    AlertManager.showAlert(
       strings.updateLater,
       strings.howToUpdateLibraryMessage,
       [
         {text: strings.ok}
       ])
   };
-  Alert.alert(
+  AlertManager.showAlert(
     strings.updateLibrary,
     updateString,
     [
@@ -1108,7 +1109,7 @@ async function throttlePromiseAll(argList, promiseCallback, maxWorkers=10) {
 }
 
 function doubleDownload() {
-  Alert.alert(
+  AlertManager.showAlert(
     strings.doubleDownload,
     '',
     [
