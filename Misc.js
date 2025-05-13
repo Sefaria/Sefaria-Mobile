@@ -725,11 +725,17 @@ const CollapseIcon = ({ showHebrew, isVisible }) => {
     }
   }
   return (
-    <Image
-      source={src}
-      style={[(showHebrew ? styles.collapseArrowHe : styles.collapseArrowEn), Platform.OS === 'android' ? {marginTop: 3} : null]}
-      resizeMode={'contain'}
-    />
+      // arrow margins vary greatly depending on the platform and language
+      <View style={[
+          (showHebrew ? styles.collapseArrowOuterHe : styles.collapseArrowOuterEn),
+          (Platform.OS === 'android' ? (showHebrew ? styles.collapseArrowAndroidHe : styles.collapseArrowAndroidEn) : (showHebrew ? styles.collapseArrowIOSHe : null))
+      ]}>
+        <Image
+            source={src}
+            style={styles.collapseArrow}
+            resizeMode={'contain'}
+        />
+      </View>
   );
 }
 CollapseIcon.propTypes = {

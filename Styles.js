@@ -475,16 +475,24 @@ export default StyleSheet.create({
     height: 15,
     paddingRight: 25,
   },
-  collapseArrowEn: {
-    width: 12,
-    height: 12,
-    paddingLeft: 20,
+  collapseArrowOuterEn: {
+    marginLeft: 5,
   },
-  collapseArrowHe: {
+  collapseArrowOuterHe: {
+    marginRight: 5,
+  },
+  collapseArrowAndroidEn: {
+    marginTop: 6,
+  },
+  collapseArrowAndroidHe: {
+    marginTop: 3,
+  },
+  collapseArrowIOSHe: {
+    marginTop: 3,
+  },
+  collapseArrow: {
     width: 12,
     height: 12,
-    paddingRight: 20,
-    marginTop: 3
   },
   forwardButtonEn: {
     width: 12,
