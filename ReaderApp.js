@@ -738,45 +738,7 @@ class ReaderApp extends React.PureComponent {
         }).catch(error => {
           console.log(`Dealing with error: ${error}. Ref: ${ref}`);
           if (error == "Return to Nav") {
-            // In case of unfound ref, try going one ref up (up to the book) before dealing with error by returning to nav.
-            // We do this to avoid failing in case of ref to a non existent ref after a changing index of a book.
-            const refUpOne = Sefaria.refUpOne(ref, true);
-
-            // Break if there is no more ref up to do.
-            // refUpOne checks if book exists, so code wont go into this if if the book doesn't exist
-            if (ref !== refUpOne) {
-              // Record navigation failure to Crashlytics
-              const navigationError = new Error('Navigation Failure: Ref resolution fallback needed');
-
-              // Record the error with detailed message and attributes
-              CrashlyticsService.recordError(
-                navigationError, 
-                {
-                  'original_ref': ref,
-                  'ref': refUpOne,
-                  'num_tries': `${numTries + 1}`
-                }
-              );
-
-              this.loadNewText({ ref: refUpOne, versions, isLoadingVersion, numTries: numTries + 1 }).then(resolve);
-            } else {
-              // Create an error object to capture stack trace at this location
-              const terminalError = new Error('Navigation Terminal Failure: Cannot resolve ref');
-
-
-              // Record the error with attributes and minimal logging
-              CrashlyticsService.recordError(
-                terminalError, {
-                'ref': ref,
-                'num_tries': `${numTries}`
-                }
-              );
-              
-              this.openTextTocDirectly(bookTitle);
-              // Pop up here because we silence the error in Sefaria.api._request to avoid uneeded popups during the recursive refUpone call.
-              this.textUnavailableAlert(ref)
-            }
-            resolve();
+            this.handleNavError(ref, versions, isLoadingVersion, numTries, resolve);
             return;
           }
           console.error('Error caught from ReaderApp.loadNewText', error);
@@ -2341,6 +2303,53 @@ class ReaderApp extends React.PureComponent {
     return bottomSafeAreaEdges;
   }
 
+  /**
+   * Handles "Return to Nav" errors by attempting to go up one reference level and loadNewText again.
+   * @param {string} ref - The original reference that failed
+   * @param {Object} versions - Version information
+   * @param {boolean} isLoadingVersion - Whether we're loading a specific version
+   * @param {number} numTries - Number of previous attempts
+   * @param {Function} resolve - Promise resolve function
+   */
+  handleNavError = (ref, versions, isLoadingVersion, numTries, resolve) => {
+    // In case of unfound ref, try going one ref up (up to the book) before dealing with error by returning to nav.
+    // We do this to avoid failing in case of ref to a non existent ref after a changing index of a book.
+    const refUpOne = Sefaria.refUpOne(ref, true);
+    
+    // Break if there is no more ref up to do.
+    // refUpOne checks if book exists, so code wont go into this if if the book doesn't exist
+    if (ref !== refUpOne) {
+      // Record the error with detailed message and attributes
+      console.log(`Temp. error recording for navigation failure: ${ref} -> ${refUpOne}`);
+      CrashlyticsService.recordError(
+        new Error('Navigation Failure: Ref resolution fallback needed'), 
+        {
+          'original_ref': ref,
+          'ref': refUpOne,
+          'num_tries': `${numTries + 1}`
+        }
+      );
+
+      this.loadNewText({ ref: refUpOne, versions, isLoadingVersion, numTries: numTries + 1 }).then(resolve);
+    } else {
+
+      // Record the error with attributes and minimal logging
+      CrashlyticsService.recordError(
+        new Error('Navigation Terminal Failure: Cannot resolve ref'), {
+          'ref': ref,
+          'num_tries': `${numTries}`
+        }
+      );
+      
+      const bookTitle = Sefaria.textTitleForRef(ref);
+      if (bookTitle) {
+        this.openTextTocDirectly(bookTitle);
+      }
+      // Pop up here because we silence the error in Sefaria.api._request to avoid uneeded popups during the recursive refUpone call.
+      this.textUnavailableAlert(ref);
+    }
+    resolve();
+  };
 
   render() {
     // StatuBar comment: can't figure out how to get barStyle = light-content to be respected on Android
