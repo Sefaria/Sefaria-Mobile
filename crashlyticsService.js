@@ -26,21 +26,21 @@ const CrashlyticsService = {
     }
     
     await _enrichAttributes(attributes);
-
+    
     // Set attributes
     Object.entries(attributes).forEach(([key, value]) => {
       if (value !== undefined && value !== null) {
         crashlytics().setAttribute(key, String(value));
       }
     });
-
+    
     // Optionally log to console
     if (consoleLog) {
-      console.error('Crashlytics Error:', errorToRecord, attributes);
+      console.error('Crashlytics Error:', error, attributes);
     }
 
     // Record the error
-    return crashlytics().recordError(errorToRecord);
+    return crashlytics().recordError(error);
   }
 };
 
