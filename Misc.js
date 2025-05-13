@@ -725,10 +725,12 @@ const CollapseIcon = ({ showHebrew, isVisible }) => {
     }
   }
   return (
-      // arrow margins vary greatly depending on the platform and language
+      // React Native 0.77 caused differences in spacing for this arrow icon on iOS and Android and English and Hebrew
+      // We are accounting for this with fine-grained styling below
       <View style={[
           (showHebrew ? styles.collapseArrowOuterHe : styles.collapseArrowOuterEn),
-          (Platform.OS === 'android' ? (showHebrew ? styles.collapseArrowAndroidHe : styles.collapseArrowAndroidEn) : (showHebrew ? styles.collapseArrowIOSHe : null))
+          (Platform.OS === 'android' ? (showHebrew ? styles.collapseArrowAndroidHe : styles.collapseArrowAndroidEn) :
+              (showHebrew ? styles.collapseArrowIOSHe : null))
       ]}>
         <Image
             source={src}
