@@ -725,11 +725,19 @@ const CollapseIcon = ({ showHebrew, isVisible }) => {
     }
   }
   return (
-    <Image
-      source={src}
-      style={[(showHebrew ? styles.collapseArrowHe : styles.collapseArrowEn), Platform.OS === 'android' ? {marginTop: 3} : null]}
-      resizeMode={'contain'}
-    />
+      // React Native 0.77 caused differences in spacing for this arrow icon on iOS and Android and English and Hebrew
+      // We are accounting for this with fine-grained styling below
+      <View style={[
+          (showHebrew ? styles.collapseArrowOuterHe : styles.collapseArrowOuterEn),
+          (Platform.OS === 'android' ? (showHebrew ? styles.collapseArrowAndroidHe : styles.collapseArrowAndroidEn) :
+              (showHebrew ? styles.collapseArrowIOSHe : null))
+      ]}>
+        <Image
+            source={src}
+            style={styles.collapseArrow}
+            resizeMode={'contain'}
+        />
+      </View>
   );
 }
 CollapseIcon.propTypes = {
