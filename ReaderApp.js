@@ -909,20 +909,20 @@ class ReaderApp extends React.PureComponent {
       Sefaria.offlineOnline.loadText(this.state.prev, true, this.state.selectedVersions, !this.state.hasInternet).then(function(data) {
 
         let updatedData = [data.content].concat(this.state.data);
-        this.state.sectionArray.unshift(data.sectionRef);
-        this.state.sectionHeArray.unshift(data.heRef);
-        this.state.linksLoaded.unshift(false);
-        this.state.translations.unshift({versions: []})
+        const newSectionArray = [data.sectionRef, ...this.state.sectionArray];
+        const newSectionHeArray = [data.heRef, ...this.state.sectionHeArray];
+        const newLinksLoaded = [false, ...this.state.linksLoaded];
+        const newTranslations = [{versions: []}, ...this.state.translations];
 
         this.setState({
           data: updatedData,
           prev: data.prev,
           next: this.state.next,
-          sectionArray: this.state.sectionArray,
-          sectionHeArray: this.state.sectionHeArray,
+          sectionArray: newSectionArray,
+          sectionHeArray: newSectionHeArray,
           sectionIndexRef: this.state.sectionIndexRef + 1,  // needs to be shifted
-          linksLoaded: this.state.linksLoaded,
-          translations: this.state.translations,
+          linksLoaded: newLinksLoaded,
+          translations: newTranslations,
           loaded: true,
           loadingTextHead: false,
         }, ()=>{
@@ -939,18 +939,18 @@ class ReaderApp extends React.PureComponent {
       this.setState({loadingTextTail: true});
       Sefaria.offlineOnline.loadText(this.state.next, true, this.state.selectedVersions, !this.state.hasInternet).then(function(data) {
 
-        let updatedData = this.state.data.concat([data.content]);
-        this.state.sectionArray.push(data.sectionRef);;
-        this.state.sectionHeArray.push(data.heRef);;
-        this.state.linksLoaded.push(false);;
+        let updatedData = [...this.state.data, data.content];
+        const newSectionArray = [...this.state.sectionArray, data.sectionRef];
+        const newSectionHeArray = [...this.state.sectionHeArray, data.heRef];
+        const newLinksLoaded = [...this.state.linksLoaded, false];
 
         this.setState({
           data: updatedData,
           prev: this.state.prev,
           next: data.next,
-          sectionArray: this.state.sectionArray,
-          sectionHeArray: this.state.sectionHeArray,
-          linksLoaded: this.state.linksLoaded,
+          sectionArray: newSectionArray,
+          sectionHeArray: newSectionHeArray,
+          linksLoaded: newLinksLoaded,
           loaded: true,
           loadingTextTail: false,
         }, ()=>{
@@ -1442,13 +1442,14 @@ class ReaderApp extends React.PureComponent {
       }
       const nextFilter = new LinkFilter(name, heName, collectiveTitle, heCollectiveTitle, nextRefList, nextHeRefList, category);
 
-      this.state.linkRecentFilters[filterIndex] = nextFilter;
+      const newLinkRecentFilters = [...this.state.linkRecentFilters];
+      newLinkRecentFilters[filterIndex] = nextFilter;
 
       const linkContents = nextFilter.refList.map((ref)=>null);
       Sefaria.links.reset();
       this.setState({
           filterIndex,
-          linkRecentFilters: this.state.linkRecentFilters,
+          linkRecentFilters: newLinkRecentFilters,
           linkContents,
       });
   };
@@ -1517,12 +1518,18 @@ class ReaderApp extends React.PureComponent {
       filterIndex = this.state.versionFilterIndex;
     }
     if (!segmentRef) { segmentRef = this.state.segmentRef; }
-    this.state.versionRecentFilters[filterIndex].refList = [segmentRef];
+    
+    const newVersionRecentFilters = [...this.state.versionRecentFilters];
+    newVersionRecentFilters[filterIndex] = {
+      ...newVersionRecentFilters[filterIndex],
+      refList: [segmentRef]
+    };
+    
     const versionContents = [null];
     //TODO make a parallel func for versions? Sefaria.links.reset();
     this.setState({
         versionFilterIndex: filterIndex,
-        versionRecentFilters: this.state.versionRecentFilters,
+        versionRecentFilters: newVersionRecentFilters,
         versionContents,
     });
   };
