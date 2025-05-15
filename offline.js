@@ -548,7 +548,7 @@ const processFileData = function(ref, data) {
 };
 
 /**
-* Checks if a book's index JSON fil©index JSON exists or the unzip was successful, false otherwise
+* Checks if a book's index JSON exists or the unzip was successful, false otherwise
 */
 async function ensureTitleUnzipped(title) {
 
