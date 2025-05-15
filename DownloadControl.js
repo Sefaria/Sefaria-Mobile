@@ -325,6 +325,12 @@ class Book {
   }
 }
 
+/**
+ * fileExists
+ * 
+ * @param {string} filePath - The path to the file to check
+ * @returns {boolean} - True if the file exists, false otherwise
+ */
 async function fileExists(filePath) {
   // RNFB had an explicit exists method, while Filesystem does not. This is useful for making the refactor simpler
   filePath = Platform.OS === "ios" ? encodeURI(filePath) : filePath;
