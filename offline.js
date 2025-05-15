@@ -68,7 +68,7 @@ export const loadTextIndexOffline = async function(ref) {
             return null;
         }
         
-        let index = await _loadJSON(_JSONSourcePath(title + "_index"));
+        let index = await _loadJSON(_indexJSONPath(title));
         if (!index) {
             console.error('loadTextIndexOffline returned null/undefined for', title);
             return null;
@@ -164,7 +164,7 @@ export const openFileInSources = async function(filename) {
  */
 export async function offlineTitleExists(ref) {
     const title = Sefaria.textTitleForRef(ref);
-    const indexJsonPath = _JSONSourcePath(title + "_index");
+    const indexJsonPath = _indexJSONPath(title);
     
     // If the JSON is already unpacked, great.
     if (await fileExists(indexJsonPath)) {
@@ -525,6 +525,10 @@ const _JSONSourcePath = function(fileName) {
     return (FileSystem.documentDirectory + "/" + fileName + ".json");
 };
 
+const _indexJSONPath = function(fileName) {
+    return FileSystem.documentDirectory + "/" + fileName + "_index";   
+};
+
 const _zipSourcePath = function(fileName) {
     return (FileSystem.documentDirectory + "/library/" + fileName + ".zip");
 };
@@ -557,7 +561,7 @@ async function ensureTitleUnzipped(title) {
     if (!titleIsOffline) {
         return false; // Title Doesn't exist offline
     } else {
-        const indexJsonPath = _JSONSourcePath(title + "_index"); // Path like /path/to/Title_index.json
+        const indexJsonPath = _indexJSONPath(title); // Path like /path/to/Title_index.json
         const indexJsonExists = await fileExists(indexJsonPath);
 
         if (indexJsonExists) {
