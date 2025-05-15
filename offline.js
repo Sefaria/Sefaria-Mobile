@@ -561,6 +561,7 @@ async function ensureTitleUnzipped(title) {
     if (!titleIsOffline) {
         return false; // Title Doesn't exist offline
     }
+    // Check if the unzipped JSON already exists
     const indexJsonPath = _indexJSONPath(title); // Path like /path/to/Title_index.json
     const indexJsonExists = await fileExists(indexJsonPath);
 
