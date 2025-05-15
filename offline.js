@@ -553,37 +553,33 @@ const processFileData = function(ref, data) {
 
 /**
 * Checks if a book's index JSON exists or the unzip was successful, false otherwise
+* @param {string} title - The title of the book to check
+* @returns {boolean} - True if the book exists offline, false otherwise
 */
 async function ensureTitleUnzipped(title) {
 
     const titleIsOffline = offlineTitleExists(title);
-
     if (!titleIsOffline) {
         return false; // Title Doesn't exist offline
     }
-    // Check if the unzipped JSON already exists
-    const indexJsonPath = _indexJSONPath(title); // Path like /path/to/Title_index.json
-    const indexJsonExists = await fileExists(indexJsonPath);
 
-    if (indexJsonExists) {
-        return true; // Already unzipped
-    }
-
-    // Index JSON doesn't exist, check for the zip file
-    const zipPath = _zipSourcePath(title); // Path like /path/to/library/Title.zip
+    // Check for the zip file
+    const zipPath = _zipSourcePath(title);
     const zipExists = await fileExists(zipPath);
 
     if (zipExists) {
         try {
             await _unzip(zipPath);
-            // Verify that the index file now exists after unzipping
-            return await fileExists(indexJsonPath);
         } catch (error) {
             console.error(`Error unzipping ${zipPath}:`, error);
             return false;
         }
     }
-    // Shouldn't be possible if titleIsOffline == true
-    throw new Error(`Neither index JSON nor zip file found for ${title} even though titleIsOffline=ture`);
+    // Verify that the index file now exists after unzipping if it wasn't already unzipped
+    if( await fileExists(_indexJSONPath(title))){
+        return true;
+    } else {
+        throw new Error(`File was unzipped but index JSON was not found for ${title}`);
+    };
     
 };
