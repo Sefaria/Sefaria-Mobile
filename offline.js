@@ -577,6 +577,7 @@ async function ensureTitleUnzipped(title) {
                 await _unzip(zipPath);
                 // Verify that the index file now exists after unzipping
                 const unzippedIndexExists = await fileExists(indexJsonPath);
+                return await fileExists(indexJsonPath);
                 if (unzippedIndexExists) {
                     return true;
                 } else {
