@@ -923,32 +923,34 @@ class ReaderApp extends React.PureComponent {
   };
 
   updateDataPrev = () => {
-      this.setState({loadingTextHead: true});
-      Sefaria.offlineOnline.loadText(this.state.prev, true, this.state.selectedVersions, !this.state.hasInternet).then(function(data) {
+    this.setState({loadingTextHead: true});
+    Sefaria.offlineOnline.loadText(this.state.prev, true, this.state.selectedVersions, !this.state.hasInternet)
+      .then((data) => {
+        this.setState(prevState => {
+          const updatedData = [data.content, ...prevState.data];
+          const newSectionArray = [data.sectionRef, ...prevState.sectionArray];
+          const newSectionHeArray = [data.heRef, ...prevState.sectionHeArray];
+          const newLinksLoaded = [false, ...prevState.linksLoaded];
+          const newTranslations = [{versions: []}, ...prevState.translations];
 
-        let updatedData = [data.content].concat(this.state.data);
-        const newSectionArray = [data.sectionRef, ...this.state.sectionArray];
-        const newSectionHeArray = [data.heRef, ...this.state.sectionHeArray];
-        const newLinksLoaded = [false, ...this.state.linksLoaded];
-        const newTranslations = [{versions: []}, ...this.state.translations];
-
-        this.setState({
-          data: updatedData,
-          prev: data.prev,
-          next: this.state.next,
-          sectionArray: newSectionArray,
-          sectionHeArray: newSectionHeArray,
-          sectionIndexRef: this.state.sectionIndexRef + 1,  // needs to be shifted
-          linksLoaded: newLinksLoaded,
-          translations: newTranslations,
-          loaded: true,
-          loadingTextHead: false,
-        }, ()=>{
+          return {
+            data: updatedData,
+            prev: data.prev,
+            next: prevState.next,
+            sectionArray: newSectionArray,
+            sectionHeArray: newSectionHeArray,
+            sectionIndexRef: prevState.sectionIndexRef + 1,  // needs to be shifted
+            linksLoaded: newLinksLoaded,
+            translations: newTranslations,
+            loaded: true,
+            loadingTextHead: false,
+          };
+        }, () => {
           this.loadSecondaryData(data.sectionRef);
           this.setCurrVersionObjects(data.sectionRef);
         });
-
-      }.bind(this)).catch(function(error) {
+      })
+      .catch(function(error) {
         console.log('Error caught from ReaderApp.updateDataPrev', error);
       });
   };
