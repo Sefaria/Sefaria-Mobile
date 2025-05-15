@@ -883,27 +883,13 @@ class ReaderApp extends React.PureComponent {
 
           return {
             data: newData,
-            linksLoaded: newLinksLoaded,
-            _dataUpdateId: Date.now() // add unique ID to track this update
+            linksLoaded: newLinksLoaded
           };
         }, () => {
           // After state commits, refresh link summary if we're still on this section
           if (this.state.segmentIndexRef !== -1 && this.state.sectionIndexRef !== -1) { // TODO: check if this works for our current implementation
             this.updateLinkSummary(this.state.sectionIndexRef, this.state.segmentIndexRef);
           }
-          console.log("[DEBUG] _loadRelatedOnlineAndOffline setState callback", {
-            dataLength: this.state.data.length,
-            sectionArrayLength: this.state.sectionArray.length,
-            dataMatchesSectionArray: this.state.data.length === this.state.sectionArray.length,
-            nextRef: this.state.next,
-            loadingTextTail: this.state.loadingTextTail,
-            _dataUpdateId: this.state._dataUpdateId, // log the ID to check if this setState overwrites 
-            dataStructure: this.state.data.map(section => ({
-              type: typeof section,
-              isArray: Array.isArray(section),
-              length: Array.isArray(section) ? section.length : 'n/a'
-            }))
-          });
         });
       });
   };
@@ -974,43 +960,17 @@ class ReaderApp extends React.PureComponent {
   };
 
   updateDataNext = () => {
-    console.log("[DEBUG] updateDataNext called with next:", this.state.next);
     this.setState(prevState => ({
       ...prevState,
       loadingTextTail: true
     }));
     Sefaria.offlineOnline.loadText(this.state.next, true, this.state.selectedVersions, !this.state.hasInternet)
       .then((data) => {
-        console.log("[DEBUG] updateDataNext loadText resolved", { 
-          dataExists: !!data,
-          nextRef: data.next,
-          sectionRef: data.sectionRef, 
-          contentLength: data.content?.length
-        });
-
-        const _dataUpdateId = Date.now();
-        
         this.setState(prevState => {
           const updatedData = [...prevState.data, data.content];
           const newSectionArray = [...prevState.sectionArray, data.sectionRef];
           const newSectionHeArray = [...prevState.sectionHeArray, data.heRef];
           const newLinksLoaded = [...prevState.linksLoaded, false];
-
-          console.log("[DEBUG] updateDataNext pre-setState", {
-            originalDataLength: prevState.data.length,
-            updatedDataLength: updatedData.length,
-            sectionArrayLength: newSectionArray.length,
-            nextRef: data.next,
-            updatedDataStructure: updatedData.map(section => ({
-              type: typeof section,
-              isArray: Array.isArray(section),
-              length: Array.isArray(section) ? section.length : 'n/a'
-            })),
-            dataContentType: typeof data.content,
-            dataContentIsArray: Array.isArray(data.content),
-            dataContentLength: Array.isArray(data.content) ? data.content.length : 'n/a',
-            _dataUpdateId: _dataUpdateId
-          });
 
           return {
             data: updatedData,
@@ -1020,30 +980,15 @@ class ReaderApp extends React.PureComponent {
             sectionHeArray: newSectionHeArray,
             linksLoaded: newLinksLoaded,
             loaded: true,
-            loadingTextTail: false,
-            _dataUpdateId: _dataUpdateId
+            loadingTextTail: false
           };
         }, () => {
-          console.log("[DEBUG] updateDataNext setState callback", {
-            dataLength: this.state.data.length,
-            sectionArrayLength: this.state.sectionArray.length,
-            dataMatchesSectionArray: this.state.data.length === this.state.sectionArray.length,
-            nextRef: this.state.next,
-            loadingTextTail: this.state.loadingTextTail,
-            _dataUpdateId: this.state._dataUpdateId,
-            dataStructure: this.state.data.map(section => ({
-              type: typeof section,
-              isArray: Array.isArray(section),
-              length: Array.isArray(section) ? section.length : 'n/a'
-            }))
-          });
-          
           this.loadSecondaryData(data.sectionRef);
           this.setCurrVersionObjects(data.sectionRef);
         });
       })
       .catch(function(error) {
-        console.log('[DEBUG] Error caught from ReaderApp.updateDataNext', error);
+        console.log('Error caught from ReaderApp.updateDataNext', error);
       });
   };
 
