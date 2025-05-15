@@ -576,20 +576,13 @@ async function ensureTitleUnzipped(title) {
             try {
                 await _unzip(zipPath);
                 // Verify that the index file now exists after unzipping
-                const unzippedIndexExists = await fileExists(indexJsonPath);
                 return await fileExists(indexJsonPath);
-                if (unzippedIndexExists) {
-                    return true;
-                } else {
-                    return false;
-                }
             } catch (error) {
                 console.error(`Error unzipping ${zipPath}:`, error);
                 return false;
             }
         } else {
             // Shouldn't be possible if titleIsOffline == true
-            console.error(`Neither index JSON nor zip file found for ${title} even though titleIsOffline=ture`);
             throw new Error(`Neither index JSON nor zip file found for ${title} even though titleIsOffline=ture`);
         }
     }
