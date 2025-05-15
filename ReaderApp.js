@@ -855,27 +855,45 @@ class ReaderApp extends React.PureComponent {
     if (!iSec && iSec !== 0) { console.log("could not find section ref in sectionArray", ref); return; }
     return Sefaria.offlineOnline.loadRelated(ref, online)
       .then(response => {
-        //add the related data into the appropriate section and reload
-        if (isSheet) {
-          this.state.data[iSec] = Sefaria.links.addRelatedToSheet(this.state.data[iSec], response, ref);
-        } else {
-          this.state.data[iSec] = Sefaria.links.addRelatedToText(this.state.data[iSec], response);
-        }
-        Sefaria.cacheCommentatorListBySection(ref, this.state.data[iSec]);
-        if (this.state.segmentIndexRef != -1 && this.state.sectionIndexRef != -1) {
-          this.updateLinkSummary(this.state.sectionIndexRef, this.state.segmentIndexRef);
-        }
+        this.setState(prevState => {
+          const newData = [...prevState.data];
 
-        // only reset pointer for linksLoaded if it changes
-        const tempLinksLoaded = this.state.linksLoaded.slice(0);
-        tempLinksLoaded[iSec] = true;
-        let newLinksLoaded = this.state.linksLoaded;
-        for (let iSec = 0; iSec < tempLinksLoaded.length; iSec++) {
-          if (tempLinksLoaded[iSec] !== this.state.linksLoaded[iSec]) {
-            newLinksLoaded = tempLinksLoaded;
+          // Insert related data immutably
+          if (isSheet) {
+            newData[iSec] = Sefaria.links.addRelatedToSheet(prevState.data[iSec], response, ref);
+          } else {
+            newData[iSec] = Sefaria.links.addRelatedToText(prevState.data[iSec], response);
           }
-        }
-        this.setState({data: this.state.data, linksLoaded: newLinksLoaded});
+          Sefaria.cacheCommentatorListBySection(ref, newData[iSec]);
+
+          // Update linksLoaded immutably
+          const newLinksLoaded = [...prevState.linksLoaded];
+          newLinksLoaded[iSec] = true;
+
+          return {
+            data: newData,
+            linksLoaded: newLinksLoaded,
+            _dataUpdateId: Date.now() // add unique ID to track this update
+          };
+        }, () => {
+          // After state commits, refresh link summary if we're still on this section
+          if (this.state.segmentIndexRef !== -1 && this.state.sectionIndexRef !== -1) { // TODO: check if this works for our current implementation
+            this.updateLinkSummary(this.state.sectionIndexRef, this.state.segmentIndexRef);
+          }
+          console.log("[DEBUG] _loadRelatedOnlineAndOffline setState callback", {
+            dataLength: this.state.data.length,
+            sectionArrayLength: this.state.sectionArray.length,
+            dataMatchesSectionArray: this.state.data.length === this.state.sectionArray.length,
+            nextRef: this.state.next,
+            loadingTextTail: this.state.loadingTextTail,
+            _dataUpdateId: this.state._dataUpdateId, // log the ID to check if this setState overwrites 
+            dataStructure: this.state.data.map(section => ({
+              type: typeof section,
+              isArray: Array.isArray(section),
+              length: Array.isArray(section) ? section.length : 'n/a'
+            }))
+          });
+        });
       });
   };
 
