@@ -1,6 +1,6 @@
 // src/services/analytics/crashlyticsService.js
 import crashlytics from '@react-native-firebase/crashlytics';
-import { hasOfflineTitle, loadTextIndexOffline } from './offline';
+import { offlineTitleExists, loadTextIndexOffline } from './offline';
 import { lastUpdated } from './DownloadControl';
 
 /**
@@ -94,7 +94,7 @@ async function _enrichWithTitleInfo(attributes) {
     }
 
     // Check if the title is saved offline
-    const isTitleSavedOffline = await hasOfflineTitle(ref);
+    const isTitleSavedOffline = await offlineTitleExists(ref);
     attributes.isTitleSavedOffline = String(isTitleSavedOffline);
 
     // If title is available offline, get its structure

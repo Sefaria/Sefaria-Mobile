@@ -162,7 +162,7 @@ export const openFileInSources = async function(filename) {
     * @param {string}  ref  – ref for which we will check if the title exists offline
     * @returns {boolean} - If the book exists as a json or zip true, else false
  */
-export async function hasOfflineTitle(ref) {
+export async function offlineTitleExists(ref) {
     const title = Sefaria.textTitleForRef(ref);
     const indexJsonPath = _JSONSourcePath(title + "_index");
     
@@ -552,7 +552,7 @@ const processFileData = function(ref, data) {
 */
 async function ensureTitleUnzipped(title) {
 
-    const titleIsOffline = hasOfflineTitle(title);
+    const titleIsOffline = offlineTitleExists(title);
 
     if (!titleIsOffline) {
         return false; // Title Doesn't exist offline
