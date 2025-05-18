@@ -1562,11 +1562,12 @@ class ReaderApp extends React.PureComponent {
       const removeLang = versionLanguage === "he" ? "en" : "he";
       data.result[removeLang] = "";
       
-      const newVersionContents = [...this.state.versionContents];
-      newVersionContents[pos] = data.result;
-      
-      this.setState({versionContents: newVersionContents});
-    })
+      this.setState(prevState => {
+        const newVersionContents = [...prevState.versionContents];
+        newVersionContents[pos] = data.result;
+        return { versionContents: newVersionContents };
+      });
+    });
   };
 
   clearOffsetRef = () => {
@@ -1633,10 +1634,7 @@ class ReaderApp extends React.PureComponent {
     if (flex > 0.9 || flex < 0.2) {
       this.animateTextList(flex, flex > 0.9 ? 0.9999 : 0.0001, 200);
     } else {
-      this.setState(prevState => ({
-        ...prevState,
-        textListFlexPreference: flex
-      }));
+      this.setState({ textListFlexPreference: flex });
     }
   };
   _getSearchStateName = type => ( `${type}SearchState` );
