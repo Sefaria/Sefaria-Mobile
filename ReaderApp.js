@@ -986,12 +986,11 @@ class ReaderApp extends React.PureComponent {
   };
 
   updateTitle = (ref, heRef, sectionIndexRef) => {
-    this.setState(prevState => ({
-      ...prevState,
+    this.setState({
       textReference: ref,
       heRef,
       sectionIndexRef,
-    }), () => {
+    }, () => {
       if (!this.state.textListVisible) {
         // otherwise saveHistoryItem is called in textListPressed
         Sefaria.history.saveHistoryItem(this.getHistoryObject, true);
