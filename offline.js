@@ -526,7 +526,7 @@ const _JSONSourcePath = function(fileName) {
 };
 
 const _indexJSONPath = function(fileName) {
-    return FileSystem.documentDirectory + "/" + fileName + "_index";   
+    return FileSystem.documentDirectory + "/" + fileName + "_index.json";
 };
 
 const _zipSourcePath = function(fileName) {
