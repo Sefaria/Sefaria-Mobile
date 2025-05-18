@@ -653,10 +653,7 @@ class ReaderApp extends React.PureComponent {
         stateObj.offsetRef = null; //offsetRef is used to highlight. once you open textlist, you should remove the highlight
       }
       
-      return {
-        ...prevState,
-        ...stateObj
-      };
+      return stateObj;
     }, () => {
       if (shouldToggle) {
         // make sure textlist renders once before using layoutanimations
