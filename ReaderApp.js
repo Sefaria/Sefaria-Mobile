@@ -917,10 +917,7 @@ class ReaderApp extends React.PureComponent {
   };
 
   updateDataPrev = () => {
-    this.setState(prevState => ({
-      ...prevState,
-      loadingTextHead: true
-    }));
+    this.setState({ loadingTextHead: true });
     Sefaria.offlineOnline.loadText(this.state.prev, true, this.state.selectedVersions, !this.state.hasInternet)
       .then((data) => {
         this.setState(prevState => {
@@ -953,10 +950,7 @@ class ReaderApp extends React.PureComponent {
   };
 
   updateDataNext = () => {
-    this.setState(prevState => ({
-      ...prevState,
-      loadingTextTail: true
-    }));
+    this.setState({ loadingTextTail: true });
     Sefaria.offlineOnline.loadText(this.state.next, true, this.state.selectedVersions, !this.state.hasInternet)
       .then((data) => {
         this.setState(prevState => {
@@ -1010,14 +1004,13 @@ class ReaderApp extends React.PureComponent {
     if (addToBackStack) {
       this.modifyHistory({ dir: "forward", state: this.state, calledFrom });
     }
-    this.setState(prevState => ({
-      ...prevState,
+    this.setState({
       loaded: false,
       textListVisible: false,
       sheet: null,
       sheetMeta: null,
       textTitle: "",
-    }), () => {
+    }, () => {
       this.loadSheet(sheetID, sheetMeta,addToBackStack, calledFrom);
     });
   };
@@ -1027,10 +1020,7 @@ class ReaderApp extends React.PureComponent {
   };
 
   updateActiveSheetNode = (node) => {
-    this.setState(prevState => ({
-      ...prevState,
-      activeSheetNode: node,
-    }));
+    this.setState({ activeSheetNode: node });
   };
 
   transformSheetData = sheet => {
@@ -1087,8 +1077,7 @@ class ReaderApp extends React.PureComponent {
     sheetMeta.sheetID = sheet.id;
     
     // First setState
-    this.setState(prevState => ({
-      ...prevState,
+    this.setState({
       sheet,
       sheetMeta,
       data: [],
@@ -1096,17 +1085,16 @@ class ReaderApp extends React.PureComponent {
       sectionHeArray: [],
       offsetRef: null,
       connectionsMode: null,
-    }), () => {
+    }, () => {
       this.closeMenu(); // Don't close until these values are in state, so sheet can load
       
       // Second setState
-      this.setState(prevState => ({
-        ...prevState,
+      this.setState({
         data: this.transformSheetData(sheet),
         sectionArray: [`Sheet ${sheet.id}`],
         sectionHeArray: [`דף ${sheet.id}`],
         loaded: true,
-      }), () => {
+      }, () => {
         this.loadRelatedSheet(sheet);
       });
     });
@@ -1471,15 +1459,17 @@ class ReaderApp extends React.PureComponent {
       }
       const nextFilter = new LinkFilter(name, heName, collectiveTitle, heCollectiveTitle, nextRefList, nextHeRefList, category);
 
-      const newLinkRecentFilters = [...this.state.linkRecentFilters];
-      newLinkRecentFilters[filterIndex] = nextFilter;
-
-      const linkContents = nextFilter.refList.map((ref)=>null);
       Sefaria.links.reset();
-      this.setState({
+      this.setState(prevState => {
+        const newLinkRecentFilters = [...prevState.linkRecentFilters];
+        newLinkRecentFilters[filterIndex] = nextFilter;
+        const linkContents = nextFilter.refList.map((ref)=>null);
+        
+        return {
           filterIndex,
           linkRecentFilters: newLinkRecentFilters,
           linkContents,
+        };
       });
   };
 
@@ -1533,10 +1523,7 @@ class ReaderApp extends React.PureComponent {
     this.setState(prevState => {
       const newLinkContents = [...prevState.linkContents];
       newLinkContents[pos] = data;
-      return {
-        ...prevState,
-        linkContents: newLinkContents
-      };
+      return { linkContents: newLinkContents };
     });
   };
 
@@ -1554,18 +1541,18 @@ class ReaderApp extends React.PureComponent {
     }
     if (!segmentRef) { segmentRef = this.state.segmentRef; }
     
-    const newVersionRecentFilters = [...this.state.versionRecentFilters];
-    newVersionRecentFilters[filterIndex] = {
-      ...newVersionRecentFilters[filterIndex],
-      refList: [segmentRef]
-    };
-    
-    const versionContents = [null];
-    //TODO make a parallel func for versions? Sefaria.links.reset();
-    this.setState({
+    this.setState(prevState => {
+      const newVersionRecentFilters = [...prevState.versionRecentFilters];
+      newVersionRecentFilters[filterIndex] = {
+        ...newVersionRecentFilters[filterIndex],
+        refList: [segmentRef]
+      };
+      
+      return {
         versionFilterIndex: filterIndex,
         versionRecentFilters: newVersionRecentFilters,
         versionContents,
+      };
     });
   };
 
