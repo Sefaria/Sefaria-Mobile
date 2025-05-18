@@ -906,11 +906,7 @@ class ReaderApp extends React.PureComponent {
     } catch(error) {
       versionsApiError = true;
     }
-    this.setState(prevState => ({ 
-      ...prevState,
-      versions, 
-      versionsApiError 
-    }));
+    this.setState({versions, versionsApiError});
   };
 
   updateData = (direction) => {
