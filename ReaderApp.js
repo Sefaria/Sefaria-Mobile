@@ -476,15 +476,18 @@ class ReaderApp extends React.PureComponent {
   setTextLanguage = (textLanguage, textFlow) => {
     // try to be less dependent on state in this func because it is called in componentWillUpdate
     textFlow = textFlow || this.state.textFlow;
+    
     this.props.dispatch({
       type: STATE_ACTIONS.setTextLanguage,
       value: textLanguage,
     });
+    
     if (textLanguage === "bilingual" && textFlow === "continuous") {
       this.setTextFlow("segmented");
     }
+    
     this.closeReaderDisplayOptionsMenu();
-  }
+  };
 
   setTheme = themeStr => {
     this.props.dispatch({
@@ -492,7 +495,7 @@ class ReaderApp extends React.PureComponent {
       value: themeStr,
     });
     this.closeReaderDisplayOptionsMenu();
-  }
+  };
 
   setAliyot = show => {
     this.props.dispatch({
@@ -604,61 +607,66 @@ class ReaderApp extends React.PureComponent {
   };
 
   textSegmentPressed = (section, segment, segmentRef, shouldToggle, onlyOpen) => {
-      const isSheet = !!this.state.sheet;
-      if (shouldToggle && this.state.textListVisible) {
-          if (!onlyOpen) {
-            this.animateTextList(this.state.textListFlex, 0.0001, 200);
-            this.modifyHistory({dir: "back", type: "secondary"});
-          }
-          return; // Don't bother with other changes if we are simply closing the TextList
+    const isSheet = !!this.state.sheet;
+    if (shouldToggle && this.state.textListVisible) {
+      if (!onlyOpen) {
+        this.animateTextList(this.state.textListFlex, 0.0001, 200);
+        this.modifyHistory({dir: "back", type: "secondary"});
       }
-      if ((isSheet && !this.state.sheet) || (!isSheet && (!this.state.data || !this.state.data[section] || !this.state.data[section][segment]))) {
-        return;
+      return; // Don't bother with other changes if we are simply closing the TextList
+    }
+    if ((isSheet && !this.state.sheet) || (!isSheet && (!this.state.data || !this.state.data[section] || !this.state.data[section][segment]))) {
+      return;
+    }
+    
+    let loadingLinks = false;
+    const justOpened = shouldToggle && !this.state.textListVisible;
+    const justScrolling = !shouldToggle && !this.state.textListVisible; // true when called while scrolling with text list closed
+    
+    if (((segment !== this.state.segmentIndexRef || section !== this.state.sectionIndexRef) && !justScrolling) || justOpened) {
+      loadingLinks = true;
+      if (this.state.linksLoaded[section]) {
+        this.updateLinkSummary(section, segment);
       }
-      let loadingLinks = false;
-      const justOpened = shouldToggle && !this.state.textListVisible;
-      const justScrolling = !shouldToggle && !this.state.textListVisible;  // true when called while scrolling with text list closed
-      if (((segment !== this.state.segmentIndexRef || section !== this.state.sectionIndexRef) && !justScrolling) || justOpened) {
-          loadingLinks = true;
-          if (this.state.linksLoaded[section]) {
-            this.updateLinkSummary(section, segment);
-          }
-          this.updateVersionCat(null, segmentRef);
-      }
-      if (this.state.connectionsMode === "versions") {
-        //update versions
-        //TODO not sure what this if statement was supposed to do...
-      }
+      this.updateVersionCat(null, segmentRef);
+    }
+    
+    this.setState(prevState => {
       let stateObj = {
-          segmentRef,
-          segmentIndexRef: segment,
-          sectionIndexRef: section,
-          linkStaleRecentFilters: this.state.linkRecentFilters.map(()=>true),
-          versionStaleRecentFilters: this.state.versionRecentFilters.map(()=>true),
-          currentTranslations: this._getTranslationForSegment(section, segment),
-          loadingLinks,
+        segmentRef,
+        segmentIndexRef: segment,
+        sectionIndexRef: section,
+        linkStaleRecentFilters: prevState.linkRecentFilters.map(()=>true),
+        versionStaleRecentFilters: prevState.versionRecentFilters.map(()=>true),
+        currentTranslations: this._getTranslationForSegment(section, segment),
+        loadingLinks,
       };
+      
       if (isSheet) {
         // sometimes the quoted segment ref is the data we care about (e.g. for lexicon lookup)
         stateObj.segmentRefOnSheet = this.state.data[section][segment].sourceRef;
       }
+      
       if (shouldToggle) {
-        this.modifyHistory({ dir: "forward", state: {textListVisible: this.state.textListVisible}, type: "secondary" });
-        stateObj.textListVisible = !this.state.textListVisible;
+        this.modifyHistory({ dir: "forward", state: {textListVisible: prevState.textListVisible}, type: "secondary" });
+        stateObj.textListVisible = !prevState.textListVisible;
         stateObj.offsetRef = null; //offsetRef is used to highlight. once you open textlist, you should remove the highlight
-        this.setState(stateObj, () => {
-          // make sure textlist renders once before using layoutanimation
-          nextFrame().then(() => {
-            this.animateTextList(0.0001, this.state.textListFlexPreference, 200);
-          });
-          Sefaria.history.saveHistoryItem(this.getHistoryObject, true);
-        });
-      } else {
-        this.setState(stateObj, () => {
-          Sefaria.history.saveHistoryItem(this.getHistoryObject, true);
+      }
+      
+      return stateObj;
+    }, () => {
+      if (shouldToggle) {
+        // make sure textlist renders once before using layoutanimations
+        nextFrame().then(() => {
+          this.animateTextList(0.0001, this.state.textListFlexPreference, 200);
         });
       }
-      this.forceUpdate();
+      Sefaria.history.saveHistoryItem(this.getHistoryObject, true);
+    });
+    
+    // NOTE: This forceUpdate is potentially problematic - it forces a re-render
+    // immediately after setting state, which can lead to inconsistencies
+    this.forceUpdate();
   };
   /*
     isLoadingVersion - true when you are replacing an already loaded text with a specific version
@@ -855,27 +863,31 @@ class ReaderApp extends React.PureComponent {
     if (!iSec && iSec !== 0) { console.log("could not find section ref in sectionArray", ref); return; }
     return Sefaria.offlineOnline.loadRelated(ref, online)
       .then(response => {
-        //add the related data into the appropriate section and reload
-        if (isSheet) {
-          this.state.data[iSec] = Sefaria.links.addRelatedToSheet(this.state.data[iSec], response, ref);
-        } else {
-          this.state.data[iSec] = Sefaria.links.addRelatedToText(this.state.data[iSec], response);
-        }
-        Sefaria.cacheCommentatorListBySection(ref, this.state.data[iSec]);
-        if (this.state.segmentIndexRef != -1 && this.state.sectionIndexRef != -1) {
-          this.updateLinkSummary(this.state.sectionIndexRef, this.state.segmentIndexRef);
-        }
+        this.setState(prevState => {
+          const newData = [...prevState.data];
 
-        // only reset pointer for linksLoaded if it changes
-        const tempLinksLoaded = this.state.linksLoaded.slice(0);
-        tempLinksLoaded[iSec] = true;
-        let newLinksLoaded = this.state.linksLoaded;
-        for (let iSec = 0; iSec < tempLinksLoaded.length; iSec++) {
-          if (tempLinksLoaded[iSec] !== this.state.linksLoaded[iSec]) {
-            newLinksLoaded = tempLinksLoaded;
+          // Insert related data immutably
+          if (isSheet) {
+            newData[iSec] = Sefaria.links.addRelatedToSheet(prevState.data[iSec], response, ref);
+          } else {
+            newData[iSec] = Sefaria.links.addRelatedToText(prevState.data[iSec], response);
           }
-        }
-        this.setState({data: this.state.data, linksLoaded: newLinksLoaded});
+          Sefaria.cacheCommentatorListBySection(ref, newData[iSec]);
+
+          // Update linksLoaded immutably
+          const newLinksLoaded = [...prevState.linksLoaded];
+          newLinksLoaded[iSec] = true;
+
+          return {
+            data: newData,
+            linksLoaded: newLinksLoaded
+          };
+        }, () => {
+          // After state commits, refresh link summary if we're still on this section
+          if (this.state.segmentIndexRef !== -1 && this.state.sectionIndexRef !== -1) { // TODO: check if this works for our current implementation
+            this.updateLinkSummary(this.state.sectionIndexRef, this.state.segmentIndexRef);
+          }
+        });
       });
   };
 
@@ -891,7 +903,7 @@ class ReaderApp extends React.PureComponent {
     } catch(error) {
       versionsApiError = true;
     }
-    this.setState({ versions, versionsApiError });
+    this.setState({versions, versionsApiError});
   };
 
   updateData = (direction) => {
@@ -905,76 +917,79 @@ class ReaderApp extends React.PureComponent {
   };
 
   updateDataPrev = () => {
-      this.setState({loadingTextHead: true});
-      Sefaria.offlineOnline.loadText(this.state.prev, true, this.state.selectedVersions, !this.state.hasInternet).then(function(data) {
+    this.setState({ loadingTextHead: true });
+    Sefaria.offlineOnline.loadText(this.state.prev, true, this.state.selectedVersions, !this.state.hasInternet)
+      .then((data) => {
+        this.setState(prevState => {
+          const updatedData = [data.content, ...prevState.data];
+          const newSectionArray = [data.sectionRef, ...prevState.sectionArray];
+          const newSectionHeArray = [data.heRef, ...prevState.sectionHeArray];
+          const newLinksLoaded = [false, ...prevState.linksLoaded];
+          const newTranslations = [{versions: []}, ...prevState.translations];
 
-        let updatedData = [data.content].concat(this.state.data);
-        this.state.sectionArray.unshift(data.sectionRef);
-        this.state.sectionHeArray.unshift(data.heRef);
-        this.state.linksLoaded.unshift(false);
-        this.state.translations.unshift({versions: []})
-
-        this.setState({
-          data: updatedData,
-          prev: data.prev,
-          next: this.state.next,
-          sectionArray: this.state.sectionArray,
-          sectionHeArray: this.state.sectionHeArray,
-          sectionIndexRef: this.state.sectionIndexRef + 1,  // needs to be shifted
-          linksLoaded: this.state.linksLoaded,
-          translations: this.state.translations,
-          loaded: true,
-          loadingTextHead: false,
-        }, ()=>{
+          return {
+            data: updatedData,
+            prev: data.prev,
+            next: prevState.next,
+            sectionArray: newSectionArray,
+            sectionHeArray: newSectionHeArray,
+            sectionIndexRef: prevState.sectionIndexRef + 1,  // needs to be shifted
+            linksLoaded: newLinksLoaded,
+            translations: newTranslations,
+            loaded: true,
+            loadingTextHead: false,
+          };
+        }, () => {
           this.loadSecondaryData(data.sectionRef);
           this.setCurrVersionObjects(data.sectionRef);
         });
-
-      }.bind(this)).catch(function(error) {
+      })
+      .catch(function(error) {
         console.log('Error caught from ReaderApp.updateDataPrev', error);
       });
   };
 
   updateDataNext = () => {
-      this.setState({loadingTextTail: true});
-      Sefaria.offlineOnline.loadText(this.state.next, true, this.state.selectedVersions, !this.state.hasInternet).then(function(data) {
+    this.setState({ loadingTextTail: true });
+    Sefaria.offlineOnline.loadText(this.state.next, true, this.state.selectedVersions, !this.state.hasInternet)
+      .then((data) => {
+        this.setState(prevState => {
+          const updatedData = [...prevState.data, data.content];
+          const newSectionArray = [...prevState.sectionArray, data.sectionRef];
+          const newSectionHeArray = [...prevState.sectionHeArray, data.heRef];
+          const newLinksLoaded = [...prevState.linksLoaded, false];
 
-        let updatedData = this.state.data.concat([data.content]);
-        this.state.sectionArray.push(data.sectionRef);;
-        this.state.sectionHeArray.push(data.heRef);;
-        this.state.linksLoaded.push(false);;
-
-        this.setState({
-          data: updatedData,
-          prev: this.state.prev,
-          next: data.next,
-          sectionArray: this.state.sectionArray,
-          sectionHeArray: this.state.sectionHeArray,
-          linksLoaded: this.state.linksLoaded,
-          loaded: true,
-          loadingTextTail: false,
-        }, ()=>{
+          return {
+            data: updatedData,
+            prev: prevState.prev,
+            next: data.next,
+            sectionArray: newSectionArray,
+            sectionHeArray: newSectionHeArray,
+            linksLoaded: newLinksLoaded,
+            loaded: true,
+            loadingTextTail: false
+          };
+        }, () => {
           this.loadSecondaryData(data.sectionRef);
           this.setCurrVersionObjects(data.sectionRef);
         });
-
-      }.bind(this)).catch(function(error) {
+      })
+      .catch(function(error) {
         console.log('Error caught from ReaderApp.updateDataNext', error);
       });
   };
 
   updateTitle = (ref, heRef, sectionIndexRef) => {
-      //console.log("updateTitle");
-      this.setState({
-        textReference: ref,
-        heRef,
-        sectionIndexRef,
-      }, () => {
-        if (!this.state.textListVisible) {
-          // otherwise saveHistoryItem is called in textListPressed
-          Sefaria.history.saveHistoryItem(this.getHistoryObject, true);
-        }
-      });
+    this.setState({
+      textReference: ref,
+      heRef,
+      sectionIndexRef,
+    }, () => {
+      if (!this.state.textListVisible) {
+        // otherwise saveHistoryItem is called in textListPressed
+        Sefaria.history.saveHistoryItem(this.getHistoryObject, true);
+      }
+    });
   };
 
   openRefSearch = (ref, ...args) => {
@@ -990,13 +1005,13 @@ class ReaderApp extends React.PureComponent {
       this.modifyHistory({ dir: "forward", state: this.state, calledFrom });
     }
     this.setState({
-        loaded: false,
-        textListVisible: false,
-        sheet: null,
-        sheetMeta: null,
-        textTitle: "",
+      loaded: false,
+      textListVisible: false,
+      sheet: null,
+      sheetMeta: null,
+      textTitle: "",
     }, () => {
-        this.loadSheet(sheetID, sheetMeta,addToBackStack, calledFrom);
+      this.loadSheet(sheetID, sheetMeta,addToBackStack, calledFrom);
     });
   };
 
@@ -1005,9 +1020,7 @@ class ReaderApp extends React.PureComponent {
   };
 
   updateActiveSheetNode = (node) => {
-    this.setState ({
-      activeSheetNode: node,
-    });
+    this.setState({ activeSheetNode: node });
   };
 
   transformSheetData = sheet => {
@@ -1062,16 +1075,20 @@ class ReaderApp extends React.PureComponent {
     }
     sheetMeta.title = sheet.title;
     sheetMeta.sheetID = sheet.id;
-    this.setState ({
-        sheet,
-        sheetMeta,
-        data: [],
-        sectionArray: [],
-        sectionHeArray: [],
-        offsetRef: null,
-        connectionsMode: null,
+    
+    // First setState
+    this.setState({
+      sheet,
+      sheetMeta,
+      data: [],
+      sectionArray: [],
+      sectionHeArray: [],
+      offsetRef: null,
+      connectionsMode: null,
     }, () => {
       this.closeMenu(); // Don't close until these values are in state, so sheet can load
+      
+      // Second setState
       this.setState({
         data: this.transformSheetData(sheet),
         sectionArray: [`Sheet ${sheet.id}`],
@@ -1442,14 +1459,17 @@ class ReaderApp extends React.PureComponent {
       }
       const nextFilter = new LinkFilter(name, heName, collectiveTitle, heCollectiveTitle, nextRefList, nextHeRefList, category);
 
-      this.state.linkRecentFilters[filterIndex] = nextFilter;
-
-      const linkContents = nextFilter.refList.map((ref)=>null);
       Sefaria.links.reset();
-      this.setState({
+      this.setState(prevState => {
+        const newLinkRecentFilters = [...prevState.linkRecentFilters];
+        newLinkRecentFilters[filterIndex] = nextFilter;
+        const linkContents = nextFilter.refList.map((ref)=>null);
+        
+        return {
           filterIndex,
-          linkRecentFilters: this.state.linkRecentFilters,
+          linkRecentFilters: newLinkRecentFilters,
           linkContents,
+        };
       });
   };
 
@@ -1499,9 +1519,12 @@ class ReaderApp extends React.PureComponent {
       if (spaceInd === -1) { spaceInd = cutoffLen; }
       data.he = data.he.slice(0, spaceInd) + "... <b>(לחץ לקרוא עוד)</b>";
     }
-    const newLinkContents = [...this.state.linkContents];
-    newLinkContents[pos] = data;
-    this.setState({linkContents: newLinkContents});
+    
+    this.setState(prevState => {
+      const newLinkContents = [...prevState.linkContents];
+      newLinkContents[pos] = data;
+      return { linkContents: newLinkContents };
+    });
   };
 
   removeSavedItem = async (item) => {
@@ -1517,13 +1540,19 @@ class ReaderApp extends React.PureComponent {
       filterIndex = this.state.versionFilterIndex;
     }
     if (!segmentRef) { segmentRef = this.state.segmentRef; }
-    this.state.versionRecentFilters[filterIndex].refList = [segmentRef];
-    const versionContents = [null];
-    //TODO make a parallel func for versions? Sefaria.links.reset();
-    this.setState({
+    
+    this.setState(prevState => {
+      const newVersionRecentFilters = [...prevState.versionRecentFilters];
+      newVersionRecentFilters[filterIndex] = {
+        ...newVersionRecentFilters[filterIndex],
+        refList: [segmentRef]
+      };
+      
+      return {
         versionFilterIndex: filterIndex,
-        versionRecentFilters: this.state.versionRecentFilters,
+        versionRecentFilters: newVersionRecentFilters,
         versionContents,
+      };
     });
   };
 
@@ -1532,9 +1561,13 @@ class ReaderApp extends React.PureComponent {
       // only want to show versionLanguage in results
       const removeLang = versionLanguage === "he" ? "en" : "he";
       data.result[removeLang] = "";
-      this.state.versionContents[pos] = data.result;
-      this.setState({versionContents: this.state.versionContents.slice(0)});
-    })
+      
+      this.setState(prevState => {
+        const newVersionContents = [...prevState.versionContents];
+        newVersionContents[pos] = data.result;
+        return { versionContents: newVersionContents };
+      });
+    });
   };
 
   clearOffsetRef = () => {
@@ -1597,6 +1630,7 @@ class ReaderApp extends React.PureComponent {
   onTextListDragEnd = evt => {
     const headerHeight = 75;
     const flex = 1.0 - (evt.nativeEvent.pageY-headerHeight)/(ViewPort.height-headerHeight) + this._textListDragOffset;
+    
     if (flex > 0.9 || flex < 0.2) {
       this.animateTextList(flex, flex > 0.9 ? 0.9999 : 0.0001, 200);
     } else {
