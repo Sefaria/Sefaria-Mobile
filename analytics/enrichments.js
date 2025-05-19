@@ -23,9 +23,6 @@ let _cachedIsOnline = null;
 export async function enrichAttributes(attributes = {}) {
   const enrichedAttributes = { ...attributes };
   
-  // Initialize online status listener if not already initialized
-  _initOnlineStatusListener();
-  
   // Add user state info
   _enrichWithUserState(enrichedAttributes);
   
@@ -49,7 +46,7 @@ function _enrichWithUserState(attributes) {
   attributes.logged_in = globalState.isLoggedIn;
   attributes.site_lang = globalState.interfaceLanguage;
   attributes.traffic_type = globalState.userEmail?.includes("sefaria.org") ? 'internal' : '';
-  attributes.is_online = _getIsOnline();
+  attributes.is_online = getIsOnline();
 }
 
 /**
@@ -172,10 +169,11 @@ async function _getOfflineSchemaVersion() {
 /**
  * Initializes the online status listener
  * 
- * Important: This is called by enrichAttributes to ensure online status is tracked,
- * but also exposed publicly for early initialization in apps
+ * Note: This is called internally by getIsOnline when needed
+ * 
+ * @private
  */
-export function _initOnlineStatusListener() {
+function _initOnlineStatusListener() {
   if (!_netInfoUnsubscribe) {
     // Set up a listener to update cached network state
     _netInfoUnsubscribe = NetInfo.addEventListener(state => {
@@ -193,9 +191,13 @@ export function _initOnlineStatusListener() {
 };
 
 /**
- * Helper function to get the current online status
+ * Gets the current online status, initializing the listener if needed
+ * 
  * @returns {boolean} Whether the device is currently online
  */
-function _getIsOnline() {
+export function getIsOnline() {
+  // Initialize listener if not already initialized
+  _initOnlineStatusListener();
+  
   return _cachedIsOnline;
-}; 
+};

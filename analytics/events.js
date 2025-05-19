@@ -1,15 +1,12 @@
 import analytics from "@react-native-firebase/analytics";
 import { isProd } from '../env';
-import { enrichAttributes, _initOnlineStatusListener } from './enrichments';
+import { enrichAttributes } from './enrichments';
 
 /**
  * Initializes analytics collection
  */
 const initAnalytics = () => {
   analytics().setAnalyticsCollectionEnabled(true);
-
-  // Set up NetInfo listener if not already set up
-  _initOnlineStatusListener();
 
   if (!isProd) {
     console.log(`Analytics initialized`);
