@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
-import PropTypes from 'prop-types';
+import { PropTypes } from 'deprecated-react-native-prop-types';
 import {
   View,
   ScrollView,

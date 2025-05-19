@@ -1,6 +1,6 @@
 'use strict';
 
-import PropTypes from 'prop-types';
+import { PropTypes } from 'deprecated-react-native-prop-types';
 import React, { useContext, useState, useRef, useEffect } from 'react';
 import {
   StyleSheet,

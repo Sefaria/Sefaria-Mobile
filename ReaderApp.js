@@ -1,6 +1,6 @@
 'use strict';
 
-import PropTypes from 'prop-types';
+import { PropTypes } from 'deprecated-react-native-prop-types';
 import crashlytics from '@react-native-firebase/crashlytics';  // to setup up generic crashlytics reports
 
 import React from 'react';

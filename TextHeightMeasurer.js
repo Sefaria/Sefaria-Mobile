@@ -2,7 +2,7 @@
 //also see related git discussion: https://github.com/facebook/react-native/issues/13727
 
 import React from 'react';
-import PropTypes from 'prop-types';
+import { PropTypes } from 'deprecated-react-native-prop-types';
 import { View, StyleSheet } from 'react-native';
 
 const measureBatchSize = 50;

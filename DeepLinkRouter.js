@@ -1,6 +1,6 @@
 'use strict';
 
-import PropTypes from 'prop-types';
+import { PropTypes } from 'deprecated-react-native-prop-types';
 import URL from 'url-parse';
 import React from 'react';
 
