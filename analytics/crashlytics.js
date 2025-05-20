@@ -1,5 +1,6 @@
 import crashlytics from '@react-native-firebase/crashlytics';
 import { enrichAttributes } from './enrichments';
+import { isProd } from '../env';
 
 /**
  * CrashlyticsService
@@ -15,10 +16,9 @@ const CrashlyticsService = {
    * 
    * @param {Error} error - The Error object to record. Must be an Error object to capture the stack trace.
    * @param {Object} attributes - Key-value pairs of additional context to attach to the error.
-   * @param {boolean} consoleLog - Whether to also log the error to console (default: false).
    * @returns {Promise<void>} A promise that resolves when the error has been recorded
    */
-  recordError: async (error, attributes = {}, consoleLog = true) => {
+  recordError: async (error, attributes = {}) => {
     if (!(error instanceof Error)) {
       throw new Error('recordError must be called with an Error object');
     }
@@ -33,8 +33,8 @@ const CrashlyticsService = {
       }
     });
     
-    // Optionally log to console
-    if (consoleLog) {
+    // Log to console in non-production environment
+    if (!isProd) {
       console.error('Crashlytics Error:', error, enrichedAttributes);
     }
 
