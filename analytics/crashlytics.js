@@ -18,7 +18,7 @@ const CrashlyticsService = {
    * @param {boolean} consoleLog - Whether to also log the error to console (default: false).
    * @returns {Promise<void>} A promise that resolves when the error has been recorded
    */
-  recordError: async (error, attributes = {}, consoleLog = false) => {
+  recordError: async (error, attributes = {}, consoleLog = true) => {
     if (!(error instanceof Error)) {
       throw new Error('recordError must be called with an Error object');
     }

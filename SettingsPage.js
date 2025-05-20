@@ -45,7 +45,7 @@ import {
 } from './DownloadControl';
 import Sefaria from "./sefaria";
 import * as FileSystem from 'expo-file-system';
-import { trackEvent } from './Analytics';
+import { trackEvent } from './analytics/events';
 const DEBUG_MODE = false;
 
 /**

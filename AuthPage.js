@@ -24,7 +24,7 @@ import { GlobalStateContext, DispatchContext, STATE_ACTIONS, getTheme } from './
 import Sefaria from './sefaria';
 import strings from './LocalizedStrings';
 import styles from './Styles';
-import { trackEvent } from './Analytics';
+import { trackEvent } from './analytics/events';
 
 const onSubmit = async (formState, authMode, setErrors, onLoginSuccess, setIsLoading) => {
   setIsLoading(true);

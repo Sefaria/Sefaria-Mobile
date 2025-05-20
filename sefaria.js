@@ -23,7 +23,7 @@ import {
 import * as FileSystem from 'expo-file-system';
 import { Topic } from './Topic';
 import {openFileInSources} from "./offline";
-import {trackEvent} from "./Analytics";
+import {trackEvent} from "./analytics/events";
 
 
 Sefaria = {

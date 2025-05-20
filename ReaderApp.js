@@ -58,8 +58,8 @@ import {Dedication} from  "./Dedication"
 import {
   Tracker as DownloadTracker,
 } from "./DownloadControl.js"
-import { initAnalytics, trackCurrentScreen, trackEvent, trackPageview } from './Analytics';
-import CrashlyticsService from "./crashlyticsService"
+import { initAnalytics, trackCurrentScreen, trackEvent, trackPageview } from './analytics/events';
+import CrashlyticsService from './analytics/crashlytics';
 import {
   LoadingView,
   CategoryColorLine,
