@@ -428,7 +428,7 @@ class ReaderApp extends React.PureComponent {
         this.state.segmentRef        !== prevState.segmentRef        ||
         this.state.linkRecentFilters !== prevState.linkRecentFilters ||
         this.props.themeStr          !== prevProps.themeStr) {
-          this.trackPageview();
+          this.trackPageWithInfo();
     }
   }
 
@@ -447,7 +447,7 @@ class ReaderApp extends React.PureComponent {
     this._readerDisplayOptionsMenuRef && this._readerDisplayOptionsMenuRef.hide(() => {
       this.setState({ReaderDisplayOptionsMenuVisible:  false});
     });
-    this.trackPageview();
+    this.trackPageWithInfo();
   }
 
   toggleReaderDisplayOptionsMenu = () => {
@@ -532,10 +532,11 @@ class ReaderApp extends React.PureComponent {
   };
 
   /**
-  * send current page stats to analytics
-  * Currently these isn't used because the call to analytics is commented out in Analytics.js
+  * Send current page stats to analytics
+  * This is an old function that curretnly does nothing because event.trackPageview is commented out
+  * The function is kept here for all the info it gathers - there is a ticket to fix page tracking.
   */
-  trackPageview = () => {
+  trackPageWithInfo = () => {
     let pageType  = this.state.menuOpen || (this.state.textListVisible ? "TextAndConnections" : "Text");
     let numPanels = this.state.textListVisible ? '1.1' : '1';
     let ref       = this.state.segmentRef !== '' ? this.state.segmentRef : this.state.textReference;
