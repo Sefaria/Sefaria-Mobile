@@ -204,6 +204,7 @@ class ReaderApp extends React.PureComponent {
   }
 
   logout = async () => {
+    await this.syncProfileBound();
     await Sefaria.api.clearAuthStorage();
     this.props.dispatch({
       type: STATE_ACTIONS.setIsLoggedIn,
@@ -666,7 +667,7 @@ class ReaderApp extends React.PureComponent {
   loadNewText = ({ ref, versions, isLoadingVersion = false, numTries = 0 }) => {
     // Open ranged refs to their first segment (not ideal behavior, but good enough for now)
     ref = ref.indexOf("-") !== -1 ? ref.split("-")[0] : ref;
-    
+
     return new Promise((resolve, reject) => {
       this.setState({
           loaded: false,
@@ -690,7 +691,7 @@ class ReaderApp extends React.PureComponent {
               if (numTries >= 4) { //Unclear why 4 times. Maybe for low connectivity.
                 console.error(`Can't find text for ref: ${ref} dispite reverting to default version. Throwing 'Return to Nav'`)
                 throw "Return to Nav";
-              } 
+              }
               console.info(`ReaderApp.loadNewText: Recursive call without versions (fallback to default version), nonExistantVersions: ${JSON.stringify(data.nonExistantVersions)}`);
               this.loadNewText({ ref, isLoadingVersion, numTries: numTries + 1 }).then(resolve);
               return;
@@ -1846,7 +1847,7 @@ class ReaderApp extends React.PureComponent {
   }
 
   reportError = () => {
-    const body = 
+    const body =
       `${this.state.segmentRef}
 
       ${this.getDisplayedText(true)}
@@ -2032,14 +2033,14 @@ class ReaderApp extends React.PureComponent {
         return(<SettingsPage close={this.manageBackMain} logout={this.logout} openUri={this.openUri} />);
       case ("account-menu"):
         Sefaria.track.setScreen("account-menu", "menu")
-        return(<AccountNavigationMenu 
+        return(<AccountNavigationMenu
             openMenu={this.openMenu}
             openUri={this.openUri}
             logout={this.logout}
         />);
       case ("history"):
         Sefaria.track.setScreen("history", "menu")
-        return(<HistorySavedPage openRef={this.openRef} openMenu={this.openMenu} hasInternet={this.state.hasInternet}/>);  
+        return(<HistorySavedPage openRef={this.openRef} openMenu={this.openMenu} hasInternet={this.state.hasInternet}/>);
         /*return(
           <SwipeableCategoryList
             close={this.manageBackMain}
@@ -2220,7 +2221,7 @@ class ReaderApp extends React.PureComponent {
                   vowelToggleAvailable={vowelToggleAvailable}
                   highlightedWordID={this.state.highlightedWordID}
                   highlightedWordSegmentRef={this.state.highlightedWordSegmentRef}
-                  setHighlightedWord={this.setHighlightedWord}            
+                  setHighlightedWord={this.setHighlightedWord}
                 />
             </View> }
 
