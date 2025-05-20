@@ -558,7 +558,7 @@ const processFileData = function(ref, data) {
 */
 async function ensureTitleUnzipped(title) {
 
-    const titleIsOffline = offlineTitleExists(title);
+    const titleIsOffline = await offlineTitleExists(title);
     if (!titleIsOffline) {
         return false; // Title Doesn't exist offline
     }
