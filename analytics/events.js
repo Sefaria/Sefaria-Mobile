@@ -1,5 +1,5 @@
 import analytics from "@react-native-firebase/analytics";
-import { isProd } from '../env';
+import { devLog } from '../devUtils';
 import { enrichAttributes } from './enrichments';
 
 /**
@@ -7,10 +7,7 @@ import { enrichAttributes } from './enrichments';
  */
 const initAnalytics = () => {
   analytics().setAnalyticsCollectionEnabled(true);
-
-  if (!isProd) {
-    console.log(`Analytics initialized`);
-  }
+  devLog(`Analytics initialized`);
 };
 
 /**
@@ -21,9 +18,7 @@ const initAnalytics = () => {
  */
 const trackCurrentScreen = (screen_name, screen_class) => {
   analytics().logScreenView({ screen_class, screen_name });
-  if (!isProd) {
-    console.log(`Analytics Screen Set: ${screen_name}; Screen class: ${screen_class}`);
-  }
+  devLog(`Analytics Screen Set: ${screen_name}; Screen class: ${screen_class}`);
 };
 
 /**
@@ -36,9 +31,7 @@ const trackEvent = async (eventName, eventParams = {}) => {
   const augmentedParams = await enrichAttributes(eventParams);
 
   analytics().logEvent(eventName, augmentedParams);
-  if (!isProd) {
-    console.log(`Analytics Event Tracked: ${eventName}`, augmentedParams);
-  }
+  devLog(`Analytics Event Tracked: ${eventName}`, augmentedParams);
 };
 
 /**
@@ -69,9 +62,7 @@ const trackPageview = (pageType, customDimensions, contentGroups) => {
   // }
 
   // analytics().logEvent("page_view", eventParams);
-  // if (!isProd) {
-  //   console.log(`Analytics Page View Tracked: ${pageType}`, eventParams);
-  // }
+  // devLog(`Analytics Page View Tracked: ${pageType}`, eventParams);
 };
 
 export { trackEvent, initAnalytics, trackCurrentScreen, trackPageview };

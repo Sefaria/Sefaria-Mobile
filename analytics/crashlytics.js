@@ -1,6 +1,6 @@
 import crashlytics from '@react-native-firebase/crashlytics';
 import { enrichAttributes } from './enrichments';
-import { isProd } from '../env';
+import { devError } from '../devUtils';
 
 /**
  * CrashlyticsService
@@ -34,9 +34,7 @@ const CrashlyticsService = {
     });
     
     // Log to console in non-production environment
-    if (!isProd) {
-      console.error('Crashlytics Error:', error, enrichedAttributes);
-    }
+    devError('Crashlytics Error:', error, enrichedAttributes);
 
     // Record the error
     return crashlytics().recordError(error);

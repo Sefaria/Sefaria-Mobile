@@ -5,7 +5,7 @@ import { getCurrentGlobalState } from '../StateManager';
 import NetInfo from "@react-native-community/netinfo";
 import { offlineTitleExists, loadTextIndexOffline } from '../offline';
 import { lastUpdated } from '../DownloadControl';
-import { isProd } from '../env';
+import { devLog } from '../devUtils';
 import Sefaria from '../sefaria';
 
 // Track the NetInfo event listener for proper cleanup - used for is_online
@@ -178,9 +178,7 @@ async function _initOnlineStatusListener() {
     // Set up a listener to update cached network state
     _netInfoUnsubscribe = NetInfo.addEventListener(state => {
       _cachedIsOnline = state.isConnected === true && state.isInternetReachable !== false;
-      if (!isProd) {
-        console.log(`Network state changed: isOnline=${_cachedIsOnline}`);
-      }
+      devLog(`Network state changed: isOnline=${_cachedIsOnline}`);
     });
 
     // Initialize by fetching once
