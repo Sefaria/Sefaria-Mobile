@@ -24,7 +24,7 @@ export async function enrichAttributes(attributes = {}) {
   const enrichedAttributes = { ...attributes };
   
   // Add user state info
-  _enrichWithUserState(enrichedAttributes);
+  await _enrichWithUserState(enrichedAttributes);
   
   // Add offline schema version
   await _enrichWithSchemaVersion(enrichedAttributes);
@@ -40,13 +40,13 @@ export async function enrichAttributes(attributes = {}) {
  * 
  * @param {Object} attributes - The attributes object to enrich
  */
-function _enrichWithUserState(attributes) {
+async function _enrichWithUserState(attributes) {
   const globalState = getCurrentGlobalState();
 
   attributes.logged_in = globalState.isLoggedIn;
   attributes.site_lang = globalState.interfaceLanguage;
   attributes.traffic_type = globalState.userEmail?.includes("sefaria.org") ? 'internal' : '';
-  attributes.is_online = getIsOnline();
+  attributes.is_online = await getIsOnline();
 }
 
 /**
@@ -173,7 +173,7 @@ async function _getOfflineSchemaVersion() {
  * 
  * @private
  */
-function _initOnlineStatusListener() {
+async function _initOnlineStatusListener() {
   if (!_netInfoUnsubscribe) {
     // Set up a listener to update cached network state
     _netInfoUnsubscribe = NetInfo.addEventListener(state => {
@@ -184,9 +184,8 @@ function _initOnlineStatusListener() {
     });
 
     // Initialize by fetching once
-    NetInfo.fetch().then(state => {
-      _cachedIsOnline = state.isConnected === true && state.isInternetReachable !== false;
-    });
+    const state = await NetInfo.fetch();
+    _cachedIsOnline = state.isConnected === true && state.isInternetReachable !== false;
   }
 };
 
@@ -195,9 +194,9 @@ function _initOnlineStatusListener() {
  * 
  * @returns {boolean} Whether the device is currently online
  */
-export function getIsOnline() {
+export async function getIsOnline() {
   // Initialize listener if not already initialized
-  _initOnlineStatusListener();
+  await _initOnlineStatusListener();
   
   return _cachedIsOnline;
 };
