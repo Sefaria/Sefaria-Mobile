@@ -5,14 +5,8 @@ import { getCurrentGlobalState } from '../StateManager';
 import NetInfo from "@react-native-community/netinfo";
 import { offlineTitleExists, loadTextIndexOffline } from '../offline';
 import { lastUpdated } from '../DownloadControl';
-import { devLog } from '../devUtils';
 import Sefaria from '../sefaria';
 
-// Track the NetInfo event listener for proper cleanup - used for is_online
-let _netInfoUnsubscribe = null;
-
-// Cached network state for analytics
-let _cachedIsOnline = null;
 
 /**
  * Main enrichment function that adds context data to analytics or error attributes
@@ -167,34 +161,11 @@ async function _getOfflineSchemaVersion() {
 }
 
 /**
- * Initializes the online status listener
- * 
- * Note: This is called internally by getIsOnline when needed
- * 
- * @private
- */
-async function _initOnlineStatusListener() {
-  if (!_netInfoUnsubscribe) {
-    // Set up a listener to update cached network state
-    _netInfoUnsubscribe = NetInfo.addEventListener(state => {
-      _cachedIsOnline = state.isConnected === true && state.isInternetReachable !== false;
-      devLog(`Network state changed: isOnline=${_cachedIsOnline}`);
-    });
-
-    // Initialize by fetching once
-    const state = await NetInfo.fetch();
-    _cachedIsOnline = state.isConnected === true && state.isInternetReachable !== false;
-  }
-};
-
-/**
- * Gets the current online status, initializing the listener if needed
+ * Gets the current online status
  * 
  * @returns {boolean} Whether the device is currently online
  */
 export async function getIsOnline() {
-  // Initialize listener if not already initialized
-  await _initOnlineStatusListener();
-  
-  return _cachedIsOnline;
-};
+  const state = await NetInfo.fetch();
+  return state.isConnected === true && state.isInternetReachable !== false;
+}
