@@ -18,12 +18,12 @@
 #import "FirebaseABTesting/Sources/ABTConstants.h"
 #import "FirebaseABTesting/Sources/Private/ABTExperimentPayload.h"
 #import "FirebaseABTesting/Sources/Public/FirebaseABTesting/FIRLifecycleEvents.h"
-#import "FirebaseCore/Sources/Private/FirebaseCoreInternal.h"
+#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
 #import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
 
 /// Logger Service String.
-FIRLoggerService kFIRLoggerABTesting = @"[Firebase/ABTesting]";
+FIRLoggerService kFIRLoggerABTesting = @"[FirebaseABTesting]";
 
 /// Default experiment overflow policy.
 const ABTExperimentPayloadExperimentOverflowPolicy FIRDefaultExperimentOverflowPolicy =
@@ -90,9 +90,9 @@ NSArray *ABTExperimentsToClearFromPayloads(
       [ABTConditionalUserPropertyController sharedInstanceWithAnalytics:analytics];
 
   // Check if the experiment is in experiments but not payloads.
-  for (id experiment in experiments) {
+  for (id experiment in [experiments copy]) {
     BOOL doesExperimentNoLongerExist = YES;
-    for (NSData *payload in payloads) {
+    for (NSData *payload in [payloads copy]) {
       ABTExperimentPayload *experimentPayload = ABTDeserializeExperimentPayload(payload);
       if (!experimentPayload) {
         FIRLogInfo(kFIRLoggerABTesting, @"I-ABT000002",
@@ -128,8 +128,6 @@ NSArray *ABTExperimentsToClearFromPayloads(
 }
 
 + (nonnull NSArray<FIRComponent *> *)componentsToRegister {
-  FIRDependency *analyticsDep = [FIRDependency dependencyWithProtocol:@protocol(FIRAnalyticsInterop)
-                                                           isRequired:NO];
   FIRComponentCreationBlock creationBlock =
       ^id _Nullable(FIRComponentContainer *container, BOOL *isCacheable) {
     // Ensure it's cached so it returns the same instance every time ABTesting is called.
@@ -139,7 +137,6 @@ NSArray *ABTExperimentsToClearFromPayloads(
   };
   FIRComponent *abtProvider = [FIRComponent componentWithProtocol:@protocol(FIRABTInstanceProvider)
                                               instantiationTiming:FIRInstantiationTimingLazy
-                                                     dependencies:@[ analyticsDep ]
                                                     creationBlock:creationBlock];
 
   return @[ abtProvider ];
@@ -194,7 +191,7 @@ NSArray *ABTExperimentsToClearFromPayloads(
   ABTConditionalUserPropertyController *controller =
       [ABTConditionalUserPropertyController sharedInstanceWithAnalytics:_analytics];
 
-  // Get the list of expriments from Firebase Analytics.
+  // Get the list of experiments from Firebase Analytics.
   NSArray *experiments = [controller experimentsWithOrigin:origin];
   if (!experiments) {
     NSString *errorDescription =

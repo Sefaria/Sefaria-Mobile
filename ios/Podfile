@@ -1,3 +1,4 @@
+ENV['RCT_NEW_ARCH_ENABLED'] = '1'
 require File.join(File.dirname(`node --print "require.resolve('expo/package.json')"`), "scripts/autolinking")
 # Resolve react_native_pods.rb with node to allow for hoisting
 require Pod::Executable.execute_command('node', ['-p',
@@ -6,20 +7,14 @@ require Pod::Executable.execute_command('node', ['-p',
     {paths: [process.argv[1]]},
   )', __dir__]).strip
 
+MIN_IOS_OVERRIDE = '15.5'
+if Gem::Version.new(MIN_IOS_OVERRIDE) > Gem::Version.new(min_ios_version_supported)
+  min_ios_version_supported = MIN_IOS_OVERRIDE
+end
 platform :ios, min_ios_version_supported
 prepare_react_native_project!
 $RNFirebaseAnalyticsWithoutAdIdSupport=true
-# If you are using a `react-native-flipper` your iOS build will fail when `NO_FLIPPER=1` is set.
-# because `react-native-flipper` depends on (FlipperKit,...) that will be excluded
-#
-# To fix this you can also exclude `react-native-flipper` using a `react-native.config.js`
-# ```js
-# module.exports = {
-#   dependencies: {
-#     ...(process.env.NO_FLIPPER ? { 'react-native-flipper': { platforms: { ios: null } } } : {}),
-# ```
 production = ENV["PRODUCTION"] == "1"
-flipper_config = ENV['NO_FLIPPER'] == "1" ? FlipperConfiguration.disabled : FlipperConfiguration.enabled
 linkage = ENV['USE_FRAMEWORKS']
 if linkage != nil
   Pod::UI.puts "Configuring Pod with #{linkage}ally linked Frameworks".green
@@ -27,6 +22,18 @@ if linkage != nil
 end
 
 target 'ReaderApp' do
+  pod 'Firebase', :modular_headers => true
+  pod 'FirebaseCoreInternal', :modular_headers => true
+  pod 'GoogleUtilities', :modular_headers => true
+  pod 'FirebaseCrashlytics', :modular_headers => true
+  pod 'FirebaseCore', :modular_headers => true
+  pod 'FirebaseInstallations', :modular_headers => true
+  pod 'GoogleDataTransport', :modular_headers => true
+  pod 'nanopb', :modular_headers => true
+  pod 'FirebaseRemoteConfig', :modular_headers => true
+  pod 'FirebaseABTesting', :modular_headers => true
+  pod 'FirebaseSessions', :modular_headers => true
+  pod 'FirebaseCoreExtension', :modular_headers => true
   use_expo_modules!
 	post_integrate do |installer|
 	  begin
@@ -39,7 +46,6 @@ target 'ReaderApp' do
   use_react_native!(
     :path => $config[:reactNativePath],
     :production => production,
-    :flipper_configuration => flipper_config,
     # An absolute path to your application root.
     :app_path => "#{Pod::Config.instance.installation_root}/.."
   )
@@ -47,17 +53,14 @@ target 'ReaderApp' do
   # Pods for ReaderApp
   # <THIS LINE LEFT EMPTY ON PURPOSE>
 
-  target 'ReaderAppTests' do
-    inherit! :complete
-    # Pods for testing
-  end
 end
 
 post_install do |installer|
   react_native_post_install(
     installer,
     $config[:reactNativePath],
-    :mac_catalyst_enabled => false
+    :mac_catalyst_enabled => false,
+    # :ccache_enabled => true
   )
   installer.pods_project.build_configurations.each do |curr_config|
     curr_config.build_settings["EXCLUDED_ARCHS[sdk=iphonesimulator*]"] = "arm64"
