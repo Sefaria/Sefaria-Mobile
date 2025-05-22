@@ -2329,7 +2329,6 @@ class ReaderApp extends React.PureComponent {
     // refUpOne checks if book exists, so code wont go into this if if the book doesn't exist
     if (ref !== refUpOne) {
       // Record the error with detailed message and attributes
-      console.log(`Temp. error recording for navigation failure: ${ref} -> ${refUpOne}`);
       CrashlyticsService.recordError(
         new Error('Navigation Failure: Ref resolution fallback needed'), 
         {
