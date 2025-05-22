@@ -746,7 +746,7 @@ class ReaderApp extends React.PureComponent {
         }).catch(error => {
           console.log(`Dealing with error: ${error}. Ref: ${ref}`);
           if (error == "Return to Nav") {
-            this.handleNavError(ref, versions, isLoadingVersion, numTries, resolve);
+            this._handleNavError(ref, versions, isLoadingVersion, numTries, resolve);
             return;
           }
           console.error('Error caught from ReaderApp.loadNewText', error);
@@ -2320,7 +2320,7 @@ class ReaderApp extends React.PureComponent {
    * @param {number} numTries - Number of previous attempts
    * @param {Function} resolve - Promise resolve function
    */
-  handleNavError = (ref, versions, isLoadingVersion, numTries, resolve) => {
+  _handleNavError = (ref, versions, isLoadingVersion, numTries, resolve) => {
     // In case of unfound ref, try going one ref up (up to the book) before dealing with error by returning to nav.
     // We do this to avoid failing in case of ref to a non existent ref after a changing index of a book.
     const refUpOne = Sefaria.refUpOne(ref, true);
