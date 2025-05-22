@@ -23,6 +23,7 @@ import {
 import * as FileSystem from 'expo-file-system';
 import { Topic } from './Topic';
 import {openFileInSources} from "./offline";
+import {trackEvent} from "./analytics/events";
 
 
 Sefaria = {
@@ -40,7 +41,7 @@ Sefaria = {
     await Sefaria.history._loadHistoryItems();
     await initAsyncStorage(dispatch);
     await Sefaria.getLastGalusStatus();
-    if (this._auth.token) {Sefaria.track.event("ReAuthSuccessful")};
+    if (this._auth.token) {trackEvent("ReAuthSuccessful")};
   },
   postInitSearch: function() {
     return Sefaria._loadRecentQueries()
@@ -1038,41 +1039,6 @@ Sefaria = {
       return aggregatedTopics && aggregatedTopics.length;
     },
   },
-  track: {
-      // Helper functions for event tracking (with Google Analytics and Mixpanel)
-      init: function() {
-        analytics().setAnalyticsCollectionEnabled(true);
-      },
-
-      setScreen: function(screen_name, screen_class) {
-        analytics().logScreenView({ screen_class, screen_name });
-      },
-
-      event: function(event, params) {
-        analytics().logEvent(event, params)
-      },
-
-      pageview: function(page, customDimensions, contentGroups) {
-
-        // TODO: This seems to fire every time a new ref comes in or out of view and doesn't seem to give super rich data is this by design?
-
-
-        /*
-        if (contentGroups) {
-          for (let contGroup of Object.keys(contentGroups)) {
-            //Sefaria.track._tracker.trackContentGroup(parseInt(contGroup), contentGroups.contGroup);
-          }
-        }
-
-        if (customDimensions) {
-          Sefaria.track._tracker.trackScreenViewWithCustomDimensionValues(page, customDimensions);
-        } else {
-          Sefaria.track._tracker.trackScreenView(page);
-        }
-
-         */
-      },
-    }
 };
 
 Sefaria.util = {
