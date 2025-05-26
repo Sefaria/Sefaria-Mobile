@@ -1533,7 +1533,8 @@ class ReaderApp extends React.PureComponent {
         ...newVersionRecentFilters[filterIndex],
         refList: [segmentRef]
       };
-      
+      const versionContents = [null];
+
       return {
         versionFilterIndex: filterIndex,
         versionRecentFilters: newVersionRecentFilters,
