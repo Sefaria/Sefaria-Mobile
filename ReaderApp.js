@@ -848,6 +848,9 @@ class ReaderApp extends React.PureComponent {
     if (!iSec && iSec !== 0) { console.log("could not find section ref in sectionArray", ref); return; }
     return Sefaria.offlineOnline.loadRelated(ref, online)
       .then(response => {
+        if (this.state.segmentIndexRef !== -1 && this.state.sectionIndexRef !== -1) {
+          this.updateLinkSummary(this.state.sectionIndexRef, this.state.segmentIndexRef);
+        }
         this.setState(prevState => {
           const newData = [...prevState.data];
 
@@ -870,11 +873,6 @@ class ReaderApp extends React.PureComponent {
             data: newData,
             linksLoaded: newLinksLoaded
           };
-        }, () => {
-          // After state commits, refresh link summary if we're still on this section
-          if (this.state.segmentIndexRef !== -1 && this.state.sectionIndexRef !== -1) { // TODO: check if this works for our current implementation
-            this.updateLinkSummary(this.state.sectionIndexRef, this.state.segmentIndexRef);
-          }
         });
       });
   };
