@@ -860,8 +860,11 @@ class ReaderApp extends React.PureComponent {
           Sefaria.cacheCommentatorListBySection(ref, newData[iSec]);
 
           // Update linksLoaded immutably
-          const newLinksLoaded = [...prevState.linksLoaded];
-          newLinksLoaded[iSec] = true;
+          let newLinksLoaded = prevState.linksLoaded;
+          if (!newLinksLoaded[iSec]) {
+            newLinksLoaded = [...newLinksLoaded];
+            newLinksLoaded[iSec] = true;
+          }
 
           return {
             data: newData,
