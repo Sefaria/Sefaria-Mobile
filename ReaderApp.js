@@ -846,19 +846,19 @@ class ReaderApp extends React.PureComponent {
     // Links are not loaded yet in case you're in API mode, or you are reading a non-default version
     const iSec = this._getSectionIndex(ref, isSheet);
     if (!iSec && iSec !== 0) { console.log("could not find section ref in sectionArray", ref); return; }
+    const newData = [...this.state.data]; //Create a copy of data before setting state, for the data can be changed before the promise fulfilled (when the user goes to another page)
     return Sefaria.offlineOnline.loadRelated(ref, online)
       .then(response => {
         if (this.state.segmentIndexRef !== -1 && this.state.sectionIndexRef !== -1) {
           this.updateLinkSummary(this.state.sectionIndexRef, this.state.segmentIndexRef);
         }
         this.setState(prevState => {
-          const newData = [...prevState.data];
 
           // Insert related data immutably
           if (isSheet) {
-            newData[iSec] = Sefaria.links.addRelatedToSheet(prevState.data[iSec], response, ref);
+            newData[iSec] = Sefaria.links.addRelatedToSheet(newData[iSec], response, ref);
           } else {
-            newData[iSec] = Sefaria.links.addRelatedToText(prevState.data[iSec], response);
+            newData[iSec] = Sefaria.links.addRelatedToText(newData[iSec], response);
           }
           Sefaria.cacheCommentatorListBySection(ref, newData[iSec]);
 
