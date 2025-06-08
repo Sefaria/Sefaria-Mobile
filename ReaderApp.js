@@ -845,8 +845,9 @@ class ReaderApp extends React.PureComponent {
     if (!iSec && iSec !== 0) { console.log("could not find section ref in sectionArray", ref); return; }
     return Sefaria.offlineOnline.loadRelated(ref, online)
       .then(response => {
-        if (ref !== this.state.sectionArray[iSec]) {
-          console.warn('ref has changed', 'old ref', ref, 'new ref', this.state.sectionArray[iSec]);
+        if (ref !== this.state.sectionArray[iSec] || iSec >= this.state.data.length) {
+          // this async call to load links is for a section that is no longer being viewed
+          return;
         }
         if (this.state.segmentIndexRef !== -1 && this.state.sectionIndexRef !== -1) {
           this.updateLinkSummary(this.state.sectionIndexRef, this.state.segmentIndexRef);
