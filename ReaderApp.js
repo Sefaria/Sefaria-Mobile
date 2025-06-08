@@ -843,9 +843,11 @@ class ReaderApp extends React.PureComponent {
     // Links are not loaded yet in case you're in API mode, or you are reading a non-default version
     const iSec = this._getSectionIndex(ref, isSheet);
     if (!iSec && iSec !== 0) { console.log("could not find section ref in sectionArray", ref); return; }
-    const newData = [...this.state.data]; //Create a copy of data before setting state, for the data can be changed before the promise fulfilled (when the user goes to another page)
     return Sefaria.offlineOnline.loadRelated(ref, online)
       .then(response => {
+        if (ref !== this.state.sectionArray[iSec]) {
+          console.warn('ref has changed', 'old ref', ref, 'new ref', this.state.sectionArray[iSec]);
+        }
         if (this.state.segmentIndexRef !== -1 && this.state.sectionIndexRef !== -1) {
           this.updateLinkSummary(this.state.sectionIndexRef, this.state.segmentIndexRef);
         }
@@ -853,11 +855,11 @@ class ReaderApp extends React.PureComponent {
 
           // Insert related data immutably
           if (isSheet) {
-            newData[iSec] = Sefaria.links.addRelatedToSheet(newData[iSec], response, ref);
+            this.state.data[iSec] = Sefaria.links.addRelatedToSheet(this.state.data[iSec], response, ref);
           } else {
-            newData[iSec] = Sefaria.links.addRelatedToText(newData[iSec], response);
+            this.state.data[iSec] = Sefaria.links.addRelatedToText(this.state.data[iSec], response);
           }
-          Sefaria.cacheCommentatorListBySection(ref, newData[iSec]);
+          Sefaria.cacheCommentatorListBySection(ref, this.state.data[iSec]);
 
           // Update linksLoaded immutably
           let newLinksLoaded = prevState.linksLoaded;
@@ -867,7 +869,7 @@ class ReaderApp extends React.PureComponent {
           }
 
           return {
-            data: newData,
+            data: this.state.data,
             linksLoaded: newLinksLoaded
           };
         });
@@ -933,33 +935,34 @@ class ReaderApp extends React.PureComponent {
   };
 
   updateDataNext = () => {
-    this.setState({ loadingTextTail: true });
-    Sefaria.offlineOnline.loadText(this.state.next, true, this.state.selectedVersions, !this.state.hasInternet)
-      .then((data) => {
-        this.setState(prevState => {
-          const updatedData = [...prevState.data, data.content];
-          const newSectionArray = [...prevState.sectionArray, data.sectionRef];
-          const newSectionHeArray = [...prevState.sectionHeArray, data.heRef];
-          const newLinksLoaded = [...prevState.linksLoaded, false];
+    this.setState({ loadingTextTail: true }, () => {
+      Sefaria.offlineOnline.loadText(this.state.next, true, this.state.selectedVersions, !this.state.hasInternet)
+          .then((data) => {
+            this.setState(prevState => {
+              const updatedData = [...prevState.data, data.content];
+              const newSectionArray = [...prevState.sectionArray, data.sectionRef];
+              const newSectionHeArray = [...prevState.sectionHeArray, data.heRef];
+              const newLinksLoaded = [...prevState.linksLoaded, false];
 
-          return {
-            data: updatedData,
-            prev: prevState.prev,
-            next: data.next,
-            sectionArray: newSectionArray,
-            sectionHeArray: newSectionHeArray,
-            linksLoaded: newLinksLoaded,
-            loaded: true,
-            loadingTextTail: false
-          };
-        }, () => {
-          this.loadSecondaryData(data.sectionRef);
-          this.setCurrVersionObjects(data.sectionRef);
-        });
-      })
-      .catch(function(error) {
-        console.log('Error caught from ReaderApp.updateDataNext', error);
-      });
+              return {
+                data: updatedData,
+                prev: prevState.prev,
+                next: data.next,
+                sectionArray: newSectionArray,
+                sectionHeArray: newSectionHeArray,
+                linksLoaded: newLinksLoaded,
+                loaded: true,
+                loadingTextTail: false
+              };
+            }, () => {
+              this.loadSecondaryData(data.sectionRef);
+              this.setCurrVersionObjects(data.sectionRef);
+            });
+          })
+          .catch(function(error) {
+            console.log('Error caught from ReaderApp.updateDataNext', error);
+          });
+    });
   };
 
   updateTitle = (ref, heRef, sectionIndexRef) => {
