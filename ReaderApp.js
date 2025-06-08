@@ -614,12 +614,10 @@ class ReaderApp extends React.PureComponent {
       return;
     }
     
-    let loadingLinks = false;
     const justOpened = shouldToggle && !this.state.textListVisible;
     const justScrolling = !shouldToggle && !this.state.textListVisible; // true when called while scrolling with text list closed
     
     if (((segment !== this.state.segmentIndexRef || section !== this.state.sectionIndexRef) && !justScrolling) || justOpened) {
-      loadingLinks = true;
       if (this.state.linksLoaded[section]) {
         this.updateLinkSummary(section, segment);
       }
@@ -634,7 +632,6 @@ class ReaderApp extends React.PureComponent {
         linkStaleRecentFilters: prevState.linkRecentFilters.map(()=>true),
         versionStaleRecentFilters: prevState.versionRecentFilters.map(()=>true),
         currentTranslations: this._getTranslationForSegment(section, segment),
-        loadingLinks,
       };
       
       if (isSheet) {
@@ -1411,14 +1408,15 @@ class ReaderApp extends React.PureComponent {
 
   updateLinkSummary = (section, segment) => {
     const menuLanguage = Sefaria.util.get_menu_language(this.props.interfaceLanguage, this.props.textLanguage);
-    Sefaria.links.linkSummary(this.state.textReference, this.state.data[section][segment].links, menuLanguage).then((data) => {
-      this.setState({linkSummary: data, loadingLinks: false});
-      this.updateLinkCat(null, data); // Set up `linkContents` in their initial state as an array of nulls
-    }).catch(error => {
+    try {
+      const linkSummary = Sefaria.links.linkSummary(this.state.textReference, this.state.data[section][segment].links, menuLanguage);
+      this.setState({linkSummary, loadingLinks: false});
+      this.updateLinkCat(null, linkSummary); // Set up `linkContents` in their initial state as an array of nulls
+    } catch (error) {
       crashlytics().recordError(new Error(`Link summary error: Message: ${error}`));
       this.setState({linkSummary: [], loadingLinks: false});
       this.updateLinkCat(null, []); // Set up `linkContents` in their initial state as an array of nulls
-    });
+    }
   };
   updateLinkCat = (filterIndex, linkSummary) => {
       //search for the current filter in the the links object
