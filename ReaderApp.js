@@ -813,6 +813,7 @@ class ReaderApp extends React.PureComponent {
       try {
         await this._loadRelatedOnlineAndOffline(ref, isSheet, isOnline);
         hadSuccess = true;
+        // TODO check that online call is necessary even after offline call
       } catch (error) {
         crashlytics().recordError(new Error(`Related load error: Message: ${error}`));
       }
@@ -842,7 +843,7 @@ class ReaderApp extends React.PureComponent {
     // Ensures that links have been loaded for `ref` and stores result in `this.state.linksLoaded` array.
     // Links are not loaded yet in case you're in API mode, or you are reading a non-default version
     const iSec = this._getSectionIndex(ref, isSheet);
-    if (!iSec && iSec !== 0) { console.log("could not find section ref in sectionArray", ref); return; }
+    if (iSec === -1) { console.log("could not find section ref in sectionArray", ref); return; }
     return Sefaria.offlineOnline.loadRelated(ref, online)
       .then(response => {
         if (ref !== this.state.sectionArray[iSec] || iSec >= this.state.data.length) {
