@@ -251,7 +251,7 @@ var Api = {
       Sefaria.api._request(ref,'text', true, extra_args, failSilently)
       .then(data => {
         if (extra_args.context) {
-          resolve(Sefaria.api._toMobileFormat(data, ref));
+          resolve({textContent: Sefaria.api._toMobileFormat(data, ref)});
         } else {
           const en_text = (data.text instanceof Array) ? data.text.join(' ') : data.text;
           const he_text = (data.he   instanceof Array) ? data.he.join(' ')   : data.he;

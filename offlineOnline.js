@@ -41,7 +41,7 @@ export const loadText = function(ref, context, versions, fallbackOnDefaultVersio
                 return api.textApi(ref, context, versions, failSilently)
                     .then(data => {
                         api.processTextApiData(ref, context, versions, data);
-                        return {textContent: data};
+                        return data;
                     })
             }
             console.error("Error loading offline file", error);
