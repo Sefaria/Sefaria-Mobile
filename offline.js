@@ -11,19 +11,13 @@ import {fileExists} from './DownloadControl';
 PUBLIC INTERFACE
  */
 
-export const loadTextOffline = async function(ref, context, versions, fallbackOnDefaultVersions) {
-    
+export const loadTextOffline = async function(ref, versions, fallbackOnDefaultVersions) {
     const sectionData = await loadOfflineSectionCompat(ref, versions, fallbackOnDefaultVersions);
-    const processed = processFileData(ref, sectionData);
-    
-    if (context) {
-        return processed;
-    }
-    const result = textFromRefData(processed);
-    return {result};
+    const {textContent, links} = processFileData(ref, sectionData);
+    return {textContent, links};
 };
 
-export const getAllTranslationsOffline = async function (ref, context=true) {
+export const getAllTranslationsOffline = async function (ref) {
     // versions are list of all versions
     const versions = getOfflineVersionObjectsAvailable(ref);
     if (!versions) {
@@ -36,14 +30,14 @@ export const getAllTranslationsOffline = async function (ref, context=true) {
         if (!version.isSource) {
             try {
                 // this will return 2 versions. it's a waste but due cache it seems not so problematic
-                const result = await loadTextOffline(ref, context, {[version.language]: version.versionTitle}, false);
-                if (result.missingLangs?.includes(version.language)) {
+                const {textContent} = await loadTextOffline(ref,{[version.language]: version.versionTitle}, false);
+                if (textContent.missingLangs?.includes(version.language)) {
                     missingVersions.push(version);
                     continue;
                 }
                 const copiedVersion = {...version};
                 const desired_attr = (version.direction === 'rtl') ? 'he' : 'text';
-                copiedVersion.text = result.content.map(e => e[desired_attr]);
+                copiedVersion.text = textContent.content.map(e => e[desired_attr]);
                 translations.versions.push(copiedVersion);
             } catch (error) {
                 return;
@@ -174,6 +168,44 @@ export async function offlineTitleExists(ref) {
     const indexZipPath = _zipSourcePath(title);
     // Otherwise, check for a ZIP we could unzip on‑demand.
     return await fileExists(indexZipPath);
+};
+
+export const textFromRefData = function(data) {
+    // Returns a dictionary of the form {en: "", he: "", sectionRef: ""} that includes a single string with
+    // Hebrew and English for `data.requestedRef` found in `data` as returned from loadText().
+    // sectionRef is so that we know which file / api call to make to open this text
+    // `data.requestedRef` may be either section or segment level or ranged ref.
+    if (data.isSectionLevel) {
+        let enText = "", heText = "";
+        for (let i = 0; i < data.content.length; i++) {
+            let item = data.content[i];
+            if (typeof item.text === "string") enText += item.text + " ";
+            if (typeof item.he === "string") heText += item.he + " ";
+        }
+        return new LinkContent(enText, heText, data.sectionRef);
+    } else {
+        let segmentNumber = data.requestedRef.slice(data.ref.length+1);
+        let toSegmentNumber = -1;
+        let dashIndex = segmentNumber.indexOf("-");
+        if (dashIndex !== -1) {
+            toSegmentNumber = parseInt(segmentNumber.slice(dashIndex+1));
+            segmentNumber = parseInt(segmentNumber.slice(0, dashIndex));
+        } else { segmentNumber = parseInt(segmentNumber); }
+        let enText = "";
+        let heText = "";
+        for (let i = 0; i < data.content.length; i++) {
+            let item = data.content[i];
+            const currSegNum = parseInt(item.segmentNumber);
+            if (currSegNum >= segmentNumber && (toSegmentNumber === -1 || currSegNum <= toSegmentNumber)) {
+                if (typeof item.text === "string") enText += item.text + " ";
+                if (typeof item.he === "string") heText += item.he + " ";
+                if (toSegmentNumber === -1) {
+                    break; //not a ranged ref
+                }
+            }
+        }
+        return new LinkContent(enText, heText, data.sectionRef);
+    }
 };
 
 /*
@@ -460,44 +492,6 @@ const loadOfflineSectionMetadata = async function(ref) {
     }
 };
 
-const textFromRefData = function(data) {
-    // Returns a dictionary of the form {en: "", he: "", sectionRef: ""} that includes a single string with
-    // Hebrew and English for `data.requestedRef` found in `data` as returned from loadText().
-    // sectionRef is so that we know which file / api call to make to open this text
-    // `data.requestedRef` may be either section or segment level or ranged ref.
-    if (data.isSectionLevel) {
-        let enText = "", heText = "";
-        for (let i = 0; i < data.content.length; i++) {
-            let item = data.content[i];
-            if (typeof item.text === "string") enText += item.text + " ";
-            if (typeof item.he === "string") heText += item.he + " ";
-        }
-        return new LinkContent(enText, heText, data.sectionRef);
-    } else {
-        let segmentNumber = data.requestedRef.slice(data.ref.length+1);
-        let toSegmentNumber = -1;
-        let dashIndex = segmentNumber.indexOf("-");
-        if (dashIndex !== -1) {
-            toSegmentNumber = parseInt(segmentNumber.slice(dashIndex+1));
-            segmentNumber = parseInt(segmentNumber.slice(0, dashIndex));
-        } else { segmentNumber = parseInt(segmentNumber); }
-        let enText = "";
-        let heText = "";
-        for (let i = 0; i < data.content.length; i++) {
-            let item = data.content[i];
-            const currSegNum = parseInt(item.segmentNumber);
-            if (currSegNum >= segmentNumber && (toSegmentNumber === -1 || currSegNum <= toSegmentNumber)) {
-                if (typeof item.text === "string") enText += item.text + " ";
-                if (typeof item.he === "string") heText += item.he + " ";
-                if (toSegmentNumber === -1) {
-                    break; //not a ranged ref
-                }
-            }
-        }
-        return new LinkContent(enText, heText, data.sectionRef);
-    }
-};
-
 const _unzip = function(zipSourcePath) {
     return unzip(zipSourcePath, FileSystem.documentDirectory);
 };
@@ -533,22 +527,23 @@ const _zipSourcePath = function(fileName) {
     return (FileSystem.documentDirectory + "/library/" + fileName + ".zip");
 };
 
-const processFileData = function(ref, data) {
+const processFileData = function(ref, textContent) {
     // Annotate link objects with useful fields not included in export
-    data.content.forEach(segment => {
-        if ("links" in segment) {
-            segment.links.map(link => {
-                link.textTitle = Sefaria.textTitleForRef(link.sourceRef);
-                if (!("category" in link)) {
-                    link.category = Sefaria.primaryCategoryForTitle(link.textTitle);
-                }
-            });
-        }
+    const links = [];
+    textContent.content.forEach(segment => {
+        links.push(segment?.links?.map(link => {
+            link.textTitle = Sefaria.textTitleForRef(link.sourceRef);
+            if (!("category" in link)) {
+                link.category = Sefaria.primaryCategoryForTitle(link.textTitle);
+            }
+            return link;
+        }));
+        delete segment.links;
     });
-    data.requestedRef   = ref;
-    data.isSectionLevel = (ref === data.sectionRef);
-    Sefaria.cacheVersionsAvailableBySection(data.sectionRef, data.versions);
-    return data;
+    textContent.requestedRef   = ref;
+    textContent.isSectionLevel = (ref === textContent.sectionRef);
+    Sefaria.cacheVersionsAvailableBySection(textContent.sectionRef, textContent.versions);
+    return {textContent, links};
 };
 
 /**

@@ -673,6 +673,7 @@ class ReaderApp extends React.PureComponent {
       this.setState({
           loaded: false,
           data: [],
+          relatedBySectionRef: {},
           textReference: ref,
           textTitle: Sefaria.textTitleForRef(ref),
           heTitle: "",
@@ -685,30 +686,30 @@ class ReaderApp extends React.PureComponent {
       },
       () => {
 
-        Sefaria.offlineOnline.loadText(ref, true, versions, !this.state.hasInternet, true).then(data => { // Silencing the popup on failed Sefaria.api _requests and creating a new pop up if an error arises
-            // debugger;
-                // if specific versions were requested, but no content exists for those versions, try again with default versions
-            if (Sefaria.util.objectHasNonNullValues(data.nonExistantVersions) ||
-                (data.content.length === 0 && !!versions)) {
+        Sefaria.offlineOnline.loadText(ref, true, versions, !this.state.hasInternet, true).then(({textContent, links}) => { // Silencing the popup on failed Sefaria.api _requests and creating a new pop up if an error arises
+            // if specific versions were requested, but no content exists for those versions, try again with default versions
+            if (Sefaria.util.objectHasNonNullValues(textContent.nonExistantVersions) ||
+                (textContent.content.length === 0 && !!versions)) {
               if (numTries >= 4) { //Unclear why 4 times. Maybe for low connectivity.
                 console.error(`Can't find text for ref: ${ref} dispite reverting to default version. Throwing 'Return to Nav'`)
                 throw "Return to Nav";
               } 
-              console.info(`ReaderApp.loadNewText: Recursive call without versions (fallback to default version), nonExistantVersions: ${JSON.stringify(data.nonExistantVersions)}`);
+              console.info(`ReaderApp.loadNewText: Recursive call without versions (fallback to default version), nonExistantVersions: ${JSON.stringify(textContent.nonExistantVersions)}`);
               this.loadNewText({ ref, isLoadingVersion, numTries: numTries + 1 }).then(resolve);
               return;
             }
             let nextState = {
-              data:              [data.content],
-              textTitle:         data.indexTitle,
-              next:              data.next,
-              prev:              data.prev,
-              heTitle:           data.heTitle,
-              heRef:             data.heSectionRef || data.heRef,
-              sectionArray:      [data.sectionRef],
-              sectionHeArray:    [data.heSectionRef || data.heRef], // backwards compatible because offline files are missing `heSectionRef`. we specifically want heSectionRef in case you load a segment ref with context
+              data:              [textContent.content],
+              relatedBySectionRef: {[textContent.sectionRef]: {links}},
+              textTitle:         textContent.indexTitle,
+              next:              textContent.next,
+              prev:              textContent.prev,
+              heTitle:           textContent.heTitle,
+              heRef:             textContent.heSectionRef || textContent.heRef,
+              sectionArray:      [textContent.sectionRef],
+              sectionHeArray:    [textContent.heSectionRef || textContent.heRef], // backwards compatible because offline files are missing `heSectionRef`. we specifically want heSectionRef in case you load a segment ref with context
               loaded:            true,
-              offsetRef:         !data.isSectionLevel ? data.requestedRef : null,
+              offsetRef:         !textContent.isSectionLevel ? textContent.requestedRef : null,
             };
             if (!isLoadingVersion) {
               // also overwrite sidebar state
@@ -730,9 +731,9 @@ class ReaderApp extends React.PureComponent {
             }
             this.setState(nextState, ()=>{
               // Preload Text TOC data into memory
-              this.loadTextToc(data.indexTitle, data.sectionRef).then(() => {
+              this.loadTextToc(textContent.indexTitle, textContent.sectionRef).then(() => {
                 // dependent on versions cached from offline textToc
-                this.loadSecondaryData(data.sectionRef);
+                this.loadSecondaryData(textContent.sectionRef);
                 // dependent on nextState and currVersionObjects
                 Sefaria.history.saveHistoryItem(this.getHistoryObject);
               });
@@ -854,14 +855,21 @@ class ReaderApp extends React.PureComponent {
           this.updateLinkSummary(this.state.sectionIndexRef, this.state.segmentIndexRef);
         }
         this.setState(prevState => {
+          const currSection = this.state.data[iSec];
+          const currSectionRef = isSheet ? this.state.sectionArray[0] : ref;
+          const offset = parseInt(currSection[0]['segmentNumber']) - 1;
 
-          // Insert related data immutably
+          let relatedObj;
           if (isSheet) {
-            this.state.data[iSec] = Sefaria.links.addRelatedToSheet(this.state.data[iSec], response, ref);
+            const sheetSegIndexes = currSection.flatMap((seg, i) =>
+              seg.sourceRef === ref ? [i] : []
+            );
+            const partialRelatedObj = Sefaria.links.makeRelatedByIndexForSheet(response, sheetSegIndexes);
+            relatedObj = {...(this.state.relatedBySectionRef[currSectionRef] || {}), ...partialRelatedObj};
           } else {
-            this.state.data[iSec] = Sefaria.links.addRelatedToText(this.state.data[iSec], response);
+            relatedObj = Sefaria.links.postProcessRelatedResponse(response, offset, currSection.length);
           }
-          Sefaria.cacheCommentatorListBySection(ref, this.state.data[iSec]);
+          Sefaria.cacheCommentatorListBySection(ref, currSection);
 
           // Update linksLoaded immutably
           let newLinksLoaded = prevState.linksLoaded;
@@ -871,7 +879,7 @@ class ReaderApp extends React.PureComponent {
           }
 
           return {
-            data: this.state.data,
+            relatedBySectionRef: {...this.state.relatedBySectionRef, [currSectionRef]: relatedObj},
             linksLoaded: newLinksLoaded
           };
         });
@@ -906,17 +914,17 @@ class ReaderApp extends React.PureComponent {
   updateDataPrev = () => {
     this.setState({ loadingTextHead: true });
     Sefaria.offlineOnline.loadText(this.state.prev, true, this.state.selectedVersions, !this.state.hasInternet)
-      .then((data) => {
+      .then(({textContent}) => {
         this.setState(prevState => {
-          const updatedData = [data.content, ...prevState.data];
-          const newSectionArray = [data.sectionRef, ...prevState.sectionArray];
-          const newSectionHeArray = [data.heRef, ...prevState.sectionHeArray];
+          const updatedData = [textContent.content, ...prevState.data];
+          const newSectionArray = [textContent.sectionRef, ...prevState.sectionArray];
+          const newSectionHeArray = [textContent.heRef, ...prevState.sectionHeArray];
           const newLinksLoaded = [false, ...prevState.linksLoaded];
           const newTranslations = [{versions: []}, ...prevState.translations];
 
           return {
             data: updatedData,
-            prev: data.prev,
+            prev: textContent.prev,
             next: prevState.next,
             sectionArray: newSectionArray,
             sectionHeArray: newSectionHeArray,
@@ -927,8 +935,8 @@ class ReaderApp extends React.PureComponent {
             loadingTextHead: false,
           };
         }, () => {
-          this.loadSecondaryData(data.sectionRef);
-          this.setCurrVersionObjects(data.sectionRef);
+          this.loadSecondaryData(textContent.sectionRef);
+          this.setCurrVersionObjects(textContent.sectionRef);
         });
       })
       .catch(function(error) {
@@ -939,17 +947,17 @@ class ReaderApp extends React.PureComponent {
   updateDataNext = () => {
     this.setState({ loadingTextTail: true }, () => {
       Sefaria.offlineOnline.loadText(this.state.next, true, this.state.selectedVersions, !this.state.hasInternet)
-          .then((data) => {
+          .then(({textContent}) => {
             this.setState(prevState => {
-              const updatedData = [...prevState.data, data.content];
-              const newSectionArray = [...prevState.sectionArray, data.sectionRef];
-              const newSectionHeArray = [...prevState.sectionHeArray, data.heRef];
+              const updatedData = [...prevState.data, textContent.content];
+              const newSectionArray = [...prevState.sectionArray, textContent.sectionRef];
+              const newSectionHeArray = [...prevState.sectionHeArray, textContent.heRef];
               const newLinksLoaded = [...prevState.linksLoaded, false];
 
               return {
                 data: updatedData,
                 prev: prevState.prev,
-                next: data.next,
+                next: textContent.next,
                 sectionArray: newSectionArray,
                 sectionHeArray: newSectionHeArray,
                 linksLoaded: newLinksLoaded,
@@ -957,8 +965,8 @@ class ReaderApp extends React.PureComponent {
                 loadingTextTail: false
               };
             }, () => {
-              this.loadSecondaryData(data.sectionRef);
-              this.setCurrVersionObjects(data.sectionRef);
+              this.loadSecondaryData(textContent.sectionRef);
+              this.setCurrVersionObjects(textContent.sectionRef);
             });
           })
           .catch(function(error) {
@@ -1015,7 +1023,7 @@ class ReaderApp extends React.PureComponent {
     // transforms sheet into standard jagged-array style `data` rendered in TextColumn
     const sources = sheet.sources.filter(source => "ref" in source || "comment" in source || "outsideText" in source || "outsideBiText" in source || "media" in source);
     return [sources.map((source, index) => {
-      let segmentData = {links: [], he: '', text: '', segmentNumber: index+1};
+      let segmentData = {he: '', text: '', segmentNumber: index+1};
       if (source.ref) {
         segmentData = {
           ...segmentData,
@@ -1069,6 +1077,7 @@ class ReaderApp extends React.PureComponent {
       sheet,
       sheetMeta,
       data: [],
+      relatedBySectionRef: {},
       sectionArray: [],
       sectionHeArray: [],
       offsetRef: null,
@@ -1181,12 +1190,7 @@ class ReaderApp extends React.PureComponent {
     if (!!menu && pushHistory && !SKIP_MENUS.includes(this.state.menuOpen)) {
       if (!this.state.menuOpen && !!this.state.data) {
         // text column. remove related data
-        for (let section of this.state.data) {
-          for (let segment of section) {
-            segment.links = [];
-            segment.relatedWOLinks = undefined;
-          }
-        }
+        this.state.relatedBySectionRef = {};
       }
       this.modifyHistory({ dir: "forward", state: this.state });
     }
@@ -1414,7 +1418,8 @@ class ReaderApp extends React.PureComponent {
   updateLinkSummary = (section, segment) => {
     const menuLanguage = Sefaria.util.get_menu_language(this.props.interfaceLanguage, this.props.textLanguage);
     try {
-      const linkSummary = Sefaria.links.linkSummary(this.state.textReference, this.state.data[section][segment].links, menuLanguage);
+      const links = this.state.relatedBySectionRef[this.state.sectionArray[section]][segment]?.links;
+      const linkSummary = Sefaria.links.linkSummary(this.state.textReference, links, menuLanguage);
       this.setState({linkSummary, loadingLinks: false});
       this.updateLinkCat(null, linkSummary); // Set up `linkContents` in their initial state as an array of nulls
     } catch (error) {
@@ -1547,14 +1552,14 @@ class ReaderApp extends React.PureComponent {
   };
 
   loadVersionContent = (ref, pos, versionTitle, versionLanguage) => {
-    Sefaria.offlineOnline.loadText(ref, false, {[versionLanguage]: versionTitle }, false).then(data => {
+    Sefaria.offlineOnline.loadText(ref, false, {[versionLanguage]: versionTitle }, false).then(({result}) => {
       // only want to show versionLanguage in results
       const removeLang = versionLanguage === "he" ? "en" : "he";
-      data.result[removeLang] = "";
+      result[removeLang] = "";
       
       this.setState(prevState => {
         const newVersionContents = [...prevState.versionContents];
-        newVersionContents[pos] = data.result;
+        newVersionContents[pos] = result;
         return { versionContents: newVersionContents };
       });
     });
@@ -2177,7 +2182,7 @@ class ReaderApp extends React.PureComponent {
     let textColumnFlex = this.state.textListVisible ? 1.0 - this.state.textListFlex : 1.0;
     let relatedData = {};
     try {
-      relatedData = this.state.data[this.state.sectionIndexRef][this.state.segmentIndexRef].relatedWOLinks || {};
+      relatedData = this.state.relatedBySectionRef[this.state.sectionArray[this.state.sectionIndexRef]][this.state.segmentIndexRef].relatedWOLinks || {};
     } catch(e) {}
     const vowelToggleAvailable = Sefaria.vowelToggleAvailability(this.state.data[this.state.sectionIndexRef]);
     return (
@@ -2217,6 +2222,7 @@ class ReaderApp extends React.PureComponent {
                   showToast={this.showToast}
                   textToc={this.state.textToc}
                   data={this.state.data}
+                  relatedBySectionRef={this.state.relatedBySectionRef}
                   textReference={this.state.textReference}
                   sectionArray={this.state.sectionArray}
                   sectionHeArray={this.state.sectionHeArray}

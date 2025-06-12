@@ -9,7 +9,8 @@ import {
     loadTextOffline,
     loadLinksOffline,
     getOfflineVersionObjectsAvailable,
-    loadOfflineSectionMetadataCompat, getAllTranslationsOffline
+    getAllTranslationsOffline,
+    textFromRefData,
 } from "./offline";
 import api from "./api";
 
@@ -18,21 +19,29 @@ export const loadText = function(ref, context, versions, fallbackOnDefaultVersio
     /**
      if `context`, only return section no matter what. default is true
      versions is object with keys { en, he } specifying version titles of requested ref
+     Returns a promise that resolves to an object with either:
+        {textContent, links: array} if context is truthy
+        {result: LinkContent} if context is falsy
      */
     if (typeof context === "undefined") { context = true; }
-    return loadTextOffline(ref, context, versions, fallbackOnDefaultVersions)
-        .then((result) => {
-            if (result?.missingLangs?.length) {
+    return loadTextOffline(ref, versions, fallbackOnDefaultVersions)
+        .then(({textContent, links}) => {
+            if (textContent?.missingLangs?.length) {
                 throw ERRORS.MISSING_OFFLINE_DATA;
             }
-            return result;
+            if (!context) {
+                const result = textFromRefData(textContent);
+                return {result};
+            }
+
+            return {textContent, links};
         })
         .catch(error => {
             if (error === ERRORS.MISSING_OFFLINE_DATA) {
                 return api.textApi(ref, context, versions, failSilently)
                     .then(data => {
                         api.processTextApiData(ref, context, versions, data);
-                        return data;
+                        return {textContent: data};
                     })
             }
             console.error("Error loading offline file", error);

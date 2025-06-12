@@ -763,38 +763,44 @@ Sefaria = {
       });
       return output;
     },
-    addRelatedToSheet: function(sheet, related, sourceRef) {
+    makeRelatedByIndexForSheet: function(related, sheetSegIndexes) {
+      /**
+       * Given `related` object as returned by links API for a given sourceRef on a sheet,
+       * add the contents of related to the appropriate segment indexes in the sheet.
+       * These indexes are passed in as `sheetSegIndexes` and represent the indexes of the original sourceRef used to query the links API.
+       */
       const related_obj = Sefaria.links.organizeRelatedBySegment(related);
-      const sheetSegIndexes = [];
-      for (let i = 0; i < sheet.length; i++) {
-        if (sheet[i].sourceRef === sourceRef) { sheetSegIndexes.push(i); }
-      }
+      let relatedByIndex = {};  // object with keys that are segment indexes and values are related data for that segment
       Object.entries(related_obj).map(([key, valueList]) => {
-        const flattenedValues = valueList.reduce((accum, curr) => accum.concat(curr), []);
+        const flattenedValues = valueList.flat();
         for (let i of sheetSegIndexes) {
+          let currRelatedObj = {};
           if (key === 'links') {
-            sheet[i][key] = flattenedValues;
+            currRelatedObj[key] = flattenedValues;
           } else {
-            if (!sheet[i].relatedWOLinks) { sheet[i].relatedWOLinks = []; }
-            sheet[i].relatedWOLinks[key] = flattenedValues;
+            if (!currRelatedObj.relatedWOLinks) { currRelatedObj.relatedWOLinks = {}; }
+            currRelatedObj.relatedWOLinks[key] = flattenedValues;
           }
+          relatedByIndex[i] = currRelatedObj;
         }
       });
-      return sheet;
+      return relatedByIndex;
     },
-    addRelatedToText: function(text, related) {
-      const offset = parseInt(text[0]['segmentNumber']) - 1;
-      const related_obj = Sefaria.links.organizeRelatedBySegment(related, offset);
-      return text.map((seg,i) => ({
-        ...seg,
-        links: related_obj.links[i] || [],
-        relatedWOLinks: {
-          ...Object.keys(related_obj).filter(x => x !== 'links').reduce((obj, x) => {
-            obj[x] = related_obj[x][i] || [];
-            return obj;
-          }, {}),
-        },
-      }));
+    postProcessRelatedResponse: function(related, offset, numSegments) {
+      const relatedObj = Sefaria.links.organizeRelatedBySegment(related, offset);
+      let relatedList = [];
+      for (let i = 0; i < numSegments; i++) {
+        relatedList.push({
+          links: relatedObj.links[i] || [],
+          relatedWOLinks: {
+            ...Object.keys(relatedObj).filter(x => x !== 'links').reduce((obj, x) => {
+              obj[x] = relatedObj[x][i] || [];
+              return obj;
+            }, {}),
+          },
+        });
+      }
+      return relatedList;
     },
     loadLinkData: function(ref, pos, resolveClosure, rejectClosure, runNow) {
       const parseData = async function(data) {
