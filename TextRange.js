@@ -92,7 +92,7 @@ const TextRange = React.memo(({
     >
       <View
         style={[styles.numberSegmentHolderEn, {flexDirection: textLanguageWithContent === 'english' ? 'row' : 'row-reverse'}]}
-        key={segmentRef+"|inner-box"}
+        key={`${segmentRef}|${biLayout}|inner-box`}
       >
         { numberMargin }
         <View style={textStyle} key={segmentRef+"|text-box"}>
