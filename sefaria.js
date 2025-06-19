@@ -408,26 +408,30 @@ Sefaria = {
   cacheCurrVersionsBySection: function(currVersions, ref) {
     Sefaria._currVersionsBySection[ref] = currVersions;
   },
-  cacheVersionInfoOldFormat: function(data) {
+  cacheVersionInfoOldFormat: function({textContent}) {
     /**
      * Caches version info where hebrew and english attributes are in separate fields at root of section data
      * as opposed to version data being a list of version objects
      */
+    if (!textContent) {
+      // textContent is null when loading from text API with context=false
+      return;
+    }
     const attrs = ['versionTitle','versionNotes','license','versionSource','versionTitleInHebrew','versionNotesInHebrew'];
-    const currVersions = {en: data.versionTitle, he: data.heVersionTitle};
-    Sefaria.cacheCurrVersionsBySection(currVersions, data.sectionRef);
+    const currVersions = {en: textContent.versionTitle, he: textContent.heVersionTitle};
+    Sefaria.cacheCurrVersionsBySection(currVersions, textContent.sectionRef);
     const versionObjects = [];
     for (let lang of ['en', 'he']) {
       const versionObject = {};
       attrs.forEach(attr => {
         // remove 'he' prefix from attributes
         const dataAttr = lang === 'he' ? `he${attr.at(0).toUpperCase()}${attr.substring(1)}` : attr;
-        versionObject[attr] = data[dataAttr];
+        versionObject[attr] = textContent[dataAttr];
       });
       versionObject.language = lang;
       versionObjects.push(versionObject);
     }
-    Sefaria.cacheVersionObjectByTitle(versionObjects, data.indexTitle);
+    Sefaria.cacheVersionObjectByTitle(versionObjects, textContent.indexTitle);
   },
   cacheVersionObjectByTitle: function(versionObjects, title) {
     /**
