@@ -46,6 +46,7 @@ class TextColumn extends React.PureComponent {
     themeStr:           PropTypes.string,
     fontSize:           PropTypes.number.isRequired,
     data:               PropTypes.oneOfType([PropTypes.array, PropTypes.object]),  // can be object in the case of sheets
+    relatedBySectionRef:PropTypes.object,
     sectionArray:       PropTypes.array,
     sectionHeArray:     PropTypes.array,
     offsetRef:          PropTypes.string,
@@ -116,6 +117,7 @@ class TextColumn extends React.PureComponent {
     const showAliyot = canHaveAliyot && props.showAliyot;
     const parashaDict = !!props.textToc && canHaveAliyot ? this._getParashaDict(props.textToc.alts.Parasha.nodes) : {};
     let data = props.data;
+    let relatedBySectionRef = props.relatedBySectionRef;
     let dataSource = [];
 
     let offsetRef = this._standardizeOffsetRef(props.offsetRef);
@@ -186,25 +188,27 @@ class TextColumn extends React.PureComponent {
     else { // segmented
       for (let sectionIndex = 0; sectionIndex < data.length; sectionIndex++) {
         let rows = [];
-        for (var i = 0; i < data[sectionIndex].length; i++) {
-          if (i !== 0 && !data[sectionIndex][i].text && !data[sectionIndex][i].he) { continue; } // Skip empty segments
-          var rowID = props.sectionArray[sectionIndex] + ":" + data[sectionIndex][i].segmentNumber;
+        const sectionRef = props.sectionArray[sectionIndex];
+        for (let segmentIndex = 0; segmentIndex < data[sectionIndex].length; segmentIndex++) {
+          if (segmentIndex !== 0 && !data[sectionIndex][segmentIndex].text && !data[sectionIndex][segmentIndex].he) { continue; } // Skip empty segments
+          let rowID = props.sectionArray[sectionIndex] + ":" + data[sectionIndex][segmentIndex].segmentNumber;
+          const relatedObj = relatedBySectionRef?.[sectionRef]?.[segmentIndex];
           const aliya = parashaDict[rowID];
-          //if (!!aliya && aliya.type === ROW_TYPES.ALIYA) { debugger; }
           if (!!aliya && (aliya.type !== ROW_TYPES.ALIYA || showAliyot)) {
             //insert aliya
             rows.push(aliya);
           }
-          const rowContent = data[sectionIndex][i];
-          const highlight = offsetRef == rowID || (props.textListVisible && props.segmentRef == rowID);
+          const rowContent = data[sectionIndex][segmentIndex];
+          const highlight = offsetRef === rowID || (props.textListVisible && props.segmentRef === rowID);
           const highlightedWordID = props.highlightedWordSegmentRef === rowID && props.highlightedWordID;
-          const changeString = `${rowID}|${!!rowContent.links && rowContent.links.length}|${highlight}|${this.props.fontSize}|${highlightedWordID}`;
+          const changeString = `${rowID}|${relatedObj?.links?.length}|${highlight}|${this.props.fontSize}|${highlightedWordID}`;
           let rowData = this.dataSourceHash[changeString];
           if (!rowData) {
             rowData = {
               content: rowContent, // Store data in `content` so that we can manipulate other fields without manipulating the original data
+              related: relatedObj,
               sectionIndex,
-              rowIndex: i,
+              rowIndex: segmentIndex,
               highlight,
               highlightedWordID,
             };
@@ -218,7 +222,7 @@ class TextColumn extends React.PureComponent {
           //rowData.changeString += rowData.highlight ? "|highlight" : "";
           rows.push({ref: rowID, data: rowData, changeString, type: ROW_TYPES.SEGMENT});
         }
-        dataSource.push({ref: props.sectionArray[sectionIndex], heRef: props.sectionHeArray[sectionIndex], data: rows, sectionIndex: sectionIndex, changeString: `${props.sectionArray[sectionIndex]}|${this.props.fontSize}|${this.props.textLanguage}`});
+        dataSource.push({ref: sectionRef, heRef: props.sectionHeArray[sectionIndex], data: rows, sectionIndex: sectionIndex, changeString: `${props.sectionArray[sectionIndex]}|${this.props.fontSize}|${this.props.textLanguage}`});
       }
       segmentGenerator = this.renderSegmentedRow;
     }

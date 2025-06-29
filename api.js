@@ -49,108 +49,91 @@ var Api = {
       return Sefaria.api._textCache[key];
     }
   },
-  _toIOS: function(responses) {
-      //console.log(responses);
-      if (!responses) { return responses; }
-      let text_response = responses.text;
+  _toMobileFormat: function(textResponse, ref) {
+    /**
+     * Convert format of API response to the format used by the mobile app.
+     * This makes it conform to the same format as the offline export.
+     */
       let to_pad, pad_length;
-      if (text_response.text.length < text_response.he.length) {
-        to_pad = text_response.text;
-        pad_length = text_response.he.length;
+      if (textResponse.text.length < textResponse.he.length) {
+        to_pad = textResponse.text;
+        pad_length = textResponse.he.length;
       } else{
-        to_pad = text_response.he;
-        pad_length = text_response.text.length;
+        to_pad = textResponse.he;
+        pad_length = textResponse.text.length;
       }
       while (to_pad.length < pad_length) {
         to_pad.push("");
       }
 
-      let link_response = new Array(text_response.text.length);
-      let baseRef = responses.ref;
-
-      for (let i = 0; i < responses.links.length; i++) {
-        let link = responses.links[i];
-        let linkSegIndex = parseInt(link.anchorRef.substring(link.anchorRef.lastIndexOf(':') + 1)) - 1;
-        if (!link_response[linkSegIndex]) {
-          link_response[linkSegIndex] = [];
-        }
-        link_response[linkSegIndex].push({
-          "category": link.category,
-          "sourceRef": link.sourceRef, //.substring(0,link.sourceRef.lastIndexOf(':')),
-          "sourceHeRef": link.sourceHeRef, //.substring(0,link.sourceHeRef.lastIndexOf(':')),
-          "textTitle": link.index_title
-        });
-      }
-
-      let offset = text_response?.index_offsets_by_depth?.[text_response.textDepth] || 0;
+      let offset = textResponse?.index_offsets_by_depth?.[textResponse.textDepth] || 0;
       offset = (Array.isArray(offset)) ? offset[0] : offset;
-      let content = text_response.text.map((en,i) => ({
+      let content = textResponse.text.map((en,i) => ({
         "segmentNumber": ""+(i+1+offset),
-        "he": text_response.he[i],
+        "he": textResponse.he[i],
         "text": en,
-        "links": link_response[i] ? link_response[i] : []
       }));
 
       //check merged version title
       let isFirst, sourceSet;
-      if (!text_response.versionTitle && text_response.sources) {
-        text_response.versionTitle = "Merged from ";
-        sourceSet = new Set(text_response.sources);
+      if (!textResponse.versionTitle && textResponse.sources) {
+        textResponse.versionTitle = "Merged from ";
+        sourceSet = new Set(textResponse.sources);
         isFirst = true;
         for (let source of sourceSet) {
-          if (!isFirst) text_response.versionTitle += ", ";
-          text_response.versionTitle += source;
+          if (!isFirst) textResponse.versionTitle += ", ";
+          textResponse.versionTitle += source;
           isFirst = false;
         }
       }
-      if (!text_response.heVersionTitle && text_response.heSources) {
-        text_response.heVersionTitle = "Merged from ";
-        sourceSet = new Set(text_response.heSources);
+      if (!textResponse.heVersionTitle && textResponse.heSources) {
+        textResponse.heVersionTitle = "Merged from ";
+        sourceSet = new Set(textResponse.heSources);
         isFirst = true;
         for (let source of sourceSet) {
-          if (!isFirst) text_response.heVersionTitle += ", ";
-          text_response.heVersionTitle += source;
+          if (!isFirst) textResponse.heVersionTitle += ", ";
+          textResponse.heVersionTitle += source;
           isFirst = false;
         }
       }
 
       return {
-        "versionTitle": text_response.versionTitle,
-        "heVersionTitle": text_response.heVersionTitle,
-        "versionNotes": text_response.versionNotes,
-        "heVersionNotes": text_response.heVersionNotes,
-        "license": text_response.license,
-        "heLicense": text_response.heLicense,
-        "versionSource": text_response.versionSource,
-        "heVersionSource": text_response.heVersionSource,
-        "requestedRef": responses.ref,
-        "isSectionLevel": responses.ref === text_response.sectionRef,
-        "heTitleVariants": text_response.heTitleVariants,
-        "heTitle": text_response.heTitle,
-        "heRef": text_response.heRef,
-        "toSections": text_response.toSections,
-        "sectionRef": text_response.sectionRef,
-        "heSectionRef": text_response.heSectionRef, // doesn't actually appear in offline files
-        "lengths": text_response.length,
-        "next": text_response.next,
+        "versionTitle": textResponse.versionTitle,
+        "heVersionTitle": textResponse.heVersionTitle,
+        "versionNotes": textResponse.versionNotes,
+        "heVersionNotes": textResponse.heVersionNotes,
+        "license": textResponse.license,
+        "heLicense": textResponse.heLicense,
+        "versionSource": textResponse.versionSource,
+        "heVersionSource": textResponse.heVersionSource,
+        "requestedRef": ref,
+        "isSectionLevel": ref === textResponse.sectionRef,
+        "heTitleVariants": textResponse.heTitleVariants,
+        "heTitle": textResponse.heTitle,
+        "heRef": textResponse.heRef,
+        "toSections": textResponse.toSections,
+        "sectionRef": textResponse.sectionRef,
+        "heSectionRef": textResponse.heSectionRef, // doesn't actually appear in offline files
+        "lengths": textResponse.length,
+        "next": textResponse.next,
         "content": content,
-        "book": text_response.book,
-        "prev": text_response.prev,
-        "textDepth": text_response.textDepth,
-        "sectionNames": text_response.sectionNames,
-        "sections": text_response.sections,
-        "isComplex": text_response.isComplex,
-        "titleVariants": text_response.titleVariants,
-        "categories": text_response.categories,
-        "ref": text_response.sectionRef,
-        "type": text_response.type,
-        "addressTypes": text_response.addressTypes,
-        "length": text_response.length,
-        "indexTitle": text_response.indexTitle,
-        "heIndexTitle": text_response.heIndexTitle,
-        "alts": text_response.alts,
-        "order": text_response.order,
-        "nonExistantVersions": text_response.nonExistantVersions,
+        "book": textResponse.book,
+        "prev": textResponse.prev,
+        "textDepth": textResponse.textDepth,
+        "sectionNames": textResponse.sectionNames,
+        "sections": textResponse.sections,
+        "isComplex": textResponse.isComplex,
+        "titleVariants": textResponse.titleVariants,
+        "categories": textResponse.categories,
+        "ref": textResponse.sectionRef,
+        "type": textResponse.type,
+        "addressTypes": textResponse.addressTypes,
+        "length": textResponse.length,
+        "indexTitle": textResponse.indexTitle,
+        "heIndexTitle": textResponse.heIndexTitle,
+        "alts": textResponse.alts,
+        "order": textResponse.order,
+        "nonExistantVersions": textResponse.nonExistantVersions,
       };
   },
   /*
@@ -268,7 +251,7 @@ var Api = {
       Sefaria.api._request(ref,'text', true, extra_args, failSilently)
       .then(data => {
         if (extra_args.context) {
-          resolve(Sefaria.api._toIOS({"text": data, "links": [], "ref": ref}));
+          resolve({textContent: Sefaria.api._toMobileFormat(data, ref)});
         } else {
           const en_text = (data.text instanceof Array) ? data.text.join(' ') : data.text;
           const he_text = (data.he   instanceof Array) ? data.he.join(' ')   : data.he;

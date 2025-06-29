@@ -23,8 +23,8 @@ subprojects {
     afterEvaluate { project ->
         if (project.hasProperty("android")) {
             android {
-                compileSdkVersion 34
-                buildToolsVersion "34.0.0"
+                compileSdkVersion 35
+                buildToolsVersion "35.0.0"
             }
         }
     }
@@ -34,18 +34,18 @@ wrapper {
     distributionUrl = distributionUrl.replace("bin", "all")
 }
 ext {
-    buildToolsVersion = "34.0.0"
-    minSdkVersion = 21
-    compileSdkVersion = 34
+    buildToolsVersion = "35.0.0"
+    minSdkVersion = 24
+    compileSdkVersion = 35
     targetSdkVersion = 34
-    supportLibVersion = "34.0.0"
+    supportLibVersion = "35.0.0"
     react = [
       extraPackagerArgs: ['--sourcemap-output', file("app/build/generated/index.android.js.map")]
     ]
 
     // We use NDK 23 which has both M1 support and is the side-by-side NDK version from AGP.
-    ndkVersion = "25.1.8937393"
-    kotlinVersion = "1.8.0"
+    ndkVersion = "27.1.12297006"
+    kotlinVersion = "2.0.21"
 }
 dependencies {
 }
