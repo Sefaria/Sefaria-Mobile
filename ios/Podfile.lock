@@ -114,7 +114,7 @@ PODS:
     - FirebaseSharedSwift (~> 11.0)
     - GoogleUtilities/Environment (~> 8.0)
     - "GoogleUtilities/NSData+zlib (~> 8.0)"
-  - FirebaseRemoteConfigInterop (11.12.0)
+  - FirebaseRemoteConfigInterop (11.15.0)
   - FirebaseSessions (11.11.0):
     - FirebaseCore (~> 11.11.0)
     - FirebaseCoreExtension (~> 11.11.0)
@@ -124,7 +124,7 @@ PODS:
     - GoogleUtilities/UserDefaults (~> 8.0)
     - nanopb (~> 3.30910.0)
     - PromisesSwift (~> 2.1)
-  - FirebaseSharedSwift (11.12.0)
+  - FirebaseSharedSwift (11.15.0)
   - fmt (11.0.2)
   - glog (0.3.5)
   - GoogleAppMeasurement (11.11.0):
@@ -1473,6 +1473,27 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
+  - react-native-shake (6.7.8):
+    - DoubleConversion
+    - glog
+    - hermes-engine
+    - RCT-Folly (= 2024.11.18.00)
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Core
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-ImageManager
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - Yoga
   - react-native-version-number (0.3.6):
     - React
   - react-native-webview (13.13.5):
@@ -1945,27 +1966,6 @@ PODS:
   - RNZipArchive/Core (7.0.1):
     - React-Core
     - SSZipArchive (~> 2.5.5)
-  - Shake (0.1.0):
-    - DoubleConversion
-    - glog
-    - hermes-engine
-    - RCT-Folly (= 2024.11.18.00)
-    - RCTRequired
-    - RCTTypeSafety
-    - React-Core
-    - React-debug
-    - React-Fabric
-    - React-featureflags
-    - React-graphics
-    - React-ImageManager
-    - React-NativeModulesApple
-    - React-RCTFabric
-    - React-rendererdebug
-    - React-utils
-    - ReactCodegen
-    - ReactCommon/turbomodule/bridging
-    - ReactCommon/turbomodule/core
-    - Yoga
   - SocketRocket (0.7.1)
   - SSZipArchive (2.5.5)
   - Yoga (0.0.0)
@@ -2031,6 +2031,7 @@ DEPENDENCIES:
   - "react-native-netinfo (from `../node_modules/@react-native-community/netinfo`)"
   - react-native-render-html (from `../node_modules/react-native-render-html`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
+  - react-native-shake (from `../node_modules/react-native-shake`)
   - react-native-version-number (from `../node_modules/react-native-version-number`)
   - react-native-webview (from `../node_modules/react-native-webview`)
   - React-nativeconfig (from `../node_modules/react-native/ReactCommon`)
@@ -2077,7 +2078,6 @@ DEPENDENCIES:
   - RNSoundPlayer (from `../node_modules/react-native-sound-player`)
   - RNSVG (from `../node_modules/react-native-svg`)
   - RNZipArchive (from `../node_modules/react-native-zip-archive`)
-  - "Shake (from `../node_modules/@sapkalabs/react-native-shake`)"
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
 SPEC REPOS:
@@ -2197,6 +2197,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-render-html"
   react-native-safe-area-context:
     :path: "../node_modules/react-native-safe-area-context"
+  react-native-shake:
+    :path: "../node_modules/react-native-shake"
   react-native-version-number:
     :path: "../node_modules/react-native-version-number"
   react-native-webview:
@@ -2289,8 +2291,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-svg"
   RNZipArchive:
     :path: "../node_modules/react-native-zip-archive"
-  Shake:
-    :path: "../node_modules/@sapkalabs/react-native-shake"
   Yoga:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
@@ -2315,9 +2315,9 @@ SPEC CHECKSUMS:
   FirebaseCrashlytics: 5058c465e10782f54337b394c37254e0595174e9
   FirebaseInstallations: 781e0e37aa0e1c92b44d00e739aba79ad31b2dba
   FirebaseRemoteConfig: ca2e03fdd86e31d79ded53e24fa4ac719494dc35
-  FirebaseRemoteConfigInterop: 82b81fd06ee550cbeff40004e2c106daedf73e38
+  FirebaseRemoteConfigInterop: 1c6135e8a094cc6368949f5faeeca7ee8948b8aa
   FirebaseSessions: f5c6bfeb66a7202deaf33352017bb6365e395820
-  FirebaseSharedSwift: d2475748a2d2a36242ed13baa34b2acda846c925
+  FirebaseSharedSwift: e17c654ef1f1a616b0b33054e663ad1035c8fd40
   fmt: a40bb5bd0294ea969aaaba240a927bd33d878cdd
   glog: eb93e2f488219332457c3c4eafd2738ddc7e80b8
   GoogleAppMeasurement: 8a82b93a6400c8e6551c0bcd66a9177f2e067aed
@@ -2359,6 +2359,7 @@ SPEC CHECKSUMS:
   react-native-netinfo: f0a9899081c185db1de5bb2fdc1c88c202a059ac
   react-native-render-html: 984dfe2294163d04bf5fe25d7c9f122e60e05ebe
   react-native-safe-area-context: 9b169299f9dc95f1d7fe1dd266fde53bd899cd0c
+  react-native-shake: 2b69d35f2a412f154196ae61ece27112209db5b2
   react-native-version-number: b415bbec6a13f2df62bf978e85bc0d699462f37f
   react-native-webview: ca20dfd45204cc81f0b21e70d1e5a349daecfb81
   React-nativeconfig: ecf4dc92c40b97e2b3f0c619938f78bfd6507b08
@@ -2405,7 +2406,6 @@ SPEC CHECKSUMS:
   RNSoundPlayer: 6b5532fb8e9afe17af48e62813c80ad568aea5d3
   RNSVG: cb725f4400af94396beaeab55098e0a57f2ee020
   RNZipArchive: 7bb4c70d6aa2dd235212c0a4a3de0a4e237e2569
-  Shake: c5cf90d0e69924590e39e3994ece22396884819e
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
   SSZipArchive: c69881e8ac5521f0e622291387add5f60f30f3c4
   Yoga: 31a098f74c16780569aebd614a0f37a907de0189
