@@ -240,7 +240,7 @@ class ConnectionsPanel extends React.PureComponent {
             />);
           } else {
             let navButtonPropsList= getLibraryNavButtonPropsList(this.props.linkSummary, this.props.connectionsMode, this.props.openFilter, this.props.setConnectionsMode);
-            buttons = navButtonPropsList.map(props => (<LibraryNavButton {...props} />));
+            buttons = navButtonPropsList.map(props => makeLibraryNavButton(props));
           }
           content = (
             <ScrollView
@@ -320,6 +320,20 @@ const getLibraryNavButtonPropsList = (linkSummary, connectionsMode, openFilter, 
   return navButtonPropsList;
 }
 
+const makeLibraryNavButton = (props) => {
+  /**
+   * Must pass `key` prop explicitly
+   */
+  const key = props.key;
+  delete props.key;
+  return (
+      <LibraryNavButton
+          key={key}
+          {...props}
+      />
+  );
+};
+
 const MainMenuButtons = ({linkSummary,
                            connectionsMode,
                            openFilter,
@@ -347,7 +361,7 @@ const MainMenuButtons = ({linkSummary,
     string = 'less';
     icon = 'up'
   }
-  const navButtons = navButtonPropsList.map(props => (<LibraryNavButton {...props} />));
+  const navButtons = navButtonPropsList.map(props => makeLibraryNavButton(props));
   if (buttonsOverload) {navButtons.push(<ToolsButton
         onPress={toggleShowAllRelated}
         text={strings[string]}
