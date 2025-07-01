@@ -1,0 +1,33 @@
+diff --git a/node_modules/react-native/ReactCommon/react/nativemodule/core/platform/android/ReactCommon/JavaTurboModule.cpp b/node_modules/react-native/ReactCommon/react/nativemodule/core/platform/android/ReactCommon/JavaTurboModule.cpp
+index 22cc57b..344792c 100644
+--- a/node_modules/react-native/ReactCommon/react/nativemodule/core/platform/android/ReactCommon/JavaTurboModule.cpp
++++ b/node_modules/react-native/ReactCommon/react/nativemodule/core/platform/android/ReactCommon/JavaTurboModule.cpp
+@@ -989,15 +989,19 @@ void JavaTurboModule::setEventEmitterCallback(
+         *eventEmitterMap_[eventName].get());
+   };
+ 
+-  jvalue arg;
+-  arg.l = JCxxCallbackImpl::newObjectCxxArgs([eventEmitterLookup = std::move(
+-                                                  eventEmitterLookup)](
+-                                                 folly::dynamic args) {
+-            auto eventName = args.at(0).asString();
+-            auto eventArgs = args.size() > 1 ? args.at(1) : nullptr;
+-            eventEmitterLookup(eventName).emit(std::move(eventArgs));
+-          }).release();
+-  env->CallVoidMethod(instance, cachedMethodId, arg);
++  auto callback = JCxxCallbackImpl::newObjectCxxArgs([&](folly::dynamic args) {
++    auto eventName = args.at(0).asString();
++    auto& eventEmitter = static_cast<AsyncEventEmitter<folly::dynamic>&>(
++        *eventEmitterMap_[eventName].get());
++    eventEmitter.emit(args.size() > 1 ? std::move(args).at(1) : nullptr);
++  });
++
++  jvalue args[1];
++  args[0].l = callback.release();
++
++  // CallVoidMethod is replaced with CallVoidMethodA as it's unsafe on 32bit and causes crashes
++  // https://github.com/facebook/react-native/issues/51628
++  env->CallVoidMethodA(instance_.get(), cachedMethodId, args);
+ }
+ 
+ } // namespace facebook::react
