@@ -145,6 +145,7 @@ class AutocompleteList extends React.Component {
       recentType = "toc";
     } else if (item.type == "topic" || item.type == "persontopic" || item.type == "authortopic") {
       recentType = item.type;
+      // NOTE: rest of metadata for topic will be populated when topic page loads
       this.props.openTopic(new Topic({ slug: item.key }));
     } else if (item.type == "user") {
       recentType = "user";
