@@ -2066,7 +2066,7 @@ class ReaderApp extends React.PureComponent {
         break;
       case ("settings"):
         trackCurrentScreen("settings", "menu")
-        return(<SettingsPage close={this.manageBackMain} logout={this.logout} openUri={this.openUri} />);
+        return(<SettingsPage close={this.manageBackMain} logout={this.logout} openUri={this.openUri} syncProfile={this.syncProfileBound} />);
       case ("account-menu"):
         trackCurrentScreen("account-menu", "menu")
         return(<AccountNavigationMenu 
