@@ -55,13 +55,12 @@ const DEBUG_MODE = false;
  * @param {array} values. optional list of values that should be passed to onPress if present. should be same length as options
  * @param {func} syncProfile. optional function to call after onPress
  */
-const generateOptions = (options, onPress, values=[], syncProfile) => Sefaria.util.zip([options, values]).map(([o,v]) => ({
+const generateOptions = (options, onPress, values=[]) => Sefaria.util.zip([options, values]).map(([o,v]) => ({
   name: o,
   text: strings[o],
   value: v,
   onPress: () => {
     onPress(typeof v == 'undefined' ? o : v);
-    if (typeof syncProfile === 'function') { syncProfile(); }
   },
 }));
 
@@ -186,12 +185,25 @@ function abstractUpdateChecker(disableUpdateComponent, networkMode) {
 
 const SettingsPage = ({ close, logout, openUri, syncProfile }) => {
   const [numPressesDebug, setNumPressesDebug] = useState(0);
-  const { themeStr, interfaceLanguage, isLoggedIn, downloadNetworkSetting } = useContext(GlobalStateContext);
+  const globalState = useContext(GlobalStateContext);
+  const { themeStr, interfaceLanguage, isLoggedIn, downloadNetworkSetting } = globalState;
   const { isDisabledObj, setIsDisabledObj, onPackagePress } = usePkgState();
   const theme = getTheme(themeStr);
   const [updatesDisabled, setUpdatesDisabled] = useState(false);
   const checkUpdatesForSettings = abstractUpdateChecker(setUpdatesDisabled, downloadNetworkSetting);
   const [isProcessing, setIsProcessing] = useState(false);
+
+  useEffect(() => {
+    if (typeof syncProfile === 'function') { 
+      syncProfile();  // this calls syncProfileBound in ReaderApp.js whenver a setting is changed
+    }
+  }, [
+    globalState.interfaceLanguage,
+    globalState.textLanguage,
+    globalState.emailFrequency,
+    globalState.preferredCustom,
+    globalState.readingHistory,
+  ]);
 
   const onLogOut = async () => {
     logout();
@@ -251,7 +263,6 @@ const SettingsPage = ({ close, logout, openUri, syncProfile }) => {
 
         <ButtonToggleSection
           langStyle={langStyle}
-          syncProfile={syncProfile}
         />
 
         <View style={[styles.readerDisplayOptionsMenuDivider, styles.settingsDivider, theme.readerDisplayOptionsMenuDivider]}/>
@@ -346,7 +357,7 @@ SettingsPage.propTypes = {
   syncProfile: PropTypes.func,
 };
 
-const ButtonToggleSection = ({ langStyle, syncProfile }) => {
+const ButtonToggleSection = ({ langStyle }) => {
   const dispatch = useContext(DispatchContext);
   const globalState = useContext(GlobalStateContext);
   const theme = getTheme(globalState.themeStr);
@@ -420,13 +431,13 @@ const ButtonToggleSection = ({ langStyle, syncProfile }) => {
     });
   };
   const options = {
-    interfaceLanguageOptions: generateOptions(['english', 'hebrew'], setInterfaceLanguage, [], syncProfile),
-    textLanguageOptions: generateOptions(['english', 'bilingual', 'hebrew'], setTextLanguage, [], syncProfile),
-    emailFrequencyOptions: generateOptions(['daily', 'weekly', 'never'], setEmailFrequency, [], syncProfile),
-    preferredCustomOptions: generateOptions(['sephardi', 'ashkenazi'], setPreferredCustom, [], syncProfile),
-    downloadNetworkSettingOptions: generateOptions(['wifiOnly', 'mobileNetwork'], setDownloadNetworkSetting, [], syncProfile),
-    readingHistoryOptions: generateOptions(['onFem', 'offFem'], setReadingHistory, [true, false], syncProfile),
-    groggerActiveOptions: generateOptions(['on', 'off'], setGroggerActive, [], syncProfile),
+    interfaceLanguageOptions: generateOptions(['english', 'hebrew'], setInterfaceLanguage, []),
+    textLanguageOptions: generateOptions(['english', 'bilingual', 'hebrew'], setTextLanguage, []),
+    emailFrequencyOptions: generateOptions(['daily', 'weekly', 'never'], setEmailFrequency, []),
+    preferredCustomOptions: generateOptions(['sephardi', 'ashkenazi'], setPreferredCustom, []),
+    downloadNetworkSettingOptions: generateOptions(['wifiOnly', 'mobileNetwork'], setDownloadNetworkSetting, []),
+    readingHistoryOptions: generateOptions(['onFem', 'offFem'], setReadingHistory, [true, false]),
+    groggerActiveOptions: generateOptions(['on', 'off'], setGroggerActive, []),
   };
   /* stateKey prop is used for testing */
   const toggleButtons = ['textLanguage', 'interfaceLanguage', 'emailFrequency', 'readingHistory', 'preferredCustom', 'downloadNetworkSetting'];

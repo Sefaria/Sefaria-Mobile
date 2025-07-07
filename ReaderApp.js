@@ -200,7 +200,6 @@ class ReaderApp extends React.PureComponent {
   }
 
   logout = async () => {
-    await this.syncProfileBound();
     await Sefaria.api.clearAuthStorage();
     this.props.dispatch({
       type: STATE_ACTIONS.setIsLoggedIn,
