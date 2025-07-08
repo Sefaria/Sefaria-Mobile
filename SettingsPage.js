@@ -53,15 +53,12 @@ const DEBUG_MODE = false;
  * @param {array} options
  * @param {func} onPress
  * @param {array} values. optional list of values that should be passed to onPress if present. should be same length as options
- * @param {func} syncProfile. optional function to call after onPress
  */
 const generateOptions = (options, onPress, values=[]) => Sefaria.util.zip([options, values]).map(([o,v]) => ({
   name: o,
   text: strings[o],
   value: v,
-  onPress: () => {
-    onPress(typeof v == 'undefined' ? o : v);
-  },
+  onPress: () => { onPress(typeof v == 'undefined' ? o : v); },
 }));
 
 const getIsDisabledObj = () => {
@@ -431,13 +428,13 @@ const ButtonToggleSection = ({ langStyle }) => {
     });
   };
   const options = {
-    interfaceLanguageOptions: generateOptions(['english', 'hebrew'], setInterfaceLanguage, []),
-    textLanguageOptions: generateOptions(['english', 'bilingual', 'hebrew'], setTextLanguage, []),
-    emailFrequencyOptions: generateOptions(['daily', 'weekly', 'never'], setEmailFrequency, []),
-    preferredCustomOptions: generateOptions(['sephardi', 'ashkenazi'], setPreferredCustom, []),
-    downloadNetworkSettingOptions: generateOptions(['wifiOnly', 'mobileNetwork'], setDownloadNetworkSetting, []),
+    interfaceLanguageOptions: generateOptions(['english', 'hebrew'], setInterfaceLanguage),
+    textLanguageOptions: generateOptions(['english', 'bilingual', 'hebrew'], setTextLanguage),
+    emailFrequencyOptions: generateOptions(['daily', 'weekly', 'never'], setEmailFrequency),
+    preferredCustomOptions: generateOptions(['sephardi', 'ashkenazi'], setPreferredCustom),
+    downloadNetworkSettingOptions: generateOptions(['wifiOnly', 'mobileNetwork'], setDownloadNetworkSetting),
     readingHistoryOptions: generateOptions(['onFem', 'offFem'], setReadingHistory, [true, false]),
-    groggerActiveOptions: generateOptions(['on', 'off'], setGroggerActive, []),
+    groggerActiveOptions: generateOptions(['on', 'off'], setGroggerActive),
   };
   /* stateKey prop is used for testing */
   const toggleButtons = ['textLanguage', 'interfaceLanguage', 'emailFrequency', 'readingHistory', 'preferredCustom', 'downloadNetworkSetting'];
