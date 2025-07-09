@@ -203,7 +203,7 @@ const SettingsPage = ({ close, logout, openUri, syncProfile }) => {
   ]);
 
   const onLogOut = async () => {
-    logout();
+    await logout();
     close();
   }
 
