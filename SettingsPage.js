@@ -191,9 +191,7 @@ const SettingsPage = ({ close, logout, openUri, syncProfile }) => {
   const [isProcessing, setIsProcessing] = useState(false);
 
   useEffect(() => {
-    if (typeof syncProfile === 'function') { 
-      syncProfile();  // this calls syncProfileBound in ReaderApp.js whenver a setting is changed
-    }
+    !!syncProfile && syncProfile();  // this calls syncProfileBound in ReaderApp.js whenver a setting is changed
   }, [
     globalState.interfaceLanguage,
     globalState.textLanguage,
