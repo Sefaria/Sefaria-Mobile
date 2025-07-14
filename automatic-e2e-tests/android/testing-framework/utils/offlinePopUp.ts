@@ -1,0 +1,60 @@
+import type { Browser } from 'webdriverio';
+
+/**
+ * Waits for the popup with resource-id "org.sefaria.sefaria:id/action_bar_root" to appear within a timeout.
+ * @param client WebdriverIO browser instance
+ * @param timeout Timeout in milliseconds (default: 5000)
+ * @returns true if the popup appears, false otherwise
+ */
+export async function waitForOfflinePopUp(client: Browser, timeout = 5000): Promise<boolean> {
+  const selector =
+    'android=new UiSelector().resourceId("org.sefaria.sefaria:id/action_bar_root").className("android.widget.FrameLayout")';
+  try {
+    const element = await client.$(selector);
+    await element.waitForDisplayed({ timeout });
+    console.log('✅ Popup is visible!');
+    return true;
+  } catch {
+    console.log('ℹ️ Popup not visible!');
+    return false;
+  }
+}
+
+/**
+ * Clicks the "NOT NOW" button if it appears.
+ * @param client WebdriverIO browser instance
+ */
+export async function clickNotNowIfPresent(client: Browser): Promise<void> {
+  const notNowSelector =
+    'android=new UiSelector().resourceId("android:id/button1").text("NOT NOW").className("android.widget.Button")';
+  const notNowButton = await client.$(notNowSelector);
+
+  if (await notNowButton.isDisplayed()) {
+    await notNowButton.click();
+    console.log('✅ "NOT NOW" button clicked!');
+  }
+  else {
+    console.log('ℹ️ "NOT NOW" button not present.');
+  }
+
+}
+
+/**
+ * Clicks the "OK" button if it appears.
+ * @param client WebdriverIO browser instance
+ */
+export async function clickOkIfPresent(client: Browser): Promise<void> {
+  const okSelector =
+    'android=new UiSelector().resourceId("android:id/button1").text("OK").className("android.widget.Button")';
+  const okButton = await client.$(okSelector);
+
+  if (await okButton.isDisplayed()) {
+    await okButton.click();
+    console.log('✅ "OK" button clicked!');
+  }
+  else {
+    console.log('ℹ️ "OK" button not present.');
+  }
+}
+
+

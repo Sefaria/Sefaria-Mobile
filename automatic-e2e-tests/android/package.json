@@ -1,0 +1,37 @@
+{
+  "name": "android",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "ts-mocha testing-framework/test/*.spec.ts",
+    "test": "mocha --require ts-node/register testing-framework/test/*.spec.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@types/axios": "^0.9.36",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "^20.19.4",
+    "@types/pngjs": "^6.0.5",
+    "@types/puppeteer-core": "^5.4.0",
+    "@types/webdriverio": "^4.13.3",
+    "@wdio/cli": "^9.16.2",
+    "@wdio/globals": "^9.16.2",
+    "@wdio/types": "^9.16.2",
+    "expect-webdriverio": "^5.3.4",
+    "mocha": "^11.7.1",
+    "puppeteer-core": "^24.11.2",
+    "ts-mocha": "^11.1.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3",
+    "webdriverio": "^9.16.2"
+  },
+  "dependencies": {
+    "axios": "^1.10.0",
+    "dotenv": "^17.0.1",
+    "hebrew-date": "^1.0.7",
+    "pngjs": "^7.0.0"
+  }
+}
