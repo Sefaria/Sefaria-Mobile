@@ -65,5 +65,8 @@ For iOS:
 xcrun simctl openurl booted <INSERT_URL_HERE>
 ```
 
+### Support
+This project is tested with BrowserStack.
+
 ## License
 [GPL](http://www.gnu.org/copyleft/gpl.html)
