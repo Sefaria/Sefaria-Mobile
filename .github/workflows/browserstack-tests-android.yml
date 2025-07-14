@@ -1,4 +1,4 @@
-name: Run BrowserStack Tests
+name: Run BrowserStack Tests for Android
 
 on:
   workflow_dispatch:
@@ -8,29 +8,35 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    # Checkout the repository code to the runner
     - name: Checkout Repository
       uses: actions/checkout@v3
 
+    # Set up Node.js version 22 for the test environment
     - name: Set up Node.js
       uses: actions/setup-node@v3
       with:
         node-version: '22'
 
+    # Clean the npm cache to avoid potential install issues
     - name: Clean npm cache
-      working-directory: android
+      working-directory: ../automatic-e2e-tests/android
       run: npm cache clean --force
 
+    # Ensure logs-test directory exists and is empty before running tests
     - name: Clean logs-test directory
-      working-directory: android
+      working-directory: ../automatic-e2e-tests/android
       run: |
         if [ -d logs-test ]; then rm -rf logs-test/*; else mkdir logs-test; fi
 
+    # Install all required npm dependencies for the tests
     - name: Install Dependencies
-      working-directory: android
+      working-directory: ../automatic-e2e-tests/android
       run: npm install
 
+    # Run the automated tests on BrowserStack using environment variables
     - name: Run Tests on BrowserStack
-      working-directory: android
+      working-directory: ../automatic-e2e-tests/android
       env:
         BROWSERSTACK_USERNAME: ${{ secrets.BROWSERSTACK_USERNAME }}
         BROWSERSTACK_ACCESS_KEY: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
@@ -38,18 +44,20 @@ jobs:
         RUN_ENV: browserstack
       run: npm test
 
+    # Upload all test logs regardless of test outcome
     - name: Upload all test logs
       if: always()
       uses: actions/upload-artifact@v4
       with:
         name: logs-test
-        path: android/logs-test/
+        path: ../automatic-e2e-tests/android/logs-test/
         if-no-files-found: warn
 
+    # Upload diff-images only if tests fail, for debugging visual differences
     - name: Upload diff-images if tests fail
       if: failure()
       uses: actions/upload-artifact@v4
       with:
         name: diff-images
-        path: ./android/diff-images
+        path: ../automatic-e2e-tests/android/diff-images/
         if-no-files-found: ignore

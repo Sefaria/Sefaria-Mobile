@@ -189,7 +189,7 @@ describe('Sefaria App Navigation', function () {
     // await checkViewGroupCenterPixelColor(client, 11, '#594176', true); // Kabbalah Purple
   });
 
-  it.only('T006: Learning Schedules - See all button', async function () {
+  it('T006: Learning Schedules - See all button', async function () {
     await waitForNavBar(client);
 
     // Click See All
