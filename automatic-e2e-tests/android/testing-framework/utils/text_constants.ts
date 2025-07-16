@@ -16,3 +16,11 @@ export const MISHNAH = {
                   }
 
 }
+
+// constant for Aleinu Topic
+export const ALEINU = {
+    en: "Aleinu",
+    he: "עלינו",
+    blurb: "The concluding reading of prayer services, Aleinu (Upon us) reminds Jews of their historical and universal mission. It thus provides transition from the lofty world of prayer to the world of human activity. Aleinu consists of two paragraphs, traditionally associated with Joshua.",
+    connection: "This source is connected to \"Aleinu\" by Curation of the Sefaria Learning Team.",
+}

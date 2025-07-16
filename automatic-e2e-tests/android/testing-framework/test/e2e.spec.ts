@@ -5,11 +5,12 @@ import { waitForNavBar, clickNavBarItem, closePopUp } from '../components/naviga
 import { typeIntoSearchBar, selectFromList} from '../components/search_page';
 import { checkForTitle, checkForTextOnPage, checkForTitleContained } from '../components/reader_page'
 import {  toggleLanguageButton } from '../components/display_settings'
+import { getTopicTitle, getBlurb, getCategory, clickSheets, clickSources, clickThreeDots } from '../components/topics_page';
 import { apiResultMismatch } from '../utils/constants';
-import { BAMIDBAR_1 } from '../utils/text_constants';
+import { BAMIDBAR_1, ALEINU } from '../utils/text_constants';
 import { setBrowserStackStatus } from '../utils/browserstackUtils';
 import { scrollTextIntoView, swipeUpOrDown, swipeIntoView } from '../utils/gesture'
-import { checkViewGroupCenterPixelColor } from '../utils/ui_checker';
+import { checkViewGroupCenterPixelColor, checkElementByContentDescPixelColor } from '../utils/ui_checker';
 import { isTextOnPage, checkForHeader, isTextContainedOnPage, isContentDescOnPage } from '../utils/text_finder';
 import { THRESHOLD_RGB } from '../utils/constants';
 import { MISHNAH } from '../utils/text_constants';
@@ -113,13 +114,6 @@ describe('Sefaria App Navigation', function () {
       console.log(`🎉 Finished test: ${this.currentTest?.title || 'test'}`);
       await client.deleteSession();
     }
-  });
-
-  it('T001: Navigate to Topics and verify header appears', async function () {
-    // First test to see if the app is working and can navigate to other section
-    await waitForNavBar(client);
-    await clickNavBarItem(client, 'Topics');
-    await checkForHeader(client, 'Explore by Topic');
   });
 
   it('T002: Navigate to Sefat Emet, Genesis, Genesis and validate text', async function () {
@@ -376,16 +370,59 @@ describe('Sefaria App Navigation', function () {
     await isContentDescOnPage(client, MISHNAH.content_desc.berakot);
     await isContentDescOnPage(client, MISHNAH.content_desc.peah);
 
-    // Scroll downward to see all the Sederim
+    // Scroll down the screen to see all the Sederim are present
     for (const seder of MISHNAH.sedarim) {
       await swipeIntoView(client, 'up', seder, 5, 275);
       await isTextOnPage(client, seder);
     }
+  });
 
+  it.only('TC023: Topics tab comprehensive test', async function () {
+    await waitForNavBar(client);
+
+    // Click on Topics
+    await clickNavBarItem(client, 'Topics');
+    // Check if we are on the Topics page
+    await checkForHeader(client, 'Explore by Topic');
+
+    let prayer_button = await isTextOnPage(client, "Prayer");
+    await prayer_button.click();
+
+    // Check if we are on the Prayer page
+    await isTextOnPage(client, "Prayer");
+
+    // Navigate to Aleinu
+    let aleinu_button = await isTextOnPage(client, ALEINU.en);
+    await aleinu_button.click();
+
+    await getTopicTitle(client, ALEINU.en);
     
+    // Check if the PRAYER subheader is present
+    await getCategory(client, "PRAYER");
 
+    // Check if the Aleinu blurb is present
+    await getBlurb(client, ALEINU.blurb);
 
-
+    // Assert we are sources page by seeing if SOURCES is underlines bold
+    await isTextOnPage(client, "Sources");
+    // Screenshot Sources element to check underline
+    await checkElementByContentDescPixelColor(client, 'Sources', '#999999', "bottom", true, THRESHOLD_RGB); // Gray color for underline
+    // Check if Sheets is white
+    await checkElementByContentDescPixelColor(client, 'Sheets', '#f6f6f6', "bottom", true, THRESHOLD_RGB); // White color for Sheets
+    
+    // Move to sheets section and click it
+    await clickSheets(client);
+    // Check if it is now underlined and sources is white
+    await checkElementByContentDescPixelColor(client, 'Sheets', '#999999', "bottom", true, THRESHOLD_RGB); // Gray color for underline
+    await checkElementByContentDescPixelColor(client, 'Sources', '#f6f6f6', "bottom", true, THRESHOLD_RGB); // White color for Sources
+    
+    // Move back to sources page
+    await clickSources(client);
+    
+    // Click three dots and verify source connection appears
+    await clickThreeDots(client);
+    await isTextContainedOnPage(client, ALEINU.connection);
+    await clickThreeDots(client); // Close the three dots menu
 
   });
   
