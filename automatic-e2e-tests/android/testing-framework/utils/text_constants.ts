@@ -10,5 +10,9 @@ export const MISHNAH = {
     en: "Mishnah",
     he: "משנה",
     blurb: "The Mishnah is the first major work of rabbinic literature, consisting of teachings transmitted over hundreds of years and compiled by ",
-    sedarim: ["SEDER ZERAIM (Agriculture)", "SEDER MOED (Holidays)", "SEDER NASHIM (Family law)", "SEDER NEZIKIN (Damages)", "SEDER KODASHIM (Sacrifices)", "SEDER TAHOROT (Purity)"]
+    sedarim: ["SEDER ZERAIM (Agriculture)", "SEDER MOED (Holidays)", "SEDER NASHIM (Family law)", "SEDER NEZIKIN (Damages)", "SEDER KODASHIM (Sacrifices)", "SEDER TAHOROT (Purity)"],
+    content_desc: {berakot: "Mishnah Berakhot, Blessings and prayers, focusing on Shema and the Amidah.",
+                   peah: "Mishnah Peah, Crops left in the corner of a field for the poor to take, other agricultural gifts to the poor."
+                  }
+
 }

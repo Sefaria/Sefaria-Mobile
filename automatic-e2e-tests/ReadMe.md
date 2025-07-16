@@ -18,6 +18,7 @@ This repository provides a robust, user-friendly automated testing framework for
 - [Running Tests on BrowserStack](#running-tests-on-browserstack)
 - [Running Tests with GitHub Actions](#running-tests-with-github-actions-ci)
 - [Test Logs](#test-logs)
+- [Cleaning Up Test Logs and Screenshots](#cleaning-up-test-logs-and-screenshots)
 - [Directory Structure](#directory-structure)
 - [Troubleshooting](#troubleshooting)
 - [Example .env File](#example-env-file)
@@ -342,6 +343,18 @@ You can run the automated tests on BrowserStack using GitHub Actions. This is us
   - This log file is uploaded as an artifact and can be downloaded from the Actions run summary page.
 
 ---
+
+## Cleaning Up Test Logs and Screenshots
+
+- To quickly remove all test logs in `logs-test` and all screenshots in `diff-images`, run:
+  ```sh
+  npm run cleanup
+  ```
+- To clean up and immediately run the tests in one step, use:
+  ```sh
+  npm run test:clean
+  ```
+This helps keep your workspace tidy and ensures you only see logs and screenshots from your latest test run.
 
 ## Directory Structure
 

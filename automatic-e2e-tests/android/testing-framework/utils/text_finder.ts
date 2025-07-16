@@ -1,6 +1,6 @@
 import type { Browser, ChainablePromiseElement } from 'webdriverio';
-import { textNotFound, ELEMENT_NOT_VISIBLE, logError } from '../utils/constants';
-import { escapeForRegex } from '../utils/helper_functions';
+import { textNotFound, ELEMENT_NOT_VISIBLE, logError } from './constants';
+import { escapeForRegex } from './helper_functions';
 
 
 // Functions to help locate Text on Page
@@ -66,4 +66,22 @@ export async function checkForHeader(client: Browser, headerText: string): Promi
   }
   console.log(`✅ Header '${headerText}' is present in the first ViewGroup!`);
   return header;
+}
+
+/**
+ * Checks if an element with the given content-desc is present on the page.
+ * @param client WebdriverIO browser instance
+ * @param contentDesc The content-desc to look for
+ * @returns Promise<ChainablePromiseElement> the element if found
+ */
+export async function isContentDescOnPage(client: Browser, contentDesc: string): Promise<ChainablePromiseElement> {
+  const selector = `android=new UiSelector().description("${escapeForRegex(contentDesc)}").packageName("org.sefaria.sefaria")`;
+  const element = await client.$(selector);
+  const isDisplayed = await element.waitForDisplayed({ timeout: 4000 }).catch(() => false);
+  if (isDisplayed) {
+    console.log(`✅ Element with content-desc '${contentDesc}' is present on the page!`);
+    return element;
+  } else {
+    throw new Error(textNotFound(contentDesc));
+  }
 }

@@ -10,7 +10,7 @@ import { BAMIDBAR_1 } from '../utils/text_constants';
 import { setBrowserStackStatus } from '../utils/browserstackUtils';
 import { scrollTextIntoView, swipeUpOrDown, swipeIntoView } from '../utils/gesture'
 import { checkViewGroupCenterPixelColor } from '../utils/ui_checker';
-import { isTextOnPage, checkForHeader, isTextContainedOnPage } from '../utils/textUtils';
+import { isTextOnPage, checkForHeader, isTextContainedOnPage, isContentDescOnPage } from '../utils/text_finder';
 import { THRESHOLD_RGB } from '../utils/constants';
 import { MISHNAH } from '../utils/text_constants';
 import { getHebrewDate } from '../utils/helper_functions'
@@ -152,13 +152,9 @@ describe('Sefaria App Navigation', function () {
     // Verify we are on Numbers Chapter 1
     await checkForTitle(client, "1");
 
-    // Constant texts to check for in Numbers Chapter 1
-    const BAMIDBAR_1_HEBREW = BAMIDBAR_1.he;
-    const BAMIDBAR_1_ENGLISH = BAMIDBAR_1.en;
-
     // Check for Hebrew / English text on the page
-    await checkForTextOnPage(client, BAMIDBAR_1_HEBREW);
-    await checkForTextOnPage(client, BAMIDBAR_1_ENGLISH, true);
+    await checkForTextOnPage(client, BAMIDBAR_1.he);
+    await checkForTextOnPage(client, BAMIDBAR_1.en, true);
   });
 
   it('T004: Toggle Language to hebrew and see how it affects the page', async function () {
@@ -360,7 +356,7 @@ describe('Sefaria App Navigation', function () {
 
   });
 
-  it.only('TC021: Texts tab book category sub-page', async function () {
+  it('TC021: Texts tab book category sub-page', async function () {
     await waitForNavBar(client);
 
     // Click on Mishna
@@ -376,11 +372,18 @@ describe('Sefaria App Navigation', function () {
     // Check if dividing line under the First SEDER ZERAIM is present
     await checkViewGroupCenterPixelColor(client, 2, '#ededec', true, THRESHOLD_RGB); // Light Gray
 
+    // Check if the sefers below the sub categories (e.g. Seder Zeraim) has appropriate short blurb 
+    await isContentDescOnPage(client, MISHNAH.content_desc.berakot);
+    await isContentDescOnPage(client, MISHNAH.content_desc.peah);
+
     // Scroll downward to see all the Sederim
     for (const seder of MISHNAH.sedarim) {
-      await swipeIntoView(client, 'up', seder, 5, 320);
+      await swipeIntoView(client, 'up', seder, 5, 275);
       await isTextOnPage(client, seder);
     }
+
+    
+
 
 
 
