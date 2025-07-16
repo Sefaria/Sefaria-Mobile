@@ -374,6 +374,7 @@ android/
       browserstackUtils.ts
       constants.ts
       gesture.ts
+      # Injection function file for testing locally or browserstack
       getOpts.ts
       offlinePopUp.ts
       ui_checker.ts
@@ -508,9 +509,3 @@ This configuration will allow Appium Inspector to launch the Sefaria app and let
 > **Note:** If you want to use Appium Inspector, you must have the Java JDK installed and the `JAVA_HOME` environment variable set.  
 > Download the JDK from [Adoptium](https://adoptium.net/), install it, and set `JAVA_HOME` (If not automatically added) to your JDK path.  
 > Restart your terminal after making changes.
-
----
-
-## License
-
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.

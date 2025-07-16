@@ -1,4 +1,34 @@
-import { textNotFound, swipeDirectionFailed } from '../utils/constants';
+import { textNotFound, swipeDirectionFailed, elementFoundAfterSwipes, elementNotFoundAfterSwipes } from '../utils/constants';
+
+// Cache for screen dimensions - will be set once per test session
+let screenDimensions: { width: number; height: number; x: number; startY: number } | null = null;
+
+/**
+ * Gets and caches screen dimensions for the current session
+ * @param client - The WebDriver client instance
+ * @returns Cached screen dimensions with calculated coordinates
+ */
+async function getScreenDimensions(client: WebdriverIO.Browser) {
+  if (!screenDimensions) {
+    const { width, height } = await client.getWindowRect();
+    screenDimensions = {
+      width,
+      height,
+      x: Math.floor(width / 2),
+      startY: Math.floor(height * 0.65)
+    };
+    console.log(`📱 Screen dimensions cached: ${width}x${height}`);
+  }
+  return screenDimensions;
+}
+
+/**
+ * Resets the cached screen dimensions (useful when switching devices or test sessions)
+ */
+export function resetScreenDimensions(): void {
+  screenDimensions = null;
+  console.log('🔄 Screen dimensions cache cleared');
+}
 
 /**
  * Performs a swipe gesture up or down from the bottom half middle of the screen.
@@ -6,16 +36,17 @@ import { textNotFound, swipeDirectionFailed } from '../utils/constants';
  * @param direction - 'up' to swipe up, 'down' to swipe down.
  * @param distance - The distance in pixels to swipe (default: 800).
  * @param duration - The duration of the swipe in milliseconds (default: 500).
+ * @param mute - If true, suppresses console output (default: false).
+ * @throws Will throw an error if the swipe fails.
  */
 export async function swipeUpOrDown(
   client: WebdriverIO.Browser,
   direction: 'up' | 'down',
   distance: number = 800,
-  duration: number = 500
+  duration: number = 500,
+  mute: boolean = false
 ): Promise<void> {
-  const { width, height } = await client.getWindowRect();
-  const x = Math.floor(width / 2);
-  const startY = Math.floor(height * 0.65);
+  const { x, startY } = await getScreenDimensions(client);
   const endY = direction === 'up' ? startY - distance : startY + distance;
 
   try {
@@ -33,7 +64,9 @@ export async function swipeUpOrDown(
         ],
       },
     ]);
-    console.log(`✅ Swipe ${direction} performed successfully.`);
+    if (!mute) {
+      console.log(`✅ Swipe ${direction} performed successfully.`);
+    }
   } catch (error) {
     throw new Error(swipeDirectionFailed(direction, error));
   }
@@ -43,6 +76,7 @@ export async function swipeUpOrDown(
 /**
  * Scrolls a scrollable view until a TextView with the given text is visible (Android only),
  * always scrolling down (forward) through the list by default, or up (backward) if goUp is true.
+ * Used instead of scrollTextIntoView to handle more complex scrolling scenarios.
  * @param client - The WebDriver client instance.
  * @param text - The text to bring into view.
  * @param goUp - If true, scrolls up (backward) instead of down (forward). Default: false.
@@ -67,40 +101,34 @@ export async function scrollTextIntoView(
 }
 
 
+/**
+ * Swipes down until the element with the given text is visible or max attempts reached.
+ * Used instead of scrollTextIntoView to move more uniformly across the screen.
+ * @param client - The WebDriver client instance.
+ * @param direction - 'up' to swipe up, 'down' to swipe down.
+ * @param text - The text to bring into view.
+ * @param maxAttempts - Maximum number of swipe attempts.
+ * @param swipeDistance - Distance to swipe each time.
+ * @returns true if the element is found, false otherwise.
+ */
+export async function swipeIntoView(
+  client: WebdriverIO.Browser,
+  direction: 'up' | 'down',
+  text: string,
+  maxAttempts: number = 5,
+  swipeDistance: number = 200
+): Promise<boolean> {
+  const selector = `android=new UiSelector().className("android.widget.TextView").text("${text}")`;
 
-
-
-
-
-
-// /**
-//  * Swipes down until the element with the given text is visible or max attempts reached.
-//  * @param client - The WebDriver client instance.
-//  * @param direction - 'up' to swipe up, 'down' to swipe down.
-//  * @param text - The text to bring into view.
-//  * @param maxAttempts - Maximum number of swipe attempts.
-//  * @param swipeDistance - Distance to swipe each time.
-//  * @returns true if the element is found, false otherwise.
-//  */
-// export async function swipeIntoView(
-//   client: WebdriverIO.Browser,
-//   direction: 'up' | 'down',
-//   text: string,
-//   maxAttempts: number = 5,
-//   swipeDistance: number = 200
-// ): Promise<boolean> {
-//   const selector = `android=new UiSelector().className("android.widget.TextView").text("${text}")`;
-
-//   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-//     const element = await client.$(selector);
-//     if (await element.isDisplayed().catch(() => false)) {
-//       console.log(`✅ Element with text "${text}" is now visible after ${attempt} swipe(s).`);
-//       return true;
-//     }
-//     // Only swipe if not visible
-//     await swipeUpOrDown(client, direction, swipeDistance, 200);
-//     await client.pause(100); // Give UI time to settle
-//   }
-//   console.warn(`⚠️ Element with text "${text}" not found after ${maxAttempts} swipes.`);
-//   return false;
-// }
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    const element = await client.$(selector);
+    if (await element.isDisplayed().catch(() => false)) {
+      console.log(elementFoundAfterSwipes(text, attempt));
+      return true;
+    }
+    // Only swipe if not visible
+    await swipeUpOrDown(client, direction, swipeDistance, 200, true);
+    // await client.pause(100); // Give UI time to settle
+  }
+  throw new Error(elementNotFoundAfterSwipes(text, maxAttempts));
+}

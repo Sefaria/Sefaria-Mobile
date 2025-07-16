@@ -4,7 +4,9 @@
   "main": "index.js",
   "scripts": {
     "start": "ts-mocha testing-framework/test/*.spec.ts",
-    "test": "mocha --require ts-node/register testing-framework/test/*.spec.ts"
+    "test": "mocha --require ts-node/register testing-framework/test/*.spec.ts",
+    "cleanup": "node cleanup.js",
+    "test:clean": "npm run cleanup && npm run test"
   },
   "keywords": [],
   "author": "",

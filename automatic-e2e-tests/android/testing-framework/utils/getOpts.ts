@@ -55,7 +55,7 @@ export function getOpts(buildName?: string, sessionName?: string, noReset?: bool
         'bstack:options': {
           userName: BROWSERSTACK_USERNAME,
           accessKey: BROWSERSTACK_ACCESS_KEY,
-          deviceName: 'Google Pixel 7',
+          deviceName: 'Google Pixel 7 Pro',
           osVersion: '13.0',
           projectName: 'Sefaria App Automation',
           buildName: buildName || 'Build #1',

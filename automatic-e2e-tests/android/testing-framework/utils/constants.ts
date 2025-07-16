@@ -88,6 +88,26 @@ export const apiResultMismatch = (label: string, actual: string) =>
   logError(`❌ API call for ${label} does not match result on page: "${actual}"`);
 
 
+/**
+ * Error message for when an element is not found after maximum swipe attempts.
+ * @param text - The text of the element that was not found.
+ * @param maxAttempts - The maximum number of swipe attempts.
+*/
+export const elementNotFoundAfterSwipes = (text: string, maxAttempts: number) =>
+  logError(`❌ Element with text "${text}" not found after ${maxAttempts} swipes.`);
+
+
+// || Success messages that require parameters ||
+
+/**
+ * Success message for when an element is found and visible after swiping.
+ * @param text - The text of the element that was found.
+ * @param attempts - The number of swipe attempts it took to find the element.
+ */
+export const elementFoundAfterSwipes = (text: string, attempts: number) =>
+  `✅ Element with text "${text}" is now visible after ${attempts} swipe(s).`;
+
+
 // ||Stored Values||
 
 

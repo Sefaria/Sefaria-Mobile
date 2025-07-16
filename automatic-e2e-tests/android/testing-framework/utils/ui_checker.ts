@@ -52,7 +52,7 @@ export async function checkViewGroupCenterPixelColor(
   // 5. Compare to expected color
   const expectedColor = hexToRgb(expectedColorHex);
   if (colorsAreClose({ r, g, b }, expectedColor, threshold)) {
-    console.log(logError(`✅ Center pixel matches expected color. Actual: rgb(${r},${g},${b}), Expected: rgb(${expectedColor.r},${expectedColor.g},${expectedColor.b})`));
+    console.log(`✅ Center pixel matches expected color. Actual: rgb(${r},${g},${b}), Expected: rgb(${expectedColor.r},${expectedColor.g},${expectedColor.b})`);
     return true;
   } else {
     if (debugImage) {

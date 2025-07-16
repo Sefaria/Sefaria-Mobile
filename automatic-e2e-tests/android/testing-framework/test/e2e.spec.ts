@@ -6,11 +6,13 @@ import { typeIntoSearchBar, selectFromList} from '../components/search_page';
 import { checkForTitle, checkForTextOnPage, checkForTitleContained } from '../components/reader_page'
 import {  toggleLanguageButton } from '../components/display_settings'
 import { apiResultMismatch } from '../utils/constants';
+import { BAMIDBAR_1 } from '../utils/text_constants';
 import { setBrowserStackStatus } from '../utils/browserstackUtils';
-import { scrollTextIntoView, swipeUpOrDown } from '../utils/gesture'
+import { scrollTextIntoView, swipeUpOrDown, swipeIntoView } from '../utils/gesture'
 import { checkViewGroupCenterPixelColor } from '../utils/ui_checker';
 import { isTextOnPage, checkForHeader, isTextContainedOnPage } from '../utils/textUtils';
 import { THRESHOLD_RGB } from '../utils/constants';
+import { MISHNAH } from '../utils/text_constants';
 import { getHebrewDate } from '../utils/helper_functions'
 import { getCurrentParashatHashavua, getCurrentHaftarah, getCurrentDafAWeek  } from '../utils/sefariaAPI'
 
@@ -66,8 +68,9 @@ let noReset = false; // Set to true if you want same device session to continue 
 const buildName = `Sefaria E2E ${new Date().toISOString().slice(0, 10)}`;
 
 describe('Sefaria App Navigation', function () {
-  this.timeout(100000); // Set timeout for Mocha tests
+  this.timeout(200000); // Set timeout for Mocha tests
   let client: WebdriverIO.Browser;
+      // await startScreenRecording(client);
 
   beforeEach(async function () {
     let testTitle = this.test?.title || 'Test';
@@ -79,19 +82,24 @@ describe('Sefaria App Navigation', function () {
     }
 
     console.log(`ℹ️ Running test: ${testTitle}`);
+    // Initialize the client with the desired options
+    // If you want to run tests on BrowserStack, set the environment variable RUN_ENV to 'browserstack'
+    // If you want to run tests locally, set the environment variable RUN_ENV to 'local
     client = await remote(getOpts(buildName, testTitle, noReset));
 
-    // If it appears, close the download offline popup (Needs to be Here)
+    // If offline pop-up appears, click Not Now and Ok
     if (await waitForOfflinePopUp(client, 15000)) {
       await clickNotNowIfPresent(client);
       await clickOkIfPresent(client);
     }
-    // await startScreenRecording(client);
   });
 
   afterEach(async function () {
     // await stopScreenRecording(client, `./recordings/${this.currentTest?.title || 'test'}.mp4`);
     if (client) {
+      // If running on BrowserStack, set the session status 
+      // (e.g., passed or failed) based on the test result
+      // Needed for proper reporting in BrowserStack
       if (process.env.RUN_ENV !== 'local') {
         const testStatus = this.currentTest?.state === 'passed' ? 'passed' : 'failed';
         const reason = this.currentTest?.err?.message || 'No error message';
@@ -101,11 +109,14 @@ describe('Sefaria App Navigation', function () {
           console.error('❌ Failed to set BrowserStack session status:', error);
         }
       }
+      // Close the client session
+      console.log(`🎉 Finished test: ${this.currentTest?.title || 'test'}`);
       await client.deleteSession();
     }
   });
 
   it('T001: Navigate to Topics and verify header appears', async function () {
+    // First test to see if the app is working and can navigate to other section
     await waitForNavBar(client);
     await clickNavBarItem(client, 'Topics');
     await checkForHeader(client, 'Explore by Topic');
@@ -113,29 +124,39 @@ describe('Sefaria App Navigation', function () {
 
   it('T002: Navigate to Sefat Emet, Genesis, Genesis and validate text', async function () {
     await waitForNavBar(client);
+    // Click on Search Icon
     await clickNavBarItem(client, 'Search');
     await checkForHeader(client, 'Search');
     
-    // Remove last letter of what you want to search to cause the list to pop up
+    //Remove last letter of what you want to search to cause the list to pop up
     // Otherwise, the list won't update or pop up
     await typeIntoSearchBar(client, "Sefat Emet, Genesis, Genesi");
+    // Select option from the list and verify we are on the right page
     await selectFromList(client, "Sefat Emet, Genesis, Genesis");
     await checkForTitle(client, "Genesis, Bereshit 1");
   });
 
   it('T003: Navigate to Tanakh, scroll down and click Numbers', async function () {
+    
+    // Check if we are on the main page and Tanakh is present
     let tanakh = await checkForHeader(client, 'Tanakh');
     await tanakh.click();
+
+    // Verify we are on the Tanakh page
     await checkForTitle(client, "TANAKH");
     await scrollTextIntoView(client, "Numbers");
 
+    // Scroll to Numbers section and click it
     let numbers = await checkForHeader(client, 'Numbers')
     await numbers.click();
+    // Verify we are on Numbers Chapter 1
     await checkForTitle(client, "1");
 
-    const BAMIDBAR_1_HEBREW = "וַיְדַבֵּ֨ר יְהֹוָ֧ה אֶל־מֹשֶׁ֛ה בְּמִדְבַּ֥ר סִינַ֖י בְּאֹ֣הֶל מוֹעֵ֑ד בְּאֶחָד֩ לַחֹ֨דֶשׁ הַשֵּׁנִ֜י בַּשָּׁנָ֣ה הַשֵּׁנִ֗ית לְצֵאתָ֛ם מֵאֶ֥רֶץ מִצְרַ֖יִם לֵאמֹֽר׃";
-    const BAMIDBAR_1_ENGLISH = "On the first day of the second month, in the second year following the exodus from the land of Egypt, יהוה spoke to Moses in the wilderness of Sinai, in the Tent of Meeting, saying:"
+    // Constant texts to check for in Numbers Chapter 1
+    const BAMIDBAR_1_HEBREW = BAMIDBAR_1.he;
+    const BAMIDBAR_1_ENGLISH = BAMIDBAR_1.en;
 
+    // Check for Hebrew / English text on the page
     await checkForTextOnPage(client, BAMIDBAR_1_HEBREW);
     await checkForTextOnPage(client, BAMIDBAR_1_ENGLISH, true);
   });
@@ -232,22 +253,23 @@ describe('Sefaria App Navigation', function () {
       throw new Error(apiResultMismatch("Haftarah", haftarah!.displayValue.en));
     }
 
-    // Verify seperator colors are there
-    await checkViewGroupCenterPixelColor(client, 2, '#1f4d5d', true, THRESHOLD_RGB); // Tanakh Teal
+    // Verify seperator colors are there (probably do not have to use this, as other tests check this)
+    // await checkViewGroupCenterPixelColor(client, 2, '#1f4d5d', true, THRESHOLD_RGB); // Tanakh Teal
     
-    // Scroll to Daily Mishna
-    await scrollTextIntoView(client, "Daily Learning");
+    // Scroll to Daily Learning
+    await swipeIntoView(client, "up", "Daily Learning",);
     await isTextOnPage(client, "Daily Learning");
     await isTextOnPage(client, "Daf Yomi");
-    await scrollTextIntoView(client, "A learning program in which participants study five of the Bible’s 929 chapters a week, completing it in about three and a half years.");
+    // Scroll to blurb about 929
+    await swipeIntoView(client, "up", "A learning program in which participants study five of the Bible’s 929 chapters a week, completing it in about three and a half years.");
     await isTextOnPage(client, "929");
 
-    // Scroll to Daily Rambam
-    await scrollTextIntoView(client, "Daily Rambam (3 Chapters)");
+    // Scroll to Daily Rambam (3 Chapters)
+    await swipeIntoView(client, "up", "Daily Rambam (3 Chapters)");
     await isTextOnPage(client, "Daily Rambam");
     
     // Scroll all the way to bottom and navigate to daf a week
-    await scrollTextIntoView(client, "Daf a Week");
+    await swipeIntoView(client, "up", "Daf a Week", 5, 400);
     await isTextOnPage(client, "Weekly Learning");
 
     // Get the clickable element of current_weekly_daf
@@ -255,7 +277,7 @@ describe('Sefaria App Navigation', function () {
 
     // Get the current Daf a Week fromn Sefaria API
     const daf_a_week = await getCurrentDafAWeek();
-    await scrollTextIntoView(client, daf_a_week!.displayValue.en);
+    await swipeIntoView(client, "up", daf_a_week!.displayValue.en);
     if (daf_a_week) {
       await isTextOnPage(client, daf_a_week.displayValue.en);
     } else {
@@ -295,7 +317,7 @@ describe('Sefaria App Navigation', function () {
     // Scroll to bottom of the dedication pop up
     await swipeUpOrDown(client, 'up', 5000, 200);
     
-    // Check if the hebrew text is present
+    // Check if the hebrew torah quote on bottom of dedication is present
     await isTextOnPage(client, "יגיע כפיך כי תאכל אשריך וטוב לך");
     await isTextOnPage(client, '(תהילים קכ"ח)');
 
@@ -335,6 +357,32 @@ describe('Sefaria App Navigation', function () {
 
     // Verify we are back in English
     await checkForHeader(client, 'Account');
+
+  });
+
+  it.only('TC021: Texts tab book category sub-page', async function () {
+    await waitForNavBar(client);
+
+    // Click on Mishna
+    let mishna = await checkForHeader(client, MISHNAH.en);
+    await mishna.click();
+
+    // check we are on the Mishna page
+    await checkForTitle(client, "MISHNAH");
+
+    // Check if part of the blurb is present
+    await isTextContainedOnPage(client, MISHNAH.blurb);
+
+    // Check if dividing line under the First SEDER ZERAIM is present
+    await checkViewGroupCenterPixelColor(client, 2, '#ededec', true, THRESHOLD_RGB); // Light Gray
+
+    // Scroll downward to see all the Sederim
+    for (const seder of MISHNAH.sedarim) {
+      await swipeIntoView(client, 'up', seder, 5, 320);
+      await isTextOnPage(client, seder);
+    }
+
+
 
   });
   
