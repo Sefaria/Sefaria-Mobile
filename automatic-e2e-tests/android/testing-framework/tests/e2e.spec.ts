@@ -1,0 +1,380 @@
+import { remote } from 'webdriverio';
+import { getOpts } from '../utils/load_credentials';
+import { waitForOfflinePopUp, clickNotNowIfPresent, clickOkIfPresent } from '../utils/offlinePopUp';
+import { waitForNavBar, clickNavBarItem, closePopUp } from '../components/navbar';
+import { typeIntoSearchBar, selectFromList} from '../components/search_page';
+import { checkForTitle, checkForTextOnPage, checkForTitleContained } from '../components/reader_page'
+import { toggleLanguageButton } from '../components/display_settings'
+import { getTopicTitle, getBlurb, getCategory, clickSheets, clickSources, clickThreeDots } from '../components/topics_page';
+import { apiResultMismatch } from '../constants/error_constants';
+import { BAMIDBAR_1, ALEINU,MISHNAH } from '../constants/text_constants';
+import { setBrowserStackStatus } from '../utils/browserstackUtils';
+import { scrollTextIntoView, swipeUpOrDown, swipeIntoView } from '../utils/gesture'
+import { checkViewGroupCenterPixelColor, checkElementByContentDescPixelColor, THRESHOLD_RGB } from '../utils/ui_checker';
+import { isTextOnPage, checkForHeader, isTextContainedOnPage, isContentDescOnPage } from '../utils/text_finder';
+import { getHebrewDate } from '../utils/helper_functions'
+import { getCurrentParashatHashavua, getCurrentHaftarah, getCurrentDafAWeek  } from '../utils/sefariaAPI'
+
+import './test_init'; // Allows Logging and Error Handling to be written to logs_test/ directory
+
+
+let noReset = false; // Set to true if you want same device session to continue with each test
+const buildName = `Sefaria E2E ${new Date().toISOString().slice(0, 10)}`;
+
+describe('Sefaria App Navigation', function () {
+  this.timeout(200000); // Set timeout for Mocha tests
+  let client: WebdriverIO.Browser;
+      // await startScreenRecording(client);
+
+  beforeEach(async function () {
+    let testTitle = this.test?.title || 'Test';
+
+    // Removes any prefix that starts with "before each" or similar variations
+    // Ensures clean name in testing
+    if (testTitle.includes('before each')) {
+      testTitle = testTitle.replace(/.*before each.*hook for /, '');
+    }
+
+    console.log(`ℹ️ Running test: ${testTitle}`);
+    // Initialize the client (RUN_ENV: 'browserstack' or 'local')
+    client = await remote(getOpts(buildName, testTitle, noReset));
+
+    // If offline pop-up appears, click Not Now and Ok
+    if (await waitForOfflinePopUp(client, 15000)) {
+      await clickNotNowIfPresent(client);
+      await clickOkIfPresent(client);
+    }
+  });
+
+  afterEach(async function () {
+    if (client) {
+      // If running on BrowserStack, set the session status 
+      // (e.g., passed or failed) based on the test result
+      // Needed for proper reporting in BrowserStack
+      if (process.env.RUN_ENV !== 'local') {
+        const testStatus = this.currentTest?.state === 'passed' ? 'passed' : 'failed';
+        const reason = this.currentTest?.err?.message || 'No error message';
+        try {
+          await setBrowserStackStatus(client, testStatus, reason);
+        } catch (error) {
+          console.error('❌ Failed to set BrowserStack session status:', error);
+        }
+      }
+      // Close the client session
+      console.log(`🎉 Finished test: ${this.currentTest?.title || 'test'} \n`);
+      await client.deleteSession();
+    }
+  });
+
+  it('T002: Navigate to Sefat Emet, Genesis, Genesis and validate text', async function () {
+    await waitForNavBar(client);
+    // Click on Search Icon
+    await clickNavBarItem(client, 'Search');
+    await checkForHeader(client, 'Search');
+    
+    //Remove last letter of what you want to search to cause the list to pop up
+    // Otherwise, the list won't update or pop up
+    await typeIntoSearchBar(client, "Sefat Emet, Genesis, Genesi");
+    // Select option from the list and verify we are on the right page
+    await selectFromList(client, "Sefat Emet, Genesis, Genesis");
+    await checkForTitle(client, "Genesis, Bereshit 1");
+  });
+
+  it('T003: Navigate to Tanakh, scroll down and click Numbers', async function () {
+    
+    // Check if we are on the main page and Tanakh is present
+    let tanakh = await checkForHeader(client, 'Tanakh');
+    await tanakh.click();
+
+    // Verify we are on the Tanakh page
+    await checkForTitle(client, "TANAKH");
+    await scrollTextIntoView(client, "Numbers");
+
+    // Scroll to Numbers section and click it
+    let numbers = await checkForHeader(client, 'Numbers')
+    await numbers.click();
+    // Verify we are on Numbers Chapter 1
+    await checkForTitle(client, "1");
+
+    // Check for Hebrew / English text on the page
+    await checkForTextOnPage(client, BAMIDBAR_1.he);
+    await checkForTextOnPage(client, BAMIDBAR_1.en, true);
+  });
+
+  it('T004: Toggle Language to hebrew and see how it affects the page', async function () {
+    await waitForNavBar(client);
+    await toggleLanguageButton(client, true);
+    
+    // After changing language do a series of tests!
+    await checkForHeader(client, 'Browse the Library');
+    await isTextOnPage(client, "Learning Schedules");
+    let tanakh = await checkForHeader(client, 'תנ"ך');
+    await tanakh.click()
+
+    // Verify English text is still present (does not change based on langaugeButton)
+    await checkForTitle(client, "TANAKH");
+    await isTextOnPage(client,"Weekly Torah Portion");
+
+    // Verify the new hebrew text as a result of langaugeButton
+    await isTextOnPage(client, "תורה");
+    // await swipeUpOrDown(client, 'up', 300, 300);
+    await isTextOnPage(client, "בריאת העולם, תחילתה של האנושות וסיפורי האבות והאמהות.");
+    
+    // Return back to english
+    await toggleLanguageButton(client, false);
+    await checkForTitle(client, "TANAKH");
+    // await swipeUpOrDown(client, 'down', 300, 300);
+    await isTextOnPage(client, "TORAH (The Five Books of Moses)");
+    await isTextOnPage(client, "Genesis");
+  });
+
+  it('T005: Veryfying colored lines in between elements', async function () {
+    await waitForNavBar(client);
+
+    // Check the colors (Indexes might change with UI update and type of phone)
+    await checkViewGroupCenterPixelColor(client, 2, '#1f4d5d', true, THRESHOLD_RGB ); // Tanakh Teal
+    await checkViewGroupCenterPixelColor(client, 4, '#6998b4', true, THRESHOLD_RGB); // Mishna Blue
+    await checkViewGroupCenterPixelColor(client, 6, '#c8b580', true, THRESHOLD_RGB); // Talmud Gold
+    // Check Learning Schedules color
+    await checkViewGroupCenterPixelColor(client, 9, '#FBFBFA', true, THRESHOLD_RGB); // White    
+    
+    // There is an issue currently in app behind the scene that prevents great tests
+    // No resource id or description exists for certain UI elements, like the colored lines
+    // Thus I can nly check their viewgroup by index, but index changes as I scroll, so flaky!
+
+    //  await scrollTextIntoView(client, 'Midrash');
+    // await client.pause(100);
+    // // In Android, indexes change when scrolling (flaky-check scroll and indexes in appium tester)
+    // await checkViewGroupCenterPixelColor(client, 7, '#5D956F', true); // Midrash Green
+    // await checkViewGroupCenterPixelColor(client, 9, '#802F3E', true); // Halakhah Red
+    // await checkViewGroupCenterPixelColor(client, 11, '#594176', true); // Kabbalah Purple
+  });
+
+  it('T006: Learning Schedules - See all button', async function () {
+    await waitForNavBar(client);
+
+    // Click See All
+    let learning_button = await isTextOnPage(client, "See All");
+    await learning_button.click();
+
+    // Verfiy Learning Schedule and current secular date is present (e.g Jul 9 2025)
+    await checkForHeader(client, "Learning Schedules");
+    const currentDate = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }).replace(/, /g, ' ');
+    await isTextOnPage(client, currentDate);
+
+    // Check the current Jewish date (e.g Tammuz 13, 5785)
+    const jewishDate = getHebrewDate();
+    await isTextOnPage(client, jewishDate);
+    
+    // Verify the blur under the Learning Schedules is there
+    await isTextContainedOnPage(client, "Since biblical times, the Torah has been divided into sections which are read each week on a set yearly calendar.")
+    
+    // Verify Headers above this weeks torah portion and Haftarah are present
+    await isTextOnPage(client, "Weekly Torah Portion");
+    await isTextOnPage(client, "Haftarah");
+
+    // Minor scroll to get more more in view
+    await swipeUpOrDown(client, 'up', 175, 175);
+
+    // Fetch Current Parsha and Haftarah using Sefaria's API
+    const parasha = await getCurrentParashatHashavua();
+    const haftarah = await getCurrentHaftarah();
+
+    // Check if Parashat Hashevua is correct
+    if (parasha) {
+      await isTextOnPage(client, parasha.displayValue.en);
+    } else {
+      throw new Error(apiResultMismatch("Parashat Hashavua", parasha!.displayValue.en));    
+    }
+    // Check if Haftarah for this week is correct
+    if (haftarah) {
+      await isTextOnPage(client, haftarah.displayValue.en);
+    } else {
+      throw new Error(apiResultMismatch("Haftarah", haftarah!.displayValue.en));
+    }
+
+    // Verify seperator colors are there (probably do not have to use this, as other tests check this)
+    // await checkViewGroupCenterPixelColor(client, 2, '#1f4d5d', true, THRESHOLD_RGB); // Tanakh Teal
+    
+    // Scroll to Daily Learning
+    await swipeIntoView(client, "up", "Daily Learning",);
+    await isTextOnPage(client, "Daily Learning");
+    await isTextOnPage(client, "Daf Yomi");
+    // Scroll to blurb about 929
+    await swipeIntoView(client, "up", "A learning program in which participants study five of the Bible’s 929 chapters a week, completing it in about three and a half years.");
+    await isTextOnPage(client, "929");
+
+    // Scroll to Daily Rambam (3 Chapters)
+    await swipeIntoView(client, "up", "Daily Rambam (3 Chapters)");
+    await isTextOnPage(client, "Daily Rambam");
+    
+    // Scroll all the way to bottom and navigate to daf a week
+    await swipeIntoView(client, "up", "Daf a Week", 5, 400);
+    await isTextOnPage(client, "Weekly Learning");
+
+    // Get the clickable element of current_weekly_daf
+    let current_weekly_daf = await isTextOnPage(client, "Daf a Week");
+
+    // Get the current Daf a Week fromn Sefaria API
+    const daf_a_week = await getCurrentDafAWeek();
+    await swipeIntoView(client, "up", daf_a_week!.displayValue.en);
+    if (daf_a_week) {
+      await isTextOnPage(client, daf_a_week.displayValue.en);
+    } else {
+      throw new Error(apiResultMismatch("Daf a Week", daf_a_week!.displayValue.en));
+    }
+    
+    // Navigate to the Daf a Week section
+    await current_weekly_daf.click();
+    
+    // Check if we are in Talmud
+    await isTextOnPage(client, "The William Davidson Talmud")
+    await isTextContainedOnPage(client, daf_a_week!.displayValue.en)
+
+    // Extract the number after the space in daf_a_week.displayValue.en (e.g., "Bava Metzia 10" -> "10")
+    const dafNumberMatch = daf_a_week!.displayValue.en.match(/\s(\d+)$/);
+    const dafNumber = dafNumberMatch ? dafNumberMatch[1] : null;
+    // Wait for current daf title to appear (e.g 37A)
+    await checkForTitleContained(client, dafNumber!);
+  });
+
+  it('TC022: Dedication tab and results', async function () {
+    await waitForNavBar(client);
+
+    // Scroll strongly all the way to button
+    await swipeUpOrDown(client, 'up', 5000, 200);
+
+    // Look for Dedication
+    let dedication_button = await isTextContainedOnPage(client, "Dedicated in honor of")
+    await dedication_button.click();
+
+    // Check if Header of Dedication is present
+    await isTextOnPage(client, "Sefaria App for iOS and Android")
+
+    // Check if dedication message is there
+    await isTextContainedOnPage(client, "Dedicated in honor of ");
+
+    // Scroll to bottom of the dedication pop up
+    await swipeUpOrDown(client, 'up', 5000, 200);
+    
+    // Check if the hebrew torah quote on bottom of dedication is present
+    await isTextOnPage(client, "יגיע כפיך כי תאכל אשריך וטוב לך");
+    await isTextOnPage(client, '(תהילים קכ"ח)');
+
+    // Scroll back up to see the x button
+    await swipeUpOrDown(client, 'down', 5000, 200);
+
+    // Close the pop-up
+    await closePopUp(client);
+
+    // Verify we are back on the main page
+    await checkForHeader(client, 'Browse the Library');
+
+    // navigate to Account
+    await clickNavBarItem(client, 'Account');
+    await checkForHeader(client, 'Account');
+
+    // Change language to Hebrew
+    let hebrew_button = await isTextOnPage(client, "עברית");
+    await hebrew_button.click();
+
+    // Verify the language has changed
+    dedication_button = await isTextContainedOnPage(client, "נתרם לכבודם");
+    await dedication_button.click();
+
+    // Verify Hebrew Header of Dedication is present
+    await isTextOnPage(client, "האפליקציה של ספריא עבור אנדרואיד ו-iOS");
+
+    // Check if dedication message is there in Hebrew
+    await isTextContainedOnPage(client, "מוקדש לכבודם של");
+
+    // Close the pop-up
+    await closePopUp(client);
+
+    // Change language back to English
+    let english_button = await isTextOnPage(client, "English");
+    await english_button.click();
+
+    // Verify we are back in English
+    await checkForHeader(client, 'Account');
+
+  });
+
+  it('TC021: Texts tab book category sub-page', async function () {
+    await waitForNavBar(client);
+
+    // Click on Mishna
+    let mishna = await checkForHeader(client, MISHNAH.en);
+    await mishna.click();
+
+    // check we are on the Mishna page
+    await checkForTitle(client, "MISHNAH");
+
+    // Check if part of the blurb is present
+    await isTextContainedOnPage(client, MISHNAH.blurb);
+
+    // Check if dividing line under the First SEDER ZERAIM is present
+    await checkViewGroupCenterPixelColor(client, 2, '#ededec', true, THRESHOLD_RGB); // Light Gray
+
+    // Check if the sefers below the sub categories (e.g. Seder Zeraim) has appropriate short blurb 
+    await isContentDescOnPage(client, MISHNAH.content_desc.berakot);
+    await isContentDescOnPage(client, MISHNAH.content_desc.peah);
+
+    // Scroll down the screen to see all the Sederim are present
+    for (const seder of MISHNAH.sedarim) {
+      await swipeIntoView(client, 'up', seder, 5, 275);
+      await isTextOnPage(client, seder);
+    }
+  });
+
+  it('TC023: Topics tab comprehensive test', async function () {
+    await waitForNavBar(client);
+
+    // Click on Topics
+    await clickNavBarItem(client, 'Topics');
+    // Check if we are on the Topics page
+    await checkForHeader(client, 'Explore by Topic');
+
+    let prayer_button = await isTextOnPage(client, "Prayer");
+    await prayer_button.click();
+
+    // Check if we are on the Prayer page
+    await isTextOnPage(client, "Prayer");
+
+    // Navigate to Aleinu
+    let aleinu_button = await isTextOnPage(client, ALEINU.en);
+    await aleinu_button.click();
+
+    await getTopicTitle(client, ALEINU.en);
+    
+    // Check if the PRAYER subheader is present
+    await getCategory(client, "PRAYER");
+
+    // Check if the Aleinu blurb is present
+    await getBlurb(client, ALEINU.blurb);
+
+    // Assert we are sources page by seeing if SOURCES is underlines bold
+    await isTextOnPage(client, "Sources");
+    // Screenshot Sources element to check underline
+    await checkElementByContentDescPixelColor(client, 'Sources', '#999999', "bottom", true, THRESHOLD_RGB); // Gray color for underline
+    // Check if Sheets is white
+    await checkElementByContentDescPixelColor(client, 'Sheets', '#f6f6f6', "bottom", true, THRESHOLD_RGB); // White color for Sheets
+    
+    // Move to sheets section and click it
+    await clickSheets(client);
+    // Check if it is now underlined and sources is white
+    await checkElementByContentDescPixelColor(client, 'Sheets', '#999999', "bottom", true, THRESHOLD_RGB); // Gray color for underline
+    await checkElementByContentDescPixelColor(client, 'Sources', '#f6f6f6', "bottom", true, THRESHOLD_RGB); // White color for Sources
+    
+    // Move back to sources page
+    await clickSources(client);
+    
+    // Click three dots and verify source connection appears
+    await clickThreeDots(client);
+    await isTextContainedOnPage(client, ALEINU.connection);
+    await clickThreeDots(client); // Close the three dots menu
+
+  });
+  
+  // Add more tests here...
+});
