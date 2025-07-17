@@ -18,14 +18,26 @@ It is intended for both new contributors and experienced maintainers.
 
 ---
 
-## General Principles
+
+
+## Important Notes on Async/Await and Imports
+
+- **Always use `await`** when calling asynchronous helper functions (most UI actions and checks are async). Omitting `await` can cause tests to pass or fail incorrectly, or lead to race conditions.
+- **Use all imports:** If you import a function or constant, make sure it is actually used in your test or helper file. Unused imports may cause linter or build errors, and can clutter the codebase.
+- **Linting and errors:** The test framework and linter will warn or error if you forget to use `await` or have unused imports. Fix these issues promptly to ensure reliable and maintainable tests.
+
 
 - **Keep tests independent:** Each test should set up its own state and not depend on previous tests.
 - **Use page/component helpers:** Place repeated UI actions in `components/` files.
 - **Use utility functions:** Place cross-cutting helpers (e.g., color checks, gestures) in `utils/`.
-- **Log clearly:** Use `console.log` for important steps and always log errors.
+- **Keep tests clean:** Do not use selectors or log statements directly in your test files. All selectors and logging should be handled inside reusable functions in `components/` or `utils/`. This makes tests easier to read and maintain, and ensures consistent logging and selector usage across the project.
+- **Log clearly:** Use `console.log` for important steps and always log errors (inside helpers).
+  - **Use emojis** to indicate success (✅) or failure (❌) in logs.
+  - **check constants/error_constants.ts** for standardized error messages.
+  - **Use logError() function** to log errors to the test-log file.
 - **Fail fast:** Throw errors as soon as a check fails, with clear messages.
 - **Prefer selectors by content-desc or text:** Avoid brittle index-based selectors when possible.
+  - The tests can only see what is currently displayed on the screen, so if you use an index selector, it may not work if the UI changes.
 
 ---
 
@@ -50,13 +62,33 @@ describe('Sefaria App Navigation', function () {
   this.timeout(200000);
   let client: WebdriverIO.Browser;
 
+
   beforeEach(async function () {
-    client = await remote(getOpts());
-    // Handle popups, etc.
+    let testTitle = this.test?.title?.replace(/.*before each.*hook for /, '') || 'Test';
+    console.log(`ℹ️ Running test: ${testTitle}`);
+    client = await remote(getOpts(buildName, testTitle, noReset));
+
+    // Handle offline pop-up if it appears
+    if (await waitForOfflinePopUp(client, 15000)) {
+      await clickNotNowIfPresent(client);
+      await clickOkIfPresent(client);
+    }
   });
 
   afterEach(async function () {
-    if (client) await client.deleteSession();
+    if (client) {
+      if (process.env.RUN_ENV !== 'local') {
+        const status = this.currentTest?.state === 'passed' ? 'passed' : 'failed';
+        const reason = this.currentTest?.err?.message || 'No error message';
+        try {
+          await setBrowserStackStatus(client, status, reason);
+        } catch (e) {
+          console.error('❌ Failed to set BrowserStack session status:', e);
+        }
+      }
+      console.log(`🎉 Finished test: ${this.currentTest?.title || 'test'} \n`);
+      await client.deleteSession();
+    }
   });
 
   it('should navigate to Account tab', async function () {
@@ -69,7 +101,12 @@ describe('Sefaria App Navigation', function () {
 
 ---
 
+
 ## How to Write a New Test
+
+> **Tip:** Most helper functions (from `components/` or `utils/`) are asynchronous and must be called with `await`. Always check if a function returns a Promise and use `await` to avoid subtle bugs.
+
+> **Tip:** If you import a function or constant, make sure to use it in your code. Unused imports will cause errors or warnings during linting or build.
 
 1. **Decide what you want to test.**  
    Example: Navigating to a topic and verifying its blurb.
@@ -78,16 +115,21 @@ describe('Sefaria App Navigation', function () {
 
 3. **Use utility functions** for gestures, color checks, or text finding.
 
-4. **Write your test in `e2e.spec.ts`** or a new file in `tests/`.
+4. **Add regression tests in `e2e.spec.ts`** or create a new test in a new file in `tests/`.
+
 
 5. **Structure:**
    - Use `beforeEach` to set up the app state.
    - Use `afterEach` to clean up (close session, set BrowserStack status).
    - Use `it` blocks for each scenario.
 
-6. **Log important steps** and always log errors.
+6. **Keep your test code clean:**
+   - When writing a test, you should only call helper functions (from `components/` or `utils/`).
+   - You should *not* need to know the details of selectors or logging, as these are handled for you in the helpers.
 
-7. **Example:**
+7. **Log important steps** and always log errors (inside helpers).
+
+8. **Example:**
 
 ```typescript
 it('should verify the Aleinu topic page', async function () {
@@ -142,20 +184,26 @@ export async function clickBackButton(client: Browser): Promise<void> {
 - Keep functions generic and reusable.
 - Document parameters and return values.
 
-**Example: `gesture.ts`**
+**Example: `text_finder.ts`**
 
 ```typescript
 /**
- * Performs a swipe gesture up or down.
+ * Clicks an element by its content-desc and logs its content-desc.
+ * @param client WebdriverIO browser instance
+ * @param contentDesc The content-desc of the element to click
+ * @param elementName The name to use in logs and errors
  */
-export async function swipeUpOrDown(
-  client: WebdriverIO.Browser,
-  direction: 'up' | 'down',
-  distance = 800,
-  duration = 500,
-  mute = false
-): Promise<void> {
-  // ...implementation...
+export async function clickElementByContentDesc(client: Browser, contentDesc: string, elementName: string): Promise<void> {
+    const selector = `//android.view.ViewGroup[@content-desc="${contentDesc}"]`;
+    const elem = await client.$(selector);
+    const isDisplayed = await elem.waitForDisplayed({ timeout: 4000 }).catch(() => false);
+    if (isDisplayed) {
+        const desc = await elem.getAttribute('content-desc');
+        await elem.click();
+        console.log(`✅ Clicked element with content-desc: '${desc}'`);
+    } else {
+        throw new Error(logError(`❌ "${elementName}" element not found or not visible on Topics page.`));
+    }
 }
 ```
 
@@ -191,9 +239,9 @@ export async function swipeUpOrDown(
 
 ## References
 
-- [Appium Inspector](https://github.com/appium/appium-inspector/releases) – For finding selectors.
-- [WebdriverIO Docs](https://webdriver.io/docs/api/) – For API reference.
-- [Project README](./../ReadMe.md) – For setup and running instructions.
-- [File Overview](./FILE_OVERVIEW.md) – For a summary of all files and their roles.
+- [Appium Inspector](https://github.com/appium/appium-inspector/releases) - For finding selectors.
+- [WebdriverIO Docs](https://webdriver.io/docs/api/) - For API reference.
+- [Project README](./ReadMe.md) - For setup and running instructions.
+- [File Overview](./FILE_OVERVIEW.md) - For a summary of all files and their roles.
 
 ---

@@ -1,4 +1,4 @@
-# Sefaria Android Testing Framework – File Overview
+# Sefaria Android Testing Framework - File Overview
 
 This document describes the purpose and main usage of each file and folder in the `android/testing-framework` directory.  
 Use this as a quick reference for contributors and maintainers.
@@ -24,6 +24,9 @@ Reusable page/component objects for high-level UI actions.
 - **topics_page.ts**  
   Functions for navigating and validating the Topics page, including clicking tabs and verifying content.
 
+- **\*.ts**  
+  Other component helpers for specific pages or features (such as the Account tab) can be added in the future as needed. For example, you might add `account_page.ts` for account-related actions.
+
 ---
 
 ## 📁 constants/
@@ -36,6 +39,9 @@ Centralized error and text constants for consistency.
 - **text_constants.ts**  
   Text snippets, Hebrew months, and other static text used in tests.
 
+- **\*.ts**
+  Additional constants can be added as needed for specific tests or components.
+
 ---
 
 ## 📁 tests/
@@ -44,6 +50,10 @@ Where your actual test suites live.
 
 - **e2e.spec.ts**  
   Main end-to-end test suite. Handles logging, session setup/teardown, and contains all test cases.
+
+- **\*.spec.ts**
+  Additional test files can be created for specific features or components.  
+  Each file should follow the same structure as `e2e.spec.ts` with `beforeEach`, `afterEach`, and `it` blocks.
 
 ---
 
@@ -78,6 +88,8 @@ Helper modules for low-level actions, API calls, and cross-cutting concerns.
   Checks pixel colors of UI elements and viewgroups.  
   Includes screenshot cropping, color comparison, and debug image saving for visual regression/UI validation.
 
+- **\*.ts**
+  Additional utility functions can be added as needed for specific tasks or features.
 ---
 
 ## How to Use This Overview

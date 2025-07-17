@@ -1,4 +1,14 @@
-// File to store text constants used in the Android testing framework
+/**
+ * ──────────────────────────────────────────────────────────────
+ * FILE ROLE: Text Constants for Testing Framework
+ * 
+ * DESCRIPTION:
+ *  - Centralizes all static text values used throughout the testing framework.
+ *  - Facilitates easier maintenance and localization of UI and content strings.
+ * USAGE:
+ *  - Import these constants wherever fixed text is needed in tests.
+ * ──────────────────────────────────────────────────────────────
+ */
 
 export const BAMIDBAR_1 = {
     en: "On the first day of the second month, in the second year following the exodus from the land of Egypt, יהוה spoke to Moses in the wilderness of Sinai, in the Tent of Meeting, saying:",

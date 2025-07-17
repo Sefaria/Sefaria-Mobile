@@ -1,7 +1,16 @@
 /**
- * Centralized error message constants and templates for Sefaria App Tests.
- * Use these for all error and assertion messages to ensure consistency and easy updates.
+ * ──────────────────────────────────────────────────────────────
+ * FILE ROLE: Centralized Error Message Constants & Templates for Testing Framework
+ * 
+ * DESCRIPTION:
+ *  - Provides static and dynamic error messages for Sefaria App automated tests.
+ *  - Ensures consistency and maintainability of error and assertion messages.
+ * USAGE:
+ *  - Import and use these constants/functions for all error handling and assertions.
+ * ──────────────────────────────────────────────────────────────
  */
+
+
 
 // Static error messages
 export const NAV_BAR_NOT_DISPLAYED = '❌ Navigation bar is not displayed!';
@@ -10,6 +19,8 @@ export const ELEMENT_NOT_VISIBLE = '❌ Element is not visible.';
 export const SCROLLVIEW_NOT_AVAILABLE = '❌ ScrollView is not available or visible.';
 export const CLOSE_POPUP_SUCCESS = '✅ Closed pop-up';
 export const CLOSE_POPUP_NOT_VISIBLE = '⚠️ Close button not visible';
+export const THREE_DOTS_NOT_FOUND = '❌ Three dots menu not found or not visible';
+export const BACK_BUTTON_NOT_FOUND = '❌ Back button not found or not visible';
 
 
 /**
@@ -95,6 +106,14 @@ export const apiResultMismatch = (label: string, actual: string) =>
 */
 export const elementNotFoundAfterSwipes = (text: string, maxAttempts: number) =>
   logError(`❌ Element with text "${text}" not found after ${maxAttempts} swipes.`);
+
+  /**
+   * Error message for when there is an error selecting an item by its text.
+   * @param text - The text of the item being selected.
+   * @param error - The error thrown.
+   */
+  export const errorSelectingItemByText = (text: string, error: unknown) =>
+    logError(`❌ Error selecting item with text "${text}": ${error}`);
 
 
 // || Success messages that require parameters ||

@@ -1,6 +1,7 @@
 /**
  * ──────────────────────────────────────────────────────────────
- * FILE ROLE: Gesture and Scrolling Utilities for Android Testing Framework
+ * FILE ROLE: Gesture and Scrolling Utilities for Testing Framework
+ * 
  * DESCRIPTION:
  *  - Provides reusable helper functions for performing gestures (swipe, scroll) and
  *    scrolling-related element search in the Sefaria Android automated testing framework.

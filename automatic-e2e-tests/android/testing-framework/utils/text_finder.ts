@@ -1,6 +1,6 @@
 /**
  * ──────────────────────────────────────────────────────────────
- * FILE ROLE: Text and Element Finder Utilities for Android Testing Framework
+ * FILE ROLE: Text and Element Finder Utilities for Testing Framework
  * 
  * DESCRIPTION:
  *  - Helper functions to locate and interact with text and elements by text or content-desc.

@@ -1,9 +1,23 @@
+/**
+ * ──────────────────────────────────────────────────────────────
+ * FILE ROLE: Topics Page Component Helpers for Testing Framework
+ * 
+ * DESCRIPTION:
+ *  - Provides functions to interact with and validate the Topics page.
+ *  - Includes helpers for clicking tabs, verifying titles, categories, blurbs, and menu actions.
+ * USAGE:
+ *  - Import and use in tests that navigate or validate the Topics section.
+ * ──────────────────────────────────────────────────────────────
+ */ 
+
+
 import type { Browser, ChainablePromiseElement } from 'webdriverio';
-import { logError } from '../constants/error_constants';
+import { logError,THREE_DOTS_NOT_FOUND, BACK_BUTTON_NOT_FOUND } from '../constants/error_constants';
 import { assertMatch } from '../utils/helper_functions';
 import { clickElementByContentDesc } from '../utils/text_finder';
 
 // || Helper Functions for topics_page ||
+
 /**
  * 
  * @param client WebdriverIO browser instance
@@ -31,7 +45,7 @@ export async function clickBackButton(client: Browser): Promise<void> {
     await backButton.click();
     console.log("✅ Back button clicked on Topics page.");
   } else {
-    throw new Error("❌ Back button not found or not visible on Topics page.");
+    throw new Error(logError(BACK_BUTTON_NOT_FOUND));
   }
 }
 
@@ -101,6 +115,6 @@ export async function clickThreeDots(client: Browser): Promise<void> {
         await threeDotsElem.click();
         console.log("✅ Three dots menu clicked on Topics page.");
     } else {
-        throw new Error(logError("❌ Three dots menu not found or not visible on Topics page."));
+        throw new Error(logError(THREE_DOTS_NOT_FOUND));
     }
 }

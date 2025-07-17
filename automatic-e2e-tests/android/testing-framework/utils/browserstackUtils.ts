@@ -1,6 +1,7 @@
 /**
  * ──────────────────────────────────────────────────────────────
- * FILE ROLE: BrowserStack Session Utilities for Android Testing Framework
+ * FILE ROLE: BrowserStack Session Utilities for Testing Framework
+ * 
  * DESCRIPTION:
  *  - Provides helper functions for interacting with the BrowserStack session API.
  *  - Includes utilities to set the session status (passed/failed) and report results

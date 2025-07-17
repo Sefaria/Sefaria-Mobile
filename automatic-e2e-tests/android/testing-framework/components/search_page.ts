@@ -1,7 +1,18 @@
-import type { Browser } from 'webdriverio';
-import { SCROLLVIEW_NOT_VISIBLE, textNotFound, logError } from '../constants/error_constants';
+/**
+ * ──────────────────────────────────────────────────────────────
+ * FILE ROLE: Search Page Component Helpers for Testing Framework
+ * 
+ * DESCRIPTION:
+ *  - Provides functions to interact with the search bar and select items from search results.
+ *  - Simulates user input and validates search functionality.
+ * USAGE:
+ *  - Import and use in tests that require searching and selecting content.
+ * ──────────────────────────────────────────────────────────────
+ */
 
-// SEARCH PAGE
+
+import type { Browser } from 'webdriverio';
+import { SCROLLVIEW_NOT_VISIBLE, textNotFound, logError, errorSelectingItemByText } from '../constants/error_constants';
 
 /**
  * Types into the search bar character by character with a delay to simulate real user input.
@@ -57,7 +68,7 @@ export async function selectFromList(client: Browser, text: string): Promise<boo
       throw new Error(logError(`${SCROLLVIEW_NOT_VISIBLE} (${text} has no results in search).`));
     }
   } catch (error) {
-    throw new Error(`❌ Error selecting item with text "${text}": ${error}`);
+    throw new Error(errorSelectingItemByText(text, error));
   }
 
   return false;

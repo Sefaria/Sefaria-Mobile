@@ -1,6 +1,6 @@
 /**
  * ──────────────────────────────────────────────────────────────
- * FILE ROLE: Credential and Options Loader for Android Testing Framework
+ * FILE ROLE: Credential and Options Loader for Testing Framework
  * 
  * DESCRIPTION:
  *  - Loads environment variables and credentials from .env.

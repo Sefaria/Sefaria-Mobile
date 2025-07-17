@@ -1,6 +1,7 @@
 /**
  * ──────────────────────────────────────────────────────────────
- * FILE ROLE: Offline Popup Utilities for Android Testing Framework
+ * FILE ROLE: Offline Popup Utilities for Testing Framework
+ * 
  * DESCRIPTION:
  *  - Helper functions to detect and interact with offline popups in the app.
  * USAGE:

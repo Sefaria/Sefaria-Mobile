@@ -1,3 +1,16 @@
+/**
+ * ──────────────────────────────────────────────────────────────
+ * FILE ROLE: Navigation Bar Component Helpers for Testing Framework
+ * 
+ * DESCRIPTION:
+ *  - Provides functions to interact with the app's navigation bar.
+ *  - Includes helpers to wait for the navbar, click items by content-desc, and close popups.
+ * USAGE:
+ *  - Import and use in tests or page objects that require navigation actions or moving between pages.
+ * ──────────────────────────────────────────────────────────────
+ */
+
+
 import type { Browser } from 'webdriverio';
 import { NAV_BAR_NOT_DISPLAYED, ELEMENT_NOT_VISIBLE, logError, CLOSE_POPUP_SUCCESS, CLOSE_POPUP_NOT_VISIBLE } from '../constants/error_constants';
 

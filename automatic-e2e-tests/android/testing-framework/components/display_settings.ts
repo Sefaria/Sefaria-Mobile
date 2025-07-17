@@ -1,3 +1,17 @@
+/**
+ * ──────────────────────────────────────────────────────────────
+ * FILE ROLE: Display Settings Component Helpers for Testing Framework
+ * 
+ * DESCRIPTION:
+ *  - Provides functions to open/close the display settings and toggle language in the Sefaria app.
+ *  - Used to automate UI interactions related to display and language preferences.
+ * USAGE:
+ *  - Import and use in tests or other components that require changing display or language settings.
+ * ──────────────────────────────────────────────────────────────
+ */
+
+
+
 import type { Browser } from 'webdriverio';
 import { ELEMENT_NOT_VISIBLE, logError } from '../constants/error_constants';
 

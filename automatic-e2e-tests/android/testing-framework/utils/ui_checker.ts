@@ -1,6 +1,6 @@
 /**
  * ──────────────────────────────────────────────────────────────
- * FILE ROLE: UI Color and Pixel Checker Utilities for Android Testing Framework
+ * FILE ROLE: UI Color and Pixel Checker Utilities for Testing Framework
  * 
  * DESCRIPTION:
  *  - Helper functions to check pixel colors of UI elements and viewgroups.
