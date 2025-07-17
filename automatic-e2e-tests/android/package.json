@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "start": "ts-mocha testing-framework/test/*.spec.ts",
-    "test": "mocha --require ts-node/register testing-framework/test/*.spec.ts",
+    "start": "ts-mocha testing-framework/tests/*.spec.ts",
+    "test": "mocha --require ts-node/register testing-framework/tests/*.spec.ts",
     "cleanup": "node cleanup.js",
     "test:clean": "npm run cleanup && npm run test"
   },

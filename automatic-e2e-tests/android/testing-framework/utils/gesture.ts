@@ -1,3 +1,16 @@
+/**
+ * ──────────────────────────────────────────────────────────────
+ * FILE ROLE: Gesture and Scrolling Utilities for Android Testing Framework
+ * DESCRIPTION:
+ *  - Provides reusable helper functions for performing gestures (swipe, scroll) and
+ *    scrolling-related element search in the Sefaria Android automated testing framework.
+ *  - Includes screen dimension caching, swipe actions, and robust scrolling to elements by text.
+ * USAGE:
+ *  - These functions are used across different test components to simulate user interactions.
+ * ──────────────────────────────────────────────────────────────
+ */
+
+
 import { textNotFound, swipeDirectionFailed, elementFoundAfterSwipes, elementNotFoundAfterSwipes } from '../constants/error_constants';
 
 // Cache for screen dimensions - will be set once per test session

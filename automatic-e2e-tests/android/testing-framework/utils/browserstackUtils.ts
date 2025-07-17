@@ -1,4 +1,18 @@
 /**
+ * ──────────────────────────────────────────────────────────────
+ * FILE ROLE: BrowserStack Session Utilities for Android Testing Framework
+ * DESCRIPTION:
+ *  - Provides helper functions for interacting with the BrowserStack session API.
+ *  - Includes utilities to set the session status (passed/failed) and report results
+ *    to the BrowserStack dashboard from automated tests.
+ * USAGE:
+ *  - These functions are used to enhance reporting and integration with BrowserStack.
+ * ──────────────────────────────────────────────────────────────
+ * /
+
+
+
+/**
  * Sets the status of the current BrowserStack session.
  *
  * @param client - The WebdriverIO browser instance used to execute the command.

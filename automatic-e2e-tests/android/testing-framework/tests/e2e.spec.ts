@@ -4,15 +4,14 @@ import { waitForOfflinePopUp, clickNotNowIfPresent, clickOkIfPresent } from '../
 import { waitForNavBar, clickNavBarItem, closePopUp } from '../components/navbar';
 import { typeIntoSearchBar, selectFromList} from '../components/search_page';
 import { checkForTitle, checkForTextOnPage, checkForTitleContained } from '../components/reader_page'
-import {  toggleLanguageButton } from '../components/display_settings'
+import { toggleLanguageButton } from '../components/display_settings'
 import { getTopicTitle, getBlurb, getCategory, clickSheets, clickSources, clickThreeDots } from '../components/topics_page';
 import { apiResultMismatch } from '../constants/error_constants';
-import { BAMIDBAR_1, ALEINU } from '../constants/text_constants';
+import { BAMIDBAR_1, ALEINU,MISHNAH } from '../constants/text_constants';
 import { setBrowserStackStatus } from '../utils/browserstackUtils';
 import { scrollTextIntoView, swipeUpOrDown, swipeIntoView } from '../utils/gesture'
 import { checkViewGroupCenterPixelColor, checkElementByContentDescPixelColor, THRESHOLD_RGB } from '../utils/ui_checker';
 import { isTextOnPage, checkForHeader, isTextContainedOnPage, isContentDescOnPage } from '../utils/text_finder';
-import { MISHNAH } from '../constants/text_constants';
 import { getHebrewDate } from '../utils/helper_functions'
 import { getCurrentParashatHashavua, getCurrentHaftarah, getCurrentDafAWeek  } from '../utils/sefariaAPI'
 
@@ -105,7 +104,7 @@ describe('Sefaria App Navigation', function () {
         }
       }
       // Close the client session
-      console.log(`🎉 Finished test: ${this.currentTest?.title || 'test'}`);
+      console.log(`🎉 Finished test: ${this.currentTest?.title || 'test'} \n`);
       await client.deleteSession();
     }
   });
@@ -371,7 +370,7 @@ describe('Sefaria App Navigation', function () {
     }
   });
 
-  it.only('TC023: Topics tab comprehensive test', async function () {
+  it('TC023: Topics tab comprehensive test', async function () {
     await waitForNavBar(client);
 
     // Click on Topics

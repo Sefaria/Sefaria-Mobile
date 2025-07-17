@@ -1,3 +1,14 @@
+/**
+ * ──────────────────────────────────────────────────────────────
+ * FILE ROLE: Sefaria API Utilities for Android Testing Framework
+ * DESCRIPTION:
+ *  - Helper functions to fetch and cache data from the Sefaria API.
+ *  - Includes calendar, Daf Yomi, Haftarah, and other schedule fetchers.
+ * USAGE:
+ *  - Used in tests that require up-to-date Sefaria content.
+ * ──────────────────────────────────────────────────────────────
+ */
+
 import axios from "axios";
 
 const SEFARIA_CALENDAR_API = "https://www.sefaria.org/api/calendars";

@@ -1,3 +1,16 @@
+/**
+ * ──────────────────────────────────────────────────────────────
+ * FILE ROLE: Text and Element Finder Utilities for Android Testing Framework
+ * 
+ * DESCRIPTION:
+ *  - Helper functions to locate and interact with text and elements by text or content-desc.
+ *  - Includes strict and substring matching, header checks, and content-desc utilities.
+ * USAGE:
+ *  - Used in tests and page objects for robust element selection.
+ * ──────────────────────────────────────────────────────────────
+ */
+
+
 import type { Browser, ChainablePromiseElement } from 'webdriverio';
 import { textNotFound, ELEMENT_NOT_VISIBLE, logError } from '../constants/error_constants';
 import { escapeForRegex } from './helper_functions';

@@ -1,3 +1,16 @@
+/**
+ * ──────────────────────────────────────────────────────────────
+ * FILE ROLE: UI Color and Pixel Checker Utilities for Android Testing Framework
+ * 
+ * DESCRIPTION:
+ *  - Helper functions to check pixel colors of UI elements and viewgroups.
+ *  - Includes screenshot cropping, color comparison, and debug image saving.
+ * USAGE:
+ *  - Used in visual regression and UI validation tests.
+ * ──────────────────────────────────────────────────────────────
+ */
+
+
 
 // Allows a threshold for matching colors (r,g,b), as different screens have slightly different color output
 export const THRESHOLD_RGB = { r: 32, g: 5, b: 10 }; 

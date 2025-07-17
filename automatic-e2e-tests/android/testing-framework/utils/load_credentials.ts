@@ -1,7 +1,13 @@
 /**
- * Returns Appium/WebdriverIO options for local or BrowserStack sessions,
- * loading credentials and device/app info from environment variables.
- * Used to configure and start test sessions in tests/
+ * ──────────────────────────────────────────────────────────────
+ * FILE ROLE: Credential and Options Loader for Android Testing Framework
+ * 
+ * DESCRIPTION:
+ *  - Loads environment variables and credentials from .env.
+ *  - Provides Appium/WebdriverIO options for local and BrowserStack sessions.
+ * USAGE:
+ *  - Used to configure and start test sessions.
+ * ──────────────────────────────────────────────────────────────
  */
 
 

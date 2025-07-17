@@ -1,7 +1,12 @@
 /**
- * Helper functions for various utilities in the Sefaria Android testing framework
- * Includes text escaping, color conversion, date formatting, and more.
- * These functions are used across different components and tests.
+ * ──────────────────────────────────────────────────────────────
+ * FILE ROLE: Helper Functions for Android Testing Framework
+ * DESCRIPTION:
+ *  - Helper functions for various utilities in the Sefaria Android testing framework
+ *  - Includes text escaping, color conversion, date formatting, and more.
+ * USAGE:
+ *  - These functions are used across different components and tests.
+ * ──────────────────────────────────────────────────────────────
  */
 
 import { logError } from '../constants/error_constants'
