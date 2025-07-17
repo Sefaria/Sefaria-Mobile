@@ -1,23 +1,9 @@
 import type { Browser, ChainablePromiseElement } from 'webdriverio';
-import { logError } from '../utils/constants';
+import { logError } from '../constants/error_constants';
+import { assertMatch } from '../utils/helper_functions';
+import { clickElementByContentDesc } from '../utils/text_finder';
 
-// || Helper Functions for topics_page (probably could move to helper functions||
-
-/**
- * Checks if actual text matches expected text, logs result, and throws error if not matching.
- * @param label Label for the value being checked (e.g., 'Category', 'Topic title')
- * @param actual The actual text found
- * @param expected The expected text to compare
- */
-function assertMatch(label: string, actual: string, expected: string): void {
-    const isMatch = actual === expected;
-    if (!isMatch) {
-        throw new Error(logError(`❌ ${label} does not match. Found: '${actual}', Expected: '${expected}'`));
-    }
-    console.log(`✅ ${label} matches: '${actual}'`);
-}
-
-
+// || Helper Functions for topics_page ||
 /**
  * 
  * @param client WebdriverIO browser instance
@@ -84,21 +70,14 @@ export async function getBlurb(client: Browser, expectedBlurb: string): Promise<
     assertMatch('Blurb', blurbText, expectedBlurb);
 }
 
+
+
 /**
  * Clicks the "Sources" element on the Topics page and logs its content-desc.
  * @param client WebdriverIO browser instance
  */
 export async function clickSources(client: Browser): Promise<void> {
-    const sourcesSelector = '//android.view.ViewGroup[@content-desc="Sources"]';
-    const sourcesElem = await client.$(sourcesSelector);
-    const isDisplayed = await sourcesElem.waitForDisplayed({ timeout: 4000 }).catch(() => false);
-    if (isDisplayed) {
-        const contentDesc = await sourcesElem.getAttribute('content-desc');
-        await sourcesElem.click();
-        console.log(`✅ Clicked element with content-desc: '${contentDesc}'`);
-    } else {
-        throw new Error(logError('❌ "Sources" element not found or not visible on Topics page.'));
-    }
+    await clickElementByContentDesc(client, "Sources", "Sources");
 }
 
 /**
@@ -106,16 +85,7 @@ export async function clickSources(client: Browser): Promise<void> {
  * @param client WebdriverIO browser instance
  */
 export async function clickSheets(client: Browser): Promise<void> {
-    const sheetsSelector = '//android.view.ViewGroup[@content-desc="Sheets"]';
-    const sheetsElem = await client.$(sheetsSelector);
-    const isDisplayed = await sheetsElem.waitForDisplayed({ timeout: 4000 }).catch(() => false);
-    if (isDisplayed) {
-        const contentDesc = await sheetsElem.getAttribute('content-desc');
-        await sheetsElem.click();
-        console.log(`✅ Clicked element with content-desc: '${contentDesc}'`);
-    } else {
-        throw new Error(logError('❌ "Sheets" element not found or not visible on Topics page.'));
-    }
+    await clickElementByContentDesc(client, "Sheets", "Sheets");
 }
 
 

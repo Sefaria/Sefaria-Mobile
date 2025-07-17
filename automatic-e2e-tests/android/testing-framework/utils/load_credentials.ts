@@ -1,3 +1,10 @@
+/**
+ * Returns Appium/WebdriverIO options for local or BrowserStack sessions,
+ * loading credentials and device/app info from environment variables.
+ * Used to configure and start test sessions in tests/
+ */
+
+
 import * as path from 'path';
 import * as dotenv from 'dotenv';
 
@@ -44,7 +51,7 @@ export function getOpts(buildName?: string, sessionName?: string, noReset?: bool
     const BROWSERSTACK_ACCESS_KEY = process.env.BROWSERSTACK_ACCESS_KEY || 'your_browserstack_access_key';
     const BROWSERSTACK_APP_ID = process.env.BROWSERSTACK_APP_ID || 'your_browserstack_app_id';
     return {
-      protocol: 'https',
+      protocol: 'http',
       hostname: 'hub.browserstack.com',
       port: 443,
       path: '/wd/hub',

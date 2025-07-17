@@ -1,5 +1,5 @@
 import type { Browser } from 'webdriverio';
-import { SCROLLVIEW_NOT_VISIBLE, textNotFound, logError } from '../utils/constants';
+import { SCROLLVIEW_NOT_VISIBLE, textNotFound, logError } from '../constants/error_constants';
 
 // SEARCH PAGE
 

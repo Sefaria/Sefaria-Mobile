@@ -24,3 +24,10 @@ export const ALEINU = {
     blurb: "The concluding reading of prayer services, Aleinu (Upon us) reminds Jews of their historical and universal mission. It thus provides transition from the lofty world of prayer to the world of human activity. Aleinu consists of two paragraphs, traditionally associated with Joshua.",
     connection: "This source is connected to \"Aleinu\" by Curation of the Sefaria Learning Team.",
 }
+
+// Months storage for Sefaria and getting current Jewish Date
+export const HEBREW_MONTHS = [
+    "Tishri", "Heshvan", "Kislev", "Tevet",
+    "Shevat", "Adar", "Adar II", "Nisan",
+    "Iyar", "Sivan", "Tammuz", "Av", "Elul"
+  ];

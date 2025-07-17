@@ -44,6 +44,7 @@ This repository provides a robust, user-friendly automated testing framework for
 3. **Install Android platform-tools and set `PATH`/`ANDROID_HOME`**
 4. **Enable USB debugging on your device and connect via USB**
 5. **Copy and edit `.env` in `android/`**
+   - See [Set Up Your .env File](#6-set-up-your-env-file) for details.
 6. **Start Appium in a separate terminal:**
    ```sh
    appium

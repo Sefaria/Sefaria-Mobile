@@ -27,7 +27,7 @@
     "ui": "bdd",
     "timeout": 10000,
     "require": ["ts-node/register"],
-    "files": "testing-framework/test/**/*.spec.ts"
+    "files": "testing-framework/tests/**/*.spec.ts"
   },
-  "include": ["testing-framework/test/**/*.ts", "testing-framework/test/**/*.d.ts", "android/testing-framework/test/**/*.ts", "android/testing-framework/test/**/*.d.ts"]
+  "include": ["testing-framework/tests/**/*.ts", "testing-framework/tests/**/*.d.ts", "android/testing-framework/tests/**/*.ts", "android/testing-framework/tests/**/*.d.ts"]
 }

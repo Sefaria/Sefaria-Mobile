@@ -1,5 +1,5 @@
 import type { Browser } from 'webdriverio';
-import { titleMismatch, errorCheckingTitle, accessibilityIdNotFound, errorCheckingAccessibilityId, logError,  SCROLLVIEW_NOT_AVAILABLE } from '../utils/constants';
+import { titleMismatch, errorCheckingTitle, accessibilityIdNotFound, errorCheckingAccessibilityId, logError,  SCROLLVIEW_NOT_AVAILABLE } from '../constants/error_constants';
 
 /**
  * Checks if the TextView title inside the ScrollView has the given text.

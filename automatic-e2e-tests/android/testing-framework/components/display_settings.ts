@@ -1,5 +1,5 @@
 import type { Browser } from 'webdriverio';
-import { ELEMENT_NOT_VISIBLE, logError } from '../utils/constants';
+import { ELEMENT_NOT_VISIBLE, logError } from '../constants/error_constants';
 
 /**
  * toggle the display settings open and close.

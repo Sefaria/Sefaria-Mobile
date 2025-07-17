@@ -1,6 +1,13 @@
-import { HEBREW_MONTHS, logError } from '../utils/constants'
+/**
+ * Helper functions for various utilities in the Sefaria Android testing framework
+ * Includes text escaping, color conversion, date formatting, and more.
+ * These functions are used across different components and tests.
+ */
 
-// Helper functions for various utilities in the Sefaria Android testing framework
+import { logError } from '../constants/error_constants'
+import { HEBREW_MONTHS } from '../constants/text_constants';
+
+
 
 /**
  * Allows double qoutes (and other potentially breaking characters) to be inside .text()
@@ -76,4 +83,19 @@ export function getHebrewDate(): string {
   const day = now.toLocaleString('en-u-ca-hebrew', { day: 'numeric' });
   const year = now.toLocaleString('en-u-ca-hebrew', { year: 'numeric' });
   return `${month} ${day}, ${year}`;
+}
+
+
+/**
+ * Checks if actual text matches expected text, logs result, and throws error if not matching.
+ * @param label Label for the value being checked (e.g., 'Category', 'Topic title')
+ * @param actual The actual text found
+ * @param expected The expected text to compare
+ */
+export function assertMatch(label: string, actual: string, expected: string): void {
+    const isMatch = actual === expected;
+    if (!isMatch) {
+        throw new Error(logError(`❌ ${label} does not match. Found: '${actual}', Expected: '${expected}'`));
+    }
+    console.log(`✅ ${label} matches: '${actual}'`);
 }

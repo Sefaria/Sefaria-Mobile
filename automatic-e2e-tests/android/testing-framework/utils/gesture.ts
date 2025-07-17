@@ -1,4 +1,4 @@
-import { textNotFound, swipeDirectionFailed, elementFoundAfterSwipes, elementNotFoundAfterSwipes } from '../utils/constants';
+import { textNotFound, swipeDirectionFailed, elementFoundAfterSwipes, elementNotFoundAfterSwipes } from '../constants/error_constants';
 
 // Cache for screen dimensions - will be set once per test session
 let screenDimensions: { width: number; height: number; x: number; startY: number } | null = null;

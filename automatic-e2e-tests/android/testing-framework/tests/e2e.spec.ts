@@ -1,25 +1,23 @@
 import { remote } from 'webdriverio';
-import { getOpts } from '../utils/getOpts';
+import { getOpts } from '../utils/load_credentials';
 import { waitForOfflinePopUp, clickNotNowIfPresent, clickOkIfPresent } from '../utils/offlinePopUp';
-import { waitForNavBar, clickNavBarItem, closePopUp } from '../components/navigation';
+import { waitForNavBar, clickNavBarItem, closePopUp } from '../components/navbar';
 import { typeIntoSearchBar, selectFromList} from '../components/search_page';
 import { checkForTitle, checkForTextOnPage, checkForTitleContained } from '../components/reader_page'
 import {  toggleLanguageButton } from '../components/display_settings'
 import { getTopicTitle, getBlurb, getCategory, clickSheets, clickSources, clickThreeDots } from '../components/topics_page';
-import { apiResultMismatch } from '../utils/constants';
-import { BAMIDBAR_1, ALEINU } from '../utils/text_constants';
+import { apiResultMismatch } from '../constants/error_constants';
+import { BAMIDBAR_1, ALEINU } from '../constants/text_constants';
 import { setBrowserStackStatus } from '../utils/browserstackUtils';
 import { scrollTextIntoView, swipeUpOrDown, swipeIntoView } from '../utils/gesture'
-import { checkViewGroupCenterPixelColor, checkElementByContentDescPixelColor } from '../utils/ui_checker';
+import { checkViewGroupCenterPixelColor, checkElementByContentDescPixelColor, THRESHOLD_RGB } from '../utils/ui_checker';
 import { isTextOnPage, checkForHeader, isTextContainedOnPage, isContentDescOnPage } from '../utils/text_finder';
-import { THRESHOLD_RGB } from '../utils/constants';
-import { MISHNAH } from '../utils/text_constants';
+import { MISHNAH } from '../constants/text_constants';
 import { getHebrewDate } from '../utils/helper_functions'
 import { getCurrentParashatHashavua, getCurrentHaftarah, getCurrentDafAWeek  } from '../utils/sefariaAPI'
 
 import * as fs from 'fs';
 import * as path from 'path';
-// import { startScreenRecording, stopScreenRecording } from '../utils/screenRecording';
 
 //  || Functions in order for logs and errors to be printed into test-run.log ||
 //  || Allows github actions to have an easier log response ||
@@ -64,7 +62,6 @@ process.on('unhandledRejection', (reason: any) => {
 
 //  || Start of Tests ||
 
-// let isFirstTest = true;
 let noReset = false; // Set to true if you want same device session to continue with each test
 const buildName = `Sefaria E2E ${new Date().toISOString().slice(0, 10)}`;
 
@@ -83,9 +80,7 @@ describe('Sefaria App Navigation', function () {
     }
 
     console.log(`ℹ️ Running test: ${testTitle}`);
-    // Initialize the client with the desired options
-    // If you want to run tests on BrowserStack, set the environment variable RUN_ENV to 'browserstack'
-    // If you want to run tests locally, set the environment variable RUN_ENV to 'local
+    // Initialize the client (RUN_ENV: 'browserstack' or 'local')
     client = await remote(getOpts(buildName, testTitle, noReset));
 
     // If offline pop-up appears, click Not Now and Ok
@@ -96,7 +91,6 @@ describe('Sefaria App Navigation', function () {
   });
 
   afterEach(async function () {
-    // await stopScreenRecording(client, `./recordings/${this.currentTest?.title || 'test'}.mp4`);
     if (client) {
       // If running on BrowserStack, set the session status 
       // (e.g., passed or failed) based on the test result

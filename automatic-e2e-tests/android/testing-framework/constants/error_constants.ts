@@ -108,15 +108,5 @@ export const elementFoundAfterSwipes = (text: string, attempts: number) =>
   `✅ Element with text "${text}" is now visible after ${attempts} swipe(s).`;
 
 
-// ||Stored Values||
 
 
-// Allows a threshold for matching colors (r,g,b), as different screens have slightly different color output
-export const THRESHOLD_RGB = { r: 32, g: 5, b: 10 }; 
-
-// Months storage for Sefaria and getting current Jewish Date
-export const HEBREW_MONTHS = [
-    "Tishri", "Heshvan", "Kislev", "Tevet",
-    "Shevat", "Adar", "Adar II", "Nisan",
-    "Iyar", "Sivan", "Tammuz", "Av", "Elul"
-  ];

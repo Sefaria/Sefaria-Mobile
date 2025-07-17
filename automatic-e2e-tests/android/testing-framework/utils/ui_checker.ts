@@ -1,3 +1,7 @@
+
+// Allows a threshold for matching colors (r,g,b), as different screens have slightly different color output
+export const THRESHOLD_RGB = { r: 32, g: 5, b: 10 }; 
+
 /**
  * Checks if a specific pixel of a given element matches the expected color.
  * @param element - WebdriverIO element to check.
@@ -68,7 +72,7 @@ export async function checkElementPixelColor(
 import type { Browser } from 'webdriverio';
 import { PNG } from 'pngjs';
 import * as fs from 'fs';
-import { colorMismatch, logError } from './constants';
+import { colorMismatch, logError } from '../constants/error_constants';
 import { hexToRgb, colorsAreClose } from './helper_functions';
 
 

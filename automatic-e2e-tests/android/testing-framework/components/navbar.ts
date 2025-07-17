@@ -1,5 +1,5 @@
 import type { Browser } from 'webdriverio';
-import { NAV_BAR_NOT_DISPLAYED, ELEMENT_NOT_VISIBLE, logError, CLOSE_POPUP_SUCCESS, CLOSE_POPUP_NOT_VISIBLE } from '../utils/constants';
+import { NAV_BAR_NOT_DISPLAYED, ELEMENT_NOT_VISIBLE, logError, CLOSE_POPUP_SUCCESS, CLOSE_POPUP_NOT_VISIBLE } from '../constants/error_constants';
 
 
 /**

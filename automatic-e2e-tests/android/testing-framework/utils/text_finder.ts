@@ -1,5 +1,5 @@
 import type { Browser, ChainablePromiseElement } from 'webdriverio';
-import { textNotFound, ELEMENT_NOT_VISIBLE, logError } from './constants';
+import { textNotFound, ELEMENT_NOT_VISIBLE, logError } from '../constants/error_constants';
 import { escapeForRegex } from './helper_functions';
 
 
@@ -84,4 +84,23 @@ export async function isContentDescOnPage(client: Browser, contentDesc: string):
   } else {
     throw new Error(textNotFound(contentDesc));
   }
+}
+
+/**
+ * Clicks an element by its content-desc and logs its content-desc.
+ * @param client WebdriverIO browser instance
+ * @param contentDesc The content-desc of the element to click
+ * @param elementName The name to use in logs and errors
+ */
+export async function clickElementByContentDesc(client: Browser, contentDesc: string, elementName: string): Promise<void> {
+    const selector = `//android.view.ViewGroup[@content-desc="${contentDesc}"]`;
+    const elem = await client.$(selector);
+    const isDisplayed = await elem.waitForDisplayed({ timeout: 4000 }).catch(() => false);
+    if (isDisplayed) {
+        const desc = await elem.getAttribute('content-desc');
+        await elem.click();
+        console.log(`✅ Clicked element with content-desc: '${desc}'`);
+    } else {
+        throw new Error(logError(`❌ "${elementName}" element not found or not visible on Topics page.`));
+    }
 }
