@@ -51,6 +51,9 @@ Where your actual test suites live.
 - **e2e.spec.ts**  
   Main end-to-end test suite. Handles logging, session setup/teardown, and contains all test cases.
 
+- **test_init.ts**  
+  Initializes logging and error handling for writing logs to `logs-test/`.
+
 - **\*.spec.ts**
   Additional test files can be created for specific features or components.  
   Each file should follow the same structure as `e2e.spec.ts` with `beforeEach`, `afterEach`, and `it` blocks.

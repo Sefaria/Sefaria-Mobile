@@ -108,6 +108,8 @@ describe('Sefaria App Navigation', function () {
 
 > **Tip:** If you import a function or constant, make sure to use it in your code. Unused imports will cause errors or warnings during linting or build.
 
+> **Tip:** Use `.only` to run a single test (`it.only`) or describe block for debugging. This isolates the test and speeds up development.
+
 1. **Decide what you want to test.**  
    Example: Navigating to a topic and verifying its blurb.
 
@@ -220,7 +222,7 @@ export async function clickElementByContentDesc(client: Browser, contentDesc: st
 - **Pixel/color checks:**  
   Use `checkViewGroupCenterPixelColor` or `checkElementByContentDescPixelColor` from `ui_checker.ts`.
 - **API data:**  
-  Use `getCurrentParashatHashavua`, `getCurrentHaftarah`, etc. from `sefariaAPI.ts`.
+  Use `getCurrentParashatHashavua`, `getCurrentHaftarah`, etc. fr om `sefariaAPI.ts`.
 
 ---
 
@@ -234,6 +236,8 @@ export async function clickElementByContentDesc(client: Browser, contentDesc: st
   Are logged and will fail the test.
 - **Flaky selectors:**  
   If a selector is unreliable, try to use content-desc or text instead of index.
+- **Run a single test:**
+  Add .only to a describe or it block to isolate and debug a specific test.
 
 ---
 

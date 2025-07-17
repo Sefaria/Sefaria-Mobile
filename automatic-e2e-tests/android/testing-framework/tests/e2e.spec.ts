@@ -15,51 +15,8 @@ import { isTextOnPage, checkForHeader, isTextContainedOnPage, isContentDescOnPag
 import { getHebrewDate } from '../utils/helper_functions'
 import { getCurrentParashatHashavua, getCurrentHaftarah, getCurrentDafAWeek  } from '../utils/sefariaAPI'
 
-import * as fs from 'fs';
-import * as path from 'path';
+import './test_init'; // Allows Logging and Error Handling to be written to logs_test/ directory
 
-//  || Functions in order for logs and errors to be printed into test-run.log ||
-//  || Allows github actions to have an easier log response ||
-
-// Ensure the logs-test directory exists
-const logsDir = path.resolve(__dirname, '../../logs-test');
-if (!fs.existsSync(logsDir)) {
-  fs.mkdirSync(logsDir);
-}
-
-// Create a unique log file name with current date and time
-const now = new Date();
-const dateStr = now.toISOString().replace(/:/g, '-').replace(/\..+/, '').replace('T', '_');
-const logFilePath = path.join(logsDir, `test-run-${dateStr}.log`);
-fs.writeFileSync(logFilePath, ''); // Clear contents or create file
-const logStream = fs.createWriteStream(logFilePath, { flags: 'a' });
-
-const origLog = console.log;
-const origError = console.error;
-const origWarn = console.warn;
-
-console.log = (...args: any[]) => {
-  origLog(...args);
-  logStream.write(args.map(String).join(' ') + '\n');
-};
-console.error = (...args: any[]) => {
-  origError(...args);
-  logStream.write('[ERROR] ' + args.map(String).join(' ') + '\n');
-};
-console.warn = (...args: any[]) => {
-  origWarn(...args);
-  logStream.write('[WARN] ' + args.map(String).join(' ') + '\n');
-};
-
-// Log uncaught exceptions and unhandled promise rejections
-process.on('uncaughtException', (err) => {
-  console.error('[UNCAUGHT EXCEPTION]', err.stack || err);
-});
-process.on('unhandledRejection', (reason: any) => {
-  console.error('[UNHANDLED REJECTION]', reason && reason.stack ? reason.stack : reason);
-});
-
-//  || Start of Tests ||
 
 let noReset = false; // Set to true if you want same device session to continue with each test
 const buildName = `Sefaria E2E ${new Date().toISOString().slice(0, 10)}`;
