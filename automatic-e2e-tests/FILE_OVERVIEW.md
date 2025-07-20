@@ -9,6 +9,8 @@ Use this as a quick reference for contributors and maintainers.
 
 Reusable page/component objects for high-level UI actions.
 
+> **Note:** The files in this directory follow the Page Object Model (POM) pattern, where each file represents a specific page or component of the app.
+
 - **display_settings.ts**  
   Helpers for toggling display settings and language in the app.
 
@@ -93,7 +95,7 @@ Helper modules for low-level actions, API calls, and cross-cutting concerns.
 
 - **\*.ts**
   Additional utility functions can be added as needed for specific tasks or features.
-  
+
 ---
 
 _Last updated: July 2025_

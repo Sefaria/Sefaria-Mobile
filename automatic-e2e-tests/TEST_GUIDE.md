@@ -19,7 +19,6 @@ It is intended for both new contributors and experienced maintainers.
 
 ## General Principles
 
-- **Always use `await`** when calling asynchronous helper functions (most UI actions and checks are async). Omitting `await` can cause tests to pass or fail incorrectly, or lead to race conditions.
 - **Use all imports:** If you import a function or constant, make sure it is actually used in your test or helper file. Unused imports may cause linter or build errors, and can clutter the codebase.
   - **Warning:** Unused imports will trigger warnings and make the log output messy. For example:
 
@@ -38,6 +37,7 @@ It is intended for both new contributors and experienced maintainers.
 - **Fail fast:** Throw errors as soon as a check fails, with clear messages.
 - **Prefer selectors by content-desc or text:** Avoid brittle index-based selectors when possible.
   - The tests can only see what is currently displayed on the screen, so if you use an index selector, it may not work if the UI changes.
+- **Always use `await`** when calling asynchronous helper functions (most UI actions and checks are async). Omitting `await` can cause tests to pass or fail incorrectly, or lead to race conditions.
 
 ---
 
@@ -151,6 +151,7 @@ it('Verify Aleinu topic loads with correct blurb', async function () {
 ## How to Create a Component
 
 - Components live in [`components/`](./components/).
+- These files are organized using the Page Object Model pattern, where each file represents a page or feature and exports functions for interacting with it.
 - Each file should export functions for interacting with a specific page or feature.
 - Use clear, descriptive function names (e.g., `clickBackButton`, `getTopicTitle`).
 - Document each function with JSDoc comments.
