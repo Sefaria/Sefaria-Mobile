@@ -49,7 +49,7 @@ Centralized error and text constants for consistency.
 Where your actual test suites live.
 
 - **e2e.spec.ts**  
-  Main end-to-end test suite. Handles logging, session setup/teardown, and contains all test cases.
+Main end-to-end regression test suite. Handles the regression flow of the app as designed by QA.
 
 - **test_init.ts**  
   Initializes logging and error handling for writing logs to `logs-test/`.
@@ -93,14 +93,7 @@ Helper modules for low-level actions, API calls, and cross-cutting concerns.
 
 - **\*.ts**
   Additional utility functions can be added as needed for specific tasks or features.
----
-
-## How to Use This Overview
-
-- **New contributors:** Start here to understand where to add new helpers or tests.
-- **Maintainers:** Use this to keep the codebase organized and avoid duplication.
-- **For detailed usage:** See the header comments in each file and the main project README.
-
+  
 ---
 
 _Last updated: July 2025_

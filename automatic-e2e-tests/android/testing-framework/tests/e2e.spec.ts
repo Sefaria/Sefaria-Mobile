@@ -1,6 +1,6 @@
 import { remote } from 'webdriverio';
 import { getOpts } from '../utils/load_credentials';
-import { waitForOfflinePopUp, clickNotNowIfPresent, clickOkIfPresent } from '../utils/offlinePopUp';
+import { handleOfflinePopUp } from '../utils/offlinePopUp';
 import { waitForNavBar, clickNavBarItem, closePopUp } from '../components/navbar';
 import { typeIntoSearchBar, selectFromList} from '../components/search_page';
 import { checkForTitle, checkForTextOnPage, checkForTitleContained } from '../components/reader_page'
@@ -8,66 +8,58 @@ import { toggleLanguageButton } from '../components/display_settings'
 import { getTopicTitle, getBlurb, getCategory, clickSheets, clickSources, clickThreeDots } from '../components/topics_page';
 import { apiResultMismatch } from '../constants/error_constants';
 import { BAMIDBAR_1, ALEINU,MISHNAH } from '../constants/text_constants';
-import { setBrowserStackStatus } from '../utils/browserstackUtils';
+import { reportToBrowserstack } from '../utils/browserstackUtils';
 import { scrollTextIntoView, swipeUpOrDown, swipeIntoView } from '../utils/gesture'
 import { checkViewGroupCenterPixelColor, checkElementByContentDescPixelColor, THRESHOLD_RGB } from '../utils/ui_checker';
 import { isTextOnPage, checkForHeader, isTextContainedOnPage, isContentDescOnPage } from '../utils/text_finder';
-import { getHebrewDate } from '../utils/helper_functions'
 import { getCurrentParashatHashavua, getCurrentHaftarah, getCurrentDafAWeek  } from '../utils/sefariaAPI'
+import { getHebrewDate, getCleanTestTitle } from '../utils/helper_functions'
 
 import './test_init'; // Allows Logging and Error Handling to be written to logs_test/ directory
 
 
-let noReset = false; // Set to true if you want same device session to continue with each test
+const no_reset = false; // Set to true if you want same device session to continue with each test
 const buildName = `Sefaria E2E ${new Date().toISOString().slice(0, 10)}`;
 
-describe('Sefaria App Navigation', function () {
-  this.timeout(200000); // Set timeout for Mocha tests
+describe('e2e Sefaria Mobile regression tests', function () {
+  // Global test timeout for all tests in this block
+  // This sets the maximum time each test can take before failing
+  this.timeout(200000);
+  // WebdriverIO client instance used to interact with the app
   let client: WebdriverIO.Browser;
-      // await startScreenRecording(client);
+  // Variable to hold the current test title, used for logging and reporting
+  let testTitle: string;
 
   beforeEach(async function () {
-    let testTitle = this.test?.title || 'Test';
-
-    // Removes any prefix that starts with "before each" or similar variations
-    // Ensures clean name in testing
-    if (testTitle.includes('before each')) {
-      testTitle = testTitle.replace(/.*before each.*hook for /, '');
-    }
+    // Fetch the current test title
+    testTitle = getCleanTestTitle(this);
 
     console.log(`ℹ️ Running test: ${testTitle}`);
-    // Initialize the client (RUN_ENV: 'browserstack' or 'local')
-    client = await remote(getOpts(buildName, testTitle, noReset));
+
+    // The client is the WebdriverIO browser instance used to interact with the app
+    // It connects to the Sefaria app on the specified device or emulator
+    client = await remote(getOpts(buildName, testTitle, no_reset));
 
     // If offline pop-up appears, click Not Now and Ok
-    if (await waitForOfflinePopUp(client, 15000)) {
-      await clickNotNowIfPresent(client);
-      await clickOkIfPresent(client);
-    }
+    await handleOfflinePopUp(client);
+    // Wait for first screen to load (nav bar loading signals app is ready)
+    await waitForNavBar(client);
   });
 
   afterEach(async function () {
     if (client) {
-      // If running on BrowserStack, set the session status 
-      // (e.g., passed or failed) based on the test result
+      // If running on BrowserStack, set the session status (e.g., passed or failed)
       // Needed for proper reporting in BrowserStack
-      if (process.env.RUN_ENV !== 'local') {
-        const testStatus = this.currentTest?.state === 'passed' ? 'passed' : 'failed';
-        const reason = this.currentTest?.err?.message || 'No error message';
-        try {
-          await setBrowserStackStatus(client, testStatus, reason);
-        } catch (error) {
-          console.error('❌ Failed to set BrowserStack session status:', error);
-        }
+      if (process.env.RUN_ENV == 'browserstack') {
+        await reportToBrowserstack(client, this);
       }
       // Close the client session
-      console.log(`🎉 Finished test: ${this.currentTest?.title || 'test'} \n`);
+      console.log(`🎉 Finished test: ${testTitle} \n`);
       await client.deleteSession();
     }
   });
 
   it('T002: Navigate to Sefat Emet, Genesis, Genesis and validate text', async function () {
-    await waitForNavBar(client);
     // Click on Search Icon
     await clickNavBarItem(client, 'Search');
     await checkForHeader(client, 'Search');
@@ -81,7 +73,6 @@ describe('Sefaria App Navigation', function () {
   });
 
   it('T003: Navigate to Tanakh, scroll down and click Numbers', async function () {
-    
     // Check if we are on the main page and Tanakh is present
     let tanakh = await checkForHeader(client, 'Tanakh');
     await tanakh.click();
@@ -102,7 +93,7 @@ describe('Sefaria App Navigation', function () {
   });
 
   it('T004: Toggle Language to hebrew and see how it affects the page', async function () {
-    await waitForNavBar(client);
+    // Verify toggle language button is present
     await toggleLanguageButton(client, true);
     
     // After changing language do a series of tests!
@@ -129,8 +120,6 @@ describe('Sefaria App Navigation', function () {
   });
 
   it('T005: Veryfying colored lines in between elements', async function () {
-    await waitForNavBar(client);
-
     // Check the colors (Indexes might change with UI update and type of phone)
     await checkViewGroupCenterPixelColor(client, 2, '#1f4d5d', true, THRESHOLD_RGB ); // Tanakh Teal
     await checkViewGroupCenterPixelColor(client, 4, '#6998b4', true, THRESHOLD_RGB); // Mishna Blue
@@ -151,8 +140,6 @@ describe('Sefaria App Navigation', function () {
   });
 
   it('T006: Learning Schedules - See all button', async function () {
-    await waitForNavBar(client);
-
     // Click See All
     let learning_button = await isTextOnPage(client, "See All");
     await learning_button.click();
@@ -193,7 +180,7 @@ describe('Sefaria App Navigation', function () {
       throw new Error(apiResultMismatch("Haftarah", haftarah!.displayValue.en));
     }
 
-    // Verify seperator colors are there (probably do not have to use this, as other tests check this)
+    // Verify separator colors are there (probably do not have to use this, as other tests check this)
     // await checkViewGroupCenterPixelColor(client, 2, '#1f4d5d', true, THRESHOLD_RGB); // Tanakh Teal
     
     // Scroll to Daily Learning
@@ -239,8 +226,6 @@ describe('Sefaria App Navigation', function () {
   });
 
   it('TC022: Dedication tab and results', async function () {
-    await waitForNavBar(client);
-
     // Scroll strongly all the way to button
     await swipeUpOrDown(client, 'up', 5000, 200);
 
@@ -301,8 +286,6 @@ describe('Sefaria App Navigation', function () {
   });
 
   it('TC021: Texts tab book category sub-page', async function () {
-    await waitForNavBar(client);
-
     // Click on Mishna
     let mishna = await checkForHeader(client, MISHNAH.en);
     await mishna.click();
@@ -328,8 +311,6 @@ describe('Sefaria App Navigation', function () {
   });
 
   it('TC023: Topics tab comprehensive test', async function () {
-    await waitForNavBar(client);
-
     // Click on Topics
     await clickNavBarItem(client, 'Topics');
     // Check if we are on the Topics page

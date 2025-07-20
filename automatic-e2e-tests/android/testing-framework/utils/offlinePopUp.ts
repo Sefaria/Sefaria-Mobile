@@ -70,3 +70,15 @@ export async function clickOkIfPresent(client: Browser): Promise<void> {
 }
 
 
+/**
+ * Waits for the offline pop-up and clicks "Not Now" and "OK" if present.
+ * @param client WebdriverIO browser instance
+ * @param timeout Timeout in ms (default: 15000)
+ */
+export async function handleOfflinePopUp(client: WebdriverIO.Browser, timeout = 15000): Promise<void> {
+  if (await waitForOfflinePopUp(client, timeout)) {
+    await clickNotNowIfPresent(client);
+    await clickOkIfPresent(client);
+  }
+}
+

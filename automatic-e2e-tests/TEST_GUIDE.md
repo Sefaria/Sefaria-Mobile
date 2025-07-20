@@ -1,4 +1,4 @@
-## Sefaria App Automated Testing - Guide to Writing Tests, Components, and Utilities
+# Sefaria App Automated Testing - Guide to Writing Tests, Components, and Utilities
 
 This document explains **how to write new tests**, **create reusable components**, and **add utility functions** for the Sefaria Android automated testing framework.  
 It is intended for both new contributors and experienced maintainers.
@@ -14,18 +14,18 @@ It is intended for both new contributors and experienced maintainers.
 - [How to Add a Utility Function](#how-to-add-a-utility-function)
 - [Common Patterns & Examples](#common-patterns--examples)
 - [Debugging & Troubleshooting](#debugging--troubleshooting)
-- [References](#references)
 
 ---
 
-
-
-## Important Notes on Async/Await and Imports
+## General Principles
 
 - **Always use `await`** when calling asynchronous helper functions (most UI actions and checks are async). Omitting `await` can cause tests to pass or fail incorrectly, or lead to race conditions.
 - **Use all imports:** If you import a function or constant, make sure it is actually used in your test or helper file. Unused imports may cause linter or build errors, and can clutter the codebase.
-- **Linting and errors:** The test framework and linter will warn or error if you forget to use `await` or have unused imports. Fix these issues promptly to ensure reliable and maintainable tests.
+  - **Warning:** Unused imports will trigger warnings and make the log output messy. For example:
 
+    ```typescript
+    import { unusedFunction } from '../utils/helper_functions'; // This will cause a warning if not used
+    ```
 
 - **Keep tests independent:** Each test should set up its own state and not depend on previous tests.
 - **Use page/component helpers:** Place repeated UI actions in `components/` files.
@@ -43,7 +43,7 @@ It is intended for both new contributors and experienced maintainers.
 
 ## Test File Structure & Best Practices
 
-- All test files live in [`android/testing-framework/tests/`](./tests/).
+- All test files live in [`android/testing-framework/tests/`](./android/testing-framework/tests/).
 - Use `describe` blocks for grouping related tests.
 - Use `beforeEach`/`afterEach` for setup and teardown.
 - Use helpers from `components/` and `utils/` for all non-trivial actions.
@@ -56,43 +56,47 @@ It is intended for both new contributors and experienced maintainers.
 import { remote } from 'webdriverio';
 import { getOpts } from '../utils/load_credentials';
 import { waitForNavBar, clickNavBarItem } from '../components/navbar';
+import { handleOfflinePopUp } from '../utils/offlinePopUp';
+import { getCleanTestTitle } from '../utils/helper_functions';
 import { checkForHeader } from '../utils/text_finder';
 
-describe('Sefaria App Navigation', function () {
+// Required import: ensures logs are automatically written to the logs-test/ directory
+import './test_init'; 
+
+describe('Sefaria Mobile Regression Tests', function () {
+  // Global test timeout for all tests in this block
+  // This sets the maximum time each test can take before failing
   this.timeout(200000);
   let client: WebdriverIO.Browser;
+  let testTitle: string;
 
 
   beforeEach(async function () {
-    let testTitle = this.test?.title?.replace(/.*before each.*hook for /, '') || 'Test';
-    console.log(`ℹ️ Running test: ${testTitle}`);
-    client = await remote(getOpts(buildName, testTitle, noReset));
+    // Fetch the current test title
+    testTitle = getCleanTestTitle(this);
 
-    // Handle offline pop-up if it appears
-    if (await waitForOfflinePopUp(client, 15000)) {
-      await clickNotNowIfPresent(client);
-      await clickOkIfPresent(client);
-    }
+    console.log(`ℹ️ Running test: ${testTitle}`);
+
+    // The client is the WebdriverIO browser instance used to interact with the app
+    client = await remote(getOpts(buildName, testTitle, no_reset));
+
+    // If offline pop-up appears, click Not Now and Ok
+    await handleOfflinePopUp(client);
+    // Navigation bar being present signals the app is ready
+    await waitForNavBar(client);
   });
 
   afterEach(async function () {
-    if (client) {
-      if (process.env.RUN_ENV !== 'local') {
-        const status = this.currentTest?.state === 'passed' ? 'passed' : 'failed';
-        const reason = this.currentTest?.err?.message || 'No error message';
-        try {
-          await setBrowserStackStatus(client, status, reason);
-        } catch (e) {
-          console.error('❌ Failed to set BrowserStack session status:', e);
-        }
-      }
-      console.log(`🎉 Finished test: ${this.currentTest?.title || 'test'} \n`);
-      await client.deleteSession();
+    if (process.env.RUN_ENV !== 'local') {
+      // If running on BrowserStack, set the session status (e.g., passed or failed)
+      reportToBrowserstack(client, this);
     }
+    console.log(`🎉 Finished test: ${this.currentTest?.title || 'test'} \n`);
+    await client.deleteSession();
+    
   });
 
   it('should navigate to Account tab', async function () {
-    await waitForNavBar(client);
     await clickNavBarItem(client, 'Account');
     await checkForHeader(client, 'Account');
   });
@@ -106,19 +110,16 @@ describe('Sefaria App Navigation', function () {
 
 > **Tip:** Most helper functions (from `components/` or `utils/`) are asynchronous and must be called with `await`. Always check if a function returns a Promise and use `await` to avoid subtle bugs.
 
-> **Tip:** If you import a function or constant, make sure to use it in your code. Unused imports will cause errors or warnings during linting or build.
-
 > **Tip:** Use `.only` to run a single test (`it.only`) or describe block for debugging. This isolates the test and speeds up development.
 
-1. **Decide what you want to test.**  
+1. **Add regression tests in `e2e.spec.ts`** or create a new test in a new file in `tests/`.
+
+2. **Decide what you want to test.**  
    Example: Navigating to a topic and verifying its blurb.
 
-2. **Use or create a component helper** for repeated actions (e.g., clicking a tab, toggling language).
+3. **Use or create a component helper** for repeated actions (e.g., clicking a tab, toggling language).
 
-3. **Use utility functions** for gestures, color checks, or text finding.
-
-4. **Add regression tests in `e2e.spec.ts`** or create a new test in a new file in `tests/`.
-
+4. **Use utility functions** for gestures, color checks, or text finding.
 
 5. **Structure:**
    - Use `beforeEach` to set up the app state.
@@ -134,8 +135,7 @@ describe('Sefaria App Navigation', function () {
 8. **Example:**
 
 ```typescript
-it('should verify the Aleinu topic page', async function () {
-  await waitForNavBar(client);
+it('Verify Aleinu topic loads with correct blurb', async function () {
   await clickNavBarItem(client, 'Topics');
   await checkForHeader(client, 'Explore by Topic');
   let aleinuButton = await isTextOnPage(client, 'Aleinu');
@@ -165,8 +165,8 @@ it('should verify the Aleinu topic page', async function () {
  * @returns {Promise<void>} - Resolves when the back button is clicked.
  */
 export async function clickBackButton(client: Browser): Promise<void> {
-  const backButtonXPath = "...";
-  const backButton = await client.$(backButtonXPath);
+  const backButtonXPath = "//android.widget.ScrollView/android.view.ViewGroup/android.view.ViewGroup[1]/android.view.ViewGroup[1]/android.widget.ImageView";
+  //   const backButton = await client.$(backButtonXPath);
   if (await backButton.waitForDisplayed({ timeout: 4000 }).catch(() => false)) {
     await backButton.click();
     console.log("✅ Back button clicked on Topics page.");
@@ -204,7 +204,7 @@ export async function clickElementByContentDesc(client: Browser, contentDesc: st
         await elem.click();
         console.log(`✅ Clicked element with content-desc: '${desc}'`);
     } else {
-        throw new Error(logError(`❌ "${elementName}" element not found or not visible on Topics page.`));
+        throw new Error(logError(elementNameNotFound(elementName)));
     }
 }
 ```
@@ -236,16 +236,5 @@ export async function clickElementByContentDesc(client: Browser, contentDesc: st
   Are logged and will fail the test.
 - **Flaky selectors:**  
   If a selector is unreliable, try to use content-desc or text instead of index.
-- **Run a single test:**
-  Add .only to a describe or it block to isolate and debug a specific test.
-
----
-
-## References
-
-- [Appium Inspector](https://github.com/appium/appium-inspector/releases) - For finding selectors.
-- [WebdriverIO Docs](https://webdriver.io/docs/api/) - For API reference.
-- [Project README](./ReadMe.md) - For setup and running instructions.
-- [File Overview](./FILE_OVERVIEW.md) - For a summary of all files and their roles.
 
 ---

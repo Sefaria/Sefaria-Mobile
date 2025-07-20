@@ -107,13 +107,20 @@ export const apiResultMismatch = (label: string, actual: string) =>
 export const elementNotFoundAfterSwipes = (text: string, maxAttempts: number) =>
   logError(`❌ Element with text "${text}" not found after ${maxAttempts} swipes.`);
 
-  /**
-   * Error message for when there is an error selecting an item by its text.
-   * @param text - The text of the item being selected.
-   * @param error - The error thrown.
-   */
-  export const errorSelectingItemByText = (text: string, error: unknown) =>
-    logError(`❌ Error selecting item with text "${text}": ${error}`);
+/**
+ * Error message for when there is an error selecting an item by its text.
+ * @param text - The text of the item being selected.
+ * @param error - The error thrown.
+ */
+export const errorSelectingItemByText = (text: string, error: unknown) =>
+  logError(`❌ Error selecting item with text "${text}": ${error}`);
+
+/**
+ * Error message for when a specific element by name is not found on the page.
+ * @param elementName - The name of the element that was not found.
+ */
+export const elementNameNotFound = (elementName: string) =>
+  logError(`❌ Element "${elementName}" not found on the page!`);
 
 
 // || Success messages that require parameters ||

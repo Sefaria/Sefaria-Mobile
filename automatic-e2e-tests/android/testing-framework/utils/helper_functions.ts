@@ -105,3 +105,18 @@ export function assertMatch(label: string, actual: string, expected: string): vo
     }
     console.log(`✅ ${label} matches: '${actual}'`);
 }
+
+/**
+ * Extracts and cleans the test title from Mocha's test context.
+ * @param testContext Mocha test context (this)
+ * @returns Cleaned test title string
+ */
+export function getCleanTestTitle(testContext: Mocha.Context): string {
+  // Fetch the current test title for logging (defaults to 'Test' to ensure testTitle is always defined)
+  let testTitle = testContext.test?.title || 'Test';
+  // .test.title automatically adds "before each", so we remove it for cleaner test names
+  if (testTitle.includes('before each')) {
+    testTitle = testTitle.replace(/.*before each.*hook for /, '');
+  }
+  return testTitle;
+}

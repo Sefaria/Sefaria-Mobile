@@ -4,180 +4,126 @@ This guide explains how to configure, run, and troubleshoot automated end-to-end
 
 ---
 
-## Quick Start
-
-> **Already familiar with Node.js, Appium, and Android tools?**  
-> Place your `.env` in the `android/` directory.
-
-1. **Install Node.js 18+ and npm**
-2. **Install Appium CLI and driver:**
-    ```sh
-    npm install -g appium
-    appium driver install uiautomator2
-    ```
-3. **Install Android platform-tools & set `PATH`/`ANDROID_HOME`**
-4. **Enable USB debugging on your device**
-5. **Copy and edit `.env` in `android/`** ([see below](#env-setup))
-6. **Start Appium:** `appium`
-7. **Run tests:**
-    ```sh
-    cd android
-    npm install
-    npm test
-    ```
-
-> **BrowserStack?**  
-> Set credentials and app ID in `.env`, upload your app for each build, set `RUN_ENV=browserstack`.
-
----
-
 ## Table of Contents
 
 - [Prerequisites](#prerequisites)
-- [Running Tests Locally](#running-tests-locally)
-- [BrowserStack](#browserstack)
-- [GitHub Actions](#github-actions)
-- [Logs & Cleanup](#logs--cleanup)
+- [Local Device/Emulator Setup](#local-deviceemulator-setup)
+- [Cloud & CI Setup (BrowserStack & GitHub Actions)](#cloud--ci-setup-browserstack--github-actions)
 - [Troubleshooting](#troubleshooting)
-- [Example .env](#example-env)
 - [Appium Inspector](#appium-inspector)
-- [Help](#help)
 
 ---
 
 ## Prerequisites
 
-1. **Node.js 18+**  
-    [Download](https://nodejs.org/).  
-    Verify: `node -v` and `npm -v`
+1. **Node.js 18+**
+2. **Appium CLI**
+   ```sh
+   npm install -g appium
+   appium driver install uiautomator2
+   ```
+   Start Appium in a separate terminal: `appium`
+3. **Android SDK / Platform-Tools**
+   - [Android Studio](https://developer.android.com/studio) or [Platform-tools only](https://developer.android.com/tools/releases/platform-tools#downloads)
+   - Add `platform-tools` to your `PATH` and set `ANDROID_HOME`.
+   - Verify: `adb version`
+4. **Enable USB Debugging** on your device or use an emulator.
+5. **Get Device ID:**
+   ```sh
+   adb devices
+   ```
+6. **Copy example.env:**
+   Copy `android/example.env` to `android/.env` and read the comments to configure your environment.
 
-2. **Appium CLI**  
-    ```sh
-    npm install -g appium
-    appium driver install uiautomator2
-    ```
-    Start Appium in a separate terminal: `appium`
-
-3. **Android SDK / Platform-Tools**  
-    - [Android Studio](https://developer.android.com/studio) (full SDK) **or** [Platform-tools only](https://developer.android.com/tools/releases/platform-tools#downloads)
-    - Add `platform-tools` to your `PATH` and set `ANDROID_HOME`:
-      - **Windows:** Use Environment Variables in System Properties.
-      - **Mac/Linux:** Add to `.bashrc`/`.zshrc`:
-         ```sh
-         export ANDROID_HOME=/path/to/Android/Sdk
-         export PATH=$PATH:$ANDROID_HOME/platform-tools
-         ```
-    - Verify: `adb version`
-
-4. **Enable USB Debugging**  
-    - On device: Settings > About phone > Tap "Build number" 7x > Developer Options > Enable "USB debugging".
-
-5. **Get Device ID**  
-    ```sh
-    adb devices
-    ```
-    Copy the device ID.
-
-6. <a id="env-setup"></a>**Set Up `.env` in `android/`**
-    - Copy `example.env` to `.env`
-    - Edit:
-      ```
-      LOCAL_DEVICE_NAME=your_device_id
-      LOCAL_APP_PATH=full_path_to_sefaria_app.apk
-      ```
-    - For BrowserStack, add:
-      ```
-      BROWSERSTACK_USERNAME=your_username
-      BROWSERSTACK_ACCESS_KEY=your_key
-      BROWSERSTACK_APP_ID=bs://your_app_id
-      RUN_ENV=browserstack
-      ```
 
 ---
 
-## Running Tests Locally
+## Local Device/Emulator Setup
 
-1. **Start Appium:**  
-    ```sh
-    appium
-    ```
-2. **Connect device:**  
-    ```sh
-    adb devices
-    ```
-3. **Run tests:**  
-    ```sh
-    cd android
-    npm install
-    npm test
-    ```
+This mode runs tests on a physical device or Android emulator connected via USB. Useful for local development and debugging.
 
----
+### Running Tests Locally
 
-## BrowserStack
+1. **Start Appium:**
 
-- Update `.env` with BrowserStack credentials and app ID (from [dashboard](https://www.browserstack.com/)).
-- Upload your app for each build; update `BROWSERSTACK_APP_ID`.
-- Run tests as usual: `npm test`
+   ```sh
+   appium
+   ```
 
----
+2. **Run tests:**
 
-## GitHub Actions
+   ```sh
+   cd android
+   npm install
+   npm test
+   ```
 
-- Push your branch to GitHub.
-- Go to **Actions** tab > **Run BrowserStack** workflow > **Run workflow**.
-- Monitor progress and download logs/artifacts from the run summary.
-- Ensure required GitHub Secrets are set (`BROWSERSTACK_USERNAME`, `BROWSERSTACK_ACCESS_KEY`).
+### Logs & Cleanup
 
----
-
-## Logs & Cleanup
-
-- Logs: `android/logs-test/`
-- Screenshots: `android/diff-images/`
+- Logs: `android/logs-test/` (generated for each test run)
+- Screenshots: `android/diff-images/` (taken for failed visual checks)
 - Clean up:
+
   ```sh
   npm run cleanup
   ```
+
 - Clean & test:
+
   ```sh
   npm run test:clean
   ```
 
 ---
 
-## Troubleshooting
+## Cloud & CI Setup (BrowserStack & GitHub Actions)
 
-- **Device not found:** Check USB debugging, cable, and run `adb kill-server && adb start-server`.
-- **'unauthorized' device:** Reconnect, accept prompt on device, or toggle USB debugging.
-- **Appium not running:** Start with `appium`.
-- **PATH/ANDROID_HOME issues:** Double-check environment variables, restart terminal.
-- **uiautomator2 missing:** `appium driver install uiautomator2`
-- **BrowserStack errors:** Check credentials/app ID, upload app.
-- **Windows script errors:**  
-  ```powershell
-  Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned
-  ```
-- **Test hangs:** Restart device/emulator and Appium.
-- **Single test:** Use `.only` in your test file.
-- **npm/appium issues:** Try `npm cache clean --force`, restart terminal.
+This mode runs tests on real devices in the cloud using BrowserStack and can be automated via GitHub Actions. Useful for cross-device/OS validation and CI integration.
+
+### BrowserStack
+
+[BrowserStack](https://www.browserstack.com/) is a cloud-based service for running automated tests on real devices. It allows you to test your app on multiple device models and OS versions without needing physical devices.
+
+**How to use BrowserStack for Sefaria tests:**
+
+1. **Update `.env` with your BrowserStack credentials and App ID:**
+   - Get your username and access key from your [BrowserStack dashboard](https://www.browserstack.com/users/sign_in).
+   - Upload your APK/AAB file to BrowserStack using their [App Upload page](https://app-automate.browserstack.com/dashboard/v2/app-upload).
+   - Copy the App ID (e.g., `bs://<app-id>`) and set it in your `.env` as `BROWSERSTACK_APP_ID`.
+   - **Note:** You must upload your app every time you build a new APK/AAB. The App ID changes with each upload, so always update `BROWSERSTACK_APP_ID` in your `.env`.
+
+2. **Run tests as usual:**
+
+   ```sh
+   npm test
+   ```
+
+For more details, see [BrowserStack documentation](https://www.browserstack.com/docs/app-automate/appium/getting-started).
+
+### GitHub Actions
+
+- Push your branch to GitHub.
+- Go to **Actions** tab > **Run BrowserStack** workflow > **Run workflow**.
+- Monitor progress and download logs/artifacts from the run summary.
+- Ensure required GitHub Secrets are set (`BROWSERSTACK_USERNAME`, `BROWSERSTACK_ACCESS_KEY`, `BROWSERSTACK_APP_ID`, `RUN_ENV` (set to browserstack)).
 
 ---
 
-## Example .env
+## Troubleshooting
 
-```properties
-# BrowserStack
-BROWSERSTACK_USERNAME=your_username
-BROWSERSTACK_ACCESS_KEY=your_key
-BROWSERSTACK_APP_ID=bs://your_app_id
+- **Device not found:** Check USB debugging, cable, and run `adb kill-server && adb start-server`.
+- **Appium not running:** Open a terminal and start Appium by typing `appium`.
+- **PATH/ANDROID_HOME issues:** Double-check environment variables, restart terminal.
+- **uiautomator2 missing:** `appium driver install uiautomator2`
+- **BrowserStack errors:** Check credentials/app ID, upload app.
+- **Windows Execution Disabled:**
 
-# Local
-LOCAL_DEVICE_NAME=your_device_id
-LOCAL_APP_PATH=path_to_apk_or_aab
+  ```powershell
+  Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned
+  ```
 
-RUN_ENV=local # or 'browserstack'
-```
+- **Is only one test running?** Check your test files for `.only` (e.g., `describe.only` or `it.only`).
+- **npm/appium issues:** Try `npm cache clean --force`, restart terminal.
 
 ---
 
@@ -198,11 +144,4 @@ RUN_ENV=local # or 'browserstack'
 - **Java JDK required:** [Download](https://adoptium.net/), set `JAVA_HOME`.
 
 ---
-
-## Help
-
-- **GitHub Issues:** [Sefaria-Mobile](https://github.com/Sefaria/Sefaria-Mobile.git)
-- **Contact:** [Sefaria Developer Portal](https://developers.sefaria.org/page/contact-us)
-- **Slack:** #sefaria-team (if available)
-- See [Troubleshooting](#troubleshooting) above.
 

@@ -12,7 +12,7 @@
 
 
 import type { Browser, ChainablePromiseElement } from 'webdriverio';
-import { textNotFound, ELEMENT_NOT_VISIBLE, logError } from '../constants/error_constants';
+import { textNotFound, ELEMENT_NOT_VISIBLE, logError, elementNameNotFound } from '../constants/error_constants';
 import { escapeForRegex } from './helper_functions';
 
 
@@ -92,7 +92,9 @@ export async function isContentDescOnPage(client: Browser, contentDesc: string):
   const element = await client.$(selector);
   const isDisplayed = await element.waitForDisplayed({ timeout: 4000 }).catch(() => false);
   if (isDisplayed) {
-    console.log(`✅ Element with content-desc '${contentDesc}' is present on the page!`);
+    // Get the whole content-desc for logging
+    const desc = await element.getAttribute('content-desc');
+    console.log(`✅ Element with content-desc '${desc}' is present on the page!`);
     return element;
   } else {
     throw new Error(textNotFound(contentDesc));
@@ -110,10 +112,9 @@ export async function clickElementByContentDesc(client: Browser, contentDesc: st
     const elem = await client.$(selector);
     const isDisplayed = await elem.waitForDisplayed({ timeout: 4000 }).catch(() => false);
     if (isDisplayed) {
-        const desc = await elem.getAttribute('content-desc');
         await elem.click();
-        console.log(`✅ Clicked element with content-desc: '${desc}'`);
+        console.log(`✅ Clicked element with content-desc: '${contentDesc}'`);
     } else {
-        throw new Error(logError(`❌ "${elementName}" element not found or not visible on Topics page.`));
+        throw new Error(elementNameNotFound(elementName));
     }
 }
