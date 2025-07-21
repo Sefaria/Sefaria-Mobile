@@ -5,7 +5,7 @@ Use this as a quick reference for contributors and maintainers.
 
 ---
 
-## 📁 components/
+## components/
 
 Reusable page/component objects for high-level UI actions.
 
@@ -15,23 +15,23 @@ Reusable page/component objects for high-level UI actions.
   Helpers for toggling display settings and language in the app.
 
 - **navbar.ts**  
-  Functions to interact with the navigation bar (wait for, click items, close popups).
+  Functions to interact with the navigation bar (click 'Search' on navigation bar).
 
 - **reader_page.ts**  
-  Utilities for validating titles and text on the main reader page.
+  Utilities for validating titles and text on the reader page (e.g Genesis 1.1).
 
 - **search_page.ts**  
   Helpers for typing into the search bar and selecting from search results.
 
 - **topics_page.ts**  
-  Functions for navigating and validating the Topics page, including clicking tabs and verifying content.
+  Functions for navigating and validating the Topics page, including clicking specific topics and verifying content of sheets and sources.
 
 - **\*.ts**  
-  Other component helpers for specific pages or features (such as the Account tab) can be added in the future as needed. For example, you might add `account_page.ts` for account-related actions.
+  Other component helpers for specific pages or features can be added in the future as needed. For example, you might add `account_page.ts` for account-related actions.
 
 ---
 
-## 📁 constants/
+## constants/
 
 Centralized error and text constants for consistency.
 
@@ -46,14 +46,14 @@ Centralized error and text constants for consistency.
 
 ---
 
-## 📁 tests/
+## tests/
 
 Where your actual test suites live.
 
 - **e2e.spec.ts**  
 Main end-to-end regression test suite. Handles the regression flow of the app as designed by QA.
 
-- **test_init.ts**  
+- **test_init.ts** (Do not edit)  
   Initializes logging and error handling for writing logs to `logs-test/`.
 
 - **\*.spec.ts**
@@ -62,7 +62,7 @@ Main end-to-end regression test suite. Handles the regression flow of the app as
 
 ---
 
-## 📁 utils/
+## utils/
 
 Helper modules for low-level actions, API calls, and cross-cutting concerns.
 
@@ -77,10 +77,10 @@ Helper modules for low-level actions, API calls, and cross-cutting concerns.
 
 - **load_credentials.ts**  
   Loads environment variables and credentials from `.env`.  
-  Provides Appium/WebdriverIO options for local and BrowserStack sessions.
+  Provides Appium/WebdriverIO the information for local and BrowserStack sessions.
 
 - **offlinePopUp.ts**  
-  Detects and interacts with offline popups in the app (e.g., "Not Now", "OK" buttons).
+  Detects and interacts with the initial offline popup in the app (e.g., "Not Now", "OK" buttons).
 
 - **sefariaAPI.ts**  
   Fetches and caches data from the Sefaria API (calendar, Daf Yomi, Haftarah, etc.).
@@ -99,3 +99,7 @@ Helper modules for low-level actions, API calls, and cross-cutting concerns.
 ---
 
 _Last updated: July 2025_
+
+---
+
+[⬅ README](./README.md)

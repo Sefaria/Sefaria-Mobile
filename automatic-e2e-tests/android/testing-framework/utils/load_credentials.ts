@@ -32,7 +32,11 @@ export function getOpts(buildName?: string, sessionName?: string, noReset?: bool
   if (RUN_ENV === 'local') {
     console.log("Running on LOCAL")
     const LOCAL_DEVICE_NAME = process.env.LOCAL_DEVICE_NAME || 'Android Emulator';
-    // const LOCAL_APP_PATH = process.env.LOCAL_APP_PATH || 'app/sefaria_app.apk';
+    const LOCAL_APP_PATH = process.env.LOCAL_APP_PATH;
+
+    if (!LOCAL_APP_PATH) {
+      throw new Error('LOCAL_APP_PATH must be set in .env for local testing');
+    }
     return {
       protocol: 'http',
       hostname: 'localhost',
@@ -41,9 +45,10 @@ export function getOpts(buildName?: string, sessionName?: string, noReset?: bool
       capabilities: {
         platformName: 'Android',
         'appium:automationName': 'UiAutomator2',
-        'appium:deviceName': LOCAL_DEVICE_NAME, //Change to device name ('adb devices')
+        'appium:deviceName': LOCAL_DEVICE_NAME, 
         'appium:noReset': noReset || false,
         'appium:autoGrantPermissions': true,
+        'appium:app': LOCAL_APP_PATH, 
         'appium:appPackage': 'org.sefaria.sefaria',
         'appium:appWaitActivity': '*',
         'appium:appActivity': 'org.sefaria.sefaria.SplashActivity',
@@ -53,11 +58,17 @@ export function getOpts(buildName?: string, sessionName?: string, noReset?: bool
     };
   } else {
     console.log("Running on BROWSERSTACK");
-    const BROWSERSTACK_USERNAME = process.env.BROWSERSTACK_USERNAME || 'your_browserstack_username';
-    const BROWSERSTACK_ACCESS_KEY = process.env.BROWSERSTACK_ACCESS_KEY || 'your_browserstack_access_key';
-    const BROWSERSTACK_APP_ID = process.env.BROWSERSTACK_APP_ID || 'your_browserstack_app_id';
+    const BROWSERSTACK_USERNAME = process.env.BROWSERSTACK_USERNAME;
+    const BROWSERSTACK_ACCESS_KEY = process.env.BROWSERSTACK_ACCESS_KEY;
+    const BROWSERSTACK_APP_ID = process.env.BROWSERSTACK_APP_ID;
+
+    // Verify all required variables are present
+    if (!BROWSERSTACK_USERNAME || !BROWSERSTACK_ACCESS_KEY || !BROWSERSTACK_APP_ID) {
+      throw new Error('Missing required BrowserStack environment variables');
+    }
+    // Return BrowserStack options
     return {
-      protocol: 'http',
+      protocol: 'https',
       hostname: 'hub.browserstack.com',
       port: 443,
       path: '/wd/hub',
@@ -68,7 +79,7 @@ export function getOpts(buildName?: string, sessionName?: string, noReset?: bool
         'bstack:options': {
           userName: BROWSERSTACK_USERNAME,
           accessKey: BROWSERSTACK_ACCESS_KEY,
-          deviceName: 'Google Pixel 7 Pro',
+          deviceName: 'Google Pixel 6 Pro',
           osVersion: '13.0',
           projectName: 'Sefaria App Automation',
           buildName: buildName || 'Build #1',

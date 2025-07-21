@@ -14,8 +14,9 @@ import type { Browser } from 'webdriverio';
 
 /**
  * Waits for the popup with resource-id "org.sefaria.sefaria:id/action_bar_root" to appear within a timeout.
+ * Timeout is included because sometimes the popup may not be visible immediately.
  * @param client WebdriverIO browser instance
- * @param timeout Timeout in milliseconds (default: 5000)
+ * @param timeout Timeout in milliseconds (default: 5000) Needs timeout as the popup could not be visible
  * @returns true if the popup appears, false otherwise
  */
 export async function waitForOfflinePopUp(client: Browser, timeout = 5000): Promise<boolean> {

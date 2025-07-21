@@ -59,13 +59,13 @@ describe('e2e Sefaria Mobile regression tests', function () {
     }
   });
 
-  it('T002: Navigate to Sefat Emet, Genesis, Genesis and validate text', async function () {
+  it('T001: Navigate to Sefat Emet, Genesis, Genesis and validate text', async function () {
     // Click on Search Icon
     await clickNavBarItem(client, 'Search');
     await checkForHeader(client, 'Search');
     
-    //Remove last letter of what you want to search to cause the list to pop up
-    // Otherwise, the list won't update or pop up
+    // Remove last letter of what you want to search to cause the list to pop up
+    // Otherwise, the list won't update or pop up (Appium side effect)
     await typeIntoSearchBar(client, "Sefat Emet, Genesis, Genesi");
     // Select option from the list and verify we are on the right page
     await selectFromList(client, "Sefat Emet, Genesis, Genesis");

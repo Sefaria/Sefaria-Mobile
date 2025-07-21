@@ -118,5 +118,7 @@ export function getCleanTestTitle(testContext: Mocha.Context): string {
   if (testTitle.includes('before each')) {
     testTitle = testTitle.replace(/.*before each.*hook for /, '');
   }
+  // Remove all double quotes and backslashes
+  testTitle = testTitle.replace(/["\\]/g, '');
   return testTitle;
 }

@@ -22,13 +22,13 @@ It is intended for both new contributors and experienced maintainers.
 - **Use all imports:** If you import a function or constant, make sure it is actually used in your test or helper file. Unused imports may cause linter or build errors, and can clutter the codebase.
   - **Warning:** Unused imports will trigger warnings and make the log output messy. For example:
 
-    ```typescript
+    ```javascript
     import { unusedFunction } from '../utils/helper_functions'; // This will cause a warning if not used
     ```
-
+    > **Note:** Since we run tests with Mocha, you may see an error like `Cannot read .ts extension`. This is almost always caused by an unused import or variable in your test or helper file.
 - **Keep tests independent:** Each test should set up its own state and not depend on previous tests.
-- **Use page/component helpers:** Place repeated UI actions in `components/` files.
-- **Use utility functions:** Place cross-cutting helpers (e.g., color checks, gestures) in `utils/`.
+- **Use page/component helpers:** Place actions that are specific to a particular page (e.g., Topics page navigation) in `components/` files. This keeps page-specific logic organized and reusable.
+- **Use utility functions:** Place cross-cutting helpers (e.g., color checks, gestures, or repeated UI actions not related to a specific page) in `utils/`.
 - **Keep tests clean:** Do not use selectors or log statements directly in your test files. All selectors and logging should be handled inside reusable functions in `components/` or `utils/`. This makes tests easier to read and maintain, and ensures consistent logging and selector usage across the project.
 - **Log clearly:** Use `console.log` for important steps and always log errors (inside helpers).
   - **Use emojis** to indicate success (✅) or failure (❌) in logs.
@@ -43,7 +43,7 @@ It is intended for both new contributors and experienced maintainers.
 
 ## Test File Structure & Best Practices
 
-- All test files live in [`android/testing-framework/tests/`](./android/testing-framework/tests/).
+- All test files live in [`android/testing-framework/tests/`](./android/testing-framework/tests).
 - Use `describe` blocks for grouping related tests.
 - Use `beforeEach`/`afterEach` for setup and teardown.
 - Use helpers from `components/` and `utils/` for all non-trivial actions.
@@ -52,7 +52,7 @@ It is intended for both new contributors and experienced maintainers.
 
 **Example Test Skeleton:**
 
-```typescript
+```javascript
 import { remote } from 'webdriverio';
 import { getOpts } from '../utils/load_credentials';
 import { waitForNavBar, clickNavBarItem } from '../components/navbar';
@@ -87,11 +87,11 @@ describe('Sefaria Mobile Regression Tests', function () {
   });
 
   afterEach(async function () {
-    if (process.env.RUN_ENV !== 'local') {
+    if (process.env.RUN_ENV == 'browserstack') {
       // If running on BrowserStack, set the session status (e.g., passed or failed)
       reportToBrowserstack(client, this);
     }
-    console.log(`🎉 Finished test: ${this.currentTest?.title || 'test'} \n`);
+    console.log(`🎉 Finished test: ${testTitle} \n`);
     await client.deleteSession();
     
   });
@@ -105,10 +105,7 @@ describe('Sefaria Mobile Regression Tests', function () {
 
 ---
 
-
 ## How to Write a New Test
-
-> **Tip:** Most helper functions (from `components/` or `utils/`) are asynchronous and must be called with `await`. Always check if a function returns a Promise and use `await` to avoid subtle bugs.
 
 > **Tip:** Use `.only` to run a single test (`it.only`) or describe block for debugging. This isolates the test and speeds up development.
 
@@ -117,31 +114,37 @@ describe('Sefaria Mobile Regression Tests', function () {
 2. **Decide what you want to test.**  
    Example: Navigating to a topic and verifying its blurb.
 
-3. **Use or create a component helper** for repeated actions (e.g., clicking a tab, toggling language).
+3. **Use or create a component helper** for actions related to specific pages or features (e.g., clicking a tab, toggling language, or interacting with a button that changes sources).
 
-4. **Use utility functions** for gestures, color checks, or text finding.
+4. **Use utility functions** for gestures, color checks, text finding, or other non-page specific actions.
 
 5. **Structure:**
    - Use `beforeEach` to set up the app state.
    - Use `afterEach` to clean up (close session, set BrowserStack status).
-   - Use `it` blocks for each scenario.
+   - Use `it` blocks for each scenario (test case).
 
 6. **Keep your test code clean:**
    - When writing a test, you should only call helper functions (from `components/` or `utils/`).
    - You should *not* need to know the details of selectors or logging, as these are handled for you in the helpers.
 
-7. **Log important steps** and always log errors (inside helpers).
+7. **Log important steps** and always log errors (check error_constants.ts for standardized messages).
 
-8. **Example:**
+8. **Remove .only** before committing your test file to ensure all tests run in CI.
 
-```typescript
+9. **Test Case Example:**
+
+```javascript
 it('Verify Aleinu topic loads with correct blurb', async function () {
+  // use function from components/navbar.ts
   await clickNavBarItem(client, 'Topics');
+  // use functions from utils/text_finder.ts
   await checkForHeader(client, 'Explore by Topic');
   let aleinuButton = await isTextOnPage(client, 'Aleinu');
   await aleinuButton.click();
+  // Use functions from components/topics_page.ts 
   await getTopicTitle(client, 'Aleinu');
   await getCategory(client, 'PRAYER');
+  // Check if blurb is on page
   await getBlurb(client, 'The concluding reading of prayer services...');
 });
 ```
@@ -150,16 +153,15 @@ it('Verify Aleinu topic loads with correct blurb', async function () {
 
 ## How to Create a Component
 
-- Components live in [`components/`](./components/).
-- These files are organized using the Page Object Model pattern, where each file represents a page or feature and exports functions for interacting with it.
-- Each file should export functions for interacting with a specific page or feature.
+- Components live in [`components/`](./android/testing-framework/components/).
+- Component files follow the Page Object Model pattern: each file represents a page or feature and exports functions for interacting with it.
 - Use clear, descriptive function names (e.g., `clickBackButton`, `getTopicTitle`).
 - Document each function with JSDoc comments.
 - Use selectors that are robust (prefer content-desc or text over index).
 
-**Example: `topics_page.ts`**
+**Example: `components/topics_page.ts`**
 
-```typescript
+```javascript
 /**
  * Clicks the back button on the Topics page.
  * @param client - The WebdriverIO browser client.
@@ -167,7 +169,7 @@ it('Verify Aleinu topic loads with correct blurb', async function () {
  */
 export async function clickBackButton(client: Browser): Promise<void> {
   const backButtonXPath = "//android.widget.ScrollView/android.view.ViewGroup/android.view.ViewGroup[1]/android.view.ViewGroup[1]/android.widget.ImageView";
-  //   const backButton = await client.$(backButtonXPath);
+  const backButton = await client.$(backButtonXPath);
   if (await backButton.waitForDisplayed({ timeout: 4000 }).catch(() => false)) {
     await backButton.click();
     console.log("✅ Back button clicked on Topics page.");
@@ -181,15 +183,14 @@ export async function clickBackButton(client: Browser): Promise<void> {
 
 ## How to Add a Utility Function
 
-- Utilities live in [`utils/`](./utils/).
-- Each file should have a clear header comment describing its purpose.
+- Utilities live in [`utils/`](./android/testing-framework/utils/).
 - Add new helpers for gestures, color checks, API calls, etc.
-- Keep functions generic and reusable.
-- Document parameters and return values.
+- Keep functions generic and reusable across many different pages.
+- Document each function with JSDoc comments.
 
-**Example: `text_finder.ts`**
+**Example: `utils/text_finder.ts`**
 
-```typescript
+```javascript
 /**
  * Clicks an element by its content-desc and logs its content-desc.
  * @param client WebdriverIO browser instance
@@ -223,7 +224,7 @@ export async function clickElementByContentDesc(client: Browser, contentDesc: st
 - **Pixel/color checks:**  
   Use `checkViewGroupCenterPixelColor` or `checkElementByContentDescPixelColor` from `ui_checker.ts`.
 - **API data:**  
-  Use `getCurrentParashatHashavua`, `getCurrentHaftarah`, etc. fr om `sefariaAPI.ts`.
+  Use `getCurrentParashatHashavua`, `getCurrentHaftarah`, etc. from `sefariaAPI.ts`.
 
 ---
 
@@ -237,5 +238,9 @@ export async function clickElementByContentDesc(client: Browser, contentDesc: st
   Are logged and will fail the test.
 - **Flaky selectors:**  
   If a selector is unreliable, try to use content-desc or text instead of index.
+- **Cannot read .ts extension:**  
+  If you see this error, it usually means you have an unused import or variable in your test or helper file. Check for any imports that are not used in the code.
 
 ---
+
+[⬅ README](./README.md)

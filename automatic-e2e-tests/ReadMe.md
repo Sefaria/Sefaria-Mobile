@@ -27,14 +27,6 @@ It is designed to help contributors and maintainers write, run, and maintain rob
   _How to write new tests, create reusable components, and add utility functions. Includes best practices and code examples._
 - [File & Folder Overview](./FILE_OVERVIEW.md)  
   _A summary of the main files and folders in this directory and their roles._
-  
-  **How to Use This Overview:**  
-  
-  - **New contributors:** Start here to understand where to add new helpers or tests.  
-
-  - **Maintainers:** Use this to keep the codebase organized and avoid duplication. 
-
-  - **For detailed usage:** See the header comments in each file and the main project README.
 
 ---
 
@@ -67,9 +59,9 @@ It is designed to help contributors and maintainers write, run, and maintain rob
 
 ## Help & Support
 
-- **GitHub Issues:** [Sefaria-Mobile](https://github.com/Sefaria/Sefaria-Mobile.git)
+- **GitHub Issues:** [Sefaria-Mobile](https://github.com/Sefaria/Sefaria-Mobile/issues)
 
 - **Contact:** [Sefaria Developer Portal](https://developers.sefaria.org/page/contact-us)
 
 - **Troubleshooting:**  
-  See the [Troubleshooting](./SETUP.md#troubleshooting) section in the setup guide for common issues and solutions. 
+  See the [Troubleshooting](./SETUP.md#troubleshooting) section in the setup guide for common issues and solutions.

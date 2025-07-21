@@ -22,12 +22,11 @@ This guide explains how to configure, run, and troubleshoot automated end-to-end
    npm install -g appium
    appium driver install uiautomator2
    ```
-   Start Appium in a separate terminal: `appium`
 3. **Android SDK / Platform-Tools**
-   - [Android Studio](https://developer.android.com/studio) or [Platform-tools only](https://developer.android.com/tools/releases/platform-tools#downloads)
+   - [Android Studio](https://developer.android.com/studio) or [Platform-tools only](https://developer.android.com/tools/releases/platform-tools)
    - Add `platform-tools` to your `PATH` and set `ANDROID_HOME`.
    - Verify: `adb version`
-4. **Enable USB Debugging** on your device or use an emulator.
+4. **Enable USB Debugging** on your device or use an emulator (like Android Studio)
 5. **Get Device ID:**
    ```sh
    adb devices
@@ -40,7 +39,7 @@ This guide explains how to configure, run, and troubleshoot automated end-to-end
 
 ## Local Device/Emulator Setup
 
-This mode runs tests on a physical device or Android emulator connected via USB. Useful for local development and debugging.
+This mode runs tests on a physical device connected via USB or Android emulator. Useful for local development and debugging.
 
 ### Running Tests Locally
 
@@ -50,7 +49,7 @@ This mode runs tests on a physical device or Android emulator connected via USB.
    appium
    ```
 
-2. **Run tests:**
+2. **Run tests:** In a separate terminal (Appium runs in the background)
 
    ```sh
    cd android
@@ -113,9 +112,11 @@ For more details, see [BrowserStack documentation](https://www.browserstack.com/
 
 - **Device not found:** Check USB debugging, cable, and run `adb kill-server && adb start-server`.
 - **Appium not running:** Open a terminal and start Appium by typing `appium`.
-- **PATH/ANDROID_HOME issues:** Double-check environment variables, restart terminal.
+- **PATH/ANDROID_HOME issues:** Double-check system environment variables, restart terminal.
+- **Java JDK required:** [Download](https://adoptium.net/), set `JAVA_HOME`.
 - **uiautomator2 missing:** `appium driver install uiautomator2`
-- **BrowserStack errors:** Check credentials/app ID, upload app.
+- **BrowserStack errors:** Check credentials/app ID, make sure app is uploaded.
+   - Sometimes browserstack wants aab files instead of apk files, so make sure you upload the correct file.
 - **Windows Execution Disabled:**
 
   ```powershell
@@ -131,17 +132,23 @@ For more details, see [BrowserStack documentation](https://www.browserstack.com/
 
 - [Download Appium Inspector](https://github.com/appium/appium-inspector/releases)
 - Example config (replace `DEVICE_ID` and `APK_PATH`):
+
   ```json
-  {
-     "platformName": "Android",
-     "appium:automationName": "UiAutomator2",
-     "appium:deviceName": "DEVICE_ID",
-     "appium:app": "APK_PATH",
-     "appium:appPackage": "org.sefaria.sefaria",
-     "appium:appActivity": "org.sefaria.sefaria.SplashActivity"
-  }
+   {
+      "platformName": "Android",
+      "appium:automationName": "UiAutomator2",
+      "appium:deviceName": "DEVICE_ID", // Change to your device name ('adb devices')
+      "appium:app": "APK_PATH", // Path to your app APK
+      "appium:noReset": false,
+      "appium:autoGrantPermissions": true,
+      "appium:appPackage": "org.sefaria.sefaria",
+      "appium:appWaitActivity": "*",
+      "appium:appActivity": "org.sefaria.sefaria.SplashActivity",
+      "appium:appWaitDuration": 30000,
+      "appium:adbExecTimeout": 60000
+   }
   ```
-- **Java JDK required:** [Download](https://adoptium.net/), set `JAVA_HOME`.
 
 ---
 
+[⬅ README](./README.md)
