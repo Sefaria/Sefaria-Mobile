@@ -10,10 +10,17 @@
  * ──────────────────────────────────────────────────────────────
  */
 
+import type { Browser } from 'webdriverio';
+import { PNG } from 'pngjs';
+import * as fs from 'fs';
+import { colorMismatch, logError } from '../constants/error_constants';
+import { hexToRgb, colorsAreClose } from './helper_functions';
+import { VIEWGROUP_SELECTORS, TEXT_SELECTORS } from '../constants/selectors';
+import { ELEMENT_TIMEOUTS } from '../constants/timeouts';
+import { THRESHOLD_RGB } from '../constants/colors';
 
-
-// Allows a threshold for matching colors (r,g,b), as different screens have slightly different color output
-export const THRESHOLD_RGB = { r: 32, g: 5, b: 10 }; 
+// Re-export THRESHOLD_RGB for backward compatibility
+export { THRESHOLD_RGB }; 
 
 /**
  * Checks if a specific pixel of a given element matches the expected color.
@@ -34,7 +41,7 @@ export async function checkElementPixelColor(
   threshold: number | { r: number; g: number; b: number } = 10,
   label: string = 'Pixel'
 ): Promise<boolean> {
-  await element.waitForDisplayed({ timeout: 1000 });
+  await element.waitForDisplayed({ timeout: ELEMENT_TIMEOUTS.QUICK_CHECK });
   const boundsStr = await element.getAttribute('bounds');
   const match = boundsStr.match(/\[(\d+),(\d+)\]\[(\d+),(\d+)\]/);
   if (!match) throw new Error(logError(`Could not parse bounds: ${boundsStr}`));
@@ -82,12 +89,6 @@ export async function checkElementPixelColor(
     throw new Error(colorMismatch(actual, expected));
   }
 }
-import type { Browser } from 'webdriverio';
-import { PNG } from 'pngjs';
-import * as fs from 'fs';
-import { colorMismatch, logError } from '../constants/error_constants';
-import { hexToRgb, colorsAreClose } from './helper_functions';
-
 
 // Internal reusable function for pixel color checking
 async function checkViewGroupPixelColor(
@@ -100,9 +101,9 @@ async function checkViewGroupPixelColor(
   label: string = 'Pixel'
 ): Promise<boolean> {
   // 1. Get the element and its bounds
-  const selector = `//android.widget.ScrollView/android.view.ViewGroup/android.view.ViewGroup[${viewGroupIndex}]`;
+  const selector = VIEWGROUP_SELECTORS.byIndex(viewGroupIndex);
   const viewGroup = await client.$(selector);
-  await viewGroup.waitForDisplayed({ timeout: 1000 });
+  await viewGroup.waitForDisplayed({ timeout: ELEMENT_TIMEOUTS.QUICK_CHECK });
   const boundsStr = await viewGroup.getAttribute('bounds');
   const match = boundsStr.match(/\[(\d+),(\d+)\]\[(\d+),(\d+)\]/);
   if (!match) throw new Error(logError(`Could not parse bounds: ${boundsStr}`));
@@ -227,10 +228,10 @@ export async function checkElementByContentDescPixelColor(
   debugImage?: boolean,
   threshold: number | { r: number; g: number; b: number } = 10
 ): Promise<boolean> {
-  const selector = `android=new UiSelector().description("${contentDesc}")`;
+  const selector = TEXT_SELECTORS.byDescription(contentDesc);
   const elementPromise = client.$(selector);
   const element = await elementPromise;
-  await element.waitForDisplayed({ timeout: 1000 });
+  await element.waitForDisplayed({ timeout: ELEMENT_TIMEOUTS.QUICK_CHECK });
   let pixelSelector;
   let label;
   if (position === 'center') {

@@ -13,6 +13,7 @@
 
 import * as path from 'path';
 import * as dotenv from 'dotenv';
+import { TEST_TIMEOUTS } from '../constants/timeouts';
 
 // Load .env file only if it exists (useful for local testing)
 if (process.env.GITHUB_ACTIONS !== 'true') {
@@ -53,7 +54,7 @@ export function getOpts(buildName?: string, sessionName?: string, noReset?: bool
         'appium:appWaitActivity': '*',
         'appium:appActivity': 'org.sefaria.sefaria.SplashActivity',
         'appium:appWaitDuration': 30000,
-        'appium:adbExecTimeout': 60000
+        'appium:adbExecTimeout': TEST_TIMEOUTS.ADB_EXEC
       }
     };
   } else {

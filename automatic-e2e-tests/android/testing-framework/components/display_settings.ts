@@ -14,6 +14,8 @@
 
 import type { Browser } from 'webdriverio';
 import { ELEMENT_NOT_VISIBLE, logError } from '../constants/error_constants';
+import { DISPLAY_SETTINGS_SELECTORS } from '../constants/selectors';
+import { OPERATION_TIMEOUTS } from '../constants/timeouts';
 
 /**
  * toggle the display settings open and close.
@@ -21,8 +23,8 @@ import { ELEMENT_NOT_VISIBLE, logError } from '../constants/error_constants';
  * @param client - WebdriverIO browser instance.
  */
 export async function toggleDisplaySettings(client: Browser): Promise<void> {
-  const displaySettingsButton = await client.$('~Open display settings');
-  const isDisplayed = await displaySettingsButton.waitForDisplayed({ timeout: 5000 }).catch(() => false);
+  const displaySettingsButton = await client.$(DISPLAY_SETTINGS_SELECTORS.openButton);
+  const isDisplayed = await displaySettingsButton.waitForDisplayed({ timeout: OPERATION_TIMEOUTS.DISPLAY_SETTINGS }).catch(() => false);
   if (!isDisplayed) {
     throw new Error(logError(ELEMENT_NOT_VISIBLE + ' (display settings button)'));
   }
@@ -38,11 +40,11 @@ export async function toggleDisplaySettings(client: Browser): Promise<void> {
 export async function toggleLanguageButton(client: Browser, isEnglish: boolean = true): Promise<void> {
     // Determine the description based on the current language
     const targetLanguage = isEnglish ? "Hebrew" : "English";
-    const selector = `android=new UiSelector().description("Change language to ${targetLanguage}")`;
+    const selector = DISPLAY_SETTINGS_SELECTORS.languageToggle(targetLanguage);
 
     // Find and click the toggle language button
     const toggleLanguageButton = await client.$(selector);
-    const isDisplayed = await toggleLanguageButton.waitForDisplayed({ timeout: 5000 }).catch(() => false);
+    const isDisplayed = await toggleLanguageButton.waitForDisplayed({ timeout: OPERATION_TIMEOUTS.DISPLAY_SETTINGS }).catch(() => false);
     if (!isDisplayed) {
       throw new Error(logError(ELEMENT_NOT_VISIBLE + ` (toggle language button for ${targetLanguage})`));
     }

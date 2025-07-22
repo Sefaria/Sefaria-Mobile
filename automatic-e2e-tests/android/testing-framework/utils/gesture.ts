@@ -13,6 +13,8 @@
 
 
 import { textNotFound, swipeDirectionFailed, elementFoundAfterSwipes, elementNotFoundAfterSwipes } from '../constants/error_constants';
+import { SWIPE_CONFIG, GESTURE_TIMING, TOUCH_CONFIG, SWIPE_ATTEMPTS } from '../constants/gestures';
+import { TEXT_SELECTORS } from '../constants/selectors';
 
 // Cache for screen dimensions - will be set once per test session
 let screenDimensions: { width: number; height: number; x: number; startY: number } | null = null;
@@ -48,16 +50,16 @@ export function resetScreenDimensions(): void {
  * Performs a swipe gesture up or down from the bottom half middle of the screen.
  * @param client - The WebDriver client instance.
  * @param direction - 'up' to swipe up, 'down' to swipe down.
- * @param distance - The distance in pixels to swipe (default: 800).
- * @param duration - The duration of the swipe in milliseconds (default: 500).
+ * @param distance - The distance in pixels to swipe (default: MEDIUM_DISTANCE).
+ * @param duration - The duration of the swipe in milliseconds (default: STANDARD_GESTURE).
  * @param mute - If true, suppresses console output (default: false).
  * @throws Will throw an error if the swipe fails.
  */
 export async function swipeUpOrDown(
   client: WebdriverIO.Browser,
   direction: 'up' | 'down',
-  distance: number = 800,
-  duration: number = 500,
+  distance: number = SWIPE_CONFIG.MEDIUM_DISTANCE,
+  duration: number = GESTURE_TIMING.STANDARD_GESTURE,
   mute: boolean = false
 ): Promise<void> {
   const { x, startY } = await getScreenDimensions(client);
@@ -67,14 +69,14 @@ export async function swipeUpOrDown(
     await client.performActions([
       {
         type: 'pointer',
-        id: 'finger1',
-        parameters: { pointerType: 'touch' },
+        id: TOUCH_CONFIG.FINGER_ID,
+        parameters: { pointerType: TOUCH_CONFIG.POINTER_TYPE },
         actions: [
-          { type: 'pointerMove', x, y: startY, duration: 0 },
-          { type: 'pointerDown' },
-          { type: 'pause', duration },
-          { type: 'pointerMove', x, y: endY, duration: 50 },
-          { type: 'pointerUp' },
+          { type: TOUCH_CONFIG.ACTIONS.POINTER_MOVE, x, y: startY, duration: TOUCH_CONFIG.INSTANT_DURATION },
+          { type: TOUCH_CONFIG.ACTIONS.POINTER_DOWN },
+          { type: TOUCH_CONFIG.ACTIONS.PAUSE, duration },
+          { type: TOUCH_CONFIG.ACTIONS.POINTER_MOVE, x, y: endY, duration: GESTURE_TIMING.POINTER_MOVE_DURATION },
+          { type: TOUCH_CONFIG.ACTIONS.POINTER_UP },
         ],
       },
     ]);
@@ -129,10 +131,10 @@ export async function swipeIntoView(
   client: WebdriverIO.Browser,
   direction: 'up' | 'down',
   text: string,
-  maxAttempts: number = 5,
-  swipeDistance: number = 200
+  maxAttempts: number = SWIPE_ATTEMPTS.DEFAULT_MAX_ATTEMPTS,
+  swipeDistance: number = SWIPE_CONFIG.TEXT_SCROLL_DISTANCE
 ): Promise<boolean> {
-  const selector = `android=new UiSelector().className("android.widget.TextView").text("${text}")`;
+  const selector = TEXT_SELECTORS.exactText(text);
 
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     const element = await client.$(selector);
@@ -141,8 +143,8 @@ export async function swipeIntoView(
       return true;
     }
     // Only swipe if not visible
-    await swipeUpOrDown(client, direction, swipeDistance, 200, true);
-    // await client.pause(100); // Give UI time to settle
+    await swipeUpOrDown(client, direction, swipeDistance, SWIPE_CONFIG.TEXT_SCROLL_DISTANCE, true);
+    // await client.pause(GESTURE_TIMING.SHORT_PAUSE); // Give UI time to settle
   }
   throw new Error(elementNotFoundAfterSwipes(text, maxAttempts));
 }

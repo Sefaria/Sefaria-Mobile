@@ -13,6 +13,8 @@
 
 import type { Browser } from 'webdriverio';
 import { SCROLLVIEW_NOT_VISIBLE, textNotFound, logError, errorSelectingItemByText } from '../constants/error_constants';
+import { BASE_SELECTORS, TEXT_SELECTORS } from '../constants/selectors';
+import { OPERATION_TIMEOUTS } from '../constants/timeouts';
 
 /**
  * Types into the search bar character by character with a delay to simulate real user input.
@@ -24,7 +26,7 @@ export async function typeIntoSearchBar(client: Browser, text: string): Promise<
 
   // Wait for the search bar to be visible
   const searchBar = await client.$(searchBarSelector);
-  await searchBar.waitForDisplayed({ timeout: 5000 });
+  await searchBar.waitForDisplayed({ timeout: OPERATION_TIMEOUTS.SEARCH_RESULTS });
   await searchBar.click();
 
   // Clear any existing text in the search bar
@@ -46,16 +48,14 @@ export async function typeIntoSearchBar(client: Browser, text: string): Promise<
  * @returns true if the item was found and clicked, false otherwise
  */
 export async function selectFromList(client: Browser, text: string): Promise<boolean> {
-  const scrollViewSelector =
-    'android=new UiSelector().className("android.widget.ScrollView").scrollable(true)';
-  const textViewSelector = `android=new UiSelector().className("android.widget.TextView").text("${text}")`;
+  const scrollView = await client.$(BASE_SELECTORS.scrollView());
+  const textViewSelector = TEXT_SELECTORS.exactText(text);
 
   try {
-    const scrollView = await client.$(scrollViewSelector);
     if (await scrollView.isDisplayed()) {
       const item = await scrollView.$(textViewSelector);
       
-      await item.waitForDisplayed({ timeout: 5000 });
+      await item.waitForDisplayed({ timeout: OPERATION_TIMEOUTS.SEARCH_RESULTS });
 
       if (await item.isDisplayed()) {
         await item.click();

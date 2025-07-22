@@ -13,6 +13,8 @@
 
 import type { Browser } from 'webdriverio';
 import { NAV_BAR_NOT_DISPLAYED, ELEMENT_NOT_VISIBLE, logError, CLOSE_POPUP_SUCCESS, CLOSE_POPUP_NOT_VISIBLE } from '../constants/error_constants';
+import { NAVIGATION_SELECTORS } from '../constants/selectors';
+import { OPERATION_TIMEOUTS } from '../constants/timeouts';
 
 
 /**
@@ -20,11 +22,8 @@ import { NAV_BAR_NOT_DISPLAYED, ELEMENT_NOT_VISIBLE, logError, CLOSE_POPUP_SUCCE
  * @param client WebdriverIO browser instance
  */
 export async function waitForNavBar(client: Browser): Promise<void> {
-  const navBarSelector = 'android=new UiSelector()'
-    + '.className("android.view.ViewGroup")'
-    + '.packageName("org.sefaria.sefaria")';
-  const navBar = await client.$(navBarSelector);
-  const isDisplayed = await navBar.waitForDisplayed({ timeout: 1000 }).catch(() => false);
+  const navBar = await client.$(NAVIGATION_SELECTORS.navBar);
+  const isDisplayed = await navBar.waitForDisplayed({ timeout: OPERATION_TIMEOUTS.NAVBAR_WAIT }).catch(() => false);
   if (isDisplayed) {
     console.log('✅ Navigation bar is displayed!');
   } else {
@@ -39,9 +38,9 @@ export async function waitForNavBar(client: Browser): Promise<void> {
  * @returns Promise<boolean> true if clicked, false otherwise
  */
 export async function clickNavBarItem(client: Browser, contentDesc: string): Promise<boolean> {
-  const itemSelector = `android=new UiSelector().className("android.view.ViewGroup").packageName("org.sefaria.sefaria").description("${contentDesc}")`;
+  const itemSelector = NAVIGATION_SELECTORS.navBarItem(contentDesc);
   const item = await client.$(itemSelector);
-  const isDisplayed = await item.waitForDisplayed({ timeout: 1000 }).catch(() => false);
+  const isDisplayed = await item.waitForDisplayed({ timeout: OPERATION_TIMEOUTS.NAVBAR_WAIT }).catch(() => false);
   if (isDisplayed) {
     await item.click();
     console.log(`✅ Clicked nav bar item: ${contentDesc}`);
@@ -57,9 +56,8 @@ export async function clickNavBarItem(client: Browser, contentDesc: string): Pro
  * @returns Promise<boolean> true if clicked, false otherwise
  */
 export async function closePopUp(client: Browser): Promise<void> {
-  const closeSelector = '//android.view.ViewGroup[@content-desc="Close"]/android.widget.ImageView';
-  const closeBtn = await client.$(closeSelector);
-  const isDisplayed = await closeBtn.waitForDisplayed({ timeout: 1000 }).catch(() => false);
+  const closeBtn = await client.$(NAVIGATION_SELECTORS.closePopup);
+  const isDisplayed = await closeBtn.waitForDisplayed({ timeout: OPERATION_TIMEOUTS.POPUP_CLOSE }).catch(() => false);
   if (isDisplayed) {
     await closeBtn.click();
     console.log(CLOSE_POPUP_SUCCESS);

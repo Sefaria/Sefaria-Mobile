@@ -14,21 +14,23 @@
 import type { Browser, ChainablePromiseElement } from 'webdriverio';
 import { textNotFound, ELEMENT_NOT_VISIBLE, logError, elementNameNotFound } from '../constants/error_constants';
 import { escapeForRegex } from './helper_functions';
+import { TEXT_SELECTORS, TOPICS_SELECTORS } from '../constants/selectors';
+import { ELEMENT_TIMEOUTS } from '../constants/timeouts';
 
 
 // Functions to help locate Text on Page
 
 /**
- * Checks if a TextView with the exact given text is present on the page.
+ * Finds and returns a TextView element with the exact given text if present on the page.
  * Used for quick verification of UI state.
  * @param client WebdriverIO browser instance
  * @param text The exact text to look for
  * @returns Promise<ChainablePromiseElement> the text element if found
  */
-export async function isTextOnPage(client: Browser, text: string): Promise<ChainablePromiseElement> {
-  const selector = `android=new UiSelector().className("android.widget.TextView").packageName("org.sefaria.sefaria").text("${escapeForRegex(text)}")`;
+export async function findTextElement(client: Browser, text: string): Promise<ChainablePromiseElement> {
+  const selector = TEXT_SELECTORS.exactText(escapeForRegex(text));
   const element = await client.$(selector);
-  const isDisplayed = await element.waitForDisplayed({ timeout: 4000 }).catch(() => false);
+  const isDisplayed = await element.waitForDisplayed({ timeout: ELEMENT_TIMEOUTS.STANDARD }).catch(() => false);
   if (isDisplayed) {
     console.log(`✅ Text '${text}' is present on the page!`);
     return element;
@@ -38,16 +40,16 @@ export async function isTextOnPage(client: Browser, text: string): Promise<Chain
 }
 
 /**
- * Checks if a TextView containing the given text is present on the page.
+ * Finds and returns a TextView element containing the given text if present on the page.
  * Used for less strict verification (substring match).
  * @param client WebdriverIO browser instance
  * @param text The text to look for (substring match)
  * @returns Promise<ChainablePromiseElement> the text element if found
  */
-export async function isTextContainedOnPage(client: Browser, text: string): Promise<ChainablePromiseElement> {
-  const selector = `android=new UiSelector().className("android.widget.TextView").packageName("org.sefaria.sefaria").textContains("${escapeForRegex(text)}")`;
+export async function findTextContaining(client: Browser, text: string): Promise<ChainablePromiseElement> {
+  const selector = TEXT_SELECTORS.containsText(escapeForRegex(text));
   const element = await client.$(selector);
-  const isDisplayed = await element.waitForDisplayed({ timeout: 4000 }).catch(() => false);
+  const isDisplayed = await element.waitForDisplayed({ timeout: ELEMENT_TIMEOUTS.STANDARD }).catch(() => false);
   if (isDisplayed) {
     console.log(`✅ Text containing '${text}' is present on the page! Found text: '${await element.getText()}'`);
     return element;
@@ -57,23 +59,21 @@ export async function isTextContainedOnPage(client: Browser, text: string): Prom
 }
 
 /**
- * Checks for a header with the given text in the first ViewGroup element and throws if not found.
+ * Finds and verifies a header with the given text in the first ViewGroup element.
  * @param client WebdriverIO browser instance
  * @param headerText The header text to check for (e.g., "Explore by Topic")
  * @returns Promise<ChainablePromiseElement> The header element if found
  */
-export async function checkForHeader(client: Browser, headerText: string): Promise<ChainablePromiseElement> {
+export async function findHeaderInFirstViewGroup(client: Browser, headerText: string): Promise<ChainablePromiseElement> {
   // Find the first ViewGroup
-  const viewGroupSelector = 'android=new UiSelector().className("android.view.ViewGroup").packageName("org.sefaria.sefaria").index(0)';
-  const viewGroup = await client.$(viewGroupSelector);
-  const isViewGroupDisplayed = await viewGroup.waitForDisplayed({ timeout: 1000 }).catch(() => false);
+  const viewGroup = await client.$(TOPICS_SELECTORS.firstViewGroup);
+  const isViewGroupDisplayed = await viewGroup.waitForDisplayed({ timeout: ELEMENT_TIMEOUTS.QUICK_CHECK }).catch(() => false);
   if (!isViewGroupDisplayed) {
     throw new Error(logError(ELEMENT_NOT_VISIBLE + ' (first ViewGroup)'));
   }
   // Find the TextView with the header text inside the ViewGroup
-  const headerSelector = `android=new UiSelector().className("android.widget.TextView").packageName("org.sefaria.sefaria").textContains("${escapeForRegex(headerText)}")`;
-  const header = await viewGroup.$(headerSelector);
-  const isHeaderDisplayed = await header.waitForDisplayed({ timeout: 1000 }).catch(() => false);
+  const header = await viewGroup.$(TOPICS_SELECTORS.headerInViewGroup(escapeForRegex(headerText)));
+  const isHeaderDisplayed = await header.waitForDisplayed({ timeout: ELEMENT_TIMEOUTS.QUICK_CHECK }).catch(() => false);
   if (!isHeaderDisplayed) {
     throw new Error(textNotFound(headerText));
   }
@@ -82,15 +82,15 @@ export async function checkForHeader(client: Browser, headerText: string): Promi
 }
 
 /**
- * Checks if an element with the given content-desc is present on the page.
+ * Finds an element with the given content-desc if present on the page.
  * @param client WebdriverIO browser instance
  * @param contentDesc The content-desc to look for
  * @returns Promise<ChainablePromiseElement> the element if found
  */
-export async function isContentDescOnPage(client: Browser, contentDesc: string): Promise<ChainablePromiseElement> {
-  const selector = `android=new UiSelector().description("${escapeForRegex(contentDesc)}").packageName("org.sefaria.sefaria")`;
+export async function findElementByContentDesc(client: Browser, contentDesc: string): Promise<ChainablePromiseElement> {
+  const selector = TEXT_SELECTORS.byDescription(escapeForRegex(contentDesc));
   const element = await client.$(selector);
-  const isDisplayed = await element.waitForDisplayed({ timeout: 4000 }).catch(() => false);
+  const isDisplayed = await element.waitForDisplayed({ timeout: ELEMENT_TIMEOUTS.STANDARD }).catch(() => false);
   if (isDisplayed) {
     // Get the whole content-desc for logging
     const desc = await element.getAttribute('content-desc');
@@ -110,7 +110,7 @@ export async function isContentDescOnPage(client: Browser, contentDesc: string):
 export async function clickElementByContentDesc(client: Browser, contentDesc: string, elementName: string): Promise<void> {
     const selector = `//android.view.ViewGroup[@content-desc="${contentDesc}"]`;
     const elem = await client.$(selector);
-    const isDisplayed = await elem.waitForDisplayed({ timeout: 4000 }).catch(() => false);
+    const isDisplayed = await elem.waitForDisplayed({ timeout: ELEMENT_TIMEOUTS.STANDARD }).catch(() => false);
     if (isDisplayed) {
         await elem.click();
         console.log(`✅ Clicked element with content-desc: '${contentDesc}'`);

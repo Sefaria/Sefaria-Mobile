@@ -4,6 +4,7 @@
  * 
  * DESCRIPTION:
  *  - Helper functions to detect and interact with offline popups in the app.
+ *  - Uses centralized constants and selectors for consistency and maintainability.
  * USAGE:
  *  - Used in tests to handle network/offline dialogs.
  * ──────────────────────────────────────────────────────────────
@@ -11,19 +12,19 @@
 
 
 import type { Browser } from 'webdriverio';
+import { ELEMENT_TIMEOUTS } from '../constants/timeouts';
+import { OFFLINE_POPUP_SELECTORS } from '../constants/selectors';
 
 /**
  * Waits for the popup with resource-id "org.sefaria.sefaria:id/action_bar_root" to appear within a timeout.
- * Timeout is included because sometimes the popup may not be visible immediately.
+ * Uses centralized selector for the offline popup container.
  * @param client WebdriverIO browser instance
- * @param timeout Timeout in milliseconds (default: 5000) Needs timeout as the popup could not be visible
+ * @param timeout Timeout in milliseconds (default: POPUP_WAIT) Needs timeout as the popup could not be visible
  * @returns true if the popup appears, false otherwise
  */
-export async function waitForOfflinePopUp(client: Browser, timeout = 5000): Promise<boolean> {
-  const selector =
-    'android=new UiSelector().resourceId("org.sefaria.sefaria:id/action_bar_root").className("android.widget.FrameLayout")';
+export async function waitForOfflinePopUp(client: Browser, timeout: number = ELEMENT_TIMEOUTS.POPUP_WAIT): Promise<boolean> {
   try {
-    const element = await client.$(selector);
+    const element = await client.$(OFFLINE_POPUP_SELECTORS.popupContainer);
     await element.waitForDisplayed({ timeout });
     console.log('✅ Popup is visible!');
     return true;
@@ -35,12 +36,11 @@ export async function waitForOfflinePopUp(client: Browser, timeout = 5000): Prom
 
 /**
  * Clicks the "NOT NOW" button if it appears.
+ * Uses centralized selector for the NOT NOW button.
  * @param client WebdriverIO browser instance
  */
 export async function clickNotNowIfPresent(client: Browser): Promise<void> {
-  const notNowSelector =
-    'android=new UiSelector().resourceId("android:id/button1").text("NOT NOW").className("android.widget.Button")';
-  const notNowButton = await client.$(notNowSelector);
+  const notNowButton = await client.$(OFFLINE_POPUP_SELECTORS.notNowButton);
 
   if (await notNowButton.isDisplayed()) {
     await notNowButton.click();
@@ -54,12 +54,11 @@ export async function clickNotNowIfPresent(client: Browser): Promise<void> {
 
 /**
  * Clicks the "OK" button if it appears.
+ * Uses centralized selector for the OK button.
  * @param client WebdriverIO browser instance
  */
 export async function clickOkIfPresent(client: Browser): Promise<void> {
-  const okSelector =
-    'android=new UiSelector().resourceId("android:id/button1").text("OK").className("android.widget.Button")';
-  const okButton = await client.$(okSelector);
+  const okButton = await client.$(OFFLINE_POPUP_SELECTORS.okButton);
 
   if (await okButton.isDisplayed()) {
     await okButton.click();
@@ -73,10 +72,11 @@ export async function clickOkIfPresent(client: Browser): Promise<void> {
 
 /**
  * Waits for the offline pop-up and clicks "Not Now" and "OK" if present.
+ * Main function to handle offline popup workflow using centralized selectors.
  * @param client WebdriverIO browser instance
- * @param timeout Timeout in ms (default: 15000)
+ * @param timeout Timeout in ms (default: POPUP_EXTENDED)
  */
-export async function handleOfflinePopUp(client: WebdriverIO.Browser, timeout = 15000): Promise<void> {
+export async function handleOfflinePopUp(client: WebdriverIO.Browser, timeout: number = ELEMENT_TIMEOUTS.POPUP_EXTENDED): Promise<void> {
   if (await waitForOfflinePopUp(client, timeout)) {
     await clickNotNowIfPresent(client);
     await clickOkIfPresent(client);

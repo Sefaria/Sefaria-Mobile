@@ -8,12 +8,64 @@ It is intended for both new contributors and experienced maintainers.
 ## Table of Contents
 
 - [General Principles](#general-principles)
+- [Using Constants](#using-constants)
 - [Test File Structure & Best Practices](#test-file-structure--best-practices)
 - [How to Write a New Test](#how-to-write-a-new-test)
 - [How to Create a Component](#how-to-create-a-component)
 - [How to Add a Utility Function](#how-to-add-a-utility-function)
 - [Common Patterns & Examples](#common-patterns--examples)
 - [Debugging & Troubleshooting](#debugging--troubleshooting)
+
+---
+
+## Using Constants
+
+The testing framework uses a centralized constants architecture to maintain consistency and reduce hardcoded values. All constants are organized in the `constants/` directory and can be imported from a single location.
+
+### Constants Architecture
+
+- **`constants/selectors.ts`**: UI selectors, XPath patterns, and element identifiers
+- **`constants/timeouts.ts`**: Wait times, delays, and operation timeouts  
+- **`constants/gestures.ts`**: Swipe distances, scroll configurations, and gesture parameters
+- **`constants/colors.ts`**: Brand colors, thresholds, and UI color values
+- **`constants/error_constants.ts`**: Standardized error messages and logging patterns
+- **`constants/text_constants.ts`**: Static text, labels, and content strings
+- **`constants/index.ts`**: Central export point for all constants
+
+### How to Import Constants
+
+Import constants from the centralized index file:
+
+```javascript
+import { 
+  BASE_SELECTORS, 
+  OPERATION_TIMEOUTS, 
+  SWIPE_GESTURES,
+  SEFARIA_COLORS 
+} from '../constants';
+```
+
+### Best Practices for Constants
+
+- **Always use constants** instead of hardcoded values
+- **Import from the index file** for consistency
+- **Add new constants** to the appropriate category file
+- **Use descriptive names** that indicate purpose and context
+- **Group related constants** in objects or namespaces
+
+### Example Usage
+
+```javascript
+// Good: Using constants
+import { BASE_SELECTORS, OPERATION_TIMEOUTS } from '../constants';
+
+const element = await client.$(BASE_SELECTORS.NAVBAR_SEARCH);
+await element.waitForDisplayed({ timeout: OPERATION_TIMEOUTS.ELEMENT_WAIT });
+
+// Bad: Hardcoded values
+const element = await client.$("//android.widget.TextView[@text='Search']");
+await element.waitForDisplayed({ timeout: 4000 });
+```
 
 ---
 
@@ -25,6 +77,7 @@ It is intended for both new contributors and experienced maintainers.
     ```javascript
     import { unusedFunction } from '../utils/helper_functions'; // This will cause a warning if not used
     ```
+
     > **Note:** Since we run tests with Mocha, you may see an error like `Cannot read .ts extension`. This is almost always caused by an unused import or variable in your test or helper file.
 - **Keep tests independent:** Each test should set up its own state and not depend on previous tests.
 - **Use page/component helpers:** Place actions that are specific to a particular page (e.g., Topics page navigation) in `components/` files. This keeps page-specific logic organized and reusable.
@@ -58,7 +111,7 @@ import { getOpts } from '../utils/load_credentials';
 import { waitForNavBar, clickNavBarItem } from '../components/navbar';
 import { handleOfflinePopUp } from '../utils/offlinePopUp';
 import { getCleanTestTitle } from '../utils/helper_functions';
-import { checkForHeader } from '../utils/text_finder';
+import { findHeaderInFirstViewGroup } from '../utils/text_finder';
 
 // Required import: ensures logs are automatically written to the logs-test/ directory
 import './test_init'; 
@@ -98,7 +151,7 @@ describe('Sefaria Mobile Regression Tests', function () {
 
   it('should navigate to Account tab', async function () {
     await clickNavBarItem(client, 'Account');
-    await checkForHeader(client, 'Account');
+    await findHeaderInFirstViewGroup(client, 'Account');
   });
 });
 ```
@@ -137,15 +190,15 @@ describe('Sefaria Mobile Regression Tests', function () {
 it('Verify Aleinu topic loads with correct blurb', async function () {
   // use function from components/navbar.ts
   await clickNavBarItem(client, 'Topics');
-  // use functions from utils/text_finder.ts
-  await checkForHeader(client, 'Explore by Topic');
-  let aleinuButton = await isTextOnPage(client, 'Aleinu');
+  // use functions from utils/text_finder.ts (improved function names)
+  await verifyExactTitle(client, 'Explore by Topic');
+  let aleinuButton = await findTextElement(client, 'Aleinu');
   await aleinuButton.click();
-  // Use functions from components/topics_page.ts 
-  await getTopicTitle(client, 'Aleinu');
-  await getCategory(client, 'PRAYER');
+  // Use functions from components/topics_page.ts (improved function names)
+  await verifyTopicTitle(client, 'Aleinu');
+  await verifyTopicCategory(client, 'PRAYER');
   // Check if blurb is on page
-  await getBlurb(client, 'The concluding reading of prayer services...');
+  await verifyTopicBlurb(client, 'The concluding reading of prayer services...');
 });
 ```
 
@@ -155,28 +208,33 @@ it('Verify Aleinu topic loads with correct blurb', async function () {
 
 - Components live in [`components/`](./android/testing-framework/components/).
 - Component files follow the Page Object Model pattern: each file represents a page or feature and exports functions for interacting with it.
-- Use clear, descriptive function names (e.g., `clickBackButton`, `getTopicTitle`).
+- Use clear, descriptive function names (e.g., `verifyTopicTitle`, `navigateBackFromTopic`).
+- **Import constants** from the centralized constants directory instead of hardcoding values.
 - Document each function with JSDoc comments.
 - Use selectors that are robust (prefer content-desc or text over index).
 
 **Example: `components/topics_page.ts`**
 
 ```javascript
+import { BASE_SELECTORS, OPERATION_TIMEOUTS } from '../constants';
+
 /**
- * Clicks the back button on the Topics page.
+ * Navigates back from the current topic to the topics list.
  * @param client - The WebdriverIO browser client.
- * @returns {Promise<void>} - Resolves when the back button is clicked.
+ * @returns {Promise<void>} - Resolves when the back navigation is complete.
  */
-export async function clickBackButton(client: Browser): Promise<void> {
-  const backButtonXPath = "//android.widget.ScrollView/android.view.ViewGroup/android.view.ViewGroup[1]/android.view.ViewGroup[1]/android.widget.ImageView";
-  const backButton = await client.$(backButtonXPath);
-  if (await backButton.waitForDisplayed({ timeout: 4000 }).catch(() => false)) {
+export async function navigateBackFromTopic(client: Browser): Promise<void> {
+  const backButton = await client.$(BASE_SELECTORS.BACK_BUTTON);
+  if (await backButton.waitForDisplayed({ timeout: OPERATION_TIMEOUTS.ELEMENT_WAIT }).catch(() => false)) {
     await backButton.click();
-    console.log("✅ Back button clicked on Topics page.");
+    console.log("✅ Successfully navigated back from topic page.");
   } else {
-    throw new Error("❌ Back button not found or not visible on Topics page.");
+    throw new Error("❌ Back button not found or not visible on topic page.");
   }
 }
+
+// Legacy alias for backward compatibility
+export const navigateBackFromTopic = navigateBackFromTopic;
 ```
 
 ---
@@ -186,45 +244,99 @@ export async function clickBackButton(client: Browser): Promise<void> {
 - Utilities live in [`utils/`](./android/testing-framework/utils/).
 - Add new helpers for gestures, color checks, API calls, etc.
 - Keep functions generic and reusable across many different pages.
+- **Import constants** from the centralized constants directory for consistency.
+- Use improved function names that clearly indicate their purpose.
 - Document each function with JSDoc comments.
 
 **Example: `utils/text_finder.ts`**
 
 ```javascript
+import { BASE_SELECTORS, OPERATION_TIMEOUTS, ERROR_MESSAGES } from '../constants';
+
 /**
- * Clicks an element by its content-desc and logs its content-desc.
+ * Finds and clicks an element by its content-desc attribute.
  * @param client WebdriverIO browser instance
  * @param contentDesc The content-desc of the element to click
  * @param elementName The name to use in logs and errors
+ * @returns {Promise<void>} Resolves when the element is clicked
  */
 export async function clickElementByContentDesc(client: Browser, contentDesc: string, elementName: string): Promise<void> {
     const selector = `//android.view.ViewGroup[@content-desc="${contentDesc}"]`;
     const elem = await client.$(selector);
-    const isDisplayed = await elem.waitForDisplayed({ timeout: 4000 }).catch(() => false);
+    const isDisplayed = await elem.waitForDisplayed({ timeout: OPERATION_TIMEOUTS.ELEMENT_WAIT }).catch(() => false);
     if (isDisplayed) {
         const desc = await elem.getAttribute('content-desc');
         await elem.click();
         console.log(`✅ Clicked element with content-desc: '${desc}'`);
     } else {
-        throw new Error(logError(elementNameNotFound(elementName)));
+        throw new Error(ERROR_MESSAGES.elementNotFound(elementName));
     }
 }
+
+// Legacy alias for backward compatibility
+export const clickElementByContentDescAttribute = clickElementByContentDesc;
 ```
 
 ---
 
 ## Common Patterns & Examples
 
+### Using Improved Function Names
+
+The framework has been updated with clearer function names. Legacy names are still supported through aliases:
+
+- **Text verification:** Use `verifyExactTitle` instead of `verifyExactTitle`, `findTextElement` instead of `findTextElement`
+- **Element interaction:** Use `clickElement` instead of generic click functions
+- **Topic navigation:** Use `verifyTopicTitle`, `verifyTopicCategory`, `verifyTopicBlurb` instead of `verifyTopicTitle`, `verifyTopicCategory`, `verifyTopicBlurb`
+
+### Common Patterns with Constants
+
 - **Checking for text:**  
-  Use `isTextOnPage` or `isTextContainedOnPage` from `text_finder.ts`.
+
+  ```javascript
+  import { TEXT_PATTERNS } from '../constants';
+  await findTextElement(client, TEXT_PATTERNS.SEARCH_PLACEHOLDER);
+  ```
+
 - **Clicking by content-desc:**  
-  Use `clickElementByContentDesc` from `text_finder.ts`.
+
+  ```javascript
+  import { BASE_SELECTORS } from '../constants';
+  await clickElementByContentDesc(client, BASE_SELECTORS.NAVBAR_SEARCH, 'Search button');
+  ```
+
 - **Swiping/scrolling:**  
-  Use `swipeUpOrDown` or `scrollTextIntoView` from `gesture.ts`.
+
+  ```javascript
+  import { SWIPE_GESTURES } from '../constants';
+  await swipeUpOrDown(client, SWIPE_GESTURES.STANDARD_SWIPE.direction, SWIPE_GESTURES.STANDARD_SWIPE.distance);
+  ```
+
 - **Pixel/color checks:**  
-  Use `checkViewGroupCenterPixelColor` or `checkElementByContentDescPixelColor` from `ui_checker.ts`.
+
+  ```javascript
+  import { SEFARIA_COLORS } from '../constants';
+  await checkViewGroupCenterPixelColor(client, selector, SEFARIA_COLORS.PRIMARY_BLUE);
+  ```
+
 - **API data:**  
-  Use `getCurrentParashatHashavua`, `getCurrentHaftarah`, etc. from `sefariaAPI.ts`.
+
+  ```javascript
+  // Functions remain the same but now use centralized error handling
+  const parashat = await getCurrentParashatHashavua();
+  const haftarah = await getCurrentHaftarah();
+  ```
+
+### Timeouts and Wait Times
+
+Always use constants for consistent timing:
+
+```javascript
+import { OPERATION_TIMEOUTS } from '../constants';
+
+await element.waitForDisplayed({ timeout: OPERATION_TIMEOUTS.ELEMENT_WAIT });
+await client.pause(OPERATION_TIMEOUTS.SHORT_DELAY);
+```
 
 ---
 

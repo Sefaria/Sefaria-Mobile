@@ -26,7 +26,7 @@ export const BACK_BUTTON_NOT_FOUND = '❌ Back button not found or not visible';
 /**
  * Logs the error message and returns it.
  * Use this in error message functions to ensure all errors are logged and returned.
- * USe it inside a throw new Error(logError()) when not using dynamic error messages (e.g textNotFound(text), ..)
+ * Use it inside a throw new Error(logError()) when not using dynamic error messages (e.g textNotFound(text), ..)
  * @param message - The error message to log and return.
  * @returns The same error message string.
  */
