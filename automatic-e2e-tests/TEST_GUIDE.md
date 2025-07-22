@@ -303,7 +303,7 @@ export async function clickElementByContentDesc(client: Browser, contentDesc: st
 
   ```javascript
   import { SEFARIA_COLORS } from '../constants';
-  await checkViewGroupCenterPixelColor(client, selector, SEFARIA_COLORS.PRIMARY_BLUE);
+  await validateViewGroupCenterColor(client, selector, SEFARIA_COLORS.PRIMARY_BLUE);
   ```
 
 - **API data:**  
