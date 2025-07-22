@@ -24,7 +24,7 @@ import {
   LibraryNavButton,
   SefariaProgressBar,
   SystemButton,
-  LoadingView,  
+  LoadingView,
 } from './Misc.js';
 import { GlobalStateContext, DispatchContext, STATE_ACTIONS, getTheme } from './StateManager';
 import styles from './Styles';
@@ -49,10 +49,10 @@ import { trackEvent } from './analytics/events';
 const DEBUG_MODE = false;
 
 /**
- * 
- * @param {array} options 
- * @param {func} onPress 
- * @param {array} values. optional list of values that should be passed to onPress if present. should be same length as options 
+ *
+ * @param {array} options
+ * @param {func} onPress
+ * @param {array} values. optional list of values that should be passed to onPress if present. should be same length as options
  */
 const generateOptions = (options, onPress, values=[]) => Sefaria.util.zip([options, values]).map(([o,v]) => ({
   name: o,
@@ -180,14 +180,30 @@ function abstractUpdateChecker(disableUpdateComponent, networkMode) {
   return f
 }
 
-const SettingsPage = ({ close, logout, openUri }) => {
+const SettingsPage = ({ close, logout, openUri, syncProfile }) => {
   const [numPressesDebug, setNumPressesDebug] = useState(0);
-  const { themeStr, interfaceLanguage, isLoggedIn, downloadNetworkSetting } = useContext(GlobalStateContext);
+  const globalState = useContext(GlobalStateContext);
+  const { themeStr, interfaceLanguage, isLoggedIn, downloadNetworkSetting } = globalState;
   const { isDisabledObj, setIsDisabledObj, onPackagePress } = usePkgState();
   const theme = getTheme(themeStr);
   const [updatesDisabled, setUpdatesDisabled] = useState(false);
   const checkUpdatesForSettings = abstractUpdateChecker(setUpdatesDisabled, downloadNetworkSetting);
   const [isProcessing, setIsProcessing] = useState(false);
+
+  useEffect(() => {
+    !!syncProfile && syncProfile();  // this calls syncProfileBound in ReaderApp.js whenver a setting is changed
+  }, [
+    globalState.interfaceLanguage,
+    globalState.textLanguage,
+    globalState.emailFrequency,
+    globalState.preferredCustom,
+    globalState.readingHistory,
+  ]);
+
+  const onLogOut = async () => {
+    await logout();
+    close();
+  }
 
   const deleteLibrary = async () => {
     DownloadTracker.cancelDownload(true);
@@ -216,7 +232,7 @@ const SettingsPage = ({ close, logout, openUri }) => {
                     }
                   }]);
                 })
-                .catch(e => {// If an error occurred, inform user and open an email window to allow sending us an email 
+                .catch(e => {// If an error occurred, inform user and open an email window to allow sending us an email
                   setIsProcessing(false);
                   Alert.alert("", strings.deleteAccountError, [{
                     text: strings.ok, onPress: () => {
@@ -224,7 +240,7 @@ const SettingsPage = ({ close, logout, openUri }) => {
                     }
                   }]);
             });
-          } 
+          }
         }
       ], {cancelable: true }
     );
@@ -248,7 +264,7 @@ const SettingsPage = ({ close, logout, openUri }) => {
         <View>
           <Text style={[langStyle, styles.settingsSectionHeader, theme.tertiaryText]}>{strings.offlineAccess}</Text>
         </View>
-        
+
         {wereBooksDownloaded() ?
           <View>
             <SystemButton
@@ -309,7 +325,7 @@ const SettingsPage = ({ close, logout, openUri }) => {
           <Text style={[langStyle, styles.settingsSectionHeader, theme.tertiaryText]}>{strings.system}</Text>
         </TouchableWithoutFeedback>
         { isLoggedIn ?
-          <SystemButton onPress={logout} text={strings.logout} isHeb={interfaceLanguage === "hebrew"} />
+          <SystemButton onPress={onLogOut} text={strings.logout} isHeb={interfaceLanguage === "hebrew"} />
           : null
         }
         <SystemButton onPress={()=>{ openUri('https://www.sefaria.org/terms'); }} text={strings.termsAndPrivacy} isHeb={interfaceLanguage === "hebrew"} />
@@ -324,7 +340,7 @@ const SettingsPage = ({ close, logout, openUri }) => {
                   { strings.deleteAccount }
             </Text>)
           : null
-        }    
+        }
       </ScrollView>
     </View>
   );
@@ -333,6 +349,7 @@ SettingsPage.propTypes = {
   close:   PropTypes.func.isRequired,
   logout:  PropTypes.func.isRequired,
   openUri: PropTypes.func.isRequired,
+  syncProfile: PropTypes.func,
 };
 
 const ButtonToggleSection = ({ langStyle }) => {
