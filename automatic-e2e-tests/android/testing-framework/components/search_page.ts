@@ -49,25 +49,20 @@ export async function selectFromList(client: Browser, text: string): Promise<boo
   const scrollView = await client.$(BASE_SELECTORS.scrollView());
   const textViewSelector = TEXT_SELECTORS.exactText(text);
 
-  try {
-    if (await scrollView.isDisplayed()) {
-      const item = await scrollView.$(textViewSelector);
-      
-      await item.waitForDisplayed({ timeout: OPERATION_TIMEOUTS.SEARCH_RESULTS });
-
-      if (await item.isDisplayed()) {
-        await item.click();
-        console.debug(`Item with text "${text}" clicked!`);
-        return true;
-      } else {
-        throw new Error(DYNAMIC_ERRORS.textNotFound(text));
-      }
-    } else {
-      throw new Error(logError(`${STATIC_ERRORS.SCROLLVIEW_NOT_VISIBLE} (${text} has no results in search).`));
-    }
-  } catch (error) {
-    throw new Error(DYNAMIC_ERRORS.errorSelectingItemByText(text, error));
+  // Wait for the scroll view to be visible
+  const isScrollViewVisible = await scrollView.isDisplayed();
+  if (!isScrollViewVisible) {
+    throw new Error(logError(`${STATIC_ERRORS.SCROLLVIEW_NOT_VISIBLE} (${text} has no results in search).`));
   }
 
-  return false;
+  const item = await scrollView.$(textViewSelector);
+  await item.waitForDisplayed({ timeout: OPERATION_TIMEOUTS.SEARCH_RESULTS });
+
+  if (await item.isDisplayed()) {
+    await item.click();
+    console.debug(`Item with text "${text}" clicked!`);
+    return true;
+  } else {
+    throw new Error(DYNAMIC_ERRORS.textNotFound(text));
+  }
 }

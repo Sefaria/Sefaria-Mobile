@@ -229,6 +229,31 @@ describe('e2e Sefaria Mobile regression tests', function () {
     await verifyTitleContains(client, dafNumber!);
   });
 
+  it('TC021: Texts tab book category sub-page', async function () {
+    // Click on Mishna
+    let mishna = await findHeaderInFirstViewGroup(client, MISHNAH.en);
+    await mishna.click();
+
+    // check we are on the Mishna page
+    await verifyExactTitle(client, "MISHNAH");
+
+    // Check if part of the blurb is present
+    await findTextContaining(client, MISHNAH.blurb);
+
+    // Check if dividing line under the First SEDER ZERAIM is present
+    await validateViewGroupCenterColor(client, 2, SEFARIA_COLORS.LINE_GRAY); 
+
+    // Check if the sefers below the sub categories (e.g. Seder Zeraim) has appropriate short blurb 
+    await findElementByContentDesc(client, MISHNAH.content_desc.berakot);
+    await findElementByContentDesc(client, MISHNAH.content_desc.peah);
+
+    // Scroll down the screen to see all the Sederim are present
+    for (const seder of MISHNAH.sedarim) {
+      await swipeIntoView(client, SWIPE_CONFIG.DIRECTIONS.UP, seder, SWIPE_ATTEMPTS.MAX_SCROLL_ATTEMPTS, SWIPE_CONFIG.TEXT_SCROLL_DISTANCE);
+      await findTextElement(client, seder);
+    }
+  });
+
   it('TC022: Dedication tab and results', async function () {
     // Scroll strongly all the way to button
     await swipeUpOrDown(client, SWIPE_CONFIG.DIRECTIONS.UP, SWIPE_CONFIG.LONG_DISTANCE, SWIPE_CONFIG.TEXT_SCROLL_DISTANCE);
@@ -287,31 +312,6 @@ describe('e2e Sefaria Mobile regression tests', function () {
     // Verify we are back in English
     await findHeaderInFirstViewGroup(client, 'Account');
 
-  });
-
-  it('TC021: Texts tab book category sub-page', async function () {
-    // Click on Mishna
-    let mishna = await findHeaderInFirstViewGroup(client, MISHNAH.en);
-    await mishna.click();
-
-    // check we are on the Mishna page
-    await verifyExactTitle(client, "MISHNAH");
-
-    // Check if part of the blurb is present
-    await findTextContaining(client, MISHNAH.blurb);
-
-    // Check if dividing line under the First SEDER ZERAIM is present
-    await validateViewGroupCenterColor(client, 2, SEFARIA_COLORS.LINE_GRAY); 
-
-    // Check if the sefers below the sub categories (e.g. Seder Zeraim) has appropriate short blurb 
-    await findElementByContentDesc(client, MISHNAH.content_desc.berakot);
-    await findElementByContentDesc(client, MISHNAH.content_desc.peah);
-
-    // Scroll down the screen to see all the Sederim are present
-    for (const seder of MISHNAH.sedarim) {
-      await swipeIntoView(client, SWIPE_CONFIG.DIRECTIONS.UP, seder, SWIPE_ATTEMPTS.DEFAULT_MAX_ATTEMPTS, SWIPE_CONFIG.TEXT_SCROLL_DISTANCE);
-      await findTextElement(client, seder);
-    }
   });
 
   it('TC023: Topics tab comprehensive test', async function () {

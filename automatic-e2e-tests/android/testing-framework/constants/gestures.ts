@@ -13,7 +13,8 @@
 // Swipe distances and directions
 export const SWIPE_CONFIG = {
   // Standard swipe distances
-  SHORT_DISTANCE: 200,
+  SMALL_DISTANCE: 200,
+  SHORT_DISTANCE: 275,
   MEDIUM_DISTANCE: 500,
   LONG_DISTANCE: 1000,
   
@@ -74,7 +75,7 @@ export const SWIPE_ATTEMPTS = {
   THOROUGH_ATTEMPTS: 10,       // For thorough searching
   
   // Element finding configuration
-  MAX_SCROLL_ATTEMPTS: 5,      // Maximum attempts to scroll to find element
+  MAX_SCROLL_ATTEMPTS: 7,      // Maximum attempts to scroll to find element
   SEARCH_RETRY_COUNT: 3,       // Retries for element searching
 } as const;
 
