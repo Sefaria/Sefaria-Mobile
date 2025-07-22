@@ -6,7 +6,8 @@ import {
   View,
   Text,
   Image,
-  FlatList, TouchableOpacity,
+  FlatList,
+  Platform,
 } from 'react-native';
 
 import { Topic } from './Topic';

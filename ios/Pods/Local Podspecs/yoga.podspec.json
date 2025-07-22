@@ -11,7 +11,7 @@
   "authors": "Facebook",
   "source": {
     "git": "https://github.com/facebook/react-native.git",
-    "tag": "v0.77.2"
+    "tag": "v0.79.5"
   },
   "module_name": "yoga",
   "header_dir": "yoga",
@@ -78,6 +78,7 @@
     "yoga/style/SmallValueBuffer.h",
     "yoga/style/Style.h",
     "yoga/style/StyleLength.h",
+    "yoga/style/StyleSizeLength.h",
     "yoga/style/StyleValueHandle.h",
     "yoga/style/StyleValuePool.h"
   ],

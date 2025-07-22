@@ -37,7 +37,7 @@ ext {
     buildToolsVersion = "35.0.0"
     minSdkVersion = 24
     compileSdkVersion = 35
-    targetSdkVersion = 34
+    targetSdkVersion = 35
     supportLibVersion = "35.0.0"
     react = [
       extraPackagerArgs: ['--sourcemap-output', file("app/build/generated/index.android.js.map")]
@@ -51,3 +51,4 @@ dependencies {
 }
 
 apply plugin: "com.facebook.react.rootproject"
+apply plugin: "expo-root-project"

@@ -1,4 +1,5 @@
 import { useContext, useCallback } from 'react';
+import {Platform} from "react-native";
 import { GlobalStateContext, getTheme } from './StateManager';
 import { CSS_CLASS_STYLES } from './Misc';
 import styles from './Styles.js';
