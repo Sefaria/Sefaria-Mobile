@@ -1,7 +1,19 @@
+/**
+ * ──────────────────────────────────────────────────────────────
+ * FILE ROLE: Reader Page Component Helpers for Testing Framework
+ * 
+ * DESCRIPTION:
+ *  - Provides functions to interact with and validate the app's reader page content.
+ *  - Includes helpers to verify page titles, check text content, and validate accessibility elements.
+ *  - Uses centralized selectors and constants for consistent element identification.
+ * USAGE:
+ *  - Import and use in tests that need to validate reader page content, titles, or text elements.
+ *  - Essential for text verification and content validation in reading-related test scenarios.
+ * ──────────────────────────────────────────────────────────────
+ */
+
 import type { Browser } from 'webdriverio';
-import { DYNAMIC_ERRORS, STATIC_ERRORS, logError } from '../constants/error_constants';
-import { READER_SELECTORS, ACCESSIBILITY_PATTERNS } from '../constants/selectors';
-import { OPERATION_TIMEOUTS } from '../constants/timeouts';
+import { DYNAMIC_ERRORS, STATIC_ERRORS, logError, READER_SELECTORS, ACCESSIBILITY_PATTERNS,OPERATION_TIMEOUTS } from '../constants';
 
 /**
  * Checks if the TextView title inside the ScrollView has the given text.

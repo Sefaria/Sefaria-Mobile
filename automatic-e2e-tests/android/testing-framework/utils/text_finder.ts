@@ -12,10 +12,9 @@
 
 
 import type { Browser, ChainablePromiseElement } from 'webdriverio';
-import { DYNAMIC_ERRORS, STATIC_ERRORS, logError } from '../constants/error_constants';
 import { escapeForRegex } from './helper_functions';
-import { TEXT_SELECTORS, TOPICS_SELECTORS } from '../constants/selectors';
-import { ELEMENT_TIMEOUTS } from '../constants/timeouts';
+import { DYNAMIC_ERRORS, STATIC_ERRORS, logError, TEXT_SELECTORS, TOPICS_SELECTORS, ELEMENT_TIMEOUTS } from '../constants';
+
 
 
 // Functions to help locate Text on Page

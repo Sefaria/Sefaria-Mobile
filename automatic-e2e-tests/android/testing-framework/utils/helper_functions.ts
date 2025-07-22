@@ -10,9 +10,7 @@
  * ──────────────────────────────────────────────────────────────
  */
 
-import { logError } from '../constants/error_constants';
-import { HEBREW_MONTHS } from '../constants/text_constants';
-
+import { logError, HEBREW_MONTHS } from '../constants';
 
 
 /**

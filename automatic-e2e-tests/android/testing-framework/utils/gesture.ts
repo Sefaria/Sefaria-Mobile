@@ -12,9 +12,10 @@
  */
 
 
-import { DYNAMIC_ERRORS, SUCCESS_MESSAGES } from '../constants/error_constants';
-import { SWIPE_CONFIG, GESTURE_TIMING, TOUCH_CONFIG, SWIPE_ATTEMPTS } from '../constants/gestures';
-import { TEXT_SELECTORS } from '../constants/selectors';
+import { DYNAMIC_ERRORS, SUCCESS_MESSAGES,
+  SWIPE_CONFIG, GESTURE_TIMING, TOUCH_CONFIG, SWIPE_ATTEMPTS,
+  TEXT_SELECTORS } from '../constants';
+
 
 // Cache for screen dimensions - will be set once per test session
 let screenDimensions: { width: number; height: number; x: number; startY: number } | null = null;

@@ -4,7 +4,6 @@
  * 
  * DESCRIPTION:
  *  - Helper functions to detect and interact with offline popups in the app.
- *  - Uses centralized constants and selectors for consistency and maintainability.
  * USAGE:
  *  - Used in tests to handle network/offline dialogs.
  * ──────────────────────────────────────────────────────────────
@@ -12,8 +11,7 @@
 
 
 import type { Browser } from 'webdriverio';
-import { ELEMENT_TIMEOUTS } from '../constants/timeouts';
-import { OFFLINE_POPUP_SELECTORS } from '../constants/selectors';
+import { ELEMENT_TIMEOUTS, OFFLINE_POPUP_SELECTORS } from '../constants';
 
 /**
  * Waits for the popup with resource-id "org.sefaria.sefaria:id/action_bar_root" to appear within a timeout.

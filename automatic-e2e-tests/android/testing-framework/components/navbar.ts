@@ -12,9 +12,8 @@
 
 
 import type { Browser } from 'webdriverio';
-import { STATIC_ERRORS, SUCCESS_MESSAGES, logError } from '../constants/error_constants';
-import { NAVIGATION_SELECTORS } from '../constants/selectors';
-import { OPERATION_TIMEOUTS } from '../constants/timeouts';
+import { STATIC_ERRORS, SUCCESS_MESSAGES, logError, NAVIGATION_SELECTORS, OPERATION_TIMEOUTS } from '../constants';
+
 
 
 /**

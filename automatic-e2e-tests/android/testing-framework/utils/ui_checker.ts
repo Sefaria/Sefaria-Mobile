@@ -13,11 +13,8 @@
 import type { Browser } from 'webdriverio';
 import { PNG } from 'pngjs';
 import * as fs from 'fs';
-import { DYNAMIC_ERRORS, logError } from '../constants/error_constants';
 import { hexToRgb, colorsAreClose } from './helper_functions';
-import { VIEWGROUP_SELECTORS, TEXT_SELECTORS } from '../constants/selectors';
-import { ELEMENT_TIMEOUTS } from '../constants/timeouts';
-import { COLOR_THRESHOLDS } from '../constants/colors';
+import { DYNAMIC_ERRORS, logError, VIEWGROUP_SELECTORS, TEXT_SELECTORS, ELEMENT_TIMEOUTS, COLOR_THRESHOLDS } from '../constants';
 
 
 /**

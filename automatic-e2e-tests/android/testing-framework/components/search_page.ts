@@ -12,9 +12,7 @@
 
 
 import type { Browser } from 'webdriverio';
-import { STATIC_ERRORS, DYNAMIC_ERRORS, logError } from '../constants/error_constants';
-import { BASE_SELECTORS, TEXT_SELECTORS } from '../constants/selectors';
-import { OPERATION_TIMEOUTS } from '../constants/timeouts';
+import { STATIC_ERRORS, DYNAMIC_ERRORS, logError,BASE_SELECTORS, TEXT_SELECTORS, OPERATION_TIMEOUTS  } from '../constants';
 
 /**
  * Types into the search bar character by character with a delay to simulate real user input.

@@ -5,7 +5,6 @@
  * DESCRIPTION:
  *  - Provides functions to interact with and validate the Topics page.
  *  - Includes helpers for clicking tabs, verifying titles, categories, blurbs, and menu actions.
- *  - Uses centralized constants and selectors for consistency and maintainability.
  * USAGE:
  *  - Import and use in tests that navigate or validate the Topics section.
  * ──────────────────────────────────────────────────────────────
@@ -13,17 +12,15 @@
 
 
 import type { Browser, ChainablePromiseElement } from 'webdriverio';
-import { logError, STATIC_ERRORS } from '../constants/error_constants';
 import { assertMatch } from '../utils/helper_functions';
 import { clickElementByContentDesc } from '../utils/text_finder';
-import { ELEMENT_TIMEOUTS } from '../constants/timeouts';
-import { TOPICS_SELECTORS } from '../constants/selectors';
+import { logError, STATIC_ERRORS, ELEMENT_TIMEOUTS, TOPICS_SELECTORS } from '../constants';
+
 
 // || Helper Functions for topics_page ||
 
 /**
  * Gets a TextView element from the Topics page by index.
- * Uses centralized selectors for consistent element identification.
  * @param client WebdriverIO browser instance
  * @param index The index of the TextView to get (1-based)
  * @returns ChainablePromiseElement The TextView element at the specified index
