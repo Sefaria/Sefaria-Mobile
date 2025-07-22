@@ -112,6 +112,7 @@ import { waitForNavBar, clickNavBarItem } from '../components/navbar';
 import { handleOfflinePopUp } from '../utils/offlinePopUp';
 import { getCleanTestTitle } from '../utils/helper_functions';
 import { findHeaderInFirstViewGroup } from '../utils/text_finder';
+import { NAVBAR_SELECTORS } from '../constants/selectors';
 
 // Required import: ensures logs are automatically written to the logs-test/ directory
 import './test_init'; 
@@ -150,7 +151,7 @@ describe('Sefaria Mobile Regression Tests', function () {
   });
 
   it('should navigate to Account tab', async function () {
-    await clickNavBarItem(client, 'Account');
+    await clickNavBarItem(client, NAVBAR_SELECTORS.navItems.account);
     await findHeaderInFirstViewGroup(client, 'Account');
   });
 });

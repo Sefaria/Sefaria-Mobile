@@ -12,7 +12,7 @@ import { checkViewGroupCenterPixelColor, checkElementByContentDescPixelColor } f
 import { findTextElement, findHeaderInFirstViewGroup, findTextContaining, findElementByContentDesc } from '../utils/text_finder';
 import { getCurrentParashatHashavua, getCurrentHaftarah, getCurrentDafAWeek  } from '../utils/sefariaAPI'
 import { getHebrewDate, getCleanTestTitle } from '../utils/helper_functions'
-import { BAMIDBAR_1, ALEINU,MISHNAH , DYNAMIC_ERRORS,TEST_TIMEOUTS, SEFARIA_COLORS, SWIPE_CONFIG } from '../constants';
+import { BAMIDBAR_1, ALEINU,MISHNAH , DYNAMIC_ERRORS,TEST_TIMEOUTS, SEFARIA_COLORS, SWIPE_CONFIG, NAVBAR_SELECTORS } from '../constants';
 
 import './test_init'; // Allows Logging and Error Handling to be written to logs_test/ directory
 
@@ -65,7 +65,7 @@ describe('e2e Sefaria Mobile regression tests', function () {
 
   it('T001: Navigate to Sefat Emet, Genesis, Genesis and validate text', async function () {
     // Click on Search Icon
-    await clickNavBarItem(client, 'Search');
+    await clickNavBarItem(client, NAVBAR_SELECTORS.navItems.search);
     await findHeaderInFirstViewGroup(client, 'Search');
     
     // Remove last letter of what you want to search to cause the list to pop up
@@ -260,7 +260,7 @@ describe('e2e Sefaria Mobile regression tests', function () {
     await findHeaderInFirstViewGroup(client, 'Browse the Library');
 
     // navigate to Account
-    await clickNavBarItem(client, 'Account');
+    await clickNavBarItem(client, NAVBAR_SELECTORS.navItems.account);
     await findHeaderInFirstViewGroup(client, 'Account');
 
     // Change language to Hebrew
@@ -316,7 +316,7 @@ describe('e2e Sefaria Mobile regression tests', function () {
 
   it('TC023: Topics tab comprehensive test', async function () {
     // Click on Topics
-    await clickNavBarItem(client, 'Topics');
+    await clickNavBarItem(client, NAVBAR_SELECTORS.navItems.topics);
     // Check if we are on the Topics page
     await findHeaderInFirstViewGroup(client, 'Explore by Topic');
 

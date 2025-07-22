@@ -43,6 +43,17 @@ export const NAVIGATION_SELECTORS = {
   closePopup: '//android.view.ViewGroup[@content-desc="Close"]/android.widget.ImageView',
 } as const;
 
+// Content selectors for Navigation Bar
+export const NAVBAR_SELECTORS = {
+    navItems: {
+        texts: 'Texts',
+        topics: 'Topics',
+        search: 'Search',
+        saved: 'Saved',
+        account: 'Account',
+    },
+} as const;
+
 // Reader page selectors
 export const READER_SELECTORS = {
   scrollView: BASE_SELECTORS.scrollView(),
@@ -69,20 +80,6 @@ export const TOPICS_SELECTORS = {
   contentDesc: {
     sources: "Sources",
     sheets: "Sheets",
-  },
-} as const;
-
-// Content description selectors  
-export const CONTENT_DESC_SELECTORS = {
-  byName: (name: string) => `android=new UiSelector().description("${name}")`,
-  closeButton: 'Close',
-  openDisplaySettings: 'Open display settings',
-  navItems: {
-    texts: 'Texts',
-    topics: 'Topics', 
-    search: 'Search',
-    saved: 'Saved',
-    account: 'Account',
   },
 } as const;
 

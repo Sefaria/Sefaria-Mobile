@@ -47,5 +47,5 @@ export async function toggleLanguageButton(client: Browser, isEnglish: boolean =
       throw new Error(logError(STATIC_ERRORS.ELEMENT_NOT_VISIBLE + ` (toggle language button for ${targetLanguage})`));
     }
     await toggleLanguageButton.click();
-    console.debug(`Pressed toggle language button to switch to ${targetLanguage}.`);
+    console.debug(`Pressed toggle language button: switching to ${targetLanguage}.`);
 }
